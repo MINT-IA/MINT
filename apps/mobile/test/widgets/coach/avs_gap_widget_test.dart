@@ -56,7 +56,7 @@ void main() {
     expect(find.byType(Slider), findsNothing);
   });
 
-  testWidgets('CI years show only the raw contribution-duration benchmark',
+  testWidgets('CI years stay a count to examine without a personal effect',
       (tester) async {
     await tester.pumpWidget(
       buildWidget(ciObservedMissingContributionYears: 4),
@@ -68,13 +68,13 @@ void main() {
       findsOneWidget,
     );
     expect(find.textContaining('certifiées'), findsNothing);
-    expect(find.textContaining('4 sur 44, soit 9.1 %'), findsOneWidget);
     expect(
       find.textContaining(
-        "Ce pourcentage n'est pas une réduction de ta rente",
+        'Ce nombre ne détermine ni ta durée complète de cotisation',
       ),
       findsOneWidget,
     );
+    expect(find.textContaining(RegExp(r'44|%')), findsNothing);
     expect(
       find.textContaining(
         RegExp(r'minimum|minimale|minimal|au moins', caseSensitive: false),
@@ -96,7 +96,8 @@ void main() {
 
     expect(find.byKey(const Key('expat_avs_gap_documented')), findsOneWidget);
     expect(find.byKey(const Key('expat_avs_gap_unknown')), findsNothing);
-    expect(find.textContaining('0 sur 44, soit 0.0 %'), findsOneWidget);
+    expect(find.textContaining("extrait CI : 0"), findsOneWidget);
+    expect(find.textContaining(RegExp(r'0\s*(sur|/|%)')), findsNothing);
   });
 
   test('French CI wording matches the verified Swiss verdict exactly',
@@ -108,8 +109,8 @@ void main() {
       "Années à examiner d'après l'extrait CI : 4",
     );
     expect(
-      l.expatAvsCiRawDurationBenchmark(4, '9.1'),
-      "Repère brut de durée : 4 sur 44, soit 9.1 %. Ce pourcentage n'est pas une réduction de ta rente. La caisse détermine d'abord quelles périodes peuvent être prises en compte, puis fixe l'échelle et le montant officiels. Le montant dépend aussi du revenu annuel moyen déterminant et des bonifications reconnues.",
+      l.expatAvsCiObservedMissingYearsBody,
+      "Ce nombre ne détermine ni ta durée complète de cotisation, ni l’échelle, ni une réduction de ta rente. La caisse vérifie les périodes qui peuvent être prises en compte, puis fixe l’échelle et le montant officiels. Le montant dépend aussi du revenu annuel moyen déterminant et des bonifications reconnues.",
     );
   });
 

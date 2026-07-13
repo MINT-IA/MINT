@@ -1,5 +1,4 @@
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'dart:math' as math;
 
 /// Librairie d'explications pédagogiques pour le rapport financier
@@ -203,89 +202,6 @@ class FinancialExplanations {
         ],
       ),
     ];
-  }
-
-  /// Explication des lacunes AVS (1/44)
-  static List<ExplanationSection> avsGapExplanation(
-    int contributionYears,
-    bool isMarried,
-    int? spouseYears,
-  ) {
-    final gap = 44 - contributionYears;
-    final reductionPct = AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1);
-
-    final sections = [
-      ExplanationSection(
-        title: '📉 L\'impact des lacunes AVS',
-        content:
-            'Le système AVS suisse est basé sur 44 années de cotisation (de 21 à 65 ans). Chaque année manquante réduit ta rente de façon proportionnelle et définitive.',
-        keyPoints: [
-          const KeyPoint(
-            'Rente complète = 44 années de cotisation non-interrompues',
-          ),
-          const KeyPoint(
-            '1 année manquante = -1/44e de rente (~2.3% en moins)',
-            isPositive: false,
-          ),
-          if (gap > 0)
-            KeyPoint(
-              'Ton impact : -$reductionPct% sur ta future rente AVS',
-              isPositive: false,
-            ),
-        ],
-      ),
-      const ExplanationSection(
-        title: '🌍 Séjours à l\'étranger',
-        content:
-            'Partir à l\'étranger sans cotiser au moins le minimum AVS (env. CHF 514/an) crée une lacune irrécupérable après 5 ans.',
-        keyPoints: [
-          KeyPoint(
-            'Chaque année à l\'étranger sans cotisation = -2.3% de rente AVS à vie',
-            isPositive: false,
-          ),
-          KeyPoint(
-            'Solution : Cotiser à l\'AVS facultative ou compenser par un 3e pilier plus fort',
-          ),
-        ],
-      ),
-    ];
-
-    if (isMarried && spouseYears != null) {
-      final spouseGap = 44 - spouseYears;
-      if (spouseGap > 0) {
-        final spouseReduction = AvsCalculator.reductionPercentageFromGap(spouseGap).toStringAsFixed(1);
-        sections.add(ExplanationSection(
-          title: '💍 Impact sur le couple',
-          content:
-              'Pour les couples mariés, les rentes sont plafonnées à 150% d\'une rente simple (max CHF 3\'675). Les lacunes de l\'un ou l\'autre réduisent ce plafond.',
-          keyPoints: [
-            KeyPoint(
-              'Lacune conjoint : -$spouseReduction% sur sa part de rente',
-              isPositive: false,
-            ),
-          ],
-        ));
-      }
-    }
-
-    sections.add(const ExplanationSection(
-      title: '✅ Que faire ?',
-      content:
-          'Il est possible de racheter les 5 dernières années manquantes si tu étais domicilié en Suisse.',
-      keyPoints: [
-        KeyPoint(
-          'Commande un extrait de compte individuel (CI) gratuit',
-        ),
-        KeyPoint(
-          'Vérifie les années avec ta caisse de compensation',
-        ),
-        KeyPoint(
-          'Rachète les lacunes récentes (< 5 ans) si possible',
-        ),
-      ],
-    ));
-
-    return sections;
   }
 
   /// Explication des subsides d'assurance maladie (Lien Groupe Mutuel)

@@ -10725,7 +10725,7 @@ abstract class S {
   /// No description provided for @dataBlockAvsDesc.
   ///
   /// In fr, this message translates to:
-  /// **'L\'extrait AVS confirme tes années de cotisation effectives. Des lacunes (séjour à l\'étranger, années manquantes) réduisent ta rente AVS.'**
+  /// **'L’extrait CI documente les périodes et revenus enregistrés. La caisse de compensation examine ces périodes et fixe le résultat officiel.'**
   String get dataBlockAvsDesc;
 
   /// No description provided for @dataBlockAvsCta.
@@ -32951,7 +32951,7 @@ abstract class S {
   /// No description provided for @pulseNavExpatGapsDetail.
   ///
   /// In fr, this message translates to:
-  /// **'Chaque année manquante = -2.3 % de rente à vie.'**
+  /// **'Périodes du CI à examiner avec la caisse; aucun effet personnel n’est calculé.'**
   String get pulseNavExpatGapsDetail;
 
   /// No description provided for @pulseNavExpatGapsSubtitle.
@@ -34266,7 +34266,7 @@ abstract class S {
   /// No description provided for @reportActionDescAvsCheck.
   ///
   /// In fr, this message translates to:
-  /// **'Évite de perdre jusqu’à 38’000 CHF de rente à vie.'**
+  /// **'Commande ton extrait CI et fais vérifier les périodes par ta caisse de compensation.'**
   String get reportActionDescAvsCheck;
 
   /// No description provided for @reportActionDescDette.
@@ -41495,11 +41495,11 @@ abstract class S {
   /// **'Années à examiner d\'après l\'extrait CI : {years}'**
   String expatAvsCiObservedMissingYearsTitle(int years);
 
-  /// No description provided for @expatAvsCiRawDurationBenchmark.
+  /// No description provided for @expatAvsCiObservedMissingYearsBody.
   ///
   /// In fr, this message translates to:
-  /// **'Repère brut de durée : {years} sur 44, soit {percent} %. Ce pourcentage n\'est pas une réduction de ta rente. La caisse détermine d\'abord quelles périodes peuvent être prises en compte, puis fixe l\'échelle et le montant officiels. Le montant dépend aussi du revenu annuel moyen déterminant et des bonifications reconnues.'**
-  String expatAvsCiRawDurationBenchmark(int years, String percent);
+  /// **'Ce nombre ne détermine ni ta durée complète de cotisation, ni l’échelle, ni une réduction de ta rente. La caisse vérifie les périodes qui peuvent être prises en compte, puis fixe l’échelle et le montant officiels. Le montant dépend aussi du revenu annuel moyen déterminant et des bonifications reconnues.'**
+  String get expatAvsCiObservedMissingYearsBody;
 
   /// No description provided for @expatAvsVoluntaryUnknownTitle.
   ///

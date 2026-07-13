@@ -5976,7 +5976,7 @@ class SEs extends S {
 
   @override
   String get dataBlockAvsDesc =>
-      'El extracto AVS confirma tus años de cotización efectivos. Las lagunas (estancia en el extranjero, años faltantes) reducen tu renta AVS.';
+      'El extracto CI documenta los períodos e ingresos registrados. La caja de compensación revisa esos períodos y fija el resultado oficial.';
 
   @override
   String get dataBlockAvsCta => 'Solicitar mi extracto AVS';
@@ -18771,7 +18771,7 @@ class SEs extends S {
 
   @override
   String get pulseNavExpatGapsDetail =>
-      'Cada año faltante = -2.3 % de renta de por vida.';
+      'Períodos del extracto CI que debe revisar la caja de compensación; no se calcula ningún efecto personal.';
 
   @override
   String get pulseNavExpatGapsSubtitle => 'de cotizaciones faltan en tu AVS.';
@@ -19525,7 +19525,7 @@ class SEs extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Evita perder hasta CHF 38’000 de pensión de por vida.';
+      'Solicita tu extracto CI y pide a la caja de compensación que revise los períodos.';
 
   @override
   String get reportActionDescDette =>
@@ -23734,9 +23734,8 @@ class SEs extends S {
   }
 
   @override
-  String expatAvsCiRawDurationBenchmark(int years, String percent) {
-    return 'Referencia bruta de duración de cotización: $years de 44, es decir, $percent %. Este porcentaje no es una reducción de tu pensión. La caja de compensación determina primero qué períodos pueden tenerse en cuenta y después fija la escala y el importe oficiales. El importe también depende de los ingresos anuales medios determinantes y de las bonificaciones reconocidas.';
-  }
+  String get expatAvsCiObservedMissingYearsBody =>
+      'Este número no determina ni tu período completo de cotización, ni tu escala, ni una reducción de tu pensión. La caja de compensación comprueba qué períodos pueden tenerse en cuenta y después fija la escala y el importe oficiales. El importe también depende de los ingresos anuales medios determinantes y de las bonificaciones reconocidas.';
 
   @override
   String get expatAvsVoluntaryUnknownTitle =>

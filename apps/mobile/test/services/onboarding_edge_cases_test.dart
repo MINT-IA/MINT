@@ -181,59 +181,9 @@ void main() {
   //  GROUP 2 — AvsCalculator: boundary inputs
   // ══════════════════════════════════════════════════════════
 
-  group('AvsCalculator — boundary/edge inputs', () {
-    test('OE2.1 age 18 → computeMonthlyRente does not crash', () {
-      expect(
-        () => AvsCalculator.computeMonthlyRente(
-          currentAge: 18,
-          retirementAge: 65,
-          grossAnnualSalary: 24000,
-        ),
-        returnsNormally,
-      );
-    });
-
-    test('OE2.2 age 18 → computeMonthlyRente returns a non-negative value', () {
-      // At 18, contribution years = 18-20 = -2 → clamped to 0.
-      // Future years = 65-18 = 47 → capped at 44.
-      // gapFactor = 44/44 = 1.0 → full rente based on salary.
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 18,
-        retirementAge: 65,
-        grossAnnualSalary: 24000,
-      );
-      expect(rente, greaterThanOrEqualTo(0.0));
-      expect(rente.isNaN, isFalse);
-      expect(rente.isInfinite, isFalse);
-    });
-
-    test('OE2.3 age 18, salary 0 → renteFromRAMD returns 0 (no salary data)', () {
-      // renteFromRAMD(0) returns 0 per AvsCalculator contract.
-      final rente = AvsCalculator.renteFromRAMD(0);
-      expect(rente, closeTo(0.0, 0.001),
-          reason: 'salary=0 → no RAMD data → rente=0 per contract');
-    });
-
-    test('OE2.4 age 18, salary 0 → computeMonthlyRente returns 0', () {
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 18,
-        retirementAge: 65,
-        grossAnnualSalary: 0,
-      );
-      expect(rente, closeTo(0.0, 0.001),
-          reason: 'salary=0 → no RAMD → rente=0');
-    });
-
-    test('OE2.5 large lacune (> total years) → rente is 0, not negative', () {
-      // 50 lacune years on a 44-year career → effectiveYears clamped to 0
-      // → gapFactor=0 → rente=0. Must not be negative.
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 40,
-        retirementAge: 65,
-        lacunes: 50, // exceeds full career
-        grossAnnualSalary: 80000,
-      );
-      expect(rente, greaterThanOrEqualTo(0.0));
+  group('AvsCalculator.renteFromRAMD — boundary input', () {
+    test('OE2.1 salary 0 returns 0 when RAMD data is absent', () {
+      expect(AvsCalculator.renteFromRAMD(0), closeTo(0.0, 0.001));
     });
   });
 

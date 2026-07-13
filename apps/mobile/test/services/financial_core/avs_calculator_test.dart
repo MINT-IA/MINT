@@ -2,129 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/avs_reference_age.dart';
-import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 import 'avs_couple_test_fixtures.dart';
 
 void main() {
-  group('AvsCalculator.computeMonthlyRente', () {
-    test('high income full career → max rente 2520', () {
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 120000, // > 88200 → max
-      );
-      expect(rente, closeTo(avsRenteMaxMensuelle, 1));
-    });
-
-    test('low income full career → RAMD interpolation', () {
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 40000, // Between 14700 and 88200
-      );
-      expect(rente, greaterThan(avsRenteMinMensuelle));
-      expect(rente, lessThan(avsRenteMaxMensuelle));
-    });
-
-    test('zero income → zero rente (no salary data)', () {
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 0,
-      );
-      expect(rente, equals(0.0));
-    });
-
-    test('expat arrivalAge 35 → fewer contribution years', () {
-      final native = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 100000,
-      );
-      final expat = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        arrivalAge: 35,
-        grossAnnualSalary: 100000,
-      );
-      expect(expat, lessThan(native));
-      // Expat: 45-35=10 current + 20 future = 30/44 ≈ 68%
-      // Native: 45-20=25 current + 20 future = 44/44 = 100%
-      expect(expat / native, closeTo(30 / 44, 0.05));
-    });
-
-    test('early retirement 63 → 13.6% penalty', () {
-      final normal = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 65,
-        grossAnnualSalary: 100000,
-      );
-      final early = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 63,
-        grossAnnualSalary: 100000,
-      );
-      // 2 years early × 6.8% = 13.6% penalty
-      expect(early / normal, closeTo(1 - 0.068 * 2, 0.02));
-    });
-
-    test('early retirement 64 → 6.8% penalty', () {
-      final normal = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 65,
-        grossAnnualSalary: 100000,
-      );
-      final early = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 64,
-        grossAnnualSalary: 100000,
-      );
-      expect(early / normal, closeTo(1 - 0.068, 0.02));
-    });
-
-    test('retirement before 63 → returns 0', () {
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 60,
-        grossAnnualSalary: 100000,
-      );
-      expect(rente, equals(0.0));
-    });
-
-    test('deferred retirement 67 → bonus', () {
-      final normal = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 65,
-        grossAnnualSalary: 100000,
-      );
-      final deferred = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 67,
-        grossAnnualSalary: 100000,
-      );
-      expect(deferred, greaterThan(normal));
-      // 2 years deferral → +10.6%
-      expect(deferred / normal, closeTo(1.106, 0.02));
-    });
-
-    test('lacunes reduce rente proportionally', () {
-      final full = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 100000,
-      );
-      final withLacunes = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        lacunes: 4,
-        grossAnnualSalary: 100000,
-      );
-      // 4 lacunes: (44-4)/44 = 40/44 ratio
-      expect(withLacunes / full, closeTo(40 / 44, 0.02));
-    });
-  });
-
   group('AvsCalculator.renteFromRAMD — Echelle 44', () {
     test('Julien (122207) → max rente 2520 (above RAMD max)', () {
       expect(AvsCalculator.renteFromRAMD(122207), equals(2520.0));
@@ -245,86 +126,6 @@ void main() {
     });
   });
 
-  group('Child-raising credits (LAVS art. 29sexies)', () {
-    test('child credits boost low-income rente', () {
-      final without = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 50000,
-      );
-      final withCredits = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 50000,
-        childRaisingYears: 16,
-      );
-      expect(withCredits, greaterThan(without));
-    });
-
-    test('2 children 16y each = 32y credits boost', () {
-      final without = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 50000,
-      );
-      final withCredits = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 50000,
-        childRaisingYears: 32,
-      );
-      expect(withCredits, greaterThan(without));
-    });
-
-    test('no child years = no change', () {
-      final normal = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-      );
-      final withZero = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-        childRaisingYears: 0,
-      );
-      expect(withZero, equals(normal));
-    });
-
-    test('child credits capped at RAMD max', () {
-      // High salary + lots of credits → should not exceed max rente
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 85000,
-        childRaisingYears: 32,
-      );
-      expect(rente, lessThanOrEqualTo(avsRenteMaxMensuelle));
-    });
-  });
-
-  group('AvsCalculator.rawContributionDurationGapPercent', () {
-    test('explicit zero stays zero', () {
-      expect(AvsCalculator.rawContributionDurationGapPercent(0), 0.0);
-    });
-
-    test('four CI-observed years expose only the raw 4/44 benchmark', () {
-      expect(
-        AvsCalculator.rawContributionDurationGapPercent(4),
-        closeTo(9.0909, 0.001),
-      );
-    });
-
-    test('uses the canonical full-contribution-years registry key', () {
-      addTearDown(RegulatorySyncService.clearCache);
-      RegulatorySyncService.setMockCache({
-        'avs.full_contribution_years': 50.0,
-      });
-
-      expect(AvsCalculator.rawContributionDurationGapPercent(4), 8.0);
-    });
-  });
-
   group('AvsCalculator.ordinaryRecurringLifetimeLoss', () {
     test('uses twelve ordinary monthly payments per modeled year', () {
       final loss = AvsCalculator.ordinaryRecurringLifetimeLoss(200, 20);
@@ -374,16 +175,11 @@ void main() {
       );
     });
 
-    test('woman born 1962 retiring at 64 gets half-year AVS21 anticipation penalty', () {
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 64,
-        grossAnnualSalary: 100000,
-        isFemale: true,
-        birthYear: 1962,
+    test('woman born 1962 exposes a 64.5-year reference age', () {
+      expect(
+        avsReferenceAgeYears(birthYear: 1962, isFemale: true),
+        equals(64.5),
       );
-
-      expect(rente, closeTo(avsRenteMaxMensuelle * (1 - 0.068 * 0.5), 1));
     });
 
     test('woman born 1960 → reference age 64 (pre-AVS21)', () {
@@ -411,48 +207,16 @@ void main() {
       expect(refAge, equals(65));
     });
 
-    test('computeMonthlyRente uses gender-aware refAge for woman born 1960', () {
-      // Woman born 1960 retiring at 64 → no penalty (refAge = 64)
-      final renteAt64 = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 64,
-        grossAnnualSalary: 100000,
-        isFemale: true,
-        birthYear: 1960,
+    test('same cohort keeps distinct male and female reference ages', () {
+      expect(
+        avsReferenceAgeYears(birthYear: 1960, isFemale: true),
+        equals(64),
       );
-      // Woman born 1960 retiring at 65 → same income, no early penalty
-      final renteAt65 = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 65,
-        grossAnnualSalary: 100000,
-        isFemale: true,
-        birthYear: 1960,
+      expect(
+        avsReferenceAgeYears(birthYear: 1960, isFemale: false),
+        equals(65),
       );
-      // At 64 she is at her refAge → no penalty, but one fewer contribution year
-      // At 65 she is 1 year past refAge → deferral bonus
-      expect(renteAt65, greaterThan(renteAt64));
     });
 
-    test('computeMonthlyRente: man at 64 has penalty, woman born 1960 at 64 does not', () {
-      // Man retiring at 64 → 1 year early penalty (refAge 65)
-      final renteMan = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 64,
-        grossAnnualSalary: 100000,
-        isFemale: false,
-        birthYear: 1960,
-      );
-      // Woman born 1960 retiring at 64 → no penalty (refAge 64)
-      final renteWoman = AvsCalculator.computeMonthlyRente(
-        currentAge: 55,
-        retirementAge: 64,
-        grossAnnualSalary: 100000,
-        isFemale: true,
-        birthYear: 1960,
-      );
-      // Woman gets more because no early retirement penalty
-      expect(renteWoman, greaterThan(renteMan));
-    });
   });
-
 }

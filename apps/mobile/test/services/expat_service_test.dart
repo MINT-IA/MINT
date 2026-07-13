@@ -94,7 +94,9 @@ void main() {
       expect(r['effectiveRate'] as double, closeTo(expected, 0.001));
     });
 
-    test('canton inconnu → fallback ZH (cantonFallbackDefault), pas 13 % générique', () {
+    test(
+        'canton inconnu → fallback ZH (cantonFallbackDefault), pas 13 % générique',
+        () {
       // Wave 7 C1 — `resolveCanton('XX')` retombe sur ZH (documenté
       // comme fallback), donc on utilise le vrai taux ZH (0.1287)
       // plutôt que le 0.13 générique.
@@ -246,7 +248,8 @@ void main() {
       expect(r['abolished'], isTrue);
     });
 
-    test('VD — forfait base = max(depenses, minimum cantonal, minimum federal)', () {
+    test('VD — forfait base = max(depenses, minimum cantonal, minimum federal)',
+        () {
       final r = ExpatService.simulateForfaitFiscal(
         canton: 'VD',
         livingExpenses: 1500000,
@@ -259,7 +262,8 @@ void main() {
       expect(r['forfaitBase'] as double, closeTo(1500000, 1));
     });
 
-    test('depenses inferieures au minimum cantonal — minimum cantonal utilise', () {
+    test('depenses inferieures au minimum cantonal — minimum cantonal utilise',
+        () {
       final r = ExpatService.simulateForfaitFiscal(
         canton: 'VD',
         livingExpenses: 300000,
@@ -308,7 +312,6 @@ void main() {
 
       expect(r.yearsAbroadDeclared, 10);
       expect(r.ciObservedMissingContributionYears, isNull);
-      expect(r.rawContributionDurationGapPercent, isNull);
     });
 
     test('supprime les trois montants personnels AVS', () {
@@ -338,10 +341,9 @@ void main() {
       )!;
 
       expect(r.ciObservedMissingContributionYears, 0);
-      expect(r.rawContributionDurationGapPercent, 0.0);
     });
 
-    test('quatre annees CI donnent uniquement le repere brut 4/44', () {
+    test('quatre annees CI restent uniquement un nombre a examiner', () {
       final r = ExpatService.assessAvsGapOrientation(
         scenarioStarted: true,
         yearsAbroad: 5,
@@ -349,10 +351,6 @@ void main() {
       )!;
 
       expect(r.ciObservedMissingContributionYears, 4);
-      expect(
-        r.rawContributionDurationGapPercent,
-        closeTo(9.0909, 0.001),
-      );
     });
 
     test('annees AVS hors bornes echouent explicitement', () {
@@ -383,7 +381,8 @@ void main() {
         'fiveConsecutivePriorContributionYears',
         'otherVoluntaryConditionsConfirmed',
       ]) {
-        expect(source, isNot(contains(retiredShortcut)), reason: retiredShortcut);
+        expect(source, isNot(contains(retiredShortcut)),
+            reason: retiredShortcut);
       }
     });
   });
@@ -438,7 +437,9 @@ void main() {
       expect(pillar3a['usPersonWarning'], contains('foreign trust'));
     });
 
-    test('P0-E2 — LPP checklist distinguishes oblig vs surobligatoire (LFLP art. 25f)', () {
+    test(
+        'P0-E2 — LPP checklist distinguishes oblig vs surobligatoire (LFLP art. 25f)',
+        () {
       final r = ExpatService.planDeparture(
         departureDate: DateTime.now().add(const Duration(days: 60)),
         canton: 'GE',
@@ -453,7 +454,8 @@ void main() {
       expect(subtitle, contains('LFLP art. 25f'));
     });
 
-    test('P0-E36 — departureDate in the past returns already_departed status', () {
+    test('P0-E36 — departureDate in the past returns already_departed status',
+        () {
       final r = ExpatService.planDeparture(
         departureDate: DateTime.now().subtract(const Duration(days: 30)),
         canton: 'ZH',

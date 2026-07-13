@@ -709,12 +709,11 @@ class _ExpatScreenState extends State<ExpatScreen>
               label: 'AVS \u2014 cotisation obligatoire',
               emoji: '\u{1F6E1}\uFE0F',
               before: 'Cotisation automatique via employeur',
-              after: 'Lacunes AVS \u2192 rente r\u00e9duite',
+              after: 'P\u00e9riodes AVS \u00e0 v\u00e9rifier avec la caisse', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
               legalRef: 'LAVS art. 1a',
               impact:
-                  'Chaque ann\u00e9e manquante r\u00e9duit ta rente AVS de ~2.3%. '
-                  '10 ans = \u221223% \u00e0 vie.',
-              isIrreversible: true,
+                  'L\'extrait CI documente les p\u00e9riodes enregistr\u00e9es. ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+                  'La caisse fixe ensuite l\'\u00e9chelle et le montant officiels.', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
             ),
             const ExpatRight(
               label: 'LPP \u2014 2e pilier',

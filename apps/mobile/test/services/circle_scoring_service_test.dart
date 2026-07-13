@@ -195,7 +195,8 @@ void main() {
       final c1 = score.circle1Protection;
       // Should recommend paying off debt first
       expect(
-        c1.recommendations.any((r) => r.contains('dette') || r.contains('PRIORIT')),
+        c1.recommendations
+            .any((r) => r.contains('dette') || r.contains('PRIORIT')),
         true,
       );
     });
@@ -266,7 +267,7 @@ void main() {
       expect(avsItem.detail, contains('vérifier'));
     });
 
-    test('certificate-backed zero AVS gaps scores the person only', () {
+    test('certificate-backed zero AVS gaps stays count-only and unscored', () {
       final answers = <String, dynamic>{
         'q_emergency_fund': 'yes_6months',
         'q_has_consumer_debt': 'no',
@@ -285,7 +286,7 @@ void main() {
       final avsItem = score.circle2Prevoyance.items
           .firstWhere((item) => item.label == 'AVS');
 
-      expect(avsItem.status, ItemStatus.perfect);
+      expect(avsItem.status, ItemStatus.unknown);
       expect(avsItem.detail, contains('0'));
     });
 
@@ -312,7 +313,7 @@ void main() {
       final avsItem = score.circle2Prevoyance.items
           .firstWhere((item) => item.label == 'AVS');
 
-      expect(avsItem.status, ItemStatus.perfect);
+      expect(avsItem.status, ItemStatus.unknown);
       expect(avsItem.detail, isNot(contains('Conjoint')));
     });
 
@@ -370,7 +371,8 @@ void main() {
       final score = service.calculateScore(answers);
       final c2 = score.circle2Prevoyance;
       expect(
-        c2.recommendations.any((r) => r.contains('2e compte 3a') || r.contains('VIAC')),
+        c2.recommendations
+            .any((r) => r.contains('2e compte 3a') || r.contains('VIAC')),
         true,
       );
     });
@@ -472,7 +474,8 @@ void main() {
       final score = service.calculateScore(answers);
       // Circle 4 is fixed at 20%, so overall can't be excellent
       // But C1, C2, C3 should be high
-      expect(score.circle1Protection.level, isIn([ScoreLevel.good, ScoreLevel.excellent]));
+      expect(score.circle1Protection.level,
+          isIn([ScoreLevel.good, ScoreLevel.excellent]));
     });
   });
 
@@ -585,7 +588,7 @@ void main() {
           'q_housing_status': 'renter',
         };
 
-    test('certificate-backed two-year gap scores good', () {
+    test('certificate-backed two-year gap stays count-only and unknown', () {
       final answers = baseAnswers();
       final score = service.calculateScore(
         answers,
@@ -594,11 +597,11 @@ void main() {
       final avs = score.circle2Prevoyance.items
           .firstWhere((item) => item.label == 'AVS');
 
-      expect(avs.status, ItemStatus.good);
+      expect(avs.status, ItemStatus.unknown);
       expect(avs.detail, contains('2'));
     });
 
-    test('certificate-backed nine-year gap scores warning', () {
+    test('certificate-backed nine-year gap stays count-only and unknown', () {
       final answers = baseAnswers();
       final score = service.calculateScore(
         answers,
@@ -607,7 +610,7 @@ void main() {
       final avs = score.circle2Prevoyance.items
           .firstWhere((item) => item.label == 'AVS');
 
-      expect(avs.status, ItemStatus.warning);
+      expect(avs.status, ItemStatus.unknown);
       expect(avs.detail, contains('9'));
     });
 

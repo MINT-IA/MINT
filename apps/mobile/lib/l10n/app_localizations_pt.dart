@@ -5971,7 +5971,7 @@ class SPt extends S {
 
   @override
   String get dataBlockAvsDesc =>
-      'O extrato AVS confirma os teus anos de contribuição efetivos. Lacunas (estadia no estrangeiro, anos em falta) reduzem a tua renda AVS.';
+      'O extrato CI documenta os períodos e rendimentos registados. A caixa de compensação revê esses períodos e fixa o resultado oficial.';
 
   @override
   String get dataBlockAvsCta => 'Solicitar o meu extrato AVS';
@@ -18766,7 +18766,7 @@ class SPt extends S {
 
   @override
   String get pulseNavExpatGapsDetail =>
-      'Cada ano em falta = -2.3 % de renda vitalicia.';
+      'Períodos do extrato CI a rever com a caixa de compensação; não é calculado qualquer efeito pessoal.';
 
   @override
   String get pulseNavExpatGapsSubtitle =>
@@ -19522,7 +19522,7 @@ class SPt extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Evita perder até CHF 38’000 de pensão ao longo da vida.';
+      'Pede o teu extrato CI e solicita à caixa de compensação que reveja os períodos.';
 
   @override
   String get reportActionDescDette =>
@@ -23739,9 +23739,8 @@ class SPt extends S {
   }
 
   @override
-  String expatAvsCiRawDurationBenchmark(int years, String percent) {
-    return 'Referência bruta da duração contributiva: $years em 44, ou seja, $percent %. Esta percentagem não é uma redução da tua pensão. A caixa de compensação determina primeiro quais os períodos que podem ser considerados e, em seguida, fixa a escala e o montante oficiais. O montante também depende do rendimento anual médio determinante e das bonificações reconhecidas.';
-  }
+  String get expatAvsCiObservedMissingYearsBody =>
+      'Este número não determina nem a tua duração contributiva completa, nem a tua escala, nem uma redução da tua pensão. A caixa de compensação verifica os períodos que podem ser considerados e, em seguida, fixa a escala e o montante oficiais. O montante também depende do rendimento anual médio determinante e das bonificações reconhecidas.';
 
   @override
   String get expatAvsVoluntaryUnknownTitle =>

@@ -53,7 +53,6 @@ const double kLaurenLppBalance = 19620.0;
 const double kLaurenLppRachatMax = 52949.0;
 const double kLaurenCaisseReturn = 0.02; // HOTELA standard estimate
 const double kLaurenLppConversionRate = 0.068; // LPP art. 14 minimum
-const int kLaurenArrivalAge = 20; // expat_us, contributing since 20
 
 // --- Couple ---
 const String kCanton = 'VS';
@@ -129,76 +128,14 @@ void main() {
           reason: 'Lauren rente must be below maximum (2520)');
     });
 
-    test('G1.3 Julien computeMonthlyRente — full career, retirement at 65', () {
-      // Julien: swiss_native, contributing since age 20
-      // currentYears = 49-20 = 29, futureYears = 16 → total 45 → capped 44
-      // gapFactor = 1.0 → full max rente
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: kJulienAge,
-        retirementAge: kJulienRetirementAge,
-        lacunes: 0,
-        grossAnnualSalary: kJulienSalary,
-      );
-      expect(
-        rente,
-        closeTo(avsRenteMaxMensuelle, 1.0),
-        reason: 'Julien full career + max salary → rente must equal 2520',
-      );
-    });
-
-    test(
-        'G1.4 Lauren computeMonthlyRente — expat_us, arrivalAge 20, retirement 65',
-        () {
-      // Lauren: arrived at 20, currentYears = 43-20 = 23, future = 22 → 45, capped 44
-      // gapFactor = 1.0 → full RAMD-based rente ≈ 2187.0 (Échelle 44)
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: kLaurenAge,
-        retirementAge: kLaurenRetirementAge,
-        lacunes: 0,
-        grossAnnualSalary: kLaurenSalary,
-        arrivalAge: kLaurenArrivalAge,
-      );
-      expect(
-        rente,
-        closeTo(2187.0, 5.0),
-        reason: 'Lauren full contribution + 67k salary → ~2187 CHF/mois',
-      );
-    });
-
-    test('G1.5 Lauren rente is strictly less than Julien (lower salary)', () {
-      final julienRente = AvsCalculator.computeMonthlyRente(
-        currentAge: kJulienAge,
-        retirementAge: kJulienRetirementAge,
-        lacunes: 0,
-        grossAnnualSalary: kJulienSalary,
-      );
-      final laurenRente = AvsCalculator.computeMonthlyRente(
-        currentAge: kLaurenAge,
-        retirementAge: kLaurenRetirementAge,
-        lacunes: 0,
-        grossAnnualSalary: kLaurenSalary,
-        arrivalAge: kLaurenArrivalAge,
-      );
-      expect(
-        laurenRente,
-        lessThan(julienRente),
-        reason: 'Lauren salary (67k) < Julien salary (122k) → lower AVS rente',
-      );
-    });
-
-    test('G1.6 Julien recurring rente and typed 13th stay separate', () {
-      final julienMonthly = AvsCalculator.computeMonthlyRente(
-        currentAge: kJulienAge,
-        retirementAge: kJulienRetirementAge,
-        lacunes: 0,
-        grossAnnualSalary: kJulienSalary,
-      );
-      final recurringAnnual = julienMonthly * 12;
+    test('G1.3 typed monthly AVS input keeps the 13th separate', () {
+      const julienMonthly = ChfAmount.fromFrancs(2520);
+      final recurringAnnual = julienMonthly.francs * 12;
       final supplement = AvsThirteenthPensionCalculator.calculate(
         AvsThirteenthPensionInput.fullYearScenario(
           ownerId: 'golden-julien',
           calendarYear: 2026,
-          determiningMonthlyOldAgePensionChf: const ChfAmount.fromFrancs(2520),
+          determiningMonthlyOldAgePensionChf: julienMonthly,
           sourceDate: DateTime.utc(2026, 12, 1),
           calculationDate: DateTime.utc(2026, 12, 15),
           legalYear: AvsThirteenthPensionCalculator.supportedLegalYear,
@@ -661,69 +598,6 @@ void main() {
         greaterThanOrEqualTo(rateLauren),
         reason:
             'Larger capital hits higher progressive brackets → higher effective rate',
-      );
-    });
-  });
-
-  // ══════════════════════════════════════════════════════════════════════════
-  //  GROUP 7 — AvsCalculator: gap / lacune scenarios
-  // ══════════════════════════════════════════════════════════════════════════
-
-  group('AvsCalculator — lacune / gap reductions', () {
-    test('G7.1 Zero lacunes — no reduction vs positive lacune', () {
-      final noLacune = AvsCalculator.computeMonthlyRente(
-        currentAge: kJulienAge,
-        retirementAge: kJulienRetirementAge,
-        lacunes: 0,
-        grossAnnualSalary: kJulienSalary,
-      );
-      final withLacune = AvsCalculator.computeMonthlyRente(
-        currentAge: kJulienAge,
-        retirementAge: kJulienRetirementAge,
-        lacunes: 4,
-        grossAnnualSalary: kJulienSalary,
-      );
-      expect(
-        noLacune,
-        greaterThan(withLacune),
-        reason: '4 lacunes must reduce Julien AVS rente',
-      );
-    });
-
-    test('G7.2 reductionPercentageFromGap(4) = 4/44 × 100 ≈ 9.09%', () {
-      final pct = AvsCalculator.reductionPercentageFromGap(4);
-      const expected = 4 / 44 * 100;
-      expect(pct, closeTo(expected, 0.01));
-    });
-
-    test('G7.3 monthlyLossFromGap(4) ≈ 2520 × 4/44 ≈ 229.09 CHF', () {
-      final loss = AvsCalculator.monthlyLossFromGap(4);
-      const expected = avsRenteMaxMensuelle * 4 / avsDureeCotisationComplete;
-      expect(loss, closeTo(expected, 0.01));
-    });
-
-    test('G7.4 Lauren with 2 lacune years reduces her rente proportionally',
-        () {
-      final noLacune = AvsCalculator.computeMonthlyRente(
-        currentAge: kLaurenAge,
-        retirementAge: kLaurenRetirementAge,
-        lacunes: 0,
-        grossAnnualSalary: kLaurenSalary,
-        arrivalAge: kLaurenArrivalAge,
-      );
-      final withLacune = AvsCalculator.computeMonthlyRente(
-        currentAge: kLaurenAge,
-        retirementAge: kLaurenRetirementAge,
-        lacunes: 2,
-        grossAnnualSalary: kLaurenSalary,
-        arrivalAge: kLaurenArrivalAge,
-      );
-      // Expected reduction: 2/44 of the base rente
-      final expectedReduction = noLacune * 2 / avsDureeCotisationComplete;
-      expect(
-        noLacune - withLacune,
-        closeTo(expectedReduction, 1.0),
-        reason: '2 lacune years reduce Lauren rente by 2/44 of her base',
       );
     });
   });

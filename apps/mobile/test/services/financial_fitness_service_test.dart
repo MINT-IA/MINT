@@ -78,9 +78,9 @@ void main() {
       expect(score.deltaVsPreviousMonth, isNull);
     });
 
-    test('each sub-score has 4 criteria', () {
+    test('sub-scores expose only criteria with sufficient inputs', () {
       expect(score.budget.criteria.length, 4);
-      expect(score.prevoyance.criteria.length, 4);
+      expect(score.prevoyance.criteria.length, 3);
       expect(score.patrimoine.criteria.length, 4);
     });
   });
@@ -325,125 +325,19 @@ void main() {
       expect(lppCrit.points, 25);
     });
 
-    test('certificate-backed zero AVS gaps gives 25 points', () {
-      final profile = CoachProfile(
-        birthYear: 1990,
-        canton: 'VD',
-        salaireBrutMensuel: 7000,
-        prevoyance: const PrevoyanceProfile(lacunesAVS: 0),
-        dataSources: const {
-          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-        },
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(2055),
-          label: 'Retraite',
-        ),
-      );
-      final score = FinancialFitnessService.calculate(profile: profile);
-      final avsCrit =
-          score.prevoyance.criteria.firstWhere((c) => c.id == 'avs_gaps');
-      expect(avsCrit.points, 25);
-    });
+    test('AVS CI counts stay outside the fitness score until a caisse result',
+        () {
+      final scores = <int>[];
 
-    test('raw zero without CI evidence gives 0 AVS points', () {
-      final profile = CoachProfile(
-        birthYear: 1990,
-        canton: 'VD',
-        salaireBrutMensuel: 7000,
-        prevoyance: const PrevoyanceProfile(lacunesAVS: 0),
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(2055),
-          label: 'Retraite',
-        ),
-      );
-
-      final avsCrit = FinancialFitnessService.calculate(profile: profile)
-          .prevoyance
-          .criteria
-          .firstWhere((c) => c.id == 'avs_gaps');
-
-      expect(avsCrit.points, 0);
-      expect(avsCrit.detail, isNot('Aucune lacune AVS'));
-    });
-
-    test('many AVS gaps gives 0 points', () {
-      final profile = CoachProfile(
-        birthYear: 1990,
-        canton: 'VD',
-        salaireBrutMensuel: 7000,
-        prevoyance: const PrevoyanceProfile(lacunesAVS: 10),
-        dataSources: const {
-          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-        },
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(2055),
-          label: 'Retraite',
-        ),
-      );
-      final score = FinancialFitnessService.calculate(profile: profile);
-      final avsCrit =
-          score.prevoyance.criteria.firstWhere((c) => c.id == 'avs_gaps');
-      expect(avsCrit.points, 0);
-    });
-
-    test('certified self AVS score is identical across civil statuses', () {
-      const expectedPointsByYears = <int, int>{
-        0: 25,
-        2: 20,
-        4: 10,
-        10: 0,
-      };
-
-      for (final civilStatus in CoachCivilStatus.values) {
-        for (final entry in expectedPointsByYears.entries) {
-          final profile = CoachProfile(
-            birthYear: 1990,
-            canton: 'VD',
-            salaireBrutMensuel: 7000,
-            etatCivil: civilStatus,
-            prevoyance: PrevoyanceProfile(lacunesAVS: entry.key),
-            dataSources: const {
-              AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-            },
-            goalA: GoalA(
-              type: GoalAType.retraite,
-              targetDate: DateTime(2055),
-              label: 'Retraite',
-            ),
-          );
-
-          final criterion = FinancialFitnessService.calculate(profile: profile)
-              .prevoyance
-              .criteria
-              .firstWhere((c) => c.id == 'avs_gaps');
-
-          expect(criterion.points, entry.value,
-              reason: '${civilStatus.name}, self years ${entry.key}');
-          expect(criterion.detail, isNot(contains('conjoint')),
-              reason: civilStatus.name);
-        }
-      }
-    });
-
-    test('spouse presence, proof, and value never change self AVS score', () {
-      CoachProfile marriedProfile({
-        ConjointProfile? spouse,
-        bool spouseCertified = false,
-      }) {
-        return CoachProfile(
+      for (final years in <int?>[null, 0, 2, 4, 9]) {
+        final profile = CoachProfile(
           birthYear: 1990,
           canton: 'VD',
           salaireBrutMensuel: 7000,
-          etatCivil: CoachCivilStatus.marie,
-          prevoyance: const PrevoyanceProfile(lacunesAVS: 2),
-          conjoint: spouse,
+          prevoyance: PrevoyanceProfile(lacunesAVS: years),
           dataSources: {
-            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-            if (spouseCertified)
-              AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+            if (years != null)
+              AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
           },
           goalA: GoalA(
             type: GoalAType.retraite,
@@ -451,65 +345,53 @@ void main() {
             label: 'Retraite',
           ),
         );
-      }
+        final prevoyance =
+            FinancialFitnessService.calculate(profile: profile).prevoyance;
 
-      final profiles = [
-        marriedProfile(),
-        marriedProfile(spouse: const ConjointProfile()),
-        marriedProfile(
-          spouse: const ConjointProfile(
-            prevoyance: PrevoyanceProfile(lacunesAVS: 0),
-          ),
-        ),
-        marriedProfile(
-          spouse: const ConjointProfile(
-            prevoyance: PrevoyanceProfile(lacunesAVS: 0),
-          ),
-          spouseCertified: true,
-        ),
-        marriedProfile(
-          spouse: const ConjointProfile(
-            prevoyance: PrevoyanceProfile(lacunesAVS: 44),
-          ),
-          spouseCertified: true,
-        ),
-      ];
-
-      for (final profile in profiles) {
-        final criterion = FinancialFitnessService.calculate(profile: profile)
-            .prevoyance
-            .criteria
-            .firstWhere((c) => c.id == 'avs_gaps');
-
-        expect(criterion.points, 20);
-        expect(criterion.detail, '2 annee(s) de lacune AVS');
-      }
-    });
-
-    test('all declared AVS statuses without CI evidence score zero', () {
-      for (final status in AvsGapStatus.values) {
-        final profile = CoachProfile(
-          birthYear: 1990,
-          canton: 'VD',
-          salaireBrutMensuel: 7000,
-          avsGapStatus: status,
-          goalA: GoalA(
-            type: GoalAType.retraite,
-            targetDate: DateTime(2055),
-            label: 'Retraite',
-          ),
+        expect(
+          prevoyance.criteria.where((criterion) => criterion.id == 'avs_gaps'),
+          isEmpty,
+          reason: 'CI years $years are not an official scale or amount',
         );
-
-        final criterion = FinancialFitnessService.calculate(profile: profile)
-            .prevoyance
-            .criteria
-            .firstWhere((c) => c.id == 'avs_gaps');
-
-        expect(criterion.points, 0, reason: status.name);
-        expect(criterion.detail, isNot('Aucune lacune AVS'));
+        scores.add(prevoyance.score);
       }
+
+      expect(scores.toSet(), hasLength(1));
     });
 
+    test('normalizes against the available prevoyance criterion maxima', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        pillar3aAnnualContribution: 7258,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 200000,
+          rachatMaximum: 200000,
+          rachatEffectue: 200000,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final prevoyance =
+          FinancialFitnessService.calculate(profile: profile).prevoyance;
+      final totalPoints = prevoyance.criteria.fold<int>(
+        0,
+        (sum, criterion) => sum + criterion.points,
+      );
+      final availableMax = prevoyance.criteria.fold<int>(
+        0,
+        (sum, criterion) => sum + criterion.maxPoints,
+      );
+
+      expect(totalPoints, 70);
+      expect(availableMax, 75);
+      expect(prevoyance.score, (totalPoints / availableMax * 100).round());
+    });
   });
 
   // ════════════════════════════════════════════════════════════

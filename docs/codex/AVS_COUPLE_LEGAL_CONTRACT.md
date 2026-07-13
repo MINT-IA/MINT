@@ -627,6 +627,12 @@ Line references are from commit `fad6e9bc1` on 2026-07-13. Other agents may
 have uncommitted shared-tree work; this inventory deliberately uses that commit
 as its review boundary.
 
+> **Current status after G1-AVS-03 (2026-07-14):**
+> `AvsCalculator.computeMonthlyRente` has been removed from production. Finding
+> 3 below remains historical evidence at `fad6e9bc1`, not a claim about the
+> current tree; the fail-closed `computeCouplePensions` contract is still
+> production-unwired, and the NO-GO verdict remains unchanged.
+
 ### Resolved by B2 — regression hard floor, not a remaining finding
 
 1. **Live Forecaster no longer turns missing partner inputs into CHF 0 AVS.**

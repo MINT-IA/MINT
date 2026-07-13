@@ -115,9 +115,9 @@ class LocalFallbackService {
         '(30\u00a0240\u00a0CHF/an). Pour les couples mariés, le plafond '
         'est de 150\u00a0% d\'une rente maximale (LAVS art. 35).\n\n'
         'La rente dépend des années de cotisation et du revenu moyen. '
-        'Chaque année manquante réduit la rente d\'environ 1/44e. '
-        'Tu pourrais demander un extrait de compte AVS gratuit '
-        'pour vérifier tes lacunes.\n\n'
+        'L\'extrait de compte individuel (CI) documente les périodes ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+        'enregistrées. La caisse de compensation fixe l\'échelle et le ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+        'montant officiels après vérification.\n\n' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
         'Réf.\u00a0: LAVS art. 21-40, art. 35.',
 
     'impots': 'En Suisse, l\'imposition varie selon le canton et la commune. '

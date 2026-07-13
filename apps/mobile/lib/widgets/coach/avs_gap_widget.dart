@@ -8,8 +8,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 /// Truthful AVS orientation for a declared period abroad.
 ///
 /// Residence history is displayed as a fact to verify. Only missing
-/// contribution years observed on an individual-account statement may expose
-/// a raw duration benchmark, never a pension reduction or CHF loss.
+/// contribution years observed on an individual-account statement are shown
+/// as a count to review, never as a pension reduction or CHF loss.
 class AvsGapWidget extends StatelessWidget {
   const AvsGapWidget({
     super.key,
@@ -97,11 +97,7 @@ class AvsGapWidget extends StatelessWidget {
                       title: l.expatAvsCiObservedMissingYearsTitle(
                         result.ciObservedMissingContributionYears!,
                       ),
-                      body: l.expatAvsCiRawDurationBenchmark(
-                        result.ciObservedMissingContributionYears!,
-                        result.rawContributionDurationGapPercent!
-                            .toStringAsFixed(1),
-                      ),
+                      body: l.expatAvsCiObservedMissingYearsBody,
                       tone: MintColors.success,
                     )
                   else

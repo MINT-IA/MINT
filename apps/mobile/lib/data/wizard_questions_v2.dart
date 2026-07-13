@@ -373,15 +373,13 @@ class WizardQuestionsV2 {
           tags: ['prevoyance', '3a'],
         ),
 
-        // AVS — Détection intelligente des lacunes de cotisation
-        // L'échelle complète = 44 ans (LAVS art. 29ter) dès 21 ans.
-        // On déduit les années théoriques depuis q_birth_year, puis on demande les lacunes.
+        // AVS — collecte déclarative avant vérification par extrait CI.
         const WizardQuestion(
           id: 'q_avs_lacunes_status',
           title: 'As-tu des lacunes de cotisation AVS ?',
           subtitle:
-              'Échelle complète = 44 ans de cotisation (dès 21 ans, LAVS art. 29ter).\n'
-              'Chaque année manquante = −2.3% de rente à vie.',
+              'Ton extrait CI montre les périodes enregistrées. La caisse ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+              'confirme ensuite la durée, l\'échelle et le montant officiels.', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
           type: QuestionType.choice,
           options: [
             QuestionOption(
@@ -408,8 +406,8 @@ class WizardQuestionsV2 {
           id: 'q_avs_arrival_year',
           title: 'En quelle année es-tu arrivé·e en Suisse ?',
           subtitle:
-              'Les années avant ton arrivée sont des lacunes AVS.\n'
-              'Tu peux racheter les 5 dernières années manquantes (LAVS art. 16).',
+              'L\'année d\'arrivée est un fait de parcours. Elle ne devient ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+              'pas automatiquement une lacune AVS.', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
           type: QuestionType.number,
           minValue: 1960,
           maxValue: 2026,
@@ -420,8 +418,8 @@ class WizardQuestionsV2 {
           id: 'q_avs_years_abroad',
           title: 'Combien d\'années as-tu passé hors de Suisse (après 20 ans) ?',
           subtitle:
-              'Études, travail à l\'étranger, voyage... chaque année sans cotisation CH compte.\n'
-              'Tes cotisations de jeunesse (18-20 ans) peuvent combler jusqu\'à 3 ans (RAVS art. 52b).',
+              'Études, travail à l\'étranger, voyage… Ces périodes doivent ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+              'être rapprochées de ton extrait CI et vérifiées par la caisse.', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
           type: QuestionType.number,
           minValue: 0,
           maxValue: 40,
@@ -434,7 +432,8 @@ class WizardQuestionsV2 {
         WizardQuestion(
           id: 'q_spouse_avs_lacunes_status',
           title: 'Et ton/ta conjoint·e, a-t-il/elle des lacunes AVS ?',
-          subtitle: 'Impact direct sur la rente AVS de couple (plafond 150%, LAVS art. 35).',
+          subtitle:
+              'Sa situation reste distincte et doit être vérifiée sur ses propres preuves AVS.', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
           type: QuestionType.choice,
           options: [
             const QuestionOption(
@@ -653,14 +652,8 @@ class WizardQuestionsV2 {
 
     // Context-aware subtitles for AVS gaps
     if (questionId == 'q_avs_lacunes_status') {
-      final birthYear = answers['q_birth_year'];
-      if (birthYear != null) {
-        final by = birthYear is int ? birthYear : int.tryParse(birthYear.toString()) ?? 0;
-        final expectedYears = (DateTime.now().year - by - 21).clamp(0, 44);
-        return 'À ton âge, ~$expectedYears années de cotisation sont attendues '
-            '(échelle complète = 44 ans, LAVS art. 29ter). '
-            'Chaque année manquante = -2.3\u00a0% de rente à vie.';
-      }
+      return 'L\'extrait CI documente les périodes enregistrées. ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+          'La caisse détermine le résultat officiel.'; // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
     }
 
     // Source taxation context

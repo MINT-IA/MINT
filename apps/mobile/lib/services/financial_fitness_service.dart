@@ -359,46 +359,7 @@ class FinancialFitnessService {
       detail: detailLpp,
     ));
 
-    // 3. Pas de lacune AVS critique (0-25 points)
-    // This criterion belongs to the main profile owner. Optional spouse data
-    // may inform household flows, but must never change this individual score.
-    final evidence = profile.avsGapEvidence;
-    int pointsAvs;
-    String detailAvs;
-
-    int pointsForAvsGaps(int gapYears) {
-      if (gapYears == 0) return 25;
-      if (gapYears <= 2) return 20;
-      if (gapYears <= 5) return 10;
-      return 0;
-    }
-
-    if (!evidence.selfReady) {
-      pointsAvs = 0;
-      detailAvs = 'Situation a verifier'; // lint-ignore: legacy user copy
-    } else {
-      final selfYears = evidence.selfCertifiedYears!;
-      pointsAvs = pointsForAvsGaps(selfYears);
-      if (selfYears == 0) {
-        detailAvs = 'Aucune lacune AVS';
-      } else if (selfYears <= 2) {
-        detailAvs = '$selfYears annee(s) de lacune AVS'; // lint-ignore: legacy user copy
-      } else if (selfYears <= 5) {
-        detailAvs = '$selfYears annees de lacune AVS — impact significatif'; // lint-ignore: legacy user copy
-      } else {
-        detailAvs =
-            '$selfYears annees de lacune AVS — impact important sur la rente'; // lint-ignore: legacy user copy
-      }
-    }
-    criteria.add(ScoreCriterion(
-      id: 'avs_gaps',
-      label: 'Lacunes AVS',
-      points: pointsAvs,
-      maxPoints: 25,
-      detail: detailAvs,
-    ));
-
-    // 4. Couverture invalidite (0-25 points)
+    // 3. Couverture invalidite (0-25 points)
     // Simplified: has LPP = some coverage, self-employed without = 0
     final hasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
     final isSelfEmployed = profile.employmentStatus == 'independant';
@@ -425,7 +386,11 @@ class FinancialFitnessService {
 
     final total =
         criteria.fold(0, (sum, c) => sum + c.points);
-    final score = (total / 100 * 100).round().clamp(0, 100);
+    final availableMax =
+        criteria.fold(0, (sum, c) => sum + c.maxPoints);
+    final score = availableMax == 0
+        ? 0
+        : (total / availableMax * 100).round().clamp(0, 100);
 
     return SubScore(
       name: 'Prevoyance',

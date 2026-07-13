@@ -5984,7 +5984,7 @@ class SDe extends S {
 
   @override
   String get dataBlockAvsDesc =>
-      'Der AHV-Auszug bestätigt deine effektiven Beitragsjahre. Lücken (Auslandaufenthalt, fehlende Jahre) reduzieren deine AHV-Rente.';
+      'Der IK-Auszug dokumentiert die eingetragenen Zeiträume und Einkommen. Die Ausgleichskasse prüft diese Zeiträume und legt das offizielle Ergebnis fest.';
 
   @override
   String get dataBlockAvsCta => 'Meinen AHV-Auszug bestellen';
@@ -18809,7 +18809,7 @@ class SDe extends S {
 
   @override
   String get pulseNavExpatGapsDetail =>
-      'Jedes fehlende Jahr = -2.3 % lebenslange Rente.';
+      'Im IK-Auszug ausgewiesene Zeiträume sind mit der Ausgleichskasse zu prüfen; es wird keine persönliche Auswirkung berechnet.';
 
   @override
   String get pulseNavExpatGapsSubtitle => 'fehlende AHV-Beitragsjahre.';
@@ -19567,7 +19567,7 @@ class SDe extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Vermeide den Verlust von bis zu CHF 38’000 lebenslanger Rente.';
+      'Bestelle deinen IK-Auszug und lass die Zeiträume von deiner Ausgleichskasse prüfen.';
 
   @override
   String get reportActionDescDette =>
@@ -23794,9 +23794,8 @@ class SDe extends S {
   }
 
   @override
-  String expatAvsCiRawDurationBenchmark(int years, String percent) {
-    return 'Roher Beitragsdauer-Richtwert: $years von 44, also $percent %. Dieser Prozentsatz ist keine Kürzung deiner Rente. Die Ausgleichskasse bestimmt zuerst, welche Zeiträume berücksichtigt werden können, und legt danach die offizielle Skala und den offiziellen Betrag fest. Der Betrag hängt auch vom massgebenden durchschnittlichen Jahreseinkommen und den anerkannten Gutschriften ab.';
-  }
+  String get expatAvsCiObservedMissingYearsBody =>
+      'Diese Zahl bestimmt weder deine vollständige Beitragsdauer noch deine Skala oder eine Kürzung deiner Rente. Die Ausgleichskasse prüft, welche Zeiträume berücksichtigt werden können, und legt danach die offizielle Skala und den offiziellen Betrag fest. Der Betrag hängt auch vom massgebenden durchschnittlichen Jahreseinkommen und den anerkannten Gutschriften ab.';
 
   @override
   String get expatAvsVoluntaryUnknownTitle =>

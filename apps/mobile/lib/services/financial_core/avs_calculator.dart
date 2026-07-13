@@ -1,5 +1,4 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/financial_core/avs_reference_age.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 // ALL AVS calculations MUST use AvsCalculator from financial_core.
@@ -177,95 +176,6 @@ class AvsCalculator {
       'RAVS art. 53ter; '
       'OFAS 2026 pension amounts';
 
-  /// Compute individual AVS monthly rente.
-  ///
-  /// Takes into account:
-  /// - Contribution duration (lacunes, arrivalAge) — LAVS art. 29
-  /// - Income level via RAMD proxy — LAVS art. 34, echelle 44
-  /// - Early retirement penalty (6.8%/yr from 63) — LAVS art. 40
-  /// - Deferral bonus (up to +31.5% at 70) — LAVS art. 39
-  /// - Gender-aware reference age for AVS21 (LAVS art. 21 al. 1)
-  /// - Child-raising credits (bonifications éducatives) — LAVS art. 29sexies
-  ///
-  /// This illustration does not perform LAVS art. 29quinquies splitting.
-  /// Exact splitting needs year-by-year individual-account histories and a
-  /// statutory trigger; current salaries and marriage duration are rejected as
-  /// a substitute by the couple legal contract.
-  ///
-  /// [isFemale] and [birthYear] are optional — when provided, the
-  /// reference age accounts for AVS21 transitional cohorts (women
-  /// born 1961-1963). When omitted, defaults to 65 (male/unknown).
-  static double computeMonthlyRente({
-    required int currentAge,
-    required int retirementAge,
-    int lacunes = 0,
-    int? anneesContribuees,
-    int? arrivalAge,
-    double grossAnnualSalary = 0,
-    bool? isFemale,
-    int? birthYear,
-    int childRaisingYears = 0,
-    int totalContributionYears = avsDureeCotisationComplete,
-  }) {
-    // Determine gender-aware reference age (AVS21, LAVS art. 21 al. 1)
-    final refAge = (isFemale != null && birthYear != null)
-        ? avsReferenceAgeYears(birthYear: birthYear, isFemale: isFemale)
-        : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble());
-
-    // 1. Contribution years
-    final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
-
-    int currentYears;
-    if (anneesContribuees != null) {
-      currentYears = anneesContribuees;
-    } else if (arrivalAge != null && arrivalAge > 20) {
-      currentYears =
-          (currentAge - arrivalAge).clamp(0, fullYears);
-    } else {
-      currentYears =
-          (currentAge - 20).clamp(0, fullYears);
-    }
-    final futureYears = (retirementAge - currentAge).clamp(0, 50);
-    final totalYears =
-        (currentYears + futureYears).clamp(0, fullYears);
-    final effectiveYears =
-        (totalYears - lacunes).clamp(0, fullYears);
-    final gapFactor = fullYears > 0 ? effectiveYears / fullYears : 0.0;
-
-    // 2. Effective salary (RAMD) with child credits
-    double effectiveSalary = grossAnnualSalary;
-
-    // 2a. Child-raising credits / bonifications éducatives (LAVS art. 29sexies)
-    // Annual credit = 3× minimum annual AVS pension.
-    // Added to RAMD prorated over total contribution years.
-    if (childRaisingYears > 0 && totalContributionYears > 0) {
-      const bonificationAnnuelle = 3 * avsRenteMinMensuelle * 12;
-      final bonificationRAMD =
-          (bonificationAnnuelle * childRaisingYears) / totalContributionYears;
-      effectiveSalary += bonificationRAMD;
-      effectiveSalary = effectiveSalary.clamp(0, avsRAMDMax);
-    }
-
-    // 2b. RAMD-based rente (LAVS art. 34, echelle 44)
-    final baseRente = renteFromRAMD(effectiveSalary);
-    double rente = baseRente * gapFactor;
-
-    // 3. Early/late retirement adjustments relative to gender-aware refAge
-    if (retirementAge < 63) {
-      // AVS anticipation only possible from 63 (LAVS art. 40)
-      return 0.0;
-    } else if (retirementAge < refAge) {
-      final yearsEarly = refAge - retirementAge;
-      rente *= (1.0 - reg('avs.anticipation_reduction', avsReductionAnticipation) * yearsEarly);
-    } else if (retirementAge > refAge) {
-      final yearsLate = (retirementAge - refAge).clamp(1, 5).round();
-      final bonus = avsDeferralBonus[yearsLate] ?? avsDeferralBonus[5]!;
-      rente *= (1.0 + bonus);
-    }
-
-    return rente;
-  }
-
   /// Round to nearest 5 centimes (Swiss standard for social insurance amounts).
   /// OAVS art. 53 — applied at display level, not computation level,
   /// to avoid cascading rounding effects in couple/optimizer calculations.
@@ -293,7 +203,7 @@ class AvsCalculator {
   /// RAMD <= 14'700 → 1'260/mois (minimum).
   /// RAMD >= 88'200 → 2'520/mois (maximum).
   /// Between table points: linear interpolation within the bracket.
-  /// gapFactor in computeMonthlyRente already handles contribution years.
+  /// This lookup does not apply contribution duration or partial scales.
   static double renteFromRAMD(double grossAnnualSalary) {
     if (grossAnnualSalary <= 0) return 0;
     final table = RegulatorySyncService.getEchelle44();
@@ -694,41 +604,6 @@ class AvsCalculator {
       totalBridgeCost: totalBridgeCost,
       gapYears: gapYears,
     );
-  }
-
-  /// Returns a raw contribution-duration benchmark for CI-observed years.
-  ///
-  /// This is not a personal pension reduction or an official scale decision.
-  static double rawContributionDurationGapPercent(
-    int ciObservedMissingContributionYears,
-  ) {
-    if (ciObservedMissingContributionYears <= 0) return 0.0;
-    final fullYears = reg(
-      'avs.full_contribution_years',
-      avsDureeCotisationComplete.toDouble(),
-    ).toInt();
-    return ciObservedMissingContributionYears / fullYears * 100;
-  }
-
-  /// Returns the AVS rente reduction percentage for a given gap in contribution years.
-  ///
-  /// Example: gap=4 → 9.09% reduction (4/44 × 100).
-  /// Use this instead of inline `gap / 44 * 100` calculations.
-  static double reductionPercentageFromGap(int gap) {
-    if (gap <= 0) return 0.0;
-    final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
-    return (gap / fullYears * 100);
-  }
-
-  /// Returns the estimated monthly AVS rente loss for a given gap.
-  ///
-  /// Example: gap=4 → ~229 CHF/mois (2520 × 4/44).
-  /// Use this instead of inline `2520 * gap / 44` calculations.
-  static double monthlyLossFromGap(int gap) {
-    if (gap <= 0) return 0.0;
-    final renteMax = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
-    final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
-    return renteMax * gap / fullYears;
   }
 
   /// Models the lifetime loss from ordinary recurring AVS payments.

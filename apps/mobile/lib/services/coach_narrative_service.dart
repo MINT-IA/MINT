@@ -1031,8 +1031,8 @@ class CoachNarrativeService {
     if (lacunesAvs != null && lacunesAvs > 0) {
       snippets
           .add('SNIPPET AVS: $lacunesAvs annee${lacunesAvs > 1 ? 's' : ''} de '
-              'cotisation manquante${lacunesAvs > 1 ? 's' : ''}. Chaque annee '
-              'manquante reduit la rente de 1/44 (LAVS art. 29ter).'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'cotisation a examiner d\'apres l\'extrait CI. La caisse fixe ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+              'la duree, l\'echelle et le montant officiels.'); // lint-ignore: internal prompt; localization debt predates G1 B2
     }
 
     // Close to retirement — coordination reminder

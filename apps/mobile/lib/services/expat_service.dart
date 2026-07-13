@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 
 /// Local, non-persisted assessment of declared residence and AVS evidence.
 ///
@@ -10,12 +9,10 @@ final class AvsGapAssessment {
   const AvsGapAssessment({
     required this.yearsAbroadDeclared,
     required this.ciObservedMissingContributionYears,
-    required this.rawContributionDurationGapPercent,
   });
 
   final int yearsAbroadDeclared;
   final int? ciObservedMissingContributionYears;
-  final double? rawContributionDurationGapPercent;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -174,9 +171,6 @@ class ExpatService {
 
   /// AVS voluntary maximum contribution per year.
   static double get avsVoluntaryMax => reg('avs.voluntary_max', avsVolontaireCotisationMax);
-
-  /// Rente reduction per missing year (~2.3% per year on 44 years).
-  static double get reductionPerMissingYear => 1.0 / reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble());
 
   /// Full contribution years for max AVS rente.
   static int get fullContributionYears => reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
@@ -579,10 +573,9 @@ class ExpatService {
 
   /// Assess declared time abroad without turning it into confirmed AVS gaps.
   ///
-  /// A raw contribution-duration benchmark is exposed only when missing
-  /// contribution years observed on an individual-account statement are
-  /// explicitly supplied. It is not a pension reduction or an official
-  /// scale decision, and no CHF loss is inferred from residence history.
+  /// Only missing contribution years observed on an individual-account
+  /// statement are exposed. The caisse remains responsible for the official
+  /// contribution duration, scale, and amount.
   static AvsGapAssessment? assessAvsGapOrientation({
     required bool scenarioStarted,
     required int yearsAbroad,
@@ -604,12 +597,6 @@ class ExpatService {
     return AvsGapAssessment(
       yearsAbroadDeclared: yearsAbroad,
       ciObservedMissingContributionYears: ciObservedMissingContributionYears,
-      rawContributionDurationGapPercent:
-          ciObservedMissingContributionYears == null
-              ? null
-              : AvsCalculator.rawContributionDurationGapPercent(
-                  ciObservedMissingContributionYears,
-                ),
     );
   }
 

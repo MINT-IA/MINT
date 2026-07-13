@@ -1,6 +1,5 @@
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -208,39 +207,22 @@ class CircleScoringService {
     totalWeight += 2.0;
     totalScore += lppStatus.scoreValue * 2.0;
 
-    // 4. AVS - Lacunes. This circle is person-owned: only a CI-backed
-    // self gap count may change it. Declarations and partner evidence remain
-    // visible elsewhere, but cannot price or downgrade the person's score.
+    // 4. AVS - Lacunes. A CI-backed count can inform the next question, but it
+    // cannot classify pension readiness without the caisse's scale or amount.
     final avsGapEvidence = profile?.avsGapEvidence;
     final avsGapYears = avsGapEvidence?.selfCertifiedYears;
 
-    final ItemStatus avsStatus;
-    final String avsDetail;
-    if (avsGapYears == null) {
-      avsStatus = ItemStatus.unknown;
-      avsDetail = 'À vérifier';
-    } else if (avsGapYears == 0) {
-      avsStatus = ItemStatus.perfect;
-      // lint-ignore: legacy domain payload; localize at renderer.
-      avsDetail = 'Lacune CI : 0 an';
-    } else if (avsGapYears <= 2) {
-      avsStatus = ItemStatus.good;
-      avsDetail =
-          'Lacune mineure ($avsGapYears ans — rente -${AvsCalculator.reductionPercentageFromGap(avsGapYears).toStringAsFixed(1)}%)';
-    } else {
-      avsStatus = ItemStatus.warning;
-      avsDetail =
-          'Lacune de $avsGapYears ans (rente -${AvsCalculator.reductionPercentageFromGap(avsGapYears).toStringAsFixed(1)}%)';
-    }
+    const avsStatus = ItemStatus.unknown;
+    final avsDetail = avsGapYears == null
+        ? 'À vérifier' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+        : 'Années CI à examiner : $avsGapYears'; // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
 
     items.add(ScoreItem(
       label: l?.circleLabelAvs ?? 'AVS',
       status: avsStatus,
       detail: avsDetail,
-      weight: 1.0,
+      weight: 0.0,
     ));
-    totalWeight += 1.0;
-    totalScore += avsStatus.scoreValue * 1.0;
 
     final percentage = (totalScore / totalWeight) * 100;
 

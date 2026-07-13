@@ -5985,7 +5985,7 @@ class SIt extends S {
 
   @override
   String get dataBlockAvsDesc =>
-      'L\'estratto AVS conferma i tuoi anni di contribuzione effettivi. Lacune (soggiorno all\'estero, anni mancanti) riducono la tua rendita AVS.';
+      'L’estratto CI documenta i periodi e i redditi registrati. La cassa di compensazione verifica tali periodi e stabilisce il risultato ufficiale.';
 
   @override
   String get dataBlockAvsCta => 'Ordinare il mio estratto AVS';
@@ -18816,7 +18816,7 @@ class SIt extends S {
 
   @override
   String get pulseNavExpatGapsDetail =>
-      'Ogni anno mancante = -2.3 % di rendita a vita.';
+      'Periodi dell’estratto CI da verificare con la cassa di compensazione; non viene calcolato alcun effetto personale.';
 
   @override
   String get pulseNavExpatGapsSubtitle => 'di contributi mancanti nel tuo AVS.';
@@ -19572,7 +19572,7 @@ class SIt extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Evita di perdere fino a CHF 38’000 di rendita a vita.';
+      'Richiedi il tuo estratto CI e fai verificare i periodi dalla cassa di compensazione.';
 
   @override
   String get reportActionDescDette =>
@@ -23796,9 +23796,8 @@ class SIt extends S {
   }
 
   @override
-  String expatAvsCiRawDurationBenchmark(int years, String percent) {
-    return 'Riferimento lordo della durata contributiva: $years su 44, ossia $percent %. Questa percentuale non è una riduzione della tua rendita. La cassa di compensazione determina innanzitutto quali periodi possono essere presi in considerazione, poi fissa la scala e l\'importo ufficiali. L\'importo dipende anche dal reddito annuo medio determinante e dagli accrediti riconosciuti.';
-  }
+  String get expatAvsCiObservedMissingYearsBody =>
+      'Questo numero non determina né la tua durata contributiva completa, né la tua scala, né una riduzione della rendita. La cassa di compensazione verifica quali periodi possono essere considerati e poi stabilisce la scala e l’importo ufficiali. L’importo dipende anche dal reddito annuo medio determinante e dagli accrediti riconosciuti.';
 
   @override
   String get expatAvsVoluntaryUnknownTitle =>

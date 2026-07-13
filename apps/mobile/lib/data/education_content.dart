@@ -24,7 +24,7 @@ class EducationTopicContent {
 
   static const String disclaimer =
       'Contenu a visee pedagogique. Ne constitue pas un conseil financier, '
-      'fiscal ou juridique (LSFin). Consulte un\u00b7e specialiste pour ta situation.';
+      'fiscal ou juridique (LSFin). Consulte un\u00b7e spécialiste pour ta situation.'; // lint-ignore: legacy educational catalog
 }
 
 class QuizQuestion {
@@ -133,40 +133,43 @@ class EducationContentData {
 
     // ─── AVS : Les lacunes ───
     'avs': EducationTopicContent(
-      premierEclairage: '2.3%',
-      premierEclairageUnit: 'de rente en moins',
+      premierEclairage: 'CI',
+      premierEclairageUnit: 'extrait à vérifier', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
       premierEclairageLabel:
-          'Reduction de ta rente AVS pour chaque annee de cotisation manquante',
-      intro:
-          'L\'AVS (1er pilier) est la base de ta retraite. Chaque annee ou '
-          'tu n\'as pas cotise cree une lacune qui reduit ta rente — a vie. '
-          'Bonne nouvelle : tu peux verifier et rattraper certaines lacunes.',
+          'Document officiel qui permet de faire examiner tes périodes AVS', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+      intro: 'L\'AVS (1er pilier) est la base de ta retraite. Ton extrait de ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+          'compte individuel (CI) rend visibles les périodes enregistrées. ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+          'La caisse vérifie ensuite les périodes, l\'échelle et le montant.', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
       keyFacts: [
-        'Cotisation obligatoire des 18 ans (des le premier emploi)',
-        'Rente maximale individuelle : 30\'240 CHF/an (pour 44 annees completes)',
-        'Annees a l\'etranger = lacunes potentielles (sauf accords bilateraux UE/AELE)',
-        'Tu peux racheter les 5 dernieres annees manquantes aupres de ta caisse de compensation',
-        'Commander ton extrait de compte AVS : gratuit sur ahv-iv.ch',
+        'Une année hors Suisse n\'est pas automatiquement une lacune AVS', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+        'L\'extrait CI montre les revenus et périodes inscrits sur tes comptes', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+        'Les accords internationaux peuvent modifier la prise en compte des périodes', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+        'Seule la caisse fixe la durée, l\'échelle et le montant officiels', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+        'Commander ton extrait CI est gratuit sur ahv-iv.ch', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
       ],
       quiz: QuizQuestion(
-        question:
-            'Combien d\'annees de cotisation faut-il pour la rente AVS maximale ?',
-        options: ['30 ans', '40 ans', '44 ans', '50 ans'],
-        correctIndex: 2,
+        question: 'Quel document permet de faire examiner tes périodes AVS ?', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+        options: [
+          'Une fiche de salaire', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+          'L\'extrait de compte individuel (CI)', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+          'Le certificat LPP', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+          'La déclaration fiscale', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+        ],
+        correctIndex: 1,
         explanation:
-            '44 années complètes de cotisation sont nécessaires pour la rente '
-            'maximale (LAVS art. 29). De 21 à 65 ans = 44 ans. Une seule '
-            'année manquante = rente réduite à vie.',
+            'L\'extrait CI recense les revenus et périodes enregistrés. ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+            'La caisse de compensation examine ensuite les éventuelles ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+            'lacunes et fixe le résultat officiel.', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
       ),
       funFact:
-          '44 années de cotisation complètes sont nécessaires pour la rente '
-          'maximale. Une seule année manquante la réduit définitivement. '
-          'Vérifie ton extrait — ça prend 5 minutes en ligne.',
+          'Un extrait CI rend les périodes visibles, mais ne donne pas à lui ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+          'seul ton échelle ni le montant de ta rente. Fais-le examiner par ' // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
+          'ta caisse de compensation.', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
       sources: [
-        'LAVS art. 29 (Duree de cotisation)',
+        'LAVS art. 29ter (Durée de cotisation)', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
         'LAVS art. 30 (Calcul de la rente)',
-        'LAVS art. 3 (Personnes assujetties)',
-        'RAVS art. 52b (Extrait de compte individuel)',
+        'RAVS art. 52 (Rentes partielles)',
+        'Centre d\'information AVS/AI (Extrait CI)',
       ],
     ),
 
@@ -422,7 +425,7 @@ class EducationContentData {
         correctIndex: 1,
         explanation:
             'La date limite est le 30 novembre. Ta nouvelle caisse doit '
-            'avoir recu ta demande avant cette date. Astuce : les primes '
+            'avoir reçu ta demande avant cette date. Astuce : les primes ' // lint-ignore: legacy educational catalog
             'sont annoncees fin septembre — compare des octobre.',
       ),
       funFact:

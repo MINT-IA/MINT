@@ -5940,7 +5940,7 @@ class SEn extends S {
 
   @override
   String get dataBlockAvsDesc =>
-      'The AVS statement confirms your effective contribution years. Gaps (time abroad, missing years) reduce your AVS pension.';
+      'The CI statement documents the registered periods and income. The compensation office reviews those periods and sets the official result.';
 
   @override
   String get dataBlockAvsCta => 'Order my AVS statement';
@@ -18673,7 +18673,7 @@ class SEn extends S {
 
   @override
   String get pulseNavExpatGapsDetail =>
-      'Each missing year = -2.3 % of lifetime pension.';
+      'CI periods to review with the compensation office; no personal effect is calculated.';
 
   @override
   String get pulseNavExpatGapsSubtitle =>
@@ -19425,7 +19425,7 @@ class SEn extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Avoid losing up to CHF 38’000 of lifetime pension.';
+      'Order your CI statement and have the compensation office review the periods.';
 
   @override
   String get reportActionDescDette =>
@@ -23619,9 +23619,8 @@ class SEn extends S {
   }
 
   @override
-  String expatAvsCiRawDurationBenchmark(int years, String percent) {
-    return 'Raw contribution-duration benchmark: $years out of 44, or $percent%. This percentage is not a reduction in your pension. The compensation office first determines which periods can be taken into account, then sets the official scale and amount. The amount also depends on the relevant average annual income and recognised credits.';
-  }
+  String get expatAvsCiObservedMissingYearsBody =>
+      'This number determines neither your complete contribution period, your scale, nor a reduction in your pension. The compensation office checks which periods can be taken into account, then sets the official scale and amount. The amount also depends on the relevant average annual income and recognised credits.';
 
   @override
   String get expatAvsVoluntaryUnknownTitle =>

@@ -1,8 +1,8 @@
 // Golden Couple Validation Test — Actuarial Audit
 //
-// This file calls EVERY financial_core calculator with the golden couple data
-// (Julien + Lauren from CLAUDE.md §8) and reports whether outputs match
-// the expected values.
+// This file exercises supported financial_core contracts with the golden
+// couple data (Julien + Lauren from CLAUDE.md §8). Personal AVS amounts are
+// supplied as typed test inputs; salary/residence-derived AVS is quarantined.
 //
 // Run: cd apps/mobile && flutter test test/golden/golden_couple_validation_test.dart
 
@@ -64,61 +64,12 @@ AvsCouplePensionResult _officialGoldenCouple() => officialScale44AvsCouple(
     );
 
 // ════════════════════════════════════════════════════════════════════════════════
-//  TEST 1: AVS Calculator — Individual rentes
+//  TEST 1: AVS — official couple fixture and typed monthly input
 // ════════════════════════════════════════════════════════════════════════════════
 
 void main() {
   group('Golden Couple Validation — Actuarial Audit', () {
-    // ── TEST 1: AVS Individual Rentes ──────────────────────────────────────
-
-    test('1a. AVS Julien — individual monthly rente', () {
-      // Julien: born 1977, age 49, contributing since 20 → 29 years so far
-      // Salary 122'207/an > 88'200 → max RAMD → should get near-max rente
-      // At 65: 29 current + 16 future = 45 → capped at 44 → full contribution
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 49,
-        retirementAge: 65,
-        lacunes: 0,
-        grossAnnualSalary: 122207,
-      );
-
-      // Expected: 2520 CHF/mois (max, full contribution, high salary)
-      const expected = 2520.0;
-      final result = _verdict('AVS Julien monthly', rente, expected);
-      // ignore: avoid_print
-      print('\n$result');
-
-      // Wide tolerance: the exact value depends on gap factor rounding
-      expect(rente, closeTo(expected, 300),
-          reason: 'Julien AVS should be near max (2520)');
-    });
-
-    test('1b. AVS Lauren — individual monthly rente', () {
-      // Lauren: born 1982, age 43, US expat arrived ~age 20
-      // Salary 67'000/an — between RAMD min (14700) and max (88200)
-      // Contribution years: 43-20 = 23 current + 22 future = 45 → capped 44
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 43,
-        retirementAge: 65,
-        lacunes: 0,
-        grossAnnualSalary: 67000,
-        arrivalAge: 20, // arrived at 20, contributing since then
-      );
-
-      // Expected: between min (1260) and max (2520)
-      // 67k salary → linear interpolation: (67000-14700)/(88200-14700) = 0.711
-      // renteFromRAMD = 1260 + (2520-1260) * 0.711 = 1260 + 896 = 2156
-      // gapFactor should be 1.0 (44/44 with future years)
-      const expectedApprox = 2156.0;
-      final result = _verdict('AVS Lauren monthly', rente, expectedApprox);
-      // ignore: avoid_print
-      print('\n$result');
-
-      expect(rente, greaterThan(1260),
-          reason: 'Lauren AVS should be above minimum');
-      expect(rente, lessThan(2520),
-          reason: 'Lauren AVS should be below maximum');
-    });
+    // ── TEST 1: AVS supported evidence boundary ───────────────────────────
 
     test('1c. AVS Couple — married cap (LAVS art. 35)', () {
       const julienAvs = 2520.0;
@@ -183,15 +134,8 @@ void main() {
           reason: 'Couple AVS should be near 3780 cap');
     });
 
-    test('1d. AVS recurring annual cashflow and 13th stay separate', () {
-      final julienMonthly = AvsCalculator.computeMonthlyRente(
-        currentAge: 49,
-        retirementAge: 65,
-        lacunes: 0,
-        grossAnnualSalary: 122207,
-      );
-
-      final scenarioMonthly = ChfAmount.fromLegacyDouble(julienMonthly);
+    test('1d. Typed monthly AVS input keeps annual cashflow and 13th separate', () {
+      const scenarioMonthly = ChfAmount.fromFrancs(2520);
       final expectedRecurringCents = scenarioMonthly.cents * 12;
       const expectedMonthlyAccrualCents = 21000;
       const expectedSupplementCents = 252000;
@@ -211,7 +155,7 @@ void main() {
       // ignore: avoid_print
       print('\n--- AVS 13th Rente ---');
       // ignore: avoid_print
-      print('  Monthly:     ${julienMonthly.toStringAsFixed(2)}');
+      print('  Monthly:     ${scenarioMonthly.francs.toStringAsFixed(2)}');
       // ignore: avoid_print
       print(
           '  Annual (12): ${supplement.eligibleOldAgePensionsPaidChf?.francs.toStringAsFixed(2)}');
@@ -897,25 +841,6 @@ void main() {
       expect(marriedCapitalTaxDiscountFor('AG'), equals(0.82)); // fallback
     });
 
-    // ── TEST 9: AVS reduction from gaps ────────────────────────────────────
-
-    test('9. AVS reduction from contribution gaps', () {
-      // ignore: avoid_print
-      print('\n--- AVS Contribution Gap Impact ---');
-      for (final gap in [0, 1, 2, 4, 8]) {
-        final pct = AvsCalculator.reductionPercentageFromGap(gap);
-        final loss = AvsCalculator.monthlyLossFromGap(gap);
-        // ignore: avoid_print
-        print(
-            '  Gap $gap years: -${pct.toStringAsFixed(1)}% = -${loss.toStringAsFixed(0)} CHF/mois');
-      }
-
-      // 4 years gap → ~9.09% reduction
-      expect(AvsCalculator.reductionPercentageFromGap(4), closeTo(9.09, 0.1));
-      // 4 years gap → ~229 CHF/mois loss
-      expect(AvsCalculator.monthlyLossFromGap(4), closeTo(229, 5));
-    });
-
     // ── TEST 10: Lauren FATCA 3a block ─────────────────────────────────────
 
     test('10. Lauren FATCA — 3a contribution blocked', () {
@@ -964,13 +889,9 @@ void main() {
       // ignore: avoid_print
       print('');
       // ignore: avoid_print
-      print(' Test 1a: AVS Julien individual     → computed above');
+      print(' Test 1c: AVS Couple cap fixture    → computed above');
       // ignore: avoid_print
-      print(' Test 1b: AVS Lauren individual     → computed above');
-      // ignore: avoid_print
-      print(' Test 1c: AVS Couple cap            → computed above');
-      // ignore: avoid_print
-      print(' Test 1d: AVS 13th rente            → computed above');
+      print(' Test 1d: AVS typed input + 13th    → computed above');
       // ignore: avoid_print
       print(' Test 2a: LPP Julien projection     → computed above');
       // ignore: avoid_print
@@ -993,8 +914,6 @@ void main() {
       print(' Test 7:  LPP blended monthly       → computed above');
       // ignore: avoid_print
       print(' Test 8:  Constants sanity check     → computed above');
-      // ignore: avoid_print
-      print(' Test 9:  AVS gap impact            → computed above');
       // ignore: avoid_print
       print(' Test 10: FATCA 3a block            → computed above');
       // ignore: avoid_print

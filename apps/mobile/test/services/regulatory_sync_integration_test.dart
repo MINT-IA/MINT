@@ -5,13 +5,11 @@
 // 2. Simulate a sync with mock data → reg() returns synced value
 // 3. loadFromDisk restores previous session
 // 4. fetchConstants updates cache and persists to SP
-// 5. avs_calculator uses reg() value when cache is populated
 
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -104,37 +102,5 @@ void main() {
       expect(RegulatorySyncService.isFromDisk, isTrue);
     });
 
-    test('avs_calculator uses reg() value when cache is populated', () {
-      // Without cache: AvsCalculator uses hardcoded fallbacks.
-      final renteNoCache = AvsCalculator.computeMonthlyRente(
-        currentAge: 49,
-        retirementAge: 65,
-        grossAnnualSalary: 88200,
-      );
-      // With max salary and full contribution years, should get max rente.
-      expect(renteNoCache, closeTo(avsRenteMaxMensuelle, 1.0));
-
-      // Inject a different full_contribution_years via cache.
-      // With Échelle 44, renteFromRAMD uses the hardcoded table directly,
-      // so avs.max_monthly_pension doesn't change the rente lookup.
-      // Instead, we test avs.full_contribution_years which IS used by
-      // computeMonthlyRente to compute gapFactor.
-      RegulatorySyncService.setMockCache({
-        'avs.full_contribution_years': 50.0, // longer career → lower gapFactor for 45 years
-        'avs.reference_age_men': 65.0,
-      });
-
-      // Now AvsCalculator should use the cached full_contribution_years (50).
-      // currentYears = 49-20 = 29, futureYears = 65-49 = 16, total = 45
-      // capped at 50 → gapFactor = 45/50 = 0.9
-      // renteFromRAMD(88200) = 2520, so rente = 2520 × 0.9 = 2268
-      final renteWithCache = AvsCalculator.computeMonthlyRente(
-        currentAge: 49,
-        retirementAge: 65,
-        grossAnnualSalary: 88200,
-      );
-      expect(renteWithCache, closeTo(2268.0, 1.0));
-      expect(renteWithCache, isNot(equals(renteNoCache)));
-    });
   });
 }

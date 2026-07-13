@@ -455,17 +455,6 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════
 
   group('Scenario 9: Golden couple Julien — swiss_native', () {
-    test('S9.1 — Julien AVS rente: high income → max 2520/mois', () {
-      // Salary 122207 > 88200 (RAMD max) → max rente
-      // Age 49, started at 20, retirement 65 → 44 years (complete)
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 49,
-        retirementAge: 65,
-        grossAnnualSalary: 122207,
-      );
-      expect(rente, closeTo(2520.0, 1.0));
-    });
-
     test('S9.3 — Julien LPP coordination: 122207 → coordonne capped at 64260',
         () {
       // 122207 - 26460 = 95747 → capped at max 64260

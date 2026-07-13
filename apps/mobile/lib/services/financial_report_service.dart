@@ -404,13 +404,14 @@ class FinancialReportService {
     if (recommendation.contains('AVS')) {
       return ActionItem(
         title: l?.reportActionTitleAvsCheck ?? 'Vérifie ton compte AVS',
-        description: l?.reportActionDescAvsCheck ?? 'Évite de perdre jusqu\'à 38\'000 CHF de rente à vie.',
+        description: l?.reportActionDescAvsCheck ??
+            'Commande ton extrait CI et fais vérifier les périodes par ta caisse de compensation.', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
         priority: ActionPriority.high,
         category: ActionCategory.avs,
         steps: [
           '1. Commande extrait gratuit sur ahv-iv.ch',
           '2. Vérifie les années de cotisation',
-          '3. Si lacunes : cotisations volontaires possibles',
+          '3. Demande à la caisse quelles périodes sont retenues', // lint-ignore: legacy catalog or internal copy; localization debt predates G1 AVS-03
         ],
       );
     }

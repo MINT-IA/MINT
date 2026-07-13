@@ -5980,7 +5980,7 @@ class SFr extends S {
 
   @override
   String get dataBlockAvsDesc =>
-      'L\'extrait AVS confirme tes années de cotisation effectives. Des lacunes (séjour à l\'étranger, années manquantes) réduisent ta rente AVS.';
+      'L’extrait CI documente les périodes et revenus enregistrés. La caisse de compensation examine ces périodes et fixe le résultat officiel.';
 
   @override
   String get dataBlockAvsCta => 'Commander mon extrait AVS';
@@ -18755,7 +18755,7 @@ class SFr extends S {
 
   @override
   String get pulseNavExpatGapsDetail =>
-      'Chaque année manquante = -2.3 % de rente à vie.';
+      'Périodes du CI à examiner avec la caisse; aucun effet personnel n’est calculé.';
 
   @override
   String get pulseNavExpatGapsSubtitle =>
@@ -19515,7 +19515,7 @@ class SFr extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Évite de perdre jusqu’à 38’000 CHF de rente à vie.';
+      'Commande ton extrait CI et fais vérifier les périodes par ta caisse de compensation.';
 
   @override
   String get reportActionDescDette =>
@@ -23733,9 +23733,8 @@ class SFr extends S {
   }
 
   @override
-  String expatAvsCiRawDurationBenchmark(int years, String percent) {
-    return 'Repère brut de durée : $years sur 44, soit $percent %. Ce pourcentage n\'est pas une réduction de ta rente. La caisse détermine d\'abord quelles périodes peuvent être prises en compte, puis fixe l\'échelle et le montant officiels. Le montant dépend aussi du revenu annuel moyen déterminant et des bonifications reconnues.';
-  }
+  String get expatAvsCiObservedMissingYearsBody =>
+      'Ce nombre ne détermine ni ta durée complète de cotisation, ni l’échelle, ni une réduction de ta rente. La caisse vérifie les périodes qui peuvent être prises en compte, puis fixe l’échelle et le montant officiels. Le montant dépend aussi du revenu annuel moyen déterminant et des bonifications reconnues.';
 
   @override
   String get expatAvsVoluntaryUnknownTitle =>

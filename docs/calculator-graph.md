@@ -27,14 +27,17 @@ If you hit a match outside `financial_core/`, it's a regression.
 flowchart LR
     PROFILE[CoachProfile]:::profile
 
-    PROFILE --> AVS[AvsCalculator]:::calc
     PROFILE --> AVS_REF[AvsReferenceAge]:::calc
-    AVS_REF --> AVS
-    CI_OBSERVED["CI-observed self missing contribution years"]:::profile --> AVS_RAW["AvsCalculator.rawContributionDurationGapPercent<br/>registry: avs.full_contribution_years"]:::calc
-    AVS_REGISTRY["RegulatoryRegistry<br/>avs.full_contribution_years"]:::profile --> AVS_RAW
-    AVS_RAW --> EXPAT_AVS["ExpatService.assessAvsGapOrientation<br/>raw benchmark only / no write"]:::composer
+    CI_OBSERVED["CI-observed self missing contribution years"]:::profile --> EXPAT_AVS["ExpatService.assessAvsGapOrientation<br/>count only / no write"]:::composer
+    AVS_REGISTRY["RegulatoryRegistry<br/>avs.full_contribution_years"]:::profile --> AVS_RANGE["Expat input range guard<br/>not a personal denominator"]:::composer
+    AVS_RANGE --> EXPAT_AVS
     EXPAT_LOCAL["Nullable local years abroad + explicit opt-in<br/>no ledger write"]:::profile --> EXPAT_AVS
-    EXPAT_AVS --> EXPAT_UI["/expatriation AVS tab<br/>not pension reduction / official scale"]:::ui
+    EXPAT_AVS --> EXPAT_UI["/expatriation AVS tab<br/>declared + CI counts only<br/>no pension / CHF / % / official scale"]:::ui
+    OFFICIAL_AVS["Official person-owned pension evidence<br/>entitlement + scale + payment mode + legal facts"]:::profile --> AVS_COUPLE["AvsCalculator.computeCouplePensions<br/>fail closed / zero production callers"]:::calc
+    AVS_COUPLE --> AVS_COUPLE_CONTRACT["Contract and tests only<br/>no activated product result"]:::composer
+    SELF_EMPLOYED_NET["Self-employed net income"]:::profile --> AVS_GAUGE["AvsCalculator.selfEmployedCotisationGaugePosition"]:::calc
+    AVS_GAUGE --> INDEP_AVS_UI["/independants/avs barème gauge"]:::ui
+    RAMD_INPUT["Explicit RAMD lookup input"]:::profile --> AVS_RAMD["AvsCalculator.renteFromRAMD<br/>isolated Échelle 44 lookup<br/>zero production callers"]:::calc
     AVS_MONTHS["Owner-scoped monthly AVS evidence"]:::profile --> AVS_13[AvsThirteenthPensionCalculator]:::calc
     AVS_DECEMBER["1 December entitlement evidence"]:::profile --> AVS_13
     AVS_13 --> INDEP
@@ -46,7 +49,7 @@ flowchart LR
     PURCHASE_CAP --> AFFORDABILITY[AffordabilityCalculator]:::composer
     PROFILE --> BAYESIAN[BayesianEnricher]:::calc
 
-    AVS --> FRI[FriCalculator]:::composer
+    FRI[FriCalculator]:::composer
     LPP --> FRI
     TAX --> FRI
     HOUSING --> FRI
@@ -96,8 +99,8 @@ Julien + Lauren golden values.
 
 | Calculator | File | Inputs | Returns | Primary consumers |
 |---|---|---|---|---|
-| **AvsCalculator** | `avs_calculator.dart` | RAMD and contribution years/gaps for pension methods; CI-observed self missing contribution years plus registry key `avs.full_contribution_years` for `rawContributionDurationGapPercent` | monthly pension for pension methods; raw contribution-duration benchmark for the CI-observed path, never a pension reduction or official scale | FriCalculator, RetirementDashboardScreen, coach_narrative, ExpatService |
-| **AvsReferenceAge** | `avs_reference_age.dart` | birth year/date, gender | AVS21 reference age in months/years/date + reached-window checks | AvsCalculator, LACI/retirement eligibility surfaces |
+| **AvsCalculator** | `avs_calculator.dart` | Official person-owned pension, entitlement, scale, percentage/payment mode, legal status, and sourced separation evidence for the couple contract; self-employed net income for the gauge; explicit RAMD or bridge/lifetime amounts for isolated primitives | Fail-closed couple-cap result; self-employed barème gauge; isolated Échelle 44, bridge, and lifetime-loss primitives. No method derives a pension, CHF effect, or percentage from declared residence years or a CI gap count. | `/independants/avs` is the only production caller, for the gauge. `computeCouplePensions`, `renteFromRAMD`, and the bridge/lifetime primitives have no production caller and remain contract/test surfaces. |
+| **AvsReferenceAge** | `avs_reference_age.dart` | birth year/date, gender | AVS21 reference age in months/years/date + reached-window checks | LACI/unemployment eligibility surfaces |
 | **AvsThirteenthPensionCalculator** | `avs_thirteenth_pension_calculator.dart` | owner-scoped monthly ordinary AVS evidence, 1 December entitlement, legal snapshot, payment cadence/date | exact-cent ordinary cashflow, separate certified or illustrative December supplement, correction and readiness | IndependantsService scenario bridge behind `enableAvsThirteenthScenarioCashflow` |
 | **LppCalculator** | `lpp_calculator.dart` | avoir, rate, years | projected capital + rente | FriCalculator, ProjectionRetraiteScreen, ArbitrageEngine |
 | **TaxCalculator** | `tax_calculator.dart` | income, canton, marital, 3a | federal + cantonal + marginal | ArbitrageEngine, ProjectionFiscaleScreen |
@@ -153,7 +156,7 @@ for a specific UI surface. Found under `apps/mobile/lib/services/`.
 | **SnapshotService** | `snapshot_service.dart` | Persists daily/scan/life-event snapshots | CoachProfile | `updateFromRefresh`, `createSnapshotFromProfile` |
 | **SessionSnapshotService** | `session_snapshot_service.dart` | In-session delta | Snapshot + current profile | MintStateEngine |
 | **DonationService** | `donation_service.dart` | ledger facts + scenario assumptions + SuccessionReserveCalculator | educational gift-tax status, reserve/disposable portion, alerts/checklist | DonationScreen |
-| **ExpatService** | `expat_service.dart` | Composes `AvsCalculator.rawContributionDurationGapPercent` for `assessAvsGapOrientation`; nullable local years abroad + explicit opt-in remain scenario-only and no-write | certificate-ready self CI-observed missing contribution years; `avs.full_contribution_years` is read only through AvsCalculator | ExpatScreen, AvsGapWidget; no CHF, pension reduction, official scale, partner synthesis, or profile write |
+| **ExpatService** | `expat_service.dart` | Returns a count-only `AvsGapAssessment`; declared years abroad remain local and opt-in, while CI-observed self missing years stay nullable and certificate-backed | Declared years abroad, nullable self CI count, and registry key `avs.full_contribution_years` strictly as the input range bound—never as a personal pension denominator | ExpatScreen, AvsGapWidget; no percentage, CHF effect, pension, readiness-score effect, official scale, partner synthesis, or profile write |
 
 ---
 
@@ -222,7 +225,7 @@ features on top of these until the câblage is real. Full details:
 
 ---
 
-*Last updated: 2026-07-14 after registering `MortgagePurchaseCapacityCalculator`, `AvsThirteenthPensionCalculator`, and the Expat AVS raw-duration bridge.
+*Last updated: 2026-07-14 after G1-AVS-03 retired the unofficial AVS gap-effect bridge, made Expat AVS count-only, and recorded the production-unwired official couple contract alongside the independent barème gauge. The graph also registers `MortgagePurchaseCapacityCalculator` and `AvsThirteenthPensionCalculator`.
 Façade status comes from the 2026-04-21 audit in
 `.planning/triage-2026-04-20-service-audit.md`. When you refactor any
 service in `financial_core/` or add a new aggregator, update this file

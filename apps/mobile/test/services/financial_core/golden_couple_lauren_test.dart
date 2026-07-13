@@ -20,36 +20,9 @@ void main() {
   const laurenSalary = 67000.0;
   const laurenCanton = 'VS';
   const laurenLppAvoir = 19620.0;
-  const laurenArrivalAge = 22;
   const retirementAge = 65;
 
   group('Golden Couple — Lauren AVS', () {
-    test('1. Lauren AVS with arrival gap → reduced vs native', () {
-      // Lauren arrived at ~22, so she has 43-22 = 21 current years
-      // + 22 future years = 43/44 total. Slight gap vs native 44/44.
-      final laurenRente = AvsCalculator.computeMonthlyRente(
-        currentAge: laurenAge,
-        retirementAge: retirementAge,
-        arrivalAge: laurenArrivalAge,
-        grossAnnualSalary: laurenSalary,
-      );
-      final nativeRente = AvsCalculator.computeMonthlyRente(
-        currentAge: laurenAge,
-        retirementAge: retirementAge,
-        grossAnnualSalary: laurenSalary,
-      );
-      // arrivalAge 22 means current years = 43-22 = 21
-      // native current years = 43-20 = 23
-      // Both have future = 22
-      // Lauren total: 21+22 = 43/44 ≈ 97.7%
-      // Native total: 23+22 = 44/44 = 100%
-      expect(laurenRente, lessThan(nativeRente));
-      expect(laurenRente / nativeRente, closeTo(43 / 44, 0.02));
-      // Lauren salary 67k is between RAMD min (14700) and max (88200)
-      expect(laurenRente, greaterThan(avsRenteMinMensuelle * 0.9));
-      expect(laurenRente, lessThan(avsRenteMaxMensuelle));
-    });
-
     test('2. Lauren + Julien married couple → capped at 3780', () {
       const julienOfficialRente = 2520.0;
       const laurenOfficialRente = 2150.0;
@@ -208,15 +181,8 @@ void main() {
       expect(breakdown.netRatio, lessThan(0.95));
     });
 
-    test('10. Lauren recurring annual rente and 13th stay separate', () {
-      final laurenMonthly = AvsCalculator.computeMonthlyRente(
-        currentAge: laurenAge,
-        retirementAge: retirementAge,
-        arrivalAge: laurenArrivalAge,
-        grossAnnualSalary: laurenSalary,
-      );
-      final scenarioMonthly =
-          ChfAmount.fromCents((laurenMonthly * 100).round());
+    test('10. Typed monthly AVS input keeps the 13th separate', () {
+      const scenarioMonthly = ChfAmount.fromCents(213728);
       final supplement = AvsThirteenthPensionCalculator.calculate(
         AvsThirteenthPensionInput.fullYearScenario(
           ownerId: 'golden-lauren',
