@@ -17,6 +17,7 @@ from typing import Optional
 from app.services.coach.coach_tools import (
     COACH_TOOLS,
     ROUTE_TO_SCREEN_INTENT_TAGS,
+    get_llm_tools,
 )
 
 
@@ -27,6 +28,11 @@ from app.services.coach.coach_tools import (
 def _find_tool(name: str) -> Optional[dict]:
     """Return the tool definition with the given name, or None."""
     return next((t for t in COACH_TOOLS if t["name"] == name), None)
+
+
+def _find_llm_tool(name: str) -> Optional[dict]:
+    """Return the exact tool surface sent to the LLM."""
+    return next((t for t in get_llm_tools() if t["name"] == name), None)
 
 
 BANNED_TERMS = [
@@ -130,36 +136,21 @@ class TestRouteToScreenTool:
         required = tool["input_schema"]["required"]
         assert len(required) == 3
 
-    def test_route_to_screen_has_optional_prefill_property(self):
-        """prefill must be in properties but NOT in required — it is optional."""
-        tool = _find_tool("route_to_screen")
-        props = tool["input_schema"]["properties"]
-        required = tool["input_schema"]["required"]
-        # prefill must exist as a property
-        assert "prefill" in props, "prefill property missing from route_to_screen schema"
-        # prefill must be of type "object"
-        assert props["prefill"]["type"] == "object", (
-            "prefill property must be type 'object'"
-        )
-        # prefill must NOT be in required — it is optional
-        assert "prefill" not in required, (
-            "prefill must be optional (not in required list)"
-        )
-        # prefill must allow additional properties (open-ended key-value map)
-        assert props["prefill"].get("additionalProperties") is True, (
-            "prefill must have additionalProperties: true for open-ended maps"
-        )
+    def test_route_to_screen_llm_schema_is_identifier_only(self):
+        """Navigation accepts intent metadata, never profile or financial payloads."""
+        tool = _find_llm_tool("route_to_screen")
+        schema = tool["input_schema"]
+        expected_fields = {"intent", "confidence", "context_message"}
 
-    def test_route_to_screen_prefill_description_mentions_profile_fields(self):
-        """prefill description must mention CoachProfile field names."""
-        tool = _find_tool("route_to_screen")
-        desc = tool["input_schema"]["properties"]["prefill"]["description"]
-        # Must mention at least one known CoachProfile field key
-        profile_fields = ["avoirLppTotal", "salaireBrutMensuel", "canton"]
-        has_field = any(f in desc for f in profile_fields)
-        assert has_field, (
-            f"prefill description should mention CoachProfile fields, got: {desc}"
-        )
+        assert set(schema["properties"]) == expected_fields
+        assert set(schema["required"]) == expected_fields
+
+    def test_route_to_screen_llm_schema_rejects_unknown_fields(self):
+        """Unknown keys must fail closed instead of recreating a data channel."""
+        tool = _find_llm_tool("route_to_screen")
+        schema = tool["input_schema"]
+
+        assert schema.get("additionalProperties") is False
 
     def test_route_to_screen_intent_description_lists_tags(self):
         """Intent description must mention that tags are registered."""
