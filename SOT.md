@@ -133,3 +133,25 @@ Source: `apps/mobile/lib/services/financial_core/confidence_scorer.dart`
   privacy review.
 - There is no mobile consumer or write-back yet. The flag stays off until that
   review path and its strict-secure atomic ledger envelope have runtime proof.
+
+## 7. AVS retirement estimator cash-flow contract (G1)
+
+- `POST /api/v1/retirement/avs/estimate` returns an ordinary recurring pension:
+  `renteMensuelle` is one ordinary monthly payment and `renteAnnuelle` is
+  exactly twelve ordinary payments.
+- `totalCumule`, anticipation/deferral shock figures and breakeven comparisons
+  use those twelve ordinary payments only.
+- The separate annual AVS supplement paid in December is not emitted or folded
+  into these fields. Computing it requires owner-scoped monthly old-age-pension
+  evidence and resolved December entitlement; a generic `monthly * 13` or
+  `annual * 13 / 12` proxy is forbidden.
+- `/api/v1/overview/me` never derives `avsRenteMensuelle` or
+  `avsRenteAnnuelle` from `avsContributionYears`: contribution history is not a
+  pension amount, and the estimator's missing salary proxy would otherwise
+  fabricate the maximum pension. Missing history stays missing and an explicit
+  zero remains a valid contribution-history fact, but neither authorizes a
+  pension output.
+- `isCouple`/`householdType=couple` is civil context, not partner evidence. The
+  simplified estimator leaves `renteCoupleMensuelle` null and overview exposes
+  no household AVS total until both owner-scoped pensions, entitlement,
+  splitting and applicable cap inputs are available.

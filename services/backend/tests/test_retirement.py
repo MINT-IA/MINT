@@ -2,12 +2,12 @@
 Tests for the Retirement planning module (Sprint S21).
 
 Covers:
-    - AVS estimation service — 18 tests
+    - AVS estimation service — 19 tests
     - LPP conversion service — 15 tests
     - Retirement budget service — 12 tests
     - API endpoints (integration) — 5 tests
 
-Target: 50 tests.
+Target: 51 tests.
 
 Run: cd services/backend && python3 -m pytest tests/test_retirement.py -v
 """
@@ -16,7 +16,6 @@ import pytest
 
 from app.services.retirement.avs_estimation_service import (
     AvsEstimationService,
-    AVS_MAX_RENTE_COUPLE_FACTOR,
     AVS_RETIREMENT_AGE,
 )
 from app.constants.social_insurance import (
@@ -55,7 +54,7 @@ def budget_service():
 
 
 # ===========================================================================
-# AVS Estimation Tests (18 tests)
+# AVS Estimation Tests (19 tests)
 # ===========================================================================
 
 class TestAvsEstimation:
@@ -112,14 +111,12 @@ class TestAvsEstimation:
         expected_rente = round(AVS_MAX_RENTE_MENSUELLE * (1.0 + AVS_DEFERRAL_BONUS[5]), 2)
         assert result.rente_mensuelle == expected_rente
 
-    def test_couple_cap_150(self, avs_service):
-        """Couple rente should be capped at 150% of individual max."""
+    def test_couple_status_does_not_fabricate_partner_pension(self, avs_service):
+        """Civil status alone cannot prove a two-owner AVS household total."""
         result = avs_service.estimate(current_age=50, retirement_age=65, is_couple=True)
-        max_couple = AVS_MAX_RENTE_MENSUELLE * AVS_MAX_RENTE_COUPLE_FACTOR
-        assert result.rente_couple_mensuelle is not None
-        assert result.rente_couple_mensuelle <= max_couple
-        # For full contributions at normal retirement, couple = 150% cap
-        assert result.rente_couple_mensuelle == round(max_couple, 2)
+        assert result.rente_couple_mensuelle is None
+        assert "partenaire" in result.premier_eclairage.lower()
+        assert "non incluse" in result.premier_eclairage.lower()
 
     def test_gaps_reduce_rente(self, avs_service):
         """5 years of contribution gaps should reduce rente proportionally."""
@@ -139,13 +136,23 @@ class TestAvsEstimation:
         result = avs_service.estimate(current_age=50, retirement_age=65)
         assert result.rente_mensuelle == 2520.0
 
-    def test_rente_annuelle_with_13th(self, avs_service):
-        """Annual rente at normal retirement with full contributions includes 13th rente."""
+    def test_rente_annuelle_contains_only_twelve_ordinary_payments(self, avs_service):
+        """Recurring annual AVS must not absorb the separate December supplement."""
         result = avs_service.estimate(current_age=50, retirement_age=65)
-        # 13ème rente active (LAVS art. 34 nouveau): 2520 × 13 = 32760
-        assert result.rente_annuelle == 32760.0
-        assert result.nombre_rentes_par_an == 13
-        assert result.rente_annuelle == result.rente_mensuelle * 13
+        assert result.rente_annuelle == 30240.0
+        assert result.nombre_rentes_par_an == 12
+        assert result.rente_annuelle == result.rente_mensuelle * 12
+        assert result.total_cumule == result.rente_annuelle * result.duree_estimee_ans
+
+    def test_copy_keeps_december_supplement_separate(self, avs_service):
+        result = avs_service.estimate(current_age=50, retirement_age=65)
+
+        copy = result.premier_eclairage.lower()
+        assert "12 versements ordinaires" in copy
+        assert "supplément" in copy
+        assert "décembre" in copy
+        assert "non inclus" in copy
+        assert "caisse avs" in copy
 
     def test_breakeven_anticipation(self, avs_service):
         """Anticipation breakeven: normal should catch up at some age."""
@@ -516,7 +523,11 @@ class TestRetirementEndpoints:
         assert data["scenario"] == "normal"
         assert "renteMensuelle" in data
         assert "renteAnnuelle" in data
+        assert data["renteAnnuelle"] == data["renteMensuelle"] * 12
+        assert data["totalCumule"] == data["renteAnnuelle"] * (87 - 65)
         assert "premierEclairage" in data
+        assert "supplément" in data["premierEclairage"].lower()
+        assert "non inclus" in data["premierEclairage"].lower()
         assert "disclaimer" in data
         assert "sources" in data
 
@@ -594,5 +605,5 @@ class TestRetirementEndpoints:
         assert "ageDepart" in data
         assert "renteMensuelle" in data
         assert "penaliteOuBonusPct" in data
-        assert "renteCoupleeMensuelle" in data or "renteCoupleeMensuelle" not in data
+        assert data["renteCoupleMensuelle"] is None
         assert data["scenario"] == "anticipation"

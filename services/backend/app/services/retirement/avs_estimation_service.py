@@ -6,7 +6,8 @@ Simulates the AVS first-pillar pension under three scenarios:
     - Normal retirement at age 65
     - Ajournement (deferral up to age 70): bonus of +5.2% to +31.5%
 
-Also handles contribution gaps and couple plafonnement.
+Also handles contribution gaps. A household/couple total is deliberately not
+estimated without two owner-scoped pension inputs and resolved entitlement.
 
 Sources:
     - LAVS art. 21bis (anticipation de la rente)
@@ -21,11 +22,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from app.constants.social_insurance import (
-    AVS_13EME_RENTE_ACTIVE,
-    AVS_NOMBRE_RENTES_PAR_AN,
     AVS_RENTE_MAX_MENSUELLE,
     AVS_RENTE_MIN_MENSUELLE,
-    AVS_RENTE_COUPLE_MAX_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
     AVS_REDUCTION_ANTICIPATION,
     AVS_SUPPLEMENT_AJOURNEMENT,
@@ -35,14 +33,13 @@ from app.constants.social_insurance import (
 
 
 DISCLAIMER = (
-    "Estimations educatives simplifiees. Les montants reels dependent de ton "
+    "Estimations éducatives simplifiées. Les montants réels dépendent de ton "
     "historique de cotisations, de ton canton et de ta situation personnelle. "
-    "Ne constitue pas un conseil en prevoyance (LSFin). Consulte un ou une specialiste."
+    "Ne constitue pas un conseil en prévoyance (LSFin). Consulte un ou une spécialiste."
 )
 
 # Derived constants
-AVS_MAX_RENTE_ANNUELLE = AVS_RENTE_MAX_MENSUELLE * 12
-AVS_MAX_RENTE_COUPLE_FACTOR = AVS_RENTE_COUPLE_MAX_MENSUELLE / AVS_RENTE_MAX_MENSUELLE
+AVS_ORDINARY_PAYMENTS_PER_YEAR = 12
 AVS_RETIREMENT_AGE = 65
 AVS_MIN_ANTICIPATION_AGE = 63      # can start at 63 (1 or 2 years early)
 AVS_MAX_DEFERRAL_YEARS = 5         # can defer up to 5 years (to age 70)
@@ -54,11 +51,11 @@ class AvsEstimation:
     scenario: str                     # "anticipation", "normal", "ajournement"
     age_depart: int                   # Retirement age chosen
     rente_mensuelle: float            # Monthly pension (CHF)
-    rente_annuelle: float             # Annual pension (CHF) — includes 13th rente if active
-    nombre_rentes_par_an: int         # 13 (with 13th rente) or 12 (without)
+    rente_annuelle: float             # Twelve recurring ordinary payments (CHF)
+    nombre_rentes_par_an: int         # Always 12 ordinary recurring payments
     facteur_ajustement: float         # 1.0, <1.0 (penalty), >1.0 (bonus)
     penalite_ou_bonus_pct: float      # % adjustment (negative = penalty)
-    rente_couple_mensuelle: Optional[float]  # Couple pension if applicable
+    rente_couple_mensuelle: Optional[float]  # None without two owner-scoped inputs
     duree_estimee_ans: int            # Years from retirement to life expectancy
     total_cumule: float               # Total pension over estimated duration
     breakeven_vs_normal: Optional[int]  # Age at which total exceeds normal scenario
@@ -74,7 +71,7 @@ class AvsEstimationService:
     - Anticipation: 1 or 2 years early, -6.8% per year (LAVS art. 21bis)
     - Deferral: 1 to 5 years late, +5.2% to +31.5% (LAVS art. 21ter)
     - Maximum individual rente: CHF 2'520/month (2025)
-    - Couple cap: 150% of single rente (LAVS art. 35)
+    - Couple cap is not computed from civil status alone (LAVS art. 35)
     - Gaps in contributions reduce rente proportionally (LAVS art. 29)
     """
 
@@ -120,7 +117,7 @@ class AvsEstimationService:
         Args:
             current_age: Person's current age.
             retirement_age: Desired retirement age (63-70).
-            is_couple: Whether both spouses receive AVS (couple plafonnement).
+            is_couple: Civil context only; does not prove a partner pension.
             annees_lacunes: Number of years with missing contributions.
             life_expectancy: Assumed life expectancy for cumulative calculation.
             gross_salary: Annual gross salary (proxy for RAMD). If 0, uses max rente.
@@ -157,24 +154,16 @@ class AvsEstimationService:
             full_rente = AVS_RENTE_MAX_MENSUELLE
         base_rente = full_rente * gap_factor
         rente_mensuelle = round(base_rente * factor, 2)
-        # Annual rente includes 13th rente if active (13 × monthly instead of 12)
-        nb_rentes = AVS_NOMBRE_RENTES_PAR_AN if AVS_13EME_RENTE_ACTIVE else 12
+        # Recurring annual cash flow is twelve ordinary payments. The separate
+        # December supplement needs monthly, owner-scoped evidence and is not
+        # fabricated by this simplified estimator.
+        nb_rentes = AVS_ORDINARY_PAYMENTS_PER_YEAR
         rente_annuelle = round(rente_mensuelle * nb_rentes, 2)
 
-        # 4. Couple plafonnement
-        # TODO(deferred): LAVS art. 29quinquies — income splitting during marriage not yet modeled.
-        # Current: applies 150% couple cap only. For asymmetric couples (e.g. 200k + 0),
-        # individual rentes before cap may be inaccurate. Full splitting requires marriage date
-        # and is a dedicated feature (see ROADMAP — couple accuracy milestone).
+        # Civil status cannot synthesize a symmetric partner pension. A real
+        # household result needs two owner-scoped pensions plus entitlement,
+        # splitting and cap inputs.
         rente_couple = None
-        if is_couple:
-            rente_couple = round(
-                min(
-                    rente_mensuelle * 2,
-                    AVS_RENTE_MAX_MENSUELLE * AVS_MAX_RENTE_COUPLE_FACTOR,
-                ),
-                2,
-            )
 
         # 5. Cumulative projection
         duree = max(0, life_expectancy - retirement_age)
@@ -194,7 +183,7 @@ class AvsEstimationService:
             )
             premier_eclairage = (
                 f"Anticiper de {AVS_RETIREMENT_AGE - retirement_age} an(s) = "
-                f"-{abs(penalty_pct):.1f}% a vie, soit ~CHF {perte_totale:,.0f} "
+                f"-{abs(penalty_pct):.1f}% à vie, soit ~CHF {perte_totale:,.0f} "
                 f"de moins sur {duree} ans"
             )
         elif scenario == "ajournement":
@@ -203,20 +192,29 @@ class AvsEstimationService:
             )
             premier_eclairage = (
                 f"Ajourner de {retirement_age - AVS_RETIREMENT_AGE} an(s) = "
-                f"+{penalty_pct:.1f}% a vie, soit ~CHF {gain_total:,.0f} "
+                f"+{penalty_pct:.1f}% à vie, soit ~CHF {gain_total:,.0f} "
                 f"de plus sur {duree} ans"
             )
         else:
             premier_eclairage = (
-                f"Ta rente AVS estimee : CHF {rente_mensuelle:,.0f}/mois "
-                f"soit CHF {rente_annuelle:,.0f}/an (13 rentes)"
+                f"Ta rente AVS ordinaire estimée : CHF {rente_mensuelle:,.0f}/mois, "
+                f"soit CHF {rente_annuelle:,.0f}/an (12 versements ordinaires)."
+            )
+        premier_eclairage += (
+            " Le supplément annuel AVS reste séparé, versé en décembre, non inclus "
+            "dans ces montants ordinaires et à confirmer auprès de ta caisse AVS."
+        )
+        if is_couple:
+            premier_eclairage += (
+                " La rente de la personne partenaire est non incluse : le statut "
+                "de couple seul ne prouve ni sa rente ni le plafonnement applicable."
             )
 
         sources = [
             "LAVS art. 21bis (anticipation de la rente)",
             "LAVS art. 21ter (ajournement de la rente)",
             "LAVS art. 29 (rente maximale, echelle 44)",
-            "LAVS art. 34 nouveau (13eme rente, des decembre 2026)",
+            "LAVS art. 34ter (supplément annuel séparé dès décembre 2026)",
         ]
 
         return AvsEstimation(
@@ -272,8 +270,7 @@ class AvsEstimationService:
             full_rente = AVS_RENTE_MAX_MENSUELLE
         normal_rente_mensuelle = full_rente * gap_factor
 
-        # Annual rente uses 13 payments (13e rente) when active, not 12.
-        nb_rentes = AVS_NOMBRE_RENTES_PAR_AN if AVS_13EME_RENTE_ACTIVE else 12
+        nb_rentes = AVS_ORDINARY_PAYMENTS_PER_YEAR
 
         # Compare cumulative amounts year by year
         cumul_scenario = 0.0

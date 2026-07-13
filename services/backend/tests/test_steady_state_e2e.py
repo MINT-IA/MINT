@@ -184,10 +184,10 @@ def test_julien_steady_state_full_loop(client: TestClient) -> None:
         },
     ).json()
     assert avs["renteMensuelle"] > 0
-    assert avs["renteAnnuelle"] > 10_000
-    # Couple plafond 150% max individual (LAVS art. 35)
-    assert avs["renteCoupleMensuelle"] is not None
-    assert avs["renteCoupleMensuelle"] <= avs["renteMensuelle"] * 1.5 + 1
+    assert avs["renteAnnuelle"] == avs["renteMensuelle"] * 12
+    # Civil status alone cannot fabricate the partner pension or couple cap.
+    assert avs["renteCoupleMensuelle"] is None
+    assert "partenaire" in avs["premierEclairage"].lower()
 
     lpp_compare = c.post(
         "/api/v1/retirement/lpp/compare",
@@ -279,7 +279,7 @@ def test_julien_steady_state_full_loop(client: TestClient) -> None:
     # validation error, but if success the payload MUST have numeric signals.
     if hsale.status_code == 200:
         he = hsale.json()
-        # The endpoint should at minimum surface a gain/tax figure or eclairage
+        # The endpoint should at minimum surface a gain/tax figure or éclairage
         has_signal = any(
             k in he
             for k in (
@@ -446,7 +446,8 @@ def test_marc_independant_zh_cruise(client: TestClient) -> None:
         json={"ageActuel": 56, "ageRetraite": 65, "isCouple": True},
     ).json()
     assert avs["renteMensuelle"] > 0
-    assert avs["renteCoupleMensuelle"] is not None
+    assert avs["renteAnnuelle"] == avs["renteMensuelle"] * 12
+    assert avs["renteCoupleMensuelle"] is None
 
     # Plan: "Avant ma 60e année j'aurai split mon 3a en 3 comptes"
     plan = c.post(

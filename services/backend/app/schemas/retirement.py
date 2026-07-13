@@ -50,7 +50,10 @@ class AvsEstimationRequest(BaseModel):
     )
     is_couple: bool = Field(
         default=False,
-        description="Couple: plafonnement a 150% de la rente individuelle",
+        description=(
+            "Contexte civil uniquement; ne suffit pas à calculer une rente couple "
+            "sans deux rentes owner-scoped et leur état de droit"
+        ),
     )
     annees_lacunes: int = Field(
         default=0, ge=0, le=44,
@@ -77,10 +80,14 @@ class AvsEstimationResponse(BaseModel):
         ..., description="Age de depart effectif",
     )
     rente_mensuelle: float = Field(
-        ..., description="Rente mensuelle estimee (CHF)",
+        ..., description="Rente mensuelle ordinaire estimée (CHF)",
     )
     rente_annuelle: float = Field(
-        ..., description="Rente annuelle estimee (CHF)",
+        ...,
+        description=(
+            "Douze versements ordinaires estimés (CHF); le supplément annuel "
+            "versé séparément en décembre n'est pas inclus"
+        ),
     )
     facteur_ajustement: float = Field(
         ..., description="Facteur d'ajustement (1.0 = normal)",
@@ -90,13 +97,20 @@ class AvsEstimationResponse(BaseModel):
     )
     rente_couple_mensuelle: Optional[float] = Field(
         default=None,
-        description="Rente couple mensuelle si applicable (CHF)",
+        description=(
+            "Non calculée par cet estimateur simplifié: requiert deux rentes "
+            "owner-scoped et les données de droit/plafonnement"
+        ),
     )
     duree_estimee_ans: int = Field(
         ..., description="Duree estimee en annees (retraite -> esperance de vie)",
     )
     total_cumule: float = Field(
-        ..., description="Total cumule sur la duree estimee (CHF)",
+        ...,
+        description=(
+            "Total cumulé des douze versements ordinaires sur la durée "
+            "estimée (CHF); supplément annuel non inclus"
+        ),
     )
     breakeven_vs_normal: Optional[int] = Field(
         default=None,

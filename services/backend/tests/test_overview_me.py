@@ -1,7 +1,7 @@
 """GET /overview/me — aperçu financier aggregator.
 
 Validates the single-shot aggregator that powers the Aperçu financier
-screen: reads ProfileModel.data, runs AVS/LPP calculators when enough
+screen: reads ProfileModel.data, runs safe calculators when enough
 facts are known, returns section-by-section status + completeness index
 + alertes + premier éclairage.
 """
@@ -10,9 +10,11 @@ from __future__ import annotations
 
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.core.auth import get_current_user, require_current_user
+from app.api.v1.endpoints.overview import _build_prevoyance
 from app.main import app
 
 
@@ -30,6 +32,71 @@ def _register(client: TestClient, tag: str) -> tuple[str, str]:
     )
     assert resp.status_code == 201
     return email, resp.json()["access_token"]
+
+
+def test_prevoyance_skips_avs_when_contribution_history_is_missing():
+    section = _build_prevoyance(
+        {
+            "birthYear": 1977,
+            "householdType": "single",
+        }
+    )
+
+    assert "avsRenteMensuelle" not in section.values
+    assert "avsRenteAnnuelle" not in section.values
+
+
+def test_prevoyance_zero_contribution_years_does_not_authorize_pension():
+    section = _build_prevoyance(
+        {
+            "birthYear": 1977,
+            "householdType": "single",
+            "avsContributionYears": 0,
+        }
+    )
+
+    assert "avsRenteMensuelle" not in section.values
+    assert "avsRenteAnnuelle" not in section.values
+
+
+def test_prevoyance_full_contribution_years_does_not_authorize_pension():
+    section = _build_prevoyance(
+        {
+            "birthYear": 1977,
+            "householdType": "single",
+            "avsContributionYears": 44,
+        }
+    )
+
+    assert "avsRenteMensuelle" not in section.values
+    assert "avsRenteAnnuelle" not in section.values
+
+
+@pytest.mark.parametrize("invalid_years", ["forty-four", -1, 45])
+def test_prevoyance_skips_avs_when_contribution_history_is_invalid(invalid_years):
+    section = _build_prevoyance(
+        {
+            "birthYear": 1977,
+            "householdType": "single",
+            "avsContributionYears": invalid_years,
+        }
+    )
+
+    assert "avsRenteMensuelle" not in section.values
+    assert "avsRenteAnnuelle" not in section.values
+
+
+def test_prevoyance_couple_status_does_not_fabricate_partner_pension():
+    section = _build_prevoyance(
+        {
+            "birthYear": 1977,
+            "householdType": "couple",
+            "avsContributionYears": 44,
+        }
+    )
+
+    assert "avsRenteMensuelle" not in section.values
+    assert "avsRenteCoupleMensuelle" not in section.values
 
 
 def test_overview_empty_profile_returns_low_completeness(client: TestClient):
@@ -73,6 +140,7 @@ def test_overview_julien_cruise_state(client: TestClient):
             "lppInsuredSalary": 91967,
             "has2ndPillar": True,
             "pillar3aAnnual": 7258,
+            "avsContributionYears": 44,
             "totalSavings": 40_000,
             "commune": "Sion",
             "employmentStatus": "salarie",
@@ -107,10 +175,11 @@ def test_overview_julien_cruise_state(client: TestClient):
     assert body["identity"]["values"]["age"] == 2026 - 1977
     assert body["identity"]["values"]["canton"] == "VS"
 
-    # Prevoyance now has AVS + LPP projections computed
+    # LPP can be projected, but contribution years alone cannot fabricate AVS.
     prev = body["prevoyance"]["values"]
-    assert prev.get("avsRenteMensuelle") is not None
-    assert prev["avsRenteMensuelle"] > 0
+    assert "avsRenteMensuelle" not in prev
+    assert "avsRenteAnnuelle" not in prev
+    assert "avsRenteCoupleMensuelle" not in prev
     assert prev.get("lppProjectedCapital") is not None
     assert prev["lppProjectedCapital"] > 70376  # projected forward > current
     assert prev.get("lppRenteMensuelleNette") is not None
@@ -127,6 +196,7 @@ def test_overview_julien_cruise_state(client: TestClient):
 
     # Premier éclairage must be personalised now (not the starter line)
     assert "On vient de commencer" not in body["premierEclairage"]
+    assert "AVS + LPP" not in body["premierEclairage"]
 
 
 def test_overview_alert_lpp_inconsistency(client: TestClient):

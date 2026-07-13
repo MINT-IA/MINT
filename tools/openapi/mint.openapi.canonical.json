@@ -1999,7 +1999,7 @@
           },
           "isCouple": {
             "default": false,
-            "description": "Couple: plafonnement a 150% de la rente individuelle",
+            "description": "Contexte civil uniquement; ne suffit pas à calculer une rente couple sans deux rentes owner-scoped et leur état de droit",
             "title": "Iscouple",
             "type": "boolean"
           }
@@ -2056,7 +2056,7 @@
             "type": "string"
           },
           "renteAnnuelle": {
-            "description": "Rente annuelle estimee (CHF)",
+            "description": "Douze versements ordinaires estimés (CHF); le supplément annuel versé séparément en décembre n'est pas inclus",
             "title": "Renteannuelle",
             "type": "number"
           },
@@ -2069,11 +2069,11 @@
                 "type": "null"
               }
             ],
-            "description": "Rente couple mensuelle si applicable (CHF)",
+            "description": "Non calculée par cet estimateur simplifié: requiert deux rentes owner-scoped et les données de droit/plafonnement",
             "title": "Rentecouplemensuelle"
           },
           "renteMensuelle": {
-            "description": "Rente mensuelle estimee (CHF)",
+            "description": "Rente mensuelle ordinaire estimée (CHF)",
             "title": "Rentemensuelle",
             "type": "number"
           },
@@ -2091,7 +2091,7 @@
             "type": "array"
           },
           "totalCumule": {
-            "description": "Total cumule sur la duree estimee (CHF)",
+            "description": "Total cumulé des douze versements ordinaires sur la durée estimée (CHF); supplément annuel non inclus",
             "title": "Totalcumule",
             "type": "number"
           }
@@ -15743,7 +15743,7 @@
         "type": "object"
       },
       "PremierEclairageRequest": {
-        "description": "Request for document-specific premier eclairage generation (DOC-07).\n\nAfter document extraction, sends extracted fields to generate a\npersonalized 4-layer insight using the MINT insight engine.",
+        "description": "Request for document-specific premier éclairage generation (DOC-07).\n\nAfter document extraction, sends extracted fields to generate a\npersonalized 4-layer insight using the MINT insight engine.",
         "properties": {
           "canton": {
             "anyOf": [
@@ -22823,29 +22823,8 @@
         "title": "PremierEclairageResponse",
         "type": "object"
       },
-      "h_23998a381e30__ConsentUpdateRequest": {
-        "description": "Request body for PATCH /reengagement/consent/{user_id}.",
-        "properties": {
-          "consentType": {
-            "description": "Type de consentement (byok_data_sharing, snapshot_storage, notifications)",
-            "title": "Consenttype",
-            "type": "string"
-          },
-          "enabled": {
-            "description": "Activer (true) ou desactiver (false)",
-            "title": "Enabled",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "consentType",
-          "enabled"
-        ],
-        "title": "ConsentUpdateRequest",
-        "type": "object"
-      },
-      "h_38b5376f952f__PremierEclairageResponse": {
-        "description": "Response with 4-layer premier eclairage from document data (DOC-07).\n\nStructure follows the MINT 4-layer insight engine:\n1. Factual extraction (what the document says)\n2. Human translation (what it means in plain language)\n3. Personal perspective (what it implies for YOU)\n4. Questions to ask (before signing/acting)",
+      "h_2185b7eb6cdc__PremierEclairageResponse": {
+        "description": "Response with 4-layer premier éclairage from document data (DOC-07).\n\nStructure follows the MINT 4-layer insight engine:\n1. Factual extraction (what the document says)\n2. Human translation (what it means in plain language)\n3. Personal perspective (what it implies for YOU)\n4. Questions to ask (before signing/acting)",
         "properties": {
           "disclaimer": {
             "description": "Mandatory LSFin disclaimer",
@@ -22893,6 +22872,27 @@
           "sources"
         ],
         "title": "PremierEclairageResponse",
+        "type": "object"
+      },
+      "h_23998a381e30__ConsentUpdateRequest": {
+        "description": "Request body for PATCH /reengagement/consent/{user_id}.",
+        "properties": {
+          "consentType": {
+            "description": "Type de consentement (byok_data_sharing, snapshot_storage, notifications)",
+            "title": "Consenttype",
+            "type": "string"
+          },
+          "enabled": {
+            "description": "Activer (true) ou desactiver (false)",
+            "title": "Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "consentType",
+          "enabled"
+        ],
+        "title": "ConsentUpdateRequest",
         "type": "object"
       },
       "h_56bf17ec2da1__TransactionResponse": {
@@ -27205,7 +27205,7 @@
     },
     "/api/v1/documents/premier-eclairage": {
       "post": {
-        "description": "Generate a 4-layer premier eclairage from extracted document data (DOC-07).\n\nCalled after document extraction and user confirmation to produce a\npersonalized insight using the MINT 4-layer insight engine:\n1. Factual extraction (what the document says)\n2. Human translation (plain language)\n3. Personal perspective (what it means for the user)\n4. Questions to ask (before signing/acting)\n\nRate limited to 5/minute (heavier than extraction).\nAll LLM-generated text is validated through ComplianceGuard (COMP-01).",
+        "description": "Generate a 4-layer premier éclairage from extracted document data (DOC-07).\n\nCalled after document extraction and user confirmation to produce a\npersonalized insight using the MINT 4-layer insight engine:\n1. Factual extraction (what the document says)\n2. Human translation (plain language)\n3. Personal perspective (what it means for the user)\n4. Questions to ask (before signing/acting)\n\nRate limited to 5/minute (heavier than extraction).\nAll LLM-generated text is validated through ComplianceGuard (COMP-01).",
         "operationId": "document_premier_eclairage_api_v1_documents_premier_eclairage_post",
         "requestBody": {
           "content": {
@@ -27222,7 +27222,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/h_38b5376f952f__PremierEclairageResponse"
+                  "$ref": "#/components/schemas/h_2185b7eb6cdc__PremierEclairageResponse"
                 }
               }
             },

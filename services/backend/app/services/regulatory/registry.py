@@ -635,16 +635,17 @@ _PARAMETERS: list[RegulatoryParameter] = [
         description="RAMD maximum. Rente = max si salaire >= RAMD_MAX.",
         reviewed_at=_REVIEWED,
     ),
-    # 13th pension
+    # Separate annual old-age pension supplement. This registry records legal
+    # activation only; it must never be used as a generic annualisation factor.
     RegulatoryParameter(
         key="avs.13th_pension_active",
         value=1.0,
         unit="boolean",
         effective_from=date(2026, 1, 1),
         source_url=_OFAS_AVS_URL,
-        source_title="LAVS art. 34 (nouveau), art. constitutionnel 112 al. 4bis",
+        source_title="LAVS art. 34ter",
         source_type="law",
-        description="13ème rente AVS active (true=1.0). Premier versement décembre 2026.",
+        description="Supplément annuel AVS actif (true=1.0). Premier versement décembre 2026.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
@@ -653,20 +654,9 @@ _PARAMETERS: list[RegulatoryParameter] = [
         unit="years",
         effective_from=date(2026, 1, 1),
         source_url=_OFAS_AVS_URL,
-        source_title="LAVS art. 34 (nouveau)",
+        source_title="LAVS art. 34ter",
         source_type="law",
-        description="Année du premier versement de la 13ème rente AVS.",
-        reviewed_at=_REVIEWED,
-    ),
-    RegulatoryParameter(
-        key="avs.13th_pension_factor",
-        value=13.0 / 12.0,
-        unit="ratio",
-        effective_from=date(2026, 1, 1),
-        source_url=_OFAS_AVS_URL,
-        source_title="LAVS art. 34 (nouveau)",
-        source_type="law",
-        description="Facteur multiplicateur 13ème rente (13/12 = 1.0833...).",
+        description="Année du premier versement du supplément annuel AVS.",
         reviewed_at=_REVIEWED,
     ),
     # AVS volontaire (expatriés)

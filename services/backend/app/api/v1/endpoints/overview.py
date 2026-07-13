@@ -6,13 +6,14 @@ complet ?". It is the backend source of truth for the Aperçu financier
 screen and the Today screen's header card.
 
 Design: pure aggregation — no side effects, no writes. Reads
-ProfileModel.data, runs AVS/LPP/3a calculators when the user has enough
+ProfileModel.data, runs the LPP/3a calculators when the user has enough
 fields for each axis, and returns a structured payload with:
 
   • identity:    age, canton, household, goal
   • income:      net/gross monthly/yearly (whatever was provided)
   • patrimoine:  wealth, savings, LPP avoir, 3a balance
-  • prevoyance:  AVS estimate, LPP rente/capital options, 3a buyback room
+  • prevoyance:  LPP rente/capital options and 3a buyback room; AVS remains
+                  quarantined until an owner-scoped official fact is wired
   • assurances_sociales: rente invalidité / conjoint / enfant if known
   • dettes:      has_debt, total_debt
   • couple:      partial/complete flag + spouse facts if entered
@@ -38,10 +39,7 @@ from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.profile_model import ProfileModel
 from app.models.user import User
-from app.services.retirement import (
-    AvsEstimationService,
-    LppConversionService,
-)
+from app.services.retirement import LppConversionService
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -199,28 +197,10 @@ def _build_prevoyance(data: dict) -> OverviewSection:
 
     age = _age_from_birth_year(data.get("birthYear"))
     canton = data.get("canton") or "ZH"
-    is_couple = data.get("householdType") == "couple"
 
-    # Run AVS estimate if we have age
-    if age and 18 <= age <= 70:
-        try:
-            avs = AvsEstimationService().estimate(
-                current_age=age,
-                retirement_age=65,
-                is_couple=is_couple,
-                annees_lacunes=data.get("avsContributionYears")
-                and max(0, 44 - int(data["avsContributionYears"]))
-                or 0,
-                life_expectancy=87,
-            )
-            values["avsRenteMensuelle"] = round(avs.rente_mensuelle)
-            values["avsRenteAnnuelle"] = round(avs.rente_annuelle)
-            if avs.rente_couple_mensuelle is not None:
-                values["avsRenteCoupleMensuelle"] = round(
-                    avs.rente_couple_mensuelle
-                )
-        except Exception as exc:  # defensive: calculator must never break overview
-            logger.info("AVS estimate skipped: %s", exc)
+    # avsContributionYears is contribution history, not a pension amount.
+    # Overview stays quarantined until an owner-scoped, source-dated official
+    # pension fact has a reviewed persistence path.
 
     # Run LPP compare if we have a plausible projected capital
     avoir = data.get("avoirLpp") or 0
@@ -301,7 +281,9 @@ def _build_budget(data: dict) -> OverviewSection:
     else:
         income = 0.0
     fixed_lines = raw.get("fixed_lines") or []
-    total_fixed = round(sum(float(l.get("amount", 0)) for l in fixed_lines), 2)
+    total_fixed = round(
+        sum(float(line.get("amount", 0)) for line in fixed_lines), 2
+    )
     var_t = float(raw.get("variable_target_monthly") or 0)
     sav_t = float(raw.get("savings_target_monthly") or 0)
     free_margin = round(income - total_fixed - var_t - sav_t, 2)
@@ -392,8 +374,6 @@ def _compute_alertes(data: dict) -> list[str]:
 
 def _premier_eclairage(
     identity: OverviewSection,
-    income: OverviewSection,
-    prevoyance: OverviewSection,
     completeness: float,
 ) -> str:
     if completeness < 0.30:
@@ -403,15 +383,6 @@ def _premier_eclairage(
         )
     age = identity.values.get("age")
     canton = identity.values.get("canton")
-    rente_lpp = prevoyance.values.get("lppRenteMensuelleNette")
-    rente_avs = prevoyance.values.get("avsRenteMensuelle")
-    if rente_lpp and rente_avs:
-        total = rente_lpp + rente_avs
-        return (
-            f"À 65 ans, ta projection tourne autour de {total:.0f} CHF/mois "
-            f"(AVS + LPP). Dis-moi tes dépenses cibles pour qu'on évalue "
-            f"si c'est suffisant ou s'il faut combler."
-        )
     if age and canton:
         return (
             f"{age} ans, {canton} — on a le squelette. Prochaine étape : "
@@ -460,9 +431,8 @@ def get_overview_me(
             gaps.append(f"{name}.{f}")
 
     alertes = _compute_alertes(data)
-    eclairage = _premier_eclairage(
-        sections["identity"], sections["income"],
-        sections["prevoyance"], completeness,
+    premier_eclairage_text = _premier_eclairage(
+        sections["identity"], completeness,
     )
 
     return OverviewResponse(
@@ -477,5 +447,5 @@ def get_overview_me(
         completeness_index=round(completeness, 2),
         profile_gaps=gaps,
         alertes=alertes,
-        premier_eclairage=eclairage,
+        premier_eclairage=premier_eclairage_text,
     )
