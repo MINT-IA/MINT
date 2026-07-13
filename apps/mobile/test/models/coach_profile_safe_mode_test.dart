@@ -25,6 +25,10 @@ void main() {
     double? selfEmployedNetIncome,
     double epargneLiquide = 20000,
     double totalMensuelDepenses = 3000,
+    PrevoyanceProfile prevoyance = const PrevoyanceProfile(),
+    Map<String, ProfileDataSource> dataSources = const {},
+    Map<String, DateTime> dataTimestamps = const {},
+    Set<String> userProvidedFields = const {'monthlyExpenses'},
   }) {
     return CoachProfile(
       birthYear: birthYear,
@@ -37,7 +41,7 @@ void main() {
         loyer: totalMensuelDepenses,
         assuranceMaladie: 0,
       ),
-      prevoyance: const PrevoyanceProfile(),
+      prevoyance: prevoyance,
       patrimoine: PatrimoineProfile(epargneLiquide: epargneLiquide),
       dettes: DetteProfile(
         creditConsommation: creditConsommation,
@@ -47,6 +51,9 @@ void main() {
         mensualiteLeasing: mensualiteLeasing,
         mensualiteHypotheque: mensualiteHypotheque,
       ),
+      dataSources: dataSources,
+      dataTimestamps: dataTimestamps,
+      userProvidedFields: userProvidedFields,
       goalA: GoalA(
         type: GoalAType.retraite,
         targetDate: DateTime(2050, 12, 31),
@@ -127,6 +134,81 @@ void main() {
         totalMensuelDepenses: 3000,
       );
       expect(p.isInDebtCrisis, isTrue);
+    });
+  });
+
+  group('Retiree AVS official-pension boundary', () {
+    CoachProfile retiree({
+      double? avs,
+      bool certificateTagged = false,
+      double epargneLiquide = 30000,
+      Set<String> userProvidedFields = const {'monthlyExpenses'},
+    }) {
+      const fieldPath = AvsOfficialPensionEvidence.selfFieldPath;
+      return makeProfile(
+        salaire: 0,
+        employmentStatus: 'retraite',
+        mensualiteCreditConso: 2000,
+        epargneLiquide: epargneLiquide,
+        totalMensuelDepenses: 3000,
+        prevoyance: PrevoyanceProfile(
+          renteAVSEstimeeMensuelle: avs,
+          projectedRenteLpp: 36000,
+        ),
+        dataSources: certificateTagged
+            ? const {fieldPath: ProfileDataSource.certificate}
+            : const {},
+        dataTimestamps: certificateTagged
+            ? {fieldPath: DateTime.utc(2026, 7, 13)}
+            : const {},
+        userProvidedFields: userProvidedFields,
+      );
+    }
+
+    test('missing AVS does not treat LPP alone as complete retiree income', () {
+      expect(retiree().isInDebtCrisis, isFalse);
+    });
+
+    test('legacy non-null AVS does not unlock retiree income ratio', () {
+      expect(retiree(avs: 2300).isInDebtCrisis, isFalse);
+    });
+
+    test('certificate tag plus timestamp still does not unlock income ratio',
+        () {
+      expect(
+        retiree(avs: 2300, certificateTagged: true).isInDebtCrisis,
+        isFalse,
+      );
+    });
+
+    test('explicit expenses still allow liquidity Signal C', () {
+      expect(retiree(epargneLiquide: 1000).isInDebtCrisis, isTrue);
+    });
+
+    test('display-only retiree expenses cannot trigger liquidity Signal C', () {
+      expect(
+        retiree(
+          epargneLiquide: 0,
+          userProvidedFields: const {},
+        ).isInDebtCrisis,
+        isFalse,
+      );
+    });
+
+    test('inline user-input expense provenance allows retiree Signal C', () {
+      expect(
+        makeProfile(
+          salaire: 0,
+          employmentStatus: 'retraite',
+          epargneLiquide: 1000,
+          totalMensuelDepenses: 3000,
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+          },
+          userProvidedFields: const {},
+        ).isInDebtCrisis,
+        isTrue,
+      );
     });
   });
 

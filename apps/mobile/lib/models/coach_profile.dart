@@ -2147,7 +2147,8 @@ class CoachProfile {
   /// Signal C — Emergency fund shortfall (months_liquidity < 3).
   ///
   /// Edge cases per RULES.md §1:
-  ///   E1: retiree — uses rente estimates when salary is zero.
+  ///   E1: retiree — income ratios stay unavailable until the mobile model has
+  ///       a reviewed official-pension evidence envelope.
   ///   E2: individual gate — no cross-spouse contamination.
   ///   E4: student (zero income, no debt, no housing) → false (vacuous).
   bool get isInDebtCrisis {
@@ -2159,7 +2160,7 @@ class CoachProfile {
     if (hasConsumerDebt) return true;
 
     // ── Net monthly income (E1: retiree, E4: student guard) ─────────────────
-    double netMensuel;
+    double? netMensuel;
     if (salaireBrutMensuel > 0) {
       final breakdown = NetIncomeBreakdown.compute(
         grossSalary: salaireBrutMensuel * nombreDeMois,
@@ -2172,20 +2173,16 @@ class CoachProfile {
         selfEmployedNetIncome! > 0) {
       netMensuel = selfEmployedNetIncome! / 12.0;
     } else if (employmentStatus == 'retraite') {
-      // E1 — retiree: use rente estimates as income denominator
-      final renteAvs = prevoyance.renteAVSEstimeeMensuelle ?? 0.0;
-      final renteLpp = prevoyance.projectedRenteLpp != null
-          ? prevoyance.projectedRenteLpp! / 12.0
-          : 0.0;
-      netMensuel = renteAvs + renteLpp;
-      if (netMensuel < 2000 && dettes.totalDettes > 0) return true;
+      // E1 — neither a legacy AVS amount nor LPP alone proves total retiree
+      // income. Keep Signal B unavailable, but continue to explicit Signal C.
+      netMensuel = null;
     } else {
       // E4 — zero income, no consumer debt, no housing → inactive (vacuous)
       return false;
     }
 
     // ── Signal B — consumer ratio > 0.33 (ASB 2014) ─────────────────────────
-    if (netMensuel > 0) {
+    if (netMensuel != null && netMensuel > 0) {
       final consumerMonthly = (dettes.mensualiteCreditConso ?? 0.0) +
           (dettes.mensualiteLeasing ?? 0.0);
 
@@ -2203,9 +2200,24 @@ class CoachProfile {
     }
 
     // ── Signal C — emergency fund shortfall (< 3 months) ────────────────────
-    final monthlyExpenses = depenses.totalMensuel > 0
-        ? depenses.totalMensuel
-        : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
+    const expenseFieldPaths = <String>{
+      'depenses.loyer',
+      'depenses.assuranceMaladie',
+      'depenses.electricite',
+      'depenses.transport',
+      'depenses.telecom',
+      'depenses.fraisMedicaux',
+      'depenses.autresDepensesFixes',
+    };
+    final hasDeclaredRetireeExpenses =
+        userProvidedFields.contains('monthlyExpenses') ||
+        expenseFieldPaths.any((path) {
+          final source = dataSources[path];
+          return source != null && source != ProfileDataSource.estimated;
+        });
+    final monthlyExpenses = netMensuel != null
+        ? (depenses.totalMensuel > 0 ? depenses.totalMensuel : netMensuel * 0.6)
+        : (hasDeclaredRetireeExpenses ? depenses.totalMensuel : 0.0);
     if (monthlyExpenses > 0) {
       final monthsLiquidity = patrimoine.epargneLiquide / monthlyExpenses;
       if (monthsLiquidity < 3) return true;

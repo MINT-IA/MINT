@@ -843,79 +843,86 @@ class ApiService {
       if (stressType != null) 'stress_type': stressType,
     });
 
-    final category = _readString(
-      response,
-      const ['category'],
-      fallback: 'retirement_gap',
+    return parseOnboardingPremierEclairageResponse(
+      response: response,
+      grossSalary: grossSalary,
     );
-    final primaryNumber = _readDouble(
-      response,
-      const ['primaryNumber', 'primary_number'],
-    );
-    final displayText = _readString(
-      response,
-      const ['displayText', 'display_text'],
-    );
-    final explanationText = _readString(
-      response,
-      const ['explanationText', 'explanation_text'],
-    );
+  }
 
-    final type = switch (category) {
-      'liquidity' => PremierEclairageType.liquidityAlert,
-      'tax_saving' => PremierEclairageType.taxSaving3a,
-      'retirement_gap' => PremierEclairageType.retirementGap,
-      'retirement_income' => PremierEclairageType.retirementIncome,
-      'compound_growth' => PremierEclairageType.compoundGrowth,
-      'hourly_rate' => PremierEclairageType.hourlyRate,
-      _ => PremierEclairageType.retirementIncome,
+  /// Parses only the non-retirement Premier Éclairage categories supported by
+  /// the reviewed minimal-onboarding contract.
+  ///
+  /// Unknown or quarantined backend categories are replaced by an hourly-rate
+  /// insight derived from the declared gross salary. Their number, copy, and
+  /// confidence are deliberately ignored.
+  @visibleForTesting
+  static PremierEclairage parseOnboardingPremierEclairageResponse({
+    required Map<String, dynamic> response,
+    required double grossSalary,
+  }) {
+    final backendCategory = _readStringOrNull(response, const ['category']);
+    const supportedCategories = <String>{
+      'liquidity',
+      'tax_saving',
+      'compound_growth',
+      'hourly_rate',
+    };
+    final isSupported = supportedCategories.contains(backendCategory);
+    final category = isSupported ? backendCategory! : 'hourly_rate';
+    final backendPrimaryNumber = _readDouble(response, const [
+      'primaryNumber',
+      'primary_number',
+    ]);
+    final salaryDerivedHourlyRate = grossSalary.isFinite && grossSalary > 0
+        ? grossSalary / (52 * 40)
+        : 0.0;
+    final primaryNumber = isSupported
+        ? backendPrimaryNumber
+        : salaryDerivedHourlyRate;
+
+    final (type, title, iconName, colorKey, value) = switch (category) {
+      'liquidity' => (
+        PremierEclairageType.liquidityAlert,
+        'Ta réserve de liquidité', // lint-ignore: API model has no BuildContext
+        'warning_amber',
+        'error',
+        '${primaryNumber.toStringAsFixed(1)} mois',
+      ),
+      'tax_saving' => (
+        PremierEclairageType.taxSaving3a,
+        'Ton économie d\'impôt potentielle', // lint-ignore: API model has no BuildContext
+        'savings',
+        'success',
+        '${chf.formatChfWithPrefix(primaryNumber)}/an',
+      ),
+      'compound_growth' => (
+        PremierEclairageType.compoundGrowth,
+        'Ton avantage temps', // lint-ignore: API model has no BuildContext
+        'trending_up',
+        'success',
+        chf.formatChfWithPrefix(primaryNumber),
+      ),
+      _ => (
+        PremierEclairageType.hourlyRate,
+        'Ton salaire brut horaire', // lint-ignore: API model has no BuildContext
+        'schedule',
+        'info',
+        'CHF\u00A0${primaryNumber.round()}/h',
+      ),
     };
 
-    final (title, iconName, colorKey, value) = switch (type) {
-      PremierEclairageType.liquidityAlert => (
-          'Ta reserve de liquidite',
-          'warning_amber',
-          'error',
-          '${primaryNumber.toStringAsFixed(1)} mois',
-        ),
-      PremierEclairageType.taxSaving3a => (
-          'Ton economie d\'impot potentielle',
-          'savings',
-          'success',
-          '${chf.formatChfWithPrefix(primaryNumber)}/an',
-        ),
-      PremierEclairageType.retirementGap => (
-          'Ton ecart de retraite',
-          'trending_down',
-          'warning',
-          '${chf.formatChfWithPrefix(primaryNumber)}/mois',
-        ),
-      PremierEclairageType.retirementIncome => (
-          'Ton revenu estime a la retraite',
-          'account_balance',
-          'info',
-          '${chf.formatChfWithPrefix(primaryNumber)}/mois',
-        ),
-      PremierEclairageType.compoundGrowth => (
-          'Ton avantage temps',
-          'trending_up',
-          'success',
-          chf.formatChfWithPrefix(primaryNumber),
-        ),
-      PremierEclairageType.hourlyRate => (
-          'Ton salaire reel',
-          'schedule',
-          'info',
-          'CHF\u00A0${primaryNumber.round()}/h',
-        ),
-    };
-
-    // Read confidence_mode from API response (V2 contract)
-    final confidenceModeStr = _readString(
-      response,
-      const ['confidenceMode', 'confidence_mode'],
-      fallback: 'factual',
-    );
+    final displayText = isSupported
+        ? _readString(response, const ['displayText', 'display_text'])
+        : '';
+    final explanationText = isSupported
+        ? _readString(response, const ['explanationText', 'explanation_text'])
+        : '';
+    final confidenceModeStr = isSupported
+        ? _readString(response, const [
+            'confidenceMode',
+            'confidence_mode',
+          ], fallback: 'factual')
+        : 'factual';
     final confidenceMode = confidenceModeStr == 'pedagogical'
         ? PremierEclairageConfidence.pedagogical
         : PremierEclairageConfidence.factual;
