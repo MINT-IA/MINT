@@ -82,6 +82,13 @@ ALLOWED_CLASSIFICATIONS = {
 }
 SPECIALIST_REFERENCE_TYPES = {"document_ref", "list_document_ref", "ISO_date"}
 RESERVED_REFERENCE_TYPES = {"document_ref", "list_document_ref"}
+SUBLEDGER_TYPES = {
+    "ConjointProfile": "conjoint",
+    "PrevoyanceProfile": "prevoyance",
+    "PatrimoineProfile": "patrimoine",
+    "DepensesProfile": "depenses",
+    "DetteProfile": "dettes",
+}
 REQUIRED_GATE_NAMES = {
     "provenance_on_write_test",
     "source_crosswalk_test",
@@ -818,13 +825,31 @@ def _arrow_expression_end(source: str, start: int, end: int) -> int | None:
     return None
 
 
+def _generic_type_parameters_end(
+    source: str,
+    opening_index: int,
+    end: int,
+) -> int | None:
+    """Match a method's bounded ``<...>`` before its parameter list."""
+
+    depth = 0
+    for index in range(opening_index, end):
+        if source[index] == "<":
+            depth += 1
+        elif source[index] == ">":
+            depth -= 1
+            if depth == 0:
+                return index + 1
+    return None
+
+
 def _dart_member_body(
     structural_source: str,
     *,
     class_body: tuple[int, int],
     class_name: str,
     member_name: str,
-) -> tuple[int, int] | str:
+) -> tuple[int, int, int, int] | str:
     start, end = class_body
     depths = _top_level_depths(structural_source, start, end)
     saw_declaration = False
@@ -844,6 +869,17 @@ def _dart_member_body(
         while cursor < end and structural_source[cursor].isspace():
             cursor += 1
 
+        if cursor < end and structural_source[cursor] == "<":
+            generic_end = _generic_type_parameters_end(
+                structural_source, cursor, end
+            )
+            if generic_end is None:
+                saw_declaration = True
+                continue
+            cursor = generic_end
+            while cursor < end and structural_source[cursor].isspace():
+                cursor += 1
+
         if cursor < end and structural_source[cursor] == "(":
             params_end = _matching_delimiter_end(
                 structural_source, cursor, "(", ")"
@@ -862,13 +898,23 @@ def _dart_member_body(
                 structural_source, cursor + 2, end
             )
             if expression_end is not None:
-                return cursor + 2, expression_end
+                return (
+                    cursor + 2,
+                    expression_end,
+                    statement_start + 1,
+                    expression_end,
+                )
         elif cursor < end and structural_source[cursor] == "{":
             body_end = _matching_delimiter_end(
                 structural_source, cursor, "{", "}"
             )
             if body_end is not None and body_end <= end + 1:
-                return cursor + 1, body_end - 1
+                return (
+                    cursor + 1,
+                    body_end - 1,
+                    statement_start + 1,
+                    body_end,
+                )
         else:
             saw_declaration = True
 
@@ -910,22 +956,91 @@ def _dart_member_is_constructor(
     return False
 
 
-def _qualified_path_pattern(path_parts: list[str]) -> re.Pattern[str]:
+def _receiver_access_pattern(
+    receiver: str,
+    path_parts: list[str],
+) -> re.Pattern[str]:
     separator = r"\s*(?:\?|!)?\.\s*"
-    if len(path_parts) == 1:
-        # A bare local/parameter named like the fact is not ledger evidence.
-        pattern = rf"\b[A-Za-z_][A-Za-z0-9_]*{separator}{re.escape(path_parts[0])}\b"
-    else:
-        # Accept profile.prevoyance.balance and a typed sub-ledger receiver such
-        # as prevoyance.balance or conjoint.birthYear.
-        suffix = separator.join(re.escape(part) for part in path_parts)
-        pattern = rf"\b(?:[A-Za-z_][A-Za-z0-9_]*{separator})?{suffix}\b"
+    suffix = separator.join(re.escape(part) for part in path_parts)
+    pattern = rf"\b{re.escape(receiver)}{separator}{suffix}\b"
     return re.compile(pattern)
+
+
+def _typed_names(member: str, type_name: str) -> set[str]:
+    return {
+        match.group("name")
+        for match in re.finditer(
+            rf"\b{re.escape(type_name)}\s*\??\s+"
+            r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)\b",
+            member,
+        )
+    }
+
+
+def _ledger_receivers(member: str) -> tuple[set[str], dict[str, set[str]]]:
+    """Resolve typed profile/sub-ledger receivers within one member only."""
+
+    structural_member = _mask_dart_source(member, mask_strings=True)
+    coach_receivers = _typed_names(structural_member, "CoachProfile")
+    provider_receivers = _typed_names(
+        structural_member, "CoachProfileProvider"
+    )
+
+    provider_assignment = re.compile(
+        r"\b(?:final|var)\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
+        r"[^;]*<(?:\s*)CoachProfileProvider(?:\s*)>[^;]*;",
+        re.DOTALL,
+    )
+    provider_receivers.update(
+        match.group("name")
+        for match in provider_assignment.finditer(structural_member)
+    )
+
+    direct_profile_assignment = re.compile(
+        r"\b(?:final|var)\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
+        r"[^;]*<(?:\s*)CoachProfileProvider(?:\s*)>[^;]*"
+        r"(?:\?|!)?\.\s*profile\b",
+        re.DOTALL,
+    )
+    coach_receivers.update(
+        match.group("name")
+        for match in direct_profile_assignment.finditer(structural_member)
+    )
+
+    for provider in provider_receivers:
+        indirect_profile_assignment = re.compile(
+            r"\b(?:final|var)\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
+            rf"{re.escape(provider)}\s*(?:\?|!)?\.\s*profile\b"
+        )
+        coach_receivers.update(
+            match.group("name")
+            for match in indirect_profile_assignment.finditer(structural_member)
+        )
+
+    subledger_receivers = {
+        segment: _typed_names(structural_member, type_name)
+        for type_name, segment in SUBLEDGER_TYPES.items()
+    }
+    for profile in coach_receivers:
+        for segment in SUBLEDGER_TYPES.values():
+            inferred = re.compile(
+                r"\b(?:final|var)\s+"
+                r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
+                rf"{re.escape(profile)}\s*(?:\?|!)?\.\s*"
+                rf"{re.escape(segment)}\b"
+            )
+            subledger_receivers[segment].update(
+                match.group("name")
+                for match in inferred.finditer(structural_member)
+            )
+
+    return coach_receivers, subledger_receivers
 
 
 def _qualified_ledger_access_occurs(
     body: str,
     *,
+    member: str,
     profile_path: str,
     token: str,
     classification: str,
@@ -934,23 +1049,36 @@ def _qualified_ledger_access_occurs(
     if profile_path in {"", "NONE"} or token != path_parts[-1]:
         return False
 
+    coach_receivers, subledger_receivers = _ledger_receivers(member)
     structural_body = _mask_dart_source(body, mask_strings=True)
-    if _qualified_path_pattern(path_parts).search(structural_body) is not None:
-        return True
+    for receiver in coach_receivers:
+        if _receiver_access_pattern(receiver, path_parts).search(structural_body):
+            return True
+
+    first_segment = path_parts[0]
+    if len(path_parts) > 1 and first_segment in subledger_receivers:
+        for receiver in subledger_receivers[first_segment]:
+            if _receiver_access_pattern(receiver, path_parts[1:]).search(
+                structural_body
+            ):
+                return True
 
     if classification != "completion_marker" or len(path_parts) < 2:
         return False
 
     # Completion markers are the sole string-key exception, and only when the
     # key is looked up through the exact typed marker collection from the row.
-    receiver_parts = path_parts[:-1]
-    receiver = _qualified_path_pattern(receiver_parts).pattern
-    marker_lookup = re.compile(
-        rf"{receiver}\s*\.\s*(?:contains|containsKey)\s*\(\s*"
-        rf"(?P<quote>['\"]){re.escape(token)}(?P=quote)\s*\)"
-    )
-    if marker_lookup.search(body) is not None:
-        return True
+    marker_collection = path_parts[:-1]
+    for receiver in coach_receivers:
+        collection = _receiver_access_pattern(
+            receiver, marker_collection
+        ).pattern
+        marker_lookup = re.compile(
+            rf"{collection}\s*\.\s*(?:contains|containsKey)\s*\(\s*"
+            rf"(?P<quote>['\"]){re.escape(token)}(?P=quote)\s*\)"
+        )
+        if marker_lookup.search(body) is not None:
+            return True
 
     return False
 
@@ -1014,18 +1142,21 @@ def _reader_evidence_errors(
     if isinstance(member_body, str):
         return [f"{key}: {member_body} {class_name}.{member_name}"]
 
-    body_start, body_end = member_body
+    body_start, body_end, member_start, member_end = member_body
     semantic_body = _mask_dart_source(
         source[body_start:body_end], mask_strings=False
     )
+    semantic_member = source[member_start:member_end]
     if not _qualified_ledger_access_occurs(
         semantic_body,
+        member=semantic_member,
         profile_path=row.get("coach_profile_path", ""),
         token=evidence_token,
         classification=row.get("classification", "fact"),
     ):
         return [
-            f"{key}: {class_name}.{member_name} contains no qualified ledger access "
+            f"{key}: {class_name}.{member_name} contains no profile-typed receiver "
+            "access "
             f"derived from coach_profile_path {row.get('coach_profile_path')!r} "
             f"for token {evidence_token!r}"
         ]
@@ -1089,12 +1220,10 @@ def _matrix_errors(
                     f"{key}: {classification} must not claim durable edges "
                     + ",".join(durable_edges)
                 )
-        if row.get("tier") != "P0":
-            continue
-
+        tier = row.get("tier", "")
         status = row.get("status", "")
         if status not in LIVE_STATUSES | NON_LIVE_STATUSES:
-            errors.append(f"{key}: unsupported P0 status {status!r}")
+            errors.append(f"{key}: unsupported {tier} status {status!r}")
 
         missing_edges = [
             column
@@ -1103,9 +1232,26 @@ def _matrix_errors(
         ]
         if status in LIVE_STATUSES and missing_edges:
             errors.append(
-                f"{key}: silent dead P0 {status} key missing "
+                f"{key}: silent dead {tier} {status} key missing "
                 + ",".join(missing_edges)
             )
+
+        if key == "has3a" and (
+            status != "quarantined"
+            or row.get("reader_evidence") != "NONE"
+            or row.get("consumers") != "NONE"
+            or "typed_consumer"
+            not in row.get("missing_gate", "").split(",")
+        ):
+            errors.append(
+                "has3a: quarantine contract drifted; keep status=quarantined "
+                "and reader_evidence=consumers=NONE with typed_consumer in "
+                "missing_gate until a typed production consumer is proven"
+            )
+
+        if tier != "P0":
+            continue
+
         if status in LIVE_STATUSES and row.get("reader_evidence") not in {"", "NONE"}:
             errors.extend(_reader_evidence_errors(row))
 
@@ -1202,7 +1348,7 @@ def test_semantic_reader_anchor_survives_unrelated_line_insertions(
     source_path.parent.mkdir(parents=True)
     source = """
 class SampleConsumer {
-  double compute(Profile profile) {
+  double compute(CoachProfile profile) {
     return profile.userProvidedFields.monthlyExpenses;
   }
 }
@@ -1227,27 +1373,27 @@ def test_semantic_reader_anchor_rejects_missing_symbol_and_out_of_scope_read(
     source_path.write_text(
         """
 class SampleConsumer {
-  double compute(Profile profile) => 0;
+  double compute(CoachProfile profile) => 0;
 
-  double other(Profile profile) =>
+  double other(CoachProfile profile) =>
       profile.userProvidedFields.monthlyExpenses;
 
-  double labelled(Profile profile) {
+  double labelled(CoachProfile profile) {
     print('monthlyExpenses');
     return 0;
   }
 
-  double commented(Profile profile) {
+  double commented(CoachProfile profile) {
     // monthlyExpenses is documentation, not a read.
     return 0;
   }
 
-  double misleading(Profile profile) {
+  double misleading(CoachProfile profile) {
     notcontains('monthlyExpenses');
     return 0;
   }
 
-  bool completionMarker(Profile profile) =>
+  bool completionMarker(CoachProfile profile) =>
       profile.userProvidedFields.contains('monthlyExpenses');
 }
 """,
@@ -1273,7 +1419,7 @@ class SampleConsumer {
             _semantic_reader_row(evidence), root=tmp_path
         )
         marker = (
-            "contains no qualified ledger access"
+            "contains no profile-typed receiver access"
             if expected_error.startswith("contains none")
             else expected_error
         )
@@ -1293,15 +1439,15 @@ def test_semantic_reader_anchor_requires_qualified_ledger_access(
     source_path.write_text(
         """
 class SampleConsumer {
-  double qualified(Profile profile) =>
+  double qualified(CoachProfile profile) =>
       profile.userProvidedFields.monthlyExpenses;
 
-  double localShadow(Profile profile) {
+  double localShadow(CoachProfile profile) {
     final monthlyExpenses = 42.0;
     return monthlyExpenses;
   }
 
-  double parameterShadow(Profile profile, double monthlyExpenses) =>
+  double parameterShadow(CoachProfile profile, double monthlyExpenses) =>
       monthlyExpenses;
 }
 """,
@@ -1318,10 +1464,111 @@ class SampleConsumer {
             f"lib/consumer.dart#SampleConsumer.{member}@monthlyExpenses"
         )
         errors = _reader_evidence_errors(row, root=tmp_path)
-        assert any("qualified ledger access" in error for error in errors), (
+        assert any("profile-typed receiver access" in error for error in errors), (
             member,
             errors,
         )
+
+
+def test_semantic_reader_anchor_rejects_arbitrary_qualified_receivers(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/consumer.dart"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text(
+        """
+class SampleConsumer {
+  double fakeMarker(Impostor impostor) =>
+      impostor.userProvidedFields.monthlyExpenses;
+
+  int fakeBirthYear(Unrelated unrelated) => unrelated.birthYear;
+
+  bool fakePillar(Impostor impostor) =>
+      impostor.prevoyance.hasPensionFund;
+}
+""",
+        encoding="utf-8",
+    )
+
+    rows = (
+        _semantic_reader_row(
+            "lib/consumer.dart#SampleConsumer.fakeMarker@monthlyExpenses"
+        ),
+        {
+            "canonical_key": "birthYear",
+            "storage_key": "q_birth_year",
+            "coach_profile_path": "birthYear",
+            "classification": "fact",
+            "reader_evidence": (
+                "lib/consumer.dart#SampleConsumer.fakeBirthYear@birthYear"
+            ),
+        },
+        {
+            "canonical_key": "has2ndPillar",
+            "storage_key": "q_has_pension_fund",
+            "coach_profile_path": "prevoyance.hasPensionFund",
+            "classification": "fact",
+            "reader_evidence": (
+                "lib/consumer.dart#SampleConsumer.fakePillar@hasPensionFund"
+            ),
+        },
+    )
+
+    for row in rows:
+        errors = _reader_evidence_errors(row, root=tmp_path)
+        assert any("profile-typed receiver" in error for error in errors), (
+            row,
+            errors,
+        )
+
+
+def test_semantic_reader_anchor_supports_generic_consumer_members(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/consumer.dart"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text(
+        """
+class SampleConsumer {
+  T compute<T extends num>(CoachProfile profile, T fallback) {
+    final value = profile.userProvidedFields.monthlyExpenses;
+    return value is T ? value : fallback;
+  }
+}
+""",
+        encoding="utf-8",
+    )
+    row = _semantic_reader_row(
+        "lib/consumer.dart#SampleConsumer.compute@monthlyExpenses"
+    )
+
+    assert _reader_evidence_errors(row, root=tmp_path) == []
+
+
+def test_live_non_p0_row_cannot_drop_reader_or_consumer_edges() -> None:
+    _, rows = _parse_table(LEDGER_MATRIX, "## G1_P0_CANONICAL_KEYS")
+    has3a = copy.deepcopy(
+        next(row for row in rows if row["canonical_key"] == "has3a")
+    )
+    assert has3a["tier"] == "P1"
+    assert has3a["status"] == "quarantined"
+    assert has3a["reader_evidence"] == "NONE"
+    assert has3a["consumers"] == "NONE"
+
+    has3a["status"] = "live"
+    errors = _matrix_errors(MATRIX_COLUMNS, [has3a], ticket_ids=set())
+
+    assert any("silent dead P1 live key" in error for error in errors), errors
+    assert any("has3a: quarantine contract drifted" in error for error in errors)
+
+    has3a = copy.deepcopy(
+        next(row for row in rows if row["canonical_key"] == "has3a")
+    )
+    has3a["missing_gate"] = "semantic_roundtrip,provenance_on_write"
+    errors = _matrix_errors(MATRIX_COLUMNS, [has3a], ticket_ids=set())
+
+    assert any("has3a: quarantine contract drifted" in error for error in errors)
+    assert any("typed_consumer in missing_gate" in error for error in errors)
 
 
 def test_semantic_reader_anchor_rejects_named_and_factory_constructors(
@@ -1334,10 +1581,10 @@ def test_semantic_reader_anchor_rejects_named_and_factory_constructors(
 class SampleConsumer {
   final double value;
 
-  SampleConsumer.named(Profile profile)
+  SampleConsumer.named(CoachProfile profile)
       : value = profile.userProvidedFields.monthlyExpenses;
 
-  factory SampleConsumer.fromProfile(Profile profile) => SampleConsumer.raw(
+  factory SampleConsumer.fromProfile(CoachProfile profile) => SampleConsumer.raw(
         profile.userProvidedFields.monthlyExpenses,
       );
 
@@ -1455,7 +1702,7 @@ def test_negative_fixture_proves_duplicate_silent_dead_and_missing_ticket() -> N
     assert any("requires exact blocking ticket" in error for error in errors)
     assert any("reader evidence file does not exist" in error for error in errors)
     assert any("missing member" in error for error in errors)
-    assert any("contains no qualified ledger access" in error for error in errors)
+    assert any("contains no profile-typed receiver access" in error for error in errors)
     assert any("unsupported classification 'banana'" in error for error in errors)
     assert any(
         "completion_marker classification requires completion_marker type_unit"
