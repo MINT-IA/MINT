@@ -23696,4 +23696,76 @@ class SPt extends S {
   @override
   String get donationChecklistConcubinageQuestions =>
       'Prepare testamentary questions for the notary';
+
+  @override
+  String get earlyRetirementComparisonTitle =>
+      'Comparação da reforma antecipada';
+
+  @override
+  String get earlyRetirementComparisonScopeHouseholdNonAvs =>
+      'Rendimentos do agregado por LPP, pilar 3a e património — AVS não incluída';
+
+  @override
+  String get earlyRetirementComparisonScopeIndividualNonAvs =>
+      'Rendimentos por LPP, pilar 3a e património — AVS não incluída';
+
+  @override
+  String get earlyRetirementComparisonAgeHeader => 'Idade';
+
+  @override
+  String get earlyRetirementComparisonMonthlyIncomeNonAvs =>
+      'Rendimento mensal sem AVS';
+
+  @override
+  String get earlyRetirementComparisonCta => 'Simular a reforma antecipada';
+
+  @override
+  String get earlyRetirementComparisonPartialDisclaimer =>
+      'Projeção parcial sem AVS — as taxas variam conforme a caixa de pensões (LSFin).';
+
+  @override
+  String get premierEclairageAnnualSuffix => '/ano';
+
+  @override
+  String premierEclairage3aTaxMessage(int years, String cumulativeAmount) {
+    return 'Poupança fiscal potencial por ano ao maximizar o pilar 3a. Em $years anos, representa ~CHF $cumulativeAmount.';
+  }
+
+  @override
+  String get premierEclairage3aSource => 'OPP3 art. 7 · LIFD';
+
+  @override
+  String get premierEclairage3aCta => 'Simular o meu pilar 3a';
+
+  @override
+  String premierEclairageLppBuybackMessage(String amount) {
+    return 'Dedução fiscal potencial ao cobrir a tua lacuna LPP de CHF $amount através de um resgate.';
+  }
+
+  @override
+  String get premierEclairageLppSource => 'LPP art. 79b';
+
+  @override
+  String get premierEclairageLppCta => 'Explorar o resgate';
+
+  @override
+  String premierEclairageAvsGapMessage(int gapYears, String calculation) {
+    String _temp0 = intl.Intl.pluralLogic(
+      gapYears,
+      locale: localeName,
+      other:
+          'Pensão AVS perdida ao longo de 20 anos de reforma com $gapYears anos de contribuição em falta $calculation',
+      one:
+          'Pensão AVS perdida ao longo de 20 anos de reforma com 1 ano de contribuição em falta $calculation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get premierEclairageAvsSource =>
+      'LAVS art. 29bis-29ter, 13.ª pensão AVS (desde dez. de 2026)';
+
+  @override
+  String get premierEclairageAvsCta =>
+      'Verificar as minhas lacunas contributivas';
 }

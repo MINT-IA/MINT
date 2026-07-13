@@ -2,8 +2,6 @@ import 'dart:math' show max, min;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
-import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
 
@@ -32,8 +30,6 @@ enum CrossPillarType {
   /// Mortgage with indirect amortisation → keep deduction value.
   mortgageTaxDeduction,
 
-  /// Replacement rate below 80% threshold → concrete gap-closing actions.
-  retirementGapAction,
 }
 
 /// One cross-pillar insight with CHF impact, confidence, and trade-off.
@@ -113,7 +109,6 @@ class CrossPillarAnalysis {
 /// - OPP3 art. 7 (plafonds 3a)
 /// - LIFD art. 33 al. 1 lit. e (déductibilité intérêts hypothécaires)
 /// - LIFD art. 38 (impôt séparé sur les retraits en capital)
-/// - LAVS art. 21 (âge de référence AVS)
 class CrossPillarCalculator {
   CrossPillarCalculator._();
 
@@ -126,15 +121,12 @@ class CrossPillarCalculator {
   /// Minimum annual cantonal tax difference to surface cantonalArbitrage.
   static const double _minCantonalDiffForArbitrage = 1000.0;
 
-  /// Replacement rate threshold below which retirementGapAction triggers.
-  static const double _replacementRateWarningThreshold = 0.80;
-
   /// Disclaimer (required on all projections — CLAUDE.md § 6).
   static const String _disclaimer =
-      'Cet outil est éducatif et ne constitue pas un conseil financier ou '
-      'fiscal au sens de la LSFin. Les montants affichés sont des estimations '
-      'indicatives. Consulte un·e spécialiste pour une analyse personnalisée. '
-      'Réf.\u00a0: LPP art. 79b, OPP3 art. 7, LIFD art. 38.';
+      'Cet outil est éducatif et ne constitue pas un conseil financier ou ' // lint-ignore: dormant engine; no production renderer.
+      'fiscal au sens de la LSFin. Les montants affichés sont des estimations ' // lint-ignore: dormant engine; no production renderer.
+      'indicatives. Consulte un·e spécialiste pour une analyse personnalisée. ' // lint-ignore: dormant engine; no production renderer.
+      'Réf.\u00a0: LPP art. 79b, OPP3 art. 7, LIFD art. 38.'; // lint-ignore: dormant engine; no production renderer.
 
   // ──────────────────────────────────────────────────────────────────────────
   //  PUBLIC API
@@ -148,12 +140,8 @@ class CrossPillarCalculator {
   /// [profile] Full financial profile. Must have salary > 0 for meaningful
   /// results; otherwise returns an empty analysis.
   ///
-  /// [projectedRetirementIncomeMonthly] Optional: total projected monthly
-  /// retirement income from an existing RetirementProjectionResult.
-  /// When provided, enables [CrossPillarType.retirementGapAction].
   static CrossPillarAnalysis analyze({
     required CoachProfile profile,
-    double? projectedRetirementIncomeMonthly,
   }) {
     if (profile.salaireBrutMensuel <= 0) {
       return const CrossPillarAnalysis(
@@ -184,10 +172,6 @@ class CrossPillarCalculator {
     // E. Mortgage tax deduction
     final e = _mortgageTaxDeduction(profile);
     if (e != null) insights.add(e);
-
-    // F. Retirement gap action
-    final f = _retirementGapAction(profile, projectedRetirementIncomeMonthly);
-    if (f != null) insights.add(f);
 
     // Sort by impact descending
     insights.sort((a, b) => b.impactChfAnnual.compareTo(a.impactChfAnnual));
@@ -273,8 +257,8 @@ class CrossPillarCalculator {
       impactChfAnnual: fiscalSaving,
       confidence: confidence,
       tradeOff:
-          'Liquidité réduite de CHF\u00a0${(missing3a / 12).round()}/mois '
-          '(versement bloqué jusqu\'à la retraite, OPP3 art. 7)',
+          'Liquidité réduite de CHF\u00a0${(missing3a / 12).round()}/mois ' // lint-ignore: dormant engine; no production renderer.
+          '(versement bloqué jusqu\'à la retraite, OPP3 art. 7)', // lint-ignore: dormant engine; no production renderer.
       intentTag: 'pilier3a_versement',
       details: {
         'plafondAnnuel': plafond,
@@ -338,14 +322,14 @@ class CrossPillarCalculator {
     // track EPL withdrawals separately, we show the general reminder
     // without claiming a specific block exists.
     const tradeOffSuffix =
-        ' + capital immobilisé dans la caisse (LPP art. 79b al. 3)';
+        ' + capital immobilisé dans la caisse (LPP art. 79b al. 3)'; // lint-ignore: dormant engine; no production renderer.
 
     return CrossPillarInsight(
       type: CrossPillarType.lppBuybackOpportunity,
       impactChfAnnual: fiscalSaving,
       confidence: confidence,
       tradeOff:
-          'Liquidité immobilisée de CHF\u00a0${rachatMax.round()}$tradeOffSuffix',
+          'Liquidité immobilisée de CHF\u00a0${rachatMax.round()}$tradeOffSuffix', // lint-ignore: dormant engine; no production renderer.
       intentTag: 'lpp_rachat_simulation',
       details: {
         'lacuneRachat': rachatMax,
@@ -438,8 +422,8 @@ class CrossPillarCalculator {
       impactChfAnnual: impactAnnual,
       confidence: confidence,
       tradeOff:
-          'Marge libre réduite à CHF\u00a0${_safetyMarginMonthly.round()}/mois '
-          '(liquidité immédiate diminuée)',
+          'Marge libre réduite à CHF\u00a0${_safetyMarginMonthly.round()}/mois ' // lint-ignore: dormant engine; no production renderer.
+          '(liquidité immédiate diminuée)', // lint-ignore: dormant engine; no production renderer.
       intentTag: 'plan_epargne_mensuel',
       details: {
         'revenuMensuelNet': monthlyNet,
@@ -518,8 +502,8 @@ class CrossPillarCalculator {
       impactChfAnnual: taxDiff,
       confidence: confidence,
       tradeOff:
-          'Déménagement de $currentCantonName à $bestCantonName\u00a0: '
-          'impact emploi, logement, coût du déménagement',
+          'Déménagement de $currentCantonName à $bestCantonName\u00a0: ' // lint-ignore: dormant engine; no production renderer.
+          'impact emploi, logement, coût du déménagement', // lint-ignore: dormant engine; no production renderer.
       intentTag: 'fiscal_comparateur_cantons',
       details: {
         'impotCantonActuel': currentTax,
@@ -582,9 +566,9 @@ class CrossPillarCalculator {
     final isIndirect = profile.dettes.amortissementIndirect;
     final tradeOff = isIndirect
         ? 'Amortissement indirect actif (via 3a)\u00a0: '
-            'maintient la déduction et construit ta retraite simultanément'
-        : 'Amortissement direct\u00a0: réduit la dette mais supprime '
-            'la déduction de CHF\u00a0${annualInterest.round()} d\'intérêts';
+            'maintient la déduction et construit ta retraite simultanément' // lint-ignore: dormant engine; no production renderer.
+        : 'Amortissement direct\u00a0: réduit la dette mais supprime ' // lint-ignore: dormant engine; no production renderer.
+            'la déduction de CHF\u00a0${annualInterest.round()} d\'intérêts'; // lint-ignore: dormant engine; no production renderer.
 
     final confidence =
         _sourceConfidence(ProfileDataSource.userInput) * 0.85;
@@ -601,172 +585,6 @@ class CrossPillarCalculator {
         'interetsAnnuels': annualInterest,
         'valeurDeductionAnnuelle': deductionValue,
         'amortissementIndirect': isIndirect ? 1.0 : 0.0,
-      },
-    );
-  }
-
-  // ──────────────────────────────────────────────────────────────────────────
-  //  F. RETIREMENT GAP ACTION
-  // ──────────────────────────────────────────────────────────────────────────
-
-  /// Taux de remplacement < 80% → gap mensuel + concrete actions with CHF impact.
-  ///
-  /// Uses [AvsCalculator.computeMonthlyRente] + [LppCalculator.projectToRetirement]
-  /// to independently verify the projected income. When
-  /// [projectedRetirementIncomeMonthly] is provided, uses that instead.
-  ///
-  /// Actions with CHF impact:
-  ///   1. Max 3a every year until retirement
-  ///   2. LPP buyback (full lacune)
-  ///   3. One additional year of work
-  static CrossPillarInsight? _retirementGapAction(
-    CoachProfile profile,
-    double? projectedRetirementIncomeMonthly,
-  ) {
-    final grossAnnual = profile.revenuBrutAnnuel;
-    if (grossAnnual <= 0) return null;
-
-    final retirementAge = profile.effectiveRetirementAge;
-    final currentAge = profile.age;
-    final yearsLeft = (retirementAge - currentAge).clamp(0, 50);
-
-    // Projected retirement income
-    double projectedMonthly;
-    if (projectedRetirementIncomeMonthly != null &&
-        projectedRetirementIncomeMonthly > 0) {
-      projectedMonthly = projectedRetirementIncomeMonthly;
-    } else {
-      // Compute via financial_core calculators
-      final avsMonthly = AvsCalculator.computeMonthlyRente(
-        currentAge: currentAge,
-        retirementAge: retirementAge,
-        lacunes: profile.prevoyance.lacunesAVS ?? 0,
-        anneesContribuees: profile.prevoyance.anneesContribuees,
-        arrivalAge: profile.arrivalAge,
-        grossAnnualSalary: grossAnnual,
-        isFemale: profile.gender == 'F' ? true : null,
-        birthYear: profile.gender == 'F' ? profile.birthYear : null,
-      );
-
-      final lppBalance = profile.prevoyance.avoirLppTotal ?? 0.0;
-      final lppAnnualRente = LppCalculator.projectToRetirement(
-        currentBalance: lppBalance,
-        currentAge: currentAge,
-        retirementAge: retirementAge,
-        grossAnnualSalary: grossAnnual,
-        caisseReturn: profile.prevoyance.rendementCaisse,
-        conversionRate: profile.prevoyance.tauxConversion,
-        salaireAssureOverride: profile.prevoyance.salaireAssure,
-      );
-
-      // Apply 13th rente (8.3% uplift) to AVS monthly.
-      final avsMonthlyWith13 = AvsCalculator.annualRente(avsMonthly) / 12;
-      projectedMonthly = avsMonthlyWith13 + lppAnnualRente / 12;
-    }
-
-    // Current monthly net income (pre-retirement reference)
-    final breakdown = NetIncomeBreakdown.compute(
-      grossSalary: grossAnnual,
-      canton: profile.canton,
-      age: currentAge,
-      etatCivil: profile.etatCivil == CoachCivilStatus.marie
-          ? 'marie'
-          : 'celibataire',
-      nombreEnfants: profile.nombreEnfants,
-    );
-    final currentMonthlyNet = breakdown.monthlyNetPayslip;
-    if (currentMonthlyNet <= 0) return null;
-
-    final replacementRate = projectedMonthly / currentMonthlyNet;
-    if (replacementRate >= _replacementRateWarningThreshold) return null;
-
-    // Monthly gap to reach 80% replacement
-    final targetMonthly = currentMonthlyNet * _replacementRateWarningThreshold;
-    final gapMonthly = targetMonthly - projectedMonthly;
-    final gapAnnual = gapMonthly * 12;
-
-    // Action 1: Max 3a annually until retirement
-    // Each year's 3a adds plafond × (1 + growth)^yearsLeft / 12 monthly income
-    // For the insight, we show the fiscal saving (immediate, verifiable)
-    double action3aImpact = 0.0;
-    if (profile.canContribute3a && yearsLeft > 0) {
-      const plafond = pilier3aPlafondAvecLpp;
-      final current3aAnnual = profile.total3aMensuel * 12;
-      final missing3a = max(0.0, plafond - current3aAnnual);
-      if (missing3a > 0) {
-        final isMarriedGap = profile.etatCivil == CoachCivilStatus.marie;
-        action3aImpact = RetirementTaxCalculator.estimateTaxSaving(
-          income: grossAnnual,
-          deduction: missing3a,
-          canton: profile.canton,
-          isMarried: isMarriedGap,
-          children: profile.nombreEnfants,
-        );
-      }
-    }
-
-    // Action 2: LPP buyback (annual rente boost)
-    final lacune = profile.prevoyance.lacuneRachatRestante;
-    final rente3aBoostAnnual = lacune > 0
-        ? lacune * profile.prevoyance.tauxConversion
-        : 0.0;
-
-    // Action 3: +1 year of work (AVS deferral bonus)
-    // F3-3: Use gender-aware avsReferenceAge instead of hardcoded 65/66.
-    final cpIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
-    final refAge = (cpIsFemale != null)
-        ? avsReferenceAge(birthYear: profile.birthYear, isFemale: cpIsFemale)
-        : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-    final avsMonthlyAtRef = AvsCalculator.computeMonthlyRente(
-      currentAge: currentAge,
-      retirementAge: refAge,
-      lacunes: profile.prevoyance.lacunesAVS ?? 0,
-      anneesContribuees: profile.prevoyance.anneesContribuees,
-      arrivalAge: profile.arrivalAge,
-      grossAnnualSalary: grossAnnual,
-      isFemale: cpIsFemale,
-      birthYear: profile.birthYear,
-    );
-    final avsMonthlyAtRefPlus1 = AvsCalculator.computeMonthlyRente(
-      currentAge: currentAge,
-      retirementAge: refAge + 1,
-      lacunes: profile.prevoyance.lacunesAVS ?? 0,
-      anneesContribuees: profile.prevoyance.anneesContribuees,
-      arrivalAge: profile.arrivalAge,
-      grossAnnualSalary: grossAnnual,
-      isFemale: cpIsFemale,
-      birthYear: profile.birthYear,
-    );
-    final extraYearMonthlyGain = avsMonthlyAtRefPlus1 - avsMonthlyAtRef;
-    final extraYearAnnualGain = extraYearMonthlyGain * 12;
-
-    // Impact = total closing actions (conservative: only verifiable immediate gains)
-    final totalActionImpact = action3aImpact + rente3aBoostAnnual;
-    if (totalActionImpact <= 0 && gapAnnual <= 0) return null;
-
-    final confidence = _sourceConfidence(
-      profile.dataSources['prevoyance.avoirLppTotal'] ??
-          ProfileDataSource.estimated,
-    ) * 0.8;
-
-    return CrossPillarInsight(
-      type: CrossPillarType.retirementGapAction,
-      impactChfAnnual: totalActionImpact > 0 ? totalActionImpact : gapAnnual,
-      confidence: confidence,
-      tradeOff:
-          'Réduire la liquidité aujourd\'hui ou prolonger l\'activité '
-          '(chaque option a un coût de vie ou d\'opportunité)',
-      intentTag: 'retraite_projection_detail',
-      details: {
-        'revenuMensuelActuel': currentMonthlyNet,
-        'revenuProjetteRetraite': projectedMonthly,
-        'tauxRemplacement': replacementRate,
-        'objectifTauxRemplacement': _replacementRateWarningThreshold,
-        'ecartMensuel': gapMonthly,
-        'ecartAnnuel': gapAnnual,
-        'action3aEconomieFiscale': action3aImpact,
-        'actionRachatBoostRenteAnnuel': rente3aBoostAnnual,
-        'actionAnneeSuppGainAnnuel': extraYearAnnualGain,
       },
     );
   }
@@ -814,8 +632,8 @@ class CrossPillarCalculator {
   }) {
     const sourceLegale =
         'LIFD art.\u00a038 al.\u00a02 + LHID art.\u00a011 al.\u00a03 : '
-        'les retraits en capital de prévoyance (LPP + 3a) perçus la '
-        'même année fiscale sont cumulés et taxés au taux de la somme.';
+        'les retraits en capital de prévoyance (LPP + 3a) perçus la ' // lint-ignore: dormant engine; no production renderer.
+        'même année fiscale sont cumulés et taxés au taux de la somme.'; // lint-ignore: dormant engine; no production renderer.
 
     // Pas de risque si au moins un des deux est nul (un seul retrait).
     if (capitalLppAnnee <= 0 || capital3aAnnee <= 0) {

@@ -323,9 +323,10 @@ class ForecasterService {
   static const spouseRamdFieldPath = 'conjoint.prevoyance.ramd';
   static const spouseContributionYearsFieldPath =
       'conjoint.prevoyance.anneesContribuees';
-  static const selfAvsPensionFieldPath = 'prevoyance.renteAVSEstimeeMensuelle';
+  static const selfAvsPensionFieldPath =
+      AvsOfficialPensionEvidence.selfFieldPath;
   static const spouseAvsPensionFieldPath =
-      'conjoint.prevoyance.renteAVSEstimeeMensuelle';
+      AvsOfficialPensionEvidence.spouseFieldPath;
 
   // ════════════════════════════════════════════════════════════════
   //  PUBLIC API

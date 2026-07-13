@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
 
 void main() {
@@ -30,12 +31,17 @@ void main() {
         seed: 42,
       );
 
-      // Couple has two AVS rentes + two LPP rentes → higher income
+      // Couple has two LPP/3a paths, while AVS stays explicitly absent.
       expect(
         resultCouple.medianAt65,
         greaterThan(resultSingle.medianAt65),
-        reason: 'Couple with two incomes should have higher median',
+        reason: 'Couple with two non-AVS incomes should have higher median',
       );
+      expect(
+        resultCouple.missingFields,
+        contains('conjoint.prevoyance.renteAVSEstimeeMensuelle'),
+      );
+      expect(resultCouple.avsIncluded, isFalse);
     });
 
     test('concubinage couple also produces higher income', () async {
@@ -147,7 +153,7 @@ void main() {
   // ── GROUP 2: EARLY RETIREMENT ──────────────────────────────
 
   group('MonteCarloProjectionService — early retirement', () {
-    test('early retirement before 63 triggers AVS alerte', () async {
+    test('early retirement before 65 stays explicitly hors AVS', () async {
       final profile = _buildSingleProfile();
       final result = await MonteCarloProjectionService.simulate(
         profile: profile,
@@ -164,7 +170,7 @@ void main() {
       expect(result.retirementAge, equals(60));
     });
 
-    test('early retirement at 58 has no AVS for 5 years', () async {
+    test('early retirement at 58 remains a typed partial projection', () async {
       final profile = _buildSingleProfile();
       final result = await MonteCarloProjectionService.simulate(
         profile: profile,
@@ -173,28 +179,24 @@ void main() {
         seed: 42,
       );
 
-      // First projection point (age 58) should have lower income than
-      // a point at age 63+ when AVS kicks in
+      // The partial non-AVS trajectory remains usable across all years.
       final incomeAt58 = result.projection[0].p50;
       final incomeAt63 = result.projection[5].p50; // age 63
 
-      // At age 63, AVS starts → income should jump
-      // (not guaranteed to be strictly higher due to stochastic effects,
-      // but with seed and enough sims, the median should show this)
       expect(
-        result.alertes.any((a) => a.contains('5 an(s)')),
+        result.alertes.any((a) => a.contains('hors AVS')),
         isTrue,
-        reason: 'Alerte should mention 5 years without AVS',
+        reason: 'Partial scope must be visible for early retirement',
       );
       expect(incomeAt58, greaterThanOrEqualTo(0));
       expect(incomeAt63, greaterThanOrEqualTo(0));
     });
 
-    test('retirement at 63 does not trigger early retirement alerte', () async {
+    test('retirement at 65 does not trigger early retirement alerte', () async {
       final profile = _buildSingleProfile();
       final result = await MonteCarloProjectionService.simulate(
         profile: profile,
-        retirementAgeUser: 63,
+        retirementAgeUser: 65,
         numSimulations: 50,
         seed: 42,
       );
@@ -202,7 +204,7 @@ void main() {
       expect(
         result.alertes.any((a) => a.contains('anticip')),
         isFalse,
-        reason: 'Retirement at 63 should not trigger early retirement alerte',
+        reason: 'Retirement at 65 should not trigger early retirement alerte',
       );
     });
   });
@@ -427,7 +429,9 @@ void main() {
 
       expect(result.sources, isNotEmpty);
       expect(result.sources.any((s) => s.contains('LPP')), isTrue);
-      expect(result.sources.any((s) => s.contains('LAVS')), isTrue);
+      expect(result.sources.any((s) => s.contains('LAVS')), isFalse);
+      expect(result.incomeScope, RetirementIncomeScope.nonAvsOnly);
+      expect(result.avsIncluded, isFalse);
       expect(result.sources.any((s) => s.contains('LIFD')), isTrue);
       expect(result.sources.any((s) => s.contains('OPP3')), isTrue);
     });

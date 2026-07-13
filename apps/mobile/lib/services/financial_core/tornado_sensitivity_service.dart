@@ -375,34 +375,6 @@ class TornadoSensitivityService {
       }
     }
 
-    // ── 10. Lacunes AVS (0 vs +3) ──────────────────────
-    {
-      final baseLacunes = profile.prevoyance.lacunesAVS ?? 0;
-      final low = _projectWithPrevoyance(
-        profile,
-        _clonePrevoyanceWith(profile.prevoyance,
-            lacunesAVS: baseLacunes + 3, forceLacunesAVS: true),
-        retirementAgeUser, retirementAgeConjoint,
-        depensesMensuelles, lppCapitalPct,
-      );
-      final high = _projectWithPrevoyance(
-        profile,
-        _clonePrevoyanceWith(profile.prevoyance,
-            lacunesAVS: 0, forceLacunesAVS: true),
-        retirementAgeUser, retirementAgeConjoint,
-        depensesMensuelles, lppCapitalPct,
-      );
-      variables.add(_buildVariable(
-        label: 'Lacunes AVS',
-        category: 'avs',
-        base: base,
-        low: low,
-        high: high,
-        lowLabel: '${baseLacunes + 3} lacunes',
-        highLabel: '0 lacune',
-      ));
-    }
-
     // ── 11. Investissements libres (±50%) ───────────────
     {
       final baseInvest = profile.patrimoine.investissements;
@@ -612,6 +584,9 @@ class TornadoSensitivityService {
         depensesMensuelles: depensesMensuelles,
         lppCapitalPct: lppCapitalPct,
       );
+      if (!result.avsIncluded || result.missingFields.isNotEmpty) {
+        return double.nan;
+      }
       return result.revenuMensuelAt65 ?? double.nan;
     } catch (e, s) {
       // ignore: avoid_print
@@ -674,7 +649,6 @@ class TornadoSensitivityService {
   // ════════════════════════════════════════════════════════════════
 
   /// Clone PrevoyanceProfile with overridden fields.
-  /// [forceLacunesAVS]: if true, use the provided lacunesAVS even if null/0.
   static PrevoyanceProfile _clonePrevoyanceWith(
     PrevoyanceProfile original, {
     double? avoirLppTotal,
@@ -682,14 +656,10 @@ class TornadoSensitivityService {
     double? rendementCaisse,
     double? totalEpargne3a,
     int? anneesContribuees,
-    int? lacunesAVS,
-    bool forceLacunesAVS = false,
   }) {
     return PrevoyanceProfile(
       anneesContribuees: anneesContribuees ?? original.anneesContribuees,
-      lacunesAVS: forceLacunesAVS
-          ? lacunesAVS
-          : (lacunesAVS ?? original.lacunesAVS),
+      lacunesAVS: original.lacunesAVS,
       renteAVSEstimeeMensuelle: original.renteAVSEstimeeMensuelle,
       nomCaisse: original.nomCaisse,
       avoirLppTotal: avoirLppTotal ?? original.avoirLppTotal,

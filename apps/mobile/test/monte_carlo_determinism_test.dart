@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
 
 /// Monte Carlo determinism and annual-draw tests.
@@ -121,7 +122,9 @@ void main() {
       );
       expect(result.sources, isNotEmpty);
       expect(result.sources.any((s) => s.contains('LPP')), isTrue);
-      expect(result.sources.any((s) => s.contains('LAVS')), isTrue);
+      expect(result.sources.any((s) => s.contains('LAVS')), isFalse);
+      expect(result.incomeScope, RetirementIncomeScope.nonAvsOnly);
+      expect(result.avsIncluded, isFalse);
     });
   });
 
@@ -293,7 +296,7 @@ void main() {
 
       // Should warn about no AVS for 3 years (60→63)
       expect(
-        result.alertes.any((a) => a.contains('aucune rente AVS')),
+        result.alertes.any((a) => a.contains('hors AVS')),
         isTrue,
       );
     });

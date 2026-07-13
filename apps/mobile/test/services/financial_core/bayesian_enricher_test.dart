@@ -20,6 +20,8 @@ CoachProfile _buildProfile({
   ConjointProfile? conjoint,
   double epargneLiquide = 0,
   int? anneesContribuees,
+  int? lacunesAvs,
+  Map<String, ProfileDataSource> dataSources = const {},
 }) {
   return CoachProfile(
     birthYear: birthYear,
@@ -36,7 +38,9 @@ CoachProfile _buildProfile({
       avoirLppTotal: avoirLppTotal,
       tauxConversion: tauxConversion,
       anneesContribuees: anneesContribuees,
+      lacunesAVS: lacunesAvs,
     ),
+    dataSources: dataSources,
     patrimoine: PatrimoineProfile(
       epargneLiquide: epargneLiquide,
     ),
@@ -331,6 +335,26 @@ void main() {
     });
 
     // ════════════════════════════════════════════════════════════════
+    test('uncertified AVS gaps widen but never reduce the contribution prior', () {
+      final unknown = BayesianProfileEnricher.enrich(
+        _buildProfile(birthYear: 1985, lacunesAvs: 8),
+      ).estimates['anneesContribuees']!;
+      final certified = BayesianProfileEnricher.enrich(
+        _buildProfile(
+          birthYear: 1985,
+          lacunesAvs: 8,
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          },
+        ),
+      ).estimates['anneesContribuees']!;
+
+      expect(unknown.mean, greaterThan(certified.mean));
+      expect(unknown.sd, greaterThan(certified.sd));
+      expect(unknown.source, contains('unknown_lacunes'));
+      expect(certified.source, contains('certified_lacunes'));
+    });
+
     //  Couple support
     // ════════════════════════════════════════════════════════════════
 

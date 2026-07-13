@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
 
 void main() {
@@ -17,6 +18,12 @@ void main() {
         seed: 42,
       );
       expect(result.projection.length, equals(30));
+      expect(result.incomeScope, RetirementIncomeScope.nonAvsOnly);
+      expect(result.avsIncluded, isFalse);
+      expect(
+        result.missingFields,
+        contains('prevoyance.renteAVSEstimeeMensuelle'),
+      );
     });
 
     // ── 2. Mediane entre P10 et P90 ────────────────────────

@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
@@ -17,13 +16,13 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 // stochastiques (rendements, inflation, longevite, croissance salariale)
 // pour produire des bandes de percentiles (P10, P25, P50, P75, P90).
 //
-// L'objectif est de montrer l'incertitude inherente aux projections
+// L'objectif est de montrer l'incertitude inherente aux projections // lint-ignore: dormant engine; no production renderer.
 // a long terme, plutot qu'un chiffre unique deterministe.
 //
 // Boucle de projection simplifiee — on ne rappelle PAS
 // RetirementProjectionService.project() 500 fois (trop lent).
 //
-// Base legale des constantes: LAVS, LPP, OPP3, LIFD art. 38.
+// Base legale des constantes: LPP, OPP3, LIFD art. 38.
 // Aucun terme interdit ("garanti", "certain", "sans risque").
 // ────────────────────────────────────────────────────────────
 
@@ -37,14 +36,15 @@ class MonteCarloProjectionService {
 
   static const String _disclaimer =
       'Simulation Monte Carlo \u00e0 titre p\u00e9dagogique. '
-      'Les rendements pass\u00e9s ne pr\u00e9sagent pas des rendements futurs. '
+      'Les percentiles couvrent uniquement les revenus hors AVS (LPP, 3a et ' // lint-ignore: dormant engine; no production renderer.
+      'patrimoine libre) et ne constituent pas un revenu de retraite complet. ' // lint-ignore: dormant engine; no production renderer.
+      'Les rendements pass\u00e9s ne pr\u00e9sagent pas des rendements futurs. ' // lint-ignore: dormant engine; no production renderer.
       'Base\u00a0: 1\u202f000 simulations, tirages annuels ind\u00e9pendants '
       '(LPP, march\u00e9, inflation, croissance salariale). '
-      'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin).';
+      'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin).'; // lint-ignore: dormant engine; no production renderer.
 
   static const List<String> _sources = [
-    'LPP art. 14, 16 (taux de conversion)',
-    'LAVS art. 34-40 (rentes AVS)',
+    'LPP art. 14, 16 (taux de conversion)', // lint-ignore: dormant engine; no production renderer.
     'LIFD art. 38 (imposition capital)',
     'OPP3 art. 3 (retrait 3e pilier)',
   ];
@@ -63,7 +63,7 @@ class MonteCarloProjectionService {
   /// [seed] : graine pour le generateur aleatoire (tests reproductibles).
   static Future<MonteCarloResult> simulate({
     required CoachProfile profile,
-    int retirementAgeUser = 65,
+    int retirementAgeUser = avsAgeReferenceHomme,
     double lppCapitalPct = 0.0,
     double? depensesMensuelles,
     int numSimulations = 1000,
@@ -105,27 +105,24 @@ class MonteCarloProjectionService {
     final hasConjoint = profile.isCouple && profile.conjoint != null;
     final conjoint = profile.conjoint;
     final conjointAge = conjoint?.age;
-    // Default conjoint retirement age: avsAgeReferenceHomme (could differ but we simplify)
-    final conjointRetirementAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-
-    // ── Early retirement: AVS deferred start (LAVS art. 40) ─
-    // AVS anticipation only possible from age 63. If retirement < 63,
-    // we compute AVS as if drawn at 63 (with 2 years penalty = 13.6%),
-    // and only add it to income starting at year (63 - retirementAge).
-    final yearsUntilAvsUser = max(0, 63 - retirementAgeUser);
-    final effectiveAvsAgeUser = max(retirementAgeUser, 63);
+    // The dormant engine currently applies one comparison age to both members.
+    final conjointRetirementAge = reg(
+      'avs.reference_age_men',
+      avsAgeReferenceHomme.toDouble(),
+    ).toInt();
+    final missingFields = <String>[
+      AvsOfficialPensionEvidence.selfFieldPath,
+      if (hasConjoint) AvsOfficialPensionEvidence.spouseFieldPath,
+    ];
 
     for (int sim = 0; sim < numSimulations; sim++) {
       final yearlyIncome = <double>[];
       bool simRuined = false;
 
       // ── Tirage aleatoire pour cette simulation ──────────
-      // Wave 7 actuarial audit P0-M2 (2026-04-18) : l'inflation et
-      // l'indexation AVS sont désormais tirées ANNUELLEMENT, pas une
-      // seule fois par trajectoire. Un draw unique collapsait chaque
-      // path en « inflation basse pour toujours » ou « inflation haute
-      // pour toujours » et comprimait la queue de distribution — cause
-      // dominante du biais de ruin probability.
+      // Wave 7 actuarial audit P0-M2 (2026-04-18): inflation is drawn
+      // annually, rather than once per trajectory. A single draw collapsed
+      // each path and compressed the tail of the deficit distribution.
       // Source : SNB 2010-2024 μ≈1.0 %, σ≈0.7 %.
       final inflationPath = List<double>.generate(
         _projectionYears,
@@ -142,68 +139,9 @@ class MonteCarloProjectionService {
           cpiFactor[i] = acc;
         }
       }
-      final avsIndexationPath = List<double>.generate(
-        _projectionYears,
-        (_) =>
-            _normalRandom(random, mean: 0.010, sd: 0.005).clamp(0.0, 0.03),
-      );
-      final avsFactor = List<double>.filled(_projectionYears, 1.0);
-      {
-        double acc = 1.0;
-        for (int i = 0; i < _projectionYears; i++) {
-          acc *= (1 + avsIndexationPath[i]);
-          avsFactor[i] = acc;
-        }
-      }
       final lifeExpectancy = 82 + random.nextInt(14); // 82-95
       // Annual draws for market-sensitive returns (captures sequence-of-returns risk):
       // lppReturn, libreReturn, salaryGrowth are drawn per-year inside loops below.
-
-      // ── AVS mensuelle utilisateur ─────────────────────────
-      final avsUserRaw = AvsCalculator.computeMonthlyRente(
-        currentAge: profile.age,
-        retirementAge: effectiveAvsAgeUser,
-        lacunes: profile.prevoyance.lacunesAVS ?? 0,
-        anneesContribuees: profile.prevoyance.anneesContribuees,
-        arrivalAge: profile.arrivalAge,
-        grossAnnualSalary: profile.revenuBrutAnnuel,
-        isFemale: profile.gender == 'F' ? true : null,
-        birthYear: profile.gender == 'F' ? profile.birthYear : null,
-      );
-
-      // ── AVS conjoint ──────────────────────────────────────
-      double avsConjointRaw = 0;
-      if (hasConjoint && conjointAge != null) {
-        avsConjointRaw = AvsCalculator.computeMonthlyRente(
-          currentAge: conjointAge,
-          retirementAge: conjointRetirementAge,
-          lacunes: conjoint!.prevoyance?.lacunesAVS ?? 0,
-          anneesContribuees: conjoint.prevoyance?.anneesContribuees,
-          arrivalAge: conjoint.arrivalAge,
-          grossAnnualSalary: conjoint.revenuBrutAnnuel,
-          isFemale: conjoint.gender == 'F' ? true : (conjoint.gender == 'M' ? false : null),
-          birthYear: conjoint.birthYear,
-        );
-      }
-
-      // ── AVS couple cap (LAVS art. 35) + 13ème rente ────────
-      double avsUserMonthly;
-      double avsConjointMonthly;
-      if (hasConjoint) {
-        final couple = AvsCalculator.computeCouple(
-          avsUser: avsUserRaw,
-          avsConjoint: avsConjointRaw,
-          isMarried: isMarried,
-        );
-        avsUserMonthly = couple.user;
-        avsConjointMonthly = couple.conjoint;
-      } else {
-        avsUserMonthly = avsUserRaw;
-        avsConjointMonthly = 0;
-      }
-      // Apply 13th rente (8.3% uplift) — AVS pays 13 monthly rentes per year.
-      avsUserMonthly = AvsCalculator.annualRente(avsUserMonthly) / 12;
-      avsConjointMonthly = AvsCalculator.annualRente(avsConjointMonthly) / 12;
 
       // ── LPP utilisateur : projection simplifiee jusqu'a la retraite ─
       // Inclut bonifications annuelles + rachats LPP planifies (LPP art. 79b)
@@ -385,7 +323,7 @@ class MonteCarloProjectionService {
           sd: conjBase3aReturn * 0.5,
         ).clamp(0.0, 0.10);
         // Contributions 3a mensuelles du conjoint: depuis plannedContributions
-        // dont l'id/label contient le prenom du conjoint (ex: '3a_lauren').
+        // dont l'id/label contient le prenom du conjoint (ex: '3a_lauren'). // lint-ignore: dormant engine; no production renderer.
         // Guard: si firstName est null/vide, on ne peut pas matcher → 0.
         final conjNameLower = conjoint.firstName?.toLowerCase() ?? '';
         final double conj3aMonthlyContrib;
@@ -444,16 +382,6 @@ class MonteCarloProjectionService {
         final libreReturnYear =
             _normalRandom(random, mean: 0.04, sd: 0.12);
 
-        // FIX-005: AVS indexation starts from the year AVS begins paying,
-        // not from year 0. Was over-indexing by 1-5% in early retirement.
-        final avsUserThisYear = y >= yearsUntilAvsUser
-            ? avsUserMonthly *
-                (avsFactor[y] / avsFactor[yearsUntilAvsUser])
-            : 0.0;
-        // Conjoint AVS: indexation from year 0 (conjoint already retired)
-        final avsConjointThisYear =
-            hasConjoint ? avsConjointMonthly * avsFactor[y] : 0.0;
-
         // LPP rente : fixe (pas d'indexation legale en Suisse)
         final lppRenteThisYear = lppMonthly;
 
@@ -478,14 +406,11 @@ class MonteCarloProjectionService {
           if (libreBalance < 0) libreBalance = 0;
         }
 
-        // Si on a depasse l'esperance de vie, on perd les revenus de capital
-        // (simplification : seule l'AVS continue pour les heritiers implicites)
+        // Si on a depasse l'esperance de vie, la trajectoire individuelle cesse.
         final isAlive = currentAge <= lifeExpectancy;
 
         final totalMonthly = isAlive
-            ? (avsUserThisYear +
-                avsConjointThisYear +
-                lppRenteThisYear +
+            ? (lppRenteThisYear +
                 conjointLppMonthly +
                 lppCapitalMonthly +
                 threeAThisYear +
@@ -535,20 +460,21 @@ class MonteCarloProjectionService {
     final alertes = <String>[];
     if (ruinProbability > 0.30) {
       alertes.add(
-        'Probabilit\u00e9 de d\u00e9ficit \u00e9lev\u00e9e (>30\u00a0%). '
-        'Envisage d\'augmenter ton \u00e9pargne ou de repousser ta retraite.',
+        'Probabilit\u00e9 de d\u00e9ficit hors AVS \u00e9lev\u00e9e (>30\u00a0%). ' // lint-ignore: dormant engine; no production renderer.
+        'Envisage d\'augmenter ton \u00e9pargne ou de repousser ta retraite.', // lint-ignore: dormant engine; no production renderer.
       );
     }
-    if (retirementAgeUser < 63) {
+    if (retirementAgeUser < avsAgeReferenceHomme) {
       alertes.add(
-        'Retraite anticip\u00e9e avant 63 ans\u00a0: aucune rente AVS durant '
-        '${63 - retirementAgeUser} an(s). Pr\u00e9vois une \u00e9pargne-relais.',
+        'Retraite anticip\u00e9e\u00a0: cette projection reste partielle et hors ' // lint-ignore: dormant engine; no production renderer.
+        'AVS. Compl\u00e8te la rente officielle avant de comparer le revenu total.', // lint-ignore: dormant engine; no production renderer.
       );
     }
     if (ruinProbability > 0.15 && ruinProbability <= 0.30) {
       alertes.add(
-        'Risque d\'\u00e9puisement mod\u00e9r\u00e9 (${(ruinProbability * 100).round()}\u00a0%). '
-        'Un rachat LPP ou un versement 3a suppl\u00e9mentaire pourrait aider.',
+        'Risque d\'\u00e9puisement hors AVS mod\u00e9r\u00e9 '
+        '(${(ruinProbability * 100).round()}\u00a0%). '
+        'Un rachat LPP ou un versement 3a suppl\u00e9mentaire pourrait aider.', // lint-ignore: dormant engine; no production renderer.
       );
     }
 
@@ -561,6 +487,9 @@ class MonteCarloProjectionService {
       numSimulations: numSimulations,
       disclaimer: _disclaimer,
       retirementAge: retirementAgeUser,
+      incomeScope: RetirementIncomeScope.nonAvsOnly,
+      avsIncluded: false,
+      missingFields: missingFields,
       sources: _sources,
       alertes: alertes,
     );

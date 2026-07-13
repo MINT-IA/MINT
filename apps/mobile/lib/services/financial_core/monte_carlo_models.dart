@@ -11,6 +11,15 @@ library;
 //  DATA MODELS
 // ════════════════════════════════════════════════════════════════
 
+/// Financial-income boundary covered by a stochastic projection.
+enum RetirementIncomeScope {
+  /// All household retirement-income sources are available.
+  householdComplete,
+
+  /// Only LPP, pillar 3a, and unrestricted capital are projected.
+  nonAvsOnly,
+}
+
 /// A single year in the Monte Carlo projection with percentile bands.
 class MonteCarloPoint {
   /// Calendar year of this data point.
@@ -77,6 +86,15 @@ class MonteCarloResult {
   /// Alertes contextuelles basees sur les resultats.
   final List<String> alertes;
 
+  /// Explicit boundary for every numeric percentile in this result.
+  final RetirementIncomeScope incomeScope;
+
+  /// Whether an official AVS pension is included in the numeric projection.
+  final bool avsIncluded;
+
+  /// Data paths required before a complete household result can be produced.
+  final List<String> missingFields;
+
   const MonteCarloResult({
     required this.projection,
     required this.medianAt65,
@@ -86,6 +104,9 @@ class MonteCarloResult {
     required this.numSimulations,
     required this.disclaimer,
     required this.retirementAge,
+    required this.incomeScope,
+    required this.avsIncluded,
+    required this.missingFields,
     this.sources = const [],
     this.alertes = const [],
   });

@@ -49,6 +49,16 @@ enum GoalAType { retraite, achatImmo, independance, debtFree, custom }
 /// User-declared AVS gap state. The status never fabricates a year count.
 enum AvsGapStatus { noGaps, arrivedLate, livedAbroad, unknown }
 
+/// Canonical Data Ledger paths for official AVS pension amounts.
+///
+/// This contract identifies the fields required by complete retirement-income
+/// projections; it does not certify that either amount is available.
+abstract final class AvsOfficialPensionEvidence {
+  static const selfFieldPath = 'prevoyance.renteAVSEstimeeMensuelle';
+  static const spouseFieldPath =
+      'conjoint.prevoyance.renteAVSEstimeeMensuelle';
+}
+
 /// Certificate-backed AVS gap readiness for one profile household.
 ///
 /// Declared statuses and unverified numeric values remain visible in the

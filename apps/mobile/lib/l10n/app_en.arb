@@ -11493,5 +11493,22 @@
   "donationChecklistKeepDeed": "Keep a copy of the deed in your documents",
   "donationChecklistLandRegister": "Proceed with land-register entry",
   "donationChecklistFutureCollation": "Document the amount for future estate collation",
-  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary"
+  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary",
+  "earlyRetirementComparisonTitle": "Early retirement comparison",
+  "earlyRetirementComparisonScopeHouseholdNonAvs": "Household LPP, pillar 3a and asset income — OASI not included",
+  "earlyRetirementComparisonScopeIndividualNonAvs": "LPP, pillar 3a and asset income — OASI not included",
+  "earlyRetirementComparisonAgeHeader": "Age",
+  "earlyRetirementComparisonMonthlyIncomeNonAvs": "Monthly income excluding OASI",
+  "earlyRetirementComparisonCta": "Simulate early retirement",
+  "earlyRetirementComparisonPartialDisclaimer": "Partial projection excluding OASI — rates vary by pension fund (FinSA).",
+  "premierEclairageAnnualSuffix": "/year",
+  "premierEclairage3aTaxMessage": "Potential tax saving each year by maximizing your pillar 3a. Over {years} years, this represents ~CHF {cumulativeAmount}.",
+  "premierEclairage3aSource": "OPP3 art. 7 · LIFD",
+  "premierEclairage3aCta": "Simulate my pillar 3a",
+  "premierEclairageLppBuybackMessage": "Potential tax deduction from buying back your LPP gap of CHF {amount}.",
+  "premierEclairageLppSource": "LPP art. 79b",
+  "premierEclairageLppCta": "Explore the buyback",
+  "premierEclairageAvsGapMessage": "{gapYears, plural, =1{OASI pension lost over 20 retirement years with 1 missing contribution year {calculation}} other{OASI pension lost over 20 retirement years with {gapYears} missing contribution years {calculation}}}",
+  "premierEclairageAvsSource": "LAVS art. 29bis-29ter, 13th OASI pension (from Dec. 2026)",
+  "premierEclairageAvsCta": "Check my contribution gaps"
 }

@@ -23751,4 +23751,76 @@ class SIt extends S {
   @override
   String get donationChecklistConcubinageQuestions =>
       'Prepare testamentary questions for the notary';
+
+  @override
+  String get earlyRetirementComparisonTitle =>
+      'Confronto del pensionamento anticipato';
+
+  @override
+  String get earlyRetirementComparisonScopeHouseholdNonAvs =>
+      'Redditi familiari da LPP, pilastro 3a e patrimonio — AVS non inclusa';
+
+  @override
+  String get earlyRetirementComparisonScopeIndividualNonAvs =>
+      'Redditi da LPP, pilastro 3a e patrimonio — AVS non inclusa';
+
+  @override
+  String get earlyRetirementComparisonAgeHeader => 'Età';
+
+  @override
+  String get earlyRetirementComparisonMonthlyIncomeNonAvs =>
+      'Reddito mensile senza AVS';
+
+  @override
+  String get earlyRetirementComparisonCta =>
+      'Simulare il pensionamento anticipato';
+
+  @override
+  String get earlyRetirementComparisonPartialDisclaimer =>
+      'Proiezione parziale senza AVS — le aliquote variano in base alla cassa pensione (LSerFi).';
+
+  @override
+  String get premierEclairageAnnualSuffix => '/anno';
+
+  @override
+  String premierEclairage3aTaxMessage(int years, String cumulativeAmount) {
+    return 'Potenziale risparmio fiscale annuo massimizzando il pilastro 3a. In $years anni, equivale a ~CHF $cumulativeAmount.';
+  }
+
+  @override
+  String get premierEclairage3aSource => 'OPP3 art. 7 · LIFD';
+
+  @override
+  String get premierEclairage3aCta => 'Simulare il mio pilastro 3a';
+
+  @override
+  String premierEclairageLppBuybackMessage(String amount) {
+    return 'Potenziale deduzione fiscale colmando la tua lacuna LPP di CHF $amount con un riscatto.';
+  }
+
+  @override
+  String get premierEclairageLppSource => 'LPP art. 79b';
+
+  @override
+  String get premierEclairageLppCta => 'Esplorare il riscatto';
+
+  @override
+  String premierEclairageAvsGapMessage(int gapYears, String calculation) {
+    String _temp0 = intl.Intl.pluralLogic(
+      gapYears,
+      locale: localeName,
+      other:
+          'Rendita AVS persa su 20 anni di pensionamento con $gapYears anni di contribuzione mancanti $calculation',
+      one:
+          'Rendita AVS persa su 20 anni di pensionamento con 1 anno di contribuzione mancante $calculation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get premierEclairageAvsSource =>
+      'LAVS art. 29bis-29ter, 13ª rendita AVS (da dic. 2026)';
+
+  @override
+  String get premierEclairageAvsCta => 'Verificare le mie lacune contributive';
 }

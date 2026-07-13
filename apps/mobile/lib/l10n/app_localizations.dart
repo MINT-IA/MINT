@@ -41428,6 +41428,108 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Préparer les questions testamentaires à poser au notaire'**
   String get donationChecklistConcubinageQuestions;
+
+  /// No description provided for @earlyRetirementComparisonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparaison retraite anticipée'**
+  String get earlyRetirementComparisonTitle;
+
+  /// No description provided for @earlyRetirementComparisonScopeHouseholdNonAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus LPP, 3a et patrimoine du ménage — AVS non incluse'**
+  String get earlyRetirementComparisonScopeHouseholdNonAvs;
+
+  /// No description provided for @earlyRetirementComparisonScopeIndividualNonAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus LPP, 3a et patrimoine — AVS non incluse'**
+  String get earlyRetirementComparisonScopeIndividualNonAvs;
+
+  /// No description provided for @earlyRetirementComparisonAgeHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get earlyRetirementComparisonAgeHeader;
+
+  /// No description provided for @earlyRetirementComparisonMonthlyIncomeNonAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu mensuel hors AVS'**
+  String get earlyRetirementComparisonMonthlyIncomeNonAvs;
+
+  /// No description provided for @earlyRetirementComparisonCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler ta retraite anticipée'**
+  String get earlyRetirementComparisonCta;
+
+  /// No description provided for @earlyRetirementComparisonPartialDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection partielle hors AVS — les taux varient par caisse (LSFin).'**
+  String get earlyRetirementComparisonPartialDisclaimer;
+
+  /// No description provided for @premierEclairageAnnualSuffix.
+  ///
+  /// In fr, this message translates to:
+  /// **'/an'**
+  String get premierEclairageAnnualSuffix;
+
+  /// Message éducatif du premier éclairage sur l'économie fiscale 3a potentielle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économie d\'impôts potentielle chaque année en maximisant ton 3a. Sur {years} ans, cela représente ~CHF {cumulativeAmount}.'**
+  String premierEclairage3aTaxMessage(int years, String cumulativeAmount);
+
+  /// No description provided for @premierEclairage3aSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'OPP3 art. 7 · LIFD'**
+  String get premierEclairage3aSource;
+
+  /// No description provided for @premierEclairage3aCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler mon 3a'**
+  String get premierEclairage3aCta;
+
+  /// Message éducatif du premier éclairage sur un rachat LPP potentiel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déduction fiscale potentielle en rachetant ta lacune LPP de CHF {amount}.'**
+  String premierEclairageLppBuybackMessage(String amount);
+
+  /// No description provided for @premierEclairageLppSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP art. 79b'**
+  String get premierEclairageLppSource;
+
+  /// No description provided for @premierEclairageLppCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer le rachat'**
+  String get premierEclairageLppCta;
+
+  /// Message éducatif du premier éclairage pour une lacune AVS certifiée.
+  ///
+  /// In fr, this message translates to:
+  /// **'{gapYears, plural, =1{Rente AVS perdue sur 20 ans de retraite avec 1 année de cotisation manquante {calculation}} other{Rente AVS perdue sur 20 ans de retraite avec {gapYears} années de cotisation manquantes {calculation}}}'**
+  String premierEclairageAvsGapMessage(int gapYears, String calculation);
+
+  /// No description provided for @premierEclairageAvsSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'LAVS art. 29bis-29ter, 13ᵉ rente AVS (dès déc. 2026)'**
+  String get premierEclairageAvsSource;
+
+  /// No description provided for @premierEclairageAvsCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier mes lacunes'**
+  String get premierEclairageAvsCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

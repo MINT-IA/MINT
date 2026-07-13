@@ -23575,4 +23575,74 @@ class SEn extends S {
   @override
   String get donationChecklistConcubinageQuestions =>
       'Prepare testamentary questions for the notary';
+
+  @override
+  String get earlyRetirementComparisonTitle => 'Early retirement comparison';
+
+  @override
+  String get earlyRetirementComparisonScopeHouseholdNonAvs =>
+      'Household LPP, pillar 3a and asset income — OASI not included';
+
+  @override
+  String get earlyRetirementComparisonScopeIndividualNonAvs =>
+      'LPP, pillar 3a and asset income — OASI not included';
+
+  @override
+  String get earlyRetirementComparisonAgeHeader => 'Age';
+
+  @override
+  String get earlyRetirementComparisonMonthlyIncomeNonAvs =>
+      'Monthly income excluding OASI';
+
+  @override
+  String get earlyRetirementComparisonCta => 'Simulate early retirement';
+
+  @override
+  String get earlyRetirementComparisonPartialDisclaimer =>
+      'Partial projection excluding OASI — rates vary by pension fund (FinSA).';
+
+  @override
+  String get premierEclairageAnnualSuffix => '/year';
+
+  @override
+  String premierEclairage3aTaxMessage(int years, String cumulativeAmount) {
+    return 'Potential tax saving each year by maximizing your pillar 3a. Over $years years, this represents ~CHF $cumulativeAmount.';
+  }
+
+  @override
+  String get premierEclairage3aSource => 'OPP3 art. 7 · LIFD';
+
+  @override
+  String get premierEclairage3aCta => 'Simulate my pillar 3a';
+
+  @override
+  String premierEclairageLppBuybackMessage(String amount) {
+    return 'Potential tax deduction from buying back your LPP gap of CHF $amount.';
+  }
+
+  @override
+  String get premierEclairageLppSource => 'LPP art. 79b';
+
+  @override
+  String get premierEclairageLppCta => 'Explore the buyback';
+
+  @override
+  String premierEclairageAvsGapMessage(int gapYears, String calculation) {
+    String _temp0 = intl.Intl.pluralLogic(
+      gapYears,
+      locale: localeName,
+      other:
+          'OASI pension lost over 20 retirement years with $gapYears missing contribution years $calculation',
+      one:
+          'OASI pension lost over 20 retirement years with 1 missing contribution year $calculation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get premierEclairageAvsSource =>
+      'LAVS art. 29bis-29ter, 13th OASI pension (from Dec. 2026)';
+
+  @override
+  String get premierEclairageAvsCta => 'Check my contribution gaps';
 }

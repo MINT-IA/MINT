@@ -374,7 +374,13 @@ MonteCarloResult _buildMockResult() {
   return const MonteCarloResult(
     projection: [
       MonteCarloPoint(
-          year: 2040, age: 65, p10: 2000, p25: 2500, p50: 3000, p75: 3500, p90: 4000),
+          year: 2040,
+          age: 65,
+          p10: 2000,
+          p25: 2500,
+          p50: 3000,
+          p75: 3500,
+          p90: 4000),
     ],
     medianAt65: 3000,
     p10At65: 2000,
@@ -383,6 +389,9 @@ MonteCarloResult _buildMockResult() {
     numSimulations: 500,
     disclaimer: 'Outil \u00e9ducatif (LSFin).',
     retirementAge: 65,
+    incomeScope: RetirementIncomeScope.nonAvsOnly,
+    avsIncluded: false,
+    missingFields: ['prevoyance.renteAVSEstimeeMensuelle'],
     sources: ['LPP art. 14'],
     alertes: [],
   );

@@ -60,13 +60,14 @@ class PremierEclairageSection extends StatelessWidget {
       if (economieAnnuelle > 500) {
         cards.add(PremierEclairageCoachCard(
           value: economieAnnuelle,
-          suffix: '/an',
-          message: '\u00c9conomie d\'imp\u00f4ts potentielle chaque ann\u00e9e en '
-              'maximisant ton 3a. '
-              'Sur $anneesRestantes ans, cela repr\u00e9sente ~CHF\u00A0${formatChf(economieCumulee)}.',
+          suffix: l10n.premierEclairageAnnualSuffix,
+          message: l10n.premierEclairage3aTaxMessage(
+            anneesRestantes,
+            formatChf(economieCumulee),
+          ),
           narrativeMessage: narratives['fiscalite'],
-          source: 'OPP3 art. 7 \u00b7 LIFD',
-          ctaLabel: 'Simuler mon 3a',
+          source: l10n.premierEclairage3aSource,
+          ctaLabel: l10n.premierEclairage3aCta,
           ctaRoute: '/pilier-3a',
           icon: Icons.savings,
           color: MintColors.indigo,
@@ -88,11 +89,12 @@ class PremierEclairageSection extends StatelessWidget {
 
       cards.add(PremierEclairageCoachCard(
         value: economieRachat,
-        message: 'D\u00e9duction fiscale potentielle en rachetant '
-            'ta lacune LPP de CHF ${formatChf(lacuneLpp)}.',
+        message: l10n.premierEclairageLppBuybackMessage(
+          formatChf(lacuneLpp),
+        ),
         narrativeMessage: narratives['prevoyance'],
-        source: 'LPP art. 79b',
-        ctaLabel: 'Explorer le rachat',
+        source: l10n.premierEclairageLppSource,
+        ctaLabel: l10n.premierEclairageLppCta,
         ctaRoute: '/rachat-lpp',
         icon: Icons.account_balance,
         color: MintColors.coachAccent,
@@ -100,22 +102,22 @@ class PremierEclairageSection extends StatelessWidget {
     }
 
     // 3. AVS gap cost — each missing year = -1/44 of max rente (LAVS art. 29ter)
-    final lacunesAVS = profile.prevoyance.lacunesAVS ?? 0;
-    if (lacunesAVS > 0) {
-      final perteTotaleAnnuelle =
-          AvsCalculator.annualRente(AvsCalculator.monthlyLossFromGap(lacunesAVS));
+    final lacunesAVS = profile.avsGapEvidence.selfCertifiedYears;
+    if (lacunesAVS != null && lacunesAVS > 0) {
+      final perteTotaleAnnuelle = AvsCalculator.annualRente(
+          AvsCalculator.monthlyLossFromGap(lacunesAVS));
       // Over ~20 years of retirement
       final perteTotaleRetraite = perteTotaleAnnuelle * 20;
 
       cards.add(PremierEclairageCoachCard(
         value: perteTotaleRetraite,
-        message: 'Rente AVS perdue sur 20 ans de retraite avec '
-            '$lacunesAVS ann\u00e9e${lacunesAVS > 1 ? 's' : ''} '
-            'de cotisation manquante${lacunesAVS > 1 ? 's' : ''} '
-            '${S.of(context)!.premierEclairageRenteCalculation}',
+        message: l10n.premierEclairageAvsGapMessage(
+          lacunesAVS,
+          l10n.premierEclairageRenteCalculation,
+        ),
         narrativeMessage: narratives['avs'],
-        source: 'LAVS art. 29bis-29ter, 13\u1d49 rente AVS (d\u00e8s d\u00e9c. 2026)',
-        ctaLabel: 'V\u00e9rifier mes lacunes',
+        source: l10n.premierEclairageAvsSource,
+        ctaLabel: l10n.premierEclairageAvsCta,
         ctaRoute: '/retraite',
         icon: Icons.shield_outlined,
         color: MintColors.scoreAttention,
@@ -129,7 +131,8 @@ class PremierEclairageSection extends StatelessWidget {
       children: [
         Text(
           S.of(context)!.coachShockTitle,
-          style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 4),
         Text(

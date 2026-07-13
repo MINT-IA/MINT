@@ -11493,5 +11493,22 @@
   "donationChecklistKeepDeed": "Keep a copy of the deed in your documents",
   "donationChecklistLandRegister": "Proceed with land-register entry",
   "donationChecklistFutureCollation": "Document the amount for future estate collation",
-  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary"
+  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary",
+  "earlyRetirementComparisonTitle": "Comparación de jubilación anticipada",
+  "earlyRetirementComparisonScopeHouseholdNonAvs": "Ingresos del hogar por LPP, pilar 3a y patrimonio — AVS no incluida",
+  "earlyRetirementComparisonScopeIndividualNonAvs": "Ingresos por LPP, pilar 3a y patrimonio — AVS no incluida",
+  "earlyRetirementComparisonAgeHeader": "Edad",
+  "earlyRetirementComparisonMonthlyIncomeNonAvs": "Ingreso mensual sin AVS",
+  "earlyRetirementComparisonCta": "Simular la jubilación anticipada",
+  "earlyRetirementComparisonPartialDisclaimer": "Proyección parcial sin AVS — los tipos varían según la caja de pensiones (LSFin).",
+  "premierEclairageAnnualSuffix": "/año",
+  "premierEclairage3aTaxMessage": "Ahorro fiscal potencial cada año al maximizar tu pilar 3a. En {years} años, representa ~CHF {cumulativeAmount}.",
+  "premierEclairage3aSource": "OPP3 art. 7 · LIFD",
+  "premierEclairage3aCta": "Simular mi pilar 3a",
+  "premierEclairageLppBuybackMessage": "Deducción fiscal potencial al cubrir tu laguna LPP de CHF {amount} mediante un rescate.",
+  "premierEclairageLppSource": "LPP art. 79b",
+  "premierEclairageLppCta": "Explorar el rescate",
+  "premierEclairageAvsGapMessage": "{gapYears, plural, =1{Pensión AVS perdida durante 20 años de jubilación con 1 año de cotización faltante {calculation}} other{Pensión AVS perdida durante 20 años de jubilación con {gapYears} años de cotización faltantes {calculation}}}",
+  "premierEclairageAvsSource": "LAVS art. 29bis-29ter, 13.ª pensión AVS (desde dic. de 2026)",
+  "premierEclairageAvsCta": "Comprobar mis lagunas de cotización"
 }

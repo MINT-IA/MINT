@@ -11493,5 +11493,22 @@
   "donationChecklistKeepDeed": "Keep a copy of the deed in your documents",
   "donationChecklistLandRegister": "Proceed with land-register entry",
   "donationChecklistFutureCollation": "Document the amount for future estate collation",
-  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary"
+  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary",
+  "earlyRetirementComparisonTitle": "Comparação da reforma antecipada",
+  "earlyRetirementComparisonScopeHouseholdNonAvs": "Rendimentos do agregado por LPP, pilar 3a e património — AVS não incluída",
+  "earlyRetirementComparisonScopeIndividualNonAvs": "Rendimentos por LPP, pilar 3a e património — AVS não incluída",
+  "earlyRetirementComparisonAgeHeader": "Idade",
+  "earlyRetirementComparisonMonthlyIncomeNonAvs": "Rendimento mensal sem AVS",
+  "earlyRetirementComparisonCta": "Simular a reforma antecipada",
+  "earlyRetirementComparisonPartialDisclaimer": "Projeção parcial sem AVS — as taxas variam conforme a caixa de pensões (LSFin).",
+  "premierEclairageAnnualSuffix": "/ano",
+  "premierEclairage3aTaxMessage": "Poupança fiscal potencial por ano ao maximizar o pilar 3a. Em {years} anos, representa ~CHF {cumulativeAmount}.",
+  "premierEclairage3aSource": "OPP3 art. 7 · LIFD",
+  "premierEclairage3aCta": "Simular o meu pilar 3a",
+  "premierEclairageLppBuybackMessage": "Dedução fiscal potencial ao cobrir a tua lacuna LPP de CHF {amount} através de um resgate.",
+  "premierEclairageLppSource": "LPP art. 79b",
+  "premierEclairageLppCta": "Explorar o resgate",
+  "premierEclairageAvsGapMessage": "{gapYears, plural, =1{Pensão AVS perdida ao longo de 20 anos de reforma com 1 ano de contribuição em falta {calculation}} other{Pensão AVS perdida ao longo de 20 anos de reforma com {gapYears} anos de contribuição em falta {calculation}}}",
+  "premierEclairageAvsSource": "LAVS art. 29bis-29ter, 13.ª pensão AVS (desde dez. de 2026)",
+  "premierEclairageAvsCta": "Verificar as minhas lacunas contributivas"
 }

@@ -271,8 +271,7 @@ void main() {
         (i) => i.type == CrossPillarType.lppBuybackOpportunity,
         orElse: () => throw StateError('Missing LPP insight'),
       );
-      const expectedBoost =
-          539414.0 * lppTauxConversionMinDecimal;
+      const expectedBoost = 539414.0 * lppTauxConversionMinDecimal;
       expect(insight.details['augmentationRenteAnnuelle'],
           closeTo(expectedBoost, 1));
     });
@@ -318,7 +317,8 @@ void main() {
           .toList();
       if (realloc.isNotEmpty) {
         expect(realloc.first.impactChfAnnual, greaterThan(0));
-        expect(realloc.first.details['economieImpot3a'], greaterThanOrEqualTo(0));
+        expect(
+            realloc.first.details['economieImpot3a'], greaterThanOrEqualTo(0));
       }
     });
 
@@ -364,8 +364,7 @@ void main() {
           .toList();
       // May or may not trigger depending on income level; if present, check quality
       if (cantonal.isNotEmpty) {
-        expect(cantonal.first.impactChfAnnual,
-            greaterThan(_minCantonalDiff));
+        expect(cantonal.first.impactChfAnnual, greaterThan(_minCantonalDiff));
         expect(cantonal.first.details['economieAnnuelle'],
             greaterThan(_minCantonalDiff));
         expect(cantonal.first.tradeOff, isNotEmpty);
@@ -472,67 +471,15 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════════
-  //  7. RETIREMENT GAP ACTION
+  //  7. RETIREMENT GAP QUARANTINE
   // ═══════════════════════════════════════════════════════════════
 
-  group('CrossPillarCalculator — retirementGapAction', () {
-    test('27. low projected income → gap insight present', () {
-      // Force a very low projected income (e.g., 1500/month → ~28% replacement)
-      final profile = _julienProfile();
-      final result = CrossPillarCalculator.analyze(
-        profile: profile,
-        projectedRetirementIncomeMonthly: 1500.0,
+  group('CrossPillarCalculator — retirement gap quarantine', () {
+    test('does not expose an incomplete retirement-gap insight type', () {
+      expect(
+        CrossPillarType.values.map((type) => type.name),
+        isNot(contains('retirementGapAction')),
       );
-      final gap = result.insights
-          .where((i) => i.type == CrossPillarType.retirementGapAction)
-          .toList();
-      expect(gap, isNotEmpty);
-      expect(gap.first.details['tauxRemplacement'], lessThan(0.80));
-      expect(gap.first.details['ecartMensuel'], greaterThan(0));
-    });
-
-    test('28. strong projected income → no gap insight', () {
-      // 10000/month → replacement rate > 80% for Julien
-      final profile = _julienProfile();
-      final result = CrossPillarCalculator.analyze(
-        profile: profile,
-        projectedRetirementIncomeMonthly: 10000.0,
-      );
-      final hasGap = result.insights
-          .any((i) => i.type == CrossPillarType.retirementGapAction);
-      expect(hasGap, isFalse);
-    });
-
-    test('29. gap insight details contain all action fields', () {
-      final profile = _julienProfile();
-      final result = CrossPillarCalculator.analyze(
-        profile: profile,
-        projectedRetirementIncomeMonthly: 2000.0,
-      );
-      final gap = result.insights.firstWhere(
-        (i) => i.type == CrossPillarType.retirementGapAction,
-        orElse: () => throw StateError('Missing gap insight'),
-      );
-      expect(gap.details.containsKey('ecartMensuel'), isTrue);
-      expect(gap.details.containsKey('ecartAnnuel'), isTrue);
-      expect(gap.details.containsKey('action3aEconomieFiscale'), isTrue);
-      expect(gap.details.containsKey('actionRachatBoostRenteAnnuel'), isTrue);
-      expect(gap.details.containsKey('actionAnneeSuppGainAnnuel'), isTrue);
-    });
-
-    test('30. actionRachatBoostRenteAnnuel = lacune × tauxConversion', () {
-      final profile = _julienProfile();
-      final result = CrossPillarCalculator.analyze(
-        profile: profile,
-        projectedRetirementIncomeMonthly: 2000.0,
-      );
-      final gap = result.insights.firstWhere(
-        (i) => i.type == CrossPillarType.retirementGapAction,
-        orElse: () => throw StateError('Missing gap insight'),
-      );
-      const expectedBoost = 539414.0 * lppTauxConversionMinDecimal;
-      expect(gap.details['actionRachatBoostRenteAnnuel'],
-          closeTo(expectedBoost, 1));
     });
   });
 
@@ -605,7 +552,8 @@ void main() {
     //  sont cumulés fiscalement (obligatoire fédéral, 26 cantons).
     // ══════════════════════════════════════════════════════════════════════
 
-    test('36. detectCumulAnnuelRisk — aucun risque si un seul pilier retiré', () {
+    test('36. detectCumulAnnuelRisk — aucun risque si un seul pilier retiré',
+        () {
       final r = CrossPillarCalculator.detectCumulAnnuelRisk(
         capitalLppAnnee: 400000,
         capital3aAnnee: 0,
@@ -616,7 +564,8 @@ void main() {
       expect(r.deltaVsSplitChf, closeTo(0.0, 0.01));
     });
 
-    test('37. detectCumulAnnuelRisk — cumul LPP+3a même année déclenche alerte', () {
+    test('37. detectCumulAnnuelRisk — cumul LPP+3a même année déclenche alerte',
+        () {
       // Julien VS marié : LPP 400k + 3a 32k la même année.
       final r = CrossPillarCalculator.detectCumulAnnuelRisk(
         capitalLppAnnee: 400000,

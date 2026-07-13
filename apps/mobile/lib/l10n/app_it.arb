@@ -11493,5 +11493,22 @@
   "donationChecklistKeepDeed": "Keep a copy of the deed in your documents",
   "donationChecklistLandRegister": "Proceed with land-register entry",
   "donationChecklistFutureCollation": "Document the amount for future estate collation",
-  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary"
+  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary",
+  "earlyRetirementComparisonTitle": "Confronto del pensionamento anticipato",
+  "earlyRetirementComparisonScopeHouseholdNonAvs": "Redditi familiari da LPP, pilastro 3a e patrimonio — AVS non inclusa",
+  "earlyRetirementComparisonScopeIndividualNonAvs": "Redditi da LPP, pilastro 3a e patrimonio — AVS non inclusa",
+  "earlyRetirementComparisonAgeHeader": "Età",
+  "earlyRetirementComparisonMonthlyIncomeNonAvs": "Reddito mensile senza AVS",
+  "earlyRetirementComparisonCta": "Simulare il pensionamento anticipato",
+  "earlyRetirementComparisonPartialDisclaimer": "Proiezione parziale senza AVS — le aliquote variano in base alla cassa pensione (LSerFi).",
+  "premierEclairageAnnualSuffix": "/anno",
+  "premierEclairage3aTaxMessage": "Potenziale risparmio fiscale annuo massimizzando il pilastro 3a. In {years} anni, equivale a ~CHF {cumulativeAmount}.",
+  "premierEclairage3aSource": "OPP3 art. 7 · LIFD",
+  "premierEclairage3aCta": "Simulare il mio pilastro 3a",
+  "premierEclairageLppBuybackMessage": "Potenziale deduzione fiscale colmando la tua lacuna LPP di CHF {amount} con un riscatto.",
+  "premierEclairageLppSource": "LPP art. 79b",
+  "premierEclairageLppCta": "Esplorare il riscatto",
+  "premierEclairageAvsGapMessage": "{gapYears, plural, =1{Rendita AVS persa su 20 anni di pensionamento con 1 anno di contribuzione mancante {calculation}} other{Rendita AVS persa su 20 anni di pensionamento con {gapYears} anni di contribuzione mancanti {calculation}}}",
+  "premierEclairageAvsSource": "LAVS art. 29bis-29ter, 13ª rendita AVS (da dic. 2026)",
+  "premierEclairageAvsCta": "Verificare le mie lacune contributive"
 }

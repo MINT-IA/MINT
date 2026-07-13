@@ -23688,4 +23688,74 @@ class SFr extends S {
   @override
   String get donationChecklistConcubinageQuestions =>
       'Préparer les questions testamentaires à poser au notaire';
+
+  @override
+  String get earlyRetirementComparisonTitle => 'Comparaison retraite anticipée';
+
+  @override
+  String get earlyRetirementComparisonScopeHouseholdNonAvs =>
+      'Revenus LPP, 3a et patrimoine du ménage — AVS non incluse';
+
+  @override
+  String get earlyRetirementComparisonScopeIndividualNonAvs =>
+      'Revenus LPP, 3a et patrimoine — AVS non incluse';
+
+  @override
+  String get earlyRetirementComparisonAgeHeader => 'Âge';
+
+  @override
+  String get earlyRetirementComparisonMonthlyIncomeNonAvs =>
+      'Revenu mensuel hors AVS';
+
+  @override
+  String get earlyRetirementComparisonCta => 'Simuler ta retraite anticipée';
+
+  @override
+  String get earlyRetirementComparisonPartialDisclaimer =>
+      'Projection partielle hors AVS — les taux varient par caisse (LSFin).';
+
+  @override
+  String get premierEclairageAnnualSuffix => '/an';
+
+  @override
+  String premierEclairage3aTaxMessage(int years, String cumulativeAmount) {
+    return 'Économie d\'impôts potentielle chaque année en maximisant ton 3a. Sur $years ans, cela représente ~CHF $cumulativeAmount.';
+  }
+
+  @override
+  String get premierEclairage3aSource => 'OPP3 art. 7 · LIFD';
+
+  @override
+  String get premierEclairage3aCta => 'Simuler mon 3a';
+
+  @override
+  String premierEclairageLppBuybackMessage(String amount) {
+    return 'Déduction fiscale potentielle en rachetant ta lacune LPP de CHF $amount.';
+  }
+
+  @override
+  String get premierEclairageLppSource => 'LPP art. 79b';
+
+  @override
+  String get premierEclairageLppCta => 'Explorer le rachat';
+
+  @override
+  String premierEclairageAvsGapMessage(int gapYears, String calculation) {
+    String _temp0 = intl.Intl.pluralLogic(
+      gapYears,
+      locale: localeName,
+      other:
+          'Rente AVS perdue sur 20 ans de retraite avec $gapYears années de cotisation manquantes $calculation',
+      one:
+          'Rente AVS perdue sur 20 ans de retraite avec 1 année de cotisation manquante $calculation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get premierEclairageAvsSource =>
+      'LAVS art. 29bis-29ter, 13ᵉ rente AVS (dès déc. 2026)';
+
+  @override
+  String get premierEclairageAvsCta => 'Vérifier mes lacunes';
 }

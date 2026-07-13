@@ -11493,5 +11493,22 @@
   "donationChecklistKeepDeed": "Keep a copy of the deed in your documents",
   "donationChecklistLandRegister": "Proceed with land-register entry",
   "donationChecklistFutureCollation": "Document the amount for future estate collation",
-  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary"
+  "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary",
+  "earlyRetirementComparisonTitle": "Vergleich Frühpensionierung",
+  "earlyRetirementComparisonScopeHouseholdNonAvs": "Einkommen des Haushalts aus BVG, Säule 3a und Vermögen — AHV nicht enthalten",
+  "earlyRetirementComparisonScopeIndividualNonAvs": "Einkommen aus BVG, Säule 3a und Vermögen — AHV nicht enthalten",
+  "earlyRetirementComparisonAgeHeader": "Alter",
+  "earlyRetirementComparisonMonthlyIncomeNonAvs": "Monatliches Einkommen ohne AHV",
+  "earlyRetirementComparisonCta": "Frühpensionierung simulieren",
+  "earlyRetirementComparisonPartialDisclaimer": "Teilprojektion ohne AHV — die Sätze variieren je nach Pensionskasse (FIDLEG).",
+  "premierEclairageAnnualSuffix": "/Jahr",
+  "premierEclairage3aTaxMessage": "Mögliche jährliche Steuerersparnis bei maximaler Einzahlung in die Säule 3a. Über {years} Jahre entspricht das ~CHF {cumulativeAmount}.",
+  "premierEclairage3aSource": "OPP3 Art. 7 · LIFD",
+  "premierEclairage3aCta": "Meine Säule 3a simulieren",
+  "premierEclairageLppBuybackMessage": "Möglicher Steuerabzug bei einem Einkauf in deine BVG-Lücke von CHF {amount}.",
+  "premierEclairageLppSource": "BVG Art. 79b",
+  "premierEclairageLppCta": "Einkauf prüfen",
+  "premierEclairageAvsGapMessage": "{gapYears, plural, =1{Verlust an AHV-Rente über 20 Rentenjahre bei 1 fehlenden Beitragsjahr {calculation}} other{Verlust an AHV-Rente über 20 Rentenjahre bei {gapYears} fehlenden Beitragsjahren {calculation}}}",
+  "premierEclairageAvsSource": "AHVG Art. 29bis–29ter, 13. AHV-Rente (ab Dez. 2026)",
+  "premierEclairageAvsCta": "Meine Beitragslücken prüfen"
 }

@@ -12292,5 +12292,42 @@
   "donationChecklistKeepDeed": "Conserver une copie de l’acte dans tes documents",
   "donationChecklistLandRegister": "Procéder à l’inscription au registre foncier",
   "donationChecklistFutureCollation": "Documenter le montant pour le rapport successoral futur",
-  "donationChecklistConcubinageQuestions": "Préparer les questions testamentaires à poser au notaire"
+  "donationChecklistConcubinageQuestions": "Préparer les questions testamentaires à poser au notaire",
+  "earlyRetirementComparisonTitle": "Comparaison retraite anticipée",
+  "earlyRetirementComparisonScopeHouseholdNonAvs": "Revenus LPP, 3a et patrimoine du ménage — AVS non incluse",
+  "earlyRetirementComparisonScopeIndividualNonAvs": "Revenus LPP, 3a et patrimoine — AVS non incluse",
+  "earlyRetirementComparisonAgeHeader": "Âge",
+  "earlyRetirementComparisonMonthlyIncomeNonAvs": "Revenu mensuel hors AVS",
+  "earlyRetirementComparisonCta": "Simuler ta retraite anticipée",
+  "earlyRetirementComparisonPartialDisclaimer": "Projection partielle hors AVS — les taux varient par caisse (LSFin).",
+  "premierEclairageAnnualSuffix": "/an",
+  "premierEclairage3aTaxMessage": "Économie d'impôts potentielle chaque année en maximisant ton 3a. Sur {years} ans, cela représente ~CHF {cumulativeAmount}.",
+  "@premierEclairage3aTaxMessage": {
+    "description": "Message éducatif du premier éclairage sur l'économie fiscale 3a potentielle.",
+    "placeholders": {
+      "years": { "type": "int" },
+      "cumulativeAmount": { "type": "String" }
+    }
+  },
+  "premierEclairage3aSource": "OPP3 art. 7 · LIFD",
+  "premierEclairage3aCta": "Simuler mon 3a",
+  "premierEclairageLppBuybackMessage": "Déduction fiscale potentielle en rachetant ta lacune LPP de CHF {amount}.",
+  "@premierEclairageLppBuybackMessage": {
+    "description": "Message éducatif du premier éclairage sur un rachat LPP potentiel.",
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "premierEclairageLppSource": "LPP art. 79b",
+  "premierEclairageLppCta": "Explorer le rachat",
+  "premierEclairageAvsGapMessage": "{gapYears, plural, =1{Rente AVS perdue sur 20 ans de retraite avec 1 année de cotisation manquante {calculation}} other{Rente AVS perdue sur 20 ans de retraite avec {gapYears} années de cotisation manquantes {calculation}}}",
+  "@premierEclairageAvsGapMessage": {
+    "description": "Message éducatif du premier éclairage pour une lacune AVS certifiée.",
+    "placeholders": {
+      "gapYears": { "type": "int" },
+      "calculation": { "type": "String" }
+    }
+  },
+  "premierEclairageAvsSource": "LAVS art. 29bis-29ter, 13ᵉ rente AVS (dès déc. 2026)",
+  "premierEclairageAvsCta": "Vérifier mes lacunes"
 }

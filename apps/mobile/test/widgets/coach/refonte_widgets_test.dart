@@ -26,9 +26,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 //   6. TrajectoryCard
 
 /// Builds a MaterialApp wrapper with localization for widgets that use S.of().
-Widget buildLocalizedApp({required Widget child}) {
+Widget buildLocalizedApp({
+  required Widget child,
+  Locale locale = const Locale('fr'),
+}) {
   return MaterialApp(
-    locale: const Locale('fr'),
+    locale: locale,
     localizationsDelegates: const [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
@@ -353,7 +356,7 @@ void main() {
     testWidgets('is hidden when profile age < 45', (tester) async {
       final youngProfile = buildYoungerProfile();
       await tester.pumpWidget(
-        buildSimpleApp(
+        buildLocalizedApp(
           child: EarlyRetirementComparison(profile: youngProfile),
         ),
       );
@@ -366,7 +369,7 @@ void main() {
     testWidgets('shows comparison table when age >= 45', (tester) async {
       final olderProfile = buildOlderProfile();
       await tester.pumpWidget(
-        buildSimpleApp(
+        buildLocalizedApp(
           child: EarlyRetirementComparison(profile: olderProfile),
         ),
       );
@@ -378,19 +381,33 @@ void main() {
       );
     });
 
-    testWidgets('shows Age and Taux column headers when age >= 45',
-        (tester) async {
+    testWidgets('shows only non-AVS income when age >= 45', (tester) async {
       final olderProfile = buildOlderProfile();
       await tester.pumpWidget(
-        buildSimpleApp(
+        buildLocalizedApp(
           child: EarlyRetirementComparison(profile: olderProfile),
         ),
       );
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.text('Age'), findsOneWidget);
-      expect(find.text('Taux'), findsOneWidget);
-      expect(find.text('Revenu mensuel'), findsOneWidget);
+      expect(find.text('Âge'), findsOneWidget);
+      expect(find.text('Taux'), findsNothing);
+      expect(find.text('Revenu mensuel hors AVS'), findsOneWidget);
+    });
+
+    testWidgets('localizes the non-AVS scope in English', (tester) async {
+      final olderProfile = buildOlderProfile();
+      await tester.pumpWidget(
+        buildLocalizedApp(
+          locale: const Locale('en'),
+          child: EarlyRetirementComparison(profile: olderProfile),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.text('Early retirement comparison'), findsOneWidget);
+      expect(find.text('Monthly income excluding OASI'), findsOneWidget);
+      expect(find.textContaining('Comparaison retraite'), findsNothing);
     });
   });
 
@@ -399,6 +416,76 @@ void main() {
   // ══════════════════════════════════════════════════════════════
 
   group('PremierEclairageSection', () {
+    testWidgets('does not price an uncertified AVS gap', (tester) async {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'ZH',
+        salaireBrutMensuel: 8000,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          canContribute3a: false,
+          lacunesAVS: 3,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050, 12, 31),
+          label: 'Retraite',
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildLocalizedApp(
+          child: PremierEclairageSection(
+            profile: profile,
+            narratives: const {},
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.textContaining('chiffres-chocs'), findsNothing);
+    });
+
+    testWidgets('shows a certificate-backed AVS gap in English',
+        (tester) async {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'ZH',
+        salaireBrutMensuel: 8000,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          canContribute3a: false,
+          lacunesAVS: 3,
+        ),
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+        },
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050, 12, 31),
+          label: 'Retraite',
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildLocalizedApp(
+          locale: const Locale('en'),
+          child: PremierEclairageSection(
+            profile: profile,
+            narratives: const {},
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(
+        find.textContaining('3 missing contribution years'),
+        findsOneWidget,
+      );
+      expect(find.text('Check my contribution gaps'), findsOneWidget);
+      expect(find.textContaining('Vérifier mes lacunes'), findsNothing);
+    });
+
     testWidgets('renders with profile that has 3a gap and LPP buyback',
         (tester) async {
       final profile = buildProfileWith3aGap();
