@@ -6,6 +6,7 @@
 > **Audited baseline:** commit `095eeaa32` (2026-07-07).
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
+> **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
 
 ---
 
@@ -39,6 +40,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
 - **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (36 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist, coach tool enum, mobile mapper, and profile reads are now in sync for all 36 keys; §3.8 keeps the repair history and the parity gate.
+- **AVS-OFFICIAL — CANDIDATE IS NOT FACT.** `avs_official_pension` is distinct from the CI `avs_extract`. Its only canonical fact is `avs_official_monthly_pension`, persisted after review as `{value, source, sourceDate, updatedAt}` in one strict-secure envelope. Candidate extraction performs no pre-review profile write or backend mirror. Correction writes `userInput` with a null source date. Mobile and backend kill switches default to false; no partner writer or household calculation is authorized by this contract.
 
 ---
 
@@ -326,9 +328,22 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 
 ### 4.1 AVS / LPP detail (from certificate extraction)
 
+The self-only official AVS acquisition target is specified in
+[AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md):
+
+| canonical ledger key | document type | strict-secure key | typed presentation path | sources | readiness |
+|---|---|---|---|---|---|
+| `avs_official_monthly_pension` | `avs_official_pension` | `_coach_avs_official_monthly_pension` | `prevoyance.renteAVSEstimeeMensuelle` | certificate after untouched review; userInput after correction | self evidence only; the one-envelope `{value, source, sourceDate, updatedAt}` record is required |
+
+`avs_extract` and `_coach_avs_rente_estimee` are explicitly non-certifying.
+They may retain CI history or legacy estimate meaning, but neither may create or
+upgrade the canonical official record. The typed presentation path without that
+record remains unverified. No partner record exists in this slice, and household
+calculations stay null/partial.
+
 | key (field path) | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|
-| `prevoyance.renteAVSEstimeeMensuelle` | double CHF/mo | prevoyance | certificate, estimated | annual | .95 | mergeAnswers (scan) | AVS rente display, SafeMode E1 retiree |
+| `prevoyance.renteAVSEstimeeMensuelle` | double CHF/mo | prevoyance | estimated; certificate/userInput only through the canonical official record above | annual | source-weighted | dedicated reviewed writer (target); legacy merge remains non-certifying | self evidence display only until a separate calculation-activation review |
 | `prevoyance.ramd` | double CHF | prevoyance | certificate | annual | .95 | mergeAnswers (scan) | AVS rente exact computation |
 | `prevoyance.lacunesAVS` | int yr | prevoyance | certificate | annual | .95 | mergeAnswers (scan) | AVS reduction, gap-fill prompt |
 | `prevoyance.bonificationsEducatives` | int yr | prevoyance | certificate | annual | .95 | mergeAnswers (scan) | AVS bonifications LAVS art.29sexies |
@@ -461,7 +476,7 @@ The ledger `fresh` column (§3/§4) IS the authoritative `freshnessCategory` sou
 
 ## 6. Per-field provenance contract `{source, sourceDate, updatedAt}` (the missing piece)
 
-Today (wiring findings §B-4): mobile has `dataSources` (source only) + `dataTimestamps` (updatedAt only); backend `ProfileModel` has ONE `updated_at` for the whole profile. **Missing: `sourceDate` (when the underlying document was issued, ≠ when MINT confirmed it) and durable backend per-field provenance.** `FreshnessDecayService.weight()` explicitly uses `updatedAt`, not `sourceDate` — keep that; `sourceDate` is for display ("certificat LPP 2024") and for AVS/LPP/tax barème-year tagging.
+Today (wiring findings §B-4): mobile has `dataSources` (source only) + `dataTimestamps` (updatedAt only); backend `ProfileModel` has ONE `updated_at` for the whole profile. **Missing: `sourceDate` (when the underlying document was issued, semantically separate from when MINT confirmed it) and durable backend per-field provenance.** The two events may share a calendar date; `sourceDate` must never be derived from confirmation time. `FreshnessDecayService.weight()` explicitly uses `updatedAt`, not `sourceDate` — keep that; `sourceDate` is for display ("certificat LPP 2024") and for AVS/LPP/tax barème-year tagging.
 
 ### 6.1 Mobile — extend `CoachProfile`
 
@@ -477,6 +492,15 @@ final Map<String, DateTime?>         dataSourceDates; // field path -> sourceDat
 - **Key convention:** the same field path already used by `dataSources` (e.g. `prevoyance.avoirLppTotal`, `patrimoine.epargneLiquide`, top-level keys like `salaireBrutMensuel`).
 - **Write rule (I-3):** every `mergeAnswers`/`applySaveFact` that sets a field MUST, in the same call, set `dataSources[path]`, `dataTimestamps[path] = now`, and `dataSourceDates[path]` (= the document date when source ∈ {certificate, openBanking}, else null). Add this to `fromWizardAnswers` reconstruction + the `copyWith` used by the provider.
 - Serialize all three maps into `wizard_answers_v2` so they survive restart.
+
+**Strict-secure official AVS special case.** The generic three-map target does
+not authorize four independent writes for `avs_official_monthly_pension`.
+That fact is one `{value, source, sourceDate, updatedAt}` record stored under
+`_coach_avs_official_monthly_pension`; shared preferences contain only its
+secure placeholder. An untouched official review writes `certificate` plus the
+official document date. A correction writes `userInput` plus null `sourceDate`.
+The provider persists the envelope before rebuilding/notifying, so a secure
+failure cannot leave value and provenance out of sync.
 
 ### 6.2 Backend — extend `ProfileModel`
 
@@ -581,6 +605,13 @@ Test: every projection widget renders a range + `EnhancedConfidence`; `Complianc
 ---
 
 ## 9. End-to-end write/read flow (the only legal path)
+
+The generic scan edge below does not authorize candidate persistence. The
+focused `avs_official_pension` sequence is defined by
+[AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) and its
+[renderable Mermaid view](AVS_OFFICIAL_PENSION_INGESTION.mmd): candidate-only
+backend extraction, explicit review, one strict-secure atomic envelope, and no
+`ProfileModel.data` mirror. Both bounded flags default to false.
 
 ```mermaid
 flowchart TD

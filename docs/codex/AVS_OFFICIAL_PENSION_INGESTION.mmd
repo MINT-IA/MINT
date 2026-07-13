@@ -1,0 +1,39 @@
+sequenceDiagram
+  %% Contract label: candidate-only; no ProfileModel mirror
+  autonumber
+  actor User
+  participant Scan
+  participant Flags
+  participant Candidate
+  participant Review
+  participant Secure
+  participant Backend
+  participant Relaunch
+  participant EvidenceCard
+
+  User->>Scan: choose self official AVS response
+  Scan->>Flags: check mobile and backend flags
+  alt mobile or backend kill switch is false
+    Flags-->>Scan: kill-switch rejection, no write
+    Scan-->>User: keep AVS amount unavailable
+  else both bounded flags are true
+    Scan->>Candidate: extract avs_official_pension
+    Note over Candidate,Backend: candidate-only, no ProfileModel mirror
+    Candidate-->>Review: personal monthly amount + sourceDate
+    Review->>Flags: recheck mobile flag before persistence
+    alt flag turned off or evidence rejected
+      Flags-->>Review: reject and preserve previous durable fact
+    else untouched official amount
+      Review->>Secure: certificate + official sourceDate
+      Note over Review,Secure: atomic secure envelope {value, source, sourceDate, updatedAt}
+    else user corrects amount
+      Review->>Secure: correction: userInput + null sourceDate
+      Note over Review,Secure: atomic secure envelope {value, source, sourceDate, updatedAt}
+    end
+    Secure--x Backend: no confirmation value and no backend mirror
+    Secure-->>Relaunch: persist then rebuild from durable record
+    Relaunch->>Secure: reload strict-secure envelope
+    Secure-->>EvidenceCard: self value + source + sourceDate
+    EvidenceCard-->>User: show self evidence only
+    Note over Relaunch,EvidenceCard: household calculations stay fail-closed
+  end

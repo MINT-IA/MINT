@@ -13,7 +13,8 @@
 %% .
 %% This file is a SINGLE valid Mermaid flowchart. The machine-checkable
 %% INVARIANTS are at the bottom as %% comments (I-1..I-10), each citing the real
-%% file a script/Codex must assert against.
+%% file a script/Codex must assert against. Focused self-only official AVS
+%% acquisition: AVS_OFFICIAL_PENSION_INGESTION.md and its companion .mmd.
 %% ============================================================================
 
 flowchart TB
@@ -50,6 +51,27 @@ flowchart TB
     DOCS   -. "MISSING merge into ledger" .-> CPP
     PLAN   -. "MISSING bridge -> recompute" .-> MSP
   end
+
+  %% G1 target contract only — not a claim that product wiring is live.
+  subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
+    direction LR
+    AVS_FLAGS{"enableOfficialAvsPensionIngestion<br/>+ AVS_OFFICIAL_PENSION_INGESTION_ENABLED<br/>default false"}
+    AVS_REJECT["kill-switch rejection<br/>no write"]
+    AVS_DOC["avs_official_pension<br/>distinct from avs_extract"]
+    AVS_CANDIDATE["candidate only<br/>NO ProfileModel mirror"]
+    AVS_REVIEW["explicit self review<br/>correction = userInput + null sourceDate"]
+    AVS_SECURE[("strict-secure _coach_avs_official_monthly_pension<br/>avs_official_monthly_pension<br/>{value, source, sourceDate, updatedAt}")]
+    AVS_CARD["relaunch evidence card<br/>self amount + source + sourceDate"]
+
+    AVS_FLAGS -. "off" .-> AVS_REJECT
+    AVS_FLAGS -. "both on" .-> AVS_DOC
+    AVS_DOC -. "extract" .-> AVS_CANDIDATE
+    AVS_CANDIDATE -. "NO pre-review write" .-> AVS_REVIEW
+    AVS_REVIEW -. "atomic write after recheck" .-> AVS_SECURE
+    AVS_SECURE -. "rehydrate" .-> AVS_CARD
+  end
+
+  AVS_CARD -. "household calculations stay null" .-> MSP
 
   %% ==========================================================================
   %% PART B — NAVIGATION GRAPH (apps/mobile/lib/app.dart:301-1340)
