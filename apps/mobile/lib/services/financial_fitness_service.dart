@@ -360,6 +360,8 @@ class FinancialFitnessService {
     ));
 
     // 3. Pas de lacune AVS critique (0-25 points)
+    // This criterion belongs to the main profile owner. Optional spouse data
+    // may inform household flows, but must never change this individual score.
     final evidence = profile.avsGapEvidence;
     int pointsAvs;
     String detailAvs;
@@ -374,17 +376,6 @@ class FinancialFitnessService {
     if (!evidence.selfReady) {
       pointsAvs = 0;
       detailAvs = 'Situation a verifier'; // lint-ignore: legacy user copy
-    } else if (evidence.maritalCapApplicable &&
-        !evidence.maritalCapReady) {
-      pointsAvs = 0;
-      detailAvs = 'Situation AVS du couple a verifier'; // lint-ignore: legacy user copy
-    } else if (evidence.maritalCapReady) {
-      final selfYears = evidence.selfCertifiedYears!;
-      final spouseYears = evidence.spouseCertifiedYears!;
-      final selfPoints = pointsForAvsGaps(selfYears);
-      final spousePoints = pointsForAvsGaps(spouseYears);
-      pointsAvs = selfPoints < spousePoints ? selfPoints : spousePoints;
-      detailAvs = 'Vous: $selfYears; conjoint: $spouseYears'; // lint-ignore: legacy user copy
     } else {
       final selfYears = evidence.selfCertifiedYears!;
       pointsAvs = pointsForAvsGaps(selfYears);

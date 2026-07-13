@@ -101,6 +101,32 @@ void main() {
       expect(evidence.missingFieldPaths, isEmpty);
     });
 
+    test('certificate-backed self range is inclusive from 0 to 44', () {
+      const expectedByRawYears = <int, int?>{
+        -1: null,
+        0: 0,
+        44: 44,
+        45: null,
+      };
+
+      for (final entry in expectedByRawYears.entries) {
+        final evidence = profile(
+          selfYears: entry.key,
+          dataSources: const {
+            selfPath: ProfileDataSource.certificate,
+          },
+        ).avsGapEvidence;
+
+        expect(evidence.selfCertifiedYears, entry.value,
+            reason: 'raw self years ${entry.key}');
+        expect(evidence.selfReady, entry.value != null,
+            reason: 'raw self years ${entry.key}');
+        expect(evidence.missingFieldPaths,
+            entry.value == null ? [selfPath] : isEmpty,
+            reason: 'raw self years ${entry.key}');
+      }
+    });
+
     test('present spouse without CI evidence keeps household incomplete', () {
       final evidence = profile(
         selfYears: 0,
@@ -149,6 +175,39 @@ void main() {
         expect(evidence.maritalCapApplicable, isTrue, reason: civilStatus.name);
         expect(evidence.maritalCapReady, isTrue, reason: civilStatus.name);
         expect(evidence.missingFieldPaths, isEmpty, reason: civilStatus.name);
+      }
+    });
+
+    test('certificate-backed spouse range is inclusive from 0 to 44', () {
+      const expectedByRawYears = <int, int?>{
+        -1: null,
+        0: 0,
+        44: 44,
+        45: null,
+      };
+
+      for (final entry in expectedByRawYears.entries) {
+        final evidence = profile(
+          selfYears: 0,
+          civilStatus: CoachCivilStatus.marie,
+          spouse: ConjointProfile(
+            prevoyance: PrevoyanceProfile(lacunesAVS: entry.key),
+          ),
+          dataSources: const {
+            selfPath: ProfileDataSource.certificate,
+            spousePath: ProfileDataSource.certificate,
+          },
+        ).avsGapEvidence;
+
+        expect(evidence.spouseCertifiedYears, entry.value,
+            reason: 'raw spouse years ${entry.key}');
+        expect(evidence.householdTotalReady, entry.value != null,
+            reason: 'raw spouse years ${entry.key}');
+        expect(evidence.maritalCapReady, entry.value != null,
+            reason: 'raw spouse years ${entry.key}');
+        expect(evidence.missingFieldPaths,
+            entry.value == null ? [spousePath] : isEmpty,
+            reason: 'raw spouse years ${entry.key}');
       }
     });
 

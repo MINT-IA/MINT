@@ -2102,6 +2102,8 @@ class CoachProfile {
   AvsGapEvidence get avsGapEvidence {
     final selfYears = prevoyance.lacunesAVS;
     final selfCertified = selfYears != null &&
+            selfYears >= 0 &&
+            selfYears <= 44 &&
             dataSources[AvsGapEvidence.selfFieldPath] ==
                 ProfileDataSource.certificate
         ? selfYears
@@ -2110,6 +2112,8 @@ class CoachProfile {
     final spouseRequired = isCouple;
     final spouseYears = conjoint?.prevoyance?.lacunesAVS;
     final spouseCertified = spouseYears != null &&
+            spouseYears >= 0 &&
+            spouseYears <= 44 &&
             dataSources[AvsGapEvidence.spouseFieldPath] ==
                 ProfileDataSource.certificate
         ? spouseYears

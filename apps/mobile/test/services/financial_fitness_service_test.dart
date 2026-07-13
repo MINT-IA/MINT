@@ -389,95 +389,101 @@ void main() {
       expect(avsCrit.points, 0);
     });
 
-    test('couple with spouse AVS gaps missing fails closed for self 2', () {
-      final profile = CoachProfile(
-        birthYear: 1990,
-        canton: 'VD',
-        salaireBrutMensuel: 7000,
-        etatCivil: CoachCivilStatus.marie,
-        prevoyance: const PrevoyanceProfile(lacunesAVS: 2),
-        conjoint: const ConjointProfile(
-          prevoyance: PrevoyanceProfile(),
-        ),
-        dataSources: const {
-          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-        },
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(2055),
-          label: 'Retraite',
-        ),
-      );
-      final score = FinancialFitnessService.calculate(profile: profile);
-      final avsCrit =
-          score.prevoyance.criteria.firstWhere((c) => c.id == 'avs_gaps');
+    test('certified self AVS score is identical across civil statuses', () {
+      const expectedPointsByYears = <int, int>{
+        0: 25,
+        2: 20,
+        4: 10,
+        10: 0,
+      };
 
-      expect(avsCrit.points, 0);
-      expect(avsCrit.points, lessThan(25));
-      expect(avsCrit.detail, 'Situation AVS du couple a verifier');
-      expect(avsCrit.detail, isNot('Aucune lacune AVS'));
+      for (final civilStatus in CoachCivilStatus.values) {
+        for (final entry in expectedPointsByYears.entries) {
+          final profile = CoachProfile(
+            birthYear: 1990,
+            canton: 'VD',
+            salaireBrutMensuel: 7000,
+            etatCivil: civilStatus,
+            prevoyance: PrevoyanceProfile(lacunesAVS: entry.key),
+            dataSources: const {
+              AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+            },
+            goalA: GoalA(
+              type: GoalAType.retraite,
+              targetDate: DateTime(2055),
+              label: 'Retraite',
+            ),
+          );
+
+          final criterion = FinancialFitnessService.calculate(profile: profile)
+              .prevoyance
+              .criteria
+              .firstWhere((c) => c.id == 'avs_gaps');
+
+          expect(criterion.points, entry.value,
+              reason: '${civilStatus.name}, self years ${entry.key}');
+          expect(criterion.detail, isNot(contains('conjoint')),
+              reason: civilStatus.name);
+        }
+      }
     });
 
-    test('couple with spouse AVS gaps missing fails closed for self 0', () {
-      final profile = CoachProfile(
-        birthYear: 1990,
-        canton: 'VD',
-        salaireBrutMensuel: 7000,
-        etatCivil: CoachCivilStatus.marie,
-        prevoyance: const PrevoyanceProfile(lacunesAVS: 0),
-        conjoint: const ConjointProfile(
-          prevoyance: PrevoyanceProfile(),
+    test('spouse presence, proof, and value never change self AVS score', () {
+      CoachProfile marriedProfile({
+        ConjointProfile? spouse,
+        bool spouseCertified = false,
+      }) {
+        return CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 7000,
+          etatCivil: CoachCivilStatus.marie,
+          prevoyance: const PrevoyanceProfile(lacunesAVS: 2),
+          conjoint: spouse,
+          dataSources: {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+            if (spouseCertified)
+              AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+          },
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055),
+            label: 'Retraite',
+          ),
+        );
+      }
+
+      final profiles = [
+        marriedProfile(),
+        marriedProfile(spouse: const ConjointProfile()),
+        marriedProfile(
+          spouse: const ConjointProfile(
+            prevoyance: PrevoyanceProfile(lacunesAVS: 0),
+          ),
         ),
-        dataSources: const {
-          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-        },
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(2055),
-          label: 'Retraite',
+        marriedProfile(
+          spouse: const ConjointProfile(
+            prevoyance: PrevoyanceProfile(lacunesAVS: 0),
+          ),
+          spouseCertified: true,
         ),
-      );
-
-      final avsCrit = FinancialFitnessService.calculate(profile: profile)
-          .prevoyance
-          .criteria
-          .firstWhere((c) => c.id == 'avs_gaps');
-
-      expect(avsCrit.points, 0);
-      expect(avsCrit.points, lessThan(25));
-      expect(avsCrit.detail, 'Situation AVS du couple a verifier');
-      expect(avsCrit.detail, isNot('Aucune lacune AVS'));
-    });
-
-    test('couple AVS gaps score each person and keep the worse score', () {
-      final profile = CoachProfile(
-        birthYear: 1990,
-        canton: 'VD',
-        salaireBrutMensuel: 7000,
-        etatCivil: CoachCivilStatus.marie,
-        prevoyance: const PrevoyanceProfile(lacunesAVS: 2),
-        conjoint: const ConjointProfile(
-          prevoyance: PrevoyanceProfile(lacunesAVS: 4),
+        marriedProfile(
+          spouse: const ConjointProfile(
+            prevoyance: PrevoyanceProfile(lacunesAVS: 44),
+          ),
+          spouseCertified: true,
         ),
-        dataSources: const {
-          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-          AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
-        },
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(2055),
-          label: 'Retraite',
-        ),
-      );
+      ];
 
-      final avsCrit = FinancialFitnessService.calculate(profile: profile)
-          .prevoyance
-          .criteria
-          .firstWhere((c) => c.id == 'avs_gaps');
+      for (final profile in profiles) {
+        final criterion = FinancialFitnessService.calculate(profile: profile)
+            .prevoyance
+            .criteria
+            .firstWhere((c) => c.id == 'avs_gaps');
 
-      expect(avsCrit.points, 10);
-      expect(avsCrit.detail, 'Vous: 2; conjoint: 4');
-      expect(avsCrit.detail, isNot(contains('6')));
+        expect(criterion.points, 20);
+        expect(criterion.detail, '2 annee(s) de lacune AVS');
+      }
     });
 
     test('all declared AVS statuses without CI evidence score zero', () {
@@ -504,100 +510,6 @@ void main() {
       }
     });
 
-    test('marriage-equivalent without spouse object scores zero', () {
-      for (final civilStatus in const [
-        CoachCivilStatus.marie,
-        CoachCivilStatus.registeredPartnership,
-      ]) {
-        final profile = CoachProfile(
-          birthYear: 1990,
-          canton: 'VD',
-          salaireBrutMensuel: 7000,
-          etatCivil: civilStatus,
-          prevoyance: const PrevoyanceProfile(lacunesAVS: 0),
-          dataSources: const {
-            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-          },
-          goalA: GoalA(
-            type: GoalAType.retraite,
-            targetDate: DateTime(2055),
-            label: 'Retraite',
-          ),
-        );
-
-        final criterion = FinancialFitnessService.calculate(profile: profile)
-            .prevoyance
-            .criteria
-            .firstWhere((c) => c.id == 'avs_gaps');
-
-        expect(criterion.points, 0, reason: civilStatus.name);
-        expect(criterion.detail, 'Situation AVS du couple a verifier');
-      }
-    });
-
-    test('marriage-equivalent certified zeros score 25', () {
-      for (final civilStatus in const [
-        CoachCivilStatus.marie,
-        CoachCivilStatus.registeredPartnership,
-      ]) {
-        final profile = CoachProfile(
-          birthYear: 1990,
-          canton: 'VD',
-          salaireBrutMensuel: 7000,
-          etatCivil: civilStatus,
-          prevoyance: const PrevoyanceProfile(lacunesAVS: 0),
-          conjoint: const ConjointProfile(
-            prevoyance: PrevoyanceProfile(lacunesAVS: 0),
-          ),
-          dataSources: const {
-            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-            AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
-          },
-          goalA: GoalA(
-            type: GoalAType.retraite,
-            targetDate: DateTime(2055),
-            label: 'Retraite',
-          ),
-        );
-
-        final criterion = FinancialFitnessService.calculate(profile: profile)
-            .prevoyance
-            .criteria
-            .firstWhere((c) => c.id == 'avs_gaps');
-
-        expect(criterion.points, 25, reason: civilStatus.name);
-        expect(criterion.detail, 'Vous: 0; conjoint: 0');
-      }
-    });
-
-    test('cohabiting self-only certified zero keeps individual score', () {
-      final profile = CoachProfile(
-        birthYear: 1990,
-        canton: 'VD',
-        salaireBrutMensuel: 7000,
-        etatCivil: CoachCivilStatus.concubinage,
-        prevoyance: const PrevoyanceProfile(lacunesAVS: 0),
-        dataSources: const {
-          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-        },
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(2055),
-          label: 'Retraite',
-        ),
-      );
-
-      final criterion = FinancialFitnessService.calculate(profile: profile)
-          .prevoyance
-          .criteria
-          .firstWhere((c) => c.id == 'avs_gaps');
-
-      expect(profile.avsGapEvidence.selfReady, isTrue);
-      expect(profile.avsGapEvidence.householdTotalReady, isFalse);
-      expect(profile.avsGapEvidence.maritalCapApplicable, isFalse);
-      expect(criterion.points, 25);
-      expect(criterion.detail, 'Aucune lacune AVS');
-    });
   });
 
   // ════════════════════════════════════════════════════════════
