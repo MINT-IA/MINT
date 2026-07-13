@@ -1,0 +1,30 @@
+Product/domain verdict: PASS
+
+This change removes the `prefill` facade from the coach routing spine and makes `RoutePlanner` the sole authority for the canonical route + readiness signal, given only `{intent, confidence, context_message}` from the LLM. I verified the wiring end-to-end against the live code and it is coherent, privacy-improving, and better aligned with the one-source-of-truth model. Verdict is PASS, with one P1 pre-existing wiring gap the new design now fully depends on, and two P2s.
+
+## What I verified
+- `widget_renderer.dart:96-132` now fails closed: rejects non-string/empty intent, non-numeric/NaN/±inf/out-of-range confidence, absent profile, and any decision that isn't `openScreen`/`openWithWarning`. `isPartial` is now derived from the real `ReadinessGate` decision (`openWithWarning`), not from "is the prefill map empty" — a genuine domain-correctness fix (previously a user missing critical fields but with a salary saw *no* partial warning).
+- Backend schema is genuinely closed: `coach_tools.py:319-352` has `additionalProperties: False`, `required: [intent, confidence, context_message]`, no `route`/`prefill`. Docs claim matches code.
+- No domain data leaves via `GoRouter.extra`; destinations already read the ledger (old card doc: "never transported to the route"). Removing prefill loses no data — it was a facade used only to compute `isPartial`. New `no_domain_data_in_extra_test.dart` gate asserts `prefill`/`prefillFromProfile`/`_buildPrefill`/`_resolveProfileValue` are gone (widget_renderer_test.dart:1-296).
+- No dangling compile refs: `.prefill`/`prefillFromProfile` fully removed from the four touched files; remaining `prefill` hits are unrelated subsystems (`sequence_*`, `rachat_echelonne_screen`).
+
+## P0
+None. This change reduces privacy surface and introduces no advice/ranking/promise language.
+
+## P1
+**Backend↔Flutter intent drift the new design now fully relies on — 7/24 advertised intents silently no-op** (pre-existing, not worsened by this diff, but surfaced by it).
+- Evidence: `coach_tools.py:108-133` advertises these intents to Claude; `screen_registry.dart` has no entry for them (verified by lookup): `life_event_unemployment` (registry has `life_event_job_loss`), `debt_check` (registry has `debt_ratio`/`debt_risk_check`), `compound_interest` (`compound_interest_simulator`), `leasing_simulation` (`leasing_simulator`), `expert_consultation` (`consult_specialist`), `patrimoine_overview` (`portfolio_overview`), `pillar_3a_overview` (`simulator_3a`).
+- Repro/code path: Claude emits `route_to_screen(intent="expert_consultation", confidence=0.9, …)` → `RoutePlanner.plan` → `registry.findByIntent` returns null → `conversationOnly` → `_buildRouteSuggestion` returns `SizedBox.shrink()` (widget_renderer.dart:114-123). The coach's narrative ("I suggest consulting a specialist / a debt check / a leasing simulator") renders with **no CTA and no follow-up**. `expert_consultation` is the specialist-handoff path — a specialist-only cue that silently dies is a product/domain hole.
+- Why P1 here: this diff removes the parallel `ChatToolDispatcher.resolveRoute` fallback from the render path and makes `MintScreenRegistry.findByIntent` the *only* resolver, so the invariant "every advertised backend intent resolves to a registry entry" is now load-bearing — and there is no test guarding it (no cross-reference of `ROUTE_TO_SCREEN_INTENT_TAGS` against the registry exists; confirmed). Fix: reconcile the 7 tags and add a contract test (e.g., a generated Dart fixture of the backend tag list asserted `⊆` registry intents, or a backend test asserting each tag against an exported registry manifest).
+
+## P2
+- **Dead code after this change:** `ChatToolDispatcher.resolveRoute` now has zero callers in `lib/` (widget_renderer no longer imports the dispatcher); `resolveRouteFromIntent` is reachable only via `resolveRoute`. Either remove or keep with an explicit test, so the next agent doesn't treat it as the live path (`chat_tool_dispatcher.dart:85-117`).
+- **Dangling-narrative degraded state:** for `askFirst` (blocked, no `fallbackRoute`) the render path emits no card, but nothing in this path triggers the `ask_user_input` question the `askFirst` action is meant to drive. Better than the old "route to an empty screen," but the coach text can reference a screen the user can't reach. Consider surfacing the missing-field prompt from this path.
+
+## Swiss domain review
+- **Not affected:** AVS/LPP/3a/tax/mortgage/insurance/succession constants and logic. No regulatory constant, gate threshold, or cantonal rule changed. `gateRenteVsCapital`, `gateInvalidite`, `gateFrontalier`, etc. are untouched (only the now-removed `prefillFromProfile` flag was stripped from entries).
+- **Improved:** the partial/estimation signal on the retirement-choice, LPP-buyback, disability, and mortgage suggestion cards now reflects the actual `ReadinessGate` verdict rather than "user has some prefillable number," so the lucidity warning ("estimation mode / missing fields") is now honest for the flagship `rente-vs-capital` and `rachat-lpp` surfaces.
+- **Watch (P1 above):** the disability self-employed distinction and specialist handoff still route correctly *when registered*, but the `expert_consultation` tag mismatch means the Swiss "hand off to a specialist" cue can silently fail — the one place where a métier boundary (out-of-scope for the app) must not go dark.
+
+## Mint product logic review
+Net-positive for the ledger → DataQuest → scenario → dossier spine. The LLM no longer smuggles user variables into navigation (`prefill`/`GoRouter.extra`); the destination reads the single ledger-backed profile, and the readiness/partial state is computed from that same profile. This removes a duplicated-source-of-truth facade and makes the coach a proposer of *intent*, with code owning route + readiness. The remaining gap is the intent-manifest contract between backend advertisement and the Flutter registry (P1), which is the one thing standing between "clean spine" and "every coach suggestion delivers a usable surface."
