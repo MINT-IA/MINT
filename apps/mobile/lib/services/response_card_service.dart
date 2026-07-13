@@ -39,29 +39,25 @@ class ResponseCardService {
     final cardLpp = _tryLppBuyback(profile, l);
     if (cardLpp != null) cards.add(cardLpp);
 
-    // 3. Taux de remplacement (si > 45 ans)
-    final cardRepl = _tryReplacementRate(profile, l);
-    if (cardRepl != null) cards.add(cardRepl);
-
-    // 4. Lacune AVS (expats)
+    // 3. Lacune AVS certifiée par l'extrait CI
     final cardAvs = _tryAvsGap(profile, l);
     if (cardAvs != null) cards.add(cardAvs);
 
-    // 5. Couple alert (si score gap > 15)
+    // 4. Couple alert (si score gap > 15)
     if (visibilityScore != null) {
       final cardCouple = _tryCoupleAlert(profile, visibilityScore, l);
       if (cardCouple != null) cards.add(cardCouple);
     }
 
-    // 6. Independant (couverture lacunaire)
+    // 5. Independant (couverture lacunaire)
     final cardIndep = _tryIndependant(profile, l);
     if (cardIndep != null) cards.add(cardIndep);
 
-    // 7. Fiscalite (deductions)
+    // 6. Fiscalite (deductions)
     final cardTax = _tryTaxOptimization(profile, l);
     if (cardTax != null) cards.add(cardTax);
 
-    // 8. Patrimoine (diversification)
+    // 7. Patrimoine (diversification)
     final cardPatrimoine = _tryPatrimoine(profile, l);
     if (cardPatrimoine != null) cards.add(cardPatrimoine);
 
@@ -94,10 +90,6 @@ class ResponseCardService {
     }
     if (lower.contains('lpp') || lower.contains('rachat')) {
       final c = _tryLppBuyback(profile, l);
-      if (c != null) cards.add(c);
-    }
-    if (lower.contains('retraite') || lower.contains('rente')) {
-      final c = _tryReplacementRate(profile, l);
       if (c != null) cards.add(c);
     }
     if (lower.contains('avs')) {
@@ -682,76 +674,10 @@ class ResponseCardService {
     );
   }
 
-  static ResponseCard? _tryReplacementRate(CoachProfile profile, S l) {
-    if (profile.age < 45) return null;
-    if (profile.age >= profile.effectiveRetirementAge) return null;
-    if (profile.salaireBrutMensuel <= 0) return null;
-
-    // Use ForecasterService-style projection
-    final monthlyAvs = AvsCalculator.computeMonthlyRente(
-      currentAge: profile.age,
-      retirementAge: profile.effectiveRetirementAge,
-      arrivalAge: profile.arrivalAge,
-      grossAnnualSalary: profile.revenuBrutAnnuel,
-      isFemale: profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null),
-      birthYear: profile.birthYear,
-    );
-
-    final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
-    final lppMonthly = lppAvoir > 0
-        ? (lppAvoir * reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal) / 12) // conservative 5.4% (suroblig estimate)
-        : 0.0;
-
-    final totalMonthly = monthlyAvs + lppMonthly;
-    // Use NetIncomeBreakdown for consistent net calculation (same as Pulse)
-    final currentMonthly = NetIncomeBreakdown.compute(
-      grossSalary: profile.revenuBrutAnnuel,
-      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-      age: profile.age,
-    ).monthlyNetPayslip;
-    final replacementRate =
-        currentMonthly > 0 ? (totalMonthly / currentMonthly * 100) : 0.0;
-
-    return ResponseCard(
-      id: 'replacement_rate',
-      type: ResponseCardType.replacementRate,
-      title: l.rcReplacementRateTitle,
-      subtitle: l.rcReplacementRateSubtitle(
-          profile.effectiveRetirementAge.toString()),
-      premierEclairage: PremierEclairage(
-        value: replacementRate,
-        unit: '%',
-        explanation: l.rcReplacementRateExplanation(
-          totalMonthly.round().toString(),
-          currentMonthly.round().toString(),
-        ),
-      ),
-      cta: CardCta(
-        label: l.rcReplacementRateCtaLabel,
-        route: '/rente-vs-capital',
-        icon: 'trending_up',
-      ),
-      urgency: profile.age >= 58 ? CardUrgency.high : CardUrgency.medium,
-      disclaimer: l.rcDisclaimer,
-      sources: const ['LAVS art. 29-40', 'LPP art. 14'],
-      alertes: [
-        if (replacementRate < 60) l.rcReplacementRateAlerte,
-      ],
-      impactPoints: 22,
-    );
-  }
-
   static ResponseCard? _tryAvsGap(CoachProfile profile, S l) {
-    if (profile.arrivalAge == null) return null;
-    if (profile.arrivalAge! <= 20) return null;
-
-    // Lacunes = annees entre 20 et arrivalAge
-    final lacunes = (profile.arrivalAge! - 20).clamp(0, 44);
+    final lacunes = profile.avsGapEvidence.selfCertifiedYears;
+    if (lacunes == null) return null;
     if (lacunes <= 0) return null;
-
-    final fullRenteMonthly = reg('avs.max_annual_pension', avsRenteMaxAnnuelle) / 12;
-    final reductionPerYear = fullRenteMonthly / 44;
-    final monthlyLoss = reductionPerYear * lacunes;
 
     return ResponseCard(
       id: 'avs_gap',
@@ -759,8 +685,8 @@ class ResponseCardService {
       title: l.rcAvsGapTitle,
       subtitle: l.rcAvsGapSubtitle(lacunes.toString()),
       premierEclairage: PremierEclairage(
-        value: monthlyLoss * 12,
-        unit: 'CHF/an',
+        value: lacunes.toDouble(),
+        unit: 'ans',
         explanation: l.rcAvsGapExplanation,
       ),
       cta: CardCta(
@@ -899,7 +825,7 @@ class ResponseCardService {
 
     if (total <= 0) return null;
 
-    // Coussin securite: 3-6 mois de charges
+    // Coussin sécurité: 3-6 mois de charges
     final chargesMensuelles = profile.depenses.totalMensuel > 0
         ? profile.depenses.totalMensuel
         : profile.salaireBrutMensuel * 0.65; // estimation

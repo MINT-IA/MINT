@@ -19047,7 +19047,7 @@ class SPt extends S {
 
   @override
   String get rcAvsGapExplanation =>
-      'Redução estimada da tua pensão AVS anual devido a lacunas';
+      'Lacunas confirmadas pelo teu extrato da conta individual. O impacto na pensão ainda precisa de ser verificado.';
 
   @override
   String rcAvsGapSubtitle(String lacunes) {

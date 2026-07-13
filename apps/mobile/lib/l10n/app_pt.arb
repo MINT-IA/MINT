@@ -9348,7 +9348,7 @@
   "rcAmortizationSubtitle": "Direta vs indireta — impacto fiscal",
   "rcAmortizationTitle": "Amortização",
   "rcAvsGapCtaLabel": "Ver o meu extrato AVS",
-  "rcAvsGapExplanation": "Redução estimada da tua pensão AVS anual devido a lacunas",
+  "rcAvsGapExplanation": "Lacunas confirmadas pelo teu extrato da conta individual. O impacto na pensão ainda precisa de ser verificado.",
   "rcAvsGapSubtitle": "{lacunes} anos de contribuição em falta",
   "rcAvsGapTitle": "Lacuna AVS",
   "rcBudgetSubtitle": "Quanto te sobra no fim do mês?",

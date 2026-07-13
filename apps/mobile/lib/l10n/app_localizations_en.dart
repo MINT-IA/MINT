@@ -18954,7 +18954,7 @@ class SEn extends S {
 
   @override
   String get rcAvsGapExplanation =>
-      'Estimated reduction in your annual AVS pension due to gaps';
+      'Gaps confirmed by your individual account statement. The pension impact still needs to be verified.';
 
   @override
   String rcAvsGapSubtitle(String lacunes) {

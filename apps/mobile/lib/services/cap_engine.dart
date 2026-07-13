@@ -294,44 +294,7 @@ class CapEngine {
       ));
     }
 
-    // ── 7. Replacement rate warning (45+) ──
-    // B6-minimal: skip rule entirely if age unknown — replacement-rate
-    // warnings presuppose proximity to retirement. Firing this for a
-    // user of unknown age could alarm a 25yo inappropriately.
-    if (age != null && age >= 45 && profile.salaireBrutMensuel > 0) {
-      final rateCards =
-          ResponseCardService.generateForPulse(profile, l: l, limit: 5)
-              .where((c) => c.type == ResponseCardType.replacementRate)
-              .toList();
-      if (rateCards.isNotEmpty) {
-        final card = rateCards.first;
-        final rate = card.premierEclairage.value;
-        if (rate > 0 && rate < 65) {
-          candidates.add(CapDecision(
-            id: 'replacement_rate',
-            kind: CapKind.prepare,
-            priorityScore: _score(
-              impact: 0.7,
-              // B6-minimal: age guaranteed non-null here (rule gated above).
-              urgency: age >= 55 ? 0.8 : 0.5,
-              confidencePenalty: _confPenalty(confidence.score),
-              readiness: 1.0,
-              recency: _recencyModifier('replacement_rate', memory, now),
-            ),
-            headline: l.capReplacementRateHeadline,
-            whyNow: l.capReplacementRateWhyNow(rate.round().toString()),
-            ctaLabel: l.capReplacementRateCtaLabel,
-            ctaMode: CtaMode.route,
-            ctaRoute: '/rente-vs-capital',
-            coachPrompt: l.capCoachPromptReplacement(rate.round().toString()),
-            expectedImpact: l.capReplacementRateExpectedImpact,
-            sourceCards: [card.id],
-          ));
-        }
-      }
-    }
-
-    // ── 8. Protection gap ──
+    // ── 7. Protection gap ──
     // Only trigger if a real signal exists:
     // - has dependents (couple or children)
     // - OR has a mortgage (need life insurance)
@@ -932,7 +895,6 @@ class CapEngine {
       GoalAType.retraite => {
           'pillar_3a',
           'lpp_buyback',
-          'replacement_rate',
           'coverage_check',
           'couple_3a',
           'couple_lpp_buyback',
@@ -1269,21 +1231,9 @@ class CapEngine {
   static List<String> _acquiredAssets(CoachProfile profile, S l) {
     final assets = <String>[];
 
-    // AVS is always acquired if contributed
-    final avsYears = profile.prevoyance.anneesContribuees ?? 0;
-    if (avsYears > 0) {
-      final renteAvs = profile.prevoyance.renteAVSEstimeeMensuelle;
-      if (renteAvs != null && renteAvs > 0) {
-        assets.add(l.capAcquiredAvsWithRente(
-          renteAvs.round().toString(),
-          avsYears.toString(),
-        ));
-      } else {
-        assets.add(l.capAcquiredAvsYearsOnly(avsYears.toString()));
-      }
-    } else {
-      assets.add(l.capAcquiredAvsInProgress);
-    }
+    // Legacy contribution years and monthly estimates are not the reviewed
+    // official-pension envelope, so this inventory remains qualitative.
+    assets.add(l.capAcquiredAvsInProgress);
 
     // LPP if any
     final lpp = profile.prevoyance.avoirLppTotal ?? 0;

@@ -19090,7 +19090,8 @@ class SDe extends S {
   String get rcAvsGapCtaLabel => 'Meinen AHV-Auszug ansehen';
 
   @override
-  String get rcAvsGapExplanation => 'Geschätzte Rentenkürzung durch Lücken';
+  String get rcAvsGapExplanation =>
+      'Lücken durch deinen IK-Auszug bestätigt. Die Auswirkung auf die Rente muss noch geprüft werden.';
 
   @override
   String rcAvsGapSubtitle(String lacunes) {

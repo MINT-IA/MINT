@@ -19037,7 +19037,7 @@ class SFr extends S {
 
   @override
   String get rcAvsGapExplanation =>
-      'Réduction estimée de ta rente AVS annuelle due aux lacunes';
+      'Lacunes confirmées par ton extrait CI. L’impact sur la rente reste à vérifier.';
 
   @override
   String rcAvsGapSubtitle(String lacunes) {

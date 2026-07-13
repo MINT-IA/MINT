@@ -19096,7 +19096,7 @@ class SIt extends S {
 
   @override
   String get rcAvsGapExplanation =>
-      'Riduzione stimata della tua rendita AVS annuale per le lacune';
+      'Lacune confermate dal tuo estratto del conto individuale. L’impatto sulla rendita resta da verificare.';
 
   @override
   String rcAvsGapSubtitle(String lacunes) {

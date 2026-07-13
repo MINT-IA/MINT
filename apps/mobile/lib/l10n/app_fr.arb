@@ -9788,7 +9788,7 @@
   "rcAmortizationSubtitle": "Direct vs indirect — quel impact fiscal",
   "rcAmortizationTitle": "Amortissement",
   "rcAvsGapCtaLabel": "Voir mon extrait AVS",
-  "rcAvsGapExplanation": "Réduction estimée de ta rente AVS annuelle due aux lacunes",
+  "rcAvsGapExplanation": "Lacunes confirmées par ton extrait CI. L’impact sur la rente reste à vérifier.",
   "rcAvsGapSubtitle": "{lacunes} années de cotisation manquantes",
   "rcAvsGapTitle": "Lacune AVS",
   "rcBudgetSubtitle": "Combien il te reste à la fin du mois ?",

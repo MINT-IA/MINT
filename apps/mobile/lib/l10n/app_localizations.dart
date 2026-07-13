@@ -33443,7 +33443,7 @@ abstract class S {
   /// No description provided for @rcAvsGapExplanation.
   ///
   /// In fr, this message translates to:
-  /// **'Réduction estimée de ta rente AVS annuelle due aux lacunes'**
+  /// **'Lacunes confirmées par ton extrait CI. L’impact sur la rente reste à vérifier.'**
   String get rcAvsGapExplanation;
 
   /// No description provided for @rcAvsGapSubtitle.

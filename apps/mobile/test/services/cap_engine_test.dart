@@ -261,8 +261,8 @@ void main() {
     });
   });
 
-  group('CapEngine — replacement rate for 45+', () {
-    test('profile age 50 with low replacement rate triggers prepare cap', () {
+  group('CapEngine — replacement rate quarantine', () {
+    test('profile age 50 without official pension envelope stays unpriced', () {
       final profile = profile0(
         birthYear: 1976,
         salaireBrutMensuel: 10000,
@@ -271,8 +271,7 @@ void main() {
       final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap, isNotNull);
-      // At age 50 with only 30k LPP, replacement rate is low
-      // This should produce either a prepare or optimize cap
+      expect(cap.id, isNot('replacement_rate'));
     });
   });
 
@@ -570,8 +569,10 @@ void main() {
 
       expect(cap.isHonestyCap, isTrue);
       expect(cap.acquiredAssets.length, greaterThanOrEqualTo(2));
-      // Should mention AVS
-      expect(cap.acquiredAssets.any((a) => a.contains('AVS')), isTrue);
+      // Legacy contribution years and monthly estimates are not the reviewed
+      // official-pension envelope, so the honesty card stays qualitative.
+      expect(cap.acquiredAssets, contains(_l.capAcquiredAvsInProgress));
+      expect(cap.acquiredAssets.any((a) => a.contains('CHF/mois')), isFalse);
       // Should mention 3a
       expect(cap.acquiredAssets.any((a) => a.contains('3a')), isTrue);
       // Should mention LPP (even small)

@@ -26,6 +26,8 @@ CoachProfile _makeProfile({
   DepensesProfile depenses = const DepensesProfile(),
   ConjointProfile? conjoint,
   int? arrivalAge,
+  Map<String, ProfileDataSource> dataSources = const {},
+  Map<String, DateTime> dataTimestamps = const {},
 }) {
   return CoachProfile(
     firstName: firstName,
@@ -41,6 +43,8 @@ CoachProfile _makeProfile({
     depenses: depenses,
     conjoint: conjoint,
     arrivalAge: arrivalAge,
+    dataSources: dataSources,
+    dataTimestamps: dataTimestamps,
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2045),
@@ -238,9 +242,24 @@ void main() {
       expect(types, contains(ResponseCardType.lppBuyback));
     });
 
-    test('replacement rate card only for age >= 45', () {
+    test('replacement rate stays absent without reviewed AVS pension envelope', () {
       final young = _makeProfile(salaire: 8000, canton: 'VD', birthYear: 1996);
-      final old = _makeProfile(salaire: 8000, canton: 'VD', birthYear: 1975);
+      final old = _makeProfile(
+        salaire: 8000,
+        canton: 'VD',
+        birthYear: 1975,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 120000,
+          renteAVSEstimeeMensuelle: 2100,
+        ),
+        dataSources: const {
+          AvsOfficialPensionEvidence.selfFieldPath:
+              ProfileDataSource.certificate,
+        },
+        dataTimestamps: {
+          AvsOfficialPensionEvidence.selfFieldPath: DateTime(2026, 7, 13),
+        },
+      );
 
       final youngCards =
           ResponseCardService.generateForPulse(young, l: _l, limit: 10);
@@ -251,10 +270,10 @@ void main() {
           isFalse);
       expect(
           oldCards.any((c) => c.type == ResponseCardType.replacementRate),
-          isTrue);
+          isFalse);
     });
 
-    test('AVS gap card for expats with arrivalAge > 20', () {
+    test('arrival age alone never becomes an AVS gap card', () {
       final expat = _makeProfile(
         salaire: 8000,
         canton: 'VD',
@@ -264,7 +283,61 @@ void main() {
       final cards = ResponseCardService.generateForPulse(expat, l: _l, limit: 10);
 
       final types = cards.map((c) => c.type).toSet();
-      expect(types, contains(ResponseCardType.avsGap));
+      expect(types, isNot(contains(ResponseCardType.avsGap)));
+    });
+
+    test('certificate-backed self gap renders years without pension CHF', () {
+      final profile = _makeProfile(
+        salaire: 8000,
+        canton: 'VD',
+        birthYear: 1980,
+        prevoyance: const PrevoyanceProfile(lacunesAVS: 4),
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+        },
+      );
+
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+      final card = cards.singleWhere((c) => c.type == ResponseCardType.avsGap);
+
+      expect(card.premierEclairage.value, 4);
+      expect(card.premierEclairage.unit, 'ans');
+      expect(card.premierEclairage.formatted, '4 ans');
+      expect(card.premierEclairage.explanation, isNot(contains('CHF')));
+      expect(card.impactChf, isNull);
+    });
+
+    test('declared self gap years without certificate stay absent', () {
+      final profile = _makeProfile(
+        salaire: 8000,
+        canton: 'VD',
+        prevoyance: const PrevoyanceProfile(lacunesAVS: 4),
+      );
+
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+
+      expect(cards.any((c) => c.type == ResponseCardType.avsGap), isFalse);
+    });
+
+    test('spouse certificate never certifies the self AVS gap card', () {
+      final profile = _makeProfile(
+        salaire: 8000,
+        canton: 'VD',
+        etatCivil: CoachCivilStatus.marie,
+        conjoint: const ConjointProfile(
+          prevoyance: PrevoyanceProfile(lacunesAVS: 4),
+        ),
+        dataSources: const {
+          AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+        },
+      );
+
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+
+      expect(cards.any((c) => c.type == ResponseCardType.avsGap), isFalse);
     });
 
     test('AVS gap card NOT for Swiss native (no arrivalAge)', () {

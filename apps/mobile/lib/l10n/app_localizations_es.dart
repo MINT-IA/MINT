@@ -19051,7 +19051,7 @@ class SEs extends S {
 
   @override
   String get rcAvsGapExplanation =>
-      'Reducción estimada de tu pensión AVS anual debida a lagunas';
+      'Lagunas confirmadas por tu extracto de cuenta individual. El impacto en la pensión aún debe verificarse.';
 
   @override
   String rcAvsGapSubtitle(String lacunes) {

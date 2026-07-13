@@ -9348,7 +9348,7 @@
   "rcAmortizationSubtitle": "Direct vs indirect — what tax impact",
   "rcAmortizationTitle": "Amortisation",
   "rcAvsGapCtaLabel": "View my AVS extract",
-  "rcAvsGapExplanation": "Estimated reduction in your annual AVS pension due to gaps",
+  "rcAvsGapExplanation": "Gaps confirmed by your individual account statement. The pension impact still needs to be verified.",
   "rcAvsGapSubtitle": "{lacunes} missing contribution years",
   "rcAvsGapTitle": "AVS gap",
   "rcBudgetSubtitle": "How much is left at the end of the month?",
