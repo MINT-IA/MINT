@@ -84,6 +84,31 @@ CoachProfile _buildTestProfile({
   );
 }
 
+CoachProfile _withCertifiedSpouseAvsGapsOnly(int spouseGapYears) {
+  final base = _buildTestProfile();
+  return base.copyWith(
+    etatCivil: CoachCivilStatus.marie,
+    conjoint: ConjointProfile(
+      prevoyance: PrevoyanceProfile(lacunesAVS: spouseGapYears),
+    ),
+    dataSources: {
+      ...base.dataSources,
+      AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+    },
+  );
+}
+
+CoachProfile _withCertifiedHouseholdAvsGaps(int spouseGapYears) {
+  final spouseOnly = _withCertifiedSpouseAvsGapsOnly(spouseGapYears);
+  return spouseOnly.copyWith(
+    prevoyance: spouseOnly.prevoyance.copyWith(lacunesAVS: 0),
+    dataSources: {
+      ...spouseOnly.dataSources,
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+    },
+  );
+}
+
 /// Helper: build a score history list.
 List<Map<String, dynamic>> _buildScoreHistory({
   required List<int> scores,
@@ -302,6 +327,62 @@ void main() {
         everyElement(contains('Revenu retraite hors AVS')),
       );
     });
+
+    test(
+        'spouse AVS evidence stays outside cache identity until household total is ready',
+        () async {
+      final fourSpouseGapYears = _withCertifiedSpouseAvsGapsOnly(4);
+      final first = await CoachNarrativeService.generate(
+        profile: fourSpouseGapYears,
+        scoreHistory: null,
+        tips: _generateTips(fourSpouseGapYears),
+        byokConfig: null,
+      );
+
+      final eightSpouseGapYears = _withCertifiedSpouseAvsGapsOnly(8);
+      final second = await CoachNarrativeService.generate(
+        profile: eightSpouseGapYears,
+        scoreHistory: null,
+        tips: _generateTips(eightSpouseGapYears),
+        byokConfig: null,
+      );
+
+      expect(fourSpouseGapYears.avsGapEvidence.selfReady, isFalse);
+      expect(
+        fourSpouseGapYears.avsGapEvidence.householdTotalReady,
+        isFalse,
+      );
+      expect(eightSpouseGapYears.avsGapEvidence.selfReady, isFalse);
+      expect(
+        eightSpouseGapYears.avsGapEvidence.householdTotalReady,
+        isFalse,
+      );
+      expect(second.generatedAt, first.generatedAt);
+    });
+
+    test('spouse AVS evidence invalidates cache once household total is ready',
+        () async {
+      final fourSpouseGapYears = _withCertifiedHouseholdAvsGaps(4);
+      final first = await CoachNarrativeService.generate(
+        profile: fourSpouseGapYears,
+        scoreHistory: null,
+        tips: _generateTips(fourSpouseGapYears),
+        byokConfig: null,
+      );
+
+      final eightSpouseGapYears = _withCertifiedHouseholdAvsGaps(8);
+      final second = await CoachNarrativeService.generate(
+        profile: eightSpouseGapYears,
+        scoreHistory: null,
+        tips: _generateTips(eightSpouseGapYears),
+        byokConfig: null,
+      );
+
+      expect(fourSpouseGapYears.avsGapEvidence.householdTotalReady, isTrue);
+      expect(eightSpouseGapYears.avsGapEvidence.householdTotalReady, isTrue);
+      expect(second.generatedAt, isNot(first.generatedAt));
+    });
+
     test('cache est utilise quand < 24h', () async {
       final profile = _buildTestProfile();
       final tips = _generateTips(profile);

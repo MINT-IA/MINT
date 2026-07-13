@@ -38,6 +38,7 @@ class PatrimoineDrawerContent extends StatelessWidget {
     final pat = profile.patrimoine;
     final det = profile.dettes;
     final prev = profile.prevoyance;
+    final certifiedAvsGapYears = profile.avsGapEvidence.selfCertifiedYears;
     final lines = <FinancialLine>[];
     final l10n = S.of(context)!;
 
@@ -119,11 +120,11 @@ class PatrimoineDrawerContent extends StatelessWidget {
       source: _source('prevoyance.anneesContribuees'),
       indent: true,
     ));
-    if (prev.lacunesAVS != null && prev.lacunesAVS! > 0) {
+    if (certifiedAvsGapYears != null && certifiedAvsGapYears > 0) {
       lines.add(FinancialLine(
         label: l10n.financialSummaryLacunes,
         formattedValue:
-            l10n.financialSummaryAnneesUnit('${prev.lacunesAVS}'),
+            l10n.financialSummaryAnneesUnit('$certifiedAvsGapYears'),
         source: _source('prevoyance.lacunesAVS'),
         indent: true,
       ));

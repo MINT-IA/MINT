@@ -1390,6 +1390,10 @@ class CoachNarrativeService {
 
   static String _avsFingerprint(CoachProfile profile) {
     final evidence = profile.avsGapEvidence;
+    final householdTotalReady = evidence.householdTotalReady;
+    final householdSpouseYears = evidence.spouseRequired && householdTotalReady
+        ? evidence.spouseCertifiedYears
+        : null;
     var projectionAvsIncluded = false;
     try {
       projectionAvsIncluded =
@@ -1398,12 +1402,12 @@ class CoachNarrativeService {
       projectionAvsIncluded = false;
     }
     return 'projectionAvsIncluded:$projectionAvsIncluded'
-        '|householdReady:${evidence.householdReady}'
+        '|householdTotalReady:$householdTotalReady'
         '|selfReady:${evidence.selfReady}'
         '|selfYears:${evidence.selfCertifiedYears ?? 'missing'}'
         '|spouseRequired:${evidence.spouseRequired}'
-        '|spouseReady:${evidence.spouseCertifiedYears != null}'
-        '|spouseYears:${evidence.spouseCertifiedYears ?? 'missing'}';
+        '|spouseReady:${householdSpouseYears != null}'
+        '|spouseYears:${householdSpouseYears ?? 'missing'}';
   }
 
   /// Signature du mode narratif courant.
