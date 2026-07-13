@@ -1292,7 +1292,12 @@ class _ExpatScreenState extends State<ExpatScreen>
           if (!_avsScenarioStarted)
             Semantics(
               identifier: 'expat_avs_start_scenario',
+              container: true,
+              excludeSemantics: true,
+              label: l.expatAvsStartScenario,
               button: true,
+              enabled: _yearsAbroad != null,
+              onTap: _yearsAbroad == null ? null : _startAvsScenario,
               child: FilledButton.icon(
                 key: const Key('expat_avs_start_scenario'),
                 onPressed:

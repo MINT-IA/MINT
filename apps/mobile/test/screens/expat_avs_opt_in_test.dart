@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsAction, SemanticsActionEvent, Tristate;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -143,6 +145,65 @@ void main() {
       find.bySemanticsIdentifier('expat_avs_verification_guide_cta'),
       findsOneWidget,
     );
+  });
+
+  testWidgets(
+      'start semantics stays disabled until an explicit picker confirmation',
+      (tester) async {
+    tester.view.physicalSize = const Size(1440, 3200);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final semantics = tester.ensureSemantics();
+
+    try {
+      final provider = _RecordingCoachProfileProvider(const {});
+      await tester.pumpWidget(_buildApp(provider));
+      await tester.pump();
+      await _openAvsTab(tester);
+
+      final start = find.bySemanticsIdentifier('expat_avs_start_scenario');
+      expect(start, findsOneWidget);
+      expect(
+        tester.getSemantics(start).flagsCollection.isEnabled,
+        Tristate.isFalse,
+      );
+      await tester.tap(find.byKey(const Key('expat_avs_start_scenario')));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsIdentifier('expat_avs_scenario_result'),
+        findsNothing,
+      );
+
+      await tester.tap(find.byKey(const Key('expat_avs_years_picker')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getSemantics(start).flagsCollection.isEnabled,
+        Tristate.isTrue,
+      );
+      final startNode = tester.getSemantics(start);
+      expect(
+        startNode.getSemanticsData().hasAction(SemanticsAction.tap),
+        isTrue,
+      );
+      tester.binding.performSemanticsAction(
+        SemanticsActionEvent(
+          type: SemanticsAction.tap,
+          nodeId: startNode.id,
+          viewId: tester.view.viewId,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(
+        find.byKey(const Key('expat_avs_scenario_result')),
+        findsOneWidget,
+      );
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets(

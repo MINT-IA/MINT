@@ -14,8 +14,9 @@ appId: ch.mint.app
 - assertVisible:
     id: "expat_avs_years_picker"
 - assertVisible:
-    text: "À renseigner"
-- assertVisible:
+    id: "expat_avs_start_scenario"
+    enabled: false
+- tapOn:
     id: "expat_avs_start_scenario"
 - assertNotVisible:
     id: "expat_avs_scenario_result"
@@ -24,9 +25,17 @@ appId: ch.mint.app
 - tapOn:
     text: "OK"
 - assertVisible:
-    text: "0 ans"
+    id: "expat_avs_start_scenario"
+    enabled: true
 - tapOn:
     id: "expat_avs_start_scenario"
+- scrollUntilVisible:
+    element:
+      id: "expat_avs_scenario_result"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 50
+    centerElement: true
 - assertVisible:
     id: "expat_avs_scenario_result"
 - assertVisible:
