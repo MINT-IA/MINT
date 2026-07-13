@@ -3071,119 +3071,24 @@ class CoachProfile {
     final goalA =
         _parseGoalA(mainGoalRaw, birthYear, targetRetirementAge: targetRetAge);
 
-    // ── Planned contributions ───────────────────────────────
-    // Built from q_savings_allocation (multi-choice) + wizard data
+    // Planned contributions are an explicit plan aggregate, persisted and
+    // restored independently by CoachProfileProvider. A declared 3a payment,
+    // a monthly savings fact, or an allocation preference must never fabricate
+    // a plan entry during answer-map reconstruction.
     final contributions = <PlannedMonthlyContribution>[];
-    final allocationRaw = answers['q_savings_allocation'];
-    final allocations =
-        allocationRaw is List ? allocationRaw.cast<String>() : <String>[];
 
-    if (allocations.isNotEmpty && savingsMonthly > 0) {
-      // Smart allocation: distribute savings across selected categories
-      final monthly3a = contribution3a > 0 ? contribution3a / 12 : 0.0;
-      double remaining = savingsMonthly;
-
-      // 1. 3a — if selected and user has 3a contribution
-      if (allocations.contains('3a')) {
-        final amount3a =
-            (monthly3a > 0 ? monthly3a : (remaining * 0.4).clamp(0.0, 604.83))
-                .toDouble();
-        if (amount3a > 0) {
-          contributions.add(PlannedMonthlyContribution(
-            id: '3a_user',
-            label: '3a ${firstName ?? "Toi"}',
-            amount: amount3a,
-            category: '3a',
-            isAutomatic: false,
-          ));
-          remaining -= amount3a;
-        }
-      }
-
-      // 2. LPP buyback — if selected and has buyback available
-      if (allocations.contains('lpp_buyback') && remaining > 0) {
-        final lppAmount = (remaining * 0.3).clamp(0.0, remaining).toDouble();
-        if (lppAmount >= 50) {
-          contributions.add(PlannedMonthlyContribution(
-            id: 'lpp_buyback_user',
-            label: 'Rachat LPP ${firstName ?? "Toi"}',
-            amount: lppAmount,
-            category: 'lpp_buyback',
-            isAutomatic: false,
-          ));
-          remaining -= lppAmount;
-        }
-      }
-
-      // 3. Investissement — if selected
-      if (allocations.contains('investissement') && remaining > 0) {
-        final investAmount = (remaining * 0.5).clamp(0.0, remaining).toDouble();
-        if (investAmount >= 50) {
-          contributions.add(PlannedMonthlyContribution(
-            id: 'invest_user',
-            label: 'Investissements',
-            amount: investAmount,
-            category: 'investissement',
-            isAutomatic: false,
-          ));
-          remaining -= investAmount;
-        }
-      }
-
-      // 4. Épargne libre — if selected or remaining
-      if (allocations.contains('epargne_libre') && remaining > 0) {
-        contributions.add(PlannedMonthlyContribution(
-          id: 'epargne_user',
-          label: 'Épargne libre', // lint-ignore: legacy model label
-          amount: remaining,
-          category: 'epargne_libre',
-          isAutomatic: false,
-        ));
-      }
-    } else {
-      // Fallback: no allocation question answered — use legacy logic
-      if (has3a == true && contribution3a > 0) {
-        contributions.add(PlannedMonthlyContribution(
-          id: '3a_user',
-          label: '3a ${firstName ?? "Toi"}',
-          amount: contribution3a / 12,
-          category: '3a',
-          isAutomatic: false,
-        ));
-      }
-      if (savingsMonthly > 0 && savingsMonthly > (contribution3a / 12)) {
-        final epargneLibre = savingsMonthly - (contribution3a / 12);
-        if (epargneLibre > 50) {
-          contributions.add(PlannedMonthlyContribution(
-            id: 'epargne_user',
-            label: 'Épargne libre', // lint-ignore: legacy model label
-            amount: epargneLibre,
-            category: 'epargne_libre',
-            isAutomatic: false,
-          ));
-        }
-      }
-    }
-
-    // Restore inline-edited rachat LPP mensuel (persisted by updateInline).
-    // Overwrites any wizard-derived lpp_buyback_user contribution so the
-    // user's manual value always wins after an inline edit.
+    // Restore the dedicated inline LPP-buyback plan write. Unlike the direct
+    // savings facts above, this field explicitly owns a planned contribution.
     final coachRachatLppMensuel =
         _parseDouble(answers['_coach_rachat_lpp_mensuel']);
     if (coachRachatLppMensuel != null && coachRachatLppMensuel > 0) {
-      final idx = contributions.indexWhere((c) => c.id == 'lpp_buyback_user');
-      if (idx >= 0) {
-        contributions[idx] =
-            contributions[idx].copyWith(amount: coachRachatLppMensuel);
-      } else {
-        contributions.add(PlannedMonthlyContribution(
-          id: 'lpp_buyback_user',
-          label: 'Rachat LPP',
-          amount: coachRachatLppMensuel,
-          category: 'lpp_buyback',
-          isAutomatic: false,
-        ));
-      }
+      contributions.add(PlannedMonthlyContribution(
+        id: 'lpp_buyback_user',
+        label: 'Rachat LPP',
+        amount: coachRachatLppMensuel,
+        category: 'lpp_buyback',
+        isAutomatic: false,
+      ));
     }
 
     // ── Conjoint (partner) data from onboarding ────────────

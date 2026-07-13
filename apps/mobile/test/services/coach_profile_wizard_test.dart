@@ -390,7 +390,10 @@ void main() {
       expect(profile.patrimoine.investissements, 16000.0);
       expect(profile.dettes.hasDette, false);
       expect(profile.goalA.type, GoalAType.retraite);
-      expect(profile.plannedContributions, isNotEmpty);
+      expect(profile.pillar3aAnnualContribution, 7258);
+      expect(profile.monthlySavingsContribution, 1000);
+      expect(profile.hasPillar3a, isTrue);
+      expect(profile.plannedContributions, isEmpty);
       expect(profile.housingStatus, 'renter');
       expect(profile.riskTolerance, 'balanced');
       expect(profile.realEstateProject, 'yes_main');
