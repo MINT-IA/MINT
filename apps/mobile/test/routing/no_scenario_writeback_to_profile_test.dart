@@ -2,20 +2,47 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-final _scenarioFactWritePatterns = <RegExp>[
-  RegExp(r'void\s+_writeBackResult\s*\('),
-  RegExp(r'projectedRenteLpp\s*:'),
-  RegExp(r'projectedCapital65\s*:'),
-  RegExp(r'targetRetirementAge\s*:\s*_ageRetraiteSlider'),
-  RegExp(r'mortgageCapacity\s*:\s*result\.'),
-  RegExp(r'estimatedMonthlyPayment\s*:\s*result\.'),
-  RegExp(r'rachatEffectue\s*:'),
-  RegExp(r'dateRachats\s*:'),
-];
+final _methodInvocation = RegExp(r'\b([A-Za-z_]\w*)\s*\(');
+
+const _durableSinkVerbs = <String>{
+  'apply',
+  'commit',
+  'merge',
+  'persist',
+  'record',
+  'save',
+  'set',
+  'update',
+  'upsert',
+  'write',
+};
+
+const _durableSinkSubjects = <String>{
+  'answer',
+  'banking',
+  'checkin',
+  'contribution',
+  'extraction',
+  'fact',
+  'focus',
+  'inline',
+  'ledger',
+  'profile',
+  'score',
+  'wizard',
+};
+
+bool _isDurableProfileSink(String methodName) {
+  final normalized = methodName.replaceAll('_', '').toLowerCase();
+  if (normalized.contains('writeback')) return true;
+
+  return _durableSinkVerbs.any(normalized.startsWith) &&
+      _durableSinkSubjects.any(normalized.contains);
+}
 
 List<String> _scenarioWrites(String source) => [
-      for (final pattern in _scenarioFactWritePatterns)
-        for (final match in pattern.allMatches(source)) match.group(0)!,
+      for (final match in _methodInvocation.allMatches(source))
+        if (_isDurableProfileSink(match.group(1)!)) match.group(1)!,
     ];
 
 void main() {
@@ -28,6 +55,38 @@ void _writeBackResult() {
 ''';
 
       expect(_scenarioWrites(violation), isNotEmpty);
+    });
+
+    test('matcher rejects durable profile sinks regardless of payload shape',
+        () {
+      const violations = <String, String>{
+        'copyWith containing several scenario values': '''
+provider.updateProfile(profile.copyWith(
+  avoirLppTotal: simulatedWithdrawal,
+  pillar3aAnnualContribution: exploredContribution,
+));
+''',
+        'answer merge': '''
+await provider.mergeAnswers({'q_avoir_lpp': simulatedWithdrawal});
+''',
+        'fact application': '''
+await provider.applySaveFact('avoirLpp', simulatedWithdrawal);
+''',
+        'equivalent profile setter': '''
+provider.setProfile(profile.copyWith(avoirLppTotal: simulatedWithdrawal));
+''',
+        'equivalent answer updater': '''
+provider.updateFromAnswers({'q_avoir_lpp': simulatedWithdrawal});
+''',
+      };
+
+      for (final violation in violations.entries) {
+        expect(
+          _scenarioWrites(violation.value),
+          isNotEmpty,
+          reason: violation.key,
+        );
+      }
     });
 
     test('/epl keeps simulated withdrawal outside avoirLppTotal', () {

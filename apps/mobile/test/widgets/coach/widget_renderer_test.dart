@@ -26,12 +26,16 @@ CoachProfile _profile({
   double salary = 7500,
   String canton = 'VS',
   String employmentStatus = 'salarie',
+  bool cantonIsKnown = false,
 }) {
   return CoachProfile(
     birthYear: 1981,
     canton: canton,
     salaireBrutMensuel: salary,
     employmentStatus: employmentStatus,
+    dataTimestamps:
+        cantonIsKnown ? {'canton': DateTime.utc(2026, 7, 13, 12)} : const {},
+    userProvidedFields: cantonIsKnown ? const {'canton'} : const {},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2046),
@@ -109,7 +113,7 @@ void main() {
             'prefill': {'salaireBrut': 1},
           },
         ),
-        profile: _profile(),
+        profile: _profile(cantonIsKnown: true),
         onDestination: (extra) => destinationExtra = extra,
       ));
       await tester.pump();
