@@ -1,0 +1,29 @@
+I have enough to render the verdict. Everything material checks out: the `/scan/avs-guide` route exists and is wired, `NetIncomeBreakdown.compute` and `revenuBrutAnnuel` signatures match the new call sites, the legacy `renteAVSEstimeeMensuelle` reads survive only at the model/provider storage boundary (consistent with the matrix quarantine), the mortgage extraction is a faithful (byte-for-byte) relocation into `financial_core/`, and the expat AVS tab gates the proxy behind an explicit `_startAvsScenario` CTA with a `SizedBox.shrink()` degraded state.
+
+Product/domain verdict: PASS
+
+## Summary of what the diff does
+Six commits that (1) delete the synthetic AVS-from-birthYear/contribution-years proxy out of the CAP retirement sequence, (2) route the AVS step to the official recovery guide, (3) gate the expat AVS-gap simulator behind explicit opt-in, (4) centralize mortgage purchase capacity into `financial_core/`, (5) replace the `brut × 0.78` and `annualGross × 4.5` magic proxies with the canonical `NetIncomeBreakdown` / `MortgagePurchaseCapacityCalculator`, and (6) honestly re-mark three legacy AVS ledger rows as `quarantined`. This is squarely on the ledger → DataQuest → scenario → dossier spine and improves Swiss lucidity fidelity.
+
+## P0 findings
+None. No misleading advice, no banned promise language (disclaimers preserved, only accent fixes with `lint-ignore` markers), no privacy exposure, no confidently-wrong law that drives a harmful decision.
+
+## P1 findings
+None material. The one thing that would normally be P1 — a synthetic AVS pension amount — is now either removed (CAP) or gated behind explicit user opt-in with a specialist handoff and disclaimer (expat), and the certified-null behavioral hard floor in `test_g1_avs_certified_null_contract.py` enforces it repo-wide.
+
+## P2 findings
+1. **AVS CAP step can never reflect real knowledge** — `apps/mobile/lib/services/cap_sequence_engine.dart:124-131`: `ret_02_avs` is hardcoded `CapStepStatus.upcoming`. Correctly removing the false birthYear signal, but the *completion* signal was deleted, not replaced. A user who has actually scanned their AVS extract (`profile.avsGapEvidence.selfReady`, or a certificate-sourced `renteAVSEstimeeMensuelle`) still sees the step as never-done, so the sequence progress under-counts. Consider completing on certificate-backed evidence.
+
+2. **Expat AVS gap absolute CHF is optimistic** — `apps/mobile/lib/services/expat_service.dart` `estimateAvsGap`: `estimatedRente = maxRenteMensuelle * completeness` (completeness = `yearsInCh / 44`). The *reduction %* is proportionally correct, but `estimatedRente` / `monthlyLoss` / `annualLoss` assume a max-pension (RAMD ≥ ~CHF 88k) career and scale only by years, so the absolute CHF loss overstates reality for typical earners. Pre-existing, gated, and disclaimed — but the "annualLoss" figure could nudge over-contribution to voluntary AVS. Label it as an upper-bound rather than a point estimate.
+
+3. **CAP affordability now includes bonus in income** — `cap_sequence_engine.dart` `_estimateAffordability` passes `profile.revenuBrutAnnuel` (which per `coach_profile.dart:1913` adds 13th month **and** full `bonusPourcentage`) into the mortgage capacity calc, versus the prior `salaireBrutMensuel × 12`. Swiss tragbarkeit practice generally excludes variable bonus; this slightly overstates capacity for bonus-heavy profiles. Educational estimate only, but note the change of basis.
+
+## Swiss domain review
+- **AVS**: Materially improved. The birthYear-implies-AVS-estimate fallacy is removed; AVS now demands the official extract (`/scan/avs-guide`, route confirmed in `app.dart:997`). The `avsRenteMaxMensuelle` constant is now registry-driven (`reg('avs.max_monthly_pension', …)`) rather than a hardcoded `2520`, so it fails toward current-law sourcing. Expat gap math is unchanged but now opt-in gated.
+- **LPP**: Unaffected logic; `_estimateLppMonthly`, EPL (OPP2 art. 5 minimum CHF 20k), and buyback estimates untouched.
+- **Mortgage**: `MortgagePurchaseCapacityCalculator` is a faithful extraction of the prior `AffordabilityCalculator` two-constraint solver (income 1/3 rule via `max_charge_ratio`, 20% min equity, 10% max 2nd-pillar). Rates all sourced via the regulatory registry. Behavior preserved; only the income *input basis* in CAP changed (P2 #3). Zero-capacity now surfaces as unknown, not fabricated CHF 0 — correct.
+- **Tax**: 3a saving via canton-aware `RetirementTaxCalculator` unchanged. Net-income now via canonical `NetIncomeBreakdown` (cross-border/marital/children aware) instead of a flat 0.78 — an accuracy gain.
+- **Insurance / disability / succession**: Not touched by this diff.
+
+## Mint product logic review
+Strongly moves toward the intended spine. It eliminates duplicated/ad-hoc math (magic `0.78` / `× 4.5`) in favor of single-source-of-truth calculators under `financial_core/` (the CLAUDE.md §4 invariant, and `docs/calculator-graph.md` updated with the new node). It converts fabricated point-estimates into honest "unknown" states, enforces official-evidence gating for AVS, and the ledger gap-matrix now quarantines the retired AVS readers instead of claiming false-green liveness. The certified-null contract test is now a real behavioral floor (semantic value-flow detection + negative seeds), not a token-presence check. Net: better lucidity, better provenance, no facade-without-wiring.

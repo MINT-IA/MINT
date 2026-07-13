@@ -1,5 +1,38 @@
 # Claude Product-Domain Audit — G1 Ledger Reality Baseline
 
+## Current bounded audit — G1-LDG-06A remediation
+
+Date: 2026-07-13
+
+- Command: `CLAUDE_AUDIT_MODEL=opus CLAUDE_AUDIT_EFFORT=high CLAUDE_AUDIT_MAX_DIFF_LINES=6000 CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1 tools/checks/claude_external_audit.sh product-domain 157e38b0`
+- Base: `157e38b02049a25c93c1762d3fa04d1f70e8cf5a`.
+- HEAD: `667f12d45c299651d573866925f0bc4dd53db90e`.
+- Diff: 11 files, 1,859 insertions, 161 deletions.
+- Durable verbatim output: `claude-product-domain-opus-667f12d45.txt`
+  (`sha256:74045feaf8bdee44eb99f5008467323e07b31c533cecf96181e8ce924e58c1db`).
+- Exit/verdict: `0` / **PASS**; P0 = 0, P1 = 0.
+
+The audit confirms that the slice improves Swiss financial lucidity: synthetic
+AVS is removed from CAP, the expat calculation is an explicit local scenario,
+unknown inputs remain unknown, and ad-hoc net/mortgage formulas now delegate to
+the canonical financial core.
+
+Residual P2 and current disposition:
+
+| finding | disposition |
+|---|---|
+| The AVS CAP step stays `upcoming` even after future certificate-backed evidence exists. | Open until a typed official-evidence envelope can drive completion; do not restore a legacy numeric shortcut. |
+| Expat `estimatedRente`/loss assumes the maximum pension and can overstate absolute CHF loss for typical earners. | Open product-copy/scenario debt: it must be presented as an upper bound, not as an entitlement or point forecast. |
+| CAP mortgage affordability now includes the profile's 13th-month and full percentage bonus through `revenuBrutAnnuel`; variable bonus is commonly discounted by Swiss lenders. | Open domain-input debt: define a conservative tragbarkeit income contract before promoting the estimate beyond educational guidance. |
+
+No rerun was launched: the first-pass Opus product-domain verdict had no
+P0/P1. The P2 items remain visible and this PASS does **not** declare G1
+complete or allow G2/G3.
+
+---
+
+## Historical bounded audit — superseded snapshot
+
 Date: 2026-07-12 13:39:50 CEST
 
 SHA: `0d0950181dfb0e09370ff45e0c1f0d223315e006`

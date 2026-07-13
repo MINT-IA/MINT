@@ -1,5 +1,58 @@
 # G1 Ledger Reality Baseline — quality-gate closure evidence
 
+## Current status — reopened G1, 2026-07-13
+
+**CURRENT NO-GO.** The checked-in SCORECARD declares an interim **8.2/10**
+against a **9.0/10** floor, but this quality record does not certify that score:
+its full runtime dimension cannot be treated as closed while G1-RUNTIME-01
+remains `red_proven`. The historical closure record below is superseded for
+release purposes. G1-LDG-06A's certified-null consumer floor is green, but the
+wider G1 legal/source/partner/runtime inventory remains open. G2 and G3 are not
+authorized.
+
+### G1-LDG-06A RED → GREEN hard-floor proof
+
+Command:
+`python3 -m pytest tools/checks/tests/test_g1_avs_certified_null_contract.py -q`
+
+| snapshot | result | proof |
+|---|---|---|
+| After adding the repo-wide contribution-year proxy detector and negative seed, before the production repair | **RED: 14 passed, 1 failed** | The unique production violation was `cap_sequence_engine.dart`, where the AVS step synthesized maximum pension × contribution years / 44. This proved the widened gate was non-vacuous. |
+| After `689349070` removed the AVS proxy and `83f7024fe` checked in the detector | **GREEN: 15 passed** | Current rerun on `667f12d45`: `15 passed in 2.57s`. |
+
+The Sonnet architecture rerun then found two separate P1 blind spots. They are
+closed by `6191ef450` (canonical net/mortgage calculations), `88e1fe524`
+(service-enforced expat opt-in) and `667f12d45` (cross-source opt-in-chain gate).
+Current Opus code and product-domain audits at `667f12d45` both PASS with
+P0/P1 = 0. Their residual P2 findings remain recorded in the corresponding
+Claude evidence files.
+
+### Current score declaration and caveat
+
+- Declared by the checked-in SCORECARD: **8.2/10**.
+- Required floor: **9.0/10**.
+- Quality-gate certification: **withheld** because G1-RUNTIME-01 remains
+  `red_proven`; no alternative total is invented in this evidence file.
+
+The declared score is already below the floor. In addition, hard blockers
+still exist outside this bounded audit wave, including the stale ticket-status
+reconciliation, G1-AVS-02's 13th-pension cash-flow contract, official-source
+and partner-consent boundaries, and exact-SHA runtime closure for the final G1
+state. A slice PASS is not a goal PASS.
+
+### Current external-audit disposition
+
+| lens | disposition |
+|---|---|
+| Architecture Opus first pass at `67c99ca28` | PASS with P2 proxy/registry findings; proxy closed, registry reconciliation still open. |
+| Architecture Sonnet rerun at `83f7024fe` | PASS with two P1-before-G2 findings; both closed by `6191ef450`, `88e1fe524`, `667f12d45`. No optional final rerun was warranted under the no-carousel rule. |
+| Code Opus, `157e38b0...667f12d45` | PASS, P0/P1 = 0; P2 legacy i18n debt. |
+| Product-domain Opus, `157e38b0...667f12d45` | PASS, P0/P1 = 0; three explicit P2 domain/product debts. |
+
+---
+
+## Historical closure record — superseded for release purposes
+
 Date: 2026-07-12
 
 Agent: `mint-quality-gate`

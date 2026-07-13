@@ -1,0 +1,32 @@
+## MINT External Audit — Verdict: **PASS**
+
+Audit mode: code. Base `157e38b0` → HEAD `667f12d45` (11 files, +1859/−161). Diff within budget.
+
+I verified the diff against live repo state, ran the central gate, ran the changed Dart tests, and `flutter analyze`d the touched sources. The change is a genuine, well-wired hardening of the AVS "certified-null" posture plus a behavior-preserving mortgage-calculator extraction. No facade-without-wiring.
+
+### Evidence of correctness
+
+**AVS proxy removal (compliance, the core of this diff)**
+- `cap_sequence_engine.dart:96` deletes `_estimateAvsMonthly` (synthetic `maxRente * years / 44`). AVS step is now `const CapStep(... status: upcoming, intentTag: '/scan/avs-guide', impactEstimate: null)`. The route is real and registered (`app.dart:997`, `route_metadata.dart:718`, `screen_registry.dart:949`) — not a dead link.
+- `expat_service.dart:568` — `estimateAvsGap` is now `Map?` and hard-returns `null` unless `scenarioStarted` is passed. Both callers (`expat_screen.dart:103,119`) and all tests were updated; no orphaned callers; `_avsResult` is nullable so the return-type change is safe.
+- The residual expat contribution-ratio proxy is confined behind a mechanical opt-in (`if (!scenarioStarted) return null;`), and the widget renders only under `if (_avsScenarioStarted && profileAge != null)` (`expat_screen.dart:1285`), failing closed on missing age (`_startAvsScenario` returns, no default). This matches the gate's `LOCAL_SCENARIO` exemption.
+- Backend fail-closed is real: `minimal_profile_service.py:507,541-543` hardcode `projected_avs_monthly / estimated_monthly_retirement / estimated_replacement_ratio / retirement_gap_monthly = None`; `_estimate_avs_monthly` is gone.
+
+**Mortgage calculator extraction (correctness)**
+- New `financial_core/mortgage_purchase_capacity_calculator.dart` sits under `financial_core/` (respects the CLAUDE.md §4 invariant) and is registered in `docs/calculator-graph.md`. Income- and equity-constraint math is algebraically identical to the old inline `AffordabilityCalculator` logic (verified branch-by-branch). `mortgage_service.dart` delegates with no dangling refs to the removed locals.
+- `_estimateFreeMonthly` and `_estimateAffordability` now return `null` (unknown) instead of misleading numbers when equity/age/canton are missing — an honesty improvement, covered by new tests.
+
+**Test/tooling verification (run locally)**
+- `tools/checks/tests/test_g1_avs_certified_null_contract.py`: **15 passed**. Its declared consumer contracts resolve to real files/tokens; the repo-wide proxy scan is green (the `/44` in `avs_calculator.dart` is the official envelope, correctly not matched).
+- `cap_sequence_engine_test.dart` + `mortgage_purchase_capacity_calculator_test.dart` + `expat_service_test.dart`: **100 passed**, including "disclaimer ne contient pas de termes interdits".
+- `flutter analyze` on the four changed sources: **No issues found**.
+- Matrix doc (`G1-ledger-gap-matrix.md`) honestly downgrades the retired AVS rows to `quarantined` with `reader_evidence=NONE` — consistent with the proxy removal, not a green-washing.
+
+### Findings
+
+**P0:** none.
+**P1:** none.
+**P2 (non-blocking):**
+- `expat_service.dart:*` and `mortgage_service.dart:*` swap unaccented disclaimers for accented hardcoded French strings guarded by `// lint-ignore: legacy … disclaimer catalog`. Cosmetically correct and test-clean, but it entrenches hardcoded copy rather than routing through l10n/ARB — minor i18n debt.
+
+No correctness, privacy, compliance, routing, or wiring blocker found.

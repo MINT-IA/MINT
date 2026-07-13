@@ -1,5 +1,35 @@
 # Claude Code Audit — G1 Ledger Reality Baseline
 
+## Current bounded audit — G1-LDG-06A remediation
+
+Date: 2026-07-13
+
+- Command: `CLAUDE_AUDIT_MODEL=opus CLAUDE_AUDIT_EFFORT=high CLAUDE_AUDIT_MAX_DIFF_LINES=6000 CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1 tools/checks/claude_external_audit.sh code 157e38b0`
+- Base: `157e38b02049a25c93c1762d3fa04d1f70e8cf5a`.
+- HEAD: `667f12d45c299651d573866925f0bc4dd53db90e`.
+- Diff: 11 files, 1,859 insertions, 161 deletions.
+- Durable verbatim output: `claude-code-opus-667f12d45.txt`
+  (`sha256:ca950f6372ca895015362924c149a67d1dc00ef530bdbba5f0f8686ee78ee6a4`).
+- Exit/verdict: `0` / **PASS**; P0 = 0, P1 = 0.
+
+The auditor verified the AVS proxy removal, service-enforced expat opt-in,
+official recovery route, backend certified-null boundary, mortgage calculator
+extraction, 15/15 hard-floor tests, 100 targeted Dart tests and clean targeted
+analysis. It found no privacy, routing, compliance or facade-without-wiring
+blocker.
+
+Residual P2: the accented expat and mortgage disclaimers remain hardcoded
+French under narrow legacy `lint-ignore` markers rather than ARB/l10n. This is
+accepted as explicit i18n debt for this bounded slice, not as a G1-completion
+claim.
+
+No rerun was launched: the first-pass Opus code verdict already had no P0/P1,
+so the no-carousel rule applies.
+
+---
+
+## Historical bounded audit — superseded snapshot
+
 Command: `CLAUDE_AUDIT_MODEL=opus CLAUDE_AUDIT_EFFORT=high CLAUDE_AUDIT_MAX_DIFF_LINES=7000 tools/checks/claude_external_audit.sh code 4e9d4f45b`
 
 Date: 2026-07-12 13:44:43 CEST

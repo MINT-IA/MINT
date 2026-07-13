@@ -1,3 +1,61 @@
+# Current architecture audit wave — AVS certified-null hard floor
+
+Date: 2026-07-13
+
+Scope: current G1-LDG-06A quarantine only. This PASS does **not** close G1 and
+does not authorize G2 or G3.
+
+## Opus first pass
+
+- Command: `CLAUDE_AUDIT_MODEL=opus CLAUDE_AUDIT_EFFORT=high tools/checks/claude_external_audit.sh architecture`
+- Base: not applicable in architecture mode.
+- HEAD observed: `67c99ca2888c122a09ce261a84afb327533904cc`.
+- Verdict: **PASS**, with no P0/P1 and actionable P2 findings.
+
+Findings and disposition:
+
+| finding | disposition |
+|---|---|
+| `cap_sequence_engine.dart` computed `maxRente * contributionYears / 44` into a dead/write-only `CapStep.impactEstimate`; the original contract did not detect this indirect consumer. | Closed by `689349070edfab0a904b21c434475e069b387a61`; AVS now remains `upcoming`, routes to `/scan/avs-guide`, and carries no synthetic impact. The repo-wide proxy detector and negative seed were added in `83f7024fe1d42a051093802048cb1c7b55195291`. |
+| The dead calculation was a facade risk if a future renderer surfaced it; the backend `/retirement/avs/estimate` was also noted as unwired. | The mobile value-flow was removed rather than merely hidden. The unwired backend endpoint was not promoted into a live G1 consumer. |
+| The blocking-ticket registry still labelled implemented G1-LDG-06A and G1-AVS-01 contracts `ticket_only`; G1-AVS-02 was correctly still ticket-only. | **Open documentation reconciliation at this capture.** The registry must be updated from executable proof; this audit does not claim that reconciliation or G1 completion. |
+
+The first-pass terminal output was not retained as a `/tmp` transcript; the
+table above is the lead-observed finding/disposition record, not a claimed
+verbatim Claude transcript.
+
+## Sonnet same-gate rerun
+
+- Command: `CLAUDE_AUDIT_RERUN=1 CLAUDE_AUDIT_MODEL=sonnet CLAUDE_AUDIT_EFFORT=high tools/checks/claude_external_audit.sh architecture`
+- Base/scope start: `3989e10a734ec247861564c2155067e5291f3e15` as
+  reported by Claude.
+- HEAD audited: `83f7024fe1d42a051093802048cb1c7b55195291`.
+- Durable normalized transcript (trailing Markdown line-break spaces removed):
+  `claude-architecture-sonnet-rerun-83f7024fe.txt`
+  (`sha256:3cb321e43a4a22e37ce99cf474c92b33abae7cb1ab8f1885d480a71503e5df9a`).
+- Verdict: **PASS** for the quarantine, with two P1 findings that had to be
+  closed before any AVS-derived G2 work.
+
+Findings and disposition:
+
+| finding | disposition |
+|---|---|
+| P1: `expat_service.dart` still formed a maximum-pension × completeness proxy through an intermediate variable, outside the regex inventory. | Closed at the service boundary by `88e1fe524c32c39feb22521a9d05704e63f1fd3a`: `scenarioStarted` is mandatory and false returns null before any formula. `667f12d45c299651d573866925f0bc4dd53db90e` enforces the complete opt-in chain in the hard floor. |
+| P1: `cap_sequence_engine.dart` used `gross * 0.78` and `annualGross * 4.5` outside `financial_core`. | Closed by `6191ef450343ba74c1c664439b1b445848e80f13`: canonical net-income and mortgage-capacity SOTs are used, with missing inputs preserved as unknown. |
+| P2: the certified-null hard floor is CI-visible but not a dedicated Lefthook command. | Open tooling debt; CI and explicit local command remain authoritative for this slice. |
+| P2: unknown retiree income has no dedicated user-facing disclosure flag. | Open product debt; no legacy AVS amount is re-enabled to mask it. |
+| P2: `_estimateFreeMontly` typo. | Closed in `6191ef450343ba74c1c664439b1b445848e80f13`. |
+
+No final Opus architecture confirmation was launched because it was not
+warranted after the bounded repairs: the no-carousel rule avoids optional
+reruns, and the remediated implementation was checked by the independent Opus
+code and product-domain lenses at HEAD
+`667f12d45c299651d573866925f0bc4dd53db90e`.
+
+---
+
+# Historical architecture evidence — superseded snapshots
+
 Command: `CLAUDE_AUDIT_MODEL=opus CLAUDE_AUDIT_EFFORT=high tools/checks/claude_external_audit.sh architecture`
 
 Date: 2026-07-12 13:16:31 CEST

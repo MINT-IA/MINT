@@ -1,0 +1,137 @@
+Now I have full evidence. Let me compile the audit report.
+
+---
+
+# MINT External Auditor — Architecture Audit Report
+
+**Branch:** `codex/mint-product-usability-plan-20260712`
+**Scope:** G1 AVS certified-null quarantine (10 commits, `3989e10a7`→`83f7024fe`)
+**Evidence base:** live code, contract tests, lefthook, CI config — docs not trusted unless confirmed by grep
+
+---
+
+## Verdict: PASS
+
+The G1 quarantine objective is met. All 15 contract tests pass. No live surface synthesises an AVS pension amount outside the declared LOCAL_SCENARIO opt-in. Two P1 items must be closed before G2 can activate any AVS-derived value.
+
+---
+
+## P0 — None
+
+No P0 found. The critical quarantine surfaces are correctly wired:
+
+| Surface | Evidence |
+|---|---|
+| `forecaster_service.dart` | `const double? revenuAvsIndividuelAnnuel = null` + `AvsOfficialPensionEvidence.selfFieldPath` present |
+| `monte_carlo_service.dart` | `RetirementIncomeScope.nonAvsOnly`, `avsIncluded: false`, `AvsOfficialPensionEvidence.selfFieldPath` present |
+| `retirement_projection_service.dart:281` | `static bool _officialAvsProjectionAvailable(CoachProfile _) => false` |
+| `api_service.dart:777-783` | `avsMonthlyRente: null`, `totalMonthlyRetirement: null`, `replacementRate: null`, `retirementGapMonthly: null` |
+| `parseOnboardingPremierEclairageResponse` | `retirement_gap` and `retirement_income` categories remapped to `hourlyRate`, confirmed by `api_service_premier_eclairage_fail_closed_test.dart` |
+| `cap_sequence_engine.dart:122-131` | Step 2 AVS hardcoded `const CapStepStatus.upcoming`, `intentTag: '/scan/avs-guide'` — `_estimateAvsMonthly` deleted in commit `689349070` |
+| `premier_eclairage_selector.dart` | `_buildRetirementGapChoc` / `_buildRetirementIncomeChoc` absent; `_selectNonRetirementAlternative` present |
+| Backend minimal profile | `def _estimate_avs_monthly` absent from `minimal_profile_service.py`; all four AVS-dependent fields are `Optional[float]` and pass through as `None` |
+
+---
+
+## P1 — Two findings; must close before G2
+
+### P1-1 — `expat_service.dart` proxy via intermediate variable bypasses `PENSION_PROXY_SHAPE_RE`
+
+**File:** `apps/mobile/lib/services/expat_service.dart:578-580`
+
+```dart
+final maxRenteMensuelle = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
+final estimatedRente = maxRenteMensuelle * completeness;   // ← proxy
+// where: completeness = min(1.0, yearsInCh / fullContributionYears)
+```
+
+This is `maxPension × (years / 44)` implemented through an intermediate variable. The regex `PENSION_PROXY_SHAPE_RE` requires the pattern `maxRente* * years / 44` on a single token chain — it does not match `maxRente * completeness`. Confirmed: `PENSION_PROXY_SHAPE_RE.finditer(expat_service_source)` returns **0 matches**.
+
+`expat_service.dart` is also not in `local_scenario_paths` (only `expat_screen.dart` and `avs_gap_widget.dart` are). So `test_repo_wide_production_has_no_unreviewed_exact_pension_proxy_shape` has a gap: a future edit that moves the `estimatedRente` out of the screen-guarded path would not be caught.
+
+**Functional risk now:** Contained. `expat_screen.dart:101` guards on `_avsScenarioStarted` before calling `_recalculateAvs`, and `avs_gap_widget.dart:70` guards on `widget.scenarioStarted`. No write-back to CoachProfile observed. **Risk is test coverage, not live data.**
+
+**Fix:** Add `expat_service.dart` as an explicit `AvsSourceContract` to the `expat_avs_gap_widget` consumer with `required_tokens=("_avsScenarioStarted",)` (or a service-level opt-in guard token), so the manifest is the authoritative inventory.
+
+---
+
+### P1-2 — `cap_sequence_engine.dart` has hardcoded financial rates outside `financial_core/`
+
+**File:** `apps/mobile/lib/services/cap_sequence_engine.dart`
+
+```dart
+# Line 643
+final net = profile.salaireBrutMensuel * 0.78;  // _estimateFreeMontly
+
+# Line 653
+return annualGross * 4.5;                        // _estimateAffordability
+
+# Line 614
+final taux = profile.prevoyance.tauxConversion;  // 0.068 default
+return avoir * taux / 12;                        // _estimateLppMonthly
+```
+
+`0.78` (net salary factor) and `4.5` (mortgage capacity multiple) are live in a non-`financial_core` service. CLAUDE.md rule #4 and `financial-core-gate` mandate that all financial formulas live in `lib/services/financial_core/`. `NetIncomeBreakdown.compute()` is the SOT for net salary; `HypothequeCalculator` (or equivalent) should own the capacity multiple.
+
+These were introduced before commit `b4a41718c` and survived the gate because `financial-core-gate` only scans diff-staged lines. The file was touched in G1 commit `689349070` without surfacing the violation.
+
+**Impact:** The estimates appear as `impactEstimate` on `CapStep` — shown to the user as guidance figures. `0.78` differs from the actual canton-and-age-sensitive net computed by `NetIncomeBreakdown`. A Valais user on 13 months would receive a materially wrong free-margin estimate.
+
+**Fix:** Replace `salaireBrutMensuel * 0.78` with `NetIncomeBreakdown.compute(...)` and `annualGross * 4.5` with the `financial_core` mortgage capacity helper. Run `financial-core-gate` on the full file (not diff-only) before close.
+
+---
+
+## P2 — Three findings; address in next sprint
+
+### P2-1 — `test_g1_avs_certified_null_contract.py` is not in lefthook pre-commit
+
+`lefthook.yml` has no entry for `tools/checks/tests/`. The g1 contract runs only in CI (`ci.yml:698`: `pytest tools/checks/tests tests/checks -q --tb=short`). A developer can commit a proxy violation and discover it only after CI, not locally. All other correctness gates (`financial-core-gate`, `hardcoded-rate-gate`, `arb-parity`, `banned-ui-terms`) are in lefthook.
+
+**Fix:** Add a `g1-avs-contract` entry to `lefthook.yml` scoped to `apps/mobile/lib/**/*.dart` and `services/backend/app/**/*.py` changes.
+
+---
+
+### P2-2 — Retiree Signal B suppression has no user-facing disclosure
+
+**File:** `apps/mobile/lib/models/coach_profile.dart:2175-2178`
+
+```dart
+} else if (employmentStatus == 'retraite') {
+  // E1 — neither a legacy AVS amount nor LPP alone proves total retiree income.
+  netMensuel = null;   // Signal B permanently disabled
+}
+```
+
+A retiree with a `mensualiteCreditConso` monthly payment (payment tracked, no `creditConsommation` balance) and adequate liquidity will always get `isInDebtCrisis = false`. The test at `coach_profile_safe_mode_test.dart:172-173` confirms this is intentional but the behavior is not surfaced to the user.
+
+**Risk:** If MINT shows "no financial crisis" to a retiree with a 2000 CHF/month credit payment and zero tracked balance, the assessment is silently incomplete. The test at line 176-182 even confirms that a `ProfileDataSource.certificate`-tagged AVS value still does not unlock Signal B.
+
+**Fix:** When `employmentStatus == 'retraite'` and `netMensuel == null`, surface a `retireeIncomeUnknown` flag that UI layers can use to show a disclaimer ("Ratio dette/revenu indisponible — revenu de retraite à confirmer"). This is a G2-phase concern aligned with the AVS envelope milestone.
+
+---
+
+### P2-3 — `_estimateFreeMontly` typo in `cap_sequence_engine.dart:638`
+
+`_estimateFreeMontly` (missing 'h') is the private method name. Minor, but creates a naming inconsistency with Dart conventions and was not caught by any gate. Rename to `_estimateFreeMonthly`.
+
+---
+
+## Gate Status Summary
+
+| Gate | Status | Notes |
+|---|---|---|
+| `test_g1_avs_certified_null_contract.py` (15 tests) | ✅ All pass | CI-only; not in lefthook (P2-1) |
+| `financial-core-gate` | ⚠️ Gap | Catches new violations; pre-existing `0.78`/`4.5` survive (P1-2) |
+| `hardcoded-rate-gate` | ⚠️ Gap | Same; diff-only scan |
+| `lefthook` pre-commit | ⚠️ Partial | g1 test not wired (P2-1) |
+| Backend forbidden tokens | ✅ Confirmed | `_estimate_avs_monthly` absent |
+| `PENSION_PROXY_SHAPE_RE` repo-wide scan | ⚠️ Gap | Intermediate-variable proxy in `expat_service.dart` undetected (P1-1) |
+| `/scan/avs-guide` route | ✅ Registered | `app.dart:997`, `route_metadata.dart:718` |
+| `isInDebtCrisis` retiree tests | ✅ 6 cases | Signals A/B/C all covered |
+
+---
+
+## Required Before G2
+
+1. **P1-1:** Add `expat_service.dart` to `expat_avs_gap_widget` AVS_CONSUMERS contract with a service-level guard token, and add a test that fails if `estimatedRente` is reachable without `_avsScenarioStarted`.
+2. **P1-2:** Replace `0.78` and `4.5` in `cap_sequence_engine.dart` with `financial_core` calls. Run the financial-core-gate on the full file snapshot before merge.
