@@ -81,17 +81,6 @@ void main() {
     );
   }
 
-  Iterable<RetirementIncomeSource> allProjectedSources(
-    RetirementProjectionResult result,
-  ) sync* {
-    for (final phase in result.phases) {
-      yield* phase.sources;
-    }
-    for (final scenario in result.earlyRetirementComparisons) {
-      yield* scenario.sources;
-    }
-  }
-
   double expectedLppMonthlyFromCore(
     CoachProfile profile, {
     double lppCapitalPct = 0,
@@ -134,14 +123,7 @@ void main() {
       expect(result.revenuMensuelHorsAvs, greaterThan(0));
       expect(result.budgetGap, isNull);
       expect(result.phases, isEmpty);
-      expect(result.earlyRetirementComparisons, isEmpty);
       expect(result.indexedProjection, isEmpty);
-      expect(
-        allProjectedSources(result).where(
-          (source) => source.id == 'avs_user' || source.id == 'avs_conjoint',
-        ),
-        isEmpty,
-      );
     }
 
     test('all declared statuses stay partial', () {
@@ -161,9 +143,9 @@ void main() {
       }
     });
 
-    test('certified gaps RAMD years and direct estimate stay partial', () {
+    test('certificate-backed gap and legacy AVS amounts stay partial', () {
       final profile = buildProfile(
-        lacunesAvs: 0,
+        lacunesAvs: 3,
         avsRamd: 120000,
         avsContributionYears: 44,
         monthlyAvsEstimate: 2520,

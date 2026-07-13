@@ -12850,10 +12850,6 @@ class SDe extends S {
       'Berechnung: Monatsrente × 13 Monate/Jahr (13. AHV-Rente ab Dez. 2026)';
 
   @override
-  String get premierEclairageRenteCalculation =>
-      '(Berechnung: Monatsrente × 13 Monate/Jahr, 13. Rente inklusive).';
-
-  @override
   String get coachBriefingFallbackGreeting => 'Hallo';
 
   @override
@@ -12876,10 +12872,6 @@ class SDe extends S {
   String coachBriefingImpactEstimated(String amount) {
     return 'Geschätzter Effekt : CHF $amount';
   }
-
-  @override
-  String get premierEclairageSectionDisclaimer =>
-      'Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse sind Schätzungen.';
 
   @override
   String get concubinageTabProtection => 'Schutz';
@@ -23748,72 +23740,28 @@ class SDe extends S {
       'Prepare testamentary questions for the notary';
 
   @override
-  String get earlyRetirementComparisonTitle => 'Vergleich Frühpensionierung';
+  String get arbitrageTornadoTitle => 'Zentrale Sensitivitäten';
 
   @override
-  String get earlyRetirementComparisonScopeHouseholdNonAvs =>
-      'Einkommen des Haushalts aus BVG, Säule 3a und Vermögen — AHV nicht enthalten';
+  String get arbitrageTornadoDefaultSubtitle =>
+      'Auswirkung jeder Annahme auf den Unterschied zwischen den verglichenen Optionen.';
 
   @override
-  String get earlyRetirementComparisonScopeIndividualNonAvs =>
-      'Einkommen aus BVG, Säule 3a und Vermögen — AHV nicht enthalten';
+  String get arbitrageTornadoDisclaimer =>
+      'Lernorientierte Simulation — transparente Annahmen, ohne Empfehlung.';
 
   @override
-  String get earlyRetirementComparisonAgeHeader => 'Alter';
+  String get sensitivitySnippetTitle =>
+      'Was dein Einkommen am stärksten beeinflusst';
 
   @override
-  String get earlyRetirementComparisonMonthlyIncomeNonAvs =>
-      'Monatliches Einkommen ohne AHV';
+  String get sensitivitySnippetSubtitle =>
+      'In diesen Simulationen wird jede Variable unabhängig getestet.';
 
   @override
-  String get earlyRetirementComparisonCta => 'Frühpensionierung simulieren';
+  String get sensitivitySnippetViewAll => 'Vollständige Analyse anzeigen';
 
   @override
-  String get earlyRetirementComparisonPartialDisclaimer =>
-      'Teilprojektion ohne AHV — die Sätze variieren je nach Pensionskasse (FIDLEG).';
-
-  @override
-  String get premierEclairageAnnualSuffix => '/Jahr';
-
-  @override
-  String premierEclairage3aTaxMessage(int years, String cumulativeAmount) {
-    return 'Mögliche jährliche Steuerersparnis bei maximaler Einzahlung in die Säule 3a. Über $years Jahre entspricht das ~CHF $cumulativeAmount.';
-  }
-
-  @override
-  String get premierEclairage3aSource => 'OPP3 Art. 7 · LIFD';
-
-  @override
-  String get premierEclairage3aCta => 'Meine Säule 3a simulieren';
-
-  @override
-  String premierEclairageLppBuybackMessage(String amount) {
-    return 'Möglicher Steuerabzug bei einem Einkauf in deine BVG-Lücke von CHF $amount.';
-  }
-
-  @override
-  String get premierEclairageLppSource => 'BVG Art. 79b';
-
-  @override
-  String get premierEclairageLppCta => 'Einkauf prüfen';
-
-  @override
-  String premierEclairageAvsGapMessage(int gapYears, String calculation) {
-    String _temp0 = intl.Intl.pluralLogic(
-      gapYears,
-      locale: localeName,
-      other:
-          'Verlust an AHV-Rente über 20 Rentenjahre bei $gapYears fehlenden Beitragsjahren $calculation',
-      one:
-          'Verlust an AHV-Rente über 20 Rentenjahre bei 1 fehlenden Beitragsjahr $calculation',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get premierEclairageAvsSource =>
-      'AHVG Art. 29bis–29ter, 13. AHV-Rente (ab Dez. 2026)';
-
-  @override
-  String get premierEclairageAvsCta => 'Meine Beitragslücken prüfen';
+  String get sensitivitySnippetDisclaimer =>
+      'Vereinfachtes Lerninstrument (FIDLEG). Quellen: DBG Art. 38, BVG Art. 14, AHVG Art. 21–29.';
 }

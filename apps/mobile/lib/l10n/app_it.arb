@@ -6160,7 +6160,6 @@
   "fhsBreakdownRisque": "Rischio",
   "avsGapLifetimeLoss": "In 20 anni di pensione, sono {amount} in meno — definitivamente.",
   "avsGapCalculation": "Calcolo: rendita mensile × 13 mesi/anno (13ª rendita AVS da dic. 2026)",
-  "premierEclairageRenteCalculation": "(calcolo: rendita mensile × 13 mesi/anno, 13ª rendita inclusa).",
   "coachBriefingFallbackGreeting": "Ciao",
   "@coachBriefingFallbackGreeting": {
     "x-mint-meta": {
@@ -6206,7 +6205,6 @@
       }
     }
   },
-  "premierEclairageSectionDisclaimer": "Simulazione a scopo educativo. Non costituisce consulenza finanziaria (LSerFi). Ipotesi modificabili — risultati non assicurati.",
   "concubinageTabProtection": "Protezione",
   "concubinageHeroPremierEclairage": "CHF {montant} di patrimonio esposto",
   "@concubinageHeroPremierEclairage": {
@@ -11494,21 +11492,11 @@
   "donationChecklistLandRegister": "Proceed with land-register entry",
   "donationChecklistFutureCollation": "Document the amount for future estate collation",
   "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary",
-  "earlyRetirementComparisonTitle": "Confronto del pensionamento anticipato",
-  "earlyRetirementComparisonScopeHouseholdNonAvs": "Redditi familiari da LPP, pilastro 3a e patrimonio — AVS non inclusa",
-  "earlyRetirementComparisonScopeIndividualNonAvs": "Redditi da LPP, pilastro 3a e patrimonio — AVS non inclusa",
-  "earlyRetirementComparisonAgeHeader": "Età",
-  "earlyRetirementComparisonMonthlyIncomeNonAvs": "Reddito mensile senza AVS",
-  "earlyRetirementComparisonCta": "Simulare il pensionamento anticipato",
-  "earlyRetirementComparisonPartialDisclaimer": "Proiezione parziale senza AVS — le aliquote variano in base alla cassa pensione (LSerFi).",
-  "premierEclairageAnnualSuffix": "/anno",
-  "premierEclairage3aTaxMessage": "Potenziale risparmio fiscale annuo massimizzando il pilastro 3a. In {years} anni, equivale a ~CHF {cumulativeAmount}.",
-  "premierEclairage3aSource": "OPP3 art. 7 · LIFD",
-  "premierEclairage3aCta": "Simulare il mio pilastro 3a",
-  "premierEclairageLppBuybackMessage": "Potenziale deduzione fiscale colmando la tua lacuna LPP di CHF {amount} con un riscatto.",
-  "premierEclairageLppSource": "LPP art. 79b",
-  "premierEclairageLppCta": "Esplorare il riscatto",
-  "premierEclairageAvsGapMessage": "{gapYears, plural, =1{Rendita AVS persa su 20 anni di pensionamento con 1 anno di contribuzione mancante {calculation}} other{Rendita AVS persa su 20 anni di pensionamento con {gapYears} anni di contribuzione mancanti {calculation}}}",
-  "premierEclairageAvsSource": "LAVS art. 29bis-29ter, 13ª rendita AVS (da dic. 2026)",
-  "premierEclairageAvsCta": "Verificare le mie lacune contributive"
+  "arbitrageTornadoTitle": "Sensibilità chiave",
+  "arbitrageTornadoDefaultSubtitle": "Impatto di ogni ipotesi sulla differenza tra le opzioni confrontate.",
+  "arbitrageTornadoDisclaimer": "Simulazione educativa — ipotesi trasparenti, senza raccomandazione.",
+  "sensitivitySnippetTitle": "Ciò che influenza maggiormente il tuo reddito",
+  "sensitivitySnippetSubtitle": "In queste simulazioni, ogni variabile viene testata in modo indipendente.",
+  "sensitivitySnippetViewAll": "Vedi l’analisi completa",
+  "sensitivitySnippetDisclaimer": "Strumento educativo semplificato (LSerFi). Fonti: LIFD art. 38, LPP art. 14, LAVS art. 21–29."
 }

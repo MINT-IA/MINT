@@ -22711,12 +22711,6 @@ abstract class S {
   /// **'Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)'**
   String get avsGapCalculation;
 
-  /// No description provided for @premierEclairageRenteCalculation.
-  ///
-  /// In fr, this message translates to:
-  /// **'(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).'**
-  String get premierEclairageRenteCalculation;
-
   /// No description provided for @coachBriefingFallbackGreeting.
   ///
   /// In fr, this message translates to:
@@ -22752,12 +22746,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Impact estimé : CHF {amount}'**
   String coachBriefingImpactEstimated(String amount);
-
-  /// No description provided for @premierEclairageSectionDisclaimer.
-  ///
-  /// In fr, this message translates to:
-  /// **'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.'**
-  String get premierEclairageSectionDisclaimer;
 
   /// No description provided for @concubinageTabProtection.
   ///
@@ -41429,107 +41417,47 @@ abstract class S {
   /// **'Préparer les questions testamentaires à poser au notaire'**
   String get donationChecklistConcubinageQuestions;
 
-  /// No description provided for @earlyRetirementComparisonTitle.
+  /// No description provided for @arbitrageTornadoTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Comparaison retraite anticipée'**
-  String get earlyRetirementComparisonTitle;
+  /// **'Sensibilités clés'**
+  String get arbitrageTornadoTitle;
 
-  /// No description provided for @earlyRetirementComparisonScopeHouseholdNonAvs.
+  /// No description provided for @arbitrageTornadoDefaultSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Revenus LPP, 3a et patrimoine du ménage — AVS non incluse'**
-  String get earlyRetirementComparisonScopeHouseholdNonAvs;
+  /// **'Impact de chaque hypothèse sur l’écart entre les options comparées.'**
+  String get arbitrageTornadoDefaultSubtitle;
 
-  /// No description provided for @earlyRetirementComparisonScopeIndividualNonAvs.
+  /// No description provided for @arbitrageTornadoDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Revenus LPP, 3a et patrimoine — AVS non incluse'**
-  String get earlyRetirementComparisonScopeIndividualNonAvs;
+  /// **'Simulation pédagogique — transparence sur les hypothèses, sans recommandation.'**
+  String get arbitrageTornadoDisclaimer;
 
-  /// No description provided for @earlyRetirementComparisonAgeHeader.
+  /// No description provided for @sensitivitySnippetTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Âge'**
-  String get earlyRetirementComparisonAgeHeader;
+  /// **'Ce qui influence le plus ton revenu'**
+  String get sensitivitySnippetTitle;
 
-  /// No description provided for @earlyRetirementComparisonMonthlyIncomeNonAvs.
+  /// No description provided for @sensitivitySnippetSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Revenu mensuel hors AVS'**
-  String get earlyRetirementComparisonMonthlyIncomeNonAvs;
+  /// **'Dans ces simulations, chaque variable est testée indépendamment.'**
+  String get sensitivitySnippetSubtitle;
 
-  /// No description provided for @earlyRetirementComparisonCta.
+  /// No description provided for @sensitivitySnippetViewAll.
   ///
   /// In fr, this message translates to:
-  /// **'Simuler ta retraite anticipée'**
-  String get earlyRetirementComparisonCta;
+  /// **'Voir l’analyse complète'**
+  String get sensitivitySnippetViewAll;
 
-  /// No description provided for @earlyRetirementComparisonPartialDisclaimer.
+  /// No description provided for @sensitivitySnippetDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Projection partielle hors AVS — les taux varient par caisse (LSFin).'**
-  String get earlyRetirementComparisonPartialDisclaimer;
-
-  /// No description provided for @premierEclairageAnnualSuffix.
-  ///
-  /// In fr, this message translates to:
-  /// **'/an'**
-  String get premierEclairageAnnualSuffix;
-
-  /// Message éducatif du premier éclairage sur l'économie fiscale 3a potentielle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Économie d\'impôts potentielle chaque année en maximisant ton 3a. Sur {years} ans, cela représente ~CHF {cumulativeAmount}.'**
-  String premierEclairage3aTaxMessage(int years, String cumulativeAmount);
-
-  /// No description provided for @premierEclairage3aSource.
-  ///
-  /// In fr, this message translates to:
-  /// **'OPP3 art. 7 · LIFD'**
-  String get premierEclairage3aSource;
-
-  /// No description provided for @premierEclairage3aCta.
-  ///
-  /// In fr, this message translates to:
-  /// **'Simuler mon 3a'**
-  String get premierEclairage3aCta;
-
-  /// Message éducatif du premier éclairage sur un rachat LPP potentiel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Déduction fiscale potentielle en rachetant ta lacune LPP de CHF {amount}.'**
-  String premierEclairageLppBuybackMessage(String amount);
-
-  /// No description provided for @premierEclairageLppSource.
-  ///
-  /// In fr, this message translates to:
-  /// **'LPP art. 79b'**
-  String get premierEclairageLppSource;
-
-  /// No description provided for @premierEclairageLppCta.
-  ///
-  /// In fr, this message translates to:
-  /// **'Explorer le rachat'**
-  String get premierEclairageLppCta;
-
-  /// Message éducatif du premier éclairage pour une lacune AVS certifiée.
-  ///
-  /// In fr, this message translates to:
-  /// **'{gapYears, plural, =1{Rente AVS perdue sur 20 ans de retraite avec 1 année de cotisation manquante {calculation}} other{Rente AVS perdue sur 20 ans de retraite avec {gapYears} années de cotisation manquantes {calculation}}}'**
-  String premierEclairageAvsGapMessage(int gapYears, String calculation);
-
-  /// No description provided for @premierEclairageAvsSource.
-  ///
-  /// In fr, this message translates to:
-  /// **'LAVS art. 29bis-29ter, 13ᵉ rente AVS (dès déc. 2026)'**
-  String get premierEclairageAvsSource;
-
-  /// No description provided for @premierEclairageAvsCta.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vérifier mes lacunes'**
-  String get premierEclairageAvsCta;
+  /// **'Outil éducatif simplifié (LSFin). Sources : LIFD art. 38, LPP art. 14, LAVS art. 21–29.'**
+  String get sensitivitySnippetDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

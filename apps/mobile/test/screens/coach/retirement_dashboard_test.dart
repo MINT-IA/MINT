@@ -57,6 +57,7 @@ void main() {
 
   CoachProfileProvider buildProfileProvider({
     required bool certifiedAvs,
+    int certifiedGapYears = 0,
     DateTime? targetDate,
   }) {
     final provider = CoachProfileProvider();
@@ -68,7 +69,7 @@ void main() {
       prevoyance: PrevoyanceProfile(
         avoirLppTotal: 120000,
         totalEpargne3a: 20000,
-        lacunesAVS: certifiedAvs ? 0 : null,
+        lacunesAVS: certifiedAvs ? certifiedGapYears : null,
       ),
       patrimoine: const PatrimoineProfile(
         epargneLiquide: 15000,
@@ -318,6 +319,41 @@ void main() {
       for (var i = 0; i < 6; i++) {
         await tester.pump(const Duration(seconds: 3));
       }
+    });
+
+    testWidgets(
+        'certificate-backed gap stays partial without lifetime-loss pricing',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(buildDashboard(
+        coachProvider: buildProfileProvider(
+          certifiedAvs: true,
+          certifiedGapYears: 3,
+        ),
+      ));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(
+        find.byKey(const Key('retirement_missing_avs_state')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('retirement_capital_amount')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('retirement_complete_income')), findsNothing);
+      expect(
+        find.byKey(const Key('retirement_replacement_rate')),
+        findsNothing,
+      );
+      expect(find.textContaining('Rente AVS perdue'), findsNothing);
+      expect(find.textContaining('20 ans'), findsNothing);
     });
 
     testWidgets('past target stays unavailable and keeps the AVS CTA',

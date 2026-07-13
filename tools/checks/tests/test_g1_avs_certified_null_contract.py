@@ -36,10 +36,6 @@ AVS_CONSUMERS = {
             "missingFields: missingFields",
         ),
     ),
-    "tornado": AvsConsumerContract(
-        "apps/mobile/lib/services/financial_core/tornado_sensitivity_service.dart",
-        ("result.avsIncluded", "result.missingFields"),
-    ),
     "forecaster": AvsConsumerContract(
         "apps/mobile/lib/services/forecaster_service.dart",
         ("selfAvsPensionFieldPath",),
@@ -48,19 +44,14 @@ AVS_CONSUMERS = {
         "apps/mobile/lib/services/retirement_projection_service.dart",
         ("_officialAvsProjectionAvailable",),
     ),
-    "premier_eclairage": AvsConsumerContract(
-        "apps/mobile/lib/widgets/coach/premier_eclairage_section.dart"
-    ),
 }
 
 EXPECTED_CONSUMERS = {
     "coach_narrative",
     "bayesian_enricher",
     "monte_carlo",
-    "tornado",
     "forecaster",
     "retirement_projection",
-    "premier_eclairage",
 }
 
 

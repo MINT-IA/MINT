@@ -12763,10 +12763,6 @@ class SEn extends S {
       'Calculation: monthly pension × 13 months/year (13th AVS pension from Dec. 2026)';
 
   @override
-  String get premierEclairageRenteCalculation =>
-      '(calculation: monthly pension × 13 months/year, 13th pension included).';
-
-  @override
   String get coachBriefingFallbackGreeting => 'Hello';
 
   @override
@@ -12789,10 +12785,6 @@ class SEn extends S {
   String coachBriefingImpactEstimated(String amount) {
     return 'Estimated impact : CHF $amount';
   }
-
-  @override
-  String get premierEclairageSectionDisclaimer =>
-      'Educational simulation only. Does not constitute investment or retirement advice (FinSA). Adjustable assumptions — results not guaranteed.';
 
   @override
   String get concubinageTabProtection => 'Protection';
@@ -23577,72 +23569,27 @@ class SEn extends S {
       'Prepare testamentary questions for the notary';
 
   @override
-  String get earlyRetirementComparisonTitle => 'Early retirement comparison';
+  String get arbitrageTornadoTitle => 'Key sensitivities';
 
   @override
-  String get earlyRetirementComparisonScopeHouseholdNonAvs =>
-      'Household LPP, pillar 3a and asset income — OASI not included';
+  String get arbitrageTornadoDefaultSubtitle =>
+      'Impact of each assumption on the difference between the compared options.';
 
   @override
-  String get earlyRetirementComparisonScopeIndividualNonAvs =>
-      'LPP, pillar 3a and asset income — OASI not included';
+  String get arbitrageTornadoDisclaimer =>
+      'Educational simulation — transparent assumptions, without recommendation.';
 
   @override
-  String get earlyRetirementComparisonAgeHeader => 'Age';
+  String get sensitivitySnippetTitle => 'What most affects your income';
 
   @override
-  String get earlyRetirementComparisonMonthlyIncomeNonAvs =>
-      'Monthly income excluding OASI';
+  String get sensitivitySnippetSubtitle =>
+      'In these simulations, each variable is tested independently.';
 
   @override
-  String get earlyRetirementComparisonCta => 'Simulate early retirement';
+  String get sensitivitySnippetViewAll => 'View full analysis';
 
   @override
-  String get earlyRetirementComparisonPartialDisclaimer =>
-      'Partial projection excluding OASI — rates vary by pension fund (FinSA).';
-
-  @override
-  String get premierEclairageAnnualSuffix => '/year';
-
-  @override
-  String premierEclairage3aTaxMessage(int years, String cumulativeAmount) {
-    return 'Potential tax saving each year by maximizing your pillar 3a. Over $years years, this represents ~CHF $cumulativeAmount.';
-  }
-
-  @override
-  String get premierEclairage3aSource => 'OPP3 art. 7 · LIFD';
-
-  @override
-  String get premierEclairage3aCta => 'Simulate my pillar 3a';
-
-  @override
-  String premierEclairageLppBuybackMessage(String amount) {
-    return 'Potential tax deduction from buying back your LPP gap of CHF $amount.';
-  }
-
-  @override
-  String get premierEclairageLppSource => 'LPP art. 79b';
-
-  @override
-  String get premierEclairageLppCta => 'Explore the buyback';
-
-  @override
-  String premierEclairageAvsGapMessage(int gapYears, String calculation) {
-    String _temp0 = intl.Intl.pluralLogic(
-      gapYears,
-      locale: localeName,
-      other:
-          'OASI pension lost over 20 retirement years with $gapYears missing contribution years $calculation',
-      one:
-          'OASI pension lost over 20 retirement years with 1 missing contribution year $calculation',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get premierEclairageAvsSource =>
-      'LAVS art. 29bis-29ter, 13th OASI pension (from Dec. 2026)';
-
-  @override
-  String get premierEclairageAvsCta => 'Check my contribution gaps';
+  String get sensitivitySnippetDisclaimer =>
+      'Simplified educational tool (FinSA). Sources: LIFD art. 38, LPP art. 14, LAVS art. 21–29.';
 }

@@ -6160,7 +6160,6 @@
   "fhsBreakdownRisque": "Risk",
   "avsGapLifetimeLoss": "Over 20 years of retirement, that's {amount} less — permanently.",
   "avsGapCalculation": "Calculation: monthly pension × 13 months/year (13th AVS pension from Dec. 2026)",
-  "premierEclairageRenteCalculation": "(calculation: monthly pension × 13 months/year, 13th pension included).",
   "coachBriefingFallbackGreeting": "Hello",
   "@coachBriefingFallbackGreeting": {
     "x-mint-meta": {
@@ -6206,7 +6205,6 @@
       }
     }
   },
-  "premierEclairageSectionDisclaimer": "Educational simulation only. Does not constitute investment or retirement advice (FinSA). Adjustable assumptions — results not guaranteed.",
   "concubinageTabProtection": "Protection",
   "concubinageHeroPremierEclairage": "CHF {montant} of exposed assets",
   "@concubinageHeroPremierEclairage": {
@@ -11494,21 +11492,11 @@
   "donationChecklistLandRegister": "Proceed with land-register entry",
   "donationChecklistFutureCollation": "Document the amount for future estate collation",
   "donationChecklistConcubinageQuestions": "Prepare testamentary questions for the notary",
-  "earlyRetirementComparisonTitle": "Early retirement comparison",
-  "earlyRetirementComparisonScopeHouseholdNonAvs": "Household LPP, pillar 3a and asset income — OASI not included",
-  "earlyRetirementComparisonScopeIndividualNonAvs": "LPP, pillar 3a and asset income — OASI not included",
-  "earlyRetirementComparisonAgeHeader": "Age",
-  "earlyRetirementComparisonMonthlyIncomeNonAvs": "Monthly income excluding OASI",
-  "earlyRetirementComparisonCta": "Simulate early retirement",
-  "earlyRetirementComparisonPartialDisclaimer": "Partial projection excluding OASI — rates vary by pension fund (FinSA).",
-  "premierEclairageAnnualSuffix": "/year",
-  "premierEclairage3aTaxMessage": "Potential tax saving each year by maximizing your pillar 3a. Over {years} years, this represents ~CHF {cumulativeAmount}.",
-  "premierEclairage3aSource": "OPP3 art. 7 · LIFD",
-  "premierEclairage3aCta": "Simulate my pillar 3a",
-  "premierEclairageLppBuybackMessage": "Potential tax deduction from buying back your LPP gap of CHF {amount}.",
-  "premierEclairageLppSource": "LPP art. 79b",
-  "premierEclairageLppCta": "Explore the buyback",
-  "premierEclairageAvsGapMessage": "{gapYears, plural, =1{OASI pension lost over 20 retirement years with 1 missing contribution year {calculation}} other{OASI pension lost over 20 retirement years with {gapYears} missing contribution years {calculation}}}",
-  "premierEclairageAvsSource": "LAVS art. 29bis-29ter, 13th OASI pension (from Dec. 2026)",
-  "premierEclairageAvsCta": "Check my contribution gaps"
+  "arbitrageTornadoTitle": "Key sensitivities",
+  "arbitrageTornadoDefaultSubtitle": "Impact of each assumption on the difference between the compared options.",
+  "arbitrageTornadoDisclaimer": "Educational simulation — transparent assumptions, without recommendation.",
+  "sensitivitySnippetTitle": "What most affects your income",
+  "sensitivitySnippetSubtitle": "In these simulations, each variable is tested independently.",
+  "sensitivitySnippetViewAll": "View full analysis",
+  "sensitivitySnippetDisclaimer": "Simplified educational tool (FinSA). Sources: LIFD art. 38, LPP art. 14, LAVS art. 21–29."
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/financial_core/sensitivity_models.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -32,6 +33,7 @@ class SensitivitySnippet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     if (variables.isEmpty) return const SizedBox.shrink();
 
     final displayVars = variables.take(maxVariables).toList();
@@ -48,13 +50,12 @@ class SensitivitySnippet extends StatelessWidget {
         children: [
           // ── Header ─────────────────────────────────
           Text(
-            'Ce qui influence le plus ton revenu',
+            l10n.sensitivitySnippetTitle,
             style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
-            'Dans ces simulations, chaque variable est test\u00e9e '
-            'ind\u00e9pendamment.',
+            l10n.sensitivitySnippetSubtitle,
             style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 14),
@@ -69,7 +70,7 @@ class SensitivitySnippet extends StatelessWidget {
           if (onViewAll != null) ...[
             const SizedBox(height: 12),
             Semantics(
-              label: 'Voir l\'analyse complète',
+              label: l10n.sensitivitySnippetViewAll,
               button: true,
               child: GestureDetector(
                 onTap: onViewAll,
@@ -77,7 +78,7 @@ class SensitivitySnippet extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Voir l\'analyse compl\u00e8te',
+                    l10n.sensitivitySnippetViewAll,
                     style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 4),
@@ -95,9 +96,7 @@ class SensitivitySnippet extends StatelessWidget {
           // ── Disclaimer ─────────────────────────────
           const SizedBox(height: 10),
           Text(
-            'Outil \u00e9ducatif simplifi\u00e9 (LSFin). '
-            'Sources\u00a0: LIFD art.\u00a038, LPP art.\u00a014, '
-            'LAVS art.\u00a021-29.',
+            l10n.sensitivitySnippetDisclaimer,
             style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
           ),
         ],

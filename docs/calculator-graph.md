@@ -97,7 +97,6 @@ Julien + Lauren golden values.
 | **BayesianEnricher** | `bayesian_enricher.dart` | profile + priors | enriched profile w/ estimates | CoachReasoner |
 | **MonteCarloService** | `monte_carlo_service.dart` | profile + scenarios | probability distributions | RetirementDashboard scenarios (Prudent/Base/Optimiste) |
 | **WithdrawalSequencingService** | `withdrawal_sequencing_service.dart` | retirement params | sequencing plan | DecaissementScreen |
-| **TornadoSensitivityService** | `tornado_sensitivity_service.dart` | FRI inputs | sensitivity chart data | FinancialSummaryScreen tornado chart |
 | **CompoundContributionProjectionCalculator** | `compound_contribution_projection_calculator.dart` | annual contribution, years, annual return | future value of repeated contributions | IndependantsService 3a projection bridge |
 | **CoachReasoner** | `coach_reasoner.dart` | CoachContext | reasoning chain | CoachNarrativeService advanced narratives |
 | **DisabilityInsuranceCalculator** | `disability_insurance_calculator.dart` | gross monthly salary, age, liquid savings, monthly fixed charges, IJM scenario flag | reserve months, employer/IJM/AI+LPP timeline income, LPP reset capital, life-drop % | DisabilityGapScreen, DisabilityInsuranceScreen |

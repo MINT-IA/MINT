@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
-import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.dart';
+import 'package:mint_mobile/services/financial_core/sensitivity_models.dart';
 import 'package:mint_mobile/widgets/coach/monte_carlo_toggle_section.dart';
 import 'package:mint_mobile/widgets/coach/sensitivity_snippet.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

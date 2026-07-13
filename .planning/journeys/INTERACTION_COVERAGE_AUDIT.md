@@ -4,7 +4,7 @@
 
 ## Summary
 
-- Extracted Flutter route references: 363
+- Extracted Flutter route references: 362
 - Distinct known route templates referenced: 92
 - Covered by declared Interaction Registry route nodes: 21
 - Known route templates not yet declared as route nodes: 71
@@ -59,7 +59,7 @@
 | uncovered literal route | `/budget` | apps/mobile/lib/data/educational_themes.dart:143, apps/mobile/lib/data/educational_themes.dart:174, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:348, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:441 (+10 more) |
 | uncovered literal route | `/check/debt` | apps/mobile/lib/screens/timeline_screen.dart:218, apps/mobile/lib/widgets/common/debt_tools_nav.dart:28 |
 | uncovered literal route | `/coach/checkin` | apps/mobile/lib/widgets/coach/explore_hub.dart:54 |
-| uncovered literal route | `/coach/cockpit` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:566, apps/mobile/lib/widgets/coach/early_retirement_comparison.dart:145, apps/mobile/lib/widgets/coach/smart_shortcuts.dart:48, apps/mobile/lib/widgets/coach/trajectory_card.dart:54 |
+| uncovered literal route | `/coach/cockpit` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:566, apps/mobile/lib/widgets/coach/smart_shortcuts.dart:48, apps/mobile/lib/widgets/coach/trajectory_card.dart:54 |
 | uncovered literal route | `/concubinage` | apps/mobile/lib/app.dart:563, apps/mobile/lib/screens/timeline_screen.dart:71, apps/mobile/lib/services/cap_engine.dart:835, apps/mobile/lib/services/response_card_service.dart:301 (+1 more) |
 | uncovered literal route | `/couple` | apps/mobile/lib/screens/household/accept_invitation_screen.dart:187, apps/mobile/lib/services/response_card_service.dart:806 |
 | uncovered literal route | `/debt/help` | apps/mobile/lib/widgets/common/debt_tools_nav.dart:40 |

@@ -12829,10 +12829,6 @@ class SEs extends S {
       'Cálculo: pensión mensual × 13 meses/año (13.ª pensión AVS desde dic. 2026)';
 
   @override
-  String get premierEclairageRenteCalculation =>
-      '(cálculo: pensión mensual × 13 meses/año, 13.ª pensión incluida).';
-
-  @override
   String get coachBriefingFallbackGreeting => 'Hola';
 
   @override
@@ -12855,10 +12851,6 @@ class SEs extends S {
   String coachBriefingImpactEstimated(String amount) {
     return 'Impacto estimado : CHF $amount';
   }
-
-  @override
-  String get premierEclairageSectionDisclaimer =>
-      'Simulación educativa. No constituye asesoramiento financiero (LSFin). Hipótesis modificables — resultados no asegurados.';
 
   @override
   String get concubinageTabProtection => 'Protección';
@@ -23691,73 +23683,27 @@ class SEs extends S {
       'Prepare testamentary questions for the notary';
 
   @override
-  String get earlyRetirementComparisonTitle =>
-      'Comparación de jubilación anticipada';
+  String get arbitrageTornadoTitle => 'Sensibilidades clave';
 
   @override
-  String get earlyRetirementComparisonScopeHouseholdNonAvs =>
-      'Ingresos del hogar por LPP, pilar 3a y patrimonio — AVS no incluida';
+  String get arbitrageTornadoDefaultSubtitle =>
+      'Impacto de cada hipótesis en la diferencia entre las opciones comparadas.';
 
   @override
-  String get earlyRetirementComparisonScopeIndividualNonAvs =>
-      'Ingresos por LPP, pilar 3a y patrimonio — AVS no incluida';
+  String get arbitrageTornadoDisclaimer =>
+      'Simulación educativa — hipótesis transparentes, sin recomendación.';
 
   @override
-  String get earlyRetirementComparisonAgeHeader => 'Edad';
+  String get sensitivitySnippetTitle => 'Lo que más influye en tus ingresos';
 
   @override
-  String get earlyRetirementComparisonMonthlyIncomeNonAvs =>
-      'Ingreso mensual sin AVS';
+  String get sensitivitySnippetSubtitle =>
+      'En estas simulaciones, cada variable se prueba de forma independiente.';
 
   @override
-  String get earlyRetirementComparisonCta => 'Simular la jubilación anticipada';
+  String get sensitivitySnippetViewAll => 'Ver el análisis completo';
 
   @override
-  String get earlyRetirementComparisonPartialDisclaimer =>
-      'Proyección parcial sin AVS — los tipos varían según la caja de pensiones (LSFin).';
-
-  @override
-  String get premierEclairageAnnualSuffix => '/año';
-
-  @override
-  String premierEclairage3aTaxMessage(int years, String cumulativeAmount) {
-    return 'Ahorro fiscal potencial cada año al maximizar tu pilar 3a. En $years años, representa ~CHF $cumulativeAmount.';
-  }
-
-  @override
-  String get premierEclairage3aSource => 'OPP3 art. 7 · LIFD';
-
-  @override
-  String get premierEclairage3aCta => 'Simular mi pilar 3a';
-
-  @override
-  String premierEclairageLppBuybackMessage(String amount) {
-    return 'Deducción fiscal potencial al cubrir tu laguna LPP de CHF $amount mediante un rescate.';
-  }
-
-  @override
-  String get premierEclairageLppSource => 'LPP art. 79b';
-
-  @override
-  String get premierEclairageLppCta => 'Explorar el rescate';
-
-  @override
-  String premierEclairageAvsGapMessage(int gapYears, String calculation) {
-    String _temp0 = intl.Intl.pluralLogic(
-      gapYears,
-      locale: localeName,
-      other:
-          'Pensión AVS perdida durante 20 años de jubilación con $gapYears años de cotización faltantes $calculation',
-      one:
-          'Pensión AVS perdida durante 20 años de jubilación con 1 año de cotización faltante $calculation',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get premierEclairageAvsSource =>
-      'LAVS art. 29bis-29ter, 13.ª pensión AVS (desde dic. de 2026)';
-
-  @override
-  String get premierEclairageAvsCta => 'Comprobar mis lagunas de cotización';
+  String get sensitivitySnippetDisclaimer =>
+      'Herramienta educativa simplificada (LSFin). Fuentes: LIFD art. 38, LPP art. 14, LAVS art. 21–29.';
 }

@@ -27,6 +27,6 @@ export 'monte_carlo_models.dart';
 export 'monte_carlo_service.dart';
 export 'succession_reserve_calculator.dart';
 export 'tax_calculator.dart';
-export 'tornado_sensitivity_service.dart';
+export 'sensitivity_models.dart';
 export 'wealth_financial_facts.dart';
 export 'withdrawal_sequencing_service.dart';

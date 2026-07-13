@@ -73,23 +73,6 @@ class RetirementPhase {
       sources.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 }
 
-/// Scenario de retraite anticipee/ajournee pour un age donne.
-class EarlyRetirementScenario {
-  final int retirementAge;
-  final List<RetirementIncomeSource> sources;
-  final double totalMonthly;
-  final double adjustmentPct;
-  final double cumulativeDifference;
-
-  const EarlyRetirementScenario({
-    required this.retirementAge,
-    required this.sources,
-    required this.totalMonthly,
-    required this.adjustmentPct,
-    required this.cumulativeDifference,
-  });
-}
-
 /// Budget gap a la retraite.
 class RetirementBudgetGap {
   final double totalRevenusMensuel;
@@ -144,7 +127,6 @@ class RetirementProjectionResult {
   final double revenuPreRetraiteMensuel;
   final bool isCouple;
   final List<RetirementPhase> phases;
-  final List<EarlyRetirementScenario> earlyRetirementComparisons;
   final RetirementBudgetGap? budgetGap;
   final List<IndexedProjectionPoint> indexedProjection;
   final String disclaimer;
@@ -159,7 +141,6 @@ class RetirementProjectionResult {
     required this.revenuPreRetraiteMensuel,
     required this.isCouple,
     required this.phases,
-    required this.earlyRetirementComparisons,
     required this.budgetGap,
     required this.indexedProjection,
     required this.disclaimer,
@@ -185,7 +166,6 @@ class RetirementProjectionService {
   static double get _avsIndexationRate => reg('projection.avs_indexation_rate', avsIndexationRate);
   static double get _inflationRate => reg('projection.inflation_rate', defaultInflationRate);
   static const int _projectionYears = 25;
-  static int get _lifeExpectancy => reg('projection.life_expectancy', defaultLifeExpectancy.toDouble()).toInt();
   static const double _pillar3aAnnualizationYears = 20.0;
   static double get _safeWithdrawalRate => reg('projection.safe_withdrawal_rate', defaultSafeWithdrawalRate);
 
@@ -249,17 +229,7 @@ class RetirementProjectionService {
           )
         : const <RetirementPhase>[];
 
-    // 3. Early retirement comparison (63-70)
-    final earlyComparisons = avsIncluded
-        ? _computeEarlyRetirementComparisons(
-            profile: profile,
-            ageConjoint: conjAge,
-            lppCapitalPct: lppCapitalPct,
-            l: l,
-          )
-        : const <EarlyRetirementScenario>[];
-
-    // 4. Budget gap
+    // 3. Budget gap
     final budgetGap = avsIncluded
         ? _computeBudgetGap(
             profile: profile,
@@ -268,7 +238,7 @@ class RetirementProjectionService {
           )
         : null;
 
-    // 5. Indexed projection (25 years)
+    // 4. Indexed projection (25 years)
     final indexedProjection = avsIncluded
         ? _computeIndexedProjection(
             profile: profile,
@@ -286,7 +256,6 @@ class RetirementProjectionService {
       revenuPreRetraiteMensuel: revenuBrutMensuel,
       isCouple: profile.isCouple && profile.conjoint != null,
       phases: phases,
-      earlyRetirementComparisons: earlyComparisons,
       budgetGap: budgetGap,
       indexedProjection: indexedProjection,
       disclaimer: l?.retirementProjectionDisclaimer ??
@@ -916,87 +885,6 @@ class RetirementProjectionService {
     }
 
     return sources;
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  EARLY RETIREMENT COMPARISON (63-70)
-  // ════════════════════════════════════════════════════════════
-
-  static List<EarlyRetirementScenario> _computeEarlyRetirementComparisons({
-    required CoachProfile profile,
-    int ageConjoint = avsAgeReferenceHomme,
-    double lppCapitalPct = 0.0,
-    S? l,
-  }) {
-    final hasConjoint =
-        profile.isCouple && profile.conjoint?.birthYear != null;
-    final avsIncluded = profile.avsGapEvidence.householdReady;
-
-    // Helper: for a given user retirement age, compute the correct income
-    // sources respecting whether the conjoint is also retired at that point.
-    List<RetirementIncomeSource> sourcesForAge(int userAge) {
-      if (!hasConjoint) {
-        return _computeIncomes(profile: profile, ageUser: userAge, lppCapitalPct: lppCapitalPct, l: l);
-      }
-      // Year the user reaches userAge
-      final yearUser = profile.birthYear + userAge;
-      final yearConj = profile.conjoint!.birthYear! + ageConjoint;
-
-      if (yearUser >= yearConj) {
-        // Both retired → use full _computeIncomes (couple AVS cap if married)
-        return _computeIncomes(
-          profile: profile,
-          ageUser: userAge,
-          ageConjoint: ageConjoint,
-          lppCapitalPct: lppCapitalPct,
-          l: l,
-        );
-      } else {
-        // Only user retired, conjoint still working → transition phase
-        return _buildTransitionPhase(
-          profile: profile,
-          ageUser: userAge,
-          ageConjoint: ageConjoint,
-          userRetiresFirst: true,
-          lppCapitalPct: lppCapitalPct,
-          l: l,
-        );
-      }
-    }
-
-    final refAgeScen = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-    final ref = sourcesForAge(refAgeScen);
-    final refTotal = ref.fold(0.0, (sum, s) => sum + s.monthlyAmount);
-    final scenarios = <EarlyRetirementScenario>[];
-
-    for (int age = 63; age <= 70; age++) {
-      final sources = sourcesForAge(age);
-      final total = sources.fold(0.0, (sum, s) => sum + s.monthlyAmount);
-
-      double adjustmentPct = 0;
-      if (avsIncluded && age < refAgeScen) {
-        adjustmentPct = -(reg('avs.early_retirement_reduction', avsReductionAnticipation) * (refAgeScen - age) * 100);
-      } else if (avsIncluded && age > refAgeScen) {
-        final bonus =
-            avsDeferralBonus[(age - refAgeScen).clamp(1, 5)];
-        adjustmentPct = (bonus ?? 0) * 100;
-      }
-
-      final yearsThis = _lifeExpectancy - age;
-      final yearsRef = _lifeExpectancy - refAgeScen;
-      final cumulative =
-          (total * 12 * yearsThis) - (refTotal * 12 * yearsRef);
-
-      scenarios.add(EarlyRetirementScenario(
-        retirementAge: age,
-        sources: sources,
-        totalMonthly: total,
-        adjustmentPct: adjustmentPct,
-        cumulativeDifference: cumulative,
-      ));
-    }
-
-    return scenarios;
   }
 
   // ════════════════════════════════════════════════════════════
