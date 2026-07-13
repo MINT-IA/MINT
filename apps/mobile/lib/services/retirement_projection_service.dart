@@ -647,36 +647,10 @@ class RetirementProjectionService {
     final sources = <RetirementIncomeSource>[];
     final userName = profile.firstName ?? 'Toi';
     final conjName = profile.conjoint?.firstName ?? 'Conjoint·e';
-    final avsEvidence = profile.avsGapEvidence;
-
-    // F3-3: Gender-aware AVS21 reference age for staggered retirement.
-    final tpIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
 
     if (userRetiresFirst) {
-      // User AVS — no couple cap during transition (LAVS art. 35 al. 1).
-      // The cap (150%) applies only when BOTH spouses receive a pension.
-      // During transition, only the retired spouse receives → individual rente.
-      // This recurring monthly source cannot represent a separate December
-      // event, so it keeps the ordinary monthly AVS amount only.
-      if (avsEvidence.householdReady) {
-        final avsUser = AvsCalculator.computeMonthlyRente(
-          currentAge: profile.age,
-          retirementAge: ageUser,
-          lacunes: avsEvidence.selfCertifiedYears!,
-          anneesContribuees: profile.prevoyance.anneesContribuees,
-          arrivalAge: profile.arrivalAge,
-          grossAnnualSalary: profile.revenuBrutAnnuel,
-          isFemale: tpIsFemale,
-          birthYear: profile.birthYear,
-        );
-        sources.add(RetirementIncomeSource(
-          id: 'avs_user',
-          label: 'AVS $userName',
-          monthlyAmount: avsUser,
-          color: colorAvs,
-          isIndexed: true,
-        ));
-      }
+      // AVS stays absent: the legacy monthly estimate, CI gaps and provenance
+      // tags do not constitute the reviewed official-pension envelope.
 
       // User LPP — independants without LPP: no bonifications (LPP art. 4)
       final userHasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0 ||
@@ -737,32 +711,8 @@ class RetirementProjectionService {
         ));
       }
     } else {
-      // Conjoint AVS (no couple cap — only conjoint receives)
-      // This recurring monthly source cannot represent a separate December
-      // event, so it keeps the ordinary monthly AVS amount only.
-      if (avsEvidence.householdReady) {
-        final tpConjIsFemale = profile.conjoint!.gender == 'F'
-            ? true
-            : (profile.conjoint!.gender == 'M' ? false : null);
-        final avsConj = AvsCalculator.computeMonthlyRente(
-          currentAge: profile.conjoint!.age ?? 45,
-          retirementAge: ageConjoint,
-          lacunes: avsEvidence.spouseCertifiedYears!,
-          anneesContribuees:
-              profile.conjoint?.prevoyance?.anneesContribuees,
-          arrivalAge: profile.conjoint!.arrivalAge,
-          grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
-          isFemale: tpConjIsFemale,
-          birthYear: profile.conjoint!.birthYear,
-        );
-        sources.add(RetirementIncomeSource(
-          id: 'avs_conjoint',
-          label: 'AVS $conjName',
-          monthlyAmount: avsConj,
-          color: MintColors.pillarAvsConjoint,
-          isIndexed: true,
-        ));
-      }
+      // Partner AVS stays absent for the same reason; missing partner evidence
+      // never becomes a zero-valued household component.
 
       // Conjoint LPP
       final conjPrev = profile.conjoint!.prevoyance;

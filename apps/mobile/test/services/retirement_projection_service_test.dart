@@ -171,7 +171,7 @@ void main() {
       );
     });
 
-    test('legacy complete couple inputs never unlock household AVS', () {
+    test('legacy certificate-tagged couple inputs stay partial', () {
       final profile = buildProfile(
         firstName: 'Julien',
         lacunesAvs: 0,
@@ -203,6 +203,10 @@ void main() {
           'conjoint.prevoyance.renteAVSEstimeeMensuelle':
               ProfileDataSource.certificate,
         },
+        dataTimestamps: {
+          AvsOfficialPensionEvidence.selfFieldPath: DateTime(2026, 7, 13),
+          AvsOfficialPensionEvidence.spouseFieldPath: DateTime(2026, 7, 13),
+        },
       );
 
       final result = RetirementProjectionService.project(profile: profile);
@@ -217,20 +221,25 @@ void main() {
       expect(result.isCouple, isTrue);
     });
 
-    test('married profile without conjoint remains partial', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(etatCivil: CoachCivilStatus.marie),
-      );
+    for (final status in const [
+      CoachCivilStatus.marie,
+      CoachCivilStatus.registeredPartnership,
+    ]) {
+      test('$status without conjoint remains partial, never zero', () {
+        final result = RetirementProjectionService.project(
+          profile: buildProfile(etatCivil: status),
+        );
 
-      expectAlwaysPartial(
-        result,
-        missingFields: const [
-          ForecasterService.selfAvsPensionFieldPath,
-          ForecasterService.spouseAvsPensionFieldPath,
-        ],
-      );
-      expect(result.isCouple, isFalse);
-    });
+        expectAlwaysPartial(
+          result,
+          missingFields: const [
+            ForecasterService.selfAvsPensionFieldPath,
+            ForecasterService.spouseAvsPensionFieldPath,
+          ],
+        );
+        expect(result.isCouple, isFalse);
+      });
+    }
 
     test('invalid current income keeps total rate and budget unknown', () {
       final result = RetirementProjectionService.project(
