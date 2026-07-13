@@ -23764,4 +23764,52 @@ class SDe extends S {
   @override
   String get sensitivitySnippetDisclaimer =>
       'Vereinfachtes Lerninstrument (FIDLEG). Quellen: DBG Art. 38, BVG Art. 14, AHVG Art. 21–29.';
+
+  @override
+  String get reportCardStatusCalm => 'Stabil';
+
+  @override
+  String get reportCardStatusImprove => 'Zu stärken';
+
+  @override
+  String get reportCardStatusAlert => 'Warnung';
+
+  @override
+  String get reportCardStatusToVerify => 'Zu prüfen';
+
+  @override
+  String get reportPdfRetirementProjectionTitle => 'Pensionierungsprojektion';
+
+  @override
+  String reportPdfRetirementHorizon(int years, int retirementAge) {
+    return 'Zeithorizont: $years Jahre (Pensionierung mit $retirementAge Jahren)';
+  }
+
+  @override
+  String get reportPdfRetirementMonthlyPensions =>
+      'Geschätzte monatliche Renten';
+
+  @override
+  String reportPdfRetirementCapitalsAtAge(int retirementAge) {
+    return 'Geschätztes Kapital mit $retirementAge Jahren';
+  }
+
+  @override
+  String get reportPdfRetirementLppCapital => 'BVG-Kapital';
+
+  @override
+  String get reportPdfRetirementPillar3aCapital => 'Säule-3a-Kapital';
+
+  @override
+  String get reportPdfRetirementOtherAssets => 'Weitere Vermögenswerte';
+
+  @override
+  String get reportPdfRetirementTotalCapital => 'Geschätztes Gesamtkapital';
+
+  @override
+  String get report3aPendingBody =>
+      'Ergänze deine 3a-Guthaben und deren Stichtag, damit nachvollziehbare Fakten statt einer Punktschätzung angezeigt werden.';
+
+  @override
+  String get report3aPendingCta => 'Meine 3a-Daten ergänzen';
 }

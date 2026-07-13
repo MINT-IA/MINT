@@ -46,6 +46,8 @@ flowchart LR
     CROSS --> ARB
     TAX --> ARB
     PROFILE --> DISABILITY[DisabilityInsuranceCalculator]:::calc
+    REPORT_INCOME["Retirement income (nullable) + current income"]:::profile --> REPLACEMENT[ReplacementRateCalculator]:::calc
+    REPLACEMENT --> RETIREMENT_REPORT["RetirementProjection / report"]:::ui
     WIZARD[Wizard answers]:::profile --> EMERGENCY[EmergencyFundHeuristic]:::calc
     EMERGENCY --> PERSIST[ReportPersistenceService legacy quarantine]:::composer
     PROFILE --> WEALTH[WealthFinancialFacts]:::calc
@@ -100,6 +102,7 @@ Julien + Lauren golden values.
 | **CompoundContributionProjectionCalculator** | `compound_contribution_projection_calculator.dart` | annual contribution, years, annual return | future value of repeated contributions | IndependantsService 3a projection bridge |
 | **CoachReasoner** | `coach_reasoner.dart` | CoachContext | reasoning chain | CoachNarrativeService advanced narratives |
 | **DisabilityInsuranceCalculator** | `disability_insurance_calculator.dart` | gross monthly salary, age, liquid savings, monthly fixed charges, IJM scenario flag | reserve months, employer/IJM/AI+LPP timeline income, LPP reset capital, life-drop % | DisabilityGapScreen, DisabilityInsuranceScreen |
+| **ReplacementRateCalculator** | `replacement_rate_calculator.dart` | monthly retirement income (nullable), current monthly income | nullable replacement rate in %, clamped to 0–150%; invalid or incomplete inputs stay null | `RetirementProjection.replacementRate`, financial report |
 | **EmergencyFundHeuristic** | `emergency_fund_heuristic.dart` | `q_emergency_fund` bucket, housing cost/frequency, monthly LAMal premium | reconstructed old emergency-fund cash estimate | ReportPersistenceService legacy quarantine only; never an explicit cash fact |
 | **LamalPremiumNormalizer** | `lamal_premium_normalizer.dart` | actual monthly premium, current franchise, adult/child flag, franchise savings table | monthly premium normalized to CHF 300 franchise baseline | LamalFranchiseService, LamalFranchiseScreen |
 | **WealthFinancialFacts** | `wealth_financial_facts.dart` | cash, investments, property market value, broad wealth estimate | property net value, net wealth, consumer debt, aggregate-vs-detail reconciliation status and resolved total | PatrimoineProfile, DonationScreen, patrimoine and life-event consumers |
@@ -194,7 +197,8 @@ features on top of these until the câblage is real. Full details:
 
 ---
 
-*Last updated: 2026-04-21 after façade audit in
+*Last updated: 2026-07-13 after registering `ReplacementRateCalculator`.
+Façade status comes from the 2026-04-21 audit in
 `.planning/triage-2026-04-20-service-audit.md`. When you refactor any
 service in `financial_core/` or add a new aggregator, update this file
 in the same PR.*

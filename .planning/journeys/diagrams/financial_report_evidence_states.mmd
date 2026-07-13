@@ -1,0 +1,78 @@
+%% ============================================================================
+%% financial_report_evidence_states.mmd — G1 retirement report evidence states
+%% ----------------------------------------------------------------------------
+%% Purpose: keep the report/PDF fail-closed until each pension pillar is backed
+%% by evidence-bearing ledger facts. Missing partner evidence is never zero.
+%% Source: docs/codex/SCREEN_CONTRACTS.md §7.1.
+%% ============================================================================
+
+flowchart TB
+  classDef ledger fill:#f6f1e7,stroke:#b48a3b,color:#21180a,stroke-width:1px;
+  classDef pending fill:#fff5e6,stroke:#c26f00,color:#201307,stroke-width:1px;
+  classDef route fill:#eaf6f0,stroke:#166b4a,color:#10261d,stroke-width:1px;
+  classDef certified fill:#eef1ff,stroke:#4f62c6,color:#111836,stroke-width:1px;
+  classDef proof fill:#f2edf8,stroke:#7b4eb2,color:#1d102a,stroke-width:1px;
+
+  Ledger["Data Ledger<br/>value + source + source date + freshness + evidence kind"]:::ledger
+  Self["Self pension evidence envelope"]:::ledger
+  Partner["Partner envelope<br/>optional + purpose-specific + field-scoped + revocable"]:::ledger
+
+  AvsGate{"Accepted official<br/>AVS self amount?"}
+  LppGate{"Certified fund-specific<br/>LPP facts?"}
+  P3aGate{"Current 3a balance + explicit plan<br/>+ sourced net-return range?"}
+  PartnerGate{"Partner evidence available<br/>for this purpose?"}
+
+  AvsPending["AVS — À vérifier<br/>no amount"]:::pending
+  LppPending["LPP — À vérifier<br/>no 6.8% synthesis"]:::pending
+  P3aPending["3a — À vérifier<br/>no point projection or ranking"]:::pending
+  PartnerPending["Partner — unknown<br/>never CHF 0"]:::pending
+
+  AvsAsk["/scan/avs-guide"]:::route
+  LppAsk["/scan<br/>DocumentType.lppCertificate"]:::route
+  P3aAsk["/data-block/3a"]:::route
+  PartnerAsk["Manual entry or optional linked-account grant"]:::route
+
+  AvsKnown["Certified AVS envelope or admissible range"]:::certified
+  LppKnown["Certified LPP envelope or admissible range"]:::certified
+  P3aKnown["Evidence-backed 3a scenario range"]:::certified
+  PartnerKnown["Separate consented partner evidence"]:::certified
+
+  AggregateGate{"All required components<br/>and current-income denominator known?"}
+  AggregatePending["Totals + replacement rate<br/>remain À vérifier"]:::pending
+  AggregateKnown["Range-based totals and rate<br/>with provenance"]:::certified
+  Report["/rapport + PDF<br/>same evidence state"]:::route
+  Runtime["Maestro semantic states + screenshots<br/>Patrol dangerous-input contract"]:::proof
+
+  Ledger --> Self
+  Ledger --> Partner
+  Self --> AvsGate
+  Self --> LppGate
+  Self --> P3aGate
+  Partner --> PartnerGate
+
+  AvsGate -- "no" --> AvsPending --> AvsAsk --> Ledger
+  LppGate -- "no" --> LppPending --> LppAsk --> Ledger
+  P3aGate -- "no" --> P3aPending --> P3aAsk --> Ledger
+  PartnerGate -- "no or revoked" --> PartnerPending --> PartnerAsk --> Partner
+
+  AvsGate -- "yes" --> AvsKnown --> AggregateGate
+  LppGate -- "yes" --> LppKnown --> AggregateGate
+  P3aGate -- "yes" --> P3aKnown --> AggregateGate
+  PartnerGate -- "yes" --> PartnerKnown --> AggregateGate
+
+  AvsPending --> AggregatePending
+  LppPending --> AggregatePending
+  P3aPending --> AggregatePending
+  PartnerPending --> AggregatePending
+  AggregateGate -- "no" --> AggregatePending
+  AggregateGate -- "yes" --> AggregateKnown
+  AggregatePending --> Report
+  AggregateKnown --> Report
+  Report --> Runtime
+
+  %% Invariants:
+  %% FR-1 Missing AVS, LPP, or 3a evidence never becomes a point amount.
+  %% FR-2 A missing/revoked partner envelope is unknown, never a zero component.
+  %% FR-3 Dependent totals and replacement rate stay null until all required facts are known.
+  %% FR-4 Report and PDF expose the same evidence state and recovery route.
+  %% FR-5 Runtime proof rebuilds the app, then asserts all three pending states.

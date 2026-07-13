@@ -12,6 +12,16 @@ FORECASTER = ROOT / "apps/mobile/lib/services/forecaster_service.dart"
 MONTE_CARLO = (
     ROOT / "apps/mobile/lib/services/financial_core/monte_carlo_service.dart"
 )
+FINANCIAL_REPORT_SERVICE = (
+    ROOT / "apps/mobile/lib/services/financial_report_service.dart"
+)
+PDF_SERVICE = ROOT / "apps/mobile/lib/services/pdf_service.dart"
+FINANCIAL_REPORT_SCREEN = (
+    ROOT / "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart"
+)
+RETIREMENT_PROJECTION_CARD = (
+    ROOT / "apps/mobile/lib/widgets/report/retirement_projection_card.dart"
+)
 CERTIFIED_NULL_FALLBACK_RE = re.compile(r"\.lacunesAVS\s*\?\?\s*0")
 
 
@@ -66,6 +76,15 @@ def _consumer_sources() -> dict[str, tuple[AvsConsumerContract, str]]:
         assert path.is_file(), f"{name}: missing declared consumer {contract.path}"
         sources[name] = (contract, path.read_text(encoding="utf-8"))
     return sources
+
+
+def _assert_tokens_absent(path: Path, tokens: tuple[str, ...], reason: str) -> None:
+    source = path.read_text(encoding="utf-8")
+    offenders = [token for token in tokens if token in source]
+    assert not offenders, (
+        f"{path.relative_to(ROOT).as_posix()}: {reason}; "
+        f"remove {offenders}"
+    )
 
 
 def test_avs_consumers_never_turn_missing_certified_years_into_zero() -> None:
@@ -150,3 +169,59 @@ def test_official_avs_pension_paths_have_one_shared_contract() -> None:
     assert "'conjoint.prevoyance.renteAVSEstimeeMensuelle'" not in forecaster_source
     assert "'prevoyance.renteAVSEstimeeMensuelle'" not in monte_carlo_source
     assert "'conjoint.prevoyance.renteAVSEstimeeMensuelle'" not in monte_carlo_source
+
+
+def test_financial_report_service_never_synthesizes_official_avs_amount() -> None:
+    _assert_tokens_absent(
+        FINANCIAL_REPORT_SERVICE,
+        ("AvsCalculator.computeMonthlyRente", "_estimateAvsRent"),
+        "the report must keep AVS unknown until the reviewed official mobile "
+        "envelope exists",
+    )
+
+
+def test_pdf_never_reads_unknown_avs_or_avs_dependent_totals() -> None:
+    _assert_tokens_absent(
+        PDF_SERVICE,
+        (
+            "ret.monthlyAvsRent",
+            "ret.totalMonthlyIncome",
+            "ret.avsReductionFactor",
+        ),
+        "the PDF must show AVS as to verify without formatting an amount, "
+        "retirement total, or exact reduction",
+    )
+
+
+def test_report_screen_never_formats_or_derives_unknown_avs_values() -> None:
+    _assert_tokens_absent(
+        FINANCIAL_REPORT_SCREEN,
+        (
+            "projection.replacementRate",
+            "projection.totalMonthlyIncome",
+            "q_avs_lacunes_status",
+            "q_avs_arrival_year",
+            "q_avs_years_abroad",
+            "q_first_employment_year",
+        ),
+        "the report screen must not format AVS-dependent totals/rates or "
+        "derive certified contribution years from questionnaire gaps",
+    )
+
+
+def test_retirement_projection_card_never_formats_or_derives_unknown_avs() -> None:
+    _assert_tokens_absent(
+        RETIREMENT_PROJECTION_CARD,
+        (
+            "projection.monthlyAvsRent",
+            "projection.totalMonthlyIncome",
+            "projection.replacementRate",
+            "projection.avsReductionFactor",
+            "contributionYears",
+            "avsLacunesStatus",
+            "AvsCalculator.reductionPercentageFromGap",
+            "AvsCalculator.monthlyLossFromGap",
+        ),
+        "the report widget must not format or derive an AVS amount, exact "
+        "reduction, retirement total, or replacement rate",
+    )

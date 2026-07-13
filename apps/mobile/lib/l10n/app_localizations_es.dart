@@ -23706,4 +23706,52 @@ class SEs extends S {
   @override
   String get sensitivitySnippetDisclaimer =>
       'Herramienta educativa simplificada (LSFin). Fuentes: LIFD art. 38, LPP art. 14, LAVS art. 21–29.';
+
+  @override
+  String get reportCardStatusCalm => 'Estable';
+
+  @override
+  String get reportCardStatusImprove => 'A reforzar';
+
+  @override
+  String get reportCardStatusAlert => 'Alerta';
+
+  @override
+  String get reportCardStatusToVerify => 'A verificar';
+
+  @override
+  String get reportPdfRetirementProjectionTitle => 'Proyección de jubilación';
+
+  @override
+  String reportPdfRetirementHorizon(int years, int retirementAge) {
+    return 'Horizonte: $years años (jubilación a los $retirementAge años)';
+  }
+
+  @override
+  String get reportPdfRetirementMonthlyPensions =>
+      'Pensiones mensuales estimadas';
+
+  @override
+  String reportPdfRetirementCapitalsAtAge(int retirementAge) {
+    return 'Capital estimado a los $retirementAge años';
+  }
+
+  @override
+  String get reportPdfRetirementLppCapital => 'Capital LPP';
+
+  @override
+  String get reportPdfRetirementPillar3aCapital => 'Capital del pilar 3a';
+
+  @override
+  String get reportPdfRetirementOtherAssets => 'Otros activos';
+
+  @override
+  String get reportPdfRetirementTotalCapital => 'Capital total estimado';
+
+  @override
+  String get report3aPendingBody =>
+      'Añade tus saldos 3a y su fecha para mostrar datos trazables sin una proyección puntual.';
+
+  @override
+  String get report3aPendingCta => 'Completar mis datos 3a';
 }

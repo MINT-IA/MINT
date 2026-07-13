@@ -1,4 +1,5 @@
 import 'circle_score.dart';
+import '../services/financial_core/replacement_rate_calculator.dart';
 
 /// Rapport financier exhaustif généré en fin de wizard
 class FinancialReport {
@@ -11,7 +12,6 @@ class FinancialReport {
   // Simulations & Projections
   final TaxSimulation taxSimulation;
   final RetirementProjection? retirementProjection;
-  final Pillar3aAnalysis? pillar3aAnalysis;
   final LppBuybackStrategy? lppBuybackStrategy;
 
   // Recommandations
@@ -47,7 +47,6 @@ class FinancialReport {
     required this.healthScore,
     required this.taxSimulation,
     this.retirementProjection,
-    this.pillar3aAnalysis,
     this.lppBuybackStrategy,
     required this.priorityActions,
     required this.personalizedRoadmap,
@@ -73,31 +72,6 @@ class UserProfile {
   final String employmentStatus;
   final double monthlyNetIncome;
 
-  /// Gender: 'M', 'F', or null (AVS21 reference age — LAVS art. 21 al. 1).
-  /// When null, AvsCalculator defaults to male reference age (65).
-  final String? gender;
-
-  /// Spouse gender: 'M', 'F', or null.
-  /// Used for AVS21 reference age of spouse. Never inferred from user gender
-  /// — same-sex couples have the same reference age.
-  final String? spouseGender;
-
-  // Nouvelle logique AVS : lacunes calculées depuis le triage
-  final int? avsGapYears;
-  final int? spouseAvsGapYears;
-
-  // Legacy fields (rétrocompatibilité)
-  final int? contributionYears;
-  final int? spouseContributionYears;
-  final int? firstEmploymentYear;
-  final int? spouseFirstEmploymentYear;
-
-  /// Spouse birth year (for accurate AVS age calculation).
-  final int? spouseBirthYear;
-
-  /// Spouse monthly net income (for accurate couple AVS computation).
-  final double? spouseMonthlyNetIncome;
-
   const UserProfile({
     this.firstName,
     required this.birthYear,
@@ -106,64 +80,14 @@ class UserProfile {
     required this.childrenCount,
     required this.employmentStatus,
     required this.monthlyNetIncome,
-    this.gender,
-    this.spouseGender,
-    this.avsGapYears,
-    this.spouseAvsGapYears,
-    this.contributionYears,
-    this.spouseContributionYears,
-    this.firstEmploymentYear,
-    this.spouseFirstEmploymentYear,
-    this.spouseBirthYear,
-    this.spouseMonthlyNetIncome,
   });
 
   int get age => DateTime.now().year - birthYear;
-  int? get spouseAge => spouseBirthYear != null
-      ? DateTime.now().year - spouseBirthYear!
-      : null;
   int get yearsToRetirement => 65 - age;
   bool get isMarried => civilStatus == 'married';
   bool get hasChildren => childrenCount > 0;
   bool get isSalaried => employmentStatus == 'employee';
   double get annualIncome => monthlyNetIncome * 12;
-
-  /// Années théoriques de cotisation AVS (depuis 21 ans, max 44)
-  int get theoreticalAvsYears =>
-      (DateTime.now().year - (birthYear + 21)).clamp(0, 44);
-
-  /// Facteur de réduction AVS (1/44 par année manquante)
-  /// Priorité : avsGapYears (nouvelles questions) > firstEmploymentYear > contributionYears
-  double get avsReductionFactor {
-    if (avsGapYears != null) {
-      final years = (theoreticalAvsYears - avsGapYears!).clamp(0, 44);
-      return (years / 44).clamp(0.0, 1.0);
-    }
-    if (firstEmploymentYear != null) {
-      final startYear = [firstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
-      final years = (DateTime.now().year - startYear).clamp(0, 44);
-      return (years / 44).clamp(0.0, 1.0);
-    }
-    final years = contributionYears ?? 44;
-    return (years / 44).clamp(0.0, 1.0);
-  }
-
-  /// Facteur de réduction AVS pour le conjoint
-  /// Priorité : spouseAvsGapYears > spouseFirstEmploymentYear > spouseContributionYears
-  double get spouseAvsReductionFactor {
-    if (!isMarried) return 0.0;
-    if (spouseAvsGapYears != null) {
-      final years = (theoreticalAvsYears - spouseAvsGapYears!).clamp(0, 44);
-      return (years / 44).clamp(0.0, 1.0);
-    }
-    if (spouseFirstEmploymentYear != null) {
-      final startYear = [spouseFirstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
-      final years = (DateTime.now().year - startYear).clamp(0, 44);
-      return (years / 44).clamp(0.0, 1.0);
-    }
-    final years = spouseContributionYears ?? 44;
-    return (years / 44).clamp(0.0, 1.0);
-  }
 }
 
 /// Simulation fiscale annuelle
@@ -200,26 +124,21 @@ class RetirementProjection {
   final int yearsUntilRetirement;
 
   // Capitaux estimés
-  final double lppCapital;
-  final double pillar3aCapital;
+  final double? lppCapital;
+  final double? pillar3aCapital;
   final double? otherAssets;
 
   // Rentes
-  final double monthlyAvsRent;
-  final double monthlyLppRent;
+  final double? monthlyAvsRent;
+  final double? monthlyLppRent;
 
-  // Facteurs de réduction (Pédagogie)
-  final double avsReductionFactor;
-  final double spouseAvsReductionFactor;
-
-  /// Revenu mensuel net actuel de l'utilisateur, utilisé pour calculer le
-  /// taux de remplacement. Défaut conservateur de 7800 CHF (revenu médian
-  /// suisse) si non fourni, pour rétrocompatibilité.
+  /// Revenu mensuel net actuel explicitement fourni par l'appelant.
+  /// Le taux reste inconnu si l'AVS ou la LPP manque, ou si ce revenu vaut 0.
   final double currentMonthlyIncome;
 
   // Total
-  final double totalCapital;
-  final double totalMonthlyIncome;
+  final double? totalCapital;
+  final double? totalMonthlyIncome;
 
   const RetirementProjection({
     this.retirementAge = 65,
@@ -227,59 +146,25 @@ class RetirementProjection {
     required this.lppCapital,
     required this.pillar3aCapital,
     this.otherAssets,
-    required this.monthlyAvsRent,
+    this.monthlyAvsRent,
     required this.monthlyLppRent,
-    this.avsReductionFactor = 1.0,
-    this.spouseAvsReductionFactor = 1.0,
-    this.currentMonthlyIncome = 7800.0,
-  })  : totalCapital = lppCapital + pillar3aCapital + (otherAssets ?? 0),
-        totalMonthlyIncome = monthlyAvsRent + monthlyLppRent;
+    required this.currentMonthlyIncome,
+  })  : totalCapital = lppCapital == null || pillar3aCapital == null
+            ? null
+            : lppCapital + pillar3aCapital + (otherAssets ?? 0),
+        totalMonthlyIncome = monthlyAvsRent == null || monthlyLppRent == null
+            ? null
+            : monthlyAvsRent + monthlyLppRent;
 
   /// Taux de remplacement : revenu mensuel projeté à la retraite divisé par
-  /// le revenu mensuel actuel. Exprimé en pourcentage (ex: 65.0 = 65%).
+  /// le revenu mensuel actuel. Il reste inconnu si la rente AVS, la rente LPP
+  /// ou le revenu courant manque. Exprimé en pourcentage (ex: 65.0 = 65%).
   /// Clampé entre 0% et 150% (peut dépasser 100% dans certains cas, ex.
   /// faible revenu actuel + rentes complètes).
-  /// Ref: LPP art. 14 — taux de conversion minimum de 6.8% (part obligatoire)
-  double get replacementRate {
-    if (currentMonthlyIncome <= 0) return 0.0;
-    final rate = (totalMonthlyIncome / currentMonthlyIncome) * 100;
-    return rate.clamp(0.0, 150.0);
-  }
-}
-
-/// Analyse 3a
-class Pillar3aAnalysis {
-  final int currentAccountsCount;
-  final List<String> providers; // 'bank', 'viac', 'finpension', 'insurance'
-  final double annualContribution;
-  final double maxContribution;
-
-  // Projections
-  final Map<String, double>
-      projectionsByProvider; // Provider → Capital à 65 ans
-  final double potentialGainVsBank; // Si passage à VIAC
-
-  // Optimisation retrait
-  final double? taxOnWithdrawalSingleAccount;
-  final double? taxOnWithdrawalMultipleAccounts;
-  final double? withdrawalOptimizationSavings;
-
-  const Pillar3aAnalysis({
-    required this.currentAccountsCount,
-    required this.providers,
-    required this.annualContribution,
-    required this.maxContribution,
-    required this.projectionsByProvider,
-    required this.potentialGainVsBank,
-    this.taxOnWithdrawalSingleAccount,
-    this.taxOnWithdrawalMultipleAccounts,
-    this.withdrawalOptimizationSavings,
-  });
-
-  bool get isMaximizing => annualContribution >= maxContribution;
-  bool get hasMultipleAccounts => currentAccountsCount >= 2;
-  bool get usesViacOrFinpension =>
-      providers.contains('viac') || providers.contains('finpension');
+  double? get replacementRate => ReplacementRateCalculator.calculate(
+        monthlyRetirementIncome: totalMonthlyIncome,
+        currentMonthlyIncome: currentMonthlyIncome,
+      );
 }
 
 /// Stratégie rachat LPP

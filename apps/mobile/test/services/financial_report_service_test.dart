@@ -1,15 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/models/financial_report.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Unit tests for FinancialReportService
 ///
 /// Tests the comprehensive financial report generation engine that:
 ///   - Builds UserProfile from wizard answers
 ///   - Computes tax simulations (cantonal + federal)
-///   - Projects retirement capital (LPP + 3a + AVS)
-///   - Analyses 3a optimisation opportunities
+///   - Keeps uncertified retirement amounts explicitly unknown
 ///   - Builds LPP buyback strategies
 ///   - Generates priority actions from health scores
 ///   - Creates personalised roadmaps
@@ -83,7 +81,6 @@ void main() {
       final report = service.generateReport(fullAnswers());
 
       expect(report.retirementProjection, isNotNull);
-      expect(report.pillar3aAnalysis, isNotNull);
       expect(report.lppBuybackStrategy, isNotNull);
     });
 
@@ -92,8 +89,12 @@ void main() {
       final report = service.generateReport(minimalAnswers());
       final after = DateTime.now();
 
-      expect(report.generatedAt.isAfter(before.subtract(const Duration(seconds: 1))), isTrue);
-      expect(report.generatedAt.isBefore(after.add(const Duration(seconds: 1))), isTrue);
+      expect(
+          report.generatedAt
+              .isAfter(before.subtract(const Duration(seconds: 1))),
+          isTrue);
+      expect(report.generatedAt.isBefore(after.add(const Duration(seconds: 1))),
+          isTrue);
     });
   });
 
@@ -183,13 +184,15 @@ void main() {
 
     test('cantonal + federal equals total tax', () {
       final report = service.generateReport(minimalAnswers());
-      final sum = report.taxSimulation.cantonalTax + report.taxSimulation.federalTax;
+      final sum =
+          report.taxSimulation.cantonalTax + report.taxSimulation.federalTax;
       expect(sum, closeTo(report.taxSimulation.totalTax, 0.01));
     });
 
     test('cantonal tax is approximately 75% of total', () {
       final report = service.generateReport(minimalAnswers());
-      final ratio = report.taxSimulation.cantonalTax / report.taxSimulation.totalTax;
+      final ratio =
+          report.taxSimulation.cantonalTax / report.taxSimulation.totalTax;
       expect(ratio, closeTo(0.75, 0.001));
     });
 
@@ -214,7 +217,9 @@ void main() {
       expect(report.taxSimulation.deductions['3a'], equals(7258.0));
     });
 
-    test('children deduction = federal + cantonal per child (LIFD art. 35 + LHID art. 9)', () {
+    test(
+        'children deduction = federal + cantonal per child (LIFD art. 35 + LHID art. 9)',
+        () {
       final answers = minimalAnswers(); // q_canton = 'VD'
       answers['q_children'] = '2';
       final report = service.generateReport(answers);
@@ -265,181 +270,88 @@ void main() {
       expect(report.retirementProjection!.yearsUntilRetirement, greaterThan(0));
     });
 
-    test('LPP capital includes current capital + estimated growth', () {
+    test('retirement point capitals stay null without reviewed evidence', () {
       final answers = minimalAnswers();
       answers['q_current_lpp_capital'] = 100000.0;
       answers['q_lpp_buyback_available'] = 20000.0;
       final report = service.generateReport(answers);
-      // Should include current + growth + buyback
-      expect(report.retirementProjection!.lppCapital, greaterThan(120000.0));
+
+      expect(report.retirementProjection!.lppCapital, isNull);
+      expect(report.retirementProjection!.pillar3aCapital, isNull);
+      expect(report.retirementProjection!.monthlyLppRent, isNull);
+      expect(report.retirementProjection!.totalCapital, isNull);
     });
 
-    test('AVS rent uses correct reduction factor', () {
-      final answers = minimalAnswers();
-      answers['q_avs_contribution_years'] = 44; // Full contribution
-      final report = service.generateReport(answers);
-      expect(report.profile.avsReductionFactor, equals(1.0));
-      // Monthly AVS rent uses Echelle 44 lookup (LAVS art. 34).
-      // For 6000 CHF/mo net (~82k gross), Echelle 44 gives ~2126.
-      expect(report.retirementProjection!.monthlyAvsRent,
-          greaterThan(avsRenteMaxMensuelle * 0.8));
-      expect(report.retirementProjection!.monthlyAvsRent,
-          lessThanOrEqualTo(avsRenteMaxMensuelle));
+    test('official AVS amount stays null until reviewed evidence is wired', () {
+      final report = service.generateReport(minimalAnswers());
+
+      expect(report.retirementProjection!.monthlyAvsRent, isNull);
     });
 
-    test('AVS rent reduced for partial contribution years', () {
-      // Use older age so future contribution years don't fully compensate.
-      // AvsCalculator adds future years: at age 36, 22+29=44 → full rente.
-      // At age 62, 22+3=25 → gapFactor ≈ 0.57 → genuinely reduced.
-      final answers = minimalAnswers();
-      answers['q_birth_year'] = 1964; // age 62
-      answers['q_avs_contribution_years'] = 22;
-      final report = service.generateReport(answers);
-      // Reduced rente: well below max (gapFactor ~0.57 × RAMD-based rente)
-      expect(report.retirementProjection!.monthlyAvsRent,
-          lessThan(avsRenteMaxMensuelle * 0.7));
-      expect(report.retirementProjection!.monthlyAvsRent, greaterThan(0));
+    test('retirement total stays null while official AVS is unknown', () {
+      final report = service.generateReport(minimalAnswers());
+
+      expect(report.retirementProjection!.totalMonthlyIncome, isNull);
     });
 
-    test('married couple AVS rent includes both spouse parts', () {
-      final answers = fullAnswers(); // married, both spouses have contribution years
-      final report = service.generateReport(answers);
-      // Married couple: each gets 1890 * reductionFactor
-      expect(report.retirementProjection!.monthlyAvsRent, greaterThan(0));
+    test('replacement rate stays null while official AVS is unknown', () {
+      final report = service.generateReport(minimalAnswers());
+
+      expect(report.retirementProjection!.replacementRate, isNull);
     });
 
-    test('replacement rate uses actual monthly income, not hardcoded value', () {
-      // Regression: replacementRate was dividing by hardcoded 7800 CHF
-      // instead of the user's actual monthly income.
-      // User at 10k/month with projected 6.5k retirement => 65%, NOT 83%.
-      // Ref: LPP art. 14 — taux de conversion minimum de 6.8% (part obligatoire)
+    test('replacement rate stays null when current income is not known', () {
+      const projection = RetirementProjection(
+        yearsUntilRetirement: 10,
+        lppCapital: 100000,
+        pillar3aCapital: 50000,
+        monthlyAvsRent: 2000,
+        monthlyLppRent: 1000,
+        currentMonthlyIncome: 0,
+      );
+
+      expect(projection.replacementRate, isNull);
+    });
+
+    test('replacement rate stays null while the LPP pension is unknown', () {
+      const projection = RetirementProjection(
+        yearsUntilRetirement: 10,
+        lppCapital: null,
+        pillar3aCapital: 50000,
+        monthlyAvsRent: 2000,
+        monthlyLppRent: null,
+        currentMonthlyIncome: 8000,
+      );
+
+      expect(projection.totalMonthlyIncome, isNull);
+      expect(projection.replacementRate, isNull);
+    });
+
+    test('replacement rate uses the actual current monthly income', () {
       const projection = RetirementProjection(
         yearsUntilRetirement: 25,
         lppCapital: 500000,
         pillar3aCapital: 100000,
-        monthlyAvsRent: 2520, // max AVS rent
-        monthlyLppRent: 3980, // to reach 6500 total
+        monthlyAvsRent: 2520,
+        monthlyLppRent: 3980,
         currentMonthlyIncome: 10000,
       );
-      // totalMonthlyIncome = 2520 + 3980 = 6500
-      // replacementRate = (6500 / 10000) * 100 = 65.0%
+
       expect(projection.replacementRate, closeTo(65.0, 0.1));
-      // Verify it's NOT the old buggy value (6500/7800)*100 ≈ 83.3
       expect(projection.replacementRate, isNot(closeTo(83.3, 1.0)));
     });
 
-    test('replacement rate is clamped between 0 and 150', () {
-      // Edge case: very low income, high retirement income => clamped at 150%
-      const projHigh = RetirementProjection(
+    test('replacement rate is capped at 150 percent', () {
+      const projection = RetirementProjection(
         yearsUntilRetirement: 10,
         lppCapital: 200000,
         pillar3aCapital: 50000,
         monthlyAvsRent: 2520,
         monthlyLppRent: 3000,
-        currentMonthlyIncome: 2000, // Low income => ratio > 1.5
+        currentMonthlyIncome: 2000,
       );
-      expect(projHigh.replacementRate, equals(150.0));
 
-      // Edge case: zero income => 0%
-      const projZero = RetirementProjection(
-        yearsUntilRetirement: 10,
-        lppCapital: 200000,
-        pillar3aCapital: 50000,
-        monthlyAvsRent: 2520,
-        monthlyLppRent: 1000,
-        currentMonthlyIncome: 0,
-      );
-      expect(projZero.replacementRate, equals(0.0));
-    });
-
-    test('replacement rate defaults to 7800 when currentMonthlyIncome not provided', () {
-      // Backward compatibility: default currentMonthlyIncome = 7800
-      const projection = RetirementProjection(
-        yearsUntilRetirement: 20,
-        lppCapital: 300000,
-        pillar3aCapital: 80000,
-        monthlyAvsRent: 2520,
-        monthlyLppRent: 1500,
-      );
-      // totalMonthlyIncome = 2520 + 1500 = 4020
-      // replacementRate = (4020 / 7800) * 100 ≈ 51.54%
-      expect(projection.currentMonthlyIncome, equals(7800.0));
-      expect(projection.replacementRate, closeTo(51.54, 0.1));
-    });
-
-    test('replacement rate uses profile income via service (integration)', () {
-      // Integration: verify the service passes the real income to the projection
-      final answers = minimalAnswers();
-      answers['q_net_income_period_chf'] = 10000.0; // 10k/month
-      final report = service.generateReport(answers);
-      expect(report.retirementProjection, isNotNull);
-      expect(report.retirementProjection!.currentMonthlyIncome, equals(10000.0));
-      // The replacement rate should reflect 10k income, not 7800
-      expect(report.retirementProjection!.replacementRate, greaterThan(0));
-      expect(report.retirementProjection!.replacementRate, lessThanOrEqualTo(150.0));
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // 5. PILLAR 3A ANALYSIS
-  // ═══════════════════════════════════════════════════════════════════════
-
-  group('Pillar 3a analysis', () {
-    test('returns null when no 3a accounts', () {
-      final answers = minimalAnswers();
-      answers['q_3a_accounts_count'] = 0;
-      final report = service.generateReport(answers);
-      expect(report.pillar3aAnalysis, isNull);
-    });
-
-    test('returns analysis with correct max contribution for salaried', () {
-      final answers = minimalAnswers();
-      answers['q_3a_accounts_count'] = 1;
-      answers['q_3a_annual_contribution'] = 5000.0;
-      answers['q_employment_status'] = 'employee';
-      final report = service.generateReport(answers);
-      expect(report.pillar3aAnalysis, isNotNull);
-      expect(report.pillar3aAnalysis!.maxContribution, equals(pilier3aPlafondAvecLpp));
-    });
-
-    test('returns higher max contribution for self-employed without LPP', () {
-      final answers = minimalAnswers();
-      answers['q_3a_accounts_count'] = 1;
-      answers['q_3a_annual_contribution'] = 5000.0;
-      answers['q_employment_status'] = 'self_employed';
-      final report = service.generateReport(answers);
-      expect(report.pillar3aAnalysis!.maxContribution, equals(pilier3aPlafondSansLpp));
-    });
-
-    test('projections include bank, viac, finpension, insurance', () {
-      final answers = minimalAnswers();
-      answers['q_3a_accounts_count'] = 1;
-      answers['q_3a_annual_contribution'] = 7258.0;
-      final report = service.generateReport(answers);
-      final projections = report.pillar3aAnalysis!.projectionsByProvider;
-
-      expect(projections.containsKey('bank'), isTrue);
-      expect(projections.containsKey('fintech'), isTrue);
-      expect(projections.containsKey('fintech_low_fee'), isTrue);
-      expect(projections.containsKey('insurance'), isTrue);
-    });
-
-    test('fintech projection is higher than bank projection', () {
-      final answers = minimalAnswers();
-      answers['q_3a_accounts_count'] = 1;
-      answers['q_3a_annual_contribution'] = 7258.0;
-      final report = service.generateReport(answers);
-      final projections = report.pillar3aAnalysis!.projectionsByProvider;
-
-      expect(projections['fintech']!, greaterThan(projections['bank']!));
-    });
-
-    test('potential gain vs bank is positive', () {
-      final answers = minimalAnswers();
-      answers['q_3a_accounts_count'] = 1;
-      answers['q_3a_annual_contribution'] = 7258.0;
-      final report = service.generateReport(answers);
-      expect(report.pillar3aAnalysis!.potentialGainVsBank, greaterThan(0));
+      expect(projection.replacementRate, 150.0);
     });
   });
 
@@ -573,110 +485,6 @@ void main() {
       final report = service.generateReport(minimalAnswers());
       final expectedAge = DateTime.now().year - 1990;
       expect(report.profile.yearsToRetirement, equals(65 - expectedAge));
-    });
-
-    test('avsReductionFactor defaults to 1.0 without contribution years', () {
-      final report = service.generateReport(minimalAnswers());
-      expect(report.profile.avsReductionFactor, equals(1.0));
-    });
-
-    test('avsReductionFactor clamps to 1.0 when years exceed 44', () {
-      final answers = minimalAnswers();
-      answers['q_avs_contribution_years'] = 50;
-      final report = service.generateReport(answers);
-      expect(report.profile.avsReductionFactor, equals(1.0));
-    });
-
-    test('spouseAvsReductionFactor is 0 when not married', () {
-      final answers = minimalAnswers();
-      answers['q_civil_status'] = 'single';
-      final report = service.generateReport(answers);
-      expect(report.profile.spouseAvsReductionFactor, equals(0.0));
-    });
-  });
-
-  // ── S57-F4: Same-sex couple spouse gender ─────────────────────────
-
-  group('S57-F4 — spouse gender uses actual data, not inferred', () {
-    test('same-sex male couple: both use male reference age', () {
-      final answers = fullAnswers();
-      answers['q_gender'] = 'M';
-      answers['q_spouse_gender'] = 'M'; // Same-sex married couple
-      answers['q_civil_status'] = 'married';
-
-      final report = service.generateReport(answers);
-
-      // Both are male → both should use male reference age (65)
-      // The report should generate without crash and produce valid data
-      expect(report.profile.gender, 'M');
-      expect(report.profile.spouseGender, 'M');
-      expect(report.retirementProjection, isNotNull);
-    });
-
-    test('same-sex female couple: both use female reference age', () {
-      final answers = fullAnswers();
-      answers['q_gender'] = 'F';
-      answers['q_spouse_gender'] = 'F'; // Same-sex married couple
-      answers['q_civil_status'] = 'married';
-
-      final report = service.generateReport(answers);
-
-      expect(report.profile.gender, 'F');
-      expect(report.profile.spouseGender, 'F');
-      expect(report.retirementProjection, isNotNull);
-    });
-
-    test('mixed couple M+F: same behavior as before', () {
-      final answers = fullAnswers();
-      answers['q_gender'] = 'M';
-      answers['q_spouse_gender'] = 'F';
-      answers['q_civil_status'] = 'married';
-
-      final report = service.generateReport(answers);
-
-      expect(report.profile.gender, 'M');
-      expect(report.profile.spouseGender, 'F');
-      expect(report.retirementProjection, isNotNull);
-    });
-
-    test('spouse gender null: fallback to male reference age (no crash)', () {
-      final answers = fullAnswers();
-      answers['q_gender'] = 'F';
-      // q_spouse_gender NOT set → null → fallback to male ref age 65
-      answers['q_civil_status'] = 'married';
-
-      final report = service.generateReport(answers);
-
-      expect(report.profile.gender, 'F');
-      expect(report.profile.spouseGender, isNull);
-      // Should not crash and should produce valid retirement projection
-      expect(report.retirementProjection, isNotNull);
-    });
-
-    test('same-sex couple produces different AVS than inferred-opposite', () {
-      // This is THE regression test: before F4, a male user with male spouse
-      // would have spouse treated as female (reference age 64 instead of 65).
-      // With the fix, both get male reference age.
-      final answersCorrect = fullAnswers();
-      answersCorrect['q_gender'] = 'M';
-      answersCorrect['q_spouse_gender'] = 'M';
-      answersCorrect['q_civil_status'] = 'married';
-
-      final answersBuggy = fullAnswers();
-      answersBuggy['q_gender'] = 'M';
-      answersBuggy['q_spouse_gender'] = 'F'; // Would be the old inferred value
-      answersBuggy['q_civil_status'] = 'married';
-
-      final reportCorrect = service.generateReport(answersCorrect);
-      final reportBuggy = service.generateReport(answersBuggy);
-
-      // The retirement projections should differ because the spouse
-      // has a different reference age (65M vs 64F → different AVS rente)
-      // This proves the fix actually uses spouseGender, not inference.
-      // Note: difference may be small due to AVS21 transition, but the
-      // code path is different.
-      expect(reportCorrect.retirementProjection, isNotNull);
-      expect(reportBuggy.retirementProjection, isNotNull);
     });
   });
 }

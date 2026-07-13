@@ -25,6 +25,7 @@ export 'lpp_contribution_calculator.dart';
 export 'lpp_calculator.dart';
 export 'monte_carlo_models.dart';
 export 'monte_carlo_service.dart';
+export 'replacement_rate_calculator.dart';
 export 'succession_reserve_calculator.dart';
 export 'tax_calculator.dart';
 export 'sensitivity_models.dart';

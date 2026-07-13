@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
-enum CardStatus { serein, aRenforcer, alerte }
+enum CardStatus { serein, aRenforcer, alerte, aVerifier }
 
 class ThematicCard extends StatelessWidget {
   final String emoji;
@@ -32,12 +33,14 @@ class ThematicCard extends StatelessWidget {
     CardStatus.serein => MintColors.success,
     CardStatus.aRenforcer => MintColors.warning,
     CardStatus.alerte => MintColors.error,
+    CardStatus.aVerifier => MintColors.info,
   };
 
-  String get statusLabel => switch (status) {
-    CardStatus.serein => 'Serein',
-    CardStatus.aRenforcer => '\u00c0 renforcer',
-    CardStatus.alerte => 'Alerte',
+  String statusLabel(BuildContext context) => switch (status) {
+    CardStatus.serein => S.of(context)!.reportCardStatusCalm,
+    CardStatus.aRenforcer => S.of(context)!.reportCardStatusImprove,
+    CardStatus.alerte => S.of(context)!.reportCardStatusAlert,
+    CardStatus.aVerifier => S.of(context)!.reportCardStatusToVerify,
   };
 
   @override
@@ -79,7 +82,7 @@ class ThematicCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    statusLabel,
+                    statusLabel(context),
                     style: MintTextStyles.labelMedium(color: statusColor).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),

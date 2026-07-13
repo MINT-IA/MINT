@@ -3,6 +3,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/financial_report.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -373,7 +374,10 @@ class PdfService {
         onLayout: (PdfPageFormat format) async => pdf.save());
   }
 
-  static Future<void> generateFinancialReportPdf(FinancialReport report) async {
+  static Future<void> generateFinancialReportPdf(
+    FinancialReport report, {
+    required S l,
+  }) async {
     final pdf = pw.Document();
     final generatedDate = report.generatedAt.toLocal().toString().split('.')[0];
 
@@ -406,8 +410,8 @@ class PdfService {
               pw.Expanded(
                 child: pw.Text(
                   'Outil éducatif — MINT — ne constitue pas un conseil financier au sens de la LSFin',
-                  style: const pw.TextStyle(
-                      fontSize: 6, color: PdfColors.grey500),
+                  style:
+                      const pw.TextStyle(fontSize: 6, color: PdfColors.grey500),
                 ),
               ),
               pw.SizedBox(width: 10),
@@ -415,8 +419,7 @@ class PdfService {
                   style: const pw.TextStyle(
                       fontSize: 6, color: PdfColors.grey500)),
               pw.SizedBox(width: 10),
-              pw.Text(
-                  'Page ${context.pageNumber} sur ${context.pagesCount}',
+              pw.Text('Page ${context.pageNumber} sur ${context.pagesCount}',
                   style: const pw.TextStyle(
                       fontSize: 6, color: PdfColors.grey500)),
             ],
@@ -478,14 +481,12 @@ class PdfService {
           final kpis = <Map<String, String>>[
             {
               'label': 'Disponible / mois',
-              'value':
-                  formatChfWithPrefix(monthlyAvailable),
+              'value': formatChfWithPrefix(monthlyAvailable),
               'note': 'Après impôts estimés',
             },
             {
               'label': 'Impôts estimés / an',
-              'value':
-                  formatChfWithPrefix(report.taxSimulation.totalTax),
+              'value': formatChfWithPrefix(report.taxSimulation.totalTax),
               'note':
                   'Taux effectif : ${(report.taxSimulation.effectiveRate * 100).toStringAsFixed(1)}%',
             },
@@ -509,8 +510,7 @@ class PdfService {
               padding: const pw.EdgeInsets.all(8),
               decoration: pw.BoxDecoration(
                 border: pw.Border.all(color: PdfColors.grey300),
-                borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -556,8 +556,7 @@ class PdfService {
                         ? PdfColors.red200
                         : PdfColors.blue200,
                     width: 0.5),
-                borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -579,8 +578,8 @@ class PdfService {
                               horizontal: 6, vertical: 2),
                           decoration: const pw.BoxDecoration(
                             color: PdfColors.green100,
-                            borderRadius: pw.BorderRadius.all(
-                                pw.Radius.circular(4)),
+                            borderRadius:
+                                pw.BorderRadius.all(pw.Radius.circular(4)),
                           ),
                           child: pw.Text(
                             '+${formatChfWithPrefix(action.potentialGainChf!)}',
@@ -623,8 +622,7 @@ class PdfService {
             decoration: pw.BoxDecoration(
               color: PdfColors.grey50,
               border: pw.Border.all(color: PdfColors.grey200),
-              borderRadius:
-                  const pw.BorderRadius.all(pw.Radius.circular(6)),
+              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
             ),
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -687,7 +685,8 @@ class PdfService {
           if (report.retirementProjection != null) {
             final ret = report.retirementProjection!;
             children.add(pw.SizedBox(height: 25));
-            children.add(_pdfSectionTitle('Projection Retraite'));
+            children
+                .add(_pdfSectionTitle(l.reportPdfRetirementProjectionTitle));
             children.add(pw.SizedBox(height: 10));
 
             children.add(pw.Container(
@@ -695,62 +694,53 @@ class PdfService {
               decoration: pw.BoxDecoration(
                 color: PdfColors.grey50,
                 border: pw.Border.all(color: PdfColors.grey200),
-                borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Text(
-                    'Horizon : ${ret.yearsUntilRetirement} ans (retraite à ${ret.retirementAge} ans)',
+                    l.reportPdfRetirementHorizon(
+                      ret.yearsUntilRetirement,
+                      ret.retirementAge,
+                    ),
                     style: pw.TextStyle(
                         fontSize: 9, fontWeight: pw.FontWeight.bold),
                   ),
                   pw.SizedBox(height: 8),
-                  pw.Text('Rentes mensuelles estimées',
+                  pw.Text(l.reportPdfRetirementMonthlyPensions,
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.grey600)),
-                  _pdfKeyValue('Rente AVS',
-                      '${formatChfWithPrefix(ret.monthlyAvsRent)}/mois'),
-                  _pdfKeyValue('Rente LPP',
-                      '${formatChfWithPrefix(ret.monthlyLppRent)}/mois'),
-                  pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                   _pdfKeyValue(
-                    'Total mensuel',
-                    '${formatChfWithPrefix(ret.totalMonthlyIncome)}/mois',
-                    bold: true,
+                    l.futurRenteAvs,
+                    l.coverageCheckAVerifier,
                   ),
+                  _pdfKeyValue(
+                    l.futurRenteLpp,
+                    l.coverageCheckAVerifier,
+                  ),
+                  pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                   pw.SizedBox(height: 8),
-                  pw.Text('Capitaux estimés à 65 ans',
+                  pw.Text(l.reportPdfRetirementCapitalsAtAge(ret.retirementAge),
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.grey600)),
-                  _pdfKeyValue('Capital LPP',
-                      formatChfWithPrefix(ret.lppCapital)),
-                  _pdfKeyValue('Capital 3a',
-                      formatChfWithPrefix(ret.pillar3aCapital)),
+                  _pdfKeyValue(l.reportPdfRetirementLppCapital,
+                      l.coverageCheckAVerifier),
+                  _pdfKeyValue(l.reportPdfRetirementPillar3aCapital,
+                      l.coverageCheckAVerifier),
                   if (ret.otherAssets != null && ret.otherAssets! > 0)
-                    _pdfKeyValue('Autres actifs',
+                    _pdfKeyValue(l.reportPdfRetirementOtherAssets,
                         formatChfWithPrefix(ret.otherAssets!)),
                   pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                   _pdfKeyValue(
-                    'Capital total estimé',
-                    formatChfWithPrefix(ret.totalCapital),
+                    l.reportPdfRetirementTotalCapital,
+                    l.coverageCheckAVerifier,
                     bold: true,
                   ),
-                  if (ret.avsReductionFactor < 1.0) ...[
-                    pw.SizedBox(height: 6),
-                    pw.Text(
-                      'Attention : facteur de réduction AVS ${(ret.avsReductionFactor * 100).toStringAsFixed(1)}% (lacunes de cotisation détectées)',
-                      style: pw.TextStyle(
-                          fontSize: 8,
-                          color: PdfColors.orange800,
-                          fontStyle: pw.FontStyle.italic),
-                    ),
-                  ],
                 ],
               ),
             ));
@@ -770,8 +760,7 @@ class PdfService {
               decoration: pw.BoxDecoration(
                 color: PdfColors.grey50,
                 border: pw.Border.all(color: PdfColors.grey200),
-                borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -833,16 +822,14 @@ class PdfService {
                                   style: const pw.TextStyle(fontSize: 8))),
                           pw.Expanded(
                               flex: 3,
-                              child: pw.Text(
-                                  formatChfWithPrefix(year.amount),
+                              child: pw.Text(formatChfWithPrefix(year.amount),
                                   style: const pw.TextStyle(fontSize: 8))),
                           pw.Expanded(
                               flex: 3,
                               child: pw.Text(
                                   formatChfWithPrefix(year.estimatedTaxSavings),
                                   style: const pw.TextStyle(
-                                      fontSize: 8,
-                                      color: PdfColors.green800))),
+                                      fontSize: 8, color: PdfColors.green800))),
                         ],
                       ),
                     ),
@@ -888,18 +875,12 @@ class PdfService {
                 pw.Text(
                     '• Les projections de rendement utilisent des hypothèses prudentes (3-5%).',
                     style: const pw.TextStyle(fontSize: 8)),
-                pw.Text(
-                    '• Le taux de conversion LPP utilisé est de 6% (hypothèse prudente vs 6.8% légal).',
-                    style: const pw.TextStyle(fontSize: 8)),
                 pw.SizedBox(height: 6),
                 pw.Text('Conflits d\'intérêts :',
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 pw.Text(
                     '• MINT ne perçoit aucune commission des fournisseurs de 3a mentionnés.',
-                    style: const pw.TextStyle(fontSize: 8)),
-                pw.Text(
-                    '• Les comparaisons de fournisseurs sont basées sur des données publiques de frais et rendements.',
                     style: const pw.TextStyle(fontSize: 8)),
               ],
             ),
@@ -993,8 +974,7 @@ class PdfService {
   }
 
   /// Ligne clé-valeur pour le PDF V2
-  static pw.Widget _pdfKeyValue(String key, String value,
-      {bool bold = false}) {
+  static pw.Widget _pdfKeyValue(String key, String value, {bool bold = false}) {
     return pw.Padding(
       padding: const pw.EdgeInsets.symmetric(vertical: 1),
       child: pw.Row(
@@ -1168,7 +1148,8 @@ class PdfService {
                     ),
                     pw.SizedBox(height: 6),
                     pw.Text(highlight['answer'] ?? '',
-                        style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey800)),
+                        style: const pw.TextStyle(
+                            fontSize: 9, color: PdfColors.grey800)),
                   ],
                 ),
               ));

@@ -23592,4 +23592,51 @@ class SEn extends S {
   @override
   String get sensitivitySnippetDisclaimer =>
       'Simplified educational tool (FinSA). Sources: LIFD art. 38, LPP art. 14, LAVS art. 21–29.';
+
+  @override
+  String get reportCardStatusCalm => 'Steady';
+
+  @override
+  String get reportCardStatusImprove => 'To improve';
+
+  @override
+  String get reportCardStatusAlert => 'Alert';
+
+  @override
+  String get reportCardStatusToVerify => 'To verify';
+
+  @override
+  String get reportPdfRetirementProjectionTitle => 'Retirement projection';
+
+  @override
+  String reportPdfRetirementHorizon(int years, int retirementAge) {
+    return 'Horizon: $years years (retirement at age $retirementAge)';
+  }
+
+  @override
+  String get reportPdfRetirementMonthlyPensions => 'Estimated monthly pensions';
+
+  @override
+  String reportPdfRetirementCapitalsAtAge(int retirementAge) {
+    return 'Estimated capital at age $retirementAge';
+  }
+
+  @override
+  String get reportPdfRetirementLppCapital => 'LPP capital';
+
+  @override
+  String get reportPdfRetirementPillar3aCapital => 'Pillar 3a capital';
+
+  @override
+  String get reportPdfRetirementOtherAssets => 'Other assets';
+
+  @override
+  String get reportPdfRetirementTotalCapital => 'Total estimated capital';
+
+  @override
+  String get report3aPendingBody =>
+      'Add your 3a balances and their date to show traceable facts without a point projection.';
+
+  @override
+  String get report3aPendingCta => 'Complete my 3a data';
 }

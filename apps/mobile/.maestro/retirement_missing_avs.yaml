@@ -58,3 +58,48 @@ appId: ch.mint.app
 - assertVisible:
     id: "avs_official_form_cta"
 - takeScreenshot: retirement_missing_avs_official_form
+
+# The report must preserve the same epistemic boundary: AVS, LPP, and 3a are
+# pending, and no uncertified pension amount, total, or replacement rate is
+# rendered.
+- openLink: "mint:///rapport"
+- scrollUntilVisible:
+    element:
+      id: "financial_report_avs_pending"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 50
+    centerElement: true
+- assertVisible:
+    id: "financial_report_avs_pending"
+- takeScreenshot: financial_report_avs_pending
+- scrollUntilVisible:
+    element:
+      id: "financial_report_lpp_pending"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 50
+    centerElement: true
+- assertVisible:
+    id: "financial_report_lpp_pending"
+- takeScreenshot: financial_report_lpp_pending
+- scrollUntilVisible:
+    element:
+      id: "financial_report_3a_pending"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 50
+    centerElement: true
+- assertVisible:
+    id: "financial_report_3a_pending"
+- takeScreenshot: financial_report_3a_pending
+- assertNotVisible:
+    id: "financial_report_lpp_estimate"
+- assertNotVisible:
+    id: "financial_report_3a_estimate"
+- assertNotVisible:
+    id: "financial_report_avs_amount"
+- assertNotVisible:
+    id: "financial_report_retirement_total"
+- assertNotVisible:
+    id: "financial_report_replacement_rate"

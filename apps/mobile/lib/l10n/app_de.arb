@@ -11498,5 +11498,30 @@
   "sensitivitySnippetTitle": "Was dein Einkommen am stärksten beeinflusst",
   "sensitivitySnippetSubtitle": "In diesen Simulationen wird jede Variable unabhängig getestet.",
   "sensitivitySnippetViewAll": "Vollständige Analyse anzeigen",
-  "sensitivitySnippetDisclaimer": "Vereinfachtes Lerninstrument (FIDLEG). Quellen: DBG Art. 38, BVG Art. 14, AHVG Art. 21–29."
+  "sensitivitySnippetDisclaimer": "Vereinfachtes Lerninstrument (FIDLEG). Quellen: DBG Art. 38, BVG Art. 14, AHVG Art. 21–29.",
+  "reportCardStatusCalm": "Stabil",
+  "reportCardStatusImprove": "Zu stärken",
+  "reportCardStatusAlert": "Warnung",
+  "reportCardStatusToVerify": "Zu prüfen",
+  "reportPdfRetirementProjectionTitle": "Pensionierungsprojektion",
+  "reportPdfRetirementHorizon": "Zeithorizont: {years} Jahre (Pensionierung mit {retirementAge} Jahren)",
+  "@reportPdfRetirementHorizon": {
+    "placeholders": {
+      "years": {"type": "int"},
+      "retirementAge": {"type": "int"}
+    }
+  },
+  "reportPdfRetirementMonthlyPensions": "Geschätzte monatliche Renten",
+  "reportPdfRetirementCapitalsAtAge": "Geschätztes Kapital mit {retirementAge} Jahren",
+  "@reportPdfRetirementCapitalsAtAge": {
+    "placeholders": {
+      "retirementAge": {"type": "int"}
+    }
+  },
+  "reportPdfRetirementLppCapital": "BVG-Kapital",
+  "reportPdfRetirementPillar3aCapital": "Säule-3a-Kapital",
+  "reportPdfRetirementOtherAssets": "Weitere Vermögenswerte",
+  "reportPdfRetirementTotalCapital": "Geschätztes Gesamtkapital",
+  "report3aPendingBody": "Ergänze deine 3a-Guthaben und deren Stichtag, damit nachvollziehbare Fakten statt einer Punktschätzung angezeigt werden.",
+  "report3aPendingCta": "Meine 3a-Daten ergänzen"
 }

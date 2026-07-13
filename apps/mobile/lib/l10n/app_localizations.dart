@@ -41458,6 +41458,90 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Outil éducatif simplifié (LSFin). Sources : LIFD art. 38, LPP art. 14, LAVS art. 21–29.'**
   String get sensitivitySnippetDisclaimer;
+
+  /// No description provided for @reportCardStatusCalm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Serein'**
+  String get reportCardStatusCalm;
+
+  /// No description provided for @reportCardStatusImprove.
+  ///
+  /// In fr, this message translates to:
+  /// **'À renforcer'**
+  String get reportCardStatusImprove;
+
+  /// No description provided for @reportCardStatusAlert.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alerte'**
+  String get reportCardStatusAlert;
+
+  /// No description provided for @reportCardStatusToVerify.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier'**
+  String get reportCardStatusToVerify;
+
+  /// No description provided for @reportPdfRetirementProjectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection retraite'**
+  String get reportPdfRetirementProjectionTitle;
+
+  /// No description provided for @reportPdfRetirementHorizon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Horizon : {years} ans (retraite à {retirementAge} ans)'**
+  String reportPdfRetirementHorizon(int years, int retirementAge);
+
+  /// No description provided for @reportPdfRetirementMonthlyPensions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rentes mensuelles estimées'**
+  String get reportPdfRetirementMonthlyPensions;
+
+  /// No description provided for @reportPdfRetirementCapitalsAtAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capitaux estimés à {retirementAge} ans'**
+  String reportPdfRetirementCapitalsAtAge(int retirementAge);
+
+  /// No description provided for @reportPdfRetirementLppCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital LPP'**
+  String get reportPdfRetirementLppCapital;
+
+  /// No description provided for @reportPdfRetirementPillar3aCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital du pilier 3a'**
+  String get reportPdfRetirementPillar3aCapital;
+
+  /// No description provided for @reportPdfRetirementOtherAssets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres actifs'**
+  String get reportPdfRetirementOtherAssets;
+
+  /// No description provided for @reportPdfRetirementTotalCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital total estimé'**
+  String get reportPdfRetirementTotalCapital;
+
+  /// No description provided for @report3aPendingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute tes soldes 3a et leur date pour afficher des faits traçables, sans projection ponctuelle.'**
+  String get report3aPendingBody;
+
+  /// No description provided for @report3aPendingCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter mes données 3a'**
+  String get report3aPendingCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

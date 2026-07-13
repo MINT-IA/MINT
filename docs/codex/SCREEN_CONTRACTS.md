@@ -491,10 +491,44 @@ Until (1)–(3) land, any write in this document that "carries per-field source"
 | writes | ∅ |
 | entryConditions | none |
 | emptyState (REQUIRED) | `loadAnswers()` returned `{}` AND no extra → "Ton rapport est encore vide." CTA Commencer → `/coach/chat?topic=premier-eclairage`; secondary `/mon-argent`. i18n `rapport.empty.title` / `.cta` |
-| partialState (REQUIRED) | Some sections empty → render available sections, mark missing as "à renseigner" with per-section CTA to `/data-block/:type`. i18n `rapport.partial.addSection` |
+| partialState (REQUIRED) | Some sections empty → render available sections, mark missing as "à renseigner" with per-section CTA to `/data-block/:type`. The retirement block follows the fail-closed evidence contract below. i18n `rapport.partial.addSection` |
 | errorState (REQUIRED) | `loadAnswers()` threw OR **timed out** OR reconstruction failed → "On n'a pas pu charger ton rapport." CTA Réessayer + CTA `/home`. i18n `rapport.error.title` / `.retry` |
-| routesOut | export/share sheet, `/confidence`, `/data-block/:type`, `/home`, `/coach/chat` |
+| routesOut | export/share sheet, `/confidence`, `/data-block/:type`, `/scan/avs-guide`, `/scan` with `DocumentType.lppCertificate`, `/data-block/3a`, `/home`, `/coach/chat` |
 | killFlag | null |
+
+### 7.1 Retirement evidence states — fail closed for AVS, LPP, and 3a
+
+`/rapport` and its PDF export consume evidence-bearing ledger facts; they do
+not recreate pension entitlements from illustrative inputs. The three pillars
+remain independent evidence envelopes:
+
+- **AVS:** without an accepted official self pension amount, render
+  `À vérifier` and route to `/scan/avs-guide`. Arrival chronology, declared gap
+  status, contribution years, or an unreviewed extraction cannot become a
+  pension amount.
+- **LPP:** without certified fund-specific pension/capital facts, render
+  `À vérifier` and route to `/scan` with `DocumentType.lppCertificate`. Never
+  apply the statutory minimum conversion rate to a combined mandatory and
+  extra-mandatory balance; a maximum buy-back capacity is not a completed
+  buy-back and is excluded from the baseline.
+- **3a:** an annual contribution is neither a current balance nor a committed
+  future plan. Without a current balance, explicit contribution plan, and a
+  sourced net-return/fee range, render `À vérifier` and route to
+  `/data-block/3a`. The report must not expose a point capital projection or a
+  provider ranking.
+
+If any pillar required by a retirement total is unknown, all dependent totals
+and the replacement rate stay unknown. A current-income denominator must also
+be explicitly known; it is never replaced with a population median. Known
+independent components may remain visible, but they cannot manufacture a
+complete aggregate.
+
+Partner data uses a separate evidence envelope. Account linking is optional,
+purpose-specific, field-scoped, and revocable; manual partner entry remains an
+equal path. Missing or revoked partner evidence is unknown, never CHF 0, and
+cannot unlock a household AVS amount, total, or replacement rate. See the
+focused interaction/evidence map:
+`.planning/journeys/diagrams/financial_report_evidence_states.mmd`.
 
 > **Spinner-forever fix (mechanical, finding wiring-1):** the `FutureBuilder` MUST guard ALL of:
 > ```dart

@@ -11498,5 +11498,30 @@
   "sensitivitySnippetTitle": "O que mais influencia o teu rendimento",
   "sensitivitySnippetSubtitle": "Nestas simulações, cada variável é testada de forma independente.",
   "sensitivitySnippetViewAll": "Ver a análise completa",
-  "sensitivitySnippetDisclaimer": "Ferramenta educativa simplificada (LSFin). Fontes: LIFD art. 38, LPP art. 14, LAVS art. 21–29."
+  "sensitivitySnippetDisclaimer": "Ferramenta educativa simplificada (LSFin). Fontes: LIFD art. 38, LPP art. 14, LAVS art. 21–29.",
+  "reportCardStatusCalm": "Estável",
+  "reportCardStatusImprove": "A reforçar",
+  "reportCardStatusAlert": "Alerta",
+  "reportCardStatusToVerify": "A verificar",
+  "reportPdfRetirementProjectionTitle": "Projeção da reforma",
+  "reportPdfRetirementHorizon": "Horizonte: {years} anos (reforma aos {retirementAge} anos)",
+  "@reportPdfRetirementHorizon": {
+    "placeholders": {
+      "years": {"type": "int"},
+      "retirementAge": {"type": "int"}
+    }
+  },
+  "reportPdfRetirementMonthlyPensions": "Pensões mensais estimadas",
+  "reportPdfRetirementCapitalsAtAge": "Capital estimado aos {retirementAge} anos",
+  "@reportPdfRetirementCapitalsAtAge": {
+    "placeholders": {
+      "retirementAge": {"type": "int"}
+    }
+  },
+  "reportPdfRetirementLppCapital": "Capital LPP",
+  "reportPdfRetirementPillar3aCapital": "Capital do pilar 3a",
+  "reportPdfRetirementOtherAssets": "Outros ativos",
+  "reportPdfRetirementTotalCapital": "Capital total estimado",
+  "report3aPendingBody": "Adiciona os teus saldos 3a e a respetiva data para mostrar dados rastreáveis sem uma projeção pontual.",
+  "report3aPendingCta": "Completar os meus dados 3a"
 }
