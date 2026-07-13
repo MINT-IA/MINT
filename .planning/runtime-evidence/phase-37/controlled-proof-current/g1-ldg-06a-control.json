@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-LDG-06A",
+  "stage": "CONTROL",
+  "command": "python3 -m pytest tools/checks/tests/test_g1_avs_certified_null_contract.py -q && cd apps/mobile && flutter test test/models/avs_gap_evidence_test.dart --reporter expanded",
+  "sha": "4b74e7a4732be90683efca2c21d8be6c46125af2",
+  "recorded_at": "2026-07-13T19:55:30Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "avs_certified_null_consumer_test",
+  "output": "......F........                                                          [100%]\n=================================== FAILURES ===================================\n_______ test_avs_consumers_never_turn_missing_certified_years_into_zero ________\n\n    def test_avs_consumers_never_turn_missing_certified_years_into_zero() -> None:\n        names_by_path = {\n            path: name\n            for name, contract in AVS_CONSUMERS.items()\n            for path in contract.paths\n        }\n        fallbacks: list[str] = []\n        _consumer_sources()\n        for path in sorted(MOBILE_PRODUCTION.rglob(\"*.dart\")):\n            source = path.read_text(encoding=\"utf-8\")\n            relative_path = path.relative_to(ROOT).as_posix()\n            for match in CERTIFIED_NULL_FALLBACK_RE.finditer(source):\n                line = source.count(\"\\n\", 0, match.start()) + 1\n                name = names_by_path.get(relative_path, \"undeclared_consumer\")\n                fallbacks.append(f\"{name}: {relative_path}:{line}: {match.group(0)}\")\n    \n>       assert not fallbacks, (\n            \"certified AVS null must remain unknown; \"\n            f\"found {len(fallbacks)} production `lacunesAVS ?? 0` fallbacks:\\n\"\n            + \"\\n\".join(fallbacks)\n        )\nE       AssertionError: certified AVS null must remain unknown; found 1 production `lacunesAVS ?? 0` fallbacks:\nE         undeclared_consumer: apps/mobile/lib/models/coach_profile.dart:2103: .lacunesAVS ?? 0\nE       assert not ['undeclared_consumer: apps/mobile/lib/models/coach_profile.dart:2103: .lacunesAVS ?? 0']\n\ntools/checks/tests/test_g1_avs_certified_null_contract.py:1432: AssertionError\n=========================== short test summary info ============================\nFAILED tools/checks/tests/test_g1_avs_certified_null_contract.py::test_avs_consumers_never_turn_missing_certified_years_into_zero\n1 failed, 14 passed in 2.59s\n",
+  "synthetic_data_only": true
+}

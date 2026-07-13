@@ -69,16 +69,16 @@
     },
     {
       "ticket_id": "G1-LDG-06A",
-      "state": "ticket_only",
+      "state": "green",
       "command": "python3 -m pytest tools/checks/tests/test_g1_avs_certified_null_contract.py -q && cd apps/mobile && flutter test test/models/avs_gap_evidence_test.dart --reporter expanded",
-      "evidence_mode": null,
+      "evidence_mode": "baseline_green_controlled",
       "red_sha": null,
       "red_artifact": null,
-      "control_sha": null,
-      "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "control_sha": "4b74e7a4732be90683efca2c21d8be6c46125af2",
+      "control_artifact": ".planning/runtime-evidence/phase-37/controlled-proof-current/g1-ldg-06a-control.json",
+      "green_sha": "4b74e7a4732be90683efca2c21d8be6c46125af2",
+      "green_artifact": ".planning/runtime-evidence/phase-37/controlled-proof-current/g1-ldg-06a-green.json",
+      "accepted_sha": "4b74e7a4732be90683efca2c21d8be6c46125af2"
     },
     {
       "ticket_id": "G1-LDG-07",
@@ -264,16 +264,16 @@
     },
     {
       "ticket_id": "G1-AVS-01",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/services/financial_core/avs_couple_legal_contract_test.dart --reporter expanded",
-      "evidence_mode": null,
+      "evidence_mode": "baseline_green_controlled",
       "red_sha": null,
       "red_artifact": null,
-      "control_sha": null,
-      "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "control_sha": "4b74e7a4732be90683efca2c21d8be6c46125af2",
+      "control_artifact": ".planning/runtime-evidence/phase-37/controlled-proof-current/g1-avs-01-control.json",
+      "green_sha": "4b74e7a4732be90683efca2c21d8be6c46125af2",
+      "green_artifact": ".planning/runtime-evidence/phase-37/controlled-proof-current/g1-avs-01-green.json",
+      "accepted_sha": "4b74e7a4732be90683efca2c21d8be6c46125af2"
     },
     {
       "ticket_id": "G1-AVS-02",
