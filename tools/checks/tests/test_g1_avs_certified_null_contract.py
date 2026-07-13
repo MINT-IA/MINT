@@ -49,6 +49,19 @@ PENSION_PROXY_SHAPE_RE = re.compile(
     r"DureeCotisationComplete)\w*)",
     re.IGNORECASE,
 )
+CONTRIBUTION_RATIO_ASSIGNMENT_RE = re.compile(
+    r"\b(?:final|var|double)\s+(?P<ratio>[A-Za-z_]\w*)\s*=\s*"
+    r"[^;\n]{0,240}?"
+    r"\b(?:years\w*|annees\w*|[A-Za-z_]\w+(?:years|annees)\w*)\s*/\s*"
+    r"(?:44(?:\.0)?|fullContributionYears\w*|fullYears\w*|"
+    r"[A-Za-z_]\w*DureeCotisationComplete\w*)"
+    r"[^;\n]*;",
+    re.IGNORECASE,
+)
+PENSION_MAX_IDENTIFIER_PATTERN = (
+    r"(?:maxRente\w*|avsRenteMax\w*|renteMax\w*|"
+    r"max(?:imum)?(?:Monthly)?Pension\w*|fullRente\w*)"
+)
 DART_NON_CODE_RE = re.compile(
     r"r?'''[\s\S]*?'''"
     r'|r?"""[\s\S]*?"""'
@@ -358,9 +371,12 @@ AVS_CONSUMERS = {
             AvsSourceContract(
                 "apps/mobile/lib/screens/expat_screen.dart",
                 required_tokens=(
-                    "_avsScenarioStarted",
+                    "_avsScenarioStarted = false",
+                    "if (!_avsScenarioStarted) return;",
+                    "_avsScenarioStarted = true",
                     "scenarioStarted: true",
                     "_recalculateAvs",
+                    "onPressed: _startAvsScenario",
                 ),
             ),
             AvsSourceContract(
@@ -368,6 +384,14 @@ AVS_CONSUMERS = {
                 required_tokens=(
                     "required this.scenarioStarted",
                     "if (!widget.scenarioStarted)",
+                    "return const SizedBox.shrink()",
+                ),
+            ),
+            AvsSourceContract(
+                "apps/mobile/lib/services/expat_service.dart",
+                required_tokens=(
+                    "required bool scenarioStarted",
+                    "if (!scenarioStarted) return null;",
                 ),
             ),
         ),
@@ -530,6 +554,7 @@ EMITTED_DETECTION_CODES = frozenset(
         "backend_exact_chf_without_official_pension",
         "exact_chf_from_gap_proxy",
         "exact_pension_from_contribution_years_proxy",
+        "exact_pension_from_contribution_ratio_proxy",
         "uncertified_labeled_official",
         "ambiguous_household_readiness",
         "household_total_not_ready",
@@ -554,6 +579,22 @@ def _fixture_contract(
         scopes,
         mode,
     )
+
+
+def _indirect_pension_proxy_offsets(source: str) -> tuple[int, ...]:
+    offsets: list[int] = []
+    for assignment in CONTRIBUTION_RATIO_ASSIGNMENT_RE.finditer(source):
+        ratio = re.escape(assignment.group("ratio"))
+        multiplication = re.compile(
+            rf"(?:\b{PENSION_MAX_IDENTIFIER_PATTERN}\s*\*\s*\b{ratio}\b|"
+            rf"\b{ratio}\b\s*\*\s*\b{PENSION_MAX_IDENTIFIER_PATTERN})",
+            re.IGNORECASE,
+        )
+        following = source[assignment.end() : assignment.end() + 1200]
+        match = multiplication.search(following)
+        if match is not None:
+            offsets.append(assignment.end() + match.start())
+    return tuple(offsets)
 
 
 def _semantic_violations(
@@ -676,12 +717,20 @@ def _semantic_violations(
         )
 
     if contract.mode != AvsConsumerMode.LOCAL_SCENARIO:
-        for match in PENSION_PROXY_SHAPE_RE.finditer(source):
+        proxy_code = _strip_dart_comments_and_strings(source)
+        for match in PENSION_PROXY_SHAPE_RE.finditer(proxy_code):
             record(
                 "exact_pension_from_contribution_years_proxy",
                 "maximum AVS pension is prorated from contribution years "
                 "without a reviewed official-pension envelope",
                 match.start(),
+            )
+        for offset in _indirect_pension_proxy_offsets(proxy_code):
+            record(
+                "exact_pension_from_contribution_ratio_proxy",
+                "a contribution-years ratio is multiplied by maximum AVS "
+                "pension without a reviewed official-pension envelope",
+                offset,
             )
 
     # Provenance words are output facts too. A source label cannot be upgraded
@@ -914,6 +963,16 @@ return (maxRenteMensuelle * contributionYears / 44).clamp(
         frozenset({"exact_pension_from_contribution_years_proxy"}),
     ),
     SeededBehaviorCase(
+        "aliased contribution ratio becomes exact monthly pension",
+        """
+final completeness = min(1.0, yearsInCh / fullContributionYears);
+final maxRenteMensuelle = avsRenteMaxMensuelle;
+final estimatedRente = maxRenteMensuelle * completeness;
+""",
+        _fixture_contract((AvsReadinessScope.SELF,), AvsConsumerMode.QUARANTINED),
+        frozenset({"exact_pension_from_contribution_ratio_proxy"}),
+    ),
+    SeededBehaviorCase(
         "declaration receives official source label",
         """
 final declared = profile.prevoyance.anneesContribuees;
@@ -1108,6 +1167,13 @@ return continueToSeparateLegalCapEvaluation();
 """,
         ),
         (
+            _fixture_contract((AvsReadinessScope.SELF,), AvsConsumerMode.QUARANTINED),
+            """
+const education = 'final completeness = yearsInCh / fullContributionYears; '
+    'final estimatedRente = maxRenteMensuelle * completeness;';
+""",
+        ),
+        (
             _fixture_contract(
                 (AvsReadinessScope.SELF,), AvsConsumerMode.LOCAL_SCENARIO
             ),
@@ -1175,6 +1241,73 @@ def _strip_production_comments_and_strings(path: Path, source: str) -> str:
     raise AssertionError(f"unsupported production source type: {path}")
 
 
+def _brace_block_range_from_opening(
+    source: str,
+    opening: int,
+) -> tuple[int, int] | None:
+    depth = 0
+    for index in range(opening, len(source)):
+        char = source[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return opening, index + 1
+    return None
+
+
+def _enclosing_class_block(source: str, offset: int) -> str:
+    search_end = offset
+    while search_end > 0:
+        class_start = source.rfind("class ", 0, search_end)
+        if class_start < 0:
+            return ""
+        opening = source.find("{", class_start, offset)
+        if opening >= 0:
+            block_range = _brace_block_range_from_opening(source, opening)
+            if block_range is not None:
+                start, end = block_range
+                if start <= offset < end:
+                    return source[start:end]
+        search_end = class_start
+    return ""
+
+
+def _has_mechanical_local_scenario_opt_in(
+    relative_path: str,
+    source: str,
+    offset: int,
+) -> bool:
+    for contract, source_entries in _consumer_sources().values():
+        if contract.mode != AvsConsumerMode.LOCAL_SCENARIO:
+            continue
+        current_entries = [
+            (source_contract, callsite_source)
+            for source_contract, callsite_source in source_entries
+            if source_contract.path == relative_path
+        ]
+        if not current_entries:
+            continue
+        if any(
+            token not in callsite_source
+            for source_contract, callsite_source in source_entries
+            for token in source_contract.required_tokens
+        ):
+            continue
+
+        enclosing_class = _enclosing_class_block(source, offset)
+        if not enclosing_class:
+            continue
+        if not re.search(
+            r"if\s*\(\s*!\s*(?:widget\.)?scenarioStarted\s*\)",
+            enclosing_class,
+        ):
+            continue
+        return True
+    return False
+
+
 def _legacy_pension_access_is_allowed(
     relative_path: str,
     source: str,
@@ -1235,32 +1368,48 @@ final live = profile.prevoyance.renteAVSEstimeeMensuelle;
 
 
 def test_repo_wide_production_has_no_unreviewed_exact_pension_proxy_shape() -> None:
-    local_scenario_paths = {
-        source.path
-        for contract in AVS_CONSUMERS.values()
-        if contract.mode == AvsConsumerMode.LOCAL_SCENARIO
-        for source in contract.sources
-    }
     production_files = list(MOBILE_PRODUCTION.rglob("*.dart")) + list(
         (BACKEND_ROOT / "app").rglob("*.py")
     )
     findings: list[str] = []
     for path in sorted(production_files):
         relative_path = path.relative_to(ROOT).as_posix()
-        if relative_path in local_scenario_paths:
-            continue
         original = path.read_text(encoding="utf-8")
         source = _strip_production_comments_and_strings(path, original)
         for match in PENSION_PROXY_SHAPE_RE.finditer(source):
+            if _has_mechanical_local_scenario_opt_in(
+                relative_path,
+                source,
+                match.start(),
+            ):
+                continue
             line = _line_for(source, match.start())
             excerpt = original.splitlines()[line - 1].strip()
-            findings.append(f"{relative_path}:{line}: {excerpt}")
+            findings.append(
+                "exact_pension_from_contribution_years_proxy: "
+                f"{relative_path}:{line}: {excerpt}"
+            )
+        for offset in _indirect_pension_proxy_offsets(source):
+            if _has_mechanical_local_scenario_opt_in(
+                relative_path,
+                source,
+                offset,
+            ):
+                continue
+            line = _line_for(source, offset)
+            excerpt = original.splitlines()[line - 1].strip()
+            findings.append(
+                "exact_pension_from_contribution_ratio_proxy: "
+                f"{relative_path}:{line}: {excerpt}"
+            )
 
     assert not findings, (
-        "an exact AVS pension proxy derived from maximum pension × contribution "
-        "years is forbidden repo-wide outside an explicit local scenario. "
-        "Keep the result unknown until a reviewed owner-scoped official-pension "
-        "envelope exists:\n" + "\n".join(findings)
+        "an exact AVS pension proxy derived directly or through an intermediate "
+        "contribution-years ratio is forbidden repo-wide. A local-scenario name "
+        "or file allowlist is insufficient: the proxy must be inside a guarded "
+        "scenario class whose full declared contract proves explicit user opt-in. "
+        "Otherwise keep the result unknown until a reviewed owner-scoped "
+        "official-pension envelope exists:\n" + "\n".join(findings)
     )
 
 
