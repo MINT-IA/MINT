@@ -11,14 +11,23 @@ class ChfAmount {
     if (!francs.isFinite) {
       throw ArgumentError.value(francs, 'francs', 'must be finite');
     }
-    final centimes = francs * 100;
-    final roundedCentimes = centimes.round();
-    if ((centimes - roundedCentimes).abs() > 0.0000001) {
+    final amount = tryFromLegacyDouble(francs);
+    if (amount == null) {
       throw ArgumentError.value(
         francs,
         'francs',
         'must have at most two decimal places',
       );
+    }
+    return amount;
+  }
+
+  static ChfAmount? tryFromLegacyDouble(double francs) {
+    if (!francs.isFinite) return null;
+    final centimes = francs * 100;
+    final roundedCentimes = centimes.round();
+    if ((centimes - roundedCentimes).abs() > 0.0000001) {
+      return null;
     }
     return ChfAmount.fromCents(roundedCentimes);
   }
@@ -387,6 +396,7 @@ class AvsThirteenthPensionCalculator {
     final monthlyParts = <ChfAmount?>[];
     var eligibleCents = 0;
     String? missingMonthlyHistoryField;
+    String? missingMonthlyEvidenceField;
     var weakestTier = AvsEvidenceTier.avsFundLedger;
 
     for (final month in input.months) {
@@ -431,14 +441,8 @@ class AvsThirteenthPensionCalculator {
       }
       final sourceDate = month.evidence.sourceDate;
       if (sourceDate == null) {
-        return _failure(
-          input,
-          AvsThirteenthReadiness.sourceTooWeak,
-          ['$prefix.evidence.sourceDate'],
-          excludedKinds: excludedKinds,
-        );
-      }
-      if (!sourceDate.isUtc) {
+        missingMonthlyEvidenceField ??= '$prefix.evidence.sourceDate';
+      } else if (!sourceDate.isUtc) {
         return _failure(
           input,
           AvsThirteenthReadiness.sourceTooWeak,
@@ -448,12 +452,8 @@ class AvsThirteenthPensionCalculator {
       }
       if (month.evidence.documentOrProviderRef == null ||
           month.evidence.documentOrProviderRef!.trim().isEmpty) {
-        return _failure(
-          input,
-          AvsThirteenthReadiness.sourceTooWeak,
-          ['$prefix.evidence.documentOrProviderRef'],
-          excludedKinds: excludedKinds,
-        );
+        missingMonthlyEvidenceField ??=
+            '$prefix.evidence.documentOrProviderRef';
       }
 
       excludedKinds.addAll(month.excludedCashflowsChf.keys);
@@ -676,6 +676,15 @@ class AvsThirteenthPensionCalculator {
         certified: const ChfAmount.fromCents(0),
         educational: null,
         readiness: AvsThirteenthReadiness.explicitlyNotEntitled,
+        excludedKinds: excludedKinds,
+      );
+    }
+
+    if (missingMonthlyEvidenceField != null) {
+      return _failure(
+        input,
+        AvsThirteenthReadiness.sourceTooWeak,
+        [missingMonthlyEvidenceField],
         excludedKinds: excludedKinds,
       );
     }

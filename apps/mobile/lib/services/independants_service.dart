@@ -164,6 +164,8 @@ class LppVolontaireResult {
   final double projectionSansLpp; // AVS only retirement estimate
   final double projectionAvecLpp; // AVS + LPP retirement estimate
   final AvsThirteenthPensionResult? avsThirteenthScenario;
+  final AvsThirteenthReadiness? avsThirteenthScenarioFailureReadiness;
+  final List<String> avsThirteenthScenarioFailureFields;
   final String ageBracketLabel;
 
   const LppVolontaireResult({
@@ -178,6 +180,8 @@ class LppVolontaireResult {
     required this.projectionSansLpp,
     required this.projectionAvecLpp,
     required this.avsThirteenthScenario,
+    required this.avsThirteenthScenarioFailureReadiness,
+    required this.avsThirteenthScenarioFailureFields,
     required this.ageBracketLabel,
   });
 }
@@ -630,21 +634,31 @@ class IndependantsService {
     final recurringAvsAnnualMax =
         reg('avs.max_annual_pension', avsRenteMaxAnnuelle);
     AvsThirteenthPensionResult? avsThirteenthScenario;
+    AvsThirteenthReadiness? avsThirteenthScenarioFailureReadiness;
+    var avsThirteenthScenarioFailureFields = const <String>[];
     if (FeatureFlags.enableAvsThirteenthScenarioCashflow) {
       final calculatedAt = DateTime.now().toUtc();
-      avsThirteenthScenario = AvsThirteenthPensionCalculator.calculate(
-        AvsThirteenthPensionInput.fullYearScenario(
-          ownerId: 'independant-self-scenario',
-          calendarYear: calculatedAt.year,
-          determiningMonthlyOldAgePensionChf:
-              ChfAmount.fromLegacyDouble(avsMonthlyMax),
-          sourceDate: calculatedAt,
-          calculationDate: calculatedAt,
-          legalYear: AvsThirteenthPensionCalculator.supportedLegalYear,
-          ruleVersion: AvsThirteenthPensionCalculator.supportedRuleVersion,
-          scenarioRef: 'lpp-volontaire-avs-max-current-snapshot',
-        ),
-      );
+      final exactMonthlyAmount = ChfAmount.tryFromLegacyDouble(avsMonthlyMax);
+      if (exactMonthlyAmount == null) {
+        avsThirteenthScenarioFailureReadiness =
+            AvsThirteenthReadiness.providerCorrectionRequired;
+        avsThirteenthScenarioFailureFields = const [
+          'avs.max_monthly_pension.exactCentime',
+        ];
+      } else {
+        avsThirteenthScenario = AvsThirteenthPensionCalculator.calculate(
+          AvsThirteenthPensionInput.fullYearScenario(
+            ownerId: 'independant-self-scenario',
+            calendarYear: calculatedAt.year,
+            determiningMonthlyOldAgePensionChf: exactMonthlyAmount,
+            sourceDate: calculatedAt,
+            calculationDate: calculatedAt,
+            legalYear: AvsThirteenthPensionCalculator.supportedLegalYear,
+            ruleVersion: AvsThirteenthPensionCalculator.supportedRuleVersion,
+            scenarioRef: 'lpp-volontaire-avs-max-current-snapshot',
+          ),
+        );
+      }
     }
     final renteAvsMax = avsThirteenthScenario
             ?.eligibleOldAgeCashflowWithSupplementChf?.francs ??
@@ -674,6 +688,9 @@ class IndependantsService {
       projectionSansLpp: projectionSansLpp,
       projectionAvecLpp: projectionAvecLpp,
       avsThirteenthScenario: avsThirteenthScenario,
+      avsThirteenthScenarioFailureReadiness:
+          avsThirteenthScenarioFailureReadiness,
+      avsThirteenthScenarioFailureFields: avsThirteenthScenarioFailureFields,
       ageBracketLabel: ageBracketLabel,
     );
   }

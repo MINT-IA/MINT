@@ -466,7 +466,7 @@ void main() {
           separation: null,
         );
 
-        expect(result.capState, AvsCoupleCapState.notApplicable);
+        expect(result.capState, AvsCoupleCapState.pending);
         expect(result.rawHouseholdMonthlyPension, 5040);
         expect(result.self.cappedMonthlyPension, isNull);
         expect(result.partner.cappedMonthlyPension, isNull);

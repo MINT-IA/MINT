@@ -105,6 +105,7 @@ AvsMonthlyOldAgeFact _noOldAge(
 AvsMonthlyOldAgeFact _unknown(
   int month, {
   String ownerId = _owner,
+  AvsEvidence? evidence,
 }) =>
     AvsMonthlyOldAgeFact(
       month: month,
@@ -114,7 +115,7 @@ AvsMonthlyOldAgeFact _unknown(
       pensionKind: null,
       adjustments: const {},
       excludedCashflowsChf: const {},
-      evidence: _evidence(ownerId, month: month),
+      evidence: evidence ?? _evidence(ownerId, month: month),
     );
 
 List<AvsMonthlyOldAgeFact> _fullYear(
@@ -1285,6 +1286,33 @@ void main() {
         () {
       final months = _fullYear(2000)
         ..[0] = _unknown(1)
+        ..[11] = _noOldAge(12);
+      final result = AvsThirteenthPensionCalculator.calculate(
+        _input(
+          months: months,
+          december: _december(
+            AvsDecemberEntitlementState.notEntitled,
+            aliveOnDecemberFirst: true,
+          ),
+        ),
+      );
+
+      expect(result.readiness, AvsThirteenthReadiness.explicitlyNotEntitled);
+      _expectCents(result.certifiedThirteenthPensionChf, 0);
+      expect(result.eligibleOldAgePensionsPaidChf, isNull);
+    });
+
+    test('official not-entitled legal zero ignores an absent prior source', () {
+      final months = _fullYear(2000)
+        ..[0] = _unknown(
+          1,
+          evidence: _evidence(
+            _owner,
+            month: 1,
+            includeSourceDate: false,
+            includeReference: false,
+          ),
+        )
         ..[11] = _noOldAge(12);
       final result = AvsThirteenthPensionCalculator.calculate(
         _input(

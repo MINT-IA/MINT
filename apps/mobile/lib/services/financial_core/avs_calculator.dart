@@ -395,9 +395,11 @@ class AvsCalculator {
         selfCapped: null,
         partnerCapped: null,
         household: null,
-        capState: input.legalStatus == AvsCoupleLegalStatus.cohabiting
-            ? AvsCoupleCapState.notApplicable
-            : nonQualifyingCapState ?? AvsCoupleCapState.pending,
+        capState: marriageEquivalent && bothDisability
+            ? AvsCoupleCapState.pending
+            : input.legalStatus == AvsCoupleLegalStatus.cohabiting
+                ? AvsCoupleCapState.notApplicable
+                : nonQualifyingCapState ?? AvsCoupleCapState.pending,
         missing: missing,
         judicialSeparationSource:
             separationSource != null && separationSource.trim().isNotEmpty
