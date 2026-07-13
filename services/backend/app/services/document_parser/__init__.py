@@ -49,6 +49,9 @@ from app.services.document_parser.avs_extract_parser import (
     AVS_FIELD_PATTERNS,
     AVS_HIGH_IMPACT_FIELDS,
 )
+from app.services.document_parser.avs_official_pension_parser import (
+    parse_avs_official_pension,
+)
 from app.services.document_parser.extraction_confidence_scorer import (
     score_extraction,
     rank_fields_by_impact,
@@ -74,6 +77,7 @@ __all__ = [
     "estimate_avs_confidence_delta",
     "AVS_FIELD_PATTERNS",
     "AVS_HIGH_IMPACT_FIELDS",
+    "parse_avs_official_pension",
     "score_extraction",
     "rank_fields_by_impact",
 ]

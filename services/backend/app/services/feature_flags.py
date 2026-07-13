@@ -20,6 +20,9 @@ def _env_bool(key: str, default: bool) -> bool:
 
 
 class FeatureFlags:
+    # G1: official self-only AVS pension candidates (off until runtime proof).
+    avs_official_pension_ingestion_enabled: bool = False
+
     # P6: Couple+ tier in the paywall
     enable_couple_plus_tier: bool = True
 
@@ -64,6 +67,10 @@ class FeatureFlags:
     def get_flags(cls) -> Dict[str, bool]:
         """Resolve current flag values from env vars."""
         return {
+            "avs_official_pension_ingestion_enabled": _env_bool(
+                "AVS_OFFICIAL_PENSION_INGESTION_ENABLED",
+                cls.avs_official_pension_ingestion_enabled,
+            ),
             "enable_couple_plus_tier": _env_bool(
                 "FF_ENABLE_COUPLE_PLUS_TIER", cls.enable_couple_plus_tier
             ),

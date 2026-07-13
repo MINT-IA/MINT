@@ -4936,6 +4936,7 @@
               "lpp_certificate",
               "tax_declaration",
               "avs_extract",
+              "avs_official_pension",
               "three_a_attestation",
               "mortgage_attestation"
             ],
@@ -7793,6 +7794,7 @@
         "enum": [
           "lpp_certificate",
           "avs_extract",
+          "avs_official_pension",
           "tax_declaration",
           "salary_certificate",
           "payslip",
@@ -9339,6 +9341,23 @@
             "title": "Confidence",
             "type": "number"
           },
+          "evidenceKind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "official_decision",
+                  "official_forecast",
+                  "official_statement"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nature epistemique distincte de la provenance du document",
+            "title": "Evidencekind"
+          },
           "fieldName": {
             "description": "Identifiant du champ (ex: avoir_total, taux_conversion_oblig)",
             "title": "Fieldname",
@@ -9349,6 +9368,31 @@
             "description": "True si la valeur necessite une confirmation utilisateur",
             "title": "Needsreview",
             "type": "boolean"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Provenance candidate; aucune autorite avant revue utilisateur",
+            "title": "Source"
+          },
+          "sourceDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Date officielle d'emission ou de calcul du champ",
+            "title": "Sourcedate"
           },
           "sourceText": {
             "description": "Fragment de texte brut d'ou la valeur a ete extraite",
@@ -9420,6 +9464,18 @@
             "minimum": 0.0,
             "title": "Overallconfidence",
             "type": "number"
+          },
+          "rejectionReason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code stable expliquant le rejet semantique d'un candidat",
+            "title": "Rejectionreason"
           },
           "sources": {
             "description": "References legales suisses",
@@ -15191,6 +15247,7 @@
               "lpp_certificate",
               "tax_declaration",
               "avs_extract",
+              "avs_official_pension",
               "three_a_attestation",
               "mortgage_attestation"
             ],

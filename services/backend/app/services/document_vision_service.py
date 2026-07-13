@@ -232,6 +232,16 @@ DOCUMENT_FIELDS: Dict[DocumentType, TList[dict]] = {
         {"name": "renteEstimee", "type": "float", "label": "Rente AVS estimée (annuelle)", "range": (0, 30_240)},
         {"name": "ramd", "type": "float", "label": "Revenu annuel moyen déterminant", "range": (0, 200_000)},
     ],
+    # Schema remains explicit, but extract_with_vision() hard-blocks this type
+    # until image sanitization/EXIF handling receives its own privacy review.
+    DocumentType.avs_official_pension: [
+        {
+            "name": "avs_official_monthly_pension",
+            "type": "float",
+            "label": "Personal official monthly AVS old-age pension",
+            "range": (0, 10_000),
+        },
+    ],
     DocumentType.tax_declaration: [
         {"name": "revenuImposable", "type": "float", "label": "Revenu imposable", "range": (0, 2_000_000)},
         {"name": "fortuneImposable", "type": "float", "label": "Fortune imposable", "range": (0, 50_000_000)},
@@ -508,6 +518,11 @@ def extract_with_vision(
     Raises:
         ValueError: If API key is missing or image is invalid.
     """
+    if doc_type == DocumentType.avs_official_pension:
+        raise ValueError(
+            "Official AVS pension Vision extraction is disabled pending privacy review"
+        )
+
     api_key = settings.ANTHROPIC_API_KEY
     if not api_key:
         raise ValueError("ANTHROPIC_API_KEY not configured")

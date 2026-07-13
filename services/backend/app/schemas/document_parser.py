@@ -16,6 +16,7 @@ Sources:
     - LIFD art. 38 (imposition du capital)
 """
 
+from datetime import date
 from typing import Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -48,6 +49,7 @@ class ParseDocumentRequest(DocumentParserBaseModel):
         "lpp_certificate",
         "tax_declaration",
         "avs_extract",
+        "avs_official_pension",
         "three_a_attestation",
         "mortgage_attestation",
     ] = Field(
@@ -72,6 +74,7 @@ class ConfidenceDeltaRequest(DocumentParserBaseModel):
         "lpp_certificate",
         "tax_declaration",
         "avs_extract",
+        "avs_official_pension",
         "three_a_attestation",
         "mortgage_attestation",
     ] = Field(
@@ -108,6 +111,18 @@ class ExtractedFieldResponse(DocumentParserBaseModel):
     needs_review: bool = Field(
         False, description="True si la valeur necessite une confirmation utilisateur",
     )
+    source: Optional[str] = Field(
+        None, description="Provenance candidate; aucune autorite avant revue utilisateur",
+    )
+    source_date: Optional[date] = Field(
+        None, description="Date officielle d'emission ou de calcul du champ",
+    )
+    evidence_kind: Optional[
+        Literal["official_decision", "official_forecast", "official_statement"]
+    ] = Field(
+        None,
+        description="Nature epistemique distincte de la provenance du document",
+    )
 
 
 class ExtractionResultResponse(DocumentParserBaseModel):
@@ -141,6 +156,9 @@ class ExtractionResultResponse(DocumentParserBaseModel):
     )
     sources: List[str] = Field(
         ..., description="References legales suisses",
+    )
+    rejection_reason: Optional[str] = Field(
+        None, description="Code stable expliquant le rejet semantique d'un candidat",
     )
 
 

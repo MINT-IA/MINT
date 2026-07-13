@@ -49,10 +49,14 @@ from app.services.document_parser.avs_extract_parser import (
     parse_avs_extract,
     estimate_avs_confidence_delta,
 )
+from app.services.document_parser.avs_official_pension_parser import (
+    parse_avs_official_pension,
+)
 from app.services.document_parser.extraction_confidence_scorer import (
     score_extraction,
     rank_fields_by_impact,
 )
+from app.services.feature_flags import FeatureFlags
 
 
 router = APIRouter()
@@ -64,7 +68,7 @@ router = APIRouter()
 _DISCLAIMER = (
     "Cet outil est educatif et ne constitue pas un conseil financier, "
     "fiscal ou juridique personnalise. Les valeurs extraites sont indicatives "
-    "et doivent etre verifiees. Consulte un-e specialiste pour ta situation "
+    "et doivent etre verifiees. Consulte un-e spécialiste pour ta situation "
     "personnelle (LSFin art. 3). L'image source n'est jamais stockee."
 )
 
@@ -81,6 +85,7 @@ _VALID_DOCUMENT_TYPES = {
     "lpp_certificate",
     "tax_declaration",
     "avs_extract",
+    "avs_official_pension",
     "three_a_attestation",
     "mortgage_attestation",
 }
@@ -119,6 +124,9 @@ def parse_document(request: Request, body: ParseDocumentRequest) -> ExtractionRe
     # Route to the appropriate parser
     current_profile = body.current_profile or {}
 
+    if body.document_type == "avs_official_pension":
+        FeatureFlags.require_flag("avs_official_pension_ingestion_enabled")
+
     if body.document_type == "lpp_certificate":
         result = parse_lpp_certificate(body.text)
         delta = estimate_confidence_delta(result, current_profile)
@@ -128,6 +136,10 @@ def parse_document(request: Request, body: ParseDocumentRequest) -> ExtractionRe
     elif body.document_type == "avs_extract":
         result = parse_avs_extract(body.text)
         delta = estimate_avs_confidence_delta(result, current_profile)
+    elif body.document_type == "avs_official_pension":
+        result = parse_avs_official_pension(body.text)
+        # A candidate awaiting explicit review has no profile-confidence gain.
+        delta = 0.0
     else:
         raise HTTPException(
             status_code=501,
@@ -136,8 +148,12 @@ def parse_document(request: Request, body: ParseDocumentRequest) -> ExtractionRe
         )
     result.confidence_delta = delta
 
-    # Calculate extraction quality score
-    ext_score = score_extraction(result)
+    # Candidate certainty must not look like ledger readiness before review.
+    ext_score = (
+        0.0
+        if body.document_type == "avs_official_pension"
+        else score_extraction(result)
+    )
 
     return ExtractionResultResponse(
         document_type=result.document_type.value,
@@ -148,6 +164,9 @@ def parse_document(request: Request, body: ParseDocumentRequest) -> ExtractionRe
                 confidence=f.confidence,
                 source_text=f.source_text,
                 needs_review=f.needs_review,
+                source=f.source,
+                source_date=f.source_date,
+                evidence_kind=f.evidence_kind,
             )
             for f in result.fields
         ],
@@ -157,6 +176,7 @@ def parse_document(request: Request, body: ParseDocumentRequest) -> ExtractionRe
         warnings=result.warnings,
         disclaimer=result.disclaimer,
         sources=result.sources,
+        rejection_reason=result.rejection_reason,
     )
 
 
@@ -179,6 +199,16 @@ def get_confidence_delta(request: Request, body: ConfidenceDeltaRequest) -> Conf
     Returns:
         ConfidenceDeltaResponse avec delta, nombre de champs nouveaux/ameliores.
     """
+    if body.document_type == "avs_official_pension":
+        FeatureFlags.require_flag("avs_official_pension_ingestion_enabled")
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "avs_official_pension_candidate_only",
+                "message": "An unreviewed official candidate has no confidence gain.",
+            },
+        )
+
     current_profile = body.current_profile or {}
 
     # Route to the appropriate parser
@@ -195,7 +225,8 @@ def get_confidence_delta(request: Request, body: ConfidenceDeltaRequest) -> Conf
         raise HTTPException(
             status_code=501,
             detail=f"Le parsing de '{body.document_type}' n'est pas encore "
-                   "implemente. Types supportes: lpp_certificate, tax_declaration, avs_extract.",
+                   "implemente. Types implementes: lpp_certificate, tax_declaration, "
+                   "avs_extract, avs_official_pension.",
         )
 
     # Count new vs improved fields
@@ -243,6 +274,16 @@ def get_field_impact(request: Request, document_type: str) -> FieldImpactRespons
             status_code=400,
             detail=f"Type de document non supporte: {document_type}. "
                    f"Types supportes: {', '.join(sorted(_VALID_DOCUMENT_TYPES))}",
+        )
+
+    if document_type == "avs_official_pension":
+        FeatureFlags.require_flag("avs_official_pension_ingestion_enabled")
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "avs_official_pension_candidate_only",
+                "message": "An unreviewed official candidate has no field impact.",
+            },
         )
 
     try:

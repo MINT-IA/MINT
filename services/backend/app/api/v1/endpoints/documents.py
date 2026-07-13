@@ -33,6 +33,7 @@ from anthropic import Anthropic
 
 from app.core.config import settings
 from app.schemas.document_scan import (
+    DocumentType,
     DocumentScanConfirmation,
     DocumentScanResponse,
     ExtractedFieldConfirmation,
@@ -45,6 +46,7 @@ from app.schemas.document_understanding import DocumentUnderstandingResult
 from typing import Union
 from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_models import ConsentType
+from app.services.feature_flags import FeatureFlags
 
 from app.schemas.document import (
     BankStatementUploadResponse,
@@ -184,7 +186,7 @@ def _index_in_rag(doc_id: str, extracted_fields: dict, document_type: str) -> bo
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Premier Eclairage — 4-layer insight engine for documents (DOC-07)
+# Premier Éclairage — 4-layer insight engine for documents (DOC-07)
 # ──────────────────────────────────────────────────────────────────────────────
 
 _DOCUMENT_SOURCES_MAP = {
@@ -200,7 +202,7 @@ _DOCUMENT_SOURCES_MAP = {
 
 _DISCLAIMER_TEXT = (
     "Outil educatif. Ne constitue pas un conseil financier au sens de la LSFin. "
-    "Pour une analyse adaptee a ta situation, consulte un\u00b7e specialiste."
+    "Pour une analyse adaptee a ta situation, consulte un\u00b7e spécialiste."
 )
 
 _PREMIER_ECLAIRAGE_SYSTEM_PROMPT = """\
@@ -259,7 +261,7 @@ def generate_document_insight(
     canton: Optional[str] = None,
     plan_type: Optional[str] = None,
 ) -> PremierEclairageResponse:
-    """Generate a 4-layer premier eclairage from extracted document data.
+    """Generate a 4-layer premier éclairage from extracted document data.
 
     Uses Claude API with the MINT 4-layer insight engine pattern.
     Falls back to a safe summary if the API call fails.
@@ -278,7 +280,7 @@ def generate_document_insight(
     # Check API key availability
     api_key = settings.ANTHROPIC_API_KEY
     if not api_key:
-        logger.warning("No ANTHROPIC_API_KEY for premier eclairage, returning fallback")
+        logger.warning("No ANTHROPIC_API_KEY for premier éclairage, returning fallback")
         return _build_fallback_response(extracted_fields, doc_type_str)
 
     # Build prompt context
@@ -328,7 +330,7 @@ def generate_document_insight(
         )
 
     except Exception as e:
-        logger.warning("Premier eclairage generation failed: %s", e)
+        logger.warning("Premier éclairage generation failed: %s", e)
         return _build_fallback_response(extracted_fields, doc_type_str)
 
 
@@ -344,7 +346,7 @@ async def document_premier_eclairage(
     request: Request,
     _user: User = Depends(require_current_user),
 ):
-    """Generate a 4-layer premier eclairage from extracted document data (DOC-07).
+    """Generate a 4-layer premier éclairage from extracted document data (DOC-07).
 
     Called after document extraction and user confirmation to produce a
     personalized insight using the MINT 4-layer insight engine:
@@ -356,6 +358,16 @@ async def document_premier_eclairage(
     Rate limited to 5/minute (heavier than extraction).
     All LLM-generated text is validated through ComplianceGuard (COMP-01).
     """
+    if body.document_type == DocumentType.avs_official_pension:
+        FeatureFlags.require_flag("avs_official_pension_ingestion_enabled")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "avs_official_pension_candidate_only",
+                "message": "Official AVS pension candidates require local user review.",
+            },
+        )
+
     response = generate_document_insight(
         document_type=body.document_type,
         extracted_fields=body.extracted_fields,
@@ -1072,6 +1084,16 @@ async def confirm_document_scan(
 
     Privacy: no raw document image is sent — only confirmed field values.
     """
+    if body.document_type == DocumentType.avs_official_pension:
+        FeatureFlags.require_flag("avs_official_pension_ingestion_enabled")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "avs_official_pension_candidate_only",
+                "message": "Legacy scan confirmation cannot persist this candidate.",
+            },
+        )
+
     logger.info(
         "Scan confirmation: user=%s type=%s fields=%d confidence=%.2f method=%s",
         str(current_user.id)[:8] + "...",  # Truncate PII
@@ -1162,6 +1184,16 @@ async def extract_with_claude_vision(
     Privacy: image is sent to Claude API for processing but NOT stored.
     Only extracted structured fields are returned.
     """
+    if body.document_type == DocumentType.avs_official_pension:
+        FeatureFlags.require_flag("avs_official_pension_ingestion_enabled")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "avs_official_pension_vision_disabled",
+                "message": "Vision activation requires a separate privacy review.",
+            },
+        )
+
     from app.services.document_vision_service import (
         extract_with_vision,
         understand_document,

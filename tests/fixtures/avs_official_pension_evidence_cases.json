@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "data_classification": "synthetic_no_pii",
   "cases": [
     {
@@ -11,6 +11,7 @@
         "canonical_key": "avs_official_monthly_pension",
         "value_chf_month": 1842,
         "source": "certificate",
+        "evidence_kind": "official_decision",
         "source_date": "2026-02-14",
         "rejection_reason": null
       }
@@ -24,6 +25,7 @@
         "canonical_key": "avs_official_monthly_pension",
         "value_chf_month": 1260,
         "source": "certificate",
+        "evidence_kind": "official_forecast",
         "source_date": "2026-03-03",
         "rejection_reason": null
       }
@@ -31,12 +33,13 @@
     {
       "id": "P03",
       "language": "fr",
-      "category": "personal_decision",
-      "input": "Caisse suisse de compensation — Établi le 21.04.2026. Rente de vieillesse AVS ordinaire vous concernant: CHF 2'137 par mois. Le supplément de décembre est indiqué séparément.",
+      "category": "personal_statement",
+      "input": "Caisse suisse de compensation — Attestation de rente. Établi le 21.04.2026. Rente de vieillesse AVS ordinaire actuellement versée vous concernant: CHF 2'137 par mois. Le supplément de décembre est indiqué séparément.",
       "expected": {
         "canonical_key": "avs_official_monthly_pension",
         "value_chf_month": 2137,
         "source": "certificate",
+        "evidence_kind": "official_statement",
         "source_date": "2026-04-21",
         "rejection_reason": null
       }
@@ -50,6 +53,7 @@
         "canonical_key": "avs_official_monthly_pension",
         "value_chf_month": 2017,
         "source": "certificate",
+        "evidence_kind": "official_decision",
         "source_date": "2026-02-06",
         "rejection_reason": null
       }
@@ -63,6 +67,7 @@
         "canonical_key": "avs_official_monthly_pension",
         "value_chf_month": 1674,
         "source": "certificate",
+        "evidence_kind": "official_forecast",
         "source_date": "2026-03-18",
         "rejection_reason": null
       }
@@ -70,12 +75,13 @@
     {
       "id": "P06",
       "language": "de",
-      "category": "personal_decision",
-      "input": "Ausgleichskasse — Ausgestellt am 30.04.2026. Monatlicher Betrag Ihrer ordentlichen Altersrente: CHF 2.284,00",
+      "category": "personal_statement",
+      "input": "Ausgleichskasse — Rentenbescheinigung. Ausgestellt am 30.04.2026. Aktueller monatlicher Betrag Ihrer ordentlichen Altersrente: CHF 2.284,00",
       "expected": {
         "canonical_key": "avs_official_monthly_pension",
         "value_chf_month": 2284,
         "source": "certificate",
+        "evidence_kind": "official_statement",
         "source_date": "2026-04-30",
         "rejection_reason": null
       }
@@ -89,6 +95,7 @@
         "canonical_key": "avs_official_monthly_pension",
         "value_chf_month": 2520,
         "source": "certificate",
+        "evidence_kind": "official_decision",
         "source_date": "2026-02-11",
         "rejection_reason": null
       }
@@ -102,6 +109,7 @@
         "canonical_key": "avs_official_monthly_pension",
         "value_chf_month": 1763,
         "source": "certificate",
+        "evidence_kind": "official_forecast",
         "source_date": "2026-03-19",
         "rejection_reason": null
       }
@@ -109,13 +117,56 @@
     {
       "id": "P09",
       "language": "it",
-      "category": "personal_decision",
-      "input": "Cassa di compensazione — Emesso il 07.05.2026. Sua rendita ordinaria di vecchiaia: CHF 1.996,00 al mese. La 13a mensilità è separata.",
+      "category": "personal_statement",
+      "input": "Cassa di compensazione — Attestazione di rendita. Emesso il 07.05.2026. Sua rendita attuale ordinaria di vecchiaia: CHF 1.996,00 al mese. La 13a mensilità è separata.",
       "expected": {
         "canonical_key": "avs_official_monthly_pension",
         "value_chf_month": 1996,
         "source": "certificate",
+        "evidence_kind": "official_statement",
         "source_date": "2026-05-07",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P10",
+      "language": "fr",
+      "category": "personal_forecast",
+      "input": "Caisse de compensation — Estimation de rente. Établi le 12.03.2026. Montant prévisionnel de votre rente mensuelle de vieillesse AVS: CHF 1'900.00",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 1900,
+        "source": "certificate",
+        "evidence_kind": "official_forecast",
+        "source_date": "2026-03-12",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P11",
+      "language": "de",
+      "category": "personal_forecast",
+      "input": "Ausgleichskasse — Provisorische Rentenschätzung. Ausgestellt am 13.03.2026. Ihre voraussichtliche monatliche Altersrente: CHF 1'910.00",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 1910,
+        "source": "certificate",
+        "evidence_kind": "official_forecast",
+        "source_date": "2026-03-13",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P12",
+      "language": "it",
+      "category": "personal_forecast",
+      "input": "Cassa di compensazione — Stima della rendita. Emesso il 14.03.2026. Importo previsto della Sua rendita mensile di vecchiaia: CHF 1'920.00",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 1920,
+        "source": "certificate",
+        "evidence_kind": "official_forecast",
+        "source_date": "2026-03-14",
         "rejection_reason": null
       }
     },
@@ -129,7 +180,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "statutory_reference_value"
+        "rejection_reason": "statutory_reference_value",
+        "evidence_kind": null
       }
     },
     {
@@ -142,7 +194,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "statutory_reference_value"
+        "rejection_reason": "statutory_reference_value",
+        "evidence_kind": null
       }
     },
     {
@@ -155,7 +208,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "example_value"
+        "rejection_reason": "example_value",
+        "evidence_kind": null
       }
     },
     {
@@ -168,7 +222,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "generic_simulation_not_authority_result"
+        "rejection_reason": "generic_simulation_not_authority_result",
+        "evidence_kind": null
       }
     },
     {
@@ -181,7 +236,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "couple_or_household_amount"
+        "rejection_reason": "couple_or_household_amount",
+        "evidence_kind": null
       }
     },
     {
@@ -194,7 +250,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "couple_or_household_amount"
+        "rejection_reason": "couple_or_household_amount",
+        "evidence_kind": null
       }
     },
     {
@@ -207,7 +264,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "couple_or_household_amount"
+        "rejection_reason": "couple_or_household_amount",
+        "evidence_kind": null
       }
     },
     {
@@ -220,7 +278,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "couple_cap_or_150_percent"
+        "rejection_reason": "couple_cap_or_150_percent",
+        "evidence_kind": null
       }
     },
     {
@@ -233,7 +292,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "third_person_amount"
+        "rejection_reason": "third_person_amount",
+        "evidence_kind": null
       }
     },
     {
@@ -246,7 +306,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "third_person_amount"
+        "rejection_reason": "third_person_amount",
+        "evidence_kind": null
       }
     },
     {
@@ -259,7 +320,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "multiple_person_amounts"
+        "rejection_reason": "multiple_person_amounts",
+        "evidence_kind": null
       }
     },
     {
@@ -272,7 +334,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "annual_only_not_convertible"
+        "rejection_reason": "annual_only_not_convertible",
+        "evidence_kind": null
       }
     },
     {
@@ -285,7 +348,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "annual_only_not_convertible"
+        "rejection_reason": "annual_only_not_convertible",
+        "evidence_kind": null
       }
     },
     {
@@ -298,7 +362,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "source_date_missing"
+        "rejection_reason": "source_date_missing",
+        "evidence_kind": null
       }
     },
     {
@@ -311,7 +376,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "source_date_missing"
+        "rejection_reason": "source_date_missing",
+        "evidence_kind": null
       }
     },
     {
@@ -324,7 +390,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "personal_owner_label_missing"
+        "rejection_reason": "personal_owner_label_missing",
+        "evidence_kind": null
       }
     },
     {
@@ -337,7 +404,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "wrong_benefit_survivor"
+        "rejection_reason": "wrong_benefit_survivor",
+        "evidence_kind": null
       }
     },
     {
@@ -350,7 +418,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "wrong_benefit_invalidity"
+        "rejection_reason": "wrong_benefit_invalidity",
+        "evidence_kind": null
       }
     },
     {
@@ -363,7 +432,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "wrong_benefit_child"
+        "rejection_reason": "wrong_benefit_child",
+        "evidence_kind": null
       }
     },
     {
@@ -376,7 +446,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "ci_extract_not_pension_decision"
+        "rejection_reason": "ci_extract_not_pension_decision",
+        "evidence_kind": null
       }
     },
     {
@@ -389,7 +460,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "ci_extract_not_pension_decision"
+        "rejection_reason": "ci_extract_not_pension_decision",
+        "evidence_kind": null
       }
     },
     {
@@ -402,7 +474,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "ci_extract_not_pension_decision"
+        "rejection_reason": "ci_extract_not_pension_decision",
+        "evidence_kind": null
       }
     },
     {
@@ -415,7 +488,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "thirteenth_pension_not_ordinary_monthly"
+        "rejection_reason": "thirteenth_pension_not_ordinary_monthly",
+        "evidence_kind": null
       }
     },
     {
@@ -428,7 +502,8 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "application_not_authority_result"
+        "rejection_reason": "application_not_authority_result",
+        "evidence_kind": null
       }
     },
     {
@@ -441,7 +516,50 @@
         "value_chf_month": null,
         "source": null,
         "source_date": null,
-        "rejection_reason": "authority_marker_missing"
+        "rejection_reason": "authority_marker_missing",
+        "evidence_kind": null
+      }
+    },
+    {
+      "id": "N26",
+      "language": "fr",
+      "category": "authority_result_marker_missing",
+      "input": "Caisse de compensation. Date du calcul: 10.06.2026. Votre rente mensuelle de vieillesse AVS: CHF 1'900.00",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "authority_result_marker_missing",
+        "evidence_kind": null
+      }
+    },
+    {
+      "id": "N27",
+      "language": "fr",
+      "category": "monthly_amount_implausible",
+      "input": "Caisse cantonale de compensation — Décision. Date de la décision: 14.02.2026. Votre rente mensuelle de vieillesse AVS: CHF 18'420.00",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "evidence_kind": null,
+        "source_date": null,
+        "rejection_reason": "monthly_amount_implausible"
+      }
+    },
+    {
+      "id": "N28",
+      "language": "de",
+      "category": "monthly_amount_implausible",
+      "input": "Ausgleichskasse — Rentenverfügung. Verfügungsdatum: 06.02.2026. Ihre monatliche Altersrente: CHF 2.28",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "evidence_kind": null,
+        "source_date": null,
+        "rejection_reason": "monthly_amount_implausible"
       }
     }
   ]

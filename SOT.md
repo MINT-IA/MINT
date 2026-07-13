@@ -1,6 +1,6 @@
 # Source of Truth (SOT) — MINT
 
-> **LAST SYNCED**: 2026-03-25 | Production: v0.1.0
+> **LAST SYNCED**: 2026-07-13 | Production: v0.1.0
 
 ## 1. Domain Object: Profile
 
@@ -110,3 +110,26 @@ Source: `apps/mobile/lib/services/financial_core/confidence_scorer.dart`
 - **Precision Warning**: If `precisionScore < 0.5`, the report MUST display a "Low Precision" warning banner.
 - **Confidence Gate**: If `EnhancedConfidence.combined < 50`, FRI display is gated. If < 70, uncertainty bands are mandatory on all projections.
 - **Source Tracking**: Every profile field MUST track its `ProfileDataSource` and `dataTimestamp` for freshness decay (frontend `CoachProfile` only — not on backend `Profile`).
+
+## 6. Official AVS pension extraction candidate (G1)
+
+- Canonical document type: `avs_official_pension` (distinct from the CI-only
+  `avs_extract`).
+- Canonical candidate field: `avs_official_monthly_pension`.
+- Backend entry point: `POST /api/v1/document-parser/parse` with
+  `documentType=avs_official_pension`.
+- Kill switch: `AVS_OFFICIAL_PENSION_INGESTION_ENABLED`, fail-closed and
+  `false` by default.
+- An accepted field carries `source=certificate`, the authority's
+  `sourceDate`, `needsReview=true`, and a distinct epistemic `evidenceKind`:
+  `official_decision`, `official_forecast`, or `official_statement`. Provenance
+  never upgrades a forecast into a known pension fact; only a reviewed
+  `official_decision` or `official_statement` may later become known.
+- A rejected candidate carries no field and a stable `rejectionReason`.
+- The endpoint is stateless and candidate-only. It never writes
+  `ProfileModel.data` or `DocumentModel` before review. The legacy
+  `/documents/scan-confirmation` writer and `/documents/extract-vision` path
+  reject this document type; Vision remains blocked pending its separate image
+  privacy review.
+- There is no mobile consumer or write-back yet. The flag stays off until that
+  review path and its strict-secure atomic ledger envelope have runtime proof.

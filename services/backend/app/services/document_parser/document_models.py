@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Union
+from typing import List, Optional, Union
 
 
 class DocumentType(str, Enum):
@@ -32,6 +32,7 @@ class DocumentType(str, Enum):
     lpp_certificate = "lpp_certificate"
     tax_declaration = "tax_declaration"
     avs_extract = "avs_extract"
+    avs_official_pension = "avs_official_pension"
     three_a_attestation = "three_a_attestation"
     mortgage_attestation = "mortgage_attestation"
 
@@ -83,6 +84,9 @@ class ExtractedField:
     confidence: float  # 0-1
     source_text: str
     needs_review: bool = False
+    source: Optional[str] = None
+    source_date: Optional[str] = None
+    evidence_kind: Optional[str] = None
 
 
 @dataclass
@@ -101,10 +105,11 @@ class ExtractionResult:
     overall_confidence: float = 0.0
     confidence_delta: float = 0.0
     warnings: List[str] = field(default_factory=list)
+    rejection_reason: Optional[str] = None
     disclaimer: str = (
         "Cet outil est educatif et ne constitue pas un conseil financier, "
         "fiscal ou juridique personnalise. Les valeurs extraites sont indicatives "
-        "et doivent etre verifiees. Consulte un-e specialiste pour ta situation "
+        "et doivent etre verifiees. Consulte un-e spécialiste pour ta situation "
         "personnelle (LSFin art. 3). L'image source n'est jamais stockee."
     )
     sources: List[str] = field(default_factory=lambda: [

@@ -19,21 +19,31 @@ sequenceDiagram
   else both bounded flags are true
     Scan->>Candidate: extract avs_official_pension
     Note over Candidate,Backend: candidate-only, no ProfileModel mirror
-    Candidate-->>Review: personal monthly amount + sourceDate
+    Candidate-->>Review: personal monthly amount + sourceDate + evidenceKind
+    Note over Candidate,Review: source=certificate is provenance; evidenceKind preserves epistemic status
+    Note over Candidate,Review: no explicit decision/current-statement marker -> official_forecast
+    Note over Candidate,Review: official_statement only from explicit current-pension marker
     Review->>Flags: recheck mobile flag before persistence
     alt flag turned off or evidence rejected
       Flags-->>Review: reject and preserve previous durable fact
-    else untouched official amount
-      Review->>Secure: certificate + official sourceDate
-      Note over Review,Secure: atomic secure envelope {value, source, sourceDate, updatedAt}
+    else untouched official decision or statement
+      Review->>Secure: certificate + official sourceDate + preserved evidenceKind
+      Note over Review,Secure: decision / statement: known after review
+      Note over Review,Secure: atomic secure envelope {value, source, sourceDate, updatedAt, evidenceKind}
+    else untouched official forecast
+      Review->>Secure: certificate + official sourceDate + official_forecast
+      Note over Review,Secure: forecast: estimated or to verify
     else user corrects amount
-      Review->>Secure: correction: userInput + null sourceDate
-      Note over Review,Secure: atomic secure envelope {value, source, sourceDate, updatedAt}
+      Review->>Secure: correction: userInput + null sourceDate + null evidenceKind
+      Note over Review,Secure: atomic secure envelope {value, source, sourceDate, updatedAt, evidenceKind}
     end
     Secure--x Backend: no confirmation value and no backend mirror
     Secure-->>Relaunch: persist then rebuild from durable record
     Relaunch->>Secure: reload strict-secure envelope
-    Secure-->>EvidenceCard: self value + source + sourceDate
+    Secure-->>EvidenceCard: self value + source + sourceDate + evidenceKind
     EvidenceCard-->>User: show self evidence only
+    Note over Secure,EvidenceCard: full-year entitlement 2026+: monthly x 13
+    Note over Secure,EvidenceCard: partial first/final year: effective/claim dates + calendar/pro rata; no blind x12/x13
     Note over Relaunch,EvidenceCard: household calculations stay fail-closed
+    Note over Scan,EvidenceCard: target only: no mobile consumer or write-back yet; flags stay off
   end

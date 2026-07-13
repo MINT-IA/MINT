@@ -40,7 +40,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
 - **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (36 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist, coach tool enum, mobile mapper, and profile reads are now in sync for all 36 keys; §3.8 keeps the repair history and the parity gate.
-- **AVS-OFFICIAL — CANDIDATE IS NOT FACT.** `avs_official_pension` is distinct from the CI `avs_extract`. Its only canonical fact is `avs_official_monthly_pension`, persisted after review as `{value, source, sourceDate, updatedAt}` in one strict-secure envelope. Candidate extraction performs no pre-review profile write or backend mirror. Correction writes `userInput` with a null source date. Mobile and backend kill switches default to false; no partner writer or household calculation is authorized by this contract.
+- **AVS-OFFICIAL — CANDIDATE IS NOT FACT.** `avs_official_pension` is distinct from the CI `avs_extract`. Its only canonical fact is `avs_official_monthly_pension`, persisted after review as `{value, source, sourceDate, updatedAt, evidenceKind}` in one strict-secure envelope. `source=certificate` records provenance while `evidenceKind` preserves decision vs forecast vs statement; only a reviewed decision or current official statement may be known. An accepted result without an explicit decision/current-statement marker becomes `official_forecast` and stays to verify. Candidate extraction performs no pre-review profile write or backend mirror. Correction writes `userInput` with null source date and null evidence kind. Mobile and backend kill switches default to false; no mobile consumer/write-back, partner writer, or household calculation is authorized yet.
 
 ---
 
@@ -333,7 +333,7 @@ The self-only official AVS acquisition target is specified in
 
 | canonical ledger key | document type | strict-secure key | typed presentation path | sources | readiness |
 |---|---|---|---|---|---|
-| `avs_official_monthly_pension` | `avs_official_pension` | `_coach_avs_official_monthly_pension` | `prevoyance.renteAVSEstimeeMensuelle` | certificate after untouched review; userInput after correction | self evidence only; the one-envelope `{value, source, sourceDate, updatedAt}` record is required |
+| `avs_official_monthly_pension` | `avs_official_pension` | `_coach_avs_official_monthly_pension` | `prevoyance.renteAVSEstimeeMensuelle` | certificate after untouched review; userInput after correction | self evidence only; the one-envelope `{value, source, sourceDate, updatedAt, evidenceKind}` record is required; `official_decision` and `official_statement` may be known after review |
 
 `avs_extract` and `_coach_avs_rente_estimee` are explicitly non-certifying.
 They may retain CI history or legacy estimate meaning, but neither may create or
@@ -495,10 +495,11 @@ final Map<String, DateTime?>         dataSourceDates; // field path -> sourceDat
 
 **Strict-secure official AVS special case.** The generic three-map target does
 not authorize four independent writes for `avs_official_monthly_pension`.
-That fact is one `{value, source, sourceDate, updatedAt}` record stored under
+That fact is one `{value, source, sourceDate, updatedAt, evidenceKind}` record stored under
 `_coach_avs_official_monthly_pension`; shared preferences contain only its
 secure placeholder. An untouched official review writes `certificate` plus the
-official document date. A correction writes `userInput` plus null `sourceDate`.
+official document date and preserves decision/forecast/statement. A correction
+writes `userInput` plus null `sourceDate` and null `evidenceKind`.
 The provider persists the envelope before rebuilding/notifying, so a secure
 failure cannot leave value and provenance out of sync.
 

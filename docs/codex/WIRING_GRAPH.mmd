@@ -58,10 +58,10 @@ flowchart TB
     AVS_FLAGS{"enableOfficialAvsPensionIngestion<br/>+ AVS_OFFICIAL_PENSION_INGESTION_ENABLED<br/>default false"}
     AVS_REJECT["kill-switch rejection<br/>no write"]
     AVS_DOC["avs_official_pension<br/>distinct from avs_extract"]
-    AVS_CANDIDATE["candidate only<br/>NO ProfileModel mirror"]
-    AVS_REVIEW["explicit self review<br/>correction = userInput + null sourceDate"]
-    AVS_SECURE[("strict-secure _coach_avs_official_monthly_pension<br/>avs_official_monthly_pension<br/>{value, source, sourceDate, updatedAt}")]
-    AVS_CARD["relaunch evidence card<br/>self amount + source + sourceDate"]
+    AVS_CANDIDATE["candidate only<br/>NO ProfileModel mirror<br/>source + evidenceKind remain distinct<br/>unclassified accepted result = official_forecast"]
+    AVS_REVIEW["explicit self review<br/>decision/statement = known<br/>forecast = estimated/to-verify<br/>official_statement requires an explicit current-pension marker<br/>correction = userInput + null sourceDate/evidenceKind"]
+    AVS_SECURE[("strict-secure _coach_avs_official_monthly_pension<br/>avs_official_monthly_pension<br/>{value, source, sourceDate, updatedAt, evidenceKind}")]
+    AVS_CARD["intended relaunch evidence card<br/>self amount + source + sourceDate + evidenceKind<br/>no live consumer/write-back yet"]
 
     AVS_FLAGS -. "off" .-> AVS_REJECT
     AVS_FLAGS -. "both on" .-> AVS_DOC
