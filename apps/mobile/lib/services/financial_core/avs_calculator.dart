@@ -347,6 +347,18 @@ class AvsCalculator {
     final hasNoOldAgeBenefit =
         input.self.entitlement != AvsPensionEntitlement.oldAge &&
             input.partner.entitlement != AvsPensionEntitlement.oldAge;
+    final bothDisability =
+        input.self.entitlement == AvsPensionEntitlement.disability &&
+            input.partner.entitlement == AvsPensionEntitlement.disability;
+    if (bothDisability) {
+      final legalStatus = input.legalStatus;
+      if (legalStatus == null) {
+        missing.add('legalStatus');
+      } else if (legalStatus == AvsCoupleLegalStatus.married ||
+          legalStatus == AvsCoupleLegalStatus.registeredPartnership) {
+        missing.add('aiCoupleCapProvider.laiArticle37Paragraph1bis');
+      }
+    }
     final nonQualifyingCapState =
         entitlementsResolved && !capBenefitCombination
             ? hasNoOldAgeBenefit
@@ -547,6 +559,12 @@ class AvsCalculator {
         percentage <= 0 ||
         percentage > 1) {
       missing.add('$prefix.pensionPercentage');
+    } else if (person.entitlement == AvsPensionEntitlement.oldAge &&
+        person.oldAgePaymentMode == AvsOldAgePaymentMode.ordinary &&
+        percentage != 1) {
+      missing.add(
+        '$prefix.pensionPercentage.ordinaryRequiresFullPension',
+      );
     }
     if (person.entitlement == AvsPensionEntitlement.oldAge &&
         person.oldAgePaymentMode == null) {
@@ -676,26 +694,6 @@ class AvsCalculator {
     );
   }
 
-  /// Convert monthly AVS rente to annual, including the 13th rente if active.
-  ///
-  /// From December 2026 onwards, AVS pays 13 monthly rentes per year
-  /// instead of 12 (initiative populaire, LAVS art. 34 nouveau).
-  ///
-  /// The 13th rente applies ONLY to vieillesse pensions, NOT to AI,
-  /// survivors, or children's pensions.
-  ///
-  /// [monthlyRente] — individual monthly pension (output of computeMonthlyRente).
-  /// [include13eme] — override: false to get the traditional 12-month total.
-  static double annualRente(
-    double monthlyRente, {
-    bool include13eme = avs13emeRenteActive,
-  }) {
-    if (include13eme) {
-      return monthlyRente * avsNombreRentesParAn;
-    }
-    return monthlyRente * 12;
-  }
-
   /// Returns the AVS rente reduction percentage for a given gap in contribution years.
   ///
   /// Example: gap=4 → 9.09% reduction (4/44 × 100).
@@ -715,6 +713,22 @@ class AvsCalculator {
     final renteMax = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
     final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
     return renteMax * gap / fullYears;
+  }
+
+  /// Models the lifetime loss from ordinary recurring AVS payments.
+  ///
+  /// Counts exactly twelve monthly payments per modeled year. The separate
+  /// December AVS supplement is deliberately excluded from this projection.
+  static double ordinaryRecurringLifetimeLoss(
+    double monthlyLoss,
+    int modeledRetirementYears,
+  ) {
+    if (!monthlyLoss.isFinite ||
+        monthlyLoss <= 0 ||
+        modeledRetirementYears <= 0) {
+      return 0;
+    }
+    return monthlyLoss * 12 * modeledRetirementYears;
   }
 
 }

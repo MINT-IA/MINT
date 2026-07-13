@@ -22,6 +22,7 @@ import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/avs_thirteenth_pension_calculator.dart';
 import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -145,7 +146,9 @@ void main() {
       );
     });
 
-    test('G1.4 Lauren computeMonthlyRente — expat_us, arrivalAge 20, retirement 65', () {
+    test(
+        'G1.4 Lauren computeMonthlyRente — expat_us, arrivalAge 20, retirement 65',
+        () {
       // Lauren: arrived at 20, currentYears = 43-20 = 23, future = 22 → 45, capped 44
       // gapFactor = 1.0 → full RAMD-based rente ≈ 2187.0 (Échelle 44)
       final rente = AvsCalculator.computeMonthlyRente(
@@ -183,19 +186,38 @@ void main() {
       );
     });
 
-    test('G1.6 Julien annual rente includes 13th rente (LAVS art. 34 nouveau)', () {
-      // 2520 × 13 = 32760 CHF/an (avs13emeRenteActive = true)
+    test('G1.6 Julien recurring rente and typed 13th stay separate', () {
       final julienMonthly = AvsCalculator.computeMonthlyRente(
         currentAge: kJulienAge,
         retirementAge: kJulienRetirementAge,
         lacunes: 0,
         grossAnnualSalary: kJulienSalary,
       );
-      final annual = AvsCalculator.annualRente(julienMonthly);
+      final recurringAnnual = julienMonthly * 12;
+      final supplement = AvsThirteenthPensionCalculator.calculate(
+        AvsThirteenthPensionInput.fullYearScenario(
+          ownerId: 'golden-julien',
+          calendarYear: 2026,
+          determiningMonthlyOldAgePensionChf: const ChfAmount.fromFrancs(2520),
+          sourceDate: DateTime.utc(2026, 12, 1),
+          calculationDate: DateTime.utc(2026, 12, 15),
+          legalYear: AvsThirteenthPensionCalculator.supportedLegalYear,
+          ruleVersion: AvsThirteenthPensionCalculator.supportedRuleVersion,
+          scenarioRef: 'golden-julien-full-year',
+        ),
+      );
+
+      expect(recurringAnnual, closeTo(avsRenteMaxMensuelle * 12, 1.0));
+      expect(supplement.ownerId, 'golden-julien');
       expect(
-        annual,
-        closeTo(avsRenteMaxMensuelle * 13, 1.0),
-        reason: '13e rente active → max annual = 2520 × 13 = 32760 CHF/an',
+        supplement.readiness,
+        AvsThirteenthReadiness.illustrativeOnly,
+      );
+      expect(supplement.certifiedThirteenthPensionChf, isNull);
+      expect(supplement.educationalEstimateChf?.cents, 252000);
+      expect(
+        supplement.eligibleOldAgeCashflowWithSupplementChf?.cents,
+        3276000,
       );
     });
   });
@@ -292,7 +314,8 @@ void main() {
   // ══════════════════════════════════════════════════════════════════════════
 
   group('LppCalculator — Julien CPE Plan Maxi', () {
-    test('G3.1 Julien LPP annual rente projection is non-zero and positive', () {
+    test('G3.1 Julien LPP annual rente projection is non-zero and positive',
+        () {
       final annualRente = LppCalculator.projectToRetirement(
         currentBalance: kJulienLppBalance,
         currentAge: kJulienAge,
@@ -307,7 +330,8 @@ void main() {
           reason: 'Julien CPE Plan Maxi projection must be positive');
     });
 
-    test('G3.2 Julien LPP rente matches CLAUDE.md §8 target (~33892 CHF/an)', () {
+    test('G3.2 Julien LPP rente matches CLAUDE.md §8 target (~33892 CHF/an)',
+        () {
       // CLAUDE.md §8: LPP projeté 65 = 677'847 → rente ≈ 33'892 CHF/an
       // (677'847 × 0.068 = 46'093 — but CLAUDE.md shows rente ~33'892 which
       // corresponds to their custom enveloppant blended rate.
@@ -332,7 +356,9 @@ void main() {
       );
     });
 
-    test('G3.3 Julien LPP with CPE override exceeds standard legal minimum projection', () {
+    test(
+        'G3.3 Julien LPP with CPE override exceeds standard legal minimum projection',
+        () {
       // CPE Plan Maxi (bonif 24%, salaire assuré 91'967) should produce
       // a significantly higher projection than the bare legal minimums.
       final planMaxi = LppCalculator.projectToRetirement(
@@ -357,11 +383,13 @@ void main() {
       expect(
         planMaxi,
         greaterThan(legalMinimum),
-        reason: 'CPE Plan Maxi (24% bonif, 91967 assuré) must beat standard LPP',
+        reason:
+            'CPE Plan Maxi (24% bonif, 91967 assuré) must beat standard LPP',
       );
     });
 
-    test('G3.4 Julien LPP conversion rate not reduced at retirement age 65', () {
+    test('G3.4 Julien LPP conversion rate not reduced at retirement age 65',
+        () {
       // LppCalculator.adjustedConversionRate: no reduction at reference age (65).
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: kJulienLppConversionRate,
@@ -375,7 +403,8 @@ void main() {
       );
     });
 
-    test('G3.5 Julien LPP monthly rente derived from annual is non-trivial', () {
+    test('G3.5 Julien LPP monthly rente derived from annual is non-trivial',
+        () {
       final annualRente = LppCalculator.projectToRetirement(
         currentBalance: kJulienLppBalance,
         currentAge: kJulienAge,
@@ -401,7 +430,8 @@ void main() {
   // ══════════════════════════════════════════════════════════════════════════
 
   group('LppCalculator — Lauren HOTELA standard', () {
-    test('G4.1 Lauren LPP annual rente projection is non-zero and positive', () {
+    test('G4.1 Lauren LPP annual rente projection is non-zero and positive',
+        () {
       final annualRente = LppCalculator.projectToRetirement(
         currentBalance: kLaurenLppBalance,
         currentAge: kLaurenAge,
@@ -414,7 +444,8 @@ void main() {
           reason: 'Lauren HOTELA projection must be positive');
     });
 
-    test('G4.2 Lauren LPP rente is in reasonable range for CLAUDE.md §8 target', () {
+    test('G4.2 Lauren LPP rente is in reasonable range for CLAUDE.md §8 target',
+        () {
       // CLAUDE.md §8: Lauren LPP projeté 65 ≈ 153'000 CHF
       // At 6.8% conversion: 153'000 × 0.068 ≈ 10'404 CHF/an
       final annualRente = LppCalculator.projectToRetirement(
@@ -430,11 +461,14 @@ void main() {
       expect(
         annualRente,
         inInclusiveRange(expectedMin, expectedMax),
-        reason: 'Lauren HOTELA rente should be in [5k, 20k] CHF/an (target ~10404)',
+        reason:
+            'Lauren HOTELA rente should be in [5k, 20k] CHF/an (target ~10404)',
       );
     });
 
-    test('G4.3 Julien LPP rente strictly exceeds Lauren (higher balance + better caisse)', () {
+    test(
+        'G4.3 Julien LPP rente strictly exceeds Lauren (higher balance + better caisse)',
+        () {
       final julienRente = LppCalculator.projectToRetirement(
         currentBalance: kJulienLppBalance,
         currentAge: kJulienAge,
@@ -456,7 +490,8 @@ void main() {
       expect(
         julienRente,
         greaterThan(laurenRente),
-        reason: 'Julien (CPE, 5% return, 91k assuré) must yield higher rente than Lauren (HOTELA, 2%, standard)',
+        reason:
+            'Julien (CPE, 5% return, 91k assuré) must yield higher rente than Lauren (HOTELA, 2%, standard)',
       );
     });
 
@@ -473,7 +508,8 @@ void main() {
           reason: 'Must exceed minimum coordonné (3780)');
     });
 
-    test('G4.5 Lauren LPP conversion rate not reduced at retirement age 65', () {
+    test('G4.5 Lauren LPP conversion rate not reduced at retirement age 65',
+        () {
       final rate = LppCalculator.adjustedConversionRate(
         baseRate: kLaurenLppConversionRate,
         retirementAge: kLaurenRetirementAge,
@@ -509,7 +545,8 @@ void main() {
           reason: 'Combined capital (831k) must incur positive tax');
     });
 
-    test('G5.2 Staggered withdrawal tax is less than or equal to same-year tax', () {
+    test('G5.2 Staggered withdrawal tax is less than or equal to same-year tax',
+        () {
       // Progressive taxation (LIFD art. 38): combining large amounts in the same
       // tax year triggers higher brackets → staggered should be cheaper or equal.
       final result = LppCalculator.compareRetirementSequencing(
@@ -582,7 +619,9 @@ void main() {
       );
     });
 
-    test('G6.2 Progressive tax on Julien projected balance (677847) is positive', () {
+    test(
+        'G6.2 Progressive tax on Julien projected balance (677847) is positive',
+        () {
       const vsRate = 0.060;
       final tax = RetirementTaxCalculator.progressiveTax(677847.0, vsRate);
       expect(tax, greaterThan(0),
@@ -593,29 +632,35 @@ void main() {
       // Audit 2026-04-18 Q5 : coefficient marié par canton (pas uniforme).
       // VS = 0.81 (barème marié progressif LF VS art. 33b), pas 0.85.
       const vsRate = 0.060;
-      final taxSingle = RetirementTaxCalculator.progressiveTax(
-          677847.0, vsRate);
+      final taxSingle =
+          RetirementTaxCalculator.progressiveTax(677847.0, vsRate);
       final taxMarried = RetirementTaxCalculator.progressiveTax(
           677847.0, vsRate * marriedCapitalTaxDiscountFor('VS'));
       expect(
         taxMarried,
         lessThan(taxSingle),
-        reason: 'Married couple gets cantonal capital tax discount in VS (0.81)',
+        reason:
+            'Married couple gets cantonal capital tax discount in VS (0.81)',
       );
     });
 
-    test('G6.4 Capital tax scales progressively — Lauren less than Julien (per CHF)', () {
+    test(
+        'G6.4 Capital tax scales progressively — Lauren less than Julien (per CHF)',
+        () {
       // Smaller capital (Lauren ~153k vs Julien ~678k) means a lower average rate
       // because less exposure to higher progressive brackets.
       const vsRate = 0.060;
-      final taxJulien = RetirementTaxCalculator.progressiveTax(677847.0, vsRate);
-      final taxLauren = RetirementTaxCalculator.progressiveTax(153000.0, vsRate);
+      final taxJulien =
+          RetirementTaxCalculator.progressiveTax(677847.0, vsRate);
+      final taxLauren =
+          RetirementTaxCalculator.progressiveTax(153000.0, vsRate);
       final rateJulien = taxJulien / 677847.0;
       final rateLauren = taxLauren / 153000.0;
       expect(
         rateJulien,
         greaterThanOrEqualTo(rateLauren),
-        reason: 'Larger capital hits higher progressive brackets → higher effective rate',
+        reason:
+            'Larger capital hits higher progressive brackets → higher effective rate',
       );
     });
   });
@@ -657,7 +702,8 @@ void main() {
       expect(loss, closeTo(expected, 0.01));
     });
 
-    test('G7.4 Lauren with 2 lacune years reduces her rente proportionally', () {
+    test('G7.4 Lauren with 2 lacune years reduces her rente proportionally',
+        () {
       final noLacune = AvsCalculator.computeMonthlyRente(
         currentAge: kLaurenAge,
         retirementAge: kLaurenRetirementAge,
@@ -687,13 +733,16 @@ void main() {
   // ══════════════════════════════════════════════════════════════════════════
 
   group('LppCalculator — salaire coordonné (LPP art. 8)', () {
-    test('G8.1 Julien coordonné standard = 122207 - 26460 = 95747, capped at 64260', () {
+    test(
+        'G8.1 Julien coordonné standard = 122207 - 26460 = 95747, capped at 64260',
+        () {
       // lppSalaireCoordMax = 64260
       final coordonne = LppCalculator.computeSalaireCoordonne(kJulienSalary);
       expect(
         coordonne,
         closeTo(lppSalaireCoordMax, 0.01),
-        reason: 'Julien salary minus coordination (95747) exceeds max → clamped to 64260',
+        reason:
+            'Julien salary minus coordination (95747) exceeds max → clamped to 64260',
       );
     });
 
@@ -706,14 +755,16 @@ void main() {
       );
     });
 
-    test('G8.3 Combined couple salary above seuilEntree — both are LPP-covered', () {
+    test('G8.3 Combined couple salary above seuilEntree — both are LPP-covered',
+        () {
       expect(kJulienSalary, greaterThan(lppSeuilEntree),
           reason: 'Julien must be LPP-covered (salary > 22680)');
       expect(kLaurenSalary, greaterThan(lppSeuilEntree),
           reason: 'Lauren must be LPP-covered (salary > 22680)');
     });
 
-    test('G8.4 Julien rachat max from CLAUDE.md §8 is financially plausible', () {
+    test('G8.4 Julien rachat max from CLAUDE.md §8 is financially plausible',
+        () {
       // Rachat max 539'414 CHF is a large but legal buyback amount for
       // a 49-year-old with CPE Plan Maxi surobligatoire lacunas.
       // Must be greater than 0 and less than a reasonable ceiling (e.g. 2M).
@@ -721,11 +772,14 @@ void main() {
       expect(kJulienLppRachatMax, lessThan(2000000.0));
     });
 
-    test('G8.5 Lauren rachat max from CLAUDE.md §8 is less than Julien (lower salary/shorter career)', () {
+    test(
+        'G8.5 Lauren rachat max from CLAUDE.md §8 is less than Julien (lower salary/shorter career)',
+        () {
       expect(
         kLaurenLppRachatMax,
         lessThan(kJulienLppRachatMax),
-        reason: 'Lauren (43, 67k, HOTELA standard) has smaller buyback gap than Julien (49, 122k, CPE)',
+        reason:
+            'Lauren (43, 67k, HOTELA standard) has smaller buyback gap than Julien (49, 122k, CPE)',
       );
     });
   });
@@ -763,8 +817,7 @@ void main() {
         mainUser: julienProfile(),
         conjoint: null,
       );
-      expect(result.hasResults, isFalse,
-          reason: 'No conjoint → empty result');
+      expect(result.hasResults, isFalse, reason: 'No conjoint → empty result');
       expect(result.lppBuybackOrder, isNull);
       expect(result.pillar3aOrder, isNull);
       expect(result.avsCap, isNull);

@@ -12847,7 +12847,7 @@ class SDe extends S {
 
   @override
   String get avsGapCalculation =>
-      'Berechnung: Monatsrente × 13 Monate/Jahr (13. AHV-Rente ab Dez. 2026)';
+      'Berechnung: Monatsrente × 12 Monate. Der separate AHV-Zuschlag im Dezember ist nicht enthalten.';
 
   @override
   String get coachBriefingFallbackGreeting => 'Hallo';

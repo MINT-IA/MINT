@@ -68,6 +68,12 @@ class FeatureFlags {
   /// fail-closed until it has a complete product and runtime proof.
   static bool enableGuidedSequences = false;
 
+  /// Local-only gate for the illustrative 13th AVS scenario cash-flow.
+  ///
+  /// It must remain absent from [applyFromMap]: backend flags cannot turn
+  /// an educational scenario into evidence of an AVS fund entitlement.
+  static bool enableAvsThirteenthScenarioCashflow = false;
+
   // ── V1 screen gating ───────────────────────────────────────
   // F7: enableCoachPhase2, enableLifeEventScreens, enableAdvancedSimulators,
   //     enableMortgageTools, enableIndependantTools REMOVED — always true

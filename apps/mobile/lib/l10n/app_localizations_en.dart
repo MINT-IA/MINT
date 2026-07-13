@@ -12760,7 +12760,7 @@ class SEn extends S {
 
   @override
   String get avsGapCalculation =>
-      'Calculation: monthly pension × 13 months/year (13th AVS pension from Dec. 2026)';
+      'Calculation: monthly pension × 12 months. The separate December AVS supplement is not included.';
 
   @override
   String get coachBriefingFallbackGreeting => 'Hello';

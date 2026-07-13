@@ -413,7 +413,8 @@ void main() {
   });
 
   group('fail-closed missing legal evidence', () {
-    test('first pension needs no legal status for raw or payable aggregate', () {
+    test('first pension needs no legal status for raw or payable aggregate',
+        () {
       final result = _compute(
         status: null,
         self: _oldAge(
@@ -432,7 +433,7 @@ void main() {
       expect(result.missingFields, isEmpty);
     });
 
-    test('two disability benefits need no legal status for aggregation', () {
+    test('two disability benefits with unknown status request only status', () {
       final result = _compute(
         status: null,
         self: _disability(owner: AvsPersonRole.self),
@@ -441,9 +442,61 @@ void main() {
       );
 
       expect(result.capState, AvsCoupleCapState.notApplicable);
+      expect(result.self.rawMonthlyPension, 2520);
+      expect(result.partner.rawMonthlyPension, 2520);
       expect(result.rawHouseholdMonthlyPension, 5040);
+      expect(result.self.cappedMonthlyPension, isNull);
+      expect(result.partner.cappedMonthlyPension, isNull);
+      expect(result.payableMonthlyCap, isNull);
+      expect(result.householdMonthlyPension, isNull);
+      expect(result.missingFields, ['legalStatus']);
+      expect(result.isHouseholdComplete, isFalse);
+    });
+
+    for (final status in [
+      AvsCoupleLegalStatus.married,
+      AvsCoupleLegalStatus.registeredPartnership,
+    ]) {
+      test('two disability benefits with ${status.name} wait for AI provider',
+          () {
+        final result = _compute(
+          status: status,
+          self: _disability(owner: AvsPersonRole.self),
+          partner: _disability(owner: AvsPersonRole.partner),
+          separation: null,
+        );
+
+        expect(result.capState, AvsCoupleCapState.notApplicable);
+        expect(result.rawHouseholdMonthlyPension, 5040);
+        expect(result.self.cappedMonthlyPension, isNull);
+        expect(result.partner.cappedMonthlyPension, isNull);
+        expect(result.payableMonthlyCap, isNull);
+        expect(result.householdMonthlyPension, isNull);
+        expect(
+          result.missingFields,
+          ['aiCoupleCapProvider.laiArticle37Paragraph1bis'],
+        );
+        expect(result.isHouseholdComplete, isFalse);
+      });
+    }
+
+    test('cohabiting disability benefits aggregate as payable raw pensions',
+        () {
+      final result = _compute(
+        status: AvsCoupleLegalStatus.cohabiting,
+        self: _disability(owner: AvsPersonRole.self),
+        partner: _disability(owner: AvsPersonRole.partner),
+        separation: null,
+      );
+
+      expect(result.capState, AvsCoupleCapState.notApplicable);
+      expect(result.rawHouseholdMonthlyPension, 5040);
+      expect(result.self.cappedMonthlyPension, 2520);
+      expect(result.partner.cappedMonthlyPension, 2520);
+      expect(result.payableMonthlyCap, isNull);
       expect(result.householdMonthlyPension, 5040);
       expect(result.missingFields, isEmpty);
+      expect(result.isHouseholdComplete, isTrue);
     });
 
     test('cohabiting cap stays notApplicable when raw household is partial',
@@ -459,6 +512,8 @@ void main() {
 
       expect(result.capState, AvsCoupleCapState.notApplicable);
       expect(result.rawHouseholdMonthlyPension, isNull);
+      expect(result.self.cappedMonthlyPension, isNull);
+      expect(result.partner.cappedMonthlyPension, isNull);
       expect(result.householdMonthlyPension, isNull);
       expect(result.missingFields, ['partner.rawMonthlyPension']);
     });
@@ -477,8 +532,17 @@ void main() {
 
       expect(result.capState, AvsCoupleCapState.notApplicable);
       expect(result.rawHouseholdMonthlyPension, isNull);
+      expect(result.self.cappedMonthlyPension, isNull);
+      expect(result.partner.cappedMonthlyPension, isNull);
+      expect(result.payableMonthlyCap, isNull);
       expect(result.householdMonthlyPension, isNull);
-      expect(result.missingFields, ['partner.rawMonthlyPension']);
+      expect(
+        result.missingFields,
+        [
+          'partner.rawMonthlyPension',
+          'legalStatus',
+        ],
+      );
     });
 
     test('missing legal status keeps household pending', () {
@@ -548,6 +612,24 @@ void main() {
       expect(result.rawHouseholdMonthlyPension, 5040);
       expect(result.householdMonthlyPension, isNull);
       expect(result.missingFields, contains('partner.pensionPercentage'));
+    });
+
+    test('ordinary old-age mode rejects a fractional pension percentage', () {
+      final result = _compute(
+        partner: _oldAge(
+          owner: AvsPersonRole.partner,
+          pensionPercentage: 0.5,
+          paymentMode: AvsOldAgePaymentMode.ordinary,
+        ),
+      );
+
+      expect(result.capState, AvsCoupleCapState.pending);
+      expect(result.rawHouseholdMonthlyPension, 5040);
+      expect(result.householdMonthlyPension, isNull);
+      expect(
+        result.missingFields,
+        contains('partner.pensionPercentage.ordinaryRequiresFullPension'),
+      );
     });
 
     test('scale outside 1 to 44 is rejected instead of clamped', () {

@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_core/avs_thirteenth_pension_calculator.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 
 /// Unit tests pour IndependantsService — Sprint S18 (Independants complet)
@@ -63,7 +65,8 @@ void main() {
       expect(result.cotisationSalarie, closeTo(80000 * 0.053, 0.01));
     });
 
-    test('difference annuelle = cotisation independant - cotisation salarie', () {
+    test('difference annuelle = cotisation independant - cotisation salarie',
+        () {
       final result = IndependantsService.calculateAvsCotisations(80000);
       expect(
         result.differenceAnnuelle,
@@ -308,6 +311,14 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('IndependantsService - calculateLppVolontaire', () {
+    setUp(() {
+      FeatureFlags.enableAvsThirteenthScenarioCashflow = false;
+    });
+
+    tearDown(() {
+      FeatureFlags.enableAvsThirteenthScenarioCashflow = false;
+    });
+
     test('salaire coordonne = revenu - 26460 (deduction de coordination)', () {
       final result = IndependantsService.calculateLppVolontaire(
         80000,
@@ -416,6 +427,41 @@ void main() {
         0.30,
       );
       expect(result.salaireCoordonne, closeTo(64260, 0.01));
+    });
+
+    test('13th AVS scenario is local-only and off by default', () {
+      final result = IndependantsService.calculateLppVolontaire(
+        80000,
+        40,
+        0.30,
+      );
+
+      expect(result.avsThirteenthScenario, isNull);
+      expect(result.projectionSansLpp, closeTo(2520 * 12, 0.01));
+    });
+
+    test('enabled 13th AVS scenario remains explicitly illustrative', () {
+      FeatureFlags.enableAvsThirteenthScenarioCashflow = true;
+
+      final result = IndependantsService.calculateLppVolontaire(
+        80000,
+        40,
+        0.30,
+      );
+
+      expect(
+        result.avsThirteenthScenario?.readiness,
+        AvsThirteenthReadiness.illustrativeOnly,
+      );
+      expect(
+        result.avsThirteenthScenario?.certifiedThirteenthPensionChf,
+        isNull,
+      );
+      expect(
+        result.avsThirteenthScenario?.educationalEstimateChf?.cents,
+        252000,
+      );
+      expect(result.projectionSansLpp, closeTo(2520 * 13, 0.01));
     });
   });
 

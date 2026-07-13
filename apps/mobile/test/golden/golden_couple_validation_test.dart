@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/avs_thirteenth_pension_calculator.dart';
 import 'package:mint_mobile/services/financial_core/cross_pillar_calculator.dart';
 import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
@@ -182,7 +183,7 @@ void main() {
           reason: 'Couple AVS should be near 3780 cap');
     });
 
-    test('1d. AVS 13th rente — annual rente with 13 months', () {
+    test('1d. AVS recurring annual cashflow and 13th stay separate', () {
       final julienMonthly = AvsCalculator.computeMonthlyRente(
         currentAge: 49,
         retirementAge: 65,
@@ -190,26 +191,60 @@ void main() {
         grossAnnualSalary: 122207,
       );
 
-      final annual12 =
-          AvsCalculator.annualRente(julienMonthly, include13eme: false);
-      final annual13 =
-          AvsCalculator.annualRente(julienMonthly, include13eme: true);
+      final scenarioMonthly = ChfAmount.fromLegacyDouble(julienMonthly);
+      final expectedRecurringCents = scenarioMonthly.cents * 12;
+      const expectedMonthlyAccrualCents = 21000;
+      const expectedSupplementCents = 252000;
+      final supplement = AvsThirteenthPensionCalculator.calculate(
+        AvsThirteenthPensionInput.fullYearScenario(
+          ownerId: 'golden-julien',
+          calendarYear: 2026,
+          determiningMonthlyOldAgePensionChf: scenarioMonthly,
+          sourceDate: DateTime.utc(2026, 12, 1),
+          calculationDate: DateTime.utc(2026, 12, 15),
+          legalYear: AvsThirteenthPensionCalculator.supportedLegalYear,
+          ruleVersion: AvsThirteenthPensionCalculator.supportedRuleVersion,
+          scenarioRef: 'golden-julien-full-year',
+        ),
+      );
 
       // ignore: avoid_print
       print('\n--- AVS 13th Rente ---');
       // ignore: avoid_print
       print('  Monthly:     ${julienMonthly.toStringAsFixed(2)}');
       // ignore: avoid_print
-      print('  Annual (12): ${annual12.toStringAsFixed(2)}');
+      print(
+          '  Annual (12): ${supplement.eligibleOldAgePensionsPaidChf?.francs.toStringAsFixed(2)}');
       // ignore: avoid_print
-      print('  Annual (13): ${annual13.toStringAsFixed(2)}');
+      print(
+          '  13th estimate: ${supplement.educationalEstimateChf?.francs.toStringAsFixed(2)}');
       // ignore: avoid_print
-      print('  13th bonus:  ${(annual13 - annual12).toStringAsFixed(2)}');
+      print(
+          '  Total cashflow: ${supplement.eligibleOldAgeCashflowWithSupplementChf?.francs.toStringAsFixed(2)}');
 
-      expect(annual13, equals(julienMonthly * 13),
-          reason: '13th rente = monthly * 13');
-      expect(annual13, greaterThan(annual12),
-          reason: '13th rente should exceed 12-month');
+      expect(scenarioMonthly.cents, 252000);
+      expect(supplement.ownerId, 'golden-julien');
+      expect(
+        supplement.readiness,
+        AvsThirteenthReadiness.illustrativeOnly,
+      );
+      expect(supplement.certifiedThirteenthPensionChf, isNull);
+      expect(
+        supplement.eligibleOldAgePensionsPaidChf?.cents,
+        expectedRecurringCents,
+      );
+      expect(
+        supplement.monthlyAccrualPartsChf.map((part) => part?.cents),
+        everyElement(expectedMonthlyAccrualCents),
+      );
+      expect(
+        supplement.educationalEstimateChf?.cents,
+        expectedSupplementCents,
+      );
+      expect(
+        supplement.eligibleOldAgeCashflowWithSupplementChf?.cents,
+        expectedRecurringCents + expectedSupplementCents,
+      );
     });
 
     // ── TEST 2: LPP Calculator ─────────────────────────────────────────────
@@ -823,7 +858,8 @@ void main() {
       // ignore: avoid_print
       print('  AVS RAMD max:             $avsRAMDMax CHF');
       // ignore: avoid_print
-      print('  AVS 13eme rente active:   $avs13emeRenteActive');
+      print(
+          '  AVS 13eme legal year:     ${AvsThirteenthPensionCalculator.supportedLegalYear}');
       // ignore: avoid_print
       print('  LPP seuil entree:         $lppSeuilEntree CHF');
       // ignore: avoid_print

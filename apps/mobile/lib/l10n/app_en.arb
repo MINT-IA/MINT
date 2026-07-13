@@ -6159,7 +6159,7 @@
   "fhsBreakdownRetraite": "Retirement",
   "fhsBreakdownRisque": "Risk",
   "avsGapLifetimeLoss": "Over 20 years of retirement, that's {amount} less — permanently.",
-  "avsGapCalculation": "Calculation: monthly pension × 13 months/year (13th AVS pension from Dec. 2026)",
+  "avsGapCalculation": "Calculation: monthly pension × 12 months. The separate December AVS supplement is not included.",
   "coachBriefingFallbackGreeting": "Hello",
   "@coachBriefingFallbackGreeting": {
     "x-mint-meta": {

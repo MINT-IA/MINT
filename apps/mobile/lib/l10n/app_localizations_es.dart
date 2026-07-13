@@ -12826,7 +12826,7 @@ class SEs extends S {
 
   @override
   String get avsGapCalculation =>
-      'Cálculo: pensión mensual × 13 meses/año (13.ª pensión AVS desde dic. 2026)';
+      'Cálculo: pensión mensual × 12 meses. El suplemento AVS separado de diciembre no está incluido.';
 
   @override
   String get coachBriefingFallbackGreeting => 'Hola';

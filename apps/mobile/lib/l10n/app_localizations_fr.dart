@@ -12822,7 +12822,7 @@ class SFr extends S {
 
   @override
   String get avsGapCalculation =>
-      'Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)';
+      'Calcul : rente mensuelle × 12 mois. Le supplément AVS de décembre est séparé et n’est pas inclus.';
 
   @override
   String get coachBriefingFallbackGreeting => 'Bonjour';

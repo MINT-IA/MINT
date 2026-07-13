@@ -122,7 +122,7 @@ class CoupleOptimizer {
   /// Below this, declare [CoupleWinner.noPreference].
   static const double _minDelta = 100.0;
 
-  /// Run all 4 couple analyses.
+  /// Run all 3 couple analyses.
   ///
   /// Returns [CoupleOptimizationResult] with nullable fields — each
   /// analysis is skipped when insufficient data is available.

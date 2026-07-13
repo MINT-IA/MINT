@@ -22708,7 +22708,7 @@ abstract class S {
   /// No description provided for @avsGapCalculation.
   ///
   /// In fr, this message translates to:
-  /// **'Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)'**
+  /// **'Calcul : rente mensuelle × 12 mois. Le supplément AVS de décembre est séparé et n’est pas inclus.'**
   String get avsGapCalculation;
 
   /// No description provided for @coachBriefingFallbackGreeting.

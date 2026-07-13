@@ -60,7 +60,8 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
 
   double get _renteLoss => _renteWithoutAbroad - _renteWithAbroad;
   double get _perYearAbroad => _yearsAbroad > 0 ? _renteLoss / _yearsAbroad : 0;
-  double get _lifetimeLoss => AvsCalculator.annualRente(_renteLoss) * 20; // avg 20 years retirement
+  double get _lifetimeLoss =>
+      AvsCalculator.ordinaryRecurringLifetimeLoss(_renteLoss, 20);
 
   @override
   Widget build(BuildContext context) {

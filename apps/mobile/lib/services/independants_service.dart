@@ -1,7 +1,8 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_core/avs_thirteenth_pension_calculator.dart';
 import 'package:mint_mobile/services/financial_core/compound_contribution_projection_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -162,6 +163,7 @@ class LppVolontaireResult {
   final double capitalisationAnnuelle; // with employer-equivalent match
   final double projectionSansLpp; // AVS only retirement estimate
   final double projectionAvecLpp; // AVS + LPP retirement estimate
+  final AvsThirteenthPensionResult? avsThirteenthScenario;
   final String ageBracketLabel;
 
   const LppVolontaireResult({
@@ -175,6 +177,7 @@ class LppVolontaireResult {
     required this.capitalisationAnnuelle,
     required this.projectionSansLpp,
     required this.projectionAvecLpp,
+    required this.avsThirteenthScenario,
     required this.ageBracketLabel,
   });
 }
@@ -620,8 +623,32 @@ class IndependantsService {
     // Retirement projection
     final anneesRestantes = max(65 - age, 0);
 
-    // Without LPP: AVS only (LAVS art. 34, max rente = 2520 × 12)
-    final renteAvsMax = AvsCalculator.annualRente(reg('avs.max_monthly_pension', avsRenteMaxMensuelle)); // 32760 CHF (13 rentes)
+    // The recurring AVS projection remains twelve ordinary monthly payments.
+    // A 13th-pension scenario is a distinct December cash-flow and stays
+    // illustrative behind a local-only kill switch.
+    final avsMonthlyMax = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
+    final recurringAvsAnnualMax =
+        reg('avs.max_annual_pension', avsRenteMaxAnnuelle);
+    AvsThirteenthPensionResult? avsThirteenthScenario;
+    if (FeatureFlags.enableAvsThirteenthScenarioCashflow) {
+      final calculatedAt = DateTime.now().toUtc();
+      avsThirteenthScenario = AvsThirteenthPensionCalculator.calculate(
+        AvsThirteenthPensionInput.fullYearScenario(
+          ownerId: 'independant-self-scenario',
+          calendarYear: calculatedAt.year,
+          determiningMonthlyOldAgePensionChf:
+              ChfAmount.fromLegacyDouble(avsMonthlyMax),
+          sourceDate: calculatedAt,
+          calculationDate: calculatedAt,
+          legalYear: AvsThirteenthPensionCalculator.supportedLegalYear,
+          ruleVersion: AvsThirteenthPensionCalculator.supportedRuleVersion,
+          scenarioRef: 'lpp-volontaire-avs-max-current-snapshot',
+        ),
+      );
+    }
+    final renteAvsMax = avsThirteenthScenario
+            ?.eligibleOldAgeCashflowWithSupplementChf?.francs ??
+        recurringAvsAnnualMax;
     final projectionSansLpp = renteAvsMax;
 
     // With LPP: project capital at retirement using centralized bonification rates
@@ -646,6 +673,7 @@ class IndependantsService {
       capitalisationAnnuelle: capitalisationAnnuelle,
       projectionSansLpp: projectionSansLpp,
       projectionAvecLpp: projectionAvecLpp,
+      avsThirteenthScenario: avsThirteenthScenario,
       ageBracketLabel: ageBracketLabel,
     );
   }

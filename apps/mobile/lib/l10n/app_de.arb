@@ -6159,7 +6159,7 @@
   "fhsBreakdownRetraite": "Rente",
   "fhsBreakdownRisque": "Risiko",
   "avsGapLifetimeLoss": "Über 20 Rentenjahre sind das {amount} weniger — endgültig.",
-  "avsGapCalculation": "Berechnung: Monatsrente × 13 Monate/Jahr (13. AHV-Rente ab Dez. 2026)",
+  "avsGapCalculation": "Berechnung: Monatsrente × 12 Monate. Der separate AHV-Zuschlag im Dezember ist nicht enthalten.",
   "coachBriefingFallbackGreeting": "Hallo",
   "@coachBriefingFallbackGreeting": {
     "x-mint-meta": {

@@ -1,6 +1,6 @@
-// Calculator Forge — 50 edge-case financial calculation tests.
+// Calculator Forge — Swiss financial edge-case calculation tests.
 //
-// 10 scenarios × 5 tests each, covering:
+// 10 scenarios covering:
 //   1. 13e rente AVS (LAVS art. 34 nouveau)
 //   2. Capital tax progressive brackets (LIFD art. 38)
 //   3. AVS rente couple cap (LAVS art. 35)
@@ -20,31 +20,54 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/avs_thirteenth_pension_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 
 import 'avs_couple_test_fixtures.dart';
 
+AvsThirteenthPensionResult _fullYearAvsScenario({
+  required String ownerId,
+  required int monthlyFrancs,
+}) =>
+    AvsThirteenthPensionCalculator.calculate(
+      AvsThirteenthPensionInput.fullYearScenario(
+        ownerId: ownerId,
+        calendarYear: 2026,
+        determiningMonthlyOldAgePensionChf: ChfAmount.fromFrancs(monthlyFrancs),
+        sourceDate: DateTime.utc(2026, 12, 1),
+        calculationDate: DateTime.utc(2026, 12, 15),
+        legalYear: AvsThirteenthPensionCalculator.supportedLegalYear,
+        ruleVersion: AvsThirteenthPensionCalculator.supportedRuleVersion,
+        scenarioRef: 'forge-$ownerId-full-year',
+      ),
+    );
+
 void main() {
   // ═══════════════════════════════════════════════════════════════════
   //  SCENARIO 1: 13e rente AVS (LAVS art. 34 nouveau)
-  //  Initiative populaire adoptee mars 2024, 1er versement dec 2026.
-  //  Montant = rente mensuelle x 13 (au lieu de 12).
+  //  Initiative populaire adoptée mars 2024, 1er versement déc. 2026.
+  //  Le supplément de décembre reste séparé des douze rentes récurrentes.
   // ═══════════════════════════════════════════════════════════════════
 
   group('Scenario 1: 13e rente AVS — LAVS art. 34 nouveau', () {
-    test('S1.1 — base rente 2520/mois with 13th → 2520 × 13 = 32760/an', () {
-      // LAVS art. 34: rente max individuelle = 2520 CHF/mois
-      // 13e rente: 2520 × 13 = 32760 CHF/an
-      final annual = AvsCalculator.annualRente(2520.0);
-      expect(annual, closeTo(32760.0, 1.0));
-    });
+    test('S1.1 — typed owner scenario keeps the December supplement separate',
+        () {
+      final result = _fullYearAvsScenario(
+        ownerId: 'forge-max-owner',
+        monthlyFrancs: 2520,
+      );
 
-    test('S1.2 — annual max without 13th = 30240/an', () {
-      // Traditional 12-month total: 2520 × 12 = 30240
-      final annual = AvsCalculator.annualRente(2520.0, include13eme: false);
-      expect(annual, closeTo(30240.0, 1.0));
+      expect(result.ownerId, 'forge-max-owner');
+      expect(result.readiness, AvsThirteenthReadiness.illustrativeOnly);
+      expect(result.certifiedThirteenthPensionChf, isNull);
+      expect(result.eligibleOldAgePensionsPaidChf?.cents, 3024000);
+      expect(result.educationalEstimateChf?.cents, 252000);
+      expect(
+        result.eligibleOldAgeCashflowWithSupplementChf?.cents,
+        3276000,
+      );
     });
 
     test('S1.3 — couple cap stays an ordinary monthly amount', () {
@@ -58,18 +81,29 @@ void main() {
       // intentionally not inferred by this couple-cap test.
     });
 
-    test('S1.4 — single min rente with 13th: 1260 × 13 = 16380/an', () {
-      // LAVS art. 34: rente min individuelle = 1260 CHF/mois
-      // 13e rente: 1260 × 13 = 16380 CHF/an
-      final annual = AvsCalculator.annualRente(1260.0);
-      expect(annual, closeTo(16380.0, 1.0));
+    test('S1.4 — typed minimum scenario yields a separate 1260 supplement', () {
+      final result = _fullYearAvsScenario(
+        ownerId: 'forge-min-owner',
+        monthlyFrancs: 1260,
+      );
+
+      expect(result.ownerId, 'forge-min-owner');
+      expect(result.readiness, AvsThirteenthReadiness.illustrativeOnly);
+      expect(result.certifiedThirteenthPensionChf, isNull);
+      expect(result.eligibleOldAgePensionsPaidChf?.cents, 1512000);
+      expect(result.educationalEstimateChf?.cents, 126000);
+      expect(
+        result.eligibleOldAgeCashflowWithSupplementChf?.cents,
+        1638000,
+      );
     });
 
-    test('S1.5 — avs13emeRenteActive constant is true + avsNombreRentesParAn = 13', () {
-      // Verify constants match implementation
-      expect(avs13emeRenteActive, isTrue);
-      expect(avsNombreRentesParAn, equals(13));
-      expect(avs13emeRenteFactor, closeTo(13.0 / 12.0, 0.001));
+    test('S1.5 — typed contract pins the supported legal snapshot', () {
+      expect(AvsThirteenthPensionCalculator.supportedLegalYear, 2026);
+      expect(
+        AvsThirteenthPensionCalculator.supportedRuleVersion,
+        'OFAS-C13RV-2026-01-01',
+      );
     });
 
     test('S1.6 — self-employed AVS gauge caps at full-rate bracket', () {
@@ -78,8 +112,10 @@ void main() {
         AvsCalculator.selfEmployedCotisationGaugePosition(30250),
         closeTo(0.5, 0.001),
       );
-      expect(AvsCalculator.selfEmployedCotisationGaugePosition(60500), equals(1.0));
-      expect(AvsCalculator.selfEmployedCotisationGaugePosition(135000), equals(1.0));
+      expect(AvsCalculator.selfEmployedCotisationGaugePosition(60500),
+          equals(1.0));
+      expect(AvsCalculator.selfEmployedCotisationGaugePosition(135000),
+          equals(1.0));
     });
   });
 
@@ -99,7 +135,8 @@ void main() {
       expect(tax, closeTo(3250.0, 1.0));
     });
 
-    test('S2.2 — CHF 150000 → two brackets: 100k×1.0 + 50k×1.15 = 10237.50', () {
+    test('S2.2 — CHF 150000 → two brackets: 100k×1.0 + 50k×1.15 = 10237.50',
+        () {
       final tax = RetirementTaxCalculator.progressiveTax(150000, baseRate);
       // 100000 × 0.065 × 1.0 = 6500
       // 50000 × 0.065 × 1.15 = 3737.50
@@ -107,7 +144,9 @@ void main() {
       expect(tax, closeTo(10237.5, 1.0));
     });
 
-    test('S2.3 — CHF 300000 → three brackets: 100k×1.0 + 100k×1.15 + 100k×1.30 = 22425', () {
+    test(
+        'S2.3 — CHF 300000 → three brackets: 100k×1.0 + 100k×1.15 + 100k×1.30 = 22425',
+        () {
       final tax = RetirementTaxCalculator.progressiveTax(300000, baseRate);
       // 100000 × 0.065 × 1.00 = 6500
       // 100000 × 0.065 × 1.15 = 7475
@@ -126,7 +165,8 @@ void main() {
       expect(tax, closeTo(63700.0, 1.0));
     });
 
-    test('S2.5 — CHF 1500000 → all 5 brackets including 1M+: total = 143325', () {
+    test('S2.5 — CHF 1500000 → all 5 brackets including 1M+: total = 143325',
+        () {
       final tax = RetirementTaxCalculator.progressiveTax(1500000, baseRate);
       // 100000 × 0.065 × 1.00 =  6500
       // 100000 × 0.065 × 1.15 =  7475
@@ -234,7 +274,8 @@ void main() {
       expect(coord, closeTo(61740.0, 0.01));
     });
 
-    test('S4.5 — salary 150000 → above plafond → capped at max coordonne 64260', () {
+    test('S4.5 — salary 150000 → above plafond → capped at max coordonne 64260',
+        () {
       // LPP art. 8: 150000 - 26460 = 123540 → clamp to max 64260
       final coord = LppCalculator.computeSalaireCoordonne(150000);
       expect(coord, closeTo(64260.0, 0.01));
@@ -282,14 +323,17 @@ void main() {
       expect(pilier3aPlafondSansLpp, closeTo(36288.0, 0.01));
     });
 
-    test('S6.3 — independant sans LPP, revenue 100000: 20% = 20000 (under max)', () {
+    test('S6.3 — independant sans LPP, revenue 100000: 20% = 20000 (under max)',
+        () {
       // OPP3 art. 7: 20% of 100000 = 20000, max 36288 → 20000
       const amount = (100000.0 * pilier3aTauxRevenuSansLpp);
       final effective = amount.clamp(0, pilier3aPlafondSansLpp);
       expect(effective, closeTo(20000.0, 0.01));
     });
 
-    test('S6.4 — independant sans LPP, revenue 200000: 20% = 40000 → capped at 36288', () {
+    test(
+        'S6.4 — independant sans LPP, revenue 200000: 20% = 40000 → capped at 36288',
+        () {
       // OPP3 art. 7: 20% of 200000 = 40000 > 36288 → capped
       const amount = (200000.0 * pilier3aTauxRevenuSansLpp);
       final effective = amount.clamp(0, pilier3aPlafondSansLpp);
@@ -334,7 +378,9 @@ void main() {
       expect(isBlocked, isFalse);
     });
 
-    test('S7.5 — EPL impact: 50k EPL on 200k balance creates measurable rente gap', () {
+    test(
+        'S7.5 — EPL impact: 50k EPL on 200k balance creates measurable rente gap',
+        () {
       // LPP art. 30d: EPL reduces projected rente
       final result = LppCalculator.computeEplImpact(
         currentBalance: 200000,
@@ -350,7 +396,8 @@ void main() {
       // Gap should be significant: 50k growing at 2% for 25y × 6.8% conversion
       // 50000 × 1.02^25 × 0.068 / 12 ≈ 364 CHF/mois
       expect(result.monthlyGapFromEpl, greaterThan(200));
-      expect(result.renteWithoutEpl, greaterThan(result.renteWithEplOutstanding));
+      expect(
+          result.renteWithoutEpl, greaterThan(result.renteWithEplOutstanding));
     });
   });
 
@@ -363,15 +410,6 @@ void main() {
   group('Scenario 8: Confidence scorer', () {
     test('S8.1 — ConfidenceScorer.totalWeight invariant = 100', () {
       expect(ConfidenceScorer.totalWeight, equals(100));
-    });
-
-    test('S8.2 — freshnessScore: 3 months old → 1.0', () {
-      // Testing via annualRente indirection: freshness < 6mo → 1.0
-      // We can verify the constant-level behavior.
-      // _freshnessScore is private, so we verify constants.
-      // 6 months threshold is documented: <= 6mo → 1.0
-      // This test verifies the decay constants exist and are coherent.
-      expect(avs13emeRenteAnneeDebut, equals(2026)); // used as date reference
     });
 
     test('S8.3 — minConfidenceForProjection threshold = 40', () {
@@ -428,13 +466,8 @@ void main() {
       expect(rente, closeTo(2520.0, 1.0));
     });
 
-    test('S9.2 — Julien AVS annual with 13th = 32760/an', () {
-      // 2520 × 13 = 32760
-      final annual = AvsCalculator.annualRente(2520.0);
-      expect(annual, closeTo(32760.0, 1.0));
-    });
-
-    test('S9.3 — Julien LPP coordination: 122207 → coordonne capped at 64260', () {
+    test('S9.3 — Julien LPP coordination: 122207 → coordonne capped at 64260',
+        () {
       // 122207 - 26460 = 95747 → capped at max 64260
       final coord = LppCalculator.computeSalaireCoordonne(122207);
       expect(coord, closeTo(64260.0, 0.01));
@@ -471,7 +504,9 @@ void main() {
       expect(rate, closeTo(0.10, 0.001));
     });
 
-    test('S10.3 — Lauren AVS rente: salary 67000 → Echelle 44 concave interpolation', () {
+    test(
+        'S10.3 — Lauren AVS rente: salary 67000 → Echelle 44 concave interpolation',
+        () {
       // LAVS art. 34: RAMD 67000 via Echelle 44 concave table (OFAS 2025)
       // 67000 is between 64680 (rente 2142) and 67620 (rente 2199)
       // ratio = (67000 - 64680) / (67620 - 64680) = 2320/2940 ≈ 0.789
@@ -480,7 +515,8 @@ void main() {
       expect(rente, closeTo(2187, 2.0));
     });
 
-    test('S10.4 — Lauren capital withdrawal tax VS: 19620 → first bracket only', () {
+    test('S10.4 — Lauren capital withdrawal tax VS: 19620 → first bracket only',
+        () {
       // Capital 19620, VS rate = 6.0%
       // Tax = 19620 × 0.060 × 1.0 = 1177.20
       final tax = RetirementTaxCalculator.capitalWithdrawalTax(
@@ -490,7 +526,9 @@ void main() {
       expect(tax, closeTo(1177.20, 1.0));
     });
 
-    test('S10.5 — Lauren 3a = 14000, consistent with OPP3 plafond salarie avec LPP', () {
+    test(
+        'S10.5 — Lauren 3a = 14000, consistent with OPP3 plafond salarie avec LPP',
+        () {
       const lauren3a = 14000.0;
       // At 7258/year, 14000 ≈ 1.93 years of max contributions
       // This is consistent with an expat who hasn't contributed many years

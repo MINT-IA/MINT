@@ -6461,7 +6461,7 @@
   "fhsBreakdownRetraite": "Retraite",
   "fhsBreakdownRisque": "Risque",
   "avsGapLifetimeLoss": "Sur 20 ans de retraite, c'est {amount} de moins — définitivement.",
-  "avsGapCalculation": "Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)",
+  "avsGapCalculation": "Calcul : rente mensuelle × 12 mois. Le supplément AVS de décembre est séparé et n’est pas inclus.",
   "@fhsDeltaLabel": {
     "placeholders": {
       "delta": {

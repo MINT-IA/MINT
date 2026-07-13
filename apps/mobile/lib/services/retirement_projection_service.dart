@@ -656,20 +656,19 @@ class RetirementProjectionService {
       // User AVS — no couple cap during transition (LAVS art. 35 al. 1).
       // The cap (150%) applies only when BOTH spouses receive a pension.
       // During transition, only the retired spouse receives → individual rente.
-      // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
+      // This recurring monthly source cannot represent a separate December
+      // event, so it keeps the ordinary monthly AVS amount only.
       if (avsEvidence.householdReady) {
-        final avsUser = AvsCalculator.annualRente(
-          AvsCalculator.computeMonthlyRente(
-            currentAge: profile.age,
-            retirementAge: ageUser,
-            lacunes: avsEvidence.selfCertifiedYears!,
-            anneesContribuees: profile.prevoyance.anneesContribuees,
-            arrivalAge: profile.arrivalAge,
-            grossAnnualSalary: profile.revenuBrutAnnuel,
-            isFemale: tpIsFemale,
-            birthYear: profile.birthYear,
-          ),
-        ) / 12;
+        final avsUser = AvsCalculator.computeMonthlyRente(
+          currentAge: profile.age,
+          retirementAge: ageUser,
+          lacunes: avsEvidence.selfCertifiedYears!,
+          anneesContribuees: profile.prevoyance.anneesContribuees,
+          arrivalAge: profile.arrivalAge,
+          grossAnnualSalary: profile.revenuBrutAnnuel,
+          isFemale: tpIsFemale,
+          birthYear: profile.birthYear,
+        );
         sources.add(RetirementIncomeSource(
           id: 'avs_user',
           label: 'AVS $userName',
@@ -739,24 +738,23 @@ class RetirementProjectionService {
       }
     } else {
       // Conjoint AVS (no couple cap — only conjoint receives)
-      // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
+      // This recurring monthly source cannot represent a separate December
+      // event, so it keeps the ordinary monthly AVS amount only.
       if (avsEvidence.householdReady) {
         final tpConjIsFemale = profile.conjoint!.gender == 'F'
             ? true
             : (profile.conjoint!.gender == 'M' ? false : null);
-        final avsConj = AvsCalculator.annualRente(
-          AvsCalculator.computeMonthlyRente(
-            currentAge: profile.conjoint!.age ?? 45,
-            retirementAge: ageConjoint,
-            lacunes: avsEvidence.spouseCertifiedYears!,
-            anneesContribuees:
-                profile.conjoint?.prevoyance?.anneesContribuees,
-            arrivalAge: profile.conjoint!.arrivalAge,
-            grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
-            isFemale: tpConjIsFemale,
-            birthYear: profile.conjoint!.birthYear,
-          ),
-        ) / 12;
+        final avsConj = AvsCalculator.computeMonthlyRente(
+          currentAge: profile.conjoint!.age ?? 45,
+          retirementAge: ageConjoint,
+          lacunes: avsEvidence.spouseCertifiedYears!,
+          anneesContribuees:
+              profile.conjoint?.prevoyance?.anneesContribuees,
+          arrivalAge: profile.conjoint!.arrivalAge,
+          grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
+          isFemale: tpConjIsFemale,
+          birthYear: profile.conjoint!.birthYear,
+        );
         sources.add(RetirementIncomeSource(
           id: 'avs_conjoint',
           label: 'AVS $conjName',

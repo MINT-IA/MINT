@@ -12844,7 +12844,7 @@ class SIt extends S {
 
   @override
   String get avsGapCalculation =>
-      'Calcolo: rendita mensile × 13 mesi/anno (13ª rendita AVS da dic. 2026)';
+      'Calcolo: rendita mensile × 12 mesi. Il supplemento AVS separato di dicembre non è incluso.';
 
   @override
   String get coachBriefingFallbackGreeting => 'Ciao';

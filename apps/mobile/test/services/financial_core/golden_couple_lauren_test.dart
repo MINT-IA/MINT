@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/avs_thirteenth_pension_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -194,7 +195,8 @@ void main() {
         age: laurenAge,
       );
       // Social charges: 67000 * 0.064 = 4288
-      expect(breakdown.socialCharges, closeTo(laurenSalary * cotisationsSalarieTotal, 1));
+      expect(breakdown.socialCharges,
+          closeTo(laurenSalary * cotisationsSalarieTotal, 1));
       // LPP employee: salaire coord (40540) * bonif 10% / 2 = 2027
       expect(breakdown.lppEmployee, greaterThan(1500));
       expect(breakdown.lppEmployee, lessThan(3000));
@@ -206,22 +208,45 @@ void main() {
       expect(breakdown.netRatio, lessThan(0.95));
     });
 
-    test('10. Lauren annual rente with 13e', () {
+    test('10. Lauren recurring annual rente and 13th stay separate', () {
       final laurenMonthly = AvsCalculator.computeMonthlyRente(
         currentAge: laurenAge,
         retirementAge: retirementAge,
         arrivalAge: laurenArrivalAge,
         grossAnnualSalary: laurenSalary,
       );
-      final annual13 = AvsCalculator.annualRente(laurenMonthly);
-      final annual12 = AvsCalculator.annualRente(laurenMonthly, include13eme: false);
-      // 13e rente = +8.33% vs 12-month
-      expect(annual13, closeTo(annual12 * 13 / 12, 0.01));
-      expect(annual13, greaterThan(annual12));
-      // Lauren monthly ~2400 (43/44 of ~2460 interpolated from 67k)
-      // Annual 13 ≈ ~31200, annual 12 ≈ ~28800
-      expect(annual13, greaterThan(20000));
-      expect(annual13, lessThan(35000));
+      final scenarioMonthly =
+          ChfAmount.fromCents((laurenMonthly * 100).round());
+      final supplement = AvsThirteenthPensionCalculator.calculate(
+        AvsThirteenthPensionInput.fullYearScenario(
+          ownerId: 'golden-lauren',
+          calendarYear: 2026,
+          determiningMonthlyOldAgePensionChf: scenarioMonthly,
+          sourceDate: DateTime.utc(2026, 12, 1),
+          calculationDate: DateTime.utc(2026, 12, 15),
+          legalYear: AvsThirteenthPensionCalculator.supportedLegalYear,
+          ruleVersion: AvsThirteenthPensionCalculator.supportedRuleVersion,
+          scenarioRef: 'golden-lauren-full-year',
+        ),
+      );
+
+      expect(scenarioMonthly.cents, 213728);
+      expect(supplement.ownerId, 'golden-lauren');
+      expect(
+        supplement.readiness,
+        AvsThirteenthReadiness.illustrativeOnly,
+      );
+      expect(supplement.certifiedThirteenthPensionChf, isNull);
+      expect(supplement.eligibleOldAgePensionsPaidChf?.cents, 2564736);
+      expect(
+        supplement.monthlyAccrualPartsChf.map((part) => part?.cents),
+        everyElement(17811),
+      );
+      expect(supplement.educationalEstimateChf?.cents, 213700);
+      expect(
+        supplement.eligibleOldAgeCashflowWithSupplementChf?.cents,
+        2778436,
+      );
     });
   });
 }

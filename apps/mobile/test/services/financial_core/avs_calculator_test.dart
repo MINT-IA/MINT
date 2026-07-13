@@ -302,22 +302,35 @@ void main() {
     });
   });
 
-  group('AvsCalculator.annualRente — 13e rente', () {
-    test('rente max × 13 = 32760', () {
-      final r = AvsCalculator.annualRente(avsRenteMaxMensuelle);
-      expect(r, closeTo(avsRenteMaxMensuelle * 13, 0.01));
+  group('AvsCalculator.ordinaryRecurringLifetimeLoss', () {
+    test('uses twelve ordinary monthly payments per modeled year', () {
+      final loss = AvsCalculator.ordinaryRecurringLifetimeLoss(200, 20);
+
+      expect(loss, closeTo(200 * 12 * 20, 0.01));
     });
-    test('rente min × 13 = 16380', () {
-      final r = AvsCalculator.annualRente(avsRenteMinMensuelle);
-      expect(r, closeTo(avsRenteMinMensuelle * 13, 0.01));
+
+    test('rejects non-finite or non-positive monthly losses', () {
+      for (final monthlyLoss in [
+        double.nan,
+        double.infinity,
+        double.negativeInfinity,
+        0.0,
+        -1.0,
+      ]) {
+        expect(
+          AvsCalculator.ordinaryRecurringLifetimeLoss(monthlyLoss, 20),
+          0,
+        );
+      }
     });
-    test('partial rente × 13', () {
-      final r = AvsCalculator.annualRente(1890);
-      expect(r, closeTo(1890 * 13, 0.01));
-    });
-    test('include13eme=false → × 12', () {
-      final r = AvsCalculator.annualRente(avsRenteMaxMensuelle, include13eme: false);
-      expect(r, closeTo(avsRenteMaxMensuelle * 12, 0.01));
+
+    test('rejects non-positive modeled retirement years', () {
+      for (final years in [0, -1]) {
+        expect(
+          AvsCalculator.ordinaryRecurringLifetimeLoss(200, years),
+          0,
+        );
+      }
     });
   });
 
@@ -419,19 +432,4 @@ void main() {
     });
   });
 
-  // ─── AUDIT-2026-04-17: year-aware AVS13 helper ────────────────────
-  // The 12m and 13m constants are derived from avsRenteMaxMensuelle in
-  // code (no numeric literal drift possible), so we only test the
-  // year-branching logic here — not the arithmetic identities.
-  group('avsMaxAnnualRenteForYear — branching logic', () {
-    test('returns 12-month cap for years < avs13emeRenteAnneeDebut', () {
-      expect(avsMaxAnnualRenteForYear(2025), avsRenteMaxAnnuelle);
-      expect(avsMaxAnnualRenteForYear(2024), avsRenteMaxAnnuelle);
-    });
-
-    test('returns 13-month cap from avs13emeRenteAnneeDebut onwards', () {
-      expect(avsMaxAnnualRenteForYear(2026), avsRenteMaxAnnuelle13m);
-      expect(avsMaxAnnualRenteForYear(2035), avsRenteMaxAnnuelle13m);
-    });
-  });
 }
