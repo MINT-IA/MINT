@@ -1,0 +1,33 @@
+# MINT External Code Audit — Verdict: **NO-GO**
+
+## Scope
+Branch `codex/mint-product-usability-plan-20260712` vs base `7758defa4` (~4,200/-3,151 lines). Core change: **fail-closed AVS gate** — `ForecasterService` and `RetirementProjectionService` now refuse to produce a complete household retirement income / replacement rate; the retirement dashboard shows a new "missing official AVS" state; the AVS guide is repointed from the CI extract to official form 318.282; consumers made null-safe; localization + tests updated.
+
+Much of the diff is genuinely sound and I verified it against code (not docs):
+- **Routing OK:** `/scan/avs-guide` → `AvsGuideScreen` is registered (`app.dart:996-1000`), legacy `/document-scan/avs-guide` redirects to it (`app.dart:1001-1003`). CTA at `retirement_dashboard_screen.dart:719` is really wired.
+- **Null-safety OK:** every `tauxRemplacementBase!` / `revenuAnnuelRetraite!` is behind a guard (`_hasCompleteProjection`, `hasCompleteRate`, `avsIncluded`); coach chat (`coach_chat_screen.dart:598,1442`) and `budget_living_engine.dart:250-256,62,111` all guard before dereference. No crash paths found.
+- **Real bug fixes:** hero pillar-bar AVS double-count fixed (`retirement_hero_zone.dart` `annualAvsTotal`), `buildProfileContext` keeps `replacement_ratio` as a 0-1 fraction for the backend (`coach_orchestrator.dart`), `safeReplacementRate` returns `null` instead of a fake `0%`.
+- **Privacy OK:** no new PII exposure; synthetic runtime data.
+
+## Findings
+
+### P1 — Flagship retirement guided journeys can never complete (facade-without-full-wiring)
+`RetirementDashboardScreen._emitFinalReturn` (`retirement_dashboard_screen.dart:334-380`) now emits `ScreenReturn.abandoned` unless `_hasCompleteProjection` (`:404-411`) is true. That getter requires `projection.avsIncluded`, which is hard-wired false: `_projectScenario` sets `const double? revenuRetraiteAnnuel = null` and `project()` derives `avsIncluded: scenarioBase.revenuAnnuelRetraite != null` (`forecaster_service.dart:1023, 386, 516`). So the dashboard **always** emits `abandoned` with no `taux_remplacement`/`gap_mensuel` outputs.
+
+Both flagship sequences start with a **non-optional** step on that screen:
+- `retirement_prep` → `ret_01_projection`, `intentTag: 'retirement_projection'`, `outputMapping: {taux_remplacement, gap_mensuel}` (`sequence_template.dart:166-175`)
+- `preretraite_complete` (11-step) → `pre_01_projection`, same intent/outputs (`:222-230`)
+
+`retirement_projection` resolves to `/retraite`/`RetirementDashboardScreen` (`screen_registry.dart:385-394`). On `abandoned`, `SequenceCoordinator._handleAbandoned` (`sequence_coordinator.dart:173-185`) retries to `maxProposals`, then—because the step is not optional—returns `PauseAction(canResume: true)`. Resuming re-navigates to the same screen → abandon again. **Result: these journeys are permanently stuck at step 1/5 and 1/11 and cannot advance.**
+
+Repro: start "Préparer ma retraite" from the coach → land on `/retraite` (missing-AVS screen) → pop → step marked abandoned → after N retries the run pauses and never completes. This is a wiring gap: the projection was fail-closed but the dependent sequence contract (`taux_remplacement`, `gap_mensuel`) was not reconciled (e.g. mark the projection step optional, or add a first-class "AVS-pending" completion path).
+
+## P2 (triaged, non-blocking)
+- **Unreachable code:** `_hasMissingAvsFields` is always true (`missingFields` always contains `selfAvsPensionFieldPath`, `forecaster_service.dart` `_projectionMissingFields`), so `_buildUnavailableProjectionState`, `_buildDashboard`, and `RetirementDashboardScreen.householdMonthlyGap` are dead. Harmless but should be labeled as fail-closed placeholders.
+- **Evidence gating bypassed:** `RetirementProjectionService._officialAvsProjectionAvailable(CoachProfile _) => false` ignores its argument, making the `avsGapEvidence.householdReady` logic added in `4bd3ba0bf` dead. Intentional per plan, but the prior evidence contract is now inert.
+- **Runtime proof gap:** the Maestro flow asserts `retirement_avs_document_cta` is *visible* but never taps it; the `/scan/avs-guide` navigation is only statically verified, not runtime-proven.
+
+## Why NO-GO
+The intended B2 fail-closed slice is implemented safely and is runtime-proven. But this branch, taken as a whole, silently converts a core, still-registered user journey (flagship pre-retirement guided sequences) into an unwinnable dead-end — the exact facade-without-wiring class this audit must block — and the team's own SCORECARD independently marks G1 as REOPENED / NO-GO (7.6/10). Resolve the P1 (reconcile the sequence step contract with the fail-closed projection) before this is release-eligible.
+
+To prove the P1: `cd apps/mobile && flutter test` a new widget/integration test that starts `SequenceChatHandler.startSequence('retirement_prep')`, navigates the retirement dashboard, pops, and asserts the run advances past `ret_01_projection` — it will pause instead.

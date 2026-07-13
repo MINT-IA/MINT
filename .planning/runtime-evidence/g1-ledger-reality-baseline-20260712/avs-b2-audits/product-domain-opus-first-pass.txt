@@ -1,0 +1,28 @@
+Product/domain verdict: PASS
+
+I read the full diff against the live tree. This slice makes the retirement path **fail closed** on AVS: `RetirementProjectionService._officialAvsProjectionAvailable()` is hardcoded to `false`, `ForecasterService` forces `revenuAvsIndividuelAnnuel`/`revenuRetraiteAnnuel` to `null`, `safeReplacementRate` now returns `double?` (no more synthetic 0%), and the dashboard renders a dedicated missing-AVS state that keeps capital + trajectory and routes to the official pension calculation. This is a genuine correctness/safety improvement, honestly self-scored as NO-GO-for-release (7.6/10, G2/G3 forbidden). It is a product-domain PASS with the findings below.
+
+## Findings
+
+### P1
+1. **Unverified Swiss form identity surfaced as the required specialist action.** `avs_guide_screen.dart` and all six ARB files now instruct the user that MINT needs "form 318.282" (`avsGuideStep1Title`, `avsGuideHeaderSubtitle`). The diff cites "Centre d'information AVS/AI — formulaire administratif 318.282 / Mémento 3.06" in a code comment but provides no verifiable source. The form number is a current-law/procedural constant now shown verbatim to a user about to make an official request to their caisse de compensation. If the number is wrong, the handoff misdirects.
+   - Repro: open `/scan/avs-guide` → header + step 1 name form 318.282 → CTA `_onOpenOfficialForm` opens `https://www.ahv-iv.ch/fr/Formulaires/Formulaires/Formulaires-administratifs-généraux`, a **generic forms listing**, not the named form. So the app names a specific form but cannot land the user on it.
+   - Proof needed: cite the OFAS/BSV form registry entry (or Mémento 3.06) confirming 318.282 is the "Demande de calcul d'une rente future," and deep-link the CTA to that form rather than the generic page.
+
+### P2
+2. **FRI is nulled wholesale when only its retirement axis input is missing.** `fri_computation_service.dart` returns `null` if `!projection.avsIncluded || replacementRatio == null`, and `mint_state_engine.dart` propagates `friScore = null` (which also kills `sessionDelta`). FRI's L/F/S axes (liquidity, fiscal, structural) do not depend on AVS, yet the whole resilience score disappears for every user until the official parser exists. Verify where `friScore` is displayed; if it is a home-screen headline this escalates to P1.
+3. **Official-form URL is French-locale only** (`_officialFuturePensionUrl` hardcodes `/fr/…`) for de/it/es/pt users.
+4. **Runtime proof asserts the CTA is visible but never taps through.** `retirement_missing_avs.yaml` / patrol test assert `retirement_avs_document_cta` visible; neither verifies that `context.push('/scan/avs-guide')` (`retirement_dashboard_screen.dart:719`) actually lands on the guide (route is only referenced as a "known route template" in `INTERACTION_COVERAGE_AUDIT.md`; the pre-existing route is `/document-scan/avs-guide`). Confirm `/scan/avs-guide` is registered in `app.dart` and reachable.
+5. **Dead code:** `_computeBudgetGap` (with its <60%/>120% replacement-rate alerts) is now unreachable because `avsIncluded` is permanently false; the `revenuAvsIndividuelAnnuel`/`selfAvsPensionFieldPath` plumbing exists but is never trusted (deliberate stub, but note it as facade-that-blocks pending the parser).
+6. **Out-of-scope but still live:** `AvsCalculator` couple-cap and 13th-rente logic (P0s in the scorecard) remain callable via `CoupleOptimizer.avsCap` (`golden_couple_validation_test.dart` test 5). Not a regression from this diff, but the couple-cap/13th-pension bugs are not neutralized there.
+
+## Swiss domain review
+- **AVS:** Correctly severed from all headline projections; the CI-vs-official-calculation reframing is Swiss-accurate (an extrait de compte individuel verifies years/RAMD/gaps, it does not certify a rente). Couple cap (LAVS art. 35), registered-partnership equivalence, and 13th-pension cash-flow are now moot in Forecaster/RetirementProjection because AVS is fully removed — the correct conservative posture given the open couple-manufacturing bug. Form 318.282 identity: **unverified** (P1).
+- **LPP/3a:** Non-AVS capital and rente still computed; the couple double-count is fixed (`RetirementHeroZone.annualLppTotal` sums only `lpp_user`+`lpp_conjoint`; test asserts 3'000 not 4'000). Conversion-rate oblig/suroblig split preserved. Missing spouse age/salary no longer fabricate LPP bonifications (compounds balance only) — good.
+- **Tax:** Capital-withdrawal tax (LIFD art. 38) unchanged; capital-source SWR correctly excluded from taxable retirement income.
+- **Not affected:** mortgage capacity, insurance, inheritance/succession/donation — untouched.
+
+## Mint product logic review
+Moves Mint toward the ledger → DataQuest → scenario → dossier spine, not away from it. The change enforces the "known / estimated / missing / specialist-only" discipline: no confident wrong AVS totals, no fabricated replacement rate, and a proper missing-data state that still shows known capital + trajectory and hands off to the official calculation. Coach/narrative prompts are updated to suppress any total-income or replacement-rate claim when AVS is uncertified — good compliance alignment (LSFin: no advice, no guarantees). Residual gap: the "Revenu retraite hors AVS" framing risks understating for AVS-heavy (lower-income) profiles, but the explicit label plus the official-form CTA keep it coherent. The self-declared NO-GO scorecard is honest and matches code reality.
+
+To prove the P1: `grep -rn "318.282" apps/mobile/lib/l10n/app_fr.arb` shows the claim; a citation to the OFAS form catalogue (or Mémento 3.06) is the missing evidence, and confirming `/scan/avs-guide` registration in `apps/mobile/lib/app.dart` would close finding 4.

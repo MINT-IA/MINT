@@ -1,0 +1,17 @@
+git rev-parse HEAD
+git status --porcelain -- apps/mobile
+python3 tools/checks/mint_os_doctor.py
+python3 tools/checks/patrol_tooling_guard.py
+xcrun simctl bootstatus B03E429D-0422-4357-B754-536637D979F9 -b
+cd apps/mobile && flutter build ios --simulator --debug
+xcrun simctl install B03E429D-0422-4357-B754-536637D979F9 /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/build/ios/iphonesimulator/Runner.app
+MAESTRO_HARD_LIMIT=300 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=/Users/julienbattaglia/Desktop/MINT.nosync/.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/avs-b2-rerun-6d0b1d19532/runtime-exact-sha/maestro/watchdog bash tools/simulator/maestro_with_watchdog.sh test --no-ansi --test-output-dir /Users/julienbattaglia/Desktop/MINT.nosync/.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/avs-b2-rerun-6d0b1d19532/runtime-exact-sha/maestro/screenshots --debug-output /Users/julienbattaglia/Desktop/MINT.nosync/.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/avs-b2-rerun-6d0b1d19532/runtime-exact-sha/maestro/debug --flatten-debug-output apps/mobile/.maestro/retirement_missing_avs.yaml
+cd apps/mobile && /Users/julienbattaglia/.pub-cache/bin/patrol test -t test/patrol/retirement_missing_avs_runtime_test.dart -d B03E429D-0422-4357-B754-536637D979F9 --bundle-id ch.mint.app --dart-define=MINT_PATROL_CLI=true --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 --dart-define=SENTRY_DSN= --no-uninstall
+xcrun xcresulttool get test-results summary --path /Users/julienbattaglia/Desktop/MINT.nosync/.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/avs-b2-rerun-6d0b1d19532/runtime-exact-sha/patrol/ios_results.xcresult --format json
+xcrun xcresulttool get test-results tests --path /Users/julienbattaglia/Desktop/MINT.nosync/.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/avs-b2-rerun-6d0b1d19532/runtime-exact-sha/patrol/ios_results.xcresult --format json
+rm -f apps/mobile/test/patrol/test_bundle.dart
+git status --porcelain -- apps/mobile
+git status --porcelain
+find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 shasum -a 256 > SHA256SUMS
+cd apps/mobile && flutter build ios --simulator --debug  # restore normal main.dart after Patrol
+xcrun simctl install B03E429D-0422-4357-B754-536637D979F9 /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/build/ios/iphonesimulator/Runner.app  # restore normal exact-SHA app after Patrol

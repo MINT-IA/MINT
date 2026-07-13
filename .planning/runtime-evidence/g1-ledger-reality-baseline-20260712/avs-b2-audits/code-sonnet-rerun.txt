@@ -1,0 +1,110 @@
+## MINT External Audit — `codex/mint-product-usability-plan-20260712`
+
+Base ref: `471157cb2` | Diff: 38 files, 2207 insertions / 675 deletions
+
+---
+
+## Verdict: **PASS**
+
+No P0 or P1 findings. The B2 hard floor (no fabricated AVS amounts, no CHF 0 for missing official pensions) is intact and actively strengthened by this PR. P2 findings are documented below.
+
+---
+
+## Summary of What Changed
+
+This PR delivers five distinct correctness/compliance improvements on top of the B2 foundation committed at `fad6e9bc1`:
+
+| Area | Change |
+|---|---|
+| `PremierEclairageSection` | AVS gap card now gates on `avsGapEvidence.selfCertifiedYears` — certified-only, not any declared `lacunesAVS` |
+| `BayesianProfileEnricher` | Distinguishes certified vs uncertified gap years; uncertified count widens σ but does not reduce the prior mean |
+| `EarlyRetirementComparison` | Explicit non-AVS-only scope: removes replacement-rate column, removes AVS calculator calls, adds i18n labels that name the scope |
+| `MonteCarloService` | Removes all `AvsCalculator` calls; `MonteCarloResult` carries `incomeScope=nonAvsOnly`, `avsIncluded=false`, explicit `missingFields` |
+| `CrossPillarCalculator` | Removes `retirementGapAction` type and method entirely; `analyze()` no longer accepts `projectedRetirementIncomeMonthly` |
+| `RetirementDashboard` sequence | `_emitFinalReturn` emits `avs_pending` step outputs (non-numeric) when `_hasMissingAvsFields`, preventing sequence from fabricating `taux_remplacement` or `gap_mensuel` |
+| `AvsGuideScreen` | Replaces generic landing-page URL with locale-aware `avsOfficialFuturePensionFormUri()` targeting form 318.282 directly; adds `avs_official_form_cta` semantic key |
+| `AvsOfficialPensionEvidence` | New contract class creates a single source-of-truth for both field paths; `ForecasterService` and `MonteCarloService` both reference it |
+| Python guard | `test_g1_avs_certified_null_contract.py` prevents future `lacunesAVS ?? 0` regressions across all production Dart |
+
+---
+
+## P0 Findings
+
+**None.**
+
+---
+
+## P1 Findings
+
+**None.**
+
+---
+
+## P2 Findings
+
+### P2-1 · ES/PT locale silent fallback to English form
+
+**File:** `apps/mobile/lib/screens/document_scan/avs_guide_screen.dart` (top-level function)
+
+```dart
+const suffixByLanguage = <String, String>{
+    'fr': 'f', 'de': 'd', 'it': 'i',
+    'en': 'e', 'es': 'e', 'pt': 'e',   // ES/PT: 404 on native endpoints
+};
+final suffix = suffixByLanguage[locale.languageCode.toLowerCase()] ?? 'e';
+```
+
+The comment documents that `.es` and `.pt` endpoints return 404 at time of writing. The unit test (`avs_guide_screen_test.dart`) correctly codifies the expected `.e` fallback. **Risk:** if the government later publishes working Spanish/Portuguese direct endpoints, users will continue receiving the English form. No data-integrity concern, but UX degradation. Recommend a scheduled re-verification in the backlog.
+
+---
+
+### P2-2 · Pre-existing hardcoded French strings in dormant-engine files
+
+**Files:** `cross_pillar_calculator.dart`, `bayesian_enricher.dart`, `monte_carlo_service.dart`
+
+These files retain French-language strings in `tradeOff`, `label`, `action`, `disclaimer`, and `alerte` fields, all annotated `// lint-ignore: dormant engine; no production renderer`. This is localization debt that predates this PR; the PR correctly marks (but does not resolve) it. **Risk:** if any dormant engine consumer is wired to a renderer without going through the localization layer, French strings will appear in non-French locales. Not introduced here, not a regression.
+
+---
+
+### P2-3 · `TornadoSensitivityService._project` over-strict NaN gate on `missingFields.isNotEmpty`
+
+**File:** `apps/mobile/lib/services/financial_core/tornado_sensitivity_service.dart`
+
+```dart
+if (!result.avsIncluded || result.missingFields.isNotEmpty) {
+    return double.nan;
+}
+```
+
+Any non-empty `missingFields` — including non-AVS fields — causes a tornado variant to return NaN and be silently dropped from the ranking. In practice this is guarded: the tornado widget is only rendered when `_hasCompleteProjection` is true, which requires `tauxRemplacementBase != null` (implying no blocking missing field). The risk is theoretical for the current call-site, but if `TornadoSensitivityService.compute` is ever called outside that guard, it will silently return an empty ranking for profiles with minor gaps. A comment documenting this pre-condition on the public `compute` method would prevent future confusion.
+
+---
+
+### P2-4 · `completeRemainingSequence` test helper has unbounded loop with soft cap
+
+**File:** `apps/mobile/test/screens/coach/retirement_dashboard_test.dart` (~line 230)
+
+```dart
+while (current.action is AdvanceAction) {
+    ...
+    expect(eventIndex, lessThanOrEqualTo(20));
+}
+```
+
+The loop advances until `CompleteAction` is reached, guarded only by an assertion. If the sequence definition has a cycle or is misconfigured, the test will spin 20 iterations before failing rather than failing immediately with a clear error. Not a correctness defect in the production path, but a test-quality concern.
+
+---
+
+## Positive Architecture Notes
+
+1. **`AvsOfficialPensionEvidence` contract** (`coach_profile.dart:69-76`): single source of truth for both field paths, correctly imported by `ForecasterService` (`forecaster_service.dart:307-310`) and `MonteCarloService` (`monte_carlo_service.dart:107-110`). The Python test enforces this contract statically.
+
+2. **`lacunesAVS ?? 0` elimination**: `BayesianProfileEnricher`, `CrossPillarCalculator._retirementGapAction`, `TornadoSensitivityService` variable 10, and `MonteCarloService` all drop this pattern. The Python regex guard `CERTIFIED_NULL_FALLBACK_RE = re.compile(r"\.lacunesAVS\s*\?\?\s*0")` prevents regression.
+
+3. **Sequence contract**: `avsPendingStepOutputs` with `projection_status: 'avs_pending'`, `taux_remplacement_missing: true`, `gap_mensuel_missing: true` (no numeric values) is the correct shape for a sequence step output when the projection is partial. Widget tests for both `retirement_projection` and `preretraite_complete` intents verify that no `taux_remplacement` or `gap_mensuel` key leaks into prefills downstream.
+
+4. **`AVS_COUPLE_LEGAL_CONTRACT.md`**: correctly identifies six P0 blockers for couple-AVS activation and 37 TDD acceptance tests that must reach RED → GREEN before any couple result is enabled. The B2 tests called out in that document must not be weakened to make a future couple implementation pass — this is explicitly stated in section 8.
+
+---
+
+*Audit complete. All findings are P2. No remediation is required before merge.*

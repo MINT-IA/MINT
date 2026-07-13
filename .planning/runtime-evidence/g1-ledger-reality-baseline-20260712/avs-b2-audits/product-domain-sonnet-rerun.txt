@@ -1,0 +1,100 @@
+---
+
+## MINT External Audit — Product/Domain Verdict
+
+**Base ref**: `471157cb2` → `6d0b1d195` (38 files changed)
+**Audit mode**: product-domain
+**Date**: 2026-07-13
+
+---
+
+### P1 Findings
+
+---
+
+**P1-1 — TornadoSensitivityService NaN gate silences ALL sensitivity variables for every non-certified-AVS user**
+
+File: `apps/mobile/lib/services/financial_core/tornado_sensitivity_service.dart:587-589`
+
+```dart
+if (!result.avsIncluded || result.missingFields.isNotEmpty) {
+  return double.nan;
+}
+```
+
+Reproduction path:
+
+1. User has salary CHF 120k, LPP balance CHF 180k, 3a CHF 60k — no certified `prevoyance.renteAVSEstimeeMensuelle`
+2. `RetirementProjectionService.project()` → `_officialAvsProjectionAvailable()` returns `false` → `avsIncluded: false`
+3. `_project()` in TornadoSensitivityService returns `double.nan`
+4. Every `_buildVariable(base: nan, low: nan, high: nan)` call produces `swing = 0`
+5. All 9 variables are either NaN or zero-swing → tornado chart is empty
+
+This affects essentially all G1 scope users — certified official AVS pensions (`prevoyance.renteAVSEstimeeMensuelle` source `certificate`) are a late-journey data point. The LPP balance sensitivity, salary sensitivity, 3a sensitivity, and retirement-age sensitivity are all valid non-AVS educational insights. Blanking all of them is inconsistent with `MonteCarloService` (correctly returns `incomeScope: nonAvsOnly`) and `EarlyRetirementComparison` (correctly shows `nonAvsMonthly`). The tornado is the only consumer that applies a total blackout rather than a partial-scope disclosure.
+
+---
+
+**P1-2 — PremierEclairageSection certified AVS gate is dead code**
+
+File: `apps/mobile/lib/widgets/coach/premier_eclairage_section.dart`
+
+The diff's central user-visible fix — gating the AVS gap shock card on `profile.avsGapEvidence.selfCertifiedYears` (certified-only) — is implemented in `PremierEclairageSection`. But this widget has zero production callers:
+
+```
+grep -rn "PremierEclairageSection" apps/mobile/lib --include="*.dart"
+→ only: premier_eclairage_section.dart (self), document_impact_screen.dart (local method named _buildPremierEclairageSection, different)
+```
+
+The actual post-scan "premier éclairage" served to users is in `document_impact_screen.dart:_buildPremierEclairageContent()` (line 520), which displays AI-generated `humanTranslation` / `personalPerspective` / `questionsToAsk` — no AVS gap card, no LPP buyback card, no localized source citations. The certified-only gate never fires in the live product.
+
+---
+
+**P1-3 — EarlyRetirementComparison widget is orphaned**
+
+File: `apps/mobile/lib/widgets/coach/early_retirement_comparison.dart`
+
+The diff removes the replacement rate column and switches to `nonAvsMonthly` scope — a meaningful domain correction. But this widget also has zero production callers:
+
+```
+grep -rn "import.*early_retirement_comparison" apps/mobile/lib --include="*.dart"
+→ no results
+```
+
+`RetirementProjectionResult.earlyRetirementComparisons` (service-level, line 147) is also never consumed in any screen — no screen reads `.earlyRetirementComparisons` from the projection result. The 6 new `earlyRetirementComparison*` localized strings and the `EarlyRetirementChart` widget at `apps/mobile/lib/widgets/retirement/early_retirement_chart.dart` are also unrouted. The user never sees the corrected non-AVS comparison table.
+
+---
+
+### P2 Findings
+
+**P2-1** — `earlyRetirementComparisonPartialDisclaimer` (`app_en.arb:11503`): "rates vary by pension fund (FinSA)" — "rates" is ambiguous; "conversion rates" is unambiguous.
+
+**P2-2** — `premierEclairageAvsSource` in all 6 ARBs cites "13ᵉ rente AVS (dès déc. 2026)". Factually correct (LAVS art. 34ter effective 01.01.2026; first annual supplement payment December 2026), but embedding a payment-calendar date inside a legal citation string is non-idiomatic. LAVS art. 34ter + OFAS reference alone would be cleaner. Not wrong, not urgent.
+
+---
+
+### Swiss Domain Review
+
+| Domain | Status | Notes |
+|---|---|---|
+| B2 Hard Floor | Enforced | `_officialAvsProjectionAvailable()` gates `revenuMensuelAt65 = null`; dashboard emits `avs_pending` outputs rather than fabricating values |
+| Monte Carlo | Correct | `AvsCalculator.computeMonthlyRente` calls removed; `RetirementIncomeScope.nonAvsOnly` returned; disclaimer updated |
+| AVS 13th pension (LAVS art. 34ter) | Correct | Removed from `annualRente/12` pattern; quarantined in couple contract as P0 |
+| LPP | Correct | `CrossPillarCalculator.retirementGapAction` removed; no fabricated replacement rate from estimated AVS |
+| 3a / OPP3 art. 7 | Unaffected | FATCA guard intact |
+| Bayesian enricher | Correct | Uncertified gap years widen SD ×2, do not reduce prior mean; conservative, non-misleading |
+| Couple cap (LAVS art. 35) | Pre-existing P0 | Fixed CHF 3,780 regardless of scales; documented in legal contract; not regressed by this diff |
+| `AvsOfficialPensionEvidence` paths | Correct | Canonical constant; ForecasterService and MonteCarloService both consume it; no inline string drift |
+
+---
+
+### MINT Product Logic Review
+
+The diff's core hypothesis is correct: MINT should not fabricate AVS amounts from salary + estimated contribution years and present them as retirement income. The `avsPendingStepOutputs` constant, the `RetirementIncomeScope` enum, and the Bayesian enricher's certification-aware logic all advance the DataLedger → DataQuest → Scenario spine cleanly.
+
+The implementation gap is in the final rendering layer. Two of the four user-facing corrections in this diff (`PremierEclairageSection` certified gate, `EarlyRetirementComparison` non-AVS scope) are wired to no screen. The user experience delta is therefore smaller than the diff suggests: the B2 floor holds, the Monte Carlo is correctly scoped, and the dashboard sequence doesn't abandon users — but the AVS gap shock card fix and the early retirement comparison correction are both inert.
+
+---
+
+**Product/domain verdict: PASS**
+
+No P0 issues. The B2 hard floor is correctly enforced across all live projection paths. P1-1 (tornado blackout) degrades product educational value and should be resolved before the tornado chart is surfaced to users; P1-2 and P1-3 (orphaned widgets) mean the certified-only AVS gate and non-AVS comparison table need to be wired to at least one production screen before they deliver the intended user value.
