@@ -1,0 +1,61 @@
+%% ============================================================================
+%% expat_avs_verification.mmd — truthful G1 AVS orientation for expatriation
+%% ----------------------------------------------------------------------------
+%% Purpose: prevent residence history from becoming an invented AVS gap or CHF
+%% pension loss, then route the user to distinct official verification paths.
+%% Sources: SCREEN_CONTRACTS.md §4.2 and §5 /scan/avs-guide.
+%% ============================================================================
+
+flowchart TB
+  classDef route fill:#eaf6f0,stroke:#166b4a,color:#10261d,stroke-width:1px;
+  classDef local fill:#eef1ff,stroke:#4f62c6,color:#111836,stroke-width:1px;
+  classDef evidence fill:#f6f1e7,stroke:#b48a3b,color:#21180a,stroke-width:1px;
+  classDef unknown fill:#fff5e6,stroke:#c26f00,color:#201307,stroke-width:1px;
+  classDef proof fill:#f2edf8,stroke:#7b4eb2,color:#1d102a,stroke-width:1px;
+  classDef forbidden fill:#fff0f0,stroke:#a82f2f,color:#321010,stroke-width:1px;
+
+  Expat["/expatriation<br/>AVS tab"]:::route
+  YearsGate{"Years abroad<br/>explicitly selected?"}
+  YearsUnknown["Unknown local lever<br/>no synthetic default<br/>start disabled"]:::unknown
+  YearsLocal["_yearsAbroad<br/>nullable local scenario lever<br/>no ledger write"]:::local
+  OptIn{"Explicit orientation<br/>opt-in?"}
+  Hidden["Assessment hidden<br/>no implicit calculation"]:::unknown
+
+  CiEvidence{"Reviewed CI documents<br/>self gap years?"}
+  GapUnknown["AVS gap unknown<br/>no gap count + no CHF"]:::unknown
+  GapDocumented["CI-documented self gap years<br/>conditional minimum scale effect<br/>gap years / 44 only"]:::evidence
+  NotEquivalent["Years abroad ≠ AVS gap years"]:::forbidden
+  NoWrite["No q_avs_years_abroad write<br/>no lacunesAVS write<br/>no pension or CHF-loss write"]:::forbidden
+  Partner["Spouse evidence is out of scope<br/>never synthesized as 0<br/>no effect on the self-only result"]:::unknown
+
+  Guide["/scan/avs-guide<br/>verification guide"]:::route
+  CiBranch["A — official domicile-aware CI request<br/>verify income, years, gaps"]:::evidence
+  FutureBranch["B — official form 318.282<br/>separate future calculation<br/>joint request explained for married/registered partners"]:::evidence
+  ScanBranch["A — /scan<br/>DocumentType.avsExtract<br/>review before certificate write"]:::route
+  Runtime["Registry edge + Maestro route proof<br/>Patrol nullable input / no-write proof"]:::proof
+
+  Expat --> YearsGate
+  YearsGate -- "no" --> YearsUnknown
+  YearsGate -- "yes" --> YearsLocal --> OptIn
+  OptIn -- "no" --> Hidden
+  OptIn -- "yes" --> CiEvidence
+  YearsLocal --> NotEquivalent
+  YearsLocal --> NoWrite
+  Expat -. "separate spouse scope" .-> Partner
+  CiEvidence -- "no" --> GapUnknown
+  CiEvidence -- "yes" --> GapDocumented
+  GapUnknown --> Guide
+  GapDocumented --> Guide
+  Guide --> CiBranch
+  Guide --> FutureBranch
+  CiBranch --> ScanBranch
+  Guide --> Runtime
+  ScanBranch --> Runtime
+
+  %% Invariants:
+  %% EA-1 `_yearsAbroad` is null until explicit local selection and is never persisted.
+  %% EA-2 Years lived abroad never become AVS contribution-gap years.
+  %% EA-3 Only reviewed CI evidence may unlock the proportional gap-years / 44 orientation.
+  %% EA-4 The flow renders no personal pension, CHF loss, eligibility result, or household total.
+  %% EA-5 Spouse evidence is outside this self-only result and is never synthesized as zero.
+  %% EA-6 CI acquisition, future calculation 318.282, and scan are distinct branches.

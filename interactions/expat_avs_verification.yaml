@@ -1,0 +1,40 @@
+schema_version: 1
+flow:
+  id: expat_avs_verification
+  title: "Expat AVS orientation to official verification guide"
+  exits: [scan.route.avs_guide]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: expat.route.expatriation
+    kind: route
+    route: /expatriation
+    widget: screens/expat_screen.dart
+    entries:
+      - {via: flow, back: pop}
+      - {via: deeplink, back: pop}
+    states: [content, partial]
+
+  - id: scan.route.avs_guide
+    kind: route
+    route: /scan/avs-guide
+    widget: screens/document_scan/avs_guide_screen.dart
+    entries:
+      - {via: flow, back: pop}
+      - {via: deeplink, back: pop}
+    states: [content, error.network]
+
+edges:
+  - id: expat.edge.avs.open_verification_guide
+    from: expat.route.expatriation
+    to: scan.route.avs_guide
+    trigger: tap
+    intent: "Verify declared AVS uncertainty through the CI and future-calculation paths"
+    payload: {}
+    transition: push
+    back: pop
+    a11y_label: expatAvsVerificationGuideCta
+    test_ref: apps/mobile/.maestro/expat_avs_verification.yaml

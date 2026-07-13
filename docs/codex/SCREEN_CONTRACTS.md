@@ -293,7 +293,8 @@ proves five bypass shapes red, and scans the six exact audited source files
 | `/life-event/deces-proche` | enableExplorerFamille | Death of a relative: survivor benefits + estate steps. | `conjoint`, `nombreEnfants`, `patrimoine`, `canton` | `/succession`, `/coach/chat` |
 | `/life-event/housing-sale` | enableExplorerLogement | Sale of a primary residence. | `patrimoine`, `canton`, `prevoyance.avoirLppTotal` | `/hypotheque`, `/fiscal`, `/coach/chat` |
 | `/life-event/demenagement-cantonal` | enableExplorerFiscalite | Inter-cantonal move tax/benefit impact. | `canton`, `salaireBrutMensuel`, `nombreEnfants` | `/cantonal-benchmark`, `/fiscal`, `/coach/chat` |
-| `/first-job`, `/expatriation` | enableExplorerTravail | Career transitions. | `employmentStatus`, `salaireBrutMensuel`, `archetype`, `nationality` | `/data-block/revenu`, `/data-block/lpp`, `/coach/chat` |
+| `/first-job` | enableExplorerTravail | First-job transition. | `employmentStatus`, `salaireBrutMensuel`, `archetype`, `nationality` | `/data-block/revenu`, `/data-block/lpp`, `/coach/chat` |
+| `/expatriation` | enableExplorerTravail | Expatriation orientation. Its AVS tab keeps years abroad as a nullable local scenario lever, never an AVS-gap fact; only CI-documented self gap years may unlock the conditional 1/44 scale orientation. | `CoachProfile.avsGapEvidence.selfCertifiedYears` only when certificate-ready; years abroad is local and nullable | `/scan/avs-guide`, back |
 | `/segments/independant` | enableExplorerTravail | Independent entry hub. Reads declared independent income, age, and canton from the Data Ledger; it must render partial/missing state instead of defaulting to a fictive CHF 80'000 / age 42 / ZH scenario. Coverage controls must disclose provenance: voluntary LPP and 3a are profile facts persisted to `q_has_voluntary_lpp` / `q_has_3a`; IJM and LAA are temporary comparison assumptions until their dedicated ledger facts exist. | `employmentStatus`, `q_self_employed_income`, `q_birth_year`, `q_canton`, `q_has_voluntary_lpp`, `q_has_pension_fund`, `q_has_3a` | `/data-block/revenu?inputKey=q_self_employed_income`, `/data-block/revenu?inputKey=q_birth_year`, `/data-block/revenu?inputKey=q_canton` |
 | `/unemployment` | enableExplorerTravail | Swiss unemployment lucidity. Reads known ledger facts only; result stays partial until explicit gross annual salary, birth year/date, and LACI contribution months over the last 24 months are user-provided. It must not derive LACI insured earnings from net-income estimates. Children/disability controls are scenario/current-situation levers; children may hydrate from the ledger when already known. Age is a known fact even after 65; the ordinary LACI calculator then renders a non-eligible AVS-reference transition state instead of re-asking age or producing a normal benefit. The budget crash-test must use declared monthly net income plus only ledger expenses (`q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, optional transport); it may compare those against a clearly labelled estimated net LACI cash-flow derived from the gross benefit, but never against the gross benefit itself. If budget facts are missing it renders a collection CTA, never invented ratios and never gross-vs-net cash-flow mixing. | `q_gross_salary_annual`, `q_net_income_period_chf`, `q_birth_year`, `q_date_of_birth`, `q_gender`, `q_unemployment_contribution_months`, `q_children`, `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `depenses.transport` | `/data-block/revenu?inputKey=q_gross_salary_annual`, `/data-block/revenu?inputKey=q_birth_year`, `/data-block/revenu?inputKey=q_unemployment_contribution_months`, `/budget/setup`, `/coach/chat` |
 | `/independants/avs`, `/independants/ijm`, `/independants/3a`, `/independants/dividende-salaire`, `/independants/lpp-volontaire` | enableExplorerTravail | Independent: AVS cotisations, daily-allowance (IJM), 3a indep, dividend-vs-salary, voluntary LPP. IJM uses Data Ledger income and birth year only; its 80% output is an illustrative contract scenario, not a legal entitlement or verified policy. 3a indep may use `q_cash_total` as a completion/liquidity fact only when it is an explicit declared cash amount; `q_emergency_fund` heuristics must not unlock that fact. Dividend-vs-salary uses SA/Sarl `q_company_profit_annual_chf`, not sole-proprietor `q_self_employed_income`. | `employmentStatus`, `q_self_employed_income`, `q_company_profit_annual_chf`, `q_birth_year`, `q_has_voluntary_lpp`, `q_has_pension_fund`, `q_has_3a`, `q_cash_total`, `canton`, `prevoyance` | `/segments/independant`, `/data-block/revenu?inputKey=q_self_employed_income`, `/data-block/revenu?inputKey=q_birth_year`, `/data-block/revenu?inputKey=q_company_profit_annual_chf`, `/coach/chat` |
@@ -335,6 +336,24 @@ proves five bypass shapes red, and scans the six exact audited source files
   only with its user-provided marker and timestamp, then proves
   `/rachat-lpp`, no warning, and null destination extra
   (`widget_renderer_test.dart:25-44,99-132`).
+
+### 4.2 `/expatriation` — AVS verification orientation (LIVE G1 contract)
+
+| | |
+|---|---|
+| shell | root |
+| purpose | Give a truthful, educational AVS orientation before directing the user to official verification. A period lived abroad is context to verify, not proof of an AVS contribution gap. |
+| reads | `CoachProfile.avsGapEvidence.selfCertifiedYears` only when the self gap evidence is certificate-ready from a reviewed CI. Missing self evidence leaves the self gap orientation unknown; spouse evidence is outside this self-only result and is never synthesized. |
+| writes | ∅. `_yearsAbroad`, `_avsScenarioStarted`, and `AvsGapAssessment` are route-local scenario state; selection, opt-in, and result rendering never write `q_avs_years_abroad`, `prevoyance.lacunesAVS`, partner facts, or any CHF amount. |
+| entryConditions | none |
+| emptyState | `_yearsAbroad == null`: show the explicit-selection placeholder, disable `expat_avs_start_scenario`, and render no assessment. No synthetic default year count. |
+| partialState | After a local year selection but before explicit opt-in, keep the assessment hidden. After opt-in with no CI-documented gap years, render `expat_avs_gap_unknown`; years abroad remain visibly distinct from gap years. |
+| contentState | With CI-documented self gap years, render only the conditional minimum statutory-scale effect (`gap years / 44`) and its evidence boundary. Never render a personal AVS pension, CHF loss, eligibility decision, or household total. |
+| errorState | Input is constrained to 0–44 years. A missing or invalid assessment remains hidden rather than falling back to a fabricated value. Official-link failures are handled by `/scan/avs-guide`. |
+| routesOut | `expat.edge.avs.open_verification_guide` → `/scan/avs-guide`; back |
+| partnerInvariant | Partner linking is optional, purpose-specific, field-scoped, and revocable. Missing or revoked spouse AVS evidence is unknown, never zero; this self-only orientation performs no couple-rente calculation. |
+| runtimeProof | `apps/mobile/.maestro/expat_avs_verification.yaml` plus `apps/mobile/integration_test/expat_avs_verification_patrol_test.dart` for real nullable-picker input and no-write persistence. |
+| killFlag | `enableExplorerTravail` |
 
 > **`/budget`, `/budget/setup`** (budget CONTENT, gated `enableBudget`):
 > - `/budget` — reads `BudgetProvider` (bridged, §10 test 3); writes budget lines → `mergeAnswers()` + recompute. emptyState "Configurons ton budget." CTA `/budget/setup`. partialState: some lines set → DIFF for the rest. errorState + Réessayer. killFlag `enableBudget`.
@@ -427,14 +446,15 @@ Any other transition throws `StateError`.
 | | |
 |---|---|
 | shell | root |
-| purpose | How to obtain the AVS account extract. |
-| reads | ∅ (static guide) |
-| writes | ∅ |
+| purpose | Keep two official steps distinct: A) request an individual-account statement (CI) to verify income, contribution years, and gaps; B) separately request the future-pension calculation with form 318.282. For married couples and, by MINT convention, registered partners, the future-calculation branch explains the joint-request path. |
+| reads | locale for the official 318.282 language suffix; otherwise static educational copy. It consumes no financial profile value and no spouse amount. |
+| writes | ∅. Opening the CI hub, opening 318.282, or continuing to scan does not write a ledger fact. A later reviewed scan is the separate certificate write path. |
 | entryConditions | none |
 | emptyState | n/a (static) |
-| partialState | n/a |
-| errorState | render failure → static fallback text + CTA `/scan`. i18n `scan.avsGuide.error` |
-| routesOut | `/scan`, back |
+| partialState | The CI and future-calculation cards remain separately actionable; the scan action is available only inside branch A. Debug scan simulation may show a processing state but is not the production acquisition contract. |
+| errorState | An official external link that cannot open keeps the guide visible and shows a localized retry/error snackbar; it never fabricates a successful request or evidence. |
+| routesOut | official domicile-aware CI request hub; official localized form `318.282`; `/scan` with `DocumentType.avsExtract`; back |
+| evidenceInvariant | Years abroad are not gaps. Only a reviewed CI may document self gap years; future-calculation output remains a separate official evidence kind. Missing self evidence is unknown, never zero; spouse evidence is outside this self-only guide result and is never synthesized. |
 | killFlag | enableScan |
 
 ### `/scan/review` — TARGET

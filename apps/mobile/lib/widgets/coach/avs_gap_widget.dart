@@ -36,6 +36,7 @@ class AvsGapWidget extends StatelessWidget {
     final hasDocumentedGaps = result.documentedGapYears != null;
 
     return Semantics(
+      identifier: 'expat_avs_scenario_result',
       label: l.expatAvsTruthSemantics,
       child: Container(
         decoration: BoxDecoration(
@@ -103,12 +104,16 @@ class AvsGapWidget extends StatelessWidget {
                       tone: MintColors.success,
                     )
                   else
-                    _TruthCard(
-                      key: const Key('expat_avs_gap_unknown'),
-                      icon: Icons.help_outline,
-                      title: l.expatAvsGapUnknownTitle,
-                      body: l.expatAvsGapUnknownBody,
-                      tone: MintColors.warning,
+                    Semantics(
+                      identifier: 'expat_avs_gap_unknown',
+                      container: true,
+                      child: _TruthCard(
+                        key: const Key('expat_avs_gap_unknown'),
+                        icon: Icons.help_outline,
+                        title: l.expatAvsGapUnknownTitle,
+                        body: l.expatAvsGapUnknownBody,
+                        tone: MintColors.warning,
+                      ),
                     ),
                   const SizedBox(height: MintSpacing.md),
                   _TruthCard(
@@ -125,11 +130,16 @@ class AvsGapWidget extends StatelessWidget {
                     tone: MintColors.primary,
                   ),
                   const SizedBox(height: MintSpacing.sm),
-                  FilledButton.icon(
-                    key: const Key('expat_avs_verification_guide_cta'),
-                    onPressed: onOpenAvsVerificationGuide,
-                    icon: const Icon(Icons.arrow_forward),
-                    label: Text(l.expatAvsVerificationGuideCta),
+                  Semantics(
+                    identifier: 'expat_avs_verification_guide_cta',
+                    container: true,
+                    button: true,
+                    child: FilledButton.icon(
+                      key: const Key('expat_avs_verification_guide_cta'),
+                      onPressed: onOpenAvsVerificationGuide,
+                      icon: const Icon(Icons.arrow_forward),
+                      label: Text(l.expatAvsVerificationGuideCta),
+                    ),
                   ),
                   const SizedBox(height: MintSpacing.md),
                   Text(

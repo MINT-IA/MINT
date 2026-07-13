@@ -6,9 +6,9 @@
 
 - Extracted Flutter route references: 366
 - Distinct known route templates referenced: 92
-- Covered by declared Interaction Registry route nodes: 21
-- Known route templates not yet declared as route nodes: 71
-- Declared edge target route templates: 6
+- Covered by declared Interaction Registry route nodes: 23
+- Known route templates not yet declared as route nodes: 69
+- Declared edge target route templates: 7
 - Unknown route literals/templates: 0
 
 ## Covered Registry Route Nodes
@@ -23,6 +23,7 @@
 | covered by declared route node | `/debt/ratio` | apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:72, apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:84, apps/mobile/lib/services/response_card_service.dart:473, apps/mobile/lib/widgets/common/debt_tools_nav.dart:16 |
 | covered by declared route node | `/disability/insurance` | apps/mobile/lib/app.dart:636 |
 | covered by declared route node | `/disability/self-employed` | apps/mobile/lib/app.dart:637 |
+| covered by declared route node | `/expatriation` | apps/mobile/lib/app.dart:579, apps/mobile/lib/screens/timeline_screen.dart:204, apps/mobile/lib/services/cap_engine.dart:846, apps/mobile/lib/services/response_card_service.dart:360 (+1 more) |
 | covered by declared route node | `/first-job` | apps/mobile/lib/app.dart:575, apps/mobile/lib/screens/first_job_screen.dart:111, apps/mobile/lib/screens/first_job_screen.dart:122, apps/mobile/lib/screens/timeline_screen.dart:106 (+2 more) |
 | covered by declared route node | `/home` | apps/mobile/lib/services/navigation/mint_nav.dart:19 |
 | covered by declared route node | `/hypotheque` | apps/mobile/lib/app.dart:590, apps/mobile/lib/screens/mortgage/affordability_screen.dart:116, apps/mobile/lib/screens/mortgage/affordability_screen.dart:127, apps/mobile/lib/screens/timeline_screen.dart:148 (+5 more) |
@@ -31,6 +32,7 @@
 | covered by declared route node | `/invalidite` | apps/mobile/lib/app.dart:635, apps/mobile/lib/screens/disability/disability_gap_screen.dart:94, apps/mobile/lib/screens/timeline_screen.dart:183, apps/mobile/lib/services/cap_engine.dart:834 (+2 more) |
 | covered by declared route node | `/life-event/donation` | apps/mobile/lib/app.dart:623, apps/mobile/lib/screens/timeline_screen.dart:169, apps/mobile/lib/services/cap_engine.dart:828, apps/mobile/lib/services/response_card_service.dart:316 (+1 more) |
 | covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1913, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:548, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:160 (+8 more) |
+| covered by declared route node | `/scan/avs-guide` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:740, apps/mobile/lib/screens/expat_screen.dart:1255, apps/mobile/lib/screens/profile/financial_summary_screen.dart:141, apps/mobile/lib/widgets/profile/futur_drawer_content.dart:73 (+2 more) |
 | covered by declared route node | `/scan/impact` | apps/mobile/lib/screens/document_scan/document_impact_screen.dart:721 |
 | covered by declared route node | `/segments/independant` | apps/mobile/lib/app.dart:578, apps/mobile/lib/screens/timeline_screen.dart:120, apps/mobile/lib/services/cap_engine.dart:786, apps/mobile/lib/widgets/life_event_suggestions.dart:128 |
 | covered by declared route node | `/simulator/job-comparison` | apps/mobile/lib/app.dart:577, apps/mobile/lib/screens/timeline_screen.dart:113, apps/mobile/lib/services/cap_engine.dart:810, apps/mobile/lib/services/response_card_service.dart:384 (+1 more) |
@@ -72,7 +74,6 @@
 | uncovered literal route | `/education/hub` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1180, apps/mobile/lib/widgets/coach/coach_message_bubble.dart:383, apps/mobile/lib/widgets/coach/smart_shortcuts.dart:210 |
 | uncovered literal route | `/education/theme/:id` | apps/mobile/lib/screens/education/comprendre_hub_screen.dart:65 |
 | uncovered literal route | `/epl` | apps/mobile/lib/app.dart:549, apps/mobile/lib/screens/lpp_deep/epl_screen.dart:102, apps/mobile/lib/screens/lpp_deep/epl_screen.dart:123, apps/mobile/lib/services/response_card_service.dart:236 |
-| uncovered literal route | `/expatriation` | apps/mobile/lib/app.dart:579, apps/mobile/lib/screens/timeline_screen.dart:204, apps/mobile/lib/services/cap_engine.dart:846, apps/mobile/lib/services/response_card_service.dart:360 (+1 more) |
 | uncovered literal route | `/explore/famille` | apps/mobile/lib/screens/explore/explorer_screen.dart:47 |
 | uncovered literal route | `/explore/fiscalite` | apps/mobile/lib/screens/explore/explorer_screen.dart:65 |
 | uncovered literal route | `/explore/logement` | apps/mobile/lib/screens/explore/explorer_screen.dart:59 |
@@ -104,7 +105,6 @@
 | uncovered literal route | `/rapport` | apps/mobile/lib/widgets/mentor_fab.dart:69 |
 | uncovered literal route | `/rente-vs-capital` | apps/mobile/lib/app.dart:547, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:136, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:147, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:415 (+10 more) |
 | uncovered literal route | `/retraite` | apps/mobile/lib/app.dart:546, apps/mobile/lib/data/educational_themes.dart:133, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:347, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:362 (+6 more) |
-| uncovered literal route | `/scan/avs-guide` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:740, apps/mobile/lib/screens/expat_screen.dart:1251, apps/mobile/lib/screens/profile/financial_summary_screen.dart:141, apps/mobile/lib/widgets/profile/futur_drawer_content.dart:73 (+2 more) |
 | uncovered literal route | `/segments/frontalier` | apps/mobile/lib/app.dart:580, apps/mobile/lib/services/response_card_service.dart:372 |
 | uncovered literal route | `/segments/gender-gap` | apps/mobile/lib/services/response_card_service.dart:444 |
 | uncovered literal route | `/settings/langue` | apps/mobile/lib/widgets/settings_sheet.dart:53 |
@@ -131,6 +131,7 @@
 | `/debt/ratio` |
 | `/disability/insurance` |
 | `/disability/self-employed` |
+| `/expatriation` |
 | `/first-job` |
 | `/home` |
 | `/hypotheque` |
@@ -142,6 +143,7 @@
 | `/invalidite` |
 | `/life-event/donation` |
 | `/scan` |
+| `/scan/avs-guide` |
 | `/scan/impact` |
 | `/scan/review` |
 | `/segments/independant` |
@@ -159,3 +161,4 @@
 | `/home` |
 | `/hypotheque` |
 | `/scan` |
+| `/scan/avs-guide` |

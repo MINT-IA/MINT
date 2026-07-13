@@ -1,0 +1,63 @@
+appId: ch.mint.app
+---
+# expat.edge.avs.open_verification_guide
+# Les annees a l'etranger restent inconnues avant une confirmation locale explicite.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///expatriation"
+- tapOn:
+    id: "expat_avs_tab"
+- assertVisible:
+    id: "expat_avs_years_picker"
+- assertVisible:
+    text: "À renseigner"
+- assertVisible:
+    id: "expat_avs_start_scenario"
+- assertNotVisible:
+    id: "expat_avs_scenario_result"
+- tapOn:
+    id: "expat_avs_years_picker"
+- tapOn:
+    text: "OK"
+- assertVisible:
+    text: "0 ans"
+- tapOn:
+    id: "expat_avs_start_scenario"
+- assertVisible:
+    id: "expat_avs_scenario_result"
+- assertVisible:
+    id: "expat_avs_gap_unknown"
+- assertNotVisible:
+    text: ".*CHF\\s*[0-9].*"
+- scrollUntilVisible:
+    element:
+      id: "expat_avs_verification_guide_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 80
+    centerElement: true
+- tapOn:
+    id: "expat_avs_verification_guide_cta"
+- scrollUntilVisible:
+    element:
+      id: "avs_official_ci_request_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 80
+    centerElement: true
+- assertVisible:
+    id: "avs_official_ci_request_cta"
+- scrollUntilVisible:
+    element:
+      id: "avs_official_form_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 80
+    centerElement: true
+- assertVisible:
+    id: "avs_official_form_cta"
+- takeScreenshot: expat_avs_verification_guide

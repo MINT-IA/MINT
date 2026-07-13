@@ -14,6 +14,7 @@ flowchart LR
   disability_route_insurance["disability.route.insurance<br/>/disability/insurance"]:::route
   disability_route_self_employed["disability.route.self_employed<br/>/disability/self-employed"]:::route
   donation_route_life_event["donation.route.life_event<br/>/life-event/donation"]:::route
+  expat_route_expatriation["expat.route.expatriation<br/>/expatriation"]:::route
   firstjob_route_first_job["firstjob.route.first_job<br/>/first-job"]:::route
   home_route_dashboard["home.route.dashboard<br/>/home"]:::route
   indep_route_avs["indep.route.avs<br/>/independants/avs"]:::route
@@ -25,6 +26,7 @@ flowchart LR
   jobcompare_route_comparison["jobcompare.route.comparison<br/>/simulator/job-comparison"]:::route
   lamal_route_franchise["lamal.route.franchise<br/>/assurances/lamal"]:::route
   mortgage_route_hypotheque["mortgage.route.hypotheque<br/>/hypotheque"]:::route
+  scan_route_avs_guide["scan.route.avs_guide<br/>/scan/avs-guide"]:::route
   scan_route_capture["scan.route.capture<br/>/scan"]:::route
   scan_route_impact_recovery["scan.route.impact_recovery<br/>/scan/impact"]:::route
   scan_route_review_recovery["scan.route.review_recovery<br/>/scan/review"]:::route
@@ -59,6 +61,7 @@ flowchart LR
   donation_route_life_event -->|"donation.edge.life_event.enrich_mortgage_balance<br/>tap / push"| db_route_patrimoine
   donation_route_life_event -->|"donation.edge.life_event.enrich_property_value<br/>tap / push"| db_route_patrimoine
   donation_route_life_event -->|"donation.edge.life_event.enrich_wealth<br/>tap / push"| db_route_patrimoine
+  expat_route_expatriation -->|"expat.edge.avs.open_verification_guide<br/>tap / push"| scan_route_avs_guide
   firstjob_route_first_job -->|"firstjob.edge.first_job.enrich_revenue<br/>tap / push"| db_route_revenu
   indep_route_avs -->|"indep.edge.avs.enrich_income<br/>tap / push"| db_route_revenu
   indep_route_divsalary -->|"indep.edge.divsalary.enrich_profit<br/>tap / push"| db_route_revenu

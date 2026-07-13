@@ -93,6 +93,58 @@ void main() {
     binding.platformDispatcher.clearTextScaleFactorTestValue();
   });
 
+  testWidgets('exposes stable runtime semantics across the AVS journey',
+      (tester) async {
+    tester.view.physicalSize = const Size(1440, 3200);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final provider = _RecordingCoachProfileProvider(const {});
+    await tester.pumpWidget(_buildApp(provider));
+    await tester.pump();
+
+    expect(find.bySemanticsIdentifier('expat_avs_tab'), findsOneWidget);
+    await _openAvsTab(tester);
+    expect(
+      find.bySemanticsIdentifier('expat_avs_years_picker'),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsIdentifier('expat_avs_start_scenario'),
+      findsOneWidget,
+    );
+
+    await _selectYearsAbroad(tester, 4);
+    await tester.tap(find.byKey(const Key('expat_avs_start_scenario')));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.ensureVisible(
+      find.byKey(const Key('expat_avs_scenario_result')),
+    );
+    await tester.pumpAndSettle();
+    for (final identifier in const [
+      'expat_avs_scenario_result',
+      'expat_avs_gap_unknown',
+    ]) {
+      expect(
+        find.bySemanticsIdentifier(identifier),
+        findsOneWidget,
+        reason: identifier,
+      );
+    }
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('expat_avs_verification_guide_cta')),
+      500,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.bySemanticsIdentifier('expat_avs_verification_guide_cta'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets(
       'unknown years stay partial and cannot synthesize a ten-year fact',
       (tester) async {

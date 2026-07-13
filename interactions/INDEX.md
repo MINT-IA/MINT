@@ -32,6 +32,7 @@
 | donation_missing_facts | `donation.edge.life_event.enrich_mortgage_balance` | `donation.route.life_event -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/test/screens/donation_ledger_test.dart` |
 | donation_missing_facts | `donation.edge.life_event.enrich_property_value` | `donation.route.life_event -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/test/screens/donation_ledger_test.dart` |
 | donation_missing_facts | `donation.edge.life_event.enrich_wealth` | `donation.route.life_event -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/donation_ledger.yaml` |
+| expat_avs_verification | `expat.edge.avs.open_verification_guide` | `expat.route.expatriation -> scan.route.avs_guide` | `tap` | `push` | `apps/mobile/.maestro/expat_avs_verification.yaml` |
 | first_job_missing_facts | `firstjob.edge.first_job.enrich_revenue` | `firstjob.route.first_job -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/first_job_ledger.yaml` |
 | independent_missing_facts | `indep.edge.avs.enrich_income` | `indep.route.avs -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_avs_cotisations.yaml` |
 | independent_missing_facts | `indep.edge.divsalary.enrich_profit` | `indep.route.divsalary -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_dividende_salaire.yaml` |

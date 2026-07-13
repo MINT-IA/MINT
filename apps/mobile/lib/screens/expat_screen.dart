@@ -185,7 +185,11 @@ class _ExpatScreenState extends State<ExpatScreen>
         tabs: [
           Tab(text: l.expatTabForfait),
           Tab(text: l.expatTabDeparture),
-          Tab(text: l.expatTabAvs),
+          Semantics(
+            identifier: 'expat_avs_tab',
+            button: true,
+            child: Tab(text: l.expatTabAvs),
+          ),
         ],
       ),
     );
@@ -1286,12 +1290,16 @@ class _ExpatScreenState extends State<ExpatScreen>
           ),
           const SizedBox(height: MintSpacing.md),
           if (!_avsScenarioStarted)
-            FilledButton.icon(
-              key: const Key('expat_avs_start_scenario'),
-              onPressed:
-                  _yearsAbroad == null ? null : _startAvsScenario,
-              icon: const Icon(Icons.play_arrow),
-              label: Text(l.expatAvsStartScenario),
+            Semantics(
+              identifier: 'expat_avs_start_scenario',
+              button: true,
+              child: FilledButton.icon(
+                key: const Key('expat_avs_start_scenario'),
+                onPressed:
+                    _yearsAbroad == null ? null : _startAvsScenario,
+                icon: const Icon(Icons.play_arrow),
+                label: Text(l.expatAvsStartScenario),
+              ),
             )
           else
             Text(
@@ -1317,18 +1325,22 @@ class _ExpatScreenState extends State<ExpatScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MintPickerTile(
-            key: const Key('expat_avs_years_picker'),
-            label: l.expatYearsAbroad,
-            value: _yearsAbroad,
-            placeholder: l.expatAvsYearsPlaceholder,
-            minValue: 0,
-            maxValue: 44,
-            formatValue: (v) => l.financialSummaryAnneesUnit('$v'),
-            onChanged: (v) {
-              setState(() => _yearsAbroad = v);
-              _recalculateAvs();
-            },
+          Semantics(
+            identifier: 'expat_avs_years_picker',
+            button: true,
+            child: MintPickerTile(
+              key: const Key('expat_avs_years_picker'),
+              label: l.expatYearsAbroad,
+              value: _yearsAbroad,
+              placeholder: l.expatAvsYearsPlaceholder,
+              minValue: 0,
+              maxValue: 44,
+              formatValue: (v) => l.financialSummaryAnneesUnit('$v'),
+              onChanged: (v) {
+                setState(() => _yearsAbroad = v);
+                _recalculateAvs();
+              },
+            ),
           ),
         ],
       ),
