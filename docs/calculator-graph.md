@@ -36,7 +36,7 @@ flowchart LR
     PROFILE --> LPP[LppCalculator]:::calc
     PROFILE --> TAX[TaxCalculator]:::calc
     PROFILE --> HOUSING[HousingCostCalculator]:::calc
-    PURCHASE_FACTS["Annual gross + liquid savings + 3a + LPP"]:::profile --> PURCHASE_CAP[MortgagePurchaseCapacityCalculator]:::calc
+    PURCHASE_FACTS["Fixed monthly salary x declared contractual months + liquid savings + 3a + LPP"]:::profile --> PURCHASE_CAP[MortgagePurchaseCapacityCalculator]:::calc
     PURCHASE_CAP --> CAP_SEQUENCE[CapSequenceEngine]:::composer
     PURCHASE_CAP --> AFFORDABILITY[AffordabilityCalculator]:::composer
     PROFILE --> BAYESIAN[BayesianEnricher]:::calc
@@ -97,7 +97,7 @@ Julien + Lauren golden values.
 | **LppCalculator** | `lpp_calculator.dart` | avoir, rate, years | projected capital + rente | FriCalculator, ProjectionRetraiteScreen, ArbitrageEngine |
 | **TaxCalculator** | `tax_calculator.dart` | income, canton, marital, 3a | federal + cantonal + marginal | ArbitrageEngine, ProjectionFiscaleScreen |
 | **HousingCostCalculator** | `housing_cost_calculator.dart` | loyer/hyp + canton | monthly housing effective cost | FriCalculator, budget calcs |
-| **MortgagePurchaseCapacityCalculator** | `mortgage_purchase_capacity_calculator.dart` | annual gross income, liquid savings, 3a assets, LPP assets; mortgage ratios/rates via the regulatory registry | maximum purchase price + revenue/equity binding constraint | CapSequenceEngine, AffordabilityCalculator |
+| **MortgagePurchaseCapacityCalculator** | `mortgage_purchase_capacity_calculator.dart` | durable annual gross income, liquid savings, 3a assets, LPP assets; mortgage ratios/rates via the regulatory registry | maximum purchase price + revenue/equity binding constraint | CapSequenceEngine, AffordabilityCalculator |
 | **FriCalculator** (composite) | `fri_calculator.dart` | CoachProfile | FRI score 0-100 + breakdown | FriComputationService, CoachNarrativeService |
 | **IncomeConversionCalculator** | `income_conversion_calculator.dart` | salary, months, bonus, employment rate | normalized salary/bonus/rate units | CoachProfile.fromWizardAnswers, CoachProfileProvider |
 | **ConfidenceScorer** | `confidence_scorer.dart` | CoachProfile | score 0-100 + per-field confidence | ExtractionReviewScreen, RetirementDashboardScreen, `dataReliability` |
@@ -117,6 +117,17 @@ Julien + Lauren golden values.
 | **GiftTaxConfirmation** | `gift_tax_confirmation.dart` | none | no computed cantonal gift-tax rate/amount sentinel for confirmation states | DonationService |
 | **SuccessionReserveCalculator** | `succession_reserve_calculator.dart` | estate reference, civil status, children count | Swiss compulsory-heir reserve, disposable portion, spouse/children context flags, large-donation threshold | DonationService |
 | **IndependentProtectionFinancialFacts** | `independent_protection_financial_facts.dart` | declared independent annual net income proxy, age, declared vested-benefits balance | monthly AVS extra share + LPP employer-share proxy on coordinated salary; named educational proxies for voluntary LPP tax saving, IJM/LAA protection cost and five-year vested-benefits scenarios; illustrative until former gross/insured salary and real insurance quotes are known | IndependantScreen |
+
+### Mortgage durable-income boundary
+
+`CapSequenceEngine` supplies the prudential housing headline with
+`salaireBrutMensuel × nombreDeMois`. A declared 13th salary therefore counts
+only through its contractual month count. `bonusPourcentage` remains excluded
+until MINT has separate evidence that the compensation is durable and the
+lender accepts it. A linked spouse is not a co-borrower and contributes no
+income without an explicit, scoped co-borrower contract. The same durable base
+is used by the fallback monthly-margin estimate; the purchase-price arithmetic
+itself remains owned by `MortgagePurchaseCapacityCalculator`.
 
 ---
 

@@ -32,8 +32,11 @@ final _l = SFr();
 CoachProfile _profile({
   int birthYear = 1980,
   double salaireBrutMensuel = 8000,
+  double nombreDeMois = 12,
+  double? bonusPourcentage,
   String canton = 'VS',
   String employmentStatus = 'salarie',
+  ConjointProfile? conjoint,
   PrevoyanceProfile prevoyance = const PrevoyanceProfile(),
   PatrimoineProfile patrimoine = const PatrimoineProfile(),
   DepensesProfile depenses = const DepensesProfile(),
@@ -42,7 +45,10 @@ CoachProfile _profile({
     birthYear: birthYear,
     canton: canton,
     salaireBrutMensuel: salaireBrutMensuel,
+    nombreDeMois: nombreDeMois,
+    bonusPourcentage: bonusPourcentage,
     employmentStatus: employmentStatus,
+    conjoint: conjoint,
     prevoyance: prevoyance,
     patrimoine: patrimoine,
     depenses: depenses,
@@ -466,6 +472,54 @@ void main() {
       );
     });
 
+    test('step 3 fixed-income margin does not rise with a declared bonus', () {
+      const expenses = DepensesProfile(loyer: 1200, assuranceMaladie: 350);
+      double marginFor({
+        required double nombreDeMois,
+        double? bonusPourcentage,
+      }) {
+        final seq = CapSequenceEngine.build(
+          profile: _profile(
+            salaireBrutMensuel: 8000,
+            nombreDeMois: nombreDeMois,
+            bonusPourcentage: bonusPourcentage,
+            depenses: expenses,
+          ),
+          memory: emptyMemory,
+          goalIntentTag: 'budget_overview',
+          l: _l,
+        );
+        return seq.steps
+            .firstWhere((step) => step.id == 'bud_03_margin')
+            .impactEstimate!;
+      }
+
+      final profile = _profile(
+        salaireBrutMensuel: 8000,
+        nombreDeMois: 13,
+        depenses: expenses,
+      );
+      final expectedThirteenMonthMargin = NetIncomeBreakdown.compute(
+            grossSalary: 8000 * 13,
+            canton: profile.canton,
+            age: profile.ageOrNull!,
+          ).monthlyNetPayslip -
+          expenses.totalMensuel;
+      final baseline = marginFor(nombreDeMois: 13);
+
+      expect(baseline, closeTo(expectedThirteenMonthMargin, 0.01));
+      expect(
+        baseline,
+        isNot(closeTo(marginFor(nombreDeMois: 12), 0.01)),
+      );
+      for (final bonus in <double?>[0, 20, 100]) {
+        expect(
+          marginFor(nombreDeMois: 13, bonusPourcentage: bonus),
+          closeTo(baseline, 0.01),
+        );
+      }
+    });
+
     test('step 3 margin is unknown without age or canton', () {
       const expenses = DepensesProfile(loyer: 1200);
       for (final profile in [
@@ -603,6 +657,74 @@ void main() {
       final step3 = seq.steps.firstWhere((s) => s.id == 'hou_03_capacity');
 
       expect(step3.impactEstimate, closeTo(expected, 0.01));
+    });
+
+    test('capacity uses fixed salary and declared contractual months only', () {
+      double capacityFor({
+        required double nombreDeMois,
+        double? bonusPourcentage,
+      }) {
+        final seq = CapSequenceEngine.build(
+          profile: _profile(
+            salaireBrutMensuel: 8000,
+            nombreDeMois: nombreDeMois,
+            bonusPourcentage: bonusPourcentage,
+            patrimoine: const PatrimoineProfile(epargneLiquide: 150000),
+          ),
+          memory: emptyMemory,
+          goalIntentTag: 'housing_purchase',
+          l: _l,
+        );
+        return seq.steps
+            .firstWhere((step) => step.id == 'hou_03_capacity')
+            .impactEstimate!;
+      }
+
+      final withDeclaredThirteenth = capacityFor(nombreDeMois: 13);
+      expect(withDeclaredThirteenth, closeTo(623809.5238095238, 0.01));
+      for (final bonus in <double?>[0, 20, 100]) {
+        expect(
+          capacityFor(
+            nombreDeMois: 13,
+            bonusPourcentage: bonus,
+          ),
+          closeTo(withDeclaredThirteenth, 0.01),
+        );
+      }
+
+      // No declared thirteenth salary means the model's conservative 12-month
+      // default, not an inferred extra payment.
+      expect(capacityFor(nombreDeMois: 12), closeTo(585714.2857142857, 0.01));
+    });
+
+    test('capacity never adds a spouse who is not an explicit co-borrower', () {
+      double capacityFor(ConjointProfile? conjoint) {
+        final seq = CapSequenceEngine.build(
+          profile: _profile(
+            salaireBrutMensuel: 8000,
+            nombreDeMois: 13,
+            conjoint: conjoint,
+            patrimoine: const PatrimoineProfile(epargneLiquide: 150000),
+          ),
+          memory: emptyMemory,
+          goalIntentTag: 'housing_purchase',
+          l: _l,
+        );
+        return seq.steps
+            .firstWhere((step) => step.id == 'hou_03_capacity')
+            .impactEstimate!;
+      }
+
+      final withoutSpouse = capacityFor(null);
+      final withUnscopedSpouse = capacityFor(
+        const ConjointProfile(
+          salaireBrutMensuel: 50000,
+          nombreDeMois: 13,
+          invitationLevel: 'linked',
+        ),
+      );
+
+      expect(withUnscopedSpouse, closeTo(withoutSpouse, 0.01));
     });
   });
 

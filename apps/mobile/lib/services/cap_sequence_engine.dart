@@ -651,7 +651,9 @@ class CapSequenceEngine {
     final net = declaredNet != null && declaredNet > 0
         ? declaredNet
         : NetIncomeBreakdown.compute(
-            grossSalary: profile.revenuBrutAnnuel,
+            // A declared bonus is variable compensation, so it cannot
+            // automatically increase this durable free-margin headline.
+            grossSalary: profile.salaireBrutMensuel * profile.nombreDeMois,
             canton: profile.canton,
             age: age!,
             etatCivil: profile.etatCivil == CoachCivilStatus.marie ||
@@ -674,7 +676,10 @@ class CapSequenceEngine {
     if (epargne <= 0 && avoir3a <= 0 && avoirLpp <= 0) return null;
 
     final result = MortgagePurchaseCapacityCalculator.calculate(
-      annualGrossIncome: profile.revenuBrutAnnuel,
+      // Keep the prudential headline on fixed contractual compensation.
+      // `nombreDeMois` includes a 13th salary only when it was declared;
+      // bonus eligibility is not proof that a lender will accept it.
+      annualGrossIncome: profile.salaireBrutMensuel * profile.nombreDeMois,
       liquidSavings: epargne,
       pillar3aAssets: avoir3a,
       pensionFundAssets: avoirLpp,
