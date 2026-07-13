@@ -16,6 +16,8 @@ import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 
+import '../services/financial_core/avs_couple_test_fixtures.dart';
+
 // ════════════════════════════════════════════════════════════════════════════════
 //  GOLDEN COUPLE DATA — from CLAUDE.md §8
 // ════════════════════════════════════════════════════════════════════════════════
@@ -52,6 +54,13 @@ String _verdict(String label, double actual, double expected,
       '       Expected: ${expected.toStringAsFixed(2)}\n'
       '       Delta:    ${delta.toStringAsFixed(2)} (${deltaPct.toStringAsFixed(1)}%)';
 }
+
+AvsCouplePensionResult _officialGoldenCouple() => officialScale44AvsCouple(
+      selfPension: 2520,
+      partnerPension: 2156,
+      legalStatus: AvsCoupleLegalStatus.married,
+      source: 'official actuarial test fixture',
+    );
 
 // ════════════════════════════════════════════════════════════════════════════════
 //  TEST 1: AVS Calculator — Individual rentes
@@ -111,26 +120,9 @@ void main() {
     });
 
     test('1c. AVS Couple — married cap (LAVS art. 35)', () {
-      // Julien + Lauren married → cap at 150% of max = 3780 CHF/mois
-      final julienAvs = AvsCalculator.computeMonthlyRente(
-        currentAge: 49,
-        retirementAge: 65,
-        lacunes: 0,
-        grossAnnualSalary: 122207,
-      );
-      final laurenAvs = AvsCalculator.computeMonthlyRente(
-        currentAge: 43,
-        retirementAge: 65,
-        lacunes: 0,
-        grossAnnualSalary: 67000,
-        arrivalAge: 20,
-      );
-
-      final couple = AvsCalculator.computeCouple(
-        avsUser: julienAvs,
-        avsConjoint: laurenAvs,
-        isMarried: true,
-      );
+      const julienAvs = 2520.0;
+      const laurenAvs = 2156.0;
+      final couple = _officialGoldenCouple();
 
       // Expected per CLAUDE.md: ~2500 CHF/mois → but that's per person total
       // The CLAUDE.md says "AVS couple: 2'500 CHF/mois" which likely means
@@ -152,33 +144,41 @@ void main() {
           '  Lauren individual AVS:  ${laurenAvs.toStringAsFixed(2)} CHF/mois');
       // ignore: avoid_print
       print(
-          '  Sum before cap:         ${(julienAvs + laurenAvs).toStringAsFixed(2)} CHF/mois');
+          '  Sum before cap:         ${couple.rawHouseholdMonthlyPension!.toStringAsFixed(2)} CHF/mois');
       // ignore: avoid_print
       print(
-          '  Couple total (after cap): ${couple.total.toStringAsFixed(2)} CHF/mois');
+          '  Couple total (after cap): ${couple.householdMonthlyPension!.toStringAsFixed(2)} CHF/mois');
       // ignore: avoid_print
       print(
-          '  Cap applied:            ${couple.total < (julienAvs + laurenAvs)}');
+          '  Cap applied:            ${couple.capState == AvsCoupleCapState.applied}');
       // ignore: avoid_print
       print('  CLAUDE.md §8 states:    $claudeMdValue CHF/mois');
       // ignore: avoid_print
       print('  Legal max couple cap:   $expectedTotal CHF/mois');
+      expect(
+        couple.rawHouseholdMonthlyPension,
+        julienAvs + laurenAvs,
+      );
       // ignore: avoid_print
       print('');
-      final result = _verdict('AVS Couple total', couple.total, expectedTotal);
+      final result = _verdict(
+        'AVS Couple total',
+        couple.householdMonthlyPension!,
+        expectedTotal,
+      );
       // ignore: avoid_print
       print(result);
 
-      if ((couple.total - claudeMdValue).abs() > 500) {
+      if ((couple.householdMonthlyPension! - claudeMdValue).abs() > 500) {
         // ignore: avoid_print
         print(
             '\n  ** DISCREPANCY: CLAUDE.md says 2500/mois but calculator yields'
-            ' ${couple.total.toStringAsFixed(0)}.'
+            ' ${couple.householdMonthlyPension!.toStringAsFixed(0)}.'
             ' This may indicate CLAUDE.md uses a different assumption'
             ' (e.g. only one person retired, or after-tax). **');
       }
 
-      expect(couple.total, closeTo(expectedTotal, 500),
+      expect(couple.householdMonthlyPension, closeTo(expectedTotal, 500),
           reason: 'Couple AVS should be near 3780 cap');
     });
 
@@ -639,32 +639,10 @@ void main() {
         fail('3a order should not be null');
       }
 
-      // AVS cap
-      if (result.avsCap != null) {
-        final avs = result.avsCap!;
-        // ignore: avoid_print
-        print('  AVS Couple Cap:');
-        // ignore: avoid_print
-        print('    Cap applied:           ${avs.capApplied}');
-        // ignore: avoid_print
-        print(
-            '    User rente before:     ${avs.userRenteBeforeCap.toStringAsFixed(0)} CHF');
-        // ignore: avoid_print
-        print(
-            '    Conjoint rente before: ${avs.conjointRenteBeforeCap.toStringAsFixed(0)} CHF');
-        // ignore: avoid_print
-        print(
-            '    Monthly reduction:     ${avs.monthlyReduction.toStringAsFixed(0)} CHF');
-        // ignore: avoid_print
-        print(
-            '    Total after cap:       ${avs.totalAfterCap.toStringAsFixed(0)} CHF');
-
-        expect(avs.capApplied, isTrue,
-            reason: 'Married couple with high combined AVS should be capped');
-        // 3780 cap × 13/12 (13ème rente) = ~4095 CHF/mois moyen
-        expect(avs.totalAfterCap, closeTo(4095, 100),
-            reason: 'Total AVS should be near 4095 (3780 cap with 13th rente)');
-      }
+      // Salary and age do not certify a person-owned AVS pension or cap.
+      expect(result.avsCap, isNull);
+      // ignore: avoid_print
+      print('  AVS Couple Cap: pending official person-owned evidence');
 
       // Marriage penalty
       if (result.marriagePenalty != null) {

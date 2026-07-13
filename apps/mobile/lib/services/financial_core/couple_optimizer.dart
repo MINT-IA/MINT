@@ -3,11 +3,12 @@
 /// Analyses:
 ///   1. LPP buyback order: who buys back first? (highest marginal tax rate wins)
 ///   2. 3a contribution order: who contributes first? (same logic + FATCA check)
-///   3. AVS couple cap: LAVS art. 35 plafonnement at 150% for married couples
-///   4. Marriage penalty: is being married more or less tax-efficient?
+///   3. Marriage penalty: is being married more or less tax-efficient?
 ///
-/// All calculations delegate to [TaxCalculator], [AvsCalculator], and
-/// [RetirementTaxCalculator]. This service NEVER computes taxes directly.
+/// Tax calculations delegate to [TaxCalculator] and [RetirementTaxCalculator].
+/// AVS is deliberately unavailable from salary/age profile proxies; callers
+/// must use [AvsCalculator.computeCouplePensions] with official person-owned
+/// pension evidence.
 ///
 /// Compliance:
 ///   - LSFin art. 3: results shown as trade-offs, never ranked as "optimal"
@@ -15,7 +16,6 @@
 ///   - FATCA-aware: US residents may not contribute to 3a
 ///
 /// Sources:
-///   - LAVS art. 35 (couple AVS cap at 150%)
 ///   - LPP art. 33 (rachat)
 ///   - LIFD art. 33 (3a deduction)
 ///   - OPP3 art. 7 (3a ceiling)
@@ -56,32 +56,6 @@ class CoupleAnalysisResult {
   });
 }
 
-/// AVS couple cap result.
-class AvsCoupleCapResult {
-  /// Whether the 150% cap applies (married only).
-  final bool capApplied;
-
-  /// Monthly reduction due to the cap (0 if not capped).
-  final double monthlyReduction;
-
-  /// User's individual rente before cap.
-  final double userRenteBeforeCap;
-
-  /// Conjoint's individual rente before cap.
-  final double conjointRenteBeforeCap;
-
-  /// Total couple rente after cap.
-  final double totalAfterCap;
-
-  const AvsCoupleCapResult({
-    required this.capApplied,
-    required this.monthlyReduction,
-    required this.userRenteBeforeCap,
-    required this.conjointRenteBeforeCap,
-    required this.totalAfterCap,
-  });
-}
-
 /// Marriage penalty analysis result.
 class MarriagePenaltyResult {
   /// True if married couple pays MORE tax than two singles with same income.
@@ -104,7 +78,10 @@ class MarriagePenaltyResult {
 class CoupleOptimizationResult {
   final CoupleAnalysisResult? lppBuybackOrder;
   final CoupleAnalysisResult? pillar3aOrder;
-  final AvsCoupleCapResult? avsCap;
+
+  /// Always null from [CoupleOptimizer.optimize]. Salary and age are not
+  /// evidence for an official AVS pension or a legal couple cap.
+  final AvsCouplePensionResult? avsCap;
   final MarriagePenaltyResult? marriagePenalty;
 
   const CoupleOptimizationResult({
@@ -134,8 +111,8 @@ class CoupleOptimizationResult {
 // ────────────────────────────────────────────────────────────
 
 /// Couple financial optimizer — compares "user first" vs "conjoint first"
-/// scenarios for LPP buyback and 3a contributions, checks AVS couple cap,
-/// and evaluates marriage penalty.
+/// scenarios for LPP buyback and 3a contributions, and evaluates marriage
+/// penalty. It never manufactures an AVS pension from salary and age.
 ///
 /// Pure functions only. No side effects.
 class CoupleOptimizer {
@@ -160,7 +137,7 @@ class CoupleOptimizer {
     if (conjoint == null) return const CoupleOptimizationResult.empty();
 
     // Guard: both incomes zero → nothing to optimize.
-    // If only one partner has income, AVS cap and marriage penalty still apply.
+    // If only one partner has income, the tax analyses can still apply.
     final userIncome = mainUser.salaireBrutMensuel * mainUser.nombreDeMois;
     final conjointIncome = conjoint.revenuBrutAnnuel;
     if (userIncome <= 0 && conjointIncome <= 0) {
@@ -170,7 +147,6 @@ class CoupleOptimizer {
     return CoupleOptimizationResult(
       lppBuybackOrder: _analyzeLppBuybackOrder(mainUser, conjoint),
       pillar3aOrder: _analyze3aContributionOrder(mainUser, conjoint),
-      avsCap: _analyzeAvsCap(mainUser, conjoint),
       marriagePenalty: _analyzeMarriagePenalty(mainUser, conjoint),
     );
   }
@@ -314,61 +290,7 @@ class CoupleOptimizer {
     );
   }
 
-  // ── Analysis 3: AVS couple cap (LAVS art. 35) ────────────
-
-  static AvsCoupleCapResult? _analyzeAvsCap(
-    CoachProfile user,
-    ConjointProfile conjoint,
-  ) {
-    // Need both ages and income to compute
-    final conjointAge = conjoint.age;
-    if (conjointAge == null) return null;
-
-    final userRetirementAge = user.effectiveRetirementAge;
-    final conjointRetirementAge = conjoint.effectiveRetirementAge;
-
-    final userRente = AvsCalculator.computeMonthlyRente(
-      currentAge: user.age,
-      retirementAge: userRetirementAge,
-      grossAnnualSalary: user.salaireBrutMensuel * user.nombreDeMois,
-      isFemale: user.gender == 'F' ? true : (user.gender == 'M' ? false : null),
-      birthYear: user.birthYear,
-    );
-
-    final conjointRente = AvsCalculator.computeMonthlyRente(
-      currentAge: conjointAge,
-      retirementAge: conjointRetirementAge,
-      grossAnnualSalary: conjoint.revenuBrutAnnuel,
-      arrivalAge: conjoint.arrivalAge,
-      isFemale: conjoint.gender == 'F' ? true : (conjoint.gender == 'M' ? false : null),
-      birthYear: conjoint.birthYear,
-    );
-
-    final isMarried = user.etatCivil == CoachCivilStatus.marie;
-    final couple = AvsCalculator.computeCouple(
-      avsUser: userRente,
-      avsConjoint: conjointRente,
-      isMarried: isMarried,
-    );
-
-    // Apply 13th rente (8.3% uplift) to displayed amounts.
-    final userWith13 = AvsCalculator.annualRente(userRente) / 12;
-    final conjointWith13 = AvsCalculator.annualRente(conjointRente) / 12;
-    final coupleWith13 = AvsCalculator.annualRente(couple.total) / 12;
-
-    final uncapped = userWith13 + conjointWith13;
-    final reduction = uncapped - coupleWith13;
-
-    return AvsCoupleCapResult(
-      capApplied: reduction > 0,
-      monthlyReduction: reduction,
-      userRenteBeforeCap: userWith13,
-      conjointRenteBeforeCap: conjointWith13,
-      totalAfterCap: coupleWith13,
-    );
-  }
-
-  // ── Analysis 4: Marriage penalty ──────────────────────────
+  // ── Analysis 3: Marriage penalty ──────────────────────────
 
   static MarriagePenaltyResult? _analyzeMarriagePenalty(
     CoachProfile user,

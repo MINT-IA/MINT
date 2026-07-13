@@ -4,6 +4,8 @@ import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
+import 'avs_couple_test_fixtures.dart';
+
 /// Golden Couple — Lauren tests.
 ///
 /// Lauren: born 1982, age 43, salary 67'000 CHF/an, canton VS,
@@ -48,51 +50,56 @@ void main() {
     });
 
     test('2. Lauren + Julien married couple → capped at 3780', () {
-      final julienRente = AvsCalculator.computeMonthlyRente(
-        currentAge: 49,
-        retirementAge: retirementAge,
-        grossAnnualSalary: 122207,
-      );
-      final laurenRente = AvsCalculator.computeMonthlyRente(
-        currentAge: laurenAge,
-        retirementAge: retirementAge,
-        arrivalAge: laurenArrivalAge,
-        grossAnnualSalary: laurenSalary,
-      );
-      final couple = AvsCalculator.computeCouple(
-        avsUser: julienRente,
-        avsConjoint: laurenRente,
-        isMarried: true,
+      const julienOfficialRente = 2520.0;
+      const laurenOfficialRente = 2150.0;
+      final couple = officialScale44AvsCouple(
+        selfPension: julienOfficialRente,
+        partnerPension: laurenOfficialRente,
+        legalStatus: AvsCoupleLegalStatus.married,
       );
       // Combined individual rentes > 3780 → married cap applies
-      expect(couple.total, equals(avsRenteCoupleMaxMensuelle));
-      expect(couple.total, equals(3780));
+      expect(
+        couple.rawHouseholdMonthlyPension,
+        equals(julienOfficialRente + laurenOfficialRente),
+      );
+      expect(
+        couple.householdMonthlyPension,
+        equals(avsRenteCoupleMaxMensuelle),
+      );
+      expect(couple.householdMonthlyPension, equals(3780));
       // Proportional reduction
-      expect(couple.user, lessThan(julienRente));
-      expect(couple.conjoint, lessThan(laurenRente));
+      expect(
+        couple.self.cappedMonthlyPension,
+        lessThan(julienOfficialRente),
+      );
+      expect(
+        couple.partner.cappedMonthlyPension,
+        lessThan(laurenOfficialRente),
+      );
     });
 
     test('3. Lauren + Julien concubin → no cap, full individual rentes', () {
-      final julienRente = AvsCalculator.computeMonthlyRente(
-        currentAge: 49,
-        retirementAge: retirementAge,
-        grossAnnualSalary: 122207,
+      const julienOfficialRente = 2520.0;
+      const laurenOfficialRente = 2150.0;
+      final couple = officialScale44AvsCouple(
+        selfPension: julienOfficialRente,
+        partnerPension: laurenOfficialRente,
+        legalStatus: AvsCoupleLegalStatus.cohabiting,
       );
-      final laurenRente = AvsCalculator.computeMonthlyRente(
-        currentAge: laurenAge,
-        retirementAge: retirementAge,
-        arrivalAge: laurenArrivalAge,
-        grossAnnualSalary: laurenSalary,
+      // No married cap → raw and payable household amounts are identical.
+      expect(
+        couple.rawHouseholdMonthlyPension,
+        equals(julienOfficialRente + laurenOfficialRente),
       );
-      final couple = AvsCalculator.computeCouple(
-        avsUser: julienRente,
-        avsConjoint: laurenRente,
-        isMarried: false,
+      expect(
+        couple.householdMonthlyPension,
+        greaterThan(avsRenteCoupleMaxMensuelle),
       );
-      // No married cap → full individual rentes
-      expect(couple.total, greaterThan(avsRenteCoupleMaxMensuelle));
-      expect(couple.user, equals(julienRente));
-      expect(couple.conjoint, equals(laurenRente));
+      expect(couple.self.cappedMonthlyPension, equals(julienOfficialRente));
+      expect(
+        couple.partner.cappedMonthlyPension,
+        equals(laurenOfficialRente),
+      );
     });
   });
 

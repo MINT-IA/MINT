@@ -63,7 +63,7 @@ ConjointProfile _nonFatcaConjoint() => const ConjointProfile(
 
 void main() {
   group('CoupleOptimizer.optimize', () {
-    test('returns a result with all 4 analyses for complete couple', () {
+    test('returns tax/LPP/3a analyses but no salary-derived AVS cap', () {
       final result = CoupleOptimizer.optimize(
         mainUser: _julien(),
         conjoint: _lauren(),
@@ -71,7 +71,7 @@ void main() {
       expect(result.hasResults, isTrue);
       expect(result.lppBuybackOrder, isNotNull);
       expect(result.pillar3aOrder, isNotNull);
-      expect(result.avsCap, isNotNull);
+      expect(result.avsCap, isNull);
       expect(result.marriagePenalty, isNotNull);
     });
   });
@@ -160,20 +160,16 @@ void main() {
     });
   });
 
-  group('AVS couple cap (LAVS art. 35)', () {
-    test('married couple with high income → cap applied', () {
+  group('AVS couple cap quarantine', () {
+    test('married salaries and ages cannot certify an AVS cap', () {
       final result = CoupleOptimizer.optimize(
         mainUser: _julien(),
         conjoint: _lauren(),
       );
-      final avs = result.avsCap!;
-      expect(avs.capApplied, isTrue);
-      expect(avs.monthlyReduction, greaterThan(0));
-      // 3780 cap × 13/12 (13ème rente) = ~4095
-      expect(avs.totalAfterCap, lessThanOrEqualTo(4100));
+      expect(result.avsCap, isNull);
     });
 
-    test('concubin couple → no cap applied', () {
+    test('cohabiting salary profile does not manufacture an AVS household', () {
       final user = CoachProfile(
         birthYear: 1977,
         canton: 'VS',
@@ -185,11 +181,10 @@ void main() {
         mainUser: user,
         conjoint: _lauren(),
       );
-      final avs = result.avsCap!;
-      expect(avs.capApplied, isFalse);
+      expect(result.avsCap, isNull);
     });
 
-    test('low income couple → no cap even if married', () {
+    test('low salaries do not manufacture an AVS household', () {
       final user = CoachProfile(
         birthYear: 1986,
         canton: 'VD',
@@ -202,8 +197,7 @@ void main() {
         salaireBrutMensuel: 2000,
       );
       final result = CoupleOptimizer.optimize(mainUser: user, conjoint: conj);
-      final avs = result.avsCap!;
-      expect(avs.capApplied, isFalse);
+      expect(result.avsCap, isNull);
     });
 
     test('conjoint without age → null result', () {

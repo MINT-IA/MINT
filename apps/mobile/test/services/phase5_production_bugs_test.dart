@@ -180,8 +180,7 @@ void main() {
       expect(result.marriagePenalty, isNull);
     });
 
-    test('conjoint with zero salary still computes AVS cap (W16 guard fix)',
-        () {
+    test('conjoint with zero salary never manufactures an AVS cap', () {
       final profile = buildProfile(
         etatCivil: CoachCivilStatus.marie,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 70000),
@@ -198,16 +197,14 @@ void main() {
         conjoint: conjoint,
       );
 
-      // W16: AVS cap and marriage penalty still apply even if conjoint has no salary.
-      // Only LPP buyback and 3a order require both incomes.
+      // Tax analysis can still apply, but salary and age are not AVS evidence.
       expect(result.hasResults, isTrue);
-      expect(result.avsCap, isNotNull);
+      expect(result.avsCap, isNull);
       // LPP buyback requires both incomes > 0 for tax comparison
       expect(result.lppBuybackOrder, isNull);
     });
 
-    test('conjoint with null salary still computes AVS cap (W16 guard fix)',
-        () {
+    test('conjoint with null salary never manufactures an AVS cap', () {
       final profile = buildProfile(
         etatCivil: CoachCivilStatus.marie,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 70000),
@@ -224,9 +221,9 @@ void main() {
         conjoint: conjoint,
       );
 
-      // W16: AVS cap still computed when at least one partner has income
+      // The independent tax analysis remains available.
       expect(result.hasResults, isTrue);
-      expect(result.avsCap, isNotNull);
+      expect(result.avsCap, isNull);
     });
 
     test('valid conjoint produces results', () {

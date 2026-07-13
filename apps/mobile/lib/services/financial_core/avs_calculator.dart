@@ -6,12 +6,176 @@ import 'package:mint_mobile/services/regulatory_sync_service.dart';
 // See ADR-20260223-unified-financial-engine.md
 // Do NOT create local _calculateAvs() or similar methods.
 
+/// Civil statuses relevant to the AVS household cap.
+enum AvsCoupleLegalStatus { married, registeredPartnership, cohabiting }
+
+/// Benefits that can participate in the LAVS art. 35 cap test.
+enum AvsPensionEntitlement { none, oldAge, disability }
+
+/// RAVS art. 53ter treatment for a percentage of an old-age pension.
+enum AvsOldAgePaymentMode { ordinary, anticipated, deferred }
+
+/// Stable person ownership within a self/partner household calculation.
+enum AvsPersonRole { self, partner }
+
+/// Legal outcome of the AVS couple cap evaluation.
+enum AvsCoupleCapState {
+  applied,
+  notNeeded,
+  notApplicable,
+  legalException,
+  pending,
+}
+
+/// Person-owned, evidence-backed ordinary pension input.
+///
+/// [rawMonthlyPension] is the person's uncapped ordinary monthly benefit at
+/// the selected [pensionPercentage]. It is not a salary-derived estimate and
+/// excludes the December supplement.
+class AvsPersonPensionInput {
+  final AvsPersonRole owner;
+  final AvsPensionEntitlement? entitlement;
+  final double? rawMonthlyPension;
+  final int? contributionScale;
+  final double? pensionPercentage;
+  final AvsOldAgePaymentMode? oldAgePaymentMode;
+
+  const AvsPersonPensionInput({
+    required this.owner,
+    this.entitlement,
+    this.rawMonthlyPension,
+    this.contributionScale,
+    this.pensionPercentage,
+    this.oldAgePaymentMode,
+  });
+}
+
+/// Sourced LAVS art. 35 judicial-separation state.
+///
+/// A null envelope is unknown. Addresses, account links, and user silence do
+/// not create this evidence.
+class AvsJudicialSeparationEvidence {
+  final bool isSeparated;
+  final String source;
+
+  const AvsJudicialSeparationEvidence({
+    required this.isSeparated,
+    required this.source,
+  });
+}
+
+/// Complete input boundary for an AVS household cap calculation.
+class AvsCouplePensionInput {
+  final AvsCoupleLegalStatus? legalStatus;
+  final AvsPersonPensionInput self;
+  final AvsPersonPensionInput partner;
+  final AvsJudicialSeparationEvidence? judicialSeparation;
+
+  const AvsCouplePensionInput({
+    required this.legalStatus,
+    required this.self,
+    required this.partner,
+    this.judicialSeparation,
+  });
+}
+
+/// Uncapped and certified-capped pension values owned by one person.
+class AvsPersonPensionResult {
+  final AvsPersonRole owner;
+  final AvsPensionEntitlement? entitlement;
+  final double? rawMonthlyPension;
+  final double? cappedMonthlyPension;
+  final int? contributionScale;
+  final double? scalePercentage;
+  final double? pensionPercentage;
+  final AvsOldAgePaymentMode? oldAgePaymentMode;
+
+  const AvsPersonPensionResult({
+    required this.owner,
+    required this.entitlement,
+    required this.rawMonthlyPension,
+    required this.cappedMonthlyPension,
+    required this.contributionScale,
+    required this.scalePercentage,
+    required this.pensionPercentage,
+    required this.oldAgePaymentMode,
+  });
+}
+
+/// Fail-closed AVS household result under the 2026 legal snapshot.
+class AvsCouplePensionResult {
+  final AvsPersonPensionResult self;
+  final AvsPersonPensionResult partner;
+
+  /// Sum of resolved person-owned raw pensions before a marital cap.
+  ///
+  /// An explicit [AvsPensionEntitlement.none] contributes no component; it is
+  /// never represented as a person pension worth CHF 0.
+  final double? rawHouseholdMonthlyPension;
+
+  /// Certified ordinary monthly household amount after any applicable cap.
+  ///
+  /// This remains null while an applicable incomplete-scale cap lacks the
+  /// versioned official pension-table amount.
+  final double? householdMonthlyPension;
+  final double? weightedScaleRaw;
+  final int? weightedContributionScale;
+
+  /// Scale-weighted base cap before art. 53ter percentage treatment.
+  final double? scaleWeightedMonthlyCap;
+  final double? percentageCapMultiplier;
+
+  /// Educational formula estimate after scale and percentage treatment.
+  ///
+  /// This never certifies an incomplete-scale payable amount.
+  final double? formulaLayerMonthlyCapEstimate;
+
+  /// Certified scale- and percentage-aware payable cap.
+  final double? payableMonthlyCap;
+  final AvsCoupleCapState capState;
+  final List<String> missingFields;
+  final int legalYear;
+  final String legalSource;
+  final String? judicialSeparationSource;
+  final bool requiresOfficialTableRounding;
+
+  AvsCouplePensionResult({
+    required this.self,
+    required this.partner,
+    required this.rawHouseholdMonthlyPension,
+    required this.householdMonthlyPension,
+    required this.weightedScaleRaw,
+    required this.weightedContributionScale,
+    required this.scaleWeightedMonthlyCap,
+    required this.percentageCapMultiplier,
+    required this.formulaLayerMonthlyCapEstimate,
+    required this.payableMonthlyCap,
+    required this.capState,
+    required List<String> missingFields,
+    required this.legalYear,
+    required this.legalSource,
+    required this.judicialSeparationSource,
+    required this.requiresOfficialTableRounding,
+  }) : missingFields = List.unmodifiable(missingFields);
+
+  bool get isHouseholdComplete =>
+      householdMonthlyPension != null &&
+      missingFields.isEmpty &&
+      !requiresOfficialTableRounding;
+}
+
 /// AVS pension calculator — pure static functions.
 ///
 /// Legal basis: LAVS art. 21-29, 34, 35, 39, 40.
 /// All computations are deterministic and stateless.
 class AvsCalculator {
   AvsCalculator._();
+
+  static const int coupleLegalYear = 2026;
+  static const String coupleLegalSource =
+      'LAVS art. 35; RAVS art. 52; RAVS art. 53; RAVS art. 53bis; '
+      'RAVS art. 53ter; '
+      'OFAS 2026 pension amounts';
 
   /// Compute individual AVS monthly rente.
   ///
@@ -21,8 +185,12 @@ class AvsCalculator {
   /// - Early retirement penalty (6.8%/yr from 63) — LAVS art. 40
   /// - Deferral bonus (up to +31.5% at 70) — LAVS art. 39
   /// - Gender-aware reference age for AVS21 (LAVS art. 21 al. 1)
-  /// - Divorce income splitting — LAVS art. 29quinquies
   /// - Child-raising credits (bonifications éducatives) — LAVS art. 29sexies
+  ///
+  /// This illustration does not perform LAVS art. 29quinquies splitting.
+  /// Exact splitting needs year-by-year individual-account histories and a
+  /// statutory trigger; current salaries and marriage duration are rejected as
+  /// a substitute by the couple legal contract.
   ///
   /// [isFemale] and [birthYear] are optional — when provided, the
   /// reference age accounts for AVS21 transitional cohorts (women
@@ -36,9 +204,6 @@ class AvsCalculator {
     double grossAnnualSalary = 0,
     bool? isFemale,
     int? birthYear,
-    bool isDivorced = false,
-    double? exSpouseAnnualSalary,
-    int marriageYears = 0,
     int childRaisingYears = 0,
     int totalContributionYears = avsDureeCotisationComplete,
   }) {
@@ -67,27 +232,10 @@ class AvsCalculator {
         (totalYears - lacunes).clamp(0, fullYears);
     final gapFactor = fullYears > 0 ? effectiveYears / fullYears : 0.0;
 
-    // 2. Effective salary (RAMD) with divorce splitting + child credits
+    // 2. Effective salary (RAMD) with child credits
     double effectiveSalary = grossAnnualSalary;
 
-    // 2a. Divorce income splitting (LAVS art. 29quinquies)
-    // During marriage years, combined income is split 50/50.
-    // Remaining years use individual salary.
-    // Guard: skip splitting if marriageYears <= 0 or totalContributionYears <= 0
-    // (avoids division by zero and meaningless splits).
-    if (isDivorced &&
-        exSpouseAnnualSalary != null &&
-        marriageYears > 0 &&
-        totalContributionYears > 0) {
-      final combinedDuringMarriage =
-          (grossAnnualSalary + exSpouseAnnualSalary) / 2;
-      final marriageRatio = marriageYears / totalContributionYears;
-      final singleRatio = 1.0 - marriageRatio;
-      effectiveSalary = (combinedDuringMarriage * marriageRatio) +
-          (grossAnnualSalary * singleRatio);
-    }
-
-    // 2b. Child-raising credits / bonifications éducatives (LAVS art. 29sexies)
+    // 2a. Child-raising credits / bonifications éducatives (LAVS art. 29sexies)
     // Annual credit = 3× minimum annual AVS pension.
     // Added to RAMD prorated over total contribution years.
     if (childRaisingYears > 0 && totalContributionYears > 0) {
@@ -98,7 +246,7 @@ class AvsCalculator {
       effectiveSalary = effectiveSalary.clamp(0, avsRAMDMax);
     }
 
-    // 2c. RAMD-based rente (LAVS art. 34, echelle 44)
+    // 2b. RAMD-based rente (LAVS art. 34, echelle 44)
     final baseRente = renteFromRAMD(effectiveSalary);
     double rente = baseRente * gapFactor;
 
@@ -162,23 +310,339 @@ class AvsCalculator {
     return table.last[1];
   }
 
-  /// Couple AVS with married cap (LAVS art. 35).
+  /// Apply the LAVS art. 35 / RAVS arts. 53bis-53ter couple contract.
   ///
-  /// Married couples: total capped at 150% of individual max (3780 CHF).
-  /// Concubins: each gets individual rente, no cap.
-  static ({double user, double conjoint, double total}) computeCouple({
-    required double avsUser,
-    required double avsConjoint,
-    required bool isMarried,
-  }) {
-    final total = avsUser + avsConjoint;
-    final coupleMax = reg('avs.couple_max_monthly', avsRenteCoupleMaxMensuelle);
-    if (isMarried && total > coupleMax) {
-      final ratio = coupleMax / total;
-      return (user: avsUser * ratio, conjoint: avsConjoint * ratio, total: coupleMax);
+  /// This accepts only person-owned ordinary pensions. Missing or invalid
+  /// legal evidence returns [AvsCoupleCapState.pending] and no complete
+  /// household amount. It never derives a pension from salary, age, or a
+  /// default scale.
+  static AvsCouplePensionResult computeCouplePensions(
+    AvsCouplePensionInput input,
+  ) {
+    final missing = <String>[];
+
+    final aggregationMissing = <String>[];
+    _appendMissingBasePersonFields(
+      input.self,
+      AvsPersonRole.self,
+      aggregationMissing,
+    );
+    _appendMissingBasePersonFields(
+      input.partner,
+      AvsPersonRole.partner,
+      aggregationMissing,
+    );
+    missing.addAll(aggregationMissing);
+
+    final rawHousehold = aggregationMissing.isEmpty
+        ? [_activeRawPension(input.self), _activeRawPension(input.partner)]
+            .whereType<double>()
+            .fold<double>(0, (sum, value) => sum + value)
+        : null;
+
+    final capBenefitCombination =
+        _qualifiesForArticle35(input.self, input.partner);
+    final entitlementsResolved = input.self.entitlement != null &&
+        input.partner.entitlement != null;
+    final hasNoOldAgeBenefit =
+        input.self.entitlement != AvsPensionEntitlement.oldAge &&
+            input.partner.entitlement != AvsPensionEntitlement.oldAge;
+    final nonQualifyingCapState =
+        entitlementsResolved && !capBenefitCombination
+            ? hasNoOldAgeBenefit
+                ? AvsCoupleCapState.notApplicable
+                : AvsCoupleCapState.notNeeded
+            : null;
+    if (capBenefitCombination && input.legalStatus == null) {
+      missing.add('legalStatus');
     }
-    // No rounding on couple — rounding is applied on individual computeMonthlyRente()
-    return (user: avsUser, conjoint: avsConjoint, total: total);
+    final marriageEquivalent =
+        input.legalStatus == AvsCoupleLegalStatus.married ||
+            input.legalStatus == AvsCoupleLegalStatus.registeredPartnership;
+    if (marriageEquivalent && capBenefitCombination) {
+      final separation = input.judicialSeparation;
+      if (separation == null) {
+        missing.add('judicialSeparation');
+      } else if (separation.source.trim().isEmpty) {
+        missing.add('judicialSeparation.source');
+      } else if (!separation.isSeparated) {
+        _appendMissingCapFields(input.self, AvsPersonRole.self, missing);
+        _appendMissingCapFields(
+          input.partner,
+          AvsPersonRole.partner,
+          missing,
+        );
+      }
+    }
+
+    if (missing.isNotEmpty) {
+      final separationSource = input.judicialSeparation?.source;
+      return _coupleResult(
+        input: input,
+        rawHousehold: rawHousehold,
+        selfCapped: null,
+        partnerCapped: null,
+        household: null,
+        capState: input.legalStatus == AvsCoupleLegalStatus.cohabiting
+            ? AvsCoupleCapState.notApplicable
+            : nonQualifyingCapState ?? AvsCoupleCapState.pending,
+        missing: missing,
+        judicialSeparationSource:
+            separationSource != null && separationSource.trim().isNotEmpty
+                ? separationSource
+                : null,
+      );
+    }
+
+    final selfRaw = _activeRawPension(input.self);
+    final partnerRaw = _activeRawPension(input.partner);
+    final resolvedRawHousehold = rawHousehold!;
+
+    if (input.legalStatus == AvsCoupleLegalStatus.cohabiting) {
+      return _coupleResult(
+        input: input,
+        rawHousehold: resolvedRawHousehold,
+        selfCapped: selfRaw,
+        partnerCapped: partnerRaw,
+        household: resolvedRawHousehold,
+        capState: AvsCoupleCapState.notApplicable,
+        missing: const [],
+      );
+    }
+
+    if (!capBenefitCombination) {
+      return _coupleResult(
+        input: input,
+        rawHousehold: resolvedRawHousehold,
+        selfCapped: selfRaw,
+        partnerCapped: partnerRaw,
+        household: resolvedRawHousehold,
+        capState: nonQualifyingCapState!,
+        missing: const [],
+      );
+    }
+
+    final separation = input.judicialSeparation!;
+    if (separation.isSeparated) {
+      return _coupleResult(
+        input: input,
+        rawHousehold: resolvedRawHousehold,
+        selfCapped: selfRaw,
+        partnerCapped: partnerRaw,
+        household: resolvedRawHousehold,
+        capState: AvsCoupleCapState.legalException,
+        missing: const [],
+        judicialSeparationSource: separation.source,
+      );
+    }
+
+    final selfScale = input.self.contributionScale!;
+    final partnerScale = input.partner.contributionScale!;
+    final lowerScale = selfScale < partnerScale ? selfScale : partnerScale;
+    final higherScale = selfScale > partnerScale ? selfScale : partnerScale;
+    final weightedScaleRaw = (lowerScale + 2 * higherScale) / 3;
+    // RAVS art. 53bis uses the next higher integer pension scale. It is not a
+    // continuous interpolation between two scales.
+    final determiningScale = weightedScaleRaw.ceil();
+    final determiningScalePercentage = determiningScale / 44;
+    final fullScaleCap =
+        reg('avs.couple_max_monthly', avsRenteCoupleMaxMensuelle);
+    final formulaLayerCap = fullScaleCap * determiningScalePercentage;
+    final percentageMultiplier =
+        _article53terPercentageMultiplier(input.self, input.partner);
+    final formulaLayerApplicableCap = formulaLayerCap * percentageMultiplier;
+
+    if (determiningScale < 44) {
+      return _coupleResult(
+        input: input,
+        rawHousehold: resolvedRawHousehold,
+        selfCapped: null,
+        partnerCapped: null,
+        household: null,
+        capState: AvsCoupleCapState.pending,
+        missing: ['officialPensionTableProvider.scale.$determiningScale'],
+        weightedScaleRaw: weightedScaleRaw,
+        weightedContributionScale: determiningScale,
+        scaleWeightedCap: formulaLayerCap,
+        percentageMultiplier: percentageMultiplier,
+        formulaLayerCapEstimate: formulaLayerApplicableCap,
+        judicialSeparationSource: separation.source,
+      );
+    }
+
+    final payableCap = formulaLayerApplicableCap;
+    if (resolvedRawHousehold <= payableCap) {
+      return _coupleResult(
+        input: input,
+        rawHousehold: resolvedRawHousehold,
+        selfCapped: selfRaw,
+        partnerCapped: partnerRaw,
+        household: resolvedRawHousehold,
+        capState: AvsCoupleCapState.notNeeded,
+        missing: const [],
+        weightedScaleRaw: weightedScaleRaw,
+        weightedContributionScale: determiningScale,
+        scaleWeightedCap: formulaLayerCap,
+        percentageMultiplier: percentageMultiplier,
+        formulaLayerCapEstimate: formulaLayerApplicableCap,
+        payableCap: payableCap,
+        judicialSeparationSource: separation.source,
+      );
+    }
+
+    final reductionFactor = payableCap / resolvedRawHousehold;
+    return _coupleResult(
+      input: input,
+      rawHousehold: resolvedRawHousehold,
+      selfCapped: selfRaw! * reductionFactor,
+      partnerCapped: partnerRaw! * reductionFactor,
+      household: payableCap,
+      capState: AvsCoupleCapState.applied,
+      missing: const [],
+      weightedScaleRaw: weightedScaleRaw,
+      weightedContributionScale: determiningScale,
+      scaleWeightedCap: formulaLayerCap,
+      percentageMultiplier: percentageMultiplier,
+      formulaLayerCapEstimate: formulaLayerApplicableCap,
+      payableCap: payableCap,
+      judicialSeparationSource: separation.source,
+    );
+  }
+
+  static void _appendMissingBasePersonFields(
+    AvsPersonPensionInput person,
+    AvsPersonRole expectedOwner,
+    List<String> missing,
+  ) {
+    final prefix = expectedOwner.name;
+    if (person.owner != expectedOwner) {
+      missing.add('$prefix.owner');
+    }
+    final entitlement = person.entitlement;
+    if (entitlement == null) {
+      missing.add('$prefix.entitlement');
+      return;
+    }
+    if (entitlement == AvsPensionEntitlement.none) return;
+
+    final raw = person.rawMonthlyPension;
+    if (raw == null || !raw.isFinite || raw <= 0) {
+      missing.add('$prefix.rawMonthlyPension');
+    }
+  }
+
+  static void _appendMissingCapFields(
+    AvsPersonPensionInput person,
+    AvsPersonRole expectedOwner,
+    List<String> missing,
+  ) {
+    final prefix = expectedOwner.name;
+    final scale = person.contributionScale;
+    if (scale == null || scale < 1 || scale > 44) {
+      missing.add('$prefix.contributionScale');
+    }
+    final percentage = person.pensionPercentage;
+    if (percentage == null ||
+        !percentage.isFinite ||
+        percentage <= 0 ||
+        percentage > 1) {
+      missing.add('$prefix.pensionPercentage');
+    }
+    if (person.entitlement == AvsPensionEntitlement.oldAge &&
+        person.oldAgePaymentMode == null) {
+      missing.add('$prefix.oldAgePaymentMode');
+    }
+  }
+
+  static bool _qualifiesForArticle35(
+    AvsPersonPensionInput self,
+    AvsPersonPensionInput partner,
+  ) {
+    final selfOldAge = self.entitlement == AvsPensionEntitlement.oldAge;
+    final partnerOldAge = partner.entitlement == AvsPensionEntitlement.oldAge;
+    final selfDisability = self.entitlement == AvsPensionEntitlement.disability;
+    final partnerDisability =
+        partner.entitlement == AvsPensionEntitlement.disability;
+    return (selfOldAge && partnerOldAge) ||
+        (selfOldAge && partnerDisability) ||
+        (selfDisability && partnerOldAge);
+  }
+
+  static double? _activeRawPension(AvsPersonPensionInput person) =>
+      person.entitlement == AvsPensionEntitlement.none
+          ? null
+          : person.rawMonthlyPension;
+
+  static double _article53terPercentageMultiplier(
+    AvsPersonPensionInput self,
+    AvsPersonPensionInput partner,
+  ) {
+    final hasDeferredOldAge =
+        self.entitlement == AvsPensionEntitlement.oldAge &&
+                self.oldAgePaymentMode == AvsOldAgePaymentMode.deferred ||
+            partner.entitlement == AvsPensionEntitlement.oldAge &&
+                partner.oldAgePaymentMode == AvsOldAgePaymentMode.deferred;
+    if (hasDeferredOldAge) return 1;
+
+    final selfPercentage = self.pensionPercentage!;
+    final partnerPercentage = partner.pensionPercentage!;
+    return selfPercentage > partnerPercentage
+        ? selfPercentage
+        : partnerPercentage;
+  }
+
+  static AvsCouplePensionResult _coupleResult({
+    required AvsCouplePensionInput input,
+    required double? rawHousehold,
+    required double? selfCapped,
+    required double? partnerCapped,
+    required double? household,
+    required AvsCoupleCapState capState,
+    required List<String> missing,
+    double? weightedScaleRaw,
+    int? weightedContributionScale,
+    double? scaleWeightedCap,
+    double? percentageMultiplier,
+    double? formulaLayerCapEstimate,
+    double? payableCap,
+    String? judicialSeparationSource,
+  }) =>
+      AvsCouplePensionResult(
+        self: _personResult(input.self, selfCapped),
+        partner: _personResult(input.partner, partnerCapped),
+        rawHouseholdMonthlyPension: rawHousehold,
+        householdMonthlyPension: household,
+        weightedScaleRaw: weightedScaleRaw,
+        weightedContributionScale: weightedContributionScale,
+        scaleWeightedMonthlyCap: scaleWeightedCap,
+        percentageCapMultiplier: percentageMultiplier,
+        formulaLayerMonthlyCapEstimate: formulaLayerCapEstimate,
+        payableMonthlyCap: payableCap,
+        capState: capState,
+        missingFields: missing,
+        legalYear: coupleLegalYear,
+        legalSource: coupleLegalSource,
+        judicialSeparationSource: judicialSeparationSource,
+        requiresOfficialTableRounding: weightedContributionScale != null &&
+            weightedContributionScale < 44,
+      );
+
+  static AvsPersonPensionResult _personResult(
+    AvsPersonPensionInput input,
+    double? capped,
+  ) {
+    final scale = input.contributionScale;
+    final validScale = scale != null && scale >= 1 && scale <= 44;
+    return AvsPersonPensionResult(
+      owner: input.owner,
+      entitlement: input.entitlement,
+      rawMonthlyPension: input.rawMonthlyPension,
+      cappedMonthlyPension: capped,
+      contributionScale: input.contributionScale,
+      scalePercentage: validScale ? scale / 44 : null,
+      pensionPercentage: input.pensionPercentage,
+      oldAgePaymentMode: input.oldAgePaymentMode,
+    );
   }
 
   /// Bridge pension (rente-pont) estimate for early retirees.

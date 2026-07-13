@@ -26,6 +26,8 @@ import 'package:mint_mobile/services/financial_core/couple_optimizer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
+import 'avs_couple_test_fixtures.dart';
+
 // ══════════════════════════════════════════════════════════════════════════════
 //  SHARED GOLDEN COUPLE CONSTANTS
 //  All values sourced from CLAUDE.md §8 unless noted.
@@ -55,6 +57,18 @@ const int kLaurenArrivalAge = 20; // expat_us, contributing since 20
 // --- Couple ---
 const String kCanton = 'VS';
 const double kCombinedSalary = 189207.0;
+const double kJulienOfficialAvsFixture = 2520.0;
+const double kLaurenOfficialAvsFixture = 2187.0;
+
+AvsCouplePensionResult _officialGoldenAvsCouple(
+  AvsCoupleLegalStatus legalStatus,
+) =>
+    officialScale44AvsCouple(
+      selfPension: kJulienOfficialAvsFixture,
+      partnerPension: kLaurenOfficialAvsFixture,
+      legalStatus: legalStatus,
+      source: 'official golden fixture',
+    );
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  AVS DERIVATION (reference, not from law lookup at runtime)
@@ -71,7 +85,8 @@ const double kCombinedSalary = 189207.0;
 //
 //  Couple sum = 2520 + 2187.0 = 4707.0 > cap 3780
 //          → cap applies (LAVS art. 35)
-//          → total = 3780 CHF/mois (= 45'360 CHF/an with 13th rente)
+//          → ordinary monthly total = 3780 CHF/mois
+//          → December supplement requires separate payment histories
 //
 //  LPP Julien CPE Plan Maxi (CLAUDE.md §8):
 //          Projected balance at 65 ≈ 677'847 CHF → annual rente ≈ 33'892 CHF/an
@@ -190,38 +205,19 @@ void main() {
   // ══════════════════════════════════════════════════════════════════════════
 
   group('AvsCalculator — couple cap LAVS art. 35', () {
-    // Shared helper: compute individual rentes used across this group
-    double julienAvs() => AvsCalculator.computeMonthlyRente(
-          currentAge: kJulienAge,
-          retirementAge: kJulienRetirementAge,
-          lacunes: 0,
-          grossAnnualSalary: kJulienSalary,
-        );
-    double laurenAvs() => AvsCalculator.computeMonthlyRente(
-          currentAge: kLaurenAge,
-          retirementAge: kLaurenRetirementAge,
-          lacunes: 0,
-          grossAnnualSalary: kLaurenSalary,
-          arrivalAge: kLaurenArrivalAge,
-        );
-
-    test('G2.1 Sum without cap exceeds 3780 CHF/mois', () {
-      final sum = julienAvs() + laurenAvs();
+    test('G2.1 official uncapped fixtures exceed 3780 CHF/mois', () {
+      final couple = _officialGoldenAvsCouple(AvsCoupleLegalStatus.married);
       expect(
-        sum,
+        couple.rawHouseholdMonthlyPension,
         greaterThan(avsRenteCoupleMaxMensuelle),
         reason: '2520 + ~2187 = ~4707 > 3780 — cap must trigger',
       );
     });
 
     test('G2.2 Married couple total is capped at 3780 CHF/mois', () {
-      final couple = AvsCalculator.computeCouple(
-        avsUser: julienAvs(),
-        avsConjoint: laurenAvs(),
-        isMarried: true,
-      );
+      final couple = _officialGoldenAvsCouple(AvsCoupleLegalStatus.married);
       expect(
-        couple.total,
+        couple.householdMonthlyPension,
         closeTo(avsRenteCoupleMaxMensuelle, 0.01),
         reason: 'LAVS art. 35: married couple max = 3780 CHF/mois',
       );
@@ -229,76 +225,64 @@ void main() {
 
     test('G2.3 Married couple total matches CLAUDE.md §8 canonical value', () {
       // CLAUDE.md §8: "AVS couple (marié, cap 150%) = 3'780 CHF/mois"
-      final couple = AvsCalculator.computeCouple(
-        avsUser: julienAvs(),
-        avsConjoint: laurenAvs(),
-        isMarried: true,
-      );
+      final couple = _officialGoldenAvsCouple(AvsCoupleLegalStatus.married);
       expect(
-        couple.total,
+        couple.householdMonthlyPension,
         closeTo(3780.0, 1.0),
         reason: 'CLAUDE.md §8 canonical: 3780 CHF/mois couple AVS',
       );
     });
 
-    test('G2.4 Each spouse share is proportionally reduced, Julien > Lauren', () {
+    test('G2.4 Each spouse share is proportionally reduced, Julien > Lauren',
+        () {
       // Julien has higher individual rente → after proportional scaling
       // he must still receive more than Lauren.
-      final couple = AvsCalculator.computeCouple(
-        avsUser: julienAvs(),
-        avsConjoint: laurenAvs(),
-        isMarried: true,
-      );
+      final couple = _officialGoldenAvsCouple(AvsCoupleLegalStatus.married);
       expect(
-        couple.user,
-        greaterThan(couple.conjoint),
+        couple.self.cappedMonthlyPension,
+        greaterThan(couple.partner.cappedMonthlyPension!),
         reason: 'Proportional reduction preserves Julien > Lauren ordering',
       );
       // Both share values must be positive and less than individual uncapped rentes
-      expect(couple.user, greaterThan(0));
-      expect(couple.conjoint, greaterThan(0));
-      expect(couple.user, lessThan(julienAvs()));
-      expect(couple.conjoint, lessThan(laurenAvs()));
-    });
-
-    test('G2.5 Concubinage (isMarried=false) — no cap, each gets individual rente', () {
-      // If not married (e.g. concubinage), LAVS art. 35 cap does NOT apply.
-      // Each partner keeps their individual rente.
-      final couple = AvsCalculator.computeCouple(
-        avsUser: julienAvs(),
-        avsConjoint: laurenAvs(),
-        isMarried: false,
+      expect(couple.self.cappedMonthlyPension, greaterThan(0));
+      expect(couple.partner.cappedMonthlyPension, greaterThan(0));
+      expect(
+        couple.self.cappedMonthlyPension,
+        lessThan(kJulienOfficialAvsFixture),
       );
       expect(
-        couple.total,
+        couple.partner.cappedMonthlyPension,
+        lessThan(kLaurenOfficialAvsFixture),
+      );
+    });
+
+    test('G2.5 Cohabiting — no cap, each keeps the individual pension', () {
+      // If not married (e.g. concubinage), LAVS art. 35 cap does NOT apply.
+      // Each partner keeps their individual rente.
+      final couple = _officialGoldenAvsCouple(AvsCoupleLegalStatus.cohabiting);
+      expect(
+        couple.householdMonthlyPension,
         greaterThan(avsRenteCoupleMaxMensuelle),
         reason: 'Concubinage: no cap → total = sum of individual rentes',
       );
       expect(
-        couple.user,
-        closeTo(julienAvs(), 0.01),
+        couple.self.cappedMonthlyPension,
+        closeTo(kJulienOfficialAvsFixture, 0.01),
         reason: 'Julien concubin: keeps full individual rente',
       );
       expect(
-        couple.conjoint,
-        closeTo(laurenAvs(), 0.01),
+        couple.partner.cappedMonthlyPension,
+        closeTo(kLaurenOfficialAvsFixture, 0.01),
         reason: 'Lauren concubine: keeps full individual rente',
       );
     });
 
-    test('G2.6 Couple annual rente with 13th rente = 3780 × 13 = 49140 CHF/an', () {
-      // After cap the couple receives 3780/mois.
-      // With 13th rente (avs13emeRenteActive = true): 3780 × 13 = 49140 CHF/an.
-      final couple = AvsCalculator.computeCouple(
-        avsUser: julienAvs(),
-        avsConjoint: laurenAvs(),
-        isMarried: true,
-      );
-      final annualCouple = AvsCalculator.annualRente(couple.total);
+    test('G2.6 Couple cap remains an ordinary monthly amount', () {
+      final couple = _officialGoldenAvsCouple(AvsCoupleLegalStatus.married);
       expect(
-        annualCouple,
-        closeTo(avsRenteCoupleMaxMensuelle * 13, 1.0),
-        reason: '13e rente: couple annual max = 3780 × 13 = 49140 CHF/an',
+        couple.householdMonthlyPension,
+        closeTo(avsRenteCoupleMaxMensuelle, 0.01),
+        reason: 'December supplement needs person-owned payment histories',
       );
     });
   });
@@ -787,9 +771,8 @@ void main() {
       expect(result.marriagePenalty, isNull);
     });
 
-    test('G9.2 conjoint salary 0 → AVS cap still computed (W16 fix)', () {
-      // W16: Conjoint with zero salary should still trigger AVS cap analysis
-      // and marriage penalty when the main user has income.
+    test('G9.2 conjoint salary 0 → no uncertified AVS cap', () {
+      // Tax analysis remains possible, but salary/age cannot certify AVS.
       const conjointZeroSalary = ConjointProfile(
         birthYear: 1982,
         salaireBrutMensuel: 0,
@@ -799,9 +782,9 @@ void main() {
         conjoint: conjointZeroSalary,
       );
       expect(result.hasResults, isTrue,
-          reason: 'Conjoint salary=0 → AVS cap still applies');
-      expect(result.avsCap, isNotNull,
-          reason: 'AVS couple cap applies regardless of conjoint salary');
+          reason: 'Independent tax analysis remains available');
+      expect(result.avsCap, isNull,
+          reason: 'Official person-owned AVS evidence is absent');
     });
   });
 

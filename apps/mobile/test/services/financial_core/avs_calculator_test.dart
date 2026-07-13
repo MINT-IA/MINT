@@ -3,6 +3,8 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/avs_reference_age.dart';
 
+import 'avs_couple_test_fixtures.dart';
+
 void main() {
   group('AvsCalculator.computeMonthlyRente', () {
     test('high income full career → max rente 2520', () {
@@ -205,159 +207,40 @@ void main() {
     });
   });
 
-  group('AvsCalculator.computeCouple', () {
+  group('AvsCalculator.computeCouplePensions', () {
     test('married couple capped at 3780', () {
-      final result = AvsCalculator.computeCouple(
-        avsUser: 2520,
-        avsConjoint: 2520,
-        isMarried: true,
+      final result = officialScale44AvsCouple(
+        selfPension: 2520,
+        partnerPension: 2520,
+        legalStatus: AvsCoupleLegalStatus.married,
       );
-      expect(result.total, equals(avsRenteCoupleMaxMensuelle));
-      expect(result.user, closeTo(1890, 1)); // 2520 * 3780/5040
-      expect(result.conjoint, closeTo(1890, 1));
+      expect(
+        result.householdMonthlyPension,
+        equals(avsRenteCoupleMaxMensuelle),
+      );
+      expect(result.self.cappedMonthlyPension, closeTo(1890, 1));
+      expect(result.partner.cappedMonthlyPension, closeTo(1890, 1));
     });
 
     test('concubin couple NOT capped', () {
-      final result = AvsCalculator.computeCouple(
-        avsUser: 2520,
-        avsConjoint: 2520,
-        isMarried: false,
+      final result = officialScale44AvsCouple(
+        selfPension: 2520,
+        partnerPension: 2520,
+        legalStatus: AvsCoupleLegalStatus.cohabiting,
       );
-      expect(result.total, equals(5040));
-      expect(result.user, equals(2520));
-      expect(result.conjoint, equals(2520));
+      expect(result.householdMonthlyPension, equals(5040));
+      expect(result.self.cappedMonthlyPension, equals(2520));
+      expect(result.partner.cappedMonthlyPension, equals(2520));
     });
 
     test('married below cap → no reduction', () {
-      final result = AvsCalculator.computeCouple(
-        avsUser: 1500,
-        avsConjoint: 1500,
-        isMarried: true,
+      final result = officialScale44AvsCouple(
+        selfPension: 1500,
+        partnerPension: 1500,
+        legalStatus: AvsCoupleLegalStatus.married,
       );
-      expect(result.total, equals(3000));
-      expect(result.user, equals(1500));
-    });
-  });
-
-  group('Divorce splitting (LAVS art. 29quinquies)', () {
-    test('woman 60k, ex-husband 120k, 20y marriage → higher rente', () {
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 60000,
-        isDivorced: true,
-        exSpouseAnnualSalary: 120000,
-        marriageYears: 20,
-      );
-      // RAMD = (90000 * 20/44) + (60000 * 24/44) ≈ 73636
-      // Must be higher than without splitting
-      final withoutSplitting = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 60000,
-      );
-      expect(rente, greaterThan(withoutSplitting));
-    });
-
-    test('high earner loses rente after splitting', () {
-      final withoutSplitting = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 120000,
-      );
-      final withSplitting = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 120000,
-        isDivorced: true,
-        exSpouseAnnualSalary: 60000,
-        marriageYears: 20,
-      );
-      // High earner gets lower RAMD after split
-      expect(withSplitting, lessThanOrEqualTo(withoutSplitting));
-    });
-
-    test('no divorce = no change', () {
-      final normal = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-      );
-      final withDefaults = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-        isDivorced: false,
-      );
-      expect(withDefaults, equals(normal));
-    });
-
-    test('isDivorced=true but no exSpouseSalary → no change', () {
-      final normal = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-      );
-      final divorced = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-        isDivorced: true,
-        marriageYears: 10,
-      );
-      expect(divorced, equals(normal));
-    });
-
-    test('isDivorced=true but marriageYears=0 → no change', () {
-      final normal = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-      );
-      final divorced = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-        isDivorced: true,
-        exSpouseAnnualSalary: 120000,
-        marriageYears: 0,
-      );
-      expect(divorced, equals(normal));
-    });
-
-    test('equal salaries → splitting has no effect', () {
-      final normal = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-      );
-      final split = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 80000,
-        isDivorced: true,
-        exSpouseAnnualSalary: 80000,
-        marriageYears: 20,
-      );
-      expect(split, closeTo(normal, 0.01));
-    });
-
-    test('full marriage (44y) → pure average', () {
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 60000,
-        isDivorced: true,
-        exSpouseAnnualSalary: 120000,
-        marriageYears: 44,
-      );
-      // Effective salary = (60000+120000)/2 = 90000 → capped at RAMD max
-      final expected = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 90000,
-      );
-      expect(rente, closeTo(expected, 0.01));
+      expect(result.householdMonthlyPension, equals(3000));
+      expect(result.self.cappedMonthlyPension, equals(1500));
     });
   });
 
@@ -417,24 +300,6 @@ void main() {
       );
       expect(rente, lessThanOrEqualTo(avsRenteMaxMensuelle));
     });
-
-    test('combined divorce splitting + child credits', () {
-      final baseRente = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 50000,
-      );
-      final combined = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 50000,
-        isDivorced: true,
-        exSpouseAnnualSalary: 100000,
-        marriageYears: 15,
-        childRaisingYears: 16,
-      );
-      expect(combined, greaterThan(baseRente));
-    });
   });
 
   group('AvsCalculator.annualRente — 13e rente', () {
@@ -445,10 +310,6 @@ void main() {
     test('rente min × 13 = 16380', () {
       final r = AvsCalculator.annualRente(avsRenteMinMensuelle);
       expect(r, closeTo(avsRenteMinMensuelle * 13, 0.01));
-    });
-    test('couple max × 13 = 49140', () {
-      final r = AvsCalculator.annualRente(avsRenteCoupleMaxMensuelle);
-      expect(r, closeTo(avsRenteCoupleMaxMensuelle * 13, 0.01));
     });
     test('partial rente × 13', () {
       final r = AvsCalculator.annualRente(1890);

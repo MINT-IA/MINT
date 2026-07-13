@@ -24,6 +24,8 @@ import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 
+import 'avs_couple_test_fixtures.dart';
+
 void main() {
   // ═══════════════════════════════════════════════════════════════════
   //  SCENARIO 1: 13e rente AVS (LAVS art. 34 nouveau)
@@ -45,16 +47,15 @@ void main() {
       expect(annual, closeTo(30240.0, 1.0));
     });
 
-    test('S1.3 — couple married 150% cap on 13-month annual = 49140/an max', () {
-      // LAVS art. 35: couple cap = 150% × max individual = 3780/mois
-      // With 13th rente: 3780 × 13 = 49140 CHF/an
-      final coupleResult = AvsCalculator.computeCouple(
-        avsUser: 2520,
-        avsConjoint: 2520,
-        isMarried: true,
+    test('S1.3 — couple cap stays an ordinary monthly amount', () {
+      final coupleResult = officialScale44AvsCouple(
+        selfPension: 2520,
+        partnerPension: 2520,
+        legalStatus: AvsCoupleLegalStatus.married,
       );
-      final annualCouple = AvsCalculator.annualRente(coupleResult.total);
-      expect(annualCouple, closeTo(49140.0, 1.0));
+      expect(coupleResult.householdMonthlyPension, closeTo(3780, 0.01));
+      // The December supplement needs person-owned payment histories and is
+      // intentionally not inferred by this couple-cap test.
     });
 
     test('S1.4 — single min rente with 13th: 1260 × 13 = 16380/an', () {
@@ -145,60 +146,60 @@ void main() {
 
   group('Scenario 3: AVS rente couple cap — LAVS art. 35', () {
     test('S3.1 — married both max: 2520+2520=5040 → capped at 3780', () {
-      final result = AvsCalculator.computeCouple(
-        avsUser: 2520,
-        avsConjoint: 2520,
-        isMarried: true,
+      final result = officialScale44AvsCouple(
+        selfPension: 2520,
+        partnerPension: 2520,
+        legalStatus: AvsCoupleLegalStatus.married,
       );
-      expect(result.total, closeTo(3780.0, 0.01));
+      expect(result.householdMonthlyPension, closeTo(3780.0, 0.01));
       // Pro-rata: each gets 3780/2 = 1890
-      expect(result.user, closeTo(1890.0, 1.0));
-      expect(result.conjoint, closeTo(1890.0, 1.0));
+      expect(result.self.cappedMonthlyPension, closeTo(1890.0, 1.0));
+      expect(result.partner.cappedMonthlyPension, closeTo(1890.0, 1.0));
     });
 
     test('S3.2 — concubins both max: 2520+2520=5040 → NO cap', () {
-      final result = AvsCalculator.computeCouple(
-        avsUser: 2520,
-        avsConjoint: 2520,
-        isMarried: false,
+      final result = officialScale44AvsCouple(
+        selfPension: 2520,
+        partnerPension: 2520,
+        legalStatus: AvsCoupleLegalStatus.cohabiting,
       );
-      expect(result.total, closeTo(5040.0, 0.01));
-      expect(result.user, closeTo(2520.0, 0.01));
-      expect(result.conjoint, closeTo(2520.0, 0.01));
+      expect(result.householdMonthlyPension, closeTo(5040.0, 0.01));
+      expect(result.self.cappedMonthlyPension, closeTo(2520.0, 0.01));
+      expect(result.partner.cappedMonthlyPension, closeTo(2520.0, 0.01));
     });
 
     test('S3.3 — married one max one min: 2520+1260=3780 → exactly at cap', () {
-      final result = AvsCalculator.computeCouple(
-        avsUser: 2520,
-        avsConjoint: 1260,
-        isMarried: true,
+      final result = officialScale44AvsCouple(
+        selfPension: 2520,
+        partnerPension: 1260,
+        legalStatus: AvsCoupleLegalStatus.married,
       );
       // Sum = 3780 = cap → no reduction
-      expect(result.total, closeTo(3780.0, 0.01));
-      expect(result.user, closeTo(2520.0, 0.01));
-      expect(result.conjoint, closeTo(1260.0, 0.01));
+      expect(result.householdMonthlyPension, closeTo(3780.0, 0.01));
+      expect(result.self.cappedMonthlyPension, closeTo(2520.0, 0.01));
+      expect(result.partner.cappedMonthlyPension, closeTo(1260.0, 0.01));
     });
 
     test('S3.4 — married 1500+1200=2700 → below cap, no reduction', () {
-      final result = AvsCalculator.computeCouple(
-        avsUser: 1500,
-        avsConjoint: 1200,
-        isMarried: true,
+      final result = officialScale44AvsCouple(
+        selfPension: 1500,
+        partnerPension: 1200,
+        legalStatus: AvsCoupleLegalStatus.married,
       );
-      expect(result.total, closeTo(2700.0, 0.01));
-      expect(result.user, closeTo(1500.0, 0.01));
-      expect(result.conjoint, closeTo(1200.0, 0.01));
+      expect(result.householdMonthlyPension, closeTo(2700.0, 0.01));
+      expect(result.self.cappedMonthlyPension, closeTo(1500.0, 0.01));
+      expect(result.partner.cappedMonthlyPension, closeTo(1200.0, 0.01));
     });
 
     test('S3.5 — concubins unequal: 2200+1800=4000 → no cap applied', () {
-      final result = AvsCalculator.computeCouple(
-        avsUser: 2200,
-        avsConjoint: 1800,
-        isMarried: false,
+      final result = officialScale44AvsCouple(
+        selfPension: 2200,
+        partnerPension: 1800,
+        legalStatus: AvsCoupleLegalStatus.cohabiting,
       );
-      expect(result.total, closeTo(4000.0, 0.01));
-      expect(result.user, closeTo(2200.0, 0.01));
-      expect(result.conjoint, closeTo(1800.0, 0.01));
+      expect(result.householdMonthlyPension, closeTo(4000.0, 0.01));
+      expect(result.self.cappedMonthlyPension, closeTo(2200.0, 0.01));
+      expect(result.partner.cappedMonthlyPension, closeTo(1800.0, 0.01));
     });
   });
 

@@ -16,12 +16,13 @@ rate, or monthly gap while official person-owned AVS pensions and their source
 dates are absent. The retirement sequences can record `avs_pending` and
 continue without inventing numeric outputs.
 
-G1 couple AVS nevertheless remains **NO-GO** because the production model still
-destroys the registered-partnership status, the available couple calculator is
-not scale/status/entitlement aware, the salary-duration splitting proxy is not
-an official calculation, the 13th pension is still represented as a monthly
-uplift in dormant code, and partner grants do not exist. Sections 6 and 7 are
-the executable acceptance contract and current severity inventory.
+At the `fad6e9bc1` review boundary, G1 couple AVS remained **NO-GO** for the
+status, cap, splitting, 13th-pension, and partner-grant defects inventoried in
+section 7. Later preservation of registered-partnership status and a corrected
+weighted-scale formula do not lift that verdict: a versioned official pension-
+table provider/provenance bridge, official splitting evidence, the 13th-pension
+cash-flow model, and scoped partner grants remain acceptance blockers. Sections
+6 and 7 remain the executable contract and boundary inventory.
 
 ## 1. Product rule
 
@@ -43,9 +44,24 @@ individual view remains available whenever its own prerequisites are met.
 The product must expose three different readiness states, never one generic
 `coupleReady` boolean:
 
-- `selfPensionReady`;
-- `householdAggregationReady`;
-- `maritalCapReady`.
+- `selfPensionReady`: the person's own raw pension state is resolved;
+- `householdAggregationReady`: every authorized household component is either
+  available as a person-owned raw amount or explicitly known not to be payable;
+- `maritalCapReady`: the cap calculation is ready only for a
+  marriage-equivalent pair with two qualifying benefits and a sourced
+  judicial-separation state explicitly known to be `false`.
+
+`householdAggregationReady` never requires contribution scales, pension
+percentages, or anticipation/deferral modes merely to expose the authorized
+raw sum. This matters in particular for cohabitants, a first beneficiary whose
+partner is explicitly known not to receive a qualifying benefit for the period,
+and judicially separated spouses or registered partners. An explicit inactive
+entitlement is a legal state, not a fabricated CHF 0 pension. If the partner
+state itself is absent or unknown, the household view remains partial. A ready
+raw sum never certifies a payable household sum while a legally applicable cap
+is pending. Scales, percentages, and payment modes are requested only after
+status, two qualifying benefits, and `judiciallySeparated = false` establish
+the cap branch.
 
 ## 2. Legal rules to encode
 
@@ -106,8 +122,8 @@ Minimum readiness must therefore be split:
 | self AVS illustration | self age/reference-age facts plus explicit illustrative assumptions; labelled estimate |
 | self evidence-backed AVS | official pension estimate/decision, or CI-grade inputs sufficient for the explicitly declared confidence |
 | partner AVS component | same evidence, owned by the partner; never a defaulted salary, age, RAMD, scale, gap count, or pension |
-| household sum | both displayed person-owned components available at compatible confidence and authorized scope |
-| marital cap | both qualifying benefits active, marriage-equivalent status known, judicial-separation exception known, both scales/percentages known, and both uncapped pensions known |
+| household sum | every authorized member resolved to a displayed person-owned raw component or an explicit inactive entitlement, at compatible confidence; no scale is required merely to aggregate |
+| marital cap | both qualifying benefits active, marriage-equivalent status known, judicial separation explicitly known `false`, both uncapped pensions known, and then both scales, pension percentages, and anticipation/deferral modes known |
 
 A certificate-backed gap count alone does not prove RAMD, contribution scale,
 splitting history, entitlement status, or the final pension amount. A field that
@@ -162,24 +178,42 @@ For two complete scale-44 pensions, the 2026 monthly cap is CHF 3'780, or 150%
 of the CHF 2'520 individual maximum. If one or both contribution durations are
 incomplete, a fixed CHF 3'780 cap is wrong.
 
-Let `pLow` and `pHigh` be the RAVS art. 52 percentages of the lower and higher
-pension scales. RAVS art. 53bis defines:
+For the incomplete-duration branch, RAVS art. 53bis supplies the weighted
+relationship. The OFAS Directives concerning pensions, ch. 5290-5293,
+operationalize it as a **weighted integer pension scale**. Let `sLow` and
+`sHigh` be the lower and higher scales:
 
 ```text
-weightedScalePercent = (pLow + 2 × pHigh) / 3
-formulaLayerMonthlyCap = CHF 3'780 × weightedScalePercent
+weightedScaleRaw = (sLow + 2 × sHigh) / 3
+weightedScale = ceil(weightedScaleRaw)  // next higher integer scale
 ```
 
-Example for scale 26 (`59.09%`) and scale 38 (`86.36%`):
+The upward scale rounding happens before any amount lookup. It is not commercial
+rounding and must not be replaced by rounding to nearest or by prematurely
+rounded percentages.
+
+Examples:
 
 ```text
-weightedScalePercent = (59.09% + 2 × 86.36%) / 3 = 77.27% (scale 34)
-formulaLayerMonthlyCap = CHF 3'780 × 0.7727 = CHF 2'920.806
+scale 26 + scale 38: (26 + 2 × 38) / 3 = 34 exactly -> scale 34
+scale 21 + scale 44: (21 + 2 × 44) / 3 = 36.333... -> scale 37, never 36
 ```
 
-The official mandatory calculation rules and pension tables govern the payable
-result and rounding. Do not introduce a second handwritten scale table in a
-screen or service.
+MINT must keep two result layers distinct:
+
+1. `formulaLayerMonthlyCapEstimate` may use
+   `CHF 3'780 × weightedScale / 44` for an explicitly labelled educational
+   estimate. Thus scale 34 gives about CHF 2'920.91; it is not the payable
+   amount and cannot be certified.
+2. `payableMonthlyCap` comes from the official pension tables applicable to the
+   legal year, or from an exact implementation of the mandatory RAVS art. 53
+   calculation and commercial-rounding rules. The OFAS tables currently
+   applicable give CHF 2'921 for weighted scale 34 and CHF 3'179 for weighted
+   scale 37. Without a versioned official-table provider and provenance bridge,
+   `payableMonthlyCap` remains `null`/pending even when the formula-layer
+   estimate is available.
+
+Do not introduce a second handwritten scale table in a screen or service.
 
 When percentages of pension are drawn, RAVS art. 53ter also applies:
 
@@ -195,6 +229,11 @@ factor = payableMonthlyCap / (rawA + rawB)
 cappedA = rawA × factor
 cappedB = rawB × factor
 ```
+
+If `payableMonthlyCap` is `null`, `cappedA`, `cappedB`, and the payable
+household total remain `null`; the raw person-owned amounts stay available and
+the cap state remains pending. The formula-layer estimate must never drive a
+certified proportional reduction.
 
 The output must preserve person ownership and expose `raw`, `capped`,
 `capState`, `legalYear`, `source`, and every assumption or missing input.
@@ -305,8 +344,8 @@ a revoked `grant_id` or obsolete lineage must be discarded, not re-persisted.
 | tier | variables |
 |---|---|
 | minimum self state | person owner, official monthly pension or explicit illustrative inputs, source, source date, confidence, ordinary/percentage entitlement state |
-| minimum household sum | both person-owned components plus compatible date/scope/confidence and authorization for partner facts |
-| minimum cap | Swiss AVS marriage-equivalent status, both qualifying benefits and percentages, both scales, both raw pensions, sourced judicial-separation state, legal year |
+| minimum household sum | every authorized member resolved to a person-owned raw component or explicit inactive entitlement, plus compatible date/scope/confidence; no scale prerequisite |
+| minimum cap | Swiss AVS marriage-equivalent status, both qualifying benefits active, both raw pensions, sourced judicial separation explicitly `false`, then both scales, benefit percentages, anticipation/deferral modes, and legal year |
 | minimum 13th cash flow | person-owned monthly old-age payments actually received, December entitlement, excluded-component breakdown |
 | useful | compensation fund, estimate/decision date, contribution-account extract date, reference-age/anticipation/deferral choices, splitting trigger/date |
 | compensation-fund or specialist handoff | year-by-year CI histories, cross-border coordination periods, disputed civil-status recognition, legal decision concerning separate households, unresolved credits or splitting |
@@ -361,9 +400,10 @@ merge two person-owned facts into one unattributed household number.
 | married/registered, partner absent or unlinked | show if self-ready | missing | null/partial | pending | ask only for missing partner AVS facts; offer manual entry and optional invitation equally |
 | married/registered, partner gap count known but RAMD/scale/splitting missing | show if self-ready | partial, no CHF 0 | null/partial | pending | request official estimate/CI prerequisites |
 | cohabiting, partner absent | show if self-ready | missing | null/partial | not applicable | optional partner data for a household view; never block self |
-| cohabiting, both individual pensions known | show | show | uncapped sum | not applicable | explain that pensions remain individual |
-| marriage-equivalent, both pensions/scales/rights complete | show raw and capped ownership clearly | show raw and capped ownership clearly | capped sum | applied/not needed | show source date, legal year, percentages, and assumptions |
-| judicially separated household after a court decision | show | show if authorized | uncapped sum if requested | legal exception | source the judicial-decision fact; do not infer it |
+| cohabiting, both individual pensions known | show | show | uncapped sum without scales | not applicable | explain that pensions remain individual |
+| marriage-equivalent, first pension active and partner explicitly has no qualifying benefit | show | explicit inactive entitlement, never CHF 0 | raw sum equals the active pension without requiring scales | not applicable | explain that the cap starts only with the second qualifying benefit |
+| marriage-equivalent, both pensions/scales/rights complete and judicial separation known `false` | show raw and capped ownership clearly | show raw and capped ownership clearly | capped sum | applied/not needed | show source date, legal year, percentages, modes, and assumptions |
+| judicially separated household after a court decision | show | show if authorized | uncapped sum if requested, without scales | legal exception | source the judicial-decision fact; do not infer it |
 | legacy bare `partenariat` | show if self-ready | do not discard existing partner facts | null/partial | pending | reconfirm exact civil status; do not guess |
 | foreign PACS/civil union without Swiss recognition evidence | show if self-ready | show if authorized | uncapped/partial only | not applicable or pending | ask whether the status is recognized as a registered partnership in Switzerland |
 | declared `noGaps` without evidence | partial/illustrative only | n/a | null | pending/not applicable | obtain/confirm evidence; declaration never fabricates certified zero years |
@@ -412,19 +452,36 @@ Target:
    - same fixture/status registered; expect the same AVS output as married.
 8. `cohabiting pair is not capped`
    - raw `2'520 + 2'520`; expect `5'040`, cap `notApplicable`.
-9. `scale38 plus scale26 uses RAVS weighted cap`
-   - scale percentages `86.36` and `59.09`, raw pensions above the weighted
-     cap; expect formula-layer cap close to `2'920.806`, never `3'780`, then
-     apply the official calculation/rounding boundary.
-10. `judicially separated spouses are not capped`
-    - marriage-equivalent status plus sourced judicial separation; raw sum is
-      returned uncapped with exception reason.
-11. `first pension event does not activate couple cap`
-    - one old-age pension active, partner has no qualifying AVS/AI entitlement;
-      expect the active individual pension unchanged.
-12. `missing partner scale makes cap pending, not scale44`
-    - raw self pension plus partner pension but `partnerScale=null`; expect no
-      complete capped household result and an exact missing field path.
+9. `scale38 plus scale26 selects exact weighted scale34 before lookup`
+   - raw pensions above the prospective cap; expect
+     `weightedScaleRaw=34`, `weightedScale=34`, and a formula-layer estimate
+     close to CHF `2'920.91`, never `2'920.806` or `3'780`;
+   - without the versioned official-table provider, expect
+     `payableMonthlyCap=null` and a pending certification state; an official
+     table fixture for the applicable year expects CHF `2'921`.
+9b. `scale44 plus scale21 rounds upward to scale37 before lookup`
+    - `(21 + 2 × 44) / 3 = 36.333...`; expect `weightedScale=37`, never 36;
+    - formula-layer estimate is about CHF `3'178.64`; the applicable official
+      table fixture expects payable cap CHF `3'179`, while absence of that
+      provider remains pending/null rather than certifying the estimate.
+10. `judicially separated spouses aggregate raw pensions without cap inputs`
+    - marriage-equivalent status plus sourced judicial separation; expect raw
+      household aggregation ready and uncapped with exception reason even when
+      both scales/percentages/modes are absent.
+11. `first pension event does not activate couple cap or require scales`
+    - one old-age pension active, partner explicitly has no qualifying AVS/AI
+      entitlement; expect raw household aggregation ready and equal to the
+      active pension, without manufacturing a CHF 0 partner pension.
+12. `missing partner scale blocks only an otherwise applicable cap`
+    - marriage-equivalent pair, both qualifying benefits and raw pensions,
+      judicial separation explicitly `false`, but `partnerScale=null`;
+      expect self and raw household aggregation ready, marital cap pending, no
+      complete capped result, and an exact missing field path.
+12a. `unknown judicial separation stops cap readiness before scale requests`
+    - marriage-equivalent pair with both qualifying raw pensions but separation
+      state unknown; expect raw household aggregation ready and cap pending on
+      that fact alone; do not require scales, percentages, or modes until the
+      separation state is explicitly `false`.
 13. `current salaries and marriageYears cannot certify splitting`
     - only `60'000`, `120'000`, `20 years`; expect splitting state
       `insufficientEvidence`, not a recalculated exact RAMD/pension.
@@ -660,7 +717,9 @@ account linking, or continue self-only.
 | splitting events, common insured years, exclusion of marriage start/end years | [LAVS art. 29quinquies, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | in force 01.01.2026 |
 | 13th pension entitlement, one-twelfth basis, December payment | [LAVS art. 34ter, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | in force 01.01.2026 |
 | cap trigger, court-ordered separate-household exception, proportional reduction | [LAVS art. 35, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | in force 01.01.2026 |
-| scale percentages, mandatory tables/rounding, incomplete-scale and pension-percentage cap rules | [RAVS arts. 52, 53, 53bis and 53ter, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/1185_1183_1185/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-1185_1183_1185-20260101-fr-pdf-a.pdf) | in force 01.01.2026 |
+| legal percentages, calculation prescriptions, incomplete-scale and pension-percentage cap rules | [RAVS arts. 52, 53, 53bis and 53ter, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/1185_1183_1185/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-1185_1183_1185-20260101-fr-pdf-a.pdf) | in force 01.01.2026 |
+| weighted integer scale, upward scale rounding, table lookup and commercial rounding | [OFAS — Directives concernant les rentes, ch. 5287-5295](https://sozialversicherungen.admin.ch/fr/d/6857/download) | state 01.01.2026; ch. 5291 rounds to the next higher scale before lookup |
+| official weighted-scale couple-cap amounts | [OFAS — Tables des rentes 2025, table 7](https://sozialversicherungen.admin.ch/fr/d/6850/download) | valid from 01.01.2025 until a new pension adjustment; scale 34 CHF 2'921, scale 37 CHF 3'179 |
 | 2026 pension minima/maxima and full-scale couple maximum | [OFAS — Montants valables à partir du 1er janvier 2026](https://www.bsv.admin.ch/dam/bsv/fr/dokumente/ahv/uebersichten/renten-und-beitraege-20260101.pdf.download.pdf/renten-und-beitraege-20260101.pdf) | CHF 1'260 / 2'520 / 3'780; document 06.11.2025 |
 | registered partnership AVS-equivalent to marriage; dissolution/death equivalences | [Centre d'information AVS/AI — Généralités](https://www.ahv-iv.ch/fr/assurances-sociales/assurance-vieillesse-et-survivants-avs/g%C3%A9n%C3%A9ralit%C3%A9s) | consulted 2026-07-13 |
 | no new Swiss registered partnership after 01.07.2022; existing status remains; foreign recognition nuance | [OFJ — Mariage et « mariage pour tous » FAQ](https://www.bj.admin.ch/fr/faq-mariage-et-mariage-pour-tous) and [Directive OFEC 10.22.04.01](https://www.bj.admin.ch/dam/bj/fr/data/gesellschaft/zivilstand/weisungen/ws-ks-am/10-22-04-01.pdf.download.pdf/10-22-04-01-f.pdf) | FAQ consulted 2026-07-13; directive state 15.07.2025 |
