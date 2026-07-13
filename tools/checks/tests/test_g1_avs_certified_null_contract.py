@@ -41,6 +41,14 @@ CERTIFIED_NULL_FALLBACK_RE = re.compile(r"\.lacunesAVS\s*\?\?\s*0")
 LEGACY_PENSION_ACCESS_RE = re.compile(
     r"(?:\b[A-Za-z_]\w*\??\.)+renteAVSEstimeeMensuelle\b"
 )
+PENSION_PROXY_SHAPE_RE = re.compile(
+    r"\b(?:avs)?(?:maxRente\w*|renteMax\w*|max(?:imum)?(?:Monthly)?Pension\w*|"
+    r"fullRente\w*)\s*\*\s*"
+    r"(?:_?(?:total)?(?:Contribution)?Years\w*|annees(?:Contribuees)?\w*)"
+    r"\s*/\s*(?:44(?:\.0)?|\w*(?:fullContributionYears|"
+    r"DureeCotisationComplete)\w*)",
+    re.IGNORECASE,
+)
 DART_NON_CODE_RE = re.compile(
     r"r?'''[\s\S]*?'''"
     r'|r?"""[\s\S]*?"""'
@@ -48,6 +56,13 @@ DART_NON_CODE_RE = re.compile(
     r'|r?"(?:\\.|[^"\\])*"'
     r"|//[^\n]*"
     r"|/\*[\s\S]*?\*/"
+)
+PYTHON_NON_CODE_RE = re.compile(
+    r"'''[\s\S]*?'''"
+    r'|"""[\s\S]*?"""'
+    r"|'(?:\\.|[^'\\])*'"
+    r'|"(?:\\.|[^"\\])*"'
+    r"|\#[^\n]*"
 )
 
 
@@ -514,6 +529,7 @@ EMITTED_DETECTION_CODES = frozenset(
         "exact_chf_without_official_pension",
         "backend_exact_chf_without_official_pension",
         "exact_chf_from_gap_proxy",
+        "exact_pension_from_contribution_years_proxy",
         "uncertified_labeled_official",
         "ambiguous_household_readiness",
         "household_total_not_ready",
@@ -658,6 +674,15 @@ def _semantic_violations(
             "gap proxy is rendered as an exact CHF pension loss",
             match.start(),
         )
+
+    if contract.mode != AvsConsumerMode.LOCAL_SCENARIO:
+        for match in PENSION_PROXY_SHAPE_RE.finditer(source):
+            record(
+                "exact_pension_from_contribution_years_proxy",
+                "maximum AVS pension is prorated from contribution years "
+                "without a reviewed official-pension envelope",
+                match.start(),
+            )
 
     # Provenance words are output facts too. A source label cannot be upgraded
     # from a declaration unless the same local branch checks certificate-backed
@@ -875,6 +900,18 @@ return formatChf(monthlyLoss);
 """,
         _fixture_contract((AvsReadinessScope.SELF,)),
         frozenset({"exact_chf_from_gap_proxy"}),
+    ),
+    SeededBehaviorCase(
+        "contribution years proxy becomes exact monthly pension",
+        """
+const maxRenteMensuelle = 2520.0;
+return (maxRenteMensuelle * contributionYears / 44).clamp(
+  0,
+  maxRenteMensuelle,
+);
+""",
+        _fixture_contract((AvsReadinessScope.SELF,), AvsConsumerMode.QUARANTINED),
+        frozenset({"exact_pension_from_contribution_years_proxy"}),
     ),
     SeededBehaviorCase(
         "declaration receives official source label",
@@ -1127,6 +1164,17 @@ def _strip_dart_comments_and_strings(source: str) -> str:
     return DART_NON_CODE_RE.sub(blank, source)
 
 
+def _strip_production_comments_and_strings(path: Path, source: str) -> str:
+    def blank(match: re.Match[str]) -> str:
+        return "".join("\n" if char == "\n" else " " for char in match.group(0))
+
+    if path.suffix == ".dart":
+        return DART_NON_CODE_RE.sub(blank, source)
+    if path.suffix == ".py":
+        return PYTHON_NON_CODE_RE.sub(blank, source)
+    raise AssertionError(f"unsupported production source type: {path}")
+
+
 def _legacy_pension_access_is_allowed(
     relative_path: str,
     source: str,
@@ -1183,6 +1231,36 @@ final live = profile.prevoyance.renteAVSEstimeeMensuelle;
         "legacy `renteAVSEstimeeMensuelle` has no reviewed official-pension "
         "envelope and may be read only by the explicit model/provider storage "
         "boundaries. Live consumers must stay partial:\n" + "\n".join(findings)
+    )
+
+
+def test_repo_wide_production_has_no_unreviewed_exact_pension_proxy_shape() -> None:
+    local_scenario_paths = {
+        source.path
+        for contract in AVS_CONSUMERS.values()
+        if contract.mode == AvsConsumerMode.LOCAL_SCENARIO
+        for source in contract.sources
+    }
+    production_files = list(MOBILE_PRODUCTION.rglob("*.dart")) + list(
+        (BACKEND_ROOT / "app").rglob("*.py")
+    )
+    findings: list[str] = []
+    for path in sorted(production_files):
+        relative_path = path.relative_to(ROOT).as_posix()
+        if relative_path in local_scenario_paths:
+            continue
+        original = path.read_text(encoding="utf-8")
+        source = _strip_production_comments_and_strings(path, original)
+        for match in PENSION_PROXY_SHAPE_RE.finditer(source):
+            line = _line_for(source, match.start())
+            excerpt = original.splitlines()[line - 1].strip()
+            findings.append(f"{relative_path}:{line}: {excerpt}")
+
+    assert not findings, (
+        "an exact AVS pension proxy derived from maximum pension × contribution "
+        "years is forbidden repo-wide outside an explicit local scenario. "
+        "Keep the result unknown until a reviewed owner-scoped official-pension "
+        "envelope exists:\n" + "\n".join(findings)
     )
 
 
