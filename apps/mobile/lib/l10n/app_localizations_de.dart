@@ -23789,13 +23789,13 @@ class SDe extends S {
       'Ohne IK-Auszug oder anderen amtlichen Nachweis macht MINT aus diesen Jahren keine Lücken.';
 
   @override
-  String expatAvsDocumentedGaps(int years) {
-    return 'Durch den IK-Auszug dokumentierte Lückenjahre: $years';
+  String expatAvsCiObservedMissingYearsTitle(int years) {
+    return 'Gemäss IK-Auszug zu prüfende Jahre: $years';
   }
 
   @override
-  String expatAvsDocumentedMinimumEffect(int years, String percent) {
-    return '$years / 44: Grundsätzlich könnte jedes dokumentierte Lückenjahr die Rentenskala um mindestens 1/44 reduzieren. Indikativer Mindestwert: mindestens $percent %. Der Betrag hängt insbesondere vom durchschnittlichen Einkommen, den Gutschriften und der amtlichen Berechnung ab.';
+  String expatAvsCiRawDurationBenchmark(int years, String percent) {
+    return 'Roher Beitragsdauer-Richtwert: $years von 44, also $percent %. Dieser Prozentsatz ist keine Kürzung deiner Rente. Die Ausgleichskasse bestimmt zuerst, welche Zeiträume berücksichtigt werden können, und legt danach die offizielle Skala und den offiziellen Betrag fest. Der Betrag hängt auch vom massgebenden durchschnittlichen Jahreseinkommen und den anerkannten Gutschriften ab.';
   }
 
   @override

@@ -7,7 +7,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   Widget buildWidget({
-    int? documentedGapYears,
+    int? ciObservedMissingContributionYears,
     VoidCallback? onOpenAvsVerificationGuide,
   }) =>
       MaterialApp(
@@ -26,7 +26,8 @@ void main() {
               assessment: ExpatService.assessAvsGapOrientation(
                 scenarioStarted: true,
                 yearsAbroad: 5,
-                documentedGapYears: documentedGapYears,
+                ciObservedMissingContributionYears:
+                    ciObservedMissingContributionYears,
               ),
               onOpenAvsVerificationGuide: onOpenAvsVerificationGuide ?? () {},
             ),
@@ -55,18 +56,61 @@ void main() {
     expect(find.byType(Slider), findsNothing);
   });
 
-  testWidgets('CI-documented gaps show only their proportional 1/44 effect',
+  testWidgets('CI years show only the raw contribution-duration benchmark',
       (tester) async {
-    await tester.pumpWidget(buildWidget(documentedGapYears: 4));
+    await tester.pumpWidget(
+      buildWidget(ciObservedMissingContributionYears: 4),
+    );
 
     expect(find.byKey(const Key('expat_avs_gap_documented')), findsOneWidget);
-    expect(find.textContaining('Lacunes documentées par l’extrait CI'),
-        findsOneWidget);
+    expect(
+      find.text("Années à examiner d'après l'extrait CI : 4"),
+      findsOneWidget,
+    );
     expect(find.textContaining('certifiées'), findsNothing);
-    expect(find.textContaining('4 / 44'), findsOneWidget);
-    expect(find.textContaining('au moins 9.1'), findsOneWidget);
-    expect(find.textContaining('RAMD'), findsOneWidget);
+    expect(find.textContaining('4 sur 44, soit 9.1 %'), findsOneWidget);
+    expect(
+      find.textContaining(
+        "Ce pourcentage n'est pas une réduction de ta rente",
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(
+        RegExp(r'minimum|minimale|minimal|au moins', caseSensitive: false),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.textContaining(RegExp(r'rente\s*-', caseSensitive: false)),
+      findsNothing,
+    );
     expect(find.textContaining(RegExp(r'CHF\s*[0-9]')), findsNothing);
+  });
+
+  testWidgets('explicit CI zero stays an observed zero, not unknown',
+      (tester) async {
+    await tester.pumpWidget(
+      buildWidget(ciObservedMissingContributionYears: 0),
+    );
+
+    expect(find.byKey(const Key('expat_avs_gap_documented')), findsOneWidget);
+    expect(find.byKey(const Key('expat_avs_gap_unknown')), findsNothing);
+    expect(find.textContaining('0 sur 44, soit 0.0 %'), findsOneWidget);
+  });
+
+  test('French CI wording matches the verified Swiss verdict exactly',
+      () async {
+    final l = await S.delegate.load(const Locale('fr'));
+
+    expect(
+      l.expatAvsCiObservedMissingYearsTitle(4),
+      "Années à examiner d'après l'extrait CI : 4",
+    );
+    expect(
+      l.expatAvsCiRawDurationBenchmark(4, '9.1'),
+      "Repère brut de durée : 4 sur 44, soit 9.1 %. Ce pourcentage n'est pas une réduction de ta rente. La caisse détermine d'abord quelles périodes peuvent être prises en compte, puis fixe l'échelle et le montant officiels. Le montant dépend aussi du revenu annuel moyen déterminant et des bonifications reconnues.",
+    );
   });
 
   testWidgets('keeps voluntary AVS unknown and lists every official condition',

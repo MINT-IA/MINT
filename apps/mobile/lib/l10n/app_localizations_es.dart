@@ -23729,13 +23729,13 @@ class SEs extends S {
       'Sin un extracto de cuenta individual u otra prueba oficial, MINT no convierte estos años en lagunas.';
 
   @override
-  String expatAvsDocumentedGaps(int years) {
-    return 'Años de laguna documentados por el extracto CI: $years';
+  String expatAvsCiObservedMissingYearsTitle(int years) {
+    return 'Años que deben revisarse según el extracto de la cuenta individual: $years';
   }
 
   @override
-  String expatAvsDocumentedMinimumEffect(int years, String percent) {
-    return '$years / 44: en principio, cada año de laguna documentado podría reducir la escala de pensión al menos en 1/44. Referencia mínima indicativa: al menos $percent%. El importe depende, en particular, del ingreso medio, las bonificaciones y el cálculo oficial.';
+  String expatAvsCiRawDurationBenchmark(int years, String percent) {
+    return 'Referencia bruta de duración de cotización: $years de 44, es decir, $percent %. Este porcentaje no es una reducción de tu pensión. La caja de compensación determina primero qué períodos pueden tenerse en cuenta y después fija la escala y el importe oficiales. El importe también depende de los ingresos anuales medios determinantes y de las bonificaciones reconocidas.';
   }
 
   @override

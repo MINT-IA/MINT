@@ -30,6 +30,11 @@ flowchart LR
     PROFILE --> AVS[AvsCalculator]:::calc
     PROFILE --> AVS_REF[AvsReferenceAge]:::calc
     AVS_REF --> AVS
+    CI_OBSERVED["CI-observed self missing contribution years"]:::profile --> AVS_RAW["AvsCalculator.rawContributionDurationGapPercent<br/>registry: avs.full_contribution_years"]:::calc
+    AVS_REGISTRY["RegulatoryRegistry<br/>avs.full_contribution_years"]:::profile --> AVS_RAW
+    AVS_RAW --> EXPAT_AVS["ExpatService.assessAvsGapOrientation<br/>raw benchmark only / no write"]:::composer
+    EXPAT_LOCAL["Nullable local years abroad + explicit opt-in<br/>no ledger write"]:::profile --> EXPAT_AVS
+    EXPAT_AVS --> EXPAT_UI["/expatriation AVS tab<br/>not pension reduction / official scale"]:::ui
     AVS_MONTHS["Owner-scoped monthly AVS evidence"]:::profile --> AVS_13[AvsThirteenthPensionCalculator]:::calc
     AVS_DECEMBER["1 December entitlement evidence"]:::profile --> AVS_13
     AVS_13 --> INDEP
@@ -91,7 +96,7 @@ Julien + Lauren golden values.
 
 | Calculator | File | Inputs | Returns | Primary consumers |
 |---|---|---|---|---|
-| **AvsCalculator** | `avs_calculator.dart` | RAMD, years, gaps | monthly rente | FriCalculator, RetirementDashboardScreen, coach_narrative |
+| **AvsCalculator** | `avs_calculator.dart` | RAMD and contribution years/gaps for pension methods; CI-observed self missing contribution years plus registry key `avs.full_contribution_years` for `rawContributionDurationGapPercent` | monthly pension for pension methods; raw contribution-duration benchmark for the CI-observed path, never a pension reduction or official scale | FriCalculator, RetirementDashboardScreen, coach_narrative, ExpatService |
 | **AvsReferenceAge** | `avs_reference_age.dart` | birth year/date, gender | AVS21 reference age in months/years/date + reached-window checks | AvsCalculator, LACI/retirement eligibility surfaces |
 | **AvsThirteenthPensionCalculator** | `avs_thirteenth_pension_calculator.dart` | owner-scoped monthly ordinary AVS evidence, 1 December entitlement, legal snapshot, payment cadence/date | exact-cent ordinary cashflow, separate certified or illustrative December supplement, correction and readiness | IndependantsService scenario bridge behind `enableAvsThirteenthScenarioCashflow` |
 | **LppCalculator** | `lpp_calculator.dart` | avoir, rate, years | projected capital + rente | FriCalculator, ProjectionRetraiteScreen, ArbitrageEngine |
@@ -148,6 +153,7 @@ for a specific UI surface. Found under `apps/mobile/lib/services/`.
 | **SnapshotService** | `snapshot_service.dart` | Persists daily/scan/life-event snapshots | CoachProfile | `updateFromRefresh`, `createSnapshotFromProfile` |
 | **SessionSnapshotService** | `session_snapshot_service.dart` | In-session delta | Snapshot + current profile | MintStateEngine |
 | **DonationService** | `donation_service.dart` | ledger facts + scenario assumptions + SuccessionReserveCalculator | educational gift-tax status, reserve/disposable portion, alerts/checklist | DonationScreen |
+| **ExpatService** | `expat_service.dart` | Composes `AvsCalculator.rawContributionDurationGapPercent` for `assessAvsGapOrientation`; nullable local years abroad + explicit opt-in remain scenario-only and no-write | certificate-ready self CI-observed missing contribution years; `avs.full_contribution_years` is read only through AvsCalculator | ExpatScreen, AvsGapWidget; no CHF, pension reduction, official scale, partner synthesis, or profile write |
 
 ---
 
@@ -216,7 +222,7 @@ features on top of these until the câblage is real. Full details:
 
 ---
 
-*Last updated: 2026-07-13 after registering `MortgagePurchaseCapacityCalculator` and `AvsThirteenthPensionCalculator`.
+*Last updated: 2026-07-14 after registering `MortgagePurchaseCapacityCalculator`, `AvsThirteenthPensionCalculator`, and the Expat AVS raw-duration bridge.
 Façade status comes from the 2026-04-21 audit in
 `.planning/triage-2026-04-20-service-audit.md`. When you refactor any
 service in `financial_core/` or add a new aggregator, update this file

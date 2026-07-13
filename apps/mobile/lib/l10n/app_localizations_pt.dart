@@ -23734,13 +23734,13 @@ class SPt extends S {
       'Sem um extrato da conta individual ou outra prova oficial, a MINT não transforma estes anos em lacunas.';
 
   @override
-  String expatAvsDocumentedGaps(int years) {
-    return 'Anos de lacuna documentados pelo extrato CI: $years';
+  String expatAvsCiObservedMissingYearsTitle(int years) {
+    return 'Anos a analisar segundo o extrato da conta individual: $years';
   }
 
   @override
-  String expatAvsDocumentedMinimumEffect(int years, String percent) {
-    return '$years / 44: em princípio, cada ano de lacuna documentado pode reduzir a escala da pensão em pelo menos 1/44. Referência mínima indicativa: pelo menos $percent%. O montante depende, nomeadamente, do rendimento médio, das bonificações e do cálculo oficial.';
+  String expatAvsCiRawDurationBenchmark(int years, String percent) {
+    return 'Referência bruta da duração contributiva: $years em 44, ou seja, $percent %. Esta percentagem não é uma redução da tua pensão. A caixa de compensação determina primeiro quais os períodos que podem ser considerados e, em seguida, fixa a escala e o montante oficiais. O montante também depende do rendimento anual médio determinante e das bonificações reconhecidas.';
   }
 
   @override

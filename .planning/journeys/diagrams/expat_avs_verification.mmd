@@ -21,9 +21,9 @@ flowchart TB
   OptIn{"Explicit orientation<br/>opt-in?"}
   Hidden["Assessment hidden<br/>no implicit calculation"]:::unknown
 
-  CiEvidence{"Reviewed CI documents<br/>self gap years?"}
-  GapUnknown["AVS gap unknown<br/>no gap count + no CHF"]:::unknown
-  GapDocumented["CI-documented self gap years<br/>conditional minimum scale effect<br/>gap years / 44 only"]:::evidence
+  CiEvidence{"Reviewed CI exposes self missing<br/>contribution years to examine?"}
+  CiUnknown["CI-observed missing contribution years unknown<br/>no raw duration benchmark + no CHF"]:::unknown
+  CiObserved["CI-observed missing contribution years<br/>raw contribution-duration benchmark only<br/>not a pension reduction or official decision"]:::evidence
   NotEquivalent["Years abroad ≠ AVS gap years"]:::forbidden
   NoWrite["No q_avs_years_abroad write<br/>no lacunesAVS write<br/>no pension or CHF-loss write"]:::forbidden
   Partner["Spouse evidence is out of scope<br/>never synthesized as 0<br/>no effect on the self-only result"]:::unknown
@@ -31,6 +31,7 @@ flowchart TB
   Guide["/scan/avs-guide<br/>verification guide"]:::route
   CiBranch["A — official domicile-aware CI request<br/>verify income, years, gaps"]:::evidence
   FutureBranch["B — official form 318.282<br/>separate future calculation<br/>joint request explained for married/registered partners"]:::evidence
+  Caisse["Compensation office<br/>examines possible compensation<br/>decides official scale + amount"]:::evidence
   ScanBranch["A — /scan<br/>DocumentType.avsExtract<br/>review before certificate write"]:::route
   Runtime["Registry edge + Maestro route proof<br/>Patrol nullable input / no-write proof"]:::proof
 
@@ -42,12 +43,13 @@ flowchart TB
   YearsLocal --> NotEquivalent
   YearsLocal --> NoWrite
   Expat -. "separate spouse scope" .-> Partner
-  CiEvidence -- "no" --> GapUnknown
-  CiEvidence -- "yes" --> GapDocumented
-  GapUnknown --> Guide
-  GapDocumented --> Guide
+  CiEvidence -- "no" --> CiUnknown
+  CiEvidence -- "yes" --> CiObserved
+  CiUnknown --> Guide
+  CiObserved --> Guide
   Guide --> CiBranch
   Guide --> FutureBranch
+  FutureBranch --> Caisse
   CiBranch --> ScanBranch
   Guide --> Runtime
   ScanBranch --> Runtime
@@ -55,7 +57,7 @@ flowchart TB
   %% Invariants:
   %% EA-1 `_yearsAbroad` is null until explicit local selection and is never persisted.
   %% EA-2 Years lived abroad never become AVS contribution-gap years.
-  %% EA-3 Only reviewed CI evidence may unlock the proportional gap-years / 44 orientation.
+  %% EA-3 Only reviewed CI evidence may unlock the raw contribution-duration benchmark; it is neither a pension reduction nor an official decision.
   %% EA-4 The flow renders no personal pension, CHF loss, eligibility result, or household total.
   %% EA-5 Spouse evidence is outside this self-only result and is never synthesized as zero.
-  %% EA-6 CI acquisition, future calculation 318.282, and scan are distinct branches.
+  %% EA-6 CI acquisition, future calculation 318.282, and scan are distinct branches; the compensation office decides possible compensation, scale, and amount.

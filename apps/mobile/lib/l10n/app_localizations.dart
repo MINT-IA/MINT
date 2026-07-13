@@ -41489,17 +41489,17 @@ abstract class S {
   /// **'Sans extrait CI ou autre preuve officielle, MINT ne transforme pas ces années en lacunes.'**
   String get expatAvsGapUnknownBody;
 
-  /// No description provided for @expatAvsDocumentedGaps.
+  /// No description provided for @expatAvsCiObservedMissingYearsTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Lacunes documentées par l’extrait CI : {years}'**
-  String expatAvsDocumentedGaps(int years);
+  /// **'Années à examiner d\'après l\'extrait CI : {years}'**
+  String expatAvsCiObservedMissingYearsTitle(int years);
 
-  /// No description provided for @expatAvsDocumentedMinimumEffect.
+  /// No description provided for @expatAvsCiRawDurationBenchmark.
   ///
   /// In fr, this message translates to:
-  /// **'{years} / 44 : en principe, chaque année de lacune documentée pourrait réduire l’échelle de rente d’au moins 1/44. Repère minimal indicatif : au moins {percent} %. Le montant dépend notamment du RAMD, des bonifications et du calcul officiel.'**
-  String expatAvsDocumentedMinimumEffect(int years, String percent);
+  /// **'Repère brut de durée : {years} sur 44, soit {percent} %. Ce pourcentage n\'est pas une réduction de ta rente. La caisse détermine d\'abord quelles périodes peuvent être prises en compte, puis fixe l\'échelle et le montant officiels. Le montant dépend aussi du revenu annuel moyen déterminant et des bonifications reconnues.'**
+  String expatAvsCiRawDurationBenchmark(int years, String percent);
 
   /// No description provided for @expatAvsVoluntaryUnknownTitle.
   ///

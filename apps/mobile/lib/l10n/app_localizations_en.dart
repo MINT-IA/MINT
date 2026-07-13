@@ -23614,13 +23614,13 @@ class SEn extends S {
       'Without an individual-account statement or other official evidence, MINT does not turn these years into gaps.';
 
   @override
-  String expatAvsDocumentedGaps(int years) {
-    return 'Gap years documented by the account statement: $years';
+  String expatAvsCiObservedMissingYearsTitle(int years) {
+    return 'Years to review according to the individual account statement: $years';
   }
 
   @override
-  String expatAvsDocumentedMinimumEffect(int years, String percent) {
-    return '$years / 44: in principle, each documented gap year could reduce the pension scale by at least 1/44. Indicative minimum benchmark: at least $percent%. The amount depends in particular on average income, credits and the official calculation.';
+  String expatAvsCiRawDurationBenchmark(int years, String percent) {
+    return 'Raw contribution-duration benchmark: $years out of 44, or $percent%. This percentage is not a reduction in your pension. The compensation office first determines which periods can be taken into account, then sets the official scale and amount. The amount also depends on the relevant average annual income and recognised credits.';
   }
 
   @override

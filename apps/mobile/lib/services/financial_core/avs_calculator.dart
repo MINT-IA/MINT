@@ -696,6 +696,20 @@ class AvsCalculator {
     );
   }
 
+  /// Returns a raw contribution-duration benchmark for CI-observed years.
+  ///
+  /// This is not a personal pension reduction or an official scale decision.
+  static double rawContributionDurationGapPercent(
+    int ciObservedMissingContributionYears,
+  ) {
+    if (ciObservedMissingContributionYears <= 0) return 0.0;
+    final fullYears = reg(
+      'avs.full_contribution_years',
+      avsDureeCotisationComplete.toDouble(),
+    ).toInt();
+    return ciObservedMissingContributionYears / fullYears * 100;
+  }
+
   /// Returns the AVS rente reduction percentage for a given gap in contribution years.
   ///
   /// Example: gap=4 → 9.09% reduction (4/44 × 100).

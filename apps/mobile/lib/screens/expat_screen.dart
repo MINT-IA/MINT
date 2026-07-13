@@ -104,7 +104,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       _avsResult = ExpatService.assessAvsGapOrientation(
         scenarioStarted: _avsScenarioStarted,
         yearsAbroad: yearsAbroad,
-        documentedGapYears: context
+        ciObservedMissingContributionYears: context
             .read<CoachProfileProvider>()
             .profile
             ?.avsGapEvidence
@@ -123,7 +123,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       _avsResult = ExpatService.assessAvsGapOrientation(
         scenarioStarted: _avsScenarioStarted,
         yearsAbroad: yearsAbroad,
-        documentedGapYears:
+        ciObservedMissingContributionYears:
             provider.profile?.avsGapEvidence.selfCertifiedYears,
       );
     });

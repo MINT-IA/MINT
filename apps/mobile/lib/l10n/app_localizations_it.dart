@@ -23791,13 +23791,13 @@ class SIt extends S {
       'Senza un estratto del conto individuale o un’altra prova ufficiale, MINT non trasforma questi anni in lacune.';
 
   @override
-  String expatAvsDocumentedGaps(int years) {
-    return 'Anni di lacuna documentati dall’estratto CI: $years';
+  String expatAvsCiObservedMissingYearsTitle(int years) {
+    return 'Anni da esaminare secondo l\'estratto del conto individuale: $years';
   }
 
   @override
-  String expatAvsDocumentedMinimumEffect(int years, String percent) {
-    return '$years / 44: in linea di principio, ogni anno di lacuna documentato potrebbe ridurre la scala della rendita di almeno 1/44. Riferimento minimo indicativo: almeno $percent%. L’importo dipende in particolare dal reddito medio, dagli accrediti e dal calcolo ufficiale.';
+  String expatAvsCiRawDurationBenchmark(int years, String percent) {
+    return 'Riferimento lordo della durata contributiva: $years su 44, ossia $percent %. Questa percentuale non è una riduzione della tua rendita. La cassa di compensazione determina innanzitutto quali periodi possono essere presi in considerazione, poi fissa la scala e l\'importo ufficiali. L\'importo dipende anche dal reddito annuo medio determinante e dagli accrediti riconosciuti.';
   }
 
   @override

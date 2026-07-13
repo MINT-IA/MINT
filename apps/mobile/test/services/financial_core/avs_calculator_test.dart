@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/avs_reference_age.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 import 'avs_couple_test_fixtures.dart';
 
@@ -299,6 +300,28 @@ void main() {
         childRaisingYears: 32,
       );
       expect(rente, lessThanOrEqualTo(avsRenteMaxMensuelle));
+    });
+  });
+
+  group('AvsCalculator.rawContributionDurationGapPercent', () {
+    test('explicit zero stays zero', () {
+      expect(AvsCalculator.rawContributionDurationGapPercent(0), 0.0);
+    });
+
+    test('four CI-observed years expose only the raw 4/44 benchmark', () {
+      expect(
+        AvsCalculator.rawContributionDurationGapPercent(4),
+        closeTo(9.0909, 0.001),
+      );
+    });
+
+    test('uses the canonical full-contribution-years registry key', () {
+      addTearDown(RegulatorySyncService.clearCache);
+      RegulatorySyncService.setMockCache({
+        'avs.full_contribution_years': 50.0,
+      });
+
+      expect(AvsCalculator.rawContributionDurationGapPercent(4), 8.0);
     });
   });
 

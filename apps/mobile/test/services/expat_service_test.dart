@@ -300,15 +300,15 @@ void main() {
       expect(r, isNull);
     });
 
-    test('annees a l etranger ne deviennent jamais des lacunes documentees', () {
+    test('annees a l etranger ne deviennent jamais des lacunes CI', () {
       final r = ExpatService.assessAvsGapOrientation(
         scenarioStarted: true,
         yearsAbroad: 10,
       )!;
 
       expect(r.yearsAbroadDeclared, 10);
-      expect(r.documentedGapYears, isNull);
-      expect(r.conditionalMinimumScaleReductionPercent, isNull);
+      expect(r.ciObservedMissingContributionYears, isNull);
+      expect(r.rawContributionDurationGapPercent, isNull);
     });
 
     test('supprime les trois montants personnels AVS', () {
@@ -319,6 +319,7 @@ void main() {
       expect(r, isA<AvsGapAssessment>());
 
       final source = File('lib/services/expat_service.dart').readAsStringSync();
+      expect(source, isNot(contains('reductionPercentageFromGap')));
       for (final retiredOutput in const [
         'estimatedRente',
         'monthlyLoss',
@@ -329,16 +330,27 @@ void main() {
       }
     });
 
-    test('effet 1/44 seulement avec lacunes documentees par le CI', () {
+    test('zero CI explicite reste zero et non inconnu', () {
       final r = ExpatService.assessAvsGapOrientation(
         scenarioStarted: true,
         yearsAbroad: 5,
-        documentedGapYears: 4,
+        ciObservedMissingContributionYears: 0,
       )!;
 
-      expect(r.documentedGapYears, 4);
+      expect(r.ciObservedMissingContributionYears, 0);
+      expect(r.rawContributionDurationGapPercent, 0.0);
+    });
+
+    test('quatre annees CI donnent uniquement le repere brut 4/44', () {
+      final r = ExpatService.assessAvsGapOrientation(
+        scenarioStarted: true,
+        yearsAbroad: 5,
+        ciObservedMissingContributionYears: 4,
+      )!;
+
+      expect(r.ciObservedMissingContributionYears, 4);
       expect(
-        r.conditionalMinimumScaleReductionPercent,
+        r.rawContributionDurationGapPercent,
         closeTo(9.0909, 0.001),
       );
     });

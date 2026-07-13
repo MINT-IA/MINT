@@ -7,9 +7,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Truthful AVS orientation for a declared period abroad.
 ///
-/// Residence history is displayed as a fact to verify. Only gap years
-/// documented by an individual-account statement may expose the proportional
-/// statutory-scale benchmark, never a personal pension or CHF loss.
+/// Residence history is displayed as a fact to verify. Only missing
+/// contribution years observed on an individual-account statement may expose
+/// a raw duration benchmark, never a pension reduction or CHF loss.
 class AvsGapWidget extends StatelessWidget {
   const AvsGapWidget({
     super.key,
@@ -33,7 +33,8 @@ class AvsGapWidget extends StatelessWidget {
 
     final l = S.of(context)!;
     final result = assessment!;
-    final hasDocumentedGaps = result.documentedGapYears != null;
+    final hasCiObservedMissingYears =
+        result.ciObservedMissingContributionYears != null;
 
     return Semantics(
       identifier: 'expat_avs_scenario_result',
@@ -89,16 +90,16 @@ class AvsGapWidget extends StatelessWidget {
                     tone: MintColors.info,
                   ),
                   const SizedBox(height: MintSpacing.md),
-                  if (hasDocumentedGaps)
+                  if (hasCiObservedMissingYears)
                     _TruthCard(
                       key: const Key('expat_avs_gap_documented'),
                       icon: Icons.verified_outlined,
-                      title: l.expatAvsDocumentedGaps(
-                        result.documentedGapYears!,
+                      title: l.expatAvsCiObservedMissingYearsTitle(
+                        result.ciObservedMissingContributionYears!,
                       ),
-                      body: l.expatAvsDocumentedMinimumEffect(
-                        result.documentedGapYears!,
-                        result.conditionalMinimumScaleReductionPercent!
+                      body: l.expatAvsCiRawDurationBenchmark(
+                        result.ciObservedMissingContributionYears!,
+                        result.rawContributionDurationGapPercent!
                             .toStringAsFixed(1),
                       ),
                       tone: MintColors.success,

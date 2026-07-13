@@ -9,13 +9,13 @@ import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 final class AvsGapAssessment {
   const AvsGapAssessment({
     required this.yearsAbroadDeclared,
-    required this.documentedGapYears,
-    required this.conditionalMinimumScaleReductionPercent,
+    required this.ciObservedMissingContributionYears,
+    required this.rawContributionDurationGapPercent,
   });
 
   final int yearsAbroadDeclared;
-  final int? documentedGapYears;
-  final double? conditionalMinimumScaleReductionPercent;
+  final int? ciObservedMissingContributionYears;
+  final double? rawContributionDurationGapPercent;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -577,36 +577,39 @@ class ExpatService {
   //  6. ASSESS AVS GAP ORIENTATION
   // ════════════════════════════════════════════════════════════
 
-  /// Assess declared time abroad without turning it into documented AVS gaps.
+  /// Assess declared time abroad without turning it into confirmed AVS gaps.
   ///
-  /// A proportional statutory-scale effect is exposed only when gap years
-  /// documented by an individual-account statement are explicitly supplied.
-  /// This service deliberately does not
-  /// estimate a personal pension or a CHF loss from residence history.
+  /// A raw contribution-duration benchmark is exposed only when missing
+  /// contribution years observed on an individual-account statement are
+  /// explicitly supplied. It is not a pension reduction or an official
+  /// scale decision, and no CHF loss is inferred from residence history.
   static AvsGapAssessment? assessAvsGapOrientation({
     required bool scenarioStarted,
     required int yearsAbroad,
-    int? documentedGapYears,
+    int? ciObservedMissingContributionYears,
   }) {
     if (!scenarioStarted) return null;
 
     _validateAvsYears(yearsAbroad, 'yearsAbroad');
-    if (documentedGapYears != null &&
-        (documentedGapYears < 0 ||
-            documentedGapYears > fullContributionYears)) {
+    if (ciObservedMissingContributionYears != null &&
+        (ciObservedMissingContributionYears < 0 ||
+            ciObservedMissingContributionYears > fullContributionYears)) {
       throw RangeError.range(
-        documentedGapYears,
+        ciObservedMissingContributionYears,
         0,
         fullContributionYears,
-        'documentedGapYears',
+        'ciObservedMissingContributionYears',
       );
     }
     return AvsGapAssessment(
       yearsAbroadDeclared: yearsAbroad,
-      documentedGapYears: documentedGapYears,
-      conditionalMinimumScaleReductionPercent: documentedGapYears == null
-          ? null
-          : AvsCalculator.reductionPercentageFromGap(documentedGapYears),
+      ciObservedMissingContributionYears: ciObservedMissingContributionYears,
+      rawContributionDurationGapPercent:
+          ciObservedMissingContributionYears == null
+              ? null
+              : AvsCalculator.rawContributionDurationGapPercent(
+                  ciObservedMissingContributionYears,
+                ),
     );
   }
 
