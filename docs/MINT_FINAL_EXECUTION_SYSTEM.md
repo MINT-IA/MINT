@@ -461,7 +461,7 @@ implementer le chantier demande sans deriver, avec priorite a l'experience utili
 Regles:
 - avant toute modif: flutter analyze && flutter test cible
 - ne pas toucher backend
-- ne pas creer une nouvelle source de verite
+- ne pas créer une nouvelle source de vérité
 - ne pas laisser de TODO user-facing mort
 - si tu touches le coach, verifier:
   - route payload
@@ -590,7 +590,7 @@ Si tu ne peux pas defendre le patch honnetement, ne commit pas.
 
 ```text
 Mission:
-Fermer ce chantier proprement, sans creer de dette ni laisser de bug de joint d'integration.
+Fermer ce chantier proprement, sans créer de dette ni laisser de bug de joint d’intégration.
 
 Tu dois travailler comme un engineer senior de production, pas comme un generateur de patchs.
 
@@ -631,6 +631,13 @@ Definition of done:
 
 ### 13.8 Prompt chantier 1 - Achat logement
 
+> **Note de réalité G1 — commit `9851a8315`.** Ce prompt décrit une cible
+> produit future, pas un wiring disponible. Le runtime guided-sequence est
+> local-only, désactivé par défaut et sans caller de production pour le
+> démarrage. Les anciennes façades de progression, résumé et prefill ont été
+> supprimées. Elles ne doivent pas être ressuscitées sans une chaîne UI complète
+> et des preuves runtime.
+
 ```text
 Chantier: rendre le parcours flagship "Acheter sans se pieger" exceptionnel.
 
@@ -646,14 +653,17 @@ l'utilisateur entre avec une intention logement et vit un parcours de bout en bo
 A livrer:
 - sequence coach -> logement / accessibilite -> EPL -> fiscalite retrait -> resume
 - Tier A propre sur les ecrans du parcours
-- bouton Continuer reel
-- SequenceProgressCard utile
-- stepOutputs/prefill propres
-- resume final comprehensible
-- au moins un test d'integration runtime sur le parcours
+- vrai point d'entrée UI pour démarrer puis reprendre le parcours
+- bouton Continuer et progression réels, rendus par une UI consommatrice
+- stepOutputs requis validés avant toute progression
+- aucun domain prefill entre écrans; chaque écran relit le Data Ledger
+- résumé final compréhensible avec renderer et caller produit réels
+- tests unitaires + intégration du joint complet
+- preuves Maestro du parcours et Patrol des entrées P0
 
 Definition of done:
 - parcours demo A a Z fonctionne
+- le kill switch reste local-only et false jusqu'aux preuves vertes
 - pas de double consommation
 - pas de side effects legacy paralleles
 - delta visible apres chaque etape
@@ -909,7 +919,7 @@ Les bugs les plus frequents dans MINT viennent de:
 
 MINT n'a plus besoin prioritairement de plus de profondeur.
 
-MINT a besoin de transformer la profondeur deja la en:
+MINT a besoin de transformer la profondeur déjà là en:
 - parcours impeccables
 - moments de clarte
 - deltas visibles

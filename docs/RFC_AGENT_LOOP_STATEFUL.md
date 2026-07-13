@@ -1,9 +1,22 @@
 # RFC : Agent Loop Stateful — Multi-Screen Orchestration
 
 > Date : 2026-03-27 (V2.3 — après 4 audits)
-> Statut : **DRAFT** — À valider avant implémentation
+> Statut : **HISTORIQUE / ARCHITECTURE CIBLE** — le wiring décrit ci-dessous
+> n'est pas un état runtime livré. La quarantaine G1 au commit `9851a8315`
+> prévaut sur les anciens exemples.
 > Auteur : Team Lead (S57)
 > Dépendances : PremierEclairage V2, EVI Bridge, Confidence Doctrine (tous livrés)
+
+> **Réalité G1 (2026-07-13).** Le runtime guided-sequence est protégé par
+> `FeatureFlags.enableGuidedSequences`, un kill switch local-only à `false` qui
+> n'est pas hydraté par le backend. Aucun caller de production ne démarre une
+> séquence. Les handlers échouent fermement quand le flag est désactivé.
+> `SequenceProgressCard`, son payload, le builder de résumé, `outputMapping` et
+> le prefill inter-écrans ont été supprimés parce qu'ils n'avaient pas de chaîne
+> produit complète. Les templates ne déclarent plus que des
+> `requiredOutputKeys`, validées avant toute mutation du run. Les sections de
+> cette RFC qui décrivent une UI, une reprise, une projection de progression ou
+> un résumé sont donc une **architecture future**, pas du wiring actuel.
 
 ---
 
@@ -28,7 +41,7 @@ Le coach peut aujourd'hui router vers **un seul écran** à la fois. Quand l'uti
 | `CapSequenceEngine` | Construit les plans | +`SequenceTemplate` pour les parcours guidés |
 
 **Ce qui est NOUVEAU (et uniquement ça) :**
-- `SequenceTemplate` — définition statique d'un parcours (étapes, output mapping)
+- `SequenceTemplate` — définition statique d'un parcours (étapes, outputs requis)
 - `SequenceRun` — état runtime d'un parcours en cours (léger, persisté en SharedPreferences)
 - `SequenceCoordinator` — logique de décision (étend, ne remplace pas, le flux existant)
 
@@ -78,7 +91,7 @@ class SequenceStepDef {
   final int order;
   final String intentTag;             // Maps to ScreenRegistry entry
   final String titleKey;              // ARB key
-  final Map<String, String> outputMapping; // Maps output keys to next step input keys
+  final Set<String> requiredOutputKeys; // Outputs utilisables requis pour avancer
   final bool isOptional;              // Can be skipped without blocking
 }
 ```
@@ -144,14 +157,15 @@ class SequenceCoordinator {
 
     switch (stepReturn.outcome) {
       case ScreenOutcome.completed:
-        // Merge outputs
         final outputs = stepReturn.stepOutputs ?? {};
+        if (!_hasRequiredOutputs(currentStepDef, outputs)) {
+          return SequenceAction.pause(canResume: true);
+        }
+        // Muter le run seulement après validation des outputs requis.
         // Find next step + check readiness via RoutePlanner
         final nextStep = _findNextReady(template, run, profile, planner);
         if (nextStep != null) {
-          // Build prefill from accumulated outputs via outputMapping
-          final prefill = _buildPrefill(template, run, nextStep, outputs);
-          return SequenceAction.advance(nextStep: nextStep, prefill: prefill);
+          return SequenceAction.advance(nextStep: nextStep);
         }
         return SequenceAction.complete();
 
@@ -200,18 +214,22 @@ Voir §6.2 pour le détail du canonical return path.
 
 ## 4. Séquences V1 (3 parcours)
 
+> **Architecture future.** Les tableaux ci-dessous décrivent les outputs que
+> chaque écran devra émettre et faire valider. Ils n'autorisent aucun transfert
+> de données métier par prefill; l'écran suivant devra relire le Data Ledger.
+
 ### 4.1 Achat immobilier (4 étapes)
 
-| # | Intent | Route | Output → Next Input |
+| # | Intent | Route | Outputs requis |
 |---|---|---|---|
-| 1 | `housing_purchase` | `/hypotheque` | `capacite_achat`, `fonds_propres_requis` → step 2 `montant_necessaire` |
-| 2 | `early_pension_withdrawal` | `/epl` | `montant_epl`, `impact_rente` → step 3 `montant_retrait` |
+| 1 | `housing_purchase` | `/hypotheque` | `capacite_achat`, `fonds_propres_requis` |
+| 2 | `early_pension_withdrawal` | `/epl` | `montant_epl`, `impact_rente` |
 | 3 | `cantonal_fiscal_comparator` | `/fiscal` | `impot_retrait` |
 | 4 | (coach inline) | — | Résumé des 3 outputs |
 
 ### 4.2 Optimisation 3a (3 étapes)
 
-| # | Intent | Route | Output → Next Input |
+| # | Intent | Route | Outputs requis |
 |---|---|---|---|
 | 1 | `simulator_3a` | `/pilier-3a` | `contribution_annuelle`, `economie_fiscale` |
 | 2 | `tax_optimization_3a` | `/3a-deep/staggered-withdrawal` | `gain_echelonnement` |
@@ -219,7 +237,7 @@ Voir §6.2 pour le détail du canonical return path.
 
 ### 4.3 Préparation retraite (5 étapes)
 
-| # | Intent | Route | Output → Next Input |
+| # | Intent | Route | Outputs requis |
 |---|---|---|---|
 | 1 | `retirement_projection` | `/retraite` | `taux_remplacement`, `gap_mensuel` |
 | 2 | `retirement_choice` | `/rente-vs-capital` | `decision_mixte` |
@@ -242,9 +260,10 @@ Voir §6.2 pour le détail du canonical return path.
 
 ### 5.3 Pas de double message
 - `_onRealtimeScreenReturn()` reste le point d'entrée unique
-- Quand une `SequenceRun` est active, sa **branche legacy** (message générique
-  + coach reaction) est bypassée au profit du `SequenceCoordinator`
-- Le handler realtime n'est PAS gaté — il est réorienté
+- Dans l'architecture cible, une `SequenceRun` active contourne la branche
+  legacy au profit du `SequenceCoordinator`.
+- Dans le runtime G1 actuel, le handler realtime est d'abord gaté par le kill
+  switch local-only et retourne `null` lorsqu'il est désactivé.
 
 ### 5.4 Pas de séquences imbriquées
 - V1 : une seule `SequenceRun` active
@@ -268,8 +287,10 @@ Voir §6.2 pour le détail du canonical return path.
 
 ### 6.1 SequenceRun → CapSequence (plan visible)
 
-`SequenceRun` ne rend **rien visible directement**. La projection sur le plan visible
-passe toujours par `CapSequenceEngine`.
+**Architecture future, non câblée en G1.** `SequenceRun` ne rend actuellement
+rien de visible et n'est pas projeté vers une carte de progression. Toute
+future projection sur le plan visible devra passer par `CapSequenceEngine`;
+elle ne devra pas recréer un payload ou un widget sans caller produit.
 
 **Contrat** : `CapSequenceEngine.build()` garde sa signature actuelle et accepte
 un paramètre optionnel `activeRun` :
@@ -305,6 +326,9 @@ static CapSequence build({
 `SequenceRun` est un **input**, pas un remplacement.
 
 ### 6.2 Canonical return path
+
+**Architecture future.** Les deux canaux existent, mais aucun caller de
+production ne lance aujourd'hui un run et le kill switch reste à `false`.
 
 Deux canaux existent dans `CoachChatScreen` :
 - `_handleRouteReturn(ScreenOutcome)` — retour simplifié depuis `RouteSuggestionCard`
@@ -399,25 +423,31 @@ final route = entry.route;
 
 ---
 
-## 7. Plan d'implémentation
+## 7. Plan de réactivation après quarantaine G1
 
-### Phase 1 : Modèles + Coordinator + Tests (1 sprint)
-- `SequenceTemplate`, `SequenceRun` models
-- `SequenceCoordinator.decide()` (avec profile + planner + memory en input)
-- `ScreenReturn` + `stepOutputs` field
-- `SequenceStore` (SharedPreferences)
-- 3 templates V1 hardcodés
-- 25+ tests unitaires
+### Socle conservé
+- `SequenceTemplate`, `SequenceRun`, `SequenceStore` et `ScreenReturn.stepOutputs`
+- `SequenceCoordinator.decide()` fail-closed
+- `requiredOutputKeys` : output absent, null, vide, NaN ou infini → pause sans
+  progression ni mutation du run
 
-### Phase 2 : UI + Chat integration (1 sprint)
-- `SequenceProgressCard` widget
-- `CoachChatScreen` : gate realtime, delegate to coordinator
-- 1 parcours vertical E2E (achat immobilier)
+### Produit à construire avant toute activation
+- un vrai point d'entrée UI de démarrage, puis une UI de reprise d'un run
+  persisté; aucun démarrage implicite depuis un service dormant
+- une surface de progression/continuer/quitter réellement rendue et consommée,
+  sans réintroduire les anciennes façades orphelines
+- une hydratation des écrans depuis le Data Ledger; **aucun domain prefill** ou
+  résultat financier transporté entre routes
+- un résumé final avec un renderer et un caller produit réels
 
-### Phase 3 : Output transfer + archetype (1 sprint)
-- `outputMapping` câblé entre étapes réelles
-- Branching par archétype dans les templates
-- 3 parcours complets testés E2E
+### Gates de réactivation
+- tests unitaires et d'intégration sur les joints start → screen return →
+  validation des outputs → reprise → fin
+- preuve Maestro du parcours utilisateur et preuve Patrol des entrées P0
+- aucun side effect legacy parallèle, aucune double consommation, aucune
+  donnée métier dans `GoRouter.extra`
+- le flag reste local-only et `false` tant que toutes ces preuves ne sont pas
+  vertes; une décision explicite G1 est requise pour le réactiver
 
 ---
 
@@ -444,7 +474,6 @@ final route = entry.route;
 
 ## 10. Décision requise
 
-1. **Valider les 3 séquences V1** et leurs étapes
-2. **Confirmer** : `CapSequence` = plan visible unique, `SequenceRun` = runtime uniquement
-3. **Confirmer** : SharedPreferences pour `SequenceRun` (pas backend)
-4. **Décider** : Phase 1 seule ou Phase 1+2 dans le prochain sprint ?
+La décision historique Phase 1/2 est superseded par la quarantaine G1. La
+prochaine décision n'est pas « activer le flag », mais accepter ou refuser une
+tranche verticale qui prouve toutes les gates de §7 sur un vrai parcours.
