@@ -371,19 +371,21 @@ AVS_CONSUMERS = {
             AvsSourceContract(
                 "apps/mobile/lib/screens/expat_screen.dart",
                 required_tokens=(
+                    "int? _yearsAbroad;",
                     "_avsScenarioStarted = false",
                     "if (!_avsScenarioStarted) return;",
+                    "if (yearsAbroad == null) return;",
                     "_avsScenarioStarted = true",
                     "scenarioStarted: true",
                     "_recalculateAvs",
-                    "onPressed: _startAvsScenario",
+                    "_yearsAbroad == null ? null : _startAvsScenario",
                 ),
             ),
             AvsSourceContract(
                 "apps/mobile/lib/widgets/coach/avs_gap_widget.dart",
                 required_tokens=(
                     "required this.scenarioStarted",
-                    "if (!widget.scenarioStarted)",
+                    "if (!scenarioStarted)",
                     "return const SizedBox.shrink()",
                 ),
             ),

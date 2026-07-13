@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +7,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
+import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -13,7 +15,7 @@ class _RecordingCoachProfileProvider extends CoachProfileProvider {
   _RecordingCoachProfileProvider(Map<String, dynamic> answers)
       : _testProfile = CoachProfile.fromWizardAnswers(answers);
 
-  CoachProfile _testProfile;
+  final CoachProfile _testProfile;
   int mergeCalls = 0;
   int updateCalls = 0;
 
@@ -32,11 +34,6 @@ class _RecordingCoachProfileProvider extends CoachProfileProvider {
   void updateProfile(CoachProfile updated) {
     updateCalls += 1;
   }
-
-  void replaceAnswers(Map<String, dynamic> answers) {
-    _testProfile = CoachProfile.fromWizardAnswers(answers);
-    notifyListeners();
-  }
 }
 
 Widget _buildApp(_RecordingCoachProfileProvider provider) {
@@ -45,12 +42,9 @@ Widget _buildApp(_RecordingCoachProfileProvider provider) {
     routes: [
       GoRoute(path: '/', builder: (_, __) => const ExpatScreen()),
       GoRoute(
-        path: '/data-block/revenu',
-        builder: (_, state) => Scaffold(
-          body: Text(
-            'birth-year:${state.uri.queryParameters['inputKey']}:'
-            '${state.uri.queryParameters['returnUri']}',
-          ),
+        path: '/scan/avs-guide',
+        builder: (_, __) => const Scaffold(
+          body: Text('avs-verification-guide'),
         ),
       ),
     ],
@@ -77,6 +71,17 @@ Future<void> _openAvsTab(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _selectYearsAbroad(WidgetTester tester, int value) async {
+  await tester.tap(find.byKey(const Key('expat_avs_years_picker')));
+  await tester.pumpAndSettle();
+  tester
+      .widget<CupertinoPicker>(find.byType(CupertinoPicker))
+      .onSelectedItemChanged
+      ?.call(value);
+  await tester.tap(find.text('OK'));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUp(() {
     final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -88,7 +93,8 @@ void main() {
     binding.platformDispatcher.clearTextScaleFactorTestValue();
   });
 
-  testWidgets('missing age stays partial and routes to the canonical ask',
+  testWidgets(
+      'unknown years stay partial and cannot synthesize a ten-year fact',
       (tester) async {
     tester.view.physicalSize = const Size(1440, 3200);
     tester.view.devicePixelRatio = 2;
@@ -100,41 +106,76 @@ void main() {
     await tester.pump();
     await _openAvsTab(tester);
 
-    expect(find.byKey(const Key('expat_avs_missing_age')), findsOneWidget);
-    expect(find.byKey(const Key('expat_avs_start_scenario')), findsNothing);
+    expect(find.byKey(const Key('expat_avs_years_picker')), findsOneWidget);
+    expect(find.text('À renseigner'), findsOneWidget);
+    expect(find.byKey(const Key('expat_avs_opt_in_gate')), findsOneWidget);
     expect(find.byType(AvsGapWidget), findsNothing);
+    expect(find.textContaining('déclarées : 10'), findsNothing);
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.byKey(const Key('expat_avs_start_scenario')),
+          )
+          .onPressed,
+      isNull,
+    );
 
-    await tester.tap(find.byKey(const Key('expat_avs_add_birth_year')));
-    await tester.pumpAndSettle();
-
-    expect(find.text('birth-year:q_birth_year:/expatriation'), findsOneWidget);
+    await _selectYearsAbroad(tester, 0);
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.byKey(const Key('expat_avs_start_scenario')),
+          )
+          .onPressed,
+      isNotNull,
+    );
     expect(provider.mergeCalls, 0);
     expect(provider.updateCalls, 0);
   });
 
-  testWidgets('known age requires explicit opt-in and never writes the ledger',
+  testWidgets('missing birth year does not block after explicit year selection',
       (tester) async {
     tester.view.physicalSize = const Size(1440, 3200);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final provider = _RecordingCoachProfileProvider({
-      'q_birth_year': DateTime.now().year - 40,
-    });
+    final provider = _RecordingCoachProfileProvider(const {});
+    await tester.pumpWidget(_buildApp(provider));
+    await tester.pump();
+    await _openAvsTab(tester);
+    await _selectYearsAbroad(tester, 4);
+
+    await tester.tap(find.byKey(const Key('expat_avs_start_scenario')));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.byKey(const Key('expat_avs_scenario_result')), findsOneWidget);
+    expect(find.byType(AvsGapWidget), findsOneWidget);
+    expect(find.byKey(const Key('expat_avs_gap_unknown')), findsOneWidget);
+    expect(provider.mergeCalls, 0);
+    expect(provider.updateCalls, 0);
+  });
+
+  testWidgets(
+      'orientation requires explicit opt-in and never writes the ledger',
+      (tester) async {
+    tester.view.physicalSize = const Size(1440, 3200);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final provider = _RecordingCoachProfileProvider(const {});
     await tester.pumpWidget(_buildApp(provider));
     await tester.pump();
     await _openAvsTab(tester);
 
-    expect(find.byKey(const Key('expat_avs_known_age')), findsOneWidget);
-    expect(find.byKey(const Key('expat_avs_start_scenario')), findsOneWidget);
     expect(find.byType(AvsGapWidget), findsNothing);
-
     await tester.tap(find.text('Départ'));
     await tester.pumpAndSettle();
     await _openAvsTab(tester);
     expect(find.byType(AvsGapWidget), findsNothing);
 
+    await _selectYearsAbroad(tester, 10);
     await tester.tap(find.byKey(const Key('expat_avs_start_scenario')));
     await tester.pump(const Duration(milliseconds: 500));
 
@@ -148,32 +189,55 @@ void main() {
     );
     expect(find.byType(AvsGapWidget), findsOneWidget);
     expect(
-      tester.widget<AvsGapWidget>(find.byType(AvsGapWidget)).initialYearsAbroad,
+      tester
+          .widget<AvsGapWidget>(find.byType(AvsGapWidget))
+          .assessment!
+          .yearsAbroadDeclared,
       10,
     );
+    expect(find.byKey(const Key('expat_avs_gap_unknown')), findsOneWidget);
+    expect(find.textContaining('Rente estimée'), findsNothing);
+    expect(find.textContaining('Perte annuelle'), findsNothing);
+    expect(find.text(ExpatService.disclaimer), findsNothing);
+    expect(find.textContaining('pas un conseil personnalisé'), findsOneWidget);
 
-    provider.replaceAnswers(const {});
+    expect(provider.mergeCalls, 0);
+    expect(provider.updateCalls, 0);
+  });
+
+  testWidgets('AVS verification CTA opens the existing guide route',
+      (tester) async {
+    tester.view.physicalSize = const Size(1440, 3200);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final provider = _RecordingCoachProfileProvider(const {});
+    await tester.pumpWidget(_buildApp(provider));
     await tester.pump();
+    await _openAvsTab(tester);
+    await _selectYearsAbroad(tester, 5);
+    await tester.tap(find.byKey(const Key('expat_avs_start_scenario')));
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.scrollUntilVisible(
-      find.byKey(const Key('expat_avs_missing_age')),
-      -800,
+      find.byKey(const Key('expat_avs_verification_guide_cta')),
+      500,
       scrollable: find.byType(Scrollable).last,
     );
 
-    expect(find.byKey(const Key('expat_avs_missing_age')), findsOneWidget);
-    expect(find.byKey(const Key('expat_avs_scenario_result')), findsNothing);
-    expect(find.byType(AvsGapWidget), findsNothing);
-    expect(
-        find.byKey(const Key('expat_avs_scenario_disclosure')), findsNothing);
+    await tester.tap(find.byKey(const Key('expat_avs_verification_guide_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('avs-verification-guide'), findsOneWidget);
     expect(provider.mergeCalls, 0);
     expect(provider.updateCalls, 0);
   });
 
   testWidgets('AVS scenario renderer itself fails closed without opt-in',
       (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      locale: Locale('fr'),
-      localizationsDelegates: [
+    await tester.pumpWidget(MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
         S.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -183,8 +247,8 @@ void main() {
       home: Scaffold(
         body: AvsGapWidget(
           scenarioStarted: false,
-          currentContributionYears: 20,
-          currentAge: 40,
+          assessment: null,
+          onOpenAvsVerificationGuide: () {},
         ),
       ),
     ));

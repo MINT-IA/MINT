@@ -1877,24 +1877,8 @@
   "expatNoExitTax": "No exit tax in Switzerland",
   "expatRecommendedTimeline": "RECOMMENDED TIMELINE",
   "expatDepartureChecklist": "DEPARTURE CHECKLIST",
-  "expatAvsEducation": "To receive a full AVS pension (max CHF 2,520/month), you need 44 years of contributions without gaps. Each missing year reduces your pension by about 2.3%. If you live abroad, you can voluntarily contribute to AVS to avoid gaps.",
-  "expatYearsInSwitzerland": "Years in Switzerland",
+  "expatAvsEducation": "Years outside Switzerland are facts to verify, not automatic AVS gaps. The individual-account statement documents years, income and gaps; the official future calculation is a separate path.",
   "expatYearsAbroad": "Years abroad",
-  "expatAvsCompleteness": "AVS COMPLETENESS",
-  "expatOfPension": "of pension",
-  "expatEstimatedPension": "Estimated pension",
-  "expatAvsComplete": "Confirmed: you have your 44 full contribution years. Your AVS pension should not be reduced.",
-  "expatPensionImpact": "IMPACT ON YOUR PENSION",
-  "expatMissingYears": "Missing years",
-  "expatEstimatedReduction": "Estimated reduction",
-  "expatMonthlyLoss": "Monthly loss",
-  "expatAnnualLoss": "Annual loss",
-  "expatVoluntaryContribution": "VOLUNTARY CONTRIBUTION",
-  "expatVoluntaryAvsTitle": "Voluntary AVS from abroad",
-  "expatMinContribution": "Minimum contribution",
-  "expatMaxContribution": "Maximum contribution",
-  "expatVoluntaryAvsBody": "You can voluntarily contribute to AVS if you live abroad. Registration deadline: 1 year after leaving Switzerland. Requirements: at least 5 consecutive years of contributions before departure.",
-  "expatRecommendation": "RECOMMENDED",
   "expatDidYouKnow": "Did you know?",
   "mariageTimelinePartner1": "Person 1",
   "mariageTimelinePartner2": "Person 2",
@@ -2851,9 +2835,9 @@
       }
     }
   },
-  "avsGuideAppBarTitle": "OFFICIAL AVS CALCULATION",
-  "avsGuideHeaderTitle": "Get your official AVS calculation",
-  "avsGuideHeaderSubtitle": "To display AVS income, MINT needs the future pension calculation (form 318.282) issued by your compensation office. An individual account statement is not enough: it only verifies your years, income and gaps.",
+  "avsGuideAppBarTitle": "AVS VERIFICATION",
+  "avsGuideHeaderTitle": "Check your account and request your AVS calculation",
+  "avsGuideHeaderSubtitle": "Two distinct official paths: the individual-account statement checks years, income and gaps; form 318.282 separately requests a future pension calculation.",
   "avsGuideConfidencePoints": "+{points} confidence points",
   "@avsGuideConfidencePoints": {
     "placeholders": {
@@ -2862,22 +2846,19 @@
       }
     }
   },
-  "avsGuideConfidenceSubtitle": "Official monthly pension and calculation date",
-  "avsGuideStepsTitle": "In 4 steps",
-  "avsGuideStep1Title": "Open official form 318.282",
-  "avsGuideStep1Subtitle": "This is the “Request for a future pension calculation” published by the AVS/AI Information Centre.",
-  "avsGuideStep2Title": "Complete one request per person",
-  "avsGuideStep2Subtitle": "For a couple, each partner submits a separate request. Compensation offices recommend submitting both at the same time.",
-  "avsGuideStep3Title": "Send it to your compensation office",
-  "avsGuideStep3Subtitle": "The office uses your request and individual accounts to prepare the calculation.",
-  "avsGuideStep4Title": "Keep the calculation you receive",
-  "avsGuideStep4Subtitle": "The amount and its date let MINT display a traceable projection. The calculation remains an estimate, not a pension decision.",
-  "avsGuideOpenAhvButton": "Open the official form",
-  "avsGuideScanButton": "I only have an account statement → Scan it",
+  "avsGuideConfidenceSubtitle": "Years, income and gaps documented by the account statement",
+  "avsGuideStepsTitle": "Two distinct official paths",
+  "avsGuideStep1Title": "A — Check years, income and gaps",
+  "avsGuideStep1Subtitle": "Request your individual-account statement free of charge, then check it or scan the one you have already received.",
+  "avsGuideStep2Title": "B — Separately request future calculation 318.282",
+  "avsGuideStep2Subtitle": "The office automatically obtains the individual accounts needed for the calculation. A joint request is recommended for married couples and registered partnerships. The calculation remains an estimate, not a pension decision.",
+  "avsGuideOpenAhvButton": "Open form 318.282",
+  "avsGuideOpenCiButton": "Request the official account statement",
+  "avsGuideScanButton": "Scan an account statement already received",
   "avsGuideTestMode": "MODE TEST",
   "avsGuideTestDescription": "Don't have your AVS statement handy? Test the flow with a sample statement.",
   "avsGuideTestButton": "Use an example",
-  "avsGuideFreeNote": "The AVS statement is free and available in 5 to 10 business days. You can also visit your cantonal compensation office.",
+  "avsGuideFreeNote": "The account-statement request is free. The competent office provides the official document.",
   "avsGuidePrivacyNote": "Your statement image is never stored or sent. Extraction happens on your device. Only values you confirm are saved to your profile.",
   "avsGuideSnackbarError": "Unable to open {url}. Copy the address and open it in your browser.",
   "@avsGuideSnackbarError": {
@@ -4506,22 +4487,6 @@
   },
   "expatForfaitBase": "Base: {amount}",
   "@expatForfaitBase": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "expatAvsReductionExplain": "Each missing year reduces your pension by about {percent}%. The reduction is permanent and applies for life.",
-  "@expatAvsReductionExplain": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "expatAvsPremierEclairage": "-{amount}/year on your AVS pension",
-  "@expatAvsPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -6158,8 +6123,6 @@
   "fhsBreakdownFiscalite": "Taxes",
   "fhsBreakdownRetraite": "Retirement",
   "fhsBreakdownRisque": "Risk",
-  "avsGapLifetimeLoss": "Over 20 years of retirement, that's {amount} less — permanently.",
-  "avsGapCalculation": "Calculation: monthly pension × 12 months. The separate December AVS supplement is not included.",
   "coachBriefingFallbackGreeting": "Hello",
   "@coachBriefingFallbackGreeting": {
     "x-mint-meta": {
@@ -11525,12 +11488,29 @@
   "report3aPendingBody": "Add your 3a balances and their date to show traceable facts without a point projection.",
   "report3aPendingCta": "Complete my 3a data",
   "dataBlockMenageCivilRegisteredPartner": "Registered partnership",
-  "expatAvsScenarioAssumptions": "Your years in Switzerland and abroad are local assumptions for comparing a departure. They do not change your library.",
-  "expatAvsAgeKnown": "Age known in your library: {age} years.",
-  "@expatAvsAgeKnown": {"placeholders": {"age": {"type": "int"}}},
-  "expatAvsAgeMissingTitle": "Your age is missing",
-  "expatAvsAgeMissingBody": "Add your year of birth before starting this hypothetical OASI simulation.",
-  "expatAvsAddBirthYear": "Add my year of birth",
-  "expatAvsStartScenario": "Start the illustrative simulation",
-  "expatAvsScenarioDisclosure": "Local illustrative simulation · no official amount · nothing is saved to your library."
+  "expatAvsScenarioAssumptions": "Your years outside Switzerland are a local assumption to verify. They do not change your library.",
+  "expatAvsOrientationReady": "This guidance compares your declared years with the available evidence. Your age is not required because no amount is calculated.",
+  "expatAvsYearsPlaceholder": "Select years",
+  "expatAvsYearsRequired": "First enter your years outside Switzerland. While this fact is unknown, MINT does not start an AVS orientation.",
+  "expatAvsStartScenario": "Start OASI guidance",
+  "expatAvsScenarioDisclosure": "Local illustrative guidance · no official amount · nothing is saved to your library.",
+  "expatAvsTruthSemantics": "OASI, years abroad to verify",
+  "expatAvsTruthTitle": "Years outside Switzerland: to verify",
+  "expatAvsYearsAbroadDeclared": "Declared years outside Switzerland: {years}",
+  "@expatAvsYearsAbroadDeclared": {"placeholders": {"years": {"type": "int"}}},
+  "expatAvsYearsAbroadToVerify": "Local declaration, not saved. Periods and applicable affiliations must be confirmed.",
+  "expatAvsYearsAbroadNotGap": "A year outside Switzerland is not automatically an OASI gap: the applicable affiliation can change the analysis.",
+  "expatAvsGapUnknownTitle": "OASI gaps: unknown",
+  "expatAvsGapUnknownBody": "Without an individual-account statement or other official evidence, MINT does not turn these years into gaps.",
+  "expatAvsDocumentedGaps": "Gap years documented by the account statement: {years}",
+  "@expatAvsDocumentedGaps": {"placeholders": {"years": {"type": "int"}}},
+  "expatAvsDocumentedMinimumEffect": "{years} / 44: in principle, each documented gap year could reduce the pension scale by at least 1/44. Indicative minimum benchmark: at least {percent}%. The amount depends in particular on average income, credits and the official calculation.",
+  "@expatAvsDocumentedMinimumEffect": {"placeholders": {"years": {"type": "int"}, "percent": {"type": "String"}}},
+  "expatAvsVoluntaryUnknownTitle": "Voluntary AVS eligibility: unknown",
+  "expatAvsVoluntaryUnknownBody": "Exit from compulsory AVS · five consecutive, uninterrupted years insured under Swiss AVS immediately before exit · residence outside Switzerland, the EU and EFTA · eligible Swiss, EU or EFTA nationality · application within twelve months. MINT does not confirm eligibility.",
+  "expatAvsOfficialNextStepTitle": "Official verification",
+  "expatAvsOfficialNextStepBody": "Two independent paths: the account statement checks years, income and gaps; form 318.282 separately requests a future calculation.",
+  "expatAvsNoPersonalAmount": "No personal pension or CHF loss amount is calculated from the declared years.",
+  "expatAvsVerificationGuideCta": "Open the OASI verification guide",
+  "expatAvsTruthDisclaimer": "Educational information, not personalised advice · AVSA arts. 2 and 29bis et seq. · Only AVS offices make official determinations."
 }

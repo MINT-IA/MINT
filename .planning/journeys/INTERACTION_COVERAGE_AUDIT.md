@@ -4,7 +4,7 @@
 
 ## Summary
 
-- Extracted Flutter route references: 365
+- Extracted Flutter route references: 366
 - Distinct known route templates referenced: 92
 - Covered by declared Interaction Registry route nodes: 21
 - Known route templates not yet declared as route nodes: 71
@@ -30,7 +30,7 @@
 | covered by declared route node | `/independants/dividende-salaire` | apps/mobile/lib/services/response_card_service.dart:395 |
 | covered by declared route node | `/invalidite` | apps/mobile/lib/app.dart:635, apps/mobile/lib/screens/disability/disability_gap_screen.dart:94, apps/mobile/lib/screens/timeline_screen.dart:183, apps/mobile/lib/services/cap_engine.dart:834 (+2 more) |
 | covered by declared route node | `/life-event/donation` | apps/mobile/lib/app.dart:623, apps/mobile/lib/screens/timeline_screen.dart:169, apps/mobile/lib/services/cap_engine.dart:828, apps/mobile/lib/services/response_card_service.dart:316 (+1 more) |
-| covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1913, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:485, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:160 (+8 more) |
+| covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1913, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:548, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:160 (+8 more) |
 | covered by declared route node | `/scan/impact` | apps/mobile/lib/screens/document_scan/document_impact_screen.dart:721 |
 | covered by declared route node | `/segments/independant` | apps/mobile/lib/app.dart:578, apps/mobile/lib/screens/timeline_screen.dart:120, apps/mobile/lib/services/cap_engine.dart:786, apps/mobile/lib/widgets/life_event_suggestions.dart:128 |
 | covered by declared route node | `/simulator/job-comparison` | apps/mobile/lib/app.dart:577, apps/mobile/lib/screens/timeline_screen.dart:113, apps/mobile/lib/services/cap_engine.dart:810, apps/mobile/lib/services/response_card_service.dart:384 (+1 more) |
@@ -104,7 +104,7 @@
 | uncovered literal route | `/rapport` | apps/mobile/lib/widgets/mentor_fab.dart:69 |
 | uncovered literal route | `/rente-vs-capital` | apps/mobile/lib/app.dart:547, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:136, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:147, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:415 (+10 more) |
 | uncovered literal route | `/retraite` | apps/mobile/lib/app.dart:546, apps/mobile/lib/data/educational_themes.dart:133, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:347, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:362 (+6 more) |
-| uncovered literal route | `/scan/avs-guide` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:740, apps/mobile/lib/screens/profile/financial_summary_screen.dart:141, apps/mobile/lib/widgets/profile/futur_drawer_content.dart:73, apps/mobile/lib/widgets/profile/patrimoine_drawer_content.dart:301 (+1 more) |
+| uncovered literal route | `/scan/avs-guide` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:740, apps/mobile/lib/screens/expat_screen.dart:1251, apps/mobile/lib/screens/profile/financial_summary_screen.dart:141, apps/mobile/lib/widgets/profile/futur_drawer_content.dart:73 (+2 more) |
 | uncovered literal route | `/segments/frontalier` | apps/mobile/lib/app.dart:580, apps/mobile/lib/services/response_card_service.dart:372 |
 | uncovered literal route | `/segments/gender-gap` | apps/mobile/lib/services/response_card_service.dart:444 |
 | uncovered literal route | `/settings/langue` | apps/mobile/lib/widgets/settings_sheet.dart:53 |

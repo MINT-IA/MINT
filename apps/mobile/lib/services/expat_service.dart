@@ -1,6 +1,22 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+
+/// Local, non-persisted assessment of declared residence and AVS evidence.
+///
+/// The typed contract intentionally has no personal pension or CHF-loss field.
+final class AvsGapAssessment {
+  const AvsGapAssessment({
+    required this.yearsAbroadDeclared,
+    required this.documentedGapYears,
+    required this.conditionalMinimumScaleReductionPercent,
+  });
+
+  final int yearsAbroadDeclared;
+  final int? documentedGapYears;
+  final double? conditionalMinimumScaleReductionPercent;
+}
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SERVICE — Sprint S23 / Expatriation + Frontaliers
@@ -12,7 +28,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 //   3. simulate90DayRule           — Home office risk gauge
 //   4. compareSocialCharges        — CH vs neighbour charges
 //   5. simulateForfaitFiscal       — Lump-sum taxation
-//   6. estimateAvsGap              — Pension gap abroad
+//   6. assessAvsGapOrientation    — AVS orientation abroad
 //   7. planDeparture               — Departure checklist
 //   8. compareTaxBurden            — Side-by-side tax comparison
 //
@@ -558,71 +574,46 @@ class ExpatService {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  6. ESTIMATE AVS GAP
+  //  6. ASSESS AVS GAP ORIENTATION
   // ════════════════════════════════════════════════════════════
 
-  /// Estimate pension reduction for years spent abroad.
+  /// Assess declared time abroad without turning it into documented AVS gaps.
   ///
-  /// Full AVS rente requires 44 complete contribution years.
-  /// Each missing year reduces the rente by ~2.3%.
-  static Map<String, dynamic>? estimateAvsGap({
+  /// A proportional statutory-scale effect is exposed only when gap years
+  /// documented by an individual-account statement are explicitly supplied.
+  /// This service deliberately does not
+  /// estimate a personal pension or a CHF loss from residence history.
+  static AvsGapAssessment? assessAvsGapOrientation({
     required bool scenarioStarted,
     required int yearsAbroad,
-    required int yearsInCh,
+    int? documentedGapYears,
   }) {
     if (!scenarioStarted) return null;
 
-    final totalYears = yearsAbroad + yearsInCh;
-    final missingYears = max(0, fullContributionYears - yearsInCh);
-    final completeness = min(1.0, yearsInCh / fullContributionYears);
-    final reductionPercent = (missingYears * reductionPerMissingYear * 100).clamp(0.0, 100.0);
-
-    // Max monthly AVS rente (LAVS art. 34)
-    final maxRenteMensuelle = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
-    final estimatedRente = maxRenteMensuelle * completeness;
-    final monthlyLoss = maxRenteMensuelle - estimatedRente;
-
-    // Voluntary contribution info
-    final canVolunteer = yearsAbroad > 0;
-
-    String recommendation;
-    if (completeness >= 1.0) {
-      recommendation =
-          'Tu as tes $fullContributionYears annees completes de cotisation. '
-          'Ta rente AVS ne devrait pas etre reduite.';
-    } else if (completeness >= 0.80) {
-      recommendation =
-          'Ta rente pourrait etre reduite d\'environ ${reductionPercent.toStringAsFixed(1)}%. '
-          'Si tu vis a l\'etranger, tu peux cotiser volontairement a l\'AVS '
-          '(entre ${formatChf(avsVoluntaryMin)} et ${formatChf(avsVoluntaryMax)}/an) '
-          'pour combler les lacunes.';
-    } else {
-      recommendation =
-          'Attention, ta rente serait significativement reduite '
-          '(-${reductionPercent.toStringAsFixed(1)}%). '
-          'La cotisation volontaire a l\'AVS depuis l\'etranger est fortement '
-          'recommandee pour limiter la perte. '
-          'Delai d\'inscription : 1 an apres le depart de Suisse.';
+    _validateAvsYears(yearsAbroad, 'yearsAbroad');
+    if (documentedGapYears != null &&
+        (documentedGapYears < 0 ||
+            documentedGapYears > fullContributionYears)) {
+      throw RangeError.range(
+        documentedGapYears,
+        0,
+        fullContributionYears,
+        'documentedGapYears',
+      );
     }
+    return AvsGapAssessment(
+      yearsAbroadDeclared: yearsAbroad,
+      documentedGapYears: documentedGapYears,
+      conditionalMinimumScaleReductionPercent: documentedGapYears == null
+          ? null
+          : AvsCalculator.reductionPercentageFromGap(documentedGapYears),
+    );
+  }
 
-    return {
-      'yearsAbroad': yearsAbroad,
-      'yearsInCh': yearsInCh,
-      'totalYears': totalYears,
-      'missingYears': missingYears,
-      'completeness': completeness,
-      'completenessPercent': completeness * 100,
-      'reductionPercent': reductionPercent,
-      'maxRente': maxRenteMensuelle,
-      'estimatedRente': estimatedRente,
-      'monthlyLoss': monthlyLoss,
-      'annualLoss': monthlyLoss * 12,
-      'canVolunteer': canVolunteer,
-      'voluntaryMin': avsVoluntaryMin,
-      'voluntaryMax': avsVoluntaryMax,
-      'recommendation': recommendation,
-      'disclaimer': disclaimer,
-    };
+  static void _validateAvsYears(int value, String name) {
+    if (value < 0 || value > fullContributionYears) {
+      throw RangeError.range(value, 0, fullContributionYears, name);
+    }
   }
 
   // ════════════════════════════════════════════════════════════

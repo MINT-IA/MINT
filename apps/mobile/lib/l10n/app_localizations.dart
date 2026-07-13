@@ -7645,110 +7645,14 @@ abstract class S {
   /// No description provided for @expatAvsEducation.
   ///
   /// In fr, this message translates to:
-  /// **'Pour toucher une rente AVS complète (max CHF 2\'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d\'environ 2.3 %. Si tu vis à l\'étranger, tu peux cotiser volontairement à l\'AVS pour éviter les lacunes.'**
+  /// **'Les années hors Suisse sont des faits à vérifier, pas des lacunes AVS automatiques. L’extrait de compte individuel (CI) documente les années, revenus et lacunes; le calcul futur officiel est une démarche séparée.'**
   String get expatAvsEducation;
-
-  /// No description provided for @expatYearsInSwitzerland.
-  ///
-  /// In fr, this message translates to:
-  /// **'Années en Suisse'**
-  String get expatYearsInSwitzerland;
 
   /// No description provided for @expatYearsAbroad.
   ///
   /// In fr, this message translates to:
   /// **'Années à l\'étranger'**
   String get expatYearsAbroad;
-
-  /// No description provided for @expatAvsCompleteness.
-  ///
-  /// In fr, this message translates to:
-  /// **'COMPLÉTUDE AVS'**
-  String get expatAvsCompleteness;
-
-  /// No description provided for @expatOfPension.
-  ///
-  /// In fr, this message translates to:
-  /// **'de rente'**
-  String get expatOfPension;
-
-  /// No description provided for @expatEstimatedPension.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rente estimée'**
-  String get expatEstimatedPension;
-
-  /// No description provided for @expatAvsComplete.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est acquis : tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.'**
-  String get expatAvsComplete;
-
-  /// No description provided for @expatPensionImpact.
-  ///
-  /// In fr, this message translates to:
-  /// **'IMPACT SUR TA RENTE'**
-  String get expatPensionImpact;
-
-  /// No description provided for @expatMissingYears.
-  ///
-  /// In fr, this message translates to:
-  /// **'Années manquantes'**
-  String get expatMissingYears;
-
-  /// No description provided for @expatEstimatedReduction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Réduction estimée'**
-  String get expatEstimatedReduction;
-
-  /// No description provided for @expatMonthlyLoss.
-  ///
-  /// In fr, this message translates to:
-  /// **'Perte mensuelle'**
-  String get expatMonthlyLoss;
-
-  /// No description provided for @expatAnnualLoss.
-  ///
-  /// In fr, this message translates to:
-  /// **'Perte annuelle'**
-  String get expatAnnualLoss;
-
-  /// No description provided for @expatVoluntaryContribution.
-  ///
-  /// In fr, this message translates to:
-  /// **'COTISATION VOLONTAIRE'**
-  String get expatVoluntaryContribution;
-
-  /// No description provided for @expatVoluntaryAvsTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'AVS facultative depuis l\'étranger'**
-  String get expatVoluntaryAvsTitle;
-
-  /// No description provided for @expatMinContribution.
-  ///
-  /// In fr, this message translates to:
-  /// **'Cotisation minimum'**
-  String get expatMinContribution;
-
-  /// No description provided for @expatMaxContribution.
-  ///
-  /// In fr, this message translates to:
-  /// **'Cotisation maximum'**
-  String get expatMaxContribution;
-
-  /// No description provided for @expatVoluntaryAvsBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu peux cotiser volontairement à l\'AVS si tu vis à l\'étranger. Délai d\'inscription : 1 an après le départ de Suisse. Conditions : avoir cotisé au moins 5 ans consécutifs avant le départ.'**
-  String get expatVoluntaryAvsBody;
-
-  /// No description provided for @expatRecommendation.
-  ///
-  /// In fr, this message translates to:
-  /// **'RECOMMANDÉE'**
-  String get expatRecommendation;
 
   /// No description provided for @expatDidYouKnow.
   ///
@@ -10617,19 +10521,19 @@ abstract class S {
   /// No description provided for @avsGuideAppBarTitle.
   ///
   /// In fr, this message translates to:
-  /// **'CALCUL AVS OFFICIEL'**
+  /// **'VÉRIFICATION AVS'**
   String get avsGuideAppBarTitle;
 
   /// No description provided for @avsGuideHeaderTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Obtenir ton calcul AVS officiel'**
+  /// **'Vérifie ton compte et demande ton calcul AVS'**
   String get avsGuideHeaderTitle;
 
   /// No description provided for @avsGuideHeaderSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Pour afficher un revenu AVS, MINT a besoin du calcul d’une rente future (formulaire 318.282) émis par ta caisse. Un extrait CI ne suffit pas : il sert seulement à vérifier tes années, revenus et lacunes.'**
+  /// **'Deux démarches officielles distinctes : l’extrait CI vérifie les années, revenus et lacunes; le formulaire 318.282 demande séparément un calcul de rente future.'**
   String get avsGuideHeaderSubtitle;
 
   /// No description provided for @avsGuideConfidencePoints.
@@ -10641,73 +10545,55 @@ abstract class S {
   /// No description provided for @avsGuideConfidenceSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Rente mensuelle officielle et date du calcul'**
+  /// **'Années, revenus et lacunes documentés par l’extrait CI'**
   String get avsGuideConfidenceSubtitle;
 
   /// No description provided for @avsGuideStepsTitle.
   ///
   /// In fr, this message translates to:
-  /// **'En 4 étapes'**
+  /// **'Deux démarches officielles distinctes'**
   String get avsGuideStepsTitle;
 
   /// No description provided for @avsGuideStep1Title.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvre le formulaire officiel 318.282'**
+  /// **'A — Vérifier les années, revenus et lacunes'**
   String get avsGuideStep1Title;
 
   /// No description provided for @avsGuideStep1Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'C’est la « Demande de calcul d’une rente future » publiée par le Centre d’information AVS/AI.'**
+  /// **'Demande gratuitement ton extrait de compte individuel (CI), puis vérifie-le ou scanne celui que tu as déjà reçu.'**
   String get avsGuideStep1Subtitle;
 
   /// No description provided for @avsGuideStep2Title.
   ///
   /// In fr, this message translates to:
-  /// **'Remplis une demande par personne'**
+  /// **'B — Demander séparément le calcul futur 318.282'**
   String get avsGuideStep2Title;
 
   /// No description provided for @avsGuideStep2Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Pour un couple, chaque partenaire fait sa propre demande. Les caisses recommandent de les déposer en même temps.'**
+  /// **'La caisse se procure automatiquement les CI nécessaires au calcul. Pour les couples mariés et les partenariats enregistrés, une demande commune est recommandée. Le calcul reste une estimation, pas une décision de rente.'**
   String get avsGuideStep2Subtitle;
-
-  /// No description provided for @avsGuideStep3Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'Envoie-la à ta caisse de compensation'**
-  String get avsGuideStep3Title;
-
-  /// No description provided for @avsGuideStep3Subtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Elle utilise ta demande et tes comptes individuels pour établir le calcul.'**
-  String get avsGuideStep3Subtitle;
-
-  /// No description provided for @avsGuideStep4Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'Garde le calcul reçu'**
-  String get avsGuideStep4Title;
-
-  /// No description provided for @avsGuideStep4Subtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le montant et sa date permettront à MINT d’afficher une projection traçable. Le calcul reste une estimation, pas une décision de rente.'**
-  String get avsGuideStep4Subtitle;
 
   /// No description provided for @avsGuideOpenAhvButton.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir le formulaire officiel'**
+  /// **'Ouvrir le formulaire 318.282'**
   String get avsGuideOpenAhvButton;
+
+  /// No description provided for @avsGuideOpenCiButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander l’extrait CI officiel'**
+  String get avsGuideOpenCiButton;
 
   /// No description provided for @avsGuideScanButton.
   ///
   /// In fr, this message translates to:
-  /// **'J’ai seulement un extrait CI → Le scanner'**
+  /// **'Scanner un extrait CI déjà reçu'**
   String get avsGuideScanButton;
 
   /// No description provided for @avsGuideTestMode.
@@ -10731,7 +10617,7 @@ abstract class S {
   /// No description provided for @avsGuideFreeNote.
   ///
   /// In fr, this message translates to:
-  /// **'L\'extrait AVS est gratuit et disponible en 5 à 10 jours ouvrables. Tu peux aussi te rendre à ta caisse de compensation cantonale.'**
+  /// **'La demande d’extrait CI est gratuite. La caisse compétente fournit le document officiel.'**
   String get avsGuideFreeNote;
 
   /// No description provided for @avsGuidePrivacyNote.
@@ -16801,18 +16687,6 @@ abstract class S {
   /// **'Base : {amount}'**
   String expatForfaitBase(String amount);
 
-  /// No description provided for @expatAvsReductionExplain.
-  ///
-  /// In fr, this message translates to:
-  /// **'Chaque année manquante réduit ta rente d\'environ {percent} %. La réduction est définitive et s\'applique à vie.'**
-  String expatAvsReductionExplain(String percent);
-
-  /// No description provided for @expatAvsPremierEclairage.
-  ///
-  /// In fr, this message translates to:
-  /// **'-{amount}/an sur ta rente AVS'**
-  String expatAvsPremierEclairage(String amount);
-
   /// No description provided for @expatDepartPremierEclairage.
   ///
   /// In fr, this message translates to:
@@ -22698,18 +22572,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Risque'**
   String get fhsBreakdownRisque;
-
-  /// No description provided for @avsGapLifetimeLoss.
-  ///
-  /// In fr, this message translates to:
-  /// **'Sur 20 ans de retraite, c\'est {amount} de moins — définitivement.'**
-  String avsGapLifetimeLoss(String amount);
-
-  /// No description provided for @avsGapCalculation.
-  ///
-  /// In fr, this message translates to:
-  /// **'Calcul : rente mensuelle × 12 mois. Le supplément AVS de décembre est séparé et n’est pas inclus.'**
-  String get avsGapCalculation;
 
   /// No description provided for @coachBriefingFallbackGreeting.
   ///
@@ -41552,44 +41414,134 @@ abstract class S {
   /// No description provided for @expatAvsScenarioAssumptions.
   ///
   /// In fr, this message translates to:
-  /// **'Tes années en Suisse et à l’étranger sont des hypothèses locales pour comparer un départ. Elles ne modifient pas ta bibliothèque.'**
+  /// **'Tes années hors Suisse sont une hypothèse locale à vérifier. Elles ne modifient pas ta bibliothèque.'**
   String get expatAvsScenarioAssumptions;
 
-  /// No description provided for @expatAvsAgeKnown.
+  /// No description provided for @expatAvsOrientationReady.
   ///
   /// In fr, this message translates to:
-  /// **'Âge connu dans ta bibliothèque : {age} ans.'**
-  String expatAvsAgeKnown(int age);
+  /// **'Cette orientation confronte tes années déclarées aux preuves disponibles. Ton âge n’est pas requis car aucun montant n’est calculé.'**
+  String get expatAvsOrientationReady;
 
-  /// No description provided for @expatAvsAgeMissingTitle.
+  /// No description provided for @expatAvsYearsPlaceholder.
   ///
   /// In fr, this message translates to:
-  /// **'Ton âge manque'**
-  String get expatAvsAgeMissingTitle;
+  /// **'À renseigner'**
+  String get expatAvsYearsPlaceholder;
 
-  /// No description provided for @expatAvsAgeMissingBody.
+  /// No description provided for @expatAvsYearsRequired.
   ///
   /// In fr, this message translates to:
-  /// **'Ajoute ton année de naissance avant de lancer cette simulation AVS hypothétique.'**
-  String get expatAvsAgeMissingBody;
-
-  /// No description provided for @expatAvsAddBirthYear.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ajouter mon année de naissance'**
-  String get expatAvsAddBirthYear;
+  /// **'Indique d’abord tes années hors Suisse. Tant que ce fait est inconnu, MINT ne lance aucune orientation AVS.'**
+  String get expatAvsYearsRequired;
 
   /// No description provided for @expatAvsStartScenario.
   ///
   /// In fr, this message translates to:
-  /// **'Lancer la simulation illustrative'**
+  /// **'Démarrer l’orientation AVS'**
   String get expatAvsStartScenario;
 
   /// No description provided for @expatAvsScenarioDisclosure.
   ///
   /// In fr, this message translates to:
-  /// **'Simulation illustrative locale · aucun montant officiel · rien n’est enregistré dans ta bibliothèque.'**
+  /// **'Orientation locale illustrative · aucun montant officiel · rien n’est enregistré dans ta bibliothèque.'**
   String get expatAvsScenarioDisclosure;
+
+  /// No description provided for @expatAvsTruthSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS, années à l’étranger à vérifier'**
+  String get expatAvsTruthSemantics;
+
+  /// No description provided for @expatAvsTruthTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années hors Suisse : à vérifier'**
+  String get expatAvsTruthTitle;
+
+  /// No description provided for @expatAvsYearsAbroadDeclared.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années hors Suisse déclarées : {years}'**
+  String expatAvsYearsAbroadDeclared(int years);
+
+  /// No description provided for @expatAvsYearsAbroadToVerify.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration locale, non enregistrée. Les périodes et affiliations doivent être confirmées.'**
+  String get expatAvsYearsAbroadToVerify;
+
+  /// No description provided for @expatAvsYearsAbroadNotGap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une année hors Suisse n’est pas automatiquement une lacune AVS : l’affiliation applicable peut changer l’analyse.'**
+  String get expatAvsYearsAbroadNotGap;
+
+  /// No description provided for @expatAvsGapUnknownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacunes AVS : inconnues'**
+  String get expatAvsGapUnknownTitle;
+
+  /// No description provided for @expatAvsGapUnknownBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans extrait CI ou autre preuve officielle, MINT ne transforme pas ces années en lacunes.'**
+  String get expatAvsGapUnknownBody;
+
+  /// No description provided for @expatAvsDocumentedGaps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacunes documentées par l’extrait CI : {years}'**
+  String expatAvsDocumentedGaps(int years);
+
+  /// No description provided for @expatAvsDocumentedMinimumEffect.
+  ///
+  /// In fr, this message translates to:
+  /// **'{years} / 44 : en principe, chaque année de lacune documentée pourrait réduire l’échelle de rente d’au moins 1/44. Repère minimal indicatif : au moins {percent} %. Le montant dépend notamment du RAMD, des bonifications et du calcul officiel.'**
+  String expatAvsDocumentedMinimumEffect(int years, String percent);
+
+  /// No description provided for @expatAvsVoluntaryUnknownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éligibilité à l’AVS facultative : inconnue'**
+  String get expatAvsVoluntaryUnknownTitle;
+
+  /// No description provided for @expatAvsVoluntaryUnknownBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortie de l’AVS obligatoire · cinq années consécutives et sans interruption d’assurance AVS suisse immédiatement avant la sortie · domicile hors de Suisse, de l’UE et de l’AELE · nationalité suisse, UE ou AELE admissible · demande dans les douze mois. MINT ne confirme aucune éligibilité.'**
+  String get expatAvsVoluntaryUnknownBody;
+
+  /// No description provided for @expatAvsOfficialNextStepTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification officielle'**
+  String get expatAvsOfficialNextStepTitle;
+
+  /// No description provided for @expatAvsOfficialNextStepBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deux démarches indépendantes : l’extrait CI vérifie les années, revenus et lacunes; le formulaire 318.282 demande séparément un calcul futur.'**
+  String get expatAvsOfficialNextStepBody;
+
+  /// No description provided for @expatAvsNoPersonalAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun montant personnel de rente ou de perte en CHF n’est calculé à partir des années déclarées.'**
+  String get expatAvsNoPersonalAmount;
+
+  /// No description provided for @expatAvsVerificationGuideCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le guide de vérification AVS'**
+  String get expatAvsVerificationGuideCta;
+
+  /// No description provided for @expatAvsTruthDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Information éducative, pas un conseil personnalisé · LAVS art. 2 et 29bis ss. · Seules les caisses AVS statuent.'**
+  String get expatAvsTruthDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

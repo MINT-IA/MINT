@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/expat_service.dart';
 
@@ -9,7 +11,7 @@ import 'package:mint_mobile/services/expat_service.dart';
 ///   3. simulate90DayRule      — jauge home office
 ///   4. compareSocialCharges   — charges sociales CH vs voisins
 ///   5. simulateForfaitFiscal  — forfait fiscal
-///   6. estimateAvsGap         — lacunes AVS a l'etranger
+///   6. assessAvsGapOrientation         — lacunes AVS a l'etranger
 ///   7. planDeparture          — checklist depart
 ///   8. compareTaxBurden       — comparaison fiscale
 ///
@@ -285,60 +287,92 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  6. estimateAvsGap — lacunes AVS
+  //  6. assessAvsGapOrientation — lacunes AVS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  group('estimateAvsGap — lacunes AVS', () {
+  group('assessAvsGapOrientation — lacunes AVS', () {
     test('scenario inactif — aucun calcul AVS', () {
-      final r = ExpatService.estimateAvsGap(
+      final r = ExpatService.assessAvsGapOrientation(
         scenarioStarted: false,
         yearsAbroad: 10,
-        yearsInCh: 34,
       );
 
       expect(r, isNull);
     });
 
-    test('44 annees en CH — rente complete, pas de lacune', () {
-      final r = ExpatService.estimateAvsGap(
-        scenarioStarted: true,
-        yearsAbroad: 0,
-        yearsInCh: 44,
-      )!;
-
-      expect(r['completeness'] as double, closeTo(1.0, 0.001));
-      expect(r['missingYears'], 0);
-      expect(r['monthlyLoss'] as double, closeTo(0, 1));
-    });
-
-    test('scenario actif — reduction proportionnelle conservee', () {
-      final r = ExpatService.estimateAvsGap(
+    test('annees a l etranger ne deviennent jamais des lacunes documentees', () {
+      final r = ExpatService.assessAvsGapOrientation(
         scenarioStarted: true,
         yearsAbroad: 10,
-        yearsInCh: 34,
       )!;
 
-      // completeness = 34/44 ≈ 0.7727
-      expect(r['completeness'] as double, closeTo(34 / 44, 0.01));
-      expect(r['missingYears'], 10);
-      // maxRente = 2520, estimatedRente = 2520 * (34/44) ≈ 1947.27
-      // monthlyLoss = 2520 - 1947.27 ≈ 572.73
-      final monthlyLoss = r['monthlyLoss'] as double;
-      expect(monthlyLoss, greaterThan(500));
-      expect(monthlyLoss, lessThan(600));
-      expect((r['reductionPercent'] as double), greaterThan(0));
+      expect(r.yearsAbroadDeclared, 10);
+      expect(r.documentedGapYears, isNull);
+      expect(r.conditionalMinimumScaleReductionPercent, isNull);
     });
 
-    test('cotisation volontaire recommandee', () {
-      final r = ExpatService.estimateAvsGap(
+    test('supprime les trois montants personnels AVS', () {
+      final r = ExpatService.assessAvsGapOrientation(
+        scenarioStarted: true,
+        yearsAbroad: 10,
+      )!;
+      expect(r, isA<AvsGapAssessment>());
+
+      final source = File('lib/services/expat_service.dart').readAsStringSync();
+      for (final retiredOutput in const [
+        'estimatedRente',
+        'monthlyLoss',
+        'annualLoss',
+        'canVolunteer',
+      ]) {
+        expect(source, isNot(contains(retiredOutput)), reason: retiredOutput);
+      }
+    });
+
+    test('effet 1/44 seulement avec lacunes documentees par le CI', () {
+      final r = ExpatService.assessAvsGapOrientation(
         scenarioStarted: true,
         yearsAbroad: 5,
-        yearsInCh: 30,
+        documentedGapYears: 4,
       )!;
 
-      expect(r['canVolunteer'], isTrue);
-      expect((r['voluntaryMin'] as double), greaterThan(0));
-      expect((r['voluntaryMax'] as double), greaterThan(r['voluntaryMin'] as double));
+      expect(r.documentedGapYears, 4);
+      expect(
+        r.conditionalMinimumScaleReductionPercent,
+        closeTo(9.0909, 0.001),
+      );
+    });
+
+    test('annees AVS hors bornes echouent explicitement', () {
+      expect(
+        () => ExpatService.assessAvsGapOrientation(
+          scenarioStarted: true,
+          yearsAbroad: -1,
+        ),
+        throwsRangeError,
+      );
+      expect(
+        () => ExpatService.assessAvsGapOrientation(
+          scenarioStarted: true,
+          yearsAbroad: 45,
+        ),
+        throwsRangeError,
+      );
+    });
+
+    test('aucun raccourci local d eligibilite facultative ne subsiste', () {
+      final source = File('lib/services/expat_service.dart').readAsStringSync();
+      for (final retiredShortcut in const [
+        'AvsVoluntaryEligibility',
+        'voluntaryEligibility',
+        'mayBeEligible',
+        'destinationOutsideChEuEfta',
+        'qualifyingNationality',
+        'fiveConsecutivePriorContributionYears',
+        'otherVoluntaryConditionsConfirmed',
+      ]) {
+        expect(source, isNot(contains(retiredShortcut)), reason: retiredShortcut);
+      }
     });
   });
 

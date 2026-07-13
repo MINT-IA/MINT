@@ -4199,60 +4199,10 @@ class SIt extends S {
 
   @override
   String get expatAvsEducation =>
-      'Per ricevere una rendita AVS completa (max CHF 2\'520/mese), servono 44 anni di contribuzione senza lacune. Ogni anno mancante riduce la rendita di circa il 2.3%. Se vivi all\'estero, puoi contribuire volontariamente all\'AVS per evitare lacune.';
-
-  @override
-  String get expatYearsInSwitzerland => 'Anni in Svizzera';
+      'Gli anni fuori dalla Svizzera sono dati da verificare, non lacune AVS automatiche. L’estratto del conto individuale documenta anni, redditi e lacune; il calcolo futuro ufficiale è una procedura separata.';
 
   @override
   String get expatYearsAbroad => 'Anni all\'estero';
-
-  @override
-  String get expatAvsCompleteness => 'COMPLETEZZA AVS';
-
-  @override
-  String get expatOfPension => 'della rendita';
-
-  @override
-  String get expatEstimatedPension => 'Rendita stimata';
-
-  @override
-  String get expatAvsComplete =>
-      'Confermato: hai i tuoi 44 anni completi di contribuzione. La tua rendita AVS non dovrebbe essere ridotta.';
-
-  @override
-  String get expatPensionImpact => 'IMPATTO SULLA TUA RENDITA';
-
-  @override
-  String get expatMissingYears => 'Anni mancanti';
-
-  @override
-  String get expatEstimatedReduction => 'Riduzione stimata';
-
-  @override
-  String get expatMonthlyLoss => 'Perdita mensile';
-
-  @override
-  String get expatAnnualLoss => 'Perdita annuale';
-
-  @override
-  String get expatVoluntaryContribution => 'CONTRIBUZIONE VOLONTARIA';
-
-  @override
-  String get expatVoluntaryAvsTitle => 'AVS facoltativa dall\'estero';
-
-  @override
-  String get expatMinContribution => 'Contribuzione minima';
-
-  @override
-  String get expatMaxContribution => 'Contribuzione massima';
-
-  @override
-  String get expatVoluntaryAvsBody =>
-      'Puoi contribuire volontariamente all\'AVS se vivi all\'estero. Termine d\'iscrizione: 1 anno dopo la partenza dalla Svizzera. Condizione: aver contribuito almeno 5 anni consecutivi prima della partenza.';
-
-  @override
-  String get expatRecommendation => 'RACCOMANDATA';
 
   @override
   String get expatDidYouKnow => 'Lo sapevi?';
@@ -5915,14 +5865,15 @@ class SIt extends S {
   }
 
   @override
-  String get avsGuideAppBarTitle => 'CALCOLO AVS UFFICIALE';
+  String get avsGuideAppBarTitle => 'VERIFICA AVS';
 
   @override
-  String get avsGuideHeaderTitle => 'Richiedi il calcolo AVS ufficiale';
+  String get avsGuideHeaderTitle =>
+      'Verifica il conto e richiedi il calcolo AVS';
 
   @override
   String get avsGuideHeaderSubtitle =>
-      'Per mostrare un reddito AVS, MINT necessita del calcolo di una rendita futura (modulo 318.282) emesso dalla tua cassa di compensazione. Un estratto del conto individuale non basta: verifica solo anni, redditi e lacune.';
+      'Due procedure ufficiali distinte: l’estratto CI verifica anni, redditi e lacune; il modulo 318.282 richiede separatamente un calcolo di rendita futura.';
 
   @override
   String avsGuideConfidencePoints(int points) {
@@ -5931,45 +5882,34 @@ class SIt extends S {
 
   @override
   String get avsGuideConfidenceSubtitle =>
-      'Rendita mensile ufficiale e data del calcolo';
+      'Anni, redditi e lacune documentati dall’estratto CI';
 
   @override
-  String get avsGuideStepsTitle => 'In 4 passaggi';
+  String get avsGuideStepsTitle => 'Due procedure ufficiali distinte';
 
   @override
-  String get avsGuideStep1Title => 'Apri il modulo ufficiale 318.282';
+  String get avsGuideStep1Title => 'A — Verificare anni, redditi e lacune';
 
   @override
   String get avsGuideStep1Subtitle =>
-      'È la «Richiesta di calcolo di una rendita futura» pubblicata dal Centro d’informazione AVS/AI.';
+      'Richiedi gratuitamente l’estratto del conto individuale, poi verificalo o scansiona quello già ricevuto.';
 
   @override
-  String get avsGuideStep2Title => 'Compila una richiesta per persona';
+  String get avsGuideStep2Title =>
+      'B — Richiedere separatamente il calcolo futuro 318.282';
 
   @override
   String get avsGuideStep2Subtitle =>
-      'Per una coppia, ogni partner presenta una richiesta separata. Le casse raccomandano di inviarle contemporaneamente.';
+      'La cassa ottiene automaticamente i conti individuali necessari al calcolo. Per le coppie sposate e le unioni domestiche registrate è raccomandata una domanda comune. Il calcolo resta una stima, non una decisione sulla rendita.';
 
   @override
-  String get avsGuideStep3Title => 'Inviala alla tua cassa di compensazione';
+  String get avsGuideOpenAhvButton => 'Apri il modulo 318.282';
 
   @override
-  String get avsGuideStep3Subtitle =>
-      'La cassa usa la richiesta e i conti individuali per preparare il calcolo.';
+  String get avsGuideOpenCiButton => 'Richiedi l’estratto CI ufficiale';
 
   @override
-  String get avsGuideStep4Title => 'Conserva il calcolo ricevuto';
-
-  @override
-  String get avsGuideStep4Subtitle =>
-      'L’importo e la data consentono a MINT di mostrare una proiezione tracciabile. Il calcolo resta una stima, non una decisione di rendita.';
-
-  @override
-  String get avsGuideOpenAhvButton => 'Apri il modulo ufficiale';
-
-  @override
-  String get avsGuideScanButton =>
-      'Ho solo un estratto del conto → Scansionalo';
+  String get avsGuideScanButton => 'Scansiona un estratto CI già ricevuto';
 
   @override
   String get avsGuideTestMode => 'MODE TEST';
@@ -5983,7 +5923,7 @@ class SIt extends S {
 
   @override
   String get avsGuideFreeNote =>
-      'L\'estratto AVS è gratuito e disponibile in 5-10 giorni lavorativi. Puoi anche recarti alla tua cassa di compensazione cantonale.';
+      'La richiesta dell’estratto CI è gratuita. La cassa competente rilascia il documento ufficiale.';
 
   @override
   String get avsGuidePrivacyNote =>
@@ -9520,16 +9460,6 @@ class SIt extends S {
   }
 
   @override
-  String expatAvsReductionExplain(String percent) {
-    return 'Ogni anno mancante riduce la tua rendita di circa il $percent%. La riduzione è definitiva e si applica a vita.';
-  }
-
-  @override
-  String expatAvsPremierEclairage(String amount) {
-    return '-$amount/anno sulla tua rendita AVS';
-  }
-
-  @override
   String expatDepartPremierEclairage(String amount) {
     return '$amount di capitale da mettere al sicuro prima della partenza';
   }
@@ -12836,15 +12766,6 @@ class SIt extends S {
 
   @override
   String get fhsBreakdownRisque => 'Rischio';
-
-  @override
-  String avsGapLifetimeLoss(String amount) {
-    return 'In 20 anni di pensione, sono $amount in meno — definitivamente.';
-  }
-
-  @override
-  String get avsGapCalculation =>
-      'Calcolo: rendita mensile × 12 mesi. Il supplemento AVS separato di dicembre non è incluso.';
 
   @override
   String get coachBriefingFallbackGreeting => 'Ciao';
@@ -23823,27 +23744,85 @@ class SIt extends S {
 
   @override
   String get expatAvsScenarioAssumptions =>
-      'I tuoi anni in Svizzera e all’estero sono ipotesi locali per confrontare una partenza. Non modificano la tua biblioteca.';
+      'I tuoi anni fuori dalla Svizzera sono un’ipotesi locale da verificare. Non modificano la tua biblioteca.';
 
   @override
-  String expatAvsAgeKnown(int age) {
-    return 'Età nota nella tua biblioteca: $age anni.';
-  }
+  String get expatAvsOrientationReady =>
+      'Questo orientamento confronta gli anni dichiarati con le prove disponibili. La tua età non è necessaria perché non viene calcolato alcun importo.';
 
   @override
-  String get expatAvsAgeMissingTitle => 'Manca la tua età';
+  String get expatAvsYearsPlaceholder => 'Indica gli anni';
 
   @override
-  String get expatAvsAgeMissingBody =>
-      'Aggiungi il tuo anno di nascita prima di avviare questa simulazione AVS ipotetica.';
+  String get expatAvsYearsRequired =>
+      'Indica prima gli anni fuori dalla Svizzera. Finché questo dato è sconosciuto, MINT non avvia alcun orientamento AVS.';
 
   @override
-  String get expatAvsAddBirthYear => 'Aggiungi il mio anno di nascita';
-
-  @override
-  String get expatAvsStartScenario => 'Avvia la simulazione illustrativa';
+  String get expatAvsStartScenario => 'Avvia l’orientamento AVS';
 
   @override
   String get expatAvsScenarioDisclosure =>
-      'Simulazione illustrativa locale · nessun importo ufficiale · non viene salvato nulla nella tua biblioteca.';
+      'Orientamento locale illustrativo · nessun importo ufficiale · non viene salvato nulla nella tua biblioteca.';
+
+  @override
+  String get expatAvsTruthSemantics => 'AVS, anni all’estero da verificare';
+
+  @override
+  String get expatAvsTruthTitle => 'Anni fuori dalla Svizzera: da verificare';
+
+  @override
+  String expatAvsYearsAbroadDeclared(int years) {
+    return 'Anni dichiarati fuori dalla Svizzera: $years';
+  }
+
+  @override
+  String get expatAvsYearsAbroadToVerify =>
+      'Dichiarazione locale, non salvata. I periodi e le affiliazioni applicabili devono essere confermati.';
+
+  @override
+  String get expatAvsYearsAbroadNotGap =>
+      'Un anno fuori dalla Svizzera non è automaticamente una lacuna AVS: l’affiliazione applicabile può cambiare l’analisi.';
+
+  @override
+  String get expatAvsGapUnknownTitle => 'Lacune AVS: sconosciute';
+
+  @override
+  String get expatAvsGapUnknownBody =>
+      'Senza un estratto del conto individuale o un’altra prova ufficiale, MINT non trasforma questi anni in lacune.';
+
+  @override
+  String expatAvsDocumentedGaps(int years) {
+    return 'Anni di lacuna documentati dall’estratto CI: $years';
+  }
+
+  @override
+  String expatAvsDocumentedMinimumEffect(int years, String percent) {
+    return '$years / 44: in linea di principio, ogni anno di lacuna documentato potrebbe ridurre la scala della rendita di almeno 1/44. Riferimento minimo indicativo: almeno $percent%. L’importo dipende in particolare dal reddito medio, dagli accrediti e dal calcolo ufficiale.';
+  }
+
+  @override
+  String get expatAvsVoluntaryUnknownTitle =>
+      'Ammissibilità all’AVS facoltativa: sconosciuta';
+
+  @override
+  String get expatAvsVoluntaryUnknownBody =>
+      'Uscita dall’AVS obbligatoria · cinque anni consecutivi e senza interruzione di assicurazione AVS svizzera immediatamente prima dell’uscita · domicilio fuori dalla Svizzera, dall’UE e dall’AELS · nazionalità svizzera, UE o AELS ammessa · domanda entro dodici mesi. MINT non conferma l’ammissibilità.';
+
+  @override
+  String get expatAvsOfficialNextStepTitle => 'Verifica ufficiale';
+
+  @override
+  String get expatAvsOfficialNextStepBody =>
+      'Due procedure indipendenti: l’estratto CI verifica anni, redditi e lacune; il modulo 318.282 richiede separatamente un calcolo futuro.';
+
+  @override
+  String get expatAvsNoPersonalAmount =>
+      'Nessun importo personale di rendita o perdita in CHF viene calcolato dagli anni dichiarati.';
+
+  @override
+  String get expatAvsVerificationGuideCta => 'Apri la guida di verifica AVS';
+
+  @override
+  String get expatAvsTruthDisclaimer =>
+      'Informazione educativa, non consulenza personalizzata · LAVS art. 2 e 29bis segg. · Solo le casse AVS decidono ufficialmente.';
 }

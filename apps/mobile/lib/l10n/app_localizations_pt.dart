@@ -4190,60 +4190,10 @@ class SPt extends S {
 
   @override
   String get expatAvsEducation =>
-      'Para receber uma pensão AVS completa (máx CHF 2\'520/mês), são necessários 44 anos de contribuição sem lacunas. Cada ano em falta reduz a pensão em cerca de 2.3%. Se vives no estrangeiro, podes contribuir voluntariamente para o AVS para evitar lacunas.';
-
-  @override
-  String get expatYearsInSwitzerland => 'Anos na Suíça';
+      'Os anos fora da Suíça são dados a verificar, não lacunas AVS automáticas. O extrato da conta individual documenta anos, rendimentos e lacunas; o cálculo futuro oficial é um procedimento separado.';
 
   @override
   String get expatYearsAbroad => 'Anos no estrangeiro';
-
-  @override
-  String get expatAvsCompleteness => 'COMPLETUDE AVS';
-
-  @override
-  String get expatOfPension => 'da pensão';
-
-  @override
-  String get expatEstimatedPension => 'Pensão estimada';
-
-  @override
-  String get expatAvsComplete =>
-      'Confirmado: tens os teus 44 anos completos de contribuição. A tua pensão AVS não deverá ser reduzida.';
-
-  @override
-  String get expatPensionImpact => 'IMPACTO NA TUA PENSÃO';
-
-  @override
-  String get expatMissingYears => 'Anos em falta';
-
-  @override
-  String get expatEstimatedReduction => 'Redução estimada';
-
-  @override
-  String get expatMonthlyLoss => 'Perda mensal';
-
-  @override
-  String get expatAnnualLoss => 'Perda anual';
-
-  @override
-  String get expatVoluntaryContribution => 'CONTRIBUIÇÃO VOLUNTÁRIA';
-
-  @override
-  String get expatVoluntaryAvsTitle => 'AVS voluntário desde o estrangeiro';
-
-  @override
-  String get expatMinContribution => 'Contribuição mínima';
-
-  @override
-  String get expatMaxContribution => 'Contribuição máxima';
-
-  @override
-  String get expatVoluntaryAvsBody =>
-      'Podes contribuir voluntariamente para o AVS se vives no estrangeiro. Prazo de inscrição: 1 ano após a saída da Suíça. Condição: ter contribuído pelo menos 5 anos consecutivos antes da partida.';
-
-  @override
-  String get expatRecommendation => 'RECOMENDADA';
 
   @override
   String get expatDidYouKnow => 'Sabias que?';
@@ -5902,14 +5852,14 @@ class SPt extends S {
   }
 
   @override
-  String get avsGuideAppBarTitle => 'CÁLCULO AVS OFICIAL';
+  String get avsGuideAppBarTitle => 'VERIFICAÇÃO AVS';
 
   @override
-  String get avsGuideHeaderTitle => 'Solicita o teu cálculo AVS oficial';
+  String get avsGuideHeaderTitle => 'Verifica a conta e pede o cálculo AVS';
 
   @override
   String get avsGuideHeaderSubtitle =>
-      'Para mostrar um rendimento AVS, a MINT precisa do cálculo de uma pensão futura (formulário 318.282) emitido pela tua caixa de compensação. Um extrato de conta individual não basta: apenas confirma anos, rendimentos e lacunas.';
+      'Dois procedimentos oficiais distintos: o extrato CI verifica anos, rendimentos e lacunas; o formulário 318.282 pede separadamente um cálculo de pensão futura.';
 
   @override
   String avsGuideConfidencePoints(int points) {
@@ -5918,45 +5868,34 @@ class SPt extends S {
 
   @override
   String get avsGuideConfidenceSubtitle =>
-      'Pensão mensal oficial e data do cálculo';
+      'Anos, rendimentos e lacunas documentados pelo extrato CI';
 
   @override
-  String get avsGuideStepsTitle => 'Em 4 passos';
+  String get avsGuideStepsTitle => 'Dois procedimentos oficiais distintos';
 
   @override
-  String get avsGuideStep1Title => 'Abre o formulário oficial 318.282';
+  String get avsGuideStep1Title => 'A — Verificar anos, rendimentos e lacunas';
 
   @override
   String get avsGuideStep1Subtitle =>
-      'É o «Pedido de cálculo de uma pensão futura» publicado pelo Centro de informação AVS/AI.';
+      'Pede gratuitamente o extrato da conta individual e verifica-o ou digitaliza o que já recebeste.';
 
   @override
-  String get avsGuideStep2Title => 'Preenche um pedido por pessoa';
+  String get avsGuideStep2Title =>
+      'B — Pedir separadamente o cálculo futuro 318.282';
 
   @override
   String get avsGuideStep2Subtitle =>
-      'Num casal, cada pessoa apresenta o seu próprio pedido. As caixas recomendam enviá-los ao mesmo tempo.';
+      'A caixa obtém automaticamente as contas individuais necessárias ao cálculo. Recomenda-se um pedido conjunto para casais casados e parcerias registadas. O cálculo continua a ser uma estimativa, não uma decisão de pensão.';
 
   @override
-  String get avsGuideStep3Title => 'Envia-o à tua caixa de compensação';
+  String get avsGuideOpenAhvButton => 'Abrir o formulário 318.282';
 
   @override
-  String get avsGuideStep3Subtitle =>
-      'A caixa usa o pedido e as contas individuais para preparar o cálculo.';
+  String get avsGuideOpenCiButton => 'Pedir o extrato CI oficial';
 
   @override
-  String get avsGuideStep4Title => 'Guarda o cálculo recebido';
-
-  @override
-  String get avsGuideStep4Subtitle =>
-      'O montante e a data permitem à MINT mostrar uma projeção rastreável. O cálculo continua a ser uma estimativa, não uma decisão de pensão.';
-
-  @override
-  String get avsGuideOpenAhvButton => 'Abrir o formulário oficial';
-
-  @override
-  String get avsGuideScanButton =>
-      'Só tenho um extrato de conta → Digitalizá-lo';
+  String get avsGuideScanButton => 'Digitalizar um extrato CI já recebido';
 
   @override
   String get avsGuideTestMode => 'MODE TEST';
@@ -5970,7 +5909,7 @@ class SPt extends S {
 
   @override
   String get avsGuideFreeNote =>
-      'O extrato AVS é gratuito e está disponível em 5 a 10 dias úteis. Também podes dirigir-te à tua caixa de compensação cantonal.';
+      'O pedido do extrato CI é gratuito. A caixa competente emite o documento oficial.';
 
   @override
   String get avsGuidePrivacyNote =>
@@ -9501,16 +9440,6 @@ class SPt extends S {
   }
 
   @override
-  String expatAvsReductionExplain(String percent) {
-    return 'Cada ano em falta reduz a tua pensão em cerca de $percent%. A redução é definitiva e aplica-se para toda a vida.';
-  }
-
-  @override
-  String expatAvsPremierEclairage(String amount) {
-    return '-$amount/ano na tua pensão AVS';
-  }
-
-  @override
   String expatDepartPremierEclairage(String amount) {
     return '$amount de capital a assegurar antes da partida';
   }
@@ -12809,15 +12738,6 @@ class SPt extends S {
 
   @override
   String get fhsBreakdownRisque => 'Risco';
-
-  @override
-  String avsGapLifetimeLoss(String amount) {
-    return 'Em 20 anos de reforma, são $amount a menos — definitivamente.';
-  }
-
-  @override
-  String get avsGapCalculation =>
-      'Cálculo: pensão mensal × 12 meses. O suplemento AVS separado de dezembro não está incluído.';
 
   @override
   String get coachBriefingFallbackGreeting => 'Olá';
@@ -23767,27 +23687,86 @@ class SPt extends S {
 
   @override
   String get expatAvsScenarioAssumptions =>
-      'Os teus anos na Suíça e no estrangeiro são hipóteses locais para comparar uma partida. Não alteram a tua biblioteca.';
+      'Os teus anos fora da Suíça são uma hipótese local a verificar. Não alteram a tua biblioteca.';
 
   @override
-  String expatAvsAgeKnown(int age) {
-    return 'Idade conhecida na tua biblioteca: $age anos.';
-  }
+  String get expatAvsOrientationReady =>
+      'Esta orientação compara os anos declarados com as provas disponíveis. A tua idade não é necessária porque não é calculado qualquer montante.';
 
   @override
-  String get expatAvsAgeMissingTitle => 'Falta a tua idade';
+  String get expatAvsYearsPlaceholder => 'Indica os anos';
 
   @override
-  String get expatAvsAgeMissingBody =>
-      'Adiciona o teu ano de nascimento antes de iniciar esta simulação AVS hipotética.';
+  String get expatAvsYearsRequired =>
+      'Indica primeiro os anos fora da Suíça. Enquanto este dado for desconhecido, a MINT não inicia qualquer orientação AVS.';
 
   @override
-  String get expatAvsAddBirthYear => 'Adicionar o meu ano de nascimento';
-
-  @override
-  String get expatAvsStartScenario => 'Iniciar a simulação ilustrativa';
+  String get expatAvsStartScenario => 'Iniciar a orientação AVS';
 
   @override
   String get expatAvsScenarioDisclosure =>
-      'Simulação ilustrativa local · nenhum montante oficial · nada é guardado na tua biblioteca.';
+      'Orientação local ilustrativa · nenhum montante oficial · nada é guardado na tua biblioteca.';
+
+  @override
+  String get expatAvsTruthSemantics => 'AVS, anos no estrangeiro a verificar';
+
+  @override
+  String get expatAvsTruthTitle => 'Anos fora da Suíça: a verificar';
+
+  @override
+  String expatAvsYearsAbroadDeclared(int years) {
+    return 'Anos declarados fora da Suíça: $years';
+  }
+
+  @override
+  String get expatAvsYearsAbroadToVerify =>
+      'Declaração local, não guardada. Os períodos e as afiliações aplicáveis devem ser confirmados.';
+
+  @override
+  String get expatAvsYearsAbroadNotGap =>
+      'Um ano fora da Suíça não é automaticamente uma lacuna AVS: a afiliação aplicável pode alterar a análise.';
+
+  @override
+  String get expatAvsGapUnknownTitle => 'Lacunas AVS: desconhecidas';
+
+  @override
+  String get expatAvsGapUnknownBody =>
+      'Sem um extrato da conta individual ou outra prova oficial, a MINT não transforma estes anos em lacunas.';
+
+  @override
+  String expatAvsDocumentedGaps(int years) {
+    return 'Anos de lacuna documentados pelo extrato CI: $years';
+  }
+
+  @override
+  String expatAvsDocumentedMinimumEffect(int years, String percent) {
+    return '$years / 44: em princípio, cada ano de lacuna documentado pode reduzir a escala da pensão em pelo menos 1/44. Referência mínima indicativa: pelo menos $percent%. O montante depende, nomeadamente, do rendimento médio, das bonificações e do cálculo oficial.';
+  }
+
+  @override
+  String get expatAvsVoluntaryUnknownTitle =>
+      'Elegibilidade para o AVS facultativo: desconhecida';
+
+  @override
+  String get expatAvsVoluntaryUnknownBody =>
+      'Saída do AVS obrigatório · cinco anos consecutivos e sem interrupção de seguro AVS suíço imediatamente antes da saída · domicílio fora da Suíça, da UE e da EFTA · nacionalidade suíça, UE ou EFTA admissível · pedido no prazo de doze meses. A MINT não confirma a elegibilidade.';
+
+  @override
+  String get expatAvsOfficialNextStepTitle => 'Verificação oficial';
+
+  @override
+  String get expatAvsOfficialNextStepBody =>
+      'Dois procedimentos independentes: o extrato CI verifica anos, rendimentos e lacunas; o formulário 318.282 pede separadamente um cálculo futuro.';
+
+  @override
+  String get expatAvsNoPersonalAmount =>
+      'Não é calculado qualquer montante pessoal de pensão ou perda em CHF a partir dos anos declarados.';
+
+  @override
+  String get expatAvsVerificationGuideCta =>
+      'Abrir o guia de verificação do AVS';
+
+  @override
+  String get expatAvsTruthDisclaimer =>
+      'Informação educativa, não aconselhamento personalizado · LAVS arts. 2 e 29bis ss. · Apenas as caixas AVS tomam decisões oficiais.';
 }

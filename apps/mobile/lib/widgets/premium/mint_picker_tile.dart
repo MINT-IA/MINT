@@ -10,7 +10,8 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 /// Replaces imprecise sliders for integer inputs with small ranges.
 class MintPickerTile extends StatelessWidget {
   final String label;
-  final int value;
+  final int? value;
+  final String? placeholder;
   final int minValue;
   final int maxValue;
   final String Function(int) formatValue;
@@ -20,6 +21,7 @@ class MintPickerTile extends StatelessWidget {
     super.key,
     required this.label,
     required this.value,
+    this.placeholder,
     required this.minValue,
     required this.maxValue,
     required this.formatValue,
@@ -27,7 +29,7 @@ class MintPickerTile extends StatelessWidget {
   });
 
   void _openPicker(BuildContext context) {
-    int selected = value;
+    int selected = value ?? minValue;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -77,7 +79,7 @@ class MintPickerTile extends StatelessWidget {
             Expanded(
               child: CupertinoPicker(
                 scrollController: FixedExtentScrollController(
-                  initialItem: value - minValue,
+                  initialItem: selected - minValue,
                 ),
                 itemExtent: 40,
                 onSelectedItemChanged: (index) {
@@ -104,8 +106,10 @@ class MintPickerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayedValue =
+        value == null ? (placeholder ?? '—') : formatValue(value!);
     return Semantics(
-      label: '$label\u00a0: ${formatValue(value)}',
+      label: '$label\u00a0: $displayedValue',
       button: true,
       child: GestureDetector(
         onTap: () => _openPicker(context),
@@ -125,7 +129,8 @@ class MintPickerTile extends StatelessWidget {
               Flexible(
                 child: Text(
                   label,
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textSecondary),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -134,7 +139,7 @@ class MintPickerTile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    formatValue(value),
+                    displayedValue,
                     style: MintTextStyles.bodyMedium(color: MintColors.primary)
                         .copyWith(fontWeight: FontWeight.w600),
                   ),

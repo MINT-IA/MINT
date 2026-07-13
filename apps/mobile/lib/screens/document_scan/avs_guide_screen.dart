@@ -18,15 +18,9 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 //  AVS GUIDE SCREEN — Sprint S45
 // ────────────────────────────────────────────────────────────
 //
-//  Guides the user to the official future-pension calculation that can
-//  certify a monthly AVS amount. The CI scan remains a separate enrichment
-//  path for contribution years, income and gaps; it cannot certify a pension.
-//
-//  Steps:
-//    1. Open official form 318.282
-//    2. Complete one request per person
-//    3. Send it to the compensation office
-//    4. Keep the dated calculation returned by the office
+//  Keeps two official paths distinct: an individual-account statement (CI)
+//  verifies years, income and gaps; form 318.282 separately requests a future
+//  pension calculation from the compensation office.
 //
 //  Reference:
 //    - Centre d'information AVS/AI — formulaire administratif 318.282
@@ -52,8 +46,20 @@ Uri avsOfficialFuturePensionFormUri(Locale locale) {
   return Uri.parse('https://www.ahv-iv.ch/p/318.282.$suffix');
 }
 
+/// Official domicile-aware hub for requesting an individual-account statement.
+///
+/// Do not use `/r/ci`: the AVS/AI site currently redirects that short URL to
+/// an explanatory video rather than the acquisition path.
+Uri avsOfficialIndividualAccountRequestUri() =>
+    Uri.parse(
+        'https://www.ahv-iv.ch/fr/Formulaires/Demande-dextrait-de-compte');
+
+typedef AvsExternalUriOpener = Future<bool> Function(Uri uri);
+
 class AvsGuideScreen extends StatefulWidget {
-  const AvsGuideScreen({super.key});
+  const AvsGuideScreen({super.key, this.openExternalUri});
+
+  final AvsExternalUriOpener? openExternalUri;
 
   @override
   State<AvsGuideScreen> createState() => _AvsGuideScreenState();
@@ -69,40 +75,41 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
     final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(context, l),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 12),
-                MintEntrance(child: _buildHeader(l)),
-                const SizedBox(height: 24),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildConfidenceImpact(l)),
-                const SizedBox(height: 28),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSteps(l)),
-                const SizedBox(height: 28),
-                MintEntrance(
-                  delay: const Duration(milliseconds: 300),
-                  child: _buildOpenOfficialFormButton(l),
-                ),
-                const SizedBox(height: 16),
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildScanButton(l)),
-                if (kDebugMode) ...[
-                  const SizedBox(height: 16),
-                  _buildSimulateButton(l),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  _buildAppBar(context, l),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        const SizedBox(height: 12),
+                        MintEntrance(child: _buildHeader(l)),
+                        const SizedBox(height: 24),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 100),
+                            child: _buildConfidenceImpact(l)),
+                        const SizedBox(height: 28),
+                        MintEntrance(
+                          delay: const Duration(milliseconds: 200),
+                          child: _buildOfficialPaths(l),
+                        ),
+                        if (kDebugMode) ...[
+                          const SizedBox(height: 16),
+                          _buildSimulateButton(l),
+                        ],
+                        const SizedBox(height: 24),
+                        _buildFreeNote(l),
+                        const SizedBox(height: 16),
+                        _buildPrivacyNote(l),
+                        const SizedBox(height: 100),
+                      ]),
+                    ),
+                  ),
                 ],
-                const SizedBox(height: 24),
-                _buildFreeNote(l),
-                const SizedBox(height: 16),
-                _buildPrivacyNote(l),
-                const SizedBox(height: 100),
-              ]),
-            ),
-          ),
-        ],
-      ))),
+              ))),
     );
   }
 
@@ -136,12 +143,14 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       children: [
         Text(
           l.avsGuideHeaderTitle,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(height: 1.3),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary)
+              .copyWith(height: 1.3),
         ),
         const SizedBox(height: 8),
         Text(
           l.avsGuideHeaderSubtitle,
-          style: MintTextStyles.labelLarge(color: MintColors.textSecondary).copyWith(height: 1.5),
+          style: MintTextStyles.labelLarge(color: MintColors.textSecondary)
+              .copyWith(height: 1.5),
         ),
       ],
     );
@@ -176,8 +185,10 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l.avsGuideConfidencePoints(DocumentType.avsExtract.confidenceImpact),
-                  style: MintTextStyles.bodyLarge(color: MintColors.info).copyWith(
+                  l.avsGuideConfidencePoints(
+                      DocumentType.avsExtract.confidenceImpact),
+                  style:
+                      MintTextStyles.bodyLarge(color: MintColors.info).copyWith(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
@@ -185,7 +196,8 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                 const SizedBox(height: 2),
                 Text(
                   l.avsGuideConfidenceSubtitle,
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -195,89 +207,120 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
     );
   }
 
-  // ── Steps ────────────────────────────────────────────────
+  // ── Two independent official paths ───────────────────────
 
-  Widget _buildSteps(S l) {
-    final steps = [
-      _StepData(
-        number: 1,
-        title: l.avsGuideStep1Title,
-        subtitle: l.avsGuideStep1Subtitle,
-      ),
-      _StepData(
-        number: 2,
-        title: l.avsGuideStep2Title,
-        subtitle: l.avsGuideStep2Subtitle,
-      ),
-      _StepData(
-        number: 3,
-        title: l.avsGuideStep3Title,
-        subtitle: l.avsGuideStep3Subtitle,
-      ),
-      _StepData(
-        number: 4,
-        title: l.avsGuideStep4Title,
-        subtitle: l.avsGuideStep4Subtitle,
-      ),
-    ];
-
+  Widget _buildOfficialPaths(S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           l.avsGuideStepsTitle,
-          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+          style: MintTextStyles.bodyMedium(
+            color: MintColors.textPrimary,
+          ).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: MintSpacing.md),
-        ...steps.map((step) => _buildStepCard(step)),
+        _buildPathCard(
+          key: const Key('avs_ci_branch'),
+          label: 'A',
+          title: l.avsGuideStep1Title,
+          subtitle: l.avsGuideStep1Subtitle,
+          actions: [
+            _buildOpenOfficialCiButton(l),
+            const SizedBox(height: MintSpacing.sm),
+            _buildScanButton(l),
+          ],
+        ),
+        const SizedBox(height: MintSpacing.md),
+        _buildPathCard(
+          key: const Key('avs_future_calculation_branch'),
+          label: 'B',
+          title: l.avsGuideStep2Title,
+          subtitle: l.avsGuideStep2Subtitle,
+          actions: [_buildOpenOfficialFormButton(l)],
+        ),
       ],
     );
   }
 
-  Widget _buildStepCard(_StepData step) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
+  Widget _buildPathCard({
+    required Key key,
+    required String label,
+    required String title,
+    required String subtitle,
+    required List<Widget> actions,
+  }) {
+    return MintSurface(
+      key: key,
+      tone: MintSurfaceTone.porcelaine,
+      padding: const EdgeInsets.all(MintSpacing.md),
+      radius: 16,
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Step number circle
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: MintColors.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '${step.number}',
-                style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          // Step content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  step.title,
-                  style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: MintColors.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Text(
+                    label,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.white,
+                    ).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  step.subtitle,
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: MintTextStyles.bodyLarge(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w600, height: 1.3),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ).copyWith(height: 1.5),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+          const SizedBox(height: MintSpacing.md),
+          ...actions,
         ],
+      ),
+    );
+  }
+
+  Widget _buildOpenOfficialCiButton(S l) {
+    return Semantics(
+      identifier: 'avs_official_ci_request_cta',
+      button: true,
+      label: l.avsGuideOpenCiButton,
+      child: SizedBox(
+        width: double.infinity,
+        height: 52,
+        child: OutlinedButton.icon(
+          key: const Key('avs_official_ci_request_cta'),
+          onPressed: _onOpenOfficialCiRequest,
+          icon: const Icon(Icons.open_in_new, size: 20),
+          label: Text(l.avsGuideOpenCiButton),
+        ),
       ),
     );
   }
@@ -295,20 +338,20 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         child: FilledButton.icon(
           key: const Key('avs_official_form_cta'),
           onPressed: _onOpenOfficialForm,
-        icon: const Icon(Icons.open_in_new, size: 20),
-        label: Text(
-          l.avsGuideOpenAhvButton,
-          style: MintTextStyles.titleMedium(color: MintColors.white),
-        ),
-        style: FilledButton.styleFrom(
-          backgroundColor: MintColors.primary,
-          foregroundColor: MintColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+          icon: const Icon(Icons.open_in_new, size: 20),
+          label: Text(
+            l.avsGuideOpenAhvButton,
+            style: MintTextStyles.titleMedium(color: MintColors.white),
+          ),
+          style: FilledButton.styleFrom(
+            backgroundColor: MintColors.primary,
+            foregroundColor: MintColors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -322,21 +365,22 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         width: double.infinity,
         height: 56,
         child: OutlinedButton.icon(
+          key: const Key('avs_ci_scan_cta'),
           onPressed: _isProcessing ? null : _onScanExtract,
-        icon: const Icon(Icons.document_scanner_outlined, size: 22),
-        label: Text(
-          l.avsGuideScanButton,
-          style: MintTextStyles.titleMedium(),
-        ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: MintColors.textPrimary,
-          side: const BorderSide(color: MintColors.border),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+          icon: const Icon(Icons.document_scanner_outlined, size: 22),
+          label: Text(
+            l.avsGuideScanButton,
+            style: MintTextStyles.titleMedium(),
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: MintColors.textPrimary,
+            side: const BorderSide(color: MintColors.border),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -364,7 +408,8 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           Text(
             l.avsGuideTestDescription,
             textAlign: TextAlign.center,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                .copyWith(height: 1.4),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -386,7 +431,8 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                     icon: const Icon(Icons.science_outlined, size: 20),
                     label: Text(
                       l.avsGuideTestButton,
-                      style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(
+                      style: MintTextStyles.bodyLarge(color: MintColors.white)
+                          .copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -425,7 +471,8 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           Expanded(
             child: Text(
               l.avsGuideFreeNote,
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.5),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  .copyWith(height: 1.5),
             ),
           ),
         ],
@@ -448,7 +495,8 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
           Expanded(
             child: Text(
               l.avsGuidePrivacyNote,
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                  .copyWith(height: 1.5),
             ),
           ),
         ],
@@ -459,26 +507,41 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   // ── Actions ──────────────────────────────────────────────
 
   Future<void> _onOpenOfficialForm() async {
-    final uri = avsOfficialFuturePensionFormUri(Localizations.localeOf(context));
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (!mounted) return;
-      final l = S.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l.avsGuideSnackbarError(uri.toString()),
-            style: MintTextStyles.bodyMedium(),
-          ),
-          backgroundColor: MintColors.warning,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+    final uri =
+        avsOfficialFuturePensionFormUri(Localizations.localeOf(context));
+    await _openOfficialUri(uri);
+  }
+
+  Future<void> _onOpenOfficialCiRequest() async {
+    await _openOfficialUri(avsOfficialIndividualAccountRequestUri());
+  }
+
+  Future<void> _openOfficialUri(Uri uri) async {
+    final injectedOpener = widget.openExternalUri;
+    final opened = injectedOpener != null
+        ? await injectedOpener(uri)
+        : await _launchExternalUri(uri);
+    if (opened || !mounted) return;
+
+    final l = S.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          l.avsGuideSnackbarError(uri.toString()),
+          style: MintTextStyles.bodyMedium(),
         ),
-      );
-    }
+        backgroundColor: MintColors.warning,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _launchExternalUri(Uri uri) async {
+    if (!await canLaunchUrl(uri)) return false;
+    return launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   void _onScanExtract() {
@@ -508,17 +571,4 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}',
     );
   }
-}
-
-/// Data class for step display.
-class _StepData {
-  final int number;
-  final String title;
-  final String subtitle;
-
-  const _StepData({
-    required this.number,
-    required this.title,
-    required this.subtitle,
-  });
 }

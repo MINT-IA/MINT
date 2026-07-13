@@ -1877,24 +1877,8 @@
   "expatNoExitTax": "Pas de taxe de sortie en Suisse",
   "expatRecommendedTimeline": "CHRONOLOGIE RECOMMANDÉE",
   "expatDepartureChecklist": "CHECKLIST DE DÉPART",
-  "expatAvsEducation": "Pour toucher une rente AVS complète (max CHF 2'520/mois), il est nécessaire de totaliser 44 années de cotisation sans lacune. Chaque année manquante réduit ta rente d'environ 2.3 %. Si tu vis à l'étranger, tu peux cotiser volontairement à l'AVS pour éviter les lacunes.",
-  "expatYearsInSwitzerland": "Années en Suisse",
+  "expatAvsEducation": "Les années hors Suisse sont des faits à vérifier, pas des lacunes AVS automatiques. L’extrait de compte individuel (CI) documente les années, revenus et lacunes; le calcul futur officiel est une démarche séparée.",
   "expatYearsAbroad": "Années à l'étranger",
-  "expatAvsCompleteness": "COMPLÉTUDE AVS",
-  "expatOfPension": "de rente",
-  "expatEstimatedPension": "Rente estimée",
-  "expatAvsComplete": "C'est acquis : tu as tes 44 années complètes de cotisation. Ta rente AVS ne devrait pas être réduite.",
-  "expatPensionImpact": "IMPACT SUR TA RENTE",
-  "expatMissingYears": "Années manquantes",
-  "expatEstimatedReduction": "Réduction estimée",
-  "expatMonthlyLoss": "Perte mensuelle",
-  "expatAnnualLoss": "Perte annuelle",
-  "expatVoluntaryContribution": "COTISATION VOLONTAIRE",
-  "expatVoluntaryAvsTitle": "AVS facultative depuis l'étranger",
-  "expatMinContribution": "Cotisation minimum",
-  "expatMaxContribution": "Cotisation maximum",
-  "expatVoluntaryAvsBody": "Tu peux cotiser volontairement à l'AVS si tu vis à l'étranger. Délai d'inscription : 1 an après le départ de Suisse. Conditions : avoir cotisé au moins 5 ans consécutifs avant le départ.",
-  "expatRecommendation": "RECOMMANDÉE",
   "expatDidYouKnow": "Le savais-tu ?",
   "mariageTimelinePartner1": "Personne 1",
   "mariageTimelinePartner2": "Personne 2",
@@ -2899,9 +2883,9 @@
       }
     }
   },
-  "avsGuideAppBarTitle": "CALCUL AVS OFFICIEL",
-  "avsGuideHeaderTitle": "Obtenir ton calcul AVS officiel",
-  "avsGuideHeaderSubtitle": "Pour afficher un revenu AVS, MINT a besoin du calcul d’une rente future (formulaire 318.282) émis par ta caisse. Un extrait CI ne suffit pas : il sert seulement à vérifier tes années, revenus et lacunes.",
+  "avsGuideAppBarTitle": "VÉRIFICATION AVS",
+  "avsGuideHeaderTitle": "Vérifie ton compte et demande ton calcul AVS",
+  "avsGuideHeaderSubtitle": "Deux démarches officielles distinctes : l’extrait CI vérifie les années, revenus et lacunes; le formulaire 318.282 demande séparément un calcul de rente future.",
   "avsGuideConfidencePoints": "+{points} points de confiance",
   "@avsGuideConfidencePoints": {
     "placeholders": {
@@ -2910,22 +2894,19 @@
       }
     }
   },
-  "avsGuideConfidenceSubtitle": "Rente mensuelle officielle et date du calcul",
-  "avsGuideStepsTitle": "En 4 étapes",
-  "avsGuideStep1Title": "Ouvre le formulaire officiel 318.282",
-  "avsGuideStep1Subtitle": "C’est la « Demande de calcul d’une rente future » publiée par le Centre d’information AVS/AI.",
-  "avsGuideStep2Title": "Remplis une demande par personne",
-  "avsGuideStep2Subtitle": "Pour un couple, chaque partenaire fait sa propre demande. Les caisses recommandent de les déposer en même temps.",
-  "avsGuideStep3Title": "Envoie-la à ta caisse de compensation",
-  "avsGuideStep3Subtitle": "Elle utilise ta demande et tes comptes individuels pour établir le calcul.",
-  "avsGuideStep4Title": "Garde le calcul reçu",
-  "avsGuideStep4Subtitle": "Le montant et sa date permettront à MINT d’afficher une projection traçable. Le calcul reste une estimation, pas une décision de rente.",
-  "avsGuideOpenAhvButton": "Ouvrir le formulaire officiel",
-  "avsGuideScanButton": "J’ai seulement un extrait CI → Le scanner",
+  "avsGuideConfidenceSubtitle": "Années, revenus et lacunes documentés par l’extrait CI",
+  "avsGuideStepsTitle": "Deux démarches officielles distinctes",
+  "avsGuideStep1Title": "A — Vérifier les années, revenus et lacunes",
+  "avsGuideStep1Subtitle": "Demande gratuitement ton extrait de compte individuel (CI), puis vérifie-le ou scanne celui que tu as déjà reçu.",
+  "avsGuideStep2Title": "B — Demander séparément le calcul futur 318.282",
+  "avsGuideStep2Subtitle": "La caisse se procure automatiquement les CI nécessaires au calcul. Pour les couples mariés et les partenariats enregistrés, une demande commune est recommandée. Le calcul reste une estimation, pas une décision de rente.",
+  "avsGuideOpenAhvButton": "Ouvrir le formulaire 318.282",
+  "avsGuideOpenCiButton": "Demander l’extrait CI officiel",
+  "avsGuideScanButton": "Scanner un extrait CI déjà reçu",
   "avsGuideTestMode": "MODE TEST",
   "avsGuideTestDescription": "Pas d'extrait AVS sous la main ? Teste le flux avec un exemple d'extrait.",
   "avsGuideTestButton": "Utiliser un exemple",
-  "avsGuideFreeNote": "L'extrait AVS est gratuit et disponible en 5 à 10 jours ouvrables. Tu peux aussi te rendre à ta caisse de compensation cantonale.",
+  "avsGuideFreeNote": "La demande d’extrait CI est gratuite. La caisse compétente fournit le document officiel.",
   "avsGuidePrivacyNote": "L'image de ton extrait n'est jamais stockée ni envoyée. L'extraction se fait sur ton appareil. Seules les valeurs que tu confirmes sont conservées dans ton profil.",
   "avsGuideSnackbarError": "Impossible d'ouvrir {url}. Copie l'adresse et ouvre-la dans ton navigateur.",
   "@avsGuideSnackbarError": {
@@ -4814,22 +4795,6 @@
       }
     }
   },
-  "expatAvsReductionExplain": "Chaque année manquante réduit ta rente d'environ {percent} %. La réduction est définitive et s'applique à vie.",
-  "@expatAvsReductionExplain": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "expatAvsPremierEclairage": "-{amount}/an sur ta rente AVS",
-  "@expatAvsPremierEclairage": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "expatDepartPremierEclairage": "{amount} de capital à sécuriser avant ton départ",
   "@expatDepartPremierEclairage": {
     "placeholders": {
@@ -6460,8 +6425,6 @@
   "fhsBreakdownFiscalite": "Fiscalité",
   "fhsBreakdownRetraite": "Retraite",
   "fhsBreakdownRisque": "Risque",
-  "avsGapLifetimeLoss": "Sur 20 ans de retraite, c'est {amount} de moins — définitivement.",
-  "avsGapCalculation": "Calcul : rente mensuelle × 12 mois. Le supplément AVS de décembre est séparé et n’est pas inclus.",
   "@fhsDeltaLabel": {
     "placeholders": {
       "delta": {
@@ -6472,13 +6435,6 @@
   "@fhsDeltaText": {
     "placeholders": {
       "delta": {
-        "type": "String"
-      }
-    }
-  },
-  "@avsGapLifetimeLoss": {
-    "placeholders": {
-      "amount": {
         "type": "String"
       }
     }
@@ -12324,12 +12280,29 @@
   "report3aPendingBody": "Ajoute tes soldes 3a et leur date pour afficher des faits traçables, sans projection ponctuelle.",
   "report3aPendingCta": "Compléter mes données 3a",
   "dataBlockMenageCivilRegisteredPartner": "Partenariat enregistré",
-  "expatAvsScenarioAssumptions": "Tes années en Suisse et à l’étranger sont des hypothèses locales pour comparer un départ. Elles ne modifient pas ta bibliothèque.",
-  "expatAvsAgeKnown": "Âge connu dans ta bibliothèque : {age} ans.",
-  "@expatAvsAgeKnown": {"placeholders": {"age": {"type": "int"}}},
-  "expatAvsAgeMissingTitle": "Ton âge manque",
-  "expatAvsAgeMissingBody": "Ajoute ton année de naissance avant de lancer cette simulation AVS hypothétique.",
-  "expatAvsAddBirthYear": "Ajouter mon année de naissance",
-  "expatAvsStartScenario": "Lancer la simulation illustrative",
-  "expatAvsScenarioDisclosure": "Simulation illustrative locale · aucun montant officiel · rien n’est enregistré dans ta bibliothèque."
+  "expatAvsScenarioAssumptions": "Tes années hors Suisse sont une hypothèse locale à vérifier. Elles ne modifient pas ta bibliothèque.",
+  "expatAvsOrientationReady": "Cette orientation confronte tes années déclarées aux preuves disponibles. Ton âge n’est pas requis car aucun montant n’est calculé.",
+  "expatAvsYearsPlaceholder": "À renseigner",
+  "expatAvsYearsRequired": "Indique d’abord tes années hors Suisse. Tant que ce fait est inconnu, MINT ne lance aucune orientation AVS.",
+  "expatAvsStartScenario": "Démarrer l’orientation AVS",
+  "expatAvsScenarioDisclosure": "Orientation locale illustrative · aucun montant officiel · rien n’est enregistré dans ta bibliothèque.",
+  "expatAvsTruthSemantics": "AVS, années à l’étranger à vérifier",
+  "expatAvsTruthTitle": "Années hors Suisse : à vérifier",
+  "expatAvsYearsAbroadDeclared": "Années hors Suisse déclarées : {years}",
+  "@expatAvsYearsAbroadDeclared": {"placeholders": {"years": {"type": "int"}}},
+  "expatAvsYearsAbroadToVerify": "Déclaration locale, non enregistrée. Les périodes et affiliations doivent être confirmées.",
+  "expatAvsYearsAbroadNotGap": "Une année hors Suisse n’est pas automatiquement une lacune AVS : l’affiliation applicable peut changer l’analyse.",
+  "expatAvsGapUnknownTitle": "Lacunes AVS : inconnues",
+  "expatAvsGapUnknownBody": "Sans extrait CI ou autre preuve officielle, MINT ne transforme pas ces années en lacunes.",
+  "expatAvsDocumentedGaps": "Lacunes documentées par l’extrait CI : {years}",
+  "@expatAvsDocumentedGaps": {"placeholders": {"years": {"type": "int"}}},
+  "expatAvsDocumentedMinimumEffect": "{years} / 44 : en principe, chaque année de lacune documentée pourrait réduire l’échelle de rente d’au moins 1/44. Repère minimal indicatif : au moins {percent} %. Le montant dépend notamment du RAMD, des bonifications et du calcul officiel.",
+  "@expatAvsDocumentedMinimumEffect": {"placeholders": {"years": {"type": "int"}, "percent": {"type": "String"}}},
+  "expatAvsVoluntaryUnknownTitle": "Éligibilité à l’AVS facultative : inconnue",
+  "expatAvsVoluntaryUnknownBody": "Sortie de l’AVS obligatoire · cinq années consécutives et sans interruption d’assurance AVS suisse immédiatement avant la sortie · domicile hors de Suisse, de l’UE et de l’AELE · nationalité suisse, UE ou AELE admissible · demande dans les douze mois. MINT ne confirme aucune éligibilité.",
+  "expatAvsOfficialNextStepTitle": "Vérification officielle",
+  "expatAvsOfficialNextStepBody": "Deux démarches indépendantes : l’extrait CI vérifie les années, revenus et lacunes; le formulaire 318.282 demande séparément un calcul futur.",
+  "expatAvsNoPersonalAmount": "Aucun montant personnel de rente ou de perte en CHF n’est calculé à partir des années déclarées.",
+  "expatAvsVerificationGuideCta": "Ouvrir le guide de vérification AVS",
+  "expatAvsTruthDisclaimer": "Information éducative, pas un conseil personnalisé · LAVS art. 2 et 29bis ss. · Seules les caisses AVS statuent."
 }

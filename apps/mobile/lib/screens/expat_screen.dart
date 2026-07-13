@@ -57,10 +57,9 @@ class _ExpatScreenState extends State<ExpatScreen>
   final Set<String> _completedChecklist = {};
 
   // ── Tab 3: AVS inputs ─────────────────────────────────
-  int _yearsInCh = 20;
-  int _yearsAbroad = 10;
+  int? _yearsAbroad;
   bool _avsScenarioStarted = false;
-  Map<String, dynamic>? _avsResult;
+  AvsGapAssessment? _avsResult;
 
   @override
   void initState() {
@@ -99,27 +98,33 @@ class _ExpatScreenState extends State<ExpatScreen>
 
   void _recalculateAvs() {
     if (!_avsScenarioStarted) return;
+    final yearsAbroad = _yearsAbroad;
+    if (yearsAbroad == null) return;
     setState(() {
-      _avsResult = ExpatService.estimateAvsGap(
+      _avsResult = ExpatService.assessAvsGapOrientation(
         scenarioStarted: _avsScenarioStarted,
-        yearsAbroad: _yearsAbroad,
-        yearsInCh: _yearsInCh,
+        yearsAbroad: yearsAbroad,
+        documentedGapYears: context
+            .read<CoachProfileProvider>()
+            .profile
+            ?.avsGapEvidence
+            .selfCertifiedYears,
       );
     });
   }
 
   void _startAvsScenario() {
+    final yearsAbroad = _yearsAbroad;
+    if (yearsAbroad == null) return;
     final provider = context.read<CoachProfileProvider>();
-    final profileAge =
-        provider.hasProfile ? provider.profile!.ageOrNull : null;
-    if (profileAge == null) return;
 
     setState(() {
       _avsScenarioStarted = true;
-      _avsResult = ExpatService.estimateAvsGap(
+      _avsResult = ExpatService.assessAvsGapOrientation(
         scenarioStarted: _avsScenarioStarted,
-        yearsAbroad: _yearsAbroad,
-        yearsInCh: _yearsInCh,
+        yearsAbroad: yearsAbroad,
+        documentedGapYears:
+            provider.profile?.avsGapEvidence.selfCertifiedYears,
       );
     });
   }
@@ -1225,9 +1230,6 @@ class _ExpatScreenState extends State<ExpatScreen>
 
   Widget _buildTab3Avs() {
     final l = S.of(context)!;
-    final provider = context.watch<CoachProfileProvider>();
-    final profileAge =
-        provider.hasProfile ? provider.profile!.ageOrNull : null;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -1235,115 +1237,33 @@ class _ExpatScreenState extends State<ExpatScreen>
       children: [
         MintEntrance(child: _buildAvsInputCard()),
         const SizedBox(height: MintSpacing.lg),
-        _buildAvsScenarioGate(profileAge),
+        _buildAvsScenarioGate(),
         const SizedBox(height: MintSpacing.lg),
-        if (_avsResult != null &&
-            _avsScenarioStarted &&
-            profileAge != null) ...[
-          // ── Chiffre-choc hero for Tab 3 ──
-          if ((_avsResult!['annualLoss'] as double) > 0)
-            MintEntrance(
-              delay: const Duration(milliseconds: 100),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: MintSpacing.lg),
-                child: MintResultHeroCard(
-                  key: const Key('expat_avs_scenario_result'),
-                  eyebrow: l.expatTabAvs.toUpperCase(),
-                  primaryValue: '-${ExpatService.formatChf(_avsResult!['annualLoss'] as double)}',
-                  primaryLabel: l.expatAvsPremierEclairage(ExpatService.formatChf(
-                      _avsResult!['annualLoss'] as double)),
-                  narrative: l.expatAvsPremierEclairage(ExpatService.formatChf(
-                      _avsResult!['annualLoss'] as double)),
-                  accentColor: MintColors.error,
-                  tone: MintSurfaceTone.porcelaine,
-                ),
+        if (_avsResult != null && _avsScenarioStarted) ...[
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: KeyedSubtree(
+              key: const Key('expat_avs_scenario_result'),
+              child: AvsGapWidget(
+                key: const Key('expat_avs_gap_scenario'),
+                scenarioStarted: true,
+                assessment: _avsResult,
+                onOpenAvsVerificationGuide: () => context.push('/scan/avs-guide'),
               ),
             ),
-
-          MintEntrance(
-            delay: const Duration(milliseconds: 200),
-            child: _buildAvsRingChart(),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-          MintEntrance(
-            delay: const Duration(milliseconds: 250),
-            child: _buildAvsReductionCard(),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-          MintEntrance(
-            delay: const Duration(milliseconds: 300),
-            child: _buildAvsVoluntarySection(),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-          MintEntrance(
-            delay: const Duration(milliseconds: 350),
-            child: _buildAvsRecommendation(),
           ),
           const SizedBox(height: MintSpacing.lg),
         ],
-        Builder(builder: (context) {
-          if (_avsScenarioStarted && profileAge != null) {
-            return AvsGapWidget(
-              key: const Key('expat_avs_gap_scenario'),
-              scenarioStarted: true,
-              currentContributionYears: _yearsInCh,
-              currentAge: profileAge,
-              initialYearsAbroad: _yearsAbroad,
-            );
-          }
-          return const SizedBox.shrink();
-        }),
-        const SizedBox(height: MintSpacing.lg),
         _buildEducationalInsert(l.expatAvsEducation),
-        const SizedBox(height: MintSpacing.lg),
-        _buildDisclaimer(),
       ],
     );
   }
 
-  Widget _buildAvsScenarioGate(int? profileAge) {
+  Widget _buildAvsScenarioGate() {
     final l = S.of(context)!;
 
-    if (profileAge == null) {
-      return Container(
-        key: const Key('expat_avs_missing_age'),
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.warning.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: MintColors.warning.withValues(alpha: 0.3),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l.expatAvsAgeMissingTitle,
-              style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              l.expatAvsAgeMissingBody,
-              style: MintTextStyles.bodyMedium(
-                  color: MintColors.textSecondary),
-            ),
-            const SizedBox(height: MintSpacing.md),
-            FilledButton.icon(
-              key: const Key('expat_avs_add_birth_year'),
-              onPressed: () => context.push(
-                '/data-block/revenu?inputKey=q_birth_year&returnUri=%2Fexpatriation',
-              ),
-              icon: const Icon(Icons.add),
-              label: Text(l.expatAvsAddBirthYear),
-            ),
-          ],
-        ),
-      );
-    }
-
     return Container(
-      key: const Key('expat_avs_known_age'),
+      key: const Key('expat_avs_opt_in_gate'),
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.info.withValues(alpha: 0.06),
@@ -1354,7 +1274,9 @@ class _ExpatScreenState extends State<ExpatScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            l.expatAvsAgeKnown(profileAge),
+            _yearsAbroad == null
+                ? l.expatAvsYearsRequired
+                : l.expatAvsOrientationReady,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
           const SizedBox(height: MintSpacing.sm),
@@ -1366,7 +1288,8 @@ class _ExpatScreenState extends State<ExpatScreen>
           if (!_avsScenarioStarted)
             FilledButton.icon(
               key: const Key('expat_avs_start_scenario'),
-              onPressed: _startAvsScenario,
+              onPressed:
+                  _yearsAbroad == null ? null : _startAvsScenario,
               icon: const Icon(Icons.play_arrow),
               label: Text(l.expatAvsStartScenario),
             )
@@ -1395,332 +1318,17 @@ class _ExpatScreenState extends State<ExpatScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           MintPickerTile(
-            label: l.expatYearsInSwitzerland,
-            value: _yearsInCh,
-            minValue: 0,
-            maxValue: 44,
-            formatValue: (v) => '$v ans',
-            onChanged: (v) {
-              setState(() {
-                _yearsInCh = v;
-                _recalculateAvs();
-              });
-            },
-          ),
-          const SizedBox(height: MintSpacing.lg),
-          MintPickerTile(
+            key: const Key('expat_avs_years_picker'),
             label: l.expatYearsAbroad,
             value: _yearsAbroad,
+            placeholder: l.expatAvsYearsPlaceholder,
             minValue: 0,
             maxValue: 44,
-            formatValue: (v) => '$v ans',
+            formatValue: (v) => l.financialSummaryAnneesUnit('$v'),
             onChanged: (v) {
-              setState(() {
-                _yearsAbroad = v;
-                _recalculateAvs();
-              });
+              setState(() => _yearsAbroad = v);
+              _recalculateAvs();
             },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAvsRingChart() {
-    final l = S.of(context)!;
-    final result = _avsResult!;
-    final completeness = result['completeness'] as double;
-    final completenessPercent = result['completenessPercent'] as double;
-    final estimatedRente = result['estimatedRente'] as double;
-
-    Color ringColor;
-    if (completeness >= 0.90) {
-      ringColor = MintColors.success;
-    } else if (completeness >= 0.70) {
-      ringColor = MintColors.warning;
-    } else {
-      ringColor = MintColors.error;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.donut_large,
-                  size: 16, color: MintColors.textMuted),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                l.expatAvsCompleteness,
-                style: MintTextStyles.labelSmall(),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.lg),
-
-          Semantics(
-            label:
-                '${completenessPercent.toStringAsFixed(0)}% ${l.expatOfPension}',
-            child: SizedBox(
-              width: 160,
-              height: 160,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 160,
-                    height: 160,
-                    child: CircularProgressIndicator(
-                      value: completeness,
-                      strokeWidth: 12,
-                      backgroundColor:
-                          MintColors.border.withValues(alpha: 0.3),
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(ringColor),
-                      strokeCap: StrokeCap.round,
-                    ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${completenessPercent.toStringAsFixed(0)}%',
-                        style: MintTextStyles.displayMedium(
-                            color: ringColor),
-                      ),
-                      Text(
-                        l.expatOfPension,
-                        style: MintTextStyles.bodySmall(),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-
-          Container(
-            padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l.expatEstimatedPension,
-                  style: MintTextStyles.bodyMedium(
-                      color: MintColors.textSecondary),
-                ),
-                Text(
-                  '${ExpatService.formatChf(estimatedRente)}/mois',
-                  style: MintTextStyles.headlineMedium(),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAvsReductionCard() {
-    final l = S.of(context)!;
-    final result = _avsResult!;
-    final missingYears = result['missingYears'] as int;
-    final reductionPercent = result['reductionPercent'] as double;
-    final monthlyLoss = result['monthlyLoss'] as double;
-    final annualLoss = result['annualLoss'] as double;
-
-    if (missingYears == 0) {
-      return Container(
-        padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.success.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: MintColors.success.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.check_circle,
-                size: 20, color: MintColors.success),
-            const SizedBox(width: MintSpacing.sm),
-            Expanded(
-              child: Text(
-                l.expatAvsComplete,
-                style: MintTextStyles.bodyMedium(
-                    color: MintColors.textPrimary),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.trending_down,
-                  size: 16, color: MintColors.error),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                l.expatPensionImpact,
-                style: MintTextStyles.labelSmall(),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.md),
-          _buildResultRow(l.expatMissingYears, '$missingYears ans'),
-          const SizedBox(height: MintSpacing.sm),
-          _buildResultRow(
-            l.expatEstimatedReduction,
-            '-${reductionPercent.toStringAsFixed(1)}%',
-            color: MintColors.error,
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          _buildResultRow(
-            l.expatMonthlyLoss,
-            '-${ExpatService.formatChf(monthlyLoss)}',
-            color: MintColors.error,
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          _buildResultRow(
-            l.expatAnnualLoss,
-            '-${ExpatService.formatChf(annualLoss)}',
-            color: MintColors.error,
-            bold: true,
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Container(
-            padding: const EdgeInsets.all(MintSpacing.sm),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              l.expatAvsReductionExplain(
-                  (ExpatService.reductionPerMissingYear * 100)
-                      .toStringAsFixed(1)),
-              style: MintTextStyles.labelSmall(
-                  color: MintColors.textSecondary),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAvsVoluntarySection() {
-    final l = S.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.savings_outlined,
-                  size: 16, color: MintColors.textMuted),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                l.expatVoluntaryContribution,
-                style: MintTextStyles.labelSmall(),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.md),
-          Container(
-            padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.info.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l.expatVoluntaryAvsTitle,
-                  style:
-                      MintTextStyles.titleMedium(color: MintColors.info),
-                ),
-                const SizedBox(height: MintSpacing.sm),
-                _buildResultRow(
-                  l.expatMinContribution,
-                  '${ExpatService.formatChf(ExpatService.avsVoluntaryMin)}/an',
-                ),
-                const SizedBox(height: MintSpacing.xs),
-                _buildResultRow(
-                  l.expatMaxContribution,
-                  '${ExpatService.formatChf(ExpatService.avsVoluntaryMax)}/an',
-                ),
-                const SizedBox(height: MintSpacing.sm),
-                Text(
-                  l.expatVoluntaryAvsBody,
-                  style: MintTextStyles.bodySmall(
-                      color: MintColors.textSecondary),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAvsRecommendation() {
-    final l = S.of(context)!;
-    final result = _avsResult!;
-    final recommendation = result['recommendation'] as String;
-
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.tips_and_updates,
-                  size: 16, color: MintColors.textMuted),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                l.expatRecommendation,
-                style: MintTextStyles.labelSmall(),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            recommendation,
-            style: MintTextStyles.bodyMedium(
-                color: MintColors.textPrimary),
           ),
         ],
       ),
@@ -1730,27 +1338,6 @@ class _ExpatScreenState extends State<ExpatScreen>
   // ════════════════════════════════════════════════════════════
   //  SHARED WIDGETS
   // ════════════════════════════════════════════════════════════
-
-  Widget _buildResultRow(String label, String value,
-      {bool bold = false, Color? color}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(
-            label,
-            style: MintTextStyles.bodyMedium(),
-          ),
-        ),
-        Text(
-          value,
-          style: MintTextStyles.bodyMedium(
-            color: color ?? MintColors.textPrimary,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildEducationalInsert(String text) {
     final l = S.of(context)!;

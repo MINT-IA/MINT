@@ -1,78 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/theme/mint_text_styles.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
-// ────────────────────────────────────────────────────────────
-//  P13-C  Le Trou AVS — rente réduite par années à l'étranger
-//  Charte : L1 (CHF/mois) + L6 (Chiffre-choc)
-//  Source : LAVS art. 29bis-29quater, avsDureeCotisationComplete = 44
-// ────────────────────────────────────────────────────────────
-
-class AvsGapWidget extends StatefulWidget {
+/// Truthful AVS orientation for a declared period abroad.
+///
+/// Residence history is displayed as a fact to verify. Only gap years
+/// documented by an individual-account statement may expose the proportional
+/// statutory-scale benchmark, never a personal pension or CHF loss.
+class AvsGapWidget extends StatelessWidget {
   const AvsGapWidget({
     super.key,
     required this.scenarioStarted,
-    required this.currentContributionYears,
-    required this.currentAge,
-    this.initialYearsAbroad = 5,
-    // Post-AVS 21 : hommes et femmes ont le même âge de référence (65 ans).
-    // Paramétrisé pour permettre les cas concubins/frontaliers ou évolutions futures.
-    this.referenceAge = avsAgeReferenceHomme,
+    required this.assessment,
+    required this.onOpenAvsVerificationGuide,
   });
 
   final bool scenarioStarted;
-  final int currentContributionYears;
-  final int currentAge;
-  final int initialYearsAbroad;
-  final int referenceAge;
-
-  @override
-  State<AvsGapWidget> createState() => _AvsGapWidgetState();
-}
-
-class _AvsGapWidgetState extends State<AvsGapWidget> {
-  late int _yearsAbroad;
-
-  @override
-  void initState() {
-    super.initState();
-    _yearsAbroad = widget.initialYearsAbroad;
-  }
-
-  int get _yearsRemainingInCH =>
-      (widget.referenceAge - widget.currentAge).clamp(0, avsDureeCotisationComplete);
-
-  int get _totalYearsWithAbroad =>
-      (widget.currentContributionYears + _yearsRemainingInCH - _yearsAbroad)
-          .clamp(0, avsDureeCotisationComplete);
-
-  int get _totalYearsWithoutAbroad =>
-      (widget.currentContributionYears + _yearsRemainingInCH)
-          .clamp(0, avsDureeCotisationComplete);
-
-  double get _renteWithoutAbroad =>
-      avsRenteMaxMensuelle * _totalYearsWithoutAbroad / avsDureeCotisationComplete;
-
-  double get _renteWithAbroad =>
-      avsRenteMaxMensuelle * _totalYearsWithAbroad / avsDureeCotisationComplete;
-
-  double get _renteLoss => _renteWithoutAbroad - _renteWithAbroad;
-  double get _perYearAbroad => _yearsAbroad > 0 ? _renteLoss / _yearsAbroad : 0;
-  double get _lifetimeLoss =>
-      AvsCalculator.ordinaryRecurringLifetimeLoss(_renteLoss, 20);
+  final AvsGapAssessment? assessment;
+  final VoidCallback onOpenAvsVerificationGuide;
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.scenarioStarted) {
+    if (!scenarioStarted) {
+      return const SizedBox.shrink();
+    }
+    if (assessment == null) {
       return const SizedBox.shrink();
     }
 
+    final l = S.of(context)!;
+    final result = assessment!;
+    final hasDocumentedGaps = result.documentedGapYears != null;
+
     return Semantics(
-      label: 'Trou AVS années étranger rente réduite LAVS cotisation',
+      label: l.expatAvsTruthSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -82,19 +46,105 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(MintSpacing.lg),
+              decoration: BoxDecoration(
+                color: MintColors.warning.withValues(alpha: 0.08),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSlider(),
-                  const SizedBox(height: 16),
-                  _buildComparison(),
-                  const SizedBox(height: 16),
-                  _buildPremierEclairage(),
-                  const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  Text(
+                    l.expatAvsTruthTitle,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: MintSpacing.sm),
+                  Text(
+                    l.expatAvsYearsAbroadNotGap,
+                    style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(MintSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _TruthCard(
+                    key: const Key('expat_avs_declared_years'),
+                    icon: Icons.public,
+                    title: l.expatAvsYearsAbroadDeclared(
+                      result.yearsAbroadDeclared,
+                    ),
+                    body: l.expatAvsYearsAbroadToVerify,
+                    tone: MintColors.info,
+                  ),
+                  const SizedBox(height: MintSpacing.md),
+                  if (hasDocumentedGaps)
+                    _TruthCard(
+                      key: const Key('expat_avs_gap_documented'),
+                      icon: Icons.verified_outlined,
+                      title: l.expatAvsDocumentedGaps(
+                        result.documentedGapYears!,
+                      ),
+                      body: l.expatAvsDocumentedMinimumEffect(
+                        result.documentedGapYears!,
+                        result.conditionalMinimumScaleReductionPercent!
+                            .toStringAsFixed(1),
+                      ),
+                      tone: MintColors.success,
+                    )
+                  else
+                    _TruthCard(
+                      key: const Key('expat_avs_gap_unknown'),
+                      icon: Icons.help_outline,
+                      title: l.expatAvsGapUnknownTitle,
+                      body: l.expatAvsGapUnknownBody,
+                      tone: MintColors.warning,
+                    ),
+                  const SizedBox(height: MintSpacing.md),
+                  _TruthCard(
+                    icon: Icons.account_balance_outlined,
+                    title: l.expatAvsVoluntaryUnknownTitle,
+                    body: l.expatAvsVoluntaryUnknownBody,
+                    tone: MintColors.info,
+                  ),
+                  const SizedBox(height: MintSpacing.md),
+                  _TruthCard(
+                    icon: Icons.fact_check_outlined,
+                    title: l.expatAvsOfficialNextStepTitle,
+                    body: l.expatAvsOfficialNextStepBody,
+                    tone: MintColors.primary,
+                  ),
+                  const SizedBox(height: MintSpacing.sm),
+                  FilledButton.icon(
+                    key: const Key('expat_avs_verification_guide_cta'),
+                    onPressed: onOpenAvsVerificationGuide,
+                    icon: const Icon(Icons.arrow_forward),
+                    label: Text(l.expatAvsVerificationGuideCta),
+                  ),
+                  const SizedBox(height: MintSpacing.md),
+                  Text(
+                    l.expatAvsNoPersonalAmount,
+                    style: MintTextStyles.labelSmall(
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: MintSpacing.sm),
+                  Text(
+                    l.expatAvsTruthDisclaimer,
+                    style: MintTextStyles.micro(
+                      color: MintColors.textMuted,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -103,182 +153,59 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
       ),
     );
   }
+}
 
-  Widget _buildHeader() {
+class _TruthCard extends StatelessWidget {
+  const _TruthCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.body,
+    required this.tone,
+  });
+
+  final IconData icon;
+  final String title;
+  final String body;
+  final Color tone;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: MintColors.urgentBg,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      width: double.infinity,
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: tone.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: tone.withValues(alpha: 0.25)),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Text('🕳️', style: TextStyle(fontSize: 22)),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Le trou AVS',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
+          Icon(icon, color: tone, size: 20),
+          const SizedBox(width: MintSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textPrimary,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Chaque année hors Suisse réduit ta rente. Pour toujours.',
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            S.of(context)!.expatAvsScenarioDisclosure,
-            key: const Key('expat_avs_scenario_disclosure'),
-            style: MintTextStyles.micro(color: MintColors.info),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSlider() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Années à l\'étranger',
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  body,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: MintColors.scoreCritique.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                '$_yearsAbroad an${_yearsAbroad > 1 ? 's' : ''}',
-                style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
-              ),
-            ),
-          ],
-        ),
-        Slider(
-          value: _yearsAbroad.toDouble(),
-          min: 1,
-          max: 20,
-          divisions: 19,
-          activeColor: MintColors.scoreCritique,
-          onChanged: (v) => setState(() => _yearsAbroad = v.round()),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildComparison() {
-    return Row(
-      children: [
-        Expanded(child: _buildRenteCard(
-          label: 'Sans expatriation',
-          years: _totalYearsWithoutAbroad,
-          rente: _renteWithoutAbroad,
-          color: MintColors.scoreExcellent,
-          emoji: '🇨🇭',
-        )),
-        const SizedBox(width: 12),
-        Expanded(child: _buildRenteCard(
-          label: 'Avec $_yearsAbroad an${_yearsAbroad > 1 ? 's' : ''} à l\'étranger',
-          years: _totalYearsWithAbroad,
-          rente: _renteWithAbroad,
-          color: MintColors.scoreCritique,
-          emoji: '✈️',
-        )),
-      ],
-    );
-  }
-
-  Widget _buildRenteCard({
-    required String label,
-    required int years,
-    required double rente,
-    required Color color,
-    required String emoji,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 20)),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.3),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '$years / $avsDureeCotisationComplete ans',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${formatChfWithPrefix(rente)}/mois',
-            style: MintTextStyles.titleLarge(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPremierEclairage() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.scoreCritique.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.scoreCritique.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '⚠️ ${formatChfWithPrefix(_perYearAbroad)}/mois de rente perdu par année à l\'étranger',
-            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            S.of(context)!.avsGapLifetimeLoss(formatChfWithPrefix(_lifetimeLoss)),
-            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            S.of(context)!.avsGapCalculation,
-            style: MintTextStyles.micro(color: MintColors.textMuted),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '💡 Possibilité de cotiser volontairement à l\'AVS si hors UE — voir LAVS art. 2.',
-            style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(height: 1.4),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDisclaimer() {
-    return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAVS art. 29bis-29quater (années cotisation). '
-      'Durée complète : $avsDureeCotisationComplete ans. Rente max : ${formatChfWithPrefix(avsRenteMaxMensuelle)}/mois.',
-      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

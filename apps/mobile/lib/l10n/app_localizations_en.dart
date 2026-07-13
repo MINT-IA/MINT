@@ -4172,60 +4172,10 @@ class SEn extends S {
 
   @override
   String get expatAvsEducation =>
-      'To receive a full AVS pension (max CHF 2,520/month), you need 44 years of contributions without gaps. Each missing year reduces your pension by about 2.3%. If you live abroad, you can voluntarily contribute to AVS to avoid gaps.';
-
-  @override
-  String get expatYearsInSwitzerland => 'Years in Switzerland';
+      'Years outside Switzerland are facts to verify, not automatic AVS gaps. The individual-account statement documents years, income and gaps; the official future calculation is a separate path.';
 
   @override
   String get expatYearsAbroad => 'Years abroad';
-
-  @override
-  String get expatAvsCompleteness => 'AVS COMPLETENESS';
-
-  @override
-  String get expatOfPension => 'of pension';
-
-  @override
-  String get expatEstimatedPension => 'Estimated pension';
-
-  @override
-  String get expatAvsComplete =>
-      'Confirmed: you have your 44 full contribution years. Your AVS pension should not be reduced.';
-
-  @override
-  String get expatPensionImpact => 'IMPACT ON YOUR PENSION';
-
-  @override
-  String get expatMissingYears => 'Missing years';
-
-  @override
-  String get expatEstimatedReduction => 'Estimated reduction';
-
-  @override
-  String get expatMonthlyLoss => 'Monthly loss';
-
-  @override
-  String get expatAnnualLoss => 'Annual loss';
-
-  @override
-  String get expatVoluntaryContribution => 'VOLUNTARY CONTRIBUTION';
-
-  @override
-  String get expatVoluntaryAvsTitle => 'Voluntary AVS from abroad';
-
-  @override
-  String get expatMinContribution => 'Minimum contribution';
-
-  @override
-  String get expatMaxContribution => 'Maximum contribution';
-
-  @override
-  String get expatVoluntaryAvsBody =>
-      'You can voluntarily contribute to AVS if you live abroad. Registration deadline: 1 year after leaving Switzerland. Requirements: at least 5 consecutive years of contributions before departure.';
-
-  @override
-  String get expatRecommendation => 'RECOMMENDED';
 
   @override
   String get expatDidYouKnow => 'Did you know?';
@@ -5870,14 +5820,15 @@ class SEn extends S {
   }
 
   @override
-  String get avsGuideAppBarTitle => 'OFFICIAL AVS CALCULATION';
+  String get avsGuideAppBarTitle => 'AVS VERIFICATION';
 
   @override
-  String get avsGuideHeaderTitle => 'Get your official AVS calculation';
+  String get avsGuideHeaderTitle =>
+      'Check your account and request your AVS calculation';
 
   @override
   String get avsGuideHeaderSubtitle =>
-      'To display AVS income, MINT needs the future pension calculation (form 318.282) issued by your compensation office. An individual account statement is not enough: it only verifies your years, income and gaps.';
+      'Two distinct official paths: the individual-account statement checks years, income and gaps; form 318.282 separately requests a future pension calculation.';
 
   @override
   String avsGuideConfidencePoints(int points) {
@@ -5886,44 +5837,34 @@ class SEn extends S {
 
   @override
   String get avsGuideConfidenceSubtitle =>
-      'Official monthly pension and calculation date';
+      'Years, income and gaps documented by the account statement';
 
   @override
-  String get avsGuideStepsTitle => 'In 4 steps';
+  String get avsGuideStepsTitle => 'Two distinct official paths';
 
   @override
-  String get avsGuideStep1Title => 'Open official form 318.282';
+  String get avsGuideStep1Title => 'A — Check years, income and gaps';
 
   @override
   String get avsGuideStep1Subtitle =>
-      'This is the “Request for a future pension calculation” published by the AVS/AI Information Centre.';
+      'Request your individual-account statement free of charge, then check it or scan the one you have already received.';
 
   @override
-  String get avsGuideStep2Title => 'Complete one request per person';
+  String get avsGuideStep2Title =>
+      'B — Separately request future calculation 318.282';
 
   @override
   String get avsGuideStep2Subtitle =>
-      'For a couple, each partner submits a separate request. Compensation offices recommend submitting both at the same time.';
+      'The office automatically obtains the individual accounts needed for the calculation. A joint request is recommended for married couples and registered partnerships. The calculation remains an estimate, not a pension decision.';
 
   @override
-  String get avsGuideStep3Title => 'Send it to your compensation office';
+  String get avsGuideOpenAhvButton => 'Open form 318.282';
 
   @override
-  String get avsGuideStep3Subtitle =>
-      'The office uses your request and individual accounts to prepare the calculation.';
+  String get avsGuideOpenCiButton => 'Request the official account statement';
 
   @override
-  String get avsGuideStep4Title => 'Keep the calculation you receive';
-
-  @override
-  String get avsGuideStep4Subtitle =>
-      'The amount and its date let MINT display a traceable projection. The calculation remains an estimate, not a pension decision.';
-
-  @override
-  String get avsGuideOpenAhvButton => 'Open the official form';
-
-  @override
-  String get avsGuideScanButton => 'I only have an account statement → Scan it';
+  String get avsGuideScanButton => 'Scan an account statement already received';
 
   @override
   String get avsGuideTestMode => 'MODE TEST';
@@ -5937,7 +5878,7 @@ class SEn extends S {
 
   @override
   String get avsGuideFreeNote =>
-      'The AVS statement is free and available in 5 to 10 business days. You can also visit your cantonal compensation office.';
+      'The account-statement request is free. The competent office provides the official document.';
 
   @override
   String get avsGuidePrivacyNote =>
@@ -9455,16 +9396,6 @@ class SEn extends S {
   }
 
   @override
-  String expatAvsReductionExplain(String percent) {
-    return 'Each missing year reduces your pension by about $percent%. The reduction is permanent and applies for life.';
-  }
-
-  @override
-  String expatAvsPremierEclairage(String amount) {
-    return '-$amount/year on your AVS pension';
-  }
-
-  @override
   String expatDepartPremierEclairage(String amount) {
     return '$amount of capital to secure before departure';
   }
@@ -12752,15 +12683,6 @@ class SEn extends S {
 
   @override
   String get fhsBreakdownRisque => 'Risk';
-
-  @override
-  String avsGapLifetimeLoss(String amount) {
-    return 'Over 20 years of retirement, that\'s $amount less — permanently.';
-  }
-
-  @override
-  String get avsGapCalculation =>
-      'Calculation: monthly pension × 12 months. The separate December AVS supplement is not included.';
 
   @override
   String get coachBriefingFallbackGreeting => 'Hello';
@@ -23645,27 +23567,85 @@ class SEn extends S {
 
   @override
   String get expatAvsScenarioAssumptions =>
-      'Your years in Switzerland and abroad are local assumptions for comparing a departure. They do not change your library.';
+      'Your years outside Switzerland are a local assumption to verify. They do not change your library.';
 
   @override
-  String expatAvsAgeKnown(int age) {
-    return 'Age known in your library: $age years.';
-  }
+  String get expatAvsOrientationReady =>
+      'This guidance compares your declared years with the available evidence. Your age is not required because no amount is calculated.';
 
   @override
-  String get expatAvsAgeMissingTitle => 'Your age is missing';
+  String get expatAvsYearsPlaceholder => 'Select years';
 
   @override
-  String get expatAvsAgeMissingBody =>
-      'Add your year of birth before starting this hypothetical OASI simulation.';
+  String get expatAvsYearsRequired =>
+      'First enter your years outside Switzerland. While this fact is unknown, MINT does not start an AVS orientation.';
 
   @override
-  String get expatAvsAddBirthYear => 'Add my year of birth';
-
-  @override
-  String get expatAvsStartScenario => 'Start the illustrative simulation';
+  String get expatAvsStartScenario => 'Start OASI guidance';
 
   @override
   String get expatAvsScenarioDisclosure =>
-      'Local illustrative simulation · no official amount · nothing is saved to your library.';
+      'Local illustrative guidance · no official amount · nothing is saved to your library.';
+
+  @override
+  String get expatAvsTruthSemantics => 'OASI, years abroad to verify';
+
+  @override
+  String get expatAvsTruthTitle => 'Years outside Switzerland: to verify';
+
+  @override
+  String expatAvsYearsAbroadDeclared(int years) {
+    return 'Declared years outside Switzerland: $years';
+  }
+
+  @override
+  String get expatAvsYearsAbroadToVerify =>
+      'Local declaration, not saved. Periods and applicable affiliations must be confirmed.';
+
+  @override
+  String get expatAvsYearsAbroadNotGap =>
+      'A year outside Switzerland is not automatically an OASI gap: the applicable affiliation can change the analysis.';
+
+  @override
+  String get expatAvsGapUnknownTitle => 'OASI gaps: unknown';
+
+  @override
+  String get expatAvsGapUnknownBody =>
+      'Without an individual-account statement or other official evidence, MINT does not turn these years into gaps.';
+
+  @override
+  String expatAvsDocumentedGaps(int years) {
+    return 'Gap years documented by the account statement: $years';
+  }
+
+  @override
+  String expatAvsDocumentedMinimumEffect(int years, String percent) {
+    return '$years / 44: in principle, each documented gap year could reduce the pension scale by at least 1/44. Indicative minimum benchmark: at least $percent%. The amount depends in particular on average income, credits and the official calculation.';
+  }
+
+  @override
+  String get expatAvsVoluntaryUnknownTitle =>
+      'Voluntary AVS eligibility: unknown';
+
+  @override
+  String get expatAvsVoluntaryUnknownBody =>
+      'Exit from compulsory AVS · five consecutive, uninterrupted years insured under Swiss AVS immediately before exit · residence outside Switzerland, the EU and EFTA · eligible Swiss, EU or EFTA nationality · application within twelve months. MINT does not confirm eligibility.';
+
+  @override
+  String get expatAvsOfficialNextStepTitle => 'Official verification';
+
+  @override
+  String get expatAvsOfficialNextStepBody =>
+      'Two independent paths: the account statement checks years, income and gaps; form 318.282 separately requests a future calculation.';
+
+  @override
+  String get expatAvsNoPersonalAmount =>
+      'No personal pension or CHF loss amount is calculated from the declared years.';
+
+  @override
+  String get expatAvsVerificationGuideCta => 'Open the OASI verification guide';
+
+  @override
+  String get expatAvsTruthDisclaimer =>
+      'Educational information, not personalised advice · AVSA arts. 2 and 29bis et seq. · Only AVS offices make official determinations.';
 }

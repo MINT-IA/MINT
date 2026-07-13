@@ -1877,24 +1877,8 @@
   "expatNoExitTax": "Sin impuesto de salida en Suiza",
   "expatRecommendedTimeline": "CRONOLOGÍA RECOMENDADA",
   "expatDepartureChecklist": "CHECKLIST DE PARTIDA",
-  "expatAvsEducation": "Para recibir una pensión AVS completa (máx CHF 2'520/mes), se necesitan 44 años de cotización sin lagunas. Cada año faltante reduce la pensión en aproximadamente un 2.3%. Si vives en el extranjero, puedes cotizar voluntariamente al AVS para evitar lagunas.",
-  "expatYearsInSwitzerland": "Años en Suiza",
+  "expatAvsEducation": "Los años fuera de Suiza son datos que deben verificarse, no lagunas AVS automáticas. El extracto de cuenta individual documenta años, ingresos y lagunas; el cálculo futuro oficial es un trámite separado.",
   "expatYearsAbroad": "Años en el extranjero",
-  "expatAvsCompleteness": "COMPLETITUD AVS",
-  "expatOfPension": "de pensión",
-  "expatEstimatedPension": "Pensión estimada",
-  "expatAvsComplete": "Confirmado: tienes tus 44 años completos de cotización. Tu pensión AVS no debería reducirse.",
-  "expatPensionImpact": "IMPACTO EN TU PENSIÓN",
-  "expatMissingYears": "Años faltantes",
-  "expatEstimatedReduction": "Reducción estimada",
-  "expatMonthlyLoss": "Pérdida mensual",
-  "expatAnnualLoss": "Pérdida anual",
-  "expatVoluntaryContribution": "COTIZACIÓN VOLUNTARIA",
-  "expatVoluntaryAvsTitle": "AVS voluntario desde el extranjero",
-  "expatMinContribution": "Cotización mínima",
-  "expatMaxContribution": "Cotización máxima",
-  "expatVoluntaryAvsBody": "Puedes cotizar voluntariamente al AVS si vives en el extranjero. Plazo de inscripción: 1 año después de salir de Suiza. Condición: haber cotizado al menos 5 años consecutivos antes de la partida.",
-  "expatRecommendation": "RECOMENDADA",
   "expatDidYouKnow": "¿Sabías que?",
   "mariageTimelinePartner1": "Persona 1",
   "mariageTimelinePartner2": "Persona 2",
@@ -2851,9 +2835,9 @@
       }
     }
   },
-  "avsGuideAppBarTitle": "CÁLCULO AVS OFICIAL",
-  "avsGuideHeaderTitle": "Solicita tu cálculo AVS oficial",
-  "avsGuideHeaderSubtitle": "Para mostrar un ingreso AVS, MINT necesita el cálculo de una pensión futura (formulario 318.282) emitido por tu caja de compensación. Un extracto de cuenta individual no basta: solo verifica años, ingresos y lagunas.",
+  "avsGuideAppBarTitle": "VERIFICACIÓN AVS",
+  "avsGuideHeaderTitle": "Verifica la cuenta y solicita el cálculo AVS",
+  "avsGuideHeaderSubtitle": "Dos trámites oficiales distintos: el extracto CI verifica años, ingresos y lagunas; el formulario 318.282 solicita por separado un cálculo de pensión futura.",
   "avsGuideConfidencePoints": "+{points} puntos de confianza",
   "@avsGuideConfidencePoints": {
     "placeholders": {
@@ -2862,22 +2846,19 @@
       }
     }
   },
-  "avsGuideConfidenceSubtitle": "Pensión mensual oficial y fecha del cálculo",
-  "avsGuideStepsTitle": "En 4 pasos",
-  "avsGuideStep1Title": "Abre el formulario oficial 318.282",
-  "avsGuideStep1Subtitle": "Es la «Solicitud de cálculo de una pensión futura» publicada por el Centro de información AVS/AI.",
-  "avsGuideStep2Title": "Completa una solicitud por persona",
-  "avsGuideStep2Subtitle": "En una pareja, cada persona presenta su propia solicitud. Las cajas recomiendan enviarlas al mismo tiempo.",
-  "avsGuideStep3Title": "Envíala a tu caja de compensación",
-  "avsGuideStep3Subtitle": "La caja usa tu solicitud y tus cuentas individuales para preparar el cálculo.",
-  "avsGuideStep4Title": "Conserva el cálculo recibido",
-  "avsGuideStep4Subtitle": "El importe y la fecha permiten a MINT mostrar una proyección trazable. El cálculo sigue siendo una estimación, no una resolución de pensión.",
-  "avsGuideOpenAhvButton": "Abrir el formulario oficial",
-  "avsGuideScanButton": "Solo tengo un extracto de cuenta → Escanearlo",
+  "avsGuideConfidenceSubtitle": "Años, ingresos y lagunas documentados por el extracto CI",
+  "avsGuideStepsTitle": "Dos trámites oficiales distintos",
+  "avsGuideStep1Title": "A — Verificar años, ingresos y lagunas",
+  "avsGuideStep1Subtitle": "Solicita gratuitamente el extracto de cuenta individual y compruébalo o escanea el que ya hayas recibido.",
+  "avsGuideStep2Title": "B — Solicitar por separado el cálculo futuro 318.282",
+  "avsGuideStep2Subtitle": "La caja obtiene automáticamente las cuentas individuales necesarias para el cálculo. Se recomienda una solicitud conjunta para matrimonios y parejas registradas. El cálculo sigue siendo una estimación, no una resolución de pensión.",
+  "avsGuideOpenAhvButton": "Abrir el formulario 318.282",
+  "avsGuideOpenCiButton": "Solicitar el extracto CI oficial",
+  "avsGuideScanButton": "Escanear un extracto CI ya recibido",
   "avsGuideTestMode": "MODE TEST",
   "avsGuideTestDescription": "¿No tienes tu extracto AVS a mano? Prueba el flujo con un extracto de ejemplo.",
   "avsGuideTestButton": "Usar un ejemplo",
-  "avsGuideFreeNote": "El extracto AVS es gratuito y está disponible en 5 a 10 días hábiles. También puedes acudir a tu caja de compensación cantonal.",
+  "avsGuideFreeNote": "La solicitud del extracto CI es gratuita. La caja competente emite el documento oficial.",
   "avsGuidePrivacyNote": "La imagen de tu extracto nunca se almacena ni se envía. La extracción se realiza en tu dispositivo. Solo los valores que confirmas se guardan en tu perfil.",
   "avsGuideSnackbarError": "Imposible abrir {url}. Copia la dirección y ábrela en tu navegador.",
   "@avsGuideSnackbarError": {
@@ -4506,22 +4487,6 @@
   },
   "expatForfaitBase": "Base: {amount}",
   "@expatForfaitBase": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "expatAvsReductionExplain": "Cada año faltante reduce tu pensión en aproximadamente {percent}%. La reducción es definitiva y se aplica de por vida.",
-  "@expatAvsReductionExplain": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "expatAvsPremierEclairage": "-{amount}/año en tu pensión AVS",
-  "@expatAvsPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -6158,8 +6123,6 @@
   "fhsBreakdownFiscalite": "Fiscalidad",
   "fhsBreakdownRetraite": "Jubilación",
   "fhsBreakdownRisque": "Riesgo",
-  "avsGapLifetimeLoss": "En 20 años de jubilación, eso son {amount} menos — definitivamente.",
-  "avsGapCalculation": "Cálculo: pensión mensual × 12 meses. El suplemento AVS separado de diciembre no está incluido.",
   "coachBriefingFallbackGreeting": "Hola",
   "@coachBriefingFallbackGreeting": {
     "x-mint-meta": {
@@ -11525,12 +11488,29 @@
   "report3aPendingBody": "Añade tus saldos 3a y su fecha para mostrar datos trazables sin una proyección puntual.",
   "report3aPendingCta": "Completar mis datos 3a",
   "dataBlockMenageCivilRegisteredPartner": "Pareja registrada",
-  "expatAvsScenarioAssumptions": "Tus años en Suiza y en el extranjero son hipótesis locales para comparar una salida. No modifican tu biblioteca.",
-  "expatAvsAgeKnown": "Edad conocida en tu biblioteca: {age} años.",
-  "@expatAvsAgeKnown": {"placeholders": {"age": {"type": "int"}}},
-  "expatAvsAgeMissingTitle": "Falta tu edad",
-  "expatAvsAgeMissingBody": "Añade tu año de nacimiento antes de iniciar esta simulación AVS hipotética.",
-  "expatAvsAddBirthYear": "Añadir mi año de nacimiento",
-  "expatAvsStartScenario": "Iniciar la simulación ilustrativa",
-  "expatAvsScenarioDisclosure": "Simulación ilustrativa local · ningún importe oficial · no se guarda nada en tu biblioteca."
+  "expatAvsScenarioAssumptions": "Tus años fuera de Suiza son una hipótesis local por verificar. No modifican tu biblioteca.",
+  "expatAvsOrientationReady": "Esta orientación contrasta tus años declarados con las pruebas disponibles. No se requiere tu edad porque no se calcula ningún importe.",
+  "expatAvsYearsPlaceholder": "Indica los años",
+  "expatAvsYearsRequired": "Indica primero tus años fuera de Suiza. Mientras se desconozca este dato, MINT no inicia ninguna orientación AVS.",
+  "expatAvsStartScenario": "Iniciar la orientación AVS",
+  "expatAvsScenarioDisclosure": "Orientación local ilustrativa · ningún importe oficial · no se guarda nada en tu biblioteca.",
+  "expatAvsTruthSemantics": "AVS, años en el extranjero por verificar",
+  "expatAvsTruthTitle": "Años fuera de Suiza: por verificar",
+  "expatAvsYearsAbroadDeclared": "Años declarados fuera de Suiza: {years}",
+  "@expatAvsYearsAbroadDeclared": {"placeholders": {"years": {"type": "int"}}},
+  "expatAvsYearsAbroadToVerify": "Declaración local, no guardada. Deben confirmarse los periodos y las afiliaciones aplicables.",
+  "expatAvsYearsAbroadNotGap": "Un año fuera de Suiza no es automáticamente una laguna AVS: la afiliación aplicable puede cambiar el análisis.",
+  "expatAvsGapUnknownTitle": "Lagunas AVS: desconocidas",
+  "expatAvsGapUnknownBody": "Sin un extracto de cuenta individual u otra prueba oficial, MINT no convierte estos años en lagunas.",
+  "expatAvsDocumentedGaps": "Años de laguna documentados por el extracto CI: {years}",
+  "@expatAvsDocumentedGaps": {"placeholders": {"years": {"type": "int"}}},
+  "expatAvsDocumentedMinimumEffect": "{years} / 44: en principio, cada año de laguna documentado podría reducir la escala de pensión al menos en 1/44. Referencia mínima indicativa: al menos {percent}%. El importe depende, en particular, del ingreso medio, las bonificaciones y el cálculo oficial.",
+  "@expatAvsDocumentedMinimumEffect": {"placeholders": {"years": {"type": "int"}, "percent": {"type": "String"}}},
+  "expatAvsVoluntaryUnknownTitle": "Admisibilidad al AVS facultativo: desconocida",
+  "expatAvsVoluntaryUnknownBody": "Salida del AVS obligatorio · cinco años consecutivos y sin interrupción de seguro AVS suizo inmediatamente antes de la salida · domicilio fuera de Suiza, la UE y la AELC · nacionalidad suiza, UE o AELC admisible · solicitud dentro de los doce meses. MINT no confirma la admisibilidad.",
+  "expatAvsOfficialNextStepTitle": "Verificación oficial",
+  "expatAvsOfficialNextStepBody": "Dos trámites independientes: el extracto CI verifica años, ingresos y lagunas; el formulario 318.282 solicita por separado un cálculo futuro.",
+  "expatAvsNoPersonalAmount": "No se calcula ningún importe personal de pensión o pérdida en CHF a partir de los años declarados.",
+  "expatAvsVerificationGuideCta": "Abrir la guía de verificación del AVS",
+  "expatAvsTruthDisclaimer": "Información educativa, no asesoramiento personalizado · LAVS arts. 2 y 29bis ss. · Solo las cajas AVS adoptan decisiones oficiales."
 }

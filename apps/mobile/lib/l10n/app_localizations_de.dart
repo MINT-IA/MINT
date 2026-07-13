@@ -4201,60 +4201,10 @@ class SDe extends S {
 
   @override
   String get expatAvsEducation =>
-      'Um eine volle AHV-Rente (max CHF 2\'520/Monat) zu erhalten, braucht man 44 Beitragsjahre ohne Lücken. Jedes fehlende Jahr reduziert die Rente um etwa 2.3%. Wenn du im Ausland lebst, kannst du freiwillig AHV-Beiträge leisten.';
-
-  @override
-  String get expatYearsInSwitzerland => 'Jahre in der Schweiz';
+      'Jahre ausserhalb der Schweiz sind zu prüfende Angaben und keine automatischen AHV-Lücken. Der IK-Auszug dokumentiert Jahre, Einkommen und Lücken; die offizielle Vorausberechnung ist ein separater Weg.';
 
   @override
   String get expatYearsAbroad => 'Jahre im Ausland';
-
-  @override
-  String get expatAvsCompleteness => 'AHV-VOLLSTÄNDIGKEIT';
-
-  @override
-  String get expatOfPension => 'der Rente';
-
-  @override
-  String get expatEstimatedPension => 'Geschätzte Rente';
-
-  @override
-  String get expatAvsComplete =>
-      'Bestätigt: Du hast deine 44 vollständigen Beitragsjahre. Deine AHV-Rente sollte nicht gekürzt werden.';
-
-  @override
-  String get expatPensionImpact => 'AUSWIRKUNG AUF DEINE RENTE';
-
-  @override
-  String get expatMissingYears => 'Fehlende Jahre';
-
-  @override
-  String get expatEstimatedReduction => 'Geschätzte Kürzung';
-
-  @override
-  String get expatMonthlyLoss => 'Monatlicher Verlust';
-
-  @override
-  String get expatAnnualLoss => 'Jährlicher Verlust';
-
-  @override
-  String get expatVoluntaryContribution => 'FREIWILLIGE BEITRÄGE';
-
-  @override
-  String get expatVoluntaryAvsTitle => 'Freiwillige AHV aus dem Ausland';
-
-  @override
-  String get expatMinContribution => 'Mindestbeitrag';
-
-  @override
-  String get expatMaxContribution => 'Höchstbeitrag';
-
-  @override
-  String get expatVoluntaryAvsBody =>
-      'Du kannst freiwillig AHV-Beiträge leisten, wenn du im Ausland lebst. Anmeldefrist: 1 Jahr nach Wegzug aus der Schweiz. Bedingung: mindestens 5 aufeinanderfolgende Beitragsjahre vor dem Wegzug.';
-
-  @override
-  String get expatRecommendation => 'EMPFOHLEN';
 
   @override
   String get expatDidYouKnow => 'Wusstest du?';
@@ -5914,14 +5864,15 @@ class SDe extends S {
   }
 
   @override
-  String get avsGuideAppBarTitle => 'OFFIZIELLE AHV-BERECHNUNG';
+  String get avsGuideAppBarTitle => 'AHV-ÜBERPRÜFUNG';
 
   @override
-  String get avsGuideHeaderTitle => 'Offizielle AHV-Berechnung anfordern';
+  String get avsGuideHeaderTitle =>
+      'Konto prüfen und AHV-Berechnung beantragen';
 
   @override
   String get avsGuideHeaderSubtitle =>
-      'Damit MINT ein AHV-Einkommen anzeigen kann, braucht es die von deiner Ausgleichskasse erstellte Berechnung einer künftigen Rente (Formular 318.282). Ein IK-Auszug genügt nicht: Er bestätigt nur Beitragsjahre, Einkommen und Lücken.';
+      'Zwei getrennte amtliche Wege: Der IK-Auszug prüft Jahre, Einkommen und Lücken; mit Formular 318.282 wird separat eine Rentenvorausberechnung beantragt.';
 
   @override
   String avsGuideConfidencePoints(int points) {
@@ -5930,44 +5881,34 @@ class SDe extends S {
 
   @override
   String get avsGuideConfidenceSubtitle =>
-      'Offizielle Monatsrente und Berechnungsdatum';
+      'Durch den IK-Auszug dokumentierte Jahre, Einkommen und Lücken';
 
   @override
-  String get avsGuideStepsTitle => 'In 4 Schritten';
+  String get avsGuideStepsTitle => 'Zwei getrennte amtliche Wege';
 
   @override
-  String get avsGuideStep1Title => 'Öffne das offizielle Formular 318.282';
+  String get avsGuideStep1Title => 'A — Jahre, Einkommen und Lücken prüfen';
 
   @override
   String get avsGuideStep1Subtitle =>
-      'Es handelt sich um den vom Informationszentrum AHV/IV veröffentlichten «Antrag für eine Rentenvorausberechnung».';
+      'Fordere deinen IK-Auszug kostenlos an und prüfe ihn oder scanne den bereits erhaltenen Auszug.';
 
   @override
-  String get avsGuideStep2Title => 'Fülle pro Person einen Antrag aus';
+  String get avsGuideStep2Title =>
+      'B — Die Vorausberechnung 318.282 separat beantragen';
 
   @override
   String get avsGuideStep2Subtitle =>
-      'Bei Paaren stellt jede Person einen eigenen Antrag. Die Ausgleichskassen empfehlen, beide gleichzeitig einzureichen.';
+      'Die Kasse beschafft die für die Berechnung benötigten individuellen Konten automatisch. Für Ehepaare und eingetragene Partnerschaften wird ein gemeinsames Gesuch empfohlen. Die Berechnung bleibt eine Schätzung und ist keine Rentenverfügung.';
 
   @override
-  String get avsGuideStep3Title => 'Sende ihn an deine Ausgleichskasse';
+  String get avsGuideOpenAhvButton => 'Formular 318.282 öffnen';
 
   @override
-  String get avsGuideStep3Subtitle =>
-      'Die Kasse erstellt die Berechnung anhand deines Antrags und deiner individuellen Konten.';
+  String get avsGuideOpenCiButton => 'Amtlichen IK-Auszug anfordern';
 
   @override
-  String get avsGuideStep4Title => 'Bewahre die erhaltene Berechnung auf';
-
-  @override
-  String get avsGuideStep4Subtitle =>
-      'Betrag und Datum ermöglichen MINT eine nachvollziehbare Projektion. Die Berechnung bleibt eine Schätzung und ist keine Rentenverfügung.';
-
-  @override
-  String get avsGuideOpenAhvButton => 'Offizielles Formular öffnen';
-
-  @override
-  String get avsGuideScanButton => 'Ich habe nur einen IK-Auszug → Scannen';
+  String get avsGuideScanButton => 'Bereits erhaltenen IK-Auszug scannen';
 
   @override
   String get avsGuideTestMode => 'MODE TEST';
@@ -5981,7 +5922,7 @@ class SDe extends S {
 
   @override
   String get avsGuideFreeNote =>
-      'Der AHV-Auszug ist kostenlos und in 5 bis 10 Werktagen verfügbar. Du kannst auch deine kantonale Ausgleichskasse aufsuchen.';
+      'Die Anforderung des IK-Auszugs ist kostenlos. Die zuständige Kasse stellt das amtliche Dokument aus.';
 
   @override
   String get avsGuidePrivacyNote =>
@@ -9525,16 +9466,6 @@ class SDe extends S {
   }
 
   @override
-  String expatAvsReductionExplain(String percent) {
-    return 'Jedes fehlende Jahr reduziert deine Rente um ca. $percent%. Die Kürzung ist definitiv und gilt lebenslang.';
-  }
-
-  @override
-  String expatAvsPremierEclairage(String amount) {
-    return '-$amount/Jahr auf deine AHV-Rente';
-  }
-
-  @override
   String expatDepartPremierEclairage(String amount) {
     return '$amount Kapital vor dem Wegzug sichern';
   }
@@ -12839,15 +12770,6 @@ class SDe extends S {
 
   @override
   String get fhsBreakdownRisque => 'Risiko';
-
-  @override
-  String avsGapLifetimeLoss(String amount) {
-    return 'Über 20 Rentenjahre sind das $amount weniger — endgültig.';
-  }
-
-  @override
-  String get avsGapCalculation =>
-      'Berechnung: Monatsrente × 12 Monate. Der separate AHV-Zuschlag im Dezember ist nicht enthalten.';
 
   @override
   String get coachBriefingFallbackGreeting => 'Hallo';
@@ -23820,27 +23742,85 @@ class SDe extends S {
 
   @override
   String get expatAvsScenarioAssumptions =>
-      'Deine Jahre in der Schweiz und im Ausland sind lokale Annahmen für den Vergleich eines Wegzugs. Sie ändern deine Bibliothek nicht.';
+      'Deine Jahre ausserhalb der Schweiz sind eine lokal zu prüfende Annahme. Sie ändern deine Bibliothek nicht.';
 
   @override
-  String expatAvsAgeKnown(int age) {
-    return 'In deiner Bibliothek bekanntes Alter: $age Jahre.';
-  }
+  String get expatAvsOrientationReady =>
+      'Diese Orientierung stellt deine deklarierten Jahre den verfügbaren Nachweisen gegenüber. Dein Alter ist nicht erforderlich, da kein Betrag berechnet wird.';
 
   @override
-  String get expatAvsAgeMissingTitle => 'Dein Alter fehlt';
+  String get expatAvsYearsPlaceholder => 'Jahre auswählen';
 
   @override
-  String get expatAvsAgeMissingBody =>
-      'Ergänze dein Geburtsjahr, bevor du diese hypothetische AHV-Simulation startest.';
+  String get expatAvsYearsRequired =>
+      'Gib zuerst deine Jahre ausserhalb der Schweiz an. Solange diese Angabe unbekannt ist, startet MINT keine AHV-Orientierung.';
 
   @override
-  String get expatAvsAddBirthYear => 'Mein Geburtsjahr ergänzen';
-
-  @override
-  String get expatAvsStartScenario => 'Illustrative Simulation starten';
+  String get expatAvsStartScenario => 'AHV-Orientierung starten';
 
   @override
   String get expatAvsScenarioDisclosure =>
-      'Lokale illustrative Simulation · kein offizieller Betrag · nichts wird in deiner Bibliothek gespeichert.';
+      'Lokale illustrative Orientierung · kein offizieller Betrag · nichts wird in deiner Bibliothek gespeichert.';
+
+  @override
+  String get expatAvsTruthSemantics => 'AHV, Auslandjahre zu prüfen';
+
+  @override
+  String get expatAvsTruthTitle => 'Jahre ausserhalb der Schweiz: zu prüfen';
+
+  @override
+  String expatAvsYearsAbroadDeclared(int years) {
+    return 'Deklarierte Jahre ausserhalb der Schweiz: $years';
+  }
+
+  @override
+  String get expatAvsYearsAbroadToVerify =>
+      'Lokale, nicht gespeicherte Angabe. Zeiträume und anwendbare Versicherungen müssen bestätigt werden.';
+
+  @override
+  String get expatAvsYearsAbroadNotGap =>
+      'Ein Jahr ausserhalb der Schweiz ist nicht automatisch eine AHV-Lücke: Die anwendbare Versicherung kann die Beurteilung ändern.';
+
+  @override
+  String get expatAvsGapUnknownTitle => 'AHV-Lücken: unbekannt';
+
+  @override
+  String get expatAvsGapUnknownBody =>
+      'Ohne IK-Auszug oder anderen amtlichen Nachweis macht MINT aus diesen Jahren keine Lücken.';
+
+  @override
+  String expatAvsDocumentedGaps(int years) {
+    return 'Durch den IK-Auszug dokumentierte Lückenjahre: $years';
+  }
+
+  @override
+  String expatAvsDocumentedMinimumEffect(int years, String percent) {
+    return '$years / 44: Grundsätzlich könnte jedes dokumentierte Lückenjahr die Rentenskala um mindestens 1/44 reduzieren. Indikativer Mindestwert: mindestens $percent %. Der Betrag hängt insbesondere vom durchschnittlichen Einkommen, den Gutschriften und der amtlichen Berechnung ab.';
+  }
+
+  @override
+  String get expatAvsVoluntaryUnknownTitle =>
+      'Berechtigung für die freiwillige AHV: unbekannt';
+
+  @override
+  String get expatAvsVoluntaryUnknownBody =>
+      'Austritt aus der obligatorischen AHV · fünf aufeinanderfolgende, ununterbrochene Versicherungsjahre in der schweizerischen AHV unmittelbar vor dem Austritt · Wohnsitz ausserhalb der Schweiz, der EU und der EFTA · zulässige schweizerische, EU- oder EFTA-Staatsangehörigkeit · Gesuch innerhalb von zwölf Monaten. MINT bestätigt keine Aufnahmeberechtigung.';
+
+  @override
+  String get expatAvsOfficialNextStepTitle => 'Amtliche Prüfung';
+
+  @override
+  String get expatAvsOfficialNextStepBody =>
+      'Zwei unabhängige Wege: Der IK-Auszug prüft Jahre, Einkommen und Lücken; mit Formular 318.282 wird separat eine Vorausberechnung beantragt.';
+
+  @override
+  String get expatAvsNoPersonalAmount =>
+      'Aus den deklarierten Jahren wird kein persönlicher Renten- oder Verlustbetrag in CHF berechnet.';
+
+  @override
+  String get expatAvsVerificationGuideCta => 'Leitfaden zur AHV-Prüfung öffnen';
+
+  @override
+  String get expatAvsTruthDisclaimer =>
+      'Bildungsinformation, keine persönliche Beratung · AHVG Art. 2 und 29bis ff. · Nur die AHV-Stellen entscheiden amtlich.';
 }
