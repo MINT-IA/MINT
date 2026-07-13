@@ -18,18 +18,19 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 //  AVS GUIDE SCREEN — Sprint S45
 // ────────────────────────────────────────────────────────────
 //
-//  Guides the user through obtaining their AVS individual
-//  account extract (Extrait de compte individuel CI).
+//  Guides the user to the official future-pension calculation that can
+//  certify a monthly AVS amount. The CI scan remains a separate enrichment
+//  path for contribution years, income and gaps; it cannot certify a pension.
 //
 //  Steps:
-//    1. Go to www.ahv-iv.ch
-//    2. Log in with eID or create account
-//    3. Request the individual account extract (CI)
-//    4. Receive it by mail or PDF
+//    1. Open official form 318.282
+//    2. Complete one request per person
+//    3. Send it to the compensation office
+//    4. Keep the dated calculation returned by the office
 //
 //  Reference:
-//    - DATA_ACQUISITION_STRATEGY.md — Channel 1, Document C
-//    - LAVS art. 29ter-30 (RAMD, annees de cotisation)
+//    - Centre d'information AVS/AI — formulaire administratif 318.282
+//    - Memento 3.06 — calcul anticipe d'une rente
 // ────────────────────────────────────────────────────────────
 
 class AvsGuideScreen extends StatefulWidget {
@@ -42,7 +43,9 @@ class AvsGuideScreen extends StatefulWidget {
 class _AvsGuideScreenState extends State<AvsGuideScreen> {
   bool _isProcessing = false;
 
-  static const String _ahvUrl = 'https://www.ahv-iv.ch';
+  static const String _officialFuturePensionUrl =
+      'https://www.ahv-iv.ch/fr/Formulaires/Formulaires/'
+      'Formulaires-administratifs-g%C3%A9n%C3%A9raux';
 
   // ── Build ────────────────────────────────────────────────
 
@@ -65,7 +68,10 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
                 const SizedBox(height: 28),
                 MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSteps(l)),
                 const SizedBox(height: 28),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildOpenAhvButton(l)),
+                MintEntrance(
+                  delay: const Duration(milliseconds: 300),
+                  child: _buildOpenOfficialFormButton(l),
+                ),
                 const SizedBox(height: 16),
                 MintEntrance(delay: const Duration(milliseconds: 400), child: _buildScanButton(l)),
                 if (kDebugMode) ...[
@@ -261,9 +267,9 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
     );
   }
 
-  // ── Open ahv-iv.ch button ──────────────────────────────────
+  // ── Open official future-pension form ──────────────────────
 
-  Widget _buildOpenAhvButton(S l) {
+  Widget _buildOpenOfficialFormButton(S l) {
     return Semantics(
       button: true,
       label: l.avsGuideOpenAhvButton,
@@ -271,7 +277,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
         width: double.infinity,
         height: 56,
         child: FilledButton.icon(
-          onPressed: _onOpenAhv,
+          onPressed: _onOpenOfficialForm,
         icon: const Icon(Icons.open_in_new, size: 20),
         label: Text(
           l.avsGuideOpenAhvButton,
@@ -435,8 +441,8 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   // ── Actions ──────────────────────────────────────────────
 
-  Future<void> _onOpenAhv() async {
-    final uri = Uri.parse(_ahvUrl);
+  Future<void> _onOpenOfficialForm() async {
+    final uri = Uri.parse(_officialFuturePensionUrl);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
@@ -445,7 +451,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l.avsGuideSnackbarError(_ahvUrl),
+            l.avsGuideSnackbarError(_officialFuturePensionUrl),
             style: MintTextStyles.bodyMedium(),
           ),
           backgroundColor: MintColors.warning,

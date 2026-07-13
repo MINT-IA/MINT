@@ -10617,19 +10617,19 @@ abstract class S {
   /// No description provided for @avsGuideAppBarTitle.
   ///
   /// In fr, this message translates to:
-  /// **'EXTRAIT AVS'**
+  /// **'CALCUL AVS OFFICIEL'**
   String get avsGuideAppBarTitle;
 
   /// No description provided for @avsGuideHeaderTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Comment obtenir ton extrait AVS'**
+  /// **'Obtenir ton calcul AVS officiel'**
   String get avsGuideHeaderTitle;
 
   /// No description provided for @avsGuideHeaderSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'L\'extrait de compte individuel (CI) contient tes années de cotisation, ton revenu moyen (RAMD) et tes éventuelles lacunes. C\'est la clé pour une projection AVS fiable.'**
+  /// **'Pour afficher un revenu AVS, MINT a besoin du calcul d’une rente future (formulaire 318.282) émis par ta caisse. Un extrait CI ne suffit pas : il sert seulement à vérifier tes années, revenus et lacunes.'**
   String get avsGuideHeaderSubtitle;
 
   /// No description provided for @avsGuideConfidencePoints.
@@ -10641,7 +10641,7 @@ abstract class S {
   /// No description provided for @avsGuideConfidenceSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Années de cotisation, RAMD, lacunes'**
+  /// **'Rente mensuelle officielle et date du calcul'**
   String get avsGuideConfidenceSubtitle;
 
   /// No description provided for @avsGuideStepsTitle.
@@ -10653,61 +10653,61 @@ abstract class S {
   /// No description provided for @avsGuideStep1Title.
   ///
   /// In fr, this message translates to:
-  /// **'Va sur www.ahv-iv.ch'**
+  /// **'Ouvre le formulaire officiel 318.282'**
   String get avsGuideStep1Title;
 
   /// No description provided for @avsGuideStep1Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'C\'est le site officiel de l\'AVS/AI. Tu peux aussi demander ton extrait directement à ta caisse de compensation.'**
+  /// **'C’est la « Demande de calcul d’une rente future » publiée par le Centre d’information AVS/AI.'**
   String get avsGuideStep1Subtitle;
 
   /// No description provided for @avsGuideStep2Title.
   ///
   /// In fr, this message translates to:
-  /// **'Connecte-toi avec ton eID ou crée un compte'**
+  /// **'Remplis une demande par personne'**
   String get avsGuideStep2Title;
 
   /// No description provided for @avsGuideStep2Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Tu auras besoin de ton numéro AVS (756.XXXX.XXXX.XX, sur ta carte d\'assurance-maladie).'**
+  /// **'Pour un couple, chaque partenaire fait sa propre demande. Les caisses recommandent de les déposer en même temps.'**
   String get avsGuideStep2Subtitle;
 
   /// No description provided for @avsGuideStep3Title.
   ///
   /// In fr, this message translates to:
-  /// **'Demande ton extrait de compte individuel (CI)'**
+  /// **'Envoie-la à ta caisse de compensation'**
   String get avsGuideStep3Title;
 
   /// No description provided for @avsGuideStep3Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Cherche la section \"Extrait de compte\" ou \"Kontoauszug\". C\'est un document officiel qui récapitule toutes tes cotisations.'**
+  /// **'Elle utilise ta demande et tes comptes individuels pour établir le calcul.'**
   String get avsGuideStep3Subtitle;
 
   /// No description provided for @avsGuideStep4Title.
   ///
   /// In fr, this message translates to:
-  /// **'Tu le recevras par courrier ou PDF'**
+  /// **'Garde le calcul reçu'**
   String get avsGuideStep4Title;
 
   /// No description provided for @avsGuideStep4Subtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Selon ta caisse, l\'extrait arrive en 5 à 10 jours ouvrables. Certaines caisses proposent un téléchargement PDF immédiat.'**
+  /// **'Le montant et sa date permettront à MINT d’afficher une projection traçable. Le calcul reste une estimation, pas une décision de rente.'**
   String get avsGuideStep4Subtitle;
 
   /// No description provided for @avsGuideOpenAhvButton.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir ahv-iv.ch'**
+  /// **'Ouvrir le formulaire officiel'**
   String get avsGuideOpenAhvButton;
 
   /// No description provided for @avsGuideScanButton.
   ///
   /// In fr, this message translates to:
-  /// **'J\'ai déjà mon extrait → Scanner'**
+  /// **'J’ai seulement un extrait CI → Le scanner'**
   String get avsGuideScanButton;
 
   /// No description provided for @avsGuideTestMode.
@@ -36656,7 +36656,7 @@ abstract class S {
   /// No description provided for @visibilityHintCommandeAvs.
   ///
   /// In fr, this message translates to:
-  /// **'Commande ton extrait AVS'**
+  /// **'Demande ton calcul AVS officiel'**
   String get visibilityHintCommandeAvs;
 
   /// No description provided for @visibilityHintFiscaliteComplete.

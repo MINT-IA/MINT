@@ -5902,14 +5902,14 @@ class SPt extends S {
   }
 
   @override
-  String get avsGuideAppBarTitle => 'EXTRAIT AVS';
+  String get avsGuideAppBarTitle => 'CÁLCULO AVS OFICIAL';
 
   @override
-  String get avsGuideHeaderTitle => 'Como obter o teu extrato AVS';
+  String get avsGuideHeaderTitle => 'Solicita o teu cálculo AVS oficial';
 
   @override
   String get avsGuideHeaderSubtitle =>
-      'O extrato de conta individual (CI) contém os teus anos de contribuição, o rendimento médio (RAMD) e eventuais lacunas. É a chave para uma projeção AVS fiável.';
+      'Para mostrar um rendimento AVS, a MINT precisa do cálculo de uma pensão futura (formulário 318.282) emitido pela tua caixa de compensação. Um extrato de conta individual não basta: apenas confirma anos, rendimentos e lacunas.';
 
   @override
   String avsGuideConfidencePoints(int points) {
@@ -5918,46 +5918,45 @@ class SPt extends S {
 
   @override
   String get avsGuideConfidenceSubtitle =>
-      'Anos de contribuição, RAMD, lacunas';
+      'Pensão mensal oficial e data do cálculo';
 
   @override
-  String get avsGuideStepsTitle => 'En 4 étapes';
+  String get avsGuideStepsTitle => 'Em 4 passos';
 
   @override
-  String get avsGuideStep1Title => 'Vai a www.ahv-iv.ch';
+  String get avsGuideStep1Title => 'Abre o formulário oficial 318.282';
 
   @override
   String get avsGuideStep1Subtitle =>
-      'Este é o site oficial do AVS/AI. Também podes solicitar o teu extrato diretamente à tua caixa de compensação.';
+      'É o «Pedido de cálculo de uma pensão futura» publicado pelo Centro de informação AVS/AI.';
 
   @override
-  String get avsGuideStep2Title =>
-      'Inicia sessão com o teu eID ou cria uma conta';
+  String get avsGuideStep2Title => 'Preenche um pedido por pessoa';
 
   @override
   String get avsGuideStep2Subtitle =>
-      'Precisarás do teu número AVS (756.XXXX.XXXX.XX, no teu cartão de seguro de saúde).';
+      'Num casal, cada pessoa apresenta o seu próprio pedido. As caixas recomendam enviá-los ao mesmo tempo.';
 
   @override
-  String get avsGuideStep3Title =>
-      'Solicita o teu extrato de conta individual (CI)';
+  String get avsGuideStep3Title => 'Envia-o à tua caixa de compensação';
 
   @override
   String get avsGuideStep3Subtitle =>
-      'Procura a secção «Extrato de conta» ou «Kontoauszug». É um documento oficial que resume todas as tuas contribuições.';
+      'A caixa usa o pedido e as contas individuais para preparar o cálculo.';
 
   @override
-  String get avsGuideStep4Title => 'Receberás por correio ou PDF';
+  String get avsGuideStep4Title => 'Guarda o cálculo recebido';
 
   @override
   String get avsGuideStep4Subtitle =>
-      'Dependendo da tua caixa, o extrato chega em 5 a 10 dias úteis. Algumas caixas oferecem download imediato em PDF.';
+      'O montante e a data permitem à MINT mostrar uma projeção rastreável. O cálculo continua a ser uma estimativa, não uma decisão de pensão.';
 
   @override
-  String get avsGuideOpenAhvButton => 'Abrir ahv-iv.ch';
+  String get avsGuideOpenAhvButton => 'Abrir o formulário oficial';
 
   @override
-  String get avsGuideScanButton => 'Já tenho o meu extrato → Digitalizar';
+  String get avsGuideScanButton =>
+      'Só tenho um extrato de conta → Digitalizá-lo';
 
   @override
   String get avsGuideTestMode => 'MODE TEST';
@@ -20887,7 +20886,7 @@ class SPt extends S {
   String get visibilityHintAddStatutPro => 'Completa o teu estado profissional';
 
   @override
-  String get visibilityHintCommandeAvs => 'Solicita o teu extrato AVS';
+  String get visibilityHintCommandeAvs => 'Solicita o teu cálculo AVS oficial';
 
   @override
   String get visibilityHintFiscaliteComplete =>

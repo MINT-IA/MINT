@@ -5870,14 +5870,14 @@ class SEn extends S {
   }
 
   @override
-  String get avsGuideAppBarTitle => 'EXTRAIT AVS';
+  String get avsGuideAppBarTitle => 'OFFICIAL AVS CALCULATION';
 
   @override
-  String get avsGuideHeaderTitle => 'How to get your AVS statement';
+  String get avsGuideHeaderTitle => 'Get your official AVS calculation';
 
   @override
   String get avsGuideHeaderSubtitle =>
-      'The individual account statement (CI) contains your contribution years, average income (RAMD) and any gaps. It is the key to a reliable AVS projection.';
+      'To display AVS income, MINT needs the future pension calculation (form 318.282) issued by your compensation office. An individual account statement is not enough: it only verifies your years, income and gaps.';
 
   @override
   String avsGuideConfidencePoints(int points) {
@@ -5885,45 +5885,45 @@ class SEn extends S {
   }
 
   @override
-  String get avsGuideConfidenceSubtitle => 'Contribution years, RAMD, gaps';
+  String get avsGuideConfidenceSubtitle =>
+      'Official monthly pension and calculation date';
 
   @override
-  String get avsGuideStepsTitle => 'En 4 étapes';
+  String get avsGuideStepsTitle => 'In 4 steps';
 
   @override
-  String get avsGuideStep1Title => 'Go to www.ahv-iv.ch';
+  String get avsGuideStep1Title => 'Open official form 318.282';
 
   @override
   String get avsGuideStep1Subtitle =>
-      'This is the official AVS/AI website. You can also request your statement directly from your compensation office.';
+      'This is the “Request for a future pension calculation” published by the AVS/AI Information Centre.';
 
   @override
-  String get avsGuideStep2Title => 'Log in with your eID or create an account';
+  String get avsGuideStep2Title => 'Complete one request per person';
 
   @override
   String get avsGuideStep2Subtitle =>
-      'You will need your AVS number (756.XXXX.XXXX.XX, on your health insurance card).';
+      'For a couple, each partner submits a separate request. Compensation offices recommend submitting both at the same time.';
 
   @override
-  String get avsGuideStep3Title =>
-      'Request your individual account statement (CI)';
+  String get avsGuideStep3Title => 'Send it to your compensation office';
 
   @override
   String get avsGuideStep3Subtitle =>
-      'Look for the \"Account statement\" or \"Kontoauszug\" section. This is an official document summarising all your contributions.';
+      'The office uses your request and individual accounts to prepare the calculation.';
 
   @override
-  String get avsGuideStep4Title => 'You will receive it by mail or PDF';
+  String get avsGuideStep4Title => 'Keep the calculation you receive';
 
   @override
   String get avsGuideStep4Subtitle =>
-      'Depending on your office, the statement arrives in 5 to 10 business days. Some offices offer an immediate PDF download.';
+      'The amount and its date let MINT display a traceable projection. The calculation remains an estimate, not a pension decision.';
 
   @override
-  String get avsGuideOpenAhvButton => 'Open ahv-iv.ch';
+  String get avsGuideOpenAhvButton => 'Open the official form';
 
   @override
-  String get avsGuideScanButton => 'I already have my statement → Scan';
+  String get avsGuideScanButton => 'I only have an account statement → Scan it';
 
   @override
   String get avsGuideTestMode => 'MODE TEST';
@@ -20776,7 +20776,8 @@ class SEn extends S {
   String get visibilityHintAddStatutPro => 'Complete your professional status';
 
   @override
-  String get visibilityHintCommandeAvs => 'Order your AVS statement';
+  String get visibilityHintCommandeAvs =>
+      'Request your official AVS calculation';
 
   @override
   String get visibilityHintFiscaliteComplete => 'Your tax data is complete';

@@ -5914,14 +5914,14 @@ class SDe extends S {
   }
 
   @override
-  String get avsGuideAppBarTitle => 'EXTRAIT AVS';
+  String get avsGuideAppBarTitle => 'OFFIZIELLE AHV-BERECHNUNG';
 
   @override
-  String get avsGuideHeaderTitle => 'So erhältst du deinen AHV-Auszug';
+  String get avsGuideHeaderTitle => 'Offizielle AHV-Berechnung anfordern';
 
   @override
   String get avsGuideHeaderSubtitle =>
-      'Der individuelle Kontoauszug (CI) enthält deine Beitragsjahre, dein Durchschnittseinkommen (RAMD) und allfällige Lücken. Er ist der Schlüssel für eine zuverlässige AHV-Projektion.';
+      'Damit MINT ein AHV-Einkommen anzeigen kann, braucht es die von deiner Ausgleichskasse erstellte Berechnung einer künftigen Rente (Formular 318.282). Ein IK-Auszug genügt nicht: Er bestätigt nur Beitragsjahre, Einkommen und Lücken.';
 
   @override
   String avsGuideConfidencePoints(int points) {
@@ -5929,46 +5929,45 @@ class SDe extends S {
   }
 
   @override
-  String get avsGuideConfidenceSubtitle => 'Beitragsjahre, RAMD, Lücken';
+  String get avsGuideConfidenceSubtitle =>
+      'Offizielle Monatsrente und Berechnungsdatum';
 
   @override
-  String get avsGuideStepsTitle => 'En 4 étapes';
+  String get avsGuideStepsTitle => 'In 4 Schritten';
 
   @override
-  String get avsGuideStep1Title => 'Gehe auf www.ahv-iv.ch';
+  String get avsGuideStep1Title => 'Öffne das offizielle Formular 318.282';
 
   @override
   String get avsGuideStep1Subtitle =>
-      'Das ist die offizielle AHV/IV-Website. Du kannst deinen Auszug auch direkt bei deiner Ausgleichskasse anfordern.';
+      'Es handelt sich um den vom Informationszentrum AHV/IV veröffentlichten «Antrag für eine Rentenvorausberechnung».';
 
   @override
-  String get avsGuideStep2Title =>
-      'Melde dich mit deiner eID an oder erstelle ein Konto';
+  String get avsGuideStep2Title => 'Fülle pro Person einen Antrag aus';
 
   @override
   String get avsGuideStep2Subtitle =>
-      'Du benötigst deine AHV-Nummer (756.XXXX.XXXX.XX, auf deiner Krankenversicherungskarte).';
+      'Bei Paaren stellt jede Person einen eigenen Antrag. Die Ausgleichskassen empfehlen, beide gleichzeitig einzureichen.';
 
   @override
-  String get avsGuideStep3Title =>
-      'Fordere deinen individuellen Kontoauszug (CI) an';
+  String get avsGuideStep3Title => 'Sende ihn an deine Ausgleichskasse';
 
   @override
   String get avsGuideStep3Subtitle =>
-      'Suche den Abschnitt «Kontoauszug» oder «Extrait de compte». Das ist ein offizielles Dokument, das alle deine Beiträge zusammenfasst.';
+      'Die Kasse erstellt die Berechnung anhand deines Antrags und deiner individuellen Konten.';
 
   @override
-  String get avsGuideStep4Title => 'Du erhältst ihn per Post oder als PDF';
+  String get avsGuideStep4Title => 'Bewahre die erhaltene Berechnung auf';
 
   @override
   String get avsGuideStep4Subtitle =>
-      'Je nach Kasse trifft der Auszug in 5 bis 10 Werktagen ein. Einige Kassen bieten einen sofortigen PDF-Download an.';
+      'Betrag und Datum ermöglichen MINT eine nachvollziehbare Projektion. Die Berechnung bleibt eine Schätzung und ist keine Rentenverfügung.';
 
   @override
-  String get avsGuideOpenAhvButton => 'ahv-iv.ch öffnen';
+  String get avsGuideOpenAhvButton => 'Offizielles Formular öffnen';
 
   @override
-  String get avsGuideScanButton => 'Ich habe meinen Auszug bereits → Scannen';
+  String get avsGuideScanButton => 'Ich habe nur einen IK-Auszug → Scannen';
 
   @override
   String get avsGuideTestMode => 'MODE TEST';
@@ -20929,7 +20928,7 @@ class SDe extends S {
       'Vervollständige deinen Berufsstatus';
 
   @override
-  String get visibilityHintCommandeAvs => 'Bestelle deinen AHV-Auszug';
+  String get visibilityHintCommandeAvs => 'Offizielle AHV-Berechnung anfordern';
 
   @override
   String get visibilityHintFiscaliteComplete =>
