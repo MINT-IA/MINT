@@ -182,4 +182,121 @@ void main() {
     expect(confirmedSingle.civilStatusRawValue, isNull);
     expect(confirmedSingle.conjoint, isNull);
   });
+
+  test('foreign union tokens require recognition confirmation', () {
+    for (final rawStatus in [
+      'pacs',
+      ' PACS ',
+      'civil_union',
+      'foreign_registered_partnership',
+    ]) {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_civil_status': rawStatus,
+        'q_partner_birth_year': 1965,
+        'q_spouse_avs_contribution_years': 38,
+      });
+
+      expect(profile.civilStatusNeedsConfirmation, isTrue, reason: rawStatus);
+      expect(profile.civilStatusRawValue, rawStatus, reason: rawStatus);
+      expect(profile.hasPartnerContext, isFalse, reason: rawStatus);
+      expect(profile.isAvsMarriageEquivalent, isFalse, reason: rawStatus);
+      expect(profile.conjoint?.birthYear, 1965, reason: rawStatus);
+      expect(
+        profile.conjoint?.prevoyance?.anneesContribuees,
+        38,
+        reason: rawStatus,
+      );
+
+      final restored = CoachProfile.fromJson(profile.toJson());
+      expect(
+        restored.civilStatusNeedsConfirmation,
+        isTrue,
+        reason: rawStatus,
+      );
+      expect(restored.civilStatusRawValue, rawStatus, reason: rawStatus);
+      expect(restored.isAvsMarriageEquivalent, isFalse, reason: rawStatus);
+      expect(restored.conjoint?.birthYear, 1965, reason: rawStatus);
+
+      final legacyJson = CoachProfile.defaults().toJson()
+        ..['etatCivil'] = rawStatus
+        ..remove('civilStatusNeedsConfirmation')
+        ..remove('civilStatusRawValue');
+      final migratedLegacy = CoachProfile.fromJson(legacyJson);
+      expect(
+        migratedLegacy.civilStatusNeedsConfirmation,
+        isTrue,
+        reason: rawStatus,
+      );
+      expect(
+        migratedLegacy.civilStatusRawValue,
+        rawStatus,
+        reason: rawStatus,
+      );
+      expect(
+        migratedLegacy.isAvsMarriageEquivalent,
+        isFalse,
+        reason: rawStatus,
+      );
+
+      final inconsistentJson = CoachProfile.defaults().toJson()
+        ..['etatCivil'] = rawStatus
+        ..['civilStatusNeedsConfirmation'] = false
+        ..['civilStatusRawValue'] = rawStatus;
+      final failClosed = CoachProfile.fromJson(inconsistentJson);
+      expect(
+        failClosed.civilStatusNeedsConfirmation,
+        isTrue,
+        reason: rawStatus,
+      );
+      expect(failClosed.civilStatusRawValue, rawStatus, reason: rawStatus);
+      expect(
+        failClosed.isAvsMarriageEquivalent,
+        isFalse,
+        reason: rawStatus,
+      );
+    }
+  });
+
+  for (final rawStatus in [
+    'pacs',
+    ' PACS ',
+    'civil_union',
+    'foreign_registered_partnership',
+  ]) {
+    test('$rawStatus merge and restart preserve partner facts', () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_birth_year': 1985,
+        'q_civil_status': 'married',
+        'q_partner_birth_year': 1965,
+        'q_spouse_avs_contribution_years': 38,
+      });
+      await ReportPersistenceService.setMiniOnboardingCompleted(true);
+      final provider = CoachProfileProvider();
+
+      await provider.mergeAnswers({'q_civil_status': rawStatus});
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers, containsPair('q_civil_status', rawStatus));
+      expect(answers, containsPair('q_partner_birth_year', 1965));
+      expect(answers, containsPair('q_spouse_avs_contribution_years', 38));
+      expect(provider.profile?.civilStatusNeedsConfirmation, isTrue);
+      expect(provider.profile?.civilStatusRawValue, rawStatus);
+      expect(provider.profile?.isAvsMarriageEquivalent, isFalse);
+      expect(provider.profile?.conjoint?.birthYear, 1965);
+
+      final restarted = CoachProfileProvider();
+      await restarted.loadFromWizard();
+
+      expect(restarted.profile?.civilStatusNeedsConfirmation, isTrue);
+      expect(restarted.profile?.civilStatusRawValue, rawStatus);
+      expect(restarted.profile?.hasPartnerContext, isFalse);
+      expect(restarted.profile?.isAvsMarriageEquivalent, isFalse);
+      expect(restarted.profile?.conjoint?.birthYear, 1965);
+      expect(
+        restarted.profile?.conjoint?.prevoyance?.anneesContribuees,
+        38,
+      );
+    });
+  }
 }

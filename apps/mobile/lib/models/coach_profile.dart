@@ -2458,7 +2458,7 @@ class CoachProfile {
     final retainedCivilStatusRaw =
         json['civilStatusRawValue'] as String? ?? serializedCivilStatus;
     final civilStatusNeedsConfirmation =
-        json['civilStatusNeedsConfirmation'] as bool? ??
+        (json['civilStatusNeedsConfirmation'] as bool? ?? false) ||
             _isAmbiguousCivilStatus(retainedCivilStatusRaw);
     return CoachProfile(
       firstName: json['firstName'] as String?,
@@ -3618,8 +3618,20 @@ class CoachProfile {
     }
   }
 
-  static bool _isAmbiguousCivilStatus(String? raw) =>
-      raw?.trim().toLowerCase() == 'partenariat';
+  static bool _isAmbiguousCivilStatus(String? raw) {
+    switch (raw?.trim().toLowerCase()) {
+      case 'partenariat':
+      case 'pacs':
+      case 'civil_union':
+      case 'civil union':
+      case 'foreign_civil_union':
+      case 'foreign_registered_partner':
+      case 'foreign_registered_partnership':
+        return true;
+      default:
+        return false;
+    }
+  }
 
   static String _parseEmploymentStatus(String? raw) {
     if (raw == null) return 'salarie';

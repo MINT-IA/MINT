@@ -1268,7 +1268,7 @@ class CoachProfileProvider extends ChangeNotifier {
     if (!answers.containsKey('q_civil_status')) return false;
     final value = answers['q_civil_status'];
     if (value is! String) return true;
-    switch (value.toLowerCase()) {
+    switch (value.trim().toLowerCase()) {
       case 'marie':
       case 'marié': // lint-ignore: accepted legacy input
       case 'married':
@@ -1282,6 +1282,12 @@ class CoachProfileProvider extends ChangeNotifier {
       // Ambiguous legacy status keeps partner facts for reconfirmation, but
       // CoachProfile legal predicates remain disabled.
       case 'partenariat':
+      case 'pacs':
+      case 'civil_union':
+      case 'civil union':
+      case 'foreign_civil_union':
+      case 'foreign_registered_partner':
+      case 'foreign_registered_partnership':
         return false;
       default:
         return true;
