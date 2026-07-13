@@ -1,0 +1,14 @@
+timestamp_utc=2026-07-13T06:20:18Z
+head=c1a66cbea519646f6b5f722f745e7e3b76117b1f
+branch=codex/mint-product-usability-plan-20260712
+device=B03E429D-0422-4357-B754-536637D979F9
+device_name=iPhone 17 Pro
+mobile_status=clean
+8f7577ac5baa7f7433574b635133c0b817c24b6fdd29bd06cb578c682907f127  build/ios/iphonesimulator/Runner.app/Runner
+installed_bundle=ch.mint.app
+maestro_command=MAESTRO_HARD_LIMIT=300 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=/Users/julienbattaglia/Desktop/MINT.nosync/.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/avs-b2-runtime-c1a66cbea/maestro/watchdog bash tools/simulator/maestro_with_watchdog.sh test --no-ansi --test-output-dir /Users/julienbattaglia/Desktop/MINT.nosync/.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/avs-b2-runtime-c1a66cbea/maestro/screenshots --debug-output /Users/julienbattaglia/Desktop/MINT.nosync/.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/avs-b2-runtime-c1a66cbea/maestro/debug --flatten-debug-output apps/mobile/.maestro/retirement_missing_avs.yaml
+maestro_exit=0
+patrol_command=/Users/julienbattaglia/.pub-cache/bin/patrol test -t test/patrol/retirement_missing_avs_runtime_test.dart -d B03E429D-0422-4357-B754-536637D979F9 --bundle-id ch.mint.app --dart-define=MINT_PATROL_CLI=true --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 --dart-define=SENTRY_DSN= --no-uninstall
+patrol_exit=0
+xcresult=/Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/build/ios_results_1783923728704.xcresult
+mobile_status_after_patrol=clean
