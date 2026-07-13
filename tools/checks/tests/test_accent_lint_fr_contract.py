@@ -41,6 +41,16 @@ def test_dart_route_literals_are_not_french_copy(tmp_path: Path) -> None:
     assert accent_lint_fr.scan_file(dart) == []
 
 
+def test_python_route_literals_are_not_french_copy(tmp_path: Path) -> None:
+    python = tmp_path / "endpoint.py"
+    python.write_text(
+        "@router.post('/premier-ecl" "airage')\n",
+        encoding="utf-8",
+    )
+
+    assert accent_lint_fr.scan_file(python) == []
+
+
 def test_dart_plain_ui_copy_is_still_linted(tmp_path: Path) -> None:
     dart = tmp_path / "screen.dart"
     dart.write_text(

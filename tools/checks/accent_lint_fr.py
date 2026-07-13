@@ -65,7 +65,7 @@ def _line_for_lint(path: Path, line: str) -> str:
     lint_line = line
     if path.suffix == ".md":
         lint_line = re.sub(r"`[^`]*`", "", lint_line)
-    if path.suffix == ".dart":
+    if path.suffix in {".dart", ".py"}:
         lint_line = ROUTE_OR_URL_LITERAL_RE.sub("", lint_line)
     return lint_line
 
