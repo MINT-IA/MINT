@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "data_classification": "synthetic_no_pii",
+  "cases": [
+    {
+      "id": "P01",
+      "language": "fr",
+      "category": "personal_decision",
+      "input": "Caisse cantonale de compensation — Décision. Date de la décision: 14.02.2026. Votre rente mensuelle de vieillesse AVS: CHF 1'842.00",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 1842,
+        "source": "certificate",
+        "source_date": "2026-02-14",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P02",
+      "language": "fr",
+      "category": "personal_min_equal",
+      "input": "Caisse de compensation — Calcul d'une rente future. Date du calcul: 03.03.2026. Montant mensuel calculé de votre rente de vieillesse: Fr. 1 260.–",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 1260,
+        "source": "certificate",
+        "source_date": "2026-03-03",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P03",
+      "language": "fr",
+      "category": "personal_decision",
+      "input": "Caisse suisse de compensation — Établi le 21.04.2026. Rente de vieillesse AVS ordinaire vous concernant: CHF 2'137 par mois. Le supplément de décembre est indiqué séparément.",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 2137,
+        "source": "certificate",
+        "source_date": "2026-04-21",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P04",
+      "language": "de",
+      "category": "personal_decision",
+      "input": "Ausgleichskasse — Rentenverfügung. Verfügungsdatum: 06.02.2026. Ihre monatliche Altersrente: CHF 2'017.00",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 2017,
+        "source": "certificate",
+        "source_date": "2026-02-06",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P05",
+      "language": "de",
+      "category": "personal_forecast",
+      "input": "Schweizerische Ausgleichskasse — Rentenvorausberechnung. Berechnungsdatum: 18.03.2026. Voraussichtliche monatliche Altersrente für Sie: Fr. 1'674.–",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 1674,
+        "source": "certificate",
+        "source_date": "2026-03-18",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P06",
+      "language": "de",
+      "category": "personal_decision",
+      "input": "Ausgleichskasse — Ausgestellt am 30.04.2026. Monatlicher Betrag Ihrer ordentlichen Altersrente: CHF 2.284,00",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 2284,
+        "source": "certificate",
+        "source_date": "2026-04-30",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P07",
+      "language": "it",
+      "category": "personal_max_equal",
+      "input": "Cassa cantonale di compensazione — Decisione. Data della decisione: 11.02.2026. Importo mensile della Sua rendita di vecchiaia: CHF 2’520.00",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 2520,
+        "source": "certificate",
+        "source_date": "2026-02-11",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P08",
+      "language": "it",
+      "category": "personal_forecast",
+      "input": "Cassa svizzera di compensazione — Calcolo di una rendita futura. Data del calcolo: 19.03.2026. Rendita di vecchiaia mensile calcolata per Lei: fr. 1'763.–",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 1763,
+        "source": "certificate",
+        "source_date": "2026-03-19",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "P09",
+      "language": "it",
+      "category": "personal_decision",
+      "input": "Cassa di compensazione — Emesso il 07.05.2026. Sua rendita ordinaria di vecchiaia: CHF 1.996,00 al mese. La 13a mensilità è separata.",
+      "expected": {
+        "canonical_key": "avs_official_monthly_pension",
+        "value_chf_month": 1996,
+        "source": "certificate",
+        "source_date": "2026-05-07",
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "N01",
+      "language": "fr",
+      "category": "statutory_reference_value",
+      "input": "OFAS, montants 2026, Rente minimale: CHF 1'260/mois, Rente maximale: CHF 2'520/mois, 06.11.2025",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "statutory_reference_value"
+      }
+    },
+    {
+      "id": "N02",
+      "language": "de",
+      "category": "statutory_reference_value",
+      "input": "AHV-Rententabelle 2026, minimale Altersrente CHF 1'260, maximale Altersrente CHF 2'520 monatlich",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "statutory_reference_value"
+      }
+    },
+    {
+      "id": "N03",
+      "language": "it",
+      "category": "example_value",
+      "input": "Esempio: con 44 anni di contributi la rendita mensile potrebbe essere CHF 1'880",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "example_value"
+      }
+    },
+    {
+      "id": "N04",
+      "language": "fr",
+      "category": "generic_simulation_not_authority_result",
+      "input": "ESCAL — estimation en ligne, résultat CHF 1'940/mois, données saisies librement, calculé le 01.03.2026",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "generic_simulation_not_authority_result"
+      }
+    },
+    {
+      "id": "N05",
+      "language": "fr",
+      "category": "couple_or_household_amount",
+      "input": "Caisse de compensation, Total mensuel des rentes du couple: CHF 3'420, date 02.02.2026",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "couple_or_household_amount"
+      }
+    },
+    {
+      "id": "N06",
+      "language": "de",
+      "category": "couple_or_household_amount",
+      "input": "Ausgleichskasse, Summe der Renten des Ehepaars pro Monat: CHF 3'500",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "couple_or_household_amount"
+      }
+    },
+    {
+      "id": "N07",
+      "language": "it",
+      "category": "couple_or_household_amount",
+      "input": "Cassa di compensazione, Totale mensile delle rendite dei coniugi: CHF 3'610",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "couple_or_household_amount"
+      }
+    },
+    {
+      "id": "N08",
+      "language": "fr",
+      "category": "couple_cap_or_150_percent",
+      "input": "Plafond des rentes pour couple: 150 %, maximum CHF 3'780/mois",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "couple_cap_or_150_percent"
+      }
+    },
+    {
+      "id": "N09",
+      "language": "fr",
+      "category": "third_person_amount",
+      "input": "Rente mensuelle de vieillesse de votre conjoint: CHF 1'730",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "third_person_amount"
+      }
+    },
+    {
+      "id": "N10",
+      "language": "de",
+      "category": "third_person_amount",
+      "input": "Monatliche Altersrente Ihrer Partnerin/Ihres Partners: CHF 1'810",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "third_person_amount"
+      }
+    },
+    {
+      "id": "N11",
+      "language": "it",
+      "category": "multiple_person_amounts",
+      "input": "Sua rendita CHF 1'900/mese; rendita del coniuge CHF 1'700/mese, même document",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "multiple_person_amounts"
+      }
+    },
+    {
+      "id": "N12",
+      "language": "fr",
+      "category": "annual_only_not_convertible",
+      "input": "Votre rente annuelle de vieillesse AVS: CHF 24'000; décision datée",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "annual_only_not_convertible"
+      }
+    },
+    {
+      "id": "N13",
+      "language": "de",
+      "category": "annual_only_not_convertible",
+      "input": "Ihre jährliche Altersrente: CHF 21'600; Verfügungsdatum vorhanden",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "annual_only_not_convertible"
+      }
+    },
+    {
+      "id": "N14",
+      "language": "fr",
+      "category": "source_date_missing",
+      "input": "Caisse de compensation. Votre rente mensuelle de vieillesse: CHF 1'905. Aucun date de décision/calcul/émission",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "source_date_missing"
+      }
+    },
+    {
+      "id": "N15",
+      "language": "de",
+      "category": "source_date_missing",
+      "input": "Ihre monatliche Altersrente CHF 1'905; Rentenbeginn 01.05.2026, aber kein Verfügungs-/Berechnungsdatum",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "source_date_missing"
+      }
+    },
+    {
+      "id": "N16",
+      "language": "it",
+      "category": "personal_owner_label_missing",
+      "input": "Cassa di compensazione, 09.04.2026. Rendita AVS: CHF 1'900 al mese (aucun Sua/Lei/titulaire)",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "personal_owner_label_missing"
+      }
+    },
+    {
+      "id": "N17",
+      "language": "fr",
+      "category": "wrong_benefit_survivor",
+      "input": "Votre rente mensuelle de survivant: CHF 1'620",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "wrong_benefit_survivor"
+      }
+    },
+    {
+      "id": "N18",
+      "language": "de",
+      "category": "wrong_benefit_invalidity",
+      "input": "Ihre monatliche Invalidenrente: CHF 1'700",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "wrong_benefit_invalidity"
+      }
+    },
+    {
+      "id": "N19",
+      "language": "it",
+      "category": "wrong_benefit_child",
+      "input": "La Sua rendita mensile per figli: CHF 760",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "wrong_benefit_child"
+      }
+    },
+    {
+      "id": "N20",
+      "language": "fr",
+      "category": "ci_extract_not_pension_decision",
+      "input": "Extrait de compte individuel (CI): revenus inscrits CHF 82'000, cotisations, années; ligne ‘AVS’",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "ci_extract_not_pension_decision"
+      }
+    },
+    {
+      "id": "N21",
+      "language": "de",
+      "category": "ci_extract_not_pension_decision",
+      "input": "Auszug aus dem Individuellen Konto (IK): Einkommen/Beiträge/Beitragsjahre",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "ci_extract_not_pension_decision"
+      }
+    },
+    {
+      "id": "N22",
+      "language": "it",
+      "category": "ci_extract_not_pension_decision",
+      "input": "Estratto del conto individuale: redditi e contributi AVS",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "ci_extract_not_pension_decision"
+      }
+    },
+    {
+      "id": "N23",
+      "language": "fr",
+      "category": "thirteenth_pension_not_ordinary_monthly",
+      "input": "13e rente AVS / supplément versé en décembre: CHF 1'842",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "thirteenth_pension_not_ordinary_monthly"
+      }
+    },
+    {
+      "id": "N24",
+      "language": "de",
+      "category": "application_not_authority_result",
+      "input": "Formular 318.282 Antrag für eine Rentenvorausberechnung, vom Nutzer eingetragen ‘erwartet CHF 1'900/Monat’; kein Ergebnis der Ausgleichskasse",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "application_not_authority_result"
+      }
+    },
+    {
+      "id": "N25",
+      "language": "it",
+      "category": "authority_marker_missing",
+      "input": "Estratto bancario: accredito ‘AVS’ CHF 1'950, data operazione 05.05.2026; nessuna decisione/calcolo della cassa",
+      "expected": {
+        "canonical_key": null,
+        "value_chf_month": null,
+        "source": null,
+        "source_date": null,
+        "rejection_reason": "authority_marker_missing"
+      }
+    }
+  ]
+}
