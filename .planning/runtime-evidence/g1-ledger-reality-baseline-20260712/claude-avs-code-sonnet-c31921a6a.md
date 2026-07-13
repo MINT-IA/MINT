@@ -105,25 +105,25 @@ Both are unreachable in production. No new P2 introduced.
 
 ### Confirmed correct
 
-**1. `officialDecemberNotEntitled` short-circuits before evidence weakness (`avs_thirteenth_pension_calculator.dart:443–456, 668–689`).**  
+**1. `officialDecemberNotEntitled` short-circuits before evidence weakness (`avs_thirteenth_pension_calculator.dart:443–456, 668–689`).**
 `sourceDate == null` and `documentOrProviderRef == null` now accumulate into `missingMonthlyEvidenceField` (deferred), not an immediate return. The `officialDecemberNotEntitled` branch at line 668 fires before the deferred check at line 683. New test `official not-entitled legal zero ignores an absent prior source` (`avs_thirteenth_pension_calculator_test.dart:1285`) proves that an official December `notEntitled` yields `explicitlyNotEntitled + certified=0` even when month 1 has no sourceDate or reference. The `unknown` state's `missingMonthlyHistoryField` (line 537) independently gates `eligibleOldAgePensionsPaidChf` to null in the same branch. All three precedence layers are exercised.
 
-**2. `bothDisability` + married/registered → `AvsCoupleCapState.pending` (`avs_calculator.dart:355–362`).**  
+**2. `bothDisability` + married/registered → `AvsCoupleCapState.pending` (`avs_calculator.dart:355–362`).**
 New priority check `marriageEquivalent && bothDisability` fires before the `cohabiting → notApplicable` branch. LAVS art. 35 al. 1 does cap AI+AI for married couples via LAI art. 37 al. 1bis. Test `avs_couple_legal_contract_test.dart:449` now asserts `pending` for both `married` and `registeredPartnership` status. Correct semantic.
 
-**3. `ChfAmount.tryFromLegacyDouble` (`avs_thirteenth_pension_calculator.dart:17–27`, `independants_service.dart:640–647`).**  
+**3. `ChfAmount.tryFromLegacyDouble` (`avs_thirteenth_pension_calculator.dart:17–27`, `independants_service.dart:640–647`).**
 Sub-centime registry overrides no longer throw inside `calculateLppVolontaire`. New service test `independants_avs_thirteenth_scenario_test.dart:18` injects `avs.max_monthly_pension = 2520.123`, asserts `avsThirteenthScenario is null`, `avsThirteenthScenarioFailureReadiness = providerCorrectionRequired`, and `projectionSansLpp == 30240` (falls back to `recurringAvsAnnualMax`).
 
-**4. `hasAvsGaps` dead reader quarantined (`G1-ledger-gap-matrix.md:97`, `test_g1_p0_ledger_dead_keys.py:1378–1409`).**  
+**4. `hasAvsGaps` dead reader quarantined (`G1-ledger-gap-matrix.md:97`, `test_g1_p0_ledger_dead_keys.py:1378–1409`).**
 Financial Fitness consumes `AvsGapEvidence.selfCertifiedYears` (certificate-owned), not the declared `avsGapStatus` typed fact. `reader_evidence` and `consumers` are now `NONE`. The gate adds a positive lock (`hasAvsGaps` quarantine contract check) and a negative fixture that asserts a forged reader would be caught. `import copy` is present at line 3 of the gate file — `copy.deepcopy` call is safe.
 
-**5. `rente_couple_mensuelle` always null; schema and tests aligned.**  
+**5. `rente_couple_mensuelle` always null; schema and tests aligned.**
 `AvsEstimationRequest.is_couple` is now documented as civil context only. `rente_couple_mensuelle: Optional[float]` was always nullable per the schema; returning `None` is a valid, backward-compatible value. `test_retirement.py:test_couple_status_does_not_fabricate_partner_pension` and `test_avs_estimate_camelcase_aliases` both assert `None`. E2E steady-state tests updated identically.
 
-**6. No dangling ×13 symbols in the backend.**  
+**6. No dangling ×13 symbols in the backend.**
 Grep across `services/backend` for `AVS_13EME_RENTE_ACTIVE`, `AVS_NOMBRE_RENTES_PAR_AN`, `AVS_13EME_RENTE_FACTOR`, `annualRente` returns zero hits.
 
-**7. OpenAPI schema hash rename (`h_38b5376f952f` → `h_2185b7eb6cdc`) for `PremierEclairageResponse`.**  
+**7. OpenAPI schema hash rename (`h_38b5376f952f` → `h_2185b7eb6cdc`) for `PremierEclairageResponse`.**
 Purely cosmetic — driven by description-string change. The schema structure is identical. API paths unchanged. No client impact.
 
 ---
