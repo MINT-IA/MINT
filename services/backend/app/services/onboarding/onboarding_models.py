@@ -5,13 +5,13 @@ Sprint S31 — Onboarding Redesign.
 
 These models define the input/output contracts for the onboarding flow:
 - MinimalProfileInput: 3 required fields + optional enrichment fields
-- MinimalProfileResult: full projection with confidence scoring
+- MinimalProfileResult: partial snapshot with certified-null AVS aggregates
 - PremierEclairage: single impactful number with educational context
 
 Sources:
     - LAVS art. 21-29 (rente AVS)
     - LPP art. 15-16 (bonifications vieillesse)
-    - LIFD art. 38 (imposition du capital)
+    - LIFD art. 33 (deduction des cotisations 3a)
     - OPP3 art. 7 (plafond 3a)
 """
 
@@ -57,17 +57,20 @@ class MinimalProfileInput:
 class MinimalProfileResult:
     """Result of the minimal profile computation.
 
-    Contains all projected values, confidence scoring,
-    and compliance fields (disclaimer, sources, enrichment_prompts).
+    Contains independently supportable illustrations, explicit nullable
+    AVS-dependent aggregates, confidence scoring, and compliance fields.
     """
 
-    projected_avs_monthly: float
+    # No reviewed owner-scoped official AVS pension envelope is available in
+    # minimal onboarding.  The pension and every aggregate that depends on it
+    # remain unknown instead of exposing a salary/age proxy as exact CHF.
+    projected_avs_monthly: Optional[float]
     projected_lpp_capital: float
     projected_lpp_monthly: float
-    estimated_replacement_ratio: float
-    estimated_monthly_retirement: float
+    estimated_replacement_ratio: Optional[float]
+    estimated_monthly_retirement: Optional[float]
     estimated_monthly_expenses: float
-    retirement_gap_monthly: float
+    retirement_gap_monthly: Optional[float]
     tax_saving_3a: float
     existing_3a: float
     marginal_tax_rate: float
@@ -91,7 +94,6 @@ class PremierEclairage:
     during onboarding and motivate them to explore further.
 
     Categories:
-        - retirement_gap: monthly gap between retirement income and expenses
         - tax_saving: annual tax saving left on the table (3a)
         - liquidity: months of financial runway
         - compound_growth: time advantage for young users (pure math)

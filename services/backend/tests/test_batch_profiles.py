@@ -89,21 +89,18 @@ class TestBatchOnboarding:
 
         # Basic structure
         assert result is not None
-        assert isinstance(result.projected_avs_monthly, float)
+        assert result.projected_avs_monthly is None
         assert isinstance(result.projected_lpp_capital, float)
         assert isinstance(result.confidence_score, float)
 
     @pytest.mark.parametrize(
         "profile", CORE_PROFILES, ids=[_profile_id(p) for p in CORE_PROFILES]
     )
-    def test_avs_within_legal_bounds(self, profile):
-        """AVS rente must be between 0 and max (2'520 CHF/mo)."""
+    def test_avs_stays_unknown_without_official_evidence(self, profile):
+        """No age/salary/canton combination may synthesize an AVS rente."""
         result = compute_minimal_profile(profile)
 
-        assert 0 <= result.projected_avs_monthly <= 2_520.0 + 1.0, (
-            f"AVS rente {result.projected_avs_monthly} out of bounds [0, 2521] "
-            f"for {_profile_id(profile)}"
-        )
+        assert result.projected_avs_monthly is None
 
     @pytest.mark.parametrize(
         "profile", CORE_PROFILES, ids=[_profile_id(p) for p in CORE_PROFILES]
@@ -120,14 +117,11 @@ class TestBatchOnboarding:
     @pytest.mark.parametrize(
         "profile", CORE_PROFILES, ids=[_profile_id(p) for p in CORE_PROFILES]
     )
-    def test_replacement_ratio_reasonable(self, profile):
-        """Replacement ratio must be in [0, 2.0] (can exceed 1.0 for low salaries)."""
+    def test_replacement_ratio_stays_unknown(self, profile):
+        """An incomplete retirement total cannot expose a replacement ratio."""
         result = compute_minimal_profile(profile)
 
-        assert 0 <= result.estimated_replacement_ratio <= 2.0, (
-            f"Replacement ratio {result.estimated_replacement_ratio} out of bounds "
-            f"for {_profile_id(profile)}"
-        )
+        assert result.estimated_replacement_ratio is None
 
     @pytest.mark.parametrize(
         "profile", CORE_PROFILES, ids=[_profile_id(p) for p in CORE_PROFILES]
@@ -195,11 +189,11 @@ class TestBatchEdgeCases:
     """Edge cases that must not crash or produce absurd values."""
 
     def test_zero_salary(self):
-        """Zero salary: AVS = 0, LPP = 0, no crash."""
+        """Zero salary: AVS stays unknown, LPP = 0, no crash."""
         result = compute_minimal_profile(
             MinimalProfileInput(age=45, gross_salary=0, canton="ZH")
         )
-        assert result.projected_avs_monthly == 0
+        assert result.projected_avs_monthly is None
         assert result.projected_lpp_capital == 0
 
     def test_retired_age_66(self):
@@ -207,8 +201,7 @@ class TestBatchEdgeCases:
         result = compute_minimal_profile(
             MinimalProfileInput(age=66, gross_salary=80_000, canton="ZH")
         )
-        # AVS should be near-max (44 years of contributions)
-        assert result.projected_avs_monthly > 0
+        assert result.projected_avs_monthly is None
         assert result.confidence_score >= 0
 
     def test_very_young_age_20(self):
@@ -217,15 +210,14 @@ class TestBatchEdgeCases:
             MinimalProfileInput(age=20, gross_salary=50_000, canton="GE")
         )
         assert result.projected_lpp_capital > 0
-        assert result.projected_avs_monthly > 0
+        assert result.projected_avs_monthly is None
 
     def test_very_high_salary(self):
-        """300k salary: AVS capped at max, LPP substantial."""
+        """300k salary: AVS stays unknown; standalone LPP remains available."""
         result = compute_minimal_profile(
             MinimalProfileInput(age=50, gross_salary=300_000, canton="ZH")
         )
-        # AVS is capped at max rente regardless of salary above RAMD
-        assert result.projected_avs_monthly <= 2_520.0 + 1.0
+        assert result.projected_avs_monthly is None
 
     def test_below_lpp_threshold(self):
         """Salary below LPP threshold (22'680): no LPP bonifications."""
@@ -246,8 +238,8 @@ class TestBatchEdgeCases:
             )
         )
         assert result.monthly_debt_impact == 5_000
-        # Retirement income can go negative (gap), but ratio must stay >= 0
-        assert result.estimated_replacement_ratio >= 0
+        assert result.estimated_replacement_ratio is None
+        assert result.estimated_monthly_retirement is None
 
     def test_property_owner_vs_renter(self):
         """Property owner vs renter: both must produce valid results."""
@@ -263,7 +255,8 @@ class TestBatchEdgeCases:
                 is_property_owner=False,
             )
         )
-        assert owner.projected_avs_monthly == renter.projected_avs_monthly
+        assert owner.projected_avs_monthly is None
+        assert renter.projected_avs_monthly is None
         assert owner.projected_lpp_capital == renter.projected_lpp_capital
 
     def test_all_26_cantons(self):
@@ -278,9 +271,7 @@ class TestBatchEdgeCases:
                 MinimalProfileInput(age=50, gross_salary=80_000, canton=canton)
             )
             assert result is not None, f"Canton {canton} failed"
-            assert result.projected_avs_monthly > 0, (
-                f"Canton {canton}: AVS rente should be > 0"
-            )
+            assert result.projected_avs_monthly is None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -338,17 +329,16 @@ class TestBatchConfidence:
 class TestBatchMonotonicity:
     """Verify that financial projections behave monotonically."""
 
-    def test_higher_salary_higher_avs(self):
-        """Higher salary → higher AVS rente (up to max)."""
+    def test_salary_never_unlocks_avs(self):
+        """Neither low nor high salary is official pension evidence."""
         low = compute_minimal_profile(
             MinimalProfileInput(age=50, gross_salary=40_000, canton="ZH")
         )
         high = compute_minimal_profile(
             MinimalProfileInput(age=50, gross_salary=80_000, canton="ZH")
         )
-        assert high.projected_avs_monthly >= low.projected_avs_monthly, (
-            f"Higher salary should give higher AVS: {high.projected_avs_monthly} < {low.projected_avs_monthly}"
-        )
+        assert low.projected_avs_monthly is None
+        assert high.projected_avs_monthly is None
 
     def test_higher_salary_higher_lpp(self):
         """Higher salary → higher LPP capital (same age)."""
@@ -379,8 +369,8 @@ class TestBatchMonotonicity:
             f"{high.projected_lpp_capital} <= {low.projected_lpp_capital}"
         )
 
-    def test_debt_reduces_retirement(self):
-        """More debt → lower retirement income."""
+    def test_debt_stays_standalone_without_complete_retirement_income(self):
+        """Debt remains visible while AVS-dependent totals stay unknown."""
         no_debt = compute_minimal_profile(
             MinimalProfileInput(
                 age=50, gross_salary=80_000, canton="ZH",
@@ -393,10 +383,10 @@ class TestBatchMonotonicity:
                 monthly_debt_service=1_000,
             )
         )
-        assert with_debt.estimated_monthly_retirement < no_debt.estimated_monthly_retirement, (
-            f"Debt should reduce retirement: {with_debt.estimated_monthly_retirement} >= "
-            f"{no_debt.estimated_monthly_retirement}"
-        )
+        assert no_debt.monthly_debt_impact == 0
+        assert with_debt.monthly_debt_impact == 1_000
+        assert no_debt.estimated_monthly_retirement is None
+        assert with_debt.estimated_monthly_retirement is None
 
     def test_complementaire_lower_monthly_than_base(self):
         """Complementaire LPP (5.8%) → lower monthly rente than base (6.8%)."""

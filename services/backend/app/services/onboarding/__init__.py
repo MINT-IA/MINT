@@ -13,7 +13,7 @@ Components:
 Sources:
     - LAVS art. 21-29 (rente AVS)
     - LPP art. 15-16 (bonifications vieillesse)
-    - LIFD art. 38 (imposition du capital)
+    - LIFD art. 33 (deduction des cotisations 3a)
     - OPP3 art. 7 (plafond 3a)
 """
 

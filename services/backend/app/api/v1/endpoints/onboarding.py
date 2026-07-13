@@ -2,18 +2,21 @@
 Onboarding endpoints — Sprint S31: Onboarding Redesign.
 
 POST /api/v1/onboarding/minimal-profile — compute minimal financial profile
-POST /api/v1/onboarding/premier-eclairage   — select impactful premier éclairage
+POST "/api/v1/onboarding/premier-eclairage" — select impactful premier éclairage
 
 Given only 3 inputs (age, salary, canton), produces:
-- A full financial snapshot with confidence scoring
+- A partial financial snapshot with confidence scoring
 - A single impactful "premier éclairage" to motivate the user
+
+AVS-dependent amounts remain null until a reviewed owner-scoped official
+pension envelope exists; this endpoint does not accept such an envelope today.
 
 All endpoints are stateless (no data storage). Pure computation on the fly.
 
 Sources:
     - LAVS art. 21-29 (rente AVS)
     - LPP art. 15-16 (bonifications vieillesse)
-    - LIFD art. 38 (imposition du capital)
+    - LIFD art. 33 (deduction des cotisations 3a)
     - OPP3 art. 7 (plafond 3a)
 """
 
@@ -106,9 +109,9 @@ def compute_premier_eclairage(request: Request, body: MinimalProfileRequest) -> 
 
     Priorite:
     1. Crise de liquidite (< 2 mois de reserve)
-    2. Gap retraite (taux de remplacement < 55%)
+    2. Intention appuyee par une donnee autonome (budget ou fiscalite)
     3. Economie fiscale 3a (pas de 3a + economie > 1'500 CHF)
-    4. Fallback: gap retraite
+    4. Fallback non-retraite adapte au cycle de vie
 
     Returns:
         PremierEclairageResponse avec categorie, texte d'accroche, disclaimer et sources.

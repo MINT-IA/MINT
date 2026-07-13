@@ -6,7 +6,7 @@ Tests for MinimalProfileService — Sprint S31: Onboarding Redesign.
     - TestFullEnrichment (3): all fields provided, confidence boost
     - TestEstimatedFields (3): correct tracking of defaulted fields
     - TestConfidenceScoring (3): score boundaries and field impact
-    - TestAvsProjection (3): AVS rente for different salaries/ages
+    - TestCertifiedNullAggregates (2): AVS-dependent outputs remain unknown
     - TestLppProjection (3): LPP capital projection logic
     - TestCompliance (3): disclaimer, sources, banned terms
     - TestEdgeCases (3): age boundaries, zero/high salary
@@ -14,7 +14,7 @@ Tests for MinimalProfileService — Sprint S31: Onboarding Redesign.
 Sources:
     - LAVS art. 21-29 (rente AVS)
     - LPP art. 15-16 (bonifications vieillesse)
-    - LIFD art. 38 (imposition du capital)
+    - LIFD art. 33 (deduction des cotisations 3a)
     - OPP3 art. 7 (plafond 3a)
 """
 
@@ -22,16 +22,11 @@ import pytest
 
 from app.services.onboarding.minimal_profile_service import (
     compute_minimal_profile,
-    _estimate_avs_monthly,
     _project_lpp_capital,
     _estimate_lpp_from_age_25,
     _compute_confidence_score,
 )
 from app.services.onboarding.onboarding_models import MinimalProfileInput
-from app.constants.social_insurance import (
-    AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE,
-)
 
 
 # Banned terms that must NEVER appear in user-facing text
@@ -89,42 +84,41 @@ class TestMinimalInputs:
     """Test with only 3 required inputs (age, salary, canton)."""
 
     def test_basic_computation_returns_result(self, minimal_result_30_80k_vd):
-        """3 inputs should produce a valid result with all fields populated."""
+        """Three inputs produce a valid partial result with explicit unknowns."""
         r = minimal_result_30_80k_vd
-        assert r.projected_avs_monthly > 0
+        assert r.projected_avs_monthly is None
         assert r.projected_lpp_capital > 0
         assert r.projected_lpp_monthly > 0
-        assert r.estimated_replacement_ratio > 0
-        assert r.estimated_monthly_retirement > 0
+        assert r.estimated_replacement_ratio is None
+        assert r.estimated_monthly_retirement is None
+        assert r.retirement_gap_monthly is None
         assert r.estimated_monthly_expenses > 0
         assert r.tax_saving_3a > 0
         assert r.marginal_tax_rate > 0
         assert r.months_liquidity >= 0
 
     def test_low_salary_20k(self):
-        """Low salary (20k): below LPP threshold, minimal AVS."""
+        """Low salary (20k): below the LPP threshold; AVS stays unknown."""
         inp = MinimalProfileInput(age=30, gross_salary=20_000.0, canton="GE")
         r = compute_minimal_profile(inp)
         # Below LPP entry threshold (22'680): LPP should be 0
-        assert r.projected_lpp_capital == 0.0 or r.projected_lpp_capital > 0
-        # AVS should still be computed (low RAMD = minimal rente)
-        assert r.projected_avs_monthly > 0
+        assert r.projected_lpp_capital == 0.0
+        assert r.projected_avs_monthly is None
 
     def test_high_salary_200k(self):
-        """High salary (200k): AVS capped at max, LPP cap on coordinated."""
+        """High salary (200k): AVS stays unknown; LPP uses coordinated salary."""
         inp = MinimalProfileInput(age=40, gross_salary=200_000.0, canton="ZG")
         r = compute_minimal_profile(inp)
-        # AVS monthly should be near max (full years)
-        assert r.projected_avs_monthly <= AVS_RENTE_MAX_MENSUELLE
-        # High salary means solid replacement
+        assert r.projected_avs_monthly is None
+        # High salary still supports a substantial standalone LPP projection.
         assert r.projected_lpp_capital > 200_000
 
     def test_median_salary_75k(self):
         """Median Swiss salary (~75k) should produce balanced results."""
         inp = MinimalProfileInput(age=35, gross_salary=75_000.0, canton="BE")
         r = compute_minimal_profile(inp)
-        # Replacement ratio for 35yo with 75k should be moderate
-        assert 0.3 < r.estimated_replacement_ratio < 1.0
+        assert r.estimated_replacement_ratio is None
+        assert r.projected_lpp_monthly > 0
         assert r.archetype == "swiss_native"
 
 
@@ -216,55 +210,6 @@ class TestConfidenceScoring:
 
 
 # ===========================================================================
-# TestAvsProjection — 3 tests
-# ===========================================================================
-
-class TestAvsProjection:
-    """Test AVS rente estimation logic."""
-
-    def test_avs_max_rente_high_salary(self):
-        """Salary above 88'200 with 44 years: should get max rente."""
-        rente = _estimate_avs_monthly(100_000.0, 44)
-        assert rente == AVS_RENTE_MAX_MENSUELLE
-
-    def test_avs_min_rente_low_salary(self):
-        """Salary below 14'700 with 44 years: should get min rente."""
-        rente = _estimate_avs_monthly(10_000.0, 44)
-        assert rente == AVS_RENTE_MIN_MENSUELLE
-
-    def test_avs_interpolation_mid_salary(self):
-        """Salary between 14'700 and 88'200: should interpolate."""
-        rente = _estimate_avs_monthly(50_000.0, 44)
-        assert AVS_RENTE_MIN_MENSUELLE < rente < AVS_RENTE_MAX_MENSUELLE
-
-    def test_avs_reduction_for_incomplete_years(self):
-        """With fewer than 44 years, rente should be reduced."""
-        full = _estimate_avs_monthly(80_000.0, 44)
-        partial = _estimate_avs_monthly(80_000.0, 22)
-        assert partial < full
-        assert abs(partial - full * 0.5) < 1.0  # ~50% of full
-
-    def test_avs_ramd_lauren_67k_full_years(self):
-        """Golden couple: Lauren (67k, full 44 years) uses RAMD interpolation.
-
-        RAMD = 67'000: ratio = (67000-14700)/(88200-14700) ≈ 0.7116
-        full_rente = 1260 + 0.7116 * 1260 ≈ 2156.6 CHF/mois (full years).
-        With 40 contribution years: 2156.6 * 40/44 ≈ 1960.5 CHF/mois.
-        This verifies RAMD interpolation works, NOT flat max.
-        """
-        full_rente = _estimate_avs_monthly(67_000.0, 44)
-        # RAMD interpolation: must be between min and max
-        assert AVS_RENTE_MIN_MENSUELLE < full_rente < AVS_RENTE_MAX_MENSUELLE
-        # Expected: ~2156.6 CHF for full years (linear interpolation)
-        assert abs(full_rente - 2156.6) < 5.0, f"Expected ~2156.6, got {full_rente}"
-
-        # With 40 contribution years (~expat with partial gap)
-        partial_rente = _estimate_avs_monthly(67_000.0, 40)
-        expected_partial = full_rente * (40 / 44)
-        assert abs(partial_rente - expected_partial) < 1.0
-
-
-# ===========================================================================
 # TestLppProjection — 3 tests
 # ===========================================================================
 
@@ -338,7 +283,7 @@ class TestEdgeCases:
         """Age 22: very few contribution years, still produces valid result."""
         inp = MinimalProfileInput(age=22, gross_salary=50_000.0, canton="VD")
         r = compute_minimal_profile(inp)
-        assert r.projected_avs_monthly > 0
+        assert r.projected_avs_monthly is None
         # Young worker with no LPP yet (age < 25)
         assert r.archetype == "swiss_native"
 
@@ -348,23 +293,21 @@ class TestEdgeCases:
         r = compute_minimal_profile(inp)
         # Only 1 year to retirement
         assert r.projected_lpp_capital > 0
-        # Should have close to max AVS years
-        assert r.projected_avs_monthly > AVS_RENTE_MIN_MENSUELLE
+        assert r.projected_avs_monthly is None
 
     def test_salary_zero(self):
-        """Salary 0: no AVS, no LPP, replacement ratio 0."""
+        """Salary 0: AVS-dependent outputs stay unknown and no LPP is projected."""
         inp = MinimalProfileInput(age=30, gross_salary=0.0, canton="GE")
         r = compute_minimal_profile(inp)
-        assert r.projected_avs_monthly == 0.0
-        assert r.estimated_replacement_ratio == 0.0
+        assert r.projected_avs_monthly is None
+        assert r.estimated_replacement_ratio is None
         assert r.estimated_monthly_expenses == 0.0
 
     def test_salary_500k_very_high(self):
-        """Salary 500k: AVS capped, LPP capped on coordinated salary."""
+        """Salary 500k: AVS stays unknown; LPP uses capped coordinated salary."""
         inp = MinimalProfileInput(age=40, gross_salary=500_000.0, canton="ZG")
         r = compute_minimal_profile(inp)
-        # AVS rente capped at max
-        assert r.projected_avs_monthly <= AVS_RENTE_MAX_MENSUELLE
+        assert r.projected_avs_monthly is None
         # LPP coordinated salary is capped
         assert r.projected_lpp_capital > 0
 
@@ -394,22 +337,15 @@ class TestEdgeCases:
 # TestReplacementRatio — 2 tests
 # ===========================================================================
 
-class TestReplacementRatio:
-    """Test replacement ratio computation correctness."""
+class TestCertifiedNullAggregates:
+    """AVS-dependent aggregates stay unknown without official evidence."""
 
-    def test_replacement_ratio_formula(self, minimal_result_30_80k_vd):
-        """Replacement ratio = estimated_monthly_retirement / gross_monthly_salary.
-
-        Standard Swiss taux de remplacement: retirement income vs salary, not expenses.
-        """
+    def test_replacement_ratio_stays_unknown(self, minimal_result_30_80k_vd):
         r = minimal_result_30_80k_vd
-        gross_monthly = 80_000.0 / 12
-        if gross_monthly > 0:
-            expected = r.estimated_monthly_retirement / gross_monthly
-            assert abs(r.estimated_replacement_ratio - expected) < 0.001
+        assert r.estimated_replacement_ratio is None
+        assert r.retirement_gap_monthly is None
 
-    def test_retirement_income_sum(self, minimal_result_30_80k_vd):
-        """Monthly retirement income = AVS + LPP monthly."""
+    def test_lpp_stays_standalone_not_a_complete_total(self, minimal_result_30_80k_vd):
         r = minimal_result_30_80k_vd
-        expected = r.projected_avs_monthly + r.projected_lpp_monthly
-        assert abs(r.estimated_monthly_retirement - expected) < 0.01
+        assert r.projected_lpp_monthly > 0
+        assert r.estimated_monthly_retirement is None

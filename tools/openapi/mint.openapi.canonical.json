@@ -14009,7 +14009,7 @@
         "type": "object"
       },
       "MinimalProfileResponse": {
-        "description": "Resultat complet du profil minimal d'onboarding.",
+        "description": "Resultat partiel du profil minimal d'onboarding.",
         "properties": {
           "archetype": {
             "description": "Archetype financier detecte",
@@ -14048,14 +14048,28 @@
             "type": "number"
           },
           "estimatedMonthlyRetirement": {
-            "description": "Revenu mensuel estime a la retraite (CHF)",
-            "title": "Estimatedmonthlyretirement",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Revenu mensuel retraite (CHF), null tant que la rente AVS est inconnue",
+            "title": "Estimatedmonthlyretirement"
           },
           "estimatedReplacementRatio": {
-            "description": "Taux de remplacement estime (0.0 - 1.0+)",
-            "title": "Estimatedreplacementratio",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Taux de remplacement, null tant que la rente AVS est inconnue",
+            "title": "Estimatedreplacementratio"
           },
           "marginalTaxRate": {
             "description": "Taux marginal d'imposition estime (0.0 - 0.50)",
@@ -14063,7 +14077,7 @@
             "type": "number"
           },
           "monthlyDebtImpact": {
-            "description": "Impact mensuel de la dette sur le revenu de retraite (CHF)",
+            "description": "Charge mensuelle de dette declaree ou illustree (CHF)",
             "title": "Monthlydebtimpact",
             "type": "number"
           },
@@ -14073,9 +14087,16 @@
             "type": "number"
           },
           "projectedAvsMonthly": {
-            "description": "Rente AVS mensuelle projetee (CHF)",
-            "title": "Projectedavsmonthly",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Rente AVS mensuelle (CHF), null sans enveloppe officielle revue et rattachee au proprietaire",
+            "title": "Projectedavsmonthly"
           },
           "projectedLppCapital": {
             "description": "Capital LPP projete a la retraite (CHF)",
@@ -14088,9 +14109,16 @@
             "type": "number"
           },
           "retirementGapMonthly": {
-            "description": "Ecart mensuel entre salaire brut et revenu retraite (CHF)",
-            "title": "Retirementgapmonthly",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Ecart mensuel retraite (CHF), null tant que le revenu retraite est incomplet",
+            "title": "Retirementgapmonthly"
           },
           "sources": {
             "description": "References legales suisses",
@@ -22895,6 +22923,72 @@
         "title": "ConsentUpdateRequest",
         "type": "object"
       },
+      "h_4b808288155b__PremierEclairageResponse": {
+        "description": "Chiffre choc: un nombre marquant avec contexte educatif.",
+        "properties": {
+          "actionText": {
+            "description": "Call-to-action vers le module concerne",
+            "title": "Actiontext",
+            "type": "string"
+          },
+          "category": {
+            "description": "Categorie: tax_saving, liquidity, compound_growth, hourly_rate",
+            "title": "Category",
+            "type": "string"
+          },
+          "confidenceMode": {
+            "default": "factual",
+            "description": "Mode de confiance: 'factual' (donnees reelles) ou 'pedagogical' (estimation)",
+            "title": "Confidencemode",
+            "type": "string"
+          },
+          "confidenceScore": {
+            "description": "Score de confiance de la projection (0-100%)",
+            "title": "Confidencescore",
+            "type": "number"
+          },
+          "disclaimer": {
+            "description": "Disclaimer legal (outil educatif, LSFin)",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "displayText": {
+            "description": "Texte d'accroche en francais (tu informel)",
+            "title": "Displaytext",
+            "type": "string"
+          },
+          "explanationText": {
+            "description": "Explication pedagogique",
+            "title": "Explanationtext",
+            "type": "string"
+          },
+          "primaryNumber": {
+            "description": "Le nombre principal marquant",
+            "title": "Primarynumber",
+            "type": "number"
+          },
+          "sources": {
+            "description": "References legales suisses",
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "category",
+          "primaryNumber",
+          "displayText",
+          "explanationText",
+          "actionText",
+          "disclaimer",
+          "sources",
+          "confidenceScore"
+        ],
+        "title": "PremierEclairageResponse",
+        "type": "object"
+      },
       "h_56bf17ec2da1__TransactionResponse": {
         "description": "A single bank transaction in the API response.",
         "properties": {
@@ -23195,72 +23289,6 @@
         ],
         "title": "EtatCivil",
         "type": "string"
-      },
-      "h_d3bda4c9e503__PremierEclairageResponse": {
-        "description": "Chiffre choc: un nombre marquant avec contexte educatif.",
-        "properties": {
-          "actionText": {
-            "description": "Call-to-action vers le module concerne",
-            "title": "Actiontext",
-            "type": "string"
-          },
-          "category": {
-            "description": "Categorie: retirement_gap, tax_saving, liquidity, compound_growth, hourly_rate",
-            "title": "Category",
-            "type": "string"
-          },
-          "confidenceMode": {
-            "default": "factual",
-            "description": "Mode de confiance: 'factual' (donnees reelles) ou 'pedagogical' (estimation)",
-            "title": "Confidencemode",
-            "type": "string"
-          },
-          "confidenceScore": {
-            "description": "Score de confiance de la projection (0-100%)",
-            "title": "Confidencescore",
-            "type": "number"
-          },
-          "disclaimer": {
-            "description": "Disclaimer legal (outil educatif, LSFin)",
-            "title": "Disclaimer",
-            "type": "string"
-          },
-          "displayText": {
-            "description": "Texte d'accroche en francais (tu informel)",
-            "title": "Displaytext",
-            "type": "string"
-          },
-          "explanationText": {
-            "description": "Explication pedagogique",
-            "title": "Explanationtext",
-            "type": "string"
-          },
-          "primaryNumber": {
-            "description": "Le nombre principal marquant",
-            "title": "Primarynumber",
-            "type": "number"
-          },
-          "sources": {
-            "description": "References legales suisses",
-            "items": {
-              "type": "string"
-            },
-            "title": "Sources",
-            "type": "array"
-          }
-        },
-        "required": [
-          "category",
-          "primaryNumber",
-          "displayText",
-          "explanationText",
-          "actionText",
-          "disclaimer",
-          "sources",
-          "confidenceScore"
-        ],
-        "title": "PremierEclairageResponse",
-        "type": "object"
       },
       "h_d9c8615890ff__ConsentUpdateRequest": {
         "description": "Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients.",
@@ -30451,7 +30479,7 @@
     },
     "/api/v1/onboarding/premier-eclairage": {
       "post": {
-        "description": "Calcule le premier éclairage le plus percutant pour l'onboarding.\n\nPrend les memes inputs que le profil minimal, calcule le profil\nen interne, puis selectionne LE premier éclairage le plus impactant.\n\nPriorite:\n1. Crise de liquidite (< 2 mois de reserve)\n2. Gap retraite (taux de remplacement < 55%)\n3. Economie fiscale 3a (pas de 3a + economie > 1'500 CHF)\n4. Fallback: gap retraite\n\nReturns:\n    PremierEclairageResponse avec categorie, texte d'accroche, disclaimer et sources.",
+        "description": "Calcule le premier éclairage le plus percutant pour l'onboarding.\n\nPrend les memes inputs que le profil minimal, calcule le profil\nen interne, puis selectionne LE premier éclairage le plus impactant.\n\nPriorite:\n1. Crise de liquidite (< 2 mois de reserve)\n2. Intention appuyee par une donnee autonome (budget ou fiscalite)\n3. Economie fiscale 3a (pas de 3a + economie > 1'500 CHF)\n4. Fallback non-retraite adapte au cycle de vie\n\nReturns:\n    PremierEclairageResponse avec categorie, texte d'accroche, disclaimer et sources.",
         "operationId": "compute_premier_eclairage_api_v1_onboarding_premier_eclairage_post",
         "requestBody": {
           "content": {
@@ -30468,7 +30496,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/h_d3bda4c9e503__PremierEclairageResponse"
+                  "$ref": "#/components/schemas/h_4b808288155b__PremierEclairageResponse"
                 }
               }
             },

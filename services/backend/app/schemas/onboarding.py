@@ -5,7 +5,7 @@ API convention: camelCase field names via alias_generator, ConfigDict.
 
 Covers:
     - MinimalProfileRequest: input for minimal profile computation (3 required + 8 optional)
-    - MinimalProfileResponse: full projection result with confidence scoring
+    - MinimalProfileResponse: partial snapshot with certified-null AVS aggregates
     - PremierEclairageResponse: single impactful number with educational context
 """
 
@@ -112,11 +112,15 @@ class MinimalProfileRequest(OnboardingBaseModel):
 # ===========================================================================
 
 class MinimalProfileResponse(OnboardingBaseModel):
-    """Resultat complet du profil minimal d'onboarding."""
+    """Resultat partiel du profil minimal d'onboarding."""
 
     # Projections
-    projected_avs_monthly: float = Field(
-        ..., description="Rente AVS mensuelle projetee (CHF)",
+    projected_avs_monthly: Optional[float] = Field(
+        ...,
+        description=(
+            "Rente AVS mensuelle (CHF), null sans enveloppe officielle revue "
+            "et rattachee au proprietaire"
+        ),
     )
     projected_lpp_capital: float = Field(
         ..., description="Capital LPP projete a la retraite (CHF)",
@@ -124,22 +128,25 @@ class MinimalProfileResponse(OnboardingBaseModel):
     projected_lpp_monthly: float = Field(
         ..., description="Rente LPP mensuelle projetee (CHF)",
     )
-    estimated_replacement_ratio: float = Field(
-        ..., description="Taux de remplacement estime (0.0 - 1.0+)",
+    estimated_replacement_ratio: Optional[float] = Field(
+        ...,
+        description="Taux de remplacement, null tant que la rente AVS est inconnue",
     )
-    estimated_monthly_retirement: float = Field(
-        ..., description="Revenu mensuel estime a la retraite (CHF)",
+    estimated_monthly_retirement: Optional[float] = Field(
+        ...,
+        description="Revenu mensuel retraite (CHF), null tant que la rente AVS est inconnue",
     )
     estimated_monthly_expenses: float = Field(
         ..., description="Charges mensuelles estimees actuelles (CHF)",
     )
-    retirement_gap_monthly: float = Field(
-        ..., description="Ecart mensuel entre salaire brut et revenu retraite (CHF)",
+    retirement_gap_monthly: Optional[float] = Field(
+        ...,
+        description="Ecart mensuel retraite (CHF), null tant que le revenu retraite est incomplet",
     )
 
     # Debt impact
     monthly_debt_impact: float = Field(
-        ..., description="Impact mensuel de la dette sur le revenu de retraite (CHF)",
+        ..., description="Charge mensuelle de dette declaree ou illustree (CHF)",
     )
 
     # Tax
@@ -182,7 +189,7 @@ class PremierEclairageResponse(OnboardingBaseModel):
     """Chiffre choc: un nombre marquant avec contexte educatif."""
 
     category: str = Field(
-        ..., description="Categorie: retirement_gap, tax_saving, liquidity, compound_growth, hourly_rate",
+        ..., description="Categorie: tax_saving, liquidity, compound_growth, hourly_rate",
     )
     primary_number: float = Field(
         ..., description="Le nombre principal marquant",

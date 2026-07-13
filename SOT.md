@@ -155,3 +155,21 @@ Source: `apps/mobile/lib/services/financial_core/confidence_scorer.dart`
   simplified estimator leaves `renteCoupleMensuelle` null and overview exposes
   no household AVS total until both owner-scoped pensions, entitlement,
   splitting and applicable cap inputs are available.
+
+## 8. Minimal onboarding certified-null AVS boundary (G1)
+
+- `POST /api/v1/onboarding/minimal-profile` has no input for the strict-secure,
+  reviewed, owner-scoped official AVS pension envelope described in §6.
+- `projectedAvsMonthly`, `estimatedMonthlyRetirement`,
+  `estimatedReplacementRatio`, and `retirementGapMonthly` are required nullable
+  response fields and are emitted as JSON `null` today. Age, salary, canton,
+  civil-status declarations, nationality and arrival hints cannot unlock them.
+- Standalone illustrative LPP capital/monthly figures, tax, liquidity and debt
+  outputs remain available; none may be relabelled as a complete retirement
+  total or converted into a zero AVS pension.
+- `POST /api/v1/onboarding/premier-eclairage` does not emit the legacy
+  `retirement_gap` or `retirement_income` categories. Its selector ignores
+  manually populated legacy AVS-dependent doubles and chooses an independently
+  supported liquidity, tax, compound-growth or hourly-rate insight instead.
+- Reactivation requires a future typed provenance contract plus reviewed
+  ingestion/write-back. A non-null legacy double alone is never sufficient.

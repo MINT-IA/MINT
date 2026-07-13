@@ -97,15 +97,13 @@ class TestGoldenJulienLauren:
     def test_julien_base(self):
         """Julien with only age=49, salary=122k, canton=VS (CLAUDE.md §8).
 
-        At 100k salary (above AVS RAMD max of 88'200), Julien should get
-        near-maximum AVS rente. LPP estimated from age 25 should be substantial.
+        Minimal onboarding has no reviewed official AVS envelope, so AVS stays
+        unknown. LPP estimated from age 25 should remain substantial.
         With only 3 inputs, confidence must be 30% and 7 fields estimated.
         """
         result = compute_minimal_profile(_julien_base())
 
-        assert result.projected_avs_monthly > 2000, (
-            f"Julien at 100k should get near-max AVS rente, got {result.projected_avs_monthly}"
-        )
+        assert result.projected_avs_monthly is None
         assert result.projected_lpp_capital > 200_000, (
             f"Julien with 25 years of contributions (estimated from age 25) "
             f"should have >300k LPP, got {result.projected_lpp_capital}"
@@ -123,14 +121,12 @@ class TestGoldenJulienLauren:
     def test_julien_full(self):
         """Julien with ALL golden couple fields filled.
 
-        AVS and LPP projections should still be strong. Confidence must be 100%
+        AVS remains unknown while standalone LPP stays available. Confidence must be 100%
         with no estimated fields. No debt impact.
         """
         result = compute_minimal_profile(_julien_full())
 
-        assert result.projected_avs_monthly > 2000, (
-            f"Julien full should still get near-max AVS rente, got {result.projected_avs_monthly}"
-        )
+        assert result.projected_avs_monthly is None
         assert result.projected_lpp_capital > 250_000, (
             f"Julien full with 350k existing LPP should project >500k, "
             f"got {result.projected_lpp_capital}"
@@ -187,15 +183,13 @@ class TestGoldenJulienLauren:
     def test_lauren_base(self):
         """Lauren with only age=43, salary=67k, canton=VS (CLAUDE.md §8).
 
-        At 60k, Lauren is above the AVS RAMD low (14'700) so she should get
-        above-minimum rente. LPP estimated from age 25 should be >100k.
+        Lauren's AVS remains unknown without reviewed official evidence. LPP
+        estimated from age 25 should stay available.
         Confidence must be 30%.
         """
         result = compute_minimal_profile(_lauren_base())
 
-        assert result.projected_avs_monthly > 1500, (
-            f"Lauren at 60k should be above minimum AVS rente, got {result.projected_avs_monthly}"
-        )
+        assert result.projected_avs_monthly is None
         assert result.projected_lpp_capital > 50_000, (
             f"Lauren with 20 years of contributions should have >100k LPP, "
             f"got {result.projected_lpp_capital}"
@@ -216,21 +210,15 @@ class TestGoldenJulienLauren:
         assert result.monthly_debt_impact == 0.0, (
             f"Lauren has no debt, got impact {result.monthly_debt_impact}"
         )
-        assert result.projected_avs_monthly > 1500, (
-            f"Lauren AVS should be >1500, got {result.projected_avs_monthly}"
-        )
+        assert result.projected_avs_monthly is None
         assert result.confidence_score == 100.0, (
             f"With all fields, confidence must be 100.0, got {result.confidence_score}"
         )
 
     # ── 6. Lauren debt reduces retirement ────────────────────────────────────
 
-    def test_debt_reduces_retirement(self):
-        """Compare profile with and without monthly_debt_service=500.
-
-        The difference in estimated_monthly_retirement should be exactly 500 CHF.
-        Uses synthetic debt data (Lauren has no debt in golden profile).
-        """
+    def test_debt_stays_standalone_while_retirement_is_unknown(self):
+        """Debt remains visible without being folded into an incomplete total."""
         lauren_with_debt = MinimalProfileInput(
             age=43, gross_salary=67_000.0, canton="VS",
             monthly_debt_service=500.0,
@@ -244,45 +232,36 @@ class TestGoldenJulienLauren:
         result_debt = compute_minimal_profile(lauren_with_debt)
         result_no_debt = compute_minimal_profile(lauren_no_debt)
 
-        difference = result_no_debt.estimated_monthly_retirement - result_debt.estimated_monthly_retirement
-        assert difference == 500.0, (
-            f"Debt impact difference should be exactly 500.0 CHF, got {difference}. "
-            f"With debt: {result_debt.estimated_monthly_retirement}, "
-            f"Without: {result_no_debt.estimated_monthly_retirement}"
-        )
+        assert result_debt.monthly_debt_impact == 500.0
+        assert result_no_debt.monthly_debt_impact == 0.0
+        assert result_debt.estimated_monthly_retirement is None
+        assert result_no_debt.estimated_monthly_retirement is None
 
     # ── 7. Julien replacement ratio ──────────────────────────────────────────
 
     def test_julien_replacement_ratio(self):
-        """Julien full profile replacement ratio should be in [0.50, 1.00].
+        """Julien's replacement ratio stays unknown without official AVS.
 
-        At 100k salary, estimated expenses ~87%*85%/12 = ~6'162/month.
-        Retirement income (AVS ~2'520 + LPP ~2'900/month with 350k existing)
-        yields a high replacement ratio around 0.88 for this strong profile.
+        The independently projected LPP remains available for later reviewed
+        composition with an owner-scoped AVS pension.
         """
         result = compute_minimal_profile(_julien_full())
 
-        assert 0.25 < result.estimated_replacement_ratio < 1.00, (
-            f"Julien's replacement ratio should be between 0.50 and 1.00, "
-            f"got {result.estimated_replacement_ratio}"
-        )
+        assert result.estimated_replacement_ratio is None
+        assert result.projected_lpp_monthly > 0
 
     # ── 8. Lauren replacement ratio with debt ────────────────────────────────
 
     def test_lauren_replacement_ratio_with_debt(self):
-        """Lauren full profile with debt: replacement ratio in [0.50, 1.00].
+        """Lauren's replacement ratio stays unknown even with debt data.
 
-        At 60k salary, expenses ~87%*85%/12 = ~3'697/month.
-        Retirement (AVS ~2'037 + LPP ~1'575 - 500 debt) / expenses ~0.84.
-        Even with debt subtracted, the ratio remains fairly high due to
-        lower estimated expenses on a 60k salary.
+        Debt and LPP remain standalone facts until an official AVS pension can
+        support a reviewed retirement total.
         """
         result = compute_minimal_profile(_lauren_full())
 
-        assert 0.25 < result.estimated_replacement_ratio < 1.00, (
-            f"Lauren's replacement ratio with debt should be between 0.50 and 1.00, "
-            f"got {result.estimated_replacement_ratio}"
-        )
+        assert result.estimated_replacement_ratio is None
+        assert result.projected_lpp_monthly > 0
 
     # ── 9. Debt priority: monthly_debt_service wins over total_debts ─────────
 

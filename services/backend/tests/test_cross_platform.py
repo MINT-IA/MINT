@@ -5,7 +5,7 @@ This test suite validates that the Python backend (source of truth) and
 Dart financial_core calculators are aligned by testing:
 
 1. Constants alignment: Same values in social_insurance.py and social_insurance.dart
-2. AVS rente computation: Same inputs → same outputs
+2. AVS onboarding boundary: Same inputs → the same explicit unknown
 3. LPP projection: Same inputs → same outputs
 4. Tax calculation: Progressive brackets produce identical amounts
 5. Golden couple values: Julien + Lauren get same results on both sides
@@ -261,18 +261,12 @@ class TestGoldenCoupleContract:
     """
 
     def test_julien_onboarding_pinned(self):
-        """Julien (50, 100k, ZH) — pin AVS and LPP projections."""
+        """Julien (50, 100k, ZH) — pin certified-null AVS and LPP projection."""
         result = compute_minimal_profile(
             MinimalProfileInput(age=50, gross_salary=100_000, canton="ZH")
         )
 
-        # AVS: at 100k (above RAMD max 88'200), should get max or near-max
-        assert result.projected_avs_monthly >= 2_400, (
-            f"Julien AVS should be near-max: {result.projected_avs_monthly}"
-        )
-        assert result.projected_avs_monthly <= 2_520, (
-            f"Julien AVS should not exceed max: {result.projected_avs_monthly}"
-        )
+        assert result.projected_avs_monthly is None
 
         # LPP: estimated from age 25, 15 years to retirement
         assert result.projected_lpp_capital > 300_000, (
@@ -285,15 +279,12 @@ class TestGoldenCoupleContract:
         )
 
     def test_lauren_onboarding_pinned(self):
-        """Lauren (45, 60k, ZH) — pin AVS and LPP projections."""
+        """Lauren (45, 60k, ZH) — pin certified-null AVS and LPP projection."""
         result = compute_minimal_profile(
             MinimalProfileInput(age=45, gross_salary=60_000, canton="ZH")
         )
 
-        # AVS: at 60k (between RAMD low/high), interpolated
-        assert 1_500 < result.projected_avs_monthly < 2_520, (
-            f"Lauren AVS out of expected range: {result.projected_avs_monthly}"
-        )
+        assert result.projected_avs_monthly is None
 
         # LPP: younger, lower salary → lower capital
         assert result.projected_lpp_capital > 100_000, (
@@ -332,7 +323,7 @@ class TestGoldenCoupleContract:
             "generated_by": "test_cross_platform.py",
             "julien_base": {
                 "input": {"age": 50, "gross_salary": 100_000, "canton": "ZH"},
-                "projected_avs_monthly": round(julien_base.projected_avs_monthly, 2),
+                "projected_avs_monthly": julien_base.projected_avs_monthly,
                 "projected_lpp_capital": round(julien_base.projected_lpp_capital, 2),
                 "projected_lpp_monthly": round(julien_base.projected_lpp_monthly, 2),
                 "confidence_score": julien_base.confidence_score,
@@ -340,7 +331,7 @@ class TestGoldenCoupleContract:
             },
             "lauren_base": {
                 "input": {"age": 45, "gross_salary": 60_000, "canton": "ZH"},
-                "projected_avs_monthly": round(lauren_base.projected_avs_monthly, 2),
+                "projected_avs_monthly": lauren_base.projected_avs_monthly,
                 "projected_lpp_capital": round(lauren_base.projected_lpp_capital, 2),
                 "projected_lpp_monthly": round(lauren_base.projected_lpp_monthly, 2),
                 "confidence_score": lauren_base.confidence_score,
@@ -365,5 +356,5 @@ class TestGoldenCoupleContract:
 
         # Verify contract was written
         loaded = json.loads(contract_file.read_text())
-        assert loaded["julien_base"]["projected_avs_monthly"] > 0
-        assert loaded["lauren_base"]["projected_avs_monthly"] > 0
+        assert loaded["julien_base"]["projected_avs_monthly"] is None
+        assert loaded["lauren_base"]["projected_avs_monthly"] is None

@@ -13,7 +13,7 @@ Tests for PremierEclairageSelector V2 — Sprint S57: intention × lifecycle × 
 Sources:
     - LAVS art. 21-29 (rente AVS)
     - LPP art. 15-16 (bonifications vieillesse)
-    - LIFD art. 38 (imposition du capital)
+    - LIFD art. 33 (déduction des cotisations 3a)
     - OPP3 art. 7 (plafond 3a)
 """
 
@@ -43,13 +43,13 @@ BANNED_TERMS = [
 def _make_profile(**overrides) -> MinimalProfileResult:
     """Create a MinimalProfileResult with sensible defaults, overriding as needed."""
     defaults = dict(
-        projected_avs_monthly=2000.0,
+        projected_avs_monthly=None,
         projected_lpp_capital=300_000.0,
         projected_lpp_monthly=1_700.0,
-        estimated_replacement_ratio=0.60,
-        estimated_monthly_retirement=3_700.0,
+        estimated_replacement_ratio=None,
+        estimated_monthly_retirement=None,
         estimated_monthly_expenses=5_800.0,
-        retirement_gap_monthly=4_633.33,
+        retirement_gap_monthly=None,
         tax_saving_3a=1_800.0,
         existing_3a=0.0,
         marginal_tax_rate=0.25,
@@ -60,7 +60,7 @@ def _make_profile(**overrides) -> MinimalProfileResult:
                           "existing_3a", "existing_lpp"],
         archetype="swiss_native",
         disclaimer="Outil educatif simplifie. Ne constitue pas un conseil financier (LSFin).",
-        sources=["LAVS art. 21-29", "LPP art. 15-16"],
+        sources=["LPP art. 15-16"],
         enrichment_prompts=[],
         age=45,  # Default age where retirement gap is relevant
         gross_annual_salary=100_000.0,  # Required for hourly_rate and stress guards
@@ -138,26 +138,25 @@ class TestStressAligned:
         choc = select_premier_eclairage(profile, stress_type="stress_impots")
         assert choc.category == "tax_saving"
 
-    def test_stress_retraite_low_ratio_shows_gap(self):
-        """stress_retraite with low ratio → retirement gap."""
+    def test_stress_retraite_low_legacy_ratio_uses_tax_fact(self):
+        """A legacy low ratio cannot reactivate a retirement output."""
         profile = _make_profile(
             age=45,
             estimated_replacement_ratio=0.50,
             months_liquidity=6.0,
         )
         choc = select_premier_eclairage(profile, stress_type="stress_retraite")
-        assert choc.category == "retirement_gap"
+        assert choc.category == "tax_saving"
 
-    def test_stress_retraite_ok_ratio_shows_income(self):
-        """stress_retraite with OK ratio → retirement income (not gap)."""
+    def test_stress_retraite_ok_legacy_ratio_uses_tax_fact(self):
+        """A legacy high ratio cannot reactivate a retirement output."""
         profile = _make_profile(
             age=45,
             estimated_replacement_ratio=0.65,
             months_liquidity=6.0,
         )
         choc = select_premier_eclairage(profile, stress_type="stress_retraite")
-        # Aligned with Flutter: OK ratio → retirement_income, not retirement_gap
-        assert choc.category == "retirement_income"
+        assert choc.category == "tax_saving"
 
     def test_stress_general_falls_through(self):
         """stress_general → no stress influence, uses lifecycle."""
@@ -228,15 +227,17 @@ class TestLifecycleAware:
         choc = select_premier_eclairage(profile)
         assert choc.category == "compound_growth"
 
-    def test_midcareer_gets_retirement_gap(self):
-        """Age 38+ with low replacement → retirement gap."""
+    def test_midcareer_legacy_ratio_is_ignored(self):
+        """Age 38+ uses a non-retirement fact even with a legacy low ratio."""
         profile = _make_profile(
             age=49,
             estimated_replacement_ratio=0.50,
             months_liquidity=6.0,
+            existing_3a=5_000.0,
+            tax_saving_3a=500.0,
         )
         choc = select_premier_eclairage(profile)
-        assert choc.category == "retirement_gap"
+        assert choc.category == "hourly_rate"
 
     def test_retirement_gap_under_30_skipped_to_lifecycle(self):
         """Age < 30 with low ratio → does NOT show retirement gap, uses lifecycle."""
@@ -259,8 +260,8 @@ class TestLifecycleAware:
 class TestConfidenceGating:
     """Confidence gating: estimated data → pedagogical mode."""
 
-    def test_retirement_gap_with_estimated_lpp_is_pedagogical(self):
-        """Retirement gap when LPP is estimated → pedagogical."""
+    def test_legacy_gap_with_estimated_lpp_is_quarantined(self):
+        """Estimated LPP plus a legacy ratio cannot produce a retirement choc."""
         profile = _make_profile(
             age=49,
             estimated_replacement_ratio=0.45,
@@ -268,11 +269,11 @@ class TestConfidenceGating:
             estimated_fields=["existing_lpp", "current_savings"],
         )
         choc = select_premier_eclairage(profile)
-        assert choc.category == "retirement_gap"
-        assert choc.confidence_mode == "pedagogical"
+        assert choc.category == "tax_saving"
+        assert choc.confidence_mode == "factual"
 
-    def test_retirement_gap_with_real_lpp_is_factual(self):
-        """Retirement gap when LPP is provided → factual."""
+    def test_legacy_gap_with_real_lpp_is_quarantined(self):
+        """Real LPP alone cannot complete an AVS-dependent retirement total."""
         profile = _make_profile(
             age=49,
             estimated_replacement_ratio=0.45,
@@ -280,7 +281,7 @@ class TestConfidenceGating:
             estimated_fields=[],  # All data provided
         )
         choc = select_premier_eclairage(profile)
-        assert choc.category == "retirement_gap"
+        assert choc.category == "tax_saving"
         assert choc.confidence_mode == "factual"
 
     def test_compound_growth_always_factual(self):
@@ -339,15 +340,15 @@ class TestPriorityOrdering:
         choc = select_premier_eclairage(profile, stress_type="stress_budget")
         assert choc.category == "hourly_rate"
 
-    def test_universal_retirement_gap_beats_lifecycle(self):
-        """Age 45 + low ratio → retirement_gap from universal, not lifecycle."""
+    def test_legacy_retirement_gap_never_beats_tax_fact(self):
+        """Age 45 plus a legacy low ratio still selects the standalone tax fact."""
         profile = _make_profile(
             age=45,
             estimated_replacement_ratio=0.40,
             months_liquidity=6.0,
         )
         choc = select_premier_eclairage(profile)
-        assert choc.category == "retirement_gap"
+        assert choc.category == "tax_saving"
 
     def test_tax_saving_universal_beats_lifecycle(self):
         """No 3a + high tax saving at age 45 → tax_saving from universal."""
@@ -371,7 +372,7 @@ class TestCompliance:
 
     @pytest.mark.parametrize("profile_kwargs,stress", [
         (dict(months_liquidity=0.5, estimated_fields=[], age=45), None),  # liquidity
-        (dict(age=45, estimated_replacement_ratio=0.40, months_liquidity=6.0), None),  # retirement_gap
+        (dict(age=45, estimated_replacement_ratio=0.40, months_liquidity=6.0), None),  # tax_saving
         (dict(age=30, existing_3a=0.0, tax_saving_3a=2_000.0, estimated_replacement_ratio=0.65, months_liquidity=6.0), None),  # tax_saving
         (dict(age=22, estimated_replacement_ratio=0.65, months_liquidity=6.0, existing_3a=5_000.0, tax_saving_3a=500.0), None),  # compound_growth
         (dict(age=25, estimated_replacement_ratio=0.65, months_liquidity=6.0), "stress_budget"),  # hourly_rate
@@ -440,7 +441,7 @@ class TestEndToEnd:
         inp = MinimalProfileInput(age=30, gross_salary=80_000.0, canton="VD")
         profile = compute_minimal_profile(inp)
         choc = select_premier_eclairage(profile)
-        assert choc.category in ["retirement_gap", "tax_saving", "liquidity",
+        assert choc.category in ["tax_saving", "liquidity",
                                   "compound_growth", "hourly_rate"]
         assert len(choc.display_text) > 0
         assert len(choc.disclaimer) > 0
@@ -459,8 +460,7 @@ class TestEndToEnd:
         inp = MinimalProfileInput(age=64, gross_salary=120_000.0, canton="GE")
         profile = compute_minimal_profile(inp)
         choc = select_premier_eclairage(profile)
-        assert choc.category in ["retirement_gap", "tax_saving", "liquidity",
-                                  "retirement_gap"]
+        assert choc.category in ["tax_saving", "liquidity", "hourly_rate"]
         assert choc.confidence_score == profile.confidence_score
 
     def test_full_pipeline_with_stress_type(self):

@@ -7,12 +7,16 @@ Given a MinimalProfileResult and optional stress_type, selects the single
 premier éclairage that will have the most impact on the user.
 
 Selection hierarchy:
-0. Critical archetype alerts (indep no LPP, expat low AVS)
 1. Liquidity crisis (real data or severe)
-2. Stress-aligned selection (if stress_type declared, data supports it)
-3. Universal priorities (retirement gap, tax saving)
+2. Stress-aligned non-retirement selection (if data supports it)
+3. Universal tax priority
    — gated by lifecycle relevance and data confidence
-4. Lifecycle-aware fallback (age-driven, always valid)
+4. Lifecycle-aware non-retirement fallback (always valid)
+
+The selector deliberately ignores the legacy AVS-dependent doubles on
+MinimalProfileResult.  There is no typed reviewed official-pension provenance
+in this boundary, so even manually populated legacy values cannot reactivate a
+retirement figure.
 
 Confidence gating:
 - If key data is estimated → confidence_mode = "pedagogical"
@@ -26,9 +30,7 @@ NEVER uses banned terms:
     "tu devrais", "tu dois"
 
 Sources:
-    - LAVS art. 21-29 (rente AVS)
-    - LPP art. 15-16 (bonifications vieillesse)
-    - LIFD art. 38 (imposition du capital)
+    - LIFD art. 33 (déduction des cotisations 3a)
     - OPP3 art. 7 (plafond 3a)
 """
 
@@ -50,11 +52,6 @@ _DISCLAIMER = (
     "Consulte un\u00b7e spécialiste pour une analyse personnalisée."
 )
 
-_SOURCES_RETIREMENT = [
-    "LAVS art. 21-29 (rente AVS)",
-    "LPP art. 15-16 (bonifications vieillesse)",
-]
-
 _SOURCES_TAX = [
     "OPP3 art. 7 (plafond 3a: 7'258 CHF)",
     "LIFD art. 33 (déduction 3a du revenu imposable)",
@@ -67,67 +64,6 @@ _SOURCES_LIQUIDITY = [
 _SOURCES_COMPOUND = [
     "Calcul mathématique: intérêts composés à 3% nominal",
 ]
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Phase 0: Archetype alerts (aligned with Flutter _selectByArchetype)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _select_by_archetype(profile: MinimalProfileResult) -> Optional[PremierEclairage]:
-    """Archetype-specific premier éclairage (highest priority when applicable).
-
-    Aligned with Flutter PremierEclairageSelector._selectByArchetype.
-    """
-    # Independent without LPP: massive retirement gap alert
-    if (profile.archetype == "independent_no_lpp"
-        or (profile.estimated_replacement_ratio < 0.30
-            and profile.projected_lpp_monthly <= 0
-            and profile.gross_annual_salary > 0)):
-        gap = max(0, profile.estimated_monthly_expenses - profile.estimated_monthly_retirement)
-        lpp_estimated = "existing_lpp" in profile.estimated_fields
-        return PremierEclairage(
-            category="retirement_gap",
-            primary_number=round(gap, 0),
-            display_text=(
-                f"En tant qu'indépendant·e sans LPP, seule l'AVS te couvre. "
-                f"Il te manquerait CHF {gap:,.0f} chaque mois à la retraite."
-            ),
-            explanation_text=(
-                "Le 3e pilier (max CHF 36'288/an) et "
-                "une LPP facultative peuvent combler cet écart."
-            ),
-            action_text="Découvre tes options de prévoyance \u2192",
-            disclaimer=_DISCLAIMER,
-            sources=list(_SOURCES_RETIREMENT),
-            confidence_score=profile.confidence_score,
-            confidence_mode="pedagogical" if lpp_estimated else "factual",
-        )
-
-    # Non-Swiss expat: AVS gap warning
-    if (profile.archetype in ("expat_eu", "expat_non_eu")
-            and profile.projected_avs_monthly < 1500):
-        avs = profile.projected_avs_monthly
-        is_eu = profile.archetype == "expat_eu"
-        explanation = (
-            "Tes années de cotisation en Europe comptent aussi grâce aux "
-            "accords bilatéraux. Vérifie ta rente avec ton relevé CI."
-            if is_eu else
-            "Ta rente pourrait être réduite par des lacunes de cotisation. "
-            "Demande ton relevé CI à ta caisse de compensation."
-        )
-        return PremierEclairage(
-            category="retirement_gap",
-            primary_number=round(avs, 0),
-            display_text=f"Ta rente AVS estimée: CHF {avs:,.0f}/mois.",
-            explanation_text=explanation,
-            action_text="Vérifie tes droits AVS \u2192",
-            disclaimer=_DISCLAIMER,
-            sources=list(_SOURCES_RETIREMENT),
-            confidence_score=profile.confidence_score,
-            confidence_mode="pedagogical",
-        )
-
-    return None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -168,49 +104,6 @@ def _build_liquidity_choc(profile: MinimalProfileResult) -> PremierEclairage:
     )
 
 
-def _build_retirement_gap_choc(profile: MinimalProfileResult) -> PremierEclairage:
-    """Build premier éclairage for retirement gap."""
-    monthly_retirement = profile.estimated_monthly_retirement
-    monthly_expenses = profile.estimated_monthly_expenses
-    gap = max(0, monthly_expenses - monthly_retirement)
-
-    display_text = (
-        f"À la retraite, ton revenu mensuel estimé serait de "
-        f"CHF {monthly_retirement:,.0f}. Aujourd'hui, tu dépenses "
-        f"probablement ~CHF {monthly_expenses:,.0f} par mois."
-    )
-
-    if gap > 0:
-        explanation_text = (
-            f"Cela représente un écart d'environ CHF {gap:,.0f} par mois. "
-            f"L'AVS et la LPP couvrent en moyenne 60% du dernier salaire. "
-            f"Le 3e pilier et l'épargne libre permettent de combler ce gap."
-        )
-    else:
-        explanation_text = (
-            "Tes revenus projetés à la retraite semblent couvrir tes charges "
-            "estimées. Toutefois, cette projection est basée sur des estimations "
-            "simplifiées. Enrichis ton profil pour une analyse plus précise."
-        )
-
-    action_text = "Simule l'impact d'un 3e pilier sur ta situation \u2192"
-
-    lpp_estimated = "existing_lpp" in profile.estimated_fields
-    mode = "pedagogical" if lpp_estimated else "factual"
-
-    return PremierEclairage(
-        category="retirement_gap",
-        primary_number=round(gap, 0),
-        display_text=display_text,
-        explanation_text=explanation_text,
-        action_text=action_text,
-        disclaimer=_DISCLAIMER,
-        sources=list(_SOURCES_RETIREMENT),
-        confidence_score=profile.confidence_score,
-        confidence_mode=mode,
-    )
-
-
 def _build_tax_saving_choc(profile: MinimalProfileResult) -> PremierEclairage:
     """Build premier éclairage for tax saving opportunity via 3a."""
     tax_saving = profile.tax_saving_3a
@@ -236,38 +129,6 @@ def _build_tax_saving_choc(profile: MinimalProfileResult) -> PremierEclairage:
         sources=list(_SOURCES_TAX),
         confidence_score=profile.confidence_score,
         confidence_mode="factual",  # Derived from salary + canton, both provided
-    )
-
-
-def _build_retirement_income_choc(profile: MinimalProfileResult) -> PremierEclairage:
-    """Build premier éclairage showing retirement income (positive framing)."""
-    monthly_retirement = profile.estimated_monthly_retirement
-    ratio_pct = round(profile.estimated_replacement_ratio * 100)
-
-    display_text = (
-        f"Avec l'AVS et la LPP, tu pourrais recevoir environ "
-        f"CHF {monthly_retirement:,.0f} par mois à la retraite, "
-        f"soit {ratio_pct}% de ton salaire actuel."
-    )
-    explanation_text = (
-        "Ce taux de remplacement est dans la moyenne suisse. "
-        "Le 3e pilier et l'épargne libre peuvent améliorer ta situation."
-    )
-    action_text = "Simule ta retraite en détail \u2192"
-
-    lpp_estimated = "existing_lpp" in profile.estimated_fields
-    mode = "pedagogical" if lpp_estimated else "factual"
-
-    return PremierEclairage(
-        category="retirement_income",
-        primary_number=round(monthly_retirement, 0),
-        display_text=display_text,
-        explanation_text=explanation_text,
-        action_text=action_text,
-        disclaimer=_DISCLAIMER,
-        sources=list(_SOURCES_RETIREMENT),
-        confidence_score=profile.confidence_score,
-        confidence_mode=mode,
     )
 
 
@@ -372,15 +233,8 @@ def _select_by_stress(
             return _build_tax_saving_choc(profile)
         return None
 
-    if stress_type == "stress_retraite":
-        if profile.gross_annual_salary > 0:
-            if profile.estimated_replacement_ratio < 0.55:
-                return _build_retirement_gap_choc(profile)
-            # Ratio OK → show retirement income (positive framing, not gap)
-            return _build_retirement_income_choc(profile)
-        return None
-
-    # stress_patrimoine, stress_couple: no data at onboarding → fall through
+    # stress_retraite, stress_patrimoine and stress_couple have no independently
+    # proven onboarding result. They fall through to a non-retirement insight.
     return None
 
 
@@ -395,16 +249,21 @@ def _select_by_lifecycle(profile: MinimalProfileResult) -> PremierEclairage:
     if age < 28:
         return _build_compound_growth_choc(profile)
 
+    if profile.existing_3a <= 0 and profile.tax_saving_3a > 1500:
+        return _build_tax_saving_choc(profile)
+
     if age < 38:
-        if profile.existing_3a <= 0 and profile.tax_saving_3a > 1500:
-            return _build_tax_saving_choc(profile)
         return _build_compound_growth_choc(profile)
 
-    # 38+: retirement is relevant
-    if profile.estimated_replacement_ratio < 0.55:
-        return _build_retirement_gap_choc(profile)
+    # Mid- and late-career fallback stays useful without consulting any
+    # pension amount. Salary is a declared minimal-onboarding input.
+    if profile.gross_annual_salary > 0:
+        return _build_hourly_rate_choc(profile)
 
-    return _build_retirement_income_choc(profile)
+    # Zero-income profiles already hit the severe-liquidity branch in normal
+    # service output; retain a deterministic non-retirement fallback for legacy
+    # hand-built results.
+    return _build_liquidity_choc(profile)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -427,11 +286,6 @@ def select_premier_eclairage(
         A single PremierEclairage with category, display text, confidence_mode,
         and compliance fields.
     """
-    # Phase 0: Archetype-specific alerts (A1 fix — was missing)
-    archetype_choc = _select_by_archetype(profile)
-    if archetype_choc is not None:
-        return archetype_choc
-
     # Phase 1: Liquidity crisis — only if savings data is real or crisis is severe
     savings_estimated = "current_savings" in profile.estimated_fields
     if profile.months_liquidity < 2.0:
@@ -444,14 +298,7 @@ def select_premier_eclairage(
         if stress_choc is not None:
             return stress_choc
 
-    # Phase 3: Universal priorities (gated by lifecycle)
-    age = profile.age
-
-    # Retirement gap: relevant from age 30+
-    if age >= 30 and profile.estimated_replacement_ratio < 0.55:
-        return _build_retirement_gap_choc(profile)
-
-    # Tax saving 3a
+    # Phase 3: Universal tax priority
     has_no_3a = profile.existing_3a <= 0.0
     if has_no_3a and profile.tax_saving_3a > 1500:
         return _build_tax_saving_choc(profile)

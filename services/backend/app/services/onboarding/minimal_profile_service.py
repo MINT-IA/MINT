@@ -4,10 +4,9 @@ Minimal Profile Service — Compute a financial snapshot from 3 inputs.
 Sprint S31 — Onboarding Redesign.
 
 Given age, gross_salary, and canton (+ optional enrichment fields),
-produces a complete financial snapshot with:
-- Projected AVS monthly rente
+produces a partial financial snapshot with:
+- AVS-dependent outputs kept unknown until reviewed official evidence exists
 - Projected LPP capital and monthly rente
-- Estimated replacement ratio at retirement
 - Tax saving potential via pillar 3a
 - Liquidity runway in months
 - Confidence score based on data completeness
@@ -18,7 +17,7 @@ Sources:
     - LAVS art. 21-29, 34, 40 (rente AVS, duree cotisation, reduction)
     - LPP art. 7, 8, 14, 15-16 (seuil, coordination, conversion, bonifications)
     - OPP3 art. 7 (plafond 3a: 7'258 CHF avec LPP)
-    - LIFD art. 38 (imposition du capital de prevoyance)
+    - LIFD art. 33 (deduction des cotisations 3a)
 
 Rules:
     - NEVER use banned terms: "garanti", "certain", "assure", "sans risque",
@@ -30,11 +29,6 @@ Rules:
 from typing import List, Optional
 
 from app.constants.social_insurance import (
-    AVS_RAMD_MIN,
-    AVS_RAMD_MAX,
-    AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE,
-    AVS_DUREE_COTISATION_COMPLETE,
     AVS_AGE_REFERENCE_HOMME,
     AVS_AGE_REFERENCE_FEMME,
     LPP_SEUIL_ENTREE,
@@ -130,10 +124,6 @@ def _detect_archetype(input: MinimalProfileInput) -> str:
 # Constants — derived from social_insurance.py
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# AVS linear interpolation boundaries (RAMD) — from social_insurance.py
-_AVS_RAMD_LOW: float = AVS_RAMD_MIN
-_AVS_RAMD_HIGH: float = AVS_RAMD_MAX
-
 # Approximate net salary factor (Swiss average: ~87% of gross after social deductions)
 _NET_SALARY_FACTOR: float = 0.87
 
@@ -190,13 +180,12 @@ _CONFIDENCE_BONUS_PER_FIELD: float = 10.0
 
 _DISCLAIMER = (
     "Outil educatif simplifie. Ne constitue pas un conseil financier (LSFin). "
-    "Consulte un\u00b7e specialiste pour une analyse personnalisee."
+    "Consulte un\u00b7e spécialiste pour une analyse personnalisée."
 )
 
 _SOURCES = [
-    "LAVS art. 21-29 (rente AVS)",
     "LPP art. 14-16 (conversion, bonifications vieillesse)",
-    "LIFD art. 38 (imposition du capital)",
+    "LIFD art. 33 (deduction des cotisations 3a)",
     "OPP3 art. 7 (plafond 3a)",
     "CO art. 319ss (charges et dettes sur revenu disponible)",
 ]
@@ -205,48 +194,6 @@ _SOURCES = [
 # ═══════════════════════════════════════════════════════════════════════════════
 # Pure functions
 # ═══════════════════════════════════════════════════════════════════════════════
-
-def _estimate_avs_monthly(gross_salary: float, contribution_years: int) -> float:
-    """Estimate monthly AVS rente based on RAMD and contribution years.
-
-    Uses LAVS art. 34 formula:
-    - If RAMD <= 14'700 CHF: minimum rente (1'260 CHF/month)
-    - If RAMD >= 88'200 CHF: maximum rente (2'520 CHF/month)
-    - Between: linear interpolation
-
-    Then apply reduction for incomplete contribution years (< 44).
-
-    Args:
-        gross_salary: Annual gross salary (used as proxy for RAMD).
-        contribution_years: Number of AVS contribution years.
-
-    Returns:
-        Estimated monthly AVS rente (CHF).
-    """
-    if gross_salary <= 0:
-        return 0.0
-
-    # Determine full rente from RAMD (linear interpolation)
-    if gross_salary <= _AVS_RAMD_LOW:
-        full_rente = AVS_RENTE_MIN_MENSUELLE
-    elif gross_salary >= _AVS_RAMD_HIGH:
-        full_rente = AVS_RENTE_MAX_MENSUELLE
-    else:
-        # Linear interpolation between min and max
-        ratio = (gross_salary - _AVS_RAMD_LOW) / (_AVS_RAMD_HIGH - _AVS_RAMD_LOW)
-        full_rente = AVS_RENTE_MIN_MENSUELLE + ratio * (
-            AVS_RENTE_MAX_MENSUELLE - AVS_RENTE_MIN_MENSUELLE
-        )
-
-    # Apply reduction for incomplete contribution years
-    complete_years = AVS_DUREE_COTISATION_COMPLETE  # 44
-    effective_years = min(contribution_years, complete_years)
-    if effective_years <= 0:
-        return 0.0
-    reduction_factor = effective_years / complete_years
-
-    return round(full_rente * reduction_factor, 2)
-
 
 def _project_lpp_capital(
     current_age: int,
@@ -453,11 +400,11 @@ def _build_enrichment_prompts(estimated_fields: List[str]) -> List[str]:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
-    """Compute a full financial snapshot from minimal inputs.
+    """Compute a partial financial snapshot from minimal inputs.
 
     Given 3 required fields (age, gross_salary, canton) and up to 7 optional
-    enrichment fields, produces projected retirement income, tax savings,
-    liquidity, and a confidence score.
+    enrichment fields, produces standalone LPP, tax, liquidity and debt
+    illustrations plus a confidence score. AVS-dependent aggregates stay null.
 
     All formulas use constants from app.constants.social_insurance.
 
@@ -554,17 +501,10 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     # ── P2-26: Gender-aware retirement age (AVS21) ─────────────────────────
     retirement_age = _get_retirement_age(getattr(input, "gender", None))
 
-    # ── AVS projection ──────────────────────────────────────────────────────
-    # FIX-092: Contribution years account for arrival age (expats).
-    # Swiss natives: from age 21. Expats: from arrival_age (if > 21).
-    years_until_retirement = max(0, retirement_age - input.age)
-    start_age = max(21, input.arrival_age or 21)
-    current_contribution_years = max(0, min(input.age - start_age, AVS_DUREE_COTISATION_COMPLETE))
-    total_contribution_years = min(
-        current_contribution_years + years_until_retirement,
-        AVS_DUREE_COTISATION_COMPLETE,
-    )
-    projected_avs_monthly = _estimate_avs_monthly(input.gross_salary, total_contribution_years)
+    # Minimal onboarding has no reviewed owner-scoped official AVS pension
+    # envelope. Age, salary, civil status and arrival history are contextual
+    # hints only and cannot unlock an exact pension amount.
+    projected_avs_monthly = None
 
     # ── LPP projection ──────────────────────────────────────────────────────
     projected_lpp_capital = _project_lpp_capital(
@@ -585,11 +525,7 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     net_salary_monthly = (input.gross_salary * _NET_SALARY_FACTOR) / 12
     estimated_monthly_expenses = round(net_salary_monthly * _EXPENSES_FACTOR, 2)
 
-    # ── Retirement income ───────────────────────────────────────────────────
-    estimated_monthly_retirement = round(projected_avs_monthly + projected_lpp_monthly, 2)
-
-    # ── Debt impact (anti-double-counting: subtract from retirement income,
-    #    NOT added to expenses) ────────────────────────────────────────────
+    # ── Debt impact (standalone; no AVS-dependent aggregate exists) ─────────
     # Priority: monthly_debt_service > total_debts estimate
     # If both provided → IGNORE total_debts, use monthly_debt_service
     monthly_debt_impact = 0.0
@@ -600,24 +536,11 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
             input.total_debts * _DEBT_MONTHLY_ESTIMATION_FACTOR, 2
         )
 
-    # Reduce available retirement income by debt service
-    estimated_monthly_retirement = round(
-        max(0.0, estimated_monthly_retirement - monthly_debt_impact), 2
-    )
-
-    # ── Replacement ratio (vs gross salary, standard Swiss definition) ─────
-    gross_monthly_salary = input.gross_salary / 12
-    if gross_monthly_salary > 0:
-        estimated_replacement_ratio = round(
-            estimated_monthly_retirement / gross_monthly_salary, 4
-        )
-    else:
-        estimated_replacement_ratio = 0.0
-
-    # ── Retirement gap (vs gross salary) ──────────────────────────────────
-    retirement_gap_monthly = round(
-        max(0.0, gross_monthly_salary - estimated_monthly_retirement), 2
-    )
+    # A complete retirement total cannot be assembled from LPP alone. Derived
+    # replacement and gap figures therefore remain unknown as well.
+    estimated_monthly_retirement = None
+    estimated_replacement_ratio = None
+    retirement_gap_monthly = None
 
     # ── Tax saving 3a ───────────────────────────────────────────────────────
     marginal_tax_rate = _compute_marginal_tax_rate(input.gross_salary, canton)

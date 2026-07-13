@@ -2,7 +2,7 @@
 Integration tests for the onboarding HTTP contract — Sprint S57.
 
 Tests the FULL request → endpoint → response → client mapping path
-for /api/v1/onboarding/premier-eclairage and /api/v1/onboarding/minimal-profile.
+for "/api/v1/onboarding/premier-eclairage" and "/api/v1/onboarding/minimal-profile".
 
 These tests catch serialization drift, missing fields, and schema/endpoint
 misalignment that unit tests on isolated selectors cannot detect.
@@ -10,7 +10,7 @@ misalignment that unit tests on isolated selectors cannot detect.
 Specifically validates:
 - stress_type flows from request to selector (Finding 1)
 - confidence_mode flows from selector to response (Finding 2)
-- New categories (compound_growth, hourly_rate, retirement_income) serialize correctly
+- Non-retirement categories serialize correctly
 - camelCase aliasing works for all new fields
 
 Sources:
@@ -31,7 +31,7 @@ BANNED_TERMS = [
 # ===========================================================================
 
 class TestPremierEclairageContract:
-    """Full HTTP round-trip tests for /api/v1/onboarding/premier-eclairage."""
+    """Full HTTP round-trip tests for "/api/v1/onboarding/premier-eclairage"."""
 
     def test_basic_request_returns_200(self, client):
         """Minimal 3-field request returns 200 with all required fields."""
@@ -80,14 +80,8 @@ class TestPremierEclairageContract:
         assert resp.status_code == 200
         assert resp.json()["category"] == "tax_saving"
 
-    def test_stress_retraite_with_ok_ratio_returns_income_not_gap(self, client):
-        """stress_retraite with good ratio → retirement_income (not retirement_gap).
-
-        This is the exact divergence that Finding 3 caught: backend was returning
-        retirement_gap for all stress_retraite, but Flutter returns retirement_income
-        when ratio is OK.
-        """
-        # High salary + real LPP data → ratio should be OK
+    def test_stress_retraite_without_official_avs_uses_tax_fact(self, client):
+        """A retirement intention cannot unlock an AVS-dependent exact output."""
         resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 45,
             "grossSalary": 80_000,
@@ -98,12 +92,7 @@ class TestPremierEclairageContract:
         })
         assert resp.status_code == 200
         data = resp.json()
-        # With real LPP data at 250k, ratio should be decent → retirement_income
-        # MUST be retirement_income, NOT retirement_gap — this locks the F3 fix
-        assert data["category"] == "retirement_income", (
-            f"Expected retirement_income for OK ratio with stress_retraite, "
-            f"got {data['category']}. This is the exact divergence Finding 3 caught."
-        )
+        assert data["category"] == "tax_saving"
 
     def test_young_user_without_stress_gets_lifecycle_choc(self, client):
         """Age 22 without stress_type → compound_growth or tax_saving (not retirement_gap).
@@ -144,9 +133,7 @@ class TestPremierEclairageContract:
         })
         assert resp.status_code == 200
         data = resp.json()
-        # For retirement-related categories with estimated LPP, should be pedagogical
-        if data["category"] in ("retirement_gap", "retirement_income"):
-            assert data["confidenceMode"] == "pedagogical"
+        assert data["category"] not in ("retirement_gap", "retirement_income")
 
     def test_real_data_produces_factual_mode(self, client):
         """When key data is provided, mode should be factual."""
