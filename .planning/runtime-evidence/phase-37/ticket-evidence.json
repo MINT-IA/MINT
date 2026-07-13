@@ -17,16 +17,16 @@
     },
     {
       "ticket_id": "G1-LDG-03",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/providers/g1_p0_ledger_roundtrip_test.dart --reporter expanded",
-      "evidence_mode": null,
+      "evidence_mode": "baseline_green_controlled",
       "red_sha": null,
       "red_artifact": null,
-      "control_sha": null,
-      "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "control_sha": "37e294ab0a8e669fe8471bbf29a7025e03654ece",
+      "control_artifact": ".planning/runtime-evidence/phase-37/controlled-proof-current/g1-ldg-03-control.json",
+      "green_sha": "37e294ab0a8e669fe8471bbf29a7025e03654ece",
+      "green_artifact": ".planning/runtime-evidence/phase-37/controlled-proof-current/g1-ldg-03-green.json",
+      "accepted_sha": "37e294ab0a8e669fe8471bbf29a7025e03654ece"
     },
     {
       "ticket_id": "G1-LDG-04",
