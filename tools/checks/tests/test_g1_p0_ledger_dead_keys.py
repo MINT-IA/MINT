@@ -73,6 +73,15 @@ NON_LIVE_STATUSES = {
 }
 LIVE_STATUSES = {"live", "partial"}
 FAIL_CLOSED_OUTPUTS = {"partial+ask", "educational_only"}
+ALLOWED_CLASSIFICATIONS = {
+    "fact",
+    "scenario_lever",
+    "derived_output",
+    "completion_marker",
+    "specialist_reference",
+}
+SPECIALIST_REFERENCE_TYPES = {"document_ref", "list_document_ref", "ISO_date"}
+RESERVED_REFERENCE_TYPES = {"document_ref", "list_document_ref"}
 REQUIRED_GATE_NAMES = {
     "provenance_on_write_test",
     "source_crosswalk_test",
@@ -84,9 +93,16 @@ REQUIRED_GATE_NAMES = {
     "scenario_fact_isolation_test",
 }
 READER_EVIDENCE_RE = re.compile(
-    r"(?P<path>[A-Za-z0-9_./-]+\.dart):(?P<line>[1-9][0-9]*)"
+    r"(?P<path>[A-Za-z0-9_./-]+\.dart)#"
+    r"(?P<class>[A-Za-z_][A-Za-z0-9_]*)\."
+    r"(?P<member>[A-Za-z_][A-Za-z0-9_]*)@"
+    r"(?P<token>[A-Za-z_][A-Za-z0-9_.]*)"
 )
-READER_WINDOW_RADIUS = 5
+FORBIDDEN_READER_MEMBERS = {
+    "fromWizardAnswers",
+    "fromJson",
+    "toJson",
+}
 SHA_RE = re.compile(r"[0-9a-f]{40}")
 UTC_RE = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 EVIDENCE_ROOT = Path(".planning/runtime-evidence/phase-37")
@@ -651,47 +667,367 @@ def _semantic_reader_tokens(row: dict[str, str]) -> set[str]:
 
     profile_path = row.get("coach_profile_path", "")
     tokens.add(profile_path)
-    tokens.add(profile_path.rsplit(".", maxsplit=1)[-1])
+    tokens.update(profile_path.split("."))
 
     return {token for token in tokens if token not in {"", "NONE"} and len(token) >= 3}
 
 
-def _reader_evidence_errors(row: dict[str, str]) -> list[str]:
+def _mask_dart_source(source: str, *, mask_strings: bool) -> str:
+    """Mask comments and optionally strings without changing source offsets."""
+
+    chars = list(source)
+    masked = list(source)
+
+    def blank(index: int) -> None:
+        if masked[index] not in {"\n", "\r"}:
+            masked[index] = " "
+
+    index = 0
+    while index < len(chars):
+        if source.startswith("//", index):
+            while index < len(chars) and chars[index] not in {"\n", "\r"}:
+                blank(index)
+                index += 1
+            continue
+        if source.startswith("/*", index):
+            depth = 1
+            blank(index)
+            blank(index + 1)
+            index += 2
+            while index < len(chars) and depth > 0:
+                if source.startswith("/*", index):
+                    depth += 1
+                    blank(index)
+                    blank(index + 1)
+                    index += 2
+                elif source.startswith("*/", index):
+                    depth -= 1
+                    blank(index)
+                    blank(index + 1)
+                    index += 2
+                else:
+                    blank(index)
+                    index += 1
+            continue
+        if chars[index] not in {"'", '"'}:
+            index += 1
+            continue
+
+        quote = chars[index]
+        delimiter = quote * 3 if source.startswith(quote * 3, index) else quote
+        raw = (
+            index > 0
+            and chars[index - 1] in {"r", "R"}
+            and (index < 2 or not (chars[index - 2].isalnum() or chars[index - 2] == "_"))
+        )
+        string_start = index
+        index += len(delimiter)
+        while index < len(chars):
+            if not raw and chars[index] == "\\":
+                index = min(len(chars), index + 2)
+                continue
+            if source.startswith(delimiter, index):
+                index += len(delimiter)
+                break
+            index += 1
+        if mask_strings:
+            for string_index in range(string_start, index):
+                blank(string_index)
+
+    return "".join(masked)
+
+
+def _matching_delimiter_end(
+    source: str,
+    opening_index: int,
+    opening: str,
+    closing: str,
+) -> int | None:
+    depth = 0
+    for index in range(opening_index, len(source)):
+        char = source[index]
+        if char == opening:
+            depth += 1
+        elif char == closing:
+            depth -= 1
+            if depth == 0:
+                return index + 1
+    return None
+
+
+def _dart_class_body(
+    structural_source: str,
+    class_name: str,
+) -> tuple[int, int] | None:
+    declaration = re.compile(
+        rf"\b(?:abstract\s+|base\s+|final\s+|interface\s+|sealed\s+)?"
+        rf"(?:class|mixin|extension(?:\s+type)?)\s+{re.escape(class_name)}\b"
+    ).search(structural_source)
+    if declaration is None:
+        return None
+    opening = structural_source.find("{", declaration.end())
+    if opening < 0:
+        return None
+    closing = _matching_delimiter_end(structural_source, opening, "{", "}")
+    if closing is None:
+        return None
+    return opening + 1, closing - 1
+
+
+def _top_level_depths(source: str, start: int, end: int) -> list[int]:
+    depths = [0] * (end - start)
+    depth = 0
+    for absolute in range(start, end):
+        relative = absolute - start
+        depths[relative] = depth
+        if source[absolute] == "{":
+            depth += 1
+        elif source[absolute] == "}":
+            depth = max(0, depth - 1)
+    return depths
+
+
+def _skip_space_and_async_modifiers(source: str, index: int, end: int) -> int:
+    while True:
+        while index < end and source[index].isspace():
+            index += 1
+        modifier = re.match(r"(?:async\*?|sync\*)\b", source[index:end])
+        if modifier is None:
+            return index
+        index += modifier.end()
+
+
+def _arrow_expression_end(source: str, start: int, end: int) -> int | None:
+    paren_depth = bracket_depth = brace_depth = 0
+    for index in range(start, end):
+        char = source[index]
+        if char == "(":
+            paren_depth += 1
+        elif char == ")":
+            paren_depth = max(0, paren_depth - 1)
+        elif char == "[":
+            bracket_depth += 1
+        elif char == "]":
+            bracket_depth = max(0, bracket_depth - 1)
+        elif char == "{":
+            brace_depth += 1
+        elif char == "}":
+            brace_depth = max(0, brace_depth - 1)
+        elif char == ";" and paren_depth == bracket_depth == brace_depth == 0:
+            return index + 1
+    return None
+
+
+def _dart_member_body(
+    structural_source: str,
+    *,
+    class_body: tuple[int, int],
+    class_name: str,
+    member_name: str,
+) -> tuple[int, int] | str:
+    start, end = class_body
+    depths = _top_level_depths(structural_source, start, end)
+    saw_declaration = False
+    for occurrence in re.finditer(rf"\b{re.escape(member_name)}\b", structural_source[start:end]):
+        absolute_start = start + occurrence.start()
+        if depths[occurrence.start()] != 0:
+            continue
+
+        statement_start = absolute_start - 1
+        while statement_start >= start and structural_source[statement_start] not in ";}":
+            statement_start -= 1
+        header = structural_source[statement_start + 1 : absolute_start]
+        if "=" in header or "=>" in header:
+            continue
+
+        cursor = start + occurrence.end()
+        while cursor < end and structural_source[cursor].isspace():
+            cursor += 1
+
+        if cursor < end and structural_source[cursor] == "(":
+            params_end = _matching_delimiter_end(
+                structural_source, cursor, "(", ")"
+            )
+            if params_end is None or params_end > end:
+                continue
+            cursor = _skip_space_and_async_modifiers(
+                structural_source, params_end, end
+            )
+        elif re.search(r"\bget\s*$", header) is None:
+            saw_declaration = True
+            continue
+
+        if structural_source.startswith("=>", cursor):
+            expression_end = _arrow_expression_end(
+                structural_source, cursor + 2, end
+            )
+            if expression_end is not None:
+                return cursor + 2, expression_end
+        elif cursor < end and structural_source[cursor] == "{":
+            body_end = _matching_delimiter_end(
+                structural_source, cursor, "{", "}"
+            )
+            if body_end is not None and body_end <= end + 1:
+                return cursor + 1, body_end - 1
+        else:
+            saw_declaration = True
+
+    if saw_declaration:
+        return "declaration is not a consumer"
+    return "missing member"
+
+
+def _dart_member_is_constructor(
+    structural_source: str,
+    *,
+    class_body: tuple[int, int],
+    class_name: str,
+    member_name: str,
+) -> bool:
+    """Return true for unnamed, named, redirecting, and factory constructors."""
+
+    start, end = class_body
+    depths = _top_level_depths(structural_source, start, end)
+    if member_name == class_name:
+        pattern = re.compile(rf"\b{re.escape(class_name)}\s*\(")
+    else:
+        pattern = re.compile(
+            rf"\b{re.escape(class_name)}\s*\.\s*"
+            rf"{re.escape(member_name)}\s*\("
+        )
+
+    for occurrence in pattern.finditer(structural_source[start:end]):
+        if depths[occurrence.start()] != 0:
+            continue
+        absolute_start = start + occurrence.start()
+        statement_start = absolute_start - 1
+        while statement_start >= start and structural_source[statement_start] not in ";}":
+            statement_start -= 1
+        declaration_prefix = structural_source[statement_start + 1 : absolute_start]
+        if "=" in declaration_prefix or "=>" in declaration_prefix:
+            continue
+        return True
+    return False
+
+
+def _qualified_path_pattern(path_parts: list[str]) -> re.Pattern[str]:
+    separator = r"\s*(?:\?|!)?\.\s*"
+    if len(path_parts) == 1:
+        # A bare local/parameter named like the fact is not ledger evidence.
+        pattern = rf"\b[A-Za-z_][A-Za-z0-9_]*{separator}{re.escape(path_parts[0])}\b"
+    else:
+        # Accept profile.prevoyance.balance and a typed sub-ledger receiver such
+        # as prevoyance.balance or conjoint.birthYear.
+        suffix = separator.join(re.escape(part) for part in path_parts)
+        pattern = rf"\b(?:[A-Za-z_][A-Za-z0-9_]*{separator})?{suffix}\b"
+    return re.compile(pattern)
+
+
+def _qualified_ledger_access_occurs(
+    body: str,
+    *,
+    profile_path: str,
+    token: str,
+    classification: str,
+) -> bool:
+    path_parts = profile_path.split(".")
+    if profile_path in {"", "NONE"} or token != path_parts[-1]:
+        return False
+
+    structural_body = _mask_dart_source(body, mask_strings=True)
+    if _qualified_path_pattern(path_parts).search(structural_body) is not None:
+        return True
+
+    if classification != "completion_marker" or len(path_parts) < 2:
+        return False
+
+    # Completion markers are the sole string-key exception, and only when the
+    # key is looked up through the exact typed marker collection from the row.
+    receiver_parts = path_parts[:-1]
+    receiver = _qualified_path_pattern(receiver_parts).pattern
+    marker_lookup = re.compile(
+        rf"{receiver}\s*\.\s*(?:contains|containsKey)\s*\(\s*"
+        rf"(?P<quote>['\"]){re.escape(token)}(?P=quote)\s*\)"
+    )
+    if marker_lookup.search(body) is not None:
+        return True
+
+    return False
+
+
+def _reader_evidence_errors(
+    row: dict[str, str],
+    *,
+    root: Path = ROOT,
+) -> list[str]:
     key = row.get("canonical_key", "<unknown>")
     evidence = row.get("reader_evidence", "")
     match = READER_EVIDENCE_RE.fullmatch(evidence)
     if match is None:
-        return [f"{key}: reader evidence must be exact repo/path.dart:line"]
+        return [
+            f"{key}: reader evidence must be exact "
+            "repo/path.dart#ClassName.memberName@fieldToken"
+        ]
+
+    member_name = match.group("member")
+    if member_name in FORBIDDEN_READER_MEMBERS or member_name.startswith("copyWith"):
+        return [f"{key}: forbidden reconstruction/serializer member {member_name}"]
+    evidence_token = match.group("token")
+    row_tokens = _semantic_reader_tokens(row)
+    if evidence_token not in row_tokens:
+        return [
+            f"{key}: evidence token {evidence_token!r} is not row-derived; "
+            f"expected one of {sorted(row_tokens)}"
+        ]
 
     relative_path = Path(match.group("path"))
     if relative_path.is_absolute() or ".." in relative_path.parts:
         return [f"{key}: reader evidence path must stay repo-relative"]
 
-    source_path = (ROOT / relative_path).resolve()
+    source_path = (root / relative_path).resolve()
     try:
-        source_path.relative_to(ROOT.resolve())
+        source_path.relative_to(root.resolve())
     except ValueError:
         return [f"{key}: reader evidence path escapes repository"]
     if not source_path.is_file():
         return [f"{key}: reader evidence file does not exist: {relative_path}"]
 
-    lines = source_path.read_text(encoding="utf-8").splitlines()
-    line_number = int(match.group("line"))
-    if line_number > len(lines):
-        return [
-            f"{key}: reader evidence line {line_number} exceeds "
-            f"{relative_path} length {len(lines)}"
-        ]
+    source = source_path.read_text(encoding="utf-8")
+    structural_source = _mask_dart_source(source, mask_strings=True)
+    class_name = match.group("class")
+    class_body = _dart_class_body(structural_source, class_name)
+    if class_body is None:
+        return [f"{key}: missing class {class_name} in {relative_path}"]
+    if _dart_member_is_constructor(
+        structural_source,
+        class_body=class_body,
+        class_name=class_name,
+        member_name=member_name,
+    ):
+        return [f"{key}: forbidden constructor member {class_name}.{member_name}"]
+    member_body = _dart_member_body(
+        structural_source,
+        class_body=class_body,
+        class_name=class_name,
+        member_name=member_name,
+    )
+    if isinstance(member_body, str):
+        return [f"{key}: {member_body} {class_name}.{member_name}"]
 
-    center = line_number - 1
-    start = max(0, center - READER_WINDOW_RADIUS)
-    end = min(len(lines), center + READER_WINDOW_RADIUS + 1)
-    window = "\n".join(lines[start:end])
-    tokens = _semantic_reader_tokens(row)
-    if not any(token in window for token in tokens):
+    body_start, body_end = member_body
+    semantic_body = _mask_dart_source(
+        source[body_start:body_end], mask_strings=False
+    )
+    if not _qualified_ledger_access_occurs(
+        semantic_body,
+        profile_path=row.get("coach_profile_path", ""),
+        token=evidence_token,
+        classification=row.get("classification", "fact"),
+    ):
         return [
-            f"{key}: reader evidence window {relative_path}:{start + 1}-{end} "
-            f"contains none of the row-derived semantic tokens {sorted(tokens)}"
+            f"{key}: {class_name}.{member_name} contains no qualified ledger access "
+            f"derived from coach_profile_path {row.get('coach_profile_path')!r} "
+            f"for token {evidence_token!r}"
         ]
     return []
 
@@ -712,6 +1048,47 @@ def _matrix_errors(
 
     for row in rows:
         key = row.get("canonical_key", "<unknown>")
+        classification = row.get("classification", "")
+        type_unit = row.get("type_unit", "")
+        if classification not in ALLOWED_CLASSIFICATIONS:
+            errors.append(f"{key}: unsupported classification {classification!r}")
+        if classification == "completion_marker" and type_unit != "completion_marker":
+            errors.append(
+                f"{key}: completion_marker classification requires "
+                "completion_marker type_unit"
+            )
+        if type_unit == "completion_marker" and classification != "completion_marker":
+            errors.append(
+                f"{key}: completion_marker type_unit requires "
+                "completion_marker classification"
+            )
+        if (
+            classification == "specialist_reference"
+            and type_unit not in SPECIALIST_REFERENCE_TYPES
+        ):
+            errors.append(
+                f"{key}: specialist_reference classification has incompatible "
+                f"type_unit {type_unit!r}"
+            )
+        if (
+            type_unit in RESERVED_REFERENCE_TYPES
+            and classification != "specialist_reference"
+        ):
+            errors.append(
+                f"{key}: {type_unit} type_unit requires specialist_reference "
+                "classification"
+            )
+        if classification in {"scenario_lever", "derived_output"}:
+            durable_edges = [
+                column
+                for column in ("storage_key", "coach_profile_path", "write_path")
+                if row.get(column) not in {"", "NONE"}
+            ]
+            if durable_edges:
+                errors.append(
+                    f"{key}: {classification} must not claim durable edges "
+                    + ",".join(durable_edges)
+                )
         if row.get("tier") != "P0":
             continue
 
@@ -783,66 +1160,247 @@ def test_phase37_typed_fields_point_to_real_production_consumers() -> None:
     expected = {
         "pillar3aAnnual": (
             "pillar3aAnnualContribution",
-            Path("apps/mobile/lib/services/financial_fitness_service.dart"),
-            "static SubScore _calculatePrevoyance",
-            "static SubScore _calculatePatrimoine",
+            "apps/mobile/lib/services/financial_fitness_service.dart"
+            "#FinancialFitnessService._calculatePrevoyance"
+            "@pillar3aAnnualContribution",
         ),
         "savingsMonthly": (
             "monthlySavingsContribution",
-            Path("apps/mobile/lib/services/financial_fitness_service.dart"),
-            "static SubScore _calculateBudget",
-            "static SubScore _calculatePrevoyance",
-        ),
-        "has3a": (
-            "hasPillar3a",
-            Path("apps/mobile/lib/models/coach_profile.dart"),
-            "CoachingProfile toCoachingProfile",
-            "factory CoachProfile.fromJson",
+            "apps/mobile/lib/services/financial_fitness_service.dart"
+            "#FinancialFitnessService._calculateBudget"
+            "@monthlySavingsContribution",
         ),
         "hasAvsGaps": (
             "avsGapStatus",
-            Path("apps/mobile/lib/services/financial_fitness_service.dart"),
-            "static SubScore _calculatePrevoyance",
-            "static SubScore _calculatePatrimoine",
+            "apps/mobile/lib/services/financial_fitness_service.dart"
+            "#FinancialFitnessService._calculatePrevoyance@avsGapStatus",
         ),
     }
 
     assert expected.keys() <= rows_by_key.keys()
-    for key, (token, expected_path, section_start, section_end) in expected.items():
+    for key, (token, expected_evidence) in expected.items():
         row = rows_by_key[key]
         assert row["coach_profile_path"] == token, key
+        assert row["reader_evidence"] == expected_evidence, key
+        assert _reader_evidence_errors(row) == [], key
 
-        match = READER_EVIDENCE_RE.fullmatch(row["reader_evidence"])
-        assert match is not None, key
-        assert Path(match.group("path")) == expected_path, key
 
-        source = (ROOT / expected_path).read_text(encoding="utf-8")
-        lines = source.splitlines()
-        line_number = int(match.group("line"))
-        assert 1 <= line_number <= len(lines), key
+def _semantic_reader_row(evidence: str) -> dict[str, str]:
+    return {
+        "canonical_key": "monthlyExpenses",
+        "storage_key": "q_monthly_expenses",
+        "coach_profile_path": "userProvidedFields.monthlyExpenses",
+        "classification": "completion_marker",
+        "reader_evidence": evidence,
+    }
 
-        start_line = next(
-            index
-            for index, line in enumerate(lines, start=1)
-            if section_start in line
+
+def test_semantic_reader_anchor_survives_unrelated_line_insertions(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/consumer.dart"
+    source_path.parent.mkdir(parents=True)
+    source = """
+class SampleConsumer {
+  double compute(Profile profile) {
+    return profile.userProvidedFields.monthlyExpenses;
+  }
+}
+"""
+    source_path.write_text(source, encoding="utf-8")
+    row = _semantic_reader_row(
+        "lib/consumer.dart#SampleConsumer.compute@monthlyExpenses"
+    )
+
+    assert _reader_evidence_errors(row, root=tmp_path) == []
+
+    source_path.write_text(("// unrelated insertion\n" * 200) + source, encoding="utf-8")
+
+    assert _reader_evidence_errors(row, root=tmp_path) == []
+
+
+def test_semantic_reader_anchor_rejects_missing_symbol_and_out_of_scope_read(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/consumer.dart"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text(
+        """
+class SampleConsumer {
+  double compute(Profile profile) => 0;
+
+  double other(Profile profile) =>
+      profile.userProvidedFields.monthlyExpenses;
+
+  double labelled(Profile profile) {
+    print('monthlyExpenses');
+    return 0;
+  }
+
+  double commented(Profile profile) {
+    // monthlyExpenses is documentation, not a read.
+    return 0;
+  }
+
+  double misleading(Profile profile) {
+    notcontains('monthlyExpenses');
+    return 0;
+  }
+
+  bool completionMarker(Profile profile) =>
+      profile.userProvidedFields.contains('monthlyExpenses');
+}
+""",
+        encoding="utf-8",
+    )
+    anchors = {
+        "missing class": "lib/consumer.dart#MissingConsumer.compute@monthlyExpenses",
+        "missing member": "lib/consumer.dart#SampleConsumer.missing@monthlyExpenses",
+        "contains none": "lib/consumer.dart#SampleConsumer.compute@monthlyExpenses",
+        "contains none in unrelated label": (
+            "lib/consumer.dart#SampleConsumer.labelled@monthlyExpenses"
+        ),
+        "contains none in comment": (
+            "lib/consumer.dart#SampleConsumer.commented@monthlyExpenses"
+        ),
+        "contains none in similarly named call": (
+            "lib/consumer.dart#SampleConsumer.misleading@monthlyExpenses"
+        ),
+    }
+
+    for expected_error, evidence in anchors.items():
+        errors = _reader_evidence_errors(
+            _semantic_reader_row(evidence), root=tmp_path
         )
-        end_line = next(
-            index
-            for index, line in enumerate(lines, start=1)
-            if index > start_line and section_end in line
+        marker = (
+            "contains no qualified ledger access"
+            if expected_error.startswith("contains none")
+            else expected_error
         )
-        assert start_line < line_number < end_line, (
-            f"{key}: reader evidence must be inside {section_start}, "
-            "not a declaration/factory/serializer"
+        assert any(marker in error for error in errors), (evidence, errors)
+
+    marker_row = _semantic_reader_row(
+        "lib/consumer.dart#SampleConsumer.completionMarker@monthlyExpenses"
+    )
+    assert _reader_evidence_errors(marker_row, root=tmp_path) == []
+
+
+def test_semantic_reader_anchor_requires_qualified_ledger_access(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/consumer.dart"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text(
+        """
+class SampleConsumer {
+  double qualified(Profile profile) =>
+      profile.userProvidedFields.monthlyExpenses;
+
+  double localShadow(Profile profile) {
+    final monthlyExpenses = 42.0;
+    return monthlyExpenses;
+  }
+
+  double parameterShadow(Profile profile, double monthlyExpenses) =>
+      monthlyExpenses;
+}
+""",
+        encoding="utf-8",
+    )
+
+    qualified = _semantic_reader_row(
+        "lib/consumer.dart#SampleConsumer.qualified@monthlyExpenses"
+    )
+    assert _reader_evidence_errors(qualified, root=tmp_path) == []
+
+    for member in ("localShadow", "parameterShadow"):
+        row = _semantic_reader_row(
+            f"lib/consumer.dart#SampleConsumer.{member}@monthlyExpenses"
+        )
+        errors = _reader_evidence_errors(row, root=tmp_path)
+        assert any("qualified ledger access" in error for error in errors), (
+            member,
+            errors,
         )
 
-        center = line_number - 1
-        window_start = max(0, center - READER_WINDOW_RADIUS)
-        window_end = min(len(lines), center + READER_WINDOW_RADIUS + 1)
-        window = "\n".join(lines[window_start:window_end])
-        assert token in window, (
-            f"{key}: {row['reader_evidence']} does not prove a read of {token}"
+
+def test_semantic_reader_anchor_rejects_named_and_factory_constructors(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/consumer.dart"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text(
+        """
+class SampleConsumer {
+  final double value;
+
+  SampleConsumer.named(Profile profile)
+      : value = profile.userProvidedFields.monthlyExpenses;
+
+  factory SampleConsumer.fromProfile(Profile profile) => SampleConsumer.raw(
+        profile.userProvidedFields.monthlyExpenses,
+      );
+
+  SampleConsumer.raw(this.value);
+}
+""",
+        encoding="utf-8",
+    )
+
+    for member in ("named", "fromProfile"):
+        row = _semantic_reader_row(
+            f"lib/consumer.dart#SampleConsumer.{member}@monthlyExpenses"
         )
+        errors = _reader_evidence_errors(row, root=tmp_path)
+        assert any("constructor" in error for error in errors), (member, errors)
+
+
+def test_semantic_reader_anchor_rejects_reconstruction_and_declaration(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/coach_profile.dart"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text(
+        """
+class CoachProfile {
+  final double monthlyExpenses;
+
+  CoachProfile(this.monthlyExpenses);
+
+  factory CoachProfile.fromWizardAnswers(Map<String, dynamic> answers) =>
+      CoachProfile(answers['monthlyExpenses']);
+
+  factory CoachProfile.fromJson(Map<String, dynamic> json) =>
+      CoachProfile(json['monthlyExpenses']);
+
+  Map<String, dynamic> toJson() =>
+      {'monthlyExpenses': monthlyExpenses};
+
+  CoachProfile copyWith({double? monthlyExpenses}) =>
+      CoachProfile(monthlyExpenses ?? this.monthlyExpenses);
+}
+""",
+        encoding="utf-8",
+    )
+    for member in (
+        "fromWizardAnswers",
+        "fromJson",
+        "toJson",
+        "copyWith",
+        "monthlyExpenses",
+    ):
+        evidence = (
+            f"lib/coach_profile.dart#CoachProfile.{member}@monthlyExpenses"
+        )
+        errors = _reader_evidence_errors(
+            _semantic_reader_row(evidence), root=tmp_path
+        )
+        assert errors, member
+        assert any(
+            marker in error
+            for error in errors
+            for marker in ("forbidden", "declaration is not a consumer")
+        ), (member, errors)
 
 
 def test_every_matrix_ticket_has_an_executable_blocking_contract() -> None:
@@ -896,8 +1454,14 @@ def test_negative_fixture_proves_duplicate_silent_dead_and_missing_ticket() -> N
     assert any("silent dead P0 live key" in error for error in errors)
     assert any("requires exact blocking ticket" in error for error in errors)
     assert any("reader evidence file does not exist" in error for error in errors)
-    assert any("reader evidence line 999999 exceeds" in error for error in errors)
-    assert any("contains none of the row-derived semantic tokens" in error for error in errors)
+    assert any("missing member" in error for error in errors)
+    assert any("contains no qualified ledger access" in error for error in errors)
+    assert any("unsupported classification 'banana'" in error for error in errors)
+    assert any(
+        "completion_marker classification requires completion_marker type_unit"
+        in error
+        for error in errors
+    )
 
 
 def _materialize_fixture_artifacts(root: Path, artifacts: dict[str, Any]) -> None:
