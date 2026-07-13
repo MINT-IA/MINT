@@ -33,6 +33,25 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 //    - Memento 3.06 — calcul anticipe d'une rente
 // ────────────────────────────────────────────────────────────
 
+/// Direct official form 318.282, state 01.01.2026.
+///
+/// Sources: the AVS/AI administrative-form registries and leaflet 3.06,
+/// section 14. The leaflet also recommends a joint request for married
+/// couples. Spanish and Portuguese deliberately use the English form because
+/// the corresponding `.es` and `.pt` direct endpoints return 404.
+Uri avsOfficialFuturePensionFormUri(Locale locale) {
+  const suffixByLanguage = <String, String>{
+    'fr': 'f',
+    'de': 'd',
+    'it': 'i',
+    'en': 'e',
+    'es': 'e',
+    'pt': 'e',
+  };
+  final suffix = suffixByLanguage[locale.languageCode.toLowerCase()] ?? 'e';
+  return Uri.parse('https://www.ahv-iv.ch/p/318.282.$suffix');
+}
+
 class AvsGuideScreen extends StatefulWidget {
   const AvsGuideScreen({super.key});
 
@@ -42,10 +61,6 @@ class AvsGuideScreen extends StatefulWidget {
 
 class _AvsGuideScreenState extends State<AvsGuideScreen> {
   bool _isProcessing = false;
-
-  static const String _officialFuturePensionUrl =
-      'https://www.ahv-iv.ch/fr/Formulaires/Formulaires/'
-      'Formulaires-administratifs-g%C3%A9n%C3%A9raux';
 
   // ── Build ────────────────────────────────────────────────
 
@@ -271,12 +286,14 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
 
   Widget _buildOpenOfficialFormButton(S l) {
     return Semantics(
+      identifier: 'avs_official_form_cta',
       button: true,
       label: l.avsGuideOpenAhvButton,
       child: SizedBox(
         width: double.infinity,
         height: 56,
         child: FilledButton.icon(
+          key: const Key('avs_official_form_cta'),
           onPressed: _onOpenOfficialForm,
         icon: const Icon(Icons.open_in_new, size: 20),
         label: Text(
@@ -442,7 +459,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   // ── Actions ──────────────────────────────────────────────
 
   Future<void> _onOpenOfficialForm() async {
-    final uri = Uri.parse(_officialFuturePensionUrl);
+    final uri = avsOfficialFuturePensionFormUri(Localizations.localeOf(context));
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
@@ -451,7 +468,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l.avsGuideSnackbarError(_officialFuturePensionUrl),
+            l.avsGuideSnackbarError(uri.toString()),
             style: MintTextStyles.bodyMedium(),
           ),
           backgroundColor: MintColors.warning,

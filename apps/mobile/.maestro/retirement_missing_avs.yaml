@@ -44,4 +44,17 @@ appId: ch.mint.app
     id: "retirement_complete_income"
 - assertNotVisible:
     id: "retirement_replacement_rate"
-- takeScreenshot: retirement_missing_avs_final
+- tapOn:
+    id: "retirement_avs_document_cta"
+- assertVisible:
+    text: ".*318\\.282.*"
+- scrollUntilVisible:
+    element:
+      id: "avs_official_form_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 100
+    centerElement: true
+- assertVisible:
+    id: "avs_official_form_cta"
+- takeScreenshot: retirement_missing_avs_official_form
