@@ -96,6 +96,13 @@ Dispatched in the Flutter agent loop at
 7. `save_insight` → client-side memory (Hive/SharedPrefs via
    `CoachMemoryService`) — text summary, NOT structured fields.
 
+`route_to_screen` is an intent-only boundary. Its LLM-visible JSON schema is
+closed to `intent`, `confidence`, and `context_message`, with
+`additionalProperties: false`. It accepts neither a raw route nor `prefill` or
+any other profile/financial payload. Flutter resolves the intent through
+`RoutePlanner`, evaluates readiness from the current ledger-backed profile, and
+navigates without `GoRouter.extra` domain data.
+
 **Adding a new Flutter-bound tool:**
 1. Declare schema in `coach_tools.py::build_tools()`.
 2. **Do NOT** add name to `INTERNAL_TOOL_NAMES` (would strip from Flutter).
@@ -192,6 +199,6 @@ lower latency, no rate-limit gaming).
 
 ---
 
-*Last updated: 2026-04-21. Update this file whenever `INTERNAL_TOOL_NAMES`
+*Last updated: 2026-07-13. Update this file whenever `INTERNAL_TOOL_NAMES`
 or the widget_renderer case list changes — or the next agent will ship
 another façade-sans-câblage like save_fact.*

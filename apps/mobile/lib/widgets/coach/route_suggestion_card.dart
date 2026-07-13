@@ -28,20 +28,16 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 /// - [contextMessage]  — the coach's explanation from the LLM response.
 /// - [route]           — the GoRouter route to push on CTA tap.
 /// - [isPartial]       — when true, shows the "incomplete data" warning banner.
-/// - [prefill]         — optional readiness context shown by the card. It is
-///   never transported to the route; the destination reads the ledger.
 class RouteSuggestionCard extends StatelessWidget {
   final String contextMessage;
   final String route;
   final bool isPartial;
-  final Map<String, dynamic>? prefill;
 
   const RouteSuggestionCard({
     super.key,
     required this.contextMessage,
     required this.route,
     this.isPartial = false,
-    this.prefill,
   });
 
   @override

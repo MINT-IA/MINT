@@ -451,5 +451,19 @@ context.push('/step', extra: {'runId': runId, 'stepId': stepId});
       ).readAsStringSync();
       expect(suggestionCard, isNot(contains('context.push(route, extra:')));
     });
+
+    test('coach routing exposes no financial prefill facade', () {
+      final sources = [
+        'lib/widgets/coach/route_suggestion_card.dart',
+        'lib/widgets/coach/widget_renderer.dart',
+        'lib/services/navigation/route_planner.dart',
+        'lib/services/navigation/screen_registry.dart',
+      ].map((path) => File(path).readAsStringSync()).join('\n');
+
+      expect(sources, isNot(matches(RegExp(r'\bprefill\b'))));
+      expect(sources, isNot(contains('prefillFromProfile')));
+      expect(sources, isNot(contains('_buildPrefill')));
+      expect(sources, isNot(contains('_resolveProfileValue')));
+    });
   });
 }

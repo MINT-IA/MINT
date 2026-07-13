@@ -30,7 +30,6 @@ InMemoryScreenRegistry _testRegistry() {
       behavior: ScreenBehavior.decisionCanvas,
       requiredFields: ['salaireBrut', 'age'],
       optionalFields: ['avoirLpp', 'canton'],
-      prefillFromProfile: true,
     ),
     // B — Decision Canvas: requires canton + netIncome
     ScreenEntry(
@@ -247,12 +246,6 @@ void main() {
       final planner = RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('retirement_choice', confidence: 0.85);
       expect(decision.route, '/rente-vs-capital');
-    });
-
-    test('openScreen provides prefill data from profile', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
-      final decision = planner.plan('retirement_choice', confidence: 0.9);
-      expect(decision.prefill, isNotNull);
     });
 
     test('tax_optimization_3a with canton + age → openScreen', () {

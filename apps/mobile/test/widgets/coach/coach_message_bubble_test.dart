@@ -7,8 +7,8 @@
 //  Tests:
 //  1.  WidgetRenderer.build with show_fact_card returns a ChatFactCard
 //  2.  WidgetRenderer.build with empty richToolCalls renders nothing
-//  3.  WidgetRenderer.build with route_to_screen (valid) returns RouteSuggestionCard
-//  4.  WidgetRenderer.build with route_to_screen (invalid) returns SizedBox.shrink
+//  3.  route_to_screen without a profile fails closed
+//  4.  A legacy route payload without intent renders no CTA
 //  5.  ChatMessage richToolCalls field defaults to empty list
 //  6.  ChatMessage hasRichToolCalls returns false for empty list
 //  7.  ChatMessage hasRichToolCalls returns true when calls present
@@ -120,7 +120,7 @@ void main() {
       expect(find.byType(RouteSuggestionCard), findsNothing);
     });
 
-    testWidgets('route_to_screen with valid route renders RouteSuggestionCard',
+    testWidgets('route_to_screen without a profile renders no route CTA',
         (tester) async {
       late Widget? rendered;
       await tester.pumpWidget(_buildTestApp((context) {
@@ -129,7 +129,8 @@ void main() {
           const RagToolCall(
             name: 'route_to_screen',
             input: {
-              'route': '/rente-vs-capital',
+              'intent': 'retirement_choice',
+              'confidence': 0.9,
               'context_message': 'Voici le simulateur',
             },
           ),
@@ -137,10 +138,10 @@ void main() {
         return rendered ?? const SizedBox(key: Key('empty'));
       }));
       await tester.pump();
-      expect(find.byType(RouteSuggestionCard), findsOneWidget);
+      expect(find.byType(RouteSuggestionCard), findsNothing);
     });
 
-    testWidgets('route_to_screen with invalid route renders SizedBox.shrink()',
+    testWidgets('legacy route payload without intent renders no route CTA',
         (tester) async {
       late Widget? rendered;
       await tester.pumpWidget(_buildTestApp((context) {

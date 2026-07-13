@@ -82,9 +82,6 @@ class ScreenEntry {
   /// false for admin screens, landing, auth flows, achievements, shell tabs.
   final bool preferFromChat;
 
-  /// Whether the screen should be pre-filled from CoachProfile data.
-  final bool prefillFromProfile;
-
   /// Optional fine-grained gate for Swiss-critical surfaces.
   ///
   /// When non-null, [ReadinessGate] calls this function instead of the
@@ -103,7 +100,6 @@ class ScreenEntry {
     this.optionalFields = const [],
     this.fallbackRoute,
     this.preferFromChat = true,
-    this.prefillFromProfile = false,
     this.customGate,
   });
 }
@@ -353,7 +349,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['depenses'],
     fallbackRoute: '/onboarding/quick',
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _cantonalBenchmark = ScreenEntry(
@@ -363,7 +358,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['canton', 'netIncome'],
     optionalFields: ['salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   // ── B — Decision Canvas ───────────────────────────────────────
@@ -378,7 +372,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['canton', 'avoirLpp', 'rachatMaximum'],
     fallbackRoute: '/coach/chat?topic=retraite',
     preferFromChat: true,
-    prefillFromProfile: true,
     customGate: gateRenteVsCapital,
   );
 
@@ -390,7 +383,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['avoirLpp', 'rachatMaximum', 'civilStatus'],
     fallbackRoute: '/coach/chat?topic=retraite',
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   // FIX-172: preretraite_complete must exist in registry for LLM to suggest it.
@@ -403,7 +395,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['avoirLpp', 'rachatMaximum'],
     fallbackRoute: '/coach/chat?topic=retraite',
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _pilier3a = ScreenEntry(
@@ -414,7 +405,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['age', 'employmentStatus'],
     fallbackRoute: '/coach/chat?topic=3a',
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _staggeredWithdrawal = ScreenEntry(
@@ -425,7 +415,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['salaireBrut'],
     fallbackRoute: '/coach/chat?topic=3a',
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _fiscal = ScreenEntry(
@@ -435,7 +424,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['canton', 'netIncome'],
     optionalFields: ['civilStatus', 'nombreEnfants'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _rachatLpp = ScreenEntry(
@@ -446,7 +434,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['rachatMaximum', 'avoirLpp'],
     fallbackRoute: '/coach/chat?topic=rachatLpp',
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   // customGate overrides generic field-check → must be static final
@@ -459,7 +446,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['avoirLpp', 'rachatMaximum'],
     fallbackRoute: '/scan',
     preferFromChat: true,
-    prefillFromProfile: true,
     customGate: gateRachatLppDeep,
   );
 
@@ -471,7 +457,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['avoirLpp'],
     fallbackRoute: '/coach/chat?topic=epl',
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _affordability = ScreenEntry(
@@ -481,7 +466,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'canton'],
     optionalFields: ['avoirLpp', 'epargne'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   // customGate overrides generic field-check → must be static final
@@ -493,7 +477,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus', 'salaireBrut'],
     optionalFields: ['age'],
     preferFromChat: true,
-    prefillFromProfile: true,
     customGate: gateInvalidite,
   );
 
@@ -504,7 +487,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'canton'],
     optionalFields: ['employmentStatus'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _lamalFranchise = ScreenEntry(
@@ -514,7 +496,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['age', 'canton'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _decaissement = ScreenEntry(
@@ -525,7 +506,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['avoirLpp', 'epargne3a'],
     fallbackRoute: '/coach/chat?topic=decaissement',
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _amortization = ScreenEntry(
@@ -535,7 +515,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut', 'canton'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _saronVsFixed = ScreenEntry(
@@ -545,7 +524,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _eplCombined = ScreenEntry(
@@ -555,7 +533,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _dividendeVsSalaire = ScreenEntry(
@@ -565,7 +542,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus'],
     optionalFields: ['salaireBrut', 'canton'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _providerComparator = ScreenEntry(
@@ -575,7 +551,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['age', 'salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _realReturn = ScreenEntry(
@@ -585,7 +560,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['age'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _retroactif3a = ScreenEntry(
@@ -595,7 +569,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['employmentStatus'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _locationVsPropriete = ScreenEntry(
@@ -605,7 +578,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'canton'],
     optionalFields: ['epargne'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _succession = ScreenEntry(
@@ -615,7 +587,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['civilStatus', 'nombreEnfants'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _librePassage = ScreenEntry(
@@ -625,7 +596,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus'],
     optionalFields: ['avoirLpp'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _allocationAnnuelle = ScreenEntry(
@@ -635,7 +605,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'canton'],
     optionalFields: ['age', 'riskTolerance'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _coverageCheck = ScreenEntry(
@@ -645,7 +614,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['canton'],
     optionalFields: ['salaireBrut', 'age', 'employmentStatus'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _genderGap = ScreenEntry(
@@ -655,7 +623,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'age'],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _disabilitySelfEmployed = ScreenEntry(
@@ -665,7 +632,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus'],
     optionalFields: ['salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _avsCotisations = ScreenEntry(
@@ -675,7 +641,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus'],
     optionalFields: ['salaireBrut', 'age'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _ijm = ScreenEntry(
@@ -685,7 +650,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus'],
     optionalFields: ['salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _pillar3aIndep = ScreenEntry(
@@ -695,7 +659,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus'],
     optionalFields: ['salaireBrut', 'canton'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _lppVolontaire = ScreenEntry(
@@ -705,7 +668,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus'],
     optionalFields: ['salaireBrut', 'age'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _simulatorCompound = ScreenEntry(
@@ -715,7 +677,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _simulatorLeasing = ScreenEntry(
@@ -725,7 +686,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _simulatorCredit = ScreenEntry(
@@ -735,7 +695,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   // customGate overrides generic field-check → must be static final
@@ -748,7 +707,6 @@ class MintScreenRegistry extends ScreenRegistry {
     optionalFields: ['salaireBrut'],
     fallbackRoute: '/onboarding/quick',
     preferFromChat: true,
-    prefillFromProfile: true,
     customGate: gateBudgetSousTension,
   );
 
@@ -759,7 +717,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _debtRiskCheck = ScreenEntry(
@@ -769,7 +726,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut', 'netIncome'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   /// T3-2: Help resources for debt crisis situations.
@@ -788,7 +744,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['civilStatus', 'avoirLpp', 'epargne3a'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _timeline = ScreenEntry(
@@ -798,7 +753,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['age'],
     optionalFields: ['salaireBrut', 'canton'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _arbitrageBilan = ScreenEntry(
@@ -808,7 +762,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'epargne3a'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _cockpit = ScreenEntry(
@@ -818,7 +771,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   static const ScreenEntry _imputedRental = ScreenEntry(
@@ -828,7 +780,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['canton'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   // ── C — Roadmap Flow ──────────────────────────────────────────
@@ -840,7 +791,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'conjoint'],
     optionalFields: ['avoirLpp', 'civilStatus'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _naissance = ScreenEntry(
@@ -850,7 +800,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'canton'],
     optionalFields: ['civilStatus'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _mariage = ScreenEntry(
@@ -860,7 +809,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut'],
     optionalFields: ['civilStatus', 'conjoint'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _concubinage = ScreenEntry(
@@ -870,7 +818,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut'],
     optionalFields: ['civilStatus'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _unemployment = ScreenEntry(
@@ -880,7 +827,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'age'],
     optionalFields: ['employmentStatus'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _firstJob = ScreenEntry(
@@ -890,7 +836,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['age', 'salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _housingSale = ScreenEntry(
@@ -900,7 +845,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['canton'],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _donation = ScreenEntry(
@@ -910,7 +854,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['canton'],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _decesProche = ScreenEntry(
@@ -920,7 +863,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['canton'],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _expat = ScreenEntry(
@@ -930,7 +872,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['canton'],
     optionalFields: ['employmentStatus'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   // customGate overrides generic field-check → must be static final
@@ -942,7 +883,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus'],
     optionalFields: ['canton'],
     preferFromChat: true,
-    prefillFromProfile: false,
     customGate: gateFrontalier,
   );
 
@@ -953,7 +893,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut', 'employmentStatus'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _demenagementCantonal = ScreenEntry(
@@ -963,7 +902,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['canton', 'salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _disabilityInsurance = ScreenEntry(
@@ -973,7 +911,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['employmentStatus'],
     optionalFields: ['salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   // ── D — Capture / Utility ──────────────────────────────────────
@@ -985,7 +922,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _documents = ScreenEntry(
@@ -995,7 +931,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _profile = ScreenEntry(
@@ -1005,7 +940,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _avsGuide = ScreenEntry(
@@ -1015,7 +949,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _household = ScreenEntry(
@@ -1025,7 +958,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['conjoint'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _openBankingHub = ScreenEntry(
@@ -1035,7 +967,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _consent = ScreenEntry(
@@ -1045,7 +976,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _byokSettings = ScreenEntry(
@@ -1055,7 +985,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _slmSettings = ScreenEntry(
@@ -1065,7 +994,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _scanReview = ScreenEntry(
@@ -1075,7 +1003,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _scanImpact = ScreenEntry(
@@ -1085,7 +1012,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _documentDetail = ScreenEntry(
@@ -1095,7 +1021,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _coupleAccept = ScreenEntry(
@@ -1105,7 +1030,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _dataBlock = ScreenEntry(
@@ -1115,7 +1039,6 @@ class MintScreenRegistry extends ScreenRegistry {
     preferFromChat: false, // Parameterized route — must not be opened from chat without :type resolution
     requiredFields: [],
     optionalFields: [],
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _bankImport = ScreenEntry(
@@ -1125,7 +1048,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _openBankingTransactions = ScreenEntry(
@@ -1135,7 +1057,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _openBankingConsents = ScreenEntry(
@@ -1145,7 +1066,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _adminObservability = ScreenEntry(
@@ -1155,7 +1075,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _adminAnalytics = ScreenEntry(
@@ -1165,7 +1084,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   // ── E — Conversation pure / Non-routable from chat ─────────────
@@ -1233,7 +1151,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['age', 'salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _exploreFamille = ScreenEntry(
@@ -1243,7 +1160,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _exploreTravail = ScreenEntry(
@@ -1253,7 +1169,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['employmentStatus'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _exploreLogement = ScreenEntry(
@@ -1263,7 +1178,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['canton'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _exploreFiscalite = ScreenEntry(
@@ -1273,7 +1187,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['canton', 'salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _explorePatrimoine = ScreenEntry(
@@ -1283,7 +1196,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _exploreSante = ScreenEntry(
@@ -1293,7 +1205,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _coachCheckin = ScreenEntry(
@@ -1303,7 +1214,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _coachRefresh = ScreenEntry(
@@ -1313,7 +1223,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _coachHistory = ScreenEntry(
@@ -1330,7 +1239,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _educationTheme = ScreenEntry(
@@ -1340,7 +1248,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _portfolio = ScreenEntry(
@@ -1350,7 +1257,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut', 'epargne'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _scoreReveal = ScreenEntry(
@@ -1360,7 +1266,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _onboardingQuick = ScreenEntry(
@@ -1370,7 +1275,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _onboardingPremierEclairage = ScreenEntry(
@@ -1380,7 +1284,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: false,
-    prefillFromProfile: false,
   );
 
   static const ScreenEntry _askMint = ScreenEntry(
@@ -1390,7 +1293,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: [],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   // ── Surface deduplication (S52) ──────────────────────────────
@@ -1406,7 +1308,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut', 'age', 'canton'],
     preferFromChat: true,
-    prefillFromProfile: true,
   );
 
   /// Confidence Dashboard — displays the 4-axis EnhancedConfidence score.
@@ -1420,7 +1321,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut', 'age', 'canton'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   // ── S65 — Expert Tier ────────────────────────────────────────
@@ -1436,7 +1336,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['age', 'canton', 'salaireBrut'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   // ── S68 — Agent Autonome ─────────────────────────────────────
@@ -1449,7 +1348,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['salaireBrut', 'canton', 'employmentStatus'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   /// Agent autonome: coach generates the AVS extract request letter.
@@ -1460,7 +1358,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['age', 'canton'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   /// Agent autonome: coach generates the LPP transfer letter.
@@ -1471,7 +1368,6 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['avoirLpp'],
     preferFromChat: true,
-    prefillFromProfile: false,
   );
 
   // ════════════════════════════════════════════════════════════════

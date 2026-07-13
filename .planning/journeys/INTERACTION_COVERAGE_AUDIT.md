@@ -67,7 +67,7 @@
 | uncovered literal route | `/decaissement` | apps/mobile/lib/app.dart:550, apps/mobile/lib/screens/coach/optimisation_decaissement_screen.dart:57, apps/mobile/lib/services/arbitrage_summary_service.dart:321, apps/mobile/lib/services/arbitrage_summary_service.dart:534 (+4 more) |
 | uncovered literal route | `/divorce` | apps/mobile/lib/app.dart:564, apps/mobile/lib/screens/timeline_screen.dart:85, apps/mobile/lib/services/cap_engine.dart:799, apps/mobile/lib/services/response_card_service.dart:279 |
 | uncovered literal route | `/document-scan/avs-guide` | apps/mobile/lib/widgets/coach/explore_hub.dart:66, apps/mobile/lib/widgets/dashboard/couple_action_plan.dart:362, apps/mobile/lib/widgets/dashboard/retirement_checklist_card.dart:197 |
-| uncovered literal route | `/documents` | apps/mobile/lib/data/educational_themes.dart:122, apps/mobile/lib/widgets/coach/widget_renderer.dart:577 |
+| uncovered literal route | `/documents` | apps/mobile/lib/data/educational_themes.dart:122, apps/mobile/lib/widgets/coach/widget_renderer.dart:548 |
 | uncovered literal route | `/documents/:id` | apps/mobile/lib/screens/documents_screen.dart:541, apps/mobile/lib/screens/documents_screen.dart:774 |
 | uncovered literal route | `/education/hub` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1180, apps/mobile/lib/widgets/coach/coach_message_bubble.dart:383, apps/mobile/lib/widgets/coach/smart_shortcuts.dart:210 |
 | uncovered literal route | `/education/theme/:id` | apps/mobile/lib/screens/education/comprendre_hub_screen.dart:65 |

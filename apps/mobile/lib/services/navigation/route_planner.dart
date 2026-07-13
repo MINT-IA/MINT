@@ -17,7 +17,7 @@
 ///   case RouteAction.openScreen:
 ///     context.push(decision.route!);
 ///   case RouteAction.openWithWarning:
-///     context.push(decision.route!, extra: {'missingFields': decision.missingFields});
+///     context.push(decision.route!);
 ///   case RouteAction.askFirst:
 ///     coachAskMissingFields(decision.missingFields!);
 ///   case RouteAction.conversationOnly:
@@ -80,40 +80,27 @@ class RouteDecision {
   /// can ask focused questions (maximum 1–2 per interaction).
   final List<String>? missingFields;
 
-  /// Prefill values extracted from [CoachProfile] to pass to the screen.
-  ///
-  /// The receiving screen uses these as initial hypothesis values so the
-  /// user sees their own numbers immediately rather than defaults.
-  /// Keys match the screen's own parameter contract.
-  final Map<String, dynamic>? prefill;
-
   const RouteDecision({
     required this.action,
     this.route,
     this.missingFields,
-    this.prefill,
   });
 
-  /// Open a screen directly, optionally with prefill data.
-  const RouteDecision.openScreen(
-    String route, {
-    Map<String, dynamic>? prefill,
-  }) : this(
+  /// Open a screen directly.
+  const RouteDecision.openScreen(String route)
+      : this(
           action: RouteAction.openScreen,
           route: route,
-          prefill: prefill,
         );
 
   /// Open a screen in estimation/warning mode with a list of missing fields.
   const RouteDecision.openWithWarning(
     String route, {
     required List<String> missingFields,
-    Map<String, dynamic>? prefill,
   }) : this(
           action: RouteAction.openWithWarning,
           route: route,
           missingFields: missingFields,
-          prefill: prefill,
         );
 
   /// Instruct the Coach to ask for missing critical fields before routing.
@@ -136,8 +123,7 @@ class RouteDecision {
   String toString() => 'RouteDecision('
       'action: $action, '
       'route: $route, '
-      'missingFields: $missingFields, '
-      'prefill: $prefill'
+      'missingFields: $missingFields'
       ')';
 
   @override
@@ -181,10 +167,10 @@ class RoutePlanner {
   /// The surface registry to look up intent tags.
   final ScreenRegistry registry;
 
-  /// The current user profile — used for readiness checks and prefill.
+  /// The current user profile — used for readiness checks.
   final CoachProfile profile;
 
-  /// Optional budget snapshot — reserved for future prefill enrichment.
+  /// Optional budget snapshot — reserved for future routing enrichment.
   /// Not currently used in routing decisions.
   final BudgetSnapshotData? snapshot;
 
@@ -230,17 +216,12 @@ class RoutePlanner {
 
     switch (readiness.level) {
       case ReadinessLevel.ready:
-        final prefill =
-            entry.prefillFromProfile ? _buildPrefill(entry) : null;
-        return RouteDecision.openScreen(entry.route, prefill: prefill);
+        return RouteDecision.openScreen(entry.route);
 
       case ReadinessLevel.partial:
-        final prefill =
-            entry.prefillFromProfile ? _buildPrefill(entry) : null;
         return RouteDecision.openWithWarning(
           entry.route,
           missingFields: readiness.missingFields,
-          prefill: prefill,
         );
 
       case ReadinessLevel.blocked:
@@ -257,89 +238,6 @@ class RoutePlanner {
         return RouteDecision.askFirst(readiness.missingFields);
     }
   }
-
-  // ── Prefill builder ─────────────────────────────────────────────
-
-  /// Builds a prefill map from the profile for the given [entry].
-  ///
-  /// Only includes non-null values. The receiving screen is responsible for
-  /// interpreting the keys according to its own parameter contract.
-  Map<String, dynamic>? _buildPrefill(ScreenEntry entry) {
-    final fields = [
-      ...entry.requiredFields,
-      ...entry.optionalFields,
-    ];
-    if (fields.isEmpty) return null;
-
-    final prefill = <String, dynamic>{};
-    for (final field in fields) {
-      final value = _resolveProfileValue(field);
-      if (value != null) {
-        prefill[field] = value;
-      }
-    }
-    return prefill.isEmpty ? null : prefill;
-  }
-
-  /// Resolves a profile field by key into a prefill-safe value.
-  ///
-  /// Keys use the same naming convention as [ReadinessGate._resolveField]
-  /// so the same field list from [ScreenEntry.requiredFields] and
-  /// [ScreenEntry.optionalFields] can drive both readiness checks and prefill.
-  dynamic _resolveProfileValue(String key) {
-    switch (key) {
-      case 'age':
-        return profile.age > 0 ? profile.age : null;
-      case 'canton':
-        return profile.canton.isNotEmpty ? profile.canton : null;
-      case 'nationality':
-        return profile.nationality;
-      case 'employmentStatus':
-        return profile.employmentStatus.isNotEmpty
-            ? profile.employmentStatus
-            : null;
-      case 'civilStatus':
-        return profile.etatCivil.name;
-      case 'residencePermit':
-        return profile.residencePermit;
-      // Income — registry uses 'salaireBrut' as canonical key
-      case 'salaireBrut':
-      case 'salaireBrutMensuel':
-        return profile.salaireBrutMensuel > 0
-            ? profile.salaireBrutMensuel
-            : null;
-      case 'netIncome':
-        return profile.salaireBrutMensuel > 0
-            ? profile.salaireBrutMensuel
-            : null;
-      // Prevoyance
-      case 'avoirLpp':
-        return profile.prevoyance.avoirLppTotal;
-      case 'rachatMaximum':
-        return profile.prevoyance.rachatMaximum;
-      case 'epargne3a':
-        return profile.prevoyance.totalEpargne3a > 0
-            ? profile.prevoyance.totalEpargne3a
-            : null;
-      // Patrimoine
-      case 'epargne':
-        return profile.patrimoine.epargneLiquide > 0
-            ? profile.patrimoine.epargneLiquide
-            : null;
-      // Household
-      case 'conjoint':
-        return profile.conjoint;
-      // Other
-      case 'riskTolerance':
-        return profile.riskTolerance;
-      case 'housingStatus':
-        return profile.housingStatus;
-      case 'nombreEnfants':
-        return profile.nombreEnfants > 0 ? profile.nombreEnfants : null;
-      default:
-        return null;
-    }
-  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -351,7 +249,7 @@ class RoutePlanner {
 ///
 /// The full BudgetSnapshot is defined elsewhere in the codebase. This stub
 /// allows RoutePlanner to accept a snapshot reference for future enrichment
-/// (e.g. prefilling the monthly budget screen with current numbers)
+/// (e.g. refining monthly-budget readiness)
 /// without creating a circular dependency.
 ///
 /// Replace with the real BudgetSnapshot type once the dependency graph allows.
