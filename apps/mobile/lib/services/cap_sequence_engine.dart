@@ -89,7 +89,6 @@ class CapSequenceEngine {
 
     // Step completion signals (profile + memory based).
     final hasSalary = profile.salaireBrutMensuel > 0;
-    final hasAge = profile.birthYear > 0;
     final hasLpp = (prev.avoirLppTotal ?? 0) > 0 ||
         done.contains('lpp_verified') ||
         done.contains('lpp_scan');
@@ -104,8 +103,8 @@ class CapSequenceEngine {
         done.contains('rachat_sim');
     final hasRenteCapital = done.contains('rente_vs_capital') ||
         done.contains('rente_capital_visited');
-    final hasDecaissement = done.contains('decaissement') ||
-        done.contains('decaissement_visited');
+    final hasDecaissement =
+        done.contains('decaissement') || done.contains('decaissement_visited');
     final hasFiscal = done.contains('fiscal_cap') ||
         done.contains('fiscal_optimisation') ||
         done.contains('fiscal_completed');
@@ -120,14 +119,15 @@ class CapSequenceEngine {
         intentTag: '/profile',
         impactEstimate: null,
       ),
-      CapStep(
+      const CapStep(
         id: 'ret_02_avs',
         order: 2,
         titleKey: 'capStepRetirement02Title',
         descriptionKey: 'capStepRetirement02Desc',
-        status: hasAge ? CapStepStatus.completed : CapStepStatus.upcoming,
-        intentTag: '/retraite',
-        impactEstimate: _estimateAvsMonthly(profile),
+        // Age or declared contribution years are not an official AVS estimate.
+        status: CapStepStatus.upcoming,
+        intentTag: '/scan/avs-guide',
+        impactEstimate: null,
       ),
       CapStep(
         id: 'ret_03_lpp',
@@ -457,7 +457,8 @@ class CapSequenceEngine {
 
     final hasSalary = profile.salaireBrutMensuel > 0;
     final hasSalaryXray = done.contains('first_job_salary');
-    final hasLpp = (prev.avoirLppTotal ?? 0) > 0 || done.contains('lpp_verified');
+    final hasLpp =
+        (prev.avoirLppTotal ?? 0) > 0 || done.contains('lpp_verified');
     final has3a = done.contains('pillar_3a') || (prev.totalEpargne3a) > 0;
 
     final steps = <CapStep>[
@@ -603,15 +604,6 @@ class CapSequenceEngine {
   }
 
   // ── IMPACT ESTIMATES ─────────────────────────────────────────
-
-  /// Rough monthly AVS estimate (max rente / 44 * years contributed).
-  static double? _estimateAvsMonthly(CoachProfile profile) {
-    final years = profile.prevoyance.anneesContribuees;
-    if (years == null || years <= 0) return null;
-    // Max rente mensuelle AVS = 2'520 CHF (2025/2026)
-    const maxRenteMensuelle = 2520.0;
-    return (maxRenteMensuelle * years / 44).clamp(0, maxRenteMensuelle);
-  }
 
   /// Rough monthly LPP estimate from current avoir and conversion rate.
   static double? _estimateLppMonthly(CoachProfile profile) {

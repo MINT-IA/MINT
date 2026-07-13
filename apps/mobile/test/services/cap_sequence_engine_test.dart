@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
@@ -17,7 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 //  - Housing sequence: with/without fonds propres
 //  - Unknown goal → empty sequence
 //  - Step status determinism
-//  - Impact estimates are reasonable
+//  - Non-AVS impact estimates remain available; AVS stays certified-null
 //  - All steps have valid ARB titleKeys
 //  - Golden couple: Julien (49, VS, 122207 CHF) + Lauren (43, VS, 67000 CHF)
 // ────────────────────────────────────────────────────────────────
@@ -146,9 +148,7 @@ void main() {
     });
 
     test('completedCount is low for minimal empty profile (no salary)', () {
-      // profile has birthYear=1980, salary=0.
-      // Step 2 (AVS) is completed because birthYear > 0.
-      // Step 1 (salary) is not completed.
+      // A birth year is not evidence of an official AVS estimate.
       final profile = _profile(salaireBrutMensuel: 0);
       final seq = CapSequenceEngine.build(
         profile: profile,
@@ -157,10 +157,11 @@ void main() {
         l: _l,
       );
 
-      // At most step 2 (AVS) can be completed; step 1 (salary) is not
-      expect(seq.completedCount, lessThanOrEqualTo(2));
+      expect(seq.completedCount, equals(0));
       final step1 = seq.steps.firstWhere((s) => s.id == 'ret_01_salary');
+      final step2 = seq.steps.firstWhere((s) => s.id == 'ret_02_avs');
       expect(step1.status, isNot(equals(CapStepStatus.completed)));
+      expect(step2.status, isNot(equals(CapStepStatus.completed)));
     });
   });
 
@@ -178,7 +179,7 @@ void main() {
       expect(step1.status, equals(CapStepStatus.completed));
     });
 
-    test('step 2 (AVS) is completed when birthYear is known', () {
+    test('step 2 (AVS) stays pending and routes to official recovery', () {
       final profile = _profile(birthYear: 1977, salaireBrutMensuel: 8000);
       final seq = CapSequenceEngine.build(
         profile: profile,
@@ -188,8 +189,16 @@ void main() {
       );
 
       final step2 = seq.steps.firstWhere((s) => s.id == 'ret_02_avs');
-      expect(step2.status, equals(CapStepStatus.completed));
+      expect(step2.status, isNot(equals(CapStepStatus.completed)));
+      expect(step2.intentTag, equals('/scan/avs-guide'));
     });
+  });
+
+  test('AVS sequence contains no synthetic monthly pension helper', () {
+    final engineSource =
+        File('lib/services/cap_sequence_engine.dart').readAsStringSync();
+
+    expect(engineSource, isNot(contains('_estimateAvsMonthly')));
   });
 
   group('Retirement sequence — Julien (golden couple)', () {
@@ -256,15 +265,15 @@ void main() {
       expect(step3.impactEstimate!, lessThan(600.0));
     });
 
-    test('completedCount >= 3 with Julien full profile', () {
+    test('birth year does not inflate Julien completedCount', () {
       final seq = CapSequenceEngine.build(
         profile: _julien(),
         memory: emptyMemory,
         goalIntentTag: 'retirement_choice',
         l: _l,
       );
-      // At minimum: salary, age/AVS, LPP
-      expect(seq.completedCount, greaterThanOrEqualTo(3));
+      // Salary and LPP are known; AVS remains pending until official evidence.
+      expect(seq.completedCount, equals(2));
     });
   });
 
@@ -290,7 +299,7 @@ void main() {
       expect(step3.status, equals(CapStepStatus.completed));
     });
 
-    test('AVS impact estimate is positive for Lauren', () {
+    test('AVS impact remains null for Lauren without official evidence', () {
       final seq = CapSequenceEngine.build(
         profile: _lauren(),
         memory: emptyMemory,
@@ -298,8 +307,9 @@ void main() {
         l: _l,
       );
       final step2 = seq.steps.firstWhere((s) => s.id == 'ret_02_avs');
-      expect(step2.impactEstimate, isNotNull);
-      expect(step2.impactEstimate!, greaterThan(0.0));
+      expect(step2.impactEstimate, isNull);
+      expect(step2.status, isNot(equals(CapStepStatus.completed)));
+      expect(step2.intentTag, equals('/scan/avs-guide'));
     });
   });
 
@@ -678,7 +688,8 @@ void main() {
       expect(step4.status, equals(CapStepStatus.completed));
     });
 
-    test('step 5 (specialist) is completed when specialist_consulted in memory', () {
+    test('step 5 (specialist) is completed when specialist_consulted in memory',
+        () {
       const memory = CapMemory(completedActions: ['specialist_consulted']);
       final seq = CapSequenceEngine.build(
         profile: _profile(salaireBrutMensuel: 5000),
