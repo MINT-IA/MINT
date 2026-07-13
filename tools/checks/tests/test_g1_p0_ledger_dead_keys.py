@@ -89,6 +89,22 @@ SUBLEDGER_TYPES = {
     "DepensesProfile": "depenses",
     "DetteProfile": "dettes",
 }
+CANONICAL_MODEL_IMPORT = "package:mint_mobile/models/coach_profile.dart"
+CANONICAL_PROVIDER_IMPORT = (
+    "package:mint_mobile/providers/coach_profile_provider.dart"
+)
+CANONICAL_PROVIDER_PACKAGE_IMPORT = "package:provider/provider.dart"
+CANONICAL_BUILD_CONTEXT_IMPORTS = {
+    "package:flutter/cupertino.dart",
+    "package:flutter/material.dart",
+    "package:flutter/widgets.dart",
+}
+CANONICAL_LEDGER_DECLARATIONS = {
+    "CoachProfile": "apps/mobile/lib/models/coach_profile.dart",
+    "CoachProfileProvider": (
+        "apps/mobile/lib/providers/coach_profile_provider.dart"
+    ),
+}
 REQUIRED_GATE_NAMES = {
     "provenance_on_write_test",
     "source_crosswalk_test",
@@ -977,35 +993,141 @@ def _typed_names(member: str, type_name: str) -> set[str]:
     }
 
 
-def _ledger_receivers(member: str) -> tuple[set[str], dict[str, set[str]]]:
-    """Resolve typed profile/sub-ledger receivers within one member only."""
+def _has_exact_unaliased_import(source: str, uri: str) -> bool:
+    """Require the checked-in package URI, not a same-named local type."""
+
+    structural_source = _mask_dart_source(source, mask_strings=True)
+    import_pattern = re.compile(
+        rf"(?m)^[ \t]*(?P<keyword>import)\s+"
+        rf"(?P<quote>['\"]){re.escape(uri)}(?P=quote)\s*;[ \t]*$"
+    )
+    for match in import_pattern.finditer(source):
+        keyword_start = match.start("keyword")
+        if structural_source[keyword_start : keyword_start + 6] == "import":
+            return True
+    return False
+
+
+def _declares_type_named(source: str, type_name: str) -> bool:
+    structural_source = _mask_dart_source(source, mask_strings=True)
+    return (
+        re.search(
+            rf"\b(?:class|mixin|enum|typedef|extension\s+type)\s+"
+            rf"{re.escape(type_name)}\b",
+            structural_source,
+        )
+        is not None
+    )
+
+
+def _trusted_provider_acquisition_pattern(
+    source: str,
+    member: str,
+    class_name: str,
+) -> str:
+    """Return only Provider acquisitions with a canonical BuildContext."""
+
+    imports_provider = _has_exact_unaliased_import(
+        source, CANONICAL_PROVIDER_PACKAGE_IMPORT
+    )
+    imports_build_context = any(
+        _has_exact_unaliased_import(source, uri)
+        for uri in CANONICAL_BUILD_CONTEXT_IMPORTS
+    )
+    structural_member = _mask_dart_source(member, mask_strings=True)
+    context_receivers = _typed_names(structural_member, "BuildContext")
+    structural_source = _mask_dart_source(source, mask_strings=True)
+    flutter_state = re.search(
+        rf"\bclass\s+{re.escape(class_name)}\b[^{{;]*"
+        r"\bextends\s+State\s*<",
+        structural_source,
+    )
+    local_context = re.search(
+        r"\b(?:final|var|const|late)\s+"
+        r"(?:[A-Za-z_][A-Za-z0-9_]*\s*\??\s+)?context\b",
+        structural_member,
+    )
+    if (
+        flutter_state is not None
+        and local_context is None
+        and not _declares_type_named(source, "State")
+    ):
+        context_receivers.add("context")
+    if (
+        not imports_provider
+        or not imports_build_context
+        or not context_receivers
+        or _declares_type_named(source, "BuildContext")
+        or _declares_type_named(source, "Provider")
+    ):
+        return r"(?!)"
+
+    context_receiver = "(?:" + "|".join(
+        map(re.escape, sorted(context_receivers))
+    ) + ")"
+    provider_type = r"CoachProfileProvider\s*\??"
+    return (
+        r"(?:"
+        rf"{context_receiver}\s*\.\s*(?:read|watch)\s*<\s*"
+        rf"{provider_type}\s*>\s*\(\s*\)"
+        r"|Provider\s*\.\s*of\s*<\s*"
+        rf"{provider_type}\s*>\s*\(\s*{context_receiver}\b[^;]*?\)"
+        r")"
+    )
+
+
+def _ledger_receivers(
+    source: str,
+    member: str,
+    class_name: str,
+) -> tuple[set[str], dict[str, set[str]]]:
+    """Resolve receivers whose canonical origin is proven inside one member.
+
+    Detached sub-ledger parameters deliberately fail closed: canonical type
+    identity does not prove they belong to the owner profile. A sub-ledger
+    receiver qualifies only when acquired from an eligible profile in-member.
+    """
 
     structural_member = _mask_dart_source(member, mask_strings=True)
-    coach_receivers = _typed_names(structural_member, "CoachProfile")
-    provider_receivers = _typed_names(
-        structural_member, "CoachProfileProvider"
+    has_model_import = _has_exact_unaliased_import(
+        source, CANONICAL_MODEL_IMPORT
+    )
+    has_provider_import = _has_exact_unaliased_import(
+        source, CANONICAL_PROVIDER_IMPORT
+    )
+    coach_receivers = (
+        _typed_names(structural_member, "CoachProfile")
+        if has_model_import
+        else set()
+    )
+    provider_receivers = (
+        _typed_names(structural_member, "CoachProfileProvider")
+        if has_provider_import
+        else set()
     )
 
     provider_assignment = re.compile(
         r"\b(?:final|var)\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
-        r"[^;]*<(?:\s*)CoachProfileProvider(?:\s*)>[^;]*;",
+        rf"{_trusted_provider_acquisition_pattern(source, member, class_name)}\s*;",
         re.DOTALL,
     )
-    provider_receivers.update(
-        match.group("name")
-        for match in provider_assignment.finditer(structural_member)
-    )
+    if has_provider_import:
+        provider_receivers.update(
+            match.group("name")
+            for match in provider_assignment.finditer(structural_member)
+        )
 
     direct_profile_assignment = re.compile(
         r"\b(?:final|var)\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
-        r"[^;]*<(?:\s*)CoachProfileProvider(?:\s*)>[^;]*"
+        rf"{_trusted_provider_acquisition_pattern(source, member, class_name)}\s*"
         r"(?:\?|!)?\.\s*profile\b",
         re.DOTALL,
     )
-    coach_receivers.update(
-        match.group("name")
-        for match in direct_profile_assignment.finditer(structural_member)
-    )
+    if has_provider_import:
+        coach_receivers.update(
+            match.group("name")
+            for match in direct_profile_assignment.finditer(structural_member)
+        )
 
     for provider in provider_receivers:
         indirect_profile_assignment = re.compile(
@@ -1017,14 +1139,12 @@ def _ledger_receivers(member: str) -> tuple[set[str], dict[str, set[str]]]:
             for match in indirect_profile_assignment.finditer(structural_member)
         )
 
-    subledger_receivers = {
-        segment: _typed_names(structural_member, type_name)
-        for type_name, segment in SUBLEDGER_TYPES.items()
-    }
+    subledger_receivers = {segment: set() for segment in SUBLEDGER_TYPES.values()}
     for profile in coach_receivers:
         for segment in SUBLEDGER_TYPES.values():
             inferred = re.compile(
                 r"\b(?:final|var)\s+"
+                r"(?:[A-Za-z_][A-Za-z0-9_]*\s*\??\s+)?"
                 r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
                 rf"{re.escape(profile)}\s*(?:\?|!)?\.\s*"
                 rf"{re.escape(segment)}\b"
@@ -1040,7 +1160,9 @@ def _ledger_receivers(member: str) -> tuple[set[str], dict[str, set[str]]]:
 def _qualified_ledger_access_occurs(
     body: str,
     *,
+    source: str,
     member: str,
+    class_name: str,
     profile_path: str,
     token: str,
     classification: str,
@@ -1049,7 +1171,9 @@ def _qualified_ledger_access_occurs(
     if profile_path in {"", "NONE"} or token != path_parts[-1]:
         return False
 
-    coach_receivers, subledger_receivers = _ledger_receivers(member)
+    coach_receivers, subledger_receivers = _ledger_receivers(
+        source, member, class_name
+    )
     structural_body = _mask_dart_source(body, mask_strings=True)
     for receiver in coach_receivers:
         if _receiver_access_pattern(receiver, path_parts).search(structural_body):
@@ -1147,9 +1271,24 @@ def _reader_evidence_errors(
         source[body_start:body_end], mask_strings=False
     )
     semantic_member = source[member_start:member_end]
+    shadowed_types = {
+        type_name
+        for type_name, declaration_path in CANONICAL_LEDGER_DECLARATIONS.items()
+        if relative_path.as_posix()
+        != declaration_path
+        and _declares_type_named(source, type_name)
+    }
+    if shadowed_types:
+        return [
+            f"{key}: {class_name}.{member_name} contains no profile-typed receiver "
+            "access because canonical ledger type names are locally declared: "
+            f"{sorted(shadowed_types)}"
+        ]
     if not _qualified_ledger_access_occurs(
         semantic_body,
+        source=source,
         member=semantic_member,
+        class_name=class_name,
         profile_path=row.get("coach_profile_path", ""),
         token=evidence_token,
         classification=row.get("classification", "fact"),
@@ -1347,6 +1486,8 @@ def test_semantic_reader_anchor_survives_unrelated_line_insertions(
     source_path = tmp_path / "lib/consumer.dart"
     source_path.parent.mkdir(parents=True)
     source = """
+import 'package:mint_mobile/models/coach_profile.dart';
+
 class SampleConsumer {
   double compute(CoachProfile profile) {
     return profile.userProvidedFields.monthlyExpenses;
@@ -1372,6 +1513,8 @@ def test_semantic_reader_anchor_rejects_missing_symbol_and_out_of_scope_read(
     source_path.parent.mkdir(parents=True)
     source_path.write_text(
         """
+import 'package:mint_mobile/models/coach_profile.dart';
+
 class SampleConsumer {
   double compute(CoachProfile profile) => 0;
 
@@ -1438,6 +1581,8 @@ def test_semantic_reader_anchor_requires_qualified_ledger_access(
     source_path.parent.mkdir(parents=True)
     source_path.write_text(
         """
+import 'package:mint_mobile/models/coach_profile.dart';
+
 class SampleConsumer {
   double qualified(CoachProfile profile) =>
       profile.userProvidedFields.monthlyExpenses;
@@ -1529,6 +1674,8 @@ def test_semantic_reader_anchor_supports_generic_consumer_members(
     source_path.parent.mkdir(parents=True)
     source_path.write_text(
         """
+import 'package:mint_mobile/models/coach_profile.dart';
+
 class SampleConsumer {
   T compute<T extends num>(CoachProfile profile, T fallback) {
     final value = profile.userProvidedFields.monthlyExpenses;
@@ -1541,6 +1688,106 @@ class SampleConsumer {
     row = _semantic_reader_row(
         "lib/consumer.dart#SampleConsumer.compute@monthlyExpenses"
     )
+
+    assert _reader_evidence_errors(row, root=tmp_path) == []
+
+
+def test_semantic_reader_anchor_rejects_forged_canonical_receivers(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/consumer.dart"
+    source_path.parent.mkdir(parents=True)
+    model = "import 'package:mint_mobile/models/coach_profile.dart';\n"
+    provider = (
+        "import 'package:mint_mobile/providers/coach_profile_provider.dart';\n"
+    )
+    provider_runtime = (
+        "import 'package:flutter/material.dart';\n"
+        "import 'package:provider/provider.dart';\n"
+    )
+    marker_row = _semantic_reader_row(
+        "lib/consumer.dart#SampleConsumer.compute@monthlyExpenses"
+    )
+    pillar_row = {
+        **marker_row,
+        "canonical_key": "has2ndPillar",
+        "coach_profile_path": "prevoyance.hasPensionFund",
+        "reader_evidence": "lib/consumer.dart#SampleConsumer.compute@hasPensionFund",
+    }
+    consumer = (
+        "class SampleConsumer { double compute(CoachProfile profile) => "
+        "profile.userProvidedFields.monthlyExpenses; }"
+    )
+    probes = {
+        "unimported type": (consumer, marker_row),
+        "local type shadow": (
+            model + "class CoachProfile {}\n" + consumer,
+            marker_row,
+        ),
+        "dynamic generic factory": (
+            model + provider + "dynamic fake<T>() => FakeProvider();\n"
+            "class SampleConsumer { double compute() { final profile = "
+            "fake<CoachProfileProvider>().profile; return "
+            "profile.userProvidedFields.monthlyExpenses; } }",
+            marker_row,
+        ),
+        "untyped fake context": (
+            provider_runtime + model + provider
+            + "class FakeContext { dynamic read<T>() => FakeProvider(); }\n"
+            "class SampleConsumer extends State<StatefulWidget> { double compute() { "
+            "final context = FakeContext(); final profile = "
+            "context.read<CoachProfileProvider>().profile; return "
+            "profile.userProvidedFields.monthlyExpenses; } }",
+            marker_row,
+        ),
+        "local Provider shadow": (
+            provider_runtime + model + provider
+            + "class Provider { static dynamic of<T>(BuildContext context) => "
+            "FakeProvider(); }\nclass SampleConsumer { double compute(BuildContext "
+            "context) { final profile = Provider.of<CoachProfileProvider>(context)"
+            ".profile; return profile.userProvidedFields.monthlyExpenses; } }",
+            marker_row,
+        ),
+        "detached subledger": (
+            model + "class SampleConsumer { bool compute(PrevoyanceProfile "
+            "prevoyance) => prevoyance.hasPensionFund; }",
+            pillar_row,
+        ),
+    }
+
+    for label, (source, row) in probes.items():
+        source_path.write_text(source, encoding="utf-8")
+        errors = _reader_evidence_errors(row, root=tmp_path)
+        assert any("profile-typed receiver" in error for error in errors), (
+            label,
+            errors,
+        )
+
+
+def test_semantic_reader_anchor_accepts_canonical_provider_and_derived_subledger(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/consumer.dart"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text(
+        "import 'package:flutter/material.dart';\n"
+        "import 'package:provider/provider.dart';\n"
+        "import 'package:mint_mobile/models/coach_profile.dart';\n"
+        "import 'package:mint_mobile/providers/coach_profile_provider.dart';\n"
+        "class SampleConsumer extends State<StatefulWidget> { bool compute() { "
+        "final profile = context.read<CoachProfileProvider>().profile; final "
+        "prevoyance = profile!.prevoyance; return prevoyance.hasPensionFund; } }",
+        encoding="utf-8",
+    )
+    row = {
+        "canonical_key": "has2ndPillar",
+        "storage_key": "q_has_pension_fund",
+        "coach_profile_path": "prevoyance.hasPensionFund",
+        "classification": "fact",
+        "reader_evidence": (
+            "lib/consumer.dart#SampleConsumer.compute@hasPensionFund"
+        ),
+    }
 
     assert _reader_evidence_errors(row, root=tmp_path) == []
 
