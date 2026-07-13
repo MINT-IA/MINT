@@ -52,8 +52,7 @@ void main() {
     }
   });
 
-  test('confirmed AVS extraction hydrates years with certificate provenance',
-      () {
+  test('legacy AVS scan marker leaves gap years estimated', () {
     final profile = CoachProfile.fromWizardAnswers(const {
       '_coach_avs_lacunes': 4,
       '_coach_avs_source': 'document_scan',
@@ -62,7 +61,7 @@ void main() {
     expect(profile.prevoyance.lacunesAVS, 4);
     expect(
       profile.dataSources['prevoyance.lacunesAVS'],
-      ProfileDataSource.certificate,
+      ProfileDataSource.estimated,
     );
   });
 
@@ -97,7 +96,7 @@ void main() {
     expect(extracted.prevoyance.anneesContribuees, 20);
     expect(
       extracted.dataSources['prevoyance.anneesContribuees'],
-      ProfileDataSource.certificate,
+      ProfileDataSource.userInput,
     );
   });
 }

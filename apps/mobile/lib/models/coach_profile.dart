@@ -1661,14 +1661,15 @@ class CoachProfile {
       inferred['prevoyance.salaireAssure'] = ProfileDataSource.certificate;
     }
 
-    // AVS source inference: RAMD / contribution years indicate
-    // document-backed values (certificate/extract).
+    // A populated AVS value is not evidence of its provenance. Mini-onboarding
+    // and legacy hydration can populate these fields from calculations or
+    // user input, so only an explicit document writer may upgrade the source.
     if (prevoyance.ramd != null) {
-      inferred['prevoyance.ramd'] = ProfileDataSource.certificate;
+      inferred['prevoyance.ramd'] = ProfileDataSource.estimated;
     }
     if (prevoyance.renteAVSEstimeeMensuelle != null) {
       inferred['prevoyance.renteAVSEstimeeMensuelle'] =
-          ProfileDataSource.certificate;
+          ProfileDataSource.estimated;
     }
 
     // Merge: provided entries (e.g. fiscal from extraction) win over inferred
@@ -3186,18 +3187,15 @@ class CoachProfile {
     final restoredDataSources = <String, ProfileDataSource>{};
     if (answers.containsKey('q_avs_contribution_years') && avsYears != null) {
       restoredDataSources['prevoyance.anneesContribuees'] =
-          answers['_coach_avs_source'] == 'document_scan'
-              ? ProfileDataSource.certificate
-              : ProfileDataSource.userInput;
+          ProfileDataSource.userInput;
     }
     if (answers.containsKey('q_avs_lacunes_status') &&
         _parseAvsGapStatus(avsLacunesStatus) != null) {
       restoredDataSources['avsGapStatus'] = ProfileDataSource.userInput;
     }
-    if (answers['_coach_avs_source'] == 'document_scan' &&
-        coachAvsLacunes != null) {
+    if (coachAvsLacunes != null) {
       restoredDataSources['prevoyance.lacunesAVS'] =
-          ProfileDataSource.certificate;
+          ProfileDataSource.estimated;
     }
     if (answers['_coach_tax_source'] == 'document_scan') {
       if (answers['_coach_tax_revenu_imposable'] != null) {

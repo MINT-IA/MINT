@@ -2091,7 +2091,11 @@ class CoachProfileProvider extends ChangeNotifier {
     if (ramd != null) answers['_coach_avs_ramd'] = ramd;
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
     if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
-    answers['_coach_avs_source'] = 'document_scan';
+    if (touchedFields.isNotEmpty) {
+      // Legacy trace only. Reload never treats this document-wide marker as
+      // field provenance because it carries neither field scope nor source date.
+      answers['_coach_avs_source'] = 'document_scan';
+    }
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;

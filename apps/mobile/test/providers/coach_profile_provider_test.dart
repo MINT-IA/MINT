@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -549,6 +550,70 @@ void main() {
     expect(rehydrated.bonusPourcentage, isNull);
     expect(rehydrated.revenuBrutAnnuel, 0);
     expect(rehydrated.toCoachingProfile().tauxActivite, 100);
+  });
+
+  test('empty AVS extraction does not persist a document-scan marker',
+      () async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers({
+      'q_birth_year': 1970,
+      'q_canton': 'VD',
+      'q_gross_salary_annual': 84000,
+    });
+
+    await provider.updateFromAvsExtraction(const []);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('_coach_avs_source'), isFalse);
+  });
+
+  test('RAMD-only AVS scan cannot certify unrelated persisted AVS values',
+      () async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers({
+      'q_birth_year': 1970,
+      'q_canton': 'VD',
+      'q_gross_salary_annual': 84000,
+      'q_avs_contribution_years': 30,
+      '_coach_avs_lacunes': 2,
+      '_coach_avs_rente_estimee': 1900,
+    });
+
+    await provider.updateFromAvsExtraction(const [
+      ExtractedField(
+        fieldName: 'ramd',
+        label: 'RAMD',
+        value: 88000.0,
+        confidence: 0.9,
+        sourceText: 'RAMD 88 000',
+        needsReview: false,
+        profileField: 'ramd',
+      ),
+    ]);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('_coach_avs_source', 'document_scan'));
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(restored.prevoyance.anneesContribuees, 30);
+    expect(restored.prevoyance.lacunesAVS, 2);
+    expect(restored.prevoyance.renteAVSEstimeeMensuelle, 1900);
+    expect(restored.prevoyance.ramd, 88000);
+    expect(
+      restored.dataSources['prevoyance.anneesContribuees'],
+      ProfileDataSource.userInput,
+    );
+    expect(
+      restored.dataSources['prevoyance.lacunesAVS'],
+      ProfileDataSource.estimated,
+    );
+    expect(
+      restored.dataSources['prevoyance.renteAVSEstimeeMensuelle'],
+      ProfileDataSource.estimated,
+    );
+    expect(
+      restored.dataSources['prevoyance.ramd'],
+      ProfileDataSource.estimated,
+    );
   });
 
   test('save_fact AVS gaps and contribution years hydrate AVS keys', () async {

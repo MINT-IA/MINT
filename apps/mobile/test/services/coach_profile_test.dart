@@ -278,7 +278,7 @@ void main() {
       );
     });
 
-    test('does not infer contribution-year source from RAMD presence', () {
+    test('does not infer certificate sources from RAMD presence', () {
       final profile = CoachProfile(
         birthYear: 1985,
         canton: 'VD',
@@ -301,7 +301,122 @@ void main() {
       );
       expect(
         profile.dataSources['prevoyance.ramd'],
-        ProfileDataSource.certificate,
+        ProfileDataSource.estimated,
+      );
+    });
+
+    test('AVS values without an explicit source remain estimated', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        prevoyance: const PrevoyanceProfile(
+          ramd: 88000,
+          renteAVSEstimeeMensuelle: 2100,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050, 1, 1),
+          label: 'Retraite',
+        ),
+      );
+
+      expect(
+        profile.dataSources['prevoyance.ramd'],
+        ProfileDataSource.estimated,
+      );
+      expect(
+        profile.dataSources['prevoyance.renteAVSEstimeeMensuelle'],
+        ProfileDataSource.estimated,
+      );
+    });
+
+    test('mini-onboarding AVS estimate is timestamped but not certified', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 84000,
+        '_coach_avs_rente_estimee': 2100,
+        '_coach_updated_at': '2026-07-13T10:00:00Z',
+      });
+
+      expect(profile.prevoyance.renteAVSEstimeeMensuelle, 2100);
+      expect(
+        profile.dataSources['prevoyance.renteAVSEstimeeMensuelle'],
+        ProfileDataSource.estimated,
+      );
+      expect(
+        profile.dataTimestamps['prevoyance.renteAVSEstimeeMensuelle'],
+        DateTime.parse('2026-07-13T10:00:00Z'),
+      );
+    });
+
+    test('legacy AVS scan marker never promotes persisted values', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 84000,
+        'q_avs_contribution_years': 21,
+        '_coach_avs_source': 'document_scan',
+        '_coach_avs_lacunes': 2,
+        '_coach_avs_rente_estimee': 2100,
+        '_coach_avs_ramd': 88000,
+        '_coach_data_timestamps': {
+          'prevoyance.renteAVSEstimeeMensuelle':
+              '2026-07-13T09:30:00Z',
+          'prevoyance.ramd': '2026-07-13T09:30:00Z',
+        },
+      });
+
+      expect(profile.prevoyance.anneesContribuees, 21);
+      expect(profile.prevoyance.lacunesAVS, 2);
+      expect(profile.prevoyance.renteAVSEstimeeMensuelle, 2100);
+      expect(profile.prevoyance.ramd, 88000);
+      expect(
+        profile.dataSources['prevoyance.anneesContribuees'],
+        ProfileDataSource.userInput,
+      );
+      expect(
+        profile.dataSources['prevoyance.lacunesAVS'],
+        ProfileDataSource.estimated,
+      );
+      expect(
+        profile.dataSources['prevoyance.renteAVSEstimeeMensuelle'],
+        ProfileDataSource.estimated,
+      );
+      expect(
+        profile.dataSources['prevoyance.ramd'],
+        ProfileDataSource.estimated,
+      );
+      expect(
+        profile.dataTimestamps['prevoyance.renteAVSEstimeeMensuelle'],
+        DateTime.parse('2026-07-13T09:30:00Z'),
+      );
+
+      final restored = CoachProfile.fromJson(profile.toJson());
+      expect(restored.prevoyance.anneesContribuees, 21);
+      expect(restored.prevoyance.lacunesAVS, 2);
+      expect(restored.prevoyance.renteAVSEstimeeMensuelle, 2100);
+      expect(restored.prevoyance.ramd, 88000);
+      expect(
+        restored.dataSources['prevoyance.anneesContribuees'],
+        ProfileDataSource.userInput,
+      );
+      expect(
+        restored.dataSources['prevoyance.lacunesAVS'],
+        ProfileDataSource.estimated,
+      );
+      expect(
+        restored.dataSources['prevoyance.renteAVSEstimeeMensuelle'],
+        ProfileDataSource.estimated,
+      );
+      expect(
+        restored.dataSources['prevoyance.ramd'],
+        ProfileDataSource.estimated,
+      );
+      expect(
+        restored.dataTimestamps['prevoyance.renteAVSEstimeeMensuelle'],
+        DateTime.parse('2026-07-13T09:30:00Z'),
       );
     });
   });
