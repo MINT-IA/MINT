@@ -4,16 +4,16 @@
   "tickets": [
     {
       "ticket_id": "G1-LDG-02",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/models/coach_profile_semantic_roundtrip_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "b1085b137c964d1a414f69d26bb01e94078723b8",
+      "red_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-02-red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36",
+      "green_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-02-green.json",
+      "accepted_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36"
     },
     {
       "ticket_id": "G1-LDG-03",
@@ -30,42 +30,42 @@
     },
     {
       "ticket_id": "G1-LDG-04",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/models/default_is_not_known_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "b1085b137c964d1a414f69d26bb01e94078723b8",
+      "red_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-04-red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36",
+      "green_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-04-green.json",
+      "accepted_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36"
     },
     {
       "ticket_id": "G1-LDG-05",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/models/direct_field_semantics_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "b1085b137c964d1a414f69d26bb01e94078723b8",
+      "red_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-05-red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36",
+      "green_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-05-green.json",
+      "accepted_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36"
     },
     {
       "ticket_id": "G1-LDG-06",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/models/avs_gap_write_order_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "b1085b137c964d1a414f69d26bb01e94078723b8",
+      "red_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-06-red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36",
+      "green_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-06-green.json",
+      "accepted_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36"
     },
     {
       "ticket_id": "G1-LDG-06A",
@@ -82,16 +82,16 @@
     },
     {
       "ticket_id": "G1-LDG-07",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/models/mortgage_reconciliation_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "b1085b137c964d1a414f69d26bb01e94078723b8",
+      "red_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-07-red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36",
+      "green_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/ldg-07-green.json",
+      "accepted_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36"
     },
     {
       "ticket_id": "G1-PROV-01",
@@ -199,16 +199,16 @@
     },
     {
       "ticket_id": "G1-BND-04",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/providers/mint_state_proxy_recompute_test.dart --reporter expanded",
-      "evidence_mode": null,
+      "evidence_mode": "baseline_green_controlled",
       "red_sha": null,
       "red_artifact": null,
-      "control_sha": null,
-      "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "control_sha": "b8af13ce5127b1b4239fb70050b66912aeebc2b0",
+      "control_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/bnd-04-control.json",
+      "green_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36",
+      "green_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/bnd-04-green.json",
+      "accepted_sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36"
     },
     {
       "ticket_id": "G1-BND-05",
@@ -278,7 +278,7 @@
     {
       "ticket_id": "G1-AVS-02",
       "state": "ticket_only",
-      "command": "cd apps/mobile && flutter test test/services/financial_core/avs_thirteenth_pension_cashflow_test.dart --reporter expanded",
+      "command": "cd apps/mobile && flutter test test/services/financial_core/avs_thirteenth_pension_calculator_test.dart --reporter expanded",
       "evidence_mode": null,
       "red_sha": null,
       "red_artifact": null,
