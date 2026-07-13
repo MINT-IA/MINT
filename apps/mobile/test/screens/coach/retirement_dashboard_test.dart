@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/widgets/coach/retirement_hero_zone.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -19,6 +25,7 @@ import 'package:mint_mobile/widgets/coach/retirement_hero_zone.dart';
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   Widget buildDashboard({CoachProfileProvider? coachProvider}) {
@@ -119,6 +126,98 @@ void main() {
           label: 'Retraite',
         ),
       );
+
+  Future<(ScreenReturn, SequenceHandlerResult)> popAvsPendingSequenceStep(
+    WidgetTester tester, {
+    required String intent,
+    required String firstStepId,
+  }) async {
+    final run = await SequenceChatHandler.startSequence(intent);
+    expect(run, isNotNull);
+    expect(run!.activeStepId, firstStepId);
+
+    final router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, __) => const Scaffold(),
+        ),
+        GoRoute(
+          path: '/retraite',
+          builder: (_, __) => const RetirementDashboardScreen(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => buildProfileProvider(certifiedAvs: false),
+          ),
+          ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
+          ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
+        ],
+        child: MaterialApp.router(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          routerConfig: router,
+        ),
+      ),
+    );
+
+    final navigation = router.push<void>(
+      '/retraite',
+      extra: {'runId': run.runId, 'stepId': firstStepId},
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    final returnFuture = ScreenCompletionTracker.stream.firstWhere(
+      (ret) => ret.runId == run.runId && ret.stepId == firstStepId,
+    );
+    router.pop();
+    await tester.pump();
+    final ret = await returnFuture.timeout(const Duration(seconds: 2));
+    await navigation;
+
+    final result = await SequenceChatHandler.handleRealtimeReturn(ret);
+    expect(result, isNotNull);
+    return (ret, result!);
+  }
+
+  Future<SequenceHandlerResult> completeRemainingSequence(
+    SequenceHandlerResult initial,
+  ) async {
+    var current = initial;
+    var eventIndex = 0;
+    while (current.action is AdvanceAction) {
+      final advance = current.action as AdvanceAction;
+      expect(advance.prefill, isNot(contains('taux_remplacement')));
+      expect(advance.prefill, isNot(contains('gap_mensuel')));
+      final handled = await SequenceChatHandler.handleRealtimeReturn(
+        ScreenReturn.completed(
+          route: advance.route,
+          stepOutputs: const {},
+          runId: current.updatedRun.runId,
+          stepId: advance.nextStep.id,
+          eventId: 'evt_finish_${current.updatedRun.runId}_${eventIndex++}',
+        ),
+      );
+      expect(handled, isNotNull);
+      current = handled!;
+      expect(eventIndex, lessThanOrEqualTo(20));
+    }
+    return current;
+  }
 
   group('RetirementDashboardScreen — empty state (State C)', () {
     testWidgets('renders without crashing', (tester) async {
@@ -242,6 +341,76 @@ void main() {
       expect(find.textContaining('Revenu retraite estim'), findsNothing);
       for (var i = 0; i < 6; i++) {
         await tester.pump(const Duration(seconds: 3));
+      }
+    });
+  });
+
+  group('RetirementDashboardScreen — guided sequence AVS pending', () {
+    testWidgets('retirement_prep advances with explicit missing outputs',
+        (tester) async {
+      final (ret, result) = await popAvsPendingSequenceStep(
+        tester,
+        intent: 'retirement_projection',
+        firstStepId: 'ret_01_projection',
+      );
+
+      expect(ret.outcome, ScreenOutcome.completed);
+      expect(ret.stepOutputs, containsPair('projection_status', 'avs_pending'));
+      expect(ret.stepOutputs, containsPair('taux_remplacement_missing', true));
+      expect(ret.stepOutputs, containsPair('gap_mensuel_missing', true));
+      expect(ret.stepOutputs, isNot(contains('taux_remplacement')));
+      expect(ret.stepOutputs, isNot(contains('gap_mensuel')));
+      expect(result.action, isA<AdvanceAction>());
+      final advance = result.action as AdvanceAction;
+      expect(advance.nextStep.id, 'ret_02_choice');
+      expect(advance.prefill, isNot(contains('taux_remplacement')));
+      expect(advance.prefill, isNot(contains('gap_mensuel')));
+      expect(
+        result.updatedRun.stepOutputs['ret_01_projection'],
+        ret.stepOutputs,
+      );
+
+      final completed = await completeRemainingSequence(result);
+      expect(completed.action, isA<CompleteAction>());
+      final allOutputs = (completed.action as CompleteAction).allOutputs;
+      expect(allOutputs['ret_01_projection'], ret.stepOutputs);
+      for (final outputs in allOutputs.values) {
+        expect(outputs, isNot(contains('taux_remplacement')));
+        expect(outputs, isNot(contains('gap_mensuel')));
+      }
+    });
+
+    testWidgets('preretraite_complete advances with explicit missing outputs',
+        (tester) async {
+      final (ret, result) = await popAvsPendingSequenceStep(
+        tester,
+        intent: 'preretraite_complete',
+        firstStepId: 'pre_01_projection',
+      );
+
+      expect(ret.outcome, ScreenOutcome.completed);
+      expect(ret.stepOutputs, containsPair('projection_status', 'avs_pending'));
+      expect(ret.stepOutputs, containsPair('taux_remplacement_missing', true));
+      expect(ret.stepOutputs, containsPair('gap_mensuel_missing', true));
+      expect(ret.stepOutputs, isNot(contains('taux_remplacement')));
+      expect(ret.stepOutputs, isNot(contains('gap_mensuel')));
+      expect(result.action, isA<AdvanceAction>());
+      final advance = result.action as AdvanceAction;
+      expect(advance.nextStep.id, 'pre_02_3a');
+      expect(advance.prefill, isNot(contains('taux_remplacement')));
+      expect(advance.prefill, isNot(contains('gap_mensuel')));
+      expect(
+        result.updatedRun.stepOutputs['pre_01_projection'],
+        ret.stepOutputs,
+      );
+
+      final completed = await completeRemainingSequence(result);
+      expect(completed.action, isA<CompleteAction>());
+      final allOutputs = (completed.action as CompleteAction).allOutputs;
+      expect(allOutputs['pre_01_projection'], ret.stepOutputs);
+      for (final outputs in allOutputs.values) {
+        expect(outputs, isNot(contains('taux_remplacement')));
+        expect(outputs, isNot(contains('gap_mensuel')));
       }
     });
   });

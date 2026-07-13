@@ -66,6 +66,14 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 class RetirementDashboardScreen extends StatefulWidget {
   const RetirementDashboardScreen({super.key});
 
+  /// Sequence output when the dashboard was reviewed but official AVS rents
+  /// are still missing. Numeric totals stay absent until the AVS inputs exist.
+  static const avsPendingStepOutputs = <String, dynamic>{
+    'projection_status': 'avs_pending',
+    'taux_remplacement_missing': true,
+    'gap_mensuel_missing': true,
+  };
+
   /// Monthly gross household gap used by guided-sequence outputs.
   static double householdMonthlyGap(
     CoachProfile profile,
@@ -332,9 +340,22 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     if (_seqRunId == null || _seqStepId == null) return;
     _finalReturnEmitted = true;
 
+    if (_hasMissingAvsFields) {
+      ScreenCompletionTracker.markCompletedWithReturn(
+          'retirement_dashboard',
+          ScreenReturn.completed(
+            route: '/retraite',
+            stepOutputs: RetirementDashboardScreen.avsPendingStepOutputs,
+            runId: _seqRunId,
+            stepId: _seqStepId,
+            eventId:
+                'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+          ));
+      return;
+    }
+
     if (!_hasCompleteProjection) {
-      // No profile / no projection computed → user saw State C (onboarding CTA).
-      // Emit abandoned so coordinator retries after profile enrichment.
+      // No usable projection was reviewed, so the sequence must not advance.
       ScreenCompletionTracker.markCompletedWithReturn(
           'retirement_dashboard',
           ScreenReturn.abandoned(
