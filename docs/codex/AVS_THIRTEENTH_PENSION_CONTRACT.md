@@ -1,28 +1,49 @@
 # 13e rente AVS — contrat de cash-flow G1
 
-> Statut : **NO-GO G1-AVS-02**. Ce document fixe le contrat légal et produit
-> attendu ; il ne prouve pas son implémentation. Snapshot juridique :
-> **2026-07-13**. Droit et directives applicables : **01.01.2026**.
-> Premier versement : décembre 2026. Ce contrat ne démarre ni G2 ni G3 et ne
-> remplace pas le calcul d'une caisse de compensation AVS.
+> Statut : **NO-GO G1-AVS-02 pour l'activation produit**. Le noyau typé et la
+> migration des proxys annuels sont présents sur le snapshot audité
+> `06115ed38`, mais ce
+> document ne prouve ni persistance end-to-end, ni renderer séparé, ni runtime
+> activé. Snapshot juridique vérifié le **2026-07-13** : droit applicable dès le
+> **01.01.2026**, C 13 RV état **17.06.2026**, synthèse OFAS publiée le
+> **19.06.2026**. Premier versement : décembre 2026. Ce contrat ne démarre ni G2
+> ni G3 et ne remplace pas le calcul d'une caisse de compensation AVS.
 
-## 0. Verdict sur le runtime actuel
+## 0. Verdict borné sur le snapshot audité `06115ed38`
 
-Le helper actuel `AvsCalculator.annualRente(monthlyRente)` n'est pas un contrat
-juridiquement suffisant : il transforme par défaut tout montant mensuel en
-`monthlyRente * 13`. Il ne connaît ni l'année civile, ni les mois effectivement
-versés, ni le droit en décembre, ni la nature de la prestation, ni les mutations,
-ni l'arrondi à deux étapes. Il peut donc produire un montant indu pour une rente
-commencée en cours d'année, une rente AI ou de survivant, un décès avant le
-1er décembre, un ajournement total ou une fin de droit.
+`AvsCalculator.annualRente`, `include13eme` et les constantes génériques
+`×13` ont été supprimés. `RetirementProjectionService` conserve douze rentes
+ordinaires récurrentes et ne les gonfle plus par `13 / 12`.
 
-Le défaut est également visible dans `RetirementProjectionService`, qui divise
-le résultat annuel par 12 et gonfle ainsi la rente mensuelle ordinaire de
-`13 / 12`. La 13e rente est au contraire un **supplément de cash-flow séparé** ;
-elle ne modifie jamais la rente mensuelle au sens de l'art. 34 LAVS.
+`AvsThirteenthPensionCalculator` porte désormais un contrat owner-scoped en
+centimes exacts : douze faits mensuels, droit au 1er décembre, niveau de preuve,
+version juridique, cadence, date de paiement, montant certifié ou estimation
+éducative séparés et correction rétroactive. Sa frontière temporelle accepte
+uniquement des instants UTC canoniques ; elle rejette les `DateTime` locaux,
+puis convertit en date civile `Europe/Zurich` selon CET/CEST avant de comparer
+le mois d'effet, le 1er décembre ou une date de paiement annualisée.
 
-Conséquence : tant que le contrat typé, les écritures par personne, les sources,
-les tests et les migrations de la section 8 ne sont pas verts, G1 reste NO-GO.
+Cette implémentation ne vaut toutefois pas activation. Le seul bridge produit,
+dans `IndependantsService`, reste derrière
+`enableAvsThirteenthScenarioCashflow = false`. Trois P2 restent explicitement
+ouverts avant toute activation :
+
+1. **Owner de scénario** : `independant-self-scenario` est un identifiant
+   générique, pas l'owner pseudonyme authentifié de la personne.
+2. **Renderer séparé** : lorsque le flag est forcé dans un test, le supplément
+   est encore fusionné dans `projectionSansLpp` et `projectionAvecLpp`, alors
+   qu'aucun renderer ne l'affiche comme événement de cash-flow distinct.
+3. **Précédence du zéro légal** : les sources mensuelles sont validées avant le
+   `notEntitled` officiel. Le test actuel couvre un mois `unknown` dont la source
+   reste complète ; il ne prouve donc pas qu'un zéro légal officiel prévaut sur
+   une source mensuelle absente plutôt que de retourner `sourceTooWeak`.
+
+La page OFAS du 19 juin 2026 est sans ambiguïté : **aucun calcul précis n'est
+possible avant décembre**. MINT ne peut donc afficher un montant certifié avant
+décembre ni sans preuve de la caisse compétente ; au mieux, il expose une
+estimation éducative datée et ses hypothèses. G1-AVS-02 reste NO-GO tant que les
+trois P2 et les hard gates distincts de persistance, renderer et preuve runtime
+ne sont pas fermés.
 
 ## 1. Règles légales 2026
 
@@ -62,8 +83,8 @@ supplement_CHF     = arrondi_franc_commercial(solde_centimes)
   arrondie au franc supérieur ; une fraction inférieure à 50 centimes au franc
   inférieur ;
 - le calcul monétaire utilise un type décimal, jamais un `double` binaire ;
-- le montant précis n'est pas certifiable avant décembre, car une mutation peut
-  encore intervenir pendant l'année.
+- aucun montant précis n'est certifiable avant décembre et sans preuve de la
+  caisse compétente, car une mutation peut encore intervenir pendant l'année.
 
 Le calcul `somme annuelle / 12` n'est pas une substitution acceptable : la
 circulaire OFAS comptabilise et arrondit chaque part mensuelle avant de sommer.
@@ -122,10 +143,12 @@ un·e spécialiste.
   la rente de survivant plus élevée et éteint la rente de vieillesse avant le
   1er décembre, aucun supplément n'est dû.
 
-## 2. Contrat typé proposé
+## 2. Contrat typé implémenté
 
-Les noms sont normatifs pour la prochaine implémentation, mais le langage peut
-être adapté à Dart sans affaiblir les états.
+Les noms ci-dessous reflètent `avs_thirteenth_pension_calculator.dart` sur le
+snapshot audité `06115ed38`. `ChfAmount` stocke un nombre entier de centimes ;
+aucun `double` binaire n'entre dans le calcul après validation de la frontière
+legacy.
 
 ```dart
 enum AvsMonthlyOldAgeState {
@@ -142,6 +165,8 @@ enum AvsOldAgeAdjustment {
   deferredIncrease,
   widowSupplementIncluded,
 }
+
+enum AvsPensionBenefitKind { oldAge, disability, survivor, none, unknown }
 
 enum AvsExcludedComponentKind {
   disabilityPension,
@@ -183,15 +208,16 @@ enum AvsThirteenthReadiness {
 class AvsMonthlyOldAgeFact {
   final int month; // 1..12, unique
   final AvsMonthlyOldAgeState state;
+  final AvsPensionBenefitKind benefitKind;
 
   // Montant AVS déterminant selon C 13 RV ch. 4005, après plafond,
   // anticipation/ajournement et supplément de veuvage éventuels.
   // Null pour no-entitlement et unknown ; jamais reconstruit depuis un salaire.
-  final Decimal? determiningOldAgePensionChf;
+  final ChfAmount? determiningOldAgePensionChf;
 
   final AvsOldAgePensionKind? pensionKind;
   final Set<AvsOldAgeAdjustment> adjustments;
-  final Map<AvsExcludedComponentKind, Decimal> excludedCashflowsChf;
+  final Map<AvsExcludedComponentKind, ChfAmount> excludedCashflowsChf;
   final AvsEvidence evidence;
 }
 
@@ -199,16 +225,19 @@ class AvsEvidence {
   final AvsEvidenceTier tier;
   final String ownerId;
   final String? documentOrProviderRef;
-  final DateTime sourceDate;
-  final DateTime effectiveFrom;
+  final DateTime? sourceDate; // non-null et UTC pour tout calcul accepté
+  final DateTime effectiveFrom; // UTC canonique
   final int legalYear;
 }
 
 class AvsDecemberEntitlementEvidence {
   final AvsDecemberEntitlementState state;
+  final String ownerId;
+  final AvsEvidenceTier evidenceTier;
   final bool? aliveOnDecemberFirst;
   final String? decisionOrProviderRef;
-  final DateTime sourceDate;
+  final DateTime? sourceDate; // non-null et UTC pour tout calcul accepté
+  final int legalYear;
 }
 
 class AvsThirteenthPensionInput {
@@ -217,8 +246,9 @@ class AvsThirteenthPensionInput {
   final List<AvsMonthlyOldAgeFact> months; // exactement 12 entrées
   final AvsDecemberEntitlementEvidence decemberEntitlement;
   final AvsPensionPaymentCadence paymentCadence;
-  final Decimal? previouslyPaidThirteenthChf;
-  final DateTime calculationDate;
+  final DateTime? supplementPaymentDate; // UTC ; obligatoire si annualisée
+  final ChfAmount? previouslyPaidThirteenthChf;
+  final DateTime calculationDate; // UTC canonique
   final int legalYear;
   final String ruleVersion; // ex. OFAS-C13RV-2026-01-01
 }
@@ -226,27 +256,29 @@ class AvsThirteenthPensionInput {
 class AvsThirteenthPensionResult {
   final String ownerId;
   final int calendarYear;
-  final Decimal? decemberOrdinaryOldAgePensionChf;
-  final Decimal? eligibleOldAgePensionsPaidChf;
-  final List<Decimal?> monthlyAccrualPartsChf;
+  final ChfAmount? decemberOrdinaryOldAgePensionChf;
+  final ChfAmount? eligibleOldAgePensionsPaidChf;
+  final List<ChfAmount?> monthlyAccrualPartsChf;
 
   // Non-null seulement avec un état officiel résolu : montant payable ou
   // zéro explicite pour notEntitled/notInForce.
-  final Decimal? certifiedThirteenthPensionChf;
+  final ChfAmount? certifiedThirteenthPensionChf;
 
   // Champ séparé, possible pour données déclarées/scénario ; jamais rendu
   // comme montant de caisse ni copié dans certifiedThirteenthPensionChf.
-  final Decimal? educationalEstimateChf;
+  final ChfAmount? educationalEstimateChf;
 
-  final Decimal? eligibleOldAgeCashflowWithSupplementChf;
-  final Decimal? correctionAgainstPreviousPaymentChf;
+  final ChfAmount? eligibleOldAgeCashflowWithSupplementChf;
+  final ChfAmount? correctionAgainstPreviousPaymentChf;
+  final AvsPensionPaymentCadence paymentCadence;
+  final DateTime? supplementPaymentDate;
   final AvsThirteenthReadiness readiness;
   final List<String> missingFields;
   final Set<AvsExcludedComponentKind> excludedComponentKinds;
   final int legalYear;
   final String ruleVersion;
   final List<String> legalSources;
-  final DateTime calculatedAt;
+  final DateTime calculatedAt; // UTC canonique
 }
 ```
 
@@ -279,29 +311,52 @@ class AvsThirteenthPensionResult {
 14. Les corrections rétroactives recalculent les mois touchés et exposent un
     delta contre `previouslyPaidThirteenthChf`; aucun catch silencieux ne masque
     une restitution ou un paiement complémentaire.
+15. `calculationDate`, `supplementPaymentDate`, `sourceDate` et `effectiveFrom`
+    sont des instants UTC canoniques. Un `DateTime` local est ambigu et échoue
+    fermement ; aucune normalisation implicite par le fuseau de l'appareil.
+16. La cadence `annualArticle44Paragraph2` requiert une
+    `supplementPaymentDate` qui ne précède pas civilement le 1er décembre de
+    l'année de droit. Cadence et date survivent dans le résultat.
+
+### 2.2 Frontière UTC et calendrier civil suisse
+
+L'UTC est le format canonique de transport, pas le calendrier juridique final.
+Après validation `isUtc`, l'implémentation convertit l'instant en date civile de
+Zurich avec l'heure normale CET (UTC+1) ou l'heure d'été CEST (UTC+2), entre le
+dernier dimanche de mars à 01:00 UTC et le dernier dimanche d'octobre à
+01:00 UTC. Les comparaisons de mois d'effet et du 1er décembre sont faites sur
+cette date civile. Un instant UTC du 31 janvier à 23:30 peut donc appartenir au
+1er février en Suisse ; l'issue ne dépend jamais du fuseau de l'appareil.
 
 ## 3. Algorithme fail-closed
 
 ```text
-1. Pour une année antérieure à 2026 : certified=0 et readiness=notInForce.
-   Rejeter une ruleVersion non supportée. Une projection après 2026 peut
-   réutiliser le snapshot 2026 seulement comme hypothèse actuelle explicite.
-2. Vérifier owner, douze mois, preuves, valeurs Decimal et composants.
-3. Si droit décembre = unknown : certified=null, readiness=pendingDecember.
-4. Si droit décembre = notEntitled : certified=0,
+1. Rejeter owner vide, argent négatif et tout instant non UTC avant toute
+   conversion en date civile Europe/Zurich.
+2. Exiger legalYear=2026 et ruleVersion=OFAS-C13RV-2026-01-01. Pour une année
+   antérieure à 2026 : certified=0 et readiness=notInForce. Après 2026, le
+   snapshot 2026 est autorisé uniquement si les douze mois et décembre sont
+   tous des preuves scenario ; le résultat reste illustrativeOnly.
+3. Vérifier owner, douze mois ordonnés, preuves, ChfAmount et composants.
+4. Si cadence annualArticle44Paragraph2, exiger une date de paiement UTC dont
+   la date civile suisse ne précède pas le 1er décembre de l'année de droit.
+5. Si droit décembre = unknown : certified=null, readiness=pendingDecember.
+6. Si droit décembre = notEntitled avec preuve officielle observable : certified=0,
    readiness=explicitlyNotEntitled ; ne pas calculer de prorata.
-5. Si un mois ou composant déterminant est inconnu : certified=null avec
+7. Si un mois ou composant déterminant est inconnu : certified=null avec
    missingFields précis ; ne pas remplacer par zéro ni par le dernier mois connu.
-6. Pour chaque mois paidEligibleOldAge : part = arrondi_centime(montant / 12).
+8. Pour chaque mois paidEligibleOldAge : part = arrondi_centime(montant / 12).
    Pour chaque mois explicitementNoOldAgeEntitlement : part=0 sourcé.
-7. Somme des parts puis arrondi commercial au franc entier.
-8. Déterminer evidenceTier :
+9. Somme des parts puis arrondi commercial au franc entier.
+10. Déterminer evidenceTier :
    - caisse + calcul effectué lorsque décembre est connu -> certified ;
    - déclaration documentée -> declaredComplete, educationalEstimate seulement ;
    - scénario -> illustrativeOnly, educationalEstimate seulement.
-9. Conserver séparément : montant mensuel, base annuelle, supplément de
+11. Avant le 1er décembre civil suisse, une preuve non-scenario reste
+    pendingDecember et ne peut produire qu'une educationalEstimate datée.
+12. Conserver séparément : montant mensuel, base annuelle, supplément de
    décembre, total annuel de vieillesse et autres prestations exclues.
-10. Si previouslyPaidThirteenthChf existe, retourner le delta explicite.
+13. Si previouslyPaidThirteenthChf existe, retourner le delta explicite.
 ```
 
 La méthode n'accepte pas `include13eme`, `isOldAge = true` implicite, un montant
@@ -370,6 +425,11 @@ Hiérarchie de rendu :
 | scénario futur complet | `educationalEstimate`, hypothèses et date visibles |
 | mois, composant, droit décembre ou owner manquant | pas de montant ; état partiel + question ciblée |
 
+Même avec douze mois saisis, un calcul exécuté avant décembre ne devient pas
+certifié : l'OFAS indique qu'aucun calcul précis n'est possible avant décembre.
+Après décembre, la certification MINT requiert encore une preuve de la caisse
+compétente ; une saisie manuelle reste une estimation éducative.
+
 Question de récupération prioritaire : « As-tu une décision ou un relevé de ta
 caisse AVS qui indique les montants de rente de vieillesse versés pour chaque
 période de cette année ? » Une liaison de compte conjoint ne remplace ni le
@@ -406,57 +466,48 @@ Total annuel de rente de vieillesse, supplément compris : CHF Z
 Source : caisse / déclaration / scénario — date — année légale
 ```
 
-Il est interdit d'afficher `Z / 12` comme nouvelle rente mensuelle. Un budget
-mensuel récurrent utilise `X`; le calendrier de cash-flow ajoute `Y` en décembre
-ou à la date du versement annualisé. Les prestations enfant, AVS21, AI,
+Il y a **douze rentes ordinaires récurrentes**. Il est interdit d'afficher
+`Z / 12` comme nouvelle rente mensuelle ou de présenter le supplément comme un
+treizième mois récurrent. Un budget mensuel utilise `X`; le calendrier de
+cash-flow ajoute `Y` séparément en décembre ou à la date du versement annualisé
+portée par `supplementPaymentDate`. Les prestations enfant, AVS21, AI,
 survivants, PC et autres cash-flows ont leurs propres lignes.
 
-## 8. Inventaire exact des consumers legacy à migrer
+## 8. État de la migration sur le snapshot audité `06115ed38`
 
-Inventaire réalisé le 2026-07-13 avec :
+Vérification réalisée le 2026-07-13 avec :
 
 ```bash
-rg -n 'AvsCalculator\.annualRente\s*\(' apps/mobile/lib apps/mobile/test
+rg -n 'AvsCalculator\.annualRente|include13eme|avs13emeRenteFactor|avsNombreRentesParAn|avsRenteMaxAnnuelle13m|avsMaxAnnualRenteForYear|avsMaxRenteAnnuelleForYear' apps/mobile/lib apps/mobile/test
 ```
 
-### 8.1 Production — quatre appels directs
+Le grep est vide. `AvsCalculator.annualRente` et les alias `×13` ont été
+supprimés, pas conservés comme façade sans caller.
 
-| fichier et ancre | sémantique actuelle | migration/quarantaine G1 |
+### 8.1 Production — état des quatre anciens consumers
+
+| consumer | état au snapshot | dette restante |
 |---|---|---|
-| `apps/mobile/lib/services/independants_service.dart:624` — `calculateLppVolontaire` | Fabrique une rente annuelle AVS maximale par `2'520 × 13`, sans année de droit ni historique mensuel. | Construire un scénario typé « douze mois complets + droit décembre » et le rendre illustratif ; sinon quarantiner `projectionSansLpp`/`projectionAvecLpp`. |
-| `apps/mobile/lib/widgets/coach/avs_gap_widget.dart:63` — `_lifetimeLoss` | Applique `×13 ×20` à une perte mensuelle théorique et suppose vingt années toutes éligibles. | Séparer perte récurrente sur douze mois et suppléments de décembre par année/scénario ; quarantiner la perte lifetime tant que calendrier, survie et règles futures ne sont pas explicites. |
-| `apps/mobile/lib/services/retirement_projection_service.dart:661` — `avsUser` | Calcule `annualRente(...)/12`, donc augmente artificiellement la rente mensuelle utilisateur. | Utiliser la rente mensuelle ordinaire dans `monthlyAmount` et ajouter un événement de cash-flow décembre typé ; fail-closed si preuve AVS incomplète. |
-| `apps/mobile/lib/services/retirement_projection_service.dart:747` — `avsConj` | Même inflation mensuelle pour le/la partenaire. | Même migration, avec owner partenaire et consentement/provenance par champ ; aucune valeur partenaire manquante ne devient zéro. |
+| `IndependantsService.calculateLppVolontaire` | Douze rentes ordinaires par défaut ; scénario typé seulement derrière un flag local default-off. | Les P2 owner générique et fusion du supplément dans les projections restent ouverts ; aucun renderer distinct. |
+| `AvsGapWidget._lifetimeLoss` | Utilise `AvsCalculator.ordinaryRecurringLifetimeLoss`, soit perte mensuelle × 12 × années ; le supplément est exclu. | Une éventuelle projection future du supplément exigera son propre calendrier et ses propres hypothèses. |
+| `RetirementProjectionService` — owner self | Utilise la rente mensuelle ordinaire sans `annual / 12`. | Aucun événement typé de supplément n'est activé dans cette projection. |
+| `RetirementProjectionService` — owner partner | Même migration, sans convertir une absence partenaire en zéro. | Le futur événement requiert owner partenaire et consentement par champ. |
 
-Après migration, il doit rester **zéro appel de production** à
-`AvsCalculator.annualRente` et la méthode doit être supprimée, pas conservée
-comme façade sans caller.
+### 8.2 Tests et alias
 
-### 8.2 Tests directs à remplacer
+Le contrat exact est couvert par
+`apps/mobile/test/services/financial_core/avs_thirteenth_pension_calculator_test.dart`
+(71 tests à ce snapshot), avec les cas numérotés, les erreurs structurelles, la
+cadence annualisée, le snapshot futur scenario-only et les frontières UTC / mois
+civil Zurich. Les anciens golden tests `×12/×13` ont été migrés vers le contrat
+typé ou la rente ordinaire récurrente. La précédence d'un `notEntitled` officiel
+sur une source mensuelle réellement absente reste toutefois un P2 non couvert.
 
-- `apps/mobile/test/golden/golden_couple_validation_test.dart:194,196`
-- `apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart:216,217`
-- `apps/mobile/test/services/financial_core/avs_calculator_test.dart:307,311,315,319`
-- `apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart:194`
-- `apps/mobile/test/services/financial_core/calculator_forge_test.dart:40,46,64,433`
-
-Ces tests `×12/×13` doivent être remplacés par les cas numérotés de la section
-4 et par un test de grep zéro. Un test qui force `include13eme: false` ne prouve
-pas le contrat de droit en décembre.
-
-### 8.3 Alias sémantiques sans appel direct
-
-Même après grep zéro, les éléments suivants peuvent réintroduire le défaut et
-doivent être supprimés ou limités à des fixtures explicitement full-year :
-
-- `apps/mobile/lib/constants/social_insurance.dart` :
-  `avsRenteMaxAnnuelle13m`, `avsMaxAnnualRenteForYear`,
-  `avs13emeRenteActive`, `avsNombreRentesParAn`, `avs13emeRenteFactor` ;
-- `apps/mobile/lib/services/retirement_service.dart` :
-  `avsMaxRenteAnnuelleForYear` et la logique « année >= 2026 => 13 mois ».
-
-Une année civile >= 2026 n'est pas, à elle seule, une preuve de douze mois de
-rente de vieillesse ni d'un droit en décembre.
+Les alias historiques ont été retirés de `social_insurance.dart` et
+`retirement_service.dart`. Une année civile postérieure à 2026 n'est toujours
+pas une preuve : les données officielles sont refusées, et seul un jeu de preuves
+entièrement `scenario` peut réutiliser le snapshot 2026 comme estimation
+illustrative.
 
 ## 9. Gates d'implémentation G1-AVS-02
 
@@ -464,8 +515,10 @@ Le ticket peut devenir vert seulement si :
 
 1. un test RED démontre les échecs de `monthly * 13`, du début en juillet, de
    l'absence de droit en décembre et de l'inflation mensuelle `annual / 12` ;
-2. le contrat owner-scoped et `Decimal` est implémenté dans `financial_core` ;
-3. les 27 cas d'acceptance et les cas structurels sont verts ;
+2. le contrat owner-scoped en centimes exacts (`ChfAmount`) est implémenté dans
+   `financial_core` ;
+3. `avs_thirteenth_pension_calculator_test.dart` couvre les 27 cas d'acceptance,
+   les cas structurels, UTC/Zurich, cadence/date et snapshot futur ;
 4. les quatre consumers production sont migrés ou réellement inaccessibles ;
 5. `rg` prouve zéro `annualRente`, zéro `include13eme` et zéro conversion
    générique `13 / 12` pour l'AVS ;
@@ -480,21 +533,30 @@ Le ticket peut devenir vert seulement si :
 11. la scorecard et la preuve runtime Maestro/Patrol restent NO-GO jusqu'au
     parcours réellement câblé.
 
+État borné à ce snapshot : les points 1 à 5 sont couverts par la migration
+et les tests statiques. Le calendrier existe dans le résultat typé, mais le
+point 6 n'est pas rempli côté renderer. Les points 7, 10 et 11 restent ouverts,
+de même que l'owner réel requis par le point 8. Aucun GO produit ou runtime ne
+peut être déduit du seul passage des 71 tests du calculateur.
+
 ## 10. Sources officielles primaires
 
 | proposition | source | état |
 |---|---|---|
-| droit en décembre, un douzième du montant perçu dans l'année, versement en décembre | [LAVS art. 34ter](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | loi état 01.01.2026 |
-| extinction du rétroactif au décès, succession ; concours survivant/vieillesse ; plafond couple | [LAVS arts. 24b, 35 et 46, al. 2bis](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | loi état 01.01.2026 |
-| arrondi commercial au franc | [RAVS art. 53, al. 2](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/1185_1183_1185/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-1185_1183_1185-20260101-fr-pdf-a.pdf) | règlement état 01.01.2026 |
-| conditions, mois, composants, centimes, anticipation, ajournement, décès, annualisation, corrections | [OFAS — Circulaire sur la 13e rente de vieillesse, C 13 RV, ch. 1001-9010](https://sozialversicherungen.admin.ch/fr/d/21610/download?version=1) | valable/état 01.01.2026 |
-| synthèse de mise en œuvre et exclusions | [OFAS — Mise en œuvre de la 13e rente AVS](https://www.bsv.admin.ch/fr/misenoeuvre-13-rente-avs) | publié 19.06.2026 |
+| droit en décembre, un douzième du montant perçu dans l'année, versement en décembre ou avec la rente annualisée | [Fedlex — LAVS art. 34ter](https://www.fedlex.admin.ch/eli/cc/63/837_843_843/fr#art_34_ter) | droit applicable dès 01.01.2026 |
+| extinction du rétroactif au décès, succession ; concours survivant/vieillesse ; plafond couple | [Fedlex — LAVS arts. 24b, 35 et 46, al. 2bis](https://www.fedlex.admin.ch/eli/cc/63/837_843_843/fr) | loi vérifiée 13.07.2026 |
+| exécution réglementaire du supplément et arrondi commercial au franc | [Fedlex — RAVS arts. 52ater à 52aquinquies et 53, al. 2](https://www.fedlex.admin.ch/eli/cc/63/1185_1183_1185/fr) | règlement vérifié 13.07.2026 |
+| conditions, mois, composants, centimes, anticipation, ajournement, décès, annualisation, corrections et cas transitoires | [OFAS — Circulaire sur la 13e rente de vieillesse, C 13 RV, ch. 1001-13001](https://sozialversicherungen.admin.ch/fr/d/21610/download) | valable dès 01.01.2026 ; état 17.06.2026 |
+| synthèse, exclusions, caisse compétente et impossibilité d'un calcul précis avant décembre | [OFAS — Mise en œuvre de la 13e rente AVS](https://www.bsv.admin.ch/fr/misenoeuvre-13-rente-avs) | publié 19.06.2026 |
 | explication législative : décès, anticipation, ajournement, supplément de veuvage inclus, AVS21 exclu | [Message du Conseil fédéral FF 2024 2747, commentaire art. 34ter](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/fga/2024/2747/fr/pdf-a/fedlex-data-admin-ch-eli-fga-2024-2747-fr-pdf-a.pdf) | message 16.10.2024 ; loi adoptée depuis |
 | information aux bénéficiaires, prorata, exclusions et arrondi | [Centre d'information AVS/AI — 13e rente AVS](https://www.ahv-iv.ch/fr/Assurances-sociales/Assurance-vieillesse-et-survivants-AVS/13e-rente-AVS) | consulté 13.07.2026 |
 
-La C 13 RV est la source opérationnelle de premier rang pour le calcul 2026 ;
-le message explique le sens du texte mais ne remplace pas la loi et la circulaire
-en vigueur.
+La C 13 RV état 17 juin 2026 est la source opérationnelle de premier rang pour
+le calcul 2026. Son `ruleVersion` logiciel reste
+`OFAS-C13RV-2026-01-01`, date d'entrée en vigueur du snapshot ; l'état de la
+circulaire est documenté séparément et doit être revérifié avant toute nouvelle
+activation. Le message explique le sens du texte mais ne remplace pas la loi et
+la circulaire en vigueur.
 
 ### Disclaimer éducatif
 
