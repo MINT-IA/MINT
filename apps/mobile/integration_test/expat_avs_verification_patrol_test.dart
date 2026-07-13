@@ -14,21 +14,27 @@ void main() {
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 5)),
     ($) async {
-      await ReportPersistenceService.clearDiagnostic();
-      await ReportPersistenceService.setMiniOnboardingCompleted(true);
+      await $.pumpWidgetAndSettle(const MintApp());
       final before = await ReportPersistenceService.loadAnswers();
       expect(before.containsKey('q_avs_years_abroad'), isFalse);
 
-      await $.pumpWidgetAndSettle(const MintApp());
-      await $.platformAutomator.mobile.openUrl('mint:///expatriation');
+      // Keep Patrol attached to the instrumented MintApp. OS-level deep links
+      // are covered by Maestro; this gate exercises the real app router.
+      testOnlyRootRouter.go('/expatriation');
       await $.pumpAndSettle();
 
-      await $(#expat_avs_tab).waitUntilVisible();
-      await $(#expat_avs_tab).tap();
+      await $(
+        find.bySemanticsIdentifier('expat_avs_tab'),
+      ).waitUntilVisible();
+      await $(find.bySemanticsIdentifier('expat_avs_tab')).tap();
       await $.pumpAndSettle();
 
-      await $(#expat_avs_years_picker).waitUntilVisible();
-      await $(#expat_avs_start_scenario).waitUntilVisible();
+      await $(
+        find.bySemanticsIdentifier('expat_avs_years_picker'),
+      ).waitUntilVisible();
+      await $(
+        find.bySemanticsIdentifier('expat_avs_start_scenario'),
+      ).waitUntilVisible();
       expect(
         find.bySemanticsIdentifier('expat_avs_scenario_result'),
         findsNothing,
@@ -50,7 +56,7 @@ void main() {
         isNull,
       );
 
-      await $(#expat_avs_years_picker).tap();
+      await $(find.byKey(const Key('expat_avs_years_picker'))).tap();
       await $.pumpAndSettle();
       await $.tester.drag(
         find.byType(CupertinoPicker),
@@ -69,25 +75,55 @@ void main() {
       );
       expect(await ReportPersistenceService.loadAnswers(), equals(before));
 
-      await $(#expat_avs_start_scenario).tap();
+      await $(find.byKey(const Key('expat_avs_start_scenario'))).tap();
       await $.pumpAndSettle();
-      await $(find.byKey(const Key('expat_avs_scenario_result'))).scrollTo();
-      await $(#expat_avs_scenario_result).waitUntilVisible();
-      await $(#expat_avs_gap_unknown).waitUntilVisible();
+      await $.tester.scrollUntilVisible(
+        find.byKey(const Key('expat_avs_scenario_result')),
+        600,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await $.pumpAndSettle();
+      await $(
+        find.bySemanticsIdentifier('expat_avs_scenario_result'),
+      ).waitUntilVisible();
+      await $(
+        find.bySemanticsIdentifier('expat_avs_gap_unknown'),
+      ).waitUntilVisible();
       expect(find.textContaining(RegExp(r'CHF\s*[0-9]')), findsNothing);
       expect(await ReportPersistenceService.loadAnswers(), equals(before));
 
+      await $.tester.scrollUntilVisible(
+        find.byKey(const Key('expat_avs_verification_guide_cta')),
+        600,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await $.pumpAndSettle();
+      await $(
+        find.bySemanticsIdentifier('expat_avs_verification_guide_cta'),
+      ).waitUntilVisible();
       await $(
         find.byKey(const Key('expat_avs_verification_guide_cta')),
-      ).scrollTo();
-      await $(#expat_avs_verification_guide_cta).waitUntilVisible();
-      await $(#expat_avs_verification_guide_cta).tap();
+      ).tap();
       await $.pumpAndSettle();
 
-      await $(find.byKey(const Key('avs_official_ci_request_cta'))).scrollTo();
-      await $(#avs_official_ci_request_cta).waitUntilVisible();
-      await $(find.byKey(const Key('avs_official_form_cta'))).scrollTo();
-      await $(#avs_official_form_cta).waitUntilVisible();
+      await $.tester.scrollUntilVisible(
+        find.byKey(const Key('avs_official_ci_request_cta')),
+        600,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await $.pumpAndSettle();
+      await $(
+        find.bySemanticsIdentifier('avs_official_ci_request_cta'),
+      ).waitUntilVisible();
+      await $.tester.scrollUntilVisible(
+        find.byKey(const Key('avs_official_form_cta')),
+        600,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await $.pumpAndSettle();
+      await $(
+        find.bySemanticsIdentifier('avs_official_form_cta'),
+      ).waitUntilVisible();
       expect(await ReportPersistenceService.loadAnswers(), equals(before));
     },
   );
