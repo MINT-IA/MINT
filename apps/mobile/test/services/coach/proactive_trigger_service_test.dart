@@ -2,8 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/sequence_run.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/sequence/sequence_store.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PROACTIVE TRIGGER SERVICE TESTS — S62 / Phase 2
@@ -120,6 +123,31 @@ void main() {
   group('ProactiveTriggerService', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});
+      FeatureFlags.enableGuidedSequences = false;
+      addTearDown(() => FeatureFlags.enableGuidedSequences = false);
+    });
+
+    test('disabled sequences do not let a stale run block a trigger', () async {
+      final prefs = await _prefsWithPhase('construction');
+      await SequenceStore.save(
+        SequenceRun.start(
+          runId: 'stale-run',
+          templateId: 'housing_purchase',
+          stepIds: const [
+            'housing_01_affordability',
+            'housing_02_epl',
+          ],
+        ),
+        prefs: prefs,
+      );
+
+      final trigger = await ProactiveTriggerService.evaluate(
+        profile: _makeProfile(birthYear: 1977),
+        prefs: prefs,
+        now: tuesday,
+      );
+
+      expect(trigger?.type, ProactiveTriggerType.lifecyclePhaseChange);
     });
 
     // ── Test 1: Fresh profile with recent activity → no phase change trigger

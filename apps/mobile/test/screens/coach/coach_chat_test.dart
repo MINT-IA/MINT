@@ -18,6 +18,7 @@ import 'package:mint_mobile/services/sequence/sequence_store.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -96,6 +97,8 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'mint_coach_cash_level': 3,
     });
+    FeatureFlags.enableGuidedSequences = true;
+    addTearDown(() => FeatureFlags.enableGuidedSequences = false);
   });
 
   group('CoachChatScreen', () {

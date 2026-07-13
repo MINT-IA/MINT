@@ -13,6 +13,7 @@ import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
@@ -26,6 +27,8 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});
+    FeatureFlags.enableGuidedSequences = true;
+    addTearDown(() => FeatureFlags.enableGuidedSequences = false);
   });
 
   Widget buildDashboard({CoachProfileProvider? coachProvider}) {
@@ -195,31 +198,6 @@ void main() {
     return (ret, result!);
   }
 
-  Future<SequenceHandlerResult> completeRemainingSequence(
-    SequenceHandlerResult initial,
-  ) async {
-    var current = initial;
-    var eventIndex = 0;
-    while (current.action is AdvanceAction) {
-      final advance = current.action as AdvanceAction;
-      expect(advance.prefill, isNot(contains('taux_remplacement')));
-      expect(advance.prefill, isNot(contains('gap_mensuel')));
-      final handled = await SequenceChatHandler.handleRealtimeReturn(
-        ScreenReturn.completed(
-          route: advance.route,
-          stepOutputs: const {},
-          runId: current.updatedRun.runId,
-          stepId: advance.nextStep.id,
-          eventId: 'evt_finish_${current.updatedRun.runId}_${eventIndex++}',
-        ),
-      );
-      expect(handled, isNotNull);
-      current = handled!;
-      expect(eventIndex, lessThanOrEqualTo(20));
-    }
-    return current;
-  }
-
   group('RetirementDashboardScreen — empty state (State C)', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildDashboard());
@@ -382,7 +360,7 @@ void main() {
   });
 
   group('RetirementDashboardScreen — guided sequence AVS pending', () {
-    testWidgets('retirement_prep advances with explicit missing outputs',
+    testWidgets('retirement_prep pauses with explicit missing outputs',
         (tester) async {
       final (ret, result) = await popAvsPendingSequenceStep(
         tester,
@@ -396,27 +374,16 @@ void main() {
       expect(ret.stepOutputs, containsPair('gap_mensuel_missing', true));
       expect(ret.stepOutputs, isNot(contains('taux_remplacement')));
       expect(ret.stepOutputs, isNot(contains('gap_mensuel')));
-      expect(result.action, isA<AdvanceAction>());
-      final advance = result.action as AdvanceAction;
-      expect(advance.nextStep.id, 'ret_02_choice');
-      expect(advance.prefill, isNot(contains('taux_remplacement')));
-      expect(advance.prefill, isNot(contains('gap_mensuel')));
+      expect(result.action, isA<PauseAction>());
+      expect((result.action as PauseAction).canResume, isTrue);
+      expect(result.updatedRun.activeStepId, 'ret_01_projection');
       expect(
-        result.updatedRun.stepOutputs['ret_01_projection'],
-        ret.stepOutputs,
+        result.updatedRun.stepOutputs,
+        isNot(contains('ret_01_projection')),
       );
-
-      final completed = await completeRemainingSequence(result);
-      expect(completed.action, isA<CompleteAction>());
-      final allOutputs = (completed.action as CompleteAction).allOutputs;
-      expect(allOutputs['ret_01_projection'], ret.stepOutputs);
-      for (final outputs in allOutputs.values) {
-        expect(outputs, isNot(contains('taux_remplacement')));
-        expect(outputs, isNot(contains('gap_mensuel')));
-      }
     });
 
-    testWidgets('preretraite_complete advances with explicit missing outputs',
+    testWidgets('preretraite_complete pauses with explicit missing outputs',
         (tester) async {
       final (ret, result) = await popAvsPendingSequenceStep(
         tester,
@@ -430,24 +397,13 @@ void main() {
       expect(ret.stepOutputs, containsPair('gap_mensuel_missing', true));
       expect(ret.stepOutputs, isNot(contains('taux_remplacement')));
       expect(ret.stepOutputs, isNot(contains('gap_mensuel')));
-      expect(result.action, isA<AdvanceAction>());
-      final advance = result.action as AdvanceAction;
-      expect(advance.nextStep.id, 'pre_02_3a');
-      expect(advance.prefill, isNot(contains('taux_remplacement')));
-      expect(advance.prefill, isNot(contains('gap_mensuel')));
+      expect(result.action, isA<PauseAction>());
+      expect((result.action as PauseAction).canResume, isTrue);
+      expect(result.updatedRun.activeStepId, 'pre_01_projection');
       expect(
-        result.updatedRun.stepOutputs['pre_01_projection'],
-        ret.stepOutputs,
+        result.updatedRun.stepOutputs,
+        isNot(contains('pre_01_projection')),
       );
-
-      final completed = await completeRemainingSequence(result);
-      expect(completed.action, isA<CompleteAction>());
-      final allOutputs = (completed.action as CompleteAction).allOutputs;
-      expect(allOutputs['pre_01_projection'], ret.stepOutputs);
-      for (final outputs in allOutputs.values) {
-        expect(outputs, isNot(contains('taux_remplacement')));
-        expect(outputs, isNot(contains('gap_mensuel')));
-      }
     });
   });
 

@@ -15,6 +15,7 @@ import 'package:mint_mobile/models/sequence_run.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
 
@@ -49,6 +50,7 @@ class SequenceChatHandler {
   ///
   /// Cheap check — loads from SharedPreferences.
   static Future<bool> isSequenceActive() async {
+    if (!FeatureFlags.enableGuidedSequences) return false;
     final run = await SequenceStore.load();
     return run != null && run.isActive;
   }
@@ -65,6 +67,7 @@ class SequenceChatHandler {
     Map<String, dynamic>? stepOutputs,
     Map<String, dynamic>? updatedFields,
   }) async {
+    if (!FeatureFlags.enableGuidedSequences) return null;
     final run = await SequenceStore.load();
     if (run == null || !run.isActive) return null;
 
@@ -120,6 +123,7 @@ class SequenceChatHandler {
   static Future<SequenceHandlerResult?> handleRealtimeReturn(
     ScreenReturn ret,
   ) async {
+    if (!FeatureFlags.enableGuidedSequences) return null;
     final run = await SequenceStore.load();
     if (run == null || !run.isActive) return null;
 
@@ -189,6 +193,7 @@ class SequenceChatHandler {
     String? preGeneratedRunId,
     Set<String>? suppressedTopics,
   }) async {
+    if (!FeatureFlags.enableGuidedSequences) return null;
     final template = SequenceTemplate.templateForIntent(intentTag);
     if (template == null) return null;
 

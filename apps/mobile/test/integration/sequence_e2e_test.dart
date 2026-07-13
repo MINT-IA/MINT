@@ -2,7 +2,7 @@
 //
 // These tests prove the handler + coordinator + store chain works together.
 // They exercise: startSequence → handleRealtimeReturn → coordinator →
-// store → prefill transfer → dedup → completion.
+// store → required-output validation → dedup → completion.
 //
 // NOTE: These are NOT widget-level E2E tests. They do not cover:
 // - CoachChatScreen._onRealtimeScreenReturn / _handleRouteReturnAsync
@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/models/sequence_run.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
@@ -26,6 +27,8 @@ import 'package:mint_mobile/services/sequence/sequence_store.dart';
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FeatureFlags.enableGuidedSequences = true;
+    addTearDown(() => FeatureFlags.enableGuidedSequences = false);
   });
 
   // ════════════════════════════════════════════════════════════════
@@ -68,9 +71,6 @@ void main() {
       expect(step1Result!.action, isA<AdvanceAction>());
       final advance1 = step1Result.action as AdvanceAction;
       expect(advance1.nextStep.id, 'housing_02_epl');
-      expect(advance1.progressLabel, '1/4');
-      // Verify output transfer via outputMapping
-      expect(advance1.prefill['montant_necessaire'], 170000.0);
 
       // Verify step 2 proposal tracked
       capMem = await CapMemoryStore.load();
@@ -98,8 +98,6 @@ void main() {
       expect(step2Result!.action, isA<AdvanceAction>());
       final advance2 = step2Result.action as AdvanceAction;
       expect(advance2.nextStep.id, 'housing_03_fiscal');
-      // Verify accumulated outputs: step 1 + step 2 outputs available
-      expect(advance2.prefill['montant_retrait'], 50000.0);
 
       // ── STEP 3: /fiscal (Tier A) ──────────────────────────────
       final step3Result = await SequenceChatHandler.handleRealtimeReturn(
@@ -147,7 +145,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_dedup_test',
-          stepOutputs: const {'capacite_achat': 850000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
       expect(first, isNotNull);
@@ -189,7 +190,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_step1',
-          stepOutputs: const {'capacite_achat': 850000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
 
@@ -220,7 +224,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_tier_a',
-          stepOutputs: const {'capacite_achat': 850000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
 
@@ -243,7 +250,7 @@ void main() {
       // In the chat: if (!ret.hasSequenceId) → debounce path, not handler.
     });
 
-    test('Tier B fallback: handleStepReturn works with simple outcome', () async {
+    test('Tier B fallback pauses when required outputs are absent', () async {
       await SequenceChatHandler.startSequence('simulator_3a');
 
       // Tier B fallback path: _handleRouteReturnAsync calls handleStepReturn
@@ -253,16 +260,17 @@ void main() {
       );
 
       expect(result, isNotNull);
-      expect(result!.action, isA<AdvanceAction>());
+      expect(result!.action, isA<PauseAction>());
+      expect((result.action as PauseAction).canResume, isTrue);
     });
   });
 
   // ════════════════════════════════════════════════════════════════
-  //  OUTPUT TRANSFER
+  //  OUTPUT ISOLATION
   // ════════════════════════════════════════════════════════════════
 
-  group('Service integration — Output transfer across steps', () {
-    test('step 1 outputs flow to step 2 prefill via outputMapping', () async {
+  group('Service integration — Output isolation across steps', () {
+    test('step outputs stay in the run while action carries navigation', () async {
       final run = await SequenceChatHandler.startSequence('housing_purchase');
 
       final result = await SequenceChatHandler.handleRealtimeReturn(
@@ -280,10 +288,12 @@ void main() {
 
       expect(result, isNotNull);
       final advance = result!.action as AdvanceAction;
-      // outputMapping: fonds_propres_requis → montant_necessaire
-      expect(advance.prefill['montant_necessaire'], 180000.0);
-      // outputMapping: capacite_achat → montant_bien_cible
-      expect(advance.prefill['montant_bien_cible'], 900000.0);
+      expect(advance.nextStep.id, 'housing_02_epl');
+      expect(advance.route, isNotEmpty);
+      expect(
+        result.updatedRun.stepOutputs['housing_01_affordability'],
+        containsPair('capacite_achat', 900000.0),
+      );
     });
 
     test('outputs accumulate across 3 steps', () async {
@@ -402,7 +412,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_persist_1',
-          stepOutputs: const {'capacite_achat': 850000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
 
@@ -432,7 +445,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_nav_data',
-          stepOutputs: const {'capacite_achat': 850000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
 
@@ -446,36 +462,6 @@ void main() {
       // nextStep must carry the step definition
       expect(advance.nextStep.id, 'housing_02_epl');
       expect(advance.nextStep.intentTag, 'early_pension_withdrawal');
-
-      // Prefill must contain mapped outputs from step 1
-      expect(advance.prefill, isNotEmpty);
-
-      // progressLabel must be meaningful
-      expect(advance.progressLabel, contains('/'));
-    });
-
-    test('AdvanceAction.prefill matches outputMapping contract', () async {
-      final run = await SequenceChatHandler.startSequence('housing_purchase');
-
-      final result = await SequenceChatHandler.handleRealtimeReturn(
-        ScreenReturn.completed(
-          route: '/hypotheque',
-          runId: run!.runId,
-          stepId: 'housing_01_affordability',
-          eventId: 'evt_prefill_contract',
-          stepOutputs: const {
-            'capacite_achat': 850000.0,
-            'fonds_propres_requis': 170000.0,
-          },
-        ),
-      );
-
-      final advance = result!.action as AdvanceAction;
-      // Template outputMapping for step 1:
-      //   'capacite_achat' → 'montant_bien_cible'
-      //   'fonds_propres_requis' → 'montant_necessaire'
-      expect(advance.prefill['montant_bien_cible'], 850000.0);
-      expect(advance.prefill['montant_necessaire'], 170000.0);
     });
 
     test('run carries correct runId for navigation extra', () async {
@@ -487,7 +473,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_runid',
-          stepOutputs: const {'capacite_achat': 850000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
 
@@ -533,7 +522,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_step1_ok',
-          stepOutputs: const {'capacite_achat': 850000.0, 'fonds_propres_requis': 170000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
 

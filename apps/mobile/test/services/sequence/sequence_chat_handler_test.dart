@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
@@ -9,6 +10,57 @@ import 'package:mint_mobile/services/sequence/sequence_store.dart';
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FeatureFlags.enableGuidedSequences = true;
+    addTearDown(() => FeatureFlags.enableGuidedSequences = false);
+  });
+
+  group('guided sequence quarantine', () {
+    test('disabled flag blocks start and leaves a stale run untouched',
+        () async {
+      final stale = await SequenceChatHandler.startSequence('housing_purchase');
+      expect(stale, isNotNull);
+
+      FeatureFlags.enableGuidedSequences = false;
+      expect(await SequenceChatHandler.isSequenceActive(), isFalse);
+      expect(
+        await SequenceChatHandler.startSequence('simulator_3a'),
+        isNull,
+      );
+      expect(
+        await SequenceChatHandler.handleStepReturn(ScreenOutcome.completed),
+        isNull,
+      );
+      expect(
+        await SequenceChatHandler.handleRealtimeReturn(
+          ScreenReturn.completed(
+            route: '/hypotheque',
+            runId: stale!.runId,
+            stepId: stale.activeStepId,
+            eventId: 'disabled-event',
+            stepOutputs: const {
+              'capacite_achat': 850000.0,
+              'fonds_propres_requis': 170000.0,
+            },
+          ),
+        ),
+        isNull,
+      );
+
+      final stored = await SequenceStore.load();
+      expect(stored?.runId, stale.runId);
+      expect(stored?.activeStepId, 'housing_01_affordability');
+      expect(stored?.stepOutputs, isEmpty);
+    });
+
+    test('quit clears a stale run even while the flag is disabled', () async {
+      final stale = await SequenceChatHandler.startSequence('housing_purchase');
+      expect(stale, isNotNull);
+
+      FeatureFlags.enableGuidedSequences = false;
+      await SequenceChatHandler.quitSequence();
+
+      expect(await SequenceStore.load(), isNull);
+    });
   });
 
   group('SequenceChatHandler.isSequenceActive', () {
@@ -76,7 +128,7 @@ void main() {
       expect(result!.action, isA<AdvanceAction>());
       final advance = result.action as AdvanceAction;
       expect(advance.nextStep.id, 'housing_02_epl');
-      expect(advance.prefill['montant_necessaire'], 170000.0);
+      expect(advance.route, isNotEmpty);
     });
 
     test('abandoned step triggers retry on first attempt', () async {
@@ -114,7 +166,10 @@ void main() {
       // Complete step 1
       await SequenceChatHandler.handleStepReturn(
         ScreenOutcome.completed,
-        stepOutputs: {'contribution_annuelle': 7258},
+        stepOutputs: {
+          'contribution_annuelle': 7258,
+          'economie_fiscale': 1500,
+        },
       );
 
       // Complete step 2
@@ -137,13 +192,51 @@ void main() {
       expect(stored, isNull);
     });
 
+    test('missing fiscal output pauses without completing the step', () async {
+      await SequenceChatHandler.startSequence('housing_purchase');
+      await SequenceChatHandler.handleStepReturn(
+        ScreenOutcome.completed,
+        stepOutputs: {
+          'capacite_achat': 850000.0,
+          'fonds_propres_requis': 170000.0,
+        },
+      );
+      await SequenceChatHandler.handleStepReturn(
+        ScreenOutcome.completed,
+        stepOutputs: {
+          'montant_epl': 50000.0,
+          'impact_rente': -200.0,
+        },
+      );
+
+      final result = await SequenceChatHandler.handleStepReturn(
+        ScreenOutcome.completed,
+        stepOutputs: const {},
+      );
+
+      expect(result, isNotNull);
+      expect(result!.action, isA<PauseAction>());
+      expect((result.action as PauseAction).canResume, isTrue);
+      expect(result.updatedRun.activeStepId, 'housing_03_fiscal');
+      expect(
+        result.updatedRun.stepOutputs,
+        isNot(contains('housing_03_fiscal')),
+      );
+      final stored = await SequenceStore.load();
+      expect(stored?.activeStepId, 'housing_03_fiscal');
+      expect(stored?.stepOutputs, isNot(contains('housing_03_fiscal')));
+    });
+
     test('advance increments proposal for next step', () async {
       final run = await SequenceChatHandler.startSequence('housing_purchase');
 
       // Complete step 1 → advances to step 2
       await SequenceChatHandler.handleStepReturn(
         ScreenOutcome.completed,
-        stepOutputs: {'capacite_achat': 850000.0},
+        stepOutputs: {
+          'capacite_achat': 850000.0,
+          'fonds_propres_requis': 170000.0,
+        },
       );
 
       // Step 2 should have 1 proposal (from the advance)
@@ -168,7 +261,10 @@ void main() {
       // Complete step 1
       await SequenceChatHandler.handleStepReturn(
         ScreenOutcome.completed,
-        stepOutputs: {'capacite_achat': 850000.0},
+        stepOutputs: {
+          'capacite_achat': 850000.0,
+          'fonds_propres_requis': 170000.0,
+        },
       );
 
       // Step 2 active — user changes profile data on the screen.
@@ -199,7 +295,10 @@ void main() {
       final result = await SequenceChatHandler.handleRealtimeReturn(
         const ScreenReturn.completed(
           route: '/hypotheque',
-          stepOutputs: {'capacite_achat': 900000.0},
+          stepOutputs: {
+            'capacite_achat': 900000.0,
+            'fonds_propres_requis': 180000.0,
+          },
         ),
       );
 
@@ -216,7 +315,10 @@ void main() {
       await SequenceChatHandler.handleRealtimeReturn(
         const ScreenReturn.completed(
           route: '/hypotheque',
-          stepOutputs: {'capacite_achat': 850000.0},
+          stepOutputs: {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
 
@@ -252,7 +354,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_step1',
-          stepOutputs: const {'capacite_achat': 850000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
 
@@ -279,7 +384,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_unique_123',
-          stepOutputs: const {'capacite_achat': 850000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
       expect(first, isNotNull);
@@ -305,7 +413,10 @@ void main() {
           runId: run!.runId,
           stepId: 'housing_01_affordability',
           eventId: 'evt_persist_check',
-          stepOutputs: const {'capacite_achat': 850000.0},
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
         ),
       );
 

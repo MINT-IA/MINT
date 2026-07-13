@@ -62,6 +62,12 @@ class FeatureFlags {
   /// When true, narratives use templates-only degraded mode.
   static bool safeModeDegraded = false;
 
+  /// Local kill switch for the unfinished guided-sequence runtime.
+  ///
+  /// This must not be hydrated from backend flags: G1 keeps the dormant path
+  /// fail-closed until it has a complete product and runtime proof.
+  static bool enableGuidedSequences = false;
+
   // ── V1 screen gating ───────────────────────────────────────
   // F7: enableCoachPhase2, enableLifeEventScreens, enableAdvancedSimulators,
   //     enableMortgageTools, enableIndependantTools REMOVED — always true

@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
-import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 // FIX-P1-7: Removed direct import of coach_orchestrator.dart to break
 // circular dependency (coach_llm ↔ orchestrator). The orchestrator is
@@ -195,10 +194,6 @@ class ChatMessage {
   /// show_score_gauge, ask_user_input, etc.
   final List<RagToolCall> richToolCalls;
 
-  /// Sequence progress payload for rendering a SequenceProgressCard.
-  /// Non-null when the message carries a guided sequence step transition.
-  final SequenceMessagePayload? sequencePayload;
-
   /// v2.7 Task 8: true when the backend served this response via the Haiku
   /// fallback path (Sonnet upstream failure or timeout). Triggers a subtle
   /// "Réponse rapide" chip in CoachChatScreen — NOT an error indicator. // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
@@ -216,7 +211,6 @@ class ChatMessage {
     this.routePayload,
     this.documentPayload,
     this.richToolCalls = const [],
-    this.sequencePayload,
     this.degraded = false,
   });
 
@@ -233,8 +227,6 @@ class ChatMessage {
   /// Whether this message carries rich tool calls for inline rendering.
   bool get hasRichToolCalls => richToolCalls.isNotEmpty;
 
-  /// Whether this message carries a sequence progress card.
-  bool get hasSequencePayload => sequencePayload != null;
 }
 
 /// Reponse du coach LLM

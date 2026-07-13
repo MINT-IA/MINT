@@ -24,14 +24,10 @@ sealed class SequenceAction {
 class AdvanceAction extends SequenceAction {
   final SequenceStepDef nextStep;
   final String route;
-  final Map<String, dynamic> prefill;
-  final String progressLabel;
 
   const AdvanceAction({
     required this.nextStep,
     required this.route,
-    required this.prefill,
-    required this.progressLabel,
   });
 }
 
@@ -134,8 +130,12 @@ class SequenceCoordinator {
     SequenceStepDef currentStep,
     ScreenReturn stepReturn,
   ) {
-    // Merge outputs into run
     final outputs = stepReturn.stepOutputs ?? {};
+    if (!_hasRequiredOutputs(currentStep, outputs)) {
+      return const PauseAction(canResume: true);
+    }
+
+    // Merge outputs into run
     final updatedRun = run.completeStep(currentStep.id, outputs);
 
     // Find next actionable step
@@ -157,16 +157,9 @@ class SequenceCoordinator {
       return const PauseAction(canResume: true);
     }
 
-    // Build prefill from accumulated outputs
-    final prefill = _buildPrefill(template, updatedRun, nextStepDef);
-    final completed = updatedRun.completedCount;
-    final total = updatedRun.totalCount;
-
     return AdvanceAction(
       nextStep: nextStepDef,
       route: entry.route,
-      prefill: prefill,
-      progressLabel: '$completed/$total',
     );
   }
 
@@ -261,33 +254,24 @@ class SequenceCoordinator {
     return false;
   }
 
-  /// Build prefill map for the next step from accumulated outputs.
-  ///
-  /// Walks through all completed steps' outputs and maps them via
-  /// the step's outputMapping to build the prefill keys expected
-  /// by the next step's screen.
-  static Map<String, dynamic> _buildPrefill(
-    SequenceTemplate template,
-    SequenceRun run,
-    SequenceStepDef nextStep,
+  static bool _hasRequiredOutputs(
+    SequenceStepDef step,
+    Map<String, dynamic> outputs,
   ) {
-    final prefill = <String, dynamic>{};
-
-    // Collect ALL outputs from completed steps
-    for (final step in template.steps) {
-      final stepOutputs = run.stepOutputs[step.id];
-      if (stepOutputs == null) continue;
-
-      // Apply output mapping: source key → target key
-      for (final mapping in step.outputMapping.entries) {
-        final sourceKey = mapping.key;
-        final targetKey = mapping.value;
-        if (stepOutputs.containsKey(sourceKey)) {
-          prefill[targetKey] = stepOutputs[sourceKey];
-        }
+    for (final key in step.requiredOutputKeys) {
+      if (!outputs.containsKey(key) || !_isUsableOutput(outputs[key])) {
+        return false;
       }
     }
+    return true;
+  }
 
-    return prefill;
+  static bool _isUsableOutput(Object? value) {
+    if (value == null) return false;
+    if (value case final num number) return number.isFinite;
+    if (value case final String text) return text.trim().isNotEmpty;
+    if (value case final Iterable<Object?> values) return values.isNotEmpty;
+    if (value case final Map<Object?, Object?> values) return values.isNotEmpty;
+    return true;
   }
 }

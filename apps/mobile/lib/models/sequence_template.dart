@@ -24,16 +24,12 @@ class SequenceStepDef {
   /// Resolved to a route via MintScreenRegistry.findByIntentStatic().
   final String intentTag;
 
-  /// ARB key for the step title (displayed in SequenceProgressCard).
+  /// ARB key reserved for a future, fully wired progress surface.
   final String titleKey;
 
-  /// Maps output keys from this step's ScreenReturn.stepOutputs
-  /// to input keys expected by the next step's prefill.
-  ///
-  /// Example: {'capacite_achat': 'montant_bien_cible'}
-  /// means this step's output 'capacite_achat' becomes the next step's
-  /// prefill key 'montant_bien_cible'.
-  final Map<String, String> outputMapping;
+  /// Outputs that must be present and usable before this step may advance.
+  /// Missing, null, empty, NaN, and infinite values keep the step paused.
+  final Set<String> requiredOutputKeys;
 
   /// Whether this step can be skipped without blocking the sequence.
   final bool isOptional;
@@ -43,7 +39,7 @@ class SequenceStepDef {
     required this.order,
     required this.intentTag,
     required this.titleKey,
-    this.outputMapping = const {},
+    this.requiredOutputKeys = const {},
     this.isOptional = false,
   });
 }
@@ -94,9 +90,9 @@ class SequenceTemplate {
         order: 1,
         intentTag: 'housing_purchase',
         titleKey: 'sequenceHousingStep1',
-        outputMapping: {
-          'capacite_achat': 'montant_bien_cible',
-          'fonds_propres_requis': 'montant_necessaire',
+        requiredOutputKeys: {
+          'capacite_achat',
+          'fonds_propres_requis',
         },
       ),
       SequenceStepDef(
@@ -104,9 +100,9 @@ class SequenceTemplate {
         order: 2,
         intentTag: 'early_pension_withdrawal',
         titleKey: 'sequenceHousingStep2',
-        outputMapping: {
-          'montant_epl': 'montant_retrait',
-          'impact_rente': 'impact_rente_mensuelle',
+        requiredOutputKeys: {
+          'montant_epl',
+          'impact_rente',
         },
       ),
       SequenceStepDef(
@@ -114,7 +110,7 @@ class SequenceTemplate {
         order: 3,
         intentTag: 'cantonal_fiscal_comparator',
         titleKey: 'sequenceHousingStep3',
-        outputMapping: {'impot_retrait': 'impot_retrait'},
+        requiredOutputKeys: {'impot_retrait'},
       ),
       SequenceStepDef(
         id: 'housing_04_summary',
@@ -136,9 +132,9 @@ class SequenceTemplate {
         order: 1,
         intentTag: 'simulator_3a',
         titleKey: 'sequence3aStep1',
-        outputMapping: {
-          'contribution_annuelle': 'contribution_annuelle',
-          'economie_fiscale': 'economie_fiscale',
+        requiredOutputKeys: {
+          'contribution_annuelle',
+          'economie_fiscale',
         },
       ),
       SequenceStepDef(
@@ -146,7 +142,7 @@ class SequenceTemplate {
         order: 2,
         intentTag: 'tax_optimization_3a',
         titleKey: 'sequence3aStep2',
-        outputMapping: {'gain_echelonnement': 'gain_echelonnement'},
+        requiredOutputKeys: {'gain_echelonnement'},
       ),
       SequenceStepDef(
         id: '3a_03_real_return',
@@ -168,9 +164,9 @@ class SequenceTemplate {
         order: 1,
         intentTag: 'retirement_projection',
         titleKey: 'sequenceRetirementStep1',
-        outputMapping: {
-          'taux_remplacement': 'taux_remplacement',
-          'gap_mensuel': 'gap_mensuel',
+        requiredOutputKeys: {
+          'taux_remplacement',
+          'gap_mensuel',
         },
       ),
       SequenceStepDef(
@@ -178,14 +174,14 @@ class SequenceTemplate {
         order: 2,
         intentTag: 'retirement_choice',
         titleKey: 'sequenceRetirementStep2',
-        outputMapping: {'decision_mixte': 'decision_mixte'},
+        requiredOutputKeys: {'decision_mixte'},
       ),
       SequenceStepDef(
         id: 'ret_03_buyback',
         order: 3,
         intentTag: 'lpp_buyback',
         titleKey: 'sequenceRetirementStep3',
-        outputMapping: {'economie_rachat': 'economie_rachat'},
+        requiredOutputKeys: {'economie_rachat'},
         isOptional: true,
       ),
       SequenceStepDef(
@@ -223,9 +219,9 @@ class SequenceTemplate {
         order: 1,
         intentTag: 'retirement_projection',
         titleKey: 'sequencePreretraiteStep1',
-        outputMapping: {
-          'taux_remplacement': 'taux_remplacement',
-          'gap_mensuel': 'gap_mensuel',
+        requiredOutputKeys: {
+          'taux_remplacement',
+          'gap_mensuel',
         },
       ),
       SequenceStepDef(
@@ -233,9 +229,9 @@ class SequenceTemplate {
         order: 2,
         intentTag: 'simulator_3a',
         titleKey: 'sequencePreretraiteStep2',
-        outputMapping: {
-          'contribution_annuelle': 'contribution_annuelle',
-          'economie_fiscale': 'economie_fiscale',
+        requiredOutputKeys: {
+          'contribution_annuelle',
+          'economie_fiscale',
         },
       ),
       // Phase 2: Arbitrer
@@ -244,14 +240,14 @@ class SequenceTemplate {
         order: 3,
         intentTag: 'retirement_choice',
         titleKey: 'sequencePreretraiteStep3',
-        outputMapping: {'decision_mixte': 'decision_mixte'},
+        requiredOutputKeys: {'decision_mixte'},
       ),
       SequenceStepDef(
         id: 'pre_04_withdrawal',
         order: 4,
         intentTag: 'tax_optimization_3a',
         titleKey: 'sequencePreretraiteStep4',
-        outputMapping: {'gain_echelonnement': 'gain_echelonnement'},
+        requiredOutputKeys: {'gain_echelonnement'},
       ),
       SequenceStepDef(
         id: 'pre_05_mortgage',
@@ -266,7 +262,7 @@ class SequenceTemplate {
         order: 6,
         intentTag: 'lpp_buyback',
         titleKey: 'sequencePreretraiteStep6',
-        outputMapping: {'economie_rachat': 'economie_rachat'},
+        requiredOutputKeys: {'economie_rachat'},
         isOptional: true,
       ),
       SequenceStepDef(
@@ -289,9 +285,9 @@ class SequenceTemplate {
         order: 9,
         intentTag: 'budget_overview',
         titleKey: 'sequencePreretraiteStep9',
-        outputMapping: {
-          'revenu_net': 'revenu_net_retraite',
-          'charges_totales': 'charges_retraite',
+        requiredOutputKeys: {
+          'revenu_net',
+          'charges_totales',
         },
       ),
       SequenceStepDef(
@@ -324,9 +320,9 @@ class SequenceTemplate {
         order: 1,
         intentTag: 'debt_ratio',
         titleKey: 'sequenceTensionStep1',
-        outputMapping: {
-          'ratio_endettement': 'ratio_endettement',
-          'marge_mensuelle': 'marge_mensuelle',
+        requiredOutputKeys: {
+          'ratio_endettement',
+          'marge_mensuelle',
         },
       ),
       SequenceStepDef(
@@ -334,9 +330,9 @@ class SequenceTemplate {
         order: 2,
         intentTag: 'budget_overview',
         titleKey: 'sequenceTensionStep2',
-        outputMapping: {
-          'revenu_net': 'revenu_net',
-          'charges_totales': 'charges_totales',
+        requiredOutputKeys: {
+          'revenu_net',
+          'charges_totales',
         },
       ),
       SequenceStepDef(
@@ -344,9 +340,9 @@ class SequenceTemplate {
         order: 3,
         intentTag: 'debt_repayment',
         titleKey: 'sequenceTensionStep3',
-        outputMapping: {
-          'horizon_mois': 'horizon_mois',
-          'versement_mensuel': 'versement_mensuel',
+        requiredOutputKeys: {
+          'horizon_mois',
+          'versement_mensuel',
         },
       ),
       SequenceStepDef(
@@ -377,9 +373,9 @@ class SequenceTemplate {
         order: 2,
         intentTag: 'budget_overview',
         titleKey: 'sequencePremiersPasStep2',
-        outputMapping: {
-          'revenu_net': 'revenu_net',
-          'charges_totales': 'charges_totales',
+        requiredOutputKeys: {
+          'revenu_net',
+          'charges_totales',
         },
       ),
       SequenceStepDef(
@@ -387,9 +383,9 @@ class SequenceTemplate {
         order: 3,
         intentTag: 'simulator_3a',
         titleKey: 'sequencePremiersPasStep3',
-        outputMapping: {
-          'contribution_annuelle': 'contribution_annuelle',
-          'economie_fiscale': 'economie_fiscale',
+        requiredOutputKeys: {
+          'contribution_annuelle',
+          'economie_fiscale',
         },
       ),
     ],
@@ -408,9 +404,9 @@ class SequenceTemplate {
         order: 1,
         intentTag: 'retirement_projection',
         titleKey: 'sequenceDensificationStep1',
-        outputMapping: {
-          'taux_remplacement': 'taux_remplacement',
-          'gap_mensuel': 'gap_mensuel',
+        requiredOutputKeys: {
+          'taux_remplacement',
+          'gap_mensuel',
         },
       ),
       SequenceStepDef(
@@ -424,7 +420,7 @@ class SequenceTemplate {
         order: 3,
         intentTag: 'lpp_buyback',
         titleKey: 'sequenceDensificationStep3',
-        outputMapping: {'economie_rachat': 'economie_rachat'},
+        requiredOutputKeys: {'economie_rachat'},
         isOptional: true,
       ),
       SequenceStepDef(
@@ -450,9 +446,9 @@ class SequenceTemplate {
         order: 1,
         intentTag: 'budget_overview',
         titleKey: 'sequenceRetraiteActiveStep1',
-        outputMapping: {
-          'revenu_net': 'revenu_retraite',
-          'charges_totales': 'charges_retraite',
+        requiredOutputKeys: {
+          'revenu_net',
+          'charges_totales',
         },
       ),
       SequenceStepDef(
@@ -492,7 +488,7 @@ class SequenceTemplate {
         order: 1,
         intentTag: 'life_event_marriage',
         titleKey: 'sequenceCoupleStep1',
-        outputMapping: {'impact_fiscal_couple': 'impact_fiscal_couple'},
+        requiredOutputKeys: {'impact_fiscal_couple'},
       ),
       SequenceStepDef(
         id: 'couple_02_household',
@@ -505,9 +501,9 @@ class SequenceTemplate {
         order: 3,
         intentTag: 'simulator_3a',
         titleKey: 'sequenceCoupleStep3',
-        outputMapping: {
-          'contribution_annuelle': 'contribution_couple',
-          'economie_fiscale': 'economie_couple',
+        requiredOutputKeys: {
+          'contribution_annuelle',
+          'economie_fiscale',
         },
       ),
       SequenceStepDef(
@@ -545,9 +541,9 @@ class SequenceTemplate {
         order: 2,
         intentTag: 'budget_overview',
         titleKey: 'sequenceNaissanceStep2',
-        outputMapping: {
-          'revenu_net': 'revenu_famille',
-          'charges_totales': 'charges_famille',
+        requiredOutputKeys: {
+          'revenu_net',
+          'charges_totales',
         },
       ),
       SequenceStepDef(
@@ -555,9 +551,9 @@ class SequenceTemplate {
         order: 3,
         intentTag: 'simulator_3a',
         titleKey: 'sequenceNaissanceStep3',
-        outputMapping: {
-          'contribution_annuelle': 'contribution_parent',
-          'economie_fiscale': 'economie_parent',
+        requiredOutputKeys: {
+          'contribution_annuelle',
+          'economie_fiscale',
         },
       ),
       SequenceStepDef(

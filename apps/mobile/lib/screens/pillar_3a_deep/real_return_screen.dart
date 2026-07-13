@@ -85,7 +85,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       return;
     }
 
-    // Last step of 3a template — no outputMapping, but emit completed
+    // Last step of 3a template — no required outputs, but emit completed
     // so the coordinator knows the sequence is done.
     ScreenCompletionTracker.markCompletedWithReturn('real_return_3a',
       ScreenReturn.completed(

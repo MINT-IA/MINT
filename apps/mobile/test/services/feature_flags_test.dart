@@ -14,10 +14,12 @@ void main() {
     FeatureFlags.enableCouplePlusTier = true;
     FeatureFlags.slmPluginReady = false;
     FeatureFlags.safeModeDegraded = false;
+    FeatureFlags.enableGuidedSequences = false;
     // F7: enableCoachPhase2, enableLifeEventScreens, enableAdvancedSimulators,
     //     enableMortgageTools, enableIndependantTools removed (always true, no consumers)
     FeatureFlags.enableOpenBanking = false;
     FeatureFlags.enableAdminScreens = false;
+    addTearDown(() => FeatureFlags.enableGuidedSequences = false);
   });
 
   group('FeatureFlags — default values', () {
@@ -51,6 +53,10 @@ void main() {
 
     test('enableAdminScreens is false by default', () {
       expect(FeatureFlags.enableAdminScreens, isFalse);
+    });
+
+    test('enableGuidedSequences is false by default', () {
+      expect(FeatureFlags.enableGuidedSequences, isFalse);
     });
   });
 
@@ -112,6 +118,12 @@ void main() {
     test('null value treated as false', () {
       FeatureFlags.applyFromMap({'enableCouplePlusTier': null});
       expect(FeatureFlags.enableCouplePlusTier, isFalse);
+    });
+
+    test('guided sequences remain local-only', () {
+      FeatureFlags.enableGuidedSequences = true;
+      FeatureFlags.applyFromMap({'enableGuidedSequences': false});
+      expect(FeatureFlags.enableGuidedSequences, isTrue);
     });
   });
 

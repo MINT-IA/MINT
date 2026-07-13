@@ -34,6 +34,7 @@ import 'package:mint_mobile/services/contract_alert_service.dart';
 import 'package:mint_mobile/services/contract_benchmark_service.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_detector.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
@@ -169,9 +170,11 @@ class ProactiveTriggerService {
     }
 
     // ── Guard: don't fire triggers while a sequence is active ──
-    final activeRun = await SequenceStore.load();
-    if (activeRun != null && activeRun.activeStepId != null) {
-      return null;
+    if (FeatureFlags.enableGuidedSequences) {
+      final activeRun = await SequenceStore.load();
+      if (activeRun != null && activeRun.activeStepId != null) {
+        return null;
+      }
     }
 
     // ── Evaluate in priority order ────────────────────────

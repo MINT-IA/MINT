@@ -161,8 +161,44 @@ void main() {
       expect(action, isA<AdvanceAction>());
       final advance = action as AdvanceAction;
       expect(advance.nextStep.id, 'housing_02_epl');
-      expect(advance.prefill['montant_necessaire'], 170000);
-      expect(advance.progressLabel, '1/4');
+      expect(advance.route, isNotEmpty);
+    });
+
+    test('fiscal step pauses without a usable required output', () {
+      const template = SequenceTemplate.housingPurchase;
+      var run = startRun(template);
+      run = run.completeStep('housing_01_affordability', const {
+        'capacite_achat': 850000.0,
+        'fonds_propres_requis': 170000.0,
+      });
+      run = run.completeStep('housing_02_epl', const {
+        'montant_epl': 50000.0,
+        'impact_rente': -120.0,
+      });
+      run = run.activateStep('housing_03_fiscal');
+
+      for (final invalidOutputs in <Map<String, dynamic>>[
+        const {},
+        const {'impot_retrait': null},
+        const {'impot_retrait': ''},
+        const {'impot_retrait': double.nan},
+        const {'impot_retrait': double.infinity},
+      ]) {
+        final action = SequenceCoordinator.decide(
+          template: template,
+          run: run,
+          stepReturn: ScreenReturn.completed(
+            route: '/fiscal',
+            stepOutputs: invalidOutputs,
+          ),
+          proposalCount: 1,
+        );
+
+        expect(action, isA<PauseAction>());
+        expect((action as PauseAction).canResume, isTrue);
+        expect(run.activeStepId, 'housing_03_fiscal');
+        expect(run.stepOutputs, isNot(contains('housing_03_fiscal')));
+      }
     });
 
     test('all steps completed → complete action', () {
@@ -298,10 +334,10 @@ void main() {
     });
   });
 
-  // ── Prefill building ──────────────────────────────────────────
+  // ── Output isolation ──────────────────────────────────────────
 
-  group('Output transfer (prefill)', () {
-    test('step 1 outputs flow to step 2 via outputMapping', () {
+  group('Output isolation', () {
+    test('step completion advances with navigation metadata only', () {
       const template = SequenceTemplate.housingPurchase;
       var run = startRun(template);
       run = run.completeStep('housing_01_affordability', {
@@ -325,8 +361,8 @@ void main() {
 
       expect(action, isA<AdvanceAction>());
       final advance = action as AdvanceAction;
-      // outputMapping: fonds_propres_requis → montant_necessaire
-      expect(advance.prefill['montant_necessaire'], 180000);
+      expect(advance.nextStep.id, 'housing_02_epl');
+      expect(advance.route, isNotEmpty);
     });
 
     test('outputs accumulate across multiple steps', () {
