@@ -1,0 +1,76 @@
+CLASSIFICATION=FINAL_CANONICAL_RERUN_AFTER_HELPER_PDF_FINAL
+HEAD=d802d6180fcf3c1c11c9364c8ab9eb76e4eb890e
+BRANCH=codex/mint-product-usability-plan-20260712
+UTC=2026-07-13T11:58:50Z
+DEVICE=iPhone 17 Pro (B03E429D-0422-4357-B754-536637D979F9) (Booted)
+INDEXED_MOBILE_DIFF_SHA256=2b968f8de18ca3e6ab7c282bdf9705c3ce166444e81d5a4529a7e1a0eb2632aa
+DELETED_COMPARATOR_INDEX_STATE=D apps/mobile/lib/widgets/comparators/pillar3a_comparator_widget.dart
+RUNTIME_IDS
+apps/mobile/lib/widgets/report/retirement_projection_card.dart:25:          identifier: 'financial_report_avs_pending',
+apps/mobile/lib/widgets/report/retirement_projection_card.dart:29:            key: const Key('financial_report_avs_pending'),
+apps/mobile/lib/widgets/report/retirement_projection_card.dart:68:          identifier: 'financial_report_lpp_pending',
+apps/mobile/lib/widgets/report/retirement_projection_card.dart:72:            key: const Key('financial_report_lpp_pending'),
+apps/mobile/lib/widgets/report/retirement_projection_card.dart:102:          identifier: 'financial_report_3a_pending',
+apps/mobile/lib/widgets/report/retirement_projection_card.dart:106:            key: const Key('financial_report_3a_pending'),
+apps/mobile/.maestro/retirement_missing_avs.yaml:68:      id: "financial_report_avs_pending"
+apps/mobile/.maestro/retirement_missing_avs.yaml:74:    id: "financial_report_avs_pending"
+apps/mobile/.maestro/retirement_missing_avs.yaml:75:- takeScreenshot: financial_report_avs_pending
+apps/mobile/.maestro/retirement_missing_avs.yaml:78:      id: "financial_report_lpp_pending"
+apps/mobile/.maestro/retirement_missing_avs.yaml:84:    id: "financial_report_lpp_pending"
+apps/mobile/.maestro/retirement_missing_avs.yaml:85:- takeScreenshot: financial_report_lpp_pending
+apps/mobile/.maestro/retirement_missing_avs.yaml:88:      id: "financial_report_3a_pending"
+apps/mobile/.maestro/retirement_missing_avs.yaml:94:    id: "financial_report_3a_pending"
+apps/mobile/.maestro/retirement_missing_avs.yaml:95:- takeScreenshot: financial_report_3a_pending
+apps/mobile/.maestro/retirement_missing_avs.yaml:97:    id: "financial_report_lpp_estimate"
+apps/mobile/.maestro/retirement_missing_avs.yaml:99:    id: "financial_report_3a_estimate"
+apps/mobile/.maestro/retirement_missing_avs.yaml:101:    id: "financial_report_avs_amount"
+apps/mobile/.maestro/retirement_missing_avs.yaml:103:    id: "financial_report_retirement_total"
+apps/mobile/.maestro/retirement_missing_avs.yaml:105:    id: "financial_report_replacement_rate"
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:145:      await $(#financial_report_avs_pending).scrollTo();
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:146:      await $(#financial_report_avs_pending).waitUntilVisible();
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:147:      await $(#financial_report_lpp_pending).scrollTo();
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:148:      await $(#financial_report_lpp_pending).waitUntilVisible();
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:149:      await $(#financial_report_3a_pending).scrollTo();
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:150:      await $(#financial_report_3a_pending).waitUntilVisible();
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:152:        find.byKey(const Key('financial_report_lpp_estimate')),
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:156:        find.byKey(const Key('financial_report_3a_estimate')),
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:160:        find.byKey(const Key('financial_report_avs_amount')),
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:164:        find.byKey(const Key('financial_report_retirement_total')),
+apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart:168:        find.byKey(const Key('financial_report_replacement_rate')),
+DANGEROUS_FIXTURES
+119:                'q_lpp_current_capital': 120000.0,
+120:                'q_lpp_buyback_available': 200000.0,
+121:                'q_3a_annual_contribution': 7258.0,
+SOURCE_HASHES
+ed83e4675e2c80b968f7b88baeb5cc9f66a98216096fe3f1b4a49c294029c39d  apps/mobile/.maestro/retirement_missing_avs.yaml
+ace8b2f252b7764f2b36b68e16f03ae43cf88ff51e530ca57208d007291301d8  apps/mobile/integration_test/retirement_missing_avs_patrol_test.dart
+fb30559739995132104adc8ba4611949db694e8a82f28905479146154b4d6bcb  apps/mobile/lib/l10n/app_de.arb
+f24757df3f312bcc37250a761af85f4a04467d135a8e0b274ce05770852c4a65  apps/mobile/lib/l10n/app_en.arb
+179f2e2690f518ebb32410fe57d1af303ac5f6ae2ab6588082d613697ea40867  apps/mobile/lib/l10n/app_es.arb
+5b0a355ec4de03f44bc56d75cd336d79fba14942e3ea8c5e878714d29fb18ade  apps/mobile/lib/l10n/app_fr.arb
+448832b7daa14fa783d31cd055cd25908c9b695498f4267231aa6a369f24c8b1  apps/mobile/lib/l10n/app_it.arb
+395b095b27146c7295a60bf47e73a7969ac3bc34f2b9749163cba0a604865a51  apps/mobile/lib/l10n/app_localizations.dart
+f065b3faa39bb3e12c4c86d5b92caf216b1f13bf79df9ab6d1639d81e3d415a1  apps/mobile/lib/l10n/app_localizations_de.dart
+41e8467c540e85f70d9c32f745b91f54d8c3871091d3e0eb93297083e55b6fc9  apps/mobile/lib/l10n/app_localizations_en.dart
+be338670005d512f909f5ae5aa02f39ae426da57d7e16522790217e6010b3382  apps/mobile/lib/l10n/app_localizations_es.dart
+b7b78159b78e75b517e6e603c39756f2bb83f8ffef1785a242999bf253fb65c1  apps/mobile/lib/l10n/app_localizations_fr.dart
+0a0a987e5b810ab33480334bc02b162ccf5515bb0990b025d7f20c22635f5201  apps/mobile/lib/l10n/app_localizations_it.dart
+4db033ff338916105eb58eff6ef6ec5058ec80f27ea3b6a4158473d47a3e5b20  apps/mobile/lib/l10n/app_localizations_pt.dart
+eabd47c58d1bc80d09bb33c361da0a5e6a66e3a5ba3fed2fe8e2a63cba443854  apps/mobile/lib/l10n/app_pt.arb
+498830625da4b13360a8b5bd494c132f1beebb0ed6173fb4d60e04e6d6a09563  apps/mobile/lib/models/financial_report.dart
+b5a770c97143d39d05d6e747ff84f45905bf1bb9715c6e8ad193ef4f247c64ab  apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart
+48b08bd0880f45f9cf1d14968fb7d254522dfdafa6f8849606d57a4805042c1d  apps/mobile/lib/services/financial_core/financial_core.dart
+6169a546ff881a6a1eda43e488ed81c6e33a54cbe0bf9396b2b1a395b8460ebd  apps/mobile/lib/services/financial_core/replacement_rate_calculator.dart
+1b0a1c6fad785f2fec066dd7bbf5e869a353cae0f7d5c4f7eb7432bbe51ace69  apps/mobile/lib/services/financial_report_service.dart
+fa003d6320bc0bc934436467d4d7b9d32b1447915a50033377c5c3cd3d9a529a  apps/mobile/lib/services/pdf_service.dart
+34e4a97812bd985e4982b2899ce6246a1621356456ccc0e1c433012f27739539  apps/mobile/lib/widgets/report/retirement_projection_card.dart
+ecad31486702bf1c000458db17c51be3b842b693dd21824912279a63c2dfdf30  apps/mobile/lib/widgets/report/thematic_card.dart
+1cfc406a1a3a7bc6c66bb4820218cd4c49a23f07f801ee18c045fcb7941849a0  apps/mobile/test/models/retirement_projection_contract_test.dart
+6a3aee5e1432e4c73e784e9b6b0100ef76d331671018153e3d33c4b3a4f9f1ae  apps/mobile/test/navigation_route_integrity_test.dart
+425ef69b2a5b68fcdc7b52542aa99515da80f3f62bb1d6c69a90f0147d7008f9  apps/mobile/test/patrol/retirement_missing_avs_runtime_test.dart
+50dc753ebfee58910edb5dd0fdd88512bd51bc1861cde23d7d98487bab4b6b80  apps/mobile/test/services/avs_logic_test.dart
+bd336739f86b61c4efc8eb851eb2b16c4359d42a58d1d7ee77bc6c9863d372c0  apps/mobile/test/services/financial_core/replacement_rate_calculator_test.dart
+aa4641bb5f946809322b7f92c802c3af05b4f74b15cdf25ac0732b4f84b1db08  apps/mobile/test/services/financial_report_3a_quarantine_contract_test.dart
+839e15f7478983620f1aecf5a9869be0adbfd49cb1745a27c270b5eaba7e03ef  apps/mobile/test/services/financial_report_g1_contract_test.dart
+530382ab600a5a4186d4277d716007896386b55334009610b263bf764dd4fa82  apps/mobile/test/services/financial_report_service_test.dart
+78315b4c16ab846ab9c6399f5d98ba0e4173118b77ee157ac7f8c97fdacd3945  apps/mobile/test/widgets/report/retirement_projection_card_test.dart

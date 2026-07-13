@@ -1,0 +1,62 @@
+scope=G1 financial report/PDF epistemic quarantine for AVS, LPP, and pillar 3a
+head_before_green=0b9245532f2b75c8563e9cac851b0d3eb35cfefe
+runtime_base_head=d802d6180fcf3c1c11c9364c8ab9eb76e4eb890e
+final_canonical_runtime_commit=1bb9c8389
+final_indexed_mobile_diff_sha256=2b968f8de18ca3e6ab7c282bdf9705c3ce166444e81d5a4529a7e1a0eb2632aa
+materialized_commit_diff=PASS; d802d6180..1bb9c8389 mobile diff exactly matches the indexed diff exercised at runtime
+slice_status=GO_FINAL_CANONICAL
+g1_phase_status=NO-GO globally; this evidence accepts only the report/PDF quarantine slice and does not authorize G2/G3
+
+RED_CONTRACT
+static_command=python3 -m pytest -q tools/checks/tests/test_g1_avs_certified_null_contract.py
+static_result=4 failed, 4 passed; exit 1 (red-static-contract.log)
+flutter_command=cd apps/mobile && flutter test test/services/financial_report_service_test.dart test/services/avs_logic_test.dart
+flutter_result=4 failed, 50 passed; exit 1 (red-flutter-targeted.log)
+runtime_red=pre-quarantine installed app reached /rapport but lacked financial_report_avs_pending; Maestro exit 1 (runtime-report/maestro-red-stale.log)
+
+GREEN_IMPLEMENTATION_GATES
+final_hard_floor=8 passed (final-static/gates.log)
+final_arb_parity=6900 keys in each of fr/en/de/es/it/pt (final-static/gates.log)
+final_lefthook=PASS; all 12 pre-commit hooks green without bypass (final-static/lefthook.log)
+replacement_rate_red=5 expected Undefined name ReplacementRateCalculator compile errors before implementation
+pdf_footer_red=contract rejected the obsolete 6% LPP conversion-rate claim before removal
+final_targeted_flutter=95 successful, 0 failed; exit 0 (final-flutter/targeted.log)
+final_flutter_analyze=No issues found, exit 0 (final-flutter/analyze.log)
+full_flutter_red_after_3a_cta=8506 successful, 30 skipped, 1 failed; navigation_route_integrity did not understand concrete /data-block/3a against parameterized /data-block/:type (final-flutter/full-test.log)
+route_gate_red_to_green=gate now compares equal-length path segments and treats :segments as parameters without wildcarding extra segments; navigation route + report widget closure 3/3 passed (final-flutter/navigation-route-green.log)
+financial_core_hook_fix=RetirementProjection delegates fail-closed replacement-rate math to tested ReplacementRateCalculator; Lefthook financial-core gate PASS
+pdf_footer_fix=obsolete 6% LPP conversion-rate and provider-comparison claims removed under a static regression contract
+final_full_flutter=8514 successful, 30 skipped, 0 failed; exit 0 after all helper/PDF fixes (final-flutter/full-test-green.log)
+
+FINAL_EXTERNAL_AUDITS
+opus_code_first_pass=PASS; no P0/P1 (audits/opus-code-first-pass-4500.txt)
+opus_product_domain_first_pass=PASS; no P0/P1 (audits/opus-product-domain-first-pass-4500.txt)
+sonnet_code_rerun=PASS; no remediation-required P0/P1 (audits/sonnet-code-rerun-final.txt)
+sonnet_product_domain_rerun=PASS; no P0/P1 (audits/sonnet-product-domain-rerun-final.txt)
+open_p2=LPP pending label still says estimated; canonical married status and AVS21 retirement horizon remain legacy debt; the separate LPP-buyback tax-savings path needs its own G1 domain slice
+
+FINAL_CANONICAL_RUNTIME
+canonical_folder=runtime-report/final-canonical-three-pillar-pending
+full_doctor=PASS, exit 0
+build_install=iPhone 17 Pro iOS 26.2 PASS; built and installed App.framework SHA c0cfbed13d7ff8eb4d04a66adca42b9cdfaa9feceb808edebbbe10e958fdc158
+source_hash_stability=PASS for 32 indexed mobile files and indexed diff SHA across build, Maestro, Patrol, cleanup, and normal-app restore
+committed_source_identity=PASS; pushed commit 1bb9c8389 materializes the exact tested mobile diff (materialized-commit-diff.txt)
+maestro=PASS, exit 0
+maestro_positive=financial_report_avs_pending; financial_report_lpp_pending; financial_report_3a_pending
+maestro_negative=financial_report_lpp_estimate; financial_report_3a_estimate; financial_report_avs_amount; financial_report_retirement_total; financial_report_replacement_rate
+maestro_visual=PASS; three named captures show pending states and official AVS/LPP certificate/3a data CTAs
+patrol_fixture=q_lpp_current_capital 120000.0; q_lpp_buyback_available 200000.0; q_3a_annual_contribution 7258.0
+patrol=PASS; total 2, successful 2, failed 0, skipped 0, exit 0
+patrol_xcresult=runtime-report/final-canonical-three-pillar-pending/patrol/ios_results.xcresult; extracted summary Passed 2/2
+cleanup=PASS; test_bundle.dart absent; normal app rebuilt and reinstalled
+active_runtime_processes=0
+stage_commit_push=NONE by mint-quality-gate
+
+NONCANONICAL_HISTORY
+obsolete_lpp_estimate_green=runtime-report/maestro-green and runtime-report/patrol/intermediate-lpp-estimate; excluded from final verdict
+interleaved_build=runtime-report/patrol-interleaved-noncanonical; excluded because the shared source changed during compilation
+pre_3a_hold_build=runtime-report/pre-3a-hold-noncanonical; never installed or used by Maestro
+
+MANIFESTS
+canonical_manifest=runtime-report/final-canonical-three-pillar-pending/SHA256SUMS.txt; 72 files verified
+root_manifest=CURATED_SHA256SUMS.txt; regenerate after all final evidence writers have stopped

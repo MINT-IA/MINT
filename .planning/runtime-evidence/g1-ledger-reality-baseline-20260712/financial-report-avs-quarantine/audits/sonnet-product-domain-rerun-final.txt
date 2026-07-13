@@ -1,0 +1,99 @@
+---
+
+**Product/domain verdict: PASS**
+
+---
+
+## P0 findings — none
+
+The pre-existing P0 (service synthesising AVS rente from questionnaire-derived contribution years + net-to-gross Newton-Raphson salary conversion) is resolved. All three pension pillars now fail-closed to `null` at the service layer. No CHF pension amount reaches the screen, the PDF, or the report model without an official evidence document.
+
+---
+
+## P1 findings — none
+
+The pre-existing P1 (`Pillar3aComparatorWidget` presenting hardcoded VIAC 4.5%, Finpension 5.5%, bank 1.5% return rates as projections without evidence, creating FinSA-adjacent product recommendation risk) is resolved by deletion of the widget and its call-site in `financial_report_screen_v2.dart`.
+
+---
+
+## P2 findings
+
+### P2-A · Misleading "estimée" label in LPP pending row
+
+**File:** `apps/mobile/lib/widgets/report/retirement_projection_card.dart:84`
+```
+_infoRow(l.futurRenteLpp, l.coverageCheckAVerifier)
+```
+`futurRenteLpp` resolves to **"Rente LPP estimée"** in French (verified in `app_fr.arb`). The value displayed is **"À vérifier"** — no estimate exists. The adjective *estimée* implies a computed figure, which contradicts the evidence-quarantine intent. A user glancing at the label+value pair may believe a hidden estimate exists. Fix: use a neutral label such as `futurRenteLpp` → "Rente LPP" (drop "estimée") or introduce a dedicated `futurRenteLppPending` key.
+
+**Severity note:** Not P1 because the value cell explicitly says "À vérifier" and the CTA makes the pending state visible. No CHF amount is shown.
+
+---
+
+### P2-B · `civilStatus == 'marie'` in LPP buyback strategy (pre-existing, not introduced by diff)
+
+**File:** `apps/mobile/lib/services/financial_report_service.dart:288`
+```dart
+final isMarried = profile.civilStatus == 'marie';
+```
+The model uses `'married'` (`UserProfile.isMarried` at `financial_report.dart:86`). The service uses `'marie'` (French string). Married users will always be evaluated at the single rate for LPP buy-back marginal-tax savings. Tax savings will be underestimated for married users. Pre-existing; not introduced by this diff. No test covers this path.
+
+**Reproduction:** Construct a married profile (`civilStatus: 'married'`), call `_buildLppStrategy`. `isMarried` evaluates `false`. The strategy uses single-rate marginal tax.
+
+---
+
+### P2-C · Retirement age hardcoded to 65 for all users (pre-existing, AVS21 exposure)
+
+**File:** `apps/mobile/lib/models/financial_report.dart:85`
+```dart
+int get yearsToRetirement => 65 - age;
+```
+AVS21 transitions women's reference age from 64 to 65 gradually through 2028 (64y3m → 64y6m → 64y9m → 65). Any woman born 1961–1964 currently has a reference age below 65. This affects `yearsToRetirement` used in LPP buy-back horizon calculation. Pre-existing; not introduced by this diff. Since no AVS/LPP amounts are displayed without evidence, the user cannot make a financially harmful decision from this field alone in this diff's context — hence P2 not P1.
+
+---
+
+## Swiss domain review
+
+| Domain | Status | Evidence |
+|--------|--------|----------|
+| **AVS / LAVS art. 29, 34** | Cleared | `_estimateAvsRent()` deleted. `monthlyAvsRent: null`. No `AvsCalculator.computeMonthlyRente` call in service. AVS pending block routes to `/scan/avs-guide` (official IK order). |
+| **AVS21 women's ref-age** | P2-C above | `yearsToRetirement = 65 - age` unchanged; no pension amounts displayed, so no harmful CHF output. |
+| **LAVS art. 34/35 married cap (150%)** | N/A | No AVS rente computed; married-couple cap cannot be violated. |
+| **LPP / LPP art. 14 conversion rate 6.8%** | Cleared | `monthlyLppRent: null`. No LPP rente projection without certificate. LPP pending block routes to `/scan` with `DocumentType.lppCertificate`. |
+| **LPP art. 79b al. 3 blocking rule (3-year EPL)** | Unchanged | `LppBuybackStrategy` model retained. Blocking-rule validation not present in old or new code. Out of scope for this diff. |
+| **Pillar 3a / OPP3** | Cleared | `pillar3aCapital: null`. Hardcoded provider return rates (VIAC, Finpension, bank) deleted with `Pillar3aComparatorWidget`. 3a pending block routes to `/data-block/3a`. |
+| **FinSA / LSFin** | Improved | Removal of hardcoded return rate comparator eliminates the nearest thing to an implicit product recommendation in the report flow. No new product-specific advice introduced. |
+| **Tax / LIFD art. 35–36** | Unchanged | `TaxSimulation` not modified. `civilStatus == 'marie'` P2-B affects only LPP buyback marginal rate, not IFD deduction logic. |
+| **Privacy** | No new risk | Spouse fields, gender fields, and AVS gap fields removed from `UserProfile`. Reduction of PII surface in the model is correct direction. |
+
+---
+
+## MINT product logic review
+
+**Evidence quarantine (ledger → DataQuest → scenario → dossier spine)**
+The diff correctly propagates the fail-closed evidence model through all four layers:
+- **Model layer**: `RetirementProjection` fields nullable; `totalCapital` and `totalMonthlyIncome` computed as `null` if any component unknown (`financial_report.dart:151–156`).
+- **Service layer**: `_buildRetirementProjection` returns all pension values as `null`; estimation methods deleted (`financial_report_service.dart`).
+- **Display layer**: `RetirementProjectionCard` is unconditional — always shows 3 pending blocks regardless of model field state. A non-null `monthlyAvsRent` in the model (as in the widget test at `retirement_projection_card_test.dart:19`) is silently quarantined at the widget level and never rendered as CHF. This is correct per the evidence-quarantine contract, though the model field being writable while the widget ignores it may confuse future contributors.
+- **PDF layer**: Section 5 reads only `l.coverageCheckAVerifier` ("À vérifier") for all pension/capital rows. No raw field access from `RetirementProjection` (`pdf_service.dart:717–740`).
+
+**Routing integrity**
+Three routes verified at compile-time (widget test + Maestro + Patrol):
+- `/scan/avs-guide` — official AVS statement order
+- `/scan` with `extra: DocumentType.lppCertificate` — LPP certificate scan
+- `/data-block/3a` — 3a data entry
+
+Route declarations match GoRouter configuration. Negative route assertions in Maestro (`financial_report_avs_amount`, `financial_report_retirement_total`, `financial_report_replacement_rate` not visible) correctly gate the old estimated values.
+
+**Contract coverage**
+Four contract test files (Python AST-level + Dart source-level) guard against regression to the pre-existing P0:
+- `test_g1_avs_certified_null_contract.py` — source-level absence of synthesis tokens
+- `financial_report_3a_quarantine_contract_test.dart` — model/service/screen/PDF absence of `Pillar3aAnalysis`
+- `financial_report_g1_contract_test.dart` — PDF localized key wiring
+- `retirement_projection_contract_test.dart` — `totalCapital` null propagation
+
+The contract suite is fail-closed: tests verify absence of forbidden patterns, not only presence of correct ones. This is the right approach for an evidence-quarantine model.
+
+**Remaining gap**: `LppBuybackStrategy` still generates CHF tax-savings amounts from canton-level marginal rate tables. This path is not modified by the diff and is not evaluated here. It should be in scope for the next domain audit pass.
+
+---

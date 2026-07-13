@@ -1,0 +1,4 @@
+COMMAND=git diff --check --cached -- apps/mobile
+INDEXED_MOBILE_DIFF_CHECK_EXIT=0
+COMMAND=git diff --check -- apps/mobile
+UNSTAGED_MOBILE_DIFF_CHECK_EXIT=0

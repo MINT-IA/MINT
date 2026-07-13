@@ -1,0 +1,19 @@
+CLASSIFICATION=FINAL_CANONICAL_RERUN_AFTER_HELPER_PDF_FINAL
+UTC_START=2026-07-13T12:00:03Z
+DEVICE_UDID=B03E429D-0422-4357-B754-536637D979F9
+APP=/Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/build/ios/iphonesimulator/Runner.app
+COMMAND=xcrun simctl terminate B03E429D-0422-4357-B754-536637D979F9 ch.mint.app; xcrun simctl install B03E429D-0422-4357-B754-536637D979F9 /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/build/ios/iphonesimulator/Runner.app
+BUILT_APP_FRAMEWORK_SHA256=c0cfbed13d7ff8eb4d04a66adca42b9cdfaa9feceb808edebbbe10e958fdc158
+BUILT_KERNEL_BLOB_SHA256=16137fe27e16cf7a30561e96d592a61941ed3724613213c5f00aba7c202d9025
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=3):
+Simulator device failed to terminate ch.mint.app.
+found nothing to terminate
+Underlying error (domain=NSPOSIXErrorDomain, code=3):
+	The request to terminate "ch.mint.app" failed. found nothing to terminate
+	found nothing to terminate
+SIMCTL_INSTALL_EXIT=0
+INSTALLED_CONTAINER=/Users/julienbattaglia/Library/Developer/CoreSimulator/Devices/B03E429D-0422-4357-B754-536637D979F9/data/Containers/Bundle/Application/CD0158D6-E335-4439-AAB5-D43992BE1A88/Runner.app
+INSTALLED_APP_FRAMEWORK_SHA256=c0cfbed13d7ff8eb4d04a66adca42b9cdfaa9feceb808edebbbe10e958fdc158
+INSTALLED_KERNEL_BLOB_SHA256=16137fe27e16cf7a30561e96d592a61941ed3724613213c5f00aba7c202d9025
+INSTALLED_BUNDLE_ID=ch.mint.app
+UTC_END=2026-07-13T12:00:04Z

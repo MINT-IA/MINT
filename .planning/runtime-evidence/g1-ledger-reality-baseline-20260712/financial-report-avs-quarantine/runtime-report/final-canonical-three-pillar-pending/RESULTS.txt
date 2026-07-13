@@ -1,0 +1,63 @@
+scope=G1 report/PDF three-pillar quarantine runtime after final helper/PDF/indexed source
+classification=FINAL_CANONICAL_RERUN_AFTER_HELPER_PDF_FINAL
+runtime_base_head_at_execution=d802d6180fcf3c1c11c9364c8ab9eb76e4eb890e
+materialized_runtime_source_commit=1bb9c8389
+device=iPhone 17 Pro, iOS 26.2, B03E429D-0422-4357-B754-536637D979F9
+runtime_slice_status=GO
+
+SOURCE_STABILITY
+source_snapshot=32 indexed mobile source/test/flow files hashed before build and after Patrol/restore
+source_hash_comparison=PASS
+indexed_mobile_diff_sha256_before=2b968f8de18ca3e6ab7c282bdf9705c3ce166444e81d5a4529a7e1a0eb2632aa
+indexed_mobile_diff_sha256_after=2b968f8de18ca3e6ab7c282bdf9705c3ce166444e81d5a4529a7e1a0eb2632aa
+indexed_mobile_diff_stability=PASS
+materialized_commit_mobile_diff_sha256=2b968f8de18ca3e6ab7c282bdf9705c3ce166444e81d5a4529a7e1a0eb2632aa
+materialized_commit_identity=PASS; pushed commit 1bb9c8389 has the exact indexed mobile diff exercised by this run
+unstaged_mobile_source_files=0
+indexed_mobile_diff_check=PASS
+source_stage_mutation_by_quality_gate=NONE
+upstream_source_gate_context=lead reported full Flutter 8514 successful, 30 skipped, 0 failed; analyze 0; Lefthook PASS; not rerun by this runtime-only agent
+
+PREFLIGHT
+doctor_command=python3 tools/checks/mint_os_doctor.py
+doctor_result=PASS; 12/12 repo+host checks, exit 0
+patrol_tooling_guard=PASS, exit 0
+patrol_host_compile_guard=PASS; two native tests discovered and intentionally skipped without MINT_PATROL_CLI
+maestro_version=2.5.1, exit 0
+
+CANONICAL_BUILD_INSTALL
+build_command=cd apps/mobile && flutter build ios --simulator --debug
+build_result=PASS, exit 0
+install_result=PASS, exit 0
+built_app_framework_sha256=c0cfbed13d7ff8eb4d04a66adca42b9cdfaa9feceb808edebbbe10e958fdc158
+installed_app_framework_sha256=c0cfbed13d7ff8eb4d04a66adca42b9cdfaa9feceb808edebbbe10e958fdc158
+app_framework_built_equals_installed=PASS
+canonical_built_kernel_blob_sha256=16137fe27e16cf7a30561e96d592a61941ed3724613213c5f00aba7c202d9025
+canonical_installed_kernel_blob_sha256=16137fe27e16cf7a30561e96d592a61941ed3724613213c5f00aba7c202d9025
+canonical_kernel_blob_built_equals_installed=PASS
+
+MAESTRO
+command=MAESTRO_HARD_LIMIT=300 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=<canonical>/maestro/watchdog bash tools/simulator/maestro_with_watchdog.sh test --no-ansi --test-output-dir <canonical>/maestro/screenshots --debug-output <canonical>/maestro/debug --flatten-debug-output apps/mobile/.maestro/retirement_missing_avs.yaml
+result=PASS, exit 0
+positive_assertions=financial_report_avs_pending; financial_report_lpp_pending; financial_report_3a_pending
+negative_assertions=financial_report_lpp_estimate; financial_report_3a_estimate; financial_report_avs_amount; financial_report_retirement_total; financial_report_replacement_rate
+visual_review=PASS; three separately named screenshot commands inspected; AVS official CTA, LPP certificate CTA, and 3a data CTA visible with À vérifier states and no synthetic pension values
+screenshot_note=LPP and 3a PNGs are byte-identical because both complete blocks share the visible viewport and the second scroll required no movement; the three named capture commands all completed
+
+PATROL
+command=/Users/julienbattaglia/.pub-cache/bin/patrol test -t test/patrol/retirement_missing_avs_runtime_test.dart -d B03E429D-0422-4357-B754-536637D979F9 --bundle-id ch.mint.app --dart-define=MINT_PATROL_CLI=true --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 --dart-define=SENTRY_DSN= --no-uninstall
+fixture=q_lpp_current_capital=120000.0; q_lpp_buyback_available=200000.0; q_3a_annual_contribution=7258.0
+contract=actual FinancialReportScreenV2 at /rapport; AVS/LPP/3a pending visible; no LPP estimate, 3a estimate, AVS amount, retirement total, or replacement rate keys
+result=PASS; total 2, successful 2, failed 0, skipped 0, exit 0
+xcresult=patrol/ios_results.xcresult
+xcresult_summary=result Passed; totalTestCount 2; passedTests 2; failedTests 0; skippedTests 0
+
+CLEANUP_RESTORE
+post_patrol_test_bundle=ABSENT
+normal_app_restore_build=PASS, exit 0
+normal_app_restore_install=PASS, exit 0
+restored_app_framework_built_equals_installed=PASS
+restored_kernel_blob_built_equals_installed=PASS
+active_maestro_patrol_processes=0
+stage_commit_push_by_quality_gate=NONE
+root_proofs_or_scorecard_modified_by_quality_gate=NONE

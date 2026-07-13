@@ -1,0 +1,14 @@
+CLASSIFICATION=FINAL_CANONICAL_RERUN_AFTER_HELPER_PDF_FINAL
+SOURCE=apps/mobile/build/ios_results_1783944163691.xcresult
+DESTINATION=.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/financial-report-avs-quarantine/runtime-report/final-canonical-three-pillar-pending/patrol/ios_results.xcresult
+XCRESULT_ARCHIVE_EXIT=0
+UTC=2026-07-13T12:03:36Z
+160K	.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/financial-report-avs-quarantine/runtime-report/final-canonical-three-pillar-pending/patrol/ios_results.xcresult
+{
+  "title": "Test - Runner",
+  "totalTestCount": 2,
+  "passedTests": 2,
+  "failedTests": 0,
+  "skippedTests": 0,
+  "result": "Passed"
+}

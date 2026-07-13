@@ -1,0 +1,64 @@
+---
+
+## AUDIT VERDICT: PASS
+
+Branch `codex/mint-product-usability-plan-20260712` — base `d802d6180`
+
+---
+
+### P0 — Blocking correctness / compliance failures
+
+**None.** The fail-closed evidence contract holds at every layer:
+
+| Layer | Status | Evidence |
+|---|---|---|
+| Service: `_buildRetirementProjection` | ✓ all four pension fields `null` | `financial_report_service.dart` |
+| Model: null propagation | ✓ `totalCapital`, `totalMonthlyIncome`, `replacementRate` all null when any input is null | `financial_report.dart:151–168` |
+| Screen: retirement ThematicCard | ✓ always `CardStatus.aVerifier`, no `keyNumber` | `financial_report_screen_v2.dart` |
+| Widget: `RetirementProjectionCard` | ✓ three static pending containers, zero references to any `projection.*` field in `build()` | `retirement_projection_card.dart:18–143` |
+| PDF: retirement section 5 | ✓ all five pension/capital lines use `l.coverageCheckAVerifier`; confirmed zero `ret.monthlyAvsRent` / `ret.lppCapital` / `ret.totalCapital` references | `pdf_service.dart:682–748` |
+| 6-locale i18n | ✓ all 14 new keys present across fr/en/de/es/it/pt | ARB files verified |
+| Source-scan contracts (Dart + Python) | ✓ forbidden identifiers absent from production files | contract tests + `test_g1_avs_certified_null_contract.py` |
+| `pillar3a_comparator_widget.dart` | ✓ deleted, no live references in `lib/` | grep confirmed |
+
+---
+
+### P1 — Breaking API change (bounded; compile-time enforced)
+
+**`pdf_service.dart:377`** — `generateFinancialReportPdf` now requires `{required S l}`.
+
+- **Risk**: any out-of-diff call site fails at compile time (not silently).
+- **Reproduction**: build without the updated call → `The named parameter 'l' is required`.
+- **Mitigation confirmed**: grep finds exactly one production call site at `financial_report_screen_v2.dart:101`, which correctly passes `l: S.of(context)!`. `pdf_service_test.dart` only asserts `isA<Function>()` and is unaffected. **No remediation required.**
+
+**`financial_report.dart:142–149`** — `RetirementProjection` constructor now requires `currentMonthlyIncome` and `monthlyLppRent` (no defaults).
+
+- **Risk**: same — compile-time failure for any unupdated call site.
+- **Mitigation confirmed**: all in-diff constructions pass both fields explicitly; removed tests no longer call the constructor. **No remediation required.**
+
+---
+
+### P2 — Non-blocking observations
+
+**`pdf_service.dart:879` — Stale SOA disclaimer (pre-existing, not introduced by this PR)**
+The conformité section still asserts `"Le taux de conversion LPP utilisé est de 6% (hypothèse prudente vs 6.8% légal)"` even though the PDF body now shows `À vérifier` for all LPP values. The line was not modified in this diff. The inconsistency is new but the root cause is pre-existing. Recommend removing or conditioning this bullet in the next PDF iteration.
+
+**`thematic_card.dart:39` — `statusLabel` getter → `BuildContext` method**
+No external callers confirmed by grep; internal call site at line 85 updated. Clean change.
+
+**`retirement_projection_card.dart:9` — `projection` parameter is structurally dead in `build()`**
+The widget accepts `RetirementProjection projection` but the `build` method references none of its fields — the pending UI is fully static. This is correct by design for the fail-closed contract, but the widget test passing `monthlyAvsRent: 2222` has no behavioral effect; the test value is exercising model null-propagation invariants, not widget rendering. Not a bug; document for the next reviewer who may question why `projection` is passed at all.
+
+---
+
+### Specific assertions verified
+
+- `find.text('À vérifier') findsNWidgets(3)` at `retirement_projection_card_test.dart:104` — correct: 1 from `ThematicCard` badge (`reportCardStatusToVerify` → "À vérifier") + 1 from LPP `_infoRow` + 1 from 3a `_infoRow`.
+- `find.text('Obtenir ton calcul AVS officiel')` (title, line 95) vs `tester.tap(find.text('Demande ton calcul AVS officiel'))` (button, line 108) — distinct elements from two different l10n keys (`avsGuideHeaderTitle` and `visibilityHintCommandeAvs`). Both present.
+- Section markers `// 5. PROJECTION RETRAITE` (line 682) and `// 6. STRATÉGIE RACHAT LPP` (line 749) confirmed in `pdf_service.dart` — contract tests can locate them.
+- `/data-block/3a` → `_matchesParameterizedRoute('/data-block/:type')` — helper tested at `navigation_route_integrity_test.dart`.
+- `avs_max_monthly` removed from `simulationAssumptions` — grep confirms zero occurrences in `financial_report_service.dart`.
+
+---
+
+**PASS.** The G1 evidence contract is correctly implemented, tested, and consistent end-to-end. The two P1 items are bounded breaking API changes with compile-time enforcement and confirmed single call sites — no silent regressions. The P2 SOA stale disclaimer is the only actionable follow-up for a future commit.

@@ -1,0 +1,65 @@
+CLASSIFICATION=FINAL_CANONICAL_RERUN_AFTER_HELPER_PDF_FINAL
+UTC_START=2026-07-13T12:00:32Z
+COMMAND=MAESTRO_HARD_LIMIT=300 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=<canonical>/maestro/watchdog bash tools/simulator/maestro_with_watchdog.sh test --no-ansi --test-output-dir <canonical>/maestro/screenshots --debug-output <canonical>/maestro/debug --flatten-debug-output apps/mobile/.maestro/retirement_missing_avs.yaml
+HEAD=d802d6180fcf3c1c11c9364c8ab9eb76e4eb890e
+FLOW_SHA256=ed83e4675e2c80b968f7b88baeb5cc9f66a98216096fe3f1b4a49c294029c39d
+INSTALLED_APP_FRAMEWORK_SHA256=c0cfbed13d7ff8eb4d04a66adca42b9cdfaa9feceb808edebbbe10e958fdc158
+INSTALLED_KERNEL_BLOB_SHA256=16137fe27e16cf7a30561e96d592a61941ed3724613213c5f00aba7c202d9025
+[watchdog] artifacts → /Users/julienbattaglia/Desktop/MINT.nosync/.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/financial-report-avs-quarantine/runtime-report/final-canonical-three-pillar-pending/maestro/watchdog
+[watchdog] hard limit 300s ; stall threshold 90s ; probe 30s
+[watchdog] maestro pid=89285 (running in own process group)
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/julienbattaglia/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+ > Flow retirement_missing_avs
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app" with clear state... COMPLETED
+Tap on (Optional) "Cancel"... WARNED
+
+
+ Warning: Element not found: Text matching regex: Cancel
+Open mint:///data-block/revenu... COMPLETED
+Assert that id: salary_input is visible... COMPLETED
+Tap on id: salary_input... COMPLETED
+Input text 96000... COMPLETED
+Tap on id: canton_picker... COMPLETED
+Input text VD... COMPLETED
+Tap on id: birth_year_input... COMPLETED
+Input text 1985... COMPLETED
+Tap on id: has_pension_fund_switch... COMPLETED
+Scrolling DOWN until id: salary_save_cta is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering enabled... COMPLETED
+Tap on id: salary_save_cta... COMPLETED
+Assert that id: data_block_save_success is visible... COMPLETED
+Open mint:///retraite... COMPLETED
+Assert that id: retirement_missing_avs_state is visible... COMPLETED
+Assert that id: retirement_capital_amount is visible... COMPLETED
+Assert that id: retirement_avs_document_cta is visible... COMPLETED
+Assert that id: retirement_complete_income is not visible... COMPLETED
+Assert that id: retirement_replacement_rate is not visible... COMPLETED
+Tap on id: retirement_avs_document_cta... COMPLETED
+Assert that ".*318\.282.*" is visible... COMPLETED
+Scrolling DOWN until id: avs_official_form_cta is visible with speed 5, visibility percentage 100%, timeout 20000 ms, with centering enabled... COMPLETED
+Assert that id: avs_official_form_cta is visible... COMPLETED
+Take screenshot retirement_missing_avs_official_form... COMPLETED
+Open mint:///rapport... COMPLETED
+Scrolling DOWN until id: financial_report_avs_pending is visible with speed 5, visibility percentage 50%, timeout 20000 ms, with centering enabled... COMPLETED
+Assert that id: financial_report_avs_pending is visible... COMPLETED
+Take screenshot financial_report_avs_pending... COMPLETED
+Scrolling DOWN until id: financial_report_lpp_pending is visible with speed 5, visibility percentage 50%, timeout 20000 ms, with centering enabled... COMPLETED
+Assert that id: financial_report_lpp_pending is visible... COMPLETED
+Take screenshot financial_report_lpp_pending... COMPLETED
+Scrolling DOWN until id: financial_report_3a_pending is visible with speed 5, visibility percentage 50%, timeout 20000 ms, with centering enabled... COMPLETED
+Assert that id: financial_report_3a_pending is visible... COMPLETED
+Take screenshot financial_report_3a_pending... COMPLETED
+Assert that id: financial_report_lpp_estimate is not visible... COMPLETED
+Assert that id: financial_report_3a_estimate is not visible... COMPLETED
+Assert that id: financial_report_avs_amount is not visible... COMPLETED
+Assert that id: financial_report_retirement_total is not visible... COMPLETED
+Assert that id: financial_report_replacement_rate is not visible... COMPLETED
+[watchdog] EXIT — maestro returned 0
+MAESTRO_FINAL_CANONICAL_EXIT=0
+FLOW_SHA256_AFTER=ed83e4675e2c80b968f7b88baeb5cc9f66a98216096fe3f1b4a49c294029c39d
+UTC_END=2026-07-13T12:01:27Z

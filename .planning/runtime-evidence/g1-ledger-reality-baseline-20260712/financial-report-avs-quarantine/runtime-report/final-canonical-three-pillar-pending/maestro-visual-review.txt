@@ -1,0 +1,11 @@
+CLASSIFICATION=FINAL_CANONICAL_RERUN_AFTER_HELPER_PDF_FINAL
+VISUAL_REVIEW=PASS
+financial_report_avs_pending.png=PASS; official AVS pending copy and CTA visible; no AVS amount/total/rate in frame.
+financial_report_lpp_pending.png=PASS; LPP reads À vérifier and certificate CTA is visible; no pension amount.
+financial_report_3a_pending.png=PASS; 3a reads À vérifier with traceable-data copy and CTA; no projected capital amount.
+SCREENSHOT_SHA256
+7b081f59cbf53999f3f3dd7824ddb7a5951840bd2d0d215889511104c5e8a6a3  .planning/runtime-evidence/g1-ledger-reality-baseline-20260712/financial-report-avs-quarantine/runtime-report/final-canonical-three-pillar-pending/maestro/screenshots/screenshots/financial_report_avs_pending.png
+ece37d8e28e9a9465911466561a7866cd937eeb881e94d6443054f647975507f  .planning/runtime-evidence/g1-ledger-reality-baseline-20260712/financial-report-avs-quarantine/runtime-report/final-canonical-three-pillar-pending/maestro/screenshots/screenshots/financial_report_lpp_pending.png
+ece37d8e28e9a9465911466561a7866cd937eeb881e94d6443054f647975507f  .planning/runtime-evidence/g1-ledger-reality-baseline-20260712/financial-report-avs-quarantine/runtime-report/final-canonical-three-pillar-pending/maestro/screenshots/screenshots/financial_report_3a_pending.png
+NOTE=Maestro executed three separately named screenshot commands. LPP and 3a share a complete visible viewport and may be byte-identical when the second scroll requires no movement.
+REVIEWED_UTC=2026-07-13T12:01:57Z

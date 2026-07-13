@@ -1,0 +1,99 @@
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+┃  accent-lint-fr ❯
+
+
+┃  arb-parity ❯
+
+ARB parity OK: app_fr.arb=6900, app_en.arb=6900, app_de.arb=6900, app_es.arb=6900, app_it.arb=6900, app_pt.arb=6900
+
+┃  banned-ui-terms ❯
+
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+
+┃  financial-core-gate ❯
+
+OK financial_core_gate: no new calculation drift
+
+┃  gitleaks-secret-scan ❯
+
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+2:10PM INF 0 commits scanned.
+2:10PM INF scanned ~2242099 bytes (2.24 MB) in 2.78s
+2:10PM INF no leaks found
+
+┃  hardcoded-rate-gate ❯
+
+OK hardcoded_rate_gate: no hardcoded financial rates in added Python/Dart lines
+
+┃  interaction-coverage-audit ❯
+
+OK interaction_coverage_audit: coverage report is current.
+
+┃  interaction-registry-lint ❯
+
+OK interaction_registry_lint: Interaction Registry is valid.
+
+┃  map-freshness-hint ❯
+
+
+[33m⚠  MINT map freshness hint[0m
+You're editing files in a sensitive subsystem. Before finalizing
+the commit, confirm you've read the relevant map. It exists because
+coding this area from memory creates facade-sans-cablage bugs.
+
+  → Read: [36mdocs/calculator-graph.md[0m
+       touched: apps/mobile/lib/services/financial_core/financial_core.dart
+       touched: apps/mobile/lib/services/financial_core/replacement_rate_calculator.dart
+
+  If the PR changes any documented invariant (keys, tool routing,
+  calculator wiring), update the doc in the SAME commit.
+
+
+┃  memory-retention-gate ❯
+
+retention WARNING: /Users/julienbattaglia/.claude/projects/-Users-julienbattaglia-Desktop-MINT/memory/MEMORY.md has 184 lines (target <100). Per D-02 this is a warning, not a failure — but consider pruning the INDEX.
+retention: OK — 30j gate green
+
+┃  no-bypass-persistence ❯
+
+
+┃  no-hardcoded-fr ❯
+
+
+
+  ────────────────────────────────────
+summary: (done in 15.86 seconds)
+✓ accent-lint-fr (3.99 seconds)
+✓ arb-parity (0.11 seconds)
+✓ banned-ui-terms (4.34 seconds)
+✓ financial-core-gate (0.16 seconds)
+✓ gitleaks-secret-scan (2.82 seconds)
+✓ hardcoded-rate-gate (0.15 seconds)
+✓ interaction-coverage-audit (2.02 seconds)
+✓ interaction-registry-lint (0.19 seconds)
+✓ map-freshness-hint (0.10 seconds)
+✓ memory-retention-gate (0.10 seconds)
+✓ no-bypass-persistence (0.26 seconds)
+✓ no-hardcoded-fr (1.58 seconds)

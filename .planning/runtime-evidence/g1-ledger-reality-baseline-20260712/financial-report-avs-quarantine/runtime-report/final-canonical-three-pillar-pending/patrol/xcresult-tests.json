@@ -1,0 +1,62 @@
+{
+  "devices" : [
+    {
+      "architecture" : "arm64",
+      "deviceId" : "B03E429D-0422-4357-B754-536637D979F9",
+      "deviceName" : "iPhone 17 Pro",
+      "modelName" : "iPhone 17 Pro",
+      "osBuildNumber" : "23C54",
+      "osVersion" : "26.2",
+      "platform" : "iOS Simulator"
+    }
+  ],
+  "testNodes" : [
+    {
+      "children" : [
+        {
+          "children" : [
+            {
+              "children" : [
+                {
+                  "duration" : "10s",
+                  "durationInSeconds" : 10.68624198436737,
+                  "name" : "retirement_missing_avs_runtime_test financial report keeps AVS, LPP, and 3a pending without fake totals",
+                  "nodeIdentifier" : "RunnerUITests/retirement_missing_avs_runtime_test financial report keeps AVS, LPP, and 3a pending without fake totals",
+                  "nodeIdentifierURL" : "test://com.apple.xcode/Runner/RunnerUITests/RunnerUITests/retirement_missing_avs_runtime_test%20financial%20report%20keeps%20AVS,%20LPP,%20and%203a%20pending%20without%20fake%20totals",
+                  "nodeType" : "Test Case",
+                  "result" : "Passed"
+                },
+                {
+                  "duration" : "10s",
+                  "durationInSeconds" : 10.715311884880066,
+                  "name" : "retirement_missing_avs_runtime_test retirement dashboard keeps capital but hides complete totals without AVS",
+                  "nodeIdentifier" : "RunnerUITests/retirement_missing_avs_runtime_test retirement dashboard keeps capital but hides complete totals without AVS",
+                  "nodeIdentifierURL" : "test://com.apple.xcode/Runner/RunnerUITests/RunnerUITests/retirement_missing_avs_runtime_test%20retirement%20dashboard%20keeps%20capital%20but%20hides%20complete%20totals%20without%20AVS",
+                  "nodeType" : "Test Case",
+                  "result" : "Passed"
+                }
+              ],
+              "name" : "RunnerUITests",
+              "nodeIdentifierURL" : "test://com.apple.xcode/Runner/RunnerUITests/RunnerUITests",
+              "nodeType" : "Test Suite",
+              "result" : "Passed"
+            }
+          ],
+          "name" : "RunnerUITests",
+          "nodeIdentifierURL" : "test://com.apple.xcode/Runner/RunnerUITests",
+          "nodeType" : "UI test bundle",
+          "result" : "Passed"
+        }
+      ],
+      "name" : "Runner",
+      "nodeType" : "Test Plan",
+      "result" : "Passed"
+    }
+  ],
+  "testPlanConfigurations" : [
+    {
+      "configurationId" : "1",
+      "configurationName" : "Test Scheme Action"
+    }
+  ]
+}

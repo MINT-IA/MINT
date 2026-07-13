@@ -1,0 +1,36 @@
+I have enough evidence to render a verdict. Let me summarize my findings.
+
+## MINT External Audit — Code Mode
+
+**Scope:** Removal of the ungrounded AVS pension estimate from the financial report (model → service → screen → PDF → widget), a new `aVerifier` card status, localization additions, and extended G1 guard tests. Base ref `0b9245532`.
+
+### What the change does
+The report previously synthesized an AVS monthly pension via `AvsCalculator.computeMonthlyRente` / `_estimateAvsRent` and displayed it plus derived totals/replacement rate. This diff makes `RetirementProjection.monthlyAvsRent`, `totalMonthlyIncome`, and `replacementRate` nullable, hardwires `monthlyAvsRent = null` in the service, and surfaces an honest "to verify" state with a CTA to the official AVS calculation flow. This is consistent with the branch theme ("retire ungrounded financial facades").
+
+### Verification performed
+- **No facade re-introduced:** the only production `RetirementProjection(...)` construction site (`financial_report_service.dart:338`) passes `monthlyAvsRent: null`. No other constructors inject a fabricated value (Grep).
+- **Wiring intact:**
+  - Route `/scan/avs-guide` exists (`app.dart:997`, `route_metadata.dart:718`).
+  - All referenced l10n getters exist across all 6 locales: `avsGuideHeaderTitle`, `avsGuideHeaderSubtitle`, `visibilityHintCommandeAvs`, `futurRenteAvs`, `futurRenteLpp`, `coverageCheckAVerifier`, `perMonth`, `reportCardStatus*`.
+  - PDF signature change (`required S l`) has its single caller updated (`financial_report_screen_v2.dart:102`); the tear-off test at `pdf_service_test.dart:37` remains valid.
+- **No dangling references:** removed fields (`RetirementProjection.replacementRate/totalMonthlyIncome/monthlyAvsRent`, `avsReductionFactor`) are not consumed elsewhere; the other `.replacementRate` hits belong to unrelated models.
+- **Guard tests consistent with source:** the four new `_assert_tokens_absent` targets are genuinely token-free (verified by Grep). The lone `q_first_employment_year` hit is in `financial_report_service.dart:202`, which is *not* in that file's forbidden-token set — no false failure.
+- **Widget/unit tests coherent:** header title vs. button label strings map correctly to FR values; nullability tests match new getter semantics.
+
+### Findings
+
+**P0 — none.**
+
+**P1 — none.**
+
+**P2 (non-blocking):**
+1. **Lost regression coverage.** `financial_report_service_test.dart:563` ("same-sex couple produces different AVS than inferred-opposite") was the F4 regression guard; its differential assertion is now softened to `isNotNull` only (both sides are `null`). The S57-F4 spouse-reference-age code path in `AvsCalculator` is no longer exercised by this test. Consider relocating that assertion to a test that targets `AvsCalculator` directly so the fix stays pinned.
+2. **Dead code.** `UserProfile.avsReductionFactor` / `spouseAvsReductionFactor` getters (`financial_report.dart:137,153`) and the `firstEmploymentYear` parse (`financial_report_service.dart:202`) now have no consumers after `_estimateAvsRent` removal. Harmless but worth pruning.
+3. **Stale doc comment.** `replacementRate` docstring still describes "clamped 0–150" though the getter now returns `null` first (`financial_report.dart`). Cosmetic.
+
+### Note
+The worktree diff is dominated by generated l10n `.arb`/`.dart` output; substantive hand-written change is small and well within a reasonable review budget.
+
+## Verdict: **PASS**
+
+The facade removal is complete and correctly wired: no fabricated AVS amount survives in model, service, screen, PDF, or widget; routes and localizations resolve; and the extended G1 guard matches the source. Only P2 cleanliness/coverage nits remain.

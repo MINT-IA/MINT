@@ -1,0 +1,24 @@
+== ARB parity ==
+ARB parity OK: app_fr.arb=6900, app_en.arb=6900, app_de.arb=6900, app_es.arb=6900, app_it.arb=6900, app_pt.arb=6900
+== French accent lint ==
+== banned UI terms ==
+OK banned_ui_terms: scanned 687 Dart file(s)
+== G1 AVS/retirement hard floor ==
+........                                                                 [100%]
+8 passed in 0.11s
+== doc + Mermaid contracts ==
+.......................                                                  [100%]
+23 passed in 0.10s
+== interaction coverage rewrite ==
+OK interaction_coverage_audit: coverage report updated.
+== interaction coverage check ==
+OK interaction_coverage_audit: coverage report is current.
+== interaction registry lint ==
+OK interaction_registry_lint: Interaction Registry is valid.
+== route reconcile ==
+[info] extracted 149 path literal(s) from app.dart (ternary=0, dynamic=0 known-miss, category 2/3 skipped)
+[info] registry has 148 key(s); 1 admin-conditional + 7 nested-profile entries exempted per KNOWN-MISSES.md
+[OK] 141 routes parity OK (after KNOWN-MISSES exemption).
+== Mermaid render ==
+OK mermaid_render_guard: MINT Mermaid diagrams render.
+== diff check ==

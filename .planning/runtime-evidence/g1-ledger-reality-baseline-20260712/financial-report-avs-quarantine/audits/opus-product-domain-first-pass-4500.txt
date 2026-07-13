@@ -1,0 +1,28 @@
+Audit complete. I've verified the diff against the live repo: no compile breaks (removed model fields have no remaining references, PDF signature change has one production caller passing `l`), all 7 new localization keys exist across locales with domain-coherent wording, and the AVS-pending contract is enforced end-to-end by Python guards + widget/patrol/maestro tests.
+
+---
+
+Product/domain verdict: PASS
+
+This change retires a fabricated AVS-rente facade from the Financial Report V2 spine. It is epistemically honest and Swiss-domain-coherent: an official AVS pension cannot be derived from a handful of questionnaire answers (échelle 44, individual CI, splitting, bonifications, LAVS art. 35 couple cap), so the report now marks AVS "À vérifier", keeps only the independently-estimable LPP figure, drops AVS-dependent totals/replacement-rate, and routes the user to the official form (318.282) via `/scan/avs-guide`. This moves Mint toward "known / missing / specialist" honesty rather than a confident wrong number.
+
+### P0
+None.
+
+### P1
+None blocking. The one candidate — the report never surfaces AVS even for a user who has provided their official extract — is a deliberate, test-enforced limitation (see P2 below), not an incorrectness or harmful-decision path. The route still delivers value (LPP estimate, 3a, tax, capital, priority actions, AVS document handoff).
+
+### P2
+- **Report V2 not yet wired to the official-AVS envelope.** `financial_report_service.dart:_buildRetirementProjection` hardcodes `const double? monthlyAvsRent = null` unconditionally, while the dashboard path gates on `_officialAvsProjectionAvailable` (retirement_projection_service). Once the reviewed mobile evidence envelope lands, this screen must consume it instead of always-null; the guard `test_financial_report_service_never_synthesizes_official_avs_amount` will need updating in lockstep. Track as the explicit next step in the ledger→scenario spine.
+- **LPP rente estimate overstates.** `financial_report_service.dart` computes `monthlyLppRent = lppCapital * 6.8% / 12`, applying the obligatory minimum conversion rate (LPP art. 14) to the *full* capital including surobligatoire (buybacks + growth on full coordinated salary), which typically converts lower (~4.5–5%). Pre-existing, unchanged here, and labeled "Rente LPP estimée" inside an "À vérifier" card — acceptable, but the same grounding discipline now applied to AVS should eventually reach this figure.
+- **Dead getters.** `UserProfile.avsReductionFactor` / `spouseAvsReductionFactor` (financial_report.dart:137,153) are now unused after the projection stopped consuming them. Remove to avoid future accidental re-wiring.
+- **PDF partial localization.** `pdf_service.dart:generateFinancialReportPdf` now requires `S l` but only the retirement rows use it; title, section headers ("Projection Retraite", "Capital LPP", disclaimers, footer) remain hardcoded FR. Cosmetic inconsistency for a dossier that's otherwise locale-driven.
+
+### Swiss domain review
+- **AVS**: Correctly downgraded to "à vérifier" everywhere (screen, card, PDF). No fabricated échelle-44/couple-cap output. Subtitle text is precise and correct — explicitly states an individual account statement (CI) is *not* sufficient and the 318.282 pension calculation is required. Strong.
+- **LPP**: Still shown as an estimate (6.8% on capital) — labeled estimated; see P2 overstatement note. Independently grounded in declared LPP capital, so keeping it while AVS is pending is defensible.
+- **3a / tax / capital**: Unchanged, still shown; capital total excludes AVS (income vs capital distinction preserved). Coherent.
+- **Succession/donation, insurance, mortgage, disability**: Not affected by this diff (only l10n additions for donation partial-estate strings, unrelated to logic).
+
+### Mint product logic review
+The change strengthens the ledger → DataQuest → scenario → dossier spine: the scenario now distinguishes known (LPP/3a/tax estimates) from missing (official AVS) and converts the gap into a concrete missing-data action (official AVS form CTA → `/scan/avs-guide`), and the PDF dossier carries the "à vérifier" caveat forward to any specialist. No advice/ranking/guarantee language introduced; the change actually removes an overconfident replacement-rate/reduction narrative. Guard tests (`test_g1_avs_certified_null_contract.py`) now pin the no-facade contract across service, PDF, screen, and card, preventing regression.
