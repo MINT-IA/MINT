@@ -9,6 +9,8 @@ final _scenarioFactWritePatterns = <RegExp>[
   RegExp(r'targetRetirementAge\s*:\s*_ageRetraiteSlider'),
   RegExp(r'mortgageCapacity\s*:\s*result\.'),
   RegExp(r'estimatedMonthlyPayment\s*:\s*result\.'),
+  RegExp(r'rachatEffectue\s*:'),
+  RegExp(r'dateRachats\s*:'),
 ];
 
 List<String> _scenarioWrites(String source) => [
@@ -55,6 +57,46 @@ void _writeBackResult() {
       ).readAsStringSync();
 
       expect(_scenarioWrites(source), isEmpty);
+    });
+
+    test('/3a-retroactif keeps tax savings outside certified LPP facts', () {
+      final source = File(
+        'lib/screens/pillar_3a_deep/retroactive_3a_screen.dart',
+      ).readAsStringSync();
+
+      expect(
+        _scenarioWrites(source),
+        isEmpty,
+        reason: 'A retroactive 3a tax simulation must not overwrite a '
+            'certificate-backed LPP pension or any durable profile fact.',
+      );
+    });
+
+    test('/pilier-3a never rewrites the profile after a scenario change', () {
+      final source =
+          File('lib/screens/simulator_3a_screen.dart').readAsStringSync();
+
+      expect(
+        _scenarioWrites(source),
+        isEmpty,
+        reason: 'A contribution lever is a local scenario value. Even a '
+            'value-identical updateProfile call is a facade write and must '
+            'not persist without explicit confirmation.',
+      );
+    });
+
+    test('/rachat-lpp never records a simulated buyback as a real event', () {
+      final source = File(
+        'lib/screens/lpp_deep/rachat_echelonne_screen.dart',
+      ).readAsStringSync();
+
+      expect(
+        _scenarioWrites(source),
+        isEmpty,
+        reason: 'Changing a scenario lever must not append DateTime.now(), '
+            'rachatEffectue, or dateRachats without explicit confirmation of '
+            'a completed real-world buyback.',
+      );
     });
   });
 }

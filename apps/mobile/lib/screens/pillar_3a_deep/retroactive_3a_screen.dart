@@ -16,7 +16,6 @@ import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
-import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
@@ -44,8 +43,6 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   double _tauxMarginal = 0.30;
   bool _hasLpp = true;
   bool _showEmptyState = false;
-  final Set<String> _prefilledFields = {};
-  bool _hasUserInteracted = false;
 
   static const _taxRates = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50];
 
@@ -60,51 +57,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeFromProfile();
-      _readSequenceContext();
     });
-  }
-
-  /// Read GoRouter extra for prefill from a coach suggestion.
-  void _readSequenceContext() {
-    try {
-      final extra = GoRouterState.of(context).extra;
-      if (extra is Map<String, dynamic>) {
-        final prefill = extra['prefill'] as Map<String, dynamic>?;
-        if (prefill != null) _applyPrefill(prefill);
-      }
-    } catch (_) {}
-  }
-
-  /// Apply prefill values from GoRouter coach suggestion.
-  void _applyPrefill(Map<String, dynamic> prefill) {
-    bool changed = false;
-
-    final salaireBrut = prefill['salaireBrut'];
-    if (salaireBrut is num && salaireBrut > 0) {
-      // Monthly → annual (13 months)
-      final annualSalary = salaireBrut.toDouble() * 13;
-      try {
-        final profile = context.read<CoachProfileProvider>().profile;
-        final cantonCode = profile?.canton ?? '';
-        final rate = RetirementTaxCalculator.estimateMarginalRate(
-          annualSalary,
-          cantonCode,
-        );
-        final closest = _taxRates.reduce((a, b) =>
-            (a - rate).abs() < (b - rate).abs() ? a : b);
-        _tauxMarginal = closest;
-        _prefilledFields.add('taux_marginal');
-        changed = true;
-      } catch (_) {}
-    }
-
-    final canton = prefill['canton'];
-    if (canton is String && canton.isNotEmpty) {
-      _prefilledFields.add('canton');
-      changed = true;
-    }
-
-    if (changed) setState(() {});
   }
 
   void _initializeFromProfile() {
@@ -143,51 +96,6 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
       if (changed) setState(() {});
     } catch (_) {
       // Provider not available
-    }
-  }
-
-  /// Write back retroactive 3a calculation results to CoachProfile.
-  void _writeBackResult() {
-    if (!_hasUserInteracted) return;
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      final profile = provider.profile;
-      if (profile == null) return;
-
-      final result = _result;
-      final updated = profile.copyWith(
-        prevoyance: profile.prevoyance.copyWith(
-          totalEpargne3a: profile.prevoyance.totalEpargne3a > 0
-              ? profile.prevoyance.totalEpargne3a
-              : null,
-          projectedRenteLpp: result.economiesFiscales > 0
-              ? result.economiesFiscales
-              : null,
-        ),
-      );
-      provider.updateProfile(updated);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdatedSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.primary,
-          duration: const Duration(milliseconds: 2500),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdateErrorSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.error,
-          duration: const Duration(milliseconds: 3000),
-        ),
-      );
     }
   }
 
@@ -370,8 +278,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                   label: Text('$year'),
                   selected: isSelected,
                   onSelected: (_) {
-                    setState(() { _hasUserInteracted = true; _gapYears = year; });
-                    WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                    setState(() { _gapYears = year; });
                   },
                   selectedColor: MintColors.primary.withValues(alpha: 0.15),
                   backgroundColor: MintColors.surface,
@@ -395,19 +302,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    S.of(context)!.retroactive3aTauxMarginal,
-                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-                  ),
-                  if (_prefilledFields.contains('taux_marginal'))
-                    const SmartDefaultIndicator(
-                      source: 'Depuis ton profil MINT',
-                      confidence: 0.60,
-                    ),
-                ],
+              Text(
+                S.of(context)!.retroactive3aTauxMarginal,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
@@ -429,8 +326,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                         .toList(),
                     onChanged: (v) {
                       if (v != null) {
-                        setState(() { _hasUserInteracted = true; _tauxMarginal = v; });
-                        WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                        setState(() { _tauxMarginal = v; });
                       }
                     },
                   ),

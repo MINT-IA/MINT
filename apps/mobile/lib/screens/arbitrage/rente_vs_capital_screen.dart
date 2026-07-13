@@ -421,8 +421,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         : 'estimate';
     final screenReturn = ScreenReturn.completed(
       route: '/rente-vs-capital',
-      updatedFields: {'retirementMode': mode},
-      confidenceDelta: 0.02,
+      stepOutputs: {'retirementMode': mode},
     );
     ScreenCompletionTracker.markCompletedWithReturn(
       'rente_vs_capital',

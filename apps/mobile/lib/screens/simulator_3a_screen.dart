@@ -7,7 +7,6 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
-import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
@@ -17,7 +16,6 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
-import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -53,8 +51,6 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   bool _isPreFilled = false;
   /// Canton used for estimated marginal rate display.
   String _profileCanton = '';
-  /// Fields pre-filled from GoRouter coach suggestion.
-  final Set<String> _prefilledFields = {};
 
   @override
   void initState() {
@@ -77,42 +73,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       if (extra is Map<String, dynamic>) {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
-        final prefill = extra['prefill'] as Map<String, dynamic>?;
-        if (prefill != null) _applyPrefill(prefill);
       }
     } catch (_) {}
-  }
-
-  /// Apply prefill values from GoRouter coach suggestion.
-  void _applyPrefill(Map<String, dynamic> prefill) {
-    bool changed = false;
-
-    final salaireBrut = prefill['salaireBrut'];
-    if (salaireBrut is num && salaireBrut > 0) {
-      // Monthly → annual (13 months)
-      final annualSalary = salaireBrut.toDouble() * 13;
-      // Re-derive marginal rate if canton is available
-      if (_profileCanton.isNotEmpty) {
-        _marginalTaxRate = RetirementTaxCalculator.estimateMarginalRate(
-          annualSalary,
-          _profileCanton,
-        );
-      }
-      _prefilledFields.add('salaire_brut');
-      changed = true;
-    }
-
-    final canton = prefill['canton'];
-    if (canton is String && canton.isNotEmpty) {
-      _profileCanton = canton.toUpperCase();
-      _prefilledFields.add('canton');
-      changed = true;
-    }
-
-    if (changed) {
-      setState(() {});
-      _calculate();
-    }
   }
 
   void _emitFinalReturn() {
@@ -150,13 +112,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   void _initializeFromProfile() {
-    // Try CoachProfileProvider first (richer data), fall back to ProfileProvider.
-    bool filled = false;
+    // Durable simulator facts come from the canonical CoachProfile ledger.
     try {
       final coachProvider = context.read<CoachProfileProvider>();
       final coachProfile = coachProvider.profile;
       if (coachProfile != null) {
-        filled = true;
         _isPreFilled = true;
 
         // Age + years to retirement
@@ -188,43 +148,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         }
       }
     } catch (_) {
-      // CoachProfileProvider not in tree — fall back below.
-    }
-
-    if (!filled) {
-      // Legacy fallback: ProfileProvider.
-      try {
-        final profileProvider = context.read<ProfileProvider>();
-        if (profileProvider.hasProfile) {
-          final profile = profileProvider.profile!;
-          if (profile.birthYear != null) {
-            final age = DateTime.now().year - profile.birthYear!;
-            _years = (avsAgeReferenceHomme - age).clamp(5, 45);
-          }
-
-          if (profile.employmentStatus == EmploymentStatus.selfEmployed &&
-              profile.has2ndPillar != true) {
-            _isIndepSansLpp = true;
-            _plafond3a = pilier3aPlafondSansLpp;
-            _annualContribution = pilier3aPlafondSansLpp;
-          }
-
-          if (profile.incomeNetMonthly != null) {
-            final annualIncome = profile.incomeNetMonthly! * 12;
-            if (annualIncome > 150000) {
-              _marginalTaxRate = 0.35;
-            } else if (annualIncome > 100000) {
-              _marginalTaxRate = 0.30;
-            } else if (annualIncome > 60000) {
-              _marginalTaxRate = 0.25;
-            } else {
-              _marginalTaxRate = 0.20;
-            }
-          }
-        }
-      } catch (_) {
-        // No profile provider available.
-      }
+      // Keep explicit local scenario defaults when the ledger is unavailable.
     }
   }
 
@@ -238,61 +162,18 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       );
     });
     if (!_hasUserInteracted) return;
-    _writeBackResult();
     if (_seqRunId != null) return; // Sequence mode: terminal only on pop
     final screenReturn = ScreenReturn.completed(
       route: '/pilier-3a',
-      updatedFields: {'simulated3aAmount': _annualContribution},
-      confidenceDelta: 0.02,
+      stepOutputs: {
+        'contribution_annuelle': _annualContribution,
+        'economie_fiscale': _result?['annualTaxSaved'] ?? 0.0,
+      },
     );
     ScreenCompletionTracker.markCompletedWithReturn(
       'simulator_3a',
       screenReturn,
     );
-  }
-
-  /// Write computed 3a simulation results back to CoachProfile.
-  void _writeBackResult() {
-    if (!_hasUserInteracted) return;
-    final result = _result;
-    if (result == null) return;
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      final profile = provider.profile;
-      if (profile == null) return;
-
-      // Write back optimal 3a contribution to profile
-      final updated = profile.copyWith(
-        prevoyance: profile.prevoyance.copyWith(
-          totalEpargne3a: profile.prevoyance.totalEpargne3a > 0
-              ? profile.prevoyance.totalEpargne3a
-              : null,
-        ),
-      );
-      provider.updateProfile(updated);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdatedSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.primary,
-          duration: const Duration(milliseconds: 2500),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdateErrorSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.error,
-          duration: const Duration(milliseconds: 3000),
-        ),
-      );
-    }
   }
 
   @override
@@ -401,11 +282,6 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                 style: MintTextStyles.labelSmall(color: MintColors.success)
                     ,
               ),
-              if (_prefilledFields.isNotEmpty)
-                const SmartDefaultIndicator(
-                  source: 'Depuis ton profil MINT',
-                  confidence: 0.60,
-                ),
             ],
           ),
         ],

@@ -20,7 +20,6 @@ import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
-import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -86,16 +85,13 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   String? _seqStepId;
   bool _finalReturnEmitted = false;
 
-  /// Capital withdrawal amount from preceding EPL step (via prefill).
-  double? _montantRetrait;
-
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _initFromProfile();
     _recalculate();
-    // Charge les donnees communales (si pas deja chargees)
+    // Charge les données communales (si pas déjà chargées)
     if (!CommuneData.isLoaded) {
       CommuneData.load().then((_) {
         if (mounted) setState(() {});
@@ -135,26 +131,16 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     }
   }
 
-  /// Read sequence runId/stepId/prefill from GoRouter.extra if present.
+  /// Read sequence identity ephemera from GoRouter.extra if present.
   void _readSequenceContext() {
     try {
       final extra = GoRouterState.of(context).extra;
       if (extra is Map<String, dynamic>) {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
-        final prefill = extra['prefill'] as Map<String, dynamic>?;
-        if (prefill != null) _applyPrefill(prefill);
       }
     } catch (_) {
       // Not navigated via GoRouter or no extra — stay Tier B.
-    }
-  }
-
-  /// Apply prefill values from preceding sequence steps.
-  void _applyPrefill(Map<String, dynamic> prefill) {
-    final retrait = prefill['montant_retrait'];
-    if (retrait is num && retrait > 0) {
-      _montantRetrait = retrait.toDouble();
     }
   }
 
@@ -179,18 +165,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       return;
     }
 
-    // Compute capital withdrawal tax if we have the EPL amount from step 2.
-    final impotRetrait = _montantRetrait != null && _montantRetrait! > 0
-        ? RetirementTaxCalculator.capitalWithdrawalTax(
-            capitalBrut: _montantRetrait!,
-            canton: _canton,
-          )
-        : 0.0;
-
     final screenReturn = ScreenReturn.completed(
       route: '/fiscal',
-      stepOutputs: {'impot_retrait': impotRetrait},
-      updatedFields: {
+      // A planned withdrawal is a Case lever, not a durable fact. This
+      // screen has no local control for it yet, so it stays missing instead
+      // of travelling through extra or being emitted as a false zero.
+      stepOutputs: {
         'fiscalBestCanton': _allCantons.isNotEmpty
             ? _allCantons.first['canton'] as String?
             : null,
@@ -202,7 +182,6 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       runId: _seqRunId,
       stepId: _seqStepId,
       eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-      confidenceDelta: 0.02,
     );
     ScreenCompletionTracker.markCompletedWithReturn(
       'fiscal_comparator',
@@ -281,11 +260,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       'fiscal_comparator',
       ScreenReturn.completed(
         route: '/fiscal',
-        updatedFields: {
+        stepOutputs: {
           'fiscalBestCanton': bestCanton,
           'fiscalMaxSavings': maxSavings,
         },
-        confidenceDelta: 0.02,
         nextCapSuggestion: maxSavings > 5000 ? 'demenagement' : null,
       ),
     );
@@ -1552,4 +1530,3 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     );
   }
 }
-

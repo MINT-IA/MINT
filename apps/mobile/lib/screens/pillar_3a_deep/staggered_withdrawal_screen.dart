@@ -145,10 +145,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     if (!_hasUserInteracted) return;
     if (_seqRunId != null) return;
     final plan = '${_nbComptes}x_$_ageRetraitDebut-$_ageRetraitFin';
-    final screenReturn = ScreenReturn.changedInputs(
+    final screenReturn = ScreenReturn.completed(
       route: '/3a-deep/staggered-withdrawal',
-      updatedFields: {'staggeredPlan': plan},
-      confidenceDelta: 0.03,
+      stepOutputs: {'staggeredPlan': plan},
     );
     ScreenCompletionTracker.markCompletedWithReturn(
       'staggered_withdrawal',

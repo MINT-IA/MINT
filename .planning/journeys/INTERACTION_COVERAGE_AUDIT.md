@@ -80,7 +80,7 @@
 | uncovered literal route | `/explore/retraite` | apps/mobile/lib/screens/explore/explorer_screen.dart:41 |
 | uncovered literal route | `/explore/sante` | apps/mobile/lib/screens/explore/explorer_screen.dart:77 |
 | uncovered literal route | `/explore/travail` | apps/mobile/lib/screens/explore/explorer_screen.dart:53 |
-| uncovered literal route | `/fiscal` | apps/mobile/lib/app.dart:611, apps/mobile/lib/data/educational_themes.dart:195, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:500, apps/mobile/lib/screens/fiscal_comparator_screen.dart:170 (+8 more) |
+| uncovered literal route | `/fiscal` | apps/mobile/lib/app.dart:611, apps/mobile/lib/data/educational_themes.dart:195, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:500, apps/mobile/lib/screens/fiscal_comparator_screen.dart:156 (+8 more) |
 | uncovered literal route | `/household/accept` | apps/mobile/lib/screens/household/household_screen.dart:509 |
 | uncovered literal route | `/libre-passage` | apps/mobile/lib/app.dart:551, apps/mobile/lib/services/response_card_service.dart:113 |
 | uncovered literal route | `/life-event/deces-proche` | apps/mobile/lib/app.dart:624, apps/mobile/lib/services/cap_engine.dart:841 |
@@ -94,13 +94,13 @@
 | uncovered literal route | `/naissance` | apps/mobile/lib/app.dart:562, apps/mobile/lib/screens/timeline_screen.dart:78, apps/mobile/lib/services/cap_engine.dart:805, apps/mobile/lib/services/response_card_service.dart:291 (+1 more) |
 | uncovered literal route | `/open-banking/consents` | apps/mobile/lib/screens/open_banking/open_banking_hub_screen.dart:86 |
 | uncovered literal route | `/open-banking/transactions` | apps/mobile/lib/screens/open_banking/open_banking_hub_screen.dart:78 |
-| uncovered literal route | `/pilier-3a` | apps/mobile/lib/app.dart:606, apps/mobile/lib/data/educational_themes.dart:112, apps/mobile/lib/screens/simulator_3a_screen.dart:126, apps/mobile/lib/screens/simulator_3a_screen.dart:136 (+8 more) |
+| uncovered literal route | `/pilier-3a` | apps/mobile/lib/app.dart:606, apps/mobile/lib/data/educational_themes.dart:112, apps/mobile/lib/screens/simulator_3a_screen.dart:167, apps/mobile/lib/screens/simulator_3a_screen.dart:88 (+8 more) |
 | uncovered literal route | `/profile` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1320 |
-| uncovered literal route | `/profile/bilan` | apps/mobile/lib/screens/budget/budget_screen.dart:702, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:888, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:125, apps/mobile/lib/services/response_card_service.dart:768 (+2 more) |
+| uncovered literal route | `/profile/bilan` | apps/mobile/lib/screens/budget/budget_screen.dart:701, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:888, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:125, apps/mobile/lib/services/response_card_service.dart:768 (+2 more) |
 | uncovered literal route | `/profile/byok` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1673, apps/mobile/lib/widgets/settings_sheet.dart:47 |
 | uncovered literal route | `/profile/privacy-control` | apps/mobile/lib/widgets/settings_sheet.dart:35 |
 | uncovered literal route | `/profile/slm` | apps/mobile/lib/widgets/settings_sheet.dart:41 |
-| uncovered literal route | `/rachat-lpp` | apps/mobile/lib/app.dart:548, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:138, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:148, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:302 (+6 more) |
+| uncovered literal route | `/rachat-lpp` | apps/mobile/lib/app.dart:548, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:136, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:146, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:220 (+6 more) |
 | uncovered literal route | `/rapport` | apps/mobile/lib/widgets/mentor_fab.dart:69 |
 | uncovered literal route | `/rente-vs-capital` | apps/mobile/lib/app.dart:547, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:137, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:148, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:423 (+11 more) |
 | uncovered literal route | `/retraite` | apps/mobile/lib/app.dart:546, apps/mobile/lib/data/educational_themes.dart:133, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:347, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:362 (+6 more) |

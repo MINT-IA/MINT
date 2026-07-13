@@ -1,13 +1,13 @@
 // ────────────────────────────────────────────────────────────
-//  Calculator Prefill + Write-back Tests
+//  Calculator Profile Hydration + Scenario Isolation Tests
 //
 //  Validates:
 //  - PatrimoineProfile.mortgageCapacity / estimatedMonthlyPayment fields
-//  - PrevoyanceProfile.copyWith() for write-back
+//  - PrevoyanceProfile.copyWith() model behavior
 //  - salaireBrut monthly → annual conversion (× 13)
 //  - AffordabilityScreen renders without crash
 //  - Simulator3aScreen renders without crash
-//  - _hasUserInteracted guard logic (via unit test)
+//  - Scenario interactions never mutate CoachProfile
 // ────────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -24,17 +24,46 @@ import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/retroactive_3a_screen.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+
+class _RecordingCoachProfileProvider extends CoachProfileProvider {
+  CoachProfile _current;
+  int updateCalls = 0;
+
+  _RecordingCoachProfileProvider(this._current);
+
+  @override
+  CoachProfile get profile => _current;
+
+  @override
+  bool get hasProfile => true;
+
+  @override
+  void updateProfile(CoachProfile updated) {
+    updateCalls += 1;
+    _current = updated;
+    notifyListeners();
+  }
+}
 
 // ---------------------------------------------------------------------------
 //  Shared helpers
 // ---------------------------------------------------------------------------
 
-Widget _buildWrapped(Widget screen) {
+Widget _buildWrapped(
+  Widget screen, {
+  CoachProfileProvider? coachProfileProvider,
+}) {
   return MultiProvider(
     providers: [
-      ChangeNotifierProvider<CoachProfileProvider>(
-        create: (_) => CoachProfileProvider(),
-      ),
+      if (coachProfileProvider == null)
+        ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => CoachProfileProvider(),
+        )
+      else
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: coachProfileProvider,
+        ),
       ChangeNotifierProvider<ProfileProvider>(
         create: (_) => ProfileProvider(),
       ),
@@ -82,7 +111,8 @@ void main() {
     });
 
     test('mortgageCapacity roundtrips through toJson/fromJson', () {
-      const p = PatrimoineProfile(mortgageCapacity: 720000, estimatedMonthlyPayment: 3500);
+      const p = PatrimoineProfile(
+          mortgageCapacity: 720000, estimatedMonthlyPayment: 3500);
       final json = p.toJson();
       final restored = PatrimoineProfile.fromJson(json);
       expect(restored.mortgageCapacity, 720000);
@@ -102,7 +132,9 @@ void main() {
       expect(updated.estimatedMonthlyPayment, 2500);
     });
 
-    test('operator == accounts for mortgageCapacity and estimatedMonthlyPayment', () {
+    test(
+        'operator == accounts for mortgageCapacity and estimatedMonthlyPayment',
+        () {
       const p1 = PatrimoineProfile(mortgageCapacity: 500000);
       const p2 = PatrimoineProfile(mortgageCapacity: 500000);
       const p3 = PatrimoineProfile(mortgageCapacity: 600000);
@@ -112,7 +144,7 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════
-  //  2. PrevoyanceProfile copyWith — required for write-back
+  //  2. PrevoyanceProfile copyWith
   // ═══════════════════════════════════════════════════════════
 
   group('PrevoyanceProfile copyWith', () {
@@ -201,6 +233,39 @@ void main() {
       await tester.pump();
       expect(find.byType(Scaffold), findsWidgets);
     });
+
+    testWidgets('changing a contribution lever never mutates CoachProfile',
+        (tester) async {
+      final provider = _RecordingCoachProfileProvider(
+        CoachProfile.defaults().copyWith(
+          canton: 'VD',
+          salaireBrutMensuel: 9000,
+          prevoyance: const PrevoyanceProfile(totalEpargne3a: 45000),
+        ),
+      );
+      final before = provider.profile;
+      final returnFuture = ScreenCompletionTracker.stream.firstWhere(
+        (screenReturn) => screenReturn.route == '/pilier-3a',
+      );
+
+      await tester.pumpWidget(
+        _buildWrapped(
+          const Simulator3aScreen(),
+          coachProfileProvider: provider,
+        ),
+      );
+      await tester.pump();
+      await tester.enterText(find.byType(TextField).first, '5000');
+      await tester.pump();
+      final screenReturn = await returnFuture;
+
+      expect(provider.updateCalls, 0);
+      expect(provider.profile, same(before));
+      expect(provider.profile.prevoyance.totalEpargne3a, 45000);
+      expect(screenReturn.updatedFields, isNull);
+      expect(screenReturn.confidenceDelta, isNull);
+      expect(screenReturn.stepOutputs, contains('contribution_annuelle'));
+    });
   });
 
   group('RachatEchelonneScreen', () {
@@ -216,29 +281,6 @@ void main() {
       await tester.pumpWidget(_buildWrapped(const Retroactive3aScreen()));
       await tester.pump();
       expect(find.byType(Scaffold), findsWidgets);
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════
-  //  5. _hasUserInteracted guard — unit test via model logic
-  // ═══════════════════════════════════════════════════════════
-
-  group('_hasUserInteracted guard logic', () {
-    bool simulateWriteBack(bool hasUserInteracted) {
-      var writeBackFired = false;
-      if (!hasUserInteracted) return writeBackFired;
-      writeBackFired = true;
-      return writeBackFired;
-    }
-
-    test('write-back should NOT fire if hasUserInteracted is false', () {
-      // This mirrors the guard pattern used in all 6 screens:
-      // if (!_hasUserInteracted) return;
-      expect(simulateWriteBack(false), isFalse);
-    });
-
-    test('write-back SHOULD fire after user interaction', () {
-      expect(simulateWriteBack(true), isTrue);
     });
   });
 }

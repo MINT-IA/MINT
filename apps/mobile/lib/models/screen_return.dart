@@ -72,11 +72,13 @@ class ScreenReturn {
   /// 'lpp_rachat' if rachat data is missing.
   final String? nextCapSuggestion;
 
-  /// Structured outputs from this screen for guided sequence step transfer.
+  /// Structured non-profile outputs from a simulation or guided step.
   ///
-  /// Used by [SequenceCoordinator] to pre-fill the next step in a guided
-  /// sequence. Keys are domain-specific (e.g. 'capacite_achat', 'montant_epl').
-  /// Values must be JSON-serializable primitives (double, int, String, bool).
+  /// Used by [SequenceCoordinator] to pre-fill the next guided step. Outside a
+  /// sequence, it carries scenario/cache results without claiming that a
+  /// CoachProfile fact changed or that data confidence increased. Keys are
+  /// domain-specific (e.g. 'capacite_achat', 'montant_epl'). Values must be
+  /// JSON-serializable primitives (double, int, String, bool).
   ///
   /// Null when not in a guided sequence or screen doesn't produce outputs.
   /// See: docs/RFC_AGENT_LOOP_STATEFUL.md §3.4, §6.3

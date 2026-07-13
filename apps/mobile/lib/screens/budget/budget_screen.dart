@@ -161,12 +161,11 @@ class _BudgetScreenState extends State<BudgetScreen>
     super.dispose();
   }
 
-  void _emitScreenReturn(Map<String, dynamic> updatedFields) {
+  void _emitScreenReturn(Map<String, dynamic> stepOutputs) {
     if (_seqRunId != null) return; // Sequence mode: terminal only on pop
-    final screenReturn = ScreenReturn.changedInputs(
+    final screenReturn = ScreenReturn.completed(
       route: '/budget',
-      updatedFields: updatedFields,
-      confidenceDelta: 0.05,
+      stepOutputs: stepOutputs,
     );
     ScreenCompletionTracker.markCompletedWithReturn('budget', screenReturn);
   }

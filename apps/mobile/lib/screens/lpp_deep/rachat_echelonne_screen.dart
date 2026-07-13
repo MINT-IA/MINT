@@ -117,8 +117,6 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         if (extra is Map<String, dynamic>) {
           _seqRunId = extra['runId'] as String?;
           _seqStepId = extra['stepId'] as String?;
-          final prefill = extra['prefill'] as Map<String, dynamic>?;
-          if (prefill != null) _applyPrefill(prefill);
         }
       } catch (_) {}
       if (_seqRunId == null) {
@@ -169,9 +167,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     final prev = profile.prevoyance;
     if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
       _avoirActuel = prev.avoirLppTotal!;
+      _prefilledFields.add('avoir_lpp');
     }
     if (prev.lacuneRachatRestante > 0) {
       _rachatMax = prev.lacuneRachatRestante;
+      _prefilledFields.add('rachat_max');
     }
     final revenuBrut = profile.salaireBrutMensuel * profile.nombreDeMois;
     if (revenuBrut > 0) {
@@ -198,35 +198,6 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     }
   }
 
-  /// Apply prefill values from GoRouter coach suggestion.
-  /// Called AFTER _prefillFromProfile() so coach values override profile estimates.
-  void _applyPrefill(Map<String, dynamic> prefill) {
-    bool changed = false;
-
-    final salaireBrut = prefill['salaireBrut'];
-    if (salaireBrut is num && salaireBrut > 0) {
-      _revenu = salaireBrut.toDouble() * 13;
-      _prefilledFields.add('revenu');
-      changed = true;
-    }
-
-    final rachatMaximum = prefill['rachatMaximum'];
-    if (rachatMaximum is num && rachatMaximum > 0) {
-      _rachatMax = rachatMaximum.toDouble();
-      _prefilledFields.add('rachat_max');
-      changed = true;
-    }
-
-    final avoirLpp = prefill['avoirLpp'];
-    if (avoirLpp is num && avoirLpp > 0) {
-      _avoirActuel = avoirLpp.toDouble();
-      _prefilledFields.add('avoir_lpp');
-      changed = true;
-    }
-
-    if (changed) setState(() {});
-  }
-
   @override
   void dispose() {
     _heroController.dispose();
@@ -238,59 +209,6 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     _heroController.forward(from: 0);
     setState(() {});
     _emitScreenReturn();
-    _writeBackResult();
-  }
-
-  /// Write back rachat simulation results to CoachProfile.
-  void _writeBackResult() {
-    if (!_hasUserInteracted) return;
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      final profile = provider.profile;
-      if (profile == null) return;
-
-      final result = _result;
-      // Audit 2026-04-18 Q4 (swiss-brain) : on enregistre la date du rachat
-      // simulé pour que l'EPL simulator puisse calculer le blocage 3 ans
-      // (LPP art. 79b al. 3, ATF 142 II 399 + 148 II 189). L'ancien code
-      // écrivait `rachatEffectue` (un double) de façon identitaire (no-op)
-      // et n'avait aucune trace temporelle → blocage EPL jamais déclenché.
-      final newDates = [...profile.prevoyance.dateRachats, DateTime.now()];
-      final updated = profile.copyWith(
-        prevoyance: profile.prevoyance.copyWith(
-          rachatEffectue:
-              (profile.prevoyance.rachatEffectue ?? 0) + result.yearlyPlan
-                  .fold<double>(0, (sum, p) => sum + p.montantRachat),
-          dateRachats: newDates,
-          projectedRenteLpp: result.delta > 0
-              ? null // Not projecting rente here, just marking interaction
-              : null,
-        ),
-      );
-      provider.updateProfile(updated);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdatedSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.primary,
-          duration: const Duration(milliseconds: 2500),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdateErrorSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.error,
-          duration: const Duration(milliseconds: 3000),
-        ),
-      );
-    }
   }
 
   void _emitScreenReturn() {
@@ -300,11 +218,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       'rachat_echelonne',
       ScreenReturn.completed(
         route: '/rachat-lpp',
-        updatedFields: {
+        stepOutputs: {
           'rachatOptimalAnnuel': _rachatMax / _horizon,
           'rachatEconomieFiscale': _result.delta,
         },
-        confidenceDelta: 0.02,
         nextCapSuggestion: 'pilier_3a',
       ),
     );

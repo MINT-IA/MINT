@@ -92,10 +92,9 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
       'disability_gap',
       ScreenReturn.completed(
         route: '/invalidite',
-        updatedFields: {
+        stepOutputs: {
           'disabilityGapMensuel': grossMonthly - act3Income,
         },
-        confidenceDelta: 0.02,
         nextCapSuggestion: 'assurance_invalidite',
       ),
     );

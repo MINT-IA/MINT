@@ -13,6 +13,8 @@ import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -307,6 +309,27 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       expect(find.textContaining('Revenu'), findsWidgets);
+    });
+
+    testWidgets('emits scenario outputs without profile writes or confidence',
+        (tester) async {
+      final returnFuture = ScreenCompletionTracker.stream.firstWhere(
+        (screenReturn) => screenReturn.route == '/fiscal',
+      );
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      final revenue = tester.widget<MintPremiumSlider>(
+        find.byType(MintPremiumSlider).first,
+      );
+      revenue.onChanged(120000);
+      await tester.pump();
+      final screenReturn = await returnFuture;
+
+      expect(screenReturn.updatedFields, isNull);
+      expect(screenReturn.confidenceDelta, isNull);
+      expect(screenReturn.stepOutputs, contains('fiscalBestCanton'));
+      expect(screenReturn.stepOutputs, contains('fiscalMaxSavings'));
     });
 
     testWidgets('displays civil status toggle in French', (tester) async {
