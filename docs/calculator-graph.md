@@ -30,6 +30,9 @@ flowchart LR
     PROFILE --> AVS[AvsCalculator]:::calc
     PROFILE --> AVS_REF[AvsReferenceAge]:::calc
     AVS_REF --> AVS
+    AVS_MONTHS["Owner-scoped monthly AVS evidence"]:::profile --> AVS_13[AvsThirteenthPensionCalculator]:::calc
+    AVS_DECEMBER["1 December entitlement evidence"]:::profile --> AVS_13
+    AVS_13 --> INDEP
     PROFILE --> LPP[LppCalculator]:::calc
     PROFILE --> TAX[TaxCalculator]:::calc
     PROFILE --> HOUSING[HousingCostCalculator]:::calc
@@ -87,6 +90,7 @@ Julien + Lauren golden values.
 |---|---|---|---|---|
 | **AvsCalculator** | `avs_calculator.dart` | RAMD, years, gaps | monthly rente | FriCalculator, RetirementDashboardScreen, coach_narrative |
 | **AvsReferenceAge** | `avs_reference_age.dart` | birth year/date, gender | AVS21 reference age in months/years/date + reached-window checks | AvsCalculator, LACI/retirement eligibility surfaces |
+| **AvsThirteenthPensionCalculator** | `avs_thirteenth_pension_calculator.dart` | owner-scoped monthly ordinary AVS evidence, 1 December entitlement, legal snapshot, payment cadence/date | exact-cent ordinary cashflow, separate certified or illustrative December supplement, correction and readiness | IndependantsService scenario bridge behind `enableAvsThirteenthScenarioCashflow` |
 | **LppCalculator** | `lpp_calculator.dart` | avoir, rate, years | projected capital + rente | FriCalculator, ProjectionRetraiteScreen, ArbitrageEngine |
 | **TaxCalculator** | `tax_calculator.dart` | income, canton, marital, 3a | federal + cantonal + marginal | ArbitrageEngine, ProjectionFiscaleScreen |
 | **HousingCostCalculator** | `housing_cost_calculator.dart` | loyer/hyp + canton | monthly housing effective cost | FriCalculator, budget calcs |
@@ -197,7 +201,7 @@ features on top of these until the câblage is real. Full details:
 
 ---
 
-*Last updated: 2026-07-13 after registering `ReplacementRateCalculator`.
+*Last updated: 2026-07-13 after registering `AvsThirteenthPensionCalculator`.
 Façade status comes from the 2026-04-21 audit in
 `.planning/triage-2026-04-20-service-audit.md`. When you refactor any
 service in `financial_core/` or add a new aggregator, update this file
