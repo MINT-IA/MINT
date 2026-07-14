@@ -73,6 +73,43 @@ flowchart TB
 
   AVS_CARD -. "household calculations stay null" .-> MSP
 
+  %% G1 PROV-02 target contract only — both concrete local switches remain false.
+  subgraph LPP_EVIDENCE["G1 TARGET — PERSON-OWNED LPP EVIDENCE"]
+    direction TB
+    LPP_FLAGS{"typedLppEvidence = false<br/>documentLppEvidenceEnabled = false<br/>composite getter requires both"}
+    LPP_DISABLED["LPP acquisition hidden/neutralized before OCR<br/>deep link has recoverable disabled state<br/>NO legacy fallback"]
+    LPP_REJECT["linked/grant-shaped confirmation or cold snapshot<br/>unconditional G1 reject/filter<br/>NO facade flag"]
+    LPP_CANDIDATE["LppExtractionCandidate<br/>typed amounts only<br/>NO pre-review write<br/>NO OCR/sourceText persistence"]
+    LPP_REVIEW["LppReviewConfirmation<br/>self OR manualPartner<br/>explicit pension/capital + annual/lump-sum<br/>ambiguous meaning = no fact"]
+    LPP_ACCEPT["CoachProfileProvider.acceptLppReview<br/>stable self profileOwnerId exists before either slot<br/>manual-partner-first reuses self actor later<br/>authorization per fact + single stamp"]
+    LPP_SAVE["LppProfilePersistence.saveAnswers<br/>one awaited whole-root save<br/>failure = no profile/listener publication"]
+    LPP_SECURE[("strict-secure _coach_lpp_evidence_v1<br/>schemaVersion 1<br/>self + manualPartner slots<br/>value/unit + owner/actor/authorization/provenance per fact")]
+    LPP_SELECT["cold LppEvidenceSelector<br/>selectSelf OR selectManualPartner(owner)<br/>never merge people<br/>invalid lineage/type/unit = partial+ask"]
+    LPP_SELF["self typed presentation<br/>retirement pension CHF/year<br/>retirement capital CHF lump sum<br/>disability pension CHF/year<br/>disability capital CHF lump sum<br/>death capital CHF lump sum"]
+    LPP_MANUAL["manual partner typed presentation<br/>owner distinct from actor<br/>manualPartnerDeclaration<br/>grantId null"]
+    LPP_LEGACY_SELF["safe legacy self migration<br/>only unambiguous certificate scalar<br/>with exact provenance"]
+    LPP_LEGACY_PARTNER["legacy partner loose values<br/>NO promotion<br/>key names + reason codes only"]
+    LPP_QUARANTINE["legacyPartnerQuarantine<br/>no values / direct PII"]
+    LPP_LINKED["household membership or linked grant<br/>G1-BND-02A not GREEN"]
+
+    LPP_FLAGS -. "either off" .-> LPP_DISABLED
+    LPP_FLAGS -. "both on after G1 activation decision" .-> LPP_CANDIDATE
+    LPP_CANDIDATE -. "explicit review" .-> LPP_REVIEW
+    LPP_REVIEW -. "valid typed confirmation" .-> LPP_ACCEPT
+    LPP_ACCEPT -. "save before publish" .-> LPP_SAVE
+    LPP_SAVE -. "secure success" .-> LPP_SECURE
+    LPP_SECURE -. "destroy + reconstruct provider" .-> LPP_SELECT
+    LPP_SELECT -. "self slot only" .-> LPP_SELF
+    LPP_SELECT -. "exact manual owner only" .-> LPP_MANUAL
+    LPP_LEGACY_SELF -. "one idempotent secure migration" .-> LPP_SAVE
+    LPP_LEGACY_PARTNER -. "fail closed" .-> LPP_QUARANTINE
+    LPP_LINKED -. "membership is not consent; real writer/selector filter" .-> LPP_REJECT
+  end
+
+  LPP_SELF -. "person-owned facts; no automatic household total" .-> CPP
+  LPP_MANUAL -. "independent declaration; no account linkage" .-> CPP
+  LPP_SECURE -. "removed from backendSafeAnswers" .-> BACKEND
+
   %% ==========================================================================
   %% PART B — NAVIGATION GRAPH (apps/mobile/lib/app.dart:301-1340)
   %% Nodes = live screens (have a builder). Dashed edges = redirect routes
@@ -301,4 +338,15 @@ flowchart TB
 %%      provenance-bearing new snapshot produces one state notification. Gate:
 %%      test/providers/mint_state_proxy_recompute_test.dart. Phase 37 Wave 1
 %%      status: VERIFIED; provider-island bridges in I-4 remain separate debt.
+%% G1-PROV-02 PERSON-OWNED LPP EVIDENCE: one strict-secure
+%% `_coach_lpp_evidence_v1` root and one `acceptLppReview` save-before-publish
+%% seam. Self and manual-partner slots never merge; every fact has exact
+%% value/unit plus owner/actor/authorization/provenance. Household membership
+%% is not consent, linked/grant shapes have a tested unconditional writer/cold
+%% selector reject until G1-BND-02A (no facade flag), and ambiguous annual/
+%% lump-sum or pension/capital meaning is absent/partial. A stable self actor is
+%% created before either slot so manual-partner-first order cannot fork owner
+%% identity. Default-off acquisition is hidden/neutralized before OCR.
+%% Gate: test/providers/provenance_restart_test.dart plus DATA_LEDGER.md §4.0A.
+%% Status: TARGET, default-off; no runtime or G2 activation claim.
 %% ============================================================================

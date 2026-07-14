@@ -42,6 +42,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
 - **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (36 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist, coach tool enum, mobile mapper, and profile reads are now in sync for all 36 keys; §3.8 keeps the repair history and the parity gate.
 - **AVS-OFFICIAL — CANDIDATE IS NOT FACT.** `avs_official_pension` is distinct from the CI `avs_extract`. Its only canonical fact is `avs_official_monthly_pension`, persisted after review as `{value, source, sourceDate, updatedAt, evidenceKind}` in one strict-secure envelope. `source=certificate` records provenance while `evidenceKind` preserves decision vs forecast vs statement; only a reviewed decision or current official statement may be known. An accepted result without an explicit decision/current-statement marker becomes `official_forecast` and stays to verify. Candidate extraction performs no pre-review profile write or backend mirror. Correction writes `userInput` with null source date and null evidence kind. Mobile and backend kill switches default to false; no mobile consumer/write-back, partner writer, or household calculation is authorized yet.
+- **LPP-EVIDENCE — PERSON OWNERSHIP IS NOT HOUSEHOLD CONSENT.** Reviewed LPP certificate facts use the single strict-secure `_coach_lpp_evidence_v1` root defined in §4.0A. Every fact carries its own pseudonymous owner, actor, authorization and provenance. Self and independently declared manual-partner evidence are separate; household membership never authorizes import. Linked-account/grant shapes are unconditionally rejected in G1 until G1-BND-02A defines a real authorized caller. Ambiguous pension/capital or annual/lump-sum meaning writes nothing.
 
 ---
 
@@ -558,6 +559,224 @@ the implemented seam and its fail-closed behavior, not production activation.
 Frozen-SHA Maestro/Patrol evidence on one simulator, external Claude audits and
 the final G1 scorecard are still required before either flag may change.
 
+### 4.0A LPP certificate evidence (G1-PROV-02 target; default-off)
+
+G1-PROV-02 uses one local answer root only:
+`wizard_answers_v2['_coach_lpp_evidence_v1']`. Its value is a JSON **string**
+registered as strict-secure in `SecureWizardStore`; SharedPreferences may hold
+only `__secure__`. `ReportPersistenceService.backendSafeAnswers` removes this
+root. It is never mirrored to `ProfileModel.data`, Biography, the coach/LLM,
+analytics, routes, logs or test evidence.
+
+The exact schema-v1 root is:
+
+```text
+{
+  "schemaVersion": 1,
+  "self": LppEvidenceSnapshot?,
+  "manualPartner": LppEvidenceSnapshot?,
+  "legacyPartnerQuarantine": null | {
+    "legacySchemaVersion": 0,
+    "reasonCodes": [String...],
+    "presentKeys": [String...],
+    "quarantinedAt": ISO-8601 instant
+  }
+}
+
+LppEvidenceSnapshot {
+  snapshotId: lowercase canonical UUIDv4
+  facts: {canonical fact key: LppEvidenceFact...}
+}
+
+LppEvidenceFact {
+  value: finite non-negative number
+  unit: one exact unit token from the table below
+  owner: {
+    kind: self | manualPartner
+    profileOwnerId: pseudonymous profile-scoped token
+  }
+  actor: {
+    profileOwnerId: pseudonymous profile-scoped token
+  }
+  authorization: {
+    mode: self | manualPartnerDeclaration
+    grantId: null
+  }
+  provenance: {
+    source: certificate | userInput
+    sourceDate: ISO-8601 date | null
+    updatedAt: ISO-8601 instant
+  }
+}
+```
+
+`snapshotId`, owner and actor tokens are random/pseudonymous identifiers. They
+must not contain a name, email, household id, document id, filename, OCR text or
+source text. The root stores no raw document, image, OCR diagnostics, extracted
+label, source passage, account-link token or direct identity. Quarantine stores
+key names and reason codes only, never legacy values or owner PII.
+
+#### Canonical fact keys and units
+
+The key determines financial meaning; the unit token is an independent runtime
+check. An absent, unknown or contradictory type/period/unit is rejected before
+persistence and is excluded on cold load. In particular the existing parser
+field `disabilityCoverage` maps only to the annual disability pension; it never
+maps to disability capital.
+
+| canonical fact key | exact unit | reviewed extraction meaning | typed presentation path |
+|---|---|---|---|
+| `vestedBenefitsCapitalChf` | `CHF` | current total LPP assets | `prevoyance.avoirLppTotal` |
+| `mandatoryVestedBenefitsCapitalChf` | `CHF` | mandatory current assets | `prevoyance.avoirLppObligatoire` |
+| `extraMandatoryVestedBenefitsCapitalChf` | `CHF` | extra-mandatory current assets | `prevoyance.avoirLppSurobligatoire` |
+| `insuredSalaryAnnualChf` | `CHF/year` | insured annual salary | `prevoyance.salaireAssure` |
+| `maximumBuybackCapitalChf` | `CHF` | maximum buy-back capacity, not a completed buy-back | `prevoyance.rachatMaximum` |
+| `mandatoryConversionRateRatio` | `ratio` | mandatory conversion rate stored as a ratio | `prevoyance.tauxConversion` |
+| `extraMandatoryConversionRateRatio` | `ratio` | extra-mandatory conversion rate stored as a ratio | `prevoyance.tauxConversionSuroblig` |
+| `fundReturnRateRatio` | `ratio` | certificate fund rate stored as a ratio | `prevoyance.rendementCaisse` |
+| `retirementPensionAnnualChf` | `CHF/year` | projected annual retirement pension | `prevoyance.projectedRenteLpp` |
+| `retirementCapitalLumpSumChf` | `CHF/lump-sum` | projected retirement capital paid as a lump sum | `prevoyance.projectedCapital65` |
+| `disabilityPensionAnnualChf` | `CHF/year` | annual disability pension | `prevoyance.disabilityCoverage` (legacy presentation name only) |
+| `disabilityCapitalLumpSumChf` | `CHF/lump-sum` | separately identified disability capital | new typed LPP evidence presentation field; never `disabilityCoverage` |
+| `deathCapitalLumpSumChf` | `CHF/lump-sum` | death capital paid as a lump sum | `prevoyance.deathCoverage` (legacy presentation name only) |
+
+`ratio` accepts only a finite value in `0...1`. CHF facts accept only finite
+non-negative values. A parser match such as « prestation d'invalidité » without
+an explicit pension/capital label and annual/lump-sum period remains a candidate
+to correct, not a fact. Missing facts remain missing; zero is accepted only when
+the reviewed certificate explicitly states zero.
+
+#### One review, save and publish seam
+
+There is one production seam and no parallel self/partner writers:
+
+```text
+LppExtractionCandidate
+  -> LppReviewConfirmation
+  -> CoachProfileProvider.acceptLppReview(confirmation)
+  -> LppProfilePersistence.saveAnswers(whole root + __provenance)
+  -> publish CoachProfile / notifyListeners once
+  -> cold reload
+  -> LppEvidenceSelector.selectSelf | selectManualPartner
+```
+
+The review confirmation carries the typed facts, source date, subject choice
+(`self` or `manualPartner`) and whether each amount was corrected; it never
+carries OCR/source text into persistence. The provider resolves owner and actor
+tokens; the route cannot supply them. The provider creates/loads the stable
+self `profileOwnerId` before accepting **either** slot. If a manual-partner
+certificate is accepted first, that stable self token is already its actor;
+later self acceptance reuses the identical token as self owner/actor. No
+snapshot, retry or acceptance order may mint a second actor identity. One
+acceptance stamp is copied to every
+fact's `updatedAt`. Untouched reviewed documentary facts use `certificate` and
+the reviewed document date; corrected facts use `userInput` with null
+`sourceDate`.
+
+`acceptLppReview` constructs a complete replacement snapshot for exactly one
+slot and performs one awaited save. It updates `_lastAnswers`, `_profile`,
+snapshots/narrative caches and listeners only after that save succeeds. A
+pending or failed secure write exposes neither a value-only nor a
+metadata-only state and leaves the previous slot/profile untouched. The legacy
+`updateFromLppExtraction` and `updateFromPartnerLppExtraction` seams must not be
+fallbacks when typed ingestion is disabled or fails.
+
+#### Ownership, authorization and cold selection
+
+- **Self:** every fact has `owner.kind=self`; owner and actor tokens are the
+  stable provider self `profileOwnerId` and are equal;
+  `authorization={mode:self, grantId:null}`.
+- **Manual partner:** every fact has `owner.kind=manualPartner`; its owner token
+  is distinct from the stable provider self actor token; all facts use
+  `authorization={mode:manualPartnerDeclaration, grantId:null}`. This is an
+  independent user declaration, not an account-linked import.
+- `LppEvidenceSelector.selectSelf` reads only the valid `self` slot.
+  `selectManualPartner(expectedOwnerId)` reads only a valid manual-partner slot
+  whose owner token exactly matches. Selection never consults household
+  membership or `conjoint.invitationLevel`, never merges the two slots and never
+  fills a missing fact from the other person.
+- Every fact in a slot must agree with that slot's owner kind, owner token,
+  actor token, authorization mode and acceptance stamp. A malformed root,
+  future schema, UUID/type/unit mismatch, mixed lineage or future
+  `sourceDate`/`updatedAt` makes the affected slot unavailable (`partial+ask`),
+  not estimated or zero. A null source date may remain visible only as
+  `availableNeedsConfirmation`; it cannot unlock a complete high-stakes result.
+- Cold reconstruction hydrates the existing presentation paths only from the
+  selector result and recreates exact field provenance. Consumers never read
+  the JSON root directly.
+
+#### Migration and kill switches
+
+When the root is absent, a one-time self migration may copy only existing loose
+self scalars whose storage key, unit and exact canonical `__provenance` entry
+are unambiguous and whose source is `certificate`; it uses the current
+pseudonymous owner as both owner and actor. The current loose
+`disabilityCoverage` value is eligible only as
+`disabilityPensionAnnualChf`; it can never create disability capital. A loose
+self scalar lacking semantic/unit/provenance proof stays outside the canonical
+slot and requires review. Migration saves the strict root before publication
+and is idempotent.
+
+Loose partner keys are never promoted: they lack a stable distinct owner,
+actor and authorization attestation. Their values are removed and only their
+key names/reason codes enter `legacyPartnerQuarantine`; the manual-partner slot
+stays null until independent review.
+
+Two local switches with concrete callers remain absent from backend hydration
+and default to false:
+
+```text
+FeatureFlags.typedLppEvidence = false
+FeatureFlags.documentLppEvidenceEnabled = false
+FeatureFlags.lppEvidenceIngestionEnabled =
+  typedLppEvidence && documentLppEvidenceEnabled
+```
+
+The first controls the typed root, writer and selectors. The second is consumed
+by the LPP document acquisition/review UI. Unless the composite getter is true,
+the LPP scan choice, self/partner subject choice and confirmation CTA are hidden
+or neutralized **before OCR/upload**; a stale/deep link renders a recoverable
+disabled state and cannot call either legacy writer. Activation is allowed only
+after PROV-02 GREEN, runtime proof and a named G1 decision.
+
+G1 deliberately defines no `linkedPartnerLppEvidenceImport` flag: a switch
+without an authorized caller would be a facade. `LppReviewConfirmation` admits
+only `self` and `manualPartnerDeclaration`, `acceptLppReview` rejects every
+linked/grant-shaped input before persistence, and cold selection filters any
+such injected snapshot. These production reject/filter callers and their
+negative tests remain mandatory until G1-BND-02A proves purpose/field scope,
+grant lifecycle and revocation and introduces its own reviewed path. This
+contract defines no multi-owner household aggregate, remote sync, institution
+API or G2/G3 abstraction.
+
+#### Required TDD oracles
+
+`apps/mobile/test/providers/provenance_restart_test.dart` is RED before code and
+must prove, through the real persisted answer map and a destroyed/reconstructed
+provider:
+
+1. self annual retirement/disability pensions and the three distinct lump-sum
+   capitals retain exact value, unit, owner/actor/authorization and provenance;
+2. a manual-partner-first acceptance allocates/reuses the stable self actor;
+   later self acceptance has that exact owner/actor token, while the partner
+   owner stays distinct with null grant and does not unlock from membership;
+3. annual disability pension and disability capital cannot share a key or be
+   selected after a type/unit mutation;
+4. save failure publishes/notifies nothing; strict secure placeholder is never
+   overwritten after an unreadable-key cold start;
+5. safe self migration is idempotent, loose partner values quarantine without
+   promotion, and linked-grant-shaped input is rejected by the real writer and
+   cold selector without a facade flag;
+6. SharedPreferences/backend-safe payload/log/evidence contain no root value,
+   raw OCR/source text, direct PII, owner token or financial amount;
+7. with either composite flag false, no visible LPP acquisition confirmation
+   can fail after work: the choice/CTA is absent or a deep link is disabled
+   before OCR, and neither legacy writer is called.
+
+The exact PROV-02 command remains the ticket command and must also rerun
+PROV-01 plus document-parser tests; the mutation oracles above make a
+mapper-only or in-memory-only implementation fail.
+
 ### 4.1 AVS / LPP detail (from certificate extraction)
 
 The self-only official AVS acquisition target is specified in
@@ -583,10 +802,11 @@ calculations stay null/partial.
 | `prevoyance.tauxConversion` | double decimal (≥0.068) | prevoyance | certificate, estimated | annual | .95 | mergeAnswers (scan) | LPP rente@65 |
 | `prevoyance.tauxConversionSuroblig` | double decimal | prevoyance | certificate | annual | .95 | mergeAnswers (scan) | surobligatoire rente |
 | `prevoyance.bonificationRate` | double % | prevoyance | certificate | annual | .95 | mergeAnswers (scan) | LPP accumulation; `isLppFromCertificate` |
-| `prevoyance.projectedRenteLpp` | double CHF/yr | prevoyance | certificate | annual | .95 | mergeAnswers (scan) | LPP rente display (cert-provided, not computed) |
-| `prevoyance.projectedCapital65` | double CHF | prevoyance | certificate | annual | .95 | mergeAnswers (scan) | capital@65 display |
-| `prevoyance.disabilityCoverage` | double CHF | prevoyance | certificate | annual | .95 | mergeAnswers (scan) | invalidité coverage card |
-| `prevoyance.deathCoverage` | double CHF | prevoyance | certificate | annual | .95 | mergeAnswers (scan) | survivor / death coverage card |
+| `prevoyance.projectedRenteLpp` | double CHF/yr | prevoyance | certificate | annual | .95 | `acceptLppReview` target (§4.0A) | annual LPP retirement-pension display; absent outside valid person-owned evidence |
+| `prevoyance.projectedCapital65` | double CHF lump sum | prevoyance | certificate | annual | .95 | `acceptLppReview` target (§4.0A) | retirement-capital display; never a pension |
+| `prevoyance.disabilityCoverage` | double CHF/yr | prevoyance | certificate | annual | .95 | `acceptLppReview` target (§4.0A) | legacy presentation name for annual disability pension only |
+| `prevoyance.lppDisabilityCapital` | double CHF lump sum | prevoyance | certificate | annual | .95 | `acceptLppReview` target (§4.0A) | separately identified disability capital; never inferred from the pension |
+| `prevoyance.deathCoverage` | double CHF lump sum | prevoyance | certificate | annual | .95 | `acceptLppReview` target (§4.0A) | death capital; never an annual survivor pension |
 | `prevoyance.rachatEffectue` | double CHF | prevoyance | userInput, certificate | annual | .60 | mergeAnswers | `lacuneRachatRestante` |
 | `prevoyance.dateRachats` | List\<DateTime\> | prevoyance | userInput, certificate | static | .60 | mergeAnswers | LPP art.79b 3-yr blocking, capital withdrawal eligibility |
 | `prevoyance.comptes3a[]` | List\<Compte3a{provider,solde,rendementEstime}\> | prevoyance | userInput, openBanking, certificate | annual | .60 | mergeAnswers | `rendementMoyen3a`, 3a per-account view |
