@@ -78,16 +78,129 @@ def _line_is_exempt(line: str) -> bool:
     return any(marker in line for marker in IGNORE_MARKERS)
 
 
-def scan_lines(lines: Iterable[tuple[int, str]]) -> list[tuple[int, str, str]]:
+def _next_code_character(text: str, start: int) -> int:
+    """Return the next non-whitespace, non-comment character position."""
+    cursor = start
+    while cursor < len(text):
+        if text[cursor].isspace():
+            cursor += 1
+            continue
+        if text.startswith("//", cursor):
+            newline = text.find("\n", cursor + 2)
+            return len(text) if newline == -1 else _next_code_character(text, newline + 1)
+        if text.startswith("/*", cursor):
+            end = text.find("*/", cursor + 2)
+            return len(text) if end == -1 else _next_code_character(text, end + 2)
+        return cursor
+    return cursor
+
+
+def _dart_string_end(text: str, quote_start: int) -> int:
+    """Return the exclusive end of a single- or triple-quoted Dart string."""
+    quote = text[quote_start]
+    triple = text.startswith(quote * 3, quote_start)
+    delimiter_length = 3 if triple else 1
+    cursor = quote_start + delimiter_length
+    raw = (
+        quote_start > 0
+        and text[quote_start - 1] in {"r", "R"}
+        and (
+            quote_start < 2
+            or not (text[quote_start - 2].isalnum() or text[quote_start - 2] == "_")
+        )
+    )
+
+    while cursor < len(text):
+        if triple:
+            if text.startswith(quote * 3, cursor):
+                return cursor + 3
+        elif text[cursor] == quote:
+            return cursor + 1
+
+        if not raw and text[cursor] == "\\":
+            cursor += 2
+            continue
+        if not triple and text[cursor] == "\n":
+            return cursor
+        cursor += 1
+    return len(text)
+
+
+def _mask_regexp_literals(text: str) -> str:
+    """Blank only Dart string literals structurally inside `RegExp(...)`.
+
+    Parenthesis tracking is lexical: strings and comments cannot forge or close
+    a constructor. Newlines are preserved so diagnostics keep real line numbers.
+    """
+    masked = list(text)
+    regexp_open_parens: set[int] = set()
+    paren_stack: list[bool] = []
+    regexp_depth = 0
+    cursor = 0
+
+    while cursor < len(text):
+        if text.startswith("//", cursor):
+            newline = text.find("\n", cursor + 2)
+            cursor = len(text) if newline == -1 else newline
+            continue
+        if text.startswith("/*", cursor):
+            end = text.find("*/", cursor + 2)
+            cursor = len(text) if end == -1 else end + 2
+            continue
+
+        char = text[cursor]
+        if char in {'"', "'"}:
+            end = _dart_string_end(text, cursor)
+            if regexp_depth:
+                for index in range(cursor, end):
+                    if masked[index] != "\n":
+                        masked[index] = " "
+            cursor = end
+            continue
+
+        if char.isalpha() or char == "_":
+            end = cursor + 1
+            while end < len(text) and (text[end].isalnum() or text[end] == "_"):
+                end += 1
+            if text[cursor:end] == "RegExp":
+                open_paren = _next_code_character(text, end)
+                if open_paren < len(text) and text[open_paren] == "(":
+                    regexp_open_parens.add(open_paren)
+            cursor = end
+            continue
+
+        if char == "(":
+            is_regexp = cursor in regexp_open_parens
+            paren_stack.append(is_regexp)
+            if is_regexp:
+                regexp_depth += 1
+        elif char == ")" and paren_stack:
+            if paren_stack.pop():
+                regexp_depth -= 1
+        cursor += 1
+
+    return "".join(masked)
+
+
+def scan_lines(
+    lines: Iterable[tuple[int, str]],
+    *,
+    report_line_numbers: set[int] | None = None,
+) -> list[tuple[int, str, str]]:
+    source_lines = list(lines)
+    source_text = "\n".join(line for _, line in source_lines)
+    masked_lines = _mask_regexp_literals(source_text).split("\n")
     out: list[tuple[int, str, str]] = []
-    for lineno, line in lines:
+    for (lineno, line), masked_line in zip(source_lines, masked_lines):
+        if report_line_numbers is not None and lineno not in report_line_numbers:
+            continue
         if _line_is_exempt(line):
             continue
-        m1 = _QUOTED_ACCENT.search(line)
+        m1 = _QUOTED_ACCENT.search(masked_line)
         if m1:
             out.append((lineno, line.strip()[:140], f"hardcoded-fr-accent: {m1.group(1)[:60]}"))
             continue
-        m2 = _QUOTED_FR_WORDS.search(line)
+        m2 = _QUOTED_FR_WORDS.search(masked_line)
         if m2:
             out.append((lineno, line.strip()[:140], f"hardcoded-fr-words: {m2.group(1)[:60]}"))
     return out
@@ -164,7 +277,27 @@ def scan_staged_file(path: Path) -> list[tuple[int, str, str]]:
     )
     if diff_result.returncode != 0:
         raise RuntimeError(diff_result.stderr.strip() or f"git diff failed for {path}")
-    return scan_lines(added_lines_from_unified_diff(diff_result.stdout))
+    added_line_numbers = {
+        lineno for lineno, _ in added_lines_from_unified_diff(diff_result.stdout)
+    }
+    if not added_line_numbers:
+        return []
+
+    index_result = subprocess.run(
+        ["git", "show", f":{relative.as_posix()}"],
+        cwd=repo_root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if index_result.returncode != 0:
+        raise RuntimeError(
+            index_result.stderr.strip() or f"cannot read staged content for {path}"
+        )
+    return scan_lines(
+        enumerate(index_result.stdout.splitlines(), start=1),
+        report_line_numbers=added_line_numbers,
+    )
 
 
 def _collect_paths(scope: list[str]) -> list[Path]:

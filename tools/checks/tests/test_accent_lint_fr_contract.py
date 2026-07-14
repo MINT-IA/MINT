@@ -1,5 +1,8 @@
 import importlib.util
+import json
 from pathlib import Path
+import subprocess
+import sys
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -11,10 +14,19 @@ accent_lint_fr = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(accent_lint_fr)
 
 
+def _run_cli(path: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, str(LINT), "--file", str(path)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+
 def test_markdown_code_spans_are_not_french_copy(tmp_path: Path) -> None:
     doc = tmp_path / "contract.md"
     doc.write_text(
-        "Route slug stays exact: `/coach/chat?topic=premier-ecl" "airage`.\n",
+        "Route slug stays exact: `/coach/chat?topic=premier-eclairage`.\n",
         encoding="utf-8",
     )
 
@@ -23,7 +35,7 @@ def test_markdown_code_spans_are_not_french_copy(tmp_path: Path) -> None:
 
 def test_markdown_plain_french_copy_is_still_linted(tmp_path: Path) -> None:
     doc = tmp_path / "copy.md"
-    doc.write_text("Ce premier ecl" "airage doit être accentué.\n", encoding="utf-8")
+    doc.write_text("Ce premier eclairage doit être accentué.\n", encoding="utf-8")
 
     violations = accent_lint_fr.scan_file(doc)
 
@@ -34,7 +46,7 @@ def test_markdown_plain_french_copy_is_still_linted(tmp_path: Path) -> None:
 def test_dart_route_literals_are_not_french_copy(tmp_path: Path) -> None:
     dart = tmp_path / "app.dart"
     dart.write_text(
-        "GoRoute(path: '/onboarding/premier-ecl" "airage', builder: _build);\n",
+        "GoRoute(path: '/onboarding/premier-eclairage', builder: _build);\n",
         encoding="utf-8",
     )
 
@@ -44,7 +56,7 @@ def test_dart_route_literals_are_not_french_copy(tmp_path: Path) -> None:
 def test_python_route_literals_are_not_french_copy(tmp_path: Path) -> None:
     python = tmp_path / "endpoint.py"
     python.write_text(
-        "@router.post('/premier-ecl" "airage')\n",
+        "@router.post('/premier-eclairage')\n",
         encoding="utf-8",
     )
 
@@ -54,7 +66,7 @@ def test_python_route_literals_are_not_french_copy(tmp_path: Path) -> None:
 def test_dart_plain_ui_copy_is_still_linted(tmp_path: Path) -> None:
     dart = tmp_path / "screen.dart"
     dart.write_text(
-        "const Text('Ce premier ecl" "airage doit être accentué');\n",
+        "const Text('Ce premier eclairage doit être accentué');\n",
         encoding="utf-8",
     )
 
@@ -66,17 +78,16 @@ def test_dart_plain_ui_copy_is_still_linted(tmp_path: Path) -> None:
 
 def test_non_french_arb_is_not_scanned_as_french_copy(tmp_path: Path) -> None:
     arb = tmp_path / "app_de.arb"
-    arb.write_text(
-        '{"lamalFranchiseIntro": "Verschiebe die Reg' "ler, um zu vergleichen." "}\n",
-        encoding="utf-8",
-    )
+    payload = {"lamalFranchiseIntro": "Verschiebe die Regler, um zu vergleichen."}
+    arb.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
+    assert json.loads(arb.read_text(encoding="utf-8")) == payload
     assert accent_lint_fr.scan_file(arb) == []
 
 
 def test_french_arb_is_still_linted(tmp_path: Path) -> None:
     arb = tmp_path / "app_fr.arb"
-    arb.write_text('{"title": "Ce premier ecl' 'airage compte."}\n', encoding="utf-8")
+    arb.write_text('{"title": "Ce premier eclairage compte."}\n', encoding="utf-8")
 
     violations = accent_lint_fr.scan_file(arb)
 
@@ -89,7 +100,7 @@ def test_non_french_generated_l10n_dart_is_not_scanned_as_french_copy(
 ) -> None:
     dart = tmp_path / "app_localizations_de.dart"
     dart.write_text(
-        "String get title => 'Verschiebe die Reg" "ler, um zu vergleichen.';\n",
+        "String get title => 'Verschiebe die Regler, um zu vergleichen.';\n",
         encoding="utf-8",
     )
 
@@ -99,7 +110,7 @@ def test_non_french_generated_l10n_dart_is_not_scanned_as_french_copy(
 def test_french_generated_l10n_dart_is_still_linted(tmp_path: Path) -> None:
     dart = tmp_path / "app_localizations_fr.dart"
     dart.write_text(
-        "String get title => 'Ce premier ecl" "airage compte.';\n",
+        "String get title => 'Ce premier eclairage compte.';\n",
         encoding="utf-8",
     )
 
@@ -107,3 +118,146 @@ def test_french_generated_l10n_dart_is_still_linted(tmp_path: Path) -> None:
 
     assert len(violations) == 1
     assert "éclairage" in violations[0][2]
+
+
+def test_dart_comments_identifiers_and_machine_ids_are_not_ui_copy(
+    tmp_path: Path,
+) -> None:
+    flattened = "securite"
+    dart = tmp_path / "visibility_score_service.dart"
+    dart.write_text(
+        f"""// {flattened} is an internal axis name.
+/* The {flattened} axis is weighted below. */
+final {flattened} = computeAxis();
+return VisibilityAxis(
+  id: '{flattened}',
+  score: {flattened}.score,
+);
+""",
+        encoding="utf-8",
+    )
+
+    assert accent_lint_fr.scan_file(dart) == []
+
+
+def test_dart_ui_copy_is_linted_even_when_it_is_one_identifier_shaped_word(
+    tmp_path: Path,
+) -> None:
+    flattened = "securite"
+    dart = tmp_path / "screen.dart"
+    dart.write_text(
+        f"Text('{flattened}');\nSemantics(label: 'Reste en {flattened}');\n",
+        encoding="utf-8",
+    )
+
+    violations = accent_lint_fr.scan_file(dart)
+
+    assert [violation[0] for violation in violations] == [1, 2]
+    assert all("sécurité" in violation[2] for violation in violations)
+
+
+def test_dart_interpolation_identifiers_are_not_mistaken_for_ui_copy(
+    tmp_path: Path,
+) -> None:
+    flattened = "securite"
+    dart = tmp_path / "screen.dart"
+    dart.write_text(
+        f"Text('Score: ${flattened}');\nText('Score: ${{state.{flattened}}}');\n",
+        encoding="utf-8",
+    )
+
+    assert accent_lint_fr.scan_file(dart) == []
+
+
+def test_plain_braces_do_not_create_an_interpolation_bypass(tmp_path: Path) -> None:
+    flattened = "securite"
+    dart = tmp_path / "screen.dart"
+    dart.write_text(f"Text('{{{flattened}}}');\n", encoding="utf-8")
+    python = tmp_path / "screen.py"
+    python.write_text(f"show('{{{flattened}}}')\n", encoding="utf-8")
+
+    assert len(accent_lint_fr.scan_file(dart)) == 1
+    assert len(accent_lint_fr.scan_file(python)) == 1
+
+
+def test_dart_switch_pattern_tokens_are_not_ui_copy(tmp_path: Path) -> None:
+    flattened = "securite"
+    dart = tmp_path / "icon.dart"
+    dart.write_text(
+        f"final icon = switch (axisId) {{ '{flattened}' => Icons.shield }};\n",
+        encoding="utf-8",
+    )
+
+    assert accent_lint_fr.scan_file(dart) == []
+
+
+def test_comment_markers_inside_dart_ui_strings_do_not_hide_copy(
+    tmp_path: Path,
+) -> None:
+    flattened = "securite"
+    dart = tmp_path / "screen.dart"
+    dart.write_text(
+        f"Text('Reste // en {flattened}');\nText('Reste /* en {flattened} */');\n",
+        encoding="utf-8",
+    )
+
+    violations = accent_lint_fr.scan_file(dart)
+
+    assert [violation[0] for violation in violations] == [1, 2]
+
+
+def test_python_comments_identifiers_and_machine_ids_are_not_ui_copy(
+    tmp_path: Path,
+) -> None:
+    flattened = "securite"
+    python = tmp_path / "score.py"
+    python.write_text(
+        f"""# {flattened} is an internal axis name.
+{flattened} = compute_axis()
+axis = Axis(id='{flattened}', score={flattened}.score)
+""",
+        encoding="utf-8",
+    )
+
+    assert accent_lint_fr.scan_file(python) == []
+
+
+def test_python_user_copy_remains_linted(tmp_path: Path) -> None:
+    flattened = "securite"
+    python = tmp_path / "screen.py"
+    python.write_text(
+        f"show_message('Reste en {flattened}')\n",
+        encoding="utf-8",
+    )
+
+    violations = accent_lint_fr.scan_file(python)
+
+    assert len(violations) == 1
+    assert "sécurité" in violations[0][2]
+
+
+def test_cli_blocks_unaccented_copy_in_production_dart_and_python(
+    tmp_path: Path,
+) -> None:
+    dart = tmp_path / "apps/mobile/lib/screen.dart"
+    python = tmp_path / "services/backend/app/endpoint.py"
+    dart.parent.mkdir(parents=True)
+    python.parent.mkdir(parents=True)
+    dart.write_text("Text('Reste en securite');\n", encoding="utf-8")
+    python.write_text("show_message('Reste en securite')\n", encoding="utf-8")
+
+    for production_file in (dart, python):
+        result = _run_cli(production_file)
+        assert result.returncode == 1
+        assert "sécurité" in result.stderr
+
+
+def test_cli_ignores_check_self_test_fixtures_but_direct_scan_stays_active(
+    tmp_path: Path,
+) -> None:
+    fixture = tmp_path / "tools/checks/tests/test_fixture.py"
+    fixture.parent.mkdir(parents=True)
+    fixture.write_text("show_message('Reste en securite')\n", encoding="utf-8")
+
+    assert accent_lint_fr.scan_file(fixture)
+    assert _run_cli(fixture).returncode == 0

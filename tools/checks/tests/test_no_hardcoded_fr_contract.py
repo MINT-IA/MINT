@@ -155,3 +155,145 @@ def test_file_mode_respects_legacy_debt_prevention_allowlist() -> None:
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_regexp_literals_are_exempt_but_same_line_ui_copy_is_not() -> None:
+    linter = _load_linter()
+
+    violations = linter.scan_lines(
+        [
+            (
+                1,
+                'final pattern = RegExp(r"revenu imposable et déductions"); '
+                'const label = "Résumé de l’épargne";',
+            ),
+        ]
+    )
+
+    assert len(violations) == 1
+    assert violations[0][0] == 1
+    assert "Résumé de l’épargne" in violations[0][1]
+    assert "Résumé de l’épargne" in violations[0][2]
+
+
+def test_multiline_concatenated_regexp_literals_are_exempt_until_closure() -> None:
+    linter = _load_linter()
+
+    violations = linter.scan_lines(
+        enumerate(
+            [
+                "final pattern = RegExp(",
+                '  r"total des revenus imposables" +',
+                '      r" et de la fortune",',
+                "  caseSensitive: false,",
+                ");",
+                'const warning = "Vérifie les valeurs avec le document";',
+            ],
+            start=1,
+        )
+    )
+
+    assert [violation[0] for violation in violations] == [6]
+    assert "Vérifie les valeurs" in violations[0][1]
+
+
+def test_full_file_mode_exempts_only_regexp_literals(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    target = repo / "apps/mobile/lib/parser.dart"
+    target.parent.mkdir(parents=True)
+    target.write_text(
+        "final pattern = RegExp(\n"
+        '  r"revenu imposable et déductions",\n'
+        ");\n"
+        'const disclaimer = "Vérifie les valeurs avec le document";\n',
+        encoding="utf-8",
+    )
+
+    visible_copy = _run_linter(repo, "--file", str(target.relative_to(repo)))
+
+    assert visible_copy.returncode == 1
+    assert "apps/mobile/lib/parser.dart:4:" in visible_copy.stderr
+    assert "Vérifie les valeurs" in visible_copy.stderr
+    assert "revenu imposable et déductions" not in visible_copy.stderr
+
+    target.write_text(
+        "final pattern = RegExp(\n"
+        '  r"revenu imposable et déductions",\n'
+        ");\n",
+        encoding="utf-8",
+    )
+
+    machine_only = _run_linter(repo, "--file", str(target.relative_to(repo)))
+
+    assert machine_only.returncode == 0, machine_only.stderr
+
+
+def test_comments_cannot_open_or_close_a_regexp_exemption() -> None:
+    linter = _load_linter()
+
+    violations = linter.scan_lines(
+        enumerate(
+            [
+                '// RegExp("revenu de la taxation")',
+                'const label = "Résumé de l’épargne";',
+                "final pattern = RegExp(",
+                '  r"revenu imposable", // ) "Vérifie le document"',
+                '  caseSensitive: false,',
+                ");",
+                'const source = "Source de la taxation";',
+            ],
+            start=1,
+        )
+    )
+
+    assert {violation[0] for violation in violations} == {1, 2, 4, 7}
+
+
+def test_staged_mode_uses_index_context_for_multiline_regexp(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    target = repo / "apps/mobile/lib/parser.dart"
+    target.parent.mkdir(parents=True)
+    target.write_text(
+        "final pattern = RegExp(\n"
+        '  r"steuerbares einkommen",\n'
+        "  caseSensitive: false,\n"
+        ");\n",
+        encoding="utf-8",
+    )
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "mint@example.test")
+    _git(repo, "config", "user.name", "MINT Test")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-qm", "baseline")
+
+    target.write_text(
+        "final pattern = RegExp(\n"
+        '  r"steuerbares einkommen" +\n'
+        '      r" et revenu de la taxation",\n'
+        "  caseSensitive: false,\n"
+        ");\n",
+        encoding="utf-8",
+    )
+    _git(repo, "add", str(target.relative_to(repo)))
+
+    machine_pattern = _run_linter(
+        repo, "--staged-file", str(target.relative_to(repo))
+    )
+
+    assert machine_pattern.returncode == 0, machine_pattern.stderr
+
+    target.write_text(
+        target.read_text(encoding="utf-8")
+        + 'const warning = "Vérifie les valeurs avec le document";\n',
+        encoding="utf-8",
+    )
+    _git(repo, "add", str(target.relative_to(repo)))
+
+    visible_copy = _run_linter(repo, "--staged-file", str(target.relative_to(repo)))
+
+    assert visible_copy.returncode == 1
+    assert "apps/mobile/lib/parser.dart:6:" in visible_copy.stderr
+    assert "Vérifie les valeurs" in visible_copy.stderr
+    assert "revenu de la taxation" not in visible_copy.stderr
