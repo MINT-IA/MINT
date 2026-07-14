@@ -79,9 +79,11 @@ metadata="$artifacts/metadata.json"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 finished_at=""
 write_exit_code=""
+boot_status_exit_code=""
 launch_exit_code=""
 terminate_exit_code=""
 read_exit_code=""
+boot_status_log="$artifacts/bootstatus.log"
 
 mobile_build="$mobile_root/build"
 build_backup="$mobile_root/.dart_tool/mint-patrol-g1-prov03-build-backup-$sha"
@@ -107,6 +109,7 @@ read_der_sha256=""
 
 write_command_text="$patrol_bin build ios --target $write_target --simulator --bundle-id $bundle_id --dart-define=MINT_PATROL_CLI=true"
 read_command_text="$patrol_bin build ios --target $read_target --simulator --bundle-id $bundle_id --dart-define=MINT_PATROL_CLI=true"
+boot_status_command_text="xcrun simctl bootstatus $device -b"
 launch_command_text="xcrun simctl launch $device $bundle_id"
 terminate_command_text="xcrun simctl terminate $device $bundle_id"
 
@@ -118,10 +121,13 @@ write_metadata() {
   MINT_META_STARTED="$started_at" \
   MINT_META_FINISHED="$finished_at" \
   MINT_META_WRITE_COMMAND="$write_command_text" \
+  MINT_META_BOOT_STATUS_COMMAND="$boot_status_command_text" \
+  MINT_META_BOOT_STATUS_LOG="$boot_status_log" \
   MINT_META_LAUNCH_COMMAND="$launch_command_text" \
   MINT_META_TERMINATE_COMMAND="$terminate_command_text" \
   MINT_META_READ_COMMAND="$read_command_text" \
   MINT_META_WRITE_EXIT="$write_exit_code" \
+  MINT_META_BOOT_STATUS_EXIT="$boot_status_exit_code" \
   MINT_META_LAUNCH_EXIT="$launch_exit_code" \
   MINT_META_TERMINATE_EXIT="$terminate_exit_code" \
   MINT_META_READ_EXIT="$read_exit_code" \
@@ -187,10 +193,13 @@ payload = {
     "started_at": os.environ["MINT_META_STARTED"],
     "finished_at": os.environ["MINT_META_FINISHED"],
     "write_command": os.environ["MINT_META_WRITE_COMMAND"],
+    "boot_status_command": os.environ["MINT_META_BOOT_STATUS_COMMAND"],
+    "boot_status_log": os.environ["MINT_META_BOOT_STATUS_LOG"],
     "launch_command": os.environ["MINT_META_LAUNCH_COMMAND"],
     "terminate_command": os.environ["MINT_META_TERMINATE_COMMAND"],
     "read_command": os.environ["MINT_META_READ_COMMAND"],
     "write_exit_code": exit_code("MINT_META_WRITE_EXIT"),
+    "boot_status_exit_code": exit_code("MINT_META_BOOT_STATUS_EXIT"),
     "launch_exit_code": exit_code("MINT_META_LAUNCH_EXIT"),
     "terminate_exit_code": exit_code("MINT_META_TERMINATE_EXIT"),
     "read_exit_code": exit_code("MINT_META_READ_EXIT"),
@@ -453,6 +462,15 @@ if [[ "$write_build_exit" -ne 0 ]]; then
 fi
 inspect_runner "write"
 run_xcode_test "write"
+
+set +e
+xcrun simctl bootstatus "$device" -b >"$boot_status_log" 2>&1
+boot_status_exit_code=$?
+set -e
+if [[ "$boot_status_exit_code" -ne 0 ]]; then
+  echo "patrol_tax_provenance_process_death: bootstatus stage failed ($boot_status_exit_code)" >&2
+  exit "$boot_status_exit_code"
+fi
 
 set +e
 xcrun simctl launch "$device" "$bundle_id" >"$artifacts/launch.log" 2>&1

@@ -77,6 +77,7 @@ def _fake_runtime(
     write_build_exit: int = 0,
     read_build_exit: int = 0,
     write_exit: int = 0,
+    bootstatus_exit: int = 0,
     launch_exit: int = 0,
     terminate_exit: int = 0,
     read_exit: int = 0,
@@ -239,6 +240,7 @@ def _fake_runtime(
         'PY\n'
         '  exit 0\n'
         'fi\n'
+        f'if [[ "${{2:-}}" == "bootstatus" ]]; then exit {bootstatus_exit}; fi\n'
         f'if [[ "${{2:-}}" == "launch" ]]; then exit {launch_exit}; fi\n'
         f'if [[ "${{2:-}}" == "terminate" ]]; then exit {terminate_exit}; fi\n'
         "exit 92\n",
@@ -448,6 +450,7 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     assert orchestrator.count("xcodebuild test-without-building") == 1
     assert orchestrator.count('run_xcode_test "write"') == 1
     assert orchestrator.count('run_xcode_test "read"') == 1
+    assert orchestrator.count('xcrun simctl bootstatus "$device" -b') == 1
     assert orchestrator.count('xcrun simctl launch "$device" "$bundle_id"') == 1
     assert orchestrator.count('xcrun simctl terminate "$device" "$bundle_id"') == 1
     assert "rev-parse HEAD" in orchestrator
@@ -473,6 +476,9 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     assert "com.apple.FinderInfo" in orchestrator
     assert "com.apple.ResourceFork" in orchestrator
     assert "metadata.json" in orchestrator
+    assert '"boot_status_command"' in orchestrator
+    assert '"boot_status_exit_code"' in orchestrator
+    assert '"boot_status_log"' in orchestrator
     assert '"contract": "g1_prov03_tax"' in orchestrator
     assert '"synthetic_data_only": True' in orchestrator
 
@@ -514,6 +520,7 @@ def test_tax_orchestrator_runs_write_process_death_read_and_metadata(
     assert sum("lipo -thin" in line for line in xcrun_calls) == 2
     assert sum("otool -l" in line for line in xcrun_calls) == 2
     assert simctl_calls == [
+        f"xcrun simctl bootstatus {SYNTHETIC_UDID} -b",
         f"xcrun simctl launch {SYNTHETIC_UDID} {BUNDLE_ID}",
         f"xcrun simctl terminate {SYNTHETIC_UDID} {BUNDLE_ID}",
     ]
@@ -534,6 +541,12 @@ def test_tax_orchestrator_runs_write_process_death_read_and_metadata(
     assert metadata["bundle_id"] == BUNDLE_ID
     assert metadata["sha"] == SYNTHETIC_SHA
     assert metadata["write_exit_code"] == 0
+    assert metadata["boot_status_exit_code"] == 0
+    assert metadata["boot_status_command"] == (
+        f"xcrun simctl bootstatus {SYNTHETIC_UDID} -b"
+    )
+    assert Path(metadata["boot_status_log"]) == tmp_path / "artifacts/bootstatus.log"
+    assert Path(metadata["boot_status_log"]).is_file()
     assert metadata["launch_exit_code"] == 0
     assert metadata["terminate_exit_code"] == 0
     assert metadata["read_exit_code"] == 0
@@ -568,6 +581,7 @@ def test_tax_orchestrator_runs_write_process_death_read_and_metadata(
     [
         ({"write_build_exit": 6}, "write build stage failed", "codesign --verify"),
         ({"write_exit": 7}, "write test stage failed", "xcrun simctl launch"),
+        ({"bootstatus_exit": 12}, "bootstatus stage failed", "xcrun simctl launch"),
         ({"launch_exit": 8}, "launch stage failed", "xcrun simctl terminate"),
         (
             {"terminate_exit": 9},
