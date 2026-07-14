@@ -455,6 +455,7 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     assert "g1_prov03_tax_persistence_read_runtime_test.dart" in orchestrator
     assert orchestrator.count('"$patrol_bin" build ios') == 2
     assert orchestrator.count("xcodebuild test-without-building") == 1
+    assert orchestrator.count('-only-testing "RunnerUITests/RunnerUITests"') == 1
     assert orchestrator.count('run_xcode_test "write"') == 1
     assert orchestrator.count('run_xcode_test "read"') == 1
     assert orchestrator.count('xcrun simctl bootstatus "$device" -b') == 1
@@ -524,6 +525,10 @@ def test_tax_orchestrator_runs_write_process_death_read_and_metadata(
     assert len(xattr_calls) == 2
     assert len(xcodebuild_calls) == 2
     assert all("test-without-building" in call for call in xcodebuild_calls)
+    assert all(
+        "-only-testing RunnerUITests/RunnerUITests" in call
+        for call in xcodebuild_calls
+    )
     assert all(f"platform=iOS Simulator,id={SYNTHETIC_UDID}" in call for call in xcodebuild_calls)
     simctl_calls = [line for line in xcrun_calls if " simctl " in line]
     assert sum("lipo -thin" in line for line in xcrun_calls) == 2

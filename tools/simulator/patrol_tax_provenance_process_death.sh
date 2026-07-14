@@ -423,6 +423,7 @@ run_xcode_test() {
   set +e
   xcodebuild test-without-building \
     -xctestrun "$xctestrun" \
+    -only-testing "RunnerUITests/RunnerUITests" \
     -destination "platform=iOS Simulator,id=$device" \
     -resultBundlePath "$result_bundle" \
     2>&1 | tee "$artifacts/$stage.log"
