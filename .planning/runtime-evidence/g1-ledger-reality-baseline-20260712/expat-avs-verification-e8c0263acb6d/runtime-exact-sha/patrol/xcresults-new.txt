@@ -1,0 +1,1 @@
+apps/mobile/build/ios_results_1783978990507.xcresult

@@ -1,0 +1,18 @@
+00:00 +0: loading /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart
+00:00 +0: FinancialFitnessService - Prevoyance sub-score normalizes against the available prevoyance criterion maxima
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +0 -1: FinancialFitnessService - Prevoyance sub-score normalizes against the available prevoyance criterion maxima [E]
+  Expected: <93>
+    Actual: <70>
+
+  package:matcher                                          expect
+  package:flutter_test/src/widget_tester.dart 473:18       expect
+  test/services/financial_fitness_service_test.dart 393:7  main.<fn>.<fn>
+
+00:00 +0 -1: Some tests failed.

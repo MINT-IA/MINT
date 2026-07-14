@@ -1,0 +1,1099 @@
+$ cd services/backend && ruff check .
+F401 [*] `alembic.op` imported but unused
+  --> alembic/versions/5f7922bff82b_merge_p11_and_p15.py:10:21
+   |
+ 8 | from typing import Sequence, Union
+ 9 |
+10 | from alembic import op
+   |                     ^^
+11 | import sqlalchemy as sa
+   |
+help: Remove unused import: `alembic.op`
+
+F401 [*] `sqlalchemy` imported but unused
+  --> alembic/versions/5f7922bff82b_merge_p11_and_p15.py:11:22
+   |
+10 | from alembic import op
+11 | import sqlalchemy as sa
+   |                      ^^
+   |
+help: Remove unused import: `sqlalchemy`
+
+F401 [*] `datetime.timedelta` imported but unused
+  --> app/api/v1/endpoints/coach_chat.py:38:32
+   |
+36 | import os
+37 | import re
+38 | from datetime import datetime, timedelta, timezone
+   |                                ^^^^^^^^^
+39 | from typing import Optional
+   |
+help: Remove unused import: `datetime.timedelta`
+
+F841 Local variable `where_t` is assigned to but never used
+    --> app/api/v1/endpoints/coach_chat.py:1430:9
+     |
+1428 |     if name == "record_commitment":
+1429 |         when_t = tool_input.get("when_text", "")
+1430 |         where_t = tool_input.get("where_text", "")
+     |         ^^^^^^^
+1431 |         if_then_t = tool_input.get("if_then_text", "")
+1432 |         logger.info("record_commitment ack: %s / %s", when_t[:50], if_then_t[:50])
+     |
+help: Remove assignment to unused variable `where_t`
+
+F841 Local variable `user_response` is assigned to but never used
+    --> app/api/v1/endpoints/coach_chat.py:1437:9
+     |
+1435 |     if name == "save_pre_mortem":
+1436 |         decision_type = tool_input.get("decision_type", "")
+1437 |         user_response = tool_input.get("user_response", "")
+     |         ^^^^^^^^^^^^^
+1438 |         logger.info("save_pre_mortem ack: type=%s", decision_type[:50])
+1439 |         return f"Pré-mortem enregistré pour {decision_type}."
+     |
+help: Remove assignment to unused variable `user_response`
+
+F401 [*] `datetime.timezone` imported but unused
+  --> app/api/v1/endpoints/fresh_start.py:19:38
+   |
+17 | import logging
+18 | from collections import defaultdict
+19 | from datetime import date, datetime, timezone
+   |                                      ^^^^^^^^
+20 | from typing import Optional
+   |
+help: Remove unused import: `datetime.timezone`
+
+F841 Local variable `first_employment_year` is assigned to but never used
+   --> app/api/v1/endpoints/fresh_start.py:152:5
+    |
+150 |     """
+151 |     birth_date = profile_context.get("birth_date")
+152 |     first_employment_year = profile_context.get("first_employment_year")
+    |     ^^^^^^^^^^^^^^^^^^^^^
+153 |     pillar_3a_amount = profile_context.get("pillar_3a_capital")
+    |
+help: Remove assignment to unused variable `first_employment_year`
+
+F401 [*] `sqlalchemy.ForeignKey` imported but unused
+  --> app/models/consent.py:34:5
+   |
+32 |     Column,
+33 |     DateTime,
+34 |     ForeignKey,
+   |     ^^^^^^^^^^
+35 |     Index,
+36 |     String,
+   |
+help: Remove unused import: `sqlalchemy.ForeignKey`
+
+E402 Module level import not at top of file
+  --> app/routes/wizard.py:9:1
+   |
+ 8 | logger = logging.getLogger(__name__)
+ 9 | from app.models.session import Session
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+10 | from app.models.user import User
+11 | from app.database import get_db
+   |
+
+E402 Module level import not at top of file
+  --> app/routes/wizard.py:10:1
+   |
+ 8 | logger = logging.getLogger(__name__)
+ 9 | from app.models.session import Session
+10 | from app.models.user import User
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 | from app.database import get_db
+12 | from app.core.auth import require_current_user
+   |
+
+E402 Module level import not at top of file
+  --> app/routes/wizard.py:11:1
+   |
+ 9 | from app.models.session import Session
+10 | from app.models.user import User
+11 | from app.database import get_db
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+12 | from app.core.auth import require_current_user
+13 | from app.core.rate_limit import limiter
+   |
+
+E402 Module level import not at top of file
+  --> app/routes/wizard.py:12:1
+   |
+10 | from app.models.user import User
+11 | from app.database import get_db
+12 | from app.core.auth import require_current_user
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 | from app.core.rate_limit import limiter
+14 | from sqlalchemy.orm import Session as DBSession
+   |
+
+E402 Module level import not at top of file
+  --> app/routes/wizard.py:13:1
+   |
+11 | from app.database import get_db
+12 | from app.core.auth import require_current_user
+13 | from app.core.rate_limit import limiter
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 | from sqlalchemy.orm import Session as DBSession
+   |
+
+E402 Module level import not at top of file
+  --> app/routes/wizard.py:14:1
+   |
+12 | from app.core.auth import require_current_user
+13 | from app.core.rate_limit import limiter
+14 | from sqlalchemy.orm import Session as DBSession
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 |
+16 | router = APIRouter(prefix="/sessions", tags=["wizard"])
+   |
+
+F401 [*] `typing.Any` imported but unused
+  --> app/schemas/document_understanding.py:18:20
+   |
+17 | from enum import Enum
+18 | from typing import Any, Dict, List, Literal, Optional, Union
+   |                    ^^^
+19 |
+20 | from pydantic import BaseModel, ConfigDict, Field
+   |
+help: Remove unused import: `typing.Any`
+
+F401 [*] `typing.Optional` imported but unused
+  --> app/schemas/enhanced_confidence.py:20:20
+   |
+18 | from __future__ import annotations
+19 |
+20 | from typing import Optional
+   |                    ^^^^^^^^
+21 |
+22 | from pydantic import BaseModel, ConfigDict, Field
+   |
+help: Remove unused import: `typing.Optional`
+
+F401 [*] `pydantic.UUID4` imported but unused
+ --> app/schemas/profile.py:2:40
+  |
+1 | import logging
+2 | from pydantic import BaseModel, Field, UUID4, ConfigDict, model_validator
+  |                                        ^^^^^
+3 | from enum import Enum
+4 | from typing import Optional
+  |
+help: Remove unused import: `pydantic.UUID4`
+
+E402 Module level import not at top of file
+   --> app/services/coach/claude_coach_service.py:848:1
+    |
+846 | # and response-emit phases.
+847 |
+848 | import logging as _n5_logging
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+849 | from datetime import datetime as _n5_dt, timedelta as _n5_td, timezone as _n5_tz
+    |
+
+E402 Module level import not at top of file
+   --> app/services/coach/claude_coach_service.py:849:1
+    |
+848 | import logging as _n5_logging
+849 | from datetime import datetime as _n5_dt, timedelta as _n5_td, timezone as _n5_tz
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+850 |
+851 | _n5_logger = _n5_logging.getLogger(__name__)
+    |
+
+F401 [*] `app.services.privacy.fact_key_allowlist.ALLOWED_FACT_KEYS` imported but unused
+   --> app/services/document_memory_service.py:314:9
+    |
+312 |     """
+313 |     from app.services.privacy.fact_key_allowlist import (
+314 |         ALLOWED_FACT_KEYS,
+    |         ^^^^^^^^^^^^^^^^^
+315 |         is_allowed,
+316 |         purpose_of,
+    |
+help: Remove unused import: `app.services.privacy.fact_key_allowlist.ALLOWED_FACT_KEYS`
+
+E402 Module level import not at top of file
+  --> app/services/document_vision_service.py:41:1
+   |
+39 | # are NOT called by production code paths — every Vision call goes via
+40 | # `_sync_vision_call` / `_async_vision_call` → LLMRouter.
+41 | import asyncio as _asyncio
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+42 |
+43 | try:  # pragma: no cover — legacy import for test-patch compatibility
+   |
+
+E402 Module level import not at top of file
+  --> app/services/document_vision_service.py:49:1
+   |
+47 |     AsyncAnthropic = None  # type: ignore[assignment]
+48 |
+49 | from app.core.config import settings
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+50 | from app.services.llm.router import LLMRequest, get_router
+   |
+
+E402 Module level import not at top of file
+  --> app/services/document_vision_service.py:50:1
+   |
+49 | from app.core.config import settings
+50 | from app.services.llm.router import LLMRequest, get_router
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+   --> app/services/document_vision_service.py:178:1
+    |
+176 |           purpose="document_vision",
+177 |       ))
+178 | / from app.schemas.document_scan import (
+179 | |     DocumentType,
+180 | |     DocumentClassificationResult,
+181 | |     ExtractedFieldConfirmation,
+182 | |     ConfidenceLevel,
+183 | |     LppPlanType,
+184 | |     VisionExtractionResponse,
+185 | | )
+    | |_^
+186 |
+187 |   logger = logging.getLogger(__name__)
+    |
+
+E402 Module level import not at top of file
+   --> app/services/document_vision_service.py:823:1
+    |
+821 | # ═══════════════════════════════════════════════════════════════════════════
+822 |
+823 | import base64 as _b64
+    | ^^^^^^^^^^^^^^^^^^^^^
+824 | from typing import Any as _Any
+    |
+
+E402 Module level import not at top of file
+   --> app/services/document_vision_service.py:824:1
+    |
+823 | import base64 as _b64
+824 | from typing import Any as _Any
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+825 |
+826 | from app.schemas.document_understanding import (
+    |
+
+E402 Module level import not at top of file
+   --> app/services/document_vision_service.py:826:1
+    |
+824 |   from typing import Any as _Any
+825 |
+826 | / from app.schemas.document_understanding import (
+827 | |     CommitmentSuggestion as _CommitmentSuggestion,
+828 | |     ConfidenceLevel as _ConfidenceLevel,
+829 | |     CoherenceWarning as _CoherenceWarning,
+830 | |     DocumentClass as _DocumentClass,
+831 | |     DocumentUnderstandingResult as _DUR,
+832 | |     ExtractedField as _EF,
+833 | |     ExtractionStatus as _ES,
+834 | |     FieldStatus as _FS,
+835 | |     RenderMode as _RM,
+836 | | )
+    | |_^
+837 |   from app.services import idempotency as _idempotency
+838 |   from app.services.document_pdf_preflight import (
+    |
+
+E402 Module level import not at top of file
+   --> app/services/document_vision_service.py:837:1
+    |
+835 |     RenderMode as _RM,
+836 | )
+837 | from app.services import idempotency as _idempotency
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+838 | from app.services.document_pdf_preflight import (
+839 |     preflight_pdf as _preflight_pdf,
+    |
+
+E402 Module level import not at top of file
+   --> app/services/document_vision_service.py:838:1
+    |
+836 |   )
+837 |   from app.services import idempotency as _idempotency
+838 | / from app.services.document_pdf_preflight import (
+839 | |     preflight_pdf as _preflight_pdf,
+840 | |     select_pages_for_vision as _select_pages,
+841 | | )
+    | |_^
+842 |   from app.services.document_render_mode import select_render_mode as _select_render_mode
+843 |   from app.services.document_third_party import (
+    |
+
+E402 Module level import not at top of file
+   --> app/services/document_vision_service.py:842:1
+    |
+840 |     select_pages_for_vision as _select_pages,
+841 | )
+842 | from app.services.document_render_mode import select_render_mode as _select_render_mode
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+843 | from app.services.document_third_party import (
+844 |     detect_third_party as _detect_third_party,
+    |
+
+E402 Module level import not at top of file
+   --> app/services/document_vision_service.py:843:1
+    |
+841 |   )
+842 |   from app.services.document_render_mode import select_render_mode as _select_render_mode
+843 | / from app.services.document_third_party import (
+844 | |     detect_third_party as _detect_third_party,
+845 | |     load_issuer_signatures as _load_signatures,
+846 | | )
+    | |_^
+847 |   from app.services.document_memory_service import (
+848 |       compute_fingerprint as _compute_fingerprint,
+    |
+
+E402 Module level import not at top of file
+   --> app/services/document_vision_service.py:847:1
+    |
+845 |       load_issuer_signatures as _load_signatures,
+846 |   )
+847 | / from app.services.document_memory_service import (
+848 | |     compute_fingerprint as _compute_fingerprint,
+849 | |     upsert_and_diff as _upsert_and_diff,
+850 | | )
+    | |_^
+    |
+
+F401 [*] `typing.Any` imported but unused
+  --> app/services/idempotency.py:18:20
+   |
+16 | import logging
+17 | import re
+18 | from typing import Any, Optional
+   |                    ^^^
+19 |
+20 | logger = logging.getLogger(__name__)
+   |
+help: Remove unused import: `typing.Any`
+
+F401 [*] `dataclasses.field` imported but unused
+  --> app/services/llm/router.py:32:36
+   |
+30 | import os
+31 | import time
+32 | from dataclasses import dataclass, field
+   |                                    ^^^^^
+33 | from typing import Any, Optional
+   |
+help: Remove unused import: `dataclasses.field`
+
+F401 [*] `os` imported but unused
+  --> app/services/privacy/recognizers_ch.py:17:8
+   |
+15 | from __future__ import annotations
+16 |
+17 | import os
+   |        ^^
+18 | import re
+19 | from pathlib import Path
+   |
+help: Remove unused import: `os`
+
+F401 [*] `typing.Optional` imported but unused
+  --> app/services/privacy/recognizers_ch.py:20:26
+   |
+18 | import re
+19 | from pathlib import Path
+20 | from typing import List, Optional
+   |                          ^^^^^^^^
+21 |
+22 | # Presidio is optional. Tests on Python 3.9 cannot install it because
+   |
+help: Remove unused import: `typing.Optional`
+
+F401 [*] `unittest.mock.AsyncMock` imported but unused
+  --> tests/coach/test_agent_loop_reflective.py:11:27
+   |
+ 9 | from __future__ import annotations
+10 |
+11 | from unittest.mock import AsyncMock
+   |                           ^^^^^^^^^
+12 |
+13 | import pytest
+   |
+help: Remove unused import: `unittest.mock.AsyncMock`
+
+F841 Local variable `stripped_tools` is assigned to but never used
+  --> tests/coach/test_agent_loop_reflective.py:93:5
+   |
+91 |     # show_fact_card is a real Flutter tool registered in COACH_TOOLS;
+92 |     # pass it in so external_calls matches it.
+93 |     stripped_tools = [{"name": "show_fact_card", "description": "", "input_schema": {"type": "object"}}]
+   |     ^^^^^^^^^^^^^^
+94 |
+95 |     result = await cc._run_agent_loop(
+   |
+help: Remove assignment to unused variable `stripped_tools`
+
+F841 Local variable `flutter_calls` is assigned to but never used
+   --> tests/coach/test_agent_loop_reflective.py:110:5
+    |
+108 |     )
+109 |
+110 |     flutter_calls = result.get("tool_calls") or []
+    |     ^^^^^^^^^^^^^
+111 |     assert result["answer"] == "Voici la carte 3a."
+112 |     # show_fact_card may not be in known COACH_TOOLS at test import time,
+    |
+help: Remove assignment to unused variable `flutter_calls`
+
+F401 [*] `pytest` imported but unused
+  --> tests/coach/test_claude_coach_safe_mode_prompt.py:13:8
+   |
+11 | """
+12 |
+13 | import pytest
+   |        ^^^^^^
+14 |
+15 | from app.services.coach.coach_context_builder import build_coach_context
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `pytest` imported but unused
+  --> tests/coach/test_coach_chat_profile_sanitize_has_debt.py:14:8
+   |
+12 | """
+13 |
+14 | import pytest
+   |        ^^^^^^
+15 |
+16 | from app.api.v1.endpoints.coach_chat import (
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `pytest` imported but unused
+  --> tests/coach/test_coach_context_has_debt.py:12:8
+   |
+10 | """
+11 |
+12 | import pytest
+   |        ^^^^^^
+13 |
+14 | from app.services.coach.coach_context_builder import build_coach_context
+   |
+help: Remove unused import: `pytest`
+
+F841 Local variable `src` is assigned to but never used
+   --> tests/coach/test_force_level_override.py:105:5
+    |
+103 |     smuggle a bypass — fail loud.
+104 |     """
+105 |     src = RUNNER_PATH.read_text(encoding="utf-8")
+    |     ^^^
+106 |     # The wrapper itself + the function body must not reference these.
+107 |     fn_src = inspect.getsource(runner_module.force_level_n4_directive)
+    |
+help: Remove assignment to unused variable `src`
+
+F401 [*] `app.services.slo_monitor` imported but unused
+  --> tests/coach/test_slo_monitor.py:17:41
+   |
+16 | from app.core import redis_client
+17 | from app.services import slo_monitor as slo_mod
+   |                                         ^^^^^^^
+18 | from app.services.slo_monitor import (
+19 |     CONSECUTIVE_BREACHES_TO_ROLLBACK,
+   |
+help: Remove unused import: `app.services.slo_monitor`
+
+F401 [*] `app.services.slo_monitor.FALLBACK_RATE_THRESHOLD` imported but unused
+  --> tests/coach/test_slo_monitor.py:20:5
+   |
+18 | from app.services.slo_monitor import (
+19 |     CONSECUTIVE_BREACHES_TO_ROLLBACK,
+20 |     FALLBACK_RATE_THRESHOLD,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+21 |     LATENCY_MS_THRESHOLD,
+22 |     SLOMonitor,
+   |
+help: Remove unused import: `app.services.slo_monitor.FALLBACK_RATE_THRESHOLD`
+
+F811 Redefinition of unused `User` from line 9
+  --> tests/documents/test_document_memory.py:31:33
+   |
+29 |     session = Session()
+30 |     # Insert two users so FK constraints (if SQLite enforces them) are satisfied
+31 |     from app.models.user import User
+   |                                 ^^^^ `User` redefined here
+32 |     u1 = User(id="user-julien", email="j@example.com", hashed_password="x")
+33 |     u2 = User(id="user-lauren", email="l@example.com", hashed_password="x")
+   |
+  ::: tests/documents/test_document_memory.py:9:24
+   |
+ 8 | from app.core.database import Base
+ 9 | from app.models import User, DocumentMemory  # noqa: F401 — register tables
+   |                        ---- previous definition of `User` here
+10 | from app.schemas.document_understanding import (
+11 |     ConfidenceLevel,
+   |
+help: Remove definition: `User`
+
+F401 [*] `pytest` imported but unused
+ --> tests/documents/test_render_mode_selector.py:4:8
+  |
+2 | from __future__ import annotations
+3 |
+4 | import pytest
+  |        ^^^^^^
+5 |
+6 | from app.schemas.document_understanding import (
+  |
+help: Remove unused import: `pytest`
+
+F401 [*] `base64` imported but unused
+  --> tests/documents/test_sse_stream.py:9:8
+   |
+ 7 | from __future__ import annotations
+ 8 |
+ 9 | import base64
+   |        ^^^^^^
+10 | import json
+11 | from unittest.mock import AsyncMock, patch
+   |
+help: Remove unused import: `base64`
+
+F401 [*] `io.BytesIO` imported but unused
+  --> tests/fixtures/documents/generate_corpus_fixtures.py:29:16
+   |
+27 | import os
+28 | import sys
+29 | from io import BytesIO
+   |                ^^^^^^^
+30 | from typing import Callable
+   |
+help: Remove unused import: `io.BytesIO`
+
+F401 [*] `os` imported but unused
+  --> tests/integration/test_golden_document_flow.py:29:8
+   |
+28 | import json
+29 | import os
+   |        ^^
+30 | import time
+31 | from pathlib import Path
+   |
+help: Remove unused import: `os`
+
+F401 [*] `app.schemas.document_understanding.RenderMode` imported but unused
+  --> tests/integration/test_golden_document_flow.py:41:5
+   |
+39 |     DocumentUnderstandingResult,
+40 |     FieldStatus,
+41 |     RenderMode,
+   |     ^^^^^^^^^^
+42 | )
+43 | from tests.integration.golden_expectations import (
+   |
+help: Remove unused import: `app.schemas.document_understanding.RenderMode`
+
+F401 [*] `types.SimpleNamespace` imported but unused
+  --> tests/services/compliance/test_adversarial_pdfs.py:20:19
+   |
+19 | import os
+20 | from types import SimpleNamespace
+   |                   ^^^^^^^^^^^^^^^
+21 | from unittest.mock import AsyncMock, patch
+   |
+help: Remove unused import: `types.SimpleNamespace`
+
+F401 [*] `unittest.mock.AsyncMock` imported but unused
+  --> tests/services/compliance/test_adversarial_pdfs.py:21:27
+   |
+19 | import os
+20 | from types import SimpleNamespace
+21 | from unittest.mock import AsyncMock, patch
+   |                           ^^^^^^^^^
+22 |
+23 | import pytest
+   |
+help: Remove unused import: `unittest.mock.AsyncMock`
+
+F401 [*] `pytest` imported but unused
+  --> tests/services/compliance/test_numeric_sanity.py:10:8
+   |
+ 8 | from decimal import Decimal
+ 9 |
+10 | import pytest
+   |        ^^^^^^
+11 |
+12 | from app.services.compliance import numeric_sanity as ns
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `os` imported but unused
+  --> tests/services/compliance/test_vision_guard.py:14:8
+   |
+12 | from __future__ import annotations
+13 |
+14 | import os
+   |        ^^
+15 | from types import SimpleNamespace
+16 | from unittest.mock import AsyncMock, patch
+   |
+help: Remove unused import: `os`
+
+F401 [*] `unittest.mock.AsyncMock` imported but unused
+  --> tests/services/compliance/test_vision_guard.py:16:27
+   |
+14 | import os
+15 | from types import SimpleNamespace
+16 | from unittest.mock import AsyncMock, patch
+   |                           ^^^^^^^^^
+17 |
+18 | import pytest
+   |
+help: Remove unused import: `unittest.mock.AsyncMock`
+
+F401 [*] `app.models.consent.ConsentModel` imported but unused
+  --> tests/services/consent/test_consent_service.py:16:32
+   |
+14 | # Ensure all models registered
+15 | import app.models  # noqa: F401
+16 | from app.models.consent import ConsentModel
+   |                                ^^^^^^^^^^^^
+17 | from app.services.consent.consent_service import (
+18 |     ConsentNotFoundError,
+   |
+help: Remove unused import: `app.models.consent.ConsentModel`
+
+F401 [*] `app.models.consent.ConsentModel` imported but unused
+  --> tests/services/consent/test_merkle_chain.py:15:32
+   |
+13 | from app.core.database import Base
+14 | import app.models  # noqa: F401
+15 | from app.models.consent import ConsentModel
+   |                                ^^^^^^^^^^^^
+16 | from app.services.consent.consent_service import ConsentService
+17 | from app.services.consent.merkle_chain import verify_chain
+   |
+help: Remove unused import: `app.models.consent.ConsentModel`
+
+F841 Local variable `r1` is assigned to but never used
+  --> tests/services/consent/test_merkle_chain.py:68:5
+   |
+67 | def test_tampered_prev_hash_breaks_chain(db, service):
+68 |     r1 = service.grant(db, user_id="u1", purpose="vision_extraction", policy_version="v2.3.0")
+   |     ^^
+69 |     r2 = service.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+70 |     r2.prev_hash = "f" * 64
+   |
+help: Remove assignment to unused variable `r1`
+
+F841 Local variable `r1` is assigned to but never used
+  --> tests/services/consent/test_merkle_chain.py:79:5
+   |
+78 | def test_deleted_middle_row_breaks_chain(db, service):
+79 |     r1 = service.grant(db, user_id="u1", purpose="vision_extraction", policy_version="v2.3.0")
+   |     ^^
+80 |     r2 = service.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+81 |     r3 = service.grant(db, user_id="u1", purpose="couple_projection", policy_version="v2.3.0")
+   |
+help: Remove assignment to unused variable `r1`
+
+F401 [*] `asyncio` imported but unused
+  --> tests/services/document/test_third_party_declaration.py:19:8
+   |
+17 | from __future__ import annotations
+18 |
+19 | import asyncio
+   |        ^^^^^^^
+20 | import os
+21 | from datetime import datetime, timedelta, timezone
+   |
+help: Remove unused import: `asyncio`
+
+F401 [*] `secrets` imported but unused
+  --> tests/services/encryption/test_crypto_shred.py:13:8
+   |
+11 | import math
+12 | import os
+13 | import secrets
+   |        ^^^^^^^
+14 | from collections import Counter
+15 | from datetime import datetime, timezone
+   |
+help: Remove unused import: `secrets`
+
+F401 [*] `asyncio` imported but unused
+ --> tests/services/llm/test_router_shadow.py:4:8
+  |
+2 | from __future__ import annotations
+3 |
+4 | import asyncio
+  |        ^^^^^^^
+5 | import logging
+6 | from unittest.mock import AsyncMock, MagicMock
+  |
+help: Remove unused import: `asyncio`
+
+F401 [*] `app.services.llm.router` imported but unused
+   --> tests/services/llm/test_router_shadow.py:200:44
+    |
+198 | async def test_injected_anthropic_client_is_not_closed_by_router(monkeypatch):
+199 |     """Caller-owned client must survive the invocation — lifetime is not ours."""
+200 |     from app.services.llm import router as router_mod
+    |                                            ^^^^^^^^^^
+201 |
+202 |     anthropic_client = AsyncMock()
+    |
+help: Remove unused import: `app.services.llm.router`
+
+F401 [*] `datetime.datetime` imported but unused
+  --> tests/services/privacy/test_fact_key_allowlist.py:14:22
+   |
+13 | import logging
+14 | from datetime import datetime, timezone
+   |                      ^^^^^^^^
+15 | from pathlib import Path
+   |
+help: Remove unused import
+
+F401 [*] `datetime.timezone` imported but unused
+  --> tests/services/privacy/test_fact_key_allowlist.py:14:32
+   |
+13 | import logging
+14 | from datetime import datetime, timezone
+   |                                ^^^^^^^^
+15 | from pathlib import Path
+   |
+help: Remove unused import
+
+F401 [*] `os` imported but unused
+  --> tests/services/privacy/test_fpe.py:8:8
+   |
+ 6 | from __future__ import annotations
+ 7 |
+ 8 | import os
+   |        ^^
+ 9 |
+10 | import pytest
+   |
+help: Remove unused import: `os`
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_agent_loop.py:34:8
+   |
+32 | from unittest.mock import AsyncMock, MagicMock, patch
+33 |
+34 | import pytest
+   |        ^^^^^^
+35 |
+36 | from app.api.v1.endpoints.coach_chat import (
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `app.api.v1.endpoints.coach_chat.AGENT_LOOP_DEADLINE_SECONDS` imported but unused
+   --> tests/test_agent_loop.py:552:53
+    |
+550 |         mock_orch.query = slow_query
+551 |
+552 |         from app.api.v1.endpoints.coach_chat import AGENT_LOOP_DEADLINE_SECONDS  # noqa: F811
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+553 |
+554 |         import pytest
+    |
+help: Remove unused import: `app.api.v1.endpoints.coach_chat.AGENT_LOOP_DEADLINE_SECONDS`
+
+F811 [*] Redefinition of unused `pytest` from line 34
+   --> tests/test_agent_loop.py:554:16
+    |
+552 |         from app.api.v1.endpoints.coach_chat import AGENT_LOOP_DEADLINE_SECONDS  # noqa: F811
+553 |
+554 |         import pytest
+    |                ^^^^^^ `pytest` redefined here
+555 |         with pytest.raises(asyncio.TimeoutError):
+556 |             _run(
+    |
+   ::: tests/test_agent_loop.py:34:8
+    |
+ 32 | from unittest.mock import AsyncMock, MagicMock, patch
+ 33 |
+ 34 | import pytest
+    |        ------ previous definition of `pytest` here
+ 35 |
+ 36 | from app.api.v1.endpoints.coach_chat import (
+    |
+help: Remove definition: `pytest`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/test_agent_loop.py:581:13
+    |
+580 |         try:
+581 |             result = _run(
+    |             ^^^^^^
+582 |                 asyncio.wait_for(
+583 |                     _run_agent_loop(orchestrator=mock_orch, **_BASE_KWARGS),
+    |
+help: Remove assignment to unused variable `result`
+
+F401 [*] `re` imported but unused
+  --> tests/test_anonymous_chat.py:20:8
+   |
+19 | import os
+20 | import re
+   |        ^^
+21 |
+22 | import pytest
+   |
+help: Remove unused import: `re`
+
+F401 [*] `unittest.mock.MagicMock` imported but unused
+  --> tests/test_anonymous_chat.py:23:38
+   |
+22 | import pytest
+23 | from unittest.mock import AsyncMock, MagicMock, patch
+   |                                      ^^^^^^^^^
+24 | from fastapi.testclient import TestClient
+25 | from sqlalchemy import create_engine
+   |
+help: Remove unused import: `unittest.mock.MagicMock`
+
+E402 Module level import not at top of file
+   --> tests/test_coach_intelligence.py:430:1
+    |
+428 | # ===========================================================================
+429 |
+430 | import pytest
+    | ^^^^^^^^^^^^^
+431 | from sqlalchemy import create_engine
+432 | from sqlalchemy.orm import sessionmaker
+    |
+
+E402 Module level import not at top of file
+   --> tests/test_coach_intelligence.py:431:1
+    |
+430 | import pytest
+431 | from sqlalchemy import create_engine
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+432 | from sqlalchemy.orm import sessionmaker
+    |
+
+E402 Module level import not at top of file
+   --> tests/test_coach_intelligence.py:432:1
+    |
+430 | import pytest
+431 | from sqlalchemy import create_engine
+432 | from sqlalchemy.orm import sessionmaker
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+433 |
+434 | from app.core.database import Base
+    |
+
+E402 Module level import not at top of file
+   --> tests/test_coach_intelligence.py:434:1
+    |
+432 | from sqlalchemy.orm import sessionmaker
+433 |
+434 | from app.core.database import Base
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+435 | from app.models.user import User
+    |
+
+E402 Module level import not at top of file
+   --> tests/test_coach_intelligence.py:435:1
+    |
+434 | from app.core.database import Base
+435 | from app.models.user import User
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+
+F401 [*] `datetime.datetime` imported but unused
+  --> tests/test_coach_memory_roundtrip.py:15:22
+   |
+14 | import pytest
+15 | from datetime import datetime, timedelta, timezone
+   |                      ^^^^^^^^
+16 | from sqlalchemy import create_engine
+17 | from sqlalchemy.orm import sessionmaker
+   |
+help: Remove unused import
+
+F401 [*] `datetime.timedelta` imported but unused
+  --> tests/test_coach_memory_roundtrip.py:15:32
+   |
+14 | import pytest
+15 | from datetime import datetime, timedelta, timezone
+   |                                ^^^^^^^^^
+16 | from sqlalchemy import create_engine
+17 | from sqlalchemy.orm import sessionmaker
+   |
+help: Remove unused import
+
+F401 [*] `datetime.timezone` imported but unused
+  --> tests/test_coach_memory_roundtrip.py:15:43
+   |
+14 | import pytest
+15 | from datetime import datetime, timedelta, timezone
+   |                                           ^^^^^^^^
+16 | from sqlalchemy import create_engine
+17 | from sqlalchemy.orm import sessionmaker
+   |
+help: Remove unused import
+
+F401 [*] `unittest.mock.patch` imported but unused
+  --> tests/test_commitment_devices.py:16:38
+   |
+14 | from datetime import datetime, timezone
+15 | from typing import Optional
+16 | from unittest.mock import MagicMock, patch
+   |                                      ^^^^^
+17 |
+18 | from app.models.commitment import CommitmentDevice, PreMortemEntry
+   |
+help: Remove unused import: `unittest.mock.patch`
+
+F841 Local variable `pm` is assigned to but never used
+  --> tests/test_commitment_devices.py:84:9
+   |
+82 |     def test_premortem_model_defaults(self):
+83 |         """id auto-generated, created_at has default factory."""
+84 |         pm = PreMortemEntry(
+   |         ^^
+85 |             user_id="user-456",
+86 |             decision_type="capital_withdrawal",
+   |
+help: Remove assignment to unused variable `pm`
+
+F401 [*] `json` imported but unused
+ --> tests/test_config_guards.py:7:8
+  |
+5 | """
+6 |
+7 | import json
+  |        ^^^^
+8 | import os
+9 | import subprocess
+  |
+help: Remove unused import: `json`
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_config_guards.py:12:8
+   |
+10 | import sys
+11 |
+12 | import pytest
+   |        ^^^^^^
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `uuid` imported but unused
+  --> tests/test_coverage_gaps_diff.py:18:8
+   |
+16 | from __future__ import annotations
+17 |
+18 | import uuid
+   |        ^^^^
+19 | from datetime import datetime, timezone
+20 | from unittest.mock import AsyncMock, MagicMock, patch
+   |
+help: Remove unused import: `uuid`
+
+F401 [*] `unittest.mock.MagicMock` imported but unused
+  --> tests/test_coverage_gaps_phase10.py:12:38
+   |
+11 | import asyncio
+12 | from unittest.mock import AsyncMock, MagicMock, patch
+   |                                      ^^^^^^^^^
+13 |
+14 | import pytest
+   |
+help: Remove unused import: `unittest.mock.MagicMock`
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_coverage_gaps_phase10.py:14:8
+   |
+12 | from unittest.mock import AsyncMock, MagicMock, patch
+13 |
+14 | import pytest
+   |        ^^^^^^
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_doctrine_checks.py:9:8
+   |
+ 7 | from __future__ import annotations
+ 8 |
+ 9 | import pytest
+   |        ^^^^^^
+10 |
+11 | from app.services.coach.doctrine_checks import (
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_fresh_start.py:14:8
+   |
+12 | from datetime import date, datetime, timezone
+13 |
+14 | import pytest
+   |        ^^^^^^
+15 |
+16 | from app.api.v1.endpoints.fresh_start import (
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_profile_extractor.py:11:8
+   |
+ 9 | from datetime import date
+10 |
+11 | import pytest
+   |        ^^^^^^
+12 |
+13 | from app.services.coach.profile_extractor import (
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_save_fact_tool.py:20:8
+   |
+18 | import uuid
+19 |
+20 | import pytest
+   |        ^^^^^^
+21 | from fastapi.testclient import TestClient
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_truncate_to_sentences.py:9:8
+   |
+ 7 | from __future__ import annotations
+ 8 |
+ 9 | import pytest
+   |        ^^^^^^
+10 |
+11 | from app.services.rag.guardrails import ComplianceGuardrails as CG
+   |
+help: Remove unused import: `pytest`
+
+F401 [*] `pytest` imported but unused
+  --> tests/test_voice_cursor_schema.py:14:8
+   |
+12 | from pathlib import Path
+13 |
+14 | import pytest
+   |        ^^^^^^
+15 |
+16 | from app.schemas.voice_cursor import (  # type: ignore[import-not-found]
+   |
+help: Remove unused import: `pytest`
+
+Found 94 errors.
+[*] 58 fixable with the `--fix` option (10 hidden fixes can be enabled with the `--unsafe-fixes` option).
+exit=1

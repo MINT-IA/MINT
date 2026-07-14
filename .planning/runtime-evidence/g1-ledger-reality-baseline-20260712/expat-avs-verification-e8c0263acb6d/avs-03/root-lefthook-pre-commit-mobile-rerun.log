@@ -1,0 +1,109 @@
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+┃  accent-lint-fr ❯
+
+
+┃  arb-parity ❯
+
+ARB parity OK: app_fr.arb=6900, app_en.arb=6900, app_de.arb=6900, app_es.arb=6900, app_it.arb=6900, app_pt.arb=6900
+
+┃  banned-ui-terms ❯
+
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+OK banned_ui_terms: scanned 1 Dart file(s)
+
+┃  financial-core-gate ❯
+
+OK financial_core_gate: no new calculation drift
+
+┃  g1-avs-certified-null-hard-floor ❯
+
+...............                                                          [100%]
+15 passed in 2.55s
+
+┃  gitleaks-secret-scan ❯
+
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+1:40AM INF 0 commits scanned.
+1:40AM INF scanned ~32248 bytes (32.25 KB) in 63.3ms
+1:40AM INF no leaks found
+
+┃  hardcoded-rate-gate ❯
+
+OK hardcoded_rate_gate: no hardcoded financial rates in added Python/Dart lines
+
+┃  interaction-coverage-audit ❯
+
+OK interaction_coverage_audit: coverage report is current.
+
+┃  interaction-registry-lint ❯
+
+OK interaction_registry_lint: Interaction Registry is valid.
+
+┃  map-freshness-hint ❯
+
+
+[33m⚠  MINT map freshness hint[0m
+You're editing files in a sensitive subsystem. Before finalizing
+the commit, confirm you've read the relevant map. It exists because
+coding this area from memory creates facade-sans-cablage bugs.
+
+  → Read: [36mdocs/calculator-graph.md[0m
+       touched: apps/mobile/lib/services/financial_core/avs_calculator.dart
+
+  If the PR changes any documented invariant (keys, tool routing,
+  calculator wiring), update the doc in the SAME commit.
+
+
+┃  memory-retention-gate ❯
+
+retention WARNING: /Users/julienbattaglia/.claude/projects/-Users-julienbattaglia-Desktop-MINT/memory/MEMORY.md has 184 lines (target <100). Per D-02 this is a warning, not a failure — but consider pruning the INDEX.
+retention: OK — 30j gate green
+
+┃  no-bypass-persistence ❯
+
+
+┃  no-hardcoded-fr ❯
+
+
+
+  ────────────────────────────────────
+summary: (done in 17.75 seconds)
+✓ accent-lint-fr (4.27 seconds)
+✓ arb-parity (0.12 seconds)
+✓ banned-ui-terms (4.89 seconds)
+✓ financial-core-gate (0.17 seconds)
+✓ g1-avs-certified-null-hard-floor (3.14 seconds)
+✓ gitleaks-secret-scan (0.10 seconds)
+✓ hardcoded-rate-gate (0.16 seconds)
+✓ interaction-coverage-audit (1.96 seconds)
+✓ interaction-registry-lint (0.20 seconds)
+✓ map-freshness-hint (0.12 seconds)
+✓ memory-retention-gate (0.19 seconds)
+✓ no-bypass-persistence (0.25 seconds)
+✓ no-hardcoded-fr (2.13 seconds)
+exit_code=0

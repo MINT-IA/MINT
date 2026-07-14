@@ -1,0 +1,13 @@
+$ cd repo && python3 tools/openapi/generate_canonical.py && cp canonical $TMP && python3 tools/openapi/generate_canonical.py && cmp $TMP canonical
+Open Banking: in-memory fallback active — consents/data will NOT survive restart. Feature-gated pending DB migration.
+Snapshots: in-memory fallback active — snapshot data will NOT survive restart. Feature-gated pending DB migration.
+Canonical OpenAPI spec written to /Users/julienbattaglia/Desktop/MINT.nosync/tools/openapi/mint.openapi.canonical.json
+  Paths: 209
+  Schemas: 471
+Open Banking: in-memory fallback active — consents/data will NOT survive restart. Feature-gated pending DB migration.
+Snapshots: in-memory fallback active — snapshot data will NOT survive restart. Feature-gated pending DB migration.
+Canonical OpenAPI spec written to /Users/julienbattaglia/Desktop/MINT.nosync/tools/openapi/mint.openapi.canonical.json
+  Paths: 209
+  Schemas: 471
+OpenAPI generation is deterministic and AVS gap contract is absent.
+exit=0

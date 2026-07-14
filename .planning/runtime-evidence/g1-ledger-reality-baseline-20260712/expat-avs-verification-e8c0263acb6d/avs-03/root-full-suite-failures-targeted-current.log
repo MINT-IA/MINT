@@ -1,0 +1,221 @@
+00:00 +0: loading /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart
+00:00 +0: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +1: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +4: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +5: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +7: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +8: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +9: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +10: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +11: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +12: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +13: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +14: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +15: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +16: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +17: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +18: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +19: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +20: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +20 -1: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +20 -1: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/chat_data_capture_test.dart: CHAT-04: ChatDataCaptureHandler.missingFields profile with only age returns canton + salary [E]
+  Expected: contains CaptureField:<CaptureField.canton>
+    Actual: [CaptureField:CaptureField.salary]
+     Which: does not contain CaptureField:<CaptureField.canton>
+
+  package:matcher                                       expect
+  package:flutter_test/src/widget_tester.dart 473:18    expect
+  test/screens/coach/chat_data_capture_test.dart 129:7  main.<fn>.<fn>
+
+00:00 +21 -1: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+00:00 +22 -1: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "RouteSuggestionCard": []>
+   Which: means none were found but one was expected
+route_to_screen with intent=retirement_choice must resolve to /rente-vs-capital via
+MintScreenRegistry and render a RouteSuggestionCard (not SizedBox.shrink). Facade audit STAB-01.
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart:139:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart line 139
+The test description was:
+  STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +22 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +22 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/integration/coach_tool_choreography_test.dart: Coach tool choreography (STAB-11 / 07-02) STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard [E]
+  Test failed. See exception logs above.
+  The test description was: STAB-01: route_to_screen with intent tag renders a RouteSuggestionCard
+
+00:00 +23 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +24 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +24 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/mortgage_service_test.dart: AffordabilityCalculator scenario standard — revenu 150k, prix 800k, fonds propres suffisants
+reg() FALLBACK: mortgage.theoretical_rate → 0.05 (cache miss, logged once)
+reg() FALLBACK: mortgage.amortization_rate → 0.01 (cache miss, logged once)
+reg() FALLBACK: mortgage.accessory_rate → 0.01 (cache miss, logged once)
+reg() FALLBACK: mortgage.max_charge_ratio → 0.3333333333333333 (cache miss, logged once)
+reg() FALLBACK: mortgage.min_equity_ratio → 0.2 (cache miss, logged once)
+reg() FALLBACK: mortgage.max_2nd_pillar_ratio → 0.1 (cache miss, logged once)
+reg() FALLBACK: mortgage.total_charges_rate → 0.07 (cache miss, logged once)
+00:00 +25 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +26 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +27 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +28 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +29 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +30 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +31 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +32 -2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +32 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +32 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/mortgage_service_test.dart: AffordabilityCalculator disclaimer contient les mentions legales obligatoires [E]
+  Expected: contains 'specialiste'
+    Actual: 'Simulation pedagogique a titre indicatif. La capacite d\'achat reelle depend de la politique de credit de chaque etablissement. Le taux theorique de 5% est utilise pour le calcul de tenue (pratique ASB), pas le taux reel du marche. Base legale : directive ASB sur le credit hypothecaire. Consultez un ou une spécialiste avant toute décision.'
+     Which: does not contain 'specialiste'
+
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/services/mortgage_service_test.dart 150:7      main.<fn>.<fn>
+
+00:00 +33 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +34 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +35 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +36 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +37 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +38 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +39 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +40 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +41 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +42 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +43 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +44 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +45 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +45 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/mortgage_service_test.dart: AmortizationCalculator indirect vs direct — indirect plus avantageux grace a la double deduction
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +46 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +47 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +48 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +49 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +50 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +51 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +52 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +53 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +54 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +55 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +56 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +57 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:00 +58 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:01 +59 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart: shows AVS, LPP, and 3a pending with their real evidence routes
+00:01 +60 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart: shows AVS, LPP, and 3a pending with their real evidence routes
+00:01 +61 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart: shows AVS, LPP, and 3a pending with their real evidence routes
+00:01 +62 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart: shows AVS, LPP, and 3a pending with their real evidence routes
+00:01 +63 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart: shows AVS, LPP, and 3a pending with their real evidence routes
+00:01 +63 -3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — AVS readiness unready keeps capital and shows AVS CTA without totals
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_suroblig → 0.058 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Obtenir ton calcul AVS officiel": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart:250:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart line 250
+The test description was:
+  unready keeps capital and shows AVS CTA without totals
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +63 -4: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart: shows AVS, LPP, and 3a pending with their real evidence routes
+00:01 +63 -4: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — AVS readiness unready keeps capital and shows AVS CTA without totals [E]
+  Test failed. See exception logs above.
+  The test description was: unready keeps capital and shows AVS CTA without totals
+
+00:01 +63 -4: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart: shows AVS, LPP, and 3a pending with their real evidence routes
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Obtenir ton calcul AVS officiel": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart:95:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart line 95
+The test description was:
+  shows AVS, LPP, and 3a pending with their real evidence routes
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +63 -5: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — AVS readiness certificate-backed gap stays partial without lifetime-loss pricing
+00:01 +63 -5: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/report/retirement_projection_card_test.dart: shows AVS, LPP, and 3a pending with their real evidence routes [E]
+  Test failed. See exception logs above.
+  The test description was: shows AVS, LPP, and 3a pending with their real evidence routes
+
+00:01 +64 -5: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — AVS readiness past target stays unavailable and keeps the AVS CTA
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Obtenir ton calcul AVS officiel": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart:348:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart line 348
+The test description was:
+  past target stays unavailable and keeps the AVS CTA
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +64 -6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — AVS readiness past target stays unavailable and keeps the AVS CTA [E]
+  Test failed. See exception logs above.
+  The test description was: past target stays unavailable and keeps the AVS CTA
+
+00:01 +64 -6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — guided sequence AVS pending retirement_prep pauses with explicit missing outputs
+00:01 +65 -6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — guided sequence AVS pending preretraite_complete pauses with explicit missing outputs
+00:01 +66 -6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — household projection contract legacy couple inputs keep the dashboard partial
+00:01 +67 -6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — household projection contract pillar signals use non-AVS household aggregates once
+00:01 +68 -6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — household projection contract hero pillar bar does not add AVS spouse allocation twice
+00:01 +69 -6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — household projection contract partial couple projection exposes no sequence return gap
+00:01 +70 -6: Some tests failed.
+exit_code=1

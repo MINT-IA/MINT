@@ -1,0 +1,4 @@
+$ python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py::test_every_matrix_ticket_has_an_executable_blocking_contract -q
+.                                                                        [100%]
+1 passed in 0.28s
+exit=0

@@ -1,0 +1,49 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "B03E429D-0422-4357-B754-536637D979F9",
+        "deviceName" : "iPhone 17 Pro",
+        "modelName" : "iPhone 17 Pro",
+        "osBuildNumber" : "23C54",
+        "osVersion" : "26.2",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 0,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "Runner · Built with macOS 26.5.1",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1783977230.808,
+  "passedTests" : 0,
+  "result" : "Failed",
+  "skippedTests" : 0,
+  "startTime" : 1783977183.945,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "((passed) is true) failed - ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞═════════════════\nThe following WaitUntilVisibleTimeoutException was thrown running\na test:\nTimeoutException after 0:00:10.000000: Finder \"Found 0 widgets\nwith key [<'expat_avs_tab'>]: []\" did not find any visible (i.e.\nhit-testable) widgets\n\nWhen the exception was thrown, this was the stack:\n#0      PatrolTester.waitUntilVisible.<anonymous closure>.<anonymous closure> (package:patrol_finders/src/custom_finders/patrol_tester.dart:634:15)\n<asynchronous suspension>\n#1      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)\n<asynchronous suspension>\n#2      PatrolFinder.wrapWithPatrolLog (package:patrol_finders/src/custom_finders/patrol_finder.dart:196:22)\n<asynchronous suspension>\n#3      main.<anonymous closure> (file:///Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/integration_test/expat_avs_verification_patrol_test.dart:26:7)\n<asynchronous suspension>\n#4      patrolTest.<anonymous closure> (package:patrol/src/common.dart:169:9)\n<asynchronous suspension>\n#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)\n<asynchronous suspension>\n#6      PatrolBinding._wrapTestBodyWithExceptionGatherer (package:patrol/src/binding.dart:246:5)\n<asynchronous suspension>\n#7      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)\n<asynchronous suspension>\n#8      TestWidgetsFlutterBinding._createTestCompletionHandler.<anonymous closure> (package:flutter_test/src/binding.dart:1437:12)\n<asynchronous suspension>\n\nThe test description was:\n  keeps Expat AVS local and opens the verification guide\n═════════════════════════════════════════════════════════════════\n",
+      "targetName" : "RunnerUITests",
+      "testIdentifier" : 1,
+      "testIdentifierString" : "RunnerUITests/expat_avs_verification_runtime_test keeps Expat AVS local and opens the verification guide",
+      "testIdentifierURL" : "test://com.apple.xcode/Runner/RunnerUITests/RunnerUITests/expat_avs_verification_runtime_test%20keeps%20Expat%20AVS%20local%20and%20opens%20the%20verification%20guide",
+      "testName" : "expat_avs_verification_runtime_test keeps Expat AVS local and opens the verification guide"
+    }
+  ],
+  "title" : "Test - Runner",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 1
+}

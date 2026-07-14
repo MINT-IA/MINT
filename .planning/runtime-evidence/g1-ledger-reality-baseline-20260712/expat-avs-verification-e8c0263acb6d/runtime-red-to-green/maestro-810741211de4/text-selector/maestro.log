@@ -1,0 +1,34 @@
+[watchdog] artifacts → /tmp/mint-g1-expat-avs-810741211de4/maestro/watchdog
+[watchdog] hard limit 300s ; stall threshold 90s ; probe 30s
+[watchdog] maestro pid=33952 (running in own process group)
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/julienbattaglia/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+ > Flow expat_avs_verification
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app" with clear state... COMPLETED
+Tap on (Optional) "Cancel"... WARNED
+
+
+ Warning: Element not found: Text matching regex: Cancel
+Open mint:///expatriation... COMPLETED
+Tap on id: expat_avs_tab... COMPLETED
+Assert that id: expat_avs_years_picker is visible... COMPLETED
+Assert that "À renseigner" is visible... FAILED
+
+Assertion is false: "À renseigner" is visible
+
+Assertion '"À renseigner" is visible' failed. Check the UI hierarchy in debug artifacts to verify the element state and properties.
+
+Possible causes:
+- Element selector may be incorrect - check if there are similar elements with slightly different names/properties.
+- Element may be temporarily unavailable due to loading state
+- This could be a real regression that needs to be addressed
+
+==== Debug output (logs & screenshots) ====
+
+/tmp/mint-g1-expat-avs-810741211de4/maestro/debug
+[watchdog] EXIT — maestro returned 1

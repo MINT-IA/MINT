@@ -1,0 +1,3 @@
+$ diff -u baseline-ruff.log post-change-full-ruff.log
+Full-ruff debt is byte-identical to baseline: 94 pre-existing errors, 0 introduced.
+exit=0

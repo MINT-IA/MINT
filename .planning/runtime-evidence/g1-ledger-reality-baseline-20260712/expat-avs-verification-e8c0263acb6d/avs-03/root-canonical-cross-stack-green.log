@@ -1,0 +1,15 @@
+sha=9e10fb5920bbd1896a7cbb5583919fd530177888
+dirty_before=38
+.............                                                            [100%]
+13 passed in 0.46s
+00:00 +0: loading /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart
+00:00 +0: G1-AVS-03 mobile quarantine gap-only public pricing helpers and the raw Expat percent are gone
+00:00 +1: G1-AVS-03 mobile quarantine Expat orientation keeps null and zero distinct and returns counts only
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:00 +2: G1-AVS-03 mobile quarantine CI year count never changes an AVS score tier or total
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +3: G1-AVS-03 mobile quarantine known unsafe mobile surfaces contain no gap-priced personal claim
+00:00 +4: G1-AVS-03 mobile quarantine orphan pricing facades are deleted instead of left uncallable
+00:00 +5: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +6: All tests passed!
+exit_code=0

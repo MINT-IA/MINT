@@ -1,0 +1,6 @@
+$ cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py -q
+.............                                                            [100%]
+13 passed in 0.41s
+$ ruff check tests/test_avs_unofficial_gap_effect_quarantine.py
+All checks passed!
+exit=0

@@ -1,0 +1,101 @@
+## Product/domain verdict: PASS
+
+Core fix is sound: the previous `expatAvsDocumentedMinimumEffect` string ("each documented gap year could reduce the pension scale by at least 1/44 — indicative minimum benchmark: at least {percent}%") was a P0-level quantitative promise that ignored bilateral agreements, voluntary AVS compensation, and the RAMD-weighted formula. The new `expatAvsCiRawDurationBenchmark` ("this percentage is not a reduction in your pension — the compensation office first determines which periods can be taken into account") correctly delegates the decision. The no-write invariant is proven end-to-end. The specialist handoff (CI request + form 318.282 as two independent paths) is correctly specified.
+
+---
+
+## P0 Findings
+
+None.
+
+---
+
+## P1 Findings
+
+**P1-1 — Facade risk: `avs_guide_screen.dart` not in this diff**
+`SCREEN_CONTRACTS.md §5` significantly upgrades `/scan/avs-guide` from "how to obtain an extract" to a two-independent-path contract (CI request branch A + form 318.282 branch B), with an `evidenceInvariant` that years abroad are not gaps and spouse evidence is never synthesized. The screen file is not modified in this diff. The Maestro test (`expat_avs_verification.yaml`) and Patrol test assert that `avs_official_ci_request_cta` and `avs_official_form_cta` are visible, but the Patrol test is guarded by `MINT_PATROL_CLI=false` and won't run in standard CI. The Maestro test is the only live gate — and it only checks widget visibility, not what the CTAs open.
+
+Evidence needed to close:
+```
+grep -r 'avs_official_ci_request_cta\|avs_official_form_cta' \
+  apps/mobile/lib/screens/document_scan/avs_guide_screen.dart
+```
+If those identifiers are absent from the screen, the contract is aspirational and the interaction registry edge `expat.edge.avs.open_verification_guide` is a facade without wiring.
+
+**P1-2 — `avsGapEvidence.selfCertifiedYears` provenance not verified**
+`expat_screen.dart` reads:
+```dart
+context.read<CoachProfileProvider>().profile?.avsGapEvidence.selfCertifiedYears
+```
+and passes it as `ciObservedMissingContributionYears`. The UI then labels the result "Years to review according to the individual account statement." If `selfCertifiedYears` can be populated by manual self-declaration (not only by a reviewed CI scan through `/scan/review`), the "CI-observed" framing is factually misleading. The SCREEN_CONTRACTS §4.2 says "only when a reviewed CI makes self missing contribution years observable as periods to examine" — but the field name suggests user self-certification, not certificate provenance.
+
+Evidence needed: confirm the write path for `avsGapEvidence.selfCertifiedYears` is gated on `DataSource.scan` provenance in the scan-review flow, never on wizard/manual entry.
+
+**P1-3 — `reductionPercentageFromGap` and `monthlyLossFromGap` remain in the public API**
+`avs_calculator.dart` retains both:
+```dart
+static double reductionPercentageFromGap(int gap)   // → "X% reduction"
+static double monthlyLossFromGap(int gap)            // → CHF monthly loss
+```
+The expat service test only checks `expat_service.dart` doesn't call `reductionPercentageFromGap`. Other callers (e.g. retirement dashboard, coach widgets) are unchecked. If any screen calls `monthlyLossFromGap` to display a CHF amount as an AVS gap consequence to a user, it reverts to the semantics this diff is removing. The functions should either be removed or restricted via `@visibleForTesting` / `@Deprecated`.
+
+Verify:
+```
+grep -rn 'reductionPercentageFromGap\|monthlyLossFromGap' apps/mobile/lib/ \
+  --include="*.dart" | grep -v avs_calculator.dart | grep -v _test.dart
+```
+
+---
+
+## P2 Findings
+
+**P2-1 — Denominator hardcodes 44 without gender/birth-year branch**
+`rawContributionDurationGapPercent` in `avs_calculator.dart:625-638` uses `avsDureeCotisationComplete` (44 years) without a gender/birth-year parameter. Under AVS21 transitional provisions, women born before 1961 had a full scale of 43 years; for them `4/44 = 9.09%` is slightly wrong (`4/43 = 9.30%`). The "not a pension reduction" framing mitigates this, but the displayed raw percentage is systematically incorrect for a portion of the target population. P2 because the framing bounds the harm.
+
+**P2-2 — WIRING_GRAPH.mmd missing `avs-guide → scan` edge**
+`SCREEN_CONTRACTS.md §5` lists `/scan with DocumentType.avsExtract` as a `routeOut` from `/scan/avs-guide`. The added edge `EXPAT --> SCANAVS` is present but the `SCANAVS --> SCAN` edge is not drawn, leaving the acquisition branch of path A unreachable in the graph.
+
+**P2-3 — `expat_avs_tab` Semantics wrapper on `Tab` may not propagate `identifier`**
+`expat_screen.dart` wraps a `Tab` widget in a `Semantics(identifier: 'expat_avs_tab')`:
+```dart
+Semantics(
+  identifier: 'expat_avs_tab',
+  button: true,
+  child: Tab(text: l.expatTabAvs),
+),
+```
+Flutter's `TabBar` generates its own semantics for child `Tab` widgets, which may absorb or shadow the wrapper's `identifier`. Maestro's `tapOn: id: "expat_avs_tab"` and `find.bySemanticsIdentifier('expat_avs_tab')` may not reliably find it depending on the Flutter semantics merge policy. The fallback `tester.tap(find.text('AVS'))` in the existing tests still works, but the declared semantic identifier may be unreliable.
+
+**P2-4 — UI string "44" hardcoded while computation uses registry**
+All six `expatAvsCiRawDurationBenchmark` locale strings hardcode "out of 44" / "sur 44" / "von 44" while the computation reads `avs.full_contribution_years` from the registry. A registry update (e.g., for a future legislative change) would produce a display mismatch. Low probability, low harm, but worth noting.
+
+---
+
+## Swiss Domain Review
+
+| Domain | Status |
+|--------|--------|
+| **AVS** | Directly touched. Gap determination correctly delegated to the compensation office. Voluntary AVS five-condition checklist (LAVS art. 2) is accurate. Form 318.282 cited correctly. LAVS art. 29bis et seq. cited correctly. Missing: gender/birth-year denominator for transitional AVS21 women (P2-1). |
+| **LPP** | Departure checklist references unchanged (not in scope of this diff). |
+| **3a** | Not touched. |
+| **Tax** | Not touched. |
+| **Mortgage** | Not touched. |
+| **Insurance** | Not touched. |
+| **Succession / inheritance** | Not touched. |
+| **Canton differences** | Not relevant; AVS is a federal scheme. |
+
+The `expatAvsTruthDisclaimer` citing "AVSA arts. 2 and 29bis et seq." and "only AVS offices make official determinations" is legally appropriate and does not constitute personalized advice.
+
+---
+
+## Mint Product Logic Review
+
+This change moves MINT in the right direction along the ledger → DataQuest → scenario → dossier spine:
+
+- **Ledger read**: CI-observed missing contribution years read from `avsGapEvidence` (provenance question flagged as P1-2), not from local year selection.
+- **DataQuest gate**: Explicit opt-in required; picker starts null; button disabled until explicit selection. No synthetic default. `expat_avs_gap_unknown` is the default output state. ✓
+- **Scenario isolation**: `_yearsAbroad`, `_avsScenarioStarted`, `AvsGapAssessment` are route-local; zero ledger writes proven by test. ✓
+- **Dossier/specialist handoff**: Two official paths (CI request + form 318.282) clearly distinguished, with the compensation office identified as the decision authority. ✓
+- **Lucidity**: The flow shows what MINT knows (raw duration ratio when CI evidence exists), what is unknown (gap determination, eligibility, scale), and routes to specialists. No CHF amount, no personal pension projection, no partner synthesis. ✓
+
+The single gap in the ledger→dossier spine within this flow is the unverified provenance of `selfCertifiedYears` (P1-2) and the unconfirmed implementation of the two-path guide screen (P1-1).

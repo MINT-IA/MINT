@@ -1,0 +1,34 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/julienbattaglia/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+ > Flow expat_avs_verification
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app" with clear state... COMPLETED
+Tap on (Optional) "Cancel"... WARNED
+
+
+ Warning: Element not found: Text matching regex: Cancel
+Open mint:///expatriation... COMPLETED
+Tap on id: expat_avs_tab... COMPLETED
+Assert that id: expat_avs_years_picker is visible... COMPLETED
+Assert that id: expat_avs_start_scenario, disabled is visible... COMPLETED
+Tap on id: expat_avs_start_scenario... COMPLETED
+Assert that id: expat_avs_scenario_result is not visible... COMPLETED
+Tap on id: expat_avs_years_picker... COMPLETED
+Tap on "OK"... COMPLETED
+Assert that id: expat_avs_start_scenario, enabled is visible... COMPLETED
+Tap on id: expat_avs_start_scenario... COMPLETED
+Scrolling DOWN until id: expat_avs_scenario_result is visible with speed 5, visibility percentage 50%, timeout 20000 ms, with centering enabled... COMPLETED
+Assert that id: expat_avs_scenario_result is visible... COMPLETED
+Assert that id: expat_avs_gap_unknown is visible... COMPLETED
+Assert that ".*CHF\s*[0-9].*" is not visible... COMPLETED
+Scrolling DOWN until id: expat_avs_verification_guide_cta is visible with speed 5, visibility percentage 80%, timeout 20000 ms, with centering enabled... COMPLETED
+Tap on id: expat_avs_verification_guide_cta... COMPLETED
+Scrolling DOWN until id: avs_official_ci_request_cta is visible with speed 5, visibility percentage 80%, timeout 20000 ms, with centering enabled... COMPLETED
+Assert that id: avs_official_ci_request_cta is visible... COMPLETED
+Scrolling DOWN until id: avs_official_form_cta is visible with speed 5, visibility percentage 80%, timeout 20000 ms, with centering enabled... COMPLETED
+Assert that id: avs_official_form_cta is visible... COMPLETED
+Take screenshot expat_avs_verification_guide... COMPLETED

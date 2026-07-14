@@ -1,0 +1,7 @@
+== forbidden production symbols ==
+OK: zero forbidden production symbols
+== forbidden test callers ==
+OK: zero forbidden test callers
+== diff whitespace ==
+OK: git diff --check
+exit_code=0

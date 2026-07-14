@@ -1,0 +1,53 @@
+{
+  "devices" : [
+    {
+      "architecture" : "arm64",
+      "deviceId" : "B03E429D-0422-4357-B754-536637D979F9",
+      "deviceName" : "iPhone 17 Pro",
+      "modelName" : "iPhone 17 Pro",
+      "osBuildNumber" : "23C54",
+      "osVersion" : "26.2",
+      "platform" : "iOS Simulator"
+    }
+  ],
+  "testNodes" : [
+    {
+      "children" : [
+        {
+          "children" : [
+            {
+              "children" : [
+                {
+                  "duration" : "12s",
+                  "durationInSeconds" : 12.810321927070618,
+                  "name" : "expat_avs_verification_runtime_test keeps Expat AVS local and opens the verification guide",
+                  "nodeIdentifier" : "RunnerUITests/expat_avs_verification_runtime_test keeps Expat AVS local and opens the verification guide",
+                  "nodeIdentifierURL" : "test://com.apple.xcode/Runner/RunnerUITests/RunnerUITests/expat_avs_verification_runtime_test%20keeps%20Expat%20AVS%20local%20and%20opens%20the%20verification%20guide",
+                  "nodeType" : "Test Case",
+                  "result" : "Passed"
+                }
+              ],
+              "name" : "RunnerUITests",
+              "nodeIdentifierURL" : "test://com.apple.xcode/Runner/RunnerUITests/RunnerUITests",
+              "nodeType" : "Test Suite",
+              "result" : "Passed"
+            }
+          ],
+          "name" : "RunnerUITests",
+          "nodeIdentifierURL" : "test://com.apple.xcode/Runner/RunnerUITests",
+          "nodeType" : "UI test bundle",
+          "result" : "Passed"
+        }
+      ],
+      "name" : "Runner",
+      "nodeType" : "Test Plan",
+      "result" : "Passed"
+    }
+  ],
+  "testPlanConfigurations" : [
+    {
+      "configurationId" : "1",
+      "configurationName" : "Test Scheme Action"
+    }
+  ]
+}

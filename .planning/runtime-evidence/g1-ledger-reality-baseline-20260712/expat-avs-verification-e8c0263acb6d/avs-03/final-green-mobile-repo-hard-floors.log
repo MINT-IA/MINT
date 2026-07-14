@@ -1,0 +1,90 @@
+>>> python3 tools/checks/arb_parity.py
+ARB parity OK: app_fr.arb=6900, app_en.arb=6900, app_de.arb=6900, app_es.arb=6900, app_it.arb=6900, app_pt.arb=6900
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/data/education_content.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/data/financial_explanations.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/data/wizard_questions_v2.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_de.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_en.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_es.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_fr.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_it.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_de.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_en.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_es.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_fr.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_it.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_pt.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_pt.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/screens/expat_screen.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/circle_scoring_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/coach/local_fallback_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/coach_narrative_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/expat_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/financial_core/avs_calculator.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/financial_fitness_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/financial_report_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/widgets/coach/avs_gap_widget.dart
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/data/education_content.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/data/financial_explanations.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/data/wizard_questions_v2.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_de.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_en.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_es.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_fr.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_it.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_pt.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/screens/expat_screen.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/circle_scoring_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/coach/local_fallback_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/coach_narrative_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/expat_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/financial_core/avs_calculator.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/financial_fitness_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/financial_report_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/widgets/coach/avs_gap_widget.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/financial_core_gate.py --diff-file /tmp/avs03-mobile.diff
+OK financial_core_gate: no new calculation drift
+>>> python3 tools/checks/hardcoded_rate_gate.py --diff-file /tmp/avs03-mobile.diff
+OK hardcoded_rate_gate: no hardcoded financial rates in added Python/Dart lines
+>>> no_hardcoded_fr apps/mobile/lib/data/education_content.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/data/financial_explanations.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/data/wizard_questions_v2.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_de.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_en.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_es.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_fr.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_it.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_pt.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/screens/expat_screen.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/circle_scoring_service.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/coach/local_fallback_service.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/coach_narrative_service.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/expat_service.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/financial_core/avs_calculator.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/financial_fitness_service.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/financial_report_service.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/widgets/coach/avs_gap_widget.dart (temporary index)
+OK: real index remains clean
+exit_code=0

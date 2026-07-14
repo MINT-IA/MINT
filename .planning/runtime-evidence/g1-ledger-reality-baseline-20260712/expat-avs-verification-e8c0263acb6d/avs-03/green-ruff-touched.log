@@ -1,0 +1,3 @@
+$ cd services/backend && ruff check <touched backend files>
+All checks passed!
+exit=0

@@ -1,0 +1,310 @@
+00:00 +0: loading /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart
+00:00 +0: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeMonthlyRente high income full career → max rente 2520
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:00 +1: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeMonthlyRente low income full career → RAMD interpolation
+00:00 +2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeMonthlyRente zero income → zero rente (no salary data)
+00:00 +3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeMonthlyRente expat arrivalAge 35 → fewer contribution years
+00:00 +4: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeMonthlyRente early retirement 63 → 13.6% penalty
+reg() FALLBACK: avs.anticipation_reduction → 0.068 (cache miss, logged once)
+00:00 +5: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeMonthlyRente early retirement 64 → 6.8% penalty
+00:00 +6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeMonthlyRente retirement before 63 → returns 0
+00:00 +7: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeMonthlyRente deferred retirement 67 → bonus
+00:00 +8: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeMonthlyRente lacunes reduce rente proportionally
+00:00 +9: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 Julien (122207) → max rente 2520 (above RAMD max)
+00:00 +10: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 Lauren (67000) → ~2187 via Echelle 44 lookup
+00:00 +11: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 high income → max rente
+00:00 +12: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 low income below RAMD min → min rente 1260
+00:00 +13: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 RAMD min exact → min rente 1260
+00:00 +14: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 RAMD max exact → max rente 2520
+00:00 +15: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 zero → zero
+00:00 +16: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +17: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +18: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +19: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +20: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +21: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +21: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeCouplePensions married couple capped at 3780
+reg() FALLBACK: avs.couple_max_monthly → 3780.0 (cache miss, logged once)
+00:00 +22: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +23: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +24: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +25: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+reg() FALLBACK: avs.couple_max_monthly → 3780.0 (cache miss, logged once)
+00:00 +26: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +27: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +28: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +29: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +30: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 6. married scale44 pair caps proportionally at 3780
+00:00 +31: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.rawContributionDurationGapPercent uses the canonical full-contribution-years registry key
+00:00 +32: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.rawContributionDurationGapPercent uses the canonical full-contribution-years registry key
+00:00 +33: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 8. cohabiting pair is not capped
+00:00 +34: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.ordinaryRecurringLifetimeLoss uses twelve ordinary monthly payments per modeled year
+00:00 +35: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 8b. cohabiting raw pensions need no couple-cap scale evidence
+00:00 +36: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.ordinaryRecurringLifetimeLoss rejects non-finite or non-positive monthly losses
+00:00 +37: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 9. scale38 plus scale26 selects exact scale34 before lookup
+00:00 +38: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 9. scale38 plus scale26 selects exact scale34 before lookup
+00:00 +39: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator — AVS21 gender-aware reference age women born 1961-1963 expose exact AVS21 reference months
+00:00 +40: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 9b. scale44 plus scale21 rounds up to scale37 before lookup
+00:00 +41: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator — AVS21 gender-aware reference age woman born 1962 retiring at 64 gets half-year AVS21 anticipation penalty
+00:00 +42: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 9c. incomplete-scale anticipation adjusts only formula estimate
+00:00 +43: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator — AVS21 gender-aware reference age woman born 1960 → reference age 64 (pre-AVS21)
+00:00 +44: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 10. separated spouses aggregate raw pensions without cap inputs
+00:00 +45: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator — AVS21 gender-aware reference age woman born 1961 → reference age 64 (transitional +3 months)
+00:00 +46: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 11. first pension event does not activate cap or require scales
+00:00 +47: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator — AVS21 gender-aware reference age woman born 1962 → reference age 64 (transitional +6 months)
+00:00 +48: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 11b. old-age plus disability pensions activate the couple cap
+00:00 +49: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator — AVS21 gender-aware reference age woman born 1963 → reference age 65 (transitional +9 months)
+00:00 +50: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator — AVS21 gender-aware reference age woman born 1964+ → reference age 65 (full AVS21 alignment)
+00:00 +51: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: AVS couple legal contract — LAVS art. 35 12. missing partner scale makes cap pending, not scale44
+00:00 +52: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator — AVS21 gender-aware reference age computeMonthlyRente uses gender-aware refAge for woman born 1960
+00:00 +53: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator — AVS21 gender-aware reference age computeMonthlyRente uses gender-aware refAge for woman born 1960
+00:00 +54: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: RAVS art. 53ter percentage treatment 32. anticipated percentage uses the highest percentage
+00:00 +55: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: RAVS art. 53ter percentage treatment 32. anticipated percentage uses the highest percentage
+00:00 +56: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: RAVS art. 53ter percentage treatment 33. deferred percentage uses the full pension as determinant
+00:00 +57: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence first pension needs no legal status for raw or payable aggregate
+00:00 +58: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence two disability benefits with unknown status request only status
+00:00 +59: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence two disability benefits with married wait for AI provider
+00:00 +60: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence two disability benefits with registeredPartnership wait for AI provider
+00:00 +61: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence cohabiting disability benefits aggregate as payable raw pensions
+00:00 +62: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence cohabiting cap stays notApplicable when raw household is partial
+00:00 +63: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence AI plus AI cap stays notApplicable when raw household is partial
+00:00 +64: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence missing legal status keeps household pending
+00:00 +65: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence missing entitlement keeps household pending
+00:00 +66: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence missing judicial separation evidence keeps cap pending
+00:00 +67: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence empty judicial separation source keeps cap pending
+00:00 +68: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence missing pension keeps household pending, never zero
+00:00 +69: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence missing pension percentage keeps household pending
+00:00 +70: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence ordinary old-age mode rejects a fractional pension percentage
+00:00 +71: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence scale outside 1 to 44 is rejected instead of clamped
+00:00 +72: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_couple_legal_contract_test.dart: fail-closed missing legal evidence swapped person ownership is rejected instead of silently inverted
+00:00 +73: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +74: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +75: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +76: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +77: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +78: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +78: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: calculateSourceTax — impot a la source canton inconnu → fallback ZH (cantonFallbackDefault), pas 13 % générique
+[resolveCanton] unknown canton "XX" — falling back to ZH. Expected one of [AG, AI, AR, BE, BL, BS, FR, GE, GL, GR, JU, LU, NE, NW, OW, SG, SH, SO, SZ, TG, TI, UR, VD, VS, ZG, ZH].
+00:00 +79: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +80: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +81: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +82: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +83: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+00:00 +84: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: simulate90DayRule — regle des 90 jours risque faible — < 70 jours home office
+00:00 +85: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation returns top priorities (max 3)
+00:00 +86: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: simulate90DayRule — regle des 90 jours risque moyen — entre 70 et 89 jours
+00:00 +87: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation excellent profile scores high overall
+00:00 +88: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation excellent profile scores high overall
+00:00 +89: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareSocialCharges — charges sociales CH vs France — les deux cotes sont calcules
+00:00 +90: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareSocialCharges — charges sociales CH vs France — les deux cotes sont calcules
+00:00 +91: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareSocialCharges — charges sociales CH vs France — les deux cotes sont calcules
+00:00 +92: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareSocialCharges — charges sociales CH vs France — les deux cotes sont calcules
+reg() FALLBACK: avs.employee_rate → 0.053 (cache miss, logged once)
+reg() FALLBACK: ac.salary_ceiling → 148200.0 (cache miss, logged once)
+reg() FALLBACK: ac.employee_rate → 0.011 (cache miss, logged once)
+reg() FALLBACK: lpp.max_insured_salary → 90720.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+00:00 +93: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareSocialCharges — charges sociales CH vs France — les deux cotes sont calcules
+00:00 +94: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareSocialCharges — charges sociales pays inconnu — taux par defaut 20%
+00:00 +95: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 1 - Protection no income is treated as unknown (neutral)
+00:00 +96: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: simulateForfaitFiscal — forfait fiscal forfait aboli a ZH — non eligible
+00:00 +97: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 1 - Protection generates debt priority recommendation when debt exists
+00:00 +98: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: simulateForfaitFiscal — forfait fiscal VD — forfait base = max(depenses, minimum cantonal, minimum federal)
+00:00 +99: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance multiple 3a accounts score perfect
+00:00 +100: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: simulateForfaitFiscal — forfait fiscal depenses inferieures au minimum cantonal — minimum cantonal utilise
+00:00 +101: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance zero 3a accounts scores critical
+00:00 +102: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: simulateForfaitFiscal — forfait fiscal economies calculees — forfait vs ordinaire
+00:00 +103: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance questionnaire contribution years never certify the AVS score
+00:00 +104: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance questionnaire contribution years never certify the AVS score
+00:00 +104: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS annees a l etranger ne deviennent jamais des lacunes CI
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:00 +105: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance questionnaire contribution years never certify the AVS score
+00:00 +106: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS supprime les trois montants personnels AVS
+00:00 +107: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS supprime les trois montants personnels AVS
+00:00 +108: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS supprime les trois montants personnels AVS
+00:00 +109: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS zero CI explicite reste zero et non inconnu
+00:00 +110: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS zero CI explicite reste zero et non inconnu
+00:00 +111: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance no LPP gap scores perfect
+00:00 +112: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS quatre annees CI donnent uniquement le repere brut 4/44
+00:00 +113: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance recommends opening 2nd 3a account when only 1
+00:00 +114: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS annees AVS hors bornes echouent explicitement
+00:00 +115: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance recommends LPP buyback when gap > 50k
+00:00 +116: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS aucun raccourci local d eligibilite facultative ne subsiste
+00:00 +117: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS aucun raccourci local d eligibilite facultative ne subsiste
+00:00 +118: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS aucun raccourci local d eligibilite facultative ne subsiste
+00:00 +119: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS aucun raccourci local d eligibilite facultative ne subsiste
+00:00 +120: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: ScoreLevel mapping perfect profile reaches at least good level
+00:00 +121: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart checklist contient les elements cles
+00:00 +121: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Empty and minimal answers empty answers do not crash
+reg() FALLBACK: pillar3a.max_without_lpp → 36288.0 (cache miss, logged once)
+00:00 +122: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart checklist contient les elements cles
+00:00 +123: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Empty and minimal answers only employment status provided still computes
+00:00 +124: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart pas d exit tax en Suisse
+00:00 +125: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: 3a contribution scoring tiers contribution >= 90% of max is perfect
+00:00 +126: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart P0-E1 — 3a checklist cites LIFD art. 38 + cantonal source tax
+00:00 +127: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: 3a contribution scoring tiers contribution 50-89% of max is good
+00:00 +128: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart P0-E2 — LPP checklist distinguishes oblig vs surobligatoire (LFLP art. 25f)
+00:00 +129: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: 3a contribution scoring tiers small contribution is warning
+00:00 +130: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart P0-E36 — departureDate in the past returns already_departed status
+00:00 +131: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: 3a contribution scoring tiers zero contribution is critical
+00:00 +132: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareTaxBurden — comparaison fiscale CH vs France — les deux cotes sont calcules
+00:00 +133: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: AVS certificate-only scoring certificate-backed two-year gap scores good
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:00 +134: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareTaxBurden — comparaison fiscale CH vs Dubai (0% impot) — CH plus cher
+00:00 +135: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: AVS certificate-only scoring certificate-backed nine-year gap scores warning
+00:00 +136: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: AVS certificate-only scoring certificate-backed nine-year gap scores warning
+00:00 +137: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: constantes et helpers cantons forfait aboli — 6 cantons
+00:00 +138: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: AVS certificate-only scoring declared AVS variants and absence stay score-equivalent unknown
+00:00 +139: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: constantes et helpers cantons tries alphabetiquement
+00:00 +140: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: constantes et helpers disclaimer ne contient pas de termes interdits
+00:00 +141: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: constantes et helpers formatChf — format suisse avec apostrophe
+00:00 +142: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:00 +143: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation report contains all required sections
+00:00 +144: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation report from full answers includes optional sections
+00:00 +145: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation report generatedAt is close to now
+00:00 +146: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building defaults canton to ZH when missing
+00:00 +147: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building defaults civilStatus to single when missing
+00:00 +148: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building correctly identifies married profile
+00:00 +149: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building computes annual income from monthly net income
+00:00 +150: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building defaults monthly income to 5000 when missing
+00:00 +151: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building parses children count from string
+00:00 +152: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building hasChildren is false when 0 children
+00:00 +153: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building isSalaried correctly reflects employment status
+reg() FALLBACK: pillar3a.max_without_lpp → 36288.0 (cache miss, logged once)
+00:00 +154: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation computes positive total tax for standard income
+00:00 +155: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation effective rate is between 0 and 1
+00:00 +156: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation cantonal + federal equals total tax
+00:00 +157: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation cantonal tax is approximately 75% of total
+00:00 +158: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation married profile gets lower effective rate
+00:00 +159: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation 3a contribution appears in deductions
+00:00 +160: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation children deduction = federal + cantonal per child (LIFD art. 35 + LHID art. 9)
+00:00 +161: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation LPP buyback triggers tax comparison when available > 50k
+00:00 +162: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation no LPP buyback comparison when available <= 50k
+00:00 +163: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection returns null when years to retirement <= 0
+00:00 +164: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection returns projection for working-age person
+00:00 +165: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection retirement point capitals stay null without reviewed evidence
+00:00 +166: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection official AVS amount stays null until reviewed evidence is wired
+00:00 +167: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection retirement total stays null while official AVS is unknown
+00:00 +168: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate stays null while official AVS is unknown
+00:00 +169: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate stays null when current income is not known
+00:00 +170: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate stays null while the LPP pension is unknown
+00:00 +171: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate uses the actual current monthly income
+00:00 +172: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate is capped at 150 percent
+00:00 +173: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: LPP buyback strategy returns null when buyback available < 10000
+00:00 +174: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: LPP buyback strategy returns strategy when buyback available >= 10000
+00:00 +175: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: LPP buyback strategy yearly plan sums to total buyback available
+00:00 +176: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: LPP buyback strategy total tax savings is positive
+00:00 +177: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Priority actions returns at most 3 priority actions
+00:00 +178: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Priority actions actions with debt should include debt-related action
+00:00 +179: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Priority actions roadmap has at least one phase
+00:00 +180: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Priority actions roadmap immediate phase is labeled correctly
+00:00 +181: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases empty answers map does not throw
+00:00 +182: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases empty answers use all defaults
+00:00 +183: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases zero income produces valid report
+00:00 +184: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases very high income produces valid report
+00:00 +185: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases birth year as string is parsed correctly
+00:00 +186: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases income as int is handled correctly
+00:00 +187: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile computed properties yearsToRetirement is 65 - age
+00:00 +188: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches 3a topic from "pilier 3a" keyword
+00:00 +189: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches lpp topic from "2e pilier" keyword
+00:00 +190: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches avs topic from "rente avs" keyword
+00:00 +191: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches impots topic from "impôt" keyword
+00:00 +192: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches budget topic from "épargne" keyword
+00:00 +193: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches immobilier topic from "hypotheque" keyword
+00:00 +194: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches retraite topic from "pension" keyword
+00:00 +195: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches assurances topic from "lamal" keyword
+00:00 +196: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches succession topic from "héritage" keyword
+00:00 +197: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches dette topic from "crédit" keyword
+00:00 +198: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — generic returns generic response when no topic matches
+00:00 +199: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — compliance every response contains standard disclaimer
+00:00 +200: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — compliance every response contains retry message
+00:00 +201: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — compliance no response contains banned terms
+00:00 +202: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — detectedTopics override uses detectedTopics when provided, ignoring message keywords
+00:00 +203: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — detectedTopics override falls back to generic if detectedTopics has unknown topic
+00:00 +204: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — legal references 3a template references OPP3 art. 7
+00:00 +205: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — legal references lpp template references LPP art. 14
+00:00 +206: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — legal references avs template references LAVS art. 21-40
+00:01 +207: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService.generate — sans BYOK generate() sans BYOK retourne template statique
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_suroblig → 0.058 (cache miss, logged once)
+00:01 +208: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +209: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +210: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +210: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService.generate — avec BYOK (fallback) fallback vers static si LLM echoue (pas de backend)
+CoachNarrative: ClientException with SocketException: Connection refused (OS Error: Connection refused, errno = 61), address = localhost, port = 64622, uri=http://localhost:8888/api/v1/rag/query
+00:01 +211: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +212: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +213: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +214: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +215: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +216: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +217: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +218: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +219: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +220: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +221: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +222: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +223: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +224: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +225: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +226: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +227: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +228: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +229: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +230: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +231: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +232: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +233: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +233: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/coach/avs_gap_widget_test.dart: declared years abroad stay facts to verify, not AVS gaps
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:01 +234: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +235: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +236: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +237: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +238: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +239: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +240: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +241: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +242: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +243: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:01 +244: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +245: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +246: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +247: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +248: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +249: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +250: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +251: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +252: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +253: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:01 +254: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/coach/expat_rights_loss_widget_test.dart: has Semantics label
+00:01 +255: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/coach/avs_gap_widget_test.dart: official guide CTA invokes the required callback
+00:02 +256: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: start semantics stays disabled until an explicit picker confirmation
+00:02 +257: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: start semantics stays disabled until an explicit picker confirmation
+00:02 +258: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: unknown years stay partial and cannot synthesize a ten-year fact
+00:02 +259: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: missing birth year does not block after explicit year selection
+00:02 +260: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: orientation requires explicit opt-in and never writes the ledger
+00:02 +261: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: AVS verification CTA opens the existing guide route
+00:02 +262: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: AVS scenario renderer itself fails closed without opt-in
+00:02 +263: All tests passed!
+exit_code=0

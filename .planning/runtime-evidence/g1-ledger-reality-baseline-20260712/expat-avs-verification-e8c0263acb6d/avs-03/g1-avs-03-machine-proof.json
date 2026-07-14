@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "ticket_id": "G1-AVS-03",
+  "ticket_state": "green",
+  "evidence_mode": "red_green",
+  "global_g1_state": "incomplete",
+  "accepted_sha": "3738568af9b01d34035c7b06344617b3f1995e03",
+  "implementation_commits": {
+    "backend": "9e10fb5920bbd1896a7cbb5583919fd530177888",
+    "mobile": "3738568af9b01d34035c7b06344617b3f1995e03"
+  },
+  "red": {
+    "sha": "9e10fb5920bbd1896a7cbb5583919fd530177888",
+    "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/red-mobile-quarantine.log",
+    "result": {
+      "exit_code": 1,
+      "failed_tests": 6
+    },
+    "meaning": "The mobile quarantine contract failed before the mobile count-only implementation."
+  },
+  "green": {
+    "sha": "3738568af9b01d34035c7b06344617b3f1995e03",
+    "canonical_ticket_command": "(cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py -q) && (cd apps/mobile && flutter test test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart --reporter expanded)",
+    "canonical_cross_stack": {
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/root-canonical-cross-stack-green.log",
+      "result": {
+        "exit_code": 0,
+        "backend_passed": 13,
+        "mobile_passed": 6
+      },
+      "provenance_note": "Captured on the backend implementation commit with the mobile implementation present in the working tree; the mobile implementation was then committed as the accepted SHA."
+    },
+    "related_backend": {
+      "command": "cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py tests/test_expat.py tests/test_precision.py tests/test_faq_service.py -q",
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/final-related-tests-and-ruff.log",
+      "result": {
+        "exit_code": 0,
+        "passed": 176
+      }
+    },
+    "full_backend": {
+      "command": "cd services/backend && pytest -q",
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/green-full-pytest.log",
+      "result": {
+        "exit_code": 0,
+        "passed": 6072,
+        "skipped": 6
+      }
+    },
+    "flutter_analyze": {
+      "command": "cd apps/mobile && flutter analyze",
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/root-full-flutter-analyze.log",
+      "result": {
+        "exit_code": 0,
+        "issues": 0
+      }
+    },
+    "mobile_policy_gates": {
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/root-mobile-policy-gates.log",
+      "result": {
+        "exit_code": 0
+      },
+      "checks": [
+        "ARB parity across six locales",
+        "generated l10n",
+        "hardcoded-rate gate",
+        "banned UI terms",
+        "French accent gates",
+        "route reconciliation"
+      ]
+    },
+    "lefthook_pre_commit": {
+      "command": "lefthook run pre-commit",
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/root-lefthook-pre-commit-mobile-rerun.log",
+      "result": {
+        "exit_code": 0
+      }
+    },
+    "full_flutter": {
+      "command": "cd apps/mobile && flutter test",
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/root-full-flutter-test.log",
+      "result": {
+        "exit_code": 1,
+        "passed": 8678,
+        "skipped": 31,
+        "failed": 6
+      },
+      "classification": "global_baseline_debt_not_avs_regression",
+      "baseline_reproduction": {
+        "baseline_sha": "9e10fb5920bbd1896a7cbb5583919fd530177888",
+        "current_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/root-full-suite-failures-targeted-current.log",
+        "clean_baseline_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/root-full-suite-failures-targeted-clean-head.log",
+        "same_failures_reproduced": 6
+      },
+      "scope_note": "These six failures remain global Flutter debt. They do not fail the G1-AVS-03 canonical quarantine command and are not caused by the AVS implementation."
+    }
+  },
+  "runtime_exact_sha": {
+    "sha": "3738568af9b01d34035c7b06344617b3f1995e03",
+    "directory": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af",
+    "device": {
+      "udid": "B03E429D-0422-4357-B754-536637D979F9",
+      "name": "iPhone 17 Pro",
+      "platform": "iOS Simulator 26.2"
+    },
+    "doctor": {
+      "command": "python3 tools/checks/mint_os_doctor.py",
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/mint-doctor.log",
+      "result": "green"
+    },
+    "patrol_tooling_guard": {
+      "command": "python3 tools/checks/patrol_tooling_guard.py",
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/patrol-tooling-guard.log",
+      "result": "green"
+    },
+    "patrol": {
+      "target": "apps/mobile/test/patrol/expat_avs_verification_runtime_test.dart",
+      "artifacts": [
+        ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/patrol/patrol.log",
+        ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/patrol/summary.json",
+        ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/patrol/tests.json"
+      ],
+      "result": {
+        "exit_code": 0,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "delegates_to": "apps/mobile/integration_test/expat_avs_verification_patrol_test.dart"
+    },
+    "normal_build_install": {
+      "artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/maestro/flutter-build-ios-simulator.log",
+      "build_exit_code_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/maestro/build-exit-code.txt",
+      "installed_app_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/maestro/installed-app-container.txt",
+      "result": {
+        "exit_code": 0,
+        "installed": true
+      }
+    },
+    "maestro": {
+      "flow": "apps/mobile/.maestro/expat_avs_verification.yaml",
+      "artifacts": [
+        ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/maestro/maestro.log",
+        ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/maestro/debug/commands-(expat_avs_verification.yaml).json",
+        ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/maestro/screenshots/screenshots/expat_avs_verification_guide.png"
+      ],
+      "result": {
+        "exit_code": 0,
+        "official_ci_request_cta_visible": true,
+        "official_form_cta_visible": true,
+        "personal_chf_effect_absent": true,
+        "screenshot_captured": true
+      }
+    },
+    "clean_sha": {
+      "sha_before_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/sha-before.txt",
+      "sha_after_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/sha-after.txt",
+      "status_before_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/status-before.txt",
+      "status_after_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/runtime-exact-sha-3738568af/status-after.txt",
+      "same_sha_before_after": true,
+      "clean_before_after": true
+    }
+  },
+  "scope_guard": "G1-AVS-03 only. This evidence does not mark G1 globally complete and does not authorize G2 or G3."
+}

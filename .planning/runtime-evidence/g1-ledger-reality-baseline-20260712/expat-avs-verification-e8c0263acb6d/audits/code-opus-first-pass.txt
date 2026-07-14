@@ -1,0 +1,41 @@
+All checks pass with no drift. I have enough evidence to render a verdict.
+
+---
+
+# MINT External Audit — `codex/mint-product-usability-plan-20260712`
+
+**Audit mode:** code · **Base ref:** `9daf69d13` · **Diff:** 519 lines (within budget)
+
+## Verdict: **PASS**
+
+## Scope
+New "expat AVS verification" journey: `/expatriation` AVS tab → `/scan/avs-guide`, plus registry/graph/contract updates and runtime proofs (Maestro + Patrol + widget tests).
+
+## Evidence verified (source of truth = code/tests, not docs)
+
+**Correctness / no-facade**
+- `ExpatService.assessAvsGapOrientation` (`expat_service.dart:586-611`) is pure and returns a typed `AvsGapAssessment` with **no** pension/CHF field (`:9-19`). Range-validated (0–44); documented gaps only unlock `reductionPercentageFromGap` (a %, not CHF).
+- The registry edge `expat.edge.avs.open_verification_guide` is really wired: `expat_screen.dart:1255` `onOpenAvsVerificationGuide: () => context.push('/scan/avs-guide')`.
+- The target CTAs asserted by the Maestro/Patrol tests exist and are wired in the pre-existing guide screen: `avs_guide_screen.dart:312/319` (`_onOpenOfficialCiRequest`) and `:332/339` (`_onOpenOfficialForm`) — not a facade.
+- `testOnlyRootRouter` used by the Patrol test exists (`app.dart:1451`).
+
+**Privacy / no-write**
+- Screen path writes nothing: `_yearsAbroad`, `_avsScenarioStarted`, `_avsResult` are route-local `setState` only. Confirmed by passing test *"orientation requires explicit opt-in and never writes the ledger"* (`mergeCalls==0`, `updateCalls==0`).
+- No CHF leakage in copy: `expatAvsEducation`, `expatAvsGapUnknownBody`, `expatAvsScenarioAssumptions` (`app_fr.arb:1880,12283-12296`) contain no monetary amounts; Maestro/Patrol assert `CHF\s*[0-9]` not visible on the unknown path.
+
+**Tests (executed)**
+- `flutter test test/screens/expat_avs_opt_in_test.dart` → **7/7 passed**, including the no-write and CTA-route proofs.
+- `interaction_registry_lint.py` → OK; `interaction_coverage_audit.py` → "coverage report is current"; **git worktree clean after regenerating** — the "do-not-edit" generated files (`INDEX.md`, `interaction_graph.mmd`, `INTERACTION_COVERAGE_AUDIT.md`) genuinely match their generators.
+
+## Findings
+
+### P0 — none
+
+### P1 — none
+
+### P2 (non-blocking)
+- **Android custom-scheme deep link not registered.** The Maestro flow uses `openLink: "mint:///expatriation"` (`.maestro/expat_avs_verification.yaml:11`). `mint` is registered only for iOS (`ios/Runner/Info.plist:26-28`); `AndroidManifest.xml` has only MAIN/LAUNCHER + an https `<queries>` entry, no `mint` VIEW intent-filter — so `openLink` cannot route to the app on Android. This is **pre-existing and repo-wide** (identical pattern in `coverage_check.yaml`, `disability_gap.yaml`, etc.), not introduced by this diff; noted for completeness. Proof: `git grep 'mint:///' apps/mobile/.maestro` vs absent Android intent-filter.
+- **Minor semantics nesting:** the years picker wraps `MintPickerTile` in `Semantics(button:true)` without `excludeSemantics`, unlike the start button which uses `excludeSemantics`. No functional impact — `find.bySemanticsIdentifier('expat_avs_years_picker')` resolves uniquely and tests pass.
+
+## Notes
+Diff is docs/graph-heavy but the code substance (service purity, no ledger write, real CTA wiring, opt-in gating) is proven by passing tests and generator round-trips. Change is truthful, correctly routed, and free of facade-without-wiring risk.

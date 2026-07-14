@@ -290,16 +290,16 @@
     },
     {
       "ticket_id": "G1-AVS-03",
-      "state": "ticket_only",
+      "state": "green",
       "command": "(cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py -q) && (cd apps/mobile && flutter test test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart --reporter expanded)",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "9e10fb5920bbd1896a7cbb5583919fd530177888",
+      "red_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/red-mobile-quarantine.log",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "3738568af9b01d34035c7b06344617b3f1995e03",
+      "green_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/g1-avs-03-machine-proof.json",
+      "accepted_sha": "3738568af9b01d34035c7b06344617b3f1995e03"
     },
     {
       "ticket_id": "G1-SUCCESSION-01",

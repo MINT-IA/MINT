@@ -1,0 +1,1 @@
+claude_external_audit: diff prompt is 17473 lines, above CLAUDE_AUDIT_MAX_DIFF_LINES=10000; split the PR or set CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1 for a named final-release/P0 dispute

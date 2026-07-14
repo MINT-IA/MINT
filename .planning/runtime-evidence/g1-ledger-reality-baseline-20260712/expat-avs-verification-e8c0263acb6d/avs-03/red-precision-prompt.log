@@ -1,0 +1,21 @@
+$ cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py::test_avs_precision_prompt_promises_ci_review_not_a_gap_priced_pension -q
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_avs_precision_prompt_promises_ci_review_not_a_gap_priced_pension _____
+
+    def test_avs_precision_prompt_promises_ci_review_not_a_gap_priced_pension():
+        prompts = get_precision_prompts("retirement_projection", {})
+        prompt = next(
+            item for item in prompts if item.field_needed == "avs_contribution_years"
+        )
+        copy = f"{prompt.prompt_text} {prompt.impact_text}".casefold()
+
+        assert "extrait" in copy
+>       assert "caisse" in copy
+E       assert 'caisse' in "tes annees de cotisation avs determinent ta rente. demande ton extrait ci sur www.ahv-iv.ch pour le chiffre exact. rente avs calculee au franc pres. chaque annee manquante reduit la rente d'environ 2.3%."
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:107: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_avs_precision_prompt_promises_ci_review_not_a_gap_priced_pension
+1 failed in 0.30s
+exit=1

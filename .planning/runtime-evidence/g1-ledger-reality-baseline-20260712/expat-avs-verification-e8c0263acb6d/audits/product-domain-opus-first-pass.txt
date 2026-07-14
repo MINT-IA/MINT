@@ -1,0 +1,32 @@
+I've verified the core domain logic, the source-of-truth gating, the route/edge wiring, and the guide-screen CTAs. Here is the audit.
+
+Product/domain verdict: PASS
+
+## Summary
+The diff adds an AVS-verification orientation to `/expatriation`'s AVS tab plus a registry edge to `/scan/avs-guide`. It is a truthful, no-write, no-CHF orientation flow with strong test coverage and real wiring behind every asserted CTA. I confirmed the safety-critical claims against live code rather than the docs.
+
+## P0
+None.
+
+## P1
+None.
+
+## P2
+- **"Minimum" framing of the scale effect can understate compensation.** `AvsCalculator.reductionPercentageFromGap` (`avs_calculator.dart:703-707`) is a linear `gap/44×100`, surfaced as `conditionalMinimumScaleReductionPercent` and rendered via `expatAvsDocumentedMinimumEffect(...)` (`avs_gap_widget.dart:171-186`). In real AVS practice, *années de jeunesse* (contributions age 17–20) and bonifications can *fill* documented gaps, so the actual pension reduction is often **less** than `gap/44` — i.e. this is closer to a scale-maximum than a "minimum." It is heavily caveated ("no personal amount", `expatAvsTruthDisclaimer`) and routes to the official 318.282 calculation, so it cannot drive a harmful decision; but the word "minimum" is métier-imprecise. Recommend reframing as "scale-based benchmark before compensation."
+- **Frontalier source-tax flat rates in the same service are unsourced/stale-risk** (`expat_service.dart:62-89`) and forfait effective rates are hardcoded approximations (`0.25`/`0.35`, `expat_service.dart:547-551`). Not touched by this diff and not part of the AVS flow, but they live one method away from the audited code and carry no year/source marker. Out of scope here; flagging for a future pass.
+- **Documentation weight vs. change size.** `SCREEN_CONTRACTS.md §4.2/§5` and three `.mmd` diagrams were expanded substantially. I spot-checked the claims (CI hub, 318.282, scan branch, error snackbar, no-write) against `avs_guide_screen.dart` and they are accurate — this is *not* a facade — but the doc surface is now large relative to the code and will need upkeep discipline.
+
+## Swiss domain review
+- **AVS:** Correct handling. Years abroad are kept as a nullable *local* scenario lever and never become contribution-gap years (`expat_screen.dart:99-130`; invariant EA-2). A proportional scale effect is exposed **only** when `avsGapEvidence.selfCertifiedYears` is present, and that field is gated to `ProfileDataSource.certificate` (`coach_profile.dart:2104-2110`), so residence history alone can never synthesize a gap. `44` full-contribution years is sourced to `avsDureeCotisationComplete` via registry (`avs_calculator.dart:705`) — consistent with Swiss law. No personal pension, no CHF, no eligibility verdict rendered (Maestro asserts `.*CHF\s*[0-9].*` not visible).
+- **Spouse/household:** Spouse evidence is explicitly out of scope and never synthesized as zero (`coach_profile.dart:2113-2120`, `AvsGapEvidence.householdTotalReady`); the flow performs no couple-rente calculation. Coherent with AVS splitting/plafonnement reality (a self-only orientation must not imply a household cap).
+- **LPP/3a:** Not affected by this flow. Departure checklist (unchanged) remains domain-correct (LFLP art. 25f obligatory/surobligatoire split, LIFD art. 38).
+- **Tax/mortgage/insurance/succession:** Not touched by this change.
+
+## Mint product logic review
+This moves Mint **toward** the ledger → DataQuest → scenario → dossier spine correctly:
+- **Single source of truth preserved:** the AVS tab writes nothing (`q_avs_years_abroad`, `prevoyance.lacunesAVS`, partner facts, CHF all confirmed unwritten by the runtime/widget tests and `_RecordingCoachProfileProvider.mergeCalls/updateCalls == 0`).
+- **Missing-data honesty:** distinct known / unknown states (`expat_avs_gap_unknown` vs `expat_avs_gap_documented`) with no synthetic default year count; scenario stays hidden until explicit opt-in.
+- **Specialist/official handoff:** real, wired CTAs to the official CI request hub and form 318.282 (`avs_guide_screen.dart:36-55, 310-355`, `url_launcher` with error snackbar, no fabricated success), plus a `/scan` path that later becomes the certificate write — the correct dossier entry point for this decision.
+- **Interaction model:** registry edge `expat.edge.avs.open_verification_guide → /scan/avs-guide` matches `context.push('/scan/avs-guide')`, back behavior preserved, and coverage audit reflects the new declared nodes.
+
+Evidence for any residual doubt on the frontalier/forfait constants would come from a sourced constants table or backend parity test; those are outside this diff's scope.

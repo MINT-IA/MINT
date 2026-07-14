@@ -1,0 +1,474 @@
+$ cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py -q
+FFFFFFFFFFFF                                                             [100%]
+=================================== FAILURES ===================================
+_ test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload0] _
+
+client = <starlette.testclient.TestClient object at 0x10feafe80>, payload = {}
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {},
+            {"yearsAbroad": None, "yearsInCh": None},
+            {"yearsAbroad": 0, "yearsInCh": 0},
+            {"yearsAbroad": 2, "yearsInCh": 42},
+            {"yearsAbroad": 4, "yearsInCh": 40},
+            {"yearsAbroad": 9, "yearsInCh": 35},
+            # A cohort/sex hint cannot make a gap-only pricing request sufficient.
+            {"yearsAbroad": 4, "yearsInCh": 39, "birthYear": 1960, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "male"},
+        ],
+    )
+    def test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension(client, payload):
+        response = client.post("/api/v1/expat/avs-gap", json=payload)
+
+>       assert response.status_code == 404
+E       assert 422 == 404
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:66: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+{"timestamp": "2026-07-13T22:46:12.005887+00:00", "level": "INFO", "message": "Database connectivity: OK", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.081147+00:00", "level": "INFO", "message": "MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents", "logger": "app.services.rag.vector_store", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.081581+00:00", "level": "INFO", "message": "RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.082184+00:00", "level": "INFO", "message": "SLO monitor started", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.082468+00:00", "level": "INFO", "message": "slo_monitor: started (interval=30s)", "logger": "app.services.slo_monitor", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.082908+00:00", "level": "INFO", "message": "redis_client: REDIS_URL not set, in-memory fail-open mode", "logger": "app.core.redis_client", "trace_id": "-"}
+------------------------------ Captured log setup ------------------------------
+INFO     app.main:main.py:83 Database connectivity: OK
+INFO     app.services.rag.vector_store:vector_store.py:58 MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents
+INFO     app.main:main.py:322 RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)
+INFO     app.main:main.py:131 SLO monitor started
+INFO     app.services.slo_monitor:slo_monitor.py:163 slo_monitor: started (interval=30s)
+INFO     app.core.redis_client:redis_client.py:45 redis_client: REDIS_URL not set, in-memory fail-open mode
+----------------------------- Captured stderr call -----------------------------
+{"timestamp": "2026-07-13T22:46:12.254679+00:00", "level": "INFO", "message": "method=POST path=/api/v1/expat/avs-gap status=422 duration_ms=1.77", "logger": "mint.access", "trace_id": "516e8e0c-52f8-4914-8a89-1a41e601228a"}
+{"timestamp": "2026-07-13T22:46:12.255242+00:00", "level": "INFO", "message": "HTTP Request: POST http://testserver/api/v1/expat/avs-gap \"HTTP/1.1 422 Unprocessable Entity\"", "logger": "httpx", "trace_id": "-"}
+------------------------------ Captured log call -------------------------------
+INFO     mint.access:logging_config.py:93 method=POST path=/api/v1/expat/avs-gap status=422 duration_ms=1.77
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/expat/avs-gap "HTTP/1.1 422 Unprocessable Entity"
+_ test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload1] _
+
+client = <starlette.testclient.TestClient object at 0x1100bdbb0>
+payload = {'yearsAbroad': None, 'yearsInCh': None}
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {},
+            {"yearsAbroad": None, "yearsInCh": None},
+            {"yearsAbroad": 0, "yearsInCh": 0},
+            {"yearsAbroad": 2, "yearsInCh": 42},
+            {"yearsAbroad": 4, "yearsInCh": 40},
+            {"yearsAbroad": 9, "yearsInCh": 35},
+            # A cohort/sex hint cannot make a gap-only pricing request sufficient.
+            {"yearsAbroad": 4, "yearsInCh": 39, "birthYear": 1960, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "male"},
+        ],
+    )
+    def test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension(client, payload):
+        response = client.post("/api/v1/expat/avs-gap", json=payload)
+
+>       assert response.status_code == 404
+E       assert 422 == 404
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:66: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+{"timestamp": "2026-07-13T22:46:12.334250+00:00", "level": "INFO", "message": "Database connectivity: OK", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.336842+00:00", "level": "INFO", "message": "MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents", "logger": "app.services.rag.vector_store", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.337160+00:00", "level": "INFO", "message": "RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.337210+00:00", "level": "INFO", "message": "SLO monitor started", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.337443+00:00", "level": "INFO", "message": "slo_monitor: started (interval=30s)", "logger": "app.services.slo_monitor", "trace_id": "-"}
+------------------------------ Captured log setup ------------------------------
+INFO     app.main:main.py:83 Database connectivity: OK
+INFO     app.services.rag.vector_store:vector_store.py:58 MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents
+INFO     app.main:main.py:322 RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)
+INFO     app.main:main.py:131 SLO monitor started
+INFO     app.services.slo_monitor:slo_monitor.py:163 slo_monitor: started (interval=30s)
+----------------------------- Captured stderr call -----------------------------
+{"timestamp": "2026-07-13T22:46:12.338875+00:00", "level": "INFO", "message": "method=POST path=/api/v1/expat/avs-gap status=422 duration_ms=0.78", "logger": "mint.access", "trace_id": "0494ccaa-9d7f-4d68-b39e-fb8df2589270"}
+{"timestamp": "2026-07-13T22:46:12.339306+00:00", "level": "INFO", "message": "HTTP Request: POST http://testserver/api/v1/expat/avs-gap \"HTTP/1.1 422 Unprocessable Entity\"", "logger": "httpx", "trace_id": "-"}
+------------------------------ Captured log call -------------------------------
+INFO     mint.access:logging_config.py:93 method=POST path=/api/v1/expat/avs-gap status=422 duration_ms=0.78
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/expat/avs-gap "HTTP/1.1 422 Unprocessable Entity"
+_ test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload2] _
+
+client = <starlette.testclient.TestClient object at 0x1101959a0>
+payload = {'yearsAbroad': 0, 'yearsInCh': 0}
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {},
+            {"yearsAbroad": None, "yearsInCh": None},
+            {"yearsAbroad": 0, "yearsInCh": 0},
+            {"yearsAbroad": 2, "yearsInCh": 42},
+            {"yearsAbroad": 4, "yearsInCh": 40},
+            {"yearsAbroad": 9, "yearsInCh": 35},
+            # A cohort/sex hint cannot make a gap-only pricing request sufficient.
+            {"yearsAbroad": 4, "yearsInCh": 39, "birthYear": 1960, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "male"},
+        ],
+    )
+    def test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension(client, payload):
+        response = client.post("/api/v1/expat/avs-gap", json=payload)
+
+>       assert response.status_code == 404
+E       assert 200 == 404
+E        +  where 200 = <Response [200 OK]>.status_code
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:66: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+{"timestamp": "2026-07-13T22:46:12.344283+00:00", "level": "INFO", "message": "Database connectivity: OK", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.346369+00:00", "level": "INFO", "message": "MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents", "logger": "app.services.rag.vector_store", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.346706+00:00", "level": "INFO", "message": "RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.346757+00:00", "level": "INFO", "message": "SLO monitor started", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.346985+00:00", "level": "INFO", "message": "slo_monitor: started (interval=30s)", "logger": "app.services.slo_monitor", "trace_id": "-"}
+------------------------------ Captured log setup ------------------------------
+INFO     app.main:main.py:83 Database connectivity: OK
+INFO     app.services.rag.vector_store:vector_store.py:58 MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents
+INFO     app.main:main.py:322 RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)
+INFO     app.main:main.py:131 SLO monitor started
+INFO     app.services.slo_monitor:slo_monitor.py:163 slo_monitor: started (interval=30s)
+----------------------------- Captured stderr call -----------------------------
+{"timestamp": "2026-07-13T22:46:12.348656+00:00", "level": "INFO", "message": "method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.03", "logger": "mint.access", "trace_id": "1c6d9242-fb0e-4e4a-85b9-ceb7ae2e898c"}
+{"timestamp": "2026-07-13T22:46:12.349049+00:00", "level": "INFO", "message": "HTTP Request: POST http://testserver/api/v1/expat/avs-gap \"HTTP/1.1 200 OK\"", "logger": "httpx", "trace_id": "-"}
+------------------------------ Captured log call -------------------------------
+INFO     mint.access:logging_config.py:93 method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.03
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/expat/avs-gap "HTTP/1.1 200 OK"
+_ test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload3] _
+
+client = <starlette.testclient.TestClient object at 0x1101e44c0>
+payload = {'yearsAbroad': 2, 'yearsInCh': 42}
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {},
+            {"yearsAbroad": None, "yearsInCh": None},
+            {"yearsAbroad": 0, "yearsInCh": 0},
+            {"yearsAbroad": 2, "yearsInCh": 42},
+            {"yearsAbroad": 4, "yearsInCh": 40},
+            {"yearsAbroad": 9, "yearsInCh": 35},
+            # A cohort/sex hint cannot make a gap-only pricing request sufficient.
+            {"yearsAbroad": 4, "yearsInCh": 39, "birthYear": 1960, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "male"},
+        ],
+    )
+    def test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension(client, payload):
+        response = client.post("/api/v1/expat/avs-gap", json=payload)
+
+>       assert response.status_code == 404
+E       assert 200 == 404
+E        +  where 200 = <Response [200 OK]>.status_code
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:66: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+{"timestamp": "2026-07-13T22:46:12.353973+00:00", "level": "INFO", "message": "Database connectivity: OK", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.356057+00:00", "level": "INFO", "message": "MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents", "logger": "app.services.rag.vector_store", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.356575+00:00", "level": "INFO", "message": "RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.356626+00:00", "level": "INFO", "message": "SLO monitor started", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.356860+00:00", "level": "INFO", "message": "slo_monitor: started (interval=30s)", "logger": "app.services.slo_monitor", "trace_id": "-"}
+------------------------------ Captured log setup ------------------------------
+INFO     app.main:main.py:83 Database connectivity: OK
+INFO     app.services.rag.vector_store:vector_store.py:58 MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents
+INFO     app.main:main.py:322 RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)
+INFO     app.main:main.py:131 SLO monitor started
+INFO     app.services.slo_monitor:slo_monitor.py:163 slo_monitor: started (interval=30s)
+----------------------------- Captured stderr call -----------------------------
+{"timestamp": "2026-07-13T22:46:12.358505+00:00", "level": "INFO", "message": "method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.03", "logger": "mint.access", "trace_id": "c74e8e2f-0edf-49eb-ae3e-427a6d9bb483"}
+{"timestamp": "2026-07-13T22:46:12.358919+00:00", "level": "INFO", "message": "HTTP Request: POST http://testserver/api/v1/expat/avs-gap \"HTTP/1.1 200 OK\"", "logger": "httpx", "trace_id": "-"}
+------------------------------ Captured log call -------------------------------
+INFO     mint.access:logging_config.py:93 method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.03
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/expat/avs-gap "HTTP/1.1 200 OK"
+_ test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload4] _
+
+client = <starlette.testclient.TestClient object at 0x1108ba7c0>
+payload = {'yearsAbroad': 4, 'yearsInCh': 40}
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {},
+            {"yearsAbroad": None, "yearsInCh": None},
+            {"yearsAbroad": 0, "yearsInCh": 0},
+            {"yearsAbroad": 2, "yearsInCh": 42},
+            {"yearsAbroad": 4, "yearsInCh": 40},
+            {"yearsAbroad": 9, "yearsInCh": 35},
+            # A cohort/sex hint cannot make a gap-only pricing request sufficient.
+            {"yearsAbroad": 4, "yearsInCh": 39, "birthYear": 1960, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "male"},
+        ],
+    )
+    def test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension(client, payload):
+        response = client.post("/api/v1/expat/avs-gap", json=payload)
+
+>       assert response.status_code == 404
+E       assert 200 == 404
+E        +  where 200 = <Response [200 OK]>.status_code
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:66: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+{"timestamp": "2026-07-13T22:46:12.364209+00:00", "level": "INFO", "message": "Database connectivity: OK", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.366311+00:00", "level": "INFO", "message": "MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents", "logger": "app.services.rag.vector_store", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.366653+00:00", "level": "INFO", "message": "RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.366704+00:00", "level": "INFO", "message": "SLO monitor started", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.366918+00:00", "level": "INFO", "message": "slo_monitor: started (interval=30s)", "logger": "app.services.slo_monitor", "trace_id": "-"}
+------------------------------ Captured log setup ------------------------------
+INFO     app.main:main.py:83 Database connectivity: OK
+INFO     app.services.rag.vector_store:vector_store.py:58 MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents
+INFO     app.main:main.py:322 RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)
+INFO     app.main:main.py:131 SLO monitor started
+INFO     app.services.slo_monitor:slo_monitor.py:163 slo_monitor: started (interval=30s)
+----------------------------- Captured stderr call -----------------------------
+{"timestamp": "2026-07-13T22:46:12.368546+00:00", "level": "INFO", "message": "method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.00", "logger": "mint.access", "trace_id": "a476d038-7f5c-4e69-b8a3-e3ab266633fa"}
+{"timestamp": "2026-07-13T22:46:12.368935+00:00", "level": "INFO", "message": "HTTP Request: POST http://testserver/api/v1/expat/avs-gap \"HTTP/1.1 200 OK\"", "logger": "httpx", "trace_id": "-"}
+------------------------------ Captured log call -------------------------------
+INFO     mint.access:logging_config.py:93 method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.00
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/expat/avs-gap "HTTP/1.1 200 OK"
+_ test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload5] _
+
+client = <starlette.testclient.TestClient object at 0x1108bb9a0>
+payload = {'yearsAbroad': 9, 'yearsInCh': 35}
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {},
+            {"yearsAbroad": None, "yearsInCh": None},
+            {"yearsAbroad": 0, "yearsInCh": 0},
+            {"yearsAbroad": 2, "yearsInCh": 42},
+            {"yearsAbroad": 4, "yearsInCh": 40},
+            {"yearsAbroad": 9, "yearsInCh": 35},
+            # A cohort/sex hint cannot make a gap-only pricing request sufficient.
+            {"yearsAbroad": 4, "yearsInCh": 39, "birthYear": 1960, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "male"},
+        ],
+    )
+    def test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension(client, payload):
+        response = client.post("/api/v1/expat/avs-gap", json=payload)
+
+>       assert response.status_code == 404
+E       assert 200 == 404
+E        +  where 200 = <Response [200 OK]>.status_code
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:66: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+{"timestamp": "2026-07-13T22:46:12.373819+00:00", "level": "INFO", "message": "Database connectivity: OK", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.375873+00:00", "level": "INFO", "message": "MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents", "logger": "app.services.rag.vector_store", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.376189+00:00", "level": "INFO", "message": "RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.376237+00:00", "level": "INFO", "message": "SLO monitor started", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.376450+00:00", "level": "INFO", "message": "slo_monitor: started (interval=30s)", "logger": "app.services.slo_monitor", "trace_id": "-"}
+------------------------------ Captured log setup ------------------------------
+INFO     app.main:main.py:83 Database connectivity: OK
+INFO     app.services.rag.vector_store:vector_store.py:58 MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents
+INFO     app.main:main.py:322 RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)
+INFO     app.main:main.py:131 SLO monitor started
+INFO     app.services.slo_monitor:slo_monitor.py:163 slo_monitor: started (interval=30s)
+----------------------------- Captured stderr call -----------------------------
+{"timestamp": "2026-07-13T22:46:12.378116+00:00", "level": "INFO", "message": "method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.05", "logger": "mint.access", "trace_id": "48ec0f0c-716e-48e1-9b22-be96b96ac298"}
+{"timestamp": "2026-07-13T22:46:12.378531+00:00", "level": "INFO", "message": "HTTP Request: POST http://testserver/api/v1/expat/avs-gap \"HTTP/1.1 200 OK\"", "logger": "httpx", "trace_id": "-"}
+------------------------------ Captured log call -------------------------------
+INFO     mint.access:logging_config.py:93 method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.05
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/expat/avs-gap "HTTP/1.1 200 OK"
+_ test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload6] _
+
+client = <starlette.testclient.TestClient object at 0x110889a90>
+payload = {'birthYear': 1960, 'sex': 'female', 'yearsAbroad': 4, 'yearsInCh': 39}
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {},
+            {"yearsAbroad": None, "yearsInCh": None},
+            {"yearsAbroad": 0, "yearsInCh": 0},
+            {"yearsAbroad": 2, "yearsInCh": 42},
+            {"yearsAbroad": 4, "yearsInCh": 40},
+            {"yearsAbroad": 9, "yearsInCh": 35},
+            # A cohort/sex hint cannot make a gap-only pricing request sufficient.
+            {"yearsAbroad": 4, "yearsInCh": 39, "birthYear": 1960, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "male"},
+        ],
+    )
+    def test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension(client, payload):
+        response = client.post("/api/v1/expat/avs-gap", json=payload)
+
+>       assert response.status_code == 404
+E       assert 200 == 404
+E        +  where 200 = <Response [200 OK]>.status_code
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:66: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+{"timestamp": "2026-07-13T22:46:12.383457+00:00", "level": "INFO", "message": "Database connectivity: OK", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.385538+00:00", "level": "INFO", "message": "MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents", "logger": "app.services.rag.vector_store", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.385857+00:00", "level": "INFO", "message": "RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.385902+00:00", "level": "INFO", "message": "SLO monitor started", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.386134+00:00", "level": "INFO", "message": "slo_monitor: started (interval=30s)", "logger": "app.services.slo_monitor", "trace_id": "-"}
+------------------------------ Captured log setup ------------------------------
+INFO     app.main:main.py:83 Database connectivity: OK
+INFO     app.services.rag.vector_store:vector_store.py:58 MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents
+INFO     app.main:main.py:322 RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)
+INFO     app.main:main.py:131 SLO monitor started
+INFO     app.services.slo_monitor:slo_monitor.py:163 slo_monitor: started (interval=30s)
+----------------------------- Captured stderr call -----------------------------
+{"timestamp": "2026-07-13T22:46:12.387714+00:00", "level": "INFO", "message": "method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=0.98", "logger": "mint.access", "trace_id": "7eedd86f-9600-4a6d-bcfe-c7fc6c41b01e"}
+{"timestamp": "2026-07-13T22:46:12.388123+00:00", "level": "INFO", "message": "HTTP Request: POST http://testserver/api/v1/expat/avs-gap \"HTTP/1.1 200 OK\"", "logger": "httpx", "trace_id": "-"}
+------------------------------ Captured log call -------------------------------
+INFO     mint.access:logging_config.py:93 method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=0.98
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/expat/avs-gap "HTTP/1.1 200 OK"
+_ test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload7] _
+
+client = <starlette.testclient.TestClient object at 0x110889670>
+payload = {'birthYear': 1964, 'sex': 'female', 'yearsAbroad': 4, 'yearsInCh': 40}
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {},
+            {"yearsAbroad": None, "yearsInCh": None},
+            {"yearsAbroad": 0, "yearsInCh": 0},
+            {"yearsAbroad": 2, "yearsInCh": 42},
+            {"yearsAbroad": 4, "yearsInCh": 40},
+            {"yearsAbroad": 9, "yearsInCh": 35},
+            # A cohort/sex hint cannot make a gap-only pricing request sufficient.
+            {"yearsAbroad": 4, "yearsInCh": 39, "birthYear": 1960, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "male"},
+        ],
+    )
+    def test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension(client, payload):
+        response = client.post("/api/v1/expat/avs-gap", json=payload)
+
+>       assert response.status_code == 404
+E       assert 200 == 404
+E        +  where 200 = <Response [200 OK]>.status_code
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:66: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+{"timestamp": "2026-07-13T22:46:12.393514+00:00", "level": "INFO", "message": "Database connectivity: OK", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.395691+00:00", "level": "INFO", "message": "MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents", "logger": "app.services.rag.vector_store", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.396044+00:00", "level": "INFO", "message": "RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.396104+00:00", "level": "INFO", "message": "SLO monitor started", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.396346+00:00", "level": "INFO", "message": "slo_monitor: started (interval=30s)", "logger": "app.services.slo_monitor", "trace_id": "-"}
+------------------------------ Captured log setup ------------------------------
+INFO     app.main:main.py:83 Database connectivity: OK
+INFO     app.services.rag.vector_store:vector_store.py:58 MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents
+INFO     app.main:main.py:322 RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)
+INFO     app.main:main.py:131 SLO monitor started
+INFO     app.services.slo_monitor:slo_monitor.py:163 slo_monitor: started (interval=30s)
+----------------------------- Captured stderr call -----------------------------
+{"timestamp": "2026-07-13T22:46:12.398037+00:00", "level": "INFO", "message": "method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.05", "logger": "mint.access", "trace_id": "1551447d-c30b-402a-97fc-410b210ea7c3"}
+{"timestamp": "2026-07-13T22:46:12.398447+00:00", "level": "INFO", "message": "HTTP Request: POST http://testserver/api/v1/expat/avs-gap \"HTTP/1.1 200 OK\"", "logger": "httpx", "trace_id": "-"}
+------------------------------ Captured log call -------------------------------
+INFO     mint.access:logging_config.py:93 method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.05
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/expat/avs-gap "HTTP/1.1 200 OK"
+_ test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload8] _
+
+client = <starlette.testclient.TestClient object at 0x110690880>
+payload = {'birthYear': 1964, 'sex': 'male', 'yearsAbroad': 4, 'yearsInCh': 40}
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {},
+            {"yearsAbroad": None, "yearsInCh": None},
+            {"yearsAbroad": 0, "yearsInCh": 0},
+            {"yearsAbroad": 2, "yearsInCh": 42},
+            {"yearsAbroad": 4, "yearsInCh": 40},
+            {"yearsAbroad": 9, "yearsInCh": 35},
+            # A cohort/sex hint cannot make a gap-only pricing request sufficient.
+            {"yearsAbroad": 4, "yearsInCh": 39, "birthYear": 1960, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "female"},
+            {"yearsAbroad": 4, "yearsInCh": 40, "birthYear": 1964, "sex": "male"},
+        ],
+    )
+    def test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension(client, payload):
+        response = client.post("/api/v1/expat/avs-gap", json=payload)
+
+>       assert response.status_code == 404
+E       assert 200 == 404
+E        +  where 200 = <Response [200 OK]>.status_code
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:66: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+{"timestamp": "2026-07-13T22:46:12.403362+00:00", "level": "INFO", "message": "Database connectivity: OK", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.405439+00:00", "level": "INFO", "message": "MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents", "logger": "app.services.rag.vector_store", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.405769+00:00", "level": "INFO", "message": "RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.405821+00:00", "level": "INFO", "message": "SLO monitor started", "logger": "app.main", "trace_id": "-"}
+{"timestamp": "2026-07-13T22:46:12.406252+00:00", "level": "INFO", "message": "slo_monitor: started (interval=30s)", "logger": "app.services.slo_monitor", "trace_id": "-"}
+------------------------------ Captured log setup ------------------------------
+INFO     app.main:main.py:83 Database connectivity: OK
+INFO     app.services.rag.vector_store:vector_store.py:58 MintVectorStore initialized at /Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb with 1042 documents
+INFO     app.main:main.py:322 RAG vector store: 1042 documents (persist_dir=/Users/julienbattaglia/Desktop/MINT.nosync/services/backend/data/chromadb)
+INFO     app.main:main.py:131 SLO monitor started
+INFO     app.services.slo_monitor:slo_monitor.py:163 slo_monitor: started (interval=30s)
+----------------------------- Captured stderr call -----------------------------
+{"timestamp": "2026-07-13T22:46:12.407891+00:00", "level": "INFO", "message": "method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.01", "logger": "mint.access", "trace_id": "ed448a29-2705-4975-b3fe-bd0ab3ef856b"}
+{"timestamp": "2026-07-13T22:46:12.408310+00:00", "level": "INFO", "message": "HTTP Request: POST http://testserver/api/v1/expat/avs-gap \"HTTP/1.1 200 OK\"", "logger": "httpx", "trace_id": "-"}
+------------------------------ Captured log call -------------------------------
+INFO     mint.access:logging_config.py:93 method=POST path=/api/v1/expat/avs-gap status=200 duration_ms=1.01
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/expat/avs-gap "HTTP/1.1 200 OK"
+___ test_dangerous_gap_pricing_contracts_are_absent_from_production_backend ____
+
+    def test_dangerous_gap_pricing_contracts_are_absent_from_production_backend():
+        for relative_path, forbidden_claims in FORBIDDEN_BACKEND_CLAIMS.items():
+            source = (BACKEND_ROOT / relative_path).read_text(encoding="utf-8")
+            for claim in forbidden_claims:
+>               assert claim not in source, f"{relative_path} still exposes {claim!r}"
+E               AssertionError: app/api/v1/endpoints/expat.py still exposes 'router.post("/avs-gap"'
+E               assert 'router.post("/avs-gap"' not in '"""\nExpatr...es,\n    )\n'
+E
+E                 'router.post("/avs-gap"' is contained here:
+E                   -------
+E
+E                   @router.post("/avs-gap", response_model=AVSGapResponse)
+E                 ?  ++++++++++++++++++++++
+E                   @limiter.limit("30/minute")...
+E
+E                 ...Full output truncated (112 lines hidden), use '-vv' to show
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:74: AssertionError
+_______ test_avs_precision_help_never_infers_a_pension_from_age_or_years _______
+
+    def test_avs_precision_help_never_infers_a_pension_from_age_or_years():
+        fallback = get_field_help("avs_contribution_years").fallback_estimation
+        normalized = fallback.casefold()
+
+>       assert "extrait" in normalized
+E       assert 'extrait' in "si tu es arrive en suisse a 20 ans et n'as jamais interrompu, on estime tes annees = age - 20. pour 44 ans complets, rente avs pleine (lavs art. 29ter)."
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:88: AssertionError
+_ test_avs_gap_faq_is_count_only_and_defers_the_official_effect_to_the_caisse __
+
+    def test_avs_gap_faq_is_count_only_and_defers_the_official_effect_to_the_caisse():
+        faq = FaqService.by_id("faq_lacunes_avs_couts")
+
+        assert faq is not None
+        normalized = faq.answer.casefold()
+>       assert "extrait" in normalized
+E       assert 'extrait' in "le coût d'un rachat de lacune avs dépend du revenu déterminant. pour les salariés, la cotisation annuelle est de 10.6...hf 28/mois de rente supplémentaire, à vie. ce rachat peut se rentabiliser en moins de 15 ans selon l'espérance de vie."
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:101: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload0]
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload1]
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload2]
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload3]
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload4]
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload5]
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload6]
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload7]
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_gap_only_api_is_retired_instead_of_pricing_a_personal_pension[payload8]
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_dangerous_gap_pricing_contracts_are_absent_from_production_backend
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_avs_precision_help_never_infers_a_pension_from_age_or_years
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_avs_gap_faq_is_count_only_and_defers_the_official_effect_to_the_caisse
+12 failed in 0.47s
+exit=1

@@ -1,0 +1,32 @@
+$ cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py::test_dangerous_gap_pricing_contracts_are_absent_from_production_backend -q
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_dangerous_gap_pricing_contracts_are_absent_from_production_backend ____
+
+    def test_dangerous_gap_pricing_contracts_are_absent_from_production_backend():
+        for relative_path, forbidden_claims in FORBIDDEN_BACKEND_CLAIMS.items():
+            source = (BACKEND_ROOT / relative_path).read_text(encoding="utf-8")
+            for claim in forbidden_claims:
+                assert claim not in source, f"{relative_path} still exposes {claim!r}"
+
+        for openapi_name in ("mint.openapi.canonical.json", "openapi.json"):
+            openapi = (REPO_ROOT / "tools/openapi" / openapi_name).read_text(
+                encoding="utf-8"
+            )
+>           assert '"/api/v1/expat/avs-gap"' not in openapi
+E           assert '"/api/v1/expat/avs-gap"' not in '{\n  "opena...   }\n  }\n}'
+E
+E             '"/api/v1/expat/avs-gap"' is contained here:
+E                  },
+E                   "/api/v1/expat/avs-gap": {
+E                     "post": {
+E                       "tags": [
+E                         "expat"...
+E
+E             ...Full output truncated (25610 lines hidden), use '-vv' to show
+
+tests/test_avs_unofficial_gap_effect_quarantine.py:83: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_avs_unofficial_gap_effect_quarantine.py::test_dangerous_gap_pricing_contracts_are_absent_from_production_backend
+1 failed in 0.38s
+exit=1

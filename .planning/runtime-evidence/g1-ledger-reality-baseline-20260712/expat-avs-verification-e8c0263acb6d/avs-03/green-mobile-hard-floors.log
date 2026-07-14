@@ -1,0 +1,156 @@
+>>> python3 tools/checks/arb_parity.py
+ARB parity OK: app_fr.arb=6900, app_en.arb=6900, app_de.arb=6900, app_es.arb=6900, app_it.arb=6900, app_pt.arb=6900
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/data/education_content.dart
+apps/mobile/lib/data/education_content.dart:27: 'fiscal ou juridique (LSFin). Consulte un\u00b7e specialiste pour ta situation.'; (\bspecialistes?\b -> spécialiste(s))
+apps/mobile/lib/data/education_content.dart:416: 'avoir recu ta demande avant cette date. Astuce : les primes ' (\brecu\b -> reçu)
+accent_lint_fr: FAIL — 2 violation(s)
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/data/financial_explanations.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/data/wizard_questions_v2.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_de.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_en.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_es.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_fr.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_it.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_de.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_en.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_es.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_fr.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_it.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_localizations_pt.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_pt.arb
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/screens/expat_screen.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/circle_scoring_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/coach/local_fallback_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/coach_narrative_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/expat_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/financial_core/avs_calculator.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/financial_fitness_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/services/financial_report_service.dart
+>>> python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/widgets/coach/avs_gap_widget.dart
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/data/education_content.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/data/financial_explanations.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/data/wizard_questions_v2.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_de.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_en.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_es.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_fr.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_it.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/l10n/app_localizations_pt.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/screens/expat_screen.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/circle_scoring_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/coach/local_fallback_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/coach_narrative_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/expat_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/financial_core/avs_calculator.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/financial_fitness_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/services/financial_report_service.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/banned_ui_terms.py --root . --file apps/mobile/lib/widgets/coach/avs_gap_widget.dart
+OK banned_ui_terms: scanned 1 Dart file(s)
+>>> python3 tools/checks/financial_core_gate.py --diff-file /tmp/avs03-mobile.diff
+OK financial_core_gate: no new calculation drift
+>>> python3 tools/checks/hardcoded_rate_gate.py --diff-file /tmp/avs03-mobile.diff
+OK hardcoded_rate_gate: no hardcoded financial rates in added Python/Dart lines
+>>> no_hardcoded_fr apps/mobile/lib/data/education_content.dart (temporary index)
+apps/mobile/lib/data/education_content.dart:55: 'Plafond annuel 3a pour un\u00b7e salarie\u00b7e affilie\u00b7e LPP', (hardcoded-fr-words: Plafond annuel 3a pour un\u00b7e salarie\u00b7e affilie\u00b)
+apps/mobile/lib/data/education_content.dart:95: intro: 'La caisse de pension (LPP, 2e pilier) est ta retraite ' (hardcoded-fr-words: La caisse de pension (LPP, 2e pilier) est ta retraite )
+apps/mobile/lib/data/education_content.dart:137: premierEclairageUnit: 'extrait à vérifier', (hardcoded-fr-accent: extrait à vérifier)
+apps/mobile/lib/data/education_content.dart:139: 'Document officiel qui permet de faire examiner tes périodes AVS', (hardcoded-fr-accent: Document officiel qui permet de faire examiner tes périodes )
+apps/mobile/lib/data/education_content.dart:140: intro: 'L\'AVS (1er pilier) est la base de ta retraite. Ton extrait de ' (hardcoded-fr-words: AVS (1er pilier) est la base de ta retraite. Ton extrait de )
+apps/mobile/lib/data/education_content.dart:141: 'compte individuel (CI) rend visibles les périodes enregistrées. ' (hardcoded-fr-accent: compte individuel (CI) rend visibles les périodes enregistré)
+apps/mobile/lib/data/education_content.dart:142: 'La caisse vérifie ensuite les périodes, l\'échelle et le montant.', (hardcoded-fr-accent: La caisse vérifie ensuite les périodes, l\)
+apps/mobile/lib/data/education_content.dart:144: 'Une année hors Suisse n\'est pas automatiquement une lacune AVS', (hardcoded-fr-accent: Une année hors Suisse n\)
+apps/mobile/lib/data/education_content.dart:145: 'L\'extrait CI montre les revenus et périodes inscrits sur tes comptes', (hardcoded-fr-accent: extrait CI montre les revenus et périodes inscrits sur tes c)
+apps/mobile/lib/data/education_content.dart:146: 'Les accords internationaux peuvent modifier la prise en compte des périodes', (hardcoded-fr-accent: Les accords internationaux peuvent modifier la prise en comp)
+apps/mobile/lib/data/education_content.dart:147: 'Seule la caisse fixe la durée, l\'échelle et le montant officiels', (hardcoded-fr-accent: Seule la caisse fixe la durée, l\)
+apps/mobile/lib/data/education_content.dart:148: 'Commander ton extrait CI est gratuit sur ahv-iv.ch', (hardcoded-fr-words: Commander ton extrait CI est gratuit sur ahv-iv.ch)
+apps/mobile/lib/data/education_content.dart:151: question: 'Quel document permet de faire examiner tes périodes AVS ?', (hardcoded-fr-accent: Quel document permet de faire examiner tes périodes AVS ?)
+apps/mobile/lib/data/education_content.dart:153: 'Une fiche de salaire', (hardcoded-fr-words: Une fiche de salaire)
+apps/mobile/lib/data/education_content.dart:154: 'L\'extrait de compte individuel (CI)', (hardcoded-fr-words: extrait de compte individuel (CI))
+apps/mobile/lib/data/education_content.dart:155: 'Le certificat LPP', (hardcoded-fr-words: Le certificat LPP)
+apps/mobile/lib/data/education_content.dart:156: 'La déclaration fiscale', (hardcoded-fr-accent: La déclaration fiscale)
+apps/mobile/lib/data/education_content.dart:160: 'L\'extrait CI recense les revenus et périodes enregistrés. ' (hardcoded-fr-accent: extrait CI recense les revenus et périodes enregistrés. )
+apps/mobile/lib/data/education_content.dart:161: 'La caisse de compensation examine ensuite les éventuelles ' (hardcoded-fr-accent: La caisse de compensation examine ensuite les éventuelles )
+apps/mobile/lib/data/education_content.dart:162: 'lacunes et fixe le résultat officiel.', (hardcoded-fr-accent: lacunes et fixe le résultat officiel.)
+apps/mobile/lib/data/education_content.dart:165: 'Un extrait CI rend les périodes visibles, mais ne donne pas à lui ' (hardcoded-fr-accent: Un extrait CI rend les périodes visibles, mais ne donne pas )
+apps/mobile/lib/data/education_content.dart:166: 'seul ton échelle ni le montant de ta rente. Fais-le examiner par ' (hardcoded-fr-accent: seul ton échelle ni le montant de ta rente. Fais-le examiner)
+apps/mobile/lib/data/education_content.dart:167: 'ta caisse de compensation.', (hardcoded-fr-words: ta caisse de compensation.)
+apps/mobile/lib/data/education_content.dart:169: 'LAVS art. 29ter (Durée de cotisation)', (hardcoded-fr-accent: LAVS art. 29ter (Durée de cotisation))
+apps/mobile/lib/data/education_content.dart:194: question: 'Pourquoi ne faut-il PAS investir son fonds d\'urgence ?', (hardcoded-fr-words: Pourquoi ne faut-il PAS investir son fonds d\)
+apps/mobile/lib/data/education_content.dart:202: explanation: 'Le fonds d\'urgence doit etre liquide, c\'est-a-dire ' (hardcoded-fr-words: Le fonds d\)
+apps/mobile/lib/data/education_content.dart:207: funFact: '43% des menages suisses ne pourraient pas couvrir une depense ' (hardcoded-fr-words: 43% des menages suisses ne pourraient pas couvrir une depens)
+apps/mobile/lib/data/education_content.dart:223: intro: 'Les dettes a la consommation (credit, leasing) sont les ennemies ' (hardcoded-fr-words: Les dettes a la consommation (credit, leasing) sont les enne)
+apps/mobile/lib/data/education_content.dart:249: funFact: 'A 9.9% d\'interet compose, une dette de 10\'000 CHF double en ' (hardcoded-fr-words: interet compose, une dette de 10\)
+apps/mobile/lib/data/education_content.dart:266: intro: 'En Suisse, les banques ne regardent pas le taux reel de ton ' (hardcoded-fr-words: En Suisse, les banques ne regardent pas le taux reel de ton )
+apps/mobile/lib/data/education_content.dart:288: funFact: 'Avec le taux theorique de 5%, un couple gagnant 150\'000 CHF ' (hardcoded-fr-words: Avec le taux theorique de 5%, un couple gagnant 150\)
+apps/mobile/lib/data/education_content.dart:305: intro: 'Le reste a vivre, c\'est ce qui te reste apres les charges fixes ' (hardcoded-fr-words: Le reste a vivre, c\)
+apps/mobile/lib/data/education_content.dart:317: question: 'Quel est le premier poste de depenses d\'un menage suisse ?', (hardcoded-fr-words: Quel est le premier poste de depenses d\)
+apps/mobile/lib/data/education_content.dart:331: funFact: 'Un cafe par jour a 5.50 CHF = 2\'007 CHF/an. Investi a 5% ' (hardcoded-fr-words: Un cafe par jour a 5.50 CHF = 2\)
+apps/mobile/lib/data/education_content.dart:393: intro: 'L\'assurance maladie (LAMal) est obligatoire en Suisse, mais les ' (hardcoded-fr-words: assurance maladie (LAMal) est obligatoire en Suisse, mais le)
+apps/mobile/lib/data/education_content.dart:419: funFact: 'En passant de la franchise 300 a 2\'500, tu economises ' (hardcoded-fr-words: En passant de la franchise 300 a 2\)
+no_hardcoded_fr: FAIL — 36 hardcoded FR literal(s)
+>>> no_hardcoded_fr apps/mobile/lib/data/financial_explanations.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/data/wizard_questions_v2.dart (temporary index)
+apps/mobile/lib/data/wizard_questions_v2.dart:381: 'Ton extrait CI montre les périodes enregistrées. La caisse ' (hardcoded-fr-accent: Ton extrait CI montre les périodes enregistrées. La caisse )
+apps/mobile/lib/data/wizard_questions_v2.dart:382: 'confirme ensuite la durée, l\'échelle et le montant officiels.', (hardcoded-fr-accent: confirme ensuite la durée, l\)
+apps/mobile/lib/data/wizard_questions_v2.dart:409: 'L\'année d\'arrivée est un fait de parcours. Elle ne devient ' (hardcoded-fr-accent: année d\)
+apps/mobile/lib/data/wizard_questions_v2.dart:410: 'pas automatiquement une lacune AVS.', (hardcoded-fr-words: pas automatiquement une lacune AVS.)
+apps/mobile/lib/data/wizard_questions_v2.dart:421: 'Études, travail à l\'étranger, voyage… Ces périodes doivent ' (hardcoded-fr-accent: Études, travail à l\)
+apps/mobile/lib/data/wizard_questions_v2.dart:422: 'être rapprochées de ton extrait CI et vérifiées par la caisse.', (hardcoded-fr-accent: être rapprochées de ton extrait CI et vérifiées par la caiss)
+apps/mobile/lib/data/wizard_questions_v2.dart:436: 'Sa situation reste distincte et doit être vérifiée sur ses propres preuves AVS.', (hardcoded-fr-accent: Sa situation reste distincte et doit être vérifiée sur ses p)
+apps/mobile/lib/data/wizard_questions_v2.dart:655: return 'L\'extrait CI documente les périodes enregistrées. ' (hardcoded-fr-accent: extrait CI documente les périodes enregistrées. )
+apps/mobile/lib/data/wizard_questions_v2.dart:656: 'La caisse détermine le résultat officiel.'; (hardcoded-fr-accent: La caisse détermine le résultat officiel.)
+no_hardcoded_fr: FAIL — 9 hardcoded FR literal(s)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_de.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_en.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_es.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_fr.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_it.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/l10n/app_localizations_pt.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/screens/expat_screen.dart (temporary index)
+apps/mobile/lib/screens/expat_screen.dart:712: after: 'P\u00e9riodes AVS \u00e0 v\u00e9rifier avec la caisse', (hardcoded-fr-words: P\u00e9riodes AVS \u00e0 v\u00e9rifier avec la caisse)
+apps/mobile/lib/screens/expat_screen.dart:715: 'L\'extrait CI documente les p\u00e9riodes enregistr\u00e9es. ' (hardcoded-fr-words: extrait CI documente les p\u00e9riodes enregistr\u00e9es. )
+apps/mobile/lib/screens/expat_screen.dart:716: 'La caisse fixe ensuite l\'\u00e9chelle et le montant officiels.', (hardcoded-fr-words: La caisse fixe ensuite l\)
+no_hardcoded_fr: FAIL — 3 hardcoded FR literal(s)
+>>> no_hardcoded_fr apps/mobile/lib/services/circle_scoring_service.dart (temporary index)
+apps/mobile/lib/services/circle_scoring_service.dart:217: ? 'À vérifier' (hardcoded-fr-accent: À vérifier)
+apps/mobile/lib/services/circle_scoring_service.dart:218: : 'Années CI à examiner : $avsGapYears'; (hardcoded-fr-accent: Années CI à examiner : $avsGapYears)
+no_hardcoded_fr: FAIL — 2 hardcoded FR literal(s)
+>>> no_hardcoded_fr apps/mobile/lib/services/coach/local_fallback_service.dart (temporary index)
+apps/mobile/lib/services/coach/local_fallback_service.dart:118: 'L\'extrait de compte individuel (CI) documente les périodes ' (hardcoded-fr-accent: extrait de compte individuel (CI) documente les périodes )
+apps/mobile/lib/services/coach/local_fallback_service.dart:119: 'enregistrées. La caisse de compensation fixe l\'échelle et le ' (hardcoded-fr-accent: enregistrées. La caisse de compensation fixe l\)
+apps/mobile/lib/services/coach/local_fallback_service.dart:120: 'montant officiels après vérification.\n\n' (hardcoded-fr-accent: montant officiels après vérification.\n\n)
+no_hardcoded_fr: FAIL — 3 hardcoded FR literal(s)
+>>> no_hardcoded_fr apps/mobile/lib/services/coach_narrative_service.dart (temporary index)
+apps/mobile/lib/services/coach_narrative_service.dart:1034: 'cotisation a examiner d\'apres l\'extrait CI. La caisse fixe ' (hardcoded-fr-words: extrait CI. La caisse fixe )
+no_hardcoded_fr: FAIL — 1 hardcoded FR literal(s)
+>>> no_hardcoded_fr apps/mobile/lib/services/expat_service.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/financial_core/avs_calculator.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/financial_fitness_service.dart (temporary index)
+>>> no_hardcoded_fr apps/mobile/lib/services/financial_report_service.dart (temporary index)
+apps/mobile/lib/services/financial_report_service.dart:408: 'Commande ton extrait CI et fais vérifier les périodes par ta caisse de compensation.', (hardcoded-fr-accent: Commande ton extrait CI et fais vérifier les périodes par ta)
+apps/mobile/lib/services/financial_report_service.dart:414: '3. Demande à la caisse quelles périodes sont retenues', (hardcoded-fr-accent: 3. Demande à la caisse quelles périodes sont retenues)
+no_hardcoded_fr: FAIL — 2 hardcoded FR literal(s)
+>>> no_hardcoded_fr apps/mobile/lib/widgets/coach/avs_gap_widget.dart (temporary index)
+OK: real index remains clean
+exit_code=1

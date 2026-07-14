@@ -1,0 +1,6 @@
+$ cd services/backend && python3 -m pytest tests/test_expat.py tests/test_precision.py tests/test_faq_service.py tests/test_avs_unofficial_gap_effect_quarantine.py -q
+........................................................................ [ 40%]
+........................................................................ [ 81%]
+................................                                         [100%]
+176 passed in 0.80s
+exit=0

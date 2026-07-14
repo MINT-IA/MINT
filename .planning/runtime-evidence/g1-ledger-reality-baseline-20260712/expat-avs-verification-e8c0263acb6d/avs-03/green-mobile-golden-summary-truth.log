@@ -1,0 +1,221 @@
+00:00 +0: loading /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart
+00:00 +0: Golden Couple Validation — Actuarial Audit 1c. AVS Couple — married cap (LAVS art. 35)
+reg() FALLBACK: avs.couple_max_monthly → 3780.0 (cache miss, logged once)
+
+--- AVS Couple Results ---
+  Julien individual AVS:  2520.00 CHF/mois
+  Lauren individual AVS:  2156.00 CHF/mois
+  Sum before cap:         4676.00 CHF/mois
+  Couple total (after cap): 3780.00 CHF/mois
+  Cap applied:            true
+  CLAUDE.md §8 states:    2500.0 CHF/mois
+  Legal max couple cap:   3780.0 CHF/mois
+
+PASS | AVS Couple total
+       Actual:   3780.00
+       Expected: 3780.00
+       Delta:    0.00 (0.0%)
+
+  ** DISCREPANCY: CLAUDE.md says 2500/mois but calculator yields 3780. This may indicate CLAUDE.md uses a different assumption (e.g. only one person retired, or after-tax). **
+00:00 +1: Golden Couple Validation — Actuarial Audit 1d. Typed monthly AVS input keeps annual cashflow and 13th separate
+
+--- AVS 13th Rente ---
+  Monthly:     2520.00
+  Annual (12): 30240.00
+  13th estimate: 2520.00
+  Total cashflow: 32760.00
+00:00 +2: Golden Couple Validation — Actuarial Audit 2a. LPP Julien — project to retirement at 65
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+
+--- LPP Julien Projection ---
+  Projected balance:  675794 CHF
+  Expected balance:   677847 CHF
+  Projected rente/an: 33790 CHF
+  Expected rente/an:  33892 CHF
+  Conversion rate:    0.068
+PASS | LPP Julien balance
+       Actual:   675794.22
+       Expected: 677847.00
+       Delta:    -2052.78 (-0.3%)
+PASS | LPP Julien rente
+       Actual:   33789.71
+       Expected: 33892.00
+       Delta:    -102.29 (-0.3%)
+00:00 +3: Golden Couple Validation — Actuarial Audit 2b. LPP Lauren — project to retirement at 65
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+
+--- LPP Lauren Projection ---
+  Projected balance:  203570 CHF
+  Expected balance:   203000 CHF
+  Projected rente/an: 13843 CHF
+PASS | LPP Lauren balance
+       Actual:   203570.02
+       Expected: 203000.00
+       Delta:    570.02 (0.3%)
+00:00 +4: Golden Couple Validation — Actuarial Audit 3a. Capital withdrawal tax — Julien 677k, VS, married
+
+--- Capital Withdrawal Tax (Julien) ---
+  Capital brut:    677'847 CHF
+  Canton:          VS
+  Married:         true
+  Tax:             42368.05 CHF
+  Effective rate:  6.25%
+PASS | Capital tax Julien
+       Actual:   42368.05
+       Expected: 44460.00
+       Delta:    -2091.95 (-4.7%)
+00:00 +5: Golden Couple Validation — Actuarial Audit 3b. Tax saving from LPP rachat — Julien 10k, VS
+
+--- Tax Saving from LPP Rachat (Julien) ---
+  Income:     122'207 CHF
+  Deduction:  10'000 CHF
+  Canton:     VS
+  Tax saved:  1957.94 CHF
+PASS | Tax saving rachat
+       Actual:   1957.94
+       Expected: 1975.00
+       Delta:    -17.06 (-0.9%)
+00:00 +6: Golden Couple Validation — Actuarial Audit 3c. Marginal rate — Julien VS vs ZG comparison
+
+--- Marginal Tax Rates at 122k ---
+  VS (high-tax): 19.8%
+  ZG (low-tax):  11.2%
+  Delta:         8.6 pp
+00:00 +7: Golden Couple Validation — Actuarial Audit 3d. NetIncomeBreakdown — Julien
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+
+--- Net Income Breakdown (Julien) ---
+  Gross annual:       122207 CHF
+  Social charges:     7821 CHF
+  LPP employee:       4820 CHF
+  Income tax est:     15796 CHF
+  Net payslip:        109566 CHF
+  Monthly net:        9131 CHF
+  Disposable income:  93770 CHF
+  Net ratio:          89.7%
+00:00 +8: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_suroblig → 0.058 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+
+--- ForecasterService Partial Projection (Julien) ---
+  Scenario Base:
+    Capital final:        883716 CHF
+    Revenu hors AVS/an:   50376 CHF
+  Confidence score:       82.0
+  Enrichment prompts:     [Confirme ton solde LPP, Taux de conversion reel, Scanne ta declaration fiscale, Fixe un objectif retraite, Ajoute ta commune]
+00:00 +9: Golden Couple Validation — Actuarial Audit 5a. CoupleOptimizer — LPP buyback order
+
+--- CoupleOptimizer Results ---
+  LPP Buyback:
+    Winner:       CoupleWinner.mainUser
+    Saving delta: 361 CHF
+    Reason:       Taux marginal plus élevé → économie fiscale supérieure par CHF racheté.
+  Pillar 3a:
+    Winner:       CoupleWinner.mainUser
+    Saving delta: 0 CHF
+    Reason:       Le·la conjoint·e est résident·e FATCA — le versement 3a n'est pas possible pour cette personne.
+  AVS Couple Cap: pending official person-owned evidence
+  Marriage Penalty:
+    Has penalty:    true
+    Annual delta:   498 CHF
+    Trade-off:      Le mariage crée une surcharge fiscale de CHF 498/an dans le canton VS. Cet écart varie selon les cantons et les niveaux de revenu.
+00:00 +10: Golden Couple Validation — Actuarial Audit 6. CrossPillarCalculator — Julien analysis
+
+--- CrossPillarCalculator (Julien) ---
+  Total potential impact: 76341 CHF/an
+  Number of insights:    4
+
+  [lppBuybackOpportunity]
+    Impact CHF/an:  67052
+    Confidence:     90%
+    Trade-off:      Liquidité immobilisée de CHF 539414 + capital immobilisé dans la caisse (LPP art. 79b al. 3)
+    Details:        {lacuneRachat: 539414.0, economieImpotAnnuelle: 67051.85129178254, augmentationRenteAnnuelle: 36680.152, augmentationRenteMensuelle: 3056.6793333333335, tauxConversion: 0.068}
+
+  [cantonalArbitrage]
+    Impact CHF/an:  6867
+    Confidence:     24%
+    Trade-off:      Déménagement de Valais à Zoug : impact emploi, logement, coût du déménagement
+    Details:        {impotCantonActuel: 15796.070682144478, impotMeilleurCanton: 8928.685557283588, economieAnnuelle: 6867.38512486089}
+
+  [pillar3aOptimization]
+    Impact CHF/an:  1211
+    Confidence:     35%
+    Trade-off:      Liquidité réduite de CHF 605/mois (versement bloqué jusqu'à la retraite, OPP3 art. 7)
+    Details:        {plafondAnnuel: 7258.0, contributionActuelle: 0.0, versementManquant: 7258.0, economieImpotAnnuelle: 1211.1130979642242, alreadyContributing: 0.0}
+
+  [budgetReallocation]
+    Impact CHF/an:  1211
+    Confidence:     60%
+    Trade-off:      Marge libre réduite à CHF 500/mois (liquidité immédiate diminuée)
+    Details:        {revenuMensuelNet: 9130.520999999999, chargesFixesMensuelles: 0.0, remboursementsDettes: 0.0, epargneActuelle: 0.0, margeLibreMensuelle: 9130.520999999999, excedentAllocable: 8630.520999999999, optimal3aMensuel: 604.8333333333334, resteRachatMensuel: 8025.687666666666, economieImpot3a: 1211.1130979642242}
+
+  PASS: 3a optimization detected
+  PASS: LPP buyback opportunity detected
+00:00 +11: Golden Couple Validation — Actuarial Audit 7. LPP blendedMonthly — Julien rente vs capital vs mixed
+
+--- LPP Blended Monthly (Julien) ---
+  Annual LPP rente:      27602 CHF
+  100% Rente monthly:    2300 CHF
+  100% Capital monthly:  1275 CHF
+  50/50 Mixed monthly:   1791 CHF
+00:00 +12: Golden Couple Validation — Actuarial Audit 8. Constants sanity check
+
+--- Constants Sanity Check ---
+  AVS rente max mensuelle:  2520.0 CHF
+  AVS rente min mensuelle:  1260.0 CHF
+  AVS couple cap mensuelle: 3780.0 CHF
+  AVS duree cotisation:     44 ans
+  AVS RAMD min:             14700.0 CHF
+  AVS RAMD max:             88200.0 CHF
+  AVS 13eme legal year:     2026
+  LPP seuil entree:         22680.0 CHF
+  LPP coordination:         26460.0 CHF
+  LPP taux conversion min:  6.800000000000001%
+  LPP salaire coord min:    3780.0 CHF
+  LPP salaire coord max:    64260.0 CHF
+  3a plafond avec LPP:      7258.0 CHF
+  3a plafond sans LPP:      36288.0 CHF
+  VS capital tax rate:      0.06
+00:00 +13: Golden Couple Validation — Actuarial Audit 10. Lauren FATCA — 3a contribution blocked
+
+--- FATCA 3a Block (Lauren) ---
+  isFatcaResident: true
+  canContribute3a: false
+  After copyWith(canContribute3a: true): false
+00:00 +14: Golden Couple Validation — Actuarial Audit SUMMARY — Audit Report
+
+
+======================================================================
+ GOLDEN COUPLE ACTUARIAL AUDIT — SUMMARY
+======================================================================
+
+ Test 1c: AVS Couple cap fixture    → computed above
+ Test 1d: AVS typed input + 13th    → computed above
+ Test 2a: LPP Julien projection     → computed above
+ Test 2b: LPP Lauren projection     → computed above
+ Test 3a: Capital withdrawal tax     → computed above
+ Test 3b: Tax saving LPP rachat     → computed above
+ Test 3c: Marginal rates VS vs ZG   → computed above
+ Test 3d: NetIncomeBreakdown        → computed above
+ Test 4:  ForecasterService full    → computed above
+ Test 5:  CoupleOptimizer           → computed above
+ Test 6:  CrossPillarCalculator     → computed above
+ Test 7:  LPP blended monthly       → computed above
+ Test 8:  Constants sanity check     → computed above
+ Test 10: FATCA 3a block            → computed above
+
+ Review the ACTUAL vs EXPECTED values above for each test.
+ All tests use wide tolerances to DETECT, not ENFORCE.
+ Discrepancies may indicate:
+   1. Calculator logic bug
+   2. Different assumptions in CLAUDE.md vs calculators
+   3. Constants out of date
+
+======================================================================
+00:00 +15: All tests passed!
+exit_code=0

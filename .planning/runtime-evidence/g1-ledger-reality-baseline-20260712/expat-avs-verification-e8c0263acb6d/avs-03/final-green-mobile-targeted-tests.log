@@ -1,0 +1,740 @@
+00:00 +0: loading /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart
+00:00 +0: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine gap-only public pricing helpers and the raw Expat percent are gone
+00:00 +1: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine Expat orientation keeps null and zero distinct and returns counts only
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:00 +2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine CI year count never changes an AVS score tier or total
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 Julien (122207) → max rente 2520 (above RAMD max)
+00:00 +4: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 Julien (122207) → max rente 2520 (above RAMD max)
+00:00 +5: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine orphan pricing facades are deleted instead of left uncallable
+00:00 +6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.renteFromRAMD — Echelle 44 Lauren (67000) → ~2187 via Echelle 44 lookup
+00:00 +7: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +8: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +9: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +10: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +11: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +12: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +13: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +14: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +15: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +16: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +17: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +17: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_calculator_test.dart: AvsCalculator.computeCouplePensions married couple capped at 3780
+reg() FALLBACK: avs.couple_max_monthly → 3780.0 (cache miss, logged once)
+00:00 +18: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +19: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +20: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +21: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +22: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +23: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +24: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +25: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +26: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +27: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +28: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +29: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +30: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +31: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart: G1-AVS-03 mobile quarantine all six ARB sources expose count-only CI and action copy
+00:00 +32: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/regulatory_sync_integration_test.dart: RegulatorySyncService integration reg() returns fallback when cache is empty
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +33: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/regulatory_sync_integration_test.dart: RegulatorySyncService integration reg() returns cached value after sync
+00:00 +34: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/regulatory_sync_integration_test.dart: RegulatorySyncService integration loadFromDisk restores previous session
+00:00 +35: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/regulatory_sync_integration_test.dart: RegulatorySyncService integration fetchConstants updates cache and persists to SP
+00:00 +36: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: BudgetLivingEngine — extreme age/salary edge cases OE1.1 age 18 with salary 2000/month → does not crash
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+Tax scales not loaded. Call load() first.
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+00:00 +37: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: BudgetLivingEngine — extreme age/salary edge cases OE1.2 age 18 with salary 2000/month → returns a valid BudgetSnapshot
+Tax scales not loaded. Call load() first.
+00:00 +38: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: BudgetLivingEngine — extreme age/salary edge cases OE1.3 salary 0 → BudgetLivingEngine returns presentOnly (no salary data)
+Tax scales not loaded. Call load() first.
+00:00 +39: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: BudgetLivingEngine — extreme age/salary edge cases OE1.4 salary 0 → BudgetLivingEngine does not crash
+Tax scales not loaded. Call load() first.
+00:00 +40: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: BudgetLivingEngine — extreme age/salary edge cases OE1.5 age 75 with salary 0 → retired mode, not presentOnly, not crash
+Tax scales not loaded. Call load() first.
+Tax scales not loaded. Call load() first.
+00:00 +41: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: BudgetLivingEngine — extreme age/salary edge cases OE1.6 age 65 exact → retired mode (not presentOnly path, isRetired=true)
+Tax scales not loaded. Call load() first.
+Tax scales not loaded. Call load() first.
+00:00 +42: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: AvsCalculator.renteFromRAMD — boundary input OE2.1 salary 0 returns 0 when RAMD data is absent
+00:00 +43: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: LppCalculator — zero salary / boundary inputs OE3.1 salary 0 → projectToRetirement returns 0, does not crash
+00:00 +44: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: LppCalculator — zero salary / boundary inputs OE3.2 salary 0 with existing balance → grows at caisseReturn only
+00:00 +45: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: LppCalculator — zero salary / boundary inputs OE3.3 computeSalaireCoordonne(0) → returns 0 (below seuil entree)
+00:00 +46: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: LppCalculator — zero salary / boundary inputs OE3.4 projectToRetirement does not crash when retirementAge == currentAge
+00:00 +47: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: 3a eligibility — FATCA vs Swiss native OE4.1 FATCA profile (archetype expat_us) → canContribute3a = false
+00:00 +48: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: 3a eligibility — FATCA vs Swiss native OE4.2 Swiss native profile → canContribute3a = true
+00:00 +49: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: 3a eligibility — FATCA vs Swiss native OE4.3 ConjointProfile with isFatcaResident=true via copyWith → canContribute3a is false
+00:00 +50: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: 3a eligibility — FATCA vs Swiss native OE4.4 ConjointProfile with isFatcaResident=false, Swiss → canContribute3a = true
+00:00 +51: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: 3a eligibility — FATCA vs Swiss native OE4.5 FATCA profile → BudgetLivingEngine does not crash
+Tax scales not loaded. Call load() first.
+00:00 +52: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/onboarding_edge_cases_test.dart: 3a eligibility — FATCA vs Swiss native OE4.6 Swiss native profile → BudgetLivingEngine does not crash
+Tax scales not loaded. Call load() first.
+00:00 +53: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 1: 13e rente AVS — LAVS art. 34 nouveau S1.1 — typed owner scenario keeps the December supplement separate
+00:00 +54: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 1: 13e rente AVS — LAVS art. 34 nouveau S1.3 — couple cap stays an ordinary monthly amount
+reg() FALLBACK: avs.couple_max_monthly → 3780.0 (cache miss, logged once)
+00:00 +55: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 1: 13e rente AVS — LAVS art. 34 nouveau S1.4 — typed minimum scenario yields a separate 1260 supplement
+00:00 +56: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 1: 13e rente AVS — LAVS art. 34 nouveau S1.5 — typed contract pins the supported legal snapshot
+00:00 +57: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 1: 13e rente AVS — LAVS art. 34 nouveau S1.6 — self-employed AVS gauge caps at full-rate bracket
+reg() FALLBACK: avs.self_employed_full_rate_threshold → 60500.0 (cache miss, logged once)
+00:00 +58: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 2: Capital tax progressive brackets — LIFD art. 38 S2.1 — CHF 50000 → first bracket only: 50k × 0.065 × 1.0 = 3250
+00:00 +59: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 2: Capital tax progressive brackets — LIFD art. 38 S2.2 — CHF 150000 → two brackets: 100k×1.0 + 50k×1.15 = 10237.50
+00:00 +60: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 2: Capital tax progressive brackets — LIFD art. 38 S2.3 — CHF 300000 → three brackets: 100k×1.0 + 100k×1.15 + 100k×1.30 = 22425
+00:00 +61: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 2: Capital tax progressive brackets — LIFD art. 38 S2.4 — CHF 750000 → four brackets: total = 63700
+00:00 +62: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 2: Capital tax progressive brackets — LIFD art. 38 S2.5 — CHF 1500000 → all 5 brackets including 1M+: total = 143325
+00:00 +63: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 3: AVS rente couple cap — LAVS art. 35 S3.1 — married both max: 2520+2520=5040 → capped at 3780
+00:00 +64: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 3: AVS rente couple cap — LAVS art. 35 S3.2 — concubins both max: 2520+2520=5040 → NO cap
+00:00 +65: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 3: AVS rente couple cap — LAVS art. 35 S3.3 — married one max one min: 2520+1260=3780 → exactly at cap
+00:00 +66: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 3: AVS rente couple cap — LAVS art. 35 S3.4 — married 1500+1200=2700 → below cap, no reduction
+00:00 +67: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 3: AVS rente couple cap — LAVS art. 35 S3.5 — concubins unequal: 2200+1800=4000 → no cap applied
+00:00 +68: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 4: LPP seuil + coordination — LPP art. 7-8 S4.1 — salary 22680 exact → seuil met, coordonne = min 3780
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+00:00 +69: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 4: LPP seuil + coordination — LPP art. 7-8 S4.2 — salary 22679 → below seuil → NO LPP = 0
+00:00 +70: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 4: LPP seuil + coordination — LPP art. 7-8 S4.3 — salary 50000 → coordonne = 50000-26460 = 23540
+00:00 +71: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 4: LPP seuil + coordination — LPP art. 7-8 S4.4 — salary 88200 → coordonne = 88200-26460 = 61740
+00:00 +72: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 4: LPP seuil + coordination — LPP art. 7-8 S4.5 — salary 150000 → above plafond → capped at max coordonne 64260
+00:00 +73: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 5: LPP bonification rates — LPP art. 16 S5.1 — age 24 → 0% (not yet contributing)
+00:00 +74: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 5: LPP bonification rates — LPP art. 16 S5.2 — age 25 → 7% (first bonification bracket)
+00:00 +75: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 5: LPP bonification rates — LPP art. 16 S5.3 — age 35 → 10% (second bracket)
+00:00 +76: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 5: LPP bonification rates — LPP art. 16 S5.4 — age 45 → 15% (third bracket)
+00:00 +77: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 5: LPP bonification rates — LPP art. 16 S5.5 — age 55 → 18% (highest bracket)
+00:00 +78: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 6: 3a plafond — OPP3 art. 7 S6.1 — salarie avec LPP: plafond = 7258 CHF
+00:00 +79: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 6: 3a plafond — OPP3 art. 7 S6.2 — independant sans LPP: plafond = 36288 CHF
+00:00 +80: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 6: 3a plafond — OPP3 art. 7 S6.3 — independant sans LPP, revenue 100000: 20% = 20000 (under max)
+00:00 +81: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 6: 3a plafond — OPP3 art. 7 S6.4 — independant sans LPP, revenue 200000: 20% = 40000 → capped at 36288
+00:00 +82: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 6: 3a plafond — OPP3 art. 7 S6.5 — taux revenu independant = 20%
+00:00 +83: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 7: EPL blocking period — LPP art. 79b al. 3 S7.1 — EPL blocking period constant = 3 years
+00:00 +84: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 7: EPL blocking period — LPP art. 79b al. 3 S7.2 — EPL minimum amount = 20000 CHF (OPP2 art. 5)
+00:00 +85: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 7: EPL blocking period — LPP art. 79b al. 3 S7.3 — buyback within 3 years of EPL → should be flagged
+00:00 +86: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 7: EPL blocking period — LPP art. 79b al. 3 S7.4 — buyback at exactly 3 years after EPL → allowed
+00:00 +87: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 7: EPL blocking period — LPP art. 79b al. 3 S7.5 — EPL impact: 50k EPL on 200k balance creates measurable rente gap
+00:00 +88: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 8: Confidence scorer S8.1 — ConfidenceScorer.totalWeight invariant = 100
+00:00 +89: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 8: Confidence scorer S8.3 — minConfidenceForProjection threshold = 40
+00:00 +90: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 8: Confidence scorer S8.4 — ProfileDataSource accuracy weights are ordered correctly
+00:00 +91: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 8: Confidence scorer S8.5 — geometric mean property: zero axis pulls combined down
+00:00 +92: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 9: Golden couple Julien — swiss_native S9.3 — Julien LPP coordination: 122207 → coordonne capped at 64260
+00:00 +93: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 9: Golden couple Julien — swiss_native S9.4 — Julien 3a capital = 32000 (from golden test data)
+00:00 +94: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 9: Golden couple Julien — swiss_native S9.5 — Julien LPP bonification at age 49 = 15% (bracket 45-54)
+00:00 +95: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 10: Golden couple Lauren — expat_us S10.1 — Lauren LPP coordination: 67000-26460=40540
+00:00 +96: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 10: Golden couple Lauren — expat_us S10.2 — Lauren bonification at age 43 = 10% (bracket 35-44)
+00:00 +97: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 10: Golden couple Lauren — expat_us S10.3 — Lauren AVS rente: salary 67000 → Echelle 44 concave interpolation
+00:00 +98: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 10: Golden couple Lauren — expat_us S10.4 — Lauren capital withdrawal tax VS: 19620 → first bracket only
+00:00 +99: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/calculator_forge_test.dart: Scenario 10: Golden couple Lauren — expat_us S10.5 — Lauren 3a = 14000, consistent with OPP3 plafond salarie avec LPP
+00:00 +100: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: AvsCalculator — individual rentes (LAVS art. 34) G1.1 Julien renteFromRAMD returns max (salary > avsRAMDMax)
+00:00 +101: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: AvsCalculator — individual rentes (LAVS art. 34) G1.2 Lauren renteFromRAMD interpolates correctly
+00:00 +102: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: AvsCalculator — individual rentes (LAVS art. 34) G1.3 typed monthly AVS input keeps the 13th separate
+00:00 +103: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: AvsCalculator — couple cap LAVS art. 35 G2.1 official uncapped fixtures exceed 3780 CHF/mois
+reg() FALLBACK: avs.couple_max_monthly → 3780.0 (cache miss, logged once)
+00:00 +104: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: AvsCalculator — couple cap LAVS art. 35 G2.2 Married couple total is capped at 3780 CHF/mois
+00:00 +105: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: AvsCalculator — couple cap LAVS art. 35 G2.3 Married couple total matches CLAUDE.md §8 canonical value
+00:00 +106: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: AvsCalculator — couple cap LAVS art. 35 G2.4 Each spouse share is proportionally reduced, Julien > Lauren
+00:00 +107: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: AvsCalculator — couple cap LAVS art. 35 G2.5 Cohabiting — no cap, each keeps the individual pension
+00:00 +108: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: AvsCalculator — couple cap LAVS art. 35 G2.6 Couple cap remains an ordinary monthly amount
+00:00 +109: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Julien CPE Plan Maxi G3.1 Julien LPP annual rente projection is non-zero and positive
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+00:00 +110: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Julien CPE Plan Maxi G3.2 Julien LPP rente matches CLAUDE.md §8 target (~33892 CHF/an)
+00:00 +111: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Julien CPE Plan Maxi G3.3 Julien LPP with CPE override exceeds standard legal minimum projection
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+00:00 +112: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Julien CPE Plan Maxi G3.4 Julien LPP conversion rate not reduced at retirement age 65
+00:00 +113: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Julien CPE Plan Maxi G3.5 Julien LPP monthly rente derived from annual is non-trivial
+00:00 +114: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Lauren HOTELA standard G4.1 Lauren LPP annual rente projection is non-zero and positive
+00:00 +115: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Lauren HOTELA standard G4.2 Lauren LPP rente is in reasonable range for CLAUDE.md §8 target
+00:00 +116: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Lauren HOTELA standard G4.3 Julien LPP rente strictly exceeds Lauren (higher balance + better caisse)
+00:00 +117: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Lauren HOTELA standard G4.4 Lauren salary above LPP seuil entree — bonifications apply
+00:00 +118: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — Lauren HOTELA standard G4.5 Lauren LPP conversion rate not reduced at retirement age 65
+00:00 +119: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — couple retirement sequencing VS canton G5.1 Same-year withdrawal tax is positive for both capitals
+00:00 +120: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — couple retirement sequencing VS canton G5.2 Staggered withdrawal tax is less than or equal to same-year tax
+00:00 +121: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — couple retirement sequencing VS canton G5.3 Tax saving is non-negative
+00:00 +122: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — couple retirement sequencing VS canton G5.4 Recommendation string is non-empty
+00:00 +123: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — couple retirement sequencing VS canton G5.5 Zero capital case returns zero taxes and a recommendation
+00:00 +124: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: RetirementTaxCalculator — VS canton capital tax (LIFD art. 38) G6.1 VS canton base rate is 0.060
+00:00 +125: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: RetirementTaxCalculator — VS canton capital tax (LIFD art. 38) G6.2 Progressive tax on Julien projected balance (677847) is positive
+00:00 +126: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: RetirementTaxCalculator — VS canton capital tax (LIFD art. 38) G6.3 Married couple discount reduces capital tax vs single
+00:00 +127: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: RetirementTaxCalculator — VS canton capital tax (LIFD art. 38) G6.4 Capital tax scales progressively — Lauren less than Julien (per CHF)
+00:00 +128: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — salaire coordonné (LPP art. 8) G8.1 Julien coordonné standard = 122207 - 26460 = 95747, capped at 64260
+00:00 +129: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — salaire coordonné (LPP art. 8) G8.2 Lauren coordonné = 67000 - 26460 = 40540
+00:00 +130: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — salaire coordonné (LPP art. 8) G8.3 Combined couple salary above seuilEntree — both are LPP-covered
+00:00 +131: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — salaire coordonné (LPP art. 8) G8.4 Julien rachat max from CLAUDE.md §8 is financially plausible
+00:00 +132: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: LppCalculator — salaire coordonné (LPP art. 8) G8.5 Lauren rachat max from CLAUDE.md §8 is less than Julien (lower salary/shorter career)
+00:00 +133: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: CoupleOptimizer — edge cases G9.1 conjoint null (divorced profile) → returns empty, no crash
+00:00 +134: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: CoupleOptimizer — edge cases G9.2 conjoint salary 0 → no uncertified AVS cap
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +135: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: BudgetLivingEngine — retired mode (age >= targetRetirementAge) G10.1 age 70 stays presentOnly without official AVS pension
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+Tax scales not loaded. Call load() first.
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:00 +136: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: BudgetLivingEngine — retired mode (age >= targetRetirementAge) G10.2 age 75 stays presentOnly without official AVS pension
+Tax scales not loaded. Call load() first.
+00:00 +137: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: BudgetLivingEngine — retired mode (age >= targetRetirementAge) G10.3 age 70 → confidenceScore is a valid number (not NaN)
+Tax scales not loaded. Call load() first.
+00:00 +138: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart: BudgetLivingEngine — retired mode (age >= targetRetirementAge) G10.4 age 75 → never throws
+Tax scales not loaded. Call load() first.
+00:00 +139: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart: Golden Couple — Lauren AVS 2. Lauren + Julien married couple → capped at 3780
+reg() FALLBACK: avs.couple_max_monthly → 3780.0 (cache miss, logged once)
+00:00 +140: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart: Golden Couple — Lauren AVS 3. Lauren + Julien concubin → no cap, full individual rentes
+00:00 +141: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart: Golden Couple — Lauren LPP 4. Lauren LPP projection to 65
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+00:00 +142: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart: Golden Couple — Lauren Tax 5. Lauren capital tax VS unmarried
+00:00 +143: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart: Golden Couple — Lauren Tax 6. Lauren capital tax VS married → ~15% discount
+00:00 +144: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart: Golden Couple — Lauren Tax 7. Lauren retroactive 3a 1-year deduction tax saving
+00:00 +145: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart: Golden Couple — Lauren Tax 8. Lauren marginal tax rate VS at 67k
+00:00 +146: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart: Golden Couple — Lauren Net Income & Annual Rente 9. Lauren net income breakdown at 67k
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+00:00 +147: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart: Golden Couple — Lauren Net Income & Annual Rente 10. Typed monthly AVS input keeps the 13th separate
+00:01 +148: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 1c. AVS Couple — married cap (LAVS art. 35)
+reg() FALLBACK: avs.couple_max_monthly → 3780.0 (cache miss, logged once)
+
+--- AVS Couple Results ---
+  Julien individual AVS:  2520.00 CHF/mois
+  Lauren individual AVS:  2156.00 CHF/mois
+  Sum before cap:         4676.00 CHF/mois
+  Couple total (after cap): 3780.00 CHF/mois
+  Cap applied:            true
+  CLAUDE.md §8 states:    2500.0 CHF/mois
+  Legal max couple cap:   3780.0 CHF/mois
+
+PASS | AVS Couple total
+       Actual:   3780.00
+       Expected: 3780.00
+       Delta:    0.00 (0.0%)
+
+  ** DISCREPANCY: CLAUDE.md says 2500/mois but calculator yields 3780. This may indicate CLAUDE.md uses a different assumption (e.g. only one person retired, or after-tax). **
+00:01 +149: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 1d. Typed monthly AVS input keeps annual cashflow and 13th separate
+
+--- AVS 13th Rente ---
+  Monthly:     2520.00
+  Annual (12): 30240.00
+  13th estimate: 2520.00
+  Total cashflow: 32760.00
+00:01 +150: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 2a. LPP Julien — project to retirement at 65
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+
+--- LPP Julien Projection ---
+  Projected balance:  675794 CHF
+  Expected balance:   677847 CHF
+  Projected rente/an: 33790 CHF
+  Expected rente/an:  33892 CHF
+  Conversion rate:    0.068
+PASS | LPP Julien balance
+       Actual:   675794.22
+       Expected: 677847.00
+       Delta:    -2052.78 (-0.3%)
+PASS | LPP Julien rente
+       Actual:   33789.71
+       Expected: 33892.00
+       Delta:    -102.29 (-0.3%)
+00:01 +151: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 2b. LPP Lauren — project to retirement at 65
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+
+--- LPP Lauren Projection ---
+  Projected balance:  203570 CHF
+  Expected balance:   203000 CHF
+  Projected rente/an: 13843 CHF
+PASS | LPP Lauren balance
+       Actual:   203570.02
+       Expected: 203000.00
+       Delta:    570.02 (0.3%)
+00:01 +152: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 3a. Capital withdrawal tax — Julien 677k, VS, married
+
+--- Capital Withdrawal Tax (Julien) ---
+  Capital brut:    677'847 CHF
+  Canton:          VS
+  Married:         true
+  Tax:             42368.05 CHF
+  Effective rate:  6.25%
+PASS | Capital tax Julien
+       Actual:   42368.05
+       Expected: 44460.00
+       Delta:    -2091.95 (-4.7%)
+00:01 +153: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 3b. Tax saving from LPP rachat — Julien 10k, VS
+
+--- Tax Saving from LPP Rachat (Julien) ---
+  Income:     122'207 CHF
+  Deduction:  10'000 CHF
+  Canton:     VS
+  Tax saved:  1957.94 CHF
+PASS | Tax saving rachat
+       Actual:   1957.94
+       Expected: 1975.00
+       Delta:    -17.06 (-0.9%)
+00:01 +154: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 3c. Marginal rate — Julien VS vs ZG comparison
+
+--- Marginal Tax Rates at 122k ---
+  VS (high-tax): 19.8%
+  ZG (low-tax):  11.2%
+  Delta:         8.6 pp
+00:01 +155: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 3d. NetIncomeBreakdown — Julien
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+
+--- Net Income Breakdown (Julien) ---
+  Gross annual:       122207 CHF
+  Social charges:     7821 CHF
+  LPP employee:       4820 CHF
+  Income tax est:     15796 CHF
+  Net payslip:        109566 CHF
+  Monthly net:        9131 CHF
+  Disposable income:  93770 CHF
+  Net ratio:          89.7%
+00:01 +156: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_suroblig → 0.058 (cache miss, logged once)
+00:01 +157: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+00:01 +158: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+00:01 +159: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+00:01 +160: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+00:01 +161: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:01 +161: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: calculateSourceTax — impot a la source canton inconnu → fallback ZH (cantonFallbackDefault), pas 13 % générique
+[resolveCanton] unknown canton "XX" — falling back to ZH. Expected one of [AG, AI, AR, BE, BL, BS, FR, GE, GL, GR, JU, LU, NE, NW, OW, SG, SH, SO, SZ, TG, TI, UR, VD, VS, ZG, ZH].
+00:01 +162: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+00:01 +163: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+
+--- ForecasterService Partial Projection (Julien) ---
+  Scenario Base:
+    Capital final:        883716 CHF
+    Revenu hors AVS/an:   50376 CHF
+  Confidence score:       82.0
+  Enrichment prompts:     [Confirme ton solde LPP, Taux de conversion reel, Scanne ta declaration fiscale, Fixe un objectif retraite, Ajoute ta commune]
+00:01 +164: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 4. ForecasterService — Julien remains partial without official AVS
+00:01 +165: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: checkQuasiResident — statut quasi-resident non eligible si < 90% du revenu mondial en CH
+00:01 +166: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 5a. CoupleOptimizer — LPP buyback order
+00:01 +167: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 5a. CoupleOptimizer — LPP buyback order
+
+--- CoupleOptimizer Results ---
+  LPP Buyback:
+    Winner:       CoupleWinner.mainUser
+    Saving delta: 361 CHF
+    Reason:       Taux marginal plus élevé → économie fiscale supérieure par CHF racheté.
+  Pillar 3a:
+    Winner:       CoupleWinner.mainUser
+    Saving delta: 0 CHF
+00:01 +168: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 5a. CoupleOptimizer — LPP buyback order
+    Reason:       Le·la conjoint·e est résident·e FATCA — le versement 3a n'est pas possible pour cette personne.
+  AVS Couple Cap: pending official person-owned evidence
+  Marriage Penalty:
+    Has penalty:    true
+    Annual delta:   498 CHF
+    Trade-off:      Le mariage crée une surcharge fiscale de CHF 498/an dans le canton VS. Cet écart varie selon les cantons et les niveaux de revenu.
+00:01 +169: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: simulate90DayRule — regle des 90 jours risque moyen — entre 70 et 89 jours
+00:01 +170: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 6. CrossPillarCalculator — Julien analysis
+00:01 +171: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 6. CrossPillarCalculator — Julien analysis
+00:01 +171: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareSocialCharges — charges sociales CH vs France — les deux cotes sont calcules
+reg() FALLBACK: avs.employee_rate → 0.053 (cache miss, logged once)
+reg() FALLBACK: ac.salary_ceiling → 148200.0 (cache miss, logged once)
+reg() FALLBACK: ac.employee_rate → 0.011 (cache miss, logged once)
+reg() FALLBACK: lpp.max_insured_salary → 90720.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+00:01 +171: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 6. CrossPillarCalculator — Julien analysis
+
+--- CrossPillarCalculator (Julien) ---
+  Total potential impact: 76341 CHF/an
+  Number of insights:    4
+
+00:01 +172: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 6. CrossPillarCalculator — Julien analysis
+  [lppBuybackOpportunity]
+    Impact CHF/an:  67052
+    Confidence:     90%
+    Trade-off:      Liquidité immobilisée de CHF 539414 + capital immobilisé dans la caisse (LPP art. 79b al. 3)
+    Details:        {lacuneRachat: 539414.0, economieImpotAnnuelle: 67051.85129178254, augmentationRenteAnnuelle: 36680.152, augmentationRenteMensuelle: 3056.6793333333335, tauxConversion: 0.068}
+
+  [cantonalArbitrage]
+    Impact CHF/an:  6867
+    Confidence:     24%
+    Trade-off:      Déménagement de Valais à Zoug : impact emploi, logement, coût du déménagement
+    Details:        {impotCantonActuel: 15796.070682144478, impotMeilleurCanton: 8928.685557283588, economieAnnuelle: 6867.38512486089}
+
+  [pillar3aOptimization]
+    Impact CHF/an:  1211
+    Confidence:     35%
+    Trade-off:      Liquidité réduite de CHF 605/mois (versement bloqué jusqu'à la retraite, OPP3 art. 7)
+    Details:        {plafondAnnuel: 7258.0, contributionActuelle: 0.0, versementManquant: 7258.0, economieImpotAnnuelle: 1211.1130979642242, alreadyContributing: 0.0}
+
+  [budgetReallocation]
+    Impact CHF/an:  1211
+    Confidence:     60%
+    Trade-off:      Marge libre réduite à CHF 500/mois (liquidité immédiate diminuée)
+    Details:        {revenuMensuelNet: 9130.520999999999, chargesFixesMensuelles: 0.0, remboursementsDettes: 0.0, epargneActuelle: 0.0, margeLibreMensuelle: 9130.520999999999, excedentAllocable: 8630.520999999999, optimal3aMensuel: 604.8333333333334, resteRachatMensuel: 8025.687666666666, economieImpot3a: 1211.1130979642242}
+00:01 +173: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 6. CrossPillarCalculator — Julien analysis
+
+  PASS: 3a optimization detected
+  PASS: LPP buyback opportunity detected
+00:01 +174: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: simulateForfaitFiscal — forfait fiscal forfait aboli a ZH — non eligible
+00:01 +175: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 7. LPP blendedMonthly — Julien rente vs capital vs mixed
+
+--- LPP Blended Monthly (Julien) ---
+  Annual LPP rente:      27602 CHF
+  100% Rente monthly:    2300 CHF
+  100% Capital monthly:  1275 CHF
+  50/50 Mixed monthly:   1791 CHF
+00:01 +176: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: simulateForfaitFiscal — forfait fiscal VD — forfait base = max(depenses, minimum cantonal, minimum federal)
+00:01 +177: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 8. Constants sanity check
+00:01 +178: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 8. Constants sanity check
+
+--- Constants Sanity Check ---
+  AVS rente max mensuelle:  2520.0 CHF
+  AVS rente min mensuelle:  1260.0 CHF
+  AVS couple cap mensuelle: 3780.0 CHF
+  AVS duree cotisation:     44 ans
+  AVS RAMD min:             14700.0 CHF
+  AVS RAMD max:             88200.0 CHF
+  AVS 13eme legal year:     2026
+  LPP seuil entree:         22680.0 CHF
+  LPP coordination:         26460.0 CHF
+  LPP taux conversion min:  6.800000000000001%
+  LPP salaire coord min:    3780.0 CHF
+  LPP salaire coord max:    64260.0 CHF
+  3a plafond avec LPP:      7258.0 CHF
+  3a plafond sans LPP:      36288.0 CHF
+  VS capital tax rate:      0.06
+00:01 +179: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 8. Constants sanity check
+00:01 +180: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS scenario inactif — aucun calcul AVS
+00:01 +180: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 10. Lauren FATCA — 3a contribution blocked
+
+--- FATCA 3a Block (Lauren) ---
+  isFatcaResident: true
+  canContribute3a: false
+00:01 +181: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit 10. Lauren FATCA — 3a contribution blocked
+  After copyWith(canContribute3a: true): false
+00:01 +181: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS annees a l etranger ne deviennent jamais des lacunes CI
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:01 +182: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS annees a l etranger ne deviennent jamais des lacunes CI
+00:01 +183: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/golden/golden_couple_validation_test.dart: Golden Couple Validation — Actuarial Audit SUMMARY — Audit Report
+
+
+======================================================================
+ GOLDEN COUPLE ACTUARIAL AUDIT — SUMMARY
+======================================================================
+
+ Test 1c: AVS Couple cap fixture    → computed above
+ Test 1d: AVS typed input + 13th    → computed above
+ Test 2a: LPP Julien projection     → computed above
+ Test 2b: LPP Lauren projection     → computed above
+ Test 3a: Capital withdrawal tax     → computed above
+ Test 3b: Tax saving LPP rachat     → computed above
+ Test 3c: Marginal rates VS vs ZG   → computed above
+ Test 3d: NetIncomeBreakdown        → computed above
+ Test 4:  ForecasterService full    → computed above
+ Test 5:  CoupleOptimizer           → computed above
+ Test 6:  CrossPillarCalculator     → computed above
+ Test 7:  LPP blended monthly       → computed above
+ Test 8:  Constants sanity check     → computed above
+ Test 10: FATCA 3a block            → computed above
+
+ Review the ACTUAL vs EXPECTED values above for each test.
+ All tests use wide tolerances to DETECT, not ENFORCE.
+ Discrepancies may indicate:
+   1. Calculator logic bug
+   2. Different assumptions in CLAUDE.md vs calculators
+   3. Constants out of date
+
+======================================================================
+00:01 +184: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS supprime les trois montants personnels AVS
+00:01 +185: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS zero CI explicite reste zero et non inconnu
+00:01 +186: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS quatre annees CI restent uniquement un nombre a examiner
+00:01 +187: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS annees AVS hors bornes echouent explicitement
+00:01 +188: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: assessAvsGapOrientation — lacunes AVS aucun raccourci local d eligibilite facultative ne subsiste
+00:01 +189: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart checklist contient les elements cles
+00:01 +190: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart pas d exit tax en Suisse
+00:01 +191: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart P0-E1 — 3a checklist cites LIFD art. 38 + cantonal source tax
+00:01 +192: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart P0-E2 — LPP checklist distinguishes oblig vs surobligatoire (LFLP art. 25f)
+00:01 +193: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: planDeparture — checklist depart P0-E36 — departureDate in the past returns already_departed status
+00:01 +194: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareTaxBurden — comparaison fiscale CH vs France — les deux cotes sont calcules
+00:01 +195: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: compareTaxBurden — comparaison fiscale CH vs Dubai (0% impot) — CH plus cher
+00:01 +196: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: constantes et helpers 26 cantons definis pour impot source
+00:01 +197: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: constantes et helpers cantons forfait aboli — 6 cantons
+00:01 +198: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: constantes et helpers cantons tries alphabetiquement
+00:01 +199: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: constantes et helpers disclaimer ne contient pas de termes interdits
+00:01 +200: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/expat_service_test.dart: constantes et helpers formatChf — format suisse avec apostrophe
+00:01 +201: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation calculates weighted average across all 4 circles
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:01 +202: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation returns top priorities (max 3)
+00:01 +203: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation excellent profile scores high overall
+00:01 +204: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Overall score calculation poor profile scores low overall
+00:01 +205: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 1 - Protection perfect emergency fund (6 months) scores perfect
+00:01 +206: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 1 - Protection consumer debt drops protection score to critical
+00:01 +207: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 1 - Protection 3-month emergency fund scores good
+00:01 +208: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 1 - Protection no income is treated as unknown (neutral)
+00:01 +209: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 1 - Protection generates debt priority recommendation when debt exists
+00:01 +210: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance multiple 3a accounts score perfect
+00:01 +211: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance zero 3a accounts scores critical
+00:01 +212: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance questionnaire contribution years never certify the AVS score
+00:01 +213: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance certificate-backed zero AVS gaps stays count-only and unscored
+00:01 +214: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance registered partner without CI never downgrades the self score
+00:01 +215: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance LPP buyback available scores good (opportunity)
+00:01 +216: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance no LPP gap scores perfect
+00:01 +217: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance recommends opening 2nd 3a account when only 1
+00:01 +218: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 2 - Prevoyance recommends LPP buyback when gap > 50k
+00:01 +219: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 3 - Croissance investor + owner scores good
+00:01 +220: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 3 - Croissance no investments and renter scores warning
+00:01 +221: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Circle 4 - Optimisation always returns static placeholder with 20% score
+00:01 +222: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: ScoreLevel mapping perfect profile reaches at least good level
+00:01 +223: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Empty and minimal answers empty answers do not crash
+reg() FALLBACK: pillar3a.max_without_lpp → 36288.0 (cache miss, logged once)
+00:01 +224: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: Empty and minimal answers only employment status provided still computes
+00:01 +225: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: 3a contribution scoring tiers contribution >= 90% of max is perfect
+00:01 +226: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: 3a contribution scoring tiers contribution 50-89% of max is good
+00:01 +227: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: 3a contribution scoring tiers small contribution is warning
+00:01 +228: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: 3a contribution scoring tiers zero contribution is critical
+00:01 +229: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: AVS certificate-only scoring certificate-backed two-year gap stays count-only and unknown
+00:01 +230: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: AVS certificate-only scoring certificate-backed nine-year gap stays count-only and unknown
+00:01 +231: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/circle_scoring_service_test.dart: AVS certificate-only scoring declared AVS variants and absence stay score-equivalent unknown
+00:01 +232: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Demo profile global score is between 0 and 100
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:01 +233: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Demo profile sub-scores are between 0 and 100
+00:01 +234: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Demo profile global is weighted average of sub-scores
+00:01 +235: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Demo profile weights sum to 1.0
+00:01 +236: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Demo profile level is assigned correctly
+00:01 +237: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Demo profile coach message is not empty
+00:01 +238: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Demo profile calculatedAt is recent
+00:01 +239: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Demo profile trend is stable without previous score
+00:01 +240: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Demo profile sub-scores expose only criteria with sufficient inputs
+00:01 +241: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Budget sub-score typed monthly savings has exclusive priority over legacy plan
+00:01 +242: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Budget sub-score no debt gives 25 points on dette_consommation
+00:01 +243: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Budget sub-score consumer debt gives 0 points
+00:01 +244: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Budget sub-score leasing counts as consumer debt
+00:01 +245: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Budget sub-score high emergency fund gives 25 points
+00:01 +246: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Budget sub-score zero emergency fund gives 0 points
+00:01 +247: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Prevoyance sub-score typed 3a contribution has exclusive priority over legacy plan
+00:01 +248: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Prevoyance sub-score maxed 3a gives 25 points
+00:01 +249: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Prevoyance sub-score no 3a contribution gives 0 points
+00:01 +250: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Prevoyance sub-score LPP lacune comblee gives 25 points
+00:01 +251: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Prevoyance sub-score AVS CI counts stay outside the fitness score until a caisse result
+00:01 +252: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Prevoyance sub-score normalizes against the available prevoyance criterion maxima
+00:01 +253: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Patrimoine sub-score high investment ratio gives 25 points
+00:01 +254: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Patrimoine sub-score investment ratio ignores broad wealth estimate denominator
+00:01 +255: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Patrimoine sub-score diversification with multiple asset classes
+00:01 +256: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Patrimoine sub-score no contributions gives 0 croissance points
+00:01 +257: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Trend up trend when score improves
+00:01 +258: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Trend down trend when previous was higher
+00:01 +259: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Trend stable when same score
+00:01 +260: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FitnessLevel level labels are in French
+00:01 +261: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FitnessLevel shortLabel returns short string
+00:01 +262: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: ScoreTrend symbols are correct
+00:01 +263: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Coach message debt profile gets debt-focused message
+00:01 +264: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Coach message coach message has no banned terms
+00:01 +265: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessScore - JSON toJson produces valid map
+00:01 +266: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Edge cases minimal profile (no data) gives low score
+00:01 +267: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Edge cases perfect profile gives high score
+00:01 +268: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Edge cases score is deterministic (same input → same output)
+00:01 +269: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_fitness_service_test.dart: FinancialFitnessService - Edge cases independent without LPP gets 0 invalidite points
+reg() FALLBACK: pillar3a.max_without_lpp → 36288.0 (cache miss, logged once)
+00:01 +270: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches 3a topic from "pilier 3a" keyword
+00:01 +271: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches lpp topic from "2e pilier" keyword
+00:01 +272: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches avs topic from "rente avs" keyword
+00:01 +273: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches impots topic from "impôt" keyword
+00:01 +274: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches budget topic from "épargne" keyword
+00:01 +275: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches immobilier topic from "hypotheque" keyword
+00:01 +276: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach/local_fallback_service_test.dart: generateFallback — topic matching matches retraite topic from "pension" keyword
+00:01 +277: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +278: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +279: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +280: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +281: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +282: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +283: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +284: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +285: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +286: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +287: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +288: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+00:01 +289: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation generates report from minimal answers without throwing
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:01 +290: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation report contains all required sections
+00:01 +291: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation report from full answers includes optional sections
+00:01 +292: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Report generation report generatedAt is close to now
+00:01 +293: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building defaults canton to ZH when missing
+00:01 +294: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building defaults civilStatus to single when missing
+00:01 +295: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building correctly identifies married profile
+00:01 +296: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building computes annual income from monthly net income
+00:01 +297: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building defaults monthly income to 5000 when missing
+00:01 +298: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building parses children count from string
+00:01 +299: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building hasChildren is false when 0 children
+00:01 +300: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile building isSalaried correctly reflects employment status
+reg() FALLBACK: pillar3a.max_without_lpp → 36288.0 (cache miss, logged once)
+00:01 +301: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation computes positive total tax for standard income
+00:01 +302: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation effective rate is between 0 and 1
+00:01 +303: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation cantonal + federal equals total tax
+00:01 +304: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation cantonal tax is approximately 75% of total
+00:01 +305: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation married profile gets lower effective rate
+00:01 +306: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation 3a contribution appears in deductions
+00:01 +307: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation children deduction = federal + cantonal per child (LIFD art. 35 + LHID art. 9)
+00:01 +308: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation LPP buyback triggers tax comparison when available > 50k
+00:01 +309: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Tax simulation no LPP buyback comparison when available <= 50k
+00:01 +310: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection returns null when years to retirement <= 0
+00:01 +311: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection returns projection for working-age person
+00:01 +312: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection retirement point capitals stay null without reviewed evidence
+00:01 +313: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection official AVS amount stays null until reviewed evidence is wired
+00:01 +314: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection retirement total stays null while official AVS is unknown
+00:01 +315: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate stays null while official AVS is unknown
+00:01 +316: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate stays null when current income is not known
+00:01 +317: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate stays null while the LPP pension is unknown
+00:01 +318: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate uses the actual current monthly income
+00:01 +319: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Retirement projection replacement rate is capped at 150 percent
+00:01 +320: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: LPP buyback strategy returns null when buyback available < 10000
+00:01 +321: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: LPP buyback strategy returns strategy when buyback available >= 10000
+00:01 +322: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: LPP buyback strategy yearly plan sums to total buyback available
+00:01 +323: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: LPP buyback strategy total tax savings is positive
+00:01 +324: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Priority actions returns at most 3 priority actions
+00:01 +325: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Priority actions actions with debt should include debt-related action
+00:01 +326: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Priority actions roadmap has at least one phase
+00:01 +327: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Priority actions roadmap immediate phase is labeled correctly
+00:01 +328: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases empty answers map does not throw
+00:01 +329: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases empty answers use all defaults
+00:01 +330: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases zero income produces valid report
+00:01 +331: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases very high income produces valid report
+00:01 +332: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases birth year as string is parsed correctly
+00:01 +333: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: Edge cases income as int is handled correctly
+00:01 +334: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/financial_report_service_test.dart: UserProfile computed properties yearsToRetirement is 65 - age
+00:01 +335: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: _parseBool via fromWizardAnswers accepts "yes" for boolean fields
+00:01 +336: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: _parseBool via fromWizardAnswers accepts "oui" for boolean fields
+00:01 +337: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: _parseBool via fromWizardAnswers accepts "true" for boolean fields
+00:01 +338: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: _parseBool via fromWizardAnswers rejects "no" for boolean fields
+00:01 +339: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: _parseBool via fromWizardAnswers rejects "false" for boolean fields
+00:01 +340: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Emergency fund mapping "yes_6months" produit une epargne liquide > 0
+00:01 +341: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Emergency fund mapping "yes_3months" produit une epargne intermediaire
+00:01 +342: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Emergency fund mapping "no" produit une epargne minimale
+00:01 +343: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Emergency fund mapping "yes_6months" > "yes_3months" > "no"
+00:01 +344: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Emergency fund mapping valeur numerique directe est acceptee
+00:01 +345: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Main goal parsing "retirement" → GoalAType.retraite
+00:01 +346: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Main goal parsing "real_estate" → GoalAType.achatImmo
+00:01 +347: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Main goal parsing "independence" → GoalAType.independance
+00:01 +348: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Main goal parsing "inheritance" → GoalAType.retraite avec label retraite
+00:01 +349: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Main goal parsing "project" → GoalAType.custom
+00:01 +350: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Main goal parsing ancien format "house" reste compatible
+00:01 +351: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Main goal parsing ancien format "invest" reste compatible
+00:01 +352: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Main goal parsing valeur inconnue → retraite par defaut
+00:01 +353: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Debt estimate scales with income dette plus elevee avec salaire plus eleve
+00:01 +354: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Debt estimate scales with income dette est ~5% du salaire brut annuel
+00:01 +355: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Debt estimate scales with income pas de dette quand hasDebt=no
+00:01 +356: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Nouveaux champs depuis wizard housingStatus est peuple
+00:01 +357: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Nouveaux champs depuis wizard riskTolerance est peuple
+00:01 +358: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Nouveaux champs depuis wizard realEstateProject est peuple
+00:01 +359: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Nouveaux champs depuis wizard unemploymentContributionMonths est borne entre 0 et 24
+00:01 +360: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Nouveaux champs depuis wizard distingue revenu brut explicite et revenu net estime
+00:01 +361: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Nouveaux champs depuis wizard providers3a est peuple depuis une liste
+00:01 +362: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Nouveaux champs depuis wizard providers3a est vide par defaut
+00:01 +363: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: Nouveaux champs depuis wizard champs null quand non fournis
+00:01 +364: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: fromWizardAnswers — profil complet marque les facts profil utilisés par les parcours ledger-first
+00:01 +365: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: fromWizardAnswers — profil complet marque le solde hypothécaire quand il est fourni
+00:01 +366: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: fromWizardAnswers — profil complet marque employmentStatus quand le revenu indépendant le déduit
+00:01 +367: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: fromWizardAnswers — profil complet produit un CoachProfile valide avec toutes les reponses
+00:01 +368: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: fromWizardAnswers — profil complet q_has_3a masque le nombre de comptes sans le detruire
+00:01 +369: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: fromWizardAnswers — profil complet profil minimal fonctionne avec valeurs par defaut
+00:01 +370: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: fromWizardAnswers — profil complet profil complet conserve AVS no_gaps comme declaration
+00:01 +371: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing declarations AVS du conjoint restent non certifiees et gardent l arrivee
+00:01 +372: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing "no_gaps" reste declare sans certifier zero annee
+00:01 +373: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing "arrived_late" sans arrival_year reste inconnu
+00:01 +374: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing "arrived_late" garde l age d arrivee sans certifier de lacune
+00:01 +375: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing "arrived_late" precoce ne certifie pas zero lacune
+00:01 +376: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing "lived_abroad" sans years_abroad reste inconnu
+00:01 +377: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing "lived_abroad" garde years_abroad declaratif seulement
+00:01 +378: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing "unknown" ne fabrique aucun nombre d annees
+00:01 +379: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing null (pas de reponse) → aucune lacune
+00:01 +380: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: AVS lacunes status parsing declarations AVS divergentes restent hors des annees certifiees
+00:01 +381: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_profile_wizard_test.dart: JSON round-trip JSON round-trip preserve les nouveaux champs
+00:02 +382: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService.generate — sans BYOK generate() sans BYOK retourne template statique
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_suroblig → 0.058 (cache miss, logged once)
+00:02 +383: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService.generate — sans BYOK generate() sans BYOK retourne les memes textes que le mode statique
+00:02 +384: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService.generate — sans BYOK legacy AVS certificate inputs narrate non-AVS income only
+00:02 +385: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService.generate — avec BYOK (fallback) fallback vers static si LLM echoue (pas de backend)
+CoachNarrative: ClientException with SocketException: Connection refused (OS Error: Connection refused, errno = 61), address = localhost, port = 49689, uri=http://localhost:8888/api/v1/rag/query
+00:02 +386: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — cache AVS provenance changes invalidate the partial narrative cache
+00:02 +387: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — cache cache is invalidated when certified AVS years change 0 to 5
+00:02 +388: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — cache spouse AVS evidence stays outside cache identity until household total is ready
+00:02 +389: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — cache spouse AVS evidence invalidates cache once household total is ready
+00:02 +390: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — cache cache est utilise quand < 24h
+00:02 +391: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — cache cache est invalide quand > 24h
+00:02 +392: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — cache cache est invalide quand nouveau check-in
+00:02 +393: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — cache cache est invalide immediatement quand safe mode est active
+00:02 +394: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — greeting greeting contient firstName
+00:02 +395: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — greeting greeting uses generic form when firstName is null
+00:02 +396: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — scoreSummary scoreSummary contient le score numerique
+00:02 +397: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — guardrails narratif ne contient pas de termes bannis
+00:02 +398: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — guardrails containsBannedTerms detecte correctement les termes bannis
+00:02 +399: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrative — JSON serialization JSON serialization round-trip fonctionne
+00:02 +400: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrative — JSON serialization JSON deserialization gere les champs null
+00:02 +401: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — trendMessage trendMessage "En progression" quand score monte > 3
+00:02 +402: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — trendMessage trendMessage "Attention" quand score baisse > 3
+00:02 +403: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — trendMessage trendMessage "Stable" quand score ne change pas beaucoup
+00:02 +404: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — trendMessage trendMessage fallback quand historique insuffisant
+00:02 +405: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — trendMessage trendMessage fallback quand scoreHistory est null
+00:02 +406: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — topTipNarrative topTipNarrative contient le premier tip message
+00:02 +407: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — topTipNarrative topTipNarrative utilise FallbackTemplates si pas de tips
+00:02 +408: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — invalidateCache invalidateCache supprime le cache
+00:02 +409: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — urgentAlert static mode urgentAlert is non-null in Q4 (Oct-Dec) when 3a margin > 0
+00:02 +410: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — urgentAlert static mode urgentAlert mentions fiscal deadline in Feb-Mar (unless tax_deadline tip present)
+00:02 +411: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/services/coach_narrative_service_test.dart: CoachNarrativeService — urgentAlert static mode urgentAlert structure is valid (non-null or null based on season)
+00:02 +412: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/coach/avs_gap_widget_test.dart: declared years abroad stay facts to verify, not AVS gaps
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:03 +413: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/coach/expat_rights_loss_widget_test.dart: renders title
+00:03 +414: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/coach/expat_rights_loss_widget_test.dart: renders title
+00:03 +415: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/widgets/coach/expat_rights_loss_widget_test.dart: renders title
+00:03 +416: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +417: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +418: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +419: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +420: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +421: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +422: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +423: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +424: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +425: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +426: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +427: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +428: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +429: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +430: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+00:03 +431: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: exposes stable runtime semantics across the AVS journey
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:04 +432: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: start semantics stays disabled until an explicit picker confirmation
+00:04 +433: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: unknown years stay partial and cannot synthesize a ten-year fact
+00:04 +434: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: missing birth year does not block after explicit year selection
+00:04 +435: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: orientation requires explicit opt-in and never writes the ledger
+00:04 +436: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: AVS verification CTA opens the existing guide route
+00:04 +437: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/screens/expat_avs_opt_in_test.dart: AVS scenario renderer itself fails closed without opt-in
+00:04 +438: All tests passed!
+exit_code=0

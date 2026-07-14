@@ -1,0 +1,56 @@
+$ lefthook run pre-commit --file <each G1-AVS-03 touched file>
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+┃  accent-lint-fr ❯
+
+services/backend/app/services/expat/expat_service.py:29: "conseil fiscal ou juridique (LSFin/LLCA). Consulte un ou une specialiste." (\bspecialistes?\b -> spécialiste(s))
+accent_lint_fr: FAIL — 1 violation(s)
+
+exit status 1│  arb-parity (skip) no matching staged files
+│  banned-ui-terms (skip) no files for inspection
+│  financial-core-gate (skip) no matching staged files
+┃  g1-avs-certified-null-hard-floor ❯
+
+...............                                                          [100%]
+15 passed in 2.57s
+
+┃  gitleaks-secret-scan ❯
+
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+12:53AM INF 0 commits scanned.
+12:53AM INF scanned ~0 bytes (0) in 25.7ms
+12:53AM INF no leaks found
+
+┃  hardcoded-rate-gate ❯
+
+OK hardcoded_rate_gate: no hardcoded financial rates in added Python/Dart lines
+
+│  interaction-coverage-audit (skip) no matching staged files
+│  interaction-registry-lint (skip) no matching staged files
+┃  map-freshness-hint ❯
+
+
+┃  memory-retention-gate ❯
+
+retention WARNING: /Users/julienbattaglia/.claude/projects/-Users-julienbattaglia-Desktop-MINT/memory/MEMORY.md has 184 lines (target <100). Per D-02 this is a warning, not a failure — but consider pruning the INDEX.
+retention: OK — 30j gate green
+
+│  no-bypass-persistence (skip) no files for inspection
+│  no-hardcoded-fr (skip) no files for inspection
+
+  ────────────────────────────────────
+summary: (done in 4.06 seconds)
+✓ g1-avs-certified-null-hard-floor (3.15 seconds)
+✓ gitleaks-secret-scan (0.06 seconds)
+✓ hardcoded-rate-gate (0.12 seconds)
+✓ map-freshness-hint (0.10 seconds)
+✓ memory-retention-gate (0.10 seconds)
+✗ accent-lint-fr (0.44 seconds)
+exit=1
