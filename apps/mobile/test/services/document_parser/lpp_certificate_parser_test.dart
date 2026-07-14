@@ -18,6 +18,103 @@ void main() {
     }
   }
 
+  group('disability pension and capital semantics', () {
+    test('keeps annual pension distinct from lump-sum capital', () {
+      final result = LppCertificateParser.parseLppCertificate('''
+Certificat de prévoyance
+Rente d'invalidité annuelle: CHF 36'800
+Capital invalidité (versement unique): CHF 175'000
+''');
+
+      expect(findField(result, 'disability_coverage')!.value, 36800.0);
+      expect(
+        findField(result, 'disability_coverage')!.profileField,
+        'disabilityCoverage',
+      );
+      expect(findField(result, 'disability_capital')!.value, 175000.0);
+      expect(
+        findField(result, 'disability_capital')!.profileField,
+        'lppDisabilityCapital',
+      );
+    });
+
+    test('ambiguous disability prestation is not promoted to either fact', () {
+      final result = LppCertificateParser.parseLppCertificate('''
+Certificat de prévoyance
+Prestation d'invalidité: CHF 90'000
+''');
+
+      expect(findField(result, 'disability_coverage'), isNull);
+      expect(findField(result, 'disability_capital'), isNull);
+    });
+
+    test('only explicit death-capital labels populate death capital', () {
+      for (final text in <String>[
+        'Prestation de décès: CHF 220\'000',
+        'Prestation de décès: CHF 36\'000 / an',
+        'Todesfallleistung: CHF 220\'000',
+      ]) {
+        final result = LppCertificateParser.parseLppCertificate(text);
+        expect(findField(result, 'death_coverage'), isNull, reason: text);
+      }
+
+      final explicitFrench = LppCertificateParser.parseLppCertificate(
+        'Capital décès: CHF 220\'000',
+      );
+      final explicitGerman = LppCertificateParser.parseLppCertificate(
+        'Todesfallkapital: CHF 220\'000',
+      );
+      expect(findField(explicitFrench, 'death_coverage')!.value, 220000.0);
+      expect(findField(explicitGerman, 'death_coverage')!.value, 220000.0);
+    });
+  });
+
+  group('annual pension period semantics', () {
+    test('generic and monthly retirement pensions stay absent', () {
+      for (final text in <String>[
+        'Rente de vieillesse projetée: CHF 31\'450',
+        'Rente de vieillesse projetée: CHF 2\'620 / mois',
+        'Voraussichtliche Altersrente: CHF 31\'450',
+        'Voraussichtliche Altersrente: CHF 2\'620 pro Monat',
+      ]) {
+        final result = LppCertificateParser.parseLppCertificate(text);
+        expect(findField(result, 'projected_rente'), isNull, reason: text);
+      }
+    });
+
+    test('generic and monthly disability pensions stay absent', () {
+      for (final text in <String>[
+        'Rente d\'invalidité: CHF 36\'800',
+        'Rente d\'invalidité: CHF 3\'066 / mois',
+        'Invalidenrente: CHF 42\'000',
+        'Invalidenrente: CHF 3\'500 pro Monat',
+      ]) {
+        final result = LppCertificateParser.parseLppCertificate(text);
+        expect(findField(result, 'disability_coverage'), isNull, reason: text);
+      }
+    });
+
+    test('explicit French and German annual pensions remain available', () {
+      final frenchRetirement = LppCertificateParser.parseLppCertificate(
+        'Rente de vieillesse projetée: CHF 31\'450 / an',
+      );
+      final germanRetirement = LppCertificateParser.parseLppCertificate(
+        'Voraussichtliche Altersrente: CHF 31\'450 pro Jahr',
+      );
+      final frenchDisability = LppCertificateParser.parseLppCertificate(
+        'Rente d\'invalidité annuelle: CHF 36\'800',
+      );
+      final germanDisability = LppCertificateParser.parseLppCertificate(
+        'Invalidenrente: CHF 42\'000 pro Jahr',
+      );
+
+      expect(findField(frenchRetirement, 'projected_rente')!.value, 31450.0);
+      expect(findField(germanRetirement, 'projected_rente')!.value, 31450.0);
+      expect(findField(frenchDisability, 'disability_coverage')!.value, 36800.0);
+      expect(findField(germanDisability, 'disability_coverage')!.value, 42000.0);
+    });
+  });
+
   // ── Sample OCR text (well-formatted) ───────────────────────
   group('parseLppCertificate — sample OCR text', () {
     late ExtractionResult result;
@@ -214,8 +311,8 @@ void main() {
       expect((field!.value as double), closeTo(539414.0, 0.01));
     });
 
-    test('parses Invalidenrente (DE)', () {
-      const text = "Invalidenrente: CHF 42'000.00";
+    test('parses annual Invalidenrente (DE)', () {
+      const text = "Invalidenrente: CHF 42'000.00 pro Jahr";
       final result = LppCertificateParser.parseLppCertificate(text);
       final field = findField(result, 'disability_coverage');
       expect(field, isNotNull);

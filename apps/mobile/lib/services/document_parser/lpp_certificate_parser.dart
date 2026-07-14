@@ -116,8 +116,7 @@ class LppCertificateParser {
             r"(?:Altersguthaben\s+(?:total|gesamt)|Alterskapital\s+(?:total|gesamt))\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
-        RegExp(
-            r"(?:Total\s+(?:des\s+)?avoirs?)\s*[:\s]*" + _numCapture,
+        RegExp(r"(?:Total\s+(?:des\s+)?avoirs?)\s*[:\s]*" + _numCapture,
             caseSensitive: false),
       ],
     ),
@@ -205,8 +204,7 @@ class LppCertificateParser {
             r"(?:Umwandlungssatz\s*[\(]?(?:oblig[a-z]*|BVG|Mindest|gesetzlich)[a-z]*[\)]?)\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
         // Generic: "taux de conversion" followed by 6.8 or similar
-        RegExp(
-            r"(?:taux\s+de\s+conversion)\s*[:\s]*(6[,.]8\d*\s*%?)",
+        RegExp(r"(?:taux\s+de\s+conversion)\s*[:\s]*(6[,.]8\d*\s*%?)",
             caseSensitive: false),
       ],
     ),
@@ -238,11 +236,13 @@ class LppCertificateParser {
       patterns: [
         RegExp(
             r"(?:rente\s+de\s+vieillesse\s+(?:projet[e\u00e9]e|pr[e\u00e9]visible|estim[e\u00e9]e))\s*[:\s]*" +
-                _numCapture,
+                _numCapture +
+                r"\s*(?:/\s*(?:an|ann[e\u00e9]e)|par\s+(?:an|ann[e\u00e9]e))",
             caseSensitive: false),
         RegExp(
             r"(?:Voraussichtliche\s+Altersrente|Altersrente\s+(?:ab|mit)\s+65)\s*[:\s]*" +
-                _numCapture,
+                _numCapture +
+                r"\s*(?:/\s*Jahr|pro\s+Jahr|j[a\u00e4]hrlich)",
             caseSensitive: false),
       ],
     ),
@@ -264,19 +264,45 @@ class LppCertificateParser {
       ],
     ),
 
-    // ── Prestation d'invalidite ──
+    // ── Capital invalidite (versement unique) ──
+    _FieldPattern(
+      fieldName: "disability_capital",
+      label: "Disability capital",
+      profileField: "lppDisabilityCapital",
+      patterns: [
+        RegExp(
+            r"(?:capital\s+(?:d[' ]?)?invalidit[e\u00e9](?:\s*\([^)]*(?:versement\s+unique|capital)[^)]*\))?)\s*[:\s]*" +
+                _numCapture,
+            caseSensitive: false),
+        RegExp(r"(?:Invalidit[a\u00e4]tskapital)\s*[:\s]*" + _numCapture,
+            caseSensitive: false),
+      ],
+    ),
+
+    // ── Rente d'invalidite annuelle ──
     _FieldPattern(
       fieldName: "disability_coverage",
-      label: "Prestation d'invalidité",
+      label: "Annual disability pension",
       profileField: "disabilityCoverage",
       patterns: [
         RegExp(
-            r"(?:rente?\s+d[' ]?invalidit[e\u00e9]|prestation\s+d[' ]?invalidit[e\u00e9]|invalidit[e\u00e9]\s+rente)\s*[:\s]*" +
+            r"(?:rente\s+d[' ]?invalidit[e\u00e9]\s+annuelle|rente\s+annuelle\s+d[' ]?invalidit[e\u00e9]|invalidit[e\u00e9]\s+rente\s+annuelle)\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
         RegExp(
+            r"(?:rente\s+d[' ]?invalidit[e\u00e9]|invalidit[e\u00e9]\s+rente)\s*[:\s]*" +
+                _numCapture +
+                r"\s*(?:/\s*(?:an|ann[e\u00e9]e)|par\s+(?:an|ann[e\u00e9]e))",
+            caseSensitive: false),
+        RegExp(
+            r"(?:prestation\s+d[' ]?invalidit[e\u00e9])\s*[:\s]*" +
+                _numCapture +
+                r"\s*(?:/\s*(?:an|ann[e\u00e9]e)|par\s+(?:an|ann[e\u00e9]e))",
+            caseSensitive: false),
+        RegExp(
             r"(?:Invalidenrente|Rente\s+bei\s+Invalidit[a\u00e4]t)\s*[:\s]*" +
-                _numCapture,
+                _numCapture +
+                r"\s*(?:/\s*Jahr|pro\s+Jahr|j[a\u00e4]hrlich)",
             caseSensitive: false),
       ],
     ),
@@ -288,11 +314,10 @@ class LppCertificateParser {
       profileField: "deathCoverage",
       patterns: [
         RegExp(
-            r"(?:capital[\-\s]*d[e\u00e9]c[e\u00e8]s|prestation\s+de\s+d[e\u00e9]c[e\u00e8]s)\s*[:\s]*" +
+            r"(?:capital[\-\s]*d[e\u00e9]c[e\u00e8]s)\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
-        RegExp(
-            r"(?:Todesfallkapital|Todesfallleistung)\s*[:\s]*" + _numCapture,
+        RegExp(r"(?:Todesfallkapital)\s*[:\s]*" + _numCapture,
             caseSensitive: false),
       ],
     ),
@@ -358,14 +383,11 @@ class LppCertificateParser {
         RegExp(
             r"(?:int[ée]r[êe]ts?|r[ée]mun[ée]r[ée])\s*[\(\:]?\s*(?:taux\s+(?:de\s+)?)?([\d,.\s]+\s*%?)",
             caseSensitive: false),
-        RegExp(
-            r"taux\s+(?:de\s+)?r[ée]mun[ée]ration\s*[:\s]*([\d,.\s]+\s*%?)",
+        RegExp(r"taux\s+(?:de\s+)?r[ée]mun[ée]ration\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
-        RegExp(
-            r"(?:Verzinsung|Zinssatz)\s*[:\s]*([\d,.\s]+\s*%?)",
+        RegExp(r"(?:Verzinsung|Zinssatz)\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
-        RegExp(
-            r"tasso\s+(?:di\s+)?remunerazione\s*[:\s]*([\d,.\s]+\s*%?)",
+        RegExp(r"tasso\s+(?:di\s+)?remunerazione\s*[:\s]*([\d,.\s]+\s*%?)",
             caseSensitive: false),
       ],
     ),
