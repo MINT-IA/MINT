@@ -83,10 +83,10 @@ fieldPath -> {source, updatedAt, sourceDate}
 - `__provenance` is currently local-only and is removed from mobile backend
   sync payloads. Backend per-field provenance remains pending its dedicated
   contract; do not silently mirror this local envelope into `ProfileModel.data`.
-- Live legacy exceptions remain full G1 blockers:
-  `updateFromTaxExtraction` → G1-PROV-03 and
-  `updateFromPartnerLppExtraction` → G1-PROV-02 + G1-BND-02A. Both still
-  publish before save and write no canonical provenance.
+- Live legacy exceptions remain full G1 blockers: the legacy tax scan writer
+  (to be removed by G1-PROV-03) and `updateFromPartnerLppExtraction`
+  (G1-PROV-02 + G1-BND-02A) still publish before save and write no canonical
+  provenance.
 
 ---
 
@@ -100,7 +100,7 @@ mirrors to SharedPreferences. **This is the only legal write path.**
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
-| 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Tax,Salary}Extraction` / `updateFromPartnerLppExtraction` | LPP/AVS/tax `_coach_*` keys; salary certificate: `q_gross_salary_annual = monthly gross × q_nombre_mois`, `q_nombre_mois`, and `q_bonus_percentage` when extracted; never `q_net_income_period_chf` | Post-scan; save-before-publish only for migrated self LPP/self AVS/salary paths |
+| 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → current `updateFrom{Lpp,Avs,Salary}Extraction` / `updateFromPartnerLppExtraction`; tax target is the single `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence` seam | LPP/AVS `_coach_*`; tax is legacy `_coach_tax_*` until G1-PROV-03, then secure `_coach_tax_snapshots_v1`; salary certificate: `q_gross_salary_annual = monthly gross × q_nombre_mois`, `q_nombre_mois`, and `q_bonus_percentage` when extracted; never `q_net_income_period_chf` | Post-scan; save-before-publish only for migrated self LPP/self AVS/salary paths |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
@@ -210,9 +210,12 @@ publishes its next profile only after the answer snapshot is saved.
   insufficient.
 
 **Fiscal**
-- `_coach_tax_revenu_imposable`, `_coach_tax_fortune_imposable`,
-  `_coach_tax_impot_cantonal`, `_coach_tax_impot_federal`,
-  `_coach_tax_taux_marginal`, `_coach_tax_source`
+- Target G1-PROV-03: secure JSON-string root `_coach_tax_snapshots_v1`
+  (`schemaVersion=1`, typed `snapshots[]`, optional `legacyQuarantine`),
+  reconstructed as `CoachProfile.fiscal`. Legacy `_coach_tax_*` keys are
+  quarantine-only migration input: they never hydrate a canonical snapshot.
+  `legacyQuarantine` nested in this root is the sole migration quarantine; no
+  standalone tax-quarantine key is allowed.
 
 **Goals & lifecycle**
 - `q_target_retirement_age`, `_coach_family_change`,
@@ -312,7 +315,7 @@ DocumentService.extractDocumentData (backend)
 ExtractionReviewScreen (user verifies each field)
   ↓ user taps Confirmer
   ↓
-coachProvider.updateFrom{Lpp|Avs|Tax|Salary}Extraction(fields)
+coachProvider.updateFrom{Lpp|Avs|Salary}Extraction(fields)
   ↓ seeds _profile = defaults() if null
   ↓ mutates prevoyance/patrimoine/dettes/fiscal
   ↓ writes _coach_<type>_<field> keys + _coach_updated_at
@@ -323,6 +326,11 @@ coachProvider.updateFrom{Lpp|Avs|Tax|Salary}Extraction(fields)
   ↓
 /scan/impact (DocumentImpactScreen) shows delta in confidence score
 ```
+
+G1-PROV-03 replaces, rather than wraps, the legacy tax branch with the single
+`TaxExtractionCandidate → TaxReviewConfirmation →
+CoachProfileProvider.acceptTaxReview → TaxProfilePersistence → cold reload →
+FiscalSnapshotSelector.selectAssessedBaseline` production seam.
 
 Failure modes:
 - Keychain -34018 on iOS sim without entitlements → SharedPrefs fallback

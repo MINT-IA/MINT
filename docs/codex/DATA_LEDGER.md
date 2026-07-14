@@ -7,6 +7,7 @@
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
+> **Focused tax contract:** [TAX_ASSESSMENT_INGESTION.md](TAX_ASSESSMENT_INGESTION.md) defines the Swiss document, period, ICC/IFD, rate and tax-unit semantics; §4.0 below owns the mobile storage/wiring contract.
 
 ---
 
@@ -325,6 +326,181 @@ After T-0 and T-1, `_mapFactKeyToAnswers` handles all 36 keys and every mapper t
 ## 4. Ledger — mobile-only typed fields (not coach-writable)
 
 These exist on `CoachProfile` sub-models and are written by wizard / scan extraction / simulator write-back via `mergeAnswers`/`updateProfile`. They are **not** in the allowlist (the coach cannot set them by chat today). Listed because computations consume them and the provenance contract (§6) applies.
+
+### 4.0 Tax assessment snapshots (G1-PROV-03 target; not live)
+
+The Swiss meaning is fixed by
+[TAX_ASSESSMENT_INGESTION.md](TAX_ASSESSMENT_INGESTION.md). The smallest
+canonical mobile store is one sensitive answer key,
+`wizard_answers_v2['_coach_tax_snapshots_v1']`, containing a JSON **string**
+with this versioned root (the string form is required by the current secure
+store codec):
+
+```text
+{
+  "schemaVersion": 1,
+  "snapshots": [TaxSnapshot...],
+  "legacyQuarantine": null | {
+    "legacySchemaVersion": 0,
+    "reasonCodes": [String...],
+    "values": {legacy _coach_tax_* key: value...},
+    "quarantinedAt": ISO-8601 instant
+  }
+}
+```
+
+`_coach_tax_snapshots_v1` must be added to `SecureWizardStore`; neither its
+value nor `legacyQuarantine.values` may appear in SharedPreferences, logs,
+analytics, routes, Biography, backend/LLM payloads, or screenshots.
+`FiscalProfile` exposes only `snapshots` and `legacyDataNeedsReview`; raw
+quarantine values are not a consumer API.
+`legacyQuarantine` inside this root is the only tax-legacy quarantine location;
+do not create a standalone `__taxLegacyQuarantineV1` key or second store.
+
+```text
+FiscalProfile { snapshots: List<TaxSnapshot>, legacyDataNeedsReview: bool }
+
+TaxSnapshot {
+  snapshotId: String
+  profileOwnerId: String
+  taxYear: int?
+  basedOnTaxYear: int?
+  sourceDate: DateTime?
+  documentKind: taxpayerReturn | provisionalBill | assessmentNotice |
+                finalTaxBill | unknown
+  assessmentStatus: selfDeclared | provisional | assessedAppealable |
+                    contested | inForce | unknown
+  subjectScope: individual | jointlyAssessedCouple | unknown
+  cantonCode: String?
+  municipalityId: String?
+  municipalityLabel: String?
+  cantonalCommunalTaxableIncomeChf: double?
+  federalTaxableIncomeChf: double?
+  cantonalCommunalTaxableWealthChf: double?
+  cantonalCommunalAssessedTax: AssessedTaxAmount?
+  federalDirectAssessedTax: AssessedTaxAmount?
+  explicitMarginalIncomeTaxRate: double?  // ratio 0..1
+  explicitAverageIncomeTaxRate: double?   // ratio 0..1, never a fallback
+}
+
+AssessedTaxAmount {
+  amountChf: double
+  authorityScope: cantonalOnly | communalOnly |
+                  cantonalCommunalCombined | federalDirect | unknown
+  baseScope: incomeOnly | wealthOnly | incomeAndWealth |
+             totalInvoice | unknown
+}
+```
+
+`profileOwnerId` is the provider-resolved pseudonymous owner token. This G1
+slice is self-import only; the review route never supplies an owner id.
+`subjectScope` describes the tax unit and is independent: a jointly assessed
+snapshot stays whole and is never split or copied to a partner account.
+
+The path-safe identity is a lowercase canonical UUIDv4, generated exactly once
+when the first `TaxExtractionCandidate` is materialized and retained by the
+review state across confirmation and persistence retries. It is distinct from
+the route/session `scanSessionId`, which is never a durable fact identity. The
+provider accepts `snapshotId` only when it matches the canonical UUID form and
+version/variant bits; no user, filename, tax year or OCR content enters it. A
+write with an existing `snapshotId` replaces that whole snapshot; a new id
+appends. Replacement never
+merges missing fields, periods, ICC/IFD scopes, owners or tax units. It removes
+all prior `__provenance` entries under `fiscal.snapshots.<snapshotId>.` and
+recreates entries only for the replacement's non-null facts.
+
+Provenance covers both values and interpretation metadata, including:
+
+```text
+fiscal.snapshots.<id>.taxYear
+fiscal.snapshots.<id>.basedOnTaxYear
+fiscal.snapshots.<id>.sourceDate
+fiscal.snapshots.<id>.documentKind
+fiscal.snapshots.<id>.assessmentStatus
+fiscal.snapshots.<id>.subjectScope
+fiscal.snapshots.<id>.cantonCode
+fiscal.snapshots.<id>.municipalityId
+fiscal.snapshots.<id>.municipalityLabel
+fiscal.snapshots.<id>.cantonalCommunalTaxableIncomeChf
+fiscal.snapshots.<id>.federalTaxableIncomeChf
+fiscal.snapshots.<id>.cantonalCommunalTaxableWealthChf
+fiscal.snapshots.<id>.cantonalCommunalAssessedTax.{amountChf,authorityScope,baseScope}
+fiscal.snapshots.<id>.federalDirectAssessedTax.{amountChf,authorityScope,baseScope}
+fiscal.snapshots.<id>.explicitMarginalIncomeTaxRate
+fiscal.snapshots.<id>.explicitAverageIncomeTaxRate
+```
+
+Every entry keeps the exact `{source, updatedAt, sourceDate}` envelope.
+`snapshotId` and `profileOwnerId` are identity, not financial-value provenance
+paths. One confirmation stamp is used for all written paths; source date is the
+document date or null, never that stamp.
+
+Source mapping is closed: a confirmed `taxpayerReturn` is `userInput`, a
+confirmed `provisionalBill` is `estimated`, and only confirmed
+`assessmentNotice` fields are `certificate`. `finalTaxBill`/`unknown` remain
+`estimated` unless the review establishes that the document is an assessment
+notice. Unconfirmed OCR writes nothing. Explicit average/effective-rate text
+may populate only `explicitAverageIncomeTaxRate`; a computed tax/income ratio
+populates neither canonical rate. ICC and IFD remain distinct.
+
+There is one typed production seam and no parallel provider API:
+
+```text
+TaxExtractionCandidate
+  -> TaxReviewConfirmation
+  -> CoachProfileProvider.acceptTaxReview(confirmation)
+  -> TaxProfilePersistence
+  -> cold reload
+  -> FiscalSnapshotSelector.selectAssessedBaseline(...)
+```
+
+`TaxDeclarationParser.parseTaxDocument` produces the interpreted fields and
+context used to materialize one `TaxExtractionCandidate` with a fresh UUIDv4
+`snapshotId` and route-only `scanSessionId`. The review retains that candidate
+identity while correcting tax year, source date, document kind/status, subject
+scope, jurisdiction and amount scopes, then emits an immutable
+`TaxReviewConfirmation`. `acceptTaxReview` resolves `profileOwnerId`, constructs
+the whole replacement snapshot and delegates the secure root plus provenance to
+an injected `TaxProfilePersistence`; only successful persistence may publish or
+notify. A failing/pending persistence proves no early publication. The legacy
+tax writer is removed rather than retained as a second seam. Parser/model-only
+work is a forbidden facade.
+
+Legacy `_coach_tax_*` values never hydrate these fields. On cold load, the
+persistence migration moves them into the secure `legacyQuarantine`, removes
+the loose legacy keys, and exposes only `legacyDataNeedsReview=true`; it does
+not infer year, tax unit, ICC/IFD scope, source date or marginal meaning.
+Canonical schema presence is authoritative and malformed canonical JSON fails
+closed instead of falling back to legacy.
+
+Precise consumers call only
+`FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,
+`subjectScope`, canton and, when required, municipality. Eligibility requires a
+confirmed `assessmentNotice` with `inForce` or `assessedAppealable` status;
+`provisionalBill`, `finalTaxBill`, `unknown` and non-assessment documents never
+become an assessed baseline. Selection filters before ranking and returns one
+whole snapshot only: `inForce` first, then `assessedAppealable`, then newest
+non-null `sourceDate`.
+
+Before consulting provenance `updatedAt` or UUID, the selector groups compatible
+contenders with the same requested year, status, source date and selector rank.
+If any financial or interpretation payload differs, it returns a conflict
+`partial+ask` result and quarantines those contenders from consumption; this is
+a non-persistent selection state and never a second legacy-quarantine store. No
+field is borrowed and no arbitrary winner is chosen. Only semantically identical
+duplicates may use newest field `updatedAt`, then lexical `snapshotId`, as a
+deterministic tie-break. Missing context/value is also `partial+ask`.
+
+The first named live cold-rehydrated caller is production
+`ConfidenceScorer.score`: after provider write, the proof destroys and
+reconstructs the provider, and scoring must obtain fiscal completeness through
+`selectAssessedBaseline`. Removing or bypassing the selector must fail the gate;
+precise calculators still require an explicit target year.
+
+Tax ingestion remains behind a dedicated default-false feature flag/kill
+switch. Disabled mode must fail safe and must not fall back to the legacy
+average→marginal writer. Activation requires the G1-PROV-03 tests, cold
+selector proof, runtime proof and a named decision.
 
 ### 4.1 AVS / LPP detail (from certificate extraction)
 
