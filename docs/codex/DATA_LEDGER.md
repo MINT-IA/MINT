@@ -7,7 +7,7 @@
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
-> **Focused tax contract:** [TAX_ASSESSMENT_INGESTION.md](TAX_ASSESSMENT_INGESTION.md) defines the Swiss document, period, ICC/IFD, rate and tax-unit semantics; §4.0 below owns the mobile storage/wiring candidate, kept default-off by the composite `documentTaxAssessmentEnabled && typedTaxProfile` gate. Malformed-root privacy remediation, frozen-SHA runtime proof, external Claude audits, the final G1 scorecard and any activation decision remain pending.
+> **Focused tax contract:** [TAX_ASSESSMENT_INGESTION.md](TAX_ASSESSMENT_INGESTION.md) defines the Swiss document, period, ICC/IFD, rate and tax-unit semantics; §4.0 below owns the implemented mobile storage/wiring contract, kept default-off by the composite `documentTaxAssessmentEnabled && typedTaxProfile` gate. Frozen-SHA runtime proof, external Claude audits, the final G1 scorecard and any activation decision remain pending.
 
 ---
 
@@ -327,7 +327,7 @@ After T-0 and T-1, `_mapFactKeyToAnswers` handles all 36 keys and every mapper t
 
 These exist on `CoachProfile` sub-models and are written by wizard / scan extraction / simulator write-back via `mergeAnswers`/`updateProfile`. They are **not** in the allowlist (the coach cannot set them by chat today). Listed because computations consume them and the provenance contract (§6) applies.
 
-### 4.0 Tax assessment snapshots (G1-PROV-03 candidate; hard floor open)
+### 4.0 Tax assessment snapshots (G1-PROV-03 implemented; composite default-off)
 
 The Swiss meaning is fixed by
 [TAX_ASSESSMENT_INGESTION.md](TAX_ASSESSMENT_INGESTION.md). The smallest
@@ -490,13 +490,20 @@ Legacy `_coach_tax_*` values never hydrate these fields. On cold load, the
 persistence migration moves them into the secure `legacyQuarantine`, removes
 the loose legacy keys, and exposes only `legacyDataNeedsReview=true`; it does
 not infer year, tax unit, ICC/IFD scope, source date or marginal meaning.
-Canonical schema presence is authoritative and malformed canonical JSON fails
-closed instead of falling back to legacy. Cold snapshots that are invalid,
+Canonical schema presence is authoritative and malformed canonical JSON never
+falls back to legacy. Except for the strict-secure placeholder `__secure__`, a
+malformed root is recovered inside the same sensitive key as a valid schema-v1
+envelope with zero snapshots: its exact opaque raw value and any loose legacy
+facts move into `legacyQuarantine`, loose keys and orphan `fiscal.*` provenance
+are removed, and one pre-publication save makes the second cold load idempotent.
+The `__secure__` placeholder means the encrypted value is temporarily
+unreadable; it is never wrapped or overwritten and produces zero writes.
+Cold snapshots that are invalid,
 carry a future `sourceDate`, a `taxYear`/`basedOnTaxYear` outside
 `1900...today.year`, a provisional `basedOnTaxYear > taxYear`, or claim
 `assessmentStatus=inForce` without the explicit attestation and its exact
 provenance are excluded from provenance validation and selector consumption.
-Cold load never coerces, clamps, reinfers, or silently rewrites those values.
+Cold load never coerces, clamps or reinfers those snapshot values.
 
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,

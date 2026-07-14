@@ -140,6 +140,13 @@ class SecureWizardStore {
       if (restored[key] != '__secure__') continue;
       final value = await read(key);
       if (value != null) {
+        // The strict tax root is a JSON string contract. Even malformed scalar
+        // text must reach fail-closed quarantine byte-for-byte; generic answer
+        // coercion would otherwise turn `true` or `123` into a different value.
+        if (key == _strictTaxSnapshotKey) {
+          restored[key] = value;
+          continue;
+        }
         if (value == 'true') {
           restored[key] = true;
           continue;

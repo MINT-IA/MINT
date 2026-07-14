@@ -7,6 +7,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 const _assessmentId = '11111111-1111-4111-8111-111111111111';
@@ -919,9 +920,10 @@ void main() {
   });
 
   test(
-      'cold invalid quarantine values off the reserved prefix fail the whole fiscal root closed without writes',
+      'cold invalid quarantine is recovered without promoting its snapshot or provenance',
       () async {
     FeatureFlags.typedTaxProfile = true;
+    final quarantinedAt = DateTime.utc(2026, 7, 14, 12, 30);
     final persistence = _MemoryTaxPersistence();
     final writer = CoachProfileProvider(taxProfilePersistence: persistence);
     await writer.acceptTaxReview(
@@ -937,16 +939,57 @@ void main() {
         'quarantinedAt': DateTime.utc(2026, 7, 14).toIso8601String(),
       };
     persistence.answers['_coach_tax_snapshots_v1'] = jsonEncode(root);
+    final retainedNonFiscalProvenance = {
+      'source': 'userInput',
+      'updatedAt': DateTime.utc(2026, 7, 13).toIso8601String(),
+      'sourceDate': null,
+    };
+    (persistence.answers['__provenance'] as Map<String, dynamic>)['canton'] =
+        retainedNonFiscalProvenance;
     persistence.saveCalls = 0;
-    final before = jsonEncode(persistence.answers);
+    final malformedRoot =
+        persistence.answers['_coach_tax_snapshots_v1'] as String;
 
-    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+    final cold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => quarantinedAt,
+    );
     await cold.loadFromWizard();
 
     expect(cold.profile!.fiscal.snapshots, isEmpty);
-    expect(cold.profile!.fiscal.legacyDataNeedsReview, isFalse);
-    expect(persistence.saveCalls, 0);
-    expect(jsonEncode(persistence.answers), before);
+    expect(cold.profile!.fiscal.legacyDataNeedsReview, isTrue);
+    expect(
+      cold.profile!.dataSources.keys
+          .where((path) => path.startsWith('fiscal.')),
+      isEmpty,
+    );
+    expect(persistence.saveCalls, 1);
+    final recoveredRoot = Map<String, dynamic>.from(
+      jsonDecode(persistence.answers['_coach_tax_snapshots_v1'] as String)
+          as Map,
+    );
+    expect(recoveredRoot['snapshots'], isEmpty);
+    expect(
+      recoveredRoot['legacyQuarantine'],
+      {
+        'legacySchemaVersion': 0,
+        'reasonCodes': ['malformed_canonical_tax_root'],
+        'values': {
+          '_coach_tax_quarantined_malformed_root_v1': malformedRoot,
+        },
+        'quarantinedAt': quarantinedAt.toIso8601String(),
+      },
+    );
+    expect(
+      (persistence.answers['__provenance'] as Map).keys.where(
+            (path) => path.toString().startsWith('fiscal.'),
+          ),
+      isEmpty,
+    );
+    expect(
+      (persistence.answers['__provenance'] as Map)['canton'],
+      retainedNonFiscalProvenance,
+    );
   });
 
   test('typed tax is default-off and refuses the unsafe legacy fallback',
@@ -1069,11 +1112,18 @@ void main() {
     }
   });
 
-  test('malformed canonical tax roots fail closed without legacy fallback',
+  test(
+      'malformed canonical roots recover in the same secure key without exposing facts',
       () async {
     FeatureFlags.typedTaxProfile = true;
-    final malformedRoots = <String>[
+    final quarantinedAt = DateTime.utc(2026, 7, 14, 12, 30);
+    final malformedRoots = <Object?>[
+      null,
       '{not-valid-json',
+      'true',
+      'false',
+      '123',
+      '1.5',
       jsonEncode({
         'schemaVersion': 2,
         'snapshots': <Object>[],
@@ -1088,8 +1138,10 @@ void main() {
         '_coach_tax_taux_marginal': 31.5,
         '_coach_tax_source': 'document_scan',
       });
-      final before = jsonEncode(persistence.answers);
-      final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+      final cold = CoachProfileProvider(
+        taxProfilePersistence: persistence,
+        now: () => quarantinedAt,
+      );
       await cold.loadFromWizard();
 
       expect(cold.profile!.fiscal.snapshots, isEmpty);
@@ -1110,13 +1162,97 @@ void main() {
       );
       expect(selection.status, FiscalSelectionStatus.partialAsk);
       expect(selection.snapshot, isNull);
-      expect(persistence.saveCalls, 0);
-      expect(jsonEncode(persistence.answers), before);
+      expect(persistence.saveCalls, 1);
+      expect(
+        persistence.answers.keys.where(
+          (key) =>
+              key.startsWith('_coach_tax_') && key != '_coach_tax_snapshots_v1',
+        ),
+        isEmpty,
+      );
+      final recoveredRoot = Map<String, dynamic>.from(
+        jsonDecode(persistence.answers['_coach_tax_snapshots_v1'] as String)
+            as Map,
+      );
+      expect(recoveredRoot.keys.toSet(), {
+        'schemaVersion',
+        'snapshots',
+        'legacyQuarantine',
+      });
+      expect(recoveredRoot['schemaVersion'], 1);
+      expect(recoveredRoot['snapshots'], isEmpty);
+      final quarantine = Map<String, dynamic>.from(
+        recoveredRoot['legacyQuarantine'] as Map,
+      );
+      expect(quarantine['legacySchemaVersion'], 0);
+      expect((quarantine['reasonCodes'] as List).toSet(), {
+        'malformed_canonical_tax_root',
+        'untyped_legacy_tax_facts',
+      });
+      expect(quarantine['values'], {
+        '_coach_tax_quarantined_malformed_root_v1': malformedRoot,
+        '_coach_tax_revenu_imposable': 98500,
+        '_coach_tax_taux_marginal': 31.5,
+        '_coach_tax_source': 'document_scan',
+      });
+      expect(quarantine['quarantinedAt'], quarantinedAt.toIso8601String());
+      expect(cold.profile!.fiscal.legacyDataNeedsReview, isTrue);
+      expect(
+        ReportPersistenceService.backendSafeAnswers(persistence.answers),
+        isEmpty,
+      );
       expect(
         persistence.answers.containsKey('__taxLegacyQuarantineV1'),
         isFalse,
       );
+
+      final afterRecovery = jsonEncode(persistence.answers);
+      final secondCold = CoachProfileProvider(
+        taxProfilePersistence: persistence,
+        now: () => quarantinedAt.add(const Duration(days: 1)),
+      );
+      await secondCold.loadFromWizard();
+
+      expect(secondCold.profile!.fiscal.snapshots, isEmpty);
+      expect(
+          secondCold.profile!.dataSources.keys.where(
+            (path) => path == 'tauxMarginal' || path.startsWith('fiscal.'),
+          ),
+          isEmpty);
+      expect(persistence.saveCalls, 1);
+      expect(jsonEncode(persistence.answers), afterRecovery);
     }
+  });
+
+  test('unreadable strict-secure placeholder is never overwritten', () async {
+    FeatureFlags.typedTaxProfile = true;
+    final persistence = _MemoryTaxPersistence({
+      '_coach_tax_snapshots_v1': '__secure__',
+      '_coach_tax_revenu_imposable': 98500,
+    });
+    final before = jsonEncode(persistence.answers);
+    final cold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => DateTime.utc(2026, 7, 14, 12, 30),
+    );
+
+    await cold.loadFromWizard();
+
+    expect(cold.profile!.fiscal.snapshots, isEmpty);
+    expect(cold.profile!.fiscal.legacyDataNeedsReview, isFalse);
+    expect(
+      cold.profile!.dataSources.keys.where(
+        (path) => path == 'tauxMarginal' || path.startsWith('fiscal.'),
+      ),
+      isEmpty,
+    );
+    expect(persistence.saveCalls, 0);
+    expect(jsonEncode(persistence.answers), before);
+    expect(persistence.answers['_coach_tax_snapshots_v1'], '__secure__');
+    expect(
+      ReportPersistenceService.backendSafeAnswers(persistence.answers),
+      isEmpty,
+    );
   });
 
   test(

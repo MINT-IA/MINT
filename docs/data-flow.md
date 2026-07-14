@@ -83,10 +83,11 @@ fieldPath -> {source, updatedAt, sourceDate}
 - `__provenance` is currently local-only and is removed from mobile backend
   sync payloads. Backend per-field provenance remains pending its dedicated
   contract; do not silently mirror this local envelope into `ProfileModel.data`.
-- Live legacy exceptions remain full G1 blockers: the legacy tax scan writer
-  (to be removed by G1-PROV-03) and `updateFromPartnerLppExtraction`
-  (G1-PROV-02 + G1-BND-02A) still publish before save and write no canonical
-  provenance.
+- The remaining live legacy exception is `updateFromPartnerLppExtraction`
+  (G1-PROV-02 + G1-BND-02A), which still publishes before save and writes no
+  canonical provenance. The typed tax path is implemented but remains behind
+  its composite default-off gate pending frozen-SHA runtime proof and the G1
+  activation decision.
 
 ---
 
@@ -100,7 +101,7 @@ mirrors to SharedPreferences. **This is the only legal write path.**
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
-| 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → current `updateFrom{Lpp,Avs,Salary}Extraction` / `updateFromPartnerLppExtraction`; tax target is the single `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence` seam | LPP/AVS `_coach_*`; tax is legacy `_coach_tax_*` until G1-PROV-03, then secure `_coach_tax_snapshots_v1`; salary certificate: `q_gross_salary_annual = monthly gross × q_nombre_mois`, `q_nombre_mois`, and `q_bonus_percentage` when extracted; never `q_net_income_period_chf` | Post-scan; save-before-publish only for migrated self LPP/self AVS/salary paths |
+| 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Salary}Extraction` / `updateFromPartnerLppExtraction`; typed tax uses the single `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence` seam | LPP/AVS `_coach_*`; tax uses the secure `_coach_tax_snapshots_v1` envelope and treats loose `_coach_tax_*` as quarantine-only input; salary certificate: `q_gross_salary_annual = monthly gross × q_nombre_mois`, `q_nombre_mois`, and `q_bonus_percentage` when extracted; never `q_net_income_period_chf` | Post-scan; save-before-publish for migrated self LPP/self AVS/salary/tax paths; partner LPP remains a G1 blocker |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
@@ -210,12 +211,17 @@ publishes its next profile only after the answer snapshot is saved.
   insufficient.
 
 **Fiscal**
-- Target G1-PROV-03: secure JSON-string root `_coach_tax_snapshots_v1`
+- Implemented G1-PROV-03 contract, still composite default-off: secure
+  JSON-string root `_coach_tax_snapshots_v1`
   (`schemaVersion=1`, typed `snapshots[]`, optional `legacyQuarantine`),
   reconstructed as `CoachProfile.fiscal`. Legacy `_coach_tax_*` keys are
   quarantine-only migration input: they never hydrate a canonical snapshot.
   `legacyQuarantine` nested in this root is the sole migration quarantine; no
-  standalone tax-quarantine key is allowed.
+  standalone tax-quarantine key is allowed. A malformed canonical root is
+  recovered fail-closed in that same key with zero snapshots, exact opaque raw
+  value and loose facts nested in quarantine, loose keys and orphan
+  `fiscal.*` provenance removed, and a single idempotent save. The
+  strict-secure `__secure__` placeholder is never overwritten.
 
 **Goals & lifecycle**
 - `q_target_retirement_age`, `_coach_family_change`,
@@ -307,22 +313,23 @@ Every calculator / widget that needs profile data **must** read through
 ## Scan pipeline — end-to-end
 
 ```
-PDF (camera / gallery / OCR paste / test fixture)
-  ↓
-DocumentService.extractDocumentData (backend)
-  ↓ returns ExtractionResult {fields: [...], confidence, sources}
-  ↓
-ExtractionReviewScreen (user verifies each field)
-  ↓ user taps Confirmer
-  ↓
-coachProvider.updateFrom{Lpp|Avs|Salary}Extraction(fields)
-  ↓ seeds _profile = defaults() if null
-  ↓ mutates prevoyance/patrimoine/dettes/fiscal
-  ↓ writes _coach_<type>_<field> keys + _coach_updated_at
-  ↓ calls ReportPersistenceService.saveAnswers(answers)  ← persistence
-  ↓ CoachNarrativeService.invalidateCache(_profile)     ← stale greeting fix
-  ↓ notifyListeners()
-  ↓ _syncToBackend() (fire-and-forget, skipped for anon)
+Document type selection
+  ├─ LPP / AVS / salaire: camera, gallery, PDF or OCR paste
+  │   ↓ DocumentService.extractDocumentData (backend)
+  │   ↓ ExtractionResult → ExtractionReviewScreen
+  │   ↓ user taps Confirmer
+  │   ↓ coachProvider.updateFrom{Lpp|Avs|Salary}Extraction(fields)
+  │   ↓ writes the typed profile projection + source answer keys/provenance
+  │   ↓ ReportPersistenceService.saveAnswers(answers) before publication
+  │   ↓ invalidates narrative, publishes profile, then optional backend sync
+  └─ taxation (composite default-off gate; local-only)
+      ↓ camera, gallery and PDF are hidden; handlers reject before HTTP/files
+      ↓ synthetic/local text seam for tests and manual review only
+      ↓ TaxDeclarationParser on device → TaxReviewConfirmation
+      ↓ user taps Confirmer → coachProvider.acceptTaxReview(candidate)
+      ↓ validates status/time/subject and upserts one typed snapshot
+      ↓ writes `_coach_tax_snapshots_v1` + exact `fiscal.*` provenance
+      ↓ TaxProfilePersistence.saveAnswers(answers) before profile publication
   ↓
 /scan/impact (DocumentImpactScreen) shows delta in confidence score
 ```
@@ -333,8 +340,11 @@ CoachProfileProvider.acceptTaxReview → TaxProfilePersistence → cold reload �
 FiscalSnapshotSelector.selectAssessedBaseline` production seam.
 
 Failure modes:
-- Keychain -34018 on iOS sim without entitlements → SharedPrefs fallback
-  handles it via `AnonymousSessionService` pattern.
+- Keychain -34018 on iOS sim without entitlements may keep a non-fiscal value
+  in the local dev answer map. The strict fiscal root is the exception: a
+  secure write failure throws before SharedPreferences/profile publication,
+  and an unreadable `__secure__` placeholder is consumed as empty without
+  being overwritten.
 - Scan confirm UI shows « +29 points » but save drops → fixed by seeding
   defaults + adding `hasScanData` hydration branch in `loadFromWizard`.
 
@@ -401,7 +411,8 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 
 ---
 
-*Last updated: 2026-07-14 for G1-PROV-01 field-centric provenance.
+*Last updated: 2026-07-14 for G1-PROV-03 typed tax provenance and fail-closed
+malformed-root recovery.
 Maintenance rule: every new writer or reader of `wizard_answers_v2`
 updates this doc in the same PR. Code drift without doc drift = the
 trap we built this to avoid.*

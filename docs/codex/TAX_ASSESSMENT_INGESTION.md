@@ -1,18 +1,16 @@
 # G1-PROV-03 — Contrat d’ingestion d’une taxation suisse
 
-**Statut :** contrat métier et câblage candidat; hard floor NO-GO tant que la
-récupération privacy d’une racine malformée n’est pas GREEN; activation runtime
-bloquée par le gate composite
+**Statut :** contrat métier implémenté et GREEN sur les tests ciblés; activation
+runtime bloquée par le gate composite
 `FeatureFlags.taxAssessmentIngestionEnabled=false`
 **Périmètre :** personnes physiques, impôts directs ordinaires
 **Sources vérifiées le :** 13 juillet 2026
 
 ## 1. Verdict métier
 
-**NO-GO pour déclarer G1-PROV-03 complet ou l’activer**, tant que les hard
-floors code en cours, les preuves runtime gelées, les audits Claude externes et
-la scorecard G1 finale ne sont pas acquis. Le câblage candidat vise les
-conditions suivantes :
+**GREEN pour l’implémentation de G1-PROV-03; NO-GO pour l’activation**, tant
+que les preuves runtime gelées, les audits Claude externes et la scorecard G1
+finale ne sont pas acquis. Le contrat livré respecte les conditions suivantes :
 
 1. MINT ne doit plus confondre une **déclaration fiscale remplie par le
    contribuable**, un **bordereau provisoire**, une **décision/avis de taxation**
@@ -422,6 +420,14 @@ Cette quarantaine reste locale, chiffrée, non consommable et exclue du backend 
 | `_coach_tax_taux_marginal` | quarantaine : unité et sémantique moyen/marginal indécidables |
 | `_coach_tax_source` | marqueur legacy seulement; aucune promotion de confiance |
 
+Si le root canonique existe mais est malformé, MINT ne retombe jamais sur ces
+clés. Il préserve sa valeur brute exacte et les éventuels loose facts dans cette
+même quarantaine imbriquée, publie zéro snapshot, supprime les loose keys et la
+provenance `fiscal.*` orpheline, puis sauvegarde une seule fois avant
+publication; le cold load suivant est idempotent. La sentinelle `__secure__`
+signale au contraire une valeur Keychain temporairement illisible : elle reste
+strictement inchangée avec zéro écriture et zéro fait consommé.
+
 La migration automatique ne crée donc aucun `TaxSnapshot`. Dans le périmètre
 G1-PROV-03 livré, `legacyDataNeedsReview=true` est uniquement un signal de
 quarantaine : aucun consumer, API ou écran de production ne lit, ne normalise,
@@ -544,7 +550,10 @@ Toutes les valeurs ci-dessous sont des fixtures synthétiques, pas des barèmes.
     créer de snapshot et entrent dans
     `_coach_tax_snapshots_v1.legacyQuarantine`, sans seconde clé. `31.5` et un
     taux moyen à `22.3` restent tous deux bruts et quarantinés; le chemin livré
-    n’offre aucune reconfirmation ou normalisation implicite.
+    n’offre aucune reconfirmation ou normalisation implicite. Un root malformé
+    est lui-même conservé opaque dans cette quarantaine avec zéro snapshot,
+    loose key ou provenance fiscale active; le second cold load n’écrit plus.
+    `__secure__` reste inchangé et provoque zéro écriture.
 19. **Pas de duplication/transmission.** Après confirmation, aucun
     `BiographyFact`, payload backend, log ou stockage persistant ne contient une
     copie des faits fiscaux ou du `sourceText` OCR.

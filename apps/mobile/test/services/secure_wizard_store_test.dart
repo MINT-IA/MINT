@@ -159,6 +159,20 @@ void main() {
       expect(restored['_coach_tax_snapshots_v1'], _taxRoot);
     });
 
+    test('strict tax root preserves malformed scalar text byte-for-byte',
+        () async {
+      for (final rawRoot in const ['true', 'false', '123', '1.5']) {
+        final cleaned = await SecureWizardStore.secureSensitiveKeys({
+          '_coach_tax_snapshots_v1': rawRoot,
+        });
+        final restored = await SecureWizardStore.restoreSensitiveKeys(cleaned);
+
+        expect(cleaned['_coach_tax_snapshots_v1'], '__secure__');
+        expect(restored['_coach_tax_snapshots_v1'], rawRoot);
+        expect(restored['_coach_tax_snapshots_v1'], isA<String>());
+      }
+    });
+
     test(
         'strict tax failure keeps SharedPreferences byte-stable and unpublished',
         () async {

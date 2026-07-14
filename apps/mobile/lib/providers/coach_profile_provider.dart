@@ -155,9 +155,19 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   static ({Map<String, dynamic> answers, bool migrated})
-      _withLegacyTaxQuarantine(Map<String, dynamic> loaded) {
+      _withLegacyTaxQuarantine(
+    Map<String, dynamic> loaded, {
+    required DateTime Function() now,
+  }) {
     final answers = _copyAnswers(loaded);
     if (!FeatureFlags.typedTaxProfile) {
+      return (answers: answers, migrated: false);
+    }
+    final rawRoot = answers[_taxSnapshotRootKey];
+    // `__secure__` means the encrypted value was temporarily unreadable. Any
+    // rewrite here would replace the real Keychain payload with a quarantine
+    // wrapper, so consumers fail closed without touching either representation.
+    if (rawRoot == '__secure__') {
       return (answers: answers, migrated: false);
     }
     final legacyValues = <String, dynamic>{
@@ -166,10 +176,6 @@ class CoachProfileProvider extends ChangeNotifier {
             entry.key != _taxSnapshotRootKey)
           entry.key: _copyAnswerValue(entry.value),
     };
-    if (legacyValues.isEmpty) {
-      return (answers: answers, migrated: false);
-    }
-
     List<TaxSnapshot> snapshots = const [];
     Map<String, dynamic>? existingQuarantine;
     if (answers.containsKey(_taxSnapshotRootKey)) {
@@ -178,8 +184,40 @@ class CoachProfileProvider extends ChangeNotifier {
         snapshots = existing.snapshots;
         existingQuarantine = existing.legacyQuarantine;
       } on StateError {
-        return (answers: answers, migrated: false);
+        final quarantinedValues = <String, dynamic>{
+          for (final entry in legacyValues.entries)
+            entry.key: _copyAnswerValue(entry.value),
+          '_coach_tax_quarantined_malformed_root_v1': _copyAnswerValue(rawRoot),
+        };
+        for (final key in legacyValues.keys) {
+          answers.remove(key);
+        }
+        final rawProvenance = answers['__provenance'];
+        if (rawProvenance is Map) {
+          answers['__provenance'] = <String, dynamic>{
+            for (final entry in rawProvenance.entries)
+              if (!entry.key.toString().startsWith('fiscal.'))
+                entry.key.toString(): _copyAnswerValue(entry.value),
+          };
+        }
+        answers[_taxSnapshotRootKey] = jsonEncode({
+          'schemaVersion': 1,
+          'snapshots': <Object>[],
+          'legacyQuarantine': <String, dynamic>{
+            'legacySchemaVersion': 0,
+            'reasonCodes': <String>[
+              'malformed_canonical_tax_root',
+              if (legacyValues.isNotEmpty) 'untyped_legacy_tax_facts',
+            ],
+            'values': quarantinedValues,
+            'quarantinedAt': now().toUtc().toIso8601String(),
+          },
+        });
+        return (answers: answers, migrated: true);
       }
+    }
+    if (legacyValues.isEmpty) {
+      return (answers: answers, migrated: false);
     }
 
     final quarantinedValues = existingQuarantine?['values'] is Map
@@ -197,7 +235,7 @@ class CoachProfileProvider extends ChangeNotifier {
       reasonCodes.add('untyped_legacy_tax_facts');
     }
     final quarantinedAt = existingQuarantine?['quarantinedAt']?.toString() ??
-        DateTime.now().toUtc().toIso8601String();
+        now().toUtc().toIso8601String();
 
     for (final key in legacyValues.keys) {
       answers.remove(key);
@@ -221,6 +259,9 @@ class CoachProfileProvider extends ChangeNotifier {
   }) _readTaxEnvelope(Map<String, dynamic> answers) {
     final raw = answers[_taxSnapshotRootKey];
     if (raw == null) {
+      if (answers.containsKey(_taxSnapshotRootKey)) {
+        throw StateError('Invalid persisted tax profile: null tax root');
+      }
       return (snapshots: const [], legacyQuarantine: null);
     }
     try {
@@ -376,7 +417,7 @@ class CoachProfileProvider extends ChangeNotifier {
     );
 
     final loaded = await _taxProfilePersistence.loadAnswers();
-    final migration = _withLegacyTaxQuarantine(loaded);
+    final migration = _withLegacyTaxQuarantine(loaded, now: _now);
     final envelope = _readTaxEnvelope(migration.answers);
     final profileOwnerId = envelope.snapshots.isEmpty
         ? const Uuid().v4()
@@ -968,7 +1009,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
     try {
       final loadedAnswers = await _taxProfilePersistence.loadAnswers();
-      final migration = _withLegacyTaxQuarantine(loadedAnswers);
+      final migration = _withLegacyTaxQuarantine(loadedAnswers, now: _now);
       if (migration.migrated) {
         await _taxProfilePersistence.saveAnswers(migration.answers);
       }
