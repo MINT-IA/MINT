@@ -1,2 +1,9 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"
+
+// Simulator securityd reads simulated entitlements from the executable's
+// __TEXT section. Putting them in the ad-hoc signature makes launchd reject the
+// app, so keep the device capabilities separate from this minimal simulator set.
+ENTITLEMENTS_ALLOWED[sdk=iphonesimulator*] = YES
+ENTITLEMENTS_DESTINATION[sdk=iphonesimulator*] = __entitlements
+CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*] = Runner/Runner-Simulator.entitlements

@@ -607,6 +607,188 @@ void main() {
   });
 
   testWidgets(
+      'Patrol tax values traverse the production example, real provider and impact route',
+      (tester) async {
+    _setView(tester, 3200);
+    FeatureFlags.typedTaxProfile = true;
+
+    final network = _NetworkBoundarySpy();
+    final sessions = _ScanSessionSpy();
+    final persistence = _MemoryTaxPersistence({});
+    final coach = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => DateTime.utc(2026, 7, 14, 12),
+    );
+    final biography = _BiographySpy();
+    final insight = _PremierEclairageSpy();
+    final memory = _ScanEventSpy();
+    final router = GoRouter(
+      initialLocation: '/scan',
+      routes: [
+        GoRoute(
+          path: '/scan',
+          builder: (_, __) => const DocumentScanScreen(
+            initialType: DocumentType.taxDeclaration,
+          ),
+        ),
+        GoRoute(
+          path: '/scan/review',
+          builder: (_, state) {
+            final id = state.uri.queryParameters['scanSessionId']!;
+            final payload = sessions.byId(id)!;
+            return ExtractionReviewScreen(
+              scanSessionId: id,
+              result: payload.extraction,
+              taxCandidate: payload.taxCandidate,
+              now: () => DateTime.utc(2026, 7, 14, 12),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/scan/impact',
+          builder: (_, state) {
+            final id = state.uri.queryParameters['scanSessionId']!;
+            final payload = sessions.byId(id)!;
+            return DocumentImpactScreen(
+              scanSessionId: id,
+              result: payload.extraction,
+              previousConfidence: payload.previousConfidence!,
+              fetchPremierEclairage: insight.call,
+              saveScanEvent: memory.call,
+            );
+          },
+        ),
+      ],
+    );
+
+    await HttpOverrides.runZoned(
+      () async {
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider<CoachProfileProvider>.value(value: coach),
+              ChangeNotifierProvider<BiographyProvider>.value(
+                value: biography,
+              ),
+              ChangeNotifierProvider<ByokProvider>(
+                create: (_) => ByokProvider(),
+              ),
+              ChangeNotifierProvider<ScanSessionProvider>.value(
+                value: sessions,
+              ),
+            ],
+            child: MaterialApp.router(
+              locale: const Locale('fr'),
+              localizationsDelegates: const [
+                S.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: S.supportedLocales,
+              routerConfig: router,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await _tapKey(tester, 'document_scan_tax_example_cta');
+        await _choose(
+          tester,
+          controlKey: 'tax_review_subject_scope',
+          optionKey: 'tax_review_subject_scope_individual',
+        );
+        await _enter(
+          tester,
+          controlKey: 'tax_review_source_date',
+          value: '2026-06-20',
+        );
+        await _enter(
+          tester,
+          controlKey: 'tax_review_canton_code',
+          value: 'VD',
+        );
+        await _enter(
+          tester,
+          controlKey: 'tax_review_municipality_id',
+          value: '5586',
+        );
+        await _enter(
+          tester,
+          controlKey: 'tax_review_municipality_label',
+          value: 'Lausanne',
+        );
+        await _enter(
+          tester,
+          controlKey: 'tax_review_cantonal_communal_taxable_income_chf',
+          value: '98500',
+        );
+        await _enter(
+          tester,
+          controlKey: 'tax_review_federal_taxable_income_chf',
+          value: '96200',
+        );
+        await _enter(
+          tester,
+          controlKey: 'tax_review_cantonal_communal_taxable_wealth_chf',
+          value: '245000',
+        );
+        await _choose(
+          tester,
+          controlKey: 'tax_review_cantonal_base_scope',
+          optionKey: 'tax_review_cantonal_base_scope_income_and_wealth',
+        );
+        await _choose(
+          tester,
+          controlKey: 'tax_review_federal_base_scope',
+          optionKey: 'tax_review_federal_base_scope_income_only',
+        );
+        await _tapKey(tester, 'tax_review_confirm_cta');
+      },
+      createHttpClient: network.createHttpClient,
+    );
+
+    expect(
+      find.bySemanticsIdentifier('document_impact_return_cta'),
+      findsOneWidget,
+    );
+    expect(router.routeInformationProvider.value.uri.path, '/scan/impact');
+    expect(persistence.saveCalls, 1);
+    expect(coach.profile, isNotNull);
+    final snapshot = coach.profile!.fiscal.snapshots.single;
+    expect(
+      [
+        snapshot.sourceDate,
+        snapshot.subjectScope,
+        snapshot.cantonCode,
+        snapshot.municipalityId,
+        snapshot.municipalityLabel,
+        snapshot.cantonalCommunalTaxableIncomeChf,
+        snapshot.federalTaxableIncomeChf,
+        snapshot.cantonalCommunalTaxableWealthChf,
+        snapshot.cantonalCommunalAssessedTax?.baseScope,
+        snapshot.federalDirectAssessedTax?.baseScope,
+      ],
+      [
+        DateTime.utc(2026, 6, 20),
+        TaxSubjectScope.individual,
+        'VD',
+        '5586',
+        'Lausanne',
+        98500,
+        96200,
+        245000,
+        TaxBaseScope.incomeAndWealth,
+        TaxBaseScope.incomeOnly,
+      ],
+    );
+    expect(network.createClientCalls, 0);
+    expect(biography.addFactCalls, 0);
+    expect(insight.calls, 0);
+    expect(memory.calls, 0);
+  });
+
+  testWidgets(
       'typed-tax flag off hides tax acquisition before UUID session navigation or network',
       (tester) async {
     _setView(tester, 2200);
