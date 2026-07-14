@@ -87,6 +87,7 @@ def _fake_runtime(
     xattr_output: str = "",
     xattr_exit: int = 0,
     omit_der_section: bool = False,
+    omit_asset_stage: str = "",
     skip_xcresult_stage: str = "",
     patrol_sleep: int = 0,
 ) -> dict[str, str]:
@@ -168,6 +169,11 @@ def _fake_runtime(
         '    content.extend(der)\n'
         'Path(sys.argv[1]).write_bytes(content)\n'
         'PY\n'
+        'asset_dir="build/ios_integ/Build/Products/Debug-iphonesimulator/Runner.app/Frameworks/App.framework/flutter_assets"\n'
+        'if [[ "$MINT_TEST_OMIT_ASSET_STAGE" != "$stage" ]]; then\n'
+        '  mkdir -p "$asset_dir"\n'
+        '  printf "fake asset manifest %s\\n" "$stage" > "$asset_dir/AssetManifest.bin"\n'
+        'fi\n'
         'printf \'fake xctestrun %s\\n\' "$stage" > build/ios_integ/Build/Products/Runner_iphonesimulator26.2-arm64-x86_64.xctestrun\n'
         'if [[ "$stage" == "write" ]]; then exit "$MINT_TEST_WRITE_BUILD_EXIT"; fi\n'
         'exit "$MINT_TEST_READ_BUILD_EXIT"\n',
@@ -262,6 +268,7 @@ def _fake_runtime(
         "MINT_TEST_XATTR_OUTPUT": xattr_output,
         "MINT_TEST_XATTR_EXIT": str(xattr_exit),
         "MINT_TEST_OMIT_DER": "1" if omit_der_section else "0",
+        "MINT_TEST_OMIT_ASSET_STAGE": omit_asset_stage,
         "MINT_TEST_SKIP_XCRESULT_STAGE": skip_xcresult_stage,
         "MINT_TEST_PATROL_SLEEP": str(patrol_sleep),
     }
@@ -458,6 +465,7 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     assert "ls-files --others --exclude-standard" in orchestrator
     assert "diff --quiet HEAD" in orchestrator
     assert 'mktemp -d "/tmp/mint-patrol-g1-prov03-' in orchestrator
+    assert 'rm -rf -- "$external_build"' in orchestrator
     assert 'mv "$mobile_build" "$build_backup"' in orchestrator
     assert 'ln -s "$external_build" "$mobile_build"' in orchestrator
     assert "cp -R" not in orchestrator
@@ -471,6 +479,7 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     assert "__TEXT" in orchestrator
     assert "__entitlements" in orchestrator
     assert "__ents_der" in orchestrator
+    assert "AssetManifest.bin" in orchestrator
     assert "application-identifier" in orchestrator
     assert "keychain-access-groups" in orchestrator
     assert "com.apple.FinderInfo" in orchestrator
@@ -573,6 +582,8 @@ def test_tax_orchestrator_runs_write_process_death_read_and_metadata(
             tmp_path / "artifacts" / f"{stage}-Runner-MachO-entitlements.plist"
         ).is_file()
         assert (tmp_path / "artifacts" / f"{stage}-Runner-MachO-ents.der").is_file()
+        assert (tmp_path / "artifacts" / f"{stage}-AssetManifest.bin").is_file()
+        assert (tmp_path / "artifacts" / f"{stage}-AssetManifest.sha256").is_file()
         assert (tmp_path / "artifacts" / f"{stage}-Runner.xctestrun").is_file()
 
 
@@ -677,6 +688,23 @@ def test_tax_orchestrator_rejects_unsigned_or_tainted_runner_before_install(
     assert expected in result.stderr
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8")
     assert "xcodebuild test-without-building" not in calls
+    mobile_build = Path(env["MINT_TEST_REPO_ROOT"]) / "apps/mobile/build"
+    assert mobile_build.is_dir()
+    assert not mobile_build.is_symlink()
+    assert (mobile_build / "original-build-marker.txt").is_file()
+
+
+def test_tax_orchestrator_rejects_missing_read_assets_before_read_install(
+    tmp_path: Path,
+) -> None:
+    env = _fake_runtime(tmp_path, omit_asset_stage="read")
+
+    result = _run_orchestrator(tmp_path, env)
+
+    assert result.returncode != 0
+    assert "read AssetManifest.bin is missing or empty" in result.stderr
+    calls = (tmp_path / "calls.log").read_text(encoding="utf-8")
+    assert calls.count("xcodebuild test-without-building") == 1
     mobile_build = Path(env["MINT_TEST_REPO_ROOT"]) / "apps/mobile/build"
     assert mobile_build.is_dir()
     assert not mobile_build.is_symlink()

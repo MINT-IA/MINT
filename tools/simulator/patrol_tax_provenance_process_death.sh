@@ -314,6 +314,13 @@ inspect_runner() {
   cp "$xctestrun" "$artifacts/$stage-Runner.xctestrun"
   printf -v "${stage}_xctestrun" '%s' "$xctestrun"
 
+  local asset_manifest="$runner_app/Frameworks/App.framework/flutter_assets/AssetManifest.bin"
+  [[ -s "$asset_manifest" ]] \
+    || die "$stage AssetManifest.bin is missing or empty"
+  cp "$asset_manifest" "$artifacts/$stage-AssetManifest.bin"
+  shasum -a 256 "$asset_manifest" | awk '{print $1}' \
+    >"$artifacts/$stage-AssetManifest.sha256"
+
   if ! codesign --verify --strict --deep "$runner_app" \
     >"$artifacts/$stage-codesign-verify.log" 2>&1; then
     die "$stage codesign verification failed"
@@ -489,6 +496,11 @@ if [[ "$terminate_exit_code" -ne 0 ]]; then
   echo "patrol_tax_provenance_process_death: terminate stage failed ($terminate_exit_code)" >&2
   exit "$terminate_exit_code"
 fi
+
+# Flutter/Patrol can reuse the writer target's App.framework while switching
+# entrypoints, producing a reader bundle without AssetManifest.bin.
+rm -rf -- "$external_build"
+mkdir -p "$external_build"
 
 set +e
 (cd "$mobile_root" && "$patrol_bin" build ios \
