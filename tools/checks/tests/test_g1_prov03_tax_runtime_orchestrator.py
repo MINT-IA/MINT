@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import stat
 import subprocess
 from pathlib import Path
@@ -28,6 +29,9 @@ READ_RUNNER = (
 ORCHESTRATOR = ROOT / "tools/simulator/patrol_tax_provenance_process_death.sh"
 FEATURE_FLAGS = ROOT / "apps/mobile/lib/services/feature_flags.dart"
 SCAN_SCREEN = ROOT / "apps/mobile/lib/screens/document_scan/document_scan_screen.dart"
+EXTRACTION_REVIEW_SCREEN = (
+    ROOT / "apps/mobile/lib/screens/document_scan/extraction_review_screen.dart"
+)
 
 SYNTHETIC_UDID = "B03E429D-0422-4357-B754-536637D979F9"
 SYNTHETIC_SHA = "1" * 40
@@ -49,6 +53,14 @@ def _maestro_ids_for_action(source: str, action: str) -> set[str]:
                 identifiers.add(stripped.removeprefix("id:").strip().strip('"'))
                 break
     return identifiers
+
+
+def _semantic_scroll_tap_identifiers(source: str) -> list[str]:
+    return re.findall(
+        r"\$\(\s*find\.bySemanticsIdentifier\(\s*'([^']+)'\s*,?\s*\)"
+        r"\s*\)\.scrollTo\(\)\.tap\(\);",
+        source,
+    )
 
 
 def _write_executable(path: Path, source: str) -> None:
@@ -155,6 +167,7 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     orchestrator = ORCHESTRATOR.read_text(encoding="utf-8")
     feature_flags = FEATURE_FLAGS.read_text(encoding="utf-8")
     scan_screen = SCAN_SCREEN.read_text(encoding="utf-8")
+    extraction_review_screen = EXTRACTION_REVIEW_SCREEN.read_text(encoding="utf-8")
 
     assert "static bool typedTaxProfile = false;" in feature_flags
     assert "static bool documentTaxAssessmentEnabled = false;" in feature_flags
@@ -191,23 +204,43 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     assert "ReportPersistenceService.setMiniOnboardingCompleted(true)" in writer
     assert "pumpWidgetAndSettle(const MintApp())" in writer
     assert "mobile.openUrl('mint:///scan')" in writer
-    for identifier in (
+    keyed_controls = (
         "document_scan_tax_type_selector",
         "document_scan_tax_example_cta",
         "tax_review_subject_scope",
-        "tax_review_subject_scope_individual",
         "tax_review_source_date",
         "tax_review_canton_code",
         "tax_review_cantonal_communal_taxable_income_chf",
         "tax_review_federal_taxable_income_chf",
         "tax_review_cantonal_communal_taxable_wealth_chf",
         "tax_review_cantonal_base_scope",
-        "tax_review_cantonal_base_scope_income_and_wealth",
         "tax_review_federal_base_scope",
-        "tax_review_federal_base_scope_income_only",
         "tax_review_confirm_cta",
-    ):
+    )
+    for identifier in keyed_controls:
         assert f"#{identifier}" in writer
+
+    runtime_option_identifiers = [
+        "tax_review_subject_scope_individual",
+        "tax_review_cantonal_base_scope_income_and_wealth",
+        "tax_review_federal_base_scope_income_only",
+    ]
+    assert _semantic_scroll_tap_identifiers(writer) == runtime_option_identifiers
+    for identifier in runtime_option_identifiers:
+        assert f"$(#{identifier})" not in writer
+
+    assert "final optionKey = '${controlKey}_${_enumSnakeCase(option.name)}';" in (
+        extraction_review_screen
+    )
+    assert re.search(
+        r"DropdownMenuItem<T>\(\s*"
+        r"key: Key\(optionKey\),\s*"
+        r"value: option,\s*"
+        r"child: Semantics\(\s*"
+        r"identifier: optionKey,\s*"
+        r"child: Text\(optionLabel\),",
+        extraction_review_screen,
+    )
     assert "tax_review_back_cta).waitUntilVisible" in writer
     assert "tax_review_confirm_cta).waitUntilVisible" not in writer
     assert "tax_review_confirm_cta).scrollTo().tap()" in writer

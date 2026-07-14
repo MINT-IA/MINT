@@ -37,7 +37,9 @@ void main() {
       await $(#tax_review_back_cta).waitUntilVisible();
 
       await $(#tax_review_subject_scope).scrollTo().tap();
-      await $(#tax_review_subject_scope_individual).tap();
+      await $(find.bySemanticsIdentifier(
+        'tax_review_subject_scope_individual',
+      )).scrollTo().tap();
       await $(#tax_review_source_date).scrollTo().enterText('2026-06-20');
       await $(#tax_review_canton_code).scrollTo().enterText('VD');
       await $(#tax_review_municipality_id).scrollTo().enterText('5586');
@@ -53,9 +55,13 @@ void main() {
           .enterText('245000');
 
       await $(#tax_review_cantonal_base_scope).scrollTo().tap();
-      await $(#tax_review_cantonal_base_scope_income_and_wealth).tap();
+      await $(find.bySemanticsIdentifier(
+        'tax_review_cantonal_base_scope_income_and_wealth',
+      )).scrollTo().tap();
       await $(#tax_review_federal_base_scope).scrollTo().tap();
-      await $(#tax_review_federal_base_scope_income_only).tap();
+      await $(find.bySemanticsIdentifier(
+        'tax_review_federal_base_scope_income_only',
+      )).scrollTo().tap();
 
       await $(#tax_review_confirm_cta).scrollTo().tap();
       await $(find.bySemanticsIdentifier('document_impact_return_cta'))

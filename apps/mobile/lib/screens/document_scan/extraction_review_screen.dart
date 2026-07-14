@@ -565,15 +565,20 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             border: const OutlineInputBorder(),
           ),
           isExpanded: true,
-          items: values
-              .map(
-                (option) => DropdownMenuItem<T>(
-                  key: Key('${controlKey}_${_enumSnakeCase(option.name)}'),
-                  value: option,
-                  child: Text(_taxOptionLabel(option)),
+          items: values.map(
+            (option) {
+              final optionKey = '${controlKey}_${_enumSnakeCase(option.name)}';
+              final optionLabel = _taxOptionLabel(option);
+              return DropdownMenuItem<T>(
+                key: Key(optionKey),
+                value: option,
+                child: Semantics(
+                  identifier: optionKey,
+                  child: Text(optionLabel),
                 ),
-              )
-              .toList(growable: false),
+              );
+            },
+          ).toList(growable: false),
           selectedItemBuilder: (context) => values
               .map((option) => Text(_taxOptionLabel(option)))
               .toList(growable: false),

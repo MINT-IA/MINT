@@ -1161,6 +1161,52 @@ void main() {
   }
 
   testWidgets(
+      'subject scope option exposes a stable semantic seam and applies a real user selection',
+      (tester) async {
+    _setView(tester, 1200);
+    FeatureFlags.typedTaxProfile = true;
+
+    final extraction = _taxExtraction();
+    final harness = _harness(
+      extraction: extraction,
+      candidate: _candidate(extraction),
+      coachProfile: _CoachProfileSpy(),
+      biography: _BiographySpy(),
+      externalSync: _ExternalSyncSpy(),
+    );
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    final control = find.byKey(const Key('tax_review_subject_scope'));
+    expect(
+      tester
+          .widget<DropdownButtonFormField<TaxSubjectScope>>(control)
+          .initialValue,
+      TaxSubjectScope.unknown,
+    );
+
+    await tester.ensureVisible(control);
+    await tester.tap(control);
+    await tester.pumpAndSettle();
+
+    final individual = find.bySemanticsIdentifier(
+      'tax_review_subject_scope_individual',
+    );
+    expect(individual, findsOneWidget);
+    expect(tester.getSemantics(individual).label.trim(), isNotEmpty);
+    await tester.ensureVisible(individual);
+    await tester.tap(individual);
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .widget<DropdownButtonFormField<TaxSubjectScope>>(control)
+          .initialValue,
+      TaxSubjectScope.individual,
+    );
+  });
+
+  testWidgets(
       'typed review exposes semantic canonical controls and carries the complete corrected Swiss tax payload once',
       (tester) async {
     _setView(tester, 3400);
