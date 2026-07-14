@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/rag_error_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -103,7 +104,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
 
             // Feedback
             if (byok.testSuccess) _buildSuccessFeedback(s),
-            if (byok.testError != null) _buildErrorFeedback(_localizeByokError(byok.testError!, byok.apiErrorMessage, s)),
+            if (byok.testError != null) _buildErrorFeedback(_localizeByokError(byok, s)),
             const SizedBox(height: MintSpacing.md),
 
             // Clear key (if configured)
@@ -465,8 +466,8 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
   }
 
   /// Translate a [ByokError] code to a localized user-facing string.
-  String _localizeByokError(ByokError error, String? apiMessage, S s) {
-    switch (error) {
+  String _localizeByokError(ByokProvider byok, S s) {
+    switch (byok.testError!) {
       case ByokError.saveFailed:
         return s.byokErrorSaveFailed;
       case ByokError.notConfigured:
@@ -474,7 +475,11 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
       case ByokError.connectionError:
         return s.byokErrorConnection;
       case ByokError.apiError:
-        return apiMessage ?? s.byokErrorConnection;
+        return byok.apiErrorCode?.localizedRagMessage(
+              s,
+              fallback: s.byokErrorConnection,
+            ) ??
+            s.byokErrorConnection;
     }
   }
 

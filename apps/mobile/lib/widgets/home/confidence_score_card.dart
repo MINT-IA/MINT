@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/confidence_prompt_localizations.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -164,7 +165,7 @@ class ConfidenceScoreCard extends StatelessWidget {
               GestureDetector(
                 onTap: onEnrichmentTap,
                 child: Text(
-                  '${l.confidenceEnrichmentPrefix} ${enrichmentPrompts.first.label}',
+                  '${l.confidenceEnrichmentPrefix} ${enrichmentPrompts.first.localizedLabel(l)}',
                   style: MintTextStyles.bodySmall(
                     color: MintColors.primary,
                   ),

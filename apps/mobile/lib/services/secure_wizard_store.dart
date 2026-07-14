@@ -19,6 +19,7 @@ class SecureWizardStore {
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
   static const _operationTimeout = Duration(seconds: 2);
+  static const _strictTaxSnapshotKey = '_coach_tax_snapshots_v1';
 
   /// Keys containing sensitive financial PII that must not be stored
   /// in plain SharedPreferences.
@@ -43,6 +44,7 @@ class SecureWizardStore {
     'q_cash_total',
     'q_cash_total_unconfirmed_legacy',
     'q_wealth_estimate',
+    _strictTaxSnapshotKey,
   };
 
   /// Whether a key should be stored in secure storage.
@@ -119,6 +121,8 @@ class SecureWizardStore {
         final stored = await write(key, cleaned[key].toString());
         if (stored) {
           cleaned[key] = '__secure__';
+        } else if (key == _strictTaxSnapshotKey) {
+          throw StateError('Secure tax snapshot write failed');
         } else if (kReleaseMode) {
           cleaned.remove(key);
         }

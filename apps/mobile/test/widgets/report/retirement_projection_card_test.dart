@@ -43,7 +43,9 @@ void main() {
             path: '/scan',
             builder: (_, state) => Scaffold(
               body: Text(
-                state.extra == DocumentType.lppCertificate
+                state.uri.queryParameters['type'] ==
+                            DocumentType.lppCertificate.name &&
+                        state.extra == null
                     ? 'lpp-scan-destination'
                     : 'wrong-scan-destination',
               ),

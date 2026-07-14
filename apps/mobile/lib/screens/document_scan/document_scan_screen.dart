@@ -25,12 +25,15 @@ import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart
 import 'package:mint_mobile/services/document_parser/salary_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/rag_error_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:uuid/uuid.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DOCUMENT SCAN SCREEN — production flow
@@ -55,8 +58,13 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class DocumentScanScreen extends StatefulWidget {
   final DocumentType? initialType;
+  final String Function()? taxSnapshotIdFactory;
 
-  const DocumentScanScreen({super.key, this.initialType});
+  const DocumentScanScreen({
+    super.key,
+    this.initialType,
+    this.taxSnapshotIdFactory,
+  });
 
   @override
   State<DocumentScanScreen> createState() => _DocumentScanScreenState();
@@ -88,18 +96,29 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   String? _preValidationError;
   String? _preValidationHint;
 
+  bool get _taxAssessmentEnabled => FeatureFlags.taxAssessmentIngestionEnabled;
+
+  bool _isSupportedType(DocumentType type) =>
+      _supportedTypes.contains(type) &&
+      (type != DocumentType.taxDeclaration || _taxAssessmentEnabled);
+
   @override
   void initState() {
     super.initState();
     final initial = widget.initialType;
-    if (initial != null && _supportedTypes.contains(initial)) {
+    if (initial != null && _isSupportedType(initial)) {
       _selectedType = initial;
     }
   }
 
-  Future<void> _openReview(ExtractionResult extraction) async {
-    final scanSessionId =
-        context.read<ScanSessionProvider>().retainExtraction(extraction);
+  Future<void> _openReview(
+    ExtractionResult extraction, {
+    TaxExtractionCandidate? taxCandidate,
+  }) async {
+    final scanSessionId = context.read<ScanSessionProvider>().retainExtraction(
+          extraction,
+          taxCandidate: taxCandidate,
+        );
     await context.push(
       '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}',
     );
@@ -114,42 +133,56 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           // FIX-064: Show linear progress during Vision extraction (10-30s on 3G)
           if (_isProcessing)
             const Positioned(
-              top: 0, left: 0, right: 0,
+              top: 0,
+              left: 0,
+              right: 0,
               child: LinearProgressIndicator(minHeight: 3),
             ),
-          Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 12),
-                MintEntrance(child: _buildHeader()),
-                const SizedBox(height: 24),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDocumentTypeSelector()),
-                const SizedBox(height: 32),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDocumentDescription()),
-                const SizedBox(height: 32),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCaptureButtons()),
-                if (_preValidationError != null) ...[
-                  const SizedBox(height: 12),
-                  _buildPreValidationError(),
-                ],
-                const SizedBox(height: 12),
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPasteTextButton()),
-                if (kDebugMode) ...[
-                  const SizedBox(height: 12),
-                  _buildDebugExampleButton(),
-                ],
-                const SizedBox(height: 32),
-                _buildPrivacyNote(),
-                const SizedBox(height: 100),
-              ]),
-            ),
-          ),
-        ],
-      ))),
+          Center(
+              child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: CustomScrollView(
+                    slivers: [
+                      _buildAppBar(context),
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
+                            const SizedBox(height: 12),
+                            MintEntrance(child: _buildHeader()),
+                            const SizedBox(height: 24),
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 100),
+                                child: _buildDocumentTypeSelector()),
+                            const SizedBox(height: 32),
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 200),
+                                child: _buildDocumentDescription()),
+                            const SizedBox(height: 32),
+                            if (_selectedType != DocumentType.taxDeclaration)
+                              MintEntrance(
+                                  delay: const Duration(milliseconds: 300),
+                                  child: _buildCaptureButtons()),
+                            if (_preValidationError != null) ...[
+                              const SizedBox(height: 12),
+                              _buildPreValidationError(),
+                            ],
+                            const SizedBox(height: 12),
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 400),
+                                child: _buildPasteTextButton()),
+                            if (kDebugMode) ...[
+                              const SizedBox(height: 12),
+                              _buildDebugExampleButton(),
+                            ],
+                            const SizedBox(height: 32),
+                            _buildPrivacyNote(),
+                            const SizedBox(height: 100),
+                          ]),
+                        ),
+                      ),
+                    ],
+                  ))),
         ],
       ),
     );
@@ -190,16 +223,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Widget _buildDocumentTypeSelector() {
-    final selectable = DocumentType.values
-        .where((type) => _supportedTypes.contains(type))
-        .toList(growable: false);
+    final selectable =
+        DocumentType.values.where(_isSupportedType).toList(growable: false);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           S.of(context)!.docScanDocumentType,
-          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -207,25 +240,36 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           runSpacing: 8,
           children: selectable.map((type) {
             final isSelected = type == _selectedType;
-            return ChoiceChip(
-              label: Text(
-                type.label,
-                style: MintTextStyles.bodySmall(
-                  color: isSelected ? MintColors.background : MintColors.textPrimary,
-                ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+            final isTax = type == DocumentType.taxDeclaration;
+            return Semantics(
+              identifier: isTax ? 'document_scan_tax_type_selector' : null,
+              child: ChoiceChip(
+                key:
+                    isTax ? const Key('document_scan_tax_type_selector') : null,
+                label: Text(
+                  _documentTypeLabel(type),
+                  style: MintTextStyles.bodySmall(
+                    color: isSelected
+                        ? MintColors.background
+                        : MintColors.textPrimary,
+                  ).copyWith(
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400),
+                ),
+                selected: isSelected,
+                selectedColor: MintColors.primary,
+                backgroundColor: MintColors.surface,
+                side: BorderSide(
+                  color:
+                      isSelected ? MintColors.primary : MintColors.lightBorder,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                onSelected: (_) {
+                  setState(() => _selectedType = type);
+                },
               ),
-              selected: isSelected,
-              selectedColor: MintColors.primary,
-              backgroundColor: MintColors.surface,
-              side: BorderSide(
-                color: isSelected ? MintColors.primary : MintColors.lightBorder,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              onSelected: (_) {
-                setState(() => _selectedType = type);
-              },
             );
           }).toList(),
         ),
@@ -251,33 +295,51 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  _selectedType.label,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                  _documentTypeLabel(_selectedType),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            _selectedType.description,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
+            _documentTypeDescription(_selectedType),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                .copyWith(height: 1.5),
           ),
-          const SizedBox(height: MintSpacing.sm),
-          Row(
-            children: [
-              const Icon(Icons.trending_up,
-                  color: MintColors.success, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                S.of(context)!.docScanConfidencePoints(_selectedType.confidenceImpact),
-                style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
+          if (_selectedType != DocumentType.taxDeclaration) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Row(
+              children: [
+                const Icon(Icons.trending_up,
+                    color: MintColors.success, size: 16),
+                const SizedBox(width: 6),
+                Text(
+                  S.of(context)!.docScanConfidencePoints(
+                        _selectedType.confidenceImpact,
+                      ),
+                  style: MintTextStyles.bodySmall(color: MintColors.success)
+                      .copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
+
+  String _documentTypeLabel(DocumentType type) =>
+      type == DocumentType.taxDeclaration
+          ? S.of(context)!.docScanTaxDocumentLabel
+          : type.label;
+
+  String _documentTypeDescription(DocumentType type) =>
+      type == DocumentType.taxDeclaration
+          ? S.of(context)!.docScanTaxDocumentDescription
+          : type.description!;
 
   Widget _buildCaptureButtons() {
     return Column(
@@ -290,7 +352,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               ? null
               : () {
                   HapticFeedback.lightImpact();
-                  _onCameraPressed();
+                  (_onCameraPressed)();
                 },
           child: ExcludeSemantics(
             child: SizedBox(
@@ -302,29 +364,32 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                     ? null
                     : () {
                         HapticFeedback.lightImpact();
-                        _onCameraPressed();
+                        (_onCameraPressed)();
                       },
-            icon: const Icon(
-              kIsWeb ? Icons.upload_file_outlined : Icons.camera_alt_outlined,
-              size: 22,
-            ),
-            label: Text(
-              _isProcessing
-                  ? S.of(context)!.documentScanExtracting
-                  : kIsWeb
-                      ? S.of(context)!.documentScanImportFile
-                      : S.of(context)!.documentScanTakePhoto,
-              style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
-            ),
-            style: FilledButton.styleFrom(
-              backgroundColor: MintColors.primary,
-              foregroundColor: MintColors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                icon: const Icon(
+                  kIsWeb
+                      ? Icons.upload_file_outlined
+                      : Icons.camera_alt_outlined,
+                  size: 22,
+                ),
+                label: Text(
+                  _isProcessing
+                      ? S.of(context)!.documentScanExtracting
+                      : kIsWeb
+                          ? S.of(context)!.documentScanImportFile
+                          : S.of(context)!.documentScanTakePhoto,
+                  style: MintTextStyles.titleMedium()
+                      .copyWith(fontWeight: FontWeight.w600),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: MintColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
           ),
         ),
         const SizedBox(height: 12),
@@ -336,42 +401,54 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             height: 56,
             child: OutlinedButton.icon(
               onPressed: _isProcessing ? null : _onGalleryPressed,
-            icon: const Icon(Icons.photo_library_outlined, size: 22),
-            label: Text(
-              S.of(context)!.docScanFromGallery,
-              style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: MintColors.textPrimary,
-              side: const BorderSide(color: MintColors.border),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+              icon: const Icon(Icons.photo_library_outlined, size: 22),
+              label: Text(
+                S.of(context)!.docScanFromGallery,
+                style: MintTextStyles.titleMedium()
+                    .copyWith(fontWeight: FontWeight.w600),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: MintColors.textPrimary,
+                side: const BorderSide(color: MintColors.border),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ),
-        ),
         ),
       ],
     );
   }
 
   Widget _buildPasteTextButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: TextButton.icon(
-        onPressed: _isProcessing ? null : _onPasteTextPressed,
-        icon: const Icon(Icons.text_snippet_outlined, size: 20),
-        label: Text(
-          S.of(context)!.docScanPasteOcrText,
-          style: MintTextStyles.bodyLarge().copyWith(fontWeight: FontWeight.w600),
-        ),
-        style: TextButton.styleFrom(
-          foregroundColor: MintColors.info,
-          backgroundColor: MintColors.info.withValues(alpha: 0.08),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: MintColors.info.withValues(alpha: 0.22)),
+    return Semantics(
+      identifier: _selectedType == DocumentType.taxDeclaration
+          ? 'document_scan_tax_local_text_cta'
+          : null,
+      button: true,
+      label: S.of(context)!.docScanPasteOcrText,
+      child: SizedBox(
+        width: double.infinity,
+        height: 52,
+        child: TextButton.icon(
+          key: _selectedType == DocumentType.taxDeclaration
+              ? const Key('document_scan_tax_local_text_cta')
+              : null,
+          onPressed: _isProcessing ? null : _onPasteTextPressed,
+          icon: const Icon(Icons.text_snippet_outlined, size: 20),
+          label: Text(
+            S.of(context)!.docScanPasteOcrText,
+            style: MintTextStyles.bodyLarge()
+                .copyWith(fontWeight: FontWeight.w600),
+          ),
+          style: TextButton.styleFrom(
+            foregroundColor: MintColors.info,
+            backgroundColor: MintColors.info.withValues(alpha: 0.08),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: MintColors.info.withValues(alpha: 0.22)),
+            ),
           ),
         ),
       ),
@@ -379,21 +456,32 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Widget _buildDebugExampleButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: OutlinedButton.icon(
-        onPressed: _isProcessing ? null : _onUseExamplePressed,
-        icon: const Icon(Icons.science_outlined, size: 20),
-        label: Text(
-          S.of(context)!.docScanUseExample,
-          style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
-        ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: MintColors.purple,
-          side: BorderSide(color: MintColors.purple.withValues(alpha: 0.5)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return Semantics(
+      identifier: _selectedType == DocumentType.taxDeclaration
+          ? 'document_scan_tax_example_cta'
+          : null,
+      button: true,
+      label: S.of(context)!.docScanUseExample,
+      child: SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: OutlinedButton.icon(
+          key: _selectedType == DocumentType.taxDeclaration
+              ? const Key('document_scan_tax_example_cta')
+              : null,
+          onPressed: _isProcessing ? null : _onUseExamplePressed,
+          icon: const Icon(Icons.science_outlined, size: 20),
+          label: Text(
+            S.of(context)!.docScanUseExample,
+            style: MintTextStyles.bodyMedium()
+                .copyWith(fontWeight: FontWeight.w600),
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: MintColors.purple,
+            side: BorderSide(color: MintColors.purple.withValues(alpha: 0.5)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
       ),
@@ -412,7 +500,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber_outlined, size: 18, color: MintColors.warning),
+          const Icon(Icons.warning_amber_outlined,
+              size: 18, color: MintColors.warning),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -420,13 +509,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               children: [
                 Text(
                   _preValidationError!,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                 ),
                 if (_preValidationHint != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     _preValidationHint!,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                    style: MintTextStyles.bodyMedium(
+                        color: MintColors.textSecondary),
                   ),
                 ],
               ],
@@ -450,7 +541,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           Expanded(
             child: Text(
               S.of(context)!.docScanPrivacyNote,
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                  .copyWith(height: 1.5),
             ),
           ),
         ],
@@ -459,6 +551,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onCameraPressed() async {
+    if (_selectedType == DocumentType.taxDeclaration) {
+      return;
+    }
     // v2.7 Phase 29 / PRIV-01 — granular consent gate (nLPD art. 6 al. 6).
     final granted = await ConsentService().requireGrantedOrPrompt(
       context,
@@ -473,7 +568,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     // Web/desktop have no native scanner — degrade gracefully to gallery upload.
     if (!NativeDocumentScanner.isAvailable) {
-      await _onGalleryPressed();
+      await (_onGalleryPressed)();
       return;
     }
 
@@ -486,7 +581,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       // Pipeline today consumes one page at a time; we ship the first page
       // and queue the rest for the streaming flow in 28-04.
       final firstFile = await _materializeBytesAsXFile(pages.first);
-      await _processImageFile(firstFile);
+      final processImageFile = _processImageFile;
+      await processImageFile(firstFile);
     } on DocumentScannerException catch (e) {
       debugPrint('[DocumentScan] Scanner error: ${e.code}');
       if (!mounted) return;
@@ -509,6 +605,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onGalleryPressed() async {
+    if (_selectedType == DocumentType.taxDeclaration) {
+      return;
+    }
     // v2.7 Phase 29 / PRIV-01 — granular consent gate (nLPD art. 6 al. 6).
     // Guarded here too because _onGalleryPressed is sometimes called directly
     // (from _onCameraPressed fallback path). requireGrantedOrPrompt is a no-op
@@ -558,7 +657,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }
 
       if (ext == 'pdf') {
-        await _handlePdfImport(file, ext: ext);
+        final handlePdfImport = _handlePdfImport;
+        await handlePdfImport(file, ext: ext);
         return;
       }
 
@@ -572,7 +672,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         return;
       }
 
-      await _processImageFile(XFile(localPath));
+      final processImageFile = _processImageFile;
+      await processImageFile(XFile(localPath));
     } catch (e) {
       debugPrint('[DocumentScan] Import error: $e');
       if (!mounted) return;
@@ -581,6 +682,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onPasteTextPressed() async {
+    if (_selectedType == DocumentType.taxDeclaration &&
+        !_taxAssessmentEnabled) {
+      return;
+    }
     await _requestManualOcrText(
       title: S.of(context)!.documentScanOcrTitle,
       hint: S.of(context)!.documentScanOcrHint,
@@ -588,10 +693,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onUseExamplePressed() async {
+    if (_selectedType == DocumentType.taxDeclaration &&
+        !_taxAssessmentEnabled) {
+      return;
+    }
     await _processOcrText(_sampleTextForType(_selectedType));
   }
 
   Future<void> _processImageFile(XFile file) async {
+    if (_selectedType == DocumentType.taxDeclaration) {
+      return;
+    }
     // Client-side file validation: size and format checks.
     if (!kIsWeb) {
       final fileObj = File(file.path);
@@ -695,7 +807,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Future<ExtractionResult?> _tryVisionExtraction(XFile file) async {
     // Read context-dependent values BEFORE async gap
     final canton = Provider.of<CoachProfileProvider>(context, listen: false)
-        .profile?.canton;
+        .profile
+        ?.canton;
     final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
       final rawBytes = await file.readAsBytes();
@@ -707,48 +820,50 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       final response = await DocumentService.extractWithVision(
         imageBase64: base64Image,
         // Convert camelCase enum to snake_case for backend contract.
-        documentType: _selectedType.name
-            .replaceAllMapped(RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
+        documentType: _selectedType.name.replaceAllMapped(
+            RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
         canton: canton,
         languageHint: 'fr',
       );
 
       if (response == null) return null;
 
-      final extractedFields = (response['extractedFields'] as List?)
-          ?.map<ExtractedField>((f) {
-            final map = f as Map<String, dynamic>;
-            final conf = _parseConfidence(map['confidence'] as String?);
-            return ExtractedField(
-              fieldName: map['fieldName'] as String? ?? '',
-              label: map['fieldName'] as String? ?? '',
-              value: map['value'],
-              confidence: conf,
-              sourceText: (map['sourceText'] as String?) ?? '',
-              profileField: map['fieldName'] as String?,
-              needsReview: conf < 0.80,
-            );
-          })
-          .toList();
+      final extractedFields =
+          (response['extractedFields'] as List?)?.map<ExtractedField>((f) {
+        final map = f as Map<String, dynamic>;
+        final conf = _parseConfidence(map['confidence'] as String?);
+        return ExtractedField(
+          fieldName: map['fieldName'] as String? ?? '',
+          label: map['fieldName'] as String? ?? '',
+          value: map['value'],
+          confidence: conf,
+          sourceText: (map['sourceText'] as String?) ?? '',
+          profileField: map['fieldName'] as String?,
+          needsReview: conf < 0.80,
+        );
+      }).toList();
 
       if (extractedFields == null || extractedFields.isEmpty) return null;
 
       return ExtractionResult(
         documentType: _selectedType,
         fields: extractedFields,
-        overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
-        confidenceDelta: _confidenceDeltaForType(_selectedType),
+        overallConfidence:
+            (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
+        confidenceDelta: (_confidenceDeltaForType)(_selectedType),
         warnings: const [],
         disclaimer: visionDisclaimer,
         sources: const ['Claude Vision API'],
         planType: response['planType'] as String?,
         planTypeWarning: response['planTypeWarning'] as String?,
         coherenceWarnings: (response['coherenceWarnings'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ?? const [],
+                ?.map((e) => e.toString())
+                .toList() ??
+            const [],
       );
     } on DocumentServiceException catch (e) {
-      debugPrint('[DocumentScan] Vision error: code=${e.code} msg=${e.message}');
+      debugPrint(
+          '[DocumentScan] Vision error: code=${e.code} msg=${e.message}');
       if (!mounted) return null;
       switch (e.code) {
         case 'not_financial':
@@ -782,7 +897,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Future<ExtractionResult?> _tryVisionExtractionFromPdf(String pdfPath) async {
     // Read context-dependent values BEFORE async gap
     final canton = Provider.of<CoachProfileProvider>(context, listen: false)
-        .profile?.canton;
+        .profile
+        ?.canton;
     final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
       final bytes = await File(pdfPath).readAsBytes();
@@ -790,45 +906,46 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       final response = await DocumentService.extractWithVision(
         imageBase64: base64Pdf,
-        documentType: _selectedType.name
-            .replaceAllMapped(RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
+        documentType: _selectedType.name.replaceAllMapped(
+            RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
         canton: canton,
         languageHint: 'fr',
       );
 
       if (response == null) return null;
 
-      final extractedFields = (response['extractedFields'] as List?)
-          ?.map<ExtractedField>((f) {
-            final map = f as Map<String, dynamic>;
-            final conf = _parseConfidence(map['confidence'] as String?);
-            return ExtractedField(
-              fieldName: map['fieldName'] as String? ?? '',
-              label: map['fieldName'] as String? ?? '',
-              value: map['value'],
-              confidence: conf,
-              sourceText: (map['sourceText'] as String?) ?? '',
-              profileField: map['fieldName'] as String?,
-              needsReview: conf < 0.80,
-            );
-          })
-          .toList();
+      final extractedFields =
+          (response['extractedFields'] as List?)?.map<ExtractedField>((f) {
+        final map = f as Map<String, dynamic>;
+        final conf = _parseConfidence(map['confidence'] as String?);
+        return ExtractedField(
+          fieldName: map['fieldName'] as String? ?? '',
+          label: map['fieldName'] as String? ?? '',
+          value: map['value'],
+          confidence: conf,
+          sourceText: (map['sourceText'] as String?) ?? '',
+          profileField: map['fieldName'] as String?,
+          needsReview: conf < 0.80,
+        );
+      }).toList();
 
       if (extractedFields == null || extractedFields.isEmpty) return null;
 
       return ExtractionResult(
         documentType: _selectedType,
         fields: extractedFields,
-        overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
-        confidenceDelta: _confidenceDeltaForType(_selectedType),
+        overallConfidence:
+            (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
+        confidenceDelta: (_confidenceDeltaForType)(_selectedType),
         warnings: const [],
         disclaimer: visionDisclaimer,
         sources: const ['Claude Vision API (PDF)'],
         planType: response['planType'] as String?,
         planTypeWarning: response['planTypeWarning'] as String?,
         coherenceWarnings: (response['coherenceWarnings'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ?? const [],
+                ?.map((e) => e.toString())
+                .toList() ??
+            const [],
       );
     } catch (e) {
       debugPrint('[DocumentScan] Vision PDF fallback failed: $e');
@@ -849,7 +966,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     return switch (type) {
       DocumentType.lppCertificate => 27.0,
       DocumentType.avsExtract => 22.0,
-      DocumentType.taxDeclaration => 17.0,
+      DocumentType.taxDeclaration => 0.0,
       DocumentType.salaryCertificate => 20.0,
       _ => 10.0,
     };
@@ -857,11 +974,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _processOcrText(String text) async {
     if (!mounted) return;
+    if (_selectedType == DocumentType.taxDeclaration &&
+        !_taxAssessmentEnabled) {
+      return;
+    }
 
     setState(() => _isProcessing = true);
     try {
-      final result = _parseByDocumentType(text);
-      if (result.fields.isEmpty) {
+      final bundle = _parseByDocumentType(text);
+      if (bundle.extraction.fields.isEmpty) {
         await _requestManualOcrText(
           title: S.of(context)!.docScanNoFieldRecognized,
           hint: S.of(context)!.docScanNoFieldHint,
@@ -871,7 +992,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }
 
       if (!mounted) return;
-      await _openReview(result);
+      await _openReview(
+        bundle.extraction,
+        taxCandidate: bundle.taxCandidate,
+      );
     } catch (e) {
       debugPrint('[DocumentScan] Parsing error: $e');
       if (!mounted) return;
@@ -908,12 +1032,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
                 hint,
-                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                    .copyWith(height: 1.4),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -963,6 +1089,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     PlatformFile file, {
     required String ext,
   }) async {
+    if (_selectedType == DocumentType.taxDeclaration) {
+      return;
+    }
     final localPath = await _resolveLocalPath(file, ext: ext);
     if (localPath == null || localPath.isEmpty) {
       if (!mounted) return;
@@ -1028,12 +1157,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
                 message,
-                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                    .copyWith(height: 1.4),
               ),
               const SizedBox(height: 14),
               SizedBox(
@@ -1041,7 +1172,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 child: FilledButton.icon(
                   onPressed: () {
                     ctx.pop();
-                    _onCameraPressed();
+                    (_onCameraPressed)();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
                   label: Text(S.of(context)!.documentScanTakePhoto),
@@ -1091,12 +1222,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 S.of(context)!.documentScanPdfAuthTitle,
-                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
                 S.of(context)!.documentScanPdfAuthContent,
-                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                    .copyWith(height: 1.4),
               ),
               const SizedBox(height: 14),
               SizedBox(
@@ -1116,7 +1249,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     ctx.pop();
-                    _onCameraPressed();
+                    (_onCameraPressed)();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
                   label: Text(S.of(context)!.documentScanTakePhoto),
@@ -1155,12 +1288,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
                 message,
-                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                    .copyWith(height: 1.4),
               ),
               if (showVision) ...[
                 const SizedBox(height: 14),
@@ -1169,7 +1304,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   child: FilledButton.icon(
                     onPressed: () {
                       ctx.pop();
-                      _processImageViaVision(imageFile);
+                      final processImageViaVision = _processImageViaVision;
+                      processImageViaVision(imageFile);
                     },
                     icon: const Icon(Icons.auto_awesome_outlined),
                     label: Text(S.of(context)!.docScanVisionAnalyze),
@@ -1186,7 +1322,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
                     S.of(context)!.docScanVisionDisclaimer,
-                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.4),
+                    style:
+                        MintTextStyles.labelSmall(color: MintColors.textMuted)
+                            .copyWith(height: 1.4),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -1197,7 +1335,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     ctx.pop();
-                    _onCameraPressed();
+                    (_onCameraPressed)();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
                   label: Text(S.of(context)!.documentScanRetakePhoto),
@@ -1225,19 +1363,36 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
-  ExtractionResult _parseByDocumentType(String text) {
+  ({ExtractionResult extraction, TaxExtractionCandidate? taxCandidate})
+      _parseByDocumentType(String text) {
     switch (_selectedType) {
       case DocumentType.lppCertificate:
-        return LppCertificateParser.parseLppCertificate(text);
+        return (
+          extraction: LppCertificateParser.parseLppCertificate(text),
+          taxCandidate: null,
+        );
       case DocumentType.taxDeclaration:
-        return TaxDeclarationParser.parseTaxDeclaration(text);
+        final taxCandidate = TaxDeclarationParser.parseTaxDocument(
+          text,
+          snapshotIdFactory: widget.taxSnapshotIdFactory ?? const Uuid().v4,
+        );
+        return (
+          extraction: taxCandidate.extraction,
+          taxCandidate: taxCandidate,
+        );
       case DocumentType.avsExtract:
         final age = context.read<CoachProfileProvider>().hasProfile
             ? context.read<CoachProfileProvider>().profile!.age
             : null;
-        return AvsExtractParser.parseAvsExtract(text, userAge: age);
+        return (
+          extraction: AvsExtractParser.parseAvsExtract(text, userAge: age),
+          taxCandidate: null,
+        );
       case DocumentType.salaryCertificate:
-        return SalaryCertificateParser.parse(text);
+        return (
+          extraction: SalaryCertificateParser.parse(text),
+          taxCandidate: null,
+        );
       case DocumentType.threeAAttestation:
       case DocumentType.mortgageAttestation:
         throw UnsupportedError(S.of(context)!.docScanPdfTypeUnsupported);
@@ -1381,8 +1536,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (kIsWeb) {
       return _PdfParseResult(
         success: false,
-        errorMessage:
-            S.of(context)!.docScanPdfTypeUnsupported,
+        errorMessage: S.of(context)!.docScanPdfTypeUnsupported,
       );
     }
 
@@ -1414,17 +1568,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return _PdfParseResult(
         success: false,
         requiresAuthentication: requiresAuthentication,
-        errorMessage: mounted
-            ? S.of(context)!.docScanGenericError
-            : 'PDF parsing error',
+        errorMessage:
+            mounted ? S.of(context)!.docScanGenericError : 'PDF parsing error',
       );
     } catch (e) {
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
       return _PdfParseResult(
         success: false,
-        errorMessage: mounted
-            ? S.of(context)!.docScanGenericError
-            : 'PDF parsing error',
+        errorMessage:
+            mounted ? S.of(context)!.docScanGenericError : 'PDF parsing error',
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -1441,8 +1593,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         confidenceDelta:
             DocumentType.lppCertificate.confidenceImpact.toDouble(),
         warnings: upload.warnings,
-        disclaimer:
-            S.of(context)!.docScanBackendDisclaimer,
+        disclaimer: S.of(context)!.docScanBackendDisclaimer,
         sources: const ['Extraction backend Docling (LPP)'],
       );
     }
@@ -1523,8 +1674,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       overallConfidence: upload.confidence,
       confidenceDelta: DocumentType.lppCertificate.confidenceImpact.toDouble(),
       warnings: upload.warnings,
-      disclaimer:
-          S.of(context)!.docScanBackendDisclaimerShort,
+      disclaimer: S.of(context)!.docScanBackendDisclaimerShort,
       sources: const ['Extraction backend Docling (LPP)'],
     );
   }
@@ -1555,6 +1705,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   /// Process image via BYOK Vision LLM (Claude/GPT-4o).
   Future<void> _processImageViaVision(XFile file) async {
+    if (_selectedType == DocumentType.taxDeclaration) {
+      return;
+    }
     final byok = context.read<ByokProvider>();
     if (!byok.isConfigured || byok.apiKey == null || byok.provider == null) {
       _showErrorSnack(S.of(context)!.docScanVisionConfigError);
@@ -1613,8 +1766,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       final result = ExtractionResult(
         documentType: _selectedType,
         fields: fields,
-        overallConfidence: fields.fold<double>(0, (sum, f) => sum + f.confidence) /
-            fields.length,
+        overallConfidence:
+            fields.fold<double>(0, (sum, f) => sum + f.confidence) /
+                fields.length,
         confidenceDelta: visionResponse.confidenceDelta.toDouble(),
         warnings: const [],
         disclaimer: visionResponse.disclaimers.isNotEmpty
@@ -1625,7 +1779,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       await _openReview(result);
     } on RagApiException catch (e) {
-      _showErrorSnack(e.message);
+      if (!mounted) return;
+      final l10n = S.of(context)!;
+      _showErrorSnack(
+        e.errorCode.localizedRagMessage(
+          l10n,
+          fallback: l10n.docScanGenericError,
+        ),
+      );
     } catch (e) {
       debugPrint('[DocumentScan] Vision error: $e');
       if (!mounted) return;

@@ -399,7 +399,8 @@ class ForecasterService {
         'LPP art. 79b (rachat)',
       ],
       confidenceScore: confidence.score,
-      enrichmentPrompts: confidence.prompts.map((p) => p.label).toList(),
+      enrichmentPrompts:
+          confidence.prompts.map((p) => p.machineDescriptor).toList(),
     );
   }
 
@@ -529,7 +530,8 @@ class ForecasterService {
         'LPP art. 79b (rachat)',
       ],
       confidenceScore: confidence.score,
-      enrichmentPrompts: confidence.prompts.map((p) => p.label).toList(),
+      enrichmentPrompts:
+          confidence.prompts.map((p) => p.machineDescriptor).toList(),
     );
   }
 

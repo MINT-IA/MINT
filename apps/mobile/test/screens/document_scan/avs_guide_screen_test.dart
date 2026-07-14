@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 
 void main() {
   test('official form URL follows supported locale with EN fallback', () {
@@ -93,6 +95,59 @@ void main() {
     );
 
     expect(find.byKey(const Key('avs_ci_scan_cta')), findsOneWidget);
+  });
+
+  testWidgets('scan CTA carries only the controlled AVS type query parameter',
+      (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, __) => const AvsGuideScreen(),
+        ),
+        GoRoute(
+          path: '/scan',
+          builder: (_, state) => Scaffold(
+            body: Text(
+              state.uri.queryParameters['type'] ==
+                          DocumentType.avsExtract.name &&
+                      state.extra == null
+                  ? 'avs-scan-destination'
+                  : 'wrong-scan-destination',
+            ),
+          ),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        routerConfig: router,
+      ),
+    );
+    await tester.pump(const Duration(seconds: 1));
+
+    final scanCta = find.byKey(const Key('avs_ci_scan_cta'));
+    await tester.ensureVisible(scanCta);
+    await tester.tap(scanCta);
+    await tester.pumpAndSettle();
+
+    expect(find.text('avs-scan-destination'), findsOneWidget);
   });
 
   test('six locales keep CI and future-calculation paths separate', () async {

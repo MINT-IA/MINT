@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/confidence_prompt_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -15,6 +17,9 @@ class PulseActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+    final title = action.prompt?.localizedLabel(l10n) ?? action.title;
+    final subtitle = action.prompt?.localizedAction(l10n) ?? action.subtitle;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
@@ -22,7 +27,7 @@ class PulseActionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         elevation: 0,
         child: Semantics(
-          label: action.title,
+          label: title,
           button: true,
           child: InkWell(
             onTap: () => context.push(action.route),
@@ -64,12 +69,12 @@ class PulseActionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        action.title,
+                        title,
                         style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        action.subtitle,
+                        subtitle,
                         style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

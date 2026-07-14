@@ -13,6 +13,10 @@ import 'package:uuid/uuid.dart';
 /// retries; same key returns the cached response server-side.
 const _uuidGen = Uuid();
 
+// Backend route slugs are API identifiers, not French prose. Keep this value
+// byte-identical even though the user-facing term is written with accents.
+const String _premierEclairageEndpoint = '/documents/premier-eclairage';
+
 // ──────────────────────────────────────────────────────────
 // Shared helper
 // ──────────────────────────────────────────────────────────
@@ -360,7 +364,8 @@ class Pillar3aExtractedFields {
 /// Fields extracted from an insurance policy.
 class InsuranceExtractedFields {
   final String? assureur;
-  final String? typeAssurance; // "RC", "menage", "vie", "maladie_complementaire"
+  final String?
+      typeAssurance; // "RC", "menage", "vie", "maladie_complementaire"
   final double? primeAnnuelle;
   final double? franchise;
   final double? couverture;
@@ -460,8 +465,7 @@ class LeaseExtractedFields {
       preavisMois: json['preavis_mois'] as int?,
       dateDebut: json['date_debut'] as String?,
       prochaineEcheance: json['prochaine_echeance'] as String?,
-      tauxHypothecaireReference:
-          _toDouble(json['taux_hypothecaire_reference']),
+      tauxHypothecaireReference: _toDouble(json['taux_hypothecaire_reference']),
     );
   }
 
@@ -836,12 +840,10 @@ class BankStatementResult {
 
     return BankStatementResult(
       bankName: json['bank_name'] as String? ?? 'Banque inconnue',
-      periodStart:
-          DateTime.tryParse(json['period_start'] as String? ?? '') ??
-              DateTime.now(),
-      periodEnd:
-          DateTime.tryParse(json['period_end'] as String? ?? '') ??
-              DateTime.now(),
+      periodStart: DateTime.tryParse(json['period_start'] as String? ?? '') ??
+          DateTime.now(),
+      periodEnd: DateTime.tryParse(json['period_end'] as String? ?? '') ??
+          DateTime.now(),
       currency: json['currency'] as String? ?? 'CHF',
       transactions: txList,
       totalCredits: (json['total_credits'] as num?)?.toDouble() ?? 0.0,
@@ -1001,7 +1003,8 @@ class DocumentService {
       final detail = _tryDecodeError(response.body);
       throw DocumentServiceException(
         code: 'statement_upload_failed',
-        message: detail ?? 'Bank statement upload failed (${response.statusCode}).',
+        message:
+            detail ?? 'Bank statement upload failed (${response.statusCode}).',
       );
     }
   }
@@ -1032,8 +1035,7 @@ class DocumentService {
         list = [];
       }
       return list
-          .map((item) =>
-              DocumentSummary.fromJson(item as Map<String, dynamic>))
+          .map((item) => DocumentSummary.fromJson(item as Map<String, dynamic>))
           .toList();
     } else {
       throw DocumentServiceException(
@@ -1091,6 +1093,12 @@ class DocumentService {
     required double overallConfidence,
     String extractionMethod = 'claude_vision',
   }) async {
+    if (documentType == 'tax_declaration') {
+      throw const DocumentServiceException(
+        code: 'tax_local_only',
+        message: 'Tax documents must remain on device.',
+      );
+    }
     try {
       final baseUrl = ApiService.baseUrl;
       var token = await AuthService.getToken();
@@ -1147,6 +1155,12 @@ class DocumentService {
     String? canton,
     String? languageHint,
   }) async {
+    if (documentType == 'tax_declaration') {
+      throw const DocumentServiceException(
+        code: 'tax_local_only',
+        message: 'Tax documents must remain on device.',
+      );
+    }
     try {
       final baseUrl = ApiService.baseUrl;
       final token = await AuthService.getToken();
@@ -1184,7 +1198,8 @@ class DocumentService {
       return null;
     }
   }
-  /// Fetch premier eclairage (4-layer insight) for extracted document data.
+
+  /// Fetch premier éclairage (4-layer insight) for extracted document data.
   /// Returns parsed JSON response or null on failure.
   static Future<Map<String, dynamic>?> fetchPremierEclairage({
     required String documentType,
@@ -1194,13 +1209,19 @@ class DocumentService {
     String? planTypeWarning,
     String? canton,
   }) async {
+    if (documentType == 'tax_declaration') {
+      throw const DocumentServiceException(
+        code: 'tax_local_only',
+        message: 'Tax documents must remain on device.',
+      );
+    }
     try {
       final baseUrl = ApiService.baseUrl;
       final token = await AuthService.getToken();
       if (token == null) return null;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/documents/premier-eclairage'),
+        Uri.parse('$baseUrl$_premierEclairageEndpoint'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -1263,7 +1284,8 @@ class DocumentService {
       req.headers['Idempotency-Key'] = _uuidGen.v4();
 
       req.body = jsonEncode({
-        'documentType': 'lpp_certificate', // backend ignores when v2 flag on; kept for legacy validation
+        'documentType':
+            'lpp_certificate', // backend ignores when v2 flag on; kept for legacy validation
         'imageBase64': base64Encode(bytes),
         'filename': filename,
         if (canton != null) 'canton': canton,
@@ -1279,7 +1301,8 @@ class DocumentService {
       // each event has zero or more `event:` and `data:` lines. Backend
       // emits one event/data pair per frame so a simple line-by-line parser
       // is enough.
-      final lines = res.stream.transform(utf8.decoder).transform(const LineSplitter());
+      final lines =
+          res.stream.transform(utf8.decoder).transform(const LineSplitter());
       String? currentEvent;
       String? currentData;
 

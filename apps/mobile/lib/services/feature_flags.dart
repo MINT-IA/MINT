@@ -74,6 +74,20 @@ class FeatureFlags {
   /// an educational scenario into evidence of an AVS fund entitlement.
   static bool enableAvsThirteenthScenarioCashflow = false;
 
+  /// Local kill switch for the typed tax snapshot ledger.
+  /// Backend configuration must not activate this path before its gates pass.
+  static bool typedTaxProfile = false;
+
+  /// Local kill switch for every tax-document acquisition surface.
+  ///
+  /// This flag deliberately stays out of [applyFromMap]. The UI is exposed
+  /// only when the typed ledger is enabled too, so the product cannot present
+  /// a tax review flow whose canonical writer is still disabled.
+  static bool documentTaxAssessmentEnabled = false;
+
+  static bool get taxAssessmentIngestionEnabled =>
+      documentTaxAssessmentEnabled && typedTaxProfile;
+
   // ── V1 screen gating ───────────────────────────────────────
   // F7: enableCoachPhase2, enableLifeEventScreens, enableAdvancedSimulators,
   //     enableMortgageTools, enableIndependantTools REMOVED — always true

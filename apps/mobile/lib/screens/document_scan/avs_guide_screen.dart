@@ -50,9 +50,8 @@ Uri avsOfficialFuturePensionFormUri(Locale locale) {
 ///
 /// Do not use `/r/ci`: the AVS/AI site currently redirects that short URL to
 /// an explanatory video rather than the acquisition path.
-Uri avsOfficialIndividualAccountRequestUri() =>
-    Uri.parse(
-        'https://www.ahv-iv.ch/fr/Formulaires/Demande-dextrait-de-compte');
+Uri avsOfficialIndividualAccountRequestUri() => Uri.parse(
+    'https://www.ahv-iv.ch/fr/Formulaires/Demande-dextrait-de-compte');
 
 typedef AvsExternalUriOpener = Future<bool> Function(Uri uri);
 
@@ -545,7 +544,7 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
   }
 
   void _onScanExtract() {
-    context.push('/scan', extra: DocumentType.avsExtract);
+    context.push('/scan?type=${DocumentType.avsExtract.name}');
   }
 
   void _onSimulateScan() async {

@@ -12,6 +12,7 @@ import 'package:mint_mobile/services/cross_validation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/confidence_prompt_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -1289,14 +1290,14 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        prompt.label,
+                        prompt.localizedLabel(S.of(context)!),
                         style: MintTextStyles.bodyMedium(
                                 color: MintColors.textPrimary)
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: MintSpacing.xs),
                       Text(
-                        prompt.action,
+                        prompt.localizedAction(S.of(context)!),
                         style: MintTextStyles.labelSmall(
                             color: MintColors.textSecondary),
                       ),

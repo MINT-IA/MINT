@@ -7,12 +7,14 @@
 /// Sprint C1 — MINT Coach Redesign
 library;
 
+import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show immutable, listEquals;
+import 'package:flutter/foundation.dart' show immutable, listEquals, setEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_core/wealth_financial_facts.dart';
@@ -1446,6 +1448,944 @@ class PlannedMonthlyContribution {
 //  MODELE PRINCIPAL : CoachProfile
 // ════════════════════════════════════════════════════════════════
 
+enum TaxDocumentKind {
+  taxpayerReturn,
+  provisionalBill,
+  assessmentNotice,
+  finalTaxBill,
+  unknown,
+}
+
+enum TaxAssessmentStatus {
+  selfDeclared,
+  provisional,
+  assessedAppealable,
+  contested,
+  inForce,
+  unknown,
+}
+
+enum TaxSubjectScope { individual, jointlyAssessedCouple, unknown }
+
+enum TaxAuthorityScope {
+  cantonalOnly,
+  communalOnly,
+  cantonalCommunalCombined,
+  federalDirect,
+  unknown,
+}
+
+enum TaxBaseScope {
+  incomeOnly,
+  wealthOnly,
+  incomeAndWealth,
+  totalInvoice,
+  unknown,
+}
+
+enum TaxSnapshotField {
+  cantonalCommunalTaxableIncomeChf,
+  federalTaxableIncomeChf,
+  cantonalCommunalTaxableWealthChf,
+  cantonalCommunalAssessedTax,
+  federalDirectAssessedTax,
+  explicitMarginalIncomeTaxRate,
+  explicitAverageIncomeTaxRate,
+}
+
+const _taxUnset = Object();
+
+T _requiredEnum<T extends Enum>(List<T> values, dynamic raw, String field) {
+  if (raw is! String) throw FormatException('Missing $field');
+  for (final value in values) {
+    if (value.name == raw) return value;
+  }
+  throw FormatException('Invalid $field');
+}
+
+@immutable
+final class AssessedTaxAmount {
+  final double amountChf;
+  final TaxAuthorityScope authorityScope;
+  final TaxBaseScope baseScope;
+
+  AssessedTaxAmount({
+    required this.amountChf,
+    required this.authorityScope,
+    required this.baseScope,
+  }) {
+    if (!amountChf.isFinite || amountChf < 0) {
+      throw ArgumentError.value(
+        amountChf,
+        'amountChf',
+        'finite non-negative amount required',
+      );
+    }
+  }
+
+  factory AssessedTaxAmount.fromJson(Map<String, dynamic> json) {
+    final amount = (json['amountChf'] as num?)?.toDouble();
+    if (amount == null || !amount.isFinite || amount < 0) {
+      throw const FormatException('Invalid assessed tax amount');
+    }
+    return AssessedTaxAmount(
+      amountChf: amount,
+      authorityScope: _requiredEnum(
+        TaxAuthorityScope.values,
+        json['authorityScope'],
+        'authorityScope',
+      ),
+      baseScope: _requiredEnum(
+        TaxBaseScope.values,
+        json['baseScope'],
+        'baseScope',
+      ),
+    );
+  }
+
+  AssessedTaxAmount copyWith({
+    double? amountChf,
+    TaxAuthorityScope? authorityScope,
+    TaxBaseScope? baseScope,
+  }) {
+    return AssessedTaxAmount(
+      amountChf: amountChf ?? this.amountChf,
+      authorityScope: authorityScope ?? this.authorityScope,
+      baseScope: baseScope ?? this.baseScope,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'amountChf': amountChf,
+        'authorityScope': authorityScope.name,
+        'baseScope': baseScope.name,
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AssessedTaxAmount &&
+          amountChf == other.amountChf &&
+          authorityScope == other.authorityScope &&
+          baseScope == other.baseScope;
+
+  @override
+  int get hashCode => Object.hash(amountChf, authorityScope, baseScope);
+}
+
+@immutable
+final class TaxSnapshot {
+  static final RegExp uuidV4Pattern = RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+  );
+  static const Set<String> provenanceLeafPaths = {
+    'taxYear',
+    'basedOnTaxYear',
+    'sourceDate',
+    'documentKind',
+    'assessmentStatus',
+    'inForceAttested',
+    'subjectScope',
+    'cantonCode',
+    'municipalityId',
+    'municipalityLabel',
+    'cantonalCommunalTaxableIncomeChf',
+    'federalTaxableIncomeChf',
+    'cantonalCommunalTaxableWealthChf',
+    'cantonalCommunalAssessedTax.amountChf',
+    'cantonalCommunalAssessedTax.authorityScope',
+    'cantonalCommunalAssessedTax.baseScope',
+    'federalDirectAssessedTax.amountChf',
+    'federalDirectAssessedTax.authorityScope',
+    'federalDirectAssessedTax.baseScope',
+    'explicitMarginalIncomeTaxRate',
+    'explicitAverageIncomeTaxRate',
+  };
+
+  final String snapshotId;
+  final String profileOwnerId;
+  final int? taxYear;
+  final int? basedOnTaxYear;
+  final DateTime? sourceDate;
+  final TaxDocumentKind documentKind;
+  final TaxAssessmentStatus assessmentStatus;
+  final bool inForceAttested;
+  final TaxSubjectScope subjectScope;
+  final String? cantonCode;
+  final String? municipalityId;
+  final String? municipalityLabel;
+  final double? cantonalCommunalTaxableIncomeChf;
+  final double? federalTaxableIncomeChf;
+  final double? cantonalCommunalTaxableWealthChf;
+  final AssessedTaxAmount? cantonalCommunalAssessedTax;
+  final AssessedTaxAmount? federalDirectAssessedTax;
+  final double? explicitMarginalIncomeTaxRate;
+  final double? explicitAverageIncomeTaxRate;
+  final DateTime updatedAt;
+
+  TaxSnapshot({
+    required this.snapshotId,
+    required this.profileOwnerId,
+    required this.taxYear,
+    required this.basedOnTaxYear,
+    required this.sourceDate,
+    required this.documentKind,
+    required this.assessmentStatus,
+    this.inForceAttested = false,
+    required this.subjectScope,
+    required this.cantonCode,
+    required this.municipalityId,
+    required this.municipalityLabel,
+    required this.cantonalCommunalTaxableIncomeChf,
+    required this.federalTaxableIncomeChf,
+    required this.cantonalCommunalTaxableWealthChf,
+    required this.cantonalCommunalAssessedTax,
+    required this.federalDirectAssessedTax,
+    required this.explicitMarginalIncomeTaxRate,
+    required this.explicitAverageIncomeTaxRate,
+    required this.updatedAt,
+  }) {
+    if (!uuidV4Pattern.hasMatch(snapshotId)) {
+      throw ArgumentError.value(snapshotId, 'snapshotId', 'UUIDv4 required');
+    }
+    if (profileOwnerId.isEmpty) {
+      throw ArgumentError.value(profileOwnerId, 'profileOwnerId');
+    }
+    if (cantonCode != null && !sortedCantonCodes.contains(cantonCode)) {
+      throw ArgumentError.value(
+        cantonCode,
+        'cantonCode',
+        'canonical Swiss canton code required',
+      );
+    }
+    validateRuntimeFacts(
+      documentKind: documentKind,
+      assessmentStatus: assessmentStatus,
+      cantonalCommunalTaxableIncomeChf: cantonalCommunalTaxableIncomeChf,
+      federalTaxableIncomeChf: federalTaxableIncomeChf,
+      cantonalCommunalTaxableWealthChf: cantonalCommunalTaxableWealthChf,
+      cantonalCommunalAssessedTax: cantonalCommunalAssessedTax,
+      federalDirectAssessedTax: federalDirectAssessedTax,
+      explicitMarginalIncomeTaxRate: explicitMarginalIncomeTaxRate,
+      explicitAverageIncomeTaxRate: explicitAverageIncomeTaxRate,
+    );
+  }
+
+  static void validateRuntimeFacts({
+    required TaxDocumentKind documentKind,
+    required TaxAssessmentStatus assessmentStatus,
+    required double? cantonalCommunalTaxableIncomeChf,
+    required double? federalTaxableIncomeChf,
+    required double? cantonalCommunalTaxableWealthChf,
+    required AssessedTaxAmount? cantonalCommunalAssessedTax,
+    required AssessedTaxAmount? federalDirectAssessedTax,
+    required double? explicitMarginalIncomeTaxRate,
+    required double? explicitAverageIncomeTaxRate,
+  }) {
+    if (!_isValidDocumentStatus(documentKind, assessmentStatus)) {
+      throw ArgumentError(
+        'Invalid tax document/status pair: '
+        '${documentKind.name}/${assessmentStatus.name}',
+      );
+    }
+    _validateFinite(
+      cantonalCommunalTaxableIncomeChf,
+      'cantonalCommunalTaxableIncomeChf',
+    );
+    _validateFinite(
+      federalTaxableIncomeChf,
+      'federalTaxableIncomeChf',
+    );
+    _validateFinite(
+      cantonalCommunalTaxableWealthChf,
+      'cantonalCommunalTaxableWealthChf',
+    );
+    if (cantonalCommunalTaxableWealthChf != null &&
+        cantonalCommunalTaxableWealthChf < 0) {
+      throw ArgumentError.value(
+        cantonalCommunalTaxableWealthChf,
+        'cantonalCommunalTaxableWealthChf',
+        'non-negative taxable wealth required',
+      );
+    }
+    _validateRate(explicitMarginalIncomeTaxRate, 'marginal rate');
+    _validateRate(explicitAverageIncomeTaxRate, 'average rate');
+    if (cantonalCommunalAssessedTax?.authorityScope ==
+        TaxAuthorityScope.federalDirect) {
+      throw ArgumentError.value(
+        cantonalCommunalAssessedTax!.authorityScope,
+        'cantonalCommunalAssessedTax.authorityScope',
+        'cantonal or communal authority required',
+      );
+    }
+    if (federalDirectAssessedTax != null &&
+        federalDirectAssessedTax.authorityScope !=
+            TaxAuthorityScope.federalDirect) {
+      throw ArgumentError.value(
+        federalDirectAssessedTax.authorityScope,
+        'federalDirectAssessedTax.authorityScope',
+        'federalDirect authority required',
+      );
+    }
+    if (federalDirectAssessedTax != null &&
+        federalDirectAssessedTax.baseScope != TaxBaseScope.incomeOnly &&
+        federalDirectAssessedTax.baseScope != TaxBaseScope.unknown) {
+      throw ArgumentError.value(
+        federalDirectAssessedTax.baseScope,
+        'federalDirectAssessedTax.baseScope',
+        'federal direct tax supports incomeOnly or unknown only',
+      );
+    }
+  }
+
+  static bool _isValidDocumentStatus(
+    TaxDocumentKind kind,
+    TaxAssessmentStatus status,
+  ) {
+    return switch (kind) {
+      TaxDocumentKind.taxpayerReturn =>
+        status == TaxAssessmentStatus.selfDeclared,
+      TaxDocumentKind.provisionalBill =>
+        status == TaxAssessmentStatus.provisional,
+      TaxDocumentKind.assessmentNotice =>
+        status == TaxAssessmentStatus.assessedAppealable ||
+            status == TaxAssessmentStatus.contested ||
+            status == TaxAssessmentStatus.inForce,
+      TaxDocumentKind.finalTaxBill ||
+      TaxDocumentKind.unknown =>
+        status == TaxAssessmentStatus.unknown,
+    };
+  }
+
+  static void _validateFinite(double? value, String label) {
+    if (value != null && !value.isFinite) {
+      throw ArgumentError.value(value, label, 'finite value required');
+    }
+  }
+
+  static void _validateRate(double? rate, String label) {
+    if (rate != null && (!rate.isFinite || rate < 0 || rate > 1)) {
+      throw ArgumentError.value(rate, label, 'ratio 0...1 required');
+    }
+  }
+
+  factory TaxSnapshot.fromJson(Map<String, dynamic> json) {
+    final id = json['snapshotId'];
+    final owner = json['profileOwnerId'];
+    final updatedAt = DateTime.tryParse(json['updatedAt']?.toString() ?? '');
+    if (id is! String || owner is! String || updatedAt == null) {
+      throw const FormatException('Invalid tax snapshot identity');
+    }
+    DateTime? parseOptionalDate(dynamic raw) {
+      if (raw == null) return null;
+      final parsed = DateTime.tryParse(raw.toString());
+      if (parsed == null) throw const FormatException('Invalid sourceDate');
+      return parsed;
+    }
+
+    double? parseOptionalDouble(dynamic raw) {
+      if (raw == null) return null;
+      if (raw is! num) throw const FormatException('Invalid tax number');
+      final value = raw.toDouble();
+      if (!value.isFinite) throw const FormatException('Invalid tax number');
+      return value;
+    }
+
+    AssessedTaxAmount? parseAmount(dynamic raw) {
+      if (raw == null) return null;
+      if (raw is! Map) throw const FormatException('Invalid tax amount');
+      return AssessedTaxAmount.fromJson(Map<String, dynamic>.from(raw));
+    }
+
+    return TaxSnapshot(
+      snapshotId: id,
+      profileOwnerId: owner,
+      taxYear: json['taxYear'] as int?,
+      basedOnTaxYear: json['basedOnTaxYear'] as int?,
+      sourceDate: parseOptionalDate(json['sourceDate']),
+      documentKind: _requiredEnum(
+        TaxDocumentKind.values,
+        json['documentKind'],
+        'documentKind',
+      ),
+      assessmentStatus: _requiredEnum(
+        TaxAssessmentStatus.values,
+        json['assessmentStatus'],
+        'assessmentStatus',
+      ),
+      inForceAttested: json.containsKey('inForceAttested')
+          ? switch (json['inForceAttested']) {
+              final bool value => value,
+              _ => throw const FormatException('Invalid inForceAttested'),
+            }
+          : false,
+      subjectScope: _requiredEnum(
+        TaxSubjectScope.values,
+        json['subjectScope'],
+        'subjectScope',
+      ),
+      cantonCode: json['cantonCode'] as String?,
+      municipalityId: json['municipalityId'] as String?,
+      municipalityLabel: json['municipalityLabel'] as String?,
+      cantonalCommunalTaxableIncomeChf:
+          parseOptionalDouble(json['cantonalCommunalTaxableIncomeChf']),
+      federalTaxableIncomeChf:
+          parseOptionalDouble(json['federalTaxableIncomeChf']),
+      cantonalCommunalTaxableWealthChf:
+          parseOptionalDouble(json['cantonalCommunalTaxableWealthChf']),
+      cantonalCommunalAssessedTax:
+          parseAmount(json['cantonalCommunalAssessedTax']),
+      federalDirectAssessedTax: parseAmount(json['federalDirectAssessedTax']),
+      explicitMarginalIncomeTaxRate:
+          parseOptionalDouble(json['explicitMarginalIncomeTaxRate']),
+      explicitAverageIncomeTaxRate:
+          parseOptionalDouble(json['explicitAverageIncomeTaxRate']),
+      updatedAt: updatedAt,
+    );
+  }
+
+  TaxSnapshot copyWith({
+    String? snapshotId,
+    String? profileOwnerId,
+    Object? taxYear = _taxUnset,
+    Object? basedOnTaxYear = _taxUnset,
+    Object? sourceDate = _taxUnset,
+    TaxDocumentKind? documentKind,
+    TaxAssessmentStatus? assessmentStatus,
+    bool? inForceAttested,
+    TaxSubjectScope? subjectScope,
+    Object? cantonCode = _taxUnset,
+    Object? municipalityId = _taxUnset,
+    Object? municipalityLabel = _taxUnset,
+    Object? cantonalCommunalTaxableIncomeChf = _taxUnset,
+    Object? federalTaxableIncomeChf = _taxUnset,
+    Object? cantonalCommunalTaxableWealthChf = _taxUnset,
+    Object? cantonalCommunalAssessedTax = _taxUnset,
+    Object? federalDirectAssessedTax = _taxUnset,
+    Object? explicitMarginalIncomeTaxRate = _taxUnset,
+    Object? explicitAverageIncomeTaxRate = _taxUnset,
+    DateTime? updatedAt,
+  }) {
+    T? value<T>(Object? next, T? current) =>
+        identical(next, _taxUnset) ? current : next as T?;
+    return TaxSnapshot(
+      snapshotId: snapshotId ?? this.snapshotId,
+      profileOwnerId: profileOwnerId ?? this.profileOwnerId,
+      taxYear: value<int>(taxYear, this.taxYear),
+      basedOnTaxYear: value<int>(basedOnTaxYear, this.basedOnTaxYear),
+      sourceDate: value<DateTime>(sourceDate, this.sourceDate),
+      documentKind: documentKind ?? this.documentKind,
+      assessmentStatus: assessmentStatus ?? this.assessmentStatus,
+      inForceAttested: inForceAttested ?? this.inForceAttested,
+      subjectScope: subjectScope ?? this.subjectScope,
+      cantonCode: value<String>(cantonCode, this.cantonCode),
+      municipalityId: value<String>(municipalityId, this.municipalityId),
+      municipalityLabel:
+          value<String>(municipalityLabel, this.municipalityLabel),
+      cantonalCommunalTaxableIncomeChf: value<double>(
+        cantonalCommunalTaxableIncomeChf,
+        this.cantonalCommunalTaxableIncomeChf,
+      ),
+      federalTaxableIncomeChf:
+          value<double>(federalTaxableIncomeChf, this.federalTaxableIncomeChf),
+      cantonalCommunalTaxableWealthChf: value<double>(
+        cantonalCommunalTaxableWealthChf,
+        this.cantonalCommunalTaxableWealthChf,
+      ),
+      cantonalCommunalAssessedTax: value<AssessedTaxAmount>(
+        cantonalCommunalAssessedTax,
+        this.cantonalCommunalAssessedTax,
+      ),
+      federalDirectAssessedTax: value<AssessedTaxAmount>(
+        federalDirectAssessedTax,
+        this.federalDirectAssessedTax,
+      ),
+      explicitMarginalIncomeTaxRate: value<double>(
+        explicitMarginalIncomeTaxRate,
+        this.explicitMarginalIncomeTaxRate,
+      ),
+      explicitAverageIncomeTaxRate: value<double>(
+        explicitAverageIncomeTaxRate,
+        this.explicitAverageIncomeTaxRate,
+      ),
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'snapshotId': snapshotId,
+        'profileOwnerId': profileOwnerId,
+        'taxYear': taxYear,
+        'basedOnTaxYear': basedOnTaxYear,
+        'sourceDate': sourceDate?.toIso8601String(),
+        'documentKind': documentKind.name,
+        'assessmentStatus': assessmentStatus.name,
+        'inForceAttested': inForceAttested,
+        'subjectScope': subjectScope.name,
+        'cantonCode': cantonCode,
+        'municipalityId': municipalityId,
+        'municipalityLabel': municipalityLabel,
+        'cantonalCommunalTaxableIncomeChf': cantonalCommunalTaxableIncomeChf,
+        'federalTaxableIncomeChf': federalTaxableIncomeChf,
+        'cantonalCommunalTaxableWealthChf': cantonalCommunalTaxableWealthChf,
+        'cantonalCommunalAssessedTax': cantonalCommunalAssessedTax?.toJson(),
+        'federalDirectAssessedTax': federalDirectAssessedTax?.toJson(),
+        'explicitMarginalIncomeTaxRate': explicitMarginalIncomeTaxRate,
+        'explicitAverageIncomeTaxRate': explicitAverageIncomeTaxRate,
+        'updatedAt': updatedAt.toIso8601String(),
+      };
+
+  Object? provenanceValue(String leafPath) {
+    return switch (leafPath) {
+      'taxYear' => taxYear,
+      'basedOnTaxYear' => basedOnTaxYear,
+      'sourceDate' => sourceDate?.toIso8601String(),
+      'documentKind' => documentKind.name,
+      'assessmentStatus' => assessmentStatus.name,
+      'inForceAttested' => inForceAttested ? true : null,
+      'subjectScope' => subjectScope.name,
+      'cantonCode' => cantonCode,
+      'municipalityId' => municipalityId,
+      'municipalityLabel' => municipalityLabel,
+      'cantonalCommunalTaxableIncomeChf' => cantonalCommunalTaxableIncomeChf,
+      'federalTaxableIncomeChf' => federalTaxableIncomeChf,
+      'cantonalCommunalTaxableWealthChf' => cantonalCommunalTaxableWealthChf,
+      'cantonalCommunalAssessedTax.amountChf' =>
+        cantonalCommunalAssessedTax?.amountChf,
+      'cantonalCommunalAssessedTax.authorityScope' =>
+        cantonalCommunalAssessedTax?.authorityScope.name,
+      'cantonalCommunalAssessedTax.baseScope' =>
+        cantonalCommunalAssessedTax?.baseScope.name,
+      'federalDirectAssessedTax.amountChf' =>
+        federalDirectAssessedTax?.amountChf,
+      'federalDirectAssessedTax.authorityScope' =>
+        federalDirectAssessedTax?.authorityScope.name,
+      'federalDirectAssessedTax.baseScope' =>
+        federalDirectAssessedTax?.baseScope.name,
+      'explicitMarginalIncomeTaxRate' => explicitMarginalIncomeTaxRate,
+      'explicitAverageIncomeTaxRate' => explicitAverageIncomeTaxRate,
+      _ => null,
+    };
+  }
+
+  bool semanticallyEquals(TaxSnapshot other) =>
+      taxYear == other.taxYear &&
+      basedOnTaxYear == other.basedOnTaxYear &&
+      sourceDate == other.sourceDate &&
+      documentKind == other.documentKind &&
+      assessmentStatus == other.assessmentStatus &&
+      inForceAttested == other.inForceAttested &&
+      subjectScope == other.subjectScope &&
+      cantonCode == other.cantonCode &&
+      municipalityId == other.municipalityId &&
+      municipalityLabel == other.municipalityLabel &&
+      cantonalCommunalTaxableIncomeChf ==
+          other.cantonalCommunalTaxableIncomeChf &&
+      federalTaxableIncomeChf == other.federalTaxableIncomeChf &&
+      cantonalCommunalTaxableWealthChf ==
+          other.cantonalCommunalTaxableWealthChf &&
+      cantonalCommunalAssessedTax == other.cantonalCommunalAssessedTax &&
+      federalDirectAssessedTax == other.federalDirectAssessedTax &&
+      explicitMarginalIncomeTaxRate == other.explicitMarginalIncomeTaxRate &&
+      explicitAverageIncomeTaxRate == other.explicitAverageIncomeTaxRate;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TaxSnapshot &&
+          snapshotId == other.snapshotId &&
+          profileOwnerId == other.profileOwnerId &&
+          updatedAt == other.updatedAt &&
+          semanticallyEquals(other);
+
+  @override
+  int get hashCode => Object.hashAll([
+        snapshotId,
+        profileOwnerId,
+        taxYear,
+        basedOnTaxYear,
+        sourceDate,
+        documentKind,
+        assessmentStatus,
+        inForceAttested,
+        subjectScope,
+        cantonCode,
+        municipalityId,
+        municipalityLabel,
+        cantonalCommunalTaxableIncomeChf,
+        federalTaxableIncomeChf,
+        cantonalCommunalTaxableWealthChf,
+        cantonalCommunalAssessedTax,
+        federalDirectAssessedTax,
+        explicitMarginalIncomeTaxRate,
+        explicitAverageIncomeTaxRate,
+        updatedAt,
+      ]);
+}
+
+@immutable
+final class FiscalProfile {
+  final List<TaxSnapshot> snapshots;
+  final Set<String> provenanceValidatedSnapshotIds;
+  final bool legacyDataNeedsReview;
+
+  const FiscalProfile.empty()
+      : snapshots = const [],
+        provenanceValidatedSnapshotIds = const {},
+        legacyDataNeedsReview = false;
+
+  FiscalProfile({
+    List<TaxSnapshot> snapshots = const [],
+    Set<String>? provenanceValidatedSnapshotIds,
+    this.legacyDataNeedsReview = false,
+  })  : snapshots = List.unmodifiable(snapshots),
+        provenanceValidatedSnapshotIds = Set.unmodifiable(
+          provenanceValidatedSnapshotIds ?? const <String>{},
+        );
+
+  factory FiscalProfile.fromJson(Map<String, dynamic> json) {
+    final rawSnapshots = json['snapshots'];
+    if (rawSnapshots is! List) {
+      throw const FormatException('Invalid fiscal snapshots');
+    }
+    return FiscalProfile(
+      snapshots: rawSnapshots.map((raw) {
+        if (raw is! Map) throw const FormatException('Invalid tax snapshot');
+        return TaxSnapshot.fromJson(Map<String, dynamic>.from(raw));
+      }).toList(),
+      legacyDataNeedsReview: json['legacyDataNeedsReview'] == true,
+    );
+  }
+
+  FiscalProfile copyWith({
+    List<TaxSnapshot>? snapshots,
+    Set<String>? provenanceValidatedSnapshotIds,
+    bool? legacyDataNeedsReview,
+  }) {
+    return FiscalProfile(
+      snapshots: snapshots ?? this.snapshots,
+      provenanceValidatedSnapshotIds:
+          provenanceValidatedSnapshotIds ?? this.provenanceValidatedSnapshotIds,
+      legacyDataNeedsReview:
+          legacyDataNeedsReview ?? this.legacyDataNeedsReview,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'snapshots': snapshots.map((snapshot) => snapshot.toJson()).toList(),
+        'legacyDataNeedsReview': legacyDataNeedsReview,
+      };
+
+  bool containsSnapshot(String snapshotId) =>
+      snapshots.any((snapshot) => snapshot.snapshotId == snapshotId);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FiscalProfile &&
+          legacyDataNeedsReview == other.legacyDataNeedsReview &&
+          setEquals(provenanceValidatedSnapshotIds,
+              other.provenanceValidatedSnapshotIds) &&
+          listEquals(snapshots, other.snapshots);
+
+  @override
+  int get hashCode => Object.hash(
+        Object.hashAll(snapshots),
+        Object.hashAllUnordered(provenanceValidatedSnapshotIds),
+        legacyDataNeedsReview,
+      );
+}
+
+enum FiscalSnapshotQueryIntent { precise, latestCompleteness }
+
+@immutable
+final class FiscalSnapshotQuery {
+  final FiscalSnapshotQueryIntent intent;
+  final TaxSnapshotField requestedField;
+  final int? taxYear;
+  final String? cantonCode;
+  final String? municipalityId;
+  final TaxSubjectScope? subjectScope;
+  final TaxAuthorityScope? authorityScope;
+  final TaxBaseScope? baseScope;
+
+  factory FiscalSnapshotQuery.precise({
+    required TaxSnapshotField requestedField,
+    required int taxYear,
+    required TaxSubjectScope subjectScope,
+    required String cantonCode,
+    String? municipalityId,
+    TaxAuthorityScope? authorityScope,
+    TaxBaseScope? baseScope,
+  }) {
+    if (taxYear < 1900 || taxYear > 2100) {
+      throw ArgumentError.value(taxYear, 'taxYear', 'valid tax year required');
+    }
+    if (subjectScope == TaxSubjectScope.unknown) {
+      throw ArgumentError.value(
+        subjectScope,
+        'subjectScope',
+        'confirmed subject scope required',
+      );
+    }
+    if (!sortedCantonCodes.contains(cantonCode)) {
+      throw ArgumentError.value(
+        cantonCode,
+        'cantonCode',
+        'canonical Swiss canton code required',
+      );
+    }
+    return FiscalSnapshotQuery._(
+      intent: FiscalSnapshotQueryIntent.precise,
+      requestedField: requestedField,
+      taxYear: taxYear,
+      cantonCode: cantonCode,
+      municipalityId: municipalityId,
+      subjectScope: subjectScope,
+      authorityScope: authorityScope,
+      baseScope: baseScope,
+    );
+  }
+
+  const FiscalSnapshotQuery.latestCompleteness({
+    required this.requestedField,
+  })  : intent = FiscalSnapshotQueryIntent.latestCompleteness,
+        taxYear = null,
+        cantonCode = null,
+        municipalityId = null,
+        subjectScope = null,
+        authorityScope = null,
+        baseScope = null;
+
+  const FiscalSnapshotQuery._({
+    required this.intent,
+    required this.requestedField,
+    required this.taxYear,
+    required this.cantonCode,
+    required this.municipalityId,
+    required this.subjectScope,
+    required this.authorityScope,
+    required this.baseScope,
+  });
+}
+
+enum FiscalSelectionStatus { available, partialAsk }
+
+@immutable
+final class FiscalSelectionResult {
+  final FiscalSelectionStatus status;
+  final TaxSnapshot? snapshot;
+  final List<String> conflictingSnapshotIds;
+
+  FiscalSelectionResult._({
+    required this.status,
+    required this.snapshot,
+    List<String> conflictingSnapshotIds = const [],
+  }) : conflictingSnapshotIds = List.unmodifiable(conflictingSnapshotIds);
+
+  factory FiscalSelectionResult.available(TaxSnapshot snapshot) =>
+      FiscalSelectionResult._(
+        status: FiscalSelectionStatus.available,
+        snapshot: snapshot,
+      );
+
+  factory FiscalSelectionResult.availableStatusOnly() =>
+      FiscalSelectionResult._(
+        status: FiscalSelectionStatus.available,
+        snapshot: null,
+      );
+
+  factory FiscalSelectionResult.partialAsk(
+          {List<String> conflicts = const []}) =>
+      FiscalSelectionResult._(
+        status: FiscalSelectionStatus.partialAsk,
+        snapshot: null,
+        conflictingSnapshotIds: conflicts,
+      );
+}
+
+abstract final class FiscalSnapshotSelector {
+  static FiscalSelectionResult selectAssessedBaseline(
+    FiscalProfile fiscal,
+    FiscalSnapshotQuery query, {
+    DateTime Function()? now,
+  }) {
+    if (!FeatureFlags.typedTaxProfile) {
+      return FiscalSelectionResult.partialAsk();
+    }
+    final today = _civilDay((now ?? DateTime.now)());
+    final eligible = fiscal.snapshots.where((snapshot) {
+      if (!fiscal.provenanceValidatedSnapshotIds
+          .contains(snapshot.snapshotId)) {
+        return false;
+      }
+      if (snapshot.documentKind != TaxDocumentKind.assessmentNotice) {
+        return false;
+      }
+      if (snapshot.assessmentStatus == TaxAssessmentStatus.inForce &&
+          !snapshot.inForceAttested) {
+        return false;
+      }
+      if (snapshot.sourceDate case final sourceDate?
+          when _civilDay(sourceDate).isAfter(today)) {
+        return false;
+      }
+      if (snapshot.assessmentStatus != TaxAssessmentStatus.inForce &&
+          snapshot.assessmentStatus != TaxAssessmentStatus.assessedAppealable) {
+        return false;
+      }
+      if (snapshot.taxYear == null ||
+          snapshot.subjectScope == TaxSubjectScope.unknown ||
+          snapshot.cantonCode == null ||
+          !sortedCantonCodes.contains(snapshot.cantonCode)) {
+        return false;
+      }
+      if (query.intent == FiscalSnapshotQueryIntent.precise) {
+        if (query.taxYear == null ||
+            query.subjectScope == null ||
+            query.subjectScope == TaxSubjectScope.unknown ||
+            query.cantonCode == null ||
+            !sortedCantonCodes.contains(query.cantonCode) ||
+            query.authorityScope == TaxAuthorityScope.unknown ||
+            query.baseScope == TaxBaseScope.unknown) {
+          return false;
+        }
+        if (snapshot.taxYear != query.taxYear ||
+            snapshot.subjectScope != query.subjectScope ||
+            snapshot.cantonCode != query.cantonCode) {
+          return false;
+        }
+        if (query.municipalityId != null &&
+            snapshot.municipalityId != query.municipalityId) {
+          return false;
+        }
+      }
+      if (!_matchesRequestedField(snapshot, query)) return false;
+      return true;
+    }).toList();
+    if (eligible.isEmpty) return FiscalSelectionResult.partialAsk();
+
+    eligible.sort(_compareRankThenTechnical);
+    final best = eligible.first;
+    final sameRank = eligible
+        .where((candidate) =>
+            candidate.taxYear == best.taxYear &&
+            candidate.assessmentStatus == best.assessmentStatus &&
+            candidate.sourceDate == best.sourceDate)
+        .toList();
+    if (sameRank.any((candidate) => !candidate.semanticallyEquals(best))) {
+      return FiscalSelectionResult.partialAsk(
+        conflicts: sameRank.map((snapshot) => snapshot.snapshotId).toList(),
+      );
+    }
+    sameRank.sort(_compareTechnical);
+    if (query.intent == FiscalSnapshotQueryIntent.latestCompleteness) {
+      return FiscalSelectionResult.availableStatusOnly();
+    }
+    return FiscalSelectionResult.available(sameRank.first);
+  }
+
+  static DateTime _civilDay(DateTime value) =>
+      DateTime.utc(value.year, value.month, value.day);
+
+  static bool _matchesRequestedField(
+    TaxSnapshot snapshot,
+    FiscalSnapshotQuery query,
+  ) {
+    return switch (query.requestedField) {
+      TaxSnapshotField.cantonalCommunalTaxableIncomeChf =>
+        snapshot.cantonalCommunalTaxableIncomeChf != null,
+      TaxSnapshotField.federalTaxableIncomeChf =>
+        snapshot.federalTaxableIncomeChf != null,
+      TaxSnapshotField.cantonalCommunalTaxableWealthChf =>
+        snapshot.cantonalCommunalTaxableWealthChf != null,
+      TaxSnapshotField.cantonalCommunalAssessedTax =>
+        _matchesCantonalAssessedTax(snapshot, query),
+      TaxSnapshotField.federalDirectAssessedTax =>
+        _matchesFederalAssessedTax(snapshot, query),
+      TaxSnapshotField.explicitMarginalIncomeTaxRate =>
+        snapshot.explicitMarginalIncomeTaxRate != null,
+      TaxSnapshotField.explicitAverageIncomeTaxRate =>
+        snapshot.explicitAverageIncomeTaxRate != null,
+    };
+  }
+
+  static bool _matchesCantonalAssessedTax(
+    TaxSnapshot snapshot,
+    FiscalSnapshotQuery query,
+  ) {
+    final amount = snapshot.cantonalCommunalAssessedTax;
+    if (amount == null ||
+        query.authorityScope == null ||
+        query.baseScope == null ||
+        !_isCanonicalCantonalAmount(amount)) {
+      return false;
+    }
+    return amount.authorityScope == query.authorityScope &&
+        amount.baseScope == query.baseScope;
+  }
+
+  static bool _matchesFederalAssessedTax(
+    TaxSnapshot snapshot,
+    FiscalSnapshotQuery query,
+  ) {
+    final amount = snapshot.federalDirectAssessedTax;
+    if (amount == null ||
+        query.authorityScope == null ||
+        query.baseScope == null ||
+        amount.authorityScope != TaxAuthorityScope.federalDirect ||
+        amount.baseScope != TaxBaseScope.incomeOnly) {
+      return false;
+    }
+    return query.authorityScope == TaxAuthorityScope.federalDirect &&
+        query.baseScope == TaxBaseScope.incomeOnly;
+  }
+
+  static bool _isCanonicalCantonalAmount(AssessedTaxAmount amount) {
+    final authorityIsCanonical = switch (amount.authorityScope) {
+      TaxAuthorityScope.cantonalOnly ||
+      TaxAuthorityScope.communalOnly ||
+      TaxAuthorityScope.cantonalCommunalCombined =>
+        true,
+      TaxAuthorityScope.federalDirect || TaxAuthorityScope.unknown => false,
+    };
+    final baseIsCanonical = switch (amount.baseScope) {
+      TaxBaseScope.incomeOnly ||
+      TaxBaseScope.wealthOnly ||
+      TaxBaseScope.incomeAndWealth =>
+        true,
+      TaxBaseScope.totalInvoice || TaxBaseScope.unknown => false,
+    };
+    return authorityIsCanonical && baseIsCanonical;
+  }
+
+  static int _statusRank(TaxAssessmentStatus status) =>
+      status == TaxAssessmentStatus.inForce ? 0 : 1;
+
+  static int _compareRankThenTechnical(TaxSnapshot a, TaxSnapshot b) {
+    final year = b.taxYear!.compareTo(a.taxYear!);
+    if (year != 0) return year;
+    final status = _statusRank(a.assessmentStatus)
+        .compareTo(_statusRank(b.assessmentStatus));
+    if (status != 0) return status;
+    final aDate = a.sourceDate;
+    final bDate = b.sourceDate;
+    if (aDate == null && bDate != null) return 1;
+    if (aDate != null && bDate == null) return -1;
+    if (aDate != null && bDate != null) {
+      final sourceDate = bDate.compareTo(aDate);
+      if (sourceDate != 0) return sourceDate;
+    }
+    return _compareTechnical(a, b);
+  }
+
+  static int _compareTechnical(TaxSnapshot a, TaxSnapshot b) {
+    final updatedAt = b.updatedAt.compareTo(a.updatedAt);
+    if (updatedAt != 0) return updatedAt;
+    return a.snapshotId.compareTo(b.snapshotId);
+  }
+}
+
 /// Profil financier complet pour MINT Coach.
 ///
 /// Contient toutes les données nécessaires au ForecasterService
@@ -1511,6 +2451,9 @@ class CoachProfile {
 
   // === DETTES ===
   final DetteProfile dettes;
+
+  // === FISCALITE ===
+  final FiscalProfile fiscal;
 
   // === OBJECTIFS ===
   final GoalA goalA;
@@ -1647,6 +2590,7 @@ class CoachProfile {
     this.prevoyance = const PrevoyanceProfile(),
     this.patrimoine = const PatrimoineProfile(),
     this.dettes = const DetteProfile(),
+    this.fiscal = const FiscalProfile.empty(),
     required this.goalA,
     this.goalsB = const [],
     this.plannedContributions = const [],
@@ -2266,6 +3210,7 @@ class CoachProfile {
     PrevoyanceProfile? prevoyance,
     PatrimoineProfile? patrimoine,
     DetteProfile? dettes,
+    FiscalProfile? fiscal,
     GoalA? goalA,
     List<GoalB>? goalsB,
     List<PlannedMonthlyContribution>? plannedContributions,
@@ -2341,6 +3286,7 @@ class CoachProfile {
       prevoyance: prevoyance ?? this.prevoyance,
       patrimoine: patrimoine ?? this.patrimoine,
       dettes: dettes ?? this.dettes,
+      fiscal: fiscal ?? this.fiscal,
       goalA: goalA ?? this.goalA,
       goalsB: goalsB ?? this.goalsB,
       plannedContributions: plannedContributions ?? this.plannedContributions,
@@ -2594,30 +3540,33 @@ class CoachProfile {
       targetRetirementAge: json['targetRetirementAge'] as int?,
       initialProjectionSnapshot:
           json['initialProjectionSnapshot'] as Map<String, dynamic>?,
-      dataSources: (json['dataSources'] as Map<String, dynamic>?)?.map(
-            (k, v) => MapEntry(
-              k,
-              ProfileDataSource.values.firstWhere(
-                (e) => e.name == v,
-                orElse: () => ProfileDataSource.estimated,
-              ),
+      dataSources: <String, ProfileDataSource>{
+        for (final entry
+            in ((json['dataSources'] as Map<String, dynamic>?) ?? const {})
+                .entries)
+          if (!entry.key.startsWith('fiscal.'))
+            entry.key: ProfileDataSource.values.firstWhere(
+              (source) => source.name == entry.value,
+              orElse: () => ProfileDataSource.estimated,
             ),
-          ) ??
-          const {},
-      dataTimestamps: (json['dataTimestamps'] as Map<String, dynamic>?)?.map(
-            (k, v) {
-              final dt = DateTime.tryParse(v as String? ?? '');
-              return MapEntry(k, dt ?? DateTime.now());
-            },
-          ) ??
-          const {},
-      dataSourceDates: (json['dataSourceDates'] as Map<String, dynamic>?)?.map(
-            (k, v) => MapEntry(
-              k,
-              v == null ? null : DateTime.tryParse(v.toString()),
-            ),
-          ) ??
-          const {},
+      },
+      dataTimestamps: <String, DateTime>{
+        for (final entry
+            in ((json['dataTimestamps'] as Map<String, dynamic>?) ?? const {})
+                .entries)
+          if (!entry.key.startsWith('fiscal.'))
+            entry.key: DateTime.tryParse(entry.value as String? ?? '') ??
+                DateTime.now(),
+      },
+      dataSourceDates: <String, DateTime?>{
+        for (final entry
+            in ((json['dataSourceDates'] as Map<String, dynamic>?) ?? const {})
+                .entries)
+          if (!entry.key.startsWith('fiscal.'))
+            entry.key: entry.value == null
+                ? null
+                : DateTime.tryParse(entry.value.toString()),
+      },
       inferDataSources: !json.containsKey('dataSources'),
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String)
@@ -2703,12 +3652,20 @@ class CoachProfile {
         'gender': gender,
         'targetRetirementAge': targetRetirementAge,
         'initialProjectionSnapshot': initialProjectionSnapshot,
-        'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
-        'dataTimestamps':
-            dataTimestamps.map((k, v) => MapEntry(k, v.toIso8601String())),
-        'dataSourceDates': dataSourceDates.map(
-          (k, v) => MapEntry(k, v?.toIso8601String()),
-        ),
+        'dataSources': <String, String>{
+          for (final entry in dataSources.entries)
+            if (!entry.key.startsWith('fiscal.')) entry.key: entry.value.name,
+        },
+        'dataTimestamps': <String, String>{
+          for (final entry in dataTimestamps.entries)
+            if (!entry.key.startsWith('fiscal.'))
+              entry.key: entry.value.toIso8601String(),
+        },
+        'dataSourceDates': <String, String?>{
+          for (final entry in dataSourceDates.entries)
+            if (!entry.key.startsWith('fiscal.'))
+              entry.key: entry.value?.toIso8601String(),
+        },
         'userProvidedFields': userProvidedFields.toList(),
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
@@ -2729,7 +3686,11 @@ class CoachProfile {
   /// Mapping des 27 cles wizard → champs CoachProfile.
   /// Pour les champs que le wizard ne collecte pas, des estimations
   /// raisonnables sont utilisees (standards suisses).
-  factory CoachProfile.fromWizardAnswers(Map<String, dynamic> answers) {
+  factory CoachProfile.fromWizardAnswers(
+    Map<String, dynamic> answers, {
+    DateTime Function()? now,
+  }) {
+    var fiscal = _fiscalFromWizardAnswers(answers);
     // ── Identite ────────────────────────────────────────────
     final firstName = answers['q_firstname'] as String?;
     // CHAOS-78: Never default to 1990 — unknown birthYear stays 0
@@ -2750,11 +3711,12 @@ class CoachProfile {
     // Use precise age from dateOfBirth if available
     final int age;
     if (dateOfBirth != null) {
-      final now = DateTime.now();
-      age = now.year -
+      final ageNow = DateTime.now();
+      age = ageNow.year -
           dateOfBirth.year -
-          ((now.month < dateOfBirth.month ||
-                  (now.month == dateOfBirth.month && now.day < dateOfBirth.day))
+          ((ageNow.month < dateOfBirth.month ||
+                  (ageNow.month == dateOfBirth.month &&
+                      ageNow.day < dateOfBirth.day))
               ? 1
               : 0);
     } else if (birthYear >= 1900) {
@@ -3274,6 +4236,27 @@ class CoachProfile {
     if (rawProvenance is Map) {
       for (final entry in rawProvenance.entries) {
         final fieldPath = entry.key.toString();
+        if (fieldPath.startsWith('fiscal.')) {
+          final segments = fieldPath.split('.');
+          final snapshotId = segments.length >= 4 ? segments[2] : null;
+          final leafPath =
+              segments.length >= 4 ? segments.sublist(3).join('.') : null;
+          final snapshot = snapshotId == null
+              ? null
+              : fiscal.snapshots
+                  .where((value) => value.snapshotId == snapshotId)
+                  .firstOrNull;
+          final allowed = FeatureFlags.typedTaxProfile &&
+              segments.length >= 4 &&
+              segments[0] == 'fiscal' &&
+              segments[1] == 'snapshots' &&
+              snapshot != null &&
+              leafPath != null &&
+              TaxSnapshot.provenanceLeafPaths.contains(leafPath) &&
+              (leafPath == 'sourceDate' ||
+                  snapshot.provenanceValue(leafPath) != null);
+          if (!allowed) continue;
+        }
         canonicalMentionedPaths.add(fieldPath);
         final envelope = entry.value;
         if (envelope is! Map || !envelope.containsKey('sourceDate')) continue;
@@ -3294,6 +4277,10 @@ class CoachProfile {
         canonicalSourceDates[fieldPath] = parsedSourceDate;
       }
     }
+    fiscal = fiscal.copyWith(
+      provenanceValidatedSnapshotIds:
+          _validatedFiscalSnapshotIds(fiscal, rawProvenance, now: now),
+    );
 
     // ── Legacy dataSources (migration input only) ────────────────
     final restoredDataSources = <String, ProfileDataSource>{};
@@ -3308,24 +4295,6 @@ class CoachProfile {
     if (coachAvsLacunes != null) {
       restoredDataSources['prevoyance.lacunesAVS'] =
           ProfileDataSource.estimated;
-    }
-    if (answers['_coach_tax_source'] == 'document_scan') {
-      if (answers['_coach_tax_revenu_imposable'] != null) {
-        restoredDataSources['fiscal.revenuImposable'] =
-            ProfileDataSource.certificate;
-      }
-      if (answers['_coach_tax_fortune_imposable'] != null) {
-        restoredDataSources['fiscal.fortuneImposable'] =
-            ProfileDataSource.certificate;
-      }
-      if (answers['_coach_tax_taux_marginal'] != null) {
-        restoredDataSources['fiscal.tauxMarginal'] =
-            ProfileDataSource.certificate;
-      }
-      if (answers['_coach_tax_impot_cantonal'] != null ||
-          answers['_coach_tax_impot_federal'] != null) {
-        restoredDataSources['fiscal.impots'] = ProfileDataSource.certificate;
-      }
     }
     if (answers['_coach_lpp_source'] == 'document_scan') {
       const lppAnswerPaths = <String, String>{
@@ -3614,6 +4583,7 @@ class CoachProfile {
       prevoyance: prevoyance,
       patrimoine: patrimoine,
       dettes: dettes,
+      fiscal: fiscal,
       goalA: goalA,
       plannedContributions: contributions,
       housingStatus: answers['q_housing_status'] as String?,
@@ -3647,6 +4617,165 @@ class CoachProfile {
       primaryFocus: answers['q_primary_focus'] as String?,
     );
   }
+
+  static FiscalProfile _fiscalFromWizardAnswers(
+    Map<String, dynamic> answers,
+  ) {
+    if (!FeatureFlags.typedTaxProfile) return const FiscalProfile.empty();
+    final raw = answers['_coach_tax_snapshots_v1'];
+    if (raw is! String) return const FiscalProfile.empty();
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return const FiscalProfile.empty();
+      final root = Map<String, dynamic>.from(decoded);
+      if (root.length != 3 ||
+          root['schemaVersion'] != 1 ||
+          !root.containsKey('snapshots') ||
+          !root.containsKey('legacyQuarantine')) {
+        return const FiscalProfile.empty();
+      }
+      final rawSnapshots = root['snapshots'];
+      if (rawSnapshots is! List) return const FiscalProfile.empty();
+      final snapshots = <TaxSnapshot>[];
+      final ids = <String>{};
+      String? profileOwnerId;
+      for (final rawSnapshot in rawSnapshots) {
+        if (rawSnapshot is! Map) return const FiscalProfile.empty();
+        final snapshot =
+            TaxSnapshot.fromJson(Map<String, dynamic>.from(rawSnapshot));
+        if (!ids.add(snapshot.snapshotId)) return const FiscalProfile.empty();
+        profileOwnerId ??= snapshot.profileOwnerId;
+        if (snapshot.profileOwnerId != profileOwnerId) {
+          return const FiscalProfile.empty();
+        }
+        snapshots.add(snapshot);
+      }
+
+      final rawQuarantine = root['legacyQuarantine'];
+      var legacyDataNeedsReview = false;
+      if (rawQuarantine != null) {
+        if (rawQuarantine is! Map) return const FiscalProfile.empty();
+        final quarantine = Map<String, dynamic>.from(rawQuarantine);
+        final reasons = quarantine['reasonCodes'];
+        final values = quarantine['values'];
+        final quarantinedAt =
+            DateTime.tryParse(quarantine['quarantinedAt']?.toString() ?? '');
+        if (quarantine.length != 4 ||
+            quarantine['legacySchemaVersion'] != 0 ||
+            reasons is! List ||
+            reasons.isEmpty ||
+            reasons.any((reason) => reason is! String) ||
+            values is! Map ||
+            values.keys.any(
+              (key) =>
+                  key is! String ||
+                  !key.startsWith('_coach_tax_') ||
+                  key == '_coach_tax_snapshots_v1',
+            ) ||
+            quarantinedAt == null) {
+          return const FiscalProfile.empty();
+        }
+        legacyDataNeedsReview = values.isNotEmpty;
+      }
+      return FiscalProfile(
+        snapshots: snapshots,
+        legacyDataNeedsReview: legacyDataNeedsReview,
+      );
+    } on Object {
+      return const FiscalProfile.empty();
+    }
+  }
+
+  static Set<String> _validatedFiscalSnapshotIds(
+    FiscalProfile fiscal,
+    dynamic rawProvenance, {
+    DateTime Function()? now,
+  }) {
+    if (rawProvenance is! Map) return const {};
+    final provenance = <String, dynamic>{
+      for (final entry in rawProvenance.entries)
+        entry.key.toString(): entry.value,
+    };
+    final validated = <String>{};
+    final currentDay = _civilDay((now ?? DateTime.now)());
+    for (final snapshot in fiscal.snapshots) {
+      if (snapshot.assessmentStatus == TaxAssessmentStatus.inForce &&
+          !snapshot.inForceAttested) {
+        continue;
+      }
+      if (snapshot.sourceDate case final sourceDate?
+          when _civilDay(sourceDate).isAfter(currentDay)) {
+        continue;
+      }
+      final prefix = 'fiscal.snapshots.${snapshot.snapshotId}.';
+      final expectedPaths = <String>{
+        for (final leafPath in TaxSnapshot.provenanceLeafPaths)
+          if (leafPath == 'sourceDate' ||
+              snapshot.provenanceValue(leafPath) != null)
+            '$prefix$leafPath',
+      };
+      final actualPaths = provenance.keys
+          .where((fieldPath) => fieldPath.startsWith(prefix))
+          .toSet();
+      if (!setEquals(expectedPaths, actualPaths)) continue;
+      if (expectedPaths.every(
+        (fieldPath) => _isExactFiscalProvenanceEnvelope(
+          provenance[fieldPath],
+          snapshot,
+          fieldPath.substring(prefix.length),
+        ),
+      )) {
+        validated.add(snapshot.snapshotId);
+      }
+    }
+    return Set.unmodifiable(validated);
+  }
+
+  static bool _isExactFiscalProvenanceEnvelope(
+    dynamic rawEnvelope,
+    TaxSnapshot snapshot,
+    String leafPath,
+  ) {
+    if (rawEnvelope is! Map ||
+        rawEnvelope.length != 3 ||
+        !rawEnvelope.containsKey('source') ||
+        !rawEnvelope.containsKey('updatedAt') ||
+        !rawEnvelope.containsKey('sourceDate')) {
+      return false;
+    }
+    final expectedSource = switch (leafPath) {
+      'inForceAttested' => ProfileDataSource.userInput,
+      'assessmentStatus'
+          when snapshot.assessmentStatus == TaxAssessmentStatus.inForce =>
+        ProfileDataSource.userInput,
+      _ => switch (snapshot.documentKind) {
+          TaxDocumentKind.assessmentNotice => ProfileDataSource.certificate,
+          TaxDocumentKind.taxpayerReturn => ProfileDataSource.userInput,
+          TaxDocumentKind.provisionalBill ||
+          TaxDocumentKind.finalTaxBill ||
+          TaxDocumentKind.unknown =>
+            ProfileDataSource.estimated,
+        },
+    };
+    if (rawEnvelope['source'] != expectedSource.name) return false;
+
+    final rawUpdatedAt = rawEnvelope['updatedAt'];
+    if (rawUpdatedAt is! String) return false;
+    final updatedAt = DateTime.tryParse(rawUpdatedAt);
+    if (updatedAt == null || !updatedAt.isAtSameMomentAs(snapshot.updatedAt)) {
+      return false;
+    }
+
+    final rawSourceDate = rawEnvelope['sourceDate'];
+    if (snapshot.sourceDate == null) return rawSourceDate == null;
+    if (rawSourceDate is! String) return false;
+    final sourceDate = DateTime.tryParse(rawSourceDate);
+    return sourceDate != null &&
+        sourceDate.isAtSameMomentAs(snapshot.sourceDate!);
+  }
+
+  static DateTime _civilDay(DateTime value) =>
+      DateTime.utc(value.year, value.month, value.day);
 
   // ── Parsing helpers ─────────────────────────────────────────
 

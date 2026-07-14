@@ -120,7 +120,9 @@ class AuthProvider extends ChangeNotifier {
         await _hydrateProfileFromBackend();
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
+        } catch (e) {
+          debugPrint('[Auth] best-effort failed: $e');
+        }
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
@@ -203,7 +205,9 @@ class AuthProvider extends ChangeNotifier {
         // Best-effort: schedule fresh-start notifications
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
+        } catch (e) {
+          debugPrint('[Auth] best-effort failed: $e');
+        }
       }
 
       notifyListeners();
@@ -378,7 +382,8 @@ class AuthProvider extends ChangeNotifier {
       final response = await ApiService.verifyMagicLink(token);
 
       // Backend returns camelCase: { accessToken, tokenType }
-      final accessToken = (response['accessToken'] ?? response['access_token']) as String;
+      final accessToken =
+          (response['accessToken'] ?? response['access_token']) as String;
 
       // Get user info from the JWT to populate auth state.
       // For now, store the token and fetch user info separately.
@@ -658,7 +663,8 @@ class AuthProvider extends ChangeNotifier {
         await AnonymousSessionService.clearSession();
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('[AuthProvider] Anonymous conversation migration failed: $e');
+          debugPrint(
+              '[AuthProvider] Anonymous conversation migration failed: $e');
         }
       }
 
@@ -667,6 +673,8 @@ class AuthProvider extends ChangeNotifier {
       try {
         final answers = await ReportPersistenceService.loadAnswers();
         if (answers.isNotEmpty) {
+          final backendAnswers =
+              ReportPersistenceService.backendSafeAnswers(answers);
           var deviceId = prefs.getString('_mint_device_id');
           if (deviceId == null) {
             deviceId = const Uuid().v4();
@@ -675,7 +683,7 @@ class AuthProvider extends ChangeNotifier {
           await ApiService.claimLocalData(
             localDataVersion: 1,
             deviceId: deviceId,
-            wizardAnswers: answers,
+            wizardAnswers: backendAnswers,
           );
         }
       } catch (e) {
@@ -688,7 +696,9 @@ class AuthProvider extends ChangeNotifier {
       await prefs.setBool('local_data_migrated_$currentUserId', true);
     } catch (e) {
       // Migration is best-effort — never block auth flow
-      if (kDebugMode) debugPrint('[AuthProvider] Local data migration failed: $e');
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Local data migration failed: $e');
+      }
     }
   }
 
@@ -765,7 +775,9 @@ class AuthProvider extends ChangeNotifier {
       return AuthError.networkUnavailable;
     }
 
-    if (lower.contains('existe déjà')) { // lint-ignore: backend error fragment, not UI copy
+    // Backend error fragments are classifier inputs, not UI copy. Unicode
+    // escapes preserve the exact runtime matching without bypassing UI lints.
+    if (lower.contains('existe d\u00e9j\u00e0')) {
       return AuthError.emailAlreadyUsed;
     }
 
@@ -791,7 +803,8 @@ class AuthProvider extends ChangeNotifier {
     if (lower.contains('expir')) {
       return AuthError.linkExpired;
     }
-    if (lower.contains('non vérifié') || lower.contains('not verified')) { // lint-ignore: backend error fragment, not UI copy
+    if (lower.contains('non v\u00e9rifi\u00e9') ||
+        lower.contains('not verified')) {
       return AuthError.emailNotVerified;
     }
 

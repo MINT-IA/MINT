@@ -61,6 +61,61 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════════════════
+  // Backend privacy boundary
+  // ═══════════════════════════════════════════════════════════════════════
+
+  group('ReportPersistenceService.backendSafeAnswers', () {
+    test('removes every tax key and provenance without mutating local facts',
+        () {
+      final localAnswers = <String, dynamic>{
+        'q_canton': 'VD',
+        'q_birth_year': 1980,
+        'non_fiscal_nested': {
+          'known': true,
+        },
+        '_coach_tax_snapshots_v1': '{canonical-sensitive-root}',
+        '_coach_tax_revenu_imposable': 98500,
+        '_coach_tax_quarantine_v0': {
+          'values': {'legacy': 'sensitive'},
+        },
+        '__provenance': {
+          'salaireBrutMensuel': {
+            'source': 'userInput',
+            'updatedAt': '2026-07-14T00:00:00.000Z',
+            'sourceDate': null,
+          },
+          'fiscal.snapshots.private.taxYear': {
+            'source': 'certificate',
+            'updatedAt': '2026-07-14T00:00:00.000Z',
+            'sourceDate': '2026-06-20T00:00:00.000Z',
+          },
+        },
+      };
+      final localAnswersBefore = jsonEncode(localAnswers);
+
+      final backendAnswers =
+          ReportPersistenceService.backendSafeAnswers(localAnswers);
+
+      expect(
+        backendAnswers,
+        {
+          'q_canton': 'VD',
+          'q_birth_year': 1980,
+          'non_fiscal_nested': {'known': true},
+        },
+      );
+      expect(
+        backendAnswers.keys.where((key) => key.startsWith('_coach_tax_')),
+        isEmpty,
+      );
+      expect(backendAnswers.containsKey('__provenance'), isFalse);
+      expect(localAnswers.containsKey('_coach_tax_snapshots_v1'), isTrue);
+      expect(localAnswers.containsKey('__provenance'), isTrue);
+      expect(jsonEncode(localAnswers), localAnswersBefore);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
   // Wizard Answers — Save & Load
   // ═══════════════════════════════════════════════════════════════════════
 

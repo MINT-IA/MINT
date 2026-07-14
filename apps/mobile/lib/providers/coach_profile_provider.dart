@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
@@ -9,6 +10,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -19,6 +21,24 @@ import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
+
+abstract interface class TaxProfilePersistence {
+  Future<Map<String, dynamic>> loadAnswers();
+
+  Future<void> saveAnswers(Map<String, dynamic> answers);
+}
+
+final class _ReportTaxProfilePersistence implements TaxProfilePersistence {
+  const _ReportTaxProfilePersistence();
+
+  @override
+  Future<Map<String, dynamic>> loadAnswers() =>
+      ReportPersistenceService.loadAnswers();
+
+  @override
+  Future<void> saveAnswers(Map<String, dynamic> answers) =>
+      ReportPersistenceService.saveAnswers(answers);
+}
 
 /// Provider pour le profil Coach MINT.
 ///
@@ -38,6 +58,18 @@ import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
 ///
 /// Le profil est recalcule a chaque appel a [loadFromWizard()].
 class CoachProfileProvider extends ChangeNotifier {
+  CoachProfileProvider({
+    TaxProfilePersistence? taxProfilePersistence,
+    DateTime Function()? now,
+  })  : _taxProfilePersistence =
+            taxProfilePersistence ?? const _ReportTaxProfilePersistence(),
+        _usesInjectedTaxPersistence = taxProfilePersistence != null,
+        _now = now ?? DateTime.now;
+
+  static const _taxSnapshotRootKey = '_coach_tax_snapshots_v1';
+  final TaxProfilePersistence _taxProfilePersistence;
+  final bool _usesInjectedTaxPersistence;
+  final DateTime Function() _now;
   CoachProfile? _profile;
   bool _isLoading = false;
   bool _isLoaded = false;
@@ -121,6 +153,307 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     return value;
   }
+
+  static ({Map<String, dynamic> answers, bool migrated})
+      _withLegacyTaxQuarantine(Map<String, dynamic> loaded) {
+    final answers = _copyAnswers(loaded);
+    if (!FeatureFlags.typedTaxProfile) {
+      return (answers: answers, migrated: false);
+    }
+    final legacyValues = <String, dynamic>{
+      for (final entry in answers.entries)
+        if (entry.key.startsWith('_coach_tax_') &&
+            entry.key != _taxSnapshotRootKey)
+          entry.key: _copyAnswerValue(entry.value),
+    };
+    if (legacyValues.isEmpty) {
+      return (answers: answers, migrated: false);
+    }
+
+    List<TaxSnapshot> snapshots = const [];
+    Map<String, dynamic>? existingQuarantine;
+    if (answers.containsKey(_taxSnapshotRootKey)) {
+      try {
+        final existing = _readTaxEnvelope(answers);
+        snapshots = existing.snapshots;
+        existingQuarantine = existing.legacyQuarantine;
+      } on StateError {
+        return (answers: answers, migrated: false);
+      }
+    }
+
+    final quarantinedValues = existingQuarantine?['values'] is Map
+        ? Map<String, dynamic>.from(
+            _copyAnswerValue(existingQuarantine!['values']) as Map,
+          )
+        : <String, dynamic>{};
+    for (final entry in legacyValues.entries) {
+      quarantinedValues.putIfAbsent(entry.key, () => entry.value);
+    }
+    final reasonCodes = existingQuarantine?['reasonCodes'] is List
+        ? List<String>.from(existingQuarantine!['reasonCodes'] as List)
+        : <String>[];
+    if (!reasonCodes.contains('untyped_legacy_tax_facts')) {
+      reasonCodes.add('untyped_legacy_tax_facts');
+    }
+    final quarantinedAt = existingQuarantine?['quarantinedAt']?.toString() ??
+        DateTime.now().toUtc().toIso8601String();
+
+    for (final key in legacyValues.keys) {
+      answers.remove(key);
+    }
+    answers[_taxSnapshotRootKey] = jsonEncode({
+      'schemaVersion': 1,
+      'snapshots': snapshots.map((snapshot) => snapshot.toJson()).toList(),
+      'legacyQuarantine': <String, dynamic>{
+        'legacySchemaVersion': existingQuarantine?['legacySchemaVersion'] ?? 0,
+        'reasonCodes': reasonCodes,
+        'values': quarantinedValues,
+        'quarantinedAt': quarantinedAt,
+      },
+    });
+    return (answers: answers, migrated: true);
+  }
+
+  static ({
+    List<TaxSnapshot> snapshots,
+    Map<String, dynamic>? legacyQuarantine,
+  }) _readTaxEnvelope(Map<String, dynamic> answers) {
+    final raw = answers[_taxSnapshotRootKey];
+    if (raw == null) {
+      return (snapshots: const [], legacyQuarantine: null);
+    }
+    try {
+      if (raw is! String) throw const FormatException('Tax root is not JSON');
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) throw const FormatException('Tax root is not a map');
+      final root = Map<String, dynamic>.from(decoded);
+      if (root.length != 3 ||
+          root['schemaVersion'] != 1 ||
+          root['snapshots'] is! List ||
+          !root.containsKey('legacyQuarantine')) {
+        throw const FormatException('Invalid tax root contract');
+      }
+
+      final snapshots = <TaxSnapshot>[];
+      final ids = <String>{};
+      String? profileOwnerId;
+      for (final rawSnapshot in root['snapshots'] as List) {
+        if (rawSnapshot is! Map) {
+          throw const FormatException('Invalid tax snapshot');
+        }
+        final snapshot =
+            TaxSnapshot.fromJson(Map<String, dynamic>.from(rawSnapshot));
+        if (!ids.add(snapshot.snapshotId)) {
+          throw const FormatException('Duplicate tax snapshot');
+        }
+        profileOwnerId ??= snapshot.profileOwnerId;
+        if (snapshot.profileOwnerId != profileOwnerId) {
+          throw const FormatException('Unstable tax profile owner');
+        }
+        snapshots.add(snapshot);
+      }
+
+      final rawQuarantine = root['legacyQuarantine'];
+      Map<String, dynamic>? legacyQuarantine;
+      if (rawQuarantine != null) {
+        if (rawQuarantine is! Map) {
+          throw const FormatException('Invalid tax quarantine');
+        }
+        final quarantine = Map<String, dynamic>.from(rawQuarantine);
+        final reasons = quarantine['reasonCodes'];
+        final values = quarantine['values'];
+        if (quarantine.length != 4 ||
+            quarantine['legacySchemaVersion'] != 0 ||
+            reasons is! List ||
+            reasons.isEmpty ||
+            reasons.any((reason) => reason is! String) ||
+            values is! Map ||
+            values.keys.any(
+              (key) =>
+                  key is! String ||
+                  !key.startsWith('_coach_tax_') ||
+                  key == _taxSnapshotRootKey,
+            ) ||
+            DateTime.tryParse(
+                  quarantine['quarantinedAt']?.toString() ?? '',
+                ) ==
+                null) {
+          throw const FormatException('Invalid tax quarantine');
+        }
+        legacyQuarantine = _copyAnswerValue(quarantine) as Map<String, dynamic>;
+      }
+      return (
+        snapshots: List<TaxSnapshot>.unmodifiable(snapshots),
+        legacyQuarantine: legacyQuarantine,
+      );
+    } on Object catch (error) {
+      throw StateError('Invalid persisted tax profile: $error');
+    }
+  }
+
+  static ProfileDataSource _taxSourceFor(TaxDocumentKind kind) {
+    return switch (kind) {
+      TaxDocumentKind.assessmentNotice => ProfileDataSource.certificate,
+      TaxDocumentKind.taxpayerReturn => ProfileDataSource.userInput,
+      TaxDocumentKind.provisionalBill ||
+      TaxDocumentKind.finalTaxBill ||
+      TaxDocumentKind.unknown =>
+        ProfileDataSource.estimated,
+    };
+  }
+
+  static ProfileDataSource _taxSourceForLeaf(
+    TaxSnapshot snapshot,
+    String leafPath,
+  ) {
+    if (leafPath == 'inForceAttested' ||
+        (leafPath == 'assessmentStatus' &&
+            snapshot.assessmentStatus == TaxAssessmentStatus.inForce)) {
+      return ProfileDataSource.userInput;
+    }
+    return _taxSourceFor(snapshot.documentKind);
+  }
+
+  static CoachProfile _withTaxSnapshotProvenance(
+    CoachProfile profile,
+    TaxSnapshot snapshot, {
+    required DateTime updatedAt,
+  }) {
+    final sources = Map<String, ProfileDataSource>.from(profile.dataSources);
+    final timestamps = Map<String, DateTime>.from(profile.dataTimestamps);
+    final sourceDates = Map<String, DateTime?>.from(profile.dataSourceDates);
+    final prefix = 'fiscal.snapshots.${snapshot.snapshotId}.';
+    sources.removeWhere((path, _) => path.startsWith(prefix));
+    timestamps.removeWhere((path, _) => path.startsWith(prefix));
+    sourceDates.removeWhere((path, _) => path.startsWith(prefix));
+    for (final leafPath in TaxSnapshot.provenanceLeafPaths) {
+      if (leafPath != 'sourceDate' &&
+          snapshot.provenanceValue(leafPath) == null) {
+        continue;
+      }
+      final path = '$prefix$leafPath';
+      sources[path] = _taxSourceForLeaf(snapshot, leafPath);
+      timestamps[path] = updatedAt;
+      sourceDates[path] = snapshot.sourceDate;
+    }
+    return profile.copyWith(
+      dataSources: sources,
+      dataTimestamps: timestamps,
+      dataSourceDates: sourceDates,
+      updatedAt: updatedAt,
+    );
+  }
+
+  Future<void> acceptTaxReview(TaxReviewConfirmation confirmation) async {
+    if (!FeatureFlags.typedTaxProfile) {
+      throw StateError('Typed tax profile is disabled');
+    }
+    if (confirmation.assessmentStatus == TaxAssessmentStatus.inForce &&
+        !confirmation.inForceAttested) {
+      throw ArgumentError.value(
+        confirmation.inForceAttested,
+        'inForceAttested',
+        'explicit user attestation required for an in-force assessment',
+      );
+    }
+    final currentCivilTime = _now();
+    final updatedAt = currentCivilTime.toUtc();
+    final sourceDate = confirmation.sourceDate;
+    if (sourceDate != null &&
+        _civilDay(sourceDate).isAfter(_civilDay(currentCivilTime))) {
+      throw ArgumentError.value(
+        sourceDate,
+        'sourceDate',
+        'future civil source dates cannot enter the ledger',
+      );
+    }
+
+    final loaded = await _taxProfilePersistence.loadAnswers();
+    final migration = _withLegacyTaxQuarantine(loaded);
+    final envelope = _readTaxEnvelope(migration.answers);
+    final profileOwnerId = envelope.snapshots.isEmpty
+        ? const Uuid().v4()
+        : envelope.snapshots.first.profileOwnerId;
+    final snapshot = TaxSnapshot(
+      snapshotId: confirmation.candidate.snapshotId,
+      profileOwnerId: profileOwnerId,
+      taxYear: confirmation.taxYear,
+      basedOnTaxYear: confirmation.basedOnTaxYear,
+      sourceDate: confirmation.sourceDate,
+      documentKind: confirmation.documentKind,
+      assessmentStatus: confirmation.assessmentStatus,
+      inForceAttested: confirmation.inForceAttested,
+      subjectScope: confirmation.subjectScope,
+      cantonCode: confirmation.cantonCode,
+      municipalityId: confirmation.municipalityId,
+      municipalityLabel: confirmation.municipalityLabel,
+      cantonalCommunalTaxableIncomeChf:
+          confirmation.cantonalCommunalTaxableIncomeChf,
+      federalTaxableIncomeChf: confirmation.federalTaxableIncomeChf,
+      cantonalCommunalTaxableWealthChf:
+          confirmation.cantonalCommunalTaxableWealthChf,
+      cantonalCommunalAssessedTax: confirmation.cantonalCommunalAssessedTax,
+      federalDirectAssessedTax: confirmation.federalDirectAssessedTax,
+      explicitMarginalIncomeTaxRate: confirmation.explicitMarginalIncomeTaxRate,
+      explicitAverageIncomeTaxRate: confirmation.explicitAverageIncomeTaxRate,
+      updatedAt: updatedAt,
+    );
+    final snapshots = List<TaxSnapshot>.from(envelope.snapshots);
+    final replacementIndex = snapshots.indexWhere(
+      (existing) => existing.snapshotId == snapshot.snapshotId,
+    );
+    if (replacementIndex == -1) {
+      snapshots.add(snapshot);
+    } else {
+      snapshots[replacementIndex] = snapshot;
+    }
+
+    final persistedProfile = CoachProfile.fromWizardAnswers(
+      migration.answers,
+      now: _now,
+    );
+    final retainedSnapshotIds = snapshots
+        .map((retainedSnapshot) => retainedSnapshot.snapshotId)
+        .toSet();
+    final validatedSnapshotIds = persistedProfile
+        .fiscal.provenanceValidatedSnapshotIds
+        .where(retainedSnapshotIds.contains)
+        .toSet()
+      ..add(snapshot.snapshotId);
+    final nextFiscal = FiscalProfile(
+      snapshots: snapshots,
+      provenanceValidatedSnapshotIds: validatedSnapshotIds,
+      legacyDataNeedsReview: envelope.legacyQuarantine?['values'] is Map &&
+          (envelope.legacyQuarantine!['values'] as Map).isNotEmpty,
+    );
+    var nextProfile = persistedProfile.copyWith(fiscal: nextFiscal);
+    nextProfile = _withTaxSnapshotProvenance(
+      nextProfile,
+      snapshot,
+      updatedAt: updatedAt,
+    );
+
+    final nextAnswers = _copyAnswers(migration.answers);
+    nextAnswers[_taxSnapshotRootKey] = jsonEncode({
+      'schemaVersion': 1,
+      'snapshots': snapshots.map((value) => value.toJson()).toList(),
+      'legacyQuarantine': envelope.legacyQuarantine,
+    });
+    _persistProvenance(nextAnswers, nextProfile);
+
+    await _taxProfilePersistence.saveAnswers(nextAnswers);
+
+    _lastAnswers = _copyAnswers(nextAnswers);
+    _profile = nextProfile;
+    _isLoaded = true;
+    _isPartialProfile = true;
+    _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
+  static DateTime _civilDay(DateTime value) =>
+      DateTime.utc(value.year, value.month, value.day);
 
   /// S47: Stamp dataTimestamps for a set of field paths.
   /// Merges with existing timestamps — only overwrites the given fields.
@@ -391,8 +724,7 @@ class CoachProfileProvider extends ChangeNotifier {
       // Only sync when authenticated — avoid 401 errors.
       final isLoggedIn = await AuthService.isLoggedIn();
       if (!isLoggedIn) return;
-      final answers = Map<String, dynamic>.from(_lastAnswers);
-      answers.remove('__provenance');
+      final answers = ReportPersistenceService.backendSafeAnswers(_lastAnswers);
       final prefs = await SharedPreferences.getInstance();
       // Stable device ID — generated once, persisted across sessions.
       var deviceId = prefs.getString('_mint_device_id');
@@ -629,13 +961,35 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Check full wizard first
-      final isFullCompleted = await ReportPersistenceService.isCompleted();
-      final answers = await ReportPersistenceService.loadAnswers();
+      final loadedAnswers = await _taxProfilePersistence.loadAnswers();
+      final migration = _withLegacyTaxQuarantine(loadedAnswers);
+      if (migration.migrated) {
+        await _taxProfilePersistence.saveAnswers(migration.answers);
+      }
+      final answers = migration.answers;
       _lastAnswers = _copyAnswers(answers);
 
+      // Bounded tax consumers may inject a persistence boundary that has no
+      // dependency on Flutter platform bindings. Its
+      // non-empty payload is enough to hydrate a partial local profile; the
+      // full/mini onboarding completion flags and cross-feature merge remain
+      // owned by the default ReportPersistenceService path below.
+      if (_usesInjectedTaxPersistence) {
+        _profile = answers.isEmpty
+            ? null
+            : CoachProfile.fromWizardAnswers(answers, now: _now);
+        _isPartialProfile = _profile != null;
+        _isLoading = false;
+        _isLoaded = true;
+        _profileUpdatedSinceBudget = _profile != null;
+        notifyListeners();
+        return;
+      }
+
+      // Check full wizard first.
+      final isFullCompleted = await ReportPersistenceService.isCompleted();
       if (isFullCompleted && answers.isNotEmpty) {
-        _profile = CoachProfile.fromWizardAnswers(answers);
+        _profile = CoachProfile.fromWizardAnswers(answers, now: _now);
         _isPartialProfile = false;
         await _mergePersistedData();
         _isLoading = false;
@@ -649,7 +1003,7 @@ class CoachProfileProvider extends ChangeNotifier {
       final isMiniCompleted =
           await ReportPersistenceService.isMiniOnboardingCompleted();
       if (isMiniCompleted && answers.isNotEmpty) {
-        _profile = CoachProfile.fromWizardAnswers(answers);
+        _profile = CoachProfile.fromWizardAnswers(answers, now: _now);
         _isPartialProfile = true;
         await _mergePersistedData();
         _isLoading = false;
@@ -665,7 +1019,7 @@ class CoachProfileProvider extends ChangeNotifier {
       // enriched profile survives app restart instead of being lost.
       final hasScanData = answers.keys.any((k) => k.startsWith('_coach_'));
       if (hasScanData && answers.isNotEmpty) {
-        _profile = CoachProfile.fromWizardAnswers(answers);
+        _profile = CoachProfile.fromWizardAnswers(answers, now: _now);
         _isPartialProfile = true;
         await _mergePersistedData();
         _isLoading = false;
@@ -2288,115 +2642,6 @@ class CoachProfileProvider extends ChangeNotifier {
 
     _lastAnswers = _copyAnswers(answers);
     _profile = nextProfile;
-    _profileUpdatedSinceBudget = true;
-    CoachNarrativeService.invalidateCache(profile: _profile);
-    notifyListeners();
-  }
-
-  /// Met a jour le profil depuis l'extraction d'une declaration fiscale.
-  ///
-  /// Mappe les 6 champs fiscaux extraits vers les wizard answers
-  /// et tag les dataSources comme certificate-confirmed.
-  /// Le taux marginal effectif est le champ le plus critique (drive
-  /// tous les arbitrages: 3a, rachat LPP, rente vs capital).
-  ///
-  /// Reference: LIFD art. 33-33a (deductions), LIFD art. 38 (capital)
-  Future<void> updateFromTaxExtraction(List<ExtractedField> fields) async {
-    _profile ??= CoachProfile.defaults();
-
-    final p = _profile!;
-
-    // Extract values from confirmed fields
-    double? revenuImposable;
-    double? fortuneImposable;
-    double? deductions;
-    double? impotCantonal;
-    double? impotFederal;
-    double? tauxMarginal;
-
-    for (final field in fields) {
-      if (field.profileField == null) continue;
-      final value = field.value;
-      if (value is! double) continue;
-
-      switch (field.profileField) {
-        case 'actualTaxableIncome':
-          revenuImposable = value;
-        case 'actualTaxableWealth':
-          fortuneImposable = value;
-        case 'actualDeductions':
-          deductions = value;
-        case 'actualCantonalTax':
-          impotCantonal = value;
-        case 'actualFederalTax':
-          impotFederal = value;
-        case 'actualMarginalRate':
-          tauxMarginal = value;
-      }
-    }
-
-    // Tag data sources as certificate-confirmed
-    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
-    if (revenuImposable != null) {
-      updatedSources['fiscal.revenuImposable'] = ProfileDataSource.certificate;
-    }
-    if (fortuneImposable != null) {
-      updatedSources['fiscal.fortuneImposable'] = ProfileDataSource.certificate;
-    }
-    if (tauxMarginal != null) {
-      updatedSources['fiscal.tauxMarginal'] = ProfileDataSource.certificate;
-    }
-    if (impotCantonal != null || impotFederal != null) {
-      updatedSources['fiscal.impots'] = ProfileDataSource.certificate;
-    }
-
-    // S47: Stamp timestamps for all fields touched by this extraction
-    final touchedFields = <String>[];
-    if (revenuImposable != null) {
-      touchedFields.add('fiscal.revenuImposable');
-    }
-    if (fortuneImposable != null) {
-      touchedFields.add('fiscal.fortuneImposable');
-    }
-    if (tauxMarginal != null) {
-      touchedFields.add('fiscal.tauxMarginal');
-    }
-    if (impotCantonal != null || impotFederal != null) {
-      touchedFields.add('fiscal.impots');
-    }
-    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
-
-    _profile = p.copyWith(
-      dataSources: updatedSources,
-      dataTimestamps: updatedTimestamps,
-      updatedAt: DateTime.now(),
-    );
-
-    // Persist to wizard answers for availability across restarts
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (revenuImposable != null) {
-      answers['_coach_tax_revenu_imposable'] = revenuImposable;
-    }
-    if (fortuneImposable != null) {
-      answers['_coach_tax_fortune_imposable'] = fortuneImposable;
-    }
-    if (deductions != null) {
-      answers['_coach_tax_deductions'] = deductions;
-    }
-    if (impotCantonal != null) {
-      answers['_coach_tax_impot_cantonal'] = impotCantonal;
-    }
-    if (impotFederal != null) {
-      answers['_coach_tax_impot_federal'] = impotFederal;
-    }
-    if (tauxMarginal != null) {
-      answers['_coach_tax_taux_marginal'] = tauxMarginal;
-    }
-    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
-    if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
-    answers['_coach_tax_source'] = 'document_scan';
-    await ReportPersistenceService.saveAnswers(answers);
-
     _profileUpdatedSinceBudget = true;
     CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();

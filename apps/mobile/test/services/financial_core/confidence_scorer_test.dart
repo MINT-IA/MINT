@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 
 void main() {
@@ -733,6 +734,121 @@ void main() {
       expect(blocs['lpp']!.status, 'complete');
       expect(blocs['lpp']!.score, blocs['lpp']!.maxScore);
     });
+
+    group('typed fiscal field weights', () {
+      setUp(() {
+        FeatureFlags.typedTaxProfile = true;
+      });
+
+      tearDown(() {
+        FeatureFlags.typedTaxProfile = false;
+      });
+
+      final cases = <({
+        String name,
+        FiscalProfile fiscal,
+        String? commune,
+        double score,
+        String status,
+      })>[
+        (
+          name: 'income-only adds 4 points',
+          fiscal: _validatedFiscalProfile(
+            [_assessedFiscalSnapshot(income: 98500)],
+          ),
+          commune: null,
+          score: 4,
+          status: 'partial',
+        ),
+        (
+          name: 'wealth-only adds 3 points',
+          fiscal: _validatedFiscalProfile(
+            [_assessedFiscalSnapshot(wealth: 245000)],
+          ),
+          commune: null,
+          score: 3,
+          status: 'partial',
+        ),
+        (
+          name: 'marginal-only adds 4 points',
+          fiscal: _validatedFiscalProfile(
+            [_assessedFiscalSnapshot(marginalRate: 0.325)],
+          ),
+          commune: null,
+          score: 4,
+          status: 'partial',
+        ),
+        (
+          name: 'full assessed baseline without commune stays partial at 11',
+          fiscal: _validatedFiscalProfile(
+            [
+              _assessedFiscalSnapshot(
+                income: 98500,
+                wealth: 245000,
+                marginalRate: 0.325,
+              ),
+            ],
+          ),
+          commune: null,
+          score: 11,
+          status: 'partial',
+        ),
+        (
+          name: 'full assessed baseline plus commune is complete at 15',
+          fiscal: _validatedFiscalProfile(
+            [
+              _assessedFiscalSnapshot(
+                income: 98500,
+                wealth: 245000,
+                marginalRate: 0.325,
+              ),
+            ],
+          ),
+          commune: 'Lausanne',
+          score: 15,
+          status: 'complete',
+        ),
+        (
+          name: 'same-rank conflict adds no fiscal fact points',
+          fiscal: _validatedFiscalProfile(
+            [
+              _assessedFiscalSnapshot(
+                snapshotId: '11111111-1111-4111-8111-111111111111',
+                income: 98500,
+                wealth: 245000,
+                marginalRate: 0.325,
+              ),
+              _assessedFiscalSnapshot(
+                snapshotId: '22222222-2222-4222-8222-222222222222',
+                income: 98500,
+                wealth: 245000,
+                marginalRate: 0.31,
+              ),
+            ],
+          ),
+          commune: null,
+          score: 0,
+          status: 'missing',
+        ),
+      ];
+
+      for (final testCase in cases) {
+        test(testCase.name, () {
+          final profile = _buildProfile(
+            age: 45,
+            salary: 8000,
+            canton: 'VD',
+            commune: testCase.commune,
+            fiscal: testCase.fiscal,
+          );
+
+          final fiscal = ConfidenceScorer.scoreAsBlocs(profile)['fiscalite']!;
+
+          expect(fiscal.score, testCase.score);
+          expect(fiscal.status, testCase.status);
+        });
+      }
+    });
   });
 
   // Confidence doctrine enforcement tests
@@ -744,6 +860,7 @@ CoachProfile _buildProfile({
   required int age,
   required double salary,
   required String canton,
+  String? commune,
   double? avoirLpp,
   double epargne3a = 0,
   double patrimoine = 0,
@@ -760,6 +877,7 @@ CoachProfile _buildProfile({
   int checkInsCount = 0,
   int? targetRetirementAge,
   GoalAType goalAType = GoalAType.retraite,
+  FiscalProfile? fiscal,
 }) {
   final checkIns = List.generate(
     checkInsCount,
@@ -775,6 +893,7 @@ CoachProfile _buildProfile({
     birthYear: DateTime.now().year - age,
     salaireBrutMensuel: salary,
     canton: canton,
+    commune: commune,
     etatCivil: etatCivil,
     employmentStatus: employmentStatus,
     arrivalAge: arrivalAge,
@@ -793,12 +912,51 @@ CoachProfile _buildProfile({
     patrimoine: PatrimoineProfile(
       epargneLiquide: patrimoine,
     ),
+    fiscal: fiscal ?? const FiscalProfile.empty(),
     depenses: const DepensesProfile(),
     goalA: GoalA(
       type: goalAType,
       targetDate: DateTime(2050),
       label: 'Test goal',
     ),
+  );
+}
+
+TaxSnapshot _assessedFiscalSnapshot({
+  String snapshotId = '11111111-1111-4111-8111-111111111111',
+  double? income,
+  double? wealth,
+  double? marginalRate,
+}) {
+  return TaxSnapshot(
+    snapshotId: snapshotId,
+    profileOwnerId: 'opaque-owner',
+    taxYear: 2025,
+    basedOnTaxYear: null,
+    sourceDate: DateTime.utc(2026, 6, 20),
+    documentKind: TaxDocumentKind.assessmentNotice,
+    assessmentStatus: TaxAssessmentStatus.inForce,
+    inForceAttested: true,
+    subjectScope: TaxSubjectScope.individual,
+    cantonCode: 'VD',
+    municipalityId: null,
+    municipalityLabel: null,
+    cantonalCommunalTaxableIncomeChf: income,
+    federalTaxableIncomeChf: null,
+    cantonalCommunalTaxableWealthChf: wealth,
+    cantonalCommunalAssessedTax: null,
+    federalDirectAssessedTax: null,
+    explicitMarginalIncomeTaxRate: marginalRate,
+    explicitAverageIncomeTaxRate: null,
+    updatedAt: DateTime.utc(2026, 7, 14),
+  );
+}
+
+FiscalProfile _validatedFiscalProfile(List<TaxSnapshot> snapshots) {
+  return FiscalProfile(
+    snapshots: snapshots,
+    provenanceValidatedSnapshotIds:
+        snapshots.map((snapshot) => snapshot.snapshotId).toSet(),
   );
 }
 
@@ -833,9 +991,9 @@ void _doctrinTests() {
       // All prompts must have positive impact (meaningful action)
       for (final p in confidence.prompts) {
         expect(p.impact, greaterThan(0),
-            reason: 'Prompt "${p.label}" should have positive impact');
+            reason: 'Prompt "${p.machineCode}" should have positive impact');
         expect(p.category, isNotEmpty);
-        expect(p.action, isNotEmpty);
+        expect(p.action.isNotEmpty || p.copyCode != null, isTrue);
       }
     });
 

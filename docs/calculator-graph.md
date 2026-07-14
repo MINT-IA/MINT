@@ -64,6 +64,8 @@ flowchart LR
     REPLACEMENT --> RETIREMENT_REPORT["RetirementProjection / report"]:::ui
     WIZARD[Wizard answers]:::profile --> EMERGENCY[EmergencyFundHeuristic]:::calc
     EMERGENCY --> PERSIST[ReportPersistenceService legacy quarantine]:::composer
+    TAX_DOCUMENT["Tax-document amount + reference"]:::profile --> TAX_DOCUMENT_RATIO["TaxDocumentRatioCalculator<br/>amount/reference to percentage only<br/>no policy / no ledger"]:::calc
+    TAX_DOCUMENT_RATIO --> TAX_DOCUMENT_PARSER["TaxDeclarationParser<br/>interpretation + admission"]:::composer
     PROFILE --> WEALTH[WealthFinancialFacts]:::calc
     PROFILE --> SUCCESSION[SuccessionReserveCalculator]:::calc
     LAMAL_FACTS[LAMal Ledger Facts]:::profile --> LAMAL[LamalPremiumNormalizer]:::calc
@@ -120,6 +122,7 @@ Julien + Lauren golden values.
 | **DisabilityInsuranceCalculator** | `disability_insurance_calculator.dart` | gross monthly salary, age, liquid savings, monthly fixed charges, IJM scenario flag | reserve months, employer/IJM/AI+LPP timeline income, LPP reset capital, life-drop % | DisabilityGapScreen, DisabilityInsuranceScreen |
 | **ReplacementRateCalculator** | `replacement_rate_calculator.dart` | monthly retirement income (nullable), current monthly income | nullable replacement rate in %, clamped to 0–150%; invalid or incomplete inputs stay null | `RetirementProjection.replacementRate`, financial report |
 | **EmergencyFundHeuristic** | `emergency_fund_heuristic.dart` | `q_emergency_fund` bucket, housing cost/frequency, monthly LAMal premium | reconstructed old emergency-fund cash estimate | ReportPersistenceService legacy quarantine only; never an explicit cash fact |
+| **TaxDocumentRatioCalculator** | `tax_document_ratio_calculator.dart` | tax-document amount and positive reference selected by the caller | raw `amount / reference * 100` percentage arithmetic only; no threshold or policy | `TaxDeclarationParser` document validation only; the parser owns interpretation and admission, and the helper never consumes the Data Ledger |
 | **LamalPremiumNormalizer** | `lamal_premium_normalizer.dart` | actual monthly premium, current franchise, adult/child flag, franchise savings table | monthly premium normalized to CHF 300 franchise baseline | LamalFranchiseService, LamalFranchiseScreen |
 | **WealthFinancialFacts** | `wealth_financial_facts.dart` | cash, investments, property market value, broad wealth estimate | property net value, net wealth, consumer debt, aggregate-vs-detail reconciliation status and resolved total | PatrimoineProfile, DonationScreen, patrimoine and life-event consumers |
 | **GiftTaxConfirmation** | `gift_tax_confirmation.dart` | none | no computed cantonal gift-tax rate/amount sentinel for confirmation states | DonationService |

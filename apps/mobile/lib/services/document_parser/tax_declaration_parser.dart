@@ -20,23 +20,24 @@
 //
 //  Reference:
 //    - DATA_ACQUISITION_STRATEGY.md — Channel 1, Document B
-//    - LIFD art. 38 (capital withdrawal tax)
 //    - LIFD art. 33-33a (deductions)
 // ────────────────────────────────────────────────────────────
 
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/financial_core/tax_document_ratio_calculator.dart';
 
 /// Pattern definition for a known tax declaration field.
 class _TaxFieldPattern {
   final String fieldName;
-  final String label;
+  final ExtractionFieldLabelCode labelCode;
   final List<RegExp> patterns;
   final String? profileField;
   final bool isPercentage;
 
   const _TaxFieldPattern({
     required this.fieldName,
-    required this.label,
+    required this.labelCode,
     required this.patterns,
     this.profileField,
     this.isPercentage = false,
@@ -97,6 +98,7 @@ class TaxDeclarationParser {
 
   /// Parse a percentage: "32.5%", "32,5 %", "0.325".
   static double? _parsePercentage(String text) {
+    final hasPercentSymbol = text.contains('%');
     var cleaned = text.replaceAll("%", "").trim();
     cleaned = cleaned.replaceAll(",", ".");
     cleaned = cleaned.replaceAll(RegExp(r"[^\d.\-]"), "");
@@ -105,7 +107,7 @@ class TaxDeclarationParser {
     if (value == null) return null;
     // If value > 1, it's already in percent form (e.g. 32.5)
     // If value <= 1, it might be in decimal form (e.g. 0.325)
-    return value > 1 ? value : value * 100;
+    return hasPercentSymbol || value.abs() > 1 ? value : value * 100;
   }
 
   // ── Known field patterns (FR + DE) ────────────────────────
@@ -114,7 +116,7 @@ class TaxDeclarationParser {
     // ── Revenu imposable ──
     _TaxFieldPattern(
       fieldName: "revenu_imposable",
-      label: "Revenu imposable",
+      labelCode: ExtractionFieldLabelCode.taxTaxableIncome,
       profileField: "actualTaxableIncome",
       patterns: [
         RegExp(
@@ -125,7 +127,7 @@ class TaxDeclarationParser {
             r"(?:Steuerbares?\s+Einkommen|Reineinkommen|Massgebendes\s+Einkommen)\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
-        // Variante: "total des revenus imposables"
+        // OCR variant: the plural total-taxable-income heading.
         RegExp(
             r"(?:total\s+des?\s+revenus?\s+imposable)\s*[:\s]*" + _numCapture,
             caseSensitive: false),
@@ -135,7 +137,7 @@ class TaxDeclarationParser {
     // ── Fortune imposable ──
     _TaxFieldPattern(
       fieldName: "fortune_imposable",
-      label: "Fortune imposable",
+      labelCode: ExtractionFieldLabelCode.taxTaxableWealth,
       profileField: "actualTaxableWealth",
       patterns: [
         RegExp(
@@ -152,7 +154,7 @@ class TaxDeclarationParser {
     // ── Deductions effectuees ──
     _TaxFieldPattern(
       fieldName: "deductions_effectuees",
-      label: "Deductions effectuees",
+      labelCode: ExtractionFieldLabelCode.taxDeductions,
       profileField: "actualDeductions",
       patterns: [
         RegExp(
@@ -164,29 +166,41 @@ class TaxDeclarationParser {
                 _numCapture,
             caseSensitive: false),
         // Variante: "deductions admises"
-        RegExp(
-            r"(?:d[e\u00e9]ductions?\s+admises?)\s*[:\s]*" + _numCapture,
+        RegExp(r"(?:d[e\u00e9]ductions?\s+admises?)\s*[:\s]*" + _numCapture,
             caseSensitive: false),
       ],
     ),
 
-    // ── Impot cantonal (+ communal) ──
+    // ── Impot cantonal et communal explicite ──
     _TaxFieldPattern(
       fieldName: "impot_cantonal",
-      label: "Impot cantonal et communal",
+      labelCode: ExtractionFieldLabelCode.taxCantonalCommunalTax,
       profileField: "actualCantonalTax",
       patterns: [
         RegExp(
-            r"(?:imp[o\u00f4]t\s+cantonal\s*(?:et\s+communal)?|imp[o\u00f4]ts?\s+cantonaux?\s*(?:et\s+communaux?)?|ICC)\s*[:\s]*" +
+            r"(?:imp[oô]t\s+cantonal\s+et\s+communal|imp[oô]ts?\s+cantonaux?\s+et\s+communaux?|ICC|total\s+ICC)\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
         RegExp(
-            r"(?:Kantons[\-\s]*(?:und\s+Gemeinde[\-\s]*)?[Ss]teuer|Staats[\-\s]*(?:und\s+Gemeinde[\-\s]*)?[Ss]teuer)\s*[:\s]*" +
+            r"(?:Kantons[\-\s]*und\s+Gemeinde[\-\s]*[Ss]teuer|Staats[\-\s]*und\s+Gemeinde[\-\s]*[Ss]teuer)\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
-        // Variante: "total ICC"
+      ],
+    ),
+
+    // ── Impot cantonal seul ──
+    _TaxFieldPattern(
+      fieldName: "impot_cantonal",
+      labelCode: ExtractionFieldLabelCode.taxCantonalOnlyTax,
+      profileField: "actualCantonalTax",
+      patterns: [
         RegExp(
-            r"(?:total\s+ICC)\s*[:\s]*" + _numCapture,
+            r"(?:imp[oô]t\s+cantonal(?!\s+et\s+communal)|imp[oô]ts?\s+cantonaux?(?!\s+et\s+communaux?))\s*[:\s]*" +
+                _numCapture,
+            caseSensitive: false),
+        RegExp(
+            r"(?:Kantons[\-\s]*[Ss]teuer|Staats[\-\s]*[Ss]teuer)\s*[:\s]*" +
+                _numCapture,
             caseSensitive: false),
       ],
     ),
@@ -194,12 +208,11 @@ class TaxDeclarationParser {
     // ── Impot federal direct ──
     _TaxFieldPattern(
       fieldName: "impot_federal",
-      label: "Impot federal direct",
+      labelCode: ExtractionFieldLabelCode.taxFederalDirectTax,
       profileField: "actualFederalTax",
       patterns: [
         RegExp(
-            r"(?:imp[o\u00f4]t\s+f[e\u00e9]d[e\u00e9]ral\s+direct|IFD)\s*[:\s]*" +
-                _numCapture,
+            r"(?:imp[oô]t\s+f[eé]d[eé]ral\s+direct|IFD)\s*[:\s]*" + _numCapture,
             caseSensitive: false),
         RegExp(
             r"(?:Direkte\s+Bundessteuer|DBSt?|Eidgen[o\u00f6]ssische\s+Steuer)\s*[:\s]*" +
@@ -211,25 +224,313 @@ class TaxDeclarationParser {
     // ── Taux marginal effectif ──
     _TaxFieldPattern(
       fieldName: "taux_marginal_effectif",
-      label: "Taux marginal effectif",
+      labelCode: ExtractionFieldLabelCode.taxMarginalRate,
       profileField: "actualMarginalRate",
       isPercentage: true,
       patterns: [
         RegExp(
-            r"(?:taux\s+marginal\s+effectif|taux\s+d[' ]?imposition\s+marginal)\s*[:\s]*([\d,.\s]+\s*%?)",
+            r"(?:taux\s+marginal\s+effectif|taux\s+d[' ]?imposition\s+marginal)\s*[:\s]*(-?[\d,.\s]+\s*%?)",
             caseSensitive: false),
         RegExp(
-            r"(?:Grenzsteuersatz|Effektiver?\s+Steuersatz|Marginaler?\s+Steuersatz)\s*[:\s]*([\d,.\s]+\s*%?)",
+            r"(?:Grenzsteuersatz|Marginaler?\s+Steuersatz)\s*[:\s]*(-?[\d,.\s]+\s*%?)",
             caseSensitive: false),
-        // Variante: "taux moyen d'imposition" (proxy for marginal)
+      ],
+    ),
+
+    // ── Taux moyen/effectif, distinct du marginal ──
+    _TaxFieldPattern(
+      fieldName: "taux_moyen_effectif",
+      labelCode: ExtractionFieldLabelCode.taxAverageRate,
+      profileField: "actualAverageRate",
+      isPercentage: true,
+      patterns: [
         RegExp(
-            r"(?:taux\s+moyen\s+d[' ]?imposition)\s*[:\s]*([\d,.\s]+\s*%?)",
+            r"(?:taux\s+moyen\s+d[' ]?imposition|taux\s+d[' ]?imposition\s+effectif|Effektiver?\s+Steuersatz)\s*[:\s]*(-?[\d,.\s]+\s*%?)",
             caseSensitive: false),
       ],
     ),
   ];
 
   // ── Main parsing method ───────────────────────────────────
+
+  /// Parse a tax document into one review candidate without persisting facts.
+  static TaxExtractionCandidate parseTaxDocument(
+    String text, {
+    required String Function() snapshotIdFactory,
+  }) {
+    final normalized = text.toLowerCase();
+    final (documentKind, assessmentStatus) = _classifyDocument(normalized);
+    final taxYear = _firstYear(
+      text,
+      RegExp(
+        r'(?:p[eé]riode\s+fiscale|steuerperiode)\s*:?\s*(20\d{2})',
+        caseSensitive: false,
+      ),
+    );
+    final basedOnTaxYear = _firstYear(
+      text,
+      RegExp(
+        r'(?:base\s+de\s+la\s+taxation|basierend\s+auf(?:\s+der)?\s+(?:taxation|veranlagung))\s*(20\d{2})',
+        caseSensitive: false,
+      ),
+    );
+    final sourceDate = _extractSourceDate(text);
+    final subjectScope = _subjectScope(normalized);
+    final cantonCode = _firstText(
+      text,
+      RegExp(
+        r'(?:^|\n)\s*(?:canton|kanton)\s*:\s*([A-Z]{2})\b',
+        caseSensitive: false,
+      ),
+    )?.toUpperCase();
+    final municipalityId = _firstText(
+      text,
+      RegExp(
+        r'(?:^|\n)\s*(?:no\s+OFS\s+commune|BFS[-\s]*Nr\.?\s+Gemeinde)\s*:\s*([0-9]+)',
+        caseSensitive: false,
+      ),
+    );
+    final municipalityLabel = _firstText(
+      text,
+      RegExp(
+        r'(?:^|\n)\s*(?:commune|gemeinde)\s*:\s*([^\n\r]+)',
+        caseSensitive: false,
+      ),
+    )?.trim();
+
+    final cantonalIncome = _firstAmount(
+            text,
+            [
+              RegExp(
+                r'(?:revenu\s+imposable\s+ICC|steuerbares?\s+einkommen\s+(?:ICC|kanton(?:\s+und\s+gemeinde)?))\s*:\s*' +
+                    _numCapture,
+                caseSensitive: false,
+              ),
+            ],
+            allowNegative: true)
+        ?.value;
+    final federalIncome = _firstAmount(
+            text,
+            [
+              RegExp(
+                r'(?:revenu\s+imposable\s+IFD|steuerbares?\s+einkommen\s+(?:IFD|bund))\s*:\s*' +
+                    _numCapture,
+                caseSensitive: false,
+              ),
+            ],
+            allowNegative: true)
+        ?.value;
+    final wealth = _firstAmount(text, [
+      RegExp(
+        r'(?:fortune\s+imposable\s+ICC|steuerbares?\s+verm[oö]gen\s+(?:ICC|kanton(?:\s+und\s+gemeinde)?))\s*:\s*' +
+            _numCapture,
+        caseSensitive: false,
+      ),
+    ])?.value;
+
+    final combinedTax = _firstAmount(text, [
+      RegExp(
+        r'(?:^|[\r\n])\s*(?:imp[oô]t\s+cantonal\s+et\s+communal|ICC\b)(?:\s*,?\s*(?:sur\s+le\s+)?(?:revenu\s+et\s+fortune|revenu|fortune))?\s*:\s*' +
+            _numCapture,
+        caseSensitive: false,
+      ),
+      RegExp(
+        r'(?:^|[\r\n])\s*(?:Kantons[-\s]*und\s+Gemeinde[-\s]*steuer|Staats[-\s]*und\s+Gemeinde[-\s]*steuer)(?:\s+(?:Einkommen\s+und\s+Verm[oö]gen|Einkommen|Verm[oö]gen))?\s*:\s*' +
+            _numCapture,
+        caseSensitive: false,
+      ),
+    ]);
+    final cantonalOnlyTax = combinedTax == null
+        ? _firstAmount(text, [
+            RegExp(
+              r'(?:imp[oô]t\s+cantonal(?!\s+et\s+communal)|Kantonssteuer|Staatssteuer)(?:\s+(?:sur\s+le\s+revenu|sur\s+la\s+fortune|Einkommen|Verm[oö]gen))?\s*:\s*' +
+                  _numCapture,
+              caseSensitive: false,
+            ),
+          ])
+        : null;
+    final federalTax = _firstAmount(text, [
+      RegExp(
+        r'(?:^|[\r\n])\s*(?:imp[oô]t\s+f[eé]d[eé]ral\s+direct|IFD\b|Direkte\s+Bundessteuer)(?:\s+(?:sur\s+le\s+revenu|Einkommen))?\s*:\s*' +
+            _numCapture,
+        caseSensitive: false,
+      ),
+    ]);
+
+    final explicitMarginalRate = _firstRatio(
+        text,
+        RegExp(
+          r"(?:taux\s+marginal(?:\s+d[’' ]?imposition|\s+effectif)?|Grenzsteuersatz|Marginaler?\s+Steuersatz)\s*:\s*([\d,.]+)\s*%?",
+          caseSensitive: false,
+        ));
+    final explicitAverageRate = _firstRatio(
+        text,
+        RegExp(
+          r"(?:taux\s+moyen\s+d[’' ]?imposition|taux\s+d[’' ]?imposition\s+effectif|Effektiver?\s+Steuersatz)\s*:\s*([\d,.]+)\s*%?",
+          caseSensitive: false,
+        ));
+
+    AssessedTaxAmount? cantonalTaxAmount;
+    if (combinedTax != null && combinedTax.value >= 0) {
+      cantonalTaxAmount = AssessedTaxAmount(
+        amountChf: combinedTax.value,
+        authorityScope: TaxAuthorityScope.cantonalCommunalCombined,
+        baseScope: _baseScope(combinedTax.source),
+      );
+    } else if (cantonalOnlyTax != null && cantonalOnlyTax.value >= 0) {
+      cantonalTaxAmount = AssessedTaxAmount(
+        amountChf: cantonalOnlyTax.value,
+        authorityScope: TaxAuthorityScope.cantonalOnly,
+        baseScope: _baseScope(cantonalOnlyTax.source),
+      );
+    }
+    final federalTaxAmount = federalTax == null || federalTax.value < 0
+        ? null
+        : AssessedTaxAmount(
+            amountChf: federalTax.value,
+            authorityScope: TaxAuthorityScope.federalDirect,
+            baseScope: _baseScope(federalTax.source),
+          );
+
+    return TaxExtractionCandidate.fromExtractionResult(
+      parseTaxDeclaration(text),
+      snapshotIdFactory: snapshotIdFactory,
+      documentKind: documentKind,
+      assessmentStatus: assessmentStatus,
+      taxYear: taxYear,
+      basedOnTaxYear: basedOnTaxYear,
+      sourceDate: sourceDate,
+      subjectScope: subjectScope,
+      cantonCode: cantonCode,
+      municipalityId: municipalityId,
+      municipalityLabel: municipalityLabel,
+      cantonalCommunalTaxableIncomeChf: cantonalIncome,
+      federalTaxableIncomeChf: federalIncome,
+      cantonalCommunalTaxableWealthChf:
+          wealth != null && wealth >= 0 ? wealth : null,
+      cantonalCommunalAssessedTax: cantonalTaxAmount,
+      federalDirectAssessedTax: federalTaxAmount,
+      explicitMarginalIncomeTaxRate: explicitMarginalRate,
+      explicitAverageIncomeTaxRate: explicitAverageRate,
+    );
+  }
+
+  static (TaxDocumentKind, TaxAssessmentStatus) _classifyDocument(
+    String normalized,
+  ) {
+    if (RegExp(r'bordereau\s+provisoire|provisorische\s+steuerrechnung')
+        .hasMatch(normalized)) {
+      return (
+        TaxDocumentKind.provisionalBill,
+        TaxAssessmentStatus.provisional,
+      );
+    }
+    if (RegExp(r'bordereau\s+final|schlussrechnung').hasMatch(normalized)) {
+      return (TaxDocumentKind.finalTaxBill, TaxAssessmentStatus.unknown);
+    }
+    if (RegExp(
+            r"d[eé]claration\s+d[’' ]?imp[oô]t|d[eé]claration\s+fiscale|steuererkl[aä]rung")
+        .hasMatch(normalized)) {
+      return (TaxDocumentKind.taxpayerReturn, TaxAssessmentStatus.selfDeclared);
+    }
+    if (RegExp(
+            r'avis\s+de\s+taxation|d[eé]cision\s+de\s+taxation|veranlagungsverf[uü]gung')
+        .hasMatch(normalized)) {
+      return (
+        TaxDocumentKind.assessmentNotice,
+        TaxAssessmentStatus.assessedAppealable,
+      );
+    }
+    return (TaxDocumentKind.unknown, TaxAssessmentStatus.unknown);
+  }
+
+  static int? _firstYear(String text, RegExp pattern) =>
+      int.tryParse(pattern.firstMatch(text)?.group(1) ?? '');
+
+  static String? _firstText(String text, RegExp pattern) =>
+      pattern.firstMatch(text)?.group(1);
+
+  static DateTime? _extractSourceDate(String text) {
+    final match = RegExp(
+      r"(?:[eé]mis\s+le|date\s+d[’' ]?[eé]mission|ausgestellt\s+am|verf[uü]gungsdatum)\s*:\s*(\d{1,2})[.]([0-1]?\d)[.](20\d{2})",
+      caseSensitive: false,
+    ).firstMatch(text);
+    if (match == null) return null;
+    final day = int.tryParse(match.group(1)!);
+    final month = int.tryParse(match.group(2)!);
+    final year = int.tryParse(match.group(3)!);
+    if (day == null || month == null || year == null) return null;
+    final parsed = DateTime.utc(year, month, day);
+    if (parsed.year != year || parsed.month != month || parsed.day != day) {
+      return null;
+    }
+    return parsed;
+  }
+
+  static TaxSubjectScope _subjectScope(String normalized) {
+    if (RegExp(
+            r'taxation\s+commune\s+des\s+[eé]poux|gemeinsame\s+veranlagung|ehegatten')
+        .hasMatch(normalized)) {
+      return TaxSubjectScope.jointlyAssessedCouple;
+    }
+    if (RegExp(r'taxation\s+individuelle|einzelveranlagung')
+        .hasMatch(normalized)) {
+      return TaxSubjectScope.individual;
+    }
+    return TaxSubjectScope.unknown;
+  }
+
+  static ({double value, String source})? _firstAmount(
+    String text,
+    List<RegExp> patterns, {
+    bool allowNegative = false,
+  }) {
+    for (final pattern in patterns) {
+      final match = pattern.firstMatch(text);
+      if (match == null) continue;
+      final parsed = _parseSwissNumber(match.group(1) ?? '');
+      if (parsed != null && parsed.isFinite && (allowNegative || parsed >= 0)) {
+        return (value: parsed, source: match.group(0) ?? '');
+      }
+    }
+    return null;
+  }
+
+  static double? _firstRatio(String text, RegExp pattern) {
+    final match = pattern.firstMatch(text);
+    final raw = match?.group(1);
+    if (match == null || raw == null) return null;
+    if (match.group(0)?.contains('%') == true) {
+      final explicitPercent = _parseSwissNumber(raw);
+      if (explicitPercent == null ||
+          !explicitPercent.isFinite ||
+          explicitPercent < 0 ||
+          explicitPercent > 100) {
+        return null;
+      }
+      return explicitPercent / 100;
+    }
+    final percent = _parsePercentage(raw);
+    if (percent == null || !percent.isFinite || percent < 0 || percent > 100) {
+      return null;
+    }
+    return percent / 100;
+  }
+
+  static TaxBaseScope _baseScope(String source) {
+    final normalized = source.toLowerCase();
+    if ((normalized.contains('revenu') && normalized.contains('fortune')) ||
+        (normalized.contains('einkommen') && normalized.contains('vermögen'))) {
+      return TaxBaseScope.incomeAndWealth;
+    }
+    if (normalized.contains('revenu') || normalized.contains('einkommen')) {
+      return TaxBaseScope.incomeOnly;
+    }
+    if (normalized.contains('fortune') || normalized.contains('vermögen')) {
+      return TaxBaseScope.wealthOnly;
+    }
+    return TaxBaseScope.unknown;
+  }
 
   /// Parse OCR text from a tax declaration into structured fields.
   ///
@@ -238,7 +539,7 @@ class TaxDeclarationParser {
   /// confidence scores, cross-validation warnings, and compliance info.
   static ExtractionResult parseTaxDeclaration(String text) {
     final fields = <ExtractedField>[];
-    final warnings = <String>[];
+    final diagnostics = <ExtractionDiagnostic>[];
 
     for (final pattern in _knownFieldPatterns) {
       final result = _extractField(text, pattern);
@@ -247,91 +548,43 @@ class TaxDeclarationParser {
       }
     }
 
-    // ── Cross-validation: total impot ~ cantonal + federal ──
     final cantonal = _findFieldValue(fields, "impot_cantonal");
     final federal = _findFieldValue(fields, "impot_federal");
 
-    if (cantonal != null && federal != null) {
-      final totalImpot = cantonal + federal;
-      // Sanity check: total tax should be between 5% and 50% of taxable income
-      final revenu = _findFieldValue(fields, "revenu_imposable");
-      if (revenu != null && revenu > 0) {
-        final effectiveRate = totalImpot / revenu * 100;
-        if (effectiveRate < 3.0) {
-          warnings.add(
-            "Le total des impôts (${totalImpot.toStringAsFixed(0)} CHF) semble "
-            "très bas par rapport au revenu imposable "
-            "(${revenu.toStringAsFixed(0)} CHF = ${effectiveRate.toStringAsFixed(1)}%). "
-            "Vérifie les montants sur ton avis de taxation.",
-          );
-        }
-        if (effectiveRate > 50.0) {
-          warnings.add(
-            "Le total des impôts (${totalImpot.toStringAsFixed(0)} CHF) semble "
-            "élevé par rapport au revenu imposable "
-            "(${revenu.toStringAsFixed(0)} CHF = ${effectiveRate.toStringAsFixed(1)}%). "
-            "Vérifie les montants sur ton avis de taxation.",
-          );
-        }
-      }
-    }
-
-    // ── Cross-validation: taux marginal effectif plausibility ──
-    final tauxMarginal =
-        _findFieldValue(fields, "taux_marginal_effectif");
-    if (tauxMarginal != null && (tauxMarginal < 5.0 || tauxMarginal > 55.0)) {
-      warnings.add(
-        "Le taux marginal effectif (${tauxMarginal.toStringAsFixed(1)}%) "
-        "semble inhabituel. En Suisse, il se situe généralement entre "
-        "10% et 45% selon le canton et le revenu. Vérifie sur ton avis de taxation.",
-      );
-    }
-
-    // ── Cross-validation: fortune imposable plausibility ──
-    final fortune = _findFieldValue(fields, "fortune_imposable");
-    if (fortune != null && fortune < 0) {
-      warnings.add(
-        "La fortune imposable est négative (${fortune.toStringAsFixed(0)} CHF). "
-        "C'est possible si tes dettes dépassent tes actifs, mais vérifie le montant.",
-      );
-    }
-
-    // ── Cross-validation: deductions vs revenu ──
-    final deductions = _findFieldValue(fields, "deductions_effectuees");
-    final revenu = _findFieldValue(fields, "revenu_imposable");
-    if (deductions != null && revenu != null && revenu > 0) {
-      final deductionRate = deductions / revenu * 100;
-      if (deductionRate > 60.0) {
-        warnings.add(
-          "Les déductions (${deductions.toStringAsFixed(0)} CHF) représentent "
-          "${deductionRate.toStringAsFixed(0)}% du revenu imposable. "
-          "C'est inhabituellement élevé. Vérifie sur ta déclaration.",
+    // A parsed percentage outside its storage unit remains review-only.
+    final tauxMarginal = _findFieldValue(fields, "taux_marginal_effectif");
+    for (final rate in [
+      tauxMarginal,
+      _findFieldValue(fields, "taux_moyen_effectif"),
+    ]) {
+      if (rate != null && (rate < 0 || rate > 100.0)) {
+        diagnostics.add(
+          ExtractionDiagnostic.percentUnit(rate),
         );
       }
     }
 
-    // ── If marginal rate is missing, try to infer it ──
+    // A negative net-wealth reading can be legitimate, but the exact authority
+    // label must be confirmed before it can become a taxable-wealth fact.
+    final fortune = _findFieldValue(fields, "fortune_imposable");
+    if (fortune != null && fortune < 0) {
+      diagnostics.add(
+        ExtractionDiagnostic.negativeWealth(fortune),
+      );
+    }
+
+    // A ratio of two read amounts is diagnostic only and never a legal rate.
     if (tauxMarginal == null && cantonal != null && federal != null) {
       final revenuForInfer = _findFieldValue(fields, "revenu_imposable");
       if (revenuForInfer != null && revenuForInfer > 0) {
         final totalImpot = cantonal + federal;
-        final inferredRate = totalImpot / revenuForInfer * 100;
-        // Note: this is the average rate, not marginal — lower confidence
-        if (inferredRate > 0 && inferredRate < 55) {
-          fields.add(ExtractedField(
-            fieldName: "taux_marginal_effectif",
-            label: "Taux marginal effectif (estimé)",
-            value: double.parse(inferredRate.toStringAsFixed(1)),
-            confidence: 0.55, // Lower confidence — inferred average, not marginal
-            sourceText:
-                "Calculé: (cantonal + fédéral) / revenu imposable",
-            needsReview: true,
-            profileField: "actualMarginalRate",
-          ));
-          warnings.add(
-            "Le taux marginal effectif a été estimé à partir du taux moyen "
-            "(${inferredRate.toStringAsFixed(1)}%). Le taux marginal réel est "
-            "généralement 5 à 15 points au-dessus. Vérifie sur ton avis de taxation.",
+        final inferredRate = TaxDocumentRatioCalculator.percentOf(
+          amount: totalImpot,
+          reference: revenuForInfer,
+        );
+        if (inferredRate > 0) {
+          diagnostics.add(
+            ExtractionDiagnostic.averageNotMarginal(inferredRate),
           );
         }
       }
@@ -347,18 +600,14 @@ class TaxDeclarationParser {
       documentType: DocumentType.taxDeclaration,
       fields: fields,
       overallConfidence: overallConfidence,
-      confidenceDelta: _estimateConfidenceDeltaFromFields(fields),
-      warnings: warnings,
-      disclaimer:
-          "Outil éducatif \u2014 ne constitue pas un conseil fiscal. "
-          "Vérifie toujours les valeurs avec ton avis de taxation original. "
-          "MINT ne stocke jamais l'image du document (LSFin).",
-      sources: [
-        "LIFD art. 25-31 (revenu imposable)",
-        "LIFD art. 33-33a (déductions)",
-        "LIFD art. 38 (imposition capital prévoyance)",
-        "LHID art. 1-3 (harmonisation fiscale cantonale)",
-      ],
+      confidenceDelta: switch (DocumentType.taxDeclaration) {
+        DocumentType.taxDeclaration => 0.0,
+        _ => 0.0,
+      },
+      warnings: const [],
+      disclaimer: '',
+      sources: const [],
+      diagnostics: diagnostics,
     );
   }
 
@@ -380,6 +629,9 @@ class TaxDeclarationParser {
         } else {
           final num = _parseSwissNumber(rawValue);
           if (num == null) continue;
+          final rejectsNegativeValue = pattern.fieldName == 'impot_cantonal' ||
+              pattern.fieldName == 'impot_federal';
+          if (rejectsNegativeValue && num < 0) continue;
           parsedValue = num;
           // Confidence based on how clean the extraction was
           confidence = rawValue.contains(RegExp(r"[\d]")) ? 0.82 : 0.50;
@@ -394,7 +646,8 @@ class TaxDeclarationParser {
 
         return ExtractedField(
           fieldName: pattern.fieldName,
-          label: pattern.label,
+          label: pattern.labelCode.name,
+          labelCode: pattern.labelCode,
           value: parsedValue,
           confidence: confidence,
           sourceText: match.group(0) ?? "",
@@ -424,31 +677,6 @@ class TaxDeclarationParser {
   ///
   /// Based on DATA_ACQUISITION_STRATEGY impact table
   /// (Channel 1, Document B): +15-20 points.
-  static double _estimateConfidenceDeltaFromFields(
-      List<ExtractedField> fields) {
-    double delta = 0;
-    final fieldNames = fields.map((f) => f.fieldName).toSet();
-
-    // Revenu imposable: +4 points
-    if (fieldNames.contains("revenu_imposable")) delta += 4;
-
-    // Fortune imposable: +2 points
-    if (fieldNames.contains("fortune_imposable")) delta += 2;
-
-    // Deductions: +2 points
-    if (fieldNames.contains("deductions_effectuees")) delta += 2;
-
-    // Impot cantonal: +2 points
-    if (fieldNames.contains("impot_cantonal")) delta += 2;
-
-    // Impot federal: +2 points
-    if (fieldNames.contains("impot_federal")) delta += 2;
-
-    // Taux marginal effectif: +5 points (CRITICAL for arbitrage)
-    if (fieldNames.contains("taux_marginal_effectif")) delta += 5;
-
-    return delta.clamp(0, 20);
-  }
 
   /// Estimate confidence delta given an extraction result and the current
   /// user profile fields.
@@ -459,37 +687,13 @@ class TaxDeclarationParser {
     ExtractionResult result,
     Map<String, dynamic> currentProfile,
   ) {
-    double delta = 0;
-    for (final field in result.fields) {
-      final currentValue = currentProfile[field.profileField];
-      if (currentValue == null || currentValue == 0) {
-        // New field — full impact
-        delta += _fieldImpact(field.fieldName);
-      } else {
-        // Replacing existing value — partial impact (accuracy upgrade)
-        delta += _fieldImpact(field.fieldName) * 0.5;
-      }
-    }
-    return delta.clamp(0, 20);
-  }
-
-  /// Impact weight of each field on overall confidence.
-  static double _fieldImpact(String fieldName) {
-    const impacts = {
-      "revenu_imposable": 4.0,
-      "fortune_imposable": 2.0,
-      "deductions_effectuees": 2.0,
-      "impot_cantonal": 2.0,
-      "impot_federal": 2.0,
-      "taux_marginal_effectif": 5.0,
-    };
-    return impacts[fieldName] ?? 1.0;
+    return 0;
   }
 
   // ── Sample OCR text for prototype testing ─────────────────
 
   /// Sample OCR text simulating a typical Swiss tax declaration.
-  /// Used for the prototype "Simuler un scan" button.
+  /// Used for the prototype simulated-scan button.
   static const String sampleOcrText = """
 AVIS DE TAXATION 2025
 Administration fiscale cantonale — Canton de Vaud

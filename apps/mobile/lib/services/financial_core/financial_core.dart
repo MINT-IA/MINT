@@ -28,6 +28,7 @@ export 'monte_carlo_service.dart';
 export 'replacement_rate_calculator.dart';
 export 'succession_reserve_calculator.dart';
 export 'tax_calculator.dart';
+export 'tax_document_ratio_calculator.dart';
 export 'sensitivity_models.dart';
 export 'wealth_financial_facts.dart';
 export 'withdrawal_sequencing_service.dart';

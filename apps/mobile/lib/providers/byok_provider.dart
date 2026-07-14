@@ -16,7 +16,7 @@ enum ByokError {
   /// Network / connection error during key test.
   connectionError,
 
-  /// API returned an error (see [ByokProvider.apiErrorMessage] for detail).
+  /// API returned a typed machine error (see [ByokProvider.apiErrorCode]).
   apiError,
 }
 
@@ -38,7 +38,7 @@ class ByokProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isTesting = false;
   ByokError? _testError;
-  String? _apiErrorMessage;
+  RagErrorCode? _apiErrorCode;
   bool _testSuccess = false;
 
   ByokProvider({
@@ -55,8 +55,8 @@ class ByokProvider extends ChangeNotifier {
   bool get isTesting => _isTesting;
   ByokError? get testError => _testError;
 
-  /// Detailed error message from the API (only set when [testError] == [ByokError.apiError]).
-  String? get apiErrorMessage => _apiErrorMessage;
+  /// Machine identity returned by RAG when [testError] is [ByokError.apiError].
+  RagErrorCode? get apiErrorCode => _apiErrorCode;
   bool get testSuccess => _testSuccess;
 
   /// Masked display of the API key (e.g. "sk-...abc1")
@@ -87,7 +87,8 @@ class ByokProvider extends ChangeNotifier {
     try {
       _provider = await _storage.read(key: _providerKey);
       _apiKey = await _storage.read(key: _apiKeyKey);
-      _isConfigured = _provider != null && _apiKey != null && _apiKey!.isNotEmpty;
+      _isConfigured =
+          _provider != null && _apiKey != null && _apiKey!.isNotEmpty;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('ByokProvider: Error loading saved key: $e');
@@ -103,6 +104,7 @@ class ByokProvider extends ChangeNotifier {
   Future<void> saveKey(String provider, String apiKey) async {
     _isLoading = true;
     _testError = null;
+    _apiErrorCode = null;
     _testSuccess = false;
     notifyListeners();
 
@@ -136,6 +138,7 @@ class ByokProvider extends ChangeNotifier {
       _isConfigured = false;
       _testSuccess = false;
       _testError = null;
+      _apiErrorCode = null;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('ByokProvider: Error clearing key: $e');
@@ -151,6 +154,7 @@ class ByokProvider extends ChangeNotifier {
   Future<bool> testKey() async {
     if (_apiKey == null || _provider == null) {
       _testError = ByokError.notConfigured;
+      _apiErrorCode = null;
       _testSuccess = false;
       notifyListeners();
       return false;
@@ -158,27 +162,30 @@ class ByokProvider extends ChangeNotifier {
 
     _isTesting = true;
     _testError = null;
+    _apiErrorCode = null;
     _testSuccess = false;
     notifyListeners();
 
     try {
       await _ragService.query(
-        question: 'Qu\'est-ce que le 3e pilier en Suisse ?',
+        question: 'What is the Swiss third pillar?',
         apiKey: _apiKey!,
         provider: _provider!,
-        language: 'fr',
+        language: 'en',
       );
       _testSuccess = true;
       _testError = null;
+      _apiErrorCode = null;
       return true;
     } on RagApiException catch (e) {
       _testSuccess = false;
       _testError = ByokError.apiError;
-      _apiErrorMessage = e.message;
+      _apiErrorCode = e.errorCode;
       return false;
     } catch (e) {
       _testSuccess = false;
       _testError = ByokError.connectionError;
+      _apiErrorCode = null;
       return false;
     } finally {
       _isTesting = false;
@@ -189,7 +196,7 @@ class ByokProvider extends ChangeNotifier {
   /// Reset test state (useful when navigating away).
   void resetTestState() {
     _testError = null;
-    _apiErrorMessage = null;
+    _apiErrorCode = null;
     _testSuccess = false;
     _isTesting = false;
     notifyListeners();

@@ -87,8 +87,7 @@ class RetirementProjectionCard extends StatelessWidget {
                   button: true,
                   child: OutlinedButton(
                     onPressed: () => context.push(
-                      '/scan',
-                      extra: DocumentType.lppCertificate,
+                      '/scan?type=${DocumentType.lppCertificate.name}',
                     ),
                     child: Text(l.dataBlockLppCta),
                   ),

@@ -6010,7 +6010,7 @@ class SFr extends S {
 
   @override
   String get dataBlockFiscaliteDesc =>
-      'Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d\'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu\'estimé (coefficient communal 60 %-130 %).';
+      'Ta commune et les valeurs confirmées de tes documents précisent ton contexte fiscal. Les règles et les taux varient selon le canton, la commune, l\'année fiscale et ta situation personnelle.';
 
   @override
   String get dataBlockFiscaliteCta => 'Comparer ma fiscalité';
@@ -7893,7 +7893,7 @@ class SFr extends S {
 
   @override
   String get coachErrorRateLimit =>
-      'Limite de requêtes atteinte. Réessaie dans quelques instants.';
+      'Limite d’utilisation atteinte. Réessaie plus tard.';
 
   @override
   String get coachErrorGeneric => 'Erreur technique. Réessaie plus tard.';
@@ -15121,7 +15121,7 @@ class SFr extends S {
 
   @override
   String get coachErrorServiceUnavailable =>
-      'Service temporairement indisponible. Réessaie dans quelques minutes.';
+      'Le service n’est pas disponible pour le moment. Réessaie plus tard.';
 
   @override
   String get coachFactCardTitle => 'Le savais-tu ?';
@@ -18922,14 +18922,14 @@ class SFr extends S {
 
   @override
   String get ragErrorRateLimit =>
-      'Limite de requêtes atteinte. Réessaie dans quelques instants.';
+      'Limite d’utilisation atteinte. Réessaie plus tard.';
 
   @override
   String get ragErrorRateLimitShort => 'Limite de requêtes atteinte.';
 
   @override
   String get ragErrorServiceUnavailable =>
-      'Service temporairement indisponible. Réessaie plus tard.';
+      'Le service n’est pas disponible pour le moment. Réessaie plus tard.';
 
   @override
   String get ragErrorStatus =>
@@ -23762,4 +23762,224 @@ class SFr extends S {
   @override
   String get expatAvsTruthDisclaimer =>
       'Information éducative, pas un conseil personnalisé · LAVS art. 2 et 29bis ss. · Seules les caisses AVS statuent.';
+
+  @override
+  String get docScanTaxDocumentLabel => 'Document fiscal';
+
+  @override
+  String get docScanTaxDocumentDescription =>
+      'Identifie puis confirme le type de pièce fiscale avant de retenir ses valeurs.';
+
+  @override
+  String get docImpactTaxTitle => 'Document fiscal revu';
+
+  @override
+  String get docImpactTaxSubtitle =>
+      'Les valeurs confirmées lors de la revue sont affichées ci-dessous.';
+
+  @override
+  String get taxReviewInForceAttestation =>
+      'Je confirme que cette taxation est entrée en force.';
+
+  @override
+  String get taxReviewFederalScopeIncoherence =>
+      'L’impôt fédéral direct porte sur le revenu. Vérifie le périmètre avant de confirmer.';
+
+  @override
+  String get taxReviewDocumentKind => 'Type de document fiscal';
+
+  @override
+  String get taxReviewAssessmentStatus => 'Statut de la taxation';
+
+  @override
+  String get taxReviewTaxYear => 'Année fiscale';
+
+  @override
+  String get taxReviewBasedOnTaxYear => 'Année fiscale de référence';
+
+  @override
+  String get taxReviewSourceDate => 'Date du document (AAAA-MM-JJ)';
+
+  @override
+  String get taxReviewSubjectScope => 'Personnes concernées';
+
+  @override
+  String get taxReviewCantonCode => 'Code du canton';
+
+  @override
+  String get taxReviewMunicipalityId => 'Numéro OFS de la commune';
+
+  @override
+  String get taxReviewMunicipalityLabel => 'Commune';
+
+  @override
+  String get taxReviewCantonalIncome =>
+      'Revenu imposable cantonal et communal (CHF)';
+
+  @override
+  String get taxReviewFederalIncome => 'Revenu imposable fédéral direct (CHF)';
+
+  @override
+  String get taxReviewCantonalWealth =>
+      'Fortune imposable cantonale et communale (CHF)';
+
+  @override
+  String get taxReviewCantonalTax => 'Impôt cantonal et communal taxé (CHF)';
+
+  @override
+  String get taxReviewCantonalAuthority =>
+      'Autorité de l’impôt cantonal et communal';
+
+  @override
+  String get taxReviewCantonalBase => 'Base de l’impôt cantonal et communal';
+
+  @override
+  String get taxReviewFederalTax => 'Impôt fédéral direct taxé (CHF)';
+
+  @override
+  String get taxReviewFederalAuthority => 'Autorité de l’impôt fédéral direct';
+
+  @override
+  String get taxReviewFederalBase => 'Base de l’impôt fédéral direct';
+
+  @override
+  String get taxReviewMarginalRate => 'Taux marginal explicite (%)';
+
+  @override
+  String get taxReviewAverageRate => 'Taux moyen explicite (%)';
+
+  @override
+  String get taxReviewOptionTaxpayerReturn => 'Déclaration du contribuable';
+
+  @override
+  String get taxReviewOptionProvisionalBill => 'Acompte provisoire';
+
+  @override
+  String get taxReviewOptionAssessmentNotice => 'Décision de taxation';
+
+  @override
+  String get taxReviewOptionFinalTaxBill => 'Décompte final';
+
+  @override
+  String get taxReviewOptionUnknown => 'Non déterminé';
+
+  @override
+  String get taxReviewOptionSelfDeclared => 'Déclaré par le contribuable';
+
+  @override
+  String get taxReviewOptionProvisional => 'Provisoire';
+
+  @override
+  String get taxReviewOptionAssessedAppealable =>
+      'Taxé, délai de réclamation ouvert';
+
+  @override
+  String get taxReviewOptionContested => 'Contesté';
+
+  @override
+  String get taxReviewOptionInForce => 'Entré en force';
+
+  @override
+  String get taxReviewOptionIndividual => 'Personne individuelle';
+
+  @override
+  String get taxReviewOptionJointCouple => 'Couple taxé conjointement';
+
+  @override
+  String get taxReviewOptionCantonalOnly => 'Canton seulement';
+
+  @override
+  String get taxReviewOptionCommunalOnly => 'Commune seulement';
+
+  @override
+  String get taxReviewOptionCantonalCommunal => 'Canton et commune';
+
+  @override
+  String get taxReviewOptionFederalDirect => 'Confédération (IFD)';
+
+  @override
+  String get taxReviewOptionIncomeOnly => 'Revenu seulement';
+
+  @override
+  String get taxReviewOptionWealthOnly => 'Fortune seulement';
+
+  @override
+  String get taxReviewOptionIncomeAndWealth => 'Revenu et fortune';
+
+  @override
+  String get taxReviewOptionTotalInvoice => 'Facture totale non ventilée';
+
+  @override
+  String get scanSummaryAmountUnspecified => 'montant non précisé';
+
+  @override
+  String get docImpactTaxDisclaimer =>
+      'Traitement local uniquement. Les valeurs affichées proviennent de ta confirmation et ne constituent pas un conseil fiscal.';
+
+  @override
+  String taxParserDiagnosticPercentUnit(String rate) {
+    return 'La valeur lue ($rate %) se trouve hors de l’unité attendue (0 à 100 %). Vérifie la valeur et son unité sur le document.';
+  }
+
+  @override
+  String taxParserDiagnosticNegativeWealth(String amount) {
+    return 'Une fortune nette de $amount CHF peut refléter des dettes supérieures aux actifs. Confirme le libellé exact avant de retenir une fortune imposable.';
+  }
+
+  @override
+  String taxParserDiagnosticAverageNotMarginal(String rate) {
+    return 'Le ratio des montants lus ($rate %) compare les impôts au revenu. Il ne constitue ni un taux marginal ni un taux moyen légal.';
+  }
+
+  @override
+  String get taxReviewLocalDisclaimer =>
+      'Vérifie le type de document, son statut et chaque valeur avant de confirmer. MINT t’aide à lire le document ; cette lecture ne constitue pas un conseil fiscal.';
+
+  @override
+  String get confidencePromptPartnerLabel =>
+      'Précise les informations de ton·ta partenaire';
+
+  @override
+  String get confidencePromptPartnerAction =>
+      'Âge et revenu de ton·ta partenaire, s’ils sont disponibles et partagés avec son accord, pour préciser les scénarios de couple.';
+
+  @override
+  String confidencePromptRefreshField(String field) {
+    return 'Actualise : $field';
+  }
+
+  @override
+  String confidencePromptFreshnessStale(int months) {
+    return 'Donnée mise à jour il y a $months mois — vérifie si elle est toujours actuelle.';
+  }
+
+  @override
+  String get confidencePromptFreshnessCurrent =>
+      'Vérifie si cette donnée est toujours actuelle.';
+
+  @override
+  String confidencePromptConfirmField(String field) {
+    return 'Confirme : $field';
+  }
+
+  @override
+  String get confidencePromptAccuracyCurrentSource =>
+      'Confirme cette valeur avec une source à jour.';
+
+  @override
+  String get confidencePromptEducationLabel => 'Explore les contenus éducatifs';
+
+  @override
+  String get confidencePromptEducationAction =>
+      'Consulte les contenus éducatifs liés à tes thèmes.';
+
+  @override
+  String get confidencePromptCoachLabel => 'Pose une question au coach';
+
+  @override
+  String get confidencePromptCoachAction =>
+      'Explore une question de finance suisse avec le coach.';
+
+  @override
+  String get confidencePromptAccuracyEstimated => 'Saisis ta valeur réelle.';
 }

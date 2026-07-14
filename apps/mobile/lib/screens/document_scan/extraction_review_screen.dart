@@ -5,8 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
@@ -25,14 +28,28 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 //  User flow step 4: extraction review.
 // ────────────────────────────────────────────────────────────
 
+typedef ScanConfirmationSender = Future<void> Function({
+  required String documentType,
+  required List<Map<String, dynamic>> confirmedFields,
+  required double overallConfidence,
+});
+
 class ExtractionReviewScreen extends StatefulWidget {
   final String scanSessionId;
   final ExtractionResult result;
+  final TaxExtractionCandidate? taxCandidate;
+  final ScanConfirmationSender? sendScanConfirmation;
+  final int Function(CoachProfile)? confidenceScorer;
+  final DateTime Function()? now;
 
   const ExtractionReviewScreen({
     super.key,
     required this.scanSessionId,
     required this.result,
+    this.taxCandidate,
+    this.sendScanConfirmation,
+    this.confidenceScorer,
+    this.now,
   });
 
   @override
@@ -61,60 +78,154 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   late List<ExtractedField> _fields;
   late double _overallConfidence;
+  ScanSessionProvider? _scanSessions;
+  bool _transferredToImpact = false;
+  bool _isConfirming = false;
+  bool _taxValidationFailed = false;
+  bool _taxInForceAttested = false;
+  bool _federalScopeIncoherent = false;
+
+  TaxDocumentKind _taxDocumentKind = TaxDocumentKind.unknown;
+  TaxAssessmentStatus _taxAssessmentStatus = TaxAssessmentStatus.unknown;
+  TaxSubjectScope _taxSubjectScope = TaxSubjectScope.unknown;
+  TaxAuthorityScope _cantonalAuthorityScope = TaxAuthorityScope.unknown;
+  TaxBaseScope _cantonalBaseScope = TaxBaseScope.unknown;
+  TaxAuthorityScope _federalAuthorityScope = TaxAuthorityScope.federalDirect;
+  TaxBaseScope _federalBaseScope = TaxBaseScope.unknown;
+
+  final _taxYearController = TextEditingController();
+  final _basedOnTaxYearController = TextEditingController();
+  final _sourceDateController = TextEditingController();
+  final _cantonCodeController = TextEditingController();
+  final _municipalityIdController = TextEditingController();
+  final _municipalityLabelController = TextEditingController();
+  final _cantonalIncomeController = TextEditingController();
+  final _federalIncomeController = TextEditingController();
+  final _wealthController = TextEditingController();
+  final _cantonalTaxController = TextEditingController();
+  final _federalTaxController = TextEditingController();
+  final _marginalRateController = TextEditingController();
+  final _averageRateController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fields = List.from(widget.result.fields);
     _overallConfidence = widget.result.overallConfidence;
+    _initializeTaxReview(widget.taxCandidate);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scanSessions ??= context.read<ScanSessionProvider>();
+  }
+
+  @override
+  void dispose() {
+    if (!_transferredToImpact) {
+      _scanSessions?.discard(widget.scanSessionId);
+    }
+    for (final controller in [
+      _taxYearController,
+      _basedOnTaxYearController,
+      _sourceDateController,
+      _cantonCodeController,
+      _municipalityIdController,
+      _municipalityLabelController,
+      _cantonalIncomeController,
+      _federalIncomeController,
+      _wealthController,
+      _cantonalTaxController,
+      _federalTaxController,
+      _marginalRateController,
+      _averageRateController,
+    ]) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   // ── Build ────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    if (widget.result.documentType == DocumentType.taxDeclaration &&
+        !FeatureFlags.taxAssessmentIngestionEnabled) {
+      return _buildTaxRecovery(
+        key: const Key('tax_review_disabled_recovery'),
+      );
+    }
+    if (widget.result.documentType == DocumentType.taxDeclaration &&
+        widget.taxCandidate == null) {
+      return _buildTaxRecovery(
+        key: const Key('tax_review_missing_candidate_recovery'),
+      );
+    }
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 12),
-                MintEntrance(child: _buildHeader()),
-                const SizedBox(height: 8),
-                _buildDeeplinkBanner(),
-                const SizedBox(height: 8),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildOverallConfidenceBadge()),
-                const SizedBox(height: 20),
-                if (widget.result.planTypeWarning != null) ...[
-                  _buildLpp1eWarning(),
-                  const SizedBox(height: 8),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  _buildAppBar(context),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        const SizedBox(height: 12),
+                        MintEntrance(child: _buildHeader()),
+                        const SizedBox(height: 8),
+                        _buildDeeplinkBanner(),
+                        const SizedBox(height: 8),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 100),
+                            child: _buildOverallConfidenceBadge()),
+                        const SizedBox(height: 20),
+                        if (widget.result.planTypeWarning != null) ...[
+                          _buildLpp1eWarning(),
+                          const SizedBox(height: 8),
+                        ],
+                        if (widget.result.coherenceWarnings.isNotEmpty) ...[
+                          _buildCoherenceWarnings(),
+                          const SizedBox(height: 8),
+                        ],
+                        if (widget.result.warnings.isNotEmpty ||
+                            widget.result.diagnostics.isNotEmpty) ...[
+                          _buildWarnings(),
+                          const SizedBox(height: 20),
+                        ],
+                        if (widget.result.documentType ==
+                            DocumentType.taxDeclaration)
+                          _buildTaxReviewForm()
+                        else
+                          ..._fields.map((f) => Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _buildFieldCard(f),
+                              )),
+                        if (_taxValidationFailed) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            S.of(context)!.docFieldVerify,
+                            style: MintTextStyles.bodyMedium(
+                                color: MintColors.error),
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 200),
+                            child: _buildConfirmButton()),
+                        const SizedBox(height: 16),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 300),
+                            child: _buildDisclaimer()),
+                        const SizedBox(height: 100),
+                      ]),
+                    ),
+                  ),
                 ],
-                if (widget.result.coherenceWarnings.isNotEmpty) ...[
-                  _buildCoherenceWarnings(),
-                  const SizedBox(height: 8),
-                ],
-                if (widget.result.warnings.isNotEmpty) ...[
-                  _buildWarnings(),
-                  const SizedBox(height: 20),
-                ],
-                ..._fields.map((f) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildFieldCard(f),
-                    )),
-                const SizedBox(height: 24),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildConfirmButton()),
-                const SizedBox(height: 16),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDisclaimer()),
-                const SizedBox(height: 100),
-              ]),
-            ),
-          ),
-        ],
-      ))),
+              ))),
     );
   }
 
@@ -126,9 +237,20 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       backgroundColor: MintColors.background,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => safePop(context),
+      leading: Semantics(
+        identifier: widget.result.documentType == DocumentType.taxDeclaration
+            ? 'tax_review_back_cta'
+            : null,
+        button: true,
+        label: S.of(context)!.documentScanCancel,
+        child: IconButton(
+          key: widget.result.documentType == DocumentType.taxDeclaration
+              ? const Key('tax_review_back_cta')
+              : null,
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: _onBack,
+          tooltip: S.of(context)!.documentScanCancel,
+        ),
       ),
       title: Text(
         S.of(context)!.extractionReviewAppBar,
@@ -140,6 +262,367 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     );
   }
 
+  Widget _buildTaxRecovery({required Key key}) {
+    return Scaffold(
+      key: key,
+      backgroundColor: MintColors.background,
+      appBar: AppBar(
+        backgroundColor: MintColors.background,
+        leading: Semantics(
+          identifier: 'tax_review_back_cta',
+          button: true,
+          label: S.of(context)!.documentScanCancel,
+          child: IconButton(
+            key: const Key('tax_review_back_cta'),
+            onPressed: _onBack,
+            icon: const Icon(Icons.arrow_back),
+          ),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            S.of(context)!.docScanGenericError,
+            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _onBack() {
+    _scanSessions?.discard(widget.scanSessionId);
+    safePop(context);
+  }
+
+  void _initializeTaxReview(TaxExtractionCandidate? candidate) {
+    if (candidate == null) return;
+    _taxDocumentKind = candidate.documentKind;
+    _taxAssessmentStatus = candidate.assessmentStatus;
+    _taxSubjectScope = candidate.subjectScope;
+    _cantonalAuthorityScope =
+        candidate.cantonalCommunalAssessedTax?.authorityScope ??
+            TaxAuthorityScope.unknown;
+    _cantonalBaseScope = candidate.cantonalCommunalAssessedTax?.baseScope ??
+        TaxBaseScope.unknown;
+    _federalAuthorityScope =
+        candidate.federalDirectAssessedTax?.authorityScope ??
+            TaxAuthorityScope.federalDirect;
+    final federalBase = candidate.federalDirectAssessedTax?.baseScope;
+    _federalScopeIncoherent = federalBase == TaxBaseScope.wealthOnly ||
+        federalBase == TaxBaseScope.incomeAndWealth ||
+        federalBase == TaxBaseScope.totalInvoice;
+    _federalBaseScope = _federalScopeIncoherent
+        ? TaxBaseScope.unknown
+        : federalBase ?? TaxBaseScope.unknown;
+    _taxYearController.text = candidate.taxYear?.toString() ?? '';
+    _basedOnTaxYearController.text = candidate.basedOnTaxYear?.toString() ?? '';
+    _sourceDateController.text = _formatTaxDate(candidate.sourceDate);
+    _cantonCodeController.text = candidate.cantonCode ?? '';
+    _municipalityIdController.text = candidate.municipalityId ?? '';
+    _municipalityLabelController.text = candidate.municipalityLabel ?? '';
+    _cantonalIncomeController.text =
+        _formatTaxNumber(candidate.cantonalCommunalTaxableIncomeChf);
+    _federalIncomeController.text =
+        _formatTaxNumber(candidate.federalTaxableIncomeChf);
+    _wealthController.text =
+        _formatTaxNumber(candidate.cantonalCommunalTaxableWealthChf);
+    _cantonalTaxController.text =
+        _formatTaxNumber(candidate.cantonalCommunalAssessedTax?.amountChf);
+    _federalTaxController.text =
+        _formatTaxNumber(candidate.federalDirectAssessedTax?.amountChf);
+    _marginalRateController.text = _formatTaxNumber(
+      candidate.explicitMarginalIncomeTaxRate == null
+          ? null
+          : candidate.explicitMarginalIncomeTaxRate! * 100,
+    );
+    _averageRateController.text = _formatTaxNumber(
+      candidate.explicitAverageIncomeTaxRate == null
+          ? null
+          : candidate.explicitAverageIncomeTaxRate! * 100,
+    );
+  }
+
+  String _formatTaxDate(DateTime? value) {
+    if (value == null) return '';
+    return '${value.year.toString().padLeft(4, '0')}-'
+        '${value.month.toString().padLeft(2, '0')}-'
+        '${value.day.toString().padLeft(2, '0')}';
+  }
+
+  String _formatTaxNumber(double? value) {
+    if (value == null) return '';
+    if (value == value.roundToDouble()) return value.toInt().toString();
+    return value.toString();
+  }
+
+  Widget _buildTaxReviewForm() {
+    final l10n = S.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _taxDropdown<TaxDocumentKind>(
+          controlKey: 'tax_review_document_kind',
+          label: l10n.taxReviewDocumentKind,
+          value: _taxDocumentKind,
+          values: TaxDocumentKind.values,
+          onChanged: (value) => setState(() => _taxDocumentKind = value),
+        ),
+        _taxDropdown<TaxAssessmentStatus>(
+          controlKey: 'tax_review_assessment_status',
+          label: l10n.taxReviewAssessmentStatus,
+          value: _taxAssessmentStatus,
+          values: TaxAssessmentStatus.values,
+          onChanged: (value) => setState(() {
+            _taxAssessmentStatus = value;
+            if (value != TaxAssessmentStatus.inForce) {
+              _taxInForceAttested = false;
+            }
+          }),
+        ),
+        if (_taxAssessmentStatus == TaxAssessmentStatus.inForce)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Semantics(
+              key: const Key('tax_review_in_force_attested'),
+              identifier: 'tax_review_in_force_attested',
+              checked: _taxInForceAttested,
+              label: l10n.taxReviewInForceAttestation,
+              onTap: () => setState(
+                () => _taxInForceAttested = !_taxInForceAttested,
+              ),
+              child: ExcludeSemantics(
+                child: CheckboxListTile(
+                  value: _taxInForceAttested,
+                  title: Text(l10n.taxReviewInForceAttestation),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (value) => setState(
+                    () => _taxInForceAttested = value ?? false,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        _taxTextField(
+          controlKey: 'tax_review_tax_year',
+          label: l10n.taxReviewTaxYear,
+          controller: _taxYearController,
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_based_on_tax_year',
+          label: l10n.taxReviewBasedOnTaxYear,
+          controller: _basedOnTaxYearController,
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_source_date',
+          label: l10n.taxReviewSourceDate,
+          controller: _sourceDateController,
+        ),
+        _taxDropdown<TaxSubjectScope>(
+          controlKey: 'tax_review_subject_scope',
+          label: l10n.taxReviewSubjectScope,
+          value: _taxSubjectScope,
+          values: TaxSubjectScope.values,
+          onChanged: (value) => setState(() => _taxSubjectScope = value),
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_canton_code',
+          label: l10n.taxReviewCantonCode,
+          controller: _cantonCodeController,
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_municipality_id',
+          label: l10n.taxReviewMunicipalityId,
+          controller: _municipalityIdController,
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_municipality_label',
+          label: l10n.taxReviewMunicipalityLabel,
+          controller: _municipalityLabelController,
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_cantonal_communal_taxable_income_chf',
+          label: l10n.taxReviewCantonalIncome,
+          controller: _cantonalIncomeController,
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_federal_taxable_income_chf',
+          label: l10n.taxReviewFederalIncome,
+          controller: _federalIncomeController,
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_cantonal_communal_taxable_wealth_chf',
+          label: l10n.taxReviewCantonalWealth,
+          controller: _wealthController,
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_cantonal_communal_assessed_tax_chf',
+          label: l10n.taxReviewCantonalTax,
+          controller: _cantonalTaxController,
+        ),
+        _taxDropdown<TaxAuthorityScope>(
+          controlKey: 'tax_review_cantonal_authority_scope',
+          label: l10n.taxReviewCantonalAuthority,
+          value: _cantonalAuthorityScope,
+          values: TaxAuthorityScope.values,
+          onChanged: (value) => setState(() => _cantonalAuthorityScope = value),
+        ),
+        _taxDropdown<TaxBaseScope>(
+          controlKey: 'tax_review_cantonal_base_scope',
+          label: l10n.taxReviewCantonalBase,
+          value: _cantonalBaseScope,
+          values: TaxBaseScope.values,
+          onChanged: (value) => setState(() => _cantonalBaseScope = value),
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_federal_direct_assessed_tax_chf',
+          label: l10n.taxReviewFederalTax,
+          controller: _federalTaxController,
+        ),
+        _taxDropdown<TaxAuthorityScope>(
+          controlKey: 'tax_review_federal_authority_scope',
+          label: l10n.taxReviewFederalAuthority,
+          value: _federalAuthorityScope,
+          values: TaxAuthorityScope.values,
+          onChanged: (value) => setState(() => _federalAuthorityScope = value),
+        ),
+        _taxDropdown<TaxBaseScope>(
+          controlKey: 'tax_review_federal_base_scope',
+          label: l10n.taxReviewFederalBase,
+          value: _federalBaseScope,
+          values: const [TaxBaseScope.incomeOnly, TaxBaseScope.unknown],
+          onChanged: (value) => setState(() {
+            _federalBaseScope = value;
+            _federalScopeIncoherent = false;
+          }),
+        ),
+        if (_federalScopeIncoherent)
+          Padding(
+            key: const Key('tax_review_federal_scope_incoherence'),
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              l10n.taxReviewFederalScopeIncoherence,
+              style: MintTextStyles.bodySmall(color: MintColors.warning),
+            ),
+          ),
+        _taxTextField(
+          controlKey: 'tax_review_explicit_marginal_rate_percent',
+          label: l10n.taxReviewMarginalRate,
+          controller: _marginalRateController,
+        ),
+        _taxTextField(
+          controlKey: 'tax_review_explicit_average_rate_percent',
+          label: l10n.taxReviewAverageRate,
+          controller: _averageRateController,
+        ),
+      ],
+    );
+  }
+
+  Widget _taxTextField({
+    required String controlKey,
+    required String label,
+    required TextEditingController controller,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Semantics(
+        identifier: controlKey,
+        textField: true,
+        label: label,
+        child: TextFormField(
+          key: Key(controlKey),
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: label,
+            border: const OutlineInputBorder(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _taxDropdown<T extends Enum>({
+    required String controlKey,
+    required String label,
+    required T value,
+    required List<T> values,
+    required ValueChanged<T> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Semantics(
+        identifier: controlKey,
+        label: label,
+        child: DropdownButtonFormField<T>(
+          key: Key(controlKey),
+          initialValue: value,
+          decoration: InputDecoration(
+            labelText: label,
+            border: const OutlineInputBorder(),
+          ),
+          isExpanded: true,
+          items: values
+              .map(
+                (option) => DropdownMenuItem<T>(
+                  key: Key('${controlKey}_${_enumSnakeCase(option.name)}'),
+                  value: option,
+                  child: Text(_taxOptionLabel(option)),
+                ),
+              )
+              .toList(growable: false),
+          selectedItemBuilder: (context) => values
+              .map((option) => Text(_taxOptionLabel(option)))
+              .toList(growable: false),
+          onChanged: (next) {
+            if (next != null) onChanged(next);
+          },
+        ),
+      ),
+    );
+  }
+
+  String _enumSnakeCase(String value) => value.replaceAllMapped(
+        RegExp(r'[A-Z]'),
+        (match) => '_${match[0]!.toLowerCase()}',
+      );
+
+  String _taxOptionLabel(Enum value) {
+    final l10n = S.of(context)!;
+    return switch (value) {
+      TaxDocumentKind.taxpayerReturn => l10n.taxReviewOptionTaxpayerReturn,
+      TaxDocumentKind.provisionalBill => l10n.taxReviewOptionProvisionalBill,
+      TaxDocumentKind.assessmentNotice => l10n.taxReviewOptionAssessmentNotice,
+      TaxDocumentKind.finalTaxBill => l10n.taxReviewOptionFinalTaxBill,
+      TaxDocumentKind.unknown => l10n.taxReviewOptionUnknown,
+      TaxAssessmentStatus.selfDeclared => l10n.taxReviewOptionSelfDeclared,
+      TaxAssessmentStatus.provisional => l10n.taxReviewOptionProvisional,
+      TaxAssessmentStatus.assessedAppealable =>
+        l10n.taxReviewOptionAssessedAppealable,
+      TaxAssessmentStatus.contested => l10n.taxReviewOptionContested,
+      TaxAssessmentStatus.inForce => l10n.taxReviewOptionInForce,
+      TaxAssessmentStatus.unknown => l10n.taxReviewOptionUnknown,
+      TaxSubjectScope.individual => l10n.taxReviewOptionIndividual,
+      TaxSubjectScope.jointlyAssessedCouple => l10n.taxReviewOptionJointCouple,
+      TaxSubjectScope.unknown => l10n.taxReviewOptionUnknown,
+      TaxAuthorityScope.cantonalOnly => l10n.taxReviewOptionCantonalOnly,
+      TaxAuthorityScope.communalOnly => l10n.taxReviewOptionCommunalOnly,
+      TaxAuthorityScope.cantonalCommunalCombined =>
+        l10n.taxReviewOptionCantonalCommunal,
+      TaxAuthorityScope.federalDirect => l10n.taxReviewOptionFederalDirect,
+      TaxAuthorityScope.unknown => l10n.taxReviewOptionUnknown,
+      TaxBaseScope.incomeOnly => l10n.taxReviewOptionIncomeOnly,
+      TaxBaseScope.wealthOnly => l10n.taxReviewOptionWealthOnly,
+      TaxBaseScope.incomeAndWealth => l10n.taxReviewOptionIncomeAndWealth,
+      TaxBaseScope.totalInvoice => l10n.taxReviewOptionTotalInvoice,
+      TaxBaseScope.unknown => l10n.taxReviewOptionUnknown,
+      _ => value.name,
+    };
+  }
+
   // ── Header ───────────────────────────────────────────────
 
   Widget _buildHeader() {
@@ -149,12 +632,18 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       children: [
         Text(
           S.of(context)!.extractionReviewTitle,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(height: 1.3),
+          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary)
+              .copyWith(height: 1.3),
         ),
         const SizedBox(height: 8),
         Text(
-          S.of(context)!.extractionReviewSubtitle(_fields.length, reviewCount > 0 ? S.of(context)!.extractionReviewNeedsReview(reviewCount) : ''),
-          style: MintTextStyles.labelLarge(color: MintColors.textSecondary).copyWith(height: 1.5),
+          S.of(context)!.extractionReviewSubtitle(
+              _fields.length,
+              reviewCount > 0
+                  ? S.of(context)!.extractionReviewNeedsReview(reviewCount)
+                  : ''),
+          style: MintTextStyles.labelLarge(color: MintColors.textSecondary)
+              .copyWith(height: 1.5),
         ),
       ],
     );
@@ -222,7 +711,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           const SizedBox(width: 6),
           Text(
             S.of(context)!.extractionReviewConfidence(pct),
-            style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w600),
+            style: MintTextStyles.bodySmall(color: color)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -232,8 +722,12 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   // ── Warnings ─────────────────────────────────────────────
 
   Widget _buildWarnings() {
+    final messages = <String>[
+      ...widget.result.warnings,
+      ...widget.result.diagnostics.map(_localizedDiagnostic),
+    ];
     return Column(
-      children: widget.result.warnings.map((w) {
+      children: messages.map((w) {
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.only(bottom: 8),
@@ -241,7 +735,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           decoration: BoxDecoration(
             color: MintColors.warning.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
+            border:
+                Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,7 +747,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               Expanded(
                 child: Text(
                   w,
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                      .copyWith(height: 1.4),
                 ),
               ),
             ],
@@ -276,12 +772,14 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber_outlined, size: 18, color: MintColors.warning),
+          const Icon(Icons.warning_amber_outlined,
+              size: 18, color: MintColors.warning),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               S.of(context)!.docLpp1eWarning,
-              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                  .copyWith(height: 1.4),
             ),
           ),
         ],
@@ -301,17 +799,21 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           decoration: BoxDecoration(
             color: MintColors.warning.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
+            border:
+                Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.warning_amber_outlined, size: 18, color: MintColors.warning),
+              const Icon(Icons.warning_amber_outlined,
+                  size: 18, color: MintColors.warning),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   w,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(height: 1.4),
                 ),
               ),
             ],
@@ -352,7 +854,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         border: isLow
-            ? Border.all(color: MintColors.error.withValues(alpha: 0.3), width: 1.5)
+            ? Border.all(
+                color: MintColors.error.withValues(alpha: 0.3), width: 1.5)
             : null,
       ),
       child: MintSurface(
@@ -369,8 +872,10 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    field.label,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
+                    _localizedFieldLabel(field),
+                    style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary)
+                        .copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
                 Container(
@@ -382,7 +887,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                   ),
                   child: Text(
                     '$confidencePct%',
-                    style: MintTextStyles.micro(color: badgeColor).copyWith(fontWeight: FontWeight.w700),
+                    style: MintTextStyles.micro(color: badgeColor)
+                        .copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -395,7 +901,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                 Expanded(
                   child: Text(
                     _formatValue(field),
-                    style: MintTextStyles.headlineSmall(color: MintColors.textPrimary),
+                    style: MintTextStyles.headlineSmall(
+                        color: MintColors.textPrimary),
                   ),
                 ),
                 // Edit button
@@ -428,7 +935,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               const SizedBox(height: 6),
               Text(
                 '${S.of(context)!.docSourcePrefix}${_truncateSource(field.sourceText)}',
-                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
+                style: MintTextStyles.micro(color: MintColors.textMuted)
+                    .copyWith(fontStyle: FontStyle.italic),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -442,34 +950,42 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   // ── Confirm button ───────────────────────────────────────
 
   Widget _buildConfirmButton() {
+    final isTax = widget.result.documentType == DocumentType.taxDeclaration;
     return Semantics(
+      identifier: isTax ? 'tax_review_confirm_cta' : null,
       button: true,
       label: S.of(context)!.docReviewConfirm,
       child: SizedBox(
         width: double.infinity,
         height: 56,
         child: FilledButton.icon(
-          onPressed: _onConfirmAll,
-        icon: const Icon(Icons.check_circle_outline, size: 22),
-        label: Text(
-          S.of(context)!.docReviewConfirm,
-          style: MintTextStyles.titleMedium(color: MintColors.white),
-        ),
-        style: FilledButton.styleFrom(
-          backgroundColor: MintColors.primary,
-          foregroundColor: MintColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+          key: isTax ? const Key('tax_review_confirm_cta') : null,
+          onPressed: _isConfirming ? null : _onConfirmAll,
+          icon: const Icon(Icons.check_circle_outline, size: 22),
+          label: Text(
+            S.of(context)!.docReviewConfirm,
+            style: MintTextStyles.titleMedium(color: MintColors.white),
+          ),
+          style: FilledButton.styleFrom(
+            backgroundColor: MintColors.primary,
+            foregroundColor: MintColors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
   // ── Disclaimer ───────────────────────────────────────────
 
   Widget _buildDisclaimer() {
+    final isTax = widget.result.documentType == DocumentType.taxDeclaration;
+    final disclaimer = isTax
+        ? S.of(context)!.taxReviewLocalDisclaimer
+        : widget.result.disclaimer;
+    final sources = isTax ? const <String>[] : widget.result.sources;
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
@@ -478,11 +994,12 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.result.disclaimer,
-            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
+            disclaimer,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                .copyWith(height: 1.5),
           ),
-          const SizedBox(height: 8),
-          ...widget.result.sources.map((s) => Padding(
+          if (sources.isNotEmpty) const SizedBox(height: 8),
+          ...sources.map((s) => Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
                   s,
@@ -495,6 +1012,40 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   }
 
   // ── Helpers ──────────────────────────────────────────────
+
+  String _localizedDiagnostic(ExtractionDiagnostic diagnostic) {
+    final l10n = S.of(context)!;
+    return switch (diagnostic.code) {
+      ExtractionDiagnosticCode.taxPercentUnitOutOfRange =>
+        l10n.taxParserDiagnosticPercentUnit(
+          diagnostic.ratePercent!.toStringAsFixed(1),
+        ),
+      ExtractionDiagnosticCode.taxNegativeWealthNeedsLabelReview =>
+        l10n.taxParserDiagnosticNegativeWealth(
+          diagnostic.amountChf!.toStringAsFixed(0),
+        ),
+      ExtractionDiagnosticCode.taxComputedAverageRateNotMarginal =>
+        l10n.taxParserDiagnosticAverageNotMarginal(
+          diagnostic.ratePercent!.toStringAsFixed(1),
+        ),
+    };
+  }
+
+  String _localizedFieldLabel(ExtractedField field) {
+    final l10n = S.of(context)!;
+    return switch (field.labelCode) {
+      null => field.label,
+      ExtractionFieldLabelCode.taxTaxableIncome => l10n.reportTaxIncome,
+      ExtractionFieldLabelCode.taxTaxableWealth => l10n.taxReviewCantonalWealth,
+      ExtractionFieldLabelCode.taxDeductions => l10n.reportTaxDeductions,
+      ExtractionFieldLabelCode.taxCantonalCommunalTax ||
+      ExtractionFieldLabelCode.taxCantonalOnlyTax =>
+        l10n.taxReviewCantonalTax,
+      ExtractionFieldLabelCode.taxFederalDirectTax => l10n.taxReviewFederalTax,
+      ExtractionFieldLabelCode.taxMarginalRate => l10n.taxReviewMarginalRate,
+      ExtractionFieldLabelCode.taxAverageRate => l10n.taxReviewAverageRate,
+    };
+  }
 
   String _formatValue(ExtractedField field) {
     final value = field.value;
@@ -540,8 +1091,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          S.of(context)!.extractionReviewEditTitle(field.label),
-          style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
+          S.of(context)!.extractionReviewEditTitle(
+                _localizedFieldLabel(field),
+              ),
+          style: MintTextStyles.titleMedium()
+              .copyWith(fontWeight: FontWeight.w600),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -601,7 +1155,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             ),
             child: Text(
               S.of(context)!.extractionReviewValidate,
-              style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
+              style: MintTextStyles.bodyMedium(color: MintColors.white)
+                  .copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -641,7 +1196,66 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   // ── Confirm and navigate ─────────────────────────────────
 
+  int _scoreProfile(CoachProfile profile) {
+    final injected = widget.confidenceScorer;
+    if (injected != null) return injected(profile);
+    return ConfidenceScorer.score(profile).score.round();
+  }
+
   Future<void> _onConfirmAll() async {
+    if (widget.result.documentType == DocumentType.taxDeclaration) {
+      if (_isConfirming ||
+          !FeatureFlags.taxAssessmentIngestionEnabled ||
+          widget.taxCandidate == null) {
+        return;
+      }
+      final confirmation = _buildTaxConfirmation();
+      if (confirmation == null) {
+        setState(() => _taxValidationFailed = true);
+        return;
+      }
+      setState(() {
+        _isConfirming = true;
+        _taxValidationFailed = false;
+      });
+      final coachProvider = context.read<CoachProfileProvider>();
+      final beforeProfile = coachProvider.profile ?? CoachProfile.defaults();
+      final previousConfidence = _scoreProfile(beforeProfile);
+      try {
+        await coachProvider.acceptTaxReview(confirmation);
+      } catch (_) {
+        if (mounted) setState(() => _isConfirming = false);
+        return;
+      }
+      final afterProfile = coachProvider.profile ?? CoachProfile.defaults();
+      final afterConfidence = _scoreProfile(afterProfile).toDouble();
+      final canonicalFields = _canonicalTaxImpactFields(confirmation);
+      final confirmedResult = ExtractionResult(
+        documentType: widget.result.documentType,
+        fields: canonicalFields,
+        overallConfidence: canonicalFields.isEmpty ? 0 : 1,
+        confidenceDelta: afterConfidence - previousConfidence,
+        warnings: const [],
+        disclaimer: '',
+        sources: const [],
+      );
+      final retained = _scanSessions?.retainImpact(
+            widget.scanSessionId,
+            extraction: confirmedResult,
+            previousConfidence: previousConfidence,
+          ) ??
+          false;
+      if (!retained || !mounted) {
+        if (mounted) setState(() => _isConfirming = false);
+        return;
+      }
+      _transferredToImpact = true;
+      context.go(
+        '/scan/impact?scanSessionId=${Uri.encodeQueryComponent(widget.scanSessionId)}',
+      );
+      return;
+    }
+
     // Build the confirmed result
     final confirmedResult = ExtractionResult(
       documentType: widget.result.documentType,
@@ -651,6 +1265,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       warnings: widget.result.warnings,
       disclaimer: widget.result.disclaimer,
       sources: widget.result.sources,
+      diagnostics: widget.result.diagnostics,
       planType: widget.result.planType,
       planTypeWarning: widget.result.planTypeWarning,
       coherenceWarnings: widget.result.coherenceWarnings,
@@ -675,11 +1290,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     }
 
     // For couple profiles: ask whose document this is before injecting.
-    final isCouple = coachProvider.hasProfile &&
-        coachProvider.profile!.conjoint != null;
+    final isCouple =
+        coachProvider.hasProfile && coachProvider.profile!.conjoint != null;
     final isPartnerDoc = isCouple &&
         (widget.result.documentType == DocumentType.lppCertificate ||
-         widget.result.documentType == DocumentType.salaryCertificate) &&
+            widget.result.documentType == DocumentType.salaryCertificate) &&
         await _askWhoseDocument();
 
     // Inject extracted data and AWAIT persistence before navigating
@@ -693,7 +1308,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       case DocumentType.avsExtract:
         await coachProvider.updateFromAvsExtraction(_fields);
       case DocumentType.taxDeclaration:
-        await coachProvider.updateFromTaxExtraction(_fields);
+        return;
       case DocumentType.salaryCertificate:
         await coachProvider.updateFromSalaryExtraction(_fields);
       default:
@@ -729,7 +1344,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
     // ── Sync to backend (offline-first: failure never blocks UX) ──
     final syncFields = _fields.map((f) {
-      final conf = f.confidence >= 0.8 ? 'high' : (f.confidence >= 0.5 ? 'medium' : 'low');
+      final conf = f.confidence >= 0.8
+          ? 'high'
+          : (f.confidence >= 0.5 ? 'medium' : 'low');
       return <String, dynamic>{
         'fieldName': f.profileField ?? f.label,
         'value': f.value,
@@ -751,9 +1368,193 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           previousConfidence: previousConfidence,
         );
     if (!retained || !mounted) return;
+    _transferredToImpact = true;
     context.push(
       '/scan/impact?scanSessionId=${Uri.encodeQueryComponent(widget.scanSessionId)}',
     );
+  }
+
+  TaxReviewConfirmation? _buildTaxConfirmation() {
+    final candidate = widget.taxCandidate;
+    if (candidate == null) return null;
+    try {
+      final taxYear = _parseOptionalYear(_taxYearController.text);
+      final basedOnTaxYear = _parseOptionalYear(_basedOnTaxYearController.text);
+      final sourceDate = _parseOptionalTaxDate(_sourceDateController.text);
+      final currentDay = _civilDay((widget.now ?? DateTime.now)());
+      if (sourceDate != null && _civilDay(sourceDate).isAfter(currentDay)) {
+        return null;
+      }
+      final cantonCode = _optionalTaxText(_cantonCodeController.text);
+      if (cantonCode != null && !sortedCantonCodes.contains(cantonCode)) {
+        return null;
+      }
+      final cantonalIncome =
+          _parseOptionalTaxNumber(_cantonalIncomeController.text);
+      final federalIncome =
+          _parseOptionalTaxNumber(_federalIncomeController.text);
+      final wealth = _parseOptionalTaxNumber(_wealthController.text);
+      final cantonalAmount =
+          _parseOptionalTaxNumber(_cantonalTaxController.text);
+      final federalAmount = _parseOptionalTaxNumber(_federalTaxController.text);
+      final marginalPercent =
+          _parseOptionalTaxNumber(_marginalRateController.text);
+      final averagePercent =
+          _parseOptionalTaxNumber(_averageRateController.text);
+      if (wealth != null && wealth < 0 ||
+          cantonalAmount != null && cantonalAmount < 0 ||
+          federalAmount != null && federalAmount < 0 ||
+          marginalPercent != null &&
+              (marginalPercent < 0 || marginalPercent > 100) ||
+          averagePercent != null &&
+              (averagePercent < 0 || averagePercent > 100)) {
+        return null;
+      }
+      if (_taxAssessmentStatus == TaxAssessmentStatus.inForce &&
+          !_taxInForceAttested) {
+        return null;
+      }
+
+      return TaxReviewConfirmation(
+        candidate: candidate,
+        taxYear: taxYear,
+        basedOnTaxYear: basedOnTaxYear,
+        sourceDate: sourceDate,
+        documentKind: _taxDocumentKind,
+        assessmentStatus: _taxAssessmentStatus,
+        inForceAttested: _taxInForceAttested,
+        subjectScope: _taxSubjectScope,
+        cantonCode: cantonCode,
+        municipalityId: _optionalTaxText(_municipalityIdController.text),
+        municipalityLabel: _optionalTaxText(_municipalityLabelController.text),
+        cantonalCommunalTaxableIncomeChf: cantonalIncome,
+        federalTaxableIncomeChf: federalIncome,
+        cantonalCommunalTaxableWealthChf: wealth,
+        cantonalCommunalAssessedTax: cantonalAmount == null
+            ? null
+            : AssessedTaxAmount(
+                amountChf: cantonalAmount,
+                authorityScope: _cantonalAuthorityScope,
+                baseScope: _cantonalBaseScope,
+              ),
+        federalDirectAssessedTax: federalAmount == null
+            ? null
+            : AssessedTaxAmount(
+                amountChf: federalAmount,
+                authorityScope: _federalAuthorityScope,
+                baseScope: _federalBaseScope,
+              ),
+        explicitMarginalIncomeTaxRate:
+            marginalPercent == null ? null : marginalPercent / 100,
+        explicitAverageIncomeTaxRate:
+            averagePercent == null ? null : averagePercent / 100,
+      );
+    } on ArgumentError {
+      return null;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  DateTime _civilDay(DateTime value) =>
+      DateTime.utc(value.year, value.month, value.day);
+
+  List<ExtractedField> _canonicalTaxImpactFields(
+    TaxReviewConfirmation confirmation,
+  ) {
+    final fields = <ExtractedField>[];
+    void add(String fieldName, String label, Object? value) {
+      if (value == null) return;
+      fields.add(
+        ExtractedField(
+          fieldName: fieldName,
+          label: label,
+          value: value,
+          confidence: 1,
+          sourceText: '',
+          needsReview: false,
+        ),
+      );
+    }
+
+    final l10n = S.of(context)!;
+    add(
+      'cantonalCommunalTaxableIncomeChf',
+      l10n.taxReviewCantonalIncome,
+      confirmation.cantonalCommunalTaxableIncomeChf,
+    );
+    add(
+      'federalTaxableIncomeChf',
+      l10n.taxReviewFederalIncome,
+      confirmation.federalTaxableIncomeChf,
+    );
+    add(
+      'cantonalCommunalTaxableWealthChf',
+      l10n.taxReviewCantonalWealth,
+      confirmation.cantonalCommunalTaxableWealthChf,
+    );
+    add(
+      'cantonalCommunalAssessedTax.amountChf',
+      l10n.taxReviewCantonalTax,
+      confirmation.cantonalCommunalAssessedTax?.amountChf,
+    );
+    add(
+      'federalDirectAssessedTax.amountChf',
+      l10n.taxReviewFederalTax,
+      confirmation.federalDirectAssessedTax?.amountChf,
+    );
+    add(
+      'explicitMarginalIncomeTaxRate',
+      l10n.taxReviewMarginalRate,
+      confirmation.explicitMarginalIncomeTaxRate,
+    );
+    add(
+      'explicitAverageIncomeTaxRate',
+      l10n.taxReviewAverageRate,
+      confirmation.explicitAverageIncomeTaxRate,
+    );
+    return List.unmodifiable(fields);
+  }
+
+  int? _parseOptionalYear(String raw) {
+    final text = raw.trim();
+    if (text.isEmpty) return null;
+    final value = int.tryParse(text);
+    if (value == null || value < 1900 || value > 2100) {
+      throw const FormatException('Invalid tax year');
+    }
+    return value;
+  }
+
+  DateTime? _parseOptionalTaxDate(String raw) {
+    final text = raw.trim();
+    if (text.isEmpty) return null;
+    final match = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$').firstMatch(text);
+    if (match == null) throw const FormatException('Invalid source date');
+    final year = int.parse(match.group(1)!);
+    final month = int.parse(match.group(2)!);
+    final day = int.parse(match.group(3)!);
+    final parsed = DateTime.utc(year, month, day);
+    if (_formatTaxDate(parsed) != text) {
+      throw const FormatException('Invalid source date');
+    }
+    return parsed;
+  }
+
+  double? _parseOptionalTaxNumber(String raw) {
+    final text =
+        raw.trim().replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.');
+    if (text.isEmpty) return null;
+    final value = double.tryParse(text);
+    if (value == null || !value.isFinite) {
+      throw const FormatException('Invalid tax number');
+    }
+    return value;
+  }
+
+  String? _optionalTaxText(String raw) {
+    final value = raw.trim();
+    return value.isEmpty ? null : value;
   }
 
   /// Send scan confirmation with 3 retries + exponential backoff.
@@ -765,7 +1566,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   }) async {
     for (int attempt = 1; attempt <= 3; attempt++) {
       try {
-        await DocumentService.sendScanConfirmation(
+        final sender =
+            widget.sendScanConfirmation ?? DocumentService.sendScanConfirmation;
+        await sender(
           documentType: documentType,
           confirmedFields: confirmedFields,
           overallConfidence: overallConfidence,
@@ -773,7 +1576,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         return; // Success
       } catch (_) {
         if (attempt < 3) {
-          await Future.delayed(Duration(seconds: attempt * 2)); // 2s, 4s backoff
+          await Future.delayed(
+              Duration(seconds: attempt * 2)); // 2s, 4s backoff
         }
       }
     }
@@ -792,25 +1596,36 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   /// Returns null if the field doesn't map to a known FactType.
   FactType? _mapProfileFieldToFactType(String? profileField) {
     if (profileField == null) return null;
-    if (profileField.contains('salaire') || profileField.contains('Salary') || profileField.contains('salary')) {
+    if (profileField.contains('salaire') ||
+        profileField.contains('Salary') ||
+        profileField.contains('salary')) {
       return FactType.salary;
     }
-    if (profileField.contains('avoirLpp') || profileField.contains('lppCapital') || profileField.contains('Lpp')) {
+    if (profileField.contains('avoirLpp') ||
+        profileField.contains('lppCapital') ||
+        profileField.contains('Lpp')) {
       return FactType.lppCapital;
     }
     if (profileField.contains('rachatMax') || profileField.contains('Rachat')) {
       return FactType.lppRachatMax;
     }
-    if (profileField.contains('3a') || profileField.contains('threeA') || profileField.contains('pillar3a')) {
+    if (profileField.contains('3a') ||
+        profileField.contains('threeA') ||
+        profileField.contains('pillar3a')) {
       return FactType.threeACapital;
     }
-    if (profileField.contains('avs') || profileField.contains('Avs') || profileField.contains('AVS')) {
+    if (profileField.contains('avs') ||
+        profileField.contains('Avs') ||
+        profileField.contains('AVS')) {
       return FactType.avsContributionYears;
     }
-    if (profileField.contains('tax') || profileField.contains('impot') || profileField.contains('Tax')) {
+    if (profileField.contains('tax') ||
+        profileField.contains('impot') ||
+        profileField.contains('Tax')) {
       return FactType.taxRate;
     }
-    if (profileField.contains('mortgage') || profileField.contains('hypotheque')) {
+    if (profileField.contains('mortgage') ||
+        profileField.contains('hypotheque')) {
       return FactType.mortgageDebt;
     }
     if (profileField.contains('canton')) {

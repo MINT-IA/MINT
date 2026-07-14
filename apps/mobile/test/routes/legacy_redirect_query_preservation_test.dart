@@ -3,12 +3,29 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 String _routeBlock(String source, String path) {
-  final start = source.indexOf("ScopedGoRoute(path: '$path'");
-  expect(start, isNonNegative, reason: '$path route missing from app.dart');
+  final starts = RegExp(r'^ {4}ScopedGoRoute\s*\(', multiLine: true)
+      .allMatches(source)
+      .map((match) => match.start)
+      .toList();
+  final blocks = <String>[
+    for (var index = 0; index < starts.length; index += 1)
+      source.substring(
+        starts[index],
+        index + 1 < starts.length ? starts[index + 1] : source.length,
+      ),
+  ];
+  final pathPattern = RegExp(
+    "^\\s+path:\\s*'${RegExp.escape(path)}'\\s*,",
+    multiLine: true,
+  );
+  final matches = blocks.where(pathPattern.hasMatch).toList();
 
-  final rest = source.substring(start);
-  final nextRoute = rest.indexOf('\n    ScopedGoRoute(', 1);
-  return nextRoute == -1 ? rest : rest.substring(0, nextRoute);
+  expect(
+    matches,
+    hasLength(1),
+    reason: '$path route must appear exactly once in app.dart',
+  );
+  return matches.single;
 }
 
 void main() {

@@ -6014,7 +6014,7 @@ class SDe extends S {
 
   @override
   String get dataBlockFiscaliteDesc =>
-      'Deine Gemeinde, dein steuerbares Einkommen und dein Vermögen bestimmen deinen Grenzsteuersatz. Eine Steuererklärung oder Veranlagung gibt einen realen Satz statt einer Schätzung (Gemeindekoeffizient 60%-130%).';
+      'Deine Gemeinde und die bestätigten Werte aus deinen Dokumenten präzisieren deinen Steuerkontext. Regeln und Steuersätze unterscheiden sich je nach Kanton, Gemeinde, Steuerjahr und persönlicher Situation.';
 
   @override
   String get dataBlockFiscaliteCta => 'Meine Steuern vergleichen';
@@ -7908,7 +7908,7 @@ class SDe extends S {
 
   @override
   String get coachErrorRateLimit =>
-      'Anfragelimit erreicht. Versuche es in einem Moment erneut.';
+      'Nutzungslimit erreicht. Versuche es später erneut.';
 
   @override
   String get coachErrorGeneric =>
@@ -15163,7 +15163,7 @@ class SDe extends S {
 
   @override
   String get coachErrorServiceUnavailable =>
-      'Service vorübergehend nicht verfügbar. Versuche es in einigen Minuten erneut.';
+      'Der Dienst ist momentan nicht verfügbar. Versuche es später erneut.';
 
   @override
   String get coachFactCardTitle => 'Wusstest du?';
@@ -18975,14 +18975,14 @@ class SDe extends S {
 
   @override
   String get ragErrorRateLimit =>
-      'Anfragelimit erreicht. Bitte versuche es in einem Moment erneut.';
+      'Nutzungslimit erreicht. Versuche es später erneut.';
 
   @override
   String get ragErrorRateLimitShort => 'Anfragelimit erreicht.';
 
   @override
   String get ragErrorServiceUnavailable =>
-      'Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.';
+      'Der Dienst ist momentan nicht verfügbar. Versuche es später erneut.';
 
   @override
   String get ragErrorStatus =>
@@ -23822,4 +23822,228 @@ class SDe extends S {
   @override
   String get expatAvsTruthDisclaimer =>
       'Bildungsinformation, keine persönliche Beratung · AHVG Art. 2 und 29bis ff. · Nur die AHV-Stellen entscheiden amtlich.';
+
+  @override
+  String get docScanTaxDocumentLabel => 'Steuerdokument';
+
+  @override
+  String get docScanTaxDocumentDescription =>
+      'Bestimme und bestätige zuerst die Art des Steuerdokuments, bevor du seine Werte übernimmst.';
+
+  @override
+  String get docImpactTaxTitle => 'Steuerdokument geprüft';
+
+  @override
+  String get docImpactTaxSubtitle =>
+      'Die bei der Prüfung bestätigten Werte werden unten angezeigt.';
+
+  @override
+  String get taxReviewInForceAttestation =>
+      'Ich bestätige, dass diese Veranlagung rechtskräftig ist.';
+
+  @override
+  String get taxReviewFederalScopeIncoherence =>
+      'Die direkte Bundessteuer betrifft das Einkommen. Prüfe den Umfang vor der Bestätigung.';
+
+  @override
+  String get taxReviewDocumentKind => 'Art des Steuerdokuments';
+
+  @override
+  String get taxReviewAssessmentStatus => 'Veranlagungsstatus';
+
+  @override
+  String get taxReviewTaxYear => 'Steuerjahr';
+
+  @override
+  String get taxReviewBasedOnTaxYear => 'Referenzsteuerjahr';
+
+  @override
+  String get taxReviewSourceDate => 'Dokumentdatum (JJJJ-MM-TT)';
+
+  @override
+  String get taxReviewSubjectScope => 'Betroffene Personen';
+
+  @override
+  String get taxReviewCantonCode => 'Kantonskürzel';
+
+  @override
+  String get taxReviewMunicipalityId => 'BFS-Nummer der Gemeinde';
+
+  @override
+  String get taxReviewMunicipalityLabel => 'Gemeinde';
+
+  @override
+  String get taxReviewCantonalIncome =>
+      'Kantonal und kommunal steuerbares Einkommen (CHF)';
+
+  @override
+  String get taxReviewFederalIncome =>
+      'Direkte Bundessteuer: steuerbares Einkommen (CHF)';
+
+  @override
+  String get taxReviewCantonalWealth =>
+      'Kantonal und kommunal steuerbares Vermögen (CHF)';
+
+  @override
+  String get taxReviewCantonalTax =>
+      'Veranlagte Kantons- und Gemeindesteuer (CHF)';
+
+  @override
+  String get taxReviewCantonalAuthority =>
+      'Behörde der Kantons- und Gemeindesteuer';
+
+  @override
+  String get taxReviewCantonalBase => 'Basis der Kantons- und Gemeindesteuer';
+
+  @override
+  String get taxReviewFederalTax => 'Veranlagte direkte Bundessteuer (CHF)';
+
+  @override
+  String get taxReviewFederalAuthority => 'Behörde der direkten Bundessteuer';
+
+  @override
+  String get taxReviewFederalBase => 'Basis der direkten Bundessteuer';
+
+  @override
+  String get taxReviewMarginalRate => 'Ausgewiesener Grenzsteuersatz (%)';
+
+  @override
+  String get taxReviewAverageRate =>
+      'Ausgewiesener Durchschnittssteuersatz (%)';
+
+  @override
+  String get taxReviewOptionTaxpayerReturn => 'Steuererklärung';
+
+  @override
+  String get taxReviewOptionProvisionalBill => 'Provisorische Rate';
+
+  @override
+  String get taxReviewOptionAssessmentNotice => 'Veranlagungsverfügung';
+
+  @override
+  String get taxReviewOptionFinalTaxBill => 'Schlussabrechnung';
+
+  @override
+  String get taxReviewOptionUnknown => 'Unbekannt';
+
+  @override
+  String get taxReviewOptionSelfDeclared => 'Selbst deklariert';
+
+  @override
+  String get taxReviewOptionProvisional => 'Provisorisch';
+
+  @override
+  String get taxReviewOptionAssessedAppealable =>
+      'Veranlagt, Einsprachefrist offen';
+
+  @override
+  String get taxReviewOptionContested => 'Angefochten';
+
+  @override
+  String get taxReviewOptionInForce => 'Rechtskräftig';
+
+  @override
+  String get taxReviewOptionIndividual => 'Einzelperson';
+
+  @override
+  String get taxReviewOptionJointCouple => 'Gemeinsam veranlagtes Paar';
+
+  @override
+  String get taxReviewOptionCantonalOnly => 'Nur Kanton';
+
+  @override
+  String get taxReviewOptionCommunalOnly => 'Nur Gemeinde';
+
+  @override
+  String get taxReviewOptionCantonalCommunal => 'Kanton und Gemeinde';
+
+  @override
+  String get taxReviewOptionFederalDirect => 'Bund (direkte Bundessteuer)';
+
+  @override
+  String get taxReviewOptionIncomeOnly => 'Nur Einkommen';
+
+  @override
+  String get taxReviewOptionWealthOnly => 'Nur Vermögen';
+
+  @override
+  String get taxReviewOptionIncomeAndWealth => 'Einkommen und Vermögen';
+
+  @override
+  String get taxReviewOptionTotalInvoice => 'Nicht aufgeteilte Gesamtrechnung';
+
+  @override
+  String get scanSummaryAmountUnspecified => 'Betrag nicht angegeben';
+
+  @override
+  String get docImpactTaxDisclaimer =>
+      'Nur lokale Verarbeitung. Die angezeigten Werte stammen aus deiner Bestätigung und sind keine Steuerberatung.';
+
+  @override
+  String taxParserDiagnosticPercentUnit(String rate) {
+    return 'Der gelesene Wert ($rate %) liegt ausserhalb der erwarteten Einheit (0 bis 100 %). Prüfe Wert und Einheit im Dokument.';
+  }
+
+  @override
+  String taxParserDiagnosticNegativeWealth(String amount) {
+    return 'Ein gelesenes Reinvermögen von $amount CHF kann bedeuten, dass die Schulden die Aktiven übersteigen. Bestätige die genaue Bezeichnung, bevor du ein steuerbares Vermögen übernimmst.';
+  }
+
+  @override
+  String taxParserDiagnosticAverageNotMarginal(String rate) {
+    return 'Das Verhältnis der gelesenen Beträge ($rate %) vergleicht Steuern und Einkommen. Es ist weder ein Grenzsteuersatz noch ein gesetzlicher Durchschnittssteuersatz.';
+  }
+
+  @override
+  String get taxReviewLocalDisclaimer =>
+      'Prüfe Dokumenttyp, Status und jeden Wert vor der Bestätigung. MINT hilft dir beim Lesen des Dokuments; diese Lesehilfe ist keine Steuerberatung.';
+
+  @override
+  String get confidencePromptPartnerLabel =>
+      'Angaben zur Partnerperson ergänzen';
+
+  @override
+  String get confidencePromptPartnerAction =>
+      'Alter und Einkommen deiner Partnerperson, sofern verfügbar und mit ihrer Zustimmung geteilt, um Paarszenarien zu präzisieren.';
+
+  @override
+  String confidencePromptRefreshField(String field) {
+    return 'Aktualisieren: $field';
+  }
+
+  @override
+  String confidencePromptFreshnessStale(int months) {
+    return 'Vor $months Monaten aktualisiert — prüfe, ob die Angabe noch aktuell ist.';
+  }
+
+  @override
+  String get confidencePromptFreshnessCurrent =>
+      'Prüfe, ob diese Angabe noch aktuell ist.';
+
+  @override
+  String confidencePromptConfirmField(String field) {
+    return 'Bestätigen: $field';
+  }
+
+  @override
+  String get confidencePromptAccuracyCurrentSource =>
+      'Bestätige diesen Wert anhand einer aktuellen Quelle.';
+
+  @override
+  String get confidencePromptEducationLabel => 'Bildungsinhalte erkunden';
+
+  @override
+  String get confidencePromptEducationAction =>
+      'Sieh dir die Bildungsinhalte zu deinen Themen an.';
+
+  @override
+  String get confidencePromptCoachLabel => 'Dem Coach eine Frage stellen';
+
+  @override
+  String get confidencePromptCoachAction =>
+      'Erkunde mit dem Coach eine Frage zu Schweizer Finanzen.';
+
+  @override
+  String get confidencePromptAccuracyEstimated =>
+      'Gib deinen tatsächlichen Wert ein.';
 }

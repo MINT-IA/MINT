@@ -1,15 +1,18 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 // Wave A-MINIMAL (2026-04-18) A1: persist a durable scan event so the
-// coach can reference "tu as scanné ton certificat CPE mardi" later.
+// coach can later reference the kind of document that was scanned.
 // Events live in a separate non-FIFO namespace from regular insights.
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
@@ -21,8 +24,7 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 // ────────────────────────────────────────────────────────────
 //
 //  Post-confirmation celebration screen.
-//  "Ton profil est plus precis" — animated confidence circle
-//  that goes from oldConfidence to newConfidence.
+//  Animated confidence circle from oldConfidence to newConfidence.
 //
 //  Inspired by ScoreRevealScreen (Apple Watch ring close).
 //
@@ -30,14 +32,31 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 //  User flow step 6: impact reveal.
 // ────────────────────────────────────────────────────────────
 
+typedef PremierEclairageFetcher = Future<Map<String, dynamic>?> Function({
+  required String documentType,
+  required List<Map<String, dynamic>> extractedFields,
+  required double overallConfidence,
+  String? planType,
+  String? planTypeWarning,
+  String? canton,
+});
+
+typedef ScanEventSaver = Future<void> Function(String topic, String summary);
+
 class DocumentImpactScreen extends StatefulWidget {
+  final String scanSessionId;
   final ExtractionResult result;
   final int previousConfidence; // 0-100
+  final PremierEclairageFetcher? fetchPremierEclairage;
+  final ScanEventSaver? saveScanEvent;
 
   const DocumentImpactScreen({
     super.key,
+    required this.scanSessionId,
     required this.result,
     required this.previousConfidence,
+    this.fetchPremierEclairage,
+    this.saveScanEvent,
   });
 
   @override
@@ -64,29 +83,45 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   Map<String, dynamic>? _premierEclairage;
   bool _premierEclairageLoading = true;
   bool _premierEclairageFailed = false;
+  ScanSessionProvider? _scanSessions;
 
   @override
   void initState() {
     super.initState();
 
     _deltaPoints = widget.result.confidenceDelta.round();
-    _newConfidence =
-        (widget.previousConfidence + _deltaPoints).clamp(0, 100);
+    _newConfidence = (widget.previousConfidence + _deltaPoints).clamp(0, 100);
 
     _initAnimations();
-    _fetchPremierEclairage();
+    final fetchPremierEclairage = _fetchPremierEclairage;
+    fetchPremierEclairage();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scanSessions ??= context.read<ScanSessionProvider>();
   }
 
   Future<void> _fetchPremierEclairage() async {
+    if (widget.result.documentType == DocumentType.taxDeclaration) {
+      _premierEclairageLoading = false;
+      _premierEclairageFailed = true;
+      return;
+    }
     try {
-      final fields = widget.result.fields.map((f) => <String, dynamic>{
-        'fieldName': f.fieldName,
-        'value': f.value,
-        'confidence': f.confidenceLevel.name,
-        'sourceText': f.sourceText,
-      }).toList();
+      final fields = widget.result.fields
+          .map((f) => <String, dynamic>{
+                'fieldName': f.fieldName,
+                'value': f.value,
+                'confidence': f.confidenceLevel.name,
+                'sourceText': f.sourceText,
+              })
+          .toList();
 
-      final result = await DocumentService.fetchPremierEclairage(
+      final fetcher =
+          widget.fetchPremierEclairage ?? DocumentService.fetchPremierEclairage;
+      final result = await fetcher(
         documentType: widget.result.documentType.backendValue,
         extractedFields: fields,
         overallConfidence: widget.result.overallConfidence,
@@ -102,7 +137,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       // touch `setState` and therefore is safe to fire on an unmounted
       // State; the scan DID happen, its memory must not depend on
       // whether the user stayed on this screen.
-      _persistScanEvent();
+      final persistScanEvent = _persistScanEvent;
+      persistScanEvent();
 
       if (!mounted) return;
       setState(() {
@@ -115,7 +151,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       // regardless of whether the user is still on screen when the
       // exception lands. Panel adversaire 2026-04-18 + panel façade
       // hunter both flagged this as a memory-loss bug.
-      _persistScanEvent();
+      final persistScanEvent = _persistScanEvent;
+      persistScanEvent();
 
       if (!mounted) return;
       setState(() {
@@ -133,6 +170,9 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   /// non-pruned events namespace so it survives `fact`-heavy coaching
   /// bursts (panel adversaire 2026-04-18 B5).
   void _persistScanEvent() {
+    if (widget.result.documentType == DocumentType.taxDeclaration) {
+      return;
+    }
     try {
       final topic = _scanTopicForType(widget.result.documentType);
       // A2-fix (2026-04-18) panel UX #2: pull the localized label from
@@ -142,7 +182,9 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       // _persistScanEvent is called synchronously from the fetch
       // handlers (mounted at entry — see ordering rule A2-fix).
       final summary = _scanSummary(_scanTypeLabel(widget.result.documentType));
-      CoachMemoryService.saveEvent(topic, summary).catchError((e) {
+      final saveScanEvent =
+          widget.saveScanEvent ?? CoachMemoryService.saveEvent;
+      saveScanEvent(topic, summary).catchError((e) {
         debugPrint('[document_impact] saveEvent failed: $e');
       });
     } catch (e, st) {
@@ -178,13 +220,17 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       final value = f.value?.toString().trim();
       if (value == null || value.isEmpty) continue;
       if (caisse == null &&
-          (name.contains('caisse') || name.contains('institution') ||
-           name.contains('pension') || name.contains('fund'))) {
+          (name.contains('caisse') ||
+              name.contains('institution') ||
+              name.contains('pension') ||
+              name.contains('fund'))) {
         caisse = value;
       }
       if (avoir == null &&
-          (name.contains('avoir') || name.contains('balance') ||
-           name.contains('capital') || name.contains('total'))) {
+          (name.contains('avoir') ||
+              name.contains('balance') ||
+              name.contains('capital') ||
+              name.contains('total'))) {
         // A2-fix (2026-04-18) panel UX #3: bucketize raw financial
         // amounts to nearest 10 000 CHF before persistence. A raw
         // "70377.00" violates CLAUDE.md §6.7 (no exact salary / wealth
@@ -209,13 +255,14 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
 
   /// Round a raw numeric string to the nearest 10 000 CHF and format
   /// it Swiss-style (`~70'000 CHF`). Non-numeric input or parse
-  /// failures fall back to `"montant non précisé"` — never return the
-  /// raw value to avoid leaking PII into persisted summaries.
+  /// failures fall back to localized non-disclosure copy — never return the
+  /// raw value because persisted summaries must not leak identifying PII.
   String _bucketizeAvoir(String raw) {
-    final cleaned = raw.replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.');
+    final cleaned =
+        raw.replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.');
     final parsed = double.tryParse(cleaned);
-    if (parsed == null) return 'montant non précisé';
-    if (parsed <= 0) return 'montant non précisé';
+    if (parsed == null) return S.of(context)!.scanSummaryAmountUnspecified;
+    if (parsed <= 0) return S.of(context)!.scanSummaryAmountUnspecified;
     final bucket = (parsed / 10000).round() * 10000;
     // Swiss thousands separator: apostrophe (e.g. 70'000).
     final asInt = bucket.toInt();
@@ -306,6 +353,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     );
 
     _masterController.addListener(() {
+      if (widget.result.documentType == DocumentType.taxDeclaration) return;
       if (_masterController.value >= 0.60 && !_pulseController.isAnimating) {
         _pulseController.repeat(reverse: true);
       }
@@ -317,6 +365,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
 
   @override
   void dispose() {
+    _scanSessions?.discard(widget.scanSessionId);
     _masterController.dispose();
     _pulseController.dispose();
     super.dispose();
@@ -326,48 +375,84 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.result.documentType == DocumentType.taxDeclaration &&
+        !FeatureFlags.taxAssessmentIngestionEnabled) {
+      return Scaffold(
+        key: const Key('tax_impact_disabled_recovery'),
+        backgroundColor: MintColors.background,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(MintSpacing.lg),
+            child: Text(
+              S.of(context)!.docScanGenericError,
+              textAlign: TextAlign.center,
+              style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: AnimatedBuilder(
-        animation: Listenable.merge([_masterController, _pulseController]),
-        builder: (context, _) {
-          return SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
-                child: Column(
-                  children: [
-                    const SizedBox(height: MintSpacing.xxl),
-                    MintEntrance(child: _buildTitle()),
-                    const SizedBox(height: MintSpacing.xl + 4),
-                    MintEntrance(delay: const Duration(milliseconds: 100), child: _buildConfidenceCircle()),
-                    const SizedBox(height: MintSpacing.lg),
-                    MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDeltaBadge()),
-                    if (_deltaPoints > 5) ...[
-                      const SizedBox(height: MintSpacing.md),
-                      MintEntrance(delay: const Duration(milliseconds: 250), child: _buildConfidenceDeltaText()),
-                    ],
-                    const SizedBox(height: MintSpacing.xl),
-                    MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPremierEclairageSection()),
-                    const SizedBox(height: MintSpacing.lg),
-                    MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFieldList()),
-                    const SizedBox(height: MintSpacing.xl),
-                    _buildCtaButton(context),
-                    if (_deltaPoints > 5) ...[
-                      const SizedBox(height: MintSpacing.sm),
-                      _buildCoachCta(context),
-                    ],
-                    const SizedBox(height: MintSpacing.md),
-                    _buildDisclaimer(),
-                    const SizedBox(height: MintSpacing.xxl + 12),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ))),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: AnimatedBuilder(
+                animation:
+                    Listenable.merge([_masterController, _pulseController]),
+                builder: (context, _) {
+                  return SafeArea(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.lg),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: MintSpacing.xxl),
+                            MintEntrance(child: _buildTitle()),
+                            const SizedBox(height: MintSpacing.xl + 4),
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 100),
+                                child: _buildConfidenceCircle()),
+                            const SizedBox(height: MintSpacing.lg),
+                            if (widget.result.documentType !=
+                                DocumentType.taxDeclaration)
+                              MintEntrance(
+                                  delay: const Duration(milliseconds: 200),
+                                  child: _buildDeltaBadge()),
+                            if (_deltaPoints > 5) ...[
+                              const SizedBox(height: MintSpacing.md),
+                              MintEntrance(
+                                  delay: const Duration(milliseconds: 250),
+                                  child: _buildConfidenceDeltaText()),
+                            ],
+                            const SizedBox(height: MintSpacing.xl),
+                            if (widget.result.documentType !=
+                                DocumentType.taxDeclaration)
+                              MintEntrance(
+                                  delay: const Duration(milliseconds: 300),
+                                  child: _buildPremierEclairageSection()),
+                            const SizedBox(height: MintSpacing.lg),
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 400),
+                                child: _buildFieldList()),
+                            const SizedBox(height: MintSpacing.xl),
+                            _buildCtaButton(context),
+                            if (_deltaPoints > 5) ...[
+                              const SizedBox(height: MintSpacing.sm),
+                              _buildCoachCta(context),
+                            ],
+                            const SizedBox(height: MintSpacing.md),
+                            _buildDisclaimer(),
+                            const SizedBox(height: MintSpacing.xxl + 12),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ))),
     );
   }
 
@@ -379,13 +464,19 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       child: Column(
         children: [
           Text(
-            S.of(context)!.docImpactTitle,
+            widget.result.documentType == DocumentType.taxDeclaration
+                ? S.of(context)!.docImpactTaxTitle
+                : S.of(context)!.docImpactTitle,
             textAlign: TextAlign.center,
             style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            S.of(context)!.docImpactSubtitle(widget.result.documentType.label),
+            widget.result.documentType == DocumentType.taxDeclaration
+                ? S.of(context)!.docImpactTaxSubtitle
+                : S
+                    .of(context)!
+                    .docImpactSubtitle(widget.result.documentType.label),
             textAlign: TextAlign.center,
             style: MintTextStyles.labelLarge(),
           ),
@@ -399,8 +490,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   Widget _buildConfidenceCircle() {
     // Interpolate from previous to new confidence
     final displayedConfidence = widget.previousConfidence +
-        ((_newConfidence - widget.previousConfidence) *
-                _circleProgress.value)
+        ((_newConfidence - widget.previousConfidence) * _circleProgress.value)
             .round();
 
     final pulseGlow = _pulseAnimation.value * 0.15;
@@ -432,7 +522,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                 ),
                 Text(
                   S.of(context)!.docImpactConfidenceLabel,
-                  style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
+                  style: MintTextStyles.bodyMedium()
+                      .copyWith(fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -450,7 +541,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       child: Transform.translate(
         offset: Offset(0, 20 * (1 - _badgeFadeIn.value)),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md + 4, vertical: MintSpacing.sm + 2),
+          padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md + 4, vertical: MintSpacing.sm + 2),
           decoration: BoxDecoration(
             color: MintColors.success.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(24),
@@ -547,11 +639,15 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     }
 
     // Success: display 4-layer insight
-    final humanTranslation = _premierEclairage!['humanTranslation'] as String? ?? '';
-    final personalPerspective = _premierEclairage!['personalPerspective'] as String? ?? '';
-    final questionsToAsk = (_premierEclairage!['questionsToAsk'] as List<dynamic>?)
-        ?.map((q) => q.toString())
-        .toList() ?? [];
+    final humanTranslation =
+        _premierEclairage!['humanTranslation'] as String? ?? '';
+    final personalPerspective =
+        _premierEclairage!['personalPerspective'] as String? ?? '';
+    final questionsToAsk =
+        (_premierEclairage!['questionsToAsk'] as List<dynamic>?)
+                ?.map((q) => q.toString())
+                .toList() ??
+            [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -583,23 +679,25 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           ),
           const SizedBox(height: MintSpacing.sm),
           ...questionsToAsk.map((q) => Padding(
-            padding: const EdgeInsets.only(bottom: MintSpacing.sm),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '\u2022 ',
-                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '\u2022 ',
+                      style: MintTextStyles.bodyMedium(
+                          color: MintColors.textSecondary),
+                    ),
+                    Expanded(
+                      child: Text(
+                        q,
+                        style: MintTextStyles.bodyMedium(
+                            color: MintColors.textSecondary),
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: Text(
-                    q,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
-                  ),
-                ),
-              ],
-            ),
-          )),
+              )),
         ],
       ],
     );
@@ -611,31 +709,35 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       children: [
         Text(
           S.of(context)!.docImpactFallback,
-          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
+          style:
+              MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
             fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: MintSpacing.md),
         // Show extracted field summary cards
         ...widget.result.fields.take(5).map((f) => Padding(
-          padding: const EdgeInsets.only(bottom: MintSpacing.sm),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  f.label,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
-                ),
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      f.label,
+                      style: MintTextStyles.bodyMedium(
+                          color: MintColors.textSecondary),
+                    ),
+                  ),
+                  Text(
+                    _formatShortValue(f),
+                    style:
+                        MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                            .copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                _formatShortValue(f),
-                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        )),
+            )),
       ],
     );
   }
@@ -652,7 +754,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           children: [
             Text(
               S.of(context)!.docImpactFieldsUpdated,
-              style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600, color: MintColors.textPrimary),
+              style: MintTextStyles.bodyMedium().copyWith(
+                  fontWeight: FontWeight.w600, color: MintColors.textPrimary),
             ),
             const SizedBox(height: MintSpacing.md - 4),
             ...widget.result.fields.map((f) => _buildFieldRow(f)),
@@ -700,6 +803,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     return Opacity(
       opacity: _ctaFadeIn.value,
       child: Semantics(
+        identifier: 'document_impact_return_cta',
         button: true,
         label: S.of(context)!.docImpactReturnDashboard,
         child: SizedBox(
@@ -707,41 +811,41 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           height: 56,
           child: FilledButton.icon(
             onPressed: () {
-            // Emit ScreenReturn so the coach chat can show a delta message.
-            final docLabel = switch (widget.result.documentType) {
-              DocumentType.lppCertificate => 'certificat LPP',
-              DocumentType.avsExtract => 'extrait AVS',
-              DocumentType.taxDeclaration => 'déclaration fiscale',
-              DocumentType.salaryCertificate => 'certificat de salaire',
-              _ => 'document',
-            };
-            ScreenCompletionTracker.markCompletedWithReturn(
-              'document_scan',
-              ScreenReturn.completed(
-                route: '/scan/impact',
-                stepOutputs: {
-                  'scannedDocument': docLabel,
-                  'newConfidence': _newConfidence,
-                },
-                confidenceDelta: _deltaPoints / 100.0,
+              _scanSessions?.discard(widget.scanSessionId);
+              if (widget.result.documentType == DocumentType.taxDeclaration) {
+                context.go('/coach/chat');
+                return;
+              }
+              // Emit ScreenReturn so the coach chat can show a delta message.
+              final docLabel = _scanTypeLabel(widget.result.documentType);
+              ScreenCompletionTracker.markCompletedWithReturn(
+                'document_scan',
+                ScreenReturn.completed(
+                  route: '/scan/impact',
+                  stepOutputs: {
+                    'scannedDocument': docLabel,
+                    'newConfidence': _newConfidence,
+                  },
+                  confidenceDelta: _deltaPoints / 100.0,
+                ),
+              );
+              context.go('/coach/chat');
+            },
+            icon: const Icon(Icons.dashboard_outlined, size: 22),
+            label: Text(
+              S.of(context)!.docImpactReturnDashboard,
+              style: MintTextStyles.titleMedium()
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: MintColors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
               ),
-            );
-            context.go('/coach/chat');
-          },
-          icon: const Icon(Icons.dashboard_outlined, size: 22),
-          label: Text(
-            S.of(context)!.docImpactReturnDashboard,
-            style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
-          ),
-          style: FilledButton.styleFrom(
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -753,10 +857,10 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       opacity: _badgeFadeIn.value,
       child: Text(
         S.of(context)!.scanInsightConfidenceDelta(
-          widget.previousConfidence.toString(),
-          _newConfidence.toString(),
-          _deltaPoints.toString(),
-        ),
+              widget.previousConfidence.toString(),
+              _newConfidence.toString(),
+              _deltaPoints.toString(),
+            ),
         textAlign: TextAlign.center,
         style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
       ),
@@ -799,7 +903,9 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     return Opacity(
       opacity: _ctaFadeIn.value,
       child: Text(
-        S.of(context)!.docImpactDisclaimer,
+        widget.result.documentType == DocumentType.taxDeclaration
+            ? S.of(context)!.docImpactTaxDisclaimer
+            : S.of(context)!.docImpactDisclaimer,
         textAlign: TextAlign.center,
         style: MintTextStyles.labelSmall().copyWith(height: 1.5),
       ),
@@ -820,9 +926,14 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   String _formatShortValue(ExtractedField field) {
     final value = field.value;
     if (value is double) {
-      if (field.fieldName.contains('rate') ||
-          field.fieldName.contains('conversion') ||
-          field.fieldName.contains('bonification')) {
+      if (field.fieldName == 'explicitMarginalIncomeTaxRate' ||
+          field.fieldName == 'explicitAverageIncomeTaxRate') {
+        return '${(value * 100).toStringAsFixed(1)}%';
+      }
+      final normalizedName = field.fieldName.toLowerCase();
+      if (normalizedName.contains('rate') ||
+          normalizedName.contains('conversion') ||
+          normalizedName.contains('bonification')) {
         return '${value.toStringAsFixed(1)}%';
       }
       return 'CHF ${_formatChf(value)}';

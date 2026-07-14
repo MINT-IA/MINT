@@ -62,7 +62,7 @@ class FinancialReportService {
     final confidenceResult = ConfidenceScorer.score(coachProfile);
     final confidenceScore = confidenceResult.score;
     final enrichmentPrompts = confidenceResult.prompts
-        .map((prompt) => prompt.label)
+        .map((prompt) => prompt.machineDescriptor)
         .toList();
 
     // FIX-W11-4: Snapshot current constants for report traceability

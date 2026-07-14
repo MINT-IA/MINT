@@ -37,6 +37,7 @@ import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/glossary_term.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/confidence_prompt_localizations.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT DASHBOARD SCREEN — Hero (Category A)
@@ -1023,7 +1024,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             ...prompts.take(5).map((p) => Padding(
                   padding: const EdgeInsets.only(bottom: MintSpacing.sm + 2),
                   child: Semantics(
-                    label: p.label,
+                    label: p.localizedLabel(l),
                     button: true,
                     child: InkWell(
                       onTap: () {
@@ -1057,7 +1058,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    p.label,
+                                    p.localizedLabel(l),
                                     style: MintTextStyles.bodySmall(
                                       color: MintColors.textPrimary,
                                     ).copyWith(fontWeight: FontWeight.w600),
@@ -1553,7 +1554,7 @@ class _DataEnrichmentCard extends StatelessWidget {
     final l = S.of(context)!;
 
     return Semantics(
-      label: prompt.label,
+      label: prompt.localizedLabel(l),
       button: true,
       child: GestureDetector(
         onTap: () => context.push('/data-block/${prompt.category}'),
@@ -1583,7 +1584,7 @@ class _DataEnrichmentCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      prompt.label,
+                      prompt.localizedLabel(l),
                       style: MintTextStyles.bodyMedium(
                         color: MintColors.textPrimary,
                       ).copyWith(fontWeight: FontWeight.w600),

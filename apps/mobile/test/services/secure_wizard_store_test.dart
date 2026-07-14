@@ -2,7 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const _taxRoot = '{"schemaVersion":1,"snapshots":[],"legacyQuarantine":null}';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +35,7 @@ void main() {
   });
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
     secureStorageValues.clear();
     failWrites = false;
     hangWrites = false;
@@ -137,6 +142,47 @@ void main() {
 
       expect(cleaned.containsKey('_coach_dettes_autres'), isFalse);
       expect(restored['_coach_dettes_autres'], isNull);
+    });
+
+    test('strict tax root round-trips only through secure storage', () async {
+      final cleaned = await SecureWizardStore.secureSensitiveKeys(
+        const {
+          '_coach_tax_snapshots_v1': _taxRoot,
+          'q_canton': 'VD',
+        },
+      );
+      final restored = await SecureWizardStore.restoreSensitiveKeys(cleaned);
+
+      expect(cleaned, containsPair('q_canton', 'VD'));
+      expect(cleaned['_coach_tax_snapshots_v1'], '__secure__');
+      expect(secureStorageValues['_coach_tax_snapshots_v1'], _taxRoot);
+      expect(restored['_coach_tax_snapshots_v1'], _taxRoot);
+    });
+
+    test(
+        'strict tax failure keeps SharedPreferences byte-stable and unpublished',
+        () async {
+      const previousBytes = '{"existing":"unchanged"}';
+      SharedPreferences.setMockInitialValues({
+        'wizard_answers_v2': previousBytes,
+      });
+      failWrites = true;
+      var published = false;
+
+      await expectLater(
+        () async {
+          await ReportPersistenceService.saveAnswers(
+            const {'_coach_tax_snapshots_v1': _taxRoot},
+          );
+          published = true;
+        }(),
+        throwsStateError,
+      );
+
+      final preferences = await SharedPreferences.getInstance();
+      expect(preferences.getString('wizard_answers_v2'), previousBytes);
+      expect(published, isFalse);
+      expect(secureStorageValues, isEmpty);
     });
   });
 }

@@ -1,4 +1,5 @@
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:mint_mobile/l10n/confidence_prompt_localizations.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
@@ -66,8 +67,8 @@ class CapEngine {
           recency: _recencyModifier('complete_${top.category}', memory, now),
         ),
         headline: l.capMissingPieceHeadline,
-        whyNow: l.capMissingPieceWhyNow(top.label),
-        ctaLabel: top.action,
+        whyNow: l.capMissingPieceWhyNow(top.localizedLabel(l)),
+        ctaLabel: top.localizedAction(l),
         ctaMode: CtaMode.capture,
         captureType: top.category,
         coachPrompt: l.capCoachPromptMissingData(top.category),

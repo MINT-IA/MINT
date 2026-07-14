@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/widgets/pulse/focus_selector.dart';
 import 'package:mint_mobile/widgets/pulse/visibility_score_card.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_action_card.dart';
@@ -16,9 +17,9 @@ import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 // ────────────────────────────────────────────────────────────────
 
 /// Wraps [child] in a MaterialApp with French localization delegates.
-Widget _l10nApp(Widget child) {
+Widget _l10nApp(Widget child, {Locale locale = const Locale('fr')}) {
   return MaterialApp(
-    locale: const Locale('fr'),
+    locale: locale,
     localizationsDelegates: const [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
@@ -139,7 +140,8 @@ void main() {
       expect(find.text('Bonne visibilit\u00e9\u00a0!'), findsOneWidget);
     });
 
-    testWidgets('renders title "Visibilit\u00e9 financi\u00e8re"', (tester) async {
+    testWidgets('renders title "Visibilit\u00e9 financi\u00e8re"',
+        (tester) async {
       final score = _makeScore();
       await tester.pumpWidget(
         _l10nApp(VisibilityScoreCard(score: score)),
@@ -214,6 +216,33 @@ void main() {
       category: 'lpp',
       impactPoints: 18,
     );
+
+    testWidgets('resolves typed tax copy without rendering machine codes',
+        (tester) async {
+      const prompt = EnrichmentPrompt.taxDocument();
+      const typedAction = VisibilityAction(
+        id: 'fiscalite',
+        title: 'tax.document.review',
+        subtitle:
+            'code=tax.document.review;field=fiscal.assessedBaseline;impact=8;category=fiscalite',
+        route: '/profile/bilan',
+        icon: 'receipt_long',
+        category: 'fiscalite',
+        impactPoints: 8,
+        prompt: prompt,
+      );
+
+      await tester.pumpWidget(
+        _l10nApp(
+          const PulseActionCard(action: typedAction),
+          locale: const Locale('en'),
+        ),
+      );
+
+      expect(find.text('Tax document'), findsOneWidget);
+      expect(find.textContaining('Identify and then confirm'), findsOneWidget);
+      expect(find.textContaining('tax.document.review'), findsNothing);
+    });
 
     testWidgets('renders title and subtitle', (tester) async {
       await tester.pumpWidget(

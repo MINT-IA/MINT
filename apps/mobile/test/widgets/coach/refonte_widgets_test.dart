@@ -215,6 +215,24 @@ void main() {
   // ══════════════════════════════════════════════════════════════
 
   group('LowConfidenceCard', () {
+    testWidgets('renders missing-partner copy in the active locale',
+        (tester) async {
+      final profile = buildMinimalProfile().copyWith(
+        etatCivil: CoachCivilStatus.marie,
+      );
+      await tester.pumpWidget(
+        buildLocalizedApp(
+          locale: const Locale('en'),
+          child: LowConfidenceCard(profile: profile),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Clarify your partner’s information'), findsOneWidget);
+      expect(find.textContaining('partner.details.missing'), findsNothing);
+      expect(find.textContaining('Ajoute les infos'), findsNothing);
+    });
+
     testWidgets('renders with minimal profile', (tester) async {
       final profile = buildMinimalProfile();
       await tester.pumpWidget(

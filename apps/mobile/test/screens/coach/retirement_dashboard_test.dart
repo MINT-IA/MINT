@@ -343,26 +343,66 @@ void main() {
 
     testWidgets('past target stays unavailable and keeps the AVS CTA',
         (tester) async {
-      await tester.pumpWidget(buildDashboard(
-        coachProvider: buildProfileProvider(
-          certifiedAvs: true,
-          targetDate: DateTime(2020),
-        ),
-      ));
+      final coachProvider = buildProfileProvider(
+        certifiedAvs: true,
+        targetDate: DateTime(2020),
+      );
+      final router = GoRouter(
+        initialLocation: '/',
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, __) => buildDashboard(
+              coachProvider: coachProvider,
+            ),
+          ),
+          GoRoute(
+            path: '/scan/avs-guide',
+            builder: (_, __) => const Scaffold(
+              key: Key('retirement_avs_guide_destination'),
+            ),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp.router(routerConfig: router),
+      );
       await tester.pump(const Duration(milliseconds: 500));
 
-      expect(find.text('Pas encore de projection disponible'), findsOneWidget);
-      expect(find.text('Obtenir ton calcul AVS officiel'), findsOneWidget);
-      expect(find.text('Demande ton calcul AVS officiel'), findsOneWidget);
       expect(
-        find.textContaining("Un extrait CI ne suffit pas"),
+        find.byKey(const Key('retirement_missing_avs_state')),
         findsOneWidget,
       );
-      expect(find.textContaining('%'), findsNothing);
-      expect(find.textContaining('Revenu retraite estim'), findsNothing);
+      final avsDocumentCta =
+          find.byKey(const Key('retirement_avs_document_cta'));
+      expect(avsDocumentCta, findsOneWidget);
+      expect(
+        find.bySemanticsIdentifier('retirement_avs_document_cta'),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('retirement_replacement_rate')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const Key('retirement_complete_income')),
+        findsNothing,
+      );
       for (var i = 0; i < 6; i++) {
         await tester.pump(const Duration(seconds: 3));
       }
+
+      final avsDocumentButton = tester.widget<FilledButton>(avsDocumentCta);
+      expect(avsDocumentButton.onPressed, isNotNull);
+      avsDocumentButton.onPressed!();
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('retirement_avs_guide_destination')),
+        findsOneWidget,
+      );
     });
   });
 

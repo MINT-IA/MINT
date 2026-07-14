@@ -4,10 +4,12 @@ import 'package:mint_mobile/services/document_parser/document_models.dart';
 @immutable
 class ScanSessionPayload {
   final ExtractionResult extraction;
+  final TaxExtractionCandidate? taxCandidate;
   final int? previousConfidence;
 
   const ScanSessionPayload({
     required this.extraction,
+    this.taxCandidate,
     this.previousConfidence,
   });
 
@@ -16,10 +18,40 @@ class ScanSessionPayload {
     required int previousConfidence,
   }) {
     return ScanSessionPayload(
-      extraction: extraction,
+      extraction: _withoutSourceText(extraction),
+      taxCandidate: null,
       previousConfidence: previousConfidence,
     );
   }
+}
+
+ExtractionResult _withoutSourceText(ExtractionResult extraction) {
+  return ExtractionResult(
+    documentType: extraction.documentType,
+    fields: extraction.fields
+        .map(
+          (field) => ExtractedField(
+            fieldName: field.fieldName,
+            label: field.label,
+            value: field.value,
+            confidence: field.confidence,
+            sourceText: '',
+            needsReview: field.needsReview,
+            profileField: field.profileField,
+            labelCode: field.labelCode,
+          ),
+        )
+        .toList(growable: false),
+    overallConfidence: extraction.overallConfidence,
+    confidenceDelta: extraction.confidenceDelta,
+    warnings: extraction.warnings,
+    disclaimer: extraction.disclaimer,
+    sources: extraction.sources,
+    diagnostics: extraction.diagnostics,
+    planType: extraction.planType,
+    planTypeWarning: extraction.planTypeWarning,
+    coherenceWarnings: extraction.coherenceWarnings,
+  );
 }
 
 /// In-memory boundary for domain data used by the scan route sequence.
@@ -32,9 +64,15 @@ class ScanSessionProvider extends ChangeNotifier {
   final Map<String, ScanSessionPayload> _sessions = {};
   int _nextId = 0;
 
-  String retainExtraction(ExtractionResult extraction) {
+  String retainExtraction(
+    ExtractionResult extraction, {
+    TaxExtractionCandidate? taxCandidate,
+  }) {
     final id = '${DateTime.now().microsecondsSinceEpoch}-${_nextId++}';
-    _sessions[id] = ScanSessionPayload(extraction: extraction);
+    _sessions[id] = ScanSessionPayload(
+      extraction: extraction,
+      taxCandidate: taxCandidate,
+    );
     while (_sessions.length > maxRetainedSessions) {
       _sessions.remove(_sessions.keys.first);
     }
@@ -60,5 +98,11 @@ class ScanSessionProvider extends ChangeNotifier {
     );
     notifyListeners();
     return true;
+  }
+
+  void discard(String id) {
+    if (_sessions.remove(id) != null) {
+      notifyListeners();
+    }
   }
 }

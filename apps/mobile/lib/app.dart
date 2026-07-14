@@ -238,9 +238,11 @@ Widget testOnlyBuildScanRecoveryScaffold(String route) {
     builder: (context) {
       switch (route) {
         case '/scan/review':
-          return _buildScanRecoveryScaffold(context, _ScanRecoveryTarget.review);
+          return _buildScanRecoveryScaffold(
+              context, _ScanRecoveryTarget.review);
         case '/scan/impact':
-          return _buildScanRecoveryScaffold(context, _ScanRecoveryTarget.impact);
+          return _buildScanRecoveryScaffold(
+              context, _ScanRecoveryTarget.impact);
         default:
           throw ArgumentError.value(route, 'route', 'Unsupported scan route');
       }
@@ -248,10 +250,14 @@ Widget testOnlyBuildScanRecoveryScaffold(String route) {
   );
 }
 
-final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
-final _shellNavigatorKeyMonArgent = GlobalKey<NavigatorState>(debugLabel: 'shellMonArgent');
-final _shellNavigatorKeyCoach = GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
-final _shellNavigatorKeyExplorer = GlobalKey<NavigatorState>(debugLabel: 'shellExplorer');
+final _shellNavigatorKeyHome =
+    GlobalKey<NavigatorState>(debugLabel: 'shellHome');
+final _shellNavigatorKeyMonArgent =
+    GlobalKey<NavigatorState>(debugLabel: 'shellMonArgent');
+final _shellNavigatorKeyCoach =
+    GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
+final _shellNavigatorKeyExplorer =
+    GlobalKey<NavigatorState>(debugLabel: 'shellExplorer');
 
 // ════════════════════════════════════════════════════════════
 //  ROUTER — S49 Phase 2: Simplified navigation
@@ -309,7 +315,6 @@ final _router = GoRouter(
   observers: _routerObservers,
   initialLocation: '/',
   refreshListenable: _authNotifier,
-
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
   redirect: (context, state) {
     // ── Scope-based auth guard ───────────────────────────────
@@ -372,9 +377,8 @@ final _router = GoRouter(
 
     // Determine scope from matched route (fail-closed default)
     final topRoute = state.topRoute;
-    final scope = topRoute is ScopedGoRoute
-        ? topRoute.scope
-        : RouteScope.authenticated;
+    final scope =
+        topRoute is ScopedGoRoute ? topRoute.scope : RouteScope.authenticated;
 
     switch (scope) {
       case RouteScope.public:
@@ -505,7 +509,8 @@ final _router = GoRouter(
               scope: RouteScope.public,
               builder: (context, state) {
                 final topic = state.uri.queryParameters['topic'];
-                final conversationId = state.uri.queryParameters['conversationId'];
+                final conversationId =
+                    state.uri.queryParameters['conversationId'];
                 // Build a CoachEntryPayload from the topic query param.
                 // This replaces the old ?prompt= pattern with structured data.
                 final CoachEntryPayload? entryPayload = topic != null
@@ -543,12 +548,28 @@ final _router = GoRouter(
       builder: (context, state) => const ExploreHubScreen(
         title: 'Retraite & Prevoyance',
         entries: [
-          HubEntry(icon: Icons.timeline, label: 'Projection retraite', route: '/retraite'),
-          HubEntry(icon: Icons.compare_arrows, label: 'Rente vs Capital', route: '/rente-vs-capital'),
-          HubEntry(icon: Icons.add_card, label: 'Rachat LPP', route: '/rachat-lpp'),
-          HubEntry(icon: Icons.home_work, label: 'EPL (retrait pour logement)', route: '/epl'), // lint-ignore legacy route label
-          HubEntry(icon: Icons.calendar_month, label: 'Sequence de decaissement', route: '/decaissement'), // lint-ignore legacy route label
-          HubEntry(icon: Icons.account_balance_wallet, label: 'Libre passage', route: '/libre-passage'),
+          HubEntry(
+              icon: Icons.timeline,
+              label: 'Projection retraite',
+              route: '/retraite'),
+          HubEntry(
+              icon: Icons.compare_arrows,
+              label: 'Rente vs Capital',
+              route: '/rente-vs-capital'),
+          HubEntry(
+              icon: Icons.add_card, label: 'Rachat LPP', route: '/rachat-lpp'),
+          HubEntry(
+              icon: Icons.home_work,
+              label: 'EPL (retrait pour logement)',
+              route: '/epl'), // lint-ignore legacy route label
+          HubEntry(
+              icon: Icons.calendar_month,
+              label: 'Sequence de decaissement',
+              route: '/decaissement'), // lint-ignore legacy route label
+          HubEntry(
+              icon: Icons.account_balance_wallet,
+              label: 'Libre passage',
+              route: '/libre-passage'),
         ],
       ),
     ),
@@ -558,11 +579,31 @@ final _router = GoRouter(
       builder: (context, state) => const ExploreHubScreen(
         title: 'Famille',
         entries: [
-          HubEntry(icon: Icons.favorite, label: 'Mariage', subtitle: 'AVS, LPP, fiscalite couple', route: '/mariage'),
-          HubEntry(icon: Icons.child_friendly, label: 'Naissance', subtitle: 'Allocations, conge, budget', route: '/naissance'),
-          HubEntry(icon: Icons.people, label: 'Concubinage', subtitle: 'Risques vs mariage', route: '/concubinage'),
-          HubEntry(icon: Icons.heart_broken, label: 'Divorce', subtitle: 'Partage LPP, AVS, pension', route: '/divorce'),
-          HubEntry(icon: Icons.account_balance, label: 'Succession', subtitle: 'Droits, reserves, planning', route: '/succession'),
+          HubEntry(
+              icon: Icons.favorite,
+              label: 'Mariage',
+              subtitle: 'AVS, LPP, fiscalite couple',
+              route: '/mariage'),
+          HubEntry(
+              icon: Icons.child_friendly,
+              label: 'Naissance',
+              subtitle: 'Allocations, conge, budget',
+              route: '/naissance'),
+          HubEntry(
+              icon: Icons.people,
+              label: 'Concubinage',
+              subtitle: 'Risques vs mariage',
+              route: '/concubinage'),
+          HubEntry(
+              icon: Icons.heart_broken,
+              label: 'Divorce',
+              subtitle: 'Partage LPP, AVS, pension',
+              route: '/divorce'),
+          HubEntry(
+              icon: Icons.account_balance,
+              label: 'Succession',
+              subtitle: 'Droits, reserves, planning',
+              route: '/succession'),
         ],
       ),
     ),
@@ -572,12 +613,26 @@ final _router = GoRouter(
       builder: (context, state) => const ExploreHubScreen(
         title: 'Travail & Statut',
         entries: [
-          HubEntry(icon: Icons.school, label: 'Premier emploi', route: '/first-job'),
-          HubEntry(icon: Icons.work_off, label: 'Chomage', route: '/unemployment'),
-          HubEntry(icon: Icons.compare, label: 'Comparateur d\'emplois', route: '/simulator/job-comparison'),
-          HubEntry(icon: Icons.business_center, label: 'Independant', route: '/segments/independant'),
-          HubEntry(icon: Icons.flight_takeoff, label: 'Expatriation', route: '/expatriation'),
-          HubEntry(icon: Icons.badge, label: 'Frontalier', route: '/segments/frontalier'),
+          HubEntry(
+              icon: Icons.school, label: 'Premier emploi', route: '/first-job'),
+          HubEntry(
+              icon: Icons.work_off, label: 'Chomage', route: '/unemployment'),
+          HubEntry(
+              icon: Icons.compare,
+              label: 'Comparateur d\'emplois',
+              route: '/simulator/job-comparison'),
+          HubEntry(
+              icon: Icons.business_center,
+              label: 'Independant',
+              route: '/segments/independant'),
+          HubEntry(
+              icon: Icons.flight_takeoff,
+              label: 'Expatriation',
+              route: '/expatriation'),
+          HubEntry(
+              icon: Icons.badge,
+              label: 'Frontalier',
+              route: '/segments/frontalier'),
         ],
       ),
     ),
@@ -587,13 +642,34 @@ final _router = GoRouter(
       builder: (context, state) => const ExploreHubScreen(
         title: 'Logement',
         entries: [
-          HubEntry(icon: Icons.house, label: 'Capacite hypothecaire', route: '/hypotheque'),
-          HubEntry(icon: Icons.payments, label: 'Amortissement', route: '/mortgage/amortization'),
-          HubEntry(icon: Icons.account_balance_wallet, label: 'EPL combine', route: '/mortgage/epl-combined'),
-          HubEntry(icon: Icons.receipt, label: 'Valeur locative', route: '/mortgage/imputed-rental'),
-          HubEntry(icon: Icons.swap_horiz, label: 'SARON vs fixe', route: '/mortgage/saron-vs-fixed'),
-          HubEntry(icon: Icons.sell, label: 'Vente immobiliere', route: '/life-event/housing-sale'),
-          HubEntry(icon: Icons.compare_arrows, label: 'Location vs propriete', route: '/arbitrage/location-vs-propriete'),
+          HubEntry(
+              icon: Icons.house,
+              label: 'Capacite hypothecaire',
+              route: '/hypotheque'),
+          HubEntry(
+              icon: Icons.payments,
+              label: 'Amortissement',
+              route: '/mortgage/amortization'),
+          HubEntry(
+              icon: Icons.account_balance_wallet,
+              label: 'EPL combine',
+              route: '/mortgage/epl-combined'),
+          HubEntry(
+              icon: Icons.receipt,
+              label: 'Valeur locative',
+              route: '/mortgage/imputed-rental'),
+          HubEntry(
+              icon: Icons.swap_horiz,
+              label: 'SARON vs fixe',
+              route: '/mortgage/saron-vs-fixed'),
+          HubEntry(
+              icon: Icons.sell,
+              label: 'Vente immobiliere',
+              route: '/life-event/housing-sale'),
+          HubEntry(
+              icon: Icons.compare_arrows,
+              label: 'Location vs propriete',
+              route: '/arbitrage/location-vs-propriete'),
         ],
       ),
     ),
@@ -603,12 +679,26 @@ final _router = GoRouter(
       builder: (context, state) => const ExploreHubScreen(
         title: 'Fiscalite',
         entries: [
-          HubEntry(icon: Icons.savings, label: 'Pilier 3a', route: '/pilier-3a'),
-          HubEntry(icon: Icons.history, label: '3a retroactif', route: '/3a-retroactif'),
-          HubEntry(icon: Icons.compare, label: 'Comparateur 3a', route: '/3a-deep/comparator'),
-          HubEntry(icon: Icons.trending_up, label: 'Rendement reel 3a', route: '/3a-deep/real-return'),
-          HubEntry(icon: Icons.view_timeline, label: 'Retrait echelonne 3a', route: '/3a-deep/staggered-withdrawal'),
-          HubEntry(icon: Icons.map, label: 'Comparateur cantonal', route: '/fiscal'),
+          HubEntry(
+              icon: Icons.savings, label: 'Pilier 3a', route: '/pilier-3a'),
+          HubEntry(
+              icon: Icons.history,
+              label: '3a retroactif',
+              route: '/3a-retroactif'),
+          HubEntry(
+              icon: Icons.compare,
+              label: 'Comparateur 3a',
+              route: '/3a-deep/comparator'),
+          HubEntry(
+              icon: Icons.trending_up,
+              label: 'Rendement reel 3a',
+              route: '/3a-deep/real-return'),
+          HubEntry(
+              icon: Icons.view_timeline,
+              label: 'Retrait echelonne 3a',
+              route: '/3a-deep/staggered-withdrawal'),
+          HubEntry(
+              icon: Icons.map, label: 'Comparateur cantonal', route: '/fiscal'),
         ],
       ),
     ),
@@ -618,11 +708,27 @@ final _router = GoRouter(
       builder: (context, state) => const ExploreHubScreen(
         title: 'Patrimoine & Succession',
         entries: [
-          HubEntry(icon: Icons.assessment, label: 'Bilan arbitrage', route: '/arbitrage/bilan'),
-          HubEntry(icon: Icons.pie_chart, label: 'Allocation annuelle', route: '/arbitrage/allocation-annuelle'),
-          HubEntry(icon: Icons.card_giftcard, label: 'Donation', route: '/life-event/donation'),
-          HubEntry(icon: Icons.people, label: 'Deces d\'un proche', route: '/life-event/deces-proche'), // lint-ignore legacy route label
-          HubEntry(icon: Icons.swap_vert, label: 'Demenagement cantonal', route: '/life-event/demenagement-cantonal'),
+          HubEntry(
+              icon: Icons.assessment,
+              label: 'Bilan arbitrage',
+              route: '/arbitrage/bilan'),
+          HubEntry(
+              icon: Icons.pie_chart,
+              label: 'Allocation annuelle',
+              route: '/arbitrage/allocation-annuelle'),
+          HubEntry(
+              icon: Icons.card_giftcard,
+              label: 'Donation',
+              route: '/life-event/donation'),
+          HubEntry(
+              icon: Icons.people,
+              label: 'Deces d\'un proche',
+              route:
+                  '/life-event/deces-proche'), // lint-ignore legacy route label
+          HubEntry(
+              icon: Icons.swap_vert,
+              label: 'Demenagement cantonal',
+              route: '/life-event/demenagement-cantonal'),
         ],
       ),
     ),
@@ -632,11 +738,26 @@ final _router = GoRouter(
       builder: (context, state) => const ExploreHubScreen(
         title: 'Sante & Protection',
         entries: [
-          HubEntry(icon: Icons.accessibility, label: 'Lacune invalidite', route: '/invalidite'),
-          HubEntry(icon: Icons.shield, label: 'Assurance invalidite', route: '/disability/insurance'),
-          HubEntry(icon: Icons.business, label: 'Invalidite independant', route: '/disability/self-employed'),
-          HubEntry(icon: Icons.local_hospital, label: 'Franchise LAMal', route: '/assurances/lamal'),
-          HubEntry(icon: Icons.verified_user, label: 'Check couverture', route: '/assurances/coverage'),
+          HubEntry(
+              icon: Icons.accessibility,
+              label: 'Lacune invalidite',
+              route: '/invalidite'),
+          HubEntry(
+              icon: Icons.shield,
+              label: 'Assurance invalidite',
+              route: '/disability/insurance'),
+          HubEntry(
+              icon: Icons.business,
+              label: 'Invalidite independant',
+              route: '/disability/self-employed'),
+          HubEntry(
+              icon: Icons.local_hospital,
+              label: 'Franchise LAMal',
+              route: '/assurances/lamal'),
+          HubEntry(
+              icon: Icons.verified_user,
+              label: 'Check couverture',
+              route: '/assurances/coverage'),
         ],
       ),
     ),
@@ -648,18 +769,27 @@ final _router = GoRouter(
       builder: (context, state) => const RetirementDashboardScreen(),
     ),
     // Legacy redirects
-    ScopedGoRoute(path: '/coach/dashboard', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/retraite');
-      return '/retraite';
-    }),
-    ScopedGoRoute(path: '/retirement', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/retraite');
-      return '/retraite';
-    }),
-    ScopedGoRoute(path: '/retirement/projection', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/retraite');
-      return '/retraite';
-    }),
+    ScopedGoRoute(
+        path: '/coach/dashboard',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/retraite');
+          return '/retraite';
+        }),
+    ScopedGoRoute(
+        path: '/retirement',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/retraite');
+          return '/retraite';
+        }),
+    ScopedGoRoute(
+        path: '/retirement/projection',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/retraite');
+          return '/retraite';
+        }),
 
     ScopedGoRoute(
       path: '/rente-vs-capital',
@@ -667,67 +797,97 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RenteVsCapitalScreen(),
     ),
-    ScopedGoRoute(path: '/arbitrage/rente-vs-capital', scope: RouteScope.onboarding, redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rente-vs-capital');
-      return '/rente-vs-capital';
-    }),
-    ScopedGoRoute(path: '/simulator/rente-capital', scope: RouteScope.onboarding, redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rente-vs-capital');
-      return '/rente-vs-capital';
-    }),
+    ScopedGoRoute(
+        path: '/arbitrage/rente-vs-capital',
+        scope: RouteScope.onboarding,
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/rente-vs-capital');
+          return '/rente-vs-capital';
+        }),
+    ScopedGoRoute(
+        path: '/simulator/rente-capital',
+        scope: RouteScope.onboarding,
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/rente-vs-capital');
+          return '/rente-vs-capital';
+        }),
 
     ScopedGoRoute(
       path: '/rachat-lpp',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RachatEchelonneScreen(),
     ),
-    ScopedGoRoute(path: '/lpp-deep/rachat', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rachat-lpp');
-      return '/rachat-lpp';
-    }),
-    ScopedGoRoute(path: '/arbitrage/rachat-vs-marche', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rachat-lpp');
-      return '/rachat-lpp';
-    }),
+    ScopedGoRoute(
+        path: '/lpp-deep/rachat',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/rachat-lpp');
+          return '/rachat-lpp';
+        }),
+    ScopedGoRoute(
+        path: '/arbitrage/rachat-vs-marche',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/rachat-lpp');
+          return '/rachat-lpp';
+        }),
 
     ScopedGoRoute(
       path: '/epl',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const EplScreen(),
     ),
-    ScopedGoRoute(path: '/lpp-deep/epl', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/epl');
-      return '/epl';
-    }),
+    ScopedGoRoute(
+        path: '/lpp-deep/epl',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/epl');
+          return '/epl';
+        }),
 
     ScopedGoRoute(
       path: '/decaissement',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const OptimisationDecaissementScreen(),
     ),
-    ScopedGoRoute(path: '/coach/decaissement', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/decaissement');
-      return '/decaissement';
-    }),
-    ScopedGoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/decaissement');
-      return '/decaissement';
-    }),
+    ScopedGoRoute(
+        path: '/coach/decaissement',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/decaissement');
+          return '/decaissement';
+        }),
+    ScopedGoRoute(
+        path: '/arbitrage/calendrier-retraits',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/decaissement');
+          return '/decaissement';
+        }),
 
     // ── ZOMBIE REDIRECTS (301-style, keep for 2 releases) ──
-    ScopedGoRoute(path: '/coach/cockpit', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/retraite');
-      return '/retraite';
-    }),
+    ScopedGoRoute(
+        path: '/coach/cockpit',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/retraite');
+          return '/retraite';
+        }),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
-    ScopedGoRoute(path: '/coach/checkin', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return '/coach/chat';
-    }),
-    ScopedGoRoute(path: '/coach/refresh', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
-      return '/home';
-    }),
+    ScopedGoRoute(
+        path: '/coach/checkin',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/coach/chat');
+          return '/coach/chat';
+        }),
+    ScopedGoRoute(
+        path: '/coach/refresh',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
+          return '/home';
+        }),
     // KILL-05: /coach/chat moved into StatefulShellRoute (Tab 1: Coach)
     ScopedGoRoute(
       path: '/coach/history',
@@ -739,24 +899,33 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SuccessionPatrimoineScreen(),
     ),
-    ScopedGoRoute(path: '/coach/succession', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/succession');
-      return '/succession';
-    }),
-    ScopedGoRoute(path: '/life-event/succession', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/succession');
-      return '/succession';
-    }),
+    ScopedGoRoute(
+        path: '/coach/succession',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/succession');
+          return '/succession';
+        }),
+    ScopedGoRoute(
+        path: '/life-event/succession',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/succession');
+          return '/succession';
+        }),
 
     ScopedGoRoute(
       path: '/libre-passage',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LibrePassageScreen(),
     ),
-    ScopedGoRoute(path: '/lpp-deep/libre-passage', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/libre-passage');
-      return '/libre-passage';
-    }),
+    ScopedGoRoute(
+        path: '/lpp-deep/libre-passage',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/libre-passage');
+          return '/libre-passage';
+        }),
 
     // ── FISCALITE ────────────────────────────────────────────
     ScopedGoRoute(
@@ -764,10 +933,13 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const Simulator3aScreen(),
     ),
-    ScopedGoRoute(path: '/simulator/3a', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/pilier-3a');
-      return '/pilier-3a';
-    }),
+    ScopedGoRoute(
+        path: '/simulator/3a',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/pilier-3a');
+          return '/pilier-3a';
+        }),
 
     ScopedGoRoute(
       path: '/3a-deep/comparator',
@@ -801,10 +973,13 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AffordabilityScreen(),
     ),
-    ScopedGoRoute(path: '/mortgage/affordability', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/hypotheque');
-      return '/hypotheque';
-    }),
+    ScopedGoRoute(
+        path: '/mortgage/affordability',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/hypotheque');
+          return '/hypotheque';
+        }),
 
     ScopedGoRoute(
       path: '/mortgage/amortization',
@@ -867,10 +1042,13 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DivorceSimulatorScreen(),
     ),
-    ScopedGoRoute(path: '/life-event/divorce', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/divorce');
-      return '/divorce';
-    }),
+    ScopedGoRoute(
+        path: '/life-event/divorce',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/divorce');
+          return '/divorce';
+        }),
 
     ScopedGoRoute(
       path: '/mariage',
@@ -948,14 +1126,20 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DisabilityGapScreen(),
     ),
-    ScopedGoRoute(path: '/disability/gap', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/invalidite');
-      return '/invalidite';
-    }),
-    ScopedGoRoute(path: '/simulator/disability-gap', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/invalidite');
-      return '/invalidite';
-    }),
+    ScopedGoRoute(
+        path: '/disability/gap',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/invalidite');
+          return '/invalidite';
+        }),
+    ScopedGoRoute(
+        path: '/simulator/disability-gap',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/invalidite');
+          return '/invalidite';
+        }),
 
     ScopedGoRoute(
       path: '/disability/insurance',
@@ -983,31 +1167,39 @@ final _router = GoRouter(
       path: '/scan',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final extra = state.extra;
-        final initialType = extra is DocumentType ? extra : null;
+        final requestedType = state.uri.queryParameters['type'];
+        final initialType = DocumentType.values
+            .where((type) => type.name == requestedType)
+            .firstOrNull;
         return DocumentScanScreen(initialType: initialType);
       },
     ),
-    ScopedGoRoute(path: '/document-scan', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/scan');
-      return '/scan';
-    }),
+    ScopedGoRoute(
+        path: '/document-scan',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/scan');
+          return '/scan';
+        }),
 
     ScopedGoRoute(
       path: '/scan/avs-guide',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AvsGuideScreen(),
     ),
-    ScopedGoRoute(path: '/document-scan/avs-guide', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/scan/avs-guide');
-      return '/scan/avs-guide';
-    }),
+    ScopedGoRoute(
+        path: '/document-scan/avs-guide',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/scan/avs-guide');
+          return '/scan/avs-guide';
+        }),
     ScopedGoRoute(
       path: '/scan/review',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final scanSessionId = state.uri.queryParameters['scanSessionId'];
-        final session = context.watch<ScanSessionProvider>().byId(scanSessionId);
+        final session =
+            context.watch<ScanSessionProvider>().byId(scanSessionId);
         if (session == null) {
           return _buildScanRecoveryScaffold(
             context,
@@ -1017,6 +1209,7 @@ final _router = GoRouter(
         return ExtractionReviewScreen(
           scanSessionId: scanSessionId!,
           result: session.extraction,
+          taxCandidate: session.taxCandidate,
         );
       },
     ),
@@ -1025,7 +1218,8 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final scanSessionId = state.uri.queryParameters['scanSessionId'];
-        final session = context.watch<ScanSessionProvider>().byId(scanSessionId);
+        final session =
+            context.watch<ScanSessionProvider>().byId(scanSessionId);
         if (session == null || session.previousConfidence == null) {
           return _buildScanRecoveryScaffold(
             context,
@@ -1033,6 +1227,7 @@ final _router = GoRouter(
           );
         }
         return DocumentImpactScreen(
+          scanSessionId: scanSessionId!,
           result: session.extraction,
           previousConfidence: session.previousConfidence!,
         );
@@ -1059,10 +1254,13 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const HouseholdScreen(),
     ),
-    ScopedGoRoute(path: '/household', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/couple');
-      return '/couple';
-    }),
+    ScopedGoRoute(
+        path: '/household',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/couple');
+          return '/couple';
+        }),
 
     ScopedGoRoute(
       path: '/couple/accept',
@@ -1072,10 +1270,12 @@ final _router = GoRouter(
         return AcceptInvitationScreen(initialCode: code);
       },
     ),
-    ScopedGoRoute(path: '/household/accept', redirect: (context, state) {
-      final code = state.uri.queryParameters['code'];
-      return code != null ? '/couple/accept?code=$code' : '/couple/accept';
-    }),
+    ScopedGoRoute(
+        path: '/household/accept',
+        redirect: (context, state) {
+          final code = state.uri.queryParameters['code'];
+          return code != null ? '/couple/accept?code=$code' : '/couple/accept';
+        }),
 
     // ── RAPPORT & PROFIL ─────────────────────────────────────
     ScopedGoRoute(
@@ -1100,14 +1300,20 @@ final _router = GoRouter(
         );
       },
     ),
-    ScopedGoRoute(path: '/report', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rapport');
-      return '/rapport';
-    }),
-    ScopedGoRoute(path: '/report/v2', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rapport');
-      return '/rapport';
-    }),
+    ScopedGoRoute(
+        path: '/report',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/rapport');
+          return '/rapport';
+        }),
+    ScopedGoRoute(
+        path: '/report/v2',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/rapport');
+          return '/rapport';
+        }),
 
     // KILL-04: ProfileScreen deleted (Phase 2). /profile redirects to /profile/bilan.
     // Sub-routes (byok, slm, bilan, privacy-control, admin) preserved.
@@ -1237,10 +1443,12 @@ final _router = GoRouter(
       builder: (context, state) => const LocationVsProprieteScreen(),
     ),
 
-    ScopedGoRoute(path: '/achievements', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
-      return '/home';
-    }),
+    ScopedGoRoute(
+        path: '/achievements',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
+          return '/home';
+        }),
 
     // STAB-14 (07-04): /weekly-recap was an orphan redirect-to-/home with zero
     // callers; deleted per AUDIT_ORPHAN_ROUTES row 90.
@@ -1282,19 +1490,27 @@ final _router = GoRouter(
     ],
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
-    ScopedGoRoute(path: '/ask-mint', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return _redirectPreservingQuery(state, '/coach/chat');
-    }),
+    ScopedGoRoute(
+        path: '/ask-mint',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/coach/chat');
+          return _redirectPreservingQuery(state, '/coach/chat');
+        }),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
-    ScopedGoRoute(path: '/tools', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return _redirectPreservingQuery(state, '/coach/chat');
-    }),
-    ScopedGoRoute(path: '/portfolio', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
-      return _redirectPreservingQuery(state, '/home');
-    }),
+    ScopedGoRoute(
+        path: '/tools',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/coach/chat');
+          return _redirectPreservingQuery(state, '/coach/chat');
+        }),
+    ScopedGoRoute(
+        path: '/portfolio',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
+          return _redirectPreservingQuery(state, '/home');
+        }),
     ScopedGoRoute(
       path: '/timeline',
       parentNavigatorKey: _rootNavigatorKey,
@@ -1310,10 +1526,12 @@ final _router = GoRouter(
         return ConfidenceDashboardScreen(result: result);
       },
     ),
-    ScopedGoRoute(path: '/score-reveal', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
-      return _redirectPreservingQuery(state, '/home');
-    }),
+    ScopedGoRoute(
+        path: '/score-reveal',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
+          return _redirectPreservingQuery(state, '/home');
+        }),
 
     // ── ONBOARDING ───────────────────────────────────────────
     // P10-02b: legacy onboarding screens removed. Routes kept as redirect
@@ -1321,25 +1539,31 @@ final _router = GoRouter(
     // chat surface handles missing query params gracefully.
     ScopedGoRoute(
       path: '/onboarding/quick',
-      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
+      scope:
+          RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        MintBreadcrumbs.legacyRedirectHit(
+            from: state.uri.path, to: '/coach/chat');
         return '/coach/chat';
       },
     ),
     ScopedGoRoute(
       path: '/onboarding/quick-start',
-      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
+      scope:
+          RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        MintBreadcrumbs.legacyRedirectHit(
+            from: state.uri.path, to: '/coach/chat');
         return '/coach/chat';
       },
     ),
     ScopedGoRoute(
       path: '/onboarding/premier-eclairage',
-      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
+      scope:
+          RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        MintBreadcrumbs.legacyRedirectHit(
+            from: state.uri.path, to: '/coach/chat');
         return '/coach/chat';
       },
     ),
@@ -1348,23 +1572,28 @@ final _router = GoRouter(
       path: '/onboarding/intent',
       scope: RouteScope.onboarding,
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        MintBreadcrumbs.legacyRedirectHit(
+            from: state.uri.path, to: '/coach/chat');
         return '/coach/chat';
       },
     ),
     ScopedGoRoute(
       path: '/onboarding/promise',
-      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
+      scope:
+          RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        MintBreadcrumbs.legacyRedirectHit(
+            from: state.uri.path, to: '/coach/chat');
         return '/coach/chat';
       },
     ),
     ScopedGoRoute(
       path: '/onboarding/plan',
-      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
+      scope:
+          RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        MintBreadcrumbs.legacyRedirectHit(
+            from: state.uri.path, to: '/coach/chat');
         return '/coach/chat';
       },
     ),
@@ -1384,22 +1613,19 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/open-banking',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) =>
-          FeatureFlags.enableOpenBanking ? null : '/',
+      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const OpenBankingHubScreen(),
     ),
     ScopedGoRoute(
       path: '/open-banking/transactions',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) =>
-          FeatureFlags.enableOpenBanking ? null : '/',
+      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const TransactionListScreen(),
     ),
     ScopedGoRoute(
       path: '/open-banking/consents',
       parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) =>
-          FeatureFlags.enableOpenBanking ? null : '/',
+      redirect: (context, state) => FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const ConsentScreen(),
     ),
     ScopedGoRoute(
@@ -1411,35 +1637,58 @@ final _router = GoRouter(
     // ── LEGACY REDIRECTS (backwards compat) ──────────────────
     // NAV-AUDIT: all legacy routes now redirect directly to /coach/chat
     // (previously multi-hop via /home or /onboarding/quick — params were lost)
-    ScopedGoRoute(path: '/advisor', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return '/coach/chat';
-    }),
-    ScopedGoRoute(path: '/advisor/plan-30-days', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return '/coach/chat';
-    }),
-    ScopedGoRoute(path: '/advisor/wizard', redirect: (context, state) {
-      final section = state.uri.queryParameters['section'];
-      if (section == null || section.isEmpty) return '/coach/chat';
-      return '/coach/chat?topic=$section';
-    }),
-    ScopedGoRoute(path: '/coach/agir', redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return '/coach/chat';
-    }),
-    ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return '/coach/chat';
-    }),
-    ScopedGoRoute(path: '/onboarding/minimal', scope: RouteScope.onboarding, redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return '/coach/chat';
-    }),
-    ScopedGoRoute(path: '/onboarding/enrichment', scope: RouteScope.onboarding, redirect: (_, state) {
-      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/profile/bilan');
-      return '/profile/bilan';
-    }),
+    ScopedGoRoute(
+        path: '/advisor',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/coach/chat');
+          return '/coach/chat';
+        }),
+    ScopedGoRoute(
+        path: '/advisor/plan-30-days',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/coach/chat');
+          return '/coach/chat';
+        }),
+    ScopedGoRoute(
+        path: '/advisor/wizard',
+        redirect: (context, state) {
+          final section = state.uri.queryParameters['section'];
+          if (section == null || section.isEmpty) return '/coach/chat';
+          return '/coach/chat?topic=$section';
+        }),
+    ScopedGoRoute(
+        path: '/coach/agir',
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/coach/chat');
+          return '/coach/chat';
+        }),
+    ScopedGoRoute(
+        path: '/onboarding/smart',
+        scope: RouteScope.onboarding,
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/coach/chat');
+          return '/coach/chat';
+        }),
+    ScopedGoRoute(
+        path: '/onboarding/minimal',
+        scope: RouteScope.onboarding,
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/coach/chat');
+          return '/coach/chat';
+        }),
+    ScopedGoRoute(
+        path: '/onboarding/enrichment',
+        scope: RouteScope.onboarding,
+        redirect: (_, state) {
+          MintBreadcrumbs.legacyRedirectHit(
+              from: state.uri.path, to: '/profile/bilan');
+          return '/profile/bilan';
+        }),
   ],
 );
 
@@ -1586,7 +1835,8 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         // setPayload/consumePayload had 0 caller in prod (docstring claimed
         // MintHomeScreen sets + MintCoachTab reads; neither exists).
         // Panel A P0-5.
-        ChangeNotifierProvider<TimelineProvider>(create: (_) => TimelineProvider()),
+        ChangeNotifierProvider<TimelineProvider>(
+            create: (_) => TimelineProvider()),
         // Wave A-MINIMAL A2 (2026-04-18): notifications wiring listens
         // to CoachProfileProvider and reschedules coaching reminders
         // when the triad (birthYear + canton + salaireBrutMensuel)
@@ -1606,7 +1856,8 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         // flag materialises the service at MultiProvider mount time so
         // its `update` actually fires on every CoachProfileProvider
         // notifyListeners.
-        ChangeNotifierProxyProvider<CoachProfileProvider, NotificationsWiringService>(
+        ChangeNotifierProxyProvider<CoachProfileProvider,
+            NotificationsWiringService>(
           lazy: false,
           create: (_) => NotificationsWiringService(),
           update: (_, profileProvider, wiring) {
@@ -1758,8 +2009,7 @@ ThemeData _buildPremiumTheme() {
         borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: MintColors.primary, width: 1.5),
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
     ),
     dividerTheme: const DividerThemeData(
       color: MintColors.lightBorder,
@@ -1816,7 +2066,8 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
     } else {
       setState(() {
         _isVerifying = false;
-        _errorMessage = 'Ce lien est invalide ou a expiré'; // lint-ignore legacy auth copy
+        _errorMessage =
+            'Ce lien est invalide ou a expiré'; // lint-ignore legacy auth copy
       });
     }
   }
@@ -1847,20 +2098,23 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                         size: 64, color: Colors.red),
                     const SizedBox(height: 24),
                     Text(
-                      _errorMessage ?? 'Erreur de vérification', // lint-ignore legacy auth copy
+                      _errorMessage ??
+                          'Erreur de vérification', // lint-ignore legacy auth copy
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 16, color: Colors.black87),
+                      style:
+                          const TextStyle(fontSize: 16, color: Colors.black87),
                     ),
                     const SizedBox(height: 24),
                     FilledButton(
                       onPressed: () => _verifyToken(),
-                      child: const Text('Réessayer'), // lint-ignore legacy auth copy
+                      child: const Text(
+                          'Réessayer'), // lint-ignore legacy auth copy
                     ),
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: () => context.go('/auth/login'),
-                      child: const Text('Retour à la connexion'), // lint-ignore legacy auth copy
+                      child: const Text(
+                          'Retour à la connexion'), // lint-ignore legacy auth copy
                     ),
                   ],
                 ),
@@ -1870,7 +2124,6 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
   }
 }
 
-
 class _MintErrorScreen extends StatelessWidget {
   final Exception? error;
   const _MintErrorScreen({this.error});
@@ -1879,7 +2132,8 @@ class _MintErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Page introuvable'), // lint-ignore legacy fallback copy
+        title:
+            const Text('Page introuvable'), // lint-ignore legacy fallback copy
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
@@ -1902,7 +2156,8 @@ class _MintErrorScreen extends StatelessWidget {
               FilledButton.icon(
                 onPressed: () => context.go('/coach/chat'),
                 icon: const Icon(Icons.chat_outlined),
-                label: const Text('Retour à l\'accueil'), // lint-ignore legacy fallback copy
+                label: const Text(
+                    'Retour à l\'accueil'), // lint-ignore legacy fallback copy
               ),
             ],
           ),
@@ -1911,7 +2166,6 @@ class _MintErrorScreen extends StatelessWidget {
     );
   }
 }
-
 
 /// Bridge that subscribes to AuthProvider once and forwards every tick
 /// to the router-bound `_authNotifier`. Without this, GoRouter's

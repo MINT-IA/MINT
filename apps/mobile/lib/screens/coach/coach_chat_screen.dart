@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/rag_error_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -1061,17 +1062,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     } on RagApiException catch (e) {
       if (!mounted) return;
       final s = S.of(context)!;
-      final String errorMsg;
-      switch (e.code) {
-        case 'invalid_key':
-          errorMsg = s.coachErrorInvalidKey;
-          break;
-        case 'rate_limit':
-          errorMsg = s.coachErrorRateLimit;
-          break;
-        default:
-          errorMsg = s.coachErrorGeneric;
-      }
+      final errorMsg = e.errorCode.localizedCoachMessage(s);
       // Recover last user message so the user can retry with one tap.
       final lastUserText = _messages
           .lastWhere((m) => m.isUser, orElse: () => ChatMessage(

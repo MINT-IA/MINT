@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/confidence_prompt_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
@@ -29,8 +30,9 @@ class LowConfidenceCard extends StatelessWidget {
     final bestRoute = topPrompts.isNotEmpty
         ? _routeForPrompt(topPrompts.first) ?? '/scan'
         : '/scan';
-    final bestLabel =
-        topPrompts.isNotEmpty ? topPrompts.first.action : l.dossierCompleteCta;
+    final bestLabel = topPrompts.isNotEmpty
+        ? topPrompts.first.localizedAction(l)
+        : l.dossierCompleteCta;
 
     return Container(
       width: double.infinity,
@@ -126,7 +128,7 @@ class LowConfidenceCard extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          p.label,
+                          p.localizedLabel(l),
                           style: MintTextStyles.bodySmall(
                               color: MintColors.textPrimary),
                         ),

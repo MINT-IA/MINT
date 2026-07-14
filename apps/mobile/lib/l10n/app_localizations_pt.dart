@@ -6001,7 +6001,7 @@ class SPt extends S {
 
   @override
   String get dataBlockFiscaliteDesc =>
-      'O teu município, rendimento tributável e património determinam a tua taxa marginal de imposto. Uma declaração fiscal ou avaliação dá uma taxa real em vez de estimada (coeficiente municipal 60%-130%).';
+      'O teu município e os valores confirmados dos teus documentos esclarecem o teu contexto fiscal. As regras e as taxas variam consoante o cantão, o município, o ano fiscal e a tua situação pessoal.';
 
   @override
   String get dataBlockFiscaliteCta => 'Comparar a minha fiscalidade';
@@ -7885,7 +7885,7 @@ class SPt extends S {
 
   @override
   String get coachErrorRateLimit =>
-      'Limite de pedidos atingido. Tenta novamente daqui a pouco.';
+      'Limite de utilização atingido. Tenta novamente mais tarde.';
 
   @override
   String get coachErrorGeneric => 'Erro técnico. Tenta novamente mais tarde.';
@@ -15120,7 +15120,7 @@ class SPt extends S {
 
   @override
   String get coachErrorServiceUnavailable =>
-      'Serviço temporariamente indisponível. Tenta novamente daqui a uns minutos.';
+      'O serviço não está disponível de momento. Tenta novamente mais tarde.';
 
   @override
   String get coachFactCardTitle => 'Sabias que?';
@@ -18931,14 +18931,14 @@ class SPt extends S {
 
   @override
   String get ragErrorRateLimit =>
-      'Limite de pedidos atingido. Tenta novamente dentro de momentos.';
+      'Limite de utilização atingido. Tenta novamente mais tarde.';
 
   @override
   String get ragErrorRateLimitShort => 'Limite de pedidos atingido.';
 
   @override
   String get ragErrorServiceUnavailable =>
-      'Serviço temporariamente indisponível. Tenta mais tarde.';
+      'O serviço não está disponível de momento. Tenta novamente mais tarde.';
 
   @override
   String get ragErrorStatus => 'Impossível verificar o estado do sistema RAG.';
@@ -23768,4 +23768,228 @@ class SPt extends S {
   @override
   String get expatAvsTruthDisclaimer =>
       'Informação educativa, não aconselhamento personalizado · LAVS arts. 2 e 29bis ss. · Apenas as caixas AVS tomam decisões oficiais.';
+
+  @override
+  String get docScanTaxDocumentLabel => 'Documento fiscal';
+
+  @override
+  String get docScanTaxDocumentDescription =>
+      'Identifica e confirma o tipo de documento fiscal antes de conservar os respetivos valores.';
+
+  @override
+  String get docImpactTaxTitle => 'Documento fiscal revisto';
+
+  @override
+  String get docImpactTaxSubtitle =>
+      'Os valores confirmados durante a revisão são apresentados abaixo.';
+
+  @override
+  String get taxReviewInForceAttestation =>
+      'Confirmo que esta liquidação fiscal transitou em julgado.';
+
+  @override
+  String get taxReviewFederalScopeIncoherence =>
+      'O imposto federal direto incide sobre o rendimento. Verifica o âmbito antes de confirmar.';
+
+  @override
+  String get taxReviewDocumentKind => 'Tipo de documento fiscal';
+
+  @override
+  String get taxReviewAssessmentStatus => 'Estado da liquidação fiscal';
+
+  @override
+  String get taxReviewTaxYear => 'Ano fiscal';
+
+  @override
+  String get taxReviewBasedOnTaxYear => 'Ano fiscal de referência';
+
+  @override
+  String get taxReviewSourceDate => 'Data do documento (AAAA-MM-DD)';
+
+  @override
+  String get taxReviewSubjectScope => 'Pessoas abrangidas';
+
+  @override
+  String get taxReviewCantonCode => 'Código do cantão';
+
+  @override
+  String get taxReviewMunicipalityId => 'Número OFS do município';
+
+  @override
+  String get taxReviewMunicipalityLabel => 'Município';
+
+  @override
+  String get taxReviewCantonalIncome =>
+      'Rendimento tributável cantonal e municipal (CHF)';
+
+  @override
+  String get taxReviewFederalIncome =>
+      'Rendimento tributável federal direto (CHF)';
+
+  @override
+  String get taxReviewCantonalWealth =>
+      'Património tributável cantonal e municipal (CHF)';
+
+  @override
+  String get taxReviewCantonalTax =>
+      'Imposto cantonal e municipal liquidado (CHF)';
+
+  @override
+  String get taxReviewCantonalAuthority =>
+      'Autoridade do imposto cantonal e municipal';
+
+  @override
+  String get taxReviewCantonalBase => 'Base do imposto cantonal e municipal';
+
+  @override
+  String get taxReviewFederalTax => 'Imposto federal direto liquidado (CHF)';
+
+  @override
+  String get taxReviewFederalAuthority =>
+      'Autoridade do imposto federal direto';
+
+  @override
+  String get taxReviewFederalBase => 'Base do imposto federal direto';
+
+  @override
+  String get taxReviewMarginalRate => 'Taxa marginal explícita (%)';
+
+  @override
+  String get taxReviewAverageRate => 'Taxa média explícita (%)';
+
+  @override
+  String get taxReviewOptionTaxpayerReturn => 'Declaração do contribuinte';
+
+  @override
+  String get taxReviewOptionProvisionalBill => 'Prestação provisória';
+
+  @override
+  String get taxReviewOptionAssessmentNotice => 'Decisão de liquidação';
+
+  @override
+  String get taxReviewOptionFinalTaxBill => 'Conta fiscal final';
+
+  @override
+  String get taxReviewOptionUnknown => 'Desconhecido';
+
+  @override
+  String get taxReviewOptionSelfDeclared => 'Autodeclarado';
+
+  @override
+  String get taxReviewOptionProvisional => 'Provisório';
+
+  @override
+  String get taxReviewOptionAssessedAppealable =>
+      'Liquidado, prazo de recurso aberto';
+
+  @override
+  String get taxReviewOptionContested => 'Contestado';
+
+  @override
+  String get taxReviewOptionInForce => 'Definitivo';
+
+  @override
+  String get taxReviewOptionIndividual => 'Pessoa individual';
+
+  @override
+  String get taxReviewOptionJointCouple => 'Casal tributado conjuntamente';
+
+  @override
+  String get taxReviewOptionCantonalOnly => 'Apenas cantão';
+
+  @override
+  String get taxReviewOptionCommunalOnly => 'Apenas município';
+
+  @override
+  String get taxReviewOptionCantonalCommunal => 'Cantão e município';
+
+  @override
+  String get taxReviewOptionFederalDirect =>
+      'Confederação (imposto federal direto)';
+
+  @override
+  String get taxReviewOptionIncomeOnly => 'Apenas rendimento';
+
+  @override
+  String get taxReviewOptionWealthOnly => 'Apenas património';
+
+  @override
+  String get taxReviewOptionIncomeAndWealth => 'Rendimento e património';
+
+  @override
+  String get taxReviewOptionTotalInvoice => 'Fatura total sem discriminação';
+
+  @override
+  String get scanSummaryAmountUnspecified => 'montante não especificado';
+
+  @override
+  String get docImpactTaxDisclaimer =>
+      'Tratamento apenas local. Os valores apresentados provêm da tua confirmação e não constituem aconselhamento fiscal.';
+
+  @override
+  String taxParserDiagnosticPercentUnit(String rate) {
+    return 'O valor lido ($rate %) está fora da unidade esperada (0 a 100 %). Confirma o valor e a respetiva unidade no documento.';
+  }
+
+  @override
+  String taxParserDiagnosticNegativeWealth(String amount) {
+    return 'Um património líquido de $amount CHF pode refletir dívidas superiores aos ativos. Confirma a designação exata antes de conservar um património tributável.';
+  }
+
+  @override
+  String taxParserDiagnosticAverageNotMarginal(String rate) {
+    return 'A relação entre os montantes lidos ($rate %) compara os impostos com o rendimento. Não é uma taxa marginal nem uma taxa média legal.';
+  }
+
+  @override
+  String get taxReviewLocalDisclaimer =>
+      'Confirma o tipo de documento, o respetivo estado e cada valor antes de confirmar. A MINT ajuda-te a ler o documento; esta leitura não constitui aconselhamento fiscal.';
+
+  @override
+  String get confidencePromptPartnerLabel =>
+      'Completa os dados da pessoa parceira';
+
+  @override
+  String get confidencePromptPartnerAction =>
+      'A idade e o rendimento da pessoa parceira, se estiverem disponíveis e forem partilhados com o seu consentimento, para precisar os cenários do casal.';
+
+  @override
+  String confidencePromptRefreshField(String field) {
+    return 'Atualiza: $field';
+  }
+
+  @override
+  String confidencePromptFreshnessStale(int months) {
+    return 'Dado atualizado há $months meses — verifica se continua atual.';
+  }
+
+  @override
+  String get confidencePromptFreshnessCurrent =>
+      'Verifica se este dado continua atual.';
+
+  @override
+  String confidencePromptConfirmField(String field) {
+    return 'Confirma: $field';
+  }
+
+  @override
+  String get confidencePromptAccuracyCurrentSource =>
+      'Confirma este valor com uma fonte atualizada.';
+
+  @override
+  String get confidencePromptEducationLabel => 'Explora conteúdos educativos';
+
+  @override
+  String get confidencePromptEducationAction =>
+      'Consulta os conteúdos educativos relacionados com os teus temas.';
+
+  @override
+  String get confidencePromptCoachLabel => 'Faz uma pergunta ao coach';
+
+  @override
+  String get confidencePromptCoachAction =>
+      'Explora com o coach uma questão de finanças suíças.';
+
+  @override
+  String get confidencePromptAccuracyEstimated => 'Introduz o teu valor real.';
 }

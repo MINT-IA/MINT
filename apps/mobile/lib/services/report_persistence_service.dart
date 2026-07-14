@@ -10,6 +10,15 @@ class ReportPersistenceService {
   static const String _wizardKey = 'wizard_answers_v2';
   static const String _completedKey = 'wizard_completed';
 
+  static Map<String, dynamic> backendSafeAnswers(
+    Map<String, dynamic> localAnswers,
+  ) {
+    return Map<String, dynamic>.from(localAnswers)
+      ..removeWhere(
+        (key, _) => key == '__provenance' || key.startsWith('_coach_tax_'),
+      );
+  }
+
   /// Sauvegarde les réponses du wizard (incremental off).
   /// SEC-10: Sensitive financial keys are stored in encrypted storage.
   static Future<void> saveAnswers(Map<String, dynamic> answers) async {

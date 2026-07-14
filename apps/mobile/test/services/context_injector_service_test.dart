@@ -80,6 +80,24 @@ void main() {
   }
 
   group('ContextInjectorService', () {
+    test('enrichment context uses stable structured prompt descriptors',
+        () async {
+      final profile = makeProfile(etatCivil: CoachCivilStatus.marie);
+      final prefs = await seedGoals(const []);
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      expect(ctx.memoryBlock, contains('code=partner.details.missing'));
+      expect(ctx.memoryBlock, contains('field=conjoint;impact=15'));
+      expect(ctx.memoryBlock, isNot(contains('EnrichmentPromptCopyCode.')));
+      expect(ctx.memoryBlock, isNot(contains('Clarify your partner')));
+      expect(ctx.memoryBlock, isNot(contains('Ajoute les infos')));
+    });
+
     // ════════════════════════════════════════════════════════════
     //  TEST 1: Full enriched context with all sections
     // ════════════════════════════════════════════════════════════

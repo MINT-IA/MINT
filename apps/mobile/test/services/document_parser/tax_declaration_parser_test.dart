@@ -71,20 +71,18 @@ void main() {
       expect((field!.value as double), closeTo(32.5, 0.1));
     });
 
-    test('has non-empty disclaimer and sources', () {
-      expect(result.disclaimer, isNotEmpty);
-      expect(result.disclaimer, contains('ducatif'));
-      expect(result.sources, isNotEmpty);
-      expect(result.sources.any((s) => s.contains('LIFD')), isTrue);
+    test('keeps user-facing copy out of the parser result', () {
+      expect(result.warnings, isEmpty);
+      expect(result.disclaimer, isEmpty);
+      expect(result.sources, isEmpty);
     });
 
     test('overall confidence is above 0.80', () {
       expect(result.overallConfidence, greaterThanOrEqualTo(0.80));
     });
 
-    test('confidence delta is positive', () {
-      expect(result.confidenceDelta, greaterThan(0));
-      expect(result.confidenceDelta, lessThanOrEqualTo(20));
+    test('confidence delta stays zero until canonical post-save scoring', () {
+      expect(result.confidenceDelta, 0);
     });
   });
 
@@ -170,90 +168,92 @@ void main() {
 
   // ── Cross-validation ───────────────────────────────────────
   group('parseTaxDeclaration — cross-validation', () {
-    test('warns when effective tax rate is very low (< 3%)', () {
+    test('emits only a typed ratio diagnostic for a low read ratio', () {
       const text = """
 Revenu imposable: CHF 200'000.00
 Impôt cantonal et communal: CHF 3'000.00
 Impôt fédéral direct: CHF 1'000.00
 """;
       final result = TaxDeclarationParser.parseTaxDeclaration(text);
-      // 4000 / 200000 = 2% < 3%
-      expect(result.warnings, isNotEmpty);
+      expect(result.warnings, isEmpty);
       expect(
-        result.warnings.any((w) => w.contains('bas')),
-        isTrue,
+        result.diagnostics.single.code,
+        ExtractionDiagnosticCode.taxComputedAverageRateNotMarginal,
       );
+      expect(result.diagnostics.single.ratePercent, 2);
     });
 
-    test('warns when effective tax rate is very high (> 50%)', () {
+    test('emits only a typed ratio diagnostic for a high read ratio', () {
       const text = """
 Revenu imposable: CHF 100'000.00
 Impôt cantonal et communal: CHF 40'000.00
 Impôt fédéral direct: CHF 15'000.00
 """;
       final result = TaxDeclarationParser.parseTaxDeclaration(text);
-      // 55000 / 100000 = 55% > 50%
-      expect(result.warnings, isNotEmpty);
+      expect(result.warnings, isEmpty);
       expect(
-        result.warnings.any((w) => w.contains('lev')),
-        isTrue,
+        result.diagnostics.single.code,
+        ExtractionDiagnosticCode.taxComputedAverageRateNotMarginal,
       );
+      expect(result.diagnostics.single.ratePercent, closeTo(55, 0.000001));
     });
 
-    test('no tax rate warning for reasonable rate', () {
+    test('emits the same typed ratio diagnostic for a 20 percent read ratio',
+        () {
       const text = """
 Revenu imposable: CHF 100'000.00
 Impôt cantonal et communal: CHF 15'000.00
 Impôt fédéral direct: CHF 5'000.00
 """;
       final result = TaxDeclarationParser.parseTaxDeclaration(text);
-      // 20000 / 100000 = 20%, reasonable
+      expect(result.warnings, isEmpty);
       expect(
-        result.warnings.any((w) => w.contains('bas') || w.contains('lev')),
-        isFalse,
+        result.diagnostics.single.code,
+        ExtractionDiagnosticCode.taxComputedAverageRateNotMarginal,
       );
+      expect(result.diagnostics.single.ratePercent, 20);
     });
 
-    test('warns for unusual taux marginal effectif (< 5%)', () {
+    test('does not invent a jurisdiction-free marginal-rate floor', () {
       const text = "Taux marginal effectif: 3.0 %";
       final result = TaxDeclarationParser.parseTaxDeclaration(text);
-      expect(result.warnings, isNotEmpty);
-      expect(
-        result.warnings.any((w) => w.contains('inhabituel')),
-        isTrue,
-      );
+      expect(result.diagnostics, isEmpty);
     });
 
-    test('warns for unusual taux marginal effectif (> 55%)', () {
+    test('does not invent a jurisdiction-free marginal-rate ceiling', () {
       const text = "Taux marginal effectif: 60.0 %";
       final result = TaxDeclarationParser.parseTaxDeclaration(text);
-      expect(result.warnings, isNotEmpty);
-      expect(
-        result.warnings.any((w) => w.contains('inhabituel')),
-        isTrue,
-      );
+      expect(result.diagnostics, isEmpty);
     });
 
-    test('warns for negative fortune imposable', () {
-      const text = "Fortune imposable: CHF -25'000.00";
+    test('types an explicit percentage that exceeds its storage unit', () {
+      const text = "Taux marginal effectif: 101.0 %";
       final result = TaxDeclarationParser.parseTaxDeclaration(text);
       expect(
-        result.warnings.any((w) => w.contains('gative')),
-        isTrue,
+        result.diagnostics.single.code,
+        ExtractionDiagnosticCode.taxPercentUnitOutOfRange,
+      );
+      expect(result.diagnostics.single.ratePercent, 101);
+    });
+
+    test('retains negative wealth for review with a typed diagnostic', () {
+      const text = "Fortune imposable: CHF -25'000.00";
+      final result = TaxDeclarationParser.parseTaxDeclaration(text);
+      expect(findField(result, 'fortune_imposable')?.value, -25000);
+      expect(
+        result.diagnostics.single.code,
+        ExtractionDiagnosticCode.taxNegativeWealthNeedsLabelReview,
       );
     });
 
-    test('warns for excessive deductions (> 60% of income)', () {
+    test('does not apply an unsourced deductions-to-income heuristic', () {
       const text = """
 Revenu imposable: CHF 100'000.00
 Total des déductions effectuées: CHF 70'000.00
 """;
       final result = TaxDeclarationParser.parseTaxDeclaration(text);
-      expect(result.warnings, isNotEmpty);
-      expect(
-        result.warnings.any((w) => w.contains('ductions')),
-        isTrue,
-      );
+      expect(result.warnings, isEmpty);
+      expect(result.diagnostics, isEmpty);
     });
 
     test('never promotes a computed tax-to-income ratio to marginal', () {
@@ -302,8 +302,8 @@ Impôt fédéral direct: CHF 5'000.00
       expect(cantonalOnly, isNotNull);
       expect(combinedIcc, isNotNull);
       expect(
-        cantonalOnly!.label,
-        isNot(combinedIcc!.label),
+        cantonalOnly!.labelCode,
+        isNot(combinedIcc!.labelCode),
         reason:
             'cantonalOnly must not be presented as cantonalCommunalCombined',
       );
@@ -374,39 +374,26 @@ Impôt fédéral direct: CHF 3'840.00
     });
   });
 
-  // ── estimateConfidenceDelta with profile ───────────────────
+  // ── Confidence is awarded only after canonical ledger save ──────────
   group('estimateConfidenceDelta', () {
-    test('full impact when profile is empty', () {
+    test('returns zero for empty and populated profiles', () {
       final result = TaxDeclarationParser.parseTaxDeclaration(
         TaxDeclarationParser.sampleOcrText,
       );
-      final delta = TaxDeclarationParser.estimateConfidenceDelta(
-        result,
-        <String, dynamic>{},
+      expect(
+        TaxDeclarationParser.estimateConfidenceDelta(
+          result,
+          <String, dynamic>{},
+        ),
+        0,
       );
-      expect(delta, greaterThan(0));
-      expect(delta, lessThanOrEqualTo(20));
-    });
-
-    test('partial impact when profile already has values', () {
-      final result = TaxDeclarationParser.parseTaxDeclaration(
-        TaxDeclarationParser.sampleOcrText,
+      expect(
+        TaxDeclarationParser.estimateConfidenceDelta(
+          result,
+          <String, dynamic>{'actualTaxableIncome': 90000.0},
+        ),
+        0,
       );
-      final deltaEmpty = TaxDeclarationParser.estimateConfidenceDelta(
-        result,
-        <String, dynamic>{},
-      );
-      final deltaFull = TaxDeclarationParser.estimateConfidenceDelta(
-        result,
-        <String, dynamic>{
-          'actualTaxableIncome': 90000.0,
-          'actualTaxableWealth': 200000.0,
-          'actualCantonalTax': 14000.0,
-          'actualFederalTax': 3500.0,
-          'actualMarginalRate': 30.0,
-        },
-      );
-      expect(deltaFull, lessThan(deltaEmpty));
     });
   });
 

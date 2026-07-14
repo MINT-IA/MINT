@@ -437,8 +437,8 @@ class ContextInjectorService {
 
     for (final prompt in topPrompts) {
       final route = _enrichmentRoute(prompt.category);
-      lines.add('- ${prompt.label} (+${prompt.impact}\u00a0pts) '
-          '\u2192 ${prompt.action}${route != null ? ' [route\u00a0: $route]' : ''}');
+      lines.add('- ${prompt.machineDescriptor}'
+          '${route != null ? ';route=$route' : ''}');
     }
 
     // Bayesian EVI ranking if available (more precise than component weights)

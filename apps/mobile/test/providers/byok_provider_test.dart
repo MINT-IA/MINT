@@ -9,6 +9,8 @@ class FakeRagService extends RagService {
   bool shouldSucceed = true;
   bool shouldThrowRagApiException = false;
   String ragApiExceptionMessage = 'Invalid API key';
+  String? lastQuestion;
+  String? lastLanguage;
 
   FakeRagService() : super(baseUrl: 'http://fake');
 
@@ -23,6 +25,8 @@ class FakeRagService extends RagService {
     List<Map<String, dynamic>>? tools,
     int cashLevel = 3,
   }) async {
+    lastQuestion = question;
+    lastLanguage = language;
     if (shouldThrowRagApiException) {
       throw RagApiException(
         code: 'invalid_key',
@@ -203,7 +207,8 @@ void main() {
       expect(notifyCount, 2);
     });
 
-    test('clearKey removes from storage so loadSavedKey finds nothing', () async {
+    test('clearKey removes from storage so loadSavedKey finds nothing',
+        () async {
       await provider.saveKey('claude', 'sk-test-key-12345678');
       await provider.clearKey();
 
@@ -237,6 +242,18 @@ void main() {
       expect(provider.isTesting, isFalse);
     });
 
+    test('testKey probe is locale-neutral and never supplies UI copy',
+        () async {
+      await provider.saveKey('claude', 'sk-test-key-12345678');
+
+      final result = await provider.testKey();
+
+      expect(result, isTrue);
+      expect(fakeRag.lastLanguage, 'en');
+      expect(fakeRag.lastQuestion, 'What is the Swiss third pillar?');
+      expect(fakeRag.lastQuestion, isNot(contains('pilier')));
+    });
+
     test('testKey returns false on RagApiException', () async {
       await provider.saveKey('claude', 'sk-test-key-12345678');
       fakeRag.shouldThrowRagApiException = true;
@@ -247,7 +264,7 @@ void main() {
       expect(result, isFalse);
       expect(provider.testSuccess, isFalse);
       expect(provider.testError, equals(ByokError.apiError));
-      expect(provider.apiErrorMessage, 'Invalid API key provided');
+      expect(provider.apiErrorCode, RagErrorCode.invalidKey);
       expect(provider.isTesting, isFalse);
     });
 
@@ -303,7 +320,8 @@ void main() {
 
     // ── State isolation ──
 
-    test('two providers with separate storage have independent state', () async {
+    test('two providers with separate storage have independent state',
+        () async {
       // provider uses the shared mock storage
       await provider.saveKey('claude', 'sk-key1-12345678');
       expect(provider.isConfigured, isTrue);

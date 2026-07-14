@@ -5970,7 +5970,7 @@ class SEn extends S {
 
   @override
   String get dataBlockFiscaliteDesc =>
-      'Your municipality, taxable income and assets determine your marginal tax rate. A tax return or assessment gives a real rate rather than an estimate (municipal coefficient 60%-130%).';
+      'Your municipality and the confirmed values from your documents clarify your tax context. Rules and rates vary by canton, municipality, tax year and personal situation.';
 
   @override
   String get dataBlockFiscaliteCta => 'Compare my taxes';
@@ -7844,8 +7844,7 @@ class SEn extends S {
       'Your API key seems invalid or expired. Check it in settings.';
 
   @override
-  String get coachErrorRateLimit =>
-      'Rate limit reached. Try again in a moment.';
+  String get coachErrorRateLimit => 'Usage limit reached. Try again later.';
 
   @override
   String get coachErrorGeneric => 'Technical error. Try again later.';
@@ -15052,7 +15051,7 @@ class SEn extends S {
 
   @override
   String get coachErrorServiceUnavailable =>
-      'Service temporarily unavailable. Try again in a few minutes.';
+      'The service is not available at the moment. Try again later.';
 
   @override
   String get coachFactCardTitle => 'Did you know?';
@@ -18839,15 +18838,14 @@ class SEn extends S {
   String get ragErrorInvalidKey => 'The API key is invalid or expired.';
 
   @override
-  String get ragErrorRateLimit =>
-      'Rate limit reached. Please try again in a moment.';
+  String get ragErrorRateLimit => 'Usage limit reached. Try again later.';
 
   @override
   String get ragErrorRateLimitShort => 'Rate limit reached.';
 
   @override
   String get ragErrorServiceUnavailable =>
-      'Service temporarily unavailable. Please try again later.';
+      'The service is not available at the moment. Try again later.';
 
   @override
   String get ragErrorStatus => 'Unable to check RAG system status.';
@@ -23647,4 +23645,225 @@ class SEn extends S {
   @override
   String get expatAvsTruthDisclaimer =>
       'Educational information, not personalised advice · AVSA arts. 2 and 29bis et seq. · Only AVS offices make official determinations.';
+
+  @override
+  String get docScanTaxDocumentLabel => 'Tax document';
+
+  @override
+  String get docScanTaxDocumentDescription =>
+      'Identify and then confirm the type of tax document before retaining its values.';
+
+  @override
+  String get docImpactTaxTitle => 'Tax document reviewed';
+
+  @override
+  String get docImpactTaxSubtitle =>
+      'The values confirmed during review are shown below.';
+
+  @override
+  String get taxReviewInForceAttestation =>
+      'I confirm that this assessment is in force.';
+
+  @override
+  String get taxReviewFederalScopeIncoherence =>
+      'Direct federal tax applies to income. Check the scope before confirming.';
+
+  @override
+  String get taxReviewDocumentKind => 'Tax document type';
+
+  @override
+  String get taxReviewAssessmentStatus => 'Assessment status';
+
+  @override
+  String get taxReviewTaxYear => 'Tax year';
+
+  @override
+  String get taxReviewBasedOnTaxYear => 'Reference tax year';
+
+  @override
+  String get taxReviewSourceDate => 'Document date (YYYY-MM-DD)';
+
+  @override
+  String get taxReviewSubjectScope => 'People covered';
+
+  @override
+  String get taxReviewCantonCode => 'Canton code';
+
+  @override
+  String get taxReviewMunicipalityId => 'Municipality FSO number';
+
+  @override
+  String get taxReviewMunicipalityLabel => 'Municipality';
+
+  @override
+  String get taxReviewCantonalIncome =>
+      'Cantonal and communal taxable income (CHF)';
+
+  @override
+  String get taxReviewFederalIncome => 'Direct federal taxable income (CHF)';
+
+  @override
+  String get taxReviewCantonalWealth =>
+      'Cantonal and communal taxable wealth (CHF)';
+
+  @override
+  String get taxReviewCantonalTax => 'Assessed cantonal and communal tax (CHF)';
+
+  @override
+  String get taxReviewCantonalAuthority =>
+      'Cantonal and communal tax authority';
+
+  @override
+  String get taxReviewCantonalBase => 'Cantonal and communal tax base';
+
+  @override
+  String get taxReviewFederalTax => 'Assessed direct federal tax (CHF)';
+
+  @override
+  String get taxReviewFederalAuthority => 'Direct federal tax authority';
+
+  @override
+  String get taxReviewFederalBase => 'Direct federal tax base';
+
+  @override
+  String get taxReviewMarginalRate => 'Explicit marginal rate (%)';
+
+  @override
+  String get taxReviewAverageRate => 'Explicit average rate (%)';
+
+  @override
+  String get taxReviewOptionTaxpayerReturn => 'Taxpayer return';
+
+  @override
+  String get taxReviewOptionProvisionalBill => 'Provisional instalment';
+
+  @override
+  String get taxReviewOptionAssessmentNotice => 'Assessment notice';
+
+  @override
+  String get taxReviewOptionFinalTaxBill => 'Final tax bill';
+
+  @override
+  String get taxReviewOptionUnknown => 'Unknown';
+
+  @override
+  String get taxReviewOptionSelfDeclared => 'Self-declared';
+
+  @override
+  String get taxReviewOptionProvisional => 'Provisional';
+
+  @override
+  String get taxReviewOptionAssessedAppealable =>
+      'Assessed, appeal period open';
+
+  @override
+  String get taxReviewOptionContested => 'Contested';
+
+  @override
+  String get taxReviewOptionInForce => 'In force';
+
+  @override
+  String get taxReviewOptionIndividual => 'Individual';
+
+  @override
+  String get taxReviewOptionJointCouple => 'Jointly assessed couple';
+
+  @override
+  String get taxReviewOptionCantonalOnly => 'Canton only';
+
+  @override
+  String get taxReviewOptionCommunalOnly => 'Municipality only';
+
+  @override
+  String get taxReviewOptionCantonalCommunal => 'Canton and municipality';
+
+  @override
+  String get taxReviewOptionFederalDirect =>
+      'Confederation (direct federal tax)';
+
+  @override
+  String get taxReviewOptionIncomeOnly => 'Income only';
+
+  @override
+  String get taxReviewOptionWealthOnly => 'Wealth only';
+
+  @override
+  String get taxReviewOptionIncomeAndWealth => 'Income and wealth';
+
+  @override
+  String get taxReviewOptionTotalInvoice => 'Unallocated total invoice';
+
+  @override
+  String get scanSummaryAmountUnspecified => 'amount not specified';
+
+  @override
+  String get docImpactTaxDisclaimer =>
+      'Local processing only. The displayed values come from your confirmation and are not tax advice.';
+
+  @override
+  String taxParserDiagnosticPercentUnit(String rate) {
+    return 'The read value ($rate%) is outside the expected unit (0 to 100%). Check the value and its unit on the document.';
+  }
+
+  @override
+  String taxParserDiagnosticNegativeWealth(String amount) {
+    return 'Net wealth of CHF $amount may reflect debts exceeding assets. Confirm the exact label before retaining taxable wealth.';
+  }
+
+  @override
+  String taxParserDiagnosticAverageNotMarginal(String rate) {
+    return 'The ratio of the read amounts ($rate%) compares taxes with income. It is neither a marginal rate nor a statutory average rate.';
+  }
+
+  @override
+  String get taxReviewLocalDisclaimer =>
+      'Check the document type, its status and every value before confirming. MINT helps you read the document; this reading is not tax advice.';
+
+  @override
+  String get confidencePromptPartnerLabel =>
+      'Clarify your partner’s information';
+
+  @override
+  String get confidencePromptPartnerAction =>
+      'Your partner’s age and income, if available and shared with their consent, to refine couple scenarios.';
+
+  @override
+  String confidencePromptRefreshField(String field) {
+    return 'Update: $field';
+  }
+
+  @override
+  String confidencePromptFreshnessStale(int months) {
+    return 'Updated $months months ago — check whether it is still current.';
+  }
+
+  @override
+  String get confidencePromptFreshnessCurrent =>
+      'Check whether this information is still current.';
+
+  @override
+  String confidencePromptConfirmField(String field) {
+    return 'Confirm: $field';
+  }
+
+  @override
+  String get confidencePromptAccuracyCurrentSource =>
+      'Confirm this value with an up-to-date source.';
+
+  @override
+  String get confidencePromptEducationLabel => 'Explore educational content';
+
+  @override
+  String get confidencePromptEducationAction =>
+      'Review the educational content related to your topics.';
+
+  @override
+  String get confidencePromptCoachLabel => 'Ask the coach a question';
+
+  @override
+  String get confidencePromptCoachAction =>
+      'Explore a Swiss finance question with the coach.';
+
+  @override
+  String get confidencePromptAccuracyEstimated => 'Enter your actual value.';
 }

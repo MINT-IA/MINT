@@ -22,7 +22,21 @@ import 'dart:math' as math;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/bayesian_enricher.dart';
+
+/// Stable identifiers for prompts whose copy is resolved at the UI boundary.
+enum EnrichmentPromptCopyCode {
+  partnerDetails,
+  taxMunicipality,
+  taxDocument,
+  freshnessStale,
+  freshnessCurrent,
+  accuracyEstimated,
+  accuracyUserInput,
+  education,
+  coachQuestion,
+}
 
 /// Enrichment action to improve confidence.
 class EnrichmentPrompt {
@@ -31,6 +45,8 @@ class EnrichmentPrompt {
   final String category; // 'lpp', 'avs', '3a', 'patrimoine', 'foreign_pension'
   final String action; // short description of what to do
   final String? fieldPath; // ledger/profile field improved by this prompt
+  final EnrichmentPromptCopyCode? copyCode;
+  final int? copyArgument;
 
   const EnrichmentPrompt({
     required this.label,
@@ -38,7 +54,122 @@ class EnrichmentPrompt {
     required this.category,
     required this.action,
     this.fieldPath,
-  });
+  })  : copyCode = null,
+        copyArgument = null;
+
+  const EnrichmentPrompt.partnerDetails()
+      : label = '',
+        impact = 15,
+        category = 'menage',
+        action = '',
+        fieldPath = 'conjoint',
+        copyCode = EnrichmentPromptCopyCode.partnerDetails,
+        copyArgument = null;
+
+  const EnrichmentPrompt.taxMunicipality()
+      : label = '',
+        impact = 4,
+        category = 'fiscalite',
+        action = '',
+        fieldPath = 'commune',
+        copyCode = EnrichmentPromptCopyCode.taxMunicipality,
+        copyArgument = null;
+
+  const EnrichmentPrompt.taxDocument()
+      : label = '',
+        impact = 8,
+        category = 'fiscalite',
+        action = '',
+        fieldPath = 'fiscal.assessedBaseline',
+        copyCode = EnrichmentPromptCopyCode.taxDocument,
+        copyArgument = null;
+
+  const EnrichmentPrompt.freshnessStale({
+    required this.impact,
+    required String this.fieldPath,
+    required int monthsOld,
+  })  : label = '',
+        category = 'freshness',
+        action = '',
+        copyCode = EnrichmentPromptCopyCode.freshnessStale,
+        copyArgument = monthsOld;
+
+  const EnrichmentPrompt.freshnessCurrent({
+    required this.impact,
+    required String this.fieldPath,
+  })  : label = '',
+        category = 'freshness',
+        action = '',
+        copyCode = EnrichmentPromptCopyCode.freshnessCurrent,
+        copyArgument = null;
+
+  const EnrichmentPrompt.accuracyUserInput({
+    required this.impact,
+    required String this.fieldPath,
+  })  : label = '',
+        category = 'accuracy',
+        action = '',
+        copyCode = EnrichmentPromptCopyCode.accuracyUserInput,
+        copyArgument = null;
+
+  const EnrichmentPrompt.accuracyEstimated({
+    required this.impact,
+    required String this.fieldPath,
+  })  : label = '',
+        category = 'accuracy',
+        action = '',
+        copyCode = EnrichmentPromptCopyCode.accuracyEstimated,
+        copyArgument = null;
+
+  const EnrichmentPrompt.education()
+      : label = '',
+        impact = 10,
+        category = 'understanding',
+        action = '',
+        fieldPath = null,
+        copyCode = EnrichmentPromptCopyCode.education,
+        copyArgument = null;
+
+  const EnrichmentPrompt.coachQuestion()
+      : label = '',
+        impact = 5,
+        category = 'understanding',
+        action = '',
+        fieldPath = null,
+        copyCode = EnrichmentPromptCopyCode.coachQuestion,
+        copyArgument = null;
+
+  String get machineCode => switch (copyCode) {
+        EnrichmentPromptCopyCode.partnerDetails => 'partner.details.missing',
+        EnrichmentPromptCopyCode.taxMunicipality => 'tax.municipality.missing',
+        EnrichmentPromptCopyCode.taxDocument => 'tax.document.review',
+        EnrichmentPromptCopyCode.freshnessStale => 'confidence.freshness.stale',
+        EnrichmentPromptCopyCode.freshnessCurrent =>
+          'confidence.freshness.confirm',
+        EnrichmentPromptCopyCode.accuracyEstimated =>
+          'confidence.accuracy.estimated',
+        EnrichmentPromptCopyCode.accuracyUserInput =>
+          'confidence.accuracy.user_input',
+        EnrichmentPromptCopyCode.education => 'confidence.education.explore',
+        EnrichmentPromptCopyCode.coachQuestion => 'confidence.coach.question',
+        null => 'legacy.$category.${fieldPath ?? 'general'}',
+      };
+
+  /// Locale-independent tie-breaker. Display translations never affect rank.
+  String get stableSortKey {
+    final fieldOrder = switch (fieldPath) {
+      // Preserve the historical same-impact order without retaining UI copy.
+      'canton' => '00-canton',
+      'age' => '01-age',
+      _ => fieldPath ?? '',
+    };
+    return '$machineCode|$fieldOrder|$category';
+  }
+
+  /// Structured representation for persistence and LLM context boundaries.
+  String get machineDescriptor =>
+      'code=$machineCode;field=${fieldPath ?? ''};impact=$impact;category=$category'
+      '${copyArgument == null ? '' : ';value=$copyArgument'}';
 }
 
 /// Projection confidence result.
@@ -206,14 +337,7 @@ class ConfidenceScorer {
       ));
     } else if (profile.conjoint == null) {
       // Coupled but no partner data at all
-      prompts.add(const EnrichmentPrompt(
-        label: 'Ajoute les infos de ton\u00b7ta partenaire',
-        impact: _wMenage,
-        category: 'menage',
-        action:
-            'Revenu et age de ton\u00b7ta partenaire pour des projections couple',
-        fieldPath: 'conjoint',
-      ));
+      prompts.add(const EnrichmentPrompt.partnerDetails());
     } else {
       final hasRevenu = profile.conjoint!.salaireBrutMensuel != null &&
           profile.conjoint!.salaireBrutMensuel! > 0;
@@ -341,25 +465,12 @@ class ConfidenceScorer {
 
     // --- Fiscalite (enrichment prompts, no weight impact) ---
     if (profile.commune == null || profile.commune!.isEmpty) {
-      prompts.add(const EnrichmentPrompt(
-        label: 'Ajoute ta commune',
-        impact: 4,
-        category: 'fiscalite',
-        action:
-            'Le coefficient communal impacte ton taux d\'imposition de 60% a 130%',
-        fieldPath: 'commune',
-      ));
+      prompts.add(const EnrichmentPrompt.taxMunicipality());
     }
-    final ds = profile.dataSources;
-    if (ds['tauxMarginal'] != ProfileDataSource.certificate) {
-      prompts.add(const EnrichmentPrompt(
-        label: 'Scanne ta declaration fiscale',
-        impact: 8,
-        category: 'fiscalite',
-        action:
-            'Taux marginal reel + revenu imposable + fortune (LIFD art. 38)',
-        fieldPath: 'tauxMarginal',
-      ));
+    final assessedFiscalBaseline = _selectLatestAssessedFiscalBaseline(profile);
+    if (FeatureFlags.taxAssessmentIngestionEnabled &&
+        assessedFiscalBaseline.status != FiscalSelectionStatus.available) {
+      prompts.add(const EnrichmentPrompt.taxDocument());
     }
 
     // --- Foreign pension (2 pts, only for expats) ---
@@ -620,23 +731,39 @@ class ConfidenceScorer {
     if (profile.commune != null && profile.commune!.isNotEmpty) {
       fiscalScore += 4;
     }
-    // dataSources tracks whether values were user-provided vs estimated
-    final ds = profile.dataSources;
-    if (ds['revenuImposable'] == ProfileDataSource.certificate ||
-        ds['revenuImposable'] == ProfileDataSource.userInput) {
+    final taxableIncomeSelection =
+        FiscalSnapshotSelector.selectAssessedBaseline(
+      profile.fiscal,
+      const FiscalSnapshotQuery.latestCompleteness(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+      ),
+    );
+    final taxableWealthSelection =
+        FiscalSnapshotSelector.selectAssessedBaseline(
+      profile.fiscal,
+      const FiscalSnapshotQuery.latestCompleteness(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableWealthChf,
+      ),
+    );
+    final marginalRateSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+      profile.fiscal,
+      const FiscalSnapshotQuery.latestCompleteness(
+        requestedField: TaxSnapshotField.explicitMarginalIncomeTaxRate,
+      ),
+    );
+    if (taxableIncomeSelection.status == FiscalSelectionStatus.available) {
       fiscalScore += 4;
     }
-    if (ds['fortuneImposable'] == ProfileDataSource.certificate ||
-        ds['fortuneImposable'] == ProfileDataSource.userInput) {
+    if (taxableWealthSelection.status == FiscalSelectionStatus.available) {
       fiscalScore += 3;
     }
-    if (ds['tauxMarginal'] == ProfileDataSource.certificate) {
+    if (marginalRateSelection.status == FiscalSelectionStatus.available) {
       fiscalScore += 4;
     }
     blocs['fiscalite'] = BlockScore(
       score: fiscalScore,
       maxScore: fiscalMax,
-      status: fiscalScore >= 11
+      status: fiscalScore == fiscalMax
           ? 'complete'
           : fiscalScore > 0
               ? 'partial'
@@ -761,38 +888,10 @@ class ConfidenceScorer {
   ///
   /// The geometric mean ensures a zero on any axis pulls the whole score
   /// down — a complete but stale + estimated profile scores poorly.
-  /// Default French labels for field paths (used when no [labels] provided).
-  static const Map<String, String> _defaultFieldLabels = {
-    'salaireBrutMensuel': 'Salaire brut',
-    'age': '\u00c2ge',
-    'canton': 'Canton',
-    'etatCivil': 'Situation du m\u00e9nage',
-    'prevoyance.avoirLppTotal': 'Avoir LPP',
-    'prevoyance.tauxConversion': 'Taux de conversion',
-    'prevoyance.anneesContribuees': 'Ann\u00e9es AVS',
-    'prevoyance.totalEpargne3a': '\u00c9pargne 3a',
-    'patrimoine.epargneLiquide': 'Patrimoine',
-  };
-
-  /// Default French prompt templates (used when no [promptLabels] provided).
-  static const Map<String, String> _defaultPromptLabels = {
-    'freshnessPrefix': 'Actualise\u00a0: ',
-    'freshnessStale':
-        'Donn\u00e9e datant de {months} mois \u2014 rescanne ton certificat',
-    'freshnessConfirm': 'Confirme que cette valeur est toujours actuelle',
-    'accuracyPrefix': 'Confirme\u00a0: ',
-    'accuracyEstimated': 'Saisis ta valeur r\u00e9elle',
-    'accuracyCertificate': 'Scanne ton certificat pour confirmer',
-  };
-
   static EnhancedConfidence scoreEnhanced(
     CoachProfile profile, {
     DateTime? now,
-    Map<String, String>? labels,
-    Map<String, String>? promptLabels,
   }) {
-    final fieldLabels = labels ?? _defaultFieldLabels;
-    final prompts = promptLabels ?? _defaultPromptLabels;
     now ??= DateTime.now();
     final baseResult = score(profile);
     final completeness = baseResult.score;
@@ -881,19 +980,17 @@ class ConfidenceScorer {
         final monthsOld = timestamp != null
             ? (now.difference(timestamp).inDays / 30.44).round()
             : 0;
-        final label = fieldLabels[fieldPath] ?? fieldPath;
-        axisPrompts.add(EnrichmentPrompt(
-          label: '${prompts['freshnessPrefix'] ?? 'Actualise\u00a0: '}$label',
-          impact: (entry.value * (1.0 - decay)).round().clamp(1, 15),
-          category: 'freshness',
-          action: monthsOld > 0
-              ? (prompts['freshnessStale'] ??
-                      'Donn\u00e9e datant de {months} mois')
-                  .replaceAll('{months}', '$monthsOld')
-              : prompts['freshnessConfirm'] ??
-                  'Confirme que cette valeur est toujours actuelle',
-          fieldPath: fieldPath,
-        ));
+        final impact = (entry.value * (1.0 - decay)).round().clamp(1, 15);
+        axisPrompts.add(monthsOld > 0
+            ? EnrichmentPrompt.freshnessStale(
+                impact: impact,
+                fieldPath: fieldPath,
+                monthsOld: monthsOld,
+              )
+            : EnrichmentPrompt.freshnessCurrent(
+                impact: impact,
+                fieldPath: fieldPath,
+              ));
       }
     }
 
@@ -904,41 +1001,28 @@ class ConfidenceScorer {
           profile.dataSources[fieldPath] ?? ProfileDataSource.estimated;
       if (source == ProfileDataSource.estimated ||
           source == ProfileDataSource.userInput) {
-        final upgradeAction = source == ProfileDataSource.estimated
-            ? prompts['accuracyEstimated'] ?? 'Saisis ta valeur r\u00e9elle'
-            : prompts['accuracyCertificate'] ??
-                'Scanne ton certificat pour confirmer';
-        final label = fieldLabels[fieldPath] ?? fieldPath;
-        axisPrompts.add(EnrichmentPrompt(
-          label: '${prompts['accuracyPrefix'] ?? 'Confirme\u00a0: '}$label',
-          impact: (entry.value * (1.0 - (_accuracyWeights[source] ?? 0.25)))
-              .round()
-              .clamp(1, 15),
-          category: 'accuracy',
-          action: upgradeAction,
-          fieldPath: fieldPath,
-        ));
+        final impact =
+            (entry.value * (1.0 - (_accuracyWeights[source] ?? 0.25)))
+                .round()
+                .clamp(1, 15);
+        axisPrompts.add(source == ProfileDataSource.estimated
+            ? EnrichmentPrompt.accuracyEstimated(
+                impact: impact,
+                fieldPath: fieldPath,
+              )
+            : EnrichmentPrompt.accuracyUserInput(
+                impact: impact,
+                fieldPath: fieldPath,
+              ));
       }
     }
 
     // Understanding prompts: suggest education engagement
     if (understanding < 40) {
-      axisPrompts.add(const EnrichmentPrompt(
-        label: 'Explore les fiches \u00e9ducatives',
-        impact: 10,
-        category: 'understanding',
-        action:
-            'Lis les fiches sur tes th\u00e8mes cl\u00e9s (LPP, AVS, fiscalit\u00e9)',
-      ));
+      axisPrompts.add(const EnrichmentPrompt.education());
     }
     if (sessionCount < 3) {
-      axisPrompts.add(const EnrichmentPrompt(
-        label: 'Pose une question au coach',
-        impact: 5,
-        category: 'understanding',
-        action:
-            'Chaque interaction affine ta compr\u00e9hension financi\u00e8re',
-      ));
+      axisPrompts.add(const EnrichmentPrompt.coachQuestion());
     }
 
     axisPrompts.sort(
@@ -963,6 +1047,17 @@ class ConfidenceScorer {
     return math.exp(exponent * math.log(base));
   }
 
+  static FiscalSelectionResult _selectLatestAssessedFiscalBaseline(
+    CoachProfile profile,
+  ) {
+    return FiscalSnapshotSelector.selectAssessedBaseline(
+      profile.fiscal,
+      const FiscalSnapshotQuery.latestCompleteness(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+      ),
+    );
+  }
+
   static int _compareGoalAwarePrompts(
     GoalAType goalType,
     EnrichmentPrompt a,
@@ -973,7 +1068,7 @@ class ConfidenceScorer {
     if (scoreOrder != 0) return scoreOrder;
     final impactOrder = b.impact.compareTo(a.impact);
     if (impactOrder != 0) return impactOrder;
-    return a.label.compareTo(b.label);
+    return a.stableSortKey.compareTo(b.stableSortKey);
   }
 
   static int _compareGoalAwarePromptsWithEvi(
@@ -990,7 +1085,7 @@ class ConfidenceScorer {
     if (eviCompare != 0) return eviCompare;
     final impactOrder = b.impact.compareTo(a.impact);
     if (impactOrder != 0) return impactOrder;
-    return a.label.compareTo(b.label);
+    return a.stableSortKey.compareTo(b.stableSortKey);
   }
 
   static int _goalAwarePromptScore(

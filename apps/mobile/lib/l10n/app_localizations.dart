@@ -10779,7 +10779,7 @@ abstract class S {
   /// No description provided for @dataBlockFiscaliteDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Ta commune, ton revenu imposable et ta fortune déterminent ton taux marginal d\'imposition. Une déclaration fiscale ou un avis de taxation donne un taux réel plutôt qu\'estimé (coefficient communal 60 %-130 %).'**
+  /// **'Ta commune et les valeurs confirmées de tes documents précisent ton contexte fiscal. Les règles et les taux varient selon le canton, la commune, l\'année fiscale et ta situation personnelle.'**
   String get dataBlockFiscaliteDesc;
 
   /// No description provided for @dataBlockFiscaliteCta.
@@ -13971,7 +13971,7 @@ abstract class S {
   /// No description provided for @coachErrorRateLimit.
   ///
   /// In fr, this message translates to:
-  /// **'Limite de requêtes atteinte. Réessaie dans quelques instants.'**
+  /// **'Limite d’utilisation atteinte. Réessaie plus tard.'**
   String get coachErrorRateLimit;
 
   /// No description provided for @coachErrorGeneric.
@@ -26666,7 +26666,7 @@ abstract class S {
   /// No description provided for @coachErrorServiceUnavailable.
   ///
   /// In fr, this message translates to:
-  /// **'Service temporairement indisponible. Réessaie dans quelques minutes.'**
+  /// **'Le service n’est pas disponible pour le moment. Réessaie plus tard.'**
   String get coachErrorServiceUnavailable;
 
   /// No description provided for @coachFactCardTitle.
@@ -33239,7 +33239,7 @@ abstract class S {
   /// No description provided for @ragErrorRateLimit.
   ///
   /// In fr, this message translates to:
-  /// **'Limite de requêtes atteinte. Réessaie dans quelques instants.'**
+  /// **'Limite d’utilisation atteinte. Réessaie plus tard.'**
   String get ragErrorRateLimit;
 
   /// No description provided for @ragErrorRateLimitShort.
@@ -33251,7 +33251,7 @@ abstract class S {
   /// No description provided for @ragErrorServiceUnavailable.
   ///
   /// In fr, this message translates to:
-  /// **'Service temporairement indisponible. Réessaie plus tard.'**
+  /// **'Le service n’est pas disponible pour le moment. Réessaie plus tard.'**
   String get ragErrorServiceUnavailable;
 
   /// No description provided for @ragErrorStatus.
@@ -41542,6 +41542,390 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Information éducative, pas un conseil personnalisé · LAVS art. 2 et 29bis ss. · Seules les caisses AVS statuent.'**
   String get expatAvsTruthDisclaimer;
+
+  /// No description provided for @docScanTaxDocumentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document fiscal'**
+  String get docScanTaxDocumentLabel;
+
+  /// No description provided for @docScanTaxDocumentDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifie puis confirme le type de pièce fiscale avant de retenir ses valeurs.'**
+  String get docScanTaxDocumentDescription;
+
+  /// No description provided for @docImpactTaxTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document fiscal revu'**
+  String get docImpactTaxTitle;
+
+  /// No description provided for @docImpactTaxSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les valeurs confirmées lors de la revue sont affichées ci-dessous.'**
+  String get docImpactTaxSubtitle;
+
+  /// No description provided for @taxReviewInForceAttestation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je confirme que cette taxation est entrée en force.'**
+  String get taxReviewInForceAttestation;
+
+  /// No description provided for @taxReviewFederalScopeIncoherence.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’impôt fédéral direct porte sur le revenu. Vérifie le périmètre avant de confirmer.'**
+  String get taxReviewFederalScopeIncoherence;
+
+  /// No description provided for @taxReviewDocumentKind.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de document fiscal'**
+  String get taxReviewDocumentKind;
+
+  /// No description provided for @taxReviewAssessmentStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut de la taxation'**
+  String get taxReviewAssessmentStatus;
+
+  /// No description provided for @taxReviewTaxYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année fiscale'**
+  String get taxReviewTaxYear;
+
+  /// No description provided for @taxReviewBasedOnTaxYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année fiscale de référence'**
+  String get taxReviewBasedOnTaxYear;
+
+  /// No description provided for @taxReviewSourceDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date du document (AAAA-MM-JJ)'**
+  String get taxReviewSourceDate;
+
+  /// No description provided for @taxReviewSubjectScope.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnes concernées'**
+  String get taxReviewSubjectScope;
+
+  /// No description provided for @taxReviewCantonCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code du canton'**
+  String get taxReviewCantonCode;
+
+  /// No description provided for @taxReviewMunicipalityId.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro OFS de la commune'**
+  String get taxReviewMunicipalityId;
+
+  /// No description provided for @taxReviewMunicipalityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commune'**
+  String get taxReviewMunicipalityLabel;
+
+  /// No description provided for @taxReviewCantonalIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu imposable cantonal et communal (CHF)'**
+  String get taxReviewCantonalIncome;
+
+  /// No description provided for @taxReviewFederalIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu imposable fédéral direct (CHF)'**
+  String get taxReviewFederalIncome;
+
+  /// No description provided for @taxReviewCantonalWealth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fortune imposable cantonale et communale (CHF)'**
+  String get taxReviewCantonalWealth;
+
+  /// No description provided for @taxReviewCantonalTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt cantonal et communal taxé (CHF)'**
+  String get taxReviewCantonalTax;
+
+  /// No description provided for @taxReviewCantonalAuthority.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorité de l’impôt cantonal et communal'**
+  String get taxReviewCantonalAuthority;
+
+  /// No description provided for @taxReviewCantonalBase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base de l’impôt cantonal et communal'**
+  String get taxReviewCantonalBase;
+
+  /// No description provided for @taxReviewFederalTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt fédéral direct taxé (CHF)'**
+  String get taxReviewFederalTax;
+
+  /// No description provided for @taxReviewFederalAuthority.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorité de l’impôt fédéral direct'**
+  String get taxReviewFederalAuthority;
+
+  /// No description provided for @taxReviewFederalBase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base de l’impôt fédéral direct'**
+  String get taxReviewFederalBase;
+
+  /// No description provided for @taxReviewMarginalRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux marginal explicite (%)'**
+  String get taxReviewMarginalRate;
+
+  /// No description provided for @taxReviewAverageRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux moyen explicite (%)'**
+  String get taxReviewAverageRate;
+
+  /// No description provided for @taxReviewOptionTaxpayerReturn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration du contribuable'**
+  String get taxReviewOptionTaxpayerReturn;
+
+  /// No description provided for @taxReviewOptionProvisionalBill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acompte provisoire'**
+  String get taxReviewOptionProvisionalBill;
+
+  /// No description provided for @taxReviewOptionAssessmentNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décision de taxation'**
+  String get taxReviewOptionAssessmentNotice;
+
+  /// No description provided for @taxReviewOptionFinalTaxBill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décompte final'**
+  String get taxReviewOptionFinalTaxBill;
+
+  /// No description provided for @taxReviewOptionUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non déterminé'**
+  String get taxReviewOptionUnknown;
+
+  /// No description provided for @taxReviewOptionSelfDeclared.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaré par le contribuable'**
+  String get taxReviewOptionSelfDeclared;
+
+  /// No description provided for @taxReviewOptionProvisional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Provisoire'**
+  String get taxReviewOptionProvisional;
+
+  /// No description provided for @taxReviewOptionAssessedAppealable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taxé, délai de réclamation ouvert'**
+  String get taxReviewOptionAssessedAppealable;
+
+  /// No description provided for @taxReviewOptionContested.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contesté'**
+  String get taxReviewOptionContested;
+
+  /// No description provided for @taxReviewOptionInForce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entré en force'**
+  String get taxReviewOptionInForce;
+
+  /// No description provided for @taxReviewOptionIndividual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personne individuelle'**
+  String get taxReviewOptionIndividual;
+
+  /// No description provided for @taxReviewOptionJointCouple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couple taxé conjointement'**
+  String get taxReviewOptionJointCouple;
+
+  /// No description provided for @taxReviewOptionCantonalOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton seulement'**
+  String get taxReviewOptionCantonalOnly;
+
+  /// No description provided for @taxReviewOptionCommunalOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commune seulement'**
+  String get taxReviewOptionCommunalOnly;
+
+  /// No description provided for @taxReviewOptionCantonalCommunal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton et commune'**
+  String get taxReviewOptionCantonalCommunal;
+
+  /// No description provided for @taxReviewOptionFederalDirect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confédération (IFD)'**
+  String get taxReviewOptionFederalDirect;
+
+  /// No description provided for @taxReviewOptionIncomeOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu seulement'**
+  String get taxReviewOptionIncomeOnly;
+
+  /// No description provided for @taxReviewOptionWealthOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fortune seulement'**
+  String get taxReviewOptionWealthOnly;
+
+  /// No description provided for @taxReviewOptionIncomeAndWealth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu et fortune'**
+  String get taxReviewOptionIncomeAndWealth;
+
+  /// No description provided for @taxReviewOptionTotalInvoice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Facture totale non ventilée'**
+  String get taxReviewOptionTotalInvoice;
+
+  /// No description provided for @scanSummaryAmountUnspecified.
+  ///
+  /// In fr, this message translates to:
+  /// **'montant non précisé'**
+  String get scanSummaryAmountUnspecified;
+
+  /// No description provided for @docImpactTaxDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement local uniquement. Les valeurs affichées proviennent de ta confirmation et ne constituent pas un conseil fiscal.'**
+  String get docImpactTaxDisclaimer;
+
+  /// No description provided for @taxParserDiagnosticPercentUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'La valeur lue ({rate} %) se trouve hors de l’unité attendue (0 à 100 %). Vérifie la valeur et son unité sur le document.'**
+  String taxParserDiagnosticPercentUnit(String rate);
+
+  /// No description provided for @taxParserDiagnosticNegativeWealth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une fortune nette de {amount} CHF peut refléter des dettes supérieures aux actifs. Confirme le libellé exact avant de retenir une fortune imposable.'**
+  String taxParserDiagnosticNegativeWealth(String amount);
+
+  /// No description provided for @taxParserDiagnosticAverageNotMarginal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le ratio des montants lus ({rate} %) compare les impôts au revenu. Il ne constitue ni un taux marginal ni un taux moyen légal.'**
+  String taxParserDiagnosticAverageNotMarginal(String rate);
+
+  /// No description provided for @taxReviewLocalDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie le type de document, son statut et chaque valeur avant de confirmer. MINT t’aide à lire le document ; cette lecture ne constitue pas un conseil fiscal.'**
+  String get taxReviewLocalDisclaimer;
+
+  /// No description provided for @confidencePromptPartnerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précise les informations de ton·ta partenaire'**
+  String get confidencePromptPartnerLabel;
+
+  /// No description provided for @confidencePromptPartnerAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge et revenu de ton·ta partenaire, s’ils sont disponibles et partagés avec son accord, pour préciser les scénarios de couple.'**
+  String get confidencePromptPartnerAction;
+
+  /// No description provided for @confidencePromptRefreshField.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualise : {field}'**
+  String confidencePromptRefreshField(String field);
+
+  /// No description provided for @confidencePromptFreshnessStale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée mise à jour il y a {months} mois — vérifie si elle est toujours actuelle.'**
+  String confidencePromptFreshnessStale(int months);
+
+  /// No description provided for @confidencePromptFreshnessCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie si cette donnée est toujours actuelle.'**
+  String get confidencePromptFreshnessCurrent;
+
+  /// No description provided for @confidencePromptConfirmField.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirme : {field}'**
+  String confidencePromptConfirmField(String field);
+
+  /// No description provided for @confidencePromptAccuracyCurrentSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirme cette valeur avec une source à jour.'**
+  String get confidencePromptAccuracyCurrentSource;
+
+  /// No description provided for @confidencePromptEducationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explore les contenus éducatifs'**
+  String get confidencePromptEducationLabel;
+
+  /// No description provided for @confidencePromptEducationAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulte les contenus éducatifs liés à tes thèmes.'**
+  String get confidencePromptEducationAction;
+
+  /// No description provided for @confidencePromptCoachLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pose une question au coach'**
+  String get confidencePromptCoachLabel;
+
+  /// No description provided for @confidencePromptCoachAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explore une question de finance suisse avec le coach.'**
+  String get confidencePromptCoachAction;
+
+  /// No description provided for @confidencePromptAccuracyEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis ta valeur réelle.'**
+  String get confidencePromptAccuracyEstimated;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

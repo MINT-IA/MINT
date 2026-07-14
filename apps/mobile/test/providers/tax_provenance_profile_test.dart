@@ -14,6 +14,20 @@ const _provisionalId = '22222222-2222-4222-8222-222222222222';
 const _returnId = '33333333-3333-4333-8333-333333333333';
 const _finalBillId = '55555555-5555-4555-8555-555555555555';
 const _useDefaultSourceDate = Object();
+const _useDefaultCantonalTax = Object();
+const _useDefaultFederalTax = Object();
+
+AssessedTaxAmount _defaultCantonalTax() => AssessedTaxAmount(
+      amountChf: 14520,
+      authorityScope: TaxAuthorityScope.cantonalCommunalCombined,
+      baseScope: TaxBaseScope.incomeAndWealth,
+    );
+
+AssessedTaxAmount _defaultFederalTax() => AssessedTaxAmount(
+      amountChf: 3840,
+      authorityScope: TaxAuthorityScope.federalDirect,
+      baseScope: TaxBaseScope.incomeOnly,
+    );
 
 class _MemoryTaxPersistence implements TaxProfilePersistence {
   _MemoryTaxPersistence([Map<String, dynamic> initial = const {}])
@@ -58,9 +72,9 @@ TaxExtractionCandidate _candidate(
   String id, {
   void Function()? onSnapshotIdFactory,
 }) {
-  final extraction = ExtractionResult(
+  const extraction = ExtractionResult(
     documentType: DocumentType.taxDeclaration,
-    fields: const [
+    fields: [
       ExtractedField(
         fieldName: 'revenu_imposable',
         label: 'Revenu imposable',
@@ -72,9 +86,9 @@ TaxExtractionCandidate _candidate(
     ],
     overallConfidence: 0.9,
     confidenceDelta: 0,
-    warnings: const [],
+    warnings: [],
     disclaimer: '',
-    sources: const [],
+    sources: [],
   );
   return TaxExtractionCandidate.fromExtractionResult(
     extraction,
@@ -98,16 +112,8 @@ TaxReviewConfirmation _confirmation(
   double? cantonalIncome = 98500,
   double? federalIncome = 96200,
   double? cantonalWealth = 245000,
-  AssessedTaxAmount? cantonalTax = const AssessedTaxAmount(
-    amountChf: 14520,
-    authorityScope: TaxAuthorityScope.cantonalCommunalCombined,
-    baseScope: TaxBaseScope.incomeAndWealth,
-  ),
-  AssessedTaxAmount? federalTax = const AssessedTaxAmount(
-    amountChf: 3840,
-    authorityScope: TaxAuthorityScope.federalDirect,
-    baseScope: TaxBaseScope.incomeOnly,
-  ),
+  Object? cantonalTax = _useDefaultCantonalTax,
+  Object? federalTax = _useDefaultFederalTax,
   double? marginalRate = 0.325,
   double? averageRate = 0.186,
   TaxSubjectScope subjectScope = TaxSubjectScope.jointlyAssessedCouple,
@@ -128,8 +134,15 @@ TaxReviewConfirmation _confirmation(
     cantonalCommunalTaxableIncomeChf: cantonalIncome,
     federalTaxableIncomeChf: federalIncome,
     cantonalCommunalTaxableWealthChf: cantonalWealth,
-    cantonalCommunalAssessedTax: cantonalTax,
-    federalDirectAssessedTax: federalTax,
+    cantonalCommunalAssessedTax: identical(
+      cantonalTax,
+      _useDefaultCantonalTax,
+    )
+        ? _defaultCantonalTax()
+        : cantonalTax as AssessedTaxAmount?,
+    federalDirectAssessedTax: identical(federalTax, _useDefaultFederalTax)
+        ? _defaultFederalTax()
+        : federalTax as AssessedTaxAmount?,
     explicitMarginalIncomeTaxRate: marginalRate,
     explicitAverageIncomeTaxRate: averageRate,
   );
@@ -138,6 +151,565 @@ TaxReviewConfirmation _confirmation(
 void main() {
   tearDown(() {
     FeatureFlags.typedTaxProfile = false;
+    FeatureFlags.documentTaxAssessmentEnabled = false;
+  });
+
+  final coldProvenanceCorruptions = <({
+    String name,
+    bool nullMarginal,
+    void Function(Map<String, dynamic>, TaxSnapshot) corrupt,
+  })>[
+    (
+      name: 'missing metadata taxYear entry',
+      nullMarginal: false,
+      corrupt: (provenance, snapshot) {
+        provenance.remove(
+          'fiscal.snapshots.${snapshot.snapshotId}.taxYear',
+        );
+      },
+    ),
+    (
+      name: 'metadata documentKind with the wrong envelope type',
+      nullMarginal: false,
+      corrupt: (provenance, snapshot) {
+        provenance['fiscal.snapshots.${snapshot.snapshotId}.documentKind'] =
+            'not-an-envelope';
+      },
+    ),
+    (
+      name: 'financial income source inconsistent with document kind',
+      nullMarginal: false,
+      corrupt: (provenance, snapshot) {
+        final path =
+            'fiscal.snapshots.${snapshot.snapshotId}.cantonalCommunalTaxableIncomeChf';
+        provenance[path] = Map<String, dynamic>.from(
+          provenance[path] as Map,
+        )..['source'] = ProfileDataSource.userInput.name;
+      },
+    ),
+    (
+      name: 'nested assessed-tax amount with inconsistent sourceDate',
+      nullMarginal: false,
+      corrupt: (provenance, snapshot) {
+        final path =
+            'fiscal.snapshots.${snapshot.snapshotId}.cantonalCommunalAssessedTax.amountChf';
+        provenance[path] = Map<String, dynamic>.from(
+          provenance[path] as Map,
+        )..['sourceDate'] = DateTime.utc(2026, 6, 21).toIso8601String();
+      },
+    ),
+    (
+      name: 'nested assessed-tax authority with inconsistent updatedAt',
+      nullMarginal: false,
+      corrupt: (provenance, snapshot) {
+        final path =
+            'fiscal.snapshots.${snapshot.snapshotId}.cantonalCommunalAssessedTax.authorityScope';
+        provenance[path] = Map<String, dynamic>.from(
+          provenance[path] as Map,
+        )..['updatedAt'] = DateTime.utc(2026, 7, 13).toIso8601String();
+      },
+    ),
+    (
+      name: 'nested assessed-tax base with an extra envelope key',
+      nullMarginal: false,
+      corrupt: (provenance, snapshot) {
+        final path =
+            'fiscal.snapshots.${snapshot.snapshotId}.cantonalCommunalAssessedTax.baseScope';
+        provenance[path] = Map<String, dynamic>.from(
+          provenance[path] as Map,
+        )..['unexpected'] = true;
+      },
+    ),
+    (
+      name: 'marginal rate envelope has null sourceDate against dated snapshot',
+      nullMarginal: false,
+      corrupt: (provenance, snapshot) {
+        final path =
+            'fiscal.snapshots.${snapshot.snapshotId}.explicitMarginalIncomeTaxRate';
+        provenance[path] = Map<String, dynamic>.from(
+          provenance[path] as Map,
+        )..['sourceDate'] = null;
+      },
+    ),
+    (
+      name: 'extra envelope exists for an allowlisted null marginal rate leaf',
+      nullMarginal: true,
+      corrupt: (provenance, snapshot) {
+        expect(snapshot.explicitMarginalIncomeTaxRate, isNull);
+        final path =
+            'fiscal.snapshots.${snapshot.snapshotId}.explicitMarginalIncomeTaxRate';
+        expect(provenance.containsKey(path), isFalse);
+        provenance[path] = Map<String, dynamic>.from(
+          provenance['fiscal.snapshots.${snapshot.snapshotId}.taxYear'] as Map,
+        );
+      },
+    ),
+  ];
+
+  for (final testCase in coldProvenanceCorruptions) {
+    test(
+        'cold provenance ${testCase.name} keeps history but blocks consumption without writes',
+        () async {
+      FeatureFlags.typedTaxProfile = true;
+      final persistence = _MemoryTaxPersistence();
+      final writer = CoachProfileProvider(
+        taxProfilePersistence: persistence,
+      );
+      await writer.acceptTaxReview(
+        _confirmation(
+          _candidate(_assessmentId),
+          marginalRate: testCase.nullMarginal ? null : 0.325,
+        ),
+      );
+      final root = Map<String, dynamic>.from(
+        jsonDecode(persistence.answers['_coach_tax_snapshots_v1'] as String)
+            as Map,
+      );
+      final snapshot = TaxSnapshot.fromJson(
+        Map<String, dynamic>.from((root['snapshots'] as List).single as Map),
+      );
+      final provenance = Map<String, dynamic>.from(
+        persistence.answers['__provenance'] as Map,
+      );
+      testCase.corrupt(provenance, snapshot);
+      persistence.answers['__provenance'] = provenance;
+      persistence.saveCalls = 0;
+      final before = jsonEncode(persistence.answers);
+
+      final cold = CoachProfileProvider(
+        taxProfilePersistence: persistence,
+      );
+      await cold.loadFromWizard();
+
+      expect(cold.profile!.fiscal.snapshots, [snapshot]);
+      final preciseSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+        cold.profile!.fiscal,
+        FiscalSnapshotQuery.precise(
+          requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+          taxYear: 2025,
+          cantonCode: 'VD',
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+        ),
+      );
+      expect(preciseSelection.status, FiscalSelectionStatus.partialAsk);
+      expect(preciseSelection.snapshot, isNull);
+      final completenessSelection =
+          FiscalSnapshotSelector.selectAssessedBaseline(
+        cold.profile!.fiscal,
+        const FiscalSnapshotQuery.latestCompleteness(
+          requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        ),
+      );
+      expect(completenessSelection.status, FiscalSelectionStatus.partialAsk);
+      expect(completenessSelection.snapshot, isNull);
+      expect(persistence.saveCalls, 0);
+      expect(jsonEncode(persistence.answers), before);
+    });
+  }
+
+  final nonCertificateColdSources = <({
+    String snapshotId,
+    TaxDocumentKind kind,
+    TaxAssessmentStatus status,
+    ProfileDataSource expectedSource,
+  })>[
+    (
+      snapshotId: _returnId,
+      kind: TaxDocumentKind.taxpayerReturn,
+      status: TaxAssessmentStatus.selfDeclared,
+      expectedSource: ProfileDataSource.userInput,
+    ),
+    (
+      snapshotId: _provisionalId,
+      kind: TaxDocumentKind.provisionalBill,
+      status: TaxAssessmentStatus.provisional,
+      expectedSource: ProfileDataSource.estimated,
+    ),
+    (
+      snapshotId: _finalBillId,
+      kind: TaxDocumentKind.finalTaxBill,
+      status: TaxAssessmentStatus.unknown,
+      expectedSource: ProfileDataSource.estimated,
+    ),
+  ];
+  for (final testCase in nonCertificateColdSources) {
+    test(
+        'cold provenance preserves ${testCase.kind.name} source ${testCase.expectedSource.name}',
+        () async {
+      FeatureFlags.typedTaxProfile = true;
+      final persistence = _MemoryTaxPersistence();
+      final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+      await writer.acceptTaxReview(
+        _confirmation(
+          _candidate(testCase.snapshotId),
+          kind: testCase.kind,
+          status: testCase.status,
+          basedOnTaxYear:
+              testCase.kind == TaxDocumentKind.provisionalBill ? 2024 : null,
+        ),
+      );
+      final snapshot = writer.profile!.fiscal.snapshots.single;
+      persistence.saveCalls = 0;
+      final before = jsonEncode(persistence.answers);
+
+      final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+      await cold.loadFromWizard();
+
+      expect(cold.profile!.fiscal.snapshots, [snapshot]);
+      final prefix = 'fiscal.snapshots.${testCase.snapshotId}.';
+      final fiscalSources = Map<String, ProfileDataSource>.fromEntries(
+        cold.profile!.dataSources.entries.where(
+          (entry) => entry.key.startsWith(prefix),
+        ),
+      );
+      expect(fiscalSources, isNotEmpty);
+      expect(
+        fiscalSources.values,
+        everyElement(testCase.expectedSource),
+      );
+      expect(
+        (persistence.answers['__provenance'] as Map)['${prefix}documentKind']
+            ['source'],
+        testCase.expectedSource.name,
+      );
+      expect(persistence.saveCalls, 0);
+      expect(jsonEncode(persistence.answers), before);
+    });
+  }
+
+  test(
+      'cold provenance rogue fiscal leaf keeps history but blocks consumption without writes',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+    await writer.acceptTaxReview(
+      _confirmation(_candidate(_assessmentId)),
+    );
+    final snapshot = writer.profile!.fiscal.snapshots.single;
+    final provenance = Map<String, dynamic>.from(
+      persistence.answers['__provenance'] as Map,
+    );
+    final exactPath = 'fiscal.snapshots.${snapshot.snapshotId}.taxYear';
+    provenance['fiscal.snapshots.${snapshot.snapshotId}.rogueFiscalLeaf'] =
+        Map<String, dynamic>.from(provenance[exactPath] as Map);
+    persistence.answers['__provenance'] = provenance;
+    persistence.saveCalls = 0;
+    final before = jsonEncode(persistence.answers);
+
+    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+    await cold.loadFromWizard();
+
+    expect(cold.profile!.fiscal.snapshots, [snapshot]);
+    final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+      cold.profile!.fiscal,
+      const FiscalSnapshotQuery.latestCompleteness(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+      ),
+    );
+    expect(selection.status, FiscalSelectionStatus.partialAsk);
+    expect(selection.snapshot, isNull);
+    expect(persistence.saveCalls, 0);
+    expect(jsonEncode(persistence.answers), before);
+  });
+
+  test(
+      'cold provenance null sourceDate against dated snapshot blocks consumption without writes',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+    await writer.acceptTaxReview(
+      _confirmation(_candidate(_assessmentId)),
+    );
+    final snapshot = writer.profile!.fiscal.snapshots.single;
+    final provenance = Map<String, dynamic>.from(
+      persistence.answers['__provenance'] as Map,
+    );
+    final path = 'fiscal.snapshots.${snapshot.snapshotId}.taxYear';
+    provenance[path] = Map<String, dynamic>.from(provenance[path] as Map)
+      ..['sourceDate'] = null;
+    persistence.answers['__provenance'] = provenance;
+    persistence.saveCalls = 0;
+    final before = jsonEncode(persistence.answers);
+
+    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+    await cold.loadFromWizard();
+
+    expect(cold.profile!.fiscal.snapshots, [snapshot]);
+    final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+      cold.profile!.fiscal,
+      const FiscalSnapshotQuery.latestCompleteness(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+      ),
+    );
+    expect(selection.status, FiscalSelectionStatus.partialAsk);
+    expect(selection.snapshot, isNull);
+    expect(persistence.saveCalls, 0);
+    expect(jsonEncode(persistence.answers), before);
+  });
+
+  test(
+      'cold provenance dated sourceDate against null snapshot blocks consumption without writes',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+    await writer.acceptTaxReview(
+      _confirmation(
+        _candidate(_assessmentId),
+        sourceDate: null,
+      ),
+    );
+    final snapshot = writer.profile!.fiscal.snapshots.single;
+    expect(snapshot.sourceDate, isNull);
+    final provenance = Map<String, dynamic>.from(
+      persistence.answers['__provenance'] as Map,
+    );
+    final path = 'fiscal.snapshots.${snapshot.snapshotId}.taxYear';
+    provenance[path] = Map<String, dynamic>.from(provenance[path] as Map)
+      ..['sourceDate'] = DateTime.utc(2026, 6, 20).toIso8601String();
+    persistence.answers['__provenance'] = provenance;
+    persistence.saveCalls = 0;
+    final before = jsonEncode(persistence.answers);
+
+    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+    await cold.loadFromWizard();
+
+    expect(cold.profile!.fiscal.snapshots, [snapshot]);
+    final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+      cold.profile!.fiscal,
+      const FiscalSnapshotQuery.latestCompleteness(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+      ),
+    );
+    expect(selection.status, FiscalSelectionStatus.partialAsk);
+    expect(selection.snapshot, isNull);
+    expect(persistence.saveCalls, 0);
+    expect(jsonEncode(persistence.answers), before);
+  });
+
+  test(
+      'cold provenance filters one corrupt same-rank snapshot and keeps the exact peer selectable',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    const exactId = '44444444-4444-4444-8444-444444444444';
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+    await writer.acceptTaxReview(
+      _confirmation(_candidate(_assessmentId)),
+    );
+    await writer.acceptTaxReview(
+      _confirmation(
+        _candidate(exactId),
+        federalIncome: 95100,
+      ),
+    );
+    final snapshots = writer.profile!.fiscal.snapshots;
+    final provenance = Map<String, dynamic>.from(
+      persistence.answers['__provenance'] as Map,
+    )..remove('fiscal.snapshots.$_assessmentId.taxYear');
+    persistence.answers['__provenance'] = provenance;
+    persistence.saveCalls = 0;
+    final before = jsonEncode(persistence.answers);
+
+    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+    await cold.loadFromWizard();
+
+    expect(cold.profile!.fiscal.snapshots, snapshots);
+    final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+      cold.profile!.fiscal,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.federalTaxableIncomeChf,
+        taxYear: 2025,
+        cantonCode: 'VD',
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+      ),
+    );
+    expect(selection.status, FiscalSelectionStatus.available);
+    expect(selection.snapshot?.snapshotId, exactId);
+    expect(selection.conflictingSnapshotIds, isEmpty);
+    expect(persistence.saveCalls, 0);
+    expect(jsonEncode(persistence.answers), before);
+  });
+
+  test(
+      'cold corrupt old snapshot stays ineligible when a new exact assessment is accepted and reloaded',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    const newAssessmentId = '66666666-6666-4666-8666-666666666666';
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+    await writer.acceptTaxReview(
+      _confirmation(_candidate(_assessmentId)),
+    );
+    final oldSnapshot = writer.profile!.fiscal.snapshots.single;
+    final corruptedProvenance = Map<String, dynamic>.from(
+      persistence.answers['__provenance'] as Map,
+    )..remove('fiscal.snapshots.$_assessmentId.taxYear');
+    persistence.answers['__provenance'] = corruptedProvenance;
+    persistence.saveCalls = 0;
+    final corruptBytes = jsonEncode(persistence.answers);
+
+    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+    await cold.loadFromWizard();
+
+    expect(cold.profile!.fiscal.snapshots, [oldSnapshot]);
+    final oldBeforeWrite = FiscalSnapshotSelector.selectAssessedBaseline(
+      cold.profile!.fiscal,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2025,
+        cantonCode: 'VD',
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+      ),
+    );
+    expect(oldBeforeWrite.status, FiscalSelectionStatus.partialAsk);
+    expect(oldBeforeWrite.snapshot, isNull);
+    expect(persistence.saveCalls, 0);
+    expect(jsonEncode(persistence.answers), corruptBytes);
+
+    await cold.acceptTaxReview(
+      _confirmation(
+        _candidate(newAssessmentId),
+        taxYear: 2024,
+        sourceDate: DateTime.utc(2025, 6, 20),
+      ),
+    );
+
+    expect(persistence.saveCalls, 1);
+    expect(cold.profile!.fiscal.snapshots, hasLength(2));
+    final oldImmediate = FiscalSnapshotSelector.selectAssessedBaseline(
+      cold.profile!.fiscal,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2025,
+        cantonCode: 'VD',
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+      ),
+    );
+    expect(oldImmediate.status, FiscalSelectionStatus.partialAsk);
+    expect(oldImmediate.snapshot, isNull);
+    final newImmediate = FiscalSnapshotSelector.selectAssessedBaseline(
+      cold.profile!.fiscal,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2024,
+        cantonCode: 'VD',
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+      ),
+    );
+    expect(newImmediate.status, FiscalSelectionStatus.available);
+    expect(newImmediate.snapshot?.snapshotId, newAssessmentId);
+
+    final root = Map<String, dynamic>.from(
+      jsonDecode(persistence.answers['_coach_tax_snapshots_v1'] as String)
+          as Map,
+    );
+    expect(root['snapshots'], hasLength(2));
+    final newSnapshot = cold.profile!.fiscal.snapshots.singleWhere(
+      (snapshot) => snapshot.snapshotId == newAssessmentId,
+    );
+    final persistedProvenance = Map<String, dynamic>.from(
+      persistence.answers['__provenance'] as Map,
+    );
+    expect(
+      persistedProvenance.containsKey(
+        'fiscal.snapshots.$_assessmentId.taxYear',
+      ),
+      isFalse,
+    );
+    const newPrefix = 'fiscal.snapshots.$newAssessmentId.';
+    final expectedNewPaths = {
+      for (final leafPath in TaxSnapshot.provenanceLeafPaths)
+        if (leafPath == 'sourceDate' ||
+            newSnapshot.provenanceValue(leafPath) != null)
+          '$newPrefix$leafPath',
+    };
+    final persistedNewPaths = persistedProvenance.keys
+        .where((path) => path.startsWith(newPrefix))
+        .toSet();
+    expect(persistedNewPaths, expectedNewPaths);
+    for (final path in expectedNewPaths) {
+      final envelope = Map<String, dynamic>.from(
+        persistedProvenance[path] as Map,
+      );
+      expect(envelope.keys.toSet(), {'source', 'updatedAt', 'sourceDate'});
+      expect(envelope['source'], ProfileDataSource.certificate.name);
+      expect(
+        DateTime.parse(envelope['updatedAt'] as String)
+            .isAtSameMomentAs(newSnapshot.updatedAt),
+        isTrue,
+      );
+      expect(
+        DateTime.parse(envelope['sourceDate'] as String)
+            .isAtSameMomentAs(newSnapshot.sourceDate!),
+        isTrue,
+      );
+    }
+    final acceptedBytes = jsonEncode(persistence.answers);
+
+    final secondCold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+    );
+    await secondCold.loadFromWizard();
+
+    expect(secondCold.profile!.fiscal.snapshots, hasLength(2));
+    final oldAfterReload = FiscalSnapshotSelector.selectAssessedBaseline(
+      secondCold.profile!.fiscal,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2025,
+        cantonCode: 'VD',
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+      ),
+    );
+    expect(oldAfterReload.status, FiscalSelectionStatus.partialAsk);
+    expect(oldAfterReload.snapshot, isNull);
+    final newAfterReload = FiscalSnapshotSelector.selectAssessedBaseline(
+      secondCold.profile!.fiscal,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2024,
+        cantonCode: 'VD',
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+      ),
+    );
+    expect(newAfterReload.status, FiscalSelectionStatus.available);
+    expect(newAfterReload.snapshot?.snapshotId, newAssessmentId);
+    expect(persistence.saveCalls, 1);
+    expect(jsonEncode(persistence.answers), acceptedBytes);
+  });
+
+  test(
+      'cold invalid quarantine values off the reserved prefix fail the whole fiscal root closed without writes',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+    await writer.acceptTaxReview(
+      _confirmation(_candidate(_assessmentId)),
+    );
+    final root = Map<String, dynamic>.from(
+      jsonDecode(persistence.answers['_coach_tax_snapshots_v1'] as String)
+          as Map,
+    )..['legacyQuarantine'] = {
+        'legacySchemaVersion': 0,
+        'reasonCodes': ['legacy_unknown_provenance'],
+        'values': {'q_revenu_net': 98500},
+        'quarantinedAt': DateTime.utc(2026, 7, 14).toIso8601String(),
+      };
+    persistence.answers['_coach_tax_snapshots_v1'] = jsonEncode(root);
+    persistence.saveCalls = 0;
+    final before = jsonEncode(persistence.answers);
+
+    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+    await cold.loadFromWizard();
+
+    expect(cold.profile!.fiscal.snapshots, isEmpty);
+    expect(cold.profile!.fiscal.legacyDataNeedsReview, isFalse);
+    expect(persistence.saveCalls, 0);
+    expect(jsonEncode(persistence.answers), before);
   });
 
   test('typed tax is default-off and refuses the unsafe legacy fallback',
@@ -173,7 +745,8 @@ void main() {
     FeatureFlags.typedTaxProfile = false;
     final disabledSelection = FiscalSnapshotSelector.selectAssessedBaseline(
       seedWriter.profile!.fiscal,
-      const FiscalSnapshotQuery(
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
         taxYear: 2025,
         cantonCode: 'VD',
         subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -241,7 +814,8 @@ void main() {
       );
       final selection = FiscalSnapshotSelector.selectAssessedBaseline(
         cold.profile!.fiscal,
-        const FiscalSnapshotQuery(
+        FiscalSnapshotQuery.precise(
+          requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
           taxYear: 2025,
           cantonCode: 'VD',
           subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -290,7 +864,8 @@ void main() {
       );
       final selection = FiscalSnapshotSelector.selectAssessedBaseline(
         cold.profile!.fiscal,
-        const FiscalSnapshotQuery(
+        FiscalSnapshotQuery.precise(
+          requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
           taxYear: 2025,
           cantonCode: 'VD',
           subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -337,7 +912,7 @@ void main() {
     expect(immediate.conjoint, isNull,
         reason: 'missing partner is unknown, not zero');
 
-    final path = 'fiscal.snapshots.$_assessmentId.federalTaxableIncomeChf';
+    const path = 'fiscal.snapshots.$_assessmentId.federalTaxableIncomeChf';
     expect(immediate.dataSources[path], ProfileDataSource.certificate);
     expect(immediate.dataTimestamps[path], isNotNull);
     expect(immediate.dataSourceDates[path], DateTime.utc(2026, 6, 20));
@@ -394,7 +969,8 @@ void main() {
 
     final selected = FiscalSnapshotSelector.selectAssessedBaseline(
       cold.profile!.fiscal,
-      const FiscalSnapshotQuery(
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
         taxYear: 2025,
         cantonCode: 'VD',
         subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -516,6 +1092,93 @@ void main() {
   });
 
   test(
+      'canonical root unions loose legacy tax with existing quarantine without overwrite and stays idempotent',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+    await writer.acceptTaxReview(
+      _confirmation(_candidate(_assessmentId)),
+    );
+    final canonicalBefore = TaxSnapshot.fromJson(
+      Map<String, dynamic>.from(
+        (jsonDecode(
+          persistence.answers['_coach_tax_snapshots_v1'] as String,
+        ) as Map)['snapshots']
+            .single as Map,
+      ),
+    );
+    const existingQuarantinedAt = '2026-07-01T00:00:00.000Z';
+    final canonicalRoot = Map<String, dynamic>.from(
+      jsonDecode(persistence.answers['_coach_tax_snapshots_v1'] as String)
+          as Map,
+    )..['legacyQuarantine'] = {
+        'legacySchemaVersion': 0,
+        'reasonCodes': ['prior_import_needs_review'],
+        'values': {
+          '_coach_tax_taux_marginal': 19.8,
+          '_coach_tax_existing_note': 'preserve-me',
+        },
+        'quarantinedAt': existingQuarantinedAt,
+      };
+    persistence.answers['_coach_tax_snapshots_v1'] = jsonEncode(canonicalRoot);
+    persistence.answers.addAll({
+      '_coach_tax_revenu_imposable': 98500,
+      '_coach_tax_taux_marginal': 22.3,
+      '_coach_tax_source': 'document_scan',
+    });
+    persistence.saveCalls = 0;
+
+    final firstCold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+    );
+    await firstCold.loadFromWizard();
+
+    expect(firstCold.profile!.fiscal.snapshots, [canonicalBefore]);
+    expect(
+      persistence.answers.keys.where(
+        (key) =>
+            key.startsWith('_coach_tax_') && key != '_coach_tax_snapshots_v1',
+      ),
+      isEmpty,
+    );
+    final migratedRoot = Map<String, dynamic>.from(
+      jsonDecode(persistence.answers['_coach_tax_snapshots_v1'] as String)
+          as Map,
+    );
+    expect(migratedRoot['snapshots'], hasLength(1));
+    final quarantine = Map<String, dynamic>.from(
+      migratedRoot['legacyQuarantine'] as Map,
+    );
+    expect(
+      quarantine['values'],
+      {
+        '_coach_tax_revenu_imposable': 98500,
+        '_coach_tax_taux_marginal': 19.8,
+        '_coach_tax_source': 'document_scan',
+        '_coach_tax_existing_note': 'preserve-me',
+      },
+    );
+    expect(
+      (quarantine['reasonCodes'] as List).toSet(),
+      {'prior_import_needs_review', 'untyped_legacy_tax_facts'},
+    );
+    expect(quarantine['legacySchemaVersion'], 0);
+    expect(quarantine['quarantinedAt'], existingQuarantinedAt);
+    expect(persistence.saveCalls, 1);
+
+    final afterFirstCold = jsonEncode(persistence.answers);
+    final secondCold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+    );
+    await secondCold.loadFromWizard();
+
+    expect(secondCold.profile!.fiscal.snapshots, [canonicalBefore]);
+    expect(jsonEncode(persistence.answers), afterFirstCold);
+    expect(persistence.saveCalls, 1);
+  });
+
+  test(
       'same UUID replacement removes absent facts and their old provenance paths',
       () async {
     FeatureFlags.typedTaxProfile = true;
@@ -537,7 +1200,7 @@ void main() {
     expect(replacement.snapshotId, _assessmentId);
     expect(replacement.federalTaxableIncomeChf, isNull);
     expect(replacement.subjectScope, TaxSubjectScope.individual);
-    final removedPath =
+    const removedPath =
         'fiscal.snapshots.$_assessmentId.federalTaxableIncomeChf';
     expect(provider.profile!.dataSources.containsKey(removedPath), isFalse);
     expect(provider.profile!.dataTimestamps.containsKey(removedPath), isFalse);
@@ -573,7 +1236,7 @@ void main() {
         federalIncome: null,
         cantonalWealth: null,
         cantonalTax: null,
-        federalTax: const AssessedTaxAmount(
+        federalTax: AssessedTaxAmount(
           amountChf: 4200,
           authorityScope: TaxAuthorityScope.federalDirect,
           baseScope: TaxBaseScope.incomeOnly,
@@ -600,7 +1263,8 @@ void main() {
 
     final assessed2024 = FiscalSnapshotSelector.selectAssessedBaseline(
       cold.profile!.fiscal,
-      const FiscalSnapshotQuery(
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
         taxYear: 2024,
         cantonCode: 'VD',
         subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -610,7 +1274,8 @@ void main() {
     expect(assessed2024.snapshot?.snapshotId, _assessmentId);
     final provisional2025 = FiscalSnapshotSelector.selectAssessedBaseline(
       cold.profile!.fiscal,
-      const FiscalSnapshotQuery(
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
         taxYear: 2025,
         cantonCode: 'VD',
         subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -685,7 +1350,8 @@ void main() {
       await cold.loadFromWizard();
       final selection = FiscalSnapshotSelector.selectAssessedBaseline(
         cold.profile!.fiscal,
-        const FiscalSnapshotQuery(
+        FiscalSnapshotQuery.precise(
+          requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
           taxYear: 2025,
           cantonCode: 'VD',
           subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -718,7 +1384,9 @@ void main() {
       'two cold reloads make ConfidenceScorer follow assessed-baseline availability',
       () async {
     FeatureFlags.typedTaxProfile = true;
-    const query = FiscalSnapshotQuery(
+    FeatureFlags.documentTaxAssessmentEnabled = true;
+    final query = FiscalSnapshotQuery.precise(
+      requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
       taxYear: 2025,
       cantonCode: 'VD',
       subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -813,7 +1481,8 @@ void main() {
     );
     final selection = FiscalSnapshotSelector.selectAssessedBaseline(
       provider.profile!.fiscal,
-      const FiscalSnapshotQuery(
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
         taxYear: 2025,
         cantonCode: 'VD',
         subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -884,7 +1553,7 @@ void main() {
       sources['fiscal.snapshots.$_finalBillId.explicitMarginalIncomeTaxRate'],
       ProfileDataSource.estimated,
     );
-    final provisionalSourceDatePath =
+    const provisionalSourceDatePath =
         'fiscal.snapshots.$_provisionalId.sourceDate';
     expect(
         provider.profile!.dataSourceDates[provisionalSourceDatePath], isNull);
@@ -896,7 +1565,8 @@ void main() {
 
     final finalBillOnly = FiscalSnapshotSelector.selectAssessedBaseline(
       provider.profile!.fiscal,
-      const FiscalSnapshotQuery(
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
         taxYear: 2023,
         cantonCode: 'VD',
         subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -907,7 +1577,8 @@ void main() {
 
     final assessedBaseline = FiscalSnapshotSelector.selectAssessedBaseline(
       provider.profile!.fiscal,
-      const FiscalSnapshotQuery(
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
         taxYear: 2025,
         cantonCode: 'VD',
         subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -924,7 +1595,8 @@ void main() {
     );
     final conflict = FiscalSnapshotSelector.selectAssessedBaseline(
       provider.profile!.fiscal,
-      const FiscalSnapshotQuery(
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.federalTaxableIncomeChf,
         taxYear: 2025,
         cantonCode: 'VD',
         subjectScope: TaxSubjectScope.jointlyAssessedCouple,
@@ -934,5 +1606,139 @@ void main() {
     expect(conflict.snapshot, isNull);
     expect(conflict.conflictingSnapshotIds,
         containsAll({_assessmentId, conflictCandidate.snapshotId}));
+  });
+
+  test('assessment missing the requested field stays partial', () async {
+    FeatureFlags.typedTaxProfile = true;
+    final persistence = _MemoryTaxPersistence();
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+    await provider.acceptTaxReview(
+      _confirmation(
+        _candidate(_assessmentId),
+        cantonalIncome: null,
+      ),
+    );
+
+    final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+      provider.profile!.fiscal,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2025,
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+        cantonCode: 'VD',
+      ),
+    );
+
+    expect(selection.status, FiscalSelectionStatus.partialAsk);
+    expect(selection.snapshot, isNull);
+  });
+
+  test('unknown authority and non-canonical bases are never consumable',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final invalidScopes = <(TaxAuthorityScope, TaxBaseScope)>[
+      (TaxAuthorityScope.unknown, TaxBaseScope.incomeAndWealth),
+      (TaxAuthorityScope.cantonalCommunalCombined, TaxBaseScope.unknown),
+      (
+        TaxAuthorityScope.cantonalCommunalCombined,
+        TaxBaseScope.totalInvoice,
+      ),
+    ];
+    for (final scope in invalidScopes) {
+      final persistence = _MemoryTaxPersistence();
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+      await provider.acceptTaxReview(
+        _confirmation(
+          _candidate(_assessmentId),
+          cantonalTax: AssessedTaxAmount(
+            amountChf: 14520,
+            authorityScope: scope.$1,
+            baseScope: scope.$2,
+          ),
+        ),
+      );
+
+      final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+        provider.profile!.fiscal,
+        FiscalSnapshotQuery.precise(
+          requestedField: TaxSnapshotField.cantonalCommunalAssessedTax,
+          taxYear: 2025,
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+          cantonCode: 'VD',
+          authorityScope: scope.$1,
+          baseScope: scope.$2,
+        ),
+      );
+
+      expect(
+        selection.status,
+        FiscalSelectionStatus.partialAsk,
+        reason: '$scope must not be a financial baseline',
+      );
+      expect(selection.snapshot, isNull);
+    }
+  });
+
+  test('assessed-tax selector requires an exact authority and base scope',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final persistence = _MemoryTaxPersistence();
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+    await provider.acceptTaxReview(
+      _confirmation(_candidate(_assessmentId)),
+    );
+
+    FiscalSelectionResult select({
+      TaxAuthorityScope? authorityScope,
+      TaxBaseScope? baseScope,
+    }) {
+      return FiscalSnapshotSelector.selectAssessedBaseline(
+        provider.profile!.fiscal,
+        FiscalSnapshotQuery.precise(
+          requestedField: TaxSnapshotField.cantonalCommunalAssessedTax,
+          taxYear: 2025,
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+          cantonCode: 'VD',
+          authorityScope: authorityScope,
+          baseScope: baseScope,
+        ),
+      );
+    }
+
+    final unspecified = select();
+    expect(unspecified.status, FiscalSelectionStatus.partialAsk);
+    expect(unspecified.snapshot, isNull);
+
+    final exact = select(
+      authorityScope: TaxAuthorityScope.cantonalCommunalCombined,
+      baseScope: TaxBaseScope.incomeAndWealth,
+    );
+    expect(exact.status, FiscalSelectionStatus.available);
+    expect(exact.snapshot?.snapshotId, _assessmentId);
+
+    final mismatchedAuthority = select(
+      authorityScope: TaxAuthorityScope.cantonalOnly,
+      baseScope: TaxBaseScope.incomeAndWealth,
+    );
+    expect(mismatchedAuthority.status, FiscalSelectionStatus.partialAsk);
+    expect(mismatchedAuthority.snapshot, isNull);
+
+    final mismatchedBase = select(
+      authorityScope: TaxAuthorityScope.cantonalCommunalCombined,
+      baseScope: TaxBaseScope.incomeOnly,
+    );
+    expect(mismatchedBase.status, FiscalSelectionStatus.partialAsk);
+    expect(mismatchedBase.snapshot, isNull);
+
+    final federalQueryForCantonalField = select(
+      authorityScope: TaxAuthorityScope.federalDirect,
+      baseScope: TaxBaseScope.incomeOnly,
+    );
+    expect(
+      federalQueryForCantonalField.status,
+      FiscalSelectionStatus.partialAsk,
+      reason: 'a valid federal slot must not satisfy the requested ICC field',
+    );
+    expect(federalQueryForCantonalField.snapshot, isNull);
   });
 }

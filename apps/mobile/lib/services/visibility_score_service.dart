@@ -97,6 +97,7 @@ class VisibilityAction {
   final String icon;
   final String category; // axe concerne
   final int impactPoints; // points de visibilite gagnes
+  final EnrichmentPrompt? prompt;
 
   const VisibilityAction({
     required this.id,
@@ -106,6 +107,7 @@ class VisibilityAction {
     required this.icon,
     required this.category,
     required this.impactPoints,
+    this.prompt,
   });
 }
 
@@ -512,12 +514,13 @@ class VisibilityScoreService {
 
       actions.add(VisibilityAction(
         id: prompt.category,
-        title: prompt.label,
-        subtitle: prompt.action,
+        title: prompt.machineCode,
+        subtitle: prompt.machineDescriptor,
         route: _routeForCategory(prompt.category),
         icon: _iconForCategory(prompt.category),
         category: prompt.category,
         impactPoints: prompt.impact,
+        prompt: prompt,
       ));
     }
 
