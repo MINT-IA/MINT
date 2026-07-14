@@ -92,7 +92,10 @@ void main() {
         find.bySemanticsIdentifier('financial_report_3a_pending'),
         findsOneWidget,
       );
-      expect(find.text('Obtenir ton calcul AVS officiel'), findsOneWidget);
+      expect(
+        find.text('Vérifie ton compte et demande ton calcul AVS'),
+        findsOneWidget,
+      );
       expect(find.text('Ajouter mon certificat LPP'), findsOneWidget);
       expect(find.text('Compléter mes données 3a'), findsOneWidget);
       expect(find.textContaining("CHF\u00a01'234"), findsNothing);

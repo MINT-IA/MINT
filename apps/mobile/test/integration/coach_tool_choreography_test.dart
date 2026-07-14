@@ -134,7 +134,19 @@ void main() {
           },
         );
 
-        await _pumpBubble(tester, call);
+        final coachProvider = CoachProfileProvider()
+          ..updateFromAnswers({
+            'q_birth_year': 1977,
+            'q_gross_salary_annual': 122207.0,
+            '_coach_avoir_lpp': 70377.0,
+            '_coach_rachat_maximum': 539414.0,
+          });
+
+        await _pumpBubble(
+          tester,
+          call,
+          coachProvider: coachProvider,
+        );
 
         expect(
           find.byType(RouteSuggestionCard),
@@ -144,6 +156,11 @@ void main() {
               'to /rente-vs-capital via MintScreenRegistry and render a '
               'RouteSuggestionCard (not SizedBox.shrink). Facade audit STAB-01.',
         );
+        final card = tester.widget<RouteSuggestionCard>(
+          find.byType(RouteSuggestionCard),
+        );
+        expect(card.route, '/rente-vs-capital');
+        expect(card.isPartial, isFalse);
       },
     );
 

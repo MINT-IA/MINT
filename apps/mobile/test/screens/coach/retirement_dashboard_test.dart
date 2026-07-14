@@ -247,10 +247,17 @@ void main() {
       ));
       await tester.pump(const Duration(milliseconds: 500));
 
-      expect(find.text('Obtenir ton calcul AVS officiel'), findsOneWidget);
+      expect(
+        find.text('Vérifie ton compte et demande ton calcul AVS'),
+        findsOneWidget,
+      );
       expect(find.text('Demande ton calcul AVS officiel'), findsOneWidget);
       expect(
-        find.textContaining("Un extrait CI ne suffit pas"),
+        find.textContaining('Deux démarches officielles distinctes'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('318.282'),
         findsOneWidget,
       );
       expect(find.text('Capital total'), findsOneWidget);
