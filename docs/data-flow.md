@@ -49,11 +49,44 @@ flowchart LR
    authenticated users. Anonymous users **never** have backend state —
    Keychain failure for anon sessions falls back to SharedPreferences (see
    `anonymous_session_service.dart`).
-3. The `CoachProfile` instance in memory is **recomputed** from answers on
-   every write. Never mutate the profile directly — always go through
-   `mergeAnswers` / `updateProfile` / `updateFrom*Extraction`.
+3. In the G1-PROV-01 migrated set — `mergeAnswers`, self LPP, self AVS,
+   salary, inline, and Open Banking — a writer may construct a typed
+   `nextProfile`, but must persist values and provenance in one
+   `ReportPersistenceService.saveAnswers()` snapshot **before** assigning
+   `_profile` or calling `notifyListeners()`.
 4. New data capture paths **must** write into `wizard_answers_v2` via one
    of the existing setters, or add a new key listed below.
+
+### Field-centric provenance (G1-PROV-01)
+
+`wizard_answers_v2.__provenance` is the canonical local provenance envelope.
+It is keyed by canonical `CoachProfile` field path; every entry has exactly
+this shape and does not duplicate the financial value:
+
+```text
+fieldPath -> {source, updatedAt, sourceDate}
+```
+
+- `source` is a `ProfileDataSource.name`; `updatedAt` is the ISO-8601 instant
+  when MINT accepted the value.
+- `sourceDate` is an ISO-8601 date carried by the source, or explicit `null`
+  when the source date is unknown. It is never inferred from `updatedAt`.
+  Real document-date extraction and consumption remain pending G1-FRESH-01
+  and the relevant source-date tickets.
+- In migrated writers, the answer value and this three-key entry are saved in
+  the same snapshot; only the persisted `nextProfile` may then be published.
+- `_coach_data_timestamps` remains dual-written as a legacy migration input.
+  New writes use `__provenance` as their source of truth.
+- Reconstruction migrates legacy metadata field by field. A legacy path not
+  yet mentioned in a partial canonical envelope may still migrate, but a
+  malformed canonical entry blocks fallback for that same path (fail closed).
+- `__provenance` is currently local-only and is removed from mobile backend
+  sync payloads. Backend per-field provenance remains pending its dedicated
+  contract; do not silently mirror this local envelope into `ProfileModel.data`.
+- Live legacy exceptions remain full G1 blockers:
+  `updateFromTaxExtraction` → G1-PROV-03 and
+  `updateFromPartnerLppExtraction` → G1-PROV-02 + G1-BND-02A. Both still
+  publish before save and write no canonical provenance.
 
 ---
 
@@ -67,7 +100,7 @@ mirrors to SharedPreferences. **This is the only legal write path.**
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
-| 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Tax,Salary}Extraction` | `_coach_avoir_lpp*`, `_coach_salaire_assure`, `_coach_rachat_maximum`, `_coach_taux_conversion*`, `_coach_avs_*`, `_coach_tax_*` + `_coach_<type>_source = 'document_scan'` | Post-scan flow |
+| 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Tax,Salary}Extraction` / `updateFromPartnerLppExtraction` | LPP/AVS/tax `_coach_*` keys; salary certificate: `q_gross_salary_annual = monthly gross × q_nombre_mois`, `q_nombre_mois`, and `q_bonus_percentage` when extracted; never `q_net_income_period_chf` | Post-scan; save-before-publish only for migrated self LPP/self AVS/salary paths |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
@@ -95,15 +128,20 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 **Income**
 - `q_pay_frequency` (`monthly`|`yearly`|`annuel`),
   `q_net_income_period_chf` (double, amount per period),
-  `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
+  `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip;
+  salary certificate writes monthly gross × `q_nombre_mois`),
   `q_company_profit_annual_chf` (double, SA/Sarl annual distributable envelope;
   not a substitute for sole-proprietor income),
   `q_unemployment_contribution_months` (int 0-24, LACI contribution months over
   the last 24 months),
-  `q_nombre_mois` (salary months, defaults to 12),
+  `q_nombre_mois` (salary months, defaults to 12), `q_bonus_percentage`
+  (salary-certificate percentage, when extracted),
   `q_employment_status` (salarie/independant/retraite/etc.),
   `q_employment_rate` (%), `q_annual_bonus` (CHF), `q_partner_net_income_chf`,
   `q_partner_birth_year`, `q_partner_employment_status`
+
+The salary-certificate writer never fabricates `q_net_income_period_chf` and
+publishes its next profile only after the answer snapshot is saved.
 
 **Housing & fixed charges**
 - `q_housing_cost_period_chf` (double — rent OR mortgage),
@@ -118,7 +156,8 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 **AVS (1st pillar)**
 - `q_avs_lacunes_status`, `q_avs_years_abroad`, `q_avs_contribution_years`,
   `q_avs_arrival_year`, `_coach_avs_rente_estimee`, `_coach_avs_lacunes`,
-  `_coach_avs_ramd`, `_coach_avs_source`
+  `_coach_avs_ramd`, `_coach_avs_bonifications_educatives`,
+  `_coach_avs_source`
 
 **LPP (2nd pillar)**
 - `q_has_pension_fund` (`yes`|`no` string), `q_avoir_lpp` (total legacy),
@@ -178,7 +217,9 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 **Goals & lifecycle**
 - `q_target_retirement_age`, `_coach_family_change`,
   `_coach_financial_literacy_level`, `_coach_created_at`, `_coach_updated_at`,
-  `_coach_data_timestamps` (dict: fieldPath → ISO timestamp)
+  `_coach_data_timestamps` (legacy dual-write: fieldPath → ISO timestamp),
+  `__provenance` (canonical local map: fieldPath → exact
+  `{source, updatedAt, sourceDate}`)
 
 ---
 
@@ -352,7 +393,7 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 
 ---
 
-*Last updated: 2026-04-21 after MVP-PLAN-2026-04-21 P0-MVP-3 ship.
+*Last updated: 2026-07-14 for G1-PROV-01 field-centric provenance.
 Maintenance rule: every new writer or reader of `wizard_answers_v2`
 updates this doc in the same PR. Code drift without doc drift = the
 trap we built this to avoid.*

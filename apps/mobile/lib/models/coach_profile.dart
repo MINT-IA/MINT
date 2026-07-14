@@ -65,8 +65,7 @@ enum AvsGapStatus { noGaps, arrivedLate, livedAbroad, unknown }
 /// projections; it does not certify that either amount is available.
 abstract final class AvsOfficialPensionEvidence {
   static const selfFieldPath = 'prevoyance.renteAVSEstimeeMensuelle';
-  static const spouseFieldPath =
-      'conjoint.prevoyance.renteAVSEstimeeMensuelle';
+  static const spouseFieldPath = 'conjoint.prevoyance.renteAVSEstimeeMensuelle';
 }
 
 /// Certificate-backed AVS gap readiness for one profile household.
@@ -1574,6 +1573,12 @@ class CoachProfile {
   /// Fields absent from this map default to profile.createdAt for decay calc.
   final Map<String, DateTime> dataTimestamps;
 
+  /// Date carried by the underlying source, distinct from when MINT saved it.
+  ///
+  /// Every persisted provenance entry owns this slot, including an explicit
+  /// null when no document or source date was supplied by the writer.
+  final Map<String, DateTime?> dataSourceDates;
+
   /// Fields explicitly provided by the user (vs computed defaults).
   /// Used by the profile drawer to avoid showing phantom data like
   /// a default canton ('ZH') the user never entered.
@@ -1658,6 +1663,8 @@ class CoachProfile {
     this.initialProjectionSnapshot,
     Map<String, ProfileDataSource> dataSources = const {},
     this.dataTimestamps = const {},
+    this.dataSourceDates = const {},
+    bool inferDataSources = true,
     this.userProvidedFields = const {},
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -1669,7 +1676,9 @@ class CoachProfile {
     this.recentGravityEvents = const [],
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
-        dataSources = _resolveDataSources(dataSources, prevoyance);
+        dataSources = inferDataSources
+            ? _resolveDataSources(dataSources, prevoyance)
+            : Map<String, ProfileDataSource>.from(dataSources);
 
   /// Minimal profile with all zeros — means "unknown, ask the user".
   /// Never lies about age, canton, or income.
@@ -2211,10 +2220,10 @@ class CoachProfile {
     };
     final hasDeclaredRetireeExpenses =
         userProvidedFields.contains('monthlyExpenses') ||
-        expenseFieldPaths.any((path) {
-          final source = dataSources[path];
-          return source != null && source != ProfileDataSource.estimated;
-        });
+            expenseFieldPaths.any((path) {
+              final source = dataSources[path];
+              return source != null && source != ProfileDataSource.estimated;
+            });
     final monthlyExpenses = netMensuel != null
         ? (depenses.totalMensuel > 0 ? depenses.totalMensuel : netMensuel * 0.6)
         : (hasDeclaredRetireeExpenses ? depenses.totalMensuel : 0.0);
@@ -2273,6 +2282,7 @@ class CoachProfile {
     Map<String, dynamic>? initialProjectionSnapshot,
     Map<String, ProfileDataSource>? dataSources,
     Map<String, DateTime>? dataTimestamps,
+    Map<String, DateTime?>? dataSourceDates,
     Set<String>? userProvidedFields,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -2348,6 +2358,8 @@ class CoachProfile {
           initialProjectionSnapshot ?? this.initialProjectionSnapshot,
       dataSources: dataSources ?? this.dataSources,
       dataTimestamps: dataTimestamps ?? this.dataTimestamps,
+      dataSourceDates: dataSourceDates ?? this.dataSourceDates,
+      inferDataSources: false,
       userProvidedFields: userProvidedFields ?? this.userProvidedFields,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -2599,6 +2611,14 @@ class CoachProfile {
             },
           ) ??
           const {},
+      dataSourceDates: (json['dataSourceDates'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(
+              k,
+              v == null ? null : DateTime.tryParse(v.toString()),
+            ),
+          ) ??
+          const {},
+      inferDataSources: !json.containsKey('dataSources'),
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String)
           : null,
@@ -2686,6 +2706,9 @@ class CoachProfile {
         'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
         'dataTimestamps':
             dataTimestamps.map((k, v) => MapEntry(k, v.toIso8601String())),
+        'dataSourceDates': dataSourceDates.map(
+          (k, v) => MapEntry(k, v?.toIso8601String()),
+        ),
         'userProvidedFields': userProvidedFields.toList(),
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
@@ -2930,6 +2953,8 @@ class CoachProfile {
     final coachAvsRenteEstimee =
         _parseDouble(answers['_coach_avs_rente_estimee']);
     final coachAvsRamd = _parseDouble(answers['_coach_avs_ramd']);
+    final coachAvsBonificationsEducatives =
+        _parseInt(answers['_coach_avs_bonifications_educatives']);
 
     // Estimate LPP total based on age and salary (rough Swiss average).
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere.
@@ -2970,6 +2995,7 @@ class CoachProfile {
       rendementCaisse: coachRendementCaisse ?? 0.02,
       salaireAssure: coachSalaireAssure,
       ramd: coachAvsRamd,
+      bonificationsEducatives: coachAvsBonificationsEducatives,
       nombre3a: nombre3a,
       totalEpargne3a: estimated3aTotal,
     );
@@ -3236,7 +3262,40 @@ class CoachProfile {
     // ── Family change persiste par annual refresh ─────────
     final familyChange = answers['_coach_family_change'] as String?;
 
-    // ── Fiscal dataSources (restored from persisted extraction) ──
+    // `__provenance` is the canonical persisted envelope. Its presence is an
+    // authority boundary: malformed or missing entries fail closed instead of
+    // being upgraded from legacy source markers.
+    final hasCanonicalProvenance = answers.containsKey('__provenance');
+    final canonicalSources = <String, ProfileDataSource>{};
+    final canonicalTimestamps = <String, DateTime>{};
+    final canonicalSourceDates = <String, DateTime?>{};
+    final canonicalMentionedPaths = <String>{};
+    final rawProvenance = answers['__provenance'];
+    if (rawProvenance is Map) {
+      for (final entry in rawProvenance.entries) {
+        final fieldPath = entry.key.toString();
+        canonicalMentionedPaths.add(fieldPath);
+        final envelope = entry.value;
+        if (envelope is! Map || !envelope.containsKey('sourceDate')) continue;
+        final sourceName = envelope['source']?.toString();
+        final source = ProfileDataSource.values
+            .where((candidate) => candidate.name == sourceName)
+            .firstOrNull;
+        final updatedAt =
+            DateTime.tryParse(envelope['updatedAt']?.toString() ?? '');
+        if (source == null || updatedAt == null) continue;
+        final rawSourceDate = envelope['sourceDate'];
+        final parsedSourceDate = rawSourceDate == null
+            ? null
+            : DateTime.tryParse(rawSourceDate.toString());
+        if (rawSourceDate != null && parsedSourceDate == null) continue;
+        canonicalSources[fieldPath] = source;
+        canonicalTimestamps[fieldPath] = updatedAt;
+        canonicalSourceDates[fieldPath] = parsedSourceDate;
+      }
+    }
+
+    // ── Legacy dataSources (migration input only) ────────────────
     final restoredDataSources = <String, ProfileDataSource>{};
     if (answers.containsKey('q_avs_contribution_years') && avsYears != null) {
       restoredDataSources['prevoyance.anneesContribuees'] =
@@ -3267,6 +3326,49 @@ class CoachProfile {
           answers['_coach_tax_impot_federal'] != null) {
         restoredDataSources['fiscal.impots'] = ProfileDataSource.certificate;
       }
+    }
+    if (answers['_coach_lpp_source'] == 'document_scan') {
+      const lppAnswerPaths = <String, String>{
+        '_coach_avoir_lpp': 'prevoyance.avoirLppTotal',
+        '_coach_avoir_lpp_oblig': 'prevoyance.avoirLppObligatoire',
+        '_coach_avoir_lpp_suroblig': 'prevoyance.avoirLppSurobligatoire',
+        '_coach_taux_conversion': 'prevoyance.tauxConversion',
+        '_coach_taux_conversion_suroblig': 'prevoyance.tauxConversionSuroblig',
+        '_coach_rachat_maximum': 'prevoyance.rachatMaximum',
+        '_coach_salaire_assure': 'prevoyance.salaireAssure',
+        '_coach_rendement_caisse': 'prevoyance.rendementCaisse',
+      };
+      for (final entry in lppAnswerPaths.entries) {
+        if (answers[entry.key] != null) {
+          restoredDataSources[entry.value] = ProfileDataSource.certificate;
+        }
+      }
+    }
+    if (answers['_coach_blink_source'] == 'open_banking') {
+      const bankingAnswerPaths = <String, String>{
+        'q_cash_total': 'patrimoine.epargneLiquide',
+        '_coach_investissements': 'patrimoine.investissements',
+        '_coach_total_3a': 'prevoyance.totalEpargne3a',
+        '_coach_depenses_loyer': 'depenses.loyer',
+        '_coach_depenses_assurance': 'depenses.assuranceMaladie',
+        '_coach_depenses_electricite': 'depenses.electricite',
+        '_coach_depenses_transport': 'depenses.transport',
+        '_coach_depenses_telecom': 'depenses.telecom',
+        '_coach_depenses_frais_medicaux': 'depenses.fraisMedicaux',
+        '_coach_dettes_hypotheque': 'dettes.hypotheque',
+      };
+      for (final entry in bankingAnswerPaths.entries) {
+        if (answers[entry.key] != null) {
+          restoredDataSources[entry.value] = ProfileDataSource.openBanking;
+        }
+      }
+    }
+    final cashSourceName = answers['_coach_cash_total_source']?.toString();
+    final cashSource = ProfileDataSource.values
+        .where((candidate) => candidate.name == cashSourceName)
+        .firstOrNull;
+    if (answers['q_cash_total'] != null && cashSource != null) {
+      restoredDataSources['patrimoine.epargneLiquide'] = cashSource;
     }
 
     // S47: Build initial dataTimestamps for all populated fields.
@@ -3312,8 +3414,7 @@ class CoachProfile {
       if (answers.containsKey('q_investments_total') &&
           patrimoine.investissements >= 0)
         'patrimoine.investissements': baseTimestamp,
-      if (explicitHousingCost != null)
-        'depenses.loyer': baseTimestamp,
+      if (explicitHousingCost != null) 'depenses.loyer': baseTimestamp,
       if (lamalFromOnboarding != null)
         'depenses.assuranceMaladie': baseTimestamp,
       if (answers.containsKey('q_3a_annual_contribution'))
@@ -3345,6 +3446,29 @@ class CoachProfile {
         if (dt != null) initialTimestamps[field] = dt;
       }
     }
+    final legacyResolvedSources =
+        _resolveDataSources(restoredDataSources, prevoyance);
+    final restoredDataSourceDates = <String, DateTime?>{
+      for (final fieldPath in legacyResolvedSources.keys) fieldPath: null,
+    };
+    final effectiveSources = <String, ProfileDataSource>{
+      for (final entry in legacyResolvedSources.entries)
+        if (!canonicalMentionedPaths.contains(entry.key))
+          entry.key: entry.value,
+      ...canonicalSources,
+    };
+    final effectiveTimestamps = <String, DateTime>{
+      for (final entry in initialTimestamps.entries)
+        if (!canonicalMentionedPaths.contains(entry.key))
+          entry.key: entry.value,
+      ...canonicalTimestamps,
+    };
+    final effectiveSourceDates = <String, DateTime?>{
+      for (final entry in restoredDataSourceDates.entries)
+        if (!canonicalMentionedPaths.contains(entry.key))
+          entry.key: entry.value,
+      ...canonicalSourceDates,
+    };
 
     // ── Track which fields the user explicitly provided ──
     // Used by profile drawer to avoid showing phantom default data.
@@ -3507,8 +3631,14 @@ class CoachProfile {
           savedUpdatedAt != null ? DateTime.tryParse(savedUpdatedAt) : null,
       createdAt:
           savedCreatedAt != null ? DateTime.tryParse(savedCreatedAt) : null,
-      dataSources: restoredDataSources,
-      dataTimestamps: initialTimestamps,
+      dataSources:
+          hasCanonicalProvenance ? effectiveSources : restoredDataSources,
+      dataTimestamps:
+          hasCanonicalProvenance ? effectiveTimestamps : initialTimestamps,
+      dataSourceDates: hasCanonicalProvenance
+          ? effectiveSourceDates
+          : restoredDataSourceDates,
+      inferDataSources: !hasCanonicalProvenance,
       userProvidedFields: provided,
       financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
         (e) => e.name == answers['_coach_financial_literacy_level'],

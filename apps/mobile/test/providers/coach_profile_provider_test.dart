@@ -652,7 +652,7 @@ void main() {
     );
     expect(
       restored.dataSources['prevoyance.ramd'],
-      ProfileDataSource.estimated,
+      ProfileDataSource.certificate,
     );
   });
 
