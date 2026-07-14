@@ -1,0 +1,36 @@
+Documentation-only diff verified against live code. The spec's diagnosis of the existing pipeline checks out against source; findings below.
+
+Product/domain verdict: PASS
+
+## Scope of this diff
+Single new file `docs/codex/TAX_ASSESSMENT_INGESTION.md` (269 lines). No code, no tests, no wiring changed. It is explicitly labeled `spécification métier préalable au code` (spec-before-code), so there is no facade-without-wiring risk *introduced* by this diff — it is a design contract, not a shipped flow.
+
+I validated its factual claims about current behaviour against the live repo, and they are accurate. That truthfulness is what earns the PASS.
+
+## P0
+None introduced by this diff. (The harmful path this spec targets already ships — see P1-A; the spec correctly refuses to bless it.)
+
+## P1
+**P1-A — The live defects the spec describes are still unfixed; this doc does not wire anything.** The spec is `GO conditionnel`, but the conditions remain unmet in code:
+- `apps/mobile/lib/services/document_parser/tax_declaration_parser.dart:224-227` folds `taux moyen d'imposition` into the marginal-rate field (`// Variante: "taux moyen d'imposition" (proxy for marginal)`), and `:313-338` computes `(cantonal+federal)/revenu` (an average) and writes it to `actualMarginalRate`.
+- `apps/mobile/lib/providers/coach_profile_provider.dart:2333-2347` then stamps that value `fiscal.tauxMarginal` = `ProfileDataSource.certificate` unconditionally.
+- That field feeds arbitrage (`arbitrage_engine.dart:488+`, `fri_calculator.dart:162` gates LPP buy-back on `tauxMarginal > 0.25`). Repro: a document with only `taux moyen … 22,3 %` yields a "certificate"-confidence marginal rate that can drive a 3a/LPP/retirement recommendation. This is precisely the harmful path the spec forbids (§3 "Taux marginal", test cases 7–8). Until code lands, the risk is live. The doc should not be read as closing it.
+
+**P1-B — `certificate` is granted to self-declared documents in live code, contradicting the spec's condition #1.** `coach_profile_provider.dart:2340-2350` tags every extracted fiscal field `certificate` with no `documentKind`/`assessmentStatus` discrimination; `tax_declaration_parser.dart` sample text (`:524`) is a self-styled "avis … définitif" that would be accepted as `inForce`-grade truth. The spec §1/§3 correctly requires `assessmentNotice → assessedAppealable` and forbids inferring `inForce` from the word "définitif" — but nothing enforces it yet. The doc's test-case list (§5, cases 2 and 11) is the right acceptance gate; it is unproven until a red/green test exists.
+
+## P2
+- **Unverified current-law date (sourced, non-blocking).** §3 states the imposition-individuelle law was "acceptée le 8 mars 2026 … entrée en vigueur au plus tard en 2032." This is post-cutoff and I cannot confirm the 2032 outer bound from the repo; the DFF link is cited but not fetchable here. Mark `rulesetVersion`-sensitive. It is not a blocker because the *operative* stance the spec adopts — couples still jointly assessed as of 14 July 2026, `subjectScope` taken from the document not from civil status — is the conservative, correct one regardless of the exact vigour date.
+- **Format migration risk left implicit.** Spec §2 mandates ratio storage (`0.325`), while live code stores `31.5` (`coach_profile_provider_tax_extraction_test.dart:156`). The doc says the old format "ne doit pas entrer dans le nouveau modèle" but gives no migration/guard for the existing `fiscal.tauxMarginal` consumers. A follow-up ticket should specify the boundary conversion so a `31.5` legacy value is never read by a `0..1` consumer.
+- **Naming rename (`legalYear`→`taxYear`, `_coach_tax_impot_cantonal`) is asserted but not scoped to call-sites.** `legalYear` is already used with a different meaning in `avs_thirteenth_pension_calculator.dart`; the spec's canonical `taxYear` is fine but the doc should note it must not collide with the AVS `legalYear` semantics.
+
+## Swiss domain review
+- **Tax (ICC/IFD):** Correctly splits cantonal-communal vs federal taxable income, refuses to merge IFD+ICC into one persisted fact, and separates `cantonalOnly` from `cantonalCommunalCombined` (`impôt cantonal`/`Kantonssteuer` ≠ ICC) — this fixes the real conflation in `tax_declaration_parser.dart:174-192`. Sound.
+- **Wealth tax:** Correct that `taxableWealth` is cantonal/communal only (no federal wealth tax), and a negative net wealth is a review candidate, not a "known" fact. Aligns with `parser` warning at `:290-297`.
+- **Marginal vs average rate:** Correctly ruled distinct; average/effective/`Grenzsteuersatz` may only fill `explicitAverageIncomeTaxRate`, never alias/fallback marginal. Directly repudiates `parser:224-227,313-338`. Strong.
+- **Assessment status / entry into force:** Correct — `assessmentNotice` is appealable (réclamation window), `inForce` needs explicit proof. Matches LIFD 130-132 / LHID practice.
+- **Couples/succession/AVS/LPP/3a/mortgage/insurance:** Not directly touched. Correctly notes joint taxation still applies and a joint `subjectScope` snapshot belongs to the tax unit and must not be split or zero-filled for an absent partner — good privacy/consent boundary (no cross-account share without explicit grant).
+
+## Mint product logic review
+Moves toward the ledger → DataQuest → scenario → dossier spine. It replaces a single flat `revenuImposable`/`tauxMarginal` field set with a provenance-carrying `TaxSnapshot` list (one source of truth, no cross-period fusion, field-centric provenance paths, `null ≠ 0`), defines a `partial+ask` degraded state when `taxYear`/`subjectScope`/scope/jurisdiction is missing, and specifies a specialist-handoff question set plus a non-advice disclaimer. Consumer-side snapshot selection (`inForce` > `assessedAppealable`) fits the scenario layer. The gap is that it is spec-only: the promised value is not yet realized, and the pre-existing average-as-marginal certificate bug still ships. Land the §5 deterministic tests (especially cases 2, 7, 8, 11) as the enforcing gate before this contract can be called delivered.
+
+Proof the fix is unimplemented: `git log --oneline -- apps/mobile/lib/services/document_parser/tax_declaration_parser.dart` shows no commit removing the `taux moyen` proxy, and `rg "explicitAverageIncomeTaxRate|TaxSnapshot|FiscalProfile" apps/mobile/lib` returns nothing.

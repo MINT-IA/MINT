@@ -1,0 +1,1101 @@
+Resolving dependencies...
+Downloading packages...
+  async 2.11.0 (2.13.1 available)
+  boolean_selector 2.1.1 (2.1.2 available)
+  confetti 0.7.0 (0.8.0 available)
+  cross_file 0.3.4+2 (0.3.5+4 available)
+  cupertino_icons 1.0.8 (1.0.9 available)
+  dbus 0.7.12 (0.7.14 available)
+  equatable 2.0.8 (2.1.0 available)
+  ffi 2.1.3 (2.2.0 available)
+  file 7.0.0 (7.0.1 available)
+  file_picker 8.3.7 (11.0.2 available)
+  file_selector_linux 0.9.3+2 (0.9.4 available)
+  file_selector_macos 0.9.4+3 (0.9.5 available)
+  file_selector_platform_interface 2.6.2 (2.7.0 available)
+  file_selector_windows 0.9.3+4 (0.9.3+5 available)
+  fl_chart 0.70.2 (1.2.0 available)
+  flutter_doc_scanner 0.0.20 (0.0.21 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_local_notifications 18.0.1 (22.0.1 available)
+  flutter_local_notifications_linux 5.0.0 (8.0.1 available)
+  flutter_local_notifications_platform_interface 8.0.0 (12.0.0 available)
+  flutter_markdown 0.7.7+1 (discontinued replaced by flutter_markdown_plus)
+  flutter_plugin_android_lifecycle 2.0.29 (2.0.35 available)
+  flutter_secure_storage 9.2.4 (10.3.1 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.1 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.2 available)
+  go_router 13.2.5 (17.3.0 available)
+  google_fonts 6.3.3 (8.1.0 available)
+  image 4.5.4 (4.9.1 available)
+  image_picker 1.2.0 (1.2.3 available)
+  image_picker_android 0.8.13 (0.8.13+19 available)
+  image_picker_for_web 3.1.0 (3.1.1 available)
+  image_picker_ios 0.8.13 (0.8.13+6 available)
+  image_picker_macos 0.2.2 (0.2.2+1 available)
+  image_picker_platform_interface 2.11.0 (2.11.1 available)
+  in_app_purchase 3.2.3 (3.3.0 available)
+  in_app_purchase_android 0.4.0+3 (0.5.1 available)
+  in_app_purchase_platform_interface 1.4.0 (1.4.1 available)
+  in_app_purchase_storekit 0.4.4 (0.4.10+1 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 0.14.2 (1.0.0 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.12.0 available)
+  lints 3.0.0 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.17.0 (1.19.0 available)
+  package_config 2.2.0 (3.0.0 available)
+  package_info_plus 9.0.1 (10.2.0 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  path_provider 2.1.5 (2.1.6 available)
+  path_provider_android 2.2.17 (2.3.1 available)
+  path_provider_foundation 2.4.1 (2.6.0 available)
+  path_provider_linux 2.2.1 (2.2.2 available)
+  path_provider_platform_interface 2.1.2 (2.1.3 available)
+  patrol_finders 3.5.0 (3.6.0 available)
+  patrol_log 0.9.1 (0.10.0 available)
+  pdf 3.11.3 (3.13.0 available)
+  petitparser 6.0.2 (7.0.2 available)
+  platform 3.1.5 (3.1.6 available)
+  printing 5.14.2 (5.15.0 available)
+  process 5.0.2 (5.0.5 available)
+  qr 3.0.2 (4.0.0 available)
+  sentry 9.14.0 (9.24.0 available)
+  sentry_flutter 9.14.0 (9.24.0 available)
+  shared_preferences 2.5.3 (2.5.5 available)
+  shared_preferences_android 2.4.11 (2.4.27 available)
+  shared_preferences_foundation 2.5.4 (2.5.6 available)
+  shared_preferences_platform_interface 2.4.1 (2.4.2 available)
+  sign_in_with_apple 6.1.4 (8.1.0 available)
+  sign_in_with_apple_platform_interface 1.1.0 (2.0.0 available)
+  sign_in_with_apple_web 2.1.1 (3.0.0 available)
+  source_span 1.10.0 (1.10.2 available)
+  speech_to_text 7.3.0 (7.4.0 available)
+  speech_to_text_platform_interface 2.3.0 (2.4.0 available)
+  speech_to_text_windows 1.0.0+beta.8 (1.0.1 available)
+  sqflite_common 2.5.6 (2.5.11 available)
+  string_scanner 1.3.0 (1.4.1 available)
+  synchronized 3.4.0 (3.4.1 available)
+  term_glyph 1.2.1 (1.2.2 available)
+  test_api 0.7.10 (0.7.13 available)
+  timezone 0.10.1 (0.11.1 available)
+  url_launcher_android 6.3.17 (6.3.32 available)
+  url_launcher_ios 6.3.3 (6.4.1 available)
+  url_launcher_linux 3.2.1 (3.2.2 available)
+  url_launcher_macos 3.2.2 (3.2.5 available)
+  url_launcher_web 2.4.1 (2.4.3 available)
+  url_launcher_windows 3.1.4 (3.1.5 available)
+  vector_math 2.2.0 (2.4.0 available)
+  vm_service 14.3.0 (15.2.0 available)
+  webdriver 3.0.4 (3.1.0 available)
+  win32 5.10.1 (6.3.0 available)
+  xml 6.5.0 (7.0.1 available)
+Got dependencies!
+1 package is discontinued.
+93 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/providers/tax_provenance_profile_test.dart
+test/providers/tax_provenance_profile_test.dart:18:40: Error: Type 'TaxProfilePersistence' not found.
+class _MemoryTaxPersistence implements TaxProfilePersistence {
+                                       ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:57:1: Error: Type 'TaxExtractionCandidate' not found.
+TaxExtractionCandidate _candidate(
+^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:88:1: Error: Type 'TaxReviewConfirmation' not found.
+TaxReviewConfirmation _confirmation(
+^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:89:3: Error: Type 'TaxExtractionCandidate' not found.
+  TaxExtractionCandidate candidate, {
+  ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:90:3: Error: Type 'TaxDocumentKind' not found.
+  TaxDocumentKind kind = TaxDocumentKind.assessmentNotice,
+  ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:91:3: Error: Type 'TaxAssessmentStatus' not found.
+  TaxAssessmentStatus status = TaxAssessmentStatus.assessedAppealable,
+  ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:101:3: Error: Type 'AssessedTaxAmount' not found.
+  AssessedTaxAmount? cantonalTax = const AssessedTaxAmount(
+  ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:106:3: Error: Type 'AssessedTaxAmount' not found.
+  AssessedTaxAmount? federalTax = const AssessedTaxAmount(
+  ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:113:3: Error: Type 'TaxSubjectScope' not found.
+  TaxSubjectScope subjectScope = TaxSubjectScope.jointlyAssessedCouple,
+  ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:79:10: Error: Undefined name 'TaxExtractionCandidate'.
+  return TaxExtractionCandidate.fromExtractionResult(
+         ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:89:3: Error: 'TaxExtractionCandidate' isn't a type.
+  TaxExtractionCandidate candidate, {
+  ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:90:3: Error: 'TaxDocumentKind' isn't a type.
+  TaxDocumentKind kind = TaxDocumentKind.assessmentNotice,
+  ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:90:26: Error: Undefined name 'TaxDocumentKind'.
+  TaxDocumentKind kind = TaxDocumentKind.assessmentNotice,
+                         ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:91:3: Error: 'TaxAssessmentStatus' isn't a type.
+  TaxAssessmentStatus status = TaxAssessmentStatus.assessedAppealable,
+  ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:91:32: Error: Undefined name 'TaxAssessmentStatus'.
+  TaxAssessmentStatus status = TaxAssessmentStatus.assessedAppealable,
+                               ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:101:3: Error: 'AssessedTaxAmount' isn't a type.
+  AssessedTaxAmount? cantonalTax = const AssessedTaxAmount(
+  ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:103:21: Error: Undefined name 'TaxAuthorityScope'.
+    authorityScope: TaxAuthorityScope.cantonalCommunalCombined,
+                    ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:104:16: Error: Undefined name 'TaxBaseScope'.
+    baseScope: TaxBaseScope.incomeAndWealth,
+               ^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:101:42: Error: Couldn't find constructor 'AssessedTaxAmount'.
+  AssessedTaxAmount? cantonalTax = const AssessedTaxAmount(
+                                         ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:106:3: Error: 'AssessedTaxAmount' isn't a type.
+  AssessedTaxAmount? federalTax = const AssessedTaxAmount(
+  ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:108:21: Error: Undefined name 'TaxAuthorityScope'.
+    authorityScope: TaxAuthorityScope.federalDirect,
+                    ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:109:16: Error: Undefined name 'TaxBaseScope'.
+    baseScope: TaxBaseScope.incomeOnly,
+               ^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:106:41: Error: Couldn't find constructor 'AssessedTaxAmount'.
+  AssessedTaxAmount? federalTax = const AssessedTaxAmount(
+                                        ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:113:3: Error: 'TaxSubjectScope' isn't a type.
+  TaxSubjectScope subjectScope = TaxSubjectScope.jointlyAssessedCouple,
+  ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:113:34: Error: Undefined name 'TaxSubjectScope'.
+  TaxSubjectScope subjectScope = TaxSubjectScope.jointlyAssessedCouple,
+                                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:115:10: Error: Method not found: 'TaxReviewConfirmation'.
+  return TaxReviewConfirmation(
+         ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:140:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = false;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:145:25: Error: Member not found: 'typedTaxProfile'.
+    expect(FeatureFlags.typedTaxProfile, isFalse);
+                        ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:148:7: Error: No named parameter with the name 'taxProfilePersistence'.
+      taxProfilePersistence: persistence,
+      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:162:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:165:7: Error: No named parameter with the name 'taxProfilePersistence'.
+      taxProfilePersistence: persistence,
+      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:173:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = false;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:179:23: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:176:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+      const FiscalSnapshotQuery(
+            ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:174:31: Error: Undefined name 'FiscalSnapshotSelector'.
+    final disabledSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+                              ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:182:38: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(disabledSelection.status, FiscalSelectionStatus.partialAsk);
+                                     ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:187:7: Error: No named parameter with the name 'taxProfilePersistence'.
+      taxProfilePersistence: persistence,
+      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:208:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:211:7: Error: No named parameter with the name 'taxProfilePersistence'.
+      taxProfilePersistence: canonicalAndLegacy,
+      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:227:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = false;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:231:41: Error: No named parameter with the name 'taxProfilePersistence'.
+      final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                        ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:247:25: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:244:15: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:242:25: Error: Undefined name 'FiscalSnapshotSelector'.
+      final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+                        ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:250:32: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(selection.status, FiscalSelectionStatus.partialAsk);
+                               ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:263:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:281:41: Error: No named parameter with the name 'taxProfilePersistence'.
+      final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                        ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:296:25: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:293:15: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:291:25: Error: Undefined name 'FiscalSnapshotSelector'.
+      final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+                        ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:299:32: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(selection.status, FiscalSelectionStatus.partialAsk);
+                               ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:313:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:317:7: Error: No named parameter with the name 'taxProfilePersistence'.
+      taxProfilePersistence: persistence,
+      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:336:35: Error: Undefined name 'TaxSubjectScope'.
+    expect(snapshot.subjectScope, TaxSubjectScope.jointlyAssessedCouple);
+                                  ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:387:39: Error: No named parameter with the name 'taxProfilePersistence'.
+    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:400:23: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:397:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+      const FiscalSnapshotQuery(
+            ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:395:22: Error: Undefined name 'FiscalSnapshotSelector'.
+    final selected = FiscalSnapshotSelector.selectAssessedBaseline(
+                     ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:403:29: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(selected.status, FiscalSelectionStatus.available);
+                            ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:416:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:418:43: Error: No named parameter with the name 'taxProfilePersistence'.
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:442:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:444:43: Error: No named parameter with the name 'taxProfilePersistence'.
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:468:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:474:43: Error: No named parameter with the name 'taxProfilePersistence'.
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:521:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:523:43: Error: No named parameter with the name 'taxProfilePersistence'.
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:531:23: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.individual,
+                      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:539:38: Error: Undefined name 'TaxSubjectScope'.
+    expect(replacement.subjectScope, TaxSubjectScope.individual);
+                                     ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:554:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:556:41: Error: No named parameter with the name 'taxProfilePersistence'.
+    final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+                                        ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:567:15: Error: Undefined name 'TaxDocumentKind'.
+        kind: TaxDocumentKind.provisionalBill,
+              ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:568:17: Error: Undefined name 'TaxAssessmentStatus'.
+        status: TaxAssessmentStatus.provisional,
+                ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:578:27: Error: Undefined name 'TaxAuthorityScope'.
+          authorityScope: TaxAuthorityScope.federalDirect,
+                          ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:579:22: Error: Undefined name 'TaxBaseScope'.
+          baseScope: TaxBaseScope.incomeOnly,
+                     ^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:576:27: Error: Couldn't find constructor 'AssessedTaxAmount'.
+        federalTax: const AssessedTaxAmount(
+                          ^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:586:39: Error: No named parameter with the name 'taxProfilePersistence'.
+    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:606:23: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:603:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+      const FiscalSnapshotQuery(
+            ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:601:26: Error: Undefined name 'FiscalSnapshotSelector'.
+    final assessed2024 = FiscalSnapshotSelector.selectAssessedBaseline(
+                         ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:609:33: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(assessed2024.status, FiscalSelectionStatus.available);
+                                ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:616:23: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:613:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+      const FiscalSnapshotQuery(
+            ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:611:29: Error: Undefined name 'FiscalSnapshotSelector'.
+    final provisional2025 = FiscalSnapshotSelector.selectAssessedBaseline(
+                            ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:619:36: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(provisional2025.status, FiscalSelectionStatus.partialAsk);
+                                   ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:625:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:627:43: Error: No named parameter with the name 'taxProfilePersistence'.
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:631:7: Error: 'TaxDocumentKind' isn't a type.
+      TaxDocumentKind kind,
+      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:632:7: Error: 'TaxAssessmentStatus' isn't a type.
+      TaxAssessmentStatus status,
+      ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:647:9: Error: Undefined name 'TaxDocumentKind'.
+        TaxDocumentKind.taxpayerReturn,
+        ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:648:9: Error: Undefined name 'TaxAssessmentStatus'.
+        TaxAssessmentStatus.inForce,
+        ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:655:9: Error: Undefined name 'TaxDocumentKind'.
+        TaxDocumentKind.provisionalBill,
+        ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:656:9: Error: Undefined name 'TaxAssessmentStatus'.
+        TaxAssessmentStatus.assessedAppealable,
+        ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:666:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:667:28: Error: 'TaxReviewConfirmation' isn't a type.
+    final confirmations = <TaxReviewConfirmation Function()>[
+                           ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:682:43: Error: No named parameter with the name 'taxProfilePersistence'.
+      final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:684:41: Error: No named parameter with the name 'taxProfilePersistence'.
+      final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                        ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:691:25: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:688:15: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:686:25: Error: Undefined name 'FiscalSnapshotSelector'.
+      final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+                        ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:694:32: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(selection.status, FiscalSelectionStatus.partialAsk);
+                               ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:701:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:703:43: Error: No named parameter with the name 'taxProfilePersistence'.
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:720:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:724:21: Error: Undefined name 'TaxSubjectScope'.
+      subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                    ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:721:19: Error: Method not found: 'FiscalSnapshotQuery'.
+    const query = FiscalSnapshotQuery(
+                  ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:729:7: Error: No named parameter with the name 'taxProfilePersistence'.
+      taxProfilePersistence: provisionalStore,
+      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:734:15: Error: Undefined name 'TaxDocumentKind'.
+        kind: TaxDocumentKind.provisionalBill,
+              ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:735:17: Error: Undefined name 'TaxAssessmentStatus'.
+        status: TaxAssessmentStatus.provisional,
+                ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:741:7: Error: No named parameter with the name 'taxProfilePersistence'.
+      taxProfilePersistence: provisionalStore,
+      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:744:33: Error: Undefined name 'FiscalSnapshotSelector'.
+    final incompleteSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+                                ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:748:40: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(incompleteSelection.status, FiscalSelectionStatus.partialAsk);
+                                       ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:767:7: Error: No named parameter with the name 'taxProfilePersistence'.
+      taxProfilePersistence: assessmentStore,
+      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:773:7: Error: No named parameter with the name 'taxProfilePersistence'.
+      taxProfilePersistence: assessmentStore,
+      ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:776:32: Error: Undefined name 'FiscalSnapshotSelector'.
+    final availableSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+                               ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:780:39: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(availableSelection.status, FiscalSelectionStatus.available);
+                                      ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:795:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:807:43: Error: No named parameter with the name 'taxProfilePersistence'.
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:819:23: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:816:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+      const FiscalSnapshotQuery(
+            ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:814:23: Error: Undefined name 'FiscalSnapshotSelector'.
+    final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+                      ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:822:30: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(selection.status, FiscalSelectionStatus.available);
+                             ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:829:18: Error: Setter not found: 'typedTaxProfile'.
+    FeatureFlags.typedTaxProfile = true;
+                 ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:831:43: Error: No named parameter with the name 'taxProfilePersistence'.
+    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+class CoachProfileProvider extends ChangeNotifier {
+      ^
+test/providers/tax_provenance_profile_test.dart:841:15: Error: Undefined name 'TaxDocumentKind'.
+        kind: TaxDocumentKind.provisionalBill,
+              ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:842:17: Error: Undefined name 'TaxAssessmentStatus'.
+        status: TaxAssessmentStatus.provisional,
+                ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:851:15: Error: Undefined name 'TaxDocumentKind'.
+        kind: TaxDocumentKind.taxpayerReturn,
+              ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:852:17: Error: Undefined name 'TaxAssessmentStatus'.
+        status: TaxAssessmentStatus.selfDeclared,
+                ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:859:15: Error: Undefined name 'TaxDocumentKind'.
+        kind: TaxDocumentKind.finalTaxBill,
+              ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:860:17: Error: Undefined name 'TaxAssessmentStatus'.
+        status: TaxAssessmentStatus.unknown,
+                ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:902:23: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:899:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+      const FiscalSnapshotQuery(
+            ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:897:27: Error: Undefined name 'FiscalSnapshotSelector'.
+    final finalBillOnly = FiscalSnapshotSelector.selectAssessedBaseline(
+                          ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:905:34: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(finalBillOnly.status, FiscalSelectionStatus.partialAsk);
+                                 ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:913:23: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:910:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+      const FiscalSnapshotQuery(
+            ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:908:30: Error: Undefined name 'FiscalSnapshotSelector'.
+    final assessedBaseline = FiscalSnapshotSelector.selectAssessedBaseline(
+                             ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:916:37: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(assessedBaseline.status, FiscalSelectionStatus.available);
+                                    ^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:930:23: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                      ^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:927:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+      const FiscalSnapshotQuery(
+            ^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:925:22: Error: Undefined name 'FiscalSnapshotSelector'.
+    final conflict = FiscalSnapshotSelector.selectAssessedBaseline(
+                     ^^^^^^^^^^^^^^^^^^^^^^
+test/providers/tax_provenance_profile_test.dart:933:29: Error: Undefined name 'FiscalSelectionStatus'.
+    expect(conflict.status, FiscalSelectionStatus.partialAsk);
+                            ^^^^^^^^^^^^^^^^^^^^^
+00:00 +0 -1: loading /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/providers/tax_provenance_profile_test.dart [E]
+  Failed to load "/Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/providers/tax_provenance_profile_test.dart":
+  Compilation failed for testPath=/Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/providers/tax_provenance_profile_test.dart: test/providers/tax_provenance_profile_test.dart:18:40: Error: Type 'TaxProfilePersistence' not found.
+  class _MemoryTaxPersistence implements TaxProfilePersistence {
+                                         ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:57:1: Error: Type 'TaxExtractionCandidate' not found.
+  TaxExtractionCandidate _candidate(
+  ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:88:1: Error: Type 'TaxReviewConfirmation' not found.
+  TaxReviewConfirmation _confirmation(
+  ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:89:3: Error: Type 'TaxExtractionCandidate' not found.
+    TaxExtractionCandidate candidate, {
+    ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:90:3: Error: Type 'TaxDocumentKind' not found.
+    TaxDocumentKind kind = TaxDocumentKind.assessmentNotice,
+    ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:91:3: Error: Type 'TaxAssessmentStatus' not found.
+    TaxAssessmentStatus status = TaxAssessmentStatus.assessedAppealable,
+    ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:101:3: Error: Type 'AssessedTaxAmount' not found.
+    AssessedTaxAmount? cantonalTax = const AssessedTaxAmount(
+    ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:106:3: Error: Type 'AssessedTaxAmount' not found.
+    AssessedTaxAmount? federalTax = const AssessedTaxAmount(
+    ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:113:3: Error: Type 'TaxSubjectScope' not found.
+    TaxSubjectScope subjectScope = TaxSubjectScope.jointlyAssessedCouple,
+    ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:79:10: Error: Undefined name 'TaxExtractionCandidate'.
+    return TaxExtractionCandidate.fromExtractionResult(
+           ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:89:3: Error: 'TaxExtractionCandidate' isn't a type.
+    TaxExtractionCandidate candidate, {
+    ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:90:3: Error: 'TaxDocumentKind' isn't a type.
+    TaxDocumentKind kind = TaxDocumentKind.assessmentNotice,
+    ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:90:26: Error: Undefined name 'TaxDocumentKind'.
+    TaxDocumentKind kind = TaxDocumentKind.assessmentNotice,
+                           ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:91:3: Error: 'TaxAssessmentStatus' isn't a type.
+    TaxAssessmentStatus status = TaxAssessmentStatus.assessedAppealable,
+    ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:91:32: Error: Undefined name 'TaxAssessmentStatus'.
+    TaxAssessmentStatus status = TaxAssessmentStatus.assessedAppealable,
+                                 ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:101:3: Error: 'AssessedTaxAmount' isn't a type.
+    AssessedTaxAmount? cantonalTax = const AssessedTaxAmount(
+    ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:103:21: Error: Undefined name 'TaxAuthorityScope'.
+      authorityScope: TaxAuthorityScope.cantonalCommunalCombined,
+                      ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:104:16: Error: Undefined name 'TaxBaseScope'.
+      baseScope: TaxBaseScope.incomeAndWealth,
+                 ^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:101:42: Error: Couldn't find constructor 'AssessedTaxAmount'.
+    AssessedTaxAmount? cantonalTax = const AssessedTaxAmount(
+                                           ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:106:3: Error: 'AssessedTaxAmount' isn't a type.
+    AssessedTaxAmount? federalTax = const AssessedTaxAmount(
+    ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:108:21: Error: Undefined name 'TaxAuthorityScope'.
+      authorityScope: TaxAuthorityScope.federalDirect,
+                      ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:109:16: Error: Undefined name 'TaxBaseScope'.
+      baseScope: TaxBaseScope.incomeOnly,
+                 ^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:106:41: Error: Couldn't find constructor 'AssessedTaxAmount'.
+    AssessedTaxAmount? federalTax = const AssessedTaxAmount(
+                                          ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:113:3: Error: 'TaxSubjectScope' isn't a type.
+    TaxSubjectScope subjectScope = TaxSubjectScope.jointlyAssessedCouple,
+    ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:113:34: Error: Undefined name 'TaxSubjectScope'.
+    TaxSubjectScope subjectScope = TaxSubjectScope.jointlyAssessedCouple,
+                                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:115:10: Error: Method not found: 'TaxReviewConfirmation'.
+    return TaxReviewConfirmation(
+           ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:140:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = false;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:145:25: Error: Member not found: 'typedTaxProfile'.
+      expect(FeatureFlags.typedTaxProfile, isFalse);
+                          ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:148:7: Error: No named parameter with the name 'taxProfilePersistence'.
+        taxProfilePersistence: persistence,
+        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:162:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:165:7: Error: No named parameter with the name 'taxProfilePersistence'.
+        taxProfilePersistence: persistence,
+        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:173:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = false;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:179:23: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:176:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:174:31: Error: Undefined name 'FiscalSnapshotSelector'.
+      final disabledSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+                                ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:182:38: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(disabledSelection.status, FiscalSelectionStatus.partialAsk);
+                                       ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:187:7: Error: No named parameter with the name 'taxProfilePersistence'.
+        taxProfilePersistence: persistence,
+        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:208:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:211:7: Error: No named parameter with the name 'taxProfilePersistence'.
+        taxProfilePersistence: canonicalAndLegacy,
+        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:227:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = false;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:231:41: Error: No named parameter with the name 'taxProfilePersistence'.
+        final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:247:25: Error: Undefined name 'TaxSubjectScope'.
+            subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                          ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:244:15: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+          const FiscalSnapshotQuery(
+                ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:242:25: Error: Undefined name 'FiscalSnapshotSelector'.
+        final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:250:32: Error: Undefined name 'FiscalSelectionStatus'.
+        expect(selection.status, FiscalSelectionStatus.partialAsk);
+                                 ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:263:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:281:41: Error: No named parameter with the name 'taxProfilePersistence'.
+        final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:296:25: Error: Undefined name 'TaxSubjectScope'.
+            subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                          ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:293:15: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+          const FiscalSnapshotQuery(
+                ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:291:25: Error: Undefined name 'FiscalSnapshotSelector'.
+        final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:299:32: Error: Undefined name 'FiscalSelectionStatus'.
+        expect(selection.status, FiscalSelectionStatus.partialAsk);
+                                 ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:313:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:317:7: Error: No named parameter with the name 'taxProfilePersistence'.
+        taxProfilePersistence: persistence,
+        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:336:35: Error: Undefined name 'TaxSubjectScope'.
+      expect(snapshot.subjectScope, TaxSubjectScope.jointlyAssessedCouple);
+                                    ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:387:39: Error: No named parameter with the name 'taxProfilePersistence'.
+      final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:400:23: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:397:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:395:22: Error: Undefined name 'FiscalSnapshotSelector'.
+      final selected = FiscalSnapshotSelector.selectAssessedBaseline(
+                       ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:403:29: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(selected.status, FiscalSelectionStatus.available);
+                              ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:416:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:418:43: Error: No named parameter with the name 'taxProfilePersistence'.
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:442:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:444:43: Error: No named parameter with the name 'taxProfilePersistence'.
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:468:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:474:43: Error: No named parameter with the name 'taxProfilePersistence'.
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:521:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:523:43: Error: No named parameter with the name 'taxProfilePersistence'.
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:531:23: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.individual,
+                        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:539:38: Error: Undefined name 'TaxSubjectScope'.
+      expect(replacement.subjectScope, TaxSubjectScope.individual);
+                                       ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:554:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:556:41: Error: No named parameter with the name 'taxProfilePersistence'.
+      final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:567:15: Error: Undefined name 'TaxDocumentKind'.
+          kind: TaxDocumentKind.provisionalBill,
+                ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:568:17: Error: Undefined name 'TaxAssessmentStatus'.
+          status: TaxAssessmentStatus.provisional,
+                  ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:578:27: Error: Undefined name 'TaxAuthorityScope'.
+            authorityScope: TaxAuthorityScope.federalDirect,
+                            ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:579:22: Error: Undefined name 'TaxBaseScope'.
+            baseScope: TaxBaseScope.incomeOnly,
+                       ^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:576:27: Error: Couldn't find constructor 'AssessedTaxAmount'.
+          federalTax: const AssessedTaxAmount(
+                            ^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:586:39: Error: No named parameter with the name 'taxProfilePersistence'.
+      final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:606:23: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:603:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:601:26: Error: Undefined name 'FiscalSnapshotSelector'.
+      final assessed2024 = FiscalSnapshotSelector.selectAssessedBaseline(
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:609:33: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(assessed2024.status, FiscalSelectionStatus.available);
+                                  ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:616:23: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:613:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:611:29: Error: Undefined name 'FiscalSnapshotSelector'.
+      final provisional2025 = FiscalSnapshotSelector.selectAssessedBaseline(
+                              ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:619:36: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(provisional2025.status, FiscalSelectionStatus.partialAsk);
+                                     ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:625:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:627:43: Error: No named parameter with the name 'taxProfilePersistence'.
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:631:7: Error: 'TaxDocumentKind' isn't a type.
+        TaxDocumentKind kind,
+        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:632:7: Error: 'TaxAssessmentStatus' isn't a type.
+        TaxAssessmentStatus status,
+        ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:647:9: Error: Undefined name 'TaxDocumentKind'.
+          TaxDocumentKind.taxpayerReturn,
+          ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:648:9: Error: Undefined name 'TaxAssessmentStatus'.
+          TaxAssessmentStatus.inForce,
+          ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:655:9: Error: Undefined name 'TaxDocumentKind'.
+          TaxDocumentKind.provisionalBill,
+          ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:656:9: Error: Undefined name 'TaxAssessmentStatus'.
+          TaxAssessmentStatus.assessedAppealable,
+          ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:666:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:667:28: Error: 'TaxReviewConfirmation' isn't a type.
+      final confirmations = <TaxReviewConfirmation Function()>[
+                             ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:682:43: Error: No named parameter with the name 'taxProfilePersistence'.
+        final writer = CoachProfileProvider(taxProfilePersistence: persistence);
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:684:41: Error: No named parameter with the name 'taxProfilePersistence'.
+        final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+                                          ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:691:25: Error: Undefined name 'TaxSubjectScope'.
+            subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                          ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:688:15: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+          const FiscalSnapshotQuery(
+                ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:686:25: Error: Undefined name 'FiscalSnapshotSelector'.
+        final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:694:32: Error: Undefined name 'FiscalSelectionStatus'.
+        expect(selection.status, FiscalSelectionStatus.partialAsk);
+                                 ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:701:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:703:43: Error: No named parameter with the name 'taxProfilePersistence'.
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:720:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:724:21: Error: Undefined name 'TaxSubjectScope'.
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                      ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:721:19: Error: Method not found: 'FiscalSnapshotQuery'.
+      const query = FiscalSnapshotQuery(
+                    ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:729:7: Error: No named parameter with the name 'taxProfilePersistence'.
+        taxProfilePersistence: provisionalStore,
+        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:734:15: Error: Undefined name 'TaxDocumentKind'.
+          kind: TaxDocumentKind.provisionalBill,
+                ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:735:17: Error: Undefined name 'TaxAssessmentStatus'.
+          status: TaxAssessmentStatus.provisional,
+                  ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:741:7: Error: No named parameter with the name 'taxProfilePersistence'.
+        taxProfilePersistence: provisionalStore,
+        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:744:33: Error: Undefined name 'FiscalSnapshotSelector'.
+      final incompleteSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+                                  ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:748:40: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(incompleteSelection.status, FiscalSelectionStatus.partialAsk);
+                                         ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:767:7: Error: No named parameter with the name 'taxProfilePersistence'.
+        taxProfilePersistence: assessmentStore,
+        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:773:7: Error: No named parameter with the name 'taxProfilePersistence'.
+        taxProfilePersistence: assessmentStore,
+        ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:776:32: Error: Undefined name 'FiscalSnapshotSelector'.
+      final availableSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+                                 ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:780:39: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(availableSelection.status, FiscalSelectionStatus.available);
+                                        ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:795:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:807:43: Error: No named parameter with the name 'taxProfilePersistence'.
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:819:23: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:816:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:814:23: Error: Undefined name 'FiscalSnapshotSelector'.
+      final selection = FiscalSnapshotSelector.selectAssessedBaseline(
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:822:30: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(selection.status, FiscalSelectionStatus.available);
+                               ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:829:18: Error: Setter not found: 'typedTaxProfile'.
+      FeatureFlags.typedTaxProfile = true;
+                   ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:831:43: Error: No named parameter with the name 'taxProfilePersistence'.
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+                                            ^^^^^^^^^^^^^^^^^^^^^
+  lib/providers/coach_profile_provider.dart:40:7: Context: The class 'CoachProfileProvider' has a constructor that takes no arguments.
+  class CoachProfileProvider extends ChangeNotifier {
+        ^
+  test/providers/tax_provenance_profile_test.dart:841:15: Error: Undefined name 'TaxDocumentKind'.
+          kind: TaxDocumentKind.provisionalBill,
+                ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:842:17: Error: Undefined name 'TaxAssessmentStatus'.
+          status: TaxAssessmentStatus.provisional,
+                  ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:851:15: Error: Undefined name 'TaxDocumentKind'.
+          kind: TaxDocumentKind.taxpayerReturn,
+                ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:852:17: Error: Undefined name 'TaxAssessmentStatus'.
+          status: TaxAssessmentStatus.selfDeclared,
+                  ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:859:15: Error: Undefined name 'TaxDocumentKind'.
+          kind: TaxDocumentKind.finalTaxBill,
+                ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:860:17: Error: Undefined name 'TaxAssessmentStatus'.
+          status: TaxAssessmentStatus.unknown,
+                  ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:902:23: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:899:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:897:27: Error: Undefined name 'FiscalSnapshotSelector'.
+      final finalBillOnly = FiscalSnapshotSelector.selectAssessedBaseline(
+                            ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:905:34: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(finalBillOnly.status, FiscalSelectionStatus.partialAsk);
+                                   ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:913:23: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:910:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:908:30: Error: Undefined name 'FiscalSnapshotSelector'.
+      final assessedBaseline = FiscalSnapshotSelector.selectAssessedBaseline(
+                               ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:916:37: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(assessedBaseline.status, FiscalSelectionStatus.available);
+                                      ^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:930:23: Error: Undefined name 'TaxSubjectScope'.
+          subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+                        ^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:927:13: Error: Couldn't find constructor 'FiscalSnapshotQuery'.
+        const FiscalSnapshotQuery(
+              ^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:925:22: Error: Undefined name 'FiscalSnapshotSelector'.
+      final conflict = FiscalSnapshotSelector.selectAssessedBaseline(
+                       ^^^^^^^^^^^^^^^^^^^^^^
+  test/providers/tax_provenance_profile_test.dart:933:29: Error: Undefined name 'FiscalSelectionStatus'.
+      expect(conflict.status, FiscalSelectionStatus.partialAsk);
+                              ^^^^^^^^^^^^^^^^^^^^^
+  .
+00:00 +0 -1: Some tests failed.

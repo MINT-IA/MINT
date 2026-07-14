@@ -1,0 +1,51 @@
+## MINT External Audit — G1-PROV-03 Tax Assessment Ingestion (architecture mode)
+
+**Scope audited:** `docs/codex/TAX_ASSESSMENT_INGESTION.md` (staged) against live tax-ingestion code, plus the recent `g1` "provenance green proof" commits (`c76d62f3b`, `9da8bc96f`).
+
+The spec itself is well-reasoned, correctly sourced (Fedlex/AFC), and accurately diagnoses the defects. The problem is the **phase evidence**: recent commits accept a "provenance green" proof, but the live subsystem G1-PROV-03 targets still ships behavior the spec forbids, and the provenance envelope does not cover the tax path. The spec is a pre-code contract (it says so, line 2), so it cannot be counted as closing the gap it describes.
+
+---
+
+### P0 — Blocking
+
+**P0-1 · Average/effective rate persisted as a *certified* marginal rate**
+- `apps/mobile/lib/services/document_parser/tax_declaration_parser.dart:224-228` — the `taux_marginal_effectif` field's third pattern matches `"taux moyen d'imposition"`. `_extractField` returns on first pattern match, so a document that only carries an average rate is captured *as* the marginal field.
+- `tax_declaration_parser.dart:313-338` — when no marginal is found, it computes `(cantonal+federal)/revenu` and appends it as `taux_marginal_effectif` (`profileField: actualMarginalRate`, conf 0.55).
+- `apps/mobile/lib/providers/coach_profile_provider.dart:2333, 2346-2347` — that value tags `fiscal.tauxMarginal = ProfileDataSource.certificate`.
+- **Reproduction:** scan any doc containing `"Taux moyen d'imposition 22,3 %"` and no explicit marginal → confirm in `extraction_review_screen.dart:696` → `fiscal.tauxMarginal` stored with `certificate` provenance.
+- Violates spec §3 + test cases #7/#8 and CLAUDE.md NEVER #8. The spec's whole premise is that this must never happen.
+
+**P0-2 · `certificate` applied regardless of document kind**
+- `DocumentType.taxDeclaration` is one enum for declaration *and* assessment notice; `extraction_review_screen.dart:686-696` routes both to `updateFromTaxExtraction`.
+- `coach_profile_provider.dart:2338-2351` and restore path `models/coach_profile.dart:3312-3328` tag **every** fiscal field `certificate` (trust 0.95) with no `documentKind` gate.
+- **Reproduction:** scan a self-filled `taxpayerReturn` → `fiscal.revenuImposable = certificate`.
+- Violates spec condition #1 (declaration must be `userInput`, provisional `estimated`; only an authority assessment's confirmed fields may be `certificate`).
+
+---
+
+### P1 — Must fix before phase acceptance
+
+**P1-1 · Façade-sans-câblage: certified provenance for facts nothing consumes**
+- The extracted numeric values are persisted only to wizard answers and restored as **provenance markers**; there is no typed `CoachProfile.revenuImposable`/`tauxMarginal` numeric field (`grep` on `models/coach_profile.dart` finds only the `dataSources` key, `:3314`).
+- The one arbitrage consumer recomputes instead of reading the scan: `apps/mobile/lib/screens/arbitrage/allocation_annuelle_screen.dart:104-111` calls `RetirementTaxCalculator.estimateMarginalRate(revenu, canton)` and ignores the scanned rate.
+- Result: MINT writes `certificate`-grade fiscal provenance that no calculator reads — the #1 MINT bug-driver named in AGENTS.md:134. The team's own `.planning/goals/G1-ledger-gap-matrix.md:123-126` marks these consumers `quarantined`/`partial`.
+
+**P1-2 · Data-model contract already violated at the source**
+- Rate stored as percent (`31.5`/`32.5`), not ratio: `tax_declaration_parser.dart:106-108`, asserted by tests `coach_profile_provider_tax_extraction_test.dart:156, 195, 410`. Spec §3 forbids the `31.5` format entering the new model.
+- Cantonal-only, `ICC` (cantonal+communal), and `total ICC` are conflated into one `actualCantonalTax`: `tax_declaration_parser.dart:178-191`. Spec condition #4 / test #9 require these be distinguished.
+
+**P1-3 · Provenance "green proof" excludes the tax path**
+- Commit `c76d62f3b` accepts a per-field provenance proof; the canonical envelope is `__provenance` with `{source, updatedAt, sourceDate}` (`models/coach_profile.dart:3265-3293`).
+- `updateFromTaxExtraction` (provider `:2338-2398`) never writes `__provenance`; it uses the **legacy** `_coach_tax_source` marker with **no `sourceDate`** (restore path `:3312-3328`). So the subsystem G1-PROV-03 is about is the one the accepted proof does not cover. Spec §2 mandates the `sourceDate` slot and forbids inferring freshness/taxYear.
+
+---
+
+### Not reproduced / limits of evidence
+- I did **not** find a live consumer that reads the scanned marginal *value* into an arbitrage number, so P0-1's downstream money impact is currently bounded by P1-1 (the value is dead-wired). The compliance/trust harm is real regardless: the field is displayed as certificate-sourced. To fully rule in/out, grep any UI reading `dataSources['fiscal.tauxMarginal']` for confidence/freshness badges.
+- No feature flag guards this path (`grep FeatureFlags` around the scan/review screens returns nothing) — contradicts AGENTS.md vibe-rule #7, so the P0s are reachable in shipped builds.
+
+---
+
+## VERDICT: **NO-GO**
+
+The spec is a sound contract and should proceed to implementation. But the **phase evidence overclaims**: recent commits mark provenance "green" while the live tax path — the exact target of G1-PROV-03 — still (a) persists average/self-declared rates as `certificate` marginal data (P0-1/P0-2), (b) bypasses the `__provenance`/`sourceDate` envelope that proof was accepted on (P1-3), and (c) writes certified provenance for values no consumer reads (P1-1). Accept the spec as design; do not accept G1-PROV-03 as satisfied until the P0s are gated by `documentKind` and the tax path is migrated onto the canonical provenance envelope with a red→green test that fails on average-as-marginal and on declaration-as-certificate.
