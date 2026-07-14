@@ -67,8 +67,8 @@ void main() {
         snapshot.federalDirectAssessedTax?.baseScope,
         TaxBaseScope.incomeOnly,
       );
-      expect(snapshot.explicitMarginalIncomeTaxRate, 0.325);
-      expect(snapshot.explicitAverageIncomeTaxRate, 0.1915);
+      expect(snapshot.explicitMarginalIncomeTaxRate, closeTo(0.325, 1e-12));
+      expect(snapshot.explicitAverageIncomeTaxRate, closeTo(0.1915, 1e-12));
       expect(
         profile.fiscal.provenanceValidatedSnapshotIds,
         contains(snapshot.snapshotId),

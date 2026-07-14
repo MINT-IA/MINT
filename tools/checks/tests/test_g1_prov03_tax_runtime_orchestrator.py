@@ -424,6 +424,9 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     assert "TaxAuthorityScope.federalDirect" in reader
     assert "TaxBaseScope.incomeAndWealth" in reader
     assert "TaxBaseScope.incomeOnly" in reader
+    assert "closeTo(0.325, 1e-12)" in reader
+    assert "closeTo(0.1915, 1e-12)" in reader
+    assert "expect(snapshot.explicitAverageIncomeTaxRate, 0.1915)" not in reader
     assert "ProfileDataSource.certificate" in reader
     assert "ConfidenceScorer.score(profile)" in reader
     assert "fiscal.assessedBaseline" in reader
