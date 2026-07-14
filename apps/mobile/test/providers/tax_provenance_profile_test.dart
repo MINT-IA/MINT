@@ -117,6 +117,7 @@ TaxReviewConfirmation _confirmation(
   double? marginalRate = 0.325,
   double? averageRate = 0.186,
   TaxSubjectScope subjectScope = TaxSubjectScope.jointlyAssessedCouple,
+  DateTime Function()? now,
 }) {
   return TaxReviewConfirmation(
     candidate: candidate,
@@ -145,6 +146,7 @@ TaxReviewConfirmation _confirmation(
         : federalTax as AssessedTaxAmount?,
     explicitMarginalIncomeTaxRate: marginalRate,
     explicitAverageIncomeTaxRate: averageRate,
+    now: now,
   );
 }
 
@@ -152,6 +154,241 @@ void main() {
   tearDown(() {
     FeatureFlags.typedTaxProfile = false;
     FeatureFlags.documentTaxAssessmentEnabled = false;
+  });
+
+  test('tax review confirmation enforces the injected civil tax year', () {
+    DateTime today() => DateTime.utc(2026, 7, 14);
+
+    expect(
+      () => _confirmation(
+        _candidate(_assessmentId),
+        taxYear: 2026,
+        now: today,
+      ),
+      returnsNormally,
+    );
+    for (final invalidYear in const [1899, 2027]) {
+      expect(
+        () => _confirmation(
+          _candidate(_assessmentId),
+          taxYear: invalidYear,
+          now: today,
+        ),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(
+        () => _confirmation(
+          _candidate(_assessmentId),
+          basedOnTaxYear: invalidYear,
+          now: today,
+        ),
+        throwsA(isA<ArgumentError>()),
+      );
+    }
+    expect(
+      () => _confirmation(
+        _candidate(_provisionalId),
+        kind: TaxDocumentKind.provisionalBill,
+        status: TaxAssessmentStatus.provisional,
+        taxYear: 2025,
+        basedOnTaxYear: 2026,
+        now: today,
+      ),
+      throwsA(isA<ArgumentError>()),
+    );
+
+    expect(
+      () => FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2026,
+        subjectScope: TaxSubjectScope.individual,
+        cantonCode: 'VD',
+        now: today,
+      ),
+      returnsNormally,
+    );
+    expect(
+      () => FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2027,
+        subjectScope: TaxSubjectScope.individual,
+        cantonCode: 'VD',
+        now: today,
+      ),
+      throwsA(isA<ArgumentError>()),
+    );
+  });
+
+  test('provider rejects future tax and basis years before persistence',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final confirmations = [
+      _confirmation(
+        _candidate(_assessmentId),
+        taxYear: 2027,
+        now: () => DateTime.utc(2027, 7, 14),
+      ),
+      _confirmation(
+        _candidate(_assessmentId),
+        taxYear: 2025,
+        basedOnTaxYear: 2027,
+        now: () => DateTime.utc(2027, 7, 14),
+      ),
+    ];
+
+    for (final confirmation in confirmations) {
+      final persistence = _MemoryTaxPersistence();
+      final provider = CoachProfileProvider(
+        taxProfilePersistence: persistence,
+        now: () => DateTime.utc(2026, 7, 14),
+      );
+      await expectLater(
+        provider.acceptTaxReview(confirmation),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(persistence.saveCalls, 0);
+      expect(persistence.answers, isEmpty);
+      expect(provider.profile, isNull);
+    }
+  });
+
+  test(
+      'cold provenance and selector independently exclude 2099 before ranking 2025',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    DateTime today() => DateTime.utc(2026, 7, 14);
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: today,
+    );
+    await writer.acceptTaxReview(
+      _confirmation(
+        _candidate(_assessmentId),
+        taxYear: 2025,
+        now: today,
+      ),
+    );
+    await writer.acceptTaxReview(
+      _confirmation(
+        _candidate(_provisionalId),
+        kind: TaxDocumentKind.provisionalBill,
+        status: TaxAssessmentStatus.provisional,
+        taxYear: 2026,
+        basedOnTaxYear: 2025,
+        now: today,
+      ),
+    );
+    const futureId = '99999999-9999-4999-8999-999999999999';
+    await writer.acceptTaxReview(
+      _confirmation(
+        _candidate(futureId),
+        taxYear: 2026,
+        now: today,
+      ),
+    );
+    final writtenSnapshots = writer.profile!.fiscal.snapshots;
+    final valid2025 = writtenSnapshots.singleWhere(
+      (snapshot) => snapshot.snapshotId == _assessmentId,
+    );
+    final invalidFutureBasis = writtenSnapshots
+        .singleWhere((snapshot) => snapshot.snapshotId == futureId)
+        .copyWith(taxYear: 2025, basedOnTaxYear: 2099);
+
+    final rawRoot = jsonDecode(
+      persistence.answers['_coach_tax_snapshots_v1'] as String,
+    ) as Map<String, dynamic>;
+    final rawFuture = (rawRoot['snapshots'] as List<dynamic>)
+        .cast<Map<String, dynamic>>()
+        .singleWhere((snapshot) => snapshot['snapshotId'] == futureId);
+    rawFuture['taxYear'] = 2099;
+    final rawProvisional = (rawRoot['snapshots'] as List<dynamic>)
+        .cast<Map<String, dynamic>>()
+        .singleWhere((snapshot) => snapshot['snapshotId'] == _provisionalId);
+    rawProvisional['basedOnTaxYear'] = 2099;
+    persistence.answers['_coach_tax_snapshots_v1'] = jsonEncode(rawRoot);
+
+    final cold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: today,
+    );
+    await cold.loadFromWizard();
+    expect(cold.profile!.fiscal.snapshots, hasLength(3));
+    expect(
+      cold.profile!.fiscal.provenanceValidatedSnapshotIds,
+      {_assessmentId},
+      reason: 'cold provenance must reject the future-year snapshot',
+    );
+    final coldSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+      cold.profile!.fiscal,
+      const FiscalSnapshotQuery.latestCompleteness(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+      ),
+      now: today,
+    );
+    expect(coldSelection.status, FiscalSelectionStatus.available);
+
+    final hostileValidatedProfile = FiscalProfile(
+      snapshots: [valid2025, invalidFutureBasis],
+      provenanceValidatedSnapshotIds: const {_assessmentId, futureId},
+    );
+    final independentlyFiltered = FiscalSnapshotSelector.selectAssessedBaseline(
+      hostileValidatedProfile,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2025,
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+        cantonCode: 'VD',
+        now: today,
+      ),
+      now: today,
+    );
+    expect(independentlyFiltered.status, FiscalSelectionStatus.available);
+    expect(independentlyFiltered.snapshot?.snapshotId, _assessmentId);
+  });
+
+  test('undated precise tax fact stays visible but needs confirmation',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    DateTime today() => DateTime.utc(2026, 7, 14);
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: today,
+    );
+    await writer.acceptTaxReview(
+      _confirmation(
+        _candidate(_assessmentId),
+        sourceDate: null,
+        now: today,
+      ),
+    );
+    final precise = FiscalSnapshotSelector.selectAssessedBaseline(
+      writer.profile!.fiscal,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: 2025,
+        subjectScope: TaxSubjectScope.jointlyAssessedCouple,
+        cantonCode: 'VD',
+        now: today,
+      ),
+      now: today,
+    );
+    expect(
+      precise.status,
+      FiscalSelectionStatus.availableNeedsConfirmation,
+    );
+    expect(precise.snapshot?.snapshotId, _assessmentId);
+
+    final completeness = FiscalSnapshotSelector.selectAssessedBaseline(
+      writer.profile!.fiscal,
+      const FiscalSnapshotQuery.latestCompleteness(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+      ),
+      now: today,
+    );
+    expect(completeness.status, FiscalSelectionStatus.partialAsk);
+    expect(completeness.snapshot, isNull);
   });
 
   final coldProvenanceCorruptions = <({

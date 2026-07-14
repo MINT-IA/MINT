@@ -795,10 +795,10 @@ void main() {
       mutate: (tester) => _enter(
             tester,
             controlKey: 'tax_review_tax_year',
-            value: '2101',
+            value: '2027',
           ),
     ),
-    for (final year in const ['1899', '2101'])
+    for (final year in const ['1899', '2027'])
       (
         name: 'based-on tax year $year outside the supported range',
         mutate: (tester) => _enter(
@@ -911,6 +911,7 @@ void main() {
         coachProfile: coachProfile,
         biography: biography,
         externalSync: externalSync,
+        now: () => DateTime.utc(2026, 7, 14),
       );
       await tester.pumpWidget(harness.widget);
       await tester.pumpAndSettle();
@@ -926,6 +927,61 @@ void main() {
       expect(retained.extraction.fields.single.sourceText, 'PII-NEVER-SEND');
     });
   }
+
+  testWidgets('review accepts tax year equal to the injected current year',
+      (tester) async {
+    _setView(tester, 2800);
+    FeatureFlags.typedTaxProfile = true;
+    final extraction = _taxExtraction();
+    final coachProfile = _CoachProfileSpy();
+    final harness = _harness(
+      extraction: extraction,
+      candidate: _readyCandidate(extraction, taxYear: 2026),
+      coachProfile: coachProfile,
+      biography: _BiographySpy(),
+      externalSync: _ExternalSyncSpy(),
+      now: () => DateTime.utc(2026, 7, 14),
+    );
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _tapKey(tester, 'tax_review_confirm_cta');
+
+    expect(coachProfile.acceptTaxReviewCalls, 1);
+    expect(coachProfile.acceptedConfirmation?.taxYear, 2026);
+  });
+
+  testWidgets('provisional based-on year cannot exceed its tax year',
+      (tester) async {
+    _setView(tester, 2800);
+    FeatureFlags.typedTaxProfile = true;
+    final extraction = _taxExtraction();
+    final candidate = _provisionalCandidate(extraction);
+    final coachProfile = _CoachProfileSpy();
+    final harness = _harness(
+      extraction: extraction,
+      candidate: candidate,
+      coachProfile: coachProfile,
+      biography: _BiographySpy(),
+      externalSync: _ExternalSyncSpy(),
+      now: () => DateTime.utc(2026, 7, 14),
+    );
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    await _enter(
+      tester,
+      controlKey: 'tax_review_based_on_tax_year',
+      value: '2026',
+    );
+
+    await _tapKey(tester, 'tax_review_confirm_cta');
+
+    expect(coachProfile.acceptTaxReviewCalls, 0);
+    expect(
+      harness.scanSessions.byId(harness.scanSessionId)?.taxCandidate,
+      same(candidate),
+    );
+  });
 
   final permittedPartialCases = <({
     String name,

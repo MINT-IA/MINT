@@ -1382,6 +1382,16 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       final basedOnTaxYear = _parseOptionalYear(_basedOnTaxYearController.text);
       final sourceDate = _parseOptionalTaxDate(_sourceDateController.text);
       final currentDay = _civilDay((widget.now ?? DateTime.now)());
+      bool isValidCivilTaxYear(int? year) =>
+          year == null || year >= 1900 && year <= currentDay.year;
+      if (!isValidCivilTaxYear(taxYear) ||
+          !isValidCivilTaxYear(basedOnTaxYear) ||
+          _taxDocumentKind == TaxDocumentKind.provisionalBill &&
+              taxYear != null &&
+              basedOnTaxYear != null &&
+              basedOnTaxYear > taxYear) {
+        return null;
+      }
       if (sourceDate != null && _civilDay(sourceDate).isAfter(currentDay)) {
         return null;
       }
@@ -1448,6 +1458,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             marginalPercent == null ? null : marginalPercent / 100,
         explicitAverageIncomeTaxRate:
             averagePercent == null ? null : averagePercent / 100,
+        now: () => currentDay,
       );
     } on ArgumentError {
       return null;

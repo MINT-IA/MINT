@@ -368,6 +368,12 @@ class CoachProfileProvider extends ChangeNotifier {
         'future civil source dates cannot enter the ledger',
       );
     }
+    TaxSnapshot.validateTaxYears(
+      taxYear: confirmation.taxYear,
+      basedOnTaxYear: confirmation.basedOnTaxYear,
+      documentKind: confirmation.documentKind,
+      currentYear: currentCivilTime.year,
+    );
 
     final loaded = await _taxProfilePersistence.loadAnswers();
     final migration = _withLegacyTaxQuarantine(loaded);

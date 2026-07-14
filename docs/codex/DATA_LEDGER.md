@@ -7,7 +7,7 @@
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
-> **Focused tax contract:** [TAX_ASSESSMENT_INGESTION.md](TAX_ASSESSMENT_INGESTION.md) defines the Swiss document, period, ICC/IFD, rate and tax-unit semantics; §4.0 below owns the mobile storage/wiring contract.
+> **Focused tax contract:** [TAX_ASSESSMENT_INGESTION.md](TAX_ASSESSMENT_INGESTION.md) defines the Swiss document, period, ICC/IFD, rate and tax-unit semantics; §4.0 below owns the mobile storage/wiring candidate, kept default-off by the composite `documentTaxAssessmentEnabled && typedTaxProfile` gate. Malformed-root privacy remediation, frozen-SHA runtime proof, external Claude audits, the final G1 scorecard and any activation decision remain pending.
 
 ---
 
@@ -256,7 +256,7 @@ coach-writable key.
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
 | `spouseBirthYear` | `q_partner_birth_year` | int (year) | couple | userInput | static | .60 | applySaveFact/mergeAnswers | `conjoint.birthYear`, couple AVS, survivor question |
-| `spouseIncomeNetMonthly` | `q_partner_net_income_chf` (net → gross via existing conjoint logic) | double CHF/mo | couple | userInput | annual | .60 | applySaveFact/mergeAnswers | `revenuBrutAnnuelCouple`, couple budget, AVS plafonnement |
+| `spouseIncomeNetMonthly` | `q_partner_net_income_chf` (net → gross via existing conjoint logic) | double CHF/mo | couple | userInput | annual | .60 | applySaveFact/mergeAnswers | `revenuBrutAnnuelCouple`, couple budget and household forecasts |
 | `spouseAvsContributionYears` | `q_spouse_avs_contribution_years` (clamped 0–44; couple-only) | int (yr) | couple | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | couple AVS contribution history; distinct from certified gap years |
 
 > Spouse keys feed `CoachProfile.conjoint`. Mobile `applySaveFact` accepts `spouseBirthYear` and `spouseIncomeNetMonthly` only when the current profile is `marie` or `concubinage`, to prevent creating a ghost spouse for a single user; backend allowlist membership alone is therefore not sufficient for these two mobile writes. Any `mergeAnswers` delta that sets `q_civil_status` to a non-couple status clears `q_partner_*`/`q_spouse_*` answers plus partner-income secure values before profile reconstruction. **Gap (§7):** `HouseholdProvider` is backend-only and is NOT synced down into `conjoint` — offline simulators miss the spouse. The bridge in §7 is mandatory.
@@ -327,11 +327,11 @@ After T-0 and T-1, `_mapFactKeyToAnswers` handles all 36 keys and every mapper t
 
 These exist on `CoachProfile` sub-models and are written by wizard / scan extraction / simulator write-back via `mergeAnswers`/`updateProfile`. They are **not** in the allowlist (the coach cannot set them by chat today). Listed because computations consume them and the provenance contract (§6) applies.
 
-### 4.0 Tax assessment snapshots (G1-PROV-03 target; not live)
+### 4.0 Tax assessment snapshots (G1-PROV-03 candidate; hard floor open)
 
 The Swiss meaning is fixed by
 [TAX_ASSESSMENT_INGESTION.md](TAX_ASSESSMENT_INGESTION.md). The smallest
-canonical mobile store is one sensitive answer key,
+canonical mobile store is implemented as one sensitive answer key,
 `wizard_answers_v2['_coach_tax_snapshots_v1']`, containing a JSON **string**
 with this versioned root (the string form is required by the current secure
 store codec):
@@ -349,16 +349,20 @@ store codec):
 }
 ```
 
-`_coach_tax_snapshots_v1` must be added to `SecureWizardStore`; neither its
+`_coach_tax_snapshots_v1` is registered in `SecureWizardStore`; neither its
 value nor `legacyQuarantine.values` may appear in SharedPreferences, logs,
 analytics, routes, Biography, backend/LLM payloads, or screenshots.
-`FiscalProfile` exposes only `snapshots` and `legacyDataNeedsReview`; raw
-quarantine values are not a consumer API.
+`FiscalProfile` exposes `snapshots`, `provenanceValidatedSnapshotIds` and
+`legacyDataNeedsReview`; raw quarantine values are not a consumer API.
 `legacyQuarantine` inside this root is the only tax-legacy quarantine location;
 do not create a standalone `__taxLegacyQuarantineV1` key or second store.
 
 ```text
-FiscalProfile { snapshots: List<TaxSnapshot>, legacyDataNeedsReview: bool }
+FiscalProfile {
+  snapshots: List<TaxSnapshot>,
+  provenanceValidatedSnapshotIds: Set<String>,
+  legacyDataNeedsReview: bool
+}
 
 TaxSnapshot {
   snapshotId: String
@@ -370,6 +374,7 @@ TaxSnapshot {
                 finalTaxBill | unknown
   assessmentStatus: selfDeclared | provisional | assessedAppealable |
                     contested | inForce | unknown
+  inForceAttested: bool  // false by default; explicit review attestation, never inferred
   subjectScope: individual | jointlyAssessedCouple | unknown
   cantonCode: String?
   municipalityId: String?
@@ -417,6 +422,7 @@ fiscal.snapshots.<id>.basedOnTaxYear
 fiscal.snapshots.<id>.sourceDate
 fiscal.snapshots.<id>.documentKind
 fiscal.snapshots.<id>.assessmentStatus
+fiscal.snapshots.<id>.inForceAttested
 fiscal.snapshots.<id>.subjectScope
 fiscal.snapshots.<id>.cantonCode
 fiscal.snapshots.<id>.municipalityId
@@ -435,13 +441,27 @@ Every entry keeps the exact `{source, updatedAt, sourceDate}` envelope.
 paths. One confirmation stamp is used for all written paths; source date is the
 document date or null, never that stamp.
 
-Source mapping is closed: a confirmed `taxpayerReturn` is `userInput`, a
-confirmed `provisionalBill` is `estimated`, and only confirmed
-`assessmentNotice` fields are `certificate`. `finalTaxBill`/`unknown` remain
-`estimated` unless the review establishes that the document is an assessment
-notice. Unconfirmed OCR writes nothing. Explicit average/effective-rate text
-may populate only `explicitAverageIncomeTaxRate`; a computed tax/income ratio
-populates neither canonical rate. ICC and IFD remain distinct.
+Source mapping is closed and field-centric. A confirmed `taxpayerReturn` is
+`userInput`; a confirmed `provisionalBill` is `estimated`; and documentary
+facts read and confirmed from an `assessmentNotice` remain `certificate`.
+`inForceAttested=true` records an explicit user attestation and is therefore
+`userInput`. The serialized `false` default is schema state, not an active
+attested fact, and has no provenance leaf. When the true attestation explicitly
+promotes `assessmentStatus` to `inForce`, that status path is also
+`userInput`; it does not promote the notice's amounts or other documentary
+metadata away from `certificate`. Other admitted document/status pairs keep
+their mapping from the focused tax contract:
+`assessedAppealable`/`contested` notice metadata is
+`certificate`, while `finalTaxBill`/`unknown` remains `estimated` unless the
+review establishes that the document is an assessment notice. Unconfirmed OCR
+writes nothing. Explicit average/effective-rate text may populate only
+`explicitAverageIncomeTaxRate`; a computed tax/income ratio populates neither
+canonical rate. ICC and IFD remain distinct.
+
+`assessedAppealable` is a legacy technical enum name for « taxation constatée,
+entrée en force non confirmée ». It never asserts that an objection window is
+still open: `sourceDate` is not the notification date, and MINT does not
+calculate procedural deadlines.
 
 There is one typed production seam and no parallel provider API:
 
@@ -471,7 +491,12 @@ persistence migration moves them into the secure `legacyQuarantine`, removes
 the loose legacy keys, and exposes only `legacyDataNeedsReview=true`; it does
 not infer year, tax unit, ICC/IFD scope, source date or marginal meaning.
 Canonical schema presence is authoritative and malformed canonical JSON fails
-closed instead of falling back to legacy.
+closed instead of falling back to legacy. Cold snapshots that are invalid,
+carry a future `sourceDate`, a `taxYear`/`basedOnTaxYear` outside
+`1900...today.year`, a provisional `basedOnTaxYear > taxYear`, or claim
+`assessmentStatus=inForce` without the explicit attestation and its exact
+provenance are excluded from provenance validation and selector consumption.
+Cold load never coerces, clamps, reinfers, or silently rewrites those values.
 
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,
@@ -481,6 +506,21 @@ confirmed `assessmentNotice` with `inForce` or `assessedAppealable` status;
 become an assessed baseline. Selection filters before ranking and returns one
 whole snapshot only: `inForce` first, then `assessedAppealable`, then newest
 non-null `sourceDate`.
+
+For `latestCompleteness`, a missing `sourceDate` is `partial+ask`, never a
+current complete baseline. A precise historical query may keep the snapshot
+visible only as `availableNeedsConfirmation`; consumers must label freshness
+unknown and must not treat that status as complete.
+
+Signed negative ICC/IFD taxable-income facts remain stored and provenanced
+without clamping, but neither precise nor latest selection consumes them yet.
+Until label, canton and ruleset semantics can distinguish a carried loss from a
+different net-income concept, the requested field returns `partial+ask`.
+
+The selector independently rejects `inForce` when `inForceAttested` is absent
+or false, even if the snapshot ID is mistakenly or artificially present in
+`provenanceValidatedSnapshotIds`; the validated-ID set never substitutes for
+the explicit boolean defense.
 
 Before consulting provenance `updatedAt` or UUID, the selector groups compatible
 contenders with the same requested year, status, source date and selector rank.
@@ -497,10 +537,19 @@ reconstructs the provider, and scoring must obtain fiscal completeness through
 `selectAssessedBaseline`. Removing or bypassing the selector must fail the gate;
 precise calculators still require an explicit target year.
 
-Tax ingestion remains behind a dedicated default-false feature flag/kill
-switch. Disabled mode must fail safe and must not fall back to the legacy
-average→marginal writer. Activation requires the G1-PROV-03 tests, cold
-selector proof, runtime proof and a named decision.
+Tax ingestion remains behind two dedicated local kill switches that both
+default to false. `typedTaxProfile` controls the typed ledger, writer and
+selector; `documentTaxAssessmentEnabled` controls the document acquisition and
+review surfaces. The product gate `taxAssessmentIngestionEnabled` is true only
+when `documentTaxAssessmentEnabled` and `typedTaxProfile` are both true; one
+enabled flag alone never exposes the journey. Disabled mode must fail safe and
+must not fall back to the legacy average→marginal writer. Activation requires
+the G1-PROV-03 tests, cold selector proof, runtime proof and a named decision.
+
+The targeted code gates are listed in the focused tax contract. They establish
+the implemented seam and its fail-closed behavior, not production activation.
+Frozen-SHA Maestro/Patrol evidence on one simulator, external Claude audits and
+the final G1 scorecard are still required before either flag may change.
 
 ### 4.1 AVS / LPP detail (from certificate extraction)
 

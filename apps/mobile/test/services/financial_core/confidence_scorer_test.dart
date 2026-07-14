@@ -738,10 +738,12 @@ void main() {
     group('typed fiscal field weights', () {
       setUp(() {
         FeatureFlags.typedTaxProfile = true;
+        FeatureFlags.documentTaxAssessmentEnabled = true;
       });
 
       tearDown(() {
         FeatureFlags.typedTaxProfile = false;
+        FeatureFlags.documentTaxAssessmentEnabled = false;
       });
 
       final cases = <({
@@ -848,6 +850,67 @@ void main() {
           expect(fiscal.status, testCase.status);
         });
       }
+
+      test('undated fiscal source is partial and keeps the review prompt', () {
+        final profile = _buildProfile(
+          age: 45,
+          salary: 8000,
+          canton: 'VD',
+          commune: 'Lausanne',
+          fiscal: _validatedFiscalProfile(
+            [
+              _assessedFiscalSnapshot(
+                income: 98500,
+                wealth: 245000,
+                marginalRate: 0.325,
+                sourceDateKnown: false,
+              ),
+            ],
+          ),
+        );
+
+        final fiscal = ConfidenceScorer.scoreAsBlocs(profile)['fiscalite']!;
+        final confidence = ConfidenceScorer.score(profile);
+
+        expect(fiscal.score, 4);
+        expect(fiscal.status, 'partial');
+        expect(
+          confidence.prompts.where(
+            (prompt) => prompt.fieldPath == 'fiscal.assessedBaseline',
+          ),
+          hasLength(1),
+        );
+      });
+
+      test('dated fiscal source can be complete and removes review prompt', () {
+        final profile = _buildProfile(
+          age: 45,
+          salary: 8000,
+          canton: 'VD',
+          commune: 'Lausanne',
+          fiscal: _validatedFiscalProfile(
+            [
+              _assessedFiscalSnapshot(
+                income: 98500,
+                wealth: 245000,
+                marginalRate: 0.325,
+              ),
+            ],
+          ),
+        );
+
+        final fiscal = ConfidenceScorer.scoreAsBlocs(profile)['fiscalite']!;
+        final confidence = ConfidenceScorer.score(profile);
+
+        expect(fiscal.score, 15);
+        expect(fiscal.status, 'complete');
+        expect(
+          confidence.prompts.where(
+            (prompt) => prompt.fieldPath == 'fiscal.assessedBaseline',
+          ),
+          isEmpty,
+        );
+      });
     });
   });
 
@@ -927,13 +990,14 @@ TaxSnapshot _assessedFiscalSnapshot({
   double? income,
   double? wealth,
   double? marginalRate,
+  bool sourceDateKnown = true,
 }) {
   return TaxSnapshot(
     snapshotId: snapshotId,
     profileOwnerId: 'opaque-owner',
     taxYear: 2025,
     basedOnTaxYear: null,
-    sourceDate: DateTime.utc(2026, 6, 20),
+    sourceDate: sourceDateKnown ? DateTime.utc(2026, 6, 20) : null,
     documentKind: TaxDocumentKind.assessmentNotice,
     assessmentStatus: TaxAssessmentStatus.inForce,
     inForceAttested: true,

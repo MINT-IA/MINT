@@ -481,6 +481,7 @@ class TaxReviewConfirmation {
     required AssessedTaxAmount? federalDirectAssessedTax,
     required double? explicitMarginalIncomeTaxRate,
     required double? explicitAverageIncomeTaxRate,
+    DateTime Function()? now,
   }) {
     if (assessmentStatus == TaxAssessmentStatus.inForce && !inForceAttested) {
       throw ArgumentError.value(
@@ -489,6 +490,12 @@ class TaxReviewConfirmation {
         'explicit user attestation required for an in-force assessment',
       );
     }
+    TaxSnapshot.validateTaxYears(
+      taxYear: taxYear,
+      basedOnTaxYear: basedOnTaxYear,
+      documentKind: documentKind,
+      currentYear: (now ?? DateTime.now)().year,
+    );
     TaxSnapshot.validateRuntimeFacts(
       documentKind: documentKind,
       assessmentStatus: assessmentStatus,

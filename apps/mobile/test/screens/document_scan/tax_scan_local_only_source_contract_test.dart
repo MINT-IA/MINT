@@ -7,6 +7,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 
 const _snapshotId = '11111111-1111-4111-8111-111111111111';
 
@@ -119,6 +120,7 @@ TaxExtractionCandidate _candidate({
 TaxReviewConfirmation _confirmation({
   TaxExtractionCandidate? candidate,
   int? taxYear = 2025,
+  double? cantonalIncome,
   double? federalIncome,
   AssessedTaxAmount? cantonalTax,
   AssessedTaxAmount? federalTax,
@@ -136,7 +138,7 @@ TaxReviewConfirmation _confirmation({
       cantonCode: 'VD',
       municipalityId: '5586',
       municipalityLabel: 'Lausanne',
-      cantonalCommunalTaxableIncomeChf: null,
+      cantonalCommunalTaxableIncomeChf: cantonalIncome,
       federalTaxableIncomeChf: federalIncome,
       cantonalCommunalTaxableWealthChf: null,
       cantonalCommunalAssessedTax: cantonalTax,
@@ -339,6 +341,7 @@ void main() {
 
   tearDown(() {
     FeatureFlags.typedTaxProfile = false;
+    FeatureFlags.documentTaxAssessmentEnabled = false;
   });
 
   setUpAll(() {
@@ -715,34 +718,128 @@ Revenu imposable IFD: CHF 96'200''',
     });
   }
 
-  test('finite negative taxable income is accepted and cold-round-trips',
-      () async {
-    FeatureFlags.typedTaxProfile = true;
-    final persistence = _MemoryTaxPersistence();
-    final provider = CoachProfileProvider(taxProfilePersistence: persistence);
-    await provider.acceptTaxReview(_confirmation(federalIncome: -1));
-    final cold = CoachProfileProvider(taxProfilePersistence: persistence);
-    await cold.loadFromWizard();
+  for (final incomeScope in const [
+    (
+      name: 'ICC',
+      field: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+    ),
+    (
+      name: 'IFD',
+      field: TaxSnapshotField.federalTaxableIncomeChf,
+    ),
+  ]) {
+    test(
+        'negative taxable income ${incomeScope.name} cold-round-trips but remains partialAsk',
+        () async {
+      FeatureFlags.typedTaxProfile = true;
+      FeatureFlags.documentTaxAssessmentEnabled = true;
+      final persistence = _MemoryTaxPersistence();
+      final provider = CoachProfileProvider(taxProfilePersistence: persistence);
+      await provider.acceptTaxReview(
+        _confirmation(
+          cantonalIncome: incomeScope.field ==
+                  TaxSnapshotField.cantonalCommunalTaxableIncomeChf
+              ? -1
+              : null,
+          federalIncome:
+              incomeScope.field == TaxSnapshotField.federalTaxableIncomeChf
+                  ? -1
+                  : null,
+        ),
+      );
+      final cold = CoachProfileProvider(taxProfilePersistence: persistence);
+      await cold.loadFromWizard();
 
-    final snapshot = cold.profile!.fiscal.snapshots.single;
-    expect(snapshot.federalTaxableIncomeChf, -1);
-    expect(
-      cold.profile!.fiscal.provenanceValidatedSnapshotIds,
-      contains(snapshot.snapshotId),
-    );
-    final selection = FiscalSnapshotSelector.selectAssessedBaseline(
-      cold.profile!.fiscal,
-      FiscalSnapshotQuery.precise(
-        requestedField: TaxSnapshotField.federalTaxableIncomeChf,
+      final snapshot = cold.profile!.fiscal.snapshots.single;
+      final fieldPath = incomeScope.field.name;
+      expect(snapshot.provenanceValue(fieldPath), -1);
+      expect(
+        cold.profile!.fiscal.provenanceValidatedSnapshotIds,
+        contains(snapshot.snapshotId),
+      );
+      expect(
+        cold.profile!
+            .dataSources['fiscal.snapshots.${snapshot.snapshotId}.$fieldPath'],
+        ProfileDataSource.certificate,
+      );
+      final strictSnapshot = Map<String, dynamic>.from(
+        (_decodeStrictTaxRoot(persistence.answers)['snapshots'] as List).single
+            as Map,
+      );
+      expect(strictSnapshot[fieldPath], -1);
+
+      final preciseQuery = FiscalSnapshotQuery.precise(
+        requestedField: incomeScope.field,
         taxYear: 2025,
         subjectScope: TaxSubjectScope.individual,
         cantonCode: 'VD',
-      ),
-    );
-    expect(selection.status, FiscalSelectionStatus.available);
-    expect(selection.snapshot?.snapshotId, snapshot.snapshotId);
-    expect(selection.snapshot?.federalTaxableIncomeChf, -1);
-  });
+      );
+      final preciseNegative = FiscalSnapshotSelector.selectAssessedBaseline(
+        cold.profile!.fiscal,
+        preciseQuery,
+      );
+      final latestNegative = FiscalSnapshotSelector.selectAssessedBaseline(
+        cold.profile!.fiscal,
+        FiscalSnapshotQuery.latestCompleteness(
+          requestedField: incomeScope.field,
+        ),
+      );
+      for (final selection in [preciseNegative, latestNegative]) {
+        expect(selection.status, FiscalSelectionStatus.partialAsk);
+        expect(selection.snapshot, isNull);
+      }
+
+      final positiveSnapshot = switch (incomeScope.field) {
+        TaxSnapshotField.cantonalCommunalTaxableIncomeChf => snapshot.copyWith(
+            cantonalCommunalTaxableIncomeChf: 1.0,
+          ),
+        TaxSnapshotField.federalTaxableIncomeChf => snapshot.copyWith(
+            federalTaxableIncomeChf: 1.0,
+          ),
+        _ => throw StateError('unsupported income field'),
+      };
+      final positiveProfile = cold.profile!.copyWith(
+        fiscal: cold.profile!.fiscal.copyWith(snapshots: [positiveSnapshot]),
+      );
+      final precisePositive = FiscalSnapshotSelector.selectAssessedBaseline(
+        positiveProfile.fiscal,
+        preciseQuery,
+      );
+      final latestPositive = FiscalSnapshotSelector.selectAssessedBaseline(
+        positiveProfile.fiscal,
+        FiscalSnapshotQuery.latestCompleteness(
+          requestedField: incomeScope.field,
+        ),
+      );
+      expect(precisePositive.status, FiscalSelectionStatus.available);
+      expect(precisePositive.snapshot?.provenanceValue(fieldPath), 1.0);
+      expect(latestPositive.status, FiscalSelectionStatus.available);
+
+      if (incomeScope.field ==
+          TaxSnapshotField.cantonalCommunalTaxableIncomeChf) {
+        final negativeFiscal =
+            ConfidenceScorer.scoreAsBlocs(cold.profile!)['fiscalite']!;
+        final positiveFiscal =
+            ConfidenceScorer.scoreAsBlocs(positiveProfile)['fiscalite']!;
+        final negativePrompts = ConfidenceScorer.score(cold.profile!).prompts;
+        final positivePrompts = ConfidenceScorer.score(positiveProfile).prompts;
+        expect(negativeFiscal.score, 0);
+        expect(positiveFiscal.score, 4);
+        expect(
+          negativePrompts.where(
+            (prompt) => prompt.fieldPath == 'fiscal.assessedBaseline',
+          ),
+          hasLength(1),
+        );
+        expect(
+          positivePrompts.where(
+            (prompt) => prompt.fieldPath == 'fiscal.assessedBaseline',
+          ),
+          isEmpty,
+        );
+      }
+    });
+  }
 
   test(
       'typed parser prefills finite negative incomes but rejects negative wealth and tax amounts',

@@ -1671,6 +1671,57 @@ final class TaxSnapshot {
     );
   }
 
+  static bool hasValidTaxYears({
+    required int? taxYear,
+    required int? basedOnTaxYear,
+    required TaxDocumentKind documentKind,
+    required int currentYear,
+  }) {
+    bool inCivilRange(int? year) =>
+        year == null || year >= 1900 && year <= currentYear;
+    if (!inCivilRange(taxYear) || !inCivilRange(basedOnTaxYear)) return false;
+    if (documentKind == TaxDocumentKind.provisionalBill &&
+        taxYear != null &&
+        basedOnTaxYear != null &&
+        basedOnTaxYear > taxYear) {
+      return false;
+    }
+    return true;
+  }
+
+  static void validateTaxYears({
+    required int? taxYear,
+    required int? basedOnTaxYear,
+    required TaxDocumentKind documentKind,
+    required int currentYear,
+  }) {
+    if (taxYear != null && (taxYear < 1900 || taxYear > currentYear)) {
+      throw ArgumentError.value(
+        taxYear,
+        'taxYear',
+        'civil tax year between 1900 and $currentYear required',
+      );
+    }
+    if (basedOnTaxYear != null &&
+        (basedOnTaxYear < 1900 || basedOnTaxYear > currentYear)) {
+      throw ArgumentError.value(
+        basedOnTaxYear,
+        'basedOnTaxYear',
+        'civil tax year between 1900 and $currentYear required',
+      );
+    }
+    if (documentKind == TaxDocumentKind.provisionalBill &&
+        taxYear != null &&
+        basedOnTaxYear != null &&
+        basedOnTaxYear > taxYear) {
+      throw ArgumentError.value(
+        basedOnTaxYear,
+        'basedOnTaxYear',
+        'provisional reference year cannot exceed taxYear',
+      );
+    }
+  }
+
   static void validateRuntimeFacts({
     required TaxDocumentKind documentKind,
     required TaxAssessmentStatus assessmentStatus,
@@ -2117,8 +2168,10 @@ final class FiscalSnapshotQuery {
     String? municipalityId,
     TaxAuthorityScope? authorityScope,
     TaxBaseScope? baseScope,
+    DateTime Function()? now,
   }) {
-    if (taxYear < 1900 || taxYear > 2100) {
+    final currentYear = (now ?? DateTime.now)().year;
+    if (taxYear < 1900 || taxYear > currentYear) {
       throw ArgumentError.value(taxYear, 'taxYear', 'valid tax year required');
     }
     if (subjectScope == TaxSubjectScope.unknown) {
@@ -2169,7 +2222,7 @@ final class FiscalSnapshotQuery {
   });
 }
 
-enum FiscalSelectionStatus { available, partialAsk }
+enum FiscalSelectionStatus { available, availableNeedsConfirmation, partialAsk }
 
 @immutable
 final class FiscalSelectionResult {
@@ -2193,6 +2246,14 @@ final class FiscalSelectionResult {
       FiscalSelectionResult._(
         status: FiscalSelectionStatus.available,
         snapshot: null,
+      );
+
+  factory FiscalSelectionResult.availableNeedsConfirmation(
+    TaxSnapshot snapshot,
+  ) =>
+      FiscalSelectionResult._(
+        status: FiscalSelectionStatus.availableNeedsConfirmation,
+        snapshot: snapshot,
       );
 
   factory FiscalSelectionResult.partialAsk(
@@ -2224,6 +2285,14 @@ abstract final class FiscalSnapshotSelector {
       }
       if (snapshot.assessmentStatus == TaxAssessmentStatus.inForce &&
           !snapshot.inForceAttested) {
+        return false;
+      }
+      if (!TaxSnapshot.hasValidTaxYears(
+        taxYear: snapshot.taxYear,
+        basedOnTaxYear: snapshot.basedOnTaxYear,
+        documentKind: snapshot.documentKind,
+        currentYear: today.year,
+      )) {
         return false;
       }
       if (snapshot.sourceDate case final sourceDate?
@@ -2279,6 +2348,12 @@ abstract final class FiscalSnapshotSelector {
       );
     }
     sameRank.sort(_compareTechnical);
+    if (best.sourceDate == null) {
+      if (query.intent == FiscalSnapshotQueryIntent.latestCompleteness) {
+        return FiscalSelectionResult.partialAsk();
+      }
+      return FiscalSelectionResult.availableNeedsConfirmation(sameRank.first);
+    }
     if (query.intent == FiscalSnapshotQueryIntent.latestCompleteness) {
       return FiscalSelectionResult.availableStatusOnly();
     }
@@ -2292,11 +2367,16 @@ abstract final class FiscalSnapshotSelector {
     TaxSnapshot snapshot,
     FiscalSnapshotQuery query,
   ) {
+    // A negative taxable income may represent a carried loss. Preserve it in
+    // the ledger, but do not consume it until label/canton/ruleset semantics
+    // exist to distinguish that legal meaning from a malformed baseline.
     return switch (query.requestedField) {
       TaxSnapshotField.cantonalCommunalTaxableIncomeChf =>
-        snapshot.cantonalCommunalTaxableIncomeChf != null,
+        snapshot.cantonalCommunalTaxableIncomeChf != null &&
+            snapshot.cantonalCommunalTaxableIncomeChf! >= 0,
       TaxSnapshotField.federalTaxableIncomeChf =>
-        snapshot.federalTaxableIncomeChf != null,
+        snapshot.federalTaxableIncomeChf != null &&
+            snapshot.federalTaxableIncomeChf! >= 0,
       TaxSnapshotField.cantonalCommunalTaxableWealthChf =>
         snapshot.cantonalCommunalTaxableWealthChf != null,
       TaxSnapshotField.cantonalCommunalAssessedTax =>
@@ -4701,6 +4781,14 @@ class CoachProfile {
     for (final snapshot in fiscal.snapshots) {
       if (snapshot.assessmentStatus == TaxAssessmentStatus.inForce &&
           !snapshot.inForceAttested) {
+        continue;
+      }
+      if (!TaxSnapshot.hasValidTaxYears(
+        taxYear: snapshot.taxYear,
+        basedOnTaxYear: snapshot.basedOnTaxYear,
+        documentKind: snapshot.documentKind,
+        currentYear: currentDay.year,
+      )) {
         continue;
       }
       if (snapshot.sourceDate case final sourceDate?
