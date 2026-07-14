@@ -23934,7 +23934,7 @@ class SDe extends S {
 
   @override
   String get taxReviewOptionAssessedAppealable =>
-      'Veranlagt, Einsprachefrist offen';
+      'Veranlagt, Rechtskraft nicht bestätigt';
 
   @override
   String get taxReviewOptionContested => 'Angefochten';

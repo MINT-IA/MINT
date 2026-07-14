@@ -11545,7 +11545,7 @@
   "taxReviewOptionUnknown": "Sconosciuto",
   "taxReviewOptionSelfDeclared": "Autodichiarato",
   "taxReviewOptionProvisional": "Provvisorio",
-  "taxReviewOptionAssessedAppealable": "Tassato, termine di ricorso aperto",
+  "taxReviewOptionAssessedAppealable": "Accertato, definitività non confermata",
   "taxReviewOptionContested": "Contestato",
   "taxReviewOptionInForce": "Passato in giudicato",
   "taxReviewOptionIndividual": "Persona individuale",

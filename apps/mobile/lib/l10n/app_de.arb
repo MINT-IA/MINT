@@ -11545,7 +11545,7 @@
   "taxReviewOptionUnknown": "Unbekannt",
   "taxReviewOptionSelfDeclared": "Selbst deklariert",
   "taxReviewOptionProvisional": "Provisorisch",
-  "taxReviewOptionAssessedAppealable": "Veranlagt, Einsprachefrist offen",
+  "taxReviewOptionAssessedAppealable": "Veranlagt, Rechtskraft nicht bestätigt",
   "taxReviewOptionContested": "Angefochten",
   "taxReviewOptionInForce": "Rechtskräftig",
   "taxReviewOptionIndividual": "Einzelperson",

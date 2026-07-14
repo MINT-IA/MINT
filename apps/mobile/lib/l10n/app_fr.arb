@@ -12337,7 +12337,7 @@
   "taxReviewOptionUnknown": "Non déterminé",
   "taxReviewOptionSelfDeclared": "Déclaré par le contribuable",
   "taxReviewOptionProvisional": "Provisoire",
-  "taxReviewOptionAssessedAppealable": "Taxé, délai de réclamation ouvert",
+  "taxReviewOptionAssessedAppealable": "Taxé, entrée en force non confirmée",
   "taxReviewOptionContested": "Contesté",
   "taxReviewOptionInForce": "Entré en force",
   "taxReviewOptionIndividual": "Personne individuelle",

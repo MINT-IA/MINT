@@ -11545,7 +11545,7 @@
   "taxReviewOptionUnknown": "Unknown",
   "taxReviewOptionSelfDeclared": "Self-declared",
   "taxReviewOptionProvisional": "Provisional",
-  "taxReviewOptionAssessedAppealable": "Assessed, appeal period open",
+  "taxReviewOptionAssessedAppealable": "Assessed, entry into force not confirmed",
   "taxReviewOptionContested": "Contested",
   "taxReviewOptionInForce": "In force",
   "taxReviewOptionIndividual": "Individual",

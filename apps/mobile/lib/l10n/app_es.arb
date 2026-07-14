@@ -11545,7 +11545,7 @@
   "taxReviewOptionUnknown": "Desconocido",
   "taxReviewOptionSelfDeclared": "Autodeclarado",
   "taxReviewOptionProvisional": "Provisional",
-  "taxReviewOptionAssessedAppealable": "Liquidado, plazo de recurso abierto",
+  "taxReviewOptionAssessedAppealable": "Liquidado, firmeza no confirmada",
   "taxReviewOptionContested": "Impugnado",
   "taxReviewOptionInForce": "Firme",
   "taxReviewOptionIndividual": "Persona individual",

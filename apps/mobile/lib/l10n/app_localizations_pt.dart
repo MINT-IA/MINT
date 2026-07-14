@@ -23880,7 +23880,7 @@ class SPt extends S {
 
   @override
   String get taxReviewOptionAssessedAppealable =>
-      'Liquidado, prazo de recurso aberto';
+      'Liquidado, caráter definitivo não confirmado';
 
   @override
   String get taxReviewOptionContested => 'Contestado';

@@ -23754,7 +23754,7 @@ class SEn extends S {
 
   @override
   String get taxReviewOptionAssessedAppealable =>
-      'Assessed, appeal period open';
+      'Assessed, entry into force not confirmed';
 
   @override
   String get taxReviewOptionContested => 'Contested';

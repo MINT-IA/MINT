@@ -41744,7 +41744,7 @@ abstract class S {
   /// No description provided for @taxReviewOptionAssessedAppealable.
   ///
   /// In fr, this message translates to:
-  /// **'Taxé, délai de réclamation ouvert'**
+  /// **'Taxé, entrée en force non confirmée'**
   String get taxReviewOptionAssessedAppealable;
 
   /// No description provided for @taxReviewOptionContested.

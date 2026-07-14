@@ -23874,7 +23874,7 @@ class SEs extends S {
 
   @override
   String get taxReviewOptionAssessedAppealable =>
-      'Liquidado, plazo de recurso abierto';
+      'Liquidado, firmeza no confirmada';
 
   @override
   String get taxReviewOptionContested => 'Impugnado';

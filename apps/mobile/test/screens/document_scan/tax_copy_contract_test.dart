@@ -1,10 +1,43 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 
 void main() {
+  const safeAssessedStatusCopy = {
+    'fr': 'Taxé, entrée en force non confirmée',
+    'en': 'Assessed, entry into force not confirmed',
+    'de': 'Veranlagt, Rechtskraft nicht bestätigt',
+    'es': 'Liquidado, firmeza no confirmada',
+    'it': 'Accertato, definitività non confermata',
+    'pt': 'Liquidado, caráter definitivo não confirmado',
+  };
+
+  for (final entry in safeAssessedStatusCopy.entries) {
+    test(
+      'assessed status does not infer an open appeal period in ${entry.key}',
+      () {
+        final arb = jsonDecode(
+          File('lib/l10n/app_${entry.key}.arb').readAsStringSync(),
+        ) as Map<String, dynamic>;
+
+        expect(
+          arb['taxReviewOptionAssessedAppealable'],
+          entry.value,
+          reason: '${entry.key}:arb',
+        );
+        expect(
+          lookupS(Locale(entry.key)).taxReviewOptionAssessedAppealable,
+          entry.value,
+          reason: '${entry.key}:generated',
+        );
+      },
+    );
+  }
+
   test('tax impact disclaimer is specific, local-only and neutral in 6 locales',
       () {
     const expectations = {

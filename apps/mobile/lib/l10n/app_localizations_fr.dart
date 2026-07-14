@@ -23871,7 +23871,7 @@ class SFr extends S {
 
   @override
   String get taxReviewOptionAssessedAppealable =>
-      'Taxé, délai de réclamation ouvert';
+      'Taxé, entrée en force non confirmée';
 
   @override
   String get taxReviewOptionContested => 'Contesté';

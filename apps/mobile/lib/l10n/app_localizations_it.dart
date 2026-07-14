@@ -23936,7 +23936,7 @@ class SIt extends S {
 
   @override
   String get taxReviewOptionAssessedAppealable =>
-      'Tassato, termine di ricorso aperto';
+      'Accertato, definitività non confermata';
 
   @override
   String get taxReviewOptionContested => 'Contestato';
