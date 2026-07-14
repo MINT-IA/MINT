@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-AVS-03",
+  "stage": "GREEN",
+  "command": "(cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py -q) && (cd apps/mobile && flutter test test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart --reporter expanded)",
+  "sha": "3738568af9b01d34035c7b06344617b3f1995e03",
+  "recorded_at": "2026-07-13T23:50:38Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "avs_unofficial_gap_effect_quarantine_test",
+  "output": "Canonical cross-stack command passed 13 backend and 6 mobile assertions. Exact-SHA Doctor, Patrol, normal iOS build/install, and Maestro proof is archived in .planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d.",
+  "synthetic_data_only": true
+}

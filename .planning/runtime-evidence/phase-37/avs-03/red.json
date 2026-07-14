@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-AVS-03",
+  "stage": "RED",
+  "command": "(cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py -q) && (cd apps/mobile && flutter test test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart --reporter expanded)",
+  "sha": "9e10fb5920bbd1896a7cbb5583919fd530177888",
+  "recorded_at": "2026-07-13T23:05:00Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "avs_unofficial_gap_effect_quarantine_test",
+  "output": "Mobile count-only quarantine RED: six business-contract assertions failed because gap-only helpers, priced claims, an orphan CHF facade, and the raw ARB benchmark still existed. Full raw output is archived in .planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/red-mobile-quarantine.log.",
+  "synthetic_data_only": true
+}

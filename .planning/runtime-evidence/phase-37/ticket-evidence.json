@@ -237,9 +237,48 @@
       "accepted_sha": null
     },
     {
+      "ticket_id": "G1-COACH-01",
+      "state": "ticket_only",
+      "command": "cd apps/mobile && flutter test test/integration/coach_inline_amount_write_contract_test.dart --reporter expanded",
+      "evidence_mode": null,
+      "red_sha": null,
+      "red_artifact": null,
+      "control_sha": null,
+      "control_artifact": null,
+      "green_sha": null,
+      "green_artifact": null,
+      "accepted_sha": null
+    },
+    {
+      "ticket_id": "G1-COACH-02",
+      "state": "ticket_only",
+      "command": "cd apps/mobile && flutter test test/integration/coach_tool_choreography_test.dart --reporter expanded",
+      "evidence_mode": null,
+      "red_sha": null,
+      "red_artifact": null,
+      "control_sha": null,
+      "control_artifact": null,
+      "green_sha": null,
+      "green_artifact": null,
+      "accepted_sha": null
+    },
+    {
       "ticket_id": "G1-FRONT-01",
       "state": "ticket_only",
       "command": "cd apps/mobile && flutter test test/models/frontier_canonical_fields_test.dart --reporter expanded",
+      "evidence_mode": null,
+      "red_sha": null,
+      "red_artifact": null,
+      "control_sha": null,
+      "control_artifact": null,
+      "green_sha": null,
+      "green_artifact": null,
+      "accepted_sha": null
+    },
+    {
+      "ticket_id": "G1-RET-STATE-01",
+      "state": "ticket_only",
+      "command": "cd apps/mobile && flutter test test/screens/coach/retirement_dashboard_test.dart --reporter expanded",
       "evidence_mode": null,
       "red_sha": null,
       "red_artifact": null,
@@ -294,11 +333,11 @@
       "command": "(cd services/backend && python3 -m pytest tests/test_avs_unofficial_gap_effect_quarantine.py -q) && (cd apps/mobile && flutter test test/services/financial_core/avs_unofficial_gap_effect_quarantine_test.dart --reporter expanded)",
       "evidence_mode": "red_green",
       "red_sha": "9e10fb5920bbd1896a7cbb5583919fd530177888",
-      "red_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/red-mobile-quarantine.log",
+      "red_artifact": ".planning/runtime-evidence/phase-37/avs-03/red.json",
       "control_sha": null,
       "control_artifact": null,
       "green_sha": "3738568af9b01d34035c7b06344617b3f1995e03",
-      "green_artifact": ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/expat-avs-verification-e8c0263acb6d/avs-03/g1-avs-03-machine-proof.json",
+      "green_artifact": ".planning/runtime-evidence/phase-37/avs-03/green.json",
       "accepted_sha": "3738568af9b01d34035c7b06344617b3f1995e03"
     },
     {
