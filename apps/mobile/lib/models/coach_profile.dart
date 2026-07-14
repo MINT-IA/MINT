@@ -13,6 +13,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show immutable, listEquals, setEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
@@ -422,7 +423,9 @@ class PrevoyanceProfile {
   final double? projectedRenteLpp; // Rente projetée à 65 (from certificate)
   final double? projectedCapital65; // Capital projeté à 65 (from certificate)
   final double? disabilityCoverage; // Prestation invalidité (from certificate)
+  final double? lppDisabilityCapital; // Capital invalidité distinct (lump sum)
   final double? deathCoverage; // Prestation décès (from certificate)
+  final Map<LppEvidenceFactKey, LppEvidenceFact> _lppEvidenceFacts;
 
   // --- 3a ---
   final int nombre3a; // nombre de comptes 3a
@@ -456,13 +459,21 @@ class PrevoyanceProfile {
     this.projectedRenteLpp,
     this.projectedCapital65,
     this.disabilityCoverage,
+    this.lppDisabilityCapital,
     this.deathCoverage,
+    Map<LppEvidenceFactKey, LppEvidenceFact> lppEvidenceFacts = const {},
     this.nombre3a = 0,
     this.totalEpargne3a = 0,
     this.comptes3a = const [],
     this.canContribute3a = true,
     this.librePassage = const [],
-  });
+  }) : _lppEvidenceFacts = lppEvidenceFacts;
+
+  LppEvidenceFact? lppEvidenceFact(LppEvidenceFactKey key) =>
+      _lppEvidenceFacts[key];
+
+  LppEvidenceStatus? lppEvidenceStatus(LppEvidenceFactKey key) =>
+      _lppEvidenceFacts[key]?.status;
 
   /// Total avoir libre passage
   double get totalLibrePassage =>
@@ -536,6 +547,7 @@ class PrevoyanceProfile {
       projectedRenteLpp: (json['projectedRenteLpp'] as num?)?.toDouble(),
       projectedCapital65: (json['projectedCapital65'] as num?)?.toDouble(),
       disabilityCoverage: (json['disabilityCoverage'] as num?)?.toDouble(),
+      lppDisabilityCapital: (json['lppDisabilityCapital'] as num?)?.toDouble(),
       deathCoverage: (json['deathCoverage'] as num?)?.toDouble(),
       nombre3a: json['nombre3a'] ?? 0,
       totalEpargne3a: (json['totalEpargne3a'] as num?)?.toDouble() ?? 0,
@@ -574,7 +586,9 @@ class PrevoyanceProfile {
     double? projectedRenteLpp,
     double? projectedCapital65,
     double? disabilityCoverage,
+    double? lppDisabilityCapital,
     double? deathCoverage,
+    Map<LppEvidenceFactKey, LppEvidenceFact>? lppEvidenceFacts,
     int? nombre3a,
     double? totalEpargne3a,
     List<Compte3a>? comptes3a,
@@ -608,7 +622,9 @@ class PrevoyanceProfile {
       projectedRenteLpp: projectedRenteLpp ?? this.projectedRenteLpp,
       projectedCapital65: projectedCapital65 ?? this.projectedCapital65,
       disabilityCoverage: disabilityCoverage ?? this.disabilityCoverage,
+      lppDisabilityCapital: lppDisabilityCapital ?? this.lppDisabilityCapital,
       deathCoverage: deathCoverage ?? this.deathCoverage,
+      lppEvidenceFacts: lppEvidenceFacts ?? _lppEvidenceFacts,
       nombre3a: nombre3a ?? this.nombre3a,
       totalEpargne3a: totalEpargne3a ?? this.totalEpargne3a,
       comptes3a: comptes3a ?? this.comptes3a,
@@ -640,6 +656,7 @@ class PrevoyanceProfile {
         'projectedRenteLpp': projectedRenteLpp,
         'projectedCapital65': projectedCapital65,
         'disabilityCoverage': disabilityCoverage,
+        'lppDisabilityCapital': lppDisabilityCapital,
         'deathCoverage': deathCoverage,
         'nombre3a': nombre3a,
         'totalEpargne3a': totalEpargne3a,
@@ -678,6 +695,7 @@ class PrevoyanceProfile {
           projectedRenteLpp == other.projectedRenteLpp &&
           projectedCapital65 == other.projectedCapital65 &&
           disabilityCoverage == other.disabilityCoverage &&
+          lppDisabilityCapital == other.lppDisabilityCapital &&
           deathCoverage == other.deathCoverage &&
           listEquals(comptes3a, other.comptes3a) &&
           listEquals(librePassage, other.librePassage);
@@ -709,6 +727,7 @@ class PrevoyanceProfile {
         projectedRenteLpp,
         projectedCapital65,
         disabilityCoverage,
+        lppDisabilityCapital,
         deathCoverage,
         comptes3a.length,
         librePassage.length,
@@ -3975,22 +3994,46 @@ class CoachProfile {
     final avsYears = rawAvsYears?.clamp(0, (age - 20).clamp(0, 44));
 
     // ── Extraction-persisted fields (survive restart) ─────────
-    final coachAvoirLppOblig = _parseDouble(answers['_coach_avoir_lpp_oblig']);
-    final coachAvoirLppSuroblig =
-        _parseDouble(answers['_coach_avoir_lpp_suroblig']);
-    final parsedCoachTauxConversion =
-        _parseDouble(answers['_coach_taux_conversion']);
+    final hasTypedLppRoot = FeatureFlags.typedLppEvidence &&
+        answers.containsKey('_coach_lpp_evidence_v1');
+    final typedLppSelf = FeatureFlags.typedLppEvidence
+        ? LppEvidenceSelector.selectSelf(
+            answers['_coach_lpp_evidence_v1'],
+            now: now,
+          )
+        : null;
+    double? typedLppValue(LppEvidenceFactKey key) =>
+        typedLppSelf?.facts[key]?.value;
+    final coachAvoirLppOblig = hasTypedLppRoot
+        ? typedLppValue(LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf)
+        : _parseDouble(answers['_coach_avoir_lpp_oblig']);
+    final coachAvoirLppSuroblig = hasTypedLppRoot
+        ? typedLppValue(
+            LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf,
+          )
+        : _parseDouble(answers['_coach_avoir_lpp_suroblig']);
+    final parsedCoachTauxConversion = hasTypedLppRoot
+        ? typedLppValue(LppEvidenceFactKey.mandatoryConversionRateRatio)
+        : _parseDouble(answers['_coach_taux_conversion']);
     final coachTauxConversion = parsedCoachTauxConversion != null &&
             parsedCoachTauxConversion.isFinite &&
             parsedCoachTauxConversion > 0
         ? parsedCoachTauxConversion
         : null;
-    final coachTauxConvSuroblig =
-        _parseDouble(answers['_coach_taux_conversion_suroblig']);
-    final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
-    final coachSalaireAssure = _parseDouble(answers['_coach_salaire_assure']);
-    final coachRendementCaisse =
-        _parseDouble(answers['_coach_rendement_caisse']);
+    final coachTauxConvSuroblig = hasTypedLppRoot
+        ? typedLppValue(
+            LppEvidenceFactKey.extraMandatoryConversionRateRatio,
+          )
+        : _parseDouble(answers['_coach_taux_conversion_suroblig']);
+    final coachRachatMax = hasTypedLppRoot
+        ? typedLppValue(LppEvidenceFactKey.maximumBuybackCapitalChf)
+        : _parseDouble(answers['_coach_rachat_maximum']);
+    final coachSalaireAssure = hasTypedLppRoot
+        ? typedLppValue(LppEvidenceFactKey.insuredSalaryAnnualChf)
+        : _parseDouble(answers['_coach_salaire_assure']);
+    final coachRendementCaisse = hasTypedLppRoot
+        ? typedLppValue(LppEvidenceFactKey.fundReturnRateRatio)
+        : _parseDouble(answers['_coach_rendement_caisse']);
     final coachAvsLacunes = _parseInt(answers['_coach_avs_lacunes']);
     final coachAvsRenteEstimee =
         _parseDouble(answers['_coach_avs_rente_estimee']);
@@ -4002,10 +4045,14 @@ class CoachProfile {
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere.
     // For independants without LPP (LPP art. 4): no bonifications estimated.
     // For expats: start bonifications at arrivalAge, not age 25.
-    final coachAvoirLpp = _parseDouble(answers['_coach_avoir_lpp']);
-    final double estimatedLpp;
+    final coachAvoirLpp = hasTypedLppRoot
+        ? typedLppValue(LppEvidenceFactKey.vestedBenefitsCapitalChf)
+        : _parseDouble(answers['_coach_avoir_lpp']);
+    final double? estimatedLpp;
     if (coachAvoirLpp != null) {
       estimatedLpp = coachAvoirLpp;
+    } else if (hasTypedLppRoot) {
+      estimatedLpp = null;
     } else if (!hasPensionFund) {
       // Independent without LPP or explicit no-pension-fund declaration.
       estimatedLpp = 0.0;
@@ -4036,6 +4083,16 @@ class CoachProfile {
       rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
       rendementCaisse: coachRendementCaisse ?? 0.02,
       salaireAssure: coachSalaireAssure,
+      projectedRenteLpp:
+          typedLppValue(LppEvidenceFactKey.retirementPensionAnnualChf),
+      projectedCapital65:
+          typedLppValue(LppEvidenceFactKey.retirementCapitalLumpSumChf),
+      disabilityCoverage:
+          typedLppValue(LppEvidenceFactKey.disabilityPensionAnnualChf),
+      lppDisabilityCapital:
+          typedLppValue(LppEvidenceFactKey.disabilityCapitalLumpSumChf),
+      deathCoverage: typedLppValue(LppEvidenceFactKey.deathCapitalLumpSumChf),
+      lppEvidenceFacts: typedLppSelf?.facts ?? const {},
       ramd: coachAvsRamd,
       bonificationsEducatives: coachAvsBonificationsEducatives,
       nombre3a: nombre3a,
@@ -4312,6 +4369,11 @@ class CoachProfile {
     final canonicalTimestamps = <String, DateTime>{};
     final canonicalSourceDates = <String, DateTime?>{};
     final canonicalMentionedPaths = <String>{};
+    if (hasTypedLppRoot) {
+      canonicalMentionedPaths.addAll(
+        LppEvidenceFactKey.values.map((key) => key.profilePath),
+      );
+    }
     final rawProvenance = answers['__provenance'];
     if (rawProvenance is Map) {
       for (final entry in rawProvenance.entries) {
@@ -4337,6 +4399,12 @@ class CoachProfile {
                   snapshot.provenanceValue(leafPath) != null);
           if (!allowed) continue;
         }
+        if (hasTypedLppRoot) {
+          final lppKey = LppEvidenceFactKey.values
+              .where((key) => key.profilePath == fieldPath)
+              .firstOrNull;
+          if (lppKey != null) continue;
+        }
         canonicalMentionedPaths.add(fieldPath);
         final envelope = entry.value;
         if (envelope is! Map || !envelope.containsKey('sourceDate')) continue;
@@ -4355,6 +4423,17 @@ class CoachProfile {
         canonicalSources[fieldPath] = source;
         canonicalTimestamps[fieldPath] = updatedAt;
         canonicalSourceDates[fieldPath] = parsedSourceDate;
+      }
+    }
+    if (typedLppSelf != null) {
+      for (final entry in typedLppSelf.facts.entries) {
+        final path = entry.key.profilePath;
+        final fact = entry.value;
+        canonicalSources[path] = fact.source == 'certificate'
+            ? ProfileDataSource.certificate
+            : ProfileDataSource.userInput;
+        canonicalTimestamps[path] = fact.updatedAt;
+        canonicalSourceDates[path] = fact.sourceDate;
       }
     }
     fiscal = fiscal.copyWith(

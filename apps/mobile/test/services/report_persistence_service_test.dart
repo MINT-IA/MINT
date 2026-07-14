@@ -5,6 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const _lppRoot =
+    '{"schemaVersion":1,"self":null,"manualPartner":null,"legacyPartnerQuarantine":null}';
+const _activeLppSlotKey = 'lpp_evidence_active_slot_v1';
+const _lppSlotPrefix = '_coach_lpp_evidence_slot_v1_';
+
 /// Comprehensive unit tests for ReportPersistenceService
 ///
 /// Tests cover:
@@ -38,6 +43,8 @@ void main() {
           case 'read':
             final key = call.arguments['key'] as String;
             return mockSecureStorage[key];
+          case 'readAll':
+            return Map<String, String>.from(mockSecureStorage);
           case 'delete':
             final key = call.arguments['key'] as String;
             mockSecureStorage.remove(key);
@@ -112,6 +119,49 @@ void main() {
       expect(localAnswers.containsKey('_coach_tax_snapshots_v1'), isTrue);
       expect(localAnswers.containsKey('__provenance'), isTrue);
       expect(jsonEncode(localAnswers), localAnswersBefore);
+    });
+
+    test('removes canonical and stale loose self LPP facts', () {
+      final backendAnswers = ReportPersistenceService.backendSafeAnswers(
+        <String, dynamic>{
+          'q_canton': 'VD',
+          '_coach_lpp_evidence_v1': '{strict-sensitive-root}',
+          'lpp_evidence_active_slot_v1': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          '_coach_avoir_lpp': 1,
+          '_coach_avoir_lpp_oblig': 2,
+          '_coach_avoir_lpp_suroblig': 3,
+          '_coach_salaire_assure': 4,
+          '_coach_rachat_maximum': 5,
+          '_coach_taux_conversion': 0.068,
+          '_coach_taux_conversion_suroblig': 0.05,
+          '_coach_rendement_caisse': 0.02,
+          '_coach_lpp_source': 'document_scan',
+        },
+      );
+
+      expect(backendAnswers, <String, dynamic>{'q_canton': 'VD'});
+    });
+
+    test('preserves legacy loose self LPP facts while strict root is absent',
+        () {
+      final backendAnswers = ReportPersistenceService.backendSafeAnswers(
+        <String, dynamic>{
+          'q_canton': 'VD',
+          '_coach_avoir_lpp': 125000,
+          '_coach_taux_conversion': 0.068,
+          '_coach_lpp_source': 'document_scan',
+        },
+      );
+
+      expect(
+        backendAnswers,
+        <String, dynamic>{
+          'q_canton': 'VD',
+          '_coach_avoir_lpp': 125000,
+          '_coach_taux_conversion': 0.068,
+          '_coach_lpp_source': 'document_scan',
+        },
+      );
     });
   });
 
@@ -564,6 +614,30 @@ void main() {
       final planState =
           await ReportPersistenceService.loadOnboarding30PlanState();
       expect(planState, isEmpty);
+    });
+
+    test('clearDiagnostic purges fixed and versioned LPP retention', () async {
+      await ReportPersistenceService.saveLppEvidenceAnswers(
+        const <String, dynamic>{
+          'q_canton': 'VD',
+          '_coach_lpp_evidence_v1': _lppRoot,
+        },
+      );
+      final preferences = await SharedPreferences.getInstance();
+      final activeSlotId = preferences.getString(_activeLppSlotKey)!;
+      final activeSecureKey = '$_lppSlotPrefix$activeSlotId';
+      const orphanSecureKey =
+          '${_lppSlotPrefix}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      mockSecureStorage['_coach_lpp_evidence_v1'] = _lppRoot;
+      mockSecureStorage[orphanSecureKey] = _lppRoot;
+
+      await ReportPersistenceService.clearDiagnostic();
+
+      expect(preferences.getString('wizard_answers_v2'), isNull);
+      expect(preferences.getString(_activeLppSlotKey), isNull);
+      expect(mockSecureStorage['_coach_lpp_evidence_v1'], isNull);
+      expect(mockSecureStorage[activeSecureKey], isNull);
+      expect(mockSecureStorage[orphanSecureKey], isNull);
     });
   });
 

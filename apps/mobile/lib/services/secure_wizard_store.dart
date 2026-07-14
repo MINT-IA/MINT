@@ -20,6 +20,9 @@ class SecureWizardStore {
   );
   static const _operationTimeout = Duration(seconds: 2);
   static const _strictTaxSnapshotKey = '_coach_tax_snapshots_v1';
+  static const _strictLppEvidenceKey = '_coach_lpp_evidence_v1';
+  static const _lppEvidenceSlotPrefix = '_coach_lpp_evidence_slot_v1_';
+  static const _maxInactiveLppSlotsPerSweep = 32;
 
   /// Keys containing sensitive financial PII that must not be stored
   /// in plain SharedPreferences.
@@ -45,10 +48,21 @@ class SecureWizardStore {
     'q_cash_total_unconfirmed_legacy',
     'q_wealth_estimate',
     _strictTaxSnapshotKey,
+    _strictLppEvidenceKey,
   };
 
   /// Whether a key should be stored in secure storage.
   static bool isSensitive(String key) => _sensitiveKeys.contains(key);
+
+  static bool isValidLppEvidenceSlotId(String slotId) =>
+      RegExp(r'^[a-f0-9]{32}$').hasMatch(slotId);
+
+  static String _lppEvidenceSlotKey(String slotId) {
+    if (!isValidLppEvidenceSlotId(slotId)) {
+      throw ArgumentError.value(slotId, 'slotId', 'invalid LPP slot id');
+    }
+    return '$_lppEvidenceSlotPrefix$slotId';
+  }
 
   /// Write a sensitive value to encrypted storage.
   ///
@@ -57,11 +71,49 @@ class SecureWizardStore {
   /// those must never leave the profile save button spinning forever.
   static Future<bool> write(String key, String value) async {
     if (!_sensitiveKeys.contains(key)) return true;
+    return _writeRaw(key, value);
+  }
+
+  static Future<bool> writeLppEvidenceSlot(
+    String slotId,
+    String value,
+  ) async {
+    return _writeRaw(
+      _lppEvidenceSlotKey(slotId),
+      value,
+      deleteLateSuccess: true,
+    );
+  }
+
+  static Future<bool> _writeRaw(
+    String key,
+    String value, {
+    bool deleteLateSuccess = false,
+  }) async {
+    late final Future<void> pendingWrite;
     try {
-      await _storage.write(key: key, value: value).timeout(_operationTimeout);
+      pendingWrite = _storage.write(key: key, value: value);
+      await pendingWrite.timeout(_operationTimeout);
       return true;
+    } on TimeoutException {
+      if (deleteLateSuccess) {
+        unawaited(_deleteAfterLateWrite(pendingWrite, key));
+      }
+      return false;
     } on Object {
       return false;
+    }
+  }
+
+  static Future<void> _deleteAfterLateWrite(
+    Future<void> pendingWrite,
+    String key,
+  ) async {
+    try {
+      await pendingWrite;
+      await _delete(key);
+    } on Object {
+      // A failed late write created no usable slot.
     }
   }
 
@@ -77,6 +129,18 @@ class SecureWizardStore {
   /// « opener re-appears after scan » regression).
   static Future<String?> read(String key) async {
     if (!_sensitiveKeys.contains(key)) return null;
+    return _readRaw(key);
+  }
+
+  static Future<String?> readLppEvidenceSlot(String slotId) async {
+    if (!isValidLppEvidenceSlotId(slotId)) return null;
+    return _readRaw(_lppEvidenceSlotKey(slotId));
+  }
+
+  static Future<String?> readLegacyLppEvidenceRoot() =>
+      _readRaw(_strictLppEvidenceKey);
+
+  static Future<String?> _readRaw(String key) async {
     try {
       return await _storage.read(key: key).timeout(_operationTimeout);
     } on Object {
@@ -93,10 +157,53 @@ class SecureWizardStore {
     }
   }
 
+  static Future<void> deleteLppEvidenceSlot(String slotId) async {
+    if (!isValidLppEvidenceSlotId(slotId)) return;
+    await _delete(_lppEvidenceSlotKey(slotId));
+  }
+
+  static Future<void> deleteLegacyLppEvidenceRoot() =>
+      _delete(_strictLppEvidenceKey);
+
+  static Future<void> deleteInactiveLppEvidenceSlots(
+    String activeSlotId,
+  ) async {
+    if (!isValidLppEvidenceSlotId(activeSlotId)) return;
+    try {
+      await _deleteInactiveLppEvidenceSlots(activeSlotId)
+          .timeout(_operationTimeout);
+    } on Object {
+      // Cleanup must never make an already-published active root unavailable.
+    }
+  }
+
+  static Future<void> _deleteInactiveLppEvidenceSlots(
+    String activeSlotId,
+  ) async {
+    final activeKey = _lppEvidenceSlotKey(activeSlotId);
+    final stored = await _storage.readAll();
+    final inactiveKeys = stored.keys
+        .where(
+          (key) => key.startsWith(_lppEvidenceSlotPrefix) && key != activeKey,
+        )
+        .take(_maxInactiveLppSlotsPerSweep);
+    await Future.wait<void>(inactiveKeys.map(_delete));
+  }
+
   /// Delete all sensitive keys from encrypted storage.
   static Future<void> deleteAll() async {
     for (final key in _sensitiveKeys) {
       await _delete(key);
+    }
+    try {
+      final stored = await _storage.readAll().timeout(_operationTimeout);
+      for (final key in stored.keys.where(
+        (key) => key.startsWith(_lppEvidenceSlotPrefix),
+      )) {
+        await _delete(key);
+      }
+    } on Object {
+      // Dynamic slot cleanup is best effort when secure storage is unavailable.
     }
   }
 
@@ -121,8 +228,9 @@ class SecureWizardStore {
         final stored = await write(key, cleaned[key].toString());
         if (stored) {
           cleaned[key] = '__secure__';
-        } else if (key == _strictTaxSnapshotKey) {
-          throw StateError('Secure tax snapshot write failed');
+        } else if (key == _strictTaxSnapshotKey ||
+            key == _strictLppEvidenceKey) {
+          throw StateError('Strict secure snapshot write failed');
         } else if (kReleaseMode) {
           cleaned.remove(key);
         }
@@ -138,6 +246,7 @@ class SecureWizardStore {
     final restored = Map<String, dynamic>.from(answers);
     for (final key in _sensitiveKeys) {
       if (restored[key] != '__secure__') continue;
+      if (key == _strictLppEvidenceKey) continue;
       final value = await read(key);
       if (value != null) {
         // The strict tax root is a JSON string contract. Even malformed scalar

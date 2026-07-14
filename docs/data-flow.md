@@ -43,25 +43,32 @@ flowchart LR
 
 **Invariants.**
 
-1. `wizard_answers_v2` (SharedPreferences key) is the **local source of
-   truth**. Everything derives from it via `CoachProfile.fromWizardAnswers`.
+1. `wizard_answers_v2` is the **logical local source of truth**. Everything
+   derives from it via `CoachProfile.fromWizardAnswers`. Sensitive values may
+   be represented physically by `__secure__`; the G1-PROV-02A LPP root also
+   uses a private SharedPreferences active-slot pointer and an immutable
+   Keychain slot, described below. Neither physical indirection is a second
+   domain ledger.
 2. Backend `ProfileModel.data` is the **remote mirror**, only for
    authenticated users. Anonymous users **never** have backend state —
    Keychain failure for anon sessions falls back to SharedPreferences (see
    `anonymous_session_service.dart`).
 3. In the G1-PROV-01 migrated set — `mergeAnswers`, self LPP, self AVS,
    salary, inline, and Open Banking — a writer may construct a typed
-   `nextProfile`, but must persist values and provenance in one
-   `ReportPersistenceService.saveAnswers()` snapshot **before** assigning
-   `_profile` or calling `notifyListeners()`.
+   `nextProfile`, but must persist values and provenance through the matching
+   `ReportPersistenceService` boundary **before** assigning `_profile` or
+   calling `notifyListeners()`. Typed self LPP uses the dedicated
+   `saveLppEvidenceAnswers()` boundary; ordinary answer maps use
+   `saveAnswers()`.
 4. New data capture paths **must** write into `wizard_answers_v2` via one
    of the existing setters, or add a new key listed below.
 
 ### Field-centric provenance (G1-PROV-01)
 
-`wizard_answers_v2.__provenance` is the canonical local provenance envelope.
-It is keyed by canonical `CoachProfile` field path; every entry has exactly
-this shape and does not duplicate the financial value:
+`wizard_answers_v2.__provenance` is the canonical local provenance envelope
+for ordinary answer fields. It is keyed by canonical `CoachProfile` field
+path; every entry has exactly this shape and does not duplicate the financial
+value:
 
 ```text
 fieldPath -> {source, updatedAt, sourceDate}
@@ -77,31 +84,43 @@ fieldPath -> {source, updatedAt, sourceDate}
   the same snapshot; only the persisted `nextProfile` may then be published.
 - `_coach_data_timestamps` remains dual-written as a legacy migration input.
   New writes use `__provenance` as their source of truth.
+- The strict `_coach_lpp_evidence_v1` root is the exception: each typed LPP
+  fact owns its exact value, unit, owner/actor/authorization and provenance.
+  Cold reconstruction derives the presentation value and field metadata from
+  those facts and ignores a parallel `__provenance` entry for the same LPP
+  path. The parallel map is persisted for existing profile consumers, but it
+  is not an independent authority and cannot repair a malformed strict fact.
 - Reconstruction migrates legacy metadata field by field. A legacy path not
   yet mentioned in a partial canonical envelope may still migrate, but a
   malformed canonical entry blocks fallback for that same path (fail closed).
 - `__provenance` is currently local-only and is removed from mobile backend
   sync payloads. Backend per-field provenance remains pending its dedicated
   contract; do not silently mirror this local envelope into `ProfileModel.data`.
-- The remaining live legacy exception is `updateFromPartnerLppExtraction`
-  (G1-PROV-02 + G1-BND-02A), which still publishes before save and writes no
-  canonical provenance. The typed tax path is implemented but remains behind
-  its composite default-off gate pending frozen-SHA runtime proof and the G1
-  activation decision.
+- G1-PROV-02A implements only the default-off typed **self** writer and cold
+  boundary. `ExtractionReviewScreen` still calls the legacy
+  `updateFromLppExtraction` / `updateFromPartnerLppExtraction` paths; the
+  partner path still publishes before save and writes no canonical
+  provenance. The missing composite LPP acquisition gate, real UI caller and
+  manual-partner contract remain blockers, so this checkpoint is neither
+  PROV-02 GREEN nor production-wired. The typed tax path is implemented but
+  likewise remains behind its composite default-off gate pending frozen-SHA
+  runtime proof and the G1 activation decision.
 
 ---
 
 ## The 8 writers — who mutates `wizard_answers_v2`
 
-Every writer persists via `ReportPersistenceService.saveAnswers(answers)`
-which encrypts sensitive keys via `SecureWizardStore` (Keychain) and
-mirrors to SharedPreferences. **This is the only legal write path.**
+Every writer persists through `ReportPersistenceService`, which encrypts
+sensitive keys via `SecureWizardStore` (Keychain) and writes the matching
+SharedPreferences representation. Ordinary maps use `saveAnswers(answers)`;
+the strict typed LPP root uses `saveLppEvidenceAnswers(answers)`. These are the
+only legal local I/O boundaries.
 
 | # | Writer | Entry points | Keys written | Lifecycle trigger |
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
-| 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Salary}Extraction` / `updateFromPartnerLppExtraction`; typed tax uses the single `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence` seam | LPP/AVS `_coach_*`; tax uses the secure `_coach_tax_snapshots_v1` envelope and treats loose `_coach_tax_*` as quarantine-only input; salary certificate: `q_gross_salary_annual = monthly gross × q_nombre_mois`, `q_nombre_mois`, and `q_bonus_percentage` when extracted; never `q_net_income_period_chf` | Post-scan; save-before-publish for migrated self LPP/self AVS/salary/tax paths; partner LPP remains a G1 blocker |
+| 3 | **Scan confirmation** | Production `ExtractionReviewScreen` still calls `updateFrom{Lpp,Avs,Salary}Extraction` / `updateFromPartnerLppExtraction`. The default-off A checkpoint adds `LppReviewConfirmation.self → acceptLppReview → saveLppEvidenceAnswers`, but no scan route calls it yet. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. | Legacy LPP/AVS `_coach_*`; typed self LPP uses strict-secure `_coach_lpp_evidence_v1`; tax uses `_coach_tax_snapshots_v1`; salary certificate writes `q_gross_salary_annual = monthly gross × q_nombre_mois`, `q_nombre_mois`, and `q_bonus_percentage` when extracted, never `q_net_income_period_chf`. | Post-scan for the live legacy route. Typed self LPP is default-off and test/cold-boundary only; partner ownership, the composite UI gate and production wiring remain blockers. |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
@@ -168,6 +187,58 @@ publishes its next profile only after the answer snapshot is saved.
   `_coach_salaire_assure`, `_coach_rachat_maximum`,
   `_coach_rendement_caisse`, `_coach_rachat_lpp_mensuel`,
   `_coach_lpp_source`
+- G1-PROV-02A adds one exact JSON-string answer root,
+  `_coach_lpp_evidence_v1`, behind `FeatureFlags.typedLppEvidence=false`.
+  Its schema-v1 root has exactly four keys:
+
+  ```text
+  {
+    schemaVersion: 1,
+    self: LppEvidenceSnapshot?,
+    manualPartner: null,
+    legacyPartnerQuarantine: null
+  }
+  ```
+
+  The A writer accepts only `LppReviewConfirmation.self`. Each fact carries
+  its own exact value/unit, pseudonymous self owner and actor, self
+  authorization, and `{source, sourceDate, updatedAt}` provenance. A
+  certificate fact without a source date remains
+  `availableNeedsConfirmation`; corrected facts are `userInput` with a null
+  source date. Manual-partner and linked/grant shapes are not implemented by
+  this checkpoint.
+- On disk, `wizard_answers_v2` contains only
+  `'_coach_lpp_evidence_v1': '__secure__'`. The private
+  `lpp_evidence_active_slot_v1` pointer is a separate SharedPreferences key;
+  it never enters the wizard map, strict root or backend payload. It names an
+  immutable secure-storage slot
+  `_coach_lpp_evidence_slot_v1_<32 lowercase hex chars>` generated from 128
+  random bits. `saveLppEvidenceAnswers()` stages and verifies the wizard
+  placeholder, writes a new slot, then commits the pointer. A failed or late
+  timed-out write cannot activate; pointer/wizard rollback preserves the prior
+  root. Generic saves, fixed-root migration, dedicated LPP saves and diagnostic
+  clear share one serializer. Successful activation removes the previous slot
+  and performs a bounded best-effort sweep of inactive slots. Diagnostic clear
+  removes the wizard bytes and pointer, then deletes fixed and versioned secure
+  roots.
+- Cold load treats the active pointer as authoritative and reads only its
+  immutable slot. A pre-slot fixed secure root is migrated once only while the
+  wizard still has the strict placeholder; after a pointer exists, a stale
+  fixed root is ignored. `CoachProfile.fromWizardAnswers` selects strict self
+  facts, derives their field provenance directly, and does not fill a missing
+  typed fact from loose keys or parallel `__provenance`.
+- Loose self LPP behavior is conditional. While the strict root is absent
+  (the current default-off production state), legacy loose fields and their
+  backend behavior are preserved. A safe typed migration admits and removes
+  only unambiguous certificate facts with exact canonical provenance; other
+  loose values stay outside typed selection for review. An accepted typed self
+  review removes every loose self LPP key. Once the strict root is present,
+  loose LPP fields cannot hydrate typed presentation paths and are removed from
+  backend payloads.
+- `backendSafeAnswers()` always removes `_coach_lpp_evidence_v1`, the private
+  pointer if injected, and `__provenance`. With a strict root present it also
+  removes stale loose self LPP keys. No strict root, owner/actor token, secure
+  slot id or typed financial fact is mirrored to `ProfileModel.data`.
 
 **3a (3rd pillar)**
 - `q_has_3a`, `q_3a_total`, `q_3a_accounts_count`, `q_3a_annual_contribution`,
@@ -314,13 +385,25 @@ Every calculator / widget that needs profile data **must** read through
 
 ```
 Document type selection
-  ├─ LPP / AVS / salaire: camera, gallery, PDF or OCR paste
+  ├─ LPP current production route (still legacy; PROV-02 blocker)
+  │   ↓ camera, gallery, PDF or OCR paste → backend extraction
+  │   ↓ ExtractionResult → ExtractionReviewScreen → Confirmer
+  │   ↓ updateFromLppExtraction / updateFromPartnerLppExtraction
+  │   ↓ loose `_coach_lpp_*` persistence; typed seam is not called
+  │
+  ├─ LPP G1-PROV-02A seam (default-off; no production UI caller)
+  │   ↓ LppReviewConfirmation.self
+  │   ↓ CoachProfileProvider.acceptLppReview
+  │   ↓ whole `_coach_lpp_evidence_v1` + derived field provenance
+  │   ↓ ReportPersistenceService.saveLppEvidenceAnswers
+  │   ↓ publish profile/listeners only after the pointer commit succeeds
+  │   ↓ cold reload → LppEvidenceSelector.selectSelf → strict facts
+  │
+  ├─ AVS / salaire: camera, gallery, PDF or OCR paste
   │   ↓ DocumentService.extractDocumentData (backend)
-  │   ↓ ExtractionResult → ExtractionReviewScreen
-  │   ↓ user taps Confirmer
-  │   ↓ coachProvider.updateFrom{Lpp|Avs|Salary}Extraction(fields)
-  │   ↓ writes the typed profile projection + source answer keys/provenance
-  │   ↓ ReportPersistenceService.saveAnswers(answers) before publication
+  │   ↓ ExtractionResult → ExtractionReviewScreen → Confirmer
+  │   ↓ coachProvider.updateFrom{Avs|Salary}Extraction(fields)
+  │   ↓ ReportPersistenceService.saveAnswers before publication
   │   ↓ invalidates narrative, publishes profile, then optional backend sync
   └─ taxation (composite default-off gate; local-only)
       ↓ camera, gallery and PDF are hidden; handlers reject before HTTP/files
@@ -345,6 +428,14 @@ Failure modes:
   secure write failure throws before SharedPreferences/profile publication,
   and an unreadable `__secure__` placeholder is consumed as empty without
   being overwritten.
+- The strict LPP root also fails closed. A missing/unreadable active slot leaves
+  the placeholder unresolved and cannot fall back to a stale fixed root or
+  loose value. A failed replacement restores the prior wizard bytes and active
+  pointer; a late timed-out unique slot is never activated and is deleted when
+  its write completes. On first activation, process death after placeholder
+  staging but before pointer commit may require the user to review the legacy
+  loose facts again; it does not publish a value-only or metadata-only typed
+  fact.
 - Scan confirm UI shows « +29 points » but save drops → fixed by seeding
   defaults + adding `hasScanData` hydration branch in `loadFromWizard`.
 
@@ -411,8 +502,9 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 
 ---
 
-*Last updated: 2026-07-14 for G1-PROV-03 typed tax provenance and fail-closed
-malformed-root recovery.
+*Last updated: 2026-07-14 for the default-off G1-PROV-02A typed self-LPP
+checkpoint and G1-PROV-03 typed tax provenance. PROV-02 remains blocked on its
+production UI/composite gate and manual-partner work.
 Maintenance rule: every new writer or reader of `wizard_answers_v2`
 updates this doc in the same PR. Code drift without doc drift = the
 trap we built this to avoid.*

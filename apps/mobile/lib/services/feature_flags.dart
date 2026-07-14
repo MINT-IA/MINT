@@ -78,6 +78,10 @@ class FeatureFlags {
   /// Backend configuration must not activate this path before its gates pass.
   static bool typedTaxProfile = false;
 
+  /// Local kill switch for the person-owned typed LPP evidence root.
+  /// Backend configuration cannot activate this path.
+  static bool typedLppEvidence = false;
+
   /// Local kill switch for every tax-document acquisition surface.
   ///
   /// This flag deliberately stays out of [applyFromMap]. The UI is exposed

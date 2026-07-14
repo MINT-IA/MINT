@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -40,6 +41,24 @@ final class _ReportTaxProfilePersistence implements TaxProfilePersistence {
       ReportPersistenceService.saveAnswers(answers);
 }
 
+abstract interface class LppProfilePersistence {
+  Future<Map<String, dynamic>> loadAnswers();
+
+  Future<void> saveAnswers(Map<String, dynamic> answers);
+}
+
+final class _ReportLppProfilePersistence implements LppProfilePersistence {
+  const _ReportLppProfilePersistence();
+
+  @override
+  Future<Map<String, dynamic>> loadAnswers() =>
+      ReportPersistenceService.loadAnswers();
+
+  @override
+  Future<void> saveAnswers(Map<String, dynamic> answers) =>
+      ReportPersistenceService.saveLppEvidenceAnswers(answers);
+}
+
 /// Provider pour le profil Coach MINT.
 ///
 /// ARCHITECTURAL NOTE: Two profile models coexist by design:
@@ -60,14 +79,32 @@ final class _ReportTaxProfilePersistence implements TaxProfilePersistence {
 class CoachProfileProvider extends ChangeNotifier {
   CoachProfileProvider({
     TaxProfilePersistence? taxProfilePersistence,
+    LppProfilePersistence? lppProfilePersistence,
     DateTime Function()? now,
   })  : _taxProfilePersistence =
             taxProfilePersistence ?? const _ReportTaxProfilePersistence(),
+        _lppProfilePersistence =
+            lppProfilePersistence ?? const _ReportLppProfilePersistence(),
         _usesInjectedTaxPersistence = taxProfilePersistence != null,
         _now = now ?? DateTime.now;
 
   static const _taxSnapshotRootKey = '_coach_tax_snapshots_v1';
+  static const _lppEvidenceRootKey = '_coach_lpp_evidence_v1';
+  static const _legacySelfLppKeys = <String, LppEvidenceFactKey>{
+    '_coach_avoir_lpp': LppEvidenceFactKey.vestedBenefitsCapitalChf,
+    '_coach_avoir_lpp_oblig':
+        LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf,
+    '_coach_avoir_lpp_suroblig':
+        LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf,
+    '_coach_salaire_assure': LppEvidenceFactKey.insuredSalaryAnnualChf,
+    '_coach_rachat_maximum': LppEvidenceFactKey.maximumBuybackCapitalChf,
+    '_coach_taux_conversion': LppEvidenceFactKey.mandatoryConversionRateRatio,
+    '_coach_taux_conversion_suroblig':
+        LppEvidenceFactKey.extraMandatoryConversionRateRatio,
+    '_coach_rendement_caisse': LppEvidenceFactKey.fundReturnRateRatio,
+  };
   final TaxProfilePersistence _taxProfilePersistence;
+  final LppProfilePersistence _lppProfilePersistence;
   final bool _usesInjectedTaxPersistence;
   final DateTime Function() _now;
   CoachProfile? _profile;
@@ -250,6 +287,81 @@ class CoachProfileProvider extends ChangeNotifier {
         'quarantinedAt': quarantinedAt,
       },
     });
+    return (answers: answers, migrated: true);
+  }
+
+  static ({Map<String, dynamic> answers, bool migrated})
+      _withLegacySelfLppMigration(Map<String, dynamic> loaded,
+          {required DateTime Function() now}) {
+    final answers = _copyAnswers(loaded);
+    if (!FeatureFlags.typedLppEvidence ||
+        answers.containsKey(_lppEvidenceRootKey)) {
+      return (answers: answers, migrated: false);
+    }
+    final rawProvenance = answers['__provenance'];
+    if (rawProvenance is! Map) {
+      return (answers: answers, migrated: false);
+    }
+
+    final ownerId = const Uuid().v4();
+    final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
+    final migratedKeys = <String>{};
+    DateTime? acceptanceStamp;
+    final current = now().toUtc();
+    for (final entry in _legacySelfLppKeys.entries) {
+      final rawValue = answers[entry.key];
+      if (rawValue is! num) continue;
+      final value = rawValue.toDouble();
+      final envelope = rawProvenance[entry.value.profilePath];
+      if (envelope is! Map || envelope.keys.any((key) => key is! String)) {
+        continue;
+      }
+      final fact = LppEvidenceFact.fromJson(
+        <String, dynamic>{
+          'value': value,
+          'unit': entry.value.unit.wireName,
+          'owner': <String, dynamic>{
+            'kind': 'self',
+            'profileOwnerId': ownerId,
+          },
+          'actor': <String, dynamic>{'profileOwnerId': ownerId},
+          'authorization': const <String, dynamic>{
+            'mode': 'self',
+            'grantId': null,
+          },
+          'provenance': Map<String, dynamic>.from(envelope),
+        },
+        key: entry.value,
+      );
+      if (fact == null || fact.source != 'certificate') {
+        continue;
+      }
+      if (fact.updatedAt.isAfter(current) ||
+          (fact.sourceDate != null &&
+              _civilDay(fact.sourceDate!).isAfter(_civilDay(current)))) {
+        continue;
+      }
+      acceptanceStamp ??= fact.updatedAt;
+      if (fact.updatedAt != acceptanceStamp) {
+        return (answers: answers, migrated: false);
+      }
+      facts[entry.value] = fact;
+      migratedKeys.add(entry.key);
+    }
+    if (facts.isEmpty) return (answers: answers, migrated: false);
+
+    answers[_lppEvidenceRootKey] = LppEvidenceRoot(
+      self: LppEvidenceSnapshot(
+        snapshotId: const Uuid().v4(),
+        facts: Map.unmodifiable(facts),
+      ),
+    ).toJsonString();
+    for (final key in migratedKeys) {
+      answers.remove(key);
+    }
+    if (_legacySelfLppKeys.keys.every((key) => !answers.containsKey(key))) {
+      answers.remove('_coach_lpp_source');
+    }
     return (answers: answers, migrated: true);
   }
 
@@ -496,6 +608,107 @@ class CoachProfileProvider extends ChangeNotifier {
     _isLoaded = true;
     _isPartialProfile = true;
     _profileUpdatedSinceBudget = true;
+    notifyListeners();
+  }
+
+  /// Persists one complete self-owned LPP review before exposing it in memory.
+  Future<void> acceptLppReview(LppReviewConfirmation confirmation) async {
+    if (!FeatureFlags.typedLppEvidence) {
+      throw StateError('Typed LPP evidence is disabled');
+    }
+    if (confirmation.facts.isEmpty) {
+      throw ArgumentError.value(
+        confirmation.facts,
+        'facts',
+        'at least one reviewed LPP fact is required',
+      );
+    }
+    final currentCivilTime = _now();
+    final updatedAt = currentCivilTime.toUtc();
+    final sourceDate = confirmation.sourceDate;
+    if (sourceDate != null &&
+        _civilDay(sourceDate).isAfter(_civilDay(currentCivilTime))) {
+      throw ArgumentError.value(
+        sourceDate,
+        'sourceDate',
+        'future civil source dates cannot enter the ledger',
+      );
+    }
+    for (final entry in confirmation.facts.entries) {
+      final reviewed = entry.value;
+      if (!reviewed.value.isFinite ||
+          reviewed.value < 0 ||
+          reviewed.unit != entry.key.unit ||
+          (reviewed.unit == LppEvidenceUnit.ratio && reviewed.value > 1)) {
+        throw ArgumentError.value(
+          reviewed.value,
+          entry.key.wireName,
+          'invalid LPP value or unit',
+        );
+      }
+    }
+
+    final loaded = await _lppProfilePersistence.loadAnswers();
+    LppEvidenceRoot currentRoot = const LppEvidenceRoot(self: null);
+    if (loaded.containsKey(_lppEvidenceRootKey)) {
+      final decoded = LppEvidenceRoot.fromJsonString(
+        loaded[_lppEvidenceRootKey],
+      );
+      if (decoded == null) {
+        throw StateError('Persisted LPP evidence is unavailable');
+      }
+      currentRoot = decoded;
+    }
+    final profileOwnerId =
+        currentRoot.self?.facts.values.first.profileOwnerId ??
+            const Uuid().v4();
+    final storedFacts = <LppEvidenceFactKey, LppEvidenceFact>{
+      for (final entry in confirmation.facts.entries)
+        entry.key: LppEvidenceFact(
+          value: entry.value.value,
+          unit: entry.value.unit,
+          profileOwnerId: profileOwnerId,
+          actorProfileOwnerId: profileOwnerId,
+          source: entry.value.corrected ? 'userInput' : 'certificate',
+          sourceDate: entry.value.corrected ? null : sourceDate,
+          updatedAt: updatedAt,
+        ),
+    };
+    final nextRoot = LppEvidenceRoot(
+      self: LppEvidenceSnapshot(
+        snapshotId: const Uuid().v4(),
+        facts: Map.unmodifiable(storedFacts),
+      ),
+    );
+    final nextAnswers = _copyAnswers(loaded);
+    for (final key in _legacySelfLppKeys.keys) {
+      nextAnswers.remove(key);
+    }
+    nextAnswers
+      ..remove('_coach_lpp_source')
+      ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
+    var nextProfile = CoachProfile.fromWizardAnswers(nextAnswers, now: _now);
+    for (final entry in storedFacts.entries) {
+      nextProfile = _withStampedProvenance(
+        nextProfile,
+        <String>[entry.key.profilePath],
+        source: entry.value.source == 'certificate'
+            ? ProfileDataSource.certificate
+            : ProfileDataSource.userInput,
+        sourceDate: entry.value.sourceDate,
+        updatedAt: entry.value.updatedAt,
+      );
+    }
+    _persistProvenance(nextAnswers, nextProfile);
+
+    await _lppProfilePersistence.saveAnswers(nextAnswers);
+
+    _lastAnswers = _copyAnswers(nextAnswers);
+    _profile = nextProfile;
+    _isLoaded = true;
+    _isPartialProfile = true;
+    _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1013,7 +1226,14 @@ class CoachProfileProvider extends ChangeNotifier {
       if (migration.migrated) {
         await _taxProfilePersistence.saveAnswers(migration.answers);
       }
-      final answers = migration.answers;
+      final lppMigration = _withLegacySelfLppMigration(
+        migration.answers,
+        now: _now,
+      );
+      if (lppMigration.migrated) {
+        await _lppProfilePersistence.saveAnswers(lppMigration.answers);
+      }
+      final answers = lppMigration.answers;
       _lastAnswers = _copyAnswers(answers);
 
       // Bounded tax consumers may inject a persistence boundary that has no

@@ -9,23 +9,202 @@ import 'package:mint_mobile/services/secure_wizard_store.dart';
 class ReportPersistenceService {
   static const String _wizardKey = 'wizard_answers_v2';
   static const String _completedKey = 'wizard_completed';
+  static const String _strictLppEvidenceKey = '_coach_lpp_evidence_v1';
+  static const String _activeLppEvidenceSlotKey = 'lpp_evidence_active_slot_v1';
+  static Future<void>? _lppPersistenceTail;
+  static const _looseSelfLppKeys = <String>{
+    '_coach_avoir_lpp',
+    '_coach_avoir_lpp_oblig',
+    '_coach_avoir_lpp_suroblig',
+    '_coach_salaire_assure',
+    '_coach_rachat_maximum',
+    '_coach_taux_conversion',
+    '_coach_taux_conversion_suroblig',
+    '_coach_rendement_caisse',
+    '_coach_lpp_source',
+  };
 
   static Map<String, dynamic> backendSafeAnswers(
     Map<String, dynamic> localAnswers,
   ) {
+    final hasStrictLppRoot = localAnswers.containsKey(_strictLppEvidenceKey);
     return Map<String, dynamic>.from(localAnswers)
       ..removeWhere(
-        (key, _) => key == '__provenance' || key.startsWith('_coach_tax_'),
+        (key, _) =>
+            key == '__provenance' ||
+            key == _strictLppEvidenceKey ||
+            key == _activeLppEvidenceSlotKey ||
+            (hasStrictLppRoot && _looseSelfLppKeys.contains(key)) ||
+            key.startsWith('_coach_tax_'),
       );
   }
 
   /// Sauvegarde les réponses du wizard (incremental off).
   /// SEC-10: Sensitive financial keys are stored in encrypted storage.
-  static Future<void> saveAnswers(Map<String, dynamic> answers) async {
+  static Future<void> saveAnswers(Map<String, dynamic> answers) =>
+      _serializeLppPersistence(() => _saveAnswers(answers));
+
+  static Future<void> _saveAnswers(Map<String, dynamic> answers) async {
     final prefs = await SharedPreferences.getInstance();
-    final cleaned = await SecureWizardStore.secureSensitiveKeys(answers);
+    final prepared = Map<String, dynamic>.from(answers);
+    if (prefs.getString(_activeLppEvidenceSlotKey) != null) {
+      prepared[_strictLppEvidenceKey] = '__secure__';
+    }
+    final cleaned = await SecureWizardStore.secureSensitiveKeys(prepared);
     final jsonString = json.encode(cleaned);
     await prefs.setString(_wizardKey, jsonString);
+  }
+
+  /// Persists the strict LPP root without replacing it before the matching
+  /// placeholder map is durable.
+  ///
+  /// The placeholder is staged and verified first. A replacement therefore
+  /// keeps the previous secure root authoritative until the final write, while
+  /// an interrupted first write remains unavailable rather than publishing
+  /// evidence that was never durably stored.
+  static Future<void> saveLppEvidenceAnswers(
+    Map<String, dynamic> answers,
+  ) =>
+      _serializeLppPersistence(() => _saveLppEvidenceAnswers(answers));
+
+  static Future<T> _serializeLppPersistence<T>(
+    Future<T> Function() operation,
+  ) async {
+    final previousOperation = _lppPersistenceTail;
+    final completion = Completer<void>();
+    final currentOperation = completion.future;
+    _lppPersistenceTail = currentOperation;
+    if (previousOperation != null) await previousOperation;
+    try {
+      return await operation();
+    } finally {
+      completion.complete();
+      if (identical(_lppPersistenceTail, currentOperation)) {
+        _lppPersistenceTail = null;
+      }
+    }
+  }
+
+  static Future<void> _saveLppEvidenceAnswers(
+    Map<String, dynamic> answers,
+  ) async {
+    final strictRoot = answers[_strictLppEvidenceKey];
+    if (strictRoot is! String || strictRoot == '__secure__') {
+      throw StateError('Strict LPP evidence root is required');
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final previousBytes = prefs.getString(_wizardKey);
+    final previousSlotId = prefs.getString(_activeLppEvidenceSlotKey);
+    final stagedAnswers = Map<String, dynamic>.from(answers)
+      ..[_strictLppEvidenceKey] = '__secure__';
+    final cleaned = await SecureWizardStore.secureSensitiveKeys(stagedAnswers);
+    final stagedBytes = json.encode(cleaned);
+
+    try {
+      final staged = await prefs.setString(_wizardKey, stagedBytes);
+      if (!staged || prefs.getString(_wizardKey) != stagedBytes) {
+        throw StateError('Strict LPP preferences stage failed');
+      }
+    } on Object {
+      await _restoreWizardBytes(prefs, previousBytes);
+      rethrow;
+    }
+
+    final nextSlotId = _newLppEvidenceSlotId();
+    final stored = await SecureWizardStore.writeLppEvidenceSlot(
+      nextSlotId,
+      strictRoot,
+    );
+    if (!stored) {
+      await _restoreWizardBytes(prefs, previousBytes);
+      await SecureWizardStore.deleteLppEvidenceSlot(nextSlotId);
+      throw StateError('Strict LPP secure slot write failed');
+    }
+
+    try {
+      final activated = await prefs.setString(
+        _activeLppEvidenceSlotKey,
+        nextSlotId,
+      );
+      if (!activated ||
+          prefs.getString(_activeLppEvidenceSlotKey) != nextSlotId) {
+        throw StateError('Strict LPP active slot write failed');
+      }
+    } on Object {
+      await _rollbackLppPublication(
+        prefs,
+        previousBytes: previousBytes,
+        previousSlotId: previousSlotId,
+        failedSlotId: nextSlotId,
+      );
+      rethrow;
+    }
+
+    if (previousSlotId != null &&
+        previousSlotId != nextSlotId &&
+        SecureWizardStore.isValidLppEvidenceSlotId(previousSlotId)) {
+      await SecureWizardStore.deleteLppEvidenceSlot(previousSlotId);
+    }
+    await SecureWizardStore.deleteInactiveLppEvidenceSlots(nextSlotId);
+    await SecureWizardStore.deleteLegacyLppEvidenceRoot();
+  }
+
+  static String _newLppEvidenceSlotId() {
+    final random = Random.secure();
+    return List<String>.generate(
+      16,
+      (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+      growable: false,
+    ).join();
+  }
+
+  static Future<void> _restoreWizardBytes(
+    SharedPreferences prefs,
+    String? previousBytes,
+  ) async {
+    final restored = previousBytes == null
+        ? await prefs.remove(_wizardKey)
+        : await prefs.setString(_wizardKey, previousBytes);
+    if (!restored || prefs.getString(_wizardKey) != previousBytes) {
+      throw StateError('Strict LPP preferences rollback failed');
+    }
+  }
+
+  static Future<void> _restoreLppSlotPointer(
+    SharedPreferences prefs,
+    String? previousSlotId,
+  ) async {
+    final restored = previousSlotId == null
+        ? await prefs.remove(_activeLppEvidenceSlotKey)
+        : await prefs.setString(_activeLppEvidenceSlotKey, previousSlotId);
+    if (!restored ||
+        prefs.getString(_activeLppEvidenceSlotKey) != previousSlotId) {
+      throw StateError('Strict LPP active slot rollback failed');
+    }
+  }
+
+  static Future<void> _rollbackLppPublication(
+    SharedPreferences prefs, {
+    required String? previousBytes,
+    required String? previousSlotId,
+    required String failedSlotId,
+  }) async {
+    Object? rollbackFailure;
+    try {
+      await _restoreLppSlotPointer(prefs, previousSlotId);
+    } on Object catch (error) {
+      rollbackFailure = error;
+    }
+    try {
+      await _restoreWizardBytes(prefs, previousBytes);
+    } on Object catch (error) {
+      rollbackFailure ??= error;
+    }
+    await SecureWizardStore.deleteLppEvidenceSlot(failedSlotId);
+    if (rollbackFailure != null) {
+      throw StateError('Strict LPP cross-store rollback failed');
+    }
   }
 
   /// Charge les réponses existantes.
@@ -39,11 +218,97 @@ class ReportPersistenceService {
     try {
       final answers = Map<String, dynamic>.from(json.decode(jsonString));
       final restored = await SecureWizardStore.restoreSensitiveKeys(answers);
-      return await _normalizeLegacyCashTotal(restored);
+      final withLpp = await _restoreLppEvidenceRoot(prefs, restored);
+      return await _normalizeLegacyCashTotal(withLpp);
     } catch (e, stack) {
       dev.log('Failed to decode wizard answers',
           error: e, stackTrace: stack, name: 'Persistence');
       return {};
+    }
+  }
+
+  static Future<Map<String, dynamic>> _restoreLppEvidenceRoot(
+    SharedPreferences prefs,
+    Map<String, dynamic> answers,
+  ) async {
+    if (answers[_strictLppEvidenceKey] != '__secure__') return answers;
+    final restored = Map<String, dynamic>.from(answers);
+    final activeSlotId = prefs.getString(_activeLppEvidenceSlotKey);
+    if (activeSlotId != null) {
+      final root = await SecureWizardStore.readLppEvidenceSlot(activeSlotId);
+      if (root != null) restored[_strictLppEvidenceKey] = root;
+      return restored;
+    }
+
+    final legacyRoot = await SecureWizardStore.readLegacyLppEvidenceRoot();
+    if (legacyRoot == null) return restored;
+    await _migrateLegacyLppEvidenceRoot(prefs, legacyRoot);
+
+    final migratedSlotId = prefs.getString(_activeLppEvidenceSlotKey);
+    if (migratedSlotId != null) {
+      final migratedRoot =
+          await SecureWizardStore.readLppEvidenceSlot(migratedSlotId);
+      if (migratedRoot != null) {
+        restored[_strictLppEvidenceKey] = migratedRoot;
+      }
+    } else if (_wizardHasStrictLppPlaceholder(prefs)) {
+      final retainedLegacyRoot =
+          await SecureWizardStore.readLegacyLppEvidenceRoot();
+      if (retainedLegacyRoot != null) {
+        restored[_strictLppEvidenceKey] = retainedLegacyRoot;
+      }
+    }
+    return restored;
+  }
+
+  static Future<void> _migrateLegacyLppEvidenceRoot(
+    SharedPreferences prefs,
+    String legacyRoot,
+  ) =>
+      _serializeLppPersistence(
+        () => _migrateLegacyLppEvidenceRootLocked(prefs, legacyRoot),
+      );
+
+  static Future<void> _migrateLegacyLppEvidenceRootLocked(
+    SharedPreferences prefs,
+    String legacyRoot,
+  ) async {
+    if (prefs.getString(_activeLppEvidenceSlotKey) != null ||
+        !_wizardHasStrictLppPlaceholder(prefs) ||
+        await SecureWizardStore.readLegacyLppEvidenceRoot() != legacyRoot) {
+      return;
+    }
+
+    final slotId = _newLppEvidenceSlotId();
+    final stored = await SecureWizardStore.writeLppEvidenceSlot(
+      slotId,
+      legacyRoot,
+    );
+    if (!stored) return;
+
+    try {
+      final activated =
+          await prefs.setString(_activeLppEvidenceSlotKey, slotId);
+      if (!activated || prefs.getString(_activeLppEvidenceSlotKey) != slotId) {
+        throw StateError('Legacy LPP active slot migration failed');
+      }
+    } on Object {
+      await _restoreLppSlotPointer(prefs, null);
+      await SecureWizardStore.deleteLppEvidenceSlot(slotId);
+      return;
+    }
+    await SecureWizardStore.deleteInactiveLppEvidenceSlots(slotId);
+    await SecureWizardStore.deleteLegacyLppEvidenceRoot();
+  }
+
+  static bool _wizardHasStrictLppPlaceholder(SharedPreferences prefs) {
+    final wizardBytes = prefs.getString(_wizardKey);
+    if (wizardBytes == null) return false;
+    try {
+      final wizard = json.decode(wizardBytes);
+      return wizard is Map && wizard[_strictLppEvidenceKey] == '__secure__';
+    } on Object {
+      return false;
     }
   }
 
@@ -796,9 +1061,14 @@ class ReportPersistenceService {
   /// - réponses wizard/mini-onboarding
   /// - flags de complétion
   /// - contributions planifiées liées au profil
-  static Future<void> clearDiagnostic() async {
+  static Future<void> clearDiagnostic() =>
+      _serializeLppPersistence(_clearDiagnostic);
+
+  static Future<void> _clearDiagnostic() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_wizardKey);
+    await prefs.remove(_activeLppEvidenceSlotKey);
+    await SecureWizardStore.deleteAll();
     await prefs.remove(_completedKey);
     await prefs.remove(_miniOnboardingKey);
     await prefs.remove(_miniOnboardingVariantKey);

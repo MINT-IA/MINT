@@ -1,8 +1,10 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -197,20 +199,22 @@ void main() {
 
   test('confirmed LPP certificate fact commits value and provenance atomically',
       () async {
+    FeatureFlags.typedLppEvidence = true;
+    addTearDown(() => FeatureFlags.typedLppEvidence = false);
     final provider = await _seededProvider();
     final startedAt = DateTime.now();
 
-    await provider.updateFromLppExtraction(const [
-      ExtractedField(
-        fieldName: 'salaire_assure',
-        label: 'Salaire assuré',
-        value: 84000.0,
-        confidence: 0.96,
-        sourceText: 'Salaire assuré 84 000',
-        needsReview: false,
-        profileField: 'lppInsuredSalary',
+    await provider.acceptLppReview(
+      const LppReviewConfirmation.self(
+        sourceDate: null,
+        facts: {
+          LppEvidenceFactKey.insuredSalaryAnnualChf: LppReviewedFact(
+            value: 84000.0,
+            unit: LppEvidenceUnit.chfPerYear,
+          ),
+        },
       ),
-    ]);
+    );
 
     final completedAt = DateTime.now();
     await _expectAtomicColdRoundTrip(
