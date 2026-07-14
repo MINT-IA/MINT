@@ -95,16 +95,16 @@
     },
     {
       "ticket_id": "G1-PROV-01",
-      "state": "red_proven",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/providers/provenance_on_write_test.dart --reporter expanded",
       "evidence_mode": "red_green",
       "red_sha": "c1f126089f06724cb25e6d85fb366ab62147921b",
       "red_artifact": ".planning/runtime-evidence/phase-37/prov-01/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "9da8bc96f47c7897328faefa0e7caddc80a3adf2",
+      "green_artifact": ".planning/runtime-evidence/phase-37/prov-01/green.json",
+      "accepted_sha": "9da8bc96f47c7897328faefa0e7caddc80a3adf2"
     },
     {
       "ticket_id": "G1-PROV-02",

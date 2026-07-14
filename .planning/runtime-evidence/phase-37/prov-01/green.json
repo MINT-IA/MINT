@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-PROV-01",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/providers/provenance_on_write_test.dart --reporter expanded",
+  "sha": "9da8bc96f47c7897328faefa0e7caddc80a3adf2",
+  "recorded_at": "2026-07-14T01:58:37Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "provenance_on_write_test",
+  "output": "Exact detached-worktree output archived in green-output.txt. 17 tests passed; value and exact field provenance survived cold reconstruction, and writers published only after persistence.",
+  "synthetic_data_only": true
+}

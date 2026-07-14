@@ -1,0 +1,71 @@
+{
+  "ticket_id": "G1-PROV-01",
+  "accepted_sha": "9da8bc96f47c7897328faefa0e7caddc80a3adf2",
+  "ticket_decision": "GREEN",
+  "phase_g1_decision": "NO-GO",
+  "required_modes": [
+    "code",
+    "product-domain",
+    "architecture"
+  ],
+  "runs": [
+    {
+      "mode": "code",
+      "model": "opus",
+      "rerun": false,
+      "artifact": ".planning/runtime-evidence/phase-37/prov-01/audit-code-opus.md",
+      "verdict": "PASS with P2"
+    },
+    {
+      "mode": "code",
+      "model": "sonnet",
+      "rerun": true,
+      "artifact": ".planning/runtime-evidence/phase-37/prov-01/audit-code-sonnet-rerun.md",
+      "verdict": "NO-GO; salary fixed in accepted SHA, tax routed to G1-PROV-03"
+    },
+    {
+      "mode": "product-domain",
+      "model": "opus",
+      "rerun": false,
+      "artifact": ".planning/runtime-evidence/phase-37/prov-01/audit-product-domain-opus.md",
+      "verdict": "PASS; no P0/P1"
+    },
+    {
+      "mode": "architecture",
+      "model": "opus",
+      "rerun": false,
+      "artifact": ".planning/runtime-evidence/phase-37/prov-01/audit-architecture-opus.md",
+      "verdict": "NO-GO; universal doc claim narrowed and live exceptions registered"
+    },
+    {
+      "mode": "architecture",
+      "model": "sonnet",
+      "rerun": true,
+      "artifact": ".planning/runtime-evidence/phase-37/prov-01/audit-architecture-sonnet-rerun.md",
+      "verdict": "NO-GO for full G1; bounded migrated core confirmed sound"
+    }
+  ],
+  "open_phase_blockers": [
+    {
+      "ticket": "G1-PROV-02",
+      "summary": "Self/partner LPP cold-restart provenance and partner save-before-publish"
+    },
+    {
+      "ticket": "G1-PROV-03",
+      "summary": "Typed tax facts with source date, legal year, provenance, and save-before-publish"
+    },
+    {
+      "ticket": "G1-FRESH-01",
+      "summary": "Real sourceDate extraction and a live freshness/reconfirmation consumer"
+    },
+    {
+      "ticket": "G1-RUNTIME-01",
+      "summary": "Exact-SHA Maestro plus Patrol process-death proof"
+    }
+  ],
+  "accepted_p2": [
+    "Crash-level atomicity across SecureWizardStore and SharedPreferences is not claimed.",
+    "copyWith source inference is disabled; migrated writers stamp explicitly and later G1 tickets must verify remaining writers.",
+    "Persistence errors now fail closed before publication; caller recovery remains to be verified."
+  ]
+}
