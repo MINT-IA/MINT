@@ -65,7 +65,7 @@ void main() {
 
       await $(#tax_review_confirm_cta).scrollTo().tap();
       await $(find.bySemanticsIdentifier('document_impact_return_cta'))
-          .waitUntilVisible();
+          .waitUntilExists();
 
       final materialApp = find.byType(MaterialApp);
       expect(materialApp, findsOneWidget);

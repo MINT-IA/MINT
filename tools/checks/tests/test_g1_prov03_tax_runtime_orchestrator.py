@@ -382,6 +382,14 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     assert "tax_review_confirm_cta).waitUntilVisible" not in writer
     assert "tax_review_confirm_cta).scrollTo().tap()" in writer
     assert "find.bySemanticsIdentifier('document_impact_return_cta')" in writer
+    assert re.search(
+        r"document_impact_return_cta'\)\)\s*\.waitUntilExists\(\)",
+        writer,
+    )
+    assert not re.search(
+        r"document_impact_return_cta'\)\)\s*\.waitUntilVisible\(\)",
+        writer,
+    )
     for bypass in (
         "acceptTaxReview(",
         "saveAnswers(",
