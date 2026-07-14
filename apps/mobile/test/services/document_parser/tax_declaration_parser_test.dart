@@ -256,7 +256,7 @@ Total des déductions effectuées: CHF 70'000.00
       );
     });
 
-    test('infers taux marginal when taxes and income present but rate missing', () {
+    test('never promotes a computed tax-to-income ratio to marginal', () {
       const text = """
 Revenu imposable: CHF 100'000.00
 Impôt cantonal et communal: CHF 15'000.00
@@ -264,11 +264,49 @@ Impôt fédéral direct: CHF 5'000.00
 """;
       final result = TaxDeclarationParser.parseTaxDeclaration(text);
       final field = findField(result, 'taux_marginal_effectif');
-      expect(field, isNotNull);
-      // Inferred: (15000 + 5000) / 100000 * 100 = 20.0%
-      expect((field!.value as double), closeTo(20.0, 0.1));
-      expect(field.confidence, lessThan(0.80)); // lower confidence for inferred
-      expect(field.needsReview, isTrue);
+      expect(
+        field,
+        isNull,
+        reason:
+            '(ICC + IFD) / revenu is an average rate, never a marginal rate',
+      );
+    });
+
+    test('average and effective labels never map to actualMarginalRate', () {
+      for (final text in const [
+        "Taux moyen d'imposition: 22.3 %",
+        'Effektiver Steuersatz: 19.4 %',
+      ]) {
+        final result = TaxDeclarationParser.parseTaxDeclaration(text);
+        expect(
+          result.fields.where((f) => f.profileField == 'actualMarginalRate'),
+          isEmpty,
+          reason:
+              'average/effective rates require their own typed field: $text',
+        );
+      }
+    });
+
+    test('cantonal-only and combined ICC labels stay distinguishable', () {
+      final cantonalOnly = findField(
+        TaxDeclarationParser.parseTaxDeclaration(
+          "Impôt cantonal: CHF 10'000.00",
+        ),
+        'impot_cantonal',
+      );
+      final combinedIcc = findField(
+        TaxDeclarationParser.parseTaxDeclaration("ICC: CHF 14'520.00"),
+        'impot_cantonal',
+      );
+
+      expect(cantonalOnly, isNotNull);
+      expect(combinedIcc, isNotNull);
+      expect(
+        cantonalOnly!.label,
+        isNot(combinedIcc!.label),
+        reason:
+            'cantonalOnly must not be presented as cantonalCommunalCombined',
+      );
     });
   });
 
@@ -414,12 +452,11 @@ Impôt fédéral direct: CHF 3'840.00
       expect((field!.value as double), closeTo(15000.0, 0.01));
     });
 
-    test('parses "taux moyen d\'imposition" as proxy for marginal', () {
+    test('does not parse "taux moyen d\'imposition" as marginal', () {
       const text = "Taux moyen d'imposition: 22.3 %";
       final result = TaxDeclarationParser.parseTaxDeclaration(text);
       final field = findField(result, 'taux_marginal_effectif');
-      expect(field, isNotNull);
-      expect((field!.value as double), closeTo(22.3, 0.1));
+      expect(field, isNull);
     });
   });
 }
