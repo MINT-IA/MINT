@@ -52,6 +52,9 @@ e-mail, AVS number or real financial value is retained in this tracked proof.
 - `read-xcresult-summary.sanitized.json` — independent cold-reader result, 1/1.
 - `gate-exit-codes.json` — deterministic zero/non-zero record for the runtime
   and external-audit commands.
+- `architecture-sonnet-p1-remediation.json` — two exact RED stages and the
+  final 23 disclaimer passes / 0 failures, four-file accent, zero-issue analyze and 689/689
+  financial-core GREEN proof, followed by the 8,900/33/0 full Flutter suite.
 - `original-bundle-core-sha256.json` — hashes of the three core files in the
   complete local runtime bundle before sanitization.
 - `SHA256SUMS` — hashes of the sanitized tracked artifacts.
@@ -60,6 +63,11 @@ e-mail, AVS number or real financial value is retained in this tracked proof.
 - `audit-architecture-opus-first-pass.txt` — G1-level NO-GO that correctly
   found stale acceptance documents; its two path attributions were verified
   and corrected during reconciliation.
+- `audit-architecture-sonnet-rerun.txt` — the one authorized rerun at
+  `9daede134`; it confirms the stale-document P1s resolved and PROV-03
+  architecture-clean, while correctly retaining full G1 NO-GO for the 18 open
+  rows. Its two newly identified French-accent P1 literals are repaired in the
+  follow-up commit that records the audit.
 
 The raw build products, full `.xcresult` bundles and screenshots remain local
 and excluded from Git. This directory is the minimal, reviewable and sanitized

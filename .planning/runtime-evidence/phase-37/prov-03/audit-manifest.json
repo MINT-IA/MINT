@@ -19,6 +19,14 @@
       "verdict": "NO-GO for G1 acceptance; PROV-03 architecture and gates verified, acceptance corpus stale"
     },
     {
+      "mode": "architecture",
+      "model": "sonnet",
+      "rerun": true,
+      "head_sha": "9daede134a13519ffe89d3f8ea993886def42b42",
+      "artifact": ".planning/runtime-evidence/phase-37/prov-03/runtime-proof-ac74672db2/audit-architecture-sonnet-rerun.txt",
+      "verdict": "NO-GO for full G1; prior acceptance-drift P1s resolved and PROV-03 architecture-clean; two inherited French-accent P1 literals repaired in the recording commit"
+    },
+    {
       "mode": "code",
       "model": "opus",
       "rerun": false,
@@ -43,8 +51,11 @@
     "Final-tax-bill reclassification guidance and negative-loss semantics remain deferred."
   ],
   "resolved_findings": [
-    "The current individual-taxation statement now carries an adjacent official DFF citation revalidated on 2026-07-14."
+    "The current individual-taxation statement now carries an adjacent official DFF citation revalidated on 2026-07-14.",
+    "The Opus stale-SCORECARD and STATE/index disagreement P1s are resolved at 9daede134.",
+    "The Sonnet rerun's two inherited financial disclaimer accent P1s are repaired in the follow-up recording commit."
   ],
   "runtime_artifact": ".planning/runtime-evidence/phase-37/prov-03/runtime-proof-ac74672db2/README.md",
+  "rerun_p1_remediation_artifact": ".planning/runtime-evidence/phase-37/prov-03/runtime-proof-ac74672db2/architecture-sonnet-p1-remediation.json",
   "open_phase_gate": "18 of 31 registry rows remain non-green before this reconciliation commit"
 }

@@ -296,8 +296,17 @@ void main() {
 
       expect(result.disclaimer, contains('LIFD art. 38'));
       expect(result.disclaimer, contains('OPP3 art. 3'));
-      expect(result.disclaimer, contains('specialiste'));
-      expect(result.disclaimer, contains('Simulation pedagogique'));
+      expect(
+        result.disclaimer,
+        contains('Simulation pédagogique de la séquence'),
+      );
+      expect(
+        result.disclaimer,
+        contains("L'optimisation fiscale dépend de la législation"),
+      );
+      expect(result.disclaimer, contains('Base légale'));
+      expect(result.disclaimer, contains('spécialiste'));
+      expect(result.disclaimer, contains('décision'));
 
       // Sources check
       expect(result.sources,

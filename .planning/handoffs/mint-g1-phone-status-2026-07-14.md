@@ -16,6 +16,11 @@ G1 avance réellement mais n'est pas fini: **13 tickets sur 31 sont GREEN et
 - Suite Flutter à ce SHA: analyse 0; **8 899 passés, 33 ignorés, 0 échec**.
 - Claude Opus code: **PASS**, zéro P0/P1.
 - Claude Opus produit/domaine suisse: **PASS**, zéro P0/P1.
+- Architecture Sonnet: **PROV-03 propre** et anciennes preuves réconciliées;
+  G1 complet reste justement NO-GO car 18 tickets sont ouverts.
+- Les deux P1 d'accents français trouvés par Sonnet sont réparés et verrouillés
+  par 689/689 tests financial_core; la suite Flutter post-correction passe
+  aussi avec **8 900 réussis, 33 ignorés, 0 échec**.
 - Production: tax ingestion encore désactivée par défaut; aucune activation
   n'est revendiquée.
 
@@ -45,7 +50,7 @@ Score provisoire: **8.2/10 — NO-GO**.
 ## Maintenant
 
 1. Indexer et pousser la preuve PROV-03 sanitizée.
-2. Faire l'unique rerun architecture Sonnet après réconciliation.
+2. L'unique rerun architecture Sonnet est terminé et archivé; pas de carousel.
 3. Continuer les tickets G1 dans leur ordre de dépendances, notamment la
    persistance LPP self/partenaire manuel puis les grants conjoint.
 4. Ne jamais démarrer G2/G3 avant 31/31 GREEN, score ≥9.0 et zéro P0/P1.

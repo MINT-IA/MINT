@@ -1,0 +1,104 @@
+I have all the evidence I need. Here is the formal audit report.
+
+---
+
+# MINT External Audit — Architecture Mode (Sonnet Rerun)
+
+**Audit date:** 2026-07-14
+**Model:** claude-sonnet-4-6 (mandated Sonnet rerun after Opus first-pass NO-GO for stale docs)
+**Repo HEAD:** `9daede134` (docs: index PROV-03 runtime acceptance)
+**Scope:** Phase 37 / G1 Ledger Reality Baseline — architecture, phase evidence, gate machinery
+
+---
+
+## VERDICT: NO-GO
+
+G1 correctly self-declares NO-GO at 8.2/10. The architecture is real and enforceable (genuine strength). The Sonnet rerun resolves the prior Opus audit P1s. One new P1 is found. G2/G3 remain correctly forbidden.
+
+---
+
+## What I verified as sound
+
+| Evidence | Result |
+|---|---|
+| dead-keys gate at HEAD | 20/20 passed (`test_g1_p0_ledger_dead_keys.py`) |
+| PROV-03 orchestrator contracts | 19/19 passed (`test_g1_prov03_tax_runtime_orchestrator.py`) |
+| ticket-evidence.json vs SCORECARD vs STATE.md | 31 total / 13 green / 17 ticket_only / 1 red_proven — **all three documents agree at HEAD** |
+| Feature flags | `typedTaxProfile = false`, `documentTaxAssessmentEnabled = false` — production correctly dark-launched |
+| financial_core_gate | PASS — no calculation drift outside financial_core |
+| banned_ui_terms | PASS — 687 Dart files, zero LSFin violations |
+| ARB parity | PASS — 6,964 keys × 6 languages |
+| Mint OS Doctor (repo-only) | All checks PASS |
+| gate-exit-codes.json | All 13 runtime exit codes are 0, including both Claude audit modes |
+| Patrol write → process death → read chain | Metadata sanitized, SHA fixed to `ac74672db`, two independent xcresults 1/1 |
+| SCORECARD | Updated 2026-07-14, includes PROV-03, correct ticket counts, explicitly NO-GO 8.2/10 |
+
+**Prior Opus audit P1 resolution at HEAD `9daede134`:**
+
+| Prior P1 | Status |
+|---|---|
+| SCORECARD 95 commits stale | **RESOLVED** — updated in reconciliation commit, current as of 2026-07-14 |
+| STATE.md/evidence index disagreement | **RESOLVED** — STATE.md now shows 31/13/17/1, matches evidence index |
+| Mandated audits for tax path | **RESOLVED** — code and product-domain audits at `ac74672db` in manifest, exit 0; reconciliation commit is docs-only so no new production code since those audits |
+
+---
+
+## Findings
+
+### P0 — Carried (self-declared, confirmed independently)
+
+**G1-RUNTIME-01: `red_proven`.**
+The canonical global runtime gate — salary/canton write → process death → mortgage consumer cold-relaunch — fails. `ticket-evidence.json` state `red_proven`. This is the foundational ledger persistence invariant. No production path for the full P0 round-trip is proven green at HEAD.
+**Reproduction:** `G1-blocking-gate-tickets.md` row G1-RUNTIME-01, registry command.
+
+**AVS splitting contract: statutory trigger and wiring open.**
+Fixed-scale cap and proxy are removed/quarantined. But per SCORECARD: "owner-scoped official splitting evidence, statutory-trigger state and production wiring" remain open. No Swiss official splitting trigger evidence exists in the ledger at HEAD.
+
+**18 of 31 G1 tickets non-green.**
+17 are `ticket_only` (no RED→GREEN sequence), 1 is `red_proven`. Gate requires 31/31 GREEN before G1 acceptance.
+
+---
+
+### P1 — New (found in this rerun)
+
+**Compliance disclaimer strings in financial_core SOT files have missing mandatory accents (CLAUDE.md rule #2).**
+
+| File | Line | String | Violation |
+|---|---|---|---|
+| `apps/mobile/lib/services/financial_core/tax_calculator.dart` | 215 | `'Consulte un·e specialiste fiscal·e pour une estimation personnalisee.'` | `specialiste` → `spécialiste`, `personnalisee` → `personnalisée` |
+| `apps/mobile/lib/services/financial_core/withdrawal_sequencing_service.dart` | 111 | `'Consulte un ou une specialiste avant toute decision.'` | `specialiste` → `spécialiste`, `decision` → `décision` |
+
+These are production user-facing disclaimer constants in the canonical SOT (`lib/services/financial_core/`). They are rendered as output to users and constitute the LSFin no-advice compliance text. CLAUDE.md rule #2: "ASCII `e` à la place de `é` = bug." The `accent_lint_fr` lefthook gate is forward-only (runs `--file` per staged file in pre-commit), so these pre-existing violations are not blocked by CI unless the file is committed again. No allowlist exempts financial_core files.
+
+**Reproduction:** `python3 tools/checks/accent_lint_fr.py 2>&1 | grep financial_core` → 2 violations.
+
+---
+
+### P1 — Inherited (from prior audit, not closed)
+
+**`no_domain_data_in_extra_test.dart` gate name over-promises on `/rapport` and `/confidence` paths.** Those risks are covered by separate tests, not by `state.extra` cast checks. Ticketed as a prior audit P2; included here for tracking continuity.
+
+**`coach_profile_confidence_adapter.dart` conflates `property_value` market vs. effective valuation.** Ticketed as `G1-P2-PROPERTY-01`. Not yet closed.
+
+---
+
+### P2 — Pre-existing (forward-gated, not new)
+
+- `accent_lint_fr` repo-wide: 117 violations. The gate is forward-only. The financial_core strings (above) are the ones that matter; the rest are backend Python disclaimer strings with the same `spécialiste`/`spécialiste` pattern.
+- `no_hardcoded_fr` repo-wide: 4,066 violations grandfathered by `LEGACY_FILE_ALLOWLIST`. Forward gate is staged-file-only; new additions to those files would be caught.
+
+---
+
+## Bottom line
+
+The PROV-03 implementation and gate machinery are **architecture-clean**: the acceptance evidence is now current, the code and product-domain audits passed at `ac74672db`, the feature flags are production-off, and the orchestrator contract tests pass 19/19. The prior Opus P1s about stale acceptance documents are resolved by the reconciliation commit.
+
+**G1 cannot accept** for three independent reasons:
+1. G1-RUNTIME-01 is `red_proven` (foundational ledger persistence invariant fails).
+2. AVS splitting statutory trigger and wiring remain open.
+3. 18 of 31 G1 tickets are non-green.
+
+**To close this architecture gate at the next rerun:**
+1. Fix `tax_calculator.dart:215` and `withdrawal_sequencing_service.dart:111` accent violations (P1 new — fix is two string literals).
+2. Record this session as the accepted Sonnet architecture rerun in `audit-manifest.json`.
+3. Continue G1 ticket execution from the 18 non-green rows.

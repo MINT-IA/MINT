@@ -46,7 +46,13 @@ proof is `runtime-proof-ac74672db2/README.md`.
 Claude Opus code and product-domain audits both returned PASS with zero P0/P1.
 The first architecture pass returned G1-level NO-GO because the scorecard,
 STATE and audit index were stale; it did not find a PROV-03 implementation P0
-or P1. See `audit-manifest.json`.
+or P1. The one authorized Sonnet rerun at reconciliation SHA `9daede134`
+confirms those acceptance-drift P1s resolved and PROV-03 architecture-clean.
+It correctly keeps full G1 NO-GO because 18 rows remain non-green, the global
+runtime ticket is red-proven and the AVS splitting contract is open. Its two
+inherited French-accent P1 literals are repaired in the follow-up recording
+commit. The post-remediation full Flutter suite is 8,900 passed / 33 skipped /
+0 failed. No further audit carousel is authorized. See `audit-manifest.json`.
 
 `FeatureFlags.documentTaxAssessmentEnabled` and
 `FeatureFlags.typedTaxProfile` still remain false in production. The runtime

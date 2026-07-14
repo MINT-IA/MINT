@@ -1,0 +1,74 @@
+{
+  "audit_head_sha": "9daede134a13519ffe89d3f8ea993886def42b42",
+  "finding": "Sonnet architecture rerun French user-facing financial disclaimer accents",
+  "green": {
+    "accent_lint_targeted_files": {
+      "exit_code": 0,
+      "files": 4
+    },
+    "diff_check": {
+      "exit_code": 0
+    },
+    "financial_core_suite": {
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 689
+    },
+    "flutter_full_suite": {
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 8900,
+      "skipped": 33
+    },
+    "flutter_analyze_global": {
+      "exit_code": 0,
+      "issues": 0
+    },
+    "flutter_analyze_targeted": {
+      "exit_code": 0,
+      "issues": 0
+    },
+    "no_hardcoded_fr_staged": {
+      "exit_code": 0,
+      "files": 2
+    },
+    "targeted_disclaimer_tests": {
+      "failed": 0,
+      "passed": 23
+    }
+  },
+  "red": [
+    {
+      "failures": [
+        "impos\u00e9e",
+        "Simulation p\u00e9dagogique"
+      ],
+      "gate": "targeted disclaimer tests",
+      "result": "21 passed, 2 failed"
+    },
+    {
+      "failures": [
+        "Simulation p\u00e9dagogique de la s\u00e9quence"
+      ],
+      "gate": "targeted disclaimer tests after first repair",
+      "result": "14 passed, 1 failed"
+    },
+    {
+      "failure": "obsolete specialiste oracle",
+      "gate": "financial_core after first two literal edits",
+      "result": "687 passed, 1 failed"
+    },
+    {
+      "exit_code": 1,
+      "files_with_violations": 2,
+      "gate": "accent_lint_fr targeted initial"
+    }
+  ],
+  "scope": [
+    "apps/mobile/lib/services/financial_core/tax_calculator.dart",
+    "apps/mobile/lib/services/financial_core/withdrawal_sequencing_service.dart",
+    "apps/mobile/test/services/financial_core/tax_calculator_test.dart",
+    "apps/mobile/test/services/financial_core/withdrawal_sequencing_test.dart"
+  ],
+  "synthetic_data_only": true
+}

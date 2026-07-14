@@ -12,8 +12,13 @@ Patrol writer → explicit process death → separate cold reader, two independe
 xcresults 1/1, restored normal app, final Doctor/Patrol guard and 19/19 harness
 contracts. Full Flutter at the runtime SHA is analyze 0 and 8,899/33/0.
 Claude Opus code and product-domain audits PASS with no P0/P1. Production flags
-remain false. The full G1 architecture first pass remains NO-GO until the
-checked-in reconciliation receives its single Sonnet rerun.
+remain false. The single Sonnet architecture rerun at `9daede134` confirms the
+prior acceptance-drift P1s resolved and PROV-03 architecture-clean. Full G1
+remains NO-GO for the 18 open rows. Its two inherited financial-disclaimer
+accent P1 literals are repaired in the follow-up audit-recording commit with
+two exact RED stages, 23 targeted passes / 0 failures, four-file accent lint, zero-issue analyze
+and 689/689 financial-core GREEN proof. The final post-remediation Flutter
+suite is 8,900 passed / 33 skipped / 0 failed; no audit carousel is authorized.
 
 A new checked-in guard derives the registry total and rejects stale 23-ticket
 claims across active acceptance documents. The exact runtime proof is retained

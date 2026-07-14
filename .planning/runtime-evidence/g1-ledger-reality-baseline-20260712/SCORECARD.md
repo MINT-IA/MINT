@@ -50,7 +50,7 @@ audits PASS, but remains dark-launched. G2/G3 are forbidden.
 | UX lucidity | 1.5 | 1.3 | Report and PDF now expose neutral AVS/LPP/3a evidence gaps with real recovery CTAs instead of fabricated amounts. Couple recovery and consent UX remain open. |
 | Runtime proof | 1.5 | 1.5 | B2 has an exact committed SHA; the report runtime indexed-diff SHA exactly equals pushed commit `1bb9c8389`, with full Doctor/build, built-versus-installed payload proof, Maestro semantic positives/negatives plus visual artifacts, Patrol 2/2 and xcresult summary. |
 | Automated tests | 1.0 | 1.0 | Final report/PDF snapshot: analyze 0; 8,514 successful + 30 skipped; 0 fail. Targeted report matrix 95/95; B2 matrix 187/187. |
-| External audit | 1.0 | 0.7 | Report/PDF and PROV-03 code/product-domain lenses PASS without P0/P1. The PROV-03 architecture first pass correctly kept full G1 NO-GO because acceptance evidence was stale; a single Sonnet architecture rerun follows reconciliation. Remaining global slices are not converged. |
+| External audit | 1.0 | 0.7 | Report/PDF and PROV-03 code/product-domain lenses PASS without P0/P1. The one Sonnet architecture rerun confirms the stale acceptance P1s resolved and PROV-03 clean; full G1 remains NO-GO for 18 open rows. Its two inherited French-accent P1 literals are repaired in the audit-recording commit. Remaining global slices are not converged. |
 | Integration / privacy hygiene | 1.0 | 0.7 | Synthetic runtime data and field-scoped provenance are green; partner grants/revocation and official-source persistence remain open. |
 | Diff discipline | 0.5 | 0.5 | Provenance, recovery, nullable contract, wiring docs, runtime harness and screenshot fix are atomic commits with regular pushes. |
 | **Total** | **10.0** | **8.2** | **Below 9.0 and hard blockers remain; G1 stays NO-GO.** |
@@ -79,7 +79,8 @@ audits PASS, but remains dark-launched. G2/G3 are forbidden.
 | Report/PDF external audits | PASS: Opus code + product-domain first pass; Sonnet code + product-domain rerun; no P0/P1 |
 | PROV-03 exact-SHA runtime | PASS at `ac74672db`: normal iOS build/install; Maestro flag-off before/after; Patrol writer/process-death/reader 1/1 + 1/1; restored normal app; Doctor, Patrol guard and 19/19 orchestrator contracts GREEN |
 | PROV-03 exact-SHA full Flutter suite | PASS at `ac74672db`: analyze 0; 8,899 passed, 33 skipped, 0 failed |
-| PROV-03 external audits | PASS: Opus code and product-domain, no P0/P1. Architecture first pass NO-GO for stale G1 acceptance docs, not for a PROV-03 implementation defect. |
+| PROV-03 external audits | PASS: Opus code and product-domain, no P0/P1. Sonnet architecture rerun at `9daede134` confirms PROV-03 clean and the prior acceptance-drift P1s resolved; full G1 correctly remains NO-GO. |
+| Sonnet architecture P1 remediation | PASS: exact disclaimer REDs `21/2`, then `14/1`; final targeted 23 passed / 0 failed, accent lint 4/4 files, analyze 0, financial_core 689/689 and full Flutter 8,900 passed / 33 skipped / 0 failed |
 | Phase 37 registry | 31 total: 13 GREEN, 17 `ticket_only`, 1 `red_proven`; count-drift guard RED→GREEN added to active acceptance docs |
 
 ## Exact B2 evidence
@@ -108,7 +109,7 @@ audits PASS, but remains dark-launched. G2/G3 are forbidden.
 - `G2 allowed?` **NO**.
 - `G3 allowed?` **NO**.
 - Current machine truth: **13/31 GREEN; 18 hard floors open**.
-- Next ordered gates: one Sonnet architecture rerun after evidence
-  reconciliation; then dependency-valid remaining G1 tickets, including
+- Next ordered gates: dependency-valid remaining G1 tickets, including
   PROV-02/BND-02A, AVS splitting evidence, G1-AVS-02 activation and the global
-  `G1-RUNTIME-01`. Full re-score only after every hard floor is green.
+  `G1-RUNTIME-01`. The authorized architecture rerun is recorded; do not start
+  an audit carousel. Full re-score only after every hard floor is green.

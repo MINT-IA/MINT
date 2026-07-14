@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: Phase 37 cross-plan execution; 13/31 GREEN and 18 hard floors remain; G2/G3 are not authorized.
+stopped_at: PROV-03 exact runtime and audits recorded; 13/31 GREEN and 18 hard floors remain; G2/G3 are not authorized.
 last_updated: "2026-07-14T17:30:00Z"
-last_activity: 2026-07-14 -- PROV-03 code and exact-SHA runtime proved GREEN; acceptance evidence reconciliation in progress
+last_activity: 2026-07-14 -- PROV-03 exact-SHA evidence reconciled; Sonnet confirms the slice architecture-clean and full G1 remains NO-GO
 progress:
   total_phases: 14
   completed_phases: 0
@@ -37,6 +37,8 @@ Status: Executing Phase 37
 Last activity: 2026-07-14 -- PROV-03 typed-tax persistence proved through
 real process death at exact SHA `ac74672db`; code and product-domain audits
 passed without P0/P1. Production activation remains disabled.
+The one Sonnet architecture rerun confirms the stale acceptance findings
+resolved and PROV-03 clean; it retains G1 NO-GO for the open global gates.
 
 ## Build Order
 
@@ -103,8 +105,8 @@ counts as a current-SHA PASS without targeted revalidation.
 
 Last session: 2026-07-14T17:30:00Z
 
-Stopped at: PROV-03 evidence reconciliation after exact-SHA runtime and external
-audits; select the next dependency-valid ticket from the 18 remaining G1 rows.
+Stopped at: PROV-03 evidence reconciliation and the one architecture rerun are
+recorded; select the next dependency-valid ticket from the 18 remaining G1 rows.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-02-PLAN.md` through

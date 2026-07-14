@@ -79,6 +79,14 @@ void main() {
     });
   });
 
+  test('rente LPP disclaimer keeps mandatory French accents', () {
+    const disclaimer = RetirementTaxCalculator.renteLppTaxDisclaimer;
+
+    expect(disclaimer, contains('La rente LPP est imposée'));
+    expect(disclaimer, contains('spécialiste fiscal·e'));
+    expect(disclaimer, contains('estimation personnalisée'));
+  });
+
   group('RetirementTaxCalculator.progressiveTax', () {
     test('bracket boundaries', () {
       // At 100k boundary: all at 1.0×

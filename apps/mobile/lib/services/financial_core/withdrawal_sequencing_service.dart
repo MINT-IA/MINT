@@ -105,10 +105,10 @@ class WithdrawalSequencingService {
   WithdrawalSequencingService._();
 
   static const String _disclaimer =
-      'Simulation pedagogique de la sequence de retrait en capital. '
-      "L'optimisation fiscale depend de la legislation cantonale et "
-      'de la situation personnelle. Base legale : LIFD art. 38, OPP3 art. 3. '
-      'Consulte un ou une specialiste avant toute decision. '
+      'Simulation pédagogique de la séquence de retrait en capital. ' // lint-ignore: domain copy stays in pure core.
+      "L'optimisation fiscale dépend de la législation cantonale et " // lint-ignore: domain copy stays in pure core.
+      'de la situation personnelle. Base légale : LIFD art. 38, OPP3 art. 3. ' // lint-ignore: domain copy stays in pure core.
+      'Consulte un ou une spécialiste avant toute décision. ' // lint-ignore: domain copy stays in pure core.
       'Cette simulation ne constitue pas un conseil financier au sens de la LSFin.';
 
   static const List<String> _sources = [

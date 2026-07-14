@@ -211,8 +211,8 @@ class RetirementTaxCalculator {
   /// SWR drawdown from withdrawn capital is consumption of own patrimony —
   /// NOT taxable income. Never double-tax capital.
   static const String renteLppTaxDisclaimer =
-      'La rente LPP est imposee comme revenu (LIFD art. 22). '
-      'Consulte un·e specialiste fiscal·e pour une estimation personnalisee.';
+      'La rente LPP est imposée comme revenu (LIFD art. 22). ' // lint-ignore: domain copy stays in pure core.
+      'Consulte un·e spécialiste fiscal·e pour une estimation personnalisée.'; // lint-ignore: domain copy stays in pure core.
 
   /// Progressive capital withdrawal tax (LIFD art. 38).
   ///
