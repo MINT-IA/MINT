@@ -1,0 +1,21 @@
+{
+  "ticket_id": "G1-PROV-03",
+  "sha": "5a772865b9c9fdcb7efa99496799838640a8f3fb",
+  "recorded_at": "2026-07-14T12:32:26Z",
+  "synthetic_data_only": true,
+  "full_flutter": {
+    "command": "cd apps/mobile && flutter test --reporter compact",
+    "exit_code": 0,
+    "passed": 8896,
+    "skipped": 33,
+    "failed": 0,
+    "duration_seconds": 304,
+    "raw_log_sha256": "a88a8fc410f6525cf393e7d444a79fb48c48919a9c3b98a182a062f078ecdba6"
+  },
+  "full_analyze": {
+    "command": "cd apps/mobile && flutter analyze",
+    "exit_code": 0,
+    "issues": 0,
+    "raw_log_sha256": "58b262fb7204a2c51b7ce5a46d13ffa25129faff6ac58888f5b438251cd24bba"
+  }
+}

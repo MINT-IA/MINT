@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-PROV-03",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/services/document_parser/tax_declaration_parser_test.dart test/providers/tax_provenance_profile_test.dart test/screens/document_scan/tax_extraction_review_screen_test.dart --reporter expanded",
+  "sha": "6bcba7ab0cf8384e45d2a928cc679a17a7e7b267",
+  "recorded_at": "2026-07-14T12:32:26Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "tax_assessment_ingestion_contract_test",
+  "output": "Detached exact-command run reached 40 passing tests, then exited 1 with six semantic load failures because the typed tax candidate, review, flag, provider persistence and selector production APIs required by the committed contract tests did not yet exist. No test file, command, import or syntax harness failure occurred. Sanitized raw output: red-output.txt (SHA-256 105b978ac357db5fbca9a4e5a107fb1942e2d1862bbfe23ae4764e0eb2288d4b).",
+  "synthetic_data_only": true
+}

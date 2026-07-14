@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-PROV-03",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/services/document_parser/tax_declaration_parser_test.dart test/providers/tax_provenance_profile_test.dart test/screens/document_scan/tax_extraction_review_screen_test.dart --reporter expanded",
+  "sha": "5a772865b9c9fdcb7efa99496799838640a8f3fb",
+  "recorded_at": "2026-07-14T12:32:26Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "tax_assessment_ingestion_contract_test",
+  "output": "Exact frozen-SHA command passed 143 tests covering parser semantics, typed review, secure provider persistence, cold reconstruction, selector consumption, privacy, temporal validation and local-only UI behavior. Sanitized raw output: green-output.txt (SHA-256 16b3c8e17122a8f399dd4b9f0d5adcab0d2e4196b036a33f7c13c731c8e2f323).",
+  "synthetic_data_only": true
+}

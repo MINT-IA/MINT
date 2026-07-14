@@ -1,0 +1,259 @@
+Resolving dependencies...
+Downloading packages...
+  async 2.11.0 (2.13.1 available)
+  boolean_selector 2.1.1 (2.1.2 available)
+  confetti 0.7.0 (0.8.0 available)
+  cross_file 0.3.4+2 (0.3.5+4 available)
+  cupertino_icons 1.0.8 (1.0.9 available)
+  dbus 0.7.12 (0.7.14 available)
+  equatable 2.0.8 (2.1.0 available)
+  ffi 2.1.3 (2.2.0 available)
+  file 7.0.0 (7.0.1 available)
+  file_picker 8.3.7 (11.0.2 available)
+  file_selector_linux 0.9.3+2 (0.9.4 available)
+  file_selector_macos 0.9.4+3 (0.9.5 available)
+  file_selector_platform_interface 2.6.2 (2.7.0 available)
+  file_selector_windows 0.9.3+4 (0.9.3+5 available)
+  fl_chart 0.70.2 (1.2.0 available)
+  flutter_doc_scanner 0.0.20 (0.0.21 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_local_notifications 18.0.1 (22.0.1 available)
+  flutter_local_notifications_linux 5.0.0 (8.0.1 available)
+  flutter_local_notifications_platform_interface 8.0.0 (12.0.0 available)
+  flutter_markdown 0.7.7+1 (discontinued replaced by flutter_markdown_plus)
+  flutter_plugin_android_lifecycle 2.0.29 (2.0.35 available)
+  flutter_secure_storage 9.2.4 (10.3.1 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.1 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.2 available)
+  go_router 13.2.5 (17.3.0 available)
+  google_fonts 6.3.3 (8.1.0 available)
+  image 4.5.4 (4.9.1 available)
+  image_picker 1.2.0 (1.2.3 available)
+  image_picker_android 0.8.13 (0.8.13+19 available)
+  image_picker_for_web 3.1.0 (3.1.1 available)
+  image_picker_ios 0.8.13 (0.8.13+6 available)
+  image_picker_macos 0.2.2 (0.2.2+1 available)
+  image_picker_platform_interface 2.11.0 (2.11.1 available)
+  in_app_purchase 3.2.3 (3.3.0 available)
+  in_app_purchase_android 0.4.0+3 (0.5.1 available)
+  in_app_purchase_platform_interface 1.4.0 (1.4.1 available)
+  in_app_purchase_storekit 0.4.4 (0.4.10+1 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 0.14.2 (1.0.0 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.12.0 available)
+  lints 3.0.0 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.17.0 (1.19.0 available)
+  package_config 2.2.0 (3.0.0 available)
+  package_info_plus 9.0.1 (10.2.0 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  path_provider 2.1.5 (2.1.6 available)
+  path_provider_android 2.2.17 (2.3.1 available)
+  path_provider_foundation 2.4.1 (2.6.0 available)
+  path_provider_linux 2.2.1 (2.2.2 available)
+  path_provider_platform_interface 2.1.2 (2.1.3 available)
+  patrol_finders 3.5.0 (3.6.0 available)
+  patrol_log 0.9.1 (0.10.0 available)
+  pdf 3.11.3 (3.13.0 available)
+  petitparser 6.0.2 (7.0.2 available)
+  platform 3.1.5 (3.1.6 available)
+  printing 5.14.2 (5.15.0 available)
+  process 5.0.2 (5.0.5 available)
+  qr 3.0.2 (4.0.0 available)
+  sentry 9.14.0 (9.24.0 available)
+  sentry_flutter 9.14.0 (9.24.0 available)
+  shared_preferences 2.5.3 (2.5.5 available)
+  shared_preferences_android 2.4.11 (2.4.27 available)
+  shared_preferences_foundation 2.5.4 (2.5.6 available)
+  shared_preferences_platform_interface 2.4.1 (2.4.2 available)
+  sign_in_with_apple 6.1.4 (8.1.0 available)
+  sign_in_with_apple_platform_interface 1.1.0 (2.0.0 available)
+  sign_in_with_apple_web 2.1.1 (3.0.0 available)
+  source_span 1.10.0 (1.10.2 available)
+  speech_to_text 7.3.0 (7.4.0 available)
+  speech_to_text_platform_interface 2.3.0 (2.4.0 available)
+  speech_to_text_windows 1.0.0+beta.8 (1.0.1 available)
+  sqflite_common 2.5.6 (2.5.11 available)
+  string_scanner 1.3.0 (1.4.1 available)
+  synchronized 3.4.0 (3.4.1 available)
+  term_glyph 1.2.1 (1.2.2 available)
+  test_api 0.7.10 (0.7.13 available)
+  timezone 0.10.1 (0.11.1 available)
+  url_launcher_android 6.3.17 (6.3.32 available)
+  url_launcher_ios 6.3.3 (6.4.1 available)
+  url_launcher_linux 3.2.1 (3.2.2 available)
+  url_launcher_macos 3.2.2 (3.2.5 available)
+  url_launcher_web 2.4.1 (2.4.3 available)
+  url_launcher_windows 3.1.4 (3.1.5 available)
+  vector_math 2.2.0 (2.4.0 available)
+  vm_service 14.3.0 (15.2.0 available)
+  webdriver 3.0.4 (3.1.0 available)
+  win32 5.10.1 (6.3.0 available)
+  xml 6.5.0 (7.0.1 available)
+Got dependencies!
+1 package is discontinued.
+93 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart
+00:00 +0: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: tax review confirmation enforces the injected civil tax year
+00:00 +1: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: provider rejects future tax and basis years before persistence
+00:00 +2: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance and selector independently exclude 2099 before ranking 2025
+00:00 +3: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: undated precise tax fact stays visible but needs confirmation
+00:00 +4: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance missing metadata taxYear entry keeps history but blocks consumption without writes
+00:00 +5: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance metadata documentKind with the wrong envelope type keeps history but blocks consumption without writes
+00:00 +6: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance financial income source inconsistent with document kind keeps history but blocks consumption without writes
+00:00 +7: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance nested assessed-tax amount with inconsistent sourceDate keeps history but blocks consumption without writes
+00:00 +8: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance nested assessed-tax authority with inconsistent updatedAt keeps history but blocks consumption without writes
+00:00 +9: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance nested assessed-tax base with an extra envelope key keeps history but blocks consumption without writes
+00:00 +10: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance marginal rate envelope has null sourceDate against dated snapshot keeps history but blocks consumption without writes
+00:00 +11: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance extra envelope exists for an allowlisted null marginal rate leaf keeps history but blocks consumption without writes
+00:00 +12: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance preserves taxpayerReturn source userInput
+00:00 +13: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance preserves provisionalBill source estimated
+00:00 +14: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance preserves finalTaxBill source estimated
+00:00 +15: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance rogue fiscal leaf keeps history but blocks consumption without writes
+00:00 +16: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance null sourceDate against dated snapshot blocks consumption without writes
+00:00 +17: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance dated sourceDate against null snapshot blocks consumption without writes
+00:00 +18: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold provenance filters one corrupt same-rank snapshot and keeps the exact peer selectable
+00:00 +19: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold corrupt old snapshot stays ineligible when a new exact assessment is accepted and reloaded
+00:00 +20: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: cold invalid quarantine is recovered without promoting its snapshot or provenance
+00:00 +21: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: typed tax is default-off and refuses the unsafe legacy fallback
+00:00 +22: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: flag-off ignores seeded canonical and legacy tax without migration, baseline or publication
+00:00 +23: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: flag-off cold loads canonical-plus-legacy and legacy-only stores byte-for-byte
+00:00 +24: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: malformed canonical roots recover in the same secure key without exposing facts
+00:00 +25: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: unreadable strict-secure placeholder is never overwritten
+00:00 +26: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: assessment upserts one whole snapshot, exact provenance, cold reload and production selector oracle
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:00 +27: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: pending save publishes only after its single persistence completes
+00:00 +28: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: failed replacement keeps old profile and store with exactly one call
+00:00 +29: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: legacy tax keys move into the one nested secure quarantine only
+00:00 +30: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: canonical root unions loose legacy tax with existing quarantine without overwrite and stays idempotent
+00:00 +31: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: same UUID replacement removes absent facts and their old provenance paths
+00:00 +32: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: 2024 assessment and 2025 provisional coexist as whole cold snapshots without merge
+00:00 +33: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: invalid document kind and assessment status pairs never save
+00:00 +34: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: assessments missing year or jurisdiction stay partial
+00:00 +35: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: non-UUIDv4 candidate identity is rejected before persistence
+00:00 +36: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: two cold reloads make ConfidenceScorer follow assessed-baseline availability
+00:00 +37: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: candidate UUID factory runs once and identical duplicates do not clash
+00:00 +38: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: source mapping is document-kind owned and conflicts beat tie-breakers
+00:00 +39: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: assessment missing the requested field stays partial
+00:00 +40: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: unknown authority and non-canonical bases are never consumable
+00:00 +41: <REPO>/apps/mobile/test/providers/tax_provenance_profile_test.dart: assessed-tax selector requires an exact authority and base scope
+00:01 +42: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text returns correct document type
+00:01 +43: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text extracts revenu imposable = 95800
+00:01 +44: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text extracts fortune imposable = 245000
+00:01 +45: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text extracts deductions effectuees = 18750
+00:01 +46: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text extracts impot cantonal et communal = 14520
+00:01 +47: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text extracts impot federal direct = 3840
+00:01 +48: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text extracts taux marginal effectif = 32.5%
+00:01 +49: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text keeps user-facing copy out of the parser result
+00:01 +50: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text overall confidence is above 0.80
+00:01 +51: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — sample OCR text confidence delta stays zero until canonical post-save scoring
+00:01 +52: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — Swiss number formats parses apostrophe thousands: 85'400
+00:01 +53: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — Swiss number formats parses space as thousand separator: 245 000
+00:01 +54: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — Swiss number formats parses comma decimal (Swiss German): 14520,00
+00:01 +55: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — Swiss number formats parses Fr. prefix
+00:01 +56: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — German format parses Steuerbares Einkommen (DE)
+00:01 +57: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — German format parses Steuerbares Vermogen (DE)
+00:01 +58: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — German format parses Total Abzüge (DE)
+00:01 +59: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — German format parses Direkte Bundessteuer (DE)
+00:01 +60: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — German format parses Grenzsteuersatz (DE)
+00:01 +61: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation emits only a typed ratio diagnostic for a low read ratio
+00:01 +62: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation emits only a typed ratio diagnostic for a high read ratio
+00:01 +63: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation emits the same typed ratio diagnostic for a 20 percent read ratio
+00:01 +64: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation does not invent a jurisdiction-free marginal-rate floor
+00:01 +65: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation does not invent a jurisdiction-free marginal-rate ceiling
+00:01 +66: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation types an explicit percentage that exceeds its storage unit
+00:01 +67: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation retains negative wealth for review with a typed diagnostic
+00:01 +68: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation does not apply an unsourced deductions-to-income heuristic
+00:01 +69: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation never promotes a computed tax-to-income ratio to marginal
+00:01 +70: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation average and effective labels never map to actualMarginalRate
+00:01 +71: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — cross-validation cantonal-only and combined ICC labels stay distinguishable
+00:01 +72: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — edge cases empty string produces zero fields and zero confidence
+00:01 +73: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — edge cases random text produces zero fields
+00:01 +74: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — edge cases handles whitespace-only input
+00:01 +75: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — edge cases text with labels but no numeric values produces zero fields
+00:01 +76: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — confidence metadata CHF-prefixed amount has confidence boost
+00:01 +77: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — confidence metadata percentage in reasonable range has confidence >= 0.83
+00:01 +78: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — confidence metadata hasFieldsNeedingReview is false when all fields high confidence
+00:01 +79: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: estimateConfidenceDelta returns zero for empty and populated profiles
+00:01 +80: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — French variant patterns parses "revenu net imposable"
+00:01 +81: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — French variant patterns parses "total des revenus imposable"
+00:01 +82: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — French variant patterns parses "ICC" for cantonal tax
+00:01 +83: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — French variant patterns parses "IFD" for federal tax
+00:01 +84: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — French variant patterns parses "déductions admises"
+00:01 +85: <REPO>/apps/mobile/test/services/document_parser/tax_declaration_parser_test.dart: parseTaxDeclaration — French variant patterns does not parse "taux moyen d'imposition" as marginal
+00:04 +86: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: tax review localizes every typed diagnostic without exposing raw codes
+00:05 +87: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: production local tax example creates one stable candidate and routes only its session id without network
+00:05 +88: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: typed-tax flag off hides tax acquisition before UUID session navigation or network
+00:05 +89: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: typed tax route without the retained candidate fails closed and exposes recovery
+00:05 +90: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: flag off fails closed for a retained deep-linked tax candidate and cleanup stays local
+00:05 +91: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid document kind/status pair blocks every writer
+00:06 +92: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid tax year below the supported range blocks every writer
+00:06 +93: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid tax year above the supported range blocks every writer
+00:06 +94: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid based-on tax year 1899 outside the supported range blocks every writer
+00:06 +95: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid based-on tax year 2027 outside the supported range blocks every writer
+00:06 +96: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid malformed source date blocks every writer
+00:06 +97: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid non-canonical canton blocks every writer
+00:06 +98: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid non-finite ICC taxable income blocks every writer
+00:07 +99: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid negative taxable wealth blocks every writer
+00:07 +100: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid non-finite ICC assessed amount blocks every writer
+00:07 +101: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid negative IFD assessed amount blocks every writer
+00:07 +102: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid federal authority on ICC amount blocks every writer
+00:07 +103: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid unknown IFD authority scope blocks every writer
+00:08 +104: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid cantonal authority on IFD amount blocks every writer
+00:08 +105: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid marginal rate -0.1 percent blocks every writer
+00:08 +106: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid marginal rate 100.1 percent blocks every writer
+00:08 +107: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid marginal rate NaN percent blocks every writer
+00:08 +108: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid average rate -0.1 percent blocks every writer
+00:08 +109: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid average rate 100.1 percent blocks every writer
+00:08 +110: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: isolated invalid average rate NaN percent blocks every writer
+00:09 +111: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: review accepts tax year equal to the injected current year
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:09 +112: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: provisional based-on year cannot exceed its tax year
+00:09 +113: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with unknown subject scope
+00:09 +114: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with missing tax year
+00:09 +115: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with missing based-on tax year
+00:09 +116: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with missing source date
+00:09 +117: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with missing canton
+00:09 +118: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with missing optional municipality
+00:09 +119: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with ICC unknown authority
+00:09 +120: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with ICC unknown base
+00:09 +121: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with ICC total invoice
+00:09 +122: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with IFD unknown base
+00:10 +123: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with ICC taxable income -1
+00:10 +124: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: spec permits partial snapshot with IFD taxable income -1
+00:10 +125: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: typed review exposes semantic canonical controls and carries the complete corrected Swiss tax payload once
+00:10 +126: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: provisional bill prefills based-on year and accepts one valid correction
+00:10 +127: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: average-only percentage never hydrates the marginal rate
+00:10 +128: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: injected scorer proves score-save-score order and exact non-zero impact delta
+00:10 +129: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: double tap while the local ledger save is pending accepts exactly once
+00:10 +130: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: failed local save keeps the same candidate and one explicit retry accepts it once
+00:10 +131: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: back review abandonment discards candidate and raw sourceText without a writer
+00:11 +132: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: dispose review abandonment discards candidate and raw sourceText without a writer
+00:11 +133: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: tax impact remains local, never receives sourceText, insight or memory, and discards the session on exit
+00:11 +134: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: confirmed tax impact payload contains only canonical corrected facts, never OCR fields or legacy deductions
+00:11 +135: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: tax impact CTA emits zero completion stream event, zero write and zero pending return
+00:11 +136: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: partial tax impact never claims that values were integrated into projections
+00:11 +137: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: tax without local OCR hides camera, gallery and PDF picker surfaces before consent
+00:11 +138: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: IFD wealthOnly OCR candidate excludes impossible bases and confirms only unknown locally
+00:11 +139: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: IFD incomeAndWealth OCR candidate excludes impossible bases and confirms only unknown locally
+00:11 +140: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: inForce requires a checked secondary attestation before one local write
+00:11 +141: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: review clock accepts its historical civil today exactly once
+00:11 +142: <REPO>/apps/mobile/test/screens/document_scan/tax_extraction_review_screen_test.dart: review clock rejects its historical civil tomorrow
+00:11 +143: All tests passed!

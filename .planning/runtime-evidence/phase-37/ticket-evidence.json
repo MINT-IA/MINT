@@ -121,16 +121,16 @@
     },
     {
       "ticket_id": "G1-PROV-03",
-      "state": "ticket_only",
-      "command": "cd apps/mobile && flutter test test/providers/tax_provenance_profile_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "state": "green",
+      "command": "cd apps/mobile && flutter test test/services/document_parser/tax_declaration_parser_test.dart test/providers/tax_provenance_profile_test.dart test/screens/document_scan/tax_extraction_review_screen_test.dart --reporter expanded",
+      "evidence_mode": "red_green",
+      "red_sha": "6bcba7ab0cf8384e45d2a928cc679a17a7e7b267",
+      "red_artifact": ".planning/runtime-evidence/phase-37/prov-03/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "5a772865b9c9fdcb7efa99496799838640a8f3fb",
+      "green_artifact": ".planning/runtime-evidence/phase-37/prov-03/green.json",
+      "accepted_sha": "5a772865b9c9fdcb7efa99496799838640a8f3fb"
     },
     {
       "ticket_id": "G1-SCN-01",
