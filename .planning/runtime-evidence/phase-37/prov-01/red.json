@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-PROV-01",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/providers/provenance_on_write_test.dart --reporter expanded",
+  "sha": "c1f126089f06724cb25e6d85fb366ab62147921b",
+  "recorded_at": "2026-07-14T00:26:42Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "provenance_on_write_test",
+  "output": "Four semantic provenance assertions failed: manual property and Coach salary writes had no per-field source, while certificate LPP and Open Banking writes had no serialized nullable sourceDate slot. The tested values themselves were written through real production writers.",
+  "synthetic_data_only": true
+}
