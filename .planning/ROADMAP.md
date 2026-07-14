@@ -44,7 +44,7 @@ flowchart TD
 
 ### Phase 37: Ledger Runtime Readiness
 
-**Goal:** Implement and prove all 23 G1 blocking tickets so the data spine is actually ready for G2.
+**Goal:** Implement and prove all 31 G1 blocking tickets so the data spine is actually ready for G2.
 
 **Depends on**: G1 baseline at `5f8de38ec`
 
@@ -264,7 +264,7 @@ spine, never as a parallel calculator/state system.
 | phase | status | score | next hard floor |
 |---|---|---:|---|
 | 37 Ledger readiness | in progress (2/8) | — | 37-02 ledger foundations; G2 remains NO |
-| 38 Operating runway | blocked by 37 | — | 23/23 G1 GREEN |
+| 38 Operating runway | blocked by 37 | — | 31/31 G1 GREEN |
 | 39 G2 DataQuest | blocked by 37-38 | — | G2 allowed YES |
 | 40-45 six G3 loops | blocked by 39 | — | G2 accepted |
 | 46 G4 Dossier/PDF | blocked by 45 | — | six loops accepted |

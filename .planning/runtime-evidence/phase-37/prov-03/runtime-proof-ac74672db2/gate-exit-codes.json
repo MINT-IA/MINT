@@ -1,0 +1,15 @@
+{
+  "claude_architecture_opus_first_pass": 0,
+  "claude_code_opus_first_pass": 0,
+  "claude_product_domain_opus_first_pass": 0,
+  "doctor_final": 0,
+  "flutter_analyze_at_runtime_sha": 0,
+  "flutter_full_suite_at_runtime_sha": 0,
+  "maestro_flag_off_initial": 0,
+  "maestro_flag_off_restored": 0,
+  "normal_ios_build": 0,
+  "normal_ios_install": 0,
+  "orchestrator_contract_tests": 0,
+  "patrol_process_death_wrapper": 0,
+  "patrol_tooling_guard_final": 0
+}

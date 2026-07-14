@@ -106,7 +106,7 @@ automated tests 1.0; external audit 1.0; integration/privacy 1.0; diff disciplin
 
 ## No-go boundaries
 
-- G2 allowed: **NO** until 23/23 tickets are GREEN and Phase 37 is accepted.
+- G2 allowed: **NO** until 31/31 tickets are GREEN and Phase 37 is accepted.
 - G3 allowed: **NO** until G2 is accepted.
 - A product path without a default-off kill switch is not accepted.
 - A P0 UI slice without same-slice Maestro and Patrol evidence is not accepted.

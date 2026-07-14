@@ -1,0 +1,58 @@
+I have enough evidence for a grounded verdict. Here is the audit.
+
+---
+
+# MINT External Audit — Architecture Mode
+
+**Scope:** Phase 37 / Goal G1 "Ledger Reality Baseline" — the current architecture/phase evidence (`.planning/goals/G1-*`, `.planning/phases/37-*`, `.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/`, `.planning/STATE.md`).
+**Repo HEAD audited:** `ac74672db`.
+
+## Verdict: **NO-GO**
+
+The NO-GO is *well-founded* — the phase honestly self-declares it. The architecture and gate machinery are real and enforceable (a genuine strength). The block is on (1) acknowledged Swiss-correctness P0s and (2) **acceptance evidence that is 45–95 commits stale relative to HEAD**, so the phase cannot be re-scored to its ≥9.0 close bar on the current record.
+
+---
+
+## What I verified as sound (challenged, held up)
+
+- **Hard-floor gates actually run and pass.** `python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py` → **19 passed**. The matrix contract is non-vacuous: it pins each live P0 key to a real Dart member (`_reader_evidence_errors`, `test_g1_p0_ledger_dead_keys.py:1210`), rejects serializer/`fromWizardAnswers` "consumers" (`FORBIDDEN_READER_MEMBERS`, line 124), and enforces quarantine contracts for `has3a`/`hasAvsGaps` (lines 1378–1404).
+- **`no_domain_data_in_extra_test.dart` is a real allowlist gate**, scanning all `lib/**/*.dart` (`_productionDartFiles`, line 32; `greaterThan(100)` guard, line 407) — not a hand-picked list.
+- **Tax provenance boundary is wired, not facade.** `acceptTaxReview` exists on the provider (`coach_profile_provider.dart:389`) and is called from `extraction_review_screen.dart:1230`; `ConfidenceScorer.score` genuinely depends on `FiscalSnapshotSelector.selectAssessedBaseline` (`confidence_scorer.dart:735,742,748,1053`). Kill switches default **false** (`feature_flags.dart:79,86`). `flutter test test/providers/tax_provenance_profile_test.dart` → **42/42 passed at HEAD** (the evidence contract only checks SHAs/artifacts exist; I re-ran it live).
+- **SCORECARD is honest**: self-scores **8.2/10 NO-GO**, G2/G3 forbidden.
+
+---
+
+## Findings
+
+### P0 — (carried, acknowledged by scorecard; NOT independently re-verified as still-open)
+The scorecard lists three blocking Swiss-correctness P0s: registered-partnership AVS equivalence, couple cap/splitting exactness, and 13th AVS pension as monthly uplift. **These are the legitimate substantive blockers** and correctly hold G2=NO. Note the caveat in P1-3 below — live code partially contradicts them, so they must be re-verified, not trusted.
+
+### P1-1 — Acceptance SCORECARD is stale and omits the shipped tax slice
+`SCORECARD.md` "current pushed chain" tips at `1bb9c8389`, which is **95 commits behind HEAD** (`git rev-list --count 1bb9c8389..HEAD` → 95). The document never mentions the `G1-PROV-03` typed-tax provenance slice — its only "tax" line is an unrelated P1 about report/PDF paths (`SCORECARD.md:37`). Yet PROV-03 flipped to `green` on 2026-07-14 (`ticket-evidence.json`, `green_sha` set; commit `e8b388cc1`). **The acceptance artifact on record does not describe the code that shipped.** Reproduction: `grep -ic "PROV-03" SCORECARD.md` → 0 meaningful hits; `git log --oneline 1bb9c8389..HEAD` shows the entire tax boundary landing after the scorecard.
+
+### P1-2 — Mandated per-financial-path audits do not exist at HEAD
+The phase rule (SCORECARD: "wrapper-only audits remain mandatory for every subsequent financial path"; G1 acceptance: "Claude Opus architecture and product-domain audits are PASS") is unmet. The newest architecture audit reviewed HEAD `83f7024fe` — **45 commits behind** current HEAD (`git rev-list --count 83f7024fe..HEAD` → 45). The typed-tax financial data-collection path (≈14 files, `coach_profile.dart`, `confidence_scorer.dart`, scan screens) shipped *after* that audit with **no** architecture/code/product-domain audit at HEAD and no accepted `audit-manifest` for it. Proof path: `claude-architecture.md:12` (`HEAD observed: 67c99ca2…`) and `:32` (`HEAD audited: 83f7024fe…`) vs `git rev-parse HEAD` = `ac74672db`.
+
+### P1-3 — Governance source-of-truth (`STATE.md`) contradicts the machine-checked evidence index
+`STATE.md:80` claims "**21/23** G1 tickets remain `ticket_only`; G1-SOURCE-01 green and G1-RUNTIME-01 red." The live `ticket-evidence.json` has **31 tickets: 13 green / 17 ticket_only / 1 red_proven.** The registry grew by 8 tickets and 12 more went green, none reflected in STATE. `STATE.md:9-14` still reports `completed_plans: 2`, `stopped_at: next authorized slice is 37-02`. Anyone resuming the phase from the stated SoT gets a wrong picture. This is the classic drift the repo's own doctrine warns about ("repo/evidence wins over stale planning docs").
+
+### P2 — Scorecard blocking ledger may over-state remaining P0s (needs re-verification, both directions)
+Live code already handles `CoachCivilStatus.registeredPartnership` as marriage-equivalent in the relevant getters (`coach_profile.dart:3111-3113, 3121-3122`), and a dedicated `avs_thirteenth_pension_calculator.dart` exists — both are things the scorecard lists as "Open." I did not deep-verify closure (the scorecard's phrasing "typed enum/aliases/UI round trip and legal predicates" and "legacy paths" may still hold), but **the scorecard's blocking ledger is not reconciled against HEAD**. Combined with P1-1/P1-3, the pattern is: the evidence corpus lags the code in both the optimistic and pessimistic direction.
+
+### P2 (inherited, still open) — from prior architecture audit, not yet closed
+- `no_domain_data_in_extra_test` name over-promises; `/rapport` and `/confidence` risks are covered by *separate* tests, not `state.extra` casts (`claude-architecture.md` P2-1).
+- `coach_profile_confidence_adapter.dart` conflates `property_value` market vs effective valuation (`claude-architecture.md` P2-3; ticketed as `G1-P2-PROPERTY-01`).
+
+---
+
+## Bottom line
+
+The G1 architecture is **real, mechanically enforced, and correctly gating G2/G3 to NO** — this is a healthy phase, not a facade. But it cannot be *accepted/closed* on the current record: the acceptance SCORECARD (−95 commits) and the mandated audits (−45 commits) predate the shipped tax financial path, and `STATE.md` disagrees with the evidence index.
+
+**To move to PASS, the minimal proving actions are:**
+1. Re-score `SCORECARD.md` at HEAD `ac74672db`, incorporating `G1-PROV-03`.
+2. Run and attach the mandated `architecture` + `code` + `product-domain` wrapper audits at HEAD for the tax slice (`tools/checks/claude_external_audit.sh …`), landing an accepted `audit-manifest`.
+3. Reconcile `STATE.md` (31 tickets / 13 green) with `ticket-evidence.json`.
+4. Reconcile the scorecard's three open P0s against live code (`registeredPartnership`, 13th-pension calculator) — confirm still-open or mark closed with red→green proof.
+
+Until then: **NO-GO**, G2/G3 correctly remain forbidden.

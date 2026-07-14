@@ -1,0 +1,50 @@
+{
+  "ticket_id": "G1-PROV-03",
+  "accepted_sha": "5a772865b9c9fdcb7efa99496799838640a8f3fb",
+  "runtime_sha": "ac74672db209c20f35b4903e26d83d8f0ca2c93f",
+  "ticket_decision": "GREEN",
+  "activation_decision": "NO",
+  "phase_g1_decision": "NO-GO",
+  "required_modes": [
+    "architecture",
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "mode": "architecture",
+      "model": "opus",
+      "rerun": false,
+      "artifact": ".planning/runtime-evidence/phase-37/prov-03/runtime-proof-ac74672db2/audit-architecture-opus-first-pass.txt",
+      "verdict": "NO-GO for G1 acceptance; PROV-03 architecture and gates verified, acceptance corpus stale"
+    },
+    {
+      "mode": "code",
+      "model": "opus",
+      "rerun": false,
+      "base_ref": "3b4eb77c0^",
+      "head_sha": "ac74672db209c20f35b4903e26d83d8f0ca2c93f",
+      "artifact": ".planning/runtime-evidence/phase-37/prov-03/runtime-proof-ac74672db2/audit-code-opus-first-pass.txt",
+      "verdict": "PASS; no P0/P1"
+    },
+    {
+      "mode": "product-domain",
+      "model": "opus",
+      "rerun": false,
+      "base_ref": "3b4eb77c0^",
+      "head_sha": "ac74672db209c20f35b4903e26d83d8f0ca2c93f",
+      "artifact": ".planning/runtime-evidence/phase-37/prov-03/runtime-proof-ac74672db2/audit-product-domain-opus-first-pass.txt",
+      "verdict": "PASS; no P0/P1"
+    }
+  ],
+  "accepted_p2": [
+    "Production activation remains disabled until a named activation decision.",
+    "The assessedAppealable enum name now differs from the safer entry-in-force-not-confirmed copy.",
+    "Final-tax-bill reclassification guidance and negative-loss semantics remain deferred."
+  ],
+  "resolved_findings": [
+    "The current individual-taxation statement now carries an adjacent official DFF citation revalidated on 2026-07-14."
+  ],
+  "runtime_artifact": ".planning/runtime-evidence/phase-37/prov-03/runtime-proof-ac74672db2/README.md",
+  "open_phase_gate": "18 of 31 registry rows remain non-green before this reconciliation commit"
+}

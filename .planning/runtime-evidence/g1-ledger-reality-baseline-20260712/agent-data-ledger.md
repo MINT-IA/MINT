@@ -6,6 +6,29 @@ Agent: `mint-data-ledger-architect`
 
 Scope: G1 baseline only; no G2 DataQuest or G3 product-loop implementation.
 
+## Current addendum — 2026-07-14
+
+`G1-PROV-03` is now code-GREEN and exact-SHA runtime-GREEN. The next bounded
+ledger slice is `G1-PROV-02`; linked-account financial import stays disabled
+until `G1-BND-02A` is independently green.
+
+The permanent data-ledger architect authorizes three vertical G1 slices:
+
+1. self LPP under one strict-secure `_coach_lpp_evidence_v1` snapshot envelope;
+2. optional manual-partner LPP with distinct pseudonymous owner/acquisition
+   actor and explicit manual-partner attestation, without an account link;
+3. cold-restart/privacy/runtime/audit closure.
+
+The envelope must retain per-fact source, source date, owner, actor and
+authorization lineage. One provider seam must validate, persist, reconstruct
+from the persisted bytes, then publish. Save failure publishes nothing. Legacy
+self scalars may migrate only with valid certificate provenance; partner
+scalars are quarantined pending explicit confirmation. Missing partner evidence
+remains absent, never estimated and never zero. `linkedGrant` snapshots are
+ignored while the linked-import kill switch is false.
+
+**Current machine truth: 13/31 GREEN; G1/G2/G3 remain NO-GO.**
+
 ## Verdict and scores
 
 **Verdict: G1 data contracts are review-ready, but the runtime ledger is not

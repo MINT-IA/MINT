@@ -1,0 +1,54 @@
+{
+  "boot_status_command": "xcrun simctl bootstatus <SIMULATOR_UDID> -b",
+  "boot_status_exit_code": 0,
+  "boot_status_log": "<REPO>/.planning/runtime-evidence/phase-37/prov-03/runtime-ac74672db2-20260714T150109Z/patrol/bootstatus.log",
+  "bundle_id": "ch.mint.app",
+  "contract": "g1_prov03_tax",
+  "device": "<SIMULATOR_UDID>",
+  "external_build": {
+    "backup_path": "<REPO>/apps/mobile/.dart_tool/mint-patrol-g1-prov03-build-backup-ac74672db209c20f35b4903e26d83d8f0ca2c93f",
+    "enabled": true,
+    "original_build_present": true,
+    "path": "<TMP_BUILD>/build",
+    "restoration_status": "restored"
+  },
+  "feature_activation": "test_process_static_flags_only",
+  "finished_at": "2026-07-14T15:06:35Z",
+  "launch_command": "xcrun simctl launch <SIMULATOR_UDID> ch.mint.app",
+  "launch_exit_code": 0,
+  "mach_o_sections": {
+    "read": {
+      "der_path": "<REPO>/.planning/runtime-evidence/phase-37/prov-03/runtime-ac74672db2-20260714T150109Z/patrol/read-Runner-MachO-ents.der",
+      "der_sha256": "9ffa3cb54192ddd2291c8950f8c19f4df2902ae918c75419d55ffe7c31b2b964",
+      "entitlements_path": "<REPO>/.planning/runtime-evidence/phase-37/prov-03/runtime-ac74672db2-20260714T150109Z/patrol/read-Runner-MachO-entitlements.plist",
+      "entitlements_sha256": "c0e1e036620501e80167f979173524e44a31f6e6aebd9b53d39513bf91451c2f"
+    },
+    "write": {
+      "der_path": "<REPO>/.planning/runtime-evidence/phase-37/prov-03/runtime-ac74672db2-20260714T150109Z/patrol/write-Runner-MachO-ents.der",
+      "der_sha256": "9ffa3cb54192ddd2291c8950f8c19f4df2902ae918c75419d55ffe7c31b2b964",
+      "entitlements_path": "<REPO>/.planning/runtime-evidence/phase-37/prov-03/runtime-ac74672db2-20260714T150109Z/patrol/write-Runner-MachO-entitlements.plist",
+      "entitlements_sha256": "c0e1e036620501e80167f979173524e44a31f6e6aebd9b53d39513bf91451c2f"
+    }
+  },
+  "read_command": "<PATROL_BIN> build ios --target test/patrol/g1_prov03_tax_persistence_read_runtime_test.dart --simulator --bundle-id ch.mint.app --dart-define=MINT_PATROL_CLI=true",
+  "read_exit_code": 0,
+  "sha": "ac74672db209c20f35b4903e26d83d8f0ca2c93f",
+  "started_at": "2026-07-14T15:02:37Z",
+  "synthetic_data_only": true,
+  "terminate_command": "xcrun simctl terminate <SIMULATOR_UDID> ch.mint.app",
+  "terminate_exit_code": 0,
+  "write_command": "<PATROL_BIN> build ios --target test/patrol/g1_prov03_tax_persistence_write_runtime_test.dart --simulator --bundle-id ch.mint.app --dart-define=MINT_PATROL_CLI=true",
+  "write_exit_code": 0,
+  "xcresults": {
+    "read": {
+      "manifest_path": "<REPO>/.planning/runtime-evidence/phase-37/prov-03/runtime-ac74672db2-20260714T150109Z/patrol/read-xcresult.sha256",
+      "path": "<REPO>/.planning/runtime-evidence/phase-37/prov-03/runtime-ac74672db2-20260714T150109Z/patrol/read.xcresult",
+      "sha256": "120e2fcb760f4a0934b3fedee10c13a354ed1e6fed9a5da50332c64c5992fe5d"
+    },
+    "write": {
+      "manifest_path": "<REPO>/.planning/runtime-evidence/phase-37/prov-03/runtime-ac74672db2-20260714T150109Z/patrol/write-xcresult.sha256",
+      "path": "<REPO>/.planning/runtime-evidence/phase-37/prov-03/runtime-ac74672db2-20260714T150109Z/patrol/write.xcresult",
+      "sha256": "84fe9ccf452c832e96495b7dc41f04157cb78a291395dac67b32d7098033a91a"
+    }
+  }
+}

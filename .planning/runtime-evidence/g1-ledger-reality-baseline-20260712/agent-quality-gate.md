@@ -1,5 +1,25 @@
 # G1 Ledger Reality Baseline — quality-gate closure evidence
 
+## Current status — evidence reconciliation, 2026-07-14
+
+**CURRENT NO-GO at the unchanged provisional 8.2/10.** The canonical registry
+contains **31 rows: 13 GREEN, 17 `ticket_only`, 1 `red_proven`**. Therefore 18
+hard floors remain open and G2/G3 are forbidden.
+
+`G1-PROV-03` is legitimately code-GREEN at `5a772865b` and runtime-GREEN at
+`ac74672db`: normal iOS build/install, Maestro flag-off before and after,
+Patrol writer → explicit process death → separate cold reader, two independent
+xcresults 1/1, restored normal app, final Doctor/Patrol guard and 19/19 harness
+contracts. Full Flutter at the runtime SHA is analyze 0 and 8,899/33/0.
+Claude Opus code and product-domain audits PASS with no P0/P1. Production flags
+remain false. The full G1 architecture first pass remains NO-GO until the
+checked-in reconciliation receives its single Sonnet rerun.
+
+A new checked-in guard derives the registry total and rejects stale 23-ticket
+claims across active acceptance documents. The exact runtime proof is retained
+as a minimal sanitized package under
+`.planning/runtime-evidence/phase-37/prov-03/runtime-proof-ac74672db2/`.
+
 ## Current status — reopened G1, 2026-07-13
 
 **CURRENT NO-GO.** The checked-in SCORECARD declares an interim **8.2/10**

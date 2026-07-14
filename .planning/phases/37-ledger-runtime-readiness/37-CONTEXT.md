@@ -10,13 +10,13 @@
 <domain>
 ## Phase Boundary
 
-Implement and prove exactly the 23 tickets in the G1 blocking registry. This
+Implement and prove all 31 tickets currently in the G1 blocking registry. This
 phase repairs the canonical ledger, provenance, provider bridges, domain
 references, freshness, scenario isolation, return-to-origin, and persistence
 proof required for G2 readiness.
 
 G2, CaseRegistry, DataQuest core, and every G3 product loop remain out of scope.
-The phase ends only with 23/23 evidence-backed GREEN rows, runtime evidence,
+The phase ends only with 31/31 evidence-backed GREEN rows, runtime evidence,
 external audits, a score >=9.0, and an explicit `G2 allowed: YES` decision.
 
 </domain>
@@ -131,7 +131,7 @@ external audits, a score >=9.0, and an explicit `G2 allowed: YES` decision.
 
 ### Phase contracts
 
-- `.planning/goals/G1-blocking-gate-tickets.md` — exact 23 predicates and commands.
+- `.planning/goals/G1-blocking-gate-tickets.md` — current 31 predicates and commands.
 - `.planning/goals/G1-ledger-gap-matrix.md` — canonical P0 key/write/consumer registry.
 - `.planning/goals/G1-provider-boundary.md` — provider ownership and recompute edges.
 - `.planning/goals/G1-scenario-lever-matrix.md` — fact versus lever boundary.

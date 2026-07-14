@@ -19,14 +19,14 @@ questions and a dossier they can use with the right specialist.**
 
 ## Current Milestone: v3.0 Product Reality — Six Boucles, Un Dossier
 
-**Goal:** Close the 23 G1 runtime-readiness blockers, converge the unfinished
+**Goal:** Close the 31 G1 runtime-readiness blockers, converge the unfinished
 v2.8 operating work into Mint OS, then deliver G2, six complete G3 loops, G4
 dossier/PDF, G5 runtime/drift proof, G6 beta cohesion, and the preserved Chat
 Vivant plan without accepting any phase below its evidence floor.
 
 **Target outcomes:**
 
-- 23/23 G1 blockers implemented with real RED -> GREEN evidence before G2.
+- 31/31 G1 blockers implemented with real RED -> GREEN evidence before G2.
 - One versioned Mint OS operating contract; no ad-hoc tool substitutions.
 - DataQuest and CaseRegistry collect exactly the missing or stale delta.
 - Six P0 loops work from entry point to dossier: work, housing, retirement,
@@ -54,7 +54,7 @@ Vivant plan without accepting any phase below its evidence floor.
 
 See `.planning/REQUIREMENTS.md`. The binding order is:
 
-1. Phase 37 closes all 23 G1 blockers.
+1. Phase 37 closes all 31 G1 blockers.
 2. Phase 38 closes the operating runway and unfinished v2.8 prerequisites.
 3. Phase 39 delivers G2.
 4. Phases 40-45 deliver the six G3 loops.
@@ -97,7 +97,7 @@ repair.
 
 ### Product and quality floors
 
-- G2 remains `NO` until all 23 G1 tickets are GREEN, runtime proof exists, both
+- G2 remains `NO` until all 31 G1 tickets are GREEN, runtime proof exists, both
   financial audit lenses pass, and the Phase 37 scorecard is >=9.0.
 - G3 remains `NO` until G2 is fully accepted.
 - Swiss meaning is specified before financial implementation.

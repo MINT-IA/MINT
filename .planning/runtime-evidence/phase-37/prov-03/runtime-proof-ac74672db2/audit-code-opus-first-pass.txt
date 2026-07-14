@@ -1,0 +1,33 @@
+I've completed the audit. The implementation is genuinely wired end-to-end, fail-closed, and the claims match the checked-in code.
+
+---
+
+# MINT External Audit — G1-PROV-03 (Tax Assessment Ingestion)
+
+**Mode:** code · **Base:** `3b4eb77c0^` (=`43c078a81`) · **HEAD:** `ac74672db` · Diff ~4,102 lines (within budget)
+
+## Verdict: **PASS**
+
+The change marks `G1-PROV-03` green **as a code ticket only**: default-off feature flags, ledger rows moved from `missing` → `quarantined` (not `live`), and activation honestly declared pending. No P0/P1 correctness, privacy, compliance, routing, or facade-without-wiring defects were found. The narrative in the diff is corroborated by the actual source.
+
+## What I verified against source (not docs)
+
+- **Flags fail-closed & composite** — `feature_flags.dart:79,86,88-89`: `typedTaxProfile=false`, `documentTaxAssessmentEnabled=false`, and `taxAssessmentIngestionEnabled` is their conjunction. Selector guards on it: `coach_profile.dart:2274` returns `partialAsk` when disabled; hydration guards at `:4704`.
+- **Genuine production consumer (no facade)** — `confidence_scorer.dart:735,742,748,1053` call `FiscalSnapshotSelector.selectAssessedBaseline` **unconditionally**; the flag guard lives inside the selector, so flipping the flag changes real scoring. Consumer prompt `fiscal.assessedBaseline` at `:83`. This is real wiring, not a shelf-ware model.
+- **Single write seam / legacy writer removed** — write path is `_onConfirmAll → _buildTaxConfirmation → CoachProfileProvider.acceptTaxReview` (`extraction_review_screen.dart:1211-1261`, `coach_profile_provider.dart:389`). No `updateFromTaxExtraction` / `_coach_tax_taux_marginal` / average→marginal writer remains in `lib/`; residual `tauxMarginal` hits are pre-existing scenario estimators (mortgage/arbitrage), not scan writes.
+- **Privacy** — tax confirm returns before `_sendWithRetry`/biography; impact payload uses `_canonicalTaxImpactFields` with `sourceText:''`. `report_persistence_service.dart:13-18` `backendSafeAnswers` strips `__provenance` and every `_coach_tax_*` key (incl. `_coach_tax_snapshots_v1`).
+- **Selector correctness** — `coach_profile.dart:2337-2360`: conflict `partial+ask` computed *before* updatedAt/UUID tie-break; undated → `availableNeedsConfirmation`/`partialAsk`; negative taxable income preserved but not consumed (`:2370-2382`); `inForceAttested` + future-date + civil-year defenses independent of the validated-ID set.
+- **Secure-store integrity** — `secure_wizard_store.dart` treats `_coach_tax_snapshots_v1` as a strict JSON string (byte-preserving round-trip, throws on write failure); `__secure__` placeholder never overwritten.
+
+## Findings
+
+### P0 — none
+### P1 — none
+
+### P2 (tracking, already disclosed by the branch)
+1. **Evidence SHA drift.** Frozen GREEN + full-suite evidence (`.planning/runtime-evidence/phase-37/prov-03/*.json`, `frozen-suite.json`: 8896 pass / analyze 0) is recorded at `5a772865b`, but HEAD is `ac74672db`. The 5 intervening commits touch only `integration_test/*patrol*.dart`, `tools/simulator/patrol_tax_provenance_process_death.sh`, and `tools/checks/tests/test_g1_prov03_tax_runtime_orchestrator.py` — none of the three GREEN-command files nor production `lib/`. The ticket's GREEN command therefore still holds, but `frozen-suite.json` is stale. *Proof to refresh:* `cd apps/mobile && flutter test --reporter compact` at HEAD.
+2. **Runtime proof still pending (correctly gated).** The tip commits show the Patrol/simctl process-death orchestrator is still being iterated; no frozen-SHA Maestro/Patrol tax evidence exists yet. `verification.md` and the ledger matrix (`missing_gate: frozen_runtime_proof,external_audits,activation_decision`) disclose this. Activation must not proceed until captured. *Proof required before any flag flip:* `bash tools/simulator/patrol_tax_provenance_process_death.sh --device "$UDID" --bundle-id ch.mint.app --sha "$(git rev-parse HEAD)" --artifacts <dir>` passing on one UDID/SHA.
+3. **`test/ios/keychain_simulator_signing_contract_test.dart`** shells out to `plutil` (`Process.runSync`); it will error on hosts lacking Xcode tooling. Non-blocking, but it makes the unit suite host-dependent.
+
+## Consistency check
+The branch does **not** claim G1 completion: registry states "G1 remains NO-GO; G2/G3 remain forbidden," rows are `quarantined`, flags off. The green ticket claim is scoped to the code gate and is truthfully evidenced (RED `6bcba7ab0` exit 1 with type-not-found failures → GREEN 143/143). No overclaim detected.

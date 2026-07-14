@@ -30,13 +30,28 @@ data and replace local checkout/worktree paths with placeholders.
   malformed-root and ticket-evidence gates.
 - Permanent `mint-data-ledger-architect`: **GO**, P0/P1/P2 = 0 for the bounded
   malformed-root ledger/provenance/privacy gate.
+- Exact runtime source SHA `ac74672db`: full `flutter analyze` **GREEN**, zero
+  issue; full `flutter test --reporter compact` **8,899 passed**, 33 skipped,
+  zero failed.
 
 ## Activation truth
 
-The typed implementation and its ticket are GREEN, but
+The typed implementation and its ticket are GREEN. A later exact-SHA runtime
+at `ac74672db209c20f35b4903e26d83d8f0ca2c93f` also passed the normal iOS
+build/install, Maestro flag-off checks, Patrol writer, explicit process death,
+separate cold reader, restoration, independent `xcresulttool` summaries,
+Doctor, Patrol guard and 19/19 orchestrator contracts. The sanitized tracked
+proof is `runtime-proof-ac74672db2/README.md`.
+
+Claude Opus code and product-domain audits both returned PASS with zero P0/P1.
+The first architecture pass returned G1-level NO-GO because the scorecard,
+STATE and audit index were stale; it did not find a PROV-03 implementation P0
+or P1. See `audit-manifest.json`.
+
 `FeatureFlags.documentTaxAssessmentEnabled` and
-`FeatureFlags.typedTaxProfile` remain false. The ledger matrix therefore marks
-the typed tax rows `quarantined`, not live. Frozen-SHA Maestro/Patrol evidence,
-external Claude audits and the named activation decision remain required.
+`FeatureFlags.typedTaxProfile` still remain false in production. The runtime
+used test-process static flags only, so the ledger matrix correctly keeps the
+typed tax rows `quarantined`, not live. A named activation decision remains
+required.
 
 **G1 remains NO-GO; G2/G3 remain forbidden.**

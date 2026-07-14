@@ -8,6 +8,28 @@ Mode: read-only audit of the existing contracts and live repo before this eviden
 
 Auditor roles: `mint-swiss-brain`, MINT product lead
 
+## Current AVS addendum — 2026-07-14
+
+The permanent Swiss-brain reverified current HEAD with 285 targeted Flutter
+tests, 68 backend tests and Doctor 7/7, all GREEN:
+
+- **Registered partnership old P0: CLOSED.** Typed meaning, legacy aliases,
+  wizard/DataBlock round trip and AVS predicates preserve marriage equivalence.
+- **13th-AVS monthly-uplift old P0: CLOSED.** Ordinary pension remains 12
+  payments and the supplement is separate and December-only. The broader
+  `G1-AVS-02` ticket remains open for official evidence ingestion, persistence,
+  dedicated rendering, activation and runtime proof.
+- **Couple cap/splitting: NARROWED BUT OPEN.** The fixed-scale cap and
+  salary-duration proxy are removed/quarantined; unknown partner never becomes
+  zero. G1 still needs typed owner-scoped official splitting evidence,
+  statutory-trigger state and production wiring.
+
+The old AVS commits do not retain standalone failing-test RED transcripts.
+Their parent snapshots are semantic controls and later bounded audits pass, but
+the scorecard must disclose that evidence limitation rather than invent RED.
+
+**Current machine truth: 13/31 GREEN; G1/G2/G3 remain NO-GO.**
+
 ## Verdict
 
 **GO to continue G1. NO-GO to mark G1 complete or start G2/G3.**

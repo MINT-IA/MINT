@@ -1,0 +1,37 @@
+Verification confirms the change is a genuinely dark-launched, fail-closed implementation: both kill switches default `false` (`feature_flags.dart:79,86`), no production `lib` code flips them true, `ConfidenceScorer` consumes the tax data only through `FiscalSnapshotSelector.selectAssessedBaseline` (which returns `partialAsk` when the flag is off), and the legacy `_coach_tax_*` average→marginal writer is gone (those keys survive only as quarantine input). I now have enough to render a Swiss product/domain verdict.
+
+---
+
+Product/domain verdict: PASS
+
+## Summary
+G1-PROV-03 adds a typed Swiss tax-assessment ingestion spine (`TaxExtractionCandidate → TaxReviewConfirmation → CoachProfileProvider.acceptTaxReview → TaxProfilePersistence → cold reload → FiscalSnapshotSelector.selectAssessedBaseline`). It is wired end-to-end and tested (RED→GREEN, 143 targeted tests; full suite 8896 pass / 0 fail per `frozen-suite.json`), but shipped behind the composite default-off gate `documentTaxAssessmentEnabled && typedTaxProfile`. The matrix honestly marks the rows `quarantined`, not `live`. The Swiss modeling is careful and, on the points that matter for RETIREMENT/SUCCESSION/FRONTALIER tax decisions, correct.
+
+## Life event & decision clarified
+Swiss tax document ingestion (déclaration / acompte provisoire / décision de taxation / décompte final) to feed a precise **marginal-rate and ICC/IFD baseline** for 3a/LPP withdrawal and buyback arbitrage, wealth tax, and succession net-mass reasoning. This is exactly the tax input those flows have historically lacked, so the direction is coherent with the ledger→DataQuest→scenario→dossier spine.
+
+## P0 findings
+None. No advice, ranking, guarantee, or product recommendation is emitted; the flow is default-off and cannot drive a live harmful decision.
+
+## P1 findings
+None blocking. The historically dangerous behaviors this ticket targets are demonstrably closed:
+- Average/effective rate can never hydrate `explicitMarginalIncomeTaxRate` (`coach_profile.dart` `validateRuntimeFacts`; parser tests "never promotes a computed tax-to-income ratio to marginal"). A computed `(ICC+IFD)/revenu` populates neither canonical rate. This is the correct AFC distinction.
+- ICC and IFD income/tax remain distinct fields; `federalDirectAssessedTax` with a non-`incomeOnly`/`unknown` base is rejected (`coach_profile.dart` `validateRuntimeFacts`) — correct, since IFD levies no wealth tax on individuals.
+- `inForce` requires an explicit user attestation (`inForceAttested`) and is never inferred by the parser (`tax_scan_local_only_source_contract_test.dart` "parser classification can never manufacture inForce"). The selector independently re-checks the boolean even if a snapshot id is spuriously in `provenanceValidatedSnapshotIds` (`coach_profile.dart` selector eligibility). This avoids asserting legal finality MINT cannot know.
+- Source mapping is field-centric and closed: `assessmentNotice`→`certificate`, `taxpayerReturn`→`userInput`, `provisionalBill`→`estimated`; missing = `null`, never `0` (`coach_profile_provider.dart _taxSourceForLeaf`). Known/missing/estimated/stale are distinguished, and `latestCompleteness` with null `sourceDate` degrades to `partial+ask`, precise historical to `availableNeedsConfirmation`.
+
+## P2 findings
+- **Current-law-sensitive claim, unverified by cutoff:** `TAX_ASSESSMENT_INGESTION.md §3` and `DATA_LEDGER.md` state the individual-taxation law "acceptée le 8 mars 2026, entrée en vigueur au plus tard en 2032." This is beyond the assistant's verification horizon. It is used *defensively* (do not infer `subjectScope` from current civil status; keep couples jointly assessed), so the runtime behavior is fail-safe regardless of the exact date — hence P2, not P1. Recommend a source citation line next to the constant.
+- **`assessedAppealable` copy correction (positive):** FR/EN/DE/ES/IT/PT changed from "délai de réclamation ouvert"/"appeal period open" to "entrée en force non confirmée"/"entry into force not confirmed" (`app_*.arb`, `tax_copy_contract_test.dart`). This removes a false procedural-deadline implication (LIFD art. 132 / LHID art. 48 run from notification, which `sourceDate` is not). Domain-correct; note only that the enum name `assessedAppealable` now diverges from its user meaning — a rename would reduce future misreading.
+- **`finalTaxBill`→`estimated`, non-baseline** is conservative; a Swiss *décompte final* often restates authoritative figures. The reclassification-to-`assessmentNotice` escape hatch is documented, so acceptable, but worth a review-UI hint so users are steered to reclassify rather than lose the data.
+- Negative taxable income is stored but not consumed (`_matchesRequestedField` `>= 0` guard) pending loss-vs-net semantics — correctly cautious; leaves a latent "carried-loss" modeling gap for later.
+
+## Swiss domain review
+- **Tax (ICC/IFD):** correctly separated; combined-vs-cantonal-only authority scope enforced; average vs marginal never conflated; marginal stored as ratio 0..1. Affected and handled well.
+- **AVS/LPP/3a:** not directly modified. The tax marginal-rate baseline is the intended input for future 3a/LPP-buyback withdrawal-tax arbitrage; consumption is currently only `ConfidenceScorer` completeness, so no pension math is yet driven by tax facts (safe while dark).
+- **Succession/inheritance:** untouched here; net-mass reasoning still reads wealth reconciliation, not tax snapshots.
+- **Frontalier:** `subjectScope`/canton/commune captured but no cross-border source-tax logic added — correctly out of scope.
+- **Family status:** `subjectScope` (individual/jointlyAssessedCouple) is document-derived, never split to a partner, never inferred from civil status — correct given joint assessment still in force.
+
+## Mint product logic review
+Moves toward the spine: one canonical typed store (`_coach_tax_snapshots_v1`, strict-secure), single write path via the provider, save-before-publish, per-field `{source, updatedAt, sourceDate}` provenance, cold-rehydrated selector as the only consumer, legacy `_coach_tax_*` quarantined (never aliased), no Biography duplication, and no `sourceText`/tax facts to backend or LLM. Malformed-root recovery and the `__secure__` placeholder are fail-closed and idempotent. This is ledger-coherent and privacy-clean. The remaining gap (return-to-originating-scenario and a specialist dossier that carries the ICC/IFD scope, `assessmentStatus`, `sourceDate`, and the "average ≠ marginal" caveat) is deferred but not regressed; acceptable while the composite gate stays false. Evidence to prove full activation readiness — frozen-SHA Maestro/Patrol run on one UDID, and the named activation decision — is correctly still listed as pending, and the verdict of the artifacts (`verification.md`: "G1 remains NO-GO; G2/G3 remain forbidden") is honest.

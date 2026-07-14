@@ -25,6 +25,17 @@ AUDIT_MANIFEST_NEGATIVE_FIXTURE = (
 TICKET_EVIDENCE_INDEX = (
     ROOT / ".planning/runtime-evidence/phase-37/ticket-evidence.json"
 )
+ACTIVE_G1_COUNT_DOCS = (
+    ROOT / ".planning/PROJECT.md",
+    ROOT / ".planning/ROADMAP.md",
+    ROOT / ".planning/STATE.md",
+    ROOT / ".planning/goals/G1-blocking-gate-tickets.md",
+    ROOT / ".planning/goals/v3-product-reality-migration-manifest-2026-07-12.md",
+    ROOT / ".planning/phases/37-ledger-runtime-readiness/37-CONTEXT.md",
+    ROOT / ".planning/phases/37-ledger-runtime-readiness/37-VALIDATION.md",
+    ROOT / ".planning/phases/37-ledger-runtime-readiness/37-07-PLAN.md",
+    ROOT / ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/SCORECARD.md",
+)
 
 MATRIX_COLUMNS = [
     "canonical_key",
@@ -1970,6 +1981,23 @@ def test_every_matrix_ticket_has_an_executable_blocking_contract() -> None:
         require_complete=True,
     )
     assert evidence_errors == []
+
+
+def test_active_g1_acceptance_docs_match_live_ticket_count() -> None:
+    _, tickets = _ticket_registry()
+    expected_total = len(tickets)
+    assert expected_total == len(_json(TICKET_EVIDENCE_INDEX)["tickets"])
+
+    stale_markers = ("23/23", "all 23 G1", "23 G1 blockers", "23 G1 tickets")
+    for path in ACTIVE_G1_COUNT_DOCS:
+        text = path.read_text(encoding="utf-8")
+        current_markers = (
+            f"{expected_total}/{expected_total}",
+            f"{expected_total} G1",
+            f"{expected_total} rows",
+        )
+        assert any(marker in text for marker in current_markers), path
+        assert not any(marker in text for marker in stale_markers), path
 
 
 def test_negative_fixture_proves_duplicate_silent_dead_and_missing_ticket() -> None:

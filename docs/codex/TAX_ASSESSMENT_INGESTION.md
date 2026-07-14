@@ -350,9 +350,11 @@ selector sur le même SHA, puis une décision explicite de `mint-lead`.
   `inForce` exige une attestation secondaire explicite; ne pas l’inférer de la
   date d’émission, de « bordereau définitif », de « décision exécutoire » ou
   d’un indice OCR.
-- En Suisse, au 13 juillet 2026, les époux sont encore imposés conjointement.
-  La loi sur l’imposition individuelle a été acceptée le 8 mars 2026, mais doit
-  entrer en vigueur au plus tard en 2032, à une date encore à fixer. Le
+- En Suisse, au 14 juillet 2026, les époux sont encore imposés conjointement.
+  Le [DFF confirme que la loi sur l’imposition individuelle a été acceptée le
+  8 mars 2026 et entrera en vigueur au plus tard en
+  2032](https://www.efd.admin.ch/fr/votation-imposition-individuelle), à une
+  date encore à fixer. Le
   `subjectScope` doit donc venir du document ou d’une confirmation et rester lié
   à `taxYear`; il ne doit pas être déduit du seul état civil actuel.
 - Un snapshot `jointlyAssessedCouple` appartient à l’unité fiscale. Il ne doit
@@ -651,7 +653,7 @@ le compte du partenaire sans grant explicite, limité aux champs et révocable.
 
 ## 8. Sources officielles
 
-Consultées le 13 juillet 2026 :
+Consultées ou revalidées le 14 juillet 2026 :
 
 - [LIFD (RS 642.11), notamment art. 40 et 130–132 — Fedlex](https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/fr?version=20260101)
 - [LHID (RS 642.14), notamment art. 15, 46 et 48 — Fedlex](https://www.fedlex.admin.ch/eli/cc/1991/1256_1256_1256/fr?version=20260101)

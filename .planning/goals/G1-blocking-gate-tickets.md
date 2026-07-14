@@ -8,6 +8,10 @@ Decision: **ticket registry plus fail-closed evidence index; no ticket below is
 implemented by this file.** The machine-readable mirror lives at
 `.planning/runtime-evidence/phase-37/ticket-evidence.json`.
 
+Current canonical inventory (2026-07-14): **31 rows — 13 `green`, 17
+`ticket_only`, 1 `red_proven`**. The original 23-row planning seed is historical;
+the live table, machine mirror and checked-in count-drift test are authoritative.
+
 Phase boundary: every row blocks G2 until its RED predicate has been repaired,
 its GREEN command passes, and runtime evidence exists where the predicate names
 runtime behavior. The baseline may classify a P0 key as missing, quarantined,

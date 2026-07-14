@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: Completed 37-01-PLAN.md; next authorized slice is 37-02.
-last_updated: "2026-07-12T16:15:20.560Z"
-last_activity: 2026-07-12 -- SOURCE-01 crosswalk and evidence completed
+stopped_at: Phase 37 cross-plan execution; 13/31 GREEN and 18 hard floors remain; G2/G3 are not authorized.
+last_updated: "2026-07-14T17:30:00Z"
+last_activity: 2026-07-14 -- PROV-03 code and exact-SHA runtime proved GREEN; acceptance evidence reconciliation in progress
 progress:
   total_phases: 14
   completed_phases: 0
@@ -30,17 +30,19 @@ own sourced data and leaves with clear questions plus a specialist-ready dossier
 
 Phase: 37 (ledger-runtime-readiness) — EXECUTING
 
-Plan: 3 of 8
+Plan: cross-plan G1 execution under 37-02 through 37-07
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-12 -- SOURCE-01 crosswalk and evidence completed
+Last activity: 2026-07-14 -- PROV-03 typed-tax persistence proved through
+real process death at exact SHA `ac74672db`; code and product-domain audits
+passed without P0/P1. Production activation remains disabled.
 
 ## Build Order
 
 `37 -> 38 -> 39 -> 40 -> 41 -> 42 -> 43 -> 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50`
 
-- 37: 23 G1 blockers, runtime proof, audits, G2 decision.
+- 37: 31 G1 blockers, runtime proof, audits, G2 decision.
 - 38: Mint OS runway, flags, guards, old P0 convergence.
 - 39: G2 DataQuest + CaseRegistry.
 - 40-45: six G3 loops in product-plan order.
@@ -53,7 +55,7 @@ Last activity: 2026-07-12 -- SOURCE-01 crosswalk and evidence completed
 ## Hard Floors
 
 - Mint OS Doctor and checked-in wrappers are mandatory per phase.
-- G2 allowed is NO until Phase 37 is accepted at >=9.0 with 23/23 GREEN.
+- G2 allowed is NO until Phase 37 is accepted at >=9.0 with 31/31 GREEN.
 - G3 allowed is NO until Phase 39 is accepted.
 - Every UI P0 slice ships same-slice Maestro and Patrol evidence.
 - Financial paths require Claude code and product-domain audits; architecture
@@ -74,11 +76,18 @@ Last activity: 2026-07-12 -- SOURCE-01 crosswalk and evidence completed
   remains the already planned PROV-01 provenance slice.
 - Source translation maps identities only. Mobile and backend confidence
   weights remain separate documented scoring contracts.
+- The checked-in registry expanded from the original 23 rows to 31 as eight
+  additional Swiss correctness, provenance and runtime hard floors were made
+  explicit. The live registry and its checked-in guard are authoritative.
+- `G1-PROV-03` is code-GREEN at `5a772865b` and runtime-GREEN at
+  `ac74672db`; its tax ingestion flags remain production-off.
 
 ## Active Blockers
 
-- 21/23 G1 tickets remain `ticket_only`; `G1-SOURCE-01` is `green` and
-  `G1-RUNTIME-01` is `red_proven` at the cold-relaunch mortgage consumer.
+- The canonical registry has 31 rows: 13 `green`, 17 `ticket_only`, and one
+  `red_proven`. Therefore 18 G1 hard floors remain open.
+- `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
+  mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
 
 - Phase 38 and all later phases are dependency-blocked by Phase 37.
 - This is expected planned work, not a user-input blocker.
@@ -92,11 +101,14 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-12T16:15:20.553Z
+Last session: 2026-07-14T17:30:00Z
 
-Stopped at: Completed 37-01-PLAN.md; next authorized slice is 37-02.
+Stopped at: PROV-03 evidence reconciliation after exact-SHA runtime and external
+audits; select the next dependency-valid ticket from the 18 remaining G1 rows.
 
-Resume file: `.planning/phases/37-ledger-runtime-readiness/37-02-PLAN.md`
+Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
+`.planning/phases/37-ledger-runtime-readiness/37-02-PLAN.md` through
+`37-07-PLAN.md`. Do not infer progress from plan numbering alone.
 
 ## Performance Metrics
 

@@ -47,7 +47,7 @@ created: 2026-07-12
   route reconcile if navigation changed.
 - Before Phase 37 verification: full affected/global suites, runtime composite,
   three external audit lenses, fail-closed machine-readable audit manifests,
-  23/23 registry proof, and score >=9.0.
+  31/31 registry proof, and score >=9.0.
 - Every Wave 0-6 manifest has exactly
   `required_modes: [code, product-domain]` and one unique accepted `runs[]`
   entry per mode. The final manifest has exactly code, product-domain, and
@@ -84,7 +84,7 @@ created: 2026-07-12
 | G1-FRESH-01 | 5 | stale value reused/blank re-ask | prior value one-tap reconfirm | Flutter service | `cd apps/mobile && flutter test test/services/biography/stale_reconfirmation_test.dart --reporter expanded` | ❌ W0 | ⬜ pending |
 | G1-RETURN-01 | 5 | forged/open return route | registered internal return URI | Flutter navigation | `cd apps/mobile && flutter test test/navigation/data_block_return_uri_test.dart --reporter expanded` | ❌ W0 | ⬜ pending |
 | G1-RUNTIME-01 | 7 | green tests, broken restart | real write/process-death/reload/read/recompute | Maestro + Patrol | canonical registry command: full Doctor + Patrol guard + watchdog Maestro pinned to `$UDID` + versioned two-stage Patrol orchestrator with `--no-uninstall --device "$UDID"` and archived `simctl terminate` | ❌ W0 | ⬜ pending |
-| RDY-GATE-01 | 7 | score hides a hard-floor failure | 23 tickets, both runtime harnesses, suites, audits, design review and build are green | acceptance | `python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py -q` plus Plan 37-07 hard floor | ✅ | ⬜ pending |
+| RDY-GATE-01 | 7 | score hides a hard-floor failure | 31 G1 tickets, both runtime harnesses, suites, audits, design review and build are green | acceptance | `python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py -q` plus Plan 37-07 hard floor | ✅ | ⬜ pending |
 
 ## Business-to-GSD Wave Mapping
 
@@ -102,7 +102,7 @@ created: 2026-07-12
 ## Wave 0 Requirements
 
 - [ ] Evolve `test_g1_p0_ledger_dead_keys.py` TDD-first so status transitions
-  require evidence rather than forcing all 23 rows to remain `ticket_only`.
+  require evidence rather than forcing all 31 rows to remain `ticket_only`.
 - [ ] Create each missing unit/integration test file before its production
   change and capture semantic RED or controlled baseline-GREEN evidence.
 - [ ] Create `.maestro/r4_persistence.yaml`, separate Patrol write/read tests,
