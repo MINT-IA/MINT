@@ -761,7 +761,13 @@ Rules:
 
 ## 12. Route coverage ledger (every LIVE builder route in app.dart → its contract)
 
-Audited against `app.dart` at `095eeaa32`. Redirect-only entries (category `alias`) are listed in §4 "Legacy redirects" and are NOT in this table (they carry no screen). Every path below has a `builder:` in `app.dart`.
+Path coverage was audited against `app.dart` at `095eeaa32`; most line numbers
+below therefore remain historical evidence snapshots, as stated at the top of
+this document. The executable spec-reality gate additionally keeps the two scan
+anchors (`/scan/review` and `/scan/impact`) reconciled to the current router.
+Redirect-only entries (category `alias`) are listed in §4 "Legacy redirects"
+and are NOT in this table (they carry no screen). Every path below has a
+`builder:` in `app.dart`.
 
 | route (line) | contract § | route (line) | contract § |
 |---|---|---|---|
@@ -789,7 +795,7 @@ Audited against `app.dart` at `095eeaa32`. Redirect-only entries (category `alia
 | `/epl` (593) | §4 | `/naissance` (778) | §4 |
 | `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
 | `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
-| `/first-job` (795) | §4 | `/scan/impact` (1024) | §5 |
+| `/first-job` (795) | §4 | `/scan/impact` (1217) | §5 |
 | `/expatriation` (800) | §4 | `/documents` (935) | §4 |
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |
@@ -805,7 +811,7 @@ Audited against `app.dart` at `095eeaa32`. Redirect-only entries (category `alia
 | `/assurances/coverage` (873) | §4 | `/segments/gender-gap` (1056) | §4 |
 | `/scan` (880) | §5 | `/segments/frontalier` (1061) | §4 |
 | `/scan/avs-guide` (894) | §5 | `/life-event/housing-sale` (1066) | §4 |
-| `/scan/review` (1006) | §5 | `/life-event/donation` (1071) | §4 |
+| `/scan/review` (1197) | §5 | `/life-event/donation` (1071) | §4 |
 | `/life-event/deces-proche` (1076) | §4 | `/simulator/leasing` (1108) | §4 |
 | `/life-event/demenagement-cantonal` (1081) | §4 | `/simulator/credit` (1113) | §4 |
 | `/education/hub` (1088) | §4 | `/arbitrage/bilan` (1120) | §4 |
