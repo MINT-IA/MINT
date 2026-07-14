@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/services/financial_core/emergency_fund_heuristic.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
@@ -34,6 +35,7 @@ class ReportPersistenceService {
             key == '__provenance' ||
             key == _strictLppEvidenceKey ||
             key == _activeLppEvidenceSlotKey ||
+            legacyPartnerLppAnswerKeys.contains(key) ||
             (hasStrictLppRoot && _looseSelfLppKeys.contains(key)) ||
             key.startsWith('_coach_tax_'),
       );

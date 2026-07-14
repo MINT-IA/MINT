@@ -136,6 +136,9 @@ void main() {
           '_coach_taux_conversion_suroblig': 0.05,
           '_coach_rendement_caisse': 0.02,
           '_coach_lpp_source': 'document_scan',
+          '_coach_conjoint_avoir_lpp': 6,
+          '_coach_conjoint_taux_conversion': 0.061,
+          '_coach_conjoint_lpp_source': 'document_scan',
         },
       );
 
@@ -150,6 +153,30 @@ void main() {
           '_coach_avoir_lpp': 125000,
           '_coach_taux_conversion': 0.068,
           '_coach_lpp_source': 'document_scan',
+        },
+      );
+
+      expect(
+        backendAnswers,
+        <String, dynamic>{
+          'q_canton': 'VD',
+          '_coach_avoir_lpp': 125000,
+          '_coach_taux_conversion': 0.068,
+          '_coach_lpp_source': 'document_scan',
+        },
+      );
+    });
+
+    test('always removes loose partner LPP facts without a strict root', () {
+      final backendAnswers = ReportPersistenceService.backendSafeAnswers(
+        <String, dynamic>{
+          'q_canton': 'VD',
+          '_coach_avoir_lpp': 125000,
+          '_coach_taux_conversion': 0.068,
+          '_coach_lpp_source': 'document_scan',
+          '_coach_conjoint_avoir_lpp': 84000,
+          '_coach_conjoint_taux_conversion': 0.061,
+          '_coach_conjoint_lpp_source': 'document_scan',
         },
       );
 

@@ -4002,8 +4002,22 @@ class CoachProfile {
             now: now,
           )
         : null;
+    final expectedManualPartnerOwnerId = FeatureFlags.typedLppEvidence
+        ? LppEvidenceSelector.manualPartnerOwnerId(
+            answers['_coach_lpp_evidence_v1'],
+          )
+        : null;
+    final typedLppManualPartner = expectedManualPartnerOwnerId == null
+        ? null
+        : LppEvidenceSelector.selectManualPartner(
+            answers['_coach_lpp_evidence_v1'],
+            expectedOwnerId: expectedManualPartnerOwnerId,
+            now: now,
+          );
     double? typedLppValue(LppEvidenceFactKey key) =>
         typedLppSelf?.facts[key]?.value;
+    double? typedManualPartnerLppValue(LppEvidenceFactKey key) =>
+        typedLppManualPartner?.facts[key]?.value;
     final coachAvoirLppOblig = hasTypedLppRoot
         ? typedLppValue(LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf)
         : _parseDouble(answers['_coach_avoir_lpp_oblig']);
@@ -4279,7 +4293,8 @@ class CoachProfile {
         rawSpouseAvsYears != null ||
         (conjEmployment?.isNotEmpty ?? false) ||
         (conjNationality?.isNotEmpty ?? false) ||
-        partnerChildren != null;
+        partnerChildren != null ||
+        typedLppManualPartner != null;
     if (hasPartnerData) {
       // Net -> Brut estimation: same social charges rate as main user
       final partnerBrut = partnerIncome != null && partnerIncome > 0
@@ -4334,7 +4349,50 @@ class CoachProfile {
           rawSpouseAvsYears?.clamp(0, spouseAvsYearsMax).toInt();
       final conjointPrevoyance = PrevoyanceProfile(
         anneesContribuees: spouseAvsYears,
-        avoirLppTotal: conjLppEstimate,
+        avoirLppTotal: hasTypedLppRoot
+            ? typedManualPartnerLppValue(
+                LppEvidenceFactKey.vestedBenefitsCapitalChf,
+              )
+            : conjLppEstimate,
+        avoirLppObligatoire: typedManualPartnerLppValue(
+          LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf,
+        ),
+        avoirLppSurobligatoire: typedManualPartnerLppValue(
+          LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf,
+        ),
+        salaireAssure: typedManualPartnerLppValue(
+          LppEvidenceFactKey.insuredSalaryAnnualChf,
+        ),
+        rachatMaximum: typedManualPartnerLppValue(
+          LppEvidenceFactKey.maximumBuybackCapitalChf,
+        ),
+        tauxConversion: typedManualPartnerLppValue(
+              LppEvidenceFactKey.mandatoryConversionRateRatio,
+            ) ??
+            lppTauxConversionMinDecimal,
+        tauxConversionSuroblig: typedManualPartnerLppValue(
+          LppEvidenceFactKey.extraMandatoryConversionRateRatio,
+        ),
+        rendementCaisse: typedManualPartnerLppValue(
+              LppEvidenceFactKey.fundReturnRateRatio,
+            ) ??
+            0.02,
+        projectedRenteLpp: typedManualPartnerLppValue(
+          LppEvidenceFactKey.retirementPensionAnnualChf,
+        ),
+        projectedCapital65: typedManualPartnerLppValue(
+          LppEvidenceFactKey.retirementCapitalLumpSumChf,
+        ),
+        disabilityCoverage: typedManualPartnerLppValue(
+          LppEvidenceFactKey.disabilityPensionAnnualChf,
+        ),
+        lppDisabilityCapital: typedManualPartnerLppValue(
+          LppEvidenceFactKey.disabilityCapitalLumpSumChf,
+        ),
+        deathCoverage: typedManualPartnerLppValue(
+          LppEvidenceFactKey.deathCapitalLumpSumChf,
+        ),
+        lppEvidenceFacts: typedLppManualPartner?.facts ?? const {},
         canContribute3a: !conjIsFatca,
       );
 
@@ -4364,7 +4422,8 @@ class CoachProfile {
     // `__provenance` is the canonical persisted envelope. Its presence is an
     // authority boundary: malformed or missing entries fail closed instead of
     // being upgraded from legacy source markers.
-    final hasCanonicalProvenance = answers.containsKey('__provenance');
+    final hasCanonicalProvenance =
+        answers.containsKey('__provenance') || hasTypedLppRoot;
     final canonicalSources = <String, ProfileDataSource>{};
     final canonicalTimestamps = <String, DateTime>{};
     final canonicalSourceDates = <String, DateTime?>{};
@@ -4372,6 +4431,9 @@ class CoachProfile {
     if (hasTypedLppRoot) {
       canonicalMentionedPaths.addAll(
         LppEvidenceFactKey.values.map((key) => key.profilePath),
+      );
+      canonicalMentionedPaths.addAll(
+        LppEvidenceFactKey.values.map((key) => key.manualPartnerProfilePath),
       );
     }
     final rawProvenance = answers['__provenance'];
@@ -4401,7 +4463,11 @@ class CoachProfile {
         }
         if (hasTypedLppRoot) {
           final lppKey = LppEvidenceFactKey.values
-              .where((key) => key.profilePath == fieldPath)
+              .where(
+                (key) =>
+                    key.profilePath == fieldPath ||
+                    key.manualPartnerProfilePath == fieldPath,
+              )
               .firstOrNull;
           if (lppKey != null) continue;
         }
@@ -4428,6 +4494,17 @@ class CoachProfile {
     if (typedLppSelf != null) {
       for (final entry in typedLppSelf.facts.entries) {
         final path = entry.key.profilePath;
+        final fact = entry.value;
+        canonicalSources[path] = fact.source == 'certificate'
+            ? ProfileDataSource.certificate
+            : ProfileDataSource.userInput;
+        canonicalTimestamps[path] = fact.updatedAt;
+        canonicalSourceDates[path] = fact.sourceDate;
+      }
+    }
+    if (typedLppManualPartner != null) {
+      for (final entry in typedLppManualPartner.facts.entries) {
+        final path = entry.key.manualPartnerProfilePath;
         final fact = entry.value;
         canonicalSources[path] = fact.source == 'certificate'
             ? ProfileDataSource.certificate

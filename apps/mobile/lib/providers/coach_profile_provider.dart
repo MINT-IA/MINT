@@ -117,6 +117,7 @@ class CoachProfileProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _scoreHistory = [];
   bool _profileUpdatedSinceBudget = false;
   Map<String, dynamic> _lastAnswers = const {};
+  Future<void>? _lppMutationTail;
 
   /// Le profil Coach construit a partir des reponses wizard.
   /// Null si le wizard n'a pas ete complete.
@@ -291,77 +292,139 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   static ({Map<String, dynamic> answers, bool migrated})
+      _withoutLoosePartnerLppBesideOpaqueRoot(Map<String, dynamic> loaded) {
+    final answers = _copyAnswers(loaded);
+    if (!FeatureFlags.typedLppEvidence ||
+        !answers.containsKey(_lppEvidenceRootKey) ||
+        LppEvidenceRoot.fromJsonString(answers[_lppEvidenceRootKey]) != null) {
+      return (answers: answers, migrated: false);
+    }
+    final presentKeys = legacyPartnerLppAnswerKeys
+        .where(answers.containsKey)
+        .toList(growable: false);
+    if (presentKeys.isEmpty) {
+      return (answers: answers, migrated: false);
+    }
+    for (final key in presentKeys) {
+      answers.remove(key);
+    }
+    return (answers: answers, migrated: true);
+  }
+
+  static ({Map<String, dynamic> answers, bool migrated})
       _withLegacySelfLppMigration(Map<String, dynamic> loaded,
           {required DateTime Function() now}) {
     final answers = _copyAnswers(loaded);
-    if (!FeatureFlags.typedLppEvidence ||
-        answers.containsKey(_lppEvidenceRootKey)) {
+    if (!FeatureFlags.typedLppEvidence) {
       return (answers: answers, migrated: false);
     }
-    final rawProvenance = answers['__provenance'];
-    if (rawProvenance is! Map) {
+    final hasExistingRoot = answers.containsKey(_lppEvidenceRootKey);
+    final rawRoot = answers[_lppEvidenceRootKey];
+    if (rawRoot == '__secure__') {
+      return (answers: answers, migrated: false);
+    }
+    final existingRoot = hasExistingRoot
+        ? LppEvidenceRoot.fromJsonString(rawRoot)
+        : const LppEvidenceRoot(self: null);
+    if (existingRoot == null) {
       return (answers: answers, migrated: false);
     }
 
-    final ownerId = const Uuid().v4();
     final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
     final migratedKeys = <String>{};
-    DateTime? acceptanceStamp;
-    final current = now().toUtc();
-    for (final entry in _legacySelfLppKeys.entries) {
-      final rawValue = answers[entry.key];
-      if (rawValue is! num) continue;
-      final value = rawValue.toDouble();
-      final envelope = rawProvenance[entry.value.profilePath];
-      if (envelope is! Map || envelope.keys.any((key) => key is! String)) {
-        continue;
+    if (!hasExistingRoot) {
+      final rawProvenance = answers['__provenance'];
+      if (rawProvenance is Map) {
+        final ownerId = const Uuid().v4();
+        DateTime? acceptanceStamp;
+        final current = now().toUtc();
+        for (final entry in _legacySelfLppKeys.entries) {
+          final rawValue = answers[entry.key];
+          if (rawValue is! num) continue;
+          final value = rawValue.toDouble();
+          final envelope = rawProvenance[entry.value.profilePath];
+          if (envelope is! Map || envelope.keys.any((key) => key is! String)) {
+            continue;
+          }
+          final fact = LppEvidenceFact.fromJson(
+            <String, dynamic>{
+              'value': value,
+              'unit': entry.value.unit.wireName,
+              'owner': <String, dynamic>{
+                'kind': 'self',
+                'profileOwnerId': ownerId,
+              },
+              'actor': <String, dynamic>{'profileOwnerId': ownerId},
+              'authorization': const <String, dynamic>{
+                'mode': 'self',
+                'grantId': null,
+              },
+              'provenance': Map<String, dynamic>.from(envelope),
+            },
+            key: entry.value,
+            expectedOwnerKind: LppEvidenceOwnerKind.self,
+          );
+          if (fact == null || fact.source != 'certificate') {
+            continue;
+          }
+          if (fact.updatedAt.isAfter(current) ||
+              (fact.sourceDate != null &&
+                  _civilDay(fact.sourceDate!).isAfter(_civilDay(current)))) {
+            continue;
+          }
+          acceptanceStamp ??= fact.updatedAt;
+          if (fact.updatedAt != acceptanceStamp) {
+            facts.clear();
+            migratedKeys.clear();
+            break;
+          }
+          facts[entry.value] = fact;
+          migratedKeys.add(entry.key);
+        }
       }
-      final fact = LppEvidenceFact.fromJson(
-        <String, dynamic>{
-          'value': value,
-          'unit': entry.value.unit.wireName,
-          'owner': <String, dynamic>{
-            'kind': 'self',
-            'profileOwnerId': ownerId,
-          },
-          'actor': <String, dynamic>{'profileOwnerId': ownerId},
-          'authorization': const <String, dynamic>{
-            'mode': 'self',
-            'grantId': null,
-          },
-          'provenance': Map<String, dynamic>.from(envelope),
-        },
-        key: entry.value,
-      );
-      if (fact == null || fact.source != 'certificate') {
-        continue;
-      }
-      if (fact.updatedAt.isAfter(current) ||
-          (fact.sourceDate != null &&
-              _civilDay(fact.sourceDate!).isAfter(_civilDay(current)))) {
-        continue;
-      }
-      acceptanceStamp ??= fact.updatedAt;
-      if (fact.updatedAt != acceptanceStamp) {
-        return (answers: answers, migrated: false);
-      }
-      facts[entry.value] = fact;
-      migratedKeys.add(entry.key);
     }
-    if (facts.isEmpty) return (answers: answers, migrated: false);
 
-    answers[_lppEvidenceRootKey] = LppEvidenceRoot(
-      self: LppEvidenceSnapshot(
-        snapshotId: const Uuid().v4(),
-        facts: Map.unmodifiable(facts),
-      ),
-    ).toJsonString();
     for (final key in migratedKeys) {
       answers.remove(key);
     }
-    if (_legacySelfLppKeys.keys.every((key) => !answers.containsKey(key))) {
+    if (migratedKeys.isNotEmpty &&
+        _legacySelfLppKeys.keys.every((key) => !answers.containsKey(key))) {
       answers.remove('_coach_lpp_source');
     }
+
+    final legacyPartnerKeys = <String>[
+      for (final key in legacyPartnerLppAnswerKeys)
+        if (answers.containsKey(key)) key,
+    ];
+    for (final key in legacyPartnerKeys) {
+      answers.remove(key);
+    }
+    if (facts.isEmpty && legacyPartnerKeys.isEmpty) {
+      return (answers: answers, migrated: false);
+    }
+
+    final existingQuarantine = existingRoot.legacyPartnerQuarantine;
+    final quarantinedKeys = <String>{
+      ...?existingQuarantine?.presentKeys,
+      ...legacyPartnerKeys,
+    }.toList();
+    final quarantine = quarantinedKeys.isEmpty
+        ? existingQuarantine
+        : LppLegacyPartnerQuarantine(
+            reasonCodes: const <String>['untyped_legacy_partner_lpp'],
+            presentKeys: List.unmodifiable(quarantinedKeys),
+            quarantinedAt: existingQuarantine?.quarantinedAt ?? now().toUtc(),
+          );
+    answers[_lppEvidenceRootKey] = LppEvidenceRoot(
+      self: facts.isEmpty
+          ? existingRoot.self
+          : LppEvidenceSnapshot(
+              snapshotId: const Uuid().v4(),
+              facts: Map.unmodifiable(facts),
+            ),
+      manualPartner: existingRoot.manualPartner,
+      legacyPartnerQuarantine: quarantine,
+    ).toJsonString();
     return (answers: answers, migrated: true);
   }
 
@@ -611,8 +674,11 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Persists one complete self-owned LPP review before exposing it in memory.
-  Future<void> acceptLppReview(LppReviewConfirmation confirmation) async {
+  /// Persists one complete person-owned LPP review before exposing it in memory.
+  Future<void> acceptLppReview(LppReviewConfirmation confirmation) =>
+      _serializeLppMutation(() => _acceptLppReview(confirmation));
+
+  Future<void> _acceptLppReview(LppReviewConfirmation confirmation) async {
     if (!FeatureFlags.typedLppEvidence) {
       throw StateError('Typed LPP evidence is disabled');
     }
@@ -648,7 +714,9 @@ class CoachProfileProvider extends ChangeNotifier {
       }
     }
 
-    final loaded = await _lppProfilePersistence.loadAnswers();
+    final loadedRaw = await _lppProfilePersistence.loadAnswers();
+    final migration = _withLegacySelfLppMigration(loadedRaw, now: _now);
+    final loaded = migration.answers;
     LppEvidenceRoot currentRoot = const LppEvidenceRoot(self: null);
     if (loaded.containsKey(_lppEvidenceRootKey)) {
       final decoded = LppEvidenceRoot.fromJsonString(
@@ -659,39 +727,68 @@ class CoachProfileProvider extends ChangeNotifier {
       }
       currentRoot = decoded;
     }
-    final profileOwnerId =
+    final stableSelfOwnerId =
         currentRoot.self?.facts.values.first.profileOwnerId ??
+            currentRoot.manualPartner?.facts.values.first.actorProfileOwnerId ??
             const Uuid().v4();
+    var reviewedOwnerId = stableSelfOwnerId;
+    if (confirmation.subject == LppEvidenceOwnerKind.manualPartner) {
+      reviewedOwnerId =
+          currentRoot.manualPartner?.facts.values.first.profileOwnerId ??
+              const Uuid().v4();
+      while (reviewedOwnerId == stableSelfOwnerId) {
+        reviewedOwnerId = const Uuid().v4();
+      }
+    }
+    final authorizationMode = confirmation.subject == LppEvidenceOwnerKind.self
+        ? LppEvidenceAuthorizationMode.self
+        : LppEvidenceAuthorizationMode.manualPartnerDeclaration;
     final storedFacts = <LppEvidenceFactKey, LppEvidenceFact>{
       for (final entry in confirmation.facts.entries)
         entry.key: LppEvidenceFact(
           value: entry.value.value,
           unit: entry.value.unit,
-          profileOwnerId: profileOwnerId,
-          actorProfileOwnerId: profileOwnerId,
+          profileOwnerId: reviewedOwnerId,
+          actorProfileOwnerId: stableSelfOwnerId,
+          ownerKind: confirmation.subject,
+          authorizationMode: authorizationMode,
           source: entry.value.corrected ? 'userInput' : 'certificate',
           sourceDate: entry.value.corrected ? null : sourceDate,
           updatedAt: updatedAt,
         ),
     };
     final nextRoot = LppEvidenceRoot(
-      self: LppEvidenceSnapshot(
-        snapshotId: const Uuid().v4(),
-        facts: Map.unmodifiable(storedFacts),
-      ),
+      self: confirmation.subject == LppEvidenceOwnerKind.self
+          ? LppEvidenceSnapshot(
+              snapshotId: const Uuid().v4(),
+              facts: Map.unmodifiable(storedFacts),
+            )
+          : currentRoot.self,
+      manualPartner: confirmation.subject == LppEvidenceOwnerKind.manualPartner
+          ? LppEvidenceSnapshot(
+              snapshotId: const Uuid().v4(),
+              facts: Map.unmodifiable(storedFacts),
+            )
+          : currentRoot.manualPartner,
+      legacyPartnerQuarantine: currentRoot.legacyPartnerQuarantine,
     );
     final nextAnswers = _copyAnswers(loaded);
-    for (final key in _legacySelfLppKeys.keys) {
-      nextAnswers.remove(key);
+    if (confirmation.subject == LppEvidenceOwnerKind.self) {
+      for (final key in _legacySelfLppKeys.keys) {
+        nextAnswers.remove(key);
+      }
+      nextAnswers.remove('_coach_lpp_source');
     }
-    nextAnswers
-      ..remove('_coach_lpp_source')
-      ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
+    nextAnswers[_lppEvidenceRootKey] = nextRoot.toJsonString();
     var nextProfile = CoachProfile.fromWizardAnswers(nextAnswers, now: _now);
     for (final entry in storedFacts.entries) {
       nextProfile = _withStampedProvenance(
         nextProfile,
-        <String>[entry.key.profilePath],
+        <String>[
+          confirmation.subject == LppEvidenceOwnerKind.self
+              ? entry.key.profilePath
+              : entry.key.manualPartnerProfilePath,
+        ],
         source: entry.value.source == 'certificate'
             ? ProfileDataSource.certificate
             : ProfileDataSource.userInput,
@@ -710,6 +807,22 @@ class CoachProfileProvider extends ChangeNotifier {
     _profileUpdatedSinceBudget = true;
     CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
+  }
+
+  Future<T> _serializeLppMutation<T>(Future<T> Function() operation) async {
+    final previousMutation = _lppMutationTail;
+    final completion = Completer<void>();
+    final currentMutation = completion.future;
+    _lppMutationTail = currentMutation;
+    if (previousMutation != null) await previousMutation;
+    try {
+      return await operation();
+    } finally {
+      completion.complete();
+      if (identical(_lppMutationTail, currentMutation)) {
+        _lppMutationTail = null;
+      }
+    }
   }
 
   static DateTime _civilDay(DateTime value) =>
@@ -1216,7 +1329,10 @@ class CoachProfileProvider extends ChangeNotifier {
   ///
   /// Appele automatiquement au demarrage de l'app et apres
   /// la completion du wizard.
-  Future<void> loadFromWizard() async {
+  Future<void> loadFromWizard() =>
+      _serializeLppMutation(_loadFromWizard);
+
+  Future<void> _loadFromWizard() async {
     _isLoading = true;
     notifyListeners();
 
@@ -1226,8 +1342,13 @@ class CoachProfileProvider extends ChangeNotifier {
       if (migration.migrated) {
         await _taxProfilePersistence.saveAnswers(migration.answers);
       }
+      final opaqueLppCleanup =
+          _withoutLoosePartnerLppBesideOpaqueRoot(migration.answers);
+      if (opaqueLppCleanup.migrated) {
+        await _taxProfilePersistence.saveAnswers(opaqueLppCleanup.answers);
+      }
       final lppMigration = _withLegacySelfLppMigration(
-        migration.answers,
+        opaqueLppCleanup.answers,
         now: _now,
       );
       if (lppMigration.migrated) {
