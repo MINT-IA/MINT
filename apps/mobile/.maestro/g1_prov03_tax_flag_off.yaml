@@ -1,0 +1,18 @@
+appId: ch.mint.app
+---
+# G1-PROV-03: the default-false tax flag must stop local acquisition before
+# candidate creation, review navigation, persistence, or any external path.
+- launchApp:
+    clearState: true
+- openLink: "mint:///scan?type=taxDeclaration"
+- assertVisible:
+    id: "document_scan_capture_cta"
+- assertNotVisible:
+    id: "document_scan_tax_type_selector"
+- assertNotVisible:
+    id: "document_scan_tax_example_cta"
+- assertNotVisible:
+    id: "document_scan_tax_local_text_cta"
+- assertNotVisible:
+    id: "tax_review_confirm_cta"
+- takeScreenshot: g1_prov03_tax_flag_off
