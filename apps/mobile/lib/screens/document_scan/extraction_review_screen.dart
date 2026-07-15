@@ -40,6 +40,7 @@ class ExtractionReviewScreen extends StatefulWidget {
   final String scanSessionId;
   final ExtractionResult result;
   final LppExtractionCandidate? lppCandidate;
+  final LppAcquisitionAuthorization? lppAuthorization;
   final TaxExtractionCandidate? taxCandidate;
   final ScanConfirmationSender? sendScanConfirmation;
   final int Function(CoachProfile)? confidenceScorer;
@@ -50,6 +51,7 @@ class ExtractionReviewScreen extends StatefulWidget {
     required this.scanSessionId,
     required this.result,
     this.lppCandidate,
+    this.lppAuthorization,
     this.taxCandidate,
     this.sendScanConfirmation,
     this.confidenceScorer,
@@ -169,7 +171,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     }
     if (widget.result.documentType == DocumentType.lppCertificate &&
         (widget.lppCandidate == null ||
-            !_isCanonicalLppReview(widget.lppCandidate!))) {
+            !_isCanonicalLppReview(widget.lppCandidate!) ||
+            widget.lppAuthorization == null ||
+            !widget.lppAuthorization!.isValidAt(
+              (widget.now ?? DateTime.now)().toUtc(),
+            ))) {
       return _buildLppRecovery(
         key: const Key('lpp_review_missing_candidate_recovery'),
       );
@@ -226,6 +232,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                         else ...[
                           if (widget.result.documentType ==
                               DocumentType.lppCertificate) ...[
+                            _buildLppOwnerBadge(),
+                            const SizedBox(height: 12),
                             _buildLppSourceDateField(),
                             const SizedBox(height: 8),
                           ],
@@ -466,6 +474,53 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildLppOwnerBadge() {
+    final authorization = widget.lppAuthorization!;
+    final l10n = S.of(context)!;
+    final label = authorization.subject == LppEvidenceOwnerKind.self
+        ? l10n.lppReviewOwnerSelf
+        : l10n.lppReviewOwnerPartner;
+    return MintSurface(
+      key: const Key('lpp_review_owner_badge'),
+      tone: MintSurfaceTone.porcelaine,
+      padding: const EdgeInsets.all(14),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.lock_outline, color: MintColors.textMuted),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              key: const Key('lpp_review_restart_owner_cta'),
+              onPressed: _restartLppAcquisition,
+              child: Text(l10n.lppReviewOwnerRestart),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _restartLppAcquisition() {
+    _scanSessions?.discard(widget.scanSessionId);
+    context.go('/scan?type=lppCertificate');
   }
 
   Widget _buildTaxReviewForm() {
@@ -1492,6 +1547,10 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       if (_isConfirming ||
           !FeatureFlags.lppEvidenceIngestionEnabled ||
           widget.lppCandidate == null ||
+          widget.lppAuthorization == null ||
+          !widget.lppAuthorization!.isValidAt(
+            (widget.now ?? DateTime.now)().toUtc(),
+          ) ||
           !_isCanonicalLppReview(widget.lppCandidate!)) {
         return;
       }
@@ -1529,12 +1588,6 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         _lppSourceDateValidationFailed = false;
         _lppBalanceValidationFailed = false;
       });
-      final owner = await _askWhoseDocument();
-      if (!mounted) return;
-      if (owner == null) {
-        setState(() => _isConfirming = false);
-        return;
-      }
       if (reviewedFacts.isEmpty) {
         setState(() {
           _isConfirming = false;
@@ -1542,15 +1595,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         });
         return;
       }
-      final confirmation = owner == _DocumentOwnerChoice.manualPartner
-          ? LppReviewConfirmation.manualPartner(
-              facts: reviewedFacts,
-              sourceDate: sourceDate.value,
-            )
-          : LppReviewConfirmation.self(
-              facts: reviewedFacts,
-              sourceDate: sourceDate.value,
-            );
+      final confirmation = LppReviewConfirmation(
+        facts: reviewedFacts,
+        sourceDate: sourceDate.value,
+        authorization: widget.lppAuthorization!,
+      );
       final coachProvider = context.read<CoachProfileProvider>();
       final beforeProfile = coachProvider.profile ?? CoachProfile.defaults();
       final previousConfidence = _scoreProfile(beforeProfile);

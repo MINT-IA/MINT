@@ -23901,4 +23901,54 @@ class SPt extends S {
 
   @override
   String get confidencePromptAccuracyEstimated => 'Introduz o teu valor real.';
+
+  @override
+  String get lppAcquisitionSelfTitle => 'Este certificado LPP é teu?';
+
+  @override
+  String get lppAcquisitionSelfBody =>
+      'A MINT vai ler este documento para te ajudar a verificar os valores da tua previdência.';
+
+  @override
+  String get lppAcquisitionSelfContinue => 'Continuar com o meu certificado';
+
+  @override
+  String get lppAcquisitionOwnerTitle =>
+      'A quem pertence este certificado LPP?';
+
+  @override
+  String get lppAcquisitionOwnerSelf => 'A mim';
+
+  @override
+  String get lppAcquisitionOwnerPartner =>
+      'Ao meu parceiro ou à minha parceira';
+
+  @override
+  String get lppAcquisitionPartnerAttestationTitle =>
+      'Antes de tratar este certificado';
+
+  @override
+  String get lppAcquisitionPartnerAttestationBody =>
+      'Confirmo que o meu parceiro ou a minha parceira me autorizou a usar este certificado na MINT e foi informado ou informada de que a Anthropic o lerá uma única vez nos Estados Unidos. Apenas os valores que eu confirmar serão guardados de forma encriptada neste dispositivo. O documento original não será conservado. Esta ação não associa nenhuma conta.';
+
+  @override
+  String get lppAcquisitionSyntheticPartnerAttestationBody =>
+      'Este exemplo é inteiramente sintético e permanece neste dispositivo. Confirmo que uso o cenário de parceiro apenas para verificar o percurso MINT; nenhum documento pessoal nem dado sai deste dispositivo.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationNote =>
+      'A MINT ajuda a compreender estes valores. Isto não constitui aconselhamento financeiro personalizado.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationConfirm => 'Confirmo e continuo';
+
+  @override
+  String get lppReviewOwnerSelf => 'O meu certificado';
+
+  @override
+  String get lppReviewOwnerPartner =>
+      'Certificado do meu parceiro ou da minha parceira';
+
+  @override
+  String get lppReviewOwnerRestart => 'Recomeçar com outro titular';
 }

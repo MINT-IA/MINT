@@ -11470,5 +11470,19 @@
   "confidencePromptEducationAction": "Sieh dir die Bildungsinhalte zu deinen Themen an.",
   "confidencePromptCoachLabel": "Dem Coach eine Frage stellen",
   "confidencePromptCoachAction": "Erkunde mit dem Coach eine Frage zu Schweizer Finanzen.",
-  "confidencePromptAccuracyEstimated": "Gib deinen tatsächlichen Wert ein."
+  "confidencePromptAccuracyEstimated": "Gib deinen tatsächlichen Wert ein.",
+  "lppAcquisitionSelfTitle": "Gehört dieses BVG-Zertifikat dir?",
+  "lppAcquisitionSelfBody": "MINT liest dieses Dokument, damit du die Zahlen deiner Vorsorge überprüfen kannst.",
+  "lppAcquisitionSelfContinue": "Mit meinem Zertifikat fortfahren",
+  "lppAcquisitionOwnerTitle": "Wem gehört dieses BVG-Zertifikat?",
+  "lppAcquisitionOwnerSelf": "Mir",
+  "lppAcquisitionOwnerPartner": "Meiner Partnerin oder meinem Partner",
+  "lppAcquisitionPartnerAttestationTitle": "Bevor dieses Zertifikat verarbeitet wird",
+  "lppAcquisitionPartnerAttestationBody": "Ich bestätige, dass meine Partnerin oder mein Partner mich autorisiert hat, dieses Zertifikat in MINT zu verwenden, und darüber informiert wurde, dass Anthropic es einmalig in den Vereinigten Staaten liest. Nur die von mir bestätigten Zahlen werden verschlüsselt auf diesem Gerät gespeichert. Das Rohdokument wird nicht aufbewahrt. Diese Aktion verknüpft keine Konten.",
+  "lppAcquisitionSyntheticPartnerAttestationBody": "Dieses Beispiel ist vollständig synthetisch und bleibt auf diesem Gerät. Ich bestätige, dass ich das Partnerszenario nur zur Prüfung des MINT-Ablaufs verwende; kein persönliches Dokument und keine Daten verlassen dieses Gerät.",
+  "lppAcquisitionPartnerAttestationNote": "MINT hilft, diese Zahlen zu verstehen. Dies ist keine persönliche Finanzberatung.",
+  "lppAcquisitionPartnerAttestationConfirm": "Ich bestätige und fahre fort",
+  "lppReviewOwnerSelf": "Mein Zertifikat",
+  "lppReviewOwnerPartner": "Zertifikat meiner Partnerin oder meines Partners",
+  "lppReviewOwnerRestart": "Mit einer anderen Person neu beginnen"
 }

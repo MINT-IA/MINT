@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 
@@ -6,12 +7,14 @@ import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart
 class ScanSessionPayload {
   final ExtractionResult extraction;
   final LppExtractionCandidate? lppCandidate;
+  final LppAcquisitionAuthorization? lppAuthorization;
   final TaxExtractionCandidate? taxCandidate;
   final int? previousConfidence;
 
   const ScanSessionPayload({
     required this.extraction,
     this.lppCandidate,
+    this.lppAuthorization,
     this.taxCandidate,
     this.previousConfidence,
   });
@@ -23,6 +26,7 @@ class ScanSessionPayload {
     return ScanSessionPayload(
       extraction: _withoutSourceText(extraction),
       lppCandidate: null,
+      lppAuthorization: null,
       taxCandidate: null,
       previousConfidence: previousConfidence,
     );
@@ -68,15 +72,30 @@ class ScanSessionProvider extends ChangeNotifier {
   final Map<String, ScanSessionPayload> _sessions = {};
   int _nextId = 0;
 
+  @visibleForTesting
+  int get retainedSessionCount => _sessions.length;
+
   String retainExtraction(
     ExtractionResult extraction, {
     LppExtractionCandidate? lppCandidate,
+    LppAcquisitionAuthorization? lppAuthorization,
     TaxExtractionCandidate? taxCandidate,
   }) {
+    final hasLppCandidate = lppCandidate != null;
+    final hasLppAuthorization = lppAuthorization != null;
+    if (hasLppCandidate != hasLppAuthorization ||
+        (hasLppCandidate &&
+            (extraction.documentType != DocumentType.lppCertificate ||
+                !lppAuthorization!.isValidAt(DateTime.now().toUtc())))) {
+      throw ArgumentError(
+        'LPP candidate and complete volatile authorization are required together',
+      );
+    }
     final id = '${DateTime.now().microsecondsSinceEpoch}-${_nextId++}';
     _sessions[id] = ScanSessionPayload(
       extraction: extraction,
       lppCandidate: lppCandidate,
+      lppAuthorization: lppAuthorization,
       taxCandidate: taxCandidate,
     );
     while (_sessions.length > maxRetainedSessions) {

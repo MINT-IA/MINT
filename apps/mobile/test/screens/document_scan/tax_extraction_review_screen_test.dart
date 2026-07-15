@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -146,12 +147,14 @@ class _ScanSessionSpy extends ScanSessionProvider {
   String retainExtraction(
     ExtractionResult extraction, {
     LppExtractionCandidate? lppCandidate,
+    LppAcquisitionAuthorization? lppAuthorization,
     TaxExtractionCandidate? taxCandidate,
   }) {
     retainExtractionCalls += 1;
     return super.retainExtraction(
       extraction,
       lppCandidate: lppCandidate,
+      lppAuthorization: lppAuthorization,
       taxCandidate: taxCandidate,
     );
   }

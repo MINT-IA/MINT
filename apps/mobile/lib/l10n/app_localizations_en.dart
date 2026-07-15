@@ -23774,4 +23774,52 @@ class SEn extends S {
 
   @override
   String get confidencePromptAccuracyEstimated => 'Enter your actual value.';
+
+  @override
+  String get lppAcquisitionSelfTitle => 'Is this LPP certificate yours?';
+
+  @override
+  String get lppAcquisitionSelfBody =>
+      'MINT will read this document to help you verify your pension figures.';
+
+  @override
+  String get lppAcquisitionSelfContinue => 'Continue with my certificate';
+
+  @override
+  String get lppAcquisitionOwnerTitle => 'Who owns this LPP certificate?';
+
+  @override
+  String get lppAcquisitionOwnerSelf => 'Me';
+
+  @override
+  String get lppAcquisitionOwnerPartner => 'My partner';
+
+  @override
+  String get lppAcquisitionPartnerAttestationTitle =>
+      'Before processing this certificate';
+
+  @override
+  String get lppAcquisitionPartnerAttestationBody =>
+      'I confirm that my partner authorized me to use this certificate in MINT and was informed that Anthropic will read it once in the United States. Only the figures I confirm will be stored encrypted on this device. The raw document will not be retained. This action does not link any accounts.';
+
+  @override
+  String get lppAcquisitionSyntheticPartnerAttestationBody =>
+      'This example is entirely synthetic and stays on this device. I confirm that I am using the partner scenario only to verify the MINT flow; no personal document or data leaves this device.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationNote =>
+      'MINT helps you understand these figures. This is not personalized financial advice.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationConfirm =>
+      'I confirm and continue';
+
+  @override
+  String get lppReviewOwnerSelf => 'My certificate';
+
+  @override
+  String get lppReviewOwnerPartner => 'My partner\'s certificate';
+
+  @override
+  String get lppReviewOwnerRestart => 'Restart with another owner';
 }

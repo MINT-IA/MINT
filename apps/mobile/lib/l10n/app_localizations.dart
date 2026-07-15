@@ -41776,6 +41776,90 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Saisis ta valeur réelle.'**
   String get confidencePromptAccuracyEstimated;
+
+  /// No description provided for @lppAcquisitionSelfTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce certificat LPP est-il le tien ?'**
+  String get lppAcquisitionSelfTitle;
+
+  /// No description provided for @lppAcquisitionSelfBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT va lire ce document pour t\'aider à vérifier les chiffres de ta prévoyance.'**
+  String get lppAcquisitionSelfBody;
+
+  /// No description provided for @lppAcquisitionSelfContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec mon certificat'**
+  String get lppAcquisitionSelfContinue;
+
+  /// No description provided for @lppAcquisitionOwnerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À qui appartient ce certificat LPP ?'**
+  String get lppAcquisitionOwnerTitle;
+
+  /// No description provided for @lppAcquisitionOwnerSelf.
+  ///
+  /// In fr, this message translates to:
+  /// **'À moi'**
+  String get lppAcquisitionOwnerSelf;
+
+  /// No description provided for @lppAcquisitionOwnerPartner.
+  ///
+  /// In fr, this message translates to:
+  /// **'À mon/ma partenaire'**
+  String get lppAcquisitionOwnerPartner;
+
+  /// No description provided for @lppAcquisitionPartnerAttestationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant de traiter ce certificat'**
+  String get lppAcquisitionPartnerAttestationTitle;
+
+  /// No description provided for @lppAcquisitionPartnerAttestationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je confirme que mon/ma partenaire m\'a autorisé·e à utiliser ce certificat dans MINT et a été informé·e qu\'il sera lu ponctuellement par Anthropic aux États-Unis. Seuls les chiffres que je confirme seront conservés chiffrés sur cet appareil. Le document brut ne sera pas conservé. Cette action ne relie aucun compte.'**
+  String get lppAcquisitionPartnerAttestationBody;
+
+  /// No description provided for @lppAcquisitionSyntheticPartnerAttestationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet exemple est entièrement synthétique et reste sur cet appareil. Je confirme utiliser le scénario partenaire uniquement pour vérifier le parcours MINT ; aucun document personnel ni aucune donnée ne quitte cet appareil.'**
+  String get lppAcquisitionSyntheticPartnerAttestationBody;
+
+  /// No description provided for @lppAcquisitionPartnerAttestationNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT aide à comprendre ces chiffres. Cela ne constitue pas un conseil financier personnalisé.'**
+  String get lppAcquisitionPartnerAttestationNote;
+
+  /// No description provided for @lppAcquisitionPartnerAttestationConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je confirme et continue'**
+  String get lppAcquisitionPartnerAttestationConfirm;
+
+  /// No description provided for @lppReviewOwnerSelf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon certificat'**
+  String get lppReviewOwnerSelf;
+
+  /// No description provided for @lppReviewOwnerPartner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat de mon/ma partenaire'**
+  String get lppReviewOwnerPartner;
+
+  /// No description provided for @lppReviewOwnerRestart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommencer avec un autre propriétaire'**
+  String get lppReviewOwnerRestart;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

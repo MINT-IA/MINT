@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart';
 
 enum LppEvidenceUnit {
   chf('CHF'),
@@ -161,20 +164,80 @@ class LppReviewedFact {
   final bool corrected;
 }
 
-class LppReviewConfirmation {
-  const LppReviewConfirmation.self({
-    required this.facts,
-    required this.sourceDate,
-  }) : subject = LppEvidenceOwnerKind.self;
+/// One volatile, per-document authorization bound before LPP review.
+///
+/// This object deliberately has no JSON API. It may live only in the bounded
+/// in-memory scan session and must never enter routes, provenance or the
+/// financial ledger.
+class LppAcquisitionAuthorization {
+  const LppAcquisitionAuthorization({
+    required this.acquisitionId,
+    required this.subject,
+    required this.partnerAttested,
+    required this.policyVersion,
+    required this.declaredAt,
+    required this.documentSha256,
+  });
 
-  const LppReviewConfirmation.manualPartner({
-    required this.facts,
+  static const currentPolicyVersion = 'g1-prov02-v1';
+
+  final String acquisitionId;
+  final LppEvidenceOwnerKind subject;
+  final bool partnerAttested;
+  final String policyVersion;
+  final DateTime declaredAt;
+  final String documentSha256;
+
+  static String sha256Hex(Uint8List transmittedBytes) =>
+      sha256.convert(transmittedBytes).toString();
+
+  static bool hasValidEnvelope({
+    required String acquisitionId,
+    required LppEvidenceOwnerKind subject,
+    required bool partnerAttested,
+    required String policyVersion,
+    required DateTime declaredAt,
+    required DateTime now,
+  }) {
+    final subjectAttestationIsCoherent =
+        subject == LppEvidenceOwnerKind.manualPartner
+            ? partnerAttested
+            : !partnerAttested;
+    return _isCanonicalUuidV4(acquisitionId) &&
+        subjectAttestationIsCoherent &&
+        policyVersion == currentPolicyVersion &&
+        declaredAt.isUtc &&
+        !declaredAt.isAfter(now.toUtc());
+  }
+
+  bool isValidAt(DateTime now) {
+    return hasValidEnvelope(
+          acquisitionId: acquisitionId,
+          subject: subject,
+          partnerAttested: partnerAttested,
+          policyVersion: policyVersion,
+          declaredAt: declaredAt,
+          now: now,
+        ) &&
+        RegExp(r'^[0-9a-f]{64}$').hasMatch(documentSha256) &&
+        documentSha256 != _zeroSha256;
+  }
+}
+
+class LppReviewConfirmation {
+  LppReviewConfirmation({
+    required Map<LppEvidenceFactKey, LppReviewedFact> facts,
     required this.sourceDate,
-  }) : subject = LppEvidenceOwnerKind.manualPartner;
+    required this.authorization,
+  }) : facts = Map.unmodifiable(
+          Map<LppEvidenceFactKey, LppReviewedFact>.of(facts),
+        );
 
   final Map<LppEvidenceFactKey, LppReviewedFact> facts;
   final DateTime? sourceDate;
-  final LppEvidenceOwnerKind subject;
+  final LppAcquisitionAuthorization authorization;
+
+  LppEvidenceOwnerKind get subject => authorization.subject;
 }
 
 class LppEvidenceFact {
@@ -524,6 +587,9 @@ const _rootKeys = <String>{
   'manualPartner',
   'legacyPartnerQuarantine',
 };
+
+const _zeroSha256 =
+    '0000000000000000000000000000000000000000000000000000000000000000';
 
 Map<String, dynamic>? _decodeLppRootEnvelope(Object? raw) {
   if (raw is! String || raw == '__secure__') return null;

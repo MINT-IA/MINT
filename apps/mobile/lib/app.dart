@@ -1210,6 +1210,7 @@ final _router = GoRouter(
           scanSessionId: scanSessionId!,
           result: session.extraction,
           lppCandidate: session.lppCandidate,
+          lppAuthorization: session.lppAuthorization,
           taxCandidate: session.taxCandidate,
         );
       },

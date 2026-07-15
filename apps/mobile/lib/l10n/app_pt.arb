@@ -11470,5 +11470,19 @@
   "confidencePromptEducationAction": "Consulta os conteúdos educativos relacionados com os teus temas.",
   "confidencePromptCoachLabel": "Faz uma pergunta ao coach",
   "confidencePromptCoachAction": "Explora com o coach uma questão de finanças suíças.",
-  "confidencePromptAccuracyEstimated": "Introduz o teu valor real."
+  "confidencePromptAccuracyEstimated": "Introduz o teu valor real.",
+  "lppAcquisitionSelfTitle": "Este certificado LPP é teu?",
+  "lppAcquisitionSelfBody": "A MINT vai ler este documento para te ajudar a verificar os valores da tua previdência.",
+  "lppAcquisitionSelfContinue": "Continuar com o meu certificado",
+  "lppAcquisitionOwnerTitle": "A quem pertence este certificado LPP?",
+  "lppAcquisitionOwnerSelf": "A mim",
+  "lppAcquisitionOwnerPartner": "Ao meu parceiro ou à minha parceira",
+  "lppAcquisitionPartnerAttestationTitle": "Antes de tratar este certificado",
+  "lppAcquisitionPartnerAttestationBody": "Confirmo que o meu parceiro ou a minha parceira me autorizou a usar este certificado na MINT e foi informado ou informada de que a Anthropic o lerá uma única vez nos Estados Unidos. Apenas os valores que eu confirmar serão guardados de forma encriptada neste dispositivo. O documento original não será conservado. Esta ação não associa nenhuma conta.",
+  "lppAcquisitionSyntheticPartnerAttestationBody": "Este exemplo é inteiramente sintético e permanece neste dispositivo. Confirmo que uso o cenário de parceiro apenas para verificar o percurso MINT; nenhum documento pessoal nem dado sai deste dispositivo.",
+  "lppAcquisitionPartnerAttestationNote": "A MINT ajuda a compreender estes valores. Isto não constitui aconselhamento financeiro personalizado.",
+  "lppAcquisitionPartnerAttestationConfirm": "Confirmo e continuo",
+  "lppReviewOwnerSelf": "O meu certificado",
+  "lppReviewOwnerPartner": "Certificado do meu parceiro ou da minha parceira",
+  "lppReviewOwnerRestart": "Recomeçar com outro titular"
 }

@@ -691,6 +691,15 @@ class CoachProfileProvider extends ChangeNotifier {
     if (!FeatureFlags.typedLppEvidence) {
       throw StateError('Typed LPP evidence is disabled');
     }
+    final currentCivilTime = _now();
+    final authorization = confirmation.authorization;
+    if (!authorization.isValidAt(currentCivilTime)) {
+      throw StateError('Invalid volatile LPP acquisition authorization');
+    }
+    if (confirmation.subject == LppEvidenceOwnerKind.manualPartner &&
+        _profile?.conjoint == null) {
+      throw StateError('Manual partner LPP requires a local partner profile');
+    }
     if (confirmation.facts.isEmpty) {
       throw ArgumentError.value(
         confirmation.facts,
@@ -698,7 +707,6 @@ class CoachProfileProvider extends ChangeNotifier {
         'at least one reviewed LPP fact is required',
       );
     }
-    final currentCivilTime = _now();
     final updatedAt = currentCivilTime.toUtc();
     final sourceDate = confirmation.sourceDate;
     if (sourceDate != null &&

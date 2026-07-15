@@ -23893,4 +23893,52 @@ class SEs extends S {
 
   @override
   String get confidencePromptAccuracyEstimated => 'Introduce tu valor real.';
+
+  @override
+  String get lppAcquisitionSelfTitle => '¿Este certificado LPP es tuyo?';
+
+  @override
+  String get lppAcquisitionSelfBody =>
+      'MINT leerá este documento para ayudarte a comprobar las cifras de tu previsión.';
+
+  @override
+  String get lppAcquisitionSelfContinue => 'Continuar con mi certificado';
+
+  @override
+  String get lppAcquisitionOwnerTitle =>
+      '¿A quién pertenece este certificado LPP?';
+
+  @override
+  String get lppAcquisitionOwnerSelf => 'A mí';
+
+  @override
+  String get lppAcquisitionOwnerPartner => 'A mi pareja';
+
+  @override
+  String get lppAcquisitionPartnerAttestationTitle =>
+      'Antes de tratar este certificado';
+
+  @override
+  String get lppAcquisitionPartnerAttestationBody =>
+      'Confirmo que mi pareja me ha autorizado a usar este certificado en MINT y que se le ha informado de que Anthropic lo leerá una sola vez en Estados Unidos. Solo las cifras que confirme se conservarán cifradas en este dispositivo. El documento original no se conservará. Esta acción no vincula ninguna cuenta.';
+
+  @override
+  String get lppAcquisitionSyntheticPartnerAttestationBody =>
+      'Este ejemplo es totalmente sintético y permanece en este dispositivo. Confirmo que uso el escenario de pareja únicamente para verificar el recorrido MINT; ningún documento personal ni dato sale de este dispositivo.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationNote =>
+      'MINT ayuda a comprender estas cifras. Esto no constituye asesoramiento financiero personalizado.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationConfirm => 'Confirmo y continúo';
+
+  @override
+  String get lppReviewOwnerSelf => 'Mi certificado';
+
+  @override
+  String get lppReviewOwnerPartner => 'Certificado de mi pareja';
+
+  @override
+  String get lppReviewOwnerRestart => 'Volver a empezar con otro titular';
 }

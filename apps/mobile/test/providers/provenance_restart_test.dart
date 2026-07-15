@@ -86,7 +86,8 @@ final class _FailingLppPersistence implements LppProfilePersistence {
   }
 }
 
-final class _RecordingLppPersistence implements LppProfilePersistence {
+final class _RecordingLppPersistence
+    implements LppProfilePersistence, TaxProfilePersistence {
   _RecordingLppPersistence(this.answers);
 
   final Map<String, dynamic> answers;
@@ -149,6 +150,20 @@ final class _DelayedFirstLppPersistence
       ..addAll(Map<String, dynamic>.from(nextAnswers));
     events.add('save-done:$label');
   }
+}
+
+LppAcquisitionAuthorization _lppAuthorization(
+  LppEvidenceOwnerKind subject,
+) {
+  return LppAcquisitionAuthorization(
+    acquisitionId: '123e4567-e89b-42d3-a456-426614174000',
+    subject: subject,
+    partnerAttested: subject == LppEvidenceOwnerKind.manualPartner,
+    policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
+    declaredAt: DateTime.utc(2026, 1, 1),
+    documentSha256:
+        '1111111111111111111111111111111111111111111111111111111111111111',
+  );
 }
 
 void main() {
@@ -216,7 +231,8 @@ void main() {
     expect(writer.profile, isNotNull);
 
     await writer.acceptLppReview(
-      LppReviewConfirmation.self(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
         sourceDate: DateTime.utc(2026, 6, 30),
         facts: const {
           LppEvidenceFactKey.retirementPensionAnnualChf: LppReviewedFact(
@@ -407,14 +423,17 @@ void main() {
     });
     final now = DateTime.utc(2026, 7, 14, 12);
     final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
       now: () => now,
     );
+    await provider.loadFromWizard();
 
     await provider.acceptLppReview(
-      const LppReviewConfirmation.manualPartner(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
         sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
             value: 84000,
             unit: LppEvidenceUnit.chf,
@@ -438,9 +457,10 @@ void main() {
     expect(partnerFact.authorizationGrantId, isNull);
 
     await provider.acceptLppReview(
-      const LppReviewConfirmation.self(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
         sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.insuredSalaryAnnualChf: LppReviewedFact(
             value: 92000,
             unit: LppEvidenceUnit.chfPerYear,
@@ -497,12 +517,14 @@ void main() {
     });
     var now = DateTime.utc(2026, 7, 14, 10);
     final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
       now: () => now,
     );
 
     await provider.acceptLppReview(
-      LppReviewConfirmation.self(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
         sourceDate: DateTime.utc(2026, 6, 30),
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.maximumBuybackCapitalChf: LppReviewedFact(
@@ -513,9 +535,10 @@ void main() {
       ),
     );
     await provider.acceptLppReview(
-      const LppReviewConfirmation.manualPartner(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
         sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
             value: 84000,
             unit: LppEvidenceUnit.chf,
@@ -541,7 +564,8 @@ void main() {
 
     now = DateTime.utc(2026, 7, 14, 11);
     await provider.acceptLppReview(
-      LppReviewConfirmation.manualPartner(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
         sourceDate: DateTime.utc(2026, 7, 1),
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
@@ -606,17 +630,23 @@ void main() {
     final persistence = _DelayedFirstLppPersistence(<String, dynamic>{
       'q_birth_year': 1980,
       'q_canton': 'VD',
+      'q_civil_status': 'marie',
+      'q_partner_birth_year': 1982,
     });
     final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
+    await provider.loadFromWizard();
+    persistence.loadAttempts = 0;
     provider.addListener(() => persistence.events.add('notify'));
 
     final selfAcceptance = provider.acceptLppReview(
-      const LppReviewConfirmation.self(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
         sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.maximumBuybackCapitalChf: LppReviewedFact(
             value: 24000,
             unit: LppEvidenceUnit.chf,
@@ -626,9 +656,10 @@ void main() {
     );
     await persistence.firstSaveStarted.future;
     final manualAcceptance = provider.acceptLppReview(
-      const LppReviewConfirmation.manualPartner(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
         sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
             value: 84000,
             unit: LppEvidenceUnit.chf,
@@ -664,6 +695,16 @@ void main() {
     final persistence = _DelayedFirstLppPersistence(<String, dynamic>{
       'q_birth_year': 1980,
       'q_canton': 'VD',
+      'q_civil_status': 'marie',
+      'q_partner_birth_year': 1982,
+    });
+    final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      lppProfilePersistence: persistence,
+      now: () => DateTime.utc(2026, 7, 14, 12),
+    );
+    await provider.loadFromWizard();
+    persistence.answers.addAll(<String, dynamic>{
       '_coach_avoir_lpp': 125000.0,
       '__provenance': <String, dynamic>{
         'prevoyance.avoirLppTotal': <String, dynamic>{
@@ -673,16 +714,15 @@ void main() {
         },
       },
     });
-    final provider = CoachProfileProvider(
-      taxProfilePersistence: persistence,
-      lppProfilePersistence: persistence,
-      now: () => DateTime.utc(2026, 7, 14, 12),
-    );
+    persistence.loadAttempts = 0;
+    persistence.saveAttempts = 0;
+    persistence.events.clear();
 
     final startup = provider.loadFromWizard();
     await persistence.firstSaveStarted.future;
     final manualAcceptance = provider.acceptLppReview(
-      LppReviewConfirmation.manualPartner(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
         sourceDate: DateTime.utc(2026, 7, 1),
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
@@ -741,6 +781,8 @@ void main() {
     final persistence = _RecordingLppPersistence(<String, dynamic>{
       'q_birth_year': 1980,
       'q_canton': 'VD',
+      'q_civil_status': 'marie',
+      'q_partner_birth_year': 1982,
       '_coach_avoir_lpp': 125000.0,
       '__provenance': <String, dynamic>{
         'prevoyance.avoirLppTotal': <String, dynamic>{
@@ -753,14 +795,17 @@ void main() {
       '_coach_conjoint_lpp_source': 'document_scan',
     });
     final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
+    await provider.loadFromWizard();
 
     await provider.acceptLppReview(
-      const LppReviewConfirmation.manualPartner(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
         sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.insuredSalaryAnnualChf: LppReviewedFact(
             value: 92000,
             unit: LppEvidenceUnit.chfPerYear,
@@ -810,7 +855,8 @@ void main() {
     await provider.loadFromWizard();
 
     await provider.acceptLppReview(
-      LppReviewConfirmation.manualPartner(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
         sourceDate: DateTime.utc(2026, 6, 30),
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
@@ -986,9 +1032,10 @@ void main() {
 
     await expectLater(
       provider.acceptLppReview(
-        const LppReviewConfirmation.self(
+        LppReviewConfirmation(
+          authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
           sourceDate: null,
-          facts: <LppEvidenceFactKey, LppReviewedFact>{
+          facts: const <LppEvidenceFactKey, LppReviewedFact>{
             LppEvidenceFactKey.insuredSalaryAnnualChf: LppReviewedFact(
               value: 92000,
               unit: LppEvidenceUnit.chfPerYear,
@@ -1137,9 +1184,10 @@ void main() {
 
     await expectLater(
       provider.acceptLppReview(
-        const LppReviewConfirmation.self(
+        LppReviewConfirmation(
+          authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
           sourceDate: null,
-          facts: {
+          facts: const {
             LppEvidenceFactKey.retirementPensionAnnualChf: LppReviewedFact(
               value: 30000,
               unit: LppEvidenceUnit.chfPerYear,
@@ -1172,9 +1220,10 @@ void main() {
 
     await expectLater(
       provider.acceptLppReview(
-        const LppReviewConfirmation.self(
+        LppReviewConfirmation(
+          authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
           sourceDate: null,
-          facts: {
+          facts: const {
             LppEvidenceFactKey.retirementPensionAnnualChf: LppReviewedFact(
               value: 30000,
               unit: LppEvidenceUnit.chfPerYear,
@@ -1204,9 +1253,10 @@ void main() {
 
     await expectLater(
       provider.acceptLppReview(
-        const LppReviewConfirmation.self(
+        LppReviewConfirmation(
+          authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
           sourceDate: null,
-          facts: {
+          facts: const {
             LppEvidenceFactKey.retirementCapitalLumpSumChf: LppReviewedFact(
               value: 400000,
               unit: LppEvidenceUnit.chfLumpSum,
@@ -1567,9 +1617,10 @@ void main() {
     );
 
     await provider.acceptLppReview(
-      const LppReviewConfirmation.self(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
         sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
             value: 125000,
             unit: LppEvidenceUnit.chf,

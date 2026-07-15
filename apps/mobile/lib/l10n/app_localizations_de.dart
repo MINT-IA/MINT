@@ -23953,4 +23953,54 @@ class SDe extends S {
   @override
   String get confidencePromptAccuracyEstimated =>
       'Gib deinen tatsächlichen Wert ein.';
+
+  @override
+  String get lppAcquisitionSelfTitle => 'Gehört dieses BVG-Zertifikat dir?';
+
+  @override
+  String get lppAcquisitionSelfBody =>
+      'MINT liest dieses Dokument, damit du die Zahlen deiner Vorsorge überprüfen kannst.';
+
+  @override
+  String get lppAcquisitionSelfContinue => 'Mit meinem Zertifikat fortfahren';
+
+  @override
+  String get lppAcquisitionOwnerTitle => 'Wem gehört dieses BVG-Zertifikat?';
+
+  @override
+  String get lppAcquisitionOwnerSelf => 'Mir';
+
+  @override
+  String get lppAcquisitionOwnerPartner =>
+      'Meiner Partnerin oder meinem Partner';
+
+  @override
+  String get lppAcquisitionPartnerAttestationTitle =>
+      'Bevor dieses Zertifikat verarbeitet wird';
+
+  @override
+  String get lppAcquisitionPartnerAttestationBody =>
+      'Ich bestätige, dass meine Partnerin oder mein Partner mich autorisiert hat, dieses Zertifikat in MINT zu verwenden, und darüber informiert wurde, dass Anthropic es einmalig in den Vereinigten Staaten liest. Nur die von mir bestätigten Zahlen werden verschlüsselt auf diesem Gerät gespeichert. Das Rohdokument wird nicht aufbewahrt. Diese Aktion verknüpft keine Konten.';
+
+  @override
+  String get lppAcquisitionSyntheticPartnerAttestationBody =>
+      'Dieses Beispiel ist vollständig synthetisch und bleibt auf diesem Gerät. Ich bestätige, dass ich das Partnerszenario nur zur Prüfung des MINT-Ablaufs verwende; kein persönliches Dokument und keine Daten verlassen dieses Gerät.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationNote =>
+      'MINT hilft, diese Zahlen zu verstehen. Dies ist keine persönliche Finanzberatung.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationConfirm =>
+      'Ich bestätige und fahre fort';
+
+  @override
+  String get lppReviewOwnerSelf => 'Mein Zertifikat';
+
+  @override
+  String get lppReviewOwnerPartner =>
+      'Zertifikat meiner Partnerin oder meines Partners';
+
+  @override
+  String get lppReviewOwnerRestart => 'Mit einer anderen Person neu beginnen';
 }

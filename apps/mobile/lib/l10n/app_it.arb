@@ -11470,5 +11470,19 @@
   "confidencePromptEducationAction": "Consulta i contenuti educativi legati ai tuoi temi.",
   "confidencePromptCoachLabel": "Fai una domanda al coach",
   "confidencePromptCoachAction": "Esplora con il coach una questione di finanza svizzera.",
-  "confidencePromptAccuracyEstimated": "Inserisci il tuo valore effettivo."
+  "confidencePromptAccuracyEstimated": "Inserisci il tuo valore effettivo.",
+  "lppAcquisitionSelfTitle": "Questo certificato LPP è tuo?",
+  "lppAcquisitionSelfBody": "MINT leggerà questo documento per aiutarti a verificare le cifre della tua previdenza.",
+  "lppAcquisitionSelfContinue": "Continua con il mio certificato",
+  "lppAcquisitionOwnerTitle": "A chi appartiene questo certificato LPP?",
+  "lppAcquisitionOwnerSelf": "A me",
+  "lppAcquisitionOwnerPartner": "Al mio partner o alla mia partner",
+  "lppAcquisitionPartnerAttestationTitle": "Prima di trattare questo certificato",
+  "lppAcquisitionPartnerAttestationBody": "Confermo che il mio partner o la mia partner mi ha autorizzato a usare questo certificato in MINT ed è stato o stata informata che Anthropic lo leggerà una sola volta negli Stati Uniti. Solo le cifre che confermo saranno conservate in forma cifrata su questo dispositivo. Il documento originale non sarà conservato. Questa azione non collega alcun account.",
+  "lppAcquisitionSyntheticPartnerAttestationBody": "Questo esempio è interamente sintetico e resta su questo dispositivo. Confermo di usare lo scenario partner solo per verificare il percorso MINT; nessun documento personale o dato lascia questo dispositivo.",
+  "lppAcquisitionPartnerAttestationNote": "MINT aiuta a comprendere queste cifre. Questo non costituisce una consulenza finanziaria personalizzata.",
+  "lppAcquisitionPartnerAttestationConfirm": "Confermo e continuo",
+  "lppReviewOwnerSelf": "Il mio certificato",
+  "lppReviewOwnerPartner": "Certificato del mio partner o della mia partner",
+  "lppReviewOwnerRestart": "Ricomincia con un altro titolare"
 }

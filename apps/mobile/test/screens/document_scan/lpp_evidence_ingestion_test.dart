@@ -28,11 +28,19 @@ import 'package:mint_mobile/services/consent/consent_service.dart';
 
 const _rawSentinel = 'RAW-OCR-PII-MUST-NEVER-PERSIST';
 
-final class _MemoryLppPersistence implements LppProfilePersistence {
-  _MemoryLppPersistence({this.failSave = false});
+final class _MemoryLppPersistence
+    implements LppProfilePersistence, TaxProfilePersistence {
+  _MemoryLppPersistence({
+    this.failSave = false,
+    bool withLocalPartner = false,
+  }) : answers = <String, dynamic>{
+          'q_birth_year': 1980,
+          'q_canton': 'VD',
+          if (withLocalPartner) 'q_partner_birth_year': 1982,
+        };
 
   final bool failSave;
-  Map<String, dynamic> answers = <String, dynamic>{};
+  Map<String, dynamic> answers;
   int saveCalls = 0;
 
   @override
@@ -60,16 +68,40 @@ final class _BiographySpy extends BiographyProvider {
 
 final class _CoachProfileSpy extends CoachProfileProvider {
   _CoachProfileSpy({required LppProfilePersistence persistence})
-      : super(lppProfilePersistence: persistence);
+      : super(
+          taxProfilePersistence: persistence as TaxProfilePersistence,
+          lppProfilePersistence: persistence,
+          now: _reviewNow,
+        );
 
   int acceptLppReviewCalls = 0;
+  bool _loaded = false;
 
   @override
   Future<void> acceptLppReview(LppReviewConfirmation confirmation) async {
     acceptLppReviewCalls += 1;
+    if (!_loaded) {
+      await loadFromWizard();
+      _loaded = true;
+    }
     await super.acceptLppReview(confirmation);
   }
 }
+
+DateTime _reviewNow() => DateTime.utc(2026, 7, 15, 12);
+
+LppAcquisitionAuthorization _reviewAuthorization(
+  LppEvidenceOwnerKind subject,
+) =>
+    LppAcquisitionAuthorization(
+      acquisitionId: '123e4567-e89b-42d3-a456-426614174000',
+      subject: subject,
+      partnerAttested: subject == LppEvidenceOwnerKind.manualPartner,
+      policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
+      declaredAt: DateTime.utc(2026, 7, 15, 9),
+      documentSha256:
+          '3d1f57c984978ef98a18378c8166c1cb8ede02c03eeb6aee7e2f121dfeee3e56',
+    );
 
 final class _ExternalSyncSpy {
   int calls = 0;
@@ -245,8 +277,12 @@ _ReviewHarness _reviewHarness({
   required ExtractionResult extraction,
   DateTime? sourceDate,
   bool failSave = false,
+  LppEvidenceOwnerKind subject = LppEvidenceOwnerKind.self,
 }) {
-  final persistence = _MemoryLppPersistence(failSave: failSave);
+  final persistence = _MemoryLppPersistence(
+    failSave: failSave,
+    withLocalPartner: subject == LppEvidenceOwnerKind.manualPartner,
+  );
   final coach = _CoachProfileSpy(persistence: persistence);
   final biography = _BiographySpy();
   final externalSync = _ExternalSyncSpy();
@@ -257,6 +293,8 @@ _ReviewHarness _reviewHarness({
     fields: extraction.fields,
     sourceDate: sourceDate,
   ).candidate;
+  final authorization = _reviewAuthorization(subject);
+  final retainedAuthorization = candidate == null ? null : authorization;
   final reviewExtraction = candidate == null
       ? extraction
       : ExtractionResult(
@@ -285,6 +323,7 @@ _ReviewHarness _reviewHarness({
   final scanSessionId = sessions.retainExtraction(
     reviewExtraction,
     lppCandidate: candidate,
+    lppAuthorization: retainedAuthorization,
   );
   late final GoRouter router;
   router = GoRouter(
@@ -296,8 +335,10 @@ _ReviewHarness _reviewHarness({
           scanSessionId: scanSessionId,
           result: reviewExtraction,
           lppCandidate: candidate,
+          lppAuthorization: retainedAuthorization,
           sendScanConfirmation: externalSync.call,
           confidenceScorer: (_) => 42,
+          now: _reviewNow,
         ),
       ),
       GoRoute(
@@ -311,6 +352,13 @@ _ReviewHarness _reviewHarness({
         path: '/home',
         builder: (_, __) => const Scaffold(
           key: Key('lpp_recovery_destination'),
+          body: SizedBox.shrink(),
+        ),
+      ),
+      GoRoute(
+        path: '/scan',
+        builder: (_, __) => const Scaffold(
+          key: Key('lpp_restart_destination'),
           body: SizedBox.shrink(),
         ),
       ),
@@ -346,16 +394,24 @@ _ReviewHarness _reviewHarness({
   );
 }
 
+Future<void> _continueLppSelfGateIfShown(WidgetTester tester) async {
+  await tester.pumpAndSettle();
+  final continueCta = find.byKey(
+    const Key('lpp_acquisition_self_continue'),
+  );
+  if (continueCta.evaluate().isEmpty) return;
+  await tester.tap(continueCta);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 200));
+}
+
 Map<String, dynamic> _strictRoot(_MemoryLppPersistence persistence) {
   final encoded = persistence.answers['_coach_lpp_evidence_v1'];
   expect(encoded, isA<String>());
   return Map<String, dynamic>.from(jsonDecode(encoded as String) as Map);
 }
 
-Future<void> _tapConfirmAndChoose(
-  WidgetTester tester, {
-  required bool manualPartner,
-}) async {
+Future<void> _tapConfirm(WidgetTester tester) async {
   final confirm = find.byKey(const Key('lpp_review_confirm_cta'));
   await tester.scrollUntilVisible(
     confirm,
@@ -369,9 +425,33 @@ Future<void> _tapConfirmAndChoose(
   await tester.pumpAndSettle();
   await tester.tap(confirm);
   await tester.pumpAndSettle();
-  await tester.tap(find.byKey(Key(manualPartner
-      ? 'lpp_review_subject_manual_partner'
-      : 'lpp_review_subject_self')));
+  expect(find.byKey(const Key('lpp_review_subject_self')), findsNothing);
+  expect(
+    find.byKey(const Key('lpp_review_subject_manual_partner')),
+    findsNothing,
+  );
+}
+
+Future<void> _openLppFieldEditor(
+  WidgetTester tester,
+  Key fieldKey,
+) async {
+  final edit = find.byKey(fieldKey);
+  await tester.scrollUntilVisible(
+    edit,
+    300,
+    scrollable: find.byType(Scrollable).first,
+  );
+  for (var attempt = 0; attempt < 3; attempt += 1) {
+    final y = tester.getCenter(edit).dy;
+    if (y >= 120 && y <= 500) break;
+    await tester.drag(
+      find.byType(Scrollable).first,
+      Offset(0, (y < 120 ? 220 : 400) - y),
+    );
+    await tester.pumpAndSettle();
+  }
+  await tester.tap(edit);
   await tester.pumpAndSettle();
 }
 
@@ -515,7 +595,9 @@ void main() {
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_lpp_example_cta')));
-    await tester.pumpAndSettle();
+    await _continueLppSelfGateIfShown(tester);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     final destination = find.byKey(
       const Key('production_lpp_review_destination'),
@@ -586,6 +668,7 @@ void main() {
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
@@ -654,6 +737,7 @@ void main() {
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
@@ -765,6 +849,7 @@ void main() {
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 
@@ -810,6 +895,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 
@@ -903,6 +989,7 @@ Salaire assuré: CHF 92'000
       await tester.pumpWidget(harness.widget);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+      await _continueLppSelfGateIfShown(tester);
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
 
@@ -955,6 +1042,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
@@ -1002,6 +1090,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
@@ -1062,6 +1151,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
@@ -1115,6 +1205,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
@@ -1179,6 +1270,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump(const Duration(seconds: 1));
     expect(
       find.text(
@@ -1188,6 +1280,7 @@ Salaire assuré: CHF 92'000
     );
 
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump(const Duration(seconds: 1));
 
     expect(visionCalls, 2);
@@ -1253,6 +1346,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
@@ -1294,6 +1388,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+    await _continueLppSelfGateIfShown(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
@@ -1502,7 +1597,7 @@ Salaire assuré: CHF 92'000
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    await _tapConfirmAndChoose(tester, manualPartner: false);
+    await _tapConfirm(tester);
 
     expect(harness.persistence.saveCalls, 1);
     expect(harness.coach.acceptLppReviewCalls, 1);
@@ -1563,15 +1658,16 @@ Salaire assuré: CHF 92'000
     final harness = _reviewHarness(
       extraction: _lppExtraction(),
       sourceDate: DateTime.utc(2026, 6, 30),
+      subject: LppEvidenceOwnerKind.manualPartner,
     );
     addTearDown(harness.router.dispose);
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(
+    await _openLppFieldEditor(
+      tester,
       const Key('lpp_review_field_edit_vestedBenefitsCapitalChf'),
-    ));
-    await tester.pumpAndSettle();
+    );
     await tester.enterText(
       find.descendant(
         of: find.byType(AlertDialog),
@@ -1581,7 +1677,7 @@ Salaire assuré: CHF 92'000
     );
     await tester.tap(find.byKey(const Key('lpp_review_edit_validate')));
     await tester.pumpAndSettle();
-    await _tapConfirmAndChoose(tester, manualPartner: true);
+    await _tapConfirm(tester);
 
     expect(harness.persistence.saveCalls, 1);
     expect(harness.coach.acceptLppReviewCalls, 1);
@@ -1636,10 +1732,10 @@ Salaire assuré: CHF 92'000
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(
+    await _openLppFieldEditor(
+      tester,
       const Key('lpp_review_field_edit_vestedBenefitsCapitalChf'),
-    ));
-    await tester.pumpAndSettle();
+    );
     await tester.enterText(
       find.descendant(
         of: find.byType(AlertDialog),
@@ -1688,7 +1784,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('lpp_review_balance_error')), findsNothing);
-    await _tapConfirmAndChoose(tester, manualPartner: false);
+    await _tapConfirm(tester);
     expect(harness.persistence.saveCalls, 1);
     expect(harness.coach.acceptLppReviewCalls, 1);
     expect(find.byKey(const Key('lpp_impact_destination')), findsOneWidget);
@@ -1736,7 +1832,7 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
     await _enterLppSourceDate(tester, '2026-06-30');
-    await _tapConfirmAndChoose(tester, manualPartner: false);
+    await _tapConfirm(tester);
 
     expect(harness.persistence.saveCalls, 1);
     final fact = _strictRoot(harness.persistence)['self']['facts']
@@ -1775,10 +1871,10 @@ Salaire assuré: CHF 92'000
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(
+    await _openLppFieldEditor(
+      tester,
       const Key('lpp_review_field_edit_vestedBenefitsCapitalChf'),
-    ));
-    await tester.pumpAndSettle();
+    );
     await tester.enterText(
       find.descendant(
         of: find.byType(AlertDialog),
@@ -1789,7 +1885,7 @@ Salaire assuré: CHF 92'000
     await tester.tap(find.byKey(const Key('lpp_review_edit_validate')));
     await tester.pumpAndSettle();
     await _enterLppSourceDate(tester, '2026-06-30');
-    await _tapConfirmAndChoose(tester, manualPartner: false);
+    await _tapConfirm(tester);
 
     final facts = _strictRoot(harness.persistence)['self']['facts'];
     expect(
@@ -1846,13 +1942,13 @@ Salaire assuré: CHF 92'000
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(
+    await _openLppFieldEditor(
+      tester,
       const Key('lpp_review_field_edit_vestedBenefitsCapitalChf'),
-    ));
-    await tester.pumpAndSettle();
+    );
     await tester.tap(find.byKey(const Key('lpp_review_edit_validate')));
     await tester.pumpAndSettle();
-    await _tapConfirmAndChoose(tester, manualPartner: false);
+    await _tapConfirm(tester);
 
     expect(harness.persistence.saveCalls, 1);
     expect(harness.coach.acceptLppReviewCalls, 1);
@@ -1884,7 +1980,7 @@ Salaire assuré: CHF 92'000
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    await _tapConfirmAndChoose(tester, manualPartner: false);
+    await _tapConfirm(tester);
 
     expect(harness.persistence.saveCalls, 0);
     expect(harness.coach.acceptLppReviewCalls, 0);
@@ -1913,12 +2009,12 @@ Salaire assuré: CHF 92'000
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(const Key(
+    await _openLppFieldEditor(
+      tester,
+      const Key(
         'lpp_review_field_edit_extraMandatoryVestedBenefitsCapitalChf',
-      )),
+      ),
     );
-    await tester.pumpAndSettle();
     await tester.enterText(
       find.descendant(
         of: find.byType(AlertDialog),
@@ -1928,7 +2024,7 @@ Salaire assuré: CHF 92'000
     );
     await tester.tap(find.byKey(const Key('lpp_review_edit_validate')));
     await tester.pumpAndSettle();
-    await _tapConfirmAndChoose(tester, manualPartner: false);
+    await _tapConfirm(tester);
 
     expect(harness.persistence.saveCalls, 1);
     expect(harness.coach.acceptLppReviewCalls, 1);
@@ -2053,7 +2149,7 @@ Salaire assuré: CHF 92'000
     expect(eventCalls, 0);
   });
 
-  testWidgets('ownership cancel performs no write and re-enables confirmation',
+  testWidgets('review owner is immutable and restart performs no write',
       (tester) async {
     FeatureFlags.typedLppEvidence = true;
     FeatureFlags.documentLppEvidenceEnabled = true;
@@ -2065,22 +2161,22 @@ Salaire assuré: CHF 92'000
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    final confirm = find.byKey(const Key('lpp_review_confirm_cta'));
-    await tester.scrollUntilVisible(
-      confirm,
-      400,
-      scrollable: find.byType(Scrollable).first,
+    expect(find.byKey(const Key('lpp_review_owner_badge')), findsOneWidget);
+    expect(find.byKey(const Key('lpp_review_subject_self')), findsNothing);
+    expect(
+      find.byKey(const Key('lpp_review_subject_manual_partner')),
+      findsNothing,
     );
-    await tester.tap(confirm);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('lpp_review_subject_cancel')));
+    await tester.tap(
+      find.byKey(const Key('lpp_review_restart_owner_cta')),
+    );
     await tester.pumpAndSettle();
 
     expect(harness.persistence.saveCalls, 0);
     expect(harness.coach.acceptLppReviewCalls, 0);
     expect(find.byKey(const Key('lpp_impact_destination')), findsNothing);
-    final button = tester.widget<FilledButton>(confirm);
-    expect(button.onPressed, isNotNull);
+    expect(find.byKey(const Key('lpp_restart_destination')), findsOneWidget);
+    expect(harness.scanSessions.byId(harness.scanSessionId), isNull);
   });
 
   testWidgets(
@@ -2208,11 +2304,12 @@ Salaire assuré: CHF 92'000
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    await _tapConfirmAndChoose(tester, manualPartner: false);
+    await _tapConfirm(tester);
 
     expect(harness.persistence.saveCalls, 1);
     expect(harness.coach.acceptLppReviewCalls, 1);
-    expect(harness.persistence.answers, isEmpty);
+    expect(harness.persistence.answers['_coach_lpp_evidence_v1'], isNull);
+    expect(harness.persistence.answers['q_birth_year'], 1980);
     expect(find.byKey(const Key('lpp_review_confirm_cta')), findsOneWidget);
     expect(find.byKey(const Key('lpp_impact_destination')), findsNothing);
     expect(harness.biography.addFactCalls, 0);

@@ -23890,4 +23890,52 @@ class SFr extends S {
 
   @override
   String get confidencePromptAccuracyEstimated => 'Saisis ta valeur réelle.';
+
+  @override
+  String get lppAcquisitionSelfTitle => 'Ce certificat LPP est-il le tien ?';
+
+  @override
+  String get lppAcquisitionSelfBody =>
+      'MINT va lire ce document pour t\'aider à vérifier les chiffres de ta prévoyance.';
+
+  @override
+  String get lppAcquisitionSelfContinue => 'Continuer avec mon certificat';
+
+  @override
+  String get lppAcquisitionOwnerTitle => 'À qui appartient ce certificat LPP ?';
+
+  @override
+  String get lppAcquisitionOwnerSelf => 'À moi';
+
+  @override
+  String get lppAcquisitionOwnerPartner => 'À mon/ma partenaire';
+
+  @override
+  String get lppAcquisitionPartnerAttestationTitle =>
+      'Avant de traiter ce certificat';
+
+  @override
+  String get lppAcquisitionPartnerAttestationBody =>
+      'Je confirme que mon/ma partenaire m\'a autorisé·e à utiliser ce certificat dans MINT et a été informé·e qu\'il sera lu ponctuellement par Anthropic aux États-Unis. Seuls les chiffres que je confirme seront conservés chiffrés sur cet appareil. Le document brut ne sera pas conservé. Cette action ne relie aucun compte.';
+
+  @override
+  String get lppAcquisitionSyntheticPartnerAttestationBody =>
+      'Cet exemple est entièrement synthétique et reste sur cet appareil. Je confirme utiliser le scénario partenaire uniquement pour vérifier le parcours MINT ; aucun document personnel ni aucune donnée ne quitte cet appareil.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationNote =>
+      'MINT aide à comprendre ces chiffres. Cela ne constitue pas un conseil financier personnalisé.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationConfirm =>
+      'Je confirme et continue';
+
+  @override
+  String get lppReviewOwnerSelf => 'Mon certificat';
+
+  @override
+  String get lppReviewOwnerPartner => 'Certificat de mon/ma partenaire';
+
+  @override
+  String get lppReviewOwnerRestart => 'Recommencer avec un autre propriétaire';
 }

@@ -60,6 +60,7 @@ import 'package:uuid/uuid.dart';
 
 typedef DocumentScanFilePicker = Future<PlatformFile?> Function();
 typedef DocumentScanFileBytesReader = Future<Uint8List> Function(String path);
+typedef DocumentScanDocumentHasher = String Function(Uint8List bytes);
 
 typedef DocumentScanConsentRequester = Future<bool> Function(
   BuildContext context,
@@ -78,11 +79,63 @@ typedef DocumentScanPdfUploader = Future<DocumentUploadResult> Function(
   required VaultDocumentType type,
 });
 
+final class _LppAcquisitionDecision {
+  const _LppAcquisitionDecision({
+    required this.acquisitionId,
+    required this.subject,
+    required this.partnerAttested,
+    required this.policyVersion,
+    required this.declaredAt,
+  });
+
+  final String acquisitionId;
+  final LppEvidenceOwnerKind subject;
+  final bool partnerAttested;
+  final String policyVersion;
+  final DateTime declaredAt;
+
+  bool isValidAt(DateTime now) => LppAcquisitionAuthorization.hasValidEnvelope(
+        acquisitionId: acquisitionId,
+        subject: subject,
+        partnerAttested: partnerAttested,
+        policyVersion: policyVersion,
+        declaredAt: declaredAt,
+        now: now,
+      );
+
+  LppAcquisitionAuthorization bindDocument(
+    Uint8List transmittedBytes,
+    DocumentScanDocumentHasher hashDocumentBytes,
+  ) {
+    return LppAcquisitionAuthorization(
+      acquisitionId: acquisitionId,
+      subject: subject,
+      partnerAttested: partnerAttested,
+      policyVersion: policyVersion,
+      declaredAt: declaredAt,
+      documentSha256: hashDocumentBytes(transmittedBytes),
+    );
+  }
+}
+
+final class _DocumentVisionResult {
+  const _DocumentVisionResult({
+    required this.extraction,
+    this.lppAuthorization,
+  });
+
+  final ExtractionResult extraction;
+  final LppAcquisitionAuthorization? lppAuthorization;
+}
+
 class DocumentScanScreen extends StatefulWidget {
   final DocumentType? initialType;
   final String Function()? taxSnapshotIdFactory;
   final DocumentScanFilePicker? pickFile;
   final DocumentScanFileBytesReader? readFileBytes;
+  final String Function()? lppAcquisitionIdFactory;
+  final DateTime Function()? now;
+  final DocumentScanDocumentHasher? hashDocumentBytes;
   final DocumentScanConsentRequester? requireConsent;
   final DocumentScanVisionExtractor? visionExtractor;
   final DocumentScanPdfUploader? uploadDocument;
@@ -93,6 +146,9 @@ class DocumentScanScreen extends StatefulWidget {
     this.taxSnapshotIdFactory,
     this.pickFile,
     this.readFileBytes,
+    this.lppAcquisitionIdFactory,
+    this.now,
+    this.hashDocumentBytes,
     this.requireConsent,
     this.visionExtractor,
     this.uploadDocument,
@@ -127,6 +183,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   bool _isProcessing = false;
   String? _preValidationError;
   String? _preValidationHint;
+  final Set<String> _ownedTempPaths = <String>{};
 
   bool get _taxAssessmentEnabled => FeatureFlags.taxAssessmentIngestionEnabled;
   bool get _lppEvidenceEnabled => FeatureFlags.lppEvidenceIngestionEnabled;
@@ -150,10 +207,179 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    for (final path in _ownedTempPaths.toList(growable: false)) {
+      _cleanupTempFile(path);
+    }
+    super.dispose();
+  }
+
+  DateTime _currentTime() => (widget.now ?? DateTime.now)().toUtc();
+
+  bool get _lppAcquisitionStillEnabled =>
+      _selectedType != DocumentType.lppCertificate ||
+      FeatureFlags.lppEvidenceIngestionEnabled;
+
+  Future<_LppAcquisitionDecision?> _authorizeLppBeforeAcquisition({
+    bool syntheticLocal = false,
+  }) async {
+    if (_selectedType != DocumentType.lppCertificate ||
+        !FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.documentLppEvidenceEnabled) {
+      return null;
+    }
+
+    final l10n = S.of(context)!;
+    final hasLocalPartnerProfile =
+        context.read<CoachProfileProvider>().profile?.conjoint != null;
+    final LppEvidenceOwnerKind? subject;
+    if (!hasLocalPartnerProfile) {
+      subject = await showDialog<LppEvidenceOwnerKind>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => AlertDialog(
+          key: const Key('lpp_acquisition_self_gate'),
+          title: Text(l10n.lppAcquisitionSelfTitle),
+          content: Text(l10n.lppAcquisitionSelfBody),
+          actions: [
+            TextButton(
+              key: const Key('lpp_acquisition_cancel'),
+              onPressed: () => dialogContext.pop(),
+              child: Text(l10n.documentScanCancel),
+            ),
+            FilledButton(
+              key: const Key('lpp_acquisition_self_continue'),
+              onPressed: () => dialogContext.pop(LppEvidenceOwnerKind.self),
+              child: Text(l10n.lppAcquisitionSelfContinue),
+            ),
+          ],
+        ),
+      );
+    } else {
+      subject = await showDialog<LppEvidenceOwnerKind>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => AlertDialog(
+          key: const Key('lpp_acquisition_owner_gate'),
+          title: Text(l10n.lppAcquisitionOwnerTitle),
+          actions: [
+            TextButton(
+              key: const Key('lpp_acquisition_cancel'),
+              onPressed: () => dialogContext.pop(),
+              child: Text(l10n.documentScanCancel),
+            ),
+            OutlinedButton(
+              key: const Key('lpp_acquisition_owner_self'),
+              onPressed: () => dialogContext.pop(LppEvidenceOwnerKind.self),
+              child: Text(l10n.lppAcquisitionOwnerSelf),
+            ),
+            FilledButton(
+              key: const Key('lpp_acquisition_owner_manual_partner'),
+              onPressed: () =>
+                  dialogContext.pop(LppEvidenceOwnerKind.manualPartner),
+              child: Text(l10n.lppAcquisitionOwnerPartner),
+            ),
+          ],
+        ),
+      );
+    }
+    if (subject == null || !mounted || !_lppAcquisitionStillEnabled) {
+      return null;
+    }
+
+    var partnerAttested = false;
+    if (subject == LppEvidenceOwnerKind.manualPartner) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => AlertDialog(
+          key: const Key('lpp_acquisition_partner_attestation'),
+          title: Text(l10n.lppAcquisitionPartnerAttestationTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                syntheticLocal
+                    ? l10n.lppAcquisitionSyntheticPartnerAttestationBody
+                    : l10n.lppAcquisitionPartnerAttestationBody,
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                l10n.lppAcquisitionPartnerAttestationNote,
+                style:
+                    MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              key: const Key('lpp_acquisition_cancel'),
+              onPressed: () => dialogContext.pop(false),
+              child: Text(l10n.documentScanCancel),
+            ),
+            FilledButton(
+              key: const Key('lpp_acquisition_partner_attest_confirm'),
+              onPressed: () => dialogContext.pop(true),
+              child: Text(l10n.lppAcquisitionPartnerAttestationConfirm),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted || !_lppAcquisitionStillEnabled) {
+        return null;
+      }
+      partnerAttested = true;
+    }
+
+    if (!_lppAcquisitionStillEnabled) return null;
+
+    final decision = _LppAcquisitionDecision(
+      acquisitionId: (widget.lppAcquisitionIdFactory ?? const Uuid().v4)(),
+      subject: subject,
+      partnerAttested: partnerAttested,
+      policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
+      declaredAt: _currentTime(),
+    );
+    return _lppAcquisitionStillEnabled && decision.isValidAt(_currentTime())
+        ? decision
+        : null;
+  }
+
+  Future<bool> _requestAcquisitionConsent() {
+    final purposes = _selectedType == DocumentType.lppCertificate
+        ? const [
+            ConsentPurpose.visionExtraction,
+            ConsentPurpose.transferUsAnthropic,
+          ]
+        : const [
+            ConsentPurpose.visionExtraction,
+            ConsentPurpose.persistence365d,
+            ConsentPurpose.transferUsAnthropic,
+          ];
+    final requester = widget.requireConsent;
+    return requester != null
+        ? requester(context, purposes)
+        : ConsentService().requireGrantedOrPrompt(context, purposes);
+  }
+
+  LppAcquisitionAuthorization? _bindLppAuthorization(
+    _LppAcquisitionDecision decision,
+    Uint8List transmittedBytes,
+  ) {
+    final authorization = decision.bindDocument(
+      transmittedBytes,
+      widget.hashDocumentBytes ?? LppAcquisitionAuthorization.sha256Hex,
+    );
+    return authorization.isValidAt(_currentTime()) ? authorization : null;
+  }
+
   Future<void> _openReview(
     ExtractionResult extraction, {
     TaxExtractionCandidate? taxCandidate,
     LppAcquisitionSource? lppSource,
+    LppAcquisitionAuthorization? lppAuthorization,
   }) async {
     if (extraction.documentType == DocumentType.lppCertificate &&
         !FeatureFlags.lppEvidenceIngestionEnabled) {
@@ -162,7 +388,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     LppExtractionCandidate? lppCandidate;
     var reviewExtraction = extraction;
     if (extraction.documentType == DocumentType.lppCertificate) {
-      if (lppSource == null) return;
+      if (lppSource == null ||
+          lppAuthorization == null ||
+          !lppAuthorization.isValidAt(_currentTime())) {
+        return;
+      }
       final adaptation = LppExtractionAdapter.adapt(
         source: lppSource,
         sourceOverallConfidence: extraction.overallConfidence,
@@ -186,6 +416,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final scanSessionId = context.read<ScanSessionProvider>().retainExtraction(
           reviewExtraction,
           lppCandidate: lppCandidate,
+          lppAuthorization: lppAuthorization,
           taxCandidate: taxCandidate,
         );
     await context.push(
@@ -266,9 +497,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                               _buildPreValidationError(),
                             ],
                             const SizedBox(height: 12),
-                            MintEntrance(
+                            if (_selectedType != DocumentType.lppCertificate)
+                              MintEntrance(
                                 delay: const Duration(milliseconds: 400),
-                                child: _buildPasteTextButton()),
+                                child: _buildPasteTextButton(),
+                              ),
                             if (kDebugMode) ...[
                               const SizedBox(height: 12),
                               _buildDebugExampleButton(),
@@ -666,31 +899,20 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
-    // v2.7 Phase 29 / PRIV-01 — granular consent gate (nLPD art. 6 al. 6).
-    final purposes = _selectedType == DocumentType.lppCertificate
-        ? const [
-            ConsentPurpose.visionExtraction,
-            ConsentPurpose.transferUsAnthropic,
-          ]
-        : const [
-            ConsentPurpose.visionExtraction,
-            ConsentPurpose.persistence365d,
-            ConsentPurpose.transferUsAnthropic,
-          ];
-    final requester = widget.requireConsent;
-    final Future<bool> consent;
-    if (requester != null) {
-      consent = requester(context, purposes);
-    } else {
-      consent = ConsentService().requireGrantedOrPrompt(context, purposes);
+    final lppDecision = _selectedType == DocumentType.lppCertificate
+        ? await _authorizeLppBeforeAcquisition()
+        : null;
+    if (_selectedType == DocumentType.lppCertificate && lppDecision == null) {
+      return;
     }
-    final granted = await consent;
-    if (!granted) return;
-    if (!mounted) return;
+    if (!_lppAcquisitionStillEnabled) return;
+    if (!await _requestAcquisitionConsent()) return;
+    if (!mounted || !_lppAcquisitionStillEnabled) return;
 
     // Web/desktop have no native scanner — degrade gracefully to gallery upload.
     if (!NativeDocumentScanner.isAvailable) {
-      await (_onGalleryPressed)();
+      if (!_lppAcquisitionStillEnabled) return;
+      await _pickFromGalleryAfterGates(lppDecision);
       return;
     }
 
@@ -698,13 +920,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       // Phase 28-03 — VisionKit (iOS) / ML Kit Document Scanner (Android).
       // Auto crop + deskew + shadow removal happen client-side, gratis,
       // offline. Multi-page natively supported (capped at 5 here).
+      if (!_lppAcquisitionStillEnabled) return;
       final pages = await NativeDocumentScanner.scan(maxPages: 5);
+      if (!_lppAcquisitionStillEnabled) return;
       if (pages == null || pages.isEmpty) return; // user cancelled
       // Pipeline today consumes one page at a time; we ship the first page
       // and queue the rest for the streaming flow in 28-04.
       final firstFile = await _materializeBytesAsXFile(pages.first);
       final processImageFile = _processImageFile;
-      await processImageFile(firstFile);
+      await processImageFile(firstFile, lppDecision: lppDecision);
     } on DocumentScannerException catch (e) {
       debugPrint('[DocumentScan] Scanner error: ${e.code}');
       if (!mounted) return;
@@ -722,8 +946,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final tmpDir = await getTemporaryDirectory();
     final path =
         '${tmpDir.path}/mint_scan_${DateTime.now().microsecondsSinceEpoch}.jpg';
-    await File(path).writeAsBytes(bytes, flush: true);
-    return XFile(path);
+    _ownedTempPaths.add(path);
+    try {
+      await File(path).writeAsBytes(bytes, flush: true);
+      return XFile(path);
+    } catch (_) {
+      _cleanupTempFile(path);
+      rethrow;
+    }
   }
 
   Future<void> _onGalleryPressed() async {
@@ -731,32 +961,23 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
-    // v2.7 Phase 29 / PRIV-01 — granular consent gate (nLPD art. 6 al. 6).
-    // Guarded here too because _onGalleryPressed is sometimes called directly
-    // (from _onCameraPressed fallback path). requireGrantedOrPrompt is a no-op
-    // when all required purposes are already granted at the current policy
-    // version, so the double-check has zero UX cost.
-    final purposes = _selectedType == DocumentType.lppCertificate
-        ? const [
-            ConsentPurpose.visionExtraction,
-            ConsentPurpose.transferUsAnthropic,
-          ]
-        : const [
-            ConsentPurpose.visionExtraction,
-            ConsentPurpose.persistence365d,
-            ConsentPurpose.transferUsAnthropic,
-          ];
-    final requester = widget.requireConsent;
-    final Future<bool> consent;
-    if (requester != null) {
-      consent = requester(context, purposes);
-    } else {
-      consent = ConsentService().requireGrantedOrPrompt(context, purposes);
+    final lppDecision = _selectedType == DocumentType.lppCertificate
+        ? await _authorizeLppBeforeAcquisition()
+        : null;
+    if (_selectedType == DocumentType.lppCertificate && lppDecision == null) {
+      return;
     }
-    final granted = await consent;
-    if (!granted) return;
-    if (!mounted) return;
+    if (!_lppAcquisitionStillEnabled) return;
+    if (!await _requestAcquisitionConsent()) return;
+    if (!mounted || !_lppAcquisitionStillEnabled) return;
 
+    await _pickFromGalleryAfterGates(lppDecision);
+  }
+
+  Future<void> _pickFromGalleryAfterGates(
+    _LppAcquisitionDecision? lppDecision,
+  ) async {
+    if (!_lppAcquisitionStillEnabled) return;
     try {
       final allowedExtensions = <String>[
         'jpg',
@@ -768,6 +989,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       ];
       final injectedPicker = widget.pickFile;
       final PlatformFile? file;
+      if (!_lppAcquisitionStillEnabled) return;
       if (injectedPicker != null) {
         file = await injectedPicker();
       } else {
@@ -781,38 +1003,54 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         file =
             picked == null || picked.files.isEmpty ? null : picked.files.first;
       }
-      if (file == null) return;
+      if (file == null || !_lppAcquisitionStillEnabled) return;
       final ext = _detectExtension(file);
 
       if (ext == 'txt') {
-        final text = await _readTextFile(file);
+        if (!_lppAcquisitionStillEnabled) return;
+        final exactBytes = await _readPlatformFileBytes(file);
+        final text = exactBytes == null ? '' : utf8.decode(exactBytes);
         if (text.trim().isEmpty) {
           if (!mounted) return;
           _showErrorSnack(S.of(context)!.docScanEmptyTextFile);
           return;
         }
-        await _processOcrText(text);
+        await _processOcrText(
+          text,
+          lppDecision: lppDecision,
+          exactDocumentBytes: exactBytes,
+        );
         return;
       }
 
       if (ext == 'pdf') {
+        if (!_lppAcquisitionStillEnabled) return;
         final handlePdfImport = _handlePdfImport;
-        await handlePdfImport(file, ext: ext);
+        await handlePdfImport(
+          file,
+          ext: ext,
+          lppDecision: lppDecision,
+        );
         return;
       }
 
+      if (!_lppAcquisitionStillEnabled) return;
       final localPath = await _resolveLocalPath(file, ext: ext);
       if (localPath == null || localPath.isEmpty) {
         if (!mounted) return;
         await _showOcrRecoverySheet(
           title: S.of(context)!.docScanFileUnreadableTitle,
           message: S.of(context)!.docScanFileUnreadableMessage,
+          lppDecision: lppDecision,
         );
         return;
       }
 
       final processImageFile = _processImageFile;
-      await processImageFile(XFile(localPath));
+      await processImageFile(
+        XFile(localPath),
+        lppDecision: lppDecision,
+      );
     } catch (e) {
       debugPrint('[DocumentScan] Import error: $e');
       if (!mounted) return;
@@ -822,13 +1060,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onPasteTextPressed() async {
     if (!_isSupportedType(_selectedType)) return;
+    if (_selectedType == DocumentType.lppCertificate) return;
     if (_selectedType == DocumentType.taxDeclaration &&
         !_taxAssessmentEnabled) {
       return;
     }
+    if (!mounted) return;
+    final l10n = S.of(context)!;
     await _requestManualOcrText(
-      title: S.of(context)!.documentScanOcrTitle,
-      hint: S.of(context)!.documentScanOcrHint,
+      title: l10n.documentScanOcrTitle,
+      hint: l10n.documentScanOcrHint,
     );
   }
 
@@ -838,12 +1079,38 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         !_taxAssessmentEnabled) {
       return;
     }
-    await _processOcrText(_sampleTextForType(_selectedType));
+    final lppDecision = _selectedType == DocumentType.lppCertificate
+        ? await _authorizeLppBeforeAcquisition(syntheticLocal: true)
+        : null;
+    if (_selectedType == DocumentType.lppCertificate && lppDecision == null) {
+      return;
+    }
+    if (!_lppAcquisitionStillEnabled) return;
+    final text = _sampleTextForType(_selectedType);
+    await _processOcrText(
+      text,
+      lppDecision: lppDecision,
+      exactDocumentBytes: Uint8List.fromList(utf8.encode(text)),
+    );
   }
 
-  Future<void> _processImageFile(XFile file) async {
-    if (!_isSupportedType(_selectedType)) return;
+  Future<void> _processImageFile(
+    XFile file, {
+    _LppAcquisitionDecision? lppDecision,
+  }) async {
+    if (!_isSupportedType(_selectedType)) {
+      _cleanupTempFile(file.path);
+      return;
+    }
     if (_selectedType == DocumentType.taxDeclaration) {
+      return;
+    }
+    if (_selectedType == DocumentType.lppCertificate && lppDecision == null) {
+      _cleanupTempFile(file.path);
+      return;
+    }
+    if (!_lppAcquisitionStillEnabled) {
+      _cleanupTempFile(file.path);
       return;
     }
     // Client-side file validation: size and format checks.
@@ -852,6 +1119,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (fileObj.existsSync()) {
         final fileSize = fileObj.lengthSync();
         if (fileSize > _maxFileSizeBytes) {
+          _cleanupTempFile(file.path);
           if (!mounted) return;
           setState(() {
             _preValidationError = S.of(context)!.docFileTooLarge;
@@ -862,6 +1130,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }
       final ext = file.path.split('.').last.toLowerCase();
       if (!_acceptedExtensions.contains(ext)) {
+        _cleanupTempFile(file.path);
         if (!mounted) return;
         setState(() {
           _preValidationError = S.of(context)!.docWrongFormat;
@@ -878,8 +1147,20 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (!kIsWeb) {
       try {
         final classifier = imageClassifierOverride ?? LocalImageClassifier();
+        if (!_lppAcquisitionStillEnabled) {
+          _cleanupTempFile(file.path);
+          return;
+        }
         final bytes = await _readFileBytes(file.path);
+        if (!_lppAcquisitionStillEnabled) {
+          _cleanupTempFile(file.path);
+          return;
+        }
         final decision = await classifier.shouldRejectAsNonFinancial(bytes);
+        if (!_lppAcquisitionStillEnabled) {
+          _cleanupTempFile(file.path);
+          return;
+        }
         if (decision.reject) {
           if (!mounted) return;
           setState(() {
@@ -903,13 +1184,18 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     try {
       // Strategy: Claude Vision (backend) FIRST, MLKit OCR as fallback.
       // Vision understands Swiss document context, OCR only reads text.
-      final visionResult = await _tryVisionExtraction(file);
+      final visionResult = await _tryVisionExtraction(
+        file,
+        lppDecision: lppDecision,
+      );
+      if (!_lppAcquisitionStillEnabled) return;
       if (visionResult != null && mounted) {
         await _openReview(
-          visionResult,
+          visionResult.extraction,
           lppSource: _selectedType == DocumentType.lppCertificate
               ? LppAcquisitionSource.backendVision
               : null,
+          lppAuthorization: visionResult.lppAuthorization,
         );
         return;
       }
@@ -931,17 +1217,23 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           title: S.of(context)!.docScanOcrNotDetectedTitle,
           message: S.of(context)!.docScanOcrNotDetectedMessage,
           imageFile: file,
+          lppDecision: lppDecision,
         );
         return;
       }
 
-      await _processOcrText(extractedText);
+      await _processOcrText(
+        extractedText,
+        lppDecision: lppDecision,
+        exactDocumentBytes: Uint8List.fromList(utf8.encode(extractedText)),
+      );
     } catch (_) {
       if (!mounted) return;
       await _showOcrRecoverySheet(
         title: S.of(context)!.docScanPhotoAnalysisTitle,
         message: S.of(context)!.docScanPhotoAnalysisMessage,
         imageFile: file,
+        lppDecision: lppDecision,
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -951,18 +1243,35 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   /// Try Claude Vision extraction via backend API.
   /// Returns ExtractionResult if successful, null otherwise.
-  Future<ExtractionResult?> _tryVisionExtraction(XFile file) async {
+  Future<_DocumentVisionResult?> _tryVisionExtraction(
+    XFile file, {
+    _LppAcquisitionDecision? lppDecision,
+  }) async {
     if (!_isSupportedType(_selectedType)) return null;
+    if (_selectedType == DocumentType.lppCertificate && lppDecision == null) {
+      return null;
+    }
+    if (!_lppAcquisitionStillEnabled) return null;
     // Read context-dependent values BEFORE async gap
     final canton = Provider.of<CoachProfileProvider>(context, listen: false)
         .profile
         ?.canton;
     final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
+      if (!_lppAcquisitionStillEnabled) return null;
       final rawBytes = await _readFileBytes(file.path);
+      if (!_lppAcquisitionStillEnabled) return null;
       // TODO(P2-W12): Strip EXIF metadata before Vision API call.
       // Requires `image` package. GPS location and camera info currently exposed.
       final bytes = await _compressForVision(rawBytes, file.path);
+      if (!_lppAcquisitionStillEnabled) return null;
+      final lppAuthorization = lppDecision == null
+          ? null
+          : _bindLppAuthorization(lppDecision, bytes);
+      if (_selectedType == DocumentType.lppCertificate &&
+          lppAuthorization == null) {
+        return null;
+      }
       final base64Image = base64Encode(bytes);
 
       final extractor = widget.visionExtractor ??
@@ -978,6 +1287,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 canton: canton,
                 languageHint: languageHint,
               );
+      if (!_lppAcquisitionStillEnabled) return null;
       final response = await extractor(
         imageBase64: base64Image,
         // Convert camelCase enum to snake_case for backend contract.
@@ -1023,22 +1333,25 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       if (extractedFields == null || extractedFields.isEmpty) return null;
 
-      return ExtractionResult(
-        documentType: _selectedType,
-        fields: extractedFields,
-        overallConfidence: lppOverallConfidence ??
-            (response['overallConfidence'] as num?)?.toDouble() ??
-            0.5,
-        confidenceDelta: (_confidenceDeltaForType)(_selectedType),
-        warnings: const [],
-        disclaimer: visionDisclaimer,
-        sources: const ['Claude Vision API'],
-        planType: response['planType'] as String?,
-        planTypeWarning: response['planTypeWarning'] as String?,
-        coherenceWarnings: (response['coherenceWarnings'] as List?)
-                ?.map((e) => e.toString())
-                .toList() ??
-            const [],
+      return _DocumentVisionResult(
+        extraction: ExtractionResult(
+          documentType: _selectedType,
+          fields: extractedFields,
+          overallConfidence: lppOverallConfidence ??
+              (response['overallConfidence'] as num?)?.toDouble() ??
+              0.5,
+          confidenceDelta: (_confidenceDeltaForType)(_selectedType),
+          warnings: const [],
+          disclaimer: visionDisclaimer,
+          sources: const ['Claude Vision API'],
+          planType: response['planType'] as String?,
+          planTypeWarning: response['planTypeWarning'] as String?,
+          coherenceWarnings: (response['coherenceWarnings'] as List?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              const [],
+        ),
+        lppAuthorization: lppAuthorization,
       );
     } on DocumentServiceException catch (e) {
       debugPrint(
@@ -1069,15 +1382,31 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   /// Vision API fallback for PDF files when backend Docling fails.
   /// Reads PDF bytes, encodes to base64, and calls Claude Vision extraction.
-  Future<ExtractionResult?> _tryVisionExtractionFromPdf(String pdfPath) async {
+  Future<_DocumentVisionResult?> _tryVisionExtractionFromPdf(
+    String pdfPath, {
+    _LppAcquisitionDecision? lppDecision,
+  }) async {
     if (!_isSupportedType(_selectedType)) return null;
+    if (_selectedType == DocumentType.lppCertificate && lppDecision == null) {
+      return null;
+    }
+    if (!_lppAcquisitionStillEnabled) return null;
     // Read context-dependent values BEFORE async gap
     final canton = Provider.of<CoachProfileProvider>(context, listen: false)
         .profile
         ?.canton;
     final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
+      if (!_lppAcquisitionStillEnabled) return null;
       final bytes = await _readFileBytes(pdfPath);
+      if (!_lppAcquisitionStillEnabled) return null;
+      final lppAuthorization = lppDecision == null
+          ? null
+          : _bindLppAuthorization(lppDecision, bytes);
+      if (_selectedType == DocumentType.lppCertificate &&
+          lppAuthorization == null) {
+        return null;
+      }
       final base64Pdf = base64Encode(bytes);
 
       final extractor = widget.visionExtractor ??
@@ -1093,6 +1422,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 canton: canton,
                 languageHint: languageHint,
               );
+      if (!_lppAcquisitionStillEnabled) return null;
       final response = await extractor(
         imageBase64: base64Pdf,
         documentType: _selectedType.name.replaceAllMapped(
@@ -1137,22 +1467,25 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       if (extractedFields == null || extractedFields.isEmpty) return null;
 
-      return ExtractionResult(
-        documentType: _selectedType,
-        fields: extractedFields,
-        overallConfidence: lppOverallConfidence ??
-            (response['overallConfidence'] as num?)?.toDouble() ??
-            0.5,
-        confidenceDelta: (_confidenceDeltaForType)(_selectedType),
-        warnings: const [],
-        disclaimer: visionDisclaimer,
-        sources: const ['Claude Vision API (PDF)'],
-        planType: response['planType'] as String?,
-        planTypeWarning: response['planTypeWarning'] as String?,
-        coherenceWarnings: (response['coherenceWarnings'] as List?)
-                ?.map((e) => e.toString())
-                .toList() ??
-            const [],
+      return _DocumentVisionResult(
+        extraction: ExtractionResult(
+          documentType: _selectedType,
+          fields: extractedFields,
+          overallConfidence: lppOverallConfidence ??
+              (response['overallConfidence'] as num?)?.toDouble() ??
+              0.5,
+          confidenceDelta: (_confidenceDeltaForType)(_selectedType),
+          warnings: const [],
+          disclaimer: visionDisclaimer,
+          sources: const ['Claude Vision API (PDF)'],
+          planType: response['planType'] as String?,
+          planTypeWarning: response['planTypeWarning'] as String?,
+          coherenceWarnings: (response['coherenceWarnings'] as List?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              const [],
+        ),
+        lppAuthorization: lppAuthorization,
       );
     } on DocumentServiceException catch (e) {
       debugPrint(
@@ -1172,6 +1505,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<Uint8List> _readFileBytes(String path) {
+    if (!_lppAcquisitionStillEnabled) {
+      throw StateError('LPP acquisition disabled before reading bytes');
+    }
     final reader = widget.readFileBytes;
     if (reader != null) return reader(path);
     return File(path).readAsBytes();
@@ -1212,11 +1548,25 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     };
   }
 
-  Future<void> _processOcrText(String text) async {
+  Future<void> _processOcrText(
+    String text, {
+    _LppAcquisitionDecision? lppDecision,
+    Uint8List? exactDocumentBytes,
+  }) async {
     if (!_isSupportedType(_selectedType)) return;
     if (!mounted) return;
     if (_selectedType == DocumentType.taxDeclaration &&
         !_taxAssessmentEnabled) {
+      return;
+    }
+    if (!_lppAcquisitionStillEnabled) return;
+    final lppAuthorization = _selectedType == DocumentType.lppCertificate &&
+            lppDecision != null &&
+            exactDocumentBytes != null
+        ? _bindLppAuthorization(lppDecision, exactDocumentBytes)
+        : null;
+    if (_selectedType == DocumentType.lppCertificate &&
+        lppAuthorization == null) {
       return;
     }
 
@@ -1228,6 +1578,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           title: S.of(context)!.docScanNoFieldRecognized,
           hint: S.of(context)!.docScanNoFieldHint,
           initialText: text,
+          lppDecision: lppDecision,
         );
         return;
       }
@@ -1239,6 +1590,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         lppSource: _selectedType == DocumentType.lppCertificate
             ? LppAcquisitionSource.localParser
             : null,
+        lppAuthorization: lppAuthorization,
       );
     } catch (e) {
       debugPrint('[DocumentScan] Parsing error: $e');
@@ -1253,85 +1605,49 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     required String title,
     required String hint,
     String? initialText,
+    _LppAcquisitionDecision? lppDecision,
   }) async {
-    final controller = TextEditingController(text: initialText ?? '');
+    var authorizedDecision = lppDecision;
+    if (_selectedType == DocumentType.lppCertificate &&
+        authorizedDecision == null) {
+      return;
+    }
+    if (!_lppAcquisitionStillEnabled) return;
+    if (!mounted) return;
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.85;
+    final l10n = S.of(context)!;
 
-    final submitted = await showModalBottomSheet<bool>(
+    final text = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
-      ),
+      constraints: BoxConstraints(maxHeight: maxHeight),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
-      builder: (ctx) {
-        final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
-        return Padding(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, bottomInset + 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
-                    .copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: MintSpacing.sm),
-              Text(
-                hint,
-                style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
-                    .copyWith(height: 1.4),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: controller,
-                maxLines: 8,
-                minLines: 5,
-                decoration: InputDecoration(
-                  hintText: S.of(context)!.docScanOcrPasteHint,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => ctx.pop(false),
-                      child: Text(S.of(context)!.documentScanCancel),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () => ctx.pop(true),
-                      child: Text(S.of(context)!.documentScanAnalyze),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
+      builder: (_) => _ManualOcrTextSheet(
+        title: title,
+        hint: hint,
+        initialText: initialText,
+        pasteHint: l10n.docScanOcrPasteHint,
+        cancelLabel: l10n.documentScanCancel,
+        analyzeLabel: l10n.documentScanAnalyze,
+      ),
     );
 
-    final text = controller.text.trim();
-    controller.dispose();
-
-    if (submitted == true && text.isNotEmpty) {
-      await _processOcrText(text);
+    if (text != null && text.isNotEmpty) {
+      await _processOcrText(
+        text,
+        lppDecision: authorizedDecision,
+        exactDocumentBytes: Uint8List.fromList(utf8.encode(text)),
+      );
     }
   }
 
   Future<void> _handlePdfImport(
     PlatformFile file, {
     required String ext,
+    _LppAcquisitionDecision? lppDecision,
   }) async {
     if (!_isSupportedType(_selectedType)) return;
     if (_selectedType == DocumentType.taxDeclaration) {
@@ -1344,67 +1660,80 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         _preValidationHint = null;
       });
     }
+    if (!_lppAcquisitionStillEnabled) return;
     final localPath = await _resolveLocalPath(file, ext: ext);
     if (localPath == null || localPath.isEmpty) {
       if (!mounted) return;
       await _showPdfImportFallback(
         title: S.of(context)!.docScanPdfDetected,
         message: S.of(context)!.docScanPdfCannotRead,
+        lppDecision: lppDecision,
       );
       return;
     }
 
-    if (_selectedType == DocumentType.lppCertificate) {
-      final visionResult = await _tryVisionExtractionFromPdf(localPath);
-      if (visionResult != null && mounted) {
-        await _openReview(
-          visionResult,
-          lppSource: LppAcquisitionSource.backendVision,
+    try {
+      if (_selectedType == DocumentType.lppCertificate) {
+        if (lppDecision == null || !_lppAcquisitionStillEnabled) return;
+        final visionResult = await _tryVisionExtractionFromPdf(
+          localPath,
+          lppDecision: lppDecision,
+        );
+        if (visionResult != null && mounted) {
+          await _openReview(
+            visionResult.extraction,
+            lppSource: LppAcquisitionSource.backendVision,
+            lppAuthorization: visionResult.lppAuthorization,
+          );
+          return;
+        }
+        if (_preValidationError != null) return;
+        if (!mounted || !_lppAcquisitionStillEnabled) return;
+        await _showPdfImportFallback(
+          title: S.of(context)!.docScanPdfAnalysisUnavailable,
+          message: S.of(context)!.docScanPdfNotParsed,
+          lppDecision: lppDecision,
         );
         return;
       }
-      if (_preValidationError != null) return;
-      if (!mounted) return;
-      await _showPdfImportFallback(
-        title: S.of(context)!.docScanPdfAnalysisUnavailable,
-        message: S.of(context)!.docScanPdfNotParsed,
-      );
-      return;
-    }
 
-    if (!kIsWeb) {
-      final parse = await _processPdfViaBackend(localPath);
-      if (parse.success) return;
-      if (parse.requiresAuthentication) {
-        await _showPdfAuthRequiredSheet();
-        return;
-      }
-      // Fallback: try Vision API with PDF bytes as base64
-      if (!parse.success && !parse.requiresAuthentication) {
-        final visionResult = await _tryVisionExtractionFromPdf(localPath);
-        if (visionResult != null && mounted) {
-          await _openReview(visionResult);
+      if (!kIsWeb) {
+        final parse = await _processPdfViaBackend(localPath);
+        if (parse.success) return;
+        if (parse.requiresAuthentication) {
+          await _showPdfAuthRequiredSheet();
           return;
         }
+        // Fallback: try Vision API with PDF bytes as base64
+        if (!parse.success && !parse.requiresAuthentication) {
+          final visionResult = await _tryVisionExtractionFromPdf(localPath);
+          if (visionResult != null && mounted) {
+            await _openReview(visionResult.extraction);
+            return;
+          }
+        }
+        if (!mounted) return;
+        await _showPdfImportFallback(
+          title: S.of(context)!.docScanPdfAnalysisUnavailable,
+          message: parse.errorMessage ?? S.of(context)!.docScanPdfNotParsed,
+        );
+        return;
       }
+
       if (!mounted) return;
       await _showPdfImportFallback(
-        title: S.of(context)!.docScanPdfAnalysisUnavailable,
-        message: parse.errorMessage ?? S.of(context)!.docScanPdfNotParsed,
+        title: S.of(context)!.docScanPdfDetected,
+        message: S.of(context)!.docScanPdfNotAvailable,
       );
-      return;
+    } finally {
+      _cleanupTempFile(localPath);
     }
-
-    if (!mounted) return;
-    await _showPdfImportFallback(
-      title: S.of(context)!.docScanPdfDetected,
-      message: S.of(context)!.docScanPdfNotAvailable,
-    );
   }
 
   Future<void> _showPdfImportFallback({
     required String title,
     required String message,
+    _LppAcquisitionDecision? lppDecision,
   }) async {
     if (!mounted) return;
 
@@ -1448,21 +1777,28 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   label: Text(S.of(context)!.documentScanTakePhoto),
                 ),
               ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    ctx.pop();
-                    _requestManualOcrText(
-                      title: S.of(context)!.documentScanOcrTitle,
-                      hint: S.of(context)!.documentScanOcrHint,
-                    );
-                  },
-                  icon: const Icon(Icons.text_snippet_outlined),
-                  label: Text(S.of(context)!.documentScanPasteOcr),
+              if (_selectedType != DocumentType.lppCertificate ||
+                  lppDecision != null) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    key: _selectedType == DocumentType.lppCertificate
+                        ? const Key('lpp_recovery_manual_text_cta')
+                        : null,
+                    onPressed: () {
+                      ctx.pop();
+                      _requestManualOcrText(
+                        title: S.of(context)!.documentScanOcrTitle,
+                        hint: S.of(context)!.documentScanOcrHint,
+                        lppDecision: lppDecision,
+                      );
+                    },
+                    icon: const Icon(Icons.text_snippet_outlined),
+                    label: Text(S.of(context)!.documentScanPasteOcr),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         );
@@ -1536,6 +1872,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     required String title,
     required String message,
     XFile? imageFile,
+    _LppAcquisitionDecision? lppDecision,
   }) async {
     if (!mounted) return;
     final showVision = imageFile != null && _isVisionAvailable(context);
@@ -1615,11 +1952,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
+                  key: _selectedType == DocumentType.lppCertificate
+                      ? const Key('lpp_recovery_manual_text_cta')
+                      : null,
                   onPressed: () {
                     ctx.pop();
                     _requestManualOcrText(
                       title: S.of(context)!.documentScanOcrTitle,
                       hint: S.of(context)!.documentScanOcrRetryHint,
+                      lppDecision: lppDecision,
                     );
                   },
                   icon: const Icon(Icons.text_snippet_outlined),
@@ -1684,20 +2025,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     }
   }
 
-  Future<String> _readTextFile(PlatformFile file) async {
-    // P1-8: Removed allowMalformed: true — reject malformed UTF-8 in scanned docs.
-    try {
-      if (file.bytes != null) {
-        return utf8.decode(file.bytes!);
-      }
-      if (file.path != null && file.path!.isNotEmpty) {
-        final bytes = await XFile(file.path!).readAsBytes();
-        return utf8.decode(bytes);
-      }
-    } on FormatException catch (e) {
-      debugPrint('[DocumentScan] Malformed UTF-8 in file: $e');
-    }
-    return '';
+  Future<Uint8List?> _readPlatformFileBytes(PlatformFile file) async {
+    if (!_lppAcquisitionStillEnabled) return null;
+    if (file.bytes != null) return file.bytes;
+    final path = file.path;
+    if (path == null || path.isEmpty) return null;
+    return _readFileBytes(path);
   }
 
   /// Compress image bytes if they exceed [_visionCompressThresholdBytes].
@@ -1766,24 +2099,29 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     PlatformFile file, {
     required String ext,
   }) async {
+    if (!_lppAcquisitionStillEnabled) return null;
     if (file.path != null && file.path!.isNotEmpty) return file.path;
     if (kIsWeb || file.bytes == null) return null;
 
     final safeExt = ext.trim().isEmpty ? 'bin' : ext.trim();
     final tempPath =
         '${Directory.systemTemp.path}/mint_upload_${DateTime.now().microsecondsSinceEpoch}.$safeExt';
+    final tempFile = File(tempPath);
+    _ownedTempPaths.add(tempFile.path);
     try {
-      final tempFile = File(tempPath);
       await tempFile.writeAsBytes(file.bytes!, flush: true);
       return tempFile.path;
-    } catch (_) {
+    } catch (error) {
+      _cleanupTempFile(tempFile.path);
+      debugPrint('[DocumentScan] Temporary file creation failed: $error');
       return null;
     }
   }
 
-  /// FIX-053: Clean up temporary files created by _resolveLocalPath().
+  /// Deletes only exact paths created by this screen instance.
   void _cleanupTempFile(String? path) {
-    if (path == null || !path.contains('mint_upload_')) return;
+    if (path == null) return;
+    if (!_ownedTempPaths.remove(path)) return;
     try {
       final file = File(path);
       if (file.existsSync()) file.deleteSync();
@@ -2105,6 +2443,102 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         _preValidationHint = l10n.docNotFinancialHint;
       }
     });
+  }
+}
+
+class _ManualOcrTextSheet extends StatefulWidget {
+  const _ManualOcrTextSheet({
+    required this.title,
+    required this.hint,
+    required this.initialText,
+    required this.pasteHint,
+    required this.cancelLabel,
+    required this.analyzeLabel,
+  });
+
+  final String title;
+  final String hint;
+  final String? initialText;
+  final String pasteHint;
+  final String cancelLabel;
+  final String analyzeLabel;
+
+  @override
+  State<_ManualOcrTextSheet> createState() => _ManualOcrTextSheetState();
+}
+
+class _ManualOcrTextSheetState extends State<_ManualOcrTextSheet> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialText ?? '');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 20, 20, bottomInset + 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.title,
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            widget.hint,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                .copyWith(height: 1.4),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _controller,
+            maxLines: 8,
+            minLines: 5,
+            decoration: InputDecoration(
+              hintText: widget.pasteHint,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.pop(),
+                  child: Text(widget.cancelLabel),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton(
+                  key: const Key('document_scan_manual_analyze_cta'),
+                  onPressed: () {
+                    final text = _controller.text.trim();
+                    context.pop(text.isEmpty ? null : text);
+                  },
+                  child: Text(widget.analyzeLabel),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 
 const _extraction = ExtractionResult(
   documentType: DocumentType.avsExtract,
@@ -10,6 +12,48 @@ const _extraction = ExtractionResult(
   warnings: [],
   disclaimer: 'test',
   sources: [],
+);
+
+final _lppCandidate = LppExtractionAdapter.adapt(
+  source: LppAcquisitionSource.localParser,
+  sourceOverallConfidence: 0.99,
+  fields: const [
+    ExtractedField(
+      fieldName: 'lpp_total',
+      label: 'synthetic',
+      value: 100000.0,
+      confidence: 0.99,
+      sourceText: '',
+      needsReview: false,
+    ),
+  ],
+).candidate!;
+final _lppReviewExtraction = ExtractionResult(
+  documentType: DocumentType.lppCertificate,
+  fields: [
+    ExtractedField(
+      fieldName: LppEvidenceFactKey.vestedBenefitsCapitalChf.wireName,
+      label: 'synthetic',
+      value: 100000.0,
+      confidence: 0.99,
+      sourceText: '',
+      needsReview: false,
+    ),
+  ],
+  overallConfidence: 0.99,
+  confidenceDelta: 27,
+  warnings: const [],
+  disclaimer: '',
+  sources: const [],
+);
+final _lppAuthorization = LppAcquisitionAuthorization(
+  acquisitionId: '123e4567-e89b-42d3-a456-426614174000',
+  subject: LppEvidenceOwnerKind.self,
+  partnerAttested: false,
+  policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
+  declaredAt: DateTime.utc(2026, 7, 15, 9),
+  documentSha256:
+      '3d1f57c984978ef98a18378c8166c1cb8ede02c03eeb6aee7e2f121dfeee3e56',
 );
 
 void main() {
@@ -54,5 +98,49 @@ void main() {
     }
 
     expect(provider.byId(firstId), isNull);
+  });
+
+  test('LPP candidate carries its volatile authorization until impact', () {
+    final provider = ScanSessionProvider();
+    final id = provider.retainExtraction(
+      _lppReviewExtraction,
+      lppCandidate: _lppCandidate,
+      lppAuthorization: _lppAuthorization,
+    );
+
+    expect(provider.byId(id)?.lppCandidate, same(_lppCandidate));
+    expect(provider.byId(id)?.lppAuthorization, same(_lppAuthorization));
+    expect(id, isNot(contains(_lppAuthorization.acquisitionId)));
+    expect(id, isNot(contains(_lppAuthorization.documentSha256)));
+
+    expect(
+      provider.retainImpact(
+        id,
+        extraction: _extraction,
+        previousConfidence: 31,
+      ),
+      isTrue,
+    );
+    expect(provider.byId(id)?.lppCandidate, isNull);
+    expect(provider.byId(id)?.lppAuthorization, isNull);
+  });
+
+  test('LPP candidate and authorization cannot be retained independently', () {
+    final provider = ScanSessionProvider();
+
+    expect(
+      () => provider.retainExtraction(
+        _lppReviewExtraction,
+        lppCandidate: _lppCandidate,
+      ),
+      throwsArgumentError,
+    );
+    expect(
+      () => provider.retainExtraction(
+        _lppReviewExtraction,
+        lppAuthorization: _lppAuthorization,
+      ),
+      throwsArgumentError,
+    );
   });
 }

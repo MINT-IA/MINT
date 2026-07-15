@@ -150,6 +150,20 @@ Future<void> _expectAtomicColdRoundTrip({
   );
 }
 
+LppAcquisitionAuthorization _lppAuthorization(
+  LppEvidenceOwnerKind subject,
+) {
+  return LppAcquisitionAuthorization(
+    acquisitionId: '123e4567-e89b-42d3-a456-426614174000',
+    subject: subject,
+    partnerAttested: subject == LppEvidenceOwnerKind.manualPartner,
+    policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
+    declaredAt: DateTime.utc(2026, 1, 1),
+    documentSha256:
+        '1111111111111111111111111111111111111111111111111111111111111111',
+  );
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -228,7 +242,8 @@ void main() {
     final sourceDate = DateTime.utc(2026, 6, 30);
 
     await provider.acceptLppReview(
-      LppReviewConfirmation.self(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
         sourceDate: sourceDate,
         facts: const {
           LppEvidenceFactKey.insuredSalaryAnnualChf: LppReviewedFact(
@@ -305,7 +320,8 @@ void main() {
     ]) {
       await expectLater(
         provider.acceptLppReview(
-          LppReviewConfirmation.self(
+          LppReviewConfirmation(
+            authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
             facts: facts,
             sourceDate: null,
           ),
@@ -331,9 +347,10 @@ void main() {
     );
 
     await provider.acceptLppReview(
-      const LppReviewConfirmation.self(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
         sourceDate: null,
-        facts: {
+        facts: const {
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
             value: 100000,
             unit: LppEvidenceUnit.chf,
@@ -354,9 +371,10 @@ void main() {
       ),
     );
     await provider.acceptLppReview(
-      const LppReviewConfirmation.self(
+      LppReviewConfirmation(
+        authorization: _lppAuthorization(LppEvidenceOwnerKind.self),
         sourceDate: null,
-        facts: {
+        facts: const {
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
             value: 100000,
             unit: LppEvidenceUnit.chf,

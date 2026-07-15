@@ -784,11 +784,9 @@ class LppCertificateParser {
   /// Used for the prototype "Simuler un scan" button.
   static const String sampleOcrText = """
 CERTIFICAT DE PREVOYANCE 2025
+EXEMPLE SYNTHETIQUE SANS DONNEES PERSONNELLES
 Caisse de pension XY \u2014 Fondation collective LPP
-
-Nom: Dupont Marie
-Date de naissance: 15.03.1988
-No. assure: 12345-678
+Personne assurée : exemple anonyme
 
 AVOIR DE VIEILLESSE
 Avoir de vieillesse total:                    CHF 143'287.50

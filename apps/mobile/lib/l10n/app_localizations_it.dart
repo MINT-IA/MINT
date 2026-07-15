@@ -23956,4 +23956,53 @@ class SIt extends S {
   @override
   String get confidencePromptAccuracyEstimated =>
       'Inserisci il tuo valore effettivo.';
+
+  @override
+  String get lppAcquisitionSelfTitle => 'Questo certificato LPP è tuo?';
+
+  @override
+  String get lppAcquisitionSelfBody =>
+      'MINT leggerà questo documento per aiutarti a verificare le cifre della tua previdenza.';
+
+  @override
+  String get lppAcquisitionSelfContinue => 'Continua con il mio certificato';
+
+  @override
+  String get lppAcquisitionOwnerTitle =>
+      'A chi appartiene questo certificato LPP?';
+
+  @override
+  String get lppAcquisitionOwnerSelf => 'A me';
+
+  @override
+  String get lppAcquisitionOwnerPartner => 'Al mio partner o alla mia partner';
+
+  @override
+  String get lppAcquisitionPartnerAttestationTitle =>
+      'Prima di trattare questo certificato';
+
+  @override
+  String get lppAcquisitionPartnerAttestationBody =>
+      'Confermo che il mio partner o la mia partner mi ha autorizzato a usare questo certificato in MINT ed è stato o stata informata che Anthropic lo leggerà una sola volta negli Stati Uniti. Solo le cifre che confermo saranno conservate in forma cifrata su questo dispositivo. Il documento originale non sarà conservato. Questa azione non collega alcun account.';
+
+  @override
+  String get lppAcquisitionSyntheticPartnerAttestationBody =>
+      'Questo esempio è interamente sintetico e resta su questo dispositivo. Confermo di usare lo scenario partner solo per verificare il percorso MINT; nessun documento personale o dato lascia questo dispositivo.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationNote =>
+      'MINT aiuta a comprendere queste cifre. Questo non costituisce una consulenza finanziaria personalizzata.';
+
+  @override
+  String get lppAcquisitionPartnerAttestationConfirm => 'Confermo e continuo';
+
+  @override
+  String get lppReviewOwnerSelf => 'Il mio certificato';
+
+  @override
+  String get lppReviewOwnerPartner =>
+      'Certificato del mio partner o della mia partner';
+
+  @override
+  String get lppReviewOwnerRestart => 'Ricomincia con un altro titolare';
 }
