@@ -502,11 +502,28 @@ Revenu imposable IFD: CHF 96'200''',
   test(
       'tax camera and gallery return before consent, picker or temporary file creation',
       () {
+    final consentBoundary =
+        _methodBody(scanSource, '_requestAcquisitionConsent');
+    expect(
+      consentBoundary,
+      contains('ConsentService().requireGrantedOrPrompt('),
+    );
+    final galleryHelperDeclaration =
+        scanSource.indexOf('Future<void> _pickFromGalleryAfterGates(');
+    expect(galleryHelperDeclaration, greaterThanOrEqualTo(0));
+    final galleryAcquisition = _methodBody(
+      scanSource.substring(galleryHelperDeclaration),
+      '_pickFromGalleryAfterGates',
+    );
+    expect(galleryAcquisition, contains('FilePicker.platform.pickFiles('));
+    expect(galleryAcquisition, contains('_resolveLocalPath('));
     _expectDominantCallerTaxReturn(
       scanSource,
       '_onCameraPressed',
       [
-        'ConsentService().requireGrantedOrPrompt(',
+        '_requestAcquisitionConsent(',
+        '_pickFromGalleryAfterGates(',
+        'NativeDocumentScanner.scan(',
         '_materializeBytesAsXFile(',
       ],
     );
@@ -514,9 +531,8 @@ Revenu imposable IFD: CHF 96'200''',
       scanSource,
       '_onGalleryPressed',
       [
-        'ConsentService().requireGrantedOrPrompt(',
-        'FilePicker.platform.pickFiles(',
-        '_resolveLocalPath(',
+        '_requestAcquisitionConsent(',
+        '_pickFromGalleryAfterGates(',
       ],
     );
   });
