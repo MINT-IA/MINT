@@ -1,0 +1,16 @@
+{
+  "backend_changed_file_ruff": 0,
+  "backend_full_suite": 0,
+  "doctor_full": 0,
+  "flutter_analyze": 0,
+  "flutter_full_suite": 0,
+  "maestro_flag_off_initial": 0,
+  "maestro_flag_off_restored": 0,
+  "mermaid_render_guard": 0,
+  "normal_ios_build": 0,
+  "normal_ios_install_initial": 0,
+  "normal_ios_install_restored": 0,
+  "orchestrator_contract_tests": 0,
+  "patrol_process_death_wrapper": 0,
+  "patrol_tooling_guard": 0
+}

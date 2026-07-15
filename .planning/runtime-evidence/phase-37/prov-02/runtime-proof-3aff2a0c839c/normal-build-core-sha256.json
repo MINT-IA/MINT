@@ -1,0 +1,17 @@
+{
+  "after": {
+    "ios/iphonesimulator/Runner.app/Frameworks/App.framework/App": "c0cfbed13d7ff8eb4d04a66adca42b9cdfaa9feceb808edebbbe10e958fdc158",
+    "ios/iphonesimulator/Runner.app/Frameworks/App.framework/flutter_assets/AssetManifest.bin": "8bf7caea3b73000ed8f7c3b93b172a8122ad291c7f16e1a3296ea1eabb9953ca",
+    "ios/iphonesimulator/Runner.app/Runner": "ff17290e95cae125c929e8036b92d7a78a04add081520fd68ca525882286d0c5"
+  },
+  "before": {
+    "ios/iphonesimulator/Runner.app/Frameworks/App.framework/App": "c0cfbed13d7ff8eb4d04a66adca42b9cdfaa9feceb808edebbbe10e958fdc158",
+    "ios/iphonesimulator/Runner.app/Frameworks/App.framework/flutter_assets/AssetManifest.bin": "8bf7caea3b73000ed8f7c3b93b172a8122ad291c7f16e1a3296ea1eabb9953ca",
+    "ios/iphonesimulator/Runner.app/Runner": "ff17290e95cae125c929e8036b92d7a78a04add081520fd68ca525882286d0c5"
+  },
+  "core_hashes_verified": true,
+  "manifest_after_sha256": "a2746e922f1673c94b6814ad1fb080e98f22e6356c31c0c60615cf722fc36bfd",
+  "manifest_before_sha256": "a2746e922f1673c94b6814ad1fb080e98f22e6356c31c0c60615cf722fc36bfd",
+  "original_build_present": true,
+  "restoration_status": "restored"
+}

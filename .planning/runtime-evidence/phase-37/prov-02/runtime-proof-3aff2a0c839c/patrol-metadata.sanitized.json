@@ -1,0 +1,43 @@
+{
+  "boot_status_exit_code": 0,
+  "bundle_id": "ch.mint.app",
+  "contract": "g1_prov02_lpp",
+  "device": "<SIMULATOR_UDID>",
+  "feature_activation": "test_process_static_flags_only",
+  "finished_at": "2026-07-15T09:05:28Z",
+  "launch_exit_code": 0,
+  "mach_o_sections": {
+    "read": {
+      "der_sha256": "9ffa3cb54192ddd2291c8950f8c19f4df2902ae918c75419d55ffe7c31b2b964",
+      "entitlements_sha256": "c0e1e036620501e80167f979173524e44a31f6e6aebd9b53d39513bf91451c2f"
+    },
+    "write": {
+      "der_sha256": "9ffa3cb54192ddd2291c8950f8c19f4df2902ae918c75419d55ffe7c31b2b964",
+      "entitlements_sha256": "c0e1e036620501e80167f979173524e44a31f6e6aebd9b53d39513bf91451c2f"
+    }
+  },
+  "normal_build": {
+    "core_hashes_verified": true,
+    "manifest_after_sha256": "a2746e922f1673c94b6814ad1fb080e98f22e6356c31c0c60615cf722fc36bfd",
+    "manifest_before_sha256": "a2746e922f1673c94b6814ad1fb080e98f22e6356c31c0c60615cf722fc36bfd",
+    "original_build_present": true,
+    "restoration_status": "restored"
+  },
+  "private_fixture_used": false,
+  "read_exit_code": 0,
+  "runtime_source_diff_verified": true,
+  "runtime_source_manifest_sha256": "4c6623c64d34add08162bd3b1542c60da87718cfcdd01f00669d352dc380eb60",
+  "sha": "3aff2a0c839c2b57f021ccaa2453e93797e5bb3a",
+  "started_at": "2026-07-15T09:02:03Z",
+  "synthetic_data_only": true,
+  "terminate_exit_code": 0,
+  "write_exit_code": 0,
+  "xcresults": {
+    "read": {
+      "sha256": "152b38e245462435c4c3cb863bab1338375c03058c28abd688467b17135c4daa"
+    },
+    "write": {
+      "sha256": "e5ee0e42b3d32fb2d5f8c58fc7e950a229fa86b67f2e90165e24577651c1de82"
+    }
+  }
+}

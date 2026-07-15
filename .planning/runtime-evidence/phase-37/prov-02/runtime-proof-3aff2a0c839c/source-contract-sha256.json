@@ -1,0 +1,12 @@
+{
+  "files": {
+    "apps/mobile/integration_test/g1_prov02_lpp_persistence_read_patrol_test.dart": "6ecca15c986e3abbe5eb2c486295bb2f4b1ad3974628259d4bbc20182dd7aacf",
+    "apps/mobile/integration_test/g1_prov02_lpp_persistence_write_patrol_test.dart": "00ecc79638d0c74786920c427c7637a8a04fbdf5da7c995fdca715660f469d8b",
+    "apps/mobile/test/patrol/g1_prov02_lpp_persistence_read_runtime_test.dart": "2cb348068c789991bab8c661ed1fabcae2ea599c2e1c32703452a62688747edb",
+    "apps/mobile/test/patrol/g1_prov02_lpp_persistence_write_runtime_test.dart": "26ee5a6afbd5a24b980308a2255318188923cda17bc3e5834a706cfeac7f5387",
+    "tools/simulator/patrol_lpp_provenance_process_death.sh": "0a6258eb612699d247ef0bce668e0a54644a27729e5ba815f5584a3625f6d9a4"
+  },
+  "manifest_sha256": "4c6623c64d34add08162bd3b1542c60da87718cfcdd01f00669d352dc380eb60",
+  "runtime_source_diff_verified": true,
+  "sha": "3aff2a0c839c2b57f021ccaa2453e93797e5bb3a"
+}
