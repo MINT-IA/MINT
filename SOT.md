@@ -236,6 +236,10 @@ Source: `apps/mobile/lib/services/financial_core/confidence_scorer.dart`
 - `DELETE /api/v1/auth/account` tombstones every receipt belonging to the acting
   user before deleting the User in the same transaction. Missing keyring entries
   fail the deletion closed and roll back both receipt erasure and User deletion.
+  On PostgreSQL, account deletion and receipt creation serialize on the actor's
+  User row: create-first is subsequently erased, while delete-first makes the
+  waiting create fail with `partner_accountability_actor_unavailable` instead of
+  leaving an orphan receipt.
 - A `manualPartner` LPP request is rejected before document classification,
   audit-row creation or Anthropic extraction when its receipt is absent,
   foreign, stale, expired, revoked, erased, scope-drifted or disabled. Legacy

@@ -31134,6 +31134,9 @@
             },
             "description": "Successful Response"
           },
+          "409": {
+            "description": "Receipt conflict, version mismatch, or actor deletion race."
+          },
           "422": {
             "content": {
               "application/json": {

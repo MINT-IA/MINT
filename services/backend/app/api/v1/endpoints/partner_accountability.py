@@ -21,6 +21,7 @@ from app.services.partner_accountability.receipt_builder import (
     AccountabilityConfigurationError,
 )
 from app.services.partner_accountability.service import (
+    PartnerAccountabilityActorUnavailable,
     PartnerAccountabilityConflict,
     PartnerAccountabilityNotFound,
     PartnerAccountabilityService,
@@ -74,6 +75,11 @@ def _serialize(service: PartnerAccountabilityService, row) -> dict:
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_200_OK: {"model": PartnerAccountabilityReceiptResponse},
+        status.HTTP_409_CONFLICT: {
+            "description": (
+                "Receipt conflict, version mismatch, or actor deletion race."
+            ),
+        },
     },
 )
 def create_receipt(
@@ -103,6 +109,11 @@ def create_receipt(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail={"code": "partner_accountability_version_not_current"},
+        ) from None
+    except PartnerAccountabilityActorUnavailable:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "partner_accountability_actor_unavailable"},
         ) from None
     except PartnerAccountabilityConflict:
         raise HTTPException(

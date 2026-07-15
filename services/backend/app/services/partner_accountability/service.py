@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.partner_accountability_receipt import PartnerAccountabilityReceipt
+from app.models.user import User
 from app.schemas.partner_accountability import (
     ACCOUNTABILITY_KIND,
     PURPOSE,
@@ -38,6 +39,10 @@ class PartnerAccountabilityNotFound(RuntimeError):
 
 class PartnerAccountabilityInactive(RuntimeError):
     """The receipt cannot authorize a one-shot LPP extraction."""
+
+
+class PartnerAccountabilityActorUnavailable(RuntimeError):
+    """The authenticated actor disappeared before receipt creation."""
 
 
 class PartnerAccountabilityVersionNotCurrent(RuntimeError):
@@ -102,12 +107,26 @@ class PartnerAccountabilityService:
             body=body,
         )
 
+    def _lock_actor_for_receipt_write(self, *, actor_id: str) -> None:
+        """Serialize PostgreSQL receipt creation with account deletion."""
+        if self._db.get_bind().dialect.name != "postgresql":
+            return
+        actor = (
+            self._db.query(User.id)
+            .filter(User.id == actor_id)
+            .with_for_update()
+            .one_or_none()
+        )
+        if actor is None:
+            raise PartnerAccountabilityActorUnavailable
+
     def create(
         self,
         *,
         actor_id: str,
         body: PartnerAccountabilityReceiptCreate,
     ) -> tuple[PartnerAccountabilityReceipt, bool]:
+        self._lock_actor_for_receipt_write(actor_id=actor_id)
         receipt_id = str(body.receipt_id)
         existing = self._db.get(PartnerAccountabilityReceipt, receipt_id)
         if existing is not None:

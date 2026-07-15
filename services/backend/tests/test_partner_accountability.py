@@ -256,6 +256,34 @@ def test_partner_accountability_enabled_without_approved_bundle_fails_closed(
     )
 
 
+def test_receipt_create_fails_closed_when_actor_disappears(
+    client,
+    monkeypatch,
+):
+    """A deletion race returns a stable conflict instead of writing an orphan."""
+    from app.services.partner_accountability.service import (
+        PartnerAccountabilityActorUnavailable,
+        PartnerAccountabilityService,
+    )
+
+    _enable_synthetic_contract(monkeypatch)
+
+    def unavailable(_service, *, actor_id, body):
+        raise PartnerAccountabilityActorUnavailable
+
+    monkeypatch.setattr(PartnerAccountabilityService, "create", unavailable)
+    response = client.post(_CREATE_PATH, json=_request_body())
+
+    assert response.status_code == 409, response.text
+    assert response.json()["detail"]["code"] == (
+        "partner_accountability_actor_unavailable"
+    )
+    assert 409 in _create_route().responses
+    assert "actor deletion race" in _create_route().responses[409][
+        "description"
+    ].lower()
+
+
 def test_hmac_rotation_uses_explicit_previous_keyring_for_existing_receipts(
     client,
     monkeypatch,

@@ -1023,6 +1023,19 @@ def delete_account(
 
     # W12: Wrap all deletions in explicit transaction with rollback on failure.
     try:
+        # Serialize account deletion with receipt creation on the same actor.
+        # If create owns this lock first, its receipt is visible to erasure;
+        # if delete owns it first, create rechecks and fails after deletion.
+        locked_user = (
+            db.query(User)
+            .filter(User.id == user_id)
+            .with_for_update()
+            .one_or_none()
+        )
+        if locked_user is None:
+            raise RuntimeError("account disappeared during deletion")
+        current_user = locked_user
+
         profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
         profile_ids = [p.id for p in profiles]
         deleted_profiles = len(profile_ids)
