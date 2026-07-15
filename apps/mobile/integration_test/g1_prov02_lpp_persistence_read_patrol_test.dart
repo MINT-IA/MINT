@@ -31,20 +31,13 @@ const _expectedFacts = <LppEvidenceFactKey, double>{
   LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf: 44887.50,
   LppEvidenceFactKey.insuredSalaryAnnualChf: 72540,
   LppEvidenceFactKey.maximumBuybackCapitalChf: 45000,
-  LppEvidenceFactKey.mandatoryConversionRateRatio: 0.068,
-  LppEvidenceFactKey.extraMandatoryConversionRateRatio: 0.052,
-  LppEvidenceFactKey.retirementPensionAnnualChf: 31450,
-  LppEvidenceFactKey.retirementCapitalLumpSumChf: 485200,
-  LppEvidenceFactKey.disabilityPensionAnnualChf: 36800,
-  LppEvidenceFactKey.disabilityCapitalLumpSumChf: 175000,
-  LppEvidenceFactKey.deathCapitalLumpSumChf: 220500,
 };
 const _presentationFactKeys = <LppEvidenceFactKey>{
-  LppEvidenceFactKey.retirementPensionAnnualChf,
-  LppEvidenceFactKey.retirementCapitalLumpSumChf,
-  LppEvidenceFactKey.disabilityPensionAnnualChf,
-  LppEvidenceFactKey.disabilityCapitalLumpSumChf,
-  LppEvidenceFactKey.deathCapitalLumpSumChf,
+  LppEvidenceFactKey.vestedBenefitsCapitalChf,
+  LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf,
+  LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf,
+  LppEvidenceFactKey.insuredSalaryAnnualChf,
+  LppEvidenceFactKey.maximumBuybackCapitalChf,
 };
 const _looseLppAnswerKeys = <String>{
   '_coach_avoir_lpp',

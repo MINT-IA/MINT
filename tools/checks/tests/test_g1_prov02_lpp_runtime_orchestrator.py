@@ -459,6 +459,24 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
         "extraMandatoryVestedBenefitsCapitalChf",
         "insuredSalaryAnnualChf",
         "maximumBuybackCapitalChf",
+    )
+    for fact_key in fact_keys:
+        anchor = f"LppEvidenceFactKey.{fact_key}"
+        assert anchor in writer
+        assert anchor in reader
+    backend_vision_fields = {
+        "vestedBenefitsCapitalChf": "avoirLppTotal",
+        "mandatoryVestedBenefitsCapitalChf": "avoirLppObligatoire",
+        "extraMandatoryVestedBenefitsCapitalChf": "avoirLppSurobligatoire",
+        "insuredSalaryAnnualChf": "salaireAssure",
+        "maximumBuybackCapitalChf": "rachatMaximum",
+    }
+    for fact_key, field_name in backend_vision_fields.items():
+        assert re.search(
+            rf"LppEvidenceFactKey\.{fact_key}:\s*'{field_name}'", writer
+        )
+    assert "'fieldName': entry.key.wireName" not in writer
+    for unsupported_fact_key in (
         "mandatoryConversionRateRatio",
         "extraMandatoryConversionRateRatio",
         "retirementPensionAnnualChf",
@@ -466,14 +484,10 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
         "disabilityPensionAnnualChf",
         "disabilityCapitalLumpSumChf",
         "deathCapitalLumpSumChf",
-    )
-    for fact_key in fact_keys:
-        anchor = f"LppEvidenceFactKey.{fact_key}"
-        assert anchor in writer
-        assert anchor in reader
-    for critical_value in ("31450", "485200", "36800", "175000", "220500"):
-        assert critical_value in writer
-        assert critical_value in reader
+    ):
+        anchor = f"LppEvidenceFactKey.{unsupported_fact_key}"
+        assert anchor not in writer
+        assert anchor not in reader
     assert "final _runtimeNow = DateTime.now().toUtc();" in writer
     assert "final _runtimeNow = DateTime.now().toUtc();" in reader
     assert (

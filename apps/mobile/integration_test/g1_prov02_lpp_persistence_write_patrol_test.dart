@@ -41,13 +41,14 @@ const _expectedFacts = <LppEvidenceFactKey, double>{
   LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf: 44887.50,
   LppEvidenceFactKey.insuredSalaryAnnualChf: 72540,
   LppEvidenceFactKey.maximumBuybackCapitalChf: 45000,
-  LppEvidenceFactKey.mandatoryConversionRateRatio: 0.068,
-  LppEvidenceFactKey.extraMandatoryConversionRateRatio: 0.052,
-  LppEvidenceFactKey.retirementPensionAnnualChf: 31450,
-  LppEvidenceFactKey.retirementCapitalLumpSumChf: 485200,
-  LppEvidenceFactKey.disabilityPensionAnnualChf: 36800,
-  LppEvidenceFactKey.disabilityCapitalLumpSumChf: 175000,
-  LppEvidenceFactKey.deathCapitalLumpSumChf: 220500,
+};
+const _backendVisionFieldNames = <LppEvidenceFactKey, String>{
+  LppEvidenceFactKey.vestedBenefitsCapitalChf: 'avoirLppTotal',
+  LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf: 'avoirLppObligatoire',
+  LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf:
+      'avoirLppSurobligatoire',
+  LppEvidenceFactKey.insuredSalaryAnnualChf: 'salaireAssure',
+  LppEvidenceFactKey.maximumBuybackCapitalChf: 'rachatMaximum',
 };
 
 final _externalGate = PartnerAccountabilityExternalGate(
@@ -148,7 +149,7 @@ void _expectSnapshot(LppEvidenceSnapshot snapshot) {
 List<Map<String, dynamic>> _syntheticFields() => _expectedFacts.entries
     .map(
       (entry) => <String, dynamic>{
-        'fieldName': entry.key.wireName,
+        'fieldName': _backendVisionFieldNames[entry.key]!,
         'value': entry.value,
         'confidence': 'high',
         'sourceText': '',

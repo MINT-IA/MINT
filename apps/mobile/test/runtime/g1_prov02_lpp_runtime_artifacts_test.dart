@@ -122,27 +122,37 @@ void main() {
     }
   });
 
-  test('Patrol fact oracles retain all canonical values and exact units', () {
+  test('Patrol Vision fixture retains exact backend fact scope and units', () {
+    const backendVisionFields = <String, String>{
+      'vestedBenefitsCapitalChf': 'avoirLppTotal',
+      'mandatoryVestedBenefitsCapitalChf': 'avoirLppObligatoire',
+      'extraMandatoryVestedBenefitsCapitalChf': 'avoirLppSurobligatoire',
+      'insuredSalaryAnnualChf': 'salaireAssure',
+      'maximumBuybackCapitalChf': 'rachatMaximum',
+    };
+    const unsupportedBackendVisionFacts = <String>[
+      'mandatoryConversionRateRatio',
+      'extraMandatoryConversionRateRatio',
+      'retirementPensionAnnualChf',
+      'retirementCapitalLumpSumChf',
+      'disabilityPensionAnnualChf',
+      'disabilityCapitalLumpSumChf',
+      'deathCapitalLumpSumChf',
+    ];
     for (final path in const [
       'integration_test/g1_prov02_lpp_persistence_write_patrol_test.dart',
       'integration_test/g1_prov02_lpp_persistence_read_patrol_test.dart',
     ]) {
       final contents = File(path).readAsStringSync();
-      for (final factKey in const [
-        'vestedBenefitsCapitalChf',
-        'mandatoryVestedBenefitsCapitalChf',
-        'extraMandatoryVestedBenefitsCapitalChf',
-        'insuredSalaryAnnualChf',
-        'maximumBuybackCapitalChf',
-        'mandatoryConversionRateRatio',
-        'extraMandatoryConversionRateRatio',
-        'retirementPensionAnnualChf',
-        'retirementCapitalLumpSumChf',
-        'disabilityPensionAnnualChf',
-        'disabilityCapitalLumpSumChf',
-        'deathCapitalLumpSumChf',
-      ]) {
+      for (final factKey in backendVisionFields.keys) {
         expect(contents, contains('LppEvidenceFactKey.$factKey'), reason: path);
+      }
+      for (final factKey in unsupportedBackendVisionFacts) {
+        expect(
+          contents,
+          isNot(contains('LppEvidenceFactKey.$factKey')),
+          reason: path,
+        );
       }
       expect(contents, contains('persisted!.unit, entry.key.unit'));
       expect(
@@ -163,6 +173,22 @@ void main() {
       );
       expect(contents, isNot(contains('DateTime.utc(2027, 7, 15, 9)')));
     }
+
+    final writer = File(
+      'integration_test/g1_prov02_lpp_persistence_write_patrol_test.dart',
+    ).readAsStringSync();
+    for (final entry in backendVisionFields.entries) {
+      expect(
+        writer,
+        contains(
+          RegExp(
+            'LppEvidenceFactKey\\.${entry.key}:\\s*\'${entry.value}\'',
+          ),
+        ),
+        reason: entry.key,
+      );
+    }
+    expect(writer, isNot(contains("'fieldName': entry.key.wireName")));
   });
 
   test('Patrol wrappers expose writer then cold reader', () {
