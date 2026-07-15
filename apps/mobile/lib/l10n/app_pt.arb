@@ -189,14 +189,14 @@
       }
     }
   },
-  "bankImportBudgetPreview": "O teu orcamento estimado",
+  "bankImportBudgetPreview": "Rendimento mensal a confirmar",
   "bankImportMonthlyIncome": "Rendimento mensal",
   "bankImportFixedCharges": "Encargos fixos",
   "bankImportVariable": "Despesas variaveis",
   "bankImportSavingsRate": "Taxa de poupanca",
-  "bankImportButton": "Importar para o meu orcamento",
+  "bankImportButton": "Confirmar este rendimento mensal",
   "bankImportPrivacy": "O teu extrato é enviado de forma segura ao nosso servidor para análise. Os dados brutos são eliminados após o processamento — apenas os resumos por categoria são conservados.",
-  "bankImportSuccess": "Orcamento atualizado com sucesso",
+  "bankImportSuccess": "Rendimento atualizado. As despesas devem ser confirmadas separadamente.",
   "bankImportCategoryLogement": "Alojamento",
   "bankImportCategoryAlimentation": "Alimentacao",
   "bankImportCategoryTransport": "Transporte",

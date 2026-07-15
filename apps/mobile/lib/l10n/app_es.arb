@@ -189,14 +189,14 @@
       }
     }
   },
-  "bankImportBudgetPreview": "Tu presupuesto estimado",
+  "bankImportBudgetPreview": "Ingreso mensual por confirmar",
   "bankImportMonthlyIncome": "Ingreso mensual",
   "bankImportFixedCharges": "Cargos fijos",
   "bankImportVariable": "Gastos variables",
   "bankImportSavingsRate": "Tasa de ahorro",
-  "bankImportButton": "Importar a mi presupuesto",
+  "bankImportButton": "Confirmar este ingreso mensual",
   "bankImportPrivacy": "Tu extracto se envía de forma segura a nuestro servidor para su análisis. Los datos brutos se eliminan tras el procesamiento — solo se conservan los resúmenes por categoría.",
-  "bankImportSuccess": "Presupuesto actualizado con exito",
+  "bankImportSuccess": "Ingreso actualizado. Los gastos deben confirmarse por separado.",
   "bankImportCategoryLogement": "Vivienda",
   "bankImportCategoryAlimentation": "Alimentacion",
   "bankImportCategoryTransport": "Transporte",

@@ -172,15 +172,20 @@ These are registered at the top of the router (`app.dart:301-339`) with `scope: 
 | killFlag | null |
 
 > §2.note — **No real first-insight onboarding screen exists**; `/onboarding/premier-eclairage` is an alias shim → `/coach/chat` (route_metadata.dart:1054). Every "start here" recovery CTA in this document therefore targets `/coach/chat?topic=premier-eclairage` directly, and the coach branch seeds a first-insight opener from that `topic` (i18n `coach.empty.opener.premierEclairage`). The agent MUST NOT route recovery CTAs to the shim.
-> Invariant F-1/F-4: `budgetGap` MUST reflect `BudgetProvider` overrides. See §F-repair B-1 (§10 test 3).
+> Invariant F-1/F-4: confirmed budget base facts publish through
+> `CoachProfileProvider` and refresh both eager proxies. Their present-budget
+> oracle is `MintUserState.budgetSnapshot.present.monthlyCharges/monthlyFree`.
+> `BudgetProvider` future/variables overrides are local scenario envelopes and
+> do not mutate `MintUserState`; `budgetGap` remains null while official AVS
+> facts are unavailable. See §10.4.
 
 ### `/mon-argent` — Money / Budget home
 | | |
 |---|---|
 | shell | shell:1 |
 | purpose | The user's budget reality: income, fixed, variable, gap. |
-| reads | `MintUserState{budgetGap}`, `BudgetProvider` |
-| writes | budget fields → `mergeAnswers()`, then bridge fires `recompute(profile)` (§10 test 3) |
+| reads | `MintUserState{budgetSnapshot.present, budgetGap}`, `BudgetProvider` |
+| writes | confirmed budget fields → `mergeAnswers()`; the published profile independently refreshes the eager BudgetProvider and MintStateProvider proxies (§10.4) |
 | entryConditions | none |
 | emptyState | No budget data → "Trois chiffres suffisent pour un premier aperçu." CTA `/budget/setup`. i18n `money.empty.title` / `money.empty.cta` |
 | partialState | Income known, expenses missing → partial gap with "estimation" tag + inline DIFF CTA to add expenses. i18n `money.partial.addExpenses` |
@@ -316,7 +321,7 @@ proves five bypass shapes red, and scans the six exact audited source files
 | `/debt/help` | null | Debt help resources (static, general-population). | ∅ | `/coach/chat`, back |
 | `/education/hub`, `/education/theme/:id` | null | General-population educational modules. | `financialLiteracyLevel` only; `id` from `state.pathParameters['id']` (§0) | `/coach/chat`, `/explore` |
 | `/open-banking`, `/open-banking/transactions`, `/open-banking/consents` | enableOpenBanking (in-route redirect) | Aggregation onboarding + transactions + consent (riskiest flow; consent-gated). | `∅` pre-consent; writes accounts post-consent via `mergeAnswers()` | `/mon-argent`, `/confidence`, `/data-block/patrimoine` |
-| `/bank-import` | null | Manual bank statement import fallback. | `∅` pre-import; writes accounts via `mergeAnswers()` | `/mon-argent`, `/open-banking`, `/coach/chat` |
+| `/bank-import` | null | Manual CSV/PDF statement review fallback; not a live Open Banking source. | `∅` pre-confirmation; after explicit review writes only `q_net_income_period_chf` + `q_pay_frequency` via `mergeAnswers()` with `userInput` provenance. Categorized charges remain preview-only and never write housing, LAMal, tax, debt, or `q_other_fixed_costs_monthly_chf`. | `/mon-argent`, `/open-banking`, `/coach/chat` |
 
 ### 4.1 G1 mechanical addendum — route truth after scenario isolation
 
@@ -360,8 +365,8 @@ proves five bypass shapes red, and scans the six exact audited source files
 | killFlag | `enableExplorerTravail` |
 
 > **`/budget`, `/budget/setup`** (budget CONTENT, gated `enableBudget`):
-> - `/budget` — reads `BudgetProvider` (bridged, §10 test 3); writes budget lines → `mergeAnswers()` + recompute. emptyState "Configurons ton budget." CTA `/budget/setup`. partialState: some lines set → DIFF for the rest. errorState + Réessayer. killFlag `enableBudget`.
-> - `/budget/setup` — reads `BudgetProvider`; writes via `mergeAnswers()` + recompute. emptyState = the setup form itself (3 fields). errorState (save failed) → keep values + Réessayer. killFlag `enableBudget`.
+> - `/budget` — reads `BudgetProvider` (eager derived proxy, §10.4); confirmed budget lines write through `mergeAnswers()`, then profile publication refreshes BudgetProvider and MintStateProvider. emptyState "Configurons ton budget." CTA `/budget/setup`. partialState: some lines set → DIFF for the rest. errorState + Réessayer. killFlag `enableBudget`.
+> - `/budget/setup` — pre-fills only explicit persisted answers through the existing `ReportPersistenceService.loadAnswers()` compatibility seam, never derived `CoachProfile` defaults. This direct read remains P2 I-1 migration debt; writes already flow through `CoachProfileProvider.mergeAnswers()` using `q_housing_pay_frequency` for housing cadence and canonical `q_other_fixed_costs_monthly_chf` for other fixed costs. It never writes legacy `_coach_depenses_autres`. emptyState = the setup form itself (3 fields). errorState (save failed) → keep values + Réessayer. killFlag `enableBudget`.
 
 > **`/couple` sub-flow** (own contract, not a simulator):
 > - `/couple` — reads `HouseholdProvider` + `conjoint` (bridged to recompute, §10 test 3); writes spouse fields → `mergeAnswers()`. emptyState "Aucun partenaire lié." CTA "Inviter" → `/couple/accept` share flow. partialState: spouse partially known → DIFF prompt. errorState + Réessayer. killFlag `enableExplorerFamille`.
@@ -959,7 +964,30 @@ Widget-pump each route with its `DegradedFixture` (§10.0). For each: assert (a)
 Static source scan: FAIL if `SharedPreferences` `.setString(`/`.setInt(`/`.setDouble(`/`.setBool(` referencing a profile/budget/household key appears in any file EXCEPT `report_persistence_service.dart` and `coach_profile_provider.dart`. Ordinary profile writes go through `mergeAnswers/applySaveFact/updateProfile`; typed LPP review uses the dedicated `acceptLppReview` atomic seam. Assert `ScanSessionProvider` has no persistence API or profile-key writer, retains at most five process-local payloads, requires LPP candidate+authorization together, and strips candidates/authorization/source text before impact.
 
 ### 10.4 F-4 Bridged providers — `provider_bridge_recompute_test.dart`
-For each ledger-owning `BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, `DocumentsProvider` and conversation-store bridge: perform a mutation, then assert `MintStateProvider.recompute(profile)` was invoked (spy) AND the resulting `MintUserState` differs from pre-mutation. Each bridge obtains the profile via `context.read<CoachProfileProvider>().profile` at the call site (recompute REQUIRES the `CoachProfile` arg — see §0/§8; there is no zero-arg variant). For Budget specifically, assert `MintUserState.budgetGap` changed (fixes B-1). `ScanSessionProvider` is deliberately excluded: it owns only volatile route payloads and must not mutate/recompute the ledger; the reviewed provider write precedes `retainImpact`.
+For the BND-03 Budget slice, pump the production provider tree and mutate the
+canonical housing, LAMal and monthly debt keys through
+`CoachProfileProvider.mergeAnswers`. Assert the eager Budget proxy rehydrates
+inputs and plan exactly once, the eager MintState proxy refreshes
+`budgetSnapshot.present.monthlyCharges/monthlyFree` by the same base-fact
+delta, and a stale `budget_inputs_v1` cache cannot override the ledger on cold
+start. Persisted `future`/`variables` overrides may change only `BudgetPlan`.
+Add a distinct declared-tax fixture with
+`q_tax_provision_monthly_chf=300` and
+`q_other_fixed_costs_monthly_chf=100`: the typed profile must retain both
+facts and provenance independently, and BudgetInputs must expose
+`taxProvision=300`, `otherFixedCosts=100`, `isTaxEstimated=false`, with neither
+loss nor double count.
+Exercise both normalization orders: canonical write after a persisted legacy
+snapshot, then a legacy-form compatibility delta after a canonical snapshot.
+The final snapshot must contain only `q_other_fixed_costs_monthly_chf`;
+`_coach_depenses_autres` is absent, and the single
+`depenses.autresDepensesFixes` provenance entry belongs to the last real
+writer. Cold legacy migration preserves that entry without restamping it.
+Assert separately that `budgetGap` stays null without official AVS facts.
+`HouseholdProvider`, `TimelineProvider`, `DocumentsProvider` and conversation
+bridges remain separate F-4 debt and are not promoted by the Budget test.
+`ScanSessionProvider` remains excluded because it owns only volatile route
+payloads; the reviewed provider write precedes `retainImpact`.
 
 ### 10.5 F-5 Ranged + confidence — `projection_compliance_test.dart`
 For every screen rendering a numeric projection: assert presence of (a) a range widget (`find.byType(RangeBandWidget)`), (b) an `EnhancedConfidence` band, (c) text containing "à confirmer" OR "barème {year}", (d) the deterministic compliance filter passes (no banned terms: garanti/optimal/meilleur/certain/assuré/sans risque/parfait; no imperative/promissory forms). Runs against rendered strings.

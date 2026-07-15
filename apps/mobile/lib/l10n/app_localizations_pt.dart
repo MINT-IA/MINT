@@ -552,7 +552,7 @@ class SPt extends S {
   }
 
   @override
-  String get bankImportBudgetPreview => 'O teu orcamento estimado';
+  String get bankImportBudgetPreview => 'Rendimento mensal a confirmar';
 
   @override
   String get bankImportMonthlyIncome => 'Rendimento mensal';
@@ -567,14 +567,15 @@ class SPt extends S {
   String get bankImportSavingsRate => 'Taxa de poupanca';
 
   @override
-  String get bankImportButton => 'Importar para o meu orcamento';
+  String get bankImportButton => 'Confirmar este rendimento mensal';
 
   @override
   String get bankImportPrivacy =>
       'O teu extrato é enviado de forma segura ao nosso servidor para análise. Os dados brutos são eliminados após o processamento — apenas os resumos por categoria são conservados.';
 
   @override
-  String get bankImportSuccess => 'Orcamento atualizado com sucesso';
+  String get bankImportSuccess =>
+      'Rendimento atualizado. As despesas devem ser confirmadas separadamente.';
 
   @override
   String get bankImportCategoryLogement => 'Alojamento';

@@ -189,14 +189,14 @@
       }
     }
   },
-  "bankImportBudgetPreview": "Your estimated budget",
+  "bankImportBudgetPreview": "Monthly income to confirm",
   "bankImportMonthlyIncome": "Monthly income",
   "bankImportFixedCharges": "Fixed charges",
   "bankImportVariable": "Variable expenses",
   "bankImportSavingsRate": "Savings rate",
-  "bankImportButton": "Import into my budget",
+  "bankImportButton": "Confirm this monthly income",
   "bankImportPrivacy": "Your statement is securely sent to our server for analysis. Raw data is deleted after processing — only category summaries are kept.",
-  "bankImportSuccess": "Budget updated successfully",
+  "bankImportSuccess": "Income updated. Expenses still need to be confirmed separately.",
   "bankImportCategoryLogement": "Housing",
   "bankImportCategoryAlimentation": "Groceries",
   "bankImportCategoryTransport": "Transport",

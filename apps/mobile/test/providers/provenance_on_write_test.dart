@@ -30,6 +30,7 @@ final class _TrackingLppPersistence implements LppProfilePersistence {
 
 Future<CoachProfileProvider> _seededProvider({
   LppProfilePersistence? lppProfilePersistence,
+  Map<String, dynamic> additionalAnswers = const {},
 }) async {
   await ReportPersistenceService.saveAnswers({
     'q_birth_year': DateTime.now().year - 45,
@@ -37,6 +38,7 @@ Future<CoachProfileProvider> _seededProvider({
     'q_gross_salary_annual': 96000,
     'q_civil_status': 'celibataire',
     'q_has_pension_fund': 'yes',
+    ...additionalAnswers,
   });
   await ReportPersistenceService.setCompleted(true);
 
@@ -231,6 +233,136 @@ void main() {
       writeStartedAt: startedAt,
       writeCompletedAt: completedAt,
     );
+  });
+
+  test('canonical fixed costs retire a conflicting legacy alias', () async {
+    final provider = await _seededProvider(
+      additionalAnswers: const {'_coach_depenses_autres': 900.0},
+    );
+    expect(provider.profile!.depenses.autresDepensesFixes, 900.0);
+    final startedAt = DateTime.now();
+
+    await provider.mergeAnswersWithProvenance(
+      {'q_other_fixed_costs_monthly_chf': 1250.0},
+      source: ProfileDataSource.userInput,
+    );
+
+    final completedAt = DateTime.now();
+    await _expectAtomicColdRoundTrip(
+      writer: provider,
+      fieldPath: 'depenses.autresDepensesFixes',
+      expectedSource: ProfileDataSource.userInput,
+      expectedValue: 1250.0,
+      readValue: (profile) => profile.depenses.autresDepensesFixes,
+      writeStartedAt: startedAt,
+      writeCompletedAt: completedAt,
+    );
+    final persistedAnswers = await ReportPersistenceService.loadAnswers();
+    expect(
+      persistedAnswers,
+      isNot(contains('_coach_depenses_autres')),
+      reason: 'the canonical confirmed key must retire its legacy alias',
+    );
+  });
+
+  test('legacy fixed-cost deltas are normalized to the canonical writer',
+      () async {
+    final provider = await _seededProvider(
+      additionalAnswers: const {'q_other_fixed_costs_monthly_chf': 800.0},
+    );
+
+    await provider.mergeAnswers(
+      {'_coach_depenses_autres': 950.0},
+    );
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(provider.profile!.depenses.autresDepensesFixes, 950.0);
+    expect(answers, containsPair('q_other_fixed_costs_monthly_chf', 950.0));
+    expect(answers, isNot(contains('_coach_depenses_autres')));
+    expect(
+      provider.profile!.dataSources['depenses.autresDepensesFixes'],
+      ProfileDataSource.userInput,
+    );
+  });
+
+  test('explicit canonical fixed-cost clear also purges the legacy alias',
+      () async {
+    final provider = await _seededProvider(
+      additionalAnswers: const {'_coach_depenses_autres': 900.0},
+    );
+
+    await provider.mergeAnswers(
+      {'q_other_fixed_costs_monthly_chf': null},
+    );
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(provider.profile!.depenses.autresDepensesFixes, isNull);
+    expect(answers, containsPair('q_other_fixed_costs_monthly_chf', null));
+    expect(answers, isNot(contains('_coach_depenses_autres')));
+    expect(
+      provider.profile!.dataSources,
+      isNot(contains('depenses.autresDepensesFixes')),
+    );
+  });
+
+  test('cold load migrates legacy fixed costs and preserves canonical wins',
+      () async {
+    final updatedAt = DateTime.utc(2026, 6, 15, 10, 30);
+    final sourceDate = DateTime.utc(2026, 6, 1);
+    final provenance = <String, dynamic>{
+      'depenses.autresDepensesFixes': <String, dynamic>{
+        'source': ProfileDataSource.userInput.name,
+        'updatedAt': updatedAt.toIso8601String(),
+        'sourceDate': sourceDate.toIso8601String(),
+      },
+    };
+    for (final scenario in [
+      (
+        answers: const <String, dynamic>{'_coach_depenses_autres': 900.0},
+        expected: 900.0,
+      ),
+      (
+        answers: const <String, dynamic>{
+          '_coach_depenses_autres': 900.0,
+          'q_other_fixed_costs_monthly_chf': 1250.0,
+        },
+        expected: 1250.0,
+      ),
+    ]) {
+      await ReportPersistenceService.saveAnswers({
+        'q_birth_year': DateTime.now().year - 45,
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 96000,
+        'q_civil_status': 'celibataire',
+        '__provenance': provenance,
+        ...scenario.answers,
+      });
+      await ReportPersistenceService.setCompleted(true);
+
+      final provider = CoachProfileProvider();
+      await provider.loadFromWizard();
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(provider.profile!.depenses.autresDepensesFixes, scenario.expected);
+      expect(
+        answers,
+        containsPair('q_other_fixed_costs_monthly_chf', scenario.expected),
+      );
+      expect(answers, isNot(contains('_coach_depenses_autres')));
+      expect(answers['__provenance'], provenance);
+      expect(
+        provider.profile!.dataSources['depenses.autresDepensesFixes'],
+        ProfileDataSource.userInput,
+      );
+      expect(
+        provider.profile!.dataTimestamps['depenses.autresDepensesFixes'],
+        updatedAt,
+      );
+      expect(
+        provider.profile!.dataSourceDates['depenses.autresDepensesFixes'],
+        sourceDate,
+      );
+    }
   });
 
   test('confirmed LPP certificate fact commits value and provenance atomically',

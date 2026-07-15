@@ -891,7 +891,9 @@ class BudgetImportPreview {
       estimatedMonthlyIncome: income,
       estimatedMonthlyExpenses: expenses,
       topCategories: sortedCategories,
-      recurringCharges: result.recurringMonthly,
+      recurringCharges: result.recurringMonthly
+          .where((transaction) => transaction.amount < 0)
+          .toList(growable: false),
       savingsRate: savings,
     );
   }

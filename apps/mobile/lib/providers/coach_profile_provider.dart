@@ -181,6 +181,21 @@ class CoachProfileProvider extends ChangeNotifier {
   static Map<String, dynamic> _copyAnswers(Map<String, dynamic> answers) =>
       answers.map((key, value) => MapEntry(key, _copyAnswerValue(value)));
 
+  static ({Map<String, dynamic> answers, bool migrated})
+      _withCanonicalOtherFixedCostMigration(Map<String, dynamic> loaded) {
+    const canonicalKey = 'q_other_fixed_costs_monthly_chf';
+    const legacyKey = '_coach_depenses_autres';
+    if (!loaded.containsKey(legacyKey)) {
+      return (answers: loaded, migrated: false);
+    }
+    final answers = _copyAnswers(loaded);
+    if (!answers.containsKey(canonicalKey)) {
+      answers[canonicalKey] = answers[legacyKey];
+    }
+    answers.remove(legacyKey);
+    return (answers: answers, migrated: true);
+  }
+
   static dynamic _copyAnswerValue(dynamic value) {
     if (value is Map) {
       return value.map(
@@ -1144,6 +1159,8 @@ class CoachProfileProvider extends ChangeNotifier {
     'q_housing_cost_period_chf': ['depenses.loyer'],
     'q_housing_pay_frequency': ['depenses.loyer'],
     'q_lamal_premium_monthly_chf': ['depenses.assuranceMaladie'],
+    'q_tax_provision_monthly_chf': ['monthlyTaxProvisionDeclared'],
+    'q_other_fixed_costs_monthly_chf': ['depenses.autresDepensesFixes'],
     '_coach_depenses_electricite': ['depenses.electricite'],
     '_coach_depenses_transport': ['depenses.transport'],
     '_coach_depenses_telecom': ['depenses.telecom'],
@@ -1667,7 +1684,14 @@ class CoachProfileProvider extends ChangeNotifier {
       if (lppMigration.migrated) {
         await _lppProfilePersistence.saveAnswers(lppMigration.answers);
       }
-      final answers = lppMigration.answers;
+      final otherFixedCostMigration =
+          _withCanonicalOtherFixedCostMigration(lppMigration.answers);
+      if (otherFixedCostMigration.migrated) {
+        await _taxProfilePersistence.saveAnswers(
+          otherFixedCostMigration.answers,
+        );
+      }
+      final answers = otherFixedCostMigration.answers;
       _lastAnswers = _copyAnswers(answers);
       final partnerAccountabilityBinding =
           await _reconcilePartnerAccountabilityOnColdLoad(answers);
@@ -1837,12 +1861,21 @@ class CoachProfileProvider extends ChangeNotifier {
     // after the card Budget populated. Read-then-merge-then-save is the
     // only crash-safe discipline.
     final current = await ReportPersistenceService.loadAnswers();
-    final normalizedPartial = _withExplicitCashAnswerSource(
-      partial,
-      source: source,
+    final normalizedPartial = Map<String, dynamic>.from(
+      _withExplicitCashAnswerSource(partial, source: source),
     );
+    if (normalizedPartial.containsKey('_coach_depenses_autres')) {
+      normalizedPartial.putIfAbsent(
+        'q_other_fixed_costs_monthly_chf',
+        () => normalizedPartial['_coach_depenses_autres'],
+      );
+      normalizedPartial.remove('_coach_depenses_autres');
+    }
     final merged = Map<String, dynamic>.from(current)
       ..addAll(normalizedPartial);
+    if (normalizedPartial.containsKey('q_other_fixed_costs_monthly_chf')) {
+      merged.remove('_coach_depenses_autres');
+    }
     final clearsPartner = _setsNonCoupledCivilStatus(partial);
     if (clearsPartner) {
       _clearPartnerAnswers(merged);
@@ -3416,7 +3449,8 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['_coach_depenses_frais_medicaux'] = fraisMedicaux;
     }
     if (autresDepensesFixes != null) {
-      answers['_coach_depenses_autres'] = autresDepensesFixes;
+      answers['q_other_fixed_costs_monthly_chf'] = autresDepensesFixes;
+      answers.remove('_coach_depenses_autres');
     }
     if (hypotheque != null) {
       answers['_coach_dettes_hypotheque'] = hypotheque;

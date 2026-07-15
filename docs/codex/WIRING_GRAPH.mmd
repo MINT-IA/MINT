@@ -27,8 +27,8 @@ flowchart TB
 
   %% ==========================================================================
   %% PART A — PROVIDER / DATA-FLOW GRAPH (apps/mobile/lib/app.dart:1418-1520)
-  %% The spine + the islands. Solid arrow = live listen/recompute edge that
-  %% EXISTS in code. Dashed arrow = REQUIRED bridge that is MISSING today.
+  %% The spine + the remaining islands. Solid arrow = live listen/recompute
+  %% edge that EXISTS in code. Dashed arrow = REQUIRED bridge still MISSING.
   %% ==========================================================================
   subgraph SPINE["PROVIDER / DATA-FLOW (source of truth)"]
     direction TB
@@ -43,15 +43,15 @@ flowchart TB
     CPP <-- "load/persist" --> PERSIST
     CPP -. "fire-and-forget sync" .-> BACKEND
 
-    %% Islands: plain ChangeNotifierProvider, NOT bridged to the recompute.
-    BUDGET["BudgetProvider<br/>app.dart:1426 — ISLAND"]
+    %% Budget is a derived read model; the other nodes remain islands.
+    BUDGET["BudgetProvider<br/>app.dart:1788 — eager ProxyProvider<br/>base facts from CoachProfile<br/>other fixed writer: q_other_fixed_costs_monthly_chf<br/>local cache: overrides only"]
     HOUSE["HouseholdProvider<br/>app.dart:1434 — ISLAND"]
     TIMELINE["TimelineProvider<br/>app.dart:1491 — ISLAND"]
     DOCS["DocumentProvider<br/>app.dart:1432 — ISLAND"]
     PLAN["FinancialPlanProvider<br/>app.dart:1486 — ISLAND"]
     DEADP["ProfileProvider<br/>app.dart:1425 — LEGACY (5 live consumers, migrate then delete)"]
 
-    BUDGET -. "MISSING bridge -> recompute" .-> MSP
+    CPP -- "eager proxy update<br/>rehydrateFromProfile" --> BUDGET
     HOUSE  -. "MISSING sync -> CoachProfile.conjoint" .-> CPP
     TIMELINE -. "MISSING bridge (re-fetches 4 services)" .-> MSP
     DOCS   -. "MISSING merge into ledger" .-> CPP
@@ -264,7 +264,7 @@ flowchart TB
       SREVIEW["/scan/review<br/>builds from extra (:903)"]:::trap
       SIMPACT["/scan/impact<br/>builds from extra (:916)"]:::trap
       DBLOCK["/data-block/:type<br/>DataBlockEnrichmentScreen"]
-      DOCLIST["/documents"]; DOCID["/documents/:id"]; BANKIMP["/bank-import"]
+      DOCLIST["/documents"]; DOCID["/documents/:id"]; BANKIMP["/bank-import<br/>manual CSV/PDF<br/>confirmed income: userInput<br/>charges: preview only"]
       RAPPORT["/rapport<br/>depends on extra (:974)"]:::trap
       CONF["/confidence"]
     end
@@ -375,13 +375,18 @@ flowchart TB
 %%     G1 status @095eeaa32: FALSE as written. Mobile RegisterScreen and several
 %%     backend endpoints write through other sanctioned stores/endpoints. Narrow
 %%     the invariant before enforcing.
-%% I-4 NO ISLANDS: every provider that holds user-derived state must feed the
-%%     recompute. Today MISSING for BudgetProvider(:1426), HouseholdProvider
-%%     (:1434), TimelineProvider(:1491), DocumentProvider(:1432),
-%%     FinancialPlanProvider(:1486). FIX: convert each to
+%% I-4 NO ISLANDS: every provider that owns durable user facts must feed the
+%%     recompute. BudgetProvider is now a one-way eager derived proxy from
+%%     CoachProfileProvider; its future/variables overrides remain local to its
+%%     BudgetPlan and never masquerade as ledger facts. The legacy
+%%     _coach_depenses_autres alias is read/migrate-only and purged in favour of
+%%     q_other_fixed_costs_monthly_chf. Still MISSING for
+%%     HouseholdProvider, TimelineProvider, DocumentProvider and
+%%     FinancialPlanProvider. FIX the remaining islands by converting each to
 %%     ChangeNotifierProxyProvider<CoachProfileProvider, _> OR emit a bridge
 %%     that calls MintStateProvider.recompute (pattern = app.dart:1473-1483).
-%%     G1 status @095eeaa32: VERIFIED AS DEBT.
+%%     This wiring update does not promote BND-03 or G1; exact-SHA acceptance
+%%     evidence remains a separate gate.
 %% I-5 LEGACY PROVIDER (partial-migration target): ProfileProvider(:1425) still
 %%     has 5 live consumers:
 %%       - simulator_3a_screen.dart:197 (context.read<ProfileProvider>())

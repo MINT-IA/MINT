@@ -2557,6 +2557,7 @@ class CoachProfile {
   // === REVENUS ===
   final double salaireBrutMensuel;
   final double? monthlyNetIncomeDeclared; // CHF/month, direct user net income
+  final double? monthlyTaxProvisionDeclared; // CHF/month, direct tax provision
   final double nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
   final double employmentRate; // 0.0-100.0 (%), default full-time
@@ -2712,6 +2713,7 @@ class CoachProfile {
     this.conjoint,
     required this.salaireBrutMensuel,
     this.monthlyNetIncomeDeclared,
+    this.monthlyTaxProvisionDeclared,
     this.nombreDeMois = 12.0,
     this.bonusPourcentage,
     this.employmentRate =
@@ -2853,6 +2855,7 @@ class CoachProfile {
           conjoint == other.conjoint &&
           salaireBrutMensuel == other.salaireBrutMensuel &&
           monthlyNetIncomeDeclared == other.monthlyNetIncomeDeclared &&
+          monthlyTaxProvisionDeclared == other.monthlyTaxProvisionDeclared &&
           nombreDeMois == other.nombreDeMois &&
           bonusPourcentage == other.bonusPourcentage &&
           employmentRate == other.employmentRate &&
@@ -2904,6 +2907,7 @@ class CoachProfile {
         conjoint,
         salaireBrutMensuel,
         monthlyNetIncomeDeclared,
+        monthlyTaxProvisionDeclared,
         nombreDeMois,
         bonusPourcentage,
         employmentRate,
@@ -3333,6 +3337,7 @@ class CoachProfile {
     ConjointProfile? conjoint,
     double? salaireBrutMensuel,
     double? monthlyNetIncomeDeclared,
+    double? monthlyTaxProvisionDeclared,
     double? nombreDeMois,
     double? bonusPourcentage,
     double? employmentRate,
@@ -3405,6 +3410,8 @@ class CoachProfile {
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       monthlyNetIncomeDeclared:
           monthlyNetIncomeDeclared ?? this.monthlyNetIncomeDeclared,
+      monthlyTaxProvisionDeclared:
+          monthlyTaxProvisionDeclared ?? this.monthlyTaxProvisionDeclared,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
       employmentRate: employmentRate ?? this.employmentRate,
@@ -3479,43 +3486,11 @@ class CoachProfile {
   //  BRIDGE → BUDGET
   // ════════════════════════════════════════════════════════════════
 
-  /// Convertit le CoachProfile en BudgetInputs.
+  /// Compatibility facade for consumers that start from a [CoachProfile].
   ///
-  /// Utile quand on a un CoachProfile mais pas les réponses wizard brutes.
-  /// Le revenu net utilise NetIncomeBreakdown (canton + age).
-  /// Les dettes mensuelles excluent l'hypothèque, déjà portée par housingCost.
-  /// Si seules des dettes de consommation en capital sont connues, elles sont
-  /// estimées sur 36 mois de remboursement.
-  BudgetInputs toBudgetInputs() {
-    final breakdown = NetIncomeBreakdown.compute(
-      grossSalary: salaireBrutMensuel * 12,
-      canton: canton,
-      age: age,
-    );
-    final netMensuel = monthlyNetIncomeDeclared ?? breakdown.monthlyNetPayslip;
-    final consumerMonthlyDebt = (dettes.mensualiteCreditConso ?? 0.0) +
-        (dettes.mensualiteLeasing ?? 0.0);
-    final consumerDebtPrincipal = (dettes.creditConsommation ?? 0.0) +
-        (dettes.leasing ?? 0.0) +
-        (dettes.autresDettes ?? 0.0);
-    final monthlyDebt = consumerMonthlyDebt > 0
-        ? consumerMonthlyDebt
-        : (consumerDebtPrincipal > 0 ? consumerDebtPrincipal / 36 : 0.0);
-    // Estimer les mois de fonds d'urgence
-    final monthlyExpenses = depenses.totalMensuel > 0
-        ? depenses.totalMensuel
-        : netMensuel * 0.6; // fallback: 60% du net
-    final emergencyMonths =
-        monthlyExpenses > 0 ? patrimoine.epargneLiquide / monthlyExpenses : 0.0;
-
-    return BudgetInputs(
-      payFrequency: PayFrequency.monthly,
-      netIncome: netMensuel,
-      housingCost: depenses.loyer,
-      debtPayments: monthlyDebt,
-      emergencyFundMonths: emergencyMonths,
-    );
-  }
+  /// Projection logic stays in one place so debt tools cannot drift from the
+  /// budget, MintState, or the declared tax and partner-income facts.
+  BudgetInputs toBudgetInputs() => BudgetInputs.fromCoachProfile(this);
 
   // ════════════════════════════════════════════════════════════════
   //  BRIDGE — CoachingService
@@ -3620,6 +3595,8 @@ class CoachProfile {
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble() ?? 0,
       monthlyNetIncomeDeclared:
           (json['monthlyNetIncomeDeclared'] as num?)?.toDouble(),
+      monthlyTaxProvisionDeclared:
+          (json['monthlyTaxProvisionDeclared'] as num?)?.toDouble(),
       nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
       employmentRate: IncomeConversionCalculator.clampEmploymentRatePercent(
@@ -3760,6 +3737,7 @@ class CoachProfile {
         'conjoint': conjoint?.toJson(),
         'salaireBrutMensuel': salaireBrutMensuel,
         'monthlyNetIncomeDeclared': monthlyNetIncomeDeclared,
+        'monthlyTaxProvisionDeclared': monthlyTaxProvisionDeclared,
         'nombreDeMois': nombreDeMois,
         'bonusPourcentage': bonusPourcentage,
         'employmentRate': employmentRate,
@@ -3974,10 +3952,10 @@ class CoachProfile {
     final assuranceMaladie =
         lamalFromOnboarding ?? _estimateAssuranceMaladie(canton);
 
-    // Tax provision and other fixed costs from onboarding
-    final taxProvision = _parseDouble(answers['q_tax_provision_monthly_chf']);
+    // Tax provision and other fixed costs are separate canonical facts.
+    final monthlyTaxProvisionDeclared =
+        _parseDouble(answers['q_tax_provision_monthly_chf']);
     final otherFixed = _parseDouble(answers['q_other_fixed_costs_monthly_chf']);
-    final debtPayments = _parseDouble(answers['q_debt_payments_period_chf']);
 
     // _coach_depenses_* keys are written by updateInline() for fields that
     // have no canonical wizard question (electricite, transport, telecom,
@@ -3989,10 +3967,8 @@ class CoachProfile {
       transport: _parseDouble(answers['_coach_depenses_transport']),
       telecom: _parseDouble(answers['_coach_depenses_telecom']),
       fraisMedicaux: _parseDouble(answers['_coach_depenses_frais_medicaux']),
-      autresDepensesFixes: _parseDouble(answers['_coach_depenses_autres']) ??
-          ((taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0) > 0
-              ? (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0)
-              : null),
+      autresDepensesFixes:
+          otherFixed ?? _parseDouble(answers['_coach_depenses_autres']),
     );
 
     // ── Prevoyance ──────────────────────────────────────────
@@ -4638,6 +4614,10 @@ class CoachProfile {
     if (answers['q_cash_total'] != null && cashSource != null) {
       restoredDataSources['patrimoine.epargneLiquide'] = cashSource;
     }
+    if (monthlyTaxProvisionDeclared != null) {
+      restoredDataSources['monthlyTaxProvisionDeclared'] =
+          ProfileDataSource.userInput;
+    }
 
     // S47: Build initial dataTimestamps for all populated fields.
     // Use persisted updatedAt as base (reflects when data was actually entered),
@@ -4650,6 +4630,8 @@ class CoachProfile {
           answers.containsKey('q_gross_salary_annual') ||
           answers.containsKey('q_self_employed_income'))
         'salaireBrutMensuel': baseTimestamp,
+      if (monthlyTaxProvisionDeclared != null)
+        'monthlyTaxProvisionDeclared': baseTimestamp,
       if (answers.containsKey('q_birth_year') ||
           answers.containsKey('q_date_of_birth'))
         'age': baseTimestamp,
@@ -4778,6 +4760,9 @@ class CoachProfile {
     if (answers.containsKey('q_gross_salary_annual')) {
       provided.add('grossSalaryAnnual');
     }
+    if (monthlyTaxProvisionDeclared != null) {
+      provided.add('monthlyTaxProvisionDeclared');
+    }
     if (answers.containsKey('q_self_employed_income')) {
       provided.add('selfEmployedNetIncome');
     }
@@ -4862,6 +4847,7 @@ class CoachProfile {
       conjoint: conjoint,
       salaireBrutMensuel: salaireBrutMensuel,
       monthlyNetIncomeDeclared: monthlyNetIncomeDeclared,
+      monthlyTaxProvisionDeclared: monthlyTaxProvisionDeclared,
       nombreDeMois: nombreDeMois,
       bonusPourcentage: bonusPourcentage,
       employmentRate: employmentRate,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -89,7 +88,10 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           _formatAnswerAmount(answers['_coach_depenses_electricite']);
       _medical.text =
           _formatAnswerAmount(answers['_coach_depenses_frais_medicaux']);
-      _other.text = _formatAnswerAmount(answers['_coach_depenses_autres']);
+      _other.text = _formatAnswerAmount(
+        answers['q_other_fixed_costs_monthly_chf'] ??
+            answers['_coach_depenses_autres'],
+      );
       setState(() {
         _lamalFranchise = _coerceFranchise(answers['q_lamal_franchise']);
       });
@@ -211,7 +213,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     }
     if (housing != null) {
       answers['q_housing_cost_period_chf'] = housing;
-      answers['q_pay_frequency'] = 'monthly';
+      answers['q_housing_pay_frequency'] = 'monthly';
     }
     if (_lamalFranchise != null) {
       answers['q_lamal_franchise'] = _lamalFranchise.toString();
@@ -229,20 +231,11 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       answers['_coach_depenses_frais_medicaux'] = medical;
     }
     final other = _parseAmount(_other.text);
-    if (other != null) answers['_coach_depenses_autres'] = other;
+    if (other != null) {
+      answers['q_other_fixed_costs_monthly_chf'] = other;
+    }
 
     await provider.mergeAnswers(answers);
-    if (!mounted) return;
-    // Refresh BudgetProvider so the Mon argent « Ton budget ce mois »
-    // card re-derives inputs from the updated CoachProfile.depenses and
-    // swaps from the empty budget-definition state to the computed
-    // plan (revenu / charges fixes / reste). Without this the user
-    // enters their charges and the card still shows « Commencer » —
-    // silent failure, identical to the save_fact bug.
-    final updated = provider.profile;
-    if (updated != null) {
-      await context.read<BudgetProvider>().refreshFromProfile(updated);
-    }
     if (!mounted) return;
     setState(() => _saving = false);
     Navigator.of(context).pop();

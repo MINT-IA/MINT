@@ -555,7 +555,7 @@ class SIt extends S {
   }
 
   @override
-  String get bankImportBudgetPreview => 'Il tuo budget stimato';
+  String get bankImportBudgetPreview => 'Reddito mensile da confermare';
 
   @override
   String get bankImportMonthlyIncome => 'Reddito mensile';
@@ -570,14 +570,15 @@ class SIt extends S {
   String get bankImportSavingsRate => 'Tasso di risparmio';
 
   @override
-  String get bankImportButton => 'Importa nel mio budget';
+  String get bankImportButton => 'Conferma questo reddito mensile';
 
   @override
   String get bankImportPrivacy =>
       'Il tuo estratto conto viene inviato in modo sicuro al nostro server per l\'analisi. I dati grezzi vengono eliminati dopo l\'elaborazione — vengono conservati solo i riepiloghi per categoria.';
 
   @override
-  String get bankImportSuccess => 'Budget aggiornato con successo';
+  String get bankImportSuccess =>
+      'Reddito aggiornato. Le spese devono essere confermate separatamente.';
 
   @override
   String get bankImportCategoryLogement => 'Alloggio';

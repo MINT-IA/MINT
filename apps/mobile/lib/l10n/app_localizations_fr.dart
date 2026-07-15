@@ -553,7 +553,7 @@ class SFr extends S {
   }
 
   @override
-  String get bankImportBudgetPreview => 'Ton budget estimé';
+  String get bankImportBudgetPreview => 'Revenu mensuel à confirmer';
 
   @override
   String get bankImportMonthlyIncome => 'Revenu mensuel';
@@ -568,14 +568,15 @@ class SFr extends S {
   String get bankImportSavingsRate => 'Taux d\'épargne';
 
   @override
-  String get bankImportButton => 'Importer dans mon budget';
+  String get bankImportButton => 'Confirmer ce revenu mensuel';
 
   @override
   String get bankImportPrivacy =>
       'Ton relevé est envoyé de manière sécurisée à notre serveur pour analyse. Les données brutes sont supprimées après traitement — seuls les résumés par catégorie sont conservés.';
 
   @override
-  String get bankImportSuccess => 'Budget mis à jour avec succès';
+  String get bankImportSuccess =>
+      'Revenu mis à jour. Les charges restent à confirmer séparément.';
 
   @override
   String get bankImportCategoryLogement => 'Logement';

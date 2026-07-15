@@ -1771,7 +1771,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           return auth;
         }),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = ByokProvider();
           provider.loadSavedKey();
@@ -1786,6 +1785,22 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.loadFromWizard();
           return provider;
         }),
+        ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>(
+          lazy: false,
+          create: (_) {
+            final provider = BudgetProvider();
+            provider.loadFromStorage();
+            return provider;
+          },
+          update: (_, profileProvider, budgetProvider) {
+            final provider = budgetProvider ?? BudgetProvider();
+            final profile = profileProvider.profile;
+            if (profile != null) {
+              provider.rehydrateFromProfile(profile);
+            }
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
           provider.load();

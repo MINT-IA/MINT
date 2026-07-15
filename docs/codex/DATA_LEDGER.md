@@ -43,7 +43,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-1 — SINGLE SOURCE.** Every screen reads the domain data it renders from the ledger (`context.watch<MintStateProvider>().state` or `CoachProfileProvider.profile`) ONLY. A screen MUST NOT read domain data from `GoRouter.extra`.
 - **I-2 — extra carries only ephemera.** `GoRouter.extra` / query params may carry ids, enums, ephemeral UI selection. They MUST NOT carry the financial values a screen needs to render. (Fixes `/scan/review`, `/scan/impact`, `/rapport`, `/portfolio` dead roads — wiring findings §C; per-route contracts in §7A.)
 - **I-3 — SINGLE WRITE PATH.** Every write goes through `CoachProfileProvider.mergeAnswers()` or `.applySaveFact()` (which itself calls `mergeAnswers`). No `SharedPreferences`/file/DB write of domain data from a screen or service that bypasses the provider. Simulators that write back MUST call `provider.updateProfile()` (already correct — keep it).
-- **I-4 — NO ISLANDS.** Every isolated provider (`BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, documents, conversations) MUST bridge into the recompute so `MintUserState` is never stale. See §7.
+- **I-4 — NO ISLANDS.** Every provider that owns durable facts MUST bridge into the ledger/recompute so `MintUserState` is never stale. `BudgetProvider` is a one-way eager projection of `CoachProfile`; `HouseholdProvider`, `TimelineProvider`, documents and conversations retain their §7 bridge debt. See §7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
 - **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (36 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist, coach tool enum, mobile mapper, and profile reads are now in sync for all 36 keys; §3.8 keeps the repair history and the parity gate.
@@ -1327,11 +1327,51 @@ calculations stay null/partial.
 | `depenses.loyer` | double CHF/mo | expenses | userInput | volatile | .60 | mergeAnswers | budget, `resteAVivreMensuel` |
 | `depenses.assuranceMaladie` | double CHF/mo | expenses | userInput, certificate, openBanking | annual | .60 | mergeAnswers, `_coach_depenses_assurance` bridge | budget |
 | `q_lamal_franchise` | enum CHF | insurance | userInput, certificate | annual | .80 | mergeAnswers | LAMal |
-| `depenses.{electricite,transport,telecom,fraisMedicaux,autresDepensesFixes}` | double? CHF/mo | expenses | userInput | volatile | .60 | mergeAnswers | `totalMensuel`, budget gap; `fraisMedicaux` also feeds LAMal as annualized health-cost fact |
+| `monthlyTaxProvisionDeclared` (`q_tax_provision_monthly_chf`) | double? CHF/mo | tax/expenses | userInput, openBanking | annual | .60 | mergeAnswers | `BudgetInputs.taxProvision`; exact declared fact sets `isTaxEstimated=false`, null alone activates estimator fallback |
+| `depenses.{electricite,transport,telecom,fraisMedicaux}` | double? CHF/mo | expenses | userInput | volatile | .60 | mergeAnswers | `totalMensuel`, budget gap; `fraisMedicaux` also feeds LAMal as annualized health-cost fact |
+| `depenses.autresDepensesFixes` (`q_other_fixed_costs_monthly_chf`) | double? CHF/mo | expenses | userInput | volatile | .60 | mergeAnswers | `BudgetInputs.otherFixedCosts`; excludes tax and debt; manual bank-import charges are preview-only |
 
-> `depenses.*` field paths are NOT allowlist keys and have NO `_mapFactKeyToAnswers` case. The BudgetProvider bridge (§7) therefore writes them via the **field-path payload shape** defined in §7B, not via a `q_*` mapping.
+> `depenses.*` field paths are NOT answer keys. Budget base facts already have
+> canonical `q_*` keys (`q_housing_cost_period_chf`,
+> `q_housing_pay_frequency`, `q_lamal_premium_monthly_chf`,
+> `q_debt_payments_period_chf`, plus the explicit `_coach_depenses_*` keys) and
+> are persisted through `mergeAnswers`; `BudgetProvider` only derives from the
+> published profile. No generic field-path alias payload is implemented or required by
+> the BND-03 contract.
+> `q_tax_provision_monthly_chf` remains the sole durable answer source;
+> nullable `CoachProfile.monthlyTaxProvisionDeclared` is its typed reconstructed
+> projection, not a second SOT. It owns the canonical provenance path
+> `monthlyTaxProvisionDeclared` and participates in profile JSON,
+> equality/hash, `copyWith`, and `userProvidedFields`. It is never folded into
+> `depenses.autresDepensesFixes`: `q_other_fixed_costs_monthly_chf=100` and
+> declared tax `=300` must produce `otherFixedCosts=100`,
+> `taxProvision=300`, and `isTaxEstimated=false`.
+> `q_other_fixed_costs_monthly_chf` is the sole post-BND-03 writer for
+> `depenses.autresDepensesFixes`. Legacy `_coach_depenses_autres` is
+> read/migrate-only: a canonical key present in the snapshot wins even when its
+> value is explicit `null`; otherwise the legacy value is moved to the canonical
+> key and the alias is purged atomically. Cold migration preserves the existing
+> canonical provenance envelope without changing source or timestamps. A real
+> incoming writer stamps its actual source only after alias normalization. The
+> symmetry gate covers canonical-write-after-legacy-snapshot and a legacy-form
+> compatibility delta after a canonical snapshot; both finish with only the
+> canonical key and provenance belonging to the last real writer.
+> Manual `/bank-import` CSV/PDF is not an Open Banking source: after review it
+> may confirm only net income and cadence with `userInput` provenance. Its
+> categorized charges remain preview-only and never write other fixed costs,
+> housing, LAMal, declared tax, or debt.
 > `monthlyExpenses` is a **completion marker**, not a stored ledger value. Mobile may add it to `CoachProfile.userProvidedFields` only when both base monthly-charge keys `q_housing_cost_period_chf` and `q_lamal_premium_monthly_chf` are present. Screens such as `/disability/self-employed` must not unlock expense-sensitive projections from the default rent (`1500`) or estimated LAMal fallback.
 > `q_housing_cost_period_chf` is interpreted as a monthly housing charge unless an optional dedicated `q_housing_pay_frequency` says `yearly`/`annuel`; income `q_pay_frequency` must not change housing charges.
+
+> **Debt precedence for BND-03:** `q_debt_payments_period_chf` is the exact
+> aggregate monthly consumer-debt service and wins when present. Only when it
+> is absent may aggregate consumer/leasing/other capital use the explicit
+> estimated `/36` fallback. A mixed per-instrument state (for example exact
+> credit payment plus leasing capital without leasing payment) cannot be
+> combined safely because the aggregate may already include the lease. That
+> requires a future schema ticket for separately proven monthly payments and
+> estimation metadata; it is not a BND-03 blocker and must not introduce a
+> guessed additive charge in this slice.
 
 ### 4.5 Couple detail (`conjoint.*`) and goals/meta
 
@@ -1385,7 +1425,7 @@ The ledger `fresh` column (§3/§4) IS the authoritative `freshnessCategory` sou
 | Per-field provenance | §6 | `{source, sourceDate, updatedAt}` per field (mobile maps + backend). |
 | Stale → re-confirm | `data_block_enrichment_screen.dart` | If `FreshnessDecayService.weightForField(path, profile, now) < 0.60` ⇒ show "On a noté X (il y a N mois) — toujours juste ?" with [Confirmer]/[Corriger] (all strings via `AppLocalizations`). Confirm ⇒ `mergeAnswers` same value, new `updatedAt` (resets decay). NEVER blank the field. |
 | Diff not form | data-block + collection flows | Only render inputs for fields where value is null OR `weightForField < 0.60`. Skip fields already fresh. (I-6) |
-| Before/after delta | new widget in data-block | Snapshot `MintUserState` before write into `initialProjectionSnapshot`; after `mergeAnswers` resolves, diff `budgetGap`/`confidenceScore`/projection vs snapshot; render Δ. |
+| Before/after delta | new widget in data-block | Snapshot `MintUserState` before write into `initialProjectionSnapshot`; after `mergeAnswers` resolves, diff `budgetSnapshot.present.monthlyCharges/monthlyFree`, `confidenceScore`, or the relevant projection. Diff `budgetGap` only when the official AVS inputs needed to compute it exist; otherwise it remains null. |
 | Goal-aware prioritization | `suggest_actions` (backend, `coach_chat.py:~900`) | Replace the hardcoded if-chains (currently `if data.get(...)` blocks) with `rank_enrichment_prompts()`, then re-weight by `goal`/`primaryFocus` (e.g. goal=house ⇒ boost mortgage/affordability fields). |
 | Smart stage-2 sequencing | after `minimal_profile_service` | After the 3-field bootstrap (age/grossSalary/canton), sequence next asks by `rank_enrichment_prompts()` effective impact, not fixed order. |
 | Multi-event "case" | new orchestration over ledger | A life event pulls its linked sub-collections (e.g. divorce ⇒ couple + patrimoine + dettes + goals) as one diff session. |
@@ -1464,12 +1504,20 @@ The doc must give the per-route reads/writes/emptyState/partialState/errorState/
 
 ### 7B. Provider bridges
 
-`depenses.*`, `conjoint.*` and other §4 field paths are NOT allowlist keys and have NO `_mapFactKeyToAnswers` case. Bridges that need to write them use the **field-path payload shape**: `mergeAnswers` accepts, in addition to `q_*` wizard keys, entries whose key is a **dotted CoachProfile field path** (prefix `fp:` to disambiguate), which `mergeAnswers` routes to the sub-model setter and records provenance for. **Task T-4 (mandatory):** extend `mergeAnswers` to accept `{'fp:depenses.loyer': 1800, ...}` entries (route by path, set value, set `dataSources`/`dataTimestamps`/`dataSourceDates`), and add a **re-entrancy guard** (`bool _mergingFromBridge`) so a bridge-triggered `notifyListeners()` → recompute cannot loop back into the same bridge.
+`depenses.*`, `conjoint.*` and other §4 names are typed model/provenance paths,
+not accepted answer-map keys. There is no generic field-path alias protocol in production.
+Budget uses canonical `q_*` and the remaining `_coach_depenses_*` mappings
+already consumed by
+`CoachProfile.fromWizardAnswers`; a future bridge without such a key must add an
+explicit reviewed mapping or typed setter rather than invent a second alias.
+The Budget bridge is one-way (`CoachProfileProvider` → `BudgetProvider`), so it
+cannot loop back into `mergeAnswers`; idempotence is enforced at profile
+rehydration instead of by a write-side re-entrancy flag.
 
-| Island | Path (authoritative store) | Problem | Fix (mechanical) |
+| Provider / store | Path (authoritative store) | Problem | Fix (mechanical) |
 |---|---|---|---|
-| `BudgetProvider` | `apps/mobile/lib/providers/budget/budget_provider.dart` (the provider); ancillary `domain/budget/budget_service.dart` (pure calc), `data/budget/budget_local_store.dart` (cache), `budget_living_engine.dart` (derivation) | overrides don't trigger recompute → `MintUserState.budgetGap` stale on Pulse/home | On budget override commit, call `CoachProfileProvider.mergeAnswers({'fp:depenses.loyer': v, 'fp:depenses.assuranceMaladie': v, ...})` (field-path shape, §7B) so the change flows into `CoachProfile.depenses` and recompute fires. **Authoritative store after the fix = `CoachProfile.depenses` via the provider.** `budget_local_store.dart` is DEMOTED to a non-authoritative UI cache: it may cache for fast paint but MUST NOT be the source other screens read, and MUST be re-hydrated from `CoachProfile.depenses` on load. Remove any code path where a screen reads budget domain values from `budget_local_store` instead of the ledger. |
-| `HouseholdProvider` | backend-only spouse data | not synced into `CoachProfile.conjoint` → offline sims miss spouse | On household fetch/edit, bridge `conjoint.*` field-path entries through `mergeAnswers`. The coach `save_fact` spouse keys (`spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`) already bridge through existing wizard keys; this remaining task is provider-to-ledger sync, not a §3.8 mapper repair. |
+| `BudgetProvider` | `CoachProfile` is authoritative; `budget_provider.dart` is a derived read model, `budget_service.dart` a pure calculation, and `budget_local_store.dart` an overrides-only cache | Base fact mutations must refresh both the budget plan and `MintUserState` without a manual screen bridge or stale cold-start cache | Production uses an eager `ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>` and idempotent `rehydrateFromProfile`. Housing, LAMal, declared tax, canonical `q_other_fixed_costs_monthly_chf`, and exact aggregate monthly debt service are written through their canonical answer keys, then the published profile independently feeds BudgetProvider and MintStateProvider. `_coach_depenses_autres` is purged after read/migration and never remains an active writer. Declared tax and other fixed costs stay distinct. `budget_inputs_v1` is discarded; only `future`/`variables` overrides persist and affect `BudgetPlan`, never the ledger or `MintUserState`. The recompute oracle is `budgetSnapshot.present.monthlyCharges/monthlyFree`; `budgetGap` stays null while official AVS facts are unavailable. This implemented wiring does not itself promote BND-03 or G1. |
+| `HouseholdProvider` | backend-only spouse data | not synced into `CoachProfile.conjoint` → offline sims miss spouse | On household fetch/edit, add explicit reviewed spouse answer mappings or a typed provider setter; do not pass dotted model paths as answer keys. The coach `save_fact` spouse keys (`spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`) already bridge through existing wizard keys; this remaining task is provider-to-ledger sync, not a §3.8 mapper repair. |
 | `TimelineProvider` | 4 re-fetched services | conversations (`_chat_conversation_index`) + documents (`_uploaded_documents`) in separate SharedPreferences keys, not in profile | Keep these as separate stores (not domain financial data), but surface their derived facts (e.g. a scanned LPP cert) into the ledger via `mergeAnswers`/`applySaveFact` at extraction time. Timeline reads ledger for the financial dimension; references docs/threads by id only. |
 | Documents / Conversations | separate SP keys | not merged into profile | Same as above: the *extracted facts* go through `applySaveFact`; the raw documents/threads stay in their own stores (not part of the ledger, referenced by id only — never via `GoRouter.extra`, I-2). |
 
@@ -1539,7 +1587,8 @@ flowchart TD
     C[Coach save_fact tool]
     S[Scan / OCR extraction]
     SIM[Simulators]
-    B[BudgetProvider override]
+    B[Budget confirmed base facts]
+    BO[Budget future / variables override]
     H[HouseholdProvider spouse]
   end
 
@@ -1547,8 +1596,8 @@ flowchart TD
   AF -->|_mapFactKeyToAnswers → q_* / _coach_*| MA
   W --> MA[CoachProfileProvider.mergeAnswers]
   S --> MA
-  B -->|bridge: fp:depenses.* payload| MA
-  H -->|bridge: spouse keys + fp:conjoint.*| MA
+  B -->|canonical q_* / remaining _coach_depenses_* keys| MA
+  H -->|explicit reviewed spouse mapping required| MA
   SIM --> UP[CoachProfileProvider.updateProfile]
 
   MA --> PERS[(report_persistence_service<br/>wizard_answers_v2 SP)]
@@ -1556,10 +1605,14 @@ flowchart TD
   MA -. set .-> PROV[dataSources + dataTimestamps + dataSourceDates]
   PERS --> RC[CoachProfile.fromWizardAnswers]
   RC --> CP[(CoachProfile = THE ledger)]
+  CP --> BPROX[ChangeNotifierProxyProvider<br/>eager rehydrateFromProfile]
+  BPROX --> BP[BudgetProvider<br/>derived inputs + plan]
+  BO -->|local scenario only| BP
   CP --> PROX[ChangeNotifierProxyProvider]
   PROX --> MS[MintStateProvider.recompute -> MintUserState]
 
   MS --> SCREENS[Every screen: context.watch MintStateProvider .state]
+  BP --> SCREENS
   CP --> SCREENS
 
   MA -.->|fire-and-forget + §2.2 crosswalk| BE[(Backend ProfileModel.data<br/>+ data_sources/data_updated/data_source_dt)]

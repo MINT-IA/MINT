@@ -552,7 +552,7 @@ class SEs extends S {
   }
 
   @override
-  String get bankImportBudgetPreview => 'Tu presupuesto estimado';
+  String get bankImportBudgetPreview => 'Ingreso mensual por confirmar';
 
   @override
   String get bankImportMonthlyIncome => 'Ingreso mensual';
@@ -567,14 +567,15 @@ class SEs extends S {
   String get bankImportSavingsRate => 'Tasa de ahorro';
 
   @override
-  String get bankImportButton => 'Importar a mi presupuesto';
+  String get bankImportButton => 'Confirmar este ingreso mensual';
 
   @override
   String get bankImportPrivacy =>
       'Tu extracto se envía de forma segura a nuestro servidor para su análisis. Los datos brutos se eliminan tras el procesamiento — solo se conservan los resúmenes por categoría.';
 
   @override
-  String get bankImportSuccess => 'Presupuesto actualizado con exito';
+  String get bankImportSuccess =>
+      'Ingreso actualizado. Los gastos deben confirmarse por separado.';
 
   @override
   String get bankImportCategoryLogement => 'Vivienda';

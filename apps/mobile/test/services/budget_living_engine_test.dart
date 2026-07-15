@@ -83,6 +83,44 @@ void main() {
           reason: 'Housing (2000) + health (500) = at least 2500');
     });
 
+    test('consumer debt uses exact payments, fallback capital, never mortgage',
+        () {
+      final profile = buildProfile();
+      final baseline =
+          BudgetLivingEngine.compute(profile).present.monthlyCharges;
+      final exactPayment = BudgetLivingEngine.compute(
+        profile.copyWith(
+          dettes: const DetteProfile(
+            creditConsommation: 7200,
+            mensualiteCreditConso: 300,
+            hypotheque: 600000,
+            mensualiteHypotheque: 2500,
+          ),
+        ),
+      ).present.monthlyCharges;
+      final capitalFallback = BudgetLivingEngine.compute(
+        profile.copyWith(
+          dettes: const DetteProfile(
+            creditConsommation: 7200,
+            hypotheque: 600000,
+            mensualiteHypotheque: 2500,
+          ),
+        ),
+      ).present.monthlyCharges;
+      final mortgageOnly = BudgetLivingEngine.compute(
+        profile.copyWith(
+          dettes: const DetteProfile(
+            hypotheque: 600000,
+            mensualiteHypotheque: 2500,
+          ),
+        ),
+      ).present.monthlyCharges;
+
+      expect(exactPayment - baseline, 300);
+      expect(capitalFallback - baseline, 200);
+      expect(mortgageOnly - baseline, 0);
+    });
+
     test('monthlyFree = net - charges - savings (identity check)', () {
       final profile = buildProfile();
       final snapshot = BudgetLivingEngine.compute(profile);

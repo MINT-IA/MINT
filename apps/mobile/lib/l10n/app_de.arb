@@ -189,14 +189,14 @@
       }
     }
   },
-  "bankImportBudgetPreview": "Dein geschätztes Budget",
+  "bankImportBudgetPreview": "Monatliches Einkommen bestätigen",
   "bankImportMonthlyIncome": "Monatliches Einkommen",
   "bankImportFixedCharges": "Fixkosten",
   "bankImportVariable": "Variable Ausgaben",
   "bankImportSavingsRate": "Sparquote",
-  "bankImportButton": "In mein Budget importieren",
+  "bankImportButton": "Dieses Monatseinkommen bestätigen",
   "bankImportPrivacy": "Dein Kontoauszug wird sicher an unseren Server zur Analyse gesendet. Die Rohdaten werden nach der Verarbeitung gelöscht — nur Kategorie-Zusammenfassungen werden gespeichert.",
-  "bankImportSuccess": "Budget erfolgreich aktualisiert",
+  "bankImportSuccess": "Einkommen aktualisiert. Ausgaben müssen separat bestätigt werden.",
   "bankImportCategoryLogement": "Wohnen",
   "bankImportCategoryAlimentation": "Lebensmittel",
   "bankImportCategoryTransport": "Transport",

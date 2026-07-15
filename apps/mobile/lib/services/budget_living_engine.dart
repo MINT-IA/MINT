@@ -4,7 +4,7 @@
 /// All calculations are pure and deterministic.
 ///
 /// Sources:
-///   - Present budget: NetIncomeBreakdown (tax_calculator.dart), BudgetInputs
+///   - Present budget: BudgetInputs
 ///   - Retirement income: RetirementProjectionService (financial_core)
 ///   - Confidence: ConfidenceScorer (financial_core)
 ///
@@ -151,37 +151,11 @@ class BudgetLivingEngine {
   // ══════════════════════════════════════════════════════════
 
   static PresentBudget _computePresent(CoachProfile profile) {
-    // Net income — main user
-    // FIX-100: Use revenuBrutAnnuel which handles independants.
-    // salaireBrutMensuel can be 0 for independants (they use selfEmployedNetIncome).
-    final grossAnnual = profile.revenuBrutAnnuel;
-    final mainBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: grossAnnual,
-      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-      age: profile.age,
-    );
-    // For independants, social charges are different (AVS 10.6% total, no LPP split).
-    // NetIncomeBreakdown uses salarié rates — for independants, use ~90% of gross as net.
-    double monthlyNet = profile.employmentStatus == 'independant' && grossAnnual > 0
-        ? grossAnnual * 0.90 / 12  // ~10% charges sociales pour indépendants
-        : mainBreakdown.monthlyNetPayslip;
-
-    // Partner net income
-    final conj = profile.conjoint;
-    if (conj != null &&
-        (conj.salaireBrutMensuel ?? 0) > 0 &&
-        conj.age != null) {
-      final partnerBreakdown = NetIncomeBreakdown.compute(
-        grossSalary: conj.salaireBrutMensuel! * 12,
-        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-        age: conj.age!,
-      );
-      monthlyNet += partnerBreakdown.monthlyNetPayslip;
-    }
-
-    // Fixed charges from BudgetInputs (single source of truth for budget calc)
-    // BudgetInputs.fromCoachProfile uses the same tax estimator path.
+    // BudgetInputs is the only projection of live ledger facts into the present
+    // budget. Recomputing income here would let MintState drift from the budget
+    // provider on declared net, salary cadence, bonuses, or independent income.
     final inputs = BudgetInputs.fromCoachProfile(profile);
+    final monthlyNet = inputs.netIncome;
     final monthlyCharges = inputs.housingCost +
         inputs.debtPayments +
         inputs.taxProvision +

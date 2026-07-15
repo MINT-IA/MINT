@@ -11,38 +11,26 @@ class BudgetProvider with ChangeNotifier {
 
   BudgetPlan? _currentPlan;
   BudgetInputs? _lastInputs;
+  CoachProfile? _boundProfile;
   final Map<String, double> _overrides = {};
 
   BudgetPlan? get plan => _currentPlan;
   BudgetInputs? get inputs => _lastInputs;
 
-  /// Initialise ou met à jour le budget avec de nouveaux inputs.
-  /// Persiste les inputs et restaure les overrides sauvegardés.
-  Future<void> setInputs(BudgetInputs inputs) async {
-    _lastInputs = inputs;
-
-    // Persister les inputs pour les retrouver au prochain lancement
-    _store.saveInputs(inputs);
-
-    // Récupérer les overrides existants
+  /// Restore UI-only envelope overrides without replacing ledger inputs.
+  ///
+  /// `budget_inputs_v1` is a legacy derived cache, never a source of truth.
+  /// The linked [CoachProfile] remains authoritative across cold starts.
+  Future<bool> loadFromStorage() async {
     final savedFuture = await _store.getOverride('future');
     final savedVariables = await _store.getOverride('variables');
-
-    if (savedFuture != null) _overrides['future'] = savedFuture;
-    if (savedVariables != null) _overrides['variables'] = savedVariables;
-
-    _recalculate();
-  }
-
-  /// Charge le budget depuis SharedPreferences au démarrage.
-  /// Retourne true si des inputs ont été restaurés.
-  Future<bool> loadFromStorage() async {
-    final savedInputs = await _store.loadInputs();
-    if (savedInputs != null) {
-      await setInputs(savedInputs);
-      return true;
+    final changed = _setStoredOverride('future', savedFuture) |
+        _setStoredOverride('variables', savedVariables);
+    await _store.discardLegacyInputs();
+    if (changed && _lastInputs != null) {
+      _recalculate();
     }
-    return false;
+    return _lastInputs != null;
   }
 
   void updateOverride(String key, double value) {
@@ -52,15 +40,16 @@ class BudgetProvider with ChangeNotifier {
     _store.saveOverride(key, value);
   }
 
-  /// Recalcule le budget a partir d'un CoachProfile mis a jour.
+  /// Rehydrate synchronously from the canonical profile.
   ///
-  /// Appele automatiquement quand le profil change (wizard, annual refresh).
-  /// Reconstruit les BudgetInputs depuis le profil et persiste.
-  Future<void> refreshFromProfile(CoachProfile profile) async {
+  /// The production proxy calls this on every profile publication. Repeated
+  /// notifications carrying the same immutable profile are idempotent.
+  void rehydrateFromProfile(CoachProfile profile) {
+    if (identical(_boundProfile, profile)) return;
+    _boundProfile = profile;
     final inputs = BudgetInputs.fromCoachProfile(profile);
     _lastInputs = inputs;
     _currentPlan = _service.computePlan(inputs, overrides: _overrides);
-    await _store.saveInputs(inputs);
     notifyListeners();
   }
 
@@ -68,6 +57,7 @@ class BudgetProvider with ChangeNotifier {
   Future<void> clear() async {
     _lastInputs = null;
     _currentPlan = null;
+    _boundProfile = null;
     _overrides.clear();
     await _store.clear();
     notifyListeners();
@@ -77,5 +67,12 @@ class BudgetProvider with ChangeNotifier {
     if (_lastInputs == null) return;
     _currentPlan = _service.computePlan(_lastInputs!, overrides: _overrides);
     notifyListeners();
+  }
+
+  bool _setStoredOverride(String key, double? value) {
+    if (value == null) return false;
+    if (_overrides[key] == value) return false;
+    _overrides[key] = value;
+    return true;
   }
 }

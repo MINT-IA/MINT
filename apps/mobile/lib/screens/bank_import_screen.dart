@@ -3,14 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:mint_mobile/providers/budget/budget_provider.dart';
-import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+
+/// Confirms only the extracted monthly income and its cadence.
+///
+/// A manually uploaded CSV/PDF is not live Open Banking evidence. Its
+/// categorized recurring charges therefore remain preview-only until the user
+/// confirms each budget fact separately.
+Future<void> importManualBankPreview({
+  required CoachProfileProvider profileProvider,
+  required BudgetImportPreview preview,
+}) =>
+    profileProvider.mergeAnswersWithProvenance(
+      {
+        'q_net_income_period_chf': preview.estimatedMonthlyIncome,
+        'q_pay_frequency': 'monthly',
+      },
+      source: ProfileDataSource.userInput,
+    );
 
 /// Bank statement import screen with a 3-step flow:
 /// 1. Upload CSV/PDF
@@ -878,26 +895,14 @@ class _BankImportScreenState extends State<BankImportScreen> {
     }
   }
 
-  void _importIntoBudget() {
+  Future<void> _importIntoBudget() async {
     if (_budgetPreview == null) return;
 
-    final preview = _budgetPreview!;
-    final recurringTotal = preview.recurringCharges.fold<double>(
-      0.0,
-      (sum, tx) => sum + tx.amount.abs(),
+    await importManualBankPreview(
+      profileProvider: context.read<CoachProfileProvider>(),
+      preview: _budgetPreview!,
     );
-
-    // Create BudgetInputs from bank statement analysis
-    final budgetInputs = BudgetInputs(
-      payFrequency: PayFrequency.monthly,
-      netIncome: preview.estimatedMonthlyIncome,
-      housingCost: recurringTotal,
-      debtPayments: 0,
-      style: BudgetStyle.envelopes3,
-    );
-
-    // Update the budget provider
-    context.read<BudgetProvider>().setInputs(budgetInputs);
+    if (!mounted) return;
 
     setState(() {
       _budgetImported = true;

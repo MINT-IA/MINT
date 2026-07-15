@@ -1,15 +1,12 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../domain/budget/budget_inputs.dart';
 
 /// Persistance locale du budget via SharedPreferences.
 ///
-/// Stocke les overrides des sliders (future/variables) et les BudgetInputs
-/// pour que le budget survive au redemarrage de l'app.
+/// Stores only user-owned envelope overrides. Base inputs are derived from the
+/// canonical CoachProfile and must never be restored from a local cache.
 class BudgetLocalStore {
   static const String _overridePrefix = 'budget_override_';
-  static const String _inputsKey = 'budget_inputs_v1';
+  static const String _legacyInputsKey = 'budget_inputs_v1';
 
   // ── Overrides (sliders) ─────────────────────────────────────
 
@@ -23,48 +20,9 @@ class BudgetLocalStore {
     return prefs.getDouble('$_overridePrefix$key');
   }
 
-  // ── BudgetInputs ───────────────────────────────────────────
-
-  Future<void> saveInputs(BudgetInputs inputs) async {
+  Future<void> discardLegacyInputs() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_inputsKey, json.encode(inputs.toMap()));
-  }
-
-  Future<BudgetInputs?> loadInputs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_inputsKey);
-    if (raw == null) return null;
-    try {
-      final map = Map<String, dynamic>.from(json.decode(raw));
-      return BudgetInputs(
-        payFrequency: PayFrequency.values.firstWhere(
-          (e) => e.name == map['q_pay_frequency'],
-          orElse: () => PayFrequency.monthly,
-        ),
-        netIncome: (map['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0,
-        housingCost:
-            (map['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0.0,
-        debtPayments:
-            (map['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0.0,
-        taxProvision:
-            (map['q_tax_provision_monthly_chf'] as num?)?.toDouble() ?? 0.0,
-        healthInsurance:
-            (map['q_lamal_premium_monthly_chf'] as num?)?.toDouble() ?? 0.0,
-        otherFixedCosts:
-            (map['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble() ?? 0.0,
-        style: BudgetStyle.values.firstWhere(
-          (e) => e.name == map['q_budget_style'],
-          orElse: () => BudgetStyle.envelopes3,
-        ),
-        emergencyFundMonths:
-            (map['emergency_fund_months'] as num?)?.toDouble() ?? 0,
-      );
-    } catch (e) {
-      // STAB-16 (07-04): corrupt prefs entry — log so the forensics are
-      // visible, return null so the caller re-initialises from defaults.
-      debugPrint('[budget_local_store] load failed (corrupt prefs?): $e');
-      return null;
-    }
+    await prefs.remove(_legacyInputsKey);
   }
 
   // ── Clear ──────────────────────────────────────────────────
@@ -73,6 +31,6 @@ class BudgetLocalStore {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('${_overridePrefix}future');
     await prefs.remove('${_overridePrefix}variables');
-    await prefs.remove(_inputsKey);
+    await prefs.remove(_legacyInputsKey);
   }
 }

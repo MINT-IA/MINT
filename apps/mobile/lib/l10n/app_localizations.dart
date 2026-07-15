@@ -1104,7 +1104,7 @@ abstract class S {
   /// No description provided for @bankImportBudgetPreview.
   ///
   /// In fr, this message translates to:
-  /// **'Ton budget estimé'**
+  /// **'Revenu mensuel à confirmer'**
   String get bankImportBudgetPreview;
 
   /// No description provided for @bankImportMonthlyIncome.
@@ -1134,7 +1134,7 @@ abstract class S {
   /// No description provided for @bankImportButton.
   ///
   /// In fr, this message translates to:
-  /// **'Importer dans mon budget'**
+  /// **'Confirmer ce revenu mensuel'**
   String get bankImportButton;
 
   /// No description provided for @bankImportPrivacy.
@@ -1146,7 +1146,7 @@ abstract class S {
   /// No description provided for @bankImportSuccess.
   ///
   /// In fr, this message translates to:
-  /// **'Budget mis à jour avec succès'**
+  /// **'Revenu mis à jour. Les charges restent à confirmer séparément.'**
   String get bankImportSuccess;
 
   /// No description provided for @bankImportCategoryLogement.

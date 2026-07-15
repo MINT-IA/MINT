@@ -508,12 +508,20 @@ void main() {
       expect(preview.savingsRate, 0.0); // No division by zero
     });
 
-    test('fromStatementResult uses recurring from statement', () {
-      final recurringTx = BankTransaction(
+    test('fromStatementResult keeps only recurring debits as fixed charges',
+        () {
+      final recurringCredit = BankTransaction(
         date: DateTime(2025, 1, 1),
         description: 'Salaire',
         amount: 7200.0,
         category: 'Revenu',
+        isRecurring: true,
+      );
+      final recurringDebit = BankTransaction(
+        date: DateTime(2025, 1, 2),
+        description: 'Loyer',
+        amount: -1850.0,
+        category: 'Logement',
         isRecurring: true,
       );
 
@@ -521,17 +529,24 @@ void main() {
         bankName: 'Test',
         periodStart: DateTime(2025, 1, 1),
         periodEnd: DateTime(2025, 1, 31),
-        transactions: [recurringTx],
+        transactions: [recurringCredit, recurringDebit],
         totalCredits: 7200.0,
-        totalDebits: 0.0,
+        totalDebits: -1850.0,
         confidence: 0.9,
-        recurringMonthly: [recurringTx],
+        recurringMonthly: [recurringCredit, recurringDebit],
       );
 
       final preview = BudgetImportPreview.fromStatementResult(statementResult);
 
       expect(preview.recurringCharges, hasLength(1));
-      expect(preview.recurringCharges.first.description, 'Salaire');
+      expect(preview.recurringCharges.first.description, 'Loyer');
+      expect(
+        preview.recurringCharges.fold<double>(
+          0,
+          (total, transaction) => total + transaction.amount.abs(),
+        ),
+        1850.0,
+      );
     });
   });
 

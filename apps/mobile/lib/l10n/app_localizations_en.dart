@@ -550,7 +550,7 @@ class SEn extends S {
   }
 
   @override
-  String get bankImportBudgetPreview => 'Your estimated budget';
+  String get bankImportBudgetPreview => 'Monthly income to confirm';
 
   @override
   String get bankImportMonthlyIncome => 'Monthly income';
@@ -565,14 +565,15 @@ class SEn extends S {
   String get bankImportSavingsRate => 'Savings rate';
 
   @override
-  String get bankImportButton => 'Import into my budget';
+  String get bankImportButton => 'Confirm this monthly income';
 
   @override
   String get bankImportPrivacy =>
       'Your statement is securely sent to our server for analysis. Raw data is deleted after processing — only category summaries are kept.';
 
   @override
-  String get bankImportSuccess => 'Budget updated successfully';
+  String get bankImportSuccess =>
+      'Income updated. Expenses still need to be confirmed separately.';
 
   @override
   String get bankImportCategoryLogement => 'Housing';

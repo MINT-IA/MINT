@@ -214,14 +214,14 @@
       }
     }
   },
-  "bankImportBudgetPreview": "Ton budget estimé",
+  "bankImportBudgetPreview": "Revenu mensuel à confirmer",
   "bankImportMonthlyIncome": "Revenu mensuel",
   "bankImportFixedCharges": "Charges fixes",
   "bankImportVariable": "Dépenses variables",
   "bankImportSavingsRate": "Taux d'épargne",
-  "bankImportButton": "Importer dans mon budget",
+  "bankImportButton": "Confirmer ce revenu mensuel",
   "bankImportPrivacy": "Ton relevé est envoyé de manière sécurisée à notre serveur pour analyse. Les données brutes sont supprimées après traitement — seuls les résumés par catégorie sont conservés.",
-  "bankImportSuccess": "Budget mis à jour avec succès",
+  "bankImportSuccess": "Revenu mis à jour. Les charges restent à confirmer séparément.",
   "bankImportCategoryLogement": "Logement",
   "bankImportCategoryAlimentation": "Alimentation",
   "bankImportCategoryTransport": "Transport",

@@ -50,29 +50,41 @@ class BudgetInputs {
   ///
   /// Utilise pour synchroniser le budget quand le profil change
   /// (wizard, annual refresh, mini-onboarding).
-  /// Le revenu net utilise NetIncomeBreakdown (canton + age).
-  /// Les dettes sont reparties sur 36 mois de remboursement.
+  /// Le revenu net propre prefere la valeur declaree, sinon NetIncomeBreakdown.
+  /// Les mensualites de consommation/leasing restent exactes quand elles sont
+  /// connues. A defaut seulement, le capital consommateur est reparti sur 36
+  /// mois. L'hypotheque est exclue car le logement porte deja cette charge.
   static BudgetInputs fromCoachProfile(CoachProfile profile) {
     // Revenu net du menage (utilisateur + conjoint si couple)
     final ownBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
+      grossSalary: profile.revenuBrutAnnuel,
       canton: profile.canton,
       age: profile.age,
     );
-    final ownNet = ownBreakdown.monthlyNetPayslip;
+    final independentAnnualNet = profile.selfEmployedNetIncome ?? 0.0;
+    final ownNet = profile.monthlyNetIncomeDeclared ??
+        (profile.employmentStatus == 'independant'
+            ? (independentAnnualNet > 0 ? independentAnnualNet / 12.0 : 0.0)
+            : ownBreakdown.monthlyNetPayslip);
     final conjointBudget = profile.conjoint;
     final partnerNet = conjointBudget != null &&
             conjointBudget.salaireBrutMensuel != null &&
             conjointBudget.age != null
         ? NetIncomeBreakdown.compute(
-            grossSalary: conjointBudget.salaireBrutMensuel! * 12,
+            grossSalary: conjointBudget.revenuBrutAnnuel,
             canton: profile.canton,
             age: conjointBudget.age!,
           ).monthlyNetPayslip
         : 0.0;
     final monthlyNet = ownNet + partnerNet;
-    final monthlyDebt =
-        profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;
+    final consumerMonthlyDebt = (profile.dettes.mensualiteCreditConso ?? 0.0) +
+        (profile.dettes.mensualiteLeasing ?? 0.0);
+    final consumerDebtPrincipal = (profile.dettes.creditConsommation ?? 0.0) +
+        (profile.dettes.leasing ?? 0.0) +
+        (profile.dettes.autresDettes ?? 0.0);
+    final monthlyDebt = consumerMonthlyDebt > 0
+        ? consumerMonthlyDebt
+        : (consumerDebtPrincipal > 0 ? consumerDebtPrincipal / 36 : 0.0);
     // Charges fixes hors loyer et assurance maladie
     final otherFixed = profile.depenses.totalMensuel -
         profile.depenses.loyer -
@@ -86,8 +98,7 @@ class BudgetInputs {
     };
 
     // Data source tags — propagate "estimé" vs "saisi" from profile
-    final healthSource =
-        profile.dataSources['depenses.assuranceMaladie'];
+    final healthSource = profile.dataSources['depenses.assuranceMaladie'];
     final isHealthFromUser = healthSource == ProfileDataSource.userInput ||
         healthSource == ProfileDataSource.certificate ||
         healthSource == ProfileDataSource.openBanking;
@@ -99,25 +110,27 @@ class BudgetInputs {
     final emergencyMonths = monthlyExpenses > 0
         ? profile.patrimoine.epargneLiquide / monthlyExpenses
         : 0.0;
+    final declaredTax = profile.monthlyTaxProvisionDeclared;
 
     return BudgetInputs(
       payFrequency: PayFrequency.monthly,
       netIncome: monthlyNet,
       housingCost: profile.depenses.loyer,
       debtPayments: monthlyDebt,
-      taxProvision: TaxEstimatorService.estimateMonthlyProvision(
-        TaxEstimatorService.estimateAnnualTax(
-          netMonthlyIncome: monthlyNet,
-          cantonCode: profile.canton,
-          civilStatus: civilStatusStr,
-          childrenCount: profile.nombreEnfants,
-          age: profile.age,
-          isSourceTaxed: false,
-        ),
-      ),
+      taxProvision: declaredTax ??
+          TaxEstimatorService.estimateMonthlyProvision(
+            TaxEstimatorService.estimateAnnualTax(
+              netMonthlyIncome: monthlyNet,
+              cantonCode: profile.canton,
+              civilStatus: civilStatusStr,
+              childrenCount: profile.nombreEnfants,
+              age: profile.age,
+              isSourceTaxed: false,
+            ),
+          ),
       healthInsurance: profile.depenses.assuranceMaladie,
       otherFixedCosts: otherFixed > 0 ? otherFixed : 0,
-      isTaxEstimated: true,
+      isTaxEstimated: declaredTax == null,
       isHealthEstimated: !isHealthFromUser,
       isOtherFixedMissing: otherFixed <= 0,
       emergencyFundMonths: emergencyMonths,

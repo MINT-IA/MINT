@@ -555,7 +555,7 @@ class SDe extends S {
   }
 
   @override
-  String get bankImportBudgetPreview => 'Dein geschätztes Budget';
+  String get bankImportBudgetPreview => 'Monatliches Einkommen bestätigen';
 
   @override
   String get bankImportMonthlyIncome => 'Monatliches Einkommen';
@@ -570,14 +570,15 @@ class SDe extends S {
   String get bankImportSavingsRate => 'Sparquote';
 
   @override
-  String get bankImportButton => 'In mein Budget importieren';
+  String get bankImportButton => 'Dieses Monatseinkommen bestätigen';
 
   @override
   String get bankImportPrivacy =>
       'Dein Kontoauszug wird sicher an unseren Server zur Analyse gesendet. Die Rohdaten werden nach der Verarbeitung gelöscht — nur Kategorie-Zusammenfassungen werden gespeichert.';
 
   @override
-  String get bankImportSuccess => 'Budget erfolgreich aktualisiert';
+  String get bankImportSuccess =>
+      'Einkommen aktualisiert. Ausgaben müssen separat bestätigt werden.';
 
   @override
   String get bankImportCategoryLogement => 'Wohnen';

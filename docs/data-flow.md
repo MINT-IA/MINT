@@ -162,9 +162,15 @@ only legal local I/O boundaries.
 | 3 | **Scan confirmation** | LPP self: `DocumentScanScreen owner/permission → transmitted-byte authorization → kind gate → raw-free candidate/review → acceptLppReview`. LPP manual partner adds `external gate/auth/declaration → pending binding → permission → local handle (withData=false) → receipt create → byte boundary/one-shot extraction → review → exact-owner save → active binding`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes strict-secure `_coach_lpp_evidence_v1`; `manualPartner.facts` is receipt-bound while `manualPartner.independentFacts` is user-input recovery. The separate secure binding and minimized backend receipt contain no financial value. Volatile authorization/SHA enter neither ledger nor binding/receipt. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | Self publishes after one awaited secure save. Manual partner additionally activates the matching pending binding only after that save; terminal drift restores `shadowed`/prior active state and suppresses later callbacks. PROV-02 remains GREEN at `30728b8a0671`; BND-02/BND-02A are technical GREEN at `1d022c508`, while activation and G1 remain NO-GO. |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
-| 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
+| 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` | `q_housing_cost_period_chf`, `q_housing_pay_frequency='monthly'`, `q_lamal_premium_monthly_chf`, `q_other_fixed_costs_monthly_chf`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux}` | Tap « Enregistrer »; the published profile then feeds the eager Budget and MintState proxies |
 | 7 | **Annual refresh** (scheduled) | `updateFromRefresh` (CoachProfileProvider) | Updates `_coach_updated_at` + tax + salary | Annual trigger (currently orphaned, cf façade audit) |
 | 8 | **DataBlock enrichment** | `data_block_enrichment_screen.dart` → `coachProvider.mergeAnswers` | `q_canton`, `q_gross_salary_annual`, `q_self_employed_income`, `q_company_profit_annual_chf`, `q_birth_year`, `q_has_pension_fund`, `q_cash_total`, `q_wealth_estimate`, `q_property_market_value`, `_coach_dettes_hypotheque`, `q_debt_payments_period_chf`, `q_has_consumer_debt`, `q_children`, `q_civil_status`, `q_housing_status` | Missing-fact collector from scenario/Data Quest flows |
+
+`/bank-import` is a manual CSV/PDF review path, not a live Open Banking feed.
+After explicit confirmation it may write only `q_net_income_period_chf` and
+`q_pay_frequency`, with `userInput` provenance. Categorized charges remain a
+preview/review aid and are never aggregated into housing, LAMal, declared tax,
+debt, or `q_other_fixed_costs_monthly_chf`.
 
 **Legend.** Keys prefixed `q_*` come from wizard-style answers
 (`fromWizardAnswers` reads them natively). Keys prefixed `_coach_*` come
@@ -208,9 +214,17 @@ publishes its next profile only after the answer snapshot is saved.
   to monthly and must not reuse income `q_pay_frequency`),
   `q_housing_status` (locataire/proprietaire/…),
   `q_lamal_premium_monthly_chf` (double, health insurance actual value),
+  `q_tax_provision_monthly_chf` (double CHF/mo, declared tax provision),
+  `q_other_fixed_costs_monthly_chf` (double CHF/mo, excludes tax and debt),
   `_coach_depenses_transport`, `_coach_depenses_telecom`,
-  `_coach_depenses_electricite`, `_coach_depenses_frais_medicaux`,
-  `_coach_depenses_autres`
+  `_coach_depenses_electricite`, `_coach_depenses_frais_medicaux`
+
+`_coach_depenses_autres` is a legacy read/migrate-only alias. At the provider
+boundary and on cold load, `q_other_fixed_costs_monthly_chf` wins whenever the
+key is present (including explicit `null`); otherwise the legacy value is moved
+to the canonical key and the alias is deleted in the same persisted snapshot.
+Cold migration preserves the existing
+`__provenance['depenses.autresDepensesFixes']` entry without restamping it.
 
 **AVS (1st pillar)**
 - `q_avs_lacunes_status`, `q_avs_years_abroad`, `q_avs_contribution_years`,
@@ -695,23 +709,31 @@ BudgetSetupScreen (new, P0-MVP-3)
   ↓
 coachProvider.mergeAnswers({
   q_housing_cost_period_chf: …,
-  q_pay_frequency: 'monthly',
+  q_housing_pay_frequency: 'monthly',
   q_lamal_premium_monthly_chf: …,
   _coach_depenses_transport: …,          (optional)
   _coach_depenses_telecom: …,             (optional)
   _coach_depenses_electricite: …,         (optional)
   _coach_depenses_frais_medicaux: …,      (optional)
-  _coach_depenses_autres: …,              (optional)
+  q_other_fixed_costs_monthly_chf: …,     (optional; excludes tax and debt)
 })
   ↓ answers written via ReportPersistenceService
-  ↓
-budgetProvider.refreshFromProfile(updatedProfile)
-  ↓ BudgetInputs.fromCoachProfile(profile) re-derives
-  ↓ BudgetService.computePlan(inputs, overrides)
-  ↓ _store.saveInputs(inputs)
+  ↓ persisted CoachProfile is published once
+  ├─ eager CoachProfileProvider → BudgetProvider proxy
+  │    ↓ rehydrateFromProfile(profile) derives BudgetInputs
+  │    ↓ BudgetService.computePlan(inputs, local overrides)
+  │    ↓ BudgetLocalStore persists only future/variables overrides;
+  │      legacy budget_inputs_v1 is discarded, never restored as facts
+  └─ eager CoachProfileProvider → MintStateProvider proxy
+       ↓ recompute(profile) refreshes MintUserState.budgetSnapshot.present
   ↓
 Pop back to Mon argent → BudgetSummaryCard now has data → « Il te reste Y CHF »
 ```
+
+`q_pay_frequency` remains the income cadence. Budget setup never rewrites it.
+Without official AVS facts, retirement `budgetGap` remains intentionally null;
+the present-budget recompute oracle is
+`budgetSnapshot.present.monthlyCharges/monthlyFree`.
 
 Chat fallback (« J'en parle plutôt au coach ») remains available on the
 setup screen, respecting `feedback_chat_is_everything` (chat *can* do it,

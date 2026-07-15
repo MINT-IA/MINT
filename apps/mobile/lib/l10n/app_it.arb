@@ -189,14 +189,14 @@
       }
     }
   },
-  "bankImportBudgetPreview": "Il tuo budget stimato",
+  "bankImportBudgetPreview": "Reddito mensile da confermare",
   "bankImportMonthlyIncome": "Reddito mensile",
   "bankImportFixedCharges": "Costi fissi",
   "bankImportVariable": "Spese variabili",
   "bankImportSavingsRate": "Tasso di risparmio",
-  "bankImportButton": "Importa nel mio budget",
+  "bankImportButton": "Conferma questo reddito mensile",
   "bankImportPrivacy": "Il tuo estratto conto viene inviato in modo sicuro al nostro server per l'analisi. I dati grezzi vengono eliminati dopo l'elaborazione — vengono conservati solo i riepiloghi per categoria.",
-  "bankImportSuccess": "Budget aggiornato con successo",
+  "bankImportSuccess": "Reddito aggiornato. Le spese devono essere confermate separatamente.",
   "bankImportCategoryLogement": "Alloggio",
   "bankImportCategoryAlimentation": "Alimentazione",
   "bankImportCategoryTransport": "Trasporti",
