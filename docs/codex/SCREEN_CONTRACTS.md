@@ -3,6 +3,10 @@
 > **G1 reality audit:** the route-payload/scenario addendum was re-checked at immutable commit `e2cfef057c197b3b8ac122d9a9aa3ca645c85696` on 2026-07-13. Older `file:line` references remain evidence snapshots, not evergreen truth. Rerun `tools/checks/tests/test_codex_spec_reality_contract.py` after changing this spec or the cited code.
 
 > Source of truth for target route wiring. Audited against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart` at commit `095eeaa32`.
+> Focused BND-02/BND-02A reality baseline: backend through `fde00b18c`, mobile through
+> `09b0a6543` (2026-07-15). The progressive caller and visible consumer are
+> technically present behind default-off gates; neither ticket is evidence-
+> GREEN and activation remains NO-GO.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
 > A coding agent (Codex) implements these contracts directly. Every row is mechanical and test-verifiable. Violations are bugs, not style notes.
 
@@ -435,7 +439,7 @@ class ScanSessionPayload {
 | purpose | Capture or pick a document (LPP cert, AVS extract, tax cert). |
 | reads | optional `DocumentType.name` from query `type`; local feature flags; for LPP, exact `CoachProfile.conjoint != null` to decide whether `manualPartner` may be offered; profile canton for backend extraction and age only for AVS parsing. `HouseholdProvider`, membership, invitation and account-link state are never part of this owner predicate |
 | writes | no ledger fact. After a successful extraction/adaptation, `retainExtraction(...)` creates the volatile session payload used by review |
-| entryConditions | route available behind `enableScan`; camera/file permission. LPP is selectable and its handlers are callable only when `typedLppEvidence && documentLppEvidenceEnabled`. The self path keeps the PROV-02 gate. The `manualPartner` option is offered only for exact `CoachProfile.conjoint != null`, but cannot activate on the current one-shot attestation: §5.1 requires represented authorization + external facts + authenticated actor + pending binding before permission/picker, then an active receipt after local choice and before document-byte network |
+| entryConditions | route available behind `enableScan`; camera/file permission. LPP is selectable and its handlers are callable only when `typedLppEvidence && documentLppEvidenceEnabled`. The self path keeps the PROV-02 gate. The technically implemented `manualPartner` option is offered only for exact `CoachProfile.conjoint != null` and additionally requires `partnerLppAccountabilityEnabled`, represented authorization, current external facts, authenticated actor and pending binding before permission/picker, then an active receipt after local choice and before document-byte read/network. The default `/scan` builder injects no production `PartnerAccountabilityExternalGate`, so the branch remains fail-closed even if a developer flips local flags. |
 | emptyState | No camera/no doc selected → guide card + "Scanner mon certificat" CTA + `/scan/avs-guide`. i18n `scan.empty.title` / `scan.empty.cta` |
 | partialState | Local `_isProcessing` is true during extraction → progress UI; this is screen state, not a persisted session status |
 | errorState | Permission denied/OCR failure → localized recovery. LPP plan, unknown, lower-confidence or classifier failure → neutral personal-certificate recovery with no review/session/write |
@@ -443,14 +447,16 @@ class ScanSessionPayload {
 | privacyInvariant | LPP camera/gallery asks only `visionExtraction + transferUsAnthropic`, never `persistence365d`, and does so before camera/picker. For self, the exact transmitted-byte SHA remains volatile under PROV-02. For `manualPartner`, §5.1 additionally requires the minimized receipt after local file choice and before any document-byte network; the receipt contains no SHA/acquisition id/value. Authorization/SHA never enter ledger, provenance, Biography, route/query, logs or analytics; image/PDF uses direct candidate extraction, PDF skips persistent upload, and LPP BYOK/fused/SSE paths are unreachable |
 | killFlag | enableScan; LPP content additionally requires the local composite gate above |
 
-### 5.1 G1 BND-02A/BND-02 — TARGET progressive partner-LPP contract
+### 5.1 G1 BND-02A/BND-02 — default-off progressive implementation; activation NO-GO
 
-**Status:** accepted interaction contract; implementation and activation remain
-blocked. This section replaces the current proxy-attestation wording for the
-`manualPartner` branch only. It does not make that branch live, does not publish
-the non-publishable notice contract, and does not authorize G2/G3. System and
-lifecycle wiring are frozen in `DATA_LEDGER.md`; the focused control/state map
-is `PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd`.
+**Status:** accepted interaction contract and technically present default-off
+implementation at mobile `09b0a6543` plus backend `fde00b18c`; acceptance and
+activation remain blocked. This section replaces the older proxy-attestation
+wording for the `manualPartner` branch only. It does not publish the explicitly
+non-publishable notice contract, supply the production external descriptor,
+turn BND-02/BND-02A GREEN or authorize G2/G3. System and lifecycle wiring are
+frozen in `DATA_LEDGER.md`; the focused control/state map is
+`PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd`.
 
 #### Preconditions and non-preconditions
 
@@ -503,15 +509,19 @@ form:
    authentication and explicit declaration, but before permission or picker.
    The pending entry shadows any older active binding for that owner so no new
    root can ever validate against an old receipt.
-6. **Technical permissions.** Request only `visionExtraction` and
-   `transferUsAnthropic`. These are acting-user technical permissions and never
-   substitute for step 4. The existing `persistence365d` purpose is forbidden.
-   Permission denial rolls back the new pending binding and explicitly restores
-   the older active binding it shadowed, when one exists.
-7. **Local file choice.** Revalidate the external gate, then open the picker.
-   Cancellation creates no receipt and performs the same explicit safe rollback
-   to the prior active binding. Compression/preparation remains local and uses
-   the ids already frozen in `pending`.
+6. **Technical permission.** For `manualPartner`, request only the generic
+   `visionExtraction` permission; the exact typed notice in steps 2–4 is the
+   authoritative disclosure for the Anthropic transfer. Do not show the older
+   generic `transferUsAnthropic` copy on top of that versioned descriptor. Self
+   retains both generic purposes. These acting-user technical permissions never
+   substitute for step 4, and `persistence365d` is forbidden. Permission denial
+   rolls back the new pending binding and explicitly restores the older active
+   binding it shadowed, when one exists.
+7. **Local file choice.** Revalidate the external gate, then open the picker
+   with `withData=false`: selection returns only a local path/handle, not the
+   document bytes. Cancellation creates no receipt and performs the same
+   explicit safe rollback to the prior active binding. The ids remain frozen in
+   `pending`; byte read/hash/compression waits until step 8 succeeds.
 8. **Minimized receipt.** After a file was chosen, create/verify the isolated
    receipt using the already-pending `receiptId` and exact owner token. This
    metadata-only accountability call is the only network permitted between the
@@ -520,11 +530,17 @@ form:
    notice/policy version. Retry reuses the same logical ids. Cancel or terminal
    receipt failure erases the pending binding, restores its explicitly shadowed
    prior active binding, and schedules any created orphan receipt for its
-   idempotent erasure path.
+   idempotent erasure path. Since `09b0a6543`, only a typed
+   `PartnerAccountabilityException(retryable:true)` offers exact-id retry;
+   terminal or unexpected errors go directly through one cleanup/rollback.
 9. **Extraction.** Send only the prepared document plus
    `subjectKind=manualPartner` and `receiptId` to the authenticated direct Vision
    path. `/consents/grant-nominative`, linked-grant, BYOK, fused, SSE and
-   persistent-upload paths remain unreachable.
+   persistent-upload paths remain unreachable. Before byte read/hash, local
+   parser, request dispatch and review handoff, revalidate the same external
+   gate and exact pending binding. First drift terminalizes the logical receipt,
+   attempts exactly one DELETE+rollback and suppresses every later callback,
+   fallback and review.
 10. **Review.** Render the immutable partner owner badge, source date and
    canonical editable facts. Show `fundReturnRateRatio`, if present, only as
    `information de la caisse — non utilisée dans cette simulation`; never feed
@@ -566,8 +582,7 @@ No control, route or endpoint for `direct_partner_confirmation` is included.
 That optional distinct receipt is explicitly deferred until it has its own real
 public caller and rights flow; a disabled or decorative CTA would be a facade.
 
-The live `ScanSessionPayload` shown in §5.0 has no accountability context yet.
-The target implementation adds one typed, volatile
+The live `ScanSessionPayload` now carries one typed, volatile
 `ManualPartnerAccountabilityContext` **only when** the candidate subject is
 `manualPartner`: `{receiptId, manualPartnerOwnerId, expiresAt, noticeVersion,
 policyVersion, receiptStatus=active}`. It is retained atomically with candidate
@@ -575,6 +590,13 @@ policyVersion, receiptStatus=active}`. It is retained atomically with candidate
 and never contains backend actor/owner HMACs. Review verifies the already
 durable pending binding from this context; `retainImpact` drops it only after
 that same binding is active.
+
+Since `09b0a6543`, a route/navigation exception after the scan marks the receipt
+as handed to review discards the volatile session, releases review ownership,
+attempts exactly one receipt DELETE and one persistent rollback, clears the
+binding and removes every owned temp file. The former post-handoff pending-
+binding P2 is therefore closed in code; real-device cleanup evidence remains an
+activation gate.
 
 #### Cold start and degraded-state matrix
 
@@ -632,7 +654,7 @@ verified applicable proof. Their six-language replacements are a blocking
 semantic gate, not a wording polish. All strings also pass ARB parity, French
 accent lint, banned-term scan and no-advice review.
 
-#### Exact semantic RED→GREEN proof
+#### Exact semantic RED→GREEN proof and remaining acceptance gates
 
 The registry's combined mobile command remains:
 
@@ -644,7 +666,10 @@ cd apps/mobile && flutter test \
   --reporter expanded
 ```
 
-The tests first fail on behavior assertions, never missing imports/fixtures:
+The semantic RED predates the implementation and fails on behavior assertions,
+never missing imports/fixtures. The default-off implementation now supplies
+these behaviors, but its passing command is not sufficient to promote either
+registry row without accepted evidence:
 
 1. `partner_financial_consent_lifecycle_test.dart` proves exact owner predicate,
    account-link independence, acting-user auth, public notice/rights, external
@@ -671,8 +696,11 @@ Keep `test/screens/document_scan/lpp_pre_upload_authorization_test.dart` as the
 PROV-02 regression for flags, owner-before-picker and byte/SHA volatility. Then
 run `flutter gen-l10n`, `python3 tools/checks/arb_parity.py`, Doctor, the focused
 Mermaid render, Maestro for visible state transitions and Patrol for the real
-picker/input proof. Until those proofs and the external legal facts are GREEN,
-the partner runtime remains default-off and G1 remains NO-GO.
+picker/input/temp-file proof. The real PostgreSQL migration, acting-user row
+lock and five-case concurrency gate is GREEN at pushed SHA `fde00b18c`; both
+bounded wrapper-only Claude audits remain required. Until the remaining
+runtime/audit proofs and the external legal facts are GREEN, the partner runtime
+remains default-off, BND-02/BND-02A remain non-GREEN and G1 remains NO-GO.
 
 ### `/scan/avs-guide` — AVS extract guide
 | | |
@@ -1032,7 +1060,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/epl` (593) | §4 | `/naissance` (778) | §4 |
 | `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
 | `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
-| `/first-job` (795) | §4 | `/scan/impact` (1219) | §5 |
+| `/first-job` (795) | §4 | `/scan/impact` (1220) | §5 |
 | `/expatriation` (800) | §4 | `/documents` (935) | §4 |
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |

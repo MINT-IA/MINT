@@ -4,6 +4,13 @@
 
 > **Status:** target contract plus live gap ledger for the coding agent (Codex). Mechanical, testable, implementable.
 > **Audited baseline:** commit `095eeaa32` (2026-07-07).
+> **Focused BND-02/BND-02A reality baseline:** isolated backend accountability
+> plus real PostgreSQL race/migration proof through `fde00b18c`, mobile secure
+> binding/real scan caller/receipt-bound ledger/dashboard/terminal cleanup
+> through `09b0a6543` (2026-07-15). These
+> commits establish a
+> technically present **default-off** path; they do not make either ticket
+> evidence-GREEN and do not authorize activation.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -42,7 +49,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
 - **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (36 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist, coach tool enum, mobile mapper, and profile reads are now in sync for all 36 keys; §3.8 keeps the repair history and the parity gate.
 - **AVS-OFFICIAL — CANDIDATE IS NOT FACT.** `avs_official_pension` is distinct from the CI `avs_extract`. Its only canonical fact is `avs_official_monthly_pension`, persisted after review as `{value, source, sourceDate, updatedAt, evidenceKind}` in one strict-secure envelope. `source=certificate` records provenance while `evidenceKind` preserves decision vs forecast vs statement; only a reviewed decision or current official statement may be known. An accepted result without an explicit decision/current-statement marker becomes `official_forecast` and stays to verify. Candidate extraction performs no pre-review profile write or backend mirror. Correction writes `userInput` with null source date and null evidence kind. Mobile and backend kill switches default to false; no mobile consumer/write-back, partner writer, or household calculation is authorized yet.
-- **LPP-EVIDENCE — PERSON OWNERSHIP IS NOT HOUSEHOLD CONSENT.** Reviewed LPP certificate facts use the single strict-secure `_coach_lpp_evidence_v1` root defined in §4.0A. Every fact carries its own pseudonymous owner, actor, authorization and provenance. Self and independently declared manual-partner evidence are separate; household membership never authorizes import. Linked-account/grant shapes are unconditionally rejected in G1 until G1-BND-02A defines a real authorized caller. Ambiguous pension/capital or annual/lump-sum meaning writes nothing.
+- **LPP-EVIDENCE — PERSON OWNERSHIP IS NOT HOUSEHOLD CONSENT.** Reviewed LPP certificate facts use the single strict-secure `_coach_lpp_evidence_v1` root defined in §4.0A. Every fact carries its own pseudonymous owner, actor, authorization and provenance. Self and independently declared manual-partner evidence are separate; household membership never authorizes import. BND-02A now has a real default-off represented-authorization caller; linked-account/grant shapes remain unconditionally rejected because that caller is neither account linking nor direct partner consent. Ambiguous pension/capital or annual/lump-sum meaning writes nothing.
 
 ---
 
@@ -564,11 +571,17 @@ the final G1 scorecard are still required before either flag may change.
 The production code path described below is ticket- and runtime-GREEN at the
 accepted pushed SHA `30728b8a0671a0b54bcf47807a0c69bac905e6e3`. This is
 **not** an activation or G1-GO statement. Both local switches remain false,
-activation remains NO, 17 G1 rows remain open, and G2/G3 remain forbidden.
-Before activation, `G1-BND-02` must prove a cold-reloaded manual-partner LPP
-fact changes a named production scenario/recompute, while `G1-BND-02A` must
-record the named legal/privacy decision, publish the versioned partner notice
-and implement the resulting accountability mechanism defined below.
+activation remains NO, the G1 closure rows remain open, and G2/G3 remain
+forbidden. The later default-off BND slice is now technically present at
+backend `fde00b18c` and mobile through `09b0a6543`: a cold-selected receipt-bound
+manual-partner fact reaches the named retirement recompute/dashboard and the
+isolated accountability mechanism has a real scan caller. `G1-BND-02` and
+`G1-BND-02A` nevertheless remain non-GREEN until their registry evidence,
+publishable external facts, mobile Maestro/Patrol proof and bounded code/
+product-domain audits are complete on an accepted SHA. The real PostgreSQL
+Alembic round-trip, row-lock and five-case multi-session gate is technically
+GREEN and pushed at `fde00b18c`; it does not resolve the external activation
+facts.
 
 G1-PROV-02 uses one local answer root only:
 `wizard_answers_v2['_coach_lpp_evidence_v1']`. Its value is a JSON **string**
@@ -595,6 +608,7 @@ The exact schema-v1 root is:
 LppEvidenceSnapshot {
   snapshotId: lowercase canonical UUIDv4
   facts: {canonical fact key: LppEvidenceFact...}
+  independentFacts: {canonical fact key: LppEvidenceFact...}? // manualPartner only
 }
 
 LppEvidenceFact {
@@ -619,6 +633,15 @@ LppEvidenceFact {
 }
 ```
 
+`facts` is the certificate/review slot. `manualPartner.independentFacts` is an
+optional, separately provenance-bound recovery map containing only
+`source=userInput` facts with the same stable partner owner/self actor lineage;
+it is forbidden on `self`. Receipt invalidation removes/excludes certificate
+`facts` only and preserves `independentFacts`. A key present in both maps uses
+the current receipt-bound certificate fact while authority is active; fail-
+closed reconstruction restores the independent value without rewriting it as
+certificate evidence.
+
 `snapshotId`, owner and actor tokens are random/pseudonymous identifiers. They
 must not contain a name, email, household id, document id, filename, OCR text or
 source text. The root stores no raw document, image, OCR diagnostics, extracted
@@ -637,12 +660,19 @@ extraction. The acquisition order is fail-closed:
 2. fix `subject=self|manualPartner` before acquisition; `manualPartner` is not
    offered without that local `conjoint` object;
 3. require the one-shot partner attestation when the fixed subject is
-   `manualPartner`;
-4. require exactly `visionExtraction + transferUsAnthropic`, never the 365-day
+   `manualPartner`; the BND-02A caller first requires its current typed notice,
+   authenticated actor and strict-secure pending accountability binding;
+4. request `visionExtraction` as the generic technical permission for
+   `manualPartner`; the typed, versioned notice is the authoritative disclosure
+   for the Anthropic transfer. Self retains
+   `visionExtraction + transferUsAnthropic`. Neither path requests the 365-day
    vault-persistence purpose;
-5. only then open camera/gallery/picker, prepare the exact bytes for transfer,
-   and bind their lowercase SHA-256 to the acquisition authorization before the
-   direct `/documents/extract-vision` call.
+5. only then open camera/gallery/picker. Self may prepare the exact transfer
+   bytes immediately; `manualPartner` first selects a path/handle with
+   `withData=false`, creates the active receipt, then reads/prepares the bytes.
+   Both bind the lowercase SHA-256 of the exact transmitted bytes to the
+   acquisition authorization before the direct `/documents/extract-vision`
+   call.
 
 The authorization is a process-local `LppAcquisitionAuthorization` with one
 canonical UUIDv4 `acquisitionId`, the fixed `subject`, coherent
@@ -811,29 +841,37 @@ fallbacks when typed ingestion is disabled or fails.
   selector result and recreates exact field provenance. Consumers never read
   the JSON root directly.
 
-#### Later-G1 downstream and consent gates (not GREEN)
+#### Later-G1 downstream and accountability gates (technical path present; not GREEN)
 
 PROV-02 proves durable typed presentation paths, not the final household
-product promise. `G1-BND-02` remains open until its fixture accepts a current
-manual-partner LPP certificate, destroys/reconstructs the provider, and proves
-the resulting `conjoint.prevoyance.*` fact changes one named production
-recompute through `MintStateEngine` using `ForecasterService.project` or
-`RetirementProjectionService.project`, then reaches a visible fail-closed
-consumer. Merely reading `lppEvidenceFact` or listing facts on `/scan/impact`
-does not close this gate. `ForecasterService` already reads the partner
-`rendementCaisse` scalar even though a fund return rate belongs to a caisse,
-not inherently to a person. The same gate must introduce explicit caisse scope
-or quarantine that input from computation before activation.
+product promise. The default-off BND-02 implementation now cold-reconciles the
+exact active owner-matched receipt, excludes receipt-bound certificate facts
+when the status is pending/partial/offline/expired/revoked/erased, preserves
+independent `userInput` facts, feeds current partner capital/pension into
+`MintStateEngine -> ForecasterService`, and renders active/partial/retry/manual-
+recovery/rights states on `RetirementDashboardScreen`. The focused test also
+proves one visible projection change without duplicate recompute. The
+certificate `fundReturnRateRatio` is retained in the strict evidence root but
+quarantined from `conjoint.prevoyance.rendementCaisse`; an exact known self
+`0.02` is no longer treated as the legacy missing-value sentinel. This is the
+real caller that was previously absent, but it does not close `G1-BND-02`
+without frozen-SHA runtime and accepted registry/audit evidence.
 
-`G1-BND-02A` remains open until a named legal/privacy decision covers MINT's
-controller role, indirect-collection notice under nLPD art. 19, the foreign
-transfer and actually verified guarantee under art. 16 and 19(4), the retained
-justification, necessity/proportionality, retention/erasure and partner rights,
-and its outcome is implemented. Before activation, MINT must publish a
-versioned partner notice covering identity/contact, categories, purposes,
-Anthropic as recipient/processor, the United States and verified transfer
-guarantee, raw non-retention, retention of confirmed figures, and a direct
-access/objection/withdrawal/deletion channel. Account linking remains optional.
+The named BND-02A decision now exists at
+`decisions/ADR-20260715-g1-bnd02a-partner-accountability.md`, and its isolated
+backend receipt plus mobile pending/active binding and true scan caller are
+implemented default-off. `G1-BND-02A` remains non-GREEN because the companion
+notice contract is explicitly non-publishable: the verified controller/contact,
+actual transfer guarantee/regions/retention, rights channel and AIPD outcome
+are not production facts, and `DocumentScanScreen` receives no production
+`PartnerAccountabilityExternalGate` from the `/scan` route. Before activation,
+MINT must publish the versioned notice covering identity/contact, categories,
+purposes, Anthropic as recipient/processor, the actual regions and verified
+transfer guarantee, raw non-retention, retention of confirmed figures, and a
+direct access/objection/withdrawal/deletion channel. Account linking remains
+optional. The real PostgreSQL migration/concurrency tests are GREEN and pushed
+at `fde00b18c`; mobile runtime proof, accepted ticket artifacts and both
+wrapper-only Claude lenses remain mandatory.
 
 If MINT relies on authorization/consent, a durable minimized record outside
 the financial ledger must prove only that the acting user declared
@@ -844,7 +882,7 @@ default. Any exception must prove necessity, absence of a less intrusive
 alternative, access limits, a fixed duration and deletion, and remains outside
 the financial root, provenance, scenarios and dossier.
 
-#### Accepted G1-BND-02A accountability architecture (implementation still blocked)
+#### Accepted G1-BND-02A accountability architecture (default-off implementation present; acceptance blocked)
 
 The accepted decision is
 `decisions/ADR-20260715-g1-bnd02a-partner-accountability.md`; the non-publishable
@@ -922,6 +960,15 @@ while an exact retry of the same logical operation reuses it. The canonical
 idempotency comparison includes the HMAC of the preallocated owner, so a retry
 cannot silently substitute a freshly generated owner token.
 
+At `fde00b18c`, receipt create and account deletion serialize on the acting
+`User` row with PostgreSQL `FOR UPDATE`. If deletion has already removed the
+actor, create returns the non-disclosing
+`409 partner_accountability_actor_unavailable`; it never inserts an orphan
+receipt.
+The real PostgreSQL gate proves Alembic upgrade/downgrade, one-shot consumption
+across two sessions, exact concurrent-create idempotency and both create/delete
+race orders.
+
 **Lifecycle and erasure.** A receipt is active only when the notice/policy
 versions are current, `declaredAt <= now < expiresAt`, and both `revokedAt` and
 `erasedAt` are null. Revocation and expiry immediately make every bound
@@ -936,11 +983,18 @@ it never revives an old snapshot silently.
 The mobile keeps a separate strict-secure `PartnerAccountabilityBindingStore`
 outside `wizard_answers_v2`, `_coach_lpp_evidence_v1`, `__provenance`, Biography,
 scenarios and dossier. Its minimal local binding is
-`{receiptId, manualPartnerOwnerId, expiresAt, lastVerifiedAt, status}` and
-contains no financial value, acquisition id, document SHA or other document
-identifier. In the pre-receipt `pending` state, `expiresAt` and
-`lastVerifiedAt` are null; the canonical receipt response fills the server
-expiry while the binding remains pending. The exact order is:
+`{receiptId, manualPartnerOwnerId, state, createdAt, noticeVersion,
+policyVersion, privacyContact, rightsChannel, receiptCreatedAt, expiresAt,
+lastVerifiedAt, failureStatus}` and contains no financial value, acquisition
+id, document SHA or other document identifier. The secure envelope has exact
+`active`, `pending` and `shadowed` slots. `privacyContact` and `rightsChannel`
+are copied from the accepted external descriptor so the dashboard renders the
+exact applicable rights channel rather than current or guessed copy. Legacy
+bindings without them fail closed. In the pre-receipt `pending` state,
+`receiptCreatedAt`, `expiresAt` and `lastVerifiedAt` are null; the canonical
+receipt response fills the server expiry while the binding remains pending.
+Secure I/O is bounded and an unreadable/uncertain clear leaves a durable plus
+in-process quarantine rather than exposing stale authority. The exact order is:
 resolve/reuse-or-allocate the owner -> generate the logical `receiptId` -> write
 the pending binding -> create the idempotent receipt -> perform
 extraction/review -> save the LPP whole root with that exact owner -> activate
@@ -953,6 +1007,14 @@ Cold reconstruction exposes the manual-partner slot only after an active
 owner-matching binding and current backend status have both been verified.
 Offline/unverifiable status is `partial+ask`, never cached GREEN.
 
+After receipt creation, the caller revalidates the exact current external gate,
+pending binding, owner and receipt at the byte/hash, local-parser, network and
+review boundaries. The first drift terminalizes that logical receipt: later
+callbacks/fallbacks/review are suppressed, one idempotent DELETE is attempted,
+the pending binding is rolled back and its explicitly shadowed active binding
+is restored. Terminalization and DELETE-attempt tracking are distinct so a
+late callback cannot repeat either document work or remote erasure.
+
 **Proxy and optional direct channel.** The current production candidate is only
 `acting_user_partner_authorization_declaration`. A future
 `direct_partner_confirmation` uses a distinct public, account-free operation
@@ -962,14 +1024,18 @@ rights flow. The required notice/rights channel may use a short-lived signed
 public token returned separately from the receipt and persisted nowhere; it
 must support notice access and privacy requests without account linking.
 
-**Real BND-02 caller — no facade.** For `manualPartner`, the mobile freezes the
-subject and one-shot proxy declaration only after the authenticated actor and
-the exact external notice/controller/contact, transfer/retention, rights and
-AIPD gate are current. That fail-closed gate runs before permission, picker or
-document bytes. It then reuses the secure-root manual-partner owner or allocates
-the single UUIDv4 described above, carries it through the volatile scan plus
-pending binding, prepares the transmitted bytes and creates/validates the
-minimized receipt before the JWT-authenticated
+**Real BND-02 caller — no facade.** Through `09b0a6543`,
+`DocumentScanScreen` is the
+real default-off caller. For `manualPartner`, it freezes the subject and
+one-shot proxy declaration only after the authenticated actor and the exact
+external notice/controller/contact, transfer/retention, rights and AIPD gate
+are current. The default `/scan` route deliberately injects no descriptor, so
+the production path currently fails closed before permission, picker or bytes.
+With a verified descriptor, it reuses the secure-root/binding manual-partner
+owner or allocates the single UUIDv4 described above, carries it through the
+volatile scan plus pending binding, selects only a local file handle, and
+creates/validates the minimized receipt before reading/preparing document bytes
+or making the JWT-authenticated
 `/documents/extract-vision` request; receipt failure means no network call. The
 request carries only
 `subjectKind=manualPartner` plus `receiptId`; the endpoint verifies that the
@@ -987,8 +1053,10 @@ binding, financial root, provenance or profile.
 After process destruction, the verified binding gates
 `LppEvidenceSelector.selectManualPartner`; the selected current LPP capital or
 annual pension then changes the named `MintStateEngine -> ForecasterService`
-recompute rendered by `RetirementDashboardScreen`. Revocation/expiry/erasure
-removes only receipt-bound certificate presentation values, rebuilds
+recompute rendered by `RetirementDashboardScreen`. This wiring and its focused
+tests are present at `d45c9daef`/`e6d1f70a2`, with terminal receipt retry and
+post-handoff cleanup closed at `09b0a6543`. Revocation/expiry/erasure removes
+only receipt-bound certificate presentation values, rebuilds
 `CoachProfile` from the remaining canonical ledger and recomputes once. It must
 not delete or overwrite independent `userInput` partner facts. The
 certificate's `fundReturnRateRatio` remains quarantined from
@@ -1007,9 +1075,10 @@ and endpoint regression gate must prove this. The legacy endpoint must be
 explicitly disabled for the LPP purpose (or globally behind its own default-off
 legacy switch) rather than used as fallback.
 
-**Exact future implementation and RED/GREEN scope.** Before product code, the
-authoritative G1 registry must name the combined commands and these concrete
-surfaces:
+**Implemented technical surfaces and remaining GREEN scope.** The authoritative
+registry names the combined commands and the following concrete surfaces. They
+now exist at backend through `fde00b18c` and mobile through `09b0a6543`; this inventory
+is implementation evidence only, not runtime/activation evidence:
 
 - backend: `app/models/partner_accountability_receipt.py`,
   `app/schemas/partner_accountability.py`,
@@ -1041,8 +1110,19 @@ The backend exact command is
 `cd services/backend && python3 -m pytest tests/test_partner_accountability.py tests/test_lpp_candidate_only_extraction.py tests/services/document/test_third_party_declaration.py -q`.
 The mobile exact command is
 `cd apps/mobile && flutter test test/providers/partner_financial_consent_lifecycle_test.dart test/providers/household_bridge_recompute_test.dart test/screens/coach/manual_partner_lpp_accountability_rendering_test.dart --reporter expanded`.
-Neither command may borrow PROV-02 evidence, and both must first fail on the
-missing accountability/caller predicates rather than on imports or fixtures.
+Neither command may borrow PROV-02 evidence. Their recorded semantic RED must
+fail on accountability/caller predicates rather than imports or fixtures, and
+their matching GREEN outputs still need accepted artifacts/SHAs before the two
+registry rows may change state.
+
+**Known acceptance debt at this baseline.** The real PostgreSQL migration,
+actor-lock and five-case multi-session idempotency/concurrency gate is GREEN at
+pushed SHA `fde00b18c`. Mobile `09b0a6543` limits retry to typed retryable accountability errors and
+performs full session/receipt/binding/temp cleanup when navigation fails after
+handoff; those two former P2s are closed. End-to-end Patrol/Maestro proof for the
+real picker/temp-file lifecycle remains outstanding. These are not reasons to
+call the technical default-off slice absent; the missing external/runtime/audit
+evidence is why BND-02/BND-02A and activation remain non-GREEN.
 
 #### Migration and kill switches
 
@@ -1061,27 +1141,33 @@ actor and authorization attestation. Their values are removed and only their
 key names/reason codes enter `legacyPartnerQuarantine`; the manual-partner slot
 stays null until independent review.
 
-Two local switches with concrete callers remain absent from backend hydration
-and default to false:
+The two PROV-02 switches plus the manual-partner accountability switch remain
+absent from backend hydration and default to false:
 
 ```text
 FeatureFlags.typedLppEvidence = false
 FeatureFlags.documentLppEvidenceEnabled = false
 FeatureFlags.lppEvidenceIngestionEnabled =
   typedLppEvidence && documentLppEvidenceEnabled
+FeatureFlags.partnerLppAccountabilityEnabled = false
 ```
 
 The first controls the typed root, writer and selectors. The second is consumed
-by the LPP document acquisition/review UI. Unless the composite getter is true,
-the LPP scan choice, pre-acquisition owner/attestation gates and confirmation CTA
-are hidden or neutralized **before consent/picker/OCR/upload**; a stale/deep link
-renders a recoverable disabled state and cannot call either legacy writer.
+by the LPP document acquisition/review UI. The third is an additional local
+kill switch for `manualPartner` notice/receipt/binding/cold-status behavior and
+also stays outside `applyFromMap`. The backend independently defaults
+`partner_lpp_accountability_enabled=false` and requires an explicitly approved
+HMAC key plus notice/policy versions. Unless the two-key composite getter is
+true, the LPP scan choice, pre-acquisition owner/attestation gates and
+confirmation CTA are hidden or neutralized **before consent/picker/OCR/upload**;
+unless the third local switch, backend switch and exact external descriptor are
+also current, the manual-partner branch fails closed before permission/picker/
+bytes/receipt/network. A stale/deep link cannot call either legacy writer.
 PROV-02 is now GREEN with frozen pushed-SHA runtime proof and external audits,
-but activation remains forbidden. A named activation decision additionally
-requires `G1-BND-02` manual-partner cold-reload → named production
-scenario/recompute proof and the `G1-BND-02A` named legal/privacy decision,
-partner notice and implemented accountability outcome, plus the remaining G1
-closure gates.
+but activation remains forbidden. BND-02/BND-02A technical behavior is now
+present default-off; activation additionally requires its accepted registry
+proof, a publishable partner notice/external descriptor, PostgreSQL and mobile
+runtime evidence, wrapper-only audits and the remaining G1 closure gates.
 
 G1 deliberately defines no `linkedPartnerLppEvidenceImport` flag: a switch
 without an authorized caller would be a facade. `LppReviewConfirmation` derives
@@ -1090,11 +1176,12 @@ accepted facts persist only `self` or `manualPartnerDeclaration` with null
 grant. `acceptLppReview` rejects every
 linked/grant-shaped input before persistence, and cold selection filters any
 such injected snapshot. These production reject/filter callers and their
-negative tests remain mandatory until G1-BND-02A proves purpose/field scope,
-grant lifecycle and revocation and introduces its own reviewed path. BND-02A
-also owns the named legal/privacy decision, versioned partner notice and
-implementation of the selected accountability mechanism for manual-partner
-document transfer. The proxy declaration never equals direct partner consent.
+negative tests remain mandatory: the implemented BND-02A represented-
+authorization path is deliberately not a linked/grant path. BND-02A owns the
+named legal/privacy decision, versioned partner notice and isolated
+accountability mechanism for manual-partner document transfer. The decision
+and technical mechanism exist; the publishable notice and activation evidence
+do not. The proxy declaration never equals direct partner consent.
 If the decision requires a durable minimized attestation record, it stays in a
 dedicated consent/audit boundary; no per-attempt acquisition identifier or
 document hash is retained by default. Any justified exception remains outside

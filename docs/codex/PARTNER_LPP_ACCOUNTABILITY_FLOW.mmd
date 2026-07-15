@@ -1,7 +1,13 @@
-%% G1 BND-02A/BND-02 accepted target interaction. Implementation/activation NO-GO.
-%% Companion: SCREEN_CONTRACTS.md section 5.1 and DATA_LEDGER.md BND-02A architecture.
+%% G1 BND-02A/BND-02 reality map @ backend fde00b18c / mobile 09b0a6543.
+%% Technical implementation exists default-off. Both tickets and activation remain NO-GO:
+%% publishable external facts, production descriptor, Maestro/Patrol and
+%% wrapper-only audits are still missing. The real PostgreSQL five-case gate is
+%% GREEN and pushed; it does not authorize activation.
+%% Companion: SCREEN_CONTRACTS.md §5.1 and DATA_LEDGER.md BND-02A architecture.
 flowchart TD
-  START["Scan LPP entry<br/>all partner flags default OFF"]
+  START["Real /scan caller<br/>DocumentScanScreen"]
+  FLAGS{"All manual-partner kill switches on?<br/>typedLppEvidence AND documentLppEvidenceEnabled<br/>mobile partnerLppAccountabilityEnabled<br/>backend partner_lpp_accountability_enabled"}
+  OFF["Default production state: OFF<br/>no partner bytes, receipt or write"]
   OWNER{"À qui appartient<br/>le certificat ?"}
   SELF["Self path<br/>PROV-02 contract"]
   LOCAL{"CoachProfile.conjoint exists?<br/>No HouseholdProvider predicate"}
@@ -9,96 +15,111 @@ flowchart TD
 
   subgraph PRE["Partner pre-acquisition — no picker or bytes"]
     direction TD
-    EXT{"External facts current?<br/>published notice + controller/contact<br/>transfer/retention + rights + AIPD"}
+    EXT_SOURCE["Production descriptor absent today<br/>notice contract NON PUBLIABLE<br/>controller/transfer/retention/rights/AIPD unverified"]
+    EXT{"Typed external facts current?<br/>exact notice + controller/contact<br/>transfer/retention + rights + AIPD"}
     BLOCKED["Blocked recovery<br/>no permission, picker, bytes,<br/>receipt, network or ledger write"]
-    NOTICE["Versioned concise notice<br/>full notice + rights link<br/>account-free access"]
+    NOTICE["Versioned concise notice<br/>full notice + rights contact<br/>account-link independent"]
     AUTH{"Acting user JWT current?"}
     LOGIN["Reconnect acting user<br/>resume exact notice step<br/>partner account/link not required"]
     DECLARE{"Explicit represented-authorization<br/>declaration checked?<br/>one-shot LPP only"}
     IDS["Reuse or allocate owner UUIDv4<br/>generate receipt UUIDv4 once"]
-    BIND_PENDING["Write strict-secure pending binding<br/>shadow prior active binding for owner"]
-    PERMISSIONS["Technical permissions<br/>visionExtraction + transferUsAnthropic<br/>never persistence365d"]
-    ROLLBACK["Safe rollback<br/>erase new pending binding<br/>restore explicitly shadowed active binding"]
+    BIND_PENDING[("Strict-secure pending binding<br/>active + pending + shadowed envelope<br/>exact notice/policy/contact/rights<br/>shadow prior active binding")]
+    PERMISSION["Generic technical permission<br/>manualPartner: visionExtraction only<br/>typed notice owns transfer disclosure<br/>never persistence365d"]
+    PRE_PICK_GATE{"Revalidate external gate<br/>before picker"}
   end
 
   subgraph LOCAL_FILE["Local file stage"]
     direction TD
-    RECHECK{"Revalidate external facts"}
-    PICKER["Open local picker"]
+    PICKER["Open picker withData=false"]
     CANCEL["Cancel<br/>no receipt"]
-    PREPARE["Prepare exact bytes locally<br/>owner + receipt ids already pending<br/>never allocate again"]
+    FILE_REF["Selected local path/handle only<br/>NO byte read or hash"]
   end
 
   subgraph ACCOUNTABILITY["Metadata-only accountability network"]
     direction TD
-    RECEIPT["partner_accountability_receipts<br/>create or exact-id retry receipt<br/>actor server-derived + owner HMAC<br/>exact versions/purpose<br/>NO PII, IP, SHA, acquisition id or value"]
+    RECEIPT[("POST partner_accountability_receipts<br/>JWT actor + keyed owner HMAC<br/>exact ids/versions/purpose<br/>NO PII, IP, SHA, acquisition id or value")]
     RECEIPT_ACTIVE{"Exact receipt active?"}
-    RECEIPT_FAIL{"Retryable receipt error?"}
-    RECEIPT_RETRY["Exact-id retry<br/>zero document-byte network"]
+    RECEIPT_RETRY["Exact-id retry dialog<br/>only typed retryable accountability error<br/>zero document-byte network"]
   end
 
   subgraph DOCUMENT["Authenticated document path"]
     direction TD
-    EXTRACT["Direct extract-vision request<br/>document + manualPartner + receiptId<br/>backend validates before Anthropic"]
+    BYTE_GATE{"Revalidate exact gate + pending binding<br/>before byte/hash, parser and network"}
+    READ["Read/prepare exact bytes locally<br/>bind transmitted SHA to volatile authorization"]
+    EXTRACT["Direct extract-vision request<br/>document + manualPartner + receiptId<br/>backend atomically consumes receipt<br/>before audit/Anthropic"]
+    REVIEW_GATE{"Revalidate exact gate + pending binding<br/>at public review handoff"}
     REVIEW["Review canonical facts<br/>owner immutable + source date<br/>caisse rate visibly quarantined"]
-    SAVE["Verify existing pending + exact owner<br/>save complete secure root<br/>activate same binding — no second pending write"]
+    SAVE["Verify pending + exact owner<br/>save whole secure root<br/>activate same binding<br/>then publish profile"]
     IMPACT["Scan impact<br/>CTA to RetirementDashboard"]
   end
+
+  TERMINAL["First authority drift = terminal<br/>exactly one receipt DELETE attempt + rollback<br/>restore shadowed active binding<br/>suppress later callback/fallback/review"]
+  ROLLBACK["Safe local rollback<br/>erase pending binding<br/>restore explicitly shadowed active binding"]
 
   subgraph COLD["Cold status and real BND-02 consumer"]
     direction TD
     VERIFY{"Exact owner binding + backend<br/>receipt current after restart?"}
-    ACTIVE["Select partner certificate facts<br/>MintStateEngine to ForecasterService<br/>recompute exactly once"]
-    DASH["RetirementDashboard<br/>changed ranged household result<br/>source + freshness + expiry + rights"]
+    ACTIVE["Select receipt-bound certificate facts<br/>MintStateEngine → ForecasterService<br/>one projection recompute"]
+    DASH["RetirementDashboard<br/>visible changed ranged result<br/>active expiry/status"]
     PARTIAL["partial+ask<br/>exclude receipt-bound facts<br/>never cached GREEN or CHF 0"]
-    INVALIDATE["expired, revoked, erased or mismatch<br/>targeted invalidation<br/>recompute exactly once"]
-    RESTORE{"Independent userInput exists?"}
+    INVALIDATE["expired, revoked, erased or mismatch<br/>remove receipt-bound certificate facts<br/>recompute exactly once"]
+    RESTORE{"Independent userInput fact exists?"}
     MANUAL["Restore it automatically<br/>mark à confirmer"]
-    ASK["One highest-impact Ask<br/>annual pension else current capital<br/>Je ne sais pas + dismiss"]
-    RETRY["Retry status or restart at current notice<br/>rights link stays account-free"]
+    ASK["One named-impact Ask<br/>current partner LPP capital<br/>Je ne sais pas + dismiss"]
+    RETRY["Retry exact receipt status<br/>never create duplicate receipt"]
+    RIGHTS["Exact accepted privacy contact<br/>and rights channel remain visible"]
   end
 
-  DEFERRED["direct_partner_confirmation deferred<br/>no CTA, route or endpoint facade"]
-  QUARANTINE["fundReturnRateRatio<br/>never conjoint.rendementCaisse<br/>never calculator input"]
+  QUARANTINE["fundReturnRateRatio<br/>retained in evidence root<br/>never conjoint.rendementCaisse<br/>never calculator input"]
+  DIRECT["direct_partner_confirmation deferred<br/>no CTA, route or endpoint facade"]
+  PG_GREEN["PostgreSQL technical gate GREEN @ fde00b18c<br/>Alembic round-trip + actor FOR UPDATE<br/>one-shot/idempotency + both delete race orders"]
+  ACCEPTANCE["BND-02/BND-02A NOT GREEN<br/>external facts + Maestro/Patrol<br/>Claude audits/accepted evidence missing"]
 
-  START --> OWNER
+  START --> FLAGS
+  FLAGS -->|off — current production| OFF
+  FLAGS -->|explicitly on| OWNER
   OWNER -->|self| SELF
   OWNER -->|manualPartner candidate| LOCAL
   LOCAL -->|no| NO_PARTNER
   LOCAL -->|yes| EXT
+  EXT_SOURCE -. "missing today" .-> EXT
   EXT -->|missing or stale| BLOCKED
   EXT -->|current| NOTICE
   NOTICE --> AUTH
-  NOTICE -. "public notice and rights" .-> RETRY
   AUTH -->|no| LOGIN
   LOGIN --> NOTICE
   AUTH -->|yes| DECLARE
-  DECLARE -->|unchecked or cancel| NOTICE
+  DECLARE -->|unchecked or cancel| BLOCKED
   DECLARE -->|checked| IDS
   IDS --> BIND_PENDING
-  BIND_PENDING --> PERMISSIONS
-  PERMISSIONS -->|denied or cancel| ROLLBACK
-  PERMISSIONS --> RECHECK
-  RECHECK -->|stale| ROLLBACK
-  RECHECK -->|current| PICKER
+  BIND_PENDING --> PERMISSION
+  PERMISSION -->|denied or cancel| ROLLBACK
+  PERMISSION --> PRE_PICK_GATE
+  PRE_PICK_GATE -->|stale| ROLLBACK
+  PRE_PICK_GATE -->|current| PICKER
   PICKER -->|cancel| ROLLBACK
-  PICKER -->|file chosen| PREPARE
-  PREPARE --> RECEIPT
+  PICKER -->|file chosen| FILE_REF
+  FILE_REF --> RECEIPT
   RECEIPT --> RECEIPT_ACTIVE
-  RECEIPT_ACTIVE -->|no| RECEIPT_FAIL
-  RECEIPT_FAIL -->|yes| RECEIPT_RETRY
+  RECEIPT_ACTIVE -->|typed retryable error only| RECEIPT_RETRY
+  RECEIPT_ACTIVE -->|terminal or unexpected error| TERMINAL
   RECEIPT_RETRY -->|same logical ids| RECEIPT
-  RECEIPT_FAIL -->|terminal or cancel| ROLLBACK
-  ROLLBACK --> CANCEL
-  RECEIPT_ACTIVE -->|yes| EXTRACT
-  EXTRACT --> REVIEW
+  RECEIPT_RETRY -->|cancel| TERMINAL
+  RECEIPT_ACTIVE -->|active| BYTE_GATE
+  BYTE_GATE -->|drift| TERMINAL
+  BYTE_GATE -->|exact| READ
+  READ --> EXTRACT
+  EXTRACT --> REVIEW_GATE
+  REVIEW_GATE -->|drift| TERMINAL
+  REVIEW_GATE -->|exact| REVIEW
   REVIEW -. "caisse fact excluded" .-> QUARANTINE
   REVIEW -->|confirm| SAVE
-  SAVE -->|whole-root success| IMPACT
-  SAVE -->|crash or failure| PARTIAL
+  SAVE -->|whole-root + activation success| IMPACT
+  SAVE -->|failure with compensation| PARTIAL
   IMPACT --> VERIFY
   VERIFY -->|active + exact owner| ACTIVE
   ACTIVE --> DASH
+  DASH --> RIGHTS
   VERIFY -->|loading, offline or unverifiable| PARTIAL
   VERIFY -->|expired, revoked, erased or mismatch| INVALIDATE
   INVALIDATE --> RESTORE
@@ -109,7 +130,12 @@ flowchart TD
   ASK --> DASH
   PARTIAL --> RETRY
   RETRY --> VERIFY
-  NOTICE -. "future distinct design only" .-> DEFERRED
+  PARTIAL --> RIGHTS
+  TERMINAL --> ROLLBACK
+  NOTICE -. "future distinct design only" .-> DIRECT
+  OFF -. "activation gate" .-> ACCEPTANCE
+  PG_GREEN -. "technical proof only" .-> ACCEPTANCE
+  RIGHTS -. "acceptance gate" .-> ACCEPTANCE
 
   classDef gate fill:#FFF4D6,stroke:#8A6414,color:#3B2B08;
   classDef blocked fill:#FDECEC,stroke:#A43A3A,color:#5C1717;
@@ -117,8 +143,9 @@ flowchart TD
   classDef consumer fill:#EAF0FF,stroke:#315DA8,color:#18355F;
   classDef deferred fill:#F1F1F1,stroke:#777,color:#333,stroke-dasharray: 5 5;
 
-  class OWNER,LOCAL,EXT,AUTH,DECLARE,RECHECK,RECEIPT_ACTIVE,RECEIPT_FAIL,VERIFY,RESTORE gate;
-  class BLOCKED,ROLLBACK,PARTIAL,INVALIDATE blocked;
-  class IDS,BIND_PENDING,RECEIPT,RECEIPT_RETRY,SAVE durable;
-  class ACTIVE,DASH,MANUAL,ASK consumer;
-  class DEFERRED,QUARANTINE deferred;
+  class FLAGS,OWNER,LOCAL,EXT,AUTH,DECLARE,PRE_PICK_GATE,RECEIPT_ACTIVE,BYTE_GATE,REVIEW_GATE,VERIFY,RESTORE gate;
+  class OFF,BLOCKED,TERMINAL,ROLLBACK,PARTIAL,INVALIDATE,ACCEPTANCE blocked;
+  class IDS,BIND_PENDING,RECEIPT,SAVE durable;
+  class ACTIVE,DASH,MANUAL,ASK,RETRY,RIGHTS consumer;
+  class DIRECT,QUARANTINE,EXT_SOURCE deferred;
+  class PG_GREEN durable;
