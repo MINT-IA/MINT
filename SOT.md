@@ -190,3 +190,54 @@ Source: `apps/mobile/lib/services/financial_core/confidence_scorer.dart`
 - Precision help and RAG FAQ text direct the user to the CI and compensation
   office. Only the office determines the credited periods, scale, and official
   amount; a disclaimer cannot make a gap-only formula acceptable.
+
+## 10. Manual-partner LPP accountability receipt (G1, default-off)
+
+- The isolated backend store is `partner_accountability_receipts`; it is not a
+  `ConsentModel`, generic consent receipt, Merkle-chain record, Data Ledger fact,
+  document proof or account-link grant.
+- `POST /api/v1/partner-accountability/receipts` derives the actor from JWT and
+  accepts only `subjectKind=manualPartner`,
+  `accountabilityKind=acting_user_partner_authorization_declaration` and
+  `purpose=one_shot_lpp_extraction`. `receiptId` is a client-preallocated UUIDv4.
+  `subjectOwnerToken` is a canonical UUIDv4 preallocated for the local profile
+  owner. The actor and owner token are immediately transformed with a dedicated,
+  domain-separated HMAC key; neither raw value is stored or returned.
+- New receipt creation and use by `POST /api/v1/documents/extract-vision` require
+  `FF_PARTNER_LPP_ACCOUNTABILITY_ENABLED=true`, a dedicated
+  `MINT_PARTNER_ACCOUNTABILITY_HMAC_KEY`, and current externally approved
+  `PARTNER_LPP_NOTICE_VERSION` plus `PARTNER_LPP_POLICY_VERSION`. Every value is
+  absent by default. The flag alone never activates the path, and technical
+  availability does not resolve the legal-release facts in the accepted ADR.
+- Each receipt stores only a non-secret derived `hmacKeyId` internally. Rotation
+  uses the current key plus the explicit
+  `MINT_PARTNER_ACCOUNTABILITY_PREVIOUS_HMAC_KEYS_JSON` object mapping derived
+  key ids to retained secrets. Exact retries and lifecycle operations select the
+  receipt's key; an absent historical key fails with 503 rather than returning
+  an empty list, false 204 or unlinkable retry.
+- The lifecycle surface is JWT-scoped: `GET /receipts`, `GET
+  /receipts/{receiptId}/status`, `POST /receipts/{receiptId}/revoke`, and
+  idempotent `DELETE /receipts/{receiptId}` under the partner-accountability
+  prefix. A valid window has non-null `declaredAt <= now` and `expiresAt` exactly
+  365 days after declaration. Null, future or malformed windows are `stale`; a
+  valid elapsed window is `expired`. Product flag or notice-version removal
+  never disables list, status, revocation or erasure. Only an exact `active`
+  receipt may cross the LPP document gate.
+- Erasure clears both pseudonyms and all receipt semantics, retaining only the
+  random receipt identifier and `erasedAt` tombstone. Erased rows disappear from
+  actor lists/status; repeated, foreign and unknown UUIDv4 deletes return the
+  same empty 204 without existence disclosure. If the HMAC key is unavailable,
+  erasure fails explicitly rather than reporting a false success.
+- The one-shot purpose is enforced with internal-only `consumedAt`: the backend
+  locks and consumes the receipt, then commits that reservation before document
+  classification, audit creation or Anthropic. Consumption is not a lifecycle
+  invalidation, so status may remain `active`, but every replay fails with 428
+  before side effects. Erasure clears `consumedAt` and `hmacKeyId`.
+- `DELETE /api/v1/auth/account` tombstones every receipt belonging to the acting
+  user before deleting the User in the same transaction. Missing keyring entries
+  fail the deletion closed and roll back both receipt erasure and User deletion.
+- A `manualPartner` LPP request is rejected before document classification,
+  audit-row creation or Anthropic extraction when its receipt is absent,
+  foreign, stale, expired, revoked, erased, scope-drifted or disabled. Legacy
+  nominative receipts containing name/document/IP-derived fields never satisfy
+  this gate. The legacy self LPP candidate-only contract remains unchanged.

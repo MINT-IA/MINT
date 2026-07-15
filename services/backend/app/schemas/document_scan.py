@@ -8,9 +8,10 @@ See: MINT_FINAL_EXECUTION_SYSTEM.md §13.11 (Chantier 4)
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
-from typing import List, Optional, Union
+from typing import List, Literal, Optional, Union
 from datetime import datetime, timezone
 from enum import Enum
+from uuid import UUID
 
 
 class DocumentType(str, Enum):
@@ -142,6 +143,14 @@ class VisionExtractionRequest(BaseModel):
     language_hint: Optional[str] = Field(
         None,
         description="Expected language: fr, de, it",
+    )
+    subject_kind: Optional[Literal["self", "manualPartner"]] = Field(
+        None,
+        description="Owner boundary for LPP extraction; legacy callers default to self",
+    )
+    receipt_id: Optional[UUID] = Field(
+        None,
+        description="Active manual-partner accountability receipt",
     )
 
 

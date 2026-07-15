@@ -89,6 +89,7 @@ def clean_database():
         AdminAuditEventModel,
         SnapshotModel,
         ConsentModel,
+        PartnerAccountabilityReceipt,
     )
     from app.models.banking_consent import BankingConsentModel
     from app.models.external_data_source import ExternalDataSourceModel
@@ -104,6 +105,7 @@ def clean_database():
         db.query(BankingConsentModel).delete()
         db.query(SnapshotModel).delete()
         db.query(ConsentModel).delete()
+        db.query(PartnerAccountabilityReceipt).delete()
         db.query(BillingWebhookEventModel).delete()
         db.query(EmailVerificationTokenModel).delete()
         db.query(PasswordResetTokenModel).delete()

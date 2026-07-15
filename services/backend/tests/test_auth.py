@@ -4,6 +4,8 @@ Tests for authentication endpoints.
 
 import pytest
 import os
+from datetime import datetime, timezone
+from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.core.auth import get_current_user, require_current_user
@@ -351,6 +353,152 @@ def test_delete_account_purges_user_profiles_and_sessions(auth_client: TestClien
         json={"email": "delete-me@example.com", "password": "deletepass123"},
     )
     assert relogin.status_code == 401
+
+
+def _create_partner_accountability_receipt(
+    auth_client: TestClient,
+    monkeypatch,
+    *,
+    token: str,
+) -> dict:
+    monkeypatch.setenv("FF_PARTNER_LPP_ACCOUNTABILITY_ENABLED", "true")
+    monkeypatch.setenv(
+        "MINT_PARTNER_ACCOUNTABILITY_HMAC_KEY",
+        "synthetic-account-delete-key-not-production",
+    )
+    monkeypatch.delenv(
+        "MINT_PARTNER_ACCOUNTABILITY_PREVIOUS_HMAC_KEYS_JSON",
+        raising=False,
+    )
+    monkeypatch.setenv(
+        "PARTNER_LPP_NOTICE_VERSION",
+        "synthetic-partner-lpp-notice-v1",
+    )
+    monkeypatch.setenv(
+        "PARTNER_LPP_POLICY_VERSION",
+        "synthetic-partner-accountability-policy-v1",
+    )
+    body = {
+        "receiptId": str(uuid4()),
+        "subjectOwnerToken": str(uuid4()),
+        "subjectKind": "manualPartner",
+        "accountabilityKind": "acting_user_partner_authorization_declaration",
+        "purpose": "one_shot_lpp_extraction",
+        "noticeVersion": "synthetic-partner-lpp-notice-v1",
+        "policyVersion": "synthetic-partner-accountability-policy-v1",
+    }
+    response = auth_client.post(
+        "/api/v1/partner-accountability/receipts",
+        headers={"Authorization": f"Bearer {token}"},
+        json=body,
+    )
+    assert response.status_code == 201, response.text
+    return body
+
+
+def test_delete_account_erases_partner_accountability_in_same_transaction(
+    auth_client: TestClient,
+    monkeypatch,
+):
+    register = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "receipt-delete@example.com", "password": "deletepass123"},
+    )
+    assert register.status_code == 201, register.text
+    token = register.json()["access_token"]
+    user_id = register.json()["user_id"]
+    receipt = _create_partner_accountability_receipt(
+        auth_client,
+        monkeypatch,
+        token=token,
+    )
+
+    from app.models.partner_accountability_receipt import (
+        PartnerAccountabilityReceipt,
+    )
+    from tests.conftest import TestingSessionLocal
+
+    db = TestingSessionLocal()
+    try:
+        row = db.get(PartnerAccountabilityReceipt, receipt["receiptId"])
+        assert row is not None
+        row.consumed_at = datetime.now(timezone.utc)
+        db.commit()
+    finally:
+        db.close()
+
+    deleted = auth_client.delete(
+        "/api/v1/auth/account",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert deleted.status_code == 200, deleted.text
+
+    db = TestingSessionLocal()
+    try:
+        tombstone = db.get(PartnerAccountabilityReceipt, receipt["receiptId"])
+        assert tombstone is not None
+        assert tombstone.erased_at is not None
+        assert tombstone.acting_principal_pseudonym is None
+        assert tombstone.subject_owner_pseudonym is None
+        assert tombstone.hmac_key_id is None
+        assert tombstone.consumed_at is None
+        from app.models.user import User
+
+        assert db.get(User, user_id) is None
+    finally:
+        db.close()
+
+
+def test_delete_account_rolls_back_when_receipt_key_is_unavailable(
+    auth_client: TestClient,
+    monkeypatch,
+):
+    email = "receipt-rollback@example.com"
+    register = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": "deletepass123"},
+    )
+    assert register.status_code == 201, register.text
+    token = register.json()["access_token"]
+    user_id = register.json()["user_id"]
+    receipt = _create_partner_accountability_receipt(
+        auth_client,
+        monkeypatch,
+        token=token,
+    )
+    monkeypatch.setenv(
+        "MINT_PARTNER_ACCOUNTABILITY_HMAC_KEY",
+        "rotated-account-delete-key-not-production",
+    )
+
+    blocked = auth_client.delete(
+        "/api/v1/auth/account",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert blocked.status_code == 500, blocked.text
+    assert receipt["subjectOwnerToken"] not in blocked.text
+
+    from app.models.partner_accountability_receipt import (
+        PartnerAccountabilityReceipt,
+    )
+    from app.models.user import User
+    from tests.conftest import TestingSessionLocal
+
+    db = TestingSessionLocal()
+    try:
+        row = db.get(PartnerAccountabilityReceipt, receipt["receiptId"])
+        assert row is not None
+        assert row.erased_at is None
+        assert row.acting_principal_pseudonym is not None
+        assert row.hmac_key_id is not None
+        assert db.get(User, user_id) is not None
+    finally:
+        db.close()
+    relogin = auth_client.post(
+        "/api/v1/auth/login",
+        json={"email": email, "password": "deletepass123"},
+    )
+    assert relogin.status_code == 200, relogin.text
 
 
 def test_claim_local_data_creates_and_updates_cloud_profile(auth_client: TestClient):

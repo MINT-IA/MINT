@@ -31,6 +31,7 @@ from app.models.scenario import ScenarioModel
 from app.models.banking_consent import BankingConsentModel
 from app.models.external_data_source import ExternalDataSourceModel
 from app.models.magic_link_token import MagicLinkTokenModel
+from app.models.partner_accountability_receipt import PartnerAccountabilityReceipt
 from app.models.coach_insight import CoachInsightRecord
 from app.models.document_memory import DocumentMemory
 from app.models.dek_vault import DEKVault
@@ -59,6 +60,7 @@ __all__ = [
     "BankingConsentModel",
     "ExternalDataSourceModel",
     "MagicLinkTokenModel",
+    "PartnerAccountabilityReceipt",
     "CoachInsightRecord",
     "DocumentMemory",
     "DEKVault",

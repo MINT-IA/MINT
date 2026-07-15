@@ -15209,6 +15209,181 @@
         "title": "Partner",
         "type": "object"
       },
+      "PartnerAccountabilityReceiptCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "accountabilityKind": {
+            "const": "acting_user_partner_authorization_declaration",
+            "title": "Accountabilitykind",
+            "type": "string"
+          },
+          "noticeVersion": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Noticeversion",
+            "type": "string"
+          },
+          "policyVersion": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Policyversion",
+            "type": "string"
+          },
+          "purpose": {
+            "const": "one_shot_lpp_extraction",
+            "title": "Purpose",
+            "type": "string"
+          },
+          "receiptId": {
+            "format": "uuid",
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "subjectKind": {
+            "const": "manualPartner",
+            "title": "Subjectkind",
+            "type": "string"
+          },
+          "subjectOwnerToken": {
+            "format": "uuid",
+            "maxLength": 36,
+            "minLength": 36,
+            "title": "Subjectownertoken",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "receiptId",
+          "subjectOwnerToken",
+          "subjectKind",
+          "accountabilityKind",
+          "purpose",
+          "noticeVersion",
+          "policyVersion"
+        ],
+        "title": "PartnerAccountabilityReceiptCreate",
+        "type": "object"
+      },
+      "PartnerAccountabilityReceiptList": {
+        "additionalProperties": false,
+        "properties": {
+          "receipts": {
+            "items": {
+              "$ref": "#/components/schemas/PartnerAccountabilityReceiptResponse"
+            },
+            "title": "Receipts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "receipts"
+        ],
+        "title": "PartnerAccountabilityReceiptList",
+        "type": "object"
+      },
+      "PartnerAccountabilityReceiptResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "accountabilityKind": {
+            "const": "acting_user_partner_authorization_declaration",
+            "title": "Accountabilitykind",
+            "type": "string"
+          },
+          "declaredAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Declaredat"
+          },
+          "erasedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Erasedat"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "noticeVersion": {
+            "title": "Noticeversion",
+            "type": "string"
+          },
+          "policyVersion": {
+            "title": "Policyversion",
+            "type": "string"
+          },
+          "purpose": {
+            "const": "one_shot_lpp_extraction",
+            "title": "Purpose",
+            "type": "string"
+          },
+          "receiptId": {
+            "format": "uuid",
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "revokedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revokedat"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "stale",
+              "expired",
+              "revoked"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "subjectKind": {
+            "const": "manualPartner",
+            "title": "Subjectkind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "receiptId",
+          "subjectKind",
+          "accountabilityKind",
+          "purpose",
+          "noticeVersion",
+          "policyVersion",
+          "status"
+        ],
+        "title": "PartnerAccountabilityReceiptResponse",
+        "type": "object"
+      },
       "PartnerClick": {
         "properties": {
           "kind": {
@@ -22131,6 +22306,35 @@
             ],
             "description": "Expected language: fr, de, it",
             "title": "Languagehint"
+          },
+          "receiptId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Active manual-partner accountability receipt",
+            "title": "Receiptid"
+          },
+          "subjectKind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "self",
+                  "manualPartner"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Owner boundary for LPP extraction; legacy callers default to self",
+            "title": "Subjectkind"
           }
         },
         "required": [
@@ -24399,7 +24603,7 @@
     },
     "/api/v1/auth/account": {
       "delete": {
-        "description": "Delete authenticated account and purge linked user data.\n\nCompliance intent:\n- Remove user credentials and user-linked financial data.\n- Keep aggregate analytics rows by anonymizing user_id.",
+        "description": "Delete authenticated account and purge linked user data.\n\nCompliance intent:\n- Remove user credentials and user-linked financial data.\n- Tombstone pseudonymous partner-accountability receipts atomically.\n- Keep aggregate analytics rows by anonymizing user_id.",
         "operationId": "delete_account_api_v1_auth_account_delete",
         "responses": {
           "200": {
@@ -27060,7 +27264,7 @@
     },
     "/api/v1/documents/extract-vision": {
       "post": {
-        "description": "Extract structured data from a document image using Claude Vision.\n\nHardened pipeline (02-01):\n1. Pre-extraction classification — rejects non-financial documents (DOC-10)\n2. Audit log creation — metadata only, no image data (DOC-08)\n3. Finally-block deletion — image cleared even on error (COMP-04)\n\nv2.7 Phase 28: when DOCUMENTS_V2_ENABLED is on for this user, the new\nfused understand_document() returns DocumentUnderstandingResult instead\nof the legacy VisionExtractionResponse. Flag default is False — legacy\npath stays the prod default until corpus validation in phase 30.\n\nPrivacy: image is sent to Claude API for processing but NOT stored.\nOnly extracted structured fields are returned.",
+        "description": "Extract structured data from a document image using Claude Vision.\n\nHardened pipeline (02-01):\n0. manualPartner receipt reservation — committed before any side effect\n1. Pre-extraction classification — rejects non-financial documents (DOC-10)\n2. Audit log creation — metadata only, no image data (DOC-08)\n3. Finally-block deletion — image cleared even on error (COMP-04)\n\nv2.7 Phase 28: when DOCUMENTS_V2_ENABLED is on for this user, the new\nfused understand_document() returns DocumentUnderstandingResult instead\nof the legacy VisionExtractionResponse. Flag default is False — legacy\npath stays the prod default until corpus validation in phase 30.\n\nPrivacy: image is sent to Claude API for processing but NOT stored.\nOnly extracted structured fields are returned.",
         "operationId": "extract_with_claude_vision_api_v1_documents_extract_vision_post",
         "requestBody": {
           "content": {
@@ -30869,6 +31073,223 @@
         "summary": "Get Overview Me",
         "tags": [
           "Overview — Aperçu financier"
+        ]
+      }
+    },
+    "/api/v1/partner-accountability/receipts": {
+      "get": {
+        "operationId": "list_receipts_api_v1_partner_accountability_receipts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerAccountabilityReceiptList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Receipts",
+        "tags": [
+          "Partner Accountability G1"
+        ]
+      },
+      "post": {
+        "operationId": "create_receipt_api_v1_partner_accountability_receipts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerAccountabilityReceiptCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerAccountabilityReceiptResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerAccountabilityReceiptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Receipt",
+        "tags": [
+          "Partner Accountability G1"
+        ]
+      }
+    },
+    "/api/v1/partner-accountability/receipts/{receipt_id}": {
+      "delete": {
+        "operationId": "erase_receipt_api_v1_partner_accountability_receipts__receipt_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "receipt_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Receipt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Erase Receipt",
+        "tags": [
+          "Partner Accountability G1"
+        ]
+      }
+    },
+    "/api/v1/partner-accountability/receipts/{receipt_id}/revoke": {
+      "post": {
+        "operationId": "revoke_receipt_api_v1_partner_accountability_receipts__receipt_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "receipt_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Receipt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerAccountabilityReceiptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Revoke Receipt",
+        "tags": [
+          "Partner Accountability G1"
+        ]
+      }
+    },
+    "/api/v1/partner-accountability/receipts/{receipt_id}/status": {
+      "get": {
+        "operationId": "get_receipt_status_api_v1_partner_accountability_receipts__receipt_id__status_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "receipt_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Receipt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerAccountabilityReceiptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Receipt Status",
+        "tags": [
+          "Partner Accountability G1"
         ]
       }
     },

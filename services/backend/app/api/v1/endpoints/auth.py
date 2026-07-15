@@ -1003,6 +1003,7 @@ def delete_account(
 
     Compliance intent:
     - Remove user credentials and user-linked financial data.
+    - Tombstone pseudonymous partner-accountability receipts atomically.
     - Keep aggregate analytics rows by anonymizing user_id.
     """
     user_id = current_user.id
@@ -1135,6 +1136,13 @@ def delete_account(
         # If purge fails, abort — never leave orphaned user data.
         from app.models.document import DocumentModel
         db.query(DocumentModel).filter(DocumentModel.user_id == user_id).delete()
+
+        # BND-02A: receipts have no raw user id/FK, so erase them while the
+        # authenticated actor id still exists and inside this same transaction.
+        from app.services.partner_accountability.service import (
+            PartnerAccountabilityService,
+        )
+        PartnerAccountabilityService(db).erase_all_for_actor(actor_id=str(user_id))
 
         db.delete(current_user)
         db.commit()

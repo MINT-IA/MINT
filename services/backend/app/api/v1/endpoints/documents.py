@@ -1215,6 +1215,7 @@ async def extract_with_claude_vision(
     """Extract structured data from a document image using Claude Vision.
 
     Hardened pipeline (02-01):
+    0. manualPartner receipt reservation — committed before any side effect
     1. Pre-extraction classification — rejects non-financial documents (DOC-10)
     2. Audit log creation — metadata only, no image data (DOC-08)
     3. Finally-block deletion — image cleared even on error (COMP-04)
@@ -1236,6 +1237,59 @@ async def extract_with_claude_vision(
                 "message": "Vision activation requires a separate privacy review.",
             },
         )
+
+    if body.receipt_id is not None and body.subject_kind != "manualPartner":
+        body.image_base64 = ""
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "partner_accountability_subject_mismatch"},
+        )
+    if body.subject_kind == "manualPartner":
+        if body.document_type != DocumentType.lpp_certificate:
+            body.image_base64 = ""
+            raise HTTPException(
+                status_code=422,
+                detail={"code": "partner_accountability_lpp_only"},
+            )
+        if not FeatureFlags.get_flags()["partner_lpp_accountability_enabled"]:
+            body.image_base64 = ""
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"code": "partner_accountability_disabled"},
+            )
+        if body.receipt_id is None:
+            body.image_base64 = ""
+            raise HTTPException(
+                status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+                detail={"code": "partner_accountability_receipt_inactive"},
+            )
+        from app.services.partner_accountability.receipt_builder import (
+            AccountabilityConfigurationError,
+        )
+        from app.services.partner_accountability.service import (
+            PartnerAccountabilityInactive,
+            PartnerAccountabilityService,
+        )
+
+        try:
+            PartnerAccountabilityService(db).consume_for_lpp(
+                actor_id=str(current_user.id),
+                receipt_id=body.receipt_id,
+            )
+        except AccountabilityConfigurationError:
+            body.image_base64 = ""
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "code": "partner_accountability_configuration_incomplete"
+                },
+            ) from None
+        except PartnerAccountabilityInactive:
+            body.image_base64 = ""
+            raise HTTPException(
+                status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+                detail={"code": "partner_accountability_receipt_inactive"},
+            ) from None
 
     from app.services.document_vision_service import (
         extract_with_vision,

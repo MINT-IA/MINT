@@ -20,6 +20,9 @@ def _env_bool(key: str, default: bool) -> bool:
 
 
 class FeatureFlags:
+    # G1 BND-02A: manual-partner accountability receipts (activation blocked).
+    partner_lpp_accountability_enabled: bool = False
+
     # G1: official self-only AVS pension candidates (off until runtime proof).
     avs_official_pension_ingestion_enabled: bool = False
 
@@ -67,6 +70,10 @@ class FeatureFlags:
     def get_flags(cls) -> Dict[str, bool]:
         """Resolve current flag values from env vars."""
         return {
+            "partner_lpp_accountability_enabled": _env_bool(
+                "FF_PARTNER_LPP_ACCOUNTABILITY_ENABLED",
+                cls.partner_lpp_accountability_enabled,
+            ),
             "avs_official_pension_ingestion_enabled": _env_bool(
                 "AVS_OFFICIAL_PENSION_INGESTION_ENABLED",
                 cls.avs_official_pension_ingestion_enabled,

@@ -213,6 +213,11 @@ def require_declaration_or_block(
     """
     if not getattr(understanding, "third_party_detected", False):
         return
+    document_class = getattr(understanding, "document_class", None)
+    if getattr(document_class, "value", document_class) == "lpp_certificate":
+        name = getattr(understanding, "third_party_name", None)
+        subjects = [name] if name else ["une personne détectée"]
+        raise ThirdPartyDeclarationRequired(subjects, doc_hash)
     if _matching_declaration(db, user_id=user_id, doc_hash=doc_hash) is not None:
         return
     name = getattr(understanding, "third_party_name", None)

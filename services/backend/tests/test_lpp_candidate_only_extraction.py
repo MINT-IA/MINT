@@ -1,7 +1,7 @@
 """G1 PROV-02: LPP Vision extraction stays candidate-only until review."""
 
 import base64
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import json
 import logging
 from pathlib import Path
@@ -80,6 +80,34 @@ _SYNTHETIC_LPP_PLAN_BYTES = (
     b"Salaire assure CHF 98000\n"
     b"Taux de conversion 5.2 percent\n"
 )
+_ACCOUNTABILITY_PATH = "/api/v1/partner-accountability/receipts"
+_ACCOUNTABILITY_NOTICE = "synthetic-partner-lpp-notice-v1"
+_ACCOUNTABILITY_POLICY = "synthetic-partner-accountability-policy-v1"
+
+
+def _configure_partner_accountability(monkeypatch) -> None:
+    monkeypatch.setenv("FF_PARTNER_LPP_ACCOUNTABILITY_ENABLED", "true")
+    monkeypatch.setenv(
+        "MINT_PARTNER_ACCOUNTABILITY_HMAC_KEY",
+        "synthetic-test-key-not-for-production",
+    )
+    monkeypatch.setenv("PARTNER_LPP_NOTICE_VERSION", _ACCOUNTABILITY_NOTICE)
+    monkeypatch.setenv("PARTNER_LPP_POLICY_VERSION", _ACCOUNTABILITY_POLICY)
+
+
+def _create_partner_receipt(client) -> dict:
+    body = {
+        "receiptId": str(uuid4()),
+        "subjectOwnerToken": str(uuid4()),
+        "subjectKind": "manualPartner",
+        "accountabilityKind": "acting_user_partner_authorization_declaration",
+        "purpose": "one_shot_lpp_extraction",
+        "noticeVersion": _ACCOUNTABILITY_NOTICE,
+        "policyVersion": _ACCOUNTABILITY_POLICY,
+    }
+    response = client.post(_ACCOUNTABILITY_PATH, json=body)
+    assert response.status_code == 201, response.text
+    return body
 
 
 def test_manual_partner_lpp_requires_active_accountability_before_anthropic(
@@ -87,7 +115,7 @@ def test_manual_partner_lpp_requires_active_accountability_before_anthropic(
     monkeypatch,
 ):
     """A random receipt id must fail before classification, audit, or extraction."""
-    monkeypatch.setenv("FF_PARTNER_LPP_ACCOUNTABILITY_ENABLED", "true")
+    _configure_partner_accountability(monkeypatch)
     encoded_document = base64.b64encode(_SYNTHETIC_LPP_PLAN_BYTES).decode("ascii")
     classifier = MagicMock(
         side_effect=AssertionError("classification ran before accountability"),
@@ -130,6 +158,213 @@ def test_manual_partner_lpp_requires_active_accountability_before_anthropic(
     assert response.json()["detail"]["code"] == (
         "partner_accountability_receipt_inactive"
     )
+    classifier.assert_not_called()
+    extractor.assert_not_called()
+    audit_factory.assert_not_called()
+
+
+def test_manual_partner_lpp_active_receipt_reaches_candidate_extraction(
+    client,
+    monkeypatch,
+):
+    """A gate that only rejects is not a caller: exact active scope must proceed."""
+    _configure_partner_accountability(monkeypatch)
+    receipt = _create_partner_receipt(client)
+    encoded_document = base64.b64encode(_SYNTHETIC_LPP_PLAN_BYTES).decode("ascii")
+    def _classify_after_reservation(image_base64):
+        from app.models.partner_accountability_receipt import (
+            PartnerAccountabilityReceipt,
+        )
+
+        db = TestingSessionLocal()
+        try:
+            row = db.get(PartnerAccountabilityReceipt, receipt["receiptId"])
+            assert row is not None
+            assert row.consumed_at is not None
+        finally:
+            db.close()
+        assert image_base64 == encoded_document
+        return _exact_lpp_certificate_classification()
+
+    classifier = MagicMock(side_effect=_classify_after_reservation)
+    extractor = MagicMock(return_value=_lpp_candidate())
+
+    with (
+        patch(
+            "app.services.document_vision_service.classify_document",
+            new=classifier,
+        ),
+        patch(
+            "app.services.document_vision_service.extract_with_vision",
+            new=extractor,
+        ),
+        patch(
+            "app.services.flags_service.flags.is_enabled",
+            new=AsyncMock(return_value=False),
+        ),
+    ):
+        response = client.post(
+            "/api/v1/documents/extract-vision",
+            json={
+                "imageBase64": encoded_document,
+                "documentType": "lpp_certificate",
+                "subjectKind": "manualPartner",
+                "receiptId": receipt["receiptId"],
+            },
+        )
+
+    assert response.status_code == 200, response.text
+    classifier.assert_called_once_with(encoded_document)
+    extractor.assert_called_once()
+    status_response = client.get(
+        f"{_ACCOUNTABILITY_PATH}/{receipt['receiptId']}/status"
+    )
+    assert status_response.status_code == 200, status_response.text
+    assert status_response.json()["status"] == "active"
+
+    replay_classifier = MagicMock(
+        side_effect=AssertionError("classification ran for consumed receipt"),
+    )
+    replay_extractor = MagicMock(
+        side_effect=AssertionError("Anthropic ran for consumed receipt"),
+    )
+    replay_audit = MagicMock(
+        side_effect=AssertionError("audit row created for consumed receipt"),
+    )
+    with (
+        patch(
+            "app.services.document_vision_service.classify_document",
+            new=replay_classifier,
+        ),
+        patch(
+            "app.services.document_vision_service.extract_with_vision",
+            new=replay_extractor,
+        ),
+        patch(
+            "app.models.document_audit.create_audit_log",
+            new=replay_audit,
+        ),
+    ):
+        replay = client.post(
+            "/api/v1/documents/extract-vision",
+            json={
+                "imageBase64": encoded_document,
+                "documentType": "lpp_certificate",
+                "subjectKind": "manualPartner",
+                "receiptId": receipt["receiptId"],
+            },
+        )
+    assert replay.status_code == 428, replay.text
+    replay_classifier.assert_not_called()
+    replay_extractor.assert_not_called()
+    replay_audit.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("state", "expected_status"),
+    [
+        ("revoked", 428),
+        ("stale", 428),
+        ("wrong_actor", 428),
+        ("purpose_drift", 428),
+        ("future_declared", 428),
+        ("null_declared", 428),
+        ("invalid_window", 428),
+        ("null_expiry", 428),
+        ("disabled", 403),
+    ],
+)
+def test_manual_partner_lpp_inactive_states_block_before_side_effects(
+    client,
+    monkeypatch,
+    state,
+    expected_status,
+):
+    """Revoked/stale/foreign/off receipts never reach classification or audit."""
+    _configure_partner_accountability(monkeypatch)
+    receipt = _create_partner_receipt(client)
+    if state == "revoked":
+        revoked = client.post(
+            f"{_ACCOUNTABILITY_PATH}/{receipt['receiptId']}/revoke"
+        )
+        assert revoked.status_code == 200, revoked.text
+    elif state == "stale":
+        monkeypatch.setenv(
+            "PARTNER_LPP_NOTICE_VERSION",
+            "synthetic-partner-lpp-notice-v2",
+        )
+    elif state == "wrong_actor":
+        app.dependency_overrides[require_current_user] = lambda: MagicMock(
+            id="synthetic-other-actor",
+        )
+    elif state in {
+        "purpose_drift",
+        "future_declared",
+        "null_declared",
+        "invalid_window",
+        "null_expiry",
+    }:
+        from app.models.partner_accountability_receipt import (
+            PartnerAccountabilityReceipt,
+        )
+
+        db = TestingSessionLocal()
+        try:
+            row = db.get(PartnerAccountabilityReceipt, receipt["receiptId"])
+            assert row is not None
+            if state == "purpose_drift":
+                row.purpose = "drifted-purpose"
+            elif state == "future_declared":
+                row.declared_at = datetime.now(timezone.utc) + timedelta(minutes=5)
+                row.expires_at = row.declared_at + timedelta(days=365)
+            elif state == "null_declared":
+                row.declared_at = None
+            elif state == "invalid_window":
+                row.expires_at = row.declared_at + timedelta(days=364)
+            elif state == "null_expiry":
+                row.expires_at = None
+            db.commit()
+        finally:
+            db.close()
+    elif state == "disabled":
+        monkeypatch.setenv("FF_PARTNER_LPP_ACCOUNTABILITY_ENABLED", "false")
+
+    classifier = MagicMock(
+        side_effect=AssertionError("classification ran for inactive receipt"),
+    )
+    extractor = MagicMock(
+        side_effect=AssertionError("Anthropic ran for inactive receipt"),
+    )
+    audit_factory = MagicMock(
+        side_effect=AssertionError("audit row created for inactive receipt"),
+    )
+    with (
+        patch(
+            "app.services.document_vision_service.classify_document",
+            new=classifier,
+        ),
+        patch(
+            "app.services.document_vision_service.extract_with_vision",
+            new=extractor,
+        ),
+        patch(
+            "app.models.document_audit.create_audit_log",
+            new=audit_factory,
+        ),
+    ):
+        response = client.post(
+            "/api/v1/documents/extract-vision",
+            json={
+                "imageBase64": base64.b64encode(
+                    _SYNTHETIC_LPP_PLAN_BYTES
+                ).decode("ascii"),
+                "documentType": "lpp_certificate",
+                "subjectKind": "manualPartner",
+                "receiptId": receipt["receiptId"],
+            },
+        )
+
+    assert response.status_code == expected_status, response.text
     classifier.assert_not_called()
     extractor.assert_not_called()
     audit_factory.assert_not_called()
