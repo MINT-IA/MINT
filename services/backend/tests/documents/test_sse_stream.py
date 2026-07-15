@@ -6,7 +6,6 @@ text/event-stream) behind the DOCUMENTS_V2_ENABLED flag.
 """
 from __future__ import annotations
 
-import base64
 import json
 from unittest.mock import AsyncMock, patch
 
@@ -69,6 +68,27 @@ def _reject_result() -> DocumentUnderstandingResult:
         extraction_status=ExtractionStatus.non_financial,
         render_mode=RenderMode.reject,
         summary="Pas un document financier.",
+    )
+
+
+def _salary_result() -> DocumentUnderstandingResult:
+    return DocumentUnderstandingResult(
+        document_class=DocumentClass.salary_certificate,
+        issuer_guess="Employeur test",
+        classification_confidence=0.95,
+        extracted_fields=[
+            ExtractedField(
+                field_name="salaire_brut_annuel",
+                value=120_000,
+                confidence=ConfidenceLevel.high,
+                source_text="Salaire brut CHF 120'000",
+            ),
+        ],
+        overall_confidence=0.92,
+        extraction_status=ExtractionStatus.success,
+        render_mode=RenderMode.confirm,
+        summary="Certificat de salaire détecté.",
+        narrative="Vérifie le salaire brut avant confirmation.",
     )
 
 
@@ -242,17 +262,21 @@ def test_endpoint_accept_json_returns_legacy_unary_response(client, monkeypatch)
 
 def test_endpoint_accept_event_stream_returns_sse(client, monkeypatch):
     """Test 6: Accept: text/event-stream + flag on → EventSourceResponse
-    streaming the canonical event sequence."""
+    streaming the canonical event sequence for a non-LPP document."""
     from app.services import document_stream as ds
 
     _patch_flag(monkeypatch, enabled=True)
-    monkeypatch.setattr(ds, "understand_document", AsyncMock(return_value=_lpp_result()))
+    monkeypatch.setattr(
+        ds,
+        "understand_document",
+        AsyncMock(return_value=_salary_result()),
+    )
 
     with client.stream(
         "POST",
         "/api/v1/documents/extract-vision",
         json={
-            "documentType": "lpp_certificate",
+            "documentType": "salary_certificate",
             "imageBase64": _png_b64(),
         },
         headers={"Accept": "text/event-stream"},

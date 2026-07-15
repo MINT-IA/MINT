@@ -1203,15 +1203,24 @@ async def extract_with_claude_vision(
     from app.services import idempotency as _idempotency
 
     logger.info(
-        "Vision extraction: user=%s type=%s canton=%s",
-        str(current_user.id)[:8] + "...",  # Truncate PII
+        "Vision extraction: type=%s canton=%s",
         body.document_type.value,
         body.canton,
     )
 
+    # Every LPP request bypasses fused extraction. Before typed local review,
+    # the legacy candidate path persists only hashed audit metadata, never
+    # extracted facts or secondary-analysis output.
+    lpp_candidate_only = body.document_type == DocumentType.lpp_certificate
+    # Keep every LPP acquisition on the one exact, reviewed candidate response
+    # contract. The fused contract accepts arbitrary field names and is not a
+    # valid input to the typed LPP evidence adapter yet.
+
     # ── DOCUMENTS_V2_ENABLED gate (phase 28 fused path) ──
-    v2_enabled = await _flags.is_enabled("DOCUMENTS_V2_ENABLED", str(current_user.id))
-    if v2_enabled:
+    v2_enabled = await _flags.is_enabled(
+        "DOCUMENTS_V2_ENABLED", str(current_user.id)
+    )
+    if v2_enabled and not lpp_candidate_only:
         # Decode base64 → raw bytes once; understand_document handles preflight.
         try:
             import base64 as _b64
@@ -1245,7 +1254,10 @@ async def extract_with_claude_vision(
                     ):
                         yield {"event": ev["event"], "data": json.dumps(ev["data"])}
                 except Exception as exc:  # pragma: no cover - defensive
-                    logger.error("SSE publisher failed: %s", exc)
+                    logger.error(
+                        "SSE publisher failed: error_type=%s",
+                        type(exc).__name__,
+                    )
                     yield {
                         "event": "done",
                         "data": json.dumps({
@@ -1297,7 +1309,10 @@ async def extract_with_claude_vision(
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
-            logger.error("understand_document failed: %s", e)
+            logger.error(
+                "understand_document failed: error_type=%s",
+                type(e).__name__,
+            )
             raise HTTPException(
                 status_code=502,
                 detail="Document extraction failed. Please try again.",
@@ -1334,55 +1349,69 @@ async def extract_with_claude_vision(
         # Only mirrors high/medium confidence fields to avoid polluting the
         # profile with low-confidence OCR noise. Best-effort — any failure is
         # logged but does not prevent the extraction response from being
-        # returned to the caller.
-        try:
-            from app.models.profile_model import ProfileModel
-            if result.extracted_fields:
-                profile = (
-                    db.query(ProfileModel)
-                    .filter(ProfileModel.user_id == str(current_user.id))
-                    .order_by(ProfileModel.updated_at.desc())
-                    .first()
+        # returned to the caller. LPP is deliberately excluded: its extracted
+        # values remain candidates until the typed local review seam accepts
+        # them, so pre-review extraction commits audit metadata only.
+        if not lpp_candidate_only:
+            try:
+                from app.models.profile_model import ProfileModel
+                if result.extracted_fields:
+                    profile = (
+                        db.query(ProfileModel)
+                        .filter(ProfileModel.user_id == str(current_user.id))
+                        .order_by(ProfileModel.updated_at.desc())
+                        .first()
+                    )
+                    if profile is not None:
+                        data = dict(profile.data) if profile.data else {}
+                        updated_fields: list[str] = []
+                        for field in result.extracted_fields:
+                            conf_value = (
+                                field.confidence.value
+                                if hasattr(field.confidence, "value")
+                                else str(field.confidence)
+                            )
+                            if conf_value in ("high", "medium"):
+                                data[field.field_name] = field.value
+                                updated_fields.append(field.field_name)
+                        if updated_fields:
+                            data["last_document_extraction"] = {
+                                "document_type": body.document_type.value,
+                                "fields_updated": updated_fields,
+                                "at": datetime.now(timezone.utc).isoformat(),
+                            }
+                            profile.data = data
+                            profile.updated_at = datetime.now(timezone.utc)
+                            # Commit happens in the `finally` block alongside audit log.
+                            logger.info(
+                                "Vision extraction: mirrored %d field(s) to profile",
+                                len(updated_fields),
+                            )
+            except Exception as persist_err:
+                logger.warning(
+                    "Vision extraction: could not persist to ProfileModel: "
+                    "error_type=%s",
+                    type(persist_err).__name__,
                 )
-                if profile is not None:
-                    data = dict(profile.data) if profile.data else {}
-                    updated_fields: list[str] = []
-                    for field in result.extracted_fields:
-                        conf_value = (
-                            field.confidence.value
-                            if hasattr(field.confidence, "value")
-                            else str(field.confidence)
-                        )
-                        if conf_value in ("high", "medium"):
-                            data[field.field_name] = field.value
-                            updated_fields.append(field.field_name)
-                    if updated_fields:
-                        data["last_document_extraction"] = {
-                            "document_type": body.document_type.value,
-                            "fields_updated": updated_fields,
-                            "at": datetime.now(timezone.utc).isoformat(),
-                        }
-                        profile.data = data
-                        profile.updated_at = datetime.now(timezone.utc)
-                        # Commit happens in the `finally` block alongside audit log.
-                        logger.info(
-                            "Vision extraction: mirrored %d field(s) to profile for user=%s...",
-                            len(updated_fields),
-                            str(current_user.id)[:8],
-                        )
-        except Exception as persist_err:
-            logger.warning(
-                "Vision extraction: could not persist to ProfileModel: %s",
-                persist_err,
-            )
 
         return result
     except ValueError as e:
+        if lpp_candidate_only:
+            audit_log.error_message = type(e).__name__
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid LPP extraction candidate.",
+            )
         audit_log.error_message = str(e)[:500]
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        audit_log.error_message = str(e)[:500]
-        logger.error("Vision extraction failed: %s", e)
+        audit_log.error_message = (
+            type(e).__name__ if lpp_candidate_only else str(e)[:500]
+        )
+        logger.error(
+            "Vision extraction failed: error_type=%s",
+            type(e).__name__,
+        )
         raise HTTPException(
             status_code=502,
             detail="Document extraction failed. Please try again.",
@@ -1394,7 +1423,10 @@ async def extract_with_claude_vision(
         try:
             db.commit()  # Persist audit log
         except Exception as commit_err:
-            logger.error("Failed to commit audit log: %s", commit_err)
+            logger.error(
+                "Failed to commit audit log: error_type=%s",
+                type(commit_err).__name__,
+            )
             db.rollback()
 
 

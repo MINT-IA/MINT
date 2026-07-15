@@ -390,7 +390,11 @@ def detect_lpp_plan_type(
         return (plan_type, confidence)
 
     except Exception as e:
-        logger.warning("Plan type detection failed, defaulting to surobligatoire: %s", e)
+        logger.warning(
+            "Plan type detection failed, defaulting to surobligatoire: "
+            "error_type=%s",
+            type(e).__name__,
+        )
         return (LppPlanType.surobligatoire, ConfidenceLevel.low)
 
 
@@ -576,11 +580,14 @@ def extract_with_vision(
         try:
             parsed = json.loads(cleaned_text)
         except json.JSONDecodeError as e:
-            # P1 DIAG: log the raw preview so prod tells us WHY extraction
-            # returned 0 fields (was it refusal, wrong shape, code fence?).
+            # Raw model output may contain document text or financial values.
+            # Diagnostics therefore keep shape/length metadata only.
             logger.warning(
-                "Vision extraction: JSON parse failed doc_type=%s err=%s raw=%r",
-                doc_type, e, (raw_text or "")[:500],
+                "Vision extraction: JSON parse failed doc_type=%s "
+                "error_type=%s response_length=%d",
+                doc_type,
+                type(e).__name__,
+                len(raw_text or ""),
             )
             return VisionExtractionResponse(
                 document_type=doc_type,
@@ -599,8 +606,8 @@ def extract_with_vision(
             # DOC-09: Source text enforcement
             if not raw_source_text or not raw_source_text.strip():
                 logger.warning(
-                    "Field %s missing source_text -- forced to low confidence",
-                    f["name"],
+                    "Extraction field missing source_text count=1 "
+                    "action=downgrade_confidence",
                 )
                 raw_source_text = "[non fourni par l'extraction]"
                 field_confidence = ConfidenceLevel.low
@@ -618,19 +625,25 @@ def extract_with_vision(
         # P1 DIAG: surface the two silent-failure modes in prod.
         # (a) Claude returned no fields at all.
         if not fields:
+            raw_analysis = parsed.get("analysis")
+            analysis_length = (
+                len(raw_analysis) if isinstance(raw_analysis, str) else 0
+            )
             logger.warning(
                 "Vision extraction: Claude returned 0 fields doc_type=%s "
-                "parsed_keys=%s raw_analysis=%r",
-                doc_type, list(parsed.keys()),
-                (parsed.get("analysis") or "")[:200],
+                "parsed_key_count=%d analysis_length=%d",
+                doc_type,
+                len(parsed),
+                analysis_length,
             )
         # (b) Claude returned fields but validation stripped them all.
         elif fields and not valid_fields:
             logger.warning(
                 "Vision extraction: all %d fields rejected by _validate_fields "
-                "doc_type=%s fields=%s",
-                len(fields), doc_type,
-                [(f.field_name, f.value, f.confidence.value) for f in fields],
+                "doc_type=%s rejected_field_count=%d",
+                len(fields),
+                doc_type,
+                len(fields),
             )
 
         # DOC-05: Cross-field coherence for LPP certificates
@@ -667,7 +680,10 @@ def extract_with_vision(
         )
 
     except json.JSONDecodeError as e:
-        logger.warning("Claude Vision returned non-JSON: %s", e)
+        logger.warning(
+            "Claude Vision returned non-JSON: error_type=%s",
+            type(e).__name__,
+        )
         return VisionExtractionResponse(
             document_type=doc_type,
             extracted_fields=[],
@@ -677,7 +693,10 @@ def extract_with_vision(
             extraction_status="parse_error",
         )
     except Exception as e:
-        logger.error("Claude Vision extraction failed: %s", e)
+        logger.error(
+            "Claude Vision extraction failed: error_type=%s",
+            type(e).__name__,
+        )
         raise
 
 
@@ -700,8 +719,10 @@ def _validate_fields(
             lo, hi = spec["range"]
             if not (lo <= float(field.value) <= hi):
                 logger.warning(
-                    "Field %s value %s outside range [%s, %s] — downgraded to low",
-                    field.field_name, field.value, lo, hi,
+                    "Field validation downgraded reason=outside_range "
+                    "count=1 lower=%s upper=%s",
+                    lo,
+                    hi,
                 )
                 valid.append(field.model_copy(update={"confidence": ConfidenceLevel.low}))
                 continue
@@ -802,14 +823,20 @@ def classify_document(image_base64: str) -> DocumentClassificationResult:
 
     except json.JSONDecodeError as e:
         # Malformed JSON — fail open
-        logger.warning("Classification returned non-JSON: %s", e)
+        logger.warning(
+            "Classification returned non-JSON: error_type=%s",
+            type(e).__name__,
+        )
         return DocumentClassificationResult(
             is_financial=True,
             confidence=ConfidenceLevel.low,
         )
     except Exception as e:
         # API error — fail open (T-02-05)
-        logger.warning("Document classification failed, failing open: %s", e)
+        logger.warning(
+            "Document classification failed, failing open: error_type=%s",
+            type(e).__name__,
+        )
         return DocumentClassificationResult(
             is_financial=True,
             confidence=ConfidenceLevel.low,
@@ -1104,7 +1131,10 @@ def _scrub_compliance_text(text: Optional[str]) -> Optional[str]:
         guard = ComplianceGuard()
         return guard._sanitize_banned_terms(text)  # noqa: SLF001 — intended internal use
     except Exception as exc:
-        logger.warning("compliance scrub failed err=%s", exc)
+        logger.warning(
+            "compliance scrub failed error_type=%s",
+            type(exc).__name__,
+        )
         return text
 
 
@@ -1204,7 +1234,10 @@ async def understand_document(
             try:
                 return _DUR.model_validate(cached)
             except Exception as exc:
-                logger.warning("idempotency: cached payload invalid err=%s", exc)
+                logger.warning(
+                    "idempotency: cached payload invalid error_type=%s",
+                    type(exc).__name__,
+                )
 
     # Phase 29-06 / PRIV-07: two-stage pre-masking. When the flag is on and
     # the payload is a raster image (not a PDF), run Tesseract+regex to
@@ -1219,14 +1252,16 @@ async def understand_document(
                 masked, report = mask_pii_regions(file_bytes)
                 if report.masked_region_count > 0:
                     logger.info(
-                        "image_masker: user_id_hash=%s regions=%d categories=%s",
-                        user_id[:8] if user_id else "anon",
+                        "image_masker: regions=%d categories=%s",
                         report.masked_region_count,
                         sorted(report.categories),
                     )
                     file_bytes = masked
         except Exception as exc:
-            logger.warning("image_masker: pre-vision masking failed: %s", type(exc).__name__)
+            logger.warning(
+                "image_masker: pre-vision masking failed error_type=%s",
+                type(exc).__name__,
+            )
 
     # 2. PDF preflight (if PDF)
     pre: Optional[dict] = _preflight_pdf(file_bytes) if is_pdf else None
@@ -1261,7 +1296,10 @@ async def understand_document(
                     for w in warns
                 ]
         except Exception as exc:
-            logger.warning("LPP coherence v2 failed err=%s", exc)
+            logger.warning(
+                "LPP coherence v2 failed error_type=%s",
+                type(exc).__name__,
+            )
 
     # 5a. NumericSanity — deterministic bounds on extracted values (Phase 29-04 / PRIV-05).
     #     Runs BEFORE the LLM judge because it is free and catches the crudest
@@ -1295,7 +1333,10 @@ async def understand_document(
                 if f.field_name in hr_names:
                     f.human_review_flag = True
     except Exception as exc:
-        logger.warning("numeric_sanity check failed err=%s", exc)
+        logger.warning(
+            "numeric_sanity check failed error_type=%s",
+            type(exc).__name__,
+        )
 
     # 5b. Render mode (deterministic selector) — unless already forced to reject above.
     if result.render_mode != _RM.reject:
@@ -1310,7 +1351,10 @@ async def understand_document(
                 result.document_class.value, result.issuer_guess, None,
             )
         except Exception as exc:
-            logger.warning("document_memory upsert failed err=%s", exc)
+            logger.warning(
+                "document_memory upsert failed error_type=%s",
+                type(exc).__name__,
+            )
 
     # 7. Third-party detection (silent flag)
     try:
@@ -1320,7 +1364,10 @@ async def understand_document(
         result.third_party_detected = flagged
         result.third_party_name = name
     except Exception as exc:
-        logger.warning("third-party detection failed err=%s", exc)
+        logger.warning(
+            "third-party detection failed error_type=%s",
+            type(exc).__name__,
+        )
 
     # 8a. PII pre-scrub (Phase 29-03 pii_scrubber) — strip IBAN/AVS/phone/
     #     employer names from Vision free text BEFORE the judge sees it.
@@ -1335,7 +1382,10 @@ async def understand_document(
             _pii_scrub(q) if q else q for q in result.questions_for_user
         ]
     except Exception as exc:
-        logger.warning("pii_scrubber failed err=%s", exc)
+        logger.warning(
+            "pii_scrubber failed error_type=%s",
+            type(exc).__name__,
+        )
 
     # 8b. Coach banned-term Layer 1 — cheap static pass before the LLM judge.
     result.summary = _scrub_compliance_text(result.summary)
@@ -1390,7 +1440,10 @@ async def understand_document(
         except Exception as exc:
             # Fail-closed on unexpected error — strip the free text so a
             # potentially non-compliant output never reaches the user.
-            logger.warning("vision_guard failed — fail-closed err=%s", exc)
+            logger.warning(
+                "vision_guard failed — fail-closed error_type=%s",
+                type(exc).__name__,
+            )
             result.guard_blocked = True
             result.guard_reason = "judge_unavailable"
             result.summary = (
@@ -1418,7 +1471,10 @@ async def understand_document(
             user_id, result.cost_tokens_in + result.cost_tokens_out,
         )
     except Exception as exc:
-        logger.warning("token_budget consume failed err=%s", exc)
+        logger.warning(
+            "token_budget consume failed error_type=%s",
+            type(exc).__name__,
+        )
 
     # 10. Idempotency store
     if file_sha:
@@ -1427,6 +1483,9 @@ async def understand_document(
                 file_sha, result.model_dump(mode="json"),
             )
         except Exception as exc:
-            logger.warning("idempotency store failed err=%s", exc)
+            logger.warning(
+                "idempotency store failed error_type=%s",
+                type(exc).__name__,
+            )
 
     return result

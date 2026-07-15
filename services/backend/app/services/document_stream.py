@@ -145,7 +145,10 @@ async def stream_understanding(
             db=db,
         )
     except Exception as exc:
-        logger.error("stream_understanding: understand_document failed err=%s", exc)
+        logger.error(
+            "stream_understanding: understand_document failed error_type=%s",
+            type(exc).__name__,
+        )
         yield {
             "event": "done",
             "data": {
