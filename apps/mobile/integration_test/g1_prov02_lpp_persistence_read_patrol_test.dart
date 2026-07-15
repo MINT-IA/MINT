@@ -106,9 +106,13 @@ final class _RuntimePartnerApi implements PartnerAccountabilityApi {
       throw StateError('Cold reader must not create or revoke a receipt');
 }
 
-void _expectColdSnapshot(LppEvidenceSnapshot snapshot) {
-  expect(snapshot.snapshotId, _runtimeAcquisitionId);
+void _expectColdSnapshot(
+  LppEvidenceSnapshot snapshot, {
+  required String persistedSnapshotId,
+}) {
+  expect(snapshot.snapshotId, persistedSnapshotId);
   expect(snapshot.snapshotId, matches(_uuidV4Pattern));
+  expect(snapshot.snapshotId, isNot(_runtimeAcquisitionId));
   expect(snapshot.facts.keys.toSet(), _expectedFacts.keys.toSet());
   expect(
     snapshot.facts.values.map((fact) => fact.updatedAt).toSet(),
@@ -200,6 +204,7 @@ void main() {
       expect(root!.self, isNull);
       expect(root.manualPartner, isNotNull);
       expect(root.legacyPartnerQuarantine, isNull);
+      final persistedSnapshotId = root.manualPartner!.snapshotId;
       expect(LppEvidenceSelector.selectSelf(rawRoot), isNull);
       final manualOwnerId = LppEvidenceSelector.manualPartnerOwnerId(rawRoot);
       expect(manualOwnerId, runtimePartnerOwnerId);
@@ -209,7 +214,10 @@ void main() {
         now: () => _runtimeNow,
       );
       expect(manualPartner, isNotNull);
-      _expectColdSnapshot(manualPartner!);
+      _expectColdSnapshot(
+        manualPartner!,
+        persistedSnapshotId: persistedSnapshotId,
+      );
 
       final binding = provider.partnerLppAccountabilityBinding;
       expect(binding, isNotNull);

@@ -51,6 +51,9 @@ const _backendVisionFieldNames = <LppEvidenceFactKey, String>{
   LppEvidenceFactKey.insuredSalaryAnnualChf: 'salaireAssure',
   LppEvidenceFactKey.maximumBuybackCapitalChf: 'rachatMaximum',
 };
+final _uuidV4Pattern = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+);
 
 final _externalGate = PartnerAccountabilityExternalGate(
   noticeVersion: 'runtime-notice-v1',
@@ -125,6 +128,8 @@ final class _RuntimePartnerApi implements PartnerAccountabilityApi {
 }
 
 void _expectSnapshot(LppEvidenceSnapshot snapshot) {
+  expect(snapshot.snapshotId, matches(_uuidV4Pattern));
+  expect(snapshot.snapshotId, isNot(_runtimeAcquisitionId));
   expect(snapshot.facts.keys.toSet(), _expectedFacts.keys.toSet());
   for (final entry in _expectedFacts.entries) {
     final persisted = snapshot.facts[entry.key];

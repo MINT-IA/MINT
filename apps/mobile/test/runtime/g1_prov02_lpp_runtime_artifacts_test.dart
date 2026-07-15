@@ -189,6 +189,35 @@ void main() {
     }
   });
 
+  test('Patrol preserves canonical snapshot identity across process death', () {
+    final writer = File(
+      'integration_test/g1_prov02_lpp_persistence_write_patrol_test.dart',
+    ).readAsStringSync();
+    final reader = File(
+      'integration_test/g1_prov02_lpp_persistence_read_patrol_test.dart',
+    ).readAsStringSync();
+
+    for (final harness in [writer, reader]) {
+      expect(harness, contains('snapshot.snapshotId, matches(_uuidV4Pattern)'));
+      expect(
+        harness,
+        contains('snapshot.snapshotId, isNot(_runtimeAcquisitionId)'),
+      );
+      expect(
+        harness,
+        isNot(contains('expect(snapshot.snapshotId, _runtimeAcquisitionId)')),
+      );
+    }
+    for (final anchor in const [
+      'required String persistedSnapshotId',
+      'snapshot.snapshotId, persistedSnapshotId',
+      'final persistedSnapshotId = root.manualPartner!.snapshotId',
+      'persistedSnapshotId: persistedSnapshotId',
+    ]) {
+      expect(reader, contains(anchor), reason: anchor);
+    }
+  });
+
   test('Patrol Vision fixture retains exact backend fact scope and units', () {
     const backendVisionFields = <String, String>{
       'vestedBenefitsCapitalChf': 'avoirLppTotal',
