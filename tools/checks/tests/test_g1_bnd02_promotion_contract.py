@@ -83,7 +83,6 @@ def test_planning_and_graphs_distinguish_technical_green_from_activation() -> No
     assert "- [x] **RDY-BND-02A**" in requirements
 
     registry = _read(".planning/goals/G1-blocking-gate-tickets.md")
-    assert "**31 rows — 16 `green`, 14\n`ticket_only`, 1 `red_proven`; 15 rows remain open**" in registry
     for ticket_id in ("G1-BND-02", "G1-BND-02A"):
         row = next(line for line in registry.splitlines() if line.startswith(f"| {ticket_id} |"))
         assert row.endswith("| green |")

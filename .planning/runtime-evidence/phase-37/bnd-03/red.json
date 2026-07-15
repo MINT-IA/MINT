@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-03",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/providers/provider_bridge_recompute_test.dart --reporter expanded",
+  "sha": "683e2a1f20b9df59b1ee5f0b5ea852c8b63cf51b",
+  "recorded_at": "2026-07-15T22:44:42Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "provider_bridge_recompute_test",
+  "output": "The exact command collected five tests and produced 1 pass / 4 semantic failures. This supersedes W0 missing-test status: provider_bridge_recompute_test.dart exists in the working evidence slice with SHA-256 e9adfc75ffd7dc767ed1d89417d2b7c3dc7c71e6279ff451d745fd1b16e568be. Failures: cold BudgetProvider.loadFromStorage lets stale cache housing/health/debt 9999/666/888 override canonical ledger 1800/400/300; the real BudgetSetupScreen changes income q_pay_frequency yearly to monthly and omits q_housing_pay_frequency=monthly; the live bridge emits 0 BudgetProvider notifications with null housing/health/debt/available deltas; MintUserState moves monthly charges/free by +783.333/-783.333 instead of +650/-650. The fail-closed budgetGap=null predicate passes. Fixtures are synthetic-only; private_certificate_used=false. No product code or G2/G3 work is included.",
+  "synthetic_data_only": true
+}
