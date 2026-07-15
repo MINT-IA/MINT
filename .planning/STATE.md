@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: Phase 37 plans reconciled to all 31 registry rows; next is the BND-02A legal pre-gate then the integrated BND-02/BND-02A caller slice; 17 hard floors remain and G2/G3 are not authorized.
-last_updated: "2026-07-15T13:26:05Z"
-last_activity: 2026-07-15 -- exact plan/validation coverage guard added; historical 23-row plans reconciled to the 31-row registry without reopening GREEN tickets
+stopped_at: BND-02A Swiss, ledger and quest contracts are frozen default-off; next is independent backend/mobile baselines then the combined semantic RED before the BND-02 caller; 17 hard floors remain and G2/G3 are not authorized.
+last_updated: "2026-07-15T15:09:58Z"
+last_activity: 2026-07-15 -- dedicated partner-accountability decision, isolated receipt architecture, progressive journey and exact cross-stack planning contract added; activation remains blocked on external legal facts
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,11 +34,13 @@ Plan: 37-04 — partner accountability and real downstream bridge
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-15 -- the executable Phase 37 plans and validation map
-now cover every one of the 31 live registry rows exactly once. The next slice
-starts with the BND-02A named legal/privacy decision and semantic RED, then
-builds the real BND-02 caller/downstream/caisse proof before closing BND-02A on
-that caller. Production activation remains disabled and G1 remains NO-GO.
+Last activity: 2026-07-15 -- the BND-02A legal implementation contract, isolated
+off-ledger receipt/binding architecture and progressive notice/recovery journey
+are frozen. The registry, Plan 37-04, Validation and evidence mirror now name
+the exact backend/mobile targets and one combined command. The next slice runs
+independent full baselines, creates compiling behavior tests and captures the
+combined semantic RED before building the real BND-02 caller. Production
+activation remains disabled and G1 remains NO-GO.
 
 ## Build Order
 
@@ -88,9 +90,11 @@ that caller. Production activation remains disabled and G1 remains NO-GO.
 - `G1-PROV-03` is code-GREEN at `5a772865b` and runtime-GREEN at
   `ac74672db`; its tax ingestion flags remain production-off.
 - `G1-PROV-02` is ticket- and runtime-GREEN at `30728b8a0671`; both LPP
-  ingestion flags remain production-off. A named downstream consumer and the
-  named legal/privacy accountability decision and outcome remain
-  activation/later-G1 blockers.
+  ingestion flags remain production-off. BND-02A now selects an isolated
+  represented-authorization receipt rather than the legacy nominative consent
+  chain, and BND-02 names the RetirementDashboard consumer. Implementation,
+  controller/contact, transfer/retention, publishable notice/rights and the
+  AIPD decision remain activation/later-G1 blockers.
 
 ## Active Blockers
 
@@ -111,10 +115,11 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-15T13:26:05Z
+Last session: 2026-07-15T15:09:58Z
 
-Stopped at: Phase 37 plan coverage is reconciled. Start the BND-02A legal
-pre-gate and integrated BND-02/BND-02A slice; LPP activation stays NO.
+Stopped at: BND-02A Swiss/ledger/quest contracts and cross-stack registry are
+frozen. Run backend and Flutter baselines, then create all named tests and
+capture the exact combined semantic RED; LPP activation stays NO.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-04-PLAN.md`. Do not infer
