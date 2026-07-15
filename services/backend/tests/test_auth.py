@@ -501,6 +501,41 @@ def test_delete_account_rolls_back_when_receipt_key_is_unavailable(
     assert relogin.status_code == 200, relogin.text
 
 
+def test_delete_account_missing_locked_user_returns_stable_conflict(
+    client: TestClient,
+    monkeypatch,
+):
+    """A vanished actor fails closed without claiming a successful purge."""
+    from app.api.v1.endpoints import auth as auth_endpoint
+
+    audit_events = []
+    monkeypatch.setattr(
+        auth_endpoint,
+        "log_audit_event",
+        lambda *args, **kwargs: audit_events.append((args, kwargs)),
+    )
+
+    response = client.delete("/api/v1/auth/account")
+
+    assert response.status_code == 409, response.text
+    assert response.json() == {
+        "detail": {"code": "account_deletion_actor_unavailable"}
+    }
+    assert audit_events == []
+    generated = app.openapi()
+    documented = generated["paths"]["/api/v1/auth/account"]["delete"][
+        "responses"
+    ]["409"]
+    conflict_ref = documented["content"]["application/json"]["schema"]["$ref"]
+    assert conflict_ref.endswith("/DeleteAccountConflictResponse")
+    detail_schema = generated["components"]["schemas"][
+        "DeleteAccountConflictDetail"
+    ]
+    assert detail_schema["properties"]["code"]["const"] == (
+        "account_deletion_actor_unavailable"
+    )
+
+
 def test_claim_local_data_creates_and_updates_cloud_profile(auth_client: TestClient):
     """Claim endpoint migrates local snapshot and is idempotent on next call."""
     register = auth_client.post(

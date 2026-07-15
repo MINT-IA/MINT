@@ -13,6 +13,7 @@ from app.schemas.partner_accountability import (
     PURPOSE,
     SUBJECT_KIND,
     PartnerAccountabilityReceiptCreate,
+    PartnerAccountabilityConflictResponse,
     PartnerAccountabilityReceiptList,
     PartnerAccountabilityReceiptResponse,
 )
@@ -76,6 +77,7 @@ def _serialize(service: PartnerAccountabilityService, row) -> dict:
     responses={
         status.HTTP_200_OK: {"model": PartnerAccountabilityReceiptResponse},
         status.HTTP_409_CONFLICT: {
+            "model": PartnerAccountabilityConflictResponse,
             "description": (
                 "Receipt conflict, version mismatch, or actor deletion race."
             ),

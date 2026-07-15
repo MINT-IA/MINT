@@ -50,6 +50,7 @@ from app.schemas.auth import (
     PasswordResetRequestResponse,
     PasswordResetConfirmResponse,
     DeleteAccountResponse,
+    DeleteAccountConflictResponse,
     AuthAdminObservabilityResponse,
     AuthAdminPurgeUnverifiedRequest,
     AuthAdminPurgeUnverifiedResponse,
@@ -96,6 +97,10 @@ from app.services.auth_admin_service import (
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+class _AccountDeletionActorUnavailable(RuntimeError):
+    """The authenticated actor disappeared before deletion could lock it."""
 
 
 def log_audit_event(*args, **kwargs) -> None:
@@ -990,7 +995,16 @@ def get_current_user_info(
     )
 
 
-@router.delete("/account", response_model=DeleteAccountResponse)
+@router.delete(
+    "/account",
+    response_model=DeleteAccountResponse,
+    responses={
+        status.HTTP_409_CONFLICT: {
+            "model": DeleteAccountConflictResponse,
+            "description": "Authenticated actor disappeared before deletion lock.",
+        },
+    },
+)
 @limiter.limit("5/minute")
 def delete_account(
     request: Request,
@@ -1026,6 +1040,9 @@ def delete_account(
         # Serialize account deletion with receipt creation on the same actor.
         # If create owns this lock first, its receipt is visible to erasure;
         # if delete owns it first, create rechecks and fails after deletion.
+        # This protocol intentionally requires PostgreSQL READ COMMITTED: the
+        # later receipt-erasure SELECT needs a fresh statement snapshot after
+        # waiting on this lock. SQLite is not an activation-proof substitute.
         locked_user = (
             db.query(User)
             .filter(User.id == user_id)
@@ -1033,7 +1050,7 @@ def delete_account(
             .one_or_none()
         )
         if locked_user is None:
-            raise RuntimeError("account disappeared during deletion")
+            raise _AccountDeletionActorUnavailable
         current_user = locked_user
 
         profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
@@ -1159,6 +1176,12 @@ def delete_account(
 
         db.delete(current_user)
         db.commit()
+    except _AccountDeletionActorUnavailable:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "account_deletion_actor_unavailable"},
+        ) from None
     except Exception as e:
         db.rollback()
         logger.error("Account deletion failed for user %s: %s", user_id, e)

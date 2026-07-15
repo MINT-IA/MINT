@@ -282,6 +282,23 @@ def test_receipt_create_fails_closed_when_actor_disappears(
     assert "actor deletion race" in _create_route().responses[409][
         "description"
     ].lower()
+    generated = app.openapi()
+    documented = generated["paths"][_CREATE_PATH]["post"]["responses"]["409"]
+    conflict_ref = documented["content"]["application/json"]["schema"]["$ref"]
+    assert conflict_ref.endswith("/PartnerAccountabilityConflictResponse")
+    conflict_schema = generated["components"]["schemas"][
+        "PartnerAccountabilityConflictResponse"
+    ]
+    detail_ref = conflict_schema["properties"]["detail"]["$ref"]
+    assert detail_ref.endswith("/PartnerAccountabilityConflictDetail")
+    detail_schema = generated["components"]["schemas"][
+        "PartnerAccountabilityConflictDetail"
+    ]
+    assert set(detail_schema["properties"]["code"]["enum"]) == {
+        "partner_accountability_version_not_current",
+        "partner_accountability_actor_unavailable",
+        "partner_accountability_receipt_conflict",
+    }
 
 
 def test_hmac_rotation_uses_explicit_previous_keyring_for_existing_receipts(

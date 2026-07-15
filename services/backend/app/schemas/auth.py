@@ -78,6 +78,16 @@ class DeleteAccountResponse(BaseModel):
     anonymized_analytics_events: int
 
 
+class DeleteAccountConflictDetail(BaseModel):
+    """Stable fail-closed reason when account deletion cannot start."""
+    code: Literal["account_deletion_actor_unavailable"]
+
+
+class DeleteAccountConflictResponse(BaseModel):
+    """Structured 409 body for account-deletion serialization conflicts."""
+    detail: DeleteAccountConflictDetail
+
+
 class AuthAdminObservabilityResponse(BaseModel):
     """Schema for auth admin observability snapshot."""
     users_total: int

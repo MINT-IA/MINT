@@ -6630,6 +6630,34 @@
         "title": "DeductionType",
         "type": "string"
       },
+      "DeleteAccountConflictDetail": {
+        "description": "Stable fail-closed reason when account deletion cannot start.",
+        "properties": {
+          "code": {
+            "const": "account_deletion_actor_unavailable",
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "DeleteAccountConflictDetail",
+        "type": "object"
+      },
+      "DeleteAccountConflictResponse": {
+        "description": "Structured 409 body for account-deletion serialization conflicts.",
+        "properties": {
+          "detail": {
+            "$ref": "#/components/schemas/DeleteAccountConflictDetail"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "DeleteAccountConflictResponse",
+        "type": "object"
+      },
       "DeleteAccountResponse": {
         "description": "Schema for account deletion response.",
         "properties": {
@@ -15207,6 +15235,38 @@
           "url"
         ],
         "title": "Partner",
+        "type": "object"
+      },
+      "PartnerAccountabilityConflictDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "partner_accountability_version_not_current",
+              "partner_accountability_actor_unavailable",
+              "partner_accountability_receipt_conflict"
+            ],
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "PartnerAccountabilityConflictDetail",
+        "type": "object"
+      },
+      "PartnerAccountabilityConflictResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "$ref": "#/components/schemas/PartnerAccountabilityConflictDetail"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "PartnerAccountabilityConflictResponse",
         "type": "object"
       },
       "PartnerAccountabilityReceiptCreate": {
@@ -24615,6 +24675,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteAccountConflictResponse"
+                }
+              }
+            },
+            "description": "Authenticated actor disappeared before deletion lock."
           }
         },
         "security": [
@@ -31135,6 +31205,13 @@
             "description": "Successful Response"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerAccountabilityConflictResponse"
+                }
+              }
+            },
             "description": "Receipt conflict, version mismatch, or actor deletion race."
           },
           "422": {

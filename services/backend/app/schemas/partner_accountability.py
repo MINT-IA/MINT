@@ -15,6 +15,11 @@ ACCOUNTABILITY_KIND = "acting_user_partner_authorization_declaration"
 PURPOSE = "one_shot_lpp_extraction"
 
 PartnerAccountabilityStatus = Literal["active", "stale", "expired", "revoked"]
+PartnerAccountabilityConflictCode = Literal[
+    "partner_accountability_version_not_current",
+    "partner_accountability_actor_unavailable",
+    "partner_accountability_receipt_conflict",
+]
 
 
 class _CamelModel(BaseModel):
@@ -71,3 +76,11 @@ class PartnerAccountabilityReceiptResponse(_CamelModel):
 
 class PartnerAccountabilityReceiptList(_CamelModel):
     receipts: List[PartnerAccountabilityReceiptResponse]
+
+
+class PartnerAccountabilityConflictDetail(_CamelModel):
+    code: PartnerAccountabilityConflictCode
+
+
+class PartnerAccountabilityConflictResponse(_CamelModel):
+    detail: PartnerAccountabilityConflictDetail

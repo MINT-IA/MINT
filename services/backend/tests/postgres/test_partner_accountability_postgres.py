@@ -190,6 +190,21 @@ def test_partner_accountability_alembic_upgrade_downgrade_round_trip(
         engine.dispose()
 
 
+def test_partner_accountability_protocol_requires_read_committed(
+    migrated_postgres,
+):
+    """Create-first erasure requires a fresh statement snapshot after lock wait."""
+    with migrated_postgres.connect() as connection:
+        isolation = connection.exec_driver_sql(
+            "SHOW transaction_isolation"
+        ).scalar_one()
+
+    assert isolation == "read committed", (
+        "BND-02A create/delete serialization requires PostgreSQL READ COMMITTED; "
+        f"received {isolation!r}"
+    )
+
+
 def test_one_shot_consumption_serializes_two_postgres_sessions(
     migrated_postgres,
     accountability_contract,

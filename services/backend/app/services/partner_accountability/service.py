@@ -108,7 +108,11 @@ class PartnerAccountabilityService:
         )
 
     def _lock_actor_for_receipt_write(self, *, actor_id: str) -> None:
-        """Serialize PostgreSQL receipt creation with account deletion."""
+        """Serialize PostgreSQL receipt creation with account deletion.
+
+        The paired delete transaction must remain READ COMMITTED so its later
+        receipt query sees a create that committed while the User lock waited.
+        """
         if self._db.get_bind().dialect.name != "postgresql":
             return
         actor = (
@@ -306,7 +310,12 @@ class PartnerAccountabilityService:
         self._db.commit()
 
     def erase_all_for_actor(self, *, actor_id: str) -> int:
-        """Tombstone actor receipts without committing the caller's transaction."""
+        """Tombstone actor receipts without committing the caller's transaction.
+
+        Under the required PostgreSQL READ COMMITTED isolation, this SELECT gets
+        a fresh snapshot after the caller acquires the User lock. That is what
+        makes a create-first receipt visible before account deletion commits.
+        """
         rows = (
             self._db.query(PartnerAccountabilityReceipt)
             .filter(PartnerAccountabilityReceipt.erased_at.is_(None))
