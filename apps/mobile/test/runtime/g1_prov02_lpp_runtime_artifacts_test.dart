@@ -53,10 +53,24 @@ void main() {
       "#document_scan_lpp_type_selector).waitUntilVisible()",
       "#document_scan_lpp_type_selector).tap()",
       "#document_scan_lpp_example_cta",
+      "'q_partner_birth_year': 1982",
+      "'q_partner_employment_status': 'salarie'",
+      "invitationLevel, 'declared'",
+      "#lpp_acquisition_owner_manual_partner",
+      "#lpp_acquisition_partner_attestation",
+      "#lpp_acquisition_cancel",
+      "retainedSessionCount, 0",
+      "#lpp_acquisition_partner_attest_confirm",
+      "#lpp_review_owner_badge",
+      "#lpp_review_restart_owner_cta",
       "#lpp_review_source_date",
       "#lpp_review_confirm_cta",
-      "#lpp_review_subject_self",
       "document_impact_return_cta",
+      "LppEvidenceSelector.selectManualPartner",
+      "LppEvidenceAuthorizationMode.manualPartnerDeclaration",
+      "authorizationGrantId, isNull",
+      "#lpp_acquisition_owner_self",
+      "LppEvidenceSelector.selectSelf",
       "LppEvidenceSelector.selectSelf",
       "LppEvidenceFactKey.vestedBenefitsCapitalChf",
       "LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf",
@@ -75,6 +89,8 @@ void main() {
       expect(contents, contains(anchor), reason: anchor);
     }
     expect(contents, isNot(contains('acceptLppReview(')));
+    expect(contents, isNot(contains('#lpp_review_subject_self')));
+    expect(contents, isNot(contains('#lpp_review_subject_manual_partner')));
     expect(contents, isNot(contains('File(')));
     expect(contents, isNot(contains('Directory.')));
   });
@@ -103,9 +119,11 @@ void main() {
       "LppEvidenceFactKey.disabilityCapitalLumpSumChf",
       "LppEvidenceFactKey.deathCapitalLumpSumChf",
       "LppEvidenceRoot.fromJsonString",
-      "manualPartner, isNull",
+      "LppEvidenceSelector.selectManualPartner",
+      "manualPartner, isNotNull",
       "legacyPartnerQuarantine, isNull",
       "LppEvidenceAuthorizationMode.self",
+      "LppEvidenceAuthorizationMode.manualPartnerDeclaration",
       "authorizationGrantId, isNull",
       "ReportPersistenceService.backendSafeAnswers",
       "'\"sourceText\"'",

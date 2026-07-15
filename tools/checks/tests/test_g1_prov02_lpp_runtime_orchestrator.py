@@ -378,19 +378,63 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
     assert "FeatureFlags.typedLppEvidence = false;" in writer
     assert "FeatureFlags.documentLppEvidenceEnabled = false;" in writer
     assert "ReportPersistenceService.clearDiagnostic()" in writer
+    assert writer.count("ReportPersistenceService.saveAnswers(") == 1
     assert "ReportPersistenceService.setMiniOnboardingCompleted(true)" in writer
     assert "pumpWidgetAndSettle(const MintApp())" in writer
     assert "mint:///scan?type=lppCertificate" in writer
+    seed_start = writer.index("await ReportPersistenceService.saveAnswers({")
+    seed_end = writer.index("});", seed_start)
+    partner_seed = writer[seed_start:seed_end]
+    for seed_key in (
+        "'q_birth_year': 1980",
+        "'q_canton': 'VD'",
+        "'q_civil_status': 'marie'",
+        "'q_partner_birth_year': 1982",
+        "'q_partner_employment_status': 'salarie'",
+    ):
+        assert seed_key in partner_seed
+    for forbidden_seed in (
+        "_coach_lpp_evidence_v1",
+        "LppEvidenceSnapshot",
+        "acceptLppReview",
+    ):
+        assert forbidden_seed not in partner_seed
     for identifier in (
         "document_scan_lpp_type_selector",
         "document_scan_lpp_example_cta",
+        "lpp_acquisition_owner_manual_partner",
+        "lpp_acquisition_partner_attestation",
+        "lpp_acquisition_cancel",
+        "lpp_acquisition_partner_attest_confirm",
+        "lpp_review_owner_badge",
+        "lpp_review_restart_owner_cta",
         "lpp_review_source_date",
         "lpp_review_confirm_cta",
-        "lpp_review_subject_self",
+        "lpp_acquisition_owner_self",
     ):
         assert f"#{identifier}" in writer
     assert "#document_scan_lpp_type_selector).waitUntilVisible()" in writer
     assert "#document_scan_lpp_type_selector).tap()" in writer
+    assert writer.count("#document_scan_lpp_example_cta") >= 3
+    assert "invitationLevel, 'declared'" in writer
+    assert "retainedSessionCount, 0" in writer
+    assert "containsKey('_coach_lpp_evidence_v1')" in writer
+    assert "LppEvidenceSelector.selectManualPartner" in writer
+    assert "LppEvidenceAuthorizationMode.manualPartnerDeclaration" in writer
+    assert "LppEvidenceSelector.selectSelf" in writer
+    assert "LppEvidenceAuthorizationMode.self" in writer
+    assert "authorizationGrantId, isNull" in writer
+    assert writer.index("#lpp_acquisition_cancel") < writer.index(
+        "#lpp_acquisition_partner_attest_confirm"
+    )
+    assert writer.index("#lpp_acquisition_partner_attest_confirm") < writer.index(
+        "#lpp_acquisition_owner_self"
+    )
+    assert "find.byKey(const Key('lpp_review_subject_self')),\n        findsNothing" in writer
+    assert (
+        "find.byKey(const Key('lpp_review_subject_manual_partner')),\n"
+        "        findsNothing" in writer
+    )
     assert "find.bySemanticsIdentifier('document_impact_return_cta')" in writer
     assert re.search(
         r"document_impact_return_cta'\)\)\s*\.waitUntilExists\(\)",
@@ -421,7 +465,6 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
 
     for bypass in (
         "acceptLppReview(",
-        "saveAnswers(",
         "MINT_LPP_PRIVATE_MANIFEST",
         "Directory.",
     ):
@@ -438,11 +481,16 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
     assert "waitForReportAnswers()" in reader
     assert "LppEvidenceRoot.fromJsonString" in reader
     assert "LppEvidenceSelector.selectSelf" in reader
-    assert "manualPartner, isNull" in reader
+    assert "manualPartner, isNotNull" in reader
+    assert "LppEvidenceSelector.manualPartnerOwnerId" in reader
+    assert "LppEvidenceSelector.selectManualPartner" in reader
     assert "legacyPartnerQuarantine, isNull" in reader
     assert "LppEvidenceAuthorizationMode.self" in reader
+    assert "LppEvidenceAuthorizationMode.manualPartnerDeclaration" in reader
     assert "authorizationGrantId, isNull" in reader
     assert "ProfileDataSource.certificate" in reader
+    assert "invitationLevel, 'declared'" in reader
+    assert "key.manualPartnerProfilePath" in reader
     assert "ReportPersistenceService.backendSafeAnswers" in reader
     assert "DateTime.utc(2025, 12, 31)" in reader
     assert "hasLength(1)" in reader

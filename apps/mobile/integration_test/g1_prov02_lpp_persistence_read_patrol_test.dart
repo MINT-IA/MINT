@@ -49,9 +49,44 @@ final _uuidV4Pattern = RegExp(
   r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
 );
 
+void _expectColdSnapshot(
+  LppEvidenceSnapshot snapshot, {
+  required LppEvidenceOwnerKind ownerKind,
+}) {
+  expect(snapshot.snapshotId, matches(_uuidV4Pattern));
+  expect(snapshot.facts.keys.toSet(), _expectedFacts.keys.toSet());
+  expect(
+    snapshot.facts.values.map((fact) => fact.updatedAt).toSet(),
+    hasLength(1),
+  );
+  for (final entry in _expectedFacts.entries) {
+    final persisted = snapshot.facts[entry.key];
+    expect(persisted, isNotNull, reason: entry.key.wireName);
+    final tolerance = entry.key.unit == LppEvidenceUnit.ratio ? 1e-12 : 0.01;
+    expect(persisted!.unit, entry.key.unit);
+    expect(persisted.value, closeTo(entry.value, tolerance));
+    expect(persisted.source, 'certificate');
+    expect(persisted.sourceDate, DateTime.utc(2025, 12, 31));
+    expect(persisted.ownerKind, ownerKind);
+    expect(persisted.profileOwnerId, matches(_uuidV4Pattern));
+    expect(
+      persisted.profileOwnerId == persisted.actorProfileOwnerId,
+      ownerKind == LppEvidenceOwnerKind.self,
+    );
+    expect(
+      persisted.authorizationMode,
+      ownerKind == LppEvidenceOwnerKind.self
+          ? LppEvidenceAuthorizationMode.self
+          : LppEvidenceAuthorizationMode.manualPartnerDeclaration,
+    );
+    expect(persisted.authorizationGrantId, isNull);
+    expect(persisted.status, LppEvidenceStatus.available);
+  }
+}
+
 void main() {
   patrolTest(
-    'cold reload validates the 12 strict facts and five presentation facts',
+    'cold reload validates partner and self strict and presentation facts',
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 8)),
     ($) async {
@@ -78,44 +113,42 @@ void main() {
       final persistedRoot = rawRoot as String;
       final root = LppEvidenceRoot.fromJsonString(persistedRoot);
       expect(root, isNotNull);
-      expect(root!.manualPartner, isNull);
+      expect(root!.manualPartner, isNotNull);
       expect(root.legacyPartnerQuarantine, isNull);
-      final snapshot = LppEvidenceSelector.selectSelf(rawRoot);
-      expect(snapshot, isNotNull);
-      expect(snapshot!.snapshotId, matches(_uuidV4Pattern));
-      expect(snapshot.facts.keys.toSet(), _expectedFacts.keys.toSet());
-      expect(
-        snapshot.facts.values.map((fact) => fact.updatedAt).toSet(),
-        hasLength(1),
+      final self = LppEvidenceSelector.selectSelf(rawRoot);
+      final manualOwnerId = LppEvidenceSelector.manualPartnerOwnerId(rawRoot);
+      expect(manualOwnerId, isNotNull);
+      final manualPartner = LppEvidenceSelector.selectManualPartner(
+        rawRoot,
+        expectedOwnerId: manualOwnerId!,
+      );
+      expect(self, isNotNull);
+      expect(manualPartner, isNotNull);
+      expect(self!.snapshotId, isNot(manualPartner!.snapshotId));
+      _expectColdSnapshot(self, ownerKind: LppEvidenceOwnerKind.self);
+      _expectColdSnapshot(
+        manualPartner,
+        ownerKind: LppEvidenceOwnerKind.manualPartner,
       );
 
-      for (final entry in _expectedFacts.entries) {
-        final persisted = snapshot.facts[entry.key];
-        expect(persisted, isNotNull, reason: entry.key.wireName);
-        final tolerance =
-            entry.key.unit == LppEvidenceUnit.ratio ? 1e-12 : 0.01;
-        expect(persisted!.unit, entry.key.unit);
-        expect(persisted.value, closeTo(entry.value, tolerance));
-        expect(persisted.source, 'certificate');
-        expect(persisted.sourceDate, DateTime.utc(2025, 12, 31));
-        expect(persisted.ownerKind, LppEvidenceOwnerKind.self);
-        expect(persisted.profileOwnerId, matches(_uuidV4Pattern));
-        expect(persisted.profileOwnerId, persisted.actorProfileOwnerId);
-        expect(
-          persisted.authorizationMode,
-          LppEvidenceAuthorizationMode.self,
-        );
-        expect(persisted.authorizationGrantId, isNull);
-        expect(persisted.status, LppEvidenceStatus.available);
-      }
-
       final hydratedProfile = profile!;
+      expect(hydratedProfile.conjoint, isNotNull);
+      expect(hydratedProfile.conjoint!.invitationLevel, 'declared');
       for (final key in _presentationFactKeys) {
-        final hydrated = hydratedProfile.prevoyance.lppEvidenceFact(key);
-        expect(hydrated, isNotNull, reason: key.profilePath);
-        expect(hydrated!.value, closeTo(_expectedFacts[key]!, 0.01));
+        final hydratedSelf = hydratedProfile.prevoyance.lppEvidenceFact(key);
+        final hydratedPartner =
+            hydratedProfile.conjoint!.prevoyance?.lppEvidenceFact(key);
+        expect(hydratedSelf, isNotNull, reason: key.profilePath);
+        expect(hydratedPartner, isNotNull,
+            reason: key.manualPartnerProfilePath);
+        expect(hydratedSelf!.value, closeTo(_expectedFacts[key]!, 0.01));
+        expect(hydratedPartner!.value, closeTo(_expectedFacts[key]!, 0.01));
         expect(
           hydratedProfile.dataSources[key.profilePath],
+          ProfileDataSource.certificate,
+        );
+        expect(
+          hydratedProfile.dataSources[key.manualPartnerProfilePath],
           ProfileDataSource.certificate,
         );
         expect(hydratedProfile.dataTimestamps[key.profilePath], isNotNull);
@@ -141,12 +174,12 @@ void main() {
       expect(jsonDecode(persistedRoot), isA<Map<String, dynamic>>());
       expect(persistedRoot, isNot(contains('"sourceText"')));
       expect(persistedRoot, isNot(contains('"rawOcr"')));
-      expect(persistedRoot, isNot(contains('Dupont Marie')));
-      expect(persistedRoot, isNot(contains('12345-678')));
       expect(
-          persistedRoot,
-          isNot(contains(
-              'CERTIFICAT DE PREVOYANCE'))); // lint-ignore: synthetic privacy sentinel, not UI copy
+        persistedRoot,
+        isNot(contains(
+          'EXEMPLE SYNTHETIQUE SANS DONNEES PERSONNELLES', // lint-ignore: synthetic privacy sentinel, not UI copy
+        )),
+      );
     },
   );
 }
