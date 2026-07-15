@@ -95,6 +95,79 @@ void main() {
     expect(contents, isNot(contains('Directory.')));
   });
 
+  test('Patrol writer proves the partner impact CTA tap before deep linking',
+      () {
+    final contents = File(
+      'integration_test/g1_prov02_lpp_persistence_write_patrol_test.dart',
+    ).readAsStringSync();
+    final partnerImpactStart = contents.indexOf(
+      "find.bySemanticsIdentifier('document_impact_return_cta')",
+    );
+    final selfAcquisitionStart = contents.indexOf(
+      "'mint:///scan?type=lppCertificate'",
+      partnerImpactStart,
+    );
+
+    expect(partnerImpactStart, greaterThanOrEqualTo(0));
+    expect(selfAcquisitionStart, greaterThan(partnerImpactStart));
+    final partnerImpactSegment =
+        contents.substring(partnerImpactStart, selfAcquisitionStart);
+    final tapIndex = RegExp(
+          r"find\.bySemanticsIdentifier\('document_impact_return_cta'\)\)\s*"
+          r'\.scrollTo\(\)\s*'
+          r'\.tap\(\);',
+        ).firstMatch(partnerImpactSegment)?.start ??
+        -1;
+    final settleIndex = partnerImpactSegment.indexOf(
+      r'await $.pumpAndSettle();',
+    );
+    final discardedSessionIndex = partnerImpactSegment.indexOf(
+      'expect(scanSessions.retainedSessionCount, 0);',
+    );
+    final removedCtaIndex = RegExp(
+          r"expect\(\s*find\.bySemanticsIdentifier\('document_impact_return_cta'\),\s*"
+          r'findsNothing,?\s*\);',
+        ).firstMatch(partnerImpactSegment)?.start ??
+        -1;
+
+    expect(tapIndex, greaterThanOrEqualTo(0));
+    expect(settleIndex, greaterThan(tapIndex));
+    expect(discardedSessionIndex, greaterThan(settleIndex));
+    expect(removedCtaIndex, greaterThan(discardedSessionIndex));
+  });
+
+  test('Patrol writer makes the final self impact CTA visible', () {
+    final contents = File(
+      'integration_test/g1_prov02_lpp_persistence_write_patrol_test.dart',
+    ).readAsStringSync();
+    final selfAcquisitionStart = contents.indexOf(
+      '#lpp_acquisition_owner_self',
+    );
+    final selfImpactFlowStart = contents.indexOf(
+      r'await $(#lpp_review_confirm_cta).scrollTo().tap();',
+      selfAcquisitionStart,
+    );
+    final selfLedgerAssertionStart = contents.indexOf(
+      "rawRoot = provider.reportAnswersSnapshot['_coach_lpp_evidence_v1']",
+      selfImpactFlowStart,
+    );
+
+    expect(selfAcquisitionStart, greaterThanOrEqualTo(0));
+    expect(selfImpactFlowStart, greaterThan(selfAcquisitionStart));
+    expect(selfLedgerAssertionStart, greaterThan(selfImpactFlowStart));
+    expect(
+      contents.substring(selfImpactFlowStart, selfLedgerAssertionStart),
+      matches(
+        RegExp(
+          r'final selfImpactCta\s*=\s*\$\('
+          r"find\.bySemanticsIdentifier\('document_impact_return_cta'\)\);\s*"
+          r'await selfImpactCta\.scrollTo\(\);\s*'
+          r'await selfImpactCta\.waitUntilVisible\(\);',
+        ),
+      ),
+    );
+  });
+
   test('Patrol cold reader validates 12 facts and five presentation facts', () {
     final source = File(
       'integration_test/g1_prov02_lpp_persistence_read_patrol_test.dart',

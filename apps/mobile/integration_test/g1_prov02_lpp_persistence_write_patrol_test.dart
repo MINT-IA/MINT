@@ -150,7 +150,15 @@ void main() {
         ownerKind: LppEvidenceOwnerKind.manualPartner,
       );
 
-      await $(find.bySemanticsIdentifier('document_impact_return_cta')).tap();
+      await $(find.bySemanticsIdentifier('document_impact_return_cta'))
+          .scrollTo()
+          .tap();
+      await $.pumpAndSettle();
+      expect(scanSessions.retainedSessionCount, 0);
+      expect(
+        find.bySemanticsIdentifier('document_impact_return_cta'),
+        findsNothing,
+      );
       await $.platformAutomator.mobile.openUrl(
         'mint:///scan?type=lppCertificate',
       );
@@ -163,8 +171,10 @@ void main() {
       await $(#lpp_review_owner_badge).waitUntilVisible();
       await $(#lpp_review_source_date).enterText(_sourceDate);
       await $(#lpp_review_confirm_cta).scrollTo().tap();
-      await $(find.bySemanticsIdentifier('document_impact_return_cta'))
-          .waitUntilExists();
+      final selfImpactCta =
+          $(find.bySemanticsIdentifier('document_impact_return_cta'));
+      await selfImpactCta.scrollTo();
+      await selfImpactCta.waitUntilVisible();
 
       rawRoot = provider.reportAnswersSnapshot['_coach_lpp_evidence_v1'];
       final self = LppEvidenceSelector.selectSelf(rawRoot);
