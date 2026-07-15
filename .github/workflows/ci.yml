@@ -484,7 +484,7 @@ jobs:
       contents: read
     services:
       postgres:
-        image: postgres:18-alpine
+        image: postgres:18.1-alpine
         env:
           POSTGRES_DB: mint_ci
           POSTGRES_USER: mint_ci

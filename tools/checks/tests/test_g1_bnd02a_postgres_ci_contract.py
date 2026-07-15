@@ -59,7 +59,7 @@ def test_postgres_lane_is_ephemeral_bounded_and_health_checked() -> None:
     assert job["permissions"] == {"contents": "read"}
 
     postgres = job["services"]["postgres"]
-    assert postgres["image"] == "postgres:18-alpine"
+    assert postgres["image"] == "postgres:18.1-alpine"
     assert postgres["env"] == {
         "POSTGRES_DB": "mint_ci",
         "POSTGRES_USER": "mint_ci",
