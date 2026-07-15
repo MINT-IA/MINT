@@ -22,6 +22,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       flutter: ${{ steps.filter.outputs.flutter }}
+      postgres: ${{ steps.filter.outputs.postgres }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36  # v3
@@ -31,6 +32,10 @@ jobs:
             backend:
               - 'services/backend/**'
               - 'tools/openapi/**'
+            postgres:
+              - 'services/backend/**'
+              - '.github/workflows/ci.yml'
+              - 'tools/checks/tests/test_g1_bnd02a_postgres_ci_contract.py'
             flutter:
               - 'apps/mobile/**'
 
@@ -465,6 +470,50 @@ jobs:
           alembic upgrade head
           rm -f test_migration.db
 
+  # ─── G1 BND-02A: real PostgreSQL accountability proof ─────────
+  # The general backend suite intentionally remains on SQLite. This isolated
+  # lane proves the migration, one-shot receipt locks, READ COMMITTED contract,
+  # and account-deletion races against an ephemeral PostgreSQL server.
+  partner-accountability-postgres:
+    name: Partner accountability PostgreSQL (G1 BND-02A)
+    needs: [changes]
+    if: needs.changes.outputs.postgres == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: mint_ci
+          POSTGRES_USER: mint_ci
+          POSTGRES_PASSWORD: mint_ci_${{ github.run_id }}
+          POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -U mint_ci -d mint_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+      - name: Install backend test dependencies
+        working-directory: services/backend
+        run: pip install ".[dev]"
+      - name: Run real PostgreSQL accountability gate
+        working-directory: services/backend
+        env:
+          TESTING: "1"
+          MINT_TEST_POSTGRES_URL: postgresql://mint_ci:mint_ci_${{ github.run_id }}@127.0.0.1:5432/mint_ci
+        run: python -m pytest tests/postgres/test_partner_accountability_postgres.py -q --tb=short
+
   # ─── Phase 30 / PRIV-03: PII log gate (BLOCKING) ─────────────────
   # Scans recent backend logs for raw IBAN / AVS / Swiss phone / employer
   # gazetteer entries. Runs against staging logs fetched via the railway
@@ -751,7 +800,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, secret-scan, banned-ui-terms, arb-parity, accent-lint-fr, no-hardcoded-fr, financial-core-gate, hardcoded-rate-gate, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, secret-scan, banned-ui-terms, arb-parity, accent-lint-fr, no-hardcoded-fr, financial-core-gate, hardcoded-rate-gate, backend, partner-accountability-postgres, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -759,6 +808,7 @@ jobs:
         run: |
           # Skip check if job was skipped (no relevant changes)
           backend="${{ needs.backend.result }}"
+          partner_postgres="${{ needs.partner-accountability-postgres.result }}"
           secret_scan="${{ needs.secret-scan.result }}"
           banned_terms="${{ needs.banned-ui-terms.result }}"
           arb_parity="${{ needs.arb-parity.result }}"
@@ -775,6 +825,7 @@ jobs:
           admin_sanity="${{ needs.admin-build-sanity.result }}"
           cache_gi="${{ needs.cache-gitignore-check.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
+          [[ "$partner_postgres" == "skipped" ]] && partner_postgres="success"
           [[ "$banned_terms" == "skipped" ]] && banned_terms="success"
           [[ "$arb_parity" == "skipped" ]] && arb_parity="success"
           [[ "$accent_lint" == "skipped" ]] && accent_lint="success"
@@ -789,8 +840,8 @@ jobs:
           [[ "$contract_tests" == "skipped" ]] && contract_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$arb_parity" != "success" ]] || [[ "$accent_lint" != "success" ]] || [[ "$no_hardcoded_fr" != "success" ]] || [[ "$financial_core" != "success" ]] || [[ "$hardcoded_rates" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend secret_scan=$secret_scan banned_terms=$banned_terms arb_parity=$arb_parity accent_lint=$accent_lint no_hardcoded_fr=$no_hardcoded_fr financial_core=$financial_core hardcoded_rates=$hardcoded_rates flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$backend" != "success" ]] || [[ "$partner_postgres" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$arb_parity" != "success" ]] || [[ "$accent_lint" != "success" ]] || [[ "$no_hardcoded_fr" != "success" ]] || [[ "$financial_core" != "success" ]] || [[ "$hardcoded_rates" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — backend=$backend partner_postgres=$partner_postgres secret_scan=$secret_scan banned_terms=$banned_terms arb_parity=$arb_parity accent_lint=$accent_lint no_hardcoded_fr=$no_hardcoded_fr financial_core=$financial_core hardcoded_rates=$hardcoded_rates flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"
