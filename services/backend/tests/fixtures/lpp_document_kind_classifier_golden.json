@@ -9,9 +9,19 @@
     {
       "id": "personal_certificate_positive",
       "input": {
-        "kind": "tracked_pdf",
-        "relativePath": "documents/cpe_plan_maxi_julien.pdf",
-        "sha256": "fd682741f56280dab18b39d6f6a0ddaf991b218bf1750668b90e746df3bf42d6"
+        "kind": "generated_png",
+        "lines": [
+          "CERTIFICAT PERSONNEL DE PREVOYANCE",
+          "SPECIMEN SYNTHETIQUE - AUCUNE DONNEE REELLE",
+          "Personne fictive: TEST PERSONNE 0001",
+          "Identifiant fictif: TEST-LPP-0001",
+          "Situation individuelle au 31 decembre 2025",
+          "Salaire assure synthetique: CHF 64000",
+          "Avoir individuel synthetique: CHF 12345",
+          "Rente annuelle projetee synthetique: CHF 4321",
+          "Taux de conversion synthetique a 65 ans: 5.4 pour cent",
+          "Ce certificat concerne une seule personne fictive"
+        ]
       },
       "expected": {
         "isFinancial": true,

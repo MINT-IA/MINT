@@ -19,7 +19,7 @@ from app.services.llm.router import LLMRouter
 
 _FIXTURE_ROOT = Path(__file__).parent / "fixtures"
 _CORPUS_PATH = _FIXTURE_ROOT / "lpp_document_kind_classifier_golden.json"
-_CORPUS_SHA256 = "9bdfa8489d7779d319f6eaf00d36c65b9e508868994f38d32f2ba5387e19f3f0"
+_CORPUS_SHA256 = "9a1c532aea4783db93459e5428cedbab56e7f38b4063d55e99ea610b8cee9ed5"
 _LIVE_EVAL_ENV = "MINT_RUN_LPP_CLASSIFIER_LIVE_EVAL"
 
 
@@ -34,28 +34,22 @@ def _load_corpus() -> dict:
 
 def _document_base64(case: dict) -> str:
     input_contract = case["input"]
-    if input_contract["kind"] == "tracked_pdf":
-        path = (_FIXTURE_ROOT / input_contract["relativePath"]).resolve()
-        assert _FIXTURE_ROOT.resolve() in path.parents
-        document_bytes = path.read_bytes()
-        assert document_bytes.startswith(b"%PDF-")
-        assert sha256(document_bytes).hexdigest() == input_contract["sha256"]
-    else:
-        assert input_contract["kind"] == "generated_png"
-        image = Image.new("RGB", (1200, 1000), "white")
-        draw = ImageDraw.Draw(image)
-        font = ImageFont.load_default(size=28)
-        draw.multiline_text(
-            (60, 60),
-            "\n".join(input_contract["lines"]),
-            fill="black",
-            font=font,
-            spacing=14,
-        )
-        buffer = BytesIO()
-        image.save(buffer, format="PNG")
-        document_bytes = buffer.getvalue()
-        assert document_bytes.startswith(b"\x89PNG\r\n\x1a\n")
+    assert set(input_contract) == {"kind", "lines"}
+    assert input_contract["kind"] == "generated_png"
+    image = Image.new("RGB", (1200, 1000), "white")
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.load_default(size=28)
+    draw.multiline_text(
+        (60, 60),
+        "\n".join(input_contract["lines"]),
+        fill="black",
+        font=font,
+        spacing=14,
+    )
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    document_bytes = buffer.getvalue()
+    assert document_bytes.startswith(b"\x89PNG\r\n\x1a\n")
     return base64.b64encode(document_bytes).decode("ascii")
 
 
@@ -81,6 +75,13 @@ def test_lpp_document_kind_golden_corpus_and_prompt_are_immutable():
         "personal_certificate_positive",
         "base_bonus_plan_negative",
     ]
+    assert [case["input"]["kind"] for case in corpus["cases"]] == [
+        "generated_png",
+        "generated_png",
+    ]
+    assert "SPECIMEN SYNTHETIQUE - AUCUNE DONNEE REELLE" in (
+        corpus["cases"][0]["input"]["lines"]
+    )
     assert [case["expected"] for case in corpus["cases"]] == [
         {
             "isFinancial": True,
@@ -97,13 +98,8 @@ def test_lpp_document_kind_golden_corpus_and_prompt_are_immutable():
     for case in corpus["cases"]:
         encoded_document = _document_base64(case)
         content_block = dvs._build_vision_content_block(encoded_document)
-        expected_block = (
-            ("document", "application/pdf")
-            if case["input"]["kind"] == "tracked_pdf"
-            else ("image", "image/png")
-        )
-        assert content_block["type"] == expected_block[0]
-        assert content_block["source"]["media_type"] == expected_block[1]
+        assert content_block["type"] == "image"
+        assert content_block["source"]["media_type"] == "image/png"
         assert content_block["source"]["data"] == encoded_document
 
     assert '"lpp_certificate"' in dvs._CLASSIFICATION_PROMPT
