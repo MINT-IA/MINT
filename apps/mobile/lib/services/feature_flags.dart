@@ -86,6 +86,12 @@ class FeatureFlags {
   /// Backend configuration cannot activate this path.
   static bool documentLppEvidenceEnabled = false;
 
+  /// Local kill switch for the represented-authorization accountability path.
+  /// It deliberately stays outside [applyFromMap]: technical GREEN cannot
+  /// activate the partner journey while the external legal/privacy facts are
+  /// unresolved.
+  static bool partnerLppAccountabilityEnabled = false;
+
   static bool get lppEvidenceIngestionEnabled =>
       typedLppEvidence && documentLppEvidenceEnabled;
 

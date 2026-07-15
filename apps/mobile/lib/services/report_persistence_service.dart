@@ -4,6 +4,7 @@ import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
 import 'package:mint_mobile/services/financial_core/emergency_fund_heuristic.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
@@ -1032,9 +1033,13 @@ class ReportPersistenceService {
   }
 
   /// Efface tout (Logout / Reset)
-  static Future<void> clear() async {
+  static Future<void> clear({
+    PartnerAccountabilityBindingStore? partnerAccountabilityBindingStore,
+  }) async {
+    await clearDiagnostic(
+      partnerAccountabilityBindingStore: partnerAccountabilityBindingStore,
+    );
     final prefs = await SharedPreferences.getInstance();
-    await clearDiagnostic();
     await clearCoachHistory();
     await prefs.remove(_lettersKey);
   }
@@ -1063,10 +1068,19 @@ class ReportPersistenceService {
   /// - réponses wizard/mini-onboarding
   /// - flags de complétion
   /// - contributions planifiées liées au profil
-  static Future<void> clearDiagnostic() =>
-      _serializeLppPersistence(_clearDiagnostic);
+  static Future<void> clearDiagnostic({
+    PartnerAccountabilityBindingStore? partnerAccountabilityBindingStore,
+  }) =>
+      _serializeLppPersistence(
+        () => _clearDiagnostic(partnerAccountabilityBindingStore),
+      );
 
-  static Future<void> _clearDiagnostic() async {
+  static Future<void> _clearDiagnostic(
+    PartnerAccountabilityBindingStore? partnerAccountabilityBindingStore,
+  ) async {
+    await (partnerAccountabilityBindingStore ??
+            PartnerAccountabilityBindingStore())
+        .clear();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_wizardKey);
     await prefs.remove(_activeLppEvidenceSlotKey);

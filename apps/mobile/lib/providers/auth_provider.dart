@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
 
 /// Error codes for authentication operations.
 ///
@@ -76,6 +77,23 @@ String localizeAuthError(AuthError error, S l) {
 /// Provider for managing authentication state
 /// Handles login, register, logout, and auth persistence
 class AuthProvider extends ChangeNotifier {
+  AuthProvider({
+    PartnerAccountabilityBindingStore? partnerAccountabilityBindingStore,
+    Future<void> Function()? logoutAction,
+    Future<void> Function()? deleteAccountAction,
+    Future<void> Function()? bestEffortLocalDataPurge,
+  })  : _partnerAccountabilityBindingStore =
+            partnerAccountabilityBindingStore ??
+                PartnerAccountabilityBindingStore(),
+        _logoutAction = logoutAction ?? AuthService.logout,
+        _deleteAccountAction = deleteAccountAction ?? ApiService.deleteAccount,
+        _bestEffortLocalDataPurge = bestEffortLocalDataPurge;
+
+  final PartnerAccountabilityBindingStore _partnerAccountabilityBindingStore;
+  final Future<void> Function() _logoutAction;
+  final Future<void> Function() _deleteAccountAction;
+  final Future<void> Function()? _bestEffortLocalDataPurge;
+
   bool _isLoggedIn = false;
   String? _userId;
   String? _email;
@@ -443,12 +461,15 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      await ApiService.deleteAccount();
-      await AuthService.logout();
-      // V6-4 audit fix: purge ALL local data on account deletion
-      // FIX-W11-7: Clear user prefix on account deletion.
-      ConversationStore.setCurrentUserId(null);
-      await _purgeLocalData();
+      await _deleteAccountAction();
+      try {
+        await _logoutAction();
+      } finally {
+        // V6-4 audit fix: purge ALL local data on account deletion.
+        // The privacy-critical purge cannot be skipped by token-store errors.
+        ConversationStore.setCurrentUserId(null);
+        await _purgeLocalData();
+      }
       _isLoggedIn = false;
       _userId = null;
       _email = null;
@@ -545,10 +566,14 @@ class AuthProvider extends ChangeNotifier {
   /// Logout — V6-4 audit fix: purge ALL local data to prevent
   /// cross-account data bleed on shared devices.
   Future<void> logout() async {
-    await AuthService.logout();
-    // FIX-W11-7: Clear user prefix on logout.
-    ConversationStore.setCurrentUserId(null);
-    await _purgeLocalData();
+    try {
+      await _logoutAction();
+    } finally {
+      // FIX-W11-7: Clear user prefix on logout. The privacy-critical purge
+      // cannot be skipped by token-store errors.
+      ConversationStore.setCurrentUserId(null);
+      await _purgeLocalData();
+    }
     _isLoggedIn = false;
     _userId = null;
     _email = null;
@@ -570,6 +595,11 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _purgeLocalData() async {
     // TODO(P2): Implement cloud backup of conversations/check-ins before purge
     try {
+      final override = _bestEffortLocalDataPurge;
+      if (override != null) {
+        await override();
+        return;
+      }
       // FIX-W11-2: Log purge scope for observability before destroying data
       // Purge conversation history
       final store = ConversationStore();
@@ -615,6 +645,12 @@ class AuthProvider extends ChangeNotifier {
       if (kDebugMode) {
         debugPrint('[AuthProvider] Local data purge failed: $e');
       }
+    } finally {
+      // Financial roots and their exact accountability binding are not
+      // best-effort and must still purge after any earlier cache failure.
+      await ReportPersistenceService.clearDiagnostic(
+        partnerAccountabilityBindingStore: _partnerAccountabilityBindingStore,
+      );
     }
   }
 

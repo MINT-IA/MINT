@@ -1,12 +1,83 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+final class _AuthBindingPersistence
+    implements PartnerAccountabilityBindingPersistence {
+  String? value;
+
+  @override
+  Future<void> delete() async => value = null;
+
+  @override
+  Future<String?> read() async => value;
+
+  @override
+  Future<void> write(String value) async => this.value = value;
+}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('AuthProvider', () {
     late AuthProvider provider;
 
     setUp(() {
+      FlutterSecureStorage.setMockInitialValues(<String, String>{});
+      SharedPreferences.setMockInitialValues(<String, Object>{});
       provider = AuthProvider();
+    });
+
+    Future<PartnerAccountabilityBindingStore> seededBindingStore() async {
+      final store = PartnerAccountabilityBindingStore(
+        persistence: _AuthBindingPersistence(),
+      );
+      await store.beginPending(
+        receiptId: '11111111-1111-4111-8111-111111111111',
+        manualPartnerOwnerId: '22222222-2222-4222-8222-222222222222',
+        now: DateTime.utc(2026, 7, 15),
+        noticeVersion: 'notice-v1',
+        policyVersion: 'policy-v1',
+        privacyContact: 'privacy@example.test',
+        rightsChannel: 'https://example.test/rights',
+      );
+      return store;
+    }
+
+    test('logout awaits binding purge despite an earlier best-effort failure',
+        () async {
+      final store = await seededBindingStore();
+      final provider = AuthProvider(
+        partnerAccountabilityBindingStore: store,
+        logoutAction: () async {},
+        bestEffortLocalDataPurge: () async {
+          throw StateError('synthetic cache purge failure');
+        },
+      );
+
+      await provider.logout();
+
+      expect((await store.load()).effective, isNull);
+    });
+
+    test(
+        'delete-account awaits binding purge despite an earlier best-effort failure',
+        () async {
+      final store = await seededBindingStore();
+      final provider = AuthProvider(
+        partnerAccountabilityBindingStore: store,
+        deleteAccountAction: () async {},
+        logoutAction: () async {},
+        bestEffortLocalDataPurge: () async {
+          throw StateError('synthetic cache purge failure');
+        },
+      );
+
+      expect(await provider.deleteAccount(), isTrue);
+
+      expect((await store.load()).effective, isNull);
     });
 
     // ── Initial state ──
