@@ -23992,6 +23992,10 @@ class SEs extends S {
       'No se pudo verificar el recibo minimizado. No se transfirió ningún documento.';
 
   @override
+  String get lppPartnerReceiptRetryable =>
+      'La creación del recibo minimizado no está disponible temporalmente. Puedes volver a intentarlo. No se transfirió ningún documento.';
+
+  @override
   String lppPartnerStatusActive(String expiresAt) {
     return 'Las cifras del certificado de tu pareja están verificadas para este cálculo hasta $expiresAt.';
   }

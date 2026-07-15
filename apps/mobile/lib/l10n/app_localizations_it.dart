@@ -24056,6 +24056,10 @@ class SIt extends S {
       'Non è stato possibile verificare la ricevuta minimizzata. Nessun documento è stato trasferito.';
 
   @override
+  String get lppPartnerReceiptRetryable =>
+      'La creazione della ricevuta minimizzata è temporaneamente non disponibile. Puoi riprovare. Nessun documento è stato trasferito.';
+
+  @override
   String lppPartnerStatusActive(String expiresAt) {
     return 'I dati del certificato partner sono verificati per questo calcolo fino al $expiresAt.';
   }

@@ -24002,6 +24002,10 @@ class SPt extends S {
       'Não foi possível verificar o recibo minimizado. Nenhum documento foi transferido.';
 
   @override
+  String get lppPartnerReceiptRetryable =>
+      'A criação do recibo minimizado está temporariamente indisponível. Podes tentar novamente. Nenhum documento foi transferido.';
+
+  @override
   String lppPartnerStatusActive(String expiresAt) {
     return 'Os valores do certificado da pessoa parceira estão verificados para este cálculo até $expiresAt.';
   }

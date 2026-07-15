@@ -11500,6 +11500,7 @@
   "lppPartnerExternalGateBlocked": "Questo percorso resta indisponibile finché le verifiche esterne non sono aggiornate. Nessun documento è stato aperto o inviato.",
   "lppPartnerAuthRequired": "Accedi per creare la ricevuta minimizzata di questa dichiarazione. Non serve un account della persona partner.",
   "lppPartnerReceiptFailed": "Non è stato possibile verificare la ricevuta minimizzata. Nessun documento è stato trasferito.",
+  "lppPartnerReceiptRetryable": "La creazione della ricevuta minimizzata è temporaneamente non disponibile. Puoi riprovare. Nessun documento è stato trasferito.",
   "lppPartnerStatusActive": "I dati del certificato partner sono verificati per questo calcolo fino al {expiresAt}.",
   "@lppPartnerStatusActive": {"placeholders":{"expiresAt":{"type":"String"}}},
   "lppPartnerStatusNeedsVerification": "Questi dati partner non possono essere verificati ora. Il risultato resta parziale.",

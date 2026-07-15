@@ -197,7 +197,13 @@ class DocumentScanScreen extends StatefulWidget {
   final PartnerExternalGateResolver? partnerExternalGateResolver;
   final String Function()? partnerOwnerIdFactory;
   final String Function()? partnerReceiptIdFactory;
+
+  /// Test seam for observing or failing the volatile review handoff.
+  @visibleForTesting
   final DocumentScanReviewNavigator? navigateToReview;
+
+  /// Test seam for verifying cleanup of screen-owned byte-only temp files.
+  @visibleForTesting
   final DocumentScanTempFileWriter? writeOwnedTempFile;
 
   const DocumentScanScreen({
@@ -803,6 +809,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       } on PartnerAccountabilityException catch (error) {
         if (!error.retryable) {
           await _rollbackPartnerAttempt(decision);
+          if (mounted) {
+            setState(() {
+              _preValidationError = S.of(context)!.lppPartnerReceiptFailed;
+              _preValidationHint = null;
+            });
+          }
           return null;
         }
         if (!mounted) break;
@@ -812,7 +824,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           builder: (dialogContext) => AlertDialog(
             key: const Key('lpp_partner_receipt_retry'),
             title: Text(S.of(context)!.lppPartnerNoticeTitle),
-            content: Text(S.of(context)!.lppPartnerReceiptFailed),
+            content: Text(S.of(context)!.lppPartnerReceiptRetryable),
             actions: [
               TextButton(
                 onPressed: () => dialogContext.pop(false),
@@ -829,6 +841,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         if (retry != true) break;
       } catch (_) {
         await _rollbackPartnerAttempt(decision);
+        if (mounted) {
+          setState(() {
+            _preValidationError = S.of(context)!.lppPartnerReceiptFailed;
+            _preValidationHint = null;
+          });
+        }
         return null;
       }
     }

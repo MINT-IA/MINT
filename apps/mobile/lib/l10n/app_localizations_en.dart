@@ -23873,6 +23873,10 @@ class SEn extends S {
       'The minimized receipt could not be verified. No document was transferred.';
 
   @override
+  String get lppPartnerReceiptRetryable =>
+      'Creating the minimized receipt is temporarily unavailable. You can retry. No document was transferred.';
+
+  @override
   String lppPartnerStatusActive(String expiresAt) {
     return 'Partner certificate figures are verified for this calculation until $expiresAt.';
   }

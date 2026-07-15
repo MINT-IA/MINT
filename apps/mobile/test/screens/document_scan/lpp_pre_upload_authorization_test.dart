@@ -75,6 +75,12 @@ final class _Counters {
 
 const _receiptId = '11111111-1111-4111-8111-111111111111';
 const _ownerId = '22222222-2222-4222-8222-222222222222';
+const _terminalReceiptFailureCopyFr =
+    'Le reçu minimisé n’a pas pu être vérifié. '
+    'Aucun document n’a été transmis.';
+const _retryableReceiptFailureCopyFr =
+    'La création du reçu minimisé est temporairement indisponible. '
+    'Tu peux réessayer. Aucun document n’a été transmis.';
 
 final class _PartnerBindingPersistence
     implements PartnerAccountabilityBindingPersistence {
@@ -388,6 +394,30 @@ void main() {
       '12345-678',
     ]) {
       expect(sample, isNot(contains(forbidden)), reason: forbidden);
+    }
+  });
+
+  test('review navigation and owned temp writing are visible test seams', () {
+    final screen = File(
+      'lib/screens/document_scan/document_scan_screen.dart',
+    ).readAsStringSync();
+
+    for (final declaration in const [
+      'final DocumentScanReviewNavigator? navigateToReview;',
+      'final DocumentScanTempFileWriter? writeOwnedTempFile;',
+    ]) {
+      final declarationIndex = screen.indexOf(declaration);
+      expect(declarationIndex, greaterThanOrEqualTo(0), reason: declaration);
+      final annotationIndex = screen.lastIndexOf(
+        '@visibleForTesting',
+        declarationIndex,
+      );
+      expect(annotationIndex, greaterThanOrEqualTo(0), reason: declaration);
+      expect(
+        screen.substring(annotationIndex, declarationIndex),
+        isNot(contains('final ')),
+        reason: declaration,
+      );
     }
   });
 
@@ -725,6 +755,7 @@ void main() {
       find.byKey(const Key('lpp_partner_receipt_retry')),
       findsNothing,
     );
+    expect(find.text(_terminalReceiptFailureCopyFr), findsOneWidget);
     expect(counters.receiptCreates, 1);
     expect(counters.erases, 0);
     expect(counters.bytes, 0);
@@ -757,6 +788,7 @@ void main() {
       find.byKey(const Key('lpp_partner_receipt_retry')),
       findsNothing,
     );
+    expect(find.text(_terminalReceiptFailureCopyFr), findsOneWidget);
     expect(counters.receiptCreates, 1);
     expect(counters.erases, 0);
     expect(counters.bytes, 0);
@@ -794,6 +826,8 @@ void main() {
       find.byKey(const Key('lpp_partner_receipt_retry')),
       findsOneWidget,
     );
+    expect(find.text(_retryableReceiptFailureCopyFr), findsOneWidget);
+    expect(find.text(_terminalReceiptFailureCopyFr), findsNothing);
     await tester.tap(
       find.byKey(const Key('lpp_partner_receipt_pending')),
     );

@@ -11500,6 +11500,7 @@
   "lppPartnerExternalGateBlocked": "This flow remains unavailable until the external checks are current. No document was opened or sent.",
   "lppPartnerAuthRequired": "Sign in to create the minimized receipt for this declaration. No partner account is required.",
   "lppPartnerReceiptFailed": "The minimized receipt could not be verified. No document was transferred.",
+  "lppPartnerReceiptRetryable": "Creating the minimized receipt is temporarily unavailable. You can retry. No document was transferred.",
   "lppPartnerStatusActive": "Partner certificate figures are verified for this calculation until {expiresAt}.",
   "@lppPartnerStatusActive": {"placeholders":{"expiresAt":{"type":"String"}}},
   "lppPartnerStatusNeedsVerification": "These partner figures cannot be verified now. The result remains partial.",

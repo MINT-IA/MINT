@@ -12268,6 +12268,7 @@
   "lppPartnerExternalGateBlocked": "Ce parcours reste indisponible tant que les vérifications externes ne sont pas à jour. Aucun document n’a été ouvert ou envoyé.",
   "lppPartnerAuthRequired": "Connecte-toi pour créer le reçu minimisé de cette déclaration. Aucun compte partenaire n’est requis.",
   "lppPartnerReceiptFailed": "Le reçu minimisé n’a pas pu être vérifié. Aucun document n’a été transmis.",
+  "lppPartnerReceiptRetryable": "La création du reçu minimisé est temporairement indisponible. Tu peux réessayer. Aucun document n’a été transmis.",
   "lppPartnerStatusActive": "Chiffres du certificat partenaire vérifiés pour ce calcul jusqu’au {expiresAt}.",
   "@lppPartnerStatusActive": {"placeholders":{"expiresAt":{"type":"String"}}},
   "lppPartnerStatusNeedsVerification": "Ces chiffres partenaire ne peuvent pas être vérifiés maintenant. Le résultat reste partiel.",
