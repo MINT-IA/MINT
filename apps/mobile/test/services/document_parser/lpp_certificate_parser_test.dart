@@ -200,6 +200,12 @@ Prestation d'invalidité: CHF 90'000
       expect((field!.value as double), closeTo(36800.0, 0.01));
     });
 
+    test('extracts capital invalidite verse en une fois = 175000', () {
+      final field = findField(result, 'disability_capital');
+      expect(field, isNotNull);
+      expect((field!.value as double), closeTo(175000.0, 0.01));
+    });
+
     test('extracts capital-deces = 220500', () {
       final field = findField(result, 'death_coverage');
       expect(field, isNotNull);

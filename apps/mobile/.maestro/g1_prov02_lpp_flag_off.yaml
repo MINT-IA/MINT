@@ -1,0 +1,32 @@
+appId: ch.mint.app
+---
+# G1-PROV-02: production-default flags hide LPP before acquisition, while
+# volatile review and impact deep links recover safely after process loss.
+- launchApp:
+    clearState: true
+- openLink: "mint:///scan?type=lppCertificate"
+- assertVisible:
+    id: "document_scan_capture_cta"
+- assertNotVisible:
+    id: "document_scan_lpp_type_selector"
+- assertNotVisible:
+    id: "document_scan_lpp_example_cta"
+- assertNotVisible:
+    id: "lpp_review_confirm_cta"
+- takeScreenshot: g1_prov02_lpp_flag_off
+- openLink: "mint:///scan/review?scanSessionId=prov02-stale-review"
+- assertVisible:
+    id: "scan_review_recovery_cta"
+- takeScreenshot: g1_prov02_lpp_stale_review
+- tapOn:
+    id: "scan_review_recovery_cta"
+- assertVisible:
+    id: "document_scan_capture_cta"
+- openLink: "mint:///scan/impact?scanSessionId=prov02-stale-impact"
+- assertVisible:
+    id: "scan_impact_recovery_cta"
+- takeScreenshot: g1_prov02_lpp_stale_impact
+- tapOn:
+    id: "scan_impact_recovery_cta"
+- assertVisible:
+    id: "home_route"

@@ -811,6 +811,7 @@ Capital de vieillesse projete a 65:            CHF 485'200.00
 
 PRESTATIONS DE RISQUE
 Prestation d'invalidite:                       CHF 36'800.00 / an
+Capital invalidit\u00e9 (versement unique):     CHF 175'000.00
 Capital-deces:                                 CHF 220'500.00
 
 RACHAT
