@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
@@ -54,6 +55,25 @@ final _lppAuthorization = LppAcquisitionAuthorization(
   declaredAt: DateTime.utc(2026, 7, 15, 9),
   documentSha256:
       '3d1f57c984978ef98a18378c8166c1cb8ede02c03eeb6aee7e2f121dfeee3e56',
+);
+final _manualPartnerAuthorization = LppAcquisitionAuthorization(
+  acquisitionId: '223e4567-e89b-42d3-a456-426614174000',
+  subject: LppEvidenceOwnerKind.manualPartner,
+  partnerAttested: true,
+  policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
+  declaredAt: DateTime.utc(2026, 7, 15, 9),
+  documentSha256:
+      '4d1f57c984978ef98a18378c8166c1cb8ede02c03eeb6aee7e2f121dfeee3e57',
+  manualPartnerOwnerId: '22222222-2222-4222-8222-222222222222',
+  receiptId: '11111111-1111-4111-8111-111111111111',
+);
+final _manualPartnerAccountability = ManualPartnerAccountabilityContext(
+  receiptId: '11111111-1111-4111-8111-111111111111',
+  ownerId: '22222222-2222-4222-8222-222222222222',
+  expiresAt: DateTime.utc(2027, 7, 15),
+  noticeVersion: 'notice-v1',
+  policyVersion: 'policy-v1',
+  receiptStatus: PartnerAccountabilityReceiptStatus.active,
 );
 
 void main() {
@@ -139,6 +159,36 @@ void main() {
       () => provider.retainExtraction(
         _lppReviewExtraction,
         lppAuthorization: _lppAuthorization,
+      ),
+      throwsArgumentError,
+    );
+  });
+
+  test('manual-partner review retains one exact active volatile context', () {
+    final provider = ScanSessionProvider();
+
+    final id = provider.retainExtraction(
+      _lppReviewExtraction,
+      lppCandidate: _lppCandidate,
+      lppAuthorization: _manualPartnerAuthorization,
+      manualPartnerAccountability: _manualPartnerAccountability,
+    );
+
+    expect(
+      provider.byId(id)?.manualPartnerAccountability,
+      same(_manualPartnerAccountability),
+    );
+    expect(id, isNot(contains(_manualPartnerAccountability.receiptId)));
+  });
+
+  test('manual-partner receipt ids cannot reach review without context', () {
+    final provider = ScanSessionProvider();
+
+    expect(
+      () => provider.retainExtraction(
+        _lppReviewExtraction,
+        lppCandidate: _lppCandidate,
+        lppAuthorization: _manualPartnerAuthorization,
       ),
       throwsArgumentError,
     );

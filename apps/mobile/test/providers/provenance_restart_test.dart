@@ -5,7 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -152,6 +155,118 @@ final class _DelayedFirstLppPersistence
   }
 }
 
+final class _MemoryPartnerBindingPersistence
+    implements PartnerAccountabilityBindingPersistence {
+  String? value;
+
+  @override
+  Future<void> delete() async => value = null;
+
+  @override
+  Future<String?> read() async => value;
+
+  @override
+  Future<void> write(String value) async => this.value = value;
+}
+
+final class _PartnerStatusApi implements PartnerAccountabilityApi {
+  _PartnerStatusApi(this.expiries);
+
+  final Map<String, DateTime> expiries;
+
+  @override
+  Future<void> delete(String endpoint) async {}
+
+  @override
+  Future<Map<String, dynamic>> get(String endpoint) async {
+    final receiptId = endpoint.split('/').elementAt(3);
+    final expiry = expiries[receiptId];
+    if (expiry == null) throw StateError('unknown synthetic receipt');
+    return <String, dynamic>{
+      'receiptId': receiptId,
+      'status': 'active',
+      'noticeVersion': 'notice-v1',
+      'policyVersion': 'policy-v1',
+      'expiresAt': expiry.toUtc().toIso8601String(),
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> post(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async =>
+      throw StateError('post must not be called');
+}
+
+final class _PartnerTestGate {
+  _PartnerTestGate(this.now)
+      : store = PartnerAccountabilityBindingStore(
+          persistence: _MemoryPartnerBindingPersistence(),
+        ),
+        expiries = <String, DateTime>{} {
+    service = PartnerAccountabilityService(api: _PartnerStatusApi(expiries));
+  }
+
+  static const ownerId = '22222222-2222-4222-8222-222222222222';
+  final DateTime Function() now;
+  final PartnerAccountabilityBindingStore store;
+  final Map<String, DateTime> expiries;
+  late final PartnerAccountabilityService service;
+  int _sequence = 0;
+
+  Future<LppReviewConfirmation> confirmation({
+    required Map<LppEvidenceFactKey, LppReviewedFact> facts,
+    required DateTime? sourceDate,
+  }) async {
+    _sequence += 1;
+    final suffix = _sequence.toString().padLeft(12, '0');
+    final receiptId = '00000000-0000-4000-8000-$suffix';
+    final acquisitionId = '10000000-0000-4000-8000-$suffix';
+    final current = now().toUtc();
+    final expiresAt = current.add(const Duration(days: 365));
+    expiries[receiptId] = expiresAt;
+    await store.beginPending(
+      receiptId: receiptId,
+      manualPartnerOwnerId: ownerId,
+      now: current,
+      noticeVersion: 'notice-v1',
+      policyVersion: 'policy-v1',
+      privacyContact: 'privacy@example.test',
+      rightsChannel: 'https://example.test/rights',
+    );
+    await store.markReceiptCreated(
+      receiptId: receiptId,
+      manualPartnerOwnerId: ownerId,
+      now: current,
+      expiresAt: expiresAt,
+    );
+    return LppReviewConfirmation(
+      authorization: LppAcquisitionAuthorization(
+        acquisitionId: acquisitionId,
+        subject: LppEvidenceOwnerKind.manualPartner,
+        partnerAttested: true,
+        policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
+        declaredAt: current,
+        documentSha256:
+            '1111111111111111111111111111111111111111111111111111111111111111',
+        manualPartnerOwnerId: ownerId,
+        receiptId: receiptId,
+      ),
+      sourceDate: sourceDate,
+      facts: facts,
+      partnerAccountabilityContext: ManualPartnerAccountabilityContext(
+        receiptId: receiptId,
+        ownerId: ownerId,
+        expiresAt: expiresAt,
+        noticeVersion: 'notice-v1',
+        policyVersion: 'policy-v1',
+        receiptStatus: PartnerAccountabilityReceiptStatus.active,
+      ),
+    );
+  }
+}
+
 LppAcquisitionAuthorization _lppAuthorization(
   LppEvidenceOwnerKind subject,
 ) {
@@ -206,9 +321,13 @@ void main() {
     secureStorageValues.clear();
     failLppWrites = false;
     FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.partnerLppAccountabilityEnabled = true;
   });
 
-  tearDown(() => FeatureFlags.typedLppEvidence = false);
+  tearDown(() {
+    FeatureFlags.typedLppEvidence = false;
+    FeatureFlags.partnerLppAccountabilityEnabled = false;
+  });
 
   tearDownAll(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -422,16 +541,18 @@ void main() {
       'q_partner_employment_status': 'salarie',
     });
     final now = DateTime.utc(2026, 7, 14, 12);
+    final gate = _PartnerTestGate(() => now);
     final provider = CoachProfileProvider(
       taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
+      partnerAccountabilityBindingStore: gate.store,
+      partnerAccountabilityService: gate.service,
       now: () => now,
     );
     await provider.loadFromWizard();
 
     await provider.acceptLppReview(
-      LppReviewConfirmation(
-        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
+      await gate.confirmation(
         sourceDate: null,
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
@@ -516,9 +637,12 @@ void main() {
       'q_partner_employment_status': 'salarie',
     });
     var now = DateTime.utc(2026, 7, 14, 10);
+    final gate = _PartnerTestGate(() => now);
     final provider = CoachProfileProvider(
       taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
+      partnerAccountabilityBindingStore: gate.store,
+      partnerAccountabilityService: gate.service,
       now: () => now,
     );
 
@@ -535,8 +659,7 @@ void main() {
       ),
     );
     await provider.acceptLppReview(
-      LppReviewConfirmation(
-        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
+      await gate.confirmation(
         sourceDate: null,
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
@@ -564,8 +687,7 @@ void main() {
 
     now = DateTime.utc(2026, 7, 14, 11);
     await provider.acceptLppReview(
-      LppReviewConfirmation(
-        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
+      await gate.confirmation(
         sourceDate: DateTime.utc(2026, 7, 1),
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
@@ -633,9 +755,14 @@ void main() {
       'q_civil_status': 'marie',
       'q_partner_birth_year': 1982,
     });
+    final gate = _PartnerTestGate(
+      () => DateTime.utc(2026, 7, 14, 12),
+    );
     final provider = CoachProfileProvider(
       taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
+      partnerAccountabilityBindingStore: gate.store,
+      partnerAccountabilityService: gate.service,
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
     await provider.loadFromWizard();
@@ -656,8 +783,7 @@ void main() {
     );
     await persistence.firstSaveStarted.future;
     final manualAcceptance = provider.acceptLppReview(
-      LppReviewConfirmation(
-        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
+      await gate.confirmation(
         sourceDate: null,
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
@@ -698,9 +824,14 @@ void main() {
       'q_civil_status': 'marie',
       'q_partner_birth_year': 1982,
     });
+    final gate = _PartnerTestGate(
+      () => DateTime.utc(2026, 7, 14, 12),
+    );
     final provider = CoachProfileProvider(
       taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
+      partnerAccountabilityBindingStore: gate.store,
+      partnerAccountabilityService: gate.service,
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
     await provider.loadFromWizard();
@@ -721,8 +852,7 @@ void main() {
     final startup = provider.loadFromWizard();
     await persistence.firstSaveStarted.future;
     final manualAcceptance = provider.acceptLppReview(
-      LppReviewConfirmation(
-        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
+      await gate.confirmation(
         sourceDate: DateTime.utc(2026, 7, 1),
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
@@ -794,16 +924,20 @@ void main() {
       '_coach_conjoint_avoir_lpp': 987654.0,
       '_coach_conjoint_lpp_source': 'document_scan',
     });
+    final gate = _PartnerTestGate(
+      () => DateTime.utc(2026, 7, 14, 12),
+    );
     final provider = CoachProfileProvider(
       taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
+      partnerAccountabilityBindingStore: gate.store,
+      partnerAccountabilityService: gate.service,
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
     await provider.loadFromWizard();
 
     await provider.acceptLppReview(
-      LppReviewConfirmation(
-        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
+      await gate.confirmation(
         sourceDate: null,
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.insuredSalaryAnnualChf: LppReviewedFact(
@@ -849,14 +983,18 @@ void main() {
       'q_partner_employment_status': 'salarie',
     });
     await ReportPersistenceService.setCompleted(true);
+    final gate = _PartnerTestGate(
+      () => DateTime.utc(2026, 7, 14, 12),
+    );
     var provider = CoachProfileProvider(
+      partnerAccountabilityBindingStore: gate.store,
+      partnerAccountabilityService: gate.service,
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
     await provider.loadFromWizard();
 
     await provider.acceptLppReview(
-      LppReviewConfirmation(
-        authorization: _lppAuthorization(LppEvidenceOwnerKind.manualPartner),
+      await gate.confirmation(
         sourceDate: DateTime.utc(2026, 6, 30),
         facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
@@ -882,6 +1020,8 @@ void main() {
 
     provider.dispose();
     provider = CoachProfileProvider(
+      partnerAccountabilityBindingStore: gate.store,
+      partnerAccountabilityService: gate.service,
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
     await provider.loadFromWizard();

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 
@@ -8,6 +9,7 @@ class ScanSessionPayload {
   final ExtractionResult extraction;
   final LppExtractionCandidate? lppCandidate;
   final LppAcquisitionAuthorization? lppAuthorization;
+  final ManualPartnerAccountabilityContext? manualPartnerAccountability;
   final TaxExtractionCandidate? taxCandidate;
   final int? previousConfidence;
 
@@ -15,6 +17,7 @@ class ScanSessionPayload {
     required this.extraction,
     this.lppCandidate,
     this.lppAuthorization,
+    this.manualPartnerAccountability,
     this.taxCandidate,
     this.previousConfidence,
   });
@@ -27,6 +30,7 @@ class ScanSessionPayload {
       extraction: _withoutSourceText(extraction),
       lppCandidate: null,
       lppAuthorization: null,
+      manualPartnerAccountability: null,
       taxCandidate: null,
       previousConfidence: previousConfidence,
     );
@@ -79,14 +83,30 @@ class ScanSessionProvider extends ChangeNotifier {
     ExtractionResult extraction, {
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
+    ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
   }) {
     final hasLppCandidate = lppCandidate != null;
     final hasLppAuthorization = lppAuthorization != null;
+    final requiresPartnerAccountability =
+        lppAuthorization?.subject == LppEvidenceOwnerKind.manualPartner;
     if (hasLppCandidate != hasLppAuthorization ||
         (hasLppCandidate &&
             (extraction.documentType != DocumentType.lppCertificate ||
-                !lppAuthorization!.isValidAt(DateTime.now().toUtc())))) {
+                !lppAuthorization!.isValidAt(DateTime.now().toUtc()))) ||
+        (requiresPartnerAccountability &&
+            (lppAuthorization?.receiptId == null ||
+                lppAuthorization?.manualPartnerOwnerId == null ||
+                manualPartnerAccountability == null ||
+                !manualPartnerAccountability.isActiveAt(
+                  DateTime.now().toUtc(),
+                ) ||
+                !manualPartnerAccountability.matchesAuthorization(
+                  receiptId: lppAuthorization?.receiptId,
+                  ownerId: lppAuthorization?.manualPartnerOwnerId,
+                ))) ||
+        (!requiresPartnerAccountability &&
+            manualPartnerAccountability != null)) {
       throw ArgumentError(
         'LPP candidate and complete volatile authorization are required together',
       );
@@ -96,6 +116,7 @@ class ScanSessionProvider extends ChangeNotifier {
       extraction: extraction,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
+      manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );
     while (_sessions.length > maxRetainedSessions) {

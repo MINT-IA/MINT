@@ -3,8 +3,12 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final class _TrackingProfilePersistence
     implements TaxProfilePersistence, LppProfilePersistence {
@@ -37,6 +41,45 @@ final class _TrackingProfilePersistence
   }
 }
 
+final class _BindingPersistence
+    implements PartnerAccountabilityBindingPersistence {
+  String? value;
+
+  @override
+  Future<void> delete() async => value = null;
+
+  @override
+  Future<String?> read() async => value;
+
+  @override
+  Future<void> write(String value) async => this.value = value;
+}
+
+final class _StatusApi implements PartnerAccountabilityApi {
+  @override
+  Future<void> delete(String endpoint) async {}
+
+  @override
+  Future<Map<String, dynamic>> get(String endpoint) async => <String, dynamic>{
+        'receiptId': _receiptId,
+        'status': 'active',
+        'noticeVersion': 'notice-v1',
+        'policyVersion': 'policy-v1',
+        'expiresAt': _expiresAt.toIso8601String(),
+      };
+
+  @override
+  Future<Map<String, dynamic>> post(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async =>
+      throw StateError('post must not be called');
+}
+
+const _receiptId = '11111111-1111-4111-8111-111111111111';
+const _ownerId = '22222222-2222-4222-8222-222222222222';
+final _expiresAt = DateTime.utc(2027, 7, 15, 10);
+
 const _facts = <LppEvidenceFactKey, LppReviewedFact>{
   LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
     value: 84000,
@@ -51,6 +94,8 @@ LppAcquisitionAuthorization _authorization({
   String acquisitionId = '123e4567-e89b-42d3-a456-426614174000',
   String documentSha256 =
       '3d1f57c984978ef98a18378c8166c1cb8ede02c03eeb6aee7e2f121dfeee3e56',
+  String? manualPartnerOwnerId,
+  String? receiptId,
 }) =>
     LppAcquisitionAuthorization(
       acquisitionId: acquisitionId,
@@ -60,13 +105,19 @@ LppAcquisitionAuthorization _authorization({
       policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
       declaredAt: DateTime.utc(2026, 7, 15, 9),
       documentSha256: documentSha256,
+      manualPartnerOwnerId: manualPartnerOwnerId,
+      receiptId: receiptId,
     );
 
 Future<
     ({
       CoachProfileProvider provider,
       _TrackingProfilePersistence persistence,
-    })> _harness({required bool withLocalPartner}) async {
+    })> _harness({
+  required bool withLocalPartner,
+  PartnerAccountabilityBindingStore? partnerBindingStore,
+  PartnerAccountabilityService? partnerAccountabilityService,
+}) async {
   final persistence = _TrackingProfilePersistence(<String, dynamic>{
     'q_birth_year': 1980,
     'q_canton': 'VD',
@@ -77,6 +128,8 @@ Future<
   final provider = CoachProfileProvider(
     taxProfilePersistence: persistence,
     lppProfilePersistence: persistence,
+    partnerAccountabilityBindingStore: partnerBindingStore,
+    partnerAccountabilityService: partnerAccountabilityService,
     now: () => DateTime.utc(2026, 7, 15, 10),
   );
   await provider.loadFromWizard();
@@ -88,8 +141,15 @@ Future<
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() => FeatureFlags.typedLppEvidence = true);
-  tearDown(() => FeatureFlags.typedLppEvidence = false);
+  setUp(() {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.partnerLppAccountabilityEnabled = true;
+  });
+  tearDown(() {
+    FeatureFlags.typedLppEvidence = false;
+    FeatureFlags.partnerLppAccountabilityEnabled = false;
+  });
 
   test('invalid manual-partner authorization rejects before load or publish',
       () async {
@@ -147,11 +207,36 @@ void main() {
 
   test('valid local partner persists no volatile authorization or hash',
       () async {
-    final harness = await _harness(withLocalPartner: true);
+    final store = PartnerAccountabilityBindingStore(
+      persistence: _BindingPersistence(),
+    );
+    await store.beginPending(
+      receiptId: _receiptId,
+      manualPartnerOwnerId: _ownerId,
+      now: DateTime.utc(2026, 7, 15, 9),
+      noticeVersion: 'notice-v1',
+      policyVersion: 'policy-v1',
+      privacyContact: 'privacy@example.test',
+      rightsChannel: 'https://example.test/rights',
+    );
+    await store.markReceiptCreated(
+      receiptId: _receiptId,
+      manualPartnerOwnerId: _ownerId,
+      now: DateTime.utc(2026, 7, 15, 9),
+      expiresAt: _expiresAt,
+    );
+    final service = PartnerAccountabilityService(api: _StatusApi());
+    final harness = await _harness(
+      withLocalPartner: true,
+      partnerBindingStore: store,
+      partnerAccountabilityService: service,
+    );
     final provider = harness.provider;
     final persistence = harness.persistence;
     final authorization = _authorization(
       subject: LppEvidenceOwnerKind.manualPartner,
+      manualPartnerOwnerId: _ownerId,
+      receiptId: _receiptId,
     );
 
     await provider.acceptLppReview(
@@ -159,6 +244,14 @@ void main() {
         authorization: authorization,
         sourceDate: null,
         facts: _facts,
+        partnerAccountabilityContext: ManualPartnerAccountabilityContext(
+          receiptId: _receiptId,
+          ownerId: _ownerId,
+          expiresAt: _expiresAt,
+          noticeVersion: 'notice-v1',
+          policyVersion: 'policy-v1',
+          receiptStatus: PartnerAccountabilityReceiptStatus.active,
+        ),
       ),
     );
 
@@ -184,6 +277,8 @@ void main() {
     final cold = CoachProfileProvider(
       taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
+      partnerAccountabilityBindingStore: store,
+      partnerAccountabilityService: service,
       now: () => DateTime.utc(2026, 7, 15, 10),
     );
     await cold.loadFromWizard();

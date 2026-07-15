@@ -14,6 +14,7 @@ import 'package:flutter/foundation.dart' show immutable, listEquals, setEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
@@ -21,6 +22,32 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_core/wealth_financial_facts.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
+
+LppEvidenceSnapshot? _restoreIndependentManualPartnerFacts(
+  LppEvidenceSnapshot? snapshot,
+) {
+  if (snapshot == null) return null;
+  final facts = snapshot.independentFacts;
+  return facts.isEmpty
+      ? null
+      : LppEvidenceSnapshot(
+          snapshotId: snapshot.snapshotId,
+          facts: Map.unmodifiable(facts),
+        );
+}
+
+LppEvidenceSnapshot? _mergeCurrentManualPartnerFacts(
+  LppEvidenceSnapshot? snapshot,
+) {
+  if (snapshot == null) return null;
+  return LppEvidenceSnapshot(
+    snapshotId: snapshot.snapshotId,
+    facts: Map.unmodifiable(<LppEvidenceFactKey, LppEvidenceFact>{
+      ...snapshot.independentFacts,
+      ...snapshot.facts,
+    }),
+  );
+}
 
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
@@ -410,6 +437,7 @@ class PrevoyanceProfile {
   final double tauxConversion; // taux de la caisse (min legal 6.8%)
   final double? tauxConversionSuroblig; // taux surobligatoire de la caisse
   final double rendementCaisse; // rendement annuel estime de la caisse
+  final bool rendementCaisseConnu;
   final double? salaireAssure; // salaire assure LPP (from certificate)
   final double?
       bonificationRate; // taux bonification total (from certificate, e.g. CPE 24%)
@@ -451,7 +479,8 @@ class PrevoyanceProfile {
     this.dateRachats = const [],
     this.tauxConversion = lppTauxConversionMinDecimal,
     this.tauxConversionSuroblig,
-    this.rendementCaisse = 0.02,
+    double? rendementCaisse,
+    bool? rendementCaisseConnu,
     this.salaireAssure,
     this.bonificationRate,
     this.ramd,
@@ -467,7 +496,9 @@ class PrevoyanceProfile {
     this.comptes3a = const [],
     this.canContribute3a = true,
     this.librePassage = const [],
-  }) : _lppEvidenceFacts = lppEvidenceFacts;
+  })  : rendementCaisse = rendementCaisse ?? 0.02,
+        rendementCaisseConnu = rendementCaisseConnu ?? rendementCaisse != null,
+        _lppEvidenceFacts = lppEvidenceFacts;
 
   LppEvidenceFact? lppEvidenceFact(LppEvidenceFactKey key) =>
       _lppEvidenceFacts[key];
@@ -539,7 +570,10 @@ class PrevoyanceProfile {
           lppTauxConversionMinDecimal,
       tauxConversionSuroblig:
           (json['tauxConversionSuroblig'] as num?)?.toDouble(),
-      rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
+      rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble(),
+      // Legacy JSON always serialized the old 2% sentinel. Absence of the
+      // explicit marker therefore remains an assumption, not a known fact.
+      rendementCaisseConnu: json['rendementCaisseConnu'] as bool? ?? false,
       salaireAssure: (json['salaireAssure'] as num?)?.toDouble(),
       bonificationRate: (json['bonificationRate'] as num?)?.toDouble(),
       ramd: (json['ramd'] as num?)?.toDouble(),
@@ -579,6 +613,7 @@ class PrevoyanceProfile {
     double? tauxConversion,
     double? tauxConversionSuroblig,
     double? rendementCaisse,
+    bool? rendementCaisseConnu,
     double? salaireAssure,
     double? bonificationRate,
     double? ramd,
@@ -614,6 +649,7 @@ class PrevoyanceProfile {
       tauxConversionSuroblig:
           tauxConversionSuroblig ?? this.tauxConversionSuroblig,
       rendementCaisse: rendementCaisse ?? this.rendementCaisse,
+      rendementCaisseConnu: rendementCaisseConnu ?? this.rendementCaisseConnu,
       salaireAssure: salaireAssure ?? this.salaireAssure,
       bonificationRate: bonificationRate ?? this.bonificationRate,
       ramd: ramd ?? this.ramd,
@@ -649,6 +685,7 @@ class PrevoyanceProfile {
         'tauxConversion': tauxConversion,
         'tauxConversionSuroblig': tauxConversionSuroblig,
         'rendementCaisse': rendementCaisse,
+        'rendementCaisseConnu': rendementCaisseConnu,
         'salaireAssure': salaireAssure,
         'bonificationRate': bonificationRate,
         'ramd': ramd,
@@ -685,6 +722,7 @@ class PrevoyanceProfile {
           tauxConversion == other.tauxConversion &&
           tauxConversionSuroblig == other.tauxConversionSuroblig &&
           rendementCaisse == other.rendementCaisse &&
+          rendementCaisseConnu == other.rendementCaisseConnu &&
           salaireAssure == other.salaireAssure &&
           bonificationRate == other.bonificationRate &&
           ramd == other.ramd &&
@@ -717,6 +755,7 @@ class PrevoyanceProfile {
         tauxConversion,
         tauxConversionSuroblig,
         rendementCaisse,
+        rendementCaisseConnu,
         salaireAssure,
         bonificationRate,
         ramd,
@@ -3788,6 +3827,8 @@ class CoachProfile {
   factory CoachProfile.fromWizardAnswers(
     Map<String, dynamic> answers, {
     DateTime Function()? now,
+    PartnerAccountabilityBinding? partnerAccountabilityBinding,
+    bool enforcePartnerAccountability = false,
   }) {
     var fiscal = _fiscalFromWizardAnswers(answers);
     // ── Identite ────────────────────────────────────────────
@@ -4007,13 +4048,23 @@ class CoachProfile {
             answers['_coach_lpp_evidence_v1'],
           )
         : null;
-    final typedLppManualPartner = expectedManualPartnerOwnerId == null
+    final accountabilityOwnerMatches = !enforcePartnerAccountability ||
+        expectedManualPartnerOwnerId != null &&
+            partnerAccountabilityBinding?.manualPartnerOwnerId ==
+                expectedManualPartnerOwnerId &&
+            partnerAccountabilityBinding!.isCurrentAt(
+              (now ?? DateTime.now)().toUtc(),
+            );
+    final rawTypedLppManualPartner = expectedManualPartnerOwnerId == null
         ? null
         : LppEvidenceSelector.selectManualPartner(
             answers['_coach_lpp_evidence_v1'],
             expectedOwnerId: expectedManualPartnerOwnerId,
             now: now,
           );
+    final typedLppManualPartner = accountabilityOwnerMatches
+        ? _mergeCurrentManualPartnerFacts(rawTypedLppManualPartner)
+        : _restoreIndependentManualPartnerFacts(rawTypedLppManualPartner);
     double? availableLppValue(LppEvidenceFact? fact) {
       if (fact == null || fact.status != LppEvidenceStatus.available) {
         return null;
@@ -4102,7 +4153,7 @@ class CoachProfile {
       tauxConversion: coachTauxConversion ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig: coachTauxConvSuroblig,
       rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
-      rendementCaisse: coachRendementCaisse ?? 0.02,
+      rendementCaisse: coachRendementCaisse,
       salaireAssure: coachSalaireAssure,
       projectedRenteLpp:
           typedLppValue(LppEvidenceFactKey.retirementPensionAnnualChf),
@@ -4380,10 +4431,9 @@ class CoachProfile {
         tauxConversionSuroblig: typedManualPartnerLppValue(
           LppEvidenceFactKey.extraMandatoryConversionRateRatio,
         ),
-        rendementCaisse: typedManualPartnerLppValue(
-              LppEvidenceFactKey.fundReturnRateRatio,
-            ) ??
-            0.02,
+        // A certificate-level caisse rate is not a person-owned fact. Keep it
+        // in review/ledger quarantine, never in calculator-facing scalars.
+        rendementCaisse: null,
         projectedRenteLpp: typedManualPartnerLppValue(
           LppEvidenceFactKey.retirementPensionAnnualChf,
         ),
@@ -4399,7 +4449,13 @@ class CoachProfile {
         deathCoverage: typedManualPartnerLppValue(
           LppEvidenceFactKey.deathCapitalLumpSumChf,
         ),
-        lppEvidenceFacts: typedLppManualPartner?.facts ?? const {},
+        lppEvidenceFacts: typedLppManualPartner == null
+            ? const {}
+            : Map.unmodifiable(
+                Map<LppEvidenceFactKey, LppEvidenceFact>.of(
+                  typedLppManualPartner.facts,
+                )..remove(LppEvidenceFactKey.fundReturnRateRatio),
+              ),
         canContribute3a: !conjIsFatca,
       );
 

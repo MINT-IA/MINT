@@ -717,11 +717,12 @@ class ForecasterService {
     double conjLppBuybackDone = 0;
 
     // --- Monthly rates ---
-    // Use profile-specific caisse rate if it differs from default (2%),
-    // otherwise fall back to scenario assumption rate.
+    // Numeric equality with the former 2% default is not evidence of absence:
+    // an explicitly supplied 2.00% certificate value remains a known fact.
     final profileCaisseRate = profile.prevoyance.rendementCaisse;
-    final effectiveLppRate =
-        (profileCaisseRate != 0.02) ? profileCaisseRate : assumptions.lppReturn;
+    final effectiveLppRate = profile.prevoyance.rendementCaisseConnu
+        ? profileCaisseRate
+        : assumptions.lppReturn;
     final lppMonthlyRate = effectiveLppRate / 12;
     final threeAMonthlyRate = assumptions.threeAReturn / 12;
     final investMonthlyRate = assumptions.investmentReturn / 12;

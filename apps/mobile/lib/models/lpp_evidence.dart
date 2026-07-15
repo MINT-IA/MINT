@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 
 enum LppEvidenceUnit {
   chf('CHF'),
@@ -177,6 +178,8 @@ class LppAcquisitionAuthorization {
     required this.policyVersion,
     required this.declaredAt,
     required this.documentSha256,
+    this.manualPartnerOwnerId,
+    this.receiptId,
   });
 
   static const currentPolicyVersion = 'g1-prov02-v1';
@@ -187,6 +190,8 @@ class LppAcquisitionAuthorization {
   final String policyVersion;
   final DateTime declaredAt;
   final String documentSha256;
+  final String? manualPartnerOwnerId;
+  final String? receiptId;
 
   static String sha256Hex(Uint8List transmittedBytes) =>
       sha256.convert(transmittedBytes).toString();
@@ -211,6 +216,11 @@ class LppAcquisitionAuthorization {
   }
 
   bool isValidAt(DateTime now) {
+    final hasAccountabilityBinding = subject == LppEvidenceOwnerKind.self
+        ? manualPartnerOwnerId == null && receiptId == null
+        : (manualPartnerOwnerId == null && receiptId == null) ||
+            (_isCanonicalUuidV4(manualPartnerOwnerId ?? '') &&
+                _isCanonicalUuidV4(receiptId ?? ''));
     return hasValidEnvelope(
           acquisitionId: acquisitionId,
           subject: subject,
@@ -219,6 +229,7 @@ class LppAcquisitionAuthorization {
           declaredAt: declaredAt,
           now: now,
         ) &&
+        hasAccountabilityBinding &&
         RegExp(r'^[0-9a-f]{64}$').hasMatch(documentSha256) &&
         documentSha256 != _zeroSha256;
   }
@@ -229,6 +240,7 @@ class LppReviewConfirmation {
     required Map<LppEvidenceFactKey, LppReviewedFact> facts,
     required this.sourceDate,
     required this.authorization,
+    this.partnerAccountabilityContext,
   }) : facts = Map.unmodifiable(
           Map<LppEvidenceFactKey, LppReviewedFact>.of(facts),
         );
@@ -236,6 +248,7 @@ class LppReviewConfirmation {
   final Map<LppEvidenceFactKey, LppReviewedFact> facts;
   final DateTime? sourceDate;
   final LppAcquisitionAuthorization authorization;
+  final ManualPartnerAccountabilityContext? partnerAccountabilityContext;
 
   LppEvidenceOwnerKind get subject => authorization.subject;
 }
@@ -384,10 +397,15 @@ class LppEvidenceSnapshot {
   const LppEvidenceSnapshot({
     required this.snapshotId,
     required this.facts,
+    this.independentFacts = const {},
   });
 
   final String snapshotId;
   final Map<LppEvidenceFactKey, LppEvidenceFact> facts;
+  final Map<LppEvidenceFactKey, LppEvidenceFact> independentFacts;
+
+  Iterable<LppEvidenceFact> get identityFacts =>
+      facts.isNotEmpty ? facts.values : independentFacts.values;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'snapshotId': snapshotId,
@@ -395,16 +413,25 @@ class LppEvidenceSnapshot {
           for (final entry in facts.entries)
             entry.key.wireName: entry.value.toJson(),
         },
+        if (independentFacts.isNotEmpty)
+          'independentFacts': <String, dynamic>{
+            for (final entry in independentFacts.entries)
+              entry.key.wireName: entry.value.toJson(),
+          },
       };
 
   static LppEvidenceSnapshot? fromJson(
     Map<String, dynamic> json, {
     required LppEvidenceOwnerKind expectedOwnerKind,
   }) {
-    if (json.length != 2 ||
+    const allowedKeys = {'snapshotId', 'facts', 'independentFacts'};
+    if ((json.length != 2 && json.length != 3) ||
+        json.keys.toSet().difference(allowedKeys).isNotEmpty ||
         json['snapshotId'] is! String ||
         !_isCanonicalUuidV4(json['snapshotId'] as String) ||
-        json['facts'] is! Map) {
+        json['facts'] is! Map ||
+        (json.containsKey('independentFacts') &&
+            json['independentFacts'] is! Map)) {
       return null;
     }
     final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
@@ -432,10 +459,37 @@ class LppEvidenceSnapshot {
       }
       facts[key] = fact;
     }
-    if (facts.isEmpty) return null;
+    final independentFacts = <LppEvidenceFactKey, LppEvidenceFact>{};
+    final rawIndependent = json['independentFacts'];
+    if (rawIndependent is Map) {
+      if (expectedOwnerKind != LppEvidenceOwnerKind.manualPartner) return null;
+      for (final entry in rawIndependent.entries) {
+        final key = LppEvidenceFactKey.fromWireName(entry.key.toString());
+        if (key == null ||
+            entry.value is! Map ||
+            independentFacts.containsKey(key)) {
+          return null;
+        }
+        final fact = LppEvidenceFact.fromJson(
+          Map<String, dynamic>.from(entry.value as Map),
+          key: key,
+          expectedOwnerKind: expectedOwnerKind,
+        );
+        if (fact == null || fact.source != 'userInput') return null;
+        ownerId ??= fact.profileOwnerId;
+        actorId ??= fact.actorProfileOwnerId;
+        if (fact.profileOwnerId != ownerId ||
+            fact.actorProfileOwnerId != actorId) {
+          return null;
+        }
+        independentFacts[key] = fact;
+      }
+    }
+    if (facts.isEmpty && independentFacts.isEmpty) return null;
     return LppEvidenceSnapshot(
       snapshotId: json['snapshotId'] as String,
       facts: Map.unmodifiable(facts),
+      independentFacts: Map.unmodifiable(independentFacts),
     );
   }
 }
@@ -566,8 +620,8 @@ class LppEvidenceRoot {
       }
       if (self != null &&
           manualPartner != null &&
-          manualPartner.facts.values.first.actorProfileOwnerId !=
-              self.facts.values.first.profileOwnerId) {
+          manualPartner.identityFacts.first.actorProfileOwnerId !=
+              self.identityFacts.first.profileOwnerId) {
         return null;
       }
       return LppEvidenceRoot(
@@ -666,7 +720,7 @@ class LppEvidenceSelector {
   }
 
   static String? manualPartnerOwnerId(Object? rawRoot) =>
-      _manualPartnerSnapshot(rawRoot)?.facts.values.first.profileOwnerId;
+      _manualPartnerSnapshot(rawRoot)?.identityFacts.first.profileOwnerId;
 
   static LppEvidenceSnapshot? _manualPartnerSnapshot(Object? rawRoot) {
     final root = _decodeLppRootEnvelope(rawRoot);
@@ -685,8 +739,8 @@ class LppEvidenceSelector {
         expectedOwnerKind: LppEvidenceOwnerKind.self,
       );
       if (self == null ||
-          snapshot.facts.values.first.actorProfileOwnerId !=
-              self.facts.values.first.profileOwnerId) {
+          snapshot.identityFacts.first.actorProfileOwnerId !=
+              self.identityFacts.first.profileOwnerId) {
         return null;
       }
     }
@@ -699,7 +753,10 @@ class LppEvidenceSelector {
   }) {
     final current = (now ?? DateTime.now)().toUtc();
     final currentDay = DateTime.utc(current.year, current.month, current.day);
-    for (final fact in snapshot.facts.values) {
+    for (final fact in <LppEvidenceFact>[
+      ...snapshot.facts.values,
+      ...snapshot.independentFacts.values,
+    ]) {
       final sourceDate = fact.sourceDate;
       if (fact.updatedAt.toUtc().isAfter(current) ||
           (sourceDate != null &&
