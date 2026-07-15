@@ -345,6 +345,7 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
 
     assert "static bool typedLppEvidence = false;" in feature_flags
     assert "static bool documentLppEvidenceEnabled = false;" in feature_flags
+    assert "static bool partnerLppAccountabilityEnabled = false;" in feature_flags
     assert "typedLppEvidence && documentLppEvidenceEnabled" in feature_flags
     assert "document_scan_lpp_type_selector" in scan_screen
 
@@ -375,13 +376,26 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
     assert "MINT_PATROL_CLI" in writer
     assert "FeatureFlags.typedLppEvidence = true;" in writer
     assert "FeatureFlags.documentLppEvidenceEnabled = true;" in writer
+    assert "FeatureFlags.partnerLppAccountabilityEnabled = true;" in writer
     assert "FeatureFlags.typedLppEvidence = false;" in writer
     assert "FeatureFlags.documentLppEvidenceEnabled = false;" in writer
+    assert "FeatureFlags.partnerLppAccountabilityEnabled = false;" in writer
     assert "ReportPersistenceService.clearDiagnostic()" in writer
     assert writer.count("ReportPersistenceService.saveAnswers(") == 1
     assert "ReportPersistenceService.setMiniOnboardingCompleted(true)" in writer
-    assert "pumpWidgetAndSettle(const MintApp())" in writer
-    assert "mint:///scan?type=lppCertificate" in writer
+    assert "MintApp()" not in writer
+    assert "DocumentScanScreen(" in writer
+    assert "ExtractionReviewScreen(" in writer
+    assert "DocumentImpactScreen(" in writer
+    assert "RetirementDashboardScreen()" in writer
+    assert "PartnerAccountabilityExternalGate(" in writer
+    assert "PartnerAccountabilityService(api: partnerApi)" in writer
+    assert "PartnerAccountabilityBindingStore(" in writer
+    assert "persistence: securePersistence" in writer
+    assert "isAuthenticated: () async => true" in writer
+    assert "Uint8List.fromList(" in writer
+    assert "%PDF-1.7 MINT synthetic runtime bytes only" in writer
+    assert "visionExtractor:" in writer
     seed_start = writer.index("await ReportPersistenceService.saveAnswers({")
     seed_end = writer.index("});", seed_start)
     partner_seed = writer[seed_start:seed_end]
@@ -401,45 +415,43 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
         assert forbidden_seed not in partner_seed
     for identifier in (
         "document_scan_lpp_type_selector",
-        "document_scan_lpp_example_cta",
+        "document_scan_gallery_cta",
         "lpp_acquisition_owner_manual_partner",
+        "lpp_partner_notice_continue",
         "lpp_acquisition_partner_attestation",
         "lpp_acquisition_cancel",
-        "lpp_acquisition_partner_attest_confirm",
+        "lpp_partner_authorization_declaration",
+        "lpp_partner_authorization_continue",
         "lpp_review_owner_badge",
-        "lpp_review_restart_owner_cta",
         "lpp_review_source_date",
         "lpp_review_confirm_cta",
-        "lpp_acquisition_owner_self",
+        "lpp_impact_retirement_cta",
+        "retirement_partner_lpp_status_active",
+        "retirement_partner_lpp_rights_link",
     ):
         assert f"#{identifier}" in writer
     assert "#document_scan_lpp_type_selector).waitUntilVisible()" in writer
-    assert "#document_scan_lpp_type_selector).tap()" in writer
-    assert writer.count("#document_scan_lpp_example_cta") >= 3
+    assert writer.count("#document_scan_gallery_cta") == 2
     assert "invitationLevel, 'declared'" in writer
     assert "retainedSessionCount, 0" in writer
-    assert "containsKey('_coach_lpp_evidence_v1')" in writer
     assert "LppEvidenceSelector.selectManualPartner" in writer
     assert "LppEvidenceAuthorizationMode.manualPartnerDeclaration" in writer
-    assert "LppEvidenceSelector.selectSelf" in writer
-    assert "LppEvidenceAuthorizationMode.self" in writer
     assert "authorizationGrantId, isNull" in writer
     assert writer.index("#lpp_acquisition_cancel") < writer.index(
-        "#lpp_acquisition_partner_attest_confirm"
+        "#lpp_partner_authorization_declaration"
     )
-    assert writer.index("#lpp_acquisition_partner_attest_confirm") < writer.index(
-        "#lpp_acquisition_owner_self"
+    assert writer.index("#lpp_partner_authorization_declaration") < writer.index(
+        "#lpp_review_confirm_cta"
     )
-    assert "find.byKey(const Key('lpp_review_subject_self')),\n        findsNothing" in writer
-    assert (
-        "find.byKey(const Key('lpp_review_subject_manual_partner')),\n"
-        "        findsNothing" in writer
+    assert writer.index("#lpp_review_confirm_cta") < writer.index(
+        "#retirement_partner_lpp_status_active"
     )
-    assert "find.bySemanticsIdentifier('document_impact_return_cta')" in writer
-    assert re.search(
-        r"document_impact_return_cta'\)\)\s*\.waitUntilExists\(\)",
-        writer,
-    )
+    assert "partnerApi.receiptCreates, 0" in writer
+    assert "partnerApi.receiptCreates, 1" in writer
+    assert "activeBinding.receiptId, runtimeReceiptId" in writer
+    assert "activeBinding.state, PartnerAccountabilityBindingState.active" in writer
+    assert "File(ownedTempPath!).existsSync(), isFalse" in writer
+    assert "partnerApi.erases, 0" in writer
 
     fact_keys = (
         "vestedBenefitsCapitalChf",
@@ -462,30 +474,55 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
     for critical_value in ("31450", "485200", "36800", "175000", "220500"):
         assert critical_value in writer
         assert critical_value in reader
+    assert "final _runtimeNow = DateTime.now().toUtc();" in writer
+    assert "final _runtimeNow = DateTime.now().toUtc();" in reader
+    assert (
+        "final _runtimeExpiry = _runtimeNow.add(const Duration(days: 365));"
+        in writer
+    )
+    assert (
+        "final _runtimeExpiry = _runtimeNow.add(const Duration(days: 365));"
+        in reader
+    )
+    assert "effectiveAt: _runtimeNow.subtract(const Duration(days: 1))" in writer
+    assert "expiresAt: _runtimeExpiry" in writer
+    assert "DateTime.utc(2027, 7, 15" not in writer
+    assert "DateTime.utc(2027, 7, 15" not in reader
 
     for bypass in (
         "acceptLppReview(",
         "MINT_LPP_PRIVATE_MANIFEST",
         "Directory.",
+        "Télécharger le certificat de prévoyance.pdf",
+        "Certificat_Lauren.jpeg",
     ):
         assert bypass not in writer
-    assert "File(" not in writer
 
     assert "patrolTest(" in reader
     assert "MINT_PATROL_CLI" in reader
     assert "FeatureFlags.typedLppEvidence = true;" in reader
     assert "FeatureFlags.documentLppEvidenceEnabled = true;" in reader
+    assert "FeatureFlags.partnerLppAccountabilityEnabled = true;" in reader
     assert "FeatureFlags.typedLppEvidence = false;" in reader
     assert "FeatureFlags.documentLppEvidenceEnabled = false;" in reader
-    assert "pumpWidgetAndSettle(const MintApp())" in reader
-    assert "waitForReportAnswers()" in reader
+    assert "FeatureFlags.partnerLppAccountabilityEnabled = false;" in reader
+    assert "MintApp()" not in reader
+    assert "RetirementDashboardScreen()" in reader
+    assert "PartnerAccountabilityService(api: partnerApi)" in reader
+    assert "PartnerAccountabilityBindingStore(" in reader
+    assert "persistence: securePersistence" in reader
+    assert "await provider.loadFromWizard();" in reader
+    assert "partnerApi.statusReads, 1" in reader
+    assert "PartnerAccountabilityBindingState.active" in reader
+    assert "#retirement_partner_lpp_status_active" in reader
+    assert "#retirement_partner_lpp_rights_link" in reader
     assert "LppEvidenceRoot.fromJsonString" in reader
     assert "LppEvidenceSelector.selectSelf" in reader
+    assert "expect(root!.self, isNull)" in reader
     assert "manualPartner, isNotNull" in reader
     assert "LppEvidenceSelector.manualPartnerOwnerId" in reader
     assert "LppEvidenceSelector.selectManualPartner" in reader
     assert "legacyPartnerQuarantine, isNull" in reader
-    assert "LppEvidenceAuthorizationMode.self" in reader
     assert "LppEvidenceAuthorizationMode.manualPartnerDeclaration" in reader
     assert "authorizationGrantId, isNull" in reader
     assert "ProfileDataSource.certificate" in reader
@@ -502,9 +539,13 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
         "enterText(",
         "MINT_LPP_PRIVATE_MANIFEST",
         "Directory.",
+        "Télécharger le certificat de prévoyance.pdf",
+        "Certificat_Lauren.jpeg",
     ):
         assert bypass not in reader
     assert "File(" not in reader
+    assert writer.count("mint_g1_prov02_patrol_binding_v2") == 1
+    assert reader.count("mint_g1_prov02_patrol_binding_v2") == 1
 
     assert (
         "../../integration_test/"
