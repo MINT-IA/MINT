@@ -1,0 +1,124 @@
+%% G1 BND-02A/BND-02 accepted target interaction. Implementation/activation NO-GO.
+%% Companion: SCREEN_CONTRACTS.md section 5.1 and DATA_LEDGER.md BND-02A architecture.
+flowchart TD
+  START["Scan LPP entry<br/>all partner flags default OFF"]
+  OWNER{"À qui appartient<br/>le certificat ?"}
+  SELF["Self path<br/>PROV-02 contract"]
+  LOCAL{"CoachProfile.conjoint exists?<br/>No HouseholdProvider predicate"}
+  NO_PARTNER["Offer self only<br/>never synthesize partner<br/>never force account link"]
+
+  subgraph PRE["Partner pre-acquisition — no picker or bytes"]
+    direction TD
+    EXT{"External facts current?<br/>published notice + controller/contact<br/>transfer/retention + rights + AIPD"}
+    BLOCKED["Blocked recovery<br/>no permission, picker, bytes,<br/>receipt, network or ledger write"]
+    NOTICE["Versioned concise notice<br/>full notice + rights link<br/>account-free access"]
+    AUTH{"Acting user JWT current?"}
+    LOGIN["Reconnect acting user<br/>resume exact notice step<br/>partner account/link not required"]
+    DECLARE{"Explicit represented-authorization<br/>declaration checked?<br/>one-shot LPP only"}
+    IDS["Reuse or allocate owner UUIDv4<br/>generate receipt UUIDv4 once"]
+    BIND_PENDING["Write strict-secure pending binding<br/>shadow prior active binding for owner"]
+    PERMISSIONS["Technical permissions<br/>visionExtraction + transferUsAnthropic<br/>never persistence365d"]
+    ROLLBACK["Safe rollback<br/>erase new pending binding<br/>restore explicitly shadowed active binding"]
+  end
+
+  subgraph LOCAL_FILE["Local file stage"]
+    direction TD
+    RECHECK{"Revalidate external facts"}
+    PICKER["Open local picker"]
+    CANCEL["Cancel<br/>no receipt"]
+    PREPARE["Prepare exact bytes locally<br/>owner + receipt ids already pending<br/>never allocate again"]
+  end
+
+  subgraph ACCOUNTABILITY["Metadata-only accountability network"]
+    direction TD
+    RECEIPT["partner_accountability_receipts<br/>create or exact-id retry receipt<br/>actor server-derived + owner HMAC<br/>exact versions/purpose<br/>NO PII, IP, SHA, acquisition id or value"]
+    RECEIPT_ACTIVE{"Exact receipt active?"}
+    RECEIPT_FAIL{"Retryable receipt error?"}
+    RECEIPT_RETRY["Exact-id retry<br/>zero document-byte network"]
+  end
+
+  subgraph DOCUMENT["Authenticated document path"]
+    direction TD
+    EXTRACT["Direct extract-vision request<br/>document + manualPartner + receiptId<br/>backend validates before Anthropic"]
+    REVIEW["Review canonical facts<br/>owner immutable + source date<br/>caisse rate visibly quarantined"]
+    SAVE["Verify existing pending + exact owner<br/>save complete secure root<br/>activate same binding — no second pending write"]
+    IMPACT["Scan impact<br/>CTA to RetirementDashboard"]
+  end
+
+  subgraph COLD["Cold status and real BND-02 consumer"]
+    direction TD
+    VERIFY{"Exact owner binding + backend<br/>receipt current after restart?"}
+    ACTIVE["Select partner certificate facts<br/>MintStateEngine to ForecasterService<br/>recompute exactly once"]
+    DASH["RetirementDashboard<br/>changed ranged household result<br/>source + freshness + expiry + rights"]
+    PARTIAL["partial+ask<br/>exclude receipt-bound facts<br/>never cached GREEN or CHF 0"]
+    INVALIDATE["expired, revoked, erased or mismatch<br/>targeted invalidation<br/>recompute exactly once"]
+    RESTORE{"Independent userInput exists?"}
+    MANUAL["Restore it automatically<br/>mark à confirmer"]
+    ASK["One highest-impact Ask<br/>annual pension else current capital<br/>Je ne sais pas + dismiss"]
+    RETRY["Retry status or restart at current notice<br/>rights link stays account-free"]
+  end
+
+  DEFERRED["direct_partner_confirmation deferred<br/>no CTA, route or endpoint facade"]
+  QUARANTINE["fundReturnRateRatio<br/>never conjoint.rendementCaisse<br/>never calculator input"]
+
+  START --> OWNER
+  OWNER -->|self| SELF
+  OWNER -->|manualPartner candidate| LOCAL
+  LOCAL -->|no| NO_PARTNER
+  LOCAL -->|yes| EXT
+  EXT -->|missing or stale| BLOCKED
+  EXT -->|current| NOTICE
+  NOTICE --> AUTH
+  NOTICE -. "public notice and rights" .-> RETRY
+  AUTH -->|no| LOGIN
+  LOGIN --> NOTICE
+  AUTH -->|yes| DECLARE
+  DECLARE -->|unchecked or cancel| NOTICE
+  DECLARE -->|checked| IDS
+  IDS --> BIND_PENDING
+  BIND_PENDING --> PERMISSIONS
+  PERMISSIONS -->|denied or cancel| ROLLBACK
+  PERMISSIONS --> RECHECK
+  RECHECK -->|stale| ROLLBACK
+  RECHECK -->|current| PICKER
+  PICKER -->|cancel| ROLLBACK
+  PICKER -->|file chosen| PREPARE
+  PREPARE --> RECEIPT
+  RECEIPT --> RECEIPT_ACTIVE
+  RECEIPT_ACTIVE -->|no| RECEIPT_FAIL
+  RECEIPT_FAIL -->|yes| RECEIPT_RETRY
+  RECEIPT_RETRY -->|same logical ids| RECEIPT
+  RECEIPT_FAIL -->|terminal or cancel| ROLLBACK
+  ROLLBACK --> CANCEL
+  RECEIPT_ACTIVE -->|yes| EXTRACT
+  EXTRACT --> REVIEW
+  REVIEW -. "caisse fact excluded" .-> QUARANTINE
+  REVIEW -->|confirm| SAVE
+  SAVE -->|whole-root success| IMPACT
+  SAVE -->|crash or failure| PARTIAL
+  IMPACT --> VERIFY
+  VERIFY -->|active + exact owner| ACTIVE
+  ACTIVE --> DASH
+  VERIFY -->|loading, offline or unverifiable| PARTIAL
+  VERIFY -->|expired, revoked, erased or mismatch| INVALIDATE
+  INVALIDATE --> RESTORE
+  PARTIAL --> RESTORE
+  RESTORE -->|yes| MANUAL
+  RESTORE -->|no| ASK
+  MANUAL --> DASH
+  ASK --> DASH
+  PARTIAL --> RETRY
+  RETRY --> VERIFY
+  NOTICE -. "future distinct design only" .-> DEFERRED
+
+  classDef gate fill:#FFF4D6,stroke:#8A6414,color:#3B2B08;
+  classDef blocked fill:#FDECEC,stroke:#A43A3A,color:#5C1717;
+  classDef durable fill:#E6F4F1,stroke:#176B5B,color:#103F36;
+  classDef consumer fill:#EAF0FF,stroke:#315DA8,color:#18355F;
+  classDef deferred fill:#F1F1F1,stroke:#777,color:#333,stroke-dasharray: 5 5;
+
+  class OWNER,LOCAL,EXT,AUTH,DECLARE,RECHECK,RECEIPT_ACTIVE,RECEIPT_FAIL,VERIFY,RESTORE gate;
+  class BLOCKED,ROLLBACK,PARTIAL,INVALIDATE blocked;
+  class IDS,BIND_PENDING,RECEIPT,RECEIPT_RETRY,SAVE durable;
+  class ACTIVE,DASH,MANUAL,ASK consumer;
+  class DEFERRED,QUARANTINE deferred;

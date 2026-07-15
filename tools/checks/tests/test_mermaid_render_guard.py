@@ -7,10 +7,20 @@ from pathlib import Path
 from tools.checks import mermaid_render_guard
 
 
+def test_mermaid_render_guard_registers_partner_lpp_accountability_flow() -> None:
+    assert Path("docs/codex/PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd") in (
+        mermaid_render_guard.REQUIRED_DIAGRAMS
+    )
+
+
 def _root(tmp_path: Path) -> Path:
     diagrams = tmp_path / "docs/codex"
     diagrams.mkdir(parents=True)
     (diagrams / "WIRING_GRAPH.mmd").write_text("flowchart LR\n  A-->B\n", encoding="utf-8")
+    (diagrams / "PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd").write_text(
+        "flowchart LR\n  Partner-->Receipt\n",
+        encoding="utf-8",
+    )
     journey_diagrams = tmp_path / ".planning/journeys/diagrams"
     journey_diagrams.mkdir(parents=True)
     (journey_diagrams / "data_quest_loop.mmd").write_text(
@@ -115,6 +125,7 @@ def test_mermaid_render_guard_includes_optional_journey_diagrams(monkeypatch, tm
     assert mermaid_render_guard.check(root) == []
     assert rendered == [
         "docs/codex/WIRING_GRAPH.mmd",
+        "docs/codex/PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd",
         ".planning/journeys/diagrams/data_quest_loop.mmd",
         ".planning/journeys/diagrams/independent_protection.mmd",
         ".planning/journeys/diagrams/interaction_graph.mmd",

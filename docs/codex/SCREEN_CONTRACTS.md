@@ -433,15 +433,246 @@ class ScanSessionPayload {
 |---|---|
 | shell | root |
 | purpose | Capture or pick a document (LPP cert, AVS extract, tax cert). |
-| reads | optional `DocumentType.name` from query `type`; local feature flags; for LPP, exact `CoachProfile.conjoint != null` to decide whether `manualPartner` may be offered; profile canton for backend extraction and age only for AVS parsing |
+| reads | optional `DocumentType.name` from query `type`; local feature flags; for LPP, exact `CoachProfile.conjoint != null` to decide whether `manualPartner` may be offered; profile canton for backend extraction and age only for AVS parsing. `HouseholdProvider`, membership, invitation and account-link state are never part of this owner predicate |
 | writes | no ledger fact. After a successful extraction/adaptation, `retainExtraction(...)` creates the volatile session payload used by review |
-| entryConditions | route available behind `enableScan`; camera/file permission. LPP is selectable and its handlers are callable only when `typedLppEvidence && documentLppEvidenceEnabled`. After that guard, fix owner before acquisition; offer partner only for `CoachProfile.conjoint != null`; require the one-shot partner attestation when selected; require Vision + US-transfer consent; only then open camera/picker/read bytes |
+| entryConditions | route available behind `enableScan`; camera/file permission. LPP is selectable and its handlers are callable only when `typedLppEvidence && documentLppEvidenceEnabled`. The self path keeps the PROV-02 gate. The `manualPartner` option is offered only for exact `CoachProfile.conjoint != null`, but cannot activate on the current one-shot attestation: §5.1 requires represented authorization + external facts + authenticated actor + pending binding before permission/picker, then an active receipt after local choice and before document-byte network |
 | emptyState | No camera/no doc selected → guide card + "Scanner mon certificat" CTA + `/scan/avs-guide`. i18n `scan.empty.title` / `scan.empty.cta` |
 | partialState | Local `_isProcessing` is true during extraction → progress UI; this is screen state, not a persisted session status |
 | errorState | Permission denied/OCR failure → localized recovery. LPP plan, unknown, lower-confidence or classifier failure → neutral personal-certificate recovery with no review/session/write |
 | routesOut | `/scan/review?scanSessionId=…`, `/scan/avs-guide`, `/data-block/:type` |
-| privacyInvariant | LPP camera/gallery asks only `visionExtraction + transferUsAnthropic`, never `persistence365d`, and does so before camera/picker. Before network, bind the exact transmitted-byte SHA to a volatile per-attempt authorization. Authorization/SHA never enter ledger, provenance, Biography, route/query, backend payload, logs or analytics; image/PDF uses direct candidate extraction, PDF skips persistent upload, and LPP BYOK/fused/SSE paths are unreachable |
+| privacyInvariant | LPP camera/gallery asks only `visionExtraction + transferUsAnthropic`, never `persistence365d`, and does so before camera/picker. For self, the exact transmitted-byte SHA remains volatile under PROV-02. For `manualPartner`, §5.1 additionally requires the minimized receipt after local file choice and before any document-byte network; the receipt contains no SHA/acquisition id/value. Authorization/SHA never enter ledger, provenance, Biography, route/query, logs or analytics; image/PDF uses direct candidate extraction, PDF skips persistent upload, and LPP BYOK/fused/SSE paths are unreachable |
 | killFlag | enableScan; LPP content additionally requires the local composite gate above |
+
+### 5.1 G1 BND-02A/BND-02 — TARGET progressive partner-LPP contract
+
+**Status:** accepted interaction contract; implementation and activation remain
+blocked. This section replaces the current proxy-attestation wording for the
+`manualPartner` branch only. It does not make that branch live, does not publish
+the non-publishable notice contract, and does not authorize G2/G3. System and
+lifecycle wiring are frozen in `DATA_LEDGER.md`; the focused control/state map
+is `PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd`.
+
+#### Preconditions and non-preconditions
+
+- The owner question is first. `manualPartner` is offered **only** when
+  `CoachProfile.conjoint != null`, exactly as in PROV-02. A linked household,
+  invitation, membership, `HouseholdProvider.partner` or partner MINT account
+  neither creates nor authorizes that choice. Conversely, none is required.
+- Selecting `manualPartner` never creates a synthetic/minimal partner profile.
+  When the local partner context is absent, the screen offers only `self`; it
+  must not route the user into account linking as a hidden prerequisite.
+- The acting user must have a current authenticated MINT session before making
+  the declaration or creating a receipt. The notice and partner-rights link
+  remain readable without a partner account and without account linking. If the
+  acting session is absent, the login recovery returns to this exact owner and
+  notice step; no picker, byte read, receipt or ledger write has occurred.
+- A prior manual-partner owner UUID is reused from the strict-secure root or
+  binding when present. Otherwise one UUIDv4 is preallocated once after the
+  external gate + authenticated declaration and before permission/picker. A
+  logical receipt UUIDv4 is generated at the same point, and their pending
+  binding is written immediately. Both ids are reused unchanged by receipt and
+  reviewed root save. They are never rendered, logged, placed in a route, or
+  derived from partner identity.
+- All default-off feature flags and the exact external facts from
+  `partner_lpp_notice_contract_v1.md` must be current. A missing/expired
+  controller/contact, notice/policy version, transfer guarantee, retention,
+  rights channel or AIPD verdict blocks before permission, picker and bytes.
+
+#### Ordered interaction — one meaningful decision at a time
+
+This is a progressive acquisition, never a generic partner profile or consent
+form:
+
+1. **Owner.** Show the existing self/partner choice. Freeze the selected
+   `manualPartner` subject; changing it means cancel/restart, never editing it on
+   review.
+2. **External gate.** Resolve the exact, dated, publishable notice descriptor.
+   Failure renders the blocked recovery below and performs zero acquisition
+   side effects.
+3. **Notice + rights.** Show a concise summary, immutable notice version,
+   controller/contact, actual transfer/retention facts, `Voir la notice` and
+   `Exercer un droit`. The full notice is accessible/shareable without partner
+   account or account link.
+4. **Acting-user authorization.** After authentication, require an unchecked
+   explicit declaration that the acting user is authorized for this one-shot
+   LPP extraction and made that exact notice accessible. It is never direct
+   partner consent, an opposable declaration, a mandate, or reusable permission.
+5. **Prepare the accountability operation.** Reuse or allocate the exact owner
+   UUIDv4, generate the logical `receiptId` once, then write their strict-secure
+   `pending` binding. This happens after the current external gate,
+   authentication and explicit declaration, but before permission or picker.
+   The pending entry shadows any older active binding for that owner so no new
+   root can ever validate against an old receipt.
+6. **Technical permissions.** Request only `visionExtraction` and
+   `transferUsAnthropic`. These are acting-user technical permissions and never
+   substitute for step 4. The existing `persistence365d` purpose is forbidden.
+   Permission denial rolls back the new pending binding and explicitly restores
+   the older active binding it shadowed, when one exists.
+7. **Local file choice.** Revalidate the external gate, then open the picker.
+   Cancellation creates no receipt and performs the same explicit safe rollback
+   to the prior active binding. Compression/preparation remains local and uses
+   the ids already frozen in `pending`.
+8. **Minimized receipt.** After a file was chosen, create/verify the isolated
+   receipt using the already-pending `receiptId` and exact owner token. This
+   metadata-only accountability call is the only network permitted between the
+   local file choice and the document request. No document byte may leave the
+   device until the receipt is active for this actor, owner, purpose and
+   notice/policy version. Retry reuses the same logical ids. Cancel or terminal
+   receipt failure erases the pending binding, restores its explicitly shadowed
+   prior active binding, and schedules any created orphan receipt for its
+   idempotent erasure path.
+9. **Extraction.** Send only the prepared document plus
+   `subjectKind=manualPartner` and `receiptId` to the authenticated direct Vision
+   path. `/consents/grant-nominative`, linked-grant, BYOK, fused, SSE and
+   persistent-upload paths remain unreachable.
+10. **Review.** Render the immutable partner owner badge, source date and
+   canonical editable facts. Show `fundReturnRateRatio`, if present, only as
+   `information de la caisse — non utilisée dans cette simulation`; never feed
+   it to `conjoint.prevoyance.rendementCaisse` or a calculator.
+11. **Atomic save.** On confirmation, first verify the already-written pending
+    binding and exact owner; do **not** allocate ids or save a second pending
+    binding. Then save the complete secure LPP root with that owner → activate
+    that same binding → publish profile → recompute once. Any failure leaves the
+    previous profile/results visible and the new partner slot unavailable.
+12. **Visible benefit.** `/scan/impact` offers `Voir l'effet sur ma vue retraite`
+    to `/retraite`. `RetirementDashboardScreen` must visibly identify the active
+    partner-certificate source/freshness and show the changed ranged household
+    result; merely listing the fact on scan impact does not close BND-02.
+
+#### Control and stable-id registry
+
+| screen/state | stable id | action and contract |
+|---|---|---|
+| `/scan` owner | `lpp_acquisition_owner_manual_partner` | select only the existing local `conjoint`; no account-link read/write |
+| blocked external gate | `lpp_partner_external_gate_blocked` | explain that no document was opened/sent; primary back/cancel, no picker CTA |
+| notice summary | `lpp_partner_notice_gate` | render exact versioned descriptor, not a placeholder or historical privacy copy |
+| notice version | `lpp_partner_notice_version` | visible immutable `noticeVersion` + effective date |
+| full notice | `lpp_partner_notice_open` | public/account-free notice access |
+| partner rights | `lpp_partner_rights_link` | public/account-free contact and privacy-rights channel; present before acquisition and in every later status |
+| authorization check | `lpp_partner_authorization_declaration` | initially unchecked; proxy declaration semantic only |
+| authorization CTA | `lpp_partner_authorization_continue` | disabled until current auth + explicit check + current external gate |
+| auth recovery | `lpp_partner_auth_required` | login then resume at notice; never ask the partner to create/link an account |
+| receipt progress/error | `lpp_partner_receipt_pending`, `lpp_partner_receipt_retry` | pending binding already exists; no document-byte network while pending/error; exact-id retry only, cancel/terminal error safely rolls back to the shadowed active binding |
+| review | existing `lpp_review_owner_badge`, `lpp_review_confirm_cta` | owner immutable; pending binding required before secure root save |
+| review caisse fact | `lpp_review_caisse_rate_quarantined` | visible source fact, explicitly excluded from computation |
+| scan impact | `lpp_impact_retirement_cta` | route to `/retraite`; no second write |
+| dashboard active | `retirement_partner_lpp_status_active` | active backend status + exact owner + expiry + source/freshness |
+| dashboard partial | `retirement_partner_lpp_status_partial` | unknown/not-used state, never CHF 0 or stale result |
+| dashboard retry | `retirement_partner_lpp_retry_status` | reverify exact receipt status; no duplicate receipt |
+| dashboard manual recovery | `retirement_partner_lpp_manual_recovery` | restore an existing independent `userInput` automatically, otherwise open one highest-impact Ask |
+| dashboard rights | `retirement_partner_lpp_rights_link` | same account-free notice/rights channel |
+
+No control, route or endpoint for `direct_partner_confirmation` is included.
+That optional distinct receipt is explicitly deferred until it has its own real
+public caller and rights flow; a disabled or decorative CTA would be a facade.
+
+The live `ScanSessionPayload` shown in §5.0 has no accountability context yet.
+The target implementation adds one typed, volatile
+`ManualPartnerAccountabilityContext` **only when** the candidate subject is
+`manualPartner`: `{receiptId, manualPartnerOwnerId, expiresAt, noticeVersion,
+policyVersion, receiptStatus=active}`. It is retained atomically with candidate
++ acquisition authorization, never reconstructed from route/profile/household,
+and never contains backend actor/owner HMACs. Review verifies the already
+durable pending binding from this context; `retainImpact` drops it only after
+that same binding is active.
+
+#### Cold start and degraded-state matrix
+
+| binding/backend status | ledger and recompute behavior | visible recovery |
+|---|---|---|
+| exact owner + active + current versions | expose receipt-bound partner certificate facts, recompute once, render active source/freshness/expiry | notice + rights remain accessible |
+| cold start while status is loading | do not expose receipt-bound facts; render `partial+ask`, not cached GREEN | `Vérifier maintenant`; keep independent facts/results only |
+| offline/timeout/unverifiable | same `partial+ask`; no stale partner result and no automatic new receipt | retry status; explain that partner certificate figures are temporarily excluded |
+| expired | invalidate only receipt-bound certificate presentation and dependent results | `Renouveler et relire le certificat` starts at current notice; no silent revival |
+| revoked | same targeted invalidation, then recompute exactly once | notice/rights + optional fresh represented declaration; never relabel as direct consent |
+| erased/owner mismatch/missing binding | fail closed and sever the unusable binding | restart acquisition; no hydration by name, household or legacy receipt |
+| save crash with pending binding | new slot remains unselectable; previous canonical state stays intact | retry exact save or safe rollback; rollback erases pending and explicitly restores the older active binding it shadowed |
+
+An independent manual partner declaration (`source=userInput`) is a different
+provenance path. It is never removed by receipt expiry/revocation/erasure. If an
+older independent fact exists, the dashboard restores it automatically after
+targeted invalidation and marks it `à confirmer`. Otherwise the dashboard asks
+only the first missing fact that can change its named result — annual partner
+LPP pension when directly consumable, otherwise current total LPP capital —
+with `Je ne sais pas` and dismiss controls. It must not open a complete LPP
+form, ask a fresh known fact again, or ask for the caisse rate.
+
+#### User-facing copy and six-ARB contract
+
+No value below may be shipped while the legal notice remains non-publishable.
+When external facts are verified, every key exists with equivalent semantics in
+`app_{fr,en,de,es,it,pt}.arb`; controller/contact/version/regions/guarantee/
+retention/effective date are injected only from the verified notice descriptor.
+
+| ARB key | canonical French meaning / constraint |
+|---|---|
+| `lppPartnerNoticeTitle` | `Avant de lire le certificat de ton/ta partenaire` |
+| `lppPartnerNoticeSummary` | explains one-shot LPP reading, actual recipient/regions/retention, raw non-retention and confirmed-figures storage; no DPF/ZDR placeholder |
+| `lppPartnerNoticeVersion` | `Notice {version} — en vigueur depuis le {effectiveDate}` |
+| `lppPartnerNoticeOpen` | `Voir la notice` |
+| `lppPartnerRightsOpen` | `Exercer un droit ou contacter MINT` |
+| `lppPartnerNoLinkedAccount` | `Ton/ta partenaire n'a pas besoin de créer ou de lier un compte MINT.` |
+| `lppPartnerAuthorizationDeclaration` | `Je déclare être autorisé·e par mon/ma partenaire, uniquement pour faire lire ce certificat LPP une fois, et avoir rendu la notice {version} accessible.` |
+| `lppPartnerAuthorizationContinue` | `Choisir le certificat` — never `Accepter le consentement` |
+| `lppPartnerExternalGateBlocked` | says the partner path is unavailable and **no document was opened or sent**; it does not invent the missing legal fact |
+| `lppPartnerAuthRequired` | says the acting user must reconnect; it never asks the partner to authenticate |
+| `lppPartnerReceiptFailed` | says nothing was sent and offers exact-id retry or cancel |
+| `lppPartnerStatusActive` | `Déclaration vérifiée jusqu'au {date}`; never `Partenaire consentant` |
+| `lppPartnerStatusNeedsVerification` | says certificate figures are temporarily excluded while status is unverifiable |
+| `lppPartnerStatusExpired`, `lppPartnerStatusRevoked` | distinguish lifecycle cause and explain targeted result refresh |
+| `lppPartnerManualRecovery` | invites one independent manual value, marked `à confirmer`, without implying certificate evidence |
+| `lppPartnerCaisseRateExcluded` | `Taux indiqué par la caisse — non utilisé dans cette simulation.` |
+| `lppPartnerRetirementBenefitChanged` | identifies which ranged household result changed after review and keeps source/confidence visible; no promise or recommendation |
+
+The current `lppAcquisitionPartnerAttestationBody` and
+`consentPurposeTransferUsAnthropicWhy` are **not activation-ready**: the former
+must no longer claim that a partner was informed merely from the acting user's
+check, and the latter must not claim ZDR or a future hosting migration without
+verified applicable proof. Their six-language replacements are a blocking
+semantic gate, not a wording polish. All strings also pass ARB parity, French
+accent lint, banned-term scan and no-advice review.
+
+#### Exact semantic RED→GREEN proof
+
+The registry's combined mobile command remains:
+
+```bash
+cd apps/mobile && flutter test \
+  test/providers/partner_financial_consent_lifecycle_test.dart \
+  test/providers/household_bridge_recompute_test.dart \
+  test/screens/coach/manual_partner_lpp_accountability_rendering_test.dart \
+  --reporter expanded
+```
+
+The tests first fail on behavior assertions, never missing imports/fixtures:
+
+1. `partner_financial_consent_lifecycle_test.dart` proves exact owner predicate,
+   account-link independence, acting-user auth, public notice/rights, external
+   fail-closed zero side effects, pending-before-permission/picker,
+   picker-before-receipt, receipt-before-document network, exact-id retry,
+   explicit prior-binding restoration on denial/cancel/terminal error, save
+   ordering without a second pending write, cold status verification and
+   expired/revoked/erased/offline targeted invalidation + independent-fact
+   restoration.
+2. `household_bridge_recompute_test.dart` proves one active owner-matched
+   certificate fact changes `MintStateEngine -> ForecasterService` exactly once,
+   removal restores remaining canonical `userInput` facts and recomputes once,
+   missing partner data stays unknown rather than zero, `HouseholdProvider`
+   membership never gates the fact, and certificate `fundReturnRateRatio`
+   changes no result.
+3. `manual_partner_lpp_accountability_rendering_test.dart` proves every stable
+   id above, represented-authorization semantics, notice/version/rights access,
+   no partner-account CTA, immutable review owner, caisse quarantine label,
+   active/partial dashboard states, visible changed ranged result and one-Ask
+   recovery. It also scans all six ARBs to reject direct-consent/opposable,
+   blanket-permission, unverified DPF/ZDR and promissory/advice semantics.
+
+Keep `test/screens/document_scan/lpp_pre_upload_authorization_test.dart` as the
+PROV-02 regression for flags, owner-before-picker and byte/SHA volatility. Then
+run `flutter gen-l10n`, `python3 tools/checks/arb_parity.py`, Doctor, the focused
+Mermaid render, Maestro for visible state transitions and Patrol for the real
+picker/input proof. Until those proofs and the external legal facts are GREEN,
+the partner runtime remains default-off and G1 remains NO-GO.
 
 ### `/scan/avs-guide` — AVS extract guide
 | | |
@@ -464,16 +695,16 @@ class ScanSessionPayload {
 | shell | root |
 | purpose | Review + confirm OCR figures before any compute (OCR confirm gate). |
 | reads | `ScanSessionProvider.byId(query['scanSessionId'])` → retained extraction plus optional typed candidate and volatile LPP authorization; current `CoachProfile` for before/after confidence and the provider's manual-partner fail-closed recheck |
-| writes | LPP only: one `LppReviewConfirmation(authorization: retainedAuthorization) → CoachProfileProvider.acceptLppReview` call, then `retainImpact` after the awaited secure save. `subject` is derived from authorization, never supplied independently. Tax uses its typed review writer; existing non-LPP types retain their own reviewed writer. LPP never calls `applySaveFact`, a legacy LPP writer, Biography or generic backend sync |
-| entryConditions | non-empty `scanSessionId` resolving in the volatile registry. LPP additionally requires the composite flag, an exact canonical raw-free candidate matching every rendered field, and its complete paired authorization. Missing/evicted authorization uses recovery; it is never reconstructed after process death |
+| writes | LPP only: self keeps one `LppReviewConfirmation(authorization: retainedAuthorization) → CoachProfileProvider.acceptLppReview` call, then `retainImpact` after the awaited secure save. Under §5.1, `manualPartner` verifies the already-persisted pending binding from the exact typed accountability context → saves the complete secure root with that owner → activates that same binding before profile publication; it never writes a second pending binding, and missing/inactive context rejects before persistence load. `subject` is derived from authorization, never supplied independently. Tax uses its typed review writer; existing non-LPP types retain their own reviewed writer. LPP never calls `applySaveFact`, a legacy LPP writer, Biography or generic backend sync |
+| entryConditions | non-empty `scanSessionId` resolving in the volatile registry. LPP additionally requires the composite flag, an exact canonical raw-free candidate matching every rendered field, and its complete paired authorization. Under §5.1, `manualPartner` also requires the exact active receipt/owner/version context. Missing/evicted authorization or accountability context uses recovery; neither is reconstructed after process death |
 | emptyState (LIVE) | id missing/evicted/cold-restart → localized AppBar+back recovery scaffold; stable `scan_review_recovery_cta` routes to `/scan` |
 | disabledState (LIVE, LPP) | either LPP flag false → `lpp_review_disabled_recovery`; missing/mismatched candidate or authorization → `lpp_review_missing_candidate_recovery`. Both expose back/cancel recovery and no writer CTA |
 | partialState (LIVE, LPP) | preserve source overall/per-field confidence and `needsReview`; request effective date and editable canonical values. Untouched documentary facts require a valid non-future date; corrected facts become `userInput` with null source date; untouched derived balance facts do not persist unless edited |
 | validationInvariant (LPP) | validate canonical key/value/unit and `LppBalanceCoherence` without reopening owner choice. Component > total or a three-part difference above CHF 1 shows localized `lpp_review_balance_error`; persistence and navigation remain untouched |
-| ownerInvariant (LPP) | owner was fixed before acquisition and is rendered as a non-editable badge. A mistake requires `Recommencer`. `manualPartner` requires the one-shot attestation and `CoachProfile.conjoint != null`; account linking remains optional. The route supplies no owner/actor/grant token; the provider revalidates authorization before persistence load, then assigns pseudonymous identity and persists only `manualPartnerDeclaration` with `grantId=null` |
+| ownerInvariant (LPP) | owner was fixed before acquisition and is rendered as a non-editable badge. A mistake requires `Recommencer`. `manualPartner` requires exact `CoachProfile.conjoint != null`, the §5.1 represented-authorization receipt and authenticated acting user; account linking remains optional and `HouseholdProvider` is irrelevant. The route supplies no owner/actor/grant token. The provider revalidates authorization + owner-matched accountability context before persistence load, then persists only `manualPartnerDeclaration` with `grantId=null` |
 | errorState (LIVE, LPP) | invalid/missing/future date or incoherent edit stays on the editable review. Secure save failure re-enables confirmation and retains the review; no fallback, success screen, impact transfer or partial publication |
 | routesOut | `/scan/impact?scanSessionId=…`, `/scan`, `/data-block/:type` |
-| privacyInvariant (LPP) | candidate/review fields contain no OCR passage, source label, warning or diagnostic. The volatile authorization/SHA stays only in the bounded session and is dropped by `retainImpact`; it is never serialized. Route and query contain only `scanSessionId` |
+| privacyInvariant (LPP) | candidate/review fields contain no OCR passage, source label, warning or diagnostic. The volatile authorization/SHA stays only in the bounded session and is dropped by `retainImpact`; it is never serialized. Under §5.1, the typed receipt/owner context also stays out of route, query, financial root, provenance and impact payload, and enters only the separate pending/active binding. Route and query contain only `scanSessionId` |
 | killFlag | enableScan; LPP confirmation additionally requires `lppEvidenceIngestionEnabled` |
 
 ### `/scan/impact` — LIVE retained-impact boundary
@@ -488,7 +719,7 @@ class ScanSessionPayload {
 | partialState | none for a missing baseline: the router uses the recovery state instead of fabricating an after-only comparison |
 | LPP boundary | render canonical fact labels and ratio/CHF semantics from the retained reviewed result. `_fetchPremierEclairage` and `_persistScanEvent` return before any generic backend insight or event call for LPP |
 | errorState | no distinct live computation-error branch: this screen renders an already-retained deterministic payload; absent required payload uses the recovery state above |
-| routesOut | `/home`, `/confidence`, `/scan`, `/explore/<relevant domain>` |
+| routesOut | `/home`, `/confidence`, `/scan`, `/explore/<relevant domain>`; §5.1 target adds the stable `lpp_impact_retirement_cta` to `/retraite` after an active manual-partner save |
 | killFlag | enableScan; no flag change can reconstruct a lost volatile session |
 
 > Test: `test/routing/scan_flow_repair_test.dart` — pump `/scan/review` and `/scan/impact` with `extra: null` and no query param → assert an AppBar with a back button AND a localized CTA exposed by stable `Semantics(identifier:)` for Maestro; assert NO widget with literal text `Document non disponible` and NO bare `Center(child: Text(...))`.

@@ -12,6 +12,7 @@ from pathlib import Path
 
 REQUIRED_DIAGRAMS = (
     Path("docs/codex/WIRING_GRAPH.mmd"),
+    Path("docs/codex/PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd"),
     Path(".planning/journeys/diagrams/data_quest_loop.mmd"),
     Path(".planning/journeys/diagrams/independent_protection.mmd"),
     Path(".planning/journeys/diagrams/interaction_graph.mmd"),

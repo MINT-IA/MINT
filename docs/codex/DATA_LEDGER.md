@@ -844,6 +844,206 @@ default. Any exception must prove necessity, absence of a less intrusive
 alternative, access limits, a fixed duration and deletion, and remains outside
 the financial root, provenance, scenarios and dossier.
 
+#### Accepted G1-BND-02A accountability architecture (implementation still blocked)
+
+The accepted decision is
+`decisions/ADR-20260715-g1-bnd02a-partner-accountability.md`; the non-publishable
+notice contract is `docs/legal/partner_lpp_notice_contract_v1.md`. They freeze
+the following architecture for BND-02A/BND-02 only. This section authorizes
+RED-to-GREEN implementation behind default-off gates, not activation.
+
+**Reuse verdict — isolate, do not adapt the legacy receipt chain.** The existing
+backend `ConsentModel`, `/consents/grant-nominative`, `ConsentService`,
+`receipt_builder` and per-user Merkle chain must not store or validate the new
+partner-LPP receipt. The legacy shape retains `subjectName`, document hash and
+IP hash, hard-codes an unverified controller/lawful basis, permits a synthetic
+missing-policy hash and chains new rows to PII-bearing history. Its shared
+append-only chain also conflicts with targeted erasure and has no atomic
+idempotency, expiry or owner-scoped invalidation. Reusing it would mislabel a
+proxy declaration as consent and would make legacy PII part of the new trust
+root. A later implementation may extract a generic canonical-JSON/HMAC
+primitive only after it requires a real production key and contains no
+controller, legal-basis or policy fallback; it may not reuse the legacy model,
+builder output or chain.
+
+**Principals and authentication.** `/documents/extract-vision` is already
+JWT-gated. Therefore the acting user has an authenticated MINT account and the
+new create/list/revoke/status endpoints derive the acting principal only from
+`require_current_user`, never from request JSON. Anonymous/local-only sessions
+fail before receipt creation or document bytes. The partner needs neither a
+MINT account, account link, invitation nor household membership. The backend
+stores a domain-separated keyed HMAC of the authenticated user id as
+`actingPrincipalPseudonym`, never the raw user id or the current unkeyed
+`piiPrincipalId` hash.
+
+**Dedicated durable envelope.** A new isolated
+`partner_accountability_receipts` store contains exactly the following
+business fields; database bookkeeping may add only the primary key and
+transaction/version columns, never receipt payload data:
+
+```text
+receiptId: canonical UUIDv4, generated once by the mobile logical operation
+actingPrincipalPseudonym: server-derived keyed HMAC
+subjectOwnerPseudonym: keyed HMAC of the preallocated local manualPartner owner token
+subjectKind: manualPartner
+accountabilityKind: acting_user_partner_authorization_declaration
+purpose: one_shot_lpp_extraction
+noticeVersion: immutable published notice version
+policyVersion: immutable accountability policy version
+declaredAt: server UTC instant
+expiresAt: server declaredAt + 365 days (maximum; activation still needs approval)
+revokedAt: nullable server UTC instant
+erasedAt: nullable server UTC instant
+```
+
+`subjectOwnerPseudonym` is the one allowed extension to the ADR's base
+envelope: it is necessary to invalidate only the affected manual-partner slot
+and to preserve unrelated self/partner facts. Owner allocation happens before
+receipt creation or network: reuse the `profileOwnerId` from the secure
+manual-partner LPP root when one exists; otherwise generate one canonical
+UUIDv4 exactly once. The new UUID may live only in the bounded volatile
+authorization/scan state and its strict-secure pending accountability binding
+until review. It is not a new account, acquisition id or document id. The
+request may carry that pseudonymous owner token over the authenticated channel;
+the backend transforms it immediately into the domain-separated keyed HMAC and
+never stores or logs the raw token in the receipt, request/audit logs, analytics
+or error payloads. The store contains no name/email, account or household id,
+IP/IP hash, acquisition id, document hash, filename, OCR/source text, financial
+value, `grantId`, membership or `directPartnerConsent` flag.
+
+`receiptId` is also the durable idempotency key. A retry by the same authenticated
+principal with the same canonical request returns the existing receipt; the
+same id with a different actor, owner, purpose or version is `409` and writes
+nothing. Cardinality and equality are enforced in one database transaction;
+the fail-open Redis/file-SHA idempotency helper is forbidden here. Client
+timestamps and expiry are ignored. A receipt is bound once in the local
+accountability binding store; a later acquisition must create a new receipt id,
+while an exact retry of the same logical operation reuses it. The canonical
+idempotency comparison includes the HMAC of the preallocated owner, so a retry
+cannot silently substitute a freshly generated owner token.
+
+**Lifecycle and erasure.** A receipt is active only when the notice/policy
+versions are current, `declaredAt <= now < expiresAt`, and both `revokedAt` and
+`erasedAt` are null. Revocation and expiry immediately make every bound
+certificate-derived manual-partner fact unavailable and invalidate dependent
+results before recompute. Erasure additionally severs/de-identifies both
+pseudonym columns and leaves only a non-linkable lifecycle tombstone; the new
+store is not Merkle-chained. Account deletion and deletion of the bound partner
+facts trigger the same erasure path. Repeated revoke/erase requests are
+idempotent. A fresh receipt may re-enable only a newly reviewed acquisition;
+it never revives an old snapshot silently.
+
+The mobile keeps a separate strict-secure `PartnerAccountabilityBindingStore`
+outside `wizard_answers_v2`, `_coach_lpp_evidence_v1`, `__provenance`, Biography,
+scenarios and dossier. Its minimal local binding is
+`{receiptId, manualPartnerOwnerId, expiresAt, lastVerifiedAt, status}` and
+contains no financial value, acquisition id, document SHA or other document
+identifier. In the pre-receipt `pending` state, `expiresAt` and
+`lastVerifiedAt` are null; the canonical receipt response fills the server
+expiry while the binding remains pending. The exact order is:
+resolve/reuse-or-allocate the owner -> generate the logical `receiptId` -> write
+the pending binding -> create the idempotent receipt -> perform
+extraction/review -> save the LPP whole root with that exact owner -> activate
+that same binding -> publish the profile. A pending entry for an owner shadows
+any older active binding for that owner until explicit activation or safe
+rollback, so a cold reconstruction can never validate a new root with an old
+receipt. A crash or error at any intermediate step leaves the new
+manual-partner result unselectable; an orphan receipt is harmless and erasable.
+Cold reconstruction exposes the manual-partner slot only after an active
+owner-matching binding and current backend status have both been verified.
+Offline/unverifiable status is `partial+ask`, never cached GREEN.
+
+**Proxy and optional direct channel.** The current production candidate is only
+`acting_user_partner_authorization_declaration`. A future
+`direct_partner_confirmation` uses a distinct public, account-free operation
+and a distinct receipt; it never mutates, upgrades or relabels a proxy receipt.
+Do not implement that optional confirmation until it has a real caller and
+rights flow. The required notice/rights channel may use a short-lived signed
+public token returned separately from the receipt and persisted nowhere; it
+must support notice access and privacy requests without account linking.
+
+**Real BND-02 caller — no facade.** For `manualPartner`, the mobile freezes the
+subject and one-shot proxy declaration only after the authenticated actor and
+the exact external notice/controller/contact, transfer/retention, rights and
+AIPD gate are current. That fail-closed gate runs before permission, picker or
+document bytes. It then reuses the secure-root manual-partner owner or allocates
+the single UUIDv4 described above, carries it through the volatile scan plus
+pending binding, prepares the transmitted bytes and creates/validates the
+minimized receipt before the JWT-authenticated
+`/documents/extract-vision` request; receipt failure means no network call. The
+request carries only
+`subjectKind=manualPartner` plus `receiptId`; the endpoint verifies that the
+receipt belongs to the acting JWT principal and is active for the exact owner,
+purpose and versions before any audit row or Anthropic call. `receiptId` remains
+volatile through scan/review and enters only the separate local binding, never
+the financial root. `acceptLppReview` must reject before root persistence when
+the binding is missing, mismatched or not the pending entry for the same logical
+receipt. It must accept the preallocated owner as a required input and write
+exactly that owner into every reviewed manual-partner fact; it must not execute
+its current fallback `Uuid().v4()` for this path. Neither the volatile
+acquisition id nor document SHA may cross into the receipt, pending/active
+binding, financial root, provenance or profile.
+
+After process destruction, the verified binding gates
+`LppEvidenceSelector.selectManualPartner`; the selected current LPP capital or
+annual pension then changes the named `MintStateEngine -> ForecasterService`
+recompute rendered by `RetirementDashboardScreen`. Revocation/expiry/erasure
+removes only receipt-bound certificate presentation values, rebuilds
+`CoachProfile` from the remaining canonical ledger and recomputes once. It must
+not delete or overwrite independent `userInput` partner facts. The
+certificate's `fundReturnRateRatio` remains quarantined from
+`conjoint.prevoyance.rendementCaisse` and every calculator until a later exact
+caisse-scope contract exists; a general scenario assumption may be shown only
+as an explicit assumption, never as the partner's certificate fact. BND-02 also
+removes the current self-path numeric sentinel: an exact certificate ratio of
+`0.02` is a known 2.00% fact, not an unset marker, and must never be silently
+replaced by the scenario assumption. Until a typed caisse-scope/availability
+contract exists, quarantine is safer than a value-based fallback.
+
+**Legacy boundary.** Existing nominative receipts remain legacy audit records
+only and are never migrated, queried or hydrated by the new service. LPP never
+calls `/consents/grant-nominative` or `require_declaration_or_block`; a static
+and endpoint regression gate must prove this. The legacy endpoint must be
+explicitly disabled for the LPP purpose (or globally behind its own default-off
+legacy switch) rather than used as fallback.
+
+**Exact future implementation and RED/GREEN scope.** Before product code, the
+authoritative G1 registry must name the combined commands and these concrete
+surfaces:
+
+- backend: `app/models/partner_accountability_receipt.py`,
+  `app/schemas/partner_accountability.py`,
+  `app/services/partner_accountability/receipt_builder.py`,
+  `app/services/partner_accountability/service.py`,
+  `app/api/v1/endpoints/partner_accountability.py`, `app/api/v1/router.py`,
+  `app/api/v1/endpoints/documents.py`, an Alembic revision, and the narrow
+  legacy guard in `app/services/document_third_party.py`;
+- backend tests: `tests/test_partner_accountability.py`,
+  `tests/test_lpp_candidate_only_extraction.py`, and
+  `tests/services/document/test_third_party_declaration.py`;
+- mobile: `lib/models/partner_accountability.dart`,
+  `lib/services/consent/partner_accountability_service.dart`,
+  `lib/services/consent/partner_accountability_binding_store.dart`,
+  `lib/models/lpp_evidence.dart`, `lib/services/document_service.dart`,
+  `lib/providers/scan_session_provider.dart`,
+  `lib/screens/document_scan/document_scan_screen.dart`,
+  `lib/screens/document_scan/extraction_review_screen.dart`,
+  `lib/providers/coach_profile_provider.dart`, `lib/models/coach_profile.dart`,
+  `lib/services/forecaster_service.dart`,
+  `lib/screens/coach/retirement_dashboard_screen.dart`, and the existing
+  default-off feature-flag boundary;
+- mobile tests:
+  `test/providers/partner_financial_consent_lifecycle_test.dart`,
+  `test/providers/household_bridge_recompute_test.dart`, and
+  `test/screens/coach/manual_partner_lpp_accountability_rendering_test.dart`.
+
+The backend exact command is
+`cd services/backend && python3 -m pytest tests/test_partner_accountability.py tests/test_lpp_candidate_only_extraction.py tests/services/document/test_third_party_declaration.py -q`.
+The mobile exact command is
+`cd apps/mobile && flutter test test/providers/partner_financial_consent_lifecycle_test.dart test/providers/household_bridge_recompute_test.dart test/screens/coach/manual_partner_lpp_accountability_rendering_test.dart --reporter expanded`.
+Neither command may borrow PROV-02 evidence, and both must first fail on the
+missing accountability/caller predicates rather than on imports or fixtures.
+
 #### Migration and kill switches
 
 When the root is absent, a one-time self migration may copy only existing loose

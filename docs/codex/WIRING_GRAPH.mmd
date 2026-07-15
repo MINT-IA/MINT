@@ -106,15 +106,33 @@ flowchart TB
     LPP_PRIVATE_GATE["private real certificates<br/>local ignored sanitized parser gate only<br/>no fixture identity/value/raw artifact"]
     LPP_SYNTH_EVAL["classifier eval boundary<br/>generated synthetic images only<br/>offline corpus green; live Anthropic = NOT RUN<br/>exact synthetic runtime promoted at 30728b8a0671"]
     LPP_BND02["OPEN G1-BND-02 — NOT GREEN<br/>cold-reload manualPartner current LPP fact<br/>must change one named production scenario/recompute<br/>and reach a visible fail-closed consumer"]
-    LPP_ACCOUNTABILITY["OPEN G1-BND-02A — NOT GREEN<br/>named legal/privacy decision + implemented outcome<br/>versioned partner notice + direct rights channel<br/>conditional minimized proof outside ledger<br/>proxy declaration is NOT direct partner consent<br/>NO acquisition ID/SHA by default"]
+    LPP_ACTOR_AUTH{"manualPartner actor auth<br/>JWT required; actor derived server-side<br/>partner account/link NOT required<br/>anonymous/local-only = fail closed"}
+    LPP_ACCOUNTABILITY_GATE{"BND-02A external gate<br/>published notice + verified controller/contact<br/>transfer/retention + rights + AIPD<br/>all current and exact versions"}
+    LPP_OWNER_TOKEN["manualPartner owner token<br/>reuse secure-root profileOwnerId if present<br/>else UUIDv4 exactly once before receipt/network<br/>same token through scan + pending binding + accept review"]
+    LPP_ACCOUNTABILITY_RECEIPT[("isolated partner_accountability_receipts<br/>receiptId idempotency includes keyed owner pseudonym<br/>manualPartner / proxy declaration / one-shot LPP<br/>declared + expires + revoked + erased<br/>NO raw owner / PII / IP / doc SHA / acquisition id / values<br/>NOT ConsentModel or Merkle chain")]
+    LPP_BINDING[("strict-secure pending accountability binding<br/>written before receipt/network; shadows older active owner binding<br/>receiptId + preallocated manual owner + expiry/status<br/>NO acquisition id / document SHA / financial value")]
+    LPP_BINDING_ACTIVE[("strict-secure active accountability binding<br/>activated only after whole-root secure success<br/>receiptId + exact manual owner + expiry/status")]
+    LPP_ACCOUNTABILITY_STATUS{"cold/recompute status gate<br/>owner match + active backend receipt<br/>offline/missing/expired/revoked/erased = partial+ask"}
+    LPP_INVALIDATE["targeted invalidation<br/>remove receipt-bound certificate presentation only<br/>restore remaining canonical userInput facts<br/>recompute exactly once"]
+    LPP_DOWNSTREAM["REAL BND-02 caller<br/>MintStateEngine -> ForecasterService<br/>manual-partner capital/annual pension changes result<br/>certificate fundReturnRate quarantined until caisse scope<br/>exact self 2.00% is never an unset sentinel"]
+    LPP_VISIBLE["RetirementDashboardScreen<br/>visible fail-closed changed/partial state"]
+    LPP_DIRECT_OPTION["optional future direct_partner_confirmation<br/>separate account-free receipt + real rights caller<br/>never upgrades proxy; no facade now"]
+    LPP_LEGACY_RECEIPT["legacy grant-nominative / ConsentModel / receipt builder / Merkle<br/>name + doc hash + IP hash + unverified legal labels<br/>quarantine/audit only; disabled for LPP<br/>never migrate or hydrate"]
+    LPP_ACCOUNTABILITY["OPEN G1-BND-02A — NOT GREEN<br/>architecture accepted; implementation absent<br/>proxy declaration is NOT direct partner consent<br/>flags and activation stay OFF"]
 
     LPP_FLAGS -. "either off" .-> LPP_DISABLED
     LPP_FLAGS -. "both on; activation still requires named G1 decision" .-> LPP_OWNER
     LPP_OWNER -. "self" .-> LPP_CONSENT
     LPP_OWNER -. "manual partner with local conjoint" .-> LPP_ATTEST
-    LPP_ATTEST -. "explicit confirm" .-> LPP_CONSENT
+    LPP_ATTEST -. "explicit proxy declaration" .-> LPP_ACTOR_AUTH
+    LPP_ACTOR_AUTH -. "authenticated actor only" .-> LPP_ACCOUNTABILITY_GATE
+    LPP_ACCOUNTABILITY_GATE -. "all external facts current" .-> LPP_OWNER_TOKEN
+    LPP_OWNER_TOKEN -. "preallocate once, then persist pending binding" .-> LPP_BINDING
+    LPP_BINDING -. "pending durable; now permission/picker" .-> LPP_CONSENT
     LPP_CONSENT -. "then picker + bind exact bytes" .-> LPP_AUTH
-    LPP_AUTH -. "complete volatile authorization" .-> LPP_DIRECT
+    LPP_AUTH -. "self: complete volatile authorization" .-> LPP_DIRECT
+    LPP_AUTH -. "manualPartner: create idempotently before network" .-> LPP_ACCOUNTABILITY_RECEIPT
+    LPP_ACCOUNTABILITY_RECEIPT -. "active exact-purpose receiptId" .-> LPP_DIRECT
     LPP_AUTH -. "pasted/example OCR stays local" .-> LPP_LOCAL_KIND
     LPP_DIRECT -. "classify first" .-> LPP_KIND
     LPP_KIND -. "not exact typed high personal certificate" .-> LPP_KIND_REJECT
@@ -123,9 +141,14 @@ flowchart TB
     LPP_LOCAL_KIND -. "personal certificate" .-> LPP_CANDIDATE
     LPP_CANDIDATE -. "raw-free candidate paired with authorization" .-> LPP_REVIEW
     LPP_REVIEW -. "subject-derived typed confirmation" .-> LPP_ACCEPT
-    LPP_ACCEPT -. "save before publish" .-> LPP_SAVE
+    LPP_ACCEPT -. "manualPartner: force same owner; NO new UUID" .-> LPP_SAVE
+    LPP_ACCEPT -. "self: save before publish" .-> LPP_SAVE
     LPP_SAVE -. "secure success" .-> LPP_SECURE
-    LPP_SECURE -. "destroy + reconstruct provider" .-> LPP_SELECT
+    LPP_SECURE -. "self: destroy + reconstruct provider" .-> LPP_SELECT
+    LPP_SECURE -. "manualPartner: activate only now" .-> LPP_BINDING_ACTIVE
+    LPP_BINDING_ACTIVE -. "destroy + reconstruct; receiptId + owner" .-> LPP_ACCOUNTABILITY_STATUS
+    LPP_ACCOUNTABILITY_STATUS -. "active" .-> LPP_SELECT
+    LPP_ACCOUNTABILITY_STATUS -. "invalid/unverifiable" .-> LPP_INVALIDATE
     LPP_SELECT -. "self slot only" .-> LPP_SELF
     LPP_SELECT -. "exact manual owner only" .-> LPP_MANUAL
     LPP_LEGACY_SELF -. "one idempotent secure migration" .-> LPP_SAVE
@@ -135,9 +158,14 @@ flowchart TB
     LPP_PRIVATE_GATE -. "local non-vacuous oracle" .-> LPP_LOCAL_KIND
     LPP_PRIVATE_GATE -. "sanitized outcome only" .-> LPP_CANDIDATE
     LPP_SYNTH_EVAL -. "immutable synthetic corpus" .-> LPP_KIND
-    LPP_SELECT -. "activation requires named downstream proof" .-> LPP_BND02
+    LPP_SELECT -. "active manual owner only" .-> LPP_DOWNSTREAM
+    LPP_DOWNSTREAM -. "named visible consumer" .-> LPP_VISIBLE
+    LPP_VISIBLE -. "RED/GREEN caller proof required" .-> LPP_BND02
+    LPP_INVALIDATE -. "no stale partner result" .-> LPP_VISIBLE
     LPP_ATTEST -. "activation requires named legal/privacy decision" .-> LPP_ACCOUNTABILITY
-    LPP_ACCOUNTABILITY -. "implement outcome; conditional proof outside ledger" .-> LPP_REJECT
+    LPP_ACCOUNTABILITY -. "implement isolated receipt path" .-> LPP_ACCOUNTABILITY_GATE
+    LPP_ACCOUNTABILITY_RECEIPT -. "optional separate future path only" .-> LPP_DIRECT_OPTION
+    LPP_LEGACY_RECEIPT -. "never valid for LPP" .-> LPP_REJECT
   end
 
   LPP_SELF -. "person-owned facts; no automatic household total" .-> CPP

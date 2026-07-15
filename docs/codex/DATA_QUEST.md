@@ -134,6 +134,36 @@ No screen writes SharedPreferences / `ProfileModel.data` directly.
 | Q-5 | Goal-aware prompt ranking is live for mobile `ConfidenceScorer.score()` visible prompts and `scoreEnhanced()` axis prompts: prompts carry `fieldPath`, and sorting uses goal-aware effective impact without changing displayed impact points | Keep `confidence_scorer_test.dart` coverage for `GoalAType.achatImmo` vs `GoalAType.retraite` on both visible prompts and enhanced axis prompts, and keep `tools/checks/tests/test_data_quest_goal_aware_ranking_contract.py` so the scorer cannot silently fall back to generic impact-only ordering. Backend/global `EnhancedConfidenceService.rank_enrichment_prompts()` remains generic unless a later phase makes it goal-aware too. |
 | Q-6 | No `Case` registry mapping events→guardQuests | new `data_quest/case_registry.dart`; seed with `transmit_property`, `divorce`, `retirement` |
 
+### 7.1 G1-BND-02A — progressive partner-LPP quest
+
+This G1-only Case implements the represented-authorization contract in
+`decisions/ADR-20260715-g1-bnd02a-partner-accountability.md`, the non-publishable
+notice requirements in `docs/legal/partner_lpp_notice_contract_v1.md`, and the
+focused journey `docs/codex/PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd`.
+
+- `manualPartner` is offered only for an existing local
+  `CoachProfile.conjoint`; account creation/linking, household membership and
+  invitation remain optional and never authorize the path.
+- The only current accountability kind is
+  `acting_user_partner_authorization_declaration`. It records the authenticated
+  acting user's one-shot declaration, never direct partner consent.
+- Ask/order is fixed and progressive: current versioned notice + account-free
+  rights → explicit declaration/auth → preallocated owner/receipt ids and
+  strict-secure `pending` binding → permission/picker → minimized
+  `partner_accountability_receipts` receipt after local file choice → review of
+  canonical facts → exact-owner root save/binding activation → visible
+  `RetirementDashboardScreen` recompute.
+- `direct_partner_confirmation` is a distinct, optional future receipt and is
+  deferred until it has a real public caller and rights flow; no placeholder
+  CTA, route or service is allowed.
+- Missing/stale legal facts block before picker. Offline, unverifiable,
+  expired, revoked, erased or owner-mismatched status excludes receipt-bound
+  certificate facts and renders `partial+ask`, never cached GREEN or CHF 0.
+  Recovery retries status or restarts at the current notice; an independent
+  manual `userInput` fact is restored first, otherwise ask only the next
+  highest-impact pension/capital fact. Never ask for the quarantined caisse
+  return rate.
+
 ## 8. Acceptance criteria (Codex/CI must verify)
 
 - **DQ-1** A screen with all `reads[]` fresh triggers **zero** Asks (planQuest returns []).
