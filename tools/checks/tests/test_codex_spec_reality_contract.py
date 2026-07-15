@@ -16,6 +16,7 @@ COACH_PROVIDER = ROOT / "apps/mobile/lib/providers/coach_profile_provider.dart"
 DATA_LEDGER = ROOT / "docs/codex/DATA_LEDGER.md"
 SCREEN_CONTRACTS = ROOT / "docs/codex/SCREEN_CONTRACTS.md"
 WIRING_GRAPH = ROOT / "docs/codex/WIRING_GRAPH.mmd"
+DATA_FLOW = ROOT / "docs/data-flow.md"
 T1_SAVE_FACT_MAPPERS = {
     "goal": "q_main_goal",
     "selfEmployedNetIncome": "q_self_employed_income",
@@ -101,3 +102,38 @@ def test_screen_contract_scan_route_line_refs_match_router() -> None:
 
     assert f"`/scan/review` ({review_line})" in contracts
     assert f"`/scan/impact` ({impact_line})" in contracts
+
+
+def test_data_flow_maps_committed_partner_accountability_reality() -> None:
+    data_flow = DATA_FLOW.read_text(encoding="utf-8")
+
+    required_reality_markers = (
+        "`0280bb840`",
+        "`FeatureFlags.partnerLppAccountabilityEnabled=false`",
+        "`partner_lpp_accountability_enabled=false`",
+        "`PartnerAccountabilityExternalGate`",
+        "`partner_accountability_receipts`",
+        "`pending` / `active` / `shadowed`",
+        "`withData=false`",
+        "`manualPartner.independentFacts`",
+        "`MintStateEngine -> ForecasterService`",
+        "`RetirementDashboardScreen`",
+        "BND-02/BND-02A remain non-GREEN",
+        "activation remains NO-GO",
+        "There is no G1 closure or G2/G3 GO.",
+    )
+    for marker in required_reality_markers:
+        assert marker in data_flow, f"docs/data-flow.md missing {marker!r}"
+
+    stale_claims = (
+        "must prove a cold-reloaded manual-partner LPP fact enters one named production",
+        "must record a named legal/privacy decision",
+        "implemented accountability outcome",
+        "↓ OPEN BND-02: named production scenario/recompute + visible consumer proof",
+        "BND-02 is GREEN",
+        "BND-02A is GREEN",
+        "activation is GO",
+        "activation is GREEN",
+    )
+    for claim in stale_claims:
+        assert claim not in data_flow, f"docs/data-flow.md still claims {claim!r}"

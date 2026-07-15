@@ -13,6 +13,15 @@ This doc gives every writer + every reader explicit ownership of every
 storage key. If your edit changes one, this doc must be updated in the
 same PR. CI lint (TODO, Phase 34 extension) will enforce.
 
+> **Focused G1 BND reality baseline:** the default-off partner-accountability
+> implementation, including the PostgreSQL account-deletion conflict contract,
+> is mapped through committed SHA `0280bb840` (2026-07-15). The production
+> external descriptor is still absent, all checked-in activation defaults are
+> false,
+> BND-02/BND-02A remain non-GREEN and activation remains NO-GO. The accepted
+> PROV-02 persistence/runtime checkpoint remains `30728b8a0671`; later BND
+> implementation and test-source commits do not silently promote that scope.
+
 ---
 
 ## The storage model — three layers, deliberate
@@ -96,37 +105,42 @@ fieldPath -> {source, updatedAt, sourceDate}
 - `__provenance` is currently local-only and is removed from mobile backend
   sync payloads. Backend per-field provenance remains pending its dedicated
   contract; do not silently mirror this local envelope into `ProfileModel.data`.
-- G1-PROV-02 implements one default-off typed path for **self and independently
-  declared manual-partner** evidence from acquisition through cold reload.
-  `FeatureFlags.typedLppEvidence=false` and
-  `documentLppEvidenceEnabled=false` are combined by the consumed
-  `lppEvidenceIngestionEnabled` AND gate; either false hides LPP before the
-  owner/consent/picker/OCR/upload sequence and neutralizes a stale review. After
-  the composite gate, owner is fixed before acquisition. `manualPartner` is
-  offered only when `CoachProfile.conjoint != null` and requires a one-shot
-  attestation before Vision + US-transfer consent and before the picker. The
-  exact transmitted-byte SHA is then bound to a volatile per-attempt
-  `LppAcquisitionAuthorization`; it is retained with the candidate in
-  `ScanSessionProvider` but never enters the ledger, provenance, route or
-  backend. Strict document-kind admission and the source-aware raw-free adapter
-  produce the only review candidate. `ExtractionReviewScreen` validates
-  canonical values, effective date and balance coherence, shows the fixed owner
-  without an edit control, then calls only `acceptLppReview`; the removed
-  legacy self/partner document writers are not fallbacks. Manual-partner facts
-  have a distinct stable owner, reuse the stable self actor, use
-  `manualPartnerDeclaration` with a null grant, and are selected by exact owner
-  without consulting household membership. The ticket and runtime slice are
-  GREEN at accepted pushed SHA
+- G1-PROV-02 implements one typed path for **self and independently declared
+  manual-partner** evidence from acquisition through cold reload. Its accepted
+  persistence/runtime predicate remains GREEN at pushed SHA
   `30728b8a0671a0b54bcf47807a0c69bac905e6e3`; live Anthropic eval is NOT RUN.
-  Both flags remain false, so activation is still forbidden. G1-BND-02 must
-  prove a cold-reloaded manual-partner LPP fact enters one named production
-  scenario/recompute and visible fail-closed consumer, and G1-BND-02A must
-  record the named legal/privacy decision, publish the versioned partner notice
-  and implement its accountability outcome. A durable minimized record is
-  conditional, stays outside the ledger and never proves direct partner
-  consent. Neither gate is GREEN, G1 has 17 open gates, and no G1/G2/G3 GO is
-  claimed. The typed tax path is likewise behind its composite default-off gate
-  pending frozen-SHA runtime proof and the G1 activation decision.
+  `FeatureFlags.typedLppEvidence=false` and
+  `documentLppEvidenceEnabled=false` remain the local composite ingestion gate.
+  The later partner branch additionally requires
+  `FeatureFlags.partnerLppAccountabilityEnabled=false` on mobile and
+  `partner_lpp_accountability_enabled=false` on the backend. These are four
+  independent fail-closed boundaries, not a remote activation chain.
+- The self branch remains the PROV-02 path: it fixes the self owner, obtains
+  `visionExtraction + transferUsAnthropic`, binds the exact transmitted-byte
+  SHA to volatile authorization and never creates a partner receipt or binding.
+  The manual-partner branch is offered only for exact
+  `CoachProfile.conjoint != null`. It requires a current typed external notice,
+  authenticated actor, one-shot proxy declaration and strict-secure pending
+  binding before permission or picker. The production `/scan` builder supplies
+  no `PartnerAccountabilityExternalGate`, so the branch remains blocked even if
+  a developer flips the local switches.
+- When the manual-partner dependencies are injected by a bounded test, the real
+  caller uses a local picker handle with `withData=false`, creates the minimized
+  `partner_accountability_receipts` row before reading document bytes, consumes
+  that receipt exactly once at `/documents/extract-vision`, then binds the byte
+  SHA to process-local authorization. The pending binding becomes active only
+  after the exact-owner root save succeeds. Receipt/binding records stay outside
+  the financial ledger and never prove direct partner consent.
+- Cold reconciliation matches the active receipt and exact partner owner before
+  exposing receipt-bound certificate facts. A current fact reaches the real
+  `MintStateEngine -> ForecasterService` caller and the visible
+  `RetirementDashboardScreen`; invalid or unverifiable authority removes those
+  certificate facts while preserving separately entered user facts. This
+  technically closes the former facade gap, but accepted BND runtime/registry
+  evidence, publishable external facts and wrapper audits are still missing.
+  BND-02/BND-02A remain non-GREEN, activation remains NO-GO, G1 remains open,
+  and no G2/G3 work is authorized. The typed tax path is likewise behind its
+  composite default-off gate pending its own proof and activation decision.
 
 ---
 
@@ -142,7 +156,7 @@ only legal local I/O boundaries.
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
-| 3 | **Scan confirmation** | LPP: `DocumentScanScreen owner/attestation/consent → transmitted-byte authorization → kind gate → LppExtractionAdapter → ScanSessionProvider(candidate+authorization) → ExtractionReviewScreen immutable owner → LppReviewConfirmation(subject derived) → acceptLppReview → LppProfilePersistence`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes only strict-secure `_coach_lpp_evidence_v1` plus derived presentation provenance; volatile authorization/SHA never enter either. Accepted self review removes loose self aliases and no legacy LPP document writer exists. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | After valid authorization/local-partner/date/value/unit/coherence review and one awaited save. LPP ticket/runtime is GREEN at `30728b8a0671`; both flags remain false and activation is NO pending BND-02/BND-02A. |
+| 3 | **Scan confirmation** | LPP self: `DocumentScanScreen owner/permission → transmitted-byte authorization → kind gate → raw-free candidate/review → acceptLppReview`. LPP manual partner adds `external gate/auth/declaration → pending binding → permission → local handle (withData=false) → receipt create → byte boundary/one-shot extraction → review → exact-owner save → active binding`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes strict-secure `_coach_lpp_evidence_v1`; `manualPartner.facts` is receipt-bound while `manualPartner.independentFacts` is user-input recovery. The separate secure binding and minimized backend receipt contain no financial value. Volatile authorization/SHA enter neither ledger nor binding/receipt. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | Self publishes after one awaited secure save. Manual partner additionally activates the matching pending binding only after that save; terminal drift restores `shadowed`/prior active state and suppresses later callbacks. PROV-02 is GREEN at `30728b8a0671`; BND-02/BND-02A remain non-GREEN and activation remains NO-GO at `0280bb840`. |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
@@ -227,7 +241,21 @@ publishes its next profile only after the answer snapshot is saved.
       quarantinedAt: ISO-8601 instant
     }
   }
+
+  LppEvidenceSnapshot {
+    snapshotId: lowercase canonical UUIDv4,
+    facts: {canonical fact key: LppEvidenceFact...},
+    independentFacts: {canonical fact key: LppEvidenceFact...}? // manualPartner only
+  }
   ```
+
+  `manualPartner.facts` contains reviewed certificate facts whose authority is
+  receipt-bound. `manualPartner.independentFacts` is an optional recovery map
+  restricted to `source=userInput` with the same partner-owner/self-actor
+  lineage; `self.independentFacts` is invalid. A current receipt gives the
+  certificate value precedence for duplicate keys. Invalid, revoked, expired,
+  erased or unverifiable authority exposes only the independent value without
+  relabelling it as certificate evidence.
 
   Each person slot accepts exactly the same **13** canonical financial facts:
   `vestedBenefitsCapitalChf`, `mandatoryVestedBenefitsCapitalChf`,
@@ -242,19 +270,41 @@ publishes its next profile only after the answer snapshot is saved.
   excluded before review/persistence; absence stays absent and never becomes a
   false zero or scenario/dossier fact.
 
-  When the composite gate is true, `DocumentScanScreen` resolves
-  `hasLocalPartnerProfile` as exact `CoachProfile.conjoint != null`, fixes owner
-  before acquisition and requires a one-shot declaration for `manualPartner`.
-  It then requests `visionExtraction + transferUsAnthropic` without
-  `persistence365d`, before opening camera/gallery/picker. The exact bytes to be
-  transmitted receive a lowercase SHA-256 bound to the volatile authorization
-  before network. Images and PDFs call candidate-only Vision extraction
-  directly; the PDF path
+  When the composite evidence gate is true, `DocumentScanScreen` resolves
+  `hasLocalPartnerProfile` as exact `CoachProfile.conjoint != null` and fixes
+  the owner before acquisition. The **self** branch requests
+  `visionExtraction + transferUsAnthropic` without `persistence365d`, then binds
+  a lowercase SHA-256 of the exact bytes before network. It never touches the
+  partner-accountability service or binding store.
+
+  The **manual-partner** branch additionally requires the two default-false
+  accountability switches, an authenticated actor and a current exact
+  `PartnerAccountabilityExternalGate`. The route in `app.dart` constructs plain
+  `DocumentScanScreen(initialType: initialType)` and injects no production gate,
+  so missing external facts stop before any side effect. With bounded test
+  dependencies, the order is exact:
+
+  1. render the typed notice/contact/rights and accept the acting user's
+     one-shot proxy declaration; this is not direct partner consent;
+  2. preallocate stable receipt/partner-owner UUIDs and persist a strict-secure
+     `pending` binding that shadows the previous active binding;
+  3. request only the generic `visionExtraction` technical permission; the
+     typed notice owns the Anthropic transfer disclosure;
+  4. open the local picker with `withData=false`, retaining only a path/handle;
+  5. create the idempotent minimized receipt and mark the pending binding with
+     its server expiry before reading or hashing document bytes;
+  6. revalidate gate, versions, contact/rights, receipt and pending owner at the
+     byte boundary, then read bytes, bind exact SHA and call the candidate-only
+     extraction with `subjectKind=manualPartner` plus `receiptId`;
+  7. the backend atomically consumes the active receipt before classification,
+     audit or extraction; a second call fails closed as already consumed.
+
+  Images and PDFs call candidate-only Vision extraction directly; the PDF path
   never uses vault upload, and LPP BYOK/fused/SSE paths are unreachable. The
   backend admits only an exact typed high-confidence personal certificate
   before audit/extraction. Local OCR independently requires a supported
   personal-certificate title plus an individualization label. Plan/unknown/
-  lower-confidence/error outcomes create no session or write.
+  lower-confidence/error outcomes create no session or financial write.
 
   `LppExtractionAdapter` maps only the exact vocabulary for its named source,
   converts percentage scale once, requires finite confidence, retains explicit
@@ -269,19 +319,24 @@ publishes its next profile only after the answer snapshot is saved.
   OCR or authorization.
 
   `LppReviewConfirmation` carries the retained authorization and derives its
-  subject; review cannot change it after transfer. Before persistence load,
+  subject; review cannot change it after transfer. The manual path revalidates
+  the same external gate and `pending` binding at the public review handoff.
+  First authority drift is terminal: exactly one remote DELETE is attempted,
+  the pending binding rolls back to `shadowed`/previous active, and late
+  picker/fallback/review callbacks are suppressed. Before persistence load,
   `acceptLppReview` rejects an invalid authorization, a manual-partner subject
-  without the still-present local `CoachProfile.conjoint`, and invalid facts or
-  coherence. It then completely replaces exactly that person's slot. Each
-  fact carries exact value/unit, pseudonymous owner/actor, authorization and
+  without the still-present local `CoachProfile.conjoint`, a non-current
+  receipt context/pending binding, and invalid facts or coherence. It then
+  completely replaces exactly that person's certificate `facts`, preserving
+  that partner's `independentFacts` and the other person slot. Each fact carries
+  exact value/unit, pseudonymous owner/actor, authorization and
   `{source, sourceDate, updatedAt}` provenance. Self owner and actor are equal.
-  The manual-partner owner is distinct, its actor is the stable self token even
-  when the partner is reviewed first, and its authorization is exactly
-  `manualPartnerDeclaration` with `grantId:null`. Replacements reuse both
-  identities, preserve the other slot and remove omitted values plus their
-  parallel presentation provenance. Linked/grant shapes remain rejected. A
-  certificate fact without a source date is `availableNeedsConfirmation`;
-  corrected facts are `userInput` with a null source date.
+  The manual-partner owner is the preallocated binding owner, distinct from the
+  stable self actor, even when the partner is reviewed first; authorization is
+  exactly `manualPartnerDeclaration` with `grantId:null`. Linked/grant shapes
+  remain rejected. A certificate fact without a source date is
+  `availableNeedsConfirmation`; corrected facts are `userInput` with a null
+  source date.
 - With owner already fixed, review rejects a mandatory/extra component above
   the total or a three-part difference greater than CHF 1. The provider repeats the
   same `LppBalanceCoherence` check after value/unit validation and before its
@@ -308,6 +363,16 @@ publishes its next profile only after the answer snapshot is saved.
   and performs a bounded best-effort sweep of inactive slots. Diagnostic clear
   removes the wizard bytes and pointer, then deletes fixed and versioned secure
   roots.
+- Partner accountability uses a second strict-secure store, outside
+  `wizard_answers_v2`, with one schema-v1 envelope containing
+  `pending` / `active` / `shadowed`. A binding contains receipt id,
+  preallocated manual-partner owner, exact notice/policy versions, expiry,
+  verification/failure state, privacy contact and rights channel; it contains
+  no financial value, raw identity, acquisition id or document hash. Pending is
+  durable before technical permission/picker. Active is committed only after
+  the whole financial root save succeeds. Failed activation restores both the
+  previous root and previous binding; an unrepairable secure-store error enters
+  quarantine rather than exposing stale authority.
 - Cold load treats the active pointer as authoritative and reads only its
   immutable slot. A pre-slot fixed secure root is migrated once only while the
   wizard still has the strict placeholder; after a pointer exists, a stale
@@ -336,30 +401,42 @@ publishes its next profile only after the answer snapshot is saved.
   owner/actor token, a secure slot id nor a typed financial fact is mirrored to
   `ProfileModel.data`. The volatile acquisition authorization, `acquisitionId`
   and document SHA are never written to the root or `__provenance` in the first
-  place. Before activation, G1-BND-02A must record a named legal/privacy
-  decision covering controller role, indirect-collection notice, the verified
-  foreign-transfer guarantee, legal justification, minimization, retention,
-  erasure and partner rights; publish a versioned partner notice; and implement
-  the selected accountability mechanism. If MINT relies on authorization or
-  consent, a durable minimized record outside the ledger proves only the
-  acting user's declaration, never direct partner consent. Another basis must
-  define its alternative accountability mechanism. No per-attempt acquisition
-  ID or document hash is retained by default; any justified exception remains
-  outside `_coach_lpp_evidence_v1`, `__provenance`, scenarios and dossier.
-- Restart-safe scalar hydration is not the downstream product proof.
-  G1-BND-02 remains open until a current manual-partner LPP fact is saved, the
-  provider is destroyed and reconstructed, and one named production
-  `MintStateEngine`/`ForecasterService` or `RetirementProjectionService`
-  scenario/recompute changes and reaches a visible fail-closed consumer. The
-  scan impact list or a direct scalar assertion is insufficient.
-  `ForecasterService` already reads the partner `rendementCaisse` scalar, so
-  this gate must also prove explicit caisse scope or quarantine that input from
-  computation before activation.
+  place. The named represented-authorization decision is now recorded in
+  `decisions/ADR-20260715-g1-bnd02a-partner-accountability.md`, and the isolated
+  mechanism is technically implemented. Its backend
+  `partner_accountability_receipts` row stores HMAC-pseudonymized actor/owner,
+  exact purpose/kind/versions and lifecycle timestamps only. `consumedAt`
+  enforces one extraction; revoke changes status; DELETE and account deletion
+  tombstone the row. PostgreSQL serializes receipt creation and account deletion
+  on the acting User row under READ COMMITTED. If that actor disappears while
+  the lock is acquired, stable typed 409 responses fail closed rather than
+  reporting a false successful receipt or deletion. No per-attempt acquisition
+  id, document hash, raw PII or financial value enters the receipt.
+- Cold provider reconstruction reconciles the exact active binding/owner with
+  backend status. Active and current authority merges receipt-bound certificate
+  `facts` over `manualPartner.independentFacts`; offline becomes a visible
+  partial/retry state. Missing, stale, expired, revoked, erased or mismatched
+  authority excludes certificate facts, retains independent `userInput`, and
+  recomputes exactly once. It never converts a missing value to CHF 0.
+- The named production caller is now real:
+  `MintStateEngine -> ForecasterService` consumes the cold-reconstructed
+  partner capital/annual pension, and `RetirementDashboardScreen` renders the
+  changed active result plus partial, retry, manual-recovery, privacy-contact
+  and rights states. Certificate `fundReturnRateRatio` remains in ledger
+  quarantine and never hydrates calculator-facing partner
+  `rendementCaisse`; an exact known self `0.02` is no longer interpreted as a
+  missing sentinel. The committed real-caller Patrol source at `fbbaa748e` is a
+  test contract, not accepted runtime evidence. Frozen-SHA device evidence,
+  ticket promotion and wrapper-only audits still block BND acceptance.
 - Private real-certificate coverage runs only through the ignored local
   sanitized oracle; network classifier cases are generated synthetic images.
   The live Anthropic eval is NOT RUN. The accepted synthetic runtime bundle and
   bounded external audits promote PROV-02 ticket/runtime truth at
-  `30728b8a0671`, not flags, BND-02/BND-02A, activation or G1 GO.
+  `30728b8a0671`, not later partner flags, BND-02/BND-02A, activation or G1 GO.
+  The companion legal notice remains explicitly non-publishable: verified
+  controller/contact, actual Anthropic transfer regions/mechanism, retention,
+  account-free rights and AIPD outcome are still absent. Therefore
+  BND-02/BND-02A remain non-GREEN and activation remains NO-GO at `0280bb840`.
 
 **3a (3rd pillar)**
 - `q_has_3a`, `q_3a_total`, `q_3a_accounts_count`, `q_3a_annual_contribution`,
@@ -509,26 +586,35 @@ Document type selection
   ├─ LPP G1-PROV-02 (ticket/runtime GREEN at 30728b8a0671; activation NO)
   │   ↓ typedLppEvidence && documentLppEvidenceEnabled before owner/consent/picker
   │   ↓ owner fixed pre-acquisition; partner only if CoachProfile.conjoint != null
-  │   ↓ partner one-shot attestation when selected
-  │   ↓ Vision + US-transfer consent, NO 365-day persistence, before picker
-  │   ↓ SHA-256 exact transmitted bytes → volatile per-attempt authorization
+  │   ├─ self: Vision + US-transfer permission; NO partner receipt/binding
+  │   └─ manualPartner: partnerLppAccountabilityEnabled + backend gate
+  │       ↓ exact external descriptor + authenticated actor + one-shot declaration
+  │       ↓ preallocated receipt/owner IDs → secure pending binding shadows active
+  │       ↓ generic Vision permission → picker handle withData=false
+  │       ↓ minimized receipt created before byte read; versions/expiry rechecked
+  │   ↓ exact authority recheck → SHA-256 transmitted bytes → volatile authorization
+  │   ↓ manual receipt atomically consumed once before backend side effects
   │   ↓ image/PDF direct candidate extraction; PDF never enters vault upload
   │   ↓ backend exact high personal-certificate kind gate
   │      OR local title + individualization kind gate
   │   ↓ source-aware LppExtractionAdapter → raw-free canonical candidate
   │   ↓ candidate + authorization paired in volatile max-5 ScanSessionProvider
   │      route carries scanSessionId only; cold restart = recommencer
+  │   ↓ manual public-handoff recheck; first drift = terminal DELETE + rollback
   │   ↓ ExtractionReviewScreen: immutable owner badge + date/values/coherence
   │   ↓ confirmation derives subject from volatile authorization
-  │   ↓ provider revalidates authorization/partner/coherence before load
-  │   ↓ provider FIFO + one complete person-slot replacement + one stamp
+  │   ↓ provider revalidates authorization/partner/pending receipt/coherence
+  │   ↓ provider FIFO + complete certificate-facts replacement + one stamp
+  │      preserves the other person and manualPartner.independentFacts
   │   ↓ awaited whole `_coach_lpp_evidence_v1` secure save
   │      ledger keeps only manualPartnerDeclaration + grantId null
-  │   ↓ publish profile/listeners only after pointer commit succeeds
+  │   ↓ manual pending binding activates only after secure root success
+  │   ↓ publish profile/listeners only after root + binding commit succeeds
   │   ↓ impact payload has no raw text and calls no generic insight/event path
-  │   ↓ cold reload → bounded self/manual expected-owner selector → strict facts
-  │   ↓ OPEN BND-02: named production scenario/recompute + visible consumer proof
-  │   ↓ OPEN BND-02A: named legal/privacy decision + implemented accountability outcome
+  │   ↓ cold reload → exact active receipt/owner status gate
+  │   ↓ invalid receipt excludes certificate facts; independent userInput survives
+  │   ↓ real MintStateEngine → ForecasterService recompute → RetirementDashboardScreen
+  │   ↓ BND-02/BND-02A remain non-GREEN: accepted runtime/external/audit proof missing
   │
   ├─ AVS / salaire: camera, gallery, PDF or OCR paste
   │   ↓ DocumentService.extractDocumentData (backend)
@@ -569,6 +655,17 @@ Failure modes:
   staging but before pointer commit may require the user to review the legacy
   loose facts again; it does not publish a value-only or metadata-only typed
   fact.
+- Manual-partner authority drift at the byte boundary or public review handoff
+  terminalizes the attempt. It performs at most one receipt DELETE, restores
+  the `shadowed`/previous active binding, cleans owned temporary files and
+  suppresses later callbacks. After a committed root, cold status failure does
+  not delete `manualPartner.independentFacts`; it removes only receipt-bound
+  certificate presentation and recomputes the dashboard in partial mode.
+- Backend receipt creation and account deletion serialize on the acting User
+  row. Under the tested PostgreSQL READ COMMITTED invariant, create-first is
+  visible to account tombstoning and delete-first makes later creation fail with
+  typed `partner_accountability_actor_unavailable`; a missing deletion lock
+  returns typed `account_deletion_actor_unavailable` with no success audit.
 - Scan confirm UI shows « +29 points » but save drops → fixed by seeding
   defaults + adding `hasScanData` hydration branch in `loadFromWizard`.
 
@@ -636,11 +733,13 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 ---
 
 *Last updated: 2026-07-15 for the accepted G1-PROV-02 person-owned LPP
-ticket/runtime checkpoint and G1-PROV-03 typed tax provenance. PROV-02 is GREEN
-at pushed SHA `30728b8a0671a0b54bcf47807a0c69bac905e6e3`, but both LPP flags
-remain false and activation is NO. G1-BND-02 downstream recompute and
-G1-BND-02A legal/privacy decision, partner notice and accountability outcome
-remain open; with 17 open G1 gates there is no G1/G2/G3 GO.
+checkpoint, the default-off BND-02/BND-02A implementation through `0280bb840`,
+and G1-PROV-03 typed tax provenance. PROV-02 is GREEN at pushed SHA
+`30728b8a0671a0b54bcf47807a0c69bac905e6e3`; that promotion does not extend to
+the later partner-accountability slice. All checked-in LPP/accountability
+defaults remain false, the production external descriptor is absent,
+BND-02/BND-02A remain
+non-GREEN and activation remains NO-GO. There is no G1 closure or G2/G3 GO.
 Maintenance rule: every new writer or reader of `wizard_answers_v2`
 updates this doc in the same PR. Code drift without doc drift = the
 trap we built this to avoid.*
