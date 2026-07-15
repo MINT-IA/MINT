@@ -16,7 +16,6 @@ already established in test_token_budget + test_slo_monitor).
 """
 from __future__ import annotations
 
-import asyncio
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
@@ -75,9 +74,13 @@ def service():
     return ConsentService(shred_hook=fake_shred)
 
 
-def _understanding(third_party: bool, name: Optional[str] = None) -> DocumentUnderstandingResult:
+def _understanding(
+    third_party: bool,
+    name: Optional[str] = None,
+    document_class: DocumentClass = DocumentClass.salary_certificate,
+) -> DocumentUnderstandingResult:
     return DocumentUnderstandingResult(
-        document_class=DocumentClass.lpp_certificate,
+        document_class=document_class,
         classification_confidence=0.9,
         extracted_fields=[
             ExtractedField(
@@ -164,6 +167,31 @@ def test_gate_passes_after_declaration_granted(db, service):
         understanding=result,
         doc_hash="sha256-doc-A",
     )
+
+
+def test_legacy_nominative_receipt_never_authorizes_lpp(db, service):
+    """PII-bearing PRIV-02 receipts are legacy records, not a BND-02A gate."""
+    user_id = "synthetic-acting-user"
+    document_hash = "synthetic-lpp-document-hash"
+    service.grant_nominative(
+        db,
+        user_id=user_id,
+        subject_name="Synthetic Partner",
+        doc_hash=document_hash,
+        declared_from_ip="192.0.2.10",
+    )
+
+    with pytest.raises(ThirdPartyDeclarationRequired):
+        require_declaration_or_block(
+            db,
+            user_id=user_id,
+            understanding=_understanding(
+                third_party=True,
+                name="Synthetic Partner",
+                document_class=DocumentClass.lpp_certificate,
+            ),
+            doc_hash=document_hash,
+        )
 
 
 def test_gate_rejects_wrong_doc_hash(db, service):

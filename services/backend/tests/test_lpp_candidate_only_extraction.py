@@ -6,6 +6,7 @@ import json
 import logging
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
 
 import pytest
 
@@ -79,6 +80,59 @@ _SYNTHETIC_LPP_PLAN_BYTES = (
     b"Salaire assure CHF 98000\n"
     b"Taux de conversion 5.2 percent\n"
 )
+
+
+def test_manual_partner_lpp_requires_active_accountability_before_anthropic(
+    client,
+    monkeypatch,
+):
+    """A random receipt id must fail before classification, audit, or extraction."""
+    monkeypatch.setenv("FF_PARTNER_LPP_ACCOUNTABILITY_ENABLED", "true")
+    encoded_document = base64.b64encode(_SYNTHETIC_LPP_PLAN_BYTES).decode("ascii")
+    classifier = MagicMock(
+        side_effect=AssertionError("classification ran before accountability"),
+    )
+    extractor = MagicMock(
+        side_effect=AssertionError("Anthropic extraction ran before accountability"),
+    )
+    audit_factory = MagicMock(
+        side_effect=AssertionError("audit row created before accountability"),
+    )
+
+    with (
+        patch(
+            "app.services.document_vision_service.classify_document",
+            new=classifier,
+        ),
+        patch(
+            "app.services.document_vision_service.extract_with_vision",
+            new=extractor,
+        ),
+        patch(
+            "app.models.document_audit.create_audit_log",
+            new=audit_factory,
+        ),
+    ):
+        response = client.post(
+            "/api/v1/documents/extract-vision",
+            json={
+                "imageBase64": encoded_document,
+                "documentType": "lpp_certificate",
+                "subjectKind": "manualPartner",
+                "receiptId": str(uuid4()),
+            },
+        )
+
+    assert response.status_code == 428, (
+        "manualPartner LPP must reject an unknown/inactive accountability "
+        f"receipt before Anthropic; received {response.status_code}: {response.text}"
+    )
+    assert response.json()["detail"]["code"] == (
+        "partner_accountability_receipt_inactive"
+    )
+    classifier.assert_not_called()
+    extractor.assert_not_called()
+    audit_factory.assert_not_called()
 
 
 @pytest.mark.parametrize(
