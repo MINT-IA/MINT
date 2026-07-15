@@ -130,6 +130,13 @@
   "documentsFieldTauxEnveloppe": "Envelope conversion rate",
   "documentsFieldRenteInvalidite": "Annual disability pension",
   "documentsFieldCapitalDeces": "Death capital",
+  "lppEvidenceRetirementPensionAnnualLabel": "Annual retirement pension",
+  "lppEvidenceRetirementCapitalLumpSumLabel": "Retirement capital paid as a lump sum",
+  "lppEvidenceDisabilityCapitalLumpSumLabel": "Disability capital paid as a lump sum",
+  "lppReviewSourceDate": "Pension certificate effective date (YYYY-MM-DD)",
+  "lppReviewSourceDateHint": "Required to keep any unchanged value from the certificate.",
+  "lppReviewSourceDateInvalid": "Enter a valid non-future date in YYYY-MM-DD format.",
+  "lppReviewBalanceIncoherent": "The pension balances are inconsistent. Check the total, mandatory, and extra-mandatory amounts.",
   "documentsFieldRenteConjoint": "Annual spouse pension",
   "documentsFieldRenteEnfant": "Annual child pension",
   "documentsFieldRachatMax": "Maximum possible buyback",
@@ -10680,6 +10687,8 @@
   },
   "docNotFinancial": "This document doesn't appear to be a Swiss financial document.",
   "docNotFinancialHint": "Try with an LPP certificate, salary certificate, 3a statement, or insurance policy.",
+  "lppDocumentKindUnverified": "This document could not be verified as your personal LPP certificate.",
+  "lppDocumentKindUnverifiedHint": "Use your individual pension certificate.",
   "docFileTooLarge": "File too large. Maximum 10 MB.",
   "docWrongFormat": "Unsupported format. Use a photo or a PDF.",
   "docLpp1eWarning": "1e plan detected. No guaranteed conversion rate — capital projection only.",
@@ -11175,104 +11184,9 @@
   "@docScanScannerError": {
     "description": "v2.7 Phase 28-03 — shown when native VisionKit/ML Kit document scanner fails to launch."
   },
-  "documentBubbleConfirmTitle": "{count, plural, =1{I read 1 useful value.} other{I read {count} useful values.}}",
-  "@documentBubbleConfirmTitle": {
-    "description": "Phase 28-04 — header of ConfirmExtractionBubble when no backend summary is provided.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "documentBubbleConfirmAllGood": "All good",
-  "@documentBubbleConfirmAllGood": {
-    "description": "Phase 28-04 — primary chip on ConfirmExtractionBubble: confirm extracted values as-is."
-  },
-  "documentBubbleConfirmCorrect": "Let me fix",
-  "@documentBubbleConfirmCorrect": {
-    "description": "Phase 28-04 — secondary chip on ConfirmExtractionBubble: opens the editable bottom sheet."
-  },
-  "documentBubbleAskTitle": "I have almost everything. Just confirm this:",
-  "@documentBubbleAskTitle": {
-    "description": "Phase 28-04 — header of AskQuestionBubble (hybrid confirm+ask)."
-  },
-  "documentBubbleAskSubmit": "Send",
-  "@documentBubbleAskSubmit": {
-    "description": "Phase 28-04 — submit answers in AskQuestionBubble."
-  },
-  "documentBubbleNarrativeRemindLater": "Remind me in May",
-  "@documentBubbleNarrativeRemindLater": {
-    "description": "Phase 28-04 — default label for the commitment CTA in NarrativeBubble."
-  },
-  "documentBubbleRejectMessage": "This doesn't look like a financial document. No worries — try another photo.",
-  "@documentBubbleRejectMessage": {
-    "description": "Phase 28-04 — gentle rejection copy in RejectBubble. Anti-shame."
-  },
-  "documentBubbleRejectRetry": "Try again",
-  "@documentBubbleRejectRetry": {
-    "description": "Phase 28-04 — retry CTA on RejectBubble."
-  },
-  "documentThirdPartyQuestion": "Is that really {name}?",
-  "@documentThirdPartyQuestion": {
-    "description": "Phase 28-04 — third-party attribution chip rendered above bubbles when backend detects a partner name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "documentThirdPartyYes": "Yes",
-  "@documentThirdPartyYes": {
-    "description": "Phase 28-04 — yes chip on ThirdPartyChip."
-  },
-  "documentThirdPartyNo": "No",
-  "@documentThirdPartyNo": {
-    "description": "Phase 28-04 — no chip on ThirdPartyChip."
-  },
-  "documentThirdPartySomeoneElse": "someone else",
-  "@documentThirdPartySomeoneElse": {
-    "description": "Phase 28-04 — fallback name when no first name detected."
-  },
   "documentReviewOpenedFromDeeplink": "Opened from a direct link. Most documents now appear straight in the chat.",
   "@documentReviewOpenedFromDeeplink": {
     "description": "Phase 28-04 — banner on legacy ExtractionReviewScreen."
-  },
-  "documentReviewMineButton": "It's mine",
-  "@documentReviewMineButton": {
-    "description": "Phase 28-04 — primary action on ExtractionReviewSheet (replaces Confirmer)."
-  },
-  "documentReviewNotMineButton": "Not mine",
-  "@documentReviewNotMineButton": {
-    "description": "Phase 28-04 — chip on ExtractionReviewSheet for third-party documents."
-  },
-  "documentReviewCorrectButton": "Let me fix",
-  "@documentReviewCorrectButton": {
-    "description": "Phase 28-04 — chip on ExtractionReviewSheet to enable inline edit."
-  },
-  "documentScanReadingStage": "Reading…",
-  "@documentScanReadingStage": {
-    "description": "Phase 28-04 — Tom Hanks reading stage label on document_scan_screen during streaming."
-  },
-  "documentScanFamiliarIssuer": "Looks like another {issuer}, checking what moved…",
-  "@documentScanFamiliarIssuer": {
-    "description": "Phase 28-04 — optimistic stage line when client recognises issuer.",
-    "placeholders": {
-      "issuer": {
-        "type": "String"
-      }
-    }
-  },
-  "documentScanFieldFound": "{field}: {value}",
-  "@documentScanFieldFound": {
-    "description": "Phase 28-04 — incremental field row revealed during streaming.",
-    "placeholders": {
-      "field": {
-        "type": "String"
-      },
-      "value": {
-        "type": "String"
-      }
-    }
   },
   "consentSheetTitle": "Your consents",
   "consentSheetSubtitle": "MINT only processes your data with explicit consent, one purpose at a time.",
@@ -11300,33 +11214,8 @@
   "privacyCenterRevokedOn": "Revoked on",
   "policyDiffTitle": "Policy update",
   "policyDiffAcceptDelta": "I've read and accept the changes",
-  "batchValidationTitle": "MINT read {count} numbers. All good?",
-  "@batchValidationTitle": {
-    "description": "Phase 29-04 — BatchValidationBubble headline (PRIV-08).",
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
-  "batchValidationConfirmAll": "All good",
-  "batchValidationCorrectOne": "Correct one",
-  "batchValidationRejectAll": "Nothing matches",
-  "fieldCorrectionTitle": "Correct the value",
-  "fieldCorrectionSave": "Save",
-  "fieldCorrectionCancel": "Cancel",
   "renderModeRejectBannerSanity": "A value looked impossible. MINT chose to stop.",
   "renderModeRejectBannerGuard": "MINT couldn't present this summary educationally. Check the raw numbers.",
-  "humanReviewBadge": "Needs a human eye",
-  "thirdPartyDeclarationTitle": "One moment before we continue",
-  "thirdPartyDeclarationBody": "Do you confirm you obtained {name}'s consent for MINT to process this document?",
-  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
-  "thirdPartyDeclarationMultipleBody": "Do you confirm you obtained consent from {names} for MINT to process this document?",
-  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
-  "thirdPartyDeclarationConfirm": "Yes, I have their consent",
-  "thirdPartyDeclarationCancel": "No, cancel upload",
-  "thirdPartyInviteCta": "Invite {name} to MINT",
-  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
-  "thirdPartyInviteComingSoon": "Invitations coming soon — we noted your intent.",
-  "thirdPartyDeclarationNoticeLink": "Without their consent, MINT cannot process another person's data.",
   "monArgentTabTitle": "My money",
   "monArgentBudgetTitle": "Your budget this month",
   "monArgentBudgetEmpty": "Set up your budget to see where you stand this month.",

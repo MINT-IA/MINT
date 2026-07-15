@@ -7,7 +7,9 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
@@ -37,6 +39,7 @@ typedef ScanConfirmationSender = Future<void> Function({
 class ExtractionReviewScreen extends StatefulWidget {
   final String scanSessionId;
   final ExtractionResult result;
+  final LppExtractionCandidate? lppCandidate;
   final TaxExtractionCandidate? taxCandidate;
   final ScanConfirmationSender? sendScanConfirmation;
   final int Function(CoachProfile)? confidenceScorer;
@@ -46,6 +49,7 @@ class ExtractionReviewScreen extends StatefulWidget {
     super.key,
     required this.scanSessionId,
     required this.result,
+    this.lppCandidate,
     this.taxCandidate,
     this.sendScanConfirmation,
     this.confidenceScorer,
@@ -55,6 +59,8 @@ class ExtractionReviewScreen extends StatefulWidget {
   @override
   State<ExtractionReviewScreen> createState() => _ExtractionReviewScreenState();
 }
+
+enum _DocumentOwnerChoice { self, manualPartner }
 
 class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   /// Per-field confidence thresholds (DOC-03).
@@ -73,6 +79,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   /// Get the confidence threshold for a specific field.
   static double _thresholdFor(String fieldName) {
+    final lppKey = LppEvidenceFactKey.fromWireName(fieldName);
+    if (lppKey != null) return lppKey.reviewConfidenceThreshold;
     return _fieldThresholds[fieldName] ?? 0.80;
   }
 
@@ -82,6 +90,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   bool _transferredToImpact = false;
   bool _isConfirming = false;
   bool _taxValidationFailed = false;
+  bool _lppSourceDateValidationFailed = false;
+  bool _lppBalanceValidationFailed = false;
   bool _taxInForceAttested = false;
   bool _federalScopeIncoherent = false;
 
@@ -113,6 +123,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     _fields = List.from(widget.result.fields);
     _overallConfidence = widget.result.overallConfidence;
     _initializeTaxReview(widget.taxCandidate);
+    _initializeLppReview(widget.lppCandidate);
   }
 
   @override
@@ -150,6 +161,19 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.result.documentType == DocumentType.lppCertificate &&
+        !FeatureFlags.lppEvidenceIngestionEnabled) {
+      return _buildLppRecovery(
+        key: const Key('lpp_review_disabled_recovery'),
+      );
+    }
+    if (widget.result.documentType == DocumentType.lppCertificate &&
+        (widget.lppCandidate == null ||
+            !_isCanonicalLppReview(widget.lppCandidate!))) {
+      return _buildLppRecovery(
+        key: const Key('lpp_review_missing_candidate_recovery'),
+      );
+    }
     if (widget.result.documentType == DocumentType.taxDeclaration &&
         !FeatureFlags.taxAssessmentIngestionEnabled) {
       return _buildTaxRecovery(
@@ -199,17 +223,33 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                         if (widget.result.documentType ==
                             DocumentType.taxDeclaration)
                           _buildTaxReviewForm()
-                        else
+                        else ...[
+                          if (widget.result.documentType ==
+                              DocumentType.lppCertificate) ...[
+                            _buildLppSourceDateField(),
+                            const SizedBox(height: 8),
+                          ],
                           ..._fields.map((f) => Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: _buildFieldCard(f),
                               )),
+                        ],
                         if (_taxValidationFailed) ...[
                           const SizedBox(height: 12),
                           Text(
                             S.of(context)!.docFieldVerify,
                             style: MintTextStyles.bodyMedium(
                                 color: MintColors.error),
+                          ),
+                        ],
+                        if (_lppBalanceValidationFailed) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            S.of(context)!.lppReviewBalanceIncoherent,
+                            key: const Key('lpp_review_balance_error'),
+                            style: MintTextStyles.bodyMedium(
+                              color: MintColors.error,
+                            ),
                           ),
                         ],
                         const SizedBox(height: 24),
@@ -292,6 +332,41 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     );
   }
 
+  Widget _buildLppRecovery({required Key key}) {
+    return Scaffold(
+      key: key,
+      backgroundColor: MintColors.background,
+      appBar: AppBar(
+        backgroundColor: MintColors.background,
+        leading: IconButton(
+          onPressed: _onBack,
+          icon: const Icon(Icons.arrow_back),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                S.of(context)!.docScanGenericError,
+                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                key: const Key('lpp_review_recovery_cta'),
+                onPressed: _onBack,
+                child: Text(S.of(context)!.documentScanCancel),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _onBack() {
     _scanSessions?.discard(widget.scanSessionId);
     safePop(context);
@@ -345,6 +420,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     );
   }
 
+  void _initializeLppReview(LppExtractionCandidate? candidate) {
+    if (candidate == null) return;
+    _sourceDateController.text = _formatTaxDate(candidate.sourceDate);
+  }
+
   String _formatTaxDate(DateTime? value) {
     if (value == null) return '';
     return '${value.year.toString().padLeft(4, '0')}-'
@@ -356,6 +436,36 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     if (value == null) return '';
     if (value == value.roundToDouble()) return value.toInt().toString();
     return value.toString();
+  }
+
+  Widget _buildLppSourceDateField() {
+    final l10n = S.of(context)!;
+    return Semantics(
+      identifier: 'lpp_review_source_date',
+      textField: true,
+      label: l10n.lppReviewSourceDate,
+      child: TextFormField(
+        key: const Key('lpp_review_source_date'),
+        controller: _sourceDateController,
+        keyboardType: TextInputType.datetime,
+        onChanged: (_) {
+          if (_lppSourceDateValidationFailed) {
+            setState(() => _lppSourceDateValidationFailed = false);
+          }
+        },
+        decoration: InputDecoration(
+          labelText: l10n.lppReviewSourceDate,
+          helperText: l10n.lppReviewSourceDateHint,
+          error: _lppSourceDateValidationFailed
+              ? Text(
+                  l10n.lppReviewSourceDateInvalid,
+                  key: const Key('lpp_review_source_date_error'),
+                )
+              : null,
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
   }
 
   Widget _buildTaxReviewForm() {
@@ -654,12 +764,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     );
   }
 
-  // ── Deep-link fallback banner (Phase 28-04) ──────────────
+  // ── Direct-link context banner ───────────────────────────
   //
-  // The full-screen review is now reserved for high-stakes documents
-  // and deep-link entries; the default flow renders chat bubbles +
-  // ExtractionReviewSheet inline. Surface a soft reminder so the user
-  // understands why this screen looks different from the chat path.
+  // Surface the existing context reminder when review is opened directly.
 
   Widget _buildDeeplinkBanner() {
     return Container(
@@ -912,6 +1019,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                 ),
                 // Edit button
                 IconButton(
+                  key: widget.result.documentType == DocumentType.lppCertificate
+                      ? Key('lpp_review_field_edit_${field.fieldName}')
+                      : null,
                   onPressed: () => _editField(field),
                   icon: const Icon(Icons.edit_outlined, size: 20),
                   color: MintColors.textMuted,
@@ -956,6 +1066,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   Widget _buildConfirmButton() {
     final isTax = widget.result.documentType == DocumentType.taxDeclaration;
+    final isLpp = widget.result.documentType == DocumentType.lppCertificate;
     return Semantics(
       identifier: isTax ? 'tax_review_confirm_cta' : null,
       button: true,
@@ -964,7 +1075,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         width: double.infinity,
         height: 56,
         child: FilledButton.icon(
-          key: isTax ? const Key('tax_review_confirm_cta') : null,
+          key: isTax
+              ? const Key('tax_review_confirm_cta')
+              : isLpp
+                  ? const Key('lpp_review_confirm_cta')
+                  : null,
           onPressed: _isConfirming ? null : _onConfirmAll,
           icon: const Icon(Icons.check_circle_outline, size: 22),
           label: Text(
@@ -1038,6 +1153,37 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   String _localizedFieldLabel(ExtractedField field) {
     final l10n = S.of(context)!;
+    if (widget.result.documentType == DocumentType.lppCertificate) {
+      return switch (LppEvidenceFactKey.fromWireName(field.fieldName)) {
+        LppEvidenceFactKey.vestedBenefitsCapitalChf =>
+          l10n.documentsFieldAvoirTotal,
+        LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf =>
+          l10n.documentsFieldAvoirObligatoire,
+        LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf =>
+          l10n.documentsFieldAvoirSurobligatoire,
+        LppEvidenceFactKey.insuredSalaryAnnualChf =>
+          l10n.documentsFieldSalaireAssure,
+        LppEvidenceFactKey.maximumBuybackCapitalChf =>
+          l10n.documentsFieldRachatMax,
+        LppEvidenceFactKey.mandatoryConversionRateRatio =>
+          l10n.documentsFieldTauxObligatoire,
+        LppEvidenceFactKey.extraMandatoryConversionRateRatio =>
+          l10n.documentsFieldTauxSurobligatoire,
+        LppEvidenceFactKey.fundReturnRateRatio =>
+          l10n.docScanLabelTauxRemuneration,
+        LppEvidenceFactKey.retirementPensionAnnualChf =>
+          l10n.lppEvidenceRetirementPensionAnnualLabel,
+        LppEvidenceFactKey.retirementCapitalLumpSumChf =>
+          l10n.lppEvidenceRetirementCapitalLumpSumLabel,
+        LppEvidenceFactKey.disabilityPensionAnnualChf =>
+          l10n.documentsFieldRenteInvalidite,
+        LppEvidenceFactKey.disabilityCapitalLumpSumChf =>
+          l10n.lppEvidenceDisabilityCapitalLumpSumLabel,
+        LppEvidenceFactKey.deathCapitalLumpSumChf =>
+          l10n.documentsFieldCapitalDeces,
+        null => field.label,
+      };
+    }
     return switch (field.labelCode) {
       null => field.label,
       ExtractionFieldLabelCode.taxTaxableIncome => l10n.reportTaxIncome,
@@ -1055,6 +1201,10 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   String _formatValue(ExtractedField field) {
     final value = field.value;
     if (value is double) {
+      final lppKey = LppEvidenceFactKey.fromWireName(field.fieldName);
+      if (lppKey?.unit == LppEvidenceUnit.ratio) {
+        return '${value.toStringAsFixed(2)} %';
+      }
       // Check if it's a percentage field
       if (field.fieldName.contains('rate') ||
           field.fieldName.contains('conversion') ||
@@ -1086,11 +1236,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   // ── Edit field dialog ────────────────────────────────────
 
   void _editField(ExtractedField field) {
-    final controller = TextEditingController(
-      text: field.value is double
-          ? (field.value as double).toStringAsFixed(2)
-          : field.value.toString(),
-    );
+    var editedValue = field.value is double
+        ? (field.value as double).toStringAsFixed(2)
+        : field.value.toString();
 
     showDialog(
       context: context,
@@ -1111,8 +1259,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: controller,
+            TextFormField(
+              initialValue: editedValue,
+              onChanged: (value) => editedValue = value,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               onTapOutside: (_) => FocusScope.of(context).unfocus(),
@@ -1140,15 +1289,19 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             ),
           ),
           FilledButton(
+            key: widget.result.documentType == DocumentType.lppCertificate
+                ? const Key('lpp_review_edit_validate')
+                : null,
             onPressed: () {
               final newValue = double.tryParse(
-                controller.text.replaceAll("'", '').replaceAll(',', '.'),
+                editedValue.replaceAll("'", '').replaceAll(',', '.'),
               );
               if (newValue != null) {
                 setState(() {
                   final idx = _fields.indexOf(field);
                   if (idx >= 0) {
                     _fields[idx] = field.copyWithValue(newValue);
+                    _lppBalanceValidationFailed = false;
                     _recalculateOverallConfidence();
                   }
                 });
@@ -1166,7 +1319,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           ),
         ],
       ),
-    ).then((_) => controller.dispose());
+    );
   }
 
   void _recalculateOverallConfidence() {
@@ -1176,27 +1329,32 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             _fields.length;
   }
 
-  /// Ask user whose document this is (for couple profiles).
-  /// Returns true if this is the partner's document.
-  Future<bool> _askWhoseDocument() async {
-    final result = await showDialog<bool>(
+  Future<_DocumentOwnerChoice?> _askWhoseDocument() async {
+    return showDialog<_DocumentOwnerChoice>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(S.of(ctx)!.extractionWhoseDocument),
         content: Text(S.of(ctx)!.extractionWhoseDocumentBody),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
+            key: const Key('lpp_review_subject_cancel'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(S.of(ctx)!.extractionReviewCancel),
+          ),
+          TextButton(
+            key: const Key('lpp_review_subject_self'),
+            onPressed: () => Navigator.pop(ctx, _DocumentOwnerChoice.self),
             child: Text(S.of(ctx)!.extractionDocMine),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
+            key: const Key('lpp_review_subject_manual_partner'),
+            onPressed: () =>
+                Navigator.pop(ctx, _DocumentOwnerChoice.manualPartner),
             child: Text(S.of(ctx)!.extractionDocPartner),
           ),
         ],
       ),
     );
-    return result ?? false;
   }
 
   // ── Confirm and navigate ─────────────────────────────────
@@ -1207,7 +1365,220 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     return ConfidenceScorer.score(profile).score.round();
   }
 
+  bool _isCanonicalLppReview(LppExtractionCandidate candidate) {
+    if (widget.result.documentType != DocumentType.lppCertificate ||
+        widget.result.fields.length != candidate.facts.length) {
+      return false;
+    }
+    final seen = <LppEvidenceFactKey>{};
+    for (final field in widget.result.fields) {
+      final key = LppEvidenceFactKey.fromWireName(field.fieldName);
+      final fact = key == null ? null : candidate.factFor(key);
+      if (key == null ||
+          fact == null ||
+          !seen.add(key) ||
+          field.value is! num) {
+        return false;
+      }
+      var reviewValue = (field.value as num).toDouble();
+      if (!reviewValue.isFinite || reviewValue < 0) return false;
+      if (key.unit == LppEvidenceUnit.ratio) reviewValue /= 100;
+      if ((reviewValue - fact.value).abs() > 1e-12) return false;
+    }
+    return true;
+  }
+
+  Map<LppEvidenceFactKey, LppReviewedFact>? _buildLppReviewedFacts() {
+    final candidate = widget.lppCandidate;
+    if (candidate == null || !_isCanonicalLppReview(candidate)) {
+      return null;
+    }
+    final facts = <LppEvidenceFactKey, LppReviewedFact>{};
+    final seenKeys = <LppEvidenceFactKey>{};
+    for (final field in _fields) {
+      final key = LppEvidenceFactKey.fromWireName(field.fieldName);
+      if (key == null) continue;
+      if (!seenKeys.add(key) || field.value is! num) return null;
+      var value = (field.value as num).toDouble();
+      if (!value.isFinite || value < 0) return null;
+      if (key.unit == LppEvidenceUnit.ratio) {
+        if (value > 100) return null;
+        value /= 100;
+      }
+      final candidateFact = candidate.factFor(key);
+      if (candidateFact == null) return null;
+      final corrected = (candidateFact.value - value).abs() > 1e-12;
+      if (candidateFact.derived && !corrected) continue;
+      facts[key] = LppReviewedFact(
+        value: value,
+        unit: key.unit,
+        corrected: corrected,
+      );
+    }
+    return Map.unmodifiable(facts);
+  }
+
+  ({bool isValid, DateTime? value}) _validatedLppSourceDate() {
+    final candidate = widget.lppCandidate;
+    if (candidate == null || !_isCanonicalLppReview(candidate)) {
+      return (isValid: false, value: null);
+    }
+    var hasUntouchedDocumentFact = false;
+    for (final field in _fields) {
+      final key = LppEvidenceFactKey.fromWireName(field.fieldName);
+      final candidateFact = key == null ? null : candidate.factFor(key);
+      if (key == null || candidateFact == null || field.value is! num) {
+        return (isValid: false, value: null);
+      }
+      var value = (field.value as num).toDouble();
+      if (!value.isFinite || value < 0) {
+        return (isValid: false, value: null);
+      }
+      if (key.unit == LppEvidenceUnit.ratio) {
+        if (value > 100) return (isValid: false, value: null);
+        value /= 100;
+      }
+      final corrected = (candidateFact.value - value).abs() > 1e-12;
+      if (!corrected && !candidateFact.derived) {
+        hasUntouchedDocumentFact = true;
+      }
+    }
+    try {
+      final sourceDate = _parseOptionalTaxDate(_sourceDateController.text);
+      final currentDay = _civilDay((widget.now ?? DateTime.now)());
+      if (sourceDate != null && _civilDay(sourceDate).isAfter(currentDay)) {
+        return (isValid: false, value: null);
+      }
+      if (hasUntouchedDocumentFact && sourceDate == null) {
+        return (isValid: false, value: null);
+      }
+      return (isValid: true, value: sourceDate);
+    } on FormatException {
+      return (isValid: false, value: null);
+    }
+  }
+
+  ExtractionResult _lppImpactResult(
+    LppReviewConfirmation confirmation,
+    double confidenceDelta,
+  ) {
+    return ExtractionResult(
+      documentType: DocumentType.lppCertificate,
+      fields: confirmation.facts.entries
+          .map(
+            (entry) => ExtractedField(
+              fieldName: entry.key.wireName,
+              label: entry.key.wireName,
+              value: entry.value.value,
+              confidence: 1,
+              sourceText: '',
+              needsReview: false,
+              profileField: confirmation.subject == LppEvidenceOwnerKind.self
+                  ? entry.key.profilePath
+                  : entry.key.manualPartnerProfilePath,
+            ),
+          )
+          .toList(growable: false),
+      overallConfidence: 1,
+      confidenceDelta: confidenceDelta,
+      warnings: const [],
+      disclaimer: '',
+      sources: const [],
+    );
+  }
+
   Future<void> _onConfirmAll() async {
+    if (widget.result.documentType == DocumentType.lppCertificate) {
+      if (_isConfirming ||
+          !FeatureFlags.lppEvidenceIngestionEnabled ||
+          widget.lppCandidate == null ||
+          !_isCanonicalLppReview(widget.lppCandidate!)) {
+        return;
+      }
+      final reviewedFacts = _buildLppReviewedFacts();
+      if (reviewedFacts == null) {
+        setState(() {
+          _taxValidationFailed = true;
+          _lppSourceDateValidationFailed = false;
+          _lppBalanceValidationFailed = false;
+        });
+        return;
+      }
+      if (!LppBalanceCoherence.isCoherent({
+        for (final entry in reviewedFacts.entries) entry.key: entry.value.value,
+      })) {
+        setState(() {
+          _lppBalanceValidationFailed = true;
+          _lppSourceDateValidationFailed = false;
+          _taxValidationFailed = false;
+        });
+        return;
+      }
+      final sourceDate = _validatedLppSourceDate();
+      if (!sourceDate.isValid) {
+        setState(() {
+          _lppSourceDateValidationFailed = true;
+          _lppBalanceValidationFailed = false;
+          _taxValidationFailed = false;
+        });
+        return;
+      }
+      setState(() {
+        _isConfirming = true;
+        _taxValidationFailed = false;
+        _lppSourceDateValidationFailed = false;
+        _lppBalanceValidationFailed = false;
+      });
+      final owner = await _askWhoseDocument();
+      if (!mounted) return;
+      if (owner == null) {
+        setState(() => _isConfirming = false);
+        return;
+      }
+      if (reviewedFacts.isEmpty) {
+        setState(() {
+          _isConfirming = false;
+          _taxValidationFailed = true;
+        });
+        return;
+      }
+      final confirmation = owner == _DocumentOwnerChoice.manualPartner
+          ? LppReviewConfirmation.manualPartner(
+              facts: reviewedFacts,
+              sourceDate: sourceDate.value,
+            )
+          : LppReviewConfirmation.self(
+              facts: reviewedFacts,
+              sourceDate: sourceDate.value,
+            );
+      final coachProvider = context.read<CoachProfileProvider>();
+      final beforeProfile = coachProvider.profile ?? CoachProfile.defaults();
+      final previousConfidence = _scoreProfile(beforeProfile);
+      try {
+        await coachProvider.acceptLppReview(confirmation);
+      } catch (_) {
+        if (mounted) setState(() => _isConfirming = false);
+        return;
+      }
+      final afterProfile = coachProvider.profile ?? CoachProfile.defaults();
+      final confidenceDelta =
+          _scoreProfile(afterProfile).toDouble() - previousConfidence;
+      final retained = _scanSessions?.retainImpact(
+            widget.scanSessionId,
+            extraction: _lppImpactResult(confirmation, confidenceDelta),
+            previousConfidence: previousConfidence,
+          ) ??
+          false;
+      if (!retained || !mounted) {
+        if (mounted) setState(() => _isConfirming = false);
+        return;
+      }
+      _transferredToImpact = true;
+      context.go(
+        '/scan/impact?scanSessionId=${Uri.encodeQueryComponent(widget.scanSessionId)}',
+      );
+      return;
+    }
     if (widget.result.documentType == DocumentType.taxDeclaration) {
       if (_isConfirming ||
           !FeatureFlags.taxAssessmentIngestionEnabled ||
@@ -1297,19 +1668,16 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     // For couple profiles: ask whose document this is before injecting.
     final isCouple =
         coachProvider.hasProfile && coachProvider.profile!.conjoint != null;
-    final isPartnerDoc = isCouple &&
-        (widget.result.documentType == DocumentType.lppCertificate ||
-            widget.result.documentType == DocumentType.salaryCertificate) &&
-        await _askWhoseDocument();
+    if (isCouple &&
+        widget.result.documentType == DocumentType.salaryCertificate) {
+      final owner = await _askWhoseDocument();
+      if (!mounted || owner == null) return;
+    }
 
     // Inject extracted data and AWAIT persistence before navigating
     switch (widget.result.documentType) {
       case DocumentType.lppCertificate:
-        if (isPartnerDoc) {
-          await coachProvider.updateFromPartnerLppExtraction(_fields);
-        } else {
-          await coachProvider.updateFromLppExtraction(_fields);
-        }
+        return;
       case DocumentType.avsExtract:
         await coachProvider.updateFromAvsExtraction(_fields);
       case DocumentType.taxDeclaration:

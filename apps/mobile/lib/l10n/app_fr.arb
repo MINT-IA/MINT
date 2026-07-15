@@ -155,6 +155,13 @@
   "documentsFieldTauxEnveloppe": "Taux de conversion enveloppe",
   "documentsFieldRenteInvalidite": "Rente d'invalidité annuelle",
   "documentsFieldCapitalDeces": "Capital-décès",
+  "lppEvidenceRetirementPensionAnnualLabel": "Rente de retraite annuelle",
+  "lppEvidenceRetirementCapitalLumpSumLabel": "Capital retraite versé en une fois",
+  "lppEvidenceDisabilityCapitalLumpSumLabel": "Capital d'invalidité versé en une fois",
+  "lppReviewSourceDate": "Date de situation du certificat LPP (AAAA-MM-JJ)",
+  "lppReviewSourceDateHint": "Obligatoire pour conserver toute valeur non corrigée du certificat.",
+  "lppReviewSourceDateInvalid": "Saisis une date valide, non future, au format AAAA-MM-JJ.",
+  "lppReviewBalanceIncoherent": "Les avoirs LPP ne sont pas cohérents. Vérifie le total, la part obligatoire et la part surobligatoire.",
   "documentsFieldRenteConjoint": "Rente de conjoint annuelle",
   "documentsFieldRenteEnfant": "Rente d'enfant annuelle",
   "documentsFieldRachatMax": "Rachat maximum possible",
@@ -11208,6 +11215,8 @@
   },
   "docNotFinancial": "Ce document ne semble pas être un document financier suisse.",
   "docNotFinancialHint": "Essaie avec un certificat LPP, de salaire, 3a, ou une police d’assurance.",
+  "lppDocumentKindUnverified": "Ce document n’a pas pu être vérifié comme ton certificat LPP personnel.",
+  "lppDocumentKindUnverifiedHint": "Utilise ton certificat individuel de prévoyance.",
   "docFileTooLarge": "Fichier trop volumineux. Maximum 10 Mo.",
   "docWrongFormat": "Format non supporté. Utilise une photo ou un PDF.",
   "docLpp1eWarning": "Plan 1e détecté. Pas de taux de conversion garanti — projection en capital uniquement.",
@@ -11898,104 +11907,9 @@
   "@docScanScannerError": {
     "description": "v2.7 Phase 28-03 — shown when native VisionKit/ML Kit document scanner fails to launch."
   },
-  "documentBubbleConfirmTitle": "{count, plural, =1{J''ai lu 1 donnée utile.} other{J''ai lu {count} données utiles.}}",
-  "@documentBubbleConfirmTitle": {
-    "description": "Phase 28-04 — header of ConfirmExtractionBubble when no backend summary is provided.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "documentBubbleConfirmAllGood": "Tout bon",
-  "@documentBubbleConfirmAllGood": {
-    "description": "Phase 28-04 — primary chip on ConfirmExtractionBubble: confirm extracted values as-is."
-  },
-  "documentBubbleConfirmCorrect": "Je corrige",
-  "@documentBubbleConfirmCorrect": {
-    "description": "Phase 28-04 — secondary chip on ConfirmExtractionBubble: opens the editable bottom sheet."
-  },
-  "documentBubbleAskTitle": "J'ai presque tout. Confirme-moi juste ça :",
-  "@documentBubbleAskTitle": {
-    "description": "Phase 28-04 — header of AskQuestionBubble (hybrid confirm+ask)."
-  },
-  "documentBubbleAskSubmit": "Envoyer",
-  "@documentBubbleAskSubmit": {
-    "description": "Phase 28-04 — submit answers in AskQuestionBubble."
-  },
-  "documentBubbleNarrativeRemindLater": "Rappelle-moi en mai",
-  "@documentBubbleNarrativeRemindLater": {
-    "description": "Phase 28-04 — default label for the commitment CTA in NarrativeBubble."
-  },
-  "documentBubbleRejectMessage": "Ce document ne semble pas financier. Pas grave — réessaie avec une autre photo.",
-  "@documentBubbleRejectMessage": {
-    "description": "Phase 28-04 — gentle rejection copy in RejectBubble. Anti-shame."
-  },
-  "documentBubbleRejectRetry": "Réessayer",
-  "@documentBubbleRejectRetry": {
-    "description": "Phase 28-04 — retry CTA on RejectBubble."
-  },
-  "documentThirdPartyQuestion": "C''est bien {name} ?",
-  "@documentThirdPartyQuestion": {
-    "description": "Phase 28-04 — third-party attribution chip rendered above bubbles when backend detects a partner name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "documentThirdPartyYes": "Oui",
-  "@documentThirdPartyYes": {
-    "description": "Phase 28-04 — yes chip on ThirdPartyChip."
-  },
-  "documentThirdPartyNo": "Non",
-  "@documentThirdPartyNo": {
-    "description": "Phase 28-04 — no chip on ThirdPartyChip."
-  },
-  "documentThirdPartySomeoneElse": "quelqu'un d'autre",
-  "@documentThirdPartySomeoneElse": {
-    "description": "Phase 28-04 — fallback name when no first name detected."
-  },
   "documentReviewOpenedFromDeeplink": "Ouvert depuis un lien direct. La plupart des documents apparaissent maintenant directement dans le chat.",
   "@documentReviewOpenedFromDeeplink": {
     "description": "Phase 28-04 — banner on legacy ExtractionReviewScreen."
-  },
-  "documentReviewMineButton": "C'est à moi",
-  "@documentReviewMineButton": {
-    "description": "Phase 28-04 — primary action on ExtractionReviewSheet (replaces Confirmer)."
-  },
-  "documentReviewNotMineButton": "Ce n'est pas moi",
-  "@documentReviewNotMineButton": {
-    "description": "Phase 28-04 — chip on ExtractionReviewSheet for third-party documents."
-  },
-  "documentReviewCorrectButton": "Je corrige",
-  "@documentReviewCorrectButton": {
-    "description": "Phase 28-04 — chip on ExtractionReviewSheet to enable inline edit."
-  },
-  "documentScanReadingStage": "Je regarde…",
-  "@documentScanReadingStage": {
-    "description": "Phase 28-04 — Tom Hanks reading stage label on document_scan_screen during streaming."
-  },
-  "documentScanFamiliarIssuer": "Je crois que c''est un autre {issuer}, je regarde ce qui a bougé…",
-  "@documentScanFamiliarIssuer": {
-    "description": "Phase 28-04 — optimistic stage line when client recognises issuer.",
-    "placeholders": {
-      "issuer": {
-        "type": "String"
-      }
-    }
-  },
-  "documentScanFieldFound": "{field} : {value}",
-  "@documentScanFieldFound": {
-    "description": "Phase 28-04 — incremental field row revealed during streaming.",
-    "placeholders": {
-      "field": {
-        "type": "String"
-      },
-      "value": {
-        "type": "String"
-      }
-    }
   },
   "consentSheetTitle": "Tes consentements",
   "consentSheetSubtitle": "MINT ne traite tes données qu'avec ton accord explicite, pour chaque finalité.",
@@ -12023,57 +11937,8 @@
   "privacyCenterRevokedOn": "Révoqué le",
   "policyDiffTitle": "Mise à jour de la politique",
   "policyDiffAcceptDelta": "J'ai lu et j'accepte les changements",
-  "batchValidationTitle": "MINT a lu {count} chiffres. Tout bon\u00a0?",
-  "@batchValidationTitle": {
-    "description": "Phase 29-04 — BatchValidationBubble headline (PRIV-08).",
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
-  "batchValidationConfirmAll": "Tout bon",
-  "batchValidationCorrectOne": "Corriger un chiffre",
-  "batchValidationRejectAll": "Rien ne colle",
-  "fieldCorrectionTitle": "Corriger la valeur",
-  "fieldCorrectionSave": "Enregistrer",
-  "fieldCorrectionCancel": "Annuler",
   "renderModeRejectBannerSanity": "Une valeur paraît impossible. MINT a préféré s'arrêter.",
   "renderModeRejectBannerGuard": "MINT n'a pas pu présenter ce résumé de manière éducative. Regarde les chiffres bruts.",
-  "humanReviewBadge": "À vérifier par un œil humain",
-  "thirdPartyDeclarationTitle": "Un moment avant de continuer",
-  "@thirdPartyDeclarationTitle": {
-    "description": "Phase 29-05 — title of the opposable declaration sheet."
-  },
-  "thirdPartyDeclarationBody": "Tu confirmes avoir obtenu le consentement de {name} pour que MINT traite ce document\u00a0?",
-  "@thirdPartyDeclarationBody": {
-    "description": "Phase 29-05 — single-subject declaration body.",
-    "placeholders": {"name": {"type": "String"}}
-  },
-  "thirdPartyDeclarationMultipleBody": "Tu confirmes avoir obtenu le consentement de {names} pour que MINT traite ce document\u00a0?",
-  "@thirdPartyDeclarationMultipleBody": {
-    "description": "Phase 29-05 — multi-subject declaration body.",
-    "placeholders": {"names": {"type": "String"}}
-  },
-  "thirdPartyDeclarationConfirm": "Oui, j'ai son consentement",
-  "@thirdPartyDeclarationConfirm": {
-    "description": "Phase 29-05 — primary CTA (grants the nominative receipt)."
-  },
-  "thirdPartyDeclarationCancel": "Non, annuler l'upload",
-  "@thirdPartyDeclarationCancel": {
-    "description": "Phase 29-05 — cancel CTA (aborts the upload)."
-  },
-  "thirdPartyInviteCta": "Inviter {name} sur MINT",
-  "@thirdPartyInviteCta": {
-    "description": "Phase 29-05 — secondary CTA (logs intent, real invite deferred).",
-    "placeholders": {"name": {"type": "String"}}
-  },
-  "thirdPartyInviteComingSoon": "Invitation bientôt disponible — on note ton intention.",
-  "@thirdPartyInviteComingSoon": {
-    "description": "Phase 29-05 — toast shown after tapping the invite stub."
-  },
-  "thirdPartyDeclarationNoticeLink": "Sans son accord, MINT ne peut pas traiter les données d'une autre personne.",
-  "@thirdPartyDeclarationNoticeLink": {
-    "description": "Phase 29-05 — nLPD art. 19 notice text shown below the body."
-  },
   "monArgentTabTitle": "Mon argent",
   "@monArgentTabTitle": { "description": "Nav V11 — Mon argent tab AppBar title" },
   "monArgentBudgetTitle": "Ton budget ce mois",

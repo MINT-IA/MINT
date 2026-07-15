@@ -933,6 +933,48 @@ abstract class S {
   /// **'Capital-décès'**
   String get documentsFieldCapitalDeces;
 
+  /// No description provided for @lppEvidenceRetirementPensionAnnualLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente de retraite annuelle'**
+  String get lppEvidenceRetirementPensionAnnualLabel;
+
+  /// No description provided for @lppEvidenceRetirementCapitalLumpSumLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital retraite versé en une fois'**
+  String get lppEvidenceRetirementCapitalLumpSumLabel;
+
+  /// No description provided for @lppEvidenceDisabilityCapitalLumpSumLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital d\'invalidité versé en une fois'**
+  String get lppEvidenceDisabilityCapitalLumpSumLabel;
+
+  /// No description provided for @lppReviewSourceDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de situation du certificat LPP (AAAA-MM-JJ)'**
+  String get lppReviewSourceDate;
+
+  /// No description provided for @lppReviewSourceDateHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obligatoire pour conserver toute valeur non corrigée du certificat.'**
+  String get lppReviewSourceDateHint;
+
+  /// No description provided for @lppReviewSourceDateInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis une date valide, non future, au format AAAA-MM-JJ.'**
+  String get lppReviewSourceDateInvalid;
+
+  /// No description provided for @lppReviewBalanceIncoherent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les avoirs LPP ne sont pas cohérents. Vérifie le total, la part obligatoire et la part surobligatoire.'**
+  String get lppReviewBalanceIncoherent;
+
   /// No description provided for @documentsFieldRenteConjoint.
   ///
   /// In fr, this message translates to:
@@ -39143,6 +39185,18 @@ abstract class S {
   /// **'Essaie avec un certificat LPP, de salaire, 3a, ou une police d’assurance.'**
   String get docNotFinancialHint;
 
+  /// No description provided for @lppDocumentKindUnverified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce document n’a pas pu être vérifié comme ton certificat LPP personnel.'**
+  String get lppDocumentKindUnverified;
+
+  /// No description provided for @lppDocumentKindUnverifiedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilise ton certificat individuel de prévoyance.'**
+  String get lppDocumentKindUnverifiedHint;
+
   /// No description provided for @docFileTooLarge.
   ///
   /// In fr, this message translates to:
@@ -40259,119 +40313,11 @@ abstract class S {
   /// **'Le scanner n\'a pas pu démarrer. Tu peux importer un fichier depuis ta galerie.'**
   String get docScanScannerError;
 
-  /// Phase 28-04 — header of ConfirmExtractionBubble when no backend summary is provided.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count, plural, =1{J\'\'ai lu 1 donnée utile.} other{J\'\'ai lu {count} données utiles.}}'**
-  String documentBubbleConfirmTitle(int count);
-
-  /// Phase 28-04 — primary chip on ConfirmExtractionBubble: confirm extracted values as-is.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tout bon'**
-  String get documentBubbleConfirmAllGood;
-
-  /// Phase 28-04 — secondary chip on ConfirmExtractionBubble: opens the editable bottom sheet.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je corrige'**
-  String get documentBubbleConfirmCorrect;
-
-  /// Phase 28-04 — header of AskQuestionBubble (hybrid confirm+ask).
-  ///
-  /// In fr, this message translates to:
-  /// **'J\'ai presque tout. Confirme-moi juste ça :'**
-  String get documentBubbleAskTitle;
-
-  /// Phase 28-04 — submit answers in AskQuestionBubble.
-  ///
-  /// In fr, this message translates to:
-  /// **'Envoyer'**
-  String get documentBubbleAskSubmit;
-
-  /// Phase 28-04 — default label for the commitment CTA in NarrativeBubble.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rappelle-moi en mai'**
-  String get documentBubbleNarrativeRemindLater;
-
-  /// Phase 28-04 — gentle rejection copy in RejectBubble. Anti-shame.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ce document ne semble pas financier. Pas grave — réessaie avec une autre photo.'**
-  String get documentBubbleRejectMessage;
-
-  /// Phase 28-04 — retry CTA on RejectBubble.
-  ///
-  /// In fr, this message translates to:
-  /// **'Réessayer'**
-  String get documentBubbleRejectRetry;
-
-  /// Phase 28-04 — third-party attribution chip rendered above bubbles when backend detects a partner name.
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'\'est bien {name} ?'**
-  String documentThirdPartyQuestion(String name);
-
-  /// Phase 28-04 — yes chip on ThirdPartyChip.
-  ///
-  /// In fr, this message translates to:
-  /// **'Oui'**
-  String get documentThirdPartyYes;
-
-  /// Phase 28-04 — no chip on ThirdPartyChip.
-  ///
-  /// In fr, this message translates to:
-  /// **'Non'**
-  String get documentThirdPartyNo;
-
-  /// Phase 28-04 — fallback name when no first name detected.
-  ///
-  /// In fr, this message translates to:
-  /// **'quelqu\'un d\'autre'**
-  String get documentThirdPartySomeoneElse;
-
   /// Phase 28-04 — banner on legacy ExtractionReviewScreen.
   ///
   /// In fr, this message translates to:
   /// **'Ouvert depuis un lien direct. La plupart des documents apparaissent maintenant directement dans le chat.'**
   String get documentReviewOpenedFromDeeplink;
-
-  /// Phase 28-04 — primary action on ExtractionReviewSheet (replaces Confirmer).
-  ///
-  /// In fr, this message translates to:
-  /// **'C\'est à moi'**
-  String get documentReviewMineButton;
-
-  /// Phase 28-04 — chip on ExtractionReviewSheet for third-party documents.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ce n\'est pas moi'**
-  String get documentReviewNotMineButton;
-
-  /// Phase 28-04 — chip on ExtractionReviewSheet to enable inline edit.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je corrige'**
-  String get documentReviewCorrectButton;
-
-  /// Phase 28-04 — Tom Hanks reading stage label on document_scan_screen during streaming.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je regarde…'**
-  String get documentScanReadingStage;
-
-  /// Phase 28-04 — optimistic stage line when client recognises issuer.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je crois que c\'\'est un autre {issuer}, je regarde ce qui a bougé…'**
-  String documentScanFamiliarIssuer(String issuer);
-
-  /// Phase 28-04 — incremental field row revealed during streaming.
-  ///
-  /// In fr, this message translates to:
-  /// **'{field} : {value}'**
-  String documentScanFieldFound(String field, String value);
 
   /// No description provided for @consentSheetTitle.
   ///
@@ -40529,48 +40475,6 @@ abstract class S {
   /// **'J\'ai lu et j\'accepte les changements'**
   String get policyDiffAcceptDelta;
 
-  /// Phase 29-04 — BatchValidationBubble headline (PRIV-08).
-  ///
-  /// In fr, this message translates to:
-  /// **'MINT a lu {count} chiffres. Tout bon ?'**
-  String batchValidationTitle(int count);
-
-  /// No description provided for @batchValidationConfirmAll.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tout bon'**
-  String get batchValidationConfirmAll;
-
-  /// No description provided for @batchValidationCorrectOne.
-  ///
-  /// In fr, this message translates to:
-  /// **'Corriger un chiffre'**
-  String get batchValidationCorrectOne;
-
-  /// No description provided for @batchValidationRejectAll.
-  ///
-  /// In fr, this message translates to:
-  /// **'Rien ne colle'**
-  String get batchValidationRejectAll;
-
-  /// No description provided for @fieldCorrectionTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Corriger la valeur'**
-  String get fieldCorrectionTitle;
-
-  /// No description provided for @fieldCorrectionSave.
-  ///
-  /// In fr, this message translates to:
-  /// **'Enregistrer'**
-  String get fieldCorrectionSave;
-
-  /// No description provided for @fieldCorrectionCancel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Annuler'**
-  String get fieldCorrectionCancel;
-
   /// No description provided for @renderModeRejectBannerSanity.
   ///
   /// In fr, this message translates to:
@@ -40582,60 +40486,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'MINT n\'a pas pu présenter ce résumé de manière éducative. Regarde les chiffres bruts.'**
   String get renderModeRejectBannerGuard;
-
-  /// No description provided for @humanReviewBadge.
-  ///
-  /// In fr, this message translates to:
-  /// **'À vérifier par un œil humain'**
-  String get humanReviewBadge;
-
-  /// Phase 29-05 — title of the opposable declaration sheet.
-  ///
-  /// In fr, this message translates to:
-  /// **'Un moment avant de continuer'**
-  String get thirdPartyDeclarationTitle;
-
-  /// Phase 29-05 — single-subject declaration body.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu confirmes avoir obtenu le consentement de {name} pour que MINT traite ce document ?'**
-  String thirdPartyDeclarationBody(String name);
-
-  /// Phase 29-05 — multi-subject declaration body.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu confirmes avoir obtenu le consentement de {names} pour que MINT traite ce document ?'**
-  String thirdPartyDeclarationMultipleBody(String names);
-
-  /// Phase 29-05 — primary CTA (grants the nominative receipt).
-  ///
-  /// In fr, this message translates to:
-  /// **'Oui, j\'ai son consentement'**
-  String get thirdPartyDeclarationConfirm;
-
-  /// Phase 29-05 — cancel CTA (aborts the upload).
-  ///
-  /// In fr, this message translates to:
-  /// **'Non, annuler l\'upload'**
-  String get thirdPartyDeclarationCancel;
-
-  /// Phase 29-05 — secondary CTA (logs intent, real invite deferred).
-  ///
-  /// In fr, this message translates to:
-  /// **'Inviter {name} sur MINT'**
-  String thirdPartyInviteCta(String name);
-
-  /// Phase 29-05 — toast shown after tapping the invite stub.
-  ///
-  /// In fr, this message translates to:
-  /// **'Invitation bientôt disponible — on note ton intention.'**
-  String get thirdPartyInviteComingSoon;
-
-  /// Phase 29-05 — nLPD art. 19 notice text shown below the body.
-  ///
-  /// In fr, this message translates to:
-  /// **'Sans son accord, MINT ne peut pas traiter les données d\'une autre personne.'**
-  String get thirdPartyDeclarationNoticeLink;
 
   /// Nav V11 — Mon argent tab AppBar title
   ///

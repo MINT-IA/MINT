@@ -16,12 +16,14 @@ import 'package:mint_mobile/services/native_document_scanner.dart';
 import 'package:mint_mobile/services/local_image_classifier.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
+import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 import 'package:mint_mobile/services/document_parser/salary_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -56,14 +58,44 @@ import 'package:uuid/uuid.dart';
 //    - only confirmed structured values are saved to profile
 // ────────────────────────────────────────────────────────────
 
+typedef DocumentScanFilePicker = Future<PlatformFile?> Function();
+typedef DocumentScanFileBytesReader = Future<Uint8List> Function(String path);
+
+typedef DocumentScanConsentRequester = Future<bool> Function(
+  BuildContext context,
+  List<ConsentPurpose> purposes,
+);
+
+typedef DocumentScanVisionExtractor = Future<Map<String, dynamic>?> Function({
+  required String imageBase64,
+  required String documentType,
+  String? canton,
+  String? languageHint,
+});
+
+typedef DocumentScanPdfUploader = Future<DocumentUploadResult> Function(
+  File file, {
+  required VaultDocumentType type,
+});
+
 class DocumentScanScreen extends StatefulWidget {
   final DocumentType? initialType;
   final String Function()? taxSnapshotIdFactory;
+  final DocumentScanFilePicker? pickFile;
+  final DocumentScanFileBytesReader? readFileBytes;
+  final DocumentScanConsentRequester? requireConsent;
+  final DocumentScanVisionExtractor? visionExtractor;
+  final DocumentScanPdfUploader? uploadDocument;
 
   const DocumentScanScreen({
     super.key,
     this.initialType,
     this.taxSnapshotIdFactory,
+    this.pickFile,
+    this.readFileBytes,
+    this.requireConsent,
+    this.visionExtractor,
+    this.uploadDocument,
   });
 
   @override
@@ -97,10 +129,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   String? _preValidationHint;
 
   bool get _taxAssessmentEnabled => FeatureFlags.taxAssessmentIngestionEnabled;
+  bool get _lppEvidenceEnabled => FeatureFlags.lppEvidenceIngestionEnabled;
 
   bool _isSupportedType(DocumentType type) =>
       _supportedTypes.contains(type) &&
+      (type != DocumentType.lppCertificate || _lppEvidenceEnabled) &&
       (type != DocumentType.taxDeclaration || _taxAssessmentEnabled);
+
+  DocumentType get _defaultSupportedType =>
+      DocumentType.values.firstWhere(_isSupportedType);
 
   @override
   void initState() {
@@ -108,19 +145,80 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final initial = widget.initialType;
     if (initial != null && _isSupportedType(initial)) {
       _selectedType = initial;
+    } else if (!_isSupportedType(_selectedType)) {
+      _selectedType = _defaultSupportedType;
     }
   }
 
   Future<void> _openReview(
     ExtractionResult extraction, {
     TaxExtractionCandidate? taxCandidate,
+    LppAcquisitionSource? lppSource,
   }) async {
+    if (extraction.documentType == DocumentType.lppCertificate &&
+        !FeatureFlags.lppEvidenceIngestionEnabled) {
+      return;
+    }
+    LppExtractionCandidate? lppCandidate;
+    var reviewExtraction = extraction;
+    if (extraction.documentType == DocumentType.lppCertificate) {
+      if (lppSource == null) return;
+      final adaptation = LppExtractionAdapter.adapt(
+        source: lppSource,
+        sourceOverallConfidence: extraction.overallConfidence,
+        fields: extraction.fields,
+      );
+      lppCandidate = adaptation.candidate;
+      if (lppCandidate == null || lppCandidate.facts.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _preValidationError = S.of(context)!.docScanNoFieldRecognized;
+            _preValidationHint = S.of(context)!.docScanNoFieldHint;
+          });
+        }
+        return;
+      }
+      reviewExtraction = _canonicalLppReviewExtraction(
+        lppCandidate,
+        confidenceDelta: extraction.confidenceDelta,
+      );
+    }
     final scanSessionId = context.read<ScanSessionProvider>().retainExtraction(
-          extraction,
+          reviewExtraction,
+          lppCandidate: lppCandidate,
           taxCandidate: taxCandidate,
         );
     await context.push(
       '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}',
+    );
+  }
+
+  ExtractionResult _canonicalLppReviewExtraction(
+    LppExtractionCandidate candidate, {
+    required double confidenceDelta,
+  }) {
+    return ExtractionResult(
+      documentType: DocumentType.lppCertificate,
+      fields: candidate.facts.values
+          .map(
+            (fact) => ExtractedField(
+              fieldName: fact.key.wireName,
+              label: fact.key.wireName,
+              value: fact.unit == LppEvidenceUnit.ratio
+                  ? fact.value * 100
+                  : fact.value,
+              confidence: fact.confidence,
+              sourceText: '',
+              needsReview: fact.needsReview,
+              profileField: fact.key.profilePath,
+            ),
+          )
+          .toList(growable: false),
+      overallConfidence: candidate.overallConfidence,
+      confidenceDelta: confidenceDelta,
+      warnings: const [],
+      disclaimer: '',
+      sources: const [],
     );
   }
 
@@ -241,11 +339,19 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           children: selectable.map((type) {
             final isSelected = type == _selectedType;
             final isTax = type == DocumentType.taxDeclaration;
+            final isLpp = type == DocumentType.lppCertificate;
             return Semantics(
-              identifier: isTax ? 'document_scan_tax_type_selector' : null,
+              identifier: isTax
+                  ? 'document_scan_tax_type_selector'
+                  : isLpp
+                      ? 'document_scan_lpp_type_selector'
+                      : null,
               child: ChoiceChip(
-                key:
-                    isTax ? const Key('document_scan_tax_type_selector') : null,
+                key: isTax
+                    ? const Key('document_scan_tax_type_selector')
+                    : isLpp
+                        ? const Key('document_scan_lpp_type_selector')
+                        : null,
                 label: Text(
                   _documentTypeLabel(type),
                   style: MintTextStyles.bodySmall(
@@ -400,6 +506,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             width: double.infinity,
             height: 56,
             child: OutlinedButton.icon(
+              key: const Key('document_scan_gallery_cta'),
               onPressed: _isProcessing ? null : _onGalleryPressed,
               icon: const Icon(Icons.photo_library_outlined, size: 22),
               label: Text(
@@ -466,9 +573,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         width: double.infinity,
         height: 50,
         child: OutlinedButton.icon(
-          key: _selectedType == DocumentType.taxDeclaration
-              ? const Key('document_scan_tax_example_cta')
-              : null,
+          key: switch (_selectedType) {
+            DocumentType.taxDeclaration =>
+              const Key('document_scan_tax_example_cta'),
+            DocumentType.lppCertificate =>
+              const Key('document_scan_lpp_example_cta'),
+            _ => null,
+          },
           onPressed: _isProcessing ? null : _onUseExamplePressed,
           icon: const Icon(Icons.science_outlined, size: 20),
           label: Text(
@@ -551,18 +662,29 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onCameraPressed() async {
+    if (!_isSupportedType(_selectedType)) return;
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
     // v2.7 Phase 29 / PRIV-01 — granular consent gate (nLPD art. 6 al. 6).
-    final granted = await ConsentService().requireGrantedOrPrompt(
-      context,
-      const [
-        ConsentPurpose.visionExtraction,
-        ConsentPurpose.persistence365d,
-        ConsentPurpose.transferUsAnthropic,
-      ],
-    );
+    final purposes = _selectedType == DocumentType.lppCertificate
+        ? const [
+            ConsentPurpose.visionExtraction,
+            ConsentPurpose.transferUsAnthropic,
+          ]
+        : const [
+            ConsentPurpose.visionExtraction,
+            ConsentPurpose.persistence365d,
+            ConsentPurpose.transferUsAnthropic,
+          ];
+    final requester = widget.requireConsent;
+    final Future<bool> consent;
+    if (requester != null) {
+      consent = requester(context, purposes);
+    } else {
+      consent = ConsentService().requireGrantedOrPrompt(context, purposes);
+    }
+    final granted = await consent;
     if (!granted) return;
     if (!mounted) return;
 
@@ -605,6 +727,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onGalleryPressed() async {
+    if (!_isSupportedType(_selectedType)) return;
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
@@ -613,14 +736,24 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     // (from _onCameraPressed fallback path). requireGrantedOrPrompt is a no-op
     // when all required purposes are already granted at the current policy
     // version, so the double-check has zero UX cost.
-    final granted = await ConsentService().requireGrantedOrPrompt(
-      context,
-      const [
-        ConsentPurpose.visionExtraction,
-        ConsentPurpose.persistence365d,
-        ConsentPurpose.transferUsAnthropic,
-      ],
-    );
+    final purposes = _selectedType == DocumentType.lppCertificate
+        ? const [
+            ConsentPurpose.visionExtraction,
+            ConsentPurpose.transferUsAnthropic,
+          ]
+        : const [
+            ConsentPurpose.visionExtraction,
+            ConsentPurpose.persistence365d,
+            ConsentPurpose.transferUsAnthropic,
+          ];
+    final requester = widget.requireConsent;
+    final Future<bool> consent;
+    if (requester != null) {
+      consent = requester(context, purposes);
+    } else {
+      consent = ConsentService().requireGrantedOrPrompt(context, purposes);
+    }
+    final granted = await consent;
     if (!granted) return;
     if (!mounted) return;
 
@@ -633,16 +766,22 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         'txt',
         'pdf',
       ];
-      final picked = await FilePicker.platform.pickFiles(
-        allowMultiple: false,
-        type: FileType.custom,
-        // On iOS Files provider can return bytes-only entries.
-        withData: true,
-        allowedExtensions: allowedExtensions,
-      );
-
-      if (picked == null || picked.files.isEmpty) return;
-      final file = picked.files.first;
+      final injectedPicker = widget.pickFile;
+      final PlatformFile? file;
+      if (injectedPicker != null) {
+        file = await injectedPicker();
+      } else {
+        final picked = await FilePicker.platform.pickFiles(
+          allowMultiple: false,
+          type: FileType.custom,
+          // On iOS Files provider can return bytes-only entries.
+          withData: true,
+          allowedExtensions: allowedExtensions,
+        );
+        file =
+            picked == null || picked.files.isEmpty ? null : picked.files.first;
+      }
+      if (file == null) return;
       final ext = _detectExtension(file);
 
       if (ext == 'txt') {
@@ -682,6 +821,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onPasteTextPressed() async {
+    if (!_isSupportedType(_selectedType)) return;
     if (_selectedType == DocumentType.taxDeclaration &&
         !_taxAssessmentEnabled) {
       return;
@@ -693,6 +833,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onUseExamplePressed() async {
+    if (!_isSupportedType(_selectedType)) return;
     if (_selectedType == DocumentType.taxDeclaration &&
         !_taxAssessmentEnabled) {
       return;
@@ -701,6 +842,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _processImageFile(XFile file) async {
+    if (!_isSupportedType(_selectedType)) return;
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
@@ -736,7 +878,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (!kIsWeb) {
       try {
         final classifier = imageClassifierOverride ?? LocalImageClassifier();
-        final bytes = await file.readAsBytes();
+        final bytes = await _readFileBytes(file.path);
         final decision = await classifier.shouldRejectAsNonFinancial(bytes);
         if (decision.reject) {
           if (!mounted) return;
@@ -763,7 +905,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       // Vision understands Swiss document context, OCR only reads text.
       final visionResult = await _tryVisionExtraction(file);
       if (visionResult != null && mounted) {
-        await _openReview(visionResult);
+        await _openReview(
+          visionResult,
+          lppSource: _selectedType == DocumentType.lppCertificate
+              ? LppAcquisitionSource.backendVision
+              : null,
+        );
         return;
       }
 
@@ -805,19 +952,33 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   /// Try Claude Vision extraction via backend API.
   /// Returns ExtractionResult if successful, null otherwise.
   Future<ExtractionResult?> _tryVisionExtraction(XFile file) async {
+    if (!_isSupportedType(_selectedType)) return null;
     // Read context-dependent values BEFORE async gap
     final canton = Provider.of<CoachProfileProvider>(context, listen: false)
         .profile
         ?.canton;
     final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
-      final rawBytes = await file.readAsBytes();
+      final rawBytes = await _readFileBytes(file.path);
       // TODO(P2-W12): Strip EXIF metadata before Vision API call.
       // Requires `image` package. GPS location and camera info currently exposed.
       final bytes = await _compressForVision(rawBytes, file.path);
       final base64Image = base64Encode(bytes);
 
-      final response = await DocumentService.extractWithVision(
+      final extractor = widget.visionExtractor ??
+          ({
+            required String imageBase64,
+            required String documentType,
+            String? canton,
+            String? languageHint,
+          }) =>
+              DocumentService.extractWithVision(
+                imageBase64: imageBase64,
+                documentType: documentType,
+                canton: canton,
+                languageHint: languageHint,
+              );
+      final response = await extractor(
         imageBase64: base64Image,
         // Convert camelCase enum to snake_case for backend contract.
         documentType: _selectedType.name.replaceAllMapped(
@@ -828,10 +989,27 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       if (response == null) return null;
 
-      final extractedFields =
-          (response['extractedFields'] as List?)?.map<ExtractedField>((f) {
+      final strictLppConfidence = _selectedType == DocumentType.lppCertificate;
+      final lppOverallConfidence = strictLppConfidence
+          ? _parseLppOverallConfidence(response['overallConfidence'])
+          : null;
+      if (strictLppConfidence && lppOverallConfidence == null) return null;
+      final responseFields = response['extractedFields'] as List?;
+      if (strictLppConfidence &&
+          (responseFields == null ||
+              responseFields.any(
+                (field) =>
+                    field is! Map<String, dynamic> ||
+                    _parseLppFieldConfidence(field['confidence']) == null,
+              ))) {
+        return null;
+      }
+
+      final extractedFields = responseFields?.map<ExtractedField>((f) {
         final map = f as Map<String, dynamic>;
-        final conf = _parseConfidence(map['confidence'] as String?);
+        final conf = strictLppConfidence
+            ? _parseLppFieldConfidence(map['confidence'])!
+            : _parseConfidence(map['confidence'] as String?);
         return ExtractedField(
           fieldName: map['fieldName'] as String? ?? '',
           label: map['fieldName'] as String? ?? '',
@@ -839,7 +1017,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           confidence: conf,
           sourceText: (map['sourceText'] as String?) ?? '',
           profileField: map['fieldName'] as String?,
-          needsReview: conf < 0.80,
+          needsReview: map['needsReview'] == true || conf < 0.80,
         );
       }).toList();
 
@@ -848,8 +1026,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return ExtractionResult(
         documentType: _selectedType,
         fields: extractedFields,
-        overallConfidence:
-            (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
+        overallConfidence: lppOverallConfidence ??
+            (response['overallConfidence'] as num?)?.toDouble() ??
+            0.5,
         confidenceDelta: (_confidenceDeltaForType)(_selectedType),
         warnings: const [],
         disclaimer: visionDisclaimer,
@@ -867,11 +1046,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (!mounted) return null;
       switch (e.code) {
         case 'not_financial':
-          setState(() {
-            _isProcessing = false;
-            _preValidationError = S.of(context)!.docNotFinancial;
-            _preValidationHint = S.of(context)!.docNotFinancialHint;
-          });
+          _setVisionKindRejection();
         case 'file_too_large':
           _showErrorSnack(e.message);
         case 'upload_failed':
@@ -895,16 +1070,30 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   /// Vision API fallback for PDF files when backend Docling fails.
   /// Reads PDF bytes, encodes to base64, and calls Claude Vision extraction.
   Future<ExtractionResult?> _tryVisionExtractionFromPdf(String pdfPath) async {
+    if (!_isSupportedType(_selectedType)) return null;
     // Read context-dependent values BEFORE async gap
     final canton = Provider.of<CoachProfileProvider>(context, listen: false)
         .profile
         ?.canton;
     final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
-      final bytes = await File(pdfPath).readAsBytes();
+      final bytes = await _readFileBytes(pdfPath);
       final base64Pdf = base64Encode(bytes);
 
-      final response = await DocumentService.extractWithVision(
+      final extractor = widget.visionExtractor ??
+          ({
+            required String imageBase64,
+            required String documentType,
+            String? canton,
+            String? languageHint,
+          }) =>
+              DocumentService.extractWithVision(
+                imageBase64: imageBase64,
+                documentType: documentType,
+                canton: canton,
+                languageHint: languageHint,
+              );
+      final response = await extractor(
         imageBase64: base64Pdf,
         documentType: _selectedType.name.replaceAllMapped(
             RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
@@ -914,10 +1103,27 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       if (response == null) return null;
 
-      final extractedFields =
-          (response['extractedFields'] as List?)?.map<ExtractedField>((f) {
+      final strictLppConfidence = _selectedType == DocumentType.lppCertificate;
+      final lppOverallConfidence = strictLppConfidence
+          ? _parseLppOverallConfidence(response['overallConfidence'])
+          : null;
+      if (strictLppConfidence && lppOverallConfidence == null) return null;
+      final responseFields = response['extractedFields'] as List?;
+      if (strictLppConfidence &&
+          (responseFields == null ||
+              responseFields.any(
+                (field) =>
+                    field is! Map<String, dynamic> ||
+                    _parseLppFieldConfidence(field['confidence']) == null,
+              ))) {
+        return null;
+      }
+
+      final extractedFields = responseFields?.map<ExtractedField>((f) {
         final map = f as Map<String, dynamic>;
-        final conf = _parseConfidence(map['confidence'] as String?);
+        final conf = strictLppConfidence
+            ? _parseLppFieldConfidence(map['confidence'])!
+            : _parseConfidence(map['confidence'] as String?);
         return ExtractedField(
           fieldName: map['fieldName'] as String? ?? '',
           label: map['fieldName'] as String? ?? '',
@@ -925,7 +1131,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           confidence: conf,
           sourceText: (map['sourceText'] as String?) ?? '',
           profileField: map['fieldName'] as String?,
-          needsReview: conf < 0.80,
+          needsReview: map['needsReview'] == true || conf < 0.80,
         );
       }).toList();
 
@@ -934,8 +1140,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return ExtractionResult(
         documentType: _selectedType,
         fields: extractedFields,
-        overallConfidence:
-            (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
+        overallConfidence: lppOverallConfidence ??
+            (response['overallConfidence'] as num?)?.toDouble() ??
+            0.5,
         confidenceDelta: (_confidenceDeltaForType)(_selectedType),
         warnings: const [],
         disclaimer: visionDisclaimer,
@@ -947,10 +1154,27 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 .toList() ??
             const [],
       );
+    } on DocumentServiceException catch (e) {
+      debugPrint(
+        '[DocumentScan] Vision PDF error: code=${e.code} msg=${e.message}',
+      );
+      if (!mounted) return null;
+      if (e.code == 'not_financial') {
+        _setVisionKindRejection();
+      } else {
+        _showErrorSnack(S.of(context)!.docScanGenericError);
+      }
+      return null;
     } catch (e) {
       debugPrint('[DocumentScan] Vision PDF fallback failed: $e');
       return null;
     }
+  }
+
+  Future<Uint8List> _readFileBytes(String path) {
+    final reader = widget.readFileBytes;
+    if (reader != null) return reader(path);
+    return File(path).readAsBytes();
   }
 
   double _parseConfidence(String? level) {
@@ -960,6 +1184,22 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       'low' => 0.40,
       _ => 0.50,
     };
+  }
+
+  double? _parseLppFieldConfidence(Object? level) {
+    return switch (level) {
+      'high' => 0.95,
+      'medium' => 0.70,
+      'low' => 0.40,
+      _ => null,
+    };
+  }
+
+  double? _parseLppOverallConfidence(Object? value) {
+    if (value is! num) return null;
+    final confidence = value.toDouble();
+    if (!confidence.isFinite || confidence < 0 || confidence > 1) return null;
+    return confidence;
   }
 
   double _confidenceDeltaForType(DocumentType type) {
@@ -973,6 +1213,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _processOcrText(String text) async {
+    if (!_isSupportedType(_selectedType)) return;
     if (!mounted) return;
     if (_selectedType == DocumentType.taxDeclaration &&
         !_taxAssessmentEnabled) {
@@ -995,6 +1236,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       await _openReview(
         bundle.extraction,
         taxCandidate: bundle.taxCandidate,
+        lppSource: _selectedType == DocumentType.lppCertificate
+            ? LppAcquisitionSource.localParser
+            : null,
       );
     } catch (e) {
       debugPrint('[DocumentScan] Parsing error: $e');
@@ -1089,8 +1333,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     PlatformFile file, {
     required String ext,
   }) async {
+    if (!_isSupportedType(_selectedType)) return;
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
+    }
+    if (_preValidationError != null || _preValidationHint != null) {
+      if (!mounted) return;
+      setState(() {
+        _preValidationError = null;
+        _preValidationHint = null;
+      });
     }
     final localPath = await _resolveLocalPath(file, ext: ext);
     if (localPath == null || localPath.isEmpty) {
@@ -1098,6 +1350,24 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       await _showPdfImportFallback(
         title: S.of(context)!.docScanPdfDetected,
         message: S.of(context)!.docScanPdfCannotRead,
+      );
+      return;
+    }
+
+    if (_selectedType == DocumentType.lppCertificate) {
+      final visionResult = await _tryVisionExtractionFromPdf(localPath);
+      if (visionResult != null && mounted) {
+        await _openReview(
+          visionResult,
+          lppSource: LppAcquisitionSource.backendVision,
+        );
+        return;
+      }
+      if (_preValidationError != null) return;
+      if (!mounted) return;
+      await _showPdfImportFallback(
+        title: S.of(context)!.docScanPdfAnalysisUnavailable,
+        message: S.of(context)!.docScanPdfNotParsed,
       );
       return;
     }
@@ -1533,6 +1803,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<_PdfParseResult> _processPdfViaBackend(String path) async {
+    if (!_isSupportedType(_selectedType)) {
+      return const _PdfParseResult(success: false);
+    }
+    if (_selectedType == DocumentType.lppCertificate) {
+      return const _PdfParseResult(success: false);
+    }
     if (kIsWeb) {
       return _PdfParseResult(
         success: false,
@@ -1542,10 +1818,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     setState(() => _isProcessing = true);
     try {
-      final upload = await DocumentService().uploadDocument(
-        File(path),
-        type: _toVaultType(_selectedType),
-      );
+      final uploader = widget.uploadDocument;
+      final upload = uploader == null
+          ? await DocumentService().uploadDocument(
+              File(path),
+              type: _toVaultType(_selectedType),
+            )
+          : await uploader(
+              File(path),
+              type: _toVaultType(_selectedType),
+            );
       final extraction = _mapLppUploadToExtraction(upload);
       if (extraction.fields.isEmpty) {
         if (!mounted) {
@@ -1681,6 +1963,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   /// Whether the user has a BYOK key for a vision-capable provider.
   bool _isVisionAvailable(BuildContext ctx) {
+    if (_selectedType == DocumentType.lppCertificate) return false;
     final byok = ctx.read<ByokProvider>();
     if (!byok.isConfigured || byok.apiKey == null || byok.provider == null) {
       return false;
@@ -1705,7 +1988,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   /// Process image via BYOK Vision LLM (Claude/GPT-4o).
   Future<void> _processImageViaVision(XFile file) async {
+    if (!_isSupportedType(_selectedType)) return;
     if (_selectedType == DocumentType.taxDeclaration) {
+      return;
+    }
+    if (_selectedType == DocumentType.lppCertificate) {
       return;
     }
     final byok = context.read<ByokProvider>();
@@ -1804,6 +2091,20 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         backgroundColor: MintColors.error,
       ),
     );
+  }
+
+  void _setVisionKindRejection() {
+    final l10n = S.of(context)!;
+    setState(() {
+      _isProcessing = false;
+      if (_selectedType == DocumentType.lppCertificate) {
+        _preValidationError = l10n.lppDocumentKindUnverified;
+        _preValidationHint = l10n.lppDocumentKindUnverifiedHint;
+      } else {
+        _preValidationError = l10n.docNotFinancial;
+        _preValidationHint = l10n.docNotFinancialHint;
+      }
+    });
   }
 }
 

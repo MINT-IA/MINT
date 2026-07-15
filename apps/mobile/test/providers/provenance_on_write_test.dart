@@ -10,7 +10,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 typedef _ProfileValueReader = Object? Function(CoachProfile profile);
 
-Future<CoachProfileProvider> _seededProvider() async {
+final class _TrackingLppPersistence implements LppProfilePersistence {
+  int loadCalls = 0;
+  int saveCalls = 0;
+  Map<String, dynamic> answers = <String, dynamic>{};
+
+  @override
+  Future<Map<String, dynamic>> loadAnswers() async {
+    loadCalls += 1;
+    return Map<String, dynamic>.from(answers);
+  }
+
+  @override
+  Future<void> saveAnswers(Map<String, dynamic> next) async {
+    saveCalls += 1;
+    answers = Map<String, dynamic>.from(next);
+  }
+}
+
+Future<CoachProfileProvider> _seededProvider({
+  LppProfilePersistence? lppProfilePersistence,
+}) async {
   await ReportPersistenceService.saveAnswers({
     'q_birth_year': DateTime.now().year - 45,
     'q_canton': 'VD',
@@ -20,7 +40,9 @@ Future<CoachProfileProvider> _seededProvider() async {
   });
   await ReportPersistenceService.setCompleted(true);
 
-  final provider = CoachProfileProvider();
+  final provider = CoachProfileProvider(
+    lppProfilePersistence: lppProfilePersistence,
+  );
   await provider.loadFromWizard();
   expect(provider.profile, isNotNull);
   return provider;
@@ -203,11 +225,12 @@ void main() {
     addTearDown(() => FeatureFlags.typedLppEvidence = false);
     final provider = await _seededProvider();
     final startedAt = DateTime.now();
+    final sourceDate = DateTime.utc(2026, 6, 30);
 
     await provider.acceptLppReview(
-      const LppReviewConfirmation.self(
-        sourceDate: null,
-        facts: {
+      LppReviewConfirmation.self(
+        sourceDate: sourceDate,
+        facts: const {
           LppEvidenceFactKey.insuredSalaryAnnualChf: LppReviewedFact(
             value: 84000.0,
             unit: LppEvidenceUnit.chfPerYear,
@@ -225,7 +248,131 @@ void main() {
       readValue: (profile) => profile.prevoyance.salaireAssure,
       writeStartedAt: startedAt,
       writeCompletedAt: completedAt,
+      expectedSourceDate: sourceDate,
     );
+    expect(
+      provider.profile!.prevoyance.lppEvidenceStatus(
+        LppEvidenceFactKey.insuredSalaryAnnualChf,
+      ),
+      LppEvidenceStatus.available,
+    );
+  });
+
+  test('direct incoherent LPP review rejects before persistence or publication',
+      () async {
+    FeatureFlags.typedLppEvidence = true;
+    addTearDown(() => FeatureFlags.typedLppEvidence = false);
+    final persistence = _TrackingLppPersistence();
+    final provider = await _seededProvider(
+      lppProfilePersistence: persistence,
+    );
+    final previousProfile = provider.profile;
+    final previousAnswers = provider.reportAnswersSnapshot;
+    var notifications = 0;
+    provider.addListener(() => notifications++);
+
+    for (final facts in <Map<LppEvidenceFactKey, LppReviewedFact>>[
+      const {
+        LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
+          value: 100000,
+          unit: LppEvidenceUnit.chf,
+          corrected: true,
+        ),
+        LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf: LppReviewedFact(
+          value: 100001,
+          unit: LppEvidenceUnit.chf,
+          corrected: true,
+        ),
+      },
+      const {
+        LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
+          value: 100000,
+          unit: LppEvidenceUnit.chf,
+          corrected: true,
+        ),
+        LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf: LppReviewedFact(
+          value: 60000,
+          unit: LppEvidenceUnit.chf,
+          corrected: true,
+        ),
+        LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf:
+            LppReviewedFact(
+          value: 39998,
+          unit: LppEvidenceUnit.chf,
+          corrected: true,
+        ),
+      },
+    ]) {
+      await expectLater(
+        provider.acceptLppReview(
+          LppReviewConfirmation.self(
+            facts: facts,
+            sourceDate: null,
+          ),
+        ),
+        throwsArgumentError,
+      );
+    }
+
+    expect(persistence.loadCalls, 0);
+    expect(persistence.saveCalls, 0);
+    expect(notifications, 0);
+    expect(identical(provider.profile, previousProfile), isTrue);
+    expect(provider.reportAnswersSnapshot, previousAnswers);
+  });
+
+  test('direct LPP review accepts tolerance and partial balance sets',
+      () async {
+    FeatureFlags.typedLppEvidence = true;
+    addTearDown(() => FeatureFlags.typedLppEvidence = false);
+    final persistence = _TrackingLppPersistence();
+    final provider = await _seededProvider(
+      lppProfilePersistence: persistence,
+    );
+
+    await provider.acceptLppReview(
+      const LppReviewConfirmation.self(
+        sourceDate: null,
+        facts: {
+          LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
+            value: 100000,
+            unit: LppEvidenceUnit.chf,
+            corrected: true,
+          ),
+          LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf: LppReviewedFact(
+            value: 60000,
+            unit: LppEvidenceUnit.chf,
+            corrected: true,
+          ),
+          LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf:
+              LppReviewedFact(
+            value: 39999,
+            unit: LppEvidenceUnit.chf,
+            corrected: true,
+          ),
+        },
+      ),
+    );
+    await provider.acceptLppReview(
+      const LppReviewConfirmation.self(
+        sourceDate: null,
+        facts: {
+          LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
+            value: 100000,
+            unit: LppEvidenceUnit.chf,
+            corrected: true,
+          ),
+          LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf: LppReviewedFact(
+            value: 60000,
+            unit: LppEvidenceUnit.chf,
+            corrected: true,
+          ),
+        },
+      ),
+    );
+
+    expect(persistence.loadCalls, 2);
+    expect(persistence.saveCalls, 2);
   });
 
   test('open-banking liquidity fact commits value and provenance atomically',

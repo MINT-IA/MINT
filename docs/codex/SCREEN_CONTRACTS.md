@@ -24,7 +24,7 @@ its financial content.
 
 Every screen resolves the domain data it renders from the **ledger**:
 - Profile / computed state → `context.watch<MintStateProvider>().state` (`MintUserState`) and `context.read<CoachProfileProvider>().profile` (`CoachProfile`).
-- Scan extraction in-flight → `ScanSessionProvider` (NEW, §5.0) keyed by the opaque `scanSessionId`; live review/impact routes pass it as a query identifier, not a financial payload.
+- Scan extraction in-flight → live volatile `ScanSessionProvider` (§5.0), keyed by the opaque `scanSessionId`; review/impact routes pass it as a query identifier, not a financial payload.
 - Documents → `DocumentsProvider` / `BiographyRepository` by `id`.
 - Confidence → read `MintUserState.confidenceScore` (ledger field; upgraded to the 4-axis result per §8.0), never passed in.
 
@@ -385,62 +385,58 @@ proves five bypass shapes red, and scans the six exact audited source files
 
 ---
 
-## 5. Scan flow — TARGET, NOT LIVE YET (was the worst dead road, finding C-1)
+## 5. Scan flow — LIVE session-ID boundary; typed LPP remains default-off
 
-**Root cause:** `/scan/review` and `/scan/impact` read the `ExtractionResult` from `state.extra`; on null they render `Scaffold(body: Center(Text('Document non disponible')))` — no AppBar, no back, no CTA, not i18n. Violates §0 (domain data in `extra`) and F-2.
+`/scan/review` and `/scan/impact` no longer receive financial domain data in
+`state.extra`. They resolve one opaque `scanSessionId` query parameter through
+`ScanSessionProvider`. A missing, evicted or cold-restart id renders the live
+localized recovery scaffold with AppBar/back and a stable recovery CTA; it
+never renders the former bare `Document non disponible` trap.
 
-### 5.0 `ScanSessionProvider` — NEW, fully specified
+### 5.0 `ScanSessionProvider` — LIVE volatile registry
 
-File: `apps/mobile/lib/providers/scan_session_provider.dart`. `ChangeNotifier`. Registered in `app.dart` provider tree ABOVE `MintStateProvider` so the bridge (below) can fire.
+File: `apps/mobile/lib/providers/scan_session_provider.dart`.
+`ScanSessionProvider` is an in-memory `ChangeNotifier`, not a persisted workflow
+engine. Its exact payload is:
 
 ```dart
-enum ScanStatus { captured, extracting, extracted, applying, applied, failed }
-
-class ScanSession {
-  final String id;              // uuid v4, generated at capture; the ONLY thing put in extra/query
-  final String docType;         // 'lpp' | 'avs' | 'tax' | 'other'
-  final ScanStatus status;
-  final ExtractionResult? extraction;   // null until status >= extracted
-  final double? confidenceBefore;       // MintUserState.confidenceScore snapshot, taken at APPLY start
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  ScanSession copyWith({...});
+class ScanSessionPayload {
+  final ExtractionResult extraction;
+  final LppExtractionCandidate? lppCandidate;
+  final TaxExtractionCandidate? taxCandidate;
+  final int? previousConfidence;
 }
 ```
 
-**State machine (the ONLY legal transitions; enforced by `scan_session_provider.dart` + `test/providers/scan_session_state_machine_test.dart`):**
-
-```
-captured ──(OCR pipeline starts)──▶ extracting
-extracting ──(OCR success)────────▶ extracted
-extracting ──(OCR failure/timeout)▶ failed
-extracted ──(user taps Appliquer on /scan/review)──▶ applying
-applying ──(applySaveFact writes committed, recompute done)──▶ applied
-applying ──(write/backend failure)────────────────────────────▶ failed
-failed ──(user retries)──▶ extracting   // re-parse
-```
-Any other transition throws `StateError`.
-
-**WHO/WHEN writes the ExtractionResult:** `DocumentScanScreen`'s OCR pipeline (existing OCR service) calls `scanSessionProvider.setExtraction(id, ExtractionResult)` on OCR completion, moving `extracting → extracted`. This is the single integration point; no screen constructs `ExtractionResult` from `extra`.
-
-**Persistence:** SharedPreferences key `scan_session_v1` = JSON `{ "sessions": [ScanSession...] }`.
-- **Eviction/GC:** keep at most **5** sessions; on write, drop oldest by `updatedAt`. Additionally, on provider init, purge any session with `status == applied` older than **7 days** and any `status == failed` older than **24h**. A session that reaches `applied` is retained (for `/scan/impact`) until GC.
-
-**F-4 bridge (trigger point, explicit):** on the `applying → applied` transition, AFTER the per-field `applySaveFact()` writes complete, the provider calls `context.read<MintStateProvider>().recompute(context.read<CoachProfileProvider>().profile)`. (The provider holds a callback injected at construction: `Future<void> Function() onApplied` wired in `app.dart` to `() => mintState.recompute(coachProfile.profile)`.) Asserted by §10 test 3.
+- `retainExtraction(...)` creates an opaque process-local id and retains the
+  extraction plus at most one typed candidate. The registry keeps at most five
+  entries and evicts the oldest insertion when the sixth is retained.
+- There is no `ScanStatus`, transition machine, timestamp, SharedPreferences
+  key, restart rehydration or asynchronous recompute callback in this provider.
+  A process death deliberately loses unconfirmed session data and routes to the
+  recovery scaffold.
+- For LPP, `DocumentScanScreen` first converts extraction output through the
+  strict source-aware adapter and retains only a canonical raw-free extraction
+  plus `LppExtractionCandidate`; route/query data contains only the id.
+- After a successful reviewed write, `retainImpact(...)` replaces the entry
+  with a source-text-free impact extraction, drops both typed candidates and
+  records `previousConfidence`. `/scan/impact` resolves only that retained
+  payload. A review disposed before transfer discards its entry.
 
 ### `/scan` — Scan capture / entry
 | | |
 |---|---|
 | shell | root |
 | purpose | Capture or pick a document (LPP cert, AVS extract, tax cert). |
-| reads | `ScanSessionProvider` (recent sessions), `archetype` (to suggest doc type); optional `DocumentType` from `state.extra` (enum only, §0) |
-| writes | creates `ScanSession{id, docType, status: captured}` in provider |
-| entryConditions | camera/file permission; if denied → permission-denied errorState (not blank) |
+| reads | optional `DocumentType.name` from query `type`; local feature flags; profile canton for backend extraction and age only for AVS parsing |
+| writes | no ledger fact. After a successful extraction/adaptation, `retainExtraction(...)` creates the volatile session payload used by review |
+| entryConditions | route available behind `enableScan`; camera/file permission. LPP is selectable and its handlers are callable only when `typedLppEvidence && documentLppEvidenceEnabled`; the guard runs before consent/file/OCR/upload |
 | emptyState | No camera/no doc selected → guide card + "Scanner mon certificat" CTA + `/scan/avs-guide`. i18n `scan.empty.title` / `scan.empty.cta` |
-| partialState | OCR in progress (`extracting`) → progress UI with cancel. i18n `scan.partial.processing` |
-| errorState | Permission denied OR OCR engine failure → explanation + CTA Réglages / Réessayer + CTA manual entry `/data-block/lpp`. i18n `scan.error.permission` / `scan.error.ocr` |
+| partialState | Local `_isProcessing` is true during extraction → progress UI; this is screen state, not a persisted session status |
+| errorState | Permission denied/OCR failure → localized recovery. LPP plan, unknown, lower-confidence or classifier failure → neutral personal-certificate recovery with no review/session/write |
 | routesOut | `/scan/review?scanSessionId=…`, `/scan/avs-guide`, `/data-block/:type` |
-| killFlag | enableScan |
+| privacyInvariant | LPP camera/gallery asks only `visionExtraction + transferUsAnthropic`, never `persistence365d`; image/PDF uses direct candidate extraction, PDF skips persistent upload, and LPP BYOK/fused/SSE paths are unreachable |
+| killFlag | enableScan; LPP content additionally requires the local composite gate above |
 
 ### `/scan/avs-guide` — AVS extract guide
 | | |
@@ -457,33 +453,38 @@ Any other transition throws `StateError`.
 | evidenceInvariant | Years abroad are not gaps. A reviewed CI may expose self missing contribution years to examine, but does not decide the final uncompensated years, pension reduction, scale, or amount. The compensation office examines possible compensation and makes those official decisions; future-calculation output remains a separate official evidence kind. Missing self evidence is unknown, never zero; spouse evidence is outside this self-only guide result and is never synthesized. |
 | killFlag | enableScan |
 
-### `/scan/review` — TARGET
+### `/scan/review` — LIVE identifier-only review boundary
 | | |
 |---|---|
 | shell | root |
 | purpose | Review + confirm OCR figures before any compute (OCR confirm gate). |
-| reads | `ScanSessionProvider.byId(state.uri.queryParameters['scanSessionId'])` → `ExtractionResult`; current `CoachProfile` (for before/after) |
-| writes | on confirm: `applySaveFact()` per confirmed field with `source: DataSource.scan` (accuracy .85), `sourceDate: DateTime.now()` — see §6.note on the required signature extension |
-| entryConditions | `scanSessionId` present AND session resolves in `status: extracted`. |
-| emptyState (REQUIRED) | id missing OR session not found (deep link, restart, GC) → **NOT blank**. AppBar+back. "Ce document n'est plus disponible. Tu peux le scanner à nouveau." CTA Rescanner → `/scan`. i18n `scan.review.empty.title` / `.rescan` |
-| partialState (REQUIRED) | Some fields low-OCR-confidence → flag them, require manual confirm before enabling "Appliquer". i18n `scan.review.partial.confirmLow` |
-| errorState (REQUIRED) | Session resolution threw OR re-parse failed → AppBar+back + "On n'a pas pu lire ce document." CTA Réessayer + CTA `/data-block/:type`. i18n `scan.review.error.title` / `.manual` |
+| reads | `ScanSessionProvider.byId(query['scanSessionId'])` → retained extraction and optional typed candidate; current `CoachProfile` only for before/after confidence |
+| writes | LPP only: one `LppReviewConfirmation.self|manualPartner → CoachProfileProvider.acceptLppReview` call, then `retainImpact` after the awaited secure save. Tax uses its typed review writer; existing non-LPP types retain their own reviewed writer. LPP never calls `applySaveFact`, a legacy LPP writer, Biography or generic backend sync |
+| entryConditions | non-empty `scanSessionId` resolving in the volatile registry. LPP additionally requires the composite flag and an exact canonical raw-free candidate matching every rendered field |
+| emptyState (LIVE) | id missing/evicted/cold-restart → localized AppBar+back recovery scaffold; stable `scan_review_recovery_cta` routes to `/scan` |
+| disabledState (LIVE, LPP) | either LPP flag false → `lpp_review_disabled_recovery`; missing/mismatched candidate → `lpp_review_missing_candidate_recovery`. Both expose back/cancel recovery and no writer CTA |
+| partialState (LIVE, LPP) | preserve source overall/per-field confidence and `needsReview`; request effective date and editable canonical values. Untouched documentary facts require a valid non-future date; corrected facts become `userInput` with null source date; untouched derived balance facts do not persist unless edited |
+| validationInvariant (LPP) | validate canonical key/value/unit and `LppBalanceCoherence` before asking whose document. Component > total or a three-part difference above CHF 1 shows localized `lpp_review_balance_error`; owner dialog, persistence and navigation remain untouched. Owner cancel also writes nothing |
+| ownerInvariant (LPP) | after validation, ask `self` or independently declared `manualPartner`. The route supplies no owner/actor/grant token; the provider assigns pseudonymous identity and null-grant authorization |
+| errorState (LIVE, LPP) | invalid/missing/future date or incoherent edit stays on the editable review. Secure save failure re-enables confirmation and retains the review; no fallback, success screen, impact transfer or partial publication |
 | routesOut | `/scan/impact?scanSessionId=…`, `/scan`, `/data-block/:type` |
-| killFlag | enableScan |
+| privacyInvariant (LPP) | candidate/review/impact fields contain no OCR passage, source label, warning or diagnostic. Route and query contain only `scanSessionId` |
+| killFlag | enableScan; LPP confirmation additionally requires `lppEvidenceIngestionEnabled` |
 
-### `/scan/impact` — TARGET
+### `/scan/impact` — LIVE retained-impact boundary
 | | |
 |---|---|
 | shell | root |
-| purpose | Show before/after confidence + ranged figure delta from the scan. |
-| reads | `ScanSessionProvider.byId(...)` (incl. `confidenceBefore`); `MintUserState.confidenceScore` (current = "after") |
-| writes | ∅ (write happened at `/scan/review`) |
-| entryConditions | `scanSessionId` resolves AND session `status: applied`. |
-| emptyState (REQUIRED) | id missing/not found → AppBar+back + "Aucun impact à afficher." CTA Voir mon aperçu → `/home`. i18n `scan.impact.empty.title` / `.cta` |
-| partialState (REQUIRED) | `confidenceBefore` absent → show after-state only, label "comparaison indisponible". i18n `scan.impact.partial.noBaseline` |
-| errorState (REQUIRED) | Confidence read failed → AppBar+back + message + Réessayer + `/coach/chat`. i18n `scan.impact.error.title` |
+| purpose | Show the already-applied reviewed fields plus `previousConfidence + retained confidenceDelta`; it does not perform the ledger write |
+| reads | `ScanSessionProvider.byId(query['scanSessionId'])` → source-text-free impact extraction and non-null `previousConfidence` |
+| writes | no ledger, backend, Biography or coach-memory write for LPP. The volatile session is discarded when the screen is disposed or its terminal CTA completes |
+| entryConditions | non-empty `scanSessionId` resolves and `previousConfidence` is present. There is no persisted `applied` status |
+| emptyState (LIVE) | id missing/evicted/cold-restart or baseline absent → localized AppBar+back recovery scaffold; stable `scan_impact_recovery_cta` routes to `/home` |
+| partialState | none for a missing baseline: the router uses the recovery state instead of fabricating an after-only comparison |
+| LPP boundary | render canonical fact labels and ratio/CHF semantics from the retained reviewed result. `_fetchPremierEclairage` and `_persistScanEvent` return before any generic backend insight or event call for LPP |
+| errorState | no distinct live computation-error branch: this screen renders an already-retained deterministic payload; absent required payload uses the recovery state above |
 | routesOut | `/home`, `/confidence`, `/scan`, `/explore/<relevant domain>` |
-| killFlag | enableScan |
+| killFlag | enableScan; no flag change can reconstruct a lost volatile session |
 
 > Test: `test/routing/scan_flow_repair_test.dart` — pump `/scan/review` and `/scan/impact` with `extra: null` and no query param → assert an AppBar with a back button AND a localized CTA exposed by stable `Semantics(identifier:)` for Maestro; assert NO widget with literal text `Document non disponible` and NO bare `Center(child: Text(...))`.
 
@@ -692,10 +693,10 @@ tests at `:357-467`; coach-specific assertions at `:448-467`.
 Widget-pump each route with its `DegradedFixture` (§10.0). For each: assert (a) a back affordance exists (`find.byType(BackButton)` OR an `AppBar` with `automaticallyImplyLeading != false`); (b) at least one tappable whose label resolves to a non-null `AppLocalizations` key AND whose `onPressed`/`onTap` triggers a `context.go`/`context.push` to a route present in `route_metadata.dart` (the "recovery CTA" is defined as: a `MintButton`/`TextButton`/`ListTile` tagged with `Key('recoveryCta')` — the agent MUST tag the primary recovery CTA in every empty/error state with `key: const Key('recoveryCta')`); (c) NO widget matches a bare `Center(child: Text(<literal, non-l10n>))`. (c) is the blank-dead-end matcher.
 
 ### 10.3 F-3 Single write path — `single_write_path_test.dart`
-Static source scan: FAIL if `SharedPreferences` `.setString(`/`.setInt(`/`.setDouble(`/`.setBool(` referencing a profile/budget/household key appears in any file EXCEPT `report_persistence_service.dart` and `coach_profile_provider.dart`. All profile writes go through `mergeAnswers/applySaveFact/updateProfile`. Also assert `ScanSessionProvider` writes only `scan_session_v1` and no profile keys.
+Static source scan: FAIL if `SharedPreferences` `.setString(`/`.setInt(`/`.setDouble(`/`.setBool(` referencing a profile/budget/household key appears in any file EXCEPT `report_persistence_service.dart` and `coach_profile_provider.dart`. Ordinary profile writes go through `mergeAnswers/applySaveFact/updateProfile`; typed LPP review uses the dedicated `acceptLppReview` atomic seam. Assert `ScanSessionProvider` has no persistence API or profile-key writer, retains at most five process-local payloads, and strips candidates/source text before impact.
 
 ### 10.4 F-4 Bridged providers — `provider_bridge_recompute_test.dart`
-For each of `BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, `DocumentsProvider`, conversation store, `ScanSessionProvider`: perform a mutation, then assert `MintStateProvider.recompute(profile)` was invoked (spy) AND the resulting `MintUserState` differs from pre-mutation. Each bridge obtains the profile via `context.read<CoachProfileProvider>().profile` at the call site (recompute REQUIRES the `CoachProfile` arg — see §0/§8; there is no zero-arg variant). For Budget specifically, assert `MintUserState.budgetGap` changed (fixes B-1).
+For each ledger-owning `BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, `DocumentsProvider` and conversation-store bridge: perform a mutation, then assert `MintStateProvider.recompute(profile)` was invoked (spy) AND the resulting `MintUserState` differs from pre-mutation. Each bridge obtains the profile via `context.read<CoachProfileProvider>().profile` at the call site (recompute REQUIRES the `CoachProfile` arg — see §0/§8; there is no zero-arg variant). For Budget specifically, assert `MintUserState.budgetGap` changed (fixes B-1). `ScanSessionProvider` is deliberately excluded: it owns only volatile route payloads and must not mutate/recompute the ledger; the reviewed provider write precedes `retainImpact`.
 
 ### 10.5 F-5 Ranged + confidence — `projection_compliance_test.dart`
 For every screen rendering a numeric projection: assert presence of (a) a range widget (`find.byType(RangeBandWidget)`), (b) an `EnhancedConfidence` band, (c) text containing "à confirmer" OR "barème {year}", (d) the deterministic compliance filter passes (no banned terms: garanti/optimal/meilleur/certain/assuré/sans risque/parfait; no imperative/promissory forms). Runs against rendered strings.
@@ -795,7 +796,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/epl` (593) | §4 | `/naissance` (778) | §4 |
 | `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
 | `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
-| `/first-job` (795) | §4 | `/scan/impact` (1217) | §5 |
+| `/first-job` (795) | §4 | `/scan/impact` (1218) | §5 |
 | `/expatriation` (800) | §4 | `/documents` (935) | §4 |
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |

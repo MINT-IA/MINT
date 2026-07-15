@@ -38,7 +38,7 @@ class _FieldPattern {
 // Reusable regex fragment: Swiss number capture group
 // Matches: CHF 143'287.50, Fr. 98 400, 44887.50, -25'000.00, etc.
 // Requires at least one digit to avoid matching whitespace-only (e.g. section headers).
-const String _numCapture = r"(-?\s*[CHFfr.\s]*\d[\d\s'.,]*)";
+const String _numCapture = r"(-?\s*[CHFfr.\s]*\d[\d\s'’.,]*)";
 
 /// Service for parsing LPP certificate OCR text into structured fields.
 ///
@@ -52,51 +52,98 @@ class LppCertificateParser {
   /// Parse a Swiss-formatted number: "143'287.50", "143 287", "CHF 143'287".
   /// Returns null if no valid number found.
   static double? _parseSwissNumber(String text) {
-    // Remove currency prefixes and whitespace
     var cleaned = text
         .replaceAll(RegExp(r"CHF\s*", caseSensitive: false), "")
         .replaceAll(RegExp(r"Fr\.\s*", caseSensitive: false), "")
+        .replaceAll("\u2019", "'")
+        .replaceAll("\u00A0", " ")
         .trim();
+    if (!RegExp(r"^-?\s*\d[\d\s'.,]*$").hasMatch(cleaned)) return null;
 
-    // Remove thousand separators (apostrophe, space, thin space)
-    // Swiss formats: 143'287.50 | 143'287,50 | 143 287.50 | 143287.50
-    cleaned = cleaned.replaceAll("'", "");
-    cleaned = cleaned.replaceAll("\u2019", ""); // Right single quotation mark
-    cleaned = cleaned.replaceAll("\u00A0", ""); // Non-breaking space
+    var sign = '';
+    if (cleaned.startsWith('-')) {
+      sign = '-';
+      cleaned = cleaned.substring(1).trim();
+    }
+    final dot = cleaned.lastIndexOf('.');
+    final comma = cleaned.lastIndexOf(',');
+    String integerPart;
+    String? fractionPart;
 
-    // Handle space as thousand separator (but not decimal)
-    cleaned = cleaned.replaceAllMapped(
-        RegExp(r"(\d)\s+(\d)"), (m) => "${m[1]}${m[2]}");
-
-    // Handle comma as decimal separator (Swiss German style)
-    if (cleaned.contains(",") && !cleaned.contains(".")) {
-      final lastComma = cleaned.lastIndexOf(",");
-      final afterComma = cleaned.substring(lastComma + 1);
-      if (afterComma.length <= 2) {
-        cleaned = "${cleaned.substring(0, lastComma)}.$afterComma";
+    if (dot >= 0 && comma >= 0) {
+      final decimalIndex = dot > comma ? dot : comma;
+      final decimalSeparator = cleaned[decimalIndex];
+      final groupingSeparator = decimalSeparator == '.' ? ',' : '.';
+      integerPart = cleaned.substring(0, decimalIndex);
+      fractionPart = cleaned.substring(decimalIndex + 1);
+      if (fractionPart.isEmpty || fractionPart.length > 2) return null;
+      if (integerPart.contains(decimalSeparator) ||
+          !_validGroupedInteger(integerPart, groupingSeparator)) {
+        return null;
+      }
+    } else {
+      final separator = dot >= 0 ? '.' : (comma >= 0 ? ',' : null);
+      if (separator == null) {
+        integerPart = cleaned;
       } else {
-        cleaned = cleaned.replaceAll(",", "");
+        final parts = cleaned.split(separator);
+        if (parts.length == 2 &&
+            parts.last.isNotEmpty &&
+            parts.last.length <= 2) {
+          integerPart = parts.first;
+          fractionPart = parts.last;
+        } else if (parts.length >= 2 &&
+            parts.first.isNotEmpty &&
+            parts.skip(1).every((part) => part.length == 3)) {
+          integerPart = cleaned;
+        } else {
+          return null;
+        }
+        if (!_validGroupedInteger(integerPart, separator)) return null;
       }
     }
 
-    // Remove any remaining non-numeric chars except dot and minus
-    cleaned = cleaned.replaceAll(RegExp(r"[^\d.\-]"), "");
+    if (!_validGroupedInteger(integerPart, null)) return null;
+    final digits = integerPart.replaceAll(RegExp(r"[\s'.,]"), '');
+    final normalized =
+        '$sign$digits${fractionPart == null ? '' : '.$fractionPart'}';
+    return double.tryParse(normalized);
+  }
 
-    if (cleaned.isEmpty) return null;
-    return double.tryParse(cleaned);
+  static bool _validGroupedInteger(String value, String? decimalGrouping) {
+    var normalized = value.trim();
+    if (normalized.isEmpty) return false;
+    final separators = <String>{
+      if (normalized.contains("'")) "'",
+      if (normalized.contains(' ')) ' ',
+      if (normalized.contains('.')) '.',
+      if (normalized.contains(',')) ',',
+    };
+    if (decimalGrouping != null &&
+        (normalized.contains('.') || normalized.contains(',')) &&
+        !normalized.contains(decimalGrouping)) {
+      return false;
+    }
+    if (separators.isEmpty) return RegExp(r"^\d+$").hasMatch(normalized);
+    if (separators.length != 1) return false;
+    final separator = separators.single;
+    final parts = normalized.split(separator);
+    return parts.first.isNotEmpty &&
+        parts.first.length <= 3 &&
+        parts.every((part) => RegExp(r"^\d+$").hasMatch(part)) &&
+        parts.skip(1).every((part) => part.length == 3);
   }
 
   /// Parse a percentage: "6.80%", "6,80 %", "0.068".
   static double? _parsePercentage(String text) {
+    if (!text.contains('%')) return null;
     var cleaned = text.replaceAll("%", "").trim();
     cleaned = cleaned.replaceAll(",", ".");
     cleaned = cleaned.replaceAll(RegExp(r"[^\d.\-]"), "");
     if (cleaned.isEmpty) return null;
     final value = double.tryParse(cleaned);
     if (value == null) return null;
-    // If value > 1, it's already in percent form (e.g. 6.8)
-    // If value <= 1, it might be in decimal form (e.g. 0.068)
-    return value > 1 ? value : value * 100;
+    return value;
   }
 
   // ── Known field patterns (FR + DE) ────────────────────────
@@ -109,7 +156,7 @@ class LppCertificateParser {
       profileField: "avoirLppTotal",
       patterns: [
         RegExp(
-            r"(?:avoir\s+de\s+vieillesse\s+total|total\s+avoir|capital?\s+de\s+vieillesse)\s*[:\s]*" +
+            r"(?:avoir\s+de\s+vieillesse\s+total|total\s+avoir)\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
         RegExp(
@@ -162,11 +209,11 @@ class LppCertificateParser {
       profileField: "lppInsuredSalary",
       patterns: [
         RegExp(
-            r"(?:salaire\s+(?:coordonn[e\u00e9]|assur[e\u00e9])|traitement\s+assur[e\u00e9])\s*[:\s]*" +
+            r"(?:salaire\s+(?:coordonn[e\u00e9]|assur[e\u00e9](?:\s+(?:total|global))?)|traitement\s+assur[e\u00e9](?:\s+(?:total|global))?)\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
         RegExp(
-            r"(?:Versicherter\s+(?:Lohn|Verdienst)|Koordinierter\s+Lohn)\s*[:\s]*" +
+            r"(?:Versicherter\s+(?:Lohn|Verdienst)(?:\s+(?:total|gesamt))?|Koordinierter\s+Lohn)\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
       ],
@@ -202,9 +249,6 @@ class LppCertificateParser {
             caseSensitive: false),
         RegExp(
             r"(?:Umwandlungssatz\s*[\(]?(?:oblig[a-z]*|BVG|Mindest|gesetzlich)[a-z]*[\)]?)\s*[:\s]*([\d,.\s]+\s*%?)",
-            caseSensitive: false),
-        // Generic: "taux de conversion" followed by 6.8 or similar
-        RegExp(r"(?:taux\s+de\s+conversion)\s*[:\s]*(6[,.]8\d*\s*%?)",
             caseSensitive: false),
       ],
     ),
@@ -314,8 +358,7 @@ class LppCertificateParser {
       profileField: "deathCoverage",
       patterns: [
         RegExp(
-            r"(?:capital[\-\s]*d[e\u00e9]c[e\u00e8]s)\s*[:\s]*" +
-                _numCapture,
+            r"(?:capital[\-\s]*d[e\u00e9]c[e\u00e8]s)\s*[:\s]*" + _numCapture,
             caseSensitive: false),
         RegExp(r"(?:Todesfallkapital)\s*[:\s]*" + _numCapture,
             caseSensitive: false),
@@ -329,7 +372,7 @@ class LppCertificateParser {
       profileField: "buybackPotential",
       patterns: [
         RegExp(
-            r"(?:rachat?\s+(?:possible|maximum|maximal)|lacune\s+de\s+rachat|montant\s+(?:de\s+)?rachat)(?:\s*\([^)]*\))?\s*[:\s]*" +
+            r"(?:rachat?\s+(?:possible|maximum|maximal)(?:\s+(?:ordinaire|courant))?|lacune\s+de\s+rachat|montant\s+(?:de\s+)?rachat)(?:\s*\([^)]*\))?\s*[:\s]*" +
                 _numCapture,
             caseSensitive: false),
         RegExp(
@@ -403,9 +446,10 @@ class LppCertificateParser {
   static ExtractionResult parseLppCertificate(String text) {
     final fields = <ExtractedField>[];
     final warnings = <String>[];
+    final documentText = _hasPersonalCertificateKind(text) ? text : '';
 
     for (final pattern in _knownFieldPatterns) {
-      final result = _extractField(text, pattern);
+      final result = _extractField(documentText, pattern);
       if (result != null) {
         fields.add(result);
       }
@@ -483,48 +527,158 @@ class LppCertificateParser {
     );
   }
 
+  static bool _hasPersonalCertificateKind(String text) {
+    final normalized = _normalizedSemanticText(text);
+    final hasPersonalTitle = normalized.contains(
+            'certificat de prevoyance') || // lint-ignore: LPP document-type lexeme, not UI copy
+        normalized.contains('vorsorgeausweis') ||
+        normalized.contains('vorsorgebescheinigung') ||
+        normalized.contains('certificato di previdenza');
+    final hasIndividualizationLabel = RegExp(
+      r'(?:personne\s+assuree?|(?:^|\n)\s*assure(?:\(e\))?\s*:|n(?:o|°)\.?\s*(?:(?:d[\x27’]\s*)?assure|avs)|numero\s+(?:assure|avs)|nom\s*[-/]\s*prenom|versicherte\s+person|personalnummer|name\s*[-/]\s*vorname|persona\s+assicurata|numero\s+assicurato)',
+      multiLine: true,
+    ).hasMatch(normalized);
+    return hasPersonalTitle && hasIndividualizationLabel;
+  }
+
   /// Extract a single field from OCR text using pattern matching.
   static ExtractedField? _extractField(String text, _FieldPattern pattern) {
+    if (pattern.fieldName == 'lpp_insured_salary') {
+      return _extractUnambiguousInsuredSalary(text, pattern);
+    }
+    if (pattern.fieldName == 'buyback_potential') {
+      return _extractOrdinaryBuyback(text, pattern);
+    }
     for (final regex in pattern.patterns) {
       final match = regex.firstMatch(text);
-      if (match != null && match.groupCount >= 1) {
-        final rawValue = match.group(1)?.trim() ?? "";
-        final dynamic parsedValue;
-        double confidence;
-
-        if (pattern.isPercentage) {
-          final pct = _parsePercentage(rawValue);
-          if (pct == null) continue;
-          parsedValue = pct;
-          // High confidence if the value is in a reasonable range
-          confidence = (pct >= 1.0 && pct <= 25.0) ? 0.85 : 0.60;
-        } else {
-          final num = _parseSwissNumber(rawValue);
-          if (num == null) continue;
-          parsedValue = num;
-          // Confidence based on how clean the extraction was
-          confidence = rawValue.contains(RegExp(r"[\d]")) ? 0.82 : 0.50;
-          // Boost confidence if CHF prefix was present
-          if (match.group(0)?.contains(RegExp(r"CHF|Fr\.")) ?? false) {
-            confidence += 0.05;
-          }
-        }
-
-        // Cap confidence
-        confidence = confidence.clamp(0.0, 0.95);
-
-        return ExtractedField(
-          fieldName: pattern.fieldName,
-          label: pattern.label,
-          value: parsedValue,
-          confidence: confidence,
-          sourceText: match.group(0) ?? "",
-          needsReview: confidence < 0.80,
-          profileField: pattern.profileField,
-        );
-      }
+      final field = _fieldFromMatch(pattern, match);
+      if (field != null) return field;
     }
     return null;
+  }
+
+  static ExtractedField? _extractUnambiguousInsuredSalary(
+    String text,
+    _FieldPattern pattern,
+  ) {
+    final candidates = <({ExtractedField field, bool explicitCanonical})>[];
+    for (final line in text.split(RegExp(r'[\r\n]+'))) {
+      if (line.trim().isEmpty) continue;
+      ExtractedField? field;
+      for (final regex in pattern.patterns) {
+        field = _fieldFromMatch(pattern, regex.firstMatch(line), line.trim());
+        if (field != null) break;
+      }
+      if (field == null) continue;
+      final normalized = _normalizedSemanticText(line);
+      final hasSubtype = normalized.contains('risque') ||
+          normalized.contains('risk') ||
+          normalized.contains('epargne') ||
+          normalized.contains('savings') ||
+          normalized.contains('sparlohn');
+      if (hasSubtype) continue;
+      final explicitCanonical = normalized.contains('coordonn') ||
+          normalized.contains('koordiniert') ||
+          normalized.contains('total') ||
+          normalized.contains('global') ||
+          normalized.contains('gesamt');
+      candidates.add((field: field, explicitCanonical: explicitCanonical));
+    }
+    if (candidates.length == 1) return candidates.single.field;
+    final explicit = candidates
+        .where((candidate) => candidate.explicitCanonical)
+        .toList(growable: false);
+    return explicit.length == 1 ? explicit.single.field : null;
+  }
+
+  static ExtractedField? _extractOrdinaryBuyback(
+    String text,
+    _FieldPattern pattern,
+  ) {
+    final lines = text.split(RegExp(r'[\r\n]+'));
+    final candidates = <ExtractedField>[];
+    String? previousNonEmpty;
+    for (final rawLine in lines) {
+      final line = rawLine.trim();
+      if (line.isEmpty) continue;
+      final heading =
+          previousNonEmpty != null && !RegExp(r'\d').hasMatch(previousNonEmpty)
+              ? previousNonEmpty
+              : null;
+      final context = heading == null ? line : '$heading\n$line';
+      for (final regex in pattern.patterns) {
+        final field = _fieldFromMatch(
+          pattern,
+          regex.firstMatch(line),
+          context,
+        );
+        if (field == null) continue;
+        if (!_isEarlyRetirementContext(context)) candidates.add(field);
+        break;
+      }
+      previousNonEmpty = line;
+    }
+    return candidates.length == 1 ? candidates.single : null;
+  }
+
+  static ExtractedField? _fieldFromMatch(
+    _FieldPattern pattern,
+    RegExpMatch? match, [
+    String? sourceText,
+  ]) {
+    if (match == null || match.groupCount < 1) return null;
+    final rawValue = match.group(1)?.trim() ?? '';
+    final dynamic parsedValue;
+    double confidence;
+    if (pattern.isPercentage) {
+      final pct = _parsePercentage(rawValue);
+      if (pct == null) return null;
+      parsedValue = pct;
+      confidence = (pct >= 1.0 && pct <= 25.0) ? 0.85 : 0.60;
+    } else {
+      final number = _parseSwissNumber(rawValue);
+      if (number == null) return null;
+      parsedValue = number;
+      confidence = rawValue.contains(RegExp(r'[\d]')) ? 0.82 : 0.50;
+      if (match.group(0)?.contains(RegExp(r'CHF|Fr\.')) ?? false) {
+        confidence += 0.05;
+      }
+    }
+    confidence = confidence.clamp(0.0, 0.95);
+    return ExtractedField(
+      fieldName: pattern.fieldName,
+      label: pattern.label,
+      value: parsedValue,
+      confidence: confidence,
+      sourceText: sourceText ?? match.group(0) ?? '',
+      needsReview: confidence < 0.80,
+      profileField: pattern.profileField,
+    );
+  }
+
+  static bool _isEarlyRetirementContext(String value) {
+    final normalized = _normalizedSemanticText(value);
+    return normalized.contains('anticip') ||
+        normalized.contains('bridge') ||
+        normalized.contains('pont') ||
+        normalized.contains('fruhpensionierung') ||
+        normalized.contains('vorzeitig') ||
+        normalized.contains('vorbezug');
+  }
+
+  static String _normalizedSemanticText(String value) {
+    return value
+        .toLowerCase()
+        .replaceAll(
+            'é', 'e') // lint-ignore: OCR normalization token, not UI copy
+        .replaceAll(
+            'è', 'e') // lint-ignore: OCR normalization token, not UI copy
+        .replaceAll(
+            'ê', 'e') // lint-ignore: OCR normalization token, not UI copy
+        .replaceAll('ä', 'a')
+        .replaceAll('ö', 'o')
+        .replaceAll(
+            'ü', 'u'); // lint-ignore: OCR normalization token, not UI copy
   }
 
   /// Find a specific field's value from the extraction results.

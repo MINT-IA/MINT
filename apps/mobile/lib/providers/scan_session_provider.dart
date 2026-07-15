@@ -1,14 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 
 @immutable
 class ScanSessionPayload {
   final ExtractionResult extraction;
+  final LppExtractionCandidate? lppCandidate;
   final TaxExtractionCandidate? taxCandidate;
   final int? previousConfidence;
 
   const ScanSessionPayload({
     required this.extraction,
+    this.lppCandidate,
     this.taxCandidate,
     this.previousConfidence,
   });
@@ -19,6 +22,7 @@ class ScanSessionPayload {
   }) {
     return ScanSessionPayload(
       extraction: _withoutSourceText(extraction),
+      lppCandidate: null,
       taxCandidate: null,
       previousConfidence: previousConfidence,
     );
@@ -66,11 +70,13 @@ class ScanSessionProvider extends ChangeNotifier {
 
   String retainExtraction(
     ExtractionResult extraction, {
+    LppExtractionCandidate? lppCandidate,
     TaxExtractionCandidate? taxCandidate,
   }) {
     final id = '${DateTime.now().microsecondsSinceEpoch}-${_nextId++}';
     _sessions[id] = ScanSessionPayload(
       extraction: extraction,
+      lppCandidate: lppCandidate,
       taxCandidate: taxCandidate,
     );
     while (_sessions.length > maxRetainedSessions) {

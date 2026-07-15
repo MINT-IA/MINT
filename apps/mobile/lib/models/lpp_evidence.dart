@@ -128,6 +128,27 @@ enum LppEvidenceFactKey {
   }
 }
 
+/// Canonical balance invariant shared by acquisition, review, and persistence.
+abstract final class LppBalanceCoherence {
+  static const toleranceChf = 1.0;
+
+  static bool isCoherent(Map<LppEvidenceFactKey, double> values) {
+    final total = values[LppEvidenceFactKey.vestedBenefitsCapitalChf];
+    if (total == null) return true;
+    final mandatory =
+        values[LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf];
+    final extra =
+        values[LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf];
+    if ((mandatory != null && mandatory > total) ||
+        (extra != null && extra > total)) {
+      return false;
+    }
+    return mandatory == null ||
+        extra == null ||
+        (total - mandatory - extra).abs() <= toleranceChf;
+  }
+}
+
 class LppReviewedFact {
   const LppReviewedFact({
     required this.value,
@@ -579,11 +600,7 @@ class LppEvidenceSelector {
   }
 
   static String? manualPartnerOwnerId(Object? rawRoot) =>
-      _manualPartnerSnapshot(rawRoot)
-          ?.facts
-          .values
-          .first
-          .profileOwnerId;
+      _manualPartnerSnapshot(rawRoot)?.facts.values.first.profileOwnerId;
 
   static LppEvidenceSnapshot? _manualPartnerSnapshot(Object? rawRoot) {
     final root = _decodeLppRootEnvelope(rawRoot);

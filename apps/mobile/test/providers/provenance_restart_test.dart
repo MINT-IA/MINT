@@ -48,12 +48,16 @@ Map<String, Object?> _coldLppContract(CoachProfile profile) {
   };
 }
 
-Map<String, Object?> _expectedFact(double value) => <String, Object?>{
+Map<String, Object?> _expectedFact(
+  double value,
+  String sourceDate,
+) =>
+    <String, Object?>{
       'value': value,
       'source': ProfileDataSource.certificate.name,
       'hasUpdatedAt': true,
       'hasSourceDateSlot': true,
-      'sourceDate': null,
+      'sourceDate': sourceDate,
     };
 
 const _activeLppSlotKey = 'lpp_evidence_active_slot_v1';
@@ -212,9 +216,9 @@ void main() {
     expect(writer.profile, isNotNull);
 
     await writer.acceptLppReview(
-      const LppReviewConfirmation.self(
-        sourceDate: null,
-        facts: {
+      LppReviewConfirmation.self(
+        sourceDate: DateTime.utc(2026, 6, 30),
+        facts: const {
           LppEvidenceFactKey.retirementPensionAnnualChf: LppReviewedFact(
             value: 31450.0,
             unit: LppEvidenceUnit.chfPerYear,
@@ -307,7 +311,7 @@ void main() {
       expect(authorization, {'mode': 'self', 'grantId': null});
       expect(provenance['source'], 'certificate');
       expect(provenance.containsKey('sourceDate'), isTrue);
-      expect(provenance['sourceDate'], isNull);
+      expect(provenance['sourceDate'], '2026-06-30');
       updatedAts.add(provenance['updatedAt'] as String);
     }
     expect(owners, hasLength(1));
@@ -337,15 +341,36 @@ void main() {
     expect(
       _coldLppContract(coldProfile!),
       <String, Object?>{
-        'retirementPensionAnnual': _expectedFact(31450.0),
-        'retirementCapitalLumpSum': _expectedFact(485200.0),
-        'disabilityPensionAnnual': _expectedFact(36800.0),
-        'disabilityCapitalLumpSum': _expectedFact(175000.0),
-        'deathCapitalLumpSum': _expectedFact(220500.0),
+        'retirementPensionAnnual':
+            _expectedFact(31450.0, '2026-06-30T00:00:00.000Z'),
+        'retirementCapitalLumpSum':
+            _expectedFact(485200.0, '2026-06-30T00:00:00.000Z'),
+        'disabilityPensionAnnual':
+            _expectedFact(36800.0, '2026-06-30T00:00:00.000Z'),
+        'disabilityCapitalLumpSum':
+            _expectedFact(175000.0, '2026-06-30T00:00:00.000Z'),
+        'deathCapitalLumpSum':
+            _expectedFact(220500.0, '2026-06-30T00:00:00.000Z'),
       },
       reason: 'confirmed person-owned LPP facts must cross the real '
           'persisted-answer boundary with canonical provenance',
     );
+    for (final key in <LppEvidenceFactKey>[
+      LppEvidenceFactKey.retirementPensionAnnualChf,
+      LppEvidenceFactKey.retirementCapitalLumpSumChf,
+      LppEvidenceFactKey.disabilityPensionAnnualChf,
+      LppEvidenceFactKey.disabilityCapitalLumpSumChf,
+      LppEvidenceFactKey.deathCapitalLumpSumChf,
+    ]) {
+      expect(
+        coldProfile.prevoyance.lppEvidenceStatus(key),
+        LppEvidenceStatus.available,
+      );
+      expect(
+        coldProfile.prevoyance.lppEvidenceFact(key)?.sourceDate,
+        DateTime.utc(2026, 6, 30),
+      );
+    }
 
     final mutatedRoot = jsonDecode(jsonEncode(root)) as Map<String, dynamic>;
     final mutatedFacts = (mutatedRoot['self'] as Map<String, dynamic>)['facts']
@@ -455,9 +480,9 @@ void main() {
       persistence.lastSaved!,
       now: () => now,
     );
-    expect(cold.prevoyance.salaireAssure, 92000);
+    expect(cold.prevoyance.salaireAssure, isNull);
     expect(cold.prevoyance.avoirLppTotal, isNull);
-    expect(cold.conjoint!.prevoyance!.avoirLppTotal, 84000);
+    expect(cold.conjoint!.prevoyance!.avoirLppTotal, isNull);
     expect(cold.conjoint!.prevoyance!.salaireAssure, isNull);
   });
 
@@ -477,9 +502,9 @@ void main() {
     );
 
     await provider.acceptLppReview(
-      const LppReviewConfirmation.self(
-        sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+      LppReviewConfirmation.self(
+        sourceDate: DateTime.utc(2026, 6, 30),
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.maximumBuybackCapitalChf: LppReviewedFact(
             value: 24000,
             unit: LppEvidenceUnit.chf,
@@ -510,15 +535,15 @@ void main() {
     final partnerOwnerId = firstPartnerFact.profileOwnerId;
     final selfActorId = firstPartnerFact.actorProfileOwnerId;
     final firstSelfProvenance = jsonEncode(
-      (persistence.lastSaved!['__provenance'] as Map)[
-          LppEvidenceFactKey.maximumBuybackCapitalChf.profilePath],
+      (persistence.lastSaved!['__provenance']
+          as Map)[LppEvidenceFactKey.maximumBuybackCapitalChf.profilePath],
     );
 
     now = DateTime.utc(2026, 7, 14, 11);
     await provider.acceptLppReview(
-      const LppReviewConfirmation.manualPartner(
-        sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+      LppReviewConfirmation.manualPartner(
+        sourceDate: DateTime.utc(2026, 7, 1),
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
             value: 84500,
             unit: LppEvidenceUnit.chf,
@@ -537,6 +562,18 @@ void main() {
     expect(provider.profile!.prevoyance.rachatMaximum, 24000);
     expect(provider.profile!.conjoint!.prevoyance!.avoirLppTotal, 84500);
     expect(provider.profile!.conjoint!.prevoyance!.salaireAssure, isNull);
+    expect(
+      provider.profile!.prevoyance.lppEvidenceStatus(
+        LppEvidenceFactKey.maximumBuybackCapitalChf,
+      ),
+      LppEvidenceStatus.available,
+    );
+    expect(
+      provider.profile!.conjoint!.prevoyance!.lppEvidenceStatus(
+        LppEvidenceFactKey.vestedBenefitsCapitalChf,
+      ),
+      LppEvidenceStatus.available,
+    );
 
     final provenance = Map<String, dynamic>.from(
       persistence.lastSaved!['__provenance'] as Map,
@@ -550,11 +587,15 @@ void main() {
     expect(provenance[retainedPartnerPath], <String, dynamic>{
       'source': 'certificate',
       'updatedAt': '2026-07-14T11:00:00.000Z',
-      'sourceDate': null,
+      'sourceDate': '2026-07-01T00:00:00.000Z',
     });
+    expect(
+      (provenance[selfPath] as Map)['sourceDate'],
+      '2026-06-30T00:00:00.000Z',
+    );
     expect(provenance.containsKey(omittedPartnerPath), isFalse);
-    expect(provider.profile!.dataSources.containsKey(omittedPartnerPath),
-        isFalse);
+    expect(
+        provider.profile!.dataSources.containsKey(omittedPartnerPath), isFalse);
     expect(provider.profile!.dataTimestamps.containsKey(omittedPartnerPath),
         isFalse);
     expect(provider.profile!.dataSourceDates.containsKey(omittedPartnerPath),
@@ -628,7 +669,7 @@ void main() {
         'prevoyance.avoirLppTotal': <String, dynamic>{
           'source': 'certificate',
           'updatedAt': '2026-07-14T10:00:00.000Z',
-          'sourceDate': null,
+          'sourceDate': '2026-06-30',
         },
       },
     });
@@ -641,9 +682,9 @@ void main() {
     final startup = provider.loadFromWizard();
     await persistence.firstSaveStarted.future;
     final manualAcceptance = provider.acceptLppReview(
-      const LppReviewConfirmation.manualPartner(
-        sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+      LppReviewConfirmation.manualPartner(
+        sourceDate: DateTime.utc(2026, 7, 1),
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
             value: 84000,
             unit: LppEvidenceUnit.chf,
@@ -664,6 +705,27 @@ void main() {
         selfOwnerId);
     expect(provider.profile!.prevoyance.avoirLppTotal, 125000);
     expect(provider.profile!.conjoint!.prevoyance!.avoirLppTotal, 84000);
+    expect(
+      provider.profile!.prevoyance.lppEvidenceStatus(
+        LppEvidenceFactKey.vestedBenefitsCapitalChf,
+      ),
+      LppEvidenceStatus.available,
+    );
+    expect(
+      provider.profile!.conjoint!.prevoyance!.lppEvidenceStatus(
+        LppEvidenceFactKey.vestedBenefitsCapitalChf,
+      ),
+      LppEvidenceStatus.available,
+    );
+    expect(
+      root.self!.facts[LppEvidenceFactKey.vestedBenefitsCapitalChf]?.sourceDate,
+      DateTime.utc(2026, 6, 30),
+    );
+    expect(
+      root.manualPartner!.facts[LppEvidenceFactKey.vestedBenefitsCapitalChf]
+          ?.sourceDate,
+      DateTime.utc(2026, 7, 1),
+    );
     expect(persistence.loadAttempts, 2);
     expect(persistence.saveAttempts, 2);
     expect(persistence.events, <String>[
@@ -748,9 +810,9 @@ void main() {
     await provider.loadFromWizard();
 
     await provider.acceptLppReview(
-      const LppReviewConfirmation.manualPartner(
-        sourceDate: null,
-        facts: <LppEvidenceFactKey, LppReviewedFact>{
+      LppReviewConfirmation.manualPartner(
+        sourceDate: DateTime.utc(2026, 6, 30),
+        facts: const <LppEvidenceFactKey, LppReviewedFact>{
           LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
             value: 84000,
             unit: LppEvidenceUnit.chf,
@@ -768,6 +830,7 @@ void main() {
     final secureRoot = secureStorageValues[_activeLppSecureKey(prefs)]!;
     final root = LppEvidenceRoot.fromJsonString(secureRoot)!;
     final partnerFact = root.manualPartner!.facts.values.first;
+    expect(partnerFact.sourceDate, DateTime.utc(2026, 6, 30));
     expect(prefsBytes, isNot(contains(partnerFact.profileOwnerId)));
     expect(prefsBytes, isNot(contains(partnerFact.actorProfileOwnerId)));
 
@@ -785,6 +848,17 @@ void main() {
     expect(
       provider.profile!.dataSources['conjoint.prevoyance.avoirLppTotal'],
       ProfileDataSource.certificate,
+    );
+    expect(
+      coldPartner.lppEvidenceStatus(
+        LppEvidenceFactKey.vestedBenefitsCapitalChf,
+      ),
+      LppEvidenceStatus.available,
+    );
+    expect(
+      provider.profile!.dataSourceDates[
+          LppEvidenceFactKey.vestedBenefitsCapitalChf.manualPartnerProfilePath],
+      DateTime.utc(2026, 6, 30),
     );
     expect(
       provider.profile!.dataSources.containsKey('prevoyance.avoirLppTotal'),
@@ -999,12 +1073,12 @@ void main() {
     final stored = Map<String, dynamic>.from(jsonDecode(bytesAfter) as Map);
     expect(bytesAfter, isNot(bytesBefore));
     expect(stored['_coach_lpp_evidence_v1'], '__secure__');
-    expect(stored.keys.toSet().intersection(legacyPartnerLppAnswerKeys),
-        isEmpty);
+    expect(
+        stored.keys.toSet().intersection(legacyPartnerLppAnswerKeys), isEmpty);
     expect(prefs.getString(_activeLppSlotKey), activeSlotId);
     expect(secureStorageValues['$_lppSlotPrefix$activeSlotId'], isNull);
-    expect(provider.reportAnswersSnapshot['_coach_lpp_evidence_v1'],
-        '__secure__');
+    expect(
+        provider.reportAnswersSnapshot['_coach_lpp_evidence_v1'], '__secure__');
   });
 
   test('legacy partner LPP values become metadata-only quarantine', () async {
@@ -1173,8 +1247,14 @@ void main() {
 
     var provider = CoachProfileProvider();
     await provider.loadFromWizard();
-    expect(provider.profile!.prevoyance.avoirLppTotal, 123400.0);
+    expect(provider.profile!.prevoyance.avoirLppTotal, isNull);
     expect(provider.profile!.prevoyance.tauxConversion, 0.068);
+    expect(
+      provider.profile!.prevoyance.lppEvidenceStatus(
+        LppEvidenceFactKey.vestedBenefitsCapitalChf,
+      ),
+      LppEvidenceStatus.availableNeedsConfirmation,
+    );
     final prefs = await SharedPreferences.getInstance();
     final firstSlotId = prefs.getString(_activeLppSlotKey);
     final firstRoot = secureStorageValues[_activeLppSecureKey(prefs)];
@@ -1189,8 +1269,68 @@ void main() {
     await provider.loadFromWizard();
     expect(prefs.getString(_activeLppSlotKey), firstSlotId);
     expect(secureStorageValues[_activeLppSecureKey(prefs)], firstRoot);
-    expect(provider.profile!.prevoyance.avoirLppTotal, 123400.0);
+    expect(provider.profile!.prevoyance.avoirLppTotal, isNull);
     expect(provider.profile!.prevoyance.tauxConversion, 0.068);
+  });
+
+  test('legacy certificate zero stays loose behind an authoritative empty root',
+      () async {
+    const stamp = '2026-01-15T12:00:00.000Z';
+    await ReportPersistenceService.saveAnswers(<String, dynamic>{
+      'q_birth_year': 1980,
+      'q_canton': 'VD',
+      '_coach_avoir_lpp': 0,
+      '_coach_lpp_source': 'document_scan',
+      '__provenance': <String, dynamic>{
+        'prevoyance.avoirLppTotal': <String, dynamic>{
+          'source': 'certificate',
+          'updatedAt': stamp,
+          'sourceDate': '2026-01-14',
+        },
+      },
+    });
+    await ReportPersistenceService.setCompleted(true);
+
+    final provider = CoachProfileProvider(
+      now: () => DateTime.utc(2026, 7, 14, 12),
+    );
+    await provider.loadFromWizard();
+    final persisted = await ReportPersistenceService.loadAnswers();
+
+    expect(persisted.containsKey('_coach_lpp_evidence_v1'), isTrue);
+    expect(persisted['_coach_avoir_lpp'], 0);
+    expect(persisted['_coach_lpp_source'], 'document_scan');
+    expect(
+      (persisted['__provenance'] as Map)['prevoyance.avoirLppTotal'],
+      isNotNull,
+    );
+    expect(provider.profile!.prevoyance.avoirLppTotal, isNull);
+    expect(
+      provider.profile!.prevoyance.lppEvidenceFact(
+        LppEvidenceFactKey.vestedBenefitsCapitalChf,
+      ),
+      isNull,
+    );
+    final prefs = await SharedPreferences.getInstance();
+    final firstSlotId = prefs.getString(_activeLppSlotKey);
+    final firstRoot = secureStorageValues[_activeLppSecureKey(prefs)];
+    expect(firstRoot, isNotNull);
+    provider.dispose();
+
+    final cold = CoachProfileProvider(
+      now: () => DateTime.utc(2026, 7, 14, 12),
+    );
+    await cold.loadFromWizard();
+    expect(prefs.getString(_activeLppSlotKey), firstSlotId);
+    expect(secureStorageValues[_activeLppSecureKey(prefs)], firstRoot);
+    expect(cold.profile!.prevoyance.avoirLppTotal, isNull);
+    expect(
+      cold.profile!.prevoyance.lppEvidenceFact(
+        LppEvidenceFactKey.vestedBenefitsCapitalChf,
+      ),
+      isNull,
+    );
+    cold.dispose();
   });
 
   test('legacy self migration applies strict provenance lexical validation',
@@ -1255,6 +1395,23 @@ void main() {
           ),
         },
       ),
+      manualPartner: LppEvidenceSnapshot(
+        snapshotId: '33333333-3333-4333-8333-333333333333',
+        facts: <LppEvidenceFactKey, LppEvidenceFact>{
+          LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
+            value: 84000,
+            unit: LppEvidenceUnit.chf,
+            profileOwnerId: '44444444-4444-4444-8444-444444444444',
+            actorProfileOwnerId: '22222222-2222-4222-8222-222222222222',
+            ownerKind: LppEvidenceOwnerKind.manualPartner,
+            authorizationMode:
+                LppEvidenceAuthorizationMode.manualPartnerDeclaration,
+            source: 'certificate',
+            sourceDate: null,
+            updatedAt: DateTime.utc(2026, 1, 15, 12),
+          ),
+        },
+      ),
     );
     final profile = CoachProfile.fromWizardAnswers(
       <String, dynamic>{
@@ -1302,6 +1459,32 @@ void main() {
             sourceDate: null,
             updatedAt: DateTime.utc(2026, 1, 15, 12),
           ),
+          LppEvidenceFactKey.maximumBuybackCapitalChf: LppEvidenceFact(
+            value: 42000,
+            unit: LppEvidenceUnit.chf,
+            profileOwnerId: '22222222-2222-4222-8222-222222222222',
+            actorProfileOwnerId: '22222222-2222-4222-8222-222222222222',
+            source: 'userInput',
+            sourceDate: null,
+            updatedAt: DateTime.utc(2026, 1, 15, 12),
+          ),
+        },
+      ),
+      manualPartner: LppEvidenceSnapshot(
+        snapshotId: '33333333-3333-4333-8333-333333333333',
+        facts: <LppEvidenceFactKey, LppEvidenceFact>{
+          LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
+            value: 84000,
+            unit: LppEvidenceUnit.chf,
+            profileOwnerId: '44444444-4444-4444-8444-444444444444',
+            actorProfileOwnerId: '22222222-2222-4222-8222-222222222222',
+            ownerKind: LppEvidenceOwnerKind.manualPartner,
+            authorizationMode:
+                LppEvidenceAuthorizationMode.manualPartnerDeclaration,
+            source: 'certificate',
+            sourceDate: null,
+            updatedAt: DateTime.utc(2026, 1, 15, 12),
+          ),
         },
       ),
     );
@@ -1309,6 +1492,7 @@ void main() {
       <String, dynamic>{
         'q_birth_year': 1980,
         'q_canton': 'VD',
+        'q_partner_firstname': 'Partner',
         'q_lpp_buyback_available': 40000,
         '_coach_lpp_evidence_v1': root.toJsonString(),
       },
@@ -1316,12 +1500,18 @@ void main() {
     );
 
     expect(profile.prevoyance.tauxConversion, 0.068);
+    expect(profile.prevoyance.avoirLppTotal, isNull);
     expect(profile.prevoyance.rendementCaisse, 0.02);
-    expect(profile.prevoyance.rachatMaximum, 40000);
+    expect(profile.prevoyance.rachatMaximum, 42000);
+    expect(
+      profile.prevoyance.lppEvidenceStatus(
+        LppEvidenceFactKey.maximumBuybackCapitalChf,
+      ),
+      LppEvidenceStatus.available,
+    );
     for (final absentKey in <LppEvidenceFactKey>[
       LppEvidenceFactKey.mandatoryConversionRateRatio,
       LppEvidenceFactKey.fundReturnRateRatio,
-      LppEvidenceFactKey.maximumBuybackCapitalChf,
     ]) {
       expect(profile.prevoyance.lppEvidenceFact(absentKey), isNull);
       expect(profile.prevoyance.lppEvidenceStatus(absentKey), isNull);
@@ -1336,6 +1526,20 @@ void main() {
     );
     expect(
       profile.prevoyance.lppEvidenceStatus(
+        LppEvidenceFactKey.vestedBenefitsCapitalChf,
+      ),
+      LppEvidenceStatus.availableNeedsConfirmation,
+    );
+    final partnerPrevoyance = profile.conjoint!.prevoyance!;
+    expect(partnerPrevoyance.avoirLppTotal, isNull);
+    expect(
+      partnerPrevoyance
+          .lppEvidenceFact(LppEvidenceFactKey.vestedBenefitsCapitalChf)
+          ?.value,
+      84000,
+    );
+    expect(
+      partnerPrevoyance.lppEvidenceStatus(
         LppEvidenceFactKey.vestedBenefitsCapitalChf,
       ),
       LppEvidenceStatus.availableNeedsConfirmation,

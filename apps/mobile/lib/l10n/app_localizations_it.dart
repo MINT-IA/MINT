@@ -453,6 +453,34 @@ class SIt extends S {
   String get documentsFieldCapitalDeces => 'Capitale di decesso';
 
   @override
+  String get lppEvidenceRetirementPensionAnnualLabel =>
+      'Rendita annua di vecchiaia';
+
+  @override
+  String get lppEvidenceRetirementCapitalLumpSumLabel =>
+      'Capitale di vecchiaia in versamento unico';
+
+  @override
+  String get lppEvidenceDisabilityCapitalLumpSumLabel =>
+      'Capitale d\'invalidità in versamento unico';
+
+  @override
+  String get lppReviewSourceDate =>
+      'Data di situazione del certificato di previdenza (AAAA-MM-GG)';
+
+  @override
+  String get lppReviewSourceDateHint =>
+      'Obbligatoria per conservare qualsiasi valore non corretto del certificato.';
+
+  @override
+  String get lppReviewSourceDateInvalid =>
+      'Inserisci una data valida, non futura, nel formato AAAA-MM-GG.';
+
+  @override
+  String get lppReviewBalanceIncoherent =>
+      'Gli averi di previdenza non sono coerenti. Verifica il totale e le quote obbligatoria e sovraobbligatoria.';
+
+  @override
   String get documentsFieldRenteConjoint => 'Rendita annuale del coniuge';
 
   @override
@@ -22407,6 +22435,14 @@ class SIt extends S {
       'Prova con un certificato LPP, di salario, 3a o una polizza assicurativa.';
 
   @override
+  String get lppDocumentKindUnverified =>
+      'Non è stato possibile verificare questo documento come il tuo certificato LPP personale.';
+
+  @override
+  String get lppDocumentKindUnverifiedHint =>
+      'Usa il tuo certificato individuale di previdenza.';
+
+  @override
   String get docFileTooLarge => 'File troppo grande. Massimo 10 MB.';
 
   @override
@@ -23062,78 +23098,8 @@ class SIt extends S {
       'Lo scanner non è riuscito ad avviarsi. Puoi importare un file dalla tua galleria.';
 
   @override
-  String documentBubbleConfirmTitle(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Ho letto $count dati utili.',
-      one: 'Ho letto 1 dato utile.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get documentBubbleConfirmAllGood => 'Tutto a posto';
-
-  @override
-  String get documentBubbleConfirmCorrect => 'Correggo';
-
-  @override
-  String get documentBubbleAskTitle =>
-      'Ho quasi tutto. Confermami solo questo:';
-
-  @override
-  String get documentBubbleAskSubmit => 'Invia';
-
-  @override
-  String get documentBubbleNarrativeRemindLater => 'Ricordamelo a maggio';
-
-  @override
-  String get documentBubbleRejectMessage =>
-      'Non sembra un documento finanziario. Tranquillo — riprova con un\'altra foto.';
-
-  @override
-  String get documentBubbleRejectRetry => 'Riprova';
-
-  @override
-  String documentThirdPartyQuestion(String name) {
-    return 'È davvero $name?';
-  }
-
-  @override
-  String get documentThirdPartyYes => 'Sì';
-
-  @override
-  String get documentThirdPartyNo => 'No';
-
-  @override
-  String get documentThirdPartySomeoneElse => 'qualcun altro';
-
-  @override
   String get documentReviewOpenedFromDeeplink =>
       'Aperto da un link diretto. La maggior parte dei documenti ora appare direttamente nella chat.';
-
-  @override
-  String get documentReviewMineButton => 'È mio';
-
-  @override
-  String get documentReviewNotMineButton => 'Non è mio';
-
-  @override
-  String get documentReviewCorrectButton => 'Correggo';
-
-  @override
-  String get documentScanReadingStage => 'Sto guardando…';
-
-  @override
-  String documentScanFamiliarIssuer(String issuer) {
-    return 'Sembra un altro $issuer, controllo cosa è cambiato…';
-  }
-
-  @override
-  String documentScanFieldFound(String field, String value) {
-    return '$field: $value';
-  }
 
   @override
   String get consentSheetTitle => 'I tuoi consensi';
@@ -23223,70 +23189,12 @@ class SIt extends S {
   String get policyDiffAcceptDelta => 'Ho letto e accetto le modifiche';
 
   @override
-  String batchValidationTitle(int count) {
-    return 'MINT ha letto $count cifre. Tutto ok?';
-  }
-
-  @override
-  String get batchValidationConfirmAll => 'Tutto ok';
-
-  @override
-  String get batchValidationCorrectOne => 'Correggine una';
-
-  @override
-  String get batchValidationRejectAll => 'Niente torna';
-
-  @override
-  String get fieldCorrectionTitle => 'Correggi il valore';
-
-  @override
-  String get fieldCorrectionSave => 'Salva';
-
-  @override
-  String get fieldCorrectionCancel => 'Annulla';
-
-  @override
   String get renderModeRejectBannerSanity =>
       'Un valore sembra impossibile. MINT ha preferito fermarsi.';
 
   @override
   String get renderModeRejectBannerGuard =>
       'MINT non ha potuto presentare il riepilogo in modo didattico. Controlla i numeri grezzi.';
-
-  @override
-  String get humanReviewBadge => 'Serve occhio umano';
-
-  @override
-  String get thirdPartyDeclarationTitle => 'Un momento prima di continuare';
-
-  @override
-  String thirdPartyDeclarationBody(String name) {
-    return 'Confermi di aver ottenuto il consenso di $name affinché MINT tratti questo documento?';
-  }
-
-  @override
-  String thirdPartyDeclarationMultipleBody(String names) {
-    return 'Confermi di aver ottenuto il consenso di $names affinché MINT tratti questo documento?';
-  }
-
-  @override
-  String get thirdPartyDeclarationConfirm => 'Sì, ho il suo consenso';
-
-  @override
-  String get thirdPartyDeclarationCancel => 'No, annulla il caricamento';
-
-  @override
-  String thirdPartyInviteCta(String name) {
-    return 'Invita $name su MINT';
-  }
-
-  @override
-  String get thirdPartyInviteComingSoon =>
-      'Inviti in arrivo — abbiamo registrato la tua intenzione.';
-
-  @override
-  String get thirdPartyDeclarationNoticeLink =>
-      'Senza il suo consenso, MINT non può trattare i dati di un\'altra persona.';
 
   @override
   String get monArgentTabTitle => 'I miei soldi';

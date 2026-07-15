@@ -130,6 +130,13 @@
   "documentsFieldTauxEnveloppe": "Tasso di conversione involucro",
   "documentsFieldRenteInvalidite": "Rendita annuale d'invalidità",
   "documentsFieldCapitalDeces": "Capitale di decesso",
+  "lppEvidenceRetirementPensionAnnualLabel": "Rendita annua di vecchiaia",
+  "lppEvidenceRetirementCapitalLumpSumLabel": "Capitale di vecchiaia in versamento unico",
+  "lppEvidenceDisabilityCapitalLumpSumLabel": "Capitale d'invalidità in versamento unico",
+  "lppReviewSourceDate": "Data di situazione del certificato di previdenza (AAAA-MM-GG)",
+  "lppReviewSourceDateHint": "Obbligatoria per conservare qualsiasi valore non corretto del certificato.",
+  "lppReviewSourceDateInvalid": "Inserisci una data valida, non futura, nel formato AAAA-MM-GG.",
+  "lppReviewBalanceIncoherent": "Gli averi di previdenza non sono coerenti. Verifica il totale e le quote obbligatoria e sovraobbligatoria.",
   "documentsFieldRenteConjoint": "Rendita annuale del coniuge",
   "documentsFieldRenteEnfant": "Rendita annuale per figlio",
   "documentsFieldRachatMax": "Riscatto massimo possibile",
@@ -10680,6 +10687,8 @@
   },
   "docNotFinancial": "Questo documento non sembra essere un documento finanziario svizzero.",
   "docNotFinancialHint": "Prova con un certificato LPP, di salario, 3a o una polizza assicurativa.",
+  "lppDocumentKindUnverified": "Non è stato possibile verificare questo documento come il tuo certificato LPP personale.",
+  "lppDocumentKindUnverifiedHint": "Usa il tuo certificato individuale di previdenza.",
   "docFileTooLarge": "File troppo grande. Massimo 10 MB.",
   "docWrongFormat": "Formato non supportato. Usa una foto o un PDF.",
   "docLpp1eWarning": "Piano 1e rilevato. Nessun tasso di conversione garantito — proiezione solo in capitale.",
@@ -11175,104 +11184,9 @@
   "@docScanScannerError": {
     "description": "v2.7 Phase 28-03 — shown when native VisionKit/ML Kit document scanner fails to launch."
   },
-  "documentBubbleConfirmTitle": "{count, plural, =1{Ho letto 1 dato utile.} other{Ho letto {count} dati utili.}}",
-  "@documentBubbleConfirmTitle": {
-    "description": "Phase 28-04 — header of ConfirmExtractionBubble when no backend summary is provided.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "documentBubbleConfirmAllGood": "Tutto a posto",
-  "@documentBubbleConfirmAllGood": {
-    "description": "Phase 28-04 — primary chip on ConfirmExtractionBubble: confirm extracted values as-is."
-  },
-  "documentBubbleConfirmCorrect": "Correggo",
-  "@documentBubbleConfirmCorrect": {
-    "description": "Phase 28-04 — secondary chip on ConfirmExtractionBubble: opens the editable bottom sheet."
-  },
-  "documentBubbleAskTitle": "Ho quasi tutto. Confermami solo questo:",
-  "@documentBubbleAskTitle": {
-    "description": "Phase 28-04 — header of AskQuestionBubble (hybrid confirm+ask)."
-  },
-  "documentBubbleAskSubmit": "Invia",
-  "@documentBubbleAskSubmit": {
-    "description": "Phase 28-04 — submit answers in AskQuestionBubble."
-  },
-  "documentBubbleNarrativeRemindLater": "Ricordamelo a maggio",
-  "@documentBubbleNarrativeRemindLater": {
-    "description": "Phase 28-04 — default label for the commitment CTA in NarrativeBubble."
-  },
-  "documentBubbleRejectMessage": "Non sembra un documento finanziario. Tranquillo — riprova con un'altra foto.",
-  "@documentBubbleRejectMessage": {
-    "description": "Phase 28-04 — gentle rejection copy in RejectBubble. Anti-shame."
-  },
-  "documentBubbleRejectRetry": "Riprova",
-  "@documentBubbleRejectRetry": {
-    "description": "Phase 28-04 — retry CTA on RejectBubble."
-  },
-  "documentThirdPartyQuestion": "È davvero {name}?",
-  "@documentThirdPartyQuestion": {
-    "description": "Phase 28-04 — third-party attribution chip rendered above bubbles when backend detects a partner name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "documentThirdPartyYes": "Sì",
-  "@documentThirdPartyYes": {
-    "description": "Phase 28-04 — yes chip on ThirdPartyChip."
-  },
-  "documentThirdPartyNo": "No",
-  "@documentThirdPartyNo": {
-    "description": "Phase 28-04 — no chip on ThirdPartyChip."
-  },
-  "documentThirdPartySomeoneElse": "qualcun altro",
-  "@documentThirdPartySomeoneElse": {
-    "description": "Phase 28-04 — fallback name when no first name detected."
-  },
   "documentReviewOpenedFromDeeplink": "Aperto da un link diretto. La maggior parte dei documenti ora appare direttamente nella chat.",
   "@documentReviewOpenedFromDeeplink": {
     "description": "Phase 28-04 — banner on legacy ExtractionReviewScreen."
-  },
-  "documentReviewMineButton": "È mio",
-  "@documentReviewMineButton": {
-    "description": "Phase 28-04 — primary action on ExtractionReviewSheet (replaces Confirmer)."
-  },
-  "documentReviewNotMineButton": "Non è mio",
-  "@documentReviewNotMineButton": {
-    "description": "Phase 28-04 — chip on ExtractionReviewSheet for third-party documents."
-  },
-  "documentReviewCorrectButton": "Correggo",
-  "@documentReviewCorrectButton": {
-    "description": "Phase 28-04 — chip on ExtractionReviewSheet to enable inline edit."
-  },
-  "documentScanReadingStage": "Sto guardando…",
-  "@documentScanReadingStage": {
-    "description": "Phase 28-04 — Tom Hanks reading stage label on document_scan_screen during streaming."
-  },
-  "documentScanFamiliarIssuer": "Sembra un altro {issuer}, controllo cosa è cambiato…",
-  "@documentScanFamiliarIssuer": {
-    "description": "Phase 28-04 — optimistic stage line when client recognises issuer.",
-    "placeholders": {
-      "issuer": {
-        "type": "String"
-      }
-    }
-  },
-  "documentScanFieldFound": "{field}: {value}",
-  "@documentScanFieldFound": {
-    "description": "Phase 28-04 — incremental field row revealed during streaming.",
-    "placeholders": {
-      "field": {
-        "type": "String"
-      },
-      "value": {
-        "type": "String"
-      }
-    }
   },
   "consentSheetTitle": "I tuoi consensi",
   "consentSheetSubtitle": "MINT tratta i tuoi dati solo con il tuo consenso esplicito, per ciascuna finalità.",
@@ -11300,33 +11214,8 @@
   "privacyCenterRevokedOn": "Revocato il",
   "policyDiffTitle": "Aggiornamento della politica",
   "policyDiffAcceptDelta": "Ho letto e accetto le modifiche",
-  "batchValidationTitle": "MINT ha letto {count} cifre. Tutto ok?",
-  "@batchValidationTitle": {
-    "description": "Phase 29-04 — BatchValidationBubble intestazione (PRIV-08).",
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
-  "batchValidationConfirmAll": "Tutto ok",
-  "batchValidationCorrectOne": "Correggine una",
-  "batchValidationRejectAll": "Niente torna",
-  "fieldCorrectionTitle": "Correggi il valore",
-  "fieldCorrectionSave": "Salva",
-  "fieldCorrectionCancel": "Annulla",
   "renderModeRejectBannerSanity": "Un valore sembra impossibile. MINT ha preferito fermarsi.",
   "renderModeRejectBannerGuard": "MINT non ha potuto presentare il riepilogo in modo didattico. Controlla i numeri grezzi.",
-  "humanReviewBadge": "Serve occhio umano",
-  "thirdPartyDeclarationTitle": "Un momento prima di continuare",
-  "thirdPartyDeclarationBody": "Confermi di aver ottenuto il consenso di {name} affinché MINT tratti questo documento?",
-  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
-  "thirdPartyDeclarationMultipleBody": "Confermi di aver ottenuto il consenso di {names} affinché MINT tratti questo documento?",
-  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
-  "thirdPartyDeclarationConfirm": "Sì, ho il suo consenso",
-  "thirdPartyDeclarationCancel": "No, annulla il caricamento",
-  "thirdPartyInviteCta": "Invita {name} su MINT",
-  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
-  "thirdPartyInviteComingSoon": "Inviti in arrivo — abbiamo registrato la tua intenzione.",
-  "thirdPartyDeclarationNoticeLink": "Senza il suo consenso, MINT non può trattare i dati di un'altra persona.",
   "monArgentTabTitle": "I miei soldi",
   "monArgentBudgetTitle": "Il tuo budget questo mese",
   "monArgentBudgetEmpty": "Imposta il tuo budget per vedere a che punto sei questo mese.",

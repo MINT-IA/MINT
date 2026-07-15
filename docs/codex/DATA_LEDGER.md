@@ -559,7 +559,13 @@ the implemented seam and its fail-closed behavior, not production activation.
 Frozen-SHA Maestro/Patrol evidence on one simulator, external Claude audits and
 the final G1 scorecard are still required before either flag may change.
 
-### 4.0A LPP certificate evidence (G1-PROV-02 target; default-off)
+### 4.0A LPP certificate evidence (G1-PROV-02 implemented; activation default-off)
+
+The production code path described below exists, but this is **not** an
+activation or runtime-GO statement. Both local switches remain false, the
+`G1-PROV-02` evidence ticket remains `ticket_only`, and frozen pushed-SHA
+Maestro/Patrol evidence, external audits and the named activation decision are
+still required.
 
 G1-PROV-02 uses one local answer root only:
 `wizard_answers_v2['_coach_lpp_evidence_v1']`. Its value is a JSON **string**
@@ -616,6 +622,39 @@ source text. The root stores no raw document, image, OCR diagnostics, extracted
 label, source passage, account-link token or direct identity. Quarantine stores
 key names and reason codes only, never legacy values or owner PII.
 
+#### Acquisition, kind and raw-data boundaries
+
+`DocumentScanScreen` exposes LPP acquisition only when
+`FeatureFlags.lppEvidenceIngestionEnabled` is true. Camera and gallery entry
+recheck that composite gate before consent, file selection or extraction. The
+LPP consent set is exactly `visionExtraction + transferUsAnthropic`; it does
+not request the 365-day vault-persistence purpose. Image and PDF bytes use the
+direct `/documents/extract-vision` call after consent. The LPP PDF branch never
+calls `DocumentService.uploadDocument`, and the LPP BYOK, fused-document and
+SSE paths are unreachable.
+
+The backend treats a requested LPP document as candidate-only. Before audit-log
+creation or field extraction, the classifier result must be the typed
+`DocumentClassificationResult` with `is_financial is true`, exact detected
+type `lpp_certificate`, and enum confidence `high`. A plan, unknown document,
+medium/low confidence, malformed classifier result or classifier error is a
+neutral `422` rejection. Accepted extraction never mirrors LPP fields to
+`ProfileModel.data`; only hashed audit metadata may be committed, and the
+request bytes are cleared after the accepted extraction attempt. Raw document
+bytes necessarily transit to the consented extraction provider, but they do
+not enter the local ledger or document vault.
+
+Local pasted/test OCR text has an independent strict kind gate: an exact
+personal-certificate title in the supported languages **and** an
+individualization label must both be present. Generic LPP plans therefore
+produce no candidate. Both local-parser and backend results pass through
+`LppExtractionAdapter`, which accepts only the exact vocabulary for the named
+acquisition source, rejects cross-vocabulary/duplicate/invalid fields, converts
+percentage scale exactly once, and returns a raw-free
+`LppExtractionCandidate`. The retained scan session contains canonical keys,
+values, units, per-field confidence/review status, source date and acquisition
+source only; labels, passages, warnings and OCR diagnostics are discarded.
+
 #### Canonical fact keys and units
 
 The key determines financial meaning; the unit token is an independent runtime
@@ -644,7 +683,20 @@ maps to disability capital.
 non-negative values. A parser match such as « prestation d'invalidité » without
 an explicit pension/capital label and annual/lump-sum period remains a candidate
 to correct, not a fact. Missing facts remain missing; zero is accepted only when
-the reviewed certificate explicitly states zero.
+the acquisition field contains an explicit numeric zero that survives review.
+Every source and field confidence must be finite in `0...1`; the candidate
+overall confidence is the lower of the source overall and the accepted-fact
+mean, never an upgrade. `needsReview` is preserved and is also raised when a
+fact is below its canonical review threshold.
+
+The current three-part balance invariant is centralized in
+`LppBalanceCoherence`: each mandatory or extra-mandatory component must be no
+greater than total, and when all three facts exist
+`abs(total - mandatory - extra) <= CHF 1`. Partial sets remain partial. The same
+predicate runs in the adapter, again after review edits before owner selection,
+and at the provider authority after value/unit validation but before persistence
+load. Contradictory edits or direct calls therefore perform no load, save,
+notification or navigation.
 
 #### One review, save and publish seam
 
@@ -660,7 +712,9 @@ LppExtractionCandidate
   -> LppEvidenceSelector.selectSelf | selectManualPartner
 ```
 
-The review confirmation carries the typed facts, source date, subject choice
+The raw-free candidate is retained in `ScanSessionProvider` and the route
+carries only `scanSessionId`. The review confirmation carries the typed facts,
+source date, subject choice
 (`self` or `manualPartner`) and whether each amount was corrected; it never
 carries OCR/source text into persistence. The provider resolves owner and actor
 tokens; the route cannot supply them. The provider creates/loads the stable
@@ -678,7 +732,8 @@ slot and performs one awaited save. It updates `_lastAnswers`, `_profile`,
 snapshots/narrative caches and listeners only after that save succeeds. A
 pending or failed secure write exposes neither a value-only nor a
 metadata-only state and leaves the previous slot/profile untouched. The legacy
-`updateFromLppExtraction` and `updateFromPartnerLppExtraction` seams must not be
+`updateFromLppExtraction` and `updateFromPartnerLppExtraction` production seams
+are removed from the provider and review; they must not be reintroduced as
 fallbacks when typed ingestion is disabled or fails.
 
 #### Ownership, authorization and cold selection
@@ -737,7 +792,8 @@ by the LPP document acquisition/review UI. Unless the composite getter is true,
 the LPP scan choice, self/partner subject choice and confirmation CTA are hidden
 or neutralized **before OCR/upload**; a stale/deep link renders a recoverable
 disabled state and cannot call either legacy writer. Activation is allowed only
-after PROV-02 GREEN, runtime proof and a named G1 decision.
+after PROV-02 GREEN, frozen pushed-SHA runtime proof, external audits and a
+named G1 decision.
 
 G1 deliberately defines no `linkedPartnerLppEvidenceImport` flag: a switch
 without an authorized caller would be a facade. `LppReviewConfirmation` admits
@@ -773,9 +829,26 @@ provider:
    can fail after work: the choice/CTA is absent or a deep link is disabled
    before OCR, and neither legacy writer is called.
 
+Additional acquisition oracles are mandatory:
+
+- `lpp_extraction_adapter_test.dart` and `lpp_evidence_ingestion_test.dart`
+  cover exact source vocabulary, confidence, explicit zero, raw-free retention,
+  consent/direct PDF extraction, kind rejection, review/date/owner/coherence,
+  no-write recovery and the single provider caller;
+- the ignored local private-fixture gate uses only a developer-local manifest,
+  is non-vacuous, and emits sanitized case/count outcomes without fixture name,
+  path, text, value or hash;
+- the backend classifier corpus contains generated synthetic positive and
+  negative images only. Its offline immutable-corpus gate is green. The
+  opt-in live Anthropic classifier eval is **NOT RUN** and cannot be represented
+  as runtime evidence or silently replaced by a private repository document.
+
 The exact PROV-02 command remains the ticket command and must also rerun
 PROV-01 plus document-parser tests; the mutation oracles above make a
-mapper-only or in-memory-only implementation fail.
+mapper-only or in-memory-only implementation fail. These code and local-data
+proofs do not promote the ticket: it stays `ticket_only` until the reviewed
+changes are committed and pushed, the exact accepted SHA is recorded, required
+runtime evidence exists, and the remaining G1 closure gates pass.
 
 ### 4.1 AVS / LPP detail (from certificate extraction)
 

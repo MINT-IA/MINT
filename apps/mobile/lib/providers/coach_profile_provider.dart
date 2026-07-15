@@ -332,6 +332,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
     final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
     final migratedKeys = <String>{};
+    final retainedUnprovedZeroKeys = <String>{};
     if (!hasExistingRoot) {
       final rawProvenance = answers['__provenance'];
       if (rawProvenance is Map) {
@@ -372,6 +373,12 @@ class CoachProfileProvider extends ChangeNotifier {
                   _civilDay(fact.sourceDate!).isAfter(_civilDay(current)))) {
             continue;
           }
+          // Loose legacy scalars have no review snippet capable of proving
+          // that a documentary zero was explicit rather than extraction loss.
+          if (value == 0) {
+            retainedUnprovedZeroKeys.add(entry.key);
+            continue;
+          }
           acceptanceStamp ??= fact.updatedAt;
           if (fact.updatedAt != acceptanceStamp) {
             facts.clear();
@@ -399,7 +406,9 @@ class CoachProfileProvider extends ChangeNotifier {
     for (final key in legacyPartnerKeys) {
       answers.remove(key);
     }
-    if (facts.isEmpty && legacyPartnerKeys.isEmpty) {
+    if (facts.isEmpty &&
+        retainedUnprovedZeroKeys.isEmpty &&
+        legacyPartnerKeys.isEmpty) {
       return (answers: answers, migrated: false);
     }
 
@@ -712,6 +721,16 @@ class CoachProfileProvider extends ChangeNotifier {
           'invalid LPP value or unit',
         );
       }
+    }
+    if (!LppBalanceCoherence.isCoherent({
+      for (final entry in confirmation.facts.entries)
+        entry.key: entry.value.value,
+    })) {
+      throw ArgumentError.value(
+        confirmation.facts,
+        'facts',
+        'incoherent LPP balances',
+      );
     }
 
     final loadedRaw = await _lppProfilePersistence.loadAnswers();
@@ -1329,8 +1348,7 @@ class CoachProfileProvider extends ChangeNotifier {
   ///
   /// Appele automatiquement au demarrage de l'app et apres
   /// la completion du wizard.
-  Future<void> loadFromWizard() =>
-      _serializeLppMutation(_loadFromWizard);
+  Future<void> loadFromWizard() => _serializeLppMutation(_loadFromWizard);
 
   Future<void> _loadFromWizard() async {
     _isLoading = true;
@@ -2567,316 +2585,6 @@ class CoachProfileProvider extends ChangeNotifier {
   // ════════════════════════════════════════════════════════════════
   //  DOCUMENT EXTRACTION → PROFILE INJECTION
   // ════════════════════════════════════════════════════════════════
-
-  /// Met a jour le profil depuis l'extraction d'un certificat LPP.
-  ///
-  /// Mappe chaque [ExtractedField.profileField] vers les champs
-  /// PrevoyanceProfile correspondants. Persiste les nouvelles valeurs
-  /// dans les answers wizard pour coherence au redemarrage.
-  ///
-  /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1, Document A
-  /// FIX-095: Previous prevoyance backup for undo capability.
-  PrevoyanceProfile? _previousPrevoyance;
-
-  /// FIX-095: Get the previous prevoyance state (before last extraction).
-  PrevoyanceProfile? get previousPrevoyance => _previousPrevoyance;
-
-  /// FIX-094: Check if new LPP data diverges significantly from existing.
-  /// Returns the delta percentage if > 30%, null otherwise.
-  double? checkLppDivergence(List<ExtractedField> fields) {
-    if (_profile == null) return null;
-    final currentAvoir = _profile!.prevoyance.avoirLppTotal;
-    if (currentAvoir == null || currentAvoir <= 0) return null;
-    final newAvoir = fields
-        .where((f) =>
-            f.fieldName == 'avoirLppTotal' || f.fieldName == 'avoir_lpp_total')
-        .firstOrNull
-        ?.value;
-    if (newAvoir == null) return null;
-    final newVal = newAvoir is num
-        ? newAvoir.toDouble()
-        : double.tryParse(newAvoir.toString()) ?? 0;
-    if (newVal <= 0) return null;
-    final deltaPct = ((newVal - currentAvoir) / currentAvoir * 100).abs();
-    return deltaPct > 30 ? deltaPct : null;
-  }
-
-  Future<void> updateFromLppExtraction(List<ExtractedField> fields) async {
-    // Bootstrap scan-first onboarding: if no profile exists yet (fresh install,
-    // user scanned certificate before any wizard step), seed a default profile
-    // so extraction fields land somewhere. Without this, updateFrom*Extraction
-    // silently no-oped and next launch saw an empty Mon argent card.
-    _profile ??= CoachProfile.defaults();
-
-    final p = _profile!;
-    // FIX-095: Save previous state for undo capability.
-    _previousPrevoyance = p.prevoyance;
-
-    // Extract values from confirmed fields
-    double? avoirTotal;
-    double? avoirOblig;
-    double? avoirSuroblig;
-    double? tauxConvOblig;
-    double? tauxConvSuroblig;
-    double? lacuneRachat;
-    double? salaireAssure;
-    double? rendementCaisseVal;
-    double? projectedRente;
-    double? projectedCapital;
-    double? disabilityCov;
-    double? deathCov;
-
-    for (final field in fields) {
-      if (field.profileField == null) continue;
-      final value = field.value;
-      if (value is! double) continue;
-
-      switch (field.profileField) {
-        case 'avoirLppTotal':
-          avoirTotal = value;
-        case 'lppObligatoire':
-          avoirOblig = value;
-        case 'lppSurobligatoire':
-          avoirSuroblig = value;
-        case 'tauxConversionOblig':
-          tauxConvOblig = value / 100; // Stored as 6.8 → 0.068
-        case 'tauxConversionSuroblig':
-          tauxConvSuroblig = value / 100;
-        case 'buybackPotential':
-          lacuneRachat = value;
-        case 'lppInsuredSalary':
-          salaireAssure = value;
-        case 'rendementCaisse':
-          rendementCaisseVal = value / 100; // Stored as 2.0 → 0.02
-        case 'projectedRenteLpp':
-          projectedRente = value;
-        case 'projectedCapital65':
-          projectedCapital = value;
-        case 'disabilityCoverage':
-          disabilityCov = value;
-        case 'deathCoverage':
-          deathCov = value;
-      }
-    }
-
-    // Build updated prevoyance with real certificate data
-    final updatedPrevoyance = PrevoyanceProfile(
-      anneesContribuees: p.prevoyance.anneesContribuees,
-      lacunesAVS: p.prevoyance.lacunesAVS,
-      renteAVSEstimeeMensuelle: p.prevoyance.renteAVSEstimeeMensuelle,
-      nomCaisse: p.prevoyance.nomCaisse,
-      avoirLppTotal: avoirTotal ?? p.prevoyance.avoirLppTotal,
-      avoirLppObligatoire: avoirOblig ?? p.prevoyance.avoirLppObligatoire,
-      avoirLppSurobligatoire:
-          avoirSuroblig ?? p.prevoyance.avoirLppSurobligatoire,
-      rachatMaximum: lacuneRachat ?? p.prevoyance.rachatMaximum,
-      rachatEffectue: p.prevoyance.rachatEffectue,
-      tauxConversion: tauxConvOblig ?? p.prevoyance.tauxConversion,
-      tauxConversionSuroblig:
-          tauxConvSuroblig ?? p.prevoyance.tauxConversionSuroblig,
-      rendementCaisse: rendementCaisseVal ?? p.prevoyance.rendementCaisse,
-      salaireAssure: salaireAssure ?? p.prevoyance.salaireAssure,
-      ramd: p.prevoyance.ramd,
-      nombre3a: p.prevoyance.nombre3a,
-      totalEpargne3a: p.prevoyance.totalEpargne3a,
-      comptes3a: p.prevoyance.comptes3a,
-      canContribute3a: p.prevoyance.canContribute3a,
-      librePassage: p.prevoyance.librePassage,
-      bonificationsEducatives: p.prevoyance.bonificationsEducatives,
-      projectedRenteLpp: projectedRente ?? p.prevoyance.projectedRenteLpp,
-      projectedCapital65: projectedCapital ?? p.prevoyance.projectedCapital65,
-      disabilityCoverage: disabilityCov ?? p.prevoyance.disabilityCoverage,
-      deathCoverage: deathCov ?? p.prevoyance.deathCoverage,
-    );
-
-    // S47: Stamp timestamps for all fields touched by this extraction
-    final touchedFields = <String>[];
-    if (avoirTotal != null) {
-      touchedFields.add('prevoyance.avoirLppTotal');
-    }
-    if (avoirOblig != null) {
-      touchedFields.add('prevoyance.avoirLppObligatoire');
-    }
-    if (avoirSuroblig != null) {
-      touchedFields.add('prevoyance.avoirLppSurobligatoire');
-    }
-    if (tauxConvOblig != null) {
-      touchedFields.add('prevoyance.tauxConversion');
-    }
-    if (tauxConvSuroblig != null) {
-      touchedFields.add('prevoyance.tauxConversionSuroblig');
-    }
-    if (lacuneRachat != null) {
-      touchedFields.add('prevoyance.rachatMaximum');
-    }
-    if (salaireAssure != null) {
-      touchedFields.add('prevoyance.salaireAssure');
-    }
-    if (rendementCaisseVal != null) {
-      touchedFields.add('prevoyance.rendementCaisse');
-    }
-    final stamp = DateTime.now();
-    final valueProfile = p.copyWith(
-      prevoyance: updatedPrevoyance,
-      updatedAt: stamp,
-    );
-    final nextProfile = _withStampedProvenance(
-      valueProfile,
-      touchedFields,
-      source: ProfileDataSource.certificate,
-      sourceDate: null,
-      updatedAt: stamp,
-    );
-
-    // Persist to wizard answers for consistency across restarts
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (avoirTotal != null) answers['_coach_avoir_lpp'] = avoirTotal;
-    if (avoirOblig != null) answers['_coach_avoir_lpp_oblig'] = avoirOblig;
-    if (avoirSuroblig != null) {
-      answers['_coach_avoir_lpp_suroblig'] = avoirSuroblig;
-    }
-    if (tauxConvOblig != null) {
-      answers['_coach_taux_conversion'] = tauxConvOblig;
-    }
-    if (tauxConvSuroblig != null) {
-      answers['_coach_taux_conversion_suroblig'] = tauxConvSuroblig;
-    }
-    if (lacuneRachat != null) answers['_coach_rachat_maximum'] = lacuneRachat;
-    if (salaireAssure != null) answers['_coach_salaire_assure'] = salaireAssure;
-    answers['_coach_updated_at'] = stamp.toIso8601String();
-    _persistTimestamps(answers, nextProfile.dataTimestamps);
-    _persistProvenance(answers, nextProfile);
-    answers['_coach_lpp_source'] = 'document_scan';
-    await ReportPersistenceService.saveAnswers(answers);
-
-    _lastAnswers = _copyAnswers(answers);
-    _profile = nextProfile;
-    _profileUpdatedSinceBudget = true;
-
-    // W15: Auto-trigger snapshot after LPP certificate scan
-    _createSnapshotFromProfile('document_scan');
-
-    // Invalidate daily narrative cache — greeting / topTip / scenarios were
-    // computed before scan data landed and now show stale "scanne ton
-    // certificat" copy when the user just did exactly that.
-    CoachNarrativeService.invalidateCache(profile: _profile);
-
-    notifyListeners();
-    _syncToBackend(); // Fire-and-forget, does not block UI
-  }
-
-  /// Inject PARTNER LPP certificate extraction into CoachProfile.conjoint.
-  ///
-  /// Identical field extraction to updateFromLppExtraction, but stores
-  /// in profile.conjoint.prevoyance instead of profile.prevoyance.
-  /// Ensures couple certificates are never mixed.
-  Future<void> updateFromPartnerLppExtraction(
-    List<ExtractedField> fields,
-  ) async {
-    if (_profile == null) return;
-    final p = _profile!;
-    if (p.conjoint == null) return; // No partner configured
-
-    double? avoirTotal;
-    double? avoirOblig;
-    double? avoirSuroblig;
-    double? tauxConvOblig;
-    double? tauxConvSuroblig;
-    double? lacuneRachat;
-    double? salaireAssure;
-    double? rendementCaisseVal;
-
-    for (final field in fields) {
-      if (field.profileField == null) continue;
-      final value = field.value;
-      if (value is! double) continue;
-      switch (field.profileField) {
-        case 'avoirLppTotal':
-          avoirTotal = value;
-        case 'lppObligatoire':
-          avoirOblig = value;
-        case 'lppSurobligatoire':
-          avoirSuroblig = value;
-        case 'tauxConversionOblig':
-          tauxConvOblig = value / 100;
-        case 'tauxConversionSuroblig':
-          tauxConvSuroblig = value / 100;
-        case 'buybackPotential':
-          lacuneRachat = value;
-        case 'lppInsuredSalary':
-          salaireAssure = value;
-        case 'rendementCaisse':
-          rendementCaisseVal = value / 100;
-      }
-    }
-
-    final existing = p.conjoint!.prevoyance ?? const PrevoyanceProfile();
-    final updatedPrev = PrevoyanceProfile(
-      anneesContribuees: existing.anneesContribuees,
-      lacunesAVS: existing.lacunesAVS,
-      renteAVSEstimeeMensuelle: existing.renteAVSEstimeeMensuelle,
-      avoirLppTotal: avoirTotal ?? existing.avoirLppTotal,
-      avoirLppObligatoire: avoirOblig ?? existing.avoirLppObligatoire,
-      avoirLppSurobligatoire: avoirSuroblig ?? existing.avoirLppSurobligatoire,
-      rachatMaximum: lacuneRachat ?? existing.rachatMaximum,
-      tauxConversion: tauxConvOblig ?? existing.tauxConversion,
-      tauxConversionSuroblig:
-          tauxConvSuroblig ?? existing.tauxConversionSuroblig,
-      rendementCaisse: rendementCaisseVal ?? existing.rendementCaisse,
-      salaireAssure: salaireAssure ?? existing.salaireAssure,
-      ramd: existing.ramd,
-      nombre3a: existing.nombre3a,
-      totalEpargne3a: existing.totalEpargne3a,
-      comptes3a: existing.comptes3a,
-      canContribute3a: existing.canContribute3a,
-      librePassage: existing.librePassage,
-    );
-
-    final updatedConjoint = p.conjoint!.copyWith(prevoyance: updatedPrev);
-
-    // Tag data sources
-    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
-    if (avoirTotal != null) {
-      updatedSources['conjoint.prevoyance.avoirLppTotal'] =
-          ProfileDataSource.certificate;
-    }
-    if (tauxConvOblig != null) {
-      updatedSources['conjoint.prevoyance.tauxConversion'] =
-          ProfileDataSource.certificate;
-    }
-
-    // Stamp timestamps
-    final touchedFields = <String>[];
-    if (avoirTotal != null) {
-      touchedFields.add('conjoint.prevoyance.avoirLppTotal');
-    }
-    if (tauxConvOblig != null) {
-      touchedFields.add('conjoint.prevoyance.tauxConversion');
-    }
-    final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
-
-    _profile = p.copyWith(
-      conjoint: updatedConjoint,
-      dataSources: updatedSources,
-      dataTimestamps: updatedTimestamps,
-      updatedAt: DateTime.now(),
-    );
-
-    // Persist partner LPP data
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (avoirTotal != null) answers['_coach_conjoint_avoir_lpp'] = avoirTotal;
-    if (tauxConvOblig != null) {
-      answers['_coach_conjoint_taux_conversion'] = tauxConvOblig;
-    }
-    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
-    if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
-    answers['_coach_conjoint_lpp_source'] = 'document_scan';
-    await ReportPersistenceService.saveAnswers(answers);
-
-    _profileUpdatedSinceBudget = true;
-    CoachNarrativeService.invalidateCache(profile: _profile);
-    notifyListeners();
-  }
 
   /// Met a jour le profil depuis l'extraction d'un extrait AVS.
   ///

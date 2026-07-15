@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -109,6 +110,11 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       _premierEclairageFailed = true;
       return;
     }
+    if (widget.result.documentType == DocumentType.lppCertificate) {
+      _premierEclairageLoading = false;
+      _premierEclairageFailed = true;
+      return;
+    }
     try {
       final fields = widget.result.fields
           .map((f) => <String, dynamic>{
@@ -171,6 +177,9 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   /// bursts (panel adversaire 2026-04-18 B5).
   void _persistScanEvent() {
     if (widget.result.documentType == DocumentType.taxDeclaration) {
+      return;
+    }
+    if (widget.result.documentType == DocumentType.lppCertificate) {
       return;
     }
     try {
@@ -722,7 +731,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                 children: [
                   Expanded(
                     child: Text(
-                      f.label,
+                      _fieldLabel(f),
                       style: MintTextStyles.bodyMedium(
                           color: MintColors.textSecondary),
                     ),
@@ -782,7 +791,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              field.label,
+              _fieldLabel(field),
               style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
             ),
           ),
@@ -926,6 +935,12 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   String _formatShortValue(ExtractedField field) {
     final value = field.value;
     if (value is double) {
+      final lppKey = widget.result.documentType == DocumentType.lppCertificate
+          ? LppEvidenceFactKey.fromWireName(field.fieldName)
+          : null;
+      if (lppKey?.unit == LppEvidenceUnit.ratio) {
+        return '${(value * 100).toStringAsFixed(1)}%';
+      }
       if (field.fieldName == 'explicitMarginalIncomeTaxRate' ||
           field.fieldName == 'explicitAverageIncomeTaxRate') {
         return '${(value * 100).toStringAsFixed(1)}%';
@@ -939,6 +954,42 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       return 'CHF ${_formatChf(value)}';
     }
     return value.toString();
+  }
+
+  String _fieldLabel(ExtractedField field) {
+    if (widget.result.documentType != DocumentType.lppCertificate) {
+      return field.label;
+    }
+    final l10n = S.of(context)!;
+    return switch (LppEvidenceFactKey.fromWireName(field.fieldName)) {
+      LppEvidenceFactKey.vestedBenefitsCapitalChf =>
+        l10n.documentsFieldAvoirTotal,
+      LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf =>
+        l10n.documentsFieldAvoirObligatoire,
+      LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf =>
+        l10n.documentsFieldAvoirSurobligatoire,
+      LppEvidenceFactKey.insuredSalaryAnnualChf =>
+        l10n.documentsFieldSalaireAssure,
+      LppEvidenceFactKey.maximumBuybackCapitalChf =>
+        l10n.documentsFieldRachatMax,
+      LppEvidenceFactKey.mandatoryConversionRateRatio =>
+        l10n.documentsFieldTauxObligatoire,
+      LppEvidenceFactKey.extraMandatoryConversionRateRatio =>
+        l10n.documentsFieldTauxSurobligatoire,
+      LppEvidenceFactKey.fundReturnRateRatio =>
+        l10n.docScanLabelTauxRemuneration,
+      LppEvidenceFactKey.retirementPensionAnnualChf =>
+        l10n.lppEvidenceRetirementPensionAnnualLabel,
+      LppEvidenceFactKey.retirementCapitalLumpSumChf =>
+        l10n.lppEvidenceRetirementCapitalLumpSumLabel,
+      LppEvidenceFactKey.disabilityPensionAnnualChf =>
+        l10n.documentsFieldRenteInvalidite,
+      LppEvidenceFactKey.disabilityCapitalLumpSumChf =>
+        l10n.lppEvidenceDisabilityCapitalLumpSumLabel,
+      LppEvidenceFactKey.deathCapitalLumpSumChf =>
+        l10n.documentsFieldCapitalDeces,
+      null => field.label,
+    };
   }
 }
 

@@ -1209,6 +1209,7 @@ final _router = GoRouter(
         return ExtractionReviewScreen(
           scanSessionId: scanSessionId!,
           result: session.extraction,
+          lppCandidate: session.lppCandidate,
           taxCandidate: session.taxCandidate,
         );
       },

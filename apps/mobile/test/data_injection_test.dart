@@ -362,7 +362,7 @@ void main() {
       // We can't import LppExtractedFields directly without document_service,
       // but we verify the model shape indirectly via PrevoyanceProfile.
 
-      // Simulate what updateFromLppExtraction does:
+      // Exercise the PrevoyanceProfile percentage-ratio contract
       // rendementCaisseVal = value / 100
       const rawCertificateValue = 5.0; // "5%" on certificate
       const converted = rawCertificateValue / 100; // → 0.05

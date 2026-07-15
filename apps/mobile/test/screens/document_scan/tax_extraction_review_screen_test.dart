@@ -20,6 +20,7 @@ import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
@@ -144,11 +145,13 @@ class _ScanSessionSpy extends ScanSessionProvider {
   @override
   String retainExtraction(
     ExtractionResult extraction, {
+    LppExtractionCandidate? lppCandidate,
     TaxExtractionCandidate? taxCandidate,
   }) {
     retainExtractionCalls += 1;
     return super.retainExtraction(
       extraction,
+      lppCandidate: lppCandidate,
       taxCandidate: taxCandidate,
     );
   }

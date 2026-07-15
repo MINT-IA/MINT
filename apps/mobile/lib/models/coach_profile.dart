@@ -4014,10 +4014,17 @@ class CoachProfile {
             expectedOwnerId: expectedManualPartnerOwnerId,
             now: now,
           );
+    double? availableLppValue(LppEvidenceFact? fact) {
+      if (fact == null || fact.status != LppEvidenceStatus.available) {
+        return null;
+      }
+      return fact.value;
+    }
+
     double? typedLppValue(LppEvidenceFactKey key) =>
-        typedLppSelf?.facts[key]?.value;
+        availableLppValue(typedLppSelf?.facts[key]);
     double? typedManualPartnerLppValue(LppEvidenceFactKey key) =>
-        typedLppManualPartner?.facts[key]?.value;
+        availableLppValue(typedLppManualPartner?.facts[key]);
     final coachAvoirLppOblig = hasTypedLppRoot
         ? typedLppValue(LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf)
         : _parseDouble(answers['_coach_avoir_lpp_oblig']);

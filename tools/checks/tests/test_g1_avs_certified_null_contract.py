@@ -432,8 +432,6 @@ LEGACY_PENSION_BOUNDARY_ALLOWANCES = (
         "apps/mobile/lib/providers/coach_profile_provider.dart",
         block_signatures=(
             "Future<void> updateFromRefresh({",
-            "Future<void> updateFromLppExtraction(",
-            "Future<void> updateFromPartnerLppExtraction(",
             "Future<void> updateFromAvsExtraction(",
             "Future<void> updateInline({",
             "Future<void> updateFromOpenBanking({",

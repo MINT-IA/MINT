@@ -82,6 +82,13 @@ class FeatureFlags {
   /// Backend configuration cannot activate this path.
   static bool typedLppEvidence = false;
 
+  /// Local kill switch for every LPP-document acquisition surface.
+  /// Backend configuration cannot activate this path.
+  static bool documentLppEvidenceEnabled = false;
+
+  static bool get lppEvidenceIngestionEnabled =>
+      typedLppEvidence && documentLppEvidenceEnabled;
+
   /// Local kill switch for every tax-document acquisition surface.
   ///
   /// This flag deliberately stays out of [applyFromMap]. The UI is exposed
