@@ -79,6 +79,7 @@ const _ownerId = '22222222-2222-4222-8222-222222222222';
 final class _PartnerBindingPersistence
     implements PartnerAccountabilityBindingPersistence {
   String? value;
+  int writes = 0;
 
   @override
   Future<void> delete() async => value = null;
@@ -87,14 +88,22 @@ final class _PartnerBindingPersistence
   Future<String?> read() async => value;
 
   @override
-  Future<void> write(String value) async => this.value = value;
+  Future<void> write(String value) async {
+    writes += 1;
+    this.value = value;
+  }
 }
 
 final class _PartnerApi implements PartnerAccountabilityApi {
-  _PartnerApi(this.counters, {this.afterReceiptCreated});
+  _PartnerApi(
+    this.counters, {
+    this.afterReceiptCreated,
+    this.createErrors = const <Object>[],
+  });
 
   final _Counters counters;
   final void Function()? afterReceiptCreated;
+  final List<Object> createErrors;
 
   @override
   Future<void> delete(String endpoint) async {
@@ -113,6 +122,9 @@ final class _PartnerApi implements PartnerAccountabilityApi {
   ) async {
     counters.receiptCreates += 1;
     counters.events.add('receipt-create');
+    if (counters.receiptCreates <= createErrors.length) {
+      throw createErrors[counters.receiptCreates - 1];
+    }
     afterReceiptCreated?.call();
     return <String, dynamic>{
       'receiptId': body['receiptId'],
@@ -159,6 +171,9 @@ final _partnerGate = PartnerAccountabilityExternalGate(
   PartnerAccountabilityExternalGate? Function()? partnerGateResolver,
   void Function()? afterReceiptCreated,
   Uint8List? selectedBytes,
+  List<Object> receiptCreateErrors = const <Object>[],
+  DocumentScanReviewNavigator? navigateToReview,
+  DocumentScanTempFileWriter? writeOwnedTempFile,
 }) {
   final sessions = _ScanSessionSpy();
   final ids = acquisitionIds ??
@@ -184,6 +199,7 @@ final _partnerGate = PartnerAccountabilityExternalGate(
             api: _PartnerApi(
               counters,
               afterReceiptCreated: afterReceiptCreated,
+              createErrors: receiptCreateErrors,
             ),
           ),
           partnerExternalGate: _partnerGate,
@@ -191,6 +207,8 @@ final _partnerGate = PartnerAccountabilityExternalGate(
           isAuthenticated: () async => true,
           partnerOwnerIdFactory: () => _ownerId,
           partnerReceiptIdFactory: () => _receiptId,
+          navigateToReview: navigateToReview,
+          writeOwnedTempFile: writeOwnedTempFile,
           lppAcquisitionIdFactory: () => ids[nextId++],
           now: () => DateTime.utc(2026, 7, 15, 9),
           hashDocumentBytes: (transmittedBytes) {
@@ -618,6 +636,174 @@ void main() {
         counters.transmittedPayloads.single,
       ),
     );
+  });
+
+  testWidgets(
+      'navigation failure after partner review handoff cleans receipt binding session and temp',
+      (tester) async {
+    final counters = _Counters();
+    var navigationAttempts = 0;
+    String? ownedTempPath;
+    late ({
+      Widget widget,
+      _ScanSessionSpy sessions,
+      GoRouter router,
+      PartnerAccountabilityBindingStore bindingStore,
+      _PartnerBindingPersistence bindingPersistence,
+    }) harness;
+    harness = _harness(
+      profile: CoachProfile.defaults().copyWith(
+        conjoint: const ConjointProfile(birthYear: 1982),
+      ),
+      counters: counters,
+      platformFile: (bytes) => PlatformFile(
+        name: 'bytes-only-certificate.pdf',
+        size: bytes.length,
+        bytes: bytes,
+      ),
+      navigateToReview: (_, scanSessionId) async {
+        navigationAttempts += 1;
+        expect(harness.sessions.byId(scanSessionId), isNotNull);
+        expect((await harness.bindingStore.load()).pending, isNotNull);
+        throw StateError('synthetic navigation failure after handoff');
+      },
+      writeOwnedTempFile: (file, bytes) async {
+        ownedTempPath = file.path;
+        file.writeAsBytesSync(bytes, flush: true);
+      },
+    );
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _openGalleryGate(tester);
+    await _chooseManualPartner(tester);
+    await _confirmPartnerDeclaration(tester);
+
+    final bindingAfterFailure = await harness.bindingStore.load();
+    expect(
+      navigationAttempts,
+      1,
+      reason: 'events=${counters.events} erases=${counters.erases} '
+          'pending=${bindingAfterFailure.pending?.toJson()}',
+    );
+    expect(counters.receiptCreates, 1);
+    expect(counters.network, 1);
+    expect(counters.erases, 1);
+    expect(harness.bindingPersistence.writes, 3);
+    expect(harness.sessions.retainedSessionCount, 0);
+    expect(bindingAfterFailure.effective, isNull);
+    expect(find.byKey(const Key('lpp_review_destination')), findsNothing);
+    expect(counters.readPaths, isNotEmpty);
+    final readTempPath = counters.readPaths.single;
+    expect(readTempPath, ownedTempPath);
+    expect(File(readTempPath).existsSync(), isFalse);
+  });
+
+  testWidgets('terminal receipt creation error never offers retry',
+      (tester) async {
+    final counters = _Counters();
+    final harness = _harness(
+      profile: CoachProfile.defaults().copyWith(
+        conjoint: const ConjointProfile(birthYear: 1982),
+      ),
+      counters: counters,
+      receiptCreateErrors: const <PartnerAccountabilityException>[
+        PartnerAccountabilityException(
+          PartnerAccountabilityReceiptStatus.stale,
+        ),
+      ],
+    );
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _openGalleryGate(tester);
+    await _chooseManualPartner(tester);
+    await _confirmPartnerDeclaration(tester);
+
+    expect(
+      find.byKey(const Key('lpp_partner_receipt_retry')),
+      findsNothing,
+    );
+    expect(counters.receiptCreates, 1);
+    expect(counters.erases, 0);
+    expect(counters.bytes, 0);
+    expect(counters.hash, 0);
+    expect(counters.network, 0);
+    expect((await harness.bindingStore.load()).effective, isNull);
+    expect(harness.sessions.retainedSessionCount, 0);
+  });
+
+  testWidgets('unexpected receipt creation error never offers retry',
+      (tester) async {
+    final counters = _Counters();
+    final harness = _harness(
+      profile: CoachProfile.defaults().copyWith(
+        conjoint: const ConjointProfile(birthYear: 1982),
+      ),
+      counters: counters,
+      receiptCreateErrors: <Object>[
+        StateError('synthetic unexpected receipt failure'),
+      ],
+    );
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _openGalleryGate(tester);
+    await _chooseManualPartner(tester);
+    await _confirmPartnerDeclaration(tester);
+
+    expect(
+      find.byKey(const Key('lpp_partner_receipt_retry')),
+      findsNothing,
+    );
+    expect(counters.receiptCreates, 1);
+    expect(counters.erases, 0);
+    expect(counters.bytes, 0);
+    expect(counters.hash, 0);
+    expect(counters.network, 0);
+    expect((await harness.bindingStore.load()).effective, isNull);
+    expect(harness.sessions.retainedSessionCount, 0);
+  });
+
+  testWidgets('retryable receipt creation error retries only after user action',
+      (tester) async {
+    final counters = _Counters();
+    final harness = _harness(
+      profile: CoachProfile.defaults().copyWith(
+        conjoint: const ConjointProfile(birthYear: 1982),
+      ),
+      counters: counters,
+      receiptCreateErrors: const <PartnerAccountabilityException>[
+        PartnerAccountabilityException(
+          PartnerAccountabilityReceiptStatus.offline,
+          retryable: true,
+        ),
+      ],
+    );
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _openGalleryGate(tester);
+    await _chooseManualPartner(tester);
+    await _confirmPartnerDeclaration(tester);
+
+    expect(counters.receiptCreates, 1);
+    expect(
+      find.byKey(const Key('lpp_partner_receipt_retry')),
+      findsOneWidget,
+    );
+    await tester.tap(
+      find.byKey(const Key('lpp_partner_receipt_pending')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(counters.receiptCreates, 2);
+    expect(counters.erases, 0);
+    expect(counters.network, 1);
+    expect(find.byKey(const Key('lpp_review_destination')), findsOneWidget);
+    expect((await harness.bindingStore.load()).pending, isNotNull);
   });
 
   for (final drift in <String>['notice changes', 'gate expires']) {

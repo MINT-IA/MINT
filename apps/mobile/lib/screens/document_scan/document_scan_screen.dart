@@ -87,6 +87,14 @@ typedef DocumentScanPdfUploader = Future<DocumentUploadResult> Function(
 
 typedef PartnerExternalGateResolver = PartnerAccountabilityExternalGate?
     Function();
+typedef DocumentScanReviewNavigator = Future<void> Function(
+  BuildContext context,
+  String scanSessionId,
+);
+typedef DocumentScanTempFileWriter = Future<void> Function(
+  File file,
+  Uint8List bytes,
+);
 
 final class _LppAcquisitionDecision {
   const _LppAcquisitionDecision({
@@ -189,6 +197,8 @@ class DocumentScanScreen extends StatefulWidget {
   final PartnerExternalGateResolver? partnerExternalGateResolver;
   final String Function()? partnerOwnerIdFactory;
   final String Function()? partnerReceiptIdFactory;
+  final DocumentScanReviewNavigator? navigateToReview;
+  final DocumentScanTempFileWriter? writeOwnedTempFile;
 
   const DocumentScanScreen({
     super.key,
@@ -209,6 +219,8 @@ class DocumentScanScreen extends StatefulWidget {
     this.partnerExternalGateResolver,
     this.partnerOwnerIdFactory,
     this.partnerReceiptIdFactory,
+    this.navigateToReview,
+    this.writeOwnedTempFile,
   });
 
   @override
@@ -788,7 +800,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           return null;
         }
         return decision.withReceiptCreated(receipt);
-      } catch (_) {
+      } on PartnerAccountabilityException catch (error) {
+        if (!error.retryable) {
+          await _rollbackPartnerAttempt(decision);
+          return null;
+        }
         if (!mounted) break;
         final retry = await showDialog<bool>(
           context: context,
@@ -811,6 +827,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           ),
         );
         if (retry != true) break;
+      } catch (_) {
+        await _rollbackPartnerAttempt(decision);
+        return null;
       }
     }
     await _rollbackPartnerAttempt(decision);
@@ -890,20 +909,35 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         confidenceDelta: extraction.confidenceDelta,
       );
     }
-    final scanSessionId = context.read<ScanSessionProvider>().retainExtraction(
-          reviewExtraction,
-          lppCandidate: lppCandidate,
-          lppAuthorization: lppAuthorization,
-          manualPartnerAccountability: manualPartnerAccountability,
-          taxCandidate: taxCandidate,
-        );
+    final scanSessions = context.read<ScanSessionProvider>();
+    final scanSessionId = scanSessions.retainExtraction(
+      reviewExtraction,
+      lppCandidate: lppCandidate,
+      lppAuthorization: lppAuthorization,
+      manualPartnerAccountability: manualPartnerAccountability,
+      taxCandidate: taxCandidate,
+    );
     final partnerReceiptId = manualPartnerAccountability?.receiptId;
     if (partnerReceiptId != null) {
       _partnerReceiptsHandedToReview.add(partnerReceiptId);
     }
-    await context.push(
-      '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}',
-    );
+    try {
+      final navigateToReview = widget.navigateToReview;
+      if (navigateToReview == null) {
+        await context.push(
+          '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}',
+        );
+      } else {
+        await navigateToReview(context, scanSessionId);
+      }
+    } catch (_) {
+      scanSessions.discard(scanSessionId);
+      if (partnerReceiptId != null) {
+        _partnerReceiptsHandedToReview.remove(partnerReceiptId);
+        await _rollbackPartnerAttempt(lppDecision);
+      }
+      rethrow;
+    }
   }
 
   ExtractionResult _canonicalLppReviewExtraction(
@@ -2716,7 +2750,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final tempFile = File(tempPath);
     _ownedTempPaths.add(tempFile.path);
     try {
-      await tempFile.writeAsBytes(file.bytes!, flush: true);
+      final writeOwnedTempFile = widget.writeOwnedTempFile;
+      if (writeOwnedTempFile == null) {
+        await tempFile.writeAsBytes(file.bytes!, flush: true);
+      } else {
+        await writeOwnedTempFile(tempFile, file.bytes!);
+      }
       return tempFile.path;
     } catch (error) {
       _cleanupTempFile(tempFile.path);
