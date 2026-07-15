@@ -522,6 +522,20 @@ def test_delete_account_missing_locked_user_returns_stable_conflict(
         "detail": {"code": "account_deletion_actor_unavailable"}
     }
     assert audit_events == []
+    from app.models.audit_event import AuditEventModel
+    from tests.conftest import TestingSessionLocal
+
+    with TestingSessionLocal() as db:
+        failure_events = (
+            db.query(AuditEventModel)
+            .filter(AuditEventModel.event_type == "auth.account_delete")
+            .all()
+        )
+    assert len(failure_events) == 1
+    assert failure_events[0].status == "failure"
+    assert failure_events[0].user_id is None
+    assert failure_events[0].actor_email is None
+    assert "account_deletion_actor_unavailable" in failure_events[0].details_json
     generated = app.openapi()
     documented = generated["paths"]["/api/v1/auth/account"]["delete"][
         "responses"
@@ -534,6 +548,30 @@ def test_delete_account_missing_locked_user_returns_stable_conflict(
     assert detail_schema["properties"]["code"]["const"] == (
         "account_deletion_actor_unavailable"
     )
+
+
+def test_delete_account_missing_actor_audit_failure_preserves_conflict(
+    client: TestClient,
+    monkeypatch,
+):
+    """Best-effort audit storage must never turn the stable 409 into a 500."""
+    from app.api.v1.endpoints import auth as auth_endpoint
+    from app.models.audit_event import AuditEventModel
+    from tests.conftest import TestingSessionLocal
+
+    def fail_audit(*_args, **_kwargs):
+        raise RuntimeError("synthetic audit store failure")
+
+    monkeypatch.setattr(auth_endpoint, "_raw_log_audit_event", fail_audit)
+
+    response = client.delete("/api/v1/auth/account")
+
+    assert response.status_code == 409, response.text
+    assert response.json() == {
+        "detail": {"code": "account_deletion_actor_unavailable"}
+    }
+    with TestingSessionLocal() as db:
+        assert db.query(AuditEventModel).count() == 0
 
 
 def test_claim_local_data_creates_and_updates_cloud_profile(auth_client: TestClient):

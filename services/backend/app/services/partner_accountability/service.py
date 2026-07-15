@@ -316,22 +316,39 @@ class PartnerAccountabilityService:
         a fresh snapshot after the caller acquires the User lock. That is what
         makes a create-first receipt visible before account deletion commits.
         """
-        rows = (
-            self._db.query(PartnerAccountabilityReceipt)
+        live_key_ids = [
+            key_id
+            for (key_id,) in self._db.query(
+                PartnerAccountabilityReceipt.hmac_key_id
+            )
             .filter(PartnerAccountabilityReceipt.erased_at.is_(None))
+            .distinct()
+            .all()
+        ]
+        if not live_key_ids:
+            return 0
+        keyring = load_keyring()
+        # Validate the complete live population before narrowing the lock set.
+        # Otherwise a missing rotation key could silently leave personal data.
+        for key_id in live_key_ids:
+            keyring.key_for(key_id)
+        actor_predicates = [
+            and_(
+                PartnerAccountabilityReceipt.hmac_key_id == key_id,
+                PartnerAccountabilityReceipt.acting_principal_pseudonym
+                == pseudonymize_actor(actor_id, key=key),
+            )
+            for key_id, key in keyring.keys.items()
+        ]
+        matched = (
+            self._db.query(PartnerAccountabilityReceipt)
+            .filter(
+                PartnerAccountabilityReceipt.erased_at.is_(None),
+                or_(*actor_predicates),
+            )
             .with_for_update()
             .all()
         )
-        if not rows:
-            return 0
-        keyring = load_keyring()
-        matched = []
-        for row in rows:
-            key = self._key_for_row(row, keyring)
-            expected = pseudonymize_actor(actor_id, key=key)
-            actual = row.acting_principal_pseudonym
-            if actual is not None and hmac.compare_digest(actual, expected):
-                matched.append(row)
         erased_at = datetime.now(timezone.utc)
         for row in matched:
             self._erase_row(row, erased_at=erased_at)

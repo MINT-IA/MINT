@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 import os
 from pathlib import Path
 import subprocess
@@ -14,13 +14,19 @@ from uuid import uuid4
 from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import sessionmaker
+from fastapi import HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 from starlette.requests import Request
 import pytest
 
 from app.api.v1.endpoints.auth import delete_account
+from app.core.database import engine_options_for_url
+from app.models.audit_event import AuditEventModel
 from app.models.partner_accountability_receipt import PartnerAccountabilityReceipt
+from app.models.token_blacklist import TokenBlacklist
 from app.models.user import User
 from app.schemas.partner_accountability import PartnerAccountabilityReceiptCreate
+from app.services.auth_service import create_access_token, decode_token
 from app.services.partner_accountability.service import (
     PartnerAccountabilityInactive,
     PartnerAccountabilityService,
@@ -92,7 +98,10 @@ def postgres_database_url() -> str:
 @pytest.fixture
 def migrated_postgres(postgres_database_url: str):
     _run_alembic(postgres_database_url, "upgrade", "head")
-    engine = create_engine(postgres_database_url)
+    engine = create_engine(
+        postgres_database_url,
+        **engine_options_for_url(postgres_database_url),
+    )
     try:
         yield engine
     finally:
@@ -203,6 +212,69 @@ def test_partner_accountability_protocol_requires_read_committed(
         "BND-02A create/delete serialization requires PostgreSQL READ COMMITTED; "
         f"received {isolation!r}"
     )
+
+
+def test_actor_erasure_does_not_wait_on_another_actors_locked_receipt(
+    migrated_postgres,
+    accountability_contract,
+):
+    """The erasure lock set is derived only from the target actor pseudonyms."""
+    session_factory = sessionmaker(bind=migrated_postgres, expire_on_commit=False)
+    actor_id = str(uuid4())
+    other_actor_id = str(uuid4())
+    _insert_user(session_factory, actor_id=actor_id)
+    _insert_user(session_factory, actor_id=other_actor_id)
+    actor_body = _body()
+    other_body = _body()
+    with session_factory() as db:
+        PartnerAccountabilityService(db).create(
+            actor_id=actor_id,
+            body=actor_body,
+        )
+        PartnerAccountabilityService(db).create(
+            actor_id=other_actor_id,
+            body=other_body,
+        )
+
+    blocker = session_factory()
+    blocker.query(PartnerAccountabilityReceipt).filter(
+        PartnerAccountabilityReceipt.receipt_id == str(other_body.receipt_id)
+    ).with_for_update().one()
+
+    def erase_target() -> int:
+        with session_factory() as db:
+            erased = PartnerAccountabilityService(db).erase_all_for_actor(
+                actor_id=actor_id
+            )
+            db.commit()
+            return erased
+
+    blocked = False
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(erase_target)
+        try:
+            erased = future.result(timeout=2)
+        except FutureTimeoutError:
+            blocked = True
+            blocker.rollback()
+            erased = future.result(timeout=10)
+        else:
+            blocker.rollback()
+    blocker.close()
+
+    assert blocked is False, "target erasure waited on another actor's receipt"
+    assert erased == 1
+    with session_factory() as db:
+        actor_row = db.get(
+            PartnerAccountabilityReceipt,
+            str(actor_body.receipt_id),
+        )
+        other_row = db.get(
+            PartnerAccountabilityReceipt,
+            str(other_body.receipt_id),
+        )
+        assert actor_row is not None and actor_row.erased_at is not None
+        assert other_row is not None and other_row.erased_at is None
 
 
 def test_one_shot_consumption_serializes_two_postgres_sessions(
@@ -399,6 +471,81 @@ def test_account_delete_wins_race_without_orphan_receipt(
     with session_factory() as db:
         assert db.get(User, actor_id) is None
         assert db.get(PartnerAccountabilityReceipt, str(body.receipt_id)) is None
+
+
+def test_missing_actor_delete_race_keeps_blacklist_and_failure_audit(
+    migrated_postgres,
+):
+    """A real PG disappearance after auth returns typed conflict with durable traces."""
+    session_factory = sessionmaker(bind=migrated_postgres, expire_on_commit=False)
+    actor_id = str(uuid4())
+    actor_email = f"{actor_id}@example.invalid"
+    _insert_user(session_factory, actor_id=actor_id)
+    token = create_access_token(actor_id, actor_email)
+    token_payload = decode_token(token)
+    assert token_payload is not None
+    credentials = HTTPAuthorizationCredentials(
+        scheme="Bearer",
+        credentials=token,
+    )
+    request = Request(
+        {
+            "type": "http",
+            "method": "DELETE",
+            "path": "/api/v1/auth/account",
+            "headers": [],
+            "client": ("127.0.0.1", 12345),
+        }
+    )
+    authenticated = Event()
+    actor_removed = Event()
+
+    def deletion_request() -> tuple[int, object]:
+        with session_factory() as db:
+            current_user = db.get(User, actor_id)
+            assert current_user is not None
+            authenticated.set()
+            assert actor_removed.wait(timeout=10)
+            try:
+                delete_account.__wrapped__(
+                    request=request,
+                    credentials=credentials,
+                    db=db,
+                    current_user=current_user,
+                )
+            except HTTPException as exc:
+                return exc.status_code, exc.detail
+            raise AssertionError("missing actor deletion unexpectedly succeeded")
+
+    def remove_authenticated_actor() -> None:
+        assert authenticated.wait(timeout=10)
+        with session_factory() as db:
+            user = db.get(User, actor_id)
+            assert user is not None
+            db.delete(user)
+            db.commit()
+        actor_removed.set()
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        delete_future = executor.submit(deletion_request)
+        remove_future = executor.submit(remove_authenticated_actor)
+        remove_future.result(timeout=10)
+        status_code, detail = delete_future.result(timeout=10)
+
+    assert status_code == 409
+    assert detail == {"code": "account_deletion_actor_unavailable"}
+    with session_factory() as db:
+        assert db.get(TokenBlacklist, token_payload["jti"]) is not None
+        audits = (
+            db.query(AuditEventModel)
+            .filter(AuditEventModel.event_type == "auth.account_delete")
+            .all()
+        )
+        assert len(audits) == 1
+        assert audits[0].status == "failure"
+        assert audits[0].user_id is None
+        assert audits[0].actor_email is None
+        assert "account_deletion_actor_unavailable" in audits[0].details_json
 
 
 def test_receipt_create_wins_race_and_account_delete_erases_it(

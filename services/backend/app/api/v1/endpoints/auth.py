@@ -116,6 +116,34 @@ def log_audit_event(*args, **kwargs) -> None:
         logger.warning("Audit logging skipped due to runtime error: %s", exc)
 
 
+def _audit_account_deletion_actor_unavailable(
+    db: Session,
+    *,
+    request: Request,
+) -> None:
+    """Persist the missing-actor failure outside the rolled-back purge session."""
+    audit_db = Session(bind=db.get_bind())
+    try:
+        _raw_log_audit_event(
+            audit_db,
+            event_type="auth.account_delete",
+            status="failure",
+            source="api",
+            ip_address=_request_ip(request),
+            user_agent=request.headers.get("user-agent"),
+            details={"code": "account_deletion_actor_unavailable"},
+        )
+        audit_db.commit()
+    except Exception as exc:  # pragma: no cover - exercised via injected failure
+        audit_db.rollback()
+        logger.warning(
+            "Account deletion failure audit could not be persisted: %s",
+            exc,
+        )
+    finally:
+        audit_db.close()
+
+
 def _request_ip(request: Request) -> Optional[str]:
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
@@ -1178,6 +1206,7 @@ def delete_account(
         db.commit()
     except _AccountDeletionActorUnavailable:
         db.rollback()
+        _audit_account_deletion_actor_unavailable(db, request=request)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail={"code": "account_deletion_actor_unavailable"},

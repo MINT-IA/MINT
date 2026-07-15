@@ -239,10 +239,12 @@ Source: `apps/mobile/lib/services/financial_core/confidence_scorer.dart`
   On PostgreSQL, account deletion and receipt creation serialize on the actor's
   User row: create-first is subsequently erased, while delete-first makes the
   waiting create fail with `partner_accountability_actor_unavailable` instead of
-  leaving an orphan receipt. This protocol requires PostgreSQL `READ COMMITTED`
-  so the post-lock erasure query receives a fresh statement snapshot. If the
-  authenticated User disappears before account deletion can lock it, deletion
-  rolls back and returns structured 409
+  leaving an orphan receipt. The production PostgreSQL engine explicitly sets
+  `READ COMMITTED`, so the post-lock erasure query receives a fresh statement
+  snapshot; the real-PostgreSQL proof engine uses those same SQLAlchemy options
+  before asserting the live isolation level with `SHOW transaction_isolation`.
+  If the authenticated User disappears before account deletion can lock it,
+  deletion rolls back and returns structured 409
   `account_deletion_actor_unavailable`; it never reports a successful purge.
 - A `manualPartner` LPP request is rejected before document classification,
   audit-row creation or Anthropic extraction when its receipt is absent,

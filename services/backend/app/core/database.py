@@ -9,18 +9,23 @@ from app.core.config import settings
 
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
-# Build engine kwargs based on database type
-_engine_kwargs: dict = {}
 
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-    # SQLite: needs check_same_thread=False, no connection pooling params
-    _engine_kwargs["connect_args"] = {"check_same_thread": False}
-elif "postgresql" in SQLALCHEMY_DATABASE_URL:  # pragma: no cover
-    # PostgreSQL: enable connection pooling for production
-    _engine_kwargs["pool_size"] = 20  # pragma: no cover
-    _engine_kwargs["max_overflow"] = 20  # pragma: no cover
-    _engine_kwargs["pool_recycle"] = 3600
-    _engine_kwargs["pool_pre_ping"] = True
+def engine_options_for_url(database_url: str) -> dict[str, object]:
+    """Return the production engine contract for a database URL."""
+    if database_url.startswith("sqlite"):
+        return {"connect_args": {"check_same_thread": False}}
+    if "postgresql" in database_url:
+        return {
+            "pool_size": 20,
+            "max_overflow": 20,
+            "pool_recycle": 3600,
+            "pool_pre_ping": True,
+            "isolation_level": "READ COMMITTED",
+        }
+    return {}
+
+
+_engine_kwargs = engine_options_for_url(SQLALCHEMY_DATABASE_URL)
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, **_engine_kwargs)
 
