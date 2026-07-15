@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-07-15T16:19:49Z",
+  "synthetic_data_only": true,
+  "backend": {
+    "sha": "dfe45d28dfca891a4459967b938f12aff579ba05",
+    "exact_command": "cd services/backend && ruff check . && pytest -q",
+    "exact_exit_code": 1,
+    "ruff_errors": 93,
+    "ruff_fixable": 57,
+    "pytest_short_circuited": true,
+    "functional_command": "cd services/backend && pytest -q",
+    "functional_exit_code": 0,
+    "passed": 6108,
+    "skipped": 7,
+    "failed": 0,
+    "disposition": "Ambient repo-wide Ruff debt is recorded and not mass-fixed inside the focused BND-02A slice; every touched backend test must pass targeted Ruff."
+  },
+  "mobile": {
+    "sha": "37d8d4a49eea82d2d7d43aeb94abc7c14a00dfde",
+    "grep_command": "grep \"answers\\[\" apps/mobile/lib/models/coach_profile.dart | sort -u",
+    "exact_command": "cd apps/mobile && flutter analyze && flutter test",
+    "exit_code": 0,
+    "analyze_issues": 0,
+    "passed": 9031,
+    "skipped": 36,
+    "failed": 0
+  },
+  "private_fixture_used": false,
+  "activation_authorized": false
+}

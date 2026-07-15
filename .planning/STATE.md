@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: BND-02A Swiss, ledger and quest contracts are frozen default-off; next is independent backend/mobile baselines then the combined semantic RED before the BND-02 caller; 17 hard floors remain and G2/G3 are not authorized.
-last_updated: "2026-07-15T15:09:58Z"
-last_activity: 2026-07-15 -- dedicated partner-accountability decision, isolated receipt architecture, progressive journey and exact cross-stack planning contract added; activation remains blocked on external legal facts
+stopped_at: BND-02 and BND-02A have committed semantic RED at fcf720c48; next is the isolated default-off backend boundary before the behavioral mobile caller; 17 hard floors remain and G2/G3 are not authorized.
+last_updated: "2026-07-15T16:19:49Z"
+last_activity: 2026-07-15 -- independent backend/mobile baselines and the exact BND-02/BND-02A cross-stack semantic RED were captured with synthetic fixtures; implementation and activation remain NO-GO
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,13 +34,14 @@ Plan: 37-04 — partner accountability and real downstream bridge
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-15 -- the BND-02A legal implementation contract, isolated
-off-ledger receipt/binding architecture and progressive notice/recovery journey
-are frozen. The registry, Plan 37-04, Validation and evidence mirror now name
-the exact backend/mobile targets and one combined command. The next slice runs
-independent full baselines, creates compiling behavior tests and captures the
-combined semantic RED before building the real BND-02 caller. Production
-activation remains disabled and G1 remains NO-GO.
+Last activity: 2026-07-15 -- independent current baselines are recorded and the
+named backend/mobile tests now compile and fail only on the intended BND-02 and
+BND-02A behavior. Backend RED has 38 pass / 6 fail; the mobile component has
+7 pass / 12 fail, including a real exact-0.02 Forecaster predicate. The exact
+combined command fails on the backend half and therefore correctly
+short-circuits before mobile; both halves are also recorded independently. The
+next slice implements the isolated backend boundary before any mobile product
+code. Production activation remains disabled and G1 remains NO-GO.
 
 ## Build Order
 
@@ -95,13 +96,22 @@ activation remains disabled and G1 remains NO-GO.
   chain, and BND-02 names the RetirementDashboard consumer. Implementation,
   controller/contact, transfer/retention, publishable notice/rights and the
   AIPD decision remain activation/later-G1 blockers.
+- `G1-BND-02` and `G1-BND-02A` are `red_proven` at `fcf720c48`.
+  Backend starts from 6,108/7/0 functional GREEN with 93 unrelated global Ruff
+  errors recorded separately; Flutter starts from analyze 0 and 9,031/36/0.
+  The source-contract mobile RED is not acceptable GREEN evidence: real
+  lifecycle order, rollback, cold status gating and visible exact-once
+  recompute tests are mandatory during implementation.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 14 `green`, 16 `ticket_only`, and one
+- The canonical registry has 31 rows: 14 `green`, 14 `ticket_only`, and three
   `red_proven`. Therefore 17 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
+- `G1-BND-02` and `G1-BND-02A` are also `red_proven`; neither can be promoted
+  until the isolated backend boundary and the real owner/status-gated mobile
+  caller pass the identical commands.
 
 - Phase 38 and all later phases are dependency-blocked by Phase 37.
 - This is expected planned work, not a user-input blocker.
@@ -115,11 +125,12 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-15T15:09:58Z
+Last session: 2026-07-15T16:19:49Z
 
-Stopped at: BND-02A Swiss/ledger/quest contracts and cross-stack registry are
-frozen. Run backend and Flutter baselines, then create all named tests and
-capture the exact combined semantic RED; LPP activation stays NO.
+Stopped at: BND-02/BND-02A semantic RED is committed and pushed. Implement the
+isolated backend receipt/model/service/lifecycle/document gate first, with
+targeted Ruff and OpenAPI/SOT updates; only then start the mobile lifecycle and
+real RetirementDashboard caller. LPP activation stays NO.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-04-PLAN.md`. Do not infer

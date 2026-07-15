@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-02",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/providers/household_bridge_recompute_test.dart --reporter expanded",
+  "sha": "fcf720c4870a87497249ecc4449ca0895fb6dabf",
+  "recorded_at": "2026-07-15T16:19:49Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "household_bridge_recompute_test",
+  "output": "The exact command collected and executed six synthetic predicates: 2 passed and 4 failed semantically. Missing behavior is the active owner/receipt cold gate, visible RetirementDashboard consumer, manual-partner caisse-rate quarantine, and exact self certificate rate 0.02 remaining known instead of being replaced by the scenario assumption. Format and targeted analyze are GREEN.",
+  "synthetic_data_only": true
+}

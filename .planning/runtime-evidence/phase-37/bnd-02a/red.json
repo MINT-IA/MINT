@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-02A",
+  "stage": "RED",
+  "command": "(cd services/backend && python3 -m pytest tests/test_partner_accountability.py tests/test_lpp_candidate_only_extraction.py tests/services/document/test_third_party_declaration.py -q) && (cd apps/mobile && flutter test test/providers/partner_financial_consent_lifecycle_test.dart test/providers/household_bridge_recompute_test.dart test/screens/coach/manual_partner_lpp_accountability_rendering_test.dart --reporter expanded)",
+  "sha": "fcf720c4870a87497249ecc4449ca0895fb6dabf",
+  "recorded_at": "2026-07-15T16:19:49Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "partner_financial_consent_lifecycle_test",
+  "output": "The exact combined command collected correctly and failed first on six backend accountability predicates while 38 backend regressions passed; shell short-circuit correctly prevented the mobile half. The identical mobile half was executed independently and reached 7 passing plus 12 semantic failures. Missing behavior is the isolated JWT lifecycle boundary and flag, minimized idempotent receipt, pre-Anthropic manualPartner gate, legacy LPP quarantine, pending/rollback/status lifecycle, cold owner binding, real visible consumer, caisse quarantine, notice/rights/recovery states, and complete six-ARB inventory. No failure came from a missing test file, import, fixture, or syntax; fixtures are synthetic. Source-contract Flutter RED remains insufficient for GREEN and must gain behavioral lifecycle/caller tests during implementation.",
+  "synthetic_data_only": true
+}
