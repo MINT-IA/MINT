@@ -431,6 +431,8 @@ def test_lpp_runtime_contracts_use_real_specific_seams() -> None:
     ):
         assert f"#{identifier}" in writer
     assert "#document_scan_lpp_type_selector).waitUntilVisible()" in writer
+    assert "#lpp_impact_retirement_cta).scrollTo();" in writer
+    assert "#lpp_impact_retirement_cta).waitUntilVisible()" not in writer
     assert writer.count("#document_scan_gallery_cta") == 2
     assert "invitationLevel, 'declared'" in writer
     assert "retainedSessionCount, 0" in writer

@@ -389,7 +389,7 @@ void main() {
       await $(#lpp_review_source_date).waitUntilVisible();
       await $(#lpp_review_source_date).enterText(_sourceDate);
       await $(#lpp_review_confirm_cta).scrollTo().tap();
-      await $(#lpp_impact_retirement_cta).waitUntilVisible();
+      await $(#lpp_impact_retirement_cta).scrollTo();
 
       final rawRoot = provider.reportAnswersSnapshot['_coach_lpp_evidence_v1'];
       expect(rawRoot, isA<String>());

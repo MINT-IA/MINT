@@ -67,6 +67,16 @@ void main() {
     expect(success, greaterThan(refusal));
     expect(review, greaterThan(success));
     expect(dashboard, greaterThan(review));
+    expect(
+      contents,
+      contains('await \$(#lpp_impact_retirement_cta).scrollTo();'),
+    );
+    expect(
+      contents,
+      isNot(
+        contains('#lpp_impact_retirement_cta).waitUntilVisible()'),
+      ),
+    );
     for (final forbidden in const [
       'acceptLppReview(',
       'MINT_LPP_PRIVATE_MANIFEST',
