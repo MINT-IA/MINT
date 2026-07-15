@@ -37,6 +37,16 @@ ACTIVE_G1_COUNT_DOCS = (
     ROOT / ".planning/runtime-evidence/g1-ledger-reality-baseline-20260712/SCORECARD.md",
 )
 
+ACTIVE_G1_PLAN_DOCS = tuple(
+    ROOT / f".planning/phases/37-ledger-runtime-readiness/37-0{index}-PLAN.md"
+    for index in range(1, 8)
+)
+PHASE37_VALIDATION = (
+    ROOT / ".planning/phases/37-ledger-runtime-readiness/37-VALIDATION.md"
+)
+PHASE37_REQUIREMENTS = ROOT / ".planning/REQUIREMENTS.md"
+PHASE37_WAVE0_PLAN = ROOT / ".planning/phases/37-ledger-runtime-readiness/37-00-PLAN.md"
+
 MATRIX_COLUMNS = [
     "canonical_key",
     "storage_key",
@@ -1998,6 +2008,113 @@ def test_active_g1_acceptance_docs_match_live_ticket_count() -> None:
         )
         assert any(marker in text for marker in current_markers), path
         assert not any(marker in text for marker in stale_markers), path
+
+
+def test_active_phase37_plans_cover_each_live_ticket_exactly_once() -> None:
+    _, tickets = _ticket_registry()
+    expected_ids = {ticket["ticket_id"] for ticket in tickets}
+    planned_ids: list[str] = []
+
+    for path in ACTIVE_G1_PLAN_DOCS:
+        text = path.read_text(encoding="utf-8")
+        planned_ids.extend(
+            f"G1-{match.group(1)}"
+            for match in re.finditer(r"(?m)^  - RDY-([A-Z0-9]+(?:-[A-Z0-9]+)*)$", text)
+            if match.group(1) != "GATE-01"
+        )
+
+    counts = Counter(planned_ids)
+    assert set(counts) == expected_ids, {
+        "missing": sorted(expected_ids - set(counts)),
+        "unexpected": sorted(set(counts) - expected_ids),
+    }
+    assert all(count == 1 for count in counts.values()), counts
+
+    runtime_plan = ACTIVE_G1_PLAN_DOCS[-1].read_text(encoding="utf-8")
+    assert "30/31 GREEN" in runtime_plan
+    assert "only G1-RUNTIME-01" in runtime_plan
+    task_one = re.search(
+        r"<name>Task 1:.*?<verify>\s*<automated>(.*?)</automated>",
+        runtime_plan,
+        re.DOTALL,
+    )
+    assert task_one is not None
+    assert (
+        task_one.group(1)
+        .strip()
+        .startswith("python3 tools/checks/g1_runtime_preflight.py")
+    )
+
+
+def test_phase37_wave0_preserves_historical_seed_and_supersession() -> None:
+    text = PHASE37_WAVE0_PLAN.read_text(encoding="utf-8")
+    assert "The 23 tickets may progress independently" in text
+    assert "G2 remains NO until 23/23 GREEN" in text
+    assert 'provides: "Machine-readable 23-ticket evidence index"' in text
+    assert "historical 23-ticket seed" in text
+    assert "authoritative registry now has **31 rows**" in text
+    assert "Plans 37-01..07 must cover every row exactly once" in text
+
+
+def test_phase37_requirements_match_live_registry_and_evidence() -> None:
+    _, tickets = _ticket_registry()
+    expected_ids = {ticket["ticket_id"] for ticket in tickets}
+    text = PHASE37_REQUIREMENTS.read_text(encoding="utf-8")
+    section = text.split("## Phase 37 — G1 runtime readiness", 1)[1].split(
+        "## Phase 38", 1
+    )[0]
+    rows = re.findall(
+        r"(?m)^- \[([ x])\] \*\*RDY-([A-Z0-9]+(?:-[A-Z0-9]+)*)\*\*:",
+        section,
+    )
+    ticket_rows = [
+        (f"G1-{requirement_id}", marker)
+        for marker, requirement_id in rows
+        if requirement_id != "GATE-01"
+    ]
+    counts = Counter(ticket_id for ticket_id, _ in ticket_rows)
+    assert set(counts) == expected_ids, {
+        "missing": sorted(expected_ids - set(counts)),
+        "unexpected": sorted(set(counts) - expected_ids),
+    }
+    assert all(count == 1 for count in counts.values()), counts
+
+    evidence_states = {
+        record["ticket_id"]: record["state"]
+        for record in _json(TICKET_EVIDENCE_INDEX)["tickets"]
+    }
+    for ticket_id, marker in ticket_rows:
+        assert (marker == "x") == (evidence_states[ticket_id] == "green"), ticket_id
+
+
+def test_phase37_validation_map_matches_live_registry() -> None:
+    _, tickets = _ticket_registry()
+    expected = {ticket["ticket_id"]: ticket for ticket in tickets}
+    _, validation_rows = _parse_table(
+        PHASE37_VALIDATION, "## Per-Ticket Verification Map"
+    )
+    ticket_rows = [row for row in validation_rows if row["Ticket"].startswith("G1-")]
+    counts = Counter(row["Ticket"] for row in ticket_rows)
+    assert len(ticket_rows) == len(expected)
+    assert all(count == 1 for count in counts.values()), counts
+    actual = {row["Ticket"]: row for row in ticket_rows}
+    assert set(actual) == set(expected)
+
+    state_labels = {
+        "green": "✅ green",
+        "ticket_only": "⬜ ticket_only",
+        "red_proven": "🟥 red_proven",
+    }
+    evidence_states = {
+        record["ticket_id"]: record["state"]
+        for record in _json(TICKET_EVIDENCE_INDEX)["tickets"]
+    }
+    for ticket_id, ticket in expected.items():
+        row = actual[ticket_id]
+        assert _markdown_command(row["Automated command"]) == _markdown_command(
+            ticket["green_command"]
+        ), ticket_id
+        assert row["Status"] == state_labels[evidence_states[ticket_id]], ticket_id
 
 
 def test_negative_fixture_proves_duplicate_silent_dead_and_missing_ticket() -> None:

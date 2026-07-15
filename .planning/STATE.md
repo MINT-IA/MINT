@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: PROV-02 exact TDD/runtime/audits recorded; 14/31 GREEN and 17 hard floors remain; activation is NO and G2/G3 are not authorized.
-last_updated: "2026-07-15T12:37:24Z"
-last_activity: 2026-07-15 -- PROV-02 persistence promoted GREEN at exact SHA; LPP activation remains NO and full G1 remains NO-GO
+stopped_at: Phase 37 plans reconciled to all 31 registry rows; next is the BND-02A legal pre-gate then the integrated BND-02/BND-02A caller slice; 17 hard floors remain and G2/G3 are not authorized.
+last_updated: "2026-07-15T13:26:05Z"
+last_activity: 2026-07-15 -- exact plan/validation coverage guard added; historical 23-row plans reconciled to the 31-row registry without reopening GREEN tickets
 progress:
   total_phases: 14
   completed_phases: 0
@@ -30,16 +30,15 @@ own sourced data and leaves with clear questions plus a specialist-ready dossier
 
 Phase: 37 (ledger-runtime-readiness) — EXECUTING
 
-Plan: cross-plan G1 execution under 37-02 through 37-07
+Plan: 37-04 — partner accountability and real downstream bridge
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-15 -- PROV-02 self/manual-partner LPP persistence is
-GREEN at exact SHA `30728b8a0671`: semantic same-command RED-to-GREEN, native
-writer, explicit process termination, separate cold reader, restored
-default-off Maestro proof, broad suites, and code/product-domain audits. The
-ticket is GREEN, but production activation remains disabled and the later-G1
-consumer/privacy gates retain full G1 NO-GO.
+Last activity: 2026-07-15 -- the executable Phase 37 plans and validation map
+now cover every one of the 31 live registry rows exactly once. The next slice
+starts with the BND-02A named legal/privacy decision and semantic RED, then
+builds the real BND-02 caller/downstream/caisse proof before closing BND-02A on
+that caller. Production activation remains disabled and G1 remains NO-GO.
 
 ## Build Order
 
@@ -82,6 +81,10 @@ consumer/privacy gates retain full G1 NO-GO.
 - The checked-in registry expanded from the original 23 rows to 31 as eight
   additional Swiss correctness, provenance and runtime hard floors were made
   explicit. The live registry and its checked-in guard are authoritative.
+- The same gate now rejects any Phase 37 plan set that omits or duplicates a
+  live ticket, and rejects validation commands/statuses that drift from the
+  registry/evidence index. Plan 37-07 cannot start before exactly 30/31 GREEN
+  with only `G1-RUNTIME-01` open.
 - `G1-PROV-03` is code-GREEN at `5a772865b` and runtime-GREEN at
   `ac74672db`; its tax ingestion flags remain production-off.
 - `G1-PROV-02` is ticket- and runtime-GREEN at `30728b8a0671`; both LPP
@@ -108,14 +111,14 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-15T12:37:24Z
+Last session: 2026-07-15T13:26:05Z
 
-Stopped at: PROV-02 evidence reconciliation is recorded; LPP activation stays
-NO. Select the next dependency-valid ticket from the 17 remaining G1 rows.
+Stopped at: Phase 37 plan coverage is reconciled. Start the BND-02A legal
+pre-gate and integrated BND-02/BND-02A slice; LPP activation stays NO.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
-`.planning/phases/37-ledger-runtime-readiness/37-02-PLAN.md` through
-`37-07-PLAN.md`. Do not infer progress from plan numbering alone.
+`.planning/phases/37-ledger-runtime-readiness/37-04-PLAN.md`. Do not infer
+progress from plan numbering alone.
 
 ## Performance Metrics
 

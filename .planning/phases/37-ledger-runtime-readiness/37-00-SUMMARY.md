@@ -47,6 +47,12 @@ completed: 2026-07-12
 
 # Phase 37 Plan 00: Ledger Runtime Readiness Summary
 
+> **Historical snapshot:** this summary truthfully records the 23-ticket Wave 0
+> seed on 2026-07-12. The live registry was later expanded to **31 rows**. The
+> current counts, plan coverage and G2 hard floor come only from
+> `G1-blocking-gate-tickets.md`, `ticket-evidence.json` and Plans 37-01..07; the
+> historical 23/22 figures below must never be used as current acceptance.
+
 **Fail-closed evidence transitions for 23 G1 tickets, plus a same-UDID persistence harness that captured an honest cold-relaunch RED without weakening the product assertion**
 
 ## Performance

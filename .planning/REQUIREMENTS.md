@@ -18,30 +18,40 @@ must cite current-SHA evidence in its phase verification/scorecard.
 
 ## Phase 37 — G1 runtime readiness
 
-Every requirement below resolves the identically named ticket in
-`.planning/goals/G1-blocking-gate-tickets.md`.
+Every ticket requirement below resolves the identically named row in
+`.planning/goals/G1-blocking-gate-tickets.md`. Checkbox state is fail-closed
+and must match `.planning/runtime-evidence/phase-37/ticket-evidence.json`:
+only machine-evidence `green` is checked.
 
 - [x] **RDY-SOURCE-01**: Authoritative mobile-to-backend source crosswalk.
-- [ ] **RDY-LDG-02**: Canonical semantic enum round-trip.
-- [ ] **RDY-LDG-03**: Every live P0 key writes, reloads, and reaches its consumer.
-- [ ] **RDY-LDG-04**: Missing/default-sensitive facts remain unknown.
-- [ ] **RDY-LDG-05**: Direct fields never mutate a different financial meaning.
-- [ ] **RDY-LDG-06**: AVS gaps are order-independent and status is separate from years.
-- [ ] **RDY-LDG-07**: Duplicate mortgage keys reconcile deterministically.
-- [ ] **RDY-PROV-01**: Value and provenance persist atomically on write.
+- [x] **RDY-LDG-02**: Canonical semantic enum round-trip.
+- [x] **RDY-LDG-03**: Every live P0 key writes, reloads, and reaches its consumer.
+- [x] **RDY-LDG-04**: Missing/default-sensitive facts remain unknown.
+- [x] **RDY-LDG-05**: Direct fields never mutate a different financial meaning.
+- [x] **RDY-LDG-06**: AVS gaps are order-independent and status is separate from years.
+- [x] **RDY-LDG-06A**: Certificate-backed AVS missingness remains null and self/household/marital-cap readiness stays person-owned.
+- [x] **RDY-LDG-07**: Duplicate mortgage keys reconcile deterministically.
+- [x] **RDY-PROV-01**: Value and provenance persist atomically on write.
 - [x] **RDY-PROV-02**: Certificate facts and provenance survive restart.
   Evidence: [`G1-PROV-02` verification](runtime-evidence/phase-37/prov-02/verification.md).
-- [ ] **RDY-PROV-03**: Tax facts include typed source date and legal year.
+- [x] **RDY-PROV-03**: Tax facts include typed source date and legal year.
 - [ ] **RDY-SCN-01**: Scenario assumptions/results are isolated by scenario ID.
 - [ ] **RDY-BND-01**: Legacy profile consumers migrate to canonical semantics.
-- [ ] **RDY-BND-02**: Partner-owned facts bridge and recompute correctly.
+- [ ] **RDY-BND-02**: Partner-owned facts bridge and recompute through a real scoped consumer.
+- [ ] **RDY-BND-02A**: Partner facts require the named legal/privacy decision, implemented accountability, field scope, notice and revocation.
 - [ ] **RDY-BND-03**: Budget facts bridge to CoachProfile and derived state.
-- [ ] **RDY-BND-04**: CoachProfile mutation recomputes MintUserState exactly once.
+- [x] **RDY-BND-04**: CoachProfile mutation recomputes MintUserState exactly once.
 - [ ] **RDY-BND-05**: Documents remain references; confirmed facts enter the ledger.
 - [ ] **RDY-BND-06**: Financial plan freshness follows the profile input hash.
+- [ ] **RDY-COACH-01**: Live salary, LPP and 3a coach amounts write canonical facts with exact units and provenance.
+- [ ] **RDY-COACH-02**: Valid route intent remains visible and recoverable when the profile is empty.
 - [ ] **RDY-FRONT-01**: Residence country, work country, and work canton are distinct.
 - [ ] **RDY-RET-REF-01**: Retirement precision requires specialist-grade references.
+- [ ] **RDY-RET-STATE-01**: Unavailable retirement projections offer cause-specific target-date recovery without re-asking ready AVS facts.
 - [ ] **RDY-SUCCESSION-01**: Estate output never infers absent regime/instruments.
+- [x] **RDY-AVS-01**: Couple AVS law uses person-first, status- and scale-aware semantics.
+- [ ] **RDY-AVS-02**: Official 13th-pension evidence survives restart and renders separate monthly, December and annual cash flows.
+- [x] **RDY-AVS-03**: Unofficial gap counts remain unpriced until an official scale or amount exists.
 - [ ] **RDY-FRESH-01**: Stale values remain visible for reconfirmation.
 - [ ] **RDY-RETURN-01**: Collection returns safely to the exact originating case.
 - [ ] **RDY-RUNTIME-01**: Maestro and Patrol prove persistence, restart, and recompute.

@@ -317,7 +317,7 @@
     {
       "ticket_id": "G1-AVS-02",
       "state": "ticket_only",
-      "command": "cd apps/mobile && flutter test test/services/financial_core/avs_thirteenth_pension_calculator_test.dart --reporter expanded",
+      "command": "cd apps/mobile && flutter test test/services/financial_core/avs_thirteenth_pension_calculator_test.dart test/providers/avs_thirteenth_evidence_restart_test.dart test/screens/coach/avs_thirteenth_cashflow_rendering_test.dart test/services/independants_avs_thirteenth_scenario_test.dart --reporter expanded",
       "evidence_mode": null,
       "red_sha": null,
       "red_artifact": null,

@@ -48,11 +48,16 @@ external audits, a score >=9.0, and an explicit `G2 allowed: YES` decision.
 - **D-06:** Wave 2 freezes atomic provenance before restart/tax/umbrella ledger
   tests: PROV-01 -> PROV-02 -> PROV-03 -> LDG-03.
 - **D-07:** Wave 3 bridges provider islands only after provenance and recompute
-  contracts are stable: BND-02/03 -> BND-05 -> BND-06 -> BND-01.
-- **D-08:** Wave 4 Swiss/domain specs may be reviewed in parallel, but
-  FRONT-01, RET-REF-01, and SUCCESSION-01 Dart model changes are serialized.
-- **D-09:** Wave 5 implements SCN-01 before FRESH-01 and RETURN-01. Wave 6 is
-  RUNTIME-01 plus phase-wide audits and score.
+  contracts are stable. The serialized order is BND-02A legal/privacy decision
+  and semantic RED -> BND-02 real caller/downstream proof -> BND-02A implemented
+  outcome GREEN -> BND-03 -> BND-05 -> BND-06 -> BND-01 -> COACH-01. Swiss
+  meaning precedes every BND-02A implementation slice; no facade ships first.
+- **D-08:** Wave 4 Swiss/domain specs may be reviewed independently, but Dart
+  changes are serialized FRONT-01 -> RET-REF-01 -> SUCCESSION-01 -> AVS-02.
+  The already-GREEN AVS-01/03 evidence is revalidated, never borrowed as
+  AVS-02 proof.
+- **D-09:** Wave 5 executes SCN-01 -> FRESH-01 -> RETURN-01 -> RET-STATE-01 ->
+  COACH-02. Wave 6 is RUNTIME-01 plus phase-wide audits and score.
 
 ### Ownership and architecture
 
@@ -176,11 +181,11 @@ unrelated backend and mobile implementation concerns.
 |---|---|---|
 | Gate infrastructure | 37-00 / wave 0 | Progressive non-vacuous evidence schema; no RDY requirement closes here. |
 | 1A source | 37-01 / wave 1 | SOURCE-01. |
-| 1B/1C model foundations | 37-02 / wave 2 | LDG-02/04/05/06/07 and BND-04. |
+| 1B/1C model foundations | 37-02 / wave 2 | Historical LDG-02/04/05/06/07 + BND-04 wave; LDG-06A is an independent GREEN traceability addendum. |
 | 2 provenance | 37-03 / wave 3 | PROV-01/02/03 and LDG-03. |
-| 3 provider bridges | 37-04 / wave 4 | BND-02/03/05/06/01. |
-| 4 Swiss references | 37-05 / wave 5 | FRONT-01, RET-REF-01, SUCCESSION-01. |
-| 5 behavior | 37-06 / wave 6 | SCN-01, FRESH-01, RETURN-01. |
+| 3 provider bridges | 37-04 / wave 4 | BND-02A/02/03/05/06/01, then COACH-01. |
+| 4 Swiss references | 37-05 / wave 5 | FRONT-01, RET-REF-01, SUCCESSION-01, AVS-01/02/03. |
+| 5 behavior | 37-06 / wave 6 | SCN-01, FRESH-01, RETURN-01, RET-STATE-01, COACH-02. |
 | 6 runtime/acceptance | 37-07 / wave 7 | RUNTIME-01 and RDY-GATE-01; final G2 decision only. |
 
 </specifics>

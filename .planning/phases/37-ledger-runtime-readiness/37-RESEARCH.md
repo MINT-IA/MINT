@@ -1,13 +1,14 @@
 # Phase 37: Ledger Runtime Readiness — Research
 
 **Researched:** 2026-07-12
+**Registry reconciled:** 2026-07-15
 **Role:** `mint-data-ledger-architect`
 **Question:** Que faut-il savoir pour planifier fidèlement Phase 37 ?
-**Scope:** les 23 tickets du registre G1, sans G2/G3 ni code produit.
+**Scope:** les 31 tickets du registre G1, sans G2/G3 ni code produit.
 
 ## Executive conclusion
 
-Phase 37 est planifiable, mais elle n'est pas une collection de 23 tests
+Phase 37 est planifiable, mais elle n'est pas une collection de 31 tests
 indépendants. Elle est une migration de contrat en six vagues autour d'une
 seule frontière d'écriture :
 
@@ -22,7 +23,10 @@ source confirmée
 
 Le checkout confirme les quatre faits structurants suivants :
 
-1. Les 23 fichiers de test/runtime nommés par le registre sont absents. Une
+1. Lors de la recherche initiale, les 23 fichiers de test/runtime alors nommés
+   par le registre étaient absents. Le registre autoritatif comporte désormais
+   31 lignes ; les huit ajouts sont couverts par les plans actifs et par le gate
+   de couverture exact des requirements. Une
    commande qui échoue uniquement parce que le fichier n'existe pas n'est pas
    une preuve RED sémantique : le test doit d'abord être créé, puis échouer sur
    le prédicat métier avant toute modification produit.
@@ -43,7 +47,7 @@ Le checkout confirme les quatre faits structurants suivants :
    vérifiés par artefact ; sinon le registre ne peut pas devenir honnêtement
    vert sans batch final.
 
-`G2 allowed: NO` reste la seule décision valide tant que ces 23 prédicats, les
+`G2 allowed: NO` reste la seule décision valide tant que ces 31 prédicats, les
 preuves runtime, les audits et le score de phase ne sont pas tous verts.
 
 ## Mint OS zero-drift contract
@@ -152,7 +156,7 @@ lecteurs `ProfileProvider`, aucune occurrence durable de `profile_owner_id` ou
    `coach_chat.py` montrent le pattern de rejet explicite. SOURCE-01 doit lever
    une erreur sur tout token inconnu au lieu de retomber sur `.25`.
 
-## Exact dependency graph for the 23 tickets
+## Exact dependency graph for the 31 tickets
 
 ```mermaid
 flowchart LR
@@ -161,14 +165,21 @@ flowchart LR
   L4["LDG-04"] --> P1
   L5["LDG-05"] --> P1
   L6["LDG-06"] --> P1
+  L6 --> L6A["LDG-06A"]
   L7["LDG-07"] --> P1
-  B4["BND-04"] --> BR["BND-02 / BND-03"]
+  B4["BND-04"] --> B2["BND-02 caller"]
+  BA0["BND-02A decision / RED"] --> B2
   P1 --> P2["PROV-02"]
   P1 --> P3["PROV-03"]
-  P1 --> BR
+  P1 --> B2
+  B2 --> BA1["BND-02A GREEN"]
+  BA1 --> B3["BND-03"]
   P2 --> B5["BND-05"]
+  B3 --> B5
   B4 --> B6["BND-06"]
-  BR --> B1["BND-01"]
+  B5 --> B6
+  B6 --> B1["BND-01"]
+  B1 --> C1["COACH-01"]
   P2 --> L3["LDG-03"]
   P3 --> L3
   L2 --> L3
@@ -177,6 +188,11 @@ flowchart LR
   L6 --> L3
   L7 --> L3
   P1 --> F1["FRONT-01"]
+  L2 --> A1["AVS-01"]
+  L6A --> A3["AVS-03"]
+  A1 --> A2["AVS-02"]
+  A3 --> A2
+  BA1 --> A2
   P3 --> RR["RET-REF-01"]
   B5 --> RR
   RR --> SU["SUCCESSION-01"]
@@ -184,12 +200,17 @@ flowchart LR
   L3 --> SC
   SC --> FR["FRESH-01"]
   FR --> RT["RETURN-01"]
+  RT --> RS["RET-STATE-01"]
+  C1 --> C2["COACH-02"]
+  RS --> C2
   B1 --> RUN["RUNTIME-01"]
   B5 --> RUN
   B6 --> RUN
   F1 --> RUN
   SU --> RUN
   RT --> RUN
+  A2 --> RUN
+  C2 --> RUN
 ```
 
 ### Why this order is exact enough to execute
@@ -197,18 +218,19 @@ flowchart LR
 | wave | tickets | prerequisite frozen before work | reason |
 |---|---|---|---|
 | 1A | SOURCE-01 | backend `DataSource` enum | indépendant du gros modèle ; devient la traduction utilisée par PROV-01 |
-| 1B, serialized | LDG-02, LDG-04, LDG-05, LDG-06, LDG-07 | one `CoachProfile.fromWizardAnswers` baseline | tous mutent la même reconstruction ; ne pas paralléliser les edits |
+| 1B, serialized | LDG-02, LDG-04, LDG-05, LDG-06, LDG-06A, LDG-07 | one `CoachProfile.fromWizardAnswers` baseline | ils partagent reconstruction/consommateurs ; ne pas paralléliser les edits |
 | 1C | BND-04 | current proxy semantics | fixe « exactement une recomputation » avant d'ajouter des writers |
 | 2, serialized | PROV-01 -> PROV-02 -> PROV-03 -> LDG-03 | canonical paths/types from wave 1 | atomic contract first, restart second, tax specialization third, umbrella behavior last |
-| 3 | BND-02 + BND-03 -> BND-05 -> BND-06 -> BND-01 | provenance + recompute | partner/budget need owner/provenance; document needs restart; plan needs stable profile hash; legacy removal last around `app.dart` |
-| 4, model edits serialized | FRONT-01 -> RET-REF-01 -> SUCCESSION-01 | provenance and document-reference envelope | fields Swiss/source-sensitive share the same model and cannot infer unknown legal meaning |
-| 5 | SCN-01 -> FRESH-01 -> RETURN-01 | complete behavioral ledger | scenario scope precedes stale asks; a reconfirm ask must know how to return safely |
+| 3 | BND-02A legal decision/RED -> BND-02 caller -> BND-02A GREEN -> BND-03 -> BND-05 -> BND-06 -> BND-01 -> COACH-01 | provenance + recompute | legal meaning precedes code, but accountability closes on a real caller rather than a facade; document needs restart; plan needs stable hash |
+| 4, serialized | FRONT-01 -> RET-REF-01 -> SUCCESSION-01 -> AVS-02; revalidate AVS-01/03 | provenance, references and Swiss verdicts | source-sensitive fields and cash flows cannot infer unknown legal meaning; accepted AVS gates are not borrowed proof |
+| 5 | SCN-01 -> FRESH-01 -> RETURN-01 -> RET-STATE-01 -> COACH-02 | complete behavioral ledger | scenario scope precedes stale asks; return precedes recovery; coach empty-state recovery comes after real collection paths |
 | 6 | RUNTIME-01 | all prior GREEN | persistence/relaunch proves the integrated spine, pas un sous-ensemble |
 
 Dependencies transversales supplémentaires :
 
-- Chaque ticket dépend du gate progressif du registre, car le gate actuel
-  refuse tout statut autre que `ticket_only`.
+- Chaque ticket dépend du gate progressif du registre, qui accepte une
+  transition seulement avec une preuve RED/GREEN ou baseline contrôlée
+  complète et fail-closed.
 - Toute mutation `CoachProfile` doit être sérialisée même si ses specs Swiss
   peuvent être relues en parallèle.
 - BND-02 requiert un `profile_owner_id` pseudonyme défini par PROV-01 ; un rôle
@@ -282,7 +304,7 @@ inférieure.
 
 | niveau | preuve | gate |
 |---|---|---|
-| V0 contract | registre parseable, 23 IDs uniques, statut progressif lié à une preuve SHA | `test_g1_p0_ledger_dead_keys.py` évolué TDD-first |
+| V0 contract | registre parseable, 31 IDs uniques, statut progressif lié à une preuve SHA et couverture exacte des plans | `test_g1_p0_ledger_dead_keys.py` évolué TDD-first |
 | V1 source/static | enum/crosswalk/allowlist/ledger exacts, backend-only sans antécédent mobile | SOURCE-01 + `test_ledger_parity.py` |
 | V2 model | types, unknown/default, aliases de migration, ordre d'écriture | LDG-02/04/05/06/07, FRONT/REF/SUCCESSION |
 | V3 persistence | valeur + source + sourceDate + updatedAt + owner survivent au restart | PROV-01/02/03 et LDG-03 |
@@ -290,7 +312,7 @@ inférieure.
 | V5 behavioral | scenario isolation, stale reconfirm, return-to-origin | SCN/FRESH/RETURN |
 | V6 runtime | saisie réelle, process death, lecture downstream, recompute | Maestro même UDID + deux processus Patrol `--no-uninstall`, avec `simctl terminate` archivé entre write/read |
 | V7 adversarial | code, product-domain, architecture, privacy | wrapper Claude uniquement ; zéro P0/P1 |
-| V8 phase | 23/23 GREEN, suites affectées/full, score >=9.0, SHA propre | scorecard + décision explicite `G2 allowed: YES` |
+| V8 phase | 31/31 GREEN, suites affectées/full, score >=9.0, SHA propre | scorecard + décision explicite `G2 allowed: YES` |
 
 La preuve de fermeture doit aussi rendre `WIRING_GRAPH.mmd` et les journeys via
 `mermaid_render_guard.py`. Un test widget vert sans runtime ne clôt pas
@@ -353,7 +375,7 @@ lefthook run pre-commit --file services/backend/tests/test_source_crosswalk.py
 
 Avant de changer `G1-SOURCE-01` de `ticket_only` à GREEN, réparer le gate de
 statut progressif avec un test RED/GREEN propre ; ne pas neutraliser
-l'assertion et ne pas batch-marquer les 23 lignes.
+l'assertion et ne pas batch-marquer les 31 lignes.
 
 ## Threat and privacy model
 
@@ -431,7 +453,7 @@ La barrière est mécanique :
 
 ```text
 G2 allowed = YES
-iff 23/23 ticket rows are evidence-backed GREEN on the accepted SHA
+iff 31/31 ticket rows are evidence-backed GREEN on the accepted SHA
 and targeted + affected + full suites are GREEN
 and Maestro + Patrol persistence artifacts are valid
 and code + product-domain + architecture audits have zero open P0/P1
@@ -450,11 +472,11 @@ Jusque-là :
 
 ## Planning recommendation
 
-Produire six plans exécutables, avec un premier plan SOURCE-01 très court,
+Produire sept plans exécutables, avec un premier plan SOURCE-01 très court,
 puis des plans sérialisés par ownership de fichier. Chaque plan doit nommer :
 prédicat RED, fichiers autorisés, dépendances déjà GREEN, commande GREEN,
 suites affectées, preuve Mint OS, menace privacy, audit requis et mise à jour de
-statut. Le plan final RUNTIME-01 ne commence qu'après les 22 autres tickets.
+statut. Le plan final RUNTIME-01 ne commence qu'après les 30 autres tickets.
 
 **Research readiness:** READY FOR PLANNING.
 **Current release decision:** `G2 allowed: NO`.
