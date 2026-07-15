@@ -1,0 +1,36 @@
+G1-PROV-02 GREEN proof
+
+Command: cd apps/mobile && flutter test test/providers/provenance_restart_test.dart --reporter expanded
+SHA: 30728b8a0671a0b54bcf47807a0c69bac905e6e3
+Exit code: 0
+Synthetic data only: true
+
+Exact result: 22 passed, 0 failed, 0 skipped.
+
+Covered predicates:
+- confirmed self LPP projections and provenance survive restart
+- manual partner first reuses stable self actor and stays separate
+- manual partner replacement clears omitted facts and provenance
+- concurrent self and manual acceptance preserves both slots
+- startup LPP migration cannot overwrite a concurrent acceptance
+- manual partner acceptance preserves safe self migration and quarantine
+- manual partner evidence survives the real secure restart boundary
+- manual cold hydration ignores unrelated malformed quarantine
+- writer rejects a loaded grant-shaped root before save or publication
+- malformed secure root survives while loose partner values are purged
+- unreadable secure placeholder purges loose partner values in place
+- legacy partner LPP values become metadata-only quarantine
+- failed self LPP save publishes and notifies nothing
+- real secure LPP failure restores bytes and publishes nothing
+- typed LPP flag fails closed without calling a legacy writer
+- unambiguous legacy self certificate migration is idempotent
+- legacy certificate zero stays loose behind an authoritative empty root
+- legacy self migration applies strict provenance lexical validation
+- cold LPP provenance is derived from strict facts, not the parallel map
+- partial typed root exposes nullable evidence independently of defaults
+- accepting typed self review deletes every loose self LPP key
+- unreadable strict root is never overwritten during cold start
+
+Dependency chatter and checkout paths were removed. No document content,
+confidential fixture identifier, device ID, financial example value, or
+personal data is retained.

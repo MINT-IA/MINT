@@ -1,0 +1,26 @@
+MINT external audit — code — Opus first pass
+
+Head SHA: 3aff2a0c839c2b57f021ccaa2453e93797e5bb3a
+Source report SHA-256: 414f460daba50c30915357541346d35ab93da070544aad724f636ddee1229b46
+Sanitization: summary only; no absolute path, device identifier, document
+content, confidential fixture identifier, screenshot, or financial example
+value is retained.
+
+Verdict: PASS
+P0: 0
+P1: 0
+P2: 3
+
+P2 dispositions:
+1. Long-lived device-side LPP persistence was not covered by the separate
+   365-day vault purpose. Retained as a privacy/legal activation review; no
+   activation is authorized.
+2. Removal of the generic HTTP 428 declaration handler may affect non-LPP
+   document flows. Retained as later-G1, non-PROV-02 work.
+3. The tracked proof then available could not independently establish real
+   iOS execution. Resolved by the new exact-SHA writer, explicit process
+   termination, cold reader, independent xcresult summaries, and restored
+   default-off runtime recorded in this bundle.
+
+This first pass supported the bounded implementation review. The accepted
+same-SHA manifest entries are the later Sonnet reruns.

@@ -559,13 +559,16 @@ the implemented seam and its fail-closed behavior, not production activation.
 Frozen-SHA Maestro/Patrol evidence on one simulator, external Claude audits and
 the final G1 scorecard are still required before either flag may change.
 
-### 4.0A LPP certificate evidence (G1-PROV-02 implemented; activation default-off)
+### 4.0A LPP certificate evidence (G1-PROV-02 ticket/runtime GREEN; activation default-off)
 
-The production code path described below exists, but this is **not** an
-activation or runtime-GO statement. Both local switches remain false, the
-`G1-PROV-02` evidence ticket remains `ticket_only`, and frozen pushed-SHA
-Maestro/Patrol evidence, external audits and the named activation decision are
-still required.
+The production code path described below is ticket- and runtime-GREEN at the
+accepted pushed SHA `30728b8a0671a0b54bcf47807a0c69bac905e6e3`. This is
+**not** an activation or G1-GO statement. Both local switches remain false,
+activation remains NO, 17 G1 rows remain open, and G2/G3 remain forbidden.
+Before activation, `G1-BND-02` must prove a cold-reloaded manual-partner LPP
+fact changes a named production scenario/recompute, while `G1-BND-02A` must
+record the named legal/privacy decision, publish the versioned partner notice
+and implement the resulting accountability mechanism defined below.
 
 G1-PROV-02 uses one local answer root only:
 `wizard_answers_v2['_coach_lpp_evidence_v1']`. Its value is a JSON **string**
@@ -646,9 +649,12 @@ canonical UUIDv4 `acquisitionId`, the fixed `subject`, coherent
 `partnerAttested`, the current policy version, a non-future UTC `declaredAt`
 and the non-zero SHA-256 of the exact transmitted bytes. It deliberately has no
 JSON API. It is never persisted in `_coach_lpp_evidence_v1`, `__provenance`,
-Biography, route/query data, backend payloads, logs or analytics. A future
-durable legal receipt would belong to a dedicated consent/audit store, not this
-financial ledger; G1-PROV-02 introduces no such store.
+Biography, route/query data, backend payloads, logs or analytics. A durable
+minimized accountability record, when required by the legal/privacy decision
+because MINT relies on authorization/consent or establishes its necessity,
+belongs to a dedicated consent/audit boundary, not this financial ledger. It
+proves only the acting user's declaration, never direct partner consent.
+G1-PROV-02 introduces no such store.
 
 The LPP PDF branch never calls `DocumentService.uploadDocument`, and the LPP
 BYOK, fused-document and SSE paths are unreachable.
@@ -700,6 +706,18 @@ maps to disability capital.
 | `disabilityPensionAnnualChf` | `CHF/year` | annual disability pension | `prevoyance.disabilityCoverage` (legacy presentation name only) |
 | `disabilityCapitalLumpSumChf` | `CHF/lump-sum` | separately identified disability capital | new typed LPP evidence presentation field; never `disabilityCoverage` |
 | `deathCapitalLumpSumChf` | `CHF/lump-sum` | death capital paid as a lump sum | `prevoyance.deathCoverage` (legacy presentation name only) |
+
+This table and `LppEvidenceFactKey.values` contain exactly **13** canonical
+facts. A product-audit reference to “12 keys” was a counting error.
+
+Four values recognized by older parser/docling surfaces are deliberately not
+canonical PROV-02 facts: spouse pension, child pension, employee contribution
+and employer contribution. They remain unowned P2 follow-up facts. The adapter
+excludes them before review and persistence, so no scenario/dossier may claim
+them and no missing value becomes zero. Adding any of them requires an explicit
+later ticket with exact pension/contribution period, unit, caisse scope,
+owner/provenance, consumer and RED→GREEN gate; they cannot be smuggled into the
+13-key vocabulary as aliases.
 
 `ratio` accepts only a finite value in `0...1`. CHF facts accept only finite
 non-negative values. A parser match such as « prestation d'invalidité » without
@@ -793,6 +811,39 @@ fallbacks when typed ingestion is disabled or fails.
   selector result and recreates exact field provenance. Consumers never read
   the JSON root directly.
 
+#### Later-G1 downstream and consent gates (not GREEN)
+
+PROV-02 proves durable typed presentation paths, not the final household
+product promise. `G1-BND-02` remains open until its fixture accepts a current
+manual-partner LPP certificate, destroys/reconstructs the provider, and proves
+the resulting `conjoint.prevoyance.*` fact changes one named production
+recompute through `MintStateEngine` using `ForecasterService.project` or
+`RetirementProjectionService.project`, then reaches a visible fail-closed
+consumer. Merely reading `lppEvidenceFact` or listing facts on `/scan/impact`
+does not close this gate. `ForecasterService` already reads the partner
+`rendementCaisse` scalar even though a fund return rate belongs to a caisse,
+not inherently to a person. The same gate must introduce explicit caisse scope
+or quarantine that input from computation before activation.
+
+`G1-BND-02A` remains open until a named legal/privacy decision covers MINT's
+controller role, indirect-collection notice under nLPD art. 19, the foreign
+transfer and actually verified guarantee under art. 16 and 19(4), the retained
+justification, necessity/proportionality, retention/erasure and partner rights,
+and its outcome is implemented. Before activation, MINT must publish a
+versioned partner notice covering identity/contact, categories, purposes,
+Anthropic as recipient/processor, the United States and verified transfer
+guarantee, raw non-retention, retention of confirmed figures, and a direct
+access/objection/withdrawal/deletion channel. Account linking remains optional.
+
+If MINT relies on authorization/consent, a durable minimized record outside
+the financial ledger must prove only that the acting user declared
+authorization; it never proves direct partner consent. If another
+justification is retained, the decision must document the alternative
+accountability mechanism. No acquisition ID or document SHA is retained by
+default. Any exception must prove necessity, absence of a less intrusive
+alternative, access limits, a fixed duration and deletion, and remains outside
+the financial root, provenance, scenarios and dossier.
+
 #### Migration and kill switches
 
 When the root is absent, a one-time self migration may copy only existing loose
@@ -825,9 +876,12 @@ by the LPP document acquisition/review UI. Unless the composite getter is true,
 the LPP scan choice, pre-acquisition owner/attestation gates and confirmation CTA
 are hidden or neutralized **before consent/picker/OCR/upload**; a stale/deep link
 renders a recoverable disabled state and cannot call either legacy writer.
-Activation is allowed only
-after PROV-02 GREEN, frozen pushed-SHA runtime proof, external audits and a
-named G1 decision.
+PROV-02 is now GREEN with frozen pushed-SHA runtime proof and external audits,
+but activation remains forbidden. A named activation decision additionally
+requires `G1-BND-02` manual-partner cold-reload → named production
+scenario/recompute proof and the `G1-BND-02A` named legal/privacy decision,
+partner notice and implemented accountability outcome, plus the remaining G1
+closure gates.
 
 G1 deliberately defines no `linkedPartnerLppEvidenceImport` flag: a switch
 without an authorized caller would be a facade. `LppReviewConfirmation` derives
@@ -837,9 +891,16 @@ grant. `acceptLppReview` rejects every
 linked/grant-shaped input before persistence, and cold selection filters any
 such injected snapshot. These production reject/filter callers and their
 negative tests remain mandatory until G1-BND-02A proves purpose/field scope,
-grant lifecycle and revocation and introduces its own reviewed path. This
-contract defines no multi-owner household aggregate, remote sync, institution
-API or G2/G3 abstraction.
+grant lifecycle and revocation and introduces its own reviewed path. BND-02A
+also owns the named legal/privacy decision, versioned partner notice and
+implementation of the selected accountability mechanism for manual-partner
+document transfer. The proxy declaration never equals direct partner consent.
+If the decision requires a durable minimized attestation record, it stays in a
+dedicated consent/audit boundary; no per-attempt acquisition identifier or
+document hash is retained by default. Any justified exception remains outside
+`_coach_lpp_evidence_v1`, `__provenance`, scenarios and dossier. This contract
+defines no multi-owner household aggregate, remote sync, institution API or
+G2/G3 abstraction.
 
 #### Required TDD oracles
 
@@ -890,10 +951,11 @@ Additional acquisition oracles are mandatory:
 
 The exact PROV-02 command remains the ticket command and must also rerun
 PROV-01 plus document-parser tests; the mutation oracles above make a
-mapper-only or in-memory-only implementation fail. These code and local-data
-proofs do not promote the ticket: it stays `ticket_only` until the reviewed
-changes are committed and pushed, the exact accepted SHA is recorded, required
-runtime evidence exists, and the remaining G1 closure gates pass.
+mapper-only or in-memory-only implementation fail. The reviewed implementation,
+private local parser gate, real process-death runtime and bounded audits promote
+this ticket to GREEN at
+`30728b8a0671a0b54bcf47807a0c69bac905e6e3`. They do not enable either flag,
+close BND-02/BND-02A, authorize activation, or make G1/G2/G3 GO.
 
 ### 4.1 AVS / LPP detail (from certificate extraction)
 

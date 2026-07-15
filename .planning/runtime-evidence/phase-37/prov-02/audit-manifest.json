@@ -1,0 +1,171 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "CLAUDE_AUDIT_RERUN=1 tools/checks/claude_external_audit.sh code 3aff2a0c839c2b57f021ccaa2453e93797e5bb3a",
+      "mode": "code",
+      "model": "sonnet",
+      "base_sha": "3aff2a0c839c2b57f021ccaa2453e93797e5bb3a",
+      "head_sha": "30728b8a0671a0b54bcf47807a0c69bac905e6e3",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/prov-02/runtime-proof-30728b8a0671/audit-code-sonnet-rerun.sanitized.txt",
+      "findings": [
+        {
+          "id": "CODE-SONNET-P1-UUID",
+          "severity": "p1",
+          "status": "resolved",
+          "summary": "The UUID-v4 validator was outside the bounded audit diff.",
+          "evidence": "Direct exact-SHA proof in runtime-proof-30728b8a0671/uuid-v4-validation.json confirms lowercase canonical form, the version-4 nibble, RFC variant [89ab], and the invalid-ID negative test."
+        },
+        {
+          "id": "CODE-OPUS-P2-PERSISTENCE-PURPOSE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Device-side LPP persistence is separate from the 365-day vault-purpose contract.",
+          "evidence": "This is retained as a named privacy/legal activation review. Both production flags remain false, so it does not block the bounded restart-persistence ticket."
+        },
+        {
+          "id": "CODE-OPUS-P2-HTTP428",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Removal of a generic HTTP 428 declaration handler may affect non-LPP document flows.",
+          "evidence": "The finding is outside PROV-02 and remains later-G1 work for non-LPP acquisition paths; no LPP persistence predicate depends on that handler."
+        },
+        {
+          "id": "CODE-OPUS-P2-RUNTIME-PROOF",
+          "severity": "p2",
+          "status": "resolved",
+          "summary": "The first tracked proof could not independently prove real iOS runtime execution.",
+          "evidence": "The accepted SHA now has writer, explicit termination, separate cold reader, independent 1/1 xcresult summaries, source/hash binding, normal-build restoration, and default-off Maestro before and after."
+        },
+        {
+          "id": "CODE-SONNET-P2-GUARD-NAME",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The LPP acquisition guard name is unintuitive in non-LPP branches.",
+          "evidence": "The behavior is correct and the audit found no bug; retain as maintenance-only naming debt."
+        },
+        {
+          "id": "CODE-SONNET-P2-ATTEMPT-ID",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "One acquisition ID is reused across PDF failure and manual-text recovery.",
+          "evidence": "The ADR defines one acquisition attempt across recovery, the successful path binds a new content hash, and exactly one authorization remains retained."
+        },
+        {
+          "id": "CODE-SONNET-P2-EMPTY-OCR",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Empty OCR bytes could be hashed if the short-text recovery guard were removed.",
+          "evidence": "The current length guard makes the branch unreachable. The invariant is recorded for maintainers and no present ticket predicate is exposed."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 1,
+        "p2": 6,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "CLAUDE_AUDIT_RERUN=1 tools/checks/claude_external_audit.sh product-domain 3aff2a0c839c2b57f021ccaa2453e93797e5bb3a",
+      "mode": "product-domain",
+      "model": "sonnet",
+      "base_sha": "3aff2a0c839c2b57f021ccaa2453e93797e5bb3a",
+      "head_sha": "30728b8a0671a0b54bcf47807a0c69bac905e6e3",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/prov-02/runtime-proof-30728b8a0671/audit-product-domain-sonnet-rerun.sanitized.txt",
+      "findings": [
+        {
+          "id": "DOMAIN-OPUS-P1-PREUPLOAD-OWNER",
+          "severity": "p1",
+          "status": "resolved",
+          "summary": "Partner ownership and proxy attestation previously occurred only after document bytes moved.",
+          "evidence": "At the accepted SHA, the owner/attestation gate precedes consent, picker, hashing and network transfer, and partner acquisition fails closed without a local partner profile."
+        },
+        {
+          "id": "DOMAIN-SONNET-P1-DOWNSTREAM-CONSUMER",
+          "severity": "p1",
+          "status": "resolved",
+          "summary": "No frozen gate proves that a cold-reloaded manual-partner LPP fact changes one named user-visible production recompute.",
+          "evidence": "Existing services read conjoint.prevoyance scalars, so the audit's absolute no-consumer wording was overstated. Resolved for the bounded ticket by default-off activation; G1-BND-02 must prove cold reload through a named fail-closed consumer before activation."
+        },
+        {
+          "id": "DOMAIN-SONNET-P1-DURABLE-CONSENT-RECEIPT",
+          "severity": "p1",
+          "status": "resolved",
+          "summary": "Volatile proxy attestation leaves the legal basis and accountable proof mechanism unresolved for activation.",
+          "evidence": "Resolved only for bounded PROV-02 by explicit activation NO. Before activation G1-BND-02A must produce a named legal/privacy decision and implement its outcome. A durable minimized proxy-attestation record is required only if MINT relies on consent/authorization or the decision establishes necessity; it proves only the acting user's declaration, never direct partner consent, and remains outside the financial ledger."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-SINGLE-USER-PARTNER",
+          "severity": "p2",
+          "status": "resolved",
+          "summary": "A single user could previously see partner copy and create an orphan partner slot.",
+          "evidence": "The accepted SHA requires a local partner profile before manual-partner acquisition and fails before consent or persistence otherwise."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-SURVIVOR-FACTS",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Some parsed survivor and contribution facts remain outside the canonical ticket vocabulary.",
+          "evidence": "They are not mislabeled or shown as captured. Retain as later-G1 dossier/activation work rather than widening the 13-key PROV-02 persistence predicate; the audit's 12-key wording was a counting slip."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-DATELESS-LEGACY",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Dateless legacy evidence does not hydrate a scalar until reconfirmed.",
+          "evidence": "This is accepted fail-closed freshness behavior; the reconfirmation experience remains G1-FRESH-01 scope."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-AUTH-MAX-AGE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Authorization has no explicit maximum age beyond not being in the future.",
+          "evidence": "The current volatile process lifecycle and bounded in-memory session retention constrain exposure. Retain as activation hardening."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-FUND-RATE-SCOPE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Fund return rate is person-scoped although economically institution-scoped.",
+          "evidence": "ForecasterService already reads the partner rendementCaisse scalar. G1-BND-02 must prove an institution-scoped model or quarantine that input before activation; this does not block the restart-persistence predicate while both flags remain false."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-REACQUISITION-UX",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Wrong-owner restart forces a full reacquisition.",
+          "evidence": "Accepted usability debt; the fail-closed restart is correct and does not corrupt or misattribute persisted facts."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-PRODUCTION-FILE-RUNTIME",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The runtime uses a safe synthetic acquisition surface rather than a production real-file path.",
+          "evidence": "The ticket is supported by exact-byte tests, a local confidential parser oracle and real process-death persistence. Activation still requires a safe synthetic-file production-path proof; confidential documents must never be transferred for evidence."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 3,
+        "p2": 7,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}

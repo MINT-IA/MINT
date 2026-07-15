@@ -1,0 +1,35 @@
+{
+  "accepted_sha": "30728b8a0671a0b54bcf47807a0c69bac905e6e3",
+  "ticket_green": 0,
+  "flutter_analyze": 0,
+  "flutter_full_suite": 0,
+  "backend_full_suite": 0,
+  "local_confidential_parser_gate": 0,
+  "doctor_full": 0,
+  "mermaid_render_guard": 0,
+  "patrol_tooling_guard": 0,
+  "orchestrator_contract_pytest": 0,
+  "orchestrator_changed_file_ruff": 0,
+  "normal_ios_build": 0,
+  "normal_ios_install_initial": 0,
+  "normal_ios_install_restored": 0,
+  "maestro_flag_off_initial": 0,
+  "maestro_flag_off_restored": 0,
+  "patrol_process_death_wrapper": 0,
+  "patrol_writer": 0,
+  "explicit_process_termination": 0,
+  "patrol_cold_reader": 0,
+  "claude_code_sonnet_accepted_rerun": 0,
+  "claude_product_domain_sonnet_accepted_rerun": 0,
+  "known_unrelated_baseline": {
+    "backend_global_ruff_exit_code": 1,
+    "errors": 93,
+    "fixable": 57,
+    "unsafe_fixes_available": 10,
+    "ticket_blocker": false
+  },
+  "superseded_attempts": {
+    "code_sonnet_oversized_base_prompt_exit_code": 1,
+    "accepted_run": false
+  }
+}

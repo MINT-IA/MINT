@@ -115,11 +115,18 @@ fieldPath -> {source, updatedAt, sourceDate}
   legacy self/partner document writers are not fallbacks. Manual-partner facts
   have a distinct stable owner, reuse the stable self actor, use
   `manualPartnerDeclaration` with a null grant, and are selected by exact owner
-  without consulting household membership. The implemented code remains
-  default-off: the ticket is still `ticket_only`, live Anthropic eval is NOT
-  RUN, and no runtime, activation or G1-GO is claimed. The typed tax path is
-  likewise behind its composite default-off gate pending frozen-SHA runtime
-  proof and the G1 activation decision.
+  without consulting household membership. The ticket and runtime slice are
+  GREEN at accepted pushed SHA
+  `30728b8a0671a0b54bcf47807a0c69bac905e6e3`; live Anthropic eval is NOT RUN.
+  Both flags remain false, so activation is still forbidden. G1-BND-02 must
+  prove a cold-reloaded manual-partner LPP fact enters one named production
+  scenario/recompute and visible fail-closed consumer, and G1-BND-02A must
+  record the named legal/privacy decision, publish the versioned partner notice
+  and implement its accountability outcome. A durable minimized record is
+  conditional, stays outside the ledger and never proves direct partner
+  consent. Neither gate is GREEN, G1 has 17 open gates, and no G1/G2/G3 GO is
+  claimed. The typed tax path is likewise behind its composite default-off gate
+  pending frozen-SHA runtime proof and the G1 activation decision.
 
 ---
 
@@ -135,7 +142,7 @@ only legal local I/O boundaries.
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
-| 3 | **Scan confirmation** | LPP: `DocumentScanScreen owner/attestation/consent → transmitted-byte authorization → kind gate → LppExtractionAdapter → ScanSessionProvider(candidate+authorization) → ExtractionReviewScreen immutable owner → LppReviewConfirmation(subject derived) → acceptLppReview → LppProfilePersistence`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes only strict-secure `_coach_lpp_evidence_v1` plus derived presentation provenance; volatile authorization/SHA never enter either. Accepted self review removes loose self aliases and no legacy LPP document writer exists. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | After valid authorization/local-partner/date/value/unit/coherence review and one awaited save. LPP remains double-default-off and ticket/runtime/activation NO-GO. |
+| 3 | **Scan confirmation** | LPP: `DocumentScanScreen owner/attestation/consent → transmitted-byte authorization → kind gate → LppExtractionAdapter → ScanSessionProvider(candidate+authorization) → ExtractionReviewScreen immutable owner → LppReviewConfirmation(subject derived) → acceptLppReview → LppProfilePersistence`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes only strict-secure `_coach_lpp_evidence_v1` plus derived presentation provenance; volatile authorization/SHA never enter either. Accepted self review removes loose self aliases and no legacy LPP document writer exists. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | After valid authorization/local-partner/date/value/unit/coherence review and one awaited save. LPP ticket/runtime is GREEN at `30728b8a0671`; both flags remain false and activation is NO pending BND-02/BND-02A. |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
@@ -221,6 +228,19 @@ publishes its next profile only after the answer snapshot is saved.
     }
   }
   ```
+
+  Each person slot accepts exactly the same **13** canonical financial facts:
+  `vestedBenefitsCapitalChf`, `mandatoryVestedBenefitsCapitalChf`,
+  `extraMandatoryVestedBenefitsCapitalChf`, `insuredSalaryAnnualChf`,
+  `maximumBuybackCapitalChf`, `mandatoryConversionRateRatio`,
+  `extraMandatoryConversionRateRatio`, `fundReturnRateRatio`,
+  `retirementPensionAnnualChf`, `retirementCapitalLumpSumChf`,
+  `disabilityPensionAnnualChf`, `disabilityCapitalLumpSumChf`, and
+  `deathCapitalLumpSumChf`. A product-audit reference to 12 keys was a counting
+  error. Spouse pension, child pension, employee contribution and employer
+  contribution are separate unowned P2 follow-ups, not aliases. They are
+  excluded before review/persistence; absence stays absent and never becomes a
+  false zero or scenario/dossier fact.
 
   When the composite gate is true, `DocumentScanScreen` resolves
   `hasLocalPartnerProfile` as exact `CoachProfile.conjoint != null`, fixes owner
@@ -316,12 +336,30 @@ publishes its next profile only after the answer snapshot is saved.
   owner/actor token, a secure slot id nor a typed financial fact is mirrored to
   `ProfileModel.data`. The volatile acquisition authorization, `acquisitionId`
   and document SHA are never written to the root or `__provenance` in the first
-  place. A future durable legal proof would require a separate consent/audit
-  store; G1-PROV-02 adds no such persistence surface.
+  place. Before activation, G1-BND-02A must record a named legal/privacy
+  decision covering controller role, indirect-collection notice, the verified
+  foreign-transfer guarantee, legal justification, minimization, retention,
+  erasure and partner rights; publish a versioned partner notice; and implement
+  the selected accountability mechanism. If MINT relies on authorization or
+  consent, a durable minimized record outside the ledger proves only the
+  acting user's declaration, never direct partner consent. Another basis must
+  define its alternative accountability mechanism. No per-attempt acquisition
+  ID or document hash is retained by default; any justified exception remains
+  outside `_coach_lpp_evidence_v1`, `__provenance`, scenarios and dossier.
+- Restart-safe scalar hydration is not the downstream product proof.
+  G1-BND-02 remains open until a current manual-partner LPP fact is saved, the
+  provider is destroyed and reconstructed, and one named production
+  `MintStateEngine`/`ForecasterService` or `RetirementProjectionService`
+  scenario/recompute changes and reaches a visible fail-closed consumer. The
+  scan impact list or a direct scalar assertion is insufficient.
+  `ForecasterService` already reads the partner `rendementCaisse` scalar, so
+  this gate must also prove explicit caisse scope or quarantine that input from
+  computation before activation.
 - Private real-certificate coverage runs only through the ignored local
   sanitized oracle; network classifier cases are generated synthetic images.
-  The live Anthropic eval is NOT RUN. These local gates do not promote the
-  `ticket_only` PROV-02 evidence or establish runtime/activation/G1 GO.
+  The live Anthropic eval is NOT RUN. The accepted synthetic runtime bundle and
+  bounded external audits promote PROV-02 ticket/runtime truth at
+  `30728b8a0671`, not flags, BND-02/BND-02A, activation or G1 GO.
 
 **3a (3rd pillar)**
 - `q_has_3a`, `q_3a_total`, `q_3a_accounts_count`, `q_3a_annual_contribution`,
@@ -468,7 +506,7 @@ Every calculator / widget that needs profile data **must** read through
 
 ```
 Document type selection
-  ├─ LPP G1-PROV-02 (wired, double-default-off; no runtime activation claim)
+  ├─ LPP G1-PROV-02 (ticket/runtime GREEN at 30728b8a0671; activation NO)
   │   ↓ typedLppEvidence && documentLppEvidenceEnabled before owner/consent/picker
   │   ↓ owner fixed pre-acquisition; partner only if CoachProfile.conjoint != null
   │   ↓ partner one-shot attestation when selected
@@ -489,6 +527,8 @@ Document type selection
   │   ↓ publish profile/listeners only after pointer commit succeeds
   │   ↓ impact payload has no raw text and calls no generic insight/event path
   │   ↓ cold reload → bounded self/manual expected-owner selector → strict facts
+  │   ↓ OPEN BND-02: named production scenario/recompute + visible consumer proof
+  │   ↓ OPEN BND-02A: named legal/privacy decision + implemented accountability outcome
   │
   ├─ AVS / salaire: camera, gallery, PDF or OCR paste
   │   ↓ DocumentService.extractDocumentData (backend)
@@ -595,10 +635,12 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 
 ---
 
-*Last updated: 2026-07-15 for the default-off G1-PROV-02A+B person-owned LPP
-model/persistence checkpoint and G1-PROV-03 typed tax provenance. PROV-02 is not
-GREEN: its composite document flag/caller, production UI wiring, activation and
-runtime proof remain C blockers.
+*Last updated: 2026-07-15 for the accepted G1-PROV-02 person-owned LPP
+ticket/runtime checkpoint and G1-PROV-03 typed tax provenance. PROV-02 is GREEN
+at pushed SHA `30728b8a0671a0b54bcf47807a0c69bac905e6e3`, but both LPP flags
+remain false and activation is NO. G1-BND-02 downstream recompute and
+G1-BND-02A legal/privacy decision, partner notice and accountability outcome
+remain open; with 17 open G1 gates there is no G1/G2/G3 GO.
 Maintenance rule: every new writer or reader of `wizard_answers_v2`
 updates this doc in the same PR. Code drift without doc drift = the
 trap we built this to avoid.*

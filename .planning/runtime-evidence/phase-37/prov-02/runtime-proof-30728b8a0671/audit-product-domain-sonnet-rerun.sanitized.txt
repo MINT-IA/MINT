@@ -1,0 +1,46 @@
+MINT external audit — product-domain — Sonnet accepted rerun
+
+Base SHA: 3aff2a0c839c2b57f021ccaa2453e93797e5bb3a
+Head SHA: 30728b8a0671a0b54bcf47807a0c69bac905e6e3
+Source report SHA-256: aacef2e6646ac5428dbb4552aea45bc0fa7a607c1897700802c4af21030dc448
+Sanitization: no absolute path, device identifier, document content,
+confidential fixture identifier, screenshot, or financial example value is
+retained.
+
+Product/domain verdict: PASS
+P0: 0
+P1: 2, dispositioned as later-G1/activation blockers
+P2: 4, accepted with named boundaries
+
+P1 dispositions:
+- Existing production services read `conjoint.prevoyance.*`, but no frozen gate
+  proves that a cold-reloaded manual-partner LPP fact changes one named,
+  user-visible fail-closed recompute. This does not negate persistence, but it
+  blocks activation. G1-BND-02 owns that proof; G1-SCN-01 alone must not be
+  presented as a renderer.
+- Proxy attestation is deliberately volatile, so the legal basis and selected
+  accountability mechanism remain unresolved for activation. G1-BND-02A must
+  record the named legal/privacy decision and implement its outcome. If MINT
+  relies on authorization/consent, a durable minimized record outside the
+  financial ledger proves only the acting user's declaration, never direct
+  partner consent. No acquisition ID or document SHA is retained by default.
+
+P2 dispositions:
+- Authorization has no explicit maximum age. In-memory lifecycle and bounded
+  session retention limit current exposure; retain as activation hardening.
+- Fund return rate is currently person-scoped although economically
+  institution-scoped, and `ForecasterService` already reads the partner value.
+  G1-BND-02 must prove an institution-scoped model or quarantine that input
+  before the manual-partner path can activate.
+- Wrong-owner restart forces full reacquisition. Accepted usability debt.
+- Runtime uses the safe synthetic acquisition surface, not a real production
+  file. The ticket is supported by exact-byte tests and a local confidential
+  parser oracle, but activation requires a safe synthetic-file production-path
+  proof. Confidential documents must never be uploaded for that proof.
+
+Swiss-law warning for later scenario work: an occupational-pension death
+capital must not be treated automatically as part of an estate or reserved-
+heir pool. No current PROV-02 consumer performs that computation.
+
+PASS is for the bounded product correction. Activation remains NO and G1
+remains NO-GO.

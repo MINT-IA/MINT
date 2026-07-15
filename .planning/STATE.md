@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: PROV-03 exact runtime and audits recorded; 13/31 GREEN and 18 hard floors remain; G2/G3 are not authorized.
-last_updated: "2026-07-14T17:30:00Z"
-last_activity: 2026-07-14 -- PROV-03 exact-SHA evidence reconciled; Sonnet confirms the slice architecture-clean and full G1 remains NO-GO
+stopped_at: PROV-02 exact TDD/runtime/audits recorded; 14/31 GREEN and 17 hard floors remain; activation is NO and G2/G3 are not authorized.
+last_updated: "2026-07-15T12:37:24Z"
+last_activity: 2026-07-15 -- PROV-02 persistence promoted GREEN at exact SHA; LPP activation remains NO and full G1 remains NO-GO
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,11 +34,12 @@ Plan: cross-plan G1 execution under 37-02 through 37-07
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-14 -- PROV-03 typed-tax persistence proved through
-real process death at exact SHA `ac74672db`; code and product-domain audits
-passed without P0/P1. Production activation remains disabled.
-The one Sonnet architecture rerun confirms the stale acceptance findings
-resolved and PROV-03 clean; it retains G1 NO-GO for the open global gates.
+Last activity: 2026-07-15 -- PROV-02 self/manual-partner LPP persistence is
+GREEN at exact SHA `30728b8a0671`: semantic same-command RED-to-GREEN, native
+writer, explicit process termination, separate cold reader, restored
+default-off Maestro proof, broad suites, and code/product-domain audits. The
+ticket is GREEN, but production activation remains disabled and the later-G1
+consumer/privacy gates retain full G1 NO-GO.
 
 ## Build Order
 
@@ -83,11 +84,15 @@ resolved and PROV-03 clean; it retains G1 NO-GO for the open global gates.
   explicit. The live registry and its checked-in guard are authoritative.
 - `G1-PROV-03` is code-GREEN at `5a772865b` and runtime-GREEN at
   `ac74672db`; its tax ingestion flags remain production-off.
+- `G1-PROV-02` is ticket- and runtime-GREEN at `30728b8a0671`; both LPP
+  ingestion flags remain production-off. A named downstream consumer and the
+  named legal/privacy accountability decision and outcome remain
+  activation/later-G1 blockers.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 13 `green`, 17 `ticket_only`, and one
-  `red_proven`. Therefore 18 G1 hard floors remain open.
+- The canonical registry has 31 rows: 14 `green`, 16 `ticket_only`, and one
+  `red_proven`. Therefore 17 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
 
@@ -103,10 +108,10 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-14T17:30:00Z
+Last session: 2026-07-15T12:37:24Z
 
-Stopped at: PROV-03 evidence reconciliation and the one architecture rerun are
-recorded; select the next dependency-valid ticket from the 18 remaining G1 rows.
+Stopped at: PROV-02 evidence reconciliation is recorded; LPP activation stays
+NO. Select the next dependency-valid ticket from the 17 remaining G1 rows.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-02-PLAN.md` through

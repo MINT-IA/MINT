@@ -1,0 +1,26 @@
+{
+  "local_raw_bundle": "runtime-30728b8a0671-20260715T115618Z",
+  "tracked": false,
+  "synthetic_runtime_data_only": true,
+  "screenshots_or_raw_logs_tracked": false,
+  "artifacts": {
+    "patrol_metadata": "d3ad594358fdc99b4d7bf8e30b7508385f2591ff464195bcb74503cc47d062e4",
+    "write_xcresult_summary": "32193fd2b860b00cce82374528b38a3667ac11482ed2f80d542cf155ecacf8de",
+    "read_xcresult_summary": "631b4119050c9b30906d5f035c2bbd3fbe9606001c22dc365939d907cec11de1",
+    "runtime_source_manifest": "bc88d8dc72ee3b3cec378440759cc4f913ede2925c98fcf4e31707ad5115b80e",
+    "normal_build_manifest_before": "85fd60e6940b25e8cc2e85b0c8cf027af74c1855d0b2ea51b9dede5513cd1319",
+    "normal_build_manifest_after": "85fd60e6940b25e8cc2e85b0c8cf027af74c1855d0b2ea51b9dede5513cd1319",
+    "ticket_red_raw": "31138d6d1a1405c720857e908824befcae76ff45887972af37a339402dad657b",
+    "ticket_green_raw": "9b2f0fe3f74ae2157600c32fb7d84044bd66c83df45dbbc370b01471de6f4fc8",
+    "flutter_full_log": "3fe79d4877586b8ae2357777b19e7f52148cb8a1a2a2e8e9f3c0ef75e50eacaa",
+    "backend_full_log": "6295ace1dae11c7f4ad88bc86eb3945cb992ffc3497a9792ca656de557d3d32e",
+    "backend_global_ruff_log": "90564aa1424f6463ca06e7e384e831b5d97325876a91376b368a8174f67dcf58",
+    "local_confidential_parser_gate_log": "5f4e0280b16d06b86da1297f391afd114ea9a63ce0811df70f1f4a56f3319bb2",
+    "orchestrator_contract_log": "96a0caa46e5890d3f60a8ee1252c737d879213514fad9281201064ce56b52862",
+    "maestro_initial_console": "202eada88d8862d64514263096f59c83e3b3278d5593cb67f4ce22ccad4aa182",
+    "maestro_restored_console": "9d0516b0401b958211624447c33055e670ff1a3cee7eaab9e21fb44d640b23e0",
+    "patrol_orchestrator_console": "2ed3af87b277869011d3abe973f25fca8aa22eee033acfe63aa955e93a482538",
+    "code_sonnet_accepted_rerun": "2d10f572ff0bb8d7bcca0b254b8a12c3d86c2ca4a7f4fd617b4548d4676a6d5a",
+    "product_domain_sonnet_accepted_rerun": "aacef2e6646ac5428dbb4552aea45bc0fa7a607c1897700802c4af21030dc448"
+  }
+}

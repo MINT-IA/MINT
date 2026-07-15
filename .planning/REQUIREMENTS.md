@@ -29,7 +29,8 @@ Every requirement below resolves the identically named ticket in
 - [ ] **RDY-LDG-06**: AVS gaps are order-independent and status is separate from years.
 - [ ] **RDY-LDG-07**: Duplicate mortgage keys reconcile deterministically.
 - [ ] **RDY-PROV-01**: Value and provenance persist atomically on write.
-- [ ] **RDY-PROV-02**: Certificate facts and provenance survive restart.
+- [x] **RDY-PROV-02**: Certificate facts and provenance survive restart.
+  Evidence: [`G1-PROV-02` verification](runtime-evidence/phase-37/prov-02/verification.md).
 - [ ] **RDY-PROV-03**: Tax facts include typed source date and legal year.
 - [ ] **RDY-SCN-01**: Scenario assumptions/results are isolated by scenario ID.
 - [ ] **RDY-BND-01**: Legacy profile consumers migrate to canonical semantics.
@@ -44,7 +45,7 @@ Every requirement below resolves the identically named ticket in
 - [ ] **RDY-FRESH-01**: Stale values remain visible for reconfirmation.
 - [ ] **RDY-RETURN-01**: Collection returns safely to the exact originating case.
 - [ ] **RDY-RUNTIME-01**: Maestro and Patrol prove persistence, restart, and recompute.
-- [ ] **RDY-GATE-01**: All 23 ticket rows become evidence-backed GREEN; Phase 37
+- [ ] **RDY-GATE-01**: All 31 ticket rows become evidence-backed GREEN; Phase 37
   score >=9.0 and G2 decision explicitly becomes YES.
 
 ## Phase 38 — Mint OS operating runway and v2.8 convergence

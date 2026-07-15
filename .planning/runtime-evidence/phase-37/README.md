@@ -1,6 +1,6 @@
 # Phase 37 Evidence Contract
 
-This directory is the checked-in evidence boundary for the 23 G1 blocking
+This directory is the checked-in evidence boundary for the 31 G1 blocking
 tickets. It contains synthetic gate metadata only. Do not store names, email
 addresses, document content, authentication material, or real financial values.
 
@@ -37,6 +37,9 @@ exactly one `architecture` run. Failed, quota-limited, authentication-failed,
 timed-out, or superseded attempts remain separate artifacts and never become a
 second accepted `runs[]` entry.
 
-`G2 allowed` remains **NO** until all 23 records are `green`, runtime evidence
+Current machine truth after `G1-PROV-02` promotion: **14 `green`, 16
+`ticket_only`, 1 `red_proven`; 17 of 31 hard floors remain open**.
+
+`G2 allowed` remains **NO** until all 31 records are `green`, runtime evidence
 is accepted on the same product SHA, required audits have zero unresolved
 P0/P1/critical/high findings, and the Phase 37 score is at least 9.0/10.

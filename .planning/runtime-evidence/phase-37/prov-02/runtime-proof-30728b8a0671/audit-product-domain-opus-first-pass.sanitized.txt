@@ -1,0 +1,29 @@
+MINT external audit — product-domain — Opus first pass
+
+Head SHA: 3aff2a0c839c2b57f021ccaa2453e93797e5bb3a
+Source report SHA-256: fb74b0584a9bd258fe5db4ca726e5dd62af140fecab65a41e921b982f279b721
+Sanitization: summary only; no absolute path, device identifier, document
+content, confidential fixture identifier, screenshot, or financial example
+value is retained.
+
+Product/domain verdict: PASS
+P0: 0
+P1: 1
+P2: 3
+
+Finding dispositions:
+1. P1 — partner ownership was selected only after bytes had moved and there
+   was no pre-upload proxy attestation. Resolved at the accepted SHA by the
+   owner/attestation gate before consent, picker, hashing, or network transfer.
+2. P2 — a single user could see partner copy and create an orphan slot.
+   Resolved at the accepted SHA by the local-partner predicate.
+3. P2 — spouse/child survivor pensions and contribution facts parsed outside
+   the canonical 13-key ticket vocabulary are not persisted. The original
+   report's “12-key” wording was a counting slip. Retained as a later-G1
+   dossier/activation gap; the current review does not mislabel them.
+4. P2 — dateless legacy evidence requires reconfirmation before it hydrates a
+   scalar. Accepted fail-closed behavior; the recovery consumer remains
+   G1-FRESH-01 scope.
+
+This first pass supported the product correction. The accepted same-SHA
+manifest entries are the later Sonnet reruns.

@@ -1,0 +1,18 @@
+{
+  "result": "Passed",
+  "totalTestCount": 1,
+  "passedTests": 1,
+  "failedTests": 0,
+  "skippedTests": 0,
+  "expectedFailures": 0,
+  "device": {
+    "architecture": "arm64",
+    "deviceName": "iPhone 17 Pro",
+    "modelName": "iPhone 17 Pro",
+    "osBuildNumber": "23C54",
+    "osVersion": "26.2",
+    "platform": "iOS Simulator"
+  },
+  "device_identifier_retained": false,
+  "testFailures": []
+}

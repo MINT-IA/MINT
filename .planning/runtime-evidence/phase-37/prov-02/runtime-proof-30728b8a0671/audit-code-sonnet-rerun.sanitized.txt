@@ -1,0 +1,32 @@
+MINT external audit — code — Sonnet accepted rerun
+
+Base SHA: 3aff2a0c839c2b57f021ccaa2453e93797e5bb3a
+Head SHA: 30728b8a0671a0b54bcf47807a0c69bac905e6e3
+Source report SHA-256: 2d10f572ff0bb8d7bcca0b254b8a12c3d86c2ca4a7f4fd617b4548d4676a6d5a
+Sanitization: no absolute path, device identifier, document content,
+confidential fixture identifier, screenshot, or financial example value is
+retained.
+
+Verdict: PASS
+P0: 0
+P1: 1, resolved by direct exact-SHA inspection
+P2: 3, accepted
+
+P1 disposition:
+- The audit could not see `_isCanonicalUuidV4` in the bounded diff. Direct
+  inspection at the head SHA proves lowercase canonical hexadecimal form, the
+  version-4 nibble, and RFC variant `[89ab]`; an invalid-ID negative test stops
+  before consent or picker. See `uuid-v4-validation.json`.
+
+P2 dispositions:
+- `_lppAcquisitionStillEnabled` is an unintuitive name outside the LPP branch,
+  but the behavior is correct. Maintenance-only; no ticket blocker.
+- Reusing one acquisition ID across a failed PDF attempt and manual-text
+  recovery is the intended single-attempt contract. A new content hash is
+  bound and only one authorization is retained. No ticket blocker.
+- Empty OCR bytes could only be hashed if the current short-text recovery guard
+  were removed. The path is unreachable under the accepted guard. Record the
+  invariant; no present ticket blocker.
+
+Both production flags remained false during the audit. PASS is for the bounded
+code ticket, not product activation or G1 acceptance.

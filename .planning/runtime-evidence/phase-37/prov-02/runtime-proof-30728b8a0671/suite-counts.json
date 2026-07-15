@@ -1,0 +1,40 @@
+{
+  "sha": "30728b8a0671a0b54bcf47807a0c69bac905e6e3",
+  "ticket_command": {
+    "passed": 22,
+    "failed": 0,
+    "skipped": 0
+  },
+  "flutter_full": {
+    "passed": 9031,
+    "failed": 0,
+    "skipped": 36
+  },
+  "backend_full": {
+    "passed": 6108,
+    "failed": 0,
+    "skipped": 7
+  },
+  "native_patrol_writer": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "native_patrol_reader": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "orchestrator_contract_pytest": {
+    "passed": 23,
+    "failed": 0,
+    "skipped": 0
+  },
+  "local_confidential_parser_gate": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "case_tokens_checked": 6,
+    "confidential_data_tracked": false
+  }
+}

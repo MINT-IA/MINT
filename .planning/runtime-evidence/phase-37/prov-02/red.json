@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-PROV-02",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/providers/provenance_restart_test.dart --reporter expanded",
+  "sha": "ffaa2c6f18bd246ce19615b3d6d7ddcf58210a4b",
+  "recorded_at": "2026-07-15T12:26:21Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "provenance_restart_test",
+  "output": "The exact command reached the production cold-reconstruction predicate and failed semantically: all four critical projected self-LPP presentation facts reloaded with null values and absent per-field provenance. Sanitized output: red-output.txt (SHA-256 1df1368fc92a5617ff4b145190c0ece2fa1d98af7d23ddd98a8e85fdafc25ed6).",
+  "synthetic_data_only": true
+}

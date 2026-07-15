@@ -1,0 +1,43 @@
+{
+  "bundle_id": "ch.mint.app",
+  "contract": "g1_prov02_lpp",
+  "sha": "30728b8a0671a0b54bcf47807a0c69bac905e6e3",
+  "started_at": "2026-07-15T11:57:02Z",
+  "finished_at": "2026-07-15T12:01:11Z",
+  "platform": "iOS Simulator",
+  "device_model": "iPhone 17 Pro",
+  "device_identifier_retained": false,
+  "synthetic_data_only": true,
+  "private_fixture_used": false,
+  "feature_activation": "test_process_static_flags_only",
+  "boot_status_exit_code": 0,
+  "launch_exit_code": 0,
+  "write_exit_code": 0,
+  "terminate_exit_code": 0,
+  "read_exit_code": 0,
+  "external_build": {
+    "enabled": true,
+    "original_build_present": true,
+    "restoration_status": "restored",
+    "paths_retained": false
+  },
+  "normal_build": {
+    "core_hashes_verified": true,
+    "manifest_before_sha256": "85fd60e6940b25e8cc2e85b0c8cf027af74c1855d0b2ea51b9dede5513cd1319",
+    "manifest_after_sha256": "85fd60e6940b25e8cc2e85b0c8cf027af74c1855d0b2ea51b9dede5513cd1319"
+  },
+  "runtime_source": {
+    "diff_verified": true,
+    "manifest_sha256": "bc88d8dc72ee3b3cec378440759cc4f913ede2925c98fcf4e31707ad5115b80e"
+  },
+  "xcresults": {
+    "write_sha256": "f8a0851acae3390df206f6db9f17e3d1d63c3d26c9abc370dce4b7cfe59e4822",
+    "read_sha256": "471edb1387ccdbeb17897a808246589a31b45a1fc79b83c77028d2af73c02624"
+  },
+  "mach_o_sections": {
+    "write_der_sha256": "9ffa3cb54192ddd2291c8950f8c19f4df2902ae918c75419d55ffe7c31b2b964",
+    "write_entitlements_sha256": "c0e1e036620501e80167f979173524e44a31f6e6aebd9b53d39513bf91451c2f",
+    "read_der_sha256": "9ffa3cb54192ddd2291c8950f8c19f4df2902ae918c75419d55ffe7c31b2b964",
+    "read_entitlements_sha256": "c0e1e036620501e80167f979173524e44a31f6e6aebd9b53d39513bf91451c2f"
+  }
+}

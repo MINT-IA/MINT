@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-PROV-02",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/providers/provenance_restart_test.dart --reporter expanded",
+  "sha": "30728b8a0671a0b54bcf47807a0c69bac905e6e3",
+  "recorded_at": "2026-07-15T12:26:51Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "provenance_restart_test",
+  "output": "The exact command passed 22/22 predicates covering self and manual-partner persistence, provenance, secure cold reconstruction, failure atomicity, migration and quarantine. Sanitized output: green-output.txt (SHA-256 6c23c3cee95e7ee9283aaed0b46d4f5e9125a8aa40b9509d5b6d20440a1e5851).",
+  "synthetic_data_only": true
+}

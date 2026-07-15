@@ -1,0 +1,23 @@
+G1-PROV-02 semantic RED proof
+
+Command: cd apps/mobile && flutter test test/providers/provenance_restart_test.dart --reporter expanded
+SHA: ffaa2c6f18bd246ce19615b3d6d7ddcf58210a4b
+Exit code: 1
+Synthetic data only: true
+
+The exact registry command reached the first production persistence predicate:
+"confirmed self LPP projections and provenance survive restart".
+
+The write completed, but cold reconstruction returned null values and absent
+per-field provenance for all four critical projected self-LPP presentation
+facts checked by the predicate. This is a business-semantic persistence
+failure, not a missing-file, import, syntax, compilation, or tool failure.
+
+Observed test counts before termination:
+- passed: 0
+- failed: 1
+- skipped: 0
+
+Financial example values and checkout paths were removed from this tracked
+transcript. No document content, confidential fixture identifier, device ID,
+or personal data is retained.

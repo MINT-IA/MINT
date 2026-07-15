@@ -1,0 +1,19 @@
+{
+  "sha": "30728b8a0671a0b54bcf47807a0c69bac905e6e3",
+  "source": "apps/mobile/lib/models/lpp_evidence.dart",
+  "source_sha256": "79f6e04b224597199851f18b144467bce5627f73ec236622c0b5d6cd76ef7277",
+  "lines": "715-717",
+  "predicate": "_isCanonicalUuidV4",
+  "regex": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+  "proves": [
+    "lowercase canonical hexadecimal form",
+    "UUID version 4 nibble",
+    "RFC variant nibble 8, 9, a, or b"
+  ],
+  "negative_test": {
+    "source": "apps/mobile/test/screens/document_scan/lpp_pre_upload_authorization_test.dart",
+    "lines": "877-895",
+    "predicate": "invalid acquisition id stops before consent or picker"
+  },
+  "audit_p1_disposition": "resolved"
+}

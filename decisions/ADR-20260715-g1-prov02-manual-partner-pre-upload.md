@@ -1,6 +1,7 @@
 # ADR — G1-PROV-02 : déclaration partenaire avant acquisition LPP
 
-**Statut :** Proposed — bloque l'activation de PROV-02 jusqu'aux tests GO
+**Statut :** Accepted pour le ticket PROV-02 au SHA poussé
+`30728b8a0671a0b54bcf47807a0c69bac905e6e3` — activation toujours bloquée
 **Périmètre :** G1/PROV-02 uniquement ; aucun G2/G3
 
 ## Décision
@@ -89,10 +90,29 @@ que si un scénario de couple la consomme réellement.
   `__provenance`, ni dans Biography, les routes, les logs ou les payloads
   backend. Le ledger durable conserve seulement le mode d'autorisation existant
   sur les faits acceptés.
-- Une éventuelle preuve juridique durable de transfert devra vivre dans un
-  consent/audit store dédié avec sa propre rétention et son propre effacement,
-  jamais dans le Data Ledger financier. Ce chantier futur n'est pas requis pour
-  corriger le P1 de séquencement de G1-PROV-02.
+- La nLPD ne rend pas automatiquement obligatoire un reçu durable par
+  document. Avant activation, `G1-BND-02A` doit enregistrer une décision
+  juridique/privacy nommée couvrant le rôle de responsable du traitement de
+  MINT, le devoir d'information lors de la collecte indirecte (art. 19), le
+  transfert à l'étranger et la garantie effectivement vérifiée (art. 16 et
+  19(4)), la justification retenue si les droits de la personnalité sont
+  touchés, ainsi que la nécessité, la proportionnalité, la rétention,
+  l'effacement et les droits du partenaire. Son résultat doit être implémenté.
+- Si MINT s'appuie sur une autorisation ou un consentement, un enregistrement
+  durable et minimisé, hors Data Ledger financier, doit permettre de prouver
+  uniquement que l'utilisateur agissant a déclaré être autorisé. Il ne prouve
+  jamais le consentement direct du partenaire. Si une autre justification est
+  retenue, la décision doit documenter le mécanisme alternatif
+  d'accountability. Aucun `acquisitionId` ou SHA de document n'est conservé par
+  défaut ; toute exception doit démontrer sa nécessité, l'absence
+  d'alternative moins intrusive, les accès, une durée fixe et l'effacement.
+- La déclaration proxy ne remplace pas l'information du partenaire. Avant
+  activation, une notice partenaire versionnée doit exposer l'identité et le
+  contact MINT, les catégories et finalités, Anthropic comme destinataire/
+  sous-traitant, les États-Unis et la garantie de transfert vérifiée, l'absence
+  de conservation du brut, la conservation des chiffres confirmés et un canal
+  direct d'accès, opposition, retrait et effacement. La liaison de comptes
+  reste facultative ; une confirmation directe peut utiliser un canal ponctuel.
 - Le ledger financier reste raw-free. Aucun `grantId`, faux compte conjoint ou
   membership implicite ne peut être inféré de `manualPartnerDeclaration`.
 
@@ -118,6 +138,44 @@ ne relie aucun compte. »
 Note : « MINT aide à comprendre ces chiffres. Cela ne constitue pas un conseil
 financier personnalisé. »
 CTA : « Je confirme et continue » / « Annuler »
+
+## Disposition de promotion — 2026-07-15
+
+`G1-PROV-02` est ticket- et runtime-GREEN au SHA accepté
+`30728b8a0671a0b54bcf47807a0c69bac905e6e3`. La preuve exacte couvre le refus
+partenaire, l'acquisition partenaire puis self, l'écriture sécurisée, l'arrêt
+explicite du processus, la reconstruction froide des deux propriétaires et la
+restauration de l'application normale. Les audits code et produit-domaine
+bornés passent.
+
+Cette promotion n'est pas une décision d'activation :
+
+- `FeatureFlags.typedLppEvidence` et
+  `FeatureFlags.documentLppEvidenceEnabled` restent `false` ;
+- l'activation LPP self/partenaire reste **NO** ;
+- G1 reste **NO-GO** avec 17 tickets ouverts ; G2/G3 restent interdits ;
+- `G1-BND-02` doit encore prouver qu'un fait LPP `manualPartner` reconstruit à
+  froid modifie un scénario/recompute production nommé et atteint un rendu
+  visible fail-closed ; comme `ForecasterService` lit déjà le
+  `rendementCaisse` partenaire, ce gate doit aussi imposer un scope de caisse
+  explicite ou mettre cette donnée en quarantaine avant calcul ;
+- `G1-BND-02A` doit encore rendre et enregistrer la décision juridique/privacy
+  nommée, publier la notice partenaire versionnée et implémenter le mécanisme
+  d'accountability qui en résulte. Si l'autorisation/le consentement est la
+  justification retenue, un enregistrement durable et minimisé hors ledger
+  prouve seulement la déclaration de l'utilisateur agissant, jamais un
+  consentement direct du partenaire. Une autre justification doit documenter
+  son mécanisme alternatif. Aucun identifiant d'acquisition ni SHA de document
+  n'est conservé par défaut ; toute exception reste hors ledger, provenance,
+  scénario et dossier et doit être justifiée selon les critères ci-dessus. La
+  liaison de comptes demeure facultative et ne doit pas être nécessaire à un
+  éventuel canal ponctuel de confirmation directe.
+
+Les rentes conjoint/enfant et les cotisations employé/employeur extraites par
+des parseurs existants restent des suivis P2 sans propriétaire de ticket. Elles
+ne font pas partie du vocabulaire PROV-02 exact de **13 clés**, sont exclues
+avant review/persistance et ne créent ni valeur fausse ni zéro implicite. La
+mention « 12 clés » du rerun produit était une erreur de comptage.
 
 Les six ARB `fr/en/de/es/it/pt` doivent porter le même sens, les mêmes finalités,
 le même pays destinataire, la même absence de stockage brut et la même absence

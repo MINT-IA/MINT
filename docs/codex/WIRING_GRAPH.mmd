@@ -2,8 +2,9 @@
 %% WIRING_GRAPH.mmd — MINT navigation + data-flow graph (Codex-executable)
 %% ----------------------------------------------------------------------------
 %% G1 reality audit: general file:line refs were re-checked against HEAD
-%% 095eeaa32 on 2026-07-07. The PROV-02 subgraph was rechecked against the
-%% 2026-07-15 working tree; it is not a commit, activation or runtime proof.
+%% 095eeaa32 on 2026-07-07. The PROV-02 subgraph was accepted for ticket and
+%% runtime truth at pushed SHA 30728b8a0671 on 2026-07-15. Its two flags remain
+%% false; this is neither activation nor G1 closure.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -75,8 +76,8 @@ flowchart TB
 
   AVS_CARD -. "household calculations stay null" .-> MSP
 
-  %% G1 PROV-02 code is wired default-off. Ticket, runtime and activation stay NO-GO.
-  subgraph LPP_EVIDENCE["G1 PROV-02 CODE WIRED — ACTIVATION + RUNTIME NO-GO"]
+  %% G1 PROV-02 ticket/runtime is GREEN at 30728b8a0671; activation stays NO-GO.
+  subgraph LPP_EVIDENCE["G1 PROV-02 TICKET + RUNTIME GREEN — ACTIVATION NO-GO"]
     direction TB
     LPP_FLAGS{"typedLppEvidence = false<br/>documentLppEvidenceEnabled = false<br/>lppEvidenceIngestionEnabled = AND<br/>no backend hydration"}
     LPP_DISABLED["either flag off<br/>LPP choice hidden before owner/consent/picker/upload<br/>stale review recoverable; no writer CTA"]
@@ -103,7 +104,9 @@ flowchart TB
     LPP_REDACT["backendSafeAnswers<br/>always removes partner aliases<br/>strict root + provenance never mirrored"]
     LPP_LINKED["household membership or linked grant<br/>G1-BND-02A not GREEN"]
     LPP_PRIVATE_GATE["private real certificates<br/>local ignored sanitized parser gate only<br/>no fixture identity/value/raw artifact"]
-    LPP_SYNTH_EVAL["classifier eval boundary<br/>generated synthetic images only<br/>offline corpus green; live Anthropic = NOT RUN<br/>ticket/runtime evidence NOT promoted"]
+    LPP_SYNTH_EVAL["classifier eval boundary<br/>generated synthetic images only<br/>offline corpus green; live Anthropic = NOT RUN<br/>exact synthetic runtime promoted at 30728b8a0671"]
+    LPP_BND02["OPEN G1-BND-02 — NOT GREEN<br/>cold-reload manualPartner current LPP fact<br/>must change one named production scenario/recompute<br/>and reach a visible fail-closed consumer"]
+    LPP_ACCOUNTABILITY["OPEN G1-BND-02A — NOT GREEN<br/>named legal/privacy decision + implemented outcome<br/>versioned partner notice + direct rights channel<br/>conditional minimized proof outside ledger<br/>proxy declaration is NOT direct partner consent<br/>NO acquisition ID/SHA by default"]
 
     LPP_FLAGS -. "either off" .-> LPP_DISABLED
     LPP_FLAGS -. "both on; activation still requires named G1 decision" .-> LPP_OWNER
@@ -132,6 +135,9 @@ flowchart TB
     LPP_PRIVATE_GATE -. "local non-vacuous oracle" .-> LPP_LOCAL_KIND
     LPP_PRIVATE_GATE -. "sanitized outcome only" .-> LPP_CANDIDATE
     LPP_SYNTH_EVAL -. "immutable synthetic corpus" .-> LPP_KIND
+    LPP_SELECT -. "activation requires named downstream proof" .-> LPP_BND02
+    LPP_ATTEST -. "activation requires named legal/privacy decision" .-> LPP_ACCOUNTABILITY
+    LPP_ACCOUNTABILITY -. "implement outcome; conditional proof outside ledger" .-> LPP_REJECT
   end
 
   LPP_SELF -. "person-owned facts; no automatic household total" .-> CPP
@@ -397,7 +403,13 @@ flowchart TB
 %% lpp_extraction_adapter_test.dart, lpp_evidence_ingestion_test.dart and
 %% DATA_LEDGER.md §4.0A. Private real fixtures are local/sanitized only; the
 %% network eval corpus is generated synthetic, and live Anthropic eval is NOT
-%% RUN. Status: pre-upload authorization remediation is in the successor working
-%% tree, both flags remain off, and successor-SHA tests/runtime/audits are still
-%% required before ticket promotion or any activation/G1/G2 claim.
+%% RUN. Status: the ticket/runtime slice is GREEN at pushed SHA 30728b8a0671;
+%% both flags remain off. Activation still requires G1-BND-02 cold-reload to a
+%% named downstream scenario/recompute and visible fail-closed consumer, plus
+%% the G1-BND-02A named legal/privacy decision, versioned partner notice and
+%% implemented accountability outcome. A durable minimized proof is conditional
+%% and never direct partner consent; acquisition ID and document SHA are not
+%% retained by default and never enter the financial ledger. Neither gate is
+%% GREEN. G1 has 17 open gates, so activation and every G1/G2/G3 GO claim stay
+%% forbidden.
 %% ============================================================================
