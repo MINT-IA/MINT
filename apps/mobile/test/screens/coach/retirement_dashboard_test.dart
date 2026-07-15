@@ -12,6 +12,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
@@ -20,6 +21,48 @@ import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/widgets/coach/retirement_hero_zone.dart';
 
 // ────────────────────────────────────────────────────────────
+
+final class _PartnerRecoveryProvider extends CoachProfileProvider {
+  _PartnerRecoveryProvider(this.value);
+
+  final CoachProfile value;
+  final savedValues = <double?>[];
+
+  @override
+  CoachProfile get profile => value;
+
+  @override
+  bool get hasProfile => true;
+
+  @override
+  bool get isLoaded => true;
+
+  @override
+  PartnerAccountabilityBindingState? get partnerLppAccountabilityState =>
+      PartnerAccountabilityBindingState.partial;
+
+  @override
+  PartnerAccountabilityBinding? get partnerLppAccountabilityBinding =>
+      PartnerAccountabilityBinding(
+        receiptId: '11111111-1111-4111-8111-111111111111',
+        manualPartnerOwnerId: '22222222-2222-4222-8222-222222222222',
+        state: PartnerAccountabilityBindingState.partial,
+        createdAt: DateTime.utc(2026, 7, 15),
+        noticeVersion: 'notice-v1',
+        policyVersion: 'policy-v1',
+        privacyContact: 'privacy@accepted-notice.test',
+        rightsChannel: 'https://accepted-notice.test/rights',
+        failureStatus: PartnerAccountabilityReceiptStatus.revoked,
+      );
+
+  @override
+  Future<void> setIndependentManualPartnerVestedBenefitsCapital(
+    double? value,
+  ) async {
+    savedValues.add(value);
+  }
+}
+
 //  RETIREMENT DASHBOARD SCREEN — Widget Tests
 // ────────────────────────────────────────────────────────────
 
@@ -557,6 +600,80 @@ void main() {
       expect(projection.base.revenuAnnuelRetraite, isNull);
       expect(projection.tauxRemplacementBase, isNull);
     });
+  });
+
+  testWidgets(
+      'partner recovery edits one highest-impact value with unknown and dismiss',
+      (tester) async {
+    tester.view.physicalSize = const Size(900, 2200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final provider = _PartnerRecoveryProvider(buildCertifiedCoupleProfile());
+
+    await tester.pumpWidget(buildDashboard(coachProvider: provider));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(const Key('retirement_partner_lpp_manual_recovery')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('retirement_partner_lpp_manual_value_dialog')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('retirement_partner_lpp_manual_unknown')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('retirement_partner_lpp_manual_dismiss')),
+      findsOneWidget,
+    );
+    await tester.enterText(
+      find.byKey(const Key('retirement_partner_lpp_manual_value')),
+      '75000',
+    );
+    await tester.tap(
+      find.byKey(const Key('retirement_partner_lpp_manual_save')),
+    );
+    await tester.pumpAndSettle();
+    expect(provider.savedValues, [75000]);
+
+    await tester.tap(
+      find.byKey(const Key('retirement_partner_lpp_manual_recovery')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const Key('retirement_partner_lpp_manual_unknown')),
+    );
+    await tester.pumpAndSettle();
+    expect(provider.savedValues, [75000, null]);
+  });
+
+  testWidgets(
+      'partner rights show the exact accepted notice contact and channel',
+      (tester) async {
+    tester.view.physicalSize = const Size(900, 2200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final provider = _PartnerRecoveryProvider(buildCertifiedCoupleProfile());
+    final l10n = await S.delegate.load(const Locale('fr'));
+
+    await tester.pumpWidget(buildDashboard(coachProvider: provider));
+    await tester.pumpAndSettle();
+    final rights = find.byKey(const Key('retirement_partner_lpp_rights_link'));
+    await tester.ensureVisible(rights);
+    await tester.tap(rights);
+    await tester.pumpAndSettle();
+
+    expect(find.text('privacy@accepted-notice.test'), findsOneWidget);
+    expect(
+      find.text('https://accepted-notice.test/rights'),
+      findsOneWidget,
+    );
+    expect(find.text(l10n.lppPartnerNoLinkedAccount), findsNothing);
   });
 
   // Note: 3 "with profile" tests removed — they failed due to RenderFlex overflow

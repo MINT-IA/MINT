@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -64,8 +65,17 @@ import 'package:mint_mobile/l10n/confidence_prompt_localizations.dart';
 //  Aucun terme banni (garanti, certain, optimal, meilleur...).
 // ────────────────────────────────────────────────────────────
 
+typedef RetirementProjectionBuilder = ProjectionResult Function(
+  CoachProfile profile,
+);
+
 class RetirementDashboardScreen extends StatefulWidget {
-  const RetirementDashboardScreen({super.key});
+  const RetirementDashboardScreen({
+    super.key,
+    this.projectionBuilder,
+  });
+
+  final RetirementProjectionBuilder? projectionBuilder;
 
   /// Sequence output when the dashboard was reviewed but official AVS rents
   /// are still missing. Numeric totals stay absent until the AVS inputs exist.
@@ -162,7 +172,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         profile: _profile!,
         previousScore: provider.previousScore,
       );
-      _projection = ForecasterService.project(profile: _profile!);
+      _projection = widget.projectionBuilder?.call(_profile!) ??
+          ForecasterService.project(profile: _profile!);
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
       _enhancedConfidence = ConfidenceScorer.scoreEnhanced(_profile!);
@@ -492,6 +503,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                           _UrgentBanner(item: urgentItem.first),
                           const SizedBox(height: MintSpacing.md),
                         ],
+                        if (context
+                                .read<CoachProfileProvider>()
+                                .partnerLppAccountabilityState !=
+                            null) ...[
+                          _buildPartnerLppAccountabilityCard(),
+                          const SizedBox(height: MintSpacing.md),
+                        ],
 
                         // Position 1: Hero — Replacement rate arc (the single moment hero)
                         MintEntrance(
@@ -691,6 +709,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
+                    if (context
+                            .read<CoachProfileProvider>()
+                            .partnerLppAccountabilityState !=
+                        null) ...[
+                      _buildPartnerLppAccountabilityCard(),
+                      const SizedBox(height: MintSpacing.md),
+                    ],
                     Semantics(
                       identifier: 'retirement_missing_avs_state',
                       container: true,
@@ -1276,6 +1301,165 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   // ────────────────────────────────────────────────────────────
   //  DISCLAIMER
   // ────────────────────────────────────────────────────────────
+
+  Widget _buildPartnerLppAccountabilityCard() {
+    final provider = context.read<CoachProfileProvider>();
+    final binding = provider.partnerLppAccountabilityBinding;
+    final state = provider.partnerLppAccountabilityState;
+    final l = S.of(context)!;
+    final active = state == PartnerAccountabilityBindingState.active &&
+        binding?.isCurrentAt(DateTime.now().toUtc()) == true;
+    final failure = binding?.failureStatus;
+    final statusText = active
+        ? l.lppPartnerStatusActive(
+            binding!.expiresAt!.toIso8601String().split('T').first,
+          )
+        : switch (failure) {
+            PartnerAccountabilityReceiptStatus.expired =>
+              l.lppPartnerStatusExpired,
+            PartnerAccountabilityReceiptStatus.revoked =>
+              l.lppPartnerStatusRevoked,
+            _ => l.lppPartnerStatusNeedsVerification,
+          };
+    return MintSurface(
+      key: Key(
+        active
+            ? 'retirement_partner_lpp_status_active'
+            : 'retirement_partner_lpp_status_partial',
+      ),
+      tone: active ? MintSurfaceTone.sauge : MintSurfaceTone.porcelaine,
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            statusText,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+          ),
+          if (active) ...[
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l.lppPartnerRetirementBenefitChanged,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ],
+          const SizedBox(height: MintSpacing.sm),
+          Wrap(
+            spacing: MintSpacing.sm,
+            runSpacing: MintSpacing.xs,
+            children: [
+              if (!active)
+                TextButton(
+                  key: const Key('retirement_partner_lpp_retry_status'),
+                  onPressed: () => unawaited(provider.loadFromWizard()),
+                  child: Text(l.lppPartnerStatusNeedsVerification),
+                ),
+              TextButton(
+                key: const Key('retirement_partner_lpp_manual_recovery'),
+                onPressed: () => _showPartnerLppManualRecovery(provider),
+                child: Text(l.lppPartnerManualRecovery),
+              ),
+              if (binding != null)
+                TextButton(
+                  key: const Key('retirement_partner_lpp_rights_link'),
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: Text(l.lppPartnerRightsOpen),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SelectableText(binding.privacyContact),
+                          const SizedBox(height: MintSpacing.sm),
+                          SelectableText(binding.rightsChannel),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                          child: Text(l.documentScanCancel),
+                        ),
+                      ],
+                    ),
+                  ),
+                  child: Text(l.lppPartnerRightsOpen),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showPartnerLppManualRecovery(
+    CoachProfileProvider provider,
+  ) async {
+    var rawValue = '';
+    var invalid = false;
+    final l = S.of(context)!;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          key: const Key('retirement_partner_lpp_manual_value_dialog'),
+          title: Text(l.lppPartnerManualRecovery),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                key: const Key('retirement_partner_lpp_manual_value'),
+                onChanged: (value) => rawValue = value,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: l.lppPartnerManualValueLabel,
+                  errorText: invalid ? l.lppPartnerManualValueInvalid : null,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              key: const Key('retirement_partner_lpp_manual_dismiss'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(l.documentScanCancel),
+            ),
+            TextButton(
+              key: const Key('retirement_partner_lpp_manual_unknown'),
+              onPressed: () async {
+                await provider
+                    .setIndependentManualPartnerVestedBenefitsCapital(null);
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop();
+                }
+              },
+              child: Text(l.lppPartnerManualValueUnknown),
+            ),
+            FilledButton(
+              key: const Key('retirement_partner_lpp_manual_save'),
+              onPressed: () async {
+                final value = double.tryParse(
+                  rawValue.trim().replaceAll(',', '.'),
+                );
+                if (value == null || !value.isFinite || value <= 0) {
+                  setDialogState(() => invalid = true);
+                  return;
+                }
+                await provider
+                    .setIndependentManualPartnerVestedBenefitsCapital(value);
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop();
+                }
+              },
+              child: Text(l.budgetSetupSave),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildDataOrigin(CoachProfile profile, S l) {
     final revenuAnnuel = profile.revenuBrutAnnuel;
