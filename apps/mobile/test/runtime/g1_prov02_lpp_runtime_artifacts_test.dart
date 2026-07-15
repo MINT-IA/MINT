@@ -132,6 +132,63 @@ void main() {
     }
   });
 
+  test('Patrol apps mirror every mandatory production dashboard provider', () {
+    final dashboard = File(
+      'lib/screens/coach/retirement_dashboard_screen.dart',
+    ).readAsStringSync();
+    final autoPrompt = File(
+      'lib/services/slm/slm_auto_prompt_service.dart',
+    ).readAsStringSync();
+    final productionApp = File('lib/app.dart').readAsStringSync();
+
+    expect(
+      dashboard,
+      contains('context.watch<CoachProfileProvider>()'),
+    );
+    expect(dashboard, contains('context.read<ByokProvider>()'));
+    expect(
+      dashboard,
+      contains('SlmAutoPromptService.checkAndPrompt(context)'),
+    );
+    expect(autoPrompt, contains('context.read<SlmProvider>()'));
+    for (final provider in const [
+      'CoachProfileProvider',
+      'ByokProvider',
+      'SlmProvider',
+    ]) {
+      expect(productionApp, contains('$provider()'), reason: provider);
+    }
+
+    for (final path in const [
+      'integration_test/g1_prov02_lpp_persistence_write_patrol_test.dart',
+      'integration_test/g1_prov02_lpp_persistence_read_patrol_test.dart',
+    ]) {
+      final harness = File(path).readAsStringSync();
+      for (final providerRegistration in const [
+        'ChangeNotifierProvider<CoachProfileProvider>',
+        'ChangeNotifierProvider<ByokProvider>',
+        'ChangeNotifierProvider<SlmProvider>',
+      ]) {
+        expect(
+          harness,
+          contains(providerRegistration),
+          reason: '$path must inject $providerRegistration',
+        );
+      }
+      expect(harness, contains('final slmProvider = SlmProvider();'));
+      expect(harness, contains('slmProvider.init();'));
+      expect(harness, contains('RetirementDashboardScreen()'));
+      for (final forbidden in const [
+        'FakeSlmProvider',
+        'MockSlmProvider',
+        'SlmAutoPromptService',
+        'projectionBuilder:',
+      ]) {
+        expect(harness, isNot(contains(forbidden)), reason: '$path $forbidden');
+      }
+    }
+  });
+
   test('Patrol Vision fixture retains exact backend fact scope and units', () {
     const backendVisionFields = <String, String>{
       'vestedBenefitsCapitalChf': 'avoirLppTotal',

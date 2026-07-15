@@ -10,6 +10,7 @@ import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
 import 'package:mint_mobile/services/consent/partner_accountability_service.dart';
@@ -138,6 +139,11 @@ Widget _runtimeApp(CoachProfileProvider provider) => MultiProvider(
       providers: [
         ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
         ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
+        ChangeNotifierProvider<SlmProvider>(create: (_) {
+          final slmProvider = SlmProvider();
+          slmProvider.init();
+          return slmProvider;
+        }),
       ],
       child: const MaterialApp(
         locale: Locale('fr'),

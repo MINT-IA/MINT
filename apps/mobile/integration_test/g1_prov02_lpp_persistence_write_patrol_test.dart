@@ -14,6 +14,7 @@ import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
@@ -267,6 +268,11 @@ Widget _runtimeApp({
         ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
         ChangeNotifierProvider<ScanSessionProvider>.value(value: scanSessions),
         ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
+        ChangeNotifierProvider<SlmProvider>(create: (_) {
+          final slmProvider = SlmProvider();
+          slmProvider.init();
+          return slmProvider;
+        }),
       ],
       child: MaterialApp.router(
         locale: const Locale('fr'),
