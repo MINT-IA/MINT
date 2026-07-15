@@ -403,6 +403,7 @@ engine. Its exact payload is:
 class ScanSessionPayload {
   final ExtractionResult extraction;
   final LppExtractionCandidate? lppCandidate;
+  final LppAcquisitionAuthorization? lppAuthorization;
   final TaxExtractionCandidate? taxCandidate;
   final int? previousConfidence;
 }
@@ -415,27 +416,31 @@ class ScanSessionPayload {
   key, restart rehydration or asynchronous recompute callback in this provider.
   A process death deliberately loses unconfirmed session data and routes to the
   recovery scaffold.
-- For LPP, `DocumentScanScreen` first converts extraction output through the
-  strict source-aware adapter and retains only a canonical raw-free extraction
-  plus `LppExtractionCandidate`; route/query data contains only the id.
+- For LPP, `DocumentScanScreen` fixes owner before acquisition, binds one
+  complete `LppAcquisitionAuthorization` to the exact transmitted-byte SHA,
+  then converts extraction output through the strict source-aware adapter.
+  `retainExtraction` requires candidate and authorization together and retains
+  them with the canonical raw-free extraction; route/query data contains only
+  the id.
 - After a successful reviewed write, `retainImpact(...)` replaces the entry
   with a source-text-free impact extraction, drops both typed candidates and
-  records `previousConfidence`. `/scan/impact` resolves only that retained
-  payload. A review disposed before transfer discards its entry.
+  the LPP authorization, and records `previousConfidence`. `/scan/impact`
+  resolves only that retained payload. A review disposed before transfer
+  discards its entry.
 
 ### `/scan` — Scan capture / entry
 | | |
 |---|---|
 | shell | root |
 | purpose | Capture or pick a document (LPP cert, AVS extract, tax cert). |
-| reads | optional `DocumentType.name` from query `type`; local feature flags; profile canton for backend extraction and age only for AVS parsing |
+| reads | optional `DocumentType.name` from query `type`; local feature flags; for LPP, exact `CoachProfile.conjoint != null` to decide whether `manualPartner` may be offered; profile canton for backend extraction and age only for AVS parsing |
 | writes | no ledger fact. After a successful extraction/adaptation, `retainExtraction(...)` creates the volatile session payload used by review |
-| entryConditions | route available behind `enableScan`; camera/file permission. LPP is selectable and its handlers are callable only when `typedLppEvidence && documentLppEvidenceEnabled`; the guard runs before consent/file/OCR/upload |
+| entryConditions | route available behind `enableScan`; camera/file permission. LPP is selectable and its handlers are callable only when `typedLppEvidence && documentLppEvidenceEnabled`. After that guard, fix owner before acquisition; offer partner only for `CoachProfile.conjoint != null`; require the one-shot partner attestation when selected; require Vision + US-transfer consent; only then open camera/picker/read bytes |
 | emptyState | No camera/no doc selected → guide card + "Scanner mon certificat" CTA + `/scan/avs-guide`. i18n `scan.empty.title` / `scan.empty.cta` |
 | partialState | Local `_isProcessing` is true during extraction → progress UI; this is screen state, not a persisted session status |
 | errorState | Permission denied/OCR failure → localized recovery. LPP plan, unknown, lower-confidence or classifier failure → neutral personal-certificate recovery with no review/session/write |
 | routesOut | `/scan/review?scanSessionId=…`, `/scan/avs-guide`, `/data-block/:type` |
-| privacyInvariant | LPP camera/gallery asks only `visionExtraction + transferUsAnthropic`, never `persistence365d`; image/PDF uses direct candidate extraction, PDF skips persistent upload, and LPP BYOK/fused/SSE paths are unreachable |
+| privacyInvariant | LPP camera/gallery asks only `visionExtraction + transferUsAnthropic`, never `persistence365d`, and does so before camera/picker. Before network, bind the exact transmitted-byte SHA to a volatile per-attempt authorization. Authorization/SHA never enter ledger, provenance, Biography, route/query, backend payload, logs or analytics; image/PDF uses direct candidate extraction, PDF skips persistent upload, and LPP BYOK/fused/SSE paths are unreachable |
 | killFlag | enableScan; LPP content additionally requires the local composite gate above |
 
 ### `/scan/avs-guide` — AVS extract guide
@@ -458,17 +463,17 @@ class ScanSessionPayload {
 |---|---|
 | shell | root |
 | purpose | Review + confirm OCR figures before any compute (OCR confirm gate). |
-| reads | `ScanSessionProvider.byId(query['scanSessionId'])` → retained extraction and optional typed candidate; current `CoachProfile` only for before/after confidence |
-| writes | LPP only: one `LppReviewConfirmation.self|manualPartner → CoachProfileProvider.acceptLppReview` call, then `retainImpact` after the awaited secure save. Tax uses its typed review writer; existing non-LPP types retain their own reviewed writer. LPP never calls `applySaveFact`, a legacy LPP writer, Biography or generic backend sync |
-| entryConditions | non-empty `scanSessionId` resolving in the volatile registry. LPP additionally requires the composite flag and an exact canonical raw-free candidate matching every rendered field |
+| reads | `ScanSessionProvider.byId(query['scanSessionId'])` → retained extraction plus optional typed candidate and volatile LPP authorization; current `CoachProfile` for before/after confidence and the provider's manual-partner fail-closed recheck |
+| writes | LPP only: one `LppReviewConfirmation(authorization: retainedAuthorization) → CoachProfileProvider.acceptLppReview` call, then `retainImpact` after the awaited secure save. `subject` is derived from authorization, never supplied independently. Tax uses its typed review writer; existing non-LPP types retain their own reviewed writer. LPP never calls `applySaveFact`, a legacy LPP writer, Biography or generic backend sync |
+| entryConditions | non-empty `scanSessionId` resolving in the volatile registry. LPP additionally requires the composite flag, an exact canonical raw-free candidate matching every rendered field, and its complete paired authorization. Missing/evicted authorization uses recovery; it is never reconstructed after process death |
 | emptyState (LIVE) | id missing/evicted/cold-restart → localized AppBar+back recovery scaffold; stable `scan_review_recovery_cta` routes to `/scan` |
-| disabledState (LIVE, LPP) | either LPP flag false → `lpp_review_disabled_recovery`; missing/mismatched candidate → `lpp_review_missing_candidate_recovery`. Both expose back/cancel recovery and no writer CTA |
+| disabledState (LIVE, LPP) | either LPP flag false → `lpp_review_disabled_recovery`; missing/mismatched candidate or authorization → `lpp_review_missing_candidate_recovery`. Both expose back/cancel recovery and no writer CTA |
 | partialState (LIVE, LPP) | preserve source overall/per-field confidence and `needsReview`; request effective date and editable canonical values. Untouched documentary facts require a valid non-future date; corrected facts become `userInput` with null source date; untouched derived balance facts do not persist unless edited |
-| validationInvariant (LPP) | validate canonical key/value/unit and `LppBalanceCoherence` before asking whose document. Component > total or a three-part difference above CHF 1 shows localized `lpp_review_balance_error`; owner dialog, persistence and navigation remain untouched. Owner cancel also writes nothing |
-| ownerInvariant (LPP) | after validation, ask `self` or independently declared `manualPartner`. The route supplies no owner/actor/grant token; the provider assigns pseudonymous identity and null-grant authorization |
+| validationInvariant (LPP) | validate canonical key/value/unit and `LppBalanceCoherence` without reopening owner choice. Component > total or a three-part difference above CHF 1 shows localized `lpp_review_balance_error`; persistence and navigation remain untouched |
+| ownerInvariant (LPP) | owner was fixed before acquisition and is rendered as a non-editable badge. A mistake requires `Recommencer`. `manualPartner` requires the one-shot attestation and `CoachProfile.conjoint != null`; account linking remains optional. The route supplies no owner/actor/grant token; the provider revalidates authorization before persistence load, then assigns pseudonymous identity and persists only `manualPartnerDeclaration` with `grantId=null` |
 | errorState (LIVE, LPP) | invalid/missing/future date or incoherent edit stays on the editable review. Secure save failure re-enables confirmation and retains the review; no fallback, success screen, impact transfer or partial publication |
 | routesOut | `/scan/impact?scanSessionId=…`, `/scan`, `/data-block/:type` |
-| privacyInvariant (LPP) | candidate/review/impact fields contain no OCR passage, source label, warning or diagnostic. Route and query contain only `scanSessionId` |
+| privacyInvariant (LPP) | candidate/review fields contain no OCR passage, source label, warning or diagnostic. The volatile authorization/SHA stays only in the bounded session and is dropped by `retainImpact`; it is never serialized. Route and query contain only `scanSessionId` |
 | killFlag | enableScan; LPP confirmation additionally requires `lppEvidenceIngestionEnabled` |
 
 ### `/scan/impact` — LIVE retained-impact boundary
@@ -693,7 +698,7 @@ tests at `:357-467`; coach-specific assertions at `:448-467`.
 Widget-pump each route with its `DegradedFixture` (§10.0). For each: assert (a) a back affordance exists (`find.byType(BackButton)` OR an `AppBar` with `automaticallyImplyLeading != false`); (b) at least one tappable whose label resolves to a non-null `AppLocalizations` key AND whose `onPressed`/`onTap` triggers a `context.go`/`context.push` to a route present in `route_metadata.dart` (the "recovery CTA" is defined as: a `MintButton`/`TextButton`/`ListTile` tagged with `Key('recoveryCta')` — the agent MUST tag the primary recovery CTA in every empty/error state with `key: const Key('recoveryCta')`); (c) NO widget matches a bare `Center(child: Text(<literal, non-l10n>))`. (c) is the blank-dead-end matcher.
 
 ### 10.3 F-3 Single write path — `single_write_path_test.dart`
-Static source scan: FAIL if `SharedPreferences` `.setString(`/`.setInt(`/`.setDouble(`/`.setBool(` referencing a profile/budget/household key appears in any file EXCEPT `report_persistence_service.dart` and `coach_profile_provider.dart`. Ordinary profile writes go through `mergeAnswers/applySaveFact/updateProfile`; typed LPP review uses the dedicated `acceptLppReview` atomic seam. Assert `ScanSessionProvider` has no persistence API or profile-key writer, retains at most five process-local payloads, and strips candidates/source text before impact.
+Static source scan: FAIL if `SharedPreferences` `.setString(`/`.setInt(`/`.setDouble(`/`.setBool(` referencing a profile/budget/household key appears in any file EXCEPT `report_persistence_service.dart` and `coach_profile_provider.dart`. Ordinary profile writes go through `mergeAnswers/applySaveFact/updateProfile`; typed LPP review uses the dedicated `acceptLppReview` atomic seam. Assert `ScanSessionProvider` has no persistence API or profile-key writer, retains at most five process-local payloads, requires LPP candidate+authorization together, and strips candidates/authorization/source text before impact.
 
 ### 10.4 F-4 Bridged providers — `provider_bridge_recompute_test.dart`
 For each ledger-owning `BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, `DocumentsProvider` and conversation-store bridge: perform a mutation, then assert `MintStateProvider.recompute(profile)` was invoked (spy) AND the resulting `MintUserState` differs from pre-mutation. Each bridge obtains the profile via `context.read<CoachProfileProvider>().profile` at the call site (recompute REQUIRES the `CoachProfile` arg — see §0/§8; there is no zero-arg variant). For Budget specifically, assert `MintUserState.budgetGap` changed (fixes B-1). `ScanSessionProvider` is deliberately excluded: it owns only volatile route payloads and must not mutate/recompute the ledger; the reviewed provider write precedes `retainImpact`.
@@ -796,7 +801,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/epl` (593) | §4 | `/naissance` (778) | §4 |
 | `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
 | `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
-| `/first-job` (795) | §4 | `/scan/impact` (1218) | §5 |
+| `/first-job` (795) | §4 | `/scan/impact` (1219) | §5 |
 | `/expatriation` (800) | §4 | `/documents` (935) | §4 |
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |

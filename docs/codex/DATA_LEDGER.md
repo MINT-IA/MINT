@@ -626,12 +626,32 @@ key names and reason codes only, never legacy values or owner PII.
 
 `DocumentScanScreen` exposes LPP acquisition only when
 `FeatureFlags.lppEvidenceIngestionEnabled` is true. Camera and gallery entry
-recheck that composite gate before consent, file selection or extraction. The
-LPP consent set is exactly `visionExtraction + transferUsAnthropic`; it does
-not request the 365-day vault-persistence purpose. Image and PDF bytes use the
-direct `/documents/extract-vision` call after consent. The LPP PDF branch never
-calls `DocumentService.uploadDocument`, and the LPP BYOK, fused-document and
-SSE paths are unreachable.
+recheck that composite gate before any owner dialog, consent, file selection or
+extraction. The acquisition order is fail-closed:
+
+1. resolve `hasLocalPartnerProfile` as exact
+   `CoachProfile.conjoint != null` (never `CoachProfile.hasPartnerContext`);
+2. fix `subject=self|manualPartner` before acquisition; `manualPartner` is not
+   offered without that local `conjoint` object;
+3. require the one-shot partner attestation when the fixed subject is
+   `manualPartner`;
+4. require exactly `visionExtraction + transferUsAnthropic`, never the 365-day
+   vault-persistence purpose;
+5. only then open camera/gallery/picker, prepare the exact bytes for transfer,
+   and bind their lowercase SHA-256 to the acquisition authorization before the
+   direct `/documents/extract-vision` call.
+
+The authorization is a process-local `LppAcquisitionAuthorization` with one
+canonical UUIDv4 `acquisitionId`, the fixed `subject`, coherent
+`partnerAttested`, the current policy version, a non-future UTC `declaredAt`
+and the non-zero SHA-256 of the exact transmitted bytes. It deliberately has no
+JSON API. It is never persisted in `_coach_lpp_evidence_v1`, `__provenance`,
+Biography, route/query data, backend payloads, logs or analytics. A future
+durable legal receipt would belong to a dedicated consent/audit store, not this
+financial ledger; G1-PROV-02 introduces no such store.
+
+The LPP PDF branch never calls `DocumentService.uploadDocument`, and the LPP
+BYOK, fused-document and SSE paths are unreachable.
 
 The backend treats a requested LPP document as candidate-only. Before audit-log
 creation or field extraction, the classifier result must be the typed
@@ -652,8 +672,10 @@ produce no candidate. Both local-parser and backend results pass through
 acquisition source, rejects cross-vocabulary/duplicate/invalid fields, converts
 percentage scale exactly once, and returns a raw-free
 `LppExtractionCandidate`. The retained scan session contains canonical keys,
-values, units, per-field confidence/review status, source date and acquisition
-source only; labels, passages, warnings and OCR diagnostics are discarded.
+values, units, per-field confidence/review status, source date, acquisition
+source and the complete volatile authorization. Candidate and authorization
+must be present together. The route contains only `scanSessionId`; labels,
+passages, warnings and OCR diagnostics are discarded.
 
 #### Canonical fact keys and units
 
@@ -693,17 +715,18 @@ The current three-part balance invariant is centralized in
 `LppBalanceCoherence`: each mandatory or extra-mandatory component must be no
 greater than total, and when all three facts exist
 `abs(total - mandatory - extra) <= CHF 1`. Partial sets remain partial. The same
-predicate runs in the adapter, again after review edits before owner selection,
-and at the provider authority after value/unit validation but before persistence
-load. Contradictory edits or direct calls therefore perform no load, save,
-notification or navigation.
+predicate runs in the adapter, again after review edits with owner already fixed,
+and at the provider authority after authorization/value/unit validation but
+before persistence load. The owner is already immutable at review: this second
+check does not reopen owner selection. Contradictory edits or direct calls
+therefore perform no load, save, notification or navigation.
 
 #### One review, save and publish seam
 
 There is one production seam and no parallel self/partner writers:
 
 ```text
-LppExtractionCandidate
+LppExtractionCandidate + volatile LppAcquisitionAuthorization
   -> LppReviewConfirmation
   -> CoachProfileProvider.acceptLppReview(confirmation)
   -> LppProfilePersistence.saveAnswers(whole root + __provenance)
@@ -712,13 +735,20 @@ LppExtractionCandidate
   -> LppEvidenceSelector.selectSelf | selectManualPartner
 ```
 
-The raw-free candidate is retained in `ScanSessionProvider` and the route
-carries only `scanSessionId`. The review confirmation carries the typed facts,
-source date, subject choice
-(`self` or `manualPartner`) and whether each amount was corrected; it never
-carries OCR/source text into persistence. The provider resolves owner and actor
-tokens; the route cannot supply them. The provider creates/loads the stable
-self `profileOwnerId` before accepting **either** slot. If a manual-partner
+The raw-free candidate and its complete authorization are retained together in
+`ScanSessionProvider`; the route carries only `scanSessionId`. The review shows
+the fixed owner as a non-editable badge. A wrong owner requires restart, not a
+post-transfer reassignment. `LppReviewConfirmation` carries the volatile
+authorization and **derives** `subject` from it; callers cannot provide subject
+separately. It also carries typed facts, source date and whether each amount was
+corrected, but never serializes authorization, SHA-256, OCR or source text.
+
+Before any persistence load, `acceptLppReview` rejects a disabled typed gate,
+an incomplete/future/wrong-policy authorization, a manual-partner confirmation
+without the still-present local `CoachProfile.conjoint`, empty facts, invalid
+values/units, a future source date or incoherent balances. The provider then
+resolves owner and actor tokens; the route cannot supply them. It creates/loads
+the stable self `profileOwnerId` before accepting **either** slot. If a manual-partner
 certificate is accepted first, that stable self token is already its actor;
 later self acceptance reuses the identical token as self owner/actor. No
 snapshot, retry or acceptance order may mint a second actor identity. One
@@ -744,7 +774,10 @@ fallbacks when typed ingestion is disabled or fails.
 - **Manual partner:** every fact has `owner.kind=manualPartner`; its owner token
   is distinct from the stable provider self actor token; all facts use
   `authorization={mode:manualPartnerDeclaration, grantId:null}`. This is an
-  independent user declaration, not an account-linked import.
+  independently attested acquisition from a local partner profile, not an
+  account-linked import. The one-shot acquisition object and document SHA do
+  not enter the snapshot; the durable ledger records only this authorization
+  mode and null grant on accepted facts.
 - `LppEvidenceSelector.selectSelf` reads only the valid `self` slot.
   `selectManualPartner(expectedOwnerId)` reads only a valid manual-partner slot
   whose owner token exactly matches. Selection never consults household
@@ -789,15 +822,18 @@ FeatureFlags.lppEvidenceIngestionEnabled =
 
 The first controls the typed root, writer and selectors. The second is consumed
 by the LPP document acquisition/review UI. Unless the composite getter is true,
-the LPP scan choice, self/partner subject choice and confirmation CTA are hidden
-or neutralized **before OCR/upload**; a stale/deep link renders a recoverable
-disabled state and cannot call either legacy writer. Activation is allowed only
+the LPP scan choice, pre-acquisition owner/attestation gates and confirmation CTA
+are hidden or neutralized **before consent/picker/OCR/upload**; a stale/deep link
+renders a recoverable disabled state and cannot call either legacy writer.
+Activation is allowed only
 after PROV-02 GREEN, frozen pushed-SHA runtime proof, external audits and a
 named G1 decision.
 
 G1 deliberately defines no `linkedPartnerLppEvidenceImport` flag: a switch
-without an authorized caller would be a facade. `LppReviewConfirmation` admits
-only `self` and `manualPartnerDeclaration`, `acceptLppReview` rejects every
+without an authorized caller would be a facade. `LppReviewConfirmation` derives
+only `self` or `manualPartner` from its complete volatile authorization, while
+accepted facts persist only `self` or `manualPartnerDeclaration` with null
+grant. `acceptLppReview` rejects every
 linked/grant-shaped input before persistence, and cold selection filters any
 such injected snapshot. These production reject/filter callers and their
 negative tests remain mandatory until G1-BND-02A proves purpose/field scope,
@@ -827,14 +863,23 @@ provider:
    raw OCR/source text, direct PII, owner token or financial amount;
 7. with either composite flag false, no visible LPP acquisition confirmation
    can fail after work: the choice/CTA is absent or a deep link is disabled
-   before OCR, and neither legacy writer is called.
+   before owner/consent/picker/OCR, and neither legacy writer is called.
 
 Additional acquisition oracles are mandatory:
 
 - `lpp_extraction_adapter_test.dart` and `lpp_evidence_ingestion_test.dart`
   cover exact source vocabulary, confidence, explicit zero, raw-free retention,
-  consent/direct PDF extraction, kind rejection, review/date/owner/coherence,
+  direct PDF extraction, kind rejection, review/date/coherence,
   no-write recovery and the single provider caller;
+- `lpp_pre_upload_authorization_test.dart` proves single-user self-only copy,
+  exact `CoachProfile.conjoint != null` partner admission, owner and one-shot
+  attestation before Vision/US consent and picker, refusal/cancel zero-side-
+  effects, transmitted-byte SHA binding and per-attempt non-reuse;
+- `lpp_acquisition_authorization_test.dart`,
+  `lpp_acquisition_authorization_provider_test.dart` and
+  `scan_session_provider_test.dart` prove the typed envelope, candidate/auth
+  pairing, immutable subject derivation, provider rejection before persistence
+  load and the absence of authorization/SHA from ledger/provenance/routes;
 - the ignored local private-fixture gate uses only a developer-local manifest,
   is non-vacuous, and emits sanitized case/count outcomes without fixture name,
   path, text, value or hash;

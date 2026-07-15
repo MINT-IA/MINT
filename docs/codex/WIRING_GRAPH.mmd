@@ -79,18 +79,21 @@ flowchart TB
   subgraph LPP_EVIDENCE["G1 PROV-02 CODE WIRED — ACTIVATION + RUNTIME NO-GO"]
     direction TB
     LPP_FLAGS{"typedLppEvidence = false<br/>documentLppEvidenceEnabled = false<br/>lppEvidenceIngestionEnabled = AND<br/>no backend hydration"}
-    LPP_DISABLED["either flag off<br/>LPP choice hidden before consent/OCR/upload<br/>stale review recoverable; no writer CTA"]
-    LPP_CONSENT["camera/gallery LPP consent<br/>visionExtraction + transferUsAnthropic<br/>NO persistence365d"]
+    LPP_DISABLED["either flag off<br/>LPP choice hidden before owner/consent/picker/upload<br/>stale review recoverable; no writer CTA"]
+    LPP_OWNER{"pre-acquisition owner gate<br/>manualPartner only if CoachProfile.conjoint != null<br/>never hasPartnerContext"}
+    LPP_ATTEST["manualPartner one-shot attestation<br/>before consent/picker/transfer<br/>no linked account or grant"]
+    LPP_CONSENT["LPP consent before camera/gallery/picker<br/>visionExtraction + transferUsAnthropic<br/>NO persistence365d"]
+    LPP_AUTH["exact transmitted-byte SHA-256<br/>volatile per-attempt authorization<br/>candidate pair in ScanSession only<br/>NO JSON / ledger / provenance / route / backend"]
     LPP_DIRECT["direct image/PDF /documents/extract-vision<br/>PDF skips persistent upload<br/>NO LPP BYOK / fused / SSE path"]
     LPP_KIND["backend pre-audit typed kind gate<br/>is_financial is true<br/>detected_type = lpp_certificate<br/>confidence enum = high"]
     LPP_LOCAL_KIND["local OCR kind gate<br/>personal-certificate title<br/>AND individualization label"]
     LPP_KIND_REJECT["plan / unknown / lower confidence / error<br/>neutral rejection before audit/extraction<br/>NO candidate or write"]
     LPP_REJECT["linked/grant-shaped confirmation or cold snapshot<br/>unconditional G1 reject/filter<br/>NO facade flag"]
     LPP_CANDIDATE["LppExtractionAdapter -> raw-free candidate<br/>exact source vocabulary + one scale conversion<br/>finite confidence; needsReview preserved<br/>explicit zero only; ambiguity/duplicates reject<br/>NO label/sourceText/warning/diagnostic retention"]
-    LPP_REVIEW["ScanSessionProvider retains candidate<br/>route carries scanSessionId only<br/>review owner + effective date + edits<br/>shared balance coherence before owner<br/>error = no owner/save/navigation"]
-    LPP_ACCEPT["CoachProfileProvider.acceptLppReview<br/>value/unit + shared coherence before persistence load<br/>provider FIFO wraps full read-modify-write<br/>stable self actor exists before either slot<br/>complete one-slot replacement + single stamp"]
+    LPP_REVIEW["ScanSessionProvider retains candidate + authorization<br/>route carries scanSessionId only<br/>immutable owner badge + effective date + edits<br/>cold restart = restart acquisition"]
+    LPP_ACCEPT["CoachProfileProvider.acceptLppReview<br/>subject derived from volatile authorization<br/>authorization + local partner + value/unit/coherence<br/>fail closed before persistence load<br/>provider FIFO; complete one-slot replacement"]
     LPP_SAVE["LppProfilePersistence.saveAnswers<br/>one awaited whole-root save<br/>failure = no profile/listener publication"]
-    LPP_SECURE[("strict-secure _coach_lpp_evidence_v1<br/>schemaVersion 1<br/>self + manualPartner slots<br/>value/unit + owner/actor/authorization/provenance per fact")]
+    LPP_SECURE[("strict-secure _coach_lpp_evidence_v1<br/>schemaVersion 1<br/>self + manualPartner slots<br/>value/unit + owner/actor/authorization/provenance per fact<br/>NO acquisition authorization / document SHA")]
     LPP_SELECT["destroy + reconstruct provider<br/>bounded LppEvidenceSelector<br/>available facts hydrate presentation + provenance<br/>null date = needs confirmation; invalid slot = partial+ask<br/>NO membership dependency; never merge people"]
     LPP_SELF["self typed presentation<br/>retirement pension CHF/year<br/>retirement capital CHF lump sum<br/>disability pension CHF/year<br/>disability capital CHF lump sum<br/>death capital CHF lump sum"]
     LPP_MANUAL["manual partner typed presentation<br/>owner distinct from actor<br/>manualPartnerDeclaration<br/>grantId null"]
@@ -103,16 +106,20 @@ flowchart TB
     LPP_SYNTH_EVAL["classifier eval boundary<br/>generated synthetic images only<br/>offline corpus green; live Anthropic = NOT RUN<br/>ticket/runtime evidence NOT promoted"]
 
     LPP_FLAGS -. "either off" .-> LPP_DISABLED
-    LPP_FLAGS -. "both on; activation still requires named G1 decision" .-> LPP_CONSENT
-    LPP_FLAGS -. "both on; pasted/example OCR stays local" .-> LPP_LOCAL_KIND
-    LPP_CONSENT -. "consented bytes; no vault persistence" .-> LPP_DIRECT
+    LPP_FLAGS -. "both on; activation still requires named G1 decision" .-> LPP_OWNER
+    LPP_OWNER -. "self" .-> LPP_CONSENT
+    LPP_OWNER -. "manual partner with local conjoint" .-> LPP_ATTEST
+    LPP_ATTEST -. "explicit confirm" .-> LPP_CONSENT
+    LPP_CONSENT -. "then picker + bind exact bytes" .-> LPP_AUTH
+    LPP_AUTH -. "complete volatile authorization" .-> LPP_DIRECT
+    LPP_AUTH -. "pasted/example OCR stays local" .-> LPP_LOCAL_KIND
     LPP_DIRECT -. "classify first" .-> LPP_KIND
     LPP_KIND -. "not exact typed high personal certificate" .-> LPP_KIND_REJECT
     LPP_KIND -. "exact pass; candidate-only extraction" .-> LPP_CANDIDATE
     LPP_LOCAL_KIND -. "missing either signal" .-> LPP_KIND_REJECT
     LPP_LOCAL_KIND -. "personal certificate" .-> LPP_CANDIDATE
-    LPP_CANDIDATE -. "raw-free scan session" .-> LPP_REVIEW
-    LPP_REVIEW -. "valid typed confirmation" .-> LPP_ACCEPT
+    LPP_CANDIDATE -. "raw-free candidate paired with authorization" .-> LPP_REVIEW
+    LPP_REVIEW -. "subject-derived typed confirmation" .-> LPP_ACCEPT
     LPP_ACCEPT -. "save before publish" .-> LPP_SAVE
     LPP_SAVE -. "secure success" .-> LPP_SECURE
     LPP_SECURE -. "destroy + reconstruct provider" .-> LPP_SELECT
@@ -128,7 +135,7 @@ flowchart TB
   end
 
   LPP_SELF -. "person-owned facts; no automatic household total" .-> CPP
-  LPP_MANUAL -. "independent declaration; no account linkage" .-> CPP
+  LPP_MANUAL -. "one-shot declaration; no account linkage" .-> CPP
   LPP_SECURE -. "removed from backendSafeAnswers" .-> LPP_REDACT
   LPP_REDACT -. "root/provenance/partner aliases removed" .-> BACKEND
 
@@ -363,21 +370,34 @@ flowchart TB
 %% G1-PROV-02 PERSON-OWNED LPP EVIDENCE: one strict-secure
 %% `_coach_lpp_evidence_v1` root and one `acceptLppReview` save-before-publish
 %% seam. The two existing false flags form one AND gate consumed before LPP
-%% consent/OCR/upload and again at review. Images/PDFs use direct candidate-only
+%% owner/consent/picker/OCR/upload and again at review. Owner is fixed before
+%% acquisition; manualPartner is offered only when `CoachProfile.conjoint` is
+%% non-null and requires a one-shot attestation before Vision + US-transfer
+%% consent. Only then may the picker open. The exact transmitted-byte SHA is
+%% bound to a per-attempt `LppAcquisitionAuthorization`; candidate and
+%% authorization remain paired only in the volatile ScanSession and the route
+%% still carries only scanSessionId. Images/PDFs use direct candidate-only
 %% extraction; persistent upload, BYOK, fused and SSE paths are unreachable.
 %% Backend admission requires the exact typed high-confidence personal-
 %% certificate classification before audit/extraction; local OCR requires a
 %% personal title plus individualization label. The source-aware adapter keeps
 %% no raw text and shares the CHF 1 balance invariant with edited review and the
-%% provider authority. Legacy self/partner document writers are absent.
+%% provider authority. Review renders the owner as immutable and derives
+%% confirmation subject from authorization; restart is required to change it.
+%% The provider rejects invalid authorization, missing local partner and
+%% invalid value/unit/coherence before persistence load. Legacy self/partner
+%% document writers are absent.
 %% Self and manual-partner slots never merge; every fact has exact value/unit
 %% plus owner/actor/authorization/provenance. Household membership is not
-%% consent, and linked/grant shapes stay rejected until G1-BND-02A.
+%% consent, and linked/grant shapes stay rejected until G1-BND-02A. The ledger
+%% persists only manualPartnerDeclaration + null grant for accepted partner
+%% facts; acquisitionId, attestation envelope and document SHA never enter the
+%% root, provenance, routes or backend.
 %% Gates: provenance_restart_test.dart, provenance_on_write_test.dart,
 %% lpp_extraction_adapter_test.dart, lpp_evidence_ingestion_test.dart and
 %% DATA_LEDGER.md §4.0A. Private real fixtures are local/sanitized only; the
 %% network eval corpus is generated synthetic, and live Anthropic eval is NOT
-%% RUN. Status: code/local gates green in an uncommitted working tree, both
-%% flags off, ticket still ticket_only, no frozen-SHA runtime/activation/G1/G2
-%% claim.
+%% RUN. Status: pre-upload authorization remediation is in the successor working
+%% tree, both flags remain off, and successor-SHA tests/runtime/audits are still
+%% required before ticket promotion or any activation/G1/G2 claim.
 %% ============================================================================

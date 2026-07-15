@@ -100,12 +100,18 @@ fieldPath -> {source, updatedAt, sourceDate}
   declared manual-partner** evidence from acquisition through cold reload.
   `FeatureFlags.typedLppEvidence=false` and
   `documentLppEvidenceEnabled=false` are combined by the consumed
-  `lppEvidenceIngestionEnabled` AND gate; either false hides LPP before
-  consent/OCR/upload and neutralizes a stale review. After the composite gate,
-  consented image/PDF extraction, strict document-kind admission and the
-  source-aware raw-free adapter produce the only review candidate.
-  `ExtractionReviewScreen` validates canonical values, effective date, owner
-  choice and balance coherence, then calls only `acceptLppReview`; the removed
+  `lppEvidenceIngestionEnabled` AND gate; either false hides LPP before the
+  owner/consent/picker/OCR/upload sequence and neutralizes a stale review. After
+  the composite gate, owner is fixed before acquisition. `manualPartner` is
+  offered only when `CoachProfile.conjoint != null` and requires a one-shot
+  attestation before Vision + US-transfer consent and before the picker. The
+  exact transmitted-byte SHA is then bound to a volatile per-attempt
+  `LppAcquisitionAuthorization`; it is retained with the candidate in
+  `ScanSessionProvider` but never enters the ledger, provenance, route or
+  backend. Strict document-kind admission and the source-aware raw-free adapter
+  produce the only review candidate. `ExtractionReviewScreen` validates
+  canonical values, effective date and balance coherence, shows the fixed owner
+  without an edit control, then calls only `acceptLppReview`; the removed
   legacy self/partner document writers are not fallbacks. Manual-partner facts
   have a distinct stable owner, reuse the stable self actor, use
   `manualPartnerDeclaration` with a null grant, and are selected by exact owner
@@ -129,7 +135,7 @@ only legal local I/O boundaries.
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
-| 3 | **Scan confirmation** | LPP: `DocumentScanScreen → kind gate → LppExtractionAdapter → ScanSessionProvider → ExtractionReviewScreen → LppReviewConfirmation.self|manualPartner → acceptLppReview → LppProfilePersistence`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes only strict-secure `_coach_lpp_evidence_v1` plus derived presentation provenance; accepted self review removes loose self aliases and no legacy LPP document writer exists. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | After valid date/owner/value/unit/coherence review and one awaited save. LPP remains double-default-off and ticket/runtime/activation NO-GO. |
+| 3 | **Scan confirmation** | LPP: `DocumentScanScreen owner/attestation/consent → transmitted-byte authorization → kind gate → LppExtractionAdapter → ScanSessionProvider(candidate+authorization) → ExtractionReviewScreen immutable owner → LppReviewConfirmation(subject derived) → acceptLppReview → LppProfilePersistence`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes only strict-secure `_coach_lpp_evidence_v1` plus derived presentation provenance; volatile authorization/SHA never enter either. Accepted self review removes loose self aliases and no legacy LPP document writer exists. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | After valid authorization/local-partner/date/value/unit/coherence review and one awaited save. LPP remains double-default-off and ticket/runtime/activation NO-GO. |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
@@ -216,9 +222,14 @@ publishes its next profile only after the answer snapshot is saved.
   }
   ```
 
-  When the composite gate is true, LPP camera/gallery consent requests
-  `visionExtraction + transferUsAnthropic` without `persistence365d`.
-  Images and PDFs call candidate-only Vision extraction directly; the PDF path
+  When the composite gate is true, `DocumentScanScreen` resolves
+  `hasLocalPartnerProfile` as exact `CoachProfile.conjoint != null`, fixes owner
+  before acquisition and requires a one-shot declaration for `manualPartner`.
+  It then requests `visionExtraction + transferUsAnthropic` without
+  `persistence365d`, before opening camera/gallery/picker. The exact bytes to be
+  transmitted receive a lowercase SHA-256 bound to the volatile authorization
+  before network. Images and PDFs call candidate-only Vision extraction
+  directly; the PDF path
   never uses vault upload, and LPP BYOK/fused/SSE paths are unreachable. The
   backend admits only an exact typed high-confidence personal certificate
   before audit/extraction. Local OCR independently requires a supported
@@ -229,11 +240,19 @@ publishes its next profile only after the answer snapshot is saved.
   converts percentage scale once, requires finite confidence, retains explicit
   numeric zero only, rejects ambiguity/duplicates/incoherent balances and
   emits a raw-free candidate. `ScanSessionProvider` keeps at most five volatile
-  process-local payloads; the route carries only `scanSessionId`, so a cold
-  restart intentionally renders recovery rather than reconstructing raw OCR.
+  process-local payloads and requires the LPP candidate plus its complete
+  `LppAcquisitionAuthorization` together. The authorization contains
+  `acquisitionId`, fixed subject, coherent partner attestation, policy version,
+  UTC declaration time and transmitted-byte SHA. It has no JSON shape and is
+  dropped from the impact payload. The route carries only `scanSessionId`, so a
+  cold restart intentionally renders recovery rather than reconstructing raw
+  OCR or authorization.
 
-  `acceptLppReview` accepts only `LppReviewConfirmation.self` or
-  `.manualPartner` and completely replaces exactly that person's slot. Each
+  `LppReviewConfirmation` carries the retained authorization and derives its
+  subject; review cannot change it after transfer. Before persistence load,
+  `acceptLppReview` rejects an invalid authorization, a manual-partner subject
+  without the still-present local `CoachProfile.conjoint`, and invalid facts or
+  coherence. It then completely replaces exactly that person's slot. Each
   fact carries exact value/unit, pseudonymous owner/actor, authorization and
   `{source, sourceDate, updatedAt}` provenance. Self owner and actor are equal.
   The manual-partner owner is distinct, its actor is the stable self token even
@@ -243,13 +262,14 @@ publishes its next profile only after the answer snapshot is saved.
   parallel presentation provenance. Linked/grant shapes remain rejected. A
   certificate fact without a source date is `availableNeedsConfirmation`;
   corrected facts are `userInput` with a null source date.
-- Before owner selection, review rejects a mandatory/extra component above the
-  total or a three-part difference greater than CHF 1. The provider repeats the
+- With owner already fixed, review rejects a mandatory/extra component above
+  the total or a three-part difference greater than CHF 1. The provider repeats the
   same `LppBalanceCoherence` check after value/unit validation and before its
   persistence load, so a direct contradictory call performs no load, save or
   publication. Untouched documentary facts require a non-future effective
-  date; owner cancel, invalid date, contradiction and save failure stay on the
-  review with no impact navigation.
+  date; invalid date, contradiction and save failure stay on the review with no
+  impact navigation. Owner or attestation cancellation occurs before picker and
+  creates no session or network call.
 - On disk, `wizard_answers_v2` contains only
   `'_coach_lpp_evidence_v1': '__secure__'`. The private
   `lpp_evidence_active_slot_v1` pointer is a separate SharedPreferences key;
@@ -294,7 +314,10 @@ publishes its next profile only after the answer snapshot is saved.
   or not a strict root exists. With a strict root present it also removes stale
   loose self LPP keys. Neither the strict root, a quarantine value, an
   owner/actor token, a secure slot id nor a typed financial fact is mirrored to
-  `ProfileModel.data`.
+  `ProfileModel.data`. The volatile acquisition authorization, `acquisitionId`
+  and document SHA are never written to the root or `__provenance` in the first
+  place. A future durable legal proof would require a separate consent/audit
+  store; G1-PROV-02 adds no such persistence surface.
 - Private real-certificate coverage runs only through the ignored local
   sanitized oracle; network classifier cases are generated synthetic images.
   The live Anthropic eval is NOT RUN. These local gates do not promote the
@@ -446,18 +469,23 @@ Every calculator / widget that needs profile data **must** read through
 ```
 Document type selection
   ├─ LPP G1-PROV-02 (wired, double-default-off; no runtime activation claim)
-  │   ↓ typedLppEvidence && documentLppEvidenceEnabled before consent/OCR/upload
-  │   ↓ camera/gallery consent: Vision + US transfer, NO 365-day persistence
+  │   ↓ typedLppEvidence && documentLppEvidenceEnabled before owner/consent/picker
+  │   ↓ owner fixed pre-acquisition; partner only if CoachProfile.conjoint != null
+  │   ↓ partner one-shot attestation when selected
+  │   ↓ Vision + US-transfer consent, NO 365-day persistence, before picker
+  │   ↓ SHA-256 exact transmitted bytes → volatile per-attempt authorization
   │   ↓ image/PDF direct candidate extraction; PDF never enters vault upload
   │   ↓ backend exact high personal-certificate kind gate
   │      OR local title + individualization kind gate
   │   ↓ source-aware LppExtractionAdapter → raw-free canonical candidate
-  │   ↓ volatile max-5 ScanSessionProvider; route carries scanSessionId only
-  │   ↓ ExtractionReviewScreen: values/units + effective date + coherence
-  │   ↓ owner = self OR independently declared manual partner
-  │   ↓ CoachProfileProvider.acceptLppReview repeats coherence before load
+  │   ↓ candidate + authorization paired in volatile max-5 ScanSessionProvider
+  │      route carries scanSessionId only; cold restart = recommencer
+  │   ↓ ExtractionReviewScreen: immutable owner badge + date/values/coherence
+  │   ↓ confirmation derives subject from volatile authorization
+  │   ↓ provider revalidates authorization/partner/coherence before load
   │   ↓ provider FIFO + one complete person-slot replacement + one stamp
   │   ↓ awaited whole `_coach_lpp_evidence_v1` secure save
+  │      ledger keeps only manualPartnerDeclaration + grantId null
   │   ↓ publish profile/listeners only after pointer commit succeeds
   │   ↓ impact payload has no raw text and calls no generic insight/event path
   │   ↓ cold reload → bounded self/manual expected-owner selector → strict facts
@@ -567,7 +595,7 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 
 ---
 
-*Last updated: 2026-07-14 for the default-off G1-PROV-02A+B person-owned LPP
+*Last updated: 2026-07-15 for the default-off G1-PROV-02A+B person-owned LPP
 model/persistence checkpoint and G1-PROV-03 typed tax provenance. PROV-02 is not
 GREEN: its composite document flag/caller, production UI wiring, activation and
 runtime proof remain C blockers.
