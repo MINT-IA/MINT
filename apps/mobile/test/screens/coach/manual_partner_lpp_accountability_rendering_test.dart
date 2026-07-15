@@ -109,6 +109,8 @@ void main() {
         'lppPartnerExternalGateBlocked',
         'lppPartnerAuthRequired',
         'lppPartnerReceiptFailed',
+        'lppPartnerReceiptRetryTitle',
+        'lppPartnerReceiptRetryable',
         'lppPartnerStatusActive',
         'lppPartnerStatusNeedsVerification',
         'lppPartnerStatusExpired',

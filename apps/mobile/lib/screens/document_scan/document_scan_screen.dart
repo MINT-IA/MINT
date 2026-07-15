@@ -823,7 +823,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
             key: const Key('lpp_partner_receipt_retry'),
-            title: Text(S.of(context)!.lppPartnerNoticeTitle),
+            title: Text(S.of(context)!.lppPartnerReceiptRetryTitle),
             content: Text(S.of(context)!.lppPartnerReceiptRetryable),
             actions: [
               TextButton(

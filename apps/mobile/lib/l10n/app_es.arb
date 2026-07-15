@@ -11500,6 +11500,7 @@
   "lppPartnerExternalGateBlocked": "Este recorrido no está disponible hasta que las verificaciones externas estén actualizadas. No se abrió ni envió ningún documento.",
   "lppPartnerAuthRequired": "Inicia sesión para crear el recibo minimizado de esta declaración. No se requiere una cuenta de tu pareja.",
   "lppPartnerReceiptFailed": "No se pudo verificar el recibo minimizado. No se transfirió ningún documento.",
+  "lppPartnerReceiptRetryTitle": "Recibo temporalmente no disponible",
   "lppPartnerReceiptRetryable": "La creación del recibo minimizado no está disponible temporalmente. Puedes volver a intentarlo. No se transfirió ningún documento.",
   "lppPartnerStatusActive": "Las cifras del certificado de tu pareja están verificadas para este cálculo hasta {expiresAt}.",
   "@lppPartnerStatusActive": {"placeholders":{"expiresAt":{"type":"String"}}},

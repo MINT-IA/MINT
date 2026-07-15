@@ -11500,6 +11500,7 @@
   "lppPartnerExternalGateBlocked": "Dieser Ablauf bleibt gesperrt, bis die externen Prüfungen aktuell sind. Es wurde kein Dokument geöffnet oder gesendet.",
   "lppPartnerAuthRequired": "Melde dich an, um den minimierten Beleg dieser Erklärung zu erstellen. Ein Partnerkonto ist nicht nötig.",
   "lppPartnerReceiptFailed": "Der minimierte Beleg konnte nicht geprüft werden. Es wurde kein Dokument übertragen.",
+  "lppPartnerReceiptRetryTitle": "Beleg vorübergehend nicht verfügbar",
   "lppPartnerReceiptRetryable": "Die Erstellung des minimierten Belegs ist vorübergehend nicht verfügbar. Du kannst es erneut versuchen. Es wurde kein Dokument übertragen.",
   "lppPartnerStatusActive": "Die Zahlen des Partnerausweises sind für diese Berechnung bis {expiresAt} geprüft.",
   "@lppPartnerStatusActive": {"placeholders":{"expiresAt":{"type":"String"}}},

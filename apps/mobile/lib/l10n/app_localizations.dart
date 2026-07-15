@@ -41933,6 +41933,12 @@ abstract class S {
   /// **'Le reçu minimisé n’a pas pu être vérifié. Aucun document n’a été transmis.'**
   String get lppPartnerReceiptFailed;
 
+  /// No description provided for @lppPartnerReceiptRetryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reçu temporairement indisponible'**
+  String get lppPartnerReceiptRetryTitle;
+
   /// No description provided for @lppPartnerReceiptRetryable.
   ///
   /// In fr, this message translates to:

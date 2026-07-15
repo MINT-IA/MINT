@@ -11500,6 +11500,7 @@
   "lppPartnerExternalGateBlocked": "Este percurso permanece indisponível até as verificações externas estarem atualizadas. Nenhum documento foi aberto ou enviado.",
   "lppPartnerAuthRequired": "Inicia sessão para criar o recibo minimizado desta declaração. Não é necessária uma conta da pessoa parceira.",
   "lppPartnerReceiptFailed": "Não foi possível verificar o recibo minimizado. Nenhum documento foi transferido.",
+  "lppPartnerReceiptRetryTitle": "Recibo temporariamente indisponível",
   "lppPartnerReceiptRetryable": "A criação do recibo minimizado está temporariamente indisponível. Podes tentar novamente. Nenhum documento foi transferido.",
   "lppPartnerStatusActive": "Os valores do certificado da pessoa parceira estão verificados para este cálculo até {expiresAt}.",
   "@lppPartnerStatusActive": {"placeholders":{"expiresAt":{"type":"String"}}},

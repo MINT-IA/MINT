@@ -23989,6 +23989,9 @@ class SFr extends S {
       'Le reçu minimisé n’a pas pu être vérifié. Aucun document n’a été transmis.';
 
   @override
+  String get lppPartnerReceiptRetryTitle => 'Reçu temporairement indisponible';
+
+  @override
   String get lppPartnerReceiptRetryable =>
       'La création du reçu minimisé est temporairement indisponible. Tu peux réessayer. Aucun document n’a été transmis.';
 

@@ -23873,6 +23873,9 @@ class SEn extends S {
       'The minimized receipt could not be verified. No document was transferred.';
 
   @override
+  String get lppPartnerReceiptRetryTitle => 'Receipt temporarily unavailable';
+
+  @override
   String get lppPartnerReceiptRetryable =>
       'Creating the minimized receipt is temporarily unavailable. You can retry. No document was transferred.';
 

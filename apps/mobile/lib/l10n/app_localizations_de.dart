@@ -24054,6 +24054,10 @@ class SDe extends S {
       'Der minimierte Beleg konnte nicht geprüft werden. Es wurde kein Dokument übertragen.';
 
   @override
+  String get lppPartnerReceiptRetryTitle =>
+      'Beleg vorübergehend nicht verfügbar';
+
+  @override
   String get lppPartnerReceiptRetryable =>
       'Die Erstellung des minimierten Belegs ist vorübergehend nicht verfügbar. Du kannst es erneut versuchen. Es wurde kein Dokument übertragen.';
 

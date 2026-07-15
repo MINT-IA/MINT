@@ -75,12 +75,7 @@ final class _Counters {
 
 const _receiptId = '11111111-1111-4111-8111-111111111111';
 const _ownerId = '22222222-2222-4222-8222-222222222222';
-const _terminalReceiptFailureCopyFr =
-    'Le reçu minimisé n’a pas pu être vérifié. '
-    'Aucun document n’a été transmis.';
-const _retryableReceiptFailureCopyFr =
-    'La création du reçu minimisé est temporairement indisponible. '
-    'Tu peux réessayer. Aucun document n’a été transmis.';
+final _frL10n = lookupS(const Locale('fr'));
 
 final class _PartnerBindingPersistence
     implements PartnerAccountabilityBindingPersistence {
@@ -755,7 +750,7 @@ void main() {
       find.byKey(const Key('lpp_partner_receipt_retry')),
       findsNothing,
     );
-    expect(find.text(_terminalReceiptFailureCopyFr), findsOneWidget);
+    expect(find.text(_frL10n.lppPartnerReceiptFailed), findsOneWidget);
     expect(counters.receiptCreates, 1);
     expect(counters.erases, 0);
     expect(counters.bytes, 0);
@@ -788,7 +783,7 @@ void main() {
       find.byKey(const Key('lpp_partner_receipt_retry')),
       findsNothing,
     );
-    expect(find.text(_terminalReceiptFailureCopyFr), findsOneWidget);
+    expect(find.text(_frL10n.lppPartnerReceiptFailed), findsOneWidget);
     expect(counters.receiptCreates, 1);
     expect(counters.erases, 0);
     expect(counters.bytes, 0);
@@ -826,8 +821,10 @@ void main() {
       find.byKey(const Key('lpp_partner_receipt_retry')),
       findsOneWidget,
     );
-    expect(find.text(_retryableReceiptFailureCopyFr), findsOneWidget);
-    expect(find.text(_terminalReceiptFailureCopyFr), findsNothing);
+    expect(find.text(_frL10n.lppPartnerReceiptRetryTitle), findsOneWidget);
+    expect(find.text(_frL10n.lppPartnerNoticeTitle), findsNothing);
+    expect(find.text(_frL10n.lppPartnerReceiptRetryable), findsOneWidget);
+    expect(find.text(_frL10n.lppPartnerReceiptFailed), findsNothing);
     await tester.tap(
       find.byKey(const Key('lpp_partner_receipt_pending')),
     );
