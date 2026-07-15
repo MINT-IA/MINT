@@ -745,7 +745,13 @@ def _compute_overall_confidence(fields: list[ExtractedFieldConfirmation]) -> flo
 #  PRE-EXTRACTION CLASSIFICATION (DOC-10)
 # ═══════════════════════════════════════════════════════════
 
-_CLASSIFICATION_PROMPT = """Is this a Swiss financial document? Supported types: LPP certificate, salary certificate, 3a attestation, insurance policy, AVS extract, tax declaration, payslip, lease contract, mortgage attestation, LAMal statement.
+_CLASSIFICATION_PROMPT = """Is this a Swiss financial document? Relevant detected_type labels include "lpp_certificate", "lpp_plan", "salary_certificate", "pillar_3a_attestation", "insurance_policy", "avs_extract", "tax_declaration", "payslip", "lease_contract", "mortgage_attestation", and "lamal_statement".
+
+For LPP documents, distinguish these document kinds strictly:
+- "lpp_certificate": a personal certificate or individual benefit statement for one insured person, with person-specific balances, insured salary, benefits, or dates.
+- "lpp_plan": a plan or regulation describing benefits, contribution scales, conversion rates, or Base/Bonus-style options without attesting one person's current facts. Plausible salaries or rates alone do not make a plan a personal certificate.
+
+The extraction-level "plan_type" ("legal", "surobligatoire", or "1e") is orthogonal to this document-kind classification. A personal certificate may describe any plan_type; never return "lpp_plan" merely because its plan_type is surobligatoire or 1e.
 
 Respond ONLY with valid JSON:
 {"is_financial": true, "detected_type": "lpp_certificate", "confidence": "high"}
@@ -797,7 +803,18 @@ def classify_document(image_base64: str) -> DocumentClassificationResult:
         raw_text = response.content[0].text
         parsed = json.loads(raw_text)
 
-        is_financial = bool(parsed.get("is_financial", False))
+        raw_is_financial = parsed.get("is_financial")
+        if not isinstance(raw_is_financial, bool):
+            logger.warning(
+                "Classification returned invalid financial flag: "
+                "reason_code=invalid_boolean_type",
+            )
+            return DocumentClassificationResult(
+                is_financial=True,
+                confidence=ConfidenceLevel.low,
+            )
+
+        is_financial = raw_is_financial
         detected_type = parsed.get("detected_type")
         confidence_str = parsed.get("confidence", "medium")
 

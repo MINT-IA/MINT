@@ -18,6 +18,7 @@ from app.models.document_memory import DocumentMemory
 from app.models.profile_model import ProfileModel
 from app.schemas.document_scan import (
     ConfidenceLevel,
+    DocumentClassificationResult,
     DocumentType,
     ExtractedFieldConfirmation,
     VisionExtractionResponse,
@@ -63,6 +64,255 @@ def _vision_transport_response(payload: dict) -> MagicMock:
     response = MagicMock()
     response.content = [MagicMock(text=json.dumps(payload))]
     return response
+
+
+def _exact_lpp_certificate_classification() -> DocumentClassificationResult:
+    return DocumentClassificationResult(
+        is_financial=True,
+        detected_type="lpp_certificate",
+        confidence=ConfidenceLevel.high,
+    )
+
+
+_SYNTHETIC_LPP_PLAN_BYTES = (
+    b"Plan de prevoyance Bonus\n"
+    b"Salaire assure CHF 98000\n"
+    b"Taux de conversion 5.2 percent\n"
+)
+
+
+@pytest.mark.parametrize(
+    ("case_name", "classification"),
+    [
+        (
+            "plan_base_bonus",
+            DocumentClassificationResult(
+                is_financial=True,
+                detected_type="lpp_plan",
+                confidence=ConfidenceLevel.high,
+            ),
+        ),
+        (
+            "unknown",
+            DocumentClassificationResult(
+                is_financial=True,
+                detected_type="unknown",
+                confidence=ConfidenceLevel.high,
+            ),
+        ),
+        (
+            "medium_certificate",
+            DocumentClassificationResult(
+                is_financial=True,
+                detected_type="lpp_certificate",
+                confidence=ConfidenceLevel.medium,
+            ),
+        ),
+        (
+            "low_certificate",
+            DocumentClassificationResult(
+                is_financial=True,
+                detected_type="lpp_certificate",
+                confidence=ConfidenceLevel.low,
+            ),
+        ),
+        (
+            "non_financial",
+            DocumentClassificationResult(
+                is_financial=False,
+                detected_type="lpp_certificate",
+                confidence=ConfidenceLevel.high,
+            ),
+        ),
+        (
+            "absent_type",
+            DocumentClassificationResult(
+                is_financial=True,
+                detected_type=None,
+                confidence=ConfidenceLevel.high,
+            ),
+        ),
+    ],
+)
+def test_lpp_document_kind_gate_rejects_before_audit_and_extraction(
+    client,
+    case_name,
+    classification,
+):
+    """Only an exact, high-confidence personal LPP certificate may proceed."""
+    encoded_document = base64.b64encode(_SYNTHETIC_LPP_PLAN_BYTES).decode("ascii")
+    Base.metadata.create_all(bind=engine, tables=[DocumentAuditLog.__table__])
+    db = TestingSessionLocal()
+    try:
+        audit_count_before = db.query(DocumentAuditLog).count()
+    finally:
+        db.close()
+
+    classifier = MagicMock(return_value=classification)
+    extractor = MagicMock(
+        side_effect=AssertionError(f"extraction ran for rejected case {case_name}"),
+    )
+    audit_factory = MagicMock(
+        side_effect=AssertionError(f"audit created for rejected case {case_name}"),
+    )
+
+    with (
+        patch(
+            "app.services.flags_service.flags.is_enabled",
+            new=AsyncMock(return_value=False),
+        ),
+        patch(
+            "app.services.document_vision_service.classify_document",
+            new=classifier,
+        ),
+        patch(
+            "app.services.document_vision_service.extract_with_vision",
+            new=extractor,
+        ),
+        patch(
+            "app.models.document_audit.create_audit_log",
+            new=audit_factory,
+        ),
+    ):
+        response = client.post(
+            "/api/v1/documents/extract-vision",
+            json={
+                "imageBase64": encoded_document,
+                "documentType": "lpp_certificate",
+            },
+        )
+
+    assert response.status_code == 422, response.text
+    classifier.assert_called_once_with(encoded_document)
+    extractor.assert_not_called()
+    audit_factory.assert_not_called()
+    db = TestingSessionLocal()
+    try:
+        assert db.query(DocumentAuditLog).count() == audit_count_before
+    finally:
+        db.close()
+
+
+def test_lpp_document_kind_classifier_error_rejects_without_sensitive_output(
+    client,
+    caplog,
+):
+    sentinel = "LPP-KIND-CLASSIFIER-PRIVATE-SENTINEL"
+    encoded_document = base64.b64encode(_SYNTHETIC_LPP_PLAN_BYTES).decode("ascii")
+    Base.metadata.create_all(bind=engine, tables=[DocumentAuditLog.__table__])
+    db = TestingSessionLocal()
+    try:
+        audit_count_before = db.query(DocumentAuditLog).count()
+    finally:
+        db.close()
+
+    extractor = MagicMock(side_effect=AssertionError("extraction must not run"))
+    audit_factory = MagicMock(side_effect=AssertionError("audit must not be created"))
+    with (
+        patch(
+            "app.services.flags_service.flags.is_enabled",
+            new=AsyncMock(return_value=False),
+        ),
+        patch(
+            "app.services.document_vision_service.classify_document",
+            side_effect=RuntimeError(sentinel),
+        ),
+        patch(
+            "app.services.document_vision_service.extract_with_vision",
+            new=extractor,
+        ),
+        patch(
+            "app.models.document_audit.create_audit_log",
+            new=audit_factory,
+        ),
+        caplog.at_level(logging.WARNING),
+    ):
+        response = client.post(
+            "/api/v1/documents/extract-vision",
+            json={
+                "imageBase64": encoded_document,
+                "documentType": "lpp_certificate",
+            },
+        )
+
+    assert response.status_code == 422, response.text
+    extractor.assert_not_called()
+    audit_factory.assert_not_called()
+    assert sentinel not in response.text
+    assert sentinel not in caplog.text
+    assert encoded_document[:32] not in caplog.text
+    assert "error_type=RuntimeError" in caplog.text
+    db = TestingSessionLocal()
+    try:
+        assert db.query(DocumentAuditLog).count() == audit_count_before
+    finally:
+        db.close()
+
+
+@pytest.mark.parametrize("invalid_is_financial", ["true", 1, None])
+def test_lpp_document_kind_gate_rejects_invalid_boolean_before_side_effects(
+    client,
+    invalid_is_financial,
+):
+    encoded_document = base64.b64encode(_SYNTHETIC_LPP_PLAN_BYTES).decode("ascii")
+    Base.metadata.create_all(bind=engine, tables=[DocumentAuditLog.__table__])
+    db = TestingSessionLocal()
+    try:
+        audit_count_before = db.query(DocumentAuditLog).count()
+    finally:
+        db.close()
+
+    classifier_response = _vision_transport_response(
+        {
+            "is_financial": invalid_is_financial,
+            "detected_type": "lpp_certificate",
+            "confidence": "high",
+        },
+    )
+    extractor = MagicMock(side_effect=AssertionError("extraction must not run"))
+    audit_factory = MagicMock(side_effect=AssertionError("audit must not be created"))
+    with (
+        patch(
+            "app.services.flags_service.flags.is_enabled",
+            new=AsyncMock(return_value=False),
+        ),
+        patch(
+            "app.services.document_vision_service._sync_vision_call",
+            return_value=classifier_response,
+        ),
+        patch(
+            "app.services.document_vision_service.extract_with_vision",
+            new=extractor,
+        ),
+        patch(
+            "app.services.document_vision_service.settings.ANTHROPIC_API_KEY",
+            "test-key",
+        ),
+        patch(
+            "app.services.document_vision_service.settings.COACH_MODEL",
+            "test-model",
+        ),
+        patch(
+            "app.models.document_audit.create_audit_log",
+            new=audit_factory,
+        ),
+    ):
+        response = client.post(
+            "/api/v1/documents/extract-vision",
+            json={
+                "imageBase64": encoded_document,
+                "documentType": "lpp_certificate",
+            },
+        )
+
+    assert response.status_code == 422, response.text
+    extractor.assert_not_called()
+    audit_factory.assert_not_called()
+    db = TestingSessionLocal()
+    try:
+        assert db.query(DocumentAuditLog).count() == audit_count_before
+    finally:
+        db.close()
 
 
 @pytest.mark.parametrize(
@@ -359,8 +609,8 @@ def test_lpp_legacy_extract_vision_persists_audit_metadata_only(client):
 
     with (
         patch(
-            "app.api.v1.endpoints.documents._classify_and_reject_if_needed",
-            return_value=None,
+            "app.services.document_vision_service.classify_document",
+            return_value=_exact_lpp_certificate_classification(),
         ),
         patch(
             "app.services.flags_service.flags.is_enabled",
@@ -476,8 +726,8 @@ def test_lpp_candidate_endpoint_log_omits_user_identifier(client, caplog):
 
     with (
         patch(
-            "app.api.v1.endpoints.documents._classify_and_reject_if_needed",
-            return_value=None,
+            "app.services.document_vision_service.classify_document",
+            return_value=_exact_lpp_certificate_classification(),
         ),
         patch(
             "app.services.flags_service.flags.is_enabled",
@@ -523,8 +773,8 @@ def test_lpp_legacy_failure_keeps_exception_text_out_of_logs_and_audit(
 
     with (
         patch(
-            "app.api.v1.endpoints.documents._classify_and_reject_if_needed",
-            return_value=None,
+            "app.services.document_vision_service.classify_document",
+            return_value=_exact_lpp_certificate_classification(),
         ),
         patch(
             "app.services.flags_service.flags.is_enabled",

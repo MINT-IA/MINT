@@ -33,6 +33,8 @@ from anthropic import Anthropic
 
 from app.core.config import settings
 from app.schemas.document_scan import (
+    ConfidenceLevel,
+    DocumentClassificationResult,
     DocumentType,
     DocumentScanConfirmation,
     DocumentScanResponse,
@@ -1141,15 +1143,56 @@ async def confirm_document_scan(
     )
 
 
-def _classify_and_reject_if_needed(image_base64: str) -> Optional[str]:
+_LPP_DOCUMENT_KIND_REJECTION = (
+    "Le document n'a pas pu être confirmé comme certificat de prévoyance "
+    "personnel. Vérifie le document et réessaie."
+)
+
+
+def _classify_and_reject_if_needed(
+    image_base64: str,
+    requested_document_type: Optional[DocumentType] = None,
+) -> Optional[str]:
     """Pre-extraction classification gate (DOC-10).
 
     Returns a rejection message if the document is not financial,
     or None if classification passes (extraction should proceed).
+
+    LPP evidence is stricter than the generic financial-document gate: only an
+    exact, high-confidence personal certificate classification may reach audit
+    creation or candidate extraction. Classifier failures therefore stay
+    fail-open for existing document types but fail closed for LPP evidence.
     """
     from app.services import document_vision_service as dvs
 
-    classification = dvs.classify_document(image_base64)
+    is_lpp_request = requested_document_type == DocumentType.lpp_certificate
+    try:
+        classification = dvs.classify_document(image_base64)
+    except Exception as exc:
+        if not is_lpp_request:
+            raise
+        logger.warning(
+            "LPP document-kind classification failed: error_type=%s",
+            type(exc).__name__,
+        )
+        return _LPP_DOCUMENT_KIND_REJECTION
+
+    if is_lpp_request:
+        is_exact_personal_certificate = (
+            isinstance(classification, DocumentClassificationResult)
+            and classification.is_financial is True
+            and classification.detected_type == DocumentType.lpp_certificate.value
+            and isinstance(classification.confidence, ConfidenceLevel)
+            and classification.confidence == ConfidenceLevel.high
+        )
+        if not is_exact_personal_certificate:
+            logger.warning(
+                "LPP document-kind classification rejected: "
+                "reason_code=not_exact_high_personal_certificate",
+            )
+            return _LPP_DOCUMENT_KIND_REJECTION
+        return None
+
     if not classification.is_financial:
         return (
             "Ce document ne semble pas etre un document financier suisse. "
@@ -1321,7 +1364,10 @@ async def extract_with_claude_vision(
             body.image_base64 = ""  # in-memory cleanup
 
     # ── Step 1: Pre-extraction classification (DOC-10) ──
-    rejection_message = _classify_and_reject_if_needed(body.image_base64)
+    rejection_message = _classify_and_reject_if_needed(
+        body.image_base64,
+        body.document_type,
+    )
     if rejection_message:
         raise HTTPException(status_code=422, detail=rejection_message)
 

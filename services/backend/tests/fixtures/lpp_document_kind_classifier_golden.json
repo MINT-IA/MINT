@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "classifierPromptSha256": "2deec290c0c686d510c1108052ed125189a898f6dfc1e9c3fcad527e47d25012",
+  "liveEval": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-20250514"
+  },
+  "cases": [
+    {
+      "id": "personal_certificate_positive",
+      "input": {
+        "kind": "tracked_pdf",
+        "relativePath": "documents/cpe_plan_maxi_julien.pdf",
+        "sha256": "fd682741f56280dab18b39d6f6a0ddaf991b218bf1750668b90e746df3bf42d6"
+      },
+      "expected": {
+        "isFinancial": true,
+        "detectedType": "lpp_certificate",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "base_bonus_plan_negative",
+      "input": {
+        "kind": "generated_png",
+        "lines": [
+          "PLAN DE PREVOYANCE BASE / BONUS",
+          "Reglement collectif valable des le 1er janvier 2026",
+          "Choix offerts a toutes les personnes affiliees",
+          "Exemple Base: salaire coordonne CHF 72000",
+          "Exemple Bonus: salaire coordonne CHF 98000",
+          "Taux de conversion indicatif a 65 ans: 5.2 pour cent",
+          "Cotisations: echelle collective selon age",
+          "Ce plan ne constitue pas un certificat personnel",
+          "Aucun avoir individuel ni personne assuree n'est atteste"
+        ]
+      },
+      "expected": {
+        "isFinancial": true,
+        "detectedType": "lpp_plan",
+        "confidence": "high"
+      }
+    }
+  ]
+}

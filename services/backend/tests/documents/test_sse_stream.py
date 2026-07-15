@@ -232,7 +232,10 @@ def _patch_flag(monkeypatch, enabled: bool):
 def test_endpoint_accept_json_returns_legacy_unary_response(client, monkeypatch):
     """Test 5: Accept: application/json → existing JSON response (backward compat)."""
     from app.services import document_vision_service as dvs
-    from app.schemas.document_scan import VisionExtractionResponse
+    from app.schemas.document_scan import (
+        DocumentClassificationResult,
+        VisionExtractionResponse,
+    )
 
     _patch_flag(monkeypatch, enabled=False)  # legacy path
 
@@ -242,9 +245,15 @@ def test_endpoint_accept_json_returns_legacy_unary_response(client, monkeypatch)
         overall_confidence=0.0,
     )
     monkeypatch.setattr(dvs, "extract_with_vision", lambda **kw: fake_response)
-    # Skip the local classify call so we don't hit Anthropic.
-    from app.api.v1.endpoints import documents as docs_ep
-    monkeypatch.setattr(docs_ep, "_classify_and_reject_if_needed", lambda _b: None)
+    monkeypatch.setattr(
+        dvs,
+        "classify_document",
+        lambda _b: DocumentClassificationResult(
+            is_financial=True,
+            detected_type="lpp_certificate",
+            confidence=ConfidenceLevel.high,
+        ),
+    )
 
     res = client.post(
         "/api/v1/documents/extract-vision",

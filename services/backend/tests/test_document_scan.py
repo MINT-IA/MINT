@@ -290,6 +290,26 @@ class TestExtractVisionEndpointWiring:
         rejection = _classify_and_reject_if_needed("iVBORFAKE_IMAGE")
         assert rejection is None
 
+    @patch("app.services.document_vision_service.classify_document")
+    def test_non_lpp_financial_gate_keeps_existing_fail_open_behavior(
+        self,
+        mock_classify,
+    ):
+        """The exact kind/confidence rule is scoped only to LPP evidence."""
+        mock_classify.return_value = DocumentClassificationResult(
+            is_financial=True,
+            detected_type="unknown",
+            confidence=ConfidenceLevel.low,
+        )
+
+        from app.api.v1.endpoints.documents import _classify_and_reject_if_needed
+
+        rejection = _classify_and_reject_if_needed(
+            "iVBORFAKE_IMAGE",
+            DocumentType.salary_certificate,
+        )
+        assert rejection is None
+
     def test_audit_log_import_available(self):
         """DocumentAuditLog and create_audit_log are importable."""
         from app.models.document_audit import DocumentAuditLog, create_audit_log

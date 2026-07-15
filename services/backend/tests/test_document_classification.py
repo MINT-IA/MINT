@@ -5,7 +5,10 @@ whether an uploaded image is a Swiss financial document before
 running full extraction.
 """
 
+import json
 from unittest.mock import patch, MagicMock
+
+import pytest
 
 from app.schemas.document_scan import DocumentClassificationResult, ConfidenceLevel
 
@@ -159,6 +162,81 @@ class TestClassifyDocument:
 
         assert result.is_financial is True
         assert result.confidence == ConfidenceLevel.low
+
+    def test_invalid_confidence_cannot_become_high(self):
+        """An unknown classifier confidence is normalized below the LPP gate."""
+        from app.services.document_vision_service import classify_document
+
+        response = MagicMock()
+        response.content = [
+            MagicMock(
+                text=(
+                    '{"is_financial": true, '
+                    '"detected_type": "lpp_certificate", '
+                    '"confidence": "invalid"}'
+                ),
+            ),
+        ]
+        with (
+            patch(_SETTINGS_PATCH) as mock_settings,
+            patch(
+                "app.services.document_vision_service._sync_vision_call",
+                return_value=response,
+            ),
+        ):
+            mock_settings.ANTHROPIC_API_KEY = "test-key"
+            mock_settings.COACH_MODEL = "test-model"
+            result = classify_document("iVBORw0KGgoFAKE")
+
+        assert result.is_financial is True
+        assert result.detected_type == "lpp_certificate"
+        assert result.confidence == ConfidenceLevel.medium
+
+    @pytest.mark.parametrize("invalid_is_financial", ["true", 1, None])
+    def test_invalid_financial_boolean_returns_low_fail_open_sentinel(
+        self,
+        invalid_is_financial,
+    ):
+        """Malformed booleans stay usable generically but cannot attest LPP."""
+        from app.services.document_vision_service import classify_document
+
+        response = MagicMock()
+        response.content = [
+            MagicMock(
+                text=json.dumps(
+                    {
+                        "is_financial": invalid_is_financial,
+                        "detected_type": "lpp_certificate",
+                        "confidence": "high",
+                    },
+                ),
+            ),
+        ]
+        with (
+            patch(_SETTINGS_PATCH) as mock_settings,
+            patch(
+                "app.services.document_vision_service._sync_vision_call",
+                return_value=response,
+            ),
+        ):
+            mock_settings.ANTHROPIC_API_KEY = "test-key"
+            mock_settings.COACH_MODEL = "test-model"
+            result = classify_document("iVBORw0KGgoFAKE")
+
+        assert result.is_financial is True
+        assert result.detected_type is None
+        assert result.confidence == ConfidenceLevel.low
+
+
+def test_classification_prompt_distinguishes_personal_lpp_certificate_from_plan():
+    from app.services.document_vision_service import _CLASSIFICATION_PROMPT
+
+    assert '"lpp_certificate"' in _CLASSIFICATION_PROMPT
+    assert '"lpp_plan"' in _CLASSIFICATION_PROMPT
+    assert "personal certificate" in _CLASSIFICATION_PROMPT.lower()
+    assert "plan or regulation" in _CLASSIFICATION_PROMPT.lower()
+    assert "plan_type" in _CLASSIFICATION_PROMPT
+    assert "orthogonal" in _CLASSIFICATION_PROMPT.lower()
 
 
 class TestDocumentClassificationResultSchema:
