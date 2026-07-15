@@ -24003,4 +24003,93 @@ class SDe extends S {
 
   @override
   String get lppReviewOwnerRestart => 'Mit einer anderen Person neu beginnen';
+
+  @override
+  String get lppPartnerNoticeTitle => 'BVG-Daten deiner Partnerperson';
+
+  @override
+  String lppPartnerNoticeSummary(
+      String controller,
+      String privacyContact,
+      String recipient,
+      String processingRegions,
+      String transferMechanism,
+      String retentionContract) {
+    return 'Verantwortlicher: $controller ($privacyContact). Empfänger: $recipient. Regionen: $processingRegions. Übermittlung: $transferMechanism. Aufbewahrung: $retentionContract.';
+  }
+
+  @override
+  String lppPartnerNoticeVersion(String version, String effectiveDate) {
+    return 'Partnerhinweis $version, gültig ab $effectiveDate.';
+  }
+
+  @override
+  String get lppPartnerNoticeOpen => 'Hinweis lesen';
+
+  @override
+  String get lppPartnerRightsOpen => 'Rechte und Kontakt';
+
+  @override
+  String get lppPartnerNoLinkedAccount =>
+      'Auskunft, Berichtigung, Widerspruch und Löschung müssen ohne verknüpftes Konto möglich bleiben.';
+
+  @override
+  String lppPartnerAuthorizationDeclaration(String version) {
+    return 'Ich erkläre, dass meine Partnerperson mich autorisiert hat, diesen Ausweis einmal für diesen Zweck lesen zu lassen, und dass ihr der Hinweis $version zugänglich ist.';
+  }
+
+  @override
+  String get lppPartnerAuthorizationContinue => 'Ausweis auswählen';
+
+  @override
+  String get lppPartnerExternalGateBlocked =>
+      'Dieser Ablauf bleibt gesperrt, bis die externen Prüfungen aktuell sind. Es wurde kein Dokument geöffnet oder gesendet.';
+
+  @override
+  String get lppPartnerAuthRequired =>
+      'Melde dich an, um den minimierten Beleg dieser Erklärung zu erstellen. Ein Partnerkonto ist nicht nötig.';
+
+  @override
+  String get lppPartnerReceiptFailed =>
+      'Der minimierte Beleg konnte nicht geprüft werden. Es wurde kein Dokument übertragen.';
+
+  @override
+  String lppPartnerStatusActive(String expiresAt) {
+    return 'Die Zahlen des Partnerausweises sind für diese Berechnung bis $expiresAt geprüft.';
+  }
+
+  @override
+  String get lppPartnerStatusNeedsVerification =>
+      'Diese Partnerdaten können derzeit nicht geprüft werden. Das Ergebnis bleibt unvollständig.';
+
+  @override
+  String get lppPartnerStatusExpired =>
+      'Die Partnererklärung ist abgelaufen. Die Ausweisdaten werden nicht mehr verwendet.';
+
+  @override
+  String get lppPartnerStatusRevoked =>
+      'Die Partnererklärung wurde widerrufen. Die Ausweisdaten werden nicht mehr verwendet.';
+
+  @override
+  String get lppPartnerManualRecovery =>
+      'Zahlen unabhängig eingeben oder bestätigen';
+
+  @override
+  String get lppPartnerManualValueLabel =>
+      'Aktuelles LPP-Guthaben der Partnerperson (CHF)';
+
+  @override
+  String get lppPartnerManualValueUnknown => 'Ich weiss es nicht';
+
+  @override
+  String get lppPartnerManualValueInvalid =>
+      'Gib einen positiven Betrag ein oder wähle Ich weiss es nicht.';
+
+  @override
+  String get lppPartnerCaisseRateExcluded =>
+      'Der Kassen-Zinssatz wird zur Prüfung angezeigt, bleibt aber von Berechnungen ausgeschlossen.';
+
+  @override
+  String get lppPartnerRetirementBenefitChanged =>
+      'Der bestätigte Partnerausweis hat diesen Vorsorgehinweis aktualisiert.';
 }

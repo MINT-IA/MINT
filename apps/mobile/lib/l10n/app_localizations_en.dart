@@ -23822,4 +23822,93 @@ class SEn extends S {
 
   @override
   String get lppReviewOwnerRestart => 'Restart with another owner';
+
+  @override
+  String get lppPartnerNoticeTitle => 'Your partner’s LPP data';
+
+  @override
+  String lppPartnerNoticeSummary(
+      String controller,
+      String privacyContact,
+      String recipient,
+      String processingRegions,
+      String transferMechanism,
+      String retentionContract) {
+    return 'Controller: $controller ($privacyContact). Recipient: $recipient. Regions: $processingRegions. Transfer: $transferMechanism. Retention: $retentionContract.';
+  }
+
+  @override
+  String lppPartnerNoticeVersion(String version, String effectiveDate) {
+    return 'Partner notice $version, effective $effectiveDate.';
+  }
+
+  @override
+  String get lppPartnerNoticeOpen => 'Read the notice';
+
+  @override
+  String get lppPartnerRightsOpen => 'Rights and contact';
+
+  @override
+  String get lppPartnerNoLinkedAccount =>
+      'Access, correction, objection and deletion must remain available without a linked account.';
+
+  @override
+  String lppPartnerAuthorizationDeclaration(String version) {
+    return 'I declare that my partner authorized me to have this certificate read once for this purpose and that notice $version is available to them.';
+  }
+
+  @override
+  String get lppPartnerAuthorizationContinue => 'Choose the certificate';
+
+  @override
+  String get lppPartnerExternalGateBlocked =>
+      'This flow remains unavailable until the external checks are current. No document was opened or sent.';
+
+  @override
+  String get lppPartnerAuthRequired =>
+      'Sign in to create the minimized receipt for this declaration. No partner account is required.';
+
+  @override
+  String get lppPartnerReceiptFailed =>
+      'The minimized receipt could not be verified. No document was transferred.';
+
+  @override
+  String lppPartnerStatusActive(String expiresAt) {
+    return 'Partner certificate figures are verified for this calculation until $expiresAt.';
+  }
+
+  @override
+  String get lppPartnerStatusNeedsVerification =>
+      'These partner figures cannot be verified now. The result remains partial.';
+
+  @override
+  String get lppPartnerStatusExpired =>
+      'The partner declaration expired. Certificate figures are no longer used.';
+
+  @override
+  String get lppPartnerStatusRevoked =>
+      'The partner declaration was revoked. Certificate figures are no longer used.';
+
+  @override
+  String get lppPartnerManualRecovery =>
+      'Enter or confirm the figures independently';
+
+  @override
+  String get lppPartnerManualValueLabel =>
+      'Partner\'s current LPP assets (CHF)';
+
+  @override
+  String get lppPartnerManualValueUnknown => 'I don\'t know';
+
+  @override
+  String get lppPartnerManualValueInvalid =>
+      'Enter a positive amount or choose I don\'t know.';
+
+  @override
+  String get lppPartnerCaisseRateExcluded =>
+      'The pension fund rate is shown for review but remains excluded from calculations.';
+
+  @override
+  String get lppPartnerRetirementBenefitChanged =>
+      'The confirmed partner certificate updated this retirement insight.';
 }

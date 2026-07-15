@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +10,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
@@ -17,6 +20,8 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/document_service.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -41,10 +46,13 @@ class ExtractionReviewScreen extends StatefulWidget {
   final ExtractionResult result;
   final LppExtractionCandidate? lppCandidate;
   final LppAcquisitionAuthorization? lppAuthorization;
+  final ManualPartnerAccountabilityContext? manualPartnerAccountability;
   final TaxExtractionCandidate? taxCandidate;
   final ScanConfirmationSender? sendScanConfirmation;
   final int Function(CoachProfile)? confidenceScorer;
   final DateTime Function()? now;
+  final PartnerAccountabilityBindingStore? partnerBindingStore;
+  final PartnerAccountabilityService? partnerAccountabilityService;
 
   const ExtractionReviewScreen({
     super.key,
@@ -52,10 +60,13 @@ class ExtractionReviewScreen extends StatefulWidget {
     required this.result,
     this.lppCandidate,
     this.lppAuthorization,
+    this.manualPartnerAccountability,
     this.taxCandidate,
     this.sendScanConfirmation,
     this.confidenceScorer,
     this.now,
+    this.partnerBindingStore,
+    this.partnerAccountabilityService,
   });
 
   @override
@@ -90,12 +101,18 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   late double _overallConfidence;
   ScanSessionProvider? _scanSessions;
   bool _transferredToImpact = false;
+  bool _partnerReceiptFinalized = false;
+  Future<void>? _partnerCleanup;
   bool _isConfirming = false;
   bool _taxValidationFailed = false;
   bool _lppSourceDateValidationFailed = false;
   bool _lppBalanceValidationFailed = false;
   bool _taxInForceAttested = false;
   bool _federalScopeIncoherent = false;
+  late final PartnerAccountabilityBindingStore _partnerBindingStore =
+      widget.partnerBindingStore ?? PartnerAccountabilityBindingStore();
+  late final PartnerAccountabilityService _partnerAccountabilityService =
+      widget.partnerAccountabilityService ?? PartnerAccountabilityService();
 
   TaxDocumentKind _taxDocumentKind = TaxDocumentKind.unknown;
   TaxAssessmentStatus _taxAssessmentStatus = TaxAssessmentStatus.unknown;
@@ -136,8 +153,14 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   @override
   void dispose() {
+    if (!_partnerReceiptFinalized) unawaited(_cleanupPartnerReceipt());
     if (!_transferredToImpact) {
-      _scanSessions?.discard(widget.scanSessionId);
+      final scanSessions = _scanSessions;
+      if (scanSessions != null) {
+        unawaited(Future<void>.microtask(
+          () => scanSessions.discard(widget.scanSessionId),
+        ));
+      }
     }
     for (final controller in [
       _taxYearController,
@@ -159,6 +182,53 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     super.dispose();
   }
 
+  bool get _requiresPartnerAccountability =>
+      widget.lppAuthorization?.subject == LppEvidenceOwnerKind.manualPartner;
+
+  bool get _partnerAccountabilityStillValid {
+    if (!_requiresPartnerAccountability) {
+      return widget.manualPartnerAccountability == null;
+    }
+    final authorization = widget.lppAuthorization!;
+    final accountability = widget.manualPartnerAccountability;
+    final current = (widget.now ?? DateTime.now)().toUtc();
+    return FeatureFlags.partnerLppAccountabilityEnabled &&
+        accountability != null &&
+        authorization.receiptId != null &&
+        authorization.manualPartnerOwnerId != null &&
+        accountability.isActiveAt(current) &&
+        accountability.matchesAuthorization(
+          receiptId: authorization.receiptId,
+          ownerId: authorization.manualPartnerOwnerId,
+        );
+  }
+
+  Future<void> _cleanupPartnerReceipt() {
+    final existing = _partnerCleanup;
+    if (existing != null) return existing;
+    final accountability = widget.manualPartnerAccountability;
+    if (accountability == null || _partnerReceiptFinalized) {
+      return Future.value();
+    }
+    final cleanup = () async {
+      try {
+        await _partnerAccountabilityService.erase(accountability.receiptId);
+      } catch (_) {
+        // Backend DELETE is idempotent; cold reconciliation remains fail closed.
+      }
+      try {
+        await _partnerBindingStore.rollback(
+          receiptId: accountability.receiptId,
+          manualPartnerOwnerId: accountability.ownerId,
+        );
+      } catch (_) {
+        // A concurrent terminal transition must not restore a different binding.
+      }
+    }();
+    _partnerCleanup = cleanup;
+    return cleanup;
+  }
+
   // ── Build ────────────────────────────────────────────────
 
   @override
@@ -175,7 +245,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
             widget.lppAuthorization == null ||
             !widget.lppAuthorization!.isValidAt(
               (widget.now ?? DateTime.now)().toUtc(),
-            ))) {
+            ) ||
+            !_partnerAccountabilityStillValid)) {
+      unawaited(_cleanupPartnerReceipt());
       return _buildLppRecovery(
         key: const Key('lpp_review_missing_candidate_recovery'),
       );
@@ -234,6 +306,27 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                               DocumentType.lppCertificate) ...[
                             _buildLppOwnerBadge(),
                             const SizedBox(height: 12),
+                            if (widget.lppAuthorization?.subject ==
+                                    LppEvidenceOwnerKind.manualPartner &&
+                                widget.lppCandidate?.facts.containsKey(
+                                      LppEvidenceFactKey.fundReturnRateRatio,
+                                    ) ==
+                                    true) ...[
+                              MintSurface(
+                                key: const Key(
+                                  'lpp_review_caisse_rate_quarantined',
+                                ),
+                                tone: MintSurfaceTone.porcelaine,
+                                padding: const EdgeInsets.all(12),
+                                child: Text(
+                                  S.of(context)!.lppPartnerCaisseRateExcluded,
+                                  style: MintTextStyles.bodySmall(
+                                    color: MintColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
                             _buildLppSourceDateField(),
                             const SizedBox(height: 8),
                           ],
@@ -376,6 +469,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   }
 
   void _onBack() {
+    unawaited(_cleanupPartnerReceipt());
     _scanSessions?.discard(widget.scanSessionId);
     safePop(context);
   }
@@ -1551,6 +1645,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           !widget.lppAuthorization!.isValidAt(
             (widget.now ?? DateTime.now)().toUtc(),
           ) ||
+          !_partnerAccountabilityStillValid ||
           !_isCanonicalLppReview(widget.lppCandidate!)) {
         return;
       }
@@ -1599,6 +1694,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         facts: reviewedFacts,
         sourceDate: sourceDate.value,
         authorization: widget.lppAuthorization!,
+        partnerAccountabilityContext: widget.manualPartnerAccountability,
       );
       final coachProvider = context.read<CoachProfileProvider>();
       final beforeProfile = coachProvider.profile ?? CoachProfile.defaults();
@@ -1606,9 +1702,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       try {
         await coachProvider.acceptLppReview(confirmation);
       } catch (_) {
+        await _cleanupPartnerReceipt();
         if (mounted) setState(() => _isConfirming = false);
         return;
       }
+      _partnerReceiptFinalized = true;
       final afterProfile = coachProvider.profile ?? CoachProfile.defaults();
       final confidenceDelta =
           _scoreProfile(afterProfile).toDouble() - previousConfidence;

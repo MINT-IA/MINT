@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -23,6 +24,8 @@ import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
+import 'package:mint_mobile/services/consent/partner_accountability_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
 
@@ -67,10 +70,13 @@ final class _BiographySpy extends BiographyProvider {
 }
 
 final class _CoachProfileSpy extends CoachProfileProvider {
-  _CoachProfileSpy({required LppProfilePersistence persistence})
-      : super(
+  _CoachProfileSpy({
+    required LppProfilePersistence persistence,
+    PartnerAccountabilityBindingStore? partnerBindingStore,
+  }) : super(
           taxProfilePersistence: persistence as TaxProfilePersistence,
           lppProfilePersistence: persistence,
+          partnerAccountabilityBindingStore: partnerBindingStore,
           now: _reviewNow,
         );
 
@@ -90,6 +96,106 @@ final class _CoachProfileSpy extends CoachProfileProvider {
 
 DateTime _reviewNow() => DateTime.utc(2026, 7, 15, 12);
 
+const _partnerReceiptId = '11111111-1111-4111-8111-111111111111';
+const _partnerOwnerId = '22222222-2222-4222-8222-222222222222';
+final _partnerExpiresAt = DateTime.utc(2027, 7, 15, 12);
+
+final class _MemoryPartnerBindingPersistence
+    implements PartnerAccountabilityBindingPersistence {
+  _MemoryPartnerBindingPersistence() {
+    value = PartnerAccountabilityBindingEnvelope(
+      pending: PartnerAccountabilityBinding(
+        receiptId: _partnerReceiptId,
+        manualPartnerOwnerId: _partnerOwnerId,
+        state: PartnerAccountabilityBindingState.pending,
+        createdAt: DateTime.utc(2026, 7, 15, 9),
+        noticeVersion: 'notice-v1',
+        policyVersion: 'policy-v1',
+        privacyContact: 'privacy@example.test',
+        rightsChannel: 'https://example.test/rights',
+        receiptCreatedAt: DateTime.utc(2026, 7, 15, 10),
+        expiresAt: _partnerExpiresAt,
+      ),
+    ).toJsonString();
+  }
+
+  String? value;
+
+  @override
+  Future<void> delete() async => value = null;
+
+  @override
+  Future<String?> read() async => value;
+
+  @override
+  Future<void> write(String value) async => this.value = value;
+}
+
+final class _PartnerAccountabilityApiSpy implements PartnerAccountabilityApi {
+  final deletedEndpoints = <String>[];
+
+  @override
+  Future<void> delete(String endpoint) async {
+    deletedEndpoints.add(endpoint);
+  }
+
+  @override
+  Future<Map<String, dynamic>> get(String endpoint) async =>
+      throw StateError('status must not be called');
+
+  @override
+  Future<Map<String, dynamic>> post(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async =>
+      throw StateError('post must not be called');
+}
+
+const _oldPartnerReceiptId = '55555555-5555-4555-8555-555555555555';
+
+_MemoryPartnerBindingPersistence _shadowedPartnerBindingPersistence() {
+  final persistence = _MemoryPartnerBindingPersistence();
+  final oldActive = PartnerAccountabilityBinding(
+    receiptId: _oldPartnerReceiptId,
+    manualPartnerOwnerId: _partnerOwnerId,
+    state: PartnerAccountabilityBindingState.active,
+    createdAt: DateTime.utc(2026, 7, 14, 9),
+    noticeVersion: 'notice-v1',
+    policyVersion: 'policy-v1',
+    privacyContact: 'privacy@example.test',
+    rightsChannel: 'https://example.test/rights',
+    receiptCreatedAt: DateTime.utc(2026, 7, 14, 10),
+    lastVerifiedAt: DateTime.utc(2026, 7, 15, 8),
+    expiresAt: _partnerExpiresAt,
+  );
+  persistence.value = PartnerAccountabilityBindingEnvelope(
+    active: oldActive,
+    pending: PartnerAccountabilityBinding(
+      receiptId: _partnerReceiptId,
+      manualPartnerOwnerId: _partnerOwnerId,
+      state: PartnerAccountabilityBindingState.pending,
+      createdAt: DateTime.utc(2026, 7, 15, 9),
+      noticeVersion: 'notice-v1',
+      policyVersion: 'policy-v1',
+      privacyContact: 'privacy@example.test',
+      rightsChannel: 'https://example.test/rights',
+      receiptCreatedAt: DateTime.utc(2026, 7, 15, 10),
+      expiresAt: _partnerExpiresAt,
+    ),
+    shadowed: oldActive,
+  ).toJsonString();
+  return persistence;
+}
+
+final _partnerContext = ManualPartnerAccountabilityContext(
+  receiptId: _partnerReceiptId,
+  ownerId: _partnerOwnerId,
+  expiresAt: _partnerExpiresAt,
+  noticeVersion: 'notice-v1',
+  policyVersion: 'policy-v1',
+  receiptStatus: PartnerAccountabilityReceiptStatus.active,
+);
+
 LppAcquisitionAuthorization _reviewAuthorization(
   LppEvidenceOwnerKind subject,
 ) =>
@@ -101,6 +207,12 @@ LppAcquisitionAuthorization _reviewAuthorization(
       declaredAt: DateTime.utc(2026, 7, 15, 9),
       documentSha256:
           '3d1f57c984978ef98a18378c8166c1cb8ede02c03eeb6aee7e2f121dfeee3e56',
+      manualPartnerOwnerId: subject == LppEvidenceOwnerKind.manualPartner
+          ? _partnerOwnerId
+          : null,
+      receiptId: subject == LppEvidenceOwnerKind.manualPartner
+          ? _partnerReceiptId
+          : null,
     );
 
 final class _ExternalSyncSpy {
@@ -214,6 +326,8 @@ _ProductionScanHarness _productionScanHarness({
     required String documentType,
     String? canton,
     String? languageHint,
+    String? subjectKind,
+    String? receiptId,
   })? visionExtractor,
   Future<DocumentUploadResult> Function(
     File file, {
@@ -278,12 +392,23 @@ _ReviewHarness _reviewHarness({
   DateTime? sourceDate,
   bool failSave = false,
   LppEvidenceOwnerKind subject = LppEvidenceOwnerKind.self,
+  PartnerAccountabilityBindingStore? injectedPartnerBindingStore,
+  PartnerAccountabilityService? partnerAccountabilityService,
 }) {
   final persistence = _MemoryLppPersistence(
     failSave: failSave,
     withLocalPartner: subject == LppEvidenceOwnerKind.manualPartner,
   );
-  final coach = _CoachProfileSpy(persistence: persistence);
+  final partnerBindingStore = subject == LppEvidenceOwnerKind.manualPartner
+      ? injectedPartnerBindingStore ??
+          PartnerAccountabilityBindingStore(
+            persistence: _MemoryPartnerBindingPersistence(),
+          )
+      : null;
+  final coach = _CoachProfileSpy(
+    persistence: persistence,
+    partnerBindingStore: partnerBindingStore,
+  );
   final biography = _BiographySpy();
   final externalSync = _ExternalSyncSpy();
   final sessions = ScanSessionProvider();
@@ -295,6 +420,10 @@ _ReviewHarness _reviewHarness({
   ).candidate;
   final authorization = _reviewAuthorization(subject);
   final retainedAuthorization = candidate == null ? null : authorization;
+  final retainedPartnerAccountability =
+      candidate != null && subject == LppEvidenceOwnerKind.manualPartner
+          ? _partnerContext
+          : null;
   final reviewExtraction = candidate == null
       ? extraction
       : ExtractionResult(
@@ -324,6 +453,7 @@ _ReviewHarness _reviewHarness({
     reviewExtraction,
     lppCandidate: candidate,
     lppAuthorization: retainedAuthorization,
+    manualPartnerAccountability: retainedPartnerAccountability,
   );
   late final GoRouter router;
   router = GoRouter(
@@ -336,6 +466,9 @@ _ReviewHarness _reviewHarness({
           result: reviewExtraction,
           lppCandidate: candidate,
           lppAuthorization: retainedAuthorization,
+          manualPartnerAccountability: retainedPartnerAccountability,
+          partnerBindingStore: partnerBindingStore,
+          partnerAccountabilityService: partnerAccountabilityService,
           sendScanConfirmation: externalSync.call,
           confidenceScorer: (_) => 42,
           now: _reviewNow,
@@ -473,11 +606,13 @@ void main() {
   setUp(() {
     FeatureFlags.typedLppEvidence = false;
     FeatureFlags.documentLppEvidenceEnabled = false;
+    FeatureFlags.partnerLppAccountabilityEnabled = false;
   });
 
   tearDown(() {
     FeatureFlags.typedLppEvidence = false;
     FeatureFlags.documentLppEvidenceEnabled = false;
+    FeatureFlags.partnerLppAccountabilityEnabled = false;
   });
 
   test('LPP document flags are double-default-off and never backend hydrated',
@@ -658,6 +793,8 @@ void main() {
         required documentType,
         canton,
         languageHint,
+        subjectKind,
+        receiptId,
       }) async {
         backendVisionCalls += 1;
         return null;
@@ -713,6 +850,8 @@ void main() {
         required documentType,
         canton,
         languageHint,
+        subjectKind,
+        receiptId,
       }) async =>
           {
         'extractedFields': [
@@ -826,6 +965,8 @@ void main() {
         required documentType,
         canton,
         languageHint,
+        subjectKind,
+        receiptId,
       }) async =>
           <String, dynamic>{
         'extractedFields': [
@@ -969,6 +1110,8 @@ Salaire assuré: CHF 92'000
           required documentType,
           canton,
           languageHint,
+          subjectKind,
+          receiptId,
         }) async =>
             <String, dynamic>{
           'extractedFields': [
@@ -1026,6 +1169,8 @@ Salaire assuré: CHF 92'000
         required documentType,
         canton,
         languageHint,
+        subjectKind,
+        receiptId,
       }) async =>
           <String, dynamic>{
         'extractedFields': [
@@ -1079,6 +1224,8 @@ Salaire assuré: CHF 92'000
         required documentType,
         canton,
         languageHint,
+        subjectKind,
+        receiptId,
       }) async =>
           throw const DocumentServiceException(
         code: 'not_financial',
@@ -1140,6 +1287,8 @@ Salaire assuré: CHF 92'000
         required documentType,
         canton,
         languageHint,
+        subjectKind,
+        receiptId,
       }) async =>
           throw const DocumentServiceException(
         code: 'not_financial',
@@ -1194,6 +1343,8 @@ Salaire assuré: CHF 92'000
         required documentType,
         canton,
         languageHint,
+        subjectKind,
+        receiptId,
       }) async =>
           throw const DocumentServiceException(
         code: 'not_financial',
@@ -1254,6 +1405,8 @@ Salaire assuré: CHF 92'000
         required documentType,
         canton,
         languageHint,
+        subjectKind,
+        receiptId,
       }) async {
         visionCalls += 1;
         if (visionCalls == 1) {
@@ -1327,6 +1480,8 @@ Salaire assuré: CHF 92'000
         required documentType,
         canton,
         languageHint,
+        subjectKind,
+        receiptId,
       }) async {
         visionCalls += 1;
         return {
@@ -1655,6 +1810,7 @@ Salaire assuré: CHF 92'000
       (tester) async {
     FeatureFlags.typedLppEvidence = true;
     FeatureFlags.documentLppEvidenceEnabled = true;
+    FeatureFlags.partnerLppAccountabilityEnabled = true;
     final harness = _reviewHarness(
       extraction: _lppExtraction(),
       sourceDate: DateTime.utc(2026, 6, 30),
@@ -1692,6 +1848,74 @@ Salaire assuré: CHF 92'000
     expect(fact['provenance']['sourceDate'], isNull);
     expect(harness.biography.addFactCalls, 0);
     expect(harness.externalSync.calls, 0);
+  });
+
+  testWidgets(
+      'leaving manual-partner review erases pending receipt and restores old active',
+      (tester) async {
+    FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.documentLppEvidenceEnabled = true;
+    FeatureFlags.partnerLppAccountabilityEnabled = true;
+    final bindingStore = PartnerAccountabilityBindingStore(
+      persistence: _shadowedPartnerBindingPersistence(),
+    );
+    final api = _PartnerAccountabilityApiSpy();
+    final harness = _reviewHarness(
+      extraction: _lppExtraction(),
+      sourceDate: DateTime.utc(2026, 6, 30),
+      subject: LppEvidenceOwnerKind.manualPartner,
+      injectedPartnerBindingStore: bindingStore,
+      partnerAccountabilityService: PartnerAccountabilityService(api: api),
+    );
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    harness.router.go('/home');
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async => Future<void>.delayed(Duration.zero));
+
+    expect(api.deletedEndpoints, [
+      '/partner-accountability/receipts/$_partnerReceiptId',
+    ]);
+    final restored = await bindingStore.load();
+    expect(restored.pending, isNull);
+    expect(restored.active?.receiptId, _oldPartnerReceiptId);
+  });
+
+  testWidgets(
+      'manual-partner save failure erases pending receipt and restores old active',
+      (tester) async {
+    FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.documentLppEvidenceEnabled = true;
+    FeatureFlags.partnerLppAccountabilityEnabled = true;
+    final bindingStore = PartnerAccountabilityBindingStore(
+      persistence: _shadowedPartnerBindingPersistence(),
+    );
+    final api = _PartnerAccountabilityApiSpy();
+    final harness = _reviewHarness(
+      extraction: _lppExtraction(),
+      sourceDate: DateTime.utc(2026, 6, 30),
+      failSave: true,
+      subject: LppEvidenceOwnerKind.manualPartner,
+      injectedPartnerBindingStore: bindingStore,
+      partnerAccountabilityService: PartnerAccountabilityService(api: api),
+    );
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    await _tapConfirm(tester);
+    await tester.runAsync(() async => Future<void>.delayed(Duration.zero));
+
+    expect(api.deletedEndpoints, [
+      '/partner-accountability/receipts/$_partnerReceiptId',
+    ]);
+    final restored = await bindingStore.load();
+    expect(restored.pending, isNull);
+    expect(restored.active?.receiptId, _oldPartnerReceiptId);
+    expect(find.byKey(const Key('lpp_review_confirm_cta')), findsOneWidget);
+    expect(find.byKey(const Key('lpp_impact_destination')), findsNothing);
   });
 
   testWidgets(

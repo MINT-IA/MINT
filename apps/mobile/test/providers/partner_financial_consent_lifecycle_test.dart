@@ -55,8 +55,13 @@ void main() {
       'lib/services/consent/partner_accountability_service.dart',
     );
     final providerSource = _source('lib/providers/coach_profile_provider.dart');
+    final scanSource =
+        _source('lib/screens/document_scan/document_scan_screen.dart');
+    final reviewSource =
+        _source('lib/screens/document_scan/extraction_review_screen.dart');
     final productionSource =
-        '$bindingSource\n$modelSource\n$serviceSource\n$providerSource';
+        '$bindingSource\n$modelSource\n$serviceSource\n$providerSource\n'
+        '$scanSource\n$reviewSource';
 
     test('persists pending before active with stable owner and receipt ids',
         () {
@@ -74,16 +79,18 @@ void main() {
       );
     });
 
-    test('restores a shadowed active binding after cancellation or denial', () {
+    test('wires remote erase and local rollback in scan and review owners', () {
       _expectContractTokens(
         productionSource,
         const <String>[
           'shadowed',
           'rollback',
-          'cancel',
-          'denied',
+          '_rollbackPartnerAttempt',
+          '_cleanupPartnerReceipt',
+          '.erase(',
         ],
-        reason: 'Cancellation and permission denial must be side-effect safe.',
+        reason:
+            'Terminal paths must call real remote and local cleanup owners.',
       );
     });
 
@@ -106,9 +113,9 @@ void main() {
       _expectContractTokens(
         productionSource,
         const <String>[
+          'independentFacts',
+          '_restoreIndependentPartnerUserInputFacts',
           'ProfileDataSource.userInput',
-          'invalidate',
-          'restore',
         ],
         reason:
             'Receipt invalidation must not erase an independent declaration.',

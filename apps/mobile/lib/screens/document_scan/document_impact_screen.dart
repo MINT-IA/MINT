@@ -819,10 +819,17 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           width: double.infinity,
           height: 56,
           child: FilledButton.icon(
+            key: widget.result.documentType == DocumentType.lppCertificate
+                ? const Key('lpp_impact_retirement_cta')
+                : null,
             onPressed: () {
               _scanSessions?.discard(widget.scanSessionId);
               if (widget.result.documentType == DocumentType.taxDeclaration) {
                 context.go('/coach/chat');
+                return;
+              }
+              if (widget.result.documentType == DocumentType.lppCertificate) {
+                context.go('/retraite');
                 return;
               }
               // Emit ScreenReturn so the coach chat can show a delta message.

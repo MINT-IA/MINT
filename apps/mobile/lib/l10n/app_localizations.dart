@@ -41860,6 +41860,138 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Recommencer avec un autre propriétaire'**
   String get lppReviewOwnerRestart;
+
+  /// No description provided for @lppPartnerNoticeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données LPP de ton/ta partenaire'**
+  String get lppPartnerNoticeTitle;
+
+  /// No description provided for @lppPartnerNoticeSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Responsable : {controller} ({privacyContact}). Destinataire : {recipient}. Régions : {processingRegions}. Transfert : {transferMechanism}. Conservation : {retentionContract}.'**
+  String lppPartnerNoticeSummary(
+      String controller,
+      String privacyContact,
+      String recipient,
+      String processingRegions,
+      String transferMechanism,
+      String retentionContract);
+
+  /// No description provided for @lppPartnerNoticeVersion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notice partenaire {version}, effective le {effectiveDate}.'**
+  String lppPartnerNoticeVersion(String version, String effectiveDate);
+
+  /// No description provided for @lppPartnerNoticeOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire la notice'**
+  String get lppPartnerNoticeOpen;
+
+  /// No description provided for @lppPartnerRightsOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Droits et contact'**
+  String get lppPartnerRightsOpen;
+
+  /// No description provided for @lppPartnerNoLinkedAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’accès, la rectification, l’opposition et l’effacement doivent rester possibles sans compte lié.'**
+  String get lppPartnerNoLinkedAccount;
+
+  /// No description provided for @lppPartnerAuthorizationDeclaration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je déclare que mon/ma partenaire m’a autorisé·e à faire lire ce certificat une fois pour cette finalité et que la notice {version} lui est accessible.'**
+  String lppPartnerAuthorizationDeclaration(String version);
+
+  /// No description provided for @lppPartnerAuthorizationContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir le certificat'**
+  String get lppPartnerAuthorizationContinue;
+
+  /// No description provided for @lppPartnerExternalGateBlocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce parcours reste indisponible tant que les vérifications externes ne sont pas à jour. Aucun document n’a été ouvert ou envoyé.'**
+  String get lppPartnerExternalGateBlocked;
+
+  /// No description provided for @lppPartnerAuthRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi pour créer le reçu minimisé de cette déclaration. Aucun compte partenaire n’est requis.'**
+  String get lppPartnerAuthRequired;
+
+  /// No description provided for @lppPartnerReceiptFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le reçu minimisé n’a pas pu être vérifié. Aucun document n’a été transmis.'**
+  String get lppPartnerReceiptFailed;
+
+  /// No description provided for @lppPartnerStatusActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chiffres du certificat partenaire vérifiés pour ce calcul jusqu’au {expiresAt}.'**
+  String lppPartnerStatusActive(String expiresAt);
+
+  /// No description provided for @lppPartnerStatusNeedsVerification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces chiffres partenaire ne peuvent pas être vérifiés maintenant. Le résultat reste partiel.'**
+  String get lppPartnerStatusNeedsVerification;
+
+  /// No description provided for @lppPartnerStatusExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'La déclaration partenaire a expiré. Les chiffres du certificat ne sont plus utilisés.'**
+  String get lppPartnerStatusExpired;
+
+  /// No description provided for @lppPartnerStatusRevoked.
+  ///
+  /// In fr, this message translates to:
+  /// **'La déclaration partenaire a été révoquée. Les chiffres du certificat ne sont plus utilisés.'**
+  String get lppPartnerStatusRevoked;
+
+  /// No description provided for @lppPartnerManualRecovery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisir ou confirmer les chiffres indépendamment'**
+  String get lppPartnerManualRecovery;
+
+  /// No description provided for @lppPartnerManualValueLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP actuel du conjoint (CHF)'**
+  String get lppPartnerManualValueLabel;
+
+  /// No description provided for @lppPartnerManualValueUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas'**
+  String get lppPartnerManualValueUnknown;
+
+  /// No description provided for @lppPartnerManualValueInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis un montant positif ou choisis Je ne sais pas.'**
+  String get lppPartnerManualValueInvalid;
+
+  /// No description provided for @lppPartnerCaisseRateExcluded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le taux de la caisse est affiché pour vérification mais reste exclu des calculs.'**
+  String get lppPartnerCaisseRateExcluded;
+
+  /// No description provided for @lppPartnerRetirementBenefitChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le certificat partenaire confirmé a actualisé cet éclairage retraite.'**
+  String get lppPartnerRetirementBenefitChanged;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

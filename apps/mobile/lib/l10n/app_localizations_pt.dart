@@ -23951,4 +23951,93 @@ class SPt extends S {
 
   @override
   String get lppReviewOwnerRestart => 'Recomeçar com outro titular';
+
+  @override
+  String get lppPartnerNoticeTitle => 'Dados LPP da pessoa parceira';
+
+  @override
+  String lppPartnerNoticeSummary(
+      String controller,
+      String privacyContact,
+      String recipient,
+      String processingRegions,
+      String transferMechanism,
+      String retentionContract) {
+    return 'Responsável: $controller ($privacyContact). Destinatário: $recipient. Regiões: $processingRegions. Transferência: $transferMechanism. Conservação: $retentionContract.';
+  }
+
+  @override
+  String lppPartnerNoticeVersion(String version, String effectiveDate) {
+    return 'Aviso à pessoa parceira $version, efetivo em $effectiveDate.';
+  }
+
+  @override
+  String get lppPartnerNoticeOpen => 'Ler o aviso';
+
+  @override
+  String get lppPartnerRightsOpen => 'Direitos e contacto';
+
+  @override
+  String get lppPartnerNoLinkedAccount =>
+      'O acesso, a retificação, a oposição e o apagamento devem continuar disponíveis sem uma conta associada.';
+
+  @override
+  String lppPartnerAuthorizationDeclaration(String version) {
+    return 'Declaro que a pessoa parceira me autorizou a mandar ler este certificado uma vez para esta finalidade e que tem acesso ao aviso $version.';
+  }
+
+  @override
+  String get lppPartnerAuthorizationContinue => 'Escolher o certificado';
+
+  @override
+  String get lppPartnerExternalGateBlocked =>
+      'Este percurso permanece indisponível até as verificações externas estarem atualizadas. Nenhum documento foi aberto ou enviado.';
+
+  @override
+  String get lppPartnerAuthRequired =>
+      'Inicia sessão para criar o recibo minimizado desta declaração. Não é necessária uma conta da pessoa parceira.';
+
+  @override
+  String get lppPartnerReceiptFailed =>
+      'Não foi possível verificar o recibo minimizado. Nenhum documento foi transferido.';
+
+  @override
+  String lppPartnerStatusActive(String expiresAt) {
+    return 'Os valores do certificado da pessoa parceira estão verificados para este cálculo até $expiresAt.';
+  }
+
+  @override
+  String get lppPartnerStatusNeedsVerification =>
+      'Estes valores não podem ser verificados agora. O resultado permanece parcial.';
+
+  @override
+  String get lppPartnerStatusExpired =>
+      'A declaração da pessoa parceira expirou. Os valores do certificado deixaram de ser usados.';
+
+  @override
+  String get lppPartnerStatusRevoked =>
+      'A declaração da pessoa parceira foi revogada. Os valores do certificado deixaram de ser usados.';
+
+  @override
+  String get lppPartnerManualRecovery =>
+      'Introduzir ou confirmar os valores de forma independente';
+
+  @override
+  String get lppPartnerManualValueLabel =>
+      'Capital LPP atual do parceiro (CHF)';
+
+  @override
+  String get lppPartnerManualValueUnknown => 'Não sei';
+
+  @override
+  String get lppPartnerManualValueInvalid =>
+      'Introduz um montante positivo ou escolhe Não sei.';
+
+  @override
+  String get lppPartnerCaisseRateExcluded =>
+      'A taxa da caixa é mostrada para verificação, mas permanece excluída dos cálculos.';
+
+  @override
+  String get lppPartnerRetirementBenefitChanged =>
+      'O certificado confirmado da pessoa parceira atualizou esta leitura de reforma.';
 }

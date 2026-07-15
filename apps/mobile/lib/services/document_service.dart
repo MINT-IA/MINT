@@ -1153,6 +1153,8 @@ class DocumentService {
     required String documentType,
     String? canton,
     String? languageHint,
+    String? subjectKind,
+    String? receiptId,
   }) async {
     if (documentType == 'tax_declaration') {
       throw const DocumentServiceException(
@@ -1178,6 +1180,8 @@ class DocumentService {
           'imageBase64': imageBase64,
           if (canton != null) 'canton': canton,
           if (languageHint != null) 'languageHint': languageHint,
+          if (subjectKind != null) 'subjectKind': subjectKind,
+          if (receiptId != null) 'receiptId': receiptId,
         }),
       );
 
@@ -1188,6 +1192,12 @@ class DocumentService {
         throw const DocumentServiceException(
           code: 'not_financial',
           message: 'Document classified as non-financial',
+        );
+      }
+      if (response.statusCode == 428) {
+        throw const DocumentServiceException(
+          code: 'partner_receipt_consumed',
+          message: 'Partner accountability receipt is no longer reusable.',
         );
       }
       return null;

@@ -1211,6 +1211,7 @@ final _router = GoRouter(
           result: session.extraction,
           lppCandidate: session.lppCandidate,
           lppAuthorization: session.lppAuthorization,
+          manualPartnerAccountability: session.manualPartnerAccountability,
           taxCandidate: session.taxCandidate,
         );
       },

@@ -23938,4 +23938,92 @@ class SFr extends S {
 
   @override
   String get lppReviewOwnerRestart => 'Recommencer avec un autre propriétaire';
+
+  @override
+  String get lppPartnerNoticeTitle => 'Données LPP de ton/ta partenaire';
+
+  @override
+  String lppPartnerNoticeSummary(
+      String controller,
+      String privacyContact,
+      String recipient,
+      String processingRegions,
+      String transferMechanism,
+      String retentionContract) {
+    return 'Responsable : $controller ($privacyContact). Destinataire : $recipient. Régions : $processingRegions. Transfert : $transferMechanism. Conservation : $retentionContract.';
+  }
+
+  @override
+  String lppPartnerNoticeVersion(String version, String effectiveDate) {
+    return 'Notice partenaire $version, effective le $effectiveDate.';
+  }
+
+  @override
+  String get lppPartnerNoticeOpen => 'Lire la notice';
+
+  @override
+  String get lppPartnerRightsOpen => 'Droits et contact';
+
+  @override
+  String get lppPartnerNoLinkedAccount =>
+      'L’accès, la rectification, l’opposition et l’effacement doivent rester possibles sans compte lié.';
+
+  @override
+  String lppPartnerAuthorizationDeclaration(String version) {
+    return 'Je déclare que mon/ma partenaire m’a autorisé·e à faire lire ce certificat une fois pour cette finalité et que la notice $version lui est accessible.';
+  }
+
+  @override
+  String get lppPartnerAuthorizationContinue => 'Choisir le certificat';
+
+  @override
+  String get lppPartnerExternalGateBlocked =>
+      'Ce parcours reste indisponible tant que les vérifications externes ne sont pas à jour. Aucun document n’a été ouvert ou envoyé.';
+
+  @override
+  String get lppPartnerAuthRequired =>
+      'Connecte-toi pour créer le reçu minimisé de cette déclaration. Aucun compte partenaire n’est requis.';
+
+  @override
+  String get lppPartnerReceiptFailed =>
+      'Le reçu minimisé n’a pas pu être vérifié. Aucun document n’a été transmis.';
+
+  @override
+  String lppPartnerStatusActive(String expiresAt) {
+    return 'Chiffres du certificat partenaire vérifiés pour ce calcul jusqu’au $expiresAt.';
+  }
+
+  @override
+  String get lppPartnerStatusNeedsVerification =>
+      'Ces chiffres partenaire ne peuvent pas être vérifiés maintenant. Le résultat reste partiel.';
+
+  @override
+  String get lppPartnerStatusExpired =>
+      'La déclaration partenaire a expiré. Les chiffres du certificat ne sont plus utilisés.';
+
+  @override
+  String get lppPartnerStatusRevoked =>
+      'La déclaration partenaire a été révoquée. Les chiffres du certificat ne sont plus utilisés.';
+
+  @override
+  String get lppPartnerManualRecovery =>
+      'Saisir ou confirmer les chiffres indépendamment';
+
+  @override
+  String get lppPartnerManualValueLabel => 'Avoir LPP actuel du conjoint (CHF)';
+
+  @override
+  String get lppPartnerManualValueUnknown => 'Je ne sais pas';
+
+  @override
+  String get lppPartnerManualValueInvalid =>
+      'Saisis un montant positif ou choisis Je ne sais pas.';
+
+  @override
+  String get lppPartnerCaisseRateExcluded =>
+      'Le taux de la caisse est affiché pour vérification mais reste exclu des calculs.';
+
+  @override
+  String get lppPartnerRetirementBenefitChanged =>
+      'Le certificat partenaire confirmé a actualisé cet éclairage retraite.';
 }

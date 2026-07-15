@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -148,6 +149,7 @@ class _ScanSessionSpy extends ScanSessionProvider {
     ExtractionResult extraction, {
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
+    ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
   }) {
     retainExtractionCalls += 1;
@@ -155,6 +157,7 @@ class _ScanSessionSpy extends ScanSessionProvider {
       extraction,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
+      manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );
   }
