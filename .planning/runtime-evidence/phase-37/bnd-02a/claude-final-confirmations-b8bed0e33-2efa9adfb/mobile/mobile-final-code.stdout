@@ -1,0 +1,26 @@
+Verified against the working tree. The change is a self-contained, correctly-wired localization addition.
+
+## Audit: `fix(mobile): clarify receipt retry state` (base `b8bed0e33`)
+
+### Scope
+Adds one new l10n key `lppPartnerReceiptRetryTitle` and uses it as the retry-dialog title in the partner LPP receipt-creation flow, replacing the previously-reused `lppPartnerNoticeTitle`. Diff is ~44/-11 lines, well within budget.
+
+### Verification performed
+- **Full wiring, no facade**: abstract getter declared in `app_localizations.dart:41890`; concrete overrides present in all six subclasses (`_de/_en/_es/_fr/_it/_pt`); consumed at `document_scan_screen.dart:826` inside the actual `showDialog` retry `AlertDialog`. Not a dangling string.
+- **Six-language completeness**: grep confirms the key exists in all six `app_*.arb` files and all six `app_localizations_*.dart` files. No locale left on a fallback.
+- **Behavior correctness**: the title swap only affects the *retryable* receipt path. Terminal/unexpected error paths still surface `lppPartnerReceiptFailed` via `_preValidationError` (`document_scan_screen.dart:846`), and still never render the retry dialog — unchanged. No privacy/routing behavior touched (no bytes/hash/network side effects in this path).
+- **Tests are genuine, not weakened**:
+  - `manual_partner_lpp_accountability_rendering_test.dart` adds both `lppPartnerReceiptRetryTitle` and `lppPartnerReceiptRetryable` to the activation-blocking key inventory asserted across all six ARBs.
+  - `lpp_pre_upload_authorization_test.dart` replaces hardcoded FR copy constants with `lookupS(const Locale('fr'))`, and the retryable test now asserts `lppPartnerReceiptRetryTitle` is shown while `lppPartnerNoticeTitle` and `lppPartnerReceiptFailed` are absent — a stronger, non-tautological assertion tied to real localized output.
+- **ARB validity**: JSON insertions are well-formed with trailing commas; the required-keys test `jsonDecode`s each ARB, so a malformed file would fail CI.
+
+### Findings
+- **P0**: none
+- **P1**: none
+- **P2 (non-blocking)**: `lppPartnerReceiptRetryTitle` has no `@`-metadata description entry in the ARBs. This is consistent with sibling non-placeholder keys (`lppPartnerReceiptFailed`, `lppPartnerNoticeOpen`), so it is not a defect — noted only for completeness.
+
+### Evidence a reviewer can re-run
+- `flutter test test/screens/document_scan/lpp_pre_upload_authorization_test.dart test/screens/coach/manual_partner_lpp_accountability_rendering_test.dart` (from `apps/mobile`) would prove the inventory + retry-dialog assertions pass. I did not execute the suite in this environment; the static wiring and test logic are verified by inspection.
+
+### Verdict
+**PASS**

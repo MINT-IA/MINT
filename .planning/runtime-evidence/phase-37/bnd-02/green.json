@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-02",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/providers/household_bridge_recompute_test.dart --reporter expanded",
+  "sha": "1d022c5086393e3b2e9df8399232f3dbcc6284e8",
+  "recorded_at": "2026-07-15T22:08:30Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "household_bridge_recompute_test",
+  "output": "The exact command passed 7/7 predicates. Cold owner/status selection reaches MintStateEngine -> ForecasterService -> RetirementDashboardScreen, one owner-matched change projects once, manual-partner fundReturnRateRatio remains quarantined, and an exact self 0.02 is distinct from missing. Exact-SHA Patrol and Maestro summaries: .planning/runtime-evidence/phase-37/bnd-02a/runtime-1d022c508/runtime-manifest.json.",
+  "synthetic_data_only": true
+}

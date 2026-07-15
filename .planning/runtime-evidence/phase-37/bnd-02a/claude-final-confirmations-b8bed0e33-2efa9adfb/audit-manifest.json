@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "archive_kind": "wrapper_only_exact_sha_final_confirmations",
+  "ticket_scope": [
+    "G1-PROV-02",
+    "G1-BND-02",
+    "G1-BND-02A"
+  ],
+  "audit_gate": {
+    "result": "PASS",
+    "pass_count": 4,
+    "required_count": 4,
+    "p0": 0,
+    "p1": 0,
+    "p2_observations": 8,
+    "unresolved_p0": 0,
+    "unresolved_p1": 0,
+    "unresolved_audit_blockers": 0,
+    "rubric_subscore": "1.0/1.0"
+  },
+  "acceptance_decision": {
+    "bnd_02": "TECHNICAL-GREEN",
+    "bnd_02a": "TECHNICAL-GREEN",
+    "activation": "NO-GO",
+    "g1": "NO-GO",
+    "g2_g3_authorized": false,
+    "blocking_reasons": [
+      "Eight publishable external controller, vendor-processing and legal activation facts remain unproven."
+    ],
+    "invariant": "Four audit PASS results plus exact-SHA runtime evidence accept the technical tickets but do not override external activation gates."
+  },
+  "protocol": {
+    "wrapper": "tools/checks/claude_external_audit.sh",
+    "model": "opus",
+    "effort": "high",
+    "rerun": true,
+    "allow_non_sonnet_rerun": true,
+    "large_diff_override": false,
+    "one_final_per_lens": true,
+    "audit_carousel": false,
+    "exact_detached_heads": true
+  },
+  "runs": [
+    {
+      "id": "backend-final-code",
+      "mode": "code",
+      "base_sha": "eba7361ce35234f3d531f4355a8ce0e9304ff826",
+      "head_sha": "b8bed0e33f9a4c6199bc7e3e91339f1ddd9a2fa3",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "p0": 0,
+      "p1": 0,
+      "p2_observations": 1,
+      "artifacts": {
+        "summary": "backend/SUMMARY.md",
+        "meta": "backend/backend-final-code.meta",
+        "stdout": "backend/backend-final-code.stdout",
+        "stderr": "backend/backend-final-code.stderr",
+        "source_checksums": "backend/SHA256SUMS"
+      }
+    },
+    {
+      "id": "backend-final-product-domain",
+      "mode": "product-domain",
+      "base_sha": "eba7361ce35234f3d531f4355a8ce0e9304ff826",
+      "head_sha": "b8bed0e33f9a4c6199bc7e3e91339f1ddd9a2fa3",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "p0": 0,
+      "p1": 0,
+      "p2_observations": 3,
+      "artifacts": {
+        "summary": "backend/SUMMARY.md",
+        "meta": "backend/backend-final-product-domain.meta",
+        "stdout": "backend/backend-final-product-domain.stdout",
+        "stderr": "backend/backend-final-product-domain.stderr",
+        "source_checksums": "backend/SHA256SUMS"
+      }
+    },
+    {
+      "id": "mobile-final-code",
+      "mode": "code",
+      "base_sha": "b8bed0e33f9a4c6199bc7e3e91339f1ddd9a2fa3",
+      "head_sha": "2efa9adfb51ae594f75ca2b8d86c7c4d1018c26f",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "p0": 0,
+      "p1": 0,
+      "p2_observations": 1,
+      "artifacts": {
+        "summary": "mobile/SUMMARY.md",
+        "meta": "mobile/mobile-final-code.meta",
+        "stdout": "mobile/mobile-final-code.stdout",
+        "stderr": "mobile/mobile-final-code.stderr",
+        "source_checksums": "mobile/SHA256SUMS"
+      }
+    },
+    {
+      "id": "mobile-final-product-domain",
+      "mode": "product-domain",
+      "base_sha": "b8bed0e33f9a4c6199bc7e3e91339f1ddd9a2fa3",
+      "head_sha": "2efa9adfb51ae594f75ca2b8d86c7c4d1018c26f",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "p0": 0,
+      "p1": 0,
+      "p2_observations": 3,
+      "p2_actionable_defects": 0,
+      "artifacts": {
+        "summary": "mobile/SUMMARY.md",
+        "meta": "mobile/mobile-final-product-domain.meta",
+        "stdout": "mobile/mobile-final-product-domain.stdout",
+        "stderr": "mobile/mobile-final-product-domain.stderr",
+        "source_checksums": "mobile/SHA256SUMS"
+      }
+    }
+  ],
+  "p2_dispositions": [
+    {
+      "run": "backend-final-code",
+      "summary": "Real PostgreSQL proofs skip without an explicit test URL.",
+      "status": "dispositioned",
+      "disposition": "The audited head contains a blocking PostgreSQL CI lane that supplies the synthetic test URL."
+    },
+    {
+      "run": "backend-final-product-domain",
+      "summary": "Missing rotation keys retain a global fail-closed account-deletion blast radius.",
+      "status": "accepted_activation_debt",
+      "disposition": "Pre-existing fail-closed semantics; retain operational key-retention monitoring before activation."
+    },
+    {
+      "run": "backend-final-product-domain",
+      "summary": "Actor pseudonym matching uses SQL equality rather than constant-time Python comparison.",
+      "status": "accepted_informational",
+      "disposition": "Negligible for the authenticated actor-scoped query; no audit-gate defect."
+    },
+    {
+      "run": "backend-final-product-domain",
+      "summary": "SHOW transaction_isolation is not the load-bearing explicit configuration proof.",
+      "status": "dispositioned",
+      "disposition": "The dedicated database engine contract guards the explicit READ COMMITTED option."
+    },
+    {
+      "run": "mobile-final-code",
+      "summary": "The new non-placeholder retry-title ARB key has no metadata description.",
+      "status": "accepted_informational",
+      "disposition": "Consistent with sibling non-placeholder keys and not a functional defect."
+    },
+    {
+      "run": "mobile-final-product-domain",
+      "summary": "Retry-title framing now distinguishes infrastructure failure from partner LPP data.",
+      "status": "positive_validation",
+      "disposition": "No action required."
+    },
+    {
+      "run": "mobile-final-product-domain",
+      "summary": "Localized test assertions now read the real French localization.",
+      "status": "positive_validation",
+      "disposition": "No action required."
+    },
+    {
+      "run": "mobile-final-product-domain",
+      "summary": "The activation-blocking inventory covers all six locales.",
+      "status": "positive_validation",
+      "disposition": "No action required."
+    }
+  ],
+  "integrity": {
+    "root_checksums": "SHA256SUMS",
+    "backend_source_checksums": "backend/SHA256SUMS",
+    "mobile_source_checksums": "mobile/SHA256SUMS",
+    "temporary_paths_retained": false,
+    "large_runtime_artifacts_retained": false,
+    "private_fixtures_retained": false,
+    "synthetic_or_source_only": true
+  }
+}

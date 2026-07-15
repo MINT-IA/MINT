@@ -1,8 +1,8 @@
-%% G1 BND-02A/BND-02 reality map @ backend fde00b18c / mobile 09b0a6543.
-%% Technical implementation exists default-off. Both tickets and activation remain NO-GO:
-%% publishable external facts, production descriptor, Maestro/Patrol and
-%% wrapper-only audits are still missing. The real PostgreSQL five-case gate is
-%% GREEN and pushed; it does not authorize activation.
+%% G1 BND-02A/BND-02 reality map @ exact SHA 1d022c508.
+%% Both tickets are technical GREEN with identical-command, Patrol, Maestro and
+%% Claude-wrapper proof. All flags remain default-off; eight publishable
+%% external facts and the production descriptor remain missing, so activation
+%% and G1 remain NO-GO.
 %% Companion: SCREEN_CONTRACTS.md §5.1 and DATA_LEDGER.md BND-02A architecture.
 flowchart TD
   START["Real /scan caller<br/>DocumentScanScreen"]
@@ -15,8 +15,8 @@ flowchart TD
 
   subgraph PRE["Partner pre-acquisition — no picker or bytes"]
     direction TD
-    EXT_SOURCE["Production descriptor absent today<br/>notice contract NON PUBLIABLE<br/>controller/transfer/retention/rights/AIPD unverified"]
-    EXT{"Typed external facts current?<br/>exact notice + controller/contact<br/>transfer/retention + rights + AIPD"}
+    EXT_SOURCE["Production descriptor absent today<br/>notice contract NON PUBLIABLE<br/>8 controller/vendor/legal facts unverified"]
+    EXT{"Typed external facts current?<br/>controller/contact + Anthropic role/DPA/regions<br/>transfer/TIA + retention/ZDR + rights + AIPD"}
     BLOCKED["Blocked recovery<br/>no permission, picker, bytes,<br/>receipt, network or ledger write"]
     NOTICE["Versioned concise notice<br/>full notice + rights contact<br/>account-link independent"]
     AUTH{"Acting user JWT current?"}
@@ -73,7 +73,7 @@ flowchart TD
   QUARANTINE["fundReturnRateRatio<br/>retained in evidence root<br/>never conjoint.rendementCaisse<br/>never calculator input"]
   DIRECT["direct_partner_confirmation deferred<br/>no CTA, route or endpoint facade"]
   PG_GREEN["PostgreSQL technical gate GREEN @ fde00b18c<br/>Alembic round-trip + actor FOR UPDATE<br/>one-shot/idempotency + both delete race orders"]
-  ACCEPTANCE["BND-02/BND-02A NOT GREEN<br/>external facts + Maestro/Patrol<br/>Claude audits/accepted evidence missing"]
+  ACCEPTANCE["BND-02 + BND-02A TECHNICAL GREEN @ 1d022c508<br/>ACTIVATION + G1 NO-GO<br/>8 external facts remain unproven"]
 
   START --> FLAGS
   FLAGS -->|off — current production| OFF

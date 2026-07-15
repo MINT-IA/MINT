@@ -1,0 +1,33 @@
+{
+  "activation": "NO_GO_EXTERNAL_FACTS_UNPROVEN",
+  "bundle_id": "ch.mint.app",
+  "completed_steps": 17,
+  "contract": "g1_bnd02a_default_off_and_stale_recovery",
+  "device": "B03E429D-0422-4357-B754-536637D979F9",
+  "g1": "NO_GO",
+  "maestro_exit_code": 0,
+  "normal_app_build": "exact_detached_worktree_outside_desktop",
+  "normal_app_codesign_verified": true,
+  "private_fixture_used": false,
+  "schema_version": 1,
+  "screenshots": {
+    "g1_prov02_lpp_flag_off.png": {
+      "height": 2622,
+      "sha256": "9ed679d42710c63cdbc7a0e8d3adb88ff82046ff29b2fa19c98d0e31f2c76aad",
+      "width": 1206
+    },
+    "g1_prov02_lpp_stale_impact.png": {
+      "height": 2622,
+      "sha256": "21e22aadb08f6b0f928b590e282913c210c238e5e514daa3e156e444ac33bfe8",
+      "width": 1206
+    },
+    "g1_prov02_lpp_stale_review.png": {
+      "height": 2622,
+      "sha256": "321b60800effb042d29f09daa30898986e1c4eb1b6f65a89cbddb156c86c5856",
+      "width": 1206
+    }
+  },
+  "sha": "1d022c5086393e3b2e9df8399232f3dbcc6284e8",
+  "synthetic_or_empty_state_only": true,
+  "watchdog_used": true
+}

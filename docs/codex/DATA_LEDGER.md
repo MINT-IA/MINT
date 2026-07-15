@@ -4,13 +4,12 @@
 
 > **Status:** target contract plus live gap ledger for the coding agent (Codex). Mechanical, testable, implementable.
 > **Audited baseline:** commit `095eeaa32` (2026-07-07).
-> **Focused BND-02/BND-02A reality baseline:** isolated backend accountability
-> plus real PostgreSQL race/migration proof through `fde00b18c`, mobile secure
-> binding/real scan caller/receipt-bound ledger/dashboard/terminal cleanup
-> through `09b0a6543` (2026-07-15). These
-> commits establish a
-> technically present **default-off** path; they do not make either ticket
-> evidence-GREEN and do not authorize activation.
+> **Focused BND-02/BND-02A reality baseline:** BND-02 and BND-02A are technical
+> GREEN at exact SHA `1d022c508` (2026-07-16): identical commands, Patrol
+> writer→terminate→cold-reader, normal-build restoration, Maestro flag-off/
+> stale recovery and four Claude-wrapper confirmations are accepted. Every
+> switch remains false; eight external production facts are still unproven, so
+> activation and G1 remain NO-GO.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -572,16 +571,12 @@ The production code path described below is ticket- and runtime-GREEN at the
 accepted pushed SHA `30728b8a0671a0b54bcf47807a0c69bac905e6e3`. This is
 **not** an activation or G1-GO statement. Both local switches remain false,
 activation remains NO, the G1 closure rows remain open, and G2/G3 remain
-forbidden. The later default-off BND slice is now technically present at
-backend `fde00b18c` and mobile through `09b0a6543`: a cold-selected receipt-bound
-manual-partner fact reaches the named retirement recompute/dashboard and the
-isolated accountability mechanism has a real scan caller. `G1-BND-02` and
-`G1-BND-02A` nevertheless remain non-GREEN until their registry evidence,
-publishable external facts, mobile Maestro/Patrol proof and bounded code/
-product-domain audits are complete on an accepted SHA. The real PostgreSQL
-Alembic round-trip, row-lock and five-case multi-session gate is technically
-GREEN and pushed at `fde00b18c`; it does not resolve the external activation
-facts.
+forbidden. The later default-off BND slice is technical GREEN at exact SHA
+`1d022c508`: a cold-selected receipt-bound manual-partner fact reaches the named
+retirement recompute/dashboard and the isolated accountability mechanism has a
+real scan caller. BND-02 and BND-02A are technical GREEN at `1d022c508` with
+identical-command, runtime and bounded audit evidence. This does not resolve
+the eight external activation facts or authorize production use.
 
 G1-PROV-02 uses one local answer root only:
 `wizard_answers_v2['_coach_lpp_evidence_v1']`. Its value is a JSON **string**
@@ -841,7 +836,7 @@ fallbacks when typed ingestion is disabled or fails.
   selector result and recreates exact field provenance. Consumers never read
   the JSON root directly.
 
-#### Later-G1 downstream and accountability gates (technical path present; not GREEN)
+#### Later-G1 downstream and accountability gates (technical GREEN; activation NO-GO)
 
 PROV-02 proves durable typed presentation paths, not the final household
 product promise. The default-off BND-02 implementation now cold-reconciles the
@@ -854,24 +849,26 @@ proves one visible projection change without duplicate recompute. The
 certificate `fundReturnRateRatio` is retained in the strict evidence root but
 quarantined from `conjoint.prevoyance.rendementCaisse`; an exact known self
 `0.02` is no longer treated as the legacy missing-value sentinel. This is the
-real caller that was previously absent, but it does not close `G1-BND-02`
-without frozen-SHA runtime and accepted registry/audit evidence.
+real caller that was previously absent. Frozen-SHA runtime and accepted
+registry/audit evidence now close technical `G1-BND-02` at `1d022c508`.
 
 The named BND-02A decision now exists at
 `decisions/ADR-20260715-g1-bnd02a-partner-accountability.md`, and its isolated
 backend receipt plus mobile pending/active binding and true scan caller are
-implemented default-off. `G1-BND-02A` remains non-GREEN because the companion
-notice contract is explicitly non-publishable: the verified controller/contact,
-actual transfer guarantee/regions/retention, rights channel and AIPD outcome
-are not production facts, and `DocumentScanScreen` receives no production
-`PartnerAccountabilityExternalGate` from the `/scan` route. Before activation,
+implemented default-off. `G1-BND-02A` is technical GREEN at `1d022c508`
+because missing external facts are proven to stop the flow before picker,
+bytes and network. The companion notice remains explicitly non-publishable:
+verified controller/contact, Anthropic role/DPA, actual regions, transfer/TIA,
+retention/ZDR, rights channel and AIPD outcome are not production facts, and
+`DocumentScanScreen` receives no production `PartnerAccountabilityExternalGate`
+from the `/scan` route. Before activation,
 MINT must publish the versioned notice covering identity/contact, categories,
 purposes, Anthropic as recipient/processor, the actual regions and verified
 transfer guarantee, raw non-retention, retention of confirmed figures, and a
 direct access/objection/withdrawal/deletion channel. Account linking remains
-optional. The real PostgreSQL migration/concurrency tests are GREEN and pushed
-at `fde00b18c`; mobile runtime proof, accepted ticket artifacts and both
-wrapper-only Claude lenses remain mandatory.
+optional. The real PostgreSQL migration/concurrency tests, mobile runtime,
+accepted ticket artifacts and four wrapper-only Claude final confirmations are
+now retained; none substitutes for the eight external activation facts.
 
 If MINT relies on authorization/consent, a durable minimized record outside
 the financial ledger must prove only that the acting user declared
@@ -882,7 +879,7 @@ default. Any exception must prove necessity, absence of a less intrusive
 alternative, access limits, a fixed duration and deletion, and remains outside
 the financial root, provenance, scenarios and dossier.
 
-#### Accepted G1-BND-02A accountability architecture (default-off implementation present; acceptance blocked)
+#### Accepted G1-BND-02A accountability architecture (technical GREEN; activation blocked)
 
 The accepted decision is
 `decisions/ADR-20260715-g1-bnd02a-partner-accountability.md`; the non-publishable
@@ -1075,10 +1072,10 @@ and endpoint regression gate must prove this. The legacy endpoint must be
 explicitly disabled for the LPP purpose (or globally behind its own default-off
 legacy switch) rather than used as fallback.
 
-**Implemented technical surfaces and remaining GREEN scope.** The authoritative
-registry names the combined commands and the following concrete surfaces. They
-now exist at backend through `fde00b18c` and mobile through `09b0a6543`; this inventory
-is implementation evidence only, not runtime/activation evidence:
+**Accepted technical surfaces and remaining activation scope.** The
+authoritative registry names the combined commands and the following concrete
+surfaces. They are accepted together at exact SHA `1d022c508`; this inventory
+and its runtime proof are technical ticket evidence, not activation evidence:
 
 - backend: `app/models/partner_accountability_receipt.py`,
   `app/schemas/partner_accountability.py`,
@@ -1110,19 +1107,21 @@ The backend exact command is
 `cd services/backend && python3 -m pytest tests/test_partner_accountability.py tests/test_lpp_candidate_only_extraction.py tests/services/document/test_third_party_declaration.py -q`.
 The mobile exact command is
 `cd apps/mobile && flutter test test/providers/partner_financial_consent_lifecycle_test.dart test/providers/household_bridge_recompute_test.dart test/screens/coach/manual_partner_lpp_accountability_rendering_test.dart --reporter expanded`.
-Neither command may borrow PROV-02 evidence. Their recorded semantic RED must
-fail on accountability/caller predicates rather than imports or fixtures, and
-their matching GREEN outputs still need accepted artifacts/SHAs before the two
-registry rows may change state.
+Neither command borrows PROV-02 evidence. Their semantic RED fails on
+accountability/caller predicates rather than imports or fixtures. At
+`1d022c508`, the focused BND-02 command passes 7/7 and the combined command
+passes backend 66/66 plus mobile 20/20; both registry rows are technical GREEN.
 
-**Known acceptance debt at this baseline.** The real PostgreSQL migration,
+**Known activation debt at this baseline.** The real PostgreSQL migration,
 actor-lock and five-case multi-session idempotency/concurrency gate is GREEN at
 pushed SHA `fde00b18c`. Mobile `09b0a6543` limits retry to typed retryable accountability errors and
 performs full session/receipt/binding/temp cleanup when navigation fails after
-handoff; those two former P2s are closed. End-to-end Patrol/Maestro proof for the
-real picker/temp-file lifecycle remains outstanding. These are not reasons to
-call the technical default-off slice absent; the missing external/runtime/audit
-evidence is why BND-02/BND-02A and activation remain non-GREEN.
+handoff; those two former P2s are closed. Exact-SHA Patrol/Maestro and four
+wrapper-only audit confirmations are retained under Phase 37 evidence. The
+remaining debt is external activation truth, not ticket implementation:
+controller identity, privacy contact, Anthropic role/DPA and actual regions,
+transfer/TIA, retention/ZDR, AIPD decision and the public account-free rights
+channel/runbook/test.
 
 #### Migration and kill switches
 
@@ -1163,11 +1162,11 @@ confirmation CTA are hidden or neutralized **before consent/picker/OCR/upload**;
 unless the third local switch, backend switch and exact external descriptor are
 also current, the manual-partner branch fails closed before permission/picker/
 bytes/receipt/network. A stale/deep link cannot call either legacy writer.
-PROV-02 is now GREEN with frozen pushed-SHA runtime proof and external audits,
-but activation remains forbidden. BND-02/BND-02A technical behavior is now
-present default-off; activation additionally requires its accepted registry
-proof, a publishable partner notice/external descriptor, PostgreSQL and mobile
-runtime evidence, wrapper-only audits and the remaining G1 closure gates.
+PROV-02 is GREEN with frozen pushed-SHA runtime proof and external audits, but
+activation remains forbidden. BND-02/BND-02A are technical GREEN at
+`1d022c508` and remain default-off; activation additionally requires the eight
+external facts, an approved publishable notice/descriptor and the remaining G1
+closure gates.
 
 G1 deliberately defines no `linkedPartnerLppEvidenceImport` flag: a switch
 without an authorized caller would be a facade. `LppReviewConfirmation` derives

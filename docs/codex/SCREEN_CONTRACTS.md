@@ -3,10 +3,10 @@
 > **G1 reality audit:** the route-payload/scenario addendum was re-checked at immutable commit `e2cfef057c197b3b8ac122d9a9aa3ca645c85696` on 2026-07-13. Older `file:line` references remain evidence snapshots, not evergreen truth. Rerun `tools/checks/tests/test_codex_spec_reality_contract.py` after changing this spec or the cited code.
 
 > Source of truth for target route wiring. Audited against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart` at commit `095eeaa32`.
-> Focused BND-02/BND-02A reality baseline: backend through `fde00b18c`, mobile through
-> `09b0a6543` (2026-07-15). The progressive caller and visible consumer are
-> technically present behind default-off gates; neither ticket is evidence-
-> GREEN and activation remains NO-GO.
+> Focused BND-02/BND-02A reality baseline: technical GREEN at exact SHA
+> `1d022c508` (2026-07-16) with identical-command, Patrol, Maestro and bounded
+> Claude-wrapper proof. The progressive caller and visible consumer remain
+> default-off; eight external facts keep activation and G1 NO-GO.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
 > A coding agent (Codex) implements these contracts directly. Every row is mechanical and test-verifiable. Violations are bugs, not style notes.
 
@@ -449,12 +449,12 @@ class ScanSessionPayload {
 
 ### 5.1 G1 BND-02A/BND-02 — default-off progressive implementation; activation NO-GO
 
-**Status:** accepted interaction contract and technically present default-off
-implementation at mobile `09b0a6543` plus backend `fde00b18c`; acceptance and
-activation remain blocked. This section replaces the older proxy-attestation
+**Status:** accepted interaction contract and technical GREEN default-off
+implementation at exact SHA `1d022c508`; activation remains blocked. This
+section replaces the older proxy-attestation
 wording for the `manualPartner` branch only. It does not publish the explicitly
 non-publishable notice contract, supply the production external descriptor,
-turn BND-02/BND-02A GREEN or authorize G2/G3. System and lifecycle wiring are
+activate BND-02/BND-02A or authorize G2/G3. System and lifecycle wiring are
 frozen in `DATA_LEDGER.md`; the focused control/state map is
 `PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd`.
 
@@ -696,11 +696,10 @@ Keep `test/screens/document_scan/lpp_pre_upload_authorization_test.dart` as the
 PROV-02 regression for flags, owner-before-picker and byte/SHA volatility. Then
 run `flutter gen-l10n`, `python3 tools/checks/arb_parity.py`, Doctor, the focused
 Mermaid render, Maestro for visible state transitions and Patrol for the real
-picker/input/temp-file proof. The real PostgreSQL migration, acting-user row
-lock and five-case concurrency gate is GREEN at pushed SHA `fde00b18c`; both
-bounded wrapper-only Claude audits remain required. Until the remaining
-runtime/audit proofs and the external legal facts are GREEN, the partner runtime
-remains default-off, BND-02/BND-02A remain non-GREEN and G1 remains NO-GO.
+process-death proof. At `1d022c508`, the exact commands, PostgreSQL gate,
+Patrol writer→terminate→cold-reader, 17-step Maestro flow and four wrapper-only
+Claude final confirmations are accepted. The partner runtime remains
+default-off; eight external production facts keep activation and G1 NO-GO.
 
 ### `/scan/avs-guide` — AVS extract guide
 | | |

@@ -160,29 +160,29 @@
     },
     {
       "ticket_id": "G1-BND-02",
-      "state": "red_proven",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/providers/household_bridge_recompute_test.dart --reporter expanded",
       "evidence_mode": "red_green",
       "red_sha": "fcf720c4870a87497249ecc4449ca0895fb6dabf",
       "red_artifact": ".planning/runtime-evidence/phase-37/bnd-02/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "1d022c5086393e3b2e9df8399232f3dbcc6284e8",
+      "green_artifact": ".planning/runtime-evidence/phase-37/bnd-02/green.json",
+      "accepted_sha": "1d022c5086393e3b2e9df8399232f3dbcc6284e8"
     },
     {
       "ticket_id": "G1-BND-02A",
-      "state": "red_proven",
+      "state": "green",
       "command": "(cd services/backend && python3 -m pytest tests/test_partner_accountability.py tests/test_lpp_candidate_only_extraction.py tests/services/document/test_third_party_declaration.py -q) && (cd apps/mobile && flutter test test/providers/partner_financial_consent_lifecycle_test.dart test/providers/household_bridge_recompute_test.dart test/screens/coach/manual_partner_lpp_accountability_rendering_test.dart --reporter expanded)",
       "evidence_mode": "red_green",
       "red_sha": "fcf720c4870a87497249ecc4449ca0895fb6dabf",
       "red_artifact": ".planning/runtime-evidence/phase-37/bnd-02a/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "1d022c5086393e3b2e9df8399232f3dbcc6284e8",
+      "green_artifact": ".planning/runtime-evidence/phase-37/bnd-02a/green.json",
+      "accepted_sha": "1d022c5086393e3b2e9df8399232f3dbcc6284e8"
     },
     {
       "ticket_id": "G1-BND-03",

@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: BND-02 and BND-02A have committed semantic RED at fcf720c48; next is the isolated default-off backend boundary before the behavioral mobile caller; 17 hard floors remain and G2/G3 are not authorized.
-last_updated: "2026-07-15T16:19:49Z"
-last_activity: 2026-07-15 -- independent backend/mobile baselines and the exact BND-02/BND-02A cross-stack semantic RED were captured with synthetic fixtures; implementation and activation remain NO-GO
+stopped_at: BND-02 and BND-02A are technical GREEN at exact SHA 1d022c508 with identical-command, Patrol, Maestro and Claude-wrapper proof; 15 hard floors plus eight external activation facts remain and G2/G3 are not authorized.
+last_updated: "2026-07-15T22:08:30Z"
+last_activity: 2026-07-15 -- BND-02 and BND-02A technical acceptance was frozen at exact SHA 1d022c508; flags remain default-off and activation/G1 remain NO-GO
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,14 +34,13 @@ Plan: 37-04 — partner accountability and real downstream bridge
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-15 -- independent current baselines are recorded and the
-named backend/mobile tests now compile and fail only on the intended BND-02 and
-BND-02A behavior. Backend RED has 38 pass / 6 fail; the mobile component has
-7 pass / 12 fail, including a real exact-0.02 Forecaster predicate. The exact
-combined command fails on the backend half and therefore correctly
-short-circuits before mobile; both halves are also recorded independently. The
-next slice implements the isolated backend boundary before any mobile product
-code. Production activation remains disabled and G1 remains NO-GO.
+Last activity: 2026-07-15 -- the identical BND-02A command is GREEN at exact
+SHA `1d022c508` with backend 66/66 and mobile 20/20; the focused BND-02 command
+is 7/7. Separate Patrol writer and cold-reader processes pass 1/1 + 1/1 around
+an explicit successful termination, normal build restoration is verified,
+Maestro completes 17/17 default-off/stale-recovery steps, and four bounded
+Claude-wrapper confirmations pass with P0=0/P1=0. This is technical ticket
+acceptance only: production activation and G1 remain NO-GO.
 
 ## Build Order
 
@@ -93,25 +92,27 @@ code. Production activation remains disabled and G1 remains NO-GO.
 - `G1-PROV-02` is ticket- and runtime-GREEN at `30728b8a0671`; both LPP
   ingestion flags remain production-off. BND-02A now selects an isolated
   represented-authorization receipt rather than the legacy nominative consent
-  chain, and BND-02 names the RetirementDashboard consumer. Implementation,
-  controller/contact, transfer/retention, publishable notice/rights and the
-  AIPD decision remain activation/later-G1 blockers.
-- `G1-BND-02` and `G1-BND-02A` are `red_proven` at `fcf720c48`.
-  Backend starts from 6,108/7/0 functional GREEN with 93 unrelated global Ruff
-  errors recorded separately; Flutter starts from analyze 0 and 9,031/36/0.
-  The source-contract mobile RED is not acceptable GREEN evidence: real
-  lifecycle order, rollback, cold status gating and visible exact-once
-  recompute tests are mandatory during implementation.
+  chain, and BND-02 names the RetirementDashboard consumer. Controller/contact,
+  Anthropic role/DPA and regions, transfer/TIA, retention/ZDR, publishable
+  notice/rights channel and the AIPD decision remain activation blockers.
+- `G1-BND-02` and `G1-BND-02A` are technical `green` at exact SHA
+  `1d022c508`. Their identical commands, cold owner/status-gated consumer,
+  explicit caisse quarantine, exact-self 0.02 handling, lifecycle rollback,
+  Patrol/Maestro runtime and four wrapper-only audits are accepted. All LPP
+  accountability flags remain false. Technical GREEN never authorizes
+  activation.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 14 `green`, 14 `ticket_only`, and three
-  `red_proven`. Therefore 17 G1 hard floors remain open.
+- The canonical registry has 31 rows: 16 `green`, 14 `ticket_only`, and one
+  `red_proven`. Therefore 15 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
-- `G1-BND-02` and `G1-BND-02A` are also `red_proven`; neither can be promoted
-  until the isolated backend boundary and the real owner/status-gated mobile
-  caller pass the identical commands.
+- Eight external production facts remain unproven: controller identity,
+  operational privacy contact, Anthropic role/DPA, actual processing regions,
+  transfer mechanism/TIA, retention/ZDR, AIPD decision, and the public
+  account-free rights channel/runbook/test. They keep LPP activation NO-GO but
+  do not undo the default-off technical ticket acceptance.
 
 - Phase 38 and all later phases are dependency-blocked by Phase 37.
 - This is expected planned work, not a user-input blocker.
@@ -125,12 +126,12 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-15T16:19:49Z
+Last session: 2026-07-15T22:08:30Z
 
-Stopped at: BND-02/BND-02A semantic RED is committed and pushed. Implement the
-isolated backend receipt/model/service/lifecycle/document gate first, with
-targeted Ruff and OpenAPI/SOT updates; only then start the mobile lifecycle and
-real RetirementDashboard caller. LPP activation stays NO.
+Stopped at: BND-02/BND-02A technical GREEN evidence is prepared at exact SHA
+`1d022c508`; no commit/push was made by the quality-gate agent. Continue only
+G1 after reviewing this promotion diff. Do not activate LPP and do not start
+G2/G3.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-04-PLAN.md`. Do not infer

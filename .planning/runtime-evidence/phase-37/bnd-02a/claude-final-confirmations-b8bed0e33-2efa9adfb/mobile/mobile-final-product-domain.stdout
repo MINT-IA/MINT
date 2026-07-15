@@ -1,0 +1,27 @@
+All 6 locale classes plus the abstract base declare/override the new getter, matching the 6 ARB files — no missing-locale compile gap. The change is self-consistent.
+
+## Product/domain verdict: PASS
+
+This diff is a scoped UX-copy fix (`fix(mobile): clarify receipt retry state`): it adds one new localization key `lppPartnerReceiptRetryTitle` and swaps the retry-dialog title from `lppPartnerNoticeTitle` ("Your partner's LPP data") to the new "Receipt temporarily unavailable" string. No Swiss financial logic, constant, threshold, calculation, or advice-language is touched.
+
+### Findings
+
+**P0** — none.
+
+**P1** — none.
+
+**P2**
+- `document_scan_screen.dart:~+800` (retry dialog): the fix corrects a genuine incoherence — the retryable-receipt dialog previously reused `lppPartnerNoticeTitle`, so a transient-infrastructure error was labeled "Your partner's LPP data," which misframed the state. New title + retained `lppPartnerReceiptRetryable` content ("temporarily unavailable… you can retry… no document was transferred") is coherent. Good.
+- Test hardening is a net improvement: `lpp_pre_upload_authorization_test.dart` drops hardcoded FR copy constants in favor of `lookupS(const Locale('fr'))` getters, so copy edits won't silently rot the assertions. The retryable-path test now positively asserts `lppPartnerReceiptRetryTitle` is shown and `lppPartnerNoticeTitle` is absent, locking the fix.
+- `manual_partner_lpp_accountability_rendering_test.dart:+` adds `lppPartnerReceiptRetryTitle`/`lppPartnerReceiptRetryable` to the six-language required-key inventory, preventing partial-language shipping.
+
+### Swiss domain review
+- **LPP/BVG (2e pilier):** This is the partner LPP-certificate acquisition flow. No change to LPP figures, coordination deduction, conversion rate, or `lppPartnerCaisseRateExcluded` quarantine logic — the pension-fund rate remains excluded from calculations. No métier surface affected.
+- **AVS / 3a / tax / mortgage / insurance / succession:** Not affected by this diff.
+- **Compliance boundary:** Preserved. `lppAcquisitionPartnerAttestationNote` still states "not personalized financial advice," and the forbidden-fragment test still guards against "opposable", "zero data retention", "Data Privacy Framework", "ZDR", and direct-consent claims. The retry copy makes no data-transfer/retention promise and repeats "no document was transferred."
+- **Privacy:** No new data exposure; the retry state is a local dialog, no document/bytes/network touched on the retryable branch (test asserts `bytes==0, hash==0, network==0`).
+
+### Mint product logic review
+Neutral-to-positive on the ledger → DataQuest → scenario → dossier spine. It doesn't advance the spine but it protects the degraded-state UX of a privacy-sensitive partner-data intake: the user now gets an honest, retryable "receipt temporarily unavailable" frame instead of a mislabeled notice screen, and the fail-closed guarantees (no bytes/hash/network on transient failure, single erase on drift, no direct-confirmation facade) remain enforced by the surrounding tests. No facade-without-wiring risk: the getter is wired through the abstract delegate and all six concrete locales, and exercised by a widget test that taps `lpp_partner_receipt_pending` and confirms retry #2 fires.
+
+Evidence checked: `document_scan_screen.dart` retry `AlertDialog` (title now `lppPartnerReceiptRetryTitle`, content `lppPartnerReceiptRetryable`); `app_localizations.dart` abstract getter + 6 overrides; `lpp_pre_upload_authorization_test.dart` retryable/terminal assertions; `manual_partner_lpp_accountability_rendering_test.dart` six-language inventory.

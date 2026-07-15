@@ -1,0 +1,12 @@
+audit=backend-g1-opus-final-product-domain
+sha=b8bed0e33f9a4c6199bc7e3e91339f1ddd9a2fa3
+base=eba7361ce35234f3d531f4355a8ce0e9304ff826
+started=2026-07-15T21:39:13Z
+model=opus
+effort=high
+rerun=1
+allow_non_sonnet_rerun=1
+large_diff_override=0
+unified80_diff_lines=1517
+exit_code=0
+finished=2026-07-15T21:41:53Z

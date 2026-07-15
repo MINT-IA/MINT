@@ -3,10 +3,11 @@
 %% ----------------------------------------------------------------------------
 %% G1 reality audit: general file:line refs were re-checked against HEAD
 %% 095eeaa32 on 2026-07-07. The PROV-02 subgraph was accepted for ticket and
-%% runtime truth at pushed SHA 30728b8a0671 on 2026-07-15. Focused BND-02A
-%% backend wiring plus real PostgreSQL race proof is present through fde00b18c and the mobile real caller/consumer/
-%% terminal cleanup through 09b0a6543. All partner flags remain false and the production external
-%% descriptor is absent; this is neither ticket GREEN, activation nor G1 closure.
+%% runtime truth at pushed SHA 30728b8a0671 on 2026-07-15. BND-02 and BND-02A
+%% are technical GREEN at exact SHA 1d022c508 on 2026-07-16 with combined
+%% commands, Patrol/Maestro and four wrapper-only audit confirmations. All
+%% partner flags remain false and the production external descriptor is absent;
+%% activation and G1 remain NO-GO.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -78,9 +79,9 @@ flowchart TB
 
   AVS_CARD -. "household calculations stay null" .-> MSP
 
-  %% G1 PROV-02 is GREEN; BND-02/BND-02A are implemented default-off but non-GREEN.
+  %% G1 PROV-02 and technical BND-02/BND-02A are GREEN; activation is NO-GO.
   %% Solid BND edges below are checked-in callers; dashed edges are blocked/future.
-  subgraph LPP_EVIDENCE["G1 PROV-02 GREEN + BND TECHNICAL PATH PRESENT — ACTIVATION NO-GO"]
+  subgraph LPP_EVIDENCE["G1 PROV-02 + BND TECHNICAL GREEN — ACTIVATION NO-GO"]
     direction TB
     LPP_FLAGS{"typedLppEvidence = false<br/>documentLppEvidenceEnabled = false<br/>lppEvidenceIngestionEnabled = AND<br/>no backend hydration"}
     LPP_DISABLED["either flag off<br/>LPP choice hidden before owner/consent/picker/upload<br/>stale review recoverable; no writer CTA"]
@@ -105,14 +106,14 @@ flowchart TB
     LPP_LEGACY_PARTNER["legacy partner loose values<br/>NO promotion; aliases purged beside opaque root<br/>key names + reason codes only when readable"]
     LPP_QUARANTINE["legacyPartnerQuarantine<br/>no values / direct PII"]
     LPP_REDACT["backendSafeAnswers<br/>always removes partner aliases<br/>strict root + provenance never mirrored"]
-    LPP_LINKED["household membership or linked grant<br/>G1-BND-02A not GREEN"]
+    LPP_LINKED["household membership or linked grant<br/>never satisfies G1-BND-02A"]
     LPP_PRIVATE_GATE["private real certificates<br/>local ignored sanitized parser gate only<br/>no fixture identity/value/raw artifact"]
     LPP_SYNTH_EVAL["classifier eval boundary<br/>generated synthetic images only<br/>offline corpus green; live Anthropic = NOT RUN<br/>exact synthetic runtime promoted at 30728b8a0671"]
-    LPP_BND02["OPEN G1-BND-02 — NOT GREEN<br/>cold owner/status gate + named Forecaster caller PRESENT<br/>visible exact-once dashboard proof PRESENT in tests<br/>frozen runtime + accepted evidence still missing"]
+    LPP_BND02["GREEN G1-BND-02 @ 1d022c508<br/>cold owner/status gate + named Forecaster caller<br/>visible exact-once dashboard proof<br/>exact command 7/7 + frozen runtime accepted"]
     LPP_PARTNER_FLAGS{"manualPartner kill switches<br/>mobile partnerLppAccountabilityEnabled = false<br/>backend partner_lpp_accountability_enabled = false<br/>no remote activation"}
-    LPP_EXTERNAL_SOURCE["production external descriptor ABSENT<br/>notice contract remains non-publishable<br/>controller/transfer/retention/rights/AIPD unverified"]
+    LPP_EXTERNAL_SOURCE["production external descriptor ABSENT<br/>notice contract remains non-publishable<br/>8 controller/vendor/legal activation facts unverified"]
     LPP_ACTOR_AUTH{"manualPartner actor auth<br/>JWT required; actor derived server-side<br/>partner account/link NOT required<br/>anonymous/local-only = fail closed"}
-    LPP_ACCOUNTABILITY_GATE{"BND-02A external gate<br/>published notice + verified controller/contact<br/>transfer/retention + rights + AIPD<br/>all current and exact versions"}
+    LPP_ACCOUNTABILITY_GATE{"BND-02A activation gate<br/>controller/contact + Anthropic role/DPA/regions<br/>transfer/TIA + retention/ZDR + rights + AIPD<br/>all current and exact versions"}
     LPP_OWNER_TOKEN["manualPartner owner token<br/>reuse secure-root profileOwnerId if present<br/>else UUIDv4 exactly once before receipt/network<br/>same token through scan + pending binding + accept review"]
     LPP_ACCOUNTABILITY_RECEIPT[("isolated partner_accountability_receipts<br/>receiptId idempotency includes keyed owner pseudonym<br/>manualPartner / proxy declaration / one-shot LPP<br/>declared + expires + consumed + revoked + erased<br/>NO raw owner / PII / IP / doc SHA / acquisition id / values<br/>NOT ConsentModel or Merkle chain")]
     LPP_BINDING[("strict-secure pending accountability binding<br/>written before receipt/network; shadows older active owner binding<br/>receiptId + preallocated manual owner + expiry/status<br/>NO acquisition id / document SHA / financial value")]
@@ -128,7 +129,7 @@ flowchart TB
     LPP_DIRECT_OPTION["optional future direct_partner_confirmation<br/>separate account-free receipt + real rights caller<br/>never upgrades proxy; no facade now"]
     LPP_LEGACY_RECEIPT["legacy grant-nominative / ConsentModel / receipt builder / Merkle<br/>name + doc hash + IP hash + unverified legal labels<br/>quarantine/audit only; disabled for LPP<br/>never migrate or hydrate"]
     LPP_PG_GREEN["PostgreSQL technical GREEN @ fde00b18c<br/>Alembic round-trip + acting User FOR UPDATE<br/>one-shot/idempotency + both delete race orders"]
-    LPP_ACCOUNTABILITY["OPEN G1-BND-02A — NOT GREEN<br/>isolated backend + secure mobile caller PRESENT default-off<br/>proxy declaration is NOT direct partner consent<br/>external facts + mobile runtime/audits missing"]
+    LPP_ACCOUNTABILITY["TECHNICAL GREEN G1-BND-02A @ 1d022c508<br/>isolated backend + secure mobile caller default-off<br/>proxy declaration is NOT direct partner consent<br/>activation still blocked by 8 external facts"]
 
     LPP_FLAGS -. "either off" .-> LPP_DISABLED
     LPP_FLAGS -. "both on; activation still requires named G1 decision" .-> LPP_OWNER
@@ -179,10 +180,10 @@ flowchart TB
     LPP_SYNTH_EVAL -. "immutable synthetic corpus" .-> LPP_KIND
     LPP_SELECT -->|"active manual owner only"| LPP_DOWNSTREAM
     LPP_DOWNSTREAM -->|"named visible consumer"| LPP_VISIBLE
-    LPP_VISIBLE -. "runtime/registry/audit acceptance still required" .-> LPP_BND02
+    LPP_VISIBLE -. "exact-SHA runtime/registry/audits accepted" .-> LPP_BND02
     LPP_INVALIDATE -. "no stale partner result" .-> LPP_VISIBLE
-    LPP_ATTEST -. "technical slice still needs accepted GREEN evidence" .-> LPP_ACCOUNTABILITY
-    LPP_ACCOUNTABILITY -. "activation blocked by external/runtime gates" .-> LPP_EXTERNAL_SOURCE
+    LPP_ATTEST -. "technical GREEN evidence accepted" .-> LPP_ACCOUNTABILITY
+    LPP_ACCOUNTABILITY -. "activation blocked by external facts" .-> LPP_EXTERNAL_SOURCE
     LPP_PG_GREEN -. "technical proof does not activate" .-> LPP_ACCOUNTABILITY
     LPP_ACCOUNTABILITY -. "optional separate future path only" .-> LPP_DIRECT_OPTION
     LPP_LEGACY_RECEIPT -. "never valid for LPP" .-> LPP_REJECT
@@ -460,11 +461,11 @@ flowchart TB
 %% gate is GREEN at fde00b18c; secure pending/active binding, byte-
 %% boundary terminal drift, receipt-bound facts, named Forecaster caller and
 %% visible dashboard/recovery/rights exist through e6d1f70a2; typed retry-only
-%% receipt handling and complete failed-navigation cleanup exist at 09b0a6543. This is technical
-%% default-off presence, not BND GREEN. Publishable external facts, a production
-%% descriptor, Maestro/Patrol and wrapper-only code/product-domain audits remain
-%% missing. End-to-end real-device temp cleanup remains acceptance debt. A
+%% receipt handling and complete failed-navigation cleanup exist at 09b0a6543.
+%% Exact-SHA 1d022c508 commands, Patrol/Maestro and four wrapper-only audits make
+%% BND-02 and BND-02A technical GREEN. Publishable external facts and a
+%% production descriptor remain missing, so activation stays NO-GO. A
 %% durable minimized proof is never direct partner
 %% consent; acquisition ID and document SHA do not enter the financial ledger.
-%% BND-02/BND-02A, activation and every G1/G2/G3 GO claim stay forbidden.
+%% G1/G2/G3 GO claims stay forbidden.
 %% ============================================================================

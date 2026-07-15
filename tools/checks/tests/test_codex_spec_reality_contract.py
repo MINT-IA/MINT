@@ -108,7 +108,7 @@ def test_data_flow_maps_committed_partner_accountability_reality() -> None:
     data_flow = DATA_FLOW.read_text(encoding="utf-8")
 
     required_reality_markers = (
-        "`0280bb840`",
+        "`1d022c508`",
         "`FeatureFlags.partnerLppAccountabilityEnabled=false`",
         "`partner_lpp_accountability_enabled=false`",
         "`PartnerAccountabilityExternalGate`",
@@ -118,8 +118,17 @@ def test_data_flow_maps_committed_partner_accountability_reality() -> None:
         "`manualPartner.independentFacts`",
         "`MintStateEngine -> ForecasterService`",
         "`RetirementDashboardScreen`",
-        "BND-02/BND-02A remain non-GREEN",
-        "activation remains NO-GO",
+        "BND-02/BND-02A are technical GREEN",
+        "eight external activation facts",
+        "controller identity",
+        "privacy contact",
+        "Anthropic role/DPA",
+        "processing regions",
+        "transfer mechanism/TIA",
+        "retention/ZDR",
+        "AIPD decision",
+        "account-free rights channel",
+        "activation and G1 remain NO-GO",
         "There is no G1 closure or G2/G3 GO.",
     )
     for marker in required_reality_markers:
@@ -134,6 +143,12 @@ def test_data_flow_maps_committed_partner_accountability_reality() -> None:
         "BND-02A is GREEN",
         "activation is GO",
         "activation is GREEN",
+        "`0280bb840`",
+        "`fbbaa748e`",
+        "BND-02/BND-02A remain non-GREEN",
+        "accepted BND runtime/registry evidence",
+        "Frozen-SHA device evidence",
+        "accepted runtime/external/audit proof missing",
     )
     for claim in stale_claims:
         assert claim not in data_flow, f"docs/data-flow.md still claims {claim!r}"

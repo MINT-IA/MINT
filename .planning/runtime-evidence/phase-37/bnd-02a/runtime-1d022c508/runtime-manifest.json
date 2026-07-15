@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "sha": "1d022c5086393e3b2e9df8399232f3dbcc6284e8",
+  "recorded_at": "2026-07-15T22:08:30Z",
+  "synthetic_data_only": true,
+  "private_fixture_used": false,
+  "bundle_id": "ch.mint.app",
+  "patrol": {
+    "writer": {
+      "passed": 1,
+      "failed": 0
+    },
+    "terminate_exit_code": 0,
+    "cold_reader": {
+      "passed": 1,
+      "failed": 0
+    },
+    "normal_build_restored": true
+  },
+  "maestro": {
+    "flow": "g1_prov02_lpp_flag_off.yaml",
+    "completed_steps": 17,
+    "exit_code": 0,
+    "normal_exact_sha_build": true,
+    "flag_off_and_stale_recovery": true
+  },
+  "exact_ticket_commands": {
+    "G1-BND-02": {
+      "exit_code": 0,
+      "passed": 7,
+      "failed": 0
+    },
+    "G1-BND-02A": {
+      "exit_code": 0,
+      "backend_passed": 66,
+      "backend_failed": 0,
+      "mobile_passed": 20,
+      "mobile_failed": 0
+    }
+  },
+  "claude_wrapper_audits": {
+    "result": "PASS",
+    "passed": 4,
+    "required": 4,
+    "p0": 0,
+    "p1": 0,
+    "archive": ".planning/runtime-evidence/phase-37/bnd-02a/claude-final-confirmations-b8bed0e33-2efa9adfb"
+  },
+  "technical_ticket_decision": {
+    "G1-BND-02": "GREEN",
+    "G1-BND-02A": "GREEN"
+  },
+  "activation_decision": "NO_GO",
+  "g1_decision": "NO_GO",
+  "g2_g3_authorized": false,
+  "activation_blockers": [
+    {
+      "id": "controller_identity",
+      "required_fact": "Verified legal controller identity"
+    },
+    {
+      "id": "privacy_contact",
+      "required_fact": "Operational privacy contact"
+    },
+    {
+      "id": "anthropic_role_and_dpa",
+      "required_fact": "MINT-specific Anthropic role and DPA acceptance"
+    },
+    {
+      "id": "processing_regions",
+      "required_fact": "Actual processing regions for the selected workspace, model and inference path"
+    },
+    {
+      "id": "transfer_mechanism_and_tia",
+      "required_fact": "Applicable transfer mechanism and transfer impact assessment"
+    },
+    {
+      "id": "retention_or_zdr",
+      "required_fact": "Actual retention or zero-data-retention contract and configuration"
+    },
+    {
+      "id": "aipd_decision",
+      "required_fact": "Approved AIPD or approved documented non-AIPD decision"
+    },
+    {
+      "id": "account_free_rights_channel",
+      "required_fact": "Public account-free rights channel with runbook and test"
+    }
+  ],
+  "retained_light_artifacts": {
+    "write_xcresult_summary": {
+      "path": "write-xcresult-summary.json",
+      "sha256": "0653551e74aeb418348b07e828112da717af3019c1e3e9914a16786c53a33d96"
+    },
+    "read_xcresult_summary": {
+      "path": "read-xcresult-summary.json",
+      "sha256": "a712e60247816ab7c336fbe49811cc67fd8d62361b418badb693be3598e40839"
+    },
+    "maestro_metadata": {
+      "path": "maestro-metadata.json",
+      "sha256": "e64ea6fdd0418dcbf1e99a058772810b3fb71785c2f6042188c0c1abb6e5867b"
+    }
+  },
+  "omitted": [
+    "xcresult bundles",
+    "app binaries",
+    "screenshots",
+    "private certificates",
+    "absolute temporary paths",
+    "credentials and tokens"
+  ]
+}

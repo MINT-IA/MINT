@@ -1,0 +1,28 @@
+I've reviewed the diff against the live source. This change set is backend privacy/consistency plumbing for the default-off **manual-partner LPP accountability receipt** feature (BND-02A): it (1) refactors engine options and pins PostgreSQL `READ COMMITTED`, (2) narrows the erasure lock set in `erase_all_for_actor` to the target actor's pseudonyms, and (3) persists a failure audit for the vanished-actor account-deletion race outside the rolled-back session. I verified the wiring in `service.py`, `auth.py`, `database.py`, `receipt_builder.py`, and the tests.
+
+Product/domain verdict: PASS
+
+## P0
+None.
+
+## P1
+None. The change is fully wired (no facade): `_audit_account_deletion_actor_unavailable` is invoked in the `except _AccountDeletionActorUnavailable` branch (`auth.py:1131`), `engine_options_for_url` is consumed by both the production engine and the proof fixture, and `erase_all_for_actor` is called inside `delete_account`. Each claim in the SOT diff is backed by an executable test on real PostgreSQL.
+
+Correctness spot-checks that passed:
+- **Blacklist survives rollback**: `blacklist_token` commits (`auth_service.py:176`) *before* the `try` block, so the vanished-actor `db.rollback()` cannot undo it — matching `test_missing_actor_delete_race_keeps_blacklist_and_failure_audit`.
+- **Failure audit isolation**: the helper opens a fresh `Session(bind=db.get_bind())` and swallows storage errors, so a failing audit store never converts the stable 409 into a 500 (`test_delete_account_missing_actor_audit_failure_preserves_conflict`), and the 409 path never claims a successful purge.
+- **No missed rows in narrowed erasure**: `live_key_ids` is validated against the keyring (`service.py:333-334`), and predicates are built over `keyring.keys` (superset), so every validated live key is covered; the SQL `OR` predicate set is equivalent to the old per-row HMAC compare while avoiding cross-actor lock contention (`test_actor_erasure_does_not_wait_on_another_actors_locked_receipt`).
+- **Race snapshot semantics**: under `READ COMMITTED`, the fresh `SELECT DISTINCT hmac_key_id` statement after the User-row lock sees a create-first committed receipt (`test_receipt_create_wins_race_and_account_delete_erases_it`), and delete-first makes the waiting create fail with `PartnerAccountabilityActorUnavailable` rather than orphaning a receipt.
+
+## P2
+- **Global fail-closed blast radius on missing rotation keys** (`service.py:319-334`): `live_key_ids` is computed across *all* actors' non-erased receipts, so a single receipt referencing a key that ops dropped from `MINT_PARTNER_ACCOUNTABILITY_PREVIOUS_HMAC_KEYS_JSON` makes `keyring.key_for` raise and rolls back *every* user's account deletion (500), not just the affected actor's — degrading an nLPD right-to-erasure path for reasons unrelated to the deleting user. This is **not a regression** (the prior `for row in rows: _key_for_row(...)` had the same global reach), and it is documented as an operational key-retention invariant, so it stays P2. Suggest a runbook note / alert on unresolved live `hmac_key_id` values.
+- **Pseudonym match moved from `hmac.compare_digest` to SQL equality** (`service.py:338-339`): the DB-side `==` is not constant-time unlike the prior in-Python compare. Negligible here (the actor is JWT-authenticated and matching only their own pseudonyms), noted for completeness only.
+- **`SHOW transaction_isolation` proof is meaningful only because it also sets the options**: `test_partner_accountability_protocol_requires_read_committed` would pass on a default PG install even without the new `isolation_level` kwarg (PG default is already read committed); the real guard is `test_database_engine_contract.py`. Fine as-is, just don't read the SHOW test as proof the explicit setter is load-bearing.
+
+## Swiss domain review
+- **LPP (2e pilier)**: The only domain surface is the *gate* controlling manual-partner LPP certificate vision-extraction. No LPP calculation, coordination deduction, conversion rate, or capital/annuity logic is touched. Correctly remains default-off and gated on notice/policy versions + HMAC key.
+- **AVS / 3a / tax / mortgage / insurance / succession**: Not affected by this diff — no thresholds, cantonal rates, or pension constants added or changed, so no current-law verification burden is triggered here.
+- **nLPD / data protection**: The change strengthens two compliance-relevant flows — right-to-erasure atomicity (receipt tombstoning inside the account-deletion transaction, fail-closed on missing keys) and honest failure reporting (no false purge success; minimal failure audit with `user_id=None`/`actor_email=None`). The self-declared `acting_user_partner_authorization_declaration` remains a weaker basis than the partner's own consent, but that is an accepted-ADR question deliberately parked behind the default-off flag, not something this diff resolves or worsens.
+
+## Mint product logic review
+This is spine-supporting infrastructure, not a new user-facing route. It protects the ledger's single-source-of-truth and dossier integrity by ensuring a partner-LPP authorization receipt is atomically erased on account deletion and can never be orphaned or falsely reported as purged. No duplicated user variables, no premature data collection, no advice/ranking/guarantee language introduced. It moves Mint marginally toward a trustworthy ledger→DataQuest→scenario→dossier spine by hardening the consent/erasure substrate that a specialist-ready partner-LPP handoff would depend on.

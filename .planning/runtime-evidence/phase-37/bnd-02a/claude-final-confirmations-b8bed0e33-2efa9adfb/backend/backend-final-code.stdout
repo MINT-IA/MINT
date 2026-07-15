@@ -1,0 +1,36 @@
+## MINT External Audit — Code Mode
+
+**Base ref:** `eba7361ce` → `HEAD (b8bed0e33)` · **Diff:** 7 files, 283 lines (within budget)
+
+### Scope
+The change set does three things: (1) scopes the partner-accountability erasure lock set to the target actor instead of locking every live receipt; (2) makes the production PostgreSQL engine explicitly set `READ COMMITTED` via a testable `engine_options_for_url` helper; (3) adds a durable failure-audit + token-blacklist guarantee to the missing-actor account-deletion path.
+
+### Verification performed
+
+**1. Erasure lock scoping (`service.py:317-345`)** — Correctness hinges on the new SQL-predicate query erasing *exactly* the same rows the old Python `hmac.compare_digest` loop did.
+- The validation loop `for key_id in live_key_ids: keyring.key_for(key_id)` guarantees every live `hmac_key_id` is present in `keyring.keys` before narrowing, and `key_for` raises `AccountabilityConfigurationError` on any absent key (`receipt_builder.py:36-41`). This preserves the fail-closed property (confirmed by `test_delete_account_rolls_back_when_receipt_key_is_unavailable`, passing).
+- Predicates iterate `keyring.keys.items()`, a superset of `live_key_ids`, so no live actor row can escape coverage. Match is exact HMAC-hex equality — equivalent to `compare_digest`. **No privacy regression (no row left un-erased).**
+- Lock set is now `or_(hmac_key_id==k AND pseudonym==H(k,actor))`, i.e. only the target actor's rows → the cross-actor lock-wait fixed. Mirrors the already-shipped `list_for_actor` pattern (`service.py:205-236`).
+
+**2. READ COMMITTED (`database.py`, `test_database_engine_contract.py`)** — Helper returns `isolation_level: "READ COMMITTED"` for postgres; SQLite branch unchanged. Default PG is already READ COMMITTED, so this is defensive/explicit and asserted by executable contract tests (passing). The `migrated_postgres` proof fixture now applies the same options and asserts `SHOW transaction_isolation`.
+
+**3. Missing-actor deletion durability (`auth.py:113-140, 1206`)** — `blacklist_token` commits in its own transaction (`auth_service.py:176`) *before* the `try`, so it survives the `db.rollback()`. The failure audit uses a **separate** `Session(bind=db.get_bind())` after rollback, committing independently, and swallows its own errors so best-effort audit never converts the stable 409 into a 500. Verified by:
+- `test_delete_account_missing_locked_user_returns_stable_conflict` ✅ (409 + 1 failure audit, `user_id`/`actor_email` null)
+- `test_delete_account_missing_actor_audit_failure_preserves_conflict` ✅ (409 preserved, 0 audit rows when store fails)
+- `test_delete_account_rolls_back_when_receipt_key_is_unavailable` ✅
+
+**Same-actor create/delete race** still serializes on the locked `User` row (`auth.py:1074-1082`) with a fresh post-lock snapshot; erasure’s scoped `with_for_update` does not weaken this.
+
+### Findings
+
+**P0:** none
+**P1:** none
+**P2 (informational):**
+- The two new real-PostgreSQL proofs (`test_actor_erasure_does_not_wait_on_another_actors_locked_receipt`, `test_missing_actor_delete_race_keeps_blacklist_and_failure_audit`) **skip without `MINT_TEST_POSTGRES_URL`** — they collected but did not execute here (`9 skipped`). They are the only executable proof of the lock-scoping and blacklist/audit-survival behavior on a real engine; SQLite ignores `with_for_update` and cannot demonstrate the lock-wait. Proof command to run them: `MINT_TEST_POSTGRES_URL=postgresql://… python3 -m pytest tests/postgres/test_partner_accountability_postgres.py`.
+- Minor: `import hmac` remains used (`service.py:201`), no dead import.
+
+Local runs: `test_database_engine_contract` + targeted auth tests (5 passed); partner-accountability/erase suite (17 passed, 9 postgres skipped). No facade-without-wiring, routing, or compliance gaps detected in the diff.
+
+---
+
+## Verdict: **PASS**

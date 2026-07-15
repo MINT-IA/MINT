@@ -14,13 +14,15 @@ storage key. If your edit changes one, this doc must be updated in the
 same PR. CI lint (TODO, Phase 34 extension) will enforce.
 
 > **Focused G1 BND reality baseline:** the default-off partner-accountability
-> implementation, including the PostgreSQL account-deletion conflict contract,
-> is mapped through committed SHA `0280bb840` (2026-07-15). The production
-> external descriptor is still absent, all checked-in activation defaults are
-> false,
-> BND-02/BND-02A remain non-GREEN and activation remains NO-GO. The accepted
-> PROV-02 persistence/runtime checkpoint remains `30728b8a0671`; later BND
-> implementation and test-source commits do not silently promote that scope.
+> path is accepted as technical GREEN for both tickets at exact SHA
+> `1d022c508` (2026-07-16), with identical-command, Patrol
+> writer→terminate→cold-reader, 17-step Maestro and four bounded Claude-wrapper
+> proofs. The production external descriptor is still absent and all checked-in
+> activation defaults are false. BND-02/BND-02A are technical GREEN.
+> The eight external activation facts and 15 other open G1 ticket rows mean
+> activation and G1 remain NO-GO. The
+> accepted PROV-02 persistence/runtime checkpoint remains
+> `30728b8a0671`; its narrower scope is unchanged by this later promotion.
 
 ---
 
@@ -136,11 +138,12 @@ fieldPath -> {source, updatedAt, sourceDate}
   `MintStateEngine -> ForecasterService` caller and the visible
   `RetirementDashboardScreen`; invalid or unverifiable authority removes those
   certificate facts while preserving separately entered user facts. This
-  technically closes the former facade gap, but accepted BND runtime/registry
-  evidence, publishable external facts and wrapper audits are still missing.
-  BND-02/BND-02A remain non-GREEN, activation remains NO-GO, G1 remains open,
-  and no G2/G3 work is authorized. The typed tax path is likewise behind its
-  composite default-off gate pending its own proof and activation decision.
+  closes the former facade gap. Exact-SHA runtime, registry and wrapper evidence
+  is accepted at `1d022c508`, so BND-02/BND-02A are technical GREEN. That
+  promotion changes neither checked-in flags nor production external truth:
+  activation and G1 remain NO-GO, and no G2/G3 work is authorized. The typed tax
+  path is likewise behind its composite default-off gate pending its own proof
+  and activation decision.
 
 ---
 
@@ -156,7 +159,7 @@ only legal local I/O boundaries.
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
-| 3 | **Scan confirmation** | LPP self: `DocumentScanScreen owner/permission → transmitted-byte authorization → kind gate → raw-free candidate/review → acceptLppReview`. LPP manual partner adds `external gate/auth/declaration → pending binding → permission → local handle (withData=false) → receipt create → byte boundary/one-shot extraction → review → exact-owner save → active binding`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes strict-secure `_coach_lpp_evidence_v1`; `manualPartner.facts` is receipt-bound while `manualPartner.independentFacts` is user-input recovery. The separate secure binding and minimized backend receipt contain no financial value. Volatile authorization/SHA enter neither ledger nor binding/receipt. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | Self publishes after one awaited secure save. Manual partner additionally activates the matching pending binding only after that save; terminal drift restores `shadowed`/prior active state and suppresses later callbacks. PROV-02 is GREEN at `30728b8a0671`; BND-02/BND-02A remain non-GREEN and activation remains NO-GO at `0280bb840`. |
+| 3 | **Scan confirmation** | LPP self: `DocumentScanScreen owner/permission → transmitted-byte authorization → kind gate → raw-free candidate/review → acceptLppReview`. LPP manual partner adds `external gate/auth/declaration → pending binding → permission → local handle (withData=false) → receipt create → byte boundary/one-shot extraction → review → exact-owner save → active binding`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes strict-secure `_coach_lpp_evidence_v1`; `manualPartner.facts` is receipt-bound while `manualPartner.independentFacts` is user-input recovery. The separate secure binding and minimized backend receipt contain no financial value. Volatile authorization/SHA enter neither ledger nor binding/receipt. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | Self publishes after one awaited secure save. Manual partner additionally activates the matching pending binding only after that save; terminal drift restores `shadowed`/prior active state and suppresses later callbacks. PROV-02 remains GREEN at `30728b8a0671`; BND-02/BND-02A are technical GREEN at `1d022c508`, while activation and G1 remain NO-GO. |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
@@ -425,18 +428,22 @@ publishes its next profile only after the answer snapshot is saved.
   and rights states. Certificate `fundReturnRateRatio` remains in ledger
   quarantine and never hydrates calculator-facing partner
   `rendementCaisse`; an exact known self `0.02` is no longer interpreted as a
-  missing sentinel. The committed real-caller Patrol source at `fbbaa748e` is a
-  test contract, not accepted runtime evidence. Frozen-SHA device evidence,
-  ticket promotion and wrapper-only audits still block BND acceptance.
+  missing sentinel. At exact SHA `1d022c508`, the identical BND command is
+  66/66 backend plus 20/20 mobile, the focused BND-02 command is 7/7, Patrol
+  passes writer 1/1 → successful termination → cold reader 1/1 with the normal
+  build restored, Maestro completes 17/17 steps, and four bounded final
+  Claude-wrapper confirmations report P0=0/P1=0. This evidence accepts the two
+  technical tickets only.
 - Private real-certificate coverage runs only through the ignored local
   sanitized oracle; network classifier cases are generated synthetic images.
   The live Anthropic eval is NOT RUN. The accepted synthetic runtime bundle and
   bounded external audits promote PROV-02 ticket/runtime truth at
   `30728b8a0671`, not later partner flags, BND-02/BND-02A, activation or G1 GO.
-  The companion legal notice remains explicitly non-publishable: verified
-  controller/contact, actual Anthropic transfer regions/mechanism, retention,
-  account-free rights and AIPD outcome are still absent. Therefore
-  BND-02/BND-02A remain non-GREEN and activation remains NO-GO at `0280bb840`.
+  The companion legal notice remains explicitly non-publishable. Exactly eight
+  external activation facts remain unproved: controller identity; privacy
+  contact; Anthropic role/DPA; processing regions; transfer mechanism/TIA;
+  retention/ZDR; AIPD decision; and the account-free rights channel. Therefore
+  activation and G1 remain NO-GO despite BND-02/BND-02A technical GREEN.
 
 **3a (3rd pillar)**
 - `q_has_3a`, `q_3a_total`, `q_3a_accounts_count`, `q_3a_annual_contribution`,
@@ -614,7 +621,8 @@ Document type selection
   │   ↓ cold reload → exact active receipt/owner status gate
   │   ↓ invalid receipt excludes certificate facts; independent userInput survives
   │   ↓ real MintStateEngine → ForecasterService recompute → RetirementDashboardScreen
-  │   ↓ BND-02/BND-02A remain non-GREEN: accepted runtime/external/audit proof missing
+  │   ↓ BND-02/BND-02A technical GREEN @ 1d022c508
+  │      activation/G1 NO-GO: eight external production facts remain unproved
   │
   ├─ AVS / salaire: camera, gallery, PDF or OCR paste
   │   ↓ DocumentService.extractDocumentData (backend)
@@ -732,14 +740,13 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 
 ---
 
-*Last updated: 2026-07-15 for the accepted G1-PROV-02 person-owned LPP
-checkpoint, the default-off BND-02/BND-02A implementation through `0280bb840`,
-and G1-PROV-03 typed tax provenance. PROV-02 is GREEN at pushed SHA
-`30728b8a0671a0b54bcf47807a0c69bac905e6e3`; that promotion does not extend to
-the later partner-accountability slice. All checked-in LPP/accountability
-defaults remain false, the production external descriptor is absent,
-BND-02/BND-02A remain
-non-GREEN and activation remains NO-GO. There is no G1 closure or G2/G3 GO.
+*Last updated: 2026-07-16 for the accepted G1-PROV-02 person-owned LPP
+checkpoint, G1-PROV-03 typed tax provenance and the BND-02/BND-02A technical
+promotion at exact SHA `1d022c508`. Both BND tickets are technical GREEN with
+accepted exact-SHA command, Patrol, Maestro and wrapper evidence. All checked-in
+LPP/accountability defaults remain false, the production external descriptor
+and its eight facts remain unproved, and activation and G1 remain NO-GO.
+There is no G1 closure or G2/G3 GO.
 Maintenance rule: every new writer or reader of `wizard_answers_v2`
 updates this doc in the same PR. Code drift without doc drift = the
 trap we built this to avoid.*

@@ -37,8 +37,8 @@ only machine-evidence `green` is checked.
 - [x] **RDY-PROV-03**: Tax facts include typed source date and legal year.
 - [ ] **RDY-SCN-01**: Scenario assumptions/results are isolated by scenario ID.
 - [ ] **RDY-BND-01**: Legacy profile consumers migrate to canonical semantics.
-- [ ] **RDY-BND-02**: Partner-owned facts bridge and recompute through a real scoped consumer.
-- [ ] **RDY-BND-02A**: Partner facts require the named legal/privacy decision, implemented accountability, field scope, notice and revocation.
+- [x] **RDY-BND-02**: Partner-owned facts bridge and recompute through a real scoped consumer.
+- [x] **RDY-BND-02A**: Partner facts require the named legal/privacy decision, implemented accountability, field scope, notice and revocation.
 - [ ] **RDY-BND-03**: Budget facts bridge to CoachProfile and derived state.
 - [x] **RDY-BND-04**: CoachProfile mutation recomputes MintUserState exactly once.
 - [ ] **RDY-BND-05**: Documents remain references; confirmed facts enter the ledger.

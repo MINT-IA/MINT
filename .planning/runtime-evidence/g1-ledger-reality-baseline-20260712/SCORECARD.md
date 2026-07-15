@@ -1,6 +1,6 @@
 # G1 Ledger Reality Baseline — SCORECARD
 
-Date: 2026-07-15
+Date: 2026-07-16
 
 Status: **REOPENED / NO-GO**
 
@@ -11,7 +11,7 @@ Current interim score: **8.2/10**
 The historical acceptance at `53c733827` is superseded for release purposes.
 G1 was reopened after the AVS couple path could manufacture a complete
 household projection from incomplete partner evidence. The canonical Phase 37
-registry now has **31 rows: 14 GREEN, 14 `ticket_only`, 3 `red_proven`**. The B2
+registry now has **31 rows: 16 GREEN, 14 `ticket_only`, 1 `red_proven`**. The B2
 fail-closed slice and its exact runtime proof are green. The financial report/PDF now also keeps
 AVS, LPP and 3a point values, totals and replacement rates unknown until the
 required evidence exists, with a rebuilt-app Maestro/Patrol proof. Swiss-law,
@@ -22,9 +22,9 @@ audits PASS, but remains dark-launched. G2/G3 are forbidden.
 `G1-PROV-02` is also ticket- and runtime-GREEN at exact SHA `30728b8a0671`:
 same-command semantic RED-to-GREEN, native writer, explicit process death,
 separate cold reader, restored default-off Maestro proof and bounded Claude
-audits. Both LPP flags remain false. Its downstream-consumer and named
-third-party-accountability decision/outcome remain activation/later-G1
-blockers, not waived work.
+audits. Both LPP flags remain false. Its downstream consumer and represented-
+accountability outcome are now technical GREEN at exact SHA `1d022c508`; the
+eight external production facts remain activation blockers, not waived work.
 
 ## Blocking ledger
 
@@ -36,17 +36,17 @@ blockers, not waived work.
 | GREEN | `/rapport` and its PDF could manufacture AVS/LPP/3a point values and complete aggregates from questionnaire inputs, a statutory minimum rate, buy-back capacity and annual contribution. | Three pillars now fail closed; totals/rate are null; real evidence CTAs are wired; replacement-rate math is canonical in `financial_core`; obsolete PDF claims are removed; full Flutter 8,514/30/0; exact pushed source `1bb9c8389` has Maestro PASS and Patrol 2/2 PASS; Opus first pass plus Sonnet rerun code/product-domain PASS without P0/P1. |
 | GREEN — G1-PROV-03 code + runtime | A tax scan could remain an untyped island, promote an average rate to marginal, publish before persistence, leak source text, or die on cold restart. | Code accepted at `5a772865b` with 143/143 targeted and frozen full suite 8,896/33/0. Exact runtime SHA `ac74672db` passed normal iOS build/install, Maestro flag-off, Patrol writer → explicit process death → separate reader, two independent xcresults 1/1, restoration and final Doctor. Opus code and product-domain audits PASS with zero P0/P1. Production flags remain false; activation is not claimed. |
 | GREEN — G1-PROV-02 ticket + runtime | Self/manual-partner LPP facts or provenance could disappear after restart, or publish before persistence. | Same command: semantic RED at `ffaa2c6f` and 22/22 GREEN at exact SHA `30728b8a0671`. Native writer → explicit termination → cold reader passed 1/1 + 1/1; normal build restoration and default-off Maestro before/after passed. Flutter 9,031/36/0 and backend 6,108/7/0. Code/product-domain audits PASS with every finding dispositioned. Activation remains NO pending the named downstream-consumer and legal/privacy accountability decisions. |
-| RED PROVEN — G1-BND-02 / G1-BND-02A | Partner certificate facts currently lack an active owner/receipt gate and visible consumer; legacy nominative receipts can authorize LPP, exact self 0.02 is treated as missing, and the lifecycle/notice/rights surfaces are absent. | At pushed SHA `fcf720c48`, BND-02 reaches 2 pass / 4 semantic fail. BND-02A backend reaches 38 pass / 6 semantic fail; its mobile half independently reaches 7 pass / 12 semantic fail. All named files collect; format, targeted Ruff/analyze and diff checks pass; fixtures are synthetic. This is RED evidence only, not acceptance or activation. |
+| GREEN — G1-BND-02 / technical G1-BND-02A | Partner certificate facts require an exact owner/active-receipt gate and visible fail-closed consumer; legacy nominative receipts must never authorize LPP; exact self 0.02 must stay distinct from missing; lifecycle and rights surfaces must fail closed. | RED remains archived at `fcf720c48`. At exact SHA `1d022c508`, BND-02 passes 7/7 and the identical combined BND-02A command passes backend 66/66 + mobile 20/20. Patrol writer→terminate→cold-reader passes 1/1 + 1/1 with restored normal build; Maestro completes 17/17 flag-off/stale-recovery steps; four Claude-wrapper final confirmations pass with P0=0/P1=0. Technical GREEN leaves every flag false. Eight external facts still make activation and G1 NO-GO. |
 | GREEN — G1-LDG-04 nominal | Display defaults or invalid persisted values could become known facts. | Fixed in `f49ba797c`: canton/expense/conversion readiness requires canonical marker plus exact timestamp path(s); invalid/negative/NaN/infinite numeric values remain partial and explicit zero expenses remain known. Canton-domain weakness closed by `62e8ca7d5`: invalid/blank/forged canton evidence fails closed and valid codes normalize. Exact proof: RED 5 failures, GREEN 30/30, models+navigation+routes 494/494 in `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-BND-04 | The lazy production proxy could miss profile mutations until a MintState UI consumer materialised it. | Fixed in `f49ba797c`: the real `MintApp` proxy is eager and the production-context test observes one notification per salary and provenance-only mutation. Exact RED-to-GREEN evidence: `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-LDG-06A core only | The first certificate-only Fitness slice penalized married/registered owners when optional spouse evidence was absent and accepted certified gap years outside `0..44`. | Quality NO-GO at `1f87a79b4`; fixed in `d44d2aa83`: the AVS Fitness criterion is person-owned and invariant to spouse/status, while self/spouse evidence rejects `-1` and `45`. Rerun: static 8/8, targeted 54/54, wider models 321/321, Doctor 7/7, analyze/diffcheck PASS. Exact proof: `g1-ldg06a-core-d44d2aa83.md`. This does not close the global consumer inventory or change 8.2/10 NO-GO. |
 | GREEN — registered-partnership AVS defect | Registered partnership could be lost or treated as cohabitation instead of marriage-equivalent for AVS. | Reverified at `ac74672db`: typed enum, migration aliases, wizard/DataBlock round trip and AVS predicates are wired; 285 targeted Flutter tests across the AVS review are GREEN. Adjacent non-AVS tax/LPP equality checks remain separate ticket scope. |
 | P0 — narrowed AVS splitting contract | The obsolete fixed-scale cap and salary-duration splitting proxy were unsafe. | Fixed-scale cap/proxy are removed or quarantined; typed cap preserves owner, entitlement, scales and unknown partner. Still open: owner-scoped official splitting evidence, statutory-trigger state and production wiring. |
 | GREEN defect / G1-AVS-02 still open | The 13th AVS could be smoothed into an ordinary monthly uplift. | Reverified absent in live mobile/backend paths: ordinary pension stays 12 payments and the supplement is separate/December-only. The broader G1-AVS-02 ticket remains open for official evidence ingestion, persistence, dedicated UI/PDF line and activation/runtime proof. |
-| G1 floor | Seventeen registry rows remain non-green. | 14 are `ticket_only`; `G1-BND-02`, `G1-BND-02A` and `G1-RUNTIME-01` are `red_proven`. Neither the PROV-02 nor PROV-03 slice-specific runtime closes these independent floors. |
+| G1 floor | Fifteen registry rows remain non-green. | 14 are `ticket_only`; only `G1-RUNTIME-01` is `red_proven`. The BND-02/BND-02A runtime is slice-specific and does not close that distinct salary/canton→mortgage runtime floor. |
 | G1 floor | Static AVS `null -> 0` and undeclared-evidence consumers remain outside the closed report slice. | The report/PDF hard floor is 8/8 GREEN. Continue the canonical inventory across profile, Pulse, expat and remaining live consumers; a slice-local green is not a global waiver. |
 | G1 source | Official future-pension ingestion is not yet live end-to-end. | Backend candidate parsing, classifier corpus and default-off boundary are green; mobile review/write-back and live consumer proof remain open. |
-| Privacy/product | Optional partner linking lacks purpose-specific field grants and revocation invalidation. | Open; manual partner entry must remain an equal, non-subordinate path. |
+| Privacy/product activation | Controller identity, privacy contact, Anthropic role/DPA and processing regions, transfer/TIA, retention/ZDR, AIPD decision and the public account-free rights channel remain unverified. | Activation stays fail-closed; optional linking is not required and manual partner entry remains an equal path. |
 | P1 | Adjacent report tax and LPP buy-back paths still expose exact/default-backed values. | Ordered next report-domain slice: neutralize missing-data tax output; fix canonical married status; verify AVS21 horizon; audit the separate buy-back tax-savings path. The stale 6% PDF claim is closed. |
 | Audit | Remaining legal/source/live-consumer slices lack bounded final Claude code and product-domain confirmation. | The three-pillar report slice has converged; wrapper-only audits remain mandatory for every subsequent financial path. |
 
@@ -59,8 +59,8 @@ blockers, not waived work.
 | UX lucidity | 1.5 | 1.3 | Report and PDF now expose neutral AVS/LPP/3a evidence gaps with real recovery CTAs instead of fabricated amounts. Couple recovery and consent UX remain open. |
 | Runtime proof | 1.5 | 1.5 | B2 has an exact committed SHA; the report runtime indexed-diff SHA exactly equals pushed commit `1bb9c8389`, with full Doctor/build, built-versus-installed payload proof, Maestro semantic positives/negatives plus visual artifacts, Patrol 2/2 and xcresult summary. |
 | Automated tests | 1.0 | 1.0 | Final report/PDF snapshot: analyze 0; 8,514 successful + 30 skipped; 0 fail. Targeted report matrix 95/95; B2 matrix 187/187. |
-| External audit | 1.0 | 0.7 | Report/PDF and PROV-03 code/product-domain lenses PASS without P0/P1. PROV-02 Opus/Sonnet lenses PASS with ticket findings resolved or accepted and two activation P1s explicitly retained. The one PROV-03 Sonnet architecture rerun confirms its stale acceptance P1s resolved. Full G1 remains NO-GO for 17 open rows; remaining global slices are not converged. |
-| Integration / privacy hygiene | 1.0 | 0.7 | Synthetic runtime data and field-scoped provenance are green; partner grants/revocation and official-source persistence remain open. |
+| External audit | 1.0 | 0.7 | Report/PDF, PROV-03 and the BND-02/BND-02A backend/mobile closure lenses PASS without P0/P1. The BND archive retains one wrapper-only final confirmation per lens without an audit carousel. Full G1 remains NO-GO for 15 open rows; remaining global slices are not converged. |
+| Integration / privacy hygiene | 1.0 | 0.7 | Synthetic runtime data, exact owner/receipt lifecycle and targeted invalidation are green; eight external activation facts and official-source persistence remain open. |
 | Diff discipline | 0.5 | 0.5 | Provenance, recovery, nullable contract, wiring docs, runtime harness and screenshot fix are atomic commits with regular pushes. |
 | **Total** | **10.0** | **8.2** | **Below 9.0 and hard blockers remain; G1 stays NO-GO.** |
 
@@ -95,8 +95,11 @@ blockers, not waived work.
 | PROV-02 external audits | PASS: Opus first pass plus accepted Sonnet code/product-domain reruns; UUID P1 resolved directly; downstream consumer and named legal/privacy accountability decision/outcome remain activation/later-G1 blockers. |
 | BND-02/BND-02A independent baselines | Backend functional suite PASS: 6,108/7/0; exact chained baseline truthfully stops on 93 unrelated global Ruff errors. Flutter analyze PASS and full suite 9,031/36/0. |
 | BND-02/BND-02A semantic RED | Pushed SHA `fcf720c48`: BND-02 2/4; BND-02A backend 38/6 and mobile 7/12. The authoritative combined command exits 1 on backend and short-circuits mobile; the identical mobile component is recorded independently. No harness/import/fixture/private-certificate failure. |
+| BND-02/BND-02A identical-command GREEN | PASS at exact SHA `1d022c508`: focused BND-02 7/7; BND-02A backend 66/66 + mobile 20/20. Technical acceptance only; flags, activation and G1 remain NO-GO. |
+| BND-02/BND-02A exact-SHA runtime | PASS: Patrol writer→explicit termination→separate cold reader 1/1 + 1/1, synthetic-only/private-fixture=false, normal build restored; normal exact-SHA Maestro default-off + stale review/impact 17/17. |
+| BND-02/BND-02A external audits | PASS: four wrapper-only Opus final confirmations, one code + product-domain lens for backend and mobile, P0=0/P1=0; no audit carousel. |
 | Sonnet architecture P1 remediation | PASS: exact disclaimer REDs `21/2`, then `14/1`; final targeted 23 passed / 0 failed, accent lint 4/4 files, analyze 0, financial_core 689/689 and full Flutter 8,900 passed / 33 skipped / 0 failed |
-| Phase 37 registry | 31 total: 14 GREEN, 14 `ticket_only`, 3 `red_proven`; 17 hard floors remain open |
+| Phase 37 registry | 31 total: 16 GREEN, 14 `ticket_only`, 1 `red_proven`; 15 hard floors remain open |
 
 ## Exact B2 evidence
 
@@ -121,16 +124,17 @@ blockers, not waived work.
   source; activation remains default-off.
 - `37d8d4a49` — capture the isolated backend partner-accountability RED.
 - `fcf720c48` — capture the mobile lifecycle, caller, caisse-rate and UI/ARB RED.
+- `1d022c508` — freeze the complete default-off BND-02/BND-02A technical
+  implementation at the exact runtime source; activation remains NO-GO.
 
 ## Release decision
 
 - G1: **REOPENED / NO-GO at 8.2/10**.
 - `G2 allowed?` **NO**.
 - `G3 allowed?` **NO**.
-- Current machine truth: **14/31 GREEN; 17 hard floors open**.
-- Next ordered gates: implement BND-02A's isolated default-off backend boundary,
-  then the BND-02 real mobile caller and behavioral lifecycle proof; continue
-  the PROV-02 consumer/privacy activation blockers, AVS splitting
-  evidence, G1-AVS-02 activation and the global
+- Current machine truth: **16/31 GREEN; 15 hard floors open**.
+- Next ordered gates remain inside G1: proceed to BND-03 only after this
+  promotion diff is accepted; continue the eight external LPP activation facts,
+  AVS splitting evidence, G1-AVS-02 activation and the global
   `G1-RUNTIME-01`. The authorized architecture rerun is recorded; do not start
   an audit carousel. Full re-score only after every hard floor is green.
