@@ -33,6 +33,7 @@ MAESTRO_PRODUCERS = (
     ROOT / "apps/mobile/lib/widgets/home/financial_plan_card.dart",
 )
 AMOUNT = "54’321 CHF / mois"
+MAESTRO_ACCESSIBILITY_AMOUNT = "54\u202f321 CHF / mois"
 
 
 def _required_source(path: Path) -> str:
@@ -424,16 +425,17 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
         "home_route",
         "financial_plan_stale_state",
         "financial_plan_stale_recalculate",
-        AMOUNT,
+        MAESTRO_ACCESSIBILITY_AMOUNT,
     ):
         assert anchor in contents, anchor
+    assert AMOUNT not in contents
     assert "clearState: true" not in contents
     assert "/Users/" not in contents
     assert "MINT_LPP_PRIVATE_MANIFEST" not in contents
 
-    absent = {"assertNotVisible": AMOUNT}
+    absent = {"assertNotVisible": MAESTRO_ACCESSIBILITY_AMOUNT}
     tap = {"tapOn": {"id": "financial_plan_stale_recalculate"}}
-    visible = {"assertVisible": AMOUNT}
+    visible = {"assertVisible": MAESTRO_ACCESSIBILITY_AMOUNT}
     assert absent in steps
     assert tap in steps
     assert visible in steps
