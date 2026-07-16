@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -9,7 +9,13 @@ import 'package:mint_mobile/services/financial_plan_service.dart';
 //  FinancialPlanProvider — persisted plan + live ledger staleness boundary
 // ────────────────────────────────────────────────────────────────────────────
 
-class FinancialPlanProvider extends ChangeNotifier {
+class FinancialPlanProvider extends ChangeNotifier with WidgetsBindingObserver {
+  FinancialPlanProvider({DateTime Function()? clock})
+      : _clock = clock ?? DateTime.now {
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  final DateTime Function() _clock;
   FinancialPlan? _currentPlan;
   bool _isStale = false;
   bool _disposed = false;
@@ -119,6 +125,13 @@ class FinancialPlanProvider extends ChangeNotifier {
 
   void _handleProfileChanged() => _reconcileWithBoundProfile();
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _reconcileWithBoundProfile();
+    }
+  }
+
   void _reconcileWithBoundProfile() {
     final stale = _isMismatchWithBoundLedger(_currentPlan);
     if (stale == _isStale) return;
@@ -136,7 +149,8 @@ class FinancialPlanProvider extends ChangeNotifier {
   bool _isMismatchWithProfile(FinancialPlan? plan, CoachProfile? profile) {
     if (plan == null) return false;
     if (profile == null) return true;
-    return plan.profileHashAtGeneration != computeProfileHash(profile);
+    return plan.profileHashAtGeneration !=
+        computeProfileHash(profile, now: _clock());
   }
 
   void _scheduleNotification() {
@@ -181,6 +195,7 @@ class FinancialPlanProvider extends ChangeNotifier {
     _disposed = true;
     _notificationGeneration++;
     _notificationScheduled = false;
+    WidgetsBinding.instance.removeObserver(this);
     _profileProvider?.removeListener(_handleProfileChanged);
     _profileProvider = null;
     super.dispose();

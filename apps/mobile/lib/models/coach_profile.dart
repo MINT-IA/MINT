@@ -4020,7 +4020,7 @@ class CoachProfile {
         : null;
     final hasPensionFund = answers.containsKey('q_has_pension_fund')
         ? _parseBool(answers['q_has_pension_fund'])
-        : hasVoluntaryLpp ?? false;
+        : hasVoluntaryLpp;
     final lppBuybackAvailable =
         _parseDouble(answers['q_lpp_buyback_available']);
     final has3a = answers.containsKey('q_has_3a')
@@ -4144,7 +4144,7 @@ class CoachProfile {
       estimatedLpp = coachAvoirLpp;
     } else if (hasTypedLppRoot) {
       estimatedLpp = null;
-    } else if (!hasPensionFund) {
+    } else if (hasPensionFund == false) {
       // Independent without LPP or explicit no-pension-fund declaration.
       estimatedLpp = 0.0;
     } else {

@@ -79,6 +79,31 @@ void main() {
     });
   });
 
+  group('Pension fund declaration ownership', () {
+    test('an unanswered pension-fund question stays unknown', () {
+      final answers = Map<String, dynamic>.from(baseAnswers())
+        ..remove('q_has_pension_fund')
+        ..remove('q_has_voluntary_lpp');
+
+      final profile = CoachProfile.fromWizardAnswers(answers);
+
+      expect(profile.prevoyance.hasPensionFund, isNull);
+      expect(profile.prevoyance.avoirLppTotal, isNot(equals(0)));
+      expect(profile.userProvidedFields, isNot(contains('hasPensionFund')));
+    });
+
+    test('only an explicit no answer declares the user has no LPP', () {
+      final answers = Map<String, dynamic>.from(baseAnswers())
+        ..['q_has_pension_fund'] = 'no';
+
+      final profile = CoachProfile.fromWizardAnswers(answers);
+
+      expect(profile.prevoyance.hasPensionFund, isFalse);
+      expect(profile.prevoyance.avoirLppTotal, 0);
+      expect(profile.userProvidedFields, contains('hasPensionFund'));
+    });
+  });
+
   // ════════════════════════════════════════════════════════════
   //  2. Emergency fund mapping
   // ════════════════════════════════════════════════════════════

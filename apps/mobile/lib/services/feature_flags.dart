@@ -68,6 +68,12 @@ class FeatureFlags {
   /// fail-closed until it has a complete product and runtime proof.
   static bool enableGuidedSequences = false;
 
+  /// Local kill switch for the Flutter-owned first financial-plan setup.
+  ///
+  /// It stays outside [applyFromMap]: G1 must keep the new persisted scenario
+  /// path unavailable until its product, domain, and runtime gates all pass.
+  static bool financialPlanSetupEnabled = false;
+
   /// Local-only gate for the illustrative 13th AVS scenario cash-flow.
   ///
   /// It must remain absent from [applyFromMap]: backend flags cannot turn

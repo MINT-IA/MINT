@@ -19,6 +19,7 @@ import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
@@ -36,7 +37,6 @@ const _lppMandatoryPath = 'prevoyance.avoirLppObligatoire';
 const _lppExtraMandatoryPath = 'prevoyance.avoirLppSurobligatoire';
 const _lppReturnPath = 'prevoyance.rendementCaisse';
 const _pillar3aPath = 'prevoyance.totalEpargne3a';
-const _monthsPath = 'nombreDeMois';
 
 class _FakeNotificationsPlatform extends FlutterLocalNotificationsPlatform {
   @override
@@ -163,6 +163,7 @@ CoachProfile _profile({
   double? lppMandatory = 150000,
   double? lppExtraMandatory = 90000,
   double lppReturn = 0.02,
+  bool lppReturnKnown = true,
   double pillar3a = 42000,
   Map<String, ProfileDataSource> sources = const {},
   Map<String, DateTime> timestamps = const {},
@@ -183,6 +184,7 @@ CoachProfile _profile({
       avoirLppObligatoire: lppMandatory,
       avoirLppSurobligatoire: lppExtraMandatory,
       rendementCaisse: lppReturn,
+      rendementCaisseConnu: lppReturnKnown,
       totalEpargne3a: pillar3a,
     ),
     dataSources: sources,
@@ -196,6 +198,26 @@ CoachProfile _profile({
     ),
     createdAt: DateTime.utc(2026, 7, 1),
     updatedAt: updatedAt ?? DateTime.utc(2026, 7, 1),
+  );
+}
+
+CoachProfile _projectionReadyProfile({double salary = 8000}) {
+  final stamp = DateTime.utc(2026, 7, 1);
+  const paths = <String>[
+    _salaryPath,
+    _cantonPath,
+    _dateOfBirthPath,
+    _lppTotalPath,
+    _lppMandatoryPath,
+    _lppExtraMandatoryPath,
+    _lppReturnPath,
+    _pillar3aPath,
+  ];
+  return _profile(
+    salary: salary,
+    sources: {for (final path in paths) path: ProfileDataSource.userInput},
+    timestamps: {for (final path in paths) path: stamp},
+    sourceDates: {for (final path in paths) path: stamp},
   );
 }
 
@@ -227,6 +249,21 @@ FinancialPlan _planFor(
     confidenceLevel: 80,
     sources: const ['LPP art. 14'],
     disclaimer: 'Outil éducatif.',
+    goalAmount: 500000,
+    projectionAssumptions: FinancialPlanProjectionAssumptions(
+      caisseReturnBase: 0.02,
+      caisseReturnLow: 0.01,
+      caisseReturnHigh: 0.03,
+      supplementalMonthlySavingsReturn: 0,
+      salaryBasis: const FinancialPlanSalaryBasis(
+        kind: 'monthlySalaryTimesTwelve',
+        annualChf: 96000,
+      ),
+      bonificationBasis: const FinancialPlanBonificationBasis(
+        kind: 'legalAgeSchedule',
+      ),
+      projectionAsOf: DateTime.utc(2026, 7, 1),
+    ),
   );
 }
 
@@ -331,7 +368,10 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});
     FlutterLocalNotificationsPlatform.instance = _FakeNotificationsPlatform();
+    FeatureFlags.financialPlanSetupEnabled = true;
   });
+
+  tearDown(() => FeatureFlags.financialPlanSetupEnabled = false);
 
   group('versioned canonical financial-plan input fingerprint', () {
     test('uses a versioned SHA-256 wire format and ignores map insertion order',
@@ -361,14 +401,9 @@ void main() {
       final firstHash = computeProfileHash(first);
       expect(
         firstHash,
-        matches(RegExp(r'^mint-plan-input:v1:sha256:[0-9a-f]{64}$')),
+        matches(RegExp(r'^mint-plan-input:v2:sha256:[0-9a-f]{64}$')),
       );
       expect(computeProfileHash(second), firstHash);
-      expect(
-        computeProfileHash(_profile()),
-        'mint-plan-input:v1:sha256:'
-        '406afb1a0ab806a7c75cb51b1c0ff549e8c5f6ec0d22674d5f358fdf917b3c32',
-      );
     });
 
     test('salary and canton are live invalidation controls', () {
@@ -397,14 +432,16 @@ void main() {
       );
     });
 
-    test('covers every retirement calculation input omitted by the legacy hash',
+    test('covers every durable retirement calculation input in the v2 hash',
         () {
       final baseline = computeProfileHash(_profile());
       final changed = <String, CoachProfile>{
-        'nombreDeMois': _profile(months: 13.5),
-        'avoirLppObligatoire': _profile(lppMandatory: 140000),
-        'avoirLppSurobligatoire': _profile(lppExtraMandatory: 100000),
+        'coherent LPP components': _profile(
+          lppMandatory: 140000,
+          lppExtraMandatory: 100000,
+        ),
         'rendementCaisse': _profile(lppReturn: 0.025),
+        'rendementCaisseConnu': _profile(lppReturnKnown: false),
       };
 
       for (final entry in changed.entries) {
@@ -416,9 +453,24 @@ void main() {
       }
     });
 
+    test('salary payment months are inspection-only and do not stale a plan',
+        () {
+      expect(
+        computeProfileHash(_profile(months: 13.5)),
+        computeProfileHash(_profile(months: 12)),
+        reason: 'The LPP projection annualizes monthly salary as ×12; a 13th '
+            'salary month must not silently change the result or its hash.',
+      );
+    });
+
     test('retains total LPP and 3a as live invalidation controls', () {
       final baseline = computeProfileHash(_profile());
-      expect(computeProfileHash(_profile(lppTotal: 250000)), isNot(baseline));
+      expect(
+        computeProfileHash(
+          _profile(lppTotal: 250000, lppExtraMandatory: 100000),
+        ),
+        isNot(baseline),
+      );
       expect(computeProfileHash(_profile(pillar3a: 43000)), isNot(baseline));
     });
 
@@ -434,7 +486,6 @@ void main() {
         _lppExtraMandatoryPath: true,
         _lppReturnPath: true,
         _pillar3aPath: true,
-        _monthsPath: true,
       };
       for (final entry in paths.entries) {
         final path = entry.key;
@@ -536,6 +587,36 @@ void main() {
   });
 
   group('FinancialPlanProvider production lifecycle', () {
+    testWidgets('app resume re-evaluates a time-dependent ledger fingerprint',
+        (tester) async {
+      var now = DateTime.utc(2026, 4, 11, 12);
+      final profile = _profile(dateOfBirthDay: 12);
+      final ledger = _ledger(profile);
+      final plan = _planFor(
+        profile,
+        profileHash: computeProfileHash(profile, now: now),
+      );
+      final plans = FinancialPlanProvider(clock: () => now)
+        ..setPlanDirect(plan)
+        ..attachProfileProvider(ledger);
+      addTearDown(ledger.dispose);
+      addTearDown(plans.dispose);
+
+      expect(plans.isPlanStale, isFalse);
+
+      now = DateTime.utc(2026, 4, 12, 12);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+
+      expect(
+        plans.isPlanStale,
+        isTrue,
+        reason: 'Age/freshness can cross a hash boundary without a profile '
+            'write, so resume must consume the injected clock and reconcile.',
+      );
+    });
+
     for (final legacyHash in ['', '154932', 'unknown:v9']) {
       testWidgets(
           'attachment immediately marks "$legacyHash" plan hashes stale',
@@ -865,7 +946,7 @@ void main() {
 
     for (final retainsCachedProfile in [false, true]) {
       testWidgets(
-          'empty plan hydration waits for ledger authority '
+          'empty plan hydration opens setup without writing a plan '
           '(cached profile: $retainsCachedProfile)', (tester) async {
         final profile = _profile();
         final ledger = _ledger(
@@ -894,24 +975,27 @@ void main() {
           0,
           reason: 'generation must await the persisted-plan read',
         );
-        expect(ledgerWaitCalls, 1);
+        expect(ledgerWaitCalls, 0);
         expect(
           writesBeforeLedgerHydration,
           0,
           reason: 'unloaded ledger facts are not authoritative',
         );
-        expect(plans.generatedPlanWrites, 1);
+        expect(plans.generatedPlanWrites, 0);
+        expect(plans.currentPlan, isNull);
         expect(
-          plans.currentPlan?.profileHashAtGeneration,
-          computeProfileHash(profile),
+          find.bySemanticsIdentifier('financial_plan_setup'),
+          findsOneWidget,
+          reason: 'An intent-only tool opens the user-owned setup after empty '
+              'hydration; missing scenario inputs are not a generation error.',
         );
       });
     }
 
     testWidgets('stale cached figures are suppressed from WidgetRenderer',
         (tester) async {
-      final currentProfile = _profile();
-      final staleProfile = _profile(salary: 7000);
+      final currentProfile = _projectionReadyProfile();
+      final staleProfile = _projectionReadyProfile(salary: 7000);
       final ledger = _ledger(currentProfile);
       addTearDown(ledger.dispose);
       final plans = FinancialPlanProvider()
@@ -946,8 +1030,8 @@ void main() {
 
     testWidgets('stale recovery regenerates and replaces the cached plan',
         (tester) async {
-      final currentProfile = _profile();
-      final staleProfile = _profile(salary: 7000);
+      final currentProfile = _projectionReadyProfile();
+      final staleProfile = _projectionReadyProfile(salary: 7000);
       final ledger = _ledger(currentProfile);
       addTearDown(ledger.dispose);
       final plans = FinancialPlanProvider()
@@ -1082,10 +1166,10 @@ void main() {
 
     testWidgets('Aujourdhui renders a persisted stale plan after cold load',
         (tester) async {
-      final currentProfile = _profile();
+      final currentProfile = _projectionReadyProfile();
       await FinancialPlanService.save(
         _planFor(
-          _profile(salary: 7000),
+          _projectionReadyProfile(salary: 7000),
           id: 'cold-home-plan',
           monthlyTarget: 12345,
         ),

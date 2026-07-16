@@ -14,8 +14,10 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
+import 'package:mint_mobile/widgets/coach/financial_plan_setup_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
 import 'package:mint_mobile/services/commitment_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/widgets/coach/commitment_card.dart';
@@ -70,6 +72,7 @@ class WidgetRenderer {
       case 'route_to_screen':
         return _buildRouteSuggestion(context, call.input);
       case 'generate_financial_plan':
+        if (!FeatureFlags.financialPlanSetupEnabled) return null;
         return _buildPlanPreviewCard(context, call.input);
       case 'record_check_in':
         return _buildCheckInSummaryCard(context, call.input);
@@ -351,16 +354,14 @@ class WidgetRenderer {
 
   /// Build a [PlanPreviewCard] for the `generate_financial_plan` tool call.
   ///
-  /// T-04-04: Numbers come from the PERSISTED plan (calculator-backed via
+  /// T-04-04: Numbers and narrative come from the persisted plan via
   /// [FinancialPlanProvider]), NOT from [call.input] (LLM output).
-  /// Only [coachNarrative] may be sourced from [call.input['narrative']].
   ///
   /// A stale persisted plan is fail-closed: no amount or narrative is rendered
   /// until the user explicitly regenerates it from its calculator-backed goal.
   ///
-  /// If no persisted plan exists yet, [_PendingFinancialPlanCard] performs the
-  /// initial generation exactly once. The LLM's `monthly_amount` is deliberately
-  /// ignored: it is neither rendered nor converted into a calculator input.
+  /// If no persisted plan exists yet, [_PendingFinancialPlanCard] hydrates
+  /// persistence only. It never invents a target amount or target date.
   static Widget _buildPlanPreviewCard(
     BuildContext context,
     Map<String, dynamic> p,
@@ -376,17 +377,11 @@ class WidgetRenderer {
           planProvider: planProvider,
         );
       }
-      final narrative = p['narrative'] as String?;
-      if (narrative != null && narrative.isNotEmpty) {
-        return PlanPreviewCard.fromPlan(
-          plan.copyWith(coachNarrative: narrative),
-        );
-      }
       return PlanPreviewCard.fromPlan(plan);
     }
 
     // ── 2. No plan yet — trigger generation via PlanGenerationService ──
-    final goal = p['goal'] as String? ?? p['goal_description'] as String? ?? '';
+    final goal = p['goal'] is String ? p['goal'] as String : '';
     return _PendingFinancialPlanCard(
       goalDescription: goal,
       planProvider: planProvider,
@@ -670,9 +665,7 @@ class _StaleFinancialPlanCardState extends State<_StaleFinancialPlanCard> {
 
     final ledger = context.read<CoachProfileProvider>();
     final profile = ledger.profile;
-    final goalAmount = widget.plan.milestones.isEmpty
-        ? null
-        : widget.plan.milestones.last.targetAmount;
+    final goalAmount = widget.plan.goalAmount;
     if (!ledger.isLoaded ||
         profile == null ||
         goalAmount == null ||
@@ -696,6 +689,8 @@ class _StaleFinancialPlanCardState extends State<_StaleFinancialPlanCard> {
         targetDate: widget.plan.targetDate,
         profile: profile,
         goalAmount: goalAmount,
+        prospectiveLppReturn:
+            widget.plan.projectionAssumptions?.caisseReturnBase,
       );
       await widget.planProvider.setPlan(regenerated);
     } catch (error, stackTrace) {
@@ -784,9 +779,8 @@ class _StaleFinancialPlanCardState extends State<_StaleFinancialPlanCard> {
   }
 }
 
-/// Initial calculator generation surface. The state survives parent rebuilds,
-/// preventing duplicate fire-and-forget generations. No LLM amount or
-/// narrative is displayed while the calculator is running.
+/// Initial plan hydration surface. A tool call without a previously persisted
+/// user-owned amount and date remains fail-closed and displays no CHF figure.
 class _PendingFinancialPlanCard extends StatefulWidget {
   const _PendingFinancialPlanCard({
     required this.goalDescription,
@@ -802,56 +796,47 @@ class _PendingFinancialPlanCard extends StatefulWidget {
 }
 
 class _PendingFinancialPlanCardState extends State<_PendingFinancialPlanCard> {
-  bool _isGenerating = false;
+  bool _isHydrating = false;
+  bool _isHydrated = false;
   bool _hasError = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final ledger = context.watch<CoachProfileProvider>();
-    if (_isGenerating || widget.planProvider.hasPlan) return;
-    _isGenerating = true;
-    _generate(ledger);
+    if (_isHydrating || widget.planProvider.hasPlan) return;
+    _isHydrating = true;
+    _hydrate();
   }
 
-  Future<void> _generate(CoachProfileProvider ledger) async {
+  Future<void> _hydrate() async {
     try {
       await widget.planProvider.loadFromPersistence();
-      if (!mounted || widget.planProvider.hasPlan) return;
-
-      await ledger.waitForReportAnswers();
-      if (!mounted || widget.planProvider.hasPlan) return;
-
-      final profile = ledger.profile;
-      if (!ledger.isLoaded || profile == null) {
-        setState(() => _hasError = true);
-        return;
-      }
-
-      final generated = await PlanGenerationService.generate(
-        goalDescription: widget.goalDescription,
-        goalCategory: 'goal_general',
-        targetDate: DateTime.now().add(const Duration(days: 365)),
-        profile: profile,
-      );
-      await widget.planProvider.setPlan(generated);
     } catch (error, stackTrace) {
       debugPrint(
-        '[widget_renderer] plan generation failed: $error\n$stackTrace',
+        '[widget_renderer] plan hydration failed: $error\n$stackTrace',
       );
       if (mounted) setState(() => _hasError = true);
     } finally {
       if (mounted) {
-        setState(() => _isGenerating = false);
+        setState(() {
+          _isHydrating = false;
+          _isHydrated = true;
+        });
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isHydrated && !widget.planProvider.hasPlan) {
+      return FinancialPlanSetupCard(
+        goalHint: widget.goalDescription,
+        planProvider: widget.planProvider,
+        initialError: _hasError,
+      );
+    }
     return PlanPreviewCard.generating(
       goalDescription: widget.goalDescription,
-      hasError: _hasError,
     );
   }
 }

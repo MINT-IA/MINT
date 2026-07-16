@@ -28,10 +28,11 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
-import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
+import 'package:mint_mobile/widgets/coach/financial_plan_setup_card.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -115,7 +116,10 @@ Future<void> _pumpBubble(
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FeatureFlags.financialPlanSetupEnabled = false;
   });
+
+  tearDown(() => FeatureFlags.financialPlanSetupEnabled = false);
 
   group('Coach tool choreography (STAB-11 / 07-02)', () {
     testWidgets(
@@ -199,14 +203,32 @@ void main() {
     );
 
     testWidgets(
-      'STAB-03: generate_financial_plan renders a PlanPreviewCard',
+      'STAB-03: disabled plan setup neither renders nor persists',
       (tester) async {
         const call = RagToolCall(
           name: 'generate_financial_plan',
           input: {
             'goal': 'Preparer la retraite',
-            'monthly_amount': 500.0,
-            'narrative': 'Plan de progression vers la retraite.',
+          },
+        );
+
+        final planProvider = FinancialPlanProvider();
+
+        await _pumpBubble(tester, call, planProvider: planProvider);
+
+        expect(find.byType(FinancialPlanSetupCard), findsNothing);
+        expect(planProvider.currentPlan, isNull);
+      },
+    );
+
+    testWidgets(
+      'STAB-03: enabled goal-only tool opens setup without creating a plan',
+      (tester) async {
+        FeatureFlags.financialPlanSetupEnabled = true;
+        const call = RagToolCall(
+          name: 'generate_financial_plan',
+          input: {
+            'goal': 'Preparer la retraite',
           },
         );
 
@@ -229,14 +251,14 @@ void main() {
         );
 
         expect(
-          find.byType(PlanPreviewCard),
+          find.byType(FinancialPlanSetupCard),
           findsOneWidget,
           reason:
-              'generate_financial_plan must render a PlanPreviewCard '
-              '(facade audit STAB-03). Renderer case at widget_renderer.dart:70 '
-              'exists — this test guards that the BYOK exposure (commit e782a437) '
-              'keeps it reachable.',
+              'The goal-only tool must open the Flutter-owned setup when its '
+              'local kill switch is explicitly enabled.',
         );
+        expect(planProvider.currentPlan, isNull,
+            reason: 'Opening setup must never auto-create or persist a plan.');
       },
     );
 

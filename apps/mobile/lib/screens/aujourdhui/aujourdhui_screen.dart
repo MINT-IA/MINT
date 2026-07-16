@@ -93,9 +93,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     final planProvider = context.read<FinancialPlanProvider>();
     final profile = ledger.profile;
     final persistedPlan = planProvider.currentPlan;
-    final goalAmount = persistedPlan?.milestones.isEmpty ?? true
-        ? null
-        : persistedPlan!.milestones.last.targetAmount;
+    final goalAmount = persistedPlan?.goalAmount;
 
     if (!ledger.isLoaded ||
         profile == null ||
@@ -122,6 +120,8 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
         targetDate: persistedPlan.targetDate,
         profile: profile,
         goalAmount: goalAmount,
+        prospectiveLppReturn:
+            persistedPlan.projectionAssumptions?.caisseReturnBase,
       );
       await planProvider.setPlan(regenerated);
     } catch (error, stackTrace) {
@@ -173,22 +173,25 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       return _homeRoute(Scaffold(
         backgroundColor: MintColors.warmWhite,
         body: SafeArea(
-          child: Column(
-            children: [
-              const CapDuJourBanner(),
+          child: CustomScrollView(
+            slivers: [
+              const SliverToBoxAdapter(child: CapDuJourBanner()),
               if (financialPlan != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                  child: FinancialPlanCard(
-                    plan: financialPlan,
-                    isStale: planProvider.isPlanStale,
-                    isRecalculating: _isPlanRegenerating,
-                    hasRecalculationError: _hasPlanRegenerationError,
-                    onRecalculate: _regenerateFinancialPlan,
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                    child: FinancialPlanCard(
+                      plan: financialPlan,
+                      isStale: planProvider.isPlanStale,
+                      isRecalculating: _isPlanRegenerating,
+                      hasRecalculationError: _hasPlanRegenerationError,
+                      onRecalculate: _regenerateFinancialPlan,
+                    ),
                   ),
                 ),
               if (!hasAnyProfileFact)
-                Expanded(
+                SliverFillRemaining(
+                  hasScrollBody: false,
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -228,9 +231,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                       ),
                     ),
                   ),
-                )
-              else
-                const Spacer(),
+                ),
             ],
           ),
         ),

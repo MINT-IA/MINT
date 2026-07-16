@@ -1,7 +1,6 @@
-import 'dart:convert';
-
-import 'package:crypto/crypto.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_plan_ledger_inputs.dart'
+    as ledger_inputs;
 
 // ────────────────────────────────────────────────────────────────────────────
 //  FinancialPlan model
@@ -42,6 +41,116 @@ class PlanMilestone {
       targetDate: DateTime.parse(json['targetDate'] as String),
       targetAmount: (json['targetAmount'] as num?)?.toDouble() ?? 0.0,
       description: json['description'] as String? ?? '',
+    );
+  }
+}
+
+/// Salary basis used by a retirement projection.
+///
+/// This is persisted as structured data so UI surfaces can distinguish a
+/// current pension-fund fact from the visible monthly-salary × 12 fallback.
+class FinancialPlanSalaryBasis {
+  final String kind;
+  final double? annualChf;
+
+  const FinancialPlanSalaryBasis({
+    required this.kind,
+    this.annualChf,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'kind': kind,
+        if (annualChf != null) 'annualChf': annualChf,
+      };
+
+  factory FinancialPlanSalaryBasis.fromJson(Map<String, dynamic> json) {
+    return FinancialPlanSalaryBasis(
+      kind: json['kind'] as String? ?? 'notApplicable',
+      annualChf: (json['annualChf'] as num?)?.toDouble(),
+    );
+  }
+}
+
+/// Bonification basis used by a retirement projection.
+class FinancialPlanBonificationBasis {
+  final String kind;
+  final double? annualRate;
+
+  const FinancialPlanBonificationBasis({
+    required this.kind,
+    this.annualRate,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'kind': kind,
+        if (annualRate != null) 'annualRate': annualRate,
+      };
+
+  factory FinancialPlanBonificationBasis.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return FinancialPlanBonificationBasis(
+      kind: json['kind'] as String? ?? 'notApplicable',
+      annualRate: (json['annualRate'] as num?)?.toDouble(),
+    );
+  }
+}
+
+/// Explicit, replayable assumptions behind one retirement scenario.
+class FinancialPlanProjectionAssumptions {
+  final double? caisseReturnBase;
+  final double? caisseReturnLow;
+  final double? caisseReturnHigh;
+  final double supplementalMonthlySavingsReturn;
+  final FinancialPlanSalaryBasis salaryBasis;
+  final FinancialPlanBonificationBasis bonificationBasis;
+  final DateTime projectionAsOf;
+
+  const FinancialPlanProjectionAssumptions({
+    required this.caisseReturnBase,
+    required this.caisseReturnLow,
+    required this.caisseReturnHigh,
+    required this.supplementalMonthlySavingsReturn,
+    required this.salaryBasis,
+    required this.bonificationBasis,
+    required this.projectionAsOf,
+  });
+
+  Map<String, dynamic> toJson() => {
+        if (caisseReturnBase != null) 'caisseReturnBase': caisseReturnBase,
+        if (caisseReturnLow != null) 'caisseReturnLow': caisseReturnLow,
+        if (caisseReturnHigh != null) 'caisseReturnHigh': caisseReturnHigh,
+        'supplementalMonthlySavingsReturn': supplementalMonthlySavingsReturn,
+        'salaryBasis': salaryBasis.toJson(),
+        'bonificationBasis': bonificationBasis.toJson(),
+        'projectionAsOf': projectionAsOf.toUtc().toIso8601String(),
+      };
+
+  factory FinancialPlanProjectionAssumptions.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    final salaryJson = json['salaryBasis'];
+    final bonificationJson = json['bonificationBasis'];
+    return FinancialPlanProjectionAssumptions(
+      caisseReturnBase: (json['caisseReturnBase'] as num?)?.toDouble(),
+      caisseReturnLow: (json['caisseReturnLow'] as num?)?.toDouble(),
+      caisseReturnHigh: (json['caisseReturnHigh'] as num?)?.toDouble(),
+      supplementalMonthlySavingsReturn:
+          (json['supplementalMonthlySavingsReturn'] as num?)?.toDouble() ?? 0,
+      salaryBasis: FinancialPlanSalaryBasis.fromJson(
+        salaryJson is Map<String, dynamic>
+            ? salaryJson
+            : const <String, dynamic>{},
+      ),
+      bonificationBasis: FinancialPlanBonificationBasis.fromJson(
+        bonificationJson is Map<String, dynamic>
+            ? bonificationJson
+            : const <String, dynamic>{},
+      ),
+      projectionAsOf: DateTime.tryParse(
+            json['projectionAsOf'] as String? ?? '',
+          ) ??
+          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
   }
 }
@@ -102,6 +211,25 @@ class FinancialPlan {
   /// Educational disclaimer (LSFin compliant).
   final String disclaimer;
 
+  /// Explicit amount confirmed for this immutable scenario.
+  ///
+  /// Null means a legacy record could not be migrated safely and therefore
+  /// cannot be regenerated.
+  final double? goalAmount;
+
+  /// Stable identity of the confirmed scenario, independent from GoalA.
+  final String? scenarioId;
+
+  /// Final user-confirmation time for this scenario.
+  final DateTime? confirmedAt;
+
+  /// Time at which the ledger snapshot was captured.
+  final DateTime? inputAsOf;
+
+  /// Structured retirement assumptions. Null for simple deadline arithmetic
+  /// and unmigrated legacy records.
+  final FinancialPlanProjectionAssumptions? projectionAssumptions;
+
   const FinancialPlan({
     required this.id,
     required this.goalDescription,
@@ -118,6 +246,11 @@ class FinancialPlan {
     required this.confidenceLevel,
     required this.sources,
     required this.disclaimer,
+    this.goalAmount,
+    this.scenarioId,
+    this.confirmedAt,
+    this.inputAsOf,
+    this.projectionAssumptions,
   });
 
   Map<String, dynamic> toJson() => {
@@ -136,6 +269,14 @@ class FinancialPlan {
         'confidenceLevel': confidenceLevel,
         'sources': sources,
         'disclaimer': disclaimer,
+        if (goalAmount != null) 'goalAmount': goalAmount,
+        if (scenarioId != null) 'scenarioId': scenarioId,
+        if (confirmedAt != null)
+          'confirmedAt': confirmedAt!.toUtc().toIso8601String(),
+        if (inputAsOf != null)
+          'inputAsOf': inputAsOf!.toUtc().toIso8601String(),
+        if (projectionAssumptions != null)
+          'projectionAssumptions': projectionAssumptions!.toJson(),
       };
 
   /// Deserialize with defensive parsing.
@@ -147,12 +288,31 @@ class FinancialPlan {
     final clampedMonthly = rawMonthly.clamp(0.0, 1e7);
 
     final rawMilestones = json['milestones'] as List<dynamic>? ?? [];
-    final milestones = rawMilestones
-        .map((e) => PlanMilestone.fromJson(e as Map<String, dynamic>))
-        .toList();
+    final milestones = <PlanMilestone>[];
+    for (final raw in rawMilestones) {
+      if (raw is! Map<String, dynamic>) continue;
+      try {
+        milestones.add(PlanMilestone.fromJson(raw));
+      } on FormatException {
+        // Malformed legacy milestones are not scenario ownership evidence.
+      } on TypeError {
+        // Keep the record readable but unregeneratable.
+      }
+    }
 
     final rawSources = json['sources'] as List<dynamic>? ?? [];
     final sources = rawSources.map((e) => e as String).toList();
+
+    final hasExplicitGoalAmount = json.containsKey('goalAmount');
+    final rawGoalAmount = json['goalAmount'];
+    final explicitGoalAmount =
+        rawGoalAmount is num ? rawGoalAmount.toDouble() : null;
+    final goalAmount = _validGoalAmount(explicitGoalAmount)
+        ? explicitGoalAmount
+        : hasExplicitGoalAmount
+            ? null
+            : _recoverUniqueLegacyGoalAmount(milestones);
+    final assumptionsJson = json['projectionAssumptions'];
 
     return FinancialPlan(
       id: json['id'] as String? ?? '',
@@ -170,6 +330,13 @@ class FinancialPlan {
       confidenceLevel: (json['confidenceLevel'] as num?)?.toDouble() ?? 0.0,
       sources: sources,
       disclaimer: json['disclaimer'] as String? ?? '',
+      goalAmount: goalAmount,
+      scenarioId: json['scenarioId'] as String?,
+      confirmedAt: _tryParseInstant(json['confirmedAt']),
+      inputAsOf: _tryParseInstant(json['inputAsOf']),
+      projectionAssumptions: assumptionsJson is Map<String, dynamic>
+          ? FinancialPlanProjectionAssumptions.fromJson(assumptionsJson)
+          : null,
     );
   }
 
@@ -178,16 +345,18 @@ class FinancialPlan {
   /// Milestone dates are evenly spaced between now and [targetDate].
   static List<PlanMilestone> generateMilestones(
     double goalAmount,
-    DateTime targetDate,
-  ) {
-    final now = DateTime.now();
+    DateTime targetDate, {
+    DateTime? now,
+  }) {
+    final generatedAt = now ?? DateTime.now();
     final totalMs =
-        targetDate.millisecondsSinceEpoch - now.millisecondsSinceEpoch;
+        targetDate.millisecondsSinceEpoch - generatedAt.millisecondsSinceEpoch;
     const percentages = [25, 50, 75, 100];
 
     return List.generate(4, (i) {
       final pct = percentages[i];
-      final dateMs = now.millisecondsSinceEpoch + (totalMs * (i + 1) ~/ 4);
+      final dateMs =
+          generatedAt.millisecondsSinceEpoch + (totalMs * (i + 1) ~/ 4);
       final date = DateTime.fromMillisecondsSinceEpoch(dateMs);
       final amount = goalAmount * pct / 100;
       return PlanMilestone(
@@ -215,6 +384,11 @@ class FinancialPlan {
     double? confidenceLevel,
     List<String>? sources,
     String? disclaimer,
+    double? goalAmount,
+    String? scenarioId,
+    DateTime? confirmedAt,
+    DateTime? inputAsOf,
+    FinancialPlanProjectionAssumptions? projectionAssumptions,
   }) {
     return FinancialPlan(
       id: id ?? this.id,
@@ -233,134 +407,35 @@ class FinancialPlan {
       confidenceLevel: confidenceLevel ?? this.confidenceLevel,
       sources: sources ?? this.sources,
       disclaimer: disclaimer ?? this.disclaimer,
+      goalAmount: goalAmount ?? this.goalAmount,
+      scenarioId: scenarioId ?? this.scenarioId,
+      confirmedAt: confirmedAt ?? this.confirmedAt,
+      inputAsOf: inputAsOf ?? this.inputAsOf,
+      projectionAssumptions:
+          projectionAssumptions ?? this.projectionAssumptions,
     );
   }
 }
 
-const _planInputFingerprintPrefix = 'mint-plan-input:v1:sha256:';
+bool _validGoalAmount(double? value) =>
+    value != null && value.isFinite && value > 0;
 
-const _salaryPath = 'salaireBrutMensuel';
-const _cantonPath = 'canton';
-const _dateOfBirthPath = 'dateOfBirth';
-const _birthYearPath = 'birthYear';
-const _lppTotalPath = 'prevoyance.avoirLppTotal';
-const _lppMandatoryPath = 'prevoyance.avoirLppObligatoire';
-const _lppExtraMandatoryPath = 'prevoyance.avoirLppSurobligatoire';
-const _lppReturnPath = 'prevoyance.rendementCaisse';
-const _pillar3aPath = 'prevoyance.totalEpargne3a';
-const _salaryMonthsPath = 'nombreDeMois';
-
-/// Computes the versioned fingerprint of every ledger input that can change a
-/// generated financial plan.
-///
-/// The fixed-order payload includes each fact's value and its field-centric
-/// provenance. The effective-age union serializes `dateOfBirth` when known and
-/// `birthYear` otherwise, never both. This wire format is intentionally
-/// versioned so persisted hashes from older/incomplete algorithms fail closed.
-String computeProfileHash(CoachProfile profile) {
-  final effectiveAgePath =
-      profile.dateOfBirth == null ? _birthYearPath : _dateOfBirthPath;
-  final effectiveAgeValue = profile.dateOfBirth == null
-      ? profile.birthYear
-      : _businessDate(profile.dateOfBirth!);
-
-  final facts = <Map<String, Object?>>[
-    _fingerprintFact(profile, _salaryPath, profile.salaireBrutMensuel),
-    _fingerprintFact(profile, _cantonPath, profile.canton),
-    _fingerprintFact(
-      profile,
-      _lppTotalPath,
-      profile.prevoyance.avoirLppTotal,
-    ),
-    _fingerprintFact(
-      profile,
-      _pillar3aPath,
-      profile.prevoyance.totalEpargne3a,
-    ),
-    _fingerprintFact(profile, effectiveAgePath, effectiveAgeValue),
-    _fingerprintFact(profile, _salaryMonthsPath, profile.nombreDeMois),
-    _fingerprintFact(
-      profile,
-      _lppMandatoryPath,
-      profile.prevoyance.avoirLppObligatoire,
-    ),
-    _fingerprintFact(
-      profile,
-      _lppExtraMandatoryPath,
-      profile.prevoyance.avoirLppSurobligatoire,
-    ),
-    _fingerprintFact(
-      profile,
-      _lppReturnPath,
-      profile.prevoyance.rendementCaisse,
-    ),
-  ];
-
-  final payload = jsonEncode(<String, Object?>{
-    'schema': 'mint-plan-input',
-    'version': 1,
-    'facts': facts,
-  });
-  return '$_planInputFingerprintPrefix${sha256.convert(utf8.encode(payload))}';
+double? _recoverUniqueLegacyGoalAmount(List<PlanMilestone> milestones) {
+  final candidates = milestones
+      .where(
+        (milestone) =>
+            _validGoalAmount(milestone.targetAmount) &&
+            RegExp(r'^\s*100\s*%').hasMatch(milestone.description),
+      )
+      .map((milestone) => milestone.targetAmount)
+      .toList();
+  return candidates.length == 1 ? candidates.single : null;
 }
 
-Map<String, Object?> _fingerprintFact(
-  CoachProfile profile,
-  String path,
-  Object? rawValue,
-) {
-  return <String, Object?>{
-    'path': path,
-    'value': _canonicalFingerprintValue(rawValue, path),
-    'source': _metadata(profile.dataSources, path)?.name,
-    'updatedAt': _canonicalInstant(_metadata(profile.dataTimestamps, path)),
-    'sourceDate': _canonicalSourceDate(
-      _metadata<DateTime?>(profile.dataSourceDates, path),
-    ),
-  };
-}
+DateTime? _tryParseInstant(Object? value) =>
+    value is String ? DateTime.tryParse(value) : null;
 
-T? _metadata<T>(Map<String, T> metadata, String path) {
-  if (metadata.containsKey(path)) return metadata[path];
-  if (path == _dateOfBirthPath || path == _birthYearPath) {
-    return metadata['age'];
-  }
-  return null;
-}
-
-Object? _canonicalFingerprintValue(Object? value, String path) {
-  if (value is double) {
-    if (!value.isFinite) {
-      throw ArgumentError.value(value, path, 'finite plan input required');
-    }
-    return value == 0 ? 0.0 : value;
-  }
-  if (value is num && !value.isFinite) {
-    throw ArgumentError.value(value, path, 'finite plan input required');
-  }
-  return value;
-}
-
-String _businessDate(DateTime value) {
-  final year = value.year.toString().padLeft(4, '0');
-  final month = value.month.toString().padLeft(2, '0');
-  final day = value.day.toString().padLeft(2, '0');
-  return '$year-$month-$day';
-}
-
-String? _canonicalSourceDate(DateTime? value) =>
-    value == null ? null : _businessDate(value);
-
-String? _canonicalInstant(DateTime? value) {
-  if (value == null) return null;
-  final utc = value.toUtc();
-  final base = '${utc.year.toString().padLeft(4, '0')}-'
-      '${utc.month.toString().padLeft(2, '0')}-'
-      '${utc.day.toString().padLeft(2, '0')}T'
-      '${utc.hour.toString().padLeft(2, '0')}:'
-      '${utc.minute.toString().padLeft(2, '0')}:'
-      '${utc.second.toString().padLeft(2, '0')}';
-  final micros =
-      (utc.millisecond * 1000 + utc.microsecond).toString().padLeft(6, '0');
-  return '$base.${micros}Z';
-}
+/// Backward-compatible model export for callers that have not yet moved to the
+/// ledger snapshot module.
+String computeProfileHash(CoachProfile profile, {DateTime? now}) =>
+    ledger_inputs.computeProfileHash(profile, now: now);

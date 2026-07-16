@@ -18,6 +18,7 @@ export 'couple_optimizer.dart';
 export 'disability_insurance_calculator.dart';
 export 'emergency_fund_heuristic.dart';
 export 'fri_calculator.dart';
+export 'financial_plan_calculator.dart';
 export 'gift_tax_confirmation.dart';
 export 'housing_cost_calculator.dart';
 export 'lamal_premium_normalizer.dart';

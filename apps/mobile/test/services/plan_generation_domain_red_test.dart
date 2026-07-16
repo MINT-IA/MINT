@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
@@ -35,6 +37,29 @@ CoachProfile _profile({
       label: 'Objectif synthétique',
     ),
     financialLiteracyLevel: literacy,
+    dataSources: const {
+      'salaireBrutMensuel': ProfileDataSource.userInput,
+      'canton': ProfileDataSource.userInput,
+      'dateOfBirth': ProfileDataSource.userInput,
+      'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
+      'prevoyance.avoirLppObligatoire': ProfileDataSource.userInput,
+      'prevoyance.avoirLppSurobligatoire': ProfileDataSource.userInput,
+      'prevoyance.rendementCaisse': ProfileDataSource.userInput,
+      'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
+    },
+    dataTimestamps: {
+      for (final path in const [
+        'salaireBrutMensuel',
+        'canton',
+        'dateOfBirth',
+        'prevoyance.avoirLppTotal',
+        'prevoyance.avoirLppObligatoire',
+        'prevoyance.avoirLppSurobligatoire',
+        'prevoyance.rendementCaisse',
+        'prevoyance.totalEpargne3a',
+      ])
+        path: DateTime(2026, 7, 1),
+    },
     inferDataSources: false,
     createdAt: DateTime(2026, 7, 1),
     updatedAt: DateTime(2026, 7, 1),
@@ -80,8 +105,13 @@ void main() {
       final plan = await _simplePlan();
 
       expect(
-        (plan.projectedLow, plan.projectedHigh),
-        (isNull, isNull),
+        plan.projectedLow,
+        isNull,
+        reason: 'Goal divided by remaining months has no ±15% model.',
+      );
+      expect(
+        plan.projectedHigh,
+        isNull,
         reason: 'Goal divided by remaining months has no ±15% model.',
       );
     });
@@ -129,6 +159,26 @@ void main() {
           targetDate: _targetInMonths(300),
           label: 'Retraite synthétique',
         ),
+        financialLiteracyLevel: FinancialLiteracyLevel.advanced,
+        dataSources: const {
+          'salaireBrutMensuel': ProfileDataSource.userInput,
+          'dateOfBirth': ProfileDataSource.userInput,
+          'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
+          'prevoyance.avoirLppObligatoire': ProfileDataSource.userInput,
+          'prevoyance.avoirLppSurobligatoire': ProfileDataSource.userInput,
+          'prevoyance.rendementCaisse': ProfileDataSource.userInput,
+        },
+        dataTimestamps: {
+          for (final path in const [
+            'salaireBrutMensuel',
+            'dateOfBirth',
+            'prevoyance.avoirLppTotal',
+            'prevoyance.avoirLppObligatoire',
+            'prevoyance.avoirLppSurobligatoire',
+            'prevoyance.rendementCaisse',
+          ])
+            path: now,
+        },
         inferDataSources: false,
       );
 
@@ -138,13 +188,15 @@ void main() {
         targetDate: _targetInMonths(300),
         profile: profile,
         goalAmount: 300000,
+        prospectiveLppReturn: 0.02,
       );
 
       expect(
         plan.monthlyTarget,
-        closeTo(500, 0.01),
-        reason: '(CHF 300k goal − CHF 150k current LPP) / 300 months. '
-            'A 30-year full-rente terminal patrimony has incompatible units.',
+        closeTo((300000 - 150000 * math.pow(1.02, 25)) / 300, 0.01),
+        reason: 'The user-selected 2% scenario compounds current LPP capital '
+            'over 25 years; only the remaining CHF gap is divided by 300 '
+            'months. Capital and time dimensions stay aligned.',
       );
     });
 
@@ -156,23 +208,26 @@ void main() {
         targetDate: _targetInMonths(300),
         profile: _profile(),
         goalAmount: 300000,
+        prospectiveLppReturn: 0.02,
       );
 
-      expect(
-        (
-          plan.sources.any((source) => source.contains('LPP art. 8')),
-          plan.sources.any(
-            (source) =>
-                source.contains('LPP art. 15') ||
-                source.contains('LPP art. 16'),
-          ),
-          plan.sources.any((source) => source.contains('LIFD art. 38')),
-          plan.sources.any((source) => source.contains('LPP art. 14')),
-        ),
-        (isTrue, isTrue, isFalse, isFalse),
-        reason: 'This branch projects capital accumulation; it neither taxes '
-            'a withdrawal nor converts capital to a pension.',
+      final hasLppArticle8 =
+          plan.sources.any((source) => source.contains('LPP art. 8'));
+      final hasLppArticle15Or16 = plan.sources.any(
+        (source) =>
+            source.contains('LPP art. 15') || source.contains('LPP art. 16'),
       );
+      final hasLifdArticle38 =
+          plan.sources.any((source) => source.contains('LIFD art. 38'));
+      final hasLppArticle14 =
+          plan.sources.any((source) => source.contains('LPP art. 14'));
+      const reason = 'This branch projects capital accumulation; it neither '
+          'taxes a withdrawal nor converts capital to a pension.';
+
+      expect(hasLppArticle8, isTrue, reason: reason);
+      expect(hasLppArticle15Or16, isTrue, reason: reason);
+      expect(hasLifdArticle38, isFalse, reason: reason);
+      expect(hasLppArticle14, isFalse, reason: reason);
     });
 
     test('plan confidence equals the canonical EnhancedConfidence score',

@@ -3,6 +3,23 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 void main() {
+  group('LppCalculator.projectCapitalToRetirement', () {
+    test('keeps mandatory and extra-mandatory balances as capital', () {
+      final capital = LppCalculator.projectCapitalToRetirement(
+        mandatoryCurrentBalance: 100000,
+        extraMandatoryCurrentBalance: 50000,
+        currentAge: 40,
+        retirementAge: 65,
+        grossAnnualSalary: 12000,
+        caisseReturn: 0,
+      );
+
+      expect(capital.currentCapital, 150000);
+      expect(capital.projectedCapital, 150000);
+      expect(capital.projectionYears, 25);
+    });
+  });
+
   group('LppCalculator.projectToRetirement', () {
     test('standard projection 45→65 with bonifications', () {
       final annualRente = LppCalculator.projectToRetirement(

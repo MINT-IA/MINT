@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
@@ -31,6 +33,7 @@ CoachProfile _profileComplete() => CoachProfile(
       salaireBrutMensuel: 10184,
       prevoyance: const PrevoyanceProfile(
         avoirLppTotal: 70000,
+        rendementCaisse: 0.02,
         totalEpargne3a: 32000,
       ),
       goalA: GoalA(
@@ -38,6 +41,25 @@ CoachProfile _profileComplete() => CoachProfile(
         targetDate: DateTime(2042, 1, 12),
         label: 'Retraite',
       ),
+      financialLiteracyLevel: FinancialLiteracyLevel.advanced,
+      dataSources: const {
+        'salaireBrutMensuel': ProfileDataSource.userInput,
+        'dateOfBirth': ProfileDataSource.userInput,
+        'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
+        'prevoyance.rendementCaisse': ProfileDataSource.userInput,
+        'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
+      },
+      dataTimestamps: {
+        for (final path in const [
+          'salaireBrutMensuel',
+          'dateOfBirth',
+          'prevoyance.avoirLppTotal',
+          'prevoyance.rendementCaisse',
+          'prevoyance.totalEpargne3a',
+        ])
+          path: DateTime(2026, 7, 1),
+      },
+      inferDataSources: false,
     );
 
 void main() {
@@ -79,6 +101,7 @@ void main() {
         goalCategory: 'goal_emergency_fund',
         targetDate: targetDate,
         profile: profile,
+        goalAmount: 30000,
       );
 
       expect(plan.milestones, hasLength(4));
@@ -108,6 +131,7 @@ void main() {
         goalCategory: 'goal_control_debts',
         targetDate: targetDate,
         profile: profile,
+        goalAmount: 20000,
       );
 
       expect(plan.goalCategory, equals('goal_control_debts'));
@@ -123,13 +147,14 @@ void main() {
         goalCategory: 'goal_tax_basic',
         targetDate: targetDate,
         profile: profile,
+        goalAmount: 10000,
       );
 
       expect(plan.coachNarrative, isNotEmpty);
     });
 
-    // Test 5: disclaimer contains "LSFin"
-    test('Test 5: disclaimer contains "LSFin"', () async {
+    // Test 5: full mandatory disclaimer
+    test('Test 5: disclaimer uses the mandatory MINT wording', () async {
       final profile = _profileSalaryOnly();
       final targetDate = DateTime.now().add(const Duration(days: 365));
 
@@ -138,13 +163,14 @@ void main() {
         goalCategory: 'goal_emergency_fund',
         targetDate: targetDate,
         profile: profile,
+        goalAmount: 30000,
       );
 
-      expect(plan.disclaimer, contains('LSFin'));
+      expect(plan.disclaimer, mandatoryMintPlanDisclaimer);
     });
 
-    // Test 6: sources list includes at least one legal reference
-    test('Test 6: sources includes at least one legal reference', () async {
+    // Test 6: simple arithmetic has no decorative legal reference
+    test('Test 6: simple arithmetic has no legal source', () async {
       final profile = _profileSalaryOnly();
       final targetDate = DateTime.now().add(const Duration(days: 365));
 
@@ -153,15 +179,10 @@ void main() {
         goalCategory: 'goal_invest_simple',
         targetDate: targetDate,
         profile: profile,
+        goalAmount: 50000,
       );
 
-      expect(plan.sources, isNotEmpty);
-      // At least one source contains a legal reference
-      final hasLegalRef = plan.sources.any(
-        (s) => s.contains('art.') || s.contains('art ') || s.contains('LPP') || s.contains('LIFD'),
-      );
-      expect(hasLegalRef, isTrue,
-          reason: 'Sources should contain legal references like LIFD art. 38 or LPP art. 14');
+      expect(plan.sources, isEmpty);
     });
 
     // Test 7: profileHashAtGeneration is set from profile
@@ -185,6 +206,7 @@ void main() {
         goalCategory: 'goal_house',
         targetDate: targetDate,
         profile: profile1,
+        goalAmount: 500000,
       );
 
       final plan2 = await PlanGenerationService.generate(
@@ -192,6 +214,7 @@ void main() {
         goalCategory: 'goal_house',
         targetDate: targetDate,
         profile: profile2,
+        goalAmount: 500000,
       );
 
       // Different profiles → different hashes
@@ -206,14 +229,14 @@ void main() {
         goalCategory: 'goal_house',
         targetDate: targetDate,
         profile: profile1,
+        goalAmount: 500000,
       );
-      expect(plan1.profileHashAtGeneration,
-          equals(plan3.profileHashAtGeneration));
+      expect(
+          plan1.profileHashAtGeneration, equals(plan3.profileHashAtGeneration));
     });
 
     // Test 8: retirement goal uses different computation path
-    test(
-        'Test 8: retirement goal computes differently from simple arithmetic',
+    test('Test 8: retirement goal computes differently from simple arithmetic',
         () async {
       final profile = _profileComplete();
       // Target 16+ years out to avoid "past date" error
@@ -224,6 +247,8 @@ void main() {
         goalCategory: 'goal_retirement_plan',
         targetDate: targetDate,
         profile: profile,
+        goalAmount: 1000000,
+        prospectiveLppReturn: 0.02,
       );
 
       expect(plan.goalCategory, equals('goal_retirement_plan'));
@@ -264,6 +289,7 @@ void main() {
         goalCategory: 'goal_invest_simple',
         targetDate: targetDate,
         profile: profileLow,
+        goalAmount: 50000,
       );
 
       final planHigh = await PlanGenerationService.generate(
@@ -271,11 +297,138 @@ void main() {
         goalCategory: 'goal_invest_simple',
         targetDate: targetDate,
         profile: profileHigh,
+        goalAmount: 50000,
       );
 
       expect(planHigh.confidenceLevel, greaterThan(planLow.confidenceLevel),
           reason:
               'Profile with salary+LPP+3a+dateOfBirth should yield higher confidence');
+    });
+
+    test('Test 11: non-positive and non-finite goal amounts fail closed',
+        () async {
+      final targetDate = DateTime.now().add(const Duration(days: 365));
+      for (final invalidAmount in [
+        0.0,
+        -1.0,
+        double.nan,
+        double.infinity,
+      ]) {
+        expect(
+          () => PlanGenerationService.generate(
+            goalDescription: 'Objectif invalide',
+            goalCategory: 'goal_general',
+            targetDate: targetDate,
+            profile: _profileSalaryOnly(),
+            goalAmount: invalidAmount,
+          ),
+          throwsArgumentError,
+        );
+      }
+    });
+
+    test('Test 12: declared caisse return bands are exactly ±1 point',
+        () async {
+      final now = DateTime.now();
+      final targetDate = DateTime(now.year, now.month + 300, now.day);
+      final profile = CoachProfile(
+        birthYear: now.year - 40,
+        dateOfBirth: DateTime(now.year - 40, now.month, 1),
+        canton: 'VD',
+        salaireBrutMensuel: 1000,
+        nombreDeMois: 12,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 150000,
+          avoirLppObligatoire: 100000,
+          avoirLppSurobligatoire: 50000,
+          rendementCaisse: 0,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: targetDate,
+          label: 'Retraite avec rendement déclaré',
+        ),
+        financialLiteracyLevel: FinancialLiteracyLevel.advanced,
+        dataSources: const {
+          'salaireBrutMensuel': ProfileDataSource.userInput,
+          'dateOfBirth': ProfileDataSource.userInput,
+          'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
+          'prevoyance.avoirLppObligatoire': ProfileDataSource.userInput,
+          'prevoyance.avoirLppSurobligatoire': ProfileDataSource.userInput,
+          'prevoyance.rendementCaisse': ProfileDataSource.userInput,
+        },
+        dataTimestamps: {
+          for (final path in const [
+            'salaireBrutMensuel',
+            'dateOfBirth',
+            'prevoyance.avoirLppTotal',
+            'prevoyance.avoirLppObligatoire',
+            'prevoyance.avoirLppSurobligatoire',
+            'prevoyance.rendementCaisse',
+          ])
+            path: now,
+        },
+        inferDataSources: false,
+      );
+
+      final plan = await PlanGenerationService.generate(
+        goalDescription: 'Retraite avec rendement déclaré',
+        goalCategory: 'goal_retirement_plan',
+        targetDate: targetDate,
+        profile: profile,
+        goalAmount: 300000,
+        prospectiveLppReturn: 0.02,
+      );
+
+      final contributions = plan.monthlyTarget * 300;
+      expect(
+        plan.projectedLow,
+        closeTo(150000 * math.pow(1.01, 25) + contributions, 0.01),
+      );
+      expect(
+        plan.projectedHigh,
+        closeTo(150000 * math.pow(1.03, 25) + contributions, 0.01),
+      );
+    });
+
+    test(
+        'Test 13: an undeclared caisse return blocks a durable retirement plan',
+        () async {
+      final now = DateTime.now();
+      final profile = CoachProfile(
+        birthYear: now.year - 40,
+        dateOfBirth: DateTime(now.year - 40, now.month, 1),
+        canton: 'VD',
+        salaireBrutMensuel: 1000,
+        nombreDeMois: 12,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 150000,
+          avoirLppObligatoire: 100000,
+          avoirLppSurobligatoire: 50000,
+          rendementCaisse: 0,
+          rendementCaisseConnu: false,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(now.year, now.month + 300, now.day),
+          label: 'Retraite sans rendement déclaré',
+        ),
+        inferDataSources: false,
+      );
+
+      expect(
+        () => PlanGenerationService.generate(
+          goalDescription: 'Retraite sans rendement déclaré',
+          goalCategory: 'goal_retirement_plan',
+          targetDate: DateTime(now.year, now.month + 300, now.day),
+          profile: profile,
+          goalAmount: 300000,
+        ),
+        throwsA(isA<ArgumentError>()),
+        reason: 'A hidden 2% model default is false precision. The durable '
+            'central result must wait for a declared caisse return or an '
+            'explicit visible/editable assumption scenario.',
+      );
     });
   });
 }

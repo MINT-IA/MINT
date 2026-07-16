@@ -22097,7 +22097,7 @@ class SDe extends S {
 
   @override
   String get planCard_disclaimer =>
-      'Bildungstool — stellt keine Finanzberatung dar (LSFin). Quellen : LIFD Art. 38, BVG Art. 14.';
+      'Die dargestellten Ergebnisse sind unverbindliche Schätzungen auf Grundlage der bereitgestellten Daten und der geltenden Gesetzgebung. Sie stellen keine persönliche Finanzberatung dar. Wenden Sie sich für Ihre konkrete Situation an eine Fachperson.';
 
   @override
   String get planCard_errorBody =>
@@ -24137,4 +24137,239 @@ class SDe extends S {
   @override
   String get lppPartnerRetirementBenefitChanged =>
       'Der bestätigte Partnerausweis hat diesen Vorsorgehinweis aktualisiert.';
+
+  @override
+  String get planSetupTitle => 'Szenario erstellen';
+
+  @override
+  String planSetupHint(String goal) {
+    return 'Vorschlag des Coachs: $goal';
+  }
+
+  @override
+  String get planSetupCategoryTitle =>
+      'Welche Art von Szenario möchtest du erstellen?';
+
+  @override
+  String get planSetupCategoryGeneral => 'Allgemeines Ziel';
+
+  @override
+  String get planSetupCategoryRetirement => 'Pensionierung vorbereiten';
+
+  @override
+  String get planSetupRetirementHorizonTitle => 'Pensionierungshorizont';
+
+  @override
+  String get planSetupRetirementHorizonBody =>
+      'Ich bestätige ein Datum, das einem Alter zwischen 58 und 70 Jahren entspricht.';
+
+  @override
+  String get planSetupRetirementScopeTitle => 'Kapitalumfang';
+
+  @override
+  String get planSetupRetirementScopeBody =>
+      'BVG-Kapital + ergänzendes Sparen. AHV, Säule 3a und Bezugssteuer sind ausgeschlossen.';
+
+  @override
+  String get planSetupContinue => 'Weiter';
+
+  @override
+  String get planSetupDetailsTitle => 'Deine Angaben';
+
+  @override
+  String get planSetupAmountLabel => 'Zielkapital (CHF)';
+
+  @override
+  String get planSetupDateLabel => 'Zieldatum (JJJJ-MM-TT)';
+
+  @override
+  String get planSetupReview => 'Szenario prüfen';
+
+  @override
+  String get planSetupInvalidAmount => 'Gib einen positiven CHF-Betrag ein.';
+
+  @override
+  String get planSetupInvalidDate =>
+      'Gib ein gültiges zukünftiges Datum ein. Bei Pensionierung muss das Zielalter zwischen 58 und 70 liegen.';
+
+  @override
+  String get planSetupConfirmationTitle => 'Dieses Szenario bestätigen';
+
+  @override
+  String planSetupConfirmationBody(String goal, String amount, String date) {
+    return '$goal · $amount CHF · $date';
+  }
+
+  @override
+  String get planSetupConfirm => 'Bestätigen und speichern';
+
+  @override
+  String get planSetupSaving => 'Wird gespeichert…';
+
+  @override
+  String get planSetupError =>
+      'Das Szenario konnte nicht gespeichert werden. Prüfe die Angaben und versuche es erneut.';
+
+  @override
+  String planCard_dataConfidence(String percent) {
+    return 'Datenvertrauen: $percent %';
+  }
+
+  @override
+  String get planCard_improvePrecision => 'Genauigkeit verbessern';
+
+  @override
+  String planCard_returnBase(String rate) {
+    return 'Jährliche Szenariorendite: $rate';
+  }
+
+  @override
+  String planCard_returnLow(String rate) {
+    return 'Tiefes Szenario: $rate';
+  }
+
+  @override
+  String planCard_returnHigh(String rate) {
+    return 'Hohes Szenario: $rate';
+  }
+
+  @override
+  String get planCard_supplementalSavingsReturnZero =>
+      'Ergänzendes monatliches Sparen: angenommene Rendite 0 %';
+
+  @override
+  String planCard_salaryDeclared(String amount) {
+    return 'Von der Pensionskasse deklarierter versicherter Lohn: $amount CHF/Jahr';
+  }
+
+  @override
+  String planCard_salaryFallback(String amount) {
+    return 'Lohnbasis: bestätigter monatlicher Bruttolohn × 12 = $amount CHF/Jahr';
+  }
+
+  @override
+  String planCard_bonificationDeclared(String rate) {
+    return 'Von der Pensionskasse deklarierter Altersgutschriftensatz: $rate';
+  }
+
+  @override
+  String get planCard_bonificationLegal =>
+      'Altersgutschriften nach gesetzlicher BVG-Altersstaffel';
+
+  @override
+  String planCard_projectionAsOf(String date) {
+    return 'Projektion per $date';
+  }
+
+  @override
+  String planCard_monthlyAmount(String amount) {
+    return '$amount CHF / Monat';
+  }
+
+  @override
+  String planCard_milestoneLabel(String percent) {
+    return '$percent % des Ziels';
+  }
+
+  @override
+  String planCard_generalNarrative(String amount) {
+    return 'Mit $amount CHF pro Monat würde dieses Ziel innerhalb des gewählten Zeitraums vorankommen.';
+  }
+
+  @override
+  String planCard_retirementNarrative(String amount) {
+    return 'Dieses Szenario kombiniert dein BVG-Kapital mit $amount CHF zusätzlicher Ersparnis pro Monat bis zum gewählten Datum. AHV, Säule 3a und Bezugssteuer sind ausgeschlossen.';
+  }
+
+  @override
+  String planCard_retirementNoLppNarrative(String amount) {
+    return 'Dieses Szenario verwendet bis zum gewählten Datum nur das bestätigte monatliche Sparen von $amount CHF.';
+  }
+
+  @override
+  String get planCard_retirementScopeLpp =>
+      'Umfang: BVG-Kapital und monatliches Sparen. AHV, Säule 3a und Steuern sind ausgeschlossen.';
+
+  @override
+  String get planCard_retirementScopeNoLpp =>
+      'Umfang: nur monatliches Sparen. AHV, BVG, Säule 3a und Steuern sind ausgeschlossen.';
+
+  @override
+  String get planSetupGoalLabel => 'Szenarioziel';
+
+  @override
+  String get planSetupReturnAssumptionTitle => 'Annahme zur künftigen Rendite';
+
+  @override
+  String get planSetupReturnAssumptionBody =>
+      'Wähle eine illustrative jährliche Rendite. Der von deiner Pensionskasse gutgeschriebene Satz wird nicht automatisch zu einem konstanten Zukunftssatz.';
+
+  @override
+  String get planSetupPreparing => 'Berechnung…';
+
+  @override
+  String get planSetupMissingRetirementData =>
+      'Die erforderlichen BVG-Fakten reichen für dieses Szenario noch nicht aus.';
+
+  @override
+  String get planSetupEnrichLpp => 'Zu bestätigende BVG-Daten anzeigen';
+
+  @override
+  String planSetupCapitalUsed(String amount) {
+    return 'Verwendetes BVG-Kapital: $amount CHF';
+  }
+
+  @override
+  String planSetupLppFactSource(String source) {
+    return 'Quelle der BVG-Fakten: $source';
+  }
+
+  @override
+  String planSetupLppFactDate(String date) {
+    return 'Datum der BVG-Fakten: $date';
+  }
+
+  @override
+  String get planSetupSourceCertificate => 'Vorsorgeausweis';
+
+  @override
+  String get planSetupSourceUserInput => 'bestätigte Eingabe';
+
+  @override
+  String get planSetupSourceCrossValidated => 'Kreuzvalidierung';
+
+  @override
+  String get planSetupSourceOpenBanking => 'Bankquelle';
+
+  @override
+  String get planSetupSourceEstimated => 'Schätzung';
+
+  @override
+  String get planSetupSourceUnknown => 'unbestätigt';
+
+  @override
+  String get planSetupLegalBaseline =>
+      'Illustrativer gesetzlicher BVG-Sockel — dieses Ergebnis bildet das Reglement deiner Pensionskasse nicht ab.';
+
+  @override
+  String get planSetupNominalScope =>
+      'Nominalbeträge. AHV, Säule 3a und Steuern sind ausgeschlossen.';
+
+  @override
+  String get planSetupEarlyRetirementRuleTitle => 'Pensionierung vor 63';
+
+  @override
+  String get planSetupEarlyRetirementRuleBody =>
+      'Ich bestätige, dass das Reglement meiner Pensionskasse eine Leistung vor 63 erlaubt.';
+
+  @override
+  String get planSetupPostReferenceActivityTitle => 'Nach dem Referenzalter';
+
+  @override
+  String get planSetupPostReferenceActivityBody =>
+      'Ich bestätige die weitere Erwerbstätigkeit und die Aufschubmöglichkeit mit meiner Pensionskasse.';
+
+  @override
+  String get planSetupDraftChanged =>
+      'Die Daten haben sich seit der Prüfung geändert. Prüfe das Szenario vor der Bestätigung erneut.';
 }

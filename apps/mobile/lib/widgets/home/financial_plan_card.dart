@@ -18,6 +18,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
@@ -79,9 +80,10 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
     }
 
     // Number formatters
-    final chfFmt = NumberFormat('#,##0', 'fr_CH');
-    final dateFmt = DateFormat('MMMM yyyy', 'fr');
-    final quarterFmt = DateFormat('QQQ yyyy', 'fr');
+    final localeName = Localizations.localeOf(context).toString();
+    final chfFmt = NumberFormat('#,##0', localeName);
+    final dateFmt = DateFormat.yMMMM(localeName);
+    final quarterFmt = DateFormat('QQQ yyyy', localeName);
 
     return Container(
       decoration: BoxDecoration(
@@ -130,7 +132,7 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
 
           // ── Hero: monthly CHF target ──
           Text(
-            "${chfFmt.format(plan.monthlyTarget).replaceAll(',', '\u2019')} CHF / mois",
+            l10n.planCard_monthlyAmount(chfFmt.format(plan.monthlyTarget)),
             style: MintTextStyles.displayMedium(
               color: MintColors.textPrimary,
             ),
@@ -148,31 +150,18 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
 
           const SizedBox(height: MintSpacing.md),
 
-          // ── Progress bar (0% — Phase 4: no check-ins yet) ──
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: 0.0,
-              minHeight: 6,
-              backgroundColor: MintColors.border.withValues(alpha: 0.3),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(MintColors.success),
-            ),
+          _PlanTransparencySummary(
+            plan: plan,
+            chfFmt: chfFmt,
+            l10n: l10n,
           ),
 
-          const SizedBox(height: MintSpacing.sm),
-
-          // ── Caption row: progress % + CTA button ──
-          Row(
-            children: [
-              Text(
-                l10n.planCard_progressCaption('0'),
-                style: MintTextStyles.bodyMedium(
-                  color: MintColors.textMuted,
-                ),
-              ),
-              const Spacer(),
-              _CtaButton(
+          Align(
+            alignment: Alignment.centerRight,
+            child: Semantics(
+              identifier: 'financial_plan_home_details',
+              button: true,
+              child: _CtaButton(
                 isStale: widget.isStale,
                 isExpanded: _isExpanded,
                 ctaDetail: l10n.planCard_ctaDetail,
@@ -183,7 +172,7 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
                   l10n.planCard_recalculatePrompt(plan.goalDescription),
                 ),
               ),
-            ],
+            ),
           ),
 
           // ── Expanded detail section ──
@@ -383,7 +372,144 @@ class _CtaButton extends StatelessWidget {
   }
 }
 
-/// Expanded detail section showing milestones, confidence bands, and disclaimer.
+class _PlanTransparencySummary extends StatelessWidget {
+  const _PlanTransparencySummary({
+    required this.plan,
+    required this.chfFmt,
+    required this.l10n,
+  });
+
+  final FinancialPlan plan;
+  final NumberFormat chfFmt;
+  final S l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final isRetirement = plan.goalCategory == 'goal_retirement_plan' ||
+        plan.goalCategory == 'goal_pension_opt';
+    final assumptions = plan.projectionAssumptions;
+    final isNoLppRetirement = isRetirement &&
+        assumptions?.salaryBasis.kind == 'notApplicable' &&
+        assumptions?.bonificationBasis.kind == 'notApplicable';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isRetirement) ...[
+          Text(
+            isNoLppRetirement
+                ? l10n.planCard_retirementScopeNoLpp
+                : l10n.planCard_retirementScopeLpp,
+            style: MintTextStyles.micro(color: MintColors.textMuted),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+        ],
+        if (plan.projectedLow != null && plan.projectedHigh != null) ...[
+          Text(
+            l10n.planCard_confidenceBands(
+              chfFmt.format(plan.projectedLow!),
+              chfFmt.format(plan.projectedOutcome),
+              chfFmt.format(plan.projectedHigh!),
+            ),
+            style: MintTextStyles.micro(color: MintColors.textMuted),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+        ],
+        Text(
+          l10n.planCard_dataConfidence(
+            plan.confidenceLevel.round().toString(),
+          ),
+          style: MintTextStyles.micro(color: MintColors.textMuted),
+        ),
+        if (plan.confidenceLevel < 70) ...[
+          const SizedBox(height: MintSpacing.xs),
+          Semantics(
+            identifier: 'financial_plan_home_improve_precision',
+            button: true,
+            child: TextButton(
+              onPressed: () => context.push(
+                isRetirement ? '/data-block/lpp' : '/data-block/revenu',
+              ),
+              child: Text(l10n.planCard_improvePrecision),
+            ),
+          ),
+        ],
+        if (assumptions != null) ...[
+          const SizedBox(height: MintSpacing.sm),
+          ..._assumptionLines(context, assumptions).map(
+            (line) => Padding(
+              padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+              child: Text(
+                line,
+                style: MintTextStyles.micro(color: MintColors.textMuted),
+              ),
+            ),
+          ),
+        ],
+        const SizedBox(height: MintSpacing.sm),
+      ],
+    );
+  }
+
+  List<String> _assumptionLines(
+    BuildContext context,
+    FinancialPlanProjectionAssumptions assumptions,
+  ) {
+    final localeName = Localizations.localeOf(context).toString();
+    final percent = NumberFormat.decimalPercentPattern(
+      locale: localeName,
+      decimalDigits: 1,
+    );
+    final chf = NumberFormat.currency(
+      locale: localeName,
+      symbol: '',
+      decimalDigits: 0,
+    );
+    final lines = <String>[];
+    if (assumptions.caisseReturnBase case final value?) {
+      lines.add(l10n.planCard_returnBase(percent.format(value)));
+    }
+    if (assumptions.caisseReturnLow case final value?) {
+      lines.add(l10n.planCard_returnLow(percent.format(value)));
+    }
+    if (assumptions.caisseReturnHigh case final value?) {
+      lines.add(l10n.planCard_returnHigh(percent.format(value)));
+    }
+    if (assumptions.supplementalMonthlySavingsReturn == 0) {
+      lines.add(l10n.planCard_supplementalSavingsReturnZero);
+    }
+    final salary = assumptions.salaryBasis;
+    if (salary.annualChf case final amount?) {
+      final formatted = chf.format(amount).trim();
+      if (salary.kind == 'declaredInsuredSalary') {
+        lines.add(l10n.planCard_salaryDeclared(formatted));
+      } else if (salary.kind == 'monthlySalaryTimesTwelve') {
+        lines.add(l10n.planCard_salaryFallback(formatted));
+      }
+    }
+    final bonification = assumptions.bonificationBasis;
+    if (bonification.kind == 'declaredFundRate' &&
+        bonification.annualRate != null) {
+      lines.add(
+        l10n.planCard_bonificationDeclared(
+          percent.format(bonification.annualRate),
+        ),
+      );
+    } else if (bonification.kind == 'legalAgeSchedule') {
+      lines.add(l10n.planCard_bonificationLegal);
+    }
+    if (assumptions.projectionAsOf.millisecondsSinceEpoch > 0) {
+      lines.add(
+        l10n.planCard_projectionAsOf(
+          DateFormat.yMd(localeName).format(assumptions.projectionAsOf),
+        ),
+      );
+    }
+    return lines;
+  }
+}
+
+/// Expanded detail showing milestones, economic assumptions and provenance.
 class _ExpandedDetail extends StatelessWidget {
   final FinancialPlan plan;
   final DateFormat quarterFmt;
@@ -415,30 +541,37 @@ class _ExpandedDetail extends StatelessWidget {
         const SizedBox(height: MintSpacing.xs),
 
         // ── Milestone rows ──
-        ...milestones.map((m) => _MilestoneRow(
-              date: quarterFmt.format(m.targetDate),
-              amount:
-                  '${chfFmt.format(m.targetAmount).replaceAll(',', '\u2019')} CHF',
-              description: m.description,
+        ...milestones.asMap().entries.map((entry) => _MilestoneRow(
+              date: quarterFmt.format(entry.value.targetDate),
+              amount: l10n.budgetReportChfAmount(
+                chfFmt.format(entry.value.targetAmount),
+              ),
+              description: l10n.planCard_milestoneLabel(
+                (((entry.key + 1) * 100) / milestones.length)
+                    .round()
+                    .toString(),
+              ),
             )),
 
         const SizedBox(height: MintSpacing.md),
 
-        // ── Confidence bands (only when available) ──
-        if (plan.projectedLow != null && plan.projectedHigh != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: MintSpacing.sm),
-            child: Text(
-              l10n.planCard_confidenceBands(
-                chfFmt.format(plan.projectedLow!).replaceAll(',', '\u2019'),
-                chfFmt.format(plan.projectedOutcome).replaceAll(',', '\u2019'),
-                chfFmt.format(plan.projectedHigh!).replaceAll(',', '\u2019'),
-              ),
-              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(
-                fontStyle: FontStyle.italic,
+        if (plan.sources.isNotEmpty) ...[
+          Text(
+            l10n.askMintSourcesTitle,
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          ...plan.sources.map(
+            (source) => Padding(
+              padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+              child: Text(
+                source,
+                style: MintTextStyles.micro(color: MintColors.textMuted),
               ),
             ),
           ),
+          const SizedBox(height: MintSpacing.sm),
+        ],
 
         // ── Disclaimer ──
         Text(

@@ -38606,7 +38606,7 @@ abstract class S {
   /// No description provided for @planCard_disclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LIFD art. 38, LPP art. 14.'**
+  /// **'Les résultats présentés sont des estimations à titre indicatif, basées sur les données fournies et la législation en vigueur. Ils ne constituent pas un conseil financier personnalisé. Consultez un·e spécialiste pour votre situation spécifique.'**
   String get planCard_disclaimer;
 
   /// No description provided for @planCard_errorBody.
@@ -42064,6 +42064,372 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Le certificat partenaire confirmé a actualisé cet éclairage retraite.'**
   String get lppPartnerRetirementBenefitChanged;
+
+  /// No description provided for @planSetupTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un scénario'**
+  String get planSetupTitle;
+
+  /// No description provided for @planSetupHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposition du coach : {goal}'**
+  String planSetupHint(String goal);
+
+  /// No description provided for @planSetupCategoryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel type de scénario veux-tu créer ?'**
+  String get planSetupCategoryTitle;
+
+  /// No description provided for @planSetupCategoryGeneral.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif général'**
+  String get planSetupCategoryGeneral;
+
+  /// No description provided for @planSetupCategoryRetirement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation de la retraite'**
+  String get planSetupCategoryRetirement;
+
+  /// No description provided for @planSetupRetirementHorizonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Horizon retraite'**
+  String get planSetupRetirementHorizonTitle;
+
+  /// No description provided for @planSetupRetirementHorizonBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je confirmerai une date correspondant à un âge entre 58 et 70 ans.'**
+  String get planSetupRetirementHorizonBody;
+
+  /// No description provided for @planSetupRetirementScopeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Périmètre du capital'**
+  String get planSetupRetirementScopeTitle;
+
+  /// No description provided for @planSetupRetirementScopeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital LPP + épargne complémentaire. AVS, 3a et impôt de retrait exclus.'**
+  String get planSetupRetirementScopeBody;
+
+  /// No description provided for @planSetupContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get planSetupContinue;
+
+  /// No description provided for @planSetupDetailsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes paramètres'**
+  String get planSetupDetailsTitle;
+
+  /// No description provided for @planSetupAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital cible (CHF)'**
+  String get planSetupAmountLabel;
+
+  /// No description provided for @planSetupDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date cible (AAAA-MM-JJ)'**
+  String get planSetupDateLabel;
+
+  /// No description provided for @planSetupReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier le scénario'**
+  String get planSetupReview;
+
+  /// No description provided for @planSetupInvalidAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis un montant CHF positif.'**
+  String get planSetupInvalidAmount;
+
+  /// No description provided for @planSetupInvalidDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis une date future valide. Pour la retraite, l’âge cible doit être compris entre 58 et 70 ans.'**
+  String get planSetupInvalidDate;
+
+  /// No description provided for @planSetupConfirmationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirme ce scénario'**
+  String get planSetupConfirmationTitle;
+
+  /// No description provided for @planSetupConfirmationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{goal} · {amount} CHF · {date}'**
+  String planSetupConfirmationBody(String goal, String amount, String date);
+
+  /// No description provided for @planSetupConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer et enregistrer'**
+  String get planSetupConfirm;
+
+  /// No description provided for @planSetupSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement…'**
+  String get planSetupSaving;
+
+  /// No description provided for @planSetupError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le scénario n’a pas pu être enregistré. Vérifie les données puis réessaie.'**
+  String get planSetupError;
+
+  /// No description provided for @planCard_dataConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance des données : {percent} %'**
+  String planCard_dataConfidence(String percent);
+
+  /// No description provided for @planCard_improvePrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Améliorer la précision'**
+  String get planCard_improvePrecision;
+
+  /// No description provided for @planCard_returnBase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rendement annuel du scénario : {rate}'**
+  String planCard_returnBase(String rate);
+
+  /// No description provided for @planCard_returnLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scénario bas : {rate}'**
+  String planCard_returnLow(String rate);
+
+  /// No description provided for @planCard_returnHigh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scénario haut : {rate}'**
+  String planCard_returnHigh(String rate);
+
+  /// No description provided for @planCard_supplementalSavingsReturnZero.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne mensuelle complémentaire : rendement supposé 0 %'**
+  String get planCard_supplementalSavingsReturnZero;
+
+  /// No description provided for @planCard_salaryDeclared.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire assuré déclaré par la caisse : {amount} CHF/an'**
+  String planCard_salaryDeclared(String amount);
+
+  /// No description provided for @planCard_salaryFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire de base : salaire brut mensuel confirmé × 12 = {amount} CHF/an'**
+  String planCard_salaryFallback(String amount);
+
+  /// No description provided for @planCard_bonificationDeclared.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de bonification déclaré par la caisse : {rate}'**
+  String planCard_bonificationDeclared(String rate);
+
+  /// No description provided for @planCard_bonificationLegal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonifications selon le barème légal LPP par âge'**
+  String get planCard_bonificationLegal;
+
+  /// No description provided for @planCard_projectionAsOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection au {date}'**
+  String planCard_projectionAsOf(String date);
+
+  /// No description provided for @planCard_monthlyAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{amount} CHF / mois'**
+  String planCard_monthlyAmount(String amount);
+
+  /// No description provided for @planCard_milestoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} % de l’objectif'**
+  String planCard_milestoneLabel(String percent);
+
+  /// No description provided for @planCard_generalNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre de côté {amount} CHF par mois ferait progresser cet objectif dans le délai choisi.'**
+  String planCard_generalNarrative(String amount);
+
+  /// No description provided for @planCard_retirementNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce scénario combine ton capital LPP et {amount} CHF par mois d’épargne complémentaire jusqu’à la date choisie. Il exclut l’AVS, le 3a et l’impôt de retrait.'**
+  String planCard_retirementNarrative(String amount);
+
+  /// No description provided for @planCard_retirementNoLppNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce scénario repose uniquement sur l’épargne mensuelle confirmée de {amount} CHF jusqu’à la date choisie.'**
+  String planCard_retirementNoLppNarrative(String amount);
+
+  /// No description provided for @planCard_retirementScopeLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Périmètre : capital LPP et épargne mensuelle. AVS, 3a et impôts exclus.'**
+  String get planCard_retirementScopeLpp;
+
+  /// No description provided for @planCard_retirementScopeNoLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Périmètre : épargne mensuelle uniquement. AVS, LPP, 3a et impôts exclus.'**
+  String get planCard_retirementScopeNoLpp;
+
+  /// No description provided for @planSetupGoalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif du scénario'**
+  String get planSetupGoalLabel;
+
+  /// No description provided for @planSetupReturnAssumptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse de rendement futur'**
+  String get planSetupReturnAssumptionTitle;
+
+  /// No description provided for @planSetupReturnAssumptionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis un rendement annuel illustratif. Le taux crédité par ta caisse ne devient pas automatiquement un taux futur constant.'**
+  String get planSetupReturnAssumptionBody;
+
+  /// No description provided for @planSetupPreparing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calcul…'**
+  String get planSetupPreparing;
+
+  /// No description provided for @planSetupMissingRetirementData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les faits LPP requis ne permettent pas encore de calculer ce scénario.'**
+  String get planSetupMissingRetirementData;
+
+  /// No description provided for @planSetupEnrichLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les données LPP à confirmer'**
+  String get planSetupEnrichLpp;
+
+  /// No description provided for @planSetupCapitalUsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital LPP utilisé : {amount} CHF'**
+  String planSetupCapitalUsed(String amount);
+
+  /// No description provided for @planSetupLppFactSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source des faits LPP : {source}'**
+  String planSetupLppFactSource(String source);
+
+  /// No description provided for @planSetupLppFactDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date des faits LPP : {date}'**
+  String planSetupLppFactDate(String date);
+
+  /// No description provided for @planSetupSourceCertificate.
+  ///
+  /// In fr, this message translates to:
+  /// **'certificat'**
+  String get planSetupSourceCertificate;
+
+  /// No description provided for @planSetupSourceUserInput.
+  ///
+  /// In fr, this message translates to:
+  /// **'saisie confirmée'**
+  String get planSetupSourceUserInput;
+
+  /// No description provided for @planSetupSourceCrossValidated.
+  ///
+  /// In fr, this message translates to:
+  /// **'validation croisée'**
+  String get planSetupSourceCrossValidated;
+
+  /// No description provided for @planSetupSourceOpenBanking.
+  ///
+  /// In fr, this message translates to:
+  /// **'source bancaire'**
+  String get planSetupSourceOpenBanking;
+
+  /// No description provided for @planSetupSourceEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'estimation'**
+  String get planSetupSourceEstimated;
+
+  /// No description provided for @planSetupSourceUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'non confirmée'**
+  String get planSetupSourceUnknown;
+
+  /// No description provided for @planSetupLegalBaseline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Socle LPP légal illustratif — ce résultat ne reproduit pas le règlement de ta caisse.'**
+  String get planSetupLegalBaseline;
+
+  /// No description provided for @planSetupNominalScope.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nominal. AVS, 3a et impôts exclus.'**
+  String get planSetupNominalScope;
+
+  /// No description provided for @planSetupEarlyRetirementRuleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite avant 63 ans'**
+  String get planSetupEarlyRetirementRuleTitle;
+
+  /// No description provided for @planSetupEarlyRetirementRuleBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je confirme que le règlement de ma caisse autorise une prestation avant 63 ans.'**
+  String get planSetupEarlyRetirementRuleBody;
+
+  /// No description provided for @planSetupPostReferenceActivityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après l’âge de référence'**
+  String get planSetupPostReferenceActivityTitle;
+
+  /// No description provided for @planSetupPostReferenceActivityBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je confirme la poursuite de mon activité lucrative et la possibilité d’ajournement auprès de ma caisse.'**
+  String get planSetupPostReferenceActivityBody;
+
+  /// No description provided for @planSetupDraftChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les données ont changé depuis la revue. Vérifie à nouveau le scénario avant de confirmer.'**
+  String get planSetupDraftChanged;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

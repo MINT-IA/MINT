@@ -22048,7 +22048,7 @@ class SEs extends S {
 
   @override
   String get planCard_disclaimer =>
-      'Herramienta educativa — no constituye un consejo financiero (LSFin). Fuentes : LIFD art. 38, LPP art. 14.';
+      'Los resultados presentados son estimaciones indicativas basadas en los datos facilitados y la legislación vigente. No constituyen asesoramiento financiero personalizado. Consulte a un especialista para su situación concreta.';
 
   @override
   String get planCard_errorBody =>
@@ -24076,4 +24076,240 @@ class SEs extends S {
   @override
   String get lppPartnerRetirementBenefitChanged =>
       'El certificado confirmado de tu pareja actualizó esta información sobre jubilación.';
+
+  @override
+  String get planSetupTitle => 'Crear un escenario';
+
+  @override
+  String planSetupHint(String goal) {
+    return 'Propuesta del coach: $goal';
+  }
+
+  @override
+  String get planSetupCategoryTitle => '¿Qué tipo de escenario quieres crear?';
+
+  @override
+  String get planSetupCategoryGeneral => 'Objetivo general';
+
+  @override
+  String get planSetupCategoryRetirement => 'Preparación de la jubilación';
+
+  @override
+  String get planSetupRetirementHorizonTitle => 'Horizonte de jubilación';
+
+  @override
+  String get planSetupRetirementHorizonBody =>
+      'Confirmaré una fecha correspondiente a una edad entre 58 y 70 años.';
+
+  @override
+  String get planSetupRetirementScopeTitle => 'Perímetro del capital';
+
+  @override
+  String get planSetupRetirementScopeBody =>
+      'Capital LPP + ahorro complementario. Se excluyen AVS, pilar 3a e impuesto de retirada.';
+
+  @override
+  String get planSetupContinue => 'Continuar';
+
+  @override
+  String get planSetupDetailsTitle => 'Tus datos';
+
+  @override
+  String get planSetupAmountLabel => 'Capital objetivo (CHF)';
+
+  @override
+  String get planSetupDateLabel => 'Fecha objetivo (AAAA-MM-DD)';
+
+  @override
+  String get planSetupReview => 'Revisar el escenario';
+
+  @override
+  String get planSetupInvalidAmount => 'Introduce un importe positivo en CHF.';
+
+  @override
+  String get planSetupInvalidDate =>
+      'Introduce una fecha futura válida. Para la jubilación, la edad objetivo debe estar entre 58 y 70 años.';
+
+  @override
+  String get planSetupConfirmationTitle => 'Confirma este escenario';
+
+  @override
+  String planSetupConfirmationBody(String goal, String amount, String date) {
+    return '$goal · $amount CHF · $date';
+  }
+
+  @override
+  String get planSetupConfirm => 'Confirmar y guardar';
+
+  @override
+  String get planSetupSaving => 'Guardando…';
+
+  @override
+  String get planSetupError =>
+      'No se pudo guardar el escenario. Revisa los datos e inténtalo de nuevo.';
+
+  @override
+  String planCard_dataConfidence(String percent) {
+    return 'Confianza de los datos: $percent %';
+  }
+
+  @override
+  String get planCard_improvePrecision => 'Mejorar la precisión';
+
+  @override
+  String planCard_returnBase(String rate) {
+    return 'Rentabilidad anual del escenario: $rate';
+  }
+
+  @override
+  String planCard_returnLow(String rate) {
+    return 'Escenario bajo: $rate';
+  }
+
+  @override
+  String planCard_returnHigh(String rate) {
+    return 'Escenario alto: $rate';
+  }
+
+  @override
+  String get planCard_supplementalSavingsReturnZero =>
+      'Ahorro mensual complementario: rendimiento supuesto 0 %';
+
+  @override
+  String planCard_salaryDeclared(String amount) {
+    return 'Salario asegurado declarado por la caja: $amount CHF/año';
+  }
+
+  @override
+  String planCard_salaryFallback(String amount) {
+    return 'Base salarial: salario bruto mensual confirmado × 12 = $amount CHF/año';
+  }
+
+  @override
+  String planCard_bonificationDeclared(String rate) {
+    return 'Tasa de bonificación declarada por la caja: $rate';
+  }
+
+  @override
+  String get planCard_bonificationLegal =>
+      'Bonificaciones según la escala legal LPP por edad';
+
+  @override
+  String planCard_projectionAsOf(String date) {
+    return 'Proyección a $date';
+  }
+
+  @override
+  String planCard_monthlyAmount(String amount) {
+    return '$amount CHF / mes';
+  }
+
+  @override
+  String planCard_milestoneLabel(String percent) {
+    return '$percent % del objetivo';
+  }
+
+  @override
+  String planCard_generalNarrative(String amount) {
+    return 'Ahorrar $amount CHF al mes permitiría avanzar hacia este objetivo dentro del plazo elegido.';
+  }
+
+  @override
+  String planCard_retirementNarrative(String amount) {
+    return 'Este escenario combina tu capital LPP con $amount CHF mensuales de ahorro complementario hasta la fecha elegida. Excluye AVS, pilar 3a y el impuesto de retirada.';
+  }
+
+  @override
+  String planCard_retirementNoLppNarrative(String amount) {
+    return 'Este escenario usa únicamente el ahorro mensual confirmado de $amount CHF hasta la fecha elegida.';
+  }
+
+  @override
+  String get planCard_retirementScopeLpp =>
+      'Perímetro: capital LPP y ahorro mensual. Se excluyen AVS, pilar 3a e impuestos.';
+
+  @override
+  String get planCard_retirementScopeNoLpp =>
+      'Perímetro: solo ahorro mensual. Se excluyen AVS, LPP, pilar 3a e impuestos.';
+
+  @override
+  String get planSetupGoalLabel => 'Objetivo del escenario';
+
+  @override
+  String get planSetupReturnAssumptionTitle =>
+      'Hipótesis de rentabilidad futura';
+
+  @override
+  String get planSetupReturnAssumptionBody =>
+      'Elige una rentabilidad anual ilustrativa. El tipo abonado por tu caja no se convierte automáticamente en un tipo futuro constante.';
+
+  @override
+  String get planSetupPreparing => 'Calculando…';
+
+  @override
+  String get planSetupMissingRetirementData =>
+      'Los datos LPP necesarios aún no permiten calcular este escenario.';
+
+  @override
+  String get planSetupEnrichLpp => 'Ver los datos LPP por confirmar';
+
+  @override
+  String planSetupCapitalUsed(String amount) {
+    return 'Capital LPP utilizado: $amount CHF';
+  }
+
+  @override
+  String planSetupLppFactSource(String source) {
+    return 'Fuente de los datos LPP: $source';
+  }
+
+  @override
+  String planSetupLppFactDate(String date) {
+    return 'Fecha de los datos LPP: $date';
+  }
+
+  @override
+  String get planSetupSourceCertificate => 'certificado';
+
+  @override
+  String get planSetupSourceUserInput => 'dato confirmado';
+
+  @override
+  String get planSetupSourceCrossValidated => 'validación cruzada';
+
+  @override
+  String get planSetupSourceOpenBanking => 'fuente bancaria';
+
+  @override
+  String get planSetupSourceEstimated => 'estimación';
+
+  @override
+  String get planSetupSourceUnknown => 'sin confirmar';
+
+  @override
+  String get planSetupLegalBaseline =>
+      'Base legal LPP ilustrativa — este resultado no reproduce el reglamento de tu caja.';
+
+  @override
+  String get planSetupNominalScope =>
+      'Importes nominales. AVS, pilar 3a e impuestos excluidos.';
+
+  @override
+  String get planSetupEarlyRetirementRuleTitle => 'Jubilación antes de los 63';
+
+  @override
+  String get planSetupEarlyRetirementRuleBody =>
+      'Confirmo que el reglamento de mi caja permite una prestación antes de los 63 años.';
+
+  @override
+  String get planSetupPostReferenceActivityTitle =>
+      'Después de la edad de referencia';
+
+  @override
+  String get planSetupPostReferenceActivityBody =>
+      'Confirmo la continuidad de mi actividad remunerada y la posibilidad de aplazamiento con mi caja.';
+
+  @override
+  String get planSetupDraftChanged =>
+      'Los datos cambiaron después de la revisión. Revisa de nuevo el escenario antes de confirmar.';
 }

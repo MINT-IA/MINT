@@ -651,30 +651,16 @@ class CoachOrchestrator {
     {
       'name': 'generate_financial_plan',
       'description':
-          'Generate a personalized financial plan preview card in the chat. '
-              'Use when the user asks for "un plan", "quoi faire", or a concrete ' // lint-ignore: internal LLM tool schema, not user-facing UI
-              'multi-step action list. The card shows a goal, a monthly target, '
-              'milestones, and a coach narrative. Read-only — no money movement.',
+          'Open the local financial-plan setup when the user asks for a plan. '
+          'Provide only a short goal display hint. Flutter owns category, '
+          'amount, date, confirmation, calculation, and persistence.',
       'input_schema': {
         'type': 'object',
         'properties': {
-          'goal': {
-            'type': 'string',
-            'description':
-                'Short goal description (e.g. "Preparer la retraite", "Acheter un appartement").', // lint-ignore: internal LLM tool schema, not user-facing UI
-          },
-          'monthly_amount': {
-            'type': 'number',
-            'description':
-                'Monthly target amount in CHF. Optional — omit if unknown.',
-          },
-          'narrative': {
-            'type': 'string',
-            'description':
-                'Coach narrative (1-2 sentences) explaining why this plan.',
-          },
+          'goal': {'type': 'string'},
         },
-        'required': ['goal', 'narrative'],
+        'required': ['goal'],
+        'additionalProperties': false,
       },
     },
     {

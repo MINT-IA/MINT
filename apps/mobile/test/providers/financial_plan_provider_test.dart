@@ -45,6 +45,8 @@ CoachProfile _makeProfile({double salary = 10000.0, String canton = 'VS'}) {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('FinancialPlanProvider', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});
@@ -52,15 +54,19 @@ void main() {
 
     test('Test 7: hasPlan is false initially', () {
       final provider = FinancialPlanProvider();
+      addTearDown(provider.dispose);
       expect(provider.hasPlan, isFalse);
       expect(provider.currentPlan, isNull);
     });
 
-    test('Test 8: After loadFromPersistence(), hasPlan is true and currentPlan is populated', () async {
+    test(
+        'Test 8: After loadFromPersistence(), hasPlan is true and currentPlan is populated',
+        () async {
       final plan = _makePlan();
       await FinancialPlanService.save(plan);
 
       final provider = FinancialPlanProvider();
+      addTearDown(provider.dispose);
       await provider.loadFromPersistence();
 
       expect(provider.hasPlan, isTrue);
@@ -71,24 +77,28 @@ void main() {
     test('Test 9: When profile hash changes, isPlanStale becomes true', () {
       final plan = _makePlan(profileHash: 'hash-original');
       final provider = FinancialPlanProvider();
+      addTearDown(provider.dispose);
       // Set the plan directly without persistence
       provider.setPlanDirect(plan);
 
       expect(provider.isPlanStale, isFalse);
 
       // Simulate a profile with a different hash
-      final differentProfile = _makeProfile(salary: 99999.0); // different salary → different hash
+      final differentProfile =
+          _makeProfile(salary: 99999.0); // different salary → different hash
       provider.checkStalenessForTest(differentProfile);
 
       expect(provider.isPlanStale, isTrue);
     });
 
-    test('Test 10: When profile hash is unchanged, isPlanStale remains false', () {
+    test('Test 10: When profile hash is unchanged, isPlanStale remains false',
+        () {
       final profile = _makeProfile(salary: 10000.0, canton: 'VS');
       final hash = computeProfileHash(profile);
       final plan = _makePlan(profileHash: hash);
 
       final provider = FinancialPlanProvider();
+      addTearDown(provider.dispose);
       provider.setPlanDirect(plan);
 
       provider.checkStalenessForTest(profile);
@@ -101,6 +111,7 @@ void main() {
       await FinancialPlanService.save(plan);
 
       final provider = FinancialPlanProvider();
+      addTearDown(provider.dispose);
       await provider.loadFromPersistence();
 
       expect(provider.hasPlan, isTrue);
