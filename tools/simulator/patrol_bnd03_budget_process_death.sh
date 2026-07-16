@@ -96,7 +96,7 @@ command -v xcodebuild >/dev/null 2>&1 || die "xcodebuild is required"
 command -v flutter >/dev/null 2>&1 || die "flutter is required"
 command -v find >/dev/null 2>&1 || die "find is required"
 command -v python3 >/dev/null 2>&1 || die "python3 is required"
-command -v ditto >/dev/null 2>&1 || die "ditto is required"
+command -v tar >/dev/null 2>&1 || die "tar is required"
 command -v codesign >/dev/null 2>&1 || die "codesign is required"
 command -v xattr >/dev/null 2>&1 || die "xattr is required"
 
@@ -104,16 +104,17 @@ mkdir -p "$artifacts"
 artifacts="$(cd "$artifacts" && pwd)"
 metadata="$artifacts/metadata.json"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-mode="patrol_external_build_xcode_then_physical_production_preclean_external_norsrc_install"
+mode="patrol_external_build_xcode_then_exact_archive_physical_production_install"
+production_source_mode="git_archive"
 write_build_exit_code=""
 write_exit_code=""
 launch_exit_code=""
 terminate_exit_code=""
 read_build_exit_code=""
 read_exit_code=""
-production_preclean_exit_code=""
+production_export_exit_code=""
+production_extract_exit_code=""
 production_build_exit_code=""
-production_stage_exit_code=""
 production_codesign_verify_exit_code=""
 production_xattr_inspect_exit_code=""
 production_install_exit_code=""
@@ -121,18 +122,21 @@ maestro_exit_code=""
 cleanup_status="pending"
 runtime_completed=false
 mobile_build="$mobile_root/build"
-normal_flutter_cache="$mobile_build/ios/Debug-iphonesimulator/Flutter.framework/Flutter"
 build_backup="$mobile_root/.dart_tool/mint-patrol-g1-bnd03-build-backup-$sha"
 external_root=""
 external_build=""
+production_archive=""
+production_export_root=""
+production_mobile=""
+production_app=""
+production_mobile_tree=""
 build_isolation_enabled=false
 original_build_present=false
 restoration_status="not_started"
 reset_between_patrol_stages=false
-normal_build_restored_for_production=false
-normal_ios_xattrs_precleaned_for_production=false
-production_app_staged_external=false
-production_app_staged_norsrc=false
+patrol_build_purged_before_production=false
+production_source_exported_exact=false
+production_source_physical=false
 artifact_cleanup_failed=false
 stage_sanitization_failed=0
 
@@ -206,15 +210,17 @@ write_metadata() {
   MINT_META_STARTED="$started_at" \
   MINT_META_FINISHED="$finished_at" \
   MINT_META_MODE="$mode" \
+  MINT_META_SOURCE_MODE="$production_source_mode" \
+  MINT_META_MOBILE_TREE="$production_mobile_tree" \
   MINT_META_WRITE_BUILD="$write_build_exit_code" \
   MINT_META_WRITE="$write_exit_code" \
   MINT_META_LAUNCH="$launch_exit_code" \
   MINT_META_TERMINATE="$terminate_exit_code" \
   MINT_META_READ_BUILD="$read_build_exit_code" \
   MINT_META_READ="$read_exit_code" \
-  MINT_META_PRODUCTION_PRECLEAN="$production_preclean_exit_code" \
+  MINT_META_PRODUCTION_EXPORT="$production_export_exit_code" \
+  MINT_META_PRODUCTION_EXTRACT="$production_extract_exit_code" \
   MINT_META_PRODUCTION_BUILD="$production_build_exit_code" \
-  MINT_META_PRODUCTION_STAGE="$production_stage_exit_code" \
   MINT_META_PRODUCTION_CODESIGN="$production_codesign_verify_exit_code" \
   MINT_META_PRODUCTION_XATTR="$production_xattr_inspect_exit_code" \
   MINT_META_PRODUCTION_INSTALL="$production_install_exit_code" \
@@ -224,10 +230,9 @@ write_metadata() {
   MINT_META_ORIGINAL_BUILD="$original_build_present" \
   MINT_META_RESTORATION="$restoration_status" \
   MINT_META_BUILD_RESET="$reset_between_patrol_stages" \
-  MINT_META_NORMAL_PRODUCTION="$normal_build_restored_for_production" \
-  MINT_META_NORMAL_XATTRS="$normal_ios_xattrs_precleaned_for_production" \
-  MINT_META_PRODUCTION_EXTERNAL="$production_app_staged_external" \
-  MINT_META_PRODUCTION_NORSRC="$production_app_staged_norsrc" \
+  MINT_META_PATROL_PURGED="$patrol_build_purged_before_production" \
+  MINT_META_SOURCE_EXACT="$production_source_exported_exact" \
+  MINT_META_SOURCE_PHYSICAL="$production_source_physical" \
   python3 - "$metadata" "$artifacts" <<'PY'
 import json
 import os
@@ -247,9 +252,9 @@ expected_logs = [
     "terminate.log",
     "read-build.log",
     "read.log",
-    "production-preclean.log",
+    "production-export.log",
+    "production-extract.log",
     "production-build.log",
-    "production-stage.log",
     "production-codesign.log",
     "production-xattrs.log",
     "production-install.log",
@@ -265,15 +270,17 @@ payload = {
     "started_at": os.environ["MINT_META_STARTED"],
     "finished_at": os.environ["MINT_META_FINISHED"],
     "mode": os.environ["MINT_META_MODE"],
+    "production_source_mode": os.environ["MINT_META_SOURCE_MODE"],
+    "production_mobile_tree": os.environ["MINT_META_MOBILE_TREE"] or None,
     "write_build_exit_code": code("MINT_META_WRITE_BUILD"),
     "write_exit_code": code("MINT_META_WRITE"),
     "launch_exit_code": code("MINT_META_LAUNCH"),
     "terminate_exit_code": code("MINT_META_TERMINATE"),
     "read_build_exit_code": code("MINT_META_READ_BUILD"),
     "read_exit_code": code("MINT_META_READ"),
-    "production_preclean_exit_code": code("MINT_META_PRODUCTION_PRECLEAN"),
+    "production_export_exit_code": code("MINT_META_PRODUCTION_EXPORT"),
+    "production_extract_exit_code": code("MINT_META_PRODUCTION_EXTRACT"),
     "production_build_exit_code": code("MINT_META_PRODUCTION_BUILD"),
-    "production_stage_exit_code": code("MINT_META_PRODUCTION_STAGE"),
     "production_codesign_verify_exit_code": code("MINT_META_PRODUCTION_CODESIGN"),
     "production_xattr_inspect_exit_code": code("MINT_META_PRODUCTION_XATTR"),
     "production_install_exit_code": code("MINT_META_PRODUCTION_INSTALL"),
@@ -282,10 +289,9 @@ payload = {
     "build_isolation": {
         "enabled": os.environ["MINT_META_BUILD_ENABLED"] == "true",
         "original_build_present": os.environ["MINT_META_ORIGINAL_BUILD"] == "true",
-        "normal_cache_restored_for_production": os.environ["MINT_META_NORMAL_PRODUCTION"] == "true",
-        "normal_ios_xattrs_precleaned_for_production": os.environ["MINT_META_NORMAL_XATTRS"] == "true",
-        "production_app_staged_external": os.environ["MINT_META_PRODUCTION_EXTERNAL"] == "true",
-        "production_app_staged_norsrc": os.environ["MINT_META_PRODUCTION_NORSRC"] == "true",
+        "patrol_build_purged_before_production": os.environ["MINT_META_PATROL_PURGED"] == "true",
+        "production_source_exported_exact": os.environ["MINT_META_SOURCE_EXACT"] == "true",
+        "production_source_physical": os.environ["MINT_META_SOURCE_PHYSICAL"] == "true",
         "reset_between_patrol_stages": os.environ["MINT_META_BUILD_RESET"] == "true",
         "restoration_status": os.environ["MINT_META_RESTORATION"],
     },
@@ -314,7 +320,7 @@ cleanup() {
   fi
   for log_stem in \
     write-build write launch terminate read-build read \
-    production-preclean production-build production-stage \
+    production-export production-extract production-build \
     production-codesign production-xattrs production-install maestro; do
     raw_log="$artifacts/$log_stem.raw.log"
     if [[ -e "$raw_log" || -L "$raw_log" ]]; then
@@ -332,51 +338,42 @@ cleanup() {
   fi
 
   if [[ "$build_isolation_enabled" == true ]]; then
-    if [[ "$normal_build_restored_for_production" == true ]]; then
-      if [[ ! -d "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
-        echo "patrol_bnd03_budget_process_death: production build restoration drifted" >&2
-        build_cleanup_failed=1
+    if [[ -L "$mobile_build" ]]; then
+      if [[ "$(readlink "$mobile_build")" == "$external_build" ]]; then
+        if ! rm -- "$mobile_build"; then
+          echo "patrol_bnd03_budget_process_death: external build symlink cleanup failed" >&2
+          build_cleanup_failed=1
+        fi
       else
-        restoration_status="restored_for_production"
-      fi
-    else
-      if [[ -L "$mobile_build" ]]; then
-        if [[ "$(readlink "$mobile_build")" == "$external_build" ]]; then
-          if ! rm -- "$mobile_build"; then
-            echo "patrol_bnd03_budget_process_death: external build symlink cleanup failed" >&2
-            build_cleanup_failed=1
-          fi
-        else
-          echo "patrol_bnd03_budget_process_death: build symlink target drifted" >&2
-          build_cleanup_failed=1
-        fi
-      elif [[ -e "$mobile_build" ]]; then
-        if [[ "$original_build_present" != true || -e "$build_backup" ]]; then
-          echo "patrol_bnd03_budget_process_death: build path changed during isolation" >&2
-          build_cleanup_failed=1
-        fi
-      fi
-
-      if [[ "$original_build_present" == true ]]; then
-        if [[ ! -e "$mobile_build" && -d "$build_backup" ]]; then
-          if ! mv "$build_backup" "$mobile_build"; then
-            echo "patrol_bnd03_budget_process_death: original build restoration failed" >&2
-            build_cleanup_failed=1
-          fi
-        elif [[ ! -d "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
-          echo "patrol_bnd03_budget_process_death: original build restoration is ambiguous" >&2
-          build_cleanup_failed=1
-        fi
-      elif [[ -e "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
-        echo "patrol_bnd03_budget_process_death: isolated build cleanup is ambiguous" >&2
+        echo "patrol_bnd03_budget_process_death: build symlink target drifted" >&2
         build_cleanup_failed=1
       fi
+    elif [[ -e "$mobile_build" ]]; then
+      if [[ "$original_build_present" != true || -e "$build_backup" ]]; then
+        echo "patrol_bnd03_budget_process_death: build path changed during isolation" >&2
+        build_cleanup_failed=1
+      fi
+    fi
+
+    if [[ "$original_build_present" == true ]]; then
+      if [[ ! -e "$mobile_build" && -d "$build_backup" ]]; then
+        if ! mv "$build_backup" "$mobile_build"; then
+          echo "patrol_bnd03_budget_process_death: original build restoration failed" >&2
+          build_cleanup_failed=1
+        fi
+      elif [[ ! -d "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
+        echo "patrol_bnd03_budget_process_death: original build restoration is ambiguous" >&2
+        build_cleanup_failed=1
+      fi
+    elif [[ -e "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
+      echo "patrol_bnd03_budget_process_death: isolated build cleanup is ambiguous" >&2
+      build_cleanup_failed=1
     fi
 
     if [[ "$build_cleanup_failed" -ne 0 ]]; then
       restoration_status="failed"
       cleanup_failed=1
-    elif [[ "$normal_build_restored_for_production" != true ]]; then
+    else
       restoration_status="restored"
     fi
   fi
@@ -482,32 +479,6 @@ PY
     || die "production AssetManifest.bin is missing or empty"
 }
 
-restore_normal_build_for_production() {
-  [[ -L "$mobile_build" && "$(readlink "$mobile_build")" == "$external_build" ]] \
-    || die "external build isolation drifted before production restore"
-  [[ -d "$build_backup" ]] || die "normal build backup is missing"
-  if ! rm -- "$mobile_build"; then
-    die "external build symlink removal failed before production"
-  fi
-  if ! mv "$build_backup" "$mobile_build"; then
-    die "normal build restoration failed before production"
-  fi
-  [[ -d "$mobile_build" && ! -L "$mobile_build" ]] \
-    || die "normal build is not physical after production restore"
-  [[ ! -e "$build_backup" && ! -L "$build_backup" ]] \
-    || die "normal build backup remains after production restore"
-  [[ -d "$mobile_build/ios" && ! -L "$mobile_build/ios" ]] \
-    || die "normal iOS build subtree is not physical after production restore"
-  local expected_ios_build
-  local resolved_ios_build
-  expected_ios_build="$(cd "$mobile_root" && pwd -P)/build/ios"
-  resolved_ios_build="$(cd "$mobile_build/ios" && pwd -P)"
-  [[ "$resolved_ios_build" == "$expected_ios_build" ]] \
-    || die "normal iOS build subtree escaped the repo build path"
-  normal_build_restored_for_production=true
-  restoration_status="restored_for_production"
-}
-
 run_xcode_test() {
   local stage="$1"
   local xctestrun_variable="${stage}_xctestrun"
@@ -542,11 +513,10 @@ run_xcode_test() {
 
 [[ ! -L "$mobile_build" ]] || die "pre-existing build symlink"
 [[ -d "$mobile_build" ]] || die "normal mobile build directory is required"
-[[ -s "$normal_flutter_cache" ]] \
-  || die "normal Flutter.framework cache is missing or empty"
 [[ ! -e "$build_backup" && ! -L "$build_backup" ]] || die "backup collision"
 mkdir -p "$mobile_root/.dart_tool"
 external_root="$(mktemp -d "/tmp/mint-patrol-g1-bnd03-${sha:0:12}.XXXXXX")"
+external_root="$(cd "$external_root" && pwd -P)"
 external_build="$external_root/build"
 mkdir -p "$external_build"
 build_isolation_enabled=true
@@ -644,14 +614,83 @@ inspect_patrol_build "read"
 run_xcode_test "read"
 exact_sha_guard
 
-# The reader xcode test leaves the Patrol test entrypoint installed. Restore the
-# normal build and its known-good Flutter.framework cache before rebuilding
-# lib/main.dart; the Patrol tree stays disposable under external_root.
-restore_normal_build_for_production
-production_source_app="$mobile_build/ios/iphonesimulator/Runner.app"
-production_app="$external_root/production/Runner.app"
+# The reader xcode test leaves the Patrol entrypoint installed. The checkout is
+# FileProvider-backed, so build the production entrypoint from the exact commit
+# in a physical, disposable source tree instead of touching the checkout cache.
+[[ -L "$mobile_build" && "$(readlink "$mobile_build")" == "$external_build" ]] \
+  || die "external build isolation drifted before production export"
+rm -rf -- "$external_build"
+patrol_build_purged_before_production=true
 
-if ! python3 - "$mobile_build/ios" <<'PY'
+production_archive="$external_root/mobile.tar"
+production_export_root="$external_root/source"
+production_mobile="$production_export_root/apps/mobile"
+production_app="$production_mobile/build/ios/iphonesimulator/Runner.app"
+[[ ! -e "$production_archive" && ! -L "$production_archive" ]] \
+  || die "production archive path already exists"
+[[ ! -e "$production_export_root" && ! -L "$production_export_root" ]] \
+  || die "production export path already exists"
+mkdir -p "$production_export_root"
+
+production_mobile_tree="$(git -C "$repo_root" rev-parse "$sha:apps/mobile")"
+[[ "$production_mobile_tree" =~ ^[0-9a-f]{40}$ ]] \
+  || die "production mobile tree is invalid"
+
+set +e
+git -C "$repo_root" archive --format=tar --output "$production_archive" "$sha" -- apps/mobile \
+  >"$artifacts/production-export.raw.log" 2>&1
+production_export_exit_code=$?
+set -e
+sanitize_stage_log \
+  "$artifacts/production-export.raw.log" \
+  "$artifacts/production-export.log"
+if [[ "$production_export_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: production export stage failed ($production_export_exit_code)" >&2
+  exit "$production_export_exit_code"
+fi
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "production export log sanitization failed"
+[[ -s "$production_archive" && ! -L "$production_archive" ]] \
+  || die "production archive is missing or empty"
+
+set +e
+tar -xf "$production_archive" -C "$production_export_root" \
+  >"$artifacts/production-extract.raw.log" 2>&1
+production_extract_exit_code=$?
+set -e
+sanitize_stage_log \
+  "$artifacts/production-extract.raw.log" \
+  "$artifacts/production-extract.log"
+if ! rm -f -- "$production_archive"; then
+  die "production archive removal failed"
+fi
+if [[ "$production_extract_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: production extract stage failed ($production_extract_exit_code)" >&2
+  exit "$production_extract_exit_code"
+fi
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "production extract log sanitization failed"
+
+[[ -d "$production_mobile" && ! -L "$production_mobile" ]] \
+  || die "production mobile export is not a physical directory"
+resolved_production_mobile="$(cd "$production_mobile" && pwd -P)"
+[[ "$resolved_production_mobile" == "$production_export_root/apps/mobile" ]] \
+  || die "production mobile export escaped the external root"
+for forbidden_export_path in \
+  .git build .dart_tool ios/Pods ios/.symlinks \
+  ios/Flutter/Generated.xcconfig; do
+  [[ ! -e "$production_mobile/$forbidden_export_path" \
+    && ! -L "$production_mobile/$forbidden_export_path" ]] \
+    || die "production export contains generated path: $forbidden_export_path"
+done
+for required_export_path in \
+  pubspec.yaml pubspec.lock lib/main.dart ios/Podfile ios/Podfile.lock \
+  ios/Runner.xcodeproj/project.pbxproj ios/Flutter/Debug.xcconfig; do
+  [[ -s "$production_mobile/$required_export_path" ]] \
+    || die "production export is missing: $required_export_path"
+done
+
+if ! python3 - "$production_mobile" <<'PY'
 import os
 import stat
 import sys
@@ -688,27 +727,13 @@ for current_root, directory_names, file_names in os.walk(
             raise SystemExit(1)
 PY
 then
-  die "normal iOS build subtree contains an unsafe external alias"
+  die "production mobile export contains an unsafe alias"
 fi
+production_source_exported_exact=true
+production_source_physical=true
 
 set +e
-xattr -crs "$mobile_build/ios" \
-  >"$artifacts/production-preclean.raw.log" 2>&1
-production_preclean_exit_code=$?
-set -e
-sanitize_stage_log \
-  "$artifacts/production-preclean.raw.log" \
-  "$artifacts/production-preclean.log"
-if [[ "$production_preclean_exit_code" -ne 0 ]]; then
-  echo "patrol_bnd03_budget_process_death: production xattr preclean stage failed ($production_preclean_exit_code)" >&2
-  exit "$production_preclean_exit_code"
-fi
-[[ "$stage_sanitization_failed" -eq 0 ]] \
-  || die "production xattr preclean log sanitization failed"
-normal_ios_xattrs_precleaned_for_production=true
-
-set +e
-(cd "$mobile_root" && \
+(cd "$production_mobile" && \
   flutter build ios --simulator --debug --target lib/main.dart) \
   >"$artifacts/production-build.raw.log" 2>&1
 production_build_exit_code=$?
@@ -722,34 +747,8 @@ if [[ "$production_build_exit_code" -ne 0 ]]; then
 fi
 [[ "$stage_sanitization_failed" -eq 0 ]] \
   || die "production build log sanitization failed"
-inspect_production_app "$production_source_app"
-exact_sha_guard
-
-[[ -d "$production_source_app" && ! -L "$production_source_app" ]] \
-  || die "production source app is not a physical directory"
-[[ -d "$external_root" && ! -L "$external_root" ]] \
-  || die "external production root is not a physical directory"
-[[ ! -e "$production_app" && ! -L "$production_app" ]] \
-  || die "external production app path already exists"
-mkdir -p "$(dirname "$production_app")"
-
-set +e
-ditto --norsrc "$production_source_app" "$production_app" \
-  >"$artifacts/production-stage.raw.log" 2>&1
-production_stage_exit_code=$?
-set -e
-sanitize_stage_log \
-  "$artifacts/production-stage.raw.log" \
-  "$artifacts/production-stage.log"
-if [[ "$production_stage_exit_code" -ne 0 ]]; then
-  echo "patrol_bnd03_budget_process_death: production staging stage failed ($production_stage_exit_code)" >&2
-  exit "$production_stage_exit_code"
-fi
-[[ "$stage_sanitization_failed" -eq 0 ]] \
-  || die "production staging log sanitization failed"
-production_app_staged_external=true
-production_app_staged_norsrc=true
 inspect_production_app "$production_app"
+exact_sha_guard
 
 set +e
 codesign --verify --strict --deep "$production_app" \
@@ -782,7 +781,7 @@ fi
   || die "production xattr inspection log sanitization failed"
 if grep -Fq 'com.apple.FinderInfo' "$artifacts/production-xattrs.log" \
   || grep -Fq 'com.apple.ResourceFork' "$artifacts/production-xattrs.log"; then
-  die "production staged app has forbidden extended attribute"
+  die "production exported app has forbidden extended attribute"
 fi
 exact_sha_guard
 

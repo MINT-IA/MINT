@@ -7,6 +7,7 @@ import shutil
 import signal
 import stat
 import subprocess
+import tarfile
 import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -49,9 +50,9 @@ def _fake_runtime(
     terminate_exit: int = 0,
     read_build_exit: int = 0,
     read_exit: int = 0,
-    production_preclean_exit: int = 0,
+    production_export_exit: int = 0,
+    production_extract_exit: int = 0,
     production_build_exit: int = 0,
-    production_stage_exit: int = 0,
     production_codesign_exit: int = 0,
     production_xattr_exit: int = 0,
     production_xattr_output: str = "",
@@ -66,10 +67,11 @@ def _fake_runtime(
     bundle_as_directory: bool = False,
     bundle_tracked: bool = False,
     patrol_sleep: int = 0,
+    archive_sleep: int = 0,
+    tar_sleep: int = 0,
     flutter_sleep: int = 0,
-    ditto_sleep: int = 0,
     product_failure: str = "",
-    unsafe_build_entry: str = "",
+    unsafe_export_entry: str = "",
 ) -> dict[str, str]:
     repo = tmp_path / "repo"
     mobile = repo / "apps/mobile"
@@ -98,21 +100,40 @@ def _fake_runtime(
     )
     flutter_cache.parent.mkdir(parents=True)
     flutter_cache.write_text("normal cached Flutter framework\n", encoding="utf-8")
-    external_sentinel = tmp_path / "external-build-sentinel.txt"
-    external_sentinel.write_text("must never be traversed\n", encoding="utf-8")
-    unsafe_entry = original_build / "ios/unsafe-external-entry"
-    if unsafe_build_entry == "symlink":
-        unsafe_entry.symlink_to(external_sentinel)
-    elif unsafe_build_entry == "hardlink":
-        os.link(external_sentinel, unsafe_entry)
-    elif unsafe_build_entry:
-        raise ValueError(f"unknown unsafe build entry: {unsafe_build_entry}")
     (mobile / ".dart_tool").mkdir()
     simulator = repo / "tools/simulator"
     simulator.mkdir(parents=True)
     (simulator / "patrol_bnd03_budget_process_death.sh").write_text(
         "tracked synthetic orchestrator\n", encoding="utf-8"
     )
+
+    archive_source = tmp_path / "archive-source/apps/mobile"
+    for relative in (
+        "pubspec.yaml",
+        "pubspec.lock",
+        "lib/main.dart",
+        "ios/Podfile",
+        "ios/Podfile.lock",
+        "ios/Runner.xcodeproj/project.pbxproj",
+        "ios/Flutter/Debug.xcconfig",
+    ):
+        target = archive_source / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(f"tracked archive input: {relative}\n", encoding="utf-8")
+    if unsafe_export_entry == "symlink":
+        (archive_source / "unsafe-alias").symlink_to(tmp_path / "outside")
+    elif unsafe_export_entry == "hardlink":
+        first_alias = archive_source / "unsafe-hardlink-a"
+        first_alias.write_text("unsafe linked fixture\n", encoding="utf-8")
+        os.link(first_alias, archive_source / "unsafe-hardlink-b")
+    elif unsafe_export_entry:
+        raise ValueError(f"unsupported unsafe export entry: {unsafe_export_entry}")
+    production_archive = tmp_path / "tracked-mobile.tar"
+    with tarfile.open(production_archive, "w") as archive:
+        archive.add(archive_source.parent, arcname="apps")
+    production_mobile_tree = "4" * 40
+    real_tar = shutil.which("tar")
+    assert real_tar is not None
 
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
@@ -121,7 +142,7 @@ def _fake_runtime(
     fake_patrol = fake_bin / "patrol"
     fake_xcodebuild = fake_bin / "xcodebuild"
     fake_flutter = fake_bin / "flutter"
-    fake_ditto = fake_bin / "ditto"
+    fake_tar = fake_bin / "tar"
     fake_codesign = fake_bin / "codesign"
     fake_xattr = fake_bin / "xattr"
     fake_xcrun = fake_bin / "xcrun"
@@ -139,6 +160,25 @@ def _fake_runtime(
         'printf \'git %s\\n\' "$*" >> "$MINT_TEST_CALLS"\n'
         'if [[ "$*" == *"--show-toplevel"* ]]; then printf \'%s\\n\' "$MINT_TEST_REPO"; exit 0; fi\n'
         'if [[ "$*" == *"rev-parse HEAD"* ]]; then printf \'%s\\n\' "$MINT_TEST_SHA"; exit 0; fi\n'
+        'if [[ "$*" == *"rev-parse $MINT_TEST_SHA:apps/mobile"* ]]; then\n'
+        '  printf \'%s\\n\' "$MINT_TEST_MOBILE_TREE"\n'
+        '  exit 0\n'
+        'fi\n'
+        'if [[ "$*" == *"archive --format=tar"* ]]; then\n'
+        '  output=""\n'
+        '  previous=""\n'
+        '  for argument in "$@"; do\n'
+        '    if [[ "$previous" == "--output" ]]; then output="$argument"; fi\n'
+        '    previous="$argument"\n'
+        '  done\n'
+        '  [[ -n "$output" && "$*" == *"$MINT_TEST_SHA -- apps/mobile"* ]] || exit 92\n'
+        '  case "$output" in "$MINT_TEST_REPO"/*) exit 93 ;; esac\n'
+        '  printf \'private export repo=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
+        '  if [[ "$MINT_TEST_ARCHIVE_SLEEP" -gt 0 ]]; then sleep "$MINT_TEST_ARCHIVE_SLEEP"; fi\n'
+        '  if [[ "$MINT_TEST_PRODUCTION_EXPORT_EXIT" != "0" ]]; then exit "$MINT_TEST_PRODUCTION_EXPORT_EXIT"; fi\n'
+        '  cp "$MINT_TEST_PRODUCTION_ARCHIVE" "$output"\n'
+        '  exit 0\n'
+        'fi\n'
         'if [[ "$*" == *"ls-files --others"* ]]; then\n'
         '  if [[ "$MINT_TEST_UNTRACKED_MOBILE" == "1" ]]; then printf \'apps/mobile/untracked.dart\\n\'; fi\n'
         '  exit 0\n'
@@ -230,10 +270,14 @@ def _fake_runtime(
         'printf \'flutter cwd=%s build=%s args=%s\\n\' "$PWD" "$PWD/build" "$*" >> "$MINT_TEST_CALLS"\n'
         '[[ "$*" == "build ios --simulator --debug --target lib/main.dart" ]] || exit 93\n'
         '[[ "$*" != *"MINT_PATROL_CLI"* && "$*" != *"test_bundle"* ]] || exit 94\n'
-        '[[ -d build && ! -L build ]] || exit 95\n'
-        '[[ -s build/original-build-marker.txt ]] || exit 96\n'
-        '[[ -s build/ios/Debug-iphonesimulator/Flutter.framework/Flutter ]] || exit 97\n'
-        '[[ -s "$MINT_TEST_PRECLEANED" ]] || exit 98\n'
+        'case "$PWD" in "$MINT_TEST_REPO"/*) exit 95 ;; esac\n'
+        '[[ "$PWD" == */source/apps/mobile ]] || exit 96\n'
+        'for forbidden in .git build .dart_tool ios/Pods ios/.symlinks ios/Flutter/Generated.xcconfig; do\n'
+        '  [[ ! -e "$forbidden" && ! -L "$forbidden" ]] || exit 97\n'
+        'done\n'
+        'for required in pubspec.yaml pubspec.lock lib/main.dart ios/Podfile ios/Podfile.lock ios/Runner.xcodeproj/project.pbxproj ios/Flutter/Debug.xcconfig; do\n'
+        '  [[ -s "$required" ]] || exit 98\n'
+        'done\n'
         'printf \'production repo=%s build=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$PWD/build" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
         'app=build/ios/iphonesimulator/Runner.app\n'
         'asset_dir="$app/Frameworks/App.framework/flutter_assets"\n'
@@ -261,27 +305,19 @@ def _fake_runtime(
         'exit "$MINT_TEST_PRODUCTION_BUILD_EXIT"\n',
     )
     _write_executable(
-        fake_ditto,
+        fake_tar,
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n"
-        'printf \'ditto %s\\n\' "$*" >> "$MINT_TEST_CALLS"\n'
-        'printf \'stage repo=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
-        '[[ "${1:-}" == "--norsrc" && "$#" == 3 ]] || exit 93\n'
-        'source_app="${2:-}"\n'
-        'staged_app="${3:-}"\n'
-        '[[ "$source_app" == "$MINT_TEST_REPO/apps/mobile/build/ios/iphonesimulator/Runner.app" ]] || exit 94\n'
-        'case "$staged_app" in "$MINT_TEST_REPO"/*) exit 95 ;; esac\n'
-        '[[ -x "$source_app/Runner" ]] || exit 96\n'
-        'if [[ "$MINT_TEST_DITTO_SLEEP" -gt 0 ]]; then sleep "$MINT_TEST_DITTO_SLEEP"; fi\n'
-        'if [[ "$MINT_TEST_PRODUCTION_STAGE_EXIT" != "0" ]]; then exit "$MINT_TEST_PRODUCTION_STAGE_EXIT"; fi\n'
-        'mkdir -p "$(dirname "$staged_app")"\n'
-        'cp -R "$source_app" "$staged_app"\n'
-        'if [[ "$MINT_TEST_PRODUCT_FAILURE" == "staged-plist" ]]; then\n'
-        '  printf \'invalid staged plist\\n\' > "$staged_app/Info.plist"\n'
-        'fi\n'
-        'if [[ "$MINT_TEST_PRODUCT_FAILURE" == "staged-asset" ]]; then\n'
-        '  : > "$staged_app/Frameworks/App.framework/flutter_assets/AssetManifest.bin"\n'
-        'fi\n',
+        'printf \'tar %s\\n\' "$*" >> "$MINT_TEST_CALLS"\n'
+        'printf \'extract repo=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
+        '[[ "${1:-}" == "-xf" && "${3:-}" == "-C" && "$#" == 4 ]] || exit 93\n'
+        'archive="${2:-}"\n'
+        'destination="${4:-}"\n'
+        'case "$archive $destination" in *"$MINT_TEST_REPO"*) exit 94 ;; esac\n'
+        '[[ -s "$archive" && -d "$destination" ]] || exit 95\n'
+        'if [[ "$MINT_TEST_TAR_SLEEP" -gt 0 ]]; then sleep "$MINT_TEST_TAR_SLEEP"; fi\n'
+        'if [[ "$MINT_TEST_PRODUCTION_EXTRACT_EXIT" != "0" ]]; then exit "$MINT_TEST_PRODUCTION_EXTRACT_EXIT"; fi\n'
+        'exec "$MINT_TEST_REAL_TAR" "$@"\n',
     )
     _write_executable(
         fake_codesign,
@@ -301,17 +337,10 @@ def _fake_runtime(
         "set -euo pipefail\n"
         'printf \'xattr %s\\n\' "$*" >> "$MINT_TEST_CALLS"\n'
         'printf \'xattr repo=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
-        'if [[ "${1:-}" == "-crs" ]]; then\n'
-        '  [[ "$#" == 2 && "${2:-}" == "$MINT_TEST_REPO/apps/mobile/build/ios" ]] || exit 93\n'
-        '  [[ -d "$MINT_TEST_REPO/apps/mobile/build" && ! -L "$MINT_TEST_REPO/apps/mobile/build" ]] || exit 94\n'
-        '  [[ -s "${2:-}/Debug-iphonesimulator/Flutter.framework/Flutter" ]] || exit 95\n'
-        '  if [[ "$MINT_TEST_PRODUCTION_PRECLEAN_EXIT" != "0" ]]; then exit "$MINT_TEST_PRODUCTION_PRECLEAN_EXIT"; fi\n'
-        '  printf \'normal ios xattrs cleared\\n\' > "$MINT_TEST_PRECLEANED"\n'
-        '  exit 0\n'
-        'fi\n'
-        '[[ "${1:-}" == "-r" && "$#" == 2 ]] || exit 96\n'
-        'case "${2:-}" in "$MINT_TEST_REPO"/*) exit 97 ;; esac\n'
-        '[[ -x "${2:-}/Runner" ]] || exit 98\n'
+        '[[ "${1:-}" == "-r" && "$#" == 2 ]] || exit 93\n'
+        'case "${2:-}" in "$MINT_TEST_REPO"/*) exit 94 ;; esac\n'
+        '[[ "${2:-}" == */source/apps/mobile/build/ios/iphonesimulator/Runner.app ]] || exit 95\n'
+        '[[ -x "${2:-}/Runner" ]] || exit 96\n'
         'printf \'%s\' "$MINT_TEST_PRODUCTION_XATTR_OUTPUT"\n'
         'exit "$MINT_TEST_PRODUCTION_XATTR_EXIT"\n',
     )
@@ -379,9 +408,9 @@ def _fake_runtime(
         "MINT_TEST_TERMINATE_EXIT": str(terminate_exit),
         "MINT_TEST_READ_BUILD_EXIT": str(read_build_exit),
         "MINT_TEST_READ_EXIT": str(read_exit),
-        "MINT_TEST_PRODUCTION_PRECLEAN_EXIT": str(production_preclean_exit),
+        "MINT_TEST_PRODUCTION_EXPORT_EXIT": str(production_export_exit),
+        "MINT_TEST_PRODUCTION_EXTRACT_EXIT": str(production_extract_exit),
         "MINT_TEST_PRODUCTION_BUILD_EXIT": str(production_build_exit),
-        "MINT_TEST_PRODUCTION_STAGE_EXIT": str(production_stage_exit),
         "MINT_TEST_PRODUCTION_CODESIGN_EXIT": str(production_codesign_exit),
         "MINT_TEST_PRODUCTION_XATTR_EXIT": str(production_xattr_exit),
         "MINT_TEST_PRODUCTION_XATTR_OUTPUT": production_xattr_output,
@@ -396,18 +425,20 @@ def _fake_runtime(
         "MINT_TEST_BUNDLE_AS_DIRECTORY": "1" if bundle_as_directory else "0",
         "MINT_TEST_BUNDLE_TRACKED": "0" if bundle_tracked else "1",
         "MINT_TEST_PATROL_SLEEP": str(patrol_sleep),
+        "MINT_TEST_ARCHIVE_SLEEP": str(archive_sleep),
+        "MINT_TEST_TAR_SLEEP": str(tar_sleep),
         "MINT_TEST_FLUTTER_SLEEP": str(flutter_sleep),
-        "MINT_TEST_DITTO_SLEEP": str(ditto_sleep),
         "MINT_TEST_PRODUCT_FAILURE": product_failure,
         "MINT_TEST_BUNDLE_ID": BUNDLE_ID,
+        "MINT_TEST_MOBILE_TREE": production_mobile_tree,
+        "MINT_TEST_PRODUCTION_ARCHIVE": str(production_archive),
+        "MINT_TEST_REAL_TAR": real_tar,
         "MINT_TEST_DEVICE_STATE": str(tmp_path / "device-state.txt"),
         "MINT_TEST_PRODUCTION_INSTALLED": str(
             tmp_path / "production-installed.txt"
         ),
-        "MINT_TEST_PRECLEANED": str(tmp_path / "production-precleaned.txt"),
         "MINT_TEST_DEFAULT_MAESTRO": str(fake_maestro),
         "MINT_TEST_PRIVATE_TEMP": "/private/var/folders/aa/bb/T/mint-bnd03",
-        "MINT_TEST_EXTERNAL_SENTINEL": str(external_sentinel),
     }
     if maestro_override:
         env["MAESTRO_RUNNER"] = str(fake_maestro)
@@ -575,8 +606,18 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     assert orchestrator.count(
         "flutter build ios --simulator --debug --target lib/main.dart"
     ) == 1
-    assert orchestrator.count('xattr -crs "$mobile_build/ios"') == 1
-    assert orchestrator.count('ditto --norsrc "$production_source_app" "$production_app"') == 1
+    assert orchestrator.count(
+        'git -C "$repo_root" archive --format=tar --output '
+        '"$production_archive" "$sha" -- apps/mobile'
+    ) == 1
+    assert orchestrator.count(
+        'tar -xf "$production_archive" -C "$production_export_root"'
+    ) == 1
+    assert 'production_mobile_tree="$(git -C "$repo_root" rev-parse "$sha:apps/mobile")"' in orchestrator
+    assert 'production_source_mode="git_archive"' in orchestrator
+    assert 'production_mobile="$production_export_root/apps/mobile"' in orchestrator
+    assert 'production_app="$production_mobile/build/ios/iphonesimulator/Runner.app"' in orchestrator
+    assert 'rm -f -- "$production_archive"' in orchestrator
     assert orchestrator.count('codesign --verify --strict --deep "$production_app"') == 1
     assert orchestrator.count('xattr -r "$production_app"') == 1
     assert orchestrator.count(
@@ -584,17 +625,19 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     ) == 1
     assert "simctl uninstall" not in orchestrator
     assert "clearState" not in orchestrator
-    assert 'normal_flutter_cache="$mobile_build/ios/Debug-iphonesimulator/Flutter.framework/Flutter"' in orchestrator
-    assert "normal mobile build directory is required" in orchestrator
-    assert "normal Flutter.framework cache is missing or empty" in orchestrator
-    assert 'production_source_app="$mobile_build/ios/iphonesimulator/Runner.app"' in orchestrator
-    assert 'production_app="$external_root/production/Runner.app"' in orchestrator
-    assert "normal_build_restored_for_production=true" in orchestrator
+    assert 'xattr -crs "$mobile_build/ios"' not in orchestrator
+    assert "normal Flutter.framework cache is missing or empty" not in orchestrator
+    assert "restore_normal_build_for_production" not in orchestrator
+    assert "ditto --norsrc" not in orchestrator
+    assert "git worktree" not in orchestrator
+    assert "--no-codesign" not in orchestrator
+    assert "CODE_SIGNING_ALLOWED" not in orchestrator
+    assert "CODE_SIGNING_REQUIRED" not in orchestrator
     ordered_production_steps = (
-        'normal_build_restored_for_production=true',
-        'xattr -crs "$mobile_build/ios"',
+        'git -C "$repo_root" archive --format=tar',
+        'tar -xf "$production_archive"',
+        'rm -f -- "$production_archive"',
         "flutter build ios --simulator --debug --target lib/main.dart",
-        'ditto --norsrc "$production_source_app" "$production_app"',
         'inspect_production_app "$production_app"',
         'codesign --verify --strict --deep "$production_app"',
         'xattr -r "$production_app"',
@@ -623,7 +666,7 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     assert "command -v flutter" in orchestrator
     assert "command -v find" in orchestrator
     assert "command -v python3" in orchestrator
-    assert "command -v ditto" in orchestrator
+    assert "command -v tar" in orchestrator
     assert "command -v codesign" in orchestrator
     assert "command -v xattr" in orchestrator
     assert "os.lstat" in orchestrator
@@ -639,7 +682,7 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     assert "com.apple.ResourceFork" in orchestrator
     assert "com.apple.provenance" not in orchestrator
     assert "entitlements" not in orchestrator
-    assert "project.pbxproj" not in orchestrator
+    assert "sed -i" not in orchestrator
     assert "synthetic_data_only" in orchestrator
     assert "device_sha256" in orchestrator
     assert '"device"' not in orchestrator
@@ -663,8 +706,16 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
         Path(env["MINT_TEST_REPO"]) / "apps/mobile/test/patrol/test_bundle.dart"
     ).exists()
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8").splitlines()
+    git_calls = [line for line in calls if line.startswith("git ")]
     runtime_calls = [line for line in calls if not line.startswith("git ")]
-    assert len(runtime_calls) == 13
+    assert len(runtime_calls) == 12
+    assert any(
+        line.endswith(f"rev-parse {SYNTHETIC_SHA}:apps/mobile")
+        for line in git_calls
+    )
+    archive_call = next(line for line in git_calls if " archive " in line)
+    assert "archive --format=tar --output" in archive_call
+    assert archive_call.endswith(f"{SYNTHETIC_SHA} -- apps/mobile")
     assert "write_runtime" in runtime_calls[0]
     patrol_calls = [line for line in runtime_calls if line.startswith("patrol ")]
     assert len(patrol_calls) == 2
@@ -696,35 +747,34 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert runtime_calls[2] == f"xcrun simctl launch {SYNTHETIC_UDID} {BUNDLE_ID}"
     assert runtime_calls[3] == f"xcrun simctl terminate {SYNTHETIC_UDID} {BUNDLE_ID}"
     assert "read_runtime" in runtime_calls[4]
-    normal_ios = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build/ios"
-    assert runtime_calls[6] == f"xattr -crs {normal_ios}"
+    external_root = external_target.parent
+    production_mobile = external_root / "source/apps/mobile"
+    production_app = production_mobile / "build/ios/iphonesimulator/Runner.app"
+    production_archive = external_root / "mobile.tar"
+    assert runtime_calls[6] == (
+        f"tar -xf {production_archive} -C {external_root / 'source'}"
+    )
     assert runtime_calls[7].startswith("flutter ")
+    assert f"cwd={production_mobile}" in runtime_calls[7]
     assert "args=build ios --simulator --debug --target lib/main.dart" in runtime_calls[7]
     assert "MINT_PATROL_CLI" not in runtime_calls[7]
     assert "test_bundle" not in runtime_calls[7]
-    production_source_app = (
-        Path(env["MINT_TEST_REPO"])
-        / "apps/mobile/build/ios/iphonesimulator/Runner.app"
-    )
-    production_app = external_target.parent / "production/Runner.app"
     assert runtime_calls[8] == (
-        f"ditto --norsrc {production_source_app} {production_app}"
-    )
-    assert runtime_calls[9] == (
         f"codesign --verify --strict --deep {production_app}"
     )
-    assert runtime_calls[10] == f"xattr -r {production_app}"
-    assert runtime_calls[11] == (
+    assert runtime_calls[9] == f"xattr -r {production_app}"
+    assert runtime_calls[10] == (
         f"xcrun simctl install {SYNTHETIC_UDID} {production_app}"
     )
     assert "uninstall" not in "\n".join(runtime_calls)
-    assert "g1_bnd03_budget_cold.yaml" in runtime_calls[12]
-    assert f"--debug-output {external_target.parent}/maestro-debug" in runtime_calls[12]
+    assert "g1_bnd03_budget_cold.yaml" in runtime_calls[11]
+    assert f"--debug-output {external_root}/maestro-debug" in runtime_calls[11]
     assert (
-        f"--test-output-dir {external_target.parent}/maestro-test-output"
-        in runtime_calls[12]
+        f"--test-output-dir {external_root}/maestro-test-output"
+        in runtime_calls[11]
     )
-    assert (production_source_app / "Runner").is_file()
+    assert not production_archive.exists()
+    assert not production_mobile.exists()
     assert not production_app.exists()
 
     metadata = json.loads(
@@ -735,18 +785,20 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert metadata["synthetic_data_only"] is True
     assert metadata["private_fixture_used"] is False
     assert metadata["mode"] == (
-        "patrol_external_build_xcode_then_physical_production_preclean_"
-        "external_norsrc_install"
+        "patrol_external_build_xcode_then_exact_archive_physical_"
+        "production_install"
     )
+    assert metadata["production_source_mode"] == "git_archive"
+    assert metadata["production_mobile_tree"] == "4" * 40
     assert metadata["write_build_exit_code"] == 0
     assert metadata["write_exit_code"] == 0
     assert metadata["launch_exit_code"] == 0
     assert metadata["terminate_exit_code"] == 0
     assert metadata["read_build_exit_code"] == 0
     assert metadata["read_exit_code"] == 0
-    assert metadata["production_preclean_exit_code"] == 0
+    assert metadata["production_export_exit_code"] == 0
+    assert metadata["production_extract_exit_code"] == 0
     assert metadata["production_build_exit_code"] == 0
-    assert metadata["production_stage_exit_code"] == 0
     assert metadata["production_codesign_verify_exit_code"] == 0
     assert metadata["production_xattr_inspect_exit_code"] == 0
     assert metadata["production_install_exit_code"] == 0
@@ -755,12 +807,11 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert metadata["build_isolation"] == {
         "enabled": True,
         "original_build_present": True,
-        "normal_cache_restored_for_production": True,
-        "normal_ios_xattrs_precleaned_for_production": True,
-        "production_app_staged_external": True,
-        "production_app_staged_norsrc": True,
+        "patrol_build_purged_before_production": True,
+        "production_source_exported_exact": True,
+        "production_source_physical": True,
         "reset_between_patrol_stages": True,
-        "restoration_status": "restored_for_production",
+        "restoration_status": "restored",
     }
     expected_logs = (
         "write-build.log",
@@ -769,9 +820,9 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
         "terminate.log",
         "read-build.log",
         "read.log",
-        "production-preclean.log",
+        "production-export.log",
+        "production-extract.log",
         "production-build.log",
-        "production-stage.log",
         "production-codesign.log",
         "production-xattrs.log",
         "production-install.log",
@@ -790,7 +841,7 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
         SYNTHETIC_UDID,
         env["MINT_TEST_REPO"],
         env["HOME"],
-        str(external_target.parent),
+        str(external_root),
     )
     for sanitized in (report, *artifacts.glob("*.log")):
         sanitized_text = sanitized.read_text(encoding="utf-8")
@@ -816,9 +867,9 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
         assert "REDACTED_PRIVATE_TEMP" in text
         assert "REDACTED_EXTERNAL_BUILD" in text
     for production_log in (
-        artifacts / "production-preclean.log",
+        artifacts / "production-export.log",
+        artifacts / "production-extract.log",
         artifacts / "production-build.log",
-        artifacts / "production-stage.log",
         artifacts / "production-codesign.log",
         artifacts / "production-xattrs.log",
         artifacts / "production-install.log",
@@ -901,19 +952,19 @@ def test_budget_orchestrator_rejects_invalid_sanitized_junit(
         ({"read_build_exit": 11}, "read build stage failed", "read.xcresult"),
         ({"read_exit": 12}, "read test stage failed", "maestro "),
         (
-            {"production_preclean_exit": 16},
-            "production xattr preclean stage failed",
+            {"production_export_exit": 16},
+            "production export stage failed",
+            "tar ",
+        ),
+        (
+            {"production_extract_exit": 17},
+            "production extract stage failed",
             "flutter ",
         ),
         (
             {"production_build_exit": 13},
             "production build stage failed",
             "xcrun simctl install",
-        ),
-        (
-            {"production_stage_exit": 17},
-            "production staging stage failed",
-            "codesign ",
         ),
         (
             {"production_codesign_exit": 18},
@@ -970,7 +1021,7 @@ def test_budget_orchestrator_fails_closed(
     "forbidden_xattr",
     ("com.apple.FinderInfo", "com.apple.ResourceFork"),
 )
-def test_budget_orchestrator_rejects_forbidden_xattrs_on_staged_production_app(
+def test_budget_orchestrator_rejects_forbidden_xattrs_on_exported_production_app(
     tmp_path: Path,
     forbidden_xattr: str,
 ) -> None:
@@ -985,7 +1036,7 @@ def test_budget_orchestrator_rejects_forbidden_xattrs_on_staged_production_app(
 
     assert result.returncode == 2
     _assert_original_build_restored(env, original_inode)
-    assert "production staged app has forbidden extended attribute" in result.stderr
+    assert "production exported app has forbidden extended attribute" in result.stderr
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8")
     assert "codesign --verify --strict --deep" in calls
     assert "xattr -r" in calls
@@ -1018,18 +1069,6 @@ def test_budget_orchestrator_rejects_forbidden_xattrs_on_staged_production_app(
         ),
         (
             "production-asset",
-            "production AssetManifest.bin is missing or empty",
-            2,
-            0,
-        ),
-        (
-            "staged-plist",
-            "production CFBundleIdentifier mismatch",
-            2,
-            0,
-        ),
-        (
-            "staged-asset",
             "production AssetManifest.bin is missing or empty",
             2,
             0,
@@ -1191,7 +1230,7 @@ def test_budget_orchestrator_stage_failure_preserves_code_when_sanitization_fail
     assert metadata["cleanup_status"] == "failed"
 
 
-def test_budget_orchestrator_requires_normal_build_and_flutter_cache(
+def test_budget_orchestrator_requires_normal_build(
     tmp_path: Path,
 ) -> None:
     missing_build_env = _fake_runtime(tmp_path / "missing-build")
@@ -1206,48 +1245,21 @@ def test_budget_orchestrator_requires_normal_build_and_flutter_cache(
         encoding="utf-8"
     )
 
-    missing_cache_env = _fake_runtime(tmp_path / "missing-cache")
-    missing_cache_build = (
-        Path(missing_cache_env["MINT_TEST_REPO"]) / "apps/mobile/build"
-    )
-    missing_cache_inode = missing_cache_build.stat().st_ino
-    cache = (
-        missing_cache_build
-        / "ios/Debug-iphonesimulator/Flutter.framework/Flutter"
-    )
-    cache.unlink()
 
-    missing_cache_result = _run(tmp_path / "missing-cache", missing_cache_env)
-
-    assert missing_cache_result.returncode == 2
-    assert (
-        "normal Flutter.framework cache is missing or empty"
-        in missing_cache_result.stderr
-    )
-    assert missing_cache_build.stat().st_ino == missing_cache_inode
-    assert "patrol " not in (tmp_path / "missing-cache/calls.log").read_text(
-        encoding="utf-8"
-    )
-
-
-@pytest.mark.parametrize("unsafe_build_entry", ("symlink", "hardlink"))
-def test_budget_orchestrator_rejects_external_aliases_before_recursive_xattr(
+@pytest.mark.parametrize("unsafe_export_entry", ("symlink", "hardlink"))
+def test_budget_orchestrator_rejects_unsafe_export_aliases_before_flutter(
     tmp_path: Path,
-    unsafe_build_entry: str,
+    unsafe_export_entry: str,
 ) -> None:
-    env = _fake_runtime(tmp_path, unsafe_build_entry=unsafe_build_entry)
+    env = _fake_runtime(tmp_path, unsafe_export_entry=unsafe_export_entry)
     mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
     original_build_inode = mobile_build.stat().st_ino
-    sentinel = Path(env["MINT_TEST_EXTERNAL_SENTINEL"])
-    sentinel_inode = sentinel.stat().st_ino
-    sentinel_content = sentinel.read_text(encoding="utf-8")
 
     result = _run(tmp_path, env)
 
     assert result.returncode == 2
     _assert_original_build_restored(env, original_build_inode)
-    assert sentinel.stat().st_ino == sentinel_inode
-    assert sentinel.read_text(encoding="utf-8") == sentinel_content
+    assert "production mobile export contains an unsafe alias" in result.stderr
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8")
     assert "xattr " not in calls
     assert "flutter " not in calls
@@ -1376,16 +1388,17 @@ def test_budget_orchestrator_restores_original_build_on_term_signal(
 
 
 @pytest.mark.parametrize(
-    ("sleep_kwargs", "call_prefix", "raw_stem"),
+    ("sleep_kwargs", "call_marker", "raw_stem"),
     [
+        ({"archive_sleep": 30}, " archive ", "production-export"),
+        ({"tar_sleep": 30}, "tar -xf ", "production-extract"),
         ({"flutter_sleep": 30}, "flutter ", "production-build"),
-        ({"ditto_sleep": 30}, "ditto ", "production-stage"),
     ],
 )
 def test_budget_orchestrator_sanitizes_production_handoff_on_term_signal(
     tmp_path: Path,
     sleep_kwargs: dict[str, int],
-    call_prefix: str,
+    call_marker: str,
     raw_stem: str,
 ) -> None:
     env = _fake_runtime(tmp_path, **sleep_kwargs)
@@ -1424,7 +1437,7 @@ def test_budget_orchestrator_sanitizes_production_handoff_on_term_signal(
                 (
                     line
                     for line in calls_path.read_text(encoding="utf-8").splitlines()
-                    if line.startswith(call_prefix)
+                    if call_marker in line
                 ),
                 "",
             )
@@ -1438,9 +1451,7 @@ def test_budget_orchestrator_sanitizes_production_handoff_on_term_signal(
     external_target_match = re.search(r" build=([^ ]+) args=", patrol_call)
     assert external_target_match is not None
     external_root = str(Path(external_target_match.group(1)).parent)
-    assert mobile_build.is_dir()
-    assert not mobile_build.is_symlink()
-    assert mobile_build.stat().st_ino == original_inode
+    assert mobile_build.is_symlink()
 
     os.killpg(process.pid, signal.SIGTERM)
     stdout, stderr = process.communicate(timeout=10)
@@ -1452,10 +1463,7 @@ def test_budget_orchestrator_sanitizes_production_handoff_on_term_signal(
     assert not Path(env["MINT_TEST_PRODUCTION_INSTALLED"]).exists()
     assert "maestro " not in calls_path.read_text(encoding="utf-8")
     metadata = json.loads((artifacts / "metadata.json").read_text(encoding="utf-8"))
-    assert metadata["build_isolation"]["normal_cache_restored_for_production"]
-    assert metadata["build_isolation"]["restoration_status"] == (
-        "restored_for_production"
-    )
+    assert metadata["build_isolation"]["restoration_status"] == "restored"
     sanitized = (artifacts / f"{raw_stem}.log").read_text(encoding="utf-8")
     for private in (
         env["MINT_TEST_REPO"],
