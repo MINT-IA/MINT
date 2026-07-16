@@ -373,41 +373,25 @@ class TestGenerateFinancialPlanTool:
         tool = _find_tool("generate_financial_plan")
         assert tool["category"] == "write"
 
-    def test_generate_financial_plan_has_goal_property(self):
+    def test_generate_financial_plan_has_exact_intent_only_schema(self):
         tool = _find_tool("generate_financial_plan")
-        props = tool["input_schema"]["properties"]
-        assert "goal" in props
-        assert props["goal"]["type"] == "string"
+        assert tool["input_schema"] == {
+            "type": "object",
+            "properties": {"goal": {"type": "string"}},
+            "required": ["goal"],
+            "additionalProperties": False,
+        }
 
-    def test_generate_financial_plan_has_monthly_amount_property(self):
+    def test_generate_financial_plan_exposes_no_legacy_llm_plan_fields(self):
         tool = _find_tool("generate_financial_plan")
-        props = tool["input_schema"]["properties"]
-        assert "monthly_amount" in props
-        assert props["monthly_amount"]["type"] == "number"
-
-    def test_generate_financial_plan_has_milestones_property(self):
-        tool = _find_tool("generate_financial_plan")
-        props = tool["input_schema"]["properties"]
-        assert "milestones" in props
-        assert props["milestones"]["type"] == "array"
-
-    def test_generate_financial_plan_has_projected_outcome_property(self):
-        tool = _find_tool("generate_financial_plan")
-        props = tool["input_schema"]["properties"]
-        assert "projected_outcome" in props
-        assert props["projected_outcome"]["type"] == "string"
-
-    def test_generate_financial_plan_has_narrative_property(self):
-        tool = _find_tool("generate_financial_plan")
-        props = tool["input_schema"]["properties"]
-        assert "narrative" in props
-        assert props["narrative"]["type"] == "string"
-
-    def test_generate_financial_plan_required_fields(self):
-        tool = _find_tool("generate_financial_plan")
-        required = tool["input_schema"]["required"]
-        assert "goal" in required
-        assert "narrative" in required
+        properties = tool["input_schema"]["properties"]
+        legacy_fields = {
+            "monthly_amount",
+            "milestones",
+            "projected_outcome",
+            "narrative",
+        }
+        assert legacy_fields.isdisjoint(properties)
 
     def test_generate_financial_plan_not_internal(self):
         """generate_financial_plan is Flutter-bound, NOT in INTERNAL_TOOL_NAMES."""
