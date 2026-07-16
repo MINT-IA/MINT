@@ -228,67 +228,75 @@ class _StalePlanState extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
 
-    return Semantics(
-      identifier: 'financial_plan_stale_state',
-      container: true,
-      liveRegion: hasError,
-      child: Container(
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: MintColors.warning.withValues(alpha: 0.5),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: MintColors.warning.withValues(alpha: 0.5),
         ),
-        padding: const EdgeInsets.all(MintSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      ),
+      padding: const EdgeInsets.all(MintSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Semantics(
+            identifier: 'financial_plan_stale_state',
+            container: true,
+            liveRegion: hasError,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.update_outlined, color: MintColors.warning),
-                const SizedBox(width: MintSpacing.sm),
-                Expanded(
-                  child: Text(
-                    l10n.planCard_staleBadge,
-                    style: MintTextStyles.titleMedium(
-                      color: MintColors.textPrimary,
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.update_outlined,
+                      color: MintColors.warning,
+                    ),
+                    const SizedBox(width: MintSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        l10n.planCard_staleBadge,
+                        style: MintTextStyles.titleMedium(
+                          color: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (hasError) ...[
+                  const SizedBox(height: MintSpacing.sm),
+                  Text(
+                    l10n.planCard_errorBody,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textSecondary,
                     ),
                   ),
-                ),
+                ],
               ],
             ),
-            if (hasError) ...[
-              const SizedBox(height: MintSpacing.sm),
-              Text(
-                l10n.planCard_errorBody,
-                style: MintTextStyles.bodyMedium(
-                  color: MintColors.textSecondary,
-                ),
-              ),
-            ],
-            const SizedBox(height: MintSpacing.md),
-            Semantics(
-              identifier: 'financial_plan_stale_recalculate',
-              container: true,
-              button: true,
-              enabled: !isRecalculating,
-              onTap: isRecalculating ? null : onRecalculate,
-              child: ExcludeSemantics(
-                child: FilledButton.icon(
-                  onPressed: isRecalculating ? null : onRecalculate,
-                  icon: isRecalculating
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.refresh),
-                  label: Text(l10n.planCard_ctaRecalculate),
-                ),
+          ),
+          const SizedBox(height: MintSpacing.md),
+          Semantics(
+            identifier: 'financial_plan_stale_recalculate',
+            container: true,
+            button: true,
+            enabled: !isRecalculating,
+            onTap: isRecalculating ? null : onRecalculate,
+            child: ExcludeSemantics(
+              child: FilledButton.icon(
+                onPressed: isRecalculating ? null : onRecalculate,
+                icon: isRecalculating
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.refresh),
+                label: Text(l10n.planCard_ctaRecalculate),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

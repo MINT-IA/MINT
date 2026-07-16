@@ -390,7 +390,7 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
         assert anchor in reader, anchor
     assert reader.count("applySaveFact('incomeGrossMonthly'") == 1
     assert re.search(
-        r"expect\(\s*ledgerJsonAfterRegeneration,\s*ledgerJsonBeforeRegeneration\s*\)",
+        r"expect\(\s*ledgerJsonAfterRegeneration,\s*ledgerJsonBeforeRegeneration\s*,?\s*\)",
         reader,
     )
     for preserved in (
