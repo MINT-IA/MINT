@@ -1,0 +1,16 @@
+appId: ch.mint.app
+name: G1 BND-03 cold budget surface
+---
+- stopApp
+- launchApp
+- openLink: "mint:///budget"
+- assertVisible:
+    id: "budget_available_hero"
+- scrollUntilVisible:
+    element:
+      id: "budget_future_input"
+    direction: DOWN
+- assertVisible:
+    id: "budget_future_input"
+- assertVisible:
+    id: "budget_variables_input"
