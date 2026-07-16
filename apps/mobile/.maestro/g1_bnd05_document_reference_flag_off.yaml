@@ -1,0 +1,25 @@
+appId: ch.mint.app
+name: G1 BND-05 production-default document reference fail-closed
+---
+# Production defaults keep the LPP acquisition path off. A random opaque
+# document reference is recoverable but can never render a financial value.
+- launchApp:
+    clearState: true
+- openLink: "mint:///scan?type=lppCertificate"
+- assertVisible:
+    id: "document_scan_capture_cta"
+- assertNotVisible:
+    id: "document_scan_lpp_type_selector"
+- assertNotVisible:
+    id: "document_scan_lpp_example_cta"
+- assertNotVisible:
+    id: "lpp_review_confirm_cta"
+- openLink: "mint:///documents/45454545-4545-4545-8545-454545454545"
+- assertVisible:
+    id: "document_reference_missing_state"
+- assertVisible:
+    id: "document_reference_back_to_documents"
+- assertNotVisible:
+    id: "document_reference_remove"
+- assertNotVisible: "CHF 143'287"
+- takeScreenshot: g1_bnd05_document_reference_flag_off
