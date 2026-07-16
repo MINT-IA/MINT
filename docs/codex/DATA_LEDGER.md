@@ -10,6 +10,12 @@
 > stale recovery and four Claude-wrapper confirmations are accepted. Every
 > switch remains false; eight external production facts are still unproven, so
 > activation and G1 remain NO-GO.
+> **Focused BND-05 implementation snapshot:** semantic RED is `cec4f0245` and
+> code-GREEN is `11e29c0cd` (2026-07-16). The strict LPP root now feeds an
+> accepted receipt, a five-field raw-free reference store, and fail-closed
+> Timeline/Detail projections. `G1-BND-05` deliberately remains `ticket_only`
+> until exact-SHA runtime and both Claude-wrapper audit lenses are accepted;
+> this snapshot does not close G1 or authorize G2/G3.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -43,12 +49,13 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-1 — SINGLE SOURCE.** Every screen reads the domain data it renders from the ledger (`context.watch<MintStateProvider>().state` or `CoachProfileProvider.profile`) ONLY. A screen MUST NOT read domain data from `GoRouter.extra`.
 - **I-2 — extra carries only ephemera.** `GoRouter.extra` / query params may carry ids, enums, ephemeral UI selection. They MUST NOT carry the financial values a screen needs to render. (Fixes `/scan/review`, `/scan/impact`, `/rapport`, `/portfolio` dead roads — wiring findings §C; per-route contracts in §7A.)
 - **I-3 — SINGLE WRITE PATH.** Every write goes through `CoachProfileProvider.mergeAnswers()` or `.applySaveFact()` (which itself calls `mergeAnswers`). No `SharedPreferences`/file/DB write of domain data from a screen or service that bypasses the provider. Simulators that write back MUST call `provider.updateProfile()` (already correct — keep it).
-- **I-4 — NO ISLANDS.** Every provider that owns durable facts MUST bridge into the ledger/recompute so `MintUserState` is never stale. `BudgetProvider` is a one-way eager projection of `CoachProfile`; `HouseholdProvider`, `TimelineProvider`, documents and conversations retain their §7 bridge debt. See §7.
+- **I-4 — NO ISLANDS.** Every provider that owns durable facts MUST bridge into the ledger/recompute so `MintUserState` is never stale. `BudgetProvider` is a one-way eager projection of `CoachProfile`. BND-05 now makes confirmed-document chronology/detail an eager, read-only projection of the strict ledger: the `DocumentProvider` confirmed-reference subpath owns only opaque raw-free metadata and `TimelineProvider` listens to it; neither subpath owns financial facts. The provider's pre-existing backend upload/list state remains a separate volatile surface. `HouseholdProvider`, `FinancialPlanProvider` and conversation-derived financial facts retain their §7 bridge debt. See §7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
 - **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (36 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist, coach tool enum, mobile mapper, and profile reads are now in sync for all 36 keys; §3.8 keeps the repair history and the parity gate.
 - **AVS-OFFICIAL — CANDIDATE IS NOT FACT.** `avs_official_pension` is distinct from the CI `avs_extract`. Its only canonical fact is `avs_official_monthly_pension`, persisted after review as `{value, source, sourceDate, updatedAt, evidenceKind}` in one strict-secure envelope. `source=certificate` records provenance while `evidenceKind` preserves decision vs forecast vs statement; only a reviewed decision or current official statement may be known. An accepted result without an explicit decision/current-statement marker becomes `official_forecast` and stays to verify. Candidate extraction performs no pre-review profile write or backend mirror. Correction writes `userInput` with null source date and null evidence kind. Mobile and backend kill switches default to false; no mobile consumer/write-back, partner writer, or household calculation is authorized yet.
 - **LPP-EVIDENCE — PERSON OWNERSHIP IS NOT HOUSEHOLD CONSENT.** Reviewed LPP certificate facts use the single strict-secure `_coach_lpp_evidence_v1` root defined in §4.0A. Every fact carries its own pseudonymous owner, actor, authorization and provenance. Self and independently declared manual-partner evidence are separate; household membership never authorizes import. BND-02A now has a real default-off represented-authorization caller; linked-account/grant shapes remain unconditionally rejected because that caller is neither account linking nor direct partner consent. Ambiguous pension/capital or annual/lump-sum meaning writes nothing.
+- **DOCUMENT REFERENCES ARE NOT FACTS.** A confirmed document reference is a separate specialist-reference record with exactly `{referenceId, kind, snapshotId, ownerKind, confirmedAt}`. It contains no document payload or financial value and becomes readable only while the exact owner-scoped strict snapshot is current. Metadata retry may complete after authority expiry, but authority-gated readers must still return no reference or value.
 
 ---
 
@@ -1065,6 +1072,78 @@ removes the current self-path numeric sentinel: an exact certificate ratio of
 replaced by the scenario assumption. Until a typed caisse-scope/availability
 contract exists, quarantine is safer than a value-based fallback.
 
+#### Confirmed document reference bridge (G1-BND-05 code-GREEN; promotion pending)
+
+The strict LPP root remains the only financial authority. After
+`CoachProfileProvider.acceptLppReview` has completed the whole-root save and
+profile publication, it returns an in-process
+`LppReviewReceipt{ownerKind,snapshotId,factKeys}`. That receipt is not a second
+ledger and contains no values. `DocumentProvider.recordConfirmedLppReview`
+accepts it only when the already-persisted strict root has the exact owner slot,
+snapshot id, non-empty facts and exact fact-key set. A candidate, upload result,
+route payload or broad `CoachProfile` projection can never authorize the
+reference write.
+
+`DocumentReferenceStore` persists a distinct schema-v1 SharedPreferences root
+named `_confirmed_document_references_v1`:
+
+```text
+{
+  schemaVersion: 1,
+  references: [{
+    referenceId: canonical lowercase UUIDv4,
+    kind: lpp,
+    snapshotId: canonical lowercase UUIDv4,
+    ownerKind: self | manualPartner,
+    confirmedAt: canonical UTC instant
+  }]
+}
+```
+
+The five fields are exhaustive. The root stores no filename, file path, MIME
+type, OCR/source text, extracted label, financial value, document hash,
+acquisition id, accountability receipt id, owner identity or upload payload.
+Unknown fields, malformed canonical encodings, duplicate reference ids and
+duplicate `kind|ownerKind|snapshotId` bindings reject the entire root. The store
+does not read or migrate legacy `_uploaded_documents`.
+
+Reference persistence is serialized and occurs only after financial
+acceptance. If the metadata save fails, the review surface locks its already
+accepted fields/source date and exposes an explicit retry with the same
+receipt. `matchesAcceptedLppReceipt` intentionally validates against the
+persisted strict root without requiring current partner authority, so a local
+metadata retry may finish after authority expires. That recovery never invokes
+`acceptLppReview` again, never rewrites/revokes the snapshot and never makes it
+readable. Write recovery and read authority are deliberately different gates.
+
+`DocumentProvider.byId/currentReferences` fail closed unless reference
+hydration is ready and `CoachProfileProvider.currentLppSnapshot` selects the
+same owner slot and snapshot id. For `manualPartner`, that selection includes
+the exact active binding plus current receipt authority. The authority deadline
+is the earlier of `expiresAt` and `lastVerifiedAt + 6h`; the provider timer
+rematerializes the profile at that instant. Consequently malformed/failed
+hydration, snapshot replacement, owner mismatch, offline/unverified authority,
+expiry, or a locally reconciled revocation/erasure hides both the reference and
+its values.
+
+Production `app.dart` eagerly binds
+`CoachProfileProvider -> DocumentProvider` and
+`CoachProfileProvider + DocumentProvider -> TimelineProvider`.
+`TimelineProvider` listens and rematerializes document nodes without manual
+refresh, with only `/documents/<opaque-reference-id>` as the deep link.
+`DocumentDetailScreen` resolves that id through `DocumentProvider` and renders
+only the current strict `LppEvidenceSnapshot.facts`; it cannot fall back to a
+broad profile, volatile upload preview or route-carried financial payload for a
+stored reference. Mounted Timeline/Detail values disappear at authority expiry.
+Deleting a confirmed reference deletes only this metadata; the strict ledger
+facts remain.
+
+The semantic RED is `cec4f0245` and the implementation snapshot is
+`11e29c0cd`. The registry remains authoritative: `G1-BND-05` stays
+`ticket_only` until exact-SHA runtime evidence and both bounded Claude-wrapper
+audit lenses pass. This section is not promotion evidence and does not reduce
+the 14 open G1 rows.
+
 **Legacy boundary.** Existing nominative receipts remain legacy audit records
 only and are never migrated, queried or hydrated by the new service. LPP never
 calls `/consents/grant-nominative` or `require_declaration_or_block`; a static
@@ -1486,7 +1565,13 @@ data_source_dt: dict[str, str] # ADD: allowlist key -> ISO8601 document date (nu
 
 ## 7. Island bridges (I-4) — make `MintUserState` never stale
 
-`MintStateProvider.recompute()` already fires on `CoachProfileProvider` change via `ChangeNotifierProxyProvider`. The islands below mutate state WITHOUT routing through `CoachProfileProvider`, so the recompute never sees them. Fix: each island must write through the provider (preferred) OR notify it.
+`MintStateProvider.recompute()` already fires on `CoachProfileProvider` change
+via `ChangeNotifierProxyProvider`. A provider that owns financial facts must
+write through that spine. A raw-free reference/read-model may remain separate
+only when every rendered financial value is resolved back through the current
+ledger authority. BND-05 implements that exception for document chronology and
+detail; the remaining financial-fact and derived-artifact islands still need
+their named bridges.
 
 ### 7A. Dead-road route contracts (I-2 / wiring findings §C) — required to remove the bare `Center(Text(...))`
 
@@ -1526,8 +1611,10 @@ last-edited-wins without recreating a pair. For a cold legacy pair only,
 historical `future` precedence is preserved once; `variables` is removed before
 the normalized `future` value is persisted.
 | `HouseholdProvider` | backend-only spouse data | not synced into `CoachProfile.conjoint` → offline sims miss spouse | On household fetch/edit, add explicit reviewed spouse answer mappings or a typed provider setter; do not pass dotted model paths as answer keys. The coach `save_fact` spouse keys (`spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`) already bridge through existing wizard keys; this remaining task is provider-to-ledger sync, not a §3.8 mapper repair. |
-| `TimelineProvider` | 4 re-fetched services | conversations (`_chat_conversation_index`) + documents (`_uploaded_documents`) in separate SharedPreferences keys, not in profile | Keep these as separate stores (not domain financial data), but surface their derived facts (e.g. a scanned LPP cert) into the ledger via `mergeAnswers`/`applySaveFact` at extraction time. Timeline reads ledger for the financial dimension; references docs/threads by id only. |
-| Documents / Conversations | separate SP keys | not merged into profile | Same as above: the *extracted facts* go through `applySaveFact`; the raw documents/threads stay in their own stores (not part of the ledger, referenced by id only — never via `GoRouter.extra`, I-2). |
+| `DocumentProvider` / `DocumentReferenceStore` | Strict LPP facts remain in `_coach_lpp_evidence_v1`; `_confirmed_document_references_v1` owns only the five-field opaque metadata contract from §4.0A | A reference could outlive or bypass its person-owned snapshot, and a volatile upload preview could masquerade as confirmed truth | Implemented at `11e29c0cd`: eager ledger binding, strict whole-root receipt match before serialized metadata write, fail-closed hydration, and `byId/currentReferences` filtering by exact current owner/snapshot/time authority. Metadata retry after authority expiry may persist the reference but cannot expose it. No `_uploaded_documents` migration and no raw/value field. Ticket promotion still awaits runtime and wrapper audits. |
+| `TimelineProvider` | Non-financial chronology stays in its existing services; document nodes derive only from `DocumentProvider.currentReferences` | Document chronology previously re-fetched a legacy document store and could remain mounted after snapshot/authority drift | Implemented for BND-05 at `11e29c0cd`: eager `ChangeNotifierProxyProvider2` binding, listener-driven microtask rematerialization, empty subtitle and `/documents/<opaque-reference-id>` only. Snapshot replacement or authority expiry removes the mounted node without `refresh()`. Conversation-derived financial facts remain separate bridge debt. |
+| Conversations | `_chat_conversation_index` reference metadata outside the ledger | A conversation reference is valid chronology, but any financial fact derived from it must not become a second profile | Keep thread ids/titles outside the ledger; every confirmed financial fact must use the canonical provider write path. Never carry financial domain state through `GoRouter.extra`. |
+| `FinancialPlanProvider` | Derived plan artifact plus canonical profile-input hash (target contract) | A generated plan can remain apparently current after its ledger inputs change | G1-BND-06 remains open: attach to profile changes or convert registration to a proxy, store the canonical input hash and mark the artifact stale; never feed a plan output back into facts. |
 
 ---
 

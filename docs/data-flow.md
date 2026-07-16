@@ -19,8 +19,12 @@ same PR. CI lint (TODO, Phase 34 extension) will enforce.
 > writer→terminate→cold-reader, 17-step Maestro and four bounded Claude-wrapper
 > proofs. The production external descriptor is still absent and all checked-in
 > activation defaults are false. BND-02/BND-02A are technical GREEN.
-> The eight external activation facts and 15 other open G1 ticket rows mean
-> activation and G1 remain NO-GO. The
+> BND-03 is also ticket- and exact-SHA runtime-GREEN at `7ed54e282`; the live
+> registry therefore remains 17 GREEN, 13 `ticket_only` and 1 `red_proven`, or
+> 14 open rows. BND-05 has a RED commit `cec4f0245` and a code-GREEN commit
+> `11e29c0cd`, but stays `ticket_only` until its runtime and both Claude-wrapper
+> audit lenses are accepted. The eight external activation facts and those 14
+> open G1 rows mean activation and G1 remain NO-GO. The
 > accepted PROV-02 persistence/runtime checkpoint remains
 > `30728b8a0671`; its narrower scope is unchanged by this later promotion.
 
@@ -159,7 +163,7 @@ only legal local I/O boundaries.
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
-| 3 | **Scan confirmation** | LPP self: `DocumentScanScreen owner/permission → transmitted-byte authorization → kind gate → raw-free candidate/review → acceptLppReview`. LPP manual partner adds `external gate/auth/declaration → pending binding → permission → local handle (withData=false) → receipt create → byte boundary/one-shot extraction → review → exact-owner save → active binding`. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes strict-secure `_coach_lpp_evidence_v1`; `manualPartner.facts` is receipt-bound while `manualPartner.independentFacts` is user-input recovery. The separate secure binding and minimized backend receipt contain no financial value. Volatile authorization/SHA enter neither ledger nor binding/receipt. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | Self publishes after one awaited secure save. Manual partner additionally activates the matching pending binding only after that save; terminal drift restores `shadowed`/prior active state and suppresses later callbacks. PROV-02 remains GREEN at `30728b8a0671`; BND-02/BND-02A are technical GREEN at `1d022c508`, while activation and G1 remain NO-GO. |
+| 3 | **Scan confirmation** | LPP self: `DocumentScanScreen owner/permission → transmitted-byte authorization → kind gate → raw-free candidate/review → acceptLppReview`. LPP manual partner adds `external gate/auth/declaration → pending binding → permission → local handle (withData=false) → receipt create → byte boundary/one-shot extraction → review → exact-owner save → active binding`. After that ledger commit, the accepted `LppReviewReceipt` may create only one opaque confirmed-document reference. Typed tax uses `TaxExtractionCandidate → TaxReviewConfirmation → acceptTaxReview → TaxProfilePersistence`. AVS/salary retain their reviewed type-specific writers. | LPP writes strict-secure `_coach_lpp_evidence_v1`; `manualPartner.facts` is receipt-bound while `manualPartner.independentFacts` is user-input recovery. The separate secure binding, minimized backend receipt and five-field `ConfirmedDocumentReference` contain no financial value. Volatile authorization/SHA and raw document data enter none of them. Tax uses `_coach_tax_snapshots_v1`; salary certificate writes annual gross/month count/bonus, never net-period income. | Self publishes after one awaited secure save. Manual partner additionally activates the matching pending binding only after that save; terminal drift restores `shadowed`/prior active state and suppresses later callbacks. The reference store is a serialized metadata-only follow-up: failure keeps the reviewed ledger facts and exposes an explicit retry instead of repeating the financial write. PROV-02 remains GREEN at `30728b8a0671`; BND-02/BND-02A are technical GREEN at `1d022c508`, while activation and G1 remain NO-GO. |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` | `q_housing_cost_period_chf`, `q_housing_pay_frequency='monthly'`, `q_lamal_premium_monthly_chf`, `q_other_fixed_costs_monthly_chf`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux}` | Tap « Enregistrer »; the published profile then feeds the eager Budget and MintState proxies |
@@ -448,6 +452,55 @@ Cold migration preserves the existing
   build restored, Maestro completes 17/17 steps, and four bounded final
   Claude-wrapper confirmations report P0=0/P1=0. This evidence accepts the two
   technical tickets only.
+- BND-05 keeps the document reference separate from financial truth. After
+  `acceptLppReview` has persisted the strict root, the returned
+  `LppReviewReceipt{ownerKind,snapshotId,factKeys}` is the only input accepted
+  by `DocumentProvider.recordConfirmedLppReview`. The provider re-reads the
+  strict persisted slot and requires the exact owner slot, snapshot id and fact
+  key set; it never accepts a candidate, raw extraction map or upload result as
+  proof that ledger facts exist.
+- `DocumentReferenceStore` owns a separate
+  `_confirmed_document_references_v1` SharedPreferences root. Every entry has
+  exactly five fields:
+  `{referenceId, kind, snapshotId, ownerKind, confirmedAt}`. Both identifiers
+  are canonical UUIDv4 values, `kind` is currently exact `lpp`, and
+  `confirmedAt` is canonical UTC. The store rejects an unknown root/item key,
+  malformed item, duplicate reference id or duplicate owner/snapshot binding
+  as a whole. It never reads or migrates legacy `_uploaded_documents`, and it
+  stores no filename, source text, OCR field, financial value, document hash,
+  acquisition id, receipt id or owner identity.
+- The reference write is serialized and metadata-only. If it fails after the
+  ledger commit, `ExtractionReviewScreen` freezes the already reviewed fields
+  and source date and offers an explicit retry using the accepted receipt. That
+  retry validates the persisted strict root but deliberately does not require
+  still-current partner authority: authority may expire while local metadata
+  I/O is retried. It never calls `acceptLppReview` again and therefore cannot
+  duplicate, revoke or replace the financial snapshot. Read authority remains
+  stricter than write recovery.
+- `DocumentProvider.byId/currentReferences` expose a stored reference only
+  when reference hydration is ready and the currently selectable strict LPP
+  snapshot has the same owner slot and snapshot id. Manual-partner selection
+  additionally requires the current binding/receipt authority. Missing,
+  malformed or failed reference hydration, snapshot replacement, owner drift,
+  expiry, revocation, erasure or unverifiable authority therefore returns no
+  reference and no financial value. A post-expiry metadata retry may persist
+  the five fields, but those reads still remain hidden.
+- Production eagerly binds `CoachProfileProvider → DocumentProvider` and
+  `CoachProfileProvider + DocumentProvider → TimelineProvider` in `app.dart`.
+  The timeline listens to reference/ledger changes and rematerializes its
+  document nodes in a microtask without an explicit refresh. Its deep link is
+  only `/documents/<opaque-reference-id>`. `DocumentDetailScreen` resolves that
+  id through `DocumentProvider` and renders only the current strict
+  `LppEvidenceSnapshot.facts`; it never reconstructs values from a broad
+  profile, upload preview or route payload. The same mounted Timeline/Detail
+  projections disappear when the provider's authority timer reaches the
+  earlier of receipt expiry and `lastVerifiedAt + 6h`. Deleting the reference
+  deletes metadata only; the canonical ledger facts remain.
+- `cec4f0245` is the semantic BND-05 RED and `11e29c0cd` is the current
+  code-GREEN implementation. This documents implemented wiring only:
+  `G1-BND-05` remains `ticket_only` until exact-SHA runtime evidence and both
+  bounded Claude-wrapper audit lenses are accepted. It does not reduce the 14
+  open registry rows, close G1 or authorize G2/G3.
 - Private real-certificate coverage runs only through the ignored local
   sanitized oracle; network classifier cases are generated synthetic images.
   The live Anthropic eval is NOT RUN. The accepted synthetic runtime bundle and
@@ -631,9 +684,18 @@ Document type selection
   │      ledger keeps only manualPartnerDeclaration + grantId null
   │   ↓ manual pending binding activates only after secure root success
   │   ↓ publish profile/listeners only after root + binding commit succeeds
+  │   ↓ accepted receipt → exact persisted root/snapshot/fact-key match
+  │   ↓ serialized `_confirmed_document_references_v1` metadata write
+  │      exactly {referenceId, kind, snapshotId, ownerKind, confirmedAt}; NO raw/value
+  │   ↓ failed metadata write = locked review + retry of accepted receipt only
+  │      even after authority expiry; ledger write is never repeated
   │   ↓ impact payload has no raw text and calls no generic insight/event path
   │   ↓ cold reload → exact active receipt/owner status gate
   │   ↓ invalid receipt excludes certificate facts; independent userInput survives
+  │   ↓ eager DocumentProvider filters by live owner/snapshot/time authority
+  │   ↓ Timeline rematerializes `/documents/<opaque-id>` without refresh
+  │      and Detail renders only the current strict snapshot facts
+  │   ↓ mounted projections disappear at min(receipt expiry, lastVerifiedAt + 6h)
   │   ↓ real MintStateEngine → ForecasterService recompute → RetirementDashboardScreen
   │   ↓ BND-02/BND-02A technical GREEN @ 1d022c508
   │      activation/G1 NO-GO: eight external production facts remain unproved
@@ -769,12 +831,13 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 ---
 
 *Last updated: 2026-07-16 for the accepted G1-PROV-02 person-owned LPP
-checkpoint, G1-PROV-03 typed tax provenance and the BND-02/BND-02A technical
-promotion at exact SHA `1d022c508`. Both BND tickets are technical GREEN with
-accepted exact-SHA command, Patrol, Maestro and wrapper evidence. All checked-in
+checkpoint, G1-PROV-03 typed tax provenance, the BND-02/BND-02A technical
+promotion at exact SHA `1d022c508`, the BND-03 promotion at `7ed54e282`, and
+the unpromoted BND-05 code-GREEN wiring at `11e29c0cd`. BND-05 remains
+`ticket_only` pending runtime and wrapper audits. All checked-in
 LPP/accountability defaults remain false, the production external descriptor
-and its eight facts remain unproved, and activation and G1 remain NO-GO.
-There is no G1 closure or G2/G3 GO.
+and its eight facts remain unproved, 14 registry rows remain open, and
+activation and G1 remain NO-GO. There is no G1 closure or G2/G3 GO.
 Maintenance rule: every new writer or reader of `wizard_answers_v2`
 updates this doc in the same PR. Code drift without doc drift = the
 trap we built this to avoid.*

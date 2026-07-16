@@ -7,7 +7,9 @@
 %% are technical GREEN at exact SHA 1d022c508 on 2026-07-16 with combined
 %% commands, Patrol/Maestro and four wrapper-only audit confirmations. All
 %% partner flags remain false and the production external descriptor is absent;
-%% activation and G1 remain NO-GO.
+%% activation and G1 remain NO-GO. BND-05 has semantic RED cec4f0245 and a
+%% code-GREEN implementation at 11e29c0cd, but remains ticket_only until its
+%% exact-SHA runtime and both Claude-wrapper lenses are accepted.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -44,17 +46,17 @@ flowchart TB
     CPP -. "fire-and-forget sync" .-> BACKEND
 
     %% Budget is a derived read model; the other nodes remain islands.
-    BUDGET["BudgetProvider<br/>app.dart:1788 — eager ProxyProvider<br/>base facts from CoachProfile<br/>other fixed writer: q_other_fixed_costs_monthly_chf<br/>local cache: future XOR variables"]
-    HOUSE["HouseholdProvider<br/>app.dart:1434 — ISLAND"]
-    TIMELINE["TimelineProvider<br/>app.dart:1491 — ISLAND"]
-    DOCS["DocumentProvider<br/>app.dart:1432 — ISLAND"]
-    PLAN["FinancialPlanProvider<br/>app.dart:1486 — ISLAND"]
-    DEADP["ProfileProvider<br/>app.dart:1425 — LEGACY (5 live consumers, migrate then delete)"]
+    BUDGET["BudgetProvider<br/>app.dart:1799 — eager ProxyProvider<br/>base facts from CoachProfile<br/>other fixed writer: q_other_fixed_costs_monthly_chf<br/>local cache: future XOR variables"]
+    HOUSE["HouseholdProvider<br/>app.dart:1782 — ISLAND"]
+    TIMELINE["TimelineProvider<br/>app.dart:1867 — eager ProxyProvider2<br/>reference/read model; no financial facts"]
+    DOCS["DocumentProvider<br/>app.dart:1789 — eager ProxyProvider<br/>confirmed-reference subpath: five-field raw-free metadata only<br/>pre-existing backend upload/list state remains separate"]
+    PLAN["FinancialPlanProvider<br/>app.dart:1862 — ISLAND"]
+    DEADP["ProfileProvider<br/>app.dart:1775 — LEGACY (5 live consumers, migrate then delete)"]
 
     CPP -- "eager proxy update<br/>rehydrateFromProfile" --> BUDGET
     HOUSE  -. "MISSING sync -> CoachProfile.conjoint" .-> CPP
-    TIMELINE -. "MISSING bridge (re-fetches 4 services)" .-> MSP
-    DOCS   -. "MISSING merge into ledger" .-> CPP
+    CPP -- "exact current LPP owner/snapshot/time authority" --> DOCS
+    DOCS -- "currentReferences listener<br/>opaque ids only" --> TIMELINE
     PLAN   -. "MISSING bridge -> recompute" .-> MSP
   end
 
@@ -193,6 +195,41 @@ flowchart TB
   LPP_MANUAL -. "one-shot declaration; no account linkage" .-> CPP
   LPP_SECURE -. "removed from backendSafeAnswers" .-> LPP_REDACT
   LPP_REDACT -. "root/provenance/partner aliases removed" .-> BACKEND
+
+  %% BND-05 code wiring is live at 11e29c0cd; promotion evidence is pending.
+  subgraph DOCUMENT_REFERENCE["G1-BND-05 — STRICT LEDGER TO RAW-FREE DOCUMENT REFERENCE"]
+    direction TB
+    B5_ACCEPTED["accepted LppReviewReceipt<br/>ownerKind + snapshotId + exact factKeys<br/>in-process only; NO financial values"]
+    B5_MATCH{"matchesAcceptedLppReceipt<br/>strict persisted root + exact owner slot<br/>same snapshot + non-empty exact fact-key set"}
+    B5_STORE[("_confirmed_document_references_v1<br/>schemaVersion 1<br/>exactly referenceId + kind + snapshotId + ownerKind + confirmedAt<br/>canonical UUIDv4/UTC; NO raw/value/hash/receipt/acquisition id")]
+    B5_STORE_FAIL["reference validation or metadata save failed<br/>review/date/fields locked<br/>explicit retry with accepted receipt only<br/>NO second ledger write or receipt revoke"]
+    B5_HYDRATE{"DocumentProvider hydration + read gate<br/>root valid and ready<br/>exact current owner/snapshot/time authority"}
+    B5_HIDDEN["confirmed-reference surface fails closed<br/>Timeline node absent; Detail loading / failed-retry / stale / missing<br/>financial-ledger lifecycle remains separate"]
+    B5_TIMELINE["mounted Timeline projection<br/>listener + microtask rematerialization<br/>/documents/opaque-reference-id only<br/>empty subtitle"]
+    B5_DETAIL["DocumentDetailScreen<br/>resolves opaque id via DocumentProvider<br/>renders strict LppEvidenceSnapshot.facts only<br/>loading / failed-retry / stale / missing"]
+    B5_DEADLINE["authority timer<br/>deadline = min(expiresAt, lastVerifiedAt + 6h)<br/>rematerialize profile + notify mounted projections"]
+    B5_DELETE["delete reference metadata only<br/>strict ledger facts remain"]
+    B5_STATUS["implementation @ 11e29c0cd<br/>registry remains ticket_only<br/>runtime + code/product-domain wrapper audits pending<br/>G1/G2/G3 GO forbidden"]
+
+    B5_ACCEPTED --> B5_MATCH
+    B5_MATCH -->|"exact persisted receipt"| B5_STORE
+    B5_MATCH -. "mismatch: no metadata append" .-> B5_STORE_FAIL
+    B5_STORE -. "local I/O failure" .-> B5_STORE_FAIL
+    B5_STORE_FAIL -. "retry may occur after authority expiry" .-> B5_MATCH
+    B5_STORE --> B5_HYDRATE
+    B5_HYDRATE -->|"current"| B5_TIMELINE
+    B5_HYDRATE -->|"current"| B5_DETAIL
+    B5_HYDRATE -. "malformed / stale / owner mismatch / expired" .-> B5_HIDDEN
+    B5_DEADLINE --> LPP_INVALIDATE
+    B5_DEADLINE -. "same notification hides reference and values" .-> B5_HYDRATE
+    B5_DETAIL --> B5_DELETE
+    B5_DELETE -. "facts unchanged" .-> LPP_SECURE
+    B5_STORE -. "code wiring only" .-> B5_STATUS
+  end
+
+  LPP_SECURE -->|"whole-root save then accepted receipt"| B5_ACCEPTED
+  B5_STORE -->|"eager bind"| DOCS
+  B5_TIMELINE --> TIMELINE
 
   %% ==========================================================================
   %% PART B — NAVIGATION GRAPH (apps/mobile/lib/app.dart:301-1340)
@@ -383,13 +420,15 @@ flowchart TB
 %%     winner. A cold legacy pair preserves future once and purges variables.
 %%     The legacy
 %%     _coach_depenses_autres alias is read/migrate-only and purged in favour of
-%%     q_other_fixed_costs_monthly_chf. Still MISSING for
-%%     HouseholdProvider, TimelineProvider, DocumentProvider and
-%%     FinancialPlanProvider. FIX the remaining islands by converting each to
-%%     ChangeNotifierProxyProvider<CoachProfileProvider, _> OR emit a bridge
-%%     that calls MintStateProvider.recompute (pattern = app.dart:1473-1483).
-%%     This wiring update does not promote BND-03 or G1; exact-SHA acceptance
-%%     evidence remains a separate gate.
+%%     q_other_fixed_costs_monthly_chf. BND-05 now makes DocumentProvider an
+%%     eager, raw-free reference projection of the strict LPP root and makes
+%%     TimelineProvider listen to its authority-filtered currentReferences;
+%%     neither owns financial facts. Reference/detail projections disappear on
+%%     snapshot/owner/time-authority drift without manual refresh. Still MISSING
+%%     for HouseholdProvider, FinancialPlanProvider and any conversation-derived
+%%     financial fact that bypasses CoachProfileProvider. This wiring update is
+%%     code-GREEN at 11e29c0cd but does not promote BND-05 or G1; exact-SHA
+%%     runtime and wrapper acceptance remain separate gates.
 %% I-5 LEGACY PROVIDER (partial-migration target): ProfileProvider(:1425) still
 %%     has 5 live consumers:
 %%       - simulator_3a_screen.dart:197 (context.read<ProfileProvider>())
@@ -475,5 +514,22 @@ flowchart TB
 %% production descriptor remain missing, so activation stays NO-GO. A
 %% durable minimized proof is never direct partner
 %% consent; acquisition ID and document SHA do not enter the financial ledger.
+%% G1-BND-05 DOCUMENT REFERENCE AUTHORITY: after the strict root save,
+%% `LppReviewReceipt{ownerKind,snapshotId,factKeys}` must match the already-
+%% persisted exact owner slot, non-empty snapshot and exact fact-key set before
+%% DocumentReferenceStore may append metadata. Its schema-v1 item has exactly
+%% referenceId, kind, snapshotId, ownerKind and confirmedAt; it rejects unknown
+%% keys/malformed roots/duplicates and never reads legacy _uploaded_documents.
+%% It stores no payload, value, source text, filename, hash, acquisition id,
+%% accountability receipt or identity. A failed metadata write is retried with
+%% the accepted receipt only and never repeats acceptLppReview; it may complete
+%% after authority expiry, but DocumentProvider.byId/currentReferences still
+%% require ready hydration and the exact currently selectable owner/snapshot.
+%% Manual-partner authority expires at min(expiresAt,lastVerifiedAt+6h); the
+%% provider timer rematerializes the profile and listener-driven Timeline/Detail
+%% projections while mounted. Timeline carries only /documents/<opaque-id> and
+%% Detail renders strict snapshot facts only. Delete removes metadata, not facts.
+%% Status at 11e29c0cd: implementation only; G1-BND-05 remains ticket_only until
+%% exact-SHA runtime plus code/product-domain wrapper audits are accepted.
 %% G1/G2/G3 GO claims stay forbidden.
 %% ============================================================================
