@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: BND-03 is ticket- and exact-SHA runtime-GREEN at 7ed54e282 with wrapper audits PASS; 14 hard floors remain, BND-05 is next, and G2/G3 are not authorized.
-last_updated: "2026-07-16T04:52:36Z"
-last_activity: 2026-07-16 -- BND-03 promoted after 12/12 ticket GREEN, real writer/process-death/cold-reader plus exact-archive production runtime, privacy cleanup and both wrapper audits PASS
+stopped_at: BND-05 is ticket- and exact-SHA runtime-GREEN at cbb040a4a with both wrapper audits PASS; 13 hard floors remain, BND-06 is next, and G2/G3 are not authorized.
+last_updated: "2026-07-16T09:09:00Z"
+last_activity: 2026-07-16 -- BND-05 promoted after exact RED 0/6 and GREEN 12/12, Patrol process-death/cold-reader plus exact-archive production runtime, Maestro, privacy cleanup and both wrapper audits PASS
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,14 +34,17 @@ Plan: 37-04 — partner accountability and real downstream bridge
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-16 -- `G1-BND-03` is accepted at pushed SHA
-`7ed54e282`: the identical command passes 12/12; stale cache cannot override
-the canonical budget ledger; income/housing cadences stay distinct; provider
-and MintState recompute once with the exact ±650 delta; `budgetGap` stays null
-without official AVS evidence. The same SHA passed writer → explicit process
-death → cold reader, exact Git-archive production build/signature/install,
-Maestro, cleanup/privacy checks and both wrapper-only Opus audits. This closes
-only BND-03; BND-05 is the next canonical G1 contract.
+Last activity: 2026-07-16 -- `G1-BND-05` is accepted at pushed SHA
+`cbb040a4a`: the physical-archive semantic RED replay is 0/6 and the identical
+GREEN command passes 12/12. Strict owner-scoped LPP facts remain the sole
+financial authority; raw-free five-field references feed Timeline/Detail only
+while the exact owner/snapshot authority is current. The same SHA passed Patrol
+writer → explicit process death → cold reader, exact Git-archive production
+build/signature/xattr/install, Maestro 1/1, cleanup/privacy checks and both
+wrapper-only Opus audits with P0/P1=0. Seven nonblocking P2 follow-ups remain
+explicit. This closes only BND-05; BND-06 is the next canonical G1 contract.
+
+Provisional G1 score: **8.2/10 — NO-GO**.
 
 ## Build Order
 
@@ -106,16 +109,22 @@ only BND-03; BND-05 is the next canonical G1 contract.
   Its synthetic-only process-death chain rebuilds the production entrypoint
   from the exact Git tree outside FileProvider; strict signature/xattr checks,
   restoration, privacy hygiene and code/product-domain audits all pass.
+- `G1-BND-05` is ticket- and runtime-`green` at exact SHA `cbb040a4a`.
+  The reference root is an exact raw-free five-field projection of current
+  strict LPP evidence; Patrol process-death hydration, production-default
+  Maestro, exact-archive build isolation, privacy cleanup and both wrapper
+  audits pass. All LPP acquisition flags remain false. Seven audit P2s are
+  retained as nonblocking follow-ups rather than hidden or treated as closure.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 17 `green`, 13 `ticket_only`, and one
-  `red_proven`. Therefore 14 G1 hard floors remain open.
+- The canonical registry has 31 rows: 18 `green`, 12 `ticket_only`, and one
+  `red_proven`. Therefore 13 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
-- `G1-BND-05` is the next ordered Wave 3 floor. Its named
-  `document_reference_bridge_test.dart` contract still requires Wave 0 RED or
-  a baseline-GREEN plus non-vacuous control before implementation.
+- `G1-BND-06` is the next ordered Wave 3 floor. Its named
+  `financial_plan_staleness_test.dart` contract still requires Wave 0 RED or a
+  baseline-GREEN plus non-vacuous control before implementation.
 - Eight external production facts remain unproven: controller identity,
   operational privacy contact, Anthropic role/DPA, actual processing regions,
   transfer mechanism/TIA, retention/ZDR, AIPD decision, and the public
@@ -134,11 +143,11 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-16T04:52:36Z
+Last session: 2026-07-16T09:09:00Z
 
-Stopped at: BND-03 is promoted at exact pushed SHA `7ed54e282` with complete
-ticket/runtime/audit evidence. Continue only G1 with the BND-05 Wave 0 contract;
-do not start G2/G3.
+Stopped at: BND-05 is promoted at exact pushed SHA `cbb040a4a` with complete
+ticket/runtime/audit evidence and explicit P2 dispositions. Continue only G1
+with the BND-06 Wave 0 contract; do not start G2/G3.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-04-PLAN.md`. Do not infer

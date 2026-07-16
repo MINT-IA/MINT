@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-05",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/providers/document_reference_bridge_test.dart --reporter expanded",
+  "sha": "cec4f0245c08adb8f2881e61ae53d50819f37e31",
+  "recorded_at": "2026-07-16T09:05:17Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "document_reference_bridge_test",
+  "output": "The identical registry command was replayed from a physical git archive at the semantic RED SHA. It collected six tests and produced 0 passed / 6 semantic failures after reaching the real BND-05 predicates: strict review persistence, restart and snapshot-swap invalidation, production bridge APIs, the exact raw-free reference allowlist, removal of the orphan uploaded-documents preference, and opaque document-detail deep-link routing. The temporary archive and raw log were deleted after the sanitized counts were recorded. Fixtures were synthetic only; private_fixture_used=false.",
+  "synthetic_data_only": true
+}

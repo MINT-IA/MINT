@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-05",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/providers/document_reference_bridge_test.dart --reporter expanded",
+  "sha": "cbb040a4aeaa9155cf4ec70b9b5c279916dc3b97",
+  "recorded_at": "2026-07-16T09:09:00Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "document_reference_bridge_test",
+  "output": "The identical command passed 12/12 predicates at the accepted SHA. The strict LPP root remains the sole financial authority; the separately persisted reference is an exact five-field raw-free allowlist; receipt, owner, snapshot and fact-key matching is strict; timeline/detail reopen only through an opaque ID; snapshot replacement, malformed roots and expired partner authority fail closed; reference deletion removes metadata only; persistence failure never rolls back accepted ledger facts; and production providers/routes are wired without a facade. The exact-SHA runtime chain passed 13/13 stages, 14/14 sanitized logs, Patrol writer/process-death/cold-reader, production archive build/signature/xattr/install, Maestro 1/1, privacy cleanup and both wrapper-only Opus audits with P0/P1=0.",
+  "synthetic_data_only": true
+}

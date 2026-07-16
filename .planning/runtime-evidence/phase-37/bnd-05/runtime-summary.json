@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "sha": "cbb040a4aeaa9155cf4ec70b9b5c279916dc3b97",
+  "mobile_tree": "3dfe9479d8be440f0855109f6efa333835ea6287",
+  "recorded_at": "2026-07-16T08:53:05Z",
+  "synthetic_data_only": true,
+  "private_fixture_used": false,
+  "effective_runtime_attempts": 1,
+  "mode": "patrol_external_build_xcode_then_exact_archive_physical_production_install",
+  "stage_count": 13,
+  "all_stage_exit_codes_zero": true,
+  "observed_sanitized_logs": 14,
+  "expected_sanitized_logs": 14,
+  "writer_passed": true,
+  "explicit_process_termination_passed": true,
+  "cold_reader_passed": true,
+  "exact_git_archive_export_passed": true,
+  "physical_flutter_build_passed": true,
+  "strict_codesign_verification_passed": true,
+  "forbidden_xattr_check_passed": true,
+  "production_install_passed": true,
+  "maestro_tests": 1,
+  "maestro_failures": 0,
+  "maestro_passed": true,
+  "cleanup_status": "passed",
+  "original_build_restored": true,
+  "source_manifest_entries": 18,
+  "privacy": {
+    "raw_udid_retained": false,
+    "absolute_repo_or_temp_path_retained": false,
+    "raw_logs_retained": false,
+    "xcresult_retained": false,
+    "screenshots_retained": false,
+    "private_certificates_used": false
+  },
+  "local_sanitized_bundle": ".planning/runtime-evidence/phase-37/bnd-05/runtime-cbb040a4aeaa-20260716T084916Z",
+  "lightweight_hashes": {
+    "metadata_json": "3004057f0730b769823a7706796408f3799a2403fb886adf8c9478132430c122",
+    "maestro_report_sanitized_xml": "8880a2d3a82b48df0834bb83b64088d7a56329b618a62deb61325b27da0d01df",
+    "source_manifest_sha256": "4107bbbf73eadbae1c8c7deb84e606e63b3217ca40ecea8dac8c3ac32ffc6461",
+    "audit_code_opus": "92add4d147c1794bf556ca1901d55df3feff0ab0b18529250875307e39903635",
+    "audit_product_domain_opus": "a799e9289d644a566130c3e761ce2ccf18c3d6c3e1d8445dc66be426fb0c5169"
+  },
+  "audit_result": {
+    "required_modes": 2,
+    "passed_modes": 2,
+    "unresolved_p0": 0,
+    "unresolved_p1": 0
+  },
+  "ticket_decision": "GREEN",
+  "g1_score": 8.2,
+  "g1_decision": "NO_GO",
+  "g2_g3_authorized": false,
+  "diagnostic_attempts": 1,
+  "discarded_diagnostic_attempts": [
+    {
+      "sha": "91dfe480bac0b5960bdc54d0efd98946e1e268a3",
+      "disposition": "destroyed_not_acceptance_evidence",
+      "reason": "The correct production UI rendered, but the diagnostic Maestro selector was Flutter Key-only and could not be located. The diagnostic bundle then failed the privacy-retention scan and was destroyed."
+    }
+  ]
+}

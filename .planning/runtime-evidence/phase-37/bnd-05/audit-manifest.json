@@ -1,0 +1,103 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1 CLAUDE_AUDIT_MAX_DIFF_LINES=17000 tools/checks/claude_external_audit.sh code 7a2160fab",
+      "mode": "code",
+      "model": "opus",
+      "base_sha": "7a2160fabd9ecb55eef1ffd257d4ef3e6c5f0297",
+      "head_sha": "cbb040a4aeaa9155cf4ec70b9b5c279916dc3b97",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/bnd-05/audit-code-opus.md",
+      "output_sha256": "92add4d147c1794bf556ca1901d55df3feff0ab0b18529250875307e39903635",
+      "findings": [
+        {
+          "id": "CODE-OPUS-P2-DURABLE-EXPIRY-PURGE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "In-session authority expiry hides partner values immediately but defers durable strict-root purge to cold reconciliation.",
+          "evidence": "All authority-gated reads fail closed at expiry; track eager durable purge/garbage collection as a nonblocking G1 follow-up without changing BND-05 acceptance."
+        },
+        {
+          "id": "CODE-OPUS-P2-HYDRATION-RETRY",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Failed reference hydration may retry on each ledger notification.",
+          "evidence": "Retries are deduplicated to one in-flight operation and provide bounded self-healing; retain as an operational observation."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 2,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1 CLAUDE_AUDIT_MAX_DIFF_LINES=17000 tools/checks/claude_external_audit.sh product-domain 7a2160fab",
+      "mode": "product-domain",
+      "model": "opus",
+      "base_sha": "7a2160fabd9ecb55eef1ffd257d4ef3e6c5f0297",
+      "head_sha": "cbb040a4aeaa9155cf4ec70b9b5c279916dc3b97",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/bnd-05/audit-product-domain-opus.md",
+      "output_sha256": "a799e9289d644a566130c3e761ce2ccf18c3d6c3e1d8445dc66be426fb0c5169",
+      "findings": [
+        {
+          "id": "DOMAIN-OPUS-P2-DATA-VINTAGE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Confirmed detail does not display certificate sourceDate or confirmedAt.",
+          "evidence": "Authority/freshness still fail closed; surface data vintage in a focused future G1 product-lucidity follow-up."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-SURVIVOR-PENSIONS",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The pre-existing strict LPP fact model has death capital but no spouse/orphan survivor-pension keys.",
+          "evidence": "BND-05 faithfully projects the accepted strict model and adds no Swiss calculation; extend the model/dossier only through a separately specified Swiss-domain follow-up."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-CONFIRMED-FIELD-SCOPE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The strict confirmed surface intentionally shows fewer fields than the legacy volatile preview.",
+          "evidence": "No unconfirmed value is promoted; record an explicit product decision on the future strict vocabulary rather than weakening this boundary."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-ORPHAN-REFERENCE-GC",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Snapshot replacement hides but does not prune the prior five-field metadata reference.",
+          "evidence": "The record is raw-free and unreadable after replacement; consider bounded metadata pruning with the durable-expiry follow-up."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-CONFIRMED-COPY",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Confirmed detail reuses extraction-phase N/N wording.",
+          "evidence": "Copy is neutral and non-advisory; revise it in a focused six-language copy follow-up."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 5,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}
