@@ -12,8 +12,6 @@ name: G1 BND-05 production-default document reference fail-closed
     id: "document_scan_lpp_type_selector"
 - assertNotVisible:
     id: "document_scan_lpp_example_cta"
-- assertNotVisible:
-    id: "lpp_review_confirm_cta"
 - openLink: "mint:///documents/45454545-4545-4545-8545-454545454545"
 - assertVisible:
     id: "document_reference_missing_state"
@@ -22,4 +20,8 @@ name: G1 BND-05 production-default document reference fail-closed
 - assertNotVisible:
     id: "document_reference_remove"
 - assertNotVisible: "CHF 143'287"
+- tapOn:
+    id: "document_reference_back_to_documents"
+- assertVisible:
+    id: "documents_screen_state"
 - takeScreenshot: g1_bnd05_document_reference_flag_off

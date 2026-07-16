@@ -139,6 +139,10 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.byType(DocumentsScreen), findsOneWidget);
+      expect(
+        find.bySemanticsIdentifier('documents_screen_state'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('displays documents title', (tester) async {

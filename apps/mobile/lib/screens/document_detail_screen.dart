@@ -142,16 +142,26 @@ class DocumentDetailScreen extends StatelessWidget {
       key: Key(isStoredReference
           ? 'document_reference_stale_state'
           : 'document_reference_missing_state'),
+      semanticsIdentifier:
+          isStoredReference ? null : 'document_reference_missing_state',
       icon: const Icon(Icons.link_off_outlined,
           size: 48, color: MintColors.textMuted),
       message: isStoredReference
           ? s.documentReferenceStale
           : s.documentReferenceMissing,
-      action: TextButton.icon(
-        key: const Key('document_reference_back_to_documents'),
-        onPressed: () => context.go('/documents'),
-        icon: const Icon(Icons.arrow_back),
-        label: Text(s.documentReferenceBackToDocuments),
+      action: Semantics(
+        identifier: 'document_reference_back_to_documents',
+        button: true,
+        label: s.documentReferenceBackToDocuments,
+        onTap: () => context.go('/documents'),
+        child: ExcludeSemantics(
+          child: TextButton.icon(
+            key: const Key('document_reference_back_to_documents'),
+            onPressed: () => context.go('/documents'),
+            icon: const Icon(Icons.arrow_back),
+            label: Text(s.documentReferenceBackToDocuments),
+          ),
+        ),
       ),
     );
   }
@@ -160,9 +170,10 @@ class DocumentDetailScreen extends StatelessWidget {
     required Key key,
     required Widget icon,
     required String message,
+    String? semanticsIdentifier,
     Widget? action,
   }) {
-    return Center(
+    final placeholder = Center(
       key: key,
       child: Padding(
         padding: const EdgeInsets.only(top: 80),
@@ -189,6 +200,13 @@ class DocumentDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+    if (semanticsIdentifier == null) return placeholder;
+    return Semantics(
+      identifier: semanticsIdentifier,
+      container: true,
+      explicitChildNodes: true,
+      child: placeholder,
     );
   }
 
@@ -361,17 +379,30 @@ class DocumentDetailScreen extends StatelessWidget {
           const SizedBox(height: MintSpacing.lg),
         ],
         Center(
-          child: TextButton.icon(
-            key: const Key('document_reference_remove'),
-            onPressed: () => _confirmDeleteReference(
+          child: Semantics(
+            identifier: 'document_reference_remove',
+            button: true,
+            label: s.documentReferenceRemoveButton,
+            onTap: () => _confirmDeleteReference(
               context,
               s,
               docProvider,
               reference.referenceId,
             ),
-            icon: const Icon(Icons.delete_outline, size: 18),
-            label: Text(s.documentReferenceRemoveButton),
-            style: TextButton.styleFrom(foregroundColor: MintColors.error),
+            child: ExcludeSemantics(
+              child: TextButton.icon(
+                key: const Key('document_reference_remove'),
+                onPressed: () => _confirmDeleteReference(
+                  context,
+                  s,
+                  docProvider,
+                  reference.referenceId,
+                ),
+                icon: const Icon(Icons.delete_outline, size: 18),
+                label: Text(s.documentReferenceRemoveButton),
+                style: TextButton.styleFrom(foregroundColor: MintColors.error),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: MintSpacing.xxl),

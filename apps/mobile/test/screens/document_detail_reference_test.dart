@@ -183,6 +183,29 @@ void main() {
       find.byKey(const Key('document_reference_back_to_documents')),
       findsOneWidget,
     );
+    expect(
+      <int>[
+        find
+            .bySemanticsIdentifier('document_reference_missing_state')
+            .evaluate()
+            .length,
+        find
+            .bySemanticsIdentifier('document_reference_back_to_documents')
+            .evaluate()
+            .length,
+      ],
+      const <int>[1, 1],
+      reason: 'Every selector used by production Maestro must be exposed '
+          'through Semantics.identifier, not only a Flutter Key.',
+    );
+    await tester.tap(
+      find.bySemanticsIdentifier('document_reference_back_to_documents'),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('documents_destination')),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
@@ -271,6 +294,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(
+      find.bySemanticsIdentifier('document_reference_remove'),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(const Key('document_reference_remove')));
     await tester.pumpAndSettle();
 

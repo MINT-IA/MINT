@@ -1245,33 +1245,42 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     final isTax = widget.result.documentType == DocumentType.taxDeclaration;
     final isLpp = widget.result.documentType == DocumentType.lppCertificate;
     final retryingReference = isLpp && _acceptedLppReceipt != null;
+    final action = _isConfirming ? null : _onConfirmAll;
     return Semantics(
-      identifier: isTax ? 'tax_review_confirm_cta' : null,
+      identifier: isTax
+          ? 'tax_review_confirm_cta'
+          : isLpp
+              ? 'lpp_review_confirm_cta'
+              : null,
       button: true,
+      enabled: action != null,
       label: S.of(context)!.docReviewConfirm,
-      child: SizedBox(
-        key: retryingReference ? const Key('lpp_reference_retry_cta') : null,
-        width: double.infinity,
-        height: 56,
-        child: FilledButton.icon(
-          key: isTax
-              ? const Key('tax_review_confirm_cta')
-              : isLpp
-                  ? const Key('lpp_review_confirm_cta')
-                  : null,
-          onPressed: _isConfirming ? null : _onConfirmAll,
-          icon: const Icon(Icons.check_circle_outline, size: 22),
-          label: Text(
-            retryingReference
-                ? S.of(context)!.commonRetry
-                : S.of(context)!.docReviewConfirm,
-            style: MintTextStyles.titleMedium(color: MintColors.white),
-          ),
-          style: FilledButton.styleFrom(
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+      onTap: action,
+      child: ExcludeSemantics(
+        child: SizedBox(
+          key: retryingReference ? const Key('lpp_reference_retry_cta') : null,
+          width: double.infinity,
+          height: 56,
+          child: FilledButton.icon(
+            key: isTax
+                ? const Key('tax_review_confirm_cta')
+                : isLpp
+                    ? const Key('lpp_review_confirm_cta')
+                    : null,
+            onPressed: action,
+            icon: const Icon(Icons.check_circle_outline, size: 22),
+            label: Text(
+              retryingReference
+                  ? S.of(context)!.commonRetry
+                  : S.of(context)!.docReviewConfirm,
+              style: MintTextStyles.titleMedium(color: MintColors.white),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: MintColors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           ),
         ),

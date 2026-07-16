@@ -1330,35 +1330,42 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Widget _buildDebugExampleButton() {
+    final action = _isProcessing ? null : _onUseExamplePressed;
     return Semantics(
-      identifier: _selectedType == DocumentType.taxDeclaration
-          ? 'document_scan_tax_example_cta'
-          : null,
+      identifier: switch (_selectedType) {
+        DocumentType.taxDeclaration => 'document_scan_tax_example_cta',
+        DocumentType.lppCertificate => 'document_scan_lpp_example_cta',
+        _ => null,
+      },
       button: true,
+      enabled: action != null,
       label: S.of(context)!.docScanUseExample,
-      child: SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: OutlinedButton.icon(
-          key: switch (_selectedType) {
-            DocumentType.taxDeclaration =>
-              const Key('document_scan_tax_example_cta'),
-            DocumentType.lppCertificate =>
-              const Key('document_scan_lpp_example_cta'),
-            _ => null,
-          },
-          onPressed: _isProcessing ? null : _onUseExamplePressed,
-          icon: const Icon(Icons.science_outlined, size: 20),
-          label: Text(
-            S.of(context)!.docScanUseExample,
-            style: MintTextStyles.bodyMedium()
-                .copyWith(fontWeight: FontWeight.w600),
-          ),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: MintColors.purple,
-            side: BorderSide(color: MintColors.purple.withValues(alpha: 0.5)),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+      onTap: action,
+      child: ExcludeSemantics(
+        child: SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: OutlinedButton.icon(
+            key: switch (_selectedType) {
+              DocumentType.taxDeclaration =>
+                const Key('document_scan_tax_example_cta'),
+              DocumentType.lppCertificate =>
+                const Key('document_scan_lpp_example_cta'),
+              _ => null,
+            },
+            onPressed: action,
+            icon: const Icon(Icons.science_outlined, size: 20),
+            label: Text(
+              S.of(context)!.docScanUseExample,
+              style: MintTextStyles.bodyMedium()
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: MintColors.purple,
+              side: BorderSide(color: MintColors.purple.withValues(alpha: 0.5)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ),

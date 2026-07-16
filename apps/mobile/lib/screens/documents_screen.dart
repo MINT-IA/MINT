@@ -100,7 +100,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         top: false,
-        child: SingleChildScrollView(
+        child: Semantics(
+          identifier: 'documents_screen_state',
+          container: true,
+          explicitChildNodes: true,
+          child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +169,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      )))),
+          ),
+        ),
+      ))),
     );
   }
 

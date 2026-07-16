@@ -1402,6 +1402,10 @@ void main() {
       const Offset(0, -700),
     );
     await tester.pumpAndSettle();
+    expect(
+      find.bySemanticsIdentifier('document_scan_lpp_example_cta'),
+      findsOneWidget,
+    );
     await tester.tap(
       find.byKey(const Key('document_scan_lpp_example_cta')),
     );

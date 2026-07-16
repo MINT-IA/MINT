@@ -1602,6 +1602,16 @@ Salaire assuré: CHF 92'000
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('lpp_review_confirm_cta')),
+      400,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.bySemanticsIdentifier('lpp_review_confirm_cta'),
+      findsOneWidget,
+    );
     expect(find.text('71%'), findsWidgets);
     expect(find.text('100%'), findsNothing);
     expect(find.textContaining(_rawSentinel), findsNothing);
