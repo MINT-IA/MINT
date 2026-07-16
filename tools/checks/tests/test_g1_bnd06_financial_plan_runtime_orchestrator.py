@@ -34,6 +34,7 @@ MAESTRO_PRODUCERS = (
 )
 AMOUNT = "54’321 CHF / mois"
 MAESTRO_ACCESSIBILITY_AMOUNT = "54\u202f321 CHF / mois"
+MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN = f".*{MAESTRO_ACCESSIBILITY_AMOUNT}.*"
 
 
 def _required_source(path: Path) -> str:
@@ -425,17 +426,18 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
         "home_route",
         "financial_plan_stale_state",
         "financial_plan_stale_recalculate",
-        MAESTRO_ACCESSIBILITY_AMOUNT,
+        MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN,
     ):
         assert anchor in contents, anchor
     assert AMOUNT not in contents
+    assert f'"{MAESTRO_ACCESSIBILITY_AMOUNT}"' not in contents
     assert "clearState: true" not in contents
     assert "/Users/" not in contents
     assert "MINT_LPP_PRIVATE_MANIFEST" not in contents
 
-    absent = {"assertNotVisible": MAESTRO_ACCESSIBILITY_AMOUNT}
+    absent = {"assertNotVisible": MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN}
     tap = {"tapOn": {"id": "financial_plan_stale_recalculate"}}
-    visible = {"assertVisible": MAESTRO_ACCESSIBILITY_AMOUNT}
+    visible = {"assertVisible": MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN}
     assert absent in steps
     assert tap in steps
     assert visible in steps
