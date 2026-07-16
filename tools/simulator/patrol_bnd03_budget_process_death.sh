@@ -101,7 +101,7 @@ mkdir -p "$artifacts"
 artifacts="$(cd "$artifacts" && pwd)"
 metadata="$artifacts/metadata.json"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-mode="patrol_build_xcode_test_without_building_then_production_install"
+mode="patrol_external_build_xcode_then_normal_cache_restored_for_production_install"
 write_build_exit_code=""
 write_exit_code=""
 launch_exit_code=""
@@ -114,6 +114,7 @@ maestro_exit_code=""
 cleanup_status="pending"
 runtime_completed=false
 mobile_build="$mobile_root/build"
+normal_flutter_cache="$mobile_build/ios/Debug-iphonesimulator/Flutter.framework/Flutter"
 build_backup="$mobile_root/.dart_tool/mint-patrol-g1-bnd03-build-backup-$sha"
 external_root=""
 external_build=""
@@ -121,6 +122,7 @@ build_isolation_enabled=false
 original_build_present=false
 restoration_status="not_started"
 reset_between_patrol_stages=false
+normal_build_restored_for_production=false
 artifact_cleanup_failed=false
 stage_sanitization_failed=0
 
@@ -208,6 +210,7 @@ write_metadata() {
   MINT_META_ORIGINAL_BUILD="$original_build_present" \
   MINT_META_RESTORATION="$restoration_status" \
   MINT_META_BUILD_RESET="$reset_between_patrol_stages" \
+  MINT_META_NORMAL_PRODUCTION="$normal_build_restored_for_production" \
   python3 - "$metadata" <<'PY'
 import json
 import os
@@ -240,6 +243,7 @@ payload = {
     "build_isolation": {
         "enabled": os.environ["MINT_META_BUILD_ENABLED"] == "true",
         "original_build_present": os.environ["MINT_META_ORIGINAL_BUILD"] == "true",
+        "normal_cache_restored_for_production": os.environ["MINT_META_NORMAL_PRODUCTION"] == "true",
         "reset_between_patrol_stages": os.environ["MINT_META_BUILD_RESET"] == "true",
         "restoration_status": os.environ["MINT_META_RESTORATION"],
     },
@@ -295,42 +299,51 @@ cleanup() {
   fi
 
   if [[ "$build_isolation_enabled" == true ]]; then
-    if [[ -L "$mobile_build" ]]; then
-      if [[ "$(readlink "$mobile_build")" == "$external_build" ]]; then
-        if ! rm -- "$mobile_build"; then
-          echo "patrol_bnd03_budget_process_death: external build symlink cleanup failed" >&2
-          build_cleanup_failed=1
-        fi
+    if [[ "$normal_build_restored_for_production" == true ]]; then
+      if [[ ! -d "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
+        echo "patrol_bnd03_budget_process_death: production build restoration drifted" >&2
+        build_cleanup_failed=1
       else
-        echo "patrol_bnd03_budget_process_death: build symlink target drifted" >&2
-        build_cleanup_failed=1
+        restoration_status="restored_for_production"
       fi
-    elif [[ -e "$mobile_build" ]]; then
-      if [[ "$original_build_present" != true || -e "$build_backup" ]]; then
-        echo "patrol_bnd03_budget_process_death: build path changed during isolation" >&2
-        build_cleanup_failed=1
-      fi
-    fi
-
-    if [[ "$original_build_present" == true ]]; then
-      if [[ ! -e "$mobile_build" && -d "$build_backup" ]]; then
-        if ! mv "$build_backup" "$mobile_build"; then
-          echo "patrol_bnd03_budget_process_death: original build restoration failed" >&2
+    else
+      if [[ -L "$mobile_build" ]]; then
+        if [[ "$(readlink "$mobile_build")" == "$external_build" ]]; then
+          if ! rm -- "$mobile_build"; then
+            echo "patrol_bnd03_budget_process_death: external build symlink cleanup failed" >&2
+            build_cleanup_failed=1
+          fi
+        else
+          echo "patrol_bnd03_budget_process_death: build symlink target drifted" >&2
           build_cleanup_failed=1
         fi
-      elif [[ ! -d "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
-        echo "patrol_bnd03_budget_process_death: original build restoration is ambiguous" >&2
+      elif [[ -e "$mobile_build" ]]; then
+        if [[ "$original_build_present" != true || -e "$build_backup" ]]; then
+          echo "patrol_bnd03_budget_process_death: build path changed during isolation" >&2
+          build_cleanup_failed=1
+        fi
+      fi
+
+      if [[ "$original_build_present" == true ]]; then
+        if [[ ! -e "$mobile_build" && -d "$build_backup" ]]; then
+          if ! mv "$build_backup" "$mobile_build"; then
+            echo "patrol_bnd03_budget_process_death: original build restoration failed" >&2
+            build_cleanup_failed=1
+          fi
+        elif [[ ! -d "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
+          echo "patrol_bnd03_budget_process_death: original build restoration is ambiguous" >&2
+          build_cleanup_failed=1
+        fi
+      elif [[ -e "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
+        echo "patrol_bnd03_budget_process_death: isolated build cleanup is ambiguous" >&2
         build_cleanup_failed=1
       fi
-    elif [[ -e "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
-      echo "patrol_bnd03_budget_process_death: isolated build cleanup is ambiguous" >&2
-      build_cleanup_failed=1
     fi
 
     if [[ "$build_cleanup_failed" -ne 0 ]]; then
       restoration_status="failed"
       cleanup_failed=1
-    else
+    elif [[ "$normal_build_restored_for_production" != true ]]; then
       restoration_status="restored"
     fi
   fi
@@ -435,6 +448,20 @@ PY
     || die "production AssetManifest.bin is missing or empty"
 }
 
+restore_normal_build_for_production() {
+  [[ -L "$mobile_build" && "$(readlink "$mobile_build")" == "$external_build" ]] \
+    || die "external build isolation drifted before production restore"
+  [[ -d "$build_backup" ]] || die "normal build backup is missing"
+  if ! rm -- "$mobile_build"; then
+    die "external build symlink removal failed before production"
+  fi
+  if ! mv "$build_backup" "$mobile_build"; then
+    die "normal build restoration failed before production"
+  fi
+  normal_build_restored_for_production=true
+  restoration_status="restored_for_production"
+}
+
 run_xcode_test() {
   local stage="$1"
   local xctestrun_variable="${stage}_xctestrun"
@@ -468,6 +495,9 @@ run_xcode_test() {
 }
 
 [[ ! -L "$mobile_build" ]] || die "pre-existing build symlink"
+[[ -d "$mobile_build" ]] || die "normal mobile build directory is required"
+[[ -s "$normal_flutter_cache" ]] \
+  || die "normal Flutter.framework cache is missing or empty"
 [[ ! -e "$build_backup" && ! -L "$build_backup" ]] || die "backup collision"
 mkdir -p "$mobile_root/.dart_tool"
 external_root="$(mktemp -d "/tmp/mint-patrol-g1-bnd03-${sha:0:12}.XXXXXX")"
@@ -475,11 +505,8 @@ external_build="$external_root/build"
 mkdir -p "$external_build"
 build_isolation_enabled=true
 restoration_status="pending"
-if [[ -e "$mobile_build" ]]; then
-  [[ -d "$mobile_build" ]] || die "pre-existing build path is not a directory"
-  original_build_present=true
-  mv "$mobile_build" "$build_backup"
-fi
+original_build_present=true
+mv "$mobile_build" "$build_backup"
 ln -s "$external_build" "$mobile_build"
 
 write_build_command=(
@@ -571,15 +598,11 @@ inspect_patrol_build "read"
 run_xcode_test "read"
 exact_sha_guard
 
-# The reader xcode test leaves the Patrol test entrypoint installed. Rebuild
-# lib/main.dart in a fresh disposable tree and install it over the same app
-# container so Maestro observes production UI without clearing persisted data.
-[[ -L "$mobile_build" && "$(readlink "$mobile_build")" == "$external_build" ]] \
-  || die "external build isolation drifted before production build"
-rm -rf -- "$external_build"
-mkdir -p "$external_build"
-assert_external_build_empty "production"
-production_app="$external_build/ios/iphonesimulator/Runner.app"
+# The reader xcode test leaves the Patrol test entrypoint installed. Restore the
+# normal build and its known-good Flutter.framework cache before rebuilding
+# lib/main.dart; the Patrol tree stays disposable under external_root.
+restore_normal_build_for_production
+production_app="$mobile_build/ios/iphonesimulator/Runner.app"
 
 set +e
 (cd "$mobile_root" && \

@@ -85,6 +85,12 @@ def _fake_runtime(
         "must survive every exit path\n",
         encoding="utf-8",
     )
+    flutter_cache = (
+        original_build
+        / "ios/Debug-iphonesimulator/Flutter.framework/Flutter"
+    )
+    flutter_cache.parent.mkdir(parents=True)
+    flutter_cache.write_text("normal cached Flutter framework\n", encoding="utf-8")
     (mobile / ".dart_tool").mkdir()
     simulator = repo / "tools/simulator"
     simulator.mkdir(parents=True)
@@ -202,14 +208,13 @@ def _fake_runtime(
         fake_flutter,
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n"
-        'build_target="$(readlink build 2>/dev/null || true)"\n'
-        'printf \'flutter cwd=%s build=%s args=%s\\n\' "$PWD" "$build_target" "$*" >> "$MINT_TEST_CALLS"\n'
+        'printf \'flutter cwd=%s build=%s args=%s\\n\' "$PWD" "$PWD/build" "$*" >> "$MINT_TEST_CALLS"\n'
         '[[ "$*" == "build ios --simulator --debug --target lib/main.dart" ]] || exit 93\n'
         '[[ "$*" != *"MINT_PATROL_CLI"* && "$*" != *"test_bundle"* ]] || exit 94\n'
-        '[[ -L build && -d "$build_target" ]] || exit 95\n'
-        'case "$build_target" in "$MINT_TEST_REPO"/*) exit 96 ;; esac\n'
-        '[[ -z "$(find build -mindepth 1 -print -quit)" ]] || exit 97\n'
-        'printf \'production repo=%s external=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$build_target" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
+        '[[ -d build && ! -L build ]] || exit 95\n'
+        '[[ -s build/original-build-marker.txt ]] || exit 96\n'
+        '[[ -s build/ios/Debug-iphonesimulator/Flutter.framework/Flutter ]] || exit 97\n'
+        'printf \'production repo=%s build=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$PWD/build" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
         'app=build/ios/iphonesimulator/Runner.app\n'
         'asset_dir="$app/Frameworks/App.framework/flutter_assets"\n'
         'mkdir -p "$asset_dir"\n'
@@ -323,6 +328,9 @@ def _assert_original_build_restored(env: dict[str, str], inode: int) -> None:
     assert (mobile_build / "original-build-marker.txt").read_text(
         encoding="utf-8"
     ) == "must survive every exit path\n"
+    assert (
+        mobile_build / "ios/Debug-iphonesimulator/Flutter.framework/Flutter"
+    ).read_text(encoding="utf-8") == "normal cached Flutter framework\n"
 
 
 def _run(
@@ -474,7 +482,14 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     ) == 1
     assert "simctl uninstall" not in orchestrator
     assert "clearState" not in orchestrator
-    assert 'production_app="$external_build/ios/iphonesimulator/Runner.app"' in orchestrator
+    assert 'normal_flutter_cache="$mobile_build/ios/Debug-iphonesimulator/Flutter.framework/Flutter"' in orchestrator
+    assert "normal mobile build directory is required" in orchestrator
+    assert "normal Flutter.framework cache is missing or empty" in orchestrator
+    assert 'production_app="$mobile_build/ios/iphonesimulator/Runner.app"' in orchestrator
+    assert "normal_build_restored_for_production=true" in orchestrator
+    assert orchestrator.index('normal_build_restored_for_production=true') < (
+        orchestrator.index("flutter build ios --simulator --debug --target lib/main.dart")
+    )
     assert "CFBundleIdentifier" in orchestrator
     assert "production AssetManifest.bin is missing or empty" in orchestrator
     production_build = re.search(
@@ -553,12 +568,16 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert "args=build ios --simulator --debug --target lib/main.dart" in runtime_calls[6]
     assert "MINT_PATROL_CLI" not in runtime_calls[6]
     assert "test_bundle" not in runtime_calls[6]
-    production_app = external_target / "ios/iphonesimulator/Runner.app"
+    production_app = (
+        Path(env["MINT_TEST_REPO"])
+        / "apps/mobile/build/ios/iphonesimulator/Runner.app"
+    )
     assert runtime_calls[7] == (
         f"xcrun simctl install {SYNTHETIC_UDID} {production_app}"
     )
     assert "uninstall" not in "\n".join(runtime_calls)
     assert "g1_bnd03_budget_cold.yaml" in runtime_calls[8]
+    assert (production_app / "Runner").is_file()
 
     metadata = json.loads(
         (tmp_path / "artifacts/metadata.json").read_text(encoding="utf-8")
@@ -568,7 +587,7 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert metadata["synthetic_data_only"] is True
     assert metadata["private_fixture_used"] is False
     assert metadata["mode"] == (
-        "patrol_build_xcode_test_without_building_then_production_install"
+        "patrol_external_build_xcode_then_normal_cache_restored_for_production_install"
     )
     assert metadata["write_build_exit_code"] == 0
     assert metadata["write_exit_code"] == 0
@@ -583,8 +602,9 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert metadata["build_isolation"] == {
         "enabled": True,
         "original_build_present": True,
+        "normal_cache_restored_for_production": True,
         "reset_between_patrol_stages": True,
-        "restoration_status": "restored",
+        "restoration_status": "restored_for_production",
     }
     assert "maestro-report.sanitized.xml" in metadata["logs"]
     assert metadata["device_sha256"] != SYNTHETIC_UDID
@@ -614,8 +634,6 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
         artifacts / "write.log",
         artifacts / "read-build.log",
         artifacts / "read.log",
-        artifacts / "production-build.log",
-        artifacts / "production-install.log",
     ):
         text = patrol_log.read_text(encoding="utf-8")
         assert "REDACTED_REPO" in text
@@ -623,6 +641,15 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
         assert "REDACTED_SIMULATOR_UDID" in text
         assert "REDACTED_PRIVATE_TEMP" in text
         assert "REDACTED_EXTERNAL_BUILD" in text
+    for production_log in (
+        artifacts / "production-build.log",
+        artifacts / "production-install.log",
+    ):
+        text = production_log.read_text(encoding="utf-8")
+        assert "REDACTED_REPO" in text
+        assert "REDACTED_HOME" in text
+        assert "REDACTED_SIMULATOR_UDID" in text
+        assert "REDACTED_PRIVATE_TEMP" in text
     metadata_text = (artifacts / "metadata.json").read_text(encoding="utf-8")
     assert str(tmp_path) not in metadata_text
     assert not any("path" in key for key in metadata["build_isolation"])
@@ -915,6 +942,45 @@ def test_budget_orchestrator_stage_failure_preserves_code_when_sanitization_fail
     assert metadata["cleanup_status"] == "failed"
 
 
+def test_budget_orchestrator_requires_normal_build_and_flutter_cache(
+    tmp_path: Path,
+) -> None:
+    missing_build_env = _fake_runtime(tmp_path / "missing-build")
+    missing_build = Path(missing_build_env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    shutil.rmtree(missing_build)
+
+    missing_build_result = _run(tmp_path / "missing-build", missing_build_env)
+
+    assert missing_build_result.returncode == 2
+    assert "normal mobile build directory is required" in missing_build_result.stderr
+    assert "patrol " not in (tmp_path / "missing-build/calls.log").read_text(
+        encoding="utf-8"
+    )
+
+    missing_cache_env = _fake_runtime(tmp_path / "missing-cache")
+    missing_cache_build = (
+        Path(missing_cache_env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    )
+    missing_cache_inode = missing_cache_build.stat().st_ino
+    cache = (
+        missing_cache_build
+        / "ios/Debug-iphonesimulator/Flutter.framework/Flutter"
+    )
+    cache.unlink()
+
+    missing_cache_result = _run(tmp_path / "missing-cache", missing_cache_env)
+
+    assert missing_cache_result.returncode == 2
+    assert (
+        "normal Flutter.framework cache is missing or empty"
+        in missing_cache_result.stderr
+    )
+    assert missing_cache_build.stat().st_ino == missing_cache_inode
+    assert "patrol " not in (tmp_path / "missing-cache/calls.log").read_text(
+        encoding="utf-8"
+    )
+
+
 def test_budget_orchestrator_rejects_build_symlink_and_backup_collision(
     tmp_path: Path,
 ) -> None:
@@ -1084,18 +1150,29 @@ def test_budget_orchestrator_sanitizes_production_build_on_term_signal(
         time.sleep(0.05)
     assert flutter_call, process.communicate(timeout=2)
     assert raw_log.is_file() and raw_log.stat().st_size > 0
-    external_target_match = re.search(r" build=([^ ]+) args=", flutter_call)
+    calls = calls_path.read_text(encoding="utf-8").splitlines()
+    patrol_call = next(line for line in calls if line.startswith("patrol "))
+    external_target_match = re.search(r" build=([^ ]+) args=", patrol_call)
     assert external_target_match is not None
     external_root = str(Path(external_target_match.group(1)).parent)
+    assert mobile_build.is_dir()
+    assert not mobile_build.is_symlink()
+    assert mobile_build.stat().st_ino == original_inode
 
     os.killpg(process.pid, signal.SIGTERM)
     stdout, stderr = process.communicate(timeout=10)
 
     assert process.returncode == 143, stdout + stderr
     _assert_original_build_restored(env, original_inode)
+    assert not Path(external_root).exists()
     assert not list(artifacts.glob("*.raw.log"))
     assert not Path(env["MINT_TEST_PRODUCTION_INSTALLED"]).exists()
     assert "maestro " not in calls_path.read_text(encoding="utf-8")
+    metadata = json.loads((artifacts / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["build_isolation"]["normal_cache_restored_for_production"]
+    assert metadata["build_isolation"]["restoration_status"] == (
+        "restored_for_production"
+    )
     sanitized = (artifacts / "production-build.log").read_text(encoding="utf-8")
     for private in (
         env["MINT_TEST_REPO"],
