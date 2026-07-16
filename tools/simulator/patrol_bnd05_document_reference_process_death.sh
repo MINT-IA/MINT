@@ -57,6 +57,9 @@ runtime_paths=(
   "apps/mobile/lib/providers/document_provider.dart"
   "apps/mobile/lib/providers/timeline_provider.dart"
   "apps/mobile/lib/screens/document_detail_screen.dart"
+  "apps/mobile/lib/screens/document_scan/document_scan_screen.dart"
+  "apps/mobile/lib/screens/document_scan/extraction_review_screen.dart"
+  "apps/mobile/lib/screens/documents_screen.dart"
   "apps/mobile/lib/services/feature_flags.dart"
   "apps/mobile/lib/services/report_persistence_service.dart"
   "$orchestrator_path"
@@ -174,12 +177,25 @@ for private, token in (
     (repo, "REDACTED_REPO"),
     (home, "REDACTED_HOME"),
     (device, "REDACTED_SIMULATOR_UDID"),
-    (external_root, "REDACTED_EXTERNAL_BUILD"),
 ):
     if private:
         text = text.replace(private, token)
+
+external_aliases = {external_root} if external_root else set()
+if external_root.startswith("/private/tmp/"):
+    external_aliases.add(external_root[len("/private") :])
+elif external_root.startswith("/tmp/"):
+    external_aliases.add(f"/private{external_root}")
+for private in sorted(external_aliases, key=len, reverse=True):
+    text = text.replace(private, "REDACTED_EXTERNAL_BUILD")
+
 text = re.sub(
-    r"/private/var/folders/[^\s\"'<>]+",
+    r"/(?:private/)?var/folders/[^\s\"'<>]+",
+    "REDACTED_PRIVATE_TEMP",
+    text,
+)
+text = re.sub(
+    r"/(?:private/)?tmp/[^\s\"'<>]+",
     "REDACTED_PRIVATE_TEMP",
     text,
 )
@@ -312,6 +328,105 @@ with open(sys.argv[1], "w", encoding="utf-8") as handle:
 PY
 }
 
+verify_retained_artifacts() {
+  python3 - "$artifacts" "$repo_root" "$HOME" "$device" \
+    "$external_root" <<'PY'
+import os
+import stat
+import sys
+from pathlib import Path
+
+
+artifacts, repo, home, device, external_root = sys.argv[1:]
+root = Path(artifacts)
+
+
+def fail(relative: str, reason: str) -> None:
+    print(
+        "patrol_bnd05_document_reference_process_death: "
+        f"unsafe retained artifact ({relative}: {reason})",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+
+try:
+    root_status = os.lstat(root)
+except OSError:
+    fail(".", "artifact root is unavailable")
+if not stat.S_ISDIR(root_status.st_mode) or stat.S_ISLNK(root_status.st_mode):
+    fail(".", "artifact root is not a physical directory")
+
+external_aliases = {external_root} if external_root else set()
+if external_root.startswith("/private/tmp/"):
+    external_aliases.add(external_root[len("/private") :])
+elif external_root.startswith("/tmp/"):
+    external_aliases.add(f"/private{external_root}")
+
+forbidden_content = tuple(
+    value
+    for value in (
+        repo,
+        home,
+        device,
+        *sorted(external_aliases),
+        "/Users/",
+        "/private/",
+        "/tmp/",
+        "/private/tmp/",
+        "/var/folders/",
+        "/private/var/folders/",
+    )
+    if value
+)
+forbidden_names = {
+    "maestro-debug",
+    "maestro-report.xml",
+    "maestro-test-output",
+}
+forbidden_suffixes = (
+    ".mp4",
+    ".png",
+    ".raw.log",
+    ".xcresult",
+)
+
+
+def fail_walk(_error: OSError) -> None:
+    fail(".", "artifact tree could not be inspected")
+
+
+for current_root, directory_names, file_names in os.walk(
+    root,
+    topdown=True,
+    onerror=fail_walk,
+    followlinks=False,
+):
+    for name in (*directory_names, *file_names):
+        path = Path(current_root, name)
+        relative = path.relative_to(root).as_posix()
+        lowered = name.lower()
+        try:
+            entry_status = os.lstat(path)
+        except OSError:
+            fail(relative, "artifact entry could not be inspected")
+        if stat.S_ISLNK(entry_status.st_mode):
+            fail(relative, "symlink")
+        if lowered in forbidden_names or lowered.endswith(forbidden_suffixes):
+            fail(relative, "raw report or debug media")
+        if stat.S_ISDIR(entry_status.st_mode):
+            continue
+        if not stat.S_ISREG(entry_status.st_mode):
+            fail(relative, "non-regular artifact")
+        try:
+            content = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            fail(relative, "artifact content could not be inspected")
+        if any(private in content for private in forbidden_content):
+            fail(relative, "absolute private path or raw simulator identifier")
+PY
+}
+
 cleanup() {
   local exit_code=$?
   local cleanup_failed=0
@@ -406,6 +521,9 @@ cleanup() {
       echo "patrol_bnd05_document_reference_process_death: could not verify Patrol bundle tracking" >&2
       cleanup_failed=1
     fi
+  fi
+  if ! verify_retained_artifacts; then
+    cleanup_failed=1
   fi
   if [[ "$cleanup_failed" -ne 0 ]]; then
     cleanup_status="failed"
