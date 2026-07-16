@@ -67,8 +67,10 @@ void main() {
 
       await $.platformAutomator.mobile.openUrl('mint:///home');
       await $.pumpAndSettle();
-      await $(#financial_plan_stale_state).waitUntilVisible();
-      await $(#financial_plan_stale_recalculate).waitUntilVisible();
+      await $(find.bySemanticsIdentifier('financial_plan_stale_state'))
+          .waitUntilVisible();
+      await $(find.bySemanticsIdentifier('financial_plan_stale_recalculate'))
+          .waitUntilVisible();
       expect(find.text('54’321 CHF / mois'), findsNothing);
     },
   );

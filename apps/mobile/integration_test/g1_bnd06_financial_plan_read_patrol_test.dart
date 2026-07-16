@@ -32,8 +32,10 @@ void main() {
 
       await $.platformAutomator.mobile.openUrl('mint:///home');
       await $.pumpAndSettle();
-      await $(#financial_plan_stale_state).waitUntilVisible();
-      await $(#financial_plan_stale_recalculate).waitUntilVisible();
+      await $(find.bySemanticsIdentifier('financial_plan_stale_state'))
+          .waitUntilVisible();
+      await $(find.bySemanticsIdentifier('financial_plan_stale_recalculate'))
+          .waitUntilVisible();
       expect(find.text('54’321 CHF / mois'), findsNothing);
 
       final initialPlan = plans.currentPlan!;
@@ -46,7 +48,9 @@ void main() {
         ledger.reportAnswersSnapshot,
       );
 
-      await $(#financial_plan_stale_recalculate).tap();
+      await $(
+        find.bySemanticsIdentifier('financial_plan_stale_recalculate'),
+      ).tap();
       for (var attempt = 0; attempt < 120; attempt++) {
         if (!plans.isPlanStale && plans.currentPlan?.id != initialPlanId) break;
         await $.tester.pump(const Duration(milliseconds: 100));
@@ -74,8 +78,10 @@ void main() {
       expect(applied, isTrue);
       await $.tester.pump();
       expect(plans.isPlanStale, isTrue);
-      await $(#financial_plan_stale_state).waitUntilVisible();
-      await $(#financial_plan_stale_recalculate).waitUntilVisible();
+      await $(find.bySemanticsIdentifier('financial_plan_stale_state'))
+          .waitUntilVisible();
+      await $(find.bySemanticsIdentifier('financial_plan_stale_recalculate'))
+          .waitUntilVisible();
       expect(find.text('54’321 CHF / mois'), findsNothing);
     },
   );
