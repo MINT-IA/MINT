@@ -395,6 +395,38 @@ class SDe extends S {
   String get documentsDeleteMessage => 'Diese Aktion ist unwiderruflich.';
 
   @override
+  String get documentReferenceLoading => 'Dokumentenverknüpfung wird geladen…';
+
+  @override
+  String get documentReferenceLoadFailed =>
+      'Die Dokumentenverknüpfung konnte nicht geladen werden.';
+
+  @override
+  String get documentReferenceStale =>
+      'Diese Dokumentenverknüpfung entspricht nicht mehr den aktuellen bestätigten Angaben.';
+
+  @override
+  String get documentReferenceMissing =>
+      'Diese Dokumentenverknüpfung wurde nicht gefunden.';
+
+  @override
+  String get documentReferenceBackToDocuments => 'Zurück zu den Dokumenten';
+
+  @override
+  String get documentReferenceRemoveButton => 'Verknüpfung entfernen';
+
+  @override
+  String get documentReferenceRemoveTitle => 'Dokumentenverknüpfung entfernen?';
+
+  @override
+  String get documentReferenceRemoveMessage =>
+      'Nur die lokale Verknüpfung wird entfernt. Bestätigte Angaben bleiben in Ihrem Profil gespeichert.';
+
+  @override
+  String get lppReferencePersistFailed =>
+      'Die Angaben wurden gespeichert, aber die Dokumentenverknüpfung wurde nicht erstellt.';
+
+  @override
   String get documentsEmpty => 'Keine Dokumente';
 
   @override
@@ -463,6 +495,10 @@ class SDe extends S {
   @override
   String get lppEvidenceDisabilityCapitalLumpSumLabel =>
       'Invaliditätskapital als Einmalzahlung';
+
+  @override
+  String get lppEvidenceFundReturnRateLabel =>
+      'Jährliche Rendite der Pensionskasse';
 
   @override
   String get lppReviewSourceDate =>

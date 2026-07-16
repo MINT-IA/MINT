@@ -819,6 +819,60 @@ abstract class S {
   /// **'Cette action est irréversible.'**
   String get documentsDeleteMessage;
 
+  /// No description provided for @documentReferenceLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement du lien documentaire…'**
+  String get documentReferenceLoading;
+
+  /// No description provided for @documentReferenceLoadFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger le lien documentaire.'**
+  String get documentReferenceLoadFailed;
+
+  /// No description provided for @documentReferenceStale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien documentaire n’est plus relié aux faits confirmés actuels.'**
+  String get documentReferenceStale;
+
+  /// No description provided for @documentReferenceMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien documentaire est introuvable.'**
+  String get documentReferenceMissing;
+
+  /// No description provided for @documentReferenceBackToDocuments.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour aux documents'**
+  String get documentReferenceBackToDocuments;
+
+  /// No description provided for @documentReferenceRemoveButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer le lien'**
+  String get documentReferenceRemoveButton;
+
+  /// No description provided for @documentReferenceRemoveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer le lien du document ?'**
+  String get documentReferenceRemoveTitle;
+
+  /// No description provided for @documentReferenceRemoveMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul le lien local sera retiré. Les faits confirmés restent conservés dans ton profil.'**
+  String get documentReferenceRemoveMessage;
+
+  /// No description provided for @lppReferencePersistFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les faits sont enregistrés, mais le lien du document n’a pas été créé.'**
+  String get lppReferencePersistFailed;
+
   /// No description provided for @documentsEmpty.
   ///
   /// In fr, this message translates to:
@@ -950,6 +1004,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Capital d\'invalidité versé en une fois'**
   String get lppEvidenceDisabilityCapitalLumpSumLabel;
+
+  /// No description provided for @lppEvidenceFundReturnRateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rendement annuel de la caisse'**
+  String get lppEvidenceFundReturnRateLabel;
 
   /// No description provided for @lppReviewSourceDate.
   ///

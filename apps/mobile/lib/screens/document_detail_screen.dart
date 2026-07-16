@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -23,27 +26,56 @@ class DocumentDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = S.of(context)!;
     final docProvider = context.watch<DocumentProvider>();
+    final coachProvider = context.watch<CoachProfileProvider>();
+    final reference = docProvider.byId(documentId);
+    final snapshot = reference == null
+        ? null
+        : coachProvider.currentLppSnapshot(reference.ownerKind);
+    final isStoredReference = docProvider.hasStoredReference(documentId);
 
-    // Get the upload result if it matches, otherwise show placeholder
-    final result = docProvider.lastUploadResult?.id == documentId
+    // Volatile backend upload previews remain available only after reference
+    // hydration proves this id was never a confirmed ledger reference.
+    final result = docProvider.referencesHydrated &&
+            !isStoredReference &&
+            docProvider.lastUploadResult?.id == documentId
         ? docProvider.lastUploadResult
         : null;
+    final Widget content;
+    if (reference != null && snapshot != null) {
+      content = _buildConfirmedReferenceContent(
+        context,
+        s,
+        reference,
+        snapshot,
+        docProvider,
+      );
+    } else if (result != null) {
+      content = _buildDetailContent(context, s, result, docProvider);
+    } else {
+      content = _buildReferenceState(
+        context,
+        s,
+        docProvider,
+        isStoredReference: isStoredReference,
+      );
+    }
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(context, s),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(MintSpacing.lg),
-              child: result != null
-                  ? _buildDetailContent(context, s, result, docProvider)
-                  : _buildPlaceholder(s),
-            ),
-          ),
-        ],
-      ))),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  _buildAppBar(context, s),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(MintSpacing.lg),
+                      child: content,
+                    ),
+                  ),
+                ],
+              ))),
     );
   }
 
@@ -72,8 +104,66 @@ class DocumentDetailScreen extends StatelessWidget {
   // Placeholder when detail is not available
   // ──────────────────────────────────────────────────────────
 
-  Widget _buildPlaceholder(S s) {
+  Widget _buildReferenceState(
+    BuildContext context,
+    S s,
+    DocumentProvider provider, {
+    required bool isStoredReference,
+  }) {
+    final state = provider.referenceHydrationState;
+    if (state == DocumentReferenceHydrationState.idle ||
+        state == DocumentReferenceHydrationState.loading) {
+      return _buildPlaceholder(
+        key: const Key('document_reference_loading_state'),
+        icon: const CircularProgressIndicator(),
+        message: s.documentReferenceLoading,
+      );
+    }
+    if (state == DocumentReferenceHydrationState.failed) {
+      return _buildPlaceholder(
+        key: const Key('document_reference_failed_state'),
+        icon: const Icon(Icons.sync_problem_outlined,
+            size: 48, color: MintColors.error),
+        message: s.documentReferenceLoadFailed,
+        action: FilledButton.tonal(
+          key: const Key('document_reference_retry'),
+          onPressed: () async {
+            try {
+              await provider.hydrateReferences();
+            } on Object {
+              // Provider publishes the safe failed state for another retry.
+            }
+          },
+          child: Text(s.commonRetry),
+        ),
+      );
+    }
+    return _buildPlaceholder(
+      key: Key(isStoredReference
+          ? 'document_reference_stale_state'
+          : 'document_reference_missing_state'),
+      icon: const Icon(Icons.link_off_outlined,
+          size: 48, color: MintColors.textMuted),
+      message: isStoredReference
+          ? s.documentReferenceStale
+          : s.documentReferenceMissing,
+      action: TextButton.icon(
+        key: const Key('document_reference_back_to_documents'),
+        onPressed: () => context.go('/documents'),
+        icon: const Icon(Icons.arrow_back),
+        label: Text(s.documentReferenceBackToDocuments),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder({
+    required Key key,
+    required Widget icon,
+    required String message,
+    Widget? action,
+  }) {
     return Center(
+      key: key,
       child: Padding(
         padding: const EdgeInsets.only(top: 80),
         child: Column(
@@ -84,14 +174,18 @@ class DocumentDetailScreen extends StatelessWidget {
                 color: MintColors.surface,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.description_outlined,
-                  size: 48, color: MintColors.textMuted),
+              child: icon,
             ),
             const SizedBox(height: MintSpacing.md + 4),
             Text(
-              s.documentsEmpty,
+              message,
               style: MintTextStyles.headlineMedium(color: MintColors.textMuted),
+              textAlign: TextAlign.center,
             ),
+            if (action != null) ...[
+              const SizedBox(height: MintSpacing.md),
+              action,
+            ],
           ],
         ),
       ),
@@ -101,6 +195,189 @@ class DocumentDetailScreen extends StatelessWidget {
   // ──────────────────────────────────────────────────────────
   // Detail Content
   // ──────────────────────────────────────────────────────────
+
+  Widget _buildConfirmedReferenceContent(
+    BuildContext context,
+    S s,
+    ConfirmedDocumentReference reference,
+    LppEvidenceSnapshot snapshot,
+    DocumentProvider docProvider,
+  ) {
+    double? value(LppEvidenceFactKey key) => snapshot.facts[key]?.value;
+
+    final sections = <Widget>[
+      _buildCategory(
+        s,
+        label: s.documentsCategoryEpargne,
+        icon: Icons.savings_outlined,
+        color: MintColors.success,
+        fields: [
+          _field(
+            s.documentsFieldAvoirObligatoire,
+            value(LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf),
+            s.documentDetailExplanationObligatoire,
+          ),
+          _field(
+            s.documentsFieldAvoirSurobligatoire,
+            value(LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf),
+            s.documentDetailExplanationSurobligatoire,
+          ),
+          _field(
+            s.documentsFieldAvoirTotal,
+            value(LppEvidenceFactKey.vestedBenefitsCapitalChf),
+            s.documentDetailExplanationTotal,
+          ),
+          _fieldYearly(
+            s.lppEvidenceRetirementPensionAnnualLabel,
+            value(LppEvidenceFactKey.retirementPensionAnnualChf),
+            '',
+          ),
+          _field(
+            s.lppEvidenceRetirementCapitalLumpSumLabel,
+            value(LppEvidenceFactKey.retirementCapitalLumpSumChf),
+            '',
+          ),
+        ],
+      ),
+      _buildCategory(
+        s,
+        label: s.documentsCategorySalaire,
+        icon: Icons.account_balance_wallet_outlined,
+        color: MintColors.info,
+        fields: [
+          _fieldYearly(
+            s.documentsFieldSalaireAssure,
+            value(LppEvidenceFactKey.insuredSalaryAnnualChf),
+            s.documentDetailExplanationSalaireAssure,
+          ),
+        ],
+      ),
+      _buildCategory(
+        s,
+        label: s.documentsCategoryTaux,
+        icon: Icons.percent,
+        color: MintColors.indigo,
+        fields: [
+          _fieldPercent(
+            s.documentsFieldTauxObligatoire,
+            _ratioAsPercent(
+              value(LppEvidenceFactKey.mandatoryConversionRateRatio),
+            ),
+            s.documentDetailExplanationTauxOblig,
+          ),
+          _fieldPercent(
+            s.documentsFieldTauxSurobligatoire,
+            _ratioAsPercent(
+              value(LppEvidenceFactKey.extraMandatoryConversionRateRatio),
+            ),
+            s.documentDetailExplanationTauxSurob,
+          ),
+          _fieldPercent(
+            s.lppEvidenceFundReturnRateLabel,
+            _ratioAsPercent(value(LppEvidenceFactKey.fundReturnRateRatio)),
+            '',
+          ),
+        ],
+      ),
+      _buildCategory(
+        s,
+        label: s.documentsCategoryRisque,
+        icon: Icons.shield_outlined,
+        color: MintColors.deepOrange,
+        fields: [
+          _fieldYearly(
+            s.documentsFieldRenteInvalidite,
+            value(LppEvidenceFactKey.disabilityPensionAnnualChf),
+            s.documentDetailExplanationInvalidite,
+          ),
+          _field(
+            s.lppEvidenceDisabilityCapitalLumpSumLabel,
+            value(LppEvidenceFactKey.disabilityCapitalLumpSumChf),
+            '',
+          ),
+          _field(
+            s.documentsFieldCapitalDeces,
+            value(LppEvidenceFactKey.deathCapitalLumpSumChf),
+            s.documentDetailExplanationDeces,
+          ),
+        ],
+      ),
+      _buildCategory(
+        s,
+        label: s.documentsCategoryRachat,
+        icon: Icons.add_circle_outline,
+        color: MintColors.primary,
+        fields: [
+          _field(
+            s.documentsFieldRachatMax,
+            value(LppEvidenceFactKey.maximumBuybackCapitalChf),
+            s.documentDetailExplanationRachat,
+          ),
+        ],
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MintSurface(
+          padding: const EdgeInsets.all(MintSpacing.md + 4),
+          radius: 20,
+          child: Row(
+            children: [
+              const Icon(
+                Icons.verified_outlined,
+                color: MintColors.success,
+                size: 32,
+              ),
+              const SizedBox(width: MintSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      s.documentsLppCertificate,
+                      style: MintTextStyles.titleMedium(),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      s.documentDetailFieldsExtracted(
+                        snapshot.facts.length,
+                        snapshot.facts.length,
+                      ),
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: MintSpacing.lg),
+        for (final section in sections) ...[
+          section,
+          const SizedBox(height: MintSpacing.lg),
+        ],
+        Center(
+          child: TextButton.icon(
+            key: const Key('document_reference_remove'),
+            onPressed: () => _confirmDeleteReference(
+              context,
+              s,
+              docProvider,
+              reference.referenceId,
+            ),
+            icon: const Icon(Icons.delete_outline, size: 18),
+            label: Text(s.documentReferenceRemoveButton),
+            style: TextButton.styleFrom(foregroundColor: MintColors.error),
+          ),
+        ),
+        const SizedBox(height: MintSpacing.xxl),
+      ],
+    );
+  }
 
   Widget _buildDetailContent(BuildContext context, S s,
       DocumentUploadResult result, DocumentProvider docProvider) {
@@ -115,112 +392,120 @@ class DocumentDetailScreen extends StatelessWidget {
         const SizedBox(height: MintSpacing.lg + 4),
 
         // Category: Epargne
-        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildCategory(
-          s,
-          label: s.documentsCategoryEpargne,
-          icon: Icons.savings_outlined,
-          color: MintColors.success,
-          fields: [
-            _field(
-              s.documentsFieldAvoirObligatoire,
-              lppFields?.avoirObligatoire,
-              s.documentDetailExplanationObligatoire,
-            ),
-            _field(
-              s.documentsFieldAvoirSurobligatoire,
-              lppFields?.avoirSurobligatoire,
-              s.documentDetailExplanationSurobligatoire,
-            ),
-            _field(
-              s.documentsFieldAvoirTotal,
-              lppFields?.avoirVieillesseTotal,
-              s.documentDetailExplanationTotal,
-            ),
-          ],
-        )),
+        MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: _buildCategory(
+              s,
+              label: s.documentsCategoryEpargne,
+              icon: Icons.savings_outlined,
+              color: MintColors.success,
+              fields: [
+                _field(
+                  s.documentsFieldAvoirObligatoire,
+                  lppFields?.avoirObligatoire,
+                  s.documentDetailExplanationObligatoire,
+                ),
+                _field(
+                  s.documentsFieldAvoirSurobligatoire,
+                  lppFields?.avoirSurobligatoire,
+                  s.documentDetailExplanationSurobligatoire,
+                ),
+                _field(
+                  s.documentsFieldAvoirTotal,
+                  lppFields?.avoirVieillesseTotal,
+                  s.documentDetailExplanationTotal,
+                ),
+              ],
+            )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Salaire
-        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCategory(
-          s,
-          label: s.documentsCategorySalaire,
-          icon: Icons.account_balance_wallet_outlined,
-          color: MintColors.info,
-          fields: [
-            _field(
-              s.documentsFieldSalaireAssure,
-              lppFields?.salaireAssure,
-              s.documentDetailExplanationSalaireAssure,
-            ),
-            _field(
-              s.documentsFieldSalaireAvs,
-              lppFields?.salaireAvs,
-              s.documentDetailExplanationSalaireAvs,
-            ),
-            _field(
-              s.documentsFieldDeductionCoordination,
-              lppFields?.deductionCoordination,
-              s.documentDetailExplanationDeduction,
-            ),
-          ],
-        )),
+        MintEntrance(
+            delay: const Duration(milliseconds: 200),
+            child: _buildCategory(
+              s,
+              label: s.documentsCategorySalaire,
+              icon: Icons.account_balance_wallet_outlined,
+              color: MintColors.info,
+              fields: [
+                _field(
+                  s.documentsFieldSalaireAssure,
+                  lppFields?.salaireAssure,
+                  s.documentDetailExplanationSalaireAssure,
+                ),
+                _field(
+                  s.documentsFieldSalaireAvs,
+                  lppFields?.salaireAvs,
+                  s.documentDetailExplanationSalaireAvs,
+                ),
+                _field(
+                  s.documentsFieldDeductionCoordination,
+                  lppFields?.deductionCoordination,
+                  s.documentDetailExplanationDeduction,
+                ),
+              ],
+            )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Taux de conversion
-        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCategory(
-          s,
-          label: s.documentsCategoryTaux,
-          icon: Icons.percent,
-          color: MintColors.indigo,
-          fields: [
-            _fieldPercent(
-              s.documentsFieldTauxObligatoire,
-              lppFields?.tauxConversionObligatoire,
-              s.documentDetailExplanationTauxOblig,
-            ),
-            _fieldPercent(
-              s.documentsFieldTauxSurobligatoire,
-              lppFields?.tauxConversionSurobligatoire,
-              s.documentDetailExplanationTauxSurob,
-            ),
-            _fieldPercent(
-              s.documentsFieldTauxEnveloppe,
-              lppFields?.tauxConversionEnveloppe,
-              s.documentDetailExplanationTauxEnv,
-            ),
-          ],
-        )),
+        MintEntrance(
+            delay: const Duration(milliseconds: 300),
+            child: _buildCategory(
+              s,
+              label: s.documentsCategoryTaux,
+              icon: Icons.percent,
+              color: MintColors.indigo,
+              fields: [
+                _fieldPercent(
+                  s.documentsFieldTauxObligatoire,
+                  lppFields?.tauxConversionObligatoire,
+                  s.documentDetailExplanationTauxOblig,
+                ),
+                _fieldPercent(
+                  s.documentsFieldTauxSurobligatoire,
+                  lppFields?.tauxConversionSurobligatoire,
+                  s.documentDetailExplanationTauxSurob,
+                ),
+                _fieldPercent(
+                  s.documentsFieldTauxEnveloppe,
+                  lppFields?.tauxConversionEnveloppe,
+                  s.documentDetailExplanationTauxEnv,
+                ),
+              ],
+            )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Couverture risque
-        MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCategory(
-          s,
-          label: s.documentsCategoryRisque,
-          icon: Icons.shield_outlined,
-          color: MintColors.deepOrange,
-          fields: [
-            _fieldYearly(
-              s.documentsFieldRenteInvalidite,
-              lppFields?.renteInvalidite,
-              s.documentDetailExplanationInvalidite,
-            ),
-            _field(
-              s.documentsFieldCapitalDeces,
-              lppFields?.capitalDeces,
-              s.documentDetailExplanationDeces,
-            ),
-            _fieldYearly(
-              s.documentsFieldRenteConjoint,
-              lppFields?.renteConjoint,
-              s.documentDetailExplanationConjoint,
-            ),
-            _fieldYearly(
-              s.documentsFieldRenteEnfant,
-              lppFields?.renteEnfant,
-              s.documentDetailExplanationEnfant,
-            ),
-          ],
-        )),
+        MintEntrance(
+            delay: const Duration(milliseconds: 400),
+            child: _buildCategory(
+              s,
+              label: s.documentsCategoryRisque,
+              icon: Icons.shield_outlined,
+              color: MintColors.deepOrange,
+              fields: [
+                _fieldYearly(
+                  s.documentsFieldRenteInvalidite,
+                  lppFields?.renteInvalidite,
+                  s.documentDetailExplanationInvalidite,
+                ),
+                _field(
+                  s.documentsFieldCapitalDeces,
+                  lppFields?.capitalDeces,
+                  s.documentDetailExplanationDeces,
+                ),
+                _fieldYearly(
+                  s.documentsFieldRenteConjoint,
+                  lppFields?.renteConjoint,
+                  s.documentDetailExplanationConjoint,
+                ),
+                _fieldYearly(
+                  s.documentsFieldRenteEnfant,
+                  lppFields?.renteEnfant,
+                  s.documentDetailExplanationEnfant,
+                ),
+              ],
+            )),
         const SizedBox(height: MintSpacing.lg),
 
         // Category: Rachat
@@ -275,21 +560,21 @@ class DocumentDetailScreen extends StatelessWidget {
             child: FilledButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(s.documentDetailProfileUpdated),
-                  backgroundColor: MintColors.success,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-              );
-              safePop(context);
-            },
-            child: Text(
-              s.documentsConfirmButton,
+                  SnackBar(
+                    content: Text(s.documentDetailProfileUpdated),
+                    backgroundColor: MintColors.success,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                );
+                safePop(context);
+              },
+              child: Text(
+                s.documentsConfirmButton,
+              ),
             ),
           ),
-        ),
         ),
         const SizedBox(height: MintSpacing.sm + 4),
         Center(
@@ -358,8 +643,10 @@ class DocumentDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: MintSpacing.xs),
                 Text(
-                  s.documentDetailFieldsExtracted(result.fieldsFound, result.fieldsTotal),
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                  s.documentDetailFieldsExtracted(
+                      result.fieldsFound, result.fieldsTotal),
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -423,7 +710,8 @@ class DocumentDetailScreen extends StatelessWidget {
               Flexible(
                 child: Text(
                   field.label,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textSecondary),
                 ),
               ),
               Text(
@@ -483,7 +771,8 @@ class DocumentDetailScreen extends StatelessWidget {
                   Expanded(
                     child: Text(
                       w,
-                      style: MintTextStyles.bodySmall(color: MintColors.warning),
+                      style:
+                          MintTextStyles.bodySmall(color: MintColors.warning),
                     ),
                   ),
                 ],
@@ -497,6 +786,40 @@ class DocumentDetailScreen extends StatelessWidget {
   // ──────────────────────────────────────────────────────────
   // Delete Confirmation
   // ──────────────────────────────────────────────────────────
+
+  Future<void> _confirmDeleteReference(
+    BuildContext context,
+    S s,
+    DocumentProvider docProvider,
+    String referenceId,
+  ) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(s.documentReferenceRemoveTitle),
+        content: Text(s.documentReferenceRemoveMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(s.documentDetailCancelButton),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: MintColors.error),
+            child: Text(s.documentReferenceRemoveButton),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !context.mounted) return;
+    try {
+      await docProvider.deleteConfirmedReference(referenceId);
+    } on Object {
+      return;
+    }
+    if (context.mounted) context.go('/documents');
+  }
 
   Future<void> _confirmDelete(
       BuildContext context, S s, DocumentProvider docProvider) async {
@@ -545,11 +868,12 @@ class DocumentDetailScreen extends StatelessWidget {
     return _FieldEntry(
       label: label,
       value: value,
-      formattedValue:
-          value != null ? '${value.toStringAsFixed(1)}%' : '-',
+      formattedValue: value != null ? '${value.toStringAsFixed(1)}%' : '-',
       explanation: explanation,
     );
   }
+
+  double? _ratioAsPercent(double? value) => value == null ? null : value * 100;
 
   _FieldEntry _fieldYearly(String label, double? value, String explanation) {
     return _FieldEntry(

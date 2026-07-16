@@ -1,6 +1,183 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
+typedef SharedPreferencesLoader = Future<SharedPreferences> Function();
+
+/// Opaque, raw-free link from a confirmed document to its strict ledger
+/// snapshot.
+final class ConfirmedDocumentReference {
+  const ConfirmedDocumentReference({
+    required this.referenceId,
+    required this.kind,
+    required this.snapshotId,
+    required this.ownerKind,
+    required this.confirmedAt,
+  });
+
+  static const lppKind = 'lpp';
+
+  final String referenceId;
+  final String kind;
+  final String snapshotId;
+  final LppEvidenceOwnerKind ownerKind;
+  final DateTime confirmedAt;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'referenceId': referenceId,
+      'kind': kind,
+      'snapshotId': snapshotId,
+      'ownerKind': ownerKind.wireName,
+      'confirmedAt': confirmedAt.toUtc().toIso8601String(),
+    };
+  }
+
+  static ConfirmedDocumentReference? fromJson(Map<String, dynamic> json) {
+    const allowedKeys = <String>{
+      'referenceId',
+      'kind',
+      'snapshotId',
+      'ownerKind',
+      'confirmedAt',
+    };
+    if (json.length != allowedKeys.length ||
+        json.keys.toSet().difference(allowedKeys).isNotEmpty ||
+        json['referenceId'] is! String ||
+        json['snapshotId'] is! String ||
+        json['kind'] != lppKind) {
+      return null;
+    }
+    final ownerKind = LppEvidenceOwnerKind.fromWireName(json['ownerKind']);
+    final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
+    if (ownerKind == null ||
+        confirmedAt == null ||
+        !_isCanonicalUuidV4(json['referenceId'] as String) ||
+        !_isCanonicalUuidV4(json['snapshotId'] as String)) {
+      return null;
+    }
+    return ConfirmedDocumentReference(
+      referenceId: json['referenceId'] as String,
+      kind: lppKind,
+      snapshotId: json['snapshotId'] as String,
+      ownerKind: ownerKind,
+      confirmedAt: confirmedAt,
+    );
+  }
+}
+
+/// Strict local persistence for opaque confirmed-document references.
+///
+/// This store intentionally does not read or migrate `_uploaded_documents`.
+/// A malformed root or item is rejected as a whole so no partial set can be
+/// mistaken for current ledger truth.
+class DocumentReferenceStore {
+  DocumentReferenceStore({SharedPreferencesLoader? preferencesLoader})
+      : _preferencesLoader = preferencesLoader ?? SharedPreferences.getInstance;
+
+  static const storageKey = '_confirmed_document_references_v1';
+  static const schemaVersion = 1;
+
+  final SharedPreferencesLoader _preferencesLoader;
+
+  Future<List<ConfirmedDocumentReference>> load() async {
+    final preferences = await _preferencesLoader();
+    final encoded = preferences.getString(storageKey);
+    if (encoded == null) return const [];
+
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(encoded);
+    } on Object catch (error) {
+      throw FormatException('Malformed document reference root', error);
+    }
+    if (decoded is! Map) {
+      throw const FormatException('Document reference root must be an object');
+    }
+    final root = Map<String, dynamic>.from(decoded);
+    const allowedRootKeys = <String>{'schemaVersion', 'references'};
+    if (root.length != allowedRootKeys.length ||
+        root.keys.toSet().difference(allowedRootKeys).isNotEmpty ||
+        root['schemaVersion'] != schemaVersion ||
+        root['references'] is! List) {
+      throw const FormatException('Invalid document reference root');
+    }
+
+    final references = <ConfirmedDocumentReference>[];
+    final referenceIds = <String>{};
+    final snapshotBindings = <String>{};
+    for (final rawReference in root['references'] as List) {
+      if (rawReference is! Map) {
+        throw const FormatException('Invalid document reference item');
+      }
+      final reference = ConfirmedDocumentReference.fromJson(
+        Map<String, dynamic>.from(rawReference),
+      );
+      if (reference == null || !referenceIds.add(reference.referenceId)) {
+        throw const FormatException('Invalid document reference item');
+      }
+      final binding = '${reference.kind}|${reference.ownerKind.wireName}|'
+          '${reference.snapshotId}';
+      if (!snapshotBindings.add(binding)) {
+        throw const FormatException('Duplicate document reference binding');
+      }
+      references.add(reference);
+    }
+    return List.unmodifiable(references);
+  }
+
+  Future<void> save(List<ConfirmedDocumentReference> references) async {
+    final referenceIds = <String>{};
+    final snapshotBindings = <String>{};
+    for (final reference in references) {
+      if (ConfirmedDocumentReference.fromJson(reference.toJson()) == null ||
+          !referenceIds.add(reference.referenceId) ||
+          !snapshotBindings.add(
+            '${reference.kind}|${reference.ownerKind.wireName}|'
+            '${reference.snapshotId}',
+          )) {
+        throw const FormatException('Invalid document reference set');
+      }
+    }
+    final preferences = await _preferencesLoader();
+    final persisted = await preferences.setString(
+      storageKey,
+      jsonEncode(<String, dynamic>{
+        'schemaVersion': schemaVersion,
+        'references': references
+            .map((reference) => reference.toJson())
+            .toList(growable: false),
+      }),
+    );
+    if (!persisted) {
+      throw StateError('Document reference persistence failed');
+    }
+  }
+}
+
+DateTime? _parseCanonicalUtcInstant(Object? raw) {
+  if (raw is! String) return null;
+  final parsed = DateTime.tryParse(raw);
+  if (parsed == null ||
+      !parsed.isUtc ||
+      parsed.toUtc().toIso8601String() != raw) {
+    return null;
+  }
+  return parsed.toUtc();
+}
+
+bool _isCanonicalUuidV4(String value) => RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+    ).hasMatch(value);
+
+enum DocumentReferenceHydrationState { idle, loading, ready, failed }
 
 /// Manages document upload state and document list.
 ///
@@ -8,15 +185,31 @@ import 'package:mint_mobile/services/document_service.dart';
 /// on every state change (upload progress, results, errors).
 class DocumentProvider extends ChangeNotifier {
   final DocumentService _service;
+  final DocumentReferenceStore _referenceStore;
+  final DateTime Function() _now;
+  final Uuid _uuid;
 
   List<DocumentSummary> _documents = [];
+  List<ConfirmedDocumentReference> _references = const [];
   bool _isUploading = false;
   bool _isLoading = false;
+  DocumentReferenceHydrationState _referenceHydrationState =
+      DocumentReferenceHydrationState.idle;
   DocumentUploadResult? _lastUploadResult;
   String? _error;
+  CoachProfileProvider? _ledger;
+  Future<void>? _referenceHydration;
+  Future<void>? _referenceMutationTail;
 
-  DocumentProvider({DocumentService? service})
-      : _service = service ?? DocumentService();
+  DocumentProvider({
+    DocumentService? service,
+    DocumentReferenceStore? referenceStore,
+    DateTime Function()? now,
+    Uuid? uuid,
+  })  : _service = service ?? DocumentService(),
+        _referenceStore = referenceStore ?? DocumentReferenceStore(),
+        _now = now ?? DateTime.now,
+        _uuid = uuid ?? const Uuid();
 
   // ──────────────────────────────────────────────────────────
   // Getters
@@ -28,6 +221,153 @@ class DocumentProvider extends ChangeNotifier {
   DocumentUploadResult? get lastUploadResult => _lastUploadResult;
   String? get error => _error;
   int get documentCount => _documents.length;
+  bool get referencesHydrated =>
+      _referenceHydrationState == DocumentReferenceHydrationState.ready;
+  DocumentReferenceHydrationState get referenceHydrationState =>
+      _referenceHydrationState;
+  DocumentReferenceStore get referenceStore => _referenceStore;
+
+  List<ConfirmedDocumentReference> get currentReferences {
+    final ledger = _ledger;
+    if (!referencesHydrated || ledger == null || !ledger.isLoaded) {
+      return const <ConfirmedDocumentReference>[];
+    }
+    return List<ConfirmedDocumentReference>.unmodifiable(
+      _references.where(
+        (reference) =>
+            ledger.currentLppSnapshotId(reference.ownerKind) ==
+            reference.snapshotId,
+      ),
+    );
+  }
+
+  /// Binds reference resolution to the canonical ledger. The provider listens
+  /// for snapshot replacement so stale references disappear immediately.
+  void bindLedger(CoachProfileProvider ledger) {
+    if (identical(_ledger, ledger)) return;
+    _ledger?.removeListener(_onLedgerChanged);
+    _ledger = ledger;
+    ledger.addListener(_onLedgerChanged);
+  }
+
+  void _onLedgerChanged() => notifyListeners();
+
+  Future<void> hydrateReferences() {
+    if (referencesHydrated) return Future.value();
+    final pending = _referenceHydration;
+    if (pending != null) return pending;
+    final hydration = _hydrateReferences();
+    _referenceHydration = hydration;
+    return hydration.whenComplete(() {
+      if (identical(_referenceHydration, hydration)) {
+        _referenceHydration = null;
+      }
+    });
+  }
+
+  Future<void> _hydrateReferences() async {
+    _referenceHydrationState = DocumentReferenceHydrationState.loading;
+    notifyListeners();
+    try {
+      final loaded = await _referenceStore.load();
+      _references = loaded;
+      _referenceHydrationState = DocumentReferenceHydrationState.ready;
+      notifyListeners();
+    } on Object {
+      _referenceHydrationState = DocumentReferenceHydrationState.failed;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// Resolves a reference only when both persistence and the strict ledger are
+  /// hydrated and still point at the same person-owned snapshot.
+  ConfirmedDocumentReference? byId(String referenceId) {
+    final ledger = _ledger;
+    if (!referencesHydrated || ledger == null || !ledger.isLoaded) return null;
+    ConfirmedDocumentReference? reference;
+    for (final candidate in _references) {
+      if (candidate.referenceId == referenceId) {
+        reference = candidate;
+        break;
+      }
+    }
+    if (reference == null ||
+        ledger.currentLppSnapshotId(reference.ownerKind) !=
+            reference.snapshotId) {
+      return null;
+    }
+    return reference;
+  }
+
+  bool hasStoredReference(String referenceId) =>
+      referencesHydrated &&
+      _references.any((reference) => reference.referenceId == referenceId);
+
+  Future<ConfirmedDocumentReference> recordConfirmedLppReview(
+    LppReviewReceipt receipt,
+  ) =>
+      _serializeReferenceMutation(() async {
+        final ledger = _ledger;
+        if (ledger == null || !ledger.isLoaded) {
+          throw StateError('Document reference ledger is unavailable');
+        }
+        if (!ledger.matchesAcceptedLppReceipt(receipt)) {
+          throw StateError('LPP receipt does not match the current ledger');
+        }
+        await hydrateReferences();
+        for (final reference in _references) {
+          if (reference.kind == ConfirmedDocumentReference.lppKind &&
+              reference.ownerKind == receipt.ownerKind &&
+              reference.snapshotId == receipt.snapshotId) {
+            return reference;
+          }
+        }
+        final reference = ConfirmedDocumentReference(
+          referenceId: _uuid.v4(),
+          kind: ConfirmedDocumentReference.lppKind,
+          snapshotId: receipt.snapshotId,
+          ownerKind: receipt.ownerKind,
+          confirmedAt: _now().toUtc(),
+        );
+        final nextReferences = List<ConfirmedDocumentReference>.unmodifiable(
+          <ConfirmedDocumentReference>[..._references, reference],
+        );
+        await _referenceStore.save(nextReferences);
+        _references = nextReferences;
+        notifyListeners();
+        return reference;
+      });
+
+  Future<void> deleteConfirmedReference(String referenceId) =>
+      _serializeReferenceMutation(() async {
+        await hydrateReferences();
+        final nextReferences = _references
+            .where((reference) => reference.referenceId != referenceId)
+            .toList(growable: false);
+        if (nextReferences.length == _references.length) return;
+        await _referenceStore.save(nextReferences);
+        _references = List.unmodifiable(nextReferences);
+        notifyListeners();
+      });
+
+  Future<T> _serializeReferenceMutation<T>(
+    Future<T> Function() operation,
+  ) async {
+    final previousMutation = _referenceMutationTail;
+    final completion = Completer<void>();
+    final currentMutation = completion.future;
+    _referenceMutationTail = currentMutation;
+    if (previousMutation != null) await previousMutation;
+    try {
+      return await operation();
+    } finally {
+      completion.complete();
+      if (identical(_referenceMutationTail, currentMutation)) {
+        _referenceMutationTail = null;
+      }
+    }
+  }
 
   /// Returns documents filtered by [type].
   List<DocumentSummary> documentsOfType(VaultDocumentType type) =>
@@ -179,6 +519,14 @@ class DocumentProvider extends ChangeNotifier {
     _isLoading = false;
     _lastUploadResult = null;
     _error = null;
+    _references = const [];
+    _referenceHydrationState = DocumentReferenceHydrationState.idle;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _ledger?.removeListener(_onLedgerChanged);
+    super.dispose();
   }
 }

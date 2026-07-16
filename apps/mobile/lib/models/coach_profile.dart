@@ -669,6 +669,49 @@ class PrevoyanceProfile {
     );
   }
 
+  /// Replaces only the calculator-facing fields owned by typed LPP evidence.
+  ///
+  /// AVS, 3a, libre-passage and other runtime state stay on this instance;
+  /// nullable LPP fields follow [authoritativeLpp] exactly so stale certificate
+  /// values can be cleared rather than retained by the ordinary copyWith API.
+  PrevoyanceProfile withLppEvidenceProjectionFrom(
+    PrevoyanceProfile authoritativeLpp,
+  ) {
+    return PrevoyanceProfile(
+      anneesContribuees: anneesContribuees,
+      lacunesAVS: lacunesAVS,
+      renteAVSEstimeeMensuelle: renteAVSEstimeeMensuelle,
+      nomCaisse: nomCaisse,
+      avoirLppTotal: authoritativeLpp.avoirLppTotal,
+      avoirLppObligatoire: authoritativeLpp.avoirLppObligatoire,
+      avoirLppSurobligatoire: authoritativeLpp.avoirLppSurobligatoire,
+      rachatMaximum: authoritativeLpp.rachatMaximum,
+      rachatEffectue: rachatEffectue,
+      hasPensionFund: hasPensionFund,
+      hasVoluntaryLpp: hasVoluntaryLpp,
+      dateRachats: dateRachats,
+      tauxConversion: authoritativeLpp.tauxConversion,
+      tauxConversionSuroblig: authoritativeLpp.tauxConversionSuroblig,
+      rendementCaisse: rendementCaisse,
+      rendementCaisseConnu: rendementCaisseConnu,
+      salaireAssure: authoritativeLpp.salaireAssure,
+      bonificationRate: bonificationRate,
+      ramd: ramd,
+      bonificationsEducatives: bonificationsEducatives,
+      projectedRenteLpp: authoritativeLpp.projectedRenteLpp,
+      projectedCapital65: authoritativeLpp.projectedCapital65,
+      disabilityCoverage: authoritativeLpp.disabilityCoverage,
+      lppDisabilityCapital: authoritativeLpp.lppDisabilityCapital,
+      deathCoverage: authoritativeLpp.deathCoverage,
+      lppEvidenceFacts: authoritativeLpp._lppEvidenceFacts,
+      nombre3a: nombre3a,
+      totalEpargne3a: totalEpargne3a,
+      comptes3a: comptes3a,
+      canContribute3a: canContribute3a,
+      librePassage: librePassage,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'anneesContribuees': anneesContribuees,
         'lacunesAVS': lacunesAVS,

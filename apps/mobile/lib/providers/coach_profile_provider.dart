@@ -131,6 +131,8 @@ class CoachProfileProvider extends ChangeNotifier {
   Map<String, dynamic> _lastAnswers = const {};
   Future<void>? _lppMutationTail;
   PartnerAccountabilityBinding? _partnerLppAccountabilityBinding;
+  Timer? _partnerAuthorityInvalidationTimer;
+  bool _disposed = false;
   bool _hasManualPartnerLppEvidence = false;
 
   PartnerAccountabilityBinding? get partnerLppAccountabilityBinding =>
@@ -141,6 +143,132 @@ class CoachProfileProvider extends ChangeNotifier {
       (_hasManualPartnerLppEvidence
           ? PartnerAccountabilityBindingState.partial
           : null);
+
+  DateTime? _partnerAuthorityDeadline(
+    PartnerAccountabilityBinding binding,
+  ) {
+    if (binding.state != PartnerAccountabilityBindingState.active ||
+        binding.failureStatus != null ||
+        binding.lastVerifiedAt == null ||
+        binding.expiresAt == null) {
+      return null;
+    }
+    final verificationDeadline =
+        binding.lastVerifiedAt!.toUtc().add(const Duration(hours: 6));
+    final receiptDeadline = binding.expiresAt!.toUtc();
+    return receiptDeadline.isBefore(verificationDeadline)
+        ? receiptDeadline
+        : verificationDeadline;
+  }
+
+  bool _isCurrentPartnerAuthority(
+    PartnerAccountabilityBinding binding,
+    DateTime now,
+  ) {
+    final current = now.toUtc();
+    final deadline = _partnerAuthorityDeadline(binding);
+    return deadline != null &&
+        current.isBefore(deadline) &&
+        binding.isCurrentAt(current);
+  }
+
+  void _setPartnerLppAccountabilityBinding(
+    PartnerAccountabilityBinding? binding,
+  ) {
+    _partnerAuthorityInvalidationTimer?.cancel();
+    _partnerAuthorityInvalidationTimer = null;
+    _partnerLppAccountabilityBinding = binding;
+    final activeBinding = binding;
+    if (activeBinding == null) return;
+    final deadline = _partnerAuthorityDeadline(activeBinding);
+    if (deadline == null || _disposed) return;
+    _schedulePartnerAuthorityInvalidation(activeBinding, deadline);
+  }
+
+  void _schedulePartnerAuthorityInvalidation(
+    PartnerAccountabilityBinding binding,
+    DateTime deadline,
+  ) {
+    final delay = deadline.difference(_now().toUtc());
+    _partnerAuthorityInvalidationTimer = Timer(
+      delay.isNegative ? Duration.zero : delay,
+      () {
+        _partnerAuthorityInvalidationTimer = null;
+        if (_disposed ||
+            !identical(_partnerLppAccountabilityBinding, binding)) {
+          return;
+        }
+        final current = _now().toUtc();
+        if (current.isBefore(deadline)) {
+          // Wall-clock drift or an early timer wake-up: re-arm against the
+          // canonical absolute deadline instead of exposing stale authority.
+          _schedulePartnerAuthorityInvalidation(binding, deadline);
+          return;
+        }
+        _rematerializeExpiredPartnerLpp(binding);
+        notifyListeners();
+      },
+    );
+  }
+
+  void _rematerializeExpiredPartnerLpp(
+    PartnerAccountabilityBinding expiredBinding,
+  ) {
+    final currentProfile = _profile;
+    final currentPartner = currentProfile?.conjoint;
+    if (!_isLoaded || currentProfile == null || currentPartner == null) return;
+
+    final canonicalProfile = CoachProfile.fromWizardAnswers(
+      _lastAnswers,
+      now: _now,
+      partnerAccountabilityBinding:
+          _isCurrentPartnerAuthority(expiredBinding, _now().toUtc())
+              ? expiredBinding
+              : null,
+      enforcePartnerAccountability: true,
+    );
+    final canonicalPartnerLpp = canonicalProfile.conjoint?.prevoyance ??
+        const PrevoyanceProfile();
+    final currentPartnerPrevoyance =
+        currentPartner.prevoyance ?? const PrevoyanceProfile();
+    final rematerializedPartnerPrevoyance = currentPartnerPrevoyance
+        .withLppEvidenceProjectionFrom(canonicalPartnerLpp);
+
+    final partnerLppPaths = LppEvidenceFactKey.values
+        .map((key) => key.manualPartnerProfilePath)
+        .toSet();
+    final rematerializedSources =
+        Map<String, ProfileDataSource>.from(currentProfile.dataSources)
+          ..removeWhere((path, _) => partnerLppPaths.contains(path));
+    final rematerializedTimestamps =
+        Map<String, DateTime>.from(currentProfile.dataTimestamps)
+          ..removeWhere((path, _) => partnerLppPaths.contains(path));
+    final rematerializedSourceDates =
+        Map<String, DateTime?>.from(currentProfile.dataSourceDates)
+          ..removeWhere((path, _) => partnerLppPaths.contains(path));
+    for (final path in partnerLppPaths) {
+      final source = canonicalProfile.dataSources[path];
+      final timestamp = canonicalProfile.dataTimestamps[path];
+      if (source != null) rematerializedSources[path] = source;
+      if (timestamp != null) rematerializedTimestamps[path] = timestamp;
+      if (canonicalProfile.dataSourceDates.containsKey(path)) {
+        rematerializedSourceDates[path] =
+            canonicalProfile.dataSourceDates[path];
+      }
+    }
+
+    _profile = currentProfile.copyWith(
+      conjoint: currentPartner.copyWith(
+        prevoyance: rematerializedPartnerPrevoyance,
+      ),
+      dataSources: Map.unmodifiable(rematerializedSources),
+      dataTimestamps: Map.unmodifiable(rematerializedTimestamps),
+      dataSourceDates: Map.unmodifiable(rematerializedSourceDates),
+    );
+    _profileUpdatedSinceBudget = true;
+    CoachCacheService.invalidate(InvalidationTrigger.profileUpdate);
+    unawaited(CoachNarrativeService.invalidateCache(profile: currentProfile));
+  }
 
   /// Le profil Coach construit a partir des reponses wizard.
   /// Null si le wizard n'a pas ete complete.
@@ -722,10 +850,14 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   /// Persists one complete person-owned LPP review before exposing it in memory.
-  Future<void> acceptLppReview(LppReviewConfirmation confirmation) =>
+  Future<LppReviewReceipt> acceptLppReview(
+    LppReviewConfirmation confirmation,
+  ) =>
       _serializeLppMutation(() => _acceptLppReview(confirmation));
 
-  Future<void> _acceptLppReview(LppReviewConfirmation confirmation) async {
+  Future<LppReviewReceipt> _acceptLppReview(
+    LppReviewConfirmation confirmation,
+  ) async {
     if (!FeatureFlags.typedLppEvidence) {
       throw StateError('Typed LPP evidence is disabled');
     }
@@ -856,16 +988,17 @@ class CoachProfileProvider extends ChangeNotifier {
           updatedAt: updatedAt,
         ),
     };
+    final snapshotId = const Uuid().v4();
     final nextRoot = LppEvidenceRoot(
       self: confirmation.subject == LppEvidenceOwnerKind.self
           ? LppEvidenceSnapshot(
-              snapshotId: const Uuid().v4(),
+              snapshotId: snapshotId,
               facts: Map.unmodifiable(storedFacts),
             )
           : currentRoot.self,
       manualPartner: confirmation.subject == LppEvidenceOwnerKind.manualPartner
           ? LppEvidenceSnapshot(
-              snapshotId: const Uuid().v4(),
+              snapshotId: snapshotId,
               facts: Map.unmodifiable(storedFacts),
               independentFacts:
                   currentRoot.manualPartner?.independentFacts ?? const {},
@@ -914,12 +1047,13 @@ class CoachProfileProvider extends ChangeNotifier {
 
     if (pendingAccountabilityBinding != null) {
       try {
-        _partnerLppAccountabilityBinding =
-            await _partnerAccountabilityBindingStore.activatePending(
-          receiptId: pendingAccountabilityBinding.receiptId,
-          manualPartnerOwnerId:
-              pendingAccountabilityBinding.manualPartnerOwnerId,
-          verifiedAt: updatedAt,
+        _setPartnerLppAccountabilityBinding(
+          await _partnerAccountabilityBindingStore.activatePending(
+            receiptId: pendingAccountabilityBinding.receiptId,
+            manualPartnerOwnerId:
+                pendingAccountabilityBinding.manualPartnerOwnerId,
+            verifiedAt: updatedAt,
+          ),
         );
       } on Object catch (activationError, activationStackTrace) {
         try {
@@ -950,6 +1084,11 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
+    return LppReviewReceipt(
+      snapshotId: snapshotId,
+      ownerKind: confirmation.subject,
+      factKeys: storedFacts.keys.toSet(),
+    );
   }
 
   /// Stores the single highest-impact manual recovery fact independently of
@@ -1262,6 +1401,69 @@ class CoachProfileProvider extends ChangeNotifier {
   /// True si le chargement a ete effectue au moins une fois.
   bool get isLoaded => _isLoaded;
 
+  /// Returns the current strict LPP snapshot for [ownerKind].
+  ///
+  /// This never falls back to loose legacy profile values. Before initial
+  /// ledger hydration, for an unreadable root, or for a future-dated snapshot,
+  /// it returns null so external reference readers fail closed.
+  LppEvidenceSnapshot? currentLppSnapshot(
+    LppEvidenceOwnerKind ownerKind,
+  ) {
+    if (!_isLoaded || !FeatureFlags.typedLppEvidence) return null;
+    final rawRoot = _lastAnswers[_lppEvidenceRootKey];
+    switch (ownerKind) {
+      case LppEvidenceOwnerKind.self:
+        return LppEvidenceSelector.selectSelf(rawRoot, now: _now);
+      case LppEvidenceOwnerKind.manualPartner:
+        if (!FeatureFlags.partnerLppAccountabilityEnabled) return null;
+        final expectedOwnerId =
+            LppEvidenceSelector.manualPartnerOwnerId(rawRoot);
+        final accountabilityBinding = _partnerLppAccountabilityBinding;
+        if (expectedOwnerId == null ||
+            accountabilityBinding == null ||
+            accountabilityBinding.manualPartnerOwnerId != expectedOwnerId ||
+            !_isCurrentPartnerAuthority(
+              accountabilityBinding,
+              _now().toUtc(),
+            )) {
+          return null;
+        }
+        final snapshot = LppEvidenceSelector.selectManualPartner(
+          rawRoot,
+          expectedOwnerId: expectedOwnerId,
+          now: _now,
+        );
+        return snapshot == null || snapshot.facts.isEmpty ? null : snapshot;
+    }
+  }
+
+  String? currentLppSnapshotId(LppEvidenceOwnerKind ownerKind) =>
+      currentLppSnapshot(ownerKind)?.snapshotId;
+
+  /// Validates a receipt only against the already-persisted strict root.
+  ///
+  /// This is intentionally narrower than [currentLppSnapshot]: it permits a
+  /// metadata-only reference retry after volatile partner authority expires,
+  /// but never exposes or republishes the underlying financial values.
+  bool matchesAcceptedLppReceipt(LppReviewReceipt receipt) {
+    if (!_isLoaded ||
+        !FeatureFlags.typedLppEvidence ||
+        receipt.factKeys.isEmpty) {
+      return false;
+    }
+    final root = LppEvidenceRoot.fromJsonString(
+      _lastAnswers[_lppEvidenceRootKey],
+    );
+    final snapshot = switch (receipt.ownerKind) {
+      LppEvidenceOwnerKind.self => root?.self,
+      LppEvidenceOwnerKind.manualPartner => root?.manualPartner,
+    };
+    return snapshot != null &&
+        snapshot.facts.isNotEmpty &&
+        snapshot.snapshotId == receipt.snapshotId &&
+        setEquals(snapshot.facts.keys.toSet(), receipt.factKeys);
+  }
+
   /// True if remote profile hydration has already been attempted.
   bool get remoteHydrationDone => _remoteHydrationDone;
 
@@ -1572,29 +1774,36 @@ class CoachProfileProvider extends ChangeNotifier {
       _reconcilePartnerAccountabilityOnColdLoad(
     Map<String, dynamic> answers,
   ) async {
-    if (!FeatureFlags.typedLppEvidence) return null;
+    if (!FeatureFlags.typedLppEvidence) {
+      _hasManualPartnerLppEvidence = false;
+      _setPartnerLppAccountabilityBinding(null);
+      return null;
+    }
     final root = LppEvidenceRoot.fromJsonString(answers[_lppEvidenceRootKey]);
     final manual = root?.manualPartner;
     _hasManualPartnerLppEvidence = manual != null &&
         (manual.facts.isNotEmpty || manual.independentFacts.isNotEmpty);
-    if (manual == null || manual.identityFacts.isEmpty) return null;
+    if (manual == null || manual.identityFacts.isEmpty) {
+      _setPartnerLppAccountabilityBinding(null);
+      return null;
+    }
 
     if (!FeatureFlags.partnerLppAccountabilityEnabled) {
-      _partnerLppAccountabilityBinding = null;
+      _setPartnerLppAccountabilityBinding(null);
       return null;
     }
 
     final envelope = await _partnerAccountabilityBindingStore.load();
     final pending = envelope.pending;
     if (pending != null) {
-      _partnerLppAccountabilityBinding = pending;
+      _setPartnerLppAccountabilityBinding(pending);
       return pending;
     }
     final candidate = envelope.active;
     if (candidate == null ||
         candidate.manualPartnerOwnerId !=
             manual.identityFacts.first.profileOwnerId) {
-      _partnerLppAccountabilityBinding = null;
+      _setPartnerLppAccountabilityBinding(null);
       return null;
     }
 
@@ -1612,7 +1821,7 @@ class CoachProfileProvider extends ChangeNotifier {
         final partial = await _partnerAccountabilityBindingStore.markPartial(
           failureStatus: receipt.status,
         );
-        _partnerLppAccountabilityBinding = partial;
+        _setPartnerLppAccountabilityBinding(partial);
         return partial;
       }
       final verified = await _partnerAccountabilityBindingStore.verifyActive(
@@ -1620,7 +1829,7 @@ class CoachProfileProvider extends ChangeNotifier {
         verifiedAt: _now().toUtc(),
         expiresAt: receipt.expiresAt!,
       );
-      _partnerLppAccountabilityBinding = verified;
+      _setPartnerLppAccountabilityBinding(verified);
       return verified;
     } on PartnerAccountabilityException catch (error) {
       if (error.status != PartnerAccountabilityReceiptStatus.offline) {
@@ -1629,13 +1838,13 @@ class CoachProfileProvider extends ChangeNotifier {
       final partial = await _partnerAccountabilityBindingStore.markPartial(
         failureStatus: error.status,
       );
-      _partnerLppAccountabilityBinding = partial;
+      _setPartnerLppAccountabilityBinding(partial);
       return partial;
     } catch (_) {
       final partial = await _partnerAccountabilityBindingStore.markPartial(
         failureStatus: PartnerAccountabilityReceiptStatus.stale,
       );
-      _partnerLppAccountabilityBinding = partial;
+      _setPartnerLppAccountabilityBinding(partial);
       return partial;
     }
   }
@@ -1692,9 +1901,11 @@ class CoachProfileProvider extends ChangeNotifier {
         );
       }
       final answers = otherFixedCostMigration.answers;
-      _lastAnswers = _copyAnswers(answers);
       final partnerAccountabilityBinding =
           await _reconcilePartnerAccountabilityOnColdLoad(answers);
+      // Reconciliation may purge partner certificate facts. Every strict
+      // external reader must observe that post-reconciliation root.
+      _lastAnswers = _copyAnswers(answers);
       final enforcePartnerAccountability =
           LppEvidenceRoot.fromJsonString(answers[_lppEvidenceRootKey])
                   ?.manualPartner !=
@@ -3744,6 +3955,8 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Clears both in-memory state AND persisted wizard data in SharedPreferences
   /// to prevent cross-account data bleed on shared devices.
   Future<void> clear() async {
+    _setPartnerLppAccountabilityBinding(null);
+    _hasManualPartnerLppEvidence = false;
     _profile = null;
     _isPartialProfile = false;
     _isLoaded = false;
@@ -3756,6 +3969,14 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.clear(
       partnerAccountabilityBindingStore: _partnerAccountabilityBindingStore,
     );
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _partnerAuthorityInvalidationTimer?.cancel();
+    _partnerAuthorityInvalidationTimer = null;
+    super.dispose();
   }
 }
 

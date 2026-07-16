@@ -1213,6 +1213,8 @@ final _router = GoRouter(
           lppAuthorization: session.lppAuthorization,
           manualPartnerAccountability: session.manualPartnerAccountability,
           taxCandidate: session.taxCandidate,
+          recordConfirmedLppReview:
+              context.read<DocumentProvider>().recordConfirmedLppReview,
         );
       },
     ),
@@ -1776,7 +1778,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.loadSavedKey();
           return provider;
         }),
-        ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
         ChangeNotifierProvider(create: (_) => ScanSessionProvider()),
@@ -1785,6 +1786,16 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.loadFromWizard();
           return provider;
         }),
+        ChangeNotifierProxyProvider<CoachProfileProvider, DocumentProvider>(
+          lazy: false,
+          create: (_) => DocumentProvider(),
+          update: (_, profileProvider, documentProvider) {
+            final provider = documentProvider ?? DocumentProvider();
+            provider.bindLedger(profileProvider);
+            provider.hydrateReferences().ignore();
+            return provider;
+          },
+        ),
         ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>(
           lazy: false,
           create: (_) {
@@ -1853,8 +1864,17 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         // setPayload/consumePayload had 0 caller in prod (docstring claimed
         // MintHomeScreen sets + MintCoachTab reads; neither exists).
         // Panel A P0-5.
-        ChangeNotifierProvider<TimelineProvider>(
-            create: (_) => TimelineProvider()),
+        ChangeNotifierProxyProvider2<CoachProfileProvider, DocumentProvider,
+            TimelineProvider>(
+          lazy: false,
+          create: (_) => TimelineProvider(),
+          update: (_, profileProvider, documentProvider, timelineProvider) {
+            final provider = timelineProvider ?? TimelineProvider();
+            provider.bindLedger(profileProvider);
+            provider.bindDocuments(documentProvider);
+            return provider;
+          },
+        ),
         // Wave A-MINIMAL A2 (2026-04-18): notifications wiring listens
         // to CoachProfileProvider and reschedules coaching reminders
         // when the triad (birthYear + canton + salaireBrutMensuel)

@@ -253,6 +253,26 @@ class LppReviewConfirmation {
   LppEvidenceOwnerKind get subject => authorization.subject;
 }
 
+/// Minimal acknowledgement returned only after a strict LPP snapshot is
+/// durably accepted and published by the ledger.
+///
+/// The receipt deliberately has no JSON representation: document references
+/// persist only its opaque snapshot identity, owner and document kind. Values,
+/// extraction identifiers and source material never cross that boundary.
+final class LppReviewReceipt {
+  LppReviewReceipt({
+    required this.snapshotId,
+    required this.ownerKind,
+    required Set<LppEvidenceFactKey> factKeys,
+  }) : factKeys = Set.unmodifiable(
+          Set<LppEvidenceFactKey>.of(factKeys),
+        );
+
+  final String snapshotId;
+  final LppEvidenceOwnerKind ownerKind;
+  final Set<LppEvidenceFactKey> factKeys;
+}
+
 class LppEvidenceFact {
   const LppEvidenceFact({
     required this.value,

@@ -17,6 +17,7 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/document_service.dart';
@@ -41,6 +42,9 @@ typedef ScanConfirmationSender = Future<void> Function({
   required double overallConfidence,
 });
 
+typedef LppReviewReferenceRecorder = Future<ConfirmedDocumentReference>
+    Function(LppReviewReceipt receipt);
+
 class ExtractionReviewScreen extends StatefulWidget {
   final String scanSessionId;
   final ExtractionResult result;
@@ -53,6 +57,7 @@ class ExtractionReviewScreen extends StatefulWidget {
   final DateTime Function()? now;
   final PartnerAccountabilityBindingStore? partnerBindingStore;
   final PartnerAccountabilityService? partnerAccountabilityService;
+  final LppReviewReferenceRecorder? recordConfirmedLppReview;
 
   const ExtractionReviewScreen({
     super.key,
@@ -67,6 +72,7 @@ class ExtractionReviewScreen extends StatefulWidget {
     this.now,
     this.partnerBindingStore,
     this.partnerAccountabilityService,
+    this.recordConfirmedLppReview,
   });
 
   @override
@@ -102,11 +108,15 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   ScanSessionProvider? _scanSessions;
   bool _transferredToImpact = false;
   bool _partnerReceiptFinalized = false;
+  LppReviewReceipt? _acceptedLppReceipt;
+  LppReviewConfirmation? _acceptedLppConfirmation;
+  int? _acceptedLppPreviousConfidence;
   Future<void>? _partnerCleanup;
   bool _isConfirming = false;
   bool _taxValidationFailed = false;
   bool _lppSourceDateValidationFailed = false;
   bool _lppBalanceValidationFailed = false;
+  bool _lppReferenceFailed = false;
   bool _taxInForceAttested = false;
   bool _federalScopeIncoherent = false;
   late final PartnerAccountabilityBindingStore _partnerBindingStore =
@@ -239,7 +249,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         key: const Key('lpp_review_disabled_recovery'),
       );
     }
-    if (widget.result.documentType == DocumentType.lppCertificate &&
+    if (_acceptedLppReceipt == null &&
+        widget.result.documentType == DocumentType.lppCertificate &&
         (widget.lppCandidate == null ||
             !_isCanonicalLppReview(widget.lppCandidate!) ||
             widget.lppAuthorization == null ||
@@ -350,6 +361,20 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                             key: const Key('lpp_review_balance_error'),
                             style: MintTextStyles.bodyMedium(
                               color: MintColors.error,
+                            ),
+                          ),
+                        ],
+                        if (_lppReferenceFailed) ...[
+                          const SizedBox(height: 12),
+                          MintSurface(
+                            key: const Key('lpp_reference_retry_state'),
+                            tone: MintSurfaceTone.porcelaine,
+                            padding: const EdgeInsets.all(14),
+                            child: Text(
+                              S.of(context)!.lppReferencePersistFailed,
+                              style: MintTextStyles.bodyMedium(
+                                color: MintColors.error,
+                              ),
                             ),
                           ),
                         ],
@@ -548,6 +573,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       label: l10n.lppReviewSourceDate,
       child: TextFormField(
         key: const Key('lpp_review_source_date'),
+        enabled: _acceptedLppReceipt == null,
         controller: _sourceDateController,
         keyboardType: TextInputType.datetime,
         onChanged: (_) {
@@ -1171,7 +1197,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                   key: widget.result.documentType == DocumentType.lppCertificate
                       ? Key('lpp_review_field_edit_${field.fieldName}')
                       : null,
-                  onPressed: () => _editField(field),
+                  onPressed: _acceptedLppReceipt == null
+                      ? () => _editField(field)
+                      : null,
                   icon: const Icon(Icons.edit_outlined, size: 20),
                   color: MintColors.textMuted,
                   tooltip: S.of(context)!.extractionReviewEditTooltip,
@@ -1216,11 +1244,13 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   Widget _buildConfirmButton() {
     final isTax = widget.result.documentType == DocumentType.taxDeclaration;
     final isLpp = widget.result.documentType == DocumentType.lppCertificate;
+    final retryingReference = isLpp && _acceptedLppReceipt != null;
     return Semantics(
       identifier: isTax ? 'tax_review_confirm_cta' : null,
       button: true,
       label: S.of(context)!.docReviewConfirm,
       child: SizedBox(
+        key: retryingReference ? const Key('lpp_reference_retry_cta') : null,
         width: double.infinity,
         height: 56,
         child: FilledButton.icon(
@@ -1232,7 +1262,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           onPressed: _isConfirming ? null : _onConfirmAll,
           icon: const Icon(Icons.check_circle_outline, size: 22),
           label: Text(
-            S.of(context)!.docReviewConfirm,
+            retryingReference
+                ? S.of(context)!.commonRetry
+                : S.of(context)!.docReviewConfirm,
             style: MintTextStyles.titleMedium(color: MintColors.white),
           ),
           style: FilledButton.styleFrom(
@@ -1640,42 +1672,62 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     if (widget.result.documentType == DocumentType.lppCertificate) {
       if (_isConfirming ||
           !FeatureFlags.lppEvidenceIngestionEnabled ||
-          widget.lppCandidate == null ||
-          widget.lppAuthorization == null ||
-          !widget.lppAuthorization!.isValidAt(
-            (widget.now ?? DateTime.now)().toUtc(),
-          ) ||
-          !_partnerAccountabilityStillValid ||
-          !_isCanonicalLppReview(widget.lppCandidate!)) {
+          (_acceptedLppReceipt == null &&
+              (widget.lppCandidate == null ||
+                  !_isCanonicalLppReview(widget.lppCandidate!)))) {
         return;
       }
-      final reviewedFacts = _buildLppReviewedFacts();
-      if (reviewedFacts == null) {
-        setState(() {
-          _taxValidationFailed = true;
-          _lppSourceDateValidationFailed = false;
-          _lppBalanceValidationFailed = false;
-        });
-        return;
-      }
-      if (!LppBalanceCoherence.isCoherent({
-        for (final entry in reviewedFacts.entries) entry.key: entry.value.value,
-      })) {
-        setState(() {
-          _lppBalanceValidationFailed = true;
-          _lppSourceDateValidationFailed = false;
-          _taxValidationFailed = false;
-        });
-        return;
-      }
-      final sourceDate = _validatedLppSourceDate();
-      if (!sourceDate.isValid) {
-        setState(() {
-          _lppSourceDateValidationFailed = true;
-          _lppBalanceValidationFailed = false;
-          _taxValidationFailed = false;
-        });
-        return;
+      LppReviewConfirmation confirmation;
+      var previousConfidence = _acceptedLppPreviousConfidence;
+      if (_acceptedLppReceipt == null) {
+        final authorization = widget.lppAuthorization;
+        if (authorization == null ||
+            !authorization.isValidAt(
+              (widget.now ?? DateTime.now)().toUtc(),
+            ) ||
+            !_partnerAccountabilityStillValid) {
+          return;
+        }
+        final reviewedFacts = _buildLppReviewedFacts();
+        if (reviewedFacts == null || reviewedFacts.isEmpty) {
+          setState(() {
+            _taxValidationFailed = true;
+            _lppSourceDateValidationFailed = false;
+            _lppBalanceValidationFailed = false;
+          });
+          return;
+        }
+        if (!LppBalanceCoherence.isCoherent({
+          for (final entry in reviewedFacts.entries)
+            entry.key: entry.value.value,
+        })) {
+          setState(() {
+            _lppBalanceValidationFailed = true;
+            _lppSourceDateValidationFailed = false;
+            _taxValidationFailed = false;
+          });
+          return;
+        }
+        final sourceDate = _validatedLppSourceDate();
+        if (!sourceDate.isValid) {
+          setState(() {
+            _lppSourceDateValidationFailed = true;
+            _lppBalanceValidationFailed = false;
+            _taxValidationFailed = false;
+          });
+          return;
+        }
+        confirmation = LppReviewConfirmation(
+          facts: reviewedFacts,
+          sourceDate: sourceDate.value,
+          authorization: authorization,
+          partnerAccountabilityContext: widget.manualPartnerAccountability,
+        );
+        final beforeProfile = context.read<CoachProfileProvider>().profile ??
+            CoachProfile.defaults();
+        previousConfidence = _scoreProfile(beforeProfile);
+      } else {
+        confirmation = _acceptedLppConfirmation!;
       }
       setState(() {
         _isConfirming = true;
@@ -1683,33 +1735,43 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         _lppSourceDateValidationFailed = false;
         _lppBalanceValidationFailed = false;
       });
-      if (reviewedFacts.isEmpty) {
-        setState(() {
-          _isConfirming = false;
-          _taxValidationFailed = true;
-        });
-        return;
-      }
-      final confirmation = LppReviewConfirmation(
-        facts: reviewedFacts,
-        sourceDate: sourceDate.value,
-        authorization: widget.lppAuthorization!,
-        partnerAccountabilityContext: widget.manualPartnerAccountability,
-      );
       final coachProvider = context.read<CoachProfileProvider>();
-      final beforeProfile = coachProvider.profile ?? CoachProfile.defaults();
-      final previousConfidence = _scoreProfile(beforeProfile);
-      try {
-        await coachProvider.acceptLppReview(confirmation);
-      } catch (_) {
-        await _cleanupPartnerReceipt();
-        if (mounted) setState(() => _isConfirming = false);
-        return;
+      if (_acceptedLppReceipt == null) {
+        try {
+          _acceptedLppReceipt =
+              await coachProvider.acceptLppReview(confirmation);
+        } catch (_) {
+          await _cleanupPartnerReceipt();
+          if (mounted) setState(() => _isConfirming = false);
+          return;
+        }
+        _acceptedLppConfirmation = confirmation;
+        _acceptedLppPreviousConfidence = previousConfidence;
+        _partnerReceiptFinalized = true;
+        _lppReferenceFailed = false;
       }
-      _partnerReceiptFinalized = true;
+      final referenceRecorder = widget.recordConfirmedLppReview;
+      if (referenceRecorder != null) {
+        try {
+          await referenceRecorder(_acceptedLppReceipt!);
+          if (mounted && _lppReferenceFailed) {
+            setState(() => _lppReferenceFailed = false);
+          }
+        } catch (_) {
+          // The ledger is already authoritative. Keep this screen available
+          // for an idempotent metadata-only retry and never revoke the receipt.
+          if (mounted) {
+            setState(() {
+              _isConfirming = false;
+              _lppReferenceFailed = true;
+            });
+          }
+          return;
+        }
+      }
       final afterProfile = coachProvider.profile ?? CoachProfile.defaults();
       final confidenceDelta =
-          _scoreProfile(afterProfile).toDouble() - previousConfidence;
+          _scoreProfile(afterProfile).toDouble() - previousConfidence!;
       final retained = _scanSessions?.retainImpact(
             widget.scanSessionId,
             extraction: _lppImpactResult(confirmation, confidenceDelta),

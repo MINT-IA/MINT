@@ -46,7 +46,11 @@ void main() {
   // ---------------------------------------------------------------------------
 
   /// Wraps a screen widget with MaterialApp + localization + common providers
-  Widget buildTestableScreen(Widget child) {
+  Widget buildTestableScreen(
+    Widget child, {
+    DocumentProvider? documentProvider,
+    CoachProfileProvider? coachProfileProvider,
+  }) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<ProfileProvider>(create: (_) {
@@ -64,13 +68,21 @@ void main() {
         }),
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
         ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
-        ChangeNotifierProvider<DocumentProvider>(
-            create: (_) => DocumentProvider()),
+        if (documentProvider == null)
+          ChangeNotifierProvider<DocumentProvider>(
+              create: (_) => DocumentProvider())
+        else
+          ChangeNotifierProvider<DocumentProvider>.value(
+              value: documentProvider),
         ChangeNotifierProvider<BudgetProvider>(create: (_) => BudgetProvider()),
         ChangeNotifierProvider<SubscriptionProvider>(
             create: (_) => SubscriptionProvider()),
-        ChangeNotifierProvider<CoachProfileProvider>(
-            create: (_) => CoachProfileProvider()),
+        if (coachProfileProvider == null)
+          ChangeNotifierProvider<CoachProfileProvider>(
+              create: (_) => CoachProfileProvider())
+        else
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: coachProfileProvider),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
         ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
         ChangeNotifierProvider<MintStateProvider>(
@@ -92,6 +104,25 @@ void main() {
         home: child,
       ),
     );
+  }
+
+  Future<void> pumpDocumentDetail(
+    WidgetTester tester,
+    String documentId,
+  ) async {
+    final coachProfileProvider = CoachProfileProvider();
+    final documentProvider = DocumentProvider();
+    addTearDown(coachProfileProvider.dispose);
+    addTearDown(documentProvider.dispose);
+    documentProvider.bindLedger(coachProfileProvider);
+    await documentProvider.hydrateReferences();
+
+    await tester.pumpWidget(buildTestableScreen(
+      DocumentDetailScreen(documentId: documentId),
+      documentProvider: documentProvider,
+      coachProfileProvider: coachProfileProvider,
+    ));
+    await tester.pump();
   }
 
   // ===========================================================================
@@ -149,32 +180,30 @@ void main() {
 
   group('DocumentDetailScreen', () {
     testWidgets('renders without crashing with placeholder', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(
-        const DocumentDetailScreen(documentId: 'test-doc-123'),
-      ));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await pumpDocumentDetail(tester, 'test-doc-123');
 
       expect(find.byType(DocumentDetailScreen), findsOneWidget);
     });
 
     testWidgets('displays Certificat LPP in app bar', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(
-        const DocumentDetailScreen(documentId: 'test-doc-123'),
-      ));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await pumpDocumentDetail(tester, 'test-doc-123');
 
       expect(find.textContaining('Certificat LPP'), findsWidgets);
     });
 
     testWidgets('shows placeholder when document not found', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(
-        const DocumentDetailScreen(documentId: 'nonexistent'),
-      ));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await pumpDocumentDetail(tester, 'nonexistent');
 
-      // When no document found, shows placeholder text
-      expect(find.textContaining('Aucun document'), findsOneWidget);
-      expect(find.byIcon(Icons.description_outlined), findsOneWidget);
+      expect(
+        find.byKey(const Key('document_reference_missing_state')),
+        findsOneWidget,
+      );
+      expect(find.textContaining('introuvable'), findsOneWidget);
+      expect(find.byIcon(Icons.link_off_outlined), findsOneWidget);
+      expect(
+        find.byKey(const Key('document_reference_back_to_documents')),
+        findsOneWidget,
+      );
     });
   });
 

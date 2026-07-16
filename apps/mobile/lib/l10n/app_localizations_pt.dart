@@ -391,6 +391,38 @@ class SPt extends S {
   String get documentsDeleteMessage => 'Esta acao e irreversivel.';
 
   @override
+  String get documentReferenceLoading => 'A carregar a ligação do documento…';
+
+  @override
+  String get documentReferenceLoadFailed =>
+      'Não foi possível carregar a ligação do documento.';
+
+  @override
+  String get documentReferenceStale =>
+      'Esta ligação já não corresponde aos dados confirmados atuais.';
+
+  @override
+  String get documentReferenceMissing =>
+      'Esta ligação de documento não foi encontrada.';
+
+  @override
+  String get documentReferenceBackToDocuments => 'Voltar aos documentos';
+
+  @override
+  String get documentReferenceRemoveButton => 'Remover ligação';
+
+  @override
+  String get documentReferenceRemoveTitle => 'Remover a ligação do documento?';
+
+  @override
+  String get documentReferenceRemoveMessage =>
+      'Apenas a ligação local será removida. Os dados confirmados permanecem guardados no seu perfil.';
+
+  @override
+  String get lppReferencePersistFailed =>
+      'Os dados foram guardados, mas a ligação do documento não foi criada.';
+
+  @override
   String get documentsEmpty => 'Nenhum documento';
 
   @override
@@ -460,6 +492,10 @@ class SPt extends S {
   @override
   String get lppEvidenceDisabilityCapitalLumpSumLabel =>
       'Capital de invalidez pago de uma só vez';
+
+  @override
+  String get lppEvidenceFundReturnRateLabel =>
+      'Rendimento anual do fundo de pensões';
 
   @override
   String get lppReviewSourceDate =>

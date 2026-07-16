@@ -391,6 +391,40 @@ class SIt extends S {
   String get documentsDeleteMessage => 'Questa azione è irreversibile.';
 
   @override
+  String get documentReferenceLoading =>
+      'Caricamento del collegamento al documento…';
+
+  @override
+  String get documentReferenceLoadFailed =>
+      'Impossibile caricare il collegamento al documento.';
+
+  @override
+  String get documentReferenceStale =>
+      'Questo collegamento non corrisponde più ai dati confermati attuali.';
+
+  @override
+  String get documentReferenceMissing =>
+      'Questo collegamento al documento non è stato trovato.';
+
+  @override
+  String get documentReferenceBackToDocuments => 'Torna ai documenti';
+
+  @override
+  String get documentReferenceRemoveButton => 'Rimuovi collegamento';
+
+  @override
+  String get documentReferenceRemoveTitle =>
+      'Rimuovere il collegamento al documento?';
+
+  @override
+  String get documentReferenceRemoveMessage =>
+      'Verrà rimosso solo il collegamento locale. I dati confermati restano salvati nel profilo.';
+
+  @override
+  String get lppReferencePersistFailed =>
+      'I dati sono stati salvati, ma il collegamento al documento non è stato creato.';
+
+  @override
   String get documentsEmpty => 'Nessun documento';
 
   @override
@@ -463,6 +497,10 @@ class SIt extends S {
   @override
   String get lppEvidenceDisabilityCapitalLumpSumLabel =>
       'Capitale d\'invalidità in versamento unico';
+
+  @override
+  String get lppEvidenceFundReturnRateLabel =>
+      'Rendimento annuo della cassa pensione';
 
   @override
   String get lppReviewSourceDate =>

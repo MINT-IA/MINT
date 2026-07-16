@@ -5,12 +5,15 @@
 /// month-grouped timeline for the Aujourd'hui tab.
 library;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/models/tension_card.dart';
 import 'package:mint_mobile/models/timeline_node.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/tension_card_provider.dart';
 import 'package:mint_mobile/services/commitment_service.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
@@ -22,7 +25,7 @@ class _RawTimelineData {
   final List<FreshStartLandmark> landmarks;
   final List<Map<String, dynamic>> conversationEntries;
   final PartnerEstimate? partner;
-  final List<Map<String, dynamic>> documents;
+  final List<ConfirmedDocumentReference> documents;
 
   const _RawTimelineData({
     required this.commitments,
@@ -34,6 +37,15 @@ class _RawTimelineData {
 }
 
 class TimelineProvider extends TensionCardProvider {
+  TimelineProvider({DocumentReferenceStore? documentReferenceStore})
+      : _documentReferenceStore =
+            documentReferenceStore ?? DocumentReferenceStore();
+
+  final DocumentReferenceStore _documentReferenceStore;
+  CoachProfileProvider? _ledger;
+  DocumentProvider? _documents;
+  bool _documentUpdateScheduled = false;
+  bool _disposed = false;
   List<TimelineMonth> _months = [];
   int _visibleCap = 50;
   int _totalNodeCount = 0;
@@ -46,6 +58,42 @@ class TimelineProvider extends TensionCardProvider {
 
   /// Whether at least one node exists.
   bool get hasNodes => _totalNodeCount > 0;
+
+  void bindLedger(CoachProfileProvider ledger) {
+    _ledger = ledger;
+  }
+
+  void bindDocuments(DocumentProvider documents) {
+    if (identical(_documents, documents)) return;
+    _documents?.removeListener(_onDocumentsChanged);
+    _documents = documents;
+    documents.addListener(_onDocumentsChanged);
+    _scheduleDocumentProjection();
+  }
+
+  void _onDocumentsChanged() => _scheduleDocumentProjection();
+
+  void _scheduleDocumentProjection() {
+    if (_documentUpdateScheduled) return;
+    _documentUpdateScheduled = true;
+    scheduleMicrotask(() {
+      _documentUpdateScheduled = false;
+      if (_disposed) return;
+      _rebuildDocumentProjection();
+    });
+  }
+
+  void _rebuildDocumentProjection() {
+    final documents = _documents?.currentReferences ?? const [];
+    final nodes = <TimelineNode>[
+      ..._lastNodes.where((node) => node.type != NodeType.document),
+      ...documents.map(_documentNode),
+    ]..sort((a, b) => b.date.compareTo(a.date));
+    _lastNodes = nodes;
+    _totalNodeCount = nodes.length;
+    _rebuildMonths(nodes);
+    notifyListeners();
+  }
 
   /// Increase visible cap by 20 and regroup.
   void loadMore() {
@@ -113,16 +161,33 @@ class TimelineProvider extends TensionCardProvider {
       // SecureStorage error — graceful null
     }
 
-    List<Map<String, dynamic>> documents = [];
+    List<ConfirmedDocumentReference> documents = const [];
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final docsRaw = prefs.getString('_uploaded_documents');
-      if (docsRaw != null) {
-        final list = jsonDecode(docsRaw) as List<dynamic>;
-        documents = list.cast<Map<String, dynamic>>();
+      final boundDocuments = _documents;
+      if (boundDocuments != null) {
+        documents = boundDocuments.currentReferences;
+      } else {
+        final ledger = _ledger;
+        if (ledger == null || !ledger.isLoaded) {
+          return _RawTimelineData(
+            commitments: commitments,
+            landmarks: landmarks,
+            conversationEntries: conversationEntries,
+            partner: partner,
+            documents: documents,
+          );
+        }
+        final stored = await _documentReferenceStore.load();
+        documents = stored
+            .where(
+              (reference) =>
+                  ledger.currentLppSnapshotId(reference.ownerKind) ==
+                  reference.snapshotId,
+            )
+            .toList(growable: false);
       }
     } catch (_) {
-      // SharedPreferences read error
+      // A malformed/unavailable reference root is an empty document source.
     }
 
     return _RawTimelineData(
@@ -212,36 +277,35 @@ class TimelineProvider extends TensionCardProvider {
 
     // Document nodes
     for (final doc in data.documents) {
-      final id = doc['id'] as String? ?? '';
-      final name = doc['name'] as String? ?? '';
-      final dateStr = doc['uploadedAt'] as String? ?? '';
-      final date = DateTime.tryParse(dateStr) ?? DateTime.now();
-
-      nodes.add(TimelineNode(
-        type: NodeType.document,
-        id: 'document_$id',
-        title: 'timelineDocument',
-        subtitle: name,
-        deepLink: '/explore',
-        date: date,
-        visualState: TensionType.earned,
-      ));
+      nodes.add(_documentNode(doc));
     }
 
     return nodes;
   }
 
+  TimelineNode _documentNode(ConfirmedDocumentReference doc) => TimelineNode(
+        type: NodeType.document,
+        id: 'document_${doc.referenceId}',
+        title: 'timelineDocument',
+        subtitle: '',
+        deepLink: '/documents/${doc.referenceId}',
+        date: doc.confirmedAt,
+        visualState: TensionType.earned,
+      );
+
   // ── Month grouping ────────────────────────────────────────
 
   void _rebuildMonths(List<TimelineNode> allNodes) {
     // Apply cap
-    final visible =
-        allNodes.length > _visibleCap ? allNodes.sublist(0, _visibleCap) : allNodes;
+    final visible = allNodes.length > _visibleCap
+        ? allNodes.sublist(0, _visibleCap)
+        : allNodes;
 
     // Group by year-month
     final groups = <String, List<TimelineNode>>{};
     for (final node in visible) {
-      final key = '${node.date.year}-${node.date.month.toString().padLeft(2, '0')}';
+      final key =
+          '${node.date.year}-${node.date.month.toString().padLeft(2, '0')}';
       groups.putIfAbsent(key, () => []).add(node);
     }
 
@@ -271,10 +335,28 @@ class TimelineProvider extends TensionCardProvider {
   /// Format month label: "Avril 2026"
   String _monthLabel(int year, int month) {
     const months = [
-      '', 'Janvier', 'F\u00e9vrier', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Ao\u00fbt', 'Septembre', 'Octobre', 'Novembre', 'D\u00e9cembre',
+      '',
+      'Janvier',
+      'F\u00e9vrier',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Ao\u00fbt',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'D\u00e9cembre',
     ];
     if (month < 1 || month > 12) return '$year';
     return '${months[month]} $year';
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _documents?.removeListener(_onDocumentsChanged);
+    super.dispose();
   }
 }

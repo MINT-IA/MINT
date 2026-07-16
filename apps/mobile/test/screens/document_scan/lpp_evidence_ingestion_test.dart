@@ -15,6 +15,7 @@ import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
@@ -84,13 +85,15 @@ final class _CoachProfileSpy extends CoachProfileProvider {
   bool _loaded = false;
 
   @override
-  Future<void> acceptLppReview(LppReviewConfirmation confirmation) async {
+  Future<LppReviewReceipt> acceptLppReview(
+    LppReviewConfirmation confirmation,
+  ) async {
     acceptLppReviewCalls += 1;
     if (!_loaded) {
       await loadFromWizard();
       _loaded = true;
     }
-    await super.acceptLppReview(confirmation);
+    return super.acceptLppReview(confirmation);
   }
 }
 
@@ -394,6 +397,8 @@ _ReviewHarness _reviewHarness({
   LppEvidenceOwnerKind subject = LppEvidenceOwnerKind.self,
   PartnerAccountabilityBindingStore? injectedPartnerBindingStore,
   PartnerAccountabilityService? partnerAccountabilityService,
+  LppReviewReferenceRecorder? recordConfirmedLppReview,
+  DateTime Function()? reviewNow,
 }) {
   final persistence = _MemoryLppPersistence(
     failSave: failSave,
@@ -469,9 +474,10 @@ _ReviewHarness _reviewHarness({
           manualPartnerAccountability: retainedPartnerAccountability,
           partnerBindingStore: partnerBindingStore,
           partnerAccountabilityService: partnerAccountabilityService,
+          recordConfirmedLppReview: recordConfirmedLppReview,
           sendScanConfirmation: externalSync.call,
           confidenceScorer: (_) => 42,
-          now: _reviewNow,
+          now: reviewNow ?? _reviewNow,
         ),
       ),
       GoRoute(
@@ -499,7 +505,7 @@ _ReviewHarness _reviewHarness({
   );
   final widget = MultiProvider(
     providers: [
-      ChangeNotifierProvider<CoachProfileProvider>.value(value: coach),
+      ChangeNotifierProvider<CoachProfileProvider>(create: (_) => coach),
       ChangeNotifierProvider<BiographyProvider>.value(value: biography),
       ChangeNotifierProvider<ScanSessionProvider>.value(value: sessions),
     ],
@@ -2538,5 +2544,129 @@ Salaire assuré: CHF 92'000
     expect(find.byKey(const Key('lpp_impact_destination')), findsNothing);
     expect(harness.biography.addFactCalls, 0);
     expect(harness.externalSync.calls, 0);
+  });
+
+  testWidgets(
+      'reference failure keeps accepted ledger and retry does not create a new snapshot',
+      (tester) async {
+    FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.documentLppEvidenceEnabled = true;
+    var referenceAttempts = 0;
+    String? acceptedSnapshotId;
+    final harness = _reviewHarness(
+      extraction: _lppExtraction(),
+      sourceDate: DateTime.utc(2026, 6, 30),
+      recordConfirmedLppReview: (receipt) async {
+        referenceAttempts += 1;
+        acceptedSnapshotId ??= receipt.snapshotId;
+        expect(receipt.snapshotId, acceptedSnapshotId);
+        if (referenceAttempts == 1) {
+          throw StateError('synthetic reference persistence failure');
+        }
+        return ConfirmedDocumentReference(
+          referenceId: '33333333-3333-4333-8333-333333333333',
+          kind: ConfirmedDocumentReference.lppKind,
+          snapshotId: receipt.snapshotId,
+          ownerKind: receipt.ownerKind,
+          confirmedAt: _reviewNow(),
+        );
+      },
+    );
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    await _tapConfirm(tester);
+
+    expect(referenceAttempts, 1);
+    expect(harness.coach.acceptLppReviewCalls, 1);
+    expect(harness.persistence.saveCalls, 1);
+    expect(_strictRoot(harness.persistence)['self']['snapshotId'],
+        acceptedSnapshotId);
+    expect(find.byKey(const Key('lpp_reference_retry_state')), findsOneWidget);
+    expect(find.byKey(const Key('lpp_reference_retry_cta')), findsOneWidget);
+    final editButton = tester.widget<IconButton>(find.byKey(
+      const Key('lpp_review_field_edit_vestedBenefitsCapitalChf'),
+    ));
+    expect(editButton.onPressed, isNull);
+    final sourceDateField = tester.widget<TextFormField>(
+      find.byKey(const Key('lpp_review_source_date')),
+    );
+    expect(sourceDateField.enabled, isFalse);
+    expect(find.byKey(const Key('lpp_impact_destination')), findsNothing);
+
+    await _tapConfirm(tester);
+
+    expect(referenceAttempts, 2);
+    expect(harness.coach.acceptLppReviewCalls, 1);
+    expect(harness.persistence.saveCalls, 1);
+    expect(_strictRoot(harness.persistence)['self']['snapshotId'],
+        acceptedSnapshotId);
+    expect(find.byKey(const Key('lpp_impact_destination')), findsOneWidget);
+  });
+
+  testWidgets(
+      'manual-partner reference failure never revokes finalized receipt or ledger',
+      (tester) async {
+    FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.documentLppEvidenceEnabled = true;
+    FeatureFlags.partnerLppAccountabilityEnabled = true;
+    final bindingStore = PartnerAccountabilityBindingStore(
+      persistence: _shadowedPartnerBindingPersistence(),
+    );
+    final api = _PartnerAccountabilityApiSpy();
+    var now = _reviewNow();
+    var referenceAttempts = 0;
+    final harness = _reviewHarness(
+      extraction: _lppExtraction(),
+      sourceDate: DateTime.utc(2026, 6, 30),
+      subject: LppEvidenceOwnerKind.manualPartner,
+      injectedPartnerBindingStore: bindingStore,
+      partnerAccountabilityService: PartnerAccountabilityService(api: api),
+      reviewNow: () => now,
+      recordConfirmedLppReview: (receipt) async {
+        referenceAttempts += 1;
+        if (referenceAttempts == 1) {
+          throw StateError('synthetic reference persistence failure');
+        }
+        return ConfirmedDocumentReference(
+          referenceId: '44444444-4444-4444-8444-444444444444',
+          kind: ConfirmedDocumentReference.lppKind,
+          snapshotId: receipt.snapshotId,
+          ownerKind: receipt.ownerKind,
+          confirmedAt: now,
+        );
+      },
+    );
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    await _tapConfirm(tester);
+    expect(harness.coach.acceptLppReviewCalls, 1);
+    expect(_strictRoot(harness.persistence)['manualPartner'], isNotNull);
+    expect(find.byKey(const Key('lpp_reference_retry_state')), findsOneWidget);
+
+    now = DateTime.utc(2028, 7, 15, 12);
+    await tester.pump();
+    expect(find.byKey(const Key('lpp_reference_retry_state')), findsOneWidget);
+    expect(find.byKey(const Key('lpp_recovery_destination')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('lpp_reference_retry_cta')));
+    await tester.pumpAndSettle();
+
+    expect(referenceAttempts, 2);
+    expect(harness.coach.acceptLppReviewCalls, 1);
+    expect(find.byKey(const Key('lpp_impact_destination')), findsOneWidget);
+
+    harness.router.go('/home');
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async => Future<void>.delayed(Duration.zero));
+
+    expect(api.deletedEndpoints, isEmpty);
+    final binding = await bindingStore.load();
+    expect(binding.pending, isNull);
+    expect(binding.active?.receiptId, _partnerReceiptId);
+    expect(_strictRoot(harness.persistence)['manualPartner'], isNotNull);
   });
 }

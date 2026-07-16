@@ -392,6 +392,39 @@ class SEs extends S {
   String get documentsDeleteMessage => 'Esta accion es irreversible.';
 
   @override
+  String get documentReferenceLoading => 'Cargando el enlace del documento…';
+
+  @override
+  String get documentReferenceLoadFailed =>
+      'No se ha podido cargar el enlace del documento.';
+
+  @override
+  String get documentReferenceStale =>
+      'Este enlace ya no coincide con los datos confirmados actuales.';
+
+  @override
+  String get documentReferenceMissing =>
+      'No se ha encontrado este enlace de documento.';
+
+  @override
+  String get documentReferenceBackToDocuments => 'Volver a los documentos';
+
+  @override
+  String get documentReferenceRemoveButton => 'Eliminar enlace';
+
+  @override
+  String get documentReferenceRemoveTitle =>
+      '¿Eliminar el enlace del documento?';
+
+  @override
+  String get documentReferenceRemoveMessage =>
+      'Solo se eliminará el enlace local. Los datos confirmados seguirán guardados en tu perfil.';
+
+  @override
+  String get lppReferencePersistFailed =>
+      'Los datos se han guardado, pero no se ha creado el enlace del documento.';
+
+  @override
   String get documentsEmpty => 'Ningun documento';
 
   @override
@@ -461,6 +494,10 @@ class SEs extends S {
   @override
   String get lppEvidenceDisabilityCapitalLumpSumLabel =>
       'Capital de invalidez en pago único';
+
+  @override
+  String get lppEvidenceFundReturnRateLabel =>
+      'Rendimiento anual del fondo de pensiones';
 
   @override
   String get lppReviewSourceDate =>

@@ -390,6 +390,38 @@ class SEn extends S {
   String get documentsDeleteMessage => 'This action cannot be undone.';
 
   @override
+  String get documentReferenceLoading => 'Loading document link…';
+
+  @override
+  String get documentReferenceLoadFailed =>
+      'The document link could not be loaded.';
+
+  @override
+  String get documentReferenceStale =>
+      'This document link no longer matches the current confirmed facts.';
+
+  @override
+  String get documentReferenceMissing =>
+      'This document link could not be found.';
+
+  @override
+  String get documentReferenceBackToDocuments => 'Back to documents';
+
+  @override
+  String get documentReferenceRemoveButton => 'Remove link';
+
+  @override
+  String get documentReferenceRemoveTitle => 'Remove document link?';
+
+  @override
+  String get documentReferenceRemoveMessage =>
+      'Only the local link will be removed. Confirmed facts remain saved in your profile.';
+
+  @override
+  String get lppReferencePersistFailed =>
+      'The facts were saved, but the document link was not created.';
+
+  @override
   String get documentsEmpty => 'No documents';
 
   @override
@@ -459,6 +491,9 @@ class SEn extends S {
   @override
   String get lppEvidenceDisabilityCapitalLumpSumLabel =>
       'Disability capital paid as a lump sum';
+
+  @override
+  String get lppEvidenceFundReturnRateLabel => 'Annual pension fund return';
 
   @override
   String get lppReviewSourceDate =>

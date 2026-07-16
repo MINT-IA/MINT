@@ -392,6 +392,38 @@ class SFr extends S {
   String get documentsDeleteMessage => 'Cette action est irréversible.';
 
   @override
+  String get documentReferenceLoading => 'Chargement du lien documentaire…';
+
+  @override
+  String get documentReferenceLoadFailed =>
+      'Impossible de charger le lien documentaire.';
+
+  @override
+  String get documentReferenceStale =>
+      'Ce lien documentaire n’est plus relié aux faits confirmés actuels.';
+
+  @override
+  String get documentReferenceMissing =>
+      'Ce lien documentaire est introuvable.';
+
+  @override
+  String get documentReferenceBackToDocuments => 'Retour aux documents';
+
+  @override
+  String get documentReferenceRemoveButton => 'Retirer le lien';
+
+  @override
+  String get documentReferenceRemoveTitle => 'Retirer le lien du document ?';
+
+  @override
+  String get documentReferenceRemoveMessage =>
+      'Seul le lien local sera retiré. Les faits confirmés restent conservés dans ton profil.';
+
+  @override
+  String get lppReferencePersistFailed =>
+      'Les faits sont enregistrés, mais le lien du document n’a pas été créé.';
+
+  @override
   String get documentsEmpty => 'Aucun document';
 
   @override
@@ -462,6 +494,9 @@ class SFr extends S {
   @override
   String get lppEvidenceDisabilityCapitalLumpSumLabel =>
       'Capital d\'invalidité versé en une fois';
+
+  @override
+  String get lppEvidenceFundReturnRateLabel => 'Rendement annuel de la caisse';
 
   @override
   String get lppReviewSourceDate =>
