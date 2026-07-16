@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' show SemanticsAction;
@@ -15,10 +16,14 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/providers/timeline_provider.dart';
+import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
+import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,14 +51,31 @@ class _FakeNotificationsPlatform extends FlutterLocalNotificationsPlatform {
 /// this RED contract depend on asynchronous storage races instead of plan
 /// staleness.
 class _TestLedger extends CoachProfileProvider {
-  _TestLedger(this._testProfile);
+  _TestLedger(this._testProfile, {bool isLoaded = true})
+      : _testIsLoaded = isLoaded;
 
-  CoachProfile _testProfile;
+  CoachProfile? _testProfile;
+  bool _testIsLoaded;
+  Completer<Map<String, dynamic>>? _reportAnswersCompleter;
+  int waitForReportAnswersCalls = 0;
   int addListenerCalls = 0;
   int removeListenerCalls = 0;
 
   @override
   CoachProfile? get profile => _testProfile;
+
+  @override
+  bool get isLoaded => _testIsLoaded;
+
+  @override
+  Future<Map<String, dynamic>> waitForReportAnswers({
+    Duration timeout = const Duration(seconds: 8),
+  }) {
+    if (_testIsLoaded) return Future.value(const <String, dynamic>{});
+    waitForReportAnswersCalls++;
+    return (_reportAnswersCompleter ??= Completer<Map<String, dynamic>>())
+        .future;
+  }
 
   @override
   void addListener(VoidCallback listener) {
@@ -70,8 +92,63 @@ class _TestLedger extends CoachProfileProvider {
   @override
   void updateProfile(CoachProfile updated) {
     _testProfile = updated;
+    _testIsLoaded = true;
     notifyListeners();
   }
+
+  void beginLedgerSwitch({CoachProfile? retainedProfile}) {
+    _testProfile = retainedProfile;
+    _testIsLoaded = false;
+    notifyListeners();
+  }
+
+  void completeLedgerSwitch(CoachProfile? profile) {
+    _testProfile = profile;
+    _testIsLoaded = true;
+    final reportAnswersCompleter = _reportAnswersCompleter;
+    if (reportAnswersCompleter != null && !reportAnswersCompleter.isCompleted) {
+      reportAnswersCompleter.complete(const <String, dynamic>{});
+    }
+    notifyListeners();
+  }
+}
+
+class _DeferredLoadPlanProvider extends FinancialPlanProvider {
+  final Completer<void> _loadCompleter = Completer<void>();
+  int loadCalls = 0;
+  int generatedPlanWrites = 0;
+
+  @override
+  Future<void> loadFromPersistence() {
+    loadCalls++;
+    return _loadCompleter.future;
+  }
+
+  @override
+  Future<void> setPlan(FinancialPlan plan) async {
+    generatedPlanWrites++;
+    setPlanDirect(plan);
+  }
+
+  void completeLoadWith(FinancialPlan plan) {
+    setPlanDirect(plan);
+    _loadCompleter.complete();
+  }
+
+  void completeEmptyLoad() {
+    _loadCompleter.complete();
+  }
+}
+
+class _EmptyTimelineProvider extends TimelineProvider {
+  @override
+  bool get isLoading => false;
+
+  @override
+  bool get isEmpty => true;
+
+  @override
+  Future<void> refresh() async {}
 }
 
 CoachProfile _profile({
@@ -153,8 +230,11 @@ FinancialPlan _planFor(
   );
 }
 
-CoachProfileProvider _ledger(CoachProfile profile) {
-  return _TestLedger(profile);
+CoachProfileProvider _ledger(
+  CoachProfile? profile, {
+  bool isLoaded = true,
+}) {
+  return _TestLedger(profile, isLoaded: isLoaded);
 }
 
 Future<void> _pumpFrames(WidgetTester tester, {int frames = 20}) async {
@@ -206,10 +286,51 @@ Widget _planToolHarness({
   );
 }
 
+Widget _localizedHarness(Widget child) {
+  return MaterialApp(
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: const [Locale('fr')],
+    home: Scaffold(body: child),
+  );
+}
+
+Widget _aujourdhuiHarness({
+  required CoachProfileProvider ledger,
+  required FinancialPlanProvider plans,
+  required TimelineProvider timeline,
+}) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<CoachProfileProvider>.value(value: ledger),
+      ChangeNotifierProvider<FinancialPlanProvider>.value(value: plans),
+      ChangeNotifierProvider<TimelineProvider>.value(value: timeline),
+      ChangeNotifierProvider<MintStateProvider>(
+        create: (_) => MintStateProvider(),
+      ),
+    ],
+    child: const MaterialApp(
+      localizationsDelegates: [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [Locale('fr')],
+      home: AujourdhuiScreen(),
+    ),
+  );
+}
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});
+    FlutterLocalNotificationsPlatform.instance = _FakeNotificationsPlatform();
   });
 
   group('versioned canonical financial-plan input fingerprint', () {
@@ -243,6 +364,11 @@ void main() {
         matches(RegExp(r'^mint-plan-input:v1:sha256:[0-9a-f]{64}$')),
       );
       expect(computeProfileHash(second), firstHash);
+      expect(
+        computeProfileHash(_profile()),
+        'mint-plan-input:v1:sha256:'
+        '406afb1a0ab806a7c75cb51b1c0ff549e8c5f6ec0d22674d5f358fdf917b3c32',
+      );
     });
 
     test('salary and canton are live invalidation controls', () {
@@ -510,6 +636,53 @@ void main() {
       expect(plans.isPlanStale, isTrue);
     });
 
+    for (final retainsCachedProfile in [false, true]) {
+      testWidgets(
+          'persisted plan is unknown while ledger is unloaded '
+          '(cached profile: $retainsCachedProfile)', (tester) async {
+        final profile = _profile();
+        final ledger = _ledger(
+          retainsCachedProfile ? profile : null,
+          isLoaded: false,
+        );
+        addTearDown(ledger.dispose);
+        final plans = FinancialPlanProvider()
+          ..setPlanDirect(_planFor(profile, id: 'unloaded-ledger-plan'));
+        addTearDown(plans.dispose);
+
+        plans.attachProfileProvider(ledger);
+        await tester.pump();
+
+        expect(plans.hasPlan, isTrue);
+        expect(
+          plans.isPlanStale,
+          isTrue,
+          reason: 'unhydrated ledger authority must fail closed',
+        );
+      });
+    }
+
+    testWidgets('clearing or switching ledger authority invalidates the plan',
+        (tester) async {
+      final profile = _profile();
+      final ledger = _ledger(profile) as _TestLedger;
+      addTearDown(ledger.dispose);
+      final plans = FinancialPlanProvider()
+        ..setPlanDirect(_planFor(profile, id: 'switch-plan'));
+      addTearDown(plans.dispose);
+      plans.attachProfileProvider(ledger);
+      await tester.pump();
+      expect(plans.isPlanStale, isFalse);
+
+      ledger.beginLedgerSwitch(retainedProfile: profile);
+      await tester.pump();
+      expect(plans.isPlanStale, isTrue);
+
+      ledger.completeLedgerSwitch(null);
+      await tester.pump();
+      expect(plans.isPlanStale, isTrue);
+    });
+
     testWidgets('persistence hydration is idempotent', (tester) async {
       final profile = _profile();
       await FinancialPlanService.save(_planFor(profile));
@@ -574,8 +747,10 @@ void main() {
       final source = File('lib/app.dart').readAsStringSync();
       expect(
         source,
-        contains(
-          'ChangeNotifierProxyProvider<CoachProfileProvider, FinancialPlanProvider>',
+        matches(
+          RegExp(
+            r'ChangeNotifierProxyProvider<\s*CoachProfileProvider,\s*FinancialPlanProvider\s*>',
+          ),
         ),
       );
       expect(
@@ -623,6 +798,116 @@ void main() {
   });
 
   group('fail-closed production plan consumer', () {
+    testWidgets('unloaded ledger never exposes persisted plan figures',
+        (tester) async {
+      final profile = _profile();
+      final ledger = _ledger(null, isLoaded: false);
+      addTearDown(ledger.dispose);
+      final plans = FinancialPlanProvider()
+        ..setPlanDirect(
+          _planFor(profile, id: 'unknown-plan', monthlyTarget: 12345),
+        );
+      addTearDown(plans.dispose);
+      plans.attachProfileProvider(ledger);
+
+      await tester.pumpWidget(_planToolHarness(ledger: ledger, plans: plans));
+      await tester.pump();
+
+      expect(plans.isPlanStale, isTrue);
+      expect(find.byType(PlanPreviewCard), findsNothing);
+      expect(
+        find.bySemanticsIdentifier('financial_plan_stale_state'),
+        findsOneWidget,
+      );
+      for (final forbiddenDigits in [
+        '12345',
+        '400000',
+        '500000',
+        '600000',
+        '99999',
+      ]) {
+        expect(_visibleTextContainsDigits(tester, forbiddenDigits), isFalse);
+      }
+    });
+
+    testWidgets(
+        'pending renderer awaits persistence before considering generation',
+        (tester) async {
+      final profile = _profile();
+      final cachedPlan = _planFor(
+        profile,
+        id: 'hydrated-before-generation',
+        monthlyTarget: 4321,
+      );
+      final ledger = _ledger(profile);
+      addTearDown(ledger.dispose);
+      final plans = _DeferredLoadPlanProvider();
+      addTearDown(plans.dispose);
+
+      await tester.pumpWidget(_planToolHarness(ledger: ledger, plans: plans));
+      await _pumpFrames(tester, frames: 10);
+      final loadCallsBeforeCompletion = plans.loadCalls;
+      final writesBeforeCompletion = plans.generatedPlanWrites;
+
+      plans.completeLoadWith(cachedPlan);
+      await _pumpFrames(tester, frames: 10);
+
+      expect(loadCallsBeforeCompletion, 1);
+      expect(
+        writesBeforeCompletion,
+        0,
+        reason: 'generation must not race a pending persisted-plan read',
+      );
+      expect(plans.currentPlan?.id, 'hydrated-before-generation');
+      expect(plans.generatedPlanWrites, 0);
+      expect(find.byType(PlanPreviewCard), findsOneWidget);
+    });
+
+    for (final retainsCachedProfile in [false, true]) {
+      testWidgets(
+          'empty plan hydration waits for ledger authority '
+          '(cached profile: $retainsCachedProfile)', (tester) async {
+        final profile = _profile();
+        final ledger = _ledger(
+          retainsCachedProfile ? profile : null,
+          isLoaded: false,
+        ) as _TestLedger;
+        addTearDown(ledger.dispose);
+        final plans = _DeferredLoadPlanProvider();
+        addTearDown(plans.dispose);
+
+        await tester.pumpWidget(_planToolHarness(ledger: ledger, plans: plans));
+        await _pumpFrames(tester, frames: 5);
+        final writesBeforePlanHydration = plans.generatedPlanWrites;
+
+        plans.completeEmptyLoad();
+        await _pumpFrames(tester, frames: 5);
+        final writesBeforeLedgerHydration = plans.generatedPlanWrites;
+        final ledgerWaitCalls = ledger.waitForReportAnswersCalls;
+
+        ledger.completeLedgerSwitch(profile);
+        await _pumpFrames(tester, frames: 20);
+
+        expect(plans.loadCalls, 1);
+        expect(
+          writesBeforePlanHydration,
+          0,
+          reason: 'generation must await the persisted-plan read',
+        );
+        expect(ledgerWaitCalls, 1);
+        expect(
+          writesBeforeLedgerHydration,
+          0,
+          reason: 'unloaded ledger facts are not authoritative',
+        );
+        expect(plans.generatedPlanWrites, 1);
+        expect(
+          plans.currentPlan?.profileHashAtGeneration,
+          computeProfileHash(profile),
+        );
+      });
+    }
+
     testWidgets('stale cached figures are suppressed from WidgetRenderer',
         (tester) async {
       final currentProfile = _profile();
@@ -697,8 +982,8 @@ void main() {
       );
       expect(plans.currentPlan?.generatedAt, isNotNull);
       expect(
-        plans.currentPlan!.generatedAt,
-        greaterThan(DateTime.utc(2026, 7, 1)),
+        plans.currentPlan!.generatedAt.isAfter(DateTime.utc(2026, 7, 1)),
+        isTrue,
       );
       expect(plans.currentPlan?.monthlyTarget, isNot(12345));
       expect(plans.currentPlan?.monthlyTarget, isNot(99999));
@@ -706,6 +991,161 @@ void main() {
       expect(plans.currentPlan?.targetDate, DateTime.utc(2045, 6, 1));
       expect(plans.currentPlan?.milestones.last.targetAmount, 500000);
       expect(find.byType(PlanPreviewCard), findsOneWidget);
+    });
+  });
+
+  group('first-class cold financial plan surface', () {
+    testWidgets(
+        'FinancialPlanCard masks every stale figure and exposes recovery ids',
+        (tester) async {
+      final profile = _profile();
+      final plan = _planFor(
+        profile,
+        id: 'home-stale-plan',
+        monthlyTarget: 12345,
+      ).copyWith(
+        milestones: [
+          PlanMilestone(
+            targetDate: DateTime.utc(2044, 3, 1),
+            targetAmount: 777777,
+            description: 'Jalon sentinelle 888888',
+          ),
+        ],
+        projectedLow: 400000,
+        projectedOutcome: 500000,
+        projectedHigh: 600000,
+        targetDate: DateTime.utc(2045, 6, 1),
+        coachNarrative: 'Narration sentinelle confidentielle.',
+      );
+      var stale = false;
+      late StateSetter rebuildCard;
+
+      await tester.pumpWidget(
+        _localizedHarness(
+          StatefulBuilder(
+            builder: (context, setState) {
+              rebuildCard = setState;
+              return FinancialPlanCard(
+                plan: plan,
+                isStale: stale,
+                onRecalculate: (_) {},
+              );
+            },
+          ),
+        ),
+      );
+      await tester.tap(find.byType(TextButton));
+      await tester.pumpAndSettle();
+      expect(_visibleTextContainsDigits(tester, '777777'), isTrue);
+
+      rebuildCard(() => stale = true);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.bySemanticsIdentifier('financial_plan_stale_state'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier('financial_plan_stale_recalculate'),
+        findsOneWidget,
+      );
+      expect(
+        tester
+            .getSemantics(
+              find.bySemanticsIdentifier('financial_plan_stale_recalculate'),
+            )
+            .getSemanticsData()
+            .hasAction(SemanticsAction.tap),
+        isTrue,
+      );
+      for (final forbiddenDigits in [
+        '12345',
+        '400000',
+        '500000',
+        '600000',
+        '777777',
+        '888888',
+        '2044',
+        '2045',
+      ]) {
+        expect(
+          _visibleTextContainsDigits(tester, forbiddenDigits),
+          isFalse,
+          reason: 'stale home plan must hide sentinel $forbiddenDigits',
+        );
+      }
+      expect(
+        find.textContaining('Narration sentinelle confidentielle'),
+        findsNothing,
+      );
+    });
+
+    testWidgets('Aujourdhui renders a persisted stale plan after cold load',
+        (tester) async {
+      final currentProfile = _profile();
+      await FinancialPlanService.save(
+        _planFor(
+          _profile(salary: 7000),
+          id: 'cold-home-plan',
+          monthlyTarget: 12345,
+        ),
+      );
+      final ledger = _ledger(currentProfile);
+      addTearDown(ledger.dispose);
+      final plans = FinancialPlanProvider();
+      addTearDown(plans.dispose);
+      plans.attachProfileProvider(ledger);
+      await plans.loadFromPersistence();
+      final timeline = _EmptyTimelineProvider();
+      addTearDown(timeline.dispose);
+
+      await tester.pumpWidget(
+        _aujourdhuiHarness(
+          ledger: ledger,
+          plans: plans,
+          timeline: timeline,
+        ),
+      );
+      await tester.pump();
+
+      expect(plans.currentPlan?.id, 'cold-home-plan');
+      expect(plans.isPlanStale, isTrue);
+      expect(find.byType(FinancialPlanCard), findsOneWidget);
+      expect(
+        find.bySemanticsIdentifier('financial_plan_stale_state'),
+        findsOneWidget,
+      );
+      expect(_visibleTextContainsDigits(tester, '12345'), isFalse);
+
+      final recovery = find.bySemanticsIdentifier(
+        'financial_plan_stale_recalculate',
+      );
+      expect(recovery, findsOneWidget);
+      expect(
+        tester
+            .getSemantics(recovery)
+            .getSemanticsData()
+            .hasAction(SemanticsAction.tap),
+        isTrue,
+      );
+
+      await tester.tap(recovery);
+      await _pumpFrames(tester, frames: 40);
+
+      expect(plans.currentPlan?.id, isNot('cold-home-plan'));
+      expect(
+        plans.currentPlan?.profileHashAtGeneration,
+        computeProfileHash(currentProfile),
+      );
+      expect(plans.isPlanStale, isFalse);
+      expect(plans.currentPlan?.monthlyTarget, isNot(12345));
+      expect(plans.currentPlan?.monthlyTarget, isNot(99999));
+      expect(plans.currentPlan?.goalDescription, 'Objectif synthétique');
+      expect(plans.currentPlan?.goalCategory, 'goal_retirement_plan');
+      expect(plans.currentPlan?.targetDate, DateTime.utc(2045, 6, 1));
+      expect(plans.currentPlan?.milestones.last.targetAmount, 500000);
+      expect(_visibleTextContainsDigits(tester, '12345'), isFalse);
+      expect(_visibleTextContainsDigits(tester, '99999'), isFalse);
     });
   });
 }
