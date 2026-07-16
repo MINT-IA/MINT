@@ -93,6 +93,7 @@ else
 fi
 command -v xcrun >/dev/null 2>&1 || die "xcrun is required"
 command -v xcodebuild >/dev/null 2>&1 || die "xcodebuild is required"
+command -v flutter >/dev/null 2>&1 || die "flutter is required"
 command -v find >/dev/null 2>&1 || die "find is required"
 command -v python3 >/dev/null 2>&1 || die "python3 is required"
 
@@ -100,13 +101,15 @@ mkdir -p "$artifacts"
 artifacts="$(cd "$artifacts" && pwd)"
 metadata="$artifacts/metadata.json"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-mode="patrol_build_xcode_test_without_building"
+mode="patrol_build_xcode_test_without_building_then_production_install"
 write_build_exit_code=""
 write_exit_code=""
 launch_exit_code=""
 terminate_exit_code=""
 read_build_exit_code=""
 read_exit_code=""
+production_build_exit_code=""
+production_install_exit_code=""
 maestro_exit_code=""
 cleanup_status="pending"
 runtime_completed=false
@@ -197,6 +200,8 @@ write_metadata() {
   MINT_META_TERMINATE="$terminate_exit_code" \
   MINT_META_READ_BUILD="$read_build_exit_code" \
   MINT_META_READ="$read_exit_code" \
+  MINT_META_PRODUCTION_BUILD="$production_build_exit_code" \
+  MINT_META_PRODUCTION_INSTALL="$production_install_exit_code" \
   MINT_META_MAESTRO="$maestro_exit_code" \
   MINT_META_CLEANUP="$cleanup_status" \
   MINT_META_BUILD_ENABLED="$build_isolation_enabled" \
@@ -228,6 +233,8 @@ payload = {
     "terminate_exit_code": code("MINT_META_TERMINATE"),
     "read_build_exit_code": code("MINT_META_READ_BUILD"),
     "read_exit_code": code("MINT_META_READ"),
+    "production_build_exit_code": code("MINT_META_PRODUCTION_BUILD"),
+    "production_install_exit_code": code("MINT_META_PRODUCTION_INSTALL"),
     "maestro_exit_code": code("MINT_META_MAESTRO"),
     "cleanup_status": os.environ["MINT_META_CLEANUP"],
     "build_isolation": {
@@ -246,6 +253,8 @@ payload = {
         "terminate.log",
         "read-build.log",
         "read.log",
+        "production-build.log",
+        "production-install.log",
         "maestro.log",
         "maestro-report.sanitized.xml",
     ],
@@ -267,7 +276,9 @@ cleanup() {
   if [[ "$artifact_cleanup_failed" == true ]]; then
     cleanup_failed=1
   fi
-  for log_stem in write-build write launch terminate read-build read maestro; do
+  for log_stem in \
+    write-build write launch terminate read-build read \
+    production-build production-install maestro; do
     raw_log="$artifacts/$log_stem.raw.log"
     if [[ -e "$raw_log" || -L "$raw_log" ]]; then
       if ! sanitize_log "$raw_log" "$artifacts/$log_stem.log"; then
@@ -395,6 +406,33 @@ inspect_patrol_build() {
   [[ -n "$xctestrun" && -f "$xctestrun" ]] \
     || die "$stage xctestrun is missing"
   printf -v "${stage}_xctestrun" '%s' "$xctestrun"
+}
+
+inspect_production_app() {
+  local runner_executable="$production_app/Runner"
+  local info_plist="$production_app/Info.plist"
+  local asset_manifest="$production_app/Frameworks/App.framework/flutter_assets/AssetManifest.bin"
+
+  [[ -x "$runner_executable" ]] \
+    || die "production Runner executable is missing"
+  [[ -s "$info_plist" ]] || die "production Info.plist is missing or empty"
+  if ! python3 - "$info_plist" "$bundle_id" <<'PY'
+import plistlib
+import sys
+
+
+try:
+    with open(sys.argv[1], "rb") as handle:
+        payload = plistlib.load(handle)
+except (OSError, plistlib.InvalidFileException, ValueError, TypeError):
+    raise SystemExit(1)
+raise SystemExit(0 if payload.get("CFBundleIdentifier") == sys.argv[2] else 1)
+PY
+  then
+    die "production CFBundleIdentifier mismatch"
+  fi
+  [[ -s "$asset_manifest" ]] \
+    || die "production AssetManifest.bin is missing or empty"
 }
 
 run_xcode_test() {
@@ -531,6 +569,50 @@ fi
   || die "read build log sanitization failed"
 inspect_patrol_build "read"
 run_xcode_test "read"
+exact_sha_guard
+
+# The reader xcode test leaves the Patrol test entrypoint installed. Rebuild
+# lib/main.dart in a fresh disposable tree and install it over the same app
+# container so Maestro observes production UI without clearing persisted data.
+[[ -L "$mobile_build" && "$(readlink "$mobile_build")" == "$external_build" ]] \
+  || die "external build isolation drifted before production build"
+rm -rf -- "$external_build"
+mkdir -p "$external_build"
+assert_external_build_empty "production"
+production_app="$external_build/ios/iphonesimulator/Runner.app"
+
+set +e
+(cd "$mobile_root" && \
+  flutter build ios --simulator --debug --target lib/main.dart) \
+  >"$artifacts/production-build.raw.log" 2>&1
+production_build_exit_code=$?
+set -e
+sanitize_stage_log \
+  "$artifacts/production-build.raw.log" \
+  "$artifacts/production-build.log"
+if [[ "$production_build_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: production build stage failed ($production_build_exit_code)" >&2
+  exit "$production_build_exit_code"
+fi
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "production build log sanitization failed"
+inspect_production_app
+exact_sha_guard
+
+set +e
+xcrun simctl install "$device" "$production_app" \
+  >"$artifacts/production-install.raw.log" 2>&1
+production_install_exit_code=$?
+set -e
+sanitize_stage_log \
+  "$artifacts/production-install.raw.log" \
+  "$artifacts/production-install.log"
+if [[ "$production_install_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: production install stage failed ($production_install_exit_code)" >&2
+  exit "$production_install_exit_code"
+fi
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "production install log sanitization failed"
 exact_sha_guard
 
 set +e

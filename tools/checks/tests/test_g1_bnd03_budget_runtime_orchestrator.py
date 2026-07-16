@@ -49,6 +49,8 @@ def _fake_runtime(
     terminate_exit: int = 0,
     read_build_exit: int = 0,
     read_exit: int = 0,
+    production_build_exit: int = 0,
+    production_install_exit: int = 0,
     maestro_exit: int = 0,
     maestro_report: bool = True,
     maestro_invalid_xml: bool = False,
@@ -59,6 +61,7 @@ def _fake_runtime(
     bundle_as_directory: bool = False,
     bundle_tracked: bool = False,
     patrol_sleep: int = 0,
+    flutter_sleep: int = 0,
     product_failure: str = "",
 ) -> dict[str, str]:
     repo = tmp_path / "repo"
@@ -95,6 +98,7 @@ def _fake_runtime(
     fake_git = fake_bin / "git"
     fake_patrol = fake_bin / "patrol"
     fake_xcodebuild = fake_bin / "xcodebuild"
+    fake_flutter = fake_bin / "flutter"
     fake_xcrun = fake_bin / "xcrun"
     fake_maestro = fake_bin / "maestro-runner"
     default_maestro = simulator / "maestro_env.sh"
@@ -195,16 +199,63 @@ def _fake_runtime(
         'exit "$MINT_TEST_READ_EXIT"\n',
     )
     _write_executable(
+        fake_flutter,
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        'build_target="$(readlink build 2>/dev/null || true)"\n'
+        'printf \'flutter cwd=%s build=%s args=%s\\n\' "$PWD" "$build_target" "$*" >> "$MINT_TEST_CALLS"\n'
+        '[[ "$*" == "build ios --simulator --debug --target lib/main.dart" ]] || exit 93\n'
+        '[[ "$*" != *"MINT_PATROL_CLI"* && "$*" != *"test_bundle"* ]] || exit 94\n'
+        '[[ -L build && -d "$build_target" ]] || exit 95\n'
+        'case "$build_target" in "$MINT_TEST_REPO"/*) exit 96 ;; esac\n'
+        '[[ -z "$(find build -mindepth 1 -print -quit)" ]] || exit 97\n'
+        'printf \'production repo=%s external=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$build_target" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
+        'app=build/ios/iphonesimulator/Runner.app\n'
+        'asset_dir="$app/Frameworks/App.framework/flutter_assets"\n'
+        'mkdir -p "$asset_dir"\n'
+        'if [[ "$MINT_TEST_PRODUCT_FAILURE" != "production-runner" ]]; then\n'
+        '  printf \'production runner\\n\' > "$app/Runner"\n'
+        '  chmod +x "$app/Runner"\n'
+        'fi\n'
+        'MINT_FAKE_PLIST_BUNDLE="$MINT_TEST_BUNDLE_ID"\n'
+        'if [[ "$MINT_TEST_PRODUCT_FAILURE" == "production-plist" ]]; then MINT_FAKE_PLIST_BUNDLE=ch.mint.wrong; fi\n'
+        'MINT_FAKE_PLIST_BUNDLE="$MINT_FAKE_PLIST_BUNDLE" python3 - "$app/Info.plist" <<\'PY\'\n'
+        "import os\n"
+        "import plistlib\n"
+        "import sys\n"
+        "\n"
+        "with open(sys.argv[1], 'wb') as handle:\n"
+        "    plistlib.dump({'CFBundleIdentifier': os.environ['MINT_FAKE_PLIST_BUNDLE']}, handle)\n"
+        "PY\n"
+        'if [[ "$MINT_TEST_PRODUCT_FAILURE" == "production-asset" ]]; then\n'
+        '  : > "$asset_dir/AssetManifest.bin"\n'
+        'else\n'
+        '  printf \'production assets\\n\' > "$asset_dir/AssetManifest.bin"\n'
+        'fi\n'
+        'if [[ "$MINT_TEST_FLUTTER_SLEEP" -gt 0 ]]; then sleep "$MINT_TEST_FLUTTER_SLEEP"; fi\n'
+        'exit "$MINT_TEST_PRODUCTION_BUILD_EXIT"\n',
+    )
+    _write_executable(
         fake_xcrun,
         "#!/usr/bin/env bash\n"
         'printf \'xcrun %s\\n\' "$*" >> "$MINT_TEST_CALLS"\n'
         'if [[ "${2:-}" == "launch" ]]; then exit "$MINT_TEST_LAUNCH_EXIT"; fi\n'
         'if [[ "${2:-}" == "terminate" ]]; then exit "$MINT_TEST_TERMINATE_EXIT"; fi\n'
+        'if [[ "${2:-}" == "install" ]]; then\n'
+        '  [[ -d "${4:-}" && -x "${4:-}/Runner" ]] || exit 94\n'
+        '  [[ -s "$MINT_TEST_DEVICE_STATE" ]] || exit 95\n'
+        '  printf \'install app=%s repo=%s home=%s device=%s temp=%s\\n\' "${4:-}" "$MINT_TEST_REPO" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
+        '  if [[ "$MINT_TEST_PRODUCTION_INSTALL_EXIT" != "0" ]]; then exit "$MINT_TEST_PRODUCTION_INSTALL_EXIT"; fi\n'
+        '  printf \'production entrypoint installed\\n\' > "$MINT_TEST_PRODUCTION_INSTALLED"\n'
+        '  exit 0\n'
+        'fi\n'
         "exit 92\n",
     )
     _write_executable(
         fake_maestro,
         "#!/usr/bin/env bash\n"
+        '[[ -s "$MINT_TEST_DEVICE_STATE" ]] || exit 97\n'
+        '[[ -s "$MINT_TEST_PRODUCTION_INSTALLED" ]] || exit 98\n'
         'printf \'maestro %s\\n\' "$*" >> "$MINT_TEST_CALLS"\n'
         'output=""\n'
         'previous=""\n'
@@ -235,6 +286,8 @@ def _fake_runtime(
         "MINT_TEST_TERMINATE_EXIT": str(terminate_exit),
         "MINT_TEST_READ_BUILD_EXIT": str(read_build_exit),
         "MINT_TEST_READ_EXIT": str(read_exit),
+        "MINT_TEST_PRODUCTION_BUILD_EXIT": str(production_build_exit),
+        "MINT_TEST_PRODUCTION_INSTALL_EXIT": str(production_install_exit),
         "MINT_TEST_MAESTRO_EXIT": str(maestro_exit),
         "MINT_TEST_MAESTRO_REPORT": "1" if maestro_report else "0",
         "MINT_TEST_MAESTRO_INVALID_XML": "1" if maestro_invalid_xml else "0",
@@ -245,9 +298,13 @@ def _fake_runtime(
         "MINT_TEST_BUNDLE_AS_DIRECTORY": "1" if bundle_as_directory else "0",
         "MINT_TEST_BUNDLE_TRACKED": "0" if bundle_tracked else "1",
         "MINT_TEST_PATROL_SLEEP": str(patrol_sleep),
+        "MINT_TEST_FLUTTER_SLEEP": str(flutter_sleep),
         "MINT_TEST_PRODUCT_FAILURE": product_failure,
         "MINT_TEST_BUNDLE_ID": BUNDLE_ID,
         "MINT_TEST_DEVICE_STATE": str(tmp_path / "device-state.txt"),
+        "MINT_TEST_PRODUCTION_INSTALLED": str(
+            tmp_path / "production-installed.txt"
+        ),
         "MINT_TEST_DEFAULT_MAESTRO": str(fake_maestro),
         "MINT_TEST_PRIVATE_TEMP": "/private/var/folders/aa/bb/T/mint-bnd03",
     }
@@ -400,7 +457,7 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     assert "backup collision" in orchestrator
     assert "trap 'exit 143' TERM" in orchestrator
     assert orchestrator.count('"$patrol_bin" --verbose build ios') == 2
-    assert orchestrator.count("--simulator") == 2
+    assert orchestrator.count("--simulator") == 3
     assert "--no-uninstall" not in orchestrator
     assert "--verbose test" not in orchestrator
     assert orchestrator.count("xcodebuild test-without-building") == 1
@@ -409,10 +466,29 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     assert orchestrator.count('-only-testing "RunnerUITests/RunnerUITests"') == 1
     assert 'result_bundle="$external_build/$stage.xcresult"' in orchestrator
     assert '$artifacts/$stage.xcresult' not in orchestrator
+    assert orchestrator.count(
+        "flutter build ios --simulator --debug --target lib/main.dart"
+    ) == 1
+    assert orchestrator.count(
+        'xcrun simctl install "$device" "$production_app"'
+    ) == 1
+    assert "simctl uninstall" not in orchestrator
+    assert "clearState" not in orchestrator
+    assert 'production_app="$external_build/ios/iphonesimulator/Runner.app"' in orchestrator
+    assert "CFBundleIdentifier" in orchestrator
+    assert "production AssetManifest.bin is missing or empty" in orchestrator
+    production_build = re.search(
+        r"flutter build ios.*?(?=\n\s*>|\n\s*production_build_exit_code)",
+        orchestrator,
+        re.DOTALL,
+    )
+    assert production_build is not None
+    assert "MINT_PATROL_CLI" not in production_build.group(0)
     assert "Runner.app" in orchestrator
     assert "AssetManifest.bin" in orchestrator
     assert "*.xctestrun" in orchestrator
     assert "command -v xcodebuild" in orchestrator
+    assert "command -v flutter" in orchestrator
     assert "command -v find" in orchestrator
     assert "command -v python3" in orchestrator
     assert "retry" not in orchestrator.lower()
@@ -441,7 +517,7 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     ).exists()
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8").splitlines()
     runtime_calls = [line for line in calls if not line.startswith("git ")]
-    assert len(runtime_calls) == 7
+    assert len(runtime_calls) == 9
     assert "write_runtime" in runtime_calls[0]
     patrol_calls = [line for line in runtime_calls if line.startswith("patrol ")]
     assert len(patrol_calls) == 2
@@ -473,7 +549,16 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert runtime_calls[2] == f"xcrun simctl launch {SYNTHETIC_UDID} {BUNDLE_ID}"
     assert runtime_calls[3] == f"xcrun simctl terminate {SYNTHETIC_UDID} {BUNDLE_ID}"
     assert "read_runtime" in runtime_calls[4]
-    assert "g1_bnd03_budget_cold.yaml" in runtime_calls[6]
+    assert runtime_calls[6].startswith("flutter ")
+    assert "args=build ios --simulator --debug --target lib/main.dart" in runtime_calls[6]
+    assert "MINT_PATROL_CLI" not in runtime_calls[6]
+    assert "test_bundle" not in runtime_calls[6]
+    production_app = external_target / "ios/iphonesimulator/Runner.app"
+    assert runtime_calls[7] == (
+        f"xcrun simctl install {SYNTHETIC_UDID} {production_app}"
+    )
+    assert "uninstall" not in "\n".join(runtime_calls)
+    assert "g1_bnd03_budget_cold.yaml" in runtime_calls[8]
 
     metadata = json.loads(
         (tmp_path / "artifacts/metadata.json").read_text(encoding="utf-8")
@@ -482,13 +567,17 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert metadata["sha"] == SYNTHETIC_SHA
     assert metadata["synthetic_data_only"] is True
     assert metadata["private_fixture_used"] is False
-    assert metadata["mode"] == "patrol_build_xcode_test_without_building"
+    assert metadata["mode"] == (
+        "patrol_build_xcode_test_without_building_then_production_install"
+    )
     assert metadata["write_build_exit_code"] == 0
     assert metadata["write_exit_code"] == 0
     assert metadata["launch_exit_code"] == 0
     assert metadata["terminate_exit_code"] == 0
     assert metadata["read_build_exit_code"] == 0
     assert metadata["read_exit_code"] == 0
+    assert metadata["production_build_exit_code"] == 0
+    assert metadata["production_install_exit_code"] == 0
     assert metadata["maestro_exit_code"] == 0
     assert metadata["cleanup_status"] == "passed"
     assert metadata["build_isolation"] == {
@@ -525,6 +614,8 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
         artifacts / "write.log",
         artifacts / "read-build.log",
         artifacts / "read.log",
+        artifacts / "production-build.log",
+        artifacts / "production-install.log",
     ):
         text = patrol_log.read_text(encoding="utf-8")
         assert "REDACTED_REPO" in text
@@ -604,7 +695,17 @@ def test_budget_orchestrator_rejects_invalid_sanitized_junit(
         ({"terminate_exit": 10}, "terminate stage failed", "read_runtime"),
         ({"read_build_exit": 11}, "read build stage failed", "read.xcresult"),
         ({"read_exit": 12}, "read test stage failed", "maestro "),
-        ({"maestro_exit": 13}, "Maestro stage failed", "PASS"),
+        (
+            {"production_build_exit": 13},
+            "production build stage failed",
+            "xcrun simctl install",
+        ),
+        (
+            {"production_install_exit": 14},
+            "production install stage failed",
+            "maestro ",
+        ),
+        ({"maestro_exit": 15}, "Maestro stage failed", "PASS"),
     ],
 )
 def test_budget_orchestrator_fails_closed(
@@ -635,11 +736,29 @@ def test_budget_orchestrator_fails_closed(
 
 
 @pytest.mark.parametrize(
-    ("product_failure", "expected", "xcodebuild_count"),
+    ("product_failure", "expected", "xcodebuild_count", "install_count"),
     [
-        ("write-runner", "write Runner.app is missing", 0),
-        ("write-xctestrun", "write xctestrun is missing", 0),
-        ("read-asset", "read AssetManifest.bin is missing or empty", 1),
+        ("write-runner", "write Runner.app is missing", 0, 0),
+        ("write-xctestrun", "write xctestrun is missing", 0, 0),
+        ("read-asset", "read AssetManifest.bin is missing or empty", 1, 0),
+        (
+            "production-runner",
+            "production Runner executable is missing",
+            2,
+            0,
+        ),
+        (
+            "production-plist",
+            "production CFBundleIdentifier mismatch",
+            2,
+            0,
+        ),
+        (
+            "production-asset",
+            "production AssetManifest.bin is missing or empty",
+            2,
+            0,
+        ),
     ],
 )
 def test_budget_orchestrator_rejects_incomplete_patrol_build_products(
@@ -647,6 +766,7 @@ def test_budget_orchestrator_rejects_incomplete_patrol_build_products(
     product_failure: str,
     expected: str,
     xcodebuild_count: int,
+    install_count: int,
 ) -> None:
     env = _fake_runtime(tmp_path, product_failure=product_failure)
     mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
@@ -659,6 +779,7 @@ def test_budget_orchestrator_rejects_incomplete_patrol_build_products(
     assert expected in result.stderr
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8")
     assert calls.count("xcodebuild test-without-building") == xcodebuild_count
+    assert calls.count("xcrun simctl install") == install_count
     artifacts = tmp_path / "artifacts"
     assert not list(artifacts.glob("*.raw.log"))
     assert not list(artifacts.glob("*.xcresult"))
@@ -905,6 +1026,77 @@ def test_budget_orchestrator_restores_original_build_on_term_signal(
     write_log = artifacts / "write-build.log"
     assert write_log.is_file()
     sanitized = write_log.read_text(encoding="utf-8")
+    for private in (
+        env["MINT_TEST_REPO"],
+        env["HOME"],
+        SYNTHETIC_UDID,
+        env["MINT_TEST_PRIVATE_TEMP"],
+        external_root,
+    ):
+        assert private not in sanitized
+
+
+def test_budget_orchestrator_sanitizes_production_build_on_term_signal(
+    tmp_path: Path,
+) -> None:
+    env = _fake_runtime(tmp_path, flutter_sleep=30)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
+    artifacts = tmp_path / "artifacts"
+    calls_path = tmp_path / "calls.log"
+    process = subprocess.Popen(
+        [
+            "bash",
+            str(ORCHESTRATOR),
+            "--device",
+            SYNTHETIC_UDID,
+            "--bundle-id",
+            BUNDLE_ID,
+            "--sha",
+            SYNTHETIC_SHA,
+            "--artifacts",
+            str(artifacts),
+        ],
+        cwd=ROOT,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+    )
+    raw_log = artifacts / "production-build.raw.log"
+    deadline = time.monotonic() + 10
+    flutter_call = ""
+    while time.monotonic() < deadline:
+        if process.poll() is not None:
+            break
+        if calls_path.exists():
+            flutter_call = next(
+                (
+                    line
+                    for line in calls_path.read_text(encoding="utf-8").splitlines()
+                    if line.startswith("flutter ")
+                ),
+                "",
+            )
+        if flutter_call and raw_log.is_file() and raw_log.stat().st_size > 0:
+            break
+        time.sleep(0.05)
+    assert flutter_call, process.communicate(timeout=2)
+    assert raw_log.is_file() and raw_log.stat().st_size > 0
+    external_target_match = re.search(r" build=([^ ]+) args=", flutter_call)
+    assert external_target_match is not None
+    external_root = str(Path(external_target_match.group(1)).parent)
+
+    os.killpg(process.pid, signal.SIGTERM)
+    stdout, stderr = process.communicate(timeout=10)
+
+    assert process.returncode == 143, stdout + stderr
+    _assert_original_build_restored(env, original_inode)
+    assert not list(artifacts.glob("*.raw.log"))
+    assert not Path(env["MINT_TEST_PRODUCTION_INSTALLED"]).exists()
+    assert "maestro " not in calls_path.read_text(encoding="utf-8")
+    sanitized = (artifacts / "production-build.log").read_text(encoding="utf-8")
     for private in (
         env["MINT_TEST_REPO"],
         env["HOME"],
