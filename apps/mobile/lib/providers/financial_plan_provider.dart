@@ -6,25 +6,20 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
-//  FinancialPlanProvider — Reactive state for the current financial plan
-//
-//  Exposes:
-//    - currentPlan: the current persisted FinancialPlan (or null)
-//    - hasPlan: true if a plan is loaded
-//    - isPlanStale: true if the CoachProfile hash has changed since generation
-//
-//  Staleness detection uses computeProfileHash() — a deterministic polynomial
-//  hash that does NOT use Object.hash (unstable across sessions).
-//
-//  setState-during-build is avoided by calling notifyListeners() inside
-//  SchedulerBinding.addPostFrameCallback when triggered from a profile listener.
+//  FinancialPlanProvider — persisted plan + live ledger staleness boundary
 // ────────────────────────────────────────────────────────────────────────────
 
 class FinancialPlanProvider extends ChangeNotifier {
   FinancialPlan? _currentPlan;
   bool _isStale = false;
+  bool _disposed = false;
 
-  // ── Public getters ──────────────────────────────────────────────────────
+  CoachProfileProvider? _profileProvider;
+  Future<void>? _loadFuture;
+  Future<void> _saveQueue = Future<void>.value();
+  int _stateRevision = 0;
+  int _notificationGeneration = 0;
+  bool _notificationScheduled = false;
 
   /// The currently loaded plan, or null if no plan exists.
   FinancialPlan? get currentPlan => _currentPlan;
@@ -32,86 +27,162 @@ class FinancialPlanProvider extends ChangeNotifier {
   /// True if a plan is loaded.
   bool get hasPlan => _currentPlan != null;
 
-  /// True if the CoachProfile has changed since the plan was generated.
+  /// True if the plan fingerprint differs from the bound ledger snapshot.
   bool get isPlanStale => _isStale;
 
-  // ── Actions ──────────────────────────────────────────────────────────────
-
-  /// Load the newest persisted plan from SharedPreferences.
-  Future<void> loadFromPersistence() async {
-    _currentPlan = await FinancialPlanService.loadCurrent();
-    notifyListeners();
+  /// Hydrates the newest persisted plan exactly once for this provider.
+  ///
+  /// A plan written after hydration starts wins over the late disk read. Once
+  /// loaded, the persisted fingerprint is immediately reconciled with the
+  /// currently bound profile, including on cold start.
+  Future<void> loadFromPersistence() {
+    return _loadFuture ??= _hydrateFromPersistence();
   }
 
-  /// Save [plan] via [FinancialPlanService], set as current, and clear stale flag.
+  Future<void> _hydrateFromPersistence() async {
+    final revisionAtStart = _stateRevision;
+    final persisted = await FinancialPlanService.loadCurrent();
+    if (_disposed || revisionAtStart != _stateRevision) return;
+
+    _currentPlan = persisted;
+    _isStale = _isMismatchWithBoundLedger(persisted);
+    _notifyImmediately();
+  }
+
+  /// Persists [plan], then publishes it only if no newer plan operation won.
+  ///
+  /// Saves are serialized so concurrent generations cannot leave an older
+  /// invocation as the newest record on disk. The bound ledger is checked
+  /// again after the write, because profile facts may change during generation.
   Future<void> setPlan(FinancialPlan plan) async {
-    await FinancialPlanService.save(plan);
+    final operationRevision = ++_stateRevision;
+    final previousSave = _saveQueue;
+    final operation = _persistAfter(previousSave, plan);
+    _saveQueue = operation;
+
+    await operation;
+    if (_disposed || operationRevision != _stateRevision) return;
+
     _currentPlan = plan;
-    _isStale = false;
-    notifyListeners();
+    _isStale = _isMismatchWithBoundLedger(plan);
+    _notifyImmediately();
   }
 
-  /// Clear the current plan and reset stale state. Does not delete persistence.
+  Future<void> _persistAfter(
+    Future<void> previousSave,
+    FinancialPlan plan,
+  ) async {
+    try {
+      await previousSave;
+    } catch (_) {
+      // A failed older write must not permanently poison the save queue.
+    }
+    await FinancialPlanService.save(plan);
+  }
+
+  /// Clear the in-memory plan and reset stale state.
+  ///
+  /// Persistence remains intact for backward compatibility with existing
+  /// callers; a future provider instance may hydrate it again.
   void clearPlan() {
+    _stateRevision++;
     _currentPlan = null;
     _isStale = false;
-    notifyListeners();
+    _notifyImmediately();
   }
 
-  /// Mark the current plan as stale (profile changed).
+  /// Explicitly fail closed for a loaded plan.
   void markStale() {
-    if (!_isStale) {
+    if (_currentPlan != null && !_isStale) {
       _isStale = true;
-      notifyListeners();
+      _notifyImmediately();
     }
   }
 
-  // ── Profile staleness detection ─────────────────────────────────────────
-
-  /// Attach to a [CoachProfileProvider] to auto-detect staleness.
+  /// Bind staleness detection to one canonical ledger provider.
   ///
-  /// Each time the profile changes, [_checkStaleness] is called.
-  /// notifyListeners is deferred to postFrameCallback to avoid
-  /// setState-during-build errors.
+  /// Binding is immediate and idempotent. Rebinding removes the exact previous
+  /// listener before attaching the new provider, so old ledgers cannot mutate
+  /// this provider and disposal cannot leave an orphaned callback.
   void attachProfileProvider(CoachProfileProvider profileProvider) {
-    profileProvider.addListener(() {
-      _checkStaleness(profileProvider.profile);
+    if (_disposed) return;
+    if (identical(_profileProvider, profileProvider)) {
+      _reconcileWithBoundProfile();
+      return;
+    }
+
+    _profileProvider?.removeListener(_handleProfileChanged);
+    _profileProvider = profileProvider;
+    profileProvider.addListener(_handleProfileChanged);
+    _reconcileWithBoundProfile();
+  }
+
+  void _handleProfileChanged() => _reconcileWithBoundProfile();
+
+  void _reconcileWithBoundProfile() {
+    final stale = _isMismatchWithBoundLedger(_currentPlan);
+    if (stale == _isStale) return;
+    _isStale = stale;
+    _scheduleNotification();
+  }
+
+  bool _isMismatchWithBoundLedger(FinancialPlan? plan) {
+    if (plan == null) return false;
+    final profileProvider = _profileProvider;
+    if (profileProvider == null || !profileProvider.isLoaded) return true;
+    return _isMismatchWithProfile(plan, profileProvider.profile);
+  }
+
+  bool _isMismatchWithProfile(FinancialPlan? plan, CoachProfile? profile) {
+    if (plan == null) return false;
+    if (profile == null) return true;
+    return plan.profileHashAtGeneration != computeProfileHash(profile);
+  }
+
+  void _scheduleNotification() {
+    if (_disposed || _notificationScheduled) return;
+    _notificationScheduled = true;
+    final generation = ++_notificationGeneration;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (_disposed || generation != _notificationGeneration) return;
+      _notificationScheduled = false;
+      notifyListeners();
     });
   }
 
-  /// Compare current profile hash to [_currentPlan.profileHashAtGeneration].
-  ///
-  /// If mismatch and not already stale, set _isStale and notify listeners
-  /// inside SchedulerBinding.addPostFrameCallback.
-  void _checkStaleness(CoachProfile? profile) {
-    if (_currentPlan == null || profile == null) return;
-
-    final currentHash = computeProfileHash(profile);
-    if (currentHash != _currentPlan!.profileHashAtGeneration && !_isStale) {
-      _isStale = true;
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
-    }
+  void _notifyImmediately() {
+    if (_disposed) return;
+    _notificationGeneration++;
+    _notificationScheduled = false;
+    notifyListeners();
   }
-
-  // ── Test helpers ─────────────────────────────────────────────────────────
 
   /// Set plan directly without persistence. Used in tests only.
   @visibleForTesting
   void setPlanDirect(FinancialPlan plan) {
+    _stateRevision++;
     _currentPlan = plan;
-    _isStale = false;
-    notifyListeners();
+    // This test-only setter predates ledger binding. Preserve its isolated
+    // setup behavior; attaching a provider immediately reconciles authority.
+    _isStale =
+        _profileProvider == null ? false : _isMismatchWithBoundLedger(plan);
+    _notifyImmediately();
   }
 
-  /// Synchronously trigger staleness check. Used in tests only.
+  /// Synchronously reconcile against [profile]. Used in tests only.
   @visibleForTesting
   void checkStalenessForTest(CoachProfile? profile) {
-    if (_currentPlan == null || profile == null) return;
-    final currentHash = computeProfileHash(profile);
-    if (currentHash != _currentPlan!.profileHashAtGeneration && !_isStale) {
-      _isStale = true;
-    }
+    _isStale = _isMismatchWithProfile(_currentPlan, profile);
+  }
+
+  @override
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    _notificationGeneration++;
+    _notificationScheduled = false;
+    _profileProvider?.removeListener(_handleProfileChanged);
+    _profileProvider = null;
+    super.dispose();
   }
 }

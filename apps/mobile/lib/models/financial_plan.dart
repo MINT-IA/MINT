@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -178,7 +181,8 @@ class FinancialPlan {
     DateTime targetDate,
   ) {
     final now = DateTime.now();
-    final totalMs = targetDate.millisecondsSinceEpoch - now.millisecondsSinceEpoch;
+    final totalMs =
+        targetDate.millisecondsSinceEpoch - now.millisecondsSinceEpoch;
     const percentages = [25, 50, 75, 100];
 
     return List.generate(4, (i) {
@@ -233,27 +237,130 @@ class FinancialPlan {
   }
 }
 
-/// Computes a deterministic hash of the financially-relevant fields of [profile].
+const _planInputFingerprintPrefix = 'mint-plan-input:v1:sha256:';
+
+const _salaryPath = 'salaireBrutMensuel';
+const _cantonPath = 'canton';
+const _dateOfBirthPath = 'dateOfBirth';
+const _birthYearPath = 'birthYear';
+const _lppTotalPath = 'prevoyance.avoirLppTotal';
+const _lppMandatoryPath = 'prevoyance.avoirLppObligatoire';
+const _lppExtraMandatoryPath = 'prevoyance.avoirLppSurobligatoire';
+const _lppReturnPath = 'prevoyance.rendementCaisse';
+const _pillar3aPath = 'prevoyance.totalEpargne3a';
+const _salaryMonthsPath = 'nombreDeMois';
+
+/// Computes the versioned fingerprint of every ledger input that can change a
+/// generated financial plan.
 ///
-/// Uses: salaireBrutMensuel, prevoyance.avoirLppTotal, prevoyance.totalEpargne3a,
-/// canton, dateOfBirth (ISO string) or birthYear.
-///
-/// Algorithm: concatenate fields as string, iterate runes with polynomial rolling hash.
-/// Does NOT use Object.hash() (non-deterministic across Dart sessions — see A1 RESEARCH.md).
-///
-/// Threat T-04-01: pure function, no side effects.
+/// The fixed-order payload includes each fact's value and its field-centric
+/// provenance. The effective-age union serializes `dateOfBirth` when known and
+/// `birthYear` otherwise, never both. This wire format is intentionally
+/// versioned so persisted hashes from older/incomplete algorithms fail closed.
 String computeProfileHash(CoachProfile profile) {
-  final salary = (profile.salaireBrutMensuel).toString();
-  final lpp = (profile.prevoyance.avoirLppTotal ?? 0).toString();
-  final epargne3a = profile.prevoyance.totalEpargne3a.toString();
-  final canton = profile.canton;
-  final dob = profile.dateOfBirth?.toIso8601String() ?? profile.birthYear.toString();
+  final effectiveAgePath =
+      profile.dateOfBirth == null ? _birthYearPath : _dateOfBirthPath;
+  final effectiveAgeValue = profile.dateOfBirth == null
+      ? profile.birthYear
+      : _businessDate(profile.dateOfBirth!);
 
-  final raw = '$salary|$lpp|$epargne3a|$canton|$dob';
+  final facts = <Map<String, Object?>>[
+    _fingerprintFact(profile, _salaryPath, profile.salaireBrutMensuel),
+    _fingerprintFact(profile, _cantonPath, profile.canton),
+    _fingerprintFact(
+      profile,
+      _lppTotalPath,
+      profile.prevoyance.avoirLppTotal,
+    ),
+    _fingerprintFact(
+      profile,
+      _pillar3aPath,
+      profile.prevoyance.totalEpargne3a,
+    ),
+    _fingerprintFact(profile, effectiveAgePath, effectiveAgeValue),
+    _fingerprintFact(profile, _salaryMonthsPath, profile.nombreDeMois),
+    _fingerprintFact(
+      profile,
+      _lppMandatoryPath,
+      profile.prevoyance.avoirLppObligatoire,
+    ),
+    _fingerprintFact(
+      profile,
+      _lppExtraMandatoryPath,
+      profile.prevoyance.avoirLppSurobligatoire,
+    ),
+    _fingerprintFact(
+      profile,
+      _lppReturnPath,
+      profile.prevoyance.rendementCaisse,
+    ),
+  ];
 
-  var hash = 0;
-  for (final c in raw.runes) {
-    hash = (hash * 31 + c) & 0x7FFFFFFF;
+  final payload = jsonEncode(<String, Object?>{
+    'schema': 'mint-plan-input',
+    'version': 1,
+    'facts': facts,
+  });
+  return '$_planInputFingerprintPrefix${sha256.convert(utf8.encode(payload))}';
+}
+
+Map<String, Object?> _fingerprintFact(
+  CoachProfile profile,
+  String path,
+  Object? rawValue,
+) {
+  return <String, Object?>{
+    'path': path,
+    'value': _canonicalFingerprintValue(rawValue, path),
+    'source': _metadata(profile.dataSources, path)?.name,
+    'updatedAt': _canonicalInstant(_metadata(profile.dataTimestamps, path)),
+    'sourceDate': _canonicalSourceDate(
+      _metadata<DateTime?>(profile.dataSourceDates, path),
+    ),
+  };
+}
+
+T? _metadata<T>(Map<String, T> metadata, String path) {
+  if (metadata.containsKey(path)) return metadata[path];
+  if (path == _dateOfBirthPath || path == _birthYearPath) {
+    return metadata['age'];
   }
-  return hash.toString();
+  return null;
+}
+
+Object? _canonicalFingerprintValue(Object? value, String path) {
+  if (value is double) {
+    if (!value.isFinite) {
+      throw ArgumentError.value(value, path, 'finite plan input required');
+    }
+    return value == 0 ? 0.0 : value;
+  }
+  if (value is num && !value.isFinite) {
+    throw ArgumentError.value(value, path, 'finite plan input required');
+  }
+  return value;
+}
+
+String _businessDate(DateTime value) {
+  final year = value.year.toString().padLeft(4, '0');
+  final month = value.month.toString().padLeft(2, '0');
+  final day = value.day.toString().padLeft(2, '0');
+  return '$year-$month-$day';
+}
+
+String? _canonicalSourceDate(DateTime? value) =>
+    value == null ? null : _businessDate(value);
+
+String? _canonicalInstant(DateTime? value) {
+  if (value == null) return null;
+  final utc = value.toUtc();
+  final base = '${utc.year.toString().padLeft(4, '0')}-'
+      '${utc.month.toString().padLeft(2, '0')}-'
+      '${utc.day.toString().padLeft(2, '0')}T'
+      '${utc.hour.toString().padLeft(2, '0')}:'
+      '${utc.minute.toString().padLeft(2, '0')}:'
+      '${utc.second.toString().padLeft(2, '0')}';
+  final micros =
+      (utc.millisecond * 1000 + utc.microsecond).toString().padLeft(6, '0');
+  return '$base.${micros}Z';
 }

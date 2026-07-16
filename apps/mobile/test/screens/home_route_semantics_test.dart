@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
@@ -14,6 +15,7 @@ Widget _wrapHome(Widget child) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => CoachProfileProvider()),
+      ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
       ChangeNotifierProvider(create: (_) => MintStateProvider()),
       ChangeNotifierProvider(create: (_) => TimelineProvider()),
     ],

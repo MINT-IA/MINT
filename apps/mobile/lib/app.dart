@@ -1859,7 +1859,20 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             return provider;
           },
         ),
-        ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
+        ChangeNotifierProxyProvider<CoachProfileProvider,
+            FinancialPlanProvider>(
+          lazy: false,
+          create: (_) {
+            final provider = FinancialPlanProvider();
+            provider.loadFromPersistence().ignore();
+            return provider;
+          },
+          update: (_, profileProvider, financialPlanProvider) {
+            final provider = financialPlanProvider ?? FinancialPlanProvider();
+            provider.attachProfileProvider(profileProvider);
+            return provider;
+          },
+        ),
         // Wave E-PRIME (2026-04-18): CoachEntryPayloadProvider deleted —
         // setPayload/consumePayload had 0 caller in prod (docstring claimed
         // MintHomeScreen sets + MintCoachTab reads; neither exists).

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
@@ -8,6 +10,7 @@ import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
@@ -131,8 +134,7 @@ class WidgetRenderer {
     );
   }
 
-  static Widget _buildScoreGauge(
-      BuildContext context, Map<String, dynamic> p) {
+  static Widget _buildScoreGauge(BuildContext context, Map<String, dynamic> p) {
     return ChatGaugeCard(
       title: p['title'] as String? ?? 'Score',
       value: (p['value'] as num?)?.toDouble() ?? 0,
@@ -142,12 +144,12 @@ class WidgetRenderer {
     );
   }
 
-  static Widget _buildFactCard(
-      BuildContext context, Map<String, dynamic> p) {
+  static Widget _buildFactCard(BuildContext context, Map<String, dynamic> p) {
     final route = p['route'] as String?;
     return ChatFactCard(
       eyebrow: p['eyebrow'] as String? ?? p['title'] as String? ?? '',
-      value: p['value'] as String? ?? p['highlight_value'] as String? ?? '\u2014',
+      value:
+          p['value'] as String? ?? p['highlight_value'] as String? ?? '\u2014',
       description: p['description'] as String? ?? p['content'] as String? ?? '',
       onTap: route != null ? () => context.push(route) : null,
     );
@@ -318,9 +320,8 @@ class WidgetRenderer {
         );
 
       case 'choice':
-        final choices = (p['choices'] as List<dynamic>?)
-            ?.map((c) => c.toString())
-            .toList();
+        final choices =
+            (p['choices'] as List<dynamic>?)?.map((c) => c.toString()).toList();
         if (choices == null || choices.isEmpty) return null;
         return ChatChoiceButtons(
           label: message,
@@ -339,8 +340,9 @@ class WidgetRenderer {
     if (n == null) return '\u2014';
     final num value = n is num ? n : 0;
     final rounded = value.round();
-    return rounded.toString().replaceAllMapped(
-        RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
+    return rounded
+        .toString()
+        .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
   }
 
   // ────────────────────────────────────────────────────────────
@@ -353,20 +355,27 @@ class WidgetRenderer {
   /// [FinancialPlanProvider]), NOT from [call.input] (LLM output).
   /// Only [coachNarrative] may be sourced from [call.input['narrative']].
   ///
-  /// If no persisted plan exists yet, triggers [PlanGenerationService.generate()]
-  /// asynchronously via Future.microtask, persists via [FinancialPlanProvider.setPlan()],
-  /// and shows a fallback preview card while generation is in progress.
-  /// The chat rebuilds automatically when the provider notifies listeners.
+  /// A stale persisted plan is fail-closed: no amount or narrative is rendered
+  /// until the user explicitly regenerates it from its calculator-backed goal.
+  ///
+  /// If no persisted plan exists yet, [_PendingFinancialPlanCard] performs the
+  /// initial generation exactly once. The LLM's `monthly_amount` is deliberately
+  /// ignored: it is neither rendered nor converted into a calculator input.
   static Widget _buildPlanPreviewCard(
     BuildContext context,
     Map<String, dynamic> p,
   ) {
-    final planProvider =
-        Provider.of<FinancialPlanProvider>(context, listen: false);
+    final planProvider = context.watch<FinancialPlanProvider>();
 
     // ── 1. If a calculator-backed plan already exists, use it (T-04-04) ──
     if (planProvider.hasPlan) {
       final plan = planProvider.currentPlan!;
+      if (planProvider.isPlanStale) {
+        return _StaleFinancialPlanCard(
+          plan: plan,
+          planProvider: planProvider,
+        );
+      }
       final narrative = p['narrative'] as String?;
       if (narrative != null && narrative.isNotEmpty) {
         return PlanPreviewCard.fromPlan(
@@ -378,52 +387,9 @@ class WidgetRenderer {
 
     // ── 2. No plan yet — trigger generation via PlanGenerationService ──
     final goal = p['goal'] as String? ?? p['goal_description'] as String? ?? '';
-    final narrative =
-        p['narrative'] as String? ?? 'Plan en cours de calcul\u2026';
-    final monthlyAmount =
-        (p['monthly_amount'] as num?)?.toDouble() ??
-        (p['monthly_target'] as num?)?.toDouble() ??
-        0.0;
-
-    // Fire-and-forget: generate plan and persist. Provider will notify
-    // listeners, causing the chat to rebuild with the real plan.
-    try {
-      final profileProvider = context.read<CoachProfileProvider>();
-      final profile = profileProvider.profile;
-      if (profile != null) {
-        Future.microtask(() async {
-          try {
-            final plan = await PlanGenerationService.generate(
-              goalDescription: goal,
-              goalCategory: 'goal_general',
-              targetDate: DateTime.now().add(const Duration(days: 365)),
-              profile: profile,
-              coachNarrative: narrative,
-              goalAmount: monthlyAmount > 0 ? monthlyAmount * 12 : null,
-            );
-            planProvider.setPlan(plan);
-          } catch (e) {
-            // STAB-16 (07-04): plan generation failed — fallback card remains.
-            debugPrint('[widget_renderer] plan generation failed: $e');
-          }
-        });
-      }
-    } catch (e) {
-      // STAB-16 (07-04): CoachProfileProvider unavailable in tree — show
-      // fallback card. Logged to surface provider-registration regressions.
-      debugPrint('[widget_renderer] plan preview: profile unavailable: $e');
-    }
-
-    // ── 3. Show fallback preview while generation is in progress ──
-    return PlanPreviewCard(
+    return _PendingFinancialPlanCard(
       goalDescription: goal,
-      monthlyTarget: monthlyAmount,
-      milestones: const [],
-      coachNarrative: narrative,
-      disclaimer:
-          'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
-      projectedMid: monthlyAmount * 12,
-      confidenceLevel: 0,
+      planProvider: planProvider,
     );
   }
 
@@ -497,9 +463,8 @@ class WidgetRenderer {
     Map<String, dynamic> p,
   ) {
     final documentType = p['document_type'] as String? ?? '';
-    final contextMessage = p['context'] as String? ??
-        p['narrative'] as String? ??
-        '';
+    final contextMessage =
+        p['context'] as String? ?? p['narrative'] as String? ?? '';
 
     final label = _documentTypeLabel(documentType);
 
@@ -547,8 +512,7 @@ class WidgetRenderer {
             borderRadius: BorderRadius.circular(12),
             onTap: () => context.push('/documents'),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: MintColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
@@ -667,8 +631,7 @@ class WidgetRenderer {
             }
           }
 
-          debugPrint(
-              '[widget_renderer] commitment saved: ${response['id']}');
+          debugPrint('[widget_renderer] commitment saved: ${response['id']}');
         }).catchError((e) {
           debugPrint('[widget_renderer] commitment save failed: $e');
         });
@@ -677,6 +640,218 @@ class WidgetRenderer {
         // No API call on dismiss — card simply disappears
         debugPrint('[widget_renderer] commitment dismissed');
       },
+    );
+  }
+}
+
+/// Fail-closed recovery surface for a persisted plan whose ledger snapshot no
+/// longer matches. It deliberately receives no tool-call payload, so a stale
+/// or LLM-suggested amount cannot cross this boundary.
+class _StaleFinancialPlanCard extends StatefulWidget {
+  const _StaleFinancialPlanCard({
+    required this.plan,
+    required this.planProvider,
+  });
+
+  final FinancialPlan plan;
+  final FinancialPlanProvider planProvider;
+
+  @override
+  State<_StaleFinancialPlanCard> createState() =>
+      _StaleFinancialPlanCardState();
+}
+
+class _StaleFinancialPlanCardState extends State<_StaleFinancialPlanCard> {
+  bool _isRegenerating = false;
+  bool _hasError = false;
+
+  Future<void> _regenerate() async {
+    if (_isRegenerating) return;
+
+    final ledger = context.read<CoachProfileProvider>();
+    final profile = ledger.profile;
+    final goalAmount = widget.plan.milestones.isEmpty
+        ? null
+        : widget.plan.milestones.last.targetAmount;
+    if (!ledger.isLoaded ||
+        profile == null ||
+        goalAmount == null ||
+        !goalAmount.isFinite ||
+        goalAmount <= 0 ||
+        !widget.plan.targetDate.isAfter(DateTime.now())) {
+      setState(() => _hasError = true);
+      return;
+    }
+
+    setState(() {
+      _isRegenerating = true;
+      _hasError = false;
+    });
+
+    try {
+      widget.planProvider.attachProfileProvider(ledger);
+      final regenerated = await PlanGenerationService.generate(
+        goalDescription: widget.plan.goalDescription,
+        goalCategory: widget.plan.goalCategory,
+        targetDate: widget.plan.targetDate,
+        profile: profile,
+        goalAmount: goalAmount,
+      );
+      await widget.planProvider.setPlan(regenerated);
+    } catch (error, stackTrace) {
+      debugPrint(
+        '[widget_renderer] stale plan regeneration failed: $error\n$stackTrace',
+      );
+      if (mounted) {
+        setState(() => _hasError = true);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRegenerating = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+
+    return Semantics(
+      identifier: 'financial_plan_stale_state',
+      container: true,
+      liveRegion: _hasError,
+      child: Container(
+        decoration: BoxDecoration(
+          color: MintColors.appleSurface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: MintColors.border),
+        ),
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.update_outlined,
+                  color: MintColors.primary,
+                ),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l.planCard_staleBadge,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (_hasError) ...[
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                l.planCard_errorBody,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+            const SizedBox(height: MintSpacing.md),
+            Semantics(
+              identifier: 'financial_plan_stale_recalculate',
+              container: true,
+              button: true,
+              enabled: !_isRegenerating,
+              onTap: _isRegenerating ? null : _regenerate,
+              child: ExcludeSemantics(
+                child: FilledButton.icon(
+                  onPressed: _isRegenerating ? null : _regenerate,
+                  icon: _isRegenerating
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh),
+                  label: Text(l.planCard_ctaRecalculate),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Initial calculator generation surface. The state survives parent rebuilds,
+/// preventing duplicate fire-and-forget generations. No LLM amount or
+/// narrative is displayed while the calculator is running.
+class _PendingFinancialPlanCard extends StatefulWidget {
+  const _PendingFinancialPlanCard({
+    required this.goalDescription,
+    required this.planProvider,
+  });
+
+  final String goalDescription;
+  final FinancialPlanProvider planProvider;
+
+  @override
+  State<_PendingFinancialPlanCard> createState() =>
+      _PendingFinancialPlanCardState();
+}
+
+class _PendingFinancialPlanCardState extends State<_PendingFinancialPlanCard> {
+  bool _isGenerating = false;
+  bool _hasError = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final ledger = context.watch<CoachProfileProvider>();
+    if (_isGenerating || widget.planProvider.hasPlan) return;
+    _isGenerating = true;
+    _generate(ledger);
+  }
+
+  Future<void> _generate(CoachProfileProvider ledger) async {
+    try {
+      await widget.planProvider.loadFromPersistence();
+      if (!mounted || widget.planProvider.hasPlan) return;
+
+      await ledger.waitForReportAnswers();
+      if (!mounted || widget.planProvider.hasPlan) return;
+
+      final profile = ledger.profile;
+      if (!ledger.isLoaded || profile == null) {
+        setState(() => _hasError = true);
+        return;
+      }
+
+      final generated = await PlanGenerationService.generate(
+        goalDescription: widget.goalDescription,
+        goalCategory: 'goal_general',
+        targetDate: DateTime.now().add(const Duration(days: 365)),
+        profile: profile,
+      );
+      await widget.planProvider.setPlan(generated);
+    } catch (error, stackTrace) {
+      debugPrint(
+        '[widget_renderer] plan generation failed: $error\n$stackTrace',
+      );
+      if (mounted) setState(() => _hasError = true);
+    } finally {
+      if (mounted) {
+        setState(() => _isGenerating = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PlanPreviewCard.generating(
+      goalDescription: widget.goalDescription,
+      hasError: _hasError,
     );
   }
 }

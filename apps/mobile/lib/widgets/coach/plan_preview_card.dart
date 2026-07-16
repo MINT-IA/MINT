@@ -56,6 +56,13 @@ class PlanPreviewCard extends StatelessWidget {
   /// Confidence level 0–100. Bands shown when < 70.
   final double confidenceLevel;
 
+  /// True only for the initial calculator generation state. No financial
+  /// amount is rendered until a persisted [FinancialPlan] exists.
+  final bool isGenerating;
+
+  /// Whether the initial calculator generation failed.
+  final bool generationFailed;
+
   const PlanPreviewCard({
     super.key,
     required this.goalDescription,
@@ -67,7 +74,28 @@ class PlanPreviewCard extends StatelessWidget {
     required this.projectedMid,
     this.projectedHigh,
     required this.confidenceLevel,
-  });
+    this.isGenerating = false,
+    this.generationFailed = false,
+  }) : assert(!generationFailed || isGenerating);
+
+  /// Non-numeric placeholder used while the calculator creates the first
+  /// persisted plan. It intentionally accepts no monthly target or narrative.
+  factory PlanPreviewCard.generating({
+    required String goalDescription,
+    bool hasError = false,
+  }) {
+    return PlanPreviewCard(
+      goalDescription: goalDescription,
+      monthlyTarget: 0,
+      milestones: const [],
+      coachNarrative: '',
+      disclaimer: '',
+      projectedMid: 0,
+      confidenceLevel: 0,
+      isGenerating: true,
+      generationFailed: hasError,
+    );
+  }
 
   /// Build a [PlanPreviewCard] from a [FinancialPlan].
   factory PlanPreviewCard.fromPlan(FinancialPlan plan) {
@@ -87,6 +115,45 @@ class PlanPreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+    if (isGenerating) {
+      return Semantics(
+        identifier: generationFailed
+            ? 'financial_plan_generation_error'
+            : 'financial_plan_generation_pending',
+        container: true,
+        liveRegion: true,
+        child: Container(
+          decoration: BoxDecoration(
+            color: MintColors.appleSurface,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.all(MintSpacing.md),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${l.planCard_goalPrefix} $goalDescription',
+                style: MintTextStyles.titleMedium(
+                  color: MintColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.md),
+              if (generationFailed)
+                Text(
+                  l.planCard_errorBody,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                )
+              else
+                const Center(child: CircularProgressIndicator()),
+            ],
+          ),
+        ),
+      );
+    }
+
     final chfFormat = NumberFormat.currency(
       locale: 'fr_CH',
       symbol: '',

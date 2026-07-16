@@ -16,13 +16,16 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
+import 'package:mint_mobile/services/plan_generation_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 // Wave B-minimal B1 (2026-04-18): Cap du jour banner pulls the
 // highest-priority CapDecision from MintStateProvider and surfaces it
 // above the TensionCards. The provider is kept fresh by the
 // ChangeNotifierProxyProvider wired in `app.dart`.
 import 'package:mint_mobile/widgets/aujourdhui/cap_du_jour_banner.dart';
+import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
 import 'package:mint_mobile/widgets/tension/cleo_loop_indicator.dart';
 import 'package:mint_mobile/widgets/tension/tension_card_widget.dart';
 import 'package:mint_mobile/widgets/timeline/month_header_widget.dart';
@@ -38,6 +41,8 @@ class AujourdhuiScreen extends StatefulWidget {
 class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
   final Set<String> _collapsedMonths = {};
   bool _initialCollapseSet = false;
+  bool _isPlanRegenerating = false;
+  bool _hasPlanRegenerationError = false;
 
   Widget _homeRoute(Widget child) {
     return Semantics(
@@ -81,9 +86,65 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     });
   }
 
+  Future<void> _regenerateFinancialPlan(String _) async {
+    if (_isPlanRegenerating) return;
+
+    final ledger = context.read<CoachProfileProvider>();
+    final planProvider = context.read<FinancialPlanProvider>();
+    final profile = ledger.profile;
+    final persistedPlan = planProvider.currentPlan;
+    final goalAmount = persistedPlan?.milestones.isEmpty ?? true
+        ? null
+        : persistedPlan!.milestones.last.targetAmount;
+
+    if (!ledger.isLoaded ||
+        profile == null ||
+        persistedPlan == null ||
+        goalAmount == null ||
+        !goalAmount.isFinite ||
+        goalAmount <= 0 ||
+        !persistedPlan.targetDate.isAfter(DateTime.now())) {
+      if (mounted) {
+        setState(() => _hasPlanRegenerationError = true);
+      }
+      return;
+    }
+
+    setState(() {
+      _isPlanRegenerating = true;
+      _hasPlanRegenerationError = false;
+    });
+
+    try {
+      final regenerated = await PlanGenerationService.generate(
+        goalDescription: persistedPlan.goalDescription,
+        goalCategory: persistedPlan.goalCategory,
+        targetDate: persistedPlan.targetDate,
+        profile: profile,
+        goalAmount: goalAmount,
+      );
+      await planProvider.setPlan(regenerated);
+    } catch (error, stackTrace) {
+      debugPrint(
+        '[aujourdhui] financial plan regeneration failed: '
+        '$error\n$stackTrace',
+      );
+      if (mounted) {
+        setState(() => _hasPlanRegenerationError = true);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isPlanRegenerating = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TimelineProvider>();
+    final ledger = context.watch<CoachProfileProvider>();
+    final planProvider = context.watch<FinancialPlanProvider>();
+    final financialPlan = planProvider.currentPlan;
     final l10n = S.of(context)!;
 
     if (provider.isLoading) {
@@ -108,14 +169,24 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       // it on an actually-cold profile — once the user has any captured
       // facts, CapEngine's real cap carries the conversation and the
       // redundant copy disappears.
-      final hasAnyProfileFact =
-          context.watch<CoachProfileProvider>().profile != null;
+      final hasAnyProfileFact = ledger.profile != null;
       return _homeRoute(Scaffold(
         backgroundColor: MintColors.warmWhite,
         body: SafeArea(
           child: Column(
             children: [
               const CapDuJourBanner(),
+              if (financialPlan != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: FinancialPlanCard(
+                    plan: financialPlan,
+                    isStale: planProvider.isPlanStale,
+                    isRecalculating: _isPlanRegenerating,
+                    hasRecalculationError: _hasPlanRegenerationError,
+                    onRecalculate: _regenerateFinancialPlan,
+                  ),
+                ),
               if (!hasAnyProfileFact)
                 Expanded(
                   child: Center(
@@ -200,6 +271,20 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             const SliverToBoxAdapter(
               child: CapDuJourBanner(),
             ),
+
+            if (financialPlan != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: FinancialPlanCard(
+                    plan: financialPlan,
+                    isStale: planProvider.isPlanStale,
+                    isRecalculating: _isPlanRegenerating,
+                    hasRecalculationError: _hasPlanRegenerationError,
+                    onRecalculate: _regenerateFinancialPlan,
+                  ),
+                ),
+              ),
 
             // ── Tension cards (Phase 17 header) ────────────────
             SliverToBoxAdapter(

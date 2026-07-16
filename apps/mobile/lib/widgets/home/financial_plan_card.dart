@@ -41,11 +41,19 @@ class FinancialPlanCard extends StatefulWidget {
   /// in MintHomeScreen.
   final void Function(String recalculatePrompt) onRecalculate;
 
+  /// True while the caller is replacing a stale plan.
+  final bool isRecalculating;
+
+  /// True when the latest replacement attempt failed.
+  final bool hasRecalculationError;
+
   const FinancialPlanCard({
     super.key,
     required this.plan,
     required this.isStale,
     required this.onRecalculate,
+    this.isRecalculating = false,
+    this.hasRecalculationError = false,
   });
 
   @override
@@ -59,6 +67,16 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
     final plan = widget.plan;
+
+    if (widget.isStale) {
+      return _StalePlanState(
+        isRecalculating: widget.isRecalculating,
+        hasError: widget.hasRecalculationError,
+        onRecalculate: () => widget.onRecalculate(
+          l10n.planCard_recalculatePrompt(plan.goalDescription),
+        ),
+      );
+    }
 
     // Number formatters
     final chfFmt = NumberFormat('#,##0', 'fr_CH');
@@ -137,7 +155,8 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
               value: 0.0,
               minHeight: 6,
               backgroundColor: MintColors.border.withValues(alpha: 0.3),
-              valueColor: const AlwaysStoppedAnimation<Color>(MintColors.success),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(MintColors.success),
             ),
           ),
 
@@ -193,6 +212,87 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
 // ─────────────────────────────────────────────────────────────────────────────
 //  Private sub-widgets
 // ─────────────────────────────────────────────────────────────────────────────
+
+class _StalePlanState extends StatelessWidget {
+  const _StalePlanState({
+    required this.isRecalculating,
+    required this.hasError,
+    required this.onRecalculate,
+  });
+
+  final bool isRecalculating;
+  final bool hasError;
+  final VoidCallback onRecalculate;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+
+    return Semantics(
+      identifier: 'financial_plan_stale_state',
+      container: true,
+      liveRegion: hasError,
+      child: Container(
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: MintColors.warning.withValues(alpha: 0.5),
+          ),
+        ),
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.update_outlined, color: MintColors.warning),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.planCard_staleBadge,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (hasError) ...[
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                l10n.planCard_errorBody,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+            const SizedBox(height: MintSpacing.md),
+            Semantics(
+              identifier: 'financial_plan_stale_recalculate',
+              container: true,
+              button: true,
+              enabled: !isRecalculating,
+              onTap: isRecalculating ? null : onRecalculate,
+              child: ExcludeSemantics(
+                child: FilledButton.icon(
+                  onPressed: isRecalculating ? null : onRecalculate,
+                  icon: isRecalculating
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh),
+                  label: Text(l10n.planCard_ctaRecalculate),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// Amber badge shown when the plan is stale (profile changed since generation).
 class _StaleBadge extends StatelessWidget {
@@ -309,7 +409,8 @@ class _ExpandedDetail extends StatelessWidget {
         // ── Milestone rows ──
         ...milestones.map((m) => _MilestoneRow(
               date: quarterFmt.format(m.targetDate),
-              amount: '${chfFmt.format(m.targetAmount).replaceAll(',', '\u2019')} CHF',
+              amount:
+                  '${chfFmt.format(m.targetAmount).replaceAll(',', '\u2019')} CHF',
               description: m.description,
             )),
 

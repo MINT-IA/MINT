@@ -210,10 +210,23 @@ void main() {
           },
         );
 
-        // generate_financial_plan reads CoachProfileProvider for the
-        // async plan generation fallback. Use a default provider — the
-        // renderer shows a fallback PlanPreviewCard immediately.
-        await _pumpBubble(tester, call);
+        final coachProvider = CoachProfileProvider()
+          ..createFromRemoteProfile({
+            'birth_year': 1985,
+            'canton': 'VD',
+            'income_gross_yearly': 96000.0,
+          });
+        final planProvider = FinancialPlanProvider()
+          ..attachProfileProvider(coachProvider);
+
+        // The production tree hydrates the ledger and binds the plan proxy at
+        // startup. Mirror both boundaries instead of using unloaded defaults.
+        await _pumpBubble(
+          tester,
+          call,
+          coachProvider: coachProvider,
+          planProvider: planProvider,
+        );
 
         expect(
           find.byType(PlanPreviewCard),
