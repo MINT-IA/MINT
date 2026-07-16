@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications_platform_interface/flutter_local_not
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -109,6 +110,20 @@ Future<BuildContext> _pumpProductionApp(
 }
 
 Widget _budgetSetupHarness() {
+  final router = GoRouter(
+    initialLocation: '/budget/setup',
+    routes: [
+      GoRoute(
+        path: '/budget/setup',
+        builder: (_, __) => const BudgetSetupScreen(initialFocus: 'housing'),
+      ),
+      GoRoute(
+        path: '/budget',
+        builder: (_, __) => const SizedBox(key: Key('budget_route_probe')),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
   return MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) {
@@ -118,16 +133,16 @@ Widget _budgetSetupHarness() {
       }),
       ChangeNotifierProvider(create: (_) => BudgetProvider()),
     ],
-    child: const MaterialApp(
-      locale: Locale('fr'),
-      localizationsDelegates: [
+    child: MaterialApp.router(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
         S.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: S.supportedLocales,
-      home: BudgetSetupScreen(initialFocus: 'housing'),
+      routerConfig: router,
     ),
   );
 }
