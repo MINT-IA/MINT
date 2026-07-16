@@ -509,14 +509,18 @@ class _BudgetScreenState extends State<BudgetScreen>
         // Hero: budget libre — MintHeroNumber (consequence, not output)
         // Uses BudgetSnapshot.present.monthlyFree when available for
         // consistency with PulseScreen, falls back to plan.available.
-        MintCountUp(
-          value: heroFree,
-          prefix: 'CHF\u00a0',
-          color: heroColor,
-          showLigne: false,
-          contextText: l.budgetPremierEclairageCaption,
-          semanticsLabel:
-              '${formatChfWithPrefix(heroFree)} ${l.budgetAvailableThisMonth}',
+        Semantics(
+          identifier: 'budget_available_hero',
+          child: MintCountUp(
+            key: const Key('budget_available_hero'),
+            value: heroFree,
+            prefix: 'CHF\u00a0',
+            color: heroColor,
+            showLigne: false,
+            contextText: l.budgetPremierEclairageCaption,
+            semanticsLabel:
+                '${formatChfWithPrefix(heroFree)} ${l.budgetAvailableThisMonth}',
+          ),
         ),
         const SizedBox(height: MintSpacing.xl),
 
@@ -715,6 +719,8 @@ class _BudgetScreenState extends State<BudgetScreen>
       children: [
         // ── Épargne future: tap-to-type ──
         _BudgetAmountField(
+          key: const Key('budget_future_input'),
+          semanticsIdentifier: 'budget_future_input',
           label: l.budgetEnvelopeFieldFuture,
           initialValue: plan.future,
           max: plan.available,
@@ -727,6 +733,8 @@ class _BudgetScreenState extends State<BudgetScreen>
         const SizedBox(height: MintSpacing.lg),
         // ── Dépenses variables: tap-to-type ──
         _BudgetAmountField(
+          key: const Key('budget_variables_input'),
+          semanticsIdentifier: 'budget_variables_input',
           label: l.budgetEnvelopeFieldVariables,
           initialValue: plan.variables,
           max: plan.available,
@@ -947,6 +955,7 @@ class _BudgetScreenState extends State<BudgetScreen>
 /// Shows a labelled text field with CHF suffix, constrained to [0, max].
 /// On valid input, calls [onChanged] with the parsed value.
 class _BudgetAmountField extends StatefulWidget {
+  final String semanticsIdentifier;
   final String label;
   final double initialValue;
   final double max;
@@ -954,6 +963,8 @@ class _BudgetAmountField extends StatefulWidget {
   final ValueChanged<double> onChanged;
 
   const _BudgetAmountField({
+    super.key,
+    required this.semanticsIdentifier,
     required this.label,
     required this.initialValue,
     required this.max,
@@ -977,6 +988,17 @@ class _BudgetAmountFieldState extends State<_BudgetAmountField> {
   }
 
   @override
+  void didUpdateWidget(covariant _BudgetAmountField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final nextText = widget.initialValue.round().toString();
+    if (_ctrl.text == nextText) return;
+    _ctrl.value = TextEditingValue(
+      text: nextText,
+      selection: TextSelection.collapsed(offset: nextText.length),
+    );
+  }
+
+  @override
   void dispose() {
     _ctrl.dispose();
     super.dispose();
@@ -984,51 +1006,56 @@ class _BudgetAmountFieldState extends State<_BudgetAmountField> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          widget.label,
-          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
-        ),
-        const SizedBox(height: MintSpacing.xs),
-        TextField(
-          controller: _ctrl,
-          keyboardType: TextInputType.number,
-          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
-              .copyWith(fontWeight: FontWeight.w600),
-          decoration: InputDecoration(
-            suffixText: 'CHF',
-            suffixStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
-            hintText: S.of(context)!.budgetEnvelopeFieldHint,
-            hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.md,
-              vertical: MintSpacing.sm,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: MintColors.border),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: MintColors.border),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: widget.accentColor, width: 1.5),
-            ),
+    return Semantics(
+      identifier: widget.semanticsIdentifier,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.label,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
           ),
-          onChanged: (text) {
-            final parsed = double.tryParse(
-              text.replaceAll(RegExp(r"[^0-9.]"), ''),
-            );
-            if (parsed != null) {
-              widget.onChanged(parsed.clamp(0, widget.max));
-            }
-          },
-        ),
-      ],
+          const SizedBox(height: MintSpacing.xs),
+          TextField(
+            controller: _ctrl,
+            keyboardType: TextInputType.number,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w600),
+            decoration: InputDecoration(
+              suffixText: 'CHF',
+              suffixStyle:
+                  MintTextStyles.bodySmall(color: MintColors.textMuted),
+              hintText: S.of(context)!.budgetEnvelopeFieldHint,
+              hintStyle:
+                  MintTextStyles.bodyMedium(color: MintColors.textMuted),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.md,
+                vertical: MintSpacing.sm,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: widget.accentColor, width: 1.5),
+              ),
+            ),
+            onChanged: (text) {
+              final parsed = double.tryParse(
+                text.replaceAll(RegExp(r"[^0-9.]"), ''),
+              );
+              if (parsed != null) {
+                widget.onChanged(parsed.clamp(0, widget.max));
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }

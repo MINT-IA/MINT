@@ -44,7 +44,7 @@ flowchart TB
     CPP -. "fire-and-forget sync" .-> BACKEND
 
     %% Budget is a derived read model; the other nodes remain islands.
-    BUDGET["BudgetProvider<br/>app.dart:1788 — eager ProxyProvider<br/>base facts from CoachProfile<br/>other fixed writer: q_other_fixed_costs_monthly_chf<br/>local cache: overrides only"]
+    BUDGET["BudgetProvider<br/>app.dart:1788 — eager ProxyProvider<br/>base facts from CoachProfile<br/>other fixed writer: q_other_fixed_costs_monthly_chf<br/>local cache: future XOR variables"]
     HOUSE["HouseholdProvider<br/>app.dart:1434 — ISLAND"]
     TIMELINE["TimelineProvider<br/>app.dart:1491 — ISLAND"]
     DOCS["DocumentProvider<br/>app.dart:1432 — ISLAND"]
@@ -377,8 +377,11 @@ flowchart TB
 %%     the invariant before enforcing.
 %% I-4 NO ISLANDS: every provider that owns durable user facts must feed the
 %%     recompute. BudgetProvider is now a one-way eager derived proxy from
-%%     CoachProfileProvider; its future/variables overrides remain local to its
-%%     BudgetPlan and never masquerade as ledger facts. The legacy
+%%     CoachProfileProvider; its future XOR variables override remains local to
+%%     its BudgetPlan and never masquerades as a ledger fact. Last UI edit wins;
+%%     persistence is serialized and removes the opposite before setting the
+%%     winner. A cold legacy pair preserves future once and purges variables.
+%%     The legacy
 %%     _coach_depenses_autres alias is read/migrate-only and purged in favour of
 %%     q_other_fixed_costs_monthly_chf. Still MISSING for
 %%     HouseholdProvider, TimelineProvider, DocumentProvider and

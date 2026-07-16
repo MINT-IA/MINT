@@ -175,8 +175,9 @@ These are registered at the top of the router (`app.dart:301-339`) with `scope: 
 > Invariant F-1/F-4: confirmed budget base facts publish through
 > `CoachProfileProvider` and refresh both eager proxies. Their present-budget
 > oracle is `MintUserState.budgetSnapshot.present.monthlyCharges/monthlyFree`.
-> `BudgetProvider` future/variables overrides are local scenario envelopes and
-> do not mutate `MintUserState`; `budgetGap` remains null while official AVS
+> `BudgetProvider` keeps one local scenario envelope (`future` XOR `variables`),
+> never both. The last edited field wins and does not mutate `MintUserState`;
+> `budgetGap` remains null while official AVS
 > facts are unavailable. See §10.4.
 
 ### `/mon-argent` — Money / Budget home
@@ -970,7 +971,10 @@ canonical housing, LAMal and monthly debt keys through
 inputs and plan exactly once, the eager MintState proxy refreshes
 `budgetSnapshot.present.monthlyCharges/monthlyFree` by the same base-fact
 delta, and a stale `budget_inputs_v1` cache cannot override the ledger on cold
-start. Persisted `future`/`variables` overrides may change only `BudgetPlan`.
+start. Exactly one persisted `future` XOR `variables` override may change only
+`BudgetPlan`. Assert last-edited-wins in memory and storage, opposite-key
+remove-first, and serialized rapid mutations. A cold legacy pair must preserve
+historical `future` precedence once and purge `variables`.
 Add a distinct declared-tax fixture with
 `q_tax_provision_monthly_chf=300` and
 `q_other_fixed_costs_monthly_chf=100`: the typed profile must retain both

@@ -46,7 +46,41 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
 
     expect(provider.plan?.available, greaterThan(0));
-    expect(find.byType(TextField), findsWidgets);
+    expect(find.byKey(const Key('budget_available_hero')), findsOneWidget);
+    expect(find.byKey(const Key('budget_future_input')), findsOneWidget);
+    expect(find.byKey(const Key('budget_variables_input')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('budget_future_input')),
+      '321',
+    );
+    await tester.enterText(
+      find.byKey(const Key('budget_variables_input')),
+      '654',
+    );
+    await tester.pumpAndSettle();
+    await provider.waitForOverridePersistence();
+
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getDouble('budget_override_future'), isNull);
+    expect(preferences.getDouble('budget_override_variables'), 654);
+    expect(provider.plan?.variables, 654);
+    expect(provider.plan?.future, provider.plan!.available - 654);
+    final futureField = tester.widget<TextField>(
+      find.descendant(
+        of: find.byKey(const Key('budget_future_input')),
+        matching: find.byType(TextField),
+      ),
+    );
+    final variablesField = tester.widget<TextField>(
+      find.descendant(
+        of: find.byKey(const Key('budget_variables_input')),
+        matching: find.byType(TextField),
+      ),
+    );
+    expect(
+        futureField.controller?.text, provider.plan!.future.round().toString());
+    expect(variablesField.controller?.text, '654');
   });
 
   testWidgets('BudgetScreen Stop Rule triggers warning',

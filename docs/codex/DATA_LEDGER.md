@@ -1516,7 +1516,15 @@ rehydration instead of by a write-side re-entrancy flag.
 
 | Provider / store | Path (authoritative store) | Problem | Fix (mechanical) |
 |---|---|---|---|
-| `BudgetProvider` | `CoachProfile` is authoritative; `budget_provider.dart` is a derived read model, `budget_service.dart` a pure calculation, and `budget_local_store.dart` an overrides-only cache | Base fact mutations must refresh both the budget plan and `MintUserState` without a manual screen bridge or stale cold-start cache | Production uses an eager `ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>` and idempotent `rehydrateFromProfile`. Housing, LAMal, declared tax, canonical `q_other_fixed_costs_monthly_chf`, and exact aggregate monthly debt service are written through their canonical answer keys, then the published profile independently feeds BudgetProvider and MintStateProvider. `_coach_depenses_autres` is purged after read/migration and never remains an active writer. Declared tax and other fixed costs stay distinct. `budget_inputs_v1` is discarded; only `future`/`variables` overrides persist and affect `BudgetPlan`, never the ledger or `MintUserState`. The recompute oracle is `budgetSnapshot.present.monthlyCharges/monthlyFree`; `budgetGap` stays null while official AVS facts are unavailable. This implemented wiring does not itself promote BND-03 or G1. |
+| `BudgetProvider` | `CoachProfile` is authoritative; `budget_provider.dart` is a derived read model, `budget_service.dart` a pure calculation, and `budget_local_store.dart` an overrides-only cache | Base fact mutations must refresh both the budget plan and `MintUserState` without a manual screen bridge or stale cold-start cache | Production uses an eager `ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>` and idempotent `rehydrateFromProfile`. Housing, LAMal, declared tax, canonical `q_other_fixed_costs_monthly_chf`, and exact aggregate monthly debt service are written through their canonical answer keys, then the published profile independently feeds BudgetProvider and MintStateProvider. `_coach_depenses_autres` is purged after read/migration and never remains an active writer. Declared tax and other fixed costs stay distinct. `budget_inputs_v1` is discarded; at most one of `future` XOR `variables` persists and affects `BudgetPlan`, never the ledger or `MintUserState`. The recompute oracle is `budgetSnapshot.present.monthlyCharges/monthlyFree`; `budgetGap` stays null while official AVS facts are unavailable. This implemented wiring does not itself promote BND-03 or G1. |
+
+**Exclusive override contract.** `future` and `variables` cannot coexist. Each
+UI edit removes the opposite in memory, recalculates with the edited field as
+the sole winner, then enqueues a remove-opposite-before-set mutation. Store
+mutations are serialized in invocation order, so rapid edits preserve
+last-edited-wins without recreating a pair. For a cold legacy pair only,
+historical `future` precedence is preserved once; `variables` is removed before
+the normalized `future` value is persisted.
 | `HouseholdProvider` | backend-only spouse data | not synced into `CoachProfile.conjoint` → offline sims miss spouse | On household fetch/edit, add explicit reviewed spouse answer mappings or a typed provider setter; do not pass dotted model paths as answer keys. The coach `save_fact` spouse keys (`spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`) already bridge through existing wizard keys; this remaining task is provider-to-ledger sync, not a §3.8 mapper repair. |
 | `TimelineProvider` | 4 re-fetched services | conversations (`_chat_conversation_index`) + documents (`_uploaded_documents`) in separate SharedPreferences keys, not in profile | Keep these as separate stores (not domain financial data), but surface their derived facts (e.g. a scanned LPP cert) into the ledger via `mergeAnswers`/`applySaveFact` at extraction time. Timeline reads ledger for the financial dimension; references docs/threads by id only. |
 | Documents / Conversations | separate SP keys | not merged into profile | Same as above: the *extracted facts* go through `applySaveFact`; the raw documents/threads stay in their own stores (not part of the ledger, referenced by id only — never via `GoRouter.extra`, I-2). |
@@ -1588,7 +1596,7 @@ flowchart TD
     S[Scan / OCR extraction]
     SIM[Simulators]
     B[Budget confirmed base facts]
-    BO[Budget future / variables override]
+    BO[Budget override<br/>future XOR variables<br/>last UI edit wins]
     H[HouseholdProvider spouse]
   end
 

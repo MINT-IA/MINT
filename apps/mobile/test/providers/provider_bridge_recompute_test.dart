@@ -133,6 +133,41 @@ Widget _budgetSetupHarness() {
 }
 
 void main() {
+  test(
+    'cold load preserves legacy future precedence and purges variables pair',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        'budget_override_future': 321.0,
+        'budget_override_variables': 654.0,
+      });
+      final profile = CoachProfile.fromWizardAnswers(_initialAnswers);
+      final provider = BudgetProvider()..rehydrateFromProfile(profile);
+
+      await provider.loadFromStorage();
+
+      final preferences = await SharedPreferences.getInstance();
+      expect(provider.plan?.future, 321.0);
+      expect(provider.plan?.variables, provider.plan!.available - 321.0);
+      expect(preferences.getDouble('budget_override_future'), 321.0);
+      expect(preferences.getDouble('budget_override_variables'), isNull);
+    },
+  );
+
+  test('rapid override edits persist in invocation order', () async {
+    SharedPreferences.setMockInitialValues({});
+    final profile = CoachProfile.fromWizardAnswers(_initialAnswers);
+    final provider = BudgetProvider()..rehydrateFromProfile(profile);
+
+    provider.updateOverride('future', 321.0);
+    provider.updateOverride('variables', 654.0);
+    await provider.waitForOverridePersistence();
+
+    final preferences = await SharedPreferences.getInstance();
+    expect(provider.plan?.variables, 654.0);
+    expect(preferences.getDouble('budget_override_future'), isNull);
+    expect(preferences.getDouble('budget_override_variables'), 654.0);
+  });
+
   testWidgets(
     'cold start eagerly derives BudgetProvider from CoachProfile, not stale cache',
     (tester) async {
@@ -435,7 +470,8 @@ void main() {
       final beforeHero = tester.widget<MintCountUp>(
         find.byType(MintCountUp),
       );
-      final beforeFree = stateProvider.state?.budgetSnapshot?.present.monthlyFree;
+      final beforeFree =
+          stateProvider.state?.budgetSnapshot?.present.monthlyFree;
       expect(beforeHero.value, beforeFree);
 
       await profileProvider.mergeAnswers(_budgetMutation);
@@ -444,7 +480,8 @@ void main() {
       final afterHero = tester.widget<MintCountUp>(
         find.byType(MintCountUp),
       );
-      final afterFree = stateProvider.state?.budgetSnapshot?.present.monthlyFree;
+      final afterFree =
+          stateProvider.state?.budgetSnapshot?.present.monthlyFree;
       expect(
         (
           heroMatchesState: afterHero.value == afterFree,
@@ -506,11 +543,10 @@ void main() {
           copyTax: copied.monthlyTaxProvisionDeclared,
           coldTax: cold.monthlyTaxProvisionDeclared,
           coldSource: cold.dataSources['monthlyTaxProvisionDeclared'],
-          coldTimestampMatches: cold.dataTimestamps[
-                  'monthlyTaxProvisionDeclared'] ==
-              profile.dataTimestamps['monthlyTaxProvisionDeclared'],
-          coldSourceDate:
-              cold.dataSourceDates['monthlyTaxProvisionDeclared'],
+          coldTimestampMatches:
+              cold.dataTimestamps['monthlyTaxProvisionDeclared'] ==
+                  profile.dataTimestamps['monthlyTaxProvisionDeclared'],
+          coldSourceDate: cold.dataSourceDates['monthlyTaxProvisionDeclared'],
         ),
         (
           notifications: 1,

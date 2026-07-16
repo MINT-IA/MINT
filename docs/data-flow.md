@@ -721,8 +721,8 @@ coachProvider.mergeAnswers({
   ↓ persisted CoachProfile is published once
   ├─ eager CoachProfileProvider → BudgetProvider proxy
   │    ↓ rehydrateFromProfile(profile) derives BudgetInputs
-  │    ↓ BudgetService.computePlan(inputs, local overrides)
-  │    ↓ BudgetLocalStore persists only future/variables overrides;
+  │    ↓ BudgetService.computePlan(inputs, one local override: future XOR variables)
+  │    ↓ BudgetLocalStore persists only that exclusive override;
   │      legacy budget_inputs_v1 is discarded, never restored as facts
   └─ eager CoachProfileProvider → MintStateProvider proxy
        ↓ recompute(profile) refreshes MintUserState.budgetSnapshot.present
@@ -734,6 +734,12 @@ Pop back to Mon argent → BudgetSummaryCard now has data → « Il te reste Y C
 Without official AVS facts, retirement `budgetGap` remains intentionally null;
 the present-budget recompute oracle is
 `budgetSnapshot.present.monthlyCharges/monthlyFree`.
+
+Budget `future` and `variables` overrides are mutually exclusive. The last UI
+field edited wins: remove the opposite key first, then persist the new value,
+with mutations serialized in invocation order. A cold load that finds the old
+contradictory pair preserves the historical `future` precedence once and
+purges `variables`; subsequent snapshots contain at most one override.
 
 Chat fallback (« J'en parle plutôt au coach ») remains available on the
 setup screen, respecting `feedback_chat_is_everything` (chat *can* do it,

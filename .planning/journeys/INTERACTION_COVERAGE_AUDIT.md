@@ -97,7 +97,7 @@
 | uncovered literal route | `/open-banking/transactions` | apps/mobile/lib/screens/open_banking/open_banking_hub_screen.dart:78 |
 | uncovered literal route | `/pilier-3a` | apps/mobile/lib/app.dart:683, apps/mobile/lib/data/educational_themes.dart:112, apps/mobile/lib/screens/simulator_3a_screen.dart:167, apps/mobile/lib/screens/simulator_3a_screen.dart:88 (+8 more) |
 | uncovered literal route | `/profile` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1505 |
-| uncovered literal route | `/profile/bilan` | apps/mobile/lib/screens/budget/budget_screen.dart:671, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:914, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:125, apps/mobile/lib/services/response_card_service.dart:694 (+2 more) |
+| uncovered literal route | `/profile/bilan` | apps/mobile/lib/screens/budget/budget_screen.dart:675, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:914, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:125, apps/mobile/lib/services/response_card_service.dart:694 (+2 more) |
 | uncovered literal route | `/profile/byok` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1664, apps/mobile/lib/widgets/settings_sheet.dart:47 |
 | uncovered literal route | `/profile/privacy-control` | apps/mobile/lib/widgets/settings_sheet.dart:35 |
 | uncovered literal route | `/profile/slm` | apps/mobile/lib/widgets/settings_sheet.dart:41 |

@@ -24,8 +24,17 @@ class BudgetProvider with ChangeNotifier {
   Future<bool> loadFromStorage() async {
     final savedFuture = await _store.getOverride('future');
     final savedVariables = await _store.getOverride('variables');
-    final changed = _setStoredOverride('future', savedFuture) |
-        _setStoredOverride('variables', savedVariables);
+    bool changed;
+    if (savedFuture != null && savedVariables != null) {
+      // Legacy pairs used future precedence. Preserve that visible result
+      // once, then normalize storage to the single-winner invariant.
+      changed = (_overrides.remove('variables') != null) |
+          _setStoredOverride('future', savedFuture);
+      await _store.saveExclusiveOverride('future', savedFuture);
+    } else {
+      changed = _setStoredOverride('future', savedFuture) |
+          _setStoredOverride('variables', savedVariables);
+    }
     await _store.discardLegacyInputs();
     if (changed && _lastInputs != null) {
       _recalculate();
@@ -33,11 +42,17 @@ class BudgetProvider with ChangeNotifier {
     return _lastInputs != null;
   }
 
+  Future<void> waitForOverridePersistence() =>
+      _store.waitForOverridePersistence();
+
   void updateOverride(String key, double value) {
+    final opposite = key == 'future' ? 'variables' : 'future';
+    _overrides.remove(opposite);
     _overrides[key] = value;
     _recalculate();
-    // Sauvegarde "fire and forget"
-    _store.saveOverride(key, value);
+    // The last edited envelope owns the split; contradictory pairs are
+    // purged from storage instead of relying on BudgetService precedence.
+    _store.saveExclusiveOverride(key, value);
   }
 
   /// Rehydrate synchronously from the canonical profile.
