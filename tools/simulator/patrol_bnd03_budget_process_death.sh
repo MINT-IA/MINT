@@ -105,6 +105,16 @@ read_exit_code=""
 maestro_exit_code=""
 cleanup_status="pending"
 runtime_completed=false
+mobile_build="$mobile_root/build"
+build_backup="$mobile_root/.dart_tool/mint-patrol-g1-bnd03-build-backup-$sha"
+external_root=""
+external_build=""
+build_isolation_enabled=false
+original_build_present=false
+restoration_status="not_started"
+reset_between_patrol_stages=false
+artifact_cleanup_failed=false
+stage_sanitization_failed=0
 
 python3 - "$device" >"$artifacts/device.sha256" <<'PY'
 import hashlib
@@ -122,17 +132,20 @@ done
 sanitize_log() {
   local raw="$1"
   local output="$2"
-  python3 - "$raw" "$output" "$repo_root" "$HOME" "$device" <<'PY'
+  local failed=0
+  if ! python3 - "$raw" "$output" "$repo_root" "$HOME" "$device" \
+    "$external_root" <<'PY'
 import re
 import sys
 from pathlib import Path
 
-raw_path, output_path, repo, home, device = sys.argv[1:]
+raw_path, output_path, repo, home, device, external_root = sys.argv[1:]
 text = Path(raw_path).read_text(encoding="utf-8", errors="replace")
 for private, token in (
     (repo, "REDACTED_REPO"),
     (home, "REDACTED_HOME"),
     (device, "REDACTED_SIMULATOR_UDID"),
+    (external_root, "REDACTED_EXTERNAL_BUILD"),
 ):
     if private:
         text = text.replace(private, token)
@@ -143,7 +156,25 @@ text = re.sub(
 )
 Path(output_path).write_text(text, encoding="utf-8")
 PY
-  rm -f "$raw"
+  then
+    echo "patrol_bnd03_budget_process_death: log sanitization failed" >&2
+    failed=1
+  fi
+  if [[ -e "$raw" || -L "$raw" ]]; then
+    if ! rm -f -- "$raw"; then
+      echo "patrol_bnd03_budget_process_death: raw log removal failed" >&2
+      failed=1
+    fi
+  fi
+  return "$failed"
+}
+
+sanitize_stage_log() {
+  stage_sanitization_failed=0
+  if ! sanitize_log "$1" "$2"; then
+    artifact_cleanup_failed=true
+    stage_sanitization_failed=1
+  fi
 }
 
 write_metadata() {
@@ -160,6 +191,10 @@ write_metadata() {
   MINT_META_READ="$read_exit_code" \
   MINT_META_MAESTRO="$maestro_exit_code" \
   MINT_META_CLEANUP="$cleanup_status" \
+  MINT_META_BUILD_ENABLED="$build_isolation_enabled" \
+  MINT_META_ORIGINAL_BUILD="$original_build_present" \
+  MINT_META_RESTORATION="$restoration_status" \
+  MINT_META_BUILD_RESET="$reset_between_patrol_stages" \
   python3 - "$metadata" <<'PY'
 import json
 import os
@@ -184,6 +219,12 @@ payload = {
     "read_exit_code": code("MINT_META_READ"),
     "maestro_exit_code": code("MINT_META_MAESTRO"),
     "cleanup_status": os.environ["MINT_META_CLEANUP"],
+    "build_isolation": {
+        "enabled": os.environ["MINT_META_BUILD_ENABLED"] == "true",
+        "original_build_present": os.environ["MINT_META_ORIGINAL_BUILD"] == "true",
+        "reset_between_patrol_stages": os.environ["MINT_META_BUILD_RESET"] == "true",
+        "restoration_status": os.environ["MINT_META_RESTORATION"],
+    },
     "synthetic_data_only": True,
     "private_fixture_used": False,
     "source_manifest": "source-manifest.sha256",
@@ -205,9 +246,79 @@ PY
 cleanup() {
   local exit_code=$?
   local cleanup_failed=0
+  local build_cleanup_failed=0
   local tracked_status=0
-  trap - EXIT
+  trap - EXIT HUP INT TERM
   cleanup_status="passed"
+
+  if [[ "$artifact_cleanup_failed" == true ]]; then
+    cleanup_failed=1
+  fi
+  for log_stem in write launch terminate read maestro; do
+    raw_log="$artifacts/$log_stem.raw.log"
+    if [[ -e "$raw_log" || -L "$raw_log" ]]; then
+      if ! sanitize_log "$raw_log" "$artifacts/$log_stem.log"; then
+        cleanup_failed=1
+      fi
+    fi
+  done
+  if [[ -e "$artifacts/maestro-report.xml" \
+    || -L "$artifacts/maestro-report.xml" ]]; then
+    if ! rm -f -- "$artifacts/maestro-report.xml"; then
+      echo "patrol_bnd03_budget_process_death: raw Maestro report removal failed" >&2
+      cleanup_failed=1
+    fi
+  fi
+
+  if [[ "$build_isolation_enabled" == true ]]; then
+    if [[ -L "$mobile_build" ]]; then
+      if [[ "$(readlink "$mobile_build")" == "$external_build" ]]; then
+        if ! rm -- "$mobile_build"; then
+          echo "patrol_bnd03_budget_process_death: external build symlink cleanup failed" >&2
+          build_cleanup_failed=1
+        fi
+      else
+        echo "patrol_bnd03_budget_process_death: build symlink target drifted" >&2
+        build_cleanup_failed=1
+      fi
+    elif [[ -e "$mobile_build" ]]; then
+      if [[ "$original_build_present" != true || -e "$build_backup" ]]; then
+        echo "patrol_bnd03_budget_process_death: build path changed during isolation" >&2
+        build_cleanup_failed=1
+      fi
+    fi
+
+    if [[ "$original_build_present" == true ]]; then
+      if [[ ! -e "$mobile_build" && -d "$build_backup" ]]; then
+        if ! mv "$build_backup" "$mobile_build"; then
+          echo "patrol_bnd03_budget_process_death: original build restoration failed" >&2
+          build_cleanup_failed=1
+        fi
+      elif [[ ! -d "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
+        echo "patrol_bnd03_budget_process_death: original build restoration is ambiguous" >&2
+        build_cleanup_failed=1
+      fi
+    elif [[ -e "$mobile_build" || -L "$mobile_build" || -e "$build_backup" ]]; then
+      echo "patrol_bnd03_budget_process_death: isolated build cleanup is ambiguous" >&2
+      build_cleanup_failed=1
+    fi
+
+    if [[ "$build_cleanup_failed" -ne 0 ]]; then
+      restoration_status="failed"
+      cleanup_failed=1
+    else
+      restoration_status="restored"
+    fi
+  fi
+
+  if [[ -n "$external_root" && -d "$external_root" ]]; then
+    if ! rm -rf -- "$external_root"; then
+      echo "patrol_bnd03_budget_process_death: external build removal failed" >&2
+      restoration_status="failed"
+      cleanup_failed=1
+    fi
+  fi
+
   if [[ -e "$repo_root/$generated_patrol_bundle" ]]; then
     set +e
     git -C "$repo_root" ls-files --error-unmatch -- \
@@ -241,9 +352,27 @@ cleanup() {
   exit 0
 }
 trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+[[ ! -L "$mobile_build" ]] || die "pre-existing build symlink"
+[[ ! -e "$build_backup" && ! -L "$build_backup" ]] || die "backup collision"
+mkdir -p "$mobile_root/.dart_tool"
+external_root="$(mktemp -d "/tmp/mint-patrol-g1-bnd03-${sha:0:12}.XXXXXX")"
+external_build="$external_root/build"
+mkdir -p "$external_build"
+build_isolation_enabled=true
+restoration_status="pending"
+if [[ -e "$mobile_build" ]]; then
+  [[ -d "$mobile_build" ]] || die "pre-existing build path is not a directory"
+  original_build_present=true
+  mv "$mobile_build" "$build_backup"
+fi
+ln -s "$external_build" "$mobile_build"
 
 write_command=(
-  "$patrol_bin" test
+  "$patrol_bin" --verbose test
   --target "${write_target#apps/mobile/}"
   --no-uninstall
   --device "$device"
@@ -251,7 +380,7 @@ write_command=(
   --dart-define=MINT_PATROL_CLI=true
 )
 read_command=(
-  "$patrol_bin" test
+  "$patrol_bin" --verbose test
   --target "${read_target#apps/mobile/}"
   --no-uninstall
   --device "$device"
@@ -264,11 +393,12 @@ set +e
   >"$artifacts/write.raw.log" 2>&1
 write_exit_code=$?
 set -e
-sanitize_log "$artifacts/write.raw.log" "$artifacts/write.log"
+sanitize_stage_log "$artifacts/write.raw.log" "$artifacts/write.log"
 if [[ "$write_exit_code" -ne 0 ]]; then
   echo "patrol_bnd03_budget_process_death: write stage failed ($write_exit_code)" >&2
   exit "$write_exit_code"
 fi
+[[ "$stage_sanitization_failed" -eq 0 ]] || die "write log sanitization failed"
 exact_sha_guard
 
 set +e
@@ -276,34 +406,48 @@ xcrun simctl launch "$device" "$bundle_id" \
   >"$artifacts/launch.raw.log" 2>&1
 launch_exit_code=$?
 set -e
-sanitize_log "$artifacts/launch.raw.log" "$artifacts/launch.log"
+sanitize_stage_log "$artifacts/launch.raw.log" "$artifacts/launch.log"
 if [[ "$launch_exit_code" -ne 0 ]]; then
   echo "patrol_bnd03_budget_process_death: launch stage failed ($launch_exit_code)" >&2
   exit "$launch_exit_code"
 fi
+[[ "$stage_sanitization_failed" -eq 0 ]] || die "launch log sanitization failed"
 
 set +e
 xcrun simctl terminate "$device" "$bundle_id" \
   >"$artifacts/terminate.raw.log" 2>&1
 terminate_exit_code=$?
 set -e
-sanitize_log "$artifacts/terminate.raw.log" "$artifacts/terminate.log"
+sanitize_stage_log "$artifacts/terminate.raw.log" "$artifacts/terminate.log"
 if [[ "$terminate_exit_code" -ne 0 ]]; then
   echo "patrol_bnd03_budget_process_death: terminate stage failed ($terminate_exit_code)" >&2
   exit "$terminate_exit_code"
 fi
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "terminate log sanitization failed"
 exact_sha_guard
+
+# Patrol may otherwise reuse the writer entrypoint's Flutter artifacts for the
+# reader. Reset only the disposable external build after the real process death;
+# the installed app data remains intact because both Patrol calls keep
+# --no-uninstall.
+[[ -L "$mobile_build" && "$(readlink "$mobile_build")" == "$external_build" ]] \
+  || die "external build isolation drifted before reader"
+rm -rf -- "$external_build"
+mkdir -p "$external_build"
+reset_between_patrol_stages=true
 
 set +e
 (cd "$mobile_root" && "${read_command[@]}") \
   >"$artifacts/read.raw.log" 2>&1
 read_exit_code=$?
 set -e
-sanitize_log "$artifacts/read.raw.log" "$artifacts/read.log"
+sanitize_stage_log "$artifacts/read.raw.log" "$artifacts/read.log"
 if [[ "$read_exit_code" -ne 0 ]]; then
   echo "patrol_bnd03_budget_process_death: read stage failed ($read_exit_code)" >&2
   exit "$read_exit_code"
 fi
+[[ "$stage_sanitization_failed" -eq 0 ]] || die "read log sanitization failed"
 exact_sha_guard
 
 set +e
@@ -312,18 +456,23 @@ set +e
   >"$artifacts/maestro.raw.log" 2>&1
 maestro_exit_code=$?
 set -e
-sanitize_log "$artifacts/maestro.raw.log" "$artifacts/maestro.log"
+sanitize_stage_log "$artifacts/maestro.raw.log" "$artifacts/maestro.log"
 if [[ "$maestro_exit_code" -ne 0 ]]; then
   echo "patrol_bnd03_budget_process_death: Maestro stage failed ($maestro_exit_code)" >&2
   exit "$maestro_exit_code"
 fi
+[[ "$stage_sanitization_failed" -eq 0 ]] || die "Maestro log sanitization failed"
 if [[ ! -s "$artifacts/maestro-report.xml" ]]; then
   maestro_exit_code=2
   die "Maestro JUnit report is missing or empty"
 fi
-sanitize_log \
+sanitize_stage_log \
   "$artifacts/maestro-report.xml" \
   "$artifacts/maestro-report.sanitized.xml"
+if [[ "$stage_sanitization_failed" -ne 0 ]]; then
+  maestro_exit_code=2
+  die "Maestro JUnit report sanitization failed"
+fi
 if ! python3 - "$artifacts/maestro-report.sanitized.xml" <<'PY'
 import sys
 import xml.etree.ElementTree as ET

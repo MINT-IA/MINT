@@ -3,8 +3,11 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
+import signal
 import stat
 import subprocess
+import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -53,6 +56,7 @@ def _fake_runtime(
     generate_bundle: bool = True,
     bundle_as_directory: bool = False,
     bundle_tracked: bool = False,
+    patrol_sleep: int = 0,
 ) -> dict[str, str]:
     repo = tmp_path / "repo"
     mobile = repo / "apps/mobile"
@@ -69,6 +73,13 @@ def _fake_runtime(
         target = mobile / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text("tracked synthetic contract\n", encoding="utf-8")
+    original_build = mobile / "build"
+    original_build.mkdir(parents=True)
+    (original_build / "original-build-marker.txt").write_text(
+        "must survive every exit path\n",
+        encoding="utf-8",
+    )
+    (mobile / ".dart_tool").mkdir()
     simulator = repo / "tools/simulator"
     simulator.mkdir(parents=True)
     (simulator / "patrol_bnd03_budget_process_death.sh").write_text(
@@ -109,7 +120,13 @@ def _fake_runtime(
     _write_executable(
         fake_patrol,
         "#!/usr/bin/env bash\n"
-        'printf \'patrol cwd=%s %s\\n\' "$PWD" "$*" >> "$MINT_TEST_CALLS"\n'
+        "set -euo pipefail\n"
+        'build_target="$(readlink build 2>/dev/null || true)"\n'
+        'printf \'patrol cwd=%s build=%s args=%s\\n\' "$PWD" "$build_target" "$*" >> "$MINT_TEST_CALLS"\n'
+        '[[ "${1:-}" == "--verbose" && "${2:-}" == "test" ]] || exit 93\n'
+        '[[ -L build && -d "$build_target" ]] || exit 94\n'
+        'case "$build_target" in "$MINT_TEST_REPO"/*) exit 95 ;; esac\n'
+        'printf \'verbose repo=%s external=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$build_target" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
         'if [[ "$MINT_TEST_GENERATE_BUNDLE" == "1" ]]; then\n'
         '  if [[ "$MINT_TEST_BUNDLE_AS_DIRECTORY" == "1" ]]; then\n'
         '    mkdir -p test/patrol/test_bundle.dart\n'
@@ -118,7 +135,13 @@ def _fake_runtime(
         '    printf \'generated bundle\\n\' > test/patrol/test_bundle.dart\n'
         '  fi\n'
         'fi\n'
-        'if [[ "$*" == *"write_runtime"* ]]; then exit "$MINT_TEST_WRITE_EXIT"; fi\n'
+        'if [[ "$*" == *"write_runtime"* ]]; then\n'
+        '  printf \'writer cache\\n\' > build/writer-cache-marker.txt\n'
+        '  if [[ "$MINT_TEST_PATROL_SLEEP" -gt 0 ]]; then sleep "$MINT_TEST_PATROL_SLEEP"; fi\n'
+        '  exit "$MINT_TEST_WRITE_EXIT"\n'
+        'fi\n'
+        '[[ ! -e build/writer-cache-marker.txt ]] || exit 96\n'
+        'printf \'reader cache\\n\' > build/reader-cache-marker.txt\n'
         'exit "$MINT_TEST_READ_EXIT"\n',
     )
     _write_executable(
@@ -140,7 +163,7 @@ def _fake_runtime(
         '  previous="$argument"\n'
         'done\n'
         'printf \'private udid=%s repo=%s home=%s temp=%s\\n\' "$MINT_TEST_DEVICE" "$MINT_TEST_REPO" "$HOME" "$MINT_TEST_PRIVATE_TEMP"\n'
-        'if [[ "$MINT_TEST_MAESTRO_EXIT" == "0" && "$MINT_TEST_MAESTRO_REPORT" == "1" && -n "$output" ]]; then\n'
+        'if [[ "$MINT_TEST_MAESTRO_REPORT" == "1" && -n "$output" ]]; then\n'
         '  if [[ "$MINT_TEST_MAESTRO_INVALID_XML" == "1" ]]; then\n'
         '    printf \'<testsuite name="unterminated"\' > "$output"\n'
         '  else\n'
@@ -169,6 +192,7 @@ def _fake_runtime(
         "MINT_TEST_GENERATE_BUNDLE": "1" if generate_bundle else "0",
         "MINT_TEST_BUNDLE_AS_DIRECTORY": "1" if bundle_as_directory else "0",
         "MINT_TEST_BUNDLE_TRACKED": "0" if bundle_tracked else "1",
+        "MINT_TEST_PATROL_SLEEP": str(patrol_sleep),
         "MINT_TEST_DEFAULT_MAESTRO": str(fake_maestro),
         "MINT_TEST_PRIVATE_TEMP": "/private/var/folders/aa/bb/T/mint-bnd03",
     }
@@ -177,6 +201,16 @@ def _fake_runtime(
     else:
         env.pop("MAESTRO_RUNNER", None)
     return env
+
+
+def _assert_original_build_restored(env: dict[str, str], inode: int) -> None:
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    assert mobile_build.is_dir()
+    assert not mobile_build.is_symlink()
+    assert mobile_build.stat().st_ino == inode
+    assert (mobile_build / "original-build-marker.txt").read_text(
+        encoding="utf-8"
+    ) == "must survive every exit path\n"
 
 
 def _run(
@@ -303,6 +337,18 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     assert "test/patrol/test_bundle.dart" in orchestrator
     assert "budget_container_screen.dart" in orchestrator
     assert "budget_setup_screen.dart" in orchestrator
+    assert 'mobile_build="$mobile_root/build"' in orchestrator
+    assert 'rm -rf -- "$external_build"' in orchestrator
+    assert 'mv "$mobile_build" "$build_backup"' in orchestrator
+    assert 'ln -s "$external_build" "$mobile_build"' in orchestrator
+    assert "pre-existing build symlink" in orchestrator
+    assert "backup collision" in orchestrator
+    assert "trap 'exit 143' TERM" in orchestrator
+    assert orchestrator.count('"$patrol_bin" --verbose test') == 2
+    assert "patrol build" not in orchestrator
+    assert "xcodebuild" not in orchestrator
+    assert "codesign" not in orchestrator
+    assert "entitlements" not in orchestrator
     assert "synthetic_data_only" in orchestrator
     assert "device_sha256" in orchestrator
     assert '"device"' not in orchestrator
@@ -312,15 +358,31 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     tmp_path: Path,
 ) -> None:
     env = _fake_runtime(tmp_path)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
     result = _run(tmp_path, env)
 
     assert result.returncode == 0, result.stderr
+    _assert_original_build_restored(env, original_inode)
     assert result.stdout.count("patrol_bnd03_budget_process_death: PASS") == 1
-    assert not (Path(env["MINT_TEST_REPO"]) / "apps/mobile/test/patrol/test_bundle.dart").exists()
+    assert not (
+        Path(env["MINT_TEST_REPO"]) / "apps/mobile/test/patrol/test_bundle.dart"
+    ).exists()
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8").splitlines()
     runtime_calls = [line for line in calls if not line.startswith("git ")]
     assert len(runtime_calls) == 5
     assert "write_runtime" in runtime_calls[0]
+    patrol_calls = [line for line in runtime_calls if line.startswith("patrol ")]
+    assert len(patrol_calls) == 2
+    assert all("args=--verbose test" in line for line in patrol_calls)
+    assert all("--no-uninstall" in line for line in patrol_calls)
+    external_targets = {
+        re.search(r" build=([^ ]+) args=", line).group(1) for line in patrol_calls
+    }
+    assert len(external_targets) == 1
+    external_target = Path(external_targets.pop())
+    assert not external_target.is_relative_to(Path(env["MINT_TEST_REPO"]))
+    assert not external_target.exists()
     assert runtime_calls[1] == f"xcrun simctl launch {SYNTHETIC_UDID} {BUNDLE_ID}"
     assert runtime_calls[2] == f"xcrun simctl terminate {SYNTHETIC_UDID} {BUNDLE_ID}"
     assert "read_runtime" in runtime_calls[3]
@@ -339,13 +401,24 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert metadata["read_exit_code"] == 0
     assert metadata["maestro_exit_code"] == 0
     assert metadata["cleanup_status"] == "passed"
+    assert metadata["build_isolation"] == {
+        "enabled": True,
+        "original_build_present": True,
+        "reset_between_patrol_stages": True,
+        "restoration_status": "restored",
+    }
     assert "maestro-report.sanitized.xml" in metadata["logs"]
     assert metadata["device_sha256"] != SYNTHETIC_UDID
     assert SYNTHETIC_UDID not in (tmp_path / "artifacts/metadata.json").read_text()
     artifacts = tmp_path / "artifacts"
     report = artifacts / "maestro-report.sanitized.xml"
     assert report.is_file()
-    private_values = (SYNTHETIC_UDID, env["MINT_TEST_REPO"], env["HOME"])
+    private_values = (
+        SYNTHETIC_UDID,
+        env["MINT_TEST_REPO"],
+        env["HOME"],
+        str(external_target.parent),
+    )
     for sanitized in (report, *artifacts.glob("*.log")):
         sanitized_text = sanitized.read_text(encoding="utf-8")
         assert all(private not in sanitized_text for private in private_values)
@@ -357,6 +430,16 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert "REDACTED_SIMULATOR_UDID" in (artifacts / "maestro.log").read_text(
         encoding="utf-8"
     )
+    for patrol_log in (artifacts / "write.log", artifacts / "read.log"):
+        text = patrol_log.read_text(encoding="utf-8")
+        assert "REDACTED_REPO" in text
+        assert "REDACTED_HOME" in text
+        assert "REDACTED_SIMULATOR_UDID" in text
+        assert "REDACTED_PRIVATE_TEMP" in text
+        assert "REDACTED_EXTERNAL_BUILD" in text
+    metadata_text = (artifacts / "metadata.json").read_text(encoding="utf-8")
+    assert str(tmp_path) not in metadata_text
+    assert not any("path" in key for key in metadata["build_isolation"])
     assert not (artifacts / "maestro-report.xml").exists()
     assert not list(artifacts.glob("*.raw.log"))
 
@@ -380,10 +463,13 @@ def test_budget_orchestrator_rejects_maestro_success_without_junit(
     tmp_path: Path,
 ) -> None:
     env = _fake_runtime(tmp_path, maestro_report=False)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
 
     result = _run(tmp_path, env)
 
     assert result.returncode != 0
+    _assert_original_build_restored(env, original_inode)
     assert "Maestro JUnit report is missing or empty" in result.stderr
     assert "PASS" not in result.stdout
     metadata = json.loads(
@@ -398,10 +484,13 @@ def test_budget_orchestrator_rejects_invalid_sanitized_junit(
     tmp_path: Path,
 ) -> None:
     env = _fake_runtime(tmp_path, maestro_invalid_xml=True)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
 
     result = _run(tmp_path, env)
 
     assert result.returncode != 0
+    _assert_original_build_restored(env, original_inode)
     assert "sanitized Maestro JUnit report is invalid XML" in result.stderr
     assert "PASS" not in result.stdout
     metadata = json.loads(
@@ -427,9 +516,12 @@ def test_budget_orchestrator_fails_closed(
     forbidden: str,
 ) -> None:
     env = _fake_runtime(tmp_path, **runtime)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
     result = _run(tmp_path, env)
 
     assert result.returncode == next(iter(runtime.values()))
+    _assert_original_build_restored(env, original_inode)
     assert expected in result.stderr
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8").splitlines()
     runtime_calls = "\n".join(line for line in calls if not line.startswith("git "))
@@ -438,7 +530,10 @@ def test_budget_orchestrator_fails_closed(
         Path(env["MINT_TEST_REPO"]) / "apps/mobile/test/patrol/test_bundle.dart"
     )
     assert not generated_bundle.exists()
-    assert (tmp_path / "artifacts/metadata.json").is_file()
+    artifacts = tmp_path / "artifacts"
+    assert (artifacts / "metadata.json").is_file()
+    assert not list(artifacts.glob("*.raw.log"))
+    assert not (artifacts / "maestro-report.xml").exists()
 
 
 def test_budget_orchestrator_rejects_missing_device_and_sha_drift(
@@ -498,12 +593,15 @@ def test_budget_orchestrator_success_fails_closed_when_metadata_is_directory(
     tmp_path: Path,
 ) -> None:
     env = _fake_runtime(tmp_path)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
     metadata = tmp_path / "artifacts/metadata.json"
     metadata.mkdir(parents=True)
 
     result = _run(tmp_path, env)
 
     assert result.returncode == 2
+    _assert_original_build_restored(env, original_inode)
     assert "PASS" not in result.stdout
     assert metadata.is_dir()
     generated_bundle = (
@@ -516,10 +614,13 @@ def test_budget_orchestrator_success_fails_closed_when_bundle_cleanup_fails(
     tmp_path: Path,
 ) -> None:
     env = _fake_runtime(tmp_path, bundle_as_directory=True)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
 
     result = _run(tmp_path, env)
 
     assert result.returncode == 2
+    _assert_original_build_restored(env, original_inode)
     assert "PASS" not in result.stdout
     generated_bundle = (
         Path(env["MINT_TEST_REPO"]) / "apps/mobile/test/patrol/test_bundle.dart"
@@ -535,9 +636,150 @@ def test_budget_orchestrator_stage_failure_preserves_code_when_cleanup_fails(
     tmp_path: Path,
 ) -> None:
     env = _fake_runtime(tmp_path, write_exit=7, bundle_as_directory=True)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
 
     result = _run(tmp_path, env)
 
     assert result.returncode == 7
+    _assert_original_build_restored(env, original_inode)
     assert "PASS" not in result.stdout
     assert (tmp_path / "artifacts/metadata.json").is_file()
+
+
+def test_budget_orchestrator_stage_failure_preserves_code_when_sanitization_fails(
+    tmp_path: Path,
+) -> None:
+    env = _fake_runtime(tmp_path, write_exit=7)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
+    artifacts = tmp_path / "artifacts"
+    (artifacts / "write.log").mkdir(parents=True)
+
+    result = _run(tmp_path, env)
+
+    assert result.returncode == 7
+    _assert_original_build_restored(env, original_inode)
+    assert "PASS" not in result.stdout
+    assert not list(artifacts.glob("*.raw.log"))
+    metadata = json.loads((artifacts / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["cleanup_status"] == "failed"
+
+
+def test_budget_orchestrator_rejects_build_symlink_and_backup_collision(
+    tmp_path: Path,
+) -> None:
+    symlink_env = _fake_runtime(tmp_path / "symlink")
+    symlink_build = Path(symlink_env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    shutil.rmtree(symlink_build)
+    foreign_build = tmp_path / "foreign-build"
+    foreign_build.mkdir()
+    symlink_build.symlink_to(foreign_build, target_is_directory=True)
+
+    symlink_result = _run(tmp_path / "symlink", symlink_env)
+
+    assert symlink_result.returncode != 0
+    assert "pre-existing build symlink" in symlink_result.stderr
+    assert symlink_build.is_symlink()
+    assert symlink_build.resolve() == foreign_build.resolve()
+
+    collision_env = _fake_runtime(tmp_path / "collision")
+    collision_repo = Path(collision_env["MINT_TEST_REPO"])
+    collision_build = collision_repo / "apps/mobile/build"
+    original_inode = collision_build.stat().st_ino
+    backup = (
+        collision_repo
+        / "apps/mobile/.dart_tool"
+        / f"mint-patrol-g1-bnd03-build-backup-{SYNTHETIC_SHA}"
+    )
+    backup.mkdir()
+    (backup / "stale-backup-marker.txt").write_text("preserve\n", encoding="utf-8")
+
+    collision_result = _run(tmp_path / "collision", collision_env)
+
+    assert collision_result.returncode != 0
+    assert "backup collision" in collision_result.stderr
+    _assert_original_build_restored(collision_env, original_inode)
+    assert (backup / "stale-backup-marker.txt").read_text(encoding="utf-8") == (
+        "preserve\n"
+    )
+    assert "patrol " not in (tmp_path / "collision/calls.log").read_text(
+        encoding="utf-8"
+    )
+
+
+def test_budget_orchestrator_restores_original_build_on_term_signal(
+    tmp_path: Path,
+) -> None:
+    env = _fake_runtime(tmp_path, patrol_sleep=30)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
+    command = [
+        "bash",
+        str(ORCHESTRATOR),
+        "--device",
+        SYNTHETIC_UDID,
+        "--bundle-id",
+        BUNDLE_ID,
+        "--sha",
+        SYNTHETIC_SHA,
+        "--artifacts",
+        str(tmp_path / "artifacts"),
+    ]
+    process = subprocess.Popen(
+        command,
+        cwd=ROOT,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+    )
+    artifacts = tmp_path / "artifacts"
+    calls_path = tmp_path / "calls.log"
+    write_raw = artifacts / "write.raw.log"
+    deadline = time.monotonic() + 10
+    patrol_write_call = ""
+    while time.monotonic() < deadline:
+        if process.poll() is not None:
+            break
+        if calls_path.exists():
+            patrol_write_call = next(
+                (
+                    line
+                    for line in calls_path.read_text(encoding="utf-8").splitlines()
+                    if line.startswith("patrol ") and "write_runtime" in line
+                ),
+                "",
+            )
+        if patrol_write_call and write_raw.is_file() and write_raw.stat().st_size > 0:
+            break
+        time.sleep(0.05)
+    assert patrol_write_call, process.communicate(timeout=2)
+    assert write_raw.is_file() and write_raw.stat().st_size > 0
+    assert mobile_build.is_symlink()
+    external_target_match = re.search(r" build=([^ ]+) args=", patrol_write_call)
+    assert external_target_match is not None
+    external_root = str(Path(external_target_match.group(1)).parent)
+
+    os.killpg(process.pid, signal.SIGTERM)
+    stdout, stderr = process.communicate(timeout=10)
+
+    assert process.returncode == 143, stdout + stderr
+    _assert_original_build_restored(env, original_inode)
+    metadata = json.loads(
+        (artifacts / "metadata.json").read_text(encoding="utf-8")
+    )
+    assert metadata["build_isolation"]["restoration_status"] == "restored"
+    assert not list(artifacts.glob("*.raw.log"))
+    write_log = artifacts / "write.log"
+    assert write_log.is_file()
+    sanitized = write_log.read_text(encoding="utf-8")
+    for private in (
+        env["MINT_TEST_REPO"],
+        env["HOME"],
+        SYNTHETIC_UDID,
+        env["MINT_TEST_PRIVATE_TEMP"],
+        external_root,
+    ):
+        assert private not in sanitized
