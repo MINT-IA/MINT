@@ -62,6 +62,8 @@ def _fake_runtime(
         "test/patrol/g1_bnd03_budget_persistence_write_runtime_test.dart",
         "test/patrol/g1_bnd03_budget_persistence_read_runtime_test.dart",
         ".maestro/g1_bnd03_budget_cold.yaml",
+        "lib/screens/budget/budget_container_screen.dart",
+        "lib/screens/budget/budget_setup_screen.dart",
         "lib/screens/budget/budget_screen.dart",
     ):
         target = mobile / relative
@@ -233,6 +235,29 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     assert "SharedPreferences.getInstance()" in writer
     assert "999999" in writer
     assert "waitForOverridePersistence()" in writer
+    assert "openUrl('mint:///budget/setup')" not in writer
+    first_budget = writer.index("openUrl('mint:///budget')")
+    setup_start = writer.index("#budget_setup_start_cta")
+    setup_housing = writer.index("#budget_setup_housing_input")
+    setup_save = writer.index("#budget_setup_save_cta")
+    first_hero = writer.index("#budget_available_hero")
+    revenue = writer.index("openUrl('mint:///data-block/revenu')")
+    salary = writer.index("#salary_input")
+    salary_save = writer.index("#salary_save_cta")
+    final_budget = writer.index("openUrl('mint:///budget')", first_budget + 1)
+    future = writer.index("#budget_future_input")
+    assert (
+        first_budget
+        < setup_start
+        < setup_housing
+        < setup_save
+        < first_hero
+        < revenue
+        < salary
+        < salary_save
+        < final_budget
+        < future
+    )
 
     assert "ReportPersistenceService.clearDiagnostic()" not in reader
     assert "CoachProfileProvider" in reader
@@ -276,6 +301,8 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     assert 'maestro_command=("$MAESTRO_RUNNER")' in orchestrator
     assert "xml.etree.ElementTree" in orchestrator
     assert "test/patrol/test_bundle.dart" in orchestrator
+    assert "budget_container_screen.dart" in orchestrator
+    assert "budget_setup_screen.dart" in orchestrator
     assert "synthetic_data_only" in orchestrator
     assert "device_sha256" in orchestrator
     assert '"device"' not in orchestrator

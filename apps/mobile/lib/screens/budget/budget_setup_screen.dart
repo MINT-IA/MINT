@@ -238,7 +238,11 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     await provider.mergeAnswers(answers);
     if (!mounted) return;
     setState(() => _saving = false);
-    Navigator.of(context).pop();
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/budget');
+    }
   }
 
   @override

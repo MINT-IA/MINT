@@ -55,9 +55,11 @@ class BudgetContainerScreen extends StatelessWidget {
               )),
               const SizedBox(height: 32),
               Semantics(
+                identifier: 'budget_setup_start_cta',
                 button: true,
                 label: S.of(context)!.semanticsBudgetStartButton,
                 child: FilledButton.icon(
+                  key: const Key('budget_setup_start_cta'),
                   onPressed: () => context.push('/budget/setup'),
                   icon: const Icon(Icons.edit_note),
                   label: Text(S.of(context)!.budgetCardEmptyAction),

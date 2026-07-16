@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/budget/budget_setup_screen.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +16,17 @@ Widget _wrap(
   Widget child, {
   CoachProfileProvider? coachProfileProvider,
 }) {
+  final router = GoRouter(
+    initialLocation: '/budget/setup',
+    routes: [
+      GoRoute(path: '/budget/setup', builder: (_, __) => child),
+      GoRoute(
+        path: '/budget',
+        builder: (_, __) => const SizedBox(key: Key('budget_route_probe')),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
   return MultiProvider(
     providers: [
       if (coachProfileProvider == null)
@@ -22,7 +35,7 @@ Widget _wrap(
         ChangeNotifierProvider.value(value: coachProfileProvider),
       ChangeNotifierProvider(create: (_) => BudgetProvider()),
     ],
-    child: MaterialApp(
+    child: MaterialApp.router(
       locale: const Locale('fr'),
       localizationsDelegates: const [
         S.delegate,
@@ -31,7 +44,7 @@ Widget _wrap(
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: S.supportedLocales,
-      home: child,
+      routerConfig: router,
     ),
   );
 }
@@ -80,6 +93,122 @@ void main() {
     expect(answers, containsPair('q_lamal_franchise', '2500'));
     expect(answers, containsPair('q_housing_pay_frequency', 'monthly'));
     expect(answers, isNot(contains('q_pay_frequency')));
+  });
+
+  testWidgets(
+      'root GoRouter setup save falls back deterministically to budget',
+      (tester) async {
+    final router = GoRouter(
+      initialLocation: '/budget/setup',
+      routes: [
+        GoRoute(
+          path: '/budget/setup',
+          builder: (_, __) => const BudgetSetupScreen(),
+        ),
+        GoRoute(
+          path: '/budget',
+          builder: (_, __) => const Text(
+            'budget-route',
+            key: Key('budget_route_probe'),
+          ),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => CoachProfileProvider(),
+        child: MaterialApp.router(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('budget_setup_housing_input')),
+      '2100',
+    );
+    await tester.enterText(
+      find.byKey(const Key('budget_setup_lamal_input')),
+      '420',
+    );
+    await tester.ensureVisible(find.byKey(const Key('budget_setup_save_cta')));
+    await tester.tap(find.byKey(const Key('budget_setup_save_cta')));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const Key('budget_route_probe')), findsOneWidget);
+    expect(router.routeInformationProvider.value.uri.path, '/budget');
+  });
+
+  testWidgets('budget CTA push setup save pops back to budget', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = GoRouter(
+      initialLocation: '/budget',
+      routes: [
+        GoRoute(
+          path: '/budget',
+          builder: (_, __) => const BudgetContainerScreen(),
+        ),
+        GoRoute(
+          path: '/budget/setup',
+          builder: (_, __) => const BudgetSetupScreen(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => CoachProfileProvider()),
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: MaterialApp.router(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final startCta = find.byKey(const Key('budget_setup_start_cta'));
+    await tester.ensureVisible(startCta);
+    await tester.tap(startCta);
+    await tester.pumpAndSettle();
+    expect(find.byType(BudgetSetupScreen), findsOneWidget);
+    expect(router.canPop(), isTrue);
+    await tester.enterText(
+      find.byKey(const Key('budget_setup_housing_input')),
+      '2100',
+    );
+    await tester.enterText(
+      find.byKey(const Key('budget_setup_lamal_input')),
+      '420',
+    );
+    await tester.ensureVisible(find.byKey(const Key('budget_setup_save_cta')));
+    await tester.tap(find.byKey(const Key('budget_setup_save_cta')));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(router.routeInformationProvider.value.uri.path, '/budget');
+    expect(find.byType(BudgetContainerScreen), findsOneWidget);
   });
 
   testWidgets(

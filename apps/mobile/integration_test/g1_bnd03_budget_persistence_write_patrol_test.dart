@@ -34,6 +34,17 @@ void main() {
       await ReportPersistenceService.setMiniOnboardingCompleted(true);
       await $.pumpWidgetAndSettle(const MintApp());
 
+      await $.platformAutomator.mobile.openUrl('mint:///budget');
+      await $.pumpAndSettle();
+      await $(#budget_setup_start_cta).waitUntilVisible();
+      await $(#budget_setup_start_cta).tap();
+      await $(#budget_setup_housing_input).waitUntilVisible();
+      await $(#budget_setup_housing_input).enterText('2100');
+      await $(#budget_setup_lamal_input).enterText('420');
+      await $(#budget_setup_save_cta).scrollTo().tap();
+      await $.pumpAndSettle();
+      await $(#budget_available_hero).waitUntilVisible();
+
       await $.platformAutomator.mobile.openUrl('mint:///data-block/revenu');
       await $.pumpAndSettle();
       await $(#salary_input).waitUntilVisible();
@@ -42,14 +53,6 @@ void main() {
       await $(#birth_year_input).enterText('2001');
       await $(#salary_save_cta).scrollTo().tap();
       await $(#data_block_save_success).waitUntilVisible();
-
-      await $.platformAutomator.mobile.openUrl('mint:///budget/setup');
-      await $.pumpAndSettle();
-      await $(#budget_setup_housing_input).waitUntilVisible();
-      await $(#budget_setup_housing_input).enterText('2100');
-      await $(#budget_setup_lamal_input).enterText('420');
-      await $(#budget_setup_save_cta).scrollTo().tap();
-      await $.pumpAndSettle();
 
       await $.platformAutomator.mobile.openUrl('mint:///budget');
       await $.pumpAndSettle();

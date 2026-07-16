@@ -51,6 +51,8 @@ runtime_paths=(
   "$write_target"
   "$read_target"
   "$maestro_flow"
+  "apps/mobile/lib/screens/budget/budget_container_screen.dart"
+  "apps/mobile/lib/screens/budget/budget_setup_screen.dart"
   "apps/mobile/lib/screens/budget/budget_screen.dart"
   "$orchestrator_path"
   "tools/simulator/maestro_env.sh"

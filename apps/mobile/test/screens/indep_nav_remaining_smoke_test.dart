@@ -2024,6 +2024,14 @@ void main() {
       // FilledButton.icon creates a widget that may not match find.byType(FilledButton)
       // in all Flutter versions, so we check for the button text + icon instead
       expect(find.byIcon(Icons.edit_note), findsOneWidget);
+      expect(
+        find.byKey(const Key('budget_setup_start_cta')),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier('budget_setup_start_cta'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('shows wallet icon in empty state', (tester) async {
