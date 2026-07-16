@@ -39,7 +39,8 @@ only machine-evidence `green` is checked.
 - [ ] **RDY-BND-01**: Legacy profile consumers migrate to canonical semantics.
 - [x] **RDY-BND-02**: Partner-owned facts bridge and recompute through a real scoped consumer.
 - [x] **RDY-BND-02A**: Partner facts require the named legal/privacy decision, implemented accountability, field scope, notice and revocation.
-- [ ] **RDY-BND-03**: Budget facts bridge to CoachProfile and derived state.
+- [x] **RDY-BND-03**: Budget facts bridge to CoachProfile and derived state.
+  Evidence: [`G1-BND-03` verification](runtime-evidence/phase-37/bnd-03/verification.md).
 - [x] **RDY-BND-04**: CoachProfile mutation recomputes MintUserState exactly once.
 - [ ] **RDY-BND-05**: Documents remain references; confirmed facts enter the ledger.
 - [ ] **RDY-BND-06**: Financial plan freshness follows the profile input hash.

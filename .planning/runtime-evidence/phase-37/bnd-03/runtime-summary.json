@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "sha": "7ed54e282183767b993fefd1a97daeff00c02849",
+  "mobile_tree": "44ad74cb784d184ffa6ff0bbafcfc7e3e3b8e085",
+  "recorded_at": "2026-07-16T04:40:08Z",
+  "synthetic_data_only": true,
+  "private_fixture_used": false,
+  "effective_runtime_attempts": 1,
+  "mode": "patrol_external_build_xcode_then_exact_archive_physical_production_install",
+  "stage_count": 13,
+  "all_stage_exit_codes_zero": true,
+  "writer_passed": true,
+  "explicit_process_termination_passed": true,
+  "cold_reader_passed": true,
+  "exact_git_archive_export_passed": true,
+  "physical_flutter_build_passed": true,
+  "strict_codesign_verification_passed": true,
+  "forbidden_xattr_check_passed": true,
+  "production_install_passed": true,
+  "maestro_passed": true,
+  "expected_sanitized_logs": 14,
+  "cleanup_status": "passed",
+  "original_build_restored": true,
+  "privacy": {
+    "raw_udid_retained": false,
+    "absolute_repo_or_temp_path_retained": false,
+    "raw_logs_retained": false,
+    "xcresult_retained": false,
+    "screenshots_retained": false,
+    "private_certificates_used": false
+  },
+  "local_sanitized_bundle": ".planning/runtime-evidence/phase-37/bnd-03/runtime-7ed54e282183-20260716T043608Z",
+  "lightweight_hashes": {
+    "metadata_json": "8b2319d3966e2dfb244ff16863c60f7ce7ea44e6cd4459ef36ab5cdfd657af23",
+    "maestro_report_sanitized_xml": "39ef19c71ffb2f8607f8b9f17e729ac21898016c0b8c92d84a8549ceeb560ed6",
+    "source_manifest_sha256": "f502804e61231385352bfdfbbaeda0537fb2d6439a5ec736e670ddcb9a3ff7ce",
+    "audit_code_opus": "bd1cbac08358a4e70ad88edee417eb0480bd5cf9e9102ee2412444364e0a1106",
+    "audit_product_domain_opus": "828f5d35209811993676bbb573b56abeb2d8ae14dfce1ef4e77317d41f6028cf"
+  },
+  "audit_result": {
+    "required_modes": 2,
+    "passed_modes": 2,
+    "unresolved_p0": 0,
+    "unresolved_p1": 0
+  },
+  "ticket_decision": "GREEN",
+  "g1_decision": "NO_GO",
+  "g2_g3_authorized": false
+}

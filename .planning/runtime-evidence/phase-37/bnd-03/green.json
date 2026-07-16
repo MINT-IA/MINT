@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-03",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/providers/provider_bridge_recompute_test.dart --reporter expanded",
+  "sha": "7ed54e282183767b993fefd1a97daeff00c02849",
+  "recorded_at": "2026-07-16T04:52:36Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "provider_bridge_recompute_test",
+  "output": "The identical command passed 12/12 predicates. Cold BudgetProvider state derives from the canonical CoachProfile instead of conflicting cache values; BudgetSetup preserves the income cadence and stores the separate housing cadence; canonical mutations refresh BudgetProvider and MintState exactly once with the exact charges/free delta; retirement budgetGap remains null without official AVS evidence. Exact-SHA Patrol writer -> explicit process death -> cold reader, production archive build/signature/xattr/install, Maestro, all 13 runtime stages, all 14 expected sanitized logs, cleanup/restoration and wrapper-only Opus code/product-domain audits passed. Runtime evidence: .planning/runtime-evidence/phase-37/bnd-03/runtime-7ed54e282183-20260716T043608Z/metadata.json.",
+  "synthetic_data_only": true
+}

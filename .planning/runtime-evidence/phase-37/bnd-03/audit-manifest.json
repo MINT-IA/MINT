@@ -1,0 +1,73 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "tools/checks/claude_external_audit.sh code 68506813f59ce25edcabc5e453ba3e53589cca26",
+      "mode": "code",
+      "model": "opus",
+      "base_sha": "68506813f59ce25edcabc5e453ba3e53589cca26",
+      "head_sha": "7ed54e282183767b993fefd1a97daeff00c02849",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/bnd-03/audit-code-opus.md",
+      "findings": [
+        {
+          "id": "CODE-OPUS-P2-REAL-TOOLCHAIN",
+          "severity": "p2",
+          "status": "resolved",
+          "summary": "The fake harness alone could not prove clean-export dependency regeneration on the real iOS toolchain.",
+          "evidence": "The accepted pushed SHA passed the exact archive export, real Flutter production build, strict CodeSign verification, install and Maestro stages in runtime-7ed54e282183-20260716T043608Z."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 1,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "tools/checks/claude_external_audit.sh product-domain 68506813f59ce25edcabc5e453ba3e53589cca26",
+      "mode": "product-domain",
+      "model": "opus",
+      "base_sha": "68506813f59ce25edcabc5e453ba3e53589cca26",
+      "head_sha": "7ed54e282183767b993fefd1a97daeff00c02849",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/bnd-03/audit-product-domain-opus.md",
+      "findings": [
+        {
+          "id": "DOMAIN-OPUS-P2-BUDGET-RETURN-ASSERTION",
+          "severity": "p2",
+          "status": "resolved",
+          "summary": "The provider harness defines the budget return probe without asserting it locally.",
+          "evidence": "The dedicated production-navigation contract already asserts the probe and exact /budget route in apps/mobile/test/screens/budget_setup_screen_test.dart:149-150 and :210; that suite passed 11/11."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-MODE-NAME",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The runtime metadata mode string is long and operationally opaque.",
+          "evidence": "The value is machine metadata only, accurately enumerates the proof path, has no product or Swiss-domain effect, and is retained as cosmetic naming debt."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 2,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}

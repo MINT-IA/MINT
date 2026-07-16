@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: BND-03 has exact-command semantic RED at production SHA 683e2a1f2 with 1 pass/4 business failures; no product fix has started, 15 hard floors remain, and G2/G3 are not authorized.
-last_updated: "2026-07-15T22:44:42Z"
-last_activity: 2026-07-15 -- BND-03 advanced from W0 missing-test to collected semantic RED covering stale budget cache, cadence collision, absent live bridge and incorrect budget snapshot delta
+stopped_at: BND-03 is ticket- and exact-SHA runtime-GREEN at 7ed54e282 with wrapper audits PASS; 14 hard floors remain, BND-05 is next, and G2/G3 are not authorized.
+last_updated: "2026-07-16T04:52:36Z"
+last_activity: 2026-07-16 -- BND-03 promoted after 12/12 ticket GREEN, real writer/process-death/cold-reader plus exact-archive production runtime, privacy cleanup and both wrapper audits PASS
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,13 +34,14 @@ Plan: 37-04 — partner accountability and real downstream bridge
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-15 -- the exact BND-03 command collects five tests and
-returns 1 pass / 4 semantic failures against production SHA `683e2a1f2`: stale
-cache 9999/666/888 overrides ledger 1800/400/300 after explicit reload;
-BudgetSetup overwrites yearly income cadence and omits monthly housing cadence;
-the live BudgetProvider bridge emits no notification/deltas; MintState moves
-charges/free by ±783.333 instead of ±650. The fail-closed `budgetGap=null`
-predicate passes. This is RED evidence only; no product fix has started.
+Last activity: 2026-07-16 -- `G1-BND-03` is accepted at pushed SHA
+`7ed54e282`: the identical command passes 12/12; stale cache cannot override
+the canonical budget ledger; income/housing cadences stay distinct; provider
+and MintState recompute once with the exact ±650 delta; `budgetGap` stays null
+without official AVS evidence. The same SHA passed writer → explicit process
+death → cold reader, exact Git-archive production build/signature/install,
+Maestro, cleanup/privacy checks and both wrapper-only Opus audits. This closes
+only BND-03; BND-05 is the next canonical G1 contract.
 
 ## Build Order
 
@@ -101,16 +102,20 @@ predicate passes. This is RED evidence only; no product fix has started.
   Patrol/Maestro runtime and four wrapper-only audits are accepted. All LPP
   accountability flags remain false. Technical GREEN never authorizes
   activation.
+- `G1-BND-03` is ticket- and runtime-`green` at exact SHA `7ed54e282`.
+  Its synthetic-only process-death chain rebuilds the production entrypoint
+  from the exact Git tree outside FileProvider; strict signature/xattr checks,
+  restoration, privacy hygiene and code/product-domain audits all pass.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 16 `green`, 13 `ticket_only`, and two
-  `red_proven`. Therefore 15 G1 hard floors remain open.
+- The canonical registry has 31 rows: 17 `green`, 13 `ticket_only`, and one
+  `red_proven`. Therefore 14 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
-- `G1-BND-03` is `red_proven` at `683e2a1f2`; its exact test now exists and
-  fails only on the four intended budget bridge/cadence/cache predicates, so
-  W0 missing-test no longer describes this row.
+- `G1-BND-05` is the next ordered Wave 3 floor. Its named
+  `document_reference_bridge_test.dart` contract still requires Wave 0 RED or
+  a baseline-GREEN plus non-vacuous control before implementation.
 - Eight external production facts remain unproven: controller identity,
   operational privacy contact, Anthropic role/DPA, actual processing regions,
   transfer mechanism/TIA, retention/ZDR, AIPD decision, and the public
@@ -129,12 +134,11 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-15T22:44:42Z
+Last session: 2026-07-16T04:52:36Z
 
-Stopped at: BND-03 semantic RED evidence is prepared against exact production
-SHA `683e2a1f2`; no product implementation, commit or push was performed by the
-quality-gate agent. Continue only G1 BND-03 after reviewing the RED slice. Do
-not start G2/G3.
+Stopped at: BND-03 is promoted at exact pushed SHA `7ed54e282` with complete
+ticket/runtime/audit evidence. Continue only G1 with the BND-05 Wave 0 contract;
+do not start G2/G3.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-04-PLAN.md`. Do not infer
