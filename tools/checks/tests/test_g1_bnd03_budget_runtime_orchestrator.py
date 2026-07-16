@@ -43,9 +43,11 @@ def _write_executable(path: Path, source: str) -> None:
 def _fake_runtime(
     tmp_path: Path,
     *,
+    write_build_exit: int = 0,
     write_exit: int = 0,
     launch_exit: int = 0,
     terminate_exit: int = 0,
+    read_build_exit: int = 0,
     read_exit: int = 0,
     maestro_exit: int = 0,
     maestro_report: bool = True,
@@ -57,6 +59,7 @@ def _fake_runtime(
     bundle_as_directory: bool = False,
     bundle_tracked: bool = False,
     patrol_sleep: int = 0,
+    product_failure: str = "",
 ) -> dict[str, str]:
     repo = tmp_path / "repo"
     mobile = repo / "apps/mobile"
@@ -91,6 +94,7 @@ def _fake_runtime(
     calls = tmp_path / "calls.log"
     fake_git = fake_bin / "git"
     fake_patrol = fake_bin / "patrol"
+    fake_xcodebuild = fake_bin / "xcodebuild"
     fake_xcrun = fake_bin / "xcrun"
     fake_maestro = fake_bin / "maestro-runner"
     default_maestro = simulator / "maestro_env.sh"
@@ -123,7 +127,8 @@ def _fake_runtime(
         "set -euo pipefail\n"
         'build_target="$(readlink build 2>/dev/null || true)"\n'
         'printf \'patrol cwd=%s build=%s args=%s\\n\' "$PWD" "$build_target" "$*" >> "$MINT_TEST_CALLS"\n'
-        '[[ "${1:-}" == "--verbose" && "${2:-}" == "test" ]] || exit 93\n'
+        '[[ "${1:-}" == "--verbose" && "${2:-}" == "build" && "${3:-}" == "ios" ]] || exit 93\n'
+        '[[ "$*" == *"--simulator"* && "$*" == *"--bundle-id $MINT_TEST_BUNDLE_ID"* ]] || exit 98\n'
         '[[ -L build && -d "$build_target" ]] || exit 94\n'
         'case "$build_target" in "$MINT_TEST_REPO"/*) exit 95 ;; esac\n'
         'printf \'verbose repo=%s external=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$build_target" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
@@ -135,13 +140,58 @@ def _fake_runtime(
         '    printf \'generated bundle\\n\' > test/patrol/test_bundle.dart\n'
         '  fi\n'
         'fi\n'
-        'if [[ "$*" == *"write_runtime"* ]]; then\n'
-        '  printf \'writer cache\\n\' > build/writer-cache-marker.txt\n'
+        'stage=read\n'
+        'if [[ "$*" == *"write_runtime"* ]]; then stage=write; fi\n'
+        'if [[ "$stage" == "read" && -e build/writer-contamination-marker.txt ]]; then exit 96; fi\n'
+        'if [[ "$stage" == "write" ]]; then printf \'writer cache\\n\' > build/writer-contamination-marker.txt; fi\n'
+        'products=build/ios_integ/Build/Products\n'
+        'runner="$products/Debug-iphonesimulator/Runner.app"\n'
+        'if [[ "$MINT_TEST_PRODUCT_FAILURE" != "$stage-runner" ]]; then\n'
+        '  asset_dir="$runner/Frameworks/App.framework/flutter_assets"\n'
+        '  mkdir -p "$asset_dir"\n'
+        '  if [[ "$MINT_TEST_PRODUCT_FAILURE" == "$stage-asset" ]]; then\n'
+        '    : > "$asset_dir/AssetManifest.bin"\n'
+        '  else\n'
+        '    printf \'asset manifest %s\\n\' "$stage" > "$asset_dir/AssetManifest.bin"\n'
+        '  fi\n'
+        'fi\n'
+        'if [[ "$MINT_TEST_PRODUCT_FAILURE" != "$stage-xctestrun" ]]; then\n'
+        '  mkdir -p "$products"\n'
+        '  printf \'%s\\n\' "$stage" > "$products/Runner_iphonesimulator26.2-arm64-x86_64.xctestrun"\n'
+        'fi\n'
+        'if [[ "$stage" == "write" ]]; then\n'
         '  if [[ "$MINT_TEST_PATROL_SLEEP" -gt 0 ]]; then sleep "$MINT_TEST_PATROL_SLEEP"; fi\n'
+        '  exit "$MINT_TEST_WRITE_BUILD_EXIT"\n'
+        'fi\n'
+        'exit "$MINT_TEST_READ_BUILD_EXIT"\n',
+    )
+    _write_executable(
+        fake_xcodebuild,
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        'printf \'xcodebuild %s\\n\' "$*" >> "$MINT_TEST_CALLS"\n'
+        '[[ "${1:-}" == "test-without-building" ]] || exit 93\n'
+        'xctestrun=""\n'
+        'result_bundle=""\n'
+        'previous=""\n'
+        'for argument in "$@"; do\n'
+        '  if [[ "$previous" == "-xctestrun" ]]; then xctestrun="$argument"; fi\n'
+        '  if [[ "$previous" == "-resultBundlePath" ]]; then result_bundle="$argument"; fi\n'
+        '  previous="$argument"\n'
+        'done\n'
+        '[[ -f "$xctestrun" && -n "$result_bundle" ]] || exit 94\n'
+        '[[ "$*" == *"-only-testing RunnerUITests/RunnerUITests"* ]] || exit 95\n'
+        '[[ "$*" == *"-destination platform=iOS Simulator,id=$MINT_TEST_DEVICE"* ]] || exit 96\n'
+        'case "$result_bundle" in "$MINT_TEST_REPO"/*) exit 98 ;; esac\n'
+        'stage="$(cat "$xctestrun")"\n'
+        'mkdir -p "$result_bundle"\n'
+        'printf \'xcresult %s\\n\' "$stage" > "$result_bundle/result.txt"\n'
+        'printf \'verbose repo=%s xctestrun=%s result=%s home=%s device=%s temp=%s\\n\' "$MINT_TEST_REPO" "$xctestrun" "$result_bundle" "$HOME" "$MINT_TEST_DEVICE" "$MINT_TEST_PRIVATE_TEMP"\n'
+        'if [[ "$stage" == "write" ]]; then\n'
+        '  printf \'shared preferences survive build reset\\n\' > "$MINT_TEST_DEVICE_STATE"\n'
         '  exit "$MINT_TEST_WRITE_EXIT"\n'
         'fi\n'
-        '[[ ! -e build/writer-cache-marker.txt ]] || exit 96\n'
-        'printf \'reader cache\\n\' > build/reader-cache-marker.txt\n'
+        '[[ -s "$MINT_TEST_DEVICE_STATE" ]] || exit 97\n'
         'exit "$MINT_TEST_READ_EXIT"\n',
     )
     _write_executable(
@@ -179,9 +229,11 @@ def _fake_runtime(
         "MINT_TEST_CALLS": str(calls),
         "MINT_TEST_REPO": str(repo),
         "MINT_TEST_SHA": SYNTHETIC_SHA,
+        "MINT_TEST_WRITE_BUILD_EXIT": str(write_build_exit),
         "MINT_TEST_WRITE_EXIT": str(write_exit),
         "MINT_TEST_LAUNCH_EXIT": str(launch_exit),
         "MINT_TEST_TERMINATE_EXIT": str(terminate_exit),
+        "MINT_TEST_READ_BUILD_EXIT": str(read_build_exit),
         "MINT_TEST_READ_EXIT": str(read_exit),
         "MINT_TEST_MAESTRO_EXIT": str(maestro_exit),
         "MINT_TEST_MAESTRO_REPORT": "1" if maestro_report else "0",
@@ -193,6 +245,9 @@ def _fake_runtime(
         "MINT_TEST_BUNDLE_AS_DIRECTORY": "1" if bundle_as_directory else "0",
         "MINT_TEST_BUNDLE_TRACKED": "0" if bundle_tracked else "1",
         "MINT_TEST_PATROL_SLEEP": str(patrol_sleep),
+        "MINT_TEST_PRODUCT_FAILURE": product_failure,
+        "MINT_TEST_BUNDLE_ID": BUNDLE_ID,
+        "MINT_TEST_DEVICE_STATE": str(tmp_path / "device-state.txt"),
         "MINT_TEST_DEFAULT_MAESTRO": str(fake_maestro),
         "MINT_TEST_PRIVATE_TEMP": "/private/var/folders/aa/bb/T/mint-bnd03",
     }
@@ -344,11 +399,27 @@ def test_budget_runtime_contracts_use_real_ui_and_cold_canonical_seams() -> None
     assert "pre-existing build symlink" in orchestrator
     assert "backup collision" in orchestrator
     assert "trap 'exit 143' TERM" in orchestrator
-    assert orchestrator.count('"$patrol_bin" --verbose test') == 2
-    assert "patrol build" not in orchestrator
-    assert "xcodebuild" not in orchestrator
+    assert orchestrator.count('"$patrol_bin" --verbose build ios') == 2
+    assert orchestrator.count("--simulator") == 2
+    assert "--no-uninstall" not in orchestrator
+    assert "--verbose test" not in orchestrator
+    assert orchestrator.count("xcodebuild test-without-building") == 1
+    assert orchestrator.count('run_xcode_test "write"') == 1
+    assert orchestrator.count('run_xcode_test "read"') == 1
+    assert orchestrator.count('-only-testing "RunnerUITests/RunnerUITests"') == 1
+    assert 'result_bundle="$external_build/$stage.xcresult"' in orchestrator
+    assert '$artifacts/$stage.xcresult' not in orchestrator
+    assert "Runner.app" in orchestrator
+    assert "AssetManifest.bin" in orchestrator
+    assert "*.xctestrun" in orchestrator
+    assert "command -v xcodebuild" in orchestrator
+    assert "command -v find" in orchestrator
+    assert "command -v python3" in orchestrator
+    assert "retry" not in orchestrator.lower()
     assert "codesign" not in orchestrator
+    assert "xattr" not in orchestrator
     assert "entitlements" not in orchestrator
+    assert "project.pbxproj" not in orchestrator
     assert "synthetic_data_only" in orchestrator
     assert "device_sha256" in orchestrator
     assert '"device"' not in orchestrator
@@ -370,12 +441,13 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     ).exists()
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8").splitlines()
     runtime_calls = [line for line in calls if not line.startswith("git ")]
-    assert len(runtime_calls) == 5
+    assert len(runtime_calls) == 7
     assert "write_runtime" in runtime_calls[0]
     patrol_calls = [line for line in runtime_calls if line.startswith("patrol ")]
     assert len(patrol_calls) == 2
-    assert all("args=--verbose test" in line for line in patrol_calls)
-    assert all("--no-uninstall" in line for line in patrol_calls)
+    assert all("args=--verbose build ios" in line for line in patrol_calls)
+    assert all("--simulator" in line for line in patrol_calls)
+    assert all(f"--bundle-id {BUNDLE_ID}" in line for line in patrol_calls)
     external_targets = {
         re.search(r" build=([^ ]+) args=", line).group(1) for line in patrol_calls
     }
@@ -383,10 +455,25 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     external_target = Path(external_targets.pop())
     assert not external_target.is_relative_to(Path(env["MINT_TEST_REPO"]))
     assert not external_target.exists()
-    assert runtime_calls[1] == f"xcrun simctl launch {SYNTHETIC_UDID} {BUNDLE_ID}"
-    assert runtime_calls[2] == f"xcrun simctl terminate {SYNTHETIC_UDID} {BUNDLE_ID}"
-    assert "read_runtime" in runtime_calls[3]
-    assert "g1_bnd03_budget_cold.yaml" in runtime_calls[4]
+    xcodebuild_calls = [
+        line for line in runtime_calls if line.startswith("xcodebuild ")
+    ]
+    assert len(xcodebuild_calls) == 2
+    assert all("test-without-building" in line for line in xcodebuild_calls)
+    assert all(
+        "-only-testing RunnerUITests/RunnerUITests" in line
+        for line in xcodebuild_calls
+    )
+    assert all(
+        f"-destination platform=iOS Simulator,id={SYNTHETIC_UDID}" in line
+        for line in xcodebuild_calls
+    )
+    assert f"-resultBundlePath {external_target}/write.xcresult" in xcodebuild_calls[0]
+    assert f"-resultBundlePath {external_target}/read.xcresult" in xcodebuild_calls[1]
+    assert runtime_calls[2] == f"xcrun simctl launch {SYNTHETIC_UDID} {BUNDLE_ID}"
+    assert runtime_calls[3] == f"xcrun simctl terminate {SYNTHETIC_UDID} {BUNDLE_ID}"
+    assert "read_runtime" in runtime_calls[4]
+    assert "g1_bnd03_budget_cold.yaml" in runtime_calls[6]
 
     metadata = json.loads(
         (tmp_path / "artifacts/metadata.json").read_text(encoding="utf-8")
@@ -395,9 +482,12 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert metadata["sha"] == SYNTHETIC_SHA
     assert metadata["synthetic_data_only"] is True
     assert metadata["private_fixture_used"] is False
+    assert metadata["mode"] == "patrol_build_xcode_test_without_building"
+    assert metadata["write_build_exit_code"] == 0
     assert metadata["write_exit_code"] == 0
     assert metadata["launch_exit_code"] == 0
     assert metadata["terminate_exit_code"] == 0
+    assert metadata["read_build_exit_code"] == 0
     assert metadata["read_exit_code"] == 0
     assert metadata["maestro_exit_code"] == 0
     assert metadata["cleanup_status"] == "passed"
@@ -430,7 +520,12 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert "REDACTED_SIMULATOR_UDID" in (artifacts / "maestro.log").read_text(
         encoding="utf-8"
     )
-    for patrol_log in (artifacts / "write.log", artifacts / "read.log"):
+    for patrol_log in (
+        artifacts / "write-build.log",
+        artifacts / "write.log",
+        artifacts / "read-build.log",
+        artifacts / "read.log",
+    ):
         text = patrol_log.read_text(encoding="utf-8")
         assert "REDACTED_REPO" in text
         assert "REDACTED_HOME" in text
@@ -442,6 +537,7 @@ def test_budget_orchestrator_runs_writer_death_reader_then_maestro(
     assert not any("path" in key for key in metadata["build_isolation"])
     assert not (artifacts / "maestro-report.xml").exists()
     assert not list(artifacts.glob("*.raw.log"))
+    assert not list(artifacts.glob("*.xcresult"))
 
 
 def test_budget_orchestrator_uses_default_non_executable_maestro_via_bash(
@@ -502,11 +598,13 @@ def test_budget_orchestrator_rejects_invalid_sanitized_junit(
 @pytest.mark.parametrize(
     ("runtime", "expected", "forbidden"),
     [
-        ({"write_exit": 7}, "write stage failed", "xcrun simctl launch"),
-        ({"launch_exit": 8}, "launch stage failed", "xcrun simctl terminate"),
-        ({"terminate_exit": 9}, "terminate stage failed", "read_runtime"),
-        ({"read_exit": 10}, "read stage failed", "maestro "),
-        ({"maestro_exit": 11}, "Maestro stage failed", "PASS"),
+        ({"write_build_exit": 7}, "write build stage failed", "xcodebuild "),
+        ({"write_exit": 8}, "write test stage failed", "xcrun simctl launch"),
+        ({"launch_exit": 9}, "launch stage failed", "xcrun simctl terminate"),
+        ({"terminate_exit": 10}, "terminate stage failed", "read_runtime"),
+        ({"read_build_exit": 11}, "read build stage failed", "read.xcresult"),
+        ({"read_exit": 12}, "read test stage failed", "maestro "),
+        ({"maestro_exit": 13}, "Maestro stage failed", "PASS"),
     ],
 )
 def test_budget_orchestrator_fails_closed(
@@ -534,6 +632,36 @@ def test_budget_orchestrator_fails_closed(
     assert (artifacts / "metadata.json").is_file()
     assert not list(artifacts.glob("*.raw.log"))
     assert not (artifacts / "maestro-report.xml").exists()
+
+
+@pytest.mark.parametrize(
+    ("product_failure", "expected", "xcodebuild_count"),
+    [
+        ("write-runner", "write Runner.app is missing", 0),
+        ("write-xctestrun", "write xctestrun is missing", 0),
+        ("read-asset", "read AssetManifest.bin is missing or empty", 1),
+    ],
+)
+def test_budget_orchestrator_rejects_incomplete_patrol_build_products(
+    tmp_path: Path,
+    product_failure: str,
+    expected: str,
+    xcodebuild_count: int,
+) -> None:
+    env = _fake_runtime(tmp_path, product_failure=product_failure)
+    mobile_build = Path(env["MINT_TEST_REPO"]) / "apps/mobile/build"
+    original_inode = mobile_build.stat().st_ino
+
+    result = _run(tmp_path, env)
+
+    assert result.returncode == 2
+    _assert_original_build_restored(env, original_inode)
+    assert expected in result.stderr
+    calls = (tmp_path / "calls.log").read_text(encoding="utf-8")
+    assert calls.count("xcodebuild test-without-building") == xcodebuild_count
+    artifacts = tmp_path / "artifacts"
+    assert not list(artifacts.glob("*.raw.log"))
+    assert not list(artifacts.glob("*.xcresult"))
 
 
 def test_budget_orchestrator_rejects_missing_device_and_sha_drift(
@@ -737,7 +865,7 @@ def test_budget_orchestrator_restores_original_build_on_term_signal(
     )
     artifacts = tmp_path / "artifacts"
     calls_path = tmp_path / "calls.log"
-    write_raw = artifacts / "write.raw.log"
+    write_raw = artifacts / "write-build.raw.log"
     deadline = time.monotonic() + 10
     patrol_write_call = ""
     while time.monotonic() < deadline:
@@ -748,7 +876,9 @@ def test_budget_orchestrator_restores_original_build_on_term_signal(
                 (
                     line
                     for line in calls_path.read_text(encoding="utf-8").splitlines()
-                    if line.startswith("patrol ") and "write_runtime" in line
+                    if line.startswith("patrol ")
+                    and "--verbose build ios" in line
+                    and "write_runtime" in line
                 ),
                 "",
             )
@@ -772,7 +902,7 @@ def test_budget_orchestrator_restores_original_build_on_term_signal(
     )
     assert metadata["build_isolation"]["restoration_status"] == "restored"
     assert not list(artifacts.glob("*.raw.log"))
-    write_log = artifacts / "write.log"
+    write_log = artifacts / "write-build.log"
     assert write_log.is_file()
     sanitized = write_log.read_text(encoding="utf-8")
     for private in (

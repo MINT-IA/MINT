@@ -92,15 +92,20 @@ else
   maestro_command=(bash "$default_maestro_runner")
 fi
 command -v xcrun >/dev/null 2>&1 || die "xcrun is required"
+command -v xcodebuild >/dev/null 2>&1 || die "xcodebuild is required"
+command -v find >/dev/null 2>&1 || die "find is required"
 command -v python3 >/dev/null 2>&1 || die "python3 is required"
 
 mkdir -p "$artifacts"
 artifacts="$(cd "$artifacts" && pwd)"
 metadata="$artifacts/metadata.json"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+mode="patrol_build_xcode_test_without_building"
+write_build_exit_code=""
 write_exit_code=""
 launch_exit_code=""
 terminate_exit_code=""
+read_build_exit_code=""
 read_exit_code=""
 maestro_exit_code=""
 cleanup_status="pending"
@@ -185,9 +190,12 @@ write_metadata() {
   MINT_META_DEVICE_SHA="$device_sha256" \
   MINT_META_STARTED="$started_at" \
   MINT_META_FINISHED="$finished_at" \
+  MINT_META_MODE="$mode" \
+  MINT_META_WRITE_BUILD="$write_build_exit_code" \
   MINT_META_WRITE="$write_exit_code" \
   MINT_META_LAUNCH="$launch_exit_code" \
   MINT_META_TERMINATE="$terminate_exit_code" \
+  MINT_META_READ_BUILD="$read_build_exit_code" \
   MINT_META_READ="$read_exit_code" \
   MINT_META_MAESTRO="$maestro_exit_code" \
   MINT_META_CLEANUP="$cleanup_status" \
@@ -213,9 +221,12 @@ payload = {
     "device_sha256": os.environ["MINT_META_DEVICE_SHA"],
     "started_at": os.environ["MINT_META_STARTED"],
     "finished_at": os.environ["MINT_META_FINISHED"],
+    "mode": os.environ["MINT_META_MODE"],
+    "write_build_exit_code": code("MINT_META_WRITE_BUILD"),
     "write_exit_code": code("MINT_META_WRITE"),
     "launch_exit_code": code("MINT_META_LAUNCH"),
     "terminate_exit_code": code("MINT_META_TERMINATE"),
+    "read_build_exit_code": code("MINT_META_READ_BUILD"),
     "read_exit_code": code("MINT_META_READ"),
     "maestro_exit_code": code("MINT_META_MAESTRO"),
     "cleanup_status": os.environ["MINT_META_CLEANUP"],
@@ -229,9 +240,11 @@ payload = {
     "private_fixture_used": False,
     "source_manifest": "source-manifest.sha256",
     "logs": [
+        "write-build.log",
         "write.log",
         "launch.log",
         "terminate.log",
+        "read-build.log",
         "read.log",
         "maestro.log",
         "maestro-report.sanitized.xml",
@@ -254,7 +267,7 @@ cleanup() {
   if [[ "$artifact_cleanup_failed" == true ]]; then
     cleanup_failed=1
   fi
-  for log_stem in write launch terminate read maestro; do
+  for log_stem in write-build write launch terminate read-build read maestro; do
     raw_log="$artifacts/$log_stem.raw.log"
     if [[ -e "$raw_log" || -L "$raw_log" ]]; then
       if ! sanitize_log "$raw_log" "$artifacts/$log_stem.log"; then
@@ -356,6 +369,66 @@ trap 'exit 129' HUP
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
+assert_external_build_empty() {
+  local stage="$1"
+  local first_entry
+  first_entry="$(find "$external_build" -mindepth 1 -print -quit)"
+  [[ -z "$first_entry" ]] || die "$stage external build is not clean"
+}
+
+inspect_patrol_build() {
+  local stage="$1"
+  local products="$external_build/ios_integ/Build/Products"
+  local runner_app
+  local asset_manifest
+  local xctestrun
+
+  runner_app="$(find "$products" -type d \
+    -path '*/Debug-iphonesimulator/Runner.app' -print -quit 2>/dev/null || true)"
+  [[ -n "$runner_app" && -d "$runner_app" ]] \
+    || die "$stage Runner.app is missing"
+  asset_manifest="$runner_app/Frameworks/App.framework/flutter_assets/AssetManifest.bin"
+  [[ -s "$asset_manifest" ]] \
+    || die "$stage AssetManifest.bin is missing or empty"
+  xctestrun="$(find "$products" -maxdepth 2 -type f \
+    -name '*.xctestrun' -print -quit 2>/dev/null || true)"
+  [[ -n "$xctestrun" && -f "$xctestrun" ]] \
+    || die "$stage xctestrun is missing"
+  printf -v "${stage}_xctestrun" '%s' "$xctestrun"
+}
+
+run_xcode_test() {
+  local stage="$1"
+  local xctestrun_variable="${stage}_xctestrun"
+  local xctestrun="${!xctestrun_variable}"
+  local result_bundle="$external_build/$stage.xcresult"
+  local test_exit_code
+
+  [[ -n "$xctestrun" && -f "$xctestrun" ]] \
+    || die "$stage xctestrun is missing before test"
+  [[ ! -e "$result_bundle" && ! -L "$result_bundle" ]] \
+    || die "$stage xcresult path already exists"
+
+  set +e
+  xcodebuild test-without-building \
+    -xctestrun "$xctestrun" \
+    -only-testing "RunnerUITests/RunnerUITests" \
+    -destination "platform=iOS Simulator,id=$device" \
+    -resultBundlePath "$result_bundle" \
+    >"$artifacts/$stage.raw.log" 2>&1
+  test_exit_code=$?
+  set -e
+  printf -v "${stage}_exit_code" '%s' "$test_exit_code"
+  sanitize_stage_log "$artifacts/$stage.raw.log" "$artifacts/$stage.log"
+  if [[ "$test_exit_code" -ne 0 ]]; then
+    echo "patrol_bnd03_budget_process_death: $stage test stage failed ($test_exit_code)" >&2
+    exit "$test_exit_code"
+  fi
+  [[ "$stage_sanitization_failed" -eq 0 ]] \
+    || die "$stage test log sanitization failed"
+  [[ -d "$result_bundle" ]] || die "$stage xcresult is missing"
+}
+
 [[ ! -L "$mobile_build" ]] || die "pre-existing build symlink"
 [[ ! -e "$build_backup" && ! -L "$build_backup" ]] || die "backup collision"
 mkdir -p "$mobile_root/.dart_tool"
@@ -371,34 +444,38 @@ if [[ -e "$mobile_build" ]]; then
 fi
 ln -s "$external_build" "$mobile_build"
 
-write_command=(
-  "$patrol_bin" --verbose test
+write_build_command=(
+  "$patrol_bin" --verbose build ios
   --target "${write_target#apps/mobile/}"
-  --no-uninstall
-  --device "$device"
+  --simulator
   --bundle-id "$bundle_id"
   --dart-define=MINT_PATROL_CLI=true
 )
-read_command=(
-  "$patrol_bin" --verbose test
+read_build_command=(
+  "$patrol_bin" --verbose build ios
   --target "${read_target#apps/mobile/}"
-  --no-uninstall
-  --device "$device"
+  --simulator
   --bundle-id "$bundle_id"
   --dart-define=MINT_PATROL_CLI=true
 )
 
+assert_external_build_empty "write"
 set +e
-(cd "$mobile_root" && "${write_command[@]}") \
-  >"$artifacts/write.raw.log" 2>&1
-write_exit_code=$?
+(cd "$mobile_root" && "${write_build_command[@]}") \
+  >"$artifacts/write-build.raw.log" 2>&1
+write_build_exit_code=$?
 set -e
-sanitize_stage_log "$artifacts/write.raw.log" "$artifacts/write.log"
-if [[ "$write_exit_code" -ne 0 ]]; then
-  echo "patrol_bnd03_budget_process_death: write stage failed ($write_exit_code)" >&2
-  exit "$write_exit_code"
+sanitize_stage_log \
+  "$artifacts/write-build.raw.log" \
+  "$artifacts/write-build.log"
+if [[ "$write_build_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: write build stage failed ($write_build_exit_code)" >&2
+  exit "$write_build_exit_code"
 fi
-[[ "$stage_sanitization_failed" -eq 0 ]] || die "write log sanitization failed"
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "write build log sanitization failed"
+inspect_patrol_build "write"
+run_xcode_test "write"
 exact_sha_guard
 
 set +e
@@ -429,25 +506,31 @@ exact_sha_guard
 
 # Patrol may otherwise reuse the writer entrypoint's Flutter artifacts for the
 # reader. Reset only the disposable external build after the real process death;
-# the installed app data remains intact because both Patrol calls keep
-# --no-uninstall.
+# xcodebuild installs the reader bundle over the existing simulator app without
+# deleting its SharedPreferences container.
 [[ -L "$mobile_build" && "$(readlink "$mobile_build")" == "$external_build" ]] \
   || die "external build isolation drifted before reader"
 rm -rf -- "$external_build"
 mkdir -p "$external_build"
 reset_between_patrol_stages=true
 
+assert_external_build_empty "read"
 set +e
-(cd "$mobile_root" && "${read_command[@]}") \
-  >"$artifacts/read.raw.log" 2>&1
-read_exit_code=$?
+(cd "$mobile_root" && "${read_build_command[@]}") \
+  >"$artifacts/read-build.raw.log" 2>&1
+read_build_exit_code=$?
 set -e
-sanitize_stage_log "$artifacts/read.raw.log" "$artifacts/read.log"
-if [[ "$read_exit_code" -ne 0 ]]; then
-  echo "patrol_bnd03_budget_process_death: read stage failed ($read_exit_code)" >&2
-  exit "$read_exit_code"
+sanitize_stage_log \
+  "$artifacts/read-build.raw.log" \
+  "$artifacts/read-build.log"
+if [[ "$read_build_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: read build stage failed ($read_build_exit_code)" >&2
+  exit "$read_build_exit_code"
 fi
-[[ "$stage_sanitization_failed" -eq 0 ]] || die "read log sanitization failed"
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "read build log sanitization failed"
+inspect_patrol_build "read"
+run_xcode_test "read"
 exact_sha_guard
 
 set +e
