@@ -10,6 +10,9 @@
 %% activation and G1 remain NO-GO. BND-05 has semantic RED cec4f0245 and a
 %% code-GREEN implementation at 11e29c0cd, but remains ticket_only until its
 %% exact-SHA runtime and both Claude-wrapper lenses are accepted.
+%% BND-06 has semantic RED 9e86539d2 and code-GREEN 9b33758a5; its eager
+%% ledger binding and fail-closed consumers are live, but exact-SHA runtime,
+%% both Claude-wrapper lenses and ticket promotion remain pending.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -45,19 +48,19 @@ flowchart TB
     CPP <-- "load/persist" --> PERSIST
     CPP -. "fire-and-forget sync" .-> BACKEND
 
-    %% Budget is a derived read model; the other nodes remain islands.
+    %% Budget and FinancialPlan are derived read models; other nodes retain debt.
     BUDGET["BudgetProvider<br/>app.dart:1799 — eager ProxyProvider<br/>base facts from CoachProfile<br/>other fixed writer: q_other_fixed_costs_monthly_chf<br/>local cache: future XOR variables"]
     HOUSE["HouseholdProvider<br/>app.dart:1782 — ISLAND"]
     TIMELINE["TimelineProvider<br/>app.dart:1867 — eager ProxyProvider2<br/>reference/read model; no financial facts"]
     DOCS["DocumentProvider<br/>app.dart:1789 — eager ProxyProvider<br/>confirmed-reference subpath: five-field raw-free metadata only<br/>pre-existing backend upload/list state remains separate"]
-    PLAN["FinancialPlanProvider<br/>app.dart:1862 — ISLAND"]
+    PLAN["FinancialPlanProvider<br/>app.dart:1862 — eager ProxyProvider<br/>derived plan + input fingerprint<br/>never writes ledger facts"]
     DEADP["ProfileProvider<br/>app.dart:1775 — LEGACY (5 live consumers, migrate then delete)"]
 
     CPP -- "eager proxy update<br/>rehydrateFromProfile" --> BUDGET
+    CPP -- "eager attach + listen<br/>fail stale until ledger loaded" --> PLAN
     HOUSE  -. "MISSING sync -> CoachProfile.conjoint" .-> CPP
     CPP -- "exact current LPP owner/snapshot/time authority" --> DOCS
     DOCS -- "currentReferences listener<br/>opaque ids only" --> TIMELINE
-    PLAN   -. "MISSING bridge -> recompute" .-> MSP
   end
 
   %% G1 target contract only — not a claim that product wiring is live.
@@ -230,6 +233,40 @@ flowchart TB
   LPP_SECURE -->|"whole-root save then accepted receipt"| B5_ACCEPTED
   B5_STORE -->|"eager bind"| DOCS
   B5_TIMELINE --> TIMELINE
+
+  %% BND-06 implementation wiring is live at 9b33758a5; promotion is pending.
+  subgraph FINANCIAL_PLAN_BOUNDARY["G1-BND-06 — LEDGER-BOUND DERIVED PLAN"]
+    direction TB
+    B6_PLAN_STORE[("financial_plan_v1<br/>up to 3 derived plans<br/>profileHashAtGeneration")]
+    B6_HYDRATE{"plan hydration + bound-ledger gate<br/>plan != null and ledger loaded with profile"}
+    B6_FINGERPRINT["mint-plan-input:v1:sha256<br/>9 fixed-order value + provenance facts<br/>DOB XOR birth year; null != zero<br/>non-finite rejected"]
+    B6_FRESH{"persisted fingerprint<br/>equals current ledger fingerprint"}
+    B6_HIDDEN["fail-closed stale state<br/>hide monthly/projection/range/milestones/date/narrative<br/>semantics: financial_plan_stale_state"]
+    B6_COACH["Coach WidgetRenderer consumer<br/>pending generation waits plan + ledger hydration<br/>never renders LLM monthly_amount"]
+    B6_HOME["Aujourd'hui FinancialPlanCard<br/>empty + populated timeline caller<br/>durable cold recovery surface"]
+    B6_RECOVER["financial_plan_stale_recalculate<br/>preserve goal description/category/date/final target<br/>recompute from current loaded CoachProfile"]
+    B6_QUEUE["FinancialPlanProvider.setPlan<br/>revision guard + serialized save queue<br/>publish only newest operation"]
+    B6_DEBT["P2 debt<br/>generate() saves before setPlan(): duplicate write outside queue<br/>race/error/dispose/multi-surface tests missing"]
+    B6_STATUS["implementation @ 9b33758a5<br/>runtime + code/product-domain wrapper audits pending<br/>ticket unpromoted; G1/G2/G3 GO forbidden"]
+
+    B6_PLAN_STORE --> B6_HYDRATE
+    B6_FINGERPRINT --> B6_FRESH
+    B6_HYDRATE -->|"ledger authority ready"| B6_FRESH
+    B6_HYDRATE -. "unbound / unloaded / null profile" .-> B6_HIDDEN
+    B6_FRESH -->|"match"| B6_COACH
+    B6_FRESH -->|"match"| B6_HOME
+    B6_FRESH -. "mismatch" .-> B6_HIDDEN
+    B6_HIDDEN --> B6_RECOVER
+    B6_RECOVER --> B6_QUEUE
+    B6_QUEUE --> B6_PLAN_STORE
+    B6_QUEUE -. "remaining persistence boundary debt" .-> B6_DEBT
+    B6_PLAN_STORE -. "implementation evidence only" .-> B6_STATUS
+  end
+
+  CPP -->|"current values + source + updatedAt + sourceDate"| B6_FINGERPRINT
+  PLAN --> B6_HYDRATE
+  B6_COACH --> PLAN
+  B6_HOME --> PLAN
 
   %% ==========================================================================
   %% PART B — NAVIGATION GRAPH (apps/mobile/lib/app.dart:301-1340)
@@ -424,9 +461,14 @@ flowchart TB
 %%     eager, raw-free reference projection of the strict LPP root and makes
 %%     TimelineProvider listen to its authority-filtered currentReferences;
 %%     neither owns financial facts. Reference/detail projections disappear on
-%%     snapshot/owner/time-authority drift without manual refresh. Still MISSING
-%%     for HouseholdProvider, FinancialPlanProvider and any conversation-derived
-%%     financial fact that bypasses CoachProfileProvider. This wiring update is
+%%     snapshot/owner/time-authority drift without manual refresh. BND-06 makes
+%%     FinancialPlanProvider an eager projection of the loaded profile and
+%%     invalidates its derived artifact on value or provenance fingerprint
+%%     drift; Coach and Aujourd'hui both hide stale plan figures and never
+%%     reverse-write them. Still MISSING for HouseholdProvider and any
+%%     conversation-derived financial fact that bypasses CoachProfileProvider.
+%%     The financial-plan code wiring is GREEN at 9b33758a5, but its runtime,
+%%     wrapper audits and promotion remain pending. The document wiring update is
 %%     code-GREEN at 11e29c0cd but does not promote BND-05 or G1; exact-SHA
 %%     runtime and wrapper acceptance remain separate gates.
 %% I-5 LEGACY PROVIDER (partial-migration target): ProfileProvider(:1425) still

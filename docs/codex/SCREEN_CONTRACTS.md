@@ -7,6 +7,10 @@
 > `1d022c508` (2026-07-16) with identical-command, Patrol, Maestro and bounded
 > Claude-wrapper proof. The progressive caller and visible consumer remain
 > default-off; eight external facts keep activation and G1 NO-GO.
+> Focused BND-06 implementation snapshot: semantic RED `9e86539d2` and
+> code-GREEN `9b33758a5` (2026-07-16). The Coach and Aujourd'hui stale-plan
+> states below are live code contracts, but exact-SHA runtime, both
+> Claude-wrapper audit lenses and ticket promotion remain pending.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
 > A coding agent (Codex) implements these contracts directly. Every row is mechanical and test-verifiable. Violations are bugs, not style notes.
 
@@ -162,11 +166,11 @@ These are registered at the top of the router (`app.dart:301-339`) with `scope: 
 |---|---|
 | shell | shell:0 |
 | purpose | Daily lucidity pulse: one true thing about the user's money now. |
-| reads | `MintUserState{profile, lifecyclePhase, archetype, budgetGap, currentCap, confidenceScore, friScore}` |
-| writes | ∅ |
+| reads | `MintUserState{profile, lifecyclePhase, archetype, budgetGap, currentCap, confidenceScore, friScore}`; `FinancialPlanProvider{currentPlan,isPlanStale}` |
+| writes | ledger ∅; stale-plan recovery replaces only the derived `financial_plan_v1` artifact through `FinancialPlanProvider.setPlan()` |
 | entryConditions | none |
 | emptyState | No profile → calm card "Commençons par une chose vraie." CTA → `/coach/chat?topic=premier-eclairage` (real destination — see §2.note). i18n `home.empty.title` / `home.empty.cta` |
-| partialState | Minimal profile (age+salary+canton only) → budget insight + band widened honestly + `enrichmentPrompts` (ranked, top 3). MUST render at least one prompt CTA to `/data-block/:type`. i18n `home.partial.enrichHint` |
+| partialState | Minimal profile (age+salary+canton only) → budget insight + band widened honestly + `enrichmentPrompts` (ranked, top 3). MUST render at least one prompt CTA to `/data-block/:type`. A loaded plan with absent/unloaded/null or mismatched ledger authority renders only `financial_plan_stale_state` and `financial_plan_stale_recalculate`; no plan amount, projection, milestone, date or narrative is visible. i18n `home.partial.enrichHint` |
 | errorState | `MintStateProvider` compute threw → "On n'a pas pu rafraîchir ton aperçu." CTA Réessayer → `context.read<MintStateProvider>().recompute(context.read<CoachProfileProvider>().profile)` + CTA `/coach/chat`. i18n `home.error.title` / `home.error.retry` |
 | routesOut | `/mon-argent`, `/coach/chat`, `/explore`, `/data-block/:type`, `/confidence`, `/rapport` |
 | killFlag | null |
@@ -179,6 +183,17 @@ These are registered at the top of the router (`app.dart:301-339`) with `scope: 
 > never both. The last edited field wins and does not mutate `MintUserState`;
 > `budgetGap` remains null while official AVS
 > facts are unavailable. See §10.4.
+>
+> **BND-06 plan boundary (implementation `9b33758a5`, promotion pending).**
+> Aujourd'hui watches the eagerly bound `FinancialPlanProvider` and renders
+> `FinancialPlanCard` in both empty- and populated-timeline branches. A
+> persisted plan fails closed until `CoachProfileProvider.isLoaded` with a
+> non-null profile, then whenever its versioned value/provenance fingerprint
+> differs. Recovery preserves only goal description/category, target date and
+> final target amount, and recomputes the artifact from the current loaded
+> ledger. Its local in-flight/error guards prevent duplicate taps and unsafe
+> publication; exact-SHA Patrol/Maestro and wrapper audits remain acceptance
+> gates rather than claims made by this contract.
 
 ### `/mon-argent` — Money / Budget home
 | | |
@@ -199,14 +214,21 @@ These are registered at the top of the router (`app.dart:301-339`) with `scope: 
 |---|---|
 | shell | shell:2 |
 | purpose | Conversational lucidity; teaches mechanisms, refuses advice. Compliance filter on every utterance. |
-| reads | `CoachProfile` (full), `MintUserState`, `conversationId` from `state.uri.queryParameters['conversationId']` or `_chat_conversation_index`; `topic` from query params |
-| writes | via `save_fact`→`applySaveFact()` (§6.note on provenance), conversation persisted by conversation store bridged to recompute |
+| reads | `CoachProfile` (full), `MintUserState`, eagerly bound `FinancialPlanProvider{currentPlan,isPlanStale}`, `conversationId` from `state.uri.queryParameters['conversationId']` or `_chat_conversation_index`; `topic` from query params |
+| writes | facts via `save_fact`→`applySaveFact()` (§6.note on provenance); conversation persists in its reference store; plan recovery writes only the derived `financial_plan_v1` artifact through `FinancialPlanProvider.setPlan()` |
 | entryConditions | none (also the `/tools`, `/ask-mint`, `/anonymous/chat`, `/onboarding/*` redirect target) |
 | emptyState | No history → seeded opener from `topic` query param if present (e.g. `?topic=lpp`, `?topic=investment`, `?topic=premier-eclairage`). i18n `coach.empty.opener` (+ per-topic variants) |
-| partialState | If `topic` references a missing field → coach asks that field's DIFF question. i18n `coach.partial.askField` |
+| partialState | If `topic` references a missing field → coach asks that field's DIFF question. A `generate_financial_plan` call waits separately for plan hydration and ledger report answers before first generation; an existing stale plan renders only `financial_plan_stale_state` plus `financial_plan_stale_recalculate`, with every amount/date/narrative hidden and LLM `monthly_amount` ignored. i18n `coach.partial.askField` |
 | errorState | LLM/transport failure → safe fallback bubble + Réessayer; NEVER blank. i18n `coach.error.fallback` / `coach.error.retry` |
 | routesOut | `/data-block/:type`, `/confidence`, `/explore`, `/coach/history`, any simulator deep-link |
 | killFlag | enableCoachChat |
+
+Coach stale-plan recovery uses the same persisted goal description/category,
+target date and final target amount as Aujourd'hui, but recalculates every
+financial output from the current loaded `CoachProfile`. The two stable
+semantics identifiers are intentionally shared across both surfaces for
+Maestro/Patrol. Rich tool calls remain conversation-local; Aujourd'hui is the
+durable cold recovery caller after process death.
 
 ### `/coach/history` — Conversation history (root, app.dart:632)
 | | |

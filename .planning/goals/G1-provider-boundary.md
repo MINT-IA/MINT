@@ -5,6 +5,10 @@
 > authorized by this document.
 > Evidence snapshot: code and gates rechecked at immutable commit
 > `e2cfef057c197b3b8ac122d9a9aa3ca645c85696` on 2026-07-13.
+> Focused BND-06 implementation snapshot: semantic RED `9e86539d2`,
+> code-GREEN `9b33758a5` on 2026-07-16. Runtime, both Claude-wrapper audit
+> lenses and ticket promotion remain pending; G1 remains open and G2/G3 stay
+> unauthorized.
 
 ## Decision
 
@@ -92,7 +96,7 @@ profile writeback while that store is absent.
 | `HouseholdProvider` | membership/reference island | invitations, roles, consent, linked member IDs | authoritative partner salary, AVS, LPP, cash, or civil facts | Bridge confirmed partner facts with partner owner token; keep membership metadata separate | G1-BND-02 | yes |
 | `DocumentProvider` | raw reference store | upload state, document ID, parse status, raw document lifecycle | direct financial truth consumed by screens | Confirmed extracted facts write through ledger; navigation passes document ID only | G1-BND-05 | yes |
 | `TimelineProvider` | reference/read model | document/conversation references and chronology | separate financial facts or alternate profile | Read financial dimension from ledger; keep timeline object IDs outside ledger | G1-BND-05 | no |
-| `FinancialPlanProvider` | derived artifact cache | store a generated plan and its profile hash; mark stale | feeding plan outputs back into facts | Wire staleness to profile changes or convert registration to a proxy; no reverse fact writes | G1-BND-06 | no |
+| `FinancialPlanProvider` | ledger-bound derived artifact cache | store a generated plan and its versioned input/provenance fingerprint; fail stale until the ledger is loaded and whenever it changes | feeding plan outputs back into facts; rendering stale plan figures or LLM-supplied amounts | Implemented at `9b33758a5`: keep eager profile proxy, cold reconciliation, fail-closed Coach/Aujourd'hui consumers and current-ledger regeneration; runtime/audits/promotion still pending | G1-BND-06 | no |
 | backend `ProfileModel.data` | remote mirror | authenticated sync of canonical facts and provenance | primary mobile read path, profile-global freshness pretending to be per-field freshness | Add per-field source/update/source-date ownership contract through a reviewed backend slice | G1-PROV-01 | yes |
 
 ## Legacy `ProfileProvider` migration set
@@ -165,10 +169,39 @@ net amount is live.
 
 ### Financial plans
 
-`FinancialPlanProvider.attachProfileProvider` exists at
-`apps/mobile/lib/providers/financial_plan_provider.dart:76`, while `app.dart`
-registers a plain provider at `apps/mobile/lib/app.dart:1584`. The plan is a
-derived artifact: wire staleness, do not feed plan numbers back into facts.
+At `9b33758a5`, `app.dart` registers an eager
+`ChangeNotifierProxyProvider<CoachProfileProvider, FinancialPlanProvider>`.
+Creation starts plan hydration and every proxy update idempotently attaches the
+current ledger provider. A non-null plan is stale while that provider is
+unbound, unloaded or has no profile; after load, staleness is the inequality
+between its persisted `mint-plan-input:v1:sha256:<digest>` and the fingerprint
+of the current ledger snapshot.
+
+The fingerprint is fixed-order and includes value plus `source`, `updatedAt`
+and `sourceDate` for salary, canton, total LPP, total 3a, effective
+date-of-birth-or-birth-year, salary-month count, mandatory and
+supra-mandatory LPP, and pension-fund return. Null and zero remain distinct,
+negative zero is normalized, non-finite input is rejected, instants are UTC,
+and business/source dates are calendar dates. Versioning deliberately makes an
+older incomplete hash fail closed.
+
+Both live consumers obey the same boundary. `WidgetRenderer` in Coach and
+`FinancialPlanCard` on Aujourd'hui hide every stale figure and narrative, use
+the stable semantics `financial_plan_stale_state` and
+`financial_plan_stale_recalculate`, and regenerate from the loaded ledger only.
+Recovery preserves only the prior goal description, category, target date and
+final milestone target; it never turns the old monthly plan output or an LLM
+tool amount into a fact or calculator input. Aujourd'hui renders this recovery
+surface for both empty and populated timelines, so cold recovery does not
+depend on non-persisted rich coach tool calls.
+
+This is implementation evidence, not promotion evidence. Exact-SHA runtime
+and both Claude-wrapper audit lenses remain mandatory. Two P2 debts are
+explicit: `PlanGenerationService.generate()` performs a persistence write
+before each caller calls `FinancialPlanProvider.setPlan()`, so the first write
+is duplicated and outside the provider queue; deterministic tests are still
+missing for hydrate-vs-set, concurrent set/save failure/dispose, multi-surface
+recovery, double tap, error, and the populated Aujourd'hui branch.
 
 ## Route payload boundary
 
