@@ -96,19 +96,26 @@ command -v xcodebuild >/dev/null 2>&1 || die "xcodebuild is required"
 command -v flutter >/dev/null 2>&1 || die "flutter is required"
 command -v find >/dev/null 2>&1 || die "find is required"
 command -v python3 >/dev/null 2>&1 || die "python3 is required"
+command -v ditto >/dev/null 2>&1 || die "ditto is required"
+command -v codesign >/dev/null 2>&1 || die "codesign is required"
+command -v xattr >/dev/null 2>&1 || die "xattr is required"
 
 mkdir -p "$artifacts"
 artifacts="$(cd "$artifacts" && pwd)"
 metadata="$artifacts/metadata.json"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-mode="patrol_external_build_xcode_then_normal_cache_restored_for_production_install"
+mode="patrol_external_build_xcode_then_physical_production_preclean_external_norsrc_install"
 write_build_exit_code=""
 write_exit_code=""
 launch_exit_code=""
 terminate_exit_code=""
 read_build_exit_code=""
 read_exit_code=""
+production_preclean_exit_code=""
 production_build_exit_code=""
+production_stage_exit_code=""
+production_codesign_verify_exit_code=""
+production_xattr_inspect_exit_code=""
 production_install_exit_code=""
 maestro_exit_code=""
 cleanup_status="pending"
@@ -123,6 +130,9 @@ original_build_present=false
 restoration_status="not_started"
 reset_between_patrol_stages=false
 normal_build_restored_for_production=false
+normal_ios_xattrs_precleaned_for_production=false
+production_app_staged_external=false
+production_app_staged_norsrc=false
 artifact_cleanup_failed=false
 stage_sanitization_failed=0
 
@@ -202,7 +212,11 @@ write_metadata() {
   MINT_META_TERMINATE="$terminate_exit_code" \
   MINT_META_READ_BUILD="$read_build_exit_code" \
   MINT_META_READ="$read_exit_code" \
+  MINT_META_PRODUCTION_PRECLEAN="$production_preclean_exit_code" \
   MINT_META_PRODUCTION_BUILD="$production_build_exit_code" \
+  MINT_META_PRODUCTION_STAGE="$production_stage_exit_code" \
+  MINT_META_PRODUCTION_CODESIGN="$production_codesign_verify_exit_code" \
+  MINT_META_PRODUCTION_XATTR="$production_xattr_inspect_exit_code" \
   MINT_META_PRODUCTION_INSTALL="$production_install_exit_code" \
   MINT_META_MAESTRO="$maestro_exit_code" \
   MINT_META_CLEANUP="$cleanup_status" \
@@ -211,10 +225,14 @@ write_metadata() {
   MINT_META_RESTORATION="$restoration_status" \
   MINT_META_BUILD_RESET="$reset_between_patrol_stages" \
   MINT_META_NORMAL_PRODUCTION="$normal_build_restored_for_production" \
-  python3 - "$metadata" <<'PY'
+  MINT_META_NORMAL_XATTRS="$normal_ios_xattrs_precleaned_for_production" \
+  MINT_META_PRODUCTION_EXTERNAL="$production_app_staged_external" \
+  MINT_META_PRODUCTION_NORSRC="$production_app_staged_norsrc" \
+  python3 - "$metadata" "$artifacts" <<'PY'
 import json
 import os
 import sys
+from pathlib import Path
 
 
 def code(name: str):
@@ -222,6 +240,23 @@ def code(name: str):
     return int(value) if value else None
 
 
+expected_logs = [
+    "write-build.log",
+    "write.log",
+    "launch.log",
+    "terminate.log",
+    "read-build.log",
+    "read.log",
+    "production-preclean.log",
+    "production-build.log",
+    "production-stage.log",
+    "production-codesign.log",
+    "production-xattrs.log",
+    "production-install.log",
+    "maestro.log",
+    "maestro-report.sanitized.xml",
+]
+artifacts = Path(sys.argv[2])
 payload = {
     "contract": "g1_bnd03_budget",
     "sha": os.environ["MINT_META_SHA"],
@@ -236,7 +271,11 @@ payload = {
     "terminate_exit_code": code("MINT_META_TERMINATE"),
     "read_build_exit_code": code("MINT_META_READ_BUILD"),
     "read_exit_code": code("MINT_META_READ"),
+    "production_preclean_exit_code": code("MINT_META_PRODUCTION_PRECLEAN"),
     "production_build_exit_code": code("MINT_META_PRODUCTION_BUILD"),
+    "production_stage_exit_code": code("MINT_META_PRODUCTION_STAGE"),
+    "production_codesign_verify_exit_code": code("MINT_META_PRODUCTION_CODESIGN"),
+    "production_xattr_inspect_exit_code": code("MINT_META_PRODUCTION_XATTR"),
     "production_install_exit_code": code("MINT_META_PRODUCTION_INSTALL"),
     "maestro_exit_code": code("MINT_META_MAESTRO"),
     "cleanup_status": os.environ["MINT_META_CLEANUP"],
@@ -244,24 +283,17 @@ payload = {
         "enabled": os.environ["MINT_META_BUILD_ENABLED"] == "true",
         "original_build_present": os.environ["MINT_META_ORIGINAL_BUILD"] == "true",
         "normal_cache_restored_for_production": os.environ["MINT_META_NORMAL_PRODUCTION"] == "true",
+        "normal_ios_xattrs_precleaned_for_production": os.environ["MINT_META_NORMAL_XATTRS"] == "true",
+        "production_app_staged_external": os.environ["MINT_META_PRODUCTION_EXTERNAL"] == "true",
+        "production_app_staged_norsrc": os.environ["MINT_META_PRODUCTION_NORSRC"] == "true",
         "reset_between_patrol_stages": os.environ["MINT_META_BUILD_RESET"] == "true",
         "restoration_status": os.environ["MINT_META_RESTORATION"],
     },
     "synthetic_data_only": True,
     "private_fixture_used": False,
     "source_manifest": "source-manifest.sha256",
-    "logs": [
-        "write-build.log",
-        "write.log",
-        "launch.log",
-        "terminate.log",
-        "read-build.log",
-        "read.log",
-        "production-build.log",
-        "production-install.log",
-        "maestro.log",
-        "maestro-report.sanitized.xml",
-    ],
+    "expected_logs": expected_logs,
+    "logs": [log for log in expected_logs if (artifacts / log).is_file()],
 }
 with open(sys.argv[1], "w", encoding="utf-8") as handle:
     json.dump(payload, handle, indent=2, sort_keys=True)
@@ -282,7 +314,8 @@ cleanup() {
   fi
   for log_stem in \
     write-build write launch terminate read-build read \
-    production-build production-install maestro; do
+    production-preclean production-build production-stage \
+    production-codesign production-xattrs production-install maestro; do
     raw_log="$artifacts/$log_stem.raw.log"
     if [[ -e "$raw_log" || -L "$raw_log" ]]; then
       if ! sanitize_log "$raw_log" "$artifacts/$log_stem.log"; then
@@ -422,9 +455,10 @@ inspect_patrol_build() {
 }
 
 inspect_production_app() {
-  local runner_executable="$production_app/Runner"
-  local info_plist="$production_app/Info.plist"
-  local asset_manifest="$production_app/Frameworks/App.framework/flutter_assets/AssetManifest.bin"
+  local app="$1"
+  local runner_executable="$app/Runner"
+  local info_plist="$app/Info.plist"
+  local asset_manifest="$app/Frameworks/App.framework/flutter_assets/AssetManifest.bin"
 
   [[ -x "$runner_executable" ]] \
     || die "production Runner executable is missing"
@@ -458,6 +492,18 @@ restore_normal_build_for_production() {
   if ! mv "$build_backup" "$mobile_build"; then
     die "normal build restoration failed before production"
   fi
+  [[ -d "$mobile_build" && ! -L "$mobile_build" ]] \
+    || die "normal build is not physical after production restore"
+  [[ ! -e "$build_backup" && ! -L "$build_backup" ]] \
+    || die "normal build backup remains after production restore"
+  [[ -d "$mobile_build/ios" && ! -L "$mobile_build/ios" ]] \
+    || die "normal iOS build subtree is not physical after production restore"
+  local expected_ios_build
+  local resolved_ios_build
+  expected_ios_build="$(cd "$mobile_root" && pwd -P)/build/ios"
+  resolved_ios_build="$(cd "$mobile_build/ios" && pwd -P)"
+  [[ "$resolved_ios_build" == "$expected_ios_build" ]] \
+    || die "normal iOS build subtree escaped the repo build path"
   normal_build_restored_for_production=true
   restoration_status="restored_for_production"
 }
@@ -602,7 +648,64 @@ exact_sha_guard
 # normal build and its known-good Flutter.framework cache before rebuilding
 # lib/main.dart; the Patrol tree stays disposable under external_root.
 restore_normal_build_for_production
-production_app="$mobile_build/ios/iphonesimulator/Runner.app"
+production_source_app="$mobile_build/ios/iphonesimulator/Runner.app"
+production_app="$external_root/production/Runner.app"
+
+if ! python3 - "$mobile_build/ios" <<'PY'
+import os
+import stat
+import sys
+
+
+root = sys.argv[1]
+
+
+def fail_walk(_error):
+    raise SystemExit(1)
+
+
+try:
+    root_status = os.lstat(root)
+except OSError:
+    raise SystemExit(1)
+if stat.S_ISLNK(root_status.st_mode):
+    raise SystemExit(1)
+
+for current_root, directory_names, file_names in os.walk(
+    root,
+    topdown=True,
+    onerror=fail_walk,
+    followlinks=False,
+):
+    for name in (*directory_names, *file_names):
+        try:
+            entry_status = os.lstat(os.path.join(current_root, name))
+        except OSError:
+            raise SystemExit(1)
+        if stat.S_ISLNK(entry_status.st_mode):
+            raise SystemExit(1)
+        if stat.S_ISREG(entry_status.st_mode) and entry_status.st_nlink > 1:
+            raise SystemExit(1)
+PY
+then
+  die "normal iOS build subtree contains an unsafe external alias"
+fi
+
+set +e
+xattr -crs "$mobile_build/ios" \
+  >"$artifacts/production-preclean.raw.log" 2>&1
+production_preclean_exit_code=$?
+set -e
+sanitize_stage_log \
+  "$artifacts/production-preclean.raw.log" \
+  "$artifacts/production-preclean.log"
+if [[ "$production_preclean_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: production xattr preclean stage failed ($production_preclean_exit_code)" >&2
+  exit "$production_preclean_exit_code"
+fi
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "production xattr preclean log sanitization failed"
+normal_ios_xattrs_precleaned_for_production=true
 
 set +e
 (cd "$mobile_root" && \
@@ -619,7 +722,68 @@ if [[ "$production_build_exit_code" -ne 0 ]]; then
 fi
 [[ "$stage_sanitization_failed" -eq 0 ]] \
   || die "production build log sanitization failed"
-inspect_production_app
+inspect_production_app "$production_source_app"
+exact_sha_guard
+
+[[ -d "$production_source_app" && ! -L "$production_source_app" ]] \
+  || die "production source app is not a physical directory"
+[[ -d "$external_root" && ! -L "$external_root" ]] \
+  || die "external production root is not a physical directory"
+[[ ! -e "$production_app" && ! -L "$production_app" ]] \
+  || die "external production app path already exists"
+mkdir -p "$(dirname "$production_app")"
+
+set +e
+ditto --norsrc "$production_source_app" "$production_app" \
+  >"$artifacts/production-stage.raw.log" 2>&1
+production_stage_exit_code=$?
+set -e
+sanitize_stage_log \
+  "$artifacts/production-stage.raw.log" \
+  "$artifacts/production-stage.log"
+if [[ "$production_stage_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: production staging stage failed ($production_stage_exit_code)" >&2
+  exit "$production_stage_exit_code"
+fi
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "production staging log sanitization failed"
+production_app_staged_external=true
+production_app_staged_norsrc=true
+inspect_production_app "$production_app"
+
+set +e
+codesign --verify --strict --deep "$production_app" \
+  >"$artifacts/production-codesign.raw.log" 2>&1
+production_codesign_verify_exit_code=$?
+set -e
+sanitize_stage_log \
+  "$artifacts/production-codesign.raw.log" \
+  "$artifacts/production-codesign.log"
+if [[ "$production_codesign_verify_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: production codesign verification failed ($production_codesign_verify_exit_code)" >&2
+  exit "$production_codesign_verify_exit_code"
+fi
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "production codesign log sanitization failed"
+
+set +e
+xattr -r "$production_app" \
+  >"$artifacts/production-xattrs.raw.log" 2>&1
+production_xattr_inspect_exit_code=$?
+set -e
+sanitize_stage_log \
+  "$artifacts/production-xattrs.raw.log" \
+  "$artifacts/production-xattrs.log"
+if [[ "$production_xattr_inspect_exit_code" -ne 0 ]]; then
+  echo "patrol_bnd03_budget_process_death: production xattr inspection failed ($production_xattr_inspect_exit_code)" >&2
+  exit "$production_xattr_inspect_exit_code"
+fi
+[[ "$stage_sanitization_failed" -eq 0 ]] \
+  || die "production xattr inspection log sanitization failed"
+if grep -Fq 'com.apple.FinderInfo' "$artifacts/production-xattrs.log" \
+  || grep -Fq 'com.apple.ResourceFork' "$artifacts/production-xattrs.log"; then
+  die "production staged app has forbidden extended attribute"
+fi
 exact_sha_guard
 
 set +e
@@ -640,6 +804,8 @@ exact_sha_guard
 
 set +e
 "${maestro_command[@]}" test --udid "$device" --format JUNIT \
+  --debug-output "$external_root/maestro-debug" \
+  --test-output-dir "$external_root/maestro-test-output" \
   --output "$artifacts/maestro-report.xml" "$repo_root/$maestro_flow" \
   >"$artifacts/maestro.raw.log" 2>&1
 maestro_exit_code=$?
