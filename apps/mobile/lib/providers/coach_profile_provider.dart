@@ -2231,6 +2231,31 @@ class CoachProfileProvider extends ChangeNotifier {
         setEquals(snapshot.facts.keys.toSet(), receipt.factKeys);
   }
 
+  /// Matches the raw-free capital-notice receipt to the exact current self
+  /// snapshot and its nested reviewed deadline metadata.
+  bool matchesAcceptedLppCapitalNoticeReceipt(
+    LppCapitalNoticeReceipt receipt,
+  ) {
+    if (!_isLoaded ||
+        !FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.lppCapitalNoticeDeadlineEnabled ||
+        receipt.ownerKind != LppEvidenceOwnerKind.self ||
+        receipt.kind != LppCapitalNoticeDeadline.kind) {
+      return false;
+    }
+    final snapshot = LppEvidenceSelector.selectSelf(
+      _lastAnswers[_lppEvidenceRootKey],
+      now: _now,
+    );
+    final notice = snapshot?.lppCapitalNoticeDeadline;
+    return snapshot != null &&
+        snapshot.facts.isNotEmpty &&
+        snapshot.snapshotId == receipt.snapshotId &&
+        notice != null &&
+        notice.referenceId == receipt.referenceId &&
+        notice.confirmedAt == receipt.confirmedAt;
+  }
+
   /// True if remote profile hydration has already been attempted.
   bool get remoteHydrationDone => _remoteHydrationDone;
 

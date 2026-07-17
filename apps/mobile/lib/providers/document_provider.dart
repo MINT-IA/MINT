@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -24,6 +26,7 @@ final class ConfirmedDocumentReference {
   });
 
   static const lppKind = 'lpp';
+  static const lppCapitalNoticeKind = LppCapitalNoticeDeadline.kind;
 
   final String referenceId;
   final String kind;
@@ -53,12 +56,14 @@ final class ConfirmedDocumentReference {
         json.keys.toSet().difference(allowedKeys).isNotEmpty ||
         json['referenceId'] is! String ||
         json['snapshotId'] is! String ||
-        json['kind'] != lppKind) {
+        (json['kind'] != lppKind && json['kind'] != lppCapitalNoticeKind)) {
       return null;
     }
     final ownerKind = LppEvidenceOwnerKind.fromWireName(json['ownerKind']);
     final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
     if (ownerKind == null ||
+        (json['kind'] == lppCapitalNoticeKind &&
+            ownerKind != LppEvidenceOwnerKind.self) ||
         confirmedAt == null ||
         !_isCanonicalUuidV4(json['referenceId'] as String) ||
         !_isCanonicalUuidV4(json['snapshotId'] as String)) {
@@ -66,7 +71,7 @@ final class ConfirmedDocumentReference {
     }
     return ConfirmedDocumentReference(
       referenceId: json['referenceId'] as String,
-      kind: lppKind,
+      kind: json['kind'] as String,
       snapshotId: json['snapshotId'] as String,
       ownerKind: ownerKind,
       confirmedAt: confirmedAt,
@@ -369,6 +374,110 @@ class DocumentProvider extends ChangeNotifier {
       notifyListeners();
       return reference;
     });
+  }
+
+  Future<ConfirmedDocumentReference> recordLppCapitalNotice(
+    LppCapitalNoticeReceipt receipt,
+  ) {
+    final ledger = _ledger;
+    if (!FeatureFlags.lppCapitalNoticeDeadlineEnabled ||
+        ledger == null ||
+        !ledger.isLoaded ||
+        !ledger.matchesAcceptedLppCapitalNoticeReceipt(receipt)) {
+      return Future<ConfirmedDocumentReference>.error(
+        StateError('LPP capital notice receipt is unavailable'),
+      );
+    }
+    final guard = _sessionEpoch.capture();
+    return _serializeReferenceMutation(() async {
+      guard.assertCurrent();
+      final currentLedger = _ledger;
+      if (!FeatureFlags.lppCapitalNoticeDeadlineEnabled ||
+          currentLedger == null ||
+          !currentLedger.isLoaded ||
+          !currentLedger.matchesAcceptedLppCapitalNoticeReceipt(receipt)) {
+        throw StateError('LPP capital notice receipt no longer matches');
+      }
+      await hydrateReferences();
+      guard.assertCurrent();
+      if (!FeatureFlags.lppCapitalNoticeDeadlineEnabled ||
+          !currentLedger.matchesAcceptedLppCapitalNoticeReceipt(receipt)) {
+        throw StateError('LPP capital notice receipt changed during hydration');
+      }
+      final reference = ConfirmedDocumentReference(
+        referenceId: receipt.referenceId,
+        kind: ConfirmedDocumentReference.lppCapitalNoticeKind,
+        snapshotId: receipt.snapshotId,
+        ownerKind: receipt.ownerKind,
+        confirmedAt: receipt.confirmedAt,
+      );
+      for (final existing in _references) {
+        if (existing.referenceId == reference.referenceId &&
+            existing.kind == reference.kind &&
+            existing.snapshotId == reference.snapshotId &&
+            existing.ownerKind == reference.ownerKind &&
+            existing.confirmedAt == reference.confirmedAt) {
+          return existing;
+        }
+      }
+      final nextReferences = <ConfirmedDocumentReference>[];
+      var inserted = false;
+      for (final existing in _references) {
+        final isPriorNotice =
+            existing.kind == ConfirmedDocumentReference.lppCapitalNoticeKind &&
+                existing.ownerKind == receipt.ownerKind &&
+                existing.snapshotId == receipt.snapshotId;
+        if (isPriorNotice) {
+          if (!inserted) {
+            nextReferences.add(reference);
+            inserted = true;
+          }
+        } else {
+          nextReferences.add(existing);
+        }
+      }
+      if (!inserted) nextReferences.add(reference);
+      final persistedReferences =
+          List<ConfirmedDocumentReference>.unmodifiable(nextReferences);
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => _referenceStore.save(persistedReferences),
+      );
+      guard.assertCurrent();
+      _references = persistedReferences;
+      notifyListeners();
+      return reference;
+    });
+  }
+
+  SpecialistReferenceEvidence? resolveLppCapitalNotice(
+    SpecialistReferenceEvidence? candidate,
+  ) {
+    if (!FeatureFlags.lppCapitalNoticeDeadlineEnabled ||
+        candidate == null ||
+        candidate.kind != SpecialistReferenceKind.lppCapitalNotice ||
+        candidate.ownerKind != LppEvidenceOwnerKind.self) {
+      return null;
+    }
+    final reference = byId(candidate.referenceId);
+    if (reference == null ||
+        reference.kind != ConfirmedDocumentReference.lppCapitalNoticeKind ||
+        reference.ownerKind != LppEvidenceOwnerKind.self ||
+        reference.confirmedAt != candidate.confirmedAt) {
+      return null;
+    }
+    final ledger = _ledger;
+    if (ledger == null ||
+        !ledger.matchesAcceptedLppCapitalNoticeReceipt(
+          LppCapitalNoticeReceipt(
+            referenceId: candidate.referenceId,
+            snapshotId: reference.snapshotId,
+            confirmedAt: candidate.confirmedAt,
+          ),
+        )) {
+      return null;
+    }
+    return candidate;
   }
 
   Future<void> deleteConfirmedReference(String referenceId) {
