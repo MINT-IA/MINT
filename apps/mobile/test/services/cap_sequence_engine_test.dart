@@ -36,6 +36,8 @@ CoachProfile _profile({
   double? bonusPourcentage,
   String canton = 'VS',
   String employmentStatus = 'salarie',
+  String? residencePermit,
+  double? monthlyNetIncomeDeclared,
   ConjointProfile? conjoint,
   PrevoyanceProfile prevoyance = const PrevoyanceProfile(),
   PatrimoineProfile patrimoine = const PatrimoineProfile(),
@@ -48,6 +50,8 @@ CoachProfile _profile({
     nombreDeMois: nombreDeMois,
     bonusPourcentage: bonusPourcentage,
     employmentStatus: employmentStatus,
+    residencePermit: residencePermit,
+    monthlyNetIncomeDeclared: monthlyNetIncomeDeclared,
     conjoint: conjoint,
     prevoyance: prevoyance,
     patrimoine: patrimoine,
@@ -544,6 +548,69 @@ void main() {
         expect(step3.impactEstimate, isNull);
       }
     });
+
+    test('permit G without jurisdiction cannot change the ordinary margin', () {
+      double? marginFor(String? residencePermit) {
+        final seq = CapSequenceEngine.build(
+          profile: _profile(
+            salaireBrutMensuel: 10000,
+            residencePermit: residencePermit,
+            depenses: const DepensesProfile(loyer: 1800),
+          ),
+          memory: emptyMemory,
+          goalIntentTag: 'budget_overview',
+          l: _l,
+        );
+        return seq.steps
+            .firstWhere((step) => step.id == 'bud_03_margin')
+            .impactEstimate;
+      }
+
+      expect(marginFor('G'), marginFor(null));
+    });
+
+    test('canonical frontier without declared monthly net fails closed', () {
+      final profile = CoachProfile.fromWizardAnswers(
+        <String, dynamic>{
+          'q_birth_year': 1985,
+          'q_canton': 'GE',
+          'q_gross_salary_annual': 120000,
+          'q_housing_cost_period_chf': 1800,
+          'q_residence_country': 'FR',
+          'q_work_country': 'CH',
+          'q_work_canton': 'GE',
+        },
+        now: DateTime.now,
+      );
+      final seq = CapSequenceEngine.build(
+        profile: profile,
+        memory: emptyMemory,
+        goalIntentTag: 'budget_overview',
+        l: _l,
+      );
+
+      expect(profile.isCrossBorder, isTrue);
+      final margin = seq.steps.firstWhere((step) => step.id == 'bud_03_margin');
+      expect(margin.impactEstimate, isNull);
+    });
+
+    test('explicit monthly net remains authoritative for a permit-only profile',
+        () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(
+          salaireBrutMensuel: 10000,
+          residencePermit: 'G',
+          monthlyNetIncomeDeclared: 7200,
+          depenses: const DepensesProfile(loyer: 1800),
+        ),
+        memory: emptyMemory,
+        goalIntentTag: 'budget_overview',
+        l: _l,
+      );
+
+      final margin = seq.steps.firstWhere((step) => step.id == 'bud_03_margin');
+      expect(margin.impactEstimate, 5400);
+    });
   });
 
   // ── HOUSING SEQUENCE ─────────────────────────────────────────
@@ -725,6 +792,26 @@ void main() {
       );
 
       expect(withUnscopedSpouse, closeTo(withoutSpouse, 0.01));
+    });
+
+    test('permit G alone cannot change gross-income purchase capacity', () {
+      double? capacityFor(String? residencePermit) {
+        final sequence = CapSequenceEngine.build(
+          profile: _profile(
+            salaireBrutMensuel: 10000,
+            residencePermit: residencePermit,
+            patrimoine: const PatrimoineProfile(epargneLiquide: 120000),
+          ),
+          memory: emptyMemory,
+          goalIntentTag: 'housing_purchase',
+          l: _l,
+        );
+        return sequence.steps
+            .firstWhere((step) => step.id == 'hou_03_capacity')
+            .impactEstimate;
+      }
+
+      expect(capacityFor('G'), capacityFor(null));
     });
   });
 

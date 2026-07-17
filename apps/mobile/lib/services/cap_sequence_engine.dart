@@ -642,6 +642,10 @@ class CapSequenceEngine {
     if (depenses <= 0) return null;
 
     final declaredNet = profile.monthlyNetIncomeDeclared;
+    if (profile.isCrossBorder && (declaredNet == null || declaredNet <= 0)) {
+      return null;
+    }
+
     final age = profile.ageOrNull;
     if ((declaredNet == null || declaredNet <= 0) &&
         (age == null || profile.canton.isEmpty)) {
@@ -661,7 +665,6 @@ class CapSequenceEngine {
                 ? 'marie'
                 : 'celibataire',
             nombreEnfants: profile.nombreEnfants,
-            isCrossBorder: profile.isCrossBorder,
           ).monthlyNetPayslip;
     final libre = net - depenses;
     return libre > 0 ? libre : null;
