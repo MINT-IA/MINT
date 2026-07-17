@@ -3392,6 +3392,7 @@ class CoachProfile {
           prevoyance == other.prevoyance &&
           patrimoine == other.patrimoine &&
           dettes == other.dettes &&
+          fiscal == other.fiscal &&
           lppRegulationReference == other.lppRegulationReference &&
           lppCapitalNoticeDeadline == other.lppCapitalNoticeDeadline &&
           pillar3aBeneficiaryClause == other.pillar3aBeneficiaryClause &&
@@ -3450,6 +3451,7 @@ class CoachProfile {
         prevoyance,
         patrimoine,
         dettes,
+        fiscal,
         lppRegulationReference,
         lppCapitalNoticeDeadline,
         pillar3aBeneficiaryClause,
