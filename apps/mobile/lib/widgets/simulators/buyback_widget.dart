@@ -5,7 +5,7 @@ import 'package:mint_mobile/services/simulators/buyback_simulator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:provider/provider.dart';
 
 class BuybackWidget extends StatefulWidget {
@@ -36,7 +36,9 @@ class _BuybackWidgetState extends State<BuybackWidget> {
       return const SizedBox.shrink(); // Hide if no potential
     }
 
-    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+    final profile = context.watch<CoachProfileProvider>().profile;
+    if (profile == null) return const SizedBox.shrink();
+    final hasDebt = profile.isInDebtCrisis;
 
     final result = BuybackSimulator.compareStaggering(
       totalBuybackAmount: widget.totalBuybackPotential,

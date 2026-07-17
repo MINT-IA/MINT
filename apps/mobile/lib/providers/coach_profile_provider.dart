@@ -157,15 +157,10 @@ final class _ReportLppProfilePersistence
 
 /// Provider pour le profil Coach MINT.
 ///
-/// ARCHITECTURAL NOTE: Two profile models coexist by design:
-/// - ProfileProvider: syncs with backend API (source of truth for persisted data)
-/// - CoachProfileProvider: rich local model with wizard data, prevoyance, patrimoine
+/// [CoachProfileProvider] is the single durable mobile fact spine.
 ///
-/// CoachProfile is the SUPERSET used by all simulators and the coach.
-/// Profile (API model) is used only for backend sync (create/update).
-///
-/// Synchronization: CoachProfile is built from Profile + local wizard data.
-/// There is no automatic sync from CoachProfile back to Profile.
+/// The smaller `Profile` type remains an API/wizard DTO only; it has no mobile
+/// provider, screen reader, or independent persistence ownership.
 ///
 /// Charge les reponses du wizard depuis SharedPreferences
 /// et construit un CoachProfile. Si aucun wizard n'a ete complete,

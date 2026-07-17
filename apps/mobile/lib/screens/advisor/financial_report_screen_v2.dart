@@ -25,7 +25,7 @@ import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
-// ProfileProvider removed — hasDebt now derived from wizardAnswers directly
+// Debt state is derived from the report's explicit wizard answers.
 
 /// Ecran d'affichage du rapport financier exhaustif V2
 /// Refonte : cartes thématiques (Budget, Protection, Retraite, Impôts)

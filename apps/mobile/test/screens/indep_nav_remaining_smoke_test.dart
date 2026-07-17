@@ -19,7 +19,6 @@ import 'package:mint_mobile/screens/timeline_screen.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 
 // Dependencies
-import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -49,7 +48,7 @@ Widget buildTestable(Widget child) {
   );
 }
 
-/// Wrapper that provides ProfileProvider + ByokProvider (needed by ExploreTab).
+/// Wrapper that provides the live Explore dependencies.
 Widget buildWithExploreProviders(Widget child) {
   return MaterialApp(
     locale: const Locale('fr'),
@@ -62,9 +61,6 @@ Widget buildWithExploreProviders(Widget child) {
     supportedLocales: S.supportedLocales,
     home: MultiProvider(
       providers: [
-        ChangeNotifierProvider<ProfileProvider>(
-          create: (_) => ProfileProvider(),
-        ),
         ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
         ChangeNotifierProvider<CoachProfileProvider>(
           create: (_) => CoachProfileProvider(),

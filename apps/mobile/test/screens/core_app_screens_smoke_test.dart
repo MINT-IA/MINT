@@ -14,7 +14,6 @@ import 'package:mint_mobile/screens/landing_screen.dart';
 // KILL-07: main_navigation_shell.dart deleted (Phase 2)
 
 // Providers
-import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
@@ -29,9 +28,6 @@ import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
-
-// Models
-import 'package:mint_mobile/models/profile.dart';
 
 void main() {
   setUp(() {
@@ -53,19 +49,6 @@ void main() {
   }) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<ProfileProvider>(create: (_) {
-          final p = ProfileProvider();
-          p.setProfile(Profile(
-            id: 'test-user',
-            householdType: HouseholdType.single,
-            goal: Goal.emergency,
-            createdAt: DateTime(2025, 1, 1),
-            birthYear: 1990,
-            canton: 'VD',
-            incomeNetMonthly: 6000,
-          ));
-          return p;
-        }),
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
         ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
         if (documentProvider == null)

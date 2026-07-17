@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/router/route_scope.dart';
 import 'package:mint_mobile/router/scoped_go_route.dart';
 import 'package:mint_mobile/widgets/mint_shell.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
@@ -1798,7 +1797,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           lazy: false,
           create: (_) => SessionEpoch(),
         ),
-        ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(
           create: (context) => ByokProvider(
             sessionEpoch: context.read<SessionEpoch>(),
@@ -1994,7 +1992,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             final coach = context.read<CoachProfileProvider>();
             final budget = context.read<BudgetProvider>();
             final plans = context.read<FinancialPlanProvider>();
-            final profile = context.read<ProfileProvider>();
             final mintState = context.read<MintStateProvider>();
             final documents = context.read<DocumentProvider>();
             final household = context.read<HouseholdProvider>();
@@ -2013,7 +2010,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
               clearSessionMemory: [
                 coach.clearSessionMemoryAfterPurge,
                 plans.clearPlan,
-                profile.clear,
                 mintState.clear,
                 budget.clearSessionMemoryAfterPurge,
                 documents.clearLocalState,

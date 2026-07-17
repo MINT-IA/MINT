@@ -6,7 +6,6 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
@@ -179,7 +178,28 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+    final coachProvider = context.watch<CoachProfileProvider>();
+    final hasDebt = coachProvider.profile?.isInDebtCrisis;
+    if (hasDebt == null) {
+      return PopScope(
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) _emitFinalReturn();
+        },
+        child: Scaffold(
+          backgroundColor: MintColors.background,
+          appBar: AppBar(
+            backgroundColor: MintColors.white,
+            foregroundColor: MintColors.textPrimary,
+            title: Text(l.sim3aTitle, style: MintTextStyles.headlineMedium()),
+          ),
+          body: Center(
+            child: coachProvider.isLoaded
+                ? Text(l.financialSummaryNoProfile)
+                : const CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {

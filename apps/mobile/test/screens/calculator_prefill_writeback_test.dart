@@ -19,7 +19,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';
@@ -64,9 +63,6 @@ Widget _buildWrapped(
         ChangeNotifierProvider<CoachProfileProvider>.value(
           value: coachProfileProvider,
         ),
-      ChangeNotifierProvider<ProfileProvider>(
-        create: (_) => ProfileProvider(),
-      ),
     ],
     child: MaterialApp(
       locale: const Locale('fr'),

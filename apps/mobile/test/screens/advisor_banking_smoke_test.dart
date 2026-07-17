@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Screens under test
@@ -9,25 +8,10 @@ import 'package:mint_mobile/screens/open_banking/open_banking_hub_screen.dart';
 import 'package:mint_mobile/screens/open_banking/transaction_list_screen.dart';
 import 'package:mint_mobile/screens/open_banking/consent_screen.dart';
 
-// Dependencies
-import 'package:mint_mobile/providers/profile_provider.dart';
-import 'package:mint_mobile/models/profile.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
-/// Helper to wrap a widget with ProfileProvider.
-Widget buildWithProfileProvider(Widget child, {bool hasDebt = false}) {
-  final provider = ProfileProvider();
-  provider.setProfile(Profile(
-    id: 'test-profile-001',
-    birthYear: 1990,
-    canton: 'VD',
-    householdType: HouseholdType.single,
-    incomeNetMonthly: 6000,
-    hasDebt: hasDebt,
-    goal: Goal.other,
-    createdAt: DateTime(2025, 1, 1),
-  ));
+Widget buildLocalized(Widget child) {
   return MaterialApp(
     locale: const Locale('fr'),
     localizationsDelegates: const [
@@ -37,10 +21,7 @@ Widget buildWithProfileProvider(Widget child, {bool hasDebt = false}) {
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: S.supportedLocales,
-    home: ChangeNotifierProvider<ProfileProvider>.value(
-      value: provider,
-      child: child,
-    ),
+    home: child,
   );
 }
 
@@ -83,7 +64,7 @@ void main() {
       addTearDown(() => tester.view.resetPhysicalSize());
 
       await tester.pumpWidget(
-        buildWithProfileProvider(
+        buildLocalized(
           FinancialReportScreenV2(wizardAnswers: testAnswersV2),
         ),
       );
@@ -99,7 +80,7 @@ void main() {
       addTearDown(() => tester.view.resetPhysicalSize());
 
       await tester.pumpWidget(
-        buildWithProfileProvider(
+        buildLocalized(
           FinancialReportScreenV2(wizardAnswers: testAnswersV2),
         ),
       );
@@ -114,7 +95,7 @@ void main() {
       addTearDown(() => tester.view.resetPhysicalSize());
 
       await tester.pumpWidget(
-        buildWithProfileProvider(
+        buildLocalized(
           FinancialReportScreenV2(wizardAnswers: testAnswersV2),
         ),
       );
@@ -131,7 +112,7 @@ void main() {
       addTearDown(() => tester.view.resetPhysicalSize());
 
       await tester.pumpWidget(
-        buildWithProfileProvider(
+        buildLocalized(
           FinancialReportScreenV2(wizardAnswers: testAnswersV2),
         ),
       );

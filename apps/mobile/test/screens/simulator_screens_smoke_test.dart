@@ -9,10 +9,7 @@ import 'package:mint_mobile/screens/simulator_compound_screen.dart';
 import 'package:mint_mobile/screens/fiscal_comparator_screen.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 
-// Dependencies
-import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -29,18 +26,15 @@ void main() {
   // ===========================================================================
 
   group('Simulator3aScreen', () {
-    Widget buildScreen({Profile? profile}) {
-      final provider = ProfileProvider();
-      if (profile != null) {
-        provider.setProfile(profile);
-      }
-      return MultiProvider(
-        providers: [
-          ChangeNotifierProvider<ProfileProvider>.value(value: provider),
-          ChangeNotifierProvider<CoachProfileProvider>(
-            create: (_) => CoachProfileProvider(),
-          ),
-        ],
+    Widget buildScreen() {
+      return ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider()
+          ..updateFromAnswers(const {
+            'q_gross_salary_annual': 96000.0,
+            'q_cash_total': 50000.0,
+            '_coach_cash_total_source': 'userInput',
+            'q_has_consumer_debt': 'no',
+          }),
         child: const MaterialApp(
           locale: Locale('fr'),
           localizationsDelegates: [

@@ -5,10 +5,18 @@ import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/widgets/recommendation_card.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
+
+CoachProfileProvider buildDebtFreeProvider() => CoachProfileProvider()
+  ..updateFromAnswers(const {
+    'q_gross_salary_annual': 96000.0,
+    'q_cash_total': 50000.0,
+    '_coach_cash_total_source': 'userInput',
+    'q_has_consumer_debt': 'no',
+  });
 
 void main() {
   // ────────────────────────────────────────────────────────────
@@ -253,8 +261,8 @@ void main() {
       final rec = makeRecommendation(title: 'Ouvrir un 3e pilier');
 
       await tester.pumpWidget(
-        ChangeNotifierProvider<ProfileProvider>(
-          create: (_) => ProfileProvider(),
+        ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => buildDebtFreeProvider(),
           child: MaterialApp(
             locale: const Locale('fr'),
             localizationsDelegates: const [
@@ -282,8 +290,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ChangeNotifierProvider<ProfileProvider>(
-          create: (_) => ProfileProvider(),
+        ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => buildDebtFreeProvider(),
           child: MaterialApp(
             locale: const Locale('fr'),
             localizationsDelegates: const [
@@ -319,8 +327,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ChangeNotifierProvider<ProfileProvider>(
-          create: (_) => ProfileProvider(),
+        ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => buildDebtFreeProvider(),
           child: MaterialApp(
             locale: const Locale('fr'),
             localizationsDelegates: const [
@@ -348,8 +356,8 @@ void main() {
       final rec = makeRecommendation(kind: 'fiscalite');
 
       await tester.pumpWidget(
-        ChangeNotifierProvider<ProfileProvider>(
-          create: (_) => ProfileProvider(),
+        ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => buildDebtFreeProvider(),
           child: MaterialApp(
             locale: const Locale('fr'),
             localizationsDelegates: const [
