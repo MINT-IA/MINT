@@ -1,0 +1,35 @@
+Product/domain verdict: PASS
+
+This change surfaces a single read-only educational banner on the retirement dashboard showing the LPP/BVG **capital-withdrawal notice deadline** that the pension fund itself declared on the member's certificate. It is dark-launched (`FeatureFlags.lppCapitalNoticeDeadlineEnabled = false` at `services/feature_flags.dart:100`), thoroughly tested, and domain-coherent.
+
+## Life event & decision clarified
+- Life event: approaching retirement, capital-vs-rente election.
+- Swiss decision clarified: the fund-imposed **advance-notice deadline** to elect a lump-sum (capital) LPP withdrawal instead of a pension. This is a genuine, high-stakes, regulation-set deadline (funds commonly require 1–3 years' notice), so surfacing it has real user value.
+
+## Why it is not a NO-GO
+- **Not MINT-invented law.** The date is a fund-declared fact: `SpecialistReferenceEvidence.tryFromJson` requires `source == ProfileDataSource.certificate` (`coach_profile.dart:2925`). MINT does not compute or estimate the deadline, so the "unsupported/stale constant" P1 rule does not bite — there is no legal constant here, only a transcribed certificate value.
+- **No advice / no banned language.** Copy (e.g. `app_en.arb`) reads "Your pension fund indicates a deadline of {date}. Check it directly with the fund." The stale variant states "The deadline … was {date}. Check it directly with the fund." Neither asserts MINT authority, gives a ranking/recommendation, nor draws a legal conclusion such as "you can no longer elect capital." The test even asserts the surface contains **no** button (`retirement_dashboard_lpp_capital_notice_test.dart:` "the deadline surface is education, not an advice-shaped CTA").
+- **Single source of truth.** The deadline lives once on the ledger (`profile.lppCapitalNoticeDeadline`) and is cross-validated against the `DocumentProvider` confirmed-reference (`document_provider.dart:453 resolveLppCapitalNotice`), which fails closed on flag-off, wrong kind, wrong owner, referenceId mismatch, `confirmedAt` mismatch, snapshot replacement, and ledger-receipt mismatch. No duplicated user variable.
+- **Real wiring, not a facade.** `DocumentProvider` is provided app-wide and bound to the ledger (`app.dart:1825-1837`); the screen consumes it via `context.watch<DocumentProvider?>()` and degrades to no-banner when unhydrated/absent.
+- **Civil-time correctness.** Screen staleness (`deadlineDay.isBefore(today)` using `SwissCivilTime.civilDate`/`businessDate`) matches the model's own `SpecialistReferenceState.stale` rule (`coach_profile.dart:3034`), both anchored to Europe/Zurich civil dates — no host-timezone leakage. On the deadline day itself it correctly renders "known" (still actionable).
+
+## Findings
+
+### P0
+- None.
+
+### P1
+- None.
+
+### P2
+- `retirement_dashboard_screen.dart:865` places the banner **above the hero**, ahead of the file's own documented "max 2 above fold" rule (header comment §2A). Acceptable for a genuine deadline and dark-launched, but worth a design confirmation.
+- The banner is pure text with **no handoff affordance**. For a specialist-only decision (capital vs rente), a non-advisory link to the existing `/rente-vs-capital` screen or a "contact your fund" action would add user value beyond the "check with the fund" sentence. Next-step, not a blocker.
+- Copy is duplicated verbatim into all 6 locales as static strings; fine, but no `@description` context was added to the ARB entries for translators.
+
+## Swiss domain review
+- **LPP/BVG:** Directly and correctly affected. The capital-notice deadline is a legitimate fund-regulation artifact under LPP art. 37; MINT transcribes the fund's own date and defers verification to the fund. No statutory constant is hard-coded.
+- **AVS/OASI:** Not affected — banner renders across the normal, missing-AVS, and unavailable-projection states without altering AVS logic, the `retirement_missing_avs_state` surface, or the `/scan/avs-guide` CTA (asserted in tests).
+- **3a / tax / mortgage / insurance / succession / disability:** Not affected.
+
+## Mint product logic review
+This advances the ledger → DataQuest → scenario → dossier spine: a fund-confirmed evidence fact (BND-bound `ConfirmedDocumentReference`) is promoted from the ledger into a scenario-relevant, provenance-checked, uncertainty-honest reminder, with correct known/stale distinction and fail-closed gating. It is education, not advice, and keeps one source of truth. The only gap versus the "dossier handoff" end of the spine is the absence of an onward route to the capital-vs-rente scenario (P2).

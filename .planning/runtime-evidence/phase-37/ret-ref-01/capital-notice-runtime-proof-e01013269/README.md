@@ -31,6 +31,18 @@ RET-REF, or close G1.
    Both manifests have SHA-256
    `923ef6b0146ab4d564d0b2515a711901cffe0224184cd13dbd92e2e26a191193`.
 
+## Bounded external audit
+
+Seven first-pass, wrapper-only **Opus high** audits passed with **zero P0/P1**:
+
+- `2be3f5d69...421bfac27`: code + product/domain.
+- `421bfac27...8839c37ae`: code + product/domain.
+- `8839c37ae...15e962193`: code + product/domain.
+- `15e962193...81293dc43`: code.
+
+The seven sanitized `audit-*.txt` verdicts are retained beside this README.
+They validate the bounded technical slices, not feature activation.
+
 ## Privacy and evidence minimization
 
 Only these sanitized summaries, integrity manifests, and verdict documents are

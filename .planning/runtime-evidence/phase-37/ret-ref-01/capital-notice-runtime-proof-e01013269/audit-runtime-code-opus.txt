@@ -1,0 +1,36 @@
+All symbols the tests reference resolve to real production APIs. My verification is complete.
+
+---
+
+# MINT External Audit — G1 RET-REF-01 LPP Capital-Notice Runtime Proof
+
+**Audit mode:** code · **Base:** `15e962193` → **HEAD:** `81293dc43` · **Diff:** 16 files, 2086 insertions (within 5000 budget)
+
+## Scope of the audited diff
+The diff is a **test + runtime-evidence layer** on top of the feature commit `15e962193`. It adds: two Patrol integration tests (write/read), two Patrol wrappers, a Maestro flag-off flow, a Python contract guard, a 1105-line bash orchestrator, and a sanitized runtime-evidence package. The production feature code itself is in/below the base ref.
+
+## Verification performed (code as source of truth)
+- **Wiring is real, not a facade.** Every symbol the tests exercise resolves to genuine production code:
+  - `acceptLppCapitalNotice`/`_acceptLppCapitalNotice` (`coach_profile_provider.dart:1310,1325`), `recordLppCapitalNotice`/`resolveLppCapitalNotice` (`document_provider.dart:379,453`), `LppCapitalNoticeReviewConfirmation`/`LppCapitalNoticeDeadline`/`LppCapitalNoticeReceipt` (`lpp_evidence.dart:257,502,329`), `profile.lppCapitalNoticeDeadline` (`coach_profile.dart:3199`).
+- **Default-off and un-activatable from backend.** `lppCapitalNoticeDeadlineEnabled = false` (`feature_flags.dart:100`) and is **absent from `applyFromMap`** (verified across lines 152–260). The write path fails closed on the flag in three layered checks (`document_provider.dart:383,395,403`) and in the provider (`coach_profile_provider.dart:1330-1335`).
+- **Consumer surface gated + fails closed.** Dashboard banner renders only via `resolveLppCapitalNotice(...)` (`retirement_dashboard_screen.dart:893`), which returns null unless flag on AND reference resolves AND ledger snapshot matches (`document_provider.dart:456-478`). Invalidation-after-replacement is a real property (notice is snapshot-scoped; new snapshot drops it).
+- **Maestro flag-off assertions are meaningful, not vacuous.** `lppCertificate` only enters `selectable` when `lppEvidenceIngestionEnabled` (`document_scan_screen.dart:285`); all asserted ids (`landing_route`, `document_scan_capture_cta`, `document_scan_lpp_type_selector`, `lpp_review_confirm_cta`) exist in production.
+- **Privacy hygiene is robust.** Orchestrator `sanitize_log`/`verify_retained_artifacts` redact repo/home/UDID/temp paths, reject symlinks, `.xcresult`, media, and any residual absolute path; committed artifacts confirm `REDACTED_SIMULATOR_UDID`, synthetic-only data, no PII. Tests assert persisted ledgers exclude raw OCR/`sourceText`/`documentSha256`.
+- **Tests actually pass.** The only CI-runnable artifact — the Python contract guard — passes **7/7**. Orchestrator hard-deps (`maestro_env.sh`, `mint_os_doctor.py`, `patrol_tooling_guard.py`) are tracked.
+
+## Findings
+
+### P0 — none
+### P1 — none
+
+### P2 (advisory)
+1. **No re-runnable regression guard for the runtime claim.** `test_g1_ret_ref_lpp_capital_notice_runtime_orchestrator.py` is purely string-anchor + `bash -n`; it never executes the runtime chain. The Dart Patrol tests are `skip: !_runningFromPatrolCli` (device-only). Consequently CI would stay green even if on-device behavior regressed. This is inherent to Patrol/simulator gating, but the "GREEN" claim rests on a one-time manual run. *Proof:* the Python test file contains only `assert anchor in source`; Dart tests gate on `bool.fromEnvironment('MINT_PATROL_CLI')`.
+2. **Evidence is self-attested, not independently reproducible from the repo.** Raw logs, `.xcresult` bundles, and screenshots were deleted by design (privacy minimization), so an auditor cannot verify "1/1 pass", "terminate exit 0", or "before==after core hashes" from committed files alone — the before/after manifests are identical *committed claims* (`923ef6b…`). Reproduction requires `git checkout e01013269` (orchestrator enforces `HEAD == --sha`, `patrol_lpp_capital_notice_process_death.sh:64`) on a macOS+simulator host.
+3. **Scorecard self-scores 8.5/10 / "GREEN".** Documentation only; appropriately caveated (`Feature activation: NO-GO`, acquisition seam `false`). Not independently earned within the diff — treated as non-binding per the no-trust-docs rule.
+
+## Conclusion
+The diff is an honest test/evidence layer over **correctly wired, default-off, fail-closed** production code. Docs explicitly state the feature is **not activated** (no production acquisition seam, flag off, synthetic-only), which matches the code. No correctness, privacy, routing, compliance, or facade-without-wiring defect rises to P0/P1. The P2 items are transparency/regression-coverage limitations, not blockers for what this package claims (a bounded technical atom, not feature activation).
+
+---
+
+# VERDICT: PASS

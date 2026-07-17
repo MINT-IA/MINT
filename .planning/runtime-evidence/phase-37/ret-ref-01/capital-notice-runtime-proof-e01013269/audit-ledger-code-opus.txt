@@ -1,0 +1,31 @@
+I've completed my audit. Let me compile the verdict.
+
+## MINT Audit — LPP Capital-Notice Deadline (`421bfac27`, base `2be3f5d69`)
+
+### Verdict: **PASS**
+
+### Scope reviewed
+Diff (9 files, ~1031 lines, within budget) adding `self.lppCapitalNoticeDeadline` metadata to the existing `_coach_lpp_evidence_v1` root: a typed model (`LppCapitalNoticeDeadline`), a serialized provider writer (`acceptLppCapitalNotice`), a default-false local flag, cold-read wiring into `CoachProfile`, tests, and docs.
+
+### Verification performed (source of truth = code + tests)
+- **All 23 new tests pass** (`lpp_evidence_test.dart` +14, `lpp_capital_notice_deadline_provider_test.dart` +9), run locally.
+- **No regressions** in adjacent suites: `specialist_reference_contract`, `coach_profile_semantic_roundtrip`, `coach_profile_provider`, `lpp_acquisition_authorization_provider`, `coach_profile_report_boundary`, `coach_profile_provider_tax_extraction`, `tax_provenance_profile` — all green.
+
+### Findings
+
+**P0 — none.**
+
+**P1 — none.**
+
+**P2 (informational, no action required to pass)**
+1. **Facade is honestly disclosed, not deceptive.** `acceptLppCapitalNotice` has **no production caller** (`lib/providers/coach_profile_provider.dart:1310`), and `CoachProfile.lppCapitalNoticeDeadline` is populated on cold load but has **zero consumers** (no `DocumentProvider`/BND-05 hydration, no dashboard reminder). This is explicitly labeled "semantic RED / not production wiring" in `DATA_LEDGER.md §4.0.2`, `SCREEN_CONTRACTS.md §7.1`, and as a dashed edge in `WIRING_GRAPH.mmd` (`LCN_WRITE -. .-> CPP`). Because it is gated behind a default-false local kill switch and honestly documented, it is legitimate incremental TDD, not a facade-without-wiring violation. Keep the flag off and the field consumer-free until BND-05 wiring + audit land.
+2. Cosmetic asymmetry: `typedLppSelf` is selected with `now: now` while the capital-notice reparse uses `now: ageNow` (`coach_profile.dart:4862/4872`). Both resolve to `now ?? DateTime.now()`, so behavior is identical — no bug.
+
+### Controls confirmed
+- **Fail-closed flag:** `lppCapitalNoticeDeadlineEnabled = false` and deliberately **absent from `applyFromMap`** (`feature_flags.dart:100`); test proves backend maps cannot flip it. Both the public and private writer paths re-check the flag (`coach_profile_provider.dart:1314,1331`); cold derivation is flag-gated (`coach_profile.dart:4868`).
+- **Save-before-publish:** publication runs only in the `mutateAnswers` post-save `publish` callback (`report_persistence_service.dart:86-88`); "reject without I/O or notify" tests confirm no early publication.
+- **No backend/LLM leak:** the notice is nested inside `_coach_lpp_evidence_v1`, which `backendSafeAnswers` strips (`report_persistence_service.dart:52`); `CoachProfile.toJson` (which serializes the derived field) is used only for internal provenance-path resolution (`coach_profile_provider.dart:2107`), never sent outward.
+- **Concurrency/idempotency:** identical retry returns the persisted receipt with no save; replacement requires exact `snapshotId` + `expectedPreviousReferenceId`; the inner re-validation under the serialized mutation makes a double-replace fail closed (proven by the concurrent-write test).
+- **Strict decoding:** self-only, non-empty-facts precondition, exact key allowlist, canonical UUIDv4/UTC-instant/civil-date checks; `manualPartner` placement and factless notice-only roots rejected (tests green).
+
+No P0/P1 correctness, privacy, compliance, routing, or test-integrity defects found.

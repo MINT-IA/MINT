@@ -1,0 +1,25 @@
+## MINT Code Audit — capital notice → BND binding (`8839c37ae`, base `421bfac27`)
+
+**Scope:** 3 files, 634 lines (within budget). Adds the raw-free binding between a confirmed capital-notice document reference and the strict LPP ledger snapshot.
+
+### What I verified
+
+- **Diff reviewed in full** against the real types (`LppCapitalNoticeReceipt`, `LppCapitalNoticeDeadline`, `SpecialistReferenceEvidence`, `ConfirmedDocumentReference`), not just the patch.
+- **Tests actually run and pass:** the new suite (7 tests) + sibling suites (`lpp_capital_notice_deadline_provider_test`, `specialist_reference_contract_test`, `lpp_evidence_test`, 37 tests) all green. `flutter analyze` on the three changed files: **No issues found**.
+- **Privacy / raw-free boundary:** receipts and stored references carry only metadata (`referenceId`, `snapshotId`, `ownerKind`, `kind`, `confirmedAt`). No financial value, OCR, filename, or path crosses. `ConfirmedDocumentReference.fromJson` still enforces exact key allowlist, UUIDv4 ids, canonical UTC instant, and now pins `lppCapitalNotice` to `ownerKind==self` (`document_provider.dart:78-80`). Store rejects any extra key as a whole root (`store allowlist` test).
+- **Fail-closed matcher:** `matchesAcceptedLppCapitalNoticeReceipt` (`coach_profile_provider.dart:2232-2255`) gates on both flags, load state, `ownerKind==self`, `kind`, non-empty facts, and exact `snapshotId`/`referenceId`/`confirmedAt`. Forged-tuple and flag-off cases proven false.
+- **Writer correctness:** `recordLppCapitalNotice` fails fast (no store I/O) on flag-off/missing/unloaded/forged (`loadCalls==0, saveCalls==0` asserted), re-verifies inside the serialized+session-guarded mutation, is idempotent on identical retry, and replaces a prior notice on the same snapshot in place while a generic `lpp` reference on that snapshot coexists (distinct `kind|owner|snapshot` binding). Store binding-uniqueness invariant is respected by the replacement (at most one prior notice per binding).
+- **Resolver contract:** `resolveLppCapitalNotice` re-checks flag, kind, `ownerKind==self`, `byId` snapshot re-binding, `confirmedAt`, and the ledger matcher. Fail-closed on hydration/kind/tuple/snapshot-rotation/flag proven. Candidate derivation (`coach_profile.dart:4867` → `SpecialistReferenceEvidence.tryFromJson`) is key-consistent with the resolver's expectations.
+
+### Findings
+
+**P0 — none.**
+**P1 — none.**
+
+**P2 (non-blocking):**
+1. **No runtime consumer yet.** `recordLppCapitalNotice` / `resolveLppCapitalNotice` are referenced only by tests; no screen/router wires them. This is acceptable here: the feature is flag-gated off by default (`feature_flags.dart:100 lppCapitalNoticeDeadlineEnabled = false`) and the commit is an explicit incremental "BND" step in a RED→GREEN sequence. The *cross-provider* binding is wired and tested. Flag it for the follow-up UI-wiring commit; proof it stays inert today: flags default false + `flutter test` green.
+2. **Resolver trusts candidate's `deadlineDate`/`legalYear`/`sourceDate` without re-diffing them against the ledger notice** (`document_provider.dart` resolver). Mitigated because `referenceId` is a fresh UUIDv4 minted per distinct notice tuple in `acceptLppCapitalNotice` (a changed deadline yields a new `referenceId` unless `_capitalNoticeMatches` holds on all three fields), so matching `referenceId`+`confirmedAt`+`snapshotId` effectively pins the deadline. Low risk; worth an explicit assertion if the id-minting rule ever weakens.
+
+### Verdict
+
+**PASS**

@@ -1,0 +1,27 @@
+Product/domain verdict: PASS
+
+## Summary
+This slice binds a **LPP capital‑withdrawal notice deadline** ("délai d'annonce du retrait en capital") to the strict LPP evidence snapshot (BND) as an opaque, raw‑free document reference, and adds a specialist‑handoff resolver. It is coherent with Swiss pension practice and privacy‑safe. The whole chain is gated behind `lppCapitalNoticeDeadlineEnabled = false` (`lib/services/feature_flags.dart:100`) and is being built test‑first (RED→GREEN commits). No user can reach it and no Swiss‑law constant is computed by MINT.
+
+## Life event & decision
+Life event: approaching LPP retirement, deciding **rente vs. capital**. The clarified decision is the *deadline by which the insured must notify the pension fund of a capital election* — a fund‑regulation‑specific date (commonly ~3 years pre‑retirement, but fund‑dependent). Correct design choice: MINT **captures** this date (`source: 'certificate'`, `apps/mobile/lib/models/lpp_evidence.dart:530`), it does **not** compute it. That avoids a P0 legal‑computation error.
+
+## P0
+None.
+
+## P1
+None blocking. (The facade/no‑wiring item below would be P1 if the flag were shippable, but it is off and the work is mid‑build TDD, so it is tracked as P2.)
+
+## P2
+- **Facade without downstream wiring (expected mid‑build).** `acceptLppCapitalNotice` (`coach_profile_provider.dart:1310`), `recordLppCapitalNotice` (`document_provider.dart:379`) and `resolveLppCapitalNotice` (`document_provider.dart:453`) have **no callers in `lib/`** outside the providers themselves — no route, CTA, DataQuest question, or PDF assembly consumes them yet. Confirmed via full `lib/` grep. This slice therefore delivers no end‑user value on its own; a later slice must (a) add a DataQuest prompt that collects `deadlineDate`/`legalYear` from the certificate — today `LppCapitalNoticeReviewConfirmation` is constructed only in tests — and (b) surface the deadline + `SpecialistReferenceState.stale` state in a scenario/dossier.
+- **`legalYear`/`deadlineDate` are independent captured fields** with no cross‑coherence check (`lpp_evidence.dart:257‑326`). Acceptable for captured facts, but a mismatched pair only degrades to `stale`; a light "deadline year vs legalYear" sanity note would improve the eventual DataQuest UX.
+
+## Swiss domain review
+- **LPP (2e pilier):** Affected. Capital‑election notice deadline is stored as sourced evidence, self‑owner only (`lpp_evidence.dart:266`, partner excluded) — correct, this is a personal pension election. No fund‑regulation constant is hard‑coded; deadline is user/certificate‑sourced → no stale‑law exposure.
+- **Staleness/known‑missing:** A passed `deadlineDate` correctly resolves to `SpecialistReferenceState.stale`; future `sourceDate`/`confirmedAt` → `invalid`; competing evidence → `conflict` (`coach_profile.dart:3020‑3054`). Known/missing/stale/conflict distinction is justified.
+- **AVS / 3a / tax / mortgage / insurance / succession:** Not affected by this diff (tax assessment path exists but is untouched here).
+
+## Mint product logic review
+Advances the **ledger → dossier** spine correctly: single source of truth (binds to the strict snapshot, no duplicated variables), and the resolver **fails closed** when the underlying snapshot is replaced by a later `acceptLppReview` or when the flag is off (`document_provider.dart:453‑485`; test `resolver fails closed…`). Privacy boundary holds — references and specialist evidence carry only `referenceId/kind/snapshotId/ownerKind/confirmedAt` (+ `deadlineDate/legalYear/sourceDate` on the specialist side); the store rejects `value`/`rawOcr` keys (`lpp_capital_notice_document_reference_test.dart` allowlist test). The missing pieces to complete the spine are the **DataQuest capture** and the **scenario/PDF surfacing**, both out of this slice's scope.
+
+**Evidence to prove the remaining wiring when the flag is turned on:** `git grep -n "recordLppCapitalNotice\|resolveLppCapitalNotice\|acceptLppCapitalNotice" apps/mobile/lib` should eventually show a widget/route and a DataQuest prompt as callers — today it shows only provider internals.

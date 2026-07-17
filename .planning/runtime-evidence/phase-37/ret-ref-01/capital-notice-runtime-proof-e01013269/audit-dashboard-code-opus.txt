@@ -1,0 +1,31 @@
+## MINT Code Audit — `feat(g1): surface capital notice deadline` (15e962193)
+
+Base ref `8839c37ae`. Diff is 547 lines: one screen, six ARB locales + generated Dart localizations, and one widget test. I traced the consumer wiring into the pre-existing `DocumentProvider`/ledger BND layer.
+
+### What the change does
+`RetirementDashboardScreen._buildLppCapitalNoticeEducation` (`retirement_dashboard_screen.dart:890-940`) reads a nullable `DocumentProvider`, resolves the profile's `lppCapitalNoticeDeadline` through `resolveLppCapitalNotice`, and renders an education surface (`known`/`stale` variants) above the fold in all three profile-present states.
+
+### Wiring verification (not a facade)
+- `resolveLppCapitalNotice` (`document_provider.dart:453-481`) is real and **fail-closed**: it returns `null` unless the feature flag is on, the candidate kind/ownerKind match, the confirmed BND reference exists with matching `confirmedAt`, and the bound ledger confirms via `matchesAcceptedLppCapitalNoticeReceipt`.
+- The ledger check (`coach_profile_provider.dart:2236-2257`) genuinely re-selects the persisted self snapshot (`LppEvidenceSelector.selectSelf`) and matches `snapshotId` + `referenceId` + `confirmedAt` against live answers — not a stubbed `true`.
+- Gated by `FeatureFlags.lppCapitalNoticeDeadlineEnabled = false` (`feature_flags.dart:100`), so the surface is dark in production; the flag is deliberately excluded from remote `applyFromMap`.
+
+### Correctness
+- Staleness uses the established Zurich idiom: `today = civilDate(now)`, `deadlineDay = businessDate(deadline)`, both normalized to UTC-midnight date-only (`swiss_civil_time.dart:37-44`), matching `isFutureCivilDate`. On the deadline day itself `isBefore` is false → `known`; test confirms.
+- `build()` routes to all four states (`:415-421`); State C (no profile) correctly omits the banner since `profile` is required. The other three states each inject the banner.
+- Nullable `context.watch<DocumentProvider?>()` returns null gracefully when unprovided — the test's "DocumentProvider absent" case confirms fail-closed.
+
+### Compliance / privacy
+- Copy is education, not advice ("Check it directly with the fund"); the test asserts no `ButtonStyleButton` descendant inside the banner. Displayed date is the user's own pension datum on their own dashboard — no leak.
+- All six locales carry the three new keys; the abstract `S` API and every `S<locale>` subclass implement them, so no locale breaks compilation.
+
+### Tests
+`retirement_dashboard_lpp_capital_notice_test.dart` covers known-on-deadline-day, stale-next-day, and a five-way fail-closed matrix (flag off, BND reference mismatch, self-snapshot replacement, provider absent, profile absent). Referenced APIs (`bindLedger`, `hydrateReferences`, `tryFromJson`, `DocumentReferenceStore`) all exist. I could not execute `flutter test` (no Flutter toolchain in this environment); to prove green run `flutter test test/screens/coach/retirement_dashboard_lpp_capital_notice_test.dart` from `apps/mobile`.
+
+### Findings
+- **P0:** none.
+- **P1:** none.
+- **P2 (non-blocking):** `_buildLppCapitalNoticeEducation` formats via `DateFormat.yMMMMd(localeName)`, which assumes intl date-symbol data is loaded for the active locale. The app's `flutter_localizations` setup covers the six supported locales, so no runtime gap today, but it's an implicit dependency worth a comment.
+
+### Verdict
+**PASS**

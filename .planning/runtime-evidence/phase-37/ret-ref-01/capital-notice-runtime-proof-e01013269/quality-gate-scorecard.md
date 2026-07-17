@@ -1,7 +1,7 @@
 # Quality gate scorecard — G1 RET-REF LPP capital notice
 
 **Evidence SHA:** `e010132690bf22fe953f1bddbbecf5fee8bda723`
-**Score:** **8.5/10**
+**Score:** **9.5/10**
 **Runtime atom:** **GREEN**
 **Feature activation:** **NO-GO**
 
@@ -15,9 +15,9 @@ RET-REF or G1 completion score.
 | UX lucidity | 1.5/1.5 | Cold **Dashboard** display and subsequent **invalidation** are both proven. |
 | Runtime proof | 1.5/1.5 | Full Doctor and Patrol guard passed; writer **1/1**, **real terminate**, reader **1/1**, exact-source production rebuild/install, and Maestro **1/1** passed. |
 | Automated contract/tests | 1.0/1.0 | Writer and reader result summaries each report one passed test and zero failures; Maestro reports one success and zero failures. |
-| External audit | 0.0/1.0 | No Claude wrapper audit belongs to this evidence-packaging task. |
+| External audit | 1.0/1.0 | Seven first-pass bounded wrapper-only Opus high audits PASS with zero P0/P1: three code + product/domain slice pairs and one runtime code slice. |
 | Integration and privacy | 1.0/1.0 | **Synthetic only**; **private fixture false**; raw simulator identifier and local paths omitted. |
-| Diff/evidence discipline | 0.5/0.5 | Exact source manifest retained; normal-build **before hashes = after hashes**; only nine minimized artifacts are tracked. |
+| Diff/evidence discipline | 0.5/0.5 | Exact source manifest retained; normal-build **before hashes = after hashes**; nine minimized runtime artifacts plus seven sanitized audit verdicts are tracked. |
 
 ## Gate facts
 
@@ -30,6 +30,7 @@ RET-REF or G1 completion score.
 - Normal app: production rebuild/install PASS.
 - Maestro: 1/1.
 - Normal-build core: before hashes = after hashes.
+- External audit: 7/7 first-pass bounded wrapper-only Opus high audits PASS; zero P0/P1.
 - Data: synthetic only.
 - Private fixture: false.
 - Production acquisition seam: false.
@@ -40,5 +41,4 @@ RET-REF or G1 completion score.
 1. There is no production capital-notice acquisition seam.
 2. This proof intentionally uses no private/authenticated positive fixture.
 3. The production path remains default-off.
-4. External wrapper audits are outside this bounded packaging task.
-5. Other RET-REF obligations and G1 gates remain open; G2/G3 must not start.
+4. Other RET-REF obligations and G1 gates remain open; G2/G3 must not start.

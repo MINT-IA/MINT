@@ -1,0 +1,27 @@
+Verification complete. The new LPP capital-notice deadline slice is default-off, tested (22/22 green), privacy-contained, and honestly documented as semantic RED with no live consumer.
+
+## Product/domain verdict: PASS
+
+### Swiss domain review
+- **LPP (affected, coherent):** This slice models the *délai d'annonce pour le retrait en capital* — the advance-notice deadline a pension fund imposes to take capital instead of a rente. This is a genuine, fund-specific Swiss reality with real lucidity value. Critically, the design **refuses to invent it**: the deadline is stored only from an explicit reviewed regulation/capital notice (`sourceDate`, `legalYear`, `deadlineDate` all explicit), never inferred from a private LPP certificate, a source date, `now`, or any legal constant (`coach_profile.dart:2900`; `DATA_LEDGER.md §4.0.2`). No hard-coded statutory threshold is introduced, so there is no stale-constant exposure. Correctly self-only; `manualPartner` and factless roots are rejected (`lpp_evidence.dart` `fromJson` guard).
+- **AVS / 3a / tax / mortgage / insurance / succession:** explicitly **not affected**. `stateAt` for `lppCapitalNotice` touches no calculator, and the forbidden-influence contract (`SCREEN_CONTRACTS.md §7.1`) bars the reference from changing pillar values, replacement rate, projections, confidence, ranking, or CTAs. The pre-existing tax-reference path (`latestTaxDecisionReference`) is untouched except a civil-date UTC-normalization fix in `_parseCivilDate` (`coach_profile.dart:~2960`), which is a correctness improvement (canonical UTC midnight so `toIso8601String().split('T')` round-trips).
+
+### Mint product logic review
+- **Ledger spine:** Moves toward it correctly. The notice augments the **existing** `_coach_lpp_evidence_v1` self snapshot rather than creating a duplicate source of truth; `schemaVersion` stays 1; `facts` are preserved byte-for-byte on write (`coach_profile_provider.dart` `_acceptLppCapitalNotice`, verified by the "success preserves facts" test).
+- **DataQuest / no re-asking:** Single writer `acceptLppCapitalNotice`, serialized, save-before-publish, idempotent retry, and explicit `expectedPreviousReferenceId` for replacement (concurrent-write test proves two writers can't both replace the same prior id).
+- **Fail-closed activation:** `lppCapitalNoticeDeadlineEnabled` defaults false and is deliberately **outside `applyFromMap`** (`feature_flags.dart`), proven by the "ignores backend maps" test — backend cannot silently activate an unfinished path. `_serializeLppMutation` is not touched when the flag is off (no I/O, no notify).
+- **Privacy:** The notice lives inside the strict-secure root that `ReportPersistenceService.backendSafeAnswers` already strips (`report_persistence_service.dart:29,52`); it carries no amount and no PII beyond a UUID/date. Confirmed contained.
+- **No facade risk:** No UI/screen/route consumes `lppCapitalNoticeDeadline` (grep: only model/provider/flags), and there is no scan caller — consistent with the documented RED state, not a green-wired-but-empty facade.
+
+### P0
+- None.
+
+### P1
+- None.
+
+### P2
+1. **`legalYear` is stored but functionally inert for this kind.** Unlike the tax path (which enforces `legalYear == taxYear`), `stateAt` never consults `legalYear` for `lppCapitalNotice` (`coach_profile.dart:~3000` staleness block only uses `deadlineDate`). It is presumably reserved for the future specialist/PDF handoff; worth an explicit code comment so it isn't mistaken for dead data. Evidence: `coach_profile.dart:2919`, no downstream read.
+2. **User value is deferred, not delivered, by this diff.** This is groundwork: writer + cold derivation exist, but no scan flow calls `acceptLppCapitalNotice` and no Retirement Dashboard reminder renders (`SCREEN_CONTRACTS.md §7.1` marks the reminder a target requiring BND-05 hydration that is not in this diff). Acceptable and honestly labeled "semantic RED," but the ledger→DataQuest→scenario→dossier value only lands once the DocumentProvider join + dashboard reminder ship. No specialist-ready PDF wiring is included yet; when activated, ensure the dossier receives `deadlineDate`, `sourceDate`, `legalYear` and the "reviewed-document" caveat.
+3. **Idempotent-retry path returns a receipt without re-persisting** (`_acceptLppCapitalNotice` early-return when `_capitalNoticeMatches`). Correct and tested, but relies on the in-memory `currentSnapshot` matching persisted state; the design mitigation (re-check under `_mutateLppAnswers`) is present. Noting for reviewers as the one place worth keeping test coverage on across session-epoch changes.
+
+**Proof commands run:** `flutter test test/models/lpp_evidence_test.dart test/providers/lpp_capital_notice_deadline_provider_test.dart` → All 22 tests passed.
