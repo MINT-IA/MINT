@@ -9649,7 +9649,7 @@ class SEs extends S {
       'Estimación educativa. Los ahorros reales dependen de tu lugar de residencia y situación familiar. No constituye asesoramiento financiero (LSFin).';
 
   @override
-  String get sim3aDebtLockedTitle => 'Prioridad al desendeudamiento';
+  String get sim3aDebtLockedTitle => 'La estabilidad financiera es prioritaria';
 
   @override
   String get sim3aDebtLockedMessage =>
@@ -9660,7 +9660,7 @@ class SEs extends S {
 
   @override
   String get sim3aDebtStrategyMessage =>
-      'Las estrategias de inversión 3a están en pausa mientras tus deudas activas pesan sobre tu presupuesto. Orden recomendado: estabilizar primero, invertir después.';
+      'Las estrategias de inversión 3a siguen en pausa mientras estabilizas tu situación financiera. Orden recomendado: estabilizar primero, invertir después.';
 
   @override
   String get realReturnTitle => 'Rendimiento real 3a';

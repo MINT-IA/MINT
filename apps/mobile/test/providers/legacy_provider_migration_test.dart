@@ -3,18 +3,20 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
-import 'package:mint_mobile/widgets/recommendation_card.dart';
-import 'package:mint_mobile/widgets/simulators/buyback_widget.dart';
 import 'package:provider/provider.dart';
 
 const _namedDebtReaders = <String>{
   'lib/screens/simulator_3a_screen.dart',
+};
+
+const _retiredDeadWidgets = <String>{
   'lib/widgets/simulators/buyback_widget.dart',
   'lib/widgets/recommendation_card.dart',
 };
@@ -34,32 +36,19 @@ final class _LedgerProvider extends CoachProfileProvider {
   bool get isLoaded => true;
 }
 
-CoachProfile _profile({required bool debtCrisis}) {
+CoachProfile _profile(
+    {required bool debtCrisis, double liquidSavings = 100000}) {
   return CoachProfile.defaults().copyWith(
     birthYear: 1990,
     canton: 'VD',
     salaireBrutMensuel: 8000,
-    patrimoine: const PatrimoineProfile(epargneLiquide: 100000),
+    patrimoine: PatrimoineProfile(epargneLiquide: liquidSavings),
     depenses: const DepensesProfile(loyer: 1500, assuranceMaladie: 400),
     dettes: debtCrisis
         ? const DetteProfile(creditConsommation: 1000)
         : const DetteProfile(),
   );
 }
-
-Recommendation _recommendation() => Recommendation(
-      id: 'recommendation',
-      kind: 'fiscalite',
-      title: 'Planifier un versement 3a',
-      summary: 'Résumé',
-      why: <String>['Raison'],
-      assumptions: <String>['Hypothèse'],
-      impact: const Impact(amountCHF: 1000, period: Period.yearly),
-      risks: <String>['Risque'],
-      alternatives: <String>['Alternative'],
-      evidenceLinks: <EvidenceLink>[],
-      nextActions: <NextAction>[],
-    );
 
 Widget _localized({required CoachProfile? profile, required Widget child}) {
   return ChangeNotifierProvider<CoachProfileProvider>.value(
@@ -91,13 +80,16 @@ Iterable<String> _legacyProviderReferences() sync* {
 
 void main() {
   group('G1-BND-01 legacy provider migration', () {
-    test('the historical five reconcile to three live debt readers', () {
-      expect(_namedDebtReaders, hasLength(3));
+    test('the historical five reconcile to one production debt reader', () {
+      expect(_namedDebtReaders, hasLength(1));
       expect(
         File('lib/widgets/comparators/pillar3a_comparator_widget.dart')
             .existsSync(),
         isFalse,
       );
+      for (final path in _retiredDeadWidgets) {
+        expect(File(path).existsSync(), isFalse, reason: path);
+      }
 
       for (final path in _namedDebtReaders) {
         final source = File(path).readAsStringSync();
@@ -130,80 +122,88 @@ void main() {
     test('canonical debt semantics are protective, not any-debt aliases', () {
       final safe = _profile(debtCrisis: false);
       final crisis = _profile(debtCrisis: true);
+      final emergencyFundOnly = _profile(debtCrisis: false, liquidSavings: 0);
 
       expect(safe.isInDebtCrisis, isFalse);
       expect(crisis.isInDebtCrisis, isTrue);
+      expect(emergencyFundOnly.dettes.creditConsommation, isNull);
+      expect(emergencyFundOnly.dettes.leasing, isNull);
+      expect(emergencyFundOnly.dettes.autresDettes, isNull);
+      expect(emergencyFundOnly.isInDebtCrisis, isTrue);
     });
 
-    testWidgets('the three named readers lock from the canonical crisis state',
+    testWidgets(
+        'an emergency-fund-only crisis uses a generic non-debt lock title',
         (tester) async {
-      final crisis = _profile(debtCrisis: true);
+      final emergencyFundOnly = _profile(debtCrisis: false, liquidSavings: 0);
 
       await tester.pumpWidget(
         _localized(
-          profile: crisis,
+          profile: emergencyFundOnly,
           child: const Simulator3aScreen(),
         ),
       );
       await tester.pump();
       expect(find.byType(SafeModeGate), findsWidgets);
-
-      await tester.pumpWidget(
-        _localized(
-          profile: crisis,
-          child: const Scaffold(
-            body: BuybackWidget(
-              totalBuybackPotential: 50000,
-              taxableIncome: 120000,
-              canton: 'VD',
-              civilStatus: 'single',
-            ),
-          ),
-        ),
+      expect(
+        find.text('Stabilité financière prioritaire'),
+        findsOneWidget,
       );
-      await tester.pump();
-      expect(find.byType(SafeModeGate), findsOneWidget);
-
-      await tester.pumpWidget(
-        _localized(
-          profile: crisis,
-          child: Scaffold(
-            body: RecommendationCard(recommendation: _recommendation()),
-          ),
+      expect(find.text('Priorité au désendettement'), findsNothing);
+      expect(
+        find.text(
+          "Les stratégies d'investissement 3a restent en pause pendant la "
+          'stabilisation de ta situation financière. Ordre recommandé\u00a0: '
+          "stabiliser d'abord, placer ensuite.",
         ),
+        findsOneWidget,
       );
-      await tester.pump();
-      expect(find.byType(SafeModeGate), findsOneWidget);
+      expect(find.textContaining('tes dettes actives'), findsNothing);
     });
 
-    testWidgets('an absent ledger profile never becomes debt-free by default',
+    testWidgets('an absent profile offers the diagnostic path to coach chat',
         (tester) async {
-      await tester.pumpWidget(
-        _localized(
-          profile: null,
-          child: Scaffold(
-            body: RecommendationCard(recommendation: _recommendation()),
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, __) => const Simulator3aScreen(),
           ),
-        ),
-      );
-      await tester.pump();
-      expect(find.text('Planifier un versement 3a'), findsNothing);
-
-      await tester.pumpWidget(
-        _localized(
-          profile: null,
-          child: const Scaffold(
-            body: BuybackWidget(
-              totalBuybackPotential: 50000,
-              taxableIncome: 120000,
-              canton: 'VD',
-              civilStatus: 'single',
+          GoRoute(
+            path: '/coach/chat',
+            builder: (_, __) => const Scaffold(
+              body: Text('coach-chat-destination'),
             ),
           ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: _LedgerProvider(null),
+          child: MaterialApp.router(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            routerConfig: router,
+          ),
         ),
       );
-      await tester.pump();
-      expect(find.byType(SafeModeGate), findsNothing);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MintEmptyState), findsOneWidget);
+      expect(find.text('Aucun profil renseigné'), findsOneWidget);
+      expect(find.text('Commencer le diagnostic'), findsOneWidget);
+
+      await tester.tap(find.text('Commencer le diagnostic'));
+      await tester.pumpAndSettle();
+      expect(find.text('coach-chat-destination'), findsOneWidget);
     });
   });
 }

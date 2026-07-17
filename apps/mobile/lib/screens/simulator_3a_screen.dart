@@ -8,6 +8,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/widgets/coach/countdown_3a_widget.dart';
 import 'package:go_router/go_router.dart';
@@ -192,11 +193,15 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             foregroundColor: MintColors.textPrimary,
             title: Text(l.sim3aTitle, style: MintTextStyles.headlineMedium()),
           ),
-          body: Center(
-            child: coachProvider.isLoaded
-                ? Text(l.financialSummaryNoProfile)
-                : const CircularProgressIndicator(),
-          ),
+          body: coachProvider.isLoaded
+              ? MintEmptyState(
+                  icon: Icons.person_off_outlined,
+                  title: l.financialSummaryNoProfile,
+                  subtitle: '',
+                  ctaLabel: l.financialSummaryStartDiagnostic,
+                  onCta: () => context.go('/coach/chat'),
+                )
+              : const Center(child: CircularProgressIndicator()),
         ),
       );
     }

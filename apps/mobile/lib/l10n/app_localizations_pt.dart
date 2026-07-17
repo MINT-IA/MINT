@@ -9643,7 +9643,7 @@ class SPt extends S {
       'Estimativa educativa. As poupanças reais dependem do local de residência e da situação familiar. Não constitui aconselhamento financeiro (LSFin).';
 
   @override
-  String get sim3aDebtLockedTitle => 'Prioridade ao desendividamento';
+  String get sim3aDebtLockedTitle => 'A estabilidade financeira é prioritária';
 
   @override
   String get sim3aDebtLockedMessage =>
@@ -9654,7 +9654,7 @@ class SPt extends S {
 
   @override
   String get sim3aDebtStrategyMessage =>
-      'As estratégias de investimento 3a estão em pausa enquanto as tuas dívidas ativas pesam no orçamento. Ordem recomendada: estabilizar primeiro, investir depois.';
+      'As estratégias de investimento 3a permanecem em pausa enquanto estabilizas a tua situação financeira. Ordem recomendada: estabilizar primeiro, investir depois.';
 
   @override
   String get realReturnTitle => 'Rendimento real 3a';

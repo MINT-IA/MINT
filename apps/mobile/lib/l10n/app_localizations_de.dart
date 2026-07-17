@@ -9668,7 +9668,7 @@ class SDe extends S {
       'Bildungsschätzung. Die tatsächlichen Einsparungen hängen von deinem Wohnort und deiner Familiensituation ab. Keine Finanzberatung (FIDLEG).';
 
   @override
-  String get sim3aDebtLockedTitle => 'Entschuldung hat Vorrang';
+  String get sim3aDebtLockedTitle => 'Finanzielle Stabilität hat Vorrang';
 
   @override
   String get sim3aDebtLockedMessage =>
@@ -9679,7 +9679,7 @@ class SDe extends S {
 
   @override
   String get sim3aDebtStrategyMessage =>
-      '3a-Anlagestrategien sind pausiert, solange deine aktiven Schulden dein Budget belasten. Empfohlene Reihenfolge: erst stabilisieren, dann anlegen.';
+      '3a-Anlagestrategien bleiben pausiert, während du deine finanzielle Situation stabilisierst. Empfohlene Reihenfolge: erst stabilisieren, dann anlegen.';
 
   @override
   String get realReturnTitle => 'Reale Rendite 3a';

@@ -9665,7 +9665,7 @@ class SIt extends S {
       'Stima educativa. I risparmi reali dipendono dal luogo di residenza e dalla situazione familiare. Non costituisce consulenza finanziaria (LSFin).';
 
   @override
-  String get sim3aDebtLockedTitle => 'Priorità al disdebitamento';
+  String get sim3aDebtLockedTitle => 'La stabilità finanziaria è prioritaria';
 
   @override
   String get sim3aDebtLockedMessage =>
@@ -9676,7 +9676,7 @@ class SIt extends S {
 
   @override
   String get sim3aDebtStrategyMessage =>
-      'Le strategie d\'investimento 3a sono in pausa finché i tuoi debiti attivi gravano sul budget. Ordine consigliato: prima stabilizzare, poi investire.';
+      'Le strategie d\'investimento 3a restano in pausa mentre stabilizzi la situazione finanziaria. Ordine consigliato: prima stabilizzare, poi investire.';
 
   @override
   String get realReturnTitle => 'Rendimento reale 3a';

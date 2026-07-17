@@ -9651,7 +9651,7 @@ class SFr extends S {
       'Estimation éducative. Les économies réelles dépendent de ton lieu de résidence et de ta situation familiale. Ne constitue pas un conseil financier (LSFin).';
 
   @override
-  String get sim3aDebtLockedTitle => 'Priorité au désendettement';
+  String get sim3aDebtLockedTitle => 'Stabilité financière prioritaire';
 
   @override
   String get sim3aDebtLockedMessage =>
@@ -9662,7 +9662,7 @@ class SFr extends S {
 
   @override
   String get sim3aDebtStrategyMessage =>
-      'Les stratégies d\'investissement 3a sont en pause tant que tes dettes actives pèsent sur ton budget. Ordre recommandé : stabiliser d\'abord, placer ensuite.';
+      'Les stratégies d\'investissement 3a restent en pause pendant la stabilisation de ta situation financière. Ordre recommandé : stabiliser d\'abord, placer ensuite.';
 
   @override
   String get realReturnTitle => 'Rendement réel 3a';

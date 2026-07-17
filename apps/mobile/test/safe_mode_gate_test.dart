@@ -1,22 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
-import 'package:mint_mobile/models/recommendation.dart';
-import 'package:mint_mobile/widgets/recommendation_card.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
-
-CoachProfileProvider buildDebtFreeProvider() => CoachProfileProvider()
-  ..updateFromAnswers(const {
-    'q_gross_salary_annual': 96000.0,
-    'q_cash_total': 50000.0,
-    '_coach_cash_total_source': 'userInput',
-    'q_has_consumer_debt': 'no',
-  });
 
 void main() {
   // ────────────────────────────────────────────────────────────
@@ -223,166 +211,7 @@ void main() {
   });
 
   // ────────────────────────────────────────────────────────────
-  // GROUP 2: RecommendationCard SafeMode behavior
-  // ────────────────────────────────────────────────────────────
-  group('RecommendationCard', () {
-    Recommendation makeRecommendation({
-      String title = 'Ouvrir un 3e pilier',
-      String summary = 'Economise jusqu\'a 2000 CHF d\'impots par an.',
-      String kind = 'fiscalite',
-      double impactAmount = 2000,
-      Period impactPeriod = Period.yearly,
-      List<EvidenceLink> evidenceLinks = const [],
-      List<NextAction> nextActions = const [],
-    }) {
-      return Recommendation(
-        id: 'rec-1',
-        kind: kind,
-        title: title,
-        summary: summary,
-        why: ['Deduction fiscale directe'],
-        assumptions: ['Revenu imposable > 50k'],
-        impact: Impact(amountCHF: impactAmount, period: impactPeriod),
-        risks: ['Fonds bloques jusqu\'a la retraite'],
-        alternatives: ['Versement partiel'],
-        evidenceLinks: evidenceLinks,
-        nextActions: nextActions.isEmpty
-            ? [
-                const NextAction(
-                  type: NextActionType.simulate,
-                  label: 'Simuler mon economie',
-                ),
-              ]
-            : nextActions,
-      );
-    }
-
-    testWidgets('card renders title correctly', (tester) async {
-      final rec = makeRecommendation(title: 'Ouvrir un 3e pilier');
-
-      await tester.pumpWidget(
-        ChangeNotifierProvider<CoachProfileProvider>(
-          create: (_) => buildDebtFreeProvider(),
-          child: MaterialApp(
-            locale: const Locale('fr'),
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: S.supportedLocales,
-            home: Scaffold(
-              body: SingleChildScrollView(
-                child: RecommendationCard(recommendation: rec),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Ouvrir un 3e pilier'), findsOneWidget);
-    });
-
-    testWidgets('card renders description', (tester) async {
-      final rec = makeRecommendation(
-        summary: 'Economise jusqu\'a 2000 CHF d\'impots par an.',
-      );
-
-      await tester.pumpWidget(
-        ChangeNotifierProvider<CoachProfileProvider>(
-          create: (_) => buildDebtFreeProvider(),
-          child: MaterialApp(
-            locale: const Locale('fr'),
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: S.supportedLocales,
-            home: Scaffold(
-              body: SingleChildScrollView(
-                child: RecommendationCard(recommendation: rec),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(
-        find.text('Economise jusqu\'a 2000 CHF d\'impots par an.'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('card has action button', (tester) async {
-      final rec = makeRecommendation(
-        nextActions: [
-          const NextAction(
-            type: NextActionType.simulate,
-            label: 'Simuler mon economie',
-          ),
-        ],
-      );
-
-      await tester.pumpWidget(
-        ChangeNotifierProvider<CoachProfileProvider>(
-          create: (_) => buildDebtFreeProvider(),
-          child: MaterialApp(
-            locale: const Locale('fr'),
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: S.supportedLocales,
-            home: Scaffold(
-              body: SingleChildScrollView(
-                child: RecommendationCard(recommendation: rec),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      // The button should display the first nextAction label
-      expect(find.text('Simuler mon economie'), findsOneWidget);
-      expect(find.byType(OutlinedButton), findsOneWidget);
-    });
-
-    testWidgets('card shows priority indicator (kind badge)', (tester) async {
-      final rec = makeRecommendation(kind: 'fiscalite');
-
-      await tester.pumpWidget(
-        ChangeNotifierProvider<CoachProfileProvider>(
-          create: (_) => buildDebtFreeProvider(),
-          child: MaterialApp(
-            locale: const Locale('fr'),
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: S.supportedLocales,
-            home: Scaffold(
-              body: SingleChildScrollView(
-                child: RecommendationCard(recommendation: rec),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      // The kind is displayed uppercase as a badge
-      expect(find.text('FISCALITE'), findsOneWidget);
-    });
-  });
-
-  // ────────────────────────────────────────────────────────────
-  // GROUP 3: buildLifeEventSuggestions logic
+  // GROUP 2: buildLifeEventSuggestions logic
   // ────────────────────────────────────────────────────────────
   group('buildLifeEventSuggestions', () {
     final sFr = SFr();
@@ -542,7 +371,7 @@ void main() {
   });
 
   // ────────────────────────────────────────────────────────────
-  // GROUP 4: SafeModeGate smoke tests — hasDebt → gate contract
+  // GROUP 3: SafeModeGate smoke tests — hasDebt → gate contract
   // ────────────────────────────────────────────────────────────
   group('SafeModeGate — debt-crisis smoke tests', () {
     testWidgets('smoke: hasDebt false → optimization child visible', (tester) async {

@@ -9596,7 +9596,7 @@ class SEn extends S {
       'Educational estimate. Actual savings depend on your place of residence and family situation. Not financial advice (FinSA).';
 
   @override
-  String get sim3aDebtLockedTitle => 'Debt repayment first';
+  String get sim3aDebtLockedTitle => 'Financial stability first';
 
   @override
   String get sim3aDebtLockedMessage =>
@@ -9607,7 +9607,7 @@ class SEn extends S {
 
   @override
   String get sim3aDebtStrategyMessage =>
-      '3a investment strategies are on hold while your active debts weigh on your budget. Recommended order: stabilise first, invest later.';
+      '3a investment strategies remain on hold while your finances stabilise. Recommended order: stabilise first, invest later.';
 
   @override
   String get realReturnTitle => 'Real return 3a';

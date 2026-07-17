@@ -17038,7 +17038,7 @@ abstract class S {
   /// No description provided for @sim3aDebtLockedTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Priorité au désendettement'**
+  /// **'Stabilité financière prioritaire'**
   String get sim3aDebtLockedTitle;
 
   /// No description provided for @sim3aDebtLockedMessage.
@@ -17056,7 +17056,7 @@ abstract class S {
   /// No description provided for @sim3aDebtStrategyMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Les stratégies d\'investissement 3a sont en pause tant que tes dettes actives pèsent sur ton budget. Ordre recommandé : stabiliser d\'abord, placer ensuite.'**
+  /// **'Les stratégies d\'investissement 3a restent en pause pendant la stabilisation de ta situation financière. Ordre recommandé : stabiliser d\'abord, placer ensuite.'**
   String get sim3aDebtStrategyMessage;
 
   /// No description provided for @realReturnTitle.
