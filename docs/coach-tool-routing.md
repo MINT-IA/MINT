@@ -136,6 +136,12 @@ These three user submissions use the existing mobile envelope only:
 Do not invent `SourceKind`, locator, observedAt or confirmedAt fields. Do not
 add a second key alias, capture handler, facade, or advice-shaped response.
 
+Accepted G1 evidence: `G1-COACH-01` is GREEN at exact pushed SHA
+`fec1d4119e`. The identical registry command is 14/14 after semantic RED
+3/10 at `c7809198e`; exact-SHA Patrol is 1/1 with accepted visual proof, and
+first-pass wrapper code/product-domain audits pass with P0/P1=0. Five P2
+follow-ups remain explicit. G1 stays NO-GO; G2/G3 remain forbidden.
+
 `route_to_screen` is an intent-only boundary. Its LLM-visible JSON schema is
 closed to `intent`, `confidence`, and `context_message`, with
 `additionalProperties: false`. It accepts neither a raw route nor `prefill` or
@@ -246,6 +252,6 @@ lower latency, no rate-limit gaming).
 
 ---
 
-*Last updated: 2026-07-13. Update this file whenever `INTERNAL_TOOL_NAMES`
+*Last updated: 2026-07-17. Update this file whenever `INTERNAL_TOOL_NAMES`
 or the widget_renderer case list changes — or the next agent will ship
 another façade-sans-câblage like save_fact.*

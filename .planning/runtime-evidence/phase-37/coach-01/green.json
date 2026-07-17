@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-COACH-01",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/integration/coach_inline_amount_write_contract_test.dart --reporter expanded",
+  "sha": "fec1d4119e4c6f71c6bc81701943621245fee967",
+  "recorded_at": "2026-07-17T13:42:16Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "coach_inline_amount_write_contract_test",
+  "output": "The identical registry command passed 14/14 predicates at the accepted pushed SHA. The real callback chain awaits one serialized canonical write before notification, answered state and factual echo; salary preserves 12/13-period authority, LPP and 3a remain total stocks, zero is durable, values above the existing 10M ceiling plus negative/non-finite values fail before side effects, typed-LPP root presence wins atomically, failed saves remain retryable, and cold reload preserves userInput provenance with updatedAt and null sourceDate. The promotion replay passed 14/14 again with synthetic data only.",
+  "synthetic_data_only": true
+}

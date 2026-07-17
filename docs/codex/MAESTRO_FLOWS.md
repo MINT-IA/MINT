@@ -7,6 +7,16 @@
 > **appId:** Android `ch.mint.coach` (`android/app/build.gradle:50`); current iOS bundle / checked-in Maestro flow uses `ch.mint.app` (`ios/Runner/Info.plist:25`, `.maestro/f2_datablock_to_mortgage.yaml:1`).
 > **Companions:** `DATA_LEDGER.md`, `SCREEN_CONTRACTS.md`, `WIRING_GRAPH.mmd`, `DATA_QUEST.md`.
 
+> **G1-COACH-01 accepted runtime:** exact pushed SHA `fec1d4119e` uses the
+> dedicated Patrol target
+> `test/patrol/g1_coach01_inline_amount_runtime_test.dart`. The two-stage build
+> plus `xcodebuild test-without-building` passed 1/1; the real MINT Coach
+> synthetic CHF 120'000 completion screen was visually accepted. The same test
+> separately reconstructs the provider and proves cold-reload provenance. The
+> screenshot's DEBUG test overlay is explicit, so this is bounded in-test UI
+> proof rather than shipping-default chrome evidence. COACH-01 is GREEN; the
+> global Maestro+Patrol `G1-RUNTIME-01` remains `red_proven`.
+
 ## 0. Reality check — partial Maestro setup exists
 
 - `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml` exists at `095eeaa32`; R-1/R-2 scan recovery flows are checked in by the G1 repair slice.

@@ -234,11 +234,11 @@ These are registered at the top of the router (`app.dart:301-339`) with `scope: 
 | routesOut | `/data-block/:type`, `/confidence`, `/explore`, `/coach/history`, any simulator deep-link |
 | killFlag | enableCoachChat |
 
-#### G1-COACH-01 — inline amounts (target contract, `ticket_only`)
+#### G1-COACH-01 — inline amounts (accepted contract, `green`)
 
 The live `ask_user_input` amount path is
 `WidgetRenderer/ChatAmountInput → CoachMessageBubble → CoachChatScreen`.
-G1-COACH-01 must make every callback in that chain asynchronous and await the
+G1-COACH-01 makes every callback in that chain asynchronous and awaits the
 single provider write before marking the input answered or emitting its echo.
 It has exactly three accepted mappings: `salaireBrut → incomeGrossYearly`,
 `avoirLpp → avoirLpp`, and `epargne3a → pillar3aBalance`. The first value is an
@@ -258,8 +258,10 @@ durable `applySaveFact` → one
 provider notification → answered marker/echo, and the value must survive a cold
 reload with `{source: userInput, updatedAt, sourceDate: null}`. Do not add a
 `ChatDataCaptureHandler`, alias key, or parallel persistence facade: none exists
-in the live chain. This paragraph describes the G1 target and does not claim the
-ticket has been implemented.
+in the live chain. The exact registry command is 14/14 at pushed SHA `fec1d4119e`; dedicated
+Patrol is 1/1 with accepted visual evidence, and both first-pass wrapper audit
+lenses pass with P0/P1=0. This is bounded ticket evidence only: G1 stays NO-GO
+and G2/G3 remain forbidden.
 
 Coach stale-plan recovery uses the same persisted goal description/category,
 target date and final target amount as Aujourd'hui, but recalculates every

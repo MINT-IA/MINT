@@ -238,16 +238,16 @@
     },
     {
       "ticket_id": "G1-COACH-01",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/integration/coach_inline_amount_write_contract_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "c7809198e1394819d6311f434fbe506f33258fad",
+      "red_artifact": ".planning/runtime-evidence/phase-37/coach-01/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "fec1d4119e4c6f71c6bc81701943621245fee967",
+      "green_artifact": ".planning/runtime-evidence/phase-37/coach-01/green.json",
+      "accepted_sha": "fec1d4119e4c6f71c6bc81701943621245fee967"
     },
     {
       "ticket_id": "G1-COACH-02",

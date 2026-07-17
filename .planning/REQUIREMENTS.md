@@ -46,7 +46,8 @@ only machine-evidence `green` is checked.
 - [x] **RDY-BND-05**: Documents remain references; confirmed facts enter the ledger.
   Evidence: [`G1-BND-05` verification](runtime-evidence/phase-37/bnd-05/verification.md).
 - [x] **RDY-BND-06**: Financial plan freshness follows the profile input hash.
-- [ ] **RDY-COACH-01**: Live salary, LPP and 3a coach amounts write canonical facts with exact units and provenance.
+- [x] **RDY-COACH-01**: Live salary, LPP and 3a coach amounts write canonical facts with exact units and provenance.
+  Evidence: [`G1-COACH-01` verification](runtime-evidence/phase-37/coach-01/verification.md).
 - [ ] **RDY-COACH-02**: Valid route intent remains visible and recoverable when the profile is empty.
 - [ ] **RDY-FRONT-01**: Residence country, work country, and work canton are distinct.
 - [ ] **RDY-RET-REF-01**: Retirement precision requires specialist-grade references.

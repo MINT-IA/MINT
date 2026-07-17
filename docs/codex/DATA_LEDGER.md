@@ -360,7 +360,7 @@ After T-0 and T-1, `_mapFactKeyToAnswers` handles all 36 keys and every mapper t
 
 **Task T-2 (done):** `wealthEstimate` has its own wizard key (`q_wealth_estimate`) and a distinct `fromWizardAnswers` read via `PatrimoineProfile.wealthEstimate`. `totalPatrimoine` compares it with the detailed asset sum and uses the higher aggregate total, so `totalSavings` stays on `q_cash_total` without double counting.
 
-### 3.9 G1-COACH-01 target — live inline amount write
+### 3.9 G1-COACH-01 accepted — live inline amount write
 
 `ask_user_input` is read-only until the user submits the rendered input. The
 only authorized amount-write chain is:
@@ -395,8 +395,11 @@ Inline amounts use the existing mobile provenance envelope only:
 `.60` confidence weight is derived from `userInput`; it is not a new persisted
 confidence field. `SourceKind`, locator, observedAt and confirmedAt are not
 generic mobile-ledger metadata and must not be invented. No alternate key,
-capture facade or advice-shaped acknowledgement is authorized. COACH-01 stays
-`ticket_only` until the exact RED -> GREEN contract is accepted.
+capture facade or advice-shaped acknowledgement is authorized. `G1-COACH-01`
+is GREEN at exact pushed SHA `fec1d4119e`: the
+identical command moved from 3/10 at semantic RED `c7809198e` to 14/14,
+and dedicated exact-SHA Patrol passed 1/1 with accepted visual proof. This
+bounded ticket does not close G1 or authorize G2/G3.
 
 ---
 

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "ticket_id": "G1-COACH-01",
+  "sha": "fec1d4119e4c6f71c6bc81701943621245fee967",
+  "recorded_at": "2026-07-17T13:42:16Z",
+  "synthetic_data_only": true,
+  "private_fixture_used": false,
+  "accepted_runtime_artifact": ".planning/runtime-evidence/phase-37/coach-01/runtime-fec1d4119e-20260717T132538Z",
+  "mode": "patrol_build_then_xcodebuild_test_without_building_exact_sha_debug_test_bundle",
+  "patrol_target": "test/patrol/g1_coach01_inline_amount_runtime_test.dart",
+  "patrol_tests": 1,
+  "patrol_failures": 0,
+  "patrol_passed": true,
+  "real_mint_coach_screen_rendered": true,
+  "annual_salary_submitted_chf": 120000,
+  "durable_write_before_echo_proved": true,
+  "cold_reload_provenance_proved": true,
+  "visual_review": {
+    "status": "accepted",
+    "screenshot": "final.png",
+    "observed_state": "synthetic annual salary question, factual CHF 120000 echo, and completion bubble are visible",
+    "debug_overlay_present": true,
+    "shipping_default_chrome_claimed": false
+  },
+  "cleanup_status": "passed",
+  "original_build_restored": true,
+  "generated_bundle_removed": true,
+  "xcresult_retained": false,
+  "privacy": {
+    "raw_udid_retained": false,
+    "absolute_repo_or_temp_path_retained": false,
+    "private_certificates_used": false,
+    "synthetic_financial_data_only": true
+  },
+  "lightweight_hashes": {
+    "sanitized_metadata_json": "be9834b0dbd27de7f61ee98c1d4eba3450a5ed12196118134c5865f530ee24a8",
+    "sanitized_patrol_log": "b010c3ff7c15f37d3f92846690b4268812a3f73f8de6fa44f22ab948c9c53382",
+    "final_screenshot_png": "a07a5625436550e4d031757d2334808bdfcce8f61f7b5c321de733959892eb78",
+    "audit_code_opus_first": "4f6f0b5e6f44c06f3b2da7c76ce373e1d7b78598175b564b65d1ec1579f2a2d4",
+    "audit_product_domain_opus_first": "0afe0635796e4e73791e45e5c694d263339c860002e7d24fbf9217de27554413"
+  },
+  "audit_result": {
+    "required_modes": 2,
+    "passed_modes": 2,
+    "unresolved_p0": 0,
+    "unresolved_p1": 0,
+    "accepted_p2_followups": 5
+  },
+  "ticket_decision": "GREEN",
+  "g1_score": 8.2,
+  "g1_decision": "NO_GO",
+  "g2_g3_authorized": false
+}

@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-COACH-01",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/integration/coach_inline_amount_write_contract_test.dart --reporter expanded",
+  "sha": "c7809198e1394819d6311f434fbe506f33258fad",
+  "recorded_at": "2026-07-17T13:42:16Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "coach_inline_amount_write_contract_test",
+  "output": "The identical registry command reached the real provider, widget renderer, message bubble and coach screen at the semantic RED commit. It collected ten predicates: 3 controls passed and 7 business predicates failed because the live callbacks were not durably awaited through the canonical provider write, salary/LPP/3a meanings and strict-LPP authority were not closed, invalid values could reach side effects, and persistence failure was not retryable. These were semantic contract failures, not missing-file, import, syntax, fixture, command or harness failures. All profiles and amounts were synthetic.",
+  "synthetic_data_only": true
+}

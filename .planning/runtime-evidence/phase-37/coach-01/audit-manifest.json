@@ -1,0 +1,101 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "tools/checks/claude_external_audit.sh code c7809198e1394819d6311f434fbe506f33258fad",
+      "mode": "code",
+      "model": "opus",
+      "base_sha": "c7809198e1394819d6311f434fbe506f33258fad",
+      "head_sha": "fec1d4119e4c6f71c6bc81701943621245fee967",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/coach-01/audit-code-opus-first-fec1d4119.md",
+      "findings": [
+        {
+          "id": "CODE-OPUS-P2-SALARY-TOOL-SEMANTICS",
+          "severity": "p2",
+          "status": "resolved",
+          "summary": "Confirm that the coach salary tool contract means gross annual rather than the old net-monthly slot.",
+          "evidence": "The checked contract in docs/coach-tool-routing.md and the emitted salaireBrut key define gross annual; the accepted mapping incomeGrossYearly -> q_gross_salary_annual matches that authority. LLM prompt-unit drift remains separately dispositioned."
+        },
+        {
+          "id": "CODE-OPUS-P2-POST-PERSIST-ECHO-ERROR-UX",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "A rare _sendMessage exception occurs after persistence and answered-state publication, so the disappearing picker cannot display its local save-error state.",
+          "evidence": "The durable fact is already correct and the mounted guard prevents a crash; improve post-persistence conversation-send recovery in a bounded coach UX slice without rolling back a successful ledger write."
+        },
+        {
+          "id": "CODE-OPUS-P2-NONTEMPLATE-ARB-METADATA",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Non-template ARB files carry @-metadata for the new echo keys despite the repository convention of keeping metadata in the French template.",
+          "evidence": "flutter gen-l10n and all six generated localizations pass; normalize metadata in a bounded l10n cleanup rather than broadening this persistence promotion."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 3,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "tools/checks/claude_external_audit.sh product-domain c7809198e1394819d6311f434fbe506f33258fad",
+      "mode": "product-domain",
+      "model": "opus",
+      "base_sha": "c7809198e1394819d6311f434fbe506f33258fad",
+      "head_sha": "fec1d4119e4c6f71c6bc81701943621245fee967",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/coach-01/audit-product-domain-opus-first-fec1d4119.md",
+      "findings": [
+        {
+          "id": "DOMAIN-OPUS-P2-SALARY-DROP-FIXED",
+          "severity": "p2",
+          "status": "resolved",
+          "summary": "The previous salaireBrut path silently dropped or misclassified gross salary, and the accepted path now writes the canonical gross-annual fact.",
+          "evidence": "The accepted implementation maps salaireBrut to incomeGrossYearly/q_gross_salary_annual and the exact contract proves persistence, monthly reconstruction and cold reload."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-PROMPT-UNIT-CLARITY",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "LLM-controlled prompt_text could ask for a monthly value even though the closed salaireBrut amount contract always interprets the number as gross annual.",
+          "evidence": "The default visible label and checked tool contract are annual, so the accepted path is coherent; force or validate field-specific unit wording before broader LLM prompt variation."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-THIRTEENTH-SALARY-WORDING",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The inline annual-salary prompt does not explicitly say that the entered annual amount should already include any 13th salary.",
+          "evidence": "The ledger correctly preserves the existing q_nombre_mois authority and divides by 12 or 13; add explanatory copy without changing the canonical unit."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-DEAD-SALARY-DISPLAY-BRANCH",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The salary branch in _displayTextForInput is unreachable after upstream normalization to salaireBrut.",
+          "evidence": "This is dead cleanup only and does not affect persistence, display correctness or the accepted factual echo."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 4,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}

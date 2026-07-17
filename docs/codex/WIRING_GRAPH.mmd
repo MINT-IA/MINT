@@ -70,9 +70,9 @@ flowchart TB
     DOCS -- "currentReferences listener<br/>opaque ids only" --> TIMELINE
   end
 
-  %% G1-COACH-01 is ticket_only: solid edges are the live UI callback chain;
-  %% dashed edges are the required awaited write contract, not implementation.
-  subgraph COACH_INLINE["G1-COACH-01 TARGET — INLINE AMOUNTS (ticket_only)"]
+  %% G1-COACH-01 is accepted GREEN at fec1d4119e: every solid edge below is
+  %% the live awaited callback, validation, canonical write and publish chain.
+  subgraph COACH_INLINE["G1-COACH-01 GREEN — INLINE AMOUNTS (@fec1d4119e)"]
     direction LR
     COACH_ASK["ask_user_input<br/>salaireBrut / avoirLpp / epargne3a"]
     COACH_RENDER["WidgetRenderer + ChatAmountInput<br/>emits exact live keys"]
@@ -87,15 +87,15 @@ flowchart TB
     COACH_ASK --> COACH_RENDER
     COACH_RENDER --> COACH_BUBBLE
     COACH_BUBBLE --> COACH_SCREEN
-    COACH_SCREEN -. "MISSING awaited callback" .-> COACH_VALIDATE
-    COACH_VALIDATE -. "valid; salary keeps 12/13 periods<br/>LPP and 3a remain balances" .-> COACH_MAP
-    COACH_VALIDATE -. "invalid or strict LPP conflict" .-> COACH_RETRY
-    COACH_MAP -. "unique write; no alias/facade" .-> COACH_SAVE
-    COACH_SAVE -. "durable success" .-> COACH_AFTER
-    COACH_SAVE -. "failure" .-> COACH_RETRY
+    COACH_SCREEN -- "awaited callback" --> COACH_VALIDATE
+    COACH_VALIDATE -- "valid; salary keeps 12/13 periods<br/>LPP and 3a remain balances" --> COACH_MAP
+    COACH_VALIDATE -- "invalid or strict LPP conflict" --> COACH_RETRY
+    COACH_MAP -- "unique write; no alias/facade" --> COACH_SAVE
+    COACH_SAVE -- "durable success" --> COACH_AFTER
+    COACH_SAVE -- "failure" --> COACH_RETRY
   end
 
-  COACH_SAVE -. "single canonical provider seam" .-> CPP
+  COACH_SAVE -- "single canonical provider seam" --> CPP
 
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
@@ -503,10 +503,12 @@ flowchart TB
 %%     drift; Coach and Aujourd'hui both hide stale plan figures and never
 %%     reverse-write them. Still MISSING for HouseholdProvider and any
 %%     conversation-derived financial fact that bypasses CoachProfileProvider.
-%%     G1-COACH-01 freezes the real WidgetRenderer -> CoachMessageBubble ->
-%%     CoachChatScreen chain and its unique provider mappings, but remains
-%%     ticket_only until the dashed awaited-write edges above are implemented,
-%%     proven red->green, and accepted; no parallel capture facade is allowed.
+%%     G1-COACH-01 is accepted GREEN at exact pushed SHA fec1d4119e. The real
+%%     WidgetRenderer -> CoachMessageBubble -> CoachChatScreen chain awaits one
+%%     canonical write before publish; the identical command moved from 3/10
+%%     at RED c7809198e to 14/14, dedicated Patrol passed 1/1 with accepted
+%%     visual evidence, and both first-pass wrapper lenses passed P0/P1=0.
+%%     No parallel capture facade is allowed; G1 remains NO-GO.
 %%     The financial-plan boundary is technical GREEN at exact pushed SHA
 %%     28d0097f65b2f0a88d3ae6610614d912d0ba943a; its test-only compile-time flag
 %%     remains default-off, so activation and G1 are still NO-GO. The document wiring update is
