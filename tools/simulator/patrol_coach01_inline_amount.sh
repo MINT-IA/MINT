@@ -123,6 +123,8 @@ PY
 patrol="$HOME/.pub-cache/bin/patrol"
 [[ -x "$patrol" ]] || fail 'Patrol CLI is not executable in the Dart pub cache'
 command -v xcrun >/dev/null 2>&1 || fail 'xcrun is required'
+command -v xcodebuild >/dev/null 2>&1 || fail 'xcodebuild is required'
+command -v find >/dev/null 2>&1 || fail 'find is required'
 command -v shasum >/dev/null 2>&1 || fail 'shasum is required'
 if ! xcrun simctl list devices booted | grep -Fq -- "$device"; then
   fail 'requested iOS Simulator is not booted'
@@ -357,6 +359,38 @@ verify_runtime_sources_clean() {
   [[ -z "$untracked_mobile" ]]
 }
 
+xctestrun=''
+inspect_patrol_build() {
+  local products="$external_build/ios_integ/Build/Products"
+  local runner_app="$products/Debug-iphonesimulator/Runner.app"
+  local asset_manifest=
+  local -a xctestruns=()
+
+  if [[ ! -d "$runner_app" || -L "$runner_app" ]]; then
+    printf 'Patrol build inspection: Runner.app is missing or ambiguous\n' \
+      >>"$raw_log"
+    return 1
+  fi
+  asset_manifest="$runner_app/Frameworks/App.framework/flutter_assets/AssetManifest.bin"
+  if [[ ! -s "$asset_manifest" || -L "$asset_manifest" ]]; then
+    printf 'Patrol build inspection: AssetManifest.bin is missing or empty\n' \
+      >>"$raw_log"
+    return 1
+  fi
+  while IFS= read -r candidate; do
+    xctestruns+=("$candidate")
+  done < <(
+    find "$products" -maxdepth 2 -type f -name '*.xctestrun' -print \
+      2>/dev/null
+  )
+  if ((${#xctestruns[@]} != 1)); then
+    printf 'Patrol build inspection: expected exactly one xctestrun, found %s\n' \
+      "${#xctestruns[@]}" >>"$raw_log"
+    return 1
+  fi
+  xctestrun=${xctestruns[0]}
+}
+
 if ! prepare_build_isolation; then
   fail 'external build isolation setup failed'
 fi
@@ -364,18 +398,48 @@ fi
 set +e
 (
   cd "$mobile"
-  exec "$patrol" --verbose test \
+  exec "$patrol" --verbose build ios \
     --target test/patrol/g1_coach01_inline_amount_runtime_test.dart \
-    --device "$device" \
+    --simulator \
     --bundle-id "$bundle_id" \
-    --dart-define=MINT_PATROL_CLI=true \
-    --no-uninstall
+    --dart-define=MINT_PATROL_CLI=true
 ) >"$raw_log" 2>&1 &
 patrol_pid=$!
 wait "$patrol_pid"
-patrol_status=$?
+runtime_status=$?
 patrol_pid=''
 set -e
+
+if ((runtime_status == 0)); then
+  if ! inspect_patrol_build; then
+    runtime_status=2
+  else
+    result_bundle="$external_build/coach01.xcresult"
+    if [[ -e "$result_bundle" || -L "$result_bundle" ]]; then
+      printf 'xcodebuild result bundle path already exists\n' >>"$raw_log"
+      runtime_status=2
+    else
+      set +e
+      (
+        cd "$mobile"
+        exec xcodebuild test-without-building \
+          -xctestrun "$xctestrun" \
+          -only-testing 'RunnerUITests/RunnerUITests' \
+          -destination "platform=iOS Simulator,id=$device" \
+          -resultBundlePath "$result_bundle"
+      ) >>"$raw_log" 2>&1 &
+      patrol_pid=$!
+      wait "$patrol_pid"
+      runtime_status=$?
+      patrol_pid=''
+      set -e
+      if ((runtime_status == 0)) && [[ ! -d "$result_bundle" ]]; then
+        printf 'xcodebuild did not produce its result bundle\n' >>"$raw_log"
+        runtime_status=2
+      fi
+    fi
+  fi
+fi
 
 if ! remove_generated_bundle; then
   sanitize_log
@@ -396,11 +460,11 @@ if ! verify_runtime_sources_clean; then
   fail 'runtime sources are not clean after Patrol execution'
 fi
 
-if ((patrol_status != 0)); then
+if ((runtime_status != 0)); then
   sanitize_log
   log_hash=$(shasum -a 256 "$sanitized_log" | awk '{print $1}')
   write_metadata 'failed' "$log_hash"
-  exit "$patrol_status"
+  exit "$runtime_status"
 fi
 
 set +e

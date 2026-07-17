@@ -65,26 +65,43 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n"
         'printf \'patrol cwd=%s args=%s\\n\' "$PWD" "$*" >> "$MINT_TEST_CALLS"\n'
-        'bundle=test/patrol/test_bundle.dart\n'
-        'if [[ "$*" == *"--no-generate-bundle"* ]]; then\n'
-        '  [[ -f "$bundle" ]] || exit 64\n'
-        'else\n'
-        '  [[ ! -e "$bundle" && ! -L "$bundle" ]] || exit 65\n'
-        '  mkdir -p "$(dirname "$bundle")"\n'
-        '  printf \'generated synthetic Patrol bundle\\n\' > "$bundle"\n'
+        'if [[ "${MINT_TEST_PATROL_SLEEP:-0}" -gt 0 ]]; then\n'
+        '  sleep "$MINT_TEST_PATROL_SLEEP"\n'
         'fi\n'
+        '[[ "${1:-}" == "--verbose" && "${2:-}" == "build" '
+        '&& "${3:-}" == "ios" ]] || exit 60\n'
+        '[[ "$*" == *"--target '
+        'test/patrol/g1_coach01_inline_amount_runtime_test.dart"* ]] || exit 61\n'
+        '[[ "$*" == *"--simulator"* ]] || exit 62\n'
+        '[[ "$*" == *"--bundle-id ch.mint.app"* ]] || exit 63\n'
+        '[[ "$*" == *"--dart-define=MINT_PATROL_CLI=true"* ]] || exit 64\n'
         'build_target="$(readlink build 2>/dev/null || true)"\n'
         '[[ -L build && -d "$build_target" ]] || exit 66\n'
         'case "$build_target" in "$MINT_TEST_REPO"/*) exit 67 ;; esac\n'
         'printf \'patrol external_build=%s\\n\' "$build_target" '
         '>> "$MINT_TEST_CALLS"\n'
-        'printf \'synthetic isolated product\\n\' > "$build_target/patrol-product.txt"\n'
         'printf \'private repo=%s home=%s device=%s tmp=%s\\n\' '
         '"$MINT_TEST_REPO" "$HOME" "$MINT_TEST_DEVICE" "${TMPDIR:-/tmp}"\n'
-        'if [[ "${MINT_TEST_PATROL_SLEEP:-0}" -gt 0 ]]; then\n'
-        '  sleep "$MINT_TEST_PATROL_SLEEP"\n'
+        'build_exit="${MINT_TEST_PATROL_EXIT:-0}"\n'
+        'if [[ "$build_exit" -ne 0 ]]; then exit "$build_exit"; fi\n'
+        'products="$build_target/ios_integ/Build/Products"\n'
+        'runner="$products/Debug-iphonesimulator/Runner.app"\n'
+        'product_mode="${MINT_TEST_BUILD_PRODUCT:-complete}"\n'
+        'if [[ "$product_mode" != "runner" ]]; then\n'
+        '  mkdir -p "$runner"\n'
+        '  if [[ "$product_mode" != "asset" ]]; then\n'
+        '    mkdir -p "$runner/Frameworks/App.framework/flutter_assets"\n'
+        '    printf \'synthetic asset manifest\\n\' '
+        '> "$runner/Frameworks/App.framework/flutter_assets/AssetManifest.bin"\n'
+        '  fi\n'
         'fi\n'
-        'exit "${MINT_TEST_PATROL_EXIT:-0}"\n',
+        'if [[ "$product_mode" != "xctestrun" ]]; then\n'
+        '  mkdir -p "$products"\n'
+        '  printf \'synthetic xctestrun\\n\' > "$products/Runner.xctestrun"\n'
+        '  if [[ "$product_mode" == "multiple_xctestrun" ]]; then\n'
+        '    printf \'duplicate xctestrun\\n\' > "$products/Runner-2.xctestrun"\n'
+        '  fi\n'
+        'fi\n',
     )
 
     fake_bin = tmp_path / "bin"
@@ -126,6 +143,43 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         'else\n'
         '  exit 92\n'
         'fi\n',
+    )
+    _write_executable(
+        fake_bin / "xcodebuild",
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        'printf \'xcodebuild %s\\n\' "$*" >> "$MINT_TEST_CALLS"\n'
+        '[[ "${1:-}" == "test-without-building" ]] || exit 71\n'
+        'shift\n'
+        'xctestrun=\'\'\n'
+        'only_testing=\'\'\n'
+        'destination=\'\'\n'
+        'result_bundle=\'\'\n'
+        'while (($#)); do\n'
+        '  case "$1" in\n'
+        '    -xctestrun) xctestrun="${2:?}"; shift 2 ;;\n'
+        '    -only-testing) only_testing="${2:?}"; shift 2 ;;\n'
+        '    -destination) destination="${2:?}"; shift 2 ;;\n'
+        '    -resultBundlePath) result_bundle="${2:?}"; shift 2 ;;\n'
+        '    *) exit 72 ;;\n'
+        '  esac\n'
+        'done\n'
+        '[[ -f "$xctestrun" ]] || exit 73\n'
+        '[[ "$only_testing" == "RunnerUITests/RunnerUITests" ]] || exit 74\n'
+        '[[ "$destination" == "platform=iOS Simulator,id=$MINT_TEST_DEVICE" ]] '
+        '|| exit 75\n'
+        'case "$xctestrun" in "$MINT_TEST_REPO"/*) exit 76 ;; esac\n'
+        'case "$result_bundle" in "$MINT_TEST_REPO"/*) exit 77 ;; esac\n'
+        'printf \'private xctestrun=%s result=%s device=%s\\n\' '
+        '"$xctestrun" "$result_bundle" "$MINT_TEST_DEVICE"\n'
+        'if [[ "${MINT_TEST_XCODE_SLEEP:-0}" -gt 0 ]]; then\n'
+        '  sleep "$MINT_TEST_XCODE_SLEEP"\n'
+        'fi\n'
+        'if [[ "${MINT_TEST_XCODE_NO_RESULT:-0}" != "1" ]]; then\n'
+        '  mkdir -p "$result_bundle"\n'
+        '  printf \'synthetic xcresult\\n\' > "$result_bundle/result.txt"\n'
+        'fi\n'
+        'exit "${MINT_TEST_XCODE_EXIT:-0}"\n',
     )
 
     env = os.environ.copy()
@@ -173,7 +227,7 @@ def _assert_build_restored(runtime: dict[str, str], *, originally_present: bool 
         assert (build / "original-sentinel.txt").read_text(encoding="utf-8") == (
             "original build must survive\n"
         )
-        assert not (build / "patrol-product.txt").exists()
+        assert not (build / "ios_integ").exists()
     else:
         assert not build.exists()
     assert not _build_backup(runtime).exists()
@@ -278,16 +332,25 @@ def test_runner_executes_exact_sha_and_publishes_only_sanitized_artifacts(
 
     calls = Path(runtime["calls"]).read_text(encoding="utf-8")
     assert "$HOME/.pub-cache/bin/patrol" not in calls
-    assert "test --target test/patrol/g1_coach01_inline_amount_runtime_test.dart" in calls
-    assert "--no-generate-bundle" not in calls
+    assert (
+        "build ios --target test/patrol/g1_coach01_inline_amount_runtime_test.dart"
+        in calls
+    )
+    assert "--simulator" in calls
+    assert "patrol cwd=" in calls
+    assert "patrol cwd=" in calls and " args=test " not in calls
     assert "--dart-define=MINT_PATROL_CLI=true" in calls
+    assert "xcodebuild test-without-building -xctestrun " in calls
+    assert "-only-testing RunnerUITests/RunnerUITests" in calls
+    assert f"-destination platform=iOS Simulator,id={DEVICE}" in calls
+    assert "-resultBundlePath " in calls
     assert f"simctl io {DEVICE} screenshot" in calls
     assert "patrol external_build=" in calls
     assert calls.count("rev-parse HEAD") >= 3
     assert "ls-files --others --exclude-standard -- apps/mobile" in calls
 
 
-def test_runner_removes_generated_bundle_and_writes_sanitized_failure_metadata(
+def test_runner_writes_sanitized_build_failure_metadata(
     tmp_path: Path,
 ) -> None:
     runtime = _fake_runtime(tmp_path)
@@ -314,6 +377,67 @@ def test_runner_removes_generated_bundle_and_writes_sanitized_failure_metadata(
     ):
         assert secret not in log
     assert "<DEVICE>" in log
+    calls = Path(runtime["calls"]).read_text(encoding="utf-8")
+    assert "args=--verbose build ios" in calls
+    assert "xcodebuild " not in calls
+
+
+def test_runner_preserves_xcode_test_failure_and_restores_build(tmp_path: Path) -> None:
+    runtime = _fake_runtime(tmp_path)
+    runtime["env"]["MINT_TEST_XCODE_EXIT"] = "8"
+
+    result = _run(runtime)
+
+    assert result.returncode == 8
+    _assert_build_restored(runtime)
+    metadata = json.loads(
+        (_artifacts(runtime) / "metadata.json").read_text(encoding="utf-8")
+    )
+    assert metadata["result"] == "failed"
+    assert metadata["screenshotSha256"] is None
+    calls = Path(runtime["calls"]).read_text(encoding="utf-8")
+    assert "xcodebuild test-without-building" in calls
+    assert f"-destination platform=iOS Simulator,id={DEVICE}" in calls
+
+
+@pytest.mark.parametrize(
+    "product_mode",
+    ["runner", "asset", "xctestrun", "multiple_xctestrun"],
+)
+def test_runner_fails_closed_on_missing_or_ambiguous_build_product(
+    tmp_path: Path,
+    product_mode: str,
+) -> None:
+    runtime = _fake_runtime(tmp_path)
+    runtime["env"]["MINT_TEST_BUILD_PRODUCT"] = product_mode
+
+    result = _run(runtime)
+
+    assert result.returncode != 0
+    _assert_build_restored(runtime)
+    metadata = json.loads(
+        (_artifacts(runtime) / "metadata.json").read_text(encoding="utf-8")
+    )
+    assert metadata["result"] == "failed"
+    calls = Path(runtime["calls"]).read_text(encoding="utf-8")
+    assert "args=--verbose build ios" in calls
+    assert "xcodebuild " not in calls
+
+
+def test_runner_fails_when_xcodebuild_omits_the_result_bundle(tmp_path: Path) -> None:
+    runtime = _fake_runtime(tmp_path)
+    runtime["env"]["MINT_TEST_XCODE_NO_RESULT"] = "1"
+
+    result = _run(runtime)
+
+    assert result.returncode == 2
+    _assert_build_restored(runtime)
+    metadata = json.loads(
+        (_artifacts(runtime) / "metadata.json").read_text(encoding="utf-8")
+    )
+    assert metadata["result"] == "failed"
+    calls = Path(runtime["calls"]).read_text(encoding="utf-8")
+    assert "xcodebuild test-without-building" in calls
 
 
 def test_runner_refuses_and_preserves_a_preexisting_bundle(tmp_path: Path) -> None:
@@ -373,10 +497,11 @@ def test_runner_refuses_ambiguous_build_or_backup_state(
     assert "patrol cwd=" not in calls
 
 
-def test_runner_removes_generated_bundle_when_signalled(tmp_path: Path) -> None:
+def test_runner_restores_build_when_signalled_during_patrol_build(
+    tmp_path: Path,
+) -> None:
     runtime = _fake_runtime(tmp_path)
     runtime["env"]["MINT_TEST_PATROL_SLEEP"] = "30"
-    bundle = Path(runtime["repo"]) / "apps/mobile/test/patrol/test_bundle.dart"
     process = subprocess.Popen(
         _runner_command(runtime),
         cwd=runtime["repo"],
@@ -386,14 +511,21 @@ def test_runner_removes_generated_bundle_when_signalled(tmp_path: Path) -> None:
         stderr=subprocess.PIPE,
     )
     deadline = time.monotonic() + 5
-    while time.monotonic() < deadline and not bundle.exists() and process.poll() is None:
+    calls_path = Path(runtime["calls"])
+    while time.monotonic() < deadline and process.poll() is None:
+        calls = calls_path.read_text(encoding="utf-8") if calls_path.exists() else ""
+        if "patrol cwd=" in calls:
+            break
         time.sleep(0.05)
-    assert bundle.exists(), process.communicate(timeout=2)
+    else:
+        pytest.fail(f"Patrol build did not start: {process.communicate(timeout=2)}")
+    assert process.poll() is None
 
     process.send_signal(signal.SIGTERM)
     process.communicate(timeout=5)
 
     assert process.returncode != 0
+    bundle = Path(runtime["repo"]) / "apps/mobile/test/patrol/test_bundle.dart"
     assert not bundle.exists()
     _assert_build_restored(runtime)
 
