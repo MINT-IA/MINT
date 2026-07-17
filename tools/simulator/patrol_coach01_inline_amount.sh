@@ -144,6 +144,10 @@ external_root=''
 external_build=''
 build_isolation_armed=false
 original_build_present=false
+visual_marker_name='mint-g1-coach01-visual-ready-v1.marker'
+visual_marker_payload='MINT_G1_COACH01_VISUAL_READY_V1'
+app_container=''
+visual_marker=''
 
 remove_generated_bundle() {
   if [[ "$bundle_cleanup_armed" != true ]]; then
@@ -154,6 +158,131 @@ remove_generated_bundle() {
     rm -f -- "$generated_bundle" || return 1
   fi
   bundle_cleanup_armed=false
+}
+
+resolve_app_container() {
+  local candidate=''
+  local validated=''
+  if ! candidate=$(xcrun simctl get_app_container \
+    "$device" "$bundle_id" data 2>>"$raw_log"); then
+    return 1
+  fi
+  validated=$(python3 - "$candidate" "$device" <<'PY'
+import pathlib
+import re
+import sys
+
+candidate = pathlib.Path(sys.argv[1])
+device = sys.argv[2]
+try:
+    resolved = candidate.resolve(strict=True)
+except (OSError, RuntimeError):
+    raise SystemExit(1)
+expected = (
+    "Library",
+    "Developer",
+    "CoreSimulator",
+    "Devices",
+    device,
+    "data",
+    "Containers",
+    "Data",
+    "Application",
+)
+parts = resolved.parts
+if not candidate.is_absolute() or candidate != resolved or not resolved.is_dir():
+    raise SystemExit(1)
+if len(parts) < 10 or tuple(parts[-10:-1]) != expected:
+    raise SystemExit(1)
+if re.fullmatch(
+    r"[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-"
+    r"[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}",
+    parts[-1],
+) is None:
+    raise SystemExit(1)
+temp_directory = resolved / "tmp"
+try:
+    resolved_temp = temp_directory.resolve(strict=True)
+except (OSError, RuntimeError):
+    raise SystemExit(1)
+if resolved_temp != temp_directory or not resolved_temp.is_dir():
+    raise SystemExit(1)
+print(resolved)
+PY
+  ) || return 2
+  app_container=$validated
+  visual_marker="$app_container/tmp/$visual_marker_name"
+}
+
+validate_visual_marker() {
+  [[ -n "$visual_marker" && -f "$visual_marker" && ! -L "$visual_marker" ]] \
+    || return 1
+  python3 - "$visual_marker" "$visual_marker_payload" <<'PY'
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+expected = (sys.argv[2] + "\n").encode()
+try:
+    payload = path.read_bytes()
+except OSError:
+    raise SystemExit(1)
+raise SystemExit(0 if payload == expected else 1)
+PY
+}
+
+remove_visual_marker() {
+  if [[ -z "$visual_marker" \
+    || (! -e "$visual_marker" && ! -L "$visual_marker") ]]; then
+    return 0
+  fi
+  validate_visual_marker || return 1
+  rm -- "$visual_marker"
+}
+
+cleanup_visual_marker() {
+  if [[ -z "$visual_marker" \
+    || (! -e "$visual_marker" && ! -L "$visual_marker") ]]; then
+    return 0
+  fi
+  [[ -f "$visual_marker" && ! -L "$visual_marker" ]] || return 1
+  rm -- "$visual_marker"
+}
+
+prepare_visual_handshake() {
+  local container_status=0
+  if resolve_app_container; then
+    remove_visual_marker
+    return
+  else
+    container_status=$?
+  fi
+  if ((container_status == 1)); then
+    app_container=''
+    visual_marker=''
+    return 0
+  fi
+  return 1
+}
+
+wait_for_visual_marker() {
+  local deadline=$((SECONDS + 120))
+  local container_status=0
+  while ((SECONDS <= deadline)); do
+    if resolve_app_container; then
+      if [[ -e "$visual_marker" || -L "$visual_marker" ]]; then
+        validate_visual_marker || return 2
+        kill -0 "$patrol_pid" 2>/dev/null || return 1
+        return 0
+      fi
+    else
+      container_status=$?
+      ((container_status == 1)) || return 2
+    fi
+    kill -0 "$patrol_pid" 2>/dev/null || return 1
+    sleep 0.1
+  done
+  return 3
 }
 
 restore_build_isolation() {
@@ -245,6 +374,9 @@ cleanup() {
   local cleanup_failed=0
   trap - EXIT HUP INT TERM
   if ! remove_generated_bundle; then
+    cleanup_failed=1
+  fi
+  if ! cleanup_visual_marker; then
     cleanup_failed=1
   fi
   if ! restore_build_isolation; then
@@ -418,6 +550,9 @@ if ((runtime_status == 0)); then
     if [[ -e "$result_bundle" || -L "$result_bundle" ]]; then
       printf 'xcodebuild result bundle path already exists\n' >>"$raw_log"
       runtime_status=2
+    elif ! prepare_visual_handshake; then
+      printf 'visual handshake stale-marker cleanup failed\n' >>"$raw_log"
+      runtime_status=2
     else
       set +e
       (
@@ -429,10 +564,53 @@ if ((runtime_status == 0)); then
           -resultBundlePath "$result_bundle"
       ) >>"$raw_log" 2>&1 &
       patrol_pid=$!
-      wait "$patrol_pid"
-      runtime_status=$?
-      patrol_pid=''
       set -e
+
+      set +e
+      wait_for_visual_marker
+      visual_wait_status=$?
+      set -e
+      screenshot_status=0
+      xcode_killed_for_handshake=false
+      if ((visual_wait_status == 0)); then
+        set +e
+        xcrun simctl io "$device" screenshot "$private_screenshot" \
+          >>"$raw_log" 2>&1
+        screenshot_status=$?
+        set -e
+        if ((screenshot_status != 0)) || [[ ! -s "$private_screenshot" ]]; then
+          printf 'visual handshake screenshot failed\n' >>"$raw_log"
+          screenshot_status=2
+        fi
+        if ! remove_visual_marker; then
+          printf 'visual handshake marker acknowledgement failed\n' >>"$raw_log"
+          screenshot_status=2
+          kill -TERM "$patrol_pid" 2>/dev/null || true
+          xcode_killed_for_handshake=true
+        fi
+      else
+        printf 'visual handshake marker was not observed while XCTest ran\n' \
+          >>"$raw_log"
+        if kill -0 "$patrol_pid" 2>/dev/null; then
+          kill -TERM "$patrol_pid" 2>/dev/null || true
+          xcode_killed_for_handshake=true
+        fi
+      fi
+
+      set +e
+      wait "$patrol_pid"
+      xcode_status=$?
+      set -e
+      patrol_pid=''
+      if [[ "$xcode_killed_for_handshake" == true ]]; then
+        runtime_status=2
+      elif ((xcode_status != 0)); then
+        runtime_status=$xcode_status
+      elif ((visual_wait_status != 0 || screenshot_status != 0)); then
+        runtime_status=2
+      else
+        runtime_status=0
+      fi
       if ((runtime_status == 0)) && [[ ! -d "$result_bundle" ]]; then
         printf 'xcodebuild did not produce its result bundle\n' >>"$raw_log"
         runtime_status=2
@@ -467,15 +645,11 @@ if ((runtime_status != 0)); then
   exit "$runtime_status"
 fi
 
-set +e
-xcrun simctl io "$device" screenshot "$private_screenshot" >>"$raw_log" 2>&1
-screenshot_status=$?
-set -e
 sanitize_log
 log_hash=$(shasum -a 256 "$sanitized_log" | awk '{print $1}')
-if ((screenshot_status != 0)) || [[ ! -s "$private_screenshot" ]]; then
+if [[ ! -s "$private_screenshot" ]]; then
   write_metadata 'failed' "$log_hash"
-  fail 'final simulator screenshot failed'
+  fail 'in-test simulator screenshot is missing'
 fi
 
 python3 - \

@@ -26,6 +26,8 @@ SHA = "c" * 40
 BUNDLE_ID = "ch.mint.app"
 DEVICE = "C01C0123-4567-489A-BCDE-F0123456789A"
 UTC_STAMP = "20260717T143000Z"
+VISUAL_MARKER_NAME = "mint-g1-coach01-visual-ready-v1.marker"
+VISUAL_MARKER_PAYLOAD = "MINT_G1_COACH01_VISUAL_READY_V1\n"
 
 
 def _write_executable(path: Path, source: str) -> None:
@@ -57,6 +59,16 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
     )
 
     fake_home = tmp_path / "private-home"
+    app_container = (
+        fake_home
+        / "Library/Developer/CoreSimulator/Devices"
+        / DEVICE
+        / "data/Containers/Data/Application/AAAAAAAA-BBBB-4CCC-8DDD-EEEEEEEEEEEE"
+    )
+    app_tmp = app_container / "tmp"
+    app_tmp.mkdir(parents=True)
+    visual_marker = app_tmp / VISUAL_MARKER_NAME
+    visual_marker.write_text(VISUAL_MARKER_PAYLOAD, encoding="utf-8")
     fake_patrol = fake_home / ".pub-cache/bin/patrol"
     fake_patrol.parent.mkdir(parents=True)
     calls = tmp_path / "calls.log"
@@ -137,8 +149,16 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         'printf \'xcrun %s\\n\' "$*" >> "$MINT_TEST_CALLS"\n'
         'if [[ "$*" == "simctl list devices booted" ]]; then\n'
         '  printf \'iPhone Synthetic (%s) (Booted)\\n\' "$MINT_TEST_DEVICE"\n'
+        'elif [[ "${1:-}" == "simctl" && "${2:-}" == "get_app_container" '
+        '&& "${3:-}" == "$MINT_TEST_DEVICE" && "${4:-}" == "ch.mint.app" '
+        '&& "${5:-}" == "data" ]]; then\n'
+        '  printf \'%s\\n\' "$MINT_TEST_APP_CONTAINER"\n'
         'elif [[ "${1:-}" == "simctl" && "${2:-}" == "io" '
         '&& "${3:-}" == "$MINT_TEST_DEVICE" && "${4:-}" == "screenshot" ]]; then\n'
+        '  [[ -f "$MINT_TEST_VISUAL_MARKER" ]] || exit 93\n'
+        '  if [[ "${MINT_TEST_SCREENSHOT_EXIT:-0}" -ne 0 ]]; then\n'
+        '    exit "$MINT_TEST_SCREENSHOT_EXIT"\n'
+        '  fi\n'
         '  printf \'synthetic-png\\n\' > "${5:?missing screenshot path}"\n'
         'else\n'
         '  exit 92\n'
@@ -170,15 +190,35 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         '|| exit 75\n'
         'case "$xctestrun" in "$MINT_TEST_REPO"/*) exit 76 ;; esac\n'
         'case "$result_bundle" in "$MINT_TEST_REPO"/*) exit 77 ;; esac\n'
+        '[[ ! -e "$MINT_TEST_VISUAL_MARKER" '
+        '&& ! -L "$MINT_TEST_VISUAL_MARKER" ]] || exit 78\n'
         'printf \'private xctestrun=%s result=%s device=%s\\n\' '
         '"$xctestrun" "$result_bundle" "$MINT_TEST_DEVICE"\n'
         'if [[ "${MINT_TEST_XCODE_SLEEP:-0}" -gt 0 ]]; then\n'
         '  sleep "$MINT_TEST_XCODE_SLEEP"\n'
         'fi\n'
+        'if [[ "${MINT_TEST_XCODE_NO_MARKER:-0}" != "1" ]]; then\n'
+        '  if [[ "${MINT_TEST_XCODE_BAD_MARKER:-0}" == "1" ]]; then\n'
+        '    printf \'INVALID_VISUAL_MARKER\\n\' > "$MINT_TEST_VISUAL_MARKER"\n'
+        '  else\n'
+        '    printf \'%s\' "$MINT_TEST_VISUAL_MARKER_PAYLOAD" '
+        '> "$MINT_TEST_VISUAL_MARKER"\n'
+        '  fi\n'
+        '  printf \'xcodebuild marker-ready\\n\' >> "$MINT_TEST_CALLS"\n'
+        '  for _ in $(seq 1 100); do\n'
+        '    [[ ! -e "$MINT_TEST_VISUAL_MARKER" '
+        '&& ! -L "$MINT_TEST_VISUAL_MARKER" ]] && break\n'
+        '    sleep 0.02\n'
+        '  done\n'
+        '  [[ ! -e "$MINT_TEST_VISUAL_MARKER" '
+        '&& ! -L "$MINT_TEST_VISUAL_MARKER" ]] || exit 79\n'
+        '  printf \'xcodebuild marker-acked\\n\' >> "$MINT_TEST_CALLS"\n'
+        'fi\n'
         'if [[ "${MINT_TEST_XCODE_NO_RESULT:-0}" != "1" ]]; then\n'
         '  mkdir -p "$result_bundle"\n'
         '  printf \'synthetic xcresult\\n\' > "$result_bundle/result.txt"\n'
         'fi\n'
+        'printf \'xcodebuild finished\\n\' >> "$MINT_TEST_CALLS"\n'
         'exit "${MINT_TEST_XCODE_EXIT:-0}"\n',
     )
 
@@ -192,6 +232,9 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
             "MINT_TEST_REPO": str(repo),
             "MINT_TEST_SHA": SHA,
             "MINT_TEST_DEVICE": DEVICE,
+            "MINT_TEST_APP_CONTAINER": str(app_container),
+            "MINT_TEST_VISUAL_MARKER": str(visual_marker),
+            "MINT_TEST_VISUAL_MARKER_PAYLOAD": VISUAL_MARKER_PAYLOAD,
         }
     )
     Path(env["TMPDIR"]).mkdir()
@@ -199,6 +242,7 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         "repo": str(repo),
         "home": str(fake_home),
         "calls": str(calls),
+        "visual_marker": str(visual_marker),
         "env": env,
     }
 
@@ -275,6 +319,7 @@ def test_runtime_contract_uses_real_coach_chain_and_cold_report_persistence() ->
     wrapper = WRAPPER.read_text(encoding="utf-8")
 
     for token in (
+        "import 'dart:io';",
         "patrolTest(",
         "bool.fromEnvironment('MINT_PATROL_CLI')",
         "CoachChatScreen",
@@ -290,9 +335,19 @@ def test_runtime_contract_uses_real_coach_chain_and_cold_report_persistence() ->
         "loadFromWizard()",
         "ProfileDataSource.userInput",
         "salaireBrutMensuel",
+        "_visualReadyMarkerName",
+        "Directory.systemTemp",
+        "MINT_G1_COACH01_VISUAL_READY_V1\\n",
+        "flush: true",
+        "visualReadyMarker.delete()",
+        "Duration(seconds: 90)",
+        "visual evidence acknowledgement",
     ):
         assert token in integration
     assert integration.count("CoachProfileProvider()") >= 2
+    assert integration.index("coldProfile.dataSourceDates['salaireBrutMensuel']") < (
+        integration.index("visualReadyMarker.writeAsString")
+    )
     assert "g1_coach01_inline_amount_patrol_test.dart" in wrapper
 
 
@@ -345,9 +400,16 @@ def test_runner_executes_exact_sha_and_publishes_only_sanitized_artifacts(
     assert f"-destination platform=iOS Simulator,id={DEVICE}" in calls
     assert "-resultBundlePath " in calls
     assert f"simctl io {DEVICE} screenshot" in calls
+    assert f"simctl get_app_container {DEVICE} {BUNDLE_ID} data" in calls
     assert "patrol external_build=" in calls
     assert calls.count("rev-parse HEAD") >= 3
     assert "ls-files --others --exclude-standard -- apps/mobile" in calls
+    marker_ready = calls.index("xcodebuild marker-ready")
+    screenshot = calls.index(f"simctl io {DEVICE} screenshot")
+    marker_acked = calls.index("xcodebuild marker-acked")
+    xcode_finished = calls.index("xcodebuild finished")
+    assert marker_ready < screenshot < marker_acked < xcode_finished
+    assert not Path(runtime["visual_marker"]).exists()
 
 
 def test_runner_writes_sanitized_build_failure_metadata(
@@ -398,6 +460,7 @@ def test_runner_preserves_xcode_test_failure_and_restores_build(tmp_path: Path) 
     calls = Path(runtime["calls"]).read_text(encoding="utf-8")
     assert "xcodebuild test-without-building" in calls
     assert f"-destination platform=iOS Simulator,id={DEVICE}" in calls
+    assert not Path(runtime["visual_marker"]).exists()
 
 
 @pytest.mark.parametrize(
@@ -438,6 +501,78 @@ def test_runner_fails_when_xcodebuild_omits_the_result_bundle(tmp_path: Path) ->
     assert metadata["result"] == "failed"
     calls = Path(runtime["calls"]).read_text(encoding="utf-8")
     assert "xcodebuild test-without-building" in calls
+    assert not Path(runtime["visual_marker"]).exists()
+
+
+def test_runner_fails_closed_when_visual_marker_never_appears(tmp_path: Path) -> None:
+    runtime = _fake_runtime(tmp_path)
+    runtime["env"]["MINT_TEST_XCODE_NO_MARKER"] = "1"
+
+    result = _run(runtime)
+
+    assert result.returncode == 2
+    _assert_build_restored(runtime)
+    artifacts = _artifacts(runtime)
+    assert not (artifacts / "final.png").exists()
+    metadata = json.loads((artifacts / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["result"] == "failed"
+    assert metadata["screenshotSha256"] is None
+    assert len(metadata["logSha256"]) == 64
+    calls = Path(runtime["calls"]).read_text(encoding="utf-8")
+    assert f"simctl io {DEVICE} screenshot" not in calls
+    assert not Path(runtime["visual_marker"]).exists()
+
+
+def test_runner_acks_marker_but_fails_closed_when_screenshot_fails(
+    tmp_path: Path,
+) -> None:
+    runtime = _fake_runtime(tmp_path)
+    runtime["env"]["MINT_TEST_SCREENSHOT_EXIT"] = "7"
+
+    result = _run(runtime)
+
+    assert result.returncode == 2
+    _assert_build_restored(runtime)
+    artifacts = _artifacts(runtime)
+    assert not (artifacts / "final.png").exists()
+    metadata = json.loads((artifacts / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["result"] == "failed"
+    assert metadata["screenshotSha256"] is None
+    assert len(metadata["logSha256"]) == 64
+    calls = Path(runtime["calls"]).read_text(encoding="utf-8")
+    assert "xcodebuild marker-ready" in calls
+    assert f"simctl io {DEVICE} screenshot" in calls
+    assert "xcodebuild marker-acked" in calls
+    assert not Path(runtime["visual_marker"]).exists()
+    log = (artifacts / "patrol.log").read_text(encoding="utf-8")
+    for secret in (
+        runtime["repo"],
+        runtime["home"],
+        DEVICE,
+        runtime["env"]["TMPDIR"],
+    ):
+        assert secret not in log
+
+
+def test_runner_rejects_and_cleans_a_marker_with_invalid_payload(
+    tmp_path: Path,
+) -> None:
+    runtime = _fake_runtime(tmp_path)
+    runtime["env"]["MINT_TEST_XCODE_BAD_MARKER"] = "1"
+
+    result = _run(runtime)
+
+    assert result.returncode == 2
+    _assert_build_restored(runtime)
+    artifacts = _artifacts(runtime)
+    assert not (artifacts / "final.png").exists()
+    metadata = json.loads((artifacts / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["result"] == "failed"
+    assert metadata["screenshotSha256"] is None
+    calls = Path(runtime["calls"]).read_text(encoding="utf-8")
+    assert "xcodebuild marker-ready" in calls
+    assert f"simctl io {DEVICE} screenshot" not in calls
+    assert not Path(runtime["visual_marker"]).exists()
 
 
 def test_runner_refuses_and_preserves_a_preexisting_bundle(tmp_path: Path) -> None:

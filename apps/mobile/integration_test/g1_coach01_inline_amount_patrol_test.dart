@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +25,8 @@ const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
 const _question = 'Question salariale synthétique';
 const _annualSalary = '120000';
 const _salaryEcho = "Salaire brut annuel déclaré : CHF 120'000";
+const _visualReadyMarkerName = 'mint-g1-coach01-visual-ready-v1.marker';
+const _visualReadyMarkerPayload = 'MINT_G1_COACH01_VISUAL_READY_V1\n';
 
 void main() {
   patrolTest(
@@ -30,14 +34,23 @@ void main() {
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 6)),
     ($) async {
+      final visualReadyMarker = File(
+        '${Directory.systemTemp.path}/$_visualReadyMarkerName',
+      );
       final previousSlmNarratives = FeatureFlags.enableSlmNarratives;
       FeatureFlags.enableSlmNarratives = false;
       FeatureFlags.typedLppEvidence = false;
-      addTearDown(() {
+      addTearDown(() async {
+        if (await visualReadyMarker.exists()) {
+          await visualReadyMarker.delete();
+        }
         FeatureFlags.enableSlmNarratives = previousSlmNarratives;
         FeatureFlags.typedLppEvidence = false;
         CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
       });
+      if (await visualReadyMarker.exists()) {
+        await visualReadyMarker.delete();
+      }
 
       await ReportPersistenceService.clearDiagnostic();
       await ReportPersistenceService.setMiniOnboardingCompleted(true);
@@ -168,6 +181,20 @@ void main() {
       expect(coldProfile.dataTimestamps['salaireBrutMensuel'], isNotNull);
       expect(coldProfile.dataSourceDates, contains('salaireBrutMensuel'));
       expect(coldProfile.dataSourceDates['salaireBrutMensuel'], isNull);
+
+      await visualReadyMarker.writeAsString(
+        _visualReadyMarkerPayload,
+        flush: true,
+      );
+      final visualAcknowledgementDeadline = DateTime.now().add(
+        const Duration(seconds: 90),
+      );
+      while (await visualReadyMarker.exists()) {
+        if (DateTime.now().isAfter(visualAcknowledgementDeadline)) {
+          fail('Timed out waiting for visual evidence acknowledgement');
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
     },
   );
 }
