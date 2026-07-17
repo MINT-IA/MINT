@@ -40,6 +40,13 @@ void main() {
       await $(find.bySemanticsIdentifier(
         'tax_review_subject_scope_individual',
       )).scrollTo().tap();
+      await $(#tax_review_assessment_status).scrollTo().tap();
+      await $(find.bySemanticsIdentifier(
+        'tax_review_assessment_status_in_force',
+      )).scrollTo().tap();
+      await $(find.bySemanticsIdentifier('tax_review_in_force_attested'))
+          .scrollTo()
+          .tap();
       await $(#tax_review_source_date).scrollTo().enterText('2026-06-20');
       await $(#tax_review_canton_code).scrollTo().enterText('VD');
       await $(#tax_review_municipality_id).scrollTo().enterText('5586');
@@ -77,7 +84,8 @@ void main() {
       final snapshot = profile.fiscal.snapshots.single;
       expect(snapshot.snapshotId, matches(TaxSnapshot.uuidV4Pattern));
       expect(snapshot.documentKind, TaxDocumentKind.assessmentNotice);
-      expect(snapshot.assessmentStatus, TaxAssessmentStatus.assessedAppealable);
+      expect(snapshot.assessmentStatus, TaxAssessmentStatus.inForce);
+      expect(snapshot.inForceAttested, isTrue);
       expect(snapshot.taxYear, 2025);
       expect(snapshot.sourceDate, DateTime.utc(2026, 6, 20));
       expect(snapshot.subjectScope, TaxSubjectScope.individual);
@@ -92,6 +100,21 @@ void main() {
       expect(
         profile.fiscal.provenanceValidatedSnapshotIds,
         contains(snapshot.snapshotId),
+      );
+      final reference = profile.latestTaxDecisionReference;
+      expect(reference, isNotNull);
+      expect(reference!.referenceId, snapshot.snapshotId);
+      expect(reference.kind, SpecialistReferenceKind.taxAssessmentDecision);
+      expect(reference.taxYear, snapshot.taxYear);
+      expect(reference.legalYear, snapshot.taxYear);
+      expect(reference.sourceDate, snapshot.sourceDate);
+      expect(reference.confirmedAt, snapshot.updatedAt.toUtc());
+      expect(
+        reference.precisionReadyAt(
+          snapshot.updatedAt,
+          taxSnapshot: snapshot,
+        ),
+        isTrue,
       );
       expect(
         provider.reportAnswersSnapshot['_coach_tax_snapshots_v1'],

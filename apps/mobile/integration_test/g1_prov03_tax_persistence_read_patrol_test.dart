@@ -38,7 +38,8 @@ void main() {
       expect(snapshot.snapshotId, matches(TaxSnapshot.uuidV4Pattern));
       expect(snapshot.profileOwnerId, matches(TaxSnapshot.uuidV4Pattern));
       expect(snapshot.documentKind, TaxDocumentKind.assessmentNotice);
-      expect(snapshot.assessmentStatus, TaxAssessmentStatus.assessedAppealable);
+      expect(snapshot.assessmentStatus, TaxAssessmentStatus.inForce);
+      expect(snapshot.inForceAttested, isTrue);
       expect(snapshot.taxYear, 2025);
       expect(snapshot.basedOnTaxYear, isNull);
       expect(snapshot.sourceDate, DateTime.utc(2026, 6, 20));
@@ -73,13 +74,27 @@ void main() {
         profile.fiscal.provenanceValidatedSnapshotIds,
         contains(snapshot.snapshotId),
       );
+      final reference = profile.latestTaxDecisionReference;
+      expect(reference, isNotNull);
+      expect(reference!.referenceId, snapshot.snapshotId);
+      expect(reference.kind, SpecialistReferenceKind.taxAssessmentDecision);
+      expect(reference.taxYear, snapshot.taxYear);
+      expect(reference.legalYear, snapshot.taxYear);
+      expect(reference.sourceDate, snapshot.sourceDate);
+      expect(reference.confirmedAt, snapshot.updatedAt.toUtc());
+      expect(
+        reference.precisionReadyAt(
+          snapshot.updatedAt,
+          taxSnapshot: snapshot,
+        ),
+        isTrue,
+      );
 
       final prefix = 'fiscal.snapshots.${snapshot.snapshotId}.';
       for (final leaf in const [
         'taxYear',
         'sourceDate',
         'documentKind',
-        'assessmentStatus',
         'subjectScope',
         'cantonCode',
         'municipalityId',
@@ -98,6 +113,12 @@ void main() {
       ]) {
         final path = '$prefix$leaf';
         expect(profile.dataSources[path], ProfileDataSource.certificate);
+        expect(profile.dataTimestamps[path], isNotNull);
+        expect(profile.dataSourceDates[path], DateTime.utc(2026, 6, 20));
+      }
+      for (final leaf in const ['assessmentStatus', 'inForceAttested']) {
+        final path = '$prefix$leaf';
+        expect(profile.dataSources[path], ProfileDataSource.userInput);
         expect(profile.dataTimestamps[path], isNotNull);
         expect(profile.dataSourceDates[path], DateTime.utc(2026, 6, 20));
       }
