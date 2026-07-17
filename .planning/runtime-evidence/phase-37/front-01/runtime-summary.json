@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "ticket_id": "G1-FRONT-01",
+  "sha": "cb580c7a8522ee3728ea7ab8ce8faca46ef05497",
+  "recorded_at": "2026-07-17T16:21:08Z",
+  "synthetic_data_only": true,
+  "private_fixture_used": false,
+  "accepted_runtime_artifact": ".planning/runtime-evidence/phase-37/front-01/runtime-cb580c7a85-20260717T175900Z",
+  "prior_runtime_red_artifact": ".planning/runtime-evidence/phase-37/front-01/runtime-af7f265fcc-20260717T175300Z",
+  "mode": "patrol_build_then_xcodebuild_test_without_building_exact_sha_debug_test_bundle",
+  "patrol_target": "test/patrol/g1_front01_frontier_jurisdiction_runtime_test.dart",
+  "patrol_tests": 1,
+  "patrol_failures": 0,
+  "patrol_passed": true,
+  "prior_runtime_red": {
+    "sha": "af7f265fcc4386260d8e6287791cc7e843d0c841",
+    "tests": 1,
+    "failures": 1,
+    "exit_code": 65,
+    "business_failure": "The source DropdownMenuItem for FR existed only offstage, so the physical overlay selection timed out before the visual-ready marker."
+  },
+  "real_mint_frontalier_screen_rendered": true,
+  "canonical_fixture": {
+    "residence_country": "FR",
+    "work_country": "CH",
+    "work_canton": "GE"
+  },
+  "missing_state_proved": true,
+  "known_state_proved": true,
+  "canonical_persistence_proved": true,
+  "canonical_provenance_proved": true,
+  "cold_reload_provenance_claimed": false,
+  "fiscal_social_separation_proved": true,
+  "no_personal_amount_or_universal_90_day_result_proved": true,
+  "visual_review": {
+    "status": "accepted_runtime_bounded",
+    "screenshot": "runtime-cb580c7a85-20260717T175900Z/final.png",
+    "observed_state": "The captured scroll position visibly shows work country CH, work canton GE, the 1966 fiscal-instrument candidate, a separate social-insurance control and specialist questions; the test assertion, not the pixels, proves residence country FR.",
+    "debug_overlay_present": true,
+    "shipping_default_chrome_claimed": false,
+    "shipping_polish_claimed": false
+  },
+  "cleanup_status": "passed",
+  "original_build_restored": true,
+  "generated_bundle_removed": true,
+  "xcresult_retained": false,
+  "privacy": {
+    "raw_udid_retained": false,
+    "absolute_repo_or_temp_path_retained": false,
+    "private_certificates_used": false,
+    "synthetic_financial_data_only": true
+  },
+  "source_log_hashes": {
+    "semantic_red_raw_tmp": "4d58a16f8a444ad671a828669dc141037f301893f32e27803f3ff4e4613280f0",
+    "promotion_green_raw_tmp": "82760c0400bf30cab1b835815123602751af992a274f951eb0f85bd79ae69bbe",
+    "full_flutter_raw_tmp": "a45d70dfe2a0db24bb5d3380ab006b214a28440c94d505006331f371ab3dd8a5"
+  },
+  "lightweight_hashes": {
+    "semantic_red_summary": "8e5b7727c8bcdd544d13ae4ce6c4815caf7dbc03b40c7210c107ff6bf4f8406f",
+    "semantic_red_analyze": "4b1301dac4f90e181ac526341ff4eb2af0889e754458dccbb2c74699b0a60bb9",
+    "promotion_green_log": "a35337955f4eec04adf0c14ed46ae7bc0d28111284ec2077251b7b52791bec54",
+    "full_flutter_summary": "714cc17e90678cea8e0b92e0dea4307643d8d918cd90c857950169242a0e7c1b",
+    "full_flutter_analyze": "bd9d327eb4efd18a96662f0fa16d79c2e1217755ae40f434ccc1685ac3bd9ebe",
+    "doctor": "0334e642963a52c317c83f495a5d59795848a0f308ff3edc297dcde35ed17118",
+    "runtime_red_metadata_json": "7c85743ba28ca8dde5f834f1c46807c6e7b196fa1da8d71b409ba67211b961f4",
+    "runtime_red_patrol_log": "99b6a2de16aa31f0aad083b9394b87d6031a7482561321c41b722bebf670b1a6",
+    "runtime_green_metadata_json": "69fb048b012451bf9e537e0b29bdd700b0da18e8db96c85acb7b562f79105b8d",
+    "runtime_green_patrol_log": "5770f195fb929e0c456d0da3e24dd368d801d8c8d34b4bbcb9304ad5c06a9408",
+    "runtime_green_final_screenshot_png": "1939c023b49866ddb77e83ce4948ab595965ad985bc8286f5631f570dbf33bae",
+    "audit_code_opus_first": "ade45faa4cb65a7bef4bd9af34208bce22c6fc87d88dae39402e944a06ee3e2a",
+    "audit_product_domain_opus_first": "1d61e7750110bd3070d71c0f8e6a7211ffe58382e77f5451d5ea8e3705e329e9"
+  },
+  "audit_result": {
+    "required_modes": 2,
+    "passed_modes": 2,
+    "unresolved_p0": 0,
+    "unresolved_p1": 0,
+    "accepted_p2_followups": 4,
+    "resolved_p2": 1
+  },
+  "ticket_decision": "GREEN",
+  "g1_score": 8.2,
+  "g1_decision": "NO_GO",
+  "g2_g3_authorized": false
+}

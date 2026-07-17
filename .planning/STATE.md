@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: COACH-01 is GREEN at exact pushed SHA fec1d4119e after semantic RED 3/10, identical-command GREEN 14/14, Patrol 1/1 and two wrapper PASS verdicts; 10 hard floors remain, and G2/G3 are not authorized.
-last_updated: "2026-07-17T13:47:10Z"
-last_activity: 2026-07-17 -- COACH-01 promoted after semantic RED 3/10, identical-command GREEN 14/14, exact-SHA Patrol 1/1 with accepted visual proof, and first-pass Opus code/product-domain audits PASS with zero P0/P1
+stopped_at: FRONT-01 is GREEN at exact pushed SHA cb580c7a8 after corrected semantic RED 15/20, identical-command GREEN 20/20, a true Patrol RED then exact-SHA Patrol 1/1, full Flutter 9567/44 and two wrapper PASS verdicts; 9 hard floors remain, and G2/G3 are not authorized.
+last_updated: "2026-07-17T16:21:08Z"
+last_activity: 2026-07-17 -- FRONT-01 promoted after corrected semantic RED 15/20, identical-command GREEN 20/20, exact-SHA Patrol 1/1 with bounded visual proof, full Flutter/analyzer/Doctor PASS, and first-pass Opus code/product-domain audits PASS with zero P0/P1
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,17 +34,17 @@ Plan: 37-05 — Swiss jurisdiction and specialist reference floors
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-17 -- `G1-COACH-01` is accepted at pushed SHA
-`fec1d4119e`: the identical registry command moves from 3 controls passing / 7
-semantic failures at `c7809198e` to 14/14 GREEN. The live inline salary, LPP
-and 3a callbacks await one serialized canonical provider write before
-notification, answered state and factual echo; invalid/competing writes fail
-closed, transient persistence failure is retryable, and provenance survives
-cold reload. Dedicated exact-SHA Patrol passed 1/1 and its real Coach screenshot
-was visually accepted with the DEBUG overlay explicitly bounded. First-pass
-wrapper-only Opus code and product-domain audits pass with P0/P1=0; five
-nonblocking P2 follow-ups remain explicit. This closes only COACH-01; G1 remains
-NO-GO.
+Last activity: 2026-07-17 -- `G1-FRONT-01` is accepted at pushed SHA
+`cb580c7a8`: the identical corrected registry command moves from 15 controls
+passing / 5 semantic failures at `18e0918f6` to 20/20 GREEN. Residence country,
+work country and work canton are independent typed facts with fail-closed
+provenance/freshness, real provider persistence and missing/known/specialist
+states. The old defaulted fiscal/social calculators and universal 90-day rule
+are quarantined. A first physical Patrol run proved the offstage-selector RED;
+the repaired exact-SHA run passed 1/1 with bounded visual proof. Full Flutter is
+9,567 pass / 44 skip, analyzer and Doctor pass, and first-pass wrapper-only Opus
+code/product-domain audits pass with P0/P1=0. Four nonblocking P2 follow-ups
+remain explicit. This closes only FRONT-01; G1 remains NO-GO.
 
 Provisional G1 score: **8.2/10 — NO-GO**.
 
@@ -139,16 +139,27 @@ Provisional G1 score: **8.2/10 — NO-GO**.
   accepted visual proof, and both first-pass Opus wrapper lenses pass P0/P1=0.
   Five P2 follow-ups remain explicit; no financial product or G2/G3 activation
   is authorized.
+- `G1-FRONT-01` is `green` at exact pushed SHA `cb580c7a8`. Its corrected
+  identical contract moves from 15/20 at semantic RED `18e0918f6` to 20/20;
+  FR/CH/GE are independent typed facts with fail-closed provenance/freshness,
+  persisted through the real Frontalier screen. Invented defaults, the
+  universal 90-day rule and personal fiscal/social calculations are
+  quarantined. The first physical Patrol run was a true selector RED; the
+  repaired exact-SHA run is 1/1 with bounded visual proof and cleanup. Full
+  Flutter/analyzer/Doctor and both first-pass Opus wrapper lenses pass with
+  P0/P1=0. Four P2 follow-ups remain explicit; G1 stays NO-GO and G2/G3 remain
+  forbidden.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 21 `green`, 9 `ticket_only`, and one
-  `red_proven`. Therefore 10 G1 hard floors remain open.
+- The canonical registry has 31 rows: 22 `green`, 8 `ticket_only`, and one
+  `red_proven`. Therefore 9 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
-- Wave 3 is technically closed. The next ordered ticket is `G1-FRONT-01`
-  in Wave 4; it remains `ticket_only` and must fail closed until residence
-  country, work country and work canton are distinct.
+- Wave 3 is technically closed and `G1-FRONT-01` is the first accepted Wave 4
+  floor. The next ordered ticket is `G1-RET-REF-01`; it remains `ticket_only`
+  and must keep precise retirement meaning educational until an opaque
+  specialist reference, source date and legal year are complete.
 - Eight external production facts remain unproven: controller identity,
   operational privacy contact, Anthropic role/DPA, actual processing regions,
   transfer mechanism/TIA, retention/ZDR, AIPD decision, and the public
@@ -167,12 +178,13 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-17T13:47:10Z
+Last session: 2026-07-17T16:21:08Z
 
-Stopped at: COACH-01 is promoted at exact pushed SHA `fec1d4119e` with
-semantic RED 3/10, identical-command GREEN 14/14, Patrol 1/1, accepted visual
-proof and first-pass Opus audits. Continue only G1 with `G1-FRONT-01`; do not
-start G2/G3.
+Stopped at: FRONT-01 is promoted at exact pushed SHA `cb580c7a8` with corrected
+semantic RED 15/20, identical-command GREEN 20/20, a true physical Patrol RED,
+repaired Patrol 1/1, bounded visual proof, full Flutter/analyzer/Doctor and
+first-pass Opus audits. Continue only G1 with `G1-RET-REF-01`; do not start
+G2/G3.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-05-PLAN.md`. Do not infer

@@ -264,16 +264,16 @@
     },
     {
       "ticket_id": "G1-FRONT-01",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/models/frontier_canonical_fields_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "18e0918f66b20c2739107d624f19d8baa868037e",
+      "red_artifact": ".planning/runtime-evidence/phase-37/front-01/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "cb580c7a8522ee3728ea7ab8ce8faca46ef05497",
+      "green_artifact": ".planning/runtime-evidence/phase-37/front-01/green.json",
+      "accepted_sha": "cb580c7a8522ee3728ea7ab8ce8faca46ef05497"
     },
     {
       "ticket_id": "G1-RET-STATE-01",

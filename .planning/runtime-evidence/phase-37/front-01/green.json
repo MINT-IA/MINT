@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-FRONT-01",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/models/frontier_canonical_fields_test.dart --reporter expanded",
+  "sha": "cb580c7a8522ee3728ea7ab8ce8faca46ef05497",
+  "recorded_at": "2026-07-17T16:21:08Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "frontier_canonical_fields_test",
+  "output": "The identical registry command passed 20/20 predicates at the accepted pushed SHA. Residence country, work country and work canton remain typed, nullable and distinct; accepted provenance is required; permit/nationality/status infer nothing; work canton is known at 782 days and stale at 783; the real screen collects, persists and renders missing, known and specialist-only states; fiscal and social orientation stay separate; and invented defaults, the universal 90-day rule and personalized cross-border calculations remain quarantined. The promotion replay passed 20/20 with synthetic data only.",
+  "synthetic_data_only": true
+}

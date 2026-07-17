@@ -1,0 +1,11 @@
+{
+  "bundleId": "ch.mint.app",
+  "caseId": "G1-FRONT-01",
+  "commitSha": "cb580c7a8522ee3728ea7ab8ce8faca46ef05497",
+  "device": "<redacted>",
+  "logSha256": "5770f195fb929e0c456d0da3e24dd368d801d8c8d34b4bbcb9304ad5c06a9408",
+  "patrolTarget": "test/patrol/g1_front01_frontier_jurisdiction_runtime_test.dart",
+  "result": "passed",
+  "schemaVersion": 1,
+  "screenshotSha256": "1939c023b49866ddb77e83ce4948ab595965ad985bc8286f5631f570dbf33bae"
+}

@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-FRONT-01",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/models/frontier_canonical_fields_test.dart --reporter expanded",
+  "sha": "18e0918f66b20c2739107d624f19d8baa868037e",
+  "recorded_at": "2026-07-17T16:21:08Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "frontier_canonical_fields_test",
+  "output": "The identical registry command reached the real model, financial consumers and Frontalier screen at the corrected semantic RED commit. It passed 15 controls and failed 5 business predicates: the screen had no canonical provider consumer, no missing-state capture CTA, no canonical known state, no non-Swiss specialist-only state, and still retained invented defaults/legal calculators through ExpatService. These were semantic contract failures, not missing-file, import, syntax, fixture, command or harness failures. All profiles and values were synthetic.",
+  "synthetic_data_only": true
+}

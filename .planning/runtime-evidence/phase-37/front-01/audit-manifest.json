@@ -1,0 +1,87 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "tools/checks/claude_external_audit.sh code 757a5f375ea93f4424c98282f9c744182affea15",
+      "mode": "code",
+      "model": "opus",
+      "base_sha": "757a5f375ea93f4424c98282f9c744182affea15",
+      "head_sha": "cb580c7a8522ee3728ea7ab8ce8faca46ef05497",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/front-01/audit-code-opus-first-cb580c7a8.md",
+      "findings": [
+        {
+          "id": "CODE-FRONT-P2-DOMESTIC-GATE-LABEL",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "A ready domestic profile is routed away correctly but gateFrontalier reports employmentStatus as the missing-field label.",
+          "evidence": "The routing behavior is intentional and covered; refine the semantic label in a bounded readiness UX follow-up without reopening the canonical jurisdiction contract."
+        },
+        {
+          "id": "CODE-FRONT-P2-CANTON-ORDER",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The work-canton dropdown follows supportedValues insertion order rather than a display-sorted order.",
+          "evidence": "This is minor presentation polish; typed selection, persistence and legal quarantine are unaffected."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 2,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "tools/checks/claude_external_audit.sh product-domain 757a5f375ea93f4424c98282f9c744182affea15",
+      "mode": "product-domain",
+      "model": "opus",
+      "base_sha": "757a5f375ea93f4424c98282f9c744182affea15",
+      "head_sha": "cb580c7a8522ee3728ea7ab8ce8faca46ef05497",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/front-01/audit-product-domain-opus-first-cb580c7a8.md",
+      "findings": [
+        {
+          "id": "DOMAIN-FRONT-P2-ORDINARY-NET-ESTIMATE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "A permit-G profile without complete canonical jurisdiction can still receive the ordinary-tax fallback estimate when declared net income is absent.",
+          "evidence": "The result is conservative and labelled as an estimate; add an explicit ordinary-estimate qualifier or extend the product-context guard in a separate bounded slice."
+        },
+        {
+          "id": "DOMAIN-FRONT-P2-DOSSIER-EXPORT",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Specialist questions are visible on screen but this G1 slice does not yet export a transferable dossier.",
+          "evidence": "The screen is specialist-ready without claiming export; dossier/PDF delivery remains a later gated product phase and is not fabricated here."
+        },
+        {
+          "id": "DOMAIN-FRONT-P2-RUNTIME-PENDING",
+          "severity": "p2",
+          "status": "resolved",
+          "summary": "The audit checkout described exact-SHA Patrol runtime evidence as still pending.",
+          "evidence": "The dedicated exact-SHA Patrol run at cb580c7a8 already existed outside the tracked audit diff; promotion then archived its 1/1 PASS, final.png, sanitized metadata and log evidence."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 3,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}

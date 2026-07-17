@@ -49,7 +49,8 @@ only machine-evidence `green` is checked.
 - [x] **RDY-COACH-01**: Live salary, LPP and 3a coach amounts write canonical facts with exact units and provenance.
   Evidence: [`G1-COACH-01` verification](runtime-evidence/phase-37/coach-01/verification.md).
 - [ ] **RDY-COACH-02**: Valid route intent remains visible and recoverable when the profile is empty.
-- [ ] **RDY-FRONT-01**: Residence country, work country, and work canton are distinct.
+- [x] **RDY-FRONT-01**: Residence country, work country, and work canton are distinct.
+  Evidence: [`G1-FRONT-01` verification](runtime-evidence/phase-37/front-01/verification.md).
 - [ ] **RDY-RET-REF-01**: Retirement precision requires specialist-grade references.
 - [ ] **RDY-RET-STATE-01**: Unavailable retirement projections offer cause-specific target-date recovery without re-asking ready AVS facts.
 - [ ] **RDY-SUCCESSION-01**: Estate output never infers absent regime/instruments.

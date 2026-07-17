@@ -1,0 +1,29 @@
+00:00 +0: loading <REPO>/apps/mobile/test/models/frontier_canonical_fields_test.dart
+00:00 +0: RED harness reads the real production sources
+00:00 +1: three jurisdiction value objects are typed, nullable, and distinct
+00:00 +2: canonical answer keys own markers, source, timestamp, and date slot
+00:00 +3: each required jurisdiction fails closed without invented defaults
+00:00 +4: domestic, Geneva CDI, and 1983 candidate remain distinct
+00:00 +5: permit, nationality, residence canton, and status infer nothing
+00:00 +6: names and unknown jurisdiction codes are rejected
+00:00 +7: JSON reconstruction preserves jurisdiction values and provenance
+00:00 +8: copyWith preserves jurisdiction facts and supports explicit clearing
+00:00 +9: accepted provenance is required and future timestamps fail closed
+00:00 +10: country facts have no TTL but work canton crosses stale at 783 days
+00:00 +11: permit G cannot fabricate 3a eligibility
+00:00 +12: permit G without canonical jurisdictions is only partial readiness
+00:00 +13: live screen has a positive canonical ledger consumer
+00:00 +14: missing screen state offers a real coach capture CTA
+00:00 +15: known screen state is backed by canonical jurisdiction
+00:00 +16: non-Swiss work renders the specialist-only screen state
+00:00 +17: live screen quarantines invented defaults and legal calculators
+00:00 +18: free-margin behavior ignores permit G and closes canonical unknowns
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +19: net-income behavior is always the ordinary FiscalService path
+00:00 +20: All tests passed!

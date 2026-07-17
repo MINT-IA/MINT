@@ -1,0 +1,12 @@
+G1-FRONT-01 full Flutter regression summary
+sha=cb580c7a8522ee3728ea7ab8ce8faca46ef05497
+command=cd apps/mobile && flutter test --reporter compact
+exit_code=0
+duration=4m22s
+passed=9567
+skipped=44
+terminal=All other tests passed!
+raw_log_sha256=a45d70dfe2a0db24bb5d3380ab006b214a28440c94d505006331f371ab3dd8a5
+
+The 3.6 MB progress log was intentionally not copied into the repository.
+This bounded summary preserves its exact source hash and terminal counters.

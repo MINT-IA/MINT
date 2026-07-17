@@ -1,0 +1,27 @@
+G1-FRONT-01 semantic RED (bounded summary)
+sha=18e0918f66b20c2739107d624f19d8baa868037e
+command=cd apps/mobile && flutter test test/models/frontier_canonical_fields_test.dart --reporter expanded
+exit_code=1
+result=15 passed / 5 business predicates failed
+raw_log_sha256=4d58a16f8a444ad671a828669dc141037f301893f32e27803f3ff4e4613280f0
+
+Passing controls before the failures:
+- typed, nullable and distinct residence country, work country and work canton
+- canonical markers, provenance timestamp and source-date slot
+- fail-closed missing values and no inference from permit/nationality/canton/status
+- strict code validation, JSON/copyWith round-trip and explicit clearing
+- accepted non-future provenance; work canton known at 782 days and stale at 783
+- permit G does not fabricate 3a eligibility or complete jurisdiction readiness
+
+Semantic failures:
+1. live screen had no positive CoachProfileProvider ledger consumer
+2. missing screen state had no real coach capture CTA
+3. known screen state was not backed by canonical jurisdiction
+4. non-Swiss work had no specialist-only state
+5. live screen retained ExpatService, invented defaults and legal calculators
+
+The identical command reached real production sources and widget states. These
+were not missing-file, import, syntax, fixture, command or harness failures.
+The full raw log was intentionally not retained because matcher output embedded
+the entire legacy screen source; its source hash above binds this bounded copy.
+All profiles and values were synthetic.
