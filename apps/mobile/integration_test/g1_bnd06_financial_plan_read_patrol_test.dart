@@ -56,6 +56,18 @@ void main() {
       await $(
         find.bySemanticsIdentifier('financial_plan_stale_recalculate'),
       ).tap();
+      final retirementHorizon = $(
+        find.bySemanticsIdentifier('financial_plan_setup_retirement_horizon'),
+      );
+      await retirementHorizon.scrollTo();
+      await retirementHorizon.waitUntilVisible();
+      await retirementHorizon.tap();
+      final retirementContinue = $(
+        find.bySemanticsIdentifier('financial_plan_setup_retirement_continue'),
+      );
+      await retirementContinue.scrollTo();
+      await retirementContinue.waitUntilVisible();
+      await retirementContinue.tap();
       final reviewButton = $(
         find.bySemanticsIdentifier('financial_plan_setup_review'),
       );

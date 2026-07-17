@@ -15,6 +15,22 @@ name: G1 BND-06 persisted financial plan staleness recovery
     id: "financial_plan_stale_recalculate"
 - scrollUntilVisible:
     element:
+      id: "financial_plan_setup_retirement_horizon"
+    direction: DOWN
+- assertVisible:
+    id: "financial_plan_setup_retirement_horizon"
+- tapOn:
+    id: "financial_plan_setup_retirement_horizon"
+- scrollUntilVisible:
+    element:
+      id: "financial_plan_setup_retirement_continue"
+    direction: DOWN
+- assertVisible:
+    id: "financial_plan_setup_retirement_continue"
+- tapOn:
+    id: "financial_plan_setup_retirement_continue"
+- scrollUntilVisible:
+    element:
       id: "financial_plan_setup_review"
     direction: DOWN
 - assertVisible:

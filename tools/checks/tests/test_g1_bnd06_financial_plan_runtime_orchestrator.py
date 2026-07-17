@@ -452,6 +452,10 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
     for anchor in (
         "financial_plan_stale_state",
         "financial_plan_stale_recalculate",
+        "financial_plan_setup_retirement_horizon",
+        "await retirementHorizon.tap();",
+        "financial_plan_setup_retirement_continue",
+        "await retirementContinue.tap();",
         "financial_plan_setup_review",
         "financial_plan_setup_confirmation",
         "financial_plan_setup_confirm",
@@ -471,6 +475,8 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
         AMOUNT,
     ):
         assert anchor in reader, anchor
+    assert "financial_plan_setup_retirement_scope" not in reader
+    assert "financial_plan_setup_return_assumption" not in reader
     assert not re.search(r"applySaveFact\(\s*['\"]incomeGrossMonthly['\"]", reader)
     date_mutations = list(
         re.finditer(r"applySaveFact\(\s*['\"]dateOfBirth['\"]", reader)
@@ -488,7 +494,13 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
     ):
         assert reader.count(preserved) >= 2, preserved
     recovery = reader.index("financial_plan_stale_recalculate")
-    review = reader.index("financial_plan_setup_review", recovery)
+    horizon = reader.index("financial_plan_setup_retirement_horizon", recovery)
+    horizon_tap = reader.index("await retirementHorizon.tap();", horizon)
+    retirement_continue = reader.index(
+        "financial_plan_setup_retirement_continue", horizon_tap
+    )
+    continue_tap = reader.index("await retirementContinue.tap();", retirement_continue)
+    review = reader.index("financial_plan_setup_review", continue_tap)
     confirmation = reader.index("financial_plan_setup_confirmation", review)
     confirm = reader.index("'financial_plan_setup_confirm'", confirmation)
     new_id = reader.index("isNot(initialPlanId)")
@@ -499,6 +511,10 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
     final_stale = reader.index("financial_plan_stale_state", second_mutation)
     assert (
         recovery
+        < horizon
+        < horizon_tap
+        < retirement_continue
+        < continue_tap
         < review
         < confirmation
         < confirm
@@ -525,6 +541,8 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
         "home_route",
         "financial_plan_stale_state",
         "financial_plan_stale_recalculate",
+        "financial_plan_setup_retirement_horizon",
+        "financial_plan_setup_retirement_continue",
         "financial_plan_setup_review",
         "financial_plan_setup_confirmation",
         "financial_plan_setup_confirm",
@@ -536,9 +554,13 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
     assert "clearState: true" not in contents
     assert "/Users/" not in contents
     assert "MINT_LPP_PRIVATE_MANIFEST" not in contents
+    assert "financial_plan_setup_retirement_scope" not in contents
+    assert "financial_plan_setup_return_assumption" not in contents
 
     absent = {"assertNotVisible": MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN}
     tap = {"tapOn": {"id": "financial_plan_stale_recalculate"}}
+    horizon_tap = {"tapOn": {"id": "financial_plan_setup_retirement_horizon"}}
+    continue_tap = {"tapOn": {"id": "financial_plan_setup_retirement_continue"}}
     review_visible = {"assertVisible": {"id": "financial_plan_setup_review"}}
     review_tap = {"tapOn": {"id": "financial_plan_setup_review"}}
     confirmation = {"assertVisible": {"id": "financial_plan_setup_confirmation"}}
@@ -550,6 +572,8 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
     assert (
         steps.index(absent)
         < steps.index(tap)
+        < steps.index(horizon_tap)
+        < steps.index(continue_tap)
         < steps.index(review_visible)
         < steps.index(review_tap)
         < steps.index(confirmation)
