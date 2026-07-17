@@ -581,27 +581,30 @@ Clés interdites dans ce value object : `filename`, `path`, `bytes`, `ocrText`,
 
 | Champ | `kind` | Complément obligatoire | Fraîcheur/invalidation | Sortie autorisée quand complet |
 |---|---|---|---|---|
-| `lppRegulationReference` | `lppRegulation` | tuple commun complet | annuelle ; changement de caisse ou nouveau règlement invalide | « règlement identifié pour l'année », sans interpréter une option |
-| `lppCapitalNoticeDeadline` | `lppCapitalNotice` | tuple commun + `deadlineDate` explicite lue dans ce règlement/avis | annuelle ; changement de caisse/règlement ou délai échu invalide l'actionnabilité | date citée comme exigence de la caisse, jamais comme délai légal suisse |
-| `pillar3aBeneficiaryClause` | `pillar3aBeneficiaryClause` | tuple commun + prestataire/contrat lié par référence opaque | événement-statique, mais changement de contrat, situation familiale ou `legalYear` invalide | ordre/clause « selon le document confirmé », sans conseil successoral |
-| `latestTaxDecisionReference` | `taxAssessmentDecision` | tuple commun + `taxYear`, `jurisdiction` et `subject` cohérents avec le `TaxSnapshot` évalué | annuelle ; nouvelle décision ou divergence provisoire/définitive invalide | décision de base identifiée, sans calcul ni extension à une autre période |
+| `lppRegulationReference` | `lppRegulation` | tuple commun complet + liaison d'autorité courante | persiste jusqu'au changement de caisse/plan ou au remplacement du règlement ; aucun TTL au 1er janvier | « règlement identifié pour l'année juridique indiquée », sans interpréter une option |
+| `lppCapitalNoticeDeadline` | `lppCapitalNotice` | tuple commun + `deadlineDate` explicite lue dans ce règlement/avis | délai échu ou avis/règlement/caisse remplacé ; aucun TTL annuel distinct de la date | date citée comme exigence de la caisse, jamais comme délai légal suisse |
+| `pillar3aBeneficiaryClause` | `pillar3aBeneficiaryClause` | tuple commun + prestataire/contrat lié par référence opaque | contrat, désignation, prestataire ou situation familiale modifié, ou règle juridique effectivement entrée en vigueur | ordre/clause « selon le document confirmé », sans conseil successoral |
+| `latestTaxDecisionReference` | `taxAssessmentDecision` | tuple commun + `referenceId == TaxSnapshot.snapshotId` + `taxYear`, `jurisdiction` et `subject` cohérents | décision rectifiée, annulée ou remplacée, ou identité/contexte du `TaxSnapshot` divergent ; aucun TTL annuel | décision de base identifiée, sans calcul ni extension à une autre période |
 
 Pour `lppCapitalNoticeDeadline`, `deadlineDate` est une donnée du document de
 la caisse. La loi et l'OFAS n'autorisent pas MINT à remplacer cette donnée par
 « trois mois », « six mois » ou toute autre constante.
 
-`legalYear` n'est ni `DateTime.now().year`, ni l'année de `confirmedAt`.
-`sourceDate` et `confirmedAt` doivent être non futurs. Une date source absente,
-un owner absent, une source autre que `certificate`, un `kind` divergent ou un
-identifiant non canonique ferme le prédicat de précision.
+`legalYear` est la provenance/version juridique sous laquelle le fait est lu ;
+ce n'est jamais un TTL comparé automatiquement à `asOf.year`, ni l'année de
+`confirmedAt`. Pour une décision de taxation portant sur 2025 et émise en
+2026, `legalYear = taxYear = 2025`, tandis que `sourceDate` porte la date 2026
+de la décision. `sourceDate` et `confirmedAt` doivent être non futurs. Une date
+source absente, un owner absent, une source autre que `certificate`, un `kind`
+divergent ou un identifiant non canonique ferme le prédicat de précision.
 
 ## 18. États et prédicats fail-closed
 
 | État | Définition | Comportement MINT |
 |---|---|---|
-| `known` | tuple complet, autorité opaque résolue, dates non futures, owner/kind cohérents, année applicable | exposer le fait référencé et ses limites |
+| `known` | tuple complet, autorité opaque courante résolue, dates non futures, owner/kind cohérents et aucun événement invalidant connu | exposer le fait référencé et ses limites |
 | `missing` | champ ou élément du tuple absent | explication générale + question ciblée |
-| `stale` | règle annuelle hors période, caisse/contrat modifié, décision remplacée ou délai échu | montrer l'ancienne référence, demander confirmation, masquer la précision |
+| `stale` | liaison de caisse/plan/règlement remplacée, délai échu, contrat/désignation/prestataire/famille modifié, règle effectivement entrée en vigueur ou décision fiscale remplacée | montrer l'ancienne référence, demander confirmation, masquer la précision |
 | `conflict` | deux autorités actuelles et divergentes pour le même owner/kind/période | aucune sélection par `updatedAt` ou UUID ; demander arbitrage |
 | `invalid` | source, date, ID, owner, kind ou payload non conforme | rejeter sans hydratation partielle |
 
@@ -610,6 +613,10 @@ ne complète ni la clause 3a ni la décision fiscale. Le résultat global demeur
 `educationalOnly` tant que la référence exigée par la phrase précise n'est pas
 `known`. Aucune référence ne rend un montant, un taux ou une recommandation
 « vérifié » à elle seule.
+
+Une reconfirmation annuelle peut exister comme politique UX de fraîcheur, mais
+elle doit être portée par son propre contrat et ses propres dates. Elle ne peut
+pas être déduite de l'inégalité entre `legalYear` et l'année civile de `asOf`.
 
 ## 19. Fixtures synthétiques RED → GREEN
 
@@ -620,13 +627,13 @@ ne complète ni la clause 3a ni la décision fiscale. Le résultat global demeur
 | RETREF-D03 | UUID valide + `updatedAt`, sans `sourceDate` | faux |
 | RETREF-D04 | tuple complet mais `source=userInput` | faux |
 | RETREF-D05 | tuple complet avec date future | faux |
-| RETREF-D06 | règlement LPP complet, année 2026, owner self | règlement connu ; les trois autres restent faux |
+| RETREF-D06 | règlement LPP complet, `legalYear=2026`, owner self, même autorité évaluée en 2027 sans remplacement | règlement connu ; le changement d'année seul ne le périme pas et les trois autres restent faux |
 | RETREF-D07 | `deadlineDate` seule ou délai constant du code | faux |
 | RETREF-D08 | avis/règlement complet avec délai explicite de caisse | délai connu et attribué à la caisse |
-| RETREF-D09 | clause 3a 2026 complète, évaluée en 2027 sans reconfirmation | stale ; aucune conclusion bénéficiaire |
-| RETREF-D10 | clause 3a complète pour l'année évaluée | clause connue, sans recommandation |
-| RETREF-D11 | décision fiscale complète mais période/juridiction divergente du `TaxSnapshot` | conflict ou missing, jamais sélection silencieuse |
-| RETREF-D12 | décision complète, définitive, même période/juridiction/subject | référence connue, aucun taux inventé |
+| RETREF-D09 | clause 3a complète, puis contrat/désignation/prestataire/famille modifié ou règle différente effectivement entrée en vigueur, notamment au 1er juin 2027 | stale ; aucune conclusion bénéficiaire ; le seul passage au 1er janvier ne suffit pas |
+| RETREF-D10 | clause 3a complète, contrat courant et aucun événement invalidant connu, évaluée après un simple changement d'année civile | référence connue selon le document confirmé, sans recommandation ni conclusion successorale |
+| RETREF-D11 | décision fiscale complète mais UUID, période, juridiction ou subject divergent du `TaxSnapshot` exact | conflict ou missing, jamais sélection silencieuse |
+| RETREF-D12 | décision 2025 définitive, `inForce` et attestée, émise en 2026, avec `legalYear=taxYear=2025`, `sourceDate` en 2026 et `referenceId == snapshotId` exact | référence connue même après changement d'année civile, aucun taux inventé |
 | RETREF-D13 | sérialisation puis reconstruction des quatre références | mêmes tuples et mêmes états |
 | RETREF-D14 | payload JSON contenant contenu OCR ou chemin local | rejet du payload entier |
 | RETREF-D15 | deux références divergentes de même rang | conflict ; l'UUID ou `updatedAt` ne départage pas |
@@ -657,9 +664,31 @@ owners, états de fraîcheur, hypothèses et questions ouvertes. Tout export du
 document brut exige un autre consentement, un autre contrat de minimisation et
 une preuve de destinataire ; RET-REF-01 ne l'autorise pas.
 
+## 21. Addendum d'arbitrage de fraîcheur — 2026-07-17
+
+Cet addendum remplace la formulation « annuelle » des anciennes tables et la
+fixture qui assimilait tout passage de 2026 à 2027 à une péremption. `asOf`
+reste requis pour rejeter une source ou une confirmation future et pour
+constater l'échéance explicite d'un avis ; il ne transforme jamais
+`legalYear` en date d'expiration calendaire.
+
+La modification OPP 3 annoncée pour le 1er juin 2027 confirme cette frontière :
+un millésime ne distingue pas les règles applicables avant et après une entrée
+en vigueur intra-annuelle. Le writer ou le consumer doit donc apporter
+l'événement d'autorité pertinent — remplacement caisse/plan/règlement,
+contrat/désignation/prestataire/famille modifié, nouvelle règle entrée en
+vigueur ou décision fiscale remplacée — et retomber sur `educationalOnly` si
+ce contexte manque ou diverge.
+
+Pour la fiscalité, la référence réutilise exactement l'UUID du `TaxSnapshot`
+autorisé. Elle n'est `known` que pour un `assessmentNotice` `inForce`, attesté,
+avec `sourceDate`, `taxYear`, canton et subject complets et cohérents. Une
+décision concernant 2025 conserve `legalYear=2025` même si sa date de décision
+est en 2026 ; elle ne devient pas périmée au 1er janvier suivant.
+
 ## Key Learnings RET-REF-01
 
 1. Le délai de demande du capital LPP est fixé par l'institution de prévoyance ; MINT ne doit jamais en inventer un universel.
-2. La modification OPP 3 annoncée pour le 1er juin 2027 rend `legalYear` indispensable à toute signification de bénéficiaire 3a.
+2. La modification OPP 3 annoncée pour le 1er juin 2027 rend `legalYear` indispensable comme provenance, mais insuffisant comme TTL ; l'entrée en vigueur effective doit piloter l'invalidation.
 3. Une référence opaque prouve une liaison documentaire, pas la vérité d'un montant, d'un taux ou d'un conseil.
 4. Les quatre références restent indépendantes et toute précision manquante, périmée ou conflictuelle retombe sur `educationalOnly`.
