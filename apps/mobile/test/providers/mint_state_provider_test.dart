@@ -6,11 +6,15 @@
 // Golden couple reference (CLAUDE.md §8):
 //   Julien: birthYear=1977, salaireBrut=122207 CHF/an, canton=VS
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/services/mint_state_engine.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -71,23 +75,59 @@ void main() {
   });
 
   group('MintStateProvider — clear()', () {
-    test('clear resets state and notifies listeners', () {
+    test('clear resets state and notifies listeners', () async {
       final provider = MintStateProvider();
       int notifyCount = 0;
       provider.addListener(() => notifyCount++);
 
-      provider.clear();
+      await provider.clear();
 
       expect(provider.state, isNull);
       expect(provider.hasState, isFalse);
       expect(notifyCount, equals(1));
     });
 
-    test('clear after clear does not crash', () {
+    test('clear after clear does not crash', () async {
       final provider = MintStateProvider();
-      provider.clear();
-      expect(() => provider.clear(), returnsNormally);
+      await provider.clear();
+      await expectLater(provider.clear(), completes);
     });
+
+    test(
+      'delayed old recompute cannot republish state or insight cache after termination',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('mint_precomputed_insight_v1', 'old-cache');
+        final epoch = SessionEpoch();
+        final computeGate = Completer<void>();
+        final provider = MintStateProvider(
+          sessionEpoch: epoch,
+          computeState: (profile, preferences) async {
+            await computeGate.future;
+            return MintStateEngine.compute(
+              profile: profile,
+              prefs: preferences,
+            );
+          },
+        );
+        addTearDown(provider.dispose);
+
+        final oldWork = provider.recompute(_profileA());
+        await Future<void>.delayed(Duration.zero);
+        expect(provider.isRecomputing, isTrue);
+
+        epoch.beginTermination();
+        await provider.clear();
+        await Future<void>.delayed(Duration.zero);
+        computeGate.complete();
+        await oldWork;
+
+        expect(provider.state, isNull);
+        expect(provider.hasState, isFalse);
+        expect(provider.isRecomputing, isFalse);
+        expect(prefs.getString('mint_precomputed_insight_v1'), isNull);
+      },
+    );
   });
 
   group('MintStateProvider — profile identity guard (Bug 2)', () {
@@ -135,7 +175,8 @@ void main() {
       await provider.recompute(profile);
 
       expect(notifyCount, equals(countAfterFirst),
-          reason: 'recompute with the identical profile reference must be a no-op');
+          reason:
+              'recompute with the identical profile reference must be a no-op');
     });
 
     test('recompute with a different profile triggers a new computation',
@@ -158,7 +199,8 @@ void main() {
               'recompute with a different profile must trigger a new computation');
     });
 
-    test('clear resets the identity guard — same profile recomputes after clear',
+    test(
+        'clear resets the identity guard — same profile recomputes after clear',
         () async {
       final provider = MintStateProvider();
       int notifyCount = 0;
@@ -173,8 +215,9 @@ void main() {
       expect(notifyCount, equals(countAfterFirst));
 
       // Clear resets the guard.
-      provider.clear();
-      final countAfterClear = notifyCount; // clear itself fires one notification.
+      await provider.clear();
+      final countAfterClear =
+          notifyCount; // clear itself fires one notification.
 
       // After clear, same profile value must trigger a fresh computation.
       await provider.recompute(_profileADuplicate());

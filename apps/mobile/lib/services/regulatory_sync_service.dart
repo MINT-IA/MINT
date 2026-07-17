@@ -38,6 +38,11 @@ class RegulatorySyncService {
   /// false when fetched fresh from the backend API.
   static bool _isFromDisk = false;
 
+  static final ValueNotifier<int> _revision = ValueNotifier<int>(0);
+
+  static int get revision => _revision.value;
+  static ValueListenable<int> get revisionListenable => _revision;
+
   /// Load cached constants from SharedPreferences (disk).
   ///
   /// Call this BEFORE [fetchConstants] at app startup so that [reg()]
@@ -48,15 +53,15 @@ class RegulatorySyncService {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_spKey);
       if (raw != null) {
-        _cachedConstants = Map<String, double>.from(
+        final constants = Map<String, double>.from(
           (jsonDecode(raw) as Map).map(
             (k, v) => MapEntry(k.toString(), (v as num).toDouble()),
           ),
         );
-        _isFromDisk = true;
+        _installSnapshot(constants, const <String, dynamic>{}, fromDisk: true);
       }
-    } catch (e) {
-      debugPrint('RegulatorySyncService: loadFromDisk failed — $e');
+    } catch (_) {
+      debugPrint('[RegulatorySync] load_failed revision=$revision');
     }
   }
 
@@ -67,25 +72,25 @@ class RegulatorySyncService {
   static Future<Map<String, double>> fetchConstants() async {
     try {
       final response = await ApiService.get('/regulatory/constants');
-      // Store raw response for list-type values (e.g. Echelle 44).
-      _rawCache = Map<String, dynamic>.from(response);
       final constants = _parseConstants(response);
       if (constants.isNotEmpty) {
-        _cachedConstants = constants;
-        _lastSyncAt = DateTime.now();
-        _isFromDisk = false;
+        _installSnapshot(
+          constants,
+          Map<String, dynamic>.from(response),
+          fromDisk: false,
+        );
 
         // Persist to SharedPreferences for cold-start access.
         try {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString(_spKey, jsonEncode(constants));
-        } catch (e) {
-          debugPrint('RegulatorySyncService: persist to SP failed — $e');
+        } catch (_) {
+          debugPrint('[RegulatorySync] persist_failed revision=$revision');
         }
       }
       return constants;
-    } catch (e) {
-      debugPrint('RegulatorySyncService: fetch failed, using fallback — $e');
+    } catch (_) {
+      debugPrint('[RegulatorySync] fetch_failed revision=$revision');
       return _cachedConstants ?? {};
     }
   }
@@ -103,8 +108,8 @@ class RegulatorySyncService {
       final response = await ApiService.get('/regulatory/constants/$key');
       final value = response['value'] as num?;
       return value?.toDouble();
-    } catch (e) {
-      debugPrint('RegulatorySyncService: fetch "$key" failed — $e');
+    } catch (_) {
+      debugPrint('[RegulatorySync] fetch_one_failed revision=$revision');
       return null;
     }
   }
@@ -172,8 +177,8 @@ class RegulatorySyncService {
           .map((p) => (p as Map<String, dynamic>)['key'] as String? ?? '')
           .where((k) => k.isNotEmpty)
           .toList();
-    } catch (e) {
-      debugPrint('RegulatorySyncService: freshness check failed — $e');
+    } catch (_) {
+      debugPrint('[RegulatorySync] freshness_failed revision=$revision');
       return [];
     }
   }
@@ -190,9 +195,27 @@ class RegulatorySyncService {
   /// Inject mock constants into the cache (useful for testing).
   @visibleForTesting
   static void setMockCache(Map<String, double> constants) {
-    _cachedConstants = Map<String, double>.from(constants);
+    _installSnapshot(
+      Map<String, double>.from(constants),
+      const <String, dynamic>{},
+      fromDisk: false,
+    );
+  }
+
+  static void _installSnapshot(
+    Map<String, double> constants,
+    Map<String, dynamic> rawCache, {
+    required bool fromDisk,
+  }) {
+    final changed = !mapEquals(_cachedConstants, constants) ||
+        jsonEncode(_rawCache) != jsonEncode(rawCache);
+    _cachedConstants = Map<String, double>.unmodifiable(constants);
+    _rawCache = Map<String, dynamic>.unmodifiable(rawCache);
     _lastSyncAt = DateTime.now();
-    _isFromDisk = false;
+    _isFromDisk = fromDisk;
+    if (changed) {
+      _revision.value = _revision.value + 1;
+    }
   }
 
   /// Parse the /regulatory/constants response into a flat key -> value map.

@@ -197,5 +197,44 @@ void main() {
         isNotNull,
       );
     });
+
+    test('cold selector uses Zurich civil midnight in CEST and CET', () {
+      for (final boundary in <({
+        String sourceDate,
+        DateTime beforeLocalMidnight,
+        DateTime afterLocalMidnight,
+      })>[
+        (
+          sourceDate: '2026-07-16',
+          beforeLocalMidnight: DateTime.utc(2026, 7, 15, 21, 59),
+          afterLocalMidnight: DateTime.utc(2026, 7, 15, 22, 1),
+        ),
+        (
+          sourceDate: '2027-01-01',
+          beforeLocalMidnight: DateTime.utc(2026, 12, 31, 22, 59),
+          afterLocalMidnight: DateTime.utc(2026, 12, 31, 23, 1),
+        ),
+      ]) {
+        final raw = jsonEncode(_validRoot(sourceDate: boundary.sourceDate));
+
+        expect(
+          LppEvidenceSelector.selectSelf(
+            raw,
+            now: () => boundary.beforeLocalMidnight,
+          ),
+          isNull,
+          reason:
+              '${boundary.sourceDate} is tomorrow in Zurich before midnight',
+        );
+        expect(
+          LppEvidenceSelector.selectSelf(
+            raw,
+            now: () => boundary.afterLocalMidnight,
+          ),
+          isNotNull,
+          reason: '${boundary.sourceDate} is today in Zurich after midnight',
+        );
+      }
+    });
   });
 }

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -188,6 +189,7 @@ class DocumentProvider extends ChangeNotifier {
   final DocumentReferenceStore _referenceStore;
   final DateTime Function() _now;
   final Uuid _uuid;
+  final SessionEpoch _sessionEpoch;
 
   List<DocumentSummary> _documents = [];
   List<ConfirmedDocumentReference> _references = const [];
@@ -199,6 +201,7 @@ class DocumentProvider extends ChangeNotifier {
   String? _error;
   CoachProfileProvider? _ledger;
   Future<void>? _referenceHydration;
+  int? _referenceHydrationGeneration;
   Future<void>? _referenceMutationTail;
 
   DocumentProvider({
@@ -206,10 +209,12 @@ class DocumentProvider extends ChangeNotifier {
     DocumentReferenceStore? referenceStore,
     DateTime Function()? now,
     Uuid? uuid,
+    SessionEpoch? sessionEpoch,
   })  : _service = service ?? DocumentService(),
         _referenceStore = referenceStore ?? DocumentReferenceStore(),
         _now = now ?? DateTime.now,
-        _uuid = uuid ?? const Uuid();
+        _uuid = uuid ?? const Uuid(),
+        _sessionEpoch = sessionEpoch ?? SessionEpoch();
 
   // ──────────────────────────────────────────────────────────
   // Getters
@@ -250,30 +255,49 @@ class DocumentProvider extends ChangeNotifier {
     ledger.addListener(_onLedgerChanged);
   }
 
-  void _onLedgerChanged() => notifyListeners();
+  void _onLedgerChanged() {
+    if (_sessionEpoch.isTerminationBlocked) return;
+    notifyListeners();
+  }
 
   Future<void> hydrateReferences() {
     if (referencesHydrated) return Future.value();
+    final generation = _sessionEpoch.generation;
     final pending = _referenceHydration;
-    if (pending != null) return pending;
-    final hydration = _hydrateReferences();
+    if (pending != null && _referenceHydrationGeneration == generation) {
+      return pending;
+    }
+    late final SessionEpochGuard guard;
+    try {
+      guard = _sessionEpoch.capture();
+    } on SessionEpochInvalidated {
+      return Future.value();
+    }
+    final hydration = _hydrateReferences(guard);
     _referenceHydration = hydration;
+    _referenceHydrationGeneration = generation;
     return hydration.whenComplete(() {
       if (identical(_referenceHydration, hydration)) {
         _referenceHydration = null;
+        _referenceHydrationGeneration = null;
       }
     });
   }
 
-  Future<void> _hydrateReferences() async {
+  Future<void> _hydrateReferences(SessionEpochGuard guard) async {
+    guard.assertCurrent();
     _referenceHydrationState = DocumentReferenceHydrationState.loading;
     notifyListeners();
     try {
       final loaded = await _referenceStore.load();
+      guard.assertCurrent();
       _references = loaded;
       _referenceHydrationState = DocumentReferenceHydrationState.ready;
       notifyListeners();
+    } on SessionEpochInvalidated {
+      return;
     } on Object {
+      guard.assertCurrent();
       _referenceHydrationState = DocumentReferenceHydrationState.failed;
       notifyListeners();
       rethrow;
@@ -306,50 +330,65 @@ class DocumentProvider extends ChangeNotifier {
 
   Future<ConfirmedDocumentReference> recordConfirmedLppReview(
     LppReviewReceipt receipt,
-  ) =>
-      _serializeReferenceMutation(() async {
-        final ledger = _ledger;
-        if (ledger == null || !ledger.isLoaded) {
-          throw StateError('Document reference ledger is unavailable');
+  ) {
+    final guard = _sessionEpoch.capture();
+    return _serializeReferenceMutation(() async {
+      guard.assertCurrent();
+      final ledger = _ledger;
+      if (ledger == null || !ledger.isLoaded) {
+        throw StateError('Document reference ledger is unavailable');
+      }
+      if (!ledger.matchesAcceptedLppReceipt(receipt)) {
+        throw StateError('LPP receipt does not match the current ledger');
+      }
+      await hydrateReferences();
+      guard.assertCurrent();
+      for (final reference in _references) {
+        if (reference.kind == ConfirmedDocumentReference.lppKind &&
+            reference.ownerKind == receipt.ownerKind &&
+            reference.snapshotId == receipt.snapshotId) {
+          return reference;
         }
-        if (!ledger.matchesAcceptedLppReceipt(receipt)) {
-          throw StateError('LPP receipt does not match the current ledger');
-        }
-        await hydrateReferences();
-        for (final reference in _references) {
-          if (reference.kind == ConfirmedDocumentReference.lppKind &&
-              reference.ownerKind == receipt.ownerKind &&
-              reference.snapshotId == receipt.snapshotId) {
-            return reference;
-          }
-        }
-        final reference = ConfirmedDocumentReference(
-          referenceId: _uuid.v4(),
-          kind: ConfirmedDocumentReference.lppKind,
-          snapshotId: receipt.snapshotId,
-          ownerKind: receipt.ownerKind,
-          confirmedAt: _now().toUtc(),
-        );
-        final nextReferences = List<ConfirmedDocumentReference>.unmodifiable(
-          <ConfirmedDocumentReference>[..._references, reference],
-        );
-        await _referenceStore.save(nextReferences);
-        _references = nextReferences;
-        notifyListeners();
-        return reference;
-      });
+      }
+      final reference = ConfirmedDocumentReference(
+        referenceId: _uuid.v4(),
+        kind: ConfirmedDocumentReference.lppKind,
+        snapshotId: receipt.snapshotId,
+        ownerKind: receipt.ownerKind,
+        confirmedAt: _now().toUtc(),
+      );
+      final nextReferences = List<ConfirmedDocumentReference>.unmodifiable(
+        <ConfirmedDocumentReference>[..._references, reference],
+      );
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => _referenceStore.save(nextReferences),
+      );
+      guard.assertCurrent();
+      _references = nextReferences;
+      notifyListeners();
+      return reference;
+    });
+  }
 
-  Future<void> deleteConfirmedReference(String referenceId) =>
-      _serializeReferenceMutation(() async {
-        await hydrateReferences();
-        final nextReferences = _references
-            .where((reference) => reference.referenceId != referenceId)
-            .toList(growable: false);
-        if (nextReferences.length == _references.length) return;
-        await _referenceStore.save(nextReferences);
-        _references = List.unmodifiable(nextReferences);
-        notifyListeners();
-      });
+  Future<void> deleteConfirmedReference(String referenceId) {
+    final guard = _sessionEpoch.capture();
+    return _serializeReferenceMutation(() async {
+      await hydrateReferences();
+      guard.assertCurrent();
+      final nextReferences = _references
+          .where((reference) => reference.referenceId != referenceId)
+          .toList(growable: false);
+      if (nextReferences.length == _references.length) return;
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => _referenceStore.save(nextReferences),
+      );
+      guard.assertCurrent();
+      _references = List.unmodifiable(nextReferences);
+      notifyListeners();
+    });
+  }
 
   Future<T> _serializeReferenceMutation<T>(
     Future<T> Function() operation,
@@ -392,6 +431,7 @@ class DocumentProvider extends ChangeNotifier {
     String filePath, {
     VaultDocumentType type = VaultDocumentType.lppCertificate,
   }) async {
+    final guard = _sessionEpoch.capture();
     _isUploading = true;
     _error = null;
     _lastUploadResult = null;
@@ -400,22 +440,32 @@ class DocumentProvider extends ChangeNotifier {
     try {
       final file = File(filePath);
       final result = await _service.uploadDocument(file, type: type);
+      guard.assertCurrent();
       _lastUploadResult = result;
       // Refresh documents list after upload
-      await _loadDocumentsSilently();
+      await _loadDocumentsSilently(guard);
+    } on SessionEpochInvalidated {
+      return;
     } on DocumentServiceException catch (e) {
+      guard.assertCurrent();
       _error = e.message;
       if (kDebugMode) {
         debugPrint('DocumentProvider: Upload error: ${e.message}');
       }
     } catch (e) {
+      guard.assertCurrent();
       _error = 'Une erreur est survenue lors de l\'upload.';
       if (kDebugMode) {
         debugPrint('DocumentProvider: Unexpected upload error: $e');
       }
     } finally {
-      _isUploading = false;
-      notifyListeners();
+      try {
+        guard.assertCurrent();
+        _isUploading = false;
+        notifyListeners();
+      } on SessionEpochInvalidated {
+        // Session termination owns the cleared state.
+      }
     }
   }
 
@@ -425,32 +475,48 @@ class DocumentProvider extends ChangeNotifier {
 
   /// Load the list of uploaded documents from the backend.
   Future<void> loadDocuments() async {
+    final guard = _sessionEpoch.capture();
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _documents = await _service.listDocuments();
+      final documents = await _service.listDocuments();
+      guard.assertCurrent();
+      _documents = documents;
+    } on SessionEpochInvalidated {
+      return;
     } on DocumentServiceException catch (e) {
+      guard.assertCurrent();
       _error = e.message;
       if (kDebugMode) {
         debugPrint('DocumentProvider: Load error: ${e.message}');
       }
     } catch (e) {
+      guard.assertCurrent();
       _error = 'Impossible de charger les documents.';
       if (kDebugMode) {
         debugPrint('DocumentProvider: Unexpected load error: $e');
       }
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      try {
+        guard.assertCurrent();
+        _isLoading = false;
+        notifyListeners();
+      } on SessionEpochInvalidated {
+        // Session termination owns the cleared state.
+      }
     }
   }
 
   /// Internal silent load (no loading indicator) after upload.
-  Future<void> _loadDocumentsSilently() async {
+  Future<void> _loadDocumentsSilently(SessionEpochGuard guard) async {
     try {
-      _documents = await _service.listDocuments();
+      final documents = await _service.listDocuments();
+      guard.assertCurrent();
+      _documents = documents;
+    } on SessionEpochInvalidated {
+      return;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('DocumentProvider: Silent load error: $e');
@@ -464,11 +530,13 @@ class DocumentProvider extends ChangeNotifier {
 
   /// Delete a document by ID and refresh the list.
   Future<bool> deleteDocument(String id) async {
+    final guard = _sessionEpoch.capture();
     _error = null;
     notifyListeners();
 
     try {
       final success = await _service.deleteDocument(id);
+      guard.assertCurrent();
       if (success) {
         _documents.removeWhere((d) => d.id == id);
         // If we just deleted the document from the last upload result, clear it
@@ -480,6 +548,7 @@ class DocumentProvider extends ChangeNotifier {
       }
       return false;
     } on DocumentServiceException catch (e) {
+      guard.assertCurrent();
       _error = e.message;
       if (kDebugMode) {
         debugPrint('DocumentProvider: Delete error: ${e.message}');
@@ -487,6 +556,7 @@ class DocumentProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
+      guard.assertCurrent();
       _error = 'Impossible de supprimer le document.';
       if (kDebugMode) {
         debugPrint('DocumentProvider: Unexpected delete error: $e');
@@ -521,6 +591,8 @@ class DocumentProvider extends ChangeNotifier {
     _error = null;
     _references = const [];
     _referenceHydrationState = DocumentReferenceHydrationState.idle;
+    _referenceHydration = null;
+    _referenceHydrationGeneration = null;
     notifyListeners();
   }
 

@@ -5,10 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:mint_mobile/services/api_service.dart';
-import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/authenticated_transport.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
-import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCall;
+import 'package:mint_mobile/services/rag_service.dart'
+    show RagSource, RagToolCall;
 
 /// HTTP client for POST /api/v1/coach/chat — the server-key tier.
 ///
@@ -19,9 +20,13 @@ import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCa
 /// Requires JWT auth (user must be logged in).
 class CoachChatApiService {
   final String baseUrl;
+  final AuthenticatedTransport _transport;
 
-  CoachChatApiService({String? baseUrl})
-      : baseUrl = baseUrl ?? ApiService.baseUrl;
+  CoachChatApiService({
+    String? baseUrl,
+    AuthenticatedTransport? transport,
+  })  : baseUrl = baseUrl ?? ApiService.baseUrl,
+        _transport = transport ?? ApiService.authenticatedTransport;
 
   /// Send a chat message via the server-key /coach/chat endpoint.
   ///
@@ -39,14 +44,17 @@ class CoachChatApiService {
     String language = 'fr',
     int cashLevel = 3,
   }) async {
-    final uri = Uri.parse('$baseUrl/coach/chat');
-
-    final token = await AuthService.getToken();
-    if (token == null || token.isEmpty) {
-      throw const CoachChatApiException(
-        code: 'no_auth',
-        message: 'Not authenticated — server-key chat requires login.',
-      );
+    final operation = _transport.beginOperation();
+    try {
+      await operation.requireSession();
+    } on ApiException catch (error) {
+      if (error.errorCode == ApiErrorCode.authenticationRequired) {
+        throw const CoachChatApiException(
+          code: 'no_auth',
+          message: 'Not authenticated — server-key chat requires login.',
+        );
+      }
+      rethrow;
     }
 
     final body = <String, dynamic>{
@@ -79,19 +87,24 @@ class CoachChatApiService {
     }
     // No api_key — backend fills in server-side ANTHROPIC_API_KEY
 
-    var response = await _post(uri, token, body);
-
-    // 2026-04-17 audit: if the JWT expired between sessions the first
-    // authenticated call came back 401 and the orchestrator silently fell
-    // to the "coach pas disponible" template. We now redeem the stored
-    // refresh token once and retry the original request with the new
-    // access token. A second 401 is a genuine auth failure (refresh
-    // revoked, rotated, or expired) and propagates to the caller.
-    if (response.statusCode == 401) {
-      final fresh = await AuthService.refreshAccessToken();
-      if (fresh != null && fresh.isNotEmpty) {
-        response = await _post(uri, fresh, body);
+    late final AuthenticatedResponse response;
+    try {
+      response = await operation.send(
+        AuthenticatedRequest.json(
+          AuthenticatedHttpMethod.post,
+          Uri.parse('$baseUrl/coach/chat'),
+          body,
+          timeout: const Duration(seconds: 50),
+        ),
+      );
+    } on ApiException catch (error) {
+      if (error.statusCode == 401) {
+        throw const CoachChatApiException(
+          code: 'auth_error',
+          message: 'Authentication failed.',
+        );
       }
+      rethrow;
     }
 
     if (response.statusCode == 200) {
@@ -120,28 +133,6 @@ class CoachChatApiService {
         message: errorBody ?? 'Server error (${response.statusCode}).',
       );
     }
-  }
-
-  /// Issue the authenticated POST with the given bearer token.
-  ///
-  /// Extracted so [chat] can retry with a freshly-refreshed token on 401
-  /// without duplicating the body construction. Backend hard cap is 55s;
-  /// 50s leaves a 5s buffer for HTTP overhead.
-  Future<http.Response> _post(
-    Uri uri,
-    String token,
-    Map<String, dynamic> body,
-  ) {
-    return http
-        .post(
-          uri,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode(body),
-        )
-        .timeout(const Duration(seconds: 50));
   }
 
   /// Send a message to the anonymous chat endpoint (no auth required).
@@ -270,10 +261,9 @@ class CoachChatApiResponse {
                   ))
               .toList() ??
           const [],
-      disclaimers: (json['disclaimers'] as List?)
-              ?.map((d) => d as String)
-              .toList() ??
-          const [],
+      disclaimers:
+          (json['disclaimers'] as List?)?.map((d) => d as String).toList() ??
+              const [],
       tokensUsed: json['tokensUsed'] as int? ?? 0,
       degraded: meta['degraded'] as bool? ?? false,
       modelUsed: meta['modelUsed'] as String?,

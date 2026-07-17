@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/authenticated_transport.dart';
 
 /// A tool call returned by the LLM (e.g. route_to_screen).
 class RagToolCall {
@@ -173,8 +173,16 @@ class RagStatus {
 /// Supports BYOK (Bring Your Own Key) with Claude, OpenAI, and Mistral providers.
 class RagService {
   final String baseUrl;
+  final AuthenticatedTransport _transport;
+  final Map<String, String> _headers;
 
-  RagService({String? baseUrl}) : baseUrl = baseUrl ?? ApiService.baseUrl;
+  RagService({
+    String? baseUrl,
+    AuthenticatedTransport? transport,
+    Map<String, String> headers = const {},
+  })  : baseUrl = baseUrl ?? ApiService.baseUrl,
+        _transport = transport ?? ApiService.authenticatedTransport,
+        _headers = Map<String, String>.unmodifiable(headers);
 
   /// Query the RAG endpoint with a user question.
   ///
@@ -194,6 +202,8 @@ class RagService {
     List<Map<String, dynamic>>? tools,
     int cashLevel = 3,
   }) async {
+    final operation = _transport.beginOperation();
+    await operation.requireSession();
     final uri = Uri.parse('$baseUrl/rag/query');
 
     final body = <String, dynamic>{
@@ -211,13 +221,15 @@ class RagService {
     // T3-11: Retry with exponential backoff on 429 rate limit.
     const maxRetries = 2;
     for (var attempt = 0; attempt <= maxRetries; attempt++) {
-      final response = await http
-          .post(
-            uri,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(body),
-          )
-          .timeout(const Duration(seconds: 60));
+      final response = await operation.send(
+        AuthenticatedRequest.json(
+          AuthenticatedHttpMethod.post,
+          uri,
+          body,
+          headers: _headers,
+          timeout: const Duration(seconds: 60),
+        ),
+      );
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -271,6 +283,8 @@ class RagService {
     if (documentType == 'tax_declaration') {
       throw RagApiException.machine(RagErrorCode.taxLocalOnly);
     }
+    final operation = _transport.beginOperation();
+    await operation.requireSession();
     final uri = Uri.parse('$baseUrl/rag/vision');
 
     final body = <String, dynamic>{
@@ -287,14 +301,17 @@ class RagService {
 
     // FIX-084: Retry on 429 (same pattern as query()).
     const maxRetries = 2;
-    late http.Response response;
+    late AuthenticatedResponse response;
     for (var attempt = 0; attempt <= maxRetries; attempt++) {
-      final request = http.post(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
+      response = await operation.send(
+        AuthenticatedRequest.json(
+          AuthenticatedHttpMethod.post,
+          uri,
+          body,
+          headers: _headers,
+          timeout: const Duration(seconds: 120),
+        ),
       );
-      response = await request.timeout(const Duration(seconds: 120));
 
       if (response.statusCode == 429 && attempt < maxRetries) {
         await Future<void>.delayed(Duration(seconds: (attempt + 1) * 2));
@@ -323,11 +340,17 @@ class RagService {
 
   /// Check the RAG system status (vector store readiness, document count).
   Future<RagStatus> getStatus() async {
+    final operation = _transport.beginOperation();
+    await operation.requireSession();
     final uri = Uri.parse('$baseUrl/rag/status');
 
-    final response = await http.get(uri, headers: {
-      'Content-Type': 'application/json'
-    }).timeout(const Duration(seconds: 10));
+    final response = await operation.send(
+      AuthenticatedRequest.get(
+        uri,
+        headers: _headers,
+        timeout: const Duration(seconds: 10),
+      ),
+    );
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;

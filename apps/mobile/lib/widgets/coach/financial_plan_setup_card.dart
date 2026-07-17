@@ -5,12 +5,14 @@ import 'package:intl/intl.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
-import 'package:mint_mobile/services/financial_core/avs_reference_age.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_plan_ledger_inputs.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -34,12 +36,16 @@ class FinancialPlanSetupCard extends StatefulWidget {
     super.key,
     required this.goalHint,
     required this.planProvider,
+    this.initialPlan,
+    this.onConfirmed,
     this.initialError = false,
     this.clock = DateTime.now,
   });
 
   final String goalHint;
   final FinancialPlanProvider planProvider;
+  final FinancialPlan? initialPlan;
+  final VoidCallback? onConfirmed;
   final bool initialError;
   final DateTime Function() clock;
 
@@ -67,11 +73,14 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
   double? _confirmedAmount;
   DateTime? _confirmedTargetDate;
   FinancialPlan? _draftPlan;
-  FinancialPlanLedgerInputs? _draftInputs;
-  int? _retirementAge;
+  FinancialPlanDependencySnapshot? _draftInputs;
   bool _requiresPostReferenceActivity = false;
   bool _hasPreparationError = false;
   bool _draftChanged = false;
+  FinancialPlanDependencyBlocker? _preparationBlocker;
+
+  static bool _isRetirementCategory(String? category) =>
+      category == 'goal_retirement_plan' || category == 'goal_pension_opt';
 
   static String _safeGoal(String raw) {
     final withoutControls = raw.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), ' ');
@@ -86,16 +95,48 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
     super.initState();
     _goalController = TextEditingController(
       text: _safeGoal(widget.goalHint),
-    );
+    )..addListener(_handleGoalChanged);
     _hasError = widget.initialError;
+    final initialPlan = widget.initialPlan;
+    final initialAmount = initialPlan?.goalAmount;
+    if (initialPlan != null &&
+        initialAmount != null &&
+        initialAmount.isFinite &&
+        initialAmount > 0 &&
+        initialPlan.targetDate.isAfter(widget.clock())) {
+      _category = initialPlan.goalCategory;
+      _prospectiveLppReturn =
+          initialPlan.projectionAssumptions?.caisseReturnBase;
+      _amountController.text = initialAmount.toString();
+      _dateController.text = DateFormat('yyyy-MM-dd').format(
+        initialPlan.targetDate,
+      );
+      _step = _isRetirementCategory(_category)
+          ? _PlanSetupStep.retirementContext
+          : _PlanSetupStep.details;
+    }
   }
 
   @override
   void dispose() {
+    _goalController.removeListener(_handleGoalChanged);
     _goalController.dispose();
     _amountController.dispose();
     _dateController.dispose();
     super.dispose();
+  }
+
+  void _handleGoalChanged() {
+    if (_step != _PlanSetupStep.confirmation || _draftPlan == null) return;
+    setState(() {
+      _draftPlan = null;
+      _draftInputs = null;
+      _confirmedAmount = null;
+      _confirmedTargetDate = null;
+      _hasPreparationError = true;
+      _draftChanged = true;
+      _step = _PlanSetupStep.details;
+    });
   }
 
   void _selectCategory(String category) {
@@ -105,6 +146,7 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
       _hasPreparationError = false;
       _draftChanged = false;
       _validationMessage = null;
+      _preparationBlocker = null;
       _draftPlan = null;
       _draftInputs = null;
       _earlyRetirementRuleAcknowledged = false;
@@ -112,28 +154,27 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
       if (category != 'goal_retirement_plan') {
         _prospectiveLppReturn = null;
       }
-      _step = category == 'goal_retirement_plan'
+      _step = _isRetirementCategory(category)
           ? _PlanSetupStep.retirementContext
           : _PlanSetupStep.details;
     });
   }
 
   void _continueFromRetirementContext() {
-    final explicitNoLpp = context
-            .read<CoachProfileProvider>()
-            .profile
-            ?.prevoyance
-            .hasPensionFund ==
-        false;
-    if (!_horizonAcknowledged ||
-        !_scopeAcknowledged ||
-        (!explicitNoLpp && _prospectiveLppReturn == null)) {
+    final affiliation =
+        context.read<CoachProfileProvider>().profile?.prevoyance.hasPensionFund;
+    final explicitLpp = affiliation == true;
+    if (affiliation == null ||
+        !_horizonAcknowledged ||
+        (explicitLpp &&
+            (!_scopeAcknowledged || _prospectiveLppReturn == null))) {
       return;
     }
     setState(() => _step = _PlanSetupStep.details);
   }
 
   Future<void> _review(CoachProfile? profile) async {
+    final reviewTime = widget.clock();
     final localeName = Localizations.localeOf(context).toString();
     final normalizedAmount = _amountController.text
         .trim()
@@ -152,39 +193,48 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
     }
 
     final targetDate = DateTime.tryParse(_dateController.text.trim());
-    final today = DateTime.now();
-    if (targetDate == null || !targetDate.isAfter(today)) {
+    if (targetDate == null || !targetDate.isAfter(reviewTime)) {
       setState(() => _validationMessage = S.of(context)!.planSetupInvalidDate);
       return;
     }
-    final retirementAge = _category == 'goal_retirement_plan' && profile != null
+    final retirementAge = _isRetirementCategory(_category) && profile != null
         ? _retirementAgeAt(profile, targetDate)
         : null;
-    if (_category == 'goal_retirement_plan' &&
+    if (_isRetirementCategory(_category) &&
         (retirementAge == null || retirementAge < 58 || retirementAge > 70)) {
       setState(() => _validationMessage = S.of(context)!.planSetupInvalidDate);
       return;
     }
-    final explicitNoLpp = profile?.prevoyance.hasPensionFund == false;
-    if (_category == 'goal_retirement_plan' &&
-        !explicitNoLpp &&
+    final explicitLpp = profile?.prevoyance.hasPensionFund == true;
+    if (_isRetirementCategory(_category) &&
+        explicitLpp &&
         _prospectiveLppReturn == null) {
       setState(() =>
           _validationMessage = S.of(context)!.planSetupReturnAssumptionBody);
       return;
     }
     if (profile == null || _category == null) {
-      setState(() => _hasPreparationError = true);
+      setState(() {
+        _preparationBlocker = FinancialPlanDependencyBlocker.unexpected;
+        _hasPreparationError = true;
+      });
+      return;
+    }
+
+    late final SessionEpochGuard sessionGuard;
+    try {
+      sessionGuard = widget.planProvider.captureAccountSession();
+    } on SessionEpochInvalidated {
       return;
     }
 
     setState(() {
       _confirmedAmount = amount;
       _confirmedTargetDate = targetDate;
-      _retirementAge = retirementAge;
       _validationMessage = null;
       _hasError = false;
       _hasPreparationError = false;
+      _preparationBlocker = null;
       _draftChanged = false;
       _isPreparing = true;
       _draftPlan = null;
@@ -194,57 +244,92 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
     });
 
     try {
-      final generatedAt = widget.clock();
+      final generatedAt = reviewTime;
       final safeGoal = _safeGoal(_goalController.text);
+      final l = S.of(context)!;
+      final resolvedGoal = safeGoal.isNotEmpty
+          ? safeGoal
+          : _isRetirementCategory(_category)
+              ? l.planSetupCategoryRetirement
+              : l.planSetupCategoryGeneral;
       _goalController.value = TextEditingValue(
-        text: safeGoal,
-        selection: TextSelection.collapsed(offset: safeGoal.length),
+        text: resolvedGoal,
+        selection: TextSelection.collapsed(offset: resolvedGoal.length),
       );
-      final inputs = FinancialPlanLedgerInputs.fromProfile(
+      final ledger = context.read<CoachProfileProvider>();
+      late final String owner;
+      try {
+        owner = await ledger.previewCanonicalProfileOwner();
+        sessionGuard.assertCurrent();
+      } on FinancialPlanDependencyBlocked {
+        rethrow;
+      } on StateError catch (error) {
+        throw FinancialPlanDependencyBlocked(
+          FinancialPlanDependencyBlocker.ownerAuthority,
+          error.message,
+        );
+      }
+      final selfLppSnapshot = ledger.currentLppSnapshot(
+        LppEvidenceOwnerKind.self,
+      );
+      final inputs = FinancialPlanDependencySnapshot.fromProfile(
         profile,
+        profileOwnerId: owner,
+        goalCategory: _category!,
+        goalAmount: amount,
+        targetDate: targetDate,
+        prospectiveLppReturn: _prospectiveLppReturn,
+        selfLppSnapshot: selfLppSnapshot,
         now: generatedAt,
       );
-      final l = S.of(context)!;
       final draft = await PlanGenerationService.generate(
-        goalDescription: safeGoal.isNotEmpty
-            ? safeGoal
-            : _category == 'goal_retirement_plan'
-                ? l.planSetupCategoryRetirement
-                : l.planSetupCategoryGeneral,
+        goalDescription: resolvedGoal,
         goalCategory: _category!,
         targetDate: targetDate,
         profile: profile,
+        profileOwnerId: owner,
+        selfLppSnapshot: selfLppSnapshot,
         goalAmount: amount,
         prospectiveLppReturn: _prospectiveLppReturn,
         now: generatedAt,
       );
-      final referenceDate = AvsReferenceAge.referenceDate(
-        dateOfBirth: profile.dateOfBirth,
-        birthYear: profile.birthYear,
-        gender: profile.gender,
-      );
+      sessionGuard.assertCurrent();
       if (!mounted) return;
       setState(() {
         _draftPlan = draft;
         _draftInputs = inputs;
-        _requiresPostReferenceActivity = _category == 'goal_retirement_plan' &&
-            referenceDate != null &&
-            targetDate.isAfter(referenceDate);
+        _requiresPostReferenceActivity = inputs.requiresPostReferenceActivity;
         _step = _PlanSetupStep.confirmation;
       });
-    } catch (error, stackTrace) {
-      debugPrint(
-        '[financial_plan_setup] draft calculation failed: $error\n$stackTrace',
-      );
+    } on SessionEpochInvalidated {
+      return;
+    } on FinancialPlanDependencyBlocked catch (error) {
+      debugPrint('[financial_plan_setup] dependency_blocked');
       if (mounted) {
         setState(() {
+          _preparationBlocker = error.blocker;
           _hasPreparationError = true;
           _draftChanged = false;
           _step = _PlanSetupStep.details;
         });
       }
+    } catch (_) {
+      debugPrint('[financial_plan_setup] draft_calculation_failed');
+      if (mounted) {
+        setState(() {
+          _hasPreparationError = true;
+          _preparationBlocker = FinancialPlanDependencyBlocker.unexpected;
+          _draftChanged = false;
+          _step = _PlanSetupStep.details;
+        });
+      }
     } finally {
-      if (mounted) setState(() => _isPreparing = false);
+      try {
+        sessionGuard.assertCurrent();
+        if (mounted) setState(() => _isPreparing = false);
+      } on SessionEpochInvalidated {
+        // The account-session transition owns the visible recovery state.
+      }
     }
   }
 
@@ -274,19 +359,10 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
       return;
     }
 
-    final confirmationTime = widget.clock();
-    final currentInputs = FinancialPlanLedgerInputs.fromProfile(
-      profile,
-      now: confirmationTime,
-    );
-    if (currentInputs.fingerprint != draft.profileHashAtGeneration) {
-      setState(() {
-        _draftPlan = null;
-        _draftInputs = null;
-        _hasPreparationError = true;
-        _draftChanged = true;
-        _step = _PlanSetupStep.details;
-      });
+    late final SessionEpochGuard sessionGuard;
+    try {
+      sessionGuard = widget.planProvider.captureAccountSession();
+    } on SessionEpochInvalidated {
       return;
     }
 
@@ -296,32 +372,135 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
       _hasError = false;
     });
 
+    final confirmationTime = widget.clock();
     try {
-      widget.planProvider.attachProfileProvider(ledger);
-      await widget.planProvider.setPlan(
-        draft.copyWith(confirmedAt: confirmationTime),
-      );
-    } catch (error, stackTrace) {
-      debugPrint(
-        '[financial_plan_setup] confirmation failed: $error\n$stackTrace',
-      );
-      if (mounted) {
-        setState(() {
-          _didSubmit = false;
-          _hasError = true;
-        });
+      late final FinancialPlanDependencySnapshot currentInputs;
+      try {
+        final owner = await _previewOwnerForConfirmation(ledger);
+        sessionGuard.assertCurrent();
+        if (owner != draft.profileOwnerId ||
+            _safeGoal(_goalController.text) != draft.goalDescription) {
+          throw StateError('financial plan draft owner or goal changed');
+        }
+        currentInputs = FinancialPlanDependencySnapshot.fromProfile(
+          profile,
+          profileOwnerId: owner,
+          goalCategory: draft.goalCategory,
+          goalAmount: draft.goalAmount!,
+          targetDate: draft.targetDate,
+          prospectiveLppReturn: draft.projectionAssumptions?.caisseReturnBase,
+          selfLppSnapshot: ledger.currentLppSnapshot(
+            LppEvidenceOwnerKind.self,
+          ),
+          now: confirmationTime,
+        );
+      } on SessionEpochInvalidated {
+        rethrow;
+      } on FinancialPlanDependencyBlocked catch (error) {
+        debugPrint('[financial_plan_setup] confirmation_dependency_blocked');
+        if (mounted) {
+          setState(() {
+            _didSubmit = false;
+            _draftPlan = null;
+            _draftInputs = null;
+            _preparationBlocker = error.blocker;
+            _hasPreparationError = true;
+            _draftChanged = false;
+            _step = _PlanSetupStep.details;
+          });
+        }
+        return;
+      } on ArgumentError {
+        _invalidateDraftAfterConfirmationDrift();
+        return;
+      } on StateError {
+        _invalidateDraftAfterConfirmationDrift();
+        return;
       }
+
+      if (currentInputs.profileOwnerId != draft.profileOwnerId ||
+          currentInputs.schemaVersion != draft.dependencySchemaVersion ||
+          currentInputs.branch.wireName != draft.dependencyBranch ||
+          currentInputs.basis.wireName != draft.dependencyBasis ||
+          currentInputs.fingerprint != draft.dependencyHash ||
+          currentInputs.validUntil.toUtc() != draft.validUntil?.toUtc() ||
+          currentInputs.requiresPostReferenceActivity !=
+              _requiresPostReferenceActivity) {
+        _invalidateDraftAfterConfirmationDrift();
+        return;
+      }
+
+      try {
+        sessionGuard.assertCurrent();
+        await ledger.commitStagedCanonicalProfileOwner(draft.profileOwnerId!);
+        sessionGuard.assertCurrent();
+        widget.planProvider.attachProfileProvider(ledger);
+        await widget.planProvider.setPlan(
+          draft.copyWith(confirmedAt: confirmationTime),
+        );
+        sessionGuard.assertCurrent();
+        if (mounted) widget.onConfirmed?.call();
+      } on SessionEpochInvalidated {
+        rethrow;
+      } catch (_) {
+        debugPrint('[financial_plan_setup] confirmation_failed');
+        if (mounted) {
+          setState(() {
+            _didSubmit = false;
+            _hasError = true;
+          });
+        }
+      }
+    } on SessionEpochInvalidated {
+      return;
     } finally {
-      if (mounted) setState(() => _isSaving = false);
+      try {
+        sessionGuard.assertCurrent();
+        if (mounted) setState(() => _isSaving = false);
+      } on SessionEpochInvalidated {
+        // The account-session transition owns the visible recovery state.
+      }
     }
   }
 
+  Future<String> _previewOwnerForConfirmation(
+    CoachProfileProvider ledger,
+  ) async {
+    try {
+      return await ledger.previewCanonicalProfileOwner();
+    } on FinancialPlanDependencyBlocked {
+      rethrow;
+    } on StateError catch (error) {
+      throw FinancialPlanDependencyBlocked(
+        FinancialPlanDependencyBlocker.ownerAuthority,
+        error.message,
+      );
+    }
+  }
+
+  void _invalidateDraftAfterConfirmationDrift() {
+    if (!mounted) return;
+    setState(() {
+      _didSubmit = false;
+      _draftPlan = null;
+      _draftInputs = null;
+      _hasPreparationError = true;
+      _draftChanged = true;
+      _step = _PlanSetupStep.details;
+    });
+  }
+
   bool get _ageConditionsAcknowledged {
-    if (_category != 'goal_retirement_plan') return true;
-    if ((_retirementAge ?? 0) < 63 && !_earlyRetirementRuleAcknowledged) {
+    if (_draftInputs?.branch != FinancialPlanDependencyBranch.retirementLpp) {
+      return true;
+    }
+    final assumptions = _draftPlan?.projectionAssumptions;
+    if (assumptions?.requiresFundAuthorizationBefore63 == true &&
+        !_earlyRetirementRuleAcknowledged) {
       return false;
     }
-    if (_requiresPostReferenceActivity && !_postReferenceActivityAcknowledged) {
+    if (assumptions?.assumesPostReferenceGainfulActivity == true &&
+        !_postReferenceActivityAcknowledged) {
       return false;
     }
     return true;
@@ -393,17 +572,71 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
                   child: Text(
                     _draftChanged
                         ? l.planSetupDraftChanged
-                        : l.planSetupMissingRetirementData,
+                        : _preparationMessage(l),
                     style: MintTextStyles.bodyMedium(color: MintColors.error),
                   ),
                 ),
-                if (!_draftChanged && _category == 'goal_retirement_plan') ...[
+                if (!_draftChanged &&
+                    (_preparationBlocker ==
+                            FinancialPlanDependencyBlocker.affiliation ||
+                        _preparationBlocker ==
+                            FinancialPlanDependencyBlocker.salary)) ...[
+                  const SizedBox(height: MintSpacing.xs),
+                  Semantics(
+                    identifier: 'financial_plan_setup_enrich_revenue',
+                    button: true,
+                    child: TextButton(
+                      onPressed: () => context.push(
+                        _preparationBlocker ==
+                                FinancialPlanDependencyBlocker.affiliation
+                            ? '/data-block/revenu?inputKey=q_has_pension_fund'
+                            : '/data-block/revenu?inputKey=q_gross_salary_annual',
+                      ),
+                      child: Text(l.dataBlockRevenuCta),
+                    ),
+                  ),
+                ],
+                if (!_draftChanged &&
+                    _preparationBlocker ==
+                        FinancialPlanDependencyBlocker.gender) ...[
+                  const SizedBox(height: MintSpacing.xs),
+                  Semantics(
+                    identifier: 'financial_plan_setup_enrich_gender',
+                    button: true,
+                    child: TextButton(
+                      onPressed: () => context.push(
+                        '/data-block/revenu?inputKey=q_gender',
+                      ),
+                      child: Text(l.dataBlockRevenuCta),
+                    ),
+                  ),
+                ],
+                if (!_draftChanged &&
+                    _preparationBlocker ==
+                        FinancialPlanDependencyBlocker.dateOfBirth) ...[
+                  const SizedBox(height: MintSpacing.xs),
+                  Semantics(
+                    identifier: 'financial_plan_setup_enrich_date_of_birth',
+                    button: true,
+                    child: TextButton(
+                      onPressed: () => context.push(
+                        '/data-block/revenu?inputKey=q_date_of_birth',
+                      ),
+                      child: Text(l.dataBlockRevenuCta),
+                    ),
+                  ),
+                ],
+                if (!_draftChanged &&
+                    _preparationBlocker == FinancialPlanDependencyBlocker.lpp &&
+                    ledger.profile?.prevoyance.hasPensionFund == true &&
+                    FeatureFlags.lppEvidenceIngestionEnabled) ...[
                   const SizedBox(height: MintSpacing.xs),
                   Semantics(
                     identifier: 'financial_plan_setup_enrich_lpp',
                     button: true,
                     child: TextButton(
-                      onPressed: () => context.push('/data-block/lpp'),
+                      onPressed: () =>
+                          context.push('/scan?type=lppCertificate'),
                       child: Text(l.planSetupEnrichLpp),
                     ),
                   ),
@@ -457,12 +690,13 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
   }
 
   Widget _buildRetirementContext(S l) {
-    final explicitNoLpp = context
-            .read<CoachProfileProvider>()
-            .profile
-            ?.prevoyance
-            .hasPensionFund ==
-        false;
+    final affiliation =
+        context.read<CoachProfileProvider>().profile?.prevoyance.hasPensionFund;
+    final explicitLpp = affiliation == true;
+    final explicitNoLpp = affiliation == false;
+    final canContinue = affiliation != null &&
+        _horizonAcknowledged &&
+        (!explicitLpp || (_scopeAcknowledged && _prospectiveLppReturn != null));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -479,20 +713,44 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
             controlAffinity: ListTileControlAffinity.leading,
           ),
         ),
-        Semantics(
-          identifier: 'financial_plan_setup_retirement_scope',
-          container: true,
-          child: CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            value: _scopeAcknowledged,
-            onChanged: (value) =>
-                setState(() => _scopeAcknowledged = value ?? false),
-            title: Text(l.planSetupRetirementScopeTitle),
-            subtitle: Text(l.planSetupRetirementScopeBody),
-            controlAffinity: ListTileControlAffinity.leading,
+        if (explicitLpp) ...[
+          Semantics(
+            identifier: 'financial_plan_setup_retirement_scope',
+            container: true,
+            child: CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _scopeAcknowledged,
+              onChanged: (value) =>
+                  setState(() => _scopeAcknowledged = value ?? false),
+              title: Text(l.planSetupRetirementScopeTitle),
+              subtitle: Text(l.planSetupRetirementScopeBody),
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
           ),
-        ),
-        if (!explicitNoLpp) ...[
+        ] else if (explicitNoLpp) ...[
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            l.planCard_retirementScopeNoLpp,
+            style: MintTextStyles.micro(color: MintColors.textMuted),
+          ),
+        ] else ...[
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            l.planSetupBlockerAffiliation,
+            style: MintTextStyles.bodyMedium(color: MintColors.error),
+          ),
+          Semantics(
+            identifier: 'financial_plan_setup_enrich_revenue',
+            button: true,
+            child: TextButton(
+              onPressed: () => context.push(
+                '/data-block/revenu?inputKey=q_has_pension_fund',
+              ),
+              child: Text(l.dataBlockRevenuCta),
+            ),
+          ),
+        ],
+        if (explicitLpp) ...[
           const SizedBox(height: MintSpacing.sm),
           Semantics(
             identifier: 'financial_plan_setup_return_assumption',
@@ -522,13 +780,18 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
           ),
         ],
         const SizedBox(height: MintSpacing.sm),
-        FilledButton(
-          onPressed: _horizonAcknowledged &&
-                  _scopeAcknowledged &&
-                  (explicitNoLpp || _prospectiveLppReturn != null)
-              ? _continueFromRetirementContext
-              : null,
-          child: Text(l.planSetupContinue),
+        Semantics(
+          identifier: 'financial_plan_setup_retirement_continue',
+          container: true,
+          button: true,
+          enabled: canContinue,
+          onTap: canContinue ? _continueFromRetirementContext : null,
+          child: ExcludeSemantics(
+            child: FilledButton(
+              onPressed: canContinue ? _continueFromRetirementContext : null,
+              child: Text(l.planSetupContinue),
+            ),
+          ),
         ),
       ],
     );
@@ -614,10 +877,24 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
     final profile = ledger.profile!;
     final sourcePath = _capitalSourcePath(profile);
     final source = sourcePath == null ? null : profile.dataSources[sourcePath];
-    final sourceDate = sourcePath == null
+    final sourceDate =
+        sourcePath == null ? null : profile.dataSourceDates[sourcePath];
+    final salaryAnnual = assumptions?.salaryBasis.annualChf;
+    final salaryBasisMatchesProfile = salaryAnnual != null &&
+        (salaryAnnual - inputs.grossAnnualSalary).abs() < 0.01;
+    final salarySource = salaryBasisMatchesProfile
+        ? profile.dataSources['salaireBrutMensuel']
+        : null;
+    final salaryUpdatedAt = salaryBasisMatchesProfile
+        ? profile.dataTimestamps['salaireBrutMensuel']
+        : null;
+    final salaryFreshnessDays = salaryUpdatedAt == null
         ? null
-        : profile.dataSourceDates[sourcePath] ??
-            profile.dataTimestamps[sourcePath];
+        : draft.generatedAt
+            .difference(salaryUpdatedAt)
+            .inDays
+            .clamp(0, 99999)
+            .toInt();
     final canConfirm = !_isSaving && _ageConditionsAcknowledged;
 
     return Semantics(
@@ -639,7 +916,54 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
             ),
             style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
           ),
-          if (_category == 'goal_retirement_plan') ...[
+          if (inputs.branch !=
+              FinancialPlanDependencyBranch.retirementNoLpp) ...[
+            const SizedBox(height: MintSpacing.xs),
+            Semantics(
+              identifier: 'financial_plan_setup_monthly_amount',
+              container: true,
+              child: Text(
+                l.planCard_monthlyAmount(
+                  chf.format(draft.monthlyTarget).trim(),
+                ),
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+          if (inputs.branch ==
+              FinancialPlanDependencyBranch.retirementNoLpp) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              l.planCard_retirementNoLppNarrative(
+                chf.format(draft.monthlyTarget).trim(),
+              ),
+              style: MintTextStyles.bodyMedium(
+                color: MintColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l.planCard_retirementScopeNoLpp,
+              style: MintTextStyles.micro(color: MintColors.textMuted),
+            ),
+            Semantics(
+              identifier: 'financial_plan_setup_savings_return_zero',
+              container: true,
+              child: Text(
+                l.planCard_supplementalSavingsReturnZero,
+                style: MintTextStyles.micro(color: MintColors.textMuted),
+              ),
+            ),
+            Text(
+              l.planCard_dataConfidence(
+                draft.confidenceLevel.round().toString(),
+              ),
+              style: MintTextStyles.micro(color: MintColors.textMuted),
+            ),
+          ],
+          if (inputs.branch == FinancialPlanDependencyBranch.retirementLpp) ...[
             const SizedBox(height: MintSpacing.sm),
             Text(
               l.planSetupLegalBaseline,
@@ -652,6 +976,20 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
                 style: MintTextStyles.micro(color: MintColors.textMuted),
               ),
             ],
+            if (draft.projectedLow case final low?)
+              if (draft.projectedHigh case final high?)
+                Semantics(
+                  identifier: 'financial_plan_setup_projection_band',
+                  container: true,
+                  child: Text(
+                    l.planCard_confidenceBands(
+                      chf.format(low).trim(),
+                      chf.format(draft.projectedOutcome).trim(),
+                      chf.format(high).trim(),
+                    ),
+                    style: MintTextStyles.micro(color: MintColors.textMuted),
+                  ),
+                ),
             if (assumptions?.caisseReturnBase case final value?)
               Text(
                 l.planCard_returnBase(percent.format(value)),
@@ -677,6 +1015,24 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
                 l.planCard_salaryFallback(chf.format(salary).trim()),
                 style: MintTextStyles.micro(color: MintColors.textMuted),
               ),
+            if (salarySource != null)
+              Semantics(
+                identifier: 'financial_plan_setup_salary_source',
+                container: true,
+                child: Text(
+                  l.agentFieldSource(_sourceLabel(l, salarySource)),
+                  style: MintTextStyles.micro(color: MintColors.textMuted),
+                ),
+              ),
+            if (salaryFreshnessDays != null)
+              Semantics(
+                identifier: 'financial_plan_setup_salary_freshness',
+                container: true,
+                child: Text(
+                  l.profileAnnualRefreshDays(salaryFreshnessDays),
+                  style: MintTextStyles.micro(color: MintColors.textMuted),
+                ),
+              ),
             if (assumptions?.bonificationBasis.kind == 'legalAgeSchedule')
               Text(
                 l.planCard_bonificationLegal,
@@ -687,10 +1043,12 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
                 l.planSetupLppFactSource(_sourceLabel(l, source)),
                 style: MintTextStyles.micro(color: MintColors.textMuted),
               ),
-            if (sourceDate != null)
+            if (sourcePath != null)
               Text(
                 l.planSetupLppFactDate(
-                  DateFormat.yMd(localeName).format(sourceDate),
+                  sourceDate == null
+                      ? l.planSetupSourceUnknown
+                      : DateFormat.yMd(localeName).format(sourceDate),
                 ),
                 style: MintTextStyles.micro(color: MintColors.textMuted),
               ),
@@ -704,6 +1062,15 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
               l.planSetupNominalScope,
               style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
+            if (assumptions?.annualProjectionUsesWholeYears == true)
+              Semantics(
+                identifier: 'financial_plan_setup_annual_approximation',
+                container: true,
+                child: Text(
+                  l.planSetupAnnualApproximation,
+                  style: MintTextStyles.micro(color: MintColors.textMuted),
+                ),
+              ),
             if (draft.sources.isNotEmpty) ...[
               const SizedBox(height: MintSpacing.xs),
               Text(
@@ -718,8 +1085,8 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
               ),
             ],
           ],
-          if (_category == 'goal_retirement_plan' &&
-              (_retirementAge ?? 0) < 63) ...[
+          if (inputs.branch == FinancialPlanDependencyBranch.retirementLpp &&
+              assumptions?.requiresFundAuthorizationBefore63 == true) ...[
             const SizedBox(height: MintSpacing.sm),
             Semantics(
               identifier: 'financial_plan_setup_early_retirement_rule',
@@ -736,8 +1103,8 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
               ),
             ),
           ],
-          if (_category == 'goal_retirement_plan' &&
-              _requiresPostReferenceActivity) ...[
+          if (inputs.branch == FinancialPlanDependencyBranch.retirementLpp &&
+              assumptions?.assumesPostReferenceGainfulActivity == true) ...[
             const SizedBox(height: MintSpacing.sm),
             Semantics(
               identifier: 'financial_plan_setup_post65_gainful_activity',
@@ -754,6 +1121,11 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
               ),
             ),
           ],
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            l.planCard_disclaimer,
+            style: MintTextStyles.micro(color: MintColors.textMuted),
+          ),
           const SizedBox(height: MintSpacing.md),
           Semantics(
             identifier: 'financial_plan_setup_confirm',
@@ -784,6 +1156,23 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
     }
     return null;
   }
+
+  String _preparationMessage(S l) => switch (_preparationBlocker) {
+        FinancialPlanDependencyBlocker.affiliation =>
+          l.planSetupBlockerAffiliation,
+        FinancialPlanDependencyBlocker.dateOfBirth =>
+          l.planSetupBlockerDateOfBirth,
+        FinancialPlanDependencyBlocker.gender => l.planSetupBlockerGender,
+        FinancialPlanDependencyBlocker.salary => l.planSetupBlockerSalary,
+        FinancialPlanDependencyBlocker.lpp => l.planSetupBlockerLpp,
+        FinancialPlanDependencyBlocker.legalContract =>
+          l.planSetupBlockerLegalContract,
+        FinancialPlanDependencyBlocker.ownerAuthority =>
+          l.planSetupBlockerOwnerAuthority,
+        FinancialPlanDependencyBlocker.unexpected ||
+        null =>
+          l.planSetupBlockerUnexpected,
+      };
 
   String _sourceLabel(S l, ProfileDataSource source) => switch (source) {
         ProfileDataSource.certificate => l.planSetupSourceCertificate,

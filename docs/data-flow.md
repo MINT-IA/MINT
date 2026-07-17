@@ -1,9 +1,11 @@
 # MINT Data Flow — the authoritative map
 
-**Why this file exists.** MINT data capture lives in three storage layers
-(SharedPreferences, Keychain fallback, backend Postgres) mutated by eight
-write paths (wizard, scan, coach save_fact, Dart regex fallback, inline
-coach pickers, budget form, DataBlock enrichment, tax annual refresh).
+**Why this file exists.** MINT data capture spans three storage layers
+(SharedPreferences, Keychain fallback, backend Postgres). Eight local write
+paths mutate the local ledger (wizard, scan, coach save_fact dispatch, Dart
+regex fallback, inline coach pickers, budget form, DataBlock enrichment, tax
+annual refresh); backend facts and the one-shot account claim have separate
+contracts.
 Drifting between them is the #1 source of « the UI says captured, the
 profile is empty at relaunch » bugs — the exact bug class that killed the
 MVP walkthrough
@@ -49,11 +51,14 @@ flowchart LR
     W6 --> PROV
 
     PROV -- mergeAnswers --> SP[(SharedPreferences<br/>wizard_answers_v2)]
-    PROV -- syncToBackend --> BE[(Backend Postgres<br/>ProfileModel.data)]
     SP --> LOAD[loadFromWizard → fromWizardAnswers]
     LOAD --> PROFILE[CoachProfile in memory]
     PROFILE --> CALCS[12 calculators]
     CALCS --> UI[Mon argent / Aujourd'hui / Explorer]
+
+    AUTH[AuthProvider<br/>anonymous → account claim, once] --> CLAIM[(Backend Postgres<br/>localDataClaim.wizardAnswers)]
+    BE[(Backend direct profile fields)] --> INBOUND[syncFromBackend<br/>backendUnknown fill-only]
+    INBOUND --> PROV
 ```
 
 **Invariants.**
@@ -64,10 +69,17 @@ flowchart LR
    uses a private SharedPreferences active-slot pointer and an immutable
    Keychain slot, described below. Neither physical indirection is a second
    domain ledger.
-2. Backend `ProfileModel.data` is the **remote mirror**, only for
-   authenticated users. Anonymous users **never** have backend state —
-   Keychain failure for anon sessions falls back to SharedPreferences (see
-   `anonymous_session_service.dart`).
+2. Backend `ProfileModel.data` is an independent remote profile source for
+   authenticated users, not a continuous mirror of the local ledger.
+   `CoachProfileProvider` never pushes ordinary ledger mutations outbound.
+   Its guarded `syncFromBackend` path may ingest validated direct profile
+   fields as fill-only `backendUnknown` facts. `AuthProvider` separately owns
+   the exact-once anonymous-to-account claim: `/sync/claim-local-data` stores
+   its wizard payload under `localDataClaim.wizardAnswers`, which mobile direct
+   profile hydration does not read. That claim therefore establishes account
+   custody but is not cross-device profile sync. Anonymous users **never** have
+   backend state — Keychain failure for anon sessions falls back to
+   SharedPreferences (see `anonymous_session_service.dart`).
 3. In the G1-PROV-01 migrated set — `mergeAnswers`, person-owned LPP, self AVS,
    salary, inline, and Open Banking — a writer may construct a typed
    `nextProfile`, but must persist values and provenance through the matching

@@ -115,6 +115,7 @@ void main() {
       policyVersion: 'policy-v1',
       privacyContact: 'privacy@example.test',
       rightsChannel: 'https://example.test/rights',
+      lppSnapshotId: '33333333-3333-4333-8333-333333333333',
       lastVerifiedAt: DateTime.utc(2026, 7, 15, 10),
       receiptCreatedAt: DateTime.utc(2026, 7, 15, 9),
       expiresAt: DateTime.utc(2027, 7, 15, 10),

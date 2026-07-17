@@ -17,6 +17,26 @@ class BudgetCrashTotals {
 class BudgetCrashFinancialFacts {
   const BudgetCrashFinancialFacts._();
 
+  static const double _expensePlausibilityMarginMultiplier = 1.5;
+
+  static bool isMonthlyExpensePlausible({
+    required double monthlyExpense,
+    required double grossMonthlyIncome,
+    required double maximumExpenseRatio,
+  }) {
+    if (!monthlyExpense.isFinite || monthlyExpense <= 0) return false;
+    if (grossMonthlyIncome <= 0) return true;
+    if (!grossMonthlyIncome.isFinite ||
+        !maximumExpenseRatio.isFinite ||
+        maximumExpenseRatio <= 0) {
+      return false;
+    }
+    final ceiling = grossMonthlyIncome *
+        maximumExpenseRatio *
+        _expensePlausibilityMarginMultiplier;
+    return monthlyExpense <= ceiling;
+  }
+
   static BudgetCrashTotals calculate({
     required double monthlyIncome,
     required double survivalIncome,

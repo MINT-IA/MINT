@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,7 @@ import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:mint_mobile/widgets/coach/first_check_in_cta_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
 
@@ -38,8 +40,10 @@ Widget _buildTestApp({
     supportedLocales: const [Locale('fr')],
     home: MultiProvider(
       providers: [
-        ChangeNotifierProvider<CoachProfileProvider>.value(value: coachProvider),
-        ChangeNotifierProvider<FinancialPlanProvider>.value(value: planProvider),
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coachProvider),
+        ChangeNotifierProvider<FinancialPlanProvider>.value(
+            value: planProvider),
       ],
       child: Builder(
         builder: (ctx) => Scaffold(
@@ -71,9 +75,14 @@ CoachProfile _profileWithData({
   );
 }
 
-CoachProfileProvider _providerWithProfile(CoachProfile profile) {
-  final provider = CoachProfileProvider();
-  provider.createFromRemoteProfile({'birth_year': 1985, 'canton': 'VS'});
+Future<CoachProfileProvider> _providerWithProfile(CoachProfile profile) async {
+  final sessionEpoch = SessionEpoch();
+  final provider = CoachProfileProvider(sessionEpoch: sessionEpoch);
+  final sessionGuard = sessionEpoch.capture();
+  await provider.mergeBackendUnknownProfile(
+    {'birthYear': 1985, 'canton': 'VS'},
+    sessionGuard: sessionGuard,
+  );
   for (final ci in profile.checkIns) {
     provider.addCheckIn(ci);
   }
@@ -114,15 +123,15 @@ PlanStatus _testStatus() {
 }
 
 void main() {
-  setUpAll(() {
+  setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   group('MintHomeScreen Section 1c — Plan Reality + Streak', () {
-    testWidgets(
-        'hasPlan=true + 0 checkIns → FirstCheckInCtaCard is rendered',
+    testWidgets('hasPlan=true + 0 checkIns → FirstCheckInCtaCard is rendered',
         (tester) async {
-      final coachProvider = _providerWithProfile(_profileWithData());
+      final coachProvider = await _providerWithProfile(_profileWithData());
       final planProvider = _planProviderWithPlan(); // hasPlan=true
 
       await tester.pumpWidget(_buildTestApp(
@@ -150,7 +159,7 @@ void main() {
     testWidgets(
         'hasPlan=false + 0 checkIns → neither card rendered (SizedBox.shrink)',
         (tester) async {
-      final coachProvider = _providerWithProfile(_profileWithData());
+      final coachProvider = await _providerWithProfile(_profileWithData());
       final planProvider = FinancialPlanProvider(); // hasPlan=false
 
       await tester.pumpWidget(_buildTestApp(
@@ -193,7 +202,7 @@ void main() {
         checkIns: [checkIn],
         contributions: [contribution],
       );
-      final coachProvider = _providerWithProfile(profile);
+      final coachProvider = await _providerWithProfile(profile);
       final planProvider = FinancialPlanProvider();
 
       await tester.pumpWidget(_buildTestApp(

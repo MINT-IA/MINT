@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/biography/biography_repository.dart';
 import 'package:mint_mobile/services/biography/freshness_decay_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 // ────────────────────────────────────────────────────────────
 //  BIOGRAPHY PROVIDER — Phase 03 / Memoire Narrative
@@ -30,13 +31,33 @@ class BiographyProvider extends ChangeNotifier {
 
   /// Create with an existing repository (for testing or pre-initialized).
   /// If [repository] is null, lazily initializes via [BiographyRepository.instance()].
-  BiographyProvider({BiographyRepository? repository})
-      : _repository = repository;
+  BiographyProvider({
+    BiographyRepository? repository,
+    SessionEpoch? sessionEpoch,
+  })  : _repository = repository,
+        _sessionEpoch = sessionEpoch ?? SessionEpoch();
+
+  final SessionEpoch _sessionEpoch;
+
+  bool _isCurrent(SessionEpochGuard guard) {
+    try {
+      guard.assertCurrent();
+      return true;
+    } on SessionEpochInvalidated {
+      return false;
+    }
+  }
 
   /// Lazily initialize the repository if not yet set.
-  Future<BiographyRepository> _getRepository() async {
-    _repository ??= await BiographyRepository.instance();
-    return _repository!;
+  Future<BiographyRepository> _getRepository(
+    SessionEpochGuard guard,
+  ) async {
+    final current = _repository;
+    if (current != null) return current;
+    final repository = await BiographyRepository.instance();
+    guard.assertCurrent();
+    _repository = repository;
+    return repository;
   }
 
   // ── Getters ──────────────────────────────────────────────────
@@ -117,29 +138,48 @@ class BiographyProvider extends ChangeNotifier {
   ///
   /// Call on app startup or after authentication.
   Future<void> loadFacts() async {
+    final guard = _sessionEpoch.capture();
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final repo = await _getRepository();
-      _facts = await repo.getActiveFacts();
+      final repo = await _getRepository(guard);
+      final facts = await repo.getActiveFacts();
+      guard.assertCurrent();
+      _facts = facts;
+    } on SessionEpochInvalidated {
+      return;
     } catch (e) {
+      if (!_isCurrent(guard)) return;
       _error = 'Failed to load biography: $e';
       debugPrint('[BiographyProvider] $e');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      try {
+        guard.assertCurrent();
+        _isLoading = false;
+        notifyListeners();
+      } on SessionEpochInvalidated {
+        // Session termination owns the cleared state.
+      }
     }
   }
 
   /// Add a new fact to the biography.
   Future<void> addFact(BiographyFact fact) async {
+    final guard = _sessionEpoch.capture();
     try {
-      final repo = await _getRepository();
-      await repo.insertFact(fact);
+      final repo = await _getRepository(guard);
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => repo.insertFact(fact),
+      );
+      guard.assertCurrent();
       await loadFacts();
+    } on SessionEpochInvalidated {
+      return;
     } catch (e) {
+      if (!_isCurrent(guard)) return;
       _error = 'Failed to add fact: $e';
       debugPrint('[BiographyProvider] $e');
       notifyListeners();
@@ -148,11 +188,19 @@ class BiographyProvider extends ChangeNotifier {
 
   /// Update a fact's value (sets source to userEdit automatically).
   Future<void> updateFactValue(String id, String newValue) async {
+    final guard = _sessionEpoch.capture();
     try {
-      final repo = await _getRepository();
-      await repo.updateFact(id, newValue);
+      final repo = await _getRepository(guard);
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => repo.updateFact(id, newValue),
+      );
+      guard.assertCurrent();
       await loadFacts();
+    } on SessionEpochInvalidated {
+      return;
     } catch (e) {
+      if (!_isCurrent(guard)) return;
       _error = 'Failed to update fact: $e';
       debugPrint('[BiographyProvider] $e');
       notifyListeners();
@@ -161,11 +209,19 @@ class BiographyProvider extends ChangeNotifier {
 
   /// Soft-delete a fact (remains in DB but hidden from active queries).
   Future<void> deleteFact(String id) async {
+    final guard = _sessionEpoch.capture();
     try {
-      final repo = await _getRepository();
-      await repo.softDeleteFact(id);
+      final repo = await _getRepository(guard);
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => repo.softDeleteFact(id),
+      );
+      guard.assertCurrent();
       await loadFacts();
+    } on SessionEpochInvalidated {
+      return;
     } catch (e) {
+      if (!_isCurrent(guard)) return;
       _error = 'Failed to delete fact: $e';
       debugPrint('[BiographyProvider] $e');
       notifyListeners();
@@ -174,14 +230,31 @@ class BiographyProvider extends ChangeNotifier {
 
   /// Permanently delete a fact (GDPR/nLPD privacy screen).
   Future<void> hardDeleteFact(String id) async {
+    final guard = _sessionEpoch.capture();
     try {
-      final repo = await _getRepository();
-      await repo.hardDeleteFact(id);
+      final repo = await _getRepository(guard);
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => repo.hardDeleteFact(id),
+      );
+      guard.assertCurrent();
       await loadFacts();
+    } on SessionEpochInvalidated {
+      return;
     } catch (e) {
+      if (!_isCurrent(guard)) return;
       _error = 'Failed to hard-delete fact: $e';
       debugPrint('[BiographyProvider] $e');
       notifyListeners();
     }
+  }
+
+  void clearSessionMemoryAfterPurge() {
+    _facts = [];
+    _isLoading = false;
+    _error = null;
+    _repository = null;
+    BiographyRepository.resetInstance();
+    notifyListeners();
   }
 }

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/coach_profile_owner.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -65,14 +66,35 @@ Map<String, Object?> _expectedFact(
 
 const _activeLppSlotKey = 'lpp_evidence_active_slot_v1';
 const _lppSlotPrefix = '_coach_lpp_evidence_slot_v1_';
+const _activeAuthoritySlotKey = 'coach_authority_active_slot_v1';
+const _authoritySlotPrefix = '_coach_authority_slot_v1_';
 
-String _activeLppSecureKey(SharedPreferences preferences) {
-  final slotId = preferences.getString(_activeLppSlotKey);
+String _activeAuthoritySecureKey(SharedPreferences preferences) {
+  final slotId = preferences.getString(_activeAuthoritySlotKey);
   expect(slotId, matches(RegExp(r'^[a-f0-9]{32}$')));
-  return '$_lppSlotPrefix$slotId';
+  return '$_authoritySlotPrefix$slotId';
 }
 
-final class _FailingLppPersistence implements LppProfilePersistence {
+Map<String, dynamic> _activeAuthorityAnswers(
+  SharedPreferences preferences,
+  Map<String, String> secureStorageValues,
+) {
+  final payload = secureStorageValues[_activeAuthoritySecureKey(preferences)]!;
+  final envelope = Map<String, dynamic>.from(jsonDecode(payload) as Map);
+  expect(envelope['schemaVersion'], 1);
+  return Map<String, dynamic>.from(envelope['answers'] as Map);
+}
+
+String _activeAuthorityLppRoot(
+  SharedPreferences preferences,
+  Map<String, String> secureStorageValues,
+) =>
+    _activeAuthorityAnswers(
+        preferences, secureStorageValues)['_coach_lpp_evidence_v1'] as String;
+
+final class _FailingLppPersistence
+    with SerializedCanonicalAnswerMutationPersistence
+    implements LppProfilePersistence {
   _FailingLppPersistence(this.answers);
 
   final Map<String, dynamic> answers;
@@ -90,6 +112,7 @@ final class _FailingLppPersistence implements LppProfilePersistence {
 }
 
 final class _RecordingLppPersistence
+    with SerializedCanonicalAnswerMutationPersistence
     implements LppProfilePersistence, TaxProfilePersistence {
   _RecordingLppPersistence(this.answers);
 
@@ -112,6 +135,7 @@ final class _RecordingLppPersistence
 }
 
 final class _DelayedFirstLppPersistence
+    with SerializedCanonicalAnswerMutationPersistence
     implements LppProfilePersistence, TaxProfilePersistence {
   _DelayedFirstLppPersistence(this.answers);
 
@@ -296,7 +320,10 @@ void main() {
       final key = args['key'] as String?;
       switch (call.method) {
         case 'write':
-          if (key != null && key.startsWith(_lppSlotPrefix) && failLppWrites) {
+          if (key != null &&
+              (key.startsWith(_lppSlotPrefix) ||
+                  key.startsWith(_authoritySlotPrefix)) &&
+              failLppWrites) {
             throw PlatformException(code: '-34018');
           }
           if (key != null) secureStorageValues[key] = args['value'] as String;
@@ -391,16 +418,15 @@ void main() {
       prefs.getString('wizard_answers_v2')!,
     ) as Map<String, dynamic>;
     expect(prefsRoot['_coach_lpp_evidence_v1'], '__secure__');
-    expect(prefsRoot.containsKey(_activeLppSlotKey), isFalse);
-    final activeSlotId = prefs.getString(_activeLppSlotKey)!;
+    expect(prefsRoot.containsKey(_activeAuthoritySlotKey), isFalse);
+    final activeSlotId = prefs.getString(_activeAuthoritySlotKey)!;
     expect(activeSlotId, matches(RegExp(r'^[a-f0-9]{32}$')));
     expect(
       prefs.getString('wizard_answers_v2'),
       isNot(contains(activeSlotId)),
     );
-    final activeSecureKey = _activeLppSecureKey(prefs);
     final root = jsonDecode(
-      secureStorageValues[activeSecureKey]!,
+      _activeAuthorityLppRoot(prefs, secureStorageValues),
     ) as Map<String, dynamic>;
     expect(root.keys.toSet(), {
       'schemaVersion',
@@ -462,7 +488,8 @@ void main() {
     );
     expect(
       ReportPersistenceService.backendSafeAnswers({
-        '_coach_lpp_evidence_v1': secureStorageValues[activeSecureKey],
+        '_coach_lpp_evidence_v1':
+            _activeAuthorityLppRoot(prefs, secureStorageValues),
       }),
       isEmpty,
     );
@@ -754,6 +781,9 @@ void main() {
       'q_canton': 'VD',
       'q_civil_status': 'marie',
       'q_partner_birth_year': 1982,
+      '_coach_profile_owner_v1': const CoachProfileOwnerRoot(
+        '11111111-1111-4111-8111-111111111111',
+      ).toJsonString(),
     });
     final gate = _PartnerTestGate(
       () => DateTime.utc(2026, 7, 14, 12),
@@ -804,7 +834,8 @@ void main() {
     final selfOwnerId = root.self!.facts.values.first.profileOwnerId;
     expect(root.manualPartner!.facts.values.first.actorProfileOwnerId,
         selfOwnerId);
-    expect(persistence.loadAttempts, 2);
+    // One read per root write plus the exact activation CAS read.
+    expect(persistence.loadAttempts, 3);
     expect(persistence.saveAttempts, 2);
     expect(persistence.events, <String>[
       'save-start:self',
@@ -813,6 +844,7 @@ void main() {
       'save-start:both',
       'save-done:both',
       'notify',
+      'notify', // pending partner authority becomes active after exact CAS
     ]);
   });
 
@@ -823,6 +855,9 @@ void main() {
       'q_canton': 'VD',
       'q_civil_status': 'marie',
       'q_partner_birth_year': 1982,
+      '_coach_profile_owner_v1': const CoachProfileOwnerRoot(
+        '11111111-1111-4111-8111-111111111111',
+      ).toJsonString(),
     });
     final gate = _PartnerTestGate(
       () => DateTime.utc(2026, 7, 14, 12),
@@ -896,7 +931,9 @@ void main() {
           ?.sourceDate,
       DateTime.utc(2026, 7, 1),
     );
-    expect(persistence.loadAttempts, 2);
+    // Cold inspect + migration CAS + final inspect + manual write +
+    // exact activation CAS.
+    expect(persistence.loadAttempts, 5);
     expect(persistence.saveAttempts, 2);
     expect(persistence.events, <String>[
       'save-start:self',
@@ -1011,7 +1048,7 @@ void main() {
 
     final prefs = await SharedPreferences.getInstance();
     final prefsBytes = prefs.getString('wizard_answers_v2')!;
-    final secureRoot = secureStorageValues[_activeLppSecureKey(prefs)]!;
+    final secureRoot = _activeAuthorityLppRoot(prefs, secureStorageValues);
     final root = LppEvidenceRoot.fromJsonString(secureRoot)!;
     final partnerFact = root.manualPartner!.facts.values.first;
     expect(partnerFact.sourceDate, DateTime.utc(2026, 6, 30));
@@ -1193,7 +1230,8 @@ void main() {
     expect(notifications, 0);
   });
 
-  test('malformed secure root survives while loose partner values are purged',
+  test(
+      'malformed secure root preserves raw bytes but quarantines LPP in memory',
       () async {
     const opaqueMalformedRoot = 'opaque-malformed-lpp-root';
     await ReportPersistenceService.saveLppEvidenceAnswers(<String, dynamic>{
@@ -1208,9 +1246,12 @@ void main() {
       ..['_coach_conjoint_lpp_source'] = 'document_scan';
     await ReportPersistenceService.saveAnswers(polluted);
     final prefs = await SharedPreferences.getInstance();
-    final activeSlotIdBefore = prefs.getString(_activeLppSlotKey)!;
-    final secureKeyBefore = _activeLppSecureKey(prefs);
-    expect(secureStorageValues[secureKeyBefore], opaqueMalformedRoot);
+    final activeSlotIdBefore = prefs.getString(_activeAuthoritySlotKey)!;
+    final bytesBefore = prefs.getString('wizard_answers_v2');
+    expect(
+      _activeAuthorityLppRoot(prefs, secureStorageValues),
+      opaqueMalformedRoot,
+    );
 
     final provider = CoachProfileProvider(
       now: () => DateTime.utc(2026, 7, 14, 12),
@@ -1219,20 +1260,27 @@ void main() {
 
     final persisted = await ReportPersistenceService.loadAnswers();
     for (final key in legacyPartnerLppAnswerKeys) {
-      expect(persisted.containsKey(key), isFalse, reason: key);
+      expect(persisted.containsKey(key), isTrue, reason: key);
     }
+    expect(prefs.getString('wizard_answers_v2'), bytesBefore);
     expect(persisted['_coach_lpp_evidence_v1'], opaqueMalformedRoot);
-    expect(prefs.getString(_activeLppSlotKey), activeSlotIdBefore);
-    expect(secureStorageValues[secureKeyBefore], opaqueMalformedRoot);
+    expect(prefs.getString(_activeAuthoritySlotKey), activeSlotIdBefore);
+    expect(
+      _activeAuthorityLppRoot(prefs, secureStorageValues),
+      opaqueMalformedRoot,
+    );
     final backend = ReportPersistenceService.backendSafeAnswers(persisted);
     expect(
       backend.keys.toSet().intersection(legacyPartnerLppAnswerKeys),
       isEmpty,
     );
     expect(backend.containsKey('_coach_lpp_evidence_v1'), isFalse);
+    expect(provider.profile, isNotNull);
+    expect(provider.profile!.conjoint, isNull);
+    expect(provider.canonicalProfileOwnerId, isNull);
   });
 
-  test('unreadable secure placeholder purges loose partner values in place',
+  test('unreadable secure placeholder preserves bytes and blocks LPP authority',
       () async {
     const activeSlotId = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
     SharedPreferences.setMockInitialValues(<String, Object>{
@@ -1258,14 +1306,19 @@ void main() {
 
     final bytesAfter = prefs.getString('wizard_answers_v2')!;
     final stored = Map<String, dynamic>.from(jsonDecode(bytesAfter) as Map);
-    expect(bytesAfter, isNot(bytesBefore));
+    expect(bytesAfter, bytesBefore);
     expect(stored['_coach_lpp_evidence_v1'], '__secure__');
     expect(
-        stored.keys.toSet().intersection(legacyPartnerLppAnswerKeys), isEmpty);
+      stored.keys.toSet().intersection(legacyPartnerLppAnswerKeys),
+      legacyPartnerLppAnswerKeys,
+    );
     expect(prefs.getString(_activeLppSlotKey), activeSlotId);
     expect(secureStorageValues['$_lppSlotPrefix$activeSlotId'], isNull);
-    expect(
-        provider.reportAnswersSnapshot['_coach_lpp_evidence_v1'], '__secure__');
+    expect(provider.reportAnswersSnapshot.containsKey('_coach_lpp_evidence_v1'),
+        isFalse);
+    expect(provider.profile, isNotNull);
+    expect(provider.profile!.conjoint, isNull);
+    expect(provider.canonicalProfileOwnerId, isNull);
   });
 
   test('legacy partner LPP values become metadata-only quarantine', () async {
@@ -1376,9 +1429,10 @@ void main() {
 
     expect(prefs.getString('wizard_answers_v2'), previousBytes);
     expect(secureStorageValues['_coach_lpp_evidence_v1'], isNull);
-    expect(prefs.getString(_activeLppSlotKey), isNull);
+    expect(prefs.getString(_activeAuthoritySlotKey), isNull);
     expect(
-      secureStorageValues.keys.where((key) => key.startsWith(_lppSlotPrefix)),
+      secureStorageValues.keys
+          .where((key) => key.startsWith(_authoritySlotPrefix)),
       isEmpty,
     );
     expect(provider.profile, isNull);
@@ -1446,8 +1500,8 @@ void main() {
       LppEvidenceStatus.availableNeedsConfirmation,
     );
     final prefs = await SharedPreferences.getInstance();
-    final firstSlotId = prefs.getString(_activeLppSlotKey);
-    final firstRoot = secureStorageValues[_activeLppSecureKey(prefs)];
+    final firstSlotId = prefs.getString(_activeAuthoritySlotKey);
+    final firstRoot = _activeAuthorityLppRoot(prefs, secureStorageValues);
     expect(firstRoot, isNotNull);
     final migratedAnswers = await ReportPersistenceService.loadAnswers();
     expect(migratedAnswers.containsKey('_coach_avoir_lpp'), isFalse);
@@ -1457,8 +1511,8 @@ void main() {
     provider.dispose();
     provider = CoachProfileProvider();
     await provider.loadFromWizard();
-    expect(prefs.getString(_activeLppSlotKey), firstSlotId);
-    expect(secureStorageValues[_activeLppSecureKey(prefs)], firstRoot);
+    expect(prefs.getString(_activeAuthoritySlotKey), firstSlotId);
+    expect(_activeAuthorityLppRoot(prefs, secureStorageValues), firstRoot);
     expect(provider.profile!.prevoyance.avoirLppTotal, isNull);
     expect(provider.profile!.prevoyance.tauxConversion, 0.068);
   });
@@ -1502,8 +1556,8 @@ void main() {
       isNull,
     );
     final prefs = await SharedPreferences.getInstance();
-    final firstSlotId = prefs.getString(_activeLppSlotKey);
-    final firstRoot = secureStorageValues[_activeLppSecureKey(prefs)];
+    final firstSlotId = prefs.getString(_activeAuthoritySlotKey);
+    final firstRoot = _activeAuthorityLppRoot(prefs, secureStorageValues);
     expect(firstRoot, isNotNull);
     provider.dispose();
 
@@ -1511,8 +1565,8 @@ void main() {
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
     await cold.loadFromWizard();
-    expect(prefs.getString(_activeLppSlotKey), firstSlotId);
-    expect(secureStorageValues[_activeLppSecureKey(prefs)], firstRoot);
+    expect(prefs.getString(_activeAuthoritySlotKey), firstSlotId);
+    expect(_activeAuthorityLppRoot(prefs, secureStorageValues), firstRoot);
     expect(cold.profile!.prevoyance.avoirLppTotal, isNull);
     expect(
       cold.profile!.prevoyance.lppEvidenceFact(
@@ -1796,13 +1850,15 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     final before = prefs.getString('wizard_answers_v2');
     expect(before, contains('"_coach_lpp_evidence_v1":"__secure__"'));
-    final activeSecureKey = _activeLppSecureKey(prefs);
+    final activeSecureKey = _activeAuthoritySecureKey(prefs);
     secureStorageValues.remove(activeSecureKey);
     secureStorageValues['_coach_lpp_evidence_v1'] =
         'stale-fixed-root-must-not-load';
 
-    final unresolved = await ReportPersistenceService.loadAnswers();
-    expect(unresolved['_coach_lpp_evidence_v1'], '__secure__');
+    await expectLater(
+      ReportPersistenceService.loadAnswers(),
+      throwsStateError,
+    );
 
     final provider = CoachProfileProvider();
     await provider.loadFromWizard();
@@ -1813,6 +1869,6 @@ void main() {
       'stale-fixed-root-must-not-load',
     );
     expect(secureStorageValues[activeSecureKey], isNull);
-    expect(provider.profile!.prevoyance.projectedRenteLpp, isNull);
+    expect(provider.profile, isNull);
   });
 }

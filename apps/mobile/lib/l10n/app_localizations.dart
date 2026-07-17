@@ -42329,6 +42329,48 @@ abstract class S {
   /// **'Les faits LPP requis ne permettent pas encore de calculer ce scénario.'**
   String get planSetupMissingRetirementData;
 
+  /// No description provided for @planSetupBlockerAffiliation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indique d’abord si tu es affilié·e à une caisse de pension.'**
+  String get planSetupBlockerAffiliation;
+
+  /// No description provided for @planSetupBlockerDateOfBirth.
+  ///
+  /// In fr, this message translates to:
+  /// **'La date de naissance exacte manque. Ajoute-la à ton profil avant de recalculer ce scénario.'**
+  String get planSetupBlockerDateOfBirth;
+
+  /// No description provided for @planSetupBlockerSalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le salaire brut annuel actuel manque ou doit être reconfirmé.'**
+  String get planSetupBlockerSalary;
+
+  /// No description provided for @planSetupBlockerLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un avoir LPP récent et confirmé est nécessaire. La lecture du certificat est proposée uniquement lorsqu’elle est disponible.'**
+  String get planSetupBlockerLpp;
+
+  /// No description provided for @planSetupBlockerLegalContract.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le socle légal LPP de ce scénario a expiré. Cette projection est temporairement indisponible jusqu’à sa mise à jour.'**
+  String get planSetupBlockerLegalContract;
+
+  /// No description provided for @planSetupBlockerOwnerAuthority.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’autorité de ce profil ne peut pas être vérifiée. Recharge tes données avant de réessayer.'**
+  String get planSetupBlockerOwnerAuthority;
+
+  /// No description provided for @planSetupBlockerUnexpected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette projection est temporairement indisponible. Réessaie plus tard; aucun montant n’a été enregistré.'**
+  String get planSetupBlockerUnexpected;
+
   /// No description provided for @planSetupEnrichLpp.
   ///
   /// In fr, this message translates to:
@@ -42430,6 +42472,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Les données ont changé depuis la revue. Vérifie à nouveau le scénario avant de confirmer.'**
   String get planSetupDraftChanged;
+
+  /// No description provided for @planSetupBlockerGender.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indique un genre AVS canonique (F ou M) et confirme sa source avant de recalculer ce scénario.'**
+  String get planSetupBlockerGender;
+
+  /// No description provided for @planSetupAnnualApproximation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection annuelle simplifiée : les fractions d’année ne sont pas proratisées.'**
+  String get planSetupAnnualApproximation;
+
+  /// No description provided for @dataBlockBirthDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de naissance (AAAA-MM-JJ)'**
+  String get dataBlockBirthDateLabel;
+
+  /// No description provided for @dataBlockBirthDatePicker.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir la date de naissance'**
+  String get dataBlockBirthDatePicker;
+
+  /// No description provided for @dataBlockGenderLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Genre AVS'**
+  String get dataBlockGenderLabel;
+
+  /// No description provided for @dataBlockGenderFemale.
+  ///
+  /// In fr, this message translates to:
+  /// **'F — femme'**
+  String get dataBlockGenderFemale;
+
+  /// No description provided for @dataBlockGenderMale.
+  ///
+  /// In fr, this message translates to:
+  /// **'M — homme'**
+  String get dataBlockGenderMale;
+
+  /// No description provided for @planCard_annualWholeYearsAssumption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection annuelle simplifiée : les fractions d’année ne sont pas proratisées.'**
+  String get planCard_annualWholeYearsAssumption;
+
+  /// No description provided for @planCard_earlyRetirementFundAuthorization.
+  ///
+  /// In fr, this message translates to:
+  /// **'Condition : le règlement de la caisse doit autoriser une prestation avant 63 ans.'**
+  String get planCard_earlyRetirementFundAuthorization;
+
+  /// No description provided for @planCard_postReferenceActivityAssumption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse : activité lucrative poursuivie et ajournement possible auprès de la caisse.'**
+  String get planCard_postReferenceActivityAssumption;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

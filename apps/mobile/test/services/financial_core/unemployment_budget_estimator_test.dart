@@ -20,6 +20,33 @@ void main() {
       expect(totals.marginSurvival, 2500);
       expect(totals.saving, 150);
     });
+
+    test('validates imported monthly expenses against the income ceiling', () {
+      expect(
+        BudgetCrashFinancialFacts.isMonthlyExpensePlausible(
+          monthlyExpense: 7500,
+          grossMonthlyIncome: 10000,
+          maximumExpenseRatio: 0.50,
+        ),
+        isTrue,
+      );
+      expect(
+        BudgetCrashFinancialFacts.isMonthlyExpensePlausible(
+          monthlyExpense: 7500.01,
+          grossMonthlyIncome: 10000,
+          maximumExpenseRatio: 0.50,
+        ),
+        isFalse,
+      );
+      expect(
+        BudgetCrashFinancialFacts.isMonthlyExpensePlausible(
+          monthlyExpense: 3000,
+          grossMonthlyIncome: 0,
+          maximumExpenseRatio: 0.50,
+        ),
+        isTrue,
+      );
+    });
   });
 
   group('UnemploymentFinancialFacts', () {

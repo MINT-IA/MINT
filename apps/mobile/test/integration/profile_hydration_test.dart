@@ -1,5 +1,7 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Integration tests for F7-1: Profile hydration race condition fix.
@@ -10,10 +12,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   group('Profile hydration state machine', () {
-    test('hasProfile=false + isHydrating=true → router must NOT redirect to onboarding', () {
+    test(
+        'hasProfile=false + isHydrating=true → router must NOT redirect to onboarding',
+        () {
       // Simulates the window between login and API response.
       final provider = CoachProfileProvider();
 
@@ -33,10 +38,13 @@ void main() {
       final shouldRedirectToOnboarding =
           !provider.hasProfile && !provider.isHydrating;
       expect(shouldRedirectToOnboarding, isFalse,
-          reason: 'Router must wait for hydration to complete before redirecting');
+          reason:
+              'Router must wait for hydration to complete before redirecting');
     });
 
-    test('hasProfile=false + isHydrating=false → router DOES redirect to onboarding', () {
+    test(
+        'hasProfile=false + isHydrating=false → router DOES redirect to onboarding',
+        () {
       // Simulates a user who genuinely has no backend profile.
       final provider = CoachProfileProvider();
 
@@ -48,12 +56,15 @@ void main() {
       final shouldRedirectToOnboarding =
           !provider.hasProfile && !provider.isHydrating;
       expect(shouldRedirectToOnboarding, isTrue,
-          reason: 'Router must redirect when hydration is done and no profile exists');
+          reason:
+              'Router must redirect when hydration is done and no profile exists');
     });
 
-    test('createFromRemoteProfile sets hasProfile=true → router allows /home', () {
+    test('canonical remote merge sets hasProfile=true → router allows /home',
+        () async {
       // Simulates successful hydration from backend.
-      final provider = CoachProfileProvider();
+      final sessionEpoch = SessionEpoch();
+      final provider = CoachProfileProvider(sessionEpoch: sessionEpoch);
 
       // Start hydrating.
       provider.startHydrating();
@@ -61,13 +72,14 @@ void main() {
       expect(provider.isHydrating, isTrue);
 
       // Backend returns profile data.
-      provider.createFromRemoteProfile({
-        'birth_year': 1977,
+      final sessionGuard = sessionEpoch.capture();
+      await provider.mergeBackendUnknownProfile({
+        'birthYear': 1977,
         'canton': 'VS',
-        'income_gross_yearly': 122207.0,
+        'incomeGrossYearly': 122207.0,
         'gender': 'M',
-        'employment_status': 'salarie',
-      });
+        'employmentStatus': 'salarie',
+      }, sessionGuard: sessionGuard);
 
       // Finish hydrating.
       provider.finishHydrating();
@@ -82,17 +94,20 @@ void main() {
           reason: 'Router must allow navigation when profile exists');
     });
 
-    test('startHydrating notifies listeners (triggers GoRouter re-evaluation)', () {
+    test('startHydrating notifies listeners (triggers GoRouter re-evaluation)',
+        () {
       final provider = CoachProfileProvider();
       var notified = false;
       provider.addListener(() => notified = true);
 
       provider.startHydrating();
       expect(notified, isTrue,
-          reason: 'startHydrating must call notifyListeners for GoRouter refresh');
+          reason:
+              'startHydrating must call notifyListeners for GoRouter refresh');
     });
 
-    test('finishHydrating notifies listeners (triggers GoRouter re-evaluation)', () {
+    test('finishHydrating notifies listeners (triggers GoRouter re-evaluation)',
+        () {
       final provider = CoachProfileProvider();
       provider.startHydrating();
 
@@ -101,15 +116,16 @@ void main() {
 
       provider.finishHydrating();
       expect(notified, isTrue,
-          reason: 'finishHydrating must call notifyListeners for GoRouter refresh');
+          reason:
+              'finishHydrating must call notifyListeners for GoRouter refresh');
     });
 
-    test('clear resets isHydrating to false', () {
+    test('clear resets isHydrating to false', () async {
       final provider = CoachProfileProvider();
       provider.startHydrating();
       expect(provider.isHydrating, isTrue);
 
-      provider.clear();
+      await provider.clear();
       expect(provider.isHydrating, isFalse);
       expect(provider.hasProfile, isFalse);
     });

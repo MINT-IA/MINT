@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
-import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/authenticated_transport.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRESH START SERVICE — Phase 14 / CMIT-03 + CMIT-04
@@ -47,31 +47,29 @@ class FreshStartLandmark {
 
 class FreshStartService {
   final String baseUrl;
+  final AuthenticatedTransport _transport;
 
-  FreshStartService({String? baseUrl})
-      : baseUrl = baseUrl ?? ApiService.baseUrl;
+  FreshStartService({
+    String? baseUrl,
+    AuthenticatedTransport? transport,
+  })  : baseUrl = baseUrl ?? ApiService.baseUrl,
+        _transport = transport ?? ApiService.authenticatedTransport;
 
   /// Fetch upcoming fresh-start landmarks from the backend.
   ///
   /// Returns a list of landmarks with personalized messages.
   /// Returns empty list on auth or network errors (non-critical feature).
   Future<List<FreshStartLandmark>> fetchLandmarks() async {
-    final token = await AuthService.getToken();
-    if (token == null || token.isEmpty) {
-      return [];
-    }
-
+    final operation = _transport.beginOperation();
     try {
+      await operation.requireSession();
       final uri = Uri.parse('$baseUrl/coach/fresh-start');
-      final response = await http
-          .get(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
+      final response = await operation.send(
+        AuthenticatedRequest.get(
+          uri,
+          timeout: const Duration(seconds: 10),
+        ),
+      );
 
       if (response.statusCode != 200) {
         return [];
@@ -80,9 +78,10 @@ class FreshStartService {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       final landmarks = data['landmarks'] as List<dynamic>? ?? [];
       return landmarks
-          .map((e) =>
-              FreshStartLandmark.fromJson(e as Map<String, dynamic>))
+          .map((e) => FreshStartLandmark.fromJson(e as Map<String, dynamic>))
           .toList();
+    } on SessionEpochInvalidated {
+      rethrow;
     } catch (_) {
       return [];
     }
@@ -100,7 +99,8 @@ class FreshStartService {
 
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
-    final monthKey = 'fresh_start_count_${now.year}_${now.month.toString().padLeft(2, '0')}';
+    final monthKey =
+        'fresh_start_count_${now.year}_${now.month.toString().padLeft(2, '0')}';
     final currentCount = prefs.getInt(monthKey) ?? 0;
 
     if (currentCount >= 2) return; // Already hit monthly limit

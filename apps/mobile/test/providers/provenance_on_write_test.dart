@@ -10,7 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 typedef _ProfileValueReader = Object? Function(CoachProfile profile);
 
-final class _TrackingLppPersistence implements LppProfilePersistence {
+final class _TrackingLppPersistence
+    with SerializedCanonicalAnswerMutationPersistence
+    implements LppProfilePersistence {
   int loadCalls = 0;
   int saveCalls = 0;
   Map<String, dynamic> answers = <String, dynamic>{};
@@ -233,6 +235,76 @@ void main() {
       writeStartedAt: startedAt,
       writeCompletedAt: completedAt,
     );
+  });
+
+  test(
+      'dateOfBirth writers reject non-canonical or implausible civil dates before persistence',
+      () async {
+    final provider = await _seededProvider();
+    const accepted = '1986-02-28';
+
+    expect(
+      await provider.applySaveFact('dateOfBirth', accepted),
+      isTrue,
+    );
+    expect(provider.profile!.dateOfBirth, DateTime(1986, 2, 28));
+    expect(
+      (await ReportPersistenceService.loadAnswers())['q_date_of_birth'],
+      accepted,
+    );
+
+    final today = DateTime.now();
+    final future = '${today.year + 1}-01-01';
+    final minor =
+        '${today.year - 17}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    for (final rejected in <Object?>[
+      '1986-02-30',
+      '1986-2-28',
+      '1986-02-28T00:00:00Z',
+      future,
+      minor,
+      '1899-12-31',
+      DateTime(1986, 2, 28),
+    ]) {
+      await expectLater(
+        provider.applySaveFact('dateOfBirth', rejected),
+        throwsArgumentError,
+        reason: '$rejected must never enter the dateOfBirth ledger slot',
+      );
+      expect(
+        (await ReportPersistenceService.loadAnswers())['q_date_of_birth'],
+        accepted,
+        reason: 'a rejected value must not mutate durable state',
+      );
+    }
+
+    await expectLater(
+      provider.mergeAnswers({'q_date_of_birth': '1986-04-31'}),
+      throwsArgumentError,
+      reason: 'wizard and non-chat writers share the same admission rule',
+    );
+    expect(
+      (await ReportPersistenceService.loadAnswers())['q_date_of_birth'],
+      accepted,
+    );
+
+    final cold = CoachProfileProvider();
+    await cold.loadFromWizard();
+    expect(cold.profile!.dateOfBirth, DateTime(1986, 2, 28));
+    expect(
+        cold.profile!.dataSources['dateOfBirth'], ProfileDataSource.userInput);
+    expect(cold.profile!.dataTimestamps['dateOfBirth'], isNotNull);
+    expect(cold.profile!.dataSourceDates, containsPair('dateOfBirth', null));
+  });
+
+  test('dateOfBirth direct profile writer rejects an implausible value', () {
+    final provider = CoachProfileProvider();
+    final impossible = CoachProfile.defaults().copyWith(
+      dateOfBirth: DateTime(DateTime.now().year - 10, 1, 1),
+    );
+
+    expect(() => provider.updateProfile(impossible), throwsArgumentError);
+    expect(provider.profile, isNull);
   });
 
   test('canonical fixed costs retire a conflicting legacy alias', () async {

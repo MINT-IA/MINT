@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final class _DetailProfilePersistence
+    with SerializedCanonicalAnswerMutationPersistence
     implements LppProfilePersistence, TaxProfilePersistence {
   _DetailProfilePersistence()
       : _answers = <String, dynamic>{

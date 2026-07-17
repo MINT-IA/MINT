@@ -18,6 +18,7 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -26,9 +27,15 @@ void main() {
 
     setUp(() async {
       SharedPreferences.setMockInitialValues({});
+      CoachMemoryService.debugConfigureSessionAuthority(
+        sessionEpoch: SessionEpoch(),
+        userIdReader: () async => null,
+      );
       prefs = await SharedPreferences.getInstance();
       TestWidgetsFlutterBinding.ensureInitialized();
     });
+
+    tearDown(CoachMemoryService.debugResetSessionAuthority);
 
     test('saveEvent persists the entry', () async {
       await CoachMemoryService.saveEvent(
@@ -115,8 +122,7 @@ void main() {
 
       final events = await CoachMemoryService.debugGetEvents(prefs: prefs);
       expect(events.where((e) => e.topic == 'scan_lpp'), hasLength(2),
-          reason:
-              'Local calendar day is the dedup key — panel bugs BUG #4');
+          reason: 'Local calendar day is the dedup key — panel bugs BUG #4');
     });
 
     test('events namespace isolated from regular insights', () async {

@@ -21,7 +21,7 @@ class LppCapitalProjection {
 
 /// LPP (2nd pillar) projection calculator — pure static functions.
 ///
-/// Legal basis: LPP art. 7, 8, 14, 15, 16 / LIFD art. 38.
+/// Legal basis: LPP art. 7, 8, 13, 13b, 14, 15, 16 / LIFD art. 38.
 /// All computations are deterministic and stateless.
 class LppCalculator {
   LppCalculator._();
@@ -89,6 +89,8 @@ class LppCalculator {
     double buybackCap = 0,
     double? bonificationRateOverride,
     double? salaireAssureOverride,
+    DateTime? projectionAsOf,
+    DateTime? bonificationCeasesAt,
   }) {
     final capital = projectCapitalToRetirement(
       currentCapital: currentBalance,
@@ -100,6 +102,8 @@ class LppCalculator {
       buybackCap: buybackCap,
       bonificationRateOverride: bonificationRateOverride,
       salaireAssureOverride: salaireAssureOverride,
+      projectionAsOf: projectionAsOf,
+      bonificationCeasesAt: bonificationCeasesAt,
     );
 
     final effectiveRate = adjustedConversionRate(
@@ -126,7 +130,14 @@ class LppCalculator {
     double buybackCap = 0,
     double? bonificationRateOverride,
     double? salaireAssureOverride,
+    DateTime? projectionAsOf,
+    DateTime? bonificationCeasesAt,
   }) {
+    if ((projectionAsOf == null) != (bonificationCeasesAt == null)) {
+      throw ArgumentError(
+        'projectionAsOf and bonificationCeasesAt must be supplied together',
+      );
+    }
     // NOTE: LPP entry threshold (22'680) applies to annual salary.
     // For partial years, the effective threshold should be pro-rated.
     // Currently assumes full-year employment.
@@ -173,8 +184,14 @@ class LppCalculator {
       // LPP bonifications start at age 25 (LPP art. 7).
       // Before 25, only the return on existing capital applies.
       if (a < 25) continue;
-      final bonifRate = bonificationRateOverride ?? getLppBonificationRate(a);
-      balance += salaireBase * bonifRate;
+      final projectionYear = a - currentAge + 1;
+      final fullYearEligible = projectionAsOf == null ||
+          !_addCalendarYears(projectionAsOf, projectionYear)
+              .isAfter(bonificationCeasesAt!);
+      if (fullYearEligible) {
+        final bonifRate = bonificationRateOverride ?? getLppBonificationRate(a);
+        balance += salaireBase * bonifRate;
+      }
       if (!belowThreshold && monthlyBuyback > 0 && buybackDone < buybackCap) {
         final yearly = (monthlyBuyback * 12).clamp(0, buybackCap - buybackDone);
         balance += yearly;
@@ -190,6 +207,21 @@ class LppCalculator {
       projectedCapital: balance,
       projectionYears:
           ((retirementAge < 70 ? retirementAge : 70) - currentAge).clamp(0, 70),
+    );
+  }
+
+  static DateTime _addCalendarYears(DateTime value, int years) {
+    final year = value.year + years;
+    final maxDay = DateTime.utc(year, value.month + 1, 0).day;
+    return DateTime.utc(
+      year,
+      value.month,
+      value.day.clamp(1, maxDay),
+      value.hour,
+      value.minute,
+      value.second,
+      value.millisecond,
+      value.microsecond,
     );
   }
 

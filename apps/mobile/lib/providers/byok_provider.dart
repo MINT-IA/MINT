@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 /// Error codes for BYOK operations.
 ///
@@ -31,6 +32,7 @@ class ByokProvider extends ChangeNotifier {
 
   final FlutterSecureStorage _storage;
   final RagService _ragService;
+  final SessionEpoch _sessionEpoch;
 
   String? _provider;
   String? _apiKey;
@@ -44,8 +46,10 @@ class ByokProvider extends ChangeNotifier {
   ByokProvider({
     FlutterSecureStorage? storage,
     RagService? ragService,
+    SessionEpoch? sessionEpoch,
   })  : _storage = storage ?? const FlutterSecureStorage(),
-        _ragService = ragService ?? RagService();
+        _ragService = ragService ?? RagService(),
+        _sessionEpoch = sessionEpoch ?? SessionEpoch();
 
   // Getters
   String? get provider => _provider;
@@ -81,27 +85,41 @@ class ByokProvider extends ChangeNotifier {
 
   /// Load saved key from secure storage on init.
   Future<void> loadSavedKey() async {
+    final guard = _sessionEpoch.capture();
     _isLoading = true;
     notifyListeners();
 
     try {
-      _provider = await _storage.read(key: _providerKey);
-      _apiKey = await _storage.read(key: _apiKeyKey);
+      final provider = await _storage.read(key: _providerKey);
+      guard.assertCurrent();
+      final apiKey = await _storage.read(key: _apiKeyKey);
+      guard.assertCurrent();
+      _provider = provider;
+      _apiKey = apiKey;
       _isConfigured =
           _provider != null && _apiKey != null && _apiKey!.isNotEmpty;
+    } on SessionEpochInvalidated {
+      return;
     } catch (e) {
+      guard.assertCurrent();
       if (kDebugMode) {
         debugPrint('ByokProvider: Error loading saved key: $e');
       }
       _isConfigured = false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      try {
+        guard.assertCurrent();
+        _isLoading = false;
+        notifyListeners();
+      } on SessionEpochInvalidated {
+        // Session termination owns the cleared state.
+      }
     }
   }
 
   /// Save a new API key + provider to secure storage.
   Future<void> saveKey(String provider, String apiKey) async {
+    final guard = _sessionEpoch.capture();
     _isLoading = true;
     _testError = null;
     _apiErrorCode = null;
@@ -109,49 +127,86 @@ class ByokProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _storage.write(key: _providerKey, value: provider);
-      await _storage.write(key: _apiKeyKey, value: apiKey);
+      await _sessionEpoch.runGuardedPersistence(guard, () async {
+        await _storage.write(key: _providerKey, value: provider);
+        await _storage.write(key: _apiKeyKey, value: apiKey);
+      });
+      guard.assertCurrent();
       _provider = provider;
       _apiKey = apiKey;
       _isConfigured = true;
+    } on SessionEpochInvalidated {
+      rethrow;
     } catch (e) {
+      guard.assertCurrent();
       if (kDebugMode) {
         debugPrint('ByokProvider: Error saving key: $e');
       }
       _testError = ByokError.saveFailed;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      try {
+        guard.assertCurrent();
+        _isLoading = false;
+        notifyListeners();
+      } on SessionEpochInvalidated {
+        // Session termination owns the cleared state.
+      }
     }
   }
 
   /// Clear saved key from secure storage.
   Future<void> clearKey() async {
+    final guard = _sessionEpoch.capture();
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _storage.delete(key: _providerKey);
-      await _storage.delete(key: _apiKeyKey);
+      await _sessionEpoch.runGuardedPersistence(guard, () async {
+        await _storage.delete(key: _providerKey);
+        await _storage.delete(key: _apiKeyKey);
+      });
+      guard.assertCurrent();
       _provider = null;
       _apiKey = null;
       _isConfigured = false;
       _testSuccess = false;
       _testError = null;
       _apiErrorCode = null;
+    } on SessionEpochInvalidated {
+      rethrow;
     } catch (e) {
+      guard.assertCurrent();
       if (kDebugMode) {
         debugPrint('ByokProvider: Error clearing key: $e');
       }
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      try {
+        guard.assertCurrent();
+        _isLoading = false;
+        notifyListeners();
+      } on SessionEpochInvalidated {
+        // Session termination owns the cleared state.
+      }
     }
+  }
+
+  /// Clears the in-memory API key after the coordinator purged secure storage.
+  void clearSessionMemoryAfterPurge() {
+    _provider = null;
+    _apiKey = null;
+    _isConfigured = false;
+    _isLoading = false;
+    _isTesting = false;
+    _testError = null;
+    _apiErrorCode = null;
+    _testSuccess = false;
+    notifyListeners();
   }
 
   /// Test the key by making a simple query to the RAG backend.
   /// Returns true if the key works, false otherwise.
   Future<bool> testKey() async {
+    final guard = _sessionEpoch.capture();
     if (_apiKey == null || _provider == null) {
       _testError = ByokError.notConfigured;
       _apiErrorCode = null;
@@ -173,23 +228,33 @@ class ByokProvider extends ChangeNotifier {
         provider: _provider!,
         language: 'en',
       );
+      guard.assertCurrent();
       _testSuccess = true;
       _testError = null;
       _apiErrorCode = null;
       return true;
+    } on SessionEpochInvalidated {
+      return false;
     } on RagApiException catch (e) {
+      guard.assertCurrent();
       _testSuccess = false;
       _testError = ByokError.apiError;
       _apiErrorCode = e.errorCode;
       return false;
     } catch (e) {
+      guard.assertCurrent();
       _testSuccess = false;
       _testError = ByokError.connectionError;
       _apiErrorCode = null;
       return false;
     } finally {
-      _isTesting = false;
-      notifyListeners();
+      try {
+        guard.assertCurrent();
+        _isTesting = false;
+        notifyListeners();
+      } on SessionEpochInvalidated {
+        // Session termination owns the cleared state.
+      }
     }
   }
 

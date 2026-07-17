@@ -65,7 +65,12 @@ void main() {
     await _pumpFrames(tester);
 
     expect(notifications, 1);
-    expect(stateProvider.state!.profile, same(salaryMutation));
+    expect(stateProvider.state!.profile, isNot(same(salaryMutation)));
+    expect(stateProvider.state!.profile.salaireBrutMensuel, 9000);
+    expect(
+      stateProvider.state!.profile.updatedAt,
+      profileProvider.profile!.updatedAt,
+    );
 
     final provenanceMutation = salaryMutation.copyWith(
       dataSources: const {
@@ -77,7 +82,12 @@ void main() {
     await _pumpFrames(tester);
 
     expect(notifications, 2);
-    expect(stateProvider.state!.profile, same(provenanceMutation));
+    expect(stateProvider.state!.profile, isNot(same(provenanceMutation)));
+    expect(stateProvider.state!.profile.salaireBrutMensuel, 9000);
+    expect(
+      stateProvider.state!.profile.updatedAt,
+      profileProvider.profile!.updatedAt,
+    );
     expect(
       stateProvider.state!.profile.dataSources['salaireBrutMensuel'],
       ProfileDataSource.certificate,

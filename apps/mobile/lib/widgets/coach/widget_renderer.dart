@@ -7,7 +7,6 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
-import 'package:mint_mobile/services/plan_generation_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -657,59 +656,38 @@ class _StaleFinancialPlanCard extends StatefulWidget {
 }
 
 class _StaleFinancialPlanCardState extends State<_StaleFinancialPlanCard> {
-  bool _isRegenerating = false;
   bool _hasError = false;
+  bool _isReviewing = false;
 
-  Future<void> _regenerate() async {
-    if (_isRegenerating) return;
-
-    final ledger = context.read<CoachProfileProvider>();
-    final profile = ledger.profile;
+  void _openReview() {
     final goalAmount = widget.plan.goalAmount;
-    if (!ledger.isLoaded ||
-        profile == null ||
-        goalAmount == null ||
+    if (goalAmount == null ||
         !goalAmount.isFinite ||
         goalAmount <= 0 ||
         !widget.plan.targetDate.isAfter(DateTime.now())) {
       setState(() => _hasError = true);
       return;
     }
-
     setState(() {
-      _isRegenerating = true;
       _hasError = false;
+      _isReviewing = true;
     });
-
-    try {
-      widget.planProvider.attachProfileProvider(ledger);
-      final regenerated = await PlanGenerationService.generate(
-        goalDescription: widget.plan.goalDescription,
-        goalCategory: widget.plan.goalCategory,
-        targetDate: widget.plan.targetDate,
-        profile: profile,
-        goalAmount: goalAmount,
-        prospectiveLppReturn:
-            widget.plan.projectionAssumptions?.caisseReturnBase,
-      );
-      await widget.planProvider.setPlan(regenerated);
-    } catch (error, stackTrace) {
-      debugPrint(
-        '[widget_renderer] stale plan regeneration failed: $error\n$stackTrace',
-      );
-      if (mounted) {
-        setState(() => _hasError = true);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isRegenerating = false);
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+
+    if (_isReviewing) {
+      return FinancialPlanSetupCard(
+        goalHint: widget.plan.goalDescription,
+        planProvider: widget.planProvider,
+        initialPlan: widget.plan,
+        onConfirmed: () {
+          if (mounted) setState(() => _isReviewing = false);
+        },
+      );
+    }
 
     return Semantics(
       identifier: 'financial_plan_stale_state',
@@ -757,17 +735,12 @@ class _StaleFinancialPlanCardState extends State<_StaleFinancialPlanCard> {
               identifier: 'financial_plan_stale_recalculate',
               container: true,
               button: true,
-              enabled: !_isRegenerating,
-              onTap: _isRegenerating ? null : _regenerate,
+              enabled: true,
+              onTap: _openReview,
               child: ExcludeSemantics(
                 child: FilledButton.icon(
-                  onPressed: _isRegenerating ? null : _regenerate,
-                  icon: _isRegenerating
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.refresh),
+                  onPressed: _openReview,
+                  icon: const Icon(Icons.refresh),
                   label: Text(l.planCard_ctaRecalculate),
                 ),
               ),

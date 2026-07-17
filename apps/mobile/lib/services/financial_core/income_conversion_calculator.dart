@@ -36,6 +36,16 @@ class IncomeConversionCalculator {
     return annualAmount / months;
   }
 
+  static double monthlyNetFromAnnualGross(
+    double annualGross, {
+    double socialChargesRate = fallbackSwissSocialChargesRate,
+  }) {
+    final monthlyGross = monthlyGrossFromAnnualGross(annualGross);
+    if (monthlyGross <= 0) return 0;
+    final normalizedRate = socialChargesRate.clamp(0.0, 1.0).toDouble();
+    return monthlyGross * (1 - normalizedRate);
+  }
+
   static double annualGrossFromMonthly({
     required double monthlyGross,
     required double months,

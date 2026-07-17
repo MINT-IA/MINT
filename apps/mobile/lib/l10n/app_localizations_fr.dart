@@ -24243,6 +24243,34 @@ class SFr extends S {
       'Les faits LPP requis ne permettent pas encore de calculer ce scénario.';
 
   @override
+  String get planSetupBlockerAffiliation =>
+      'Indique d’abord si tu es affilié·e à une caisse de pension.';
+
+  @override
+  String get planSetupBlockerDateOfBirth =>
+      'La date de naissance exacte manque. Ajoute-la à ton profil avant de recalculer ce scénario.';
+
+  @override
+  String get planSetupBlockerSalary =>
+      'Le salaire brut annuel actuel manque ou doit être reconfirmé.';
+
+  @override
+  String get planSetupBlockerLpp =>
+      'Un avoir LPP récent et confirmé est nécessaire. La lecture du certificat est proposée uniquement lorsqu’elle est disponible.';
+
+  @override
+  String get planSetupBlockerLegalContract =>
+      'Le socle légal LPP de ce scénario a expiré. Cette projection est temporairement indisponible jusqu’à sa mise à jour.';
+
+  @override
+  String get planSetupBlockerOwnerAuthority =>
+      'L’autorité de ce profil ne peut pas être vérifiée. Recharge tes données avant de réessayer.';
+
+  @override
+  String get planSetupBlockerUnexpected =>
+      'Cette projection est temporairement indisponible. Réessaie plus tard; aucun montant n’a été enregistré.';
+
+  @override
   String get planSetupEnrichLpp => 'Voir les données LPP à confirmer';
 
   @override
@@ -24302,4 +24330,39 @@ class SFr extends S {
   @override
   String get planSetupDraftChanged =>
       'Les données ont changé depuis la revue. Vérifie à nouveau le scénario avant de confirmer.';
+
+  @override
+  String get planSetupBlockerGender =>
+      'Indique un genre AVS canonique (F ou M) et confirme sa source avant de recalculer ce scénario.';
+
+  @override
+  String get planSetupAnnualApproximation =>
+      'Projection annuelle simplifiée : les fractions d’année ne sont pas proratisées.';
+
+  @override
+  String get dataBlockBirthDateLabel => 'Date de naissance (AAAA-MM-JJ)';
+
+  @override
+  String get dataBlockBirthDatePicker => 'Choisir la date de naissance';
+
+  @override
+  String get dataBlockGenderLabel => 'Genre AVS';
+
+  @override
+  String get dataBlockGenderFemale => 'F — femme';
+
+  @override
+  String get dataBlockGenderMale => 'M — homme';
+
+  @override
+  String get planCard_annualWholeYearsAssumption =>
+      'Projection annuelle simplifiée : les fractions d’année ne sont pas proratisées.';
+
+  @override
+  String get planCard_earlyRetirementFundAuthorization =>
+      'Condition : le règlement de la caisse doit autoriser une prestation avant 63 ans.';
+
+  @override
+  String get planCard_postReferenceActivityAssumption =>
+      'Hypothèse : activité lucrative poursuivie et ajournement possible auprès de la caisse.';
 }

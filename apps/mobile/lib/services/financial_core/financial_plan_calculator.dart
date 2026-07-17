@@ -1,5 +1,4 @@
 import 'package:mint_mobile/models/financial_plan.dart';
-import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_plan_ledger_inputs.dart';
 
@@ -32,7 +31,7 @@ class FinancialPlanCalculator {
     required double goalAmount,
     required DateTime targetDate,
     required DateTime now,
-    required FinancialPlanLedgerInputs inputs,
+    required FinancialPlanDependencySnapshot inputs,
     required double? prospectiveLppReturn,
   }) {
     final months = monthsRemaining(targetDate: targetDate, now: now);
@@ -55,14 +54,14 @@ class FinancialPlanCalculator {
       );
     }
 
-    final retirementAge = inputs.ageAt(targetDate);
-    if (retirementAge < 58 || retirementAge > 70) {
+    if (!inputs.isRetirementTargetWithinCivilBounds()) {
       throw ArgumentError.value(
-        retirementAge,
+        targetDate,
         'targetDate',
         'retirement target age must be between 58 and 70',
       );
     }
+    final retirementAge = inputs.ageAt(targetDate);
 
     if (!inputs.hasPensionFund) {
       final monthlyTarget = goalAmount / months;
@@ -86,13 +85,6 @@ class FinancialPlanCalculator {
           ),
           projectionAsOf: now,
         ),
-      );
-    }
-    if (inputs.confidenceLevel < ConfidenceScorer.minConfidenceForProjection) {
-      throw ArgumentError.value(
-        inputs.confidenceLevel,
-        'confidenceLevel',
-        'minimum projection confidence not reached',
       );
     }
     if (prospectiveLppReturn == null ||
@@ -139,7 +131,13 @@ class FinancialPlanCalculator {
       projectedLow: projectedLow,
       projectedHigh: projectedHigh,
       milestones: milestones,
-      sources: const ['LPP art. 8', 'LPP art. 15–16'],
+      sources: [
+        'LPP art. 7',
+        'LPP art. 8',
+        'LPP art. 13 et 13b', // lint-ignore: official legal citation
+        'LPP art. 15–16',
+        'OFAS — AVS 21 (âge de référence transitoire)', // lint-ignore: official source title
+      ],
       projectionAssumptions: FinancialPlanProjectionAssumptions(
         caisseReturnBase: prospectiveLppReturn,
         caisseReturnLow: lowReturn,
@@ -153,6 +151,10 @@ class FinancialPlanCalculator {
           kind: 'legalAgeSchedule',
         ),
         projectionAsOf: now,
+        annualProjectionUsesWholeYears: true,
+        requiresFundAuthorizationBefore63: retirementAge < 63,
+        assumesPostReferenceGainfulActivity:
+            inputs.requiresPostReferenceActivity,
       ),
     );
   }
@@ -167,7 +169,7 @@ class FinancialPlanCalculator {
   }
 
   static double _projectRetirementCapital({
-    required FinancialPlanLedgerInputs inputs,
+    required FinancialPlanDependencySnapshot inputs,
     required int retirementAge,
     required double caisseReturn,
   }) {
@@ -177,6 +179,8 @@ class FinancialPlanCalculator {
       retirementAge: retirementAge,
       grossAnnualSalary: inputs.grossAnnualSalary,
       caisseReturn: caisseReturn,
+      projectionAsOf: inputs.inputAsOf,
+      bonificationCeasesAt: inputs.avsReferenceDate,
     ).projectedCapital;
   }
 

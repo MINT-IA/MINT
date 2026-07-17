@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
@@ -31,25 +31,13 @@ FinancialPlan _makePlan({
   );
 }
 
-CoachProfile _makeProfile({double salary = 10000.0, String canton = 'VS'}) {
-  return CoachProfile(
-    birthYear: 1977,
-    canton: canton,
-    salaireBrutMensuel: salary,
-    goalA: GoalA(
-      type: GoalAType.achatImmo,
-      targetDate: DateTime(2028, 6, 1),
-      label: 'Achat',
-    ),
-  );
-}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('FinancialPlanProvider', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});
+      FlutterSecureStorage.setMockInitialValues(<String, String>{});
     });
 
     test('Test 7: hasPlan is false initially', () {
@@ -72,38 +60,6 @@ void main() {
       expect(provider.hasPlan, isTrue);
       expect(provider.currentPlan, isNotNull);
       expect(provider.currentPlan!.id, equals('plan-001'));
-    });
-
-    test('Test 9: When profile hash changes, isPlanStale becomes true', () {
-      final plan = _makePlan(profileHash: 'hash-original');
-      final provider = FinancialPlanProvider();
-      addTearDown(provider.dispose);
-      // Set the plan directly without persistence
-      provider.setPlanDirect(plan);
-
-      expect(provider.isPlanStale, isFalse);
-
-      // Simulate a profile with a different hash
-      final differentProfile =
-          _makeProfile(salary: 99999.0); // different salary → different hash
-      provider.checkStalenessForTest(differentProfile);
-
-      expect(provider.isPlanStale, isTrue);
-    });
-
-    test('Test 10: When profile hash is unchanged, isPlanStale remains false',
-        () {
-      final profile = _makeProfile(salary: 10000.0, canton: 'VS');
-      final hash = computeProfileHash(profile);
-      final plan = _makePlan(profileHash: hash);
-
-      final provider = FinancialPlanProvider();
-      addTearDown(provider.dispose);
-      provider.setPlanDirect(plan);
-
-      provider.checkStalenessForTest(profile);
-
-      expect(provider.isPlanStale, isFalse);
     });
 
     test('Test 11: clearPlan() sets hasPlan to false', () async {

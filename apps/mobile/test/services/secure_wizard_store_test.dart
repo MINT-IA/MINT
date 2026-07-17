@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,11 +16,24 @@ const _lppRootB =
     '{"schemaVersion":1, "self":null,"manualPartner":null,"legacyPartnerQuarantine":null}';
 const _activeLppSlotKey = 'lpp_evidence_active_slot_v1';
 const _lppSlotPrefix = '_coach_lpp_evidence_slot_v1_';
+const _activeAuthoritySlotKey = 'coach_authority_active_slot_v1';
+const _authoritySlotPrefix = '_coach_authority_slot_v1_';
 
-String _activeSecureLppKey(SharedPreferences preferences) {
-  final slotId = preferences.getString(_activeLppSlotKey);
+String _activeSecureAuthorityKey(SharedPreferences preferences) {
+  final slotId = preferences.getString(_activeAuthoritySlotKey);
   expect(slotId, matches(RegExp(r'^[a-f0-9]{32}$')));
-  return '$_lppSlotPrefix$slotId';
+  return '$_authoritySlotPrefix$slotId';
+}
+
+Map<String, dynamic> _authorityAnswers(
+  Map<String, String> secureStorageValues,
+  String secureKey,
+) {
+  final envelope = Map<String, dynamic>.from(
+    jsonDecode(secureStorageValues[secureKey]!) as Map,
+  );
+  expect(envelope['schemaVersion'], 1);
+  return Map<String, dynamic>.from(envelope['answers'] as Map);
 }
 
 final class _FailOncePointerStore extends InMemorySharedPreferencesStore {
@@ -29,7 +43,7 @@ final class _FailOncePointerStore extends InMemorySharedPreferencesStore {
 
   @override
   Future<bool> setValue(String valueType, String key, Object value) async {
-    if (failNextPointerWrite && key == 'flutter.$_activeLppSlotKey') {
+    if (failNextPointerWrite && key == 'flutter.$_activeAuthoritySlotKey') {
       failNextPointerWrite = false;
       return false;
     }
@@ -58,7 +72,18 @@ void main() {
     final key = args['key'] as String?;
     if (call.method == 'write' && key != null) {
       final isLppKey = key == '_coach_lpp_evidence_v1' ||
-          key.startsWith('_coach_lpp_evidence_slot_v1_');
+          key.startsWith(_lppSlotPrefix) ||
+          key.startsWith(_authoritySlotPrefix);
+      String? authorityLppRoot;
+      if (key.startsWith(_authoritySlotPrefix)) {
+        try {
+          authorityLppRoot = Map<String, dynamic>.from(
+            (jsonDecode(args['value'] as String) as Map)['answers'] as Map,
+          )['_coach_lpp_evidence_v1'] as String?;
+        } on Object {
+          authorityLppRoot = null;
+        }
+      }
       if (isLppKey) {
         final prefs = await SharedPreferences.getInstance();
         prefsBytesObservedByLppWrite = prefs.getString('wizard_answers_v2');
@@ -67,16 +92,23 @@ void main() {
         throw PlatformException(code: '-34018');
       }
       if (hangWrites) return Completer<Object?>().future;
-      if (delayLppReplacement && isLppKey && args['value'] == _lppRootB) {
+      if (delayLppReplacement &&
+          isLppKey &&
+          (args['value'] == _lppRootB || authorityLppRoot == _lppRootB)) {
         await Future<void>.delayed(const Duration(milliseconds: 2100));
       }
-      if (delayFirstLppWrite && isLppKey && args['value'] == _lppRootA) {
+      if (delayFirstLppWrite &&
+          isLppKey &&
+          (args['value'] == _lppRootA || authorityLppRoot == _lppRootA)) {
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
       if (delayedRootAWrite != null &&
-          key.startsWith(_lppSlotPrefix) &&
-          args['value'] == _lppRootA) {
-        rootAWriteStarted?.complete();
+          (key.startsWith(_lppSlotPrefix) ||
+              key.startsWith(_authoritySlotPrefix)) &&
+          (args['value'] == _lppRootA || authorityLppRoot == _lppRootA)) {
+        if (rootAWriteStarted?.isCompleted == false) {
+          rootAWriteStarted?.complete();
+        }
         await delayedRootAWrite!.future;
       }
       secureStorageValues[key] = args['value'] as String;
@@ -284,14 +316,16 @@ void main() {
 
       expect(preferences.getString('wizard_answers_v2'), isNull);
       expect(secureStorageValues['_coach_lpp_evidence_v1'], isNull);
-      expect(preferences.getString(_activeLppSlotKey), isNull);
+      expect(preferences.getString(_activeAuthoritySlotKey), isNull);
       expect(
-        secureStorageValues.keys.where((key) => key.startsWith(_lppSlotPrefix)),
+        secureStorageValues.keys
+            .where((key) => key.startsWith(_authoritySlotPrefix)),
         isEmpty,
       );
       expect(
         prefsBytesObservedByLppWrite,
-        contains('"_coach_lpp_evidence_v1":"__secure__"'),
+        isNull,
+        reason: 'the encrypted authority slot is staged before its prefs cache',
       );
     });
 
@@ -305,9 +339,13 @@ void main() {
       );
       final preferences = await SharedPreferences.getInstance();
       final previousBytes = preferences.getString('wizard_answers_v2');
-      final previousSlotId = preferences.getString(_activeLppSlotKey);
-      final previousSecureKey = _activeSecureLppKey(preferences);
-      expect(secureStorageValues[previousSecureKey], _lppRootA);
+      final previousSlotId = preferences.getString(_activeAuthoritySlotKey);
+      final previousSecureKey = _activeSecureAuthorityKey(preferences);
+      expect(
+        _authorityAnswers(
+            secureStorageValues, previousSecureKey)['_coach_lpp_evidence_v1'],
+        _lppRootA,
+      );
       failLppWrites = true;
 
       await expectLater(
@@ -321,8 +359,12 @@ void main() {
       );
 
       expect(preferences.getString('wizard_answers_v2'), previousBytes);
-      expect(preferences.getString(_activeLppSlotKey), previousSlotId);
-      expect(secureStorageValues[previousSecureKey], _lppRootA);
+      expect(preferences.getString(_activeAuthoritySlotKey), previousSlotId);
+      expect(
+        _authorityAnswers(
+            secureStorageValues, previousSecureKey)['_coach_lpp_evidence_v1'],
+        _lppRootA,
+      );
       final restored = await ReportPersistenceService.loadAnswers();
       expect(restored['q_canton'], 'VD');
       expect(restored['_coach_lpp_evidence_v1'], _lppRootA);
@@ -338,8 +380,8 @@ void main() {
       );
       final preferences = await SharedPreferences.getInstance();
       final previousBytes = preferences.getString('wizard_answers_v2');
-      final previousSlotId = preferences.getString(_activeLppSlotKey);
-      final previousSecureKey = _activeSecureLppKey(preferences);
+      final previousSlotId = preferences.getString(_activeAuthoritySlotKey);
+      final previousSecureKey = _activeSecureAuthorityKey(preferences);
       delayLppReplacement = true;
 
       await expectLater(
@@ -354,10 +396,15 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 200));
 
       expect(preferences.getString('wizard_answers_v2'), previousBytes);
-      expect(preferences.getString(_activeLppSlotKey), previousSlotId);
-      expect(secureStorageValues[previousSecureKey], _lppRootA);
+      expect(preferences.getString(_activeAuthoritySlotKey), previousSlotId);
       expect(
-        secureStorageValues.keys.where((key) => key.startsWith(_lppSlotPrefix)),
+        _authorityAnswers(
+            secureStorageValues, previousSecureKey)['_coach_lpp_evidence_v1'],
+        _lppRootA,
+      );
+      expect(
+        secureStorageValues.keys
+            .where((key) => key.startsWith(_authoritySlotPrefix)),
         <String>[previousSecureKey],
       );
       final restored = await ReportPersistenceService.loadAnswers();
@@ -381,15 +428,16 @@ void main() {
 
       final preferences = await SharedPreferences.getInstance();
       expect(preferences.getString('wizard_answers_v2'), isNull);
-      expect(preferences.getString(_activeLppSlotKey), isNull);
+      expect(preferences.getString(_activeAuthoritySlotKey), isNull);
       expect(
-        secureStorageValues.keys.where((key) => key.startsWith(_lppSlotPrefix)),
+        secureStorageValues.keys
+            .where((key) => key.startsWith(_authoritySlotPrefix)),
         isEmpty,
       );
       expect(await ReportPersistenceService.loadAnswers(), isEmpty);
     });
 
-    test('successful LPP write stages placeholder before secure round-trip',
+    test('successful LPP write stages authority before placeholder cache',
         () async {
       await ReportPersistenceService.saveLppEvidenceAnswers(
         const <String, dynamic>{
@@ -400,13 +448,17 @@ void main() {
 
       expect(
         prefsBytesObservedByLppWrite,
-        contains('"_coach_lpp_evidence_v1":"__secure__"'),
+        isNull,
       );
       final preferences = await SharedPreferences.getInstance();
-      final activeSlotId = preferences.getString(_activeLppSlotKey)!;
-      final activeSecureKey = _activeSecureLppKey(preferences);
+      final activeSlotId = preferences.getString(_activeAuthoritySlotKey)!;
+      final activeSecureKey = _activeSecureAuthorityKey(preferences);
       expect(secureStorageValues['_coach_lpp_evidence_v1'], isNull);
-      expect(secureStorageValues[activeSecureKey], _lppRootA);
+      expect(
+        _authorityAnswers(
+            secureStorageValues, activeSecureKey)['_coach_lpp_evidence_v1'],
+        _lppRootA,
+      );
       expect(
         preferences.getString('wizard_answers_v2'),
         isNot(contains(activeSlotId)),
@@ -426,8 +478,8 @@ void main() {
         },
       );
       final preferences = await SharedPreferences.getInstance();
-      final oldSlotId = preferences.getString(_activeLppSlotKey);
-      final oldSecureKey = _activeSecureLppKey(preferences);
+      final oldSlotId = preferences.getString(_activeAuthoritySlotKey);
+      final oldSecureKey = _activeSecureAuthorityKey(preferences);
 
       await ReportPersistenceService.saveLppEvidenceAnswers(
         const <String, dynamic>{
@@ -436,17 +488,22 @@ void main() {
         },
       );
 
-      final newSlotId = preferences.getString(_activeLppSlotKey);
-      final newSecureKey = _activeSecureLppKey(preferences);
+      final newSlotId = preferences.getString(_activeAuthoritySlotKey);
+      final newSecureKey = _activeSecureAuthorityKey(preferences);
       expect(newSlotId, isNot(oldSlotId));
       expect(secureStorageValues[oldSecureKey], isNull);
-      expect(secureStorageValues[newSecureKey], _lppRootB);
+      expect(
+        _authorityAnswers(
+            secureStorageValues, newSecureKey)['_coach_lpp_evidence_v1'],
+        _lppRootB,
+      );
       final restored = await ReportPersistenceService.loadAnswers();
       expect(restored['q_canton'], 'GE');
       expect(restored['_coach_lpp_evidence_v1'], _lppRootB);
     });
 
-    test('generic save preserves the active immutable LPP slot', () async {
+    test('generic save versions the whole active authority atomically',
+        () async {
       await ReportPersistenceService.saveLppEvidenceAnswers(
         const <String, dynamic>{
           'q_canton': 'VD',
@@ -454,15 +511,22 @@ void main() {
         },
       );
       final preferences = await SharedPreferences.getInstance();
-      final activeSlotId = preferences.getString(_activeLppSlotKey);
-      final activeSecureKey = _activeSecureLppKey(preferences);
+      final activeSlotId = preferences.getString(_activeAuthoritySlotKey);
+      final activeSecureKey = _activeSecureAuthorityKey(preferences);
       final unrelatedUpdate = await ReportPersistenceService.loadAnswers()
         ..['q_canton'] = 'GE';
 
       await ReportPersistenceService.saveAnswers(unrelatedUpdate);
 
-      expect(preferences.getString(_activeLppSlotKey), activeSlotId);
-      expect(secureStorageValues[activeSecureKey], _lppRootA);
+      final replacementSlotId = preferences.getString(_activeAuthoritySlotKey);
+      final replacementSecureKey = _activeSecureAuthorityKey(preferences);
+      expect(replacementSlotId, isNot(activeSlotId));
+      expect(secureStorageValues[activeSecureKey], isNull);
+      expect(
+        _authorityAnswers(secureStorageValues, replacementSecureKey)[
+            '_coach_lpp_evidence_v1'],
+        _lppRootA,
+      );
       expect(secureStorageValues['_coach_lpp_evidence_v1'], isNull);
       final restored = await ReportPersistenceService.loadAnswers();
       expect(restored['q_canton'], 'GE');
@@ -489,10 +553,15 @@ void main() {
       await Future.wait<void>(<Future<void>>[first, second]);
 
       final preferences = await SharedPreferences.getInstance();
-      final activeSecureKey = _activeSecureLppKey(preferences);
-      expect(secureStorageValues[activeSecureKey], _lppRootB);
+      final activeSecureKey = _activeSecureAuthorityKey(preferences);
       expect(
-        secureStorageValues.keys.where((key) => key.startsWith(_lppSlotPrefix)),
+        _authorityAnswers(
+            secureStorageValues, activeSecureKey)['_coach_lpp_evidence_v1'],
+        _lppRootB,
+      );
+      expect(
+        secureStorageValues.keys
+            .where((key) => key.startsWith(_authoritySlotPrefix)),
         <String>[activeSecureKey],
       );
       final restored = await ReportPersistenceService.loadAnswers();
@@ -502,12 +571,15 @@ void main() {
 
     test('legacy migration cannot activate after a newer dedicated save',
         () async {
-      await ReportPersistenceService.saveAnswers(
-        const <String, dynamic>{
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(
+        'wizard_answers_v2',
+        jsonEncode(const <String, dynamic>{
           'q_canton': 'VD',
-          '_coach_lpp_evidence_v1': _lppRootA,
-        },
+          '_coach_lpp_evidence_v1': '__secure__',
+        }),
       );
+      await SecureWizardStore.write('_coach_lpp_evidence_v1', _lppRootA);
       delayedRootAWrite = Completer<void>();
       rootAWriteStarted = Completer<void>();
       final migration = ReportPersistenceService.loadAnswers();
@@ -571,11 +643,12 @@ void main() {
 
       final preferences = await SharedPreferences.getInstance();
       expect(preferences.getString('wizard_answers_v2'), isNull);
-      expect(preferences.getString(_activeLppSlotKey), isNull);
+      expect(preferences.getString(_activeAuthoritySlotKey), isNull);
       expect(
         secureStorageValues.keys.where(
           (key) =>
-              key == '_coach_lpp_evidence_v1' || key.startsWith(_lppSlotPrefix),
+              key == '_coach_lpp_evidence_v1' ||
+              key.startsWith(_authoritySlotPrefix),
         ),
         isEmpty,
       );
@@ -593,8 +666,8 @@ void main() {
       );
       final preferences = await SharedPreferences.getInstance();
       final previousBytes = preferences.getString('wizard_answers_v2');
-      final previousSlotId = preferences.getString(_activeLppSlotKey);
-      final previousSecureKey = _activeSecureLppKey(preferences);
+      final previousSlotId = preferences.getString(_activeAuthoritySlotKey);
+      final previousSecureKey = _activeSecureAuthorityKey(preferences);
       store.failNextPointerWrite = true;
 
       await expectLater(
@@ -608,10 +681,15 @@ void main() {
       );
 
       expect(preferences.getString('wizard_answers_v2'), previousBytes);
-      expect(preferences.getString(_activeLppSlotKey), previousSlotId);
-      expect(secureStorageValues[previousSecureKey], _lppRootA);
+      expect(preferences.getString(_activeAuthoritySlotKey), previousSlotId);
       expect(
-        secureStorageValues.keys.where((key) => key.startsWith(_lppSlotPrefix)),
+        _authorityAnswers(
+            secureStorageValues, previousSecureKey)['_coach_lpp_evidence_v1'],
+        _lppRootA,
+      );
+      expect(
+        secureStorageValues.keys
+            .where((key) => key.startsWith(_authoritySlotPrefix)),
         <String>[previousSecureKey],
       );
       final restored = await ReportPersistenceService.loadAnswers();
@@ -621,13 +699,15 @@ void main() {
 
     test('legacy fixed root migrates once to an active versioned slot',
         () async {
-      await ReportPersistenceService.saveAnswers(
-        const <String, dynamic>{
-          'q_canton': 'VD',
-          '_coach_lpp_evidence_v1': _lppRootA,
-        },
-      );
       final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(
+        'wizard_answers_v2',
+        jsonEncode(const <String, dynamic>{
+          'q_canton': 'VD',
+          '_coach_lpp_evidence_v1': '__secure__',
+        }),
+      );
+      await SecureWizardStore.write('_coach_lpp_evidence_v1', _lppRootA);
       expect(preferences.getString(_activeLppSlotKey), isNull);
       expect(secureStorageValues['_coach_lpp_evidence_v1'], _lppRootA);
 
@@ -635,24 +715,27 @@ void main() {
 
       expect(restored['_coach_lpp_evidence_v1'], _lppRootA);
       expect(secureStorageValues['_coach_lpp_evidence_v1'], isNull);
+      final activeLegacySlot = preferences.getString(_activeLppSlotKey)!;
       expect(
-        secureStorageValues[_activeSecureLppKey(preferences)],
+        secureStorageValues['$_lppSlotPrefix$activeLegacySlot'],
         _lppRootA,
       );
     });
 
     test('failed legacy migration keeps the fixed root readable', () async {
-      await ReportPersistenceService.saveAnswers(
-        const <String, dynamic>{
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(
+        'wizard_answers_v2',
+        jsonEncode(const <String, dynamic>{
           'q_canton': 'VD',
-          '_coach_lpp_evidence_v1': _lppRootA,
-        },
+          '_coach_lpp_evidence_v1': '__secure__',
+        }),
       );
+      await SecureWizardStore.write('_coach_lpp_evidence_v1', _lppRootA);
       failLppWrites = true;
 
       final restored = await ReportPersistenceService.loadAnswers();
 
-      final preferences = await SharedPreferences.getInstance();
       expect(restored['_coach_lpp_evidence_v1'], _lppRootA);
       expect(preferences.getString(_activeLppSlotKey), isNull);
       expect(secureStorageValues['_coach_lpp_evidence_v1'], _lppRootA);

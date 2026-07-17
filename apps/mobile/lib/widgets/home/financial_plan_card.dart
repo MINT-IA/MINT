@@ -22,6 +22,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -85,7 +86,7 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
     final dateFmt = DateFormat.yMMMM(localeName);
     final quarterFmt = DateFormat('QQQ yyyy', localeName);
 
-    return Container(
+    final freshCard = Container(
       decoration: BoxDecoration(
         color: MintColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -131,10 +132,14 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
           const SizedBox(height: MintSpacing.xs),
 
           // ── Hero: monthly CHF target ──
-          Text(
-            l10n.planCard_monthlyAmount(chfFmt.format(plan.monthlyTarget)),
-            style: MintTextStyles.displayMedium(
-              color: MintColors.textPrimary,
+          Semantics(
+            identifier: 'financial_plan_home_monthly_amount',
+            container: true,
+            child: Text(
+              l10n.planCard_monthlyAmount(chfFmt.format(plan.monthlyTarget)),
+              style: MintTextStyles.displayMedium(
+                color: MintColors.textPrimary,
+              ),
             ),
           ),
 
@@ -194,6 +199,12 @@ class _FinancialPlanCardState extends State<FinancialPlanCard> {
           ),
         ],
       ),
+    );
+    return Semantics(
+      identifier: 'financial_plan_home_fresh_state',
+      container: true,
+      explicitChildNodes: true,
+      child: freshCard,
     );
   }
 }
@@ -388,9 +399,8 @@ class _PlanTransparencySummary extends StatelessWidget {
     final isRetirement = plan.goalCategory == 'goal_retirement_plan' ||
         plan.goalCategory == 'goal_pension_opt';
     final assumptions = plan.projectionAssumptions;
-    final isNoLppRetirement = isRetirement &&
-        assumptions?.salaryBasis.kind == 'notApplicable' &&
-        assumptions?.bonificationBasis.kind == 'notApplicable';
+    final isNoLppRetirement = plan.dependencyBranch == 'retirementNoLpp';
+    final isLppRetirement = plan.dependencyBranch == 'retirementLpp';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,14 +431,19 @@ class _PlanTransparencySummary extends StatelessWidget {
           ),
           style: MintTextStyles.micro(color: MintColors.textMuted),
         ),
-        if (plan.confidenceLevel < 70) ...[
+        if (plan.confidenceLevel < 70 &&
+            (!isRetirement ||
+                (isLppRetirement &&
+                    FeatureFlags.lppEvidenceIngestionEnabled))) ...[
           const SizedBox(height: MintSpacing.xs),
           Semantics(
             identifier: 'financial_plan_home_improve_precision',
             button: true,
             child: TextButton(
               onPressed: () => context.push(
-                isRetirement ? '/data-block/lpp' : '/data-block/revenu',
+                isLppRetirement
+                    ? '/scan?type=lppCertificate'
+                    : '/data-block/revenu',
               ),
               child: Text(l10n.planCard_improvePrecision),
             ),
@@ -497,6 +512,15 @@ class _PlanTransparencySummary extends StatelessWidget {
       );
     } else if (bonification.kind == 'legalAgeSchedule') {
       lines.add(l10n.planCard_bonificationLegal);
+    }
+    if (assumptions.annualProjectionUsesWholeYears) {
+      lines.add(l10n.planCard_annualWholeYearsAssumption);
+    }
+    if (assumptions.requiresFundAuthorizationBefore63) {
+      lines.add(l10n.planCard_earlyRetirementFundAuthorization);
+    }
+    if (assumptions.assumesPostReferenceGainfulActivity) {
+      lines.add(l10n.planCard_postReferenceActivityAssumption);
     }
     if (assumptions.projectionAsOf.millisecondsSinceEpoch > 0) {
       lines.add(

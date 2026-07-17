@@ -3,24 +3,23 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('CoachProfileProvider backend sync uses the shared privacy helper', () {
+  test('CoachProfileProvider has no ongoing outbound profile claim', () {
     final source =
         File('lib/providers/coach_profile_provider.dart').readAsStringSync();
-    final body = _between(
-      source,
-      'Future<void> _syncToBackend() async',
-      'Future<void> triggerBackendSync()',
-    );
 
-    expect(_safeHelperFeedsWizardPayload(body), isTrue);
+    expect(source, isNot(contains('ApiService.claimLocalData(')));
+    expect(source, isNot(contains('_syncToBackend')));
+    expect(source, isNot(contains('triggerBackendSync')));
+    expect(source, isNot(contains('syncToBackend')));
+    expect(source, contains('Future<void> syncFromBackend() async'));
   });
 
   test('AuthProvider anonymous migration uses the shared privacy helper', () {
     final source = File('lib/providers/auth_provider.dart').readAsStringSync();
     final body = _between(
       source,
-      'Future<void> _migrateLocalDataIfNeeded() async',
-      'Future<void> _hydrateProfileFromBackend() async',
+      'Future<void> _migrateLocalDataIfNeeded(SessionEpochGuard guard) async',
+      'Future<void> _hydrateProfileFromBackend(SessionEpochGuard guard) async',
     );
 
     expect(_safeHelperFeedsWizardPayload(body), isTrue);

@@ -1,3 +1,5 @@
+import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
+
 /// Exact CHF value used by the 13th AVS pension contract.
 ///
 /// The calculator never accepts binary floating-point money internally. The
@@ -826,32 +828,7 @@ class AvsThirteenthPensionCalculator {
 
   static DateTime _toZurichCivil(DateTime value) {
     assert(value.isUtc, 'UTC validation must precede Zurich civil conversion');
-    // Switzerland follows the European DST rule: from the last Sunday in
-    // March at 01:00 UTC until the last Sunday in October at 01:00 UTC.
-    final offsetHours = _isZurichSummerTime(value) ? 2 : 1;
-    return value.add(Duration(hours: offsetHours));
-  }
-
-  static bool _isZurichSummerTime(DateTime value) {
-    final year = value.year;
-    final startsAt = DateTime.utc(
-      year,
-      3,
-      _lastSundayOfMonth(year, 3),
-      1,
-    );
-    final endsAt = DateTime.utc(
-      year,
-      10,
-      _lastSundayOfMonth(year, 10),
-      1,
-    );
-    return !value.isBefore(startsAt) && value.isBefore(endsAt);
-  }
-
-  static int _lastSundayOfMonth(int year, int month) {
-    final lastDay = DateTime.utc(year, month + 1, 0);
-    return lastDay.day - lastDay.weekday % DateTime.daysPerWeek;
+    return SwissCivilTime.civilDateTime(value);
   }
 
   static bool _isOfficial(AvsEvidenceTier tier) =>

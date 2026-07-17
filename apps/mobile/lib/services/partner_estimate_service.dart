@@ -7,6 +7,7 @@
 library;
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Local-only model for partner financial estimates.
@@ -97,9 +98,24 @@ class PartnerEstimateService {
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
+  static Future<PartnerEstimate?> Function()? _debugLoadOverride;
+
+  @visibleForTesting
+  static void debugConfigureLoad(
+    Future<PartnerEstimate?> Function() load,
+  ) {
+    _debugLoadOverride = load;
+  }
+
+  @visibleForTesting
+  static void debugResetLoad() {
+    _debugLoadOverride = null;
+  }
 
   /// Load partner estimate from SecureStorage.
   static Future<PartnerEstimate?> load() async {
+    final debugLoad = _debugLoadOverride;
+    if (debugLoad != null) return debugLoad();
     final raw = await _storage.read(key: _storageKey);
     if (raw == null) return null;
     try {

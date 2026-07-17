@@ -1,4 +1,4 @@
-import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/coach_profile_owner.dart';
 import 'package:mint_mobile/services/financial_plan_ledger_inputs.dart'
     as ledger_inputs;
 
@@ -106,6 +106,15 @@ class FinancialPlanProjectionAssumptions {
   final FinancialPlanBonificationBasis bonificationBasis;
   final DateTime projectionAsOf;
 
+  /// The LPP engine advances full age years and does not prorate fractions.
+  final bool annualProjectionUsesWholeYears;
+
+  /// The selected target is before 63 and therefore depends on fund rules.
+  final bool requiresFundAuthorizationBefore63;
+
+  /// The target is after AVS reference age and assumes continued employment.
+  final bool assumesPostReferenceGainfulActivity;
+
   const FinancialPlanProjectionAssumptions({
     required this.caisseReturnBase,
     required this.caisseReturnLow,
@@ -114,6 +123,9 @@ class FinancialPlanProjectionAssumptions {
     required this.salaryBasis,
     required this.bonificationBasis,
     required this.projectionAsOf,
+    this.annualProjectionUsesWholeYears = false,
+    this.requiresFundAuthorizationBefore63 = false,
+    this.assumesPostReferenceGainfulActivity = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -124,6 +136,10 @@ class FinancialPlanProjectionAssumptions {
         'salaryBasis': salaryBasis.toJson(),
         'bonificationBasis': bonificationBasis.toJson(),
         'projectionAsOf': projectionAsOf.toUtc().toIso8601String(),
+        'annualProjectionUsesWholeYears': annualProjectionUsesWholeYears,
+        'requiresFundAuthorizationBefore63': requiresFundAuthorizationBefore63,
+        'assumesPostReferenceGainfulActivity':
+            assumesPostReferenceGainfulActivity,
       };
 
   factory FinancialPlanProjectionAssumptions.fromJson(
@@ -151,6 +167,12 @@ class FinancialPlanProjectionAssumptions {
             json['projectionAsOf'] as String? ?? '',
           ) ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      annualProjectionUsesWholeYears:
+          json['annualProjectionUsesWholeYears'] == true,
+      requiresFundAuthorizationBefore63:
+          json['requiresFundAuthorizationBefore63'] == true,
+      assumesPostReferenceGainfulActivity:
+          json['assumesPostReferenceGainfulActivity'] == true,
     );
   }
 }
@@ -226,6 +248,23 @@ class FinancialPlan {
   /// Time at which the ledger snapshot was captured.
   final DateTime? inputAsOf;
 
+  /// Canonical owner of every fact consumed by this scenario.
+  final String? profileOwnerId;
+
+  /// Version of the exact dependency contract persisted with this plan.
+  final int? dependencySchemaVersion;
+
+  /// Branch and capital basis selected by the dependency snapshot.
+  final String? dependencyBranch;
+  final String? dependencyBasis;
+
+  /// Canonical v3 dependency fingerprint. It must equal the legacy hash slot
+  /// until every reader has migrated to the explicit envelope.
+  final String? dependencyHash;
+
+  /// Exclusive validity boundary of this immutable dependency snapshot.
+  final DateTime? validUntil;
+
   /// Structured retirement assumptions. Null for simple deadline arithmetic
   /// and unmigrated legacy records.
   final FinancialPlanProjectionAssumptions? projectionAssumptions;
@@ -250,8 +289,69 @@ class FinancialPlan {
     this.scenarioId,
     this.confirmedAt,
     this.inputAsOf,
+    this.profileOwnerId,
+    this.dependencySchemaVersion,
+    this.dependencyBranch,
+    this.dependencyBasis,
+    this.dependencyHash,
+    this.validUntil,
     this.projectionAssumptions,
   });
+
+  /// Whether this record carries a complete, internally coherent v3 envelope.
+  ///
+  /// This is intentionally structural. Runtime freshness and equality against
+  /// the live ledger are checked by FinancialPlanProvider.
+  bool get hasValidDependencyEnvelope {
+    final owner = profileOwnerId;
+    final scenario = scenarioId;
+    final schema = dependencySchemaVersion;
+    final branch = dependencyBranch;
+    final basis = dependencyBasis;
+    final hash = dependencyHash;
+    final asOf = inputAsOf;
+    final expires = validUntil;
+    final amount = goalAmount;
+    if (owner == null ||
+        scenario == null ||
+        !isCanonicalUuidV4(owner) ||
+        !isCanonicalUuidV4(scenario) ||
+        schema !=
+            ledger_inputs
+                .FinancialPlanDependencySnapshot.currentSchemaVersion ||
+        branch == null ||
+        basis == null ||
+        hash == null ||
+        !_dependencyHashPattern.hasMatch(hash) ||
+        hash != profileHashAtGeneration ||
+        !_validGoalAmount(amount) ||
+        asOf == null ||
+        expires == null ||
+        !targetDate.toUtc().isAfter(asOf.toUtc()) ||
+        !expires.toUtc().isAfter(asOf.toUtc())) {
+      return false;
+    }
+
+    final isRetirement = goalCategory == 'goal_retirement_plan' ||
+        goalCategory == 'goal_pension_opt';
+    return switch (branch) {
+      'general' =>
+        !isRetirement && basis == 'none' && projectionAssumptions == null,
+      'retirementNoLpp' => isRetirement &&
+          basis == 'none' &&
+          _hasStrictNoLppAssumptions(projectionAssumptions, asOf),
+      'retirementLpp' => isRetirement &&
+          (basis == 'total/legalSchedule' || basis == 'splits/legalSchedule') &&
+          _hasStrictLppAssumptions(
+            projectionAssumptions,
+            asOf,
+            projectedLow,
+            projectedOutcome,
+            projectedHigh,
+          ),
+      _ => false,
+    };
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -275,6 +375,14 @@ class FinancialPlan {
           'confirmedAt': confirmedAt!.toUtc().toIso8601String(),
         if (inputAsOf != null)
           'inputAsOf': inputAsOf!.toUtc().toIso8601String(),
+        if (profileOwnerId != null) 'profileOwnerId': profileOwnerId,
+        if (dependencySchemaVersion != null)
+          'dependencySchemaVersion': dependencySchemaVersion,
+        if (dependencyBranch != null) 'dependencyBranch': dependencyBranch,
+        if (dependencyBasis != null) 'dependencyBasis': dependencyBasis,
+        if (dependencyHash != null) 'dependencyHash': dependencyHash,
+        if (validUntil != null)
+          'validUntil': validUntil!.toUtc().toIso8601String(),
         if (projectionAssumptions != null)
           'projectionAssumptions': projectionAssumptions!.toJson(),
       };
@@ -334,6 +442,12 @@ class FinancialPlan {
       scenarioId: json['scenarioId'] as String?,
       confirmedAt: _tryParseInstant(json['confirmedAt']),
       inputAsOf: _tryParseInstant(json['inputAsOf']),
+      profileOwnerId: json['profileOwnerId'] as String?,
+      dependencySchemaVersion: json['dependencySchemaVersion'] as int?,
+      dependencyBranch: json['dependencyBranch'] as String?,
+      dependencyBasis: json['dependencyBasis'] as String?,
+      dependencyHash: json['dependencyHash'] as String?,
+      validUntil: _tryParseInstant(json['validUntil']),
       projectionAssumptions: assumptionsJson is Map<String, dynamic>
           ? FinancialPlanProjectionAssumptions.fromJson(assumptionsJson)
           : null,
@@ -388,6 +502,12 @@ class FinancialPlan {
     String? scenarioId,
     DateTime? confirmedAt,
     DateTime? inputAsOf,
+    String? profileOwnerId,
+    int? dependencySchemaVersion,
+    String? dependencyBranch,
+    String? dependencyBasis,
+    String? dependencyHash,
+    DateTime? validUntil,
     FinancialPlanProjectionAssumptions? projectionAssumptions,
   }) {
     return FinancialPlan(
@@ -411,14 +531,85 @@ class FinancialPlan {
       scenarioId: scenarioId ?? this.scenarioId,
       confirmedAt: confirmedAt ?? this.confirmedAt,
       inputAsOf: inputAsOf ?? this.inputAsOf,
+      profileOwnerId: profileOwnerId ?? this.profileOwnerId,
+      dependencySchemaVersion:
+          dependencySchemaVersion ?? this.dependencySchemaVersion,
+      dependencyBranch: dependencyBranch ?? this.dependencyBranch,
+      dependencyBasis: dependencyBasis ?? this.dependencyBasis,
+      dependencyHash: dependencyHash ?? this.dependencyHash,
+      validUntil: validUntil ?? this.validUntil,
       projectionAssumptions:
           projectionAssumptions ?? this.projectionAssumptions,
     );
   }
 }
 
+final _dependencyHashPattern = RegExp(
+  r'^mint-plan-dependency:v3:sha256:[0-9a-f]{64}$',
+);
+
 bool _validGoalAmount(double? value) =>
     value != null && value.isFinite && value > 0;
+
+bool _hasStrictNoLppAssumptions(
+  FinancialPlanProjectionAssumptions? assumptions,
+  DateTime inputAsOf,
+) {
+  if (assumptions == null) return false;
+  return assumptions.caisseReturnBase == null &&
+      assumptions.caisseReturnLow == null &&
+      assumptions.caisseReturnHigh == null &&
+      assumptions.supplementalMonthlySavingsReturn == 0 &&
+      assumptions.salaryBasis.kind == 'notApplicable' &&
+      assumptions.salaryBasis.annualChf == null &&
+      assumptions.bonificationBasis.kind == 'notApplicable' &&
+      assumptions.bonificationBasis.annualRate == null &&
+      !assumptions.annualProjectionUsesWholeYears &&
+      !assumptions.requiresFundAuthorizationBefore63 &&
+      !assumptions.assumesPostReferenceGainfulActivity &&
+      assumptions.projectionAsOf.toUtc() == inputAsOf.toUtc();
+}
+
+bool _hasStrictLppAssumptions(
+  FinancialPlanProjectionAssumptions? assumptions,
+  DateTime inputAsOf,
+  double? projectedLow,
+  double projectedMid,
+  double? projectedHigh,
+) {
+  if (assumptions == null ||
+      projectedLow == null ||
+      projectedHigh == null ||
+      !projectedLow.isFinite ||
+      !projectedMid.isFinite ||
+      !projectedHigh.isFinite ||
+      projectedLow > projectedMid ||
+      projectedMid > projectedHigh) {
+    return false;
+  }
+  final base = assumptions.caisseReturnBase;
+  if (base == null || !base.isFinite || base < 0 || base > 0.10) {
+    return false;
+  }
+  final expectedLow = (base - 0.01).clamp(0.0, 0.10).toDouble();
+  final expectedHigh = (base + 0.01).clamp(0.0, 0.10).toDouble();
+  final salary = assumptions.salaryBasis;
+  final annualSalary = salary.annualChf;
+  final bonification = assumptions.bonificationBasis;
+  return assumptions.caisseReturnLow == expectedLow &&
+      assumptions.caisseReturnHigh == expectedHigh &&
+      assumptions.supplementalMonthlySavingsReturn == 0 &&
+      salary.kind == 'monthlySalaryTimesTwelve' &&
+      annualSalary != null &&
+      annualSalary.isFinite &&
+      annualSalary > 0 &&
+      bonification.kind == 'legalAgeSchedule' &&
+      bonification.annualRate == null &&
+      assumptions.annualProjectionUsesWholeYears &&
+      !(assumptions.requiresFundAuthorizationBefore63 &&
+          assumptions.assumesPostReferenceGainfulActivity) &&
+      assumptions.projectionAsOf.toUtc() == inputAsOf.toUtc();
+}
 
 double? _recoverUniqueLegacyGoalAmount(List<PlanMilestone> milestones) {
   final candidates = milestones
@@ -434,8 +625,3 @@ double? _recoverUniqueLegacyGoalAmount(List<PlanMilestone> milestones) {
 
 DateTime? _tryParseInstant(Object? value) =>
     value is String ? DateTime.tryParse(value) : null;
-
-/// Backward-compatible model export for callers that have not yet moved to the
-/// ledger snapshot module.
-String computeProfileHash(CoachProfile profile, {DateTime? now}) =>
-    ledger_inputs.computeProfileHash(profile, now: now);

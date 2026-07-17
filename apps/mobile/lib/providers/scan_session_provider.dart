@@ -3,6 +3,7 @@ import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 @immutable
 class ScanSessionPayload {
@@ -72,7 +73,11 @@ ExtractionResult _withoutSourceText(ExtractionResult extraction) {
 /// restart intentionally resolves to the existing recovery state instead of
 /// trying to reconstruct an unconfirmed OCR result from navigation payloads.
 class ScanSessionProvider extends ChangeNotifier {
+  ScanSessionProvider({SessionEpoch? sessionEpoch})
+      : _sessionEpoch = sessionEpoch ?? SessionEpoch();
+
   static const maxRetainedSessions = 5;
+  final SessionEpoch _sessionEpoch;
   final Map<String, ScanSessionPayload> _sessions = {};
   int _nextId = 0;
 
@@ -86,6 +91,7 @@ class ScanSessionProvider extends ChangeNotifier {
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
   }) {
+    final guard = _sessionEpoch.capture();
     final hasLppCandidate = lppCandidate != null;
     final hasLppAuthorization = lppAuthorization != null;
     final requiresPartnerAccountability =
@@ -122,6 +128,7 @@ class ScanSessionProvider extends ChangeNotifier {
     while (_sessions.length > maxRetainedSessions) {
       _sessions.remove(_sessions.keys.first);
     }
+    guard.assertCurrent();
     notifyListeners();
     return id;
   }
@@ -136,19 +143,30 @@ class ScanSessionProvider extends ChangeNotifier {
     required ExtractionResult extraction,
     required int previousConfidence,
   }) {
+    final guard = _sessionEpoch.capture();
     final current = _sessions[id];
     if (current == null) return false;
     _sessions[id] = current.withImpact(
       extraction: extraction,
       previousConfidence: previousConfidence,
     );
+    guard.assertCurrent();
     notifyListeners();
     return true;
   }
 
   void discard(String id) {
+    final guard = _sessionEpoch.capture();
     if (_sessions.remove(id) != null) {
+      guard.assertCurrent();
       notifyListeners();
     }
+  }
+
+  /// Drops volatile extraction candidates and authorizations on session exit.
+  void clearSessionMemoryAfterPurge() {
+    _sessions.clear();
+    _nextId = 0;
+    notifyListeners();
   }
 }

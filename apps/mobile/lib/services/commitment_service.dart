@@ -1,9 +1,7 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
-
 import 'package:mint_mobile/services/api_service.dart';
-import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/authenticated_transport.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -21,9 +19,13 @@ import 'package:mint_mobile/services/notification_service.dart';
 
 class CommitmentService {
   final String baseUrl;
+  final AuthenticatedTransport _transport;
 
-  CommitmentService({String? baseUrl})
-      : baseUrl = baseUrl ?? ApiService.baseUrl;
+  CommitmentService({
+    String? baseUrl,
+    AuthenticatedTransport? transport,
+  })  : baseUrl = baseUrl ?? ApiService.baseUrl,
+        _transport = transport ?? ApiService.authenticatedTransport;
 
   /// Save a new commitment to the backend.
   ///
@@ -37,13 +39,8 @@ class CommitmentService {
     required String ifThenText,
     DateTime? reminderAt,
   }) async {
-    final token = await AuthService.getToken();
-    if (token == null || token.isEmpty) {
-      throw const CommitmentException(
-        code: 'no_auth',
-        message: 'Not authenticated.',
-      );
-    }
+    final operation = _transport.beginOperation();
+    await _requireSession(operation);
 
     final uri = Uri.parse('$baseUrl/coach/commitment');
     final body = <String, dynamic>{
@@ -55,16 +52,14 @@ class CommitmentService {
       body['reminderAt'] = reminderAt.toUtc().toIso8601String();
     }
 
-    final response = await http
-        .post(
-          uri,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode(body),
-        )
-        .timeout(const Duration(seconds: 15));
+    final response = await operation.send(
+      AuthenticatedRequest.json(
+        AuthenticatedHttpMethod.post,
+        uri,
+        body,
+        timeout: const Duration(seconds: 15),
+      ),
+    );
 
     if (response.statusCode == 201) {
       return jsonDecode(response.body) as Map<String, dynamic>;
@@ -116,27 +111,17 @@ class CommitmentService {
 
   /// List user's commitments, optionally filtered by status.
   Future<List<Map<String, dynamic>>> getCommitments({String? status}) async {
-    final token = await AuthService.getToken();
-    if (token == null || token.isEmpty) {
-      throw const CommitmentException(
-        code: 'no_auth',
-        message: 'Not authenticated.',
-      );
-    }
+    final operation = _transport.beginOperation();
+    await _requireSession(operation);
 
     var uri = Uri.parse('$baseUrl/coach/commitment');
     if (status != null) {
       uri = uri.replace(queryParameters: {'status': status});
     }
 
-    final response = await http
-        .get(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        )
-        .timeout(const Duration(seconds: 15));
+    final response = await operation.send(
+      AuthenticatedRequest.get(uri, timeout: const Duration(seconds: 15)),
+    );
 
     if (response.statusCode == 200) {
       final list = jsonDecode(response.body) as List<dynamic>;
@@ -154,25 +139,18 @@ class CommitmentService {
     String commitmentId,
     String status,
   ) async {
-    final token = await AuthService.getToken();
-    if (token == null || token.isEmpty) {
-      throw const CommitmentException(
-        code: 'no_auth',
-        message: 'Not authenticated.',
-      );
-    }
+    final operation = _transport.beginOperation();
+    await _requireSession(operation);
 
     final uri = Uri.parse('$baseUrl/coach/commitment/$commitmentId');
-    final response = await http
-        .patch(
-          uri,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({'status': status}),
-        )
-        .timeout(const Duration(seconds: 15));
+    final response = await operation.send(
+      AuthenticatedRequest.json(
+        AuthenticatedHttpMethod.patch,
+        uri,
+        {'status': status},
+        timeout: const Duration(seconds: 15),
+      ),
+    );
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
@@ -182,6 +160,20 @@ class CommitmentService {
       code: 'update_failed',
       message: 'Failed to update commitment (${response.statusCode}).',
     );
+  }
+
+  Future<void> _requireSession(AuthenticatedOperation operation) async {
+    try {
+      await operation.requireSession();
+    } on ApiException catch (error) {
+      if (error.errorCode == ApiErrorCode.authenticationRequired) {
+        throw const CommitmentException(
+          code: 'no_auth',
+          message: 'Not authenticated.',
+        );
+      }
+      rethrow;
+    }
   }
 }
 

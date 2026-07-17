@@ -18,10 +18,26 @@ import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
+import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_core/wealth_financial_facts.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
+
+const coachBackendUnknownPathsKey = '_coach_backend_unknown_paths_v1';
+
+DateTime? _parseSupportedAdultBirthDate(
+  Object? raw, {
+  required DateTime now,
+}) {
+  if (raw is! String) return null;
+  final parsed = SwissCivilTime.parseCanonicalCivilDate(raw);
+  if (parsed == null ||
+      !SwissCivilTime.isSupportedAdultBirthDate(parsed, now: now)) {
+    return null;
+  }
+  return parsed;
+}
 
 LppEvidenceSnapshot? _restoreIndependentManualPartnerFacts(
   LppEvidenceSnapshot? snapshot,
@@ -316,9 +332,10 @@ class ConjointProfile {
     return ConjointProfile(
       firstName: json['firstName'] as String?,
       birthYear: json['birthYear'] as int?,
-      dateOfBirth: json['dateOfBirth'] != null
-          ? DateTime.tryParse(json['dateOfBirth'] as String)
-          : null,
+      dateOfBirth: _parseSupportedAdultBirthDate(
+        json['dateOfBirth'],
+        now: DateTime.now(),
+      ),
       gender: json['gender'] as String?,
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble(),
       nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
@@ -3619,9 +3636,10 @@ class CoachProfile {
     return CoachProfile(
       firstName: json['firstName'] as String?,
       birthYear: (json['birthYear'] as int?) ?? 1980,
-      dateOfBirth: json['dateOfBirth'] != null
-          ? DateTime.tryParse(json['dateOfBirth'] as String)
-          : null,
+      dateOfBirth: _parseSupportedAdultBirthDate(
+        json['dateOfBirth'],
+        now: DateTime.now(),
+      ),
       canton: (json['canton'] as String?) ?? 'ZH',
       commune: json['commune'] as String?,
       nationality: json['nationality'] as String?,
@@ -3851,6 +3869,17 @@ class CoachProfile {
     PartnerAccountabilityBinding? partnerAccountabilityBinding,
     bool enforcePartnerAccountability = false,
   }) {
+    bool hasResolvedAnswer(String key) =>
+        answers.containsKey(key) &&
+        answers[key] != null &&
+        answers[key] != '__secure__';
+    final backendUnknownPaths = (answers[coachBackendUnknownPathsKey] is List)
+        ? (answers[coachBackendUnknownPathsKey] as List)
+            .whereType<String>()
+            .toSet()
+        : const <String>{};
+    bool isBackendUnknown(String path) => backendUnknownPaths.contains(path);
+
     var fiscal = _fiscalFromWizardAnswers(answers);
     // ── Identite ────────────────────────────────────────────
     final firstName = answers['q_firstname'] as String?;
@@ -3858,7 +3887,11 @@ class CoachProfile {
     // (age getter returns 0 for invalid birthYear, signaling "data missing").
     final birthYear = _parseInt(answers['q_birth_year']) ?? 0;
     final dobRaw = answers['q_date_of_birth'];
-    final dateOfBirth = dobRaw is String ? DateTime.tryParse(dobRaw) : null;
+    final ageNow = (now ?? DateTime.now)();
+    final dateOfBirth = _parseSupportedAdultBirthDate(
+      dobRaw,
+      now: ageNow,
+    );
     final rawCanton = answers['q_canton'];
     final resolvedCanton = rawCanton is String
         ? resolveCanton(rawCanton)
@@ -3872,7 +3905,6 @@ class CoachProfile {
     // Use precise age from dateOfBirth if available
     final int age;
     if (dateOfBirth != null) {
-      final ageNow = DateTime.now();
       age = ageNow.year -
           dateOfBirth.year -
           ((ageNow.month < dateOfBirth.month ||
@@ -3881,7 +3913,7 @@ class CoachProfile {
               ? 1
               : 0);
     } else if (birthYear >= 1900) {
-      age = DateTime.now().year - birthYear;
+      age = ageNow.year - birthYear;
     } else {
       // No birth data available — age 0 signals "data missing" to readiness gates.
       age = 0;
@@ -4067,10 +4099,18 @@ class CoachProfile {
             answers['_coach_lpp_evidence_v1'],
           )
         : null;
+    final expectedManualPartnerSnapshotId = FeatureFlags.typedLppEvidence
+        ? LppEvidenceSelector.manualPartnerSnapshotId(
+            answers['_coach_lpp_evidence_v1'],
+          )
+        : null;
     final accountabilityOwnerMatches = !enforcePartnerAccountability ||
         expectedManualPartnerOwnerId != null &&
+            expectedManualPartnerSnapshotId != null &&
             partnerAccountabilityBinding?.manualPartnerOwnerId ==
                 expectedManualPartnerOwnerId &&
+            partnerAccountabilityBinding?.lppSnapshotId ==
+                expectedManualPartnerSnapshotId &&
             partnerAccountabilityBinding!.isCurrentAt(
               (now ?? DateTime.now)().toUtc(),
             );
@@ -4504,8 +4544,9 @@ class CoachProfile {
     // `__provenance` is the canonical persisted envelope. Its presence is an
     // authority boundary: malformed or missing entries fail closed instead of
     // being upgraded from legacy source markers.
-    final hasCanonicalProvenance =
-        answers.containsKey('__provenance') || hasTypedLppRoot;
+    final hasCanonicalProvenance = answers.containsKey('__provenance') ||
+        hasTypedLppRoot ||
+        backendUnknownPaths.isNotEmpty;
     final canonicalSources = <String, ProfileDataSource>{};
     final canonicalTimestamps = <String, DateTime>{};
     final canonicalSourceDates = <String, DateTime?>{};
@@ -4669,24 +4710,31 @@ class CoachProfile {
         ? (DateTime.tryParse(savedUpdatedAt) ?? DateTime.now())
         : DateTime.now();
     final initialTimestamps = <String, DateTime>{
-      if (answers.containsKey('q_net_income_period_chf') ||
-          answers.containsKey('q_gross_salary_annual') ||
-          answers.containsKey('q_self_employed_income'))
+      if ((hasResolvedAnswer('q_net_income_period_chf') ||
+              hasResolvedAnswer('q_gross_salary_annual') ||
+              hasResolvedAnswer('q_self_employed_income')) &&
+          !isBackendUnknown('salaireBrutMensuel') &&
+          !isBackendUnknown('monthlyNetIncomeDeclared'))
         'salaireBrutMensuel': baseTimestamp,
       if (monthlyTaxProvisionDeclared != null)
         'monthlyTaxProvisionDeclared': baseTimestamp,
-      if (answers.containsKey('q_birth_year') ||
-          answers.containsKey('q_date_of_birth'))
+      if ((answers.containsKey('q_birth_year') ||
+              answers.containsKey('q_date_of_birth')) &&
+          !isBackendUnknown('birthYear') &&
+          !isBackendUnknown('dateOfBirth'))
         'age': baseTimestamp,
-      if (resolvedCanton.isResolved) 'canton': baseTimestamp,
+      if (resolvedCanton.isResolved && !isBackendUnknown('canton'))
+        'canton': baseTimestamp,
       if (answers.containsKey('q_civil_status')) 'etatCivil': baseTimestamp,
       if ((answers.containsKey('_coach_avoir_lpp') ||
               answers.containsKey('q_avoir_lpp')) &&
-          prevoyance.avoirLppTotal != null)
+          prevoyance.avoirLppTotal != null &&
+          !isBackendUnknown('prevoyance.avoirLppTotal'))
         'prevoyance.avoirLppTotal': baseTimestamp,
       if ((answers.containsKey('q_3a_total') ||
               answers.containsKey('_coach_total_3a')) &&
-          prevoyance.totalEpargne3a >= 0)
+          prevoyance.totalEpargne3a >= 0 &&
+          !isBackendUnknown('prevoyance.totalEpargne3a'))
         'prevoyance.totalEpargne3a': baseTimestamp,
       if (answers.containsKey('q_avs_contribution_years') &&
           prevoyance.anneesContribuees != null)
@@ -4740,7 +4788,8 @@ class CoachProfile {
       }
     }
     final legacyResolvedSources =
-        _resolveDataSources(restoredDataSources, prevoyance);
+        _resolveDataSources(restoredDataSources, prevoyance)
+          ..removeWhere((path, _) => isBackendUnknown(path));
     final restoredDataSourceDates = <String, DateTime?>{
       for (final fieldPath in legacyResolvedSources.keys) fieldPath: null,
     };
@@ -4749,33 +4798,50 @@ class CoachProfile {
         if (!canonicalMentionedPaths.contains(entry.key))
           entry.key: entry.value,
       ...canonicalSources,
-    };
+    }..removeWhere((path, _) => isBackendUnknown(path));
     final effectiveTimestamps = <String, DateTime>{
       for (final entry in initialTimestamps.entries)
         if (!canonicalMentionedPaths.contains(entry.key))
           entry.key: entry.value,
       ...canonicalTimestamps,
-    };
+    }..removeWhere(
+        (path, _) =>
+            isBackendUnknown(path) ||
+            path == 'age' &&
+                (isBackendUnknown('birthYear') ||
+                    isBackendUnknown('dateOfBirth')),
+      );
     final effectiveSourceDates = <String, DateTime?>{
       for (final entry in restoredDataSourceDates.entries)
         if (!canonicalMentionedPaths.contains(entry.key))
           entry.key: entry.value,
       ...canonicalSourceDates,
-    };
+    }..removeWhere((path, _) => isBackendUnknown(path));
 
     // ── Track which fields the user explicitly provided ──
     // Used by profile drawer to avoid showing phantom default data.
     final provided = <String>{};
-    if (firstName != null && firstName.isNotEmpty) provided.add('firstName');
-    if (answers.containsKey('q_birth_year') ||
-        answers.containsKey('q_date_of_birth')) {
+    if (firstName != null &&
+        firstName.isNotEmpty &&
+        !isBackendUnknown('firstName')) {
+      provided.add('firstName');
+    }
+    if ((answers.containsKey('q_birth_year') ||
+            answers.containsKey('q_date_of_birth')) &&
+        !isBackendUnknown('birthYear') &&
+        !isBackendUnknown('dateOfBirth')) {
       provided.add('age');
     }
-    if (resolvedCanton.isResolved) provided.add('canton');
+    if (resolvedCanton.isResolved && !isBackendUnknown('canton')) {
+      provided.add('canton');
+    }
     if (answers.containsKey('q_commune')) provided.add('commune');
-    if (answers.containsKey('q_gender')) provided.add('gender');
-    if (answers.containsKey('q_employment_status') ||
-        answers.containsKey('q_self_employed_income')) {
+    if (answers.containsKey('q_gender') && !isBackendUnknown('gender')) {
+      provided.add('gender');
+    }
+    if ((answers.containsKey('q_employment_status') ||
+            hasResolvedAnswer('q_self_employed_income')) &&
+        !isBackendUnknown('employmentStatus')) {
       provided.add('employmentStatus');
     }
     if (answers.containsKey('q_children')) provided.add('children');
@@ -4793,23 +4859,27 @@ class CoachProfile {
         answers.containsKey('q_has_leasing')) {
       provided.add('hasDebt');
     }
-    if (answers.containsKey('q_net_income_period_chf') ||
-        answers.containsKey('q_gross_salary_annual')) {
+    if ((hasResolvedAnswer('q_net_income_period_chf') ||
+            hasResolvedAnswer('q_gross_salary_annual')) &&
+        !isBackendUnknown('salaireBrutMensuel') &&
+        !isBackendUnknown('monthlyNetIncomeDeclared')) {
       provided.add('salary');
     }
-    if (answers.containsKey('q_net_income_period_chf')) {
+    if (hasResolvedAnswer('q_net_income_period_chf') &&
+        !isBackendUnknown('monthlyNetIncomeDeclared')) {
       provided.add('netIncome');
     }
-    if (answers.containsKey('q_gross_salary_annual')) {
+    if (hasResolvedAnswer('q_gross_salary_annual') &&
+        !isBackendUnknown('salaireBrutMensuel')) {
       provided.add('grossSalaryAnnual');
     }
     if (monthlyTaxProvisionDeclared != null) {
       provided.add('monthlyTaxProvisionDeclared');
     }
-    if (answers.containsKey('q_self_employed_income')) {
+    if (hasResolvedAnswer('q_self_employed_income')) {
       provided.add('selfEmployedNetIncome');
     }
-    if (answers.containsKey('q_company_profit_annual_chf')) {
+    if (hasResolvedAnswer('q_company_profit_annual_chf')) {
       provided.add('companyProfitAnnual');
     }
     if (answers.containsKey('q_unemployment_contribution_months')) {

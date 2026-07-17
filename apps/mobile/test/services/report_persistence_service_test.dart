@@ -9,6 +9,8 @@ const _lppRoot =
     '{"schemaVersion":1,"self":null,"manualPartner":null,"legacyPartnerQuarantine":null}';
 const _activeLppSlotKey = 'lpp_evidence_active_slot_v1';
 const _lppSlotPrefix = '_coach_lpp_evidence_slot_v1_';
+const _activeAuthoritySlotKey = 'coach_authority_active_slot_v1';
+const _authoritySlotPrefix = '_coach_authority_slot_v1_';
 
 /// Comprehensive unit tests for ReportPersistenceService
 ///
@@ -651,8 +653,8 @@ void main() {
         },
       );
       final preferences = await SharedPreferences.getInstance();
-      final activeSlotId = preferences.getString(_activeLppSlotKey)!;
-      final activeSecureKey = '$_lppSlotPrefix$activeSlotId';
+      final activeSlotId = preferences.getString(_activeAuthoritySlotKey)!;
+      final activeSecureKey = '$_authoritySlotPrefix$activeSlotId';
       const orphanSecureKey =
           '${_lppSlotPrefix}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
       mockSecureStorage['_coach_lpp_evidence_v1'] = _lppRoot;
@@ -661,6 +663,7 @@ void main() {
       await ReportPersistenceService.clearDiagnostic();
 
       expect(preferences.getString('wizard_answers_v2'), isNull);
+      expect(preferences.getString(_activeAuthoritySlotKey), isNull);
       expect(preferences.getString(_activeLppSlotKey), isNull);
       expect(mockSecureStorage['_coach_lpp_evidence_v1'], isNull);
       expect(mockSecureStorage[activeSecureKey], isNull);

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/avs_reference_age.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 void main() {
@@ -17,6 +18,52 @@ void main() {
       expect(capital.currentCapital, 150000);
       expect(capital.projectedCapital, 150000);
       expect(capital.projectionYears, 25);
+    });
+
+    test(
+        'male reference age carries capital and interest without age-65 credit',
+        () {
+      final capital = LppCalculator.projectCapitalToRetirement(
+        currentCapital: 100000,
+        currentAge: 65,
+        retirementAge: 66,
+        grossAnnualSalary: 80000,
+        caisseReturn: 0.02,
+        projectionAsOf: DateTime.utc(2026, 1, 1),
+        bonificationCeasesAt: DateTime.utc(2026, 1, 1),
+      );
+
+      expect(getLppBonificationRate(65), 0);
+      expect(capital.projectedCapital, closeTo(102000, 0.001));
+      expect(capital.projectionYears, 1);
+    });
+
+    test('AVS21 transition never credits an unmodelled fractional LPP year',
+        () {
+      for (final cohort in <int>[1961, 1962, 1963]) {
+        final birthDate = DateTime.utc(cohort, 1, 1);
+        final referenceDate = AvsReferenceAge.referenceDate(
+          dateOfBirth: birthDate,
+          birthYear: cohort,
+          gender: 'F',
+        )!;
+        final projectionAsOf = referenceDate.subtract(const Duration(days: 1));
+        final capital = LppCalculator.projectCapitalToRetirement(
+          currentCapital: 100000,
+          currentAge: 64,
+          retirementAge: 65,
+          grossAnnualSalary: 80000,
+          caisseReturn: 0,
+          projectionAsOf: projectionAsOf,
+          bonificationCeasesAt: referenceDate,
+        );
+
+        expect(
+          capital.projectedCapital,
+          100000,
+          reason: 'cohort $cohort has less than one full eligible year left',
+        );
+      }
     });
   });
 

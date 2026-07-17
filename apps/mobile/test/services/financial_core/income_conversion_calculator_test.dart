@@ -43,4 +43,15 @@ void main() {
             annualBonus: 12000, annualBaseSalary: 0),
         isNull);
   });
+
+  test('derives fallback monthly net income inside financial core', () {
+    expect(
+      IncomeConversionCalculator.monthlyNetFromAnnualGross(120000),
+      8700,
+    );
+    expect(
+      IncomeConversionCalculator.monthlyNetFromAnnualGross(0),
+      0,
+    );
+  });
 }

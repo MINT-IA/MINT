@@ -61,6 +61,73 @@ void main() {
         88000);
   });
 
+  test('updateProfile persists consumer debt payments across cold restart',
+      () async {
+    final provider = CoachProfileProvider();
+    addTearDown(provider.dispose);
+    provider.updateProfile(
+      CoachProfile.defaults().copyWith(
+        dettes: const DetteProfile(
+          mensualiteHypotheque: 2200,
+          mensualiteCreditConso: 650,
+          mensualiteLeasing: 120,
+        ),
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_debt_payments_period_chf'], 770);
+
+    final cold = CoachProfileProvider();
+    addTearDown(cold.dispose);
+    await cold.loadFromWizard();
+    expect(cold.profile?.dettes.mensualiteHypotheque, isNull);
+    expect(cold.profile?.dettes.mensualiteCreditConso, 770);
+    expect(cold.profile?.dettes.mensualiteLeasing, isNull);
+  });
+
+  test('updateProfile persists canonical DOB, birth year and one provenance',
+      () async {
+    final provider = CoachProfileProvider();
+    addTearDown(provider.dispose);
+    final updatedAt = DateTime.utc(2026, 7, 16, 9);
+    provider.updateProfile(CoachProfile.defaults().copyWith(
+      birthYear: 1900,
+      dateOfBirth: DateTime(1984, 2, 29),
+      dataSources: const {
+        'dateOfBirth': ProfileDataSource.userInput,
+      },
+      dataTimestamps: {
+        'dateOfBirth': updatedAt,
+      },
+    ));
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_date_of_birth'], '1984-02-29');
+    expect(answers['q_birth_year'], 1984);
+    final provenance =
+        Map<String, dynamic>.from(answers['__provenance'] as Map);
+    expect(
+      Map<String, dynamic>.from(provenance['dateOfBirth'] as Map)['source'],
+      'userInput',
+    );
+    expect(
+      Map<String, dynamic>.from(provenance['birthYear'] as Map)['source'],
+      'userInput',
+    );
+
+    final cold = CoachProfileProvider();
+    addTearDown(cold.dispose);
+    await cold.loadFromWizard();
+    expect(cold.profile?.dateOfBirth, DateTime(1984, 2, 29));
+    expect(cold.profile?.birthYear, 1984);
+    expect(
+        cold.profile?.dataSources['dateOfBirth'], ProfileDataSource.userInput);
+    expect(cold.profile?.dataSources['birthYear'], ProfileDataSource.userInput);
+  });
+
   test('updateProfile does not persist emergency-fund heuristic as cash',
       () async {
     final provider = CoachProfileProvider();

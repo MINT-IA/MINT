@@ -59,6 +59,8 @@ void main() {
   const oldOwner = '22222222-2222-4222-8222-222222222222';
   const newReceipt = '33333333-3333-4333-8333-333333333333';
   const newOwner = '44444444-4444-4444-8444-444444444444';
+  const oldSnapshot = '55555555-5555-4555-8555-555555555555';
+  const newSnapshot = '66666666-6666-4666-8666-666666666666';
   final now = DateTime.utc(2026, 7, 15, 12);
 
   setUp(() {
@@ -150,6 +152,7 @@ void main() {
     await store.activatePending(
       receiptId: oldReceipt,
       manualPartnerOwnerId: oldOwner,
+      lppSnapshotId: oldSnapshot,
       verifiedAt: now,
     );
 
@@ -206,6 +209,7 @@ void main() {
       () => store.activatePending(
         receiptId: newReceipt,
         manualPartnerOwnerId: newOwner,
+        lppSnapshotId: newSnapshot,
         verifiedAt: now,
       ),
       throwsStateError,
@@ -219,6 +223,7 @@ void main() {
     final active = await store.activatePending(
       receiptId: newReceipt,
       manualPartnerOwnerId: newOwner,
+      lppSnapshotId: newSnapshot,
       verifiedAt: now,
     );
     expect(active.isCurrentAt(now), isTrue);
@@ -288,6 +293,7 @@ void main() {
     await store.activatePending(
       receiptId: newReceipt,
       manualPartnerOwnerId: newOwner,
+      lppSnapshotId: newSnapshot,
       verifiedAt: now,
     );
     final partial = await store.markPartial(
@@ -320,10 +326,32 @@ void main() {
     final active = await store.activatePending(
       receiptId: newReceipt,
       manualPartnerOwnerId: newOwner,
+      lppSnapshotId: newSnapshot,
       verifiedAt: now,
     );
     expect(active.isCurrentAt(now.add(const Duration(minutes: 4))), isTrue);
     expect(active.isCurrentAt(now.add(const Duration(minutes: 5))), isFalse);
+  });
+
+  test('legacy active binding without an LPP snapshot stays fail-closed',
+      () async {
+    final legacy = PartnerAccountabilityBinding.fromJson({
+      'receiptId': oldReceipt,
+      'manualPartnerOwnerId': oldOwner,
+      'state': 'active',
+      'createdAt': now.toIso8601String(),
+      'noticeVersion': 'notice-v1',
+      'policyVersion': 'policy-v1',
+      'privacyContact': 'privacy@example.test',
+      'rightsChannel': 'https://example.test/rights',
+      'lastVerifiedAt': now.toIso8601String(),
+      'receiptCreatedAt': now.toIso8601String(),
+      'expiresAt': now.add(const Duration(days: 365)).toIso8601String(),
+      'failureStatus': null,
+    });
+
+    expect(legacy, isNotNull);
+    expect(legacy!.isCurrentAt(now), isFalse);
   });
 
   test('legacy binding without accepted rights snapshot is unreadable',

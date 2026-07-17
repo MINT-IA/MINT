@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/financial_plan.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -55,6 +56,9 @@ class PlanPreviewCard extends StatelessWidget {
   /// Structured calculator assumptions for a retirement scenario.
   final FinancialPlanProjectionAssumptions? projectionAssumptions;
 
+  /// Authoritative dependency branch selected by the immutable snapshot.
+  final String? dependencyBranch;
+
   /// Lower-bound projection (pessimistic). Null if not computed.
   final double? projectedLow;
 
@@ -84,6 +88,7 @@ class PlanPreviewCard extends StatelessWidget {
     required this.disclaimer,
     required this.sources,
     this.projectionAssumptions,
+    this.dependencyBranch,
     this.projectedLow,
     required this.projectedMid,
     this.projectedHigh,
@@ -124,6 +129,7 @@ class PlanPreviewCard extends StatelessWidget {
       disclaimer: plan.disclaimer,
       sources: plan.sources,
       projectionAssumptions: plan.projectionAssumptions,
+      dependencyBranch: plan.dependencyBranch,
       projectedLow: plan.projectedLow,
       projectedMid: plan.projectedOutcome,
       projectedHigh: plan.projectedHigh,
@@ -181,11 +187,10 @@ class PlanPreviewCard extends StatelessWidget {
     );
     final isRetirement = goalCategory == 'goal_retirement_plan' ||
         goalCategory == 'goal_pension_opt';
-    final isNoLppRetirement = isRetirement &&
-        projectionAssumptions?.salaryBasis.kind == 'notApplicable' &&
-        projectionAssumptions?.bonificationBasis.kind == 'notApplicable';
+    final isNoLppRetirement = dependencyBranch == 'retirementNoLpp';
+    final isLppRetirement = dependencyBranch == 'retirementLpp';
 
-    return Container(
+    final freshCard = Container(
       decoration: BoxDecoration(
         color: MintColors.appleSurface,
         borderRadius: BorderRadius.circular(12),
@@ -203,10 +208,17 @@ class PlanPreviewCard extends StatelessWidget {
             const SizedBox(height: MintSpacing.sm),
 
             // ── Hero monthly CHF ──────────────────────────────────────────
-            Text(
-              l.planCard_monthlyAmount(chfFormat.format(monthlyTarget).trim()),
-              style:
-                  MintTextStyles.displayMedium(color: MintColors.textPrimary),
+            Semantics(
+              identifier: 'financial_plan_coach_monthly_amount',
+              container: true,
+              child: Text(
+                l.planCard_monthlyAmount(
+                  chfFormat.format(monthlyTarget).trim(),
+                ),
+                style: MintTextStyles.displayMedium(
+                  color: MintColors.textPrimary,
+                ),
+              ),
             ),
             const SizedBox(height: MintSpacing.md),
 
@@ -308,14 +320,19 @@ class PlanPreviewCard extends StatelessWidget {
               l.planCard_dataConfidence(confidenceLevel.round().toString()),
               style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
-            if (confidenceLevel < 70) ...[
+            if (confidenceLevel < 70 &&
+                (!isRetirement ||
+                    (isLppRetirement &&
+                        FeatureFlags.lppEvidenceIngestionEnabled))) ...[
               const SizedBox(height: MintSpacing.xs),
               Semantics(
                 identifier: 'financial_plan_coach_improve_precision',
                 button: true,
                 child: TextButton(
                   onPressed: () => context.push(
-                    isRetirement ? '/data-block/lpp' : '/data-block/revenu',
+                    isLppRetirement
+                        ? '/scan?type=lppCertificate'
+                        : '/data-block/revenu',
                   ),
                   child: Text(l.planCard_improvePrecision),
                 ),
@@ -368,6 +385,12 @@ class PlanPreviewCard extends StatelessWidget {
         ),
       ),
     );
+    return Semantics(
+      identifier: 'financial_plan_coach_fresh_state',
+      container: true,
+      explicitChildNodes: true,
+      child: freshCard,
+    );
   }
 
   List<String> _assumptionLines({
@@ -417,6 +440,15 @@ class PlanPreviewCard extends StatelessWidget {
       );
     } else if (bonification.kind == 'legalAgeSchedule') {
       lines.add(l.planCard_bonificationLegal);
+    }
+    if (assumptions.annualProjectionUsesWholeYears) {
+      lines.add(l.planCard_annualWholeYearsAssumption);
+    }
+    if (assumptions.requiresFundAuthorizationBefore63) {
+      lines.add(l.planCard_earlyRetirementFundAuthorization);
+    }
+    if (assumptions.assumesPostReferenceGainfulActivity) {
+      lines.add(l.planCard_postReferenceActivityAssumption);
     }
     if (assumptions.projectionAsOf.millisecondsSinceEpoch > 0) {
       lines.add(

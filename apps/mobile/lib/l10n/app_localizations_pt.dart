@@ -24259,6 +24259,34 @@ class SPt extends S {
       'Os dados LPP necessários ainda não permitem calcular este cenário.';
 
   @override
+  String get planSetupBlockerAffiliation =>
+      'Indica primeiro se estás afiliado a uma caixa de pensões.';
+
+  @override
+  String get planSetupBlockerDateOfBirth =>
+      'Falta a data de nascimento exata. Adiciona-a ao teu perfil antes de recalcular este cenário.';
+
+  @override
+  String get planSetupBlockerSalary =>
+      'O salário bruto anual atual está em falta ou tem de ser reconfirmado.';
+
+  @override
+  String get planSetupBlockerLpp =>
+      'É necessário um saldo LPP recente e confirmado. A leitura do certificado só é proposta quando está disponível.';
+
+  @override
+  String get planSetupBlockerLegalContract =>
+      'A base legal LPP deste cenário expirou. Esta projeção está temporariamente indisponível até ser atualizada.';
+
+  @override
+  String get planSetupBlockerOwnerAuthority =>
+      'Não é possível verificar a autoridade deste perfil. Recarrega os teus dados antes de tentares novamente.';
+
+  @override
+  String get planSetupBlockerUnexpected =>
+      'Esta projeção está temporariamente indisponível. Tenta novamente mais tarde; nenhum montante foi guardado.';
+
+  @override
   String get planSetupEnrichLpp => 'Ver dados LPP a confirmar';
 
   @override
@@ -24320,4 +24348,39 @@ class SPt extends S {
   @override
   String get planSetupDraftChanged =>
       'Os dados mudaram após a revisão. Revê novamente o cenário antes de confirmar.';
+
+  @override
+  String get planSetupBlockerGender =>
+      'Indica um género AVS canónico (F ou M) e confirma a fonte antes de recalcular este cenário.';
+
+  @override
+  String get planSetupAnnualApproximation =>
+      'Projeção anual simplificada: as frações de ano não são calculadas proporcionalmente.';
+
+  @override
+  String get dataBlockBirthDateLabel => 'Data de nascimento (AAAA-MM-DD)';
+
+  @override
+  String get dataBlockBirthDatePicker => 'Escolher a data de nascimento';
+
+  @override
+  String get dataBlockGenderLabel => 'Género AVS';
+
+  @override
+  String get dataBlockGenderFemale => 'F — mulher';
+
+  @override
+  String get dataBlockGenderMale => 'M — homem';
+
+  @override
+  String get planCard_annualWholeYearsAssumption =>
+      'Projeção anual simplificada: as frações de ano não são rateadas.';
+
+  @override
+  String get planCard_earlyRetirementFundAuthorization =>
+      'Condição: o regulamento da caixa de pensões deve permitir uma prestação antes dos 63 anos.';
+
+  @override
+  String get planCard_postReferenceActivityAssumption =>
+      'Hipótese: continuação da atividade remunerada e possibilidade de adiamento junto da caixa de pensões.';
 }

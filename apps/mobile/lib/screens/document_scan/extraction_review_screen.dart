@@ -14,6 +14,7 @@ import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -1635,8 +1636,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     }
     try {
       final sourceDate = _parseOptionalTaxDate(_sourceDateController.text);
-      final currentDay = _civilDay((widget.now ?? DateTime.now)());
-      if (sourceDate != null && _civilDay(sourceDate).isAfter(currentDay)) {
+      final current = (widget.now ?? DateTime.now)();
+      if (sourceDate != null &&
+          SwissCivilTime.isFutureCivilDate(sourceDate, now: current)) {
         return (isValid: false, value: null);
       }
       if (hasUntouchedDocumentFact && sourceDate == null) {
@@ -1972,7 +1974,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       final taxYear = _parseOptionalYear(_taxYearController.text);
       final basedOnTaxYear = _parseOptionalYear(_basedOnTaxYearController.text);
       final sourceDate = _parseOptionalTaxDate(_sourceDateController.text);
-      final currentDay = _civilDay((widget.now ?? DateTime.now)());
+      final current = (widget.now ?? DateTime.now)();
+      final currentDay = SwissCivilTime.civilDate(current);
       bool isValidCivilTaxYear(int? year) =>
           year == null || year >= 1900 && year <= currentDay.year;
       if (!isValidCivilTaxYear(taxYear) ||
@@ -1983,7 +1986,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               basedOnTaxYear > taxYear) {
         return null;
       }
-      if (sourceDate != null && _civilDay(sourceDate).isAfter(currentDay)) {
+      if (sourceDate != null &&
+          SwissCivilTime.isFutureCivilDate(sourceDate, now: current)) {
         return null;
       }
       final cantonCode = _optionalTaxText(_cantonCodeController.text);
@@ -2057,9 +2061,6 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       return null;
     }
   }
-
-  DateTime _civilDay(DateTime value) =>
-      DateTime.utc(value.year, value.month, value.day);
 
   List<ExtractedField> _canonicalTaxImpactFields(
     TaxReviewConfirmation confirmation,

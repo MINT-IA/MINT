@@ -18,6 +18,7 @@ import 'package:mint_mobile/providers/tension_card_provider.dart';
 import 'package:mint_mobile/services/commitment_service.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 /// Raw data fetched from services, cached to avoid double-fetching.
 class _RawTimelineData {
@@ -37,8 +38,10 @@ class _RawTimelineData {
 }
 
 class TimelineProvider extends TensionCardProvider {
-  TimelineProvider({DocumentReferenceStore? documentReferenceStore})
-      : _documentReferenceStore =
+  TimelineProvider({
+    DocumentReferenceStore? documentReferenceStore,
+    super.sessionEpoch,
+  }) : _documentReferenceStore =
             documentReferenceStore ?? DocumentReferenceStore();
 
   final DocumentReferenceStore _documentReferenceStore;
@@ -59,6 +62,15 @@ class TimelineProvider extends TensionCardProvider {
   /// Whether at least one node exists.
   bool get hasNodes => _totalNodeCount > 0;
 
+  @override
+  void clearSessionMemoryAfterPurge() {
+    _months = [];
+    _visibleCap = 50;
+    _totalNodeCount = 0;
+    _lastNodes = [];
+    super.clearSessionMemoryAfterPurge();
+  }
+
   void bindLedger(CoachProfileProvider ledger) {
     _ledger = ledger;
   }
@@ -68,22 +80,36 @@ class TimelineProvider extends TensionCardProvider {
     _documents?.removeListener(_onDocumentsChanged);
     _documents = documents;
     documents.addListener(_onDocumentsChanged);
-    _scheduleDocumentProjection();
   }
+
+  /// Opens document projection only after the composition-root session gate.
+  void activateAfterSessionReady() => _scheduleDocumentProjection();
 
   void _onDocumentsChanged() => _scheduleDocumentProjection();
 
   void _scheduleDocumentProjection() {
     if (_documentUpdateScheduled) return;
+    late final SessionEpochGuard guard;
+    try {
+      guard = sessionEpoch.capture();
+    } on SessionEpochInvalidated {
+      return;
+    }
     _documentUpdateScheduled = true;
     scheduleMicrotask(() {
       _documentUpdateScheduled = false;
       if (_disposed) return;
+      try {
+        guard.assertCurrent();
+      } on SessionEpochInvalidated {
+        return;
+      }
       _rebuildDocumentProjection();
     });
   }
 
   void _rebuildDocumentProjection() {
+    if (sessionEpoch.isTerminationBlocked) return;
     final documents = _documents?.currentReferences ?? const [];
     final nodes = <TimelineNode>[
       ..._lastNodes.where((node) => node.type != NodeType.document),
@@ -97,6 +123,7 @@ class TimelineProvider extends TensionCardProvider {
 
   /// Increase visible cap by 20 and regroup.
   void loadMore() {
+    if (sessionEpoch.isTerminationBlocked) return;
     _visibleCap += 20;
     _rebuildMonths(_lastNodes);
     notifyListeners();
@@ -106,12 +133,18 @@ class TimelineProvider extends TensionCardProvider {
   List<TimelineNode> _lastNodes = [];
 
   @override
-  Future<void> refresh() async {
+  Future<void> refresh({bool includeAuthenticatedNetwork = true}) async {
+    final guard = sessionEpoch.capture();
     // Parent populates tension cards + loop position.
-    await super.refresh();
+    await super.refresh(
+      includeAuthenticatedNetwork: includeAuthenticatedNetwork,
+    );
 
     // Fetch raw data for timeline nodes.
-    final data = await _fetchRawData();
+    final data = await _fetchRawData(
+      includeAuthenticatedNetwork: includeAuthenticatedNetwork,
+    );
+    guard.assertCurrent();
 
     // Build all nodes from raw data.
     final allNodes = _aggregateNodes(data);
@@ -122,24 +155,31 @@ class TimelineProvider extends TensionCardProvider {
     _lastNodes = allNodes;
     _totalNodeCount = allNodes.length;
     _rebuildMonths(allNodes);
+    guard.assertCurrent();
     notifyListeners();
   }
 
   // ── Data fetching ─────────────────────────────────────────
 
-  Future<_RawTimelineData> _fetchRawData() async {
+  Future<_RawTimelineData> _fetchRawData({
+    required bool includeAuthenticatedNetwork,
+  }) async {
     List<Map<String, dynamic>> commitments = [];
-    try {
-      commitments = await CommitmentService().getCommitments();
-    } catch (_) {
-      // Auth or network error — graceful empty
+    if (includeAuthenticatedNetwork) {
+      try {
+        commitments = await CommitmentService().getCommitments();
+      } catch (_) {
+        // Auth or network error — graceful empty
+      }
     }
 
     List<FreshStartLandmark> landmarks = [];
-    try {
-      landmarks = await FreshStartService().fetchLandmarks();
-    } catch (_) {
-      // Non-critical — graceful empty
+    if (includeAuthenticatedNetwork) {
+      try {
+        landmarks = await FreshStartService().fetchLandmarks();
+      } catch (_) {
+        // Non-critical — graceful empty
+      }
     }
 
     List<Map<String, dynamic>> conversationEntries = [];

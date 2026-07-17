@@ -10,28 +10,30 @@ import 'package:mint_mobile/services/household_service.dart';
 /// NOTE: Full integration tests require an HTTP mock adapter.
 void main() {
   group('HouseholdService — structure & import', () {
+    final service = HouseholdService();
+
     test('HouseholdService class is accessible', () {
       expect(HouseholdService, isNotNull);
     });
 
-    test('getHousehold is a static method', () {
-      expect(HouseholdService.getHousehold, isA<Function>());
+    test('getHousehold is available on the injected service', () {
+      expect(service.getHousehold, isA<Function>());
     });
 
     test('invitePartner is a static method', () {
-      expect(HouseholdService.invitePartner, isA<Function>());
+      expect(service.invitePartner, isA<Function>());
     });
 
     test('acceptInvitation is a static method', () {
-      expect(HouseholdService.acceptInvitation, isA<Function>());
+      expect(service.acceptInvitation, isA<Function>());
     });
 
     test('revokeMember is a static method', () {
-      expect(HouseholdService.revokeMember, isA<Function>());
+      expect(service.revokeMember, isA<Function>());
     });
 
     test('transferOwnership is a static method', () {
-      expect(HouseholdService.transferOwnership, isA<Function>());
+      expect(service.transferOwnership, isA<Function>());
     });
   });
 
@@ -41,10 +43,7 @@ void main() {
 
     test('getHousehold returns null or throws on unreachable server', () async {
       try {
-        final result = await HouseholdService.getHousehold(
-          'fake-token',
-          'http://127.0.0.1:1',
-        );
+        final result = await service.getHousehold();
         // If it somehow succeeds (unlikely), result should be null
         expect(result, isNull);
       } catch (e) {
@@ -55,11 +54,7 @@ void main() {
 
     test('invitePartner throws on unreachable server', () async {
       try {
-        await HouseholdService.invitePartner(
-          'fake-token',
-          'http://127.0.0.1:1',
-          'test@example.com',
-        );
+        await service.invitePartner('test@example.com');
         fail('Expected an exception');
       } catch (e) {
         expect(e, isNotNull);
@@ -68,11 +63,7 @@ void main() {
 
     test('acceptInvitation throws on unreachable server', () async {
       try {
-        await HouseholdService.acceptInvitation(
-          'fake-token',
-          'http://127.0.0.1:1',
-          'INVITE-CODE',
-        );
+        await service.acceptInvitation('INVITE-CODE');
         fail('Expected an exception');
       } catch (e) {
         expect(e, isNotNull);
@@ -81,11 +72,7 @@ void main() {
 
     test('revokeMember throws on unreachable server', () async {
       try {
-        await HouseholdService.revokeMember(
-          'fake-token',
-          'http://127.0.0.1:1',
-          'user-123',
-        );
+        await service.revokeMember('user-123');
         fail('Expected an exception');
       } catch (e) {
         expect(e, isNotNull);
@@ -94,11 +81,7 @@ void main() {
 
     test('transferOwnership throws on unreachable server', () async {
       try {
-        await HouseholdService.transferOwnership(
-          'fake-token',
-          'http://127.0.0.1:1',
-          'new-owner-456',
-        );
+        await service.transferOwnership('new-owner-456');
         fail('Expected an exception');
       } catch (e) {
         expect(e, isNotNull);
@@ -106,3 +89,5 @@ void main() {
     });
   });
 }
+
+final service = HouseholdService(baseUrl: 'http://127.0.0.1:1');

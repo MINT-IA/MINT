@@ -1,216 +1,205 @@
-import 'dart:convert';
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show debugPrint, visibleForTesting;
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/authenticated_transport.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH MEMORY SERVICE — S58 / AI Memory
 // ────────────────────────────────────────────────────────────
 //
-// Persists key insights extracted from coach conversations so
-// Claude has cross-session awareness without replaying full
-// conversation history.
-//
-// Storage: SharedPreferences (Phase 2 — not a vector store yet;
-// that is Phase 3 / S63+).
-//
-// Max capacity: 50 most recent insights (FIFO pruning).
-// Key: '_coach_insights'
-//
-// Privacy rules (CLAUDE.md §7):
-//   - summaries must NOT contain exact salary, IBAN, name, SSN
-//   - topics / categories only — no verbatim personal data
-//   - metadata field is NOT injected into LLM prompts directly
-//
-// Pure static methods for testability (injectable SharedPreferences).
-//
-// ACCOUNT ISOLATION (Gate 0 fix 2026-04-15): SharedPreferences key now
-// includes the authenticated user_id, so insights persisted under one
-// account never leak into another. Anonymous sessions land under the
-// '__anon' namespace which is wiped on first authentication.
+// Local summaries are account-scoped and privacy-minimized. Every public
+// operation captures one session epoch and one identity-derived namespace
+// before touching SharedPreferences or the authenticated network.
 // ────────────────────────────────────────────────────────────
 
 /// Persists and retrieves [CoachInsight] records across sessions.
 class CoachMemoryService {
   CoachMemoryService._();
 
-  /// Base SharedPreferences key. The actual storage key is
-  /// `${_baseKey}_$userId` (or `${_baseKey}___anon` when no user is
-  /// authenticated). See [_keyFor].
   static const _baseKey = '_coach_insights';
-
-  /// Base SharedPreferences key for [InsightType.event] records. Events
-  /// live in a separate namespace from `_baseKey` because they are
-  /// durable anchors (scan LPP, life event, major financial action)
-  /// that must survive the 50-insight FIFO pruning applied to `fact`
-  /// insights. Per panel adversaire 2026-04-18 B5: with the coach's
-  /// system prompt ordering `save_insight` "on every key fact", 50 is
-  /// exhausted within a week of active coaching and scan anchors get
-  /// silently evicted. Events get their own non-pruned list.
   static const _eventsBaseKey = '_coach_events';
-
-  /// Compute the per-user storage key. Falls back to an anonymous
-  /// namespace if no JWT user_id is available — that data NEVER
-  /// crosses into an authenticated account.
-  static Future<String> _keyFor() async {
-    try {
-      final uid = await AuthService.getUserId();
-      if (uid != null && uid.isNotEmpty) {
-        return '${_baseKey}_$uid';
-      }
-    } catch (e) {
-      debugPrint('[CoachMemory] auth lookup failed, anon namespace: $e');
-    }
-    return '${_baseKey}___anon';
-  }
-
-  /// Compute the per-user events storage key. Same account-isolation
-  /// contract as [_keyFor] but for the non-pruned event namespace.
-  static Future<String> _eventsKeyFor() async {
-    try {
-      final uid = await AuthService.getUserId();
-      if (uid != null && uid.isNotEmpty) {
-        return '${_eventsBaseKey}_$uid';
-      }
-    } catch (e) {
-      debugPrint('[CoachMemory] auth lookup failed, anon events namespace: $e');
-    }
-    return '${_eventsBaseKey}___anon';
-  }
-
-  // Backwards compat alias (used internally; resolves at call time).
-  // The constant name is preserved so call sites remain readable.
-  static Future<String> get _key => _keyFor();
-  static Future<String> get _eventsKey => _eventsKeyFor();
-
-  /// Maximum number of insights to retain (FIFO pruning).
   static const _maxInsights = 50;
 
-  // ── Write ────────────────────────────────────────────────
+  static SessionEpoch _sessionEpoch = SessionEpoch();
+  static Future<String?> Function() _userIdReader = AuthService.getUserId;
 
-  /// Save a key insight from the current conversation.
-  ///
-  /// Inserts at position 0 (most recent first). Prunes automatically
-  /// when the total exceeds [_maxInsights].
-  ///
-  /// [prefs] — injectable SharedPreferences for testing.
-  static Future<void> saveInsight(
-    CoachInsight insight, {
-    SharedPreferences? prefs,
-  }) async {
-    final sp = prefs ?? await SharedPreferences.getInstance();
-    final insights = await _load(sp);
-
-    // Deduplicate: replace existing insight with same id
-    insights.removeWhere((i) => i.id == insight.id);
-    insights.insert(0, insight);
-
-    await _save(sp, insights);
-    await prune(prefs: sp);
-
-    // Sync to backend RAG vector store (fire-and-forget, Phase 3.1).
-    // Embeds the insight so the coach can retrieve it semantically.
-    _syncToBackend(insight).catchError((e) { debugPrint('[CoachMemory] Sync failed: $e'); });
+  /// Composition-root binding. Session termination invalidates every memory
+  /// operation through the exact same epoch as providers and API transport.
+  static void bindSessionEpoch(SessionEpoch sessionEpoch) {
+    _sessionEpoch = sessionEpoch;
   }
 
-  /// Sync insight to backend for RAG embedding (fire-and-forget).
-  static Future<void> _syncToBackend(CoachInsight insight) async {
-    try {
-      final baseUrl = ApiService.baseUrl;
-      final token = await AuthService.getToken();
-      if (token == null) return;
+  @visibleForTesting
+  static void debugConfigureSessionAuthority({
+    required SessionEpoch sessionEpoch,
+    required Future<String?> Function() userIdReader,
+  }) {
+    _sessionEpoch = sessionEpoch;
+    _userIdReader = userIdReader;
+  }
 
-      await http.post(
-        Uri.parse('$baseUrl/coach/sync-insight'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'insight_id': insight.id,
-          'topic': insight.topic,
-          'summary': insight.summary,
-          'insight_type': insight.type.name,
-          if (insight.metadata != null) 'metadata': _filterMetadata(insight.metadata!),
-          'created_at': insight.createdAt.toUtc().toIso8601String(),
-        }),
-      );
-    } catch (e, st) {
-      // Fire-and-forget: sync failure is not user-facing, but Gate 0 #10
-      // requires observability — silent catches were hiding flaky network
-      // and stale-token bugs for weeks. Log so it shows up in Sentry /
-      // device console without breaking the user flow.
-      debugPrint('[CoachMemory] _syncToBackend failed: $e\n$st');
+  @visibleForTesting
+  static void debugResetSessionAuthority() {
+    _sessionEpoch = SessionEpoch();
+    _userIdReader = AuthService.getUserId;
+  }
+
+  static Future<_CoachMemoryScope> _beginScope() async {
+    final epoch = _sessionEpoch;
+    final guard = epoch.capture();
+    final userId = await _userIdReader();
+    guard.assertCurrent();
+    final String namespace;
+    if (userId == null) {
+      namespace = '__anon';
+    } else {
+      namespace = userId.trim();
+      if (namespace.isEmpty) {
+        throw StateError('Coach memory identity is malformed');
+      }
     }
-  }
-
-  /// FIX-068: Notify backend to remove orphaned embedding after local prune.
-  static Future<void> _syncRemoveToBackend(String insightId) async {
-    try {
-      final baseUrl = ApiService.baseUrl;
-      final token = await AuthService.getToken();
-      if (token == null) return;
-      await http.delete(
-        Uri.parse('$baseUrl/coach/sync-insight/$insightId'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-    } catch (e, st) {
-      debugPrint('[CoachMemory] _syncRemoveToBackend($insightId) failed: $e\n$st');
-    }
-  }
-
-  /// Filter metadata before sending to backend (defense-in-depth).
-  /// Only safe keys are transmitted — PII never leaves the device.
-  static Map<String, dynamic> _filterMetadata(Map<String, dynamic> meta) {
-    const safeKeys = {'templateId', 'stepCount', 'documentType', 'sequenceId'};
-    return Map.fromEntries(
-      meta.entries.where((e) => safeKeys.contains(e.key)),
+    return _CoachMemoryScope(
+      epoch: epoch,
+      guard: guard,
+      insightsKey: '${_baseKey}_$namespace',
+      eventsKey: '${_eventsBaseKey}_$namespace',
     );
   }
 
-  // ── Read ─────────────────────────────────────────────────
+  // ── Insights ──────────────────────────────────────────────
 
-  /// Retrieve all stored insights, most recent first.
-  ///
-  /// Returns an empty list if no insights have been saved.
+  static Future<void> saveInsight(
+    CoachInsight insight, {
+    SharedPreferences? prefs,
+    AuthenticatedTransport? transport,
+  }) async {
+    final scope = await _beginScope();
+    final sp = prefs ?? await SharedPreferences.getInstance();
+    scope.guard.assertCurrent();
+    late final List<CoachInsight> removed;
+
+    await scope.epoch.runGuardedPersistence(scope.guard, () async {
+      final insights = _read(sp, scope.insightsKey, scope.guard);
+      insights.removeWhere((candidate) => candidate.id == insight.id);
+      insights.insert(0, insight);
+      removed = insights.length <= _maxInsights
+          ? const <CoachInsight>[]
+          : insights.skip(_maxInsights).toList(growable: false);
+      final retained = insights.take(_maxInsights).toList(growable: false);
+      await _write(sp, scope.insightsKey, retained);
+    });
+    scope.guard.assertCurrent();
+
+    final authenticated = transport ?? ApiService.authenticatedTransport;
+    for (final stale in removed) {
+      unawaited(_syncRemoveToBackend(stale.id, authenticated, scope));
+    }
+    unawaited(_syncToBackend(insight, authenticated, scope));
+  }
+
+  static Future<void> _syncToBackend(
+    CoachInsight insight,
+    AuthenticatedTransport transport,
+    _CoachMemoryScope scope,
+  ) async {
+    try {
+      final operation = transport.beginOperation();
+      scope.guard.assertCurrent();
+      await operation.requireSession();
+      scope.guard.assertCurrent();
+      await operation.send(
+        AuthenticatedRequest.json(
+          AuthenticatedHttpMethod.post,
+          Uri.parse('${ApiService.baseUrl}/coach/sync-insight'),
+          <String, dynamic>{
+            'insight_id': insight.id,
+            'topic': insight.topic,
+            'summary': insight.summary,
+            'insight_type': insight.type.name,
+            if (insight.metadata != null)
+              'metadata': _filterMetadata(insight.metadata!),
+            'created_at': insight.createdAt.toUtc().toIso8601String(),
+          },
+        ),
+      );
+      scope.guard.assertCurrent();
+    } catch (_) {
+      debugPrint('[CoachMemory] backend_sync_failed');
+    }
+  }
+
+  @visibleForTesting
+  static Future<void> debugSyncInsightToBackend(
+    CoachInsight insight, {
+    required AuthenticatedTransport transport,
+  }) async {
+    final scope = await _beginScope();
+    await _syncToBackend(insight, transport, scope);
+  }
+
+  static Future<void> _syncRemoveToBackend(
+    String insightId,
+    AuthenticatedTransport transport,
+    _CoachMemoryScope scope,
+  ) async {
+    try {
+      final operation = transport.beginOperation();
+      scope.guard.assertCurrent();
+      await operation.requireSession();
+      scope.guard.assertCurrent();
+      await operation.send(
+        AuthenticatedRequest.empty(
+          AuthenticatedHttpMethod.delete,
+          Uri.parse('${ApiService.baseUrl}/coach/sync-insight/$insightId'),
+        ),
+      );
+      scope.guard.assertCurrent();
+    } catch (_) {
+      debugPrint('[CoachMemory] backend_remove_failed');
+    }
+  }
+
+  static Map<String, dynamic> _filterMetadata(Map<String, dynamic> metadata) {
+    const safeKeys = {'templateId', 'stepCount', 'documentType', 'sequenceId'};
+    return Map.fromEntries(
+      metadata.entries.where((entry) => safeKeys.contains(entry.key)),
+    );
+  }
+
   static Future<List<CoachInsight>> getInsights({
     SharedPreferences? prefs,
   }) async {
+    final scope = await _beginScope();
     final sp = prefs ?? await SharedPreferences.getInstance();
-    return await _load(sp);
+    scope.guard.assertCurrent();
+    final insights = _read(sp, scope.insightsKey, scope.guard);
+    scope.guard.assertCurrent();
+    return insights;
   }
 
-  /// Get insights relevant to a specific topic / intent tag.
-  ///
-  /// Case-insensitive substring match against [CoachInsight.topic].
   static Future<List<CoachInsight>> getInsightsForTopic(
     String intentTag, {
     SharedPreferences? prefs,
   }) async {
+    final scope = await _beginScope();
     final sp = prefs ?? await SharedPreferences.getInstance();
-    final all = await _load(sp);
+    scope.guard.assertCurrent();
+    final all = _read(sp, scope.insightsKey, scope.guard);
     final tag = intentTag.toLowerCase().trim();
-    return all
-        .where((i) => i.topic.toLowerCase().contains(tag))
-        .toList();
+    final matching = all
+        .where((insight) => insight.topic.toLowerCase().contains(tag))
+        .toList(growable: false);
+    scope.guard.assertCurrent();
+    return matching;
   }
 
-  // ── Events (non-pruned durable anchors) ────────────────
-  // Wave A-MINIMAL 2026-04-18. Events are stored in a separate
-  // namespace from regular `fact`/`goal`/etc insights so they survive
-  // the 50-insight FIFO pruning. Examples: scan LPP, life event,
-  // major financial action. Events are local-only (NOT synced to
-  // backend RAG) for v1 — panel archi AJ-2 2026-04-18 — because the
-  // coach_tools enum + tests have been widened but backend extractor
-  // and embedder have not been reviewed for `event` fidelity.
-  // ──────────────────────────────────────────────────────
+  // ── Events (non-pruned durable anchors) ──────────────────
 
-  /// Persist a durable event anchor. Dedup by (topic + date-day):
-  /// calling saveEvent twice for the same topic on the same calendar
-  /// day replaces the previous entry instead of creating a duplicate.
   static Future<void> saveEvent(
     String topic,
     String summary, {
@@ -218,134 +207,165 @@ class CoachMemoryService {
     Map<String, dynamic>? metadata,
     SharedPreferences? prefs,
   }) async {
+    final scope = await _beginScope();
     final sp = prefs ?? await SharedPreferences.getInstance();
-    final events = await _loadEvents(sp);
-    // A2-fix (2026-04-18) post-exec audit panel bugs BUG #4:
-    // Dedup MUST use the user's LOCAL day, not UTC. A Swiss user
-    // scanning at 01h30 local (CEST) creates an event at 23h30 UTC
-    // the previous day; if they re-scan at 23h30 local (21h30 UTC
-    // same day) the old logic would treat it as a different UTC day
-    // and skip dedup, while the user saw two same-day scans. The
-    // inverse also happened in winter. Compare local calendar days.
+    scope.guard.assertCurrent();
     final nowLocal = (date ?? DateTime.now()).toLocal();
-    final dayKey = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
-    events.removeWhere((e) {
-      final eLocal = e.createdAt.toLocal();
-      final eDay = DateTime(eLocal.year, eLocal.month, eLocal.day);
-      return e.topic == topic && eDay == dayKey;
-    });
-
+    final day = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
     final entry = CoachInsight(
-      // Deterministic id per (topic, local day) so the dedup is
-      // idempotent — repeated saveEvent calls on the same day
-      // produce identical ids and the removeWhere above collapses
-      // them before insertion.
-      id: 'event_${topic}_${dayKey.toIso8601String().substring(0, 10)}',
+      id: 'event_${topic}_${day.toIso8601String().substring(0, 10)}',
       createdAt: nowLocal,
       topic: topic,
       summary: summary,
       type: InsightType.event,
       metadata: metadata,
     );
-    events.insert(0, entry);
+
     try {
-      await _saveEvents(sp, events);
-    } catch (e, st) {
-      // A2-fix (panel façade #6): _saveEvents can throw synchronously
-      // on SharedPreferences write failures. Surface the error via
-      // debugPrint so Sentry/device console can pick it up, but never
-      // break the caller's flow — scans continue working even if the
-      // memory persistence fails for this one entry.
-      debugPrint('[CoachMemory] saveEvent($topic) persist failed: $e\n$st');
+      await scope.epoch.runGuardedPersistence(scope.guard, () async {
+        final events = _read(sp, scope.eventsKey, scope.guard);
+        events.removeWhere((event) {
+          final local = event.createdAt.toLocal();
+          final eventDay = DateTime(local.year, local.month, local.day);
+          return event.topic == topic && eventDay == day;
+        });
+        events.insert(0, entry);
+        await _write(sp, scope.eventsKey, events);
+      });
+      scope.guard.assertCurrent();
+    } on SessionEpochInvalidated {
+      rethrow;
+    } catch (_) {
+      // Event persistence remains best-effort for scan callers, but session
+      // invalidation above is never swallowed.
+      debugPrint('[CoachMemory] event_persist_failed');
     }
   }
 
-  /// Visible-for-testing inspection of the events list. Not part of
-  /// the production API — callers that need to read events in prod
-  /// should re-introduce a purposeful getter in the same commit that
-  /// wires the consumer (façade-sans-câblage hard-stop, 2026-04-18).
   @visibleForTesting
   static Future<List<CoachInsight>> debugGetEvents({
     SharedPreferences? prefs,
   }) async {
+    final scope = await _beginScope();
     final sp = prefs ?? await SharedPreferences.getInstance();
-    return _loadEvents(sp);
-  }
-
-  static Future<List<CoachInsight>> _loadEvents(SharedPreferences sp) async {
-    final k = await _eventsKey;
-    final raw = sp.getString(k);
-    if (raw == null) return [];
-    return CoachInsight.decodeList(raw);
-  }
-
-  static Future<void> _saveEvents(
-    SharedPreferences sp,
-    List<CoachInsight> events,
-  ) async {
-    final k = await _eventsKey;
-    await sp.setString(k, CoachInsight.encodeList(events));
+    scope.guard.assertCurrent();
+    final events = _read(sp, scope.eventsKey, scope.guard);
+    scope.guard.assertCurrent();
+    return events;
   }
 
   // ── Maintenance ──────────────────────────────────────────
 
-  /// Prune old insights — keeps the [_maxInsights] most recent.
-  ///
-  /// Called automatically by [saveInsight]; can also be called
-  /// manually on app startup.
-  static Future<void> prune({SharedPreferences? prefs}) async {
+  static Future<void> prune({
+    SharedPreferences? prefs,
+    AuthenticatedTransport? transport,
+  }) async {
+    final scope = await _beginScope();
     final sp = prefs ?? await SharedPreferences.getInstance();
-    final insights = await _load(sp);
+    scope.guard.assertCurrent();
+    var removed = const <CoachInsight>[];
 
-    if (insights.length <= _maxInsights) return;
+    await scope.epoch.runGuardedPersistence(scope.guard, () async {
+      final insights = _read(sp, scope.insightsKey, scope.guard);
+      if (insights.length <= _maxInsights) return;
+      removed = insights.skip(_maxInsights).toList(growable: false);
+      await _write(
+        sp,
+        scope.insightsKey,
+        insights.take(_maxInsights).toList(growable: false),
+      );
+    });
+    scope.guard.assertCurrent();
 
-    // FIX-068: Identify pruned insights for backend cleanup.
-    final pruned = insights.take(_maxInsights).toList();
-    final removed = insights.skip(_maxInsights).toList();
-    await _save(sp, pruned);
-
-    // Fire-and-forget: notify backend to remove orphaned embeddings.
+    final authenticated = transport ?? ApiService.authenticatedTransport;
     for (final insight in removed) {
-      _syncRemoveToBackend(insight.id).catchError((e) { debugPrint('[CoachMemory] Remove sync failed: $e'); });
+      unawaited(_syncRemoveToBackend(insight.id, authenticated, scope));
     }
   }
 
-  /// Clear all stored insights.
-  ///
-  /// Used for testing, account reset, or GDPR deletion.
-  /// Wave A-MINIMAL 2026-04-18: also clears the events namespace so
-  /// logout/reset wipes durable anchors alongside regular insights.
+  /// Clears the current identity plus anonymous fallback namespaces.
   static Future<void> clear({SharedPreferences? prefs}) async {
+    final scope = await _beginScope();
     final sp = prefs ?? await SharedPreferences.getInstance();
-    final k = await _key;
-    await sp.remove(k);
-    // Also clear the anonymous namespace so logging out of one account
-    // and into another can't surface stale anon-era insights.
-    await sp.remove('${_baseKey}___anon');
-    // Events namespace (non-pruned durable anchors).
-    final ek = await _eventsKey;
-    await sp.remove(ek);
-    await sp.remove('${_eventsBaseKey}___anon');
+    scope.guard.assertCurrent();
+    await scope.epoch.runGuardedPersistence(scope.guard, () async {
+      await _removeExisting(sp, <String>{
+        scope.insightsKey,
+        scope.eventsKey,
+        '${_baseKey}___anon',
+        '${_eventsBaseKey}___anon',
+      });
+    });
+    scope.guard.assertCurrent();
   }
 
-  // ── Private helpers ─────────────────────────────────────
-
-  /// Load insights from SharedPreferences (per-user namespaced).
-  ///
-  /// Returns empty list on missing key or parse error.
-  static Future<List<CoachInsight>> _load(SharedPreferences sp) async {
-    final k = await _key;
-    final raw = sp.getString(k);
-    if (raw == null) return [];
-    return CoachInsight.decodeList(raw);
+  /// Coordinator-only purge after synchronous epoch invalidation and drain.
+  /// It deliberately removes every account namespace rather than resolving an
+  /// identity while termination is blocked.
+  static Future<void> clearForSessionTermination({
+    SharedPreferences? prefs,
+  }) async {
+    final sp = prefs ?? await SharedPreferences.getInstance();
+    final keys = sp
+        .getKeys()
+        .where(
+          (key) =>
+              key.startsWith('${_baseKey}_') ||
+              key.startsWith('${_eventsBaseKey}_'),
+        )
+        .toSet();
+    await _removeExisting(sp, keys);
   }
 
-  /// Persist insights to SharedPreferences (per-user namespaced).
-  static Future<void> _save(
-    SharedPreferences sp,
+  static List<CoachInsight> _read(
+    SharedPreferences prefs,
+    String key,
+    SessionEpochGuard guard,
+  ) {
+    guard.assertCurrent();
+    final raw = prefs.getString(key);
+    guard.assertCurrent();
+    return raw == null ? <CoachInsight>[] : CoachInsight.decodeList(raw);
+  }
+
+  static Future<void> _write(
+    SharedPreferences prefs,
+    String key,
     List<CoachInsight> insights,
   ) async {
-    final k = await _key;
-    await sp.setString(k, CoachInsight.encodeList(insights));
+    final stored =
+        await prefs.setString(key, CoachInsight.encodeList(insights));
+    if (!stored || prefs.getString(key) == null) {
+      await prefs.reload();
+      throw StateError('Coach memory persistence failed');
+    }
   }
+
+  static Future<void> _removeExisting(
+    SharedPreferences prefs,
+    Set<String> keys,
+  ) async {
+    for (final key in keys) {
+      if (!prefs.containsKey(key)) continue;
+      final removed = await prefs.remove(key);
+      if (!removed || prefs.containsKey(key)) {
+        await prefs.reload();
+        throw StateError('Coach memory purge failed');
+      }
+    }
+  }
+}
+
+final class _CoachMemoryScope {
+  const _CoachMemoryScope({
+    required this.epoch,
+    required this.guard,
+    required this.insightsKey,
+    required this.eventsKey,
+  });
+
+  final SessionEpoch epoch;
+  final SessionEpochGuard guard;
+  final String insightsKey;
+  final String eventsKey;
 }

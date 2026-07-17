@@ -16,6 +16,7 @@ import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:mint_mobile/screens/simulator_compound_screen.dart';
 import 'package:mint_mobile/screens/simulator_leasing_screen.dart';
@@ -148,12 +149,30 @@ import 'package:mint_mobile/screens/admin/admin_shell.dart';
 import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 // Phase 32 MAP-05 — legacy redirect hit breadcrumb (wired at 43 call-sites below).
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
+import 'package:mint_mobile/services/account_session_bootstrap.dart';
+import 'package:mint_mobile/services/session_termination_coordinator.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 String _redirectPreservingQuery(GoRouterState state, String targetPath) {
   final query = state.uri.query;
   return query.isEmpty ? targetPath : '$targetPath?$query';
+}
+
+const _authenticatedIdentityEntryPaths = <String>{
+  '/auth/login',
+  '/auth/register',
+  '/auth/verify',
+};
+
+String? authSessionEntryRedirect({
+  required bool isLoggedIn,
+  required String path,
+}) {
+  return isLoggedIn && _authenticatedIdentityEntryPaths.contains(path)
+      ? '/home'
+      : null;
 }
 
 enum _ScanRecoveryTarget { review, impact }
@@ -332,6 +351,14 @@ final _router = GoRouter(
     // and bounces to /auth/register — then checkAuth completes, fires
     // refreshListenable, and the user sees a flash of the auth screen.
     if (auth.isLoading) return null;
+
+    final authEntryRedirect = authSessionEntryRedirect(
+      isLoggedIn: isLoggedIn,
+      path: path,
+    );
+    if (authEntryRedirect != null) {
+      return authEntryRedirect;
+    }
 
     // ── Parse /home?tab=N&intent=X&screen=S query params ────
     // Notifications emit /home?tab=N&intent=monthlyCheckIn etc. The
@@ -1767,44 +1794,60 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) {
-          final auth = AuthProvider();
-          auth.checkAuth(); // AUTH-03: Restore JWT from SecureStorage on cold start
-          return auth;
-        }),
+        Provider<SessionEpoch>(
+          lazy: false,
+          create: (_) => SessionEpoch(),
+        ),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) {
-          final provider = ByokProvider();
-          provider.loadSavedKey();
-          return provider;
-        }),
-        ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
-        ChangeNotifierProvider(create: (_) => HouseholdProvider()),
-        ChangeNotifierProvider(create: (_) => ScanSessionProvider()),
-        ChangeNotifierProvider(create: (_) {
-          final provider = CoachProfileProvider();
-          provider.loadFromWizard();
-          return provider;
-        }),
+        ChangeNotifierProvider(
+          create: (context) => ByokProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => SubscriptionProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => HouseholdProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ScanSessionProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CoachProfileProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+        ),
         ChangeNotifierProxyProvider<CoachProfileProvider, DocumentProvider>(
           lazy: false,
-          create: (_) => DocumentProvider(),
-          update: (_, profileProvider, documentProvider) {
-            final provider = documentProvider ?? DocumentProvider();
+          create: (context) => DocumentProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+          update: (context, profileProvider, documentProvider) {
+            final provider = documentProvider ??
+                DocumentProvider(
+                  sessionEpoch: context.read<SessionEpoch>(),
+                );
             provider.bindLedger(profileProvider);
-            provider.hydrateReferences().ignore();
             return provider;
           },
         ),
         ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>(
           lazy: false,
-          create: (_) {
-            final provider = BudgetProvider();
-            provider.loadFromStorage();
-            return provider;
+          create: (context) {
+            return BudgetProvider(
+              sessionEpoch: context.read<SessionEpoch>(),
+            );
           },
-          update: (_, profileProvider, budgetProvider) {
-            final provider = budgetProvider ?? BudgetProvider();
+          update: (context, profileProvider, budgetProvider) {
+            final provider = budgetProvider ??
+                BudgetProvider(sessionEpoch: context.read<SessionEpoch>());
             final profile = profileProvider.profile;
             if (profile != null) {
               provider.rehydrateFromProfile(profile);
@@ -1826,7 +1869,11 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.init();
           return provider;
         }),
-        ChangeNotifierProvider(create: (_) => BiographyProvider()),
+        ChangeNotifierProvider(
+          create: (context) => BiographyProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+        ),
         // Wave E-PRIME (2026-04-18): AnticipationProvider + ContextualCardProvider
         // deleted — neither had a Consumer/context.watch/read. Panel A P0-2/P0-3.
         // Cascade: services/anticipation/ + widgets/alert/MintAlertHost also deleted.
@@ -1847,9 +1894,14 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         // Ref: panel archi review 2026-04-18 R1.
         ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>(
           lazy: false,
-          create: (_) => MintStateProvider(),
-          update: (_, profileProvider, mintState) {
-            final provider = mintState ?? MintStateProvider();
+          create: (context) => MintStateProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+          update: (context, profileProvider, mintState) {
+            final provider = mintState ??
+                MintStateProvider(
+                  sessionEpoch: context.read<SessionEpoch>(),
+                );
             final profile = profileProvider.profile;
             if (profile != null) {
               // Fire-and-forget; recompute is guarded against concurrent
@@ -1862,14 +1914,24 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProxyProvider<CoachProfileProvider,
             FinancialPlanProvider>(
           lazy: false,
-          create: (_) {
-            final provider = FinancialPlanProvider();
-            provider.loadFromPersistence().ignore();
-            return provider;
+          create: (context) {
+            return FinancialPlanProvider(
+              sessionEpoch: context.read<SessionEpoch>(),
+            );
           },
-          update: (_, profileProvider, financialPlanProvider) {
-            final provider = financialPlanProvider ?? FinancialPlanProvider();
-            provider.attachProfileProvider(profileProvider);
+          update: (context, profileProvider, financialPlanProvider) {
+            final provider = financialPlanProvider ??
+                FinancialPlanProvider(
+                  sessionEpoch: context.read<SessionEpoch>(),
+                );
+            if (FeatureFlags.financialPlanSetupEnabled) {
+              provider.attachProfileProvider(profileProvider);
+              provider.attachRegulatoryRevision(
+                RegulatorySyncService.revisionListenable,
+              );
+            } else {
+              provider.detachRegulatoryRevision();
+            }
             return provider;
           },
         ),
@@ -1880,9 +1942,13 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProxyProvider2<CoachProfileProvider, DocumentProvider,
             TimelineProvider>(
           lazy: false,
-          create: (_) => TimelineProvider(),
-          update: (_, profileProvider, documentProvider, timelineProvider) {
-            final provider = timelineProvider ?? TimelineProvider();
+          create: (context) => TimelineProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+          update:
+              (context, profileProvider, documentProvider, timelineProvider) {
+            final provider = timelineProvider ??
+                TimelineProvider(sessionEpoch: context.read<SessionEpoch>());
             provider.bindLedger(profileProvider);
             provider.bindDocuments(documentProvider);
             return provider;
@@ -1910,12 +1976,173 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProxyProvider<CoachProfileProvider,
             NotificationsWiringService>(
           lazy: false,
-          create: (_) => NotificationsWiringService(),
-          update: (_, profileProvider, wiring) {
-            final service = wiring ?? NotificationsWiringService();
+          create: (context) => NotificationsWiringService(
+            sessionEpoch: context.read<SessionEpoch>(),
+          ),
+          update: (context, profileProvider, wiring) {
+            final service = wiring ??
+                NotificationsWiringService(
+                  sessionEpoch: context.read<SessionEpoch>(),
+                );
             service.onProfileChanged(profileProvider.profile);
             return service;
           },
+        ),
+        Provider<SessionTerminationCoordinator>(
+          lazy: false,
+          create: (context) {
+            final coach = context.read<CoachProfileProvider>();
+            final budget = context.read<BudgetProvider>();
+            final plans = context.read<FinancialPlanProvider>();
+            final profile = context.read<ProfileProvider>();
+            final mintState = context.read<MintStateProvider>();
+            final documents = context.read<DocumentProvider>();
+            final household = context.read<HouseholdProvider>();
+            final scans = context.read<ScanSessionProvider>();
+            final biography = context.read<BiographyProvider>();
+            final timeline = context.read<TimelineProvider>();
+            final subscription = context.read<SubscriptionProvider>();
+            final byok = context.read<ByokProvider>();
+            final notifications = context.read<NotificationsWiringService>();
+            return SessionTerminationCoordinator.production(
+              sessionEpoch: context.read<SessionEpoch>(),
+              purgeDurableSessionData: () async {
+                await coach.purgeDurableSessionData();
+                await budget.purgeSessionPersistence();
+              },
+              clearSessionMemory: [
+                coach.clearSessionMemoryAfterPurge,
+                plans.clearPlan,
+                profile.clear,
+                mintState.clear,
+                budget.clearSessionMemoryAfterPurge,
+                documents.clearLocalState,
+                household.clearSessionMemoryAfterPurge,
+                scans.clearSessionMemoryAfterPurge,
+                biography.clearSessionMemoryAfterPurge,
+                timeline.clearSessionMemoryAfterPurge,
+                subscription.clearSessionMemoryAfterPurge,
+                byok.clearSessionMemoryAfterPurge,
+                notifications.clearSessionMemoryAfterPurge,
+              ],
+            );
+          },
+          dispose: (_, coordinator) => coordinator.dispose(),
+        ),
+        ChangeNotifierProvider<AuthProvider>(
+          lazy: false,
+          create: (context) {
+            final auth = AuthProvider(
+              sessionTerminationCoordinator:
+                  context.read<SessionTerminationCoordinator>(),
+              profileAnswerWriter: (answers, trust, sessionGuard) {
+                final coach = context.read<CoachProfileProvider>();
+                return switch (trust) {
+                  AuthProfileAnswerTrust.userInput =>
+                    coach.mergeAnswersWithProvenance(
+                      answers,
+                      source: ProfileDataSource.userInput,
+                      sessionGuard: sessionGuard,
+                    ),
+                  AuthProfileAnswerTrust.backendUnknown =>
+                    coach.mergeBackendUnknownProfile(
+                      answers,
+                      sessionGuard: sessionGuard,
+                    ),
+                };
+              },
+            );
+            auth.bindApiSessionTermination();
+            return auth;
+          },
+        ),
+        Provider<AccountSessionBootstrap>(
+          lazy: false,
+          create: (context) {
+            final auth = context.read<AuthProvider>();
+            final bootstrap = AccountSessionBootstrap(
+              sessionEpoch: context.read<SessionEpoch>(),
+              resolveInitialAuth: auth.checkAuth,
+              isAuthReady: () =>
+                  auth.hasCompletedInitialAuthCheck &&
+                  !auth.isSessionTerminationBlocked &&
+                  (auth.isLoggedIn || auth.isLocalMode),
+              isAuthenticated: () => auth.isLoggedIn,
+              initializers: [
+                AccountSessionInitializer(
+                  'coach',
+                  (_) => context.read<CoachProfileProvider>().loadFromWizard(),
+                ),
+                AccountSessionInitializer(
+                  'budget',
+                  (_) => context.read<BudgetProvider>().loadFromStorage(),
+                  stage: 1,
+                ),
+                AccountSessionInitializer(
+                  'biography',
+                  (_) => context.read<BiographyProvider>().loadFacts(),
+                  stage: 1,
+                ),
+                AccountSessionInitializer(
+                  'subscription',
+                  (_) =>
+                      context.read<SubscriptionProvider>().refreshFromBackend(),
+                  stage: 1,
+                  requiresAuthentication: true,
+                ),
+                AccountSessionInitializer(
+                  'timelineLocal',
+                  (_) async {
+                    final timeline = context.read<TimelineProvider>();
+                    timeline.activateAfterSessionReady();
+                    await timeline.refresh(
+                      includeAuthenticatedNetwork: false,
+                    );
+                  },
+                  stage: 1,
+                ),
+                AccountSessionInitializer(
+                  'timelineAuthenticated',
+                  (_) => context.read<TimelineProvider>().refresh(),
+                  stage: 2,
+                  requiresAuthentication: true,
+                ),
+                AccountSessionInitializer(
+                  'document',
+                  (_) => context.read<DocumentProvider>().hydrateReferences(),
+                  stage: 1,
+                ),
+                AccountSessionInitializer(
+                  'household',
+                  (_) => context.read<HouseholdProvider>().loadHousehold(),
+                  stage: 1,
+                  requiresAuthentication: true,
+                ),
+                AccountSessionInitializer(
+                  'byok',
+                  (_) => context.read<ByokProvider>().loadSavedKey(),
+                  stage: 1,
+                ),
+                AccountSessionInitializer(
+                  'scan',
+                  (guard) async => guard.assertCurrent(),
+                  stage: 1,
+                ),
+                if (FeatureFlags.financialPlanSetupEnabled)
+                  AccountSessionInitializer(
+                    'financialPlan',
+                    (_) => context
+                        .read<FinancialPlanProvider>()
+                        .loadFromPersistence(),
+                    stage: 1,
+                  ),
+              ],
+            );
+            bootstrap.bindAuth(auth);
+            Future<void>.microtask(bootstrap.start).ignore();
+            return bootstrap;
+          },
+          dispose: (_, bootstrap) => bootstrap.dispose(),
         ),
       ],
       child: _AuthRouterBridge(
@@ -1931,6 +2158,21 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
               localizationsDelegates: S.localizationsDelegates,
               supportedLocales: S.supportedLocales,
               locale: localeProvider.locale,
+              builder: (context, child) {
+                final auth = context.watch<AuthProvider>();
+                if (!auth.hasCompletedInitialAuthCheck ||
+                    auth.isSessionTerminationBlocked) {
+                  return const ColoredBox(
+                    color: MintColors.warmWhite,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: MintColors.success,
+                      ),
+                    ),
+                  );
+                }
+                return child ?? const SizedBox.shrink();
+              },
             );
           },
         ),

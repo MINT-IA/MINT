@@ -6,7 +6,9 @@ import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/coach_profile_owner.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/services/api_service.dart';
@@ -15,7 +17,9 @@ import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
 import 'package:mint_mobile/services/consent/partner_accountability_service.dart';
+import 'package:mint_mobile/services/financial_core/budget_crash_financial_facts.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
+import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
@@ -23,16 +27,87 @@ import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 
-abstract interface class TaxProfilePersistence {
+abstract interface class CanonicalAnswerMutationPersistence {
+  Future<Map<String, dynamic>> inspectAnswers(
+    void Function(Map<String, dynamic> persisted) inspect,
+  );
+
+  Future<Map<String, dynamic>> mutateAnswers(
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  });
+}
+
+/// Serialized boundary for injected in-memory persistence implementations.
+/// Production persistence uses ReportPersistenceService's process-global tail.
+mixin SerializedCanonicalAnswerMutationPersistence {
+  Future<void>? _canonicalMutationTail;
+
   Future<Map<String, dynamic>> loadAnswers();
 
   Future<void> saveAnswers(Map<String, dynamic> answers);
+
+  Future<Map<String, dynamic>> inspectAnswers(
+    void Function(Map<String, dynamic> persisted) inspect,
+  ) async {
+    final previous = _canonicalMutationTail;
+    final completion = Completer<void>();
+    final currentTail = completion.future;
+    _canonicalMutationTail = currentTail;
+    if (previous != null) await previous;
+    try {
+      final current = Map<String, dynamic>.unmodifiable(
+        Map<String, dynamic>.from(await loadAnswers()),
+      );
+      inspect(current);
+      return Map<String, dynamic>.from(current);
+    } finally {
+      completion.complete();
+      if (identical(_canonicalMutationTail, currentTail)) {
+        _canonicalMutationTail = null;
+      }
+    }
+  }
+
+  Future<Map<String, dynamic>> mutateAnswers(
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) async {
+    final previous = _canonicalMutationTail;
+    final completion = Completer<void>();
+    final currentTail = completion.future;
+    _canonicalMutationTail = currentTail;
+    if (previous != null) await previous;
+    try {
+      final current = await loadAnswers();
+      final candidate = mutation(Map<String, dynamic>.from(current));
+      final next = candidate == null
+          ? Map<String, dynamic>.from(current)
+          : Map<String, dynamic>.from(candidate);
+      if (candidate != null) await saveAnswers(next);
+      final persisted = Map<String, dynamic>.unmodifiable(next);
+      publish?.call(persisted);
+      return Map<String, dynamic>.from(persisted);
+    } finally {
+      completion.complete();
+      if (identical(_canonicalMutationTail, currentTail)) {
+        _canonicalMutationTail = null;
+      }
+    }
+  }
 }
 
-final class _ReportTaxProfilePersistence implements TaxProfilePersistence {
+abstract interface class TaxProfilePersistence
+    implements CanonicalAnswerMutationPersistence {
+  Future<Map<String, dynamic>> loadAnswers();
+}
+
+final class _ReportTaxProfilePersistence
+    implements TaxProfilePersistence, CanonicalAnswerMutationPersistence {
   const _ReportTaxProfilePersistence();
 
   @override
@@ -40,17 +115,26 @@ final class _ReportTaxProfilePersistence implements TaxProfilePersistence {
       ReportPersistenceService.loadAnswers();
 
   @override
-  Future<void> saveAnswers(Map<String, dynamic> answers) =>
-      ReportPersistenceService.saveAnswers(answers);
+  Future<Map<String, dynamic>> inspectAnswers(
+    void Function(Map<String, dynamic> persisted) inspect,
+  ) =>
+      ReportPersistenceService.loadAnswers(publish: inspect);
+
+  @override
+  Future<Map<String, dynamic>> mutateAnswers(
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) =>
+      ReportPersistenceService.mutateAnswers(mutation, publish: publish);
 }
 
-abstract interface class LppProfilePersistence {
+abstract interface class LppProfilePersistence
+    implements CanonicalAnswerMutationPersistence {
   Future<Map<String, dynamic>> loadAnswers();
-
-  Future<void> saveAnswers(Map<String, dynamic> answers);
 }
 
-final class _ReportLppProfilePersistence implements LppProfilePersistence {
+final class _ReportLppProfilePersistence
+    implements LppProfilePersistence, CanonicalAnswerMutationPersistence {
   const _ReportLppProfilePersistence();
 
   @override
@@ -58,8 +142,17 @@ final class _ReportLppProfilePersistence implements LppProfilePersistence {
       ReportPersistenceService.loadAnswers();
 
   @override
-  Future<void> saveAnswers(Map<String, dynamic> answers) =>
-      ReportPersistenceService.saveLppEvidenceAnswers(answers);
+  Future<Map<String, dynamic>> inspectAnswers(
+    void Function(Map<String, dynamic> persisted) inspect,
+  ) =>
+      ReportPersistenceService.loadAnswers(publish: inspect);
+
+  @override
+  Future<Map<String, dynamic>> mutateAnswers(
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) =>
+      ReportPersistenceService.mutateAnswers(mutation, publish: publish);
 }
 
 /// Provider pour le profil Coach MINT.
@@ -85,6 +178,7 @@ class CoachProfileProvider extends ChangeNotifier {
     LppProfilePersistence? lppProfilePersistence,
     PartnerAccountabilityBindingStore? partnerAccountabilityBindingStore,
     PartnerAccountabilityService? partnerAccountabilityService,
+    SessionEpoch? sessionEpoch,
     DateTime Function()? now,
   })  : _taxProfilePersistence =
             taxProfilePersistence ?? const _ReportTaxProfilePersistence(),
@@ -96,6 +190,7 @@ class CoachProfileProvider extends ChangeNotifier {
         _partnerAccountabilityService =
             partnerAccountabilityService ?? PartnerAccountabilityService(),
         _usesInjectedTaxPersistence = taxProfilePersistence != null,
+        _sessionEpoch = sessionEpoch ?? SessionEpoch(),
         _now = now ?? DateTime.now;
 
   static const _taxSnapshotRootKey = '_coach_tax_snapshots_v1';
@@ -118,6 +213,7 @@ class CoachProfileProvider extends ChangeNotifier {
   final PartnerAccountabilityBindingStore _partnerAccountabilityBindingStore;
   final PartnerAccountabilityService _partnerAccountabilityService;
   final bool _usesInjectedTaxPersistence;
+  final SessionEpoch _sessionEpoch;
   final DateTime Function() _now;
   CoachProfile? _profile;
   bool _isLoading = false;
@@ -130,10 +226,13 @@ class CoachProfileProvider extends ChangeNotifier {
   bool _profileUpdatedSinceBudget = false;
   Map<String, dynamic> _lastAnswers = const {};
   Future<void>? _lppMutationTail;
+  Future<void>? _ownerResolutionTail;
   PartnerAccountabilityBinding? _partnerLppAccountabilityBinding;
   Timer? _partnerAuthorityInvalidationTimer;
   bool _disposed = false;
   bool _hasManualPartnerLppEvidence = false;
+  String? _canonicalProfileOwnerId;
+  String? _stagedCanonicalProfileOwnerId;
 
   PartnerAccountabilityBinding? get partnerLppAccountabilityBinding =>
       _partnerLppAccountabilityBinding;
@@ -227,8 +326,8 @@ class CoachProfileProvider extends ChangeNotifier {
               : null,
       enforcePartnerAccountability: true,
     );
-    final canonicalPartnerLpp = canonicalProfile.conjoint?.prevoyance ??
-        const PrevoyanceProfile();
+    final canonicalPartnerLpp =
+        canonicalProfile.conjoint?.prevoyance ?? const PrevoyanceProfile();
     final currentPartnerPrevoyance =
         currentPartner.prevoyance ?? const PrevoyanceProfile();
     final rematerializedPartnerPrevoyance = currentPartnerPrevoyance
@@ -274,13 +373,176 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Null si le wizard n'a pas ete complete.
   CoachProfile? get profile => _profile;
 
+  /// Durable pseudonymous owner for high-stakes local ledger publication.
+  String? get canonicalProfileOwnerId => _canonicalProfileOwnerId;
+
+  Future<Map<String, dynamic>> _mutateTaxAnswers(
+    SessionEpochGuard sessionGuard,
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) =>
+      _mutateCanonicalAnswers(
+        persistence: _taxProfilePersistence,
+        sessionGuard: sessionGuard,
+        mutation: mutation,
+        publish: publish,
+      );
+
+  Future<Map<String, dynamic>> _mutateLppAnswers(
+    SessionEpochGuard sessionGuard,
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) =>
+      _mutateCanonicalAnswers(
+        persistence: _lppProfilePersistence,
+        sessionGuard: sessionGuard,
+        mutation: mutation,
+        publish: publish,
+      );
+
+  Future<Map<String, dynamic>> _inspectTaxAnswers(
+    SessionEpochGuard sessionGuard,
+    void Function(Map<String, dynamic> persisted) inspect,
+  ) =>
+      _sessionEpoch.runGuardedPersistence(sessionGuard, () {
+        return _taxProfilePersistence.inspectAnswers((persisted) {
+          sessionGuard.assertCurrent();
+          inspect(persisted);
+        });
+      });
+
+  Future<Map<String, dynamic>> _mutateCanonicalAnswers({
+    required CanonicalAnswerMutationPersistence persistence,
+    required SessionEpochGuard sessionGuard,
+    required Map<String, dynamic>? Function(Map<String, dynamic> current)
+        mutation,
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) =>
+      _sessionEpoch.runGuardedPersistence(sessionGuard, () {
+        return persistence.mutateAnswers(
+          (current) {
+            sessionGuard.assertCurrent();
+            return mutation(current);
+          },
+          publish: (persisted) {
+            sessionGuard.assertCurrent();
+            publish?.call(persisted);
+          },
+        );
+      });
+
+  /// Resolves and durably publishes the canonical owner before high-stakes use.
+  Future<String> ensureCanonicalProfileOwner() {
+    final guard = _sessionEpoch.capture();
+    return _serializeOwnerResolution(() async {
+      late String ownerId;
+      await _mutateTaxAnswers(
+        guard,
+        (loaded) {
+          final prepared = _prepareCanonicalProfileOwnerForCombinedWriteLocked(
+            loaded,
+          );
+          ownerId = prepared.ownerId;
+          return _persistedCanonicalOwners(loaded).rootOwner == null
+              ? prepared.answers
+              : null;
+        },
+        publish: (persisted) {
+          guard.assertCurrent();
+          _canonicalProfileOwnerId = ownerId;
+          _lastAnswers = _copyAnswers(persisted);
+        },
+      );
+      return ownerId;
+    });
+  }
+
+  /// Returns a stable owner candidate without crossing a persistence boundary.
+  ///
+  /// Plan review uses this value to build an immutable draft. The candidate is
+  /// not authoritative until [commitStagedCanonicalProfileOwner] succeeds on
+  /// the user's final confirmation tap.
+  Future<String> previewCanonicalProfileOwner() {
+    final guard = _sessionEpoch.capture();
+    return _serializeOwnerResolution(() async {
+      final loaded = _usesInjectedTaxPersistence
+          ? await _taxProfilePersistence.loadAnswers()
+          : await ReportPersistenceService.loadAnswersReadOnly();
+      guard.assertCurrent();
+      final owners = _persistedCanonicalOwners(loaded);
+      final durableRoot = owners.rootOwner;
+      final inMemoryOwner = _canonicalProfileOwnerId;
+      final stagedOwner = _stagedCanonicalProfileOwnerId;
+      final candidates = <String?>[
+        durableRoot,
+        inMemoryOwner,
+        owners.lppOwner,
+        owners.taxOwner,
+        stagedOwner,
+      ].whereType<String>().toSet();
+      if (candidates.length > 1) {
+        throw StateError('Canonical profile owner changed before preview');
+      }
+      final ownerId = candidates.isEmpty ? const Uuid().v4() : candidates.first;
+      if (!isCanonicalUuidV4(ownerId)) {
+        throw StateError('Canonical profile owner preview failed');
+      }
+      _stagedCanonicalProfileOwnerId = ownerId;
+      if (durableRoot != null) _canonicalProfileOwnerId = durableRoot;
+      return ownerId;
+    });
+  }
+
+  /// Publishes exactly the owner previously shown in the plan review.
+  Future<String> commitStagedCanonicalProfileOwner(String ownerId) {
+    final guard = _sessionEpoch.capture();
+    return _serializeOwnerResolution(() async {
+      if (!isCanonicalUuidV4(ownerId) ||
+          _stagedCanonicalProfileOwnerId != ownerId) {
+        throw StateError('Canonical profile owner is not the staged owner');
+      }
+      await _mutateTaxAnswers(
+        guard,
+        (loaded) {
+          final owners = _persistedCanonicalOwners(loaded);
+          final candidates = <String?>[
+            owners.rootOwner,
+            owners.lppOwner,
+            owners.taxOwner,
+            _canonicalProfileOwnerId,
+          ].whereType<String>();
+          if (candidates.any((candidate) => candidate != ownerId)) {
+            throw StateError('Canonical profile owner changed before consent');
+          }
+          return owners.rootOwner == null
+              ? (_copyAnswers(loaded)
+                ..[coachProfileOwnerRootKey] =
+                    CoachProfileOwnerRoot(ownerId).toJsonString())
+              : null;
+        },
+        publish: (persisted) {
+          guard.assertCurrent();
+          _canonicalProfileOwnerId = ownerId;
+          _stagedCanonicalProfileOwnerId = null;
+          _lastAnswers = _copyAnswers(persisted);
+        },
+      );
+      return ownerId;
+    });
+  }
+
   /// Immutable wizard-answer view for legacy report generation.
   ///
   /// Screens must never read `wizard_answers_v2` directly. This snapshot is a
   /// temporary compatibility boundary while the report still consumes the
   /// legacy answer shape.
-  Map<String, dynamic> get reportAnswersSnapshot =>
-      _immutableAnswers(_lastAnswers);
+  Map<String, dynamic> get reportAnswersSnapshot {
+    final safe = _copyAnswers(_lastAnswers);
+    if (safe.containsKey(coachProfileOwnerRootKey)) {
+      safe[coachProfileOwnerRootKey] = '__secure__';
+    }
+    return _immutableAnswers(safe);
+  }
 
   /// Wait for initial provider hydration without exposing the persistence
   /// service to route builders. Timeout keeps report deep links recoverable.
@@ -308,6 +570,167 @@ class CoachProfileProvider extends ChangeNotifier {
 
   static Map<String, dynamic> _copyAnswers(Map<String, dynamic> answers) =>
       answers.map((key, value) => MapEntry(key, _copyAnswerValue(value)));
+
+  static String? _lppCanonicalSelfOwner(Map<String, dynamic> answers) {
+    if (!answers.containsKey(_lppEvidenceRootKey)) return null;
+    final raw = answers[_lppEvidenceRootKey];
+    if (raw == '__secure__') {
+      throw StateError('Persisted LPP evidence is unreadable');
+    }
+    final root = LppEvidenceRoot.fromJsonString(raw);
+    if (root == null) {
+      throw StateError('Persisted LPP evidence root is malformed');
+    }
+
+    String? candidate;
+    final self = root.self;
+    if (self != null) {
+      final identity = self.identityFacts.first;
+      if (!isCanonicalUuidV4(identity.profileOwnerId) ||
+          identity.actorProfileOwnerId != identity.profileOwnerId) {
+        throw StateError('Persisted self LPP owner is invalid');
+      }
+      candidate = identity.profileOwnerId;
+    }
+    final manual = root.manualPartner;
+    if (manual != null) {
+      final identity = manual.identityFacts.first;
+      if (!isCanonicalUuidV4(identity.profileOwnerId) ||
+          !isCanonicalUuidV4(identity.actorProfileOwnerId) ||
+          identity.profileOwnerId == identity.actorProfileOwnerId) {
+        throw StateError('Persisted manual-partner LPP owner is invalid');
+      }
+      candidate ??= identity.actorProfileOwnerId;
+      if (candidate != identity.actorProfileOwnerId) {
+        throw StateError('Persisted LPP owners conflict');
+      }
+    }
+    return candidate;
+  }
+
+  static String? _taxCanonicalSelfOwner(Map<String, dynamic> answers) {
+    if (!answers.containsKey(_taxSnapshotRootKey)) return null;
+    if (answers[_taxSnapshotRootKey] == '__secure__') {
+      throw StateError('Persisted tax evidence is unreadable');
+    }
+    final envelope = _readTaxEnvelope(answers);
+    String? candidate;
+    for (final snapshot in envelope.snapshots) {
+      if (!isCanonicalUuidV4(snapshot.profileOwnerId)) {
+        throw StateError('Persisted tax owner is not a canonical UUIDv4');
+      }
+      candidate ??= snapshot.profileOwnerId;
+      if (candidate != snapshot.profileOwnerId) {
+        throw StateError('Persisted tax owners conflict');
+      }
+    }
+    return candidate;
+  }
+
+  Future<T> _serializeOwnerResolution<T>(Future<T> Function() operation) async {
+    final previous = _ownerResolutionTail;
+    final completion = Completer<void>();
+    final current = completion.future;
+    _ownerResolutionTail = current;
+    if (previous != null) await previous;
+    try {
+      return await operation();
+    } finally {
+      completion.complete();
+      if (identical(_ownerResolutionTail, current)) {
+        _ownerResolutionTail = null;
+      }
+    }
+  }
+
+  ({Map<String, dynamic> answers, String ownerId})
+      _prepareCanonicalProfileOwnerForCombinedWriteLocked(
+    Map<String, dynamic> loaded,
+  ) {
+    final persistedOwners = _persistedCanonicalOwners(loaded);
+    final lppOwner = persistedOwners.lppOwner;
+    final taxOwner = persistedOwners.taxOwner;
+    final durableRootOwner = persistedOwners.rootOwner;
+    final inMemoryOwner = _canonicalProfileOwnerId;
+    final stagedOwner = _stagedCanonicalProfileOwnerId;
+    if (durableRootOwner != null &&
+        inMemoryOwner != null &&
+        durableRootOwner != inMemoryOwner) {
+      throw StateError('Canonical profile owner changed during this session');
+    }
+    final existingOwner = durableRootOwner ?? inMemoryOwner;
+    for (final candidate in <String?>[lppOwner, taxOwner]) {
+      if (existingOwner != null &&
+          candidate != null &&
+          existingOwner != candidate) {
+        throw StateError('Canonical profile owner conflicts with ledger owner');
+      }
+    }
+    if (stagedOwner != null &&
+        <String?>[
+          durableRootOwner,
+          inMemoryOwner,
+          lppOwner,
+          taxOwner,
+        ].whereType<String>().any((candidate) => candidate != stagedOwner)) {
+      throw StateError('Canonical profile owner conflicts with staged owner');
+    }
+    final ownerId = durableRootOwner ??
+        existingOwner ??
+        lppOwner ??
+        taxOwner ??
+        stagedOwner ??
+        const Uuid().v4();
+    if (!isCanonicalUuidV4(ownerId)) {
+      throw StateError('Canonical profile owner resolution failed');
+    }
+    final next = _copyAnswers(loaded)
+      ..[coachProfileOwnerRootKey] =
+          CoachProfileOwnerRoot(ownerId).toJsonString();
+    return (answers: next, ownerId: ownerId);
+  }
+
+  static ({String? lppOwner, String? taxOwner, String? rootOwner})
+      _persistedCanonicalOwners(Map<String, dynamic> loaded) {
+    final lppOwner = _lppCanonicalSelfOwner(loaded);
+    final taxOwner = _taxCanonicalSelfOwner(loaded);
+    if (lppOwner != null && taxOwner != null && lppOwner != taxOwner) {
+      throw StateError('Persisted LPP and tax owners conflict');
+    }
+
+    final hasRoot = loaded.containsKey(coachProfileOwnerRootKey);
+    final rawRoot = loaded[coachProfileOwnerRootKey];
+    if (rawRoot == '__secure__') {
+      throw StateError('Canonical profile owner is unreadable');
+    }
+    final existingRoot =
+        hasRoot ? CoachProfileOwnerRoot.fromJsonString(rawRoot) : null;
+    if (hasRoot && existingRoot == null) {
+      throw StateError('Canonical profile owner root is malformed');
+    }
+    final rootOwner = existingRoot?.profileOwnerId;
+    for (final candidate in <String?>[lppOwner, taxOwner]) {
+      if (rootOwner != null && candidate != null && rootOwner != candidate) {
+        throw StateError('Canonical profile owner conflicts with ledger owner');
+      }
+    }
+    return (
+      lppOwner: lppOwner,
+      taxOwner: taxOwner,
+      rootOwner: rootOwner,
+    );
+  }
+
+  static bool _hasRejectedPersistedCanonicalAuthority(
+    Map<String, dynamic> loaded,
+  ) {
+    try {
+      _persistedCanonicalOwners(loaded);
+      return false;
+    } on StateError {
+      return true;
+    }
+  }
 
   static ({Map<String, dynamic> answers, bool migrated})
       _withCanonicalOtherFixedCostMigration(Map<String, dynamic> loaded) {
@@ -479,7 +902,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
   static ({Map<String, dynamic> answers, bool migrated})
       _withLegacySelfLppMigration(Map<String, dynamic> loaded,
-          {required DateTime Function() now}) {
+          {required DateTime Function() now, required String? profileOwnerId}) {
     final answers = _copyAnswers(loaded);
     if (!FeatureFlags.typedLppEvidence) {
       return (answers: answers, migrated: false);
@@ -501,8 +924,8 @@ class CoachProfileProvider extends ChangeNotifier {
     final retainedUnprovedZeroKeys = <String>{};
     if (!hasExistingRoot) {
       final rawProvenance = answers['__provenance'];
-      if (rawProvenance is Map) {
-        final ownerId = const Uuid().v4();
+      if (rawProvenance is Map && profileOwnerId != null) {
+        final ownerId = profileOwnerId;
         DateTime? acceptanceStamp;
         final current = now().toUtc();
         for (final entry in _legacySelfLppKeys.entries) {
@@ -536,7 +959,10 @@ class CoachProfileProvider extends ChangeNotifier {
           }
           if (fact.updatedAt.isAfter(current) ||
               (fact.sourceDate != null &&
-                  _civilDay(fact.sourceDate!).isAfter(_civilDay(current)))) {
+                  SwissCivilTime.isFutureCivilDate(
+                    fact.sourceDate!,
+                    now: current,
+                  ))) {
             continue;
           }
           // Loose legacy scalars have no review snippet capable of proving
@@ -678,8 +1104,8 @@ class CoachProfileProvider extends ChangeNotifier {
         snapshots: List<TaxSnapshot>.unmodifiable(snapshots),
         legacyQuarantine: legacyQuarantine,
       );
-    } on Object catch (error) {
-      throw StateError('Invalid persisted tax profile: $error');
+    } on Object {
+      throw StateError('Invalid persisted tax profile');
     }
   }
 
@@ -736,7 +1162,17 @@ class CoachProfileProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> acceptTaxReview(TaxReviewConfirmation confirmation) async {
+  Future<void> acceptTaxReview(TaxReviewConfirmation confirmation) {
+    final guard = _sessionEpoch.capture();
+    return _serializeOwnerResolution(
+      () => _acceptTaxReviewLocked(confirmation, guard),
+    );
+  }
+
+  Future<void> _acceptTaxReviewLocked(
+    TaxReviewConfirmation confirmation,
+    SessionEpochGuard sessionGuard,
+  ) async {
     if (!FeatureFlags.typedTaxProfile) {
       throw StateError('Typed tax profile is disabled');
     }
@@ -752,7 +1188,10 @@ class CoachProfileProvider extends ChangeNotifier {
     final updatedAt = currentCivilTime.toUtc();
     final sourceDate = confirmation.sourceDate;
     if (sourceDate != null &&
-        _civilDay(sourceDate).isAfter(_civilDay(currentCivilTime))) {
+        SwissCivilTime.isFutureCivilDate(
+          sourceDate,
+          now: currentCivilTime,
+        )) {
       throw ArgumentError.value(
         sourceDate,
         'sourceDate',
@@ -766,97 +1205,114 @@ class CoachProfileProvider extends ChangeNotifier {
       currentYear: currentCivilTime.year,
     );
 
-    final loaded = await _taxProfilePersistence.loadAnswers();
-    final migration = _withLegacyTaxQuarantine(loaded, now: _now);
-    final envelope = _readTaxEnvelope(migration.answers);
-    final profileOwnerId = envelope.snapshots.isEmpty
-        ? const Uuid().v4()
-        : envelope.snapshots.first.profileOwnerId;
-    final snapshot = TaxSnapshot(
-      snapshotId: confirmation.candidate.snapshotId,
-      profileOwnerId: profileOwnerId,
-      taxYear: confirmation.taxYear,
-      basedOnTaxYear: confirmation.basedOnTaxYear,
-      sourceDate: confirmation.sourceDate,
-      documentKind: confirmation.documentKind,
-      assessmentStatus: confirmation.assessmentStatus,
-      inForceAttested: confirmation.inForceAttested,
-      subjectScope: confirmation.subjectScope,
-      cantonCode: confirmation.cantonCode,
-      municipalityId: confirmation.municipalityId,
-      municipalityLabel: confirmation.municipalityLabel,
-      cantonalCommunalTaxableIncomeChf:
-          confirmation.cantonalCommunalTaxableIncomeChf,
-      federalTaxableIncomeChf: confirmation.federalTaxableIncomeChf,
-      cantonalCommunalTaxableWealthChf:
-          confirmation.cantonalCommunalTaxableWealthChf,
-      cantonalCommunalAssessedTax: confirmation.cantonalCommunalAssessedTax,
-      federalDirectAssessedTax: confirmation.federalDirectAssessedTax,
-      explicitMarginalIncomeTaxRate: confirmation.explicitMarginalIncomeTaxRate,
-      explicitAverageIncomeTaxRate: confirmation.explicitAverageIncomeTaxRate,
-      updatedAt: updatedAt,
-    );
-    final snapshots = List<TaxSnapshot>.from(envelope.snapshots);
-    final replacementIndex = snapshots.indexWhere(
-      (existing) => existing.snapshotId == snapshot.snapshotId,
-    );
-    if (replacementIndex == -1) {
-      snapshots.add(snapshot);
-    } else {
-      snapshots[replacementIndex] = snapshot;
-    }
+    late String publishedOwnerId;
+    late CoachProfile publishedProfile;
+    await _mutateTaxAnswers(sessionGuard, (loadedRaw) {
+      sessionGuard.assertCurrent();
+      final ownerResolution =
+          _prepareCanonicalProfileOwnerForCombinedWriteLocked(loadedRaw);
+      publishedOwnerId = ownerResolution.ownerId;
+      final loaded = ownerResolution.answers;
+      final migration = _withLegacyTaxQuarantine(loaded, now: _now);
+      final envelope = _readTaxEnvelope(migration.answers);
+      final profileOwnerId = ownerResolution.ownerId;
+      final snapshot = TaxSnapshot(
+        snapshotId: confirmation.candidate.snapshotId,
+        profileOwnerId: profileOwnerId,
+        taxYear: confirmation.taxYear,
+        basedOnTaxYear: confirmation.basedOnTaxYear,
+        sourceDate: confirmation.sourceDate,
+        documentKind: confirmation.documentKind,
+        assessmentStatus: confirmation.assessmentStatus,
+        inForceAttested: confirmation.inForceAttested,
+        subjectScope: confirmation.subjectScope,
+        cantonCode: confirmation.cantonCode,
+        municipalityId: confirmation.municipalityId,
+        municipalityLabel: confirmation.municipalityLabel,
+        cantonalCommunalTaxableIncomeChf:
+            confirmation.cantonalCommunalTaxableIncomeChf,
+        federalTaxableIncomeChf: confirmation.federalTaxableIncomeChf,
+        cantonalCommunalTaxableWealthChf:
+            confirmation.cantonalCommunalTaxableWealthChf,
+        cantonalCommunalAssessedTax: confirmation.cantonalCommunalAssessedTax,
+        federalDirectAssessedTax: confirmation.federalDirectAssessedTax,
+        explicitMarginalIncomeTaxRate:
+            confirmation.explicitMarginalIncomeTaxRate,
+        explicitAverageIncomeTaxRate: confirmation.explicitAverageIncomeTaxRate,
+        updatedAt: updatedAt,
+      );
+      final snapshots = List<TaxSnapshot>.from(envelope.snapshots);
+      final replacementIndex = snapshots.indexWhere(
+        (existing) => existing.snapshotId == snapshot.snapshotId,
+      );
+      if (replacementIndex == -1) {
+        snapshots.add(snapshot);
+      } else {
+        snapshots[replacementIndex] = snapshot;
+      }
 
-    final persistedProfile = CoachProfile.fromWizardAnswers(
-      migration.answers,
-      now: _now,
-    );
-    final retainedSnapshotIds = snapshots
-        .map((retainedSnapshot) => retainedSnapshot.snapshotId)
-        .toSet();
-    final validatedSnapshotIds = persistedProfile
-        .fiscal.provenanceValidatedSnapshotIds
-        .where(retainedSnapshotIds.contains)
-        .toSet()
-      ..add(snapshot.snapshotId);
-    final nextFiscal = FiscalProfile(
-      snapshots: snapshots,
-      provenanceValidatedSnapshotIds: validatedSnapshotIds,
-      legacyDataNeedsReview: envelope.legacyQuarantine?['values'] is Map &&
-          (envelope.legacyQuarantine!['values'] as Map).isNotEmpty,
-    );
-    var nextProfile = persistedProfile.copyWith(fiscal: nextFiscal);
-    nextProfile = _withTaxSnapshotProvenance(
-      nextProfile,
-      snapshot,
-      updatedAt: updatedAt,
-    );
+      final persistedProfile = CoachProfile.fromWizardAnswers(
+        migration.answers,
+        now: _now,
+      );
+      final retainedSnapshotIds = snapshots
+          .map((retainedSnapshot) => retainedSnapshot.snapshotId)
+          .toSet();
+      final validatedSnapshotIds = persistedProfile
+          .fiscal.provenanceValidatedSnapshotIds
+          .where(retainedSnapshotIds.contains)
+          .toSet()
+        ..add(snapshot.snapshotId);
+      final nextFiscal = FiscalProfile(
+        snapshots: snapshots,
+        provenanceValidatedSnapshotIds: validatedSnapshotIds,
+        legacyDataNeedsReview: envelope.legacyQuarantine?['values'] is Map &&
+            (envelope.legacyQuarantine!['values'] as Map).isNotEmpty,
+      );
+      var nextProfile = persistedProfile.copyWith(fiscal: nextFiscal);
+      nextProfile = _withTaxSnapshotProvenance(
+        nextProfile,
+        snapshot,
+        updatedAt: updatedAt,
+      );
 
-    final nextAnswers = _copyAnswers(migration.answers);
-    nextAnswers[_taxSnapshotRootKey] = jsonEncode({
-      'schemaVersion': 1,
-      'snapshots': snapshots.map((value) => value.toJson()).toList(),
-      'legacyQuarantine': envelope.legacyQuarantine,
+      final nextAnswers = _copyAnswers(migration.answers);
+      nextAnswers[_taxSnapshotRootKey] = jsonEncode({
+        'schemaVersion': 1,
+        'snapshots': snapshots.map((value) => value.toJson()).toList(),
+        'legacyQuarantine': envelope.legacyQuarantine,
+      });
+      _persistProvenance(nextAnswers, nextProfile);
+
+      publishedProfile = nextProfile;
+      return nextAnswers;
+    }, publish: (persisted) {
+      sessionGuard.assertCurrent();
+      _canonicalProfileOwnerId = publishedOwnerId;
+      _lastAnswers = _copyAnswers(persisted);
+      _profile = publishedProfile;
+      _isLoaded = true;
+      _isPartialProfile = true;
+      _profileUpdatedSinceBudget = true;
+      notifyListeners();
     });
-    _persistProvenance(nextAnswers, nextProfile);
-
-    await _taxProfilePersistence.saveAnswers(nextAnswers);
-
-    _lastAnswers = _copyAnswers(nextAnswers);
-    _profile = nextProfile;
-    _isLoaded = true;
-    _isPartialProfile = true;
-    _profileUpdatedSinceBudget = true;
-    notifyListeners();
   }
 
   /// Persists one complete person-owned LPP review before exposing it in memory.
   Future<LppReviewReceipt> acceptLppReview(
     LppReviewConfirmation confirmation,
-  ) =>
-      _serializeLppMutation(() => _acceptLppReview(confirmation));
+  ) {
+    final guard = _sessionEpoch.capture();
+    return _serializeLppMutation(
+      () => _serializeOwnerResolution(
+        () => _acceptLppReview(confirmation, guard),
+      ),
+    );
+  }
 
   Future<LppReviewReceipt> _acceptLppReview(
     LppReviewConfirmation confirmation,
+    SessionEpochGuard sessionGuard,
   ) async {
     if (!FeatureFlags.typedLppEvidence) {
       throw StateError('Typed LPP evidence is disabled');
@@ -891,6 +1347,7 @@ class CoachProfileProvider extends ChangeNotifier {
         throw StateError('Manual partner LPP accountability binding missing');
       } else {
         final envelope = await _partnerAccountabilityBindingStore.load();
+        sessionGuard.assertCurrent();
         final pending = envelope.pending;
         if (pending == null ||
             !accountabilityContext.matchesPending(pending) ||
@@ -914,7 +1371,10 @@ class CoachProfileProvider extends ChangeNotifier {
     final updatedAt = currentCivilTime.toUtc();
     final sourceDate = confirmation.sourceDate;
     if (sourceDate != null &&
-        _civilDay(sourceDate).isAfter(_civilDay(currentCivilTime))) {
+        SwissCivilTime.isFutureCivilDate(
+          sourceDate,
+          now: currentCivilTime,
+        )) {
       throw ArgumentError.value(
         sourceDate,
         'sourceDate',
@@ -945,127 +1405,267 @@ class CoachProfileProvider extends ChangeNotifier {
       );
     }
 
-    final loadedRaw = await _lppProfilePersistence.loadAnswers();
-    final migration = _withLegacySelfLppMigration(loadedRaw, now: _now);
-    final loaded = migration.answers;
-    LppEvidenceRoot currentRoot = const LppEvidenceRoot(self: null);
-    if (loaded.containsKey(_lppEvidenceRootKey)) {
-      final decoded = LppEvidenceRoot.fromJsonString(
-        loaded[_lppEvidenceRootKey],
+    late String publishedOwnerId;
+    late String committedRootJson;
+    late String snapshotId;
+    late Map<LppEvidenceFactKey, LppEvidenceFact> storedFacts;
+    late CoachProfile committedProfile;
+    String? previousLppRootJson;
+    await _mutateLppAnswers(sessionGuard, (loadedRaw) {
+      sessionGuard.assertCurrent();
+      final ownerResolution =
+          _prepareCanonicalProfileOwnerForCombinedWriteLocked(loadedRaw);
+      publishedOwnerId = ownerResolution.ownerId;
+      final migration = _withLegacySelfLppMigration(
+        ownerResolution.answers,
+        now: _now,
+        profileOwnerId: ownerResolution.ownerId,
       );
-      if (decoded == null) {
-        throw StateError('Persisted LPP evidence is unavailable');
+      final loaded = migration.answers;
+      LppEvidenceRoot currentRoot = const LppEvidenceRoot(self: null);
+      if (loaded.containsKey(_lppEvidenceRootKey)) {
+        final decoded = LppEvidenceRoot.fromJsonString(
+          loaded[_lppEvidenceRootKey],
+        );
+        if (decoded == null) {
+          throw StateError('Persisted LPP evidence is unavailable');
+        }
+        currentRoot = decoded;
       }
-      currentRoot = decoded;
-    }
-    final stableSelfOwnerId = currentRoot
-            .self?.facts.values.first.profileOwnerId ??
-        currentRoot.manualPartner?.identityFacts.first.actorProfileOwnerId ??
-        const Uuid().v4();
-    var reviewedOwnerId = stableSelfOwnerId;
-    if (confirmation.subject == LppEvidenceOwnerKind.manualPartner) {
-      reviewedOwnerId = authorization.manualPartnerOwnerId ??
-          currentRoot.manualPartner?.identityFacts.first.profileOwnerId ??
-          const Uuid().v4();
-      if (reviewedOwnerId == stableSelfOwnerId) {
-        throw StateError('Manual partner owner must be distinct from self');
+      final stableSelfOwnerId = ownerResolution.ownerId;
+      var reviewedOwnerId = stableSelfOwnerId;
+      if (confirmation.subject == LppEvidenceOwnerKind.manualPartner) {
+        reviewedOwnerId = authorization.manualPartnerOwnerId ??
+            currentRoot.manualPartner?.identityFacts.first.profileOwnerId ??
+            const Uuid().v4();
+        if (reviewedOwnerId == stableSelfOwnerId) {
+          throw StateError('Manual partner owner must be distinct from self');
+        }
       }
-    }
-    final authorizationMode = confirmation.subject == LppEvidenceOwnerKind.self
-        ? LppEvidenceAuthorizationMode.self
-        : LppEvidenceAuthorizationMode.manualPartnerDeclaration;
-    final storedFacts = <LppEvidenceFactKey, LppEvidenceFact>{
-      for (final entry in confirmation.facts.entries)
-        entry.key: LppEvidenceFact(
-          value: entry.value.value,
-          unit: entry.value.unit,
-          profileOwnerId: reviewedOwnerId,
-          actorProfileOwnerId: stableSelfOwnerId,
-          ownerKind: confirmation.subject,
-          authorizationMode: authorizationMode,
-          source: entry.value.corrected ? 'userInput' : 'certificate',
-          sourceDate: entry.value.corrected ? null : sourceDate,
-          updatedAt: updatedAt,
-        ),
-    };
-    final snapshotId = const Uuid().v4();
-    final nextRoot = LppEvidenceRoot(
-      self: confirmation.subject == LppEvidenceOwnerKind.self
-          ? LppEvidenceSnapshot(
-              snapshotId: snapshotId,
-              facts: Map.unmodifiable(storedFacts),
-            )
-          : currentRoot.self,
-      manualPartner: confirmation.subject == LppEvidenceOwnerKind.manualPartner
-          ? LppEvidenceSnapshot(
-              snapshotId: snapshotId,
-              facts: Map.unmodifiable(storedFacts),
-              independentFacts:
-                  currentRoot.manualPartner?.independentFacts ?? const {},
-            )
-          : currentRoot.manualPartner,
-      legacyPartnerQuarantine: currentRoot.legacyPartnerQuarantine,
-    );
-    final nextAnswers = _copyAnswers(loaded);
-    if (confirmation.subject == LppEvidenceOwnerKind.self) {
-      for (final key in _legacySelfLppKeys.keys) {
-        nextAnswers.remove(key);
-      }
-      nextAnswers.remove('_coach_lpp_source');
-    }
-    nextAnswers[_lppEvidenceRootKey] = nextRoot.toJsonString();
-    final prospectiveAccountabilityBinding =
-        pendingAccountabilityBinding?.copyWith(
-      state: PartnerAccountabilityBindingState.active,
-      lastVerifiedAt: updatedAt,
-      clearFailureStatus: true,
-    );
-    var nextProfile = CoachProfile.fromWizardAnswers(
-      nextAnswers,
-      now: _now,
-      partnerAccountabilityBinding: prospectiveAccountabilityBinding,
-      enforcePartnerAccountability: pendingAccountabilityBinding != null,
-    );
-    for (final entry in storedFacts.entries) {
-      nextProfile = _withStampedProvenance(
-        nextProfile,
-        <String>[
+      final authorizationMode =
           confirmation.subject == LppEvidenceOwnerKind.self
-              ? entry.key.profilePath
-              : entry.key.manualPartnerProfilePath,
-        ],
-        source: entry.value.source == 'certificate'
-            ? ProfileDataSource.certificate
-            : ProfileDataSource.userInput,
-        sourceDate: entry.value.sourceDate,
-        updatedAt: entry.value.updatedAt,
+              ? LppEvidenceAuthorizationMode.self
+              : LppEvidenceAuthorizationMode.manualPartnerDeclaration;
+      storedFacts = <LppEvidenceFactKey, LppEvidenceFact>{
+        for (final entry in confirmation.facts.entries)
+          entry.key: LppEvidenceFact(
+            value: entry.value.value,
+            unit: entry.value.unit,
+            profileOwnerId: reviewedOwnerId,
+            actorProfileOwnerId: stableSelfOwnerId,
+            ownerKind: confirmation.subject,
+            authorizationMode: authorizationMode,
+            source: entry.value.corrected ? 'userInput' : 'certificate',
+            sourceDate: entry.value.corrected ? null : sourceDate,
+            updatedAt: updatedAt,
+          ),
+      };
+      snapshotId = const Uuid().v4();
+      final nextRoot = LppEvidenceRoot(
+        self: confirmation.subject == LppEvidenceOwnerKind.self
+            ? LppEvidenceSnapshot(
+                snapshotId: snapshotId,
+                facts: Map.unmodifiable(storedFacts),
+              )
+            : currentRoot.self,
+        manualPartner:
+            confirmation.subject == LppEvidenceOwnerKind.manualPartner
+                ? LppEvidenceSnapshot(
+                    snapshotId: snapshotId,
+                    facts: Map.unmodifiable(storedFacts),
+                    independentFacts:
+                        currentRoot.manualPartner?.independentFacts ?? const {},
+                  )
+                : currentRoot.manualPartner,
+        legacyPartnerQuarantine: currentRoot.legacyPartnerQuarantine,
       );
-    }
-    _persistProvenance(nextAnswers, nextProfile);
+      previousLppRootJson = loaded[_lppEvidenceRootKey] as String?;
+      final nextAnswers = _copyAnswers(loaded);
+      if (confirmation.subject == LppEvidenceOwnerKind.self) {
+        for (final key in _legacySelfLppKeys.keys) {
+          nextAnswers.remove(key);
+        }
+        nextAnswers.remove('_coach_lpp_source');
+      }
+      committedRootJson = nextRoot.toJsonString();
+      nextAnswers[_lppEvidenceRootKey] = committedRootJson;
+      final prospectiveAccountabilityBinding =
+          pendingAccountabilityBinding?.copyWith(
+        state: PartnerAccountabilityBindingState.active,
+        lppSnapshotId: snapshotId,
+        lastVerifiedAt: updatedAt,
+        clearFailureStatus: true,
+      );
+      var nextProfile = CoachProfile.fromWizardAnswers(
+        nextAnswers,
+        now: _now,
+        partnerAccountabilityBinding: prospectiveAccountabilityBinding,
+        enforcePartnerAccountability: pendingAccountabilityBinding != null,
+      );
+      for (final entry in storedFacts.entries) {
+        nextProfile = _withStampedProvenance(
+          nextProfile,
+          <String>[
+            confirmation.subject == LppEvidenceOwnerKind.self
+                ? entry.key.profilePath
+                : entry.key.manualPartnerProfilePath,
+          ],
+          source: entry.value.source == 'certificate'
+              ? ProfileDataSource.certificate
+              : ProfileDataSource.userInput,
+          sourceDate: entry.value.sourceDate,
+          updatedAt: entry.value.updatedAt,
+        );
+      }
+      _persistProvenance(nextAnswers, nextProfile);
+      committedProfile = nextProfile;
+      return nextAnswers;
+    }, publish: (persisted) {
+      sessionGuard.assertCurrent();
+      _canonicalProfileOwnerId = publishedOwnerId;
+      _lastAnswers = _copyAnswers(persisted);
+      final pendingBinding = pendingAccountabilityBinding;
+      if (pendingBinding == null) {
+        _profile = committedProfile;
+      } else {
+        // Root B is durable before its receipt activation is authoritative.
+        // Publishing the old active receipt A here would expose B under A.
+        _setPartnerLppAccountabilityBinding(pendingBinding);
+        _profile = CoachProfile.fromWizardAnswers(
+          persisted,
+          now: _now,
+          partnerAccountabilityBinding: pendingBinding,
+          enforcePartnerAccountability: true,
+        );
+        _hasManualPartnerLppEvidence = false;
+      }
+      _isLoaded = true;
+      _isPartialProfile = true;
+      _profileUpdatedSinceBudget = true;
+      CoachNarrativeService.invalidateCache(profile: _profile);
+      notifyListeners();
+    });
 
-    await _lppProfilePersistence.saveAnswers(nextAnswers);
-
-    if (pendingAccountabilityBinding != null) {
+    final pendingBinding = pendingAccountabilityBinding;
+    if (pendingBinding != null) {
       try {
-        _setPartnerLppAccountabilityBinding(
-          await _partnerAccountabilityBindingStore.activatePending(
-            receiptId: pendingAccountabilityBinding.receiptId,
-            manualPartnerOwnerId:
-                pendingAccountabilityBinding.manualPartnerOwnerId,
+        final activatedBinding = await _sessionEpoch.runGuardedPersistence(
+          sessionGuard,
+          () => _partnerAccountabilityBindingStore.activatePending(
+            receiptId: pendingBinding.receiptId,
+            manualPartnerOwnerId: pendingBinding.manualPartnerOwnerId,
+            lppSnapshotId: snapshotId,
             verifiedAt: updatedAt,
           ),
         );
+        late CoachProfile activatedProfile;
+        await _mutateLppAnswers(
+          sessionGuard,
+          (current) {
+            if (current[_lppEvidenceRootKey] != committedRootJson) {
+              throw StateError('LPP root changed during binding activation');
+            }
+            activatedProfile = CoachProfile.fromWizardAnswers(
+              current,
+              now: _now,
+              partnerAccountabilityBinding: activatedBinding,
+              enforcePartnerAccountability: true,
+            );
+            return null;
+          },
+          publish: (persisted) {
+            sessionGuard.assertCurrent();
+            _setPartnerLppAccountabilityBinding(activatedBinding);
+            _lastAnswers = _copyAnswers(persisted);
+            _profile = activatedProfile;
+            _hasManualPartnerLppEvidence = true;
+            _profileUpdatedSinceBudget = true;
+            CoachNarrativeService.invalidateCache(profile: _profile);
+            notifyListeners();
+          },
+        );
+      } on SessionEpochInvalidated {
+        rethrow;
       } on Object catch (activationError, activationStackTrace) {
         try {
-          await _lppProfilePersistence.saveAnswers(_copyAnswers(loaded));
-          await _partnerAccountabilityBindingStore.compensateFailedActivation(
-            receiptId: pendingAccountabilityBinding.receiptId,
-            manualPartnerOwnerId:
-                pendingAccountabilityBinding.manualPartnerOwnerId,
-            previousActive: previousActiveAccountabilityBinding,
+          var restoredPreviousRoot = false;
+          late CoachProfile compensatedProfile;
+          await _mutateLppAnswers(
+            sessionGuard,
+            (current) {
+              final compensated = _copyAnswers(current);
+              if (compensated[_lppEvidenceRootKey] == committedRootJson) {
+                restoredPreviousRoot = true;
+                final previousRoot = previousLppRootJson;
+                if (previousRoot == null) {
+                  compensated.remove(_lppEvidenceRootKey);
+                } else {
+                  compensated[_lppEvidenceRootKey] = previousRoot;
+                }
+              }
+              compensatedProfile = CoachProfile.fromWizardAnswers(
+                compensated,
+                now: _now,
+                partnerAccountabilityBinding: restoredPreviousRoot
+                    ? previousActiveAccountabilityBinding
+                    : null,
+                enforcePartnerAccountability: true,
+              );
+              _persistProvenance(compensated, compensatedProfile);
+              return compensated;
+            },
+            publish: (persisted) {
+              sessionGuard.assertCurrent();
+              _setPartnerLppAccountabilityBinding(restoredPreviousRoot
+                  ? previousActiveAccountabilityBinding
+                  : null);
+              _lastAnswers = _copyAnswers(persisted);
+              _profile = compensatedProfile;
+              _hasManualPartnerLppEvidence = restoredPreviousRoot &&
+                  previousActiveAccountabilityBinding != null;
+              _profileUpdatedSinceBudget = true;
+              CoachNarrativeService.invalidateCache(profile: _profile);
+              notifyListeners();
+            },
           );
+          if (restoredPreviousRoot) {
+            await _sessionEpoch.runGuardedPersistence(
+              sessionGuard,
+              () =>
+                  _partnerAccountabilityBindingStore.compensateFailedActivation(
+                receiptId: pendingBinding.receiptId,
+                manualPartnerOwnerId: pendingBinding.manualPartnerOwnerId,
+                previousActive: previousActiveAccountabilityBinding,
+              ),
+            );
+          } else {
+            await _sessionEpoch.runGuardedPersistence(
+              sessionGuard,
+              _partnerAccountabilityBindingStore.clear,
+            );
+          }
+        } on SessionEpochInvalidated {
+          rethrow;
         } on Object {
-          await _partnerAccountabilityBindingStore.clear();
+          try {
+            await _sessionEpoch.runGuardedPersistence(
+              sessionGuard,
+              _partnerAccountabilityBindingStore.clear,
+            );
+          } finally {
+            sessionGuard.assertCurrent();
+            _setPartnerLppAccountabilityBinding(null);
+            _profile = CoachProfile.fromWizardAnswers(
+              _lastAnswers,
+              now: _now,
+              partnerAccountabilityBinding: null,
+              enforcePartnerAccountability: true,
+            );
+            _hasManualPartnerLppEvidence = false;
+            _profileUpdatedSinceBudget = true;
+            CoachNarrativeService.invalidateCache(profile: _profile);
+            notifyListeners();
+          }
           throw StateError(
             'LPP root activation failed and could not be restored',
           );
@@ -1073,17 +1673,6 @@ class CoachProfileProvider extends ChangeNotifier {
         Error.throwWithStackTrace(activationError, activationStackTrace);
       }
     }
-
-    _lastAnswers = _copyAnswers(nextAnswers);
-    _profile = nextProfile;
-    _isLoaded = true;
-    _isPartialProfile = true;
-    _profileUpdatedSinceBudget = true;
-    if (confirmation.subject == LppEvidenceOwnerKind.manualPartner) {
-      _hasManualPartnerLppEvidence = true;
-    }
-    CoachNarrativeService.invalidateCache(profile: _profile);
-    notifyListeners();
     return LppReviewReceipt(
       snapshotId: snapshotId,
       ownerKind: confirmation.subject,
@@ -1096,92 +1685,109 @@ class CoachProfileProvider extends ChangeNotifier {
   /// removing only this independent value.
   Future<void> setIndependentManualPartnerVestedBenefitsCapital(
     double? value,
-  ) =>
-      _serializeLppMutation(() async {
-        if (!FeatureFlags.typedLppEvidence || _profile?.conjoint == null) {
-          throw StateError('Manual partner LPP recovery is unavailable');
-        }
-        if (value != null && (!value.isFinite || value <= 0)) {
-          throw ArgumentError.value(value, 'value', 'invalid LPP capital');
-        }
-        final loaded = await _lppProfilePersistence.loadAnswers();
-        final root = LppEvidenceRoot.fromJsonString(
-              loaded[_lppEvidenceRootKey],
-            ) ??
-            const LppEvidenceRoot(self: null);
-        final currentManual = root.manualPartner;
-        final identity = currentManual?.identityFacts.first;
-        final selfOwnerId = root.self?.identityFacts.first.profileOwnerId ??
-            identity?.actorProfileOwnerId ??
-            const Uuid().v4();
-        final partnerOwnerId = identity?.profileOwnerId ??
-            _partnerLppAccountabilityBinding?.manualPartnerOwnerId ??
-            const Uuid().v4();
-        if (partnerOwnerId == selfOwnerId) {
-          throw StateError('Manual partner owner must be distinct from self');
-        }
-        final independent = <LppEvidenceFactKey, LppEvidenceFact>{
-          ...?currentManual?.independentFacts,
-        };
-        const key = LppEvidenceFactKey.vestedBenefitsCapitalChf;
-        final updatedAt = _now().toUtc();
-        if (value == null) {
-          independent.remove(key);
-        } else {
-          independent[key] = LppEvidenceFact(
-            value: value,
-            unit: key.unit,
-            profileOwnerId: partnerOwnerId,
-            actorProfileOwnerId: selfOwnerId,
-            ownerKind: LppEvidenceOwnerKind.manualPartner,
-            authorizationMode:
-                LppEvidenceAuthorizationMode.manualPartnerDeclaration,
-            source: ProfileDataSource.userInput.name,
-            sourceDate: null,
-            updatedAt: updatedAt,
-          );
-        }
-        final nextManual =
-            (currentManual?.facts.isNotEmpty == true || independent.isNotEmpty)
+  ) {
+    final sessionGuard = _sessionEpoch.capture();
+    return _serializeLppMutation(() => _serializeOwnerResolution(() async {
+          if (!FeatureFlags.typedLppEvidence || _profile?.conjoint == null) {
+            throw StateError('Manual partner LPP recovery is unavailable');
+          }
+          if (value != null && (!value.isFinite || value <= 0)) {
+            throw ArgumentError.value(value, 'value', 'invalid LPP capital');
+          }
+          late String publishedOwnerId;
+          late CoachProfile publishedProfile;
+          late bool hasManualEvidence;
+          await _mutateLppAnswers(sessionGuard, (loadedRaw) {
+            sessionGuard.assertCurrent();
+            final ownerResolution =
+                _prepareCanonicalProfileOwnerForCombinedWriteLocked(
+              loadedRaw,
+            );
+            publishedOwnerId = ownerResolution.ownerId;
+            final loaded = ownerResolution.answers;
+            final root = LppEvidenceRoot.fromJsonString(
+                  loaded[_lppEvidenceRootKey],
+                ) ??
+                const LppEvidenceRoot(self: null);
+            final currentManual = root.manualPartner;
+            final identity = currentManual?.identityFacts.first;
+            final selfOwnerId = ownerResolution.ownerId;
+            final partnerOwnerId = identity?.profileOwnerId ??
+                _partnerLppAccountabilityBinding?.manualPartnerOwnerId ??
+                const Uuid().v4();
+            if (partnerOwnerId == selfOwnerId) {
+              throw StateError(
+                  'Manual partner owner must be distinct from self');
+            }
+            final independent = <LppEvidenceFactKey, LppEvidenceFact>{
+              ...?currentManual?.independentFacts,
+            };
+            const key = LppEvidenceFactKey.vestedBenefitsCapitalChf;
+            final updatedAt = _now().toUtc();
+            if (value == null) {
+              independent.remove(key);
+            } else {
+              independent[key] = LppEvidenceFact(
+                value: value,
+                unit: key.unit,
+                profileOwnerId: partnerOwnerId,
+                actorProfileOwnerId: selfOwnerId,
+                ownerKind: LppEvidenceOwnerKind.manualPartner,
+                authorizationMode:
+                    LppEvidenceAuthorizationMode.manualPartnerDeclaration,
+                source: ProfileDataSource.userInput.name,
+                sourceDate: null,
+                updatedAt: updatedAt,
+              );
+            }
+            final nextManual = (currentManual?.facts.isNotEmpty == true ||
+                    independent.isNotEmpty)
                 ? LppEvidenceSnapshot(
                     snapshotId: currentManual?.snapshotId ?? const Uuid().v4(),
                     facts: currentManual?.facts ?? const {},
                     independentFacts: Map.unmodifiable(independent),
                   )
                 : null;
-        final nextRoot = LppEvidenceRoot(
-          self: root.self,
-          manualPartner: nextManual,
-          legacyPartnerQuarantine: root.legacyPartnerQuarantine,
-        );
-        final nextAnswers = _copyAnswers(loaded)
-          ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
-        var nextProfile = CoachProfile.fromWizardAnswers(
-          nextAnswers,
-          now: _now,
-          partnerAccountabilityBinding: _partnerLppAccountabilityBinding,
-          enforcePartnerAccountability: true,
-        );
-        if (value != null) {
-          nextProfile = _withStampedProvenance(
-            nextProfile,
-            [key.manualPartnerProfilePath],
-            source: ProfileDataSource.userInput,
-            sourceDate: null,
-            updatedAt: updatedAt,
-          );
-        }
-        _persistProvenance(nextAnswers, nextProfile);
-        await _lppProfilePersistence.saveAnswers(nextAnswers);
-        _lastAnswers = _copyAnswers(nextAnswers);
-        _profile = nextProfile;
-        _hasManualPartnerLppEvidence = nextManual != null;
-        _isLoaded = true;
-        _isPartialProfile = true;
-        _profileUpdatedSinceBudget = true;
-        CoachNarrativeService.invalidateCache(profile: _profile);
-        notifyListeners();
-      });
+            final nextRoot = LppEvidenceRoot(
+              self: root.self,
+              manualPartner: nextManual,
+              legacyPartnerQuarantine: root.legacyPartnerQuarantine,
+            );
+            final nextAnswers = _copyAnswers(loaded)
+              ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
+            var nextProfile = CoachProfile.fromWizardAnswers(
+              nextAnswers,
+              now: _now,
+              partnerAccountabilityBinding: _partnerLppAccountabilityBinding,
+              enforcePartnerAccountability: true,
+            );
+            if (value != null) {
+              nextProfile = _withStampedProvenance(
+                nextProfile,
+                [key.manualPartnerProfilePath],
+                source: ProfileDataSource.userInput,
+                sourceDate: null,
+                updatedAt: updatedAt,
+              );
+            }
+            _persistProvenance(nextAnswers, nextProfile);
+            publishedProfile = nextProfile;
+            hasManualEvidence = nextManual != null;
+            return nextAnswers;
+          }, publish: (persisted) {
+            sessionGuard.assertCurrent();
+            _canonicalProfileOwnerId = publishedOwnerId;
+            _lastAnswers = _copyAnswers(persisted);
+            _profile = publishedProfile;
+            _hasManualPartnerLppEvidence = hasManualEvidence;
+            _isLoaded = true;
+            _isPartialProfile = true;
+            _profileUpdatedSinceBudget = true;
+            CoachNarrativeService.invalidateCache(profile: _profile);
+            notifyListeners();
+          });
+        }));
+  }
 
   Future<T> _serializeLppMutation<T>(Future<T> Function() operation) async {
     final previousMutation = _lppMutationTail;
@@ -1198,9 +1804,6 @@ class CoachProfileProvider extends ChangeNotifier {
       }
     }
   }
-
-  static DateTime _civilDay(DateTime value) =>
-      DateTime.utc(value.year, value.month, value.day);
 
   /// S47: Stamp dataTimestamps for a set of field paths.
   /// Merges with existing timestamps — only overwrites the given fields.
@@ -1240,6 +1843,7 @@ class CoachProfileProvider extends ChangeNotifier {
     'q_civil_status': ['etatCivil'],
     'q_children': ['nombreEnfants'],
     'q_employment_status': ['employmentStatus'],
+    'q_household_type': ['householdType'],
     'q_main_goal': ['goalA.type'],
     'q_gender': ['gender'],
     'q_target_retirement_age': ['targetRetirementAge'],
@@ -1272,6 +1876,7 @@ class CoachProfileProvider extends ChangeNotifier {
     'q_has_voluntary_lpp': ['prevoyance.hasVoluntaryLpp'],
     'q_3a_annual_contribution': ['pillar3aAnnualContribution'],
     'q_3a_total': ['prevoyance.totalEpargne3a'],
+    '_coach_total_3a': ['prevoyance.totalEpargne3a'],
     'q_has_3a': ['hasPillar3a'],
     'q_3a_accounts_count': ['prevoyance.nombre3a'],
     'q_3a_providers': ['providers3a'],
@@ -1418,10 +2023,14 @@ class CoachProfileProvider extends ChangeNotifier {
         if (!FeatureFlags.partnerLppAccountabilityEnabled) return null;
         final expectedOwnerId =
             LppEvidenceSelector.manualPartnerOwnerId(rawRoot);
+        final expectedSnapshotId =
+            LppEvidenceSelector.manualPartnerSnapshotId(rawRoot);
         final accountabilityBinding = _partnerLppAccountabilityBinding;
         if (expectedOwnerId == null ||
+            expectedSnapshotId == null ||
             accountabilityBinding == null ||
             accountabilityBinding.manualPartnerOwnerId != expectedOwnerId ||
+            accountabilityBinding.lppSnapshotId != expectedSnapshotId ||
             !_isCurrentPartnerAuthority(
               accountabilityBinding,
               _now().toUtc(),
@@ -1522,43 +2131,6 @@ class CoachProfileProvider extends ChangeNotifier {
   /// True si le profil a ete mis a jour depuis la derniere synchro budget.
   bool get profileUpdatedSinceBudget => _profileUpdatedSinceBudget;
 
-  // ════════════════════════════════════════════════════════════════
-  //  BACKEND SYNC — fire-and-forget profile push
-  // ════════════════════════════════════════════════════════════════
-
-  /// Best-effort sync of local profile data to the backend.
-  /// Fire-and-forget: failure does NOT block local operations.
-  /// Only runs when the user is authenticated.
-  /// All exceptions are caught — safe to call without awaiting.
-  Future<void> _syncToBackend() async {
-    if (_profile == null || !_isLoaded) return;
-    try {
-      // Only sync when authenticated — avoid 401 errors.
-      final isLoggedIn = await AuthService.isLoggedIn();
-      if (!isLoggedIn) return;
-      final answers = ReportPersistenceService.backendSafeAnswers(_lastAnswers);
-      final prefs = await SharedPreferences.getInstance();
-      // Stable device ID — generated once, persisted across sessions.
-      var deviceId = prefs.getString('_mint_device_id');
-      if (deviceId == null) {
-        deviceId = const Uuid().v4();
-        await prefs.setString('_mint_device_id', deviceId);
-      }
-      await ApiService.claimLocalData(
-        localDataVersion: 1,
-        deviceId: deviceId,
-        wizardAnswers: answers,
-      );
-    } catch (e) {
-      debugPrint('[CoachProfile] Backend sync failed (non-fatal): $e');
-    }
-  }
-
-  /// Public entry point for backend sync.
-  /// Called by [AuthProvider] after login/register to push local data
-  /// when the backend profile is empty.
-  Future<void> triggerBackendSync() => _syncToBackend();
-
   /// Pull fresh profile data from backend and merge into local state.
   ///
   /// Called after each coach chat exchange to capture data written by
@@ -1574,12 +2146,14 @@ class CoachProfileProvider extends ChangeNotifier {
   /// dedicated response header (deferred to Phase 31-02 backend work).
   Future<void> syncFromBackend() async {
     try {
+      final sessionGuard = _sessionEpoch.capture();
       final isLoggedIn = await AuthService.isLoggedIn();
+      sessionGuard.assertCurrent();
       if (!isLoggedIn) return;
       final remoteData = await ApiService.get('/profiles/me');
-      mergeFromRemoteProfile(remoteData);
-      // Also merge financial fields that the basic merge doesn't cover.
-      _mergeFinancialFieldsFromRemote(remoteData);
+      sessionGuard.assertCurrent();
+      await _mergeBackendUnknownProfile(remoteData, sessionGuard);
+      sessionGuard.assertCurrent();
       // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
       // factKind is the coarse 'profile_sync' enum; the finer-grained
       // per-field attribution is deferred to Phase 31-02 (backend can
@@ -1588,13 +2162,17 @@ class CoachProfileProvider extends ChangeNotifier {
         success: true,
         factKind: 'profile_sync',
       );
+    } on SessionEpochInvalidated {
+      return;
     } catch (e) {
-      debugPrint('[CoachProfile] syncFromBackend failed (non-fatal): $e');
       // OBS-05 — save_fact failure proxy breadcrumb. Error code is an
       // enum (no raw exception message — may contain PII).
       final code = e is ApiException
           ? (e.isOffline ? 'offline' : 'api_error')
           : 'unknown';
+      if (kDebugMode) {
+        debugPrint('[CoachProfile] syncFromBackend failed: $code');
+      }
       MintBreadcrumbs.saveFact(
         success: false,
         factKind: 'profile_sync',
@@ -1603,45 +2181,106 @@ class CoachProfileProvider extends ChangeNotifier {
     }
   }
 
-  /// Merge financial fields from backend that save_fact may have written.
-  ///
-  /// Complements [mergeFromRemoteProfile] which only covers identity fields.
-  /// Maps backend camelCase keys → wizard answer keys understood by
-  /// [CoachProfile.fromWizardAnswers], then calls [mergeAnswers] which
-  /// handles persistence + notifyListeners.
-  void _mergeFinancialFieldsFromRemote(Map<String, dynamic> remote) {
-    if (_profile == null) return;
-    final p = _profile!.prevoyance;
+  /// Maps an opaque backend profile into one canonical, non-echoing ledger
+  /// mutation. Validation here rejects malformed transport values; authority
+  /// and fill-only decisions remain inside [mergeBackendUnknownAnswers].
+  Future<void> mergeBackendUnknownProfile(
+    Map<String, dynamic> remote, {
+    SessionEpochGuard? sessionGuard,
+  }) =>
+      _mergeBackendUnknownProfile(
+        remote,
+        sessionGuard ?? _sessionEpoch.capture(),
+      );
+
+  Future<void> _mergeBackendUnknownProfile(
+    Map<String, dynamic> remote,
+    SessionEpochGuard sessionGuard,
+  ) async {
+    sessionGuard.assertCurrent();
     final partial = <String, dynamic>{};
+    final birthYear = _validRemoteBirthYear(remote['birthYear']);
+    if (birthYear != null) partial['q_birth_year'] = birthYear;
+    final canton = _validRemoteCanton(remote['canton']);
+    if (canton != null) partial['q_canton'] = canton;
+    final gender = _validRemoteString(remote['gender']);
+    if (gender != null) partial['q_gender'] = gender;
+    final grossYearly = _validRemoteAmount(remote['incomeGrossYearly']);
+    if (grossYearly != null) {
+      partial['q_gross_salary_annual'] = grossYearly;
+    }
+    final netMonthly = _validRemoteAmount(remote['incomeNetMonthly']);
+    if (netMonthly != null) {
+      partial['q_net_income_period_chf'] = netMonthly;
+      partial['q_pay_frequency'] = 'monthly';
+    }
+    final employment = _validRemoteEmployment(remote['employmentStatus']);
+    if (employment != null) partial['q_employment_status'] = employment;
+    final household = _validRemoteString(remote['householdType']);
+    if (household != null) partial['q_household_type'] = household;
+    final lpp = _validRemoteAmount(remote['avoirLpp']);
+    if (lpp != null) partial['_coach_avoir_lpp'] = lpp;
+    final insuredSalary = _validRemoteAmount(remote['lppInsuredSalary']);
+    if (insuredSalary != null) {
+      partial['_coach_salaire_assure'] = insuredSalary;
+    }
+    final buyback = _validRemoteAmount(remote['lppBuybackMax']);
+    if (buyback != null) partial['_coach_rachat_maximum'] = buyback;
+    final pillar3a = _validRemoteAmount(remote['pillar3aBalance']);
+    if (pillar3a != null) partial['q_3a_total'] = pillar3a;
+    await mergeBackendUnknownAnswers(partial, sessionGuard: sessionGuard);
+  }
 
-    // LPP avoir
-    final remoteLpp = (remote['avoirLpp'] as num?)?.toDouble();
-    if ((p.avoirLppTotal ?? 0) <= 0 && remoteLpp != null && remoteLpp > 0) {
-      partial['_coach_avoir_lpp'] = remoteLpp;
-    }
-    // LPP salaire assuré
-    final remoteSalaire = (remote['lppInsuredSalary'] as num?)?.toDouble();
-    if ((p.salaireAssure ?? 0) <= 0 &&
-        remoteSalaire != null &&
-        remoteSalaire > 0) {
-      partial['_coach_salaire_assure'] = remoteSalaire;
-    }
-    // LPP rachat max
-    final remoteRachat = (remote['lppBuybackMax'] as num?)?.toDouble();
-    if ((p.rachatMaximum ?? 0) <= 0 &&
-        remoteRachat != null &&
-        remoteRachat > 0) {
-      partial['_coach_rachat_maximum'] = remoteRachat;
-    }
-    // 3a balance
-    final remote3a = (remote['pillar3aBalance'] as num?)?.toDouble();
-    if (p.totalEpargne3a <= 0 && remote3a != null && remote3a > 0) {
-      partial['_coach_total_3a'] = remote3a;
-    }
+  int? _validRemoteBirthYear(Object? raw) {
+    if (raw is! num || !raw.toDouble().isFinite) return null;
+    final year = raw.toInt();
+    if (raw.toDouble() != year.toDouble()) return null;
+    final candidate = DateTime(year, 1, 1);
+    return SwissCivilTime.isSupportedAdultBirthDate(candidate, now: _now())
+        ? year
+        : null;
+  }
 
-    if (partial.isNotEmpty) {
-      mergeAnswers(partial); // handles persist + notifyListeners + backend sync
-    }
+  static String? _validRemoteString(Object? raw) {
+    if (raw is! String) return null;
+    final value = raw.trim();
+    return value.isEmpty || value.toLowerCase() == 'unknown' ? null : value;
+  }
+
+  static String? _validRemoteCanton(Object? raw) {
+    final value = _validRemoteString(raw)?.toUpperCase();
+    return sortedCantonCodes.contains(value) ? value : null;
+  }
+
+  static String? _validRemoteEmployment(Object? raw) {
+    final value = _validRemoteString(raw)?.toLowerCase();
+    return const <String>{
+      'employee',
+      'salarie',
+      'salarié', // lint-ignore: accepted legacy backend wire value
+      'self_employed',
+      'independant',
+      'indépendant', // lint-ignore: accepted legacy backend wire value
+      'retired',
+      'retraite',
+      'retraité', // lint-ignore: accepted legacy backend wire value
+      'student',
+      'etudiant',
+      'étudiant', // lint-ignore: accepted legacy backend wire value
+      'unemployed',
+      'chomage',
+      'chômage', // lint-ignore: accepted legacy backend wire value
+      'mixed',
+      'mixte',
+    }.contains(value)
+        ? value
+        : null;
+  }
+
+  static double? _validRemoteAmount(Object? raw) {
+    if (raw is! num) return null;
+    final value = raw.toDouble();
+    return value.isFinite && value >= 0 && value <= 10000000 ? value : null;
   }
 
   String get personaKey {
@@ -1768,11 +2407,15 @@ class CoachProfileProvider extends ChangeNotifier {
   ///
   /// Appele automatiquement au demarrage de l'app et apres
   /// la completion du wizard.
-  Future<void> loadFromWizard() => _serializeLppMutation(_loadFromWizard);
+  Future<void> loadFromWizard() {
+    final guard = _sessionEpoch.capture();
+    return _serializeLppMutation(() => _loadFromWizard(guard));
+  }
 
   Future<PartnerAccountabilityBinding?>
       _reconcilePartnerAccountabilityOnColdLoad(
     Map<String, dynamic> answers,
+    SessionEpochGuard sessionGuard,
   ) async {
     if (!FeatureFlags.typedLppEvidence) {
       _hasManualPartnerLppEvidence = false;
@@ -1794,6 +2437,7 @@ class CoachProfileProvider extends ChangeNotifier {
     }
 
     final envelope = await _partnerAccountabilityBindingStore.load();
+    sessionGuard.assertCurrent();
     final pending = envelope.pending;
     if (pending != null) {
       _setPartnerLppAccountabilityBinding(pending);
@@ -1802,7 +2446,8 @@ class CoachProfileProvider extends ChangeNotifier {
     final candidate = envelope.active;
     if (candidate == null ||
         candidate.manualPartnerOwnerId !=
-            manual.identityFacts.first.profileOwnerId) {
+            manual.identityFacts.first.profileOwnerId ||
+        candidate.lppSnapshotId != manual.snapshotId) {
       _setPartnerLppAccountabilityBinding(null);
       return null;
     }
@@ -1811,39 +2456,64 @@ class CoachProfileProvider extends ChangeNotifier {
       final receipt = await _partnerAccountabilityService.status(
         candidate.receiptId,
       );
+      sessionGuard.assertCurrent();
       if (!receipt.isCurrent ||
           receipt.receiptId != candidate.receiptId ||
           receipt.noticeVersion != candidate.noticeVersion ||
           receipt.policyVersion != candidate.policyVersion ||
           receipt.expiresAt == null ||
           !_now().toUtc().isBefore(receipt.expiresAt!)) {
-        await _restoreIndependentPartnerUserInputFacts(answers);
-        final partial = await _partnerAccountabilityBindingStore.markPartial(
-          failureStatus: receipt.status,
+        await _restoreIndependentPartnerUserInputFacts(
+          answers,
+          sessionGuard,
         );
+        final partial = await _sessionEpoch.runGuardedPersistence(
+          sessionGuard,
+          () => _partnerAccountabilityBindingStore.markPartial(
+            failureStatus: receipt.status,
+          ),
+        );
+        sessionGuard.assertCurrent();
         _setPartnerLppAccountabilityBinding(partial);
         return partial;
       }
-      final verified = await _partnerAccountabilityBindingStore.verifyActive(
-        receiptId: candidate.receiptId,
-        verifiedAt: _now().toUtc(),
-        expiresAt: receipt.expiresAt!,
+      final verified = await _sessionEpoch.runGuardedPersistence(
+        sessionGuard,
+        () => _partnerAccountabilityBindingStore.verifyActive(
+          receiptId: candidate.receiptId,
+          verifiedAt: _now().toUtc(),
+          expiresAt: receipt.expiresAt!,
+        ),
       );
+      sessionGuard.assertCurrent();
       _setPartnerLppAccountabilityBinding(verified);
       return verified;
+    } on SessionEpochInvalidated {
+      rethrow;
     } on PartnerAccountabilityException catch (error) {
       if (error.status != PartnerAccountabilityReceiptStatus.offline) {
-        await _restoreIndependentPartnerUserInputFacts(answers);
+        await _restoreIndependentPartnerUserInputFacts(
+          answers,
+          sessionGuard,
+        );
       }
-      final partial = await _partnerAccountabilityBindingStore.markPartial(
-        failureStatus: error.status,
+      final partial = await _sessionEpoch.runGuardedPersistence(
+        sessionGuard,
+        () => _partnerAccountabilityBindingStore.markPartial(
+          failureStatus: error.status,
+        ),
       );
+      sessionGuard.assertCurrent();
       _setPartnerLppAccountabilityBinding(partial);
       return partial;
     } catch (_) {
-      final partial = await _partnerAccountabilityBindingStore.markPartial(
-        failureStatus: PartnerAccountabilityReceiptStatus.stale,
+      final partial = await _sessionEpoch.runGuardedPersistence(
+        sessionGuard,
+        () => _partnerAccountabilityBindingStore.markPartial(
+          failureStatus: PartnerAccountabilityReceiptStatus.stale,
+        ),
       );
+      sessionGuard.assertCurrent();
       _setPartnerLppAccountabilityBinding(partial);
       return partial;
     }
@@ -1851,196 +2521,353 @@ class CoachProfileProvider extends ChangeNotifier {
 
   Future<void> _restoreIndependentPartnerUserInputFacts(
     Map<String, dynamic> answers,
+    SessionEpochGuard sessionGuard,
   ) async {
-    final root = LppEvidenceRoot.fromJsonString(answers[_lppEvidenceRootKey]);
-    final manual = root?.manualPartner;
-    if (root == null || manual == null) return;
-    final independent = manual.independentFacts;
-    final restoredRoot = LppEvidenceRoot(
-      self: root.self,
-      manualPartner: independent.isEmpty
-          ? null
-          : LppEvidenceSnapshot(
-              snapshotId: manual.snapshotId,
-              facts: const {},
-              independentFacts: independent,
-            ),
-      legacyPartnerQuarantine: root.legacyPartnerQuarantine,
+    await _mutateLppAnswers(
+      sessionGuard,
+      (current) {
+        final next = _copyAnswers(current);
+        final root = LppEvidenceRoot.fromJsonString(next[_lppEvidenceRootKey]);
+        final manual = root?.manualPartner;
+        if (root == null || manual == null) return next;
+        final independent = manual.independentFacts;
+        final restoredRoot = LppEvidenceRoot(
+          self: root.self,
+          manualPartner: independent.isEmpty
+              ? null
+              : LppEvidenceSnapshot(
+                  snapshotId: manual.snapshotId,
+                  facts: const {},
+                  independentFacts: independent,
+                ),
+          legacyPartnerQuarantine: root.legacyPartnerQuarantine,
+        );
+        next[_lppEvidenceRootKey] = restoredRoot.toJsonString();
+        return next;
+      },
+      publish: (persisted) {
+        answers
+          ..clear()
+          ..addAll(_copyAnswers(persisted));
+        _lastAnswers = _copyAnswers(persisted);
+      },
     );
-    answers[_lppEvidenceRootKey] = restoredRoot.toJsonString();
-    await _lppProfilePersistence.saveAnswers(answers);
   }
 
-  Future<void> _loadFromWizard() async {
+  Map<String, dynamic> _withoutRejectedLedgerAuthority(
+    Map<String, dynamic> rawAnswers,
+  ) {
+    final baseAnswers = _copyAnswers(rawAnswers)
+      ..remove(coachProfileOwnerRootKey)
+      ..remove(_lppEvidenceRootKey)
+      ..remove(_taxSnapshotRootKey)
+      ..removeWhere(
+        (key, _) =>
+            _legacySelfLppKeys.containsKey(key) ||
+            key == '_coach_lpp_source' ||
+            legacyPartnerLppAnswerKeys.contains(key) ||
+            key.startsWith('_coach_tax_'),
+      );
+    final lppPaths = <String>{
+      for (final key in LppEvidenceFactKey.values) key.profilePath,
+      for (final key in LppEvidenceFactKey.values) key.manualPartnerProfilePath,
+    };
+    bool isLedgerPath(Object? path) =>
+        path is String &&
+        (path.startsWith('fiscal.') || lppPaths.contains(path));
+    for (final envelopeKey in const <String>{
+      '__provenance',
+      '_coach_data_sources',
+      '_coach_data_timestamps',
+      '_coach_data_source_dates',
+    }) {
+      final rawEnvelope = baseAnswers[envelopeKey];
+      if (rawEnvelope is! Map) continue;
+      final safeEnvelope = Map<String, dynamic>.from(rawEnvelope)
+        ..removeWhere((path, _) => isLedgerPath(path));
+      if (safeEnvelope.isEmpty) {
+        baseAnswers.remove(envelopeKey);
+      } else {
+        baseAnswers[envelopeKey] = safeEnvelope;
+      }
+    }
+    return baseAnswers;
+  }
+
+  Future<void> _hydrateBaseProfileWithoutLedgerAuthority(
+    SessionEpochGuard sessionGuard,
+  ) async {
+    var partial = true;
+    if (!_usesInjectedTaxPersistence &&
+        await ReportPersistenceService.isCompleted()) {
+      partial = false;
+    }
+
+    sessionGuard.assertCurrent();
+    await _inspectTaxAnswers(sessionGuard, (current) {
+      final baseAnswers = _withoutRejectedLedgerAuthority(current);
+      _lastAnswers = _copyAnswers(baseAnswers);
+      _canonicalProfileOwnerId = null;
+      _stagedCanonicalProfileOwnerId = null;
+      _profile = baseAnswers.isEmpty
+          ? null
+          : CoachProfile.fromWizardAnswers(
+              baseAnswers,
+              now: _now,
+              enforcePartnerAccountability: false,
+            );
+      _isPartialProfile = _profile == null ? false : partial;
+      _profileUpdatedSinceBudget = _profile != null;
+      _isLoading = false;
+      _isLoaded = true;
+      notifyListeners();
+    });
+  }
+
+  ({Map<String, dynamic> answers, String? ownerId, bool changed})
+      _prepareColdWizardAnswers(Map<String, dynamic> rawAnswers) {
+    if (rawAnswers.isEmpty) {
+      return (answers: _copyAnswers(rawAnswers), ownerId: null, changed: false);
+    }
+
+    final persistedOwners = _persistedCanonicalOwners(rawAnswers);
+    final requiresOwnerForLegacyLpp = rawAnswers.keys.any(
+      _legacySelfLppKeys.containsKey,
+    );
+    final hasExistingOwnerAuthority = persistedOwners.rootOwner != null ||
+        persistedOwners.lppOwner != null ||
+        persistedOwners.taxOwner != null ||
+        requiresOwnerForLegacyLpp;
+    late final Map<String, dynamic> ownerPreparedAnswers;
+    String? ownerId;
+    var ownerAdded = false;
+    if (hasExistingOwnerAuthority) {
+      final prepared = _prepareCanonicalProfileOwnerForCombinedWriteLocked(
+        rawAnswers,
+      );
+      ownerId = prepared.ownerId;
+      ownerPreparedAnswers = prepared.answers;
+      ownerAdded = persistedOwners.rootOwner == null;
+    } else {
+      ownerPreparedAnswers = _copyAnswers(rawAnswers);
+    }
+
+    final taxMigration =
+        _withLegacyTaxQuarantine(ownerPreparedAnswers, now: _now);
+    final opaqueLppCleanup =
+        _withoutLoosePartnerLppBesideOpaqueRoot(taxMigration.answers);
+    final lppMigration = opaqueLppCleanup.answers.isEmpty
+        ? (answers: opaqueLppCleanup.answers, migrated: false)
+        : _withLegacySelfLppMigration(
+            opaqueLppCleanup.answers,
+            now: _now,
+            profileOwnerId: ownerId,
+          );
+    final fixedCostMigration =
+        _withCanonicalOtherFixedCostMigration(lppMigration.answers);
+    return (
+      answers: _copyAnswers(fixedCostMigration.answers),
+      ownerId: ownerId,
+      changed: ownerAdded ||
+          taxMigration.migrated ||
+          opaqueLppCleanup.migrated ||
+          lppMigration.migrated ||
+          fixedCostMigration.migrated,
+    );
+  }
+
+  Future<void> _publishColdProfileFromDurable({
+    required SessionEpochGuard sessionGuard,
+    required PartnerAccountabilityBinding? partnerAccountabilityBinding,
+    required bool isFullCompleted,
+    required bool isMiniCompleted,
+    required List<MonthlyCheckIn> checkIns,
+    required List<PlannedMonthlyContribution> contributions,
+    required int? previousScore,
+    required List<Map<String, dynamic>> scoreHistory,
+  }) =>
+      _inspectTaxAnswers(sessionGuard, (persisted) {
+        var answers = _copyAnswers(persisted);
+        String? ownerId;
+        try {
+          final owners = _persistedCanonicalOwners(answers);
+          ownerId = owners.rootOwner ?? owners.lppOwner ?? owners.taxOwner;
+        } on StateError {
+          answers = _withoutRejectedLedgerAuthority(answers);
+        }
+
+        final lppRoot = LppEvidenceRoot.fromJsonString(
+          answers[_lppEvidenceRootKey],
+        );
+        final manualPartner = lppRoot?.manualPartner;
+        _hasManualPartnerLppEvidence = manualPartner != null &&
+            (manualPartner.facts.isNotEmpty ||
+                manualPartner.independentFacts.isNotEmpty);
+        final bindingMatchesCurrentRoot = manualPartner != null &&
+            manualPartner.identityFacts.isNotEmpty &&
+            partnerAccountabilityBinding?.manualPartnerOwnerId ==
+                manualPartner.identityFacts.first.profileOwnerId &&
+            (partnerAccountabilityBinding?.state ==
+                    PartnerAccountabilityBindingState.pending ||
+                partnerAccountabilityBinding?.lppSnapshotId ==
+                    manualPartner.snapshotId);
+        final effectiveBinding =
+            bindingMatchesCurrentRoot ? partnerAccountabilityBinding : null;
+        if (!bindingMatchesCurrentRoot &&
+            _partnerLppAccountabilityBinding != null) {
+          _setPartnerLppAccountabilityBinding(null);
+        }
+
+        final hasScanData = answers.keys.any(
+          (key) => key.startsWith('_coach_') && key != coachProfileOwnerRootKey,
+        );
+        final hydrate = answers.isNotEmpty &&
+            (_usesInjectedTaxPersistence ||
+                isFullCompleted ||
+                isMiniCompleted ||
+                hasScanData);
+        final partial = hydrate && !isFullCompleted;
+        CoachProfile? nextProfile = hydrate
+            ? CoachProfile.fromWizardAnswers(
+                answers,
+                now: _now,
+                partnerAccountabilityBinding: effectiveBinding,
+                enforcePartnerAccountability: manualPartner != null,
+              )
+            : null;
+        if (!_usesInjectedTaxPersistence && nextProfile != null) {
+          if (checkIns.isNotEmpty) {
+            nextProfile = nextProfile.copyWithCheckIns(checkIns);
+          }
+          if (contributions.isNotEmpty) {
+            nextProfile = nextProfile.copyWithContributions(contributions);
+          }
+          _previousScore = previousScore;
+          _scoreHistory = scoreHistory;
+        }
+
+        _canonicalProfileOwnerId = ownerId;
+        _lastAnswers = _copyAnswers(answers);
+        _profile = nextProfile;
+        _isPartialProfile = nextProfile == null ? false : partial;
+        _isLoading = false;
+        _isLoaded = true;
+        _profileUpdatedSinceBudget = nextProfile != null;
+        notifyListeners();
+      });
+
+  Future<void> _loadFromWizard(SessionEpochGuard sessionGuard) async {
+    sessionGuard.assertCurrent();
     _isLoading = true;
+    _canonicalProfileOwnerId = null;
+    _stagedCanonicalProfileOwnerId = null;
     notifyListeners();
 
     try {
-      final loadedAnswers = await _taxProfilePersistence.loadAnswers();
-      final migration = _withLegacyTaxQuarantine(loadedAnswers, now: _now);
-      if (migration.migrated) {
-        await _taxProfilePersistence.saveAnswers(migration.answers);
+      late Map<String, dynamic> rawLoadedAnswers;
+      late ({
+        Map<String, dynamic> answers,
+        String? ownerId,
+        bool changed
+      }) preview;
+      try {
+        await _inspectTaxAnswers(sessionGuard, (persisted) {
+          rawLoadedAnswers = _copyAnswers(persisted);
+          preview = _prepareColdWizardAnswers(persisted);
+        });
+      } on StateError {
+        if (!_hasRejectedPersistedCanonicalAuthority(rawLoadedAnswers)) {
+          rethrow;
+        }
+        await _hydrateBaseProfileWithoutLedgerAuthority(sessionGuard);
+        return;
       }
-      final opaqueLppCleanup =
-          _withoutLoosePartnerLppBesideOpaqueRoot(migration.answers);
-      if (opaqueLppCleanup.migrated) {
-        await _taxProfilePersistence.saveAnswers(opaqueLppCleanup.answers);
+
+      late Map<String, dynamic> answers;
+      if (!preview.changed) {
+        answers = _copyAnswers(rawLoadedAnswers);
+      } else {
+        try {
+          answers = await _mutateTaxAnswers(
+            sessionGuard,
+            (current) {
+              final fresh = _prepareColdWizardAnswers(current);
+              return fresh.changed ? fresh.answers : null;
+            },
+          );
+        } on StateError {
+          await _hydrateBaseProfileWithoutLedgerAuthority(sessionGuard);
+          return;
+        }
       }
-      final lppMigration = _withLegacySelfLppMigration(
-        opaqueLppCleanup.answers,
-        now: _now,
-      );
-      if (lppMigration.migrated) {
-        await _lppProfilePersistence.saveAnswers(lppMigration.answers);
-      }
-      final otherFixedCostMigration =
-          _withCanonicalOtherFixedCostMigration(lppMigration.answers);
-      if (otherFixedCostMigration.migrated) {
-        await _taxProfilePersistence.saveAnswers(
-          otherFixedCostMigration.answers,
-        );
-      }
-      final answers = otherFixedCostMigration.answers;
+
       final partnerAccountabilityBinding =
-          await _reconcilePartnerAccountabilityOnColdLoad(answers);
-      // Reconciliation may purge partner certificate facts. Every strict
-      // external reader must observe that post-reconciliation root.
-      _lastAnswers = _copyAnswers(answers);
-      final enforcePartnerAccountability =
-          LppEvidenceRoot.fromJsonString(answers[_lppEvidenceRootKey])
-                  ?.manualPartner !=
-              null;
+          await _reconcilePartnerAccountabilityOnColdLoad(
+        answers,
+        sessionGuard,
+      );
+      sessionGuard.assertCurrent();
 
-      // Bounded tax consumers may inject a persistence boundary that has no
-      // dependency on Flutter platform bindings. Its
-      // non-empty payload is enough to hydrate a partial local profile; the
-      // full/mini onboarding completion flags and cross-feature merge remain
-      // owned by the default ReportPersistenceService path below.
-      if (_usesInjectedTaxPersistence) {
-        _profile = answers.isEmpty
-            ? null
-            : CoachProfile.fromWizardAnswers(
-                answers,
-                now: _now,
-                partnerAccountabilityBinding: partnerAccountabilityBinding,
-                enforcePartnerAccountability: enforcePartnerAccountability,
-              );
-        _isPartialProfile = _profile != null;
-        _isLoading = false;
-        _isLoaded = true;
-        _profileUpdatedSinceBudget = _profile != null;
-        notifyListeners();
-        return;
+      var isFullCompleted = false;
+      var isMiniCompleted = false;
+      var checkIns = const <MonthlyCheckIn>[];
+      var contributions = const <PlannedMonthlyContribution>[];
+      int? previousScore;
+      var scoreHistory = const <Map<String, dynamic>>[];
+      if (!_usesInjectedTaxPersistence) {
+        isFullCompleted = await ReportPersistenceService.isCompleted();
+        sessionGuard.assertCurrent();
+        isMiniCompleted =
+            await ReportPersistenceService.isMiniOnboardingCompleted();
+        sessionGuard.assertCurrent();
+        final persistedCheckIns = await ReportPersistenceService.loadCheckIns();
+        sessionGuard.assertCurrent();
+        checkIns = persistedCheckIns
+            .map((value) => MonthlyCheckIn.fromJson(value))
+            .toList(growable: false);
+        final persistedContributions =
+            await ReportPersistenceService.loadContributions();
+        sessionGuard.assertCurrent();
+        contributions = persistedContributions
+            .map((value) => PlannedMonthlyContribution.fromJson(value))
+            .toList(growable: false);
+        previousScore = await ReportPersistenceService.loadLastScore();
+        sessionGuard.assertCurrent();
+        scoreHistory = await ReportPersistenceService.loadScoreHistory();
+        sessionGuard.assertCurrent();
       }
 
-      // Check full wizard first.
-      final isFullCompleted = await ReportPersistenceService.isCompleted();
-      if (isFullCompleted && answers.isNotEmpty) {
-        _profile = CoachProfile.fromWizardAnswers(
-          answers,
-          now: _now,
-          partnerAccountabilityBinding: partnerAccountabilityBinding,
-          enforcePartnerAccountability: enforcePartnerAccountability,
-        );
-        _isPartialProfile = false;
-        await _mergePersistedData();
-        _isLoading = false;
-        _isLoaded = true;
-        _profileUpdatedSinceBudget = true;
-        notifyListeners();
-        return;
-      }
-
-      // Check mini-onboarding
-      final isMiniCompleted =
-          await ReportPersistenceService.isMiniOnboardingCompleted();
-      if (isMiniCompleted && answers.isNotEmpty) {
-        _profile = CoachProfile.fromWizardAnswers(
-          answers,
-          now: _now,
-          partnerAccountabilityBinding: partnerAccountabilityBinding,
-          enforcePartnerAccountability: enforcePartnerAccountability,
-        );
-        _isPartialProfile = true;
-        await _mergePersistedData();
-        _isLoading = false;
-        _isLoaded = true;
-        _profileUpdatedSinceBudget = true;
-        notifyListeners();
-        return;
-      }
-
-      // Scan-first onboarding: if a document scan has written fields to
-      // answers (via updateFrom*Extraction persisting `_coach_*` keys)
-      // without any wizard being completed, hydrate from those so the
-      // enriched profile survives app restart instead of being lost.
-      final hasScanData = answers.keys.any((k) => k.startsWith('_coach_'));
-      if (hasScanData && answers.isNotEmpty) {
-        _profile = CoachProfile.fromWizardAnswers(
-          answers,
-          now: _now,
-          partnerAccountabilityBinding: partnerAccountabilityBinding,
-          enforcePartnerAccountability: enforcePartnerAccountability,
-        );
-        _isPartialProfile = true;
-        await _mergePersistedData();
-        _isLoading = false;
-        _isLoaded = true;
-        _profileUpdatedSinceBudget = true;
-        notifyListeners();
-        return;
-      }
-
-      // No profile at all
-      _profile = null;
-      _isPartialProfile = false;
-    } catch (e) {
+      await _publishColdProfileFromDurable(
+        sessionGuard: sessionGuard,
+        partnerAccountabilityBinding: partnerAccountabilityBinding,
+        isFullCompleted: isFullCompleted,
+        isMiniCompleted: isMiniCompleted,
+        checkIns: checkIns,
+        contributions: contributions,
+        previousScore: previousScore,
+        scoreHistory: scoreHistory,
+      );
+    } on SessionEpochInvalidated {
+      return;
+    } catch (_) {
+      sessionGuard.assertCurrent();
       if (kDebugMode) {
-        debugPrint('Erreur chargement CoachProfile: $e');
+        debugPrint('[CoachProfile] Profile load failed');
       }
-      _profile = null;
-      _isPartialProfile = false;
+      // Do not publish a stale/null snapshot after a concurrent canonical
+      // writer. A fresh provider is already null; an existing one retains the
+      // last successfully published durable view.
+      _isLoading = false;
+      _isLoaded = true;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    _isLoaded = true;
-    notifyListeners();
-  }
-
-  /// Fusionne les donnees persistees (check-ins, contributions, score)
-  /// avec le profil fraichement construit depuis le wizard.
-  Future<void> _mergePersistedData() async {
-    if (_profile == null) return;
-
-    // Merge check-ins
-    final persistedCheckIns = await ReportPersistenceService.loadCheckIns();
-    if (persistedCheckIns.isNotEmpty) {
-      final checkIns =
-          persistedCheckIns.map((ci) => MonthlyCheckIn.fromJson(ci)).toList();
-      _profile = _profile!.copyWithCheckIns(checkIns);
-    }
-
-    // Merge contributions (si l'utilisateur les a modifies via check-in)
-    final persistedContribs =
-        await ReportPersistenceService.loadContributions();
-    if (persistedContribs.isNotEmpty) {
-      final contribs = persistedContribs
-          .map((c) => PlannedMonthlyContribution.fromJson(c))
-          .toList();
-      _profile = _profile!.copyWithContributions(contribs);
-    }
-
-    // Charger le score precedent pour le calcul de tendance
-    _previousScore = await ReportPersistenceService.loadLastScore();
-
-    // Charger l'historique des scores mensuels
-    _scoreHistory = await ReportPersistenceService.loadScoreHistory();
   }
 
   /// Updates the profile directly from an answers map.
   /// Used after wizard completion to avoid an async reload.
   void updateFromAnswers(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
+    _validateDateOfBirthAnswer(answers);
     _lastAnswers = _copyAnswers(answers);
     _profile = CoachProfile.fromWizardAnswers(answers);
     _isPartialProfile = false;
@@ -2055,98 +2882,429 @@ class CoachProfileProvider extends ChangeNotifier {
   Future<void> mergeAnswers(Map<String, dynamic> partial) =>
       mergeAnswersWithProvenance(partial);
 
+  /// Applies cloud profile values whose upstream provenance is unavailable.
+  ///
+  /// The values remain usable, but they must not inherit a local source or a
+  /// fresh timestamp merely because they were downloaded during this login.
+  Future<void> mergeBackendUnknownAnswers(
+    Map<String, dynamic> partial, {
+    SessionEpochGuard? sessionGuard,
+  }) async {
+    if (partial.isEmpty) return;
+    _validateDateOfBirthAnswer(partial);
+    final guard = sessionGuard ?? _sessionEpoch.capture();
+    guard.assertCurrent();
+    late CoachProfile publishedProfile;
+    var shouldPublish = true;
+    await _mutateTaxAnswers(
+      guard,
+      (current) {
+        final effectivePartial = <String, dynamic>{
+          for (final entry in partial.entries)
+            if (_isResolvedBackendAnswer(entry.key, entry.value) &&
+                !_hasResolvedLocalAnswer(current, entry.key))
+              entry.key: entry.value,
+        };
+        if (current.containsKey(_lppEvidenceRootKey)) {
+          effectivePartial.removeWhere(
+            (key, _) => _remoteLooseSelfLppAnswerKeys.contains(key),
+          );
+        }
+        final exactDateOfBirth =
+            _authoritativeExactDateOfBirthFromAnswers(current);
+        if (exactDateOfBirth != null &&
+            effectivePartial.containsKey('q_birth_year')) {
+          effectivePartial.remove('q_birth_year');
+        }
+        if (exactDateOfBirth != null &&
+            effectivePartial.isEmpty &&
+            _hasCoherentBirthAuthority(current, exactDateOfBirth)) {
+          publishedProfile = _rebuildCanonicalProfile(current);
+          return null;
+        }
+        if (effectivePartial.isEmpty) {
+          if (current.isEmpty && _profile == null) {
+            shouldPublish = false;
+            return null;
+          }
+          publishedProfile = _rebuildCanonicalProfile(current);
+          return null;
+        }
+        final next = Map<String, dynamic>.from(current)
+          ..addAll(effectivePartial);
+        if (exactDateOfBirth != null) {
+          next['q_birth_year'] = exactDateOfBirth.year;
+          _mirrorDateOfBirthAuthorityToBirthYear(next);
+          _updateBackendUnknownPaths(
+            next,
+            const {'birthYear'},
+            markUnknown: false,
+          );
+        }
+        final paths = _canonicalPathsForAnswers(effectivePartial);
+        _clearPersistedProvenancePaths(next, paths);
+        _updateBackendUnknownPaths(next, paths, markUnknown: true);
+        publishedProfile = _rebuildCanonicalProfile(next);
+        return next;
+      },
+      publish: (persisted) {
+        guard.assertCurrent();
+        if (!shouldPublish) return;
+        _lastAnswers = _copyAnswers(persisted);
+        _profile = publishedProfile;
+        _isLoaded = true;
+        _profileUpdatedSinceBudget = true;
+        CoachNarrativeService.invalidateCache(profile: _profile);
+        notifyListeners();
+      },
+    );
+  }
+
+  static const _remoteLooseSelfLppAnswerKeys = <String>{
+    '_coach_avoir_lpp',
+    '_coach_salaire_assure',
+    '_coach_rachat_maximum',
+  };
+
+  bool _isResolvedBackendAnswer(String key, Object? value) {
+    if (value == null || value == '__secure__') return false;
+    switch (key) {
+      case 'q_birth_year':
+        return _validRemoteBirthYear(value) != null;
+      case 'q_canton':
+        return _validRemoteCanton(value) != null;
+      case 'q_gender':
+        return value == 'M' || value == 'F';
+      case 'q_employment_status':
+        return _validRemoteEmployment(value) != null;
+      case 'q_pay_frequency':
+        return value == 'monthly';
+      case 'q_gross_salary_annual':
+      case 'q_net_income_period_chf':
+      case '_coach_avoir_lpp':
+      case '_coach_salaire_assure':
+      case '_coach_rachat_maximum':
+      case 'q_3a_total':
+        return _validRemoteAmount(value) != null;
+    }
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      return normalized.isNotEmpty && normalized != 'unknown';
+    }
+    if (value is num) return value.toDouble().isFinite;
+    if (value is bool) return true;
+    return value is List ? value.isNotEmpty : value is Map && value.isNotEmpty;
+  }
+
+  bool _hasResolvedLocalAnswer(
+    Map<String, dynamic> current,
+    String answerKey,
+  ) {
+    final paths = _answerProvenancePaths[answerKey] ?? const <String>[];
+    for (final envelopeKey in const <String>{
+      '__provenance',
+      '_coach_data_sources',
+    }) {
+      final envelope = current[envelopeKey];
+      if (envelope is Map && paths.any(envelope.containsKey)) return true;
+    }
+    if (paths.isEmpty) {
+      return _isResolvedLocalAnswer(answerKey, current[answerKey]);
+    }
+    final rawUnknown = current[coachBackendUnknownPathsKey];
+    final unknownPaths = rawUnknown is List
+        ? rawUnknown.whereType<String>().toSet()
+        : const <String>{};
+    for (final path in paths) {
+      if (unknownPaths.contains(path)) continue;
+      for (final entry in _answerProvenancePaths.entries) {
+        if (!entry.value.contains(path)) continue;
+        if (_isResolvedLocalAnswer(entry.key, current[entry.key])) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool _isResolvedLocalAnswer(String key, Object? value) {
+    if (value == null || value == '__secure__') return false;
+    switch (key) {
+      case 'q_birth_year':
+        return _validRemoteBirthYear(value) != null;
+      case 'q_canton':
+        return _validRemoteCanton(value) != null;
+      case 'q_gender':
+        return value == 'M' || value == 'F';
+      case 'q_employment_status':
+        return _validRemoteEmployment(value) != null;
+      case 'q_pay_frequency':
+        return value == 'monthly' || value == 'yearly' || value == 'annuel';
+    }
+    if (value is num) return value.toDouble().isFinite;
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      return normalized.isNotEmpty && normalized != 'unknown';
+    }
+    if (value is bool) return true;
+    return value is List ? value.isNotEmpty : value is Map && value.isNotEmpty;
+  }
+
+  CoachProfile _rebuildCanonicalProfile(Map<String, dynamic> answers) {
+    final hasManualPartnerRoot = LppEvidenceRoot.fromJsonString(
+          answers[_lppEvidenceRootKey],
+        )?.manualPartner !=
+        null;
+    final rebuilt = CoachProfile.fromWizardAnswers(
+      answers,
+      now: _now,
+      partnerAccountabilityBinding: _partnerLppAccountabilityBinding,
+      enforcePartnerAccountability: hasManualPartnerRoot,
+    );
+    final current = _profile;
+    if (current == null) return rebuilt;
+    return rebuilt.copyWith(
+      checkIns: current.checkIns,
+      plannedContributions: current.plannedContributions,
+      initialProjectionSnapshot: current.initialProjectionSnapshot,
+    );
+  }
+
+  static DateTime? _authoritativeExactDateOfBirthFromAnswers(
+    Map<String, dynamic> answers,
+  ) {
+    final rawDate = answers['q_date_of_birth'];
+    if (rawDate is! String) return null;
+    final parsed = SwissCivilTime.parseCanonicalCivilDate(rawDate);
+    if (parsed == null) return null;
+    final rawProvenance = answers['__provenance'];
+    if (rawProvenance is! Map) return null;
+    final envelope = rawProvenance['dateOfBirth'];
+    if (envelope is! Map) return null;
+    final source = envelope['source'];
+    if (source != ProfileDataSource.userInput.name &&
+        source != ProfileDataSource.certificate.name &&
+        source != ProfileDataSource.crossValidated.name) {
+      return null;
+    }
+    return parsed;
+  }
+
+  static void _mirrorDateOfBirthAuthorityToBirthYear(
+    Map<String, dynamic> answers,
+  ) {
+    for (final envelopeKey in const <String>{
+      '__provenance',
+      '_coach_data_sources',
+      '_coach_data_timestamps',
+      '_coach_data_source_dates',
+    }) {
+      final raw = answers[envelopeKey];
+      if (raw is! Map || !raw.containsKey('dateOfBirth')) continue;
+      answers[envelopeKey] = <String, dynamic>{
+        for (final entry in raw.entries)
+          entry.key.toString(): _copyAnswerValue(entry.value),
+        'birthYear': _copyAnswerValue(raw['dateOfBirth']),
+      };
+    }
+  }
+
+  static bool _hasCoherentBirthAuthority(
+    Map<String, dynamic> answers,
+    DateTime dateOfBirth,
+  ) {
+    final rawBirthYear = answers['q_birth_year'];
+    if (rawBirthYear is! num || rawBirthYear.toInt() != dateOfBirth.year) {
+      return false;
+    }
+    final rawProvenance = answers['__provenance'];
+    if (rawProvenance is! Map) return false;
+    final dateEnvelope = rawProvenance['dateOfBirth'];
+    final yearEnvelope = rawProvenance['birthYear'];
+    if (dateEnvelope is! Map || yearEnvelope is! Map) return false;
+    if (!mapEquals(
+      Map<String, dynamic>.from(dateEnvelope),
+      Map<String, dynamic>.from(yearEnvelope),
+    )) {
+      return false;
+    }
+    final rawUnknown = answers[coachBackendUnknownPathsKey];
+    return rawUnknown is! List || !rawUnknown.contains('birthYear');
+  }
+
+  static void _clearPersistedProvenancePaths(
+    Map<String, dynamic> answers,
+    Set<String> paths,
+  ) {
+    for (final envelopeKey in const <String>{
+      '__provenance',
+      '_coach_data_sources',
+      '_coach_data_timestamps',
+      '_coach_data_source_dates',
+    }) {
+      final raw = answers[envelopeKey];
+      if (raw is! Map) continue;
+      final cleaned = Map<String, dynamic>.from(raw)
+        ..removeWhere((path, _) => paths.contains(path));
+      if (cleaned.isEmpty) {
+        answers.remove(envelopeKey);
+      } else {
+        answers[envelopeKey] = cleaned;
+      }
+    }
+  }
+
+  static void _updateBackendUnknownPaths(
+    Map<String, dynamic> answers,
+    Set<String> paths, {
+    required bool markUnknown,
+  }) {
+    final raw = answers[coachBackendUnknownPathsKey];
+    final unknown = raw is List ? raw.whereType<String>().toSet() : <String>{};
+    if (markUnknown) {
+      unknown.addAll(paths);
+    } else {
+      unknown.removeAll(paths);
+    }
+    if (unknown.isEmpty) {
+      answers.remove(coachBackendUnknownPathsKey);
+    } else {
+      answers[coachBackendUnknownPathsKey] = unknown.toList()..sort();
+    }
+  }
+
+  void _validateDateOfBirthAnswer(Map<String, dynamic> answers) {
+    if (!answers.containsKey('q_date_of_birth')) return;
+    final raw = answers['q_date_of_birth'];
+    if (raw == null) return;
+    final parsed =
+        raw is String ? SwissCivilTime.parseCanonicalCivilDate(raw) : null;
+    if (parsed == null ||
+        !SwissCivilTime.isSupportedAdultBirthDate(parsed, now: _now())) {
+      throw ArgumentError.value(
+        raw,
+        'q_date_of_birth',
+        'canonical supported adult YYYY-MM-DD required',
+      );
+    }
+  }
+
   /// Merge answers while explicitly recording their origin metadata.
   Future<void> mergeAnswersWithProvenance(
     Map<String, dynamic> partial, {
     ProfileDataSource source = ProfileDataSource.userInput,
     DateTime? sourceDate,
+    SessionEpochGuard? sessionGuard,
   }) async {
     if (partial.isEmpty) return;
-    // Deep-walk crack #15: always re-read the on-disk answers before
-    // merging. `_lastAnswers` is populated at startup by loadFromWizard
-    // but updateFrom*Extraction / budget setup / regex fallback each
-    // load+save independently. If mergeAnswers relied on the stale
-    // in-memory copy, a budget setup that ran after a scan would build
-    // `merged` from {} + {q_housing, q_lamal} and overwrite the persisted
-    // `_coach_avoir_lpp` on disk — card Patrimoine would go empty right
-    // after the card Budget populated. Read-then-merge-then-save is the
-    // only crash-safe discipline.
-    final current = await ReportPersistenceService.loadAnswers();
-    final normalizedPartial = Map<String, dynamic>.from(
-      _withExplicitCashAnswerSource(partial, source: source),
-    );
-    if (normalizedPartial.containsKey('_coach_depenses_autres')) {
-      normalizedPartial.putIfAbsent(
-        'q_other_fixed_costs_monthly_chf',
-        () => normalizedPartial['_coach_depenses_autres'],
-      );
-      normalizedPartial.remove('_coach_depenses_autres');
-    }
-    final merged = Map<String, dynamic>.from(current)
-      ..addAll(normalizedPartial);
-    if (normalizedPartial.containsKey('q_other_fixed_costs_monthly_chf')) {
-      merged.remove('_coach_depenses_autres');
-    }
-    final clearsPartner = _setsNonCoupledCivilStatus(partial);
-    if (clearsPartner) {
-      _clearPartnerAnswers(merged);
-    }
-
-    final stamp = DateTime.now();
-    final persistedProfile = CoachProfile.fromWizardAnswers(current);
-    final requestedClears = _clearedCanonicalPathsForAnswers(
-      normalizedPartial,
-    );
-    if (clearsPartner) {
-      requestedClears.addAll(
-        persistedProfile.dataSources.keys.where(
-          (path) => path.startsWith('conjoint.'),
-        ),
+    _validateDateOfBirthAnswer(partial);
+    if (sourceDate != null &&
+        SwissCivilTime.isFutureCivilDate(sourceDate, now: _now())) {
+      throw ArgumentError.value(
+        sourceDate,
+        'sourceDate',
+        'future Swiss civil dates cannot enter the ledger',
       );
     }
-    final requestedStamps = _canonicalPathsForAnswers(normalizedPartial);
-    final resolvedProfile = CoachProfile.fromWizardAnswers(merged);
-    final touchedPaths = <String>{...requestedStamps, ...requestedClears};
-    final clearedFieldPaths = touchedPaths
-        .where((path) => _resolvedCanonicalValue(resolvedProfile, path) == null)
-        .toSet();
-    final stampedFieldPaths = requestedStamps
-        .where((path) => _resolvedCanonicalValue(resolvedProfile, path) != null)
-        .toSet();
-    final legacyAvsEstimatePaths = <String>{
-      if (normalizedPartial['_coach_avs_rente_estimee'] != null)
-        'prevoyance.renteAVSEstimeeMensuelle',
-      if (normalizedPartial['_coach_avs_ramd'] != null) 'prevoyance.ramd',
-    };
-    stampedFieldPaths.removeAll(legacyAvsEstimatePaths);
-    var profileWithProvenance = _withStampedProvenance(
-      persistedProfile,
-      stampedFieldPaths,
-      source: source,
-      sourceDate: sourceDate,
-      updatedAt: stamp,
-      clearedFieldPaths: clearedFieldPaths,
-    );
-    profileWithProvenance = _withStampedProvenance(
-      profileWithProvenance,
-      legacyAvsEstimatePaths,
-      source: ProfileDataSource.estimated,
-      sourceDate: null,
-      updatedAt: stamp,
-    );
-    _persistTimestamps(merged, profileWithProvenance.dataTimestamps);
-    _persistProvenance(merged, profileWithProvenance);
+    final guard = sessionGuard ?? _sessionEpoch.capture();
+    guard.assertCurrent();
+    late CoachProfile publishedProfile;
+    await _mutateTaxAnswers(
+      guard,
+      (current) {
+        guard.assertCurrent();
+        _validateDateOfBirthAnswer(partial);
+        final normalizedPartial = Map<String, dynamic>.from(
+          _withExplicitCashAnswerSource(partial, source: source),
+        );
+        if (normalizedPartial['q_avs_lacunes_status'] == 'unknown') {
+          final currentStatus = current['q_avs_lacunes_status'];
+          if (currentStatus == 'arrived_late' ||
+              currentStatus == 'lived_abroad') {
+            normalizedPartial['q_avs_lacunes_status'] = currentStatus;
+          }
+        }
+        if (normalizedPartial.containsKey('_coach_depenses_autres')) {
+          normalizedPartial.putIfAbsent(
+            'q_other_fixed_costs_monthly_chf',
+            () => normalizedPartial['_coach_depenses_autres'],
+          );
+          normalizedPartial.remove('_coach_depenses_autres');
+        }
+        final merged = Map<String, dynamic>.from(current)
+          ..addAll(normalizedPartial);
+        if (normalizedPartial.containsKey('q_other_fixed_costs_monthly_chf')) {
+          merged.remove('_coach_depenses_autres');
+        }
+        final clearsPartner = _setsNonCoupledCivilStatus(partial);
+        if (clearsPartner) _clearPartnerAnswers(merged);
 
-    final nextProfile = CoachProfile.fromWizardAnswers(merged);
-    await ReportPersistenceService.saveAnswers(merged);
-
-    _lastAnswers = _copyAnswers(merged);
-    _profile = nextProfile;
-    _isLoaded = true;
-    _profileUpdatedSinceBudget = true;
-    CoachNarrativeService.invalidateCache(profile: _profile);
-    notifyListeners();
-    _syncToBackend(); // Fire-and-forget, does not block UI
+        final stamp = _now();
+        final persistedProfile = CoachProfile.fromWizardAnswers(current);
+        final requestedClears = _clearedCanonicalPathsForAnswers(
+          normalizedPartial,
+        );
+        if (clearsPartner) {
+          requestedClears.addAll(
+            persistedProfile.dataSources.keys.where(
+              (path) => path.startsWith('conjoint.'),
+            ),
+          );
+        }
+        final requestedStamps = _canonicalPathsForAnswers(normalizedPartial);
+        final resolvedProfile = CoachProfile.fromWizardAnswers(merged);
+        final touchedPaths = <String>{...requestedStamps, ...requestedClears};
+        _updateBackendUnknownPaths(
+          merged,
+          touchedPaths,
+          markUnknown: false,
+        );
+        final clearedFieldPaths = touchedPaths
+            .where(
+              (path) => _resolvedCanonicalValue(resolvedProfile, path) == null,
+            )
+            .toSet();
+        final stampedFieldPaths = requestedStamps
+            .where(
+              (path) => _resolvedCanonicalValue(resolvedProfile, path) != null,
+            )
+            .toSet();
+        final legacyAvsEstimatePaths = <String>{
+          if (normalizedPartial['_coach_avs_rente_estimee'] != null)
+            'prevoyance.renteAVSEstimeeMensuelle',
+          if (normalizedPartial['_coach_avs_ramd'] != null) 'prevoyance.ramd',
+        };
+        stampedFieldPaths.removeAll(legacyAvsEstimatePaths);
+        var profileWithProvenance = _withStampedProvenance(
+          persistedProfile,
+          stampedFieldPaths,
+          source: source,
+          sourceDate: sourceDate,
+          updatedAt: stamp,
+          clearedFieldPaths: clearedFieldPaths,
+        );
+        profileWithProvenance = _withStampedProvenance(
+          profileWithProvenance,
+          legacyAvsEstimatePaths,
+          source: ProfileDataSource.estimated,
+          sourceDate: null,
+          updatedAt: stamp,
+        );
+        _persistTimestamps(merged, profileWithProvenance.dataTimestamps);
+        _persistProvenance(merged, profileWithProvenance);
+        publishedProfile = _rebuildCanonicalProfile(merged);
+        return merged;
+      },
+      publish: (persisted) {
+        guard.assertCurrent();
+        _lastAnswers = _copyAnswers(persisted);
+        _profile = publishedProfile;
+        _isLoaded = true;
+        _profileUpdatedSinceBudget = true;
+        CoachNarrativeService.invalidateCache(profile: _profile);
+        notifyListeners();
+      },
+    );
   }
 
   /// Apply a `save_fact` tool call locally.
@@ -2176,18 +3334,6 @@ class CoachProfileProvider extends ChangeNotifier {
     if (confidence == 'low') return false; // mirror backend skip
     final mapped = _mapFactKeyToAnswers(factKey, factValue);
     if (mapped.isEmpty) return false;
-    if (factKey == 'hasAvsGaps' && _asBool(factValue) == true) {
-      final current = await ReportPersistenceService.loadAnswers();
-      final currentStatus = current['q_avs_lacunes_status'];
-      if (currentStatus == 'arrived_late' || currentStatus == 'lived_abroad') {
-        await mergeAnswersWithProvenance(
-          {'q_avs_lacunes_status': currentStatus},
-          source: source,
-          sourceDate: sourceDate,
-        );
-        return true;
-      }
-    }
     await mergeAnswersWithProvenance(
       mapped,
       source: source,
@@ -2431,6 +3577,7 @@ class CoachProfileProvider extends ChangeNotifier {
     /// When 'G', archetype is forced to cross_border.
     String? permitType,
   }) async {
+    final sessionGuard = _sessionEpoch.capture();
     // P0-9: Clamp salary to valid bounds before any computation.
     final clampedGrossSalary = grossSalary.clamp(0, 10000000).toDouble();
 
@@ -2438,9 +3585,9 @@ class CoachProfileProvider extends ChangeNotifier {
     // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
     // fromWizardAnswers() reconvertit net → brut via / (1 - 0.13),
     // ce qui préserve le salaire brut original.
-    const double socialChargesRate =
-        IncomeConversionCalculator.fallbackSwissSocialChargesRate;
-    final netMonthly = (clampedGrossSalary / 12) * (1 - socialChargesRate);
+    final netMonthly = IncomeConversionCalculator.monthlyNetFromAnnualGross(
+      clampedGrossSalary,
+    );
     final birthYear = DateTime.now().year - age;
     final effectiveEmployment = employmentStatus ?? 'salarie';
 
@@ -2496,13 +3643,6 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['q_avs_arrival_year'] = arrivalYear;
     }
 
-    _lastAnswers = _copyAnswers(answers);
-    _profile = CoachProfile.fromWizardAnswers(answers);
-    // Inject firstName immediately if provided — not part of wizard answers map.
-    if (firstName != null && firstName.isNotEmpty) {
-      _profile = _profile!.copyWith(firstName: firstName);
-    }
-
     // S47: Stamp initial timestamps for all fields populated by onboarding.
     // Stamp only fields actually populated by onboarding. Missing AVS pension
     // and contribution years deliberately receive no timestamp.
@@ -2514,134 +3654,38 @@ class CoachProfileProvider extends ChangeNotifier {
       'prevoyance.avoirLppTotal',
       'prevoyance.totalEpargne3a',
     ];
-    _profile = _profile!.copyWith(
-      dataTimestamps: _stampTimestamps(
-        _profile!.dataTimestamps,
-        initialFields,
-      ),
-    );
-
-    // S47-fix: Persist timestamps so they survive app restart
-    _persistTimestamps(answers, _profile!.dataTimestamps);
-
-    _isPartialProfile = true;
-    _isLoaded = true;
-    _profileUpdatedSinceBudget = true;
-
-    // Persist BEFORE notify so downstream listeners see consistent state
-    await ReportPersistenceService.saveAnswers(answers);
-    await ReportPersistenceService.setMiniOnboardingCompleted(true);
-    notifyListeners();
-    _syncToBackend(); // Fire-and-forget, does not block UI
-  }
-
-  /// Create a NEW local CoachProfile from backend data when no local profile
-  /// exists (Scenario B: backend-only user, no wizard completed).
-  ///
-  /// Called when auth is logged in, local profile is null, but GET /profiles/me
-  /// returns data. Creates a minimal partial profile so the user is not stuck
-  /// in onboarding redirect.
-  void createFromRemoteProfile(Map<String, dynamic> remote) {
-    if (_profile != null) {
-      return; // Already has local profile, use merge instead
-    }
-
-    final birthYear =
-        remote['birth_year'] as int? ?? remote['birthYear'] as int?;
-    final canton = remote['canton'] as String?;
-    final grossYearly = (remote['income_gross_yearly'] as num?)?.toDouble() ??
-        (remote['incomeGrossYearly'] as num?)?.toDouble();
-    final gender = remote['gender'] as String?;
-    final employmentStatus = remote['employment_status'] as String? ??
-        remote['employmentStatus'] as String?;
-
-    // Only create if we have at least one meaningful field from backend
-    if (birthYear == null && canton == null && grossYearly == null) {
-      return;
-    }
-
-    // P0-9: Clamp remote salary to valid bounds.
-    final clampedGrossYearly = grossYearly?.clamp(0, 10000000).toDouble();
-    final salaireBrutMensuel =
-        clampedGrossYearly != null ? clampedGrossYearly / 12 : 0.0;
-    // Use actual birthYear if available; fallback = current year - 40
-    // but mark profile as partial so wizard completion is triggered.
-    final effectiveBirthYear = birthYear ?? (DateTime.now().year - 40);
-    final isPartialAge = birthYear == null;
-
-    _profile = CoachProfile(
-      birthYear: effectiveBirthYear,
-      canton: canton ?? '',
-      salaireBrutMensuel: salaireBrutMensuel,
-      gender: gender,
-      employmentStatus: employmentStatus ?? 'salarie',
-      goalA: GoalA(
-        type: GoalAType.retraite,
-        // If birthYear is estimated, use a conservative target (don't assume 65)
-        targetDate: isPartialAge
-            ? DateTime(DateTime.now().year + 20) // Generic "20 years from now"
-            : DateTime(effectiveBirthYear + 65),
-        label: 'Retraite',
-      ),
-    );
-    _isPartialProfile = _isPartialProfile || isPartialAge;
-    _isPartialProfile = true;
-    _isLoaded = true;
-    _profileUpdatedSinceBudget = true;
-    notifyListeners();
-  }
-
-  /// Merge remote profile data from backend GET /profiles/me.
-  ///
-  /// Best-effort: fills in fields that are null locally but present in
-  /// the remote profile. Does NOT overwrite local data with remote data.
-  /// This ensures wizard/chat-captured data takes priority.
-  void mergeFromRemoteProfile(Map<String, dynamic> remoteData) {
-    if (_profile == null) return;
-    final p = _profile!;
-
-    // Only merge fields where local is null/zero and remote has a value.
-    final updates = <String, dynamic>{};
-
-    if (p.birthYear == 0 && remoteData['birthYear'] != null) {
-      updates['birthYear'] = remoteData['birthYear'];
-    }
-    if ((p.canton.isEmpty || p.canton == 'unknown') &&
-        remoteData['canton'] != null) {
-      updates['canton'] = remoteData['canton'] as String?;
-    }
-    if (p.gender == null && remoteData['gender'] != null) {
-      updates['gender'] = remoteData['gender'] as String?;
-    }
-    if (p.salaireBrutMensuel <= 0) {
-      final grossYearly = (remoteData['incomeGrossYearly'] as num?)?.toDouble();
-      if (grossYearly != null && grossYearly > 0) {
-        updates['salaireBrutMensuel'] = grossYearly / 12;
-      }
-    }
-    if (p.employmentStatus.isEmpty && remoteData['employmentStatus'] != null) {
-      updates['employmentStatus'] = remoteData['employmentStatus'] as String?;
-    }
-
-    if (updates.isEmpty) return;
-
-    // Apply updates via copyWith
-    _profile = p.copyWith(
-      birthYear:
-          updates.containsKey('birthYear') ? updates['birthYear'] as int : null,
-      canton:
-          updates.containsKey('canton') ? updates['canton'] as String? : null,
-      gender:
-          updates.containsKey('gender') ? updates['gender'] as String? : null,
-      salaireBrutMensuel: updates.containsKey('salaireBrutMensuel')
-          ? updates['salaireBrutMensuel'] as double
-          : null,
-      employmentStatus: updates.containsKey('employmentStatus')
-          ? updates['employmentStatus'] as String?
-          : null,
-    );
-    _profileUpdatedSinceBudget = true;
-    notifyListeners();
+    late CoachProfile publishedProfile;
+    await _sessionEpoch.runGuardedPersistence(sessionGuard, () async {
+      await ReportPersistenceService.mutateAnswers(
+        (current) {
+          sessionGuard.assertCurrent();
+          final next = Map<String, dynamic>.from(current)..addAll(answers);
+          var nextProfile = CoachProfile.fromWizardAnswers(next);
+          if (firstName != null && firstName.isNotEmpty) {
+            nextProfile = nextProfile.copyWith(firstName: firstName);
+          }
+          nextProfile = nextProfile.copyWith(
+            dataTimestamps: _stampTimestamps(
+              nextProfile.dataTimestamps,
+              initialFields,
+            ),
+          );
+          _persistTimestamps(next, nextProfile.dataTimestamps);
+          publishedProfile = nextProfile;
+          return next;
+        },
+        publish: (persisted) {
+          sessionGuard.assertCurrent();
+          _lastAnswers = _copyAnswers(persisted);
+          _profile = publishedProfile;
+          _isPartialProfile = true;
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        },
+      );
+      await ReportPersistenceService.setMiniOnboardingCompleted(true);
+    });
   }
 
   /// Phase 12-01 — Optimistic update of [CoachProfile.voiceCursorPreference].
@@ -2663,6 +3707,7 @@ class CoachProfileProvider extends ChangeNotifier {
     final current = _profile;
     if (current == null) return false;
     if (current.voiceCursorPreference == next) return true;
+    final sessionGuard = _sessionEpoch.capture();
 
     final previous = current.voiceCursorPreference;
 
@@ -2672,6 +3717,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // Default sync = no-op success (Plan 12-04 will wire real PATCH).
     final ok = remoteSync == null ? true : await remoteSync(next);
+    sessionGuard.assertCurrent();
 
     if (!ok) {
       // Rollback.
@@ -2685,13 +3731,33 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// Replace the current profile with an updated one and persist via answers.
   void updateProfile(CoachProfile updated) {
-    final normalized = _withExplicitCashMarkerFromSource(updated);
+    final identityNormalized = _withCoherentBirthAuthority(updated);
+    final dateOfBirth = identityNormalized.dateOfBirth;
+    if (dateOfBirth != null &&
+        !SwissCivilTime.isSupportedAdultBirthDate(
+          dateOfBirth,
+          now: _now(),
+        )) {
+      throw ArgumentError.value(
+        dateOfBirth,
+        'dateOfBirth',
+        'supported adult Swiss civil date required',
+      );
+    }
+    final sessionGuard = _sessionEpoch.capture();
+    final normalized = _withExplicitCashMarkerFromSource(identityNormalized);
     final previousStatus = _profile?.etatCivil;
     _profile = normalized;
     _profileUpdatedSinceBudget = true;
     notifyListeners();
     // FIX-045: Persist ALL profile fields.
-    _persistFullProfile(normalized);
+    unawaited(
+      _persistFullProfile(normalized, sessionGuard).catchError((Object e) {
+        if (e is! SessionEpochInvalidated) {
+          debugPrint('[CoachProfileProvider] Profile persistence failed');
+        }
+      }),
+    );
     // FIX-HIGH-1: Invalidate coach cache on profile change (was never called).
     CoachCacheService.invalidate(InvalidationTrigger.profileUpdate);
     // Also invalidate daily narrative cache so greeting / topTip / scenarios
@@ -2699,13 +3765,19 @@ class CoachProfileProvider extends ChangeNotifier {
     CoachNarrativeService.invalidateCache(profile: normalized);
     // FIX-HIGH-2: Invalidate CapMemory on significant profile change
     // to prevent stale caps from being re-served.
-    CapMemoryStore.load().then((mem) {
-      CapMemoryStore.save(mem.copyWith(
-        lastCapServed: null,
-        lastCapDate: null,
-      ));
+    CapMemoryStore.load().then((mem) async {
+      sessionGuard.assertCurrent();
+      await _sessionEpoch.runGuardedPersistence(
+        sessionGuard,
+        () => CapMemoryStore.save(mem.copyWith(
+          lastCapServed: null,
+          lastCapDate: null,
+        )),
+      );
     }).catchError((Object e) {
-      debugPrint('[CoachProfileProvider] CapMemory invalidation failed: $e');
+      if (e is! SessionEpochInvalidated) {
+        debugPrint('[CoachProfileProvider] CapMemory invalidation failed');
+      }
     });
     // FIX-097: If civil status changed to non-coupled, dissolve household.
     if (previousStatus != null &&
@@ -2715,8 +3787,53 @@ class CoachProfileProvider extends ChangeNotifier {
       // Clear local household cache after separation. Partner answers are
       // cleared by _persistFullProfile() based on civil status, so this
       // fire-and-forget cache cleanup cannot resurrect a ghost conjoint.
-      _clearHouseholdCacheAfterSeparation();
+      unawaited(_clearHouseholdCacheAfterSeparation(sessionGuard));
     }
+  }
+
+  CoachProfile _withCoherentBirthAuthority(CoachProfile profile) {
+    final dateOfBirth = profile.dateOfBirth;
+    final sources = Map<String, ProfileDataSource>.from(profile.dataSources);
+    final timestamps = Map<String, DateTime>.from(profile.dataTimestamps);
+    if (dateOfBirth == null) {
+      sources.remove('dateOfBirth');
+      timestamps.remove('dateOfBirth');
+      if (mapEquals(sources, profile.dataSources) &&
+          mapEquals(timestamps, profile.dataTimestamps)) {
+        return profile;
+      }
+      return profile.copyWith(
+        dataSources: sources,
+        dataTimestamps: timestamps,
+      );
+    }
+
+    final source = sources['dateOfBirth'] ?? sources['birthYear'];
+    final updatedAt = timestamps['dateOfBirth'] ?? timestamps['birthYear'];
+    sources
+      ..remove('dateOfBirth')
+      ..remove('birthYear');
+    timestamps
+      ..remove('dateOfBirth')
+      ..remove('birthYear');
+    if (source != null) {
+      sources['dateOfBirth'] = source;
+      sources['birthYear'] = source;
+    }
+    if (updatedAt != null) {
+      timestamps['dateOfBirth'] = updatedAt;
+      timestamps['birthYear'] = updatedAt;
+    }
+    if (profile.birthYear == dateOfBirth.year &&
+        mapEquals(sources, profile.dataSources) &&
+        mapEquals(timestamps, profile.dataTimestamps)) {
+      return profile;
+    }
+    return profile.copyWith(
+      birthYear: dateOfBirth.year,
+      dataSources: sources,
+      dataTimestamps: timestamps,
+    );
   }
 
   bool _isExplicitCashSource(ProfileDataSource? source) =>
@@ -2757,10 +3874,17 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   /// Best-effort separation cleanup for the legacy household cache.
-  Future<void> _clearHouseholdCacheAfterSeparation() async {
+  Future<void> _clearHouseholdCacheAfterSeparation(
+    SessionEpochGuard sessionGuard,
+  ) async {
     try {
       final sp = await SharedPreferences.getInstance();
-      await sp.remove('_household_data');
+      await _sessionEpoch.runGuardedPersistence(
+        sessionGuard,
+        () => sp.remove('_household_data'),
+      );
+    } on SessionEpochInvalidated {
+      return;
     } catch (_) {
       // Best-effort: SharedPreferences failure is non-fatal.
     }
@@ -2808,141 +3932,197 @@ class CoachProfileProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _persistFullProfile(CoachProfile profile) async {
-    final answers = await ReportPersistenceService.loadAnswers();
-    // Core fields
-    if (profile.canton.isNotEmpty) answers['q_canton'] = profile.canton;
-    if (profile.commune != null && profile.commune!.isNotEmpty) {
-      answers['q_commune'] = profile.commune;
-    }
-    if (profile.gender != null && profile.gender!.isNotEmpty) {
-      answers['q_gender'] = profile.gender;
-    }
-    // FIX-096: Persist etatCivil (divorce was lost on restart).
-    answers['q_civil_status'] = profile.civilStatusNeedsConfirmation
-        ? (profile.civilStatusRawValue ?? 'partenariat')
-        : profile.etatCivil.name;
-    answers['q_salaire'] = profile.salaireBrutMensuel;
-    answers['q_nombre_mois'] = profile.nombreDeMois;
-    final grossAnnual = IncomeConversionCalculator.annualGrossFromMonthly(
-      monthlyGross: profile.salaireBrutMensuel,
-      months: profile.nombreDeMois,
+  Future<void> _persistFullProfile(
+    CoachProfile profile,
+    SessionEpochGuard sessionGuard,
+  ) async {
+    late CoachProfile publishedProfile;
+    await _mutateTaxAnswers(
+      sessionGuard,
+      (current) {
+        sessionGuard.assertCurrent();
+        final answers = Map<String, dynamic>.from(current);
+        // Core fields
+        final dateOfBirth = profile.dateOfBirth;
+        if (dateOfBirth != null) {
+          answers['q_date_of_birth'] =
+              '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+              '${dateOfBirth.month.toString().padLeft(2, '0')}-'
+              '${dateOfBirth.day.toString().padLeft(2, '0')}';
+          answers['q_birth_year'] = dateOfBirth.year;
+        } else {
+          answers.remove('q_date_of_birth');
+          if (profile.birthYear > 0) {
+            answers['q_birth_year'] = profile.birthYear;
+          } else {
+            answers.remove('q_birth_year');
+          }
+        }
+        if (profile.canton.isNotEmpty) answers['q_canton'] = profile.canton;
+        if (profile.commune != null && profile.commune!.isNotEmpty) {
+          answers['q_commune'] = profile.commune;
+        }
+        if (profile.gender != null && profile.gender!.isNotEmpty) {
+          answers['q_gender'] = profile.gender;
+        }
+        // FIX-096: Persist etatCivil (divorce was lost on restart).
+        answers['q_civil_status'] = profile.civilStatusNeedsConfirmation
+            ? (profile.civilStatusRawValue ?? 'partenariat')
+            : profile.etatCivil.name;
+        answers['q_salaire'] = profile.salaireBrutMensuel;
+        answers['q_nombre_mois'] = profile.nombreDeMois;
+        final grossAnnual = IncomeConversionCalculator.annualGrossFromMonthly(
+          monthlyGross: profile.salaireBrutMensuel,
+          months: profile.nombreDeMois,
+        );
+        answers['q_gross_salary_annual'] = grossAnnual;
+        if (grossAnnual > 0 && profile.bonusPourcentage != null) {
+          answers['q_annual_bonus'] =
+              IncomeConversionCalculator.annualBonusFromPercentage(
+            annualGross: grossAnnual,
+            bonusPercentage: profile.bonusPourcentage!,
+          );
+        } else {
+          answers.remove('q_annual_bonus');
+        }
+        if (profile.employmentRate !=
+            IncomeConversionCalculator.fullTimeEmploymentRatePercent) {
+          answers['q_employment_rate'] = profile.employmentRate;
+        } else {
+          answers.remove('q_employment_rate');
+        }
+        if (profile.employmentStatus.isNotEmpty) {
+          answers['q_employment_status'] = profile.employmentStatus;
+        }
+        if (profile.selfEmployedNetIncome != null) {
+          answers['q_self_employed_income'] = profile.selfEmployedNetIncome;
+          answers['q_net_income_period_chf'] = profile.selfEmployedNetIncome;
+          answers['q_pay_frequency'] = 'yearly';
+        }
+        if (profile.companyProfitAnnual != null) {
+          answers['q_company_profit_annual_chf'] = profile.companyProfitAnnual;
+        }
+        final hasExplicitConsumerDebtPayments =
+            profile.dettes.mensualiteCreditConso != null ||
+                profile.dettes.mensualiteLeasing != null;
+        if (hasExplicitConsumerDebtPayments) {
+          answers['q_debt_payments_period_chf'] =
+              (profile.dettes.mensualiteCreditConso ?? 0) +
+                  (profile.dettes.mensualiteLeasing ?? 0);
+        }
+        // Prevoyance
+        if (profile.prevoyance.hasPensionFund != null) {
+          answers['q_has_pension_fund'] =
+              profile.prevoyance.hasPensionFund! ? 'yes' : 'no';
+        }
+        if (profile.prevoyance.hasVoluntaryLpp != null) {
+          answers['q_has_voluntary_lpp'] =
+              profile.prevoyance.hasVoluntaryLpp! ? 'yes' : 'no';
+        }
+        if (profile.prevoyance.avoirLppTotal != null) {
+          answers['q_avoir_lpp'] = profile.prevoyance.avoirLppTotal;
+        }
+        if (profile.prevoyance.nombre3a > 0) {
+          answers['q_nombre_3a'] = profile.prevoyance.nombre3a;
+        }
+        if (profile.prevoyance.totalEpargne3a > 0) {
+          answers['q_3a_total'] = profile.prevoyance.totalEpargne3a;
+        }
+        // Patrimoine
+        // Only an explicit q_cash_total fact may write back as cash; callers that
+        // set a real cash amount via copyWith must mark liquidSavingsAmount or
+        // provide an explicit cash provenance.
+        final existingCashTotal = _asNum(answers['q_cash_total']);
+        final hasExistingExplicitCash =
+            existingCashTotal != null && existingCashTotal >= 0;
+        final hasExplicitCashTotal =
+            profile.userProvidedFields.contains('liquidSavingsAmount') ||
+                hasExistingExplicitCash ||
+                _hasExplicitCashSource(profile);
+        if (hasExplicitCashTotal) {
+          answers['q_cash_total'] = profile.patrimoine.epargneLiquide;
+          answers['_coach_cash_total_source'] =
+              (profile.dataSources['patrimoine.epargneLiquide'] ??
+                      ProfileDataSource.userInput)
+                  .name;
+        }
+        answers['q_investissements'] = profile.patrimoine.investissements;
+        if (profile.patrimoine.wealthEstimate != null) {
+          answers['q_wealth_estimate'] = profile.patrimoine.wealthEstimate;
+        }
+        // Housing
+        _persistHousingFieldsSync(answers, profile);
+        // Target retirement
+        if (profile.targetRetirementAge != null) {
+          answers['q_target_retirement_age'] = profile.targetRetirementAge;
+        }
+        // FIX-P0-2: Persist conjoint (spouse) data — was previously lost on restart.
+        // fromWizardAnswers() reads these keys to rebuild ConjointProfile.
+        final preservesPartnerFacts =
+            profile.hasPartnerContext || profile.civilStatusNeedsConfirmation;
+        if (preservesPartnerFacts && profile.conjoint != null) {
+          final c = profile.conjoint!;
+          if (c.salaireBrutMensuel != null) {
+            // Store as net (reverse the brut→net from fromWizardAnswers)
+            const socialChargesRate =
+                IncomeConversionCalculator.fallbackSwissSocialChargesRate;
+            answers['q_partner_net_income_chf'] =
+                c.salaireBrutMensuel! * (1 - socialChargesRate);
+          }
+          if (c.birthYear != null) {
+            answers['q_partner_birth_year'] = c.birthYear;
+          }
+          if (c.employmentStatus != null) {
+            answers['q_partner_employment_status'] = c.employmentStatus;
+          }
+          if (c.firstName != null) {
+            answers['q_partner_firstname'] = c.firstName;
+          }
+          if (c.gender != null) {
+            answers['q_partner_gender'] = c.gender;
+          }
+          if (c.nationality != null) {
+            answers['q_partner_nationality'] = c.nationality;
+          }
+          if (c.canton != null) {
+            answers['q_partner_canton'] = c.canton;
+          }
+          if (c.nombreEnfants != null) {
+            answers['q_partner_enfants'] = c.nombreEnfants;
+          }
+          if (c.prevoyance?.anneesContribuees != null) {
+            answers['q_spouse_avs_contribution_years'] =
+                c.prevoyance!.anneesContribuees;
+          }
+        } else {
+          _clearPartnerAnswers(answers);
+        }
+        _persistTimestamps(answers, profile.dataTimestamps);
+        _persistProvenance(answers, profile);
+        final hasManualPartnerRoot = LppEvidenceRoot.fromJsonString(
+              answers[_lppEvidenceRootKey],
+            )?.manualPartner !=
+            null;
+        publishedProfile = CoachProfile.fromWizardAnswers(
+          answers,
+          now: _now,
+          partnerAccountabilityBinding: _partnerLppAccountabilityBinding,
+          enforcePartnerAccountability: hasManualPartnerRoot,
+        ).copyWith(
+          checkIns: profile.checkIns,
+          plannedContributions: profile.plannedContributions,
+          initialProjectionSnapshot: profile.initialProjectionSnapshot,
+        );
+        return answers;
+      },
+      publish: (persisted) {
+        sessionGuard.assertCurrent();
+        _lastAnswers = _copyAnswers(persisted);
+        _profile = publishedProfile;
+        _profileUpdatedSinceBudget = true;
+        notifyListeners();
+      },
     );
-    answers['q_gross_salary_annual'] = grossAnnual;
-    if (grossAnnual > 0 && profile.bonusPourcentage != null) {
-      answers['q_annual_bonus'] =
-          IncomeConversionCalculator.annualBonusFromPercentage(
-        annualGross: grossAnnual,
-        bonusPercentage: profile.bonusPourcentage!,
-      );
-    } else {
-      answers.remove('q_annual_bonus');
-    }
-    if (profile.employmentRate !=
-        IncomeConversionCalculator.fullTimeEmploymentRatePercent) {
-      answers['q_employment_rate'] = profile.employmentRate;
-    } else {
-      answers.remove('q_employment_rate');
-    }
-    if (profile.employmentStatus.isNotEmpty) {
-      answers['q_employment_status'] = profile.employmentStatus;
-    }
-    if (profile.selfEmployedNetIncome != null) {
-      answers['q_self_employed_income'] = profile.selfEmployedNetIncome;
-      answers['q_net_income_period_chf'] = profile.selfEmployedNetIncome;
-      answers['q_pay_frequency'] = 'yearly';
-    }
-    if (profile.companyProfitAnnual != null) {
-      answers['q_company_profit_annual_chf'] = profile.companyProfitAnnual;
-    }
-    // Prevoyance
-    if (profile.prevoyance.hasPensionFund != null) {
-      answers['q_has_pension_fund'] =
-          profile.prevoyance.hasPensionFund! ? 'yes' : 'no';
-    }
-    if (profile.prevoyance.hasVoluntaryLpp != null) {
-      answers['q_has_voluntary_lpp'] =
-          profile.prevoyance.hasVoluntaryLpp! ? 'yes' : 'no';
-    }
-    if (profile.prevoyance.avoirLppTotal != null) {
-      answers['q_avoir_lpp'] = profile.prevoyance.avoirLppTotal;
-    }
-    if (profile.prevoyance.nombre3a > 0) {
-      answers['q_nombre_3a'] = profile.prevoyance.nombre3a;
-    }
-    if (profile.prevoyance.totalEpargne3a > 0) {
-      answers['q_3a_total'] = profile.prevoyance.totalEpargne3a;
-    }
-    // Patrimoine
-    // Only an explicit q_cash_total fact may write back as cash; callers that
-    // set a real cash amount via copyWith must mark liquidSavingsAmount or
-    // provide an explicit cash provenance.
-    final existingCashTotal = _asNum(answers['q_cash_total']);
-    final hasExistingExplicitCash =
-        existingCashTotal != null && existingCashTotal >= 0;
-    final hasExplicitCashTotal =
-        profile.userProvidedFields.contains('liquidSavingsAmount') ||
-            hasExistingExplicitCash ||
-            _hasExplicitCashSource(profile);
-    if (hasExplicitCashTotal) {
-      answers['q_cash_total'] = profile.patrimoine.epargneLiquide;
-      answers['_coach_cash_total_source'] =
-          (profile.dataSources['patrimoine.epargneLiquide'] ??
-                  ProfileDataSource.userInput)
-              .name;
-    }
-    answers['q_investissements'] = profile.patrimoine.investissements;
-    if (profile.patrimoine.wealthEstimate != null) {
-      answers['q_wealth_estimate'] = profile.patrimoine.wealthEstimate;
-    }
-    // Housing
-    _persistHousingFieldsSync(answers, profile);
-    // Target retirement
-    if (profile.targetRetirementAge != null) {
-      answers['q_target_retirement_age'] = profile.targetRetirementAge;
-    }
-    // FIX-P0-2: Persist conjoint (spouse) data — was previously lost on restart.
-    // fromWizardAnswers() reads these keys to rebuild ConjointProfile.
-    final preservesPartnerFacts =
-        profile.hasPartnerContext || profile.civilStatusNeedsConfirmation;
-    if (preservesPartnerFacts && profile.conjoint != null) {
-      final c = profile.conjoint!;
-      if (c.salaireBrutMensuel != null) {
-        // Store as net (reverse the brut→net from fromWizardAnswers)
-        const socialChargesRate =
-            IncomeConversionCalculator.fallbackSwissSocialChargesRate;
-        answers['q_partner_net_income_chf'] =
-            c.salaireBrutMensuel! * (1 - socialChargesRate);
-      }
-      if (c.birthYear != null) {
-        answers['q_partner_birth_year'] = c.birthYear;
-      }
-      if (c.employmentStatus != null) {
-        answers['q_partner_employment_status'] = c.employmentStatus;
-      }
-      if (c.firstName != null) {
-        answers['q_partner_firstname'] = c.firstName;
-      }
-      if (c.gender != null) {
-        answers['q_partner_gender'] = c.gender;
-      }
-      if (c.nationality != null) {
-        answers['q_partner_nationality'] = c.nationality;
-      }
-      if (c.canton != null) {
-        answers['q_partner_canton'] = c.canton;
-      }
-      if (c.nombreEnfants != null) {
-        answers['q_partner_enfants'] = c.nombreEnfants;
-      }
-      if (c.prevoyance?.anneesContribuees != null) {
-        answers['q_spouse_avs_contribution_years'] =
-            c.prevoyance!.anneesContribuees;
-      }
-    } else {
-      _clearPartnerAnswers(answers);
-    }
-    await ReportPersistenceService.saveAnswers(answers);
   }
 
   /// W15: Create a financial snapshot from the current profile state.
@@ -2980,27 +4160,45 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Does NOT trigger full profile recomputation — only persists the new focus.
   Future<void> updatePrimaryFocus(String focus) async {
     if (_profile == null) return;
-    _profile = _profile!.copyWith(
-      primaryFocus: focus,
-      updatedAt: DateTime.now(),
+    final sessionGuard = _sessionEpoch.capture();
+    late CoachProfile publishedProfile;
+    await _sessionEpoch.runGuardedPersistence(
+      sessionGuard,
+      () => ReportPersistenceService.mutateAnswers(
+        (current) {
+          final next = Map<String, dynamic>.from(current)
+            ..['q_primary_focus'] = focus;
+          publishedProfile = CoachProfile.fromWizardAnswers(next).copyWith(
+            updatedAt: DateTime.now(),
+          );
+          return next;
+        },
+        publish: (persisted) {
+          sessionGuard.assertCurrent();
+          _lastAnswers = _copyAnswers(persisted);
+          _profile = publishedProfile;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        },
+      ),
     );
-    // Persist to wizard answers for survival across app restart.
-    _lastAnswers['q_primary_focus'] = focus;
-    _profileUpdatedSinceBudget = true;
-    await ReportPersistenceService.saveAnswers(_lastAnswers);
-    notifyListeners();
   }
 
   /// Ajoute un check-in mensuel au profil et le persiste.
   // TODO(P2): Sync monthly check-ins to backend for cross-device access
   Future<void> addCheckIn(MonthlyCheckIn checkIn) async {
     if (_profile == null) return;
+    final sessionGuard = _sessionEpoch.capture();
     final updated = [..._profile!.checkIns, checkIn];
     _profile = _profile!.copyWithCheckIns(updated);
     // Persist BEFORE notify so downstream listeners see consistent state
-    await ReportPersistenceService.saveCheckIns(
-      updated.map((ci) => ci.toJson()).toList(),
+    await _sessionEpoch.runGuardedPersistence(
+      sessionGuard,
+      () => ReportPersistenceService.saveCheckIns(
+        updated.map((ci) => ci.toJson()).toList(),
+      ),
     );
+    sessionGuard.assertCurrent();
 
     // W15: Auto-trigger financial snapshot after each check-in
     _createSnapshotFromProfile('check_in');
@@ -3012,10 +4210,15 @@ class CoachProfileProvider extends ChangeNotifier {
   Future<void> updateContributions(
       List<PlannedMonthlyContribution> contributions) async {
     if (_profile == null) return;
+    final sessionGuard = _sessionEpoch.capture();
     _profile = _profile!.copyWithContributions(contributions);
-    await ReportPersistenceService.saveContributions(
-      contributions.map((c) => c.toJson()).toList(),
+    await _sessionEpoch.runGuardedPersistence(
+      sessionGuard,
+      () => ReportPersistenceService.saveContributions(
+        contributions.map((c) => c.toJson()).toList(),
+      ),
     );
+    sessionGuard.assertCurrent();
     notifyListeners();
   }
 
@@ -3041,10 +4244,16 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// Sauvegarde le score actuel pour la tendance du mois suivant.
   Future<void> saveCurrentScore(int score) async {
+    final sessionGuard = _sessionEpoch.capture();
     _previousScore = score;
-    await ReportPersistenceService.saveLastScore(score);
+    await _sessionEpoch.runGuardedPersistence(
+      sessionGuard,
+      () => ReportPersistenceService.saveLastScore(score),
+    );
     // Recharger l'historique pour inclure la nouvelle entree
-    _scoreHistory = await ReportPersistenceService.loadScoreHistory();
+    final scoreHistory = await ReportPersistenceService.loadScoreHistory();
+    sessionGuard.assertCurrent();
+    _scoreHistory = scoreHistory;
     notifyListeners();
   }
 
@@ -3061,6 +4270,7 @@ class CoachProfileProvider extends ChangeNotifier {
     String? riskTolerance,
   }) async {
     if (_profile == null) return;
+    final sessionGuard = _sessionEpoch.capture();
 
     final p = _profile!;
 
@@ -3087,7 +4297,7 @@ class CoachProfileProvider extends ChangeNotifier {
       librePassage: p.prevoyance.librePassage,
     );
 
-    _profile = p.copyWith(
+    final requestedProfile = p.copyWith(
       salaireBrutMensuel: salaireBrutMensuel ?? p.salaireBrutMensuel,
       employmentStatus: employmentStatus ?? p.employmentStatus,
       prevoyance: updatedPrevoyance,
@@ -3096,55 +4306,70 @@ class CoachProfileProvider extends ChangeNotifier {
       updatedAt: DateTime.now(),
     );
 
-    // Persist updated wizard answers with refreshed fields
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (salaireBrutMensuel != null) {
-      // Convert brut to net for wizard format using NetIncomeBreakdown
-      final breakdown = NetIncomeBreakdown.compute(
-        grossSalary: salaireBrutMensuel * 12,
-        canton: _profile?.canton ?? 'ZH',
-        age: _profile?.age ?? 45,
-      );
-      answers['q_net_income_period_chf'] = breakdown.monthlyNetPayslip;
-    }
-    if (employmentStatus != null) {
-      answers['q_employment_status'] = employmentStatus;
-    }
-    if (riskTolerance != null) {
-      answers['q_risk_tolerance'] = riskTolerance;
-    }
-    if (realEstateProject != null) {
-      answers['q_real_estate_project'] = realEstateProject;
-    }
+    late CoachProfile publishedProfile;
+    await _sessionEpoch.runGuardedPersistence(
+      sessionGuard,
+      () => ReportPersistenceService.mutateAnswers(
+        (current) {
+          sessionGuard.assertCurrent();
+          final answers = Map<String, dynamic>.from(current);
+          if (salaireBrutMensuel != null) {
+            // Convert brut to net for wizard format using NetIncomeBreakdown
+            final breakdown = NetIncomeBreakdown.compute(
+              grossSalary: salaireBrutMensuel * 12,
+              canton: requestedProfile.canton,
+              age: requestedProfile.age,
+            );
+            answers['q_net_income_period_chf'] = breakdown.monthlyNetPayslip;
+          }
+          if (employmentStatus != null) {
+            answers['q_employment_status'] = employmentStatus;
+          }
+          if (riskTolerance != null) {
+            answers['q_risk_tolerance'] = riskTolerance;
+          }
+          if (realEstateProject != null) {
+            answers['q_real_estate_project'] = realEstateProject;
+          }
 
-    // BUG 1 FIX: Persister updatedAt pour que le banner 11 mois fonctionne
-    // Sans ca, fromWizardAnswers() reconstruit updatedAt = DateTime.now()
-    // a chaque restart et daysSinceUpdate >= 330 ne sera jamais vrai.
-    answers['_coach_updated_at'] = DateTime.now().toIso8601String();
+          // BUG 1 FIX: Persister updatedAt pour que le banner 11 mois fonctionne
+          // Sans ca, fromWizardAnswers() reconstruit updatedAt = DateTime.now()
+          // a chaque restart et daysSinceUpdate >= 330 ne sera jamais vrai.
+          answers['_coach_updated_at'] = DateTime.now().toIso8601String();
 
-    // Preserve createdAt on the first refresh.
-    if (answers['_coach_created_at'] == null && p.createdAt != p.updatedAt) {
-      answers['_coach_created_at'] = p.createdAt.toIso8601String();
-    }
+          // Preserve createdAt on the first refresh.
+          if (answers['_coach_created_at'] == null &&
+              p.createdAt != p.updatedAt) {
+            answers['_coach_created_at'] = p.createdAt.toIso8601String();
+          }
 
-    // BUG 2 FIX: Persister LPP et 3a (pas de cle wizard standard pour ces valeurs)
-    if (avoirLppTotal != null) {
-      answers['_coach_avoir_lpp'] = avoirLppTotal;
-    }
-    if (totalEpargne3a != null) {
-      answers['_coach_total_3a'] = totalEpargne3a;
-    }
+          // BUG 2 FIX: Persister LPP et 3a (pas de cle wizard standard pour ces valeurs)
+          if (avoirLppTotal != null) {
+            answers['_coach_avoir_lpp'] = avoirLppTotal;
+          }
+          if (totalEpargne3a != null) {
+            answers['_coach_total_3a'] = totalEpargne3a;
+          }
 
-    // BUG 3 FIX: Persister familyChange (etait accepte mais jamais utilise)
-    if (familyChange != null && familyChange != 'Aucun') {
-      answers['_coach_family_change'] = familyChange;
-    }
-
-    await ReportPersistenceService.saveAnswers(answers);
-
-    _profileUpdatedSinceBudget = true;
-    notifyListeners();
-    _syncToBackend(); // Fire-and-forget, does not block UI
+          // BUG 3 FIX: Persister familyChange (etait accepte mais jamais utilise)
+          if (familyChange != null && familyChange != 'Aucun') {
+            answers['_coach_family_change'] = familyChange;
+          }
+          publishedProfile = CoachProfile.fromWizardAnswers(
+            answers,
+            now: _now,
+          );
+          return answers;
+        },
+        publish: (persisted) {
+          sessionGuard.assertCurrent();
+          _lastAnswers = _copyAnswers(persisted);
+          _profile = publishedProfile;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        },
+      ),
+    );
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -3156,10 +4381,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Mappe les champs AVS extraits vers PrevoyanceProfile.
   /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1, Document C
   Future<void> updateFromAvsExtraction(List<ExtractedField> fields) async {
-    _profile ??= CoachProfile.defaults();
-
-    final p = _profile!;
-
+    final sessionGuard = _sessionEpoch.capture();
     int? anneesContrib;
     int? lacunesCotisation;
     double? renteEstimee;
@@ -3194,57 +4416,6 @@ class CoachProfileProvider extends ChangeNotifier {
       }
     }
 
-    // Build updated prevoyance with real AVS data
-    final updatedPrevoyance = PrevoyanceProfile(
-      anneesContribuees: anneesContrib ?? p.prevoyance.anneesContribuees,
-      lacunesAVS: lacunesCotisation ?? p.prevoyance.lacunesAVS,
-      renteAVSEstimeeMensuelle:
-          renteEstimee ?? p.prevoyance.renteAVSEstimeeMensuelle,
-      nomCaisse: p.prevoyance.nomCaisse,
-      avoirLppTotal: p.prevoyance.avoirLppTotal,
-      avoirLppObligatoire: p.prevoyance.avoirLppObligatoire,
-      avoirLppSurobligatoire: p.prevoyance.avoirLppSurobligatoire,
-      rachatMaximum: p.prevoyance.rachatMaximum,
-      rachatEffectue: p.prevoyance.rachatEffectue,
-      tauxConversion: p.prevoyance.tauxConversion,
-      tauxConversionSuroblig: p.prevoyance.tauxConversionSuroblig,
-      rendementCaisse: p.prevoyance.rendementCaisse,
-      salaireAssure: p.prevoyance.salaireAssure,
-      ramd: ramd ?? p.prevoyance.ramd,
-      nombre3a: p.prevoyance.nombre3a,
-      totalEpargne3a: p.prevoyance.totalEpargne3a,
-      comptes3a: p.prevoyance.comptes3a,
-      canContribute3a: p.prevoyance.canContribute3a,
-      librePassage: p.prevoyance.librePassage,
-      bonificationsEducatives:
-          bonificationsEduc ?? p.prevoyance.bonificationsEducatives,
-      projectedRenteLpp: p.prevoyance.projectedRenteLpp,
-      projectedCapital65: p.prevoyance.projectedCapital65,
-      disabilityCoverage: p.prevoyance.disabilityCoverage,
-      deathCoverage: p.prevoyance.deathCoverage,
-    );
-
-    // Tag data sources as certificate-confirmed
-    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
-    if (bonificationsEduc != null) {
-      updatedSources['prevoyance.bonificationsEducatives'] =
-          ProfileDataSource.certificate;
-    }
-    if (anneesContrib != null) {
-      updatedSources['prevoyance.anneesContribuees'] =
-          ProfileDataSource.certificate;
-    }
-    if (lacunesCotisation != null) {
-      updatedSources['prevoyance.lacunesAVS'] = ProfileDataSource.certificate;
-    }
-    if (renteEstimee != null) {
-      updatedSources['prevoyance.renteAVSEstimeeMensuelle'] =
-          ProfileDataSource.certificate;
-    }
-    if (ramd != null) {
-      updatedSources['prevoyance.ramd'] = ProfileDataSource.certificate;
-    }
-
     // S47: Stamp timestamps for all fields touched by this extraction
     final touchedFields = <String>[];
     if (anneesContrib != null) {
@@ -3263,49 +4434,55 @@ class CoachProfileProvider extends ChangeNotifier {
       touchedFields.add('prevoyance.bonificationsEducatives');
     }
     final stamp = DateTime.now();
-    final valueProfile = p.copyWith(
-      prevoyance: updatedPrevoyance,
-      dataSources: updatedSources,
-      updatedAt: stamp,
+    late CoachProfile transactionProfile;
+    await _sessionEpoch.runGuardedPersistence(
+      sessionGuard,
+      () => ReportPersistenceService.mutateAnswers(
+        (current) {
+          sessionGuard.assertCurrent();
+          final answers = Map<String, dynamic>.from(current);
+          if (anneesContrib != null) {
+            answers['q_avs_contribution_years'] = anneesContrib;
+          }
+          if (lacunesCotisation != null) {
+            answers['_coach_avs_lacunes'] = lacunesCotisation;
+          }
+          if (renteEstimee != null) {
+            answers['_coach_avs_rente_estimee'] = renteEstimee;
+          }
+          if (ramd != null) answers['_coach_avs_ramd'] = ramd;
+          if (bonificationsEduc != null) {
+            answers['_coach_avs_bonifications_educatives'] = bonificationsEduc;
+          }
+          answers['_coach_updated_at'] = stamp.toIso8601String();
+          transactionProfile = _withStampedProvenance(
+            CoachProfile.fromWizardAnswers(answers, now: _now),
+            touchedFields,
+            source: ProfileDataSource.certificate,
+            sourceDate: null,
+            updatedAt: stamp,
+          );
+          _persistTimestamps(
+            answers,
+            transactionProfile.dataTimestamps,
+          );
+          _persistProvenance(answers, transactionProfile);
+          if (touchedFields.isNotEmpty) {
+            // Compatibility trace; field provenance remains canonical.
+            answers['_coach_avs_source'] = 'document_scan';
+          }
+          return answers;
+        },
+        publish: (persisted) {
+          sessionGuard.assertCurrent();
+          _lastAnswers = _copyAnswers(persisted);
+          _profile = transactionProfile;
+          _profileUpdatedSinceBudget = true;
+          CoachNarrativeService.invalidateCache(profile: _profile);
+          notifyListeners();
+        },
+      ),
     );
-    final nextProfile = _withStampedProvenance(
-      valueProfile,
-      touchedFields,
-      source: ProfileDataSource.certificate,
-      sourceDate: null,
-      updatedAt: stamp,
-    );
-
-    // Persist to wizard answers
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (anneesContrib != null) {
-      answers['q_avs_contribution_years'] = anneesContrib;
-    }
-    if (lacunesCotisation != null) {
-      answers['_coach_avs_lacunes'] = lacunesCotisation;
-    }
-    if (renteEstimee != null) {
-      answers['_coach_avs_rente_estimee'] = renteEstimee;
-    }
-    if (ramd != null) answers['_coach_avs_ramd'] = ramd;
-    if (bonificationsEduc != null) {
-      answers['_coach_avs_bonifications_educatives'] = bonificationsEduc;
-    }
-    answers['_coach_updated_at'] = stamp.toIso8601String();
-    _persistTimestamps(answers, nextProfile.dataTimestamps);
-    _persistProvenance(answers, nextProfile);
-    if (touchedFields.isNotEmpty) {
-      // Legacy trace only. Reload never treats this document-wide marker as
-      // field provenance because it carries neither field scope nor source date.
-      answers['_coach_avs_source'] = 'document_scan';
-    }
-    await ReportPersistenceService.saveAnswers(answers);
-
-    _lastAnswers = _copyAnswers(answers);
-    _profile = nextProfile;
-    _profileUpdatedSinceBudget = true;
-    CoachNarrativeService.invalidateCache(profile: _profile);
-    notifyListeners();
   }
 
   /// Inject salary certificate extraction into CoachProfile.
@@ -3313,7 +4490,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Stores: salaireBrutMensuel, nombreDeMois, bonusPourcentage.
   /// Tags dataSources as certificate. Stamps timestamps.
   Future<void> updateFromSalaryExtraction(List<ExtractedField> fields) async {
-    final p = _profile ?? CoachProfile.defaults();
+    final sessionGuard = _sessionEpoch.capture();
     double? salaireBrut;
     int? nombreMois;
     double? bonus;
@@ -3342,59 +4519,64 @@ class CoachProfileProvider extends ChangeNotifier {
       }
     }
 
-    // Tag data sources
-    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
-    if (salaireBrut != null) {
-      updatedSources['salaireBrutMensuel'] = ProfileDataSource.certificate;
-    }
-    if (nombreMois != null) {
-      updatedSources['nombreDeMois'] = ProfileDataSource.certificate;
-    }
-
     // Stamp timestamps
     final touchedFields = <String>[];
     if (salaireBrut != null) touchedFields.add('salaireBrutMensuel');
     if (nombreMois != null) touchedFields.add('nombreDeMois');
     if (bonus != null) touchedFields.add('bonusPourcentage');
     final stamp = DateTime.now();
-    final valueProfile = p.copyWith(
-      salaireBrutMensuel: salaireBrut ?? p.salaireBrutMensuel,
-      nombreDeMois: (nombreMois ?? p.nombreDeMois).toDouble(),
-      bonusPourcentage: bonus ?? p.bonusPourcentage,
-      dataSources: updatedSources,
-      updatedAt: stamp,
+    late CoachProfile transactionProfile;
+    await _sessionEpoch.runGuardedPersistence(
+      sessionGuard,
+      () => ReportPersistenceService.mutateAnswers(
+        (current) {
+          sessionGuard.assertCurrent();
+          final answers = Map<String, dynamic>.from(current);
+          final baseProfile = CoachProfile.fromWizardAnswers(
+            answers,
+            now: _now,
+          );
+          final valueProfile = baseProfile.copyWith(
+            salaireBrutMensuel: salaireBrut ?? baseProfile.salaireBrutMensuel,
+            nombreDeMois: (nombreMois ?? baseProfile.nombreDeMois).toDouble(),
+            bonusPourcentage: bonus ?? baseProfile.bonusPourcentage,
+            updatedAt: stamp,
+          );
+          transactionProfile = _withStampedProvenance(
+            valueProfile,
+            touchedFields,
+            source: ProfileDataSource.certificate,
+            sourceDate: null,
+            updatedAt: stamp,
+          );
+          if (salaireBrut != null || nombreMois != null) {
+            answers['q_gross_salary_annual'] =
+                transactionProfile.salaireBrutMensuel *
+                    transactionProfile.nombreDeMois;
+          }
+          if (nombreMois != null) {
+            answers['q_nombre_mois'] = nombreMois;
+          }
+          if (bonus != null) {
+            answers['q_bonus_percentage'] = bonus;
+            answers.remove('q_annual_bonus');
+          }
+          answers['_coach_updated_at'] = stamp.toIso8601String();
+          _persistTimestamps(answers, transactionProfile.dataTimestamps);
+          _persistProvenance(answers, transactionProfile);
+          answers['_coach_salary_source'] = 'document_scan';
+          return answers;
+        },
+        publish: (persisted) {
+          sessionGuard.assertCurrent();
+          _lastAnswers = _copyAnswers(persisted);
+          _profile = transactionProfile;
+          _profileUpdatedSinceBudget = true;
+          CoachNarrativeService.invalidateCache(profile: _profile);
+          notifyListeners();
+        },
+      ),
     );
-    final nextProfile = _withStampedProvenance(
-      valueProfile,
-      touchedFields,
-      source: ProfileDataSource.certificate,
-      sourceDate: null,
-      updatedAt: stamp,
-    );
-
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (salaireBrut != null || nombreMois != null) {
-      answers['q_gross_salary_annual'] =
-          nextProfile.salaireBrutMensuel * nextProfile.nombreDeMois;
-    }
-    if (nombreMois != null) {
-      answers['q_nombre_mois'] = nombreMois;
-    }
-    if (bonus != null) {
-      answers['q_bonus_percentage'] = bonus;
-      answers.remove('q_annual_bonus');
-    }
-    answers['_coach_updated_at'] = stamp.toIso8601String();
-    _persistTimestamps(answers, nextProfile.dataTimestamps);
-    _persistProvenance(answers, nextProfile);
-    answers['_coach_salary_source'] = 'document_scan';
-    await ReportPersistenceService.saveAnswers(answers);
-
-    _lastAnswers = _copyAnswers(answers);
-    _profile = nextProfile;
-    _profileUpdatedSinceBudget = true;
-    CoachNarrativeService.invalidateCache(profile: _profile);
-    notifyListeners();
   }
 
   /// Met a jour un ou plusieurs champs du profil depuis l'edition inline
@@ -3428,138 +4610,7 @@ class CoachProfileProvider extends ChangeNotifier {
     double? rendementCaisse,
   }) async {
     if (_profile == null) return;
-    final p = _profile!;
-
-    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
-
-    PrevoyanceProfile? updatedPrev;
-    if (avoirLppTotal != null ||
-        totalEpargne3a != null ||
-        nombre3a != null ||
-        rendementCaisse != null) {
-      updatedPrev = PrevoyanceProfile(
-        anneesContribuees: p.prevoyance.anneesContribuees,
-        lacunesAVS: p.prevoyance.lacunesAVS,
-        renteAVSEstimeeMensuelle: p.prevoyance.renteAVSEstimeeMensuelle,
-        nomCaisse: p.prevoyance.nomCaisse,
-        avoirLppTotal: avoirLppTotal ?? p.prevoyance.avoirLppTotal,
-        avoirLppObligatoire: p.prevoyance.avoirLppObligatoire,
-        avoirLppSurobligatoire: p.prevoyance.avoirLppSurobligatoire,
-        rachatMaximum: p.prevoyance.rachatMaximum,
-        rachatEffectue: p.prevoyance.rachatEffectue,
-        tauxConversion: p.prevoyance.tauxConversion,
-        tauxConversionSuroblig: p.prevoyance.tauxConversionSuroblig,
-        rendementCaisse: rendementCaisse ?? p.prevoyance.rendementCaisse,
-        salaireAssure: p.prevoyance.salaireAssure,
-        ramd: p.prevoyance.ramd,
-        nombre3a: nombre3a ?? p.prevoyance.nombre3a,
-        totalEpargne3a: totalEpargne3a ?? p.prevoyance.totalEpargne3a,
-        comptes3a: p.prevoyance.comptes3a,
-        canContribute3a: p.prevoyance.canContribute3a,
-        librePassage: p.prevoyance.librePassage,
-      );
-      if (avoirLppTotal != null) {
-        updatedSources['prevoyance.avoirLppTotal'] =
-            ProfileDataSource.userInput;
-      }
-      if (totalEpargne3a != null) {
-        updatedSources['prevoyance.totalEpargne3a'] =
-            ProfileDataSource.userInput;
-      }
-      if (rendementCaisse != null) {
-        updatedSources['prevoyance.rendementCaisse'] =
-            ProfileDataSource.userInput;
-      }
-    }
-
-    PatrimoineProfile? updatedPat;
-    if (epargneLiquide != null || investissements != null) {
-      updatedPat = p.patrimoine.copyWith(
-        epargneLiquide: epargneLiquide,
-        investissements: investissements,
-      );
-      if (epargneLiquide != null) {
-        updatedSources['patrimoine.epargneLiquide'] =
-            ProfileDataSource.userInput;
-      }
-      if (investissements != null) {
-        updatedSources['patrimoine.investissements'] =
-            ProfileDataSource.userInput;
-      }
-    }
-
-    DepensesProfile? updatedDep;
-    if (loyer != null ||
-        assuranceMaladie != null ||
-        electricite != null ||
-        transport != null ||
-        telecom != null ||
-        fraisMedicaux != null ||
-        autresDepensesFixes != null) {
-      updatedDep = p.depenses.copyWith(
-        loyer: loyer,
-        assuranceMaladie: assuranceMaladie,
-        electricite: electricite,
-        transport: transport,
-        telecom: telecom,
-        fraisMedicaux: fraisMedicaux,
-        autresDepensesFixes: autresDepensesFixes,
-      );
-      if (loyer != null) {
-        updatedSources['depenses.loyer'] = ProfileDataSource.userInput;
-      }
-      if (assuranceMaladie != null) {
-        updatedSources['depenses.assuranceMaladie'] =
-            ProfileDataSource.userInput;
-      }
-      if (electricite != null) {
-        updatedSources['depenses.electricite'] = ProfileDataSource.userInput;
-      }
-      if (transport != null) {
-        updatedSources['depenses.transport'] = ProfileDataSource.userInput;
-      }
-      if (telecom != null) {
-        updatedSources['depenses.telecom'] = ProfileDataSource.userInput;
-      }
-      if (fraisMedicaux != null) {
-        updatedSources['depenses.fraisMedicaux'] = ProfileDataSource.userInput;
-      }
-      if (autresDepensesFixes != null) {
-        updatedSources['depenses.autresDepensesFixes'] =
-            ProfileDataSource.userInput;
-      }
-    }
-
-    DetteProfile? updatedDet;
-    if (hypotheque != null ||
-        creditConsommation != null ||
-        leasing != null ||
-        autresDettes != null) {
-      updatedDet = p.dettes.copyWith(
-        hypotheque: hypotheque,
-        creditConsommation: creditConsommation,
-        leasing: leasing,
-        autresDettes: autresDettes,
-      );
-      if (hypotheque != null) {
-        updatedSources['dettes.hypotheque'] = ProfileDataSource.userInput;
-      }
-      if (creditConsommation != null) {
-        updatedSources['dettes.creditConsommation'] =
-            ProfileDataSource.userInput;
-      }
-      if (leasing != null) {
-        updatedSources['dettes.leasing'] = ProfileDataSource.userInput;
-      }
-      if (autresDettes != null) {
-        updatedSources['dettes.autresDettes'] = ProfileDataSource.userInput;
-      }
-    }
-
-    if (salaireBrutMensuel != null) {
-      updatedSources['salaireBrutMensuel'] = ProfileDataSource.userInput;
-    }
-
+    final sessionGuard = _sessionEpoch.capture();
     // S47: Stamp timestamps for all fields touched by this inline edit
     final touchedFields = <String>[
       if (salaireBrutMensuel != null) 'salaireBrutMensuel',
@@ -3583,108 +4634,103 @@ class CoachProfileProvider extends ChangeNotifier {
     ];
     final stamp = DateTime.now();
 
-    // Rachat LPP mensuel: crée/met à jour ou supprime 'lpp_buyback_user'.
-    List<PlannedMonthlyContribution>? updatedContribs;
-    if (rachatLppMensuel != null) {
-      final existing = List<PlannedMonthlyContribution>.from(
-        p.plannedContributions,
-      );
-      final idx = existing.indexWhere((c) => c.id == 'lpp_buyback_user');
-      if (rachatLppMensuel <= 0) {
-        if (idx >= 0) existing.removeAt(idx);
-      } else if (idx >= 0) {
-        existing[idx] = existing[idx].copyWith(amount: rachatLppMensuel);
-      } else {
-        existing.add(PlannedMonthlyContribution(
-          id: 'lpp_buyback_user',
-          label: 'Rachat LPP',
-          amount: rachatLppMensuel,
-          category: 'lpp_buyback',
-          isAutomatic: false,
-        ));
-      }
-      updatedContribs = existing;
-    }
-
-    final valueProfile = p.copyWith(
-      salaireBrutMensuel: salaireBrutMensuel,
-      prevoyance: updatedPrev,
-      patrimoine: updatedPat,
-      depenses: updatedDep,
-      dettes: updatedDet,
-      plannedContributions: updatedContribs,
-      dataSources: updatedSources,
-      updatedAt: stamp,
-    );
-    final nextProfile = _withExplicitCashMarkerFromSource(
-      _withStampedProvenance(
-        valueProfile,
-        touchedFields,
-        source: ProfileDataSource.userInput,
-        sourceDate: null,
-        updatedAt: stamp,
+    late CoachProfile transactionProfile;
+    await _sessionEpoch.runGuardedPersistence(
+      sessionGuard,
+      () => ReportPersistenceService.mutateAnswers(
+        (current) {
+          sessionGuard.assertCurrent();
+          final answers = Map<String, dynamic>.from(current);
+          final baseProfile = CoachProfile.fromWizardAnswers(
+            answers,
+            now: _now,
+          );
+          if (salaireBrutMensuel != null) {
+            answers['q_gross_salary_annual'] =
+                salaireBrutMensuel * baseProfile.nombreDeMois;
+          }
+          if (avoirLppTotal != null) {
+            answers['_coach_avoir_lpp'] = avoirLppTotal;
+          }
+          if (rendementCaisse != null) {
+            answers['_coach_rendement_caisse'] = rendementCaisse;
+          }
+          if (totalEpargne3a != null) {
+            answers['_coach_total_3a'] = totalEpargne3a;
+          }
+          if (nombre3a != null) {
+            answers['q_3a_accounts_count'] = nombre3a;
+          }
+          if (rachatLppMensuel != null) {
+            answers['_coach_rachat_lpp_mensuel'] = rachatLppMensuel;
+          }
+          if (epargneLiquide != null) {
+            answers['q_cash_total'] = epargneLiquide;
+            answers['_coach_cash_total_source'] =
+                ProfileDataSource.userInput.name;
+            answers['q_cash_total_unconfirmed_legacy'] = null;
+          }
+          if (investissements != null) {
+            answers['q_investments_total'] = investissements;
+          }
+          if (loyer != null) {
+            answers['q_housing_cost_period_chf'] = loyer;
+          }
+          if (assuranceMaladie != null) {
+            answers['q_lamal_premium_monthly_chf'] = assuranceMaladie;
+          }
+          if (electricite != null) {
+            answers['_coach_depenses_electricite'] = electricite;
+          }
+          if (transport != null) {
+            answers['_coach_depenses_transport'] = transport;
+          }
+          if (telecom != null) {
+            answers['_coach_depenses_telecom'] = telecom;
+          }
+          if (fraisMedicaux != null) {
+            answers['_coach_depenses_frais_medicaux'] = fraisMedicaux;
+          }
+          if (autresDepensesFixes != null) {
+            answers['q_other_fixed_costs_monthly_chf'] = autresDepensesFixes;
+            answers.remove('_coach_depenses_autres');
+          }
+          if (hypotheque != null) {
+            answers['_coach_dettes_hypotheque'] = hypotheque;
+          }
+          if (creditConsommation != null) {
+            answers['_coach_dettes_credit'] = creditConsommation;
+          }
+          if (leasing != null) {
+            answers['_coach_dettes_leasing'] = leasing;
+          }
+          if (autresDettes != null) {
+            answers['_coach_dettes_autres'] = autresDettes;
+          }
+          answers['_coach_updated_at'] = stamp.toIso8601String();
+          transactionProfile = _withExplicitCashMarkerFromSource(
+            _withStampedProvenance(
+              CoachProfile.fromWizardAnswers(answers, now: _now),
+              touchedFields,
+              source: ProfileDataSource.userInput,
+              sourceDate: null,
+              updatedAt: stamp,
+            ),
+          );
+          _persistTimestamps(answers, transactionProfile.dataTimestamps);
+          _persistProvenance(answers, transactionProfile);
+          return answers;
+        },
+        publish: (persisted) {
+          sessionGuard.assertCurrent();
+          _lastAnswers = _copyAnswers(persisted);
+          _profile = transactionProfile;
+          _profileUpdatedSinceBudget = true;
+          CoachNarrativeService.invalidateCache(profile: _profile);
+          notifyListeners();
+        },
       ),
     );
-
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (salaireBrutMensuel != null) {
-      answers['q_gross_salary_annual'] =
-          salaireBrutMensuel * nextProfile.nombreDeMois;
-    }
-    if (avoirLppTotal != null) answers['_coach_avoir_lpp'] = avoirLppTotal;
-    if (rendementCaisse != null) {
-      answers['_coach_rendement_caisse'] = rendementCaisse;
-    }
-    if (totalEpargne3a != null) answers['_coach_total_3a'] = totalEpargne3a;
-    if (rachatLppMensuel != null) {
-      answers['_coach_rachat_lpp_mensuel'] = rachatLppMensuel;
-    }
-    if (epargneLiquide != null) {
-      answers['q_cash_total'] = epargneLiquide;
-      answers['_coach_cash_total_source'] = ProfileDataSource.userInput.name;
-      answers['q_cash_total_unconfirmed_legacy'] = null;
-    }
-    if (investissements != null) {
-      answers['q_investments_total'] = investissements;
-    }
-    if (loyer != null) answers['q_housing_cost_period_chf'] = loyer;
-    if (assuranceMaladie != null) {
-      answers['q_lamal_premium_monthly_chf'] = assuranceMaladie;
-    }
-    if (electricite != null) {
-      answers['_coach_depenses_electricite'] = electricite;
-    }
-    if (transport != null) answers['_coach_depenses_transport'] = transport;
-    if (telecom != null) answers['_coach_depenses_telecom'] = telecom;
-    if (fraisMedicaux != null) {
-      answers['_coach_depenses_frais_medicaux'] = fraisMedicaux;
-    }
-    if (autresDepensesFixes != null) {
-      answers['q_other_fixed_costs_monthly_chf'] = autresDepensesFixes;
-      answers.remove('_coach_depenses_autres');
-    }
-    if (hypotheque != null) {
-      answers['_coach_dettes_hypotheque'] = hypotheque;
-    }
-    if (creditConsommation != null) {
-      answers['_coach_dettes_credit'] = creditConsommation;
-    }
-    if (leasing != null) {
-      answers['_coach_dettes_leasing'] = leasing;
-    }
-    if (autresDettes != null) {
-      answers['_coach_dettes_autres'] = autresDettes;
-    }
-    answers['_coach_updated_at'] = stamp.toIso8601String();
-    _persistTimestamps(answers, nextProfile.dataTimestamps);
-    _persistProvenance(answers, nextProfile);
-    await ReportPersistenceService.saveAnswers(answers);
-
-    _lastAnswers = _copyAnswers(answers);
-    _profile = nextProfile;
-    _profileUpdatedSinceBudget = true;
-    CoachNarrativeService.invalidateCache(profile: _profile);
-    notifyListeners();
   }
 
   /// Met a jour le profil depuis les donnees bancaires Open Banking (bLink).
@@ -3700,9 +4746,8 @@ class CoachProfileProvider extends ChangeNotifier {
     required Map<String, double> categoryTotals,
   }) async {
     if (_profile == null) return;
+    final sessionGuard = _sessionEpoch.capture();
     final p = _profile!;
-
-    final updatedSources = Map<String, ProfileDataSource>.from(p.dataSources);
 
     // ── 1. Extract balances by account type ──────────────────
     double epargneLiquide = 0;
@@ -3741,85 +4786,6 @@ class CoachProfileProvider extends ChangeNotifier {
     final hypotheque =
         _safeExpense(categoryTotals['hypotheque'], p.salaireBrutMensuel, 0.50);
 
-    // ── 3. Build updated sub-profiles ────────────────────────
-    final updatedPat = p.patrimoine.copyWith(
-      epargneLiquide: hasLiquidAccount ? epargneLiquide : null,
-      investissements: investissements > 0 ? investissements : null,
-    );
-
-    PrevoyanceProfile? updatedPrev;
-    if (epargne3a > 0) {
-      updatedPrev = PrevoyanceProfile(
-        anneesContribuees: p.prevoyance.anneesContribuees,
-        lacunesAVS: p.prevoyance.lacunesAVS,
-        renteAVSEstimeeMensuelle: p.prevoyance.renteAVSEstimeeMensuelle,
-        nomCaisse: p.prevoyance.nomCaisse,
-        avoirLppTotal: p.prevoyance.avoirLppTotal,
-        avoirLppObligatoire: p.prevoyance.avoirLppObligatoire,
-        avoirLppSurobligatoire: p.prevoyance.avoirLppSurobligatoire,
-        rachatMaximum: p.prevoyance.rachatMaximum,
-        rachatEffectue: p.prevoyance.rachatEffectue,
-        tauxConversion: p.prevoyance.tauxConversion,
-        tauxConversionSuroblig: p.prevoyance.tauxConversionSuroblig,
-        rendementCaisse: p.prevoyance.rendementCaisse,
-        salaireAssure: p.prevoyance.salaireAssure,
-        ramd: p.prevoyance.ramd,
-        nombre3a: p.prevoyance.nombre3a,
-        totalEpargne3a: epargne3a,
-        comptes3a: p.prevoyance.comptes3a,
-        canContribute3a: p.prevoyance.canContribute3a,
-        librePassage: p.prevoyance.librePassage,
-      );
-    }
-
-    final updatedDep = p.depenses.copyWith(
-      loyer: loyer,
-      assuranceMaladie: assurance,
-      electricite: electricite,
-      transport: transport,
-      telecom: telecom,
-      fraisMedicaux: fraisMedicaux,
-    );
-
-    final updatedDet =
-        hypotheque != null ? p.dettes.copyWith(hypotheque: hypotheque) : null;
-
-    // ── 4. Tag all updated fields as openBanking ─────────────
-    if (hasLiquidAccount) {
-      updatedSources['patrimoine.epargneLiquide'] =
-          ProfileDataSource.openBanking;
-    }
-    if (investissements > 0) {
-      updatedSources['patrimoine.investissements'] =
-          ProfileDataSource.openBanking;
-    }
-    if (epargne3a > 0) {
-      updatedSources['prevoyance.totalEpargne3a'] =
-          ProfileDataSource.openBanking;
-    }
-    if (loyer != null) {
-      updatedSources['depenses.loyer'] = ProfileDataSource.openBanking;
-    }
-    if (assurance != null) {
-      updatedSources['depenses.assuranceMaladie'] =
-          ProfileDataSource.openBanking;
-    }
-    if (electricite != null) {
-      updatedSources['depenses.electricite'] = ProfileDataSource.openBanking;
-    }
-    if (transport != null) {
-      updatedSources['depenses.transport'] = ProfileDataSource.openBanking;
-    }
-    if (telecom != null) {
-      updatedSources['depenses.telecom'] = ProfileDataSource.openBanking;
-    }
-    if (fraisMedicaux != null) {
-      updatedSources['depenses.fraisMedicaux'] = ProfileDataSource.openBanking;
-    }
-    if (hypotheque != null) {
-      updatedSources['dettes.hypotheque'] = ProfileDataSource.openBanking;
-    }
-
     // S47: Stamp timestamps for all fields touched by open banking sync
     final touchedFields = <String>[
       if (hasLiquidAccount) 'patrimoine.epargneLiquide',
@@ -3834,73 +4800,70 @@ class CoachProfileProvider extends ChangeNotifier {
       if (hypotheque != null) 'dettes.hypotheque',
     ];
     final stamp = DateTime.now();
-    final updatedTimestamps = _stampTimestamps(
-      p.dataTimestamps,
-      touchedFields,
-      now: stamp,
+    late CoachProfile transactionProfile;
+    await _sessionEpoch.runGuardedPersistence(
+      sessionGuard,
+      () => ReportPersistenceService.mutateAnswers(
+        (current) {
+          sessionGuard.assertCurrent();
+          final answers = Map<String, dynamic>.from(current);
+          if (hasLiquidAccount) {
+            answers['q_cash_total'] = epargneLiquide;
+            answers['_coach_cash_total_source'] =
+                ProfileDataSource.openBanking.name;
+            answers['q_cash_total_unconfirmed_legacy'] = null;
+          }
+          if (investissements > 0) {
+            answers['_coach_investissements'] = investissements;
+          }
+          if (epargne3a > 0) {
+            answers['_coach_total_3a'] = epargne3a;
+          }
+          if (loyer != null) {
+            answers['_coach_depenses_loyer'] = loyer;
+          }
+          if (assurance != null) {
+            answers['_coach_depenses_assurance'] = assurance;
+          }
+          if (electricite != null) {
+            answers['_coach_depenses_electricite'] = electricite;
+          }
+          if (transport != null) {
+            answers['_coach_depenses_transport'] = transport;
+          }
+          if (telecom != null) {
+            answers['_coach_depenses_telecom'] = telecom;
+          }
+          if (fraisMedicaux != null) {
+            answers['_coach_depenses_frais_medicaux'] = fraisMedicaux;
+          }
+          if (hypotheque != null) {
+            answers['_coach_dettes_hypotheque'] = hypotheque;
+          }
+          answers['_coach_updated_at'] = stamp.toIso8601String();
+          transactionProfile = _withExplicitCashMarkerFromSource(
+            _withStampedProvenance(
+              CoachProfile.fromWizardAnswers(answers, now: _now),
+              touchedFields,
+              source: ProfileDataSource.openBanking,
+              sourceDate: null,
+              updatedAt: stamp,
+            ),
+          );
+          _persistTimestamps(answers, transactionProfile.dataTimestamps);
+          _persistProvenance(answers, transactionProfile);
+          answers['_coach_blink_source'] = 'open_banking';
+          return answers;
+        },
+        publish: (persisted) {
+          sessionGuard.assertCurrent();
+          _lastAnswers = _copyAnswers(persisted);
+          _profile = transactionProfile;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        },
+      ),
     );
-
-    // ── 5. Apply update ──────────────────────────────────────
-    final valueProfile = _withExplicitCashMarkerFromSource(p.copyWith(
-      prevoyance: updatedPrev,
-      patrimoine: updatedPat,
-      depenses: updatedDep,
-      dettes: updatedDet,
-      dataSources: updatedSources,
-      dataTimestamps: updatedTimestamps,
-      updatedAt: stamp,
-    ));
-    final nextProfile = _withStampedProvenance(
-      valueProfile,
-      touchedFields,
-      source: ProfileDataSource.openBanking,
-      sourceDate: null,
-      updatedAt: stamp,
-    );
-
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (hasLiquidAccount) {
-      answers['q_cash_total'] = epargneLiquide;
-      answers['_coach_cash_total_source'] = ProfileDataSource.openBanking.name;
-      answers['q_cash_total_unconfirmed_legacy'] = null;
-    }
-    if (investissements > 0) {
-      answers['_coach_investissements'] = investissements;
-    }
-    if (epargne3a > 0) {
-      answers['_coach_total_3a'] = epargne3a;
-    }
-    if (loyer != null) {
-      answers['_coach_depenses_loyer'] = loyer;
-    }
-    if (assurance != null) {
-      answers['_coach_depenses_assurance'] = assurance;
-    }
-    if (electricite != null) {
-      answers['_coach_depenses_electricite'] = electricite;
-    }
-    if (transport != null) {
-      answers['_coach_depenses_transport'] = transport;
-    }
-    if (telecom != null) {
-      answers['_coach_depenses_telecom'] = telecom;
-    }
-    if (fraisMedicaux != null) {
-      answers['_coach_depenses_frais_medicaux'] = fraisMedicaux;
-    }
-    if (hypotheque != null) {
-      answers['_coach_dettes_hypotheque'] = hypotheque;
-    }
-    answers['_coach_updated_at'] = stamp.toIso8601String();
-    _persistTimestamps(answers, nextProfile.dataTimestamps);
-    _persistProvenance(answers, nextProfile);
-    answers['_coach_blink_source'] = 'open_banking';
-    await ReportPersistenceService.saveAnswers(answers);
-
-    _lastAnswers = _copyAnswers(answers);
-    _profile = nextProfile;
-    _profileUpdatedSinceBudget = true;
-    notifyListeners();
   }
 
   /// Plausibility check: reject expense estimates that exceed a reasonable
@@ -3912,8 +4875,13 @@ class CoachProfileProvider extends ChangeNotifier {
   ) {
     if (categoryTotal == null || categoryTotal <= 0) return null;
     if (grossMonthlySalary <= 0) return categoryTotal;
-    final ceiling = grossMonthlySalary * maxRatio * 1.5; // 50% margin
-    return categoryTotal <= ceiling ? categoryTotal : null;
+    return BudgetCrashFinancialFacts.isMonthlyExpensePlausible(
+      monthlyExpense: categoryTotal,
+      grossMonthlyIncome: grossMonthlySalary,
+      maximumExpenseRatio: maxRatio,
+    )
+        ? categoryTotal
+        : null;
   }
 
   /// Returns a map of pre-filled values from the existing profile for
@@ -3955,25 +4923,38 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Clears both in-memory state AND persisted wizard data in SharedPreferences
   /// to prevent cross-account data bleed on shared devices.
   Future<void> clear() async {
+    await purgeDurableSessionData();
+    clearSessionMemoryAfterPurge();
+  }
+
+  /// Strict durable half of the app-level session termination transaction.
+  Future<void> purgeDurableSessionData() => ReportPersistenceService.clear(
+        partnerAccountabilityBindingStore: _partnerAccountabilityBindingStore,
+      );
+
+  /// Publishes an empty ledger only after the coordinator completed its purge.
+  void clearSessionMemoryAfterPurge() {
     _setPartnerLppAccountabilityBinding(null);
     _hasManualPartnerLppEvidence = false;
     _profile = null;
+    _canonicalProfileOwnerId = null;
+    _stagedCanonicalProfileOwnerId = null;
+    _isLoading = false;
     _isPartialProfile = false;
     _isLoaded = false;
     _remoteHydrationDone = false;
     _isHydrating = false;
     _previousScore = null;
     _scoreHistory = [];
+    _profileUpdatedSinceBudget = false;
     _lastAnswers = const {};
-    notifyListeners();
-    await ReportPersistenceService.clear(
-      partnerAccountabilityBindingStore: _partnerAccountabilityBindingStore,
-    );
+    if (!_disposed) notifyListeners();
   }
 
   @override
   void dispose() {
     _disposed = true;
+    _stagedCanonicalProfileOwnerId = null;
     _partnerAuthorityInvalidationTimer?.cancel();
     _partnerAuthorityInvalidationTimer = null;
     super.dispose();

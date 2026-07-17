@@ -185,9 +185,13 @@ class PartnerAccountabilityBindingStore {
   Future<PartnerAccountabilityBinding> activatePending({
     required String receiptId,
     required String manualPartnerOwnerId,
+    required String lppSnapshotId,
     required DateTime verifiedAt,
   }) =>
       _serialize(() async {
+        if (lppSnapshotId.isEmpty) {
+          throw StateError('The LPP snapshot binding is unavailable');
+        }
         final current = await load();
         final pending = _matchingPending(
           current,
@@ -203,6 +207,7 @@ class PartnerAccountabilityBindingStore {
         }
         final active = pending.copyWith(
           state: PartnerAccountabilityBindingState.active,
+          lppSnapshotId: lppSnapshotId,
           lastVerifiedAt: verifiedAt.toUtc(),
           clearFailureStatus: true,
         );
@@ -248,6 +253,7 @@ class PartnerAccountabilityBindingStore {
             active?.receiptId == previousActive.receiptId &&
             active?.manualPartnerOwnerId ==
                 previousActive.manualPartnerOwnerId &&
+            active?.lppSnapshotId == previousActive.lppSnapshotId &&
             pending == null;
         if (!failedBindingStillPresent && !alreadyRestored) {
           throw StateError('Failed accountability activation mismatch');

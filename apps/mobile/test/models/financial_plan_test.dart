@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
 
 void main() {
@@ -151,57 +150,4 @@ void main() {
     });
   });
 
-  // ────────────────────────────────────────────────────────────────────────
-  //  computeProfileHash tests
-  // ────────────────────────────────────────────────────────────────────────
-
-  group('computeProfileHash', () {
-    CoachProfile makeProfile({
-      double salaireBrutMensuel = 10183.92, // 122207 / 12
-      double? lpp = 70377.0,
-      double epargne3a = 32000.0,
-      String canton = 'VS',
-      DateTime? dob,
-    }) {
-      return CoachProfile(
-        birthYear: 1977,
-        dateOfBirth: dob ?? DateTime(1977, 1, 12),
-        canton: canton,
-        salaireBrutMensuel: salaireBrutMensuel,
-        prevoyance: PrevoyanceProfile(
-          avoirLppTotal: lpp,
-          totalEpargne3a: epargne3a,
-        ),
-        goalA: GoalA(
-          type: GoalAType.achatImmo,
-          targetDate: DateTime(2028, 6, 1),
-          label: 'Acheter un appartement',
-        ),
-      );
-    }
-
-    test('Test 7: computeProfileHash produces same string for same inputs', () {
-      final profile = makeProfile();
-      final hash1 = computeProfileHash(profile);
-      final hash2 = computeProfileHash(profile);
-
-      expect(hash1, equals(hash2));
-    });
-
-    test('Test 8: computeProfileHash changes when salaireBrutMensuel changes', () {
-      final profile1 = makeProfile(salaireBrutMensuel: 10183.92);
-      final profile2 = makeProfile(salaireBrutMensuel: 5583.33);
-
-      expect(computeProfileHash(profile1), isNot(equals(computeProfileHash(profile2))));
-    });
-
-    test('Test 9: computeProfileHash does NOT change when unrelated CoachProfile field changes', () {
-      // canton, salary, lpp, 3a, dob are the only hashed fields.
-      // Two profiles with same hashed fields should produce the same hash.
-      final profile1 = makeProfile(salaireBrutMensuel: 8333.33, canton: 'ZH');
-      final profile2 = makeProfile(salaireBrutMensuel: 8333.33, canton: 'ZH');
-
-      expect(computeProfileHash(profile1), equals(computeProfileHash(profile2)));
-    });
-  });
 }

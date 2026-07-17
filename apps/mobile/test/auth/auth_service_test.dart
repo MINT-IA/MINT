@@ -100,7 +100,7 @@ void main() {
       expect(await AuthService.isLoggedIn(), true);
 
       // Logout
-      await AuthService.logout();
+      await AuthService.clearTokensForSessionTermination();
 
       // Verify token is cleared
       expect(await AuthService.isLoggedIn(), false);

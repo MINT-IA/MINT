@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final class _TrackingProfilePersistence
+    with SerializedCanonicalAnswerMutationPersistence
     implements TaxProfilePersistence, LppProfilePersistence {
   _TrackingProfilePersistence(this.answers);
 
@@ -255,7 +256,8 @@ void main() {
       ),
     );
 
-    expect(persistence.loadCalls, 1);
+    // Root write followed by exact activation CAS verification.
+    expect(persistence.loadCalls, 2);
     expect(persistence.saveCalls, 1);
     final encoded = persistence.answers['_coach_lpp_evidence_v1'] as String;
     expect(encoded, isNot(contains(authorization.acquisitionId)));

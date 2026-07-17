@@ -10,6 +10,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/cross_validation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/l10n/confidence_prompt_localizations.dart';
@@ -62,6 +63,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
   final TextEditingController _unemploymentContributionMonthsController =
       TextEditingController();
   final TextEditingController _birthYearController = TextEditingController();
+  final TextEditingController _dateOfBirthController = TextEditingController();
   final TextEditingController _cashController = TextEditingController();
   final TextEditingController _wealthEstimateController =
       TextEditingController();
@@ -76,6 +78,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
   bool _householdInputsSeeded = false;
   bool _hasPensionFund = false;
   bool _hasPensionFundTouched = false;
+  String? _gender;
   String _civilStatus = 'celibataire';
   String _housingStatus = 'renter';
   bool _childrenConfirmed = false;
@@ -103,6 +106,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     _companyProfitController.dispose();
     _unemploymentContributionMonthsController.dispose();
     _birthYearController.dispose();
+    _dateOfBirthController.dispose();
     _cashController.dispose();
     _wealthEstimateController.dispose();
     _propertyMarketValueController.dispose();
@@ -322,6 +326,13 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     if (profile.birthYear >= 1900) {
       _birthYearController.text = '${profile.birthYear}';
     }
+    final dateOfBirth = profile.dateOfBirth;
+    if (dateOfBirth != null) {
+      _dateOfBirthController.text = _formatCivilDate(dateOfBirth);
+    }
+    if (profile.gender == 'F' || profile.gender == 'M') {
+      _gender = profile.gender;
+    }
     _hasPensionFund = (profile.prevoyance.avoirLppTotal ?? 0) > 0 ||
         profile.prevoyance.isLppFromCertificate;
   }
@@ -466,6 +477,57 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         onChanged: (_) => setState(() => _revenueSaved = false),
       ));
     }
+    if (onlyInputKey == 'q_date_of_birth') {
+      addField(_buildRevenueTextField(
+        key: const Key('date_of_birth_input'),
+        semanticsIdentifier: 'date_of_birth_input',
+        controller: _dateOfBirthController,
+        label: l.dataBlockBirthDateLabel,
+        keyboardType: TextInputType.datetime,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'[0-9-]')),
+          LengthLimitingTextInputFormatter(10),
+        ],
+        onChanged: (_) => setState(() => _revenueSaved = false),
+        suffixIcon: IconButton(
+          key: const Key('date_of_birth_picker'),
+          tooltip: l.dataBlockBirthDatePicker,
+          onPressed: _pickDateOfBirth,
+          icon: const Icon(Icons.calendar_today_outlined),
+        ),
+      ));
+    }
+    if (onlyInputKey == 'q_gender') {
+      addField(Semantics(
+        identifier: 'gender_input',
+        container: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l.dataBlockGenderLabel,
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                _buildGenderChoice(
+                  key: const Key('gender_f_choice'),
+                  value: 'F',
+                  label: l.dataBlockGenderFemale,
+                ),
+                _buildGenderChoice(
+                  key: const Key('gender_m_choice'),
+                  value: 'M',
+                  label: l.dataBlockGenderMale,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ));
+    }
     if (_capturesRevenue('q_has_pension_fund', onlyInputKey)) {
       addField(Semantics(
         identifier: 'has_pension_fund_switch',
@@ -551,6 +613,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     TextCapitalization textCapitalization = TextCapitalization.none,
     List<TextInputFormatter>? inputFormatters,
     ValueChanged<String>? onChanged,
+    Widget? suffixIcon,
   }) {
     return Semantics(
       identifier: semanticsIdentifier,
@@ -563,6 +626,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         onChanged: onChanged,
         decoration: InputDecoration(
           labelText: label,
+          suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -582,6 +646,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         onlyInputKey == 'q_unemployment_contribution_months';
     final capturesCanton = _capturesRevenue('q_canton', onlyInputKey);
     final capturesBirthYear = _capturesRevenue('q_birth_year', onlyInputKey);
+    final capturesDateOfBirth = onlyInputKey == 'q_date_of_birth';
+    final capturesGender = onlyInputKey == 'q_gender';
     final capturesPensionFund =
         _capturesRevenue('q_has_pension_fund', onlyInputKey);
     final canton = _cantonController.text.trim().toUpperCase();
@@ -595,6 +661,9 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     );
     final birthText = _birthYearController.text.trim();
     final birthYear = birthText.isEmpty ? null : int.tryParse(birthText);
+    final dateOfBirthText = _dateOfBirthController.text.trim();
+    final dateOfBirth =
+        dateOfBirthText.isEmpty ? null : _parseCivilDate(dateOfBirthText);
     final currentYear = DateTime.now().year;
     final youngestSupportedBirthYear = currentYear - 18;
 
@@ -605,6 +674,15 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
                 (birthYear == null ||
                     birthYear < 1900 ||
                     birthYear > youngestSupportedBirthYear)));
+    final dateOfBirthRequired = onlyInputKey == 'q_date_of_birth';
+    final invalidDateOfBirth = capturesDateOfBirth &&
+        ((dateOfBirthRequired && dateOfBirthText.isEmpty) ||
+            (dateOfBirthText.isNotEmpty &&
+                (dateOfBirth == null || !_isSupportedAdult(dateOfBirth))));
+    final invalidGender = capturesGender &&
+        onlyInputKey == 'q_gender' &&
+        _gender != 'F' &&
+        _gender != 'M';
 
     if ((capturesCanton && !_swissCantonCodes.contains(' $canton ')) ||
         (capturesSalary && (salary == null || salary <= 0)) ||
@@ -616,7 +694,9 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
             (unemploymentContributionMonths == null ||
                 unemploymentContributionMonths < 0 ||
                 unemploymentContributionMonths > 24)) ||
-        invalidBirthYear) {
+        invalidBirthYear ||
+        invalidDateOfBirth ||
+        invalidGender) {
       setState(() => _revenueError = l.authErrorInvalid);
       return;
     }
@@ -640,6 +720,10 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         'q_unemployment_contribution_months': unemploymentContributionMonths,
       if (capturesCanton) 'q_canton': canton,
       if (capturesBirthYear && birthYear != null) 'q_birth_year': birthYear,
+      if (capturesDateOfBirth && dateOfBirth != null)
+        'q_date_of_birth': _formatCivilDate(dateOfBirth),
+      if (capturesGender && (_gender == 'F' || _gender == 'M'))
+        'q_gender': _gender,
       if (capturesPensionFund &&
           (_hasPensionFundTouched || onlyInputKey == 'q_has_pension_fund'))
         'q_has_pension_fund': _hasPensionFund ? 'yes' : 'no',
@@ -654,6 +738,83 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       _isSavingRevenue = false;
       _revenueSaved = true;
     });
+  }
+
+  Widget _buildGenderChoice({
+    required Key key,
+    required String value,
+    required String label,
+  }) {
+    return Semantics(
+      identifier: (key as ValueKey<String>).value,
+      button: true,
+      selected: _gender == value,
+      child: ChoiceChip(
+        key: key,
+        label: Text(label),
+        selected: _gender == value,
+        onSelected: (_) => setState(() {
+          _gender = value;
+          _revenueSaved = false;
+        }),
+      ),
+    );
+  }
+
+  Future<void> _pickDateOfBirth() async {
+    final today = SwissCivilTime.civilDate(DateTime.now());
+    final lastDate = _birthdayAtAge(today, -18);
+    final parsed = _parseCivilDate(_dateOfBirthController.text.trim());
+    final initial = parsed != null &&
+            !parsed.isBefore(DateTime.utc(1900, 1, 1)) &&
+            !parsed.isAfter(lastDate)
+        ? parsed
+        : DateTime.utc(lastDate.year - 30, lastDate.month, lastDate.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(initial.year, initial.month, initial.day),
+      firstDate: DateTime(1900, 1, 1),
+      lastDate: DateTime(lastDate.year, lastDate.month, lastDate.day),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _dateOfBirthController.text = _formatCivilDate(picked);
+      _revenueSaved = false;
+      _revenueError = null;
+    });
+  }
+
+  bool _isSupportedAdult(DateTime dateOfBirth) {
+    if (dateOfBirth.isBefore(DateTime.utc(1900, 1, 1))) return false;
+    final today = SwissCivilTime.civilDate(DateTime.now());
+    return !dateOfBirth.isAfter(_birthdayAtAge(today, -18));
+  }
+
+  DateTime _birthdayAtAge(DateTime date, int years) {
+    final year = date.year + years;
+    final maxDay = DateTime.utc(year, date.month + 1, 0).day;
+    return DateTime.utc(year, date.month, date.day.clamp(1, maxDay));
+  }
+
+  DateTime? _parseCivilDate(String value) {
+    final match = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$').firstMatch(value);
+    if (match == null) return null;
+    final year = int.parse(match.group(1)!);
+    final month = int.parse(match.group(2)!);
+    final day = int.parse(match.group(3)!);
+    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+    final parsed = DateTime.utc(year, month, day);
+    if (parsed.year != year || parsed.month != month || parsed.day != day) {
+      return null;
+    }
+    return parsed;
+  }
+
+  String _formatCivilDate(DateTime value) {
+    final year = value.year.toString().padLeft(4, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    final day = value.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
   }
 
   bool _shouldShowPatrimoineCollector(String canonicalBlockType) {
@@ -1194,6 +1355,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         'q_unemployment_contribution_months',
       'qcanton' || 'canton' => 'q_canton',
       'qbirthyear' || 'birthyear' => 'q_birth_year',
+      'qdateofbirth' || 'dateofbirth' || 'datedenaissance' => 'q_date_of_birth',
+      'qgender' || 'gender' || 'genre' || 'sexeavs' => 'q_gender',
       'qhaspensionfund' ||
       'has2ndpillar' ||
       'haspensionfund' =>

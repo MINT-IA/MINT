@@ -2,8 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+const _profileOwnerId = '11111111-1111-4111-8111-111111111111';
 
 // ────────────────────────────────────────────────────────────────────────────
 //  PlanGenerationService Tests
@@ -29,9 +32,11 @@ CoachProfile _profileSalaryOnly() => CoachProfile(
 CoachProfile _profileComplete() => CoachProfile(
       birthYear: 1977,
       dateOfBirth: DateTime(1977, 1, 12),
+      gender: 'M',
       canton: 'VS',
       salaireBrutMensuel: 10184,
       prevoyance: const PrevoyanceProfile(
+        hasPensionFund: true,
         avoirLppTotal: 70000,
         rendementCaisse: 0.02,
         totalEpargne3a: 32000,
@@ -45,6 +50,8 @@ CoachProfile _profileComplete() => CoachProfile(
       dataSources: const {
         'salaireBrutMensuel': ProfileDataSource.userInput,
         'dateOfBirth': ProfileDataSource.userInput,
+        'gender': ProfileDataSource.userInput,
+        'prevoyance.hasPensionFund': ProfileDataSource.userInput,
         'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
         'prevoyance.rendementCaisse': ProfileDataSource.userInput,
         'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
@@ -53,6 +60,8 @@ CoachProfile _profileComplete() => CoachProfile(
         for (final path in const [
           'salaireBrutMensuel',
           'dateOfBirth',
+          'gender',
+          'prevoyance.hasPensionFund',
           'prevoyance.avoirLppTotal',
           'prevoyance.rendementCaisse',
           'prevoyance.totalEpargne3a',
@@ -61,6 +70,29 @@ CoachProfile _profileComplete() => CoachProfile(
       },
       inferDataSources: false,
     );
+
+LppEvidenceSnapshot _selfLppSnapshot(
+  CoachProfile profile, {
+  DateTime? updatedAt,
+}) {
+  final stamp = updatedAt ??
+      profile.dataTimestamps['prevoyance.avoirLppTotal'] ??
+      DateTime.now();
+  return LppEvidenceSnapshot(
+    snapshotId: '22222222-2222-4222-8222-222222222222',
+    facts: {
+      LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
+        value: profile.prevoyance.avoirLppTotal!,
+        unit: LppEvidenceUnit.chf,
+        profileOwnerId: _profileOwnerId,
+        actorProfileOwnerId: _profileOwnerId,
+        source: profile.dataSources['prevoyance.avoirLppTotal']!.name,
+        sourceDate: profile.dataSourceDates['prevoyance.avoirLppTotal'],
+        updatedAt: stamp,
+      ),
+    },
+  );
+}
 
 void main() {
   setUpAll(() async {
@@ -79,6 +111,8 @@ void main() {
       final targetDate = DateTime(now.year + 3, now.month, now.day);
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Constituer un apport pour mon appartement',
         goalCategory: 'goal_house',
         targetDate: targetDate,
@@ -97,6 +131,8 @@ void main() {
       final targetDate = DateTime.now().add(const Duration(days: 365 * 3));
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Fonds de roulement',
         goalCategory: 'goal_emergency_fund',
         targetDate: targetDate,
@@ -127,6 +163,8 @@ void main() {
       final targetDate = DateTime.now().add(const Duration(days: 365 * 2));
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Remboursement de dettes',
         goalCategory: 'goal_control_debts',
         targetDate: targetDate,
@@ -143,6 +181,8 @@ void main() {
       final targetDate = DateTime.now().add(const Duration(days: 365));
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Optimiser mes impots',
         goalCategory: 'goal_tax_basic',
         targetDate: targetDate,
@@ -159,6 +199,8 @@ void main() {
       final targetDate = DateTime.now().add(const Duration(days: 365));
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Constituer un fonds de roulement',
         goalCategory: 'goal_emergency_fund',
         targetDate: targetDate,
@@ -175,6 +217,8 @@ void main() {
       final targetDate = DateTime.now().add(const Duration(days: 365));
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Investissement initial',
         goalCategory: 'goal_invest_simple',
         targetDate: targetDate,
@@ -185,8 +229,9 @@ void main() {
       expect(plan.sources, isEmpty);
     });
 
-    // Test 7: profileHashAtGeneration is set from profile
-    test('Test 7: profileHashAtGeneration is computed from profile', () async {
+    // Test 7: the general branch hashes only dependencies it consumes.
+    test('Test 7: general fingerprint ignores unrelated profile fields',
+        () async {
       final profile1 = _profileSalaryOnly();
       final profile2 = CoachProfile(
         birthYear: 1990,
@@ -202,6 +247,8 @@ void main() {
       final targetDate = DateTime.now().add(const Duration(days: 365));
 
       final plan1 = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Apport immobilier',
         goalCategory: 'goal_house',
         targetDate: targetDate,
@@ -210,6 +257,8 @@ void main() {
       );
 
       final plan2 = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Apport immobilier',
         goalCategory: 'goal_house',
         targetDate: targetDate,
@@ -217,14 +266,15 @@ void main() {
         goalAmount: 500000,
       );
 
-      // Different profiles → different hashes
+      // The general calculator consumes only the confirmed scenario envelope.
       expect(plan1.profileHashAtGeneration, isNotEmpty);
       expect(plan2.profileHashAtGeneration, isNotEmpty);
-      expect(plan1.profileHashAtGeneration,
-          isNot(equals(plan2.profileHashAtGeneration)));
+      expect(plan1.profileHashAtGeneration, plan2.profileHashAtGeneration);
 
       // Same profile → same hash
       final plan3 = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Apport immobilier',
         goalCategory: 'goal_house',
         targetDate: targetDate,
@@ -243,6 +293,8 @@ void main() {
       final targetDate = DateTime(2042, 1, 12);
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: _selfLppSnapshot(profile),
         goalDescription: 'Préparer ma retraite',
         goalCategory: 'goal_retirement_plan',
         targetDate: targetDate,
@@ -266,6 +318,8 @@ void main() {
 
       expect(
         () async => await PlanGenerationService.generate(
+          profileOwnerId: _profileOwnerId,
+          selfLppSnapshot: null,
           goalDescription: 'Objectif passé',
           goalCategory: 'goal_emergency_fund',
           targetDate: pastDate,
@@ -275,9 +329,8 @@ void main() {
       );
     });
 
-    // Test 10: confidenceLevel increases with more profile data
-    test(
-        'Test 10: confidenceLevel is higher for complete profile than salary-only',
+    // Test 10: unused facts never inflate branch confidence.
+    test('Test 10: general confidence ignores unrelated profile completeness',
         () async {
       final profileLow = _profileSalaryOnly();
       final profileHigh = _profileComplete();
@@ -285,6 +338,8 @@ void main() {
       final targetDate = DateTime.now().add(const Duration(days: 365 * 5));
 
       final planLow = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Objectif général',
         goalCategory: 'goal_invest_simple',
         targetDate: targetDate,
@@ -293,6 +348,8 @@ void main() {
       );
 
       final planHigh = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Objectif général',
         goalCategory: 'goal_invest_simple',
         targetDate: targetDate,
@@ -300,9 +357,8 @@ void main() {
         goalAmount: 50000,
       );
 
-      expect(planHigh.confidenceLevel, greaterThan(planLow.confidenceLevel),
-          reason:
-              'Profile with salary+LPP+3a+dateOfBirth should yield higher confidence');
+      expect(planLow.confidenceLevel, 100);
+      expect(planHigh.confidenceLevel, planLow.confidenceLevel);
     });
 
     test('Test 11: non-positive and non-finite goal amounts fail closed',
@@ -316,6 +372,8 @@ void main() {
       ]) {
         expect(
           () => PlanGenerationService.generate(
+            profileOwnerId: _profileOwnerId,
+            selfLppSnapshot: null,
             goalDescription: 'Objectif invalide',
             goalCategory: 'goal_general',
             targetDate: targetDate,
@@ -334,10 +392,12 @@ void main() {
       final profile = CoachProfile(
         birthYear: now.year - 40,
         dateOfBirth: DateTime(now.year - 40, now.month, 1),
+        gender: 'M',
         canton: 'VD',
         salaireBrutMensuel: 1000,
         nombreDeMois: 12,
         prevoyance: const PrevoyanceProfile(
+          hasPensionFund: true,
           avoirLppTotal: 150000,
           avoirLppObligatoire: 100000,
           avoirLppSurobligatoire: 50000,
@@ -352,6 +412,8 @@ void main() {
         dataSources: const {
           'salaireBrutMensuel': ProfileDataSource.userInput,
           'dateOfBirth': ProfileDataSource.userInput,
+          'gender': ProfileDataSource.userInput,
+          'prevoyance.hasPensionFund': ProfileDataSource.userInput,
           'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
           'prevoyance.avoirLppObligatoire': ProfileDataSource.userInput,
           'prevoyance.avoirLppSurobligatoire': ProfileDataSource.userInput,
@@ -361,6 +423,8 @@ void main() {
           for (final path in const [
             'salaireBrutMensuel',
             'dateOfBirth',
+            'gender',
+            'prevoyance.hasPensionFund',
             'prevoyance.avoirLppTotal',
             'prevoyance.avoirLppObligatoire',
             'prevoyance.avoirLppSurobligatoire',
@@ -372,6 +436,8 @@ void main() {
       );
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: _selfLppSnapshot(profile, updatedAt: now),
         goalDescription: 'Retraite avec rendement déclaré',
         goalCategory: 'goal_retirement_plan',
         targetDate: targetDate,
@@ -402,6 +468,7 @@ void main() {
         salaireBrutMensuel: 1000,
         nombreDeMois: 12,
         prevoyance: const PrevoyanceProfile(
+          hasPensionFund: true,
           avoirLppTotal: 150000,
           avoirLppObligatoire: 100000,
           avoirLppSurobligatoire: 50000,
@@ -413,11 +480,19 @@ void main() {
           targetDate: DateTime(now.year, now.month + 300, now.day),
           label: 'Retraite sans rendement déclaré',
         ),
+        dataSources: const {
+          'prevoyance.hasPensionFund': ProfileDataSource.userInput,
+        },
+        dataTimestamps: {
+          'prevoyance.hasPensionFund': now,
+        },
         inferDataSources: false,
       );
 
       expect(
         () => PlanGenerationService.generate(
+          profileOwnerId: _profileOwnerId,
+          selfLppSnapshot: null,
           goalDescription: 'Retraite sans rendement déclaré',
           goalCategory: 'goal_retirement_plan',
           targetDate: DateTime(now.year, now.month + 300, now.day),

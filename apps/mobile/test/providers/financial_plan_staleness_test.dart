@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:ui' show SemanticsAction;
 
 import 'package:flutter/foundation.dart';
@@ -10,10 +9,13 @@ import 'package:flutter_local_notifications_platform_interface/flutter_local_not
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/app.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/coach_profile_owner.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -21,7 +23,10 @@ import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
+import 'package:mint_mobile/services/plan_generation_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
@@ -31,17 +36,51 @@ import 'package:shared_preferences/shared_preferences.dart';
 const _salaryPath = 'salaireBrutMensuel';
 const _cantonPath = 'canton';
 const _dateOfBirthPath = 'dateOfBirth';
-const _birthYearPath = 'birthYear';
+const _genderPath = 'gender';
 const _lppTotalPath = 'prevoyance.avoirLppTotal';
 const _lppMandatoryPath = 'prevoyance.avoirLppObligatoire';
 const _lppExtraMandatoryPath = 'prevoyance.avoirLppSurobligatoire';
 const _lppReturnPath = 'prevoyance.rendementCaisse';
 const _pillar3aPath = 'prevoyance.totalEpargne3a';
+const _hasPensionFundPath = 'prevoyance.hasPensionFund';
+const _profileOwnerId = '11111111-1111-4111-8111-111111111111';
 
 class _FakeNotificationsPlatform extends FlutterLocalNotificationsPlatform {
   @override
   Future<NotificationAppLaunchDetails?>
       getNotificationAppLaunchDetails() async => null;
+}
+
+class _DormantTimer implements Timer {
+  var _active = true;
+
+  @override
+  void cancel() => _active = false;
+
+  @override
+  bool get isActive => _active;
+
+  @override
+  int get tick => 0;
+}
+
+class _CountingRevision extends ValueNotifier<int> {
+  _CountingRevision(super.value);
+
+  int addCalls = 0;
+  int removeCalls = 0;
+
+  @override
+  void addListener(VoidCallback listener) {
+    addCalls += 1;
+    super.addListener(listener);
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    removeCalls += 1;
+    super.removeListener(listener);
+  }
 }
 
 /// Minimal observable ledger for provider-contract tests.
@@ -66,6 +105,52 @@ class _TestLedger extends CoachProfileProvider {
 
   @override
   bool get isLoaded => _testIsLoaded;
+
+  @override
+  String get canonicalProfileOwnerId => _profileOwnerId;
+
+  @override
+  Future<String> ensureCanonicalProfileOwner() async => _profileOwnerId;
+
+  @override
+  Future<String> previewCanonicalProfileOwner() async => _profileOwnerId;
+
+  @override
+  Future<String> commitStagedCanonicalProfileOwner(String ownerId) async {
+    if (ownerId != _profileOwnerId) throw StateError('synthetic owner drift');
+    return _profileOwnerId;
+  }
+
+  @override
+  LppEvidenceSnapshot? currentLppSnapshot(
+    LppEvidenceOwnerKind ownerKind,
+  ) {
+    final profile = _testProfile;
+    final total = profile?.prevoyance.avoirLppTotal;
+    final updatedAt = profile?.dataTimestamps[_lppTotalPath];
+    final source = profile?.dataSources[_lppTotalPath];
+    if (ownerKind != LppEvidenceOwnerKind.self ||
+        profile == null ||
+        total == null ||
+        updatedAt == null ||
+        source == null) {
+      return null;
+    }
+    return LppEvidenceSnapshot(
+      snapshotId: '22222222-2222-4222-8222-222222222222',
+      facts: {
+        LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
+          value: total,
+          unit: LppEvidenceUnit.chf,
+          profileOwnerId: _profileOwnerId,
+          actorProfileOwnerId: _profileOwnerId,
+          source: source.name,
+          sourceDate: profile.dataSourceDates[_lppTotalPath],
+          updatedAt: updatedAt,
+        ),
+      },
+    );
+  }
 
   @override
   Future<Map<String, dynamic>> waitForReportAnswers({
@@ -94,6 +179,11 @@ class _TestLedger extends CoachProfileProvider {
     _testProfile = updated;
     _testIsLoaded = true;
     notifyListeners();
+  }
+
+  void replaceProfileSilently(CoachProfile profile) {
+    _testProfile = profile;
+    _testIsLoaded = true;
   }
 
   void beginLedgerSwitch({CoachProfile? retainedProfile}) {
@@ -140,6 +230,18 @@ class _DeferredLoadPlanProvider extends FinancialPlanProvider {
   }
 }
 
+class _CountingPlanProvider extends FinancialPlanProvider {
+  _CountingPlanProvider() : super(timerFactory: (_, __) => _DormantTimer());
+
+  int setPlanCalls = 0;
+
+  @override
+  Future<void> setPlan(FinancialPlan plan) {
+    setPlanCalls++;
+    return super.setPlan(plan);
+  }
+}
+
 class _EmptyTimelineProvider extends TimelineProvider {
   @override
   bool get isLoading => false;
@@ -148,7 +250,7 @@ class _EmptyTimelineProvider extends TimelineProvider {
   bool get isEmpty => true;
 
   @override
-  Future<void> refresh() async {}
+  Future<void> refresh({bool includeAuthenticatedNetwork = true}) async {}
 }
 
 CoachProfile _profile({
@@ -156,6 +258,7 @@ CoachProfile _profile({
   int birthYear = 1985,
   bool useDateOfBirth = true,
   int dateOfBirthDay = 12,
+  String gender = 'M',
   String canton = 'VD',
   double salary = 8000,
   double months = 13,
@@ -176,10 +279,12 @@ CoachProfile _profile({
     firstName: firstName,
     birthYear: birthYear,
     dateOfBirth: useDateOfBirth ? DateTime.utc(1985, 4, dateOfBirthDay) : null,
+    gender: gender,
     canton: canton,
     salaireBrutMensuel: salary,
     nombreDeMois: months,
     prevoyance: PrevoyanceProfile(
+      hasPensionFund: true,
       avoirLppTotal: lppTotal,
       avoirLppObligatoire: lppMandatory,
       avoirLppSurobligatoire: lppExtraMandatory,
@@ -207,15 +312,22 @@ CoachProfile _projectionReadyProfile({double salary = 8000}) {
     _salaryPath,
     _cantonPath,
     _dateOfBirthPath,
+    _genderPath,
     _lppTotalPath,
     _lppMandatoryPath,
     _lppExtraMandatoryPath,
     _lppReturnPath,
     _pillar3aPath,
+    _hasPensionFundPath,
   ];
   return _profile(
     salary: salary,
-    sources: {for (final path in paths) path: ProfileDataSource.userInput},
+    sources: {
+      for (final path in paths)
+        path: path == _lppTotalPath
+            ? ProfileDataSource.certificate
+            : ProfileDataSource.userInput,
+    },
     timestamps: {for (final path in paths) path: stamp},
     sourceDates: {for (final path in paths) path: stamp},
   );
@@ -244,7 +356,8 @@ FinancialPlan _planFor(
     projectedHigh: 600000,
     targetDate: DateTime.utc(2045, 6, 1),
     generatedAt: DateTime.utc(2026, 7, 1),
-    profileHashAtGeneration: profileHash ?? computeProfileHash(profile),
+    profileHashAtGeneration: profileHash ??
+        'mint-plan-dependency:v3:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     coachNarrative: 'Narration synthétique.',
     confidenceLevel: 80,
     sources: const ['LPP art. 14'],
@@ -265,6 +378,31 @@ FinancialPlan _planFor(
       projectionAsOf: DateTime.utc(2026, 7, 1),
     ),
   );
+}
+
+Future<FinancialPlan> _validRetirementPlanFor(
+  CoachProfile profile, {
+  required DateTime now,
+}) async {
+  final ledger = _TestLedger(profile);
+  try {
+    final draft = await PlanGenerationService.generate(
+      goalDescription: 'Objectif synthétique',
+      goalCategory: 'goal_retirement_plan',
+      targetDate: DateTime.utc(2045, 6, 1),
+      profile: profile,
+      profileOwnerId: _profileOwnerId,
+      selfLppSnapshot: ledger.currentLppSnapshot(
+        LppEvidenceOwnerKind.self,
+      ),
+      goalAmount: 500000,
+      prospectiveLppReturn: 0.02,
+      now: now,
+    );
+    return draft.copyWith(confirmedAt: now);
+  } finally {
+    ledger.dispose();
+  }
 }
 
 CoachProfileProvider _ledger(
@@ -369,513 +507,12 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({});
     FlutterLocalNotificationsPlatform.instance = _FakeNotificationsPlatform();
     FeatureFlags.financialPlanSetupEnabled = true;
+    RegulatorySyncService.clearCache();
   });
 
-  tearDown(() => FeatureFlags.financialPlanSetupEnabled = false);
-
-  group('versioned canonical financial-plan input fingerprint', () {
-    test('uses a versioned SHA-256 wire format and ignores map insertion order',
-        () {
-      final stamp = DateTime.utc(2026, 7, 1, 10);
-      final first = _profile(
-        sources: const {
-          _salaryPath: ProfileDataSource.userInput,
-          _cantonPath: ProfileDataSource.certificate,
-        },
-        timestamps: {
-          _salaryPath: stamp,
-          _cantonPath: stamp,
-        },
-      );
-      final second = _profile(
-        sources: const {
-          _cantonPath: ProfileDataSource.certificate,
-          _salaryPath: ProfileDataSource.userInput,
-        },
-        timestamps: {
-          _cantonPath: stamp,
-          _salaryPath: stamp,
-        },
-      );
-
-      final firstHash = computeProfileHash(first);
-      expect(
-        firstHash,
-        matches(RegExp(r'^mint-plan-input:v2:sha256:[0-9a-f]{64}$')),
-      );
-      expect(computeProfileHash(second), firstHash);
-    });
-
-    test('salary and canton are live invalidation controls', () {
-      final baseline = computeProfileHash(_profile());
-      expect(computeProfileHash(_profile(salary: 8100)), isNot(baseline));
-      expect(computeProfileHash(_profile(canton: 'GE')), isNot(baseline));
-    });
-
-    test('uses dateOfBirth when present and birthYear only as its fallback',
-        () {
-      final dated = computeProfileHash(_profile(birthYear: 1980));
-      expect(computeProfileHash(_profile(birthYear: 1990)), dated);
-      expect(
-        computeProfileHash(_profile(birthYear: 1980, dateOfBirthDay: 13)),
-        isNot(dated),
-      );
-
-      final yearOnly = computeProfileHash(
-        _profile(useDateOfBirth: false, birthYear: 1980),
-      );
-      expect(
-        computeProfileHash(
-          _profile(useDateOfBirth: false, birthYear: 1990),
-        ),
-        isNot(yearOnly),
-      );
-    });
-
-    test('covers every durable retirement calculation input in the v2 hash',
-        () {
-      final baseline = computeProfileHash(_profile());
-      final changed = <String, CoachProfile>{
-        'coherent LPP components': _profile(
-          lppMandatory: 140000,
-          lppExtraMandatory: 100000,
-        ),
-        'rendementCaisse': _profile(lppReturn: 0.025),
-        'rendementCaisseConnu': _profile(lppReturnKnown: false),
-      };
-
-      for (final entry in changed.entries) {
-        expect(
-          computeProfileHash(entry.value),
-          isNot(baseline),
-          reason: '${entry.key} changes a generated retirement plan',
-        );
-      }
-    });
-
-    test('salary payment months are inspection-only and do not stale a plan',
-        () {
-      expect(
-        computeProfileHash(_profile(months: 13.5)),
-        computeProfileHash(_profile(months: 12)),
-        reason: 'The LPP projection annualizes monthly salary as ×12; a 13th '
-            'salary month must not silently change the result or its hash.',
-      );
-    });
-
-    test('retains total LPP and 3a as live invalidation controls', () {
-      final baseline = computeProfileHash(_profile());
-      expect(
-        computeProfileHash(
-          _profile(lppTotal: 250000, lppExtraMandatory: 100000),
-        ),
-        isNot(baseline),
-      );
-      expect(computeProfileHash(_profile(pillar3a: 43000)), isNot(baseline));
-    });
-
-    test('source, update time, and source date each change the fingerprint',
-        () {
-      const paths = {
-        _salaryPath: true,
-        _cantonPath: true,
-        _dateOfBirthPath: true,
-        _birthYearPath: false,
-        _lppTotalPath: true,
-        _lppMandatoryPath: true,
-        _lppExtraMandatoryPath: true,
-        _lppReturnPath: true,
-        _pillar3aPath: true,
-      };
-      for (final entry in paths.entries) {
-        final path = entry.key;
-        final baseline = computeProfileHash(
-          _profile(
-            useDateOfBirth: entry.value,
-            sources: {path: ProfileDataSource.userInput},
-            timestamps: {path: DateTime.utc(2026, 7, 1)},
-            sourceDates: {path: DateTime.utc(2026, 6, 30)},
-          ),
-        );
-        final changed = [
-          _profile(
-            useDateOfBirth: entry.value,
-            sources: {path: ProfileDataSource.certificate},
-            timestamps: {path: DateTime.utc(2026, 7, 1)},
-            sourceDates: {path: DateTime.utc(2026, 6, 30)},
-          ),
-          _profile(
-            useDateOfBirth: entry.value,
-            sources: {path: ProfileDataSource.userInput},
-            timestamps: {path: DateTime.utc(2026, 7, 2)},
-            sourceDates: {path: DateTime.utc(2026, 6, 30)},
-          ),
-          _profile(
-            useDateOfBirth: entry.value,
-            sources: {path: ProfileDataSource.userInput},
-            timestamps: {path: DateTime.utc(2026, 7, 1)},
-            sourceDates: {path: DateTime.utc(2026, 7, 1)},
-          ),
-        ];
-
-        for (final profile in changed) {
-          expect(
-            computeProfileHash(profile),
-            isNot(baseline),
-            reason: '$path provenance and freshness are plan inputs',
-          );
-        }
-      }
-    });
-
-    test('keeps unknown LPP distinct from an explicit zero', () {
-      expect(
-        computeProfileHash(
-          _profile(
-            lppTotal: null,
-            lppMandatory: null,
-            lppExtraMandatory: null,
-          ),
-        ),
-        isNot(
-          computeProfileHash(
-            _profile(
-              lppTotal: 0,
-              lppMandatory: 0,
-              lppExtraMandatory: 0,
-            ),
-          ),
-        ),
-      );
-    });
-
-    test('display-only profile changes do not invalidate the fingerprint', () {
-      expect(
-        computeProfileHash(_profile(firstName: 'Synthetic A')),
-        computeProfileHash(_profile(firstName: 'Synthetic B')),
-      );
-      expect(
-        computeProfileHash(_profile(goalLabel: 'Objectif A')),
-        computeProfileHash(
-          _profile(
-            goalLabel: 'Objectif B',
-            goalTargetDate: DateTime.utc(2050, 1, 1),
-          ),
-        ),
-      );
-      expect(
-        computeProfileHash(_profile(updatedAt: DateTime.utc(2026, 7, 1))),
-        computeProfileHash(_profile(updatedAt: DateTime.utc(2026, 7, 2))),
-      );
-    });
-
-    test('normalizes negative zero and rejects non-finite financial inputs',
-        () {
-      expect(
-        computeProfileHash(_profile(lppReturn: -0.0)),
-        computeProfileHash(_profile(lppReturn: 0.0)),
-      );
-      expect(
-        () => computeProfileHash(_profile(salary: double.nan)),
-        throwsArgumentError,
-      );
-      expect(
-        () => computeProfileHash(_profile(lppReturn: double.infinity)),
-        throwsArgumentError,
-      );
-    });
-  });
-
-  group('FinancialPlanProvider production lifecycle', () {
-    testWidgets('app resume re-evaluates a time-dependent ledger fingerprint',
-        (tester) async {
-      var now = DateTime.utc(2026, 4, 11, 12);
-      final profile = _profile(dateOfBirthDay: 12);
-      final ledger = _ledger(profile);
-      final plan = _planFor(
-        profile,
-        profileHash: computeProfileHash(profile, now: now),
-      );
-      final plans = FinancialPlanProvider(clock: () => now)
-        ..setPlanDirect(plan)
-        ..attachProfileProvider(ledger);
-      addTearDown(ledger.dispose);
-      addTearDown(plans.dispose);
-
-      expect(plans.isPlanStale, isFalse);
-
-      now = DateTime.utc(2026, 4, 12, 12);
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      await tester.pump();
-
-      expect(
-        plans.isPlanStale,
-        isTrue,
-        reason: 'Age/freshness can cross a hash boundary without a profile '
-            'write, so resume must consume the injected clock and reconcile.',
-      );
-    });
-
-    for (final legacyHash in ['', '154932', 'unknown:v9']) {
-      testWidgets(
-          'attachment immediately marks "$legacyHash" plan hashes stale',
-          (tester) async {
-        final profile = _profile();
-        final ledger = _ledger(profile);
-        addTearDown(ledger.dispose);
-        final plans = FinancialPlanProvider()
-          ..setPlanDirect(_planFor(profile, profileHash: legacyHash));
-        addTearDown(plans.dispose);
-
-        plans.attachProfileProvider(ledger);
-        await tester.pump();
-
-        expect(plans.isPlanStale, isTrue);
-      });
-    }
-
-    testWidgets('rebind detaches the previous ledger listener', (tester) async {
-      await tester.pumpWidget(const SizedBox.shrink());
-      final first = _ledger(_profile()) as _TestLedger;
-      final second = _ledger(_profile()) as _TestLedger;
-      addTearDown(first.dispose);
-      addTearDown(second.dispose);
-      final plans = FinancialPlanProvider();
-      addTearDown(plans.dispose);
-      plans.attachProfileProvider(first);
-      plans.attachProfileProvider(second);
-      plans.setPlanDirect(_planFor(second.profile!));
-
-      expect(first.removeListenerCalls, 1);
-      expect(second.addListenerCalls, 1);
-
-      first.updateProfile(_profile(salary: 9900));
-      await tester.pumpWidget(const SizedBox(width: 1));
-      expect(plans.isPlanStale, isFalse);
-
-      second.updateProfile(_profile(salary: 8100));
-      await tester.pumpWidget(const SizedBox(width: 2));
-      await tester.pump(const Duration(milliseconds: 1));
-      expect(plans.isPlanStale, isTrue);
-    });
-
-    test('repeated binding is idempotent', () {
-      final ledger = _ledger(_profile()) as _TestLedger;
-      addTearDown(ledger.dispose);
-      final plans = FinancialPlanProvider();
-      addTearDown(plans.dispose);
-      plans.attachProfileProvider(ledger);
-      plans.attachProfileProvider(ledger);
-
-      expect(ledger.addListenerCalls, 1);
-    });
-
-    test('disposal detaches the bound ledger listener', () {
-      final ledger = _ledger(_profile()) as _TestLedger;
-      addTearDown(ledger.dispose);
-      final plans = FinancialPlanProvider();
-      plans.attachProfileProvider(ledger);
-
-      plans.dispose();
-      expect(ledger.removeListenerCalls, 1);
-    });
-
-    testWidgets('dispose cancels an already-scheduled stale notification',
-        (tester) async {
-      await tester.pumpWidget(const SizedBox.shrink());
-      final initial = _profile();
-      final ledger = _ledger(initial);
-      addTearDown(ledger.dispose);
-      final plans = FinancialPlanProvider();
-      plans.attachProfileProvider(ledger);
-      plans.setPlanDirect(_planFor(initial));
-
-      ledger.updateProfile(_profile(salary: 8100));
-      plans.dispose();
-      await tester.pumpWidget(const SizedBox(width: 1));
-
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('cold persistence is reconciled against the bound profile',
-        (tester) async {
-      final current = _profile();
-      await FinancialPlanService.save(
-        _planFor(_profile(salary: 7000), id: 'cold-plan'),
-      );
-      final ledger = _ledger(current);
-      addTearDown(ledger.dispose);
-      final plans = FinancialPlanProvider();
-      addTearDown(plans.dispose);
-      plans.attachProfileProvider(ledger);
-
-      await plans.loadFromPersistence();
-      await tester.pump();
-
-      expect(plans.hasPlan, isTrue);
-      expect(plans.isPlanStale, isTrue);
-    });
-
-    for (final retainsCachedProfile in [false, true]) {
-      testWidgets(
-          'persisted plan is unknown while ledger is unloaded '
-          '(cached profile: $retainsCachedProfile)', (tester) async {
-        final profile = _profile();
-        final ledger = _ledger(
-          retainsCachedProfile ? profile : null,
-          isLoaded: false,
-        );
-        addTearDown(ledger.dispose);
-        final plans = FinancialPlanProvider()
-          ..setPlanDirect(_planFor(profile, id: 'unloaded-ledger-plan'));
-        addTearDown(plans.dispose);
-
-        plans.attachProfileProvider(ledger);
-        await tester.pump();
-
-        expect(plans.hasPlan, isTrue);
-        expect(
-          plans.isPlanStale,
-          isTrue,
-          reason: 'unhydrated ledger authority must fail closed',
-        );
-      });
-    }
-
-    testWidgets('clearing or switching ledger authority invalidates the plan',
-        (tester) async {
-      final profile = _profile();
-      final ledger = _ledger(profile) as _TestLedger;
-      addTearDown(ledger.dispose);
-      final plans = FinancialPlanProvider()
-        ..setPlanDirect(_planFor(profile, id: 'switch-plan'));
-      addTearDown(plans.dispose);
-      plans.attachProfileProvider(ledger);
-      await tester.pump();
-      expect(plans.isPlanStale, isFalse);
-
-      ledger.beginLedgerSwitch(retainedProfile: profile);
-      await tester.pump();
-      expect(plans.isPlanStale, isTrue);
-
-      ledger.completeLedgerSwitch(null);
-      await tester.pump();
-      expect(plans.isPlanStale, isTrue);
-    });
-
-    testWidgets('persistence hydration is idempotent', (tester) async {
-      final profile = _profile();
-      await FinancialPlanService.save(_planFor(profile));
-      final plans = FinancialPlanProvider();
-      addTearDown(plans.dispose);
-      var notifications = 0;
-      plans.addListener(() => notifications++);
-
-      await plans.loadFromPersistence();
-      await plans.loadFromPersistence();
-      await tester.pump();
-
-      expect(notifications, 1);
-    });
-
-    testWidgets('one input mutation emits one stale notification',
-        (tester) async {
-      await tester.pumpWidget(const SizedBox.shrink());
-      final initial = _profile();
-      final ledger = _ledger(initial);
-      addTearDown(ledger.dispose);
-      final plans = FinancialPlanProvider();
-      addTearDown(plans.dispose);
-      plans.attachProfileProvider(ledger);
-      plans.setPlanDirect(_planFor(initial));
-      var notifications = 0;
-      plans.addListener(() => notifications++);
-
-      ledger.updateProfile(_profile(salary: 8100));
-      await tester.pumpWidget(const SizedBox(width: 1));
-      await tester.pump(const Duration(milliseconds: 1));
-
-      expect(plans.isPlanStale, isTrue);
-      expect(notifications, 1);
-    });
-
-    test('plan lifecycle is read-only over profile facts and provenance', () {
-      final profile = _profile(
-        sources: const {_salaryPath: ProfileDataSource.certificate},
-        timestamps: {_salaryPath: DateTime.utc(2026, 7, 1)},
-        sourceDates: {_salaryPath: DateTime.utc(2026, 6, 30)},
-      );
-      final ledger = _ledger(profile);
-      addTearDown(ledger.dispose);
-      final plans = FinancialPlanProvider();
-      addTearDown(plans.dispose);
-      final before = jsonEncode(ledger.profile!.toJson());
-
-      plans.attachProfileProvider(ledger);
-      plans.setPlanDirect(_planFor(profile));
-      plans.checkStalenessForTest(profile);
-
-      expect(jsonEncode(ledger.profile!.toJson()), before);
-      final source =
-          File('lib/providers/financial_plan_provider.dart').readAsStringSync();
-      expect(source, isNot(contains('.updateProfile(')));
-      expect(source, isNot(contains('.mergeAnswers(')));
-      expect(source, isNot(contains('.applySaveFact(')));
-    });
-
-    test('production registration is an eager ledger proxy', () {
-      final source = File('lib/app.dart').readAsStringSync();
-      expect(
-        source,
-        matches(
-          RegExp(
-            r'ChangeNotifierProxyProvider<\s*CoachProfileProvider,\s*FinancialPlanProvider\s*>',
-          ),
-        ),
-      );
-      expect(
-          source, contains('provider.attachProfileProvider(profileProvider)'));
-      expect(source, contains('provider.loadFromPersistence().ignore()'));
-      expect(source, contains('lazy: false'));
-    });
-
-    testWidgets('the real MintApp provider tree invalidates after one mutation',
-        (tester) async {
-      final profile = _profile();
-      await FinancialPlanService.save(
-        _planFor(profile, id: 'cold-production-plan'),
-      );
-      final previousNotificationsPlatform =
-          FlutterLocalNotificationsPlatform.instance;
-      FlutterLocalNotificationsPlatform.instance = _FakeNotificationsPlatform();
-      addTearDown(() {
-        FlutterLocalNotificationsPlatform.instance =
-            previousNotificationsPlatform;
-      });
-      debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
-
-      await tester.pumpWidget(const MintApp());
-      await _pumpFrames(tester);
-
-      final appContext = tester.element(find.byType(MaterialApp));
-      final ledger = appContext.read<CoachProfileProvider>();
-      final plans = appContext.read<FinancialPlanProvider>();
-      expect(plans.currentPlan?.id, 'cold-production-plan');
-
-      ledger.updateProfile(profile);
-      await _pumpFrames(tester);
-      expect(plans.isPlanStale, isFalse);
-
-      ledger.updateProfile(_profile(salary: 8100));
-      await _pumpFrames(tester);
-
-      expect(plans.isPlanStale, isTrue);
-      await tester.pumpWidget(const SizedBox.shrink());
-      await _pumpFrames(tester);
-      debugDefaultTargetPlatformOverride = null;
-    });
+  tearDown(() {
+    FeatureFlags.financialPlanSetupEnabled = false;
+    RegulatorySyncService.clearCache();
   });
 
   group('fail-closed production plan consumer', () {
@@ -1028,13 +665,13 @@ void main() {
       }
     });
 
-    testWidgets('stale recovery regenerates and replaces the cached plan',
+    testWidgets('Coach stale recovery opens standard review without writing',
         (tester) async {
       final currentProfile = _projectionReadyProfile();
       final staleProfile = _projectionReadyProfile(salary: 7000);
       final ledger = _ledger(currentProfile);
       addTearDown(ledger.dispose);
-      final plans = FinancialPlanProvider()
+      final plans = _CountingPlanProvider()
         ..setPlanDirect(
           _planFor(staleProfile, id: 'stale-plan', monthlyTarget: 12345),
         )
@@ -1056,29 +693,288 @@ void main() {
       );
 
       await tester.tap(finder);
-      await _pumpFrames(tester, frames: 40);
+      await _pumpFrames(tester, frames: 10);
 
+      expect(plans.setPlanCalls, 0);
+      expect(plans.currentPlan?.id, 'stale-plan');
+      expect(plans.isPlanStale, isTrue);
+      expect(
+        find.bySemanticsIdentifier('financial_plan_setup'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('app resume rechecks a silently changed ledger',
+        (tester) async {
+      final now = DateTime.utc(2026, 7, 16, 12);
+      final profile = _projectionReadyProfile();
+      final ledger = _ledger(profile) as _TestLedger;
+      final plan = await _validRetirementPlanFor(profile, now: now);
+      final plans = FinancialPlanProvider(
+        clock: () => now,
+        timerFactory: (_, __) => _DormantTimer(),
+      )
+        ..setPlanDirect(plan)
+        ..attachProfileProvider(ledger);
+      addTearDown(ledger.dispose);
+      addTearDown(plans.dispose);
       expect(plans.isPlanStale, isFalse);
-      expect(plans.currentPlan?.id, isNot('stale-plan'));
+
+      ledger.replaceProfileSilently(_projectionReadyProfile(salary: 9000));
+      expect(plans.isPlanStale, isFalse);
+      plans.didChangeAppLifecycleState(AppLifecycleState.resumed);
+      await tester.pump();
+
+      expect(plans.isPlanStale, isTrue);
+    });
+
+    test('canonical AVS gender drift makes an LPP plan stale', () async {
+      final now = DateTime.utc(2026, 7, 16, 12);
+      final profile = _projectionReadyProfile();
+      final ledger = _ledger(profile) as _TestLedger;
+      final plan = await _validRetirementPlanFor(profile, now: now);
+      final plans = FinancialPlanProvider(
+        clock: () => now,
+        timerFactory: (_, __) => _DormantTimer(),
+      )
+        ..setPlanDirect(plan)
+        ..attachProfileProvider(ledger);
+      addTearDown(ledger.dispose);
+      addTearDown(plans.dispose);
+      expect(plans.isPlanStale, isFalse);
+
+      ledger.updateProfile(_projectionReadyProfile().copyWith(gender: 'F'));
+
+      expect(plans.isPlanStale, isTrue);
+    });
+
+    test('regulatory revisions reconcile selectively without regeneration',
+        () async {
+      final now = DateTime.utc(2026, 7, 16, 12);
+      final profile = _projectionReadyProfile();
+      final ledger = _ledger(profile) as _TestLedger;
+      final plan = await _validRetirementPlanFor(profile, now: now);
+      var saveCalls = 0;
+      final plans = FinancialPlanProvider(
+        clock: () => now,
+        timerFactory: (_, __) => _DormantTimer(),
+        saveAction: (_) async => saveCalls++,
+      )
+        ..setPlanDirect(plan)
+        ..attachProfileProvider(ledger)
+        ..attachRegulatoryRevision(
+          RegulatorySyncService.revisionListenable,
+        );
+      addTearDown(ledger.dispose);
+      addTearDown(plans.dispose);
+      expect(plans.isPlanStale, isFalse);
+
+      RegulatorySyncService.setMockCache({
+        'pillar3a.max_with_lpp': 9999,
+      });
       expect(
-        plans.currentPlan?.profileHashAtGeneration,
-        computeProfileHash(currentProfile),
+        plans.isPlanStale,
+        isFalse,
+        reason: 'an unconsumed constant must not stale this plan',
       );
-      expect(plans.currentPlan?.generatedAt, isNotNull);
-      expect(
-        plans.currentPlan!.generatedAt.isAfter(DateTime.utc(2026, 7, 1)),
-        isTrue,
-      );
-      expect(plans.currentPlan?.monthlyTarget, isNot(12345));
-      expect(plans.currentPlan?.monthlyTarget, isNot(99999));
-      expect(plans.currentPlan?.goalCategory, 'goal_retirement_plan');
-      expect(plans.currentPlan?.targetDate, DateTime.utc(2045, 6, 1));
-      expect(plans.currentPlan?.milestones.last.targetAmount, 500000);
-      expect(find.byType(PlanPreviewCard), findsOneWidget);
+
+      RegulatorySyncService.setMockCache({
+        'lpp.entry_threshold': 23000,
+      });
+      expect(plans.isPlanStale, isTrue);
+      expect(plans.currentPlan, same(plan));
+      expect(saveCalls, 0, reason: 'invalidation must never auto-regenerate');
+    });
+
+    test('regulatory attachment is idempotent and disposal is safe', () {
+      final revision = _CountingRevision(0);
+      final plans = FinancialPlanProvider()
+        ..attachRegulatoryRevision(revision)
+        ..attachRegulatoryRevision(revision);
+
+      expect(revision.addCalls, 1);
+      plans.dispose();
+      expect(revision.removeCalls, 1);
+      expect(() => revision.value = 1, returnsNormally);
+    });
+
+    testWidgets('dispose cancels a queued post-frame stale notification',
+        (tester) async {
+      final now = DateTime.utc(2026, 7, 16, 12);
+      final profile = _projectionReadyProfile();
+      final ledger = _ledger(profile) as _TestLedger;
+      final plan = await _validRetirementPlanFor(profile, now: now);
+      final plans = FinancialPlanProvider(
+        clock: () => now,
+        timerFactory: (_, __) => _DormantTimer(),
+      )
+        ..setPlanDirect(plan)
+        ..attachProfileProvider(ledger);
+      addTearDown(ledger.dispose);
+      var notifications = 0;
+      plans.addListener(() => notifications++);
+
+      ledger.updateProfile(_projectionReadyProfile(salary: 9000));
+      expect(plans.isPlanStale, isTrue);
+      plans.dispose();
+      await tester.pump();
+
+      expect(notifications, 0);
+      expect(tester.takeException(), isNull);
     });
   });
 
   group('first-class cold financial plan surface', () {
+    testWidgets(
+        'real MintApp wiring invalidates a persisted v3 plan and masks its figures',
+        (tester) async {
+      final inputAsOf = DateTime.now().toUtc().subtract(
+            const Duration(seconds: 1),
+          );
+      final targetDate = DateTime.utc(inputAsOf.year + 25, 7, 16);
+      final dateOfBirth = DateTime.utc(inputAsOf.year - 40, 1, 1);
+      final answers = <String, dynamic>{
+        'q_firstname': 'MintApp',
+        'q_birth_year': inputAsOf.year - 40,
+        'q_date_of_birth': '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+            '${dateOfBirth.month.toString().padLeft(2, '0')}-'
+            '${dateOfBirth.day.toString().padLeft(2, '0')}',
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 96000.0,
+        'q_nombre_mois': 12.0,
+        'q_has_pension_fund': false,
+        '_coach_updated_at': inputAsOf.toIso8601String(),
+        coachProfileOwnerRootKey:
+            const CoachProfileOwnerRoot(_profileOwnerId).toJsonString(),
+        '__provenance': {
+          _dateOfBirthPath: {
+            'source': ProfileDataSource.userInput.name,
+            'updatedAt': inputAsOf.toIso8601String(),
+            'sourceDate': null,
+          },
+          _hasPensionFundPath: {
+            'source': ProfileDataSource.userInput.name,
+            'updatedAt': inputAsOf.toIso8601String(),
+            'sourceDate': null,
+          },
+        },
+      };
+      await ReportPersistenceService.saveAnswers(answers);
+      await ReportPersistenceService.setCompleted(true);
+      final persistedAnswers = await ReportPersistenceService.loadAnswers();
+      final seededProfile = CoachProfile.fromWizardAnswers(persistedAnswers);
+      expect(seededProfile.prevoyance.hasPensionFund, isFalse);
+      expect(
+        seededProfile.dataSources[_hasPensionFundPath],
+        ProfileDataSource.userInput,
+      );
+      final draft = await PlanGenerationService.generate(
+        goalDescription: 'Montant sentinelle MintApp',
+        goalCategory: 'goal_retirement_plan',
+        targetDate: targetDate,
+        profile: seededProfile,
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
+        goalAmount: 3333333,
+        prospectiveLppReturn: null,
+        now: inputAsOf,
+      );
+      final plan = draft.copyWith(confirmedAt: inputAsOf);
+      await FinancialPlanService.save(plan);
+
+      debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await tester.pumpWidget(const MintApp());
+      await _pumpFrames(tester, frames: 40);
+
+      final appContext = tester.element(find.byType(MaterialApp));
+      final ledger = appContext.read<CoachProfileProvider>();
+      final plans = appContext.read<FinancialPlanProvider>();
+      expect(ledger.canonicalProfileOwnerId, _profileOwnerId);
+      expect(plans.currentPlan?.id, plan.id);
+      expect(plans.isPlanStale, isFalse);
+      final routedContext = tester.element(find.byType(Scaffold).first);
+      GoRouter.of(routedContext).go('/home');
+      await _pumpFrames(tester, frames: 30);
+      expect(find.byType(FinancialPlanCard), findsOneWidget);
+      final monthlyDigits = plan.monthlyTarget.round().toString();
+      expect(_visibleTextContainsDigits(tester, monthlyDigits), isTrue);
+
+      await ledger.mergeAnswers({'q_has_pension_fund': true});
+      await _pumpFrames(tester, frames: 20);
+
+      expect(plans.isPlanStale, isTrue);
+      expect(
+        find.bySemanticsIdentifier('financial_plan_stale_state'),
+        findsOneWidget,
+      );
+      expect(_visibleTextContainsDigits(tester, monthlyDigits), isFalse);
+      expect(_visibleTextContainsDigits(tester, '3333333'), isFalse);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('false kill switch keeps real MintApp plan storage dormant',
+        (tester) async {
+      FeatureFlags.financialPlanSetupEnabled = false;
+      final legacy = _planFor(
+        _projectionReadyProfile(salary: 7000),
+        id: 'flagged-off-legacy-plan',
+      );
+      final raw = jsonEncode([legacy.toJson()]);
+      SharedPreferences.setMockInitialValues({'financial_plan_v1': raw});
+      FlutterSecureStorage.setMockInitialValues({});
+      debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+
+      await tester.pumpWidget(const MintApp());
+      await _pumpFrames(tester, frames: 24);
+
+      final appContext = tester.element(find.byType(MaterialApp));
+      final plans = appContext.read<FinancialPlanProvider>();
+      expect(plans.debugHasRegulatoryRevisionListener, isFalse);
+      final preferences = await SharedPreferences.getInstance();
+      expect(plans.currentPlan, isNull);
+      expect(preferences.getString('financial_plan_v1'), raw);
+      expect(
+        find.bySemanticsIdentifier('financial_plan_stale_recalculate'),
+        findsNothing,
+      );
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('false kill switch hides Today plan surfaces defensively',
+        (tester) async {
+      FeatureFlags.financialPlanSetupEnabled = false;
+      final ledger = _ledger(_projectionReadyProfile());
+      final plans = FinancialPlanProvider()
+        ..setPlanDirect(
+          _planFor(
+            _projectionReadyProfile(salary: 7000),
+            id: 'flagged-off-today-plan',
+          ),
+        )
+        ..markStale();
+      final timeline = _EmptyTimelineProvider();
+      addTearDown(ledger.dispose);
+      addTearDown(plans.dispose);
+      addTearDown(timeline.dispose);
+
+      await tester.pumpWidget(
+        _aujourdhuiHarness(
+          ledger: ledger,
+          plans: plans,
+          timeline: timeline,
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(FinancialPlanCard), findsNothing);
+      expect(
+        find.bySemanticsIdentifier('financial_plan_stale_recalculate'),
+        findsNothing,
+      );
+    });
+
     testWidgets(
         'FinancialPlanCard masks every stale figure and exposes recovery ids',
         (tester) async {
@@ -1164,7 +1060,8 @@ void main() {
       );
     });
 
-    testWidgets('Aujourdhui renders a persisted stale plan after cold load',
+    testWidgets(
+        'Aujourdhui stale recovery opens standard review without writing',
         (tester) async {
       final currentProfile = _projectionReadyProfile();
       await FinancialPlanService.save(
@@ -1176,7 +1073,7 @@ void main() {
       );
       final ledger = _ledger(currentProfile);
       addTearDown(ledger.dispose);
-      final plans = FinancialPlanProvider();
+      final plans = _CountingPlanProvider();
       addTearDown(plans.dispose);
       plans.attachProfileProvider(ledger);
       await plans.loadFromPersistence();
@@ -1214,21 +1111,15 @@ void main() {
       );
 
       await tester.tap(recovery);
-      await _pumpFrames(tester, frames: 40);
+      await _pumpFrames(tester, frames: 10);
 
-      expect(plans.currentPlan?.id, isNot('cold-home-plan'));
+      expect(plans.setPlanCalls, 0);
+      expect(plans.currentPlan?.id, 'cold-home-plan');
+      expect(plans.isPlanStale, isTrue);
       expect(
-        plans.currentPlan?.profileHashAtGeneration,
-        computeProfileHash(currentProfile),
+        find.bySemanticsIdentifier('financial_plan_setup'),
+        findsOneWidget,
       );
-      expect(plans.isPlanStale, isFalse);
-      expect(plans.currentPlan?.monthlyTarget, isNot(12345));
-      expect(plans.currentPlan?.monthlyTarget, isNot(99999));
-      expect(plans.currentPlan?.goalDescription, 'Objectif synthétique');
-      expect(plans.currentPlan?.goalCategory, 'goal_retirement_plan');
-      expect(plans.currentPlan?.targetDate, DateTime.utc(2045, 6, 1));
-      expect(plans.currentPlan?.milestones.last.targetAmount, 500000);
-      expect(_visibleTextContainsDigits(tester, '12345'), isFalse);
       expect(_visibleTextContainsDigits(tester, '99999'), isFalse);
     });
   });

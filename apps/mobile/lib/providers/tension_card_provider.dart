@@ -14,8 +14,14 @@ import 'package:mint_mobile/models/tension_card.dart';
 import 'package:mint_mobile/services/commitment_service.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 class TensionCardProvider extends ChangeNotifier {
+  TensionCardProvider({SessionEpoch? sessionEpoch})
+      : sessionEpoch = sessionEpoch ?? SessionEpoch();
+
+  @protected
+  final SessionEpoch sessionEpoch;
   List<TensionCard> _cards = [];
   CleoLoopPosition _loopPosition = CleoLoopPosition.insight;
   bool _isLoading = true;
@@ -25,27 +31,39 @@ class TensionCardProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isEmpty => _cards.isEmpty;
 
+  void clearSessionMemoryAfterPurge() {
+    _cards = [];
+    _loopPosition = CleoLoopPosition.insight;
+    _isLoading = false;
+    notifyListeners();
+  }
+
   /// Refresh tension cards from all data sources.
   ///
   /// All service calls are wrapped in try/catch — network failure
   /// produces empty state, never a crash (T-17-02 mitigation).
-  Future<void> refresh() async {
+  Future<void> refresh({bool includeAuthenticatedNetwork = true}) async {
+    final guard = sessionEpoch.capture();
     _isLoading = true;
     notifyListeners();
 
     // ── Fetch data from all sources ──────────────────────────
     List<Map<String, dynamic>> commitments = [];
-    try {
-      commitments = await CommitmentService().getCommitments();
-    } catch (_) {
-      // Auth or network error — graceful empty
+    if (includeAuthenticatedNetwork) {
+      try {
+        commitments = await CommitmentService().getCommitments();
+      } catch (_) {
+        // Auth or network error — graceful empty
+      }
     }
 
     List<FreshStartLandmark> landmarks = [];
-    try {
-      landmarks = await FreshStartService().fetchLandmarks();
-    } catch (_) {
-      // Non-critical — graceful empty
+    if (includeAuthenticatedNetwork) {
+      try {
+        landmarks = await FreshStartService().fetchLandmarks();
+      } catch (_) {
+        // Non-critical — graceful empty
+      }
     }
 
     int conversationCount = 0;
@@ -66,6 +84,8 @@ class TensionCardProvider extends ChangeNotifier {
     } catch (_) {
       // SecureStorage error — graceful null
     }
+
+    guard.assertCurrent();
 
     // ── Build cards ──────────────────────────────────────────
     _cards = _selectTensions(
@@ -104,9 +124,8 @@ class TensionCardProvider extends ChangeNotifier {
   }) {
     // ── Earned (past) ────────────────────────────────────────
     TensionCard? earned;
-    final completed = commitments
-        .where((c) => c['status'] == 'completed')
-        .toList();
+    final completed =
+        commitments.where((c) => c['status'] == 'completed').toList();
     if (completed.isNotEmpty) {
       earned = TensionCard(
         type: TensionType.earned,
@@ -135,9 +154,7 @@ class TensionCardProvider extends ChangeNotifier {
 
     // ── Pulsing (present) ────────────────────────────────────
     TensionCard? pulsing;
-    final active = commitments
-        .where((c) => c['status'] == 'active')
-        .toList();
+    final active = commitments.where((c) => c['status'] == 'active').toList();
     if (active.isNotEmpty) {
       pulsing = TensionCard(
         type: TensionType.pulsing,

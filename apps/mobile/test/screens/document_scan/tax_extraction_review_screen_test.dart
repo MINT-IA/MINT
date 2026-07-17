@@ -104,7 +104,9 @@ class _NetworkBoundarySpy extends HttpOverrides {
   }
 }
 
-class _MemoryTaxPersistence implements TaxProfilePersistence {
+class _MemoryTaxPersistence
+    with SerializedCanonicalAnswerMutationPersistence
+    implements TaxProfilePersistence {
   _MemoryTaxPersistence(Map<String, dynamic> initial, {this.events})
       : answers = _copy(initial);
 

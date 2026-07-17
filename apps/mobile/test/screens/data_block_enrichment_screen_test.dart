@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/services/financial_plan_ledger_inputs.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +32,65 @@ Widget _wrap(Widget child, {CoachProfileProvider? coachProfileProvider}) {
         ],
         supportedLocales: S.supportedLocales,
         home: child),
+  );
+}
+
+Widget _realRouteHarness(CoachProfileProvider provider) {
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => Scaffold(
+          body: Column(
+            children: [
+              const Text('ledger-return-destination'),
+              Builder(
+                builder: (context) => FilledButton(
+                  key: const Key('open_gender_collector'),
+                  onPressed: () => context.push(
+                    '/data-block/revenu?inputKey=q_gender',
+                  ),
+                  child: const Text('gender'),
+                ),
+              ),
+              Builder(
+                builder: (context) => FilledButton(
+                  key: const Key('open_birth_date_collector'),
+                  onPressed: () => context.push(
+                    '/data-block/revenu?inputKey=q_date_of_birth',
+                  ),
+                  child: const Text('birth-date'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/data-block/:type',
+        builder: (_, state) => DataBlockEnrichmentScreen(
+          blockType: state.pathParameters['type']!,
+          initialInputKey: state.uri.queryParameters['inputKey'],
+        ),
+      ),
+    ],
+  );
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
+      ChangeNotifierProvider(create: (_) => SlmProvider()),
+    ],
+    child: MaterialApp.router(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      routerConfig: router,
+    ),
   );
 }
 
@@ -70,6 +132,155 @@ void main() {
     expect(provider.profile?.revenuBrutAnnuel, 96000);
     expect(provider.profile?.canton, 'GE');
     expect(provider.profile?.birthYear, 2001);
+  });
+
+  testWidgets(
+      'real gender and DOB routes save canonical provenance, return, and unlock no-LPP dependency',
+      (tester) async {
+    final provider = CoachProfileProvider();
+    addTearDown(provider.dispose);
+    await tester.pumpWidget(_realRouteHarness(provider));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('open_gender_collector')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('gender_f_choice')), findsOneWidget);
+    expect(find.byKey(const Key('gender_m_choice')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+    await tester.tap(find.byKey(const Key('gender_f_choice')));
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+    expect(provider.profile?.gender, 'F');
+    expect(
+        provider.profile?.dataSources['gender'], ProfileDataSource.userInput);
+    expect(provider.profile?.dataTimestamps['gender'], isNotNull);
+    expect(provider.profile?.dataSourceDates['gender'], isNull);
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    expect(find.text('ledger-return-destination'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('open_birth_date_collector')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('date_of_birth_input')), findsOneWidget);
+    expect(find.byKey(const Key('date_of_birth_picker')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+    await tester.enterText(
+      find.byKey(const Key('date_of_birth_input')),
+      '1986-02-30',
+    );
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+    expect(provider.profile?.dateOfBirth, isNull);
+    expect(
+        find.text('Les informations saisies sont invalides.'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('date_of_birth_input')),
+      '1986-08-01',
+    );
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+    expect(provider.profile?.dateOfBirth, DateTime(1986, 8, 1));
+    expect(
+      provider.profile?.dataSources['dateOfBirth'],
+      ProfileDataSource.userInput,
+    );
+    expect(provider.profile?.dataTimestamps['dateOfBirth'], isNotNull);
+    expect(provider.profile?.dataSourceDates['dateOfBirth'], isNull);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_gender', 'F'));
+    expect(answers, containsPair('q_date_of_birth', '1986-08-01'));
+    final provenance = answers['__provenance'] as Map;
+    expect((provenance['gender'] as Map)['source'], 'userInput');
+    expect((provenance['dateOfBirth'] as Map)['source'], 'userInput');
+
+    final collectedProfile = provider.profile!;
+    final snapshotNow = DateTime.now().toUtc().add(const Duration(seconds: 1));
+    final lppStamp = snapshotNow.subtract(const Duration(days: 1));
+    final lppSourceDate = DateTime.utc(
+      lppStamp.year,
+      lppStamp.month,
+      lppStamp.day,
+    );
+    const totalPath = 'prevoyance.avoirLppTotal';
+    final lppProfile = CoachProfile(
+      birthYear: collectedProfile.birthYear,
+      dateOfBirth: collectedProfile.dateOfBirth,
+      gender: collectedProfile.gender,
+      canton: 'VD',
+      salaireBrutMensuel: 8000,
+      prevoyance: const PrevoyanceProfile(
+        hasPensionFund: true,
+        avoirLppTotal: 150000,
+      ),
+      goalA: GoalA(
+        type: GoalAType.retraite,
+        label: 'Retraite synthétique',
+        targetDate: DateTime(2051, 8, 1),
+      ),
+      inferDataSources: false,
+      dataSources: {
+        ...collectedProfile.dataSources,
+        'prevoyance.hasPensionFund': ProfileDataSource.userInput,
+        'salaireBrutMensuel': ProfileDataSource.userInput,
+        totalPath: ProfileDataSource.certificate,
+      },
+      dataTimestamps: {
+        ...collectedProfile.dataTimestamps,
+        'prevoyance.hasPensionFund': lppStamp,
+        'salaireBrutMensuel': lppStamp,
+        totalPath: lppStamp,
+      },
+      dataSourceDates: {
+        ...collectedProfile.dataSourceDates,
+        'prevoyance.hasPensionFund': null,
+        'salaireBrutMensuel': null,
+        totalPath: lppSourceDate,
+      },
+    );
+    final strictLpp = LppEvidenceSnapshot(
+      snapshotId: '22222222-2222-4222-8222-222222222222',
+      facts: {
+        LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
+          value: 150000,
+          unit: LppEvidenceUnit.chf,
+          profileOwnerId: '11111111-1111-4111-8111-111111111111',
+          actorProfileOwnerId: '11111111-1111-4111-8111-111111111111',
+          source: ProfileDataSource.certificate.name,
+          sourceDate: lppSourceDate,
+          updatedAt: lppStamp,
+        ),
+      },
+    );
+    final lppDependency = FinancialPlanDependencySnapshot.fromProfile(
+      lppProfile,
+      profileOwnerId: '11111111-1111-4111-8111-111111111111',
+      goalCategory: 'goal_retirement_plan',
+      goalAmount: 3000000,
+      targetDate: DateTime(2051, 8, 1),
+      prospectiveLppReturn: 0.02,
+      selfLppSnapshot: strictLpp,
+      now: snapshotNow,
+    );
+    expect(lppDependency.gender, 'F');
+
+    await provider.mergeAnswers({'q_has_pension_fund': 'no'});
+    final dependency = FinancialPlanDependencySnapshot.fromProfile(
+      provider.profile!,
+      profileOwnerId: '11111111-1111-4111-8111-111111111111',
+      goalCategory: 'goal_retirement_plan',
+      goalAmount: 3000000,
+      targetDate: DateTime(2051, 8, 1),
+      prospectiveLppReturn: null,
+      selfLppSnapshot: null,
+      now: snapshotNow,
+    );
+    expect(dependency.branch, FinancialPlanDependencyBranch.retirementNoLpp);
+
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    expect(find.text('ledger-return-destination'), findsOneWidget);
   });
 
   testWidgets('revenue block inputKey collects only the requested canton fact',

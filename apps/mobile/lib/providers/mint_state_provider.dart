@@ -15,8 +15,6 @@
 ///   - No identifiable data stored in this provider.
 library;
 
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,6 +22,12 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/mint_state_engine.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
+
+typedef MintStateCompute = Future<MintUserState> Function(
+  CoachProfile profile,
+  SharedPreferences prefs,
+);
 
 /// Reactive provider for the unified [MintUserState].
 ///
@@ -37,6 +41,14 @@ import 'package:mint_mobile/services/mint_state_engine.dart';
 /// Rapid successive calls are debounced: a new call cancels the in-flight one
 /// by tracking [_isRecomputing] and queuing at most one pending recompute.
 class MintStateProvider extends ChangeNotifier {
+  MintStateProvider({
+    SessionEpoch? sessionEpoch,
+    MintStateCompute? computeState,
+  })  : _sessionEpoch = sessionEpoch ?? SessionEpoch(),
+        _computeState = computeState ?? _defaultComputeState;
+
+  final SessionEpoch _sessionEpoch;
+  final MintStateCompute _computeState;
   MintUserState? _state;
   bool _isRecomputing = false;
   bool _pendingRecompute = false;
@@ -80,7 +92,12 @@ class MintStateProvider extends ChangeNotifier {
   }
 
   Future<void> _doRecompute(CoachProfile profile) async {
-
+    late final SessionEpochGuard sessionGuard;
+    try {
+      sessionGuard = _sessionEpoch.capture();
+    } on SessionEpochInvalidated {
+      return;
+    }
     if (_isRecomputing) {
       // Queue the latest profile — discard any previous pending call.
       _pendingRecompute = true;
@@ -91,59 +108,62 @@ class MintStateProvider extends ChangeNotifier {
     _isRecomputing = true;
     try {
       final prefs = await SharedPreferences.getInstance();
-      final newState = await MintStateEngine.compute(
-        profile: profile,
-        prefs: prefs,
+      sessionGuard.assertCurrent();
+      final newState = await _computeState(profile, prefs);
+      sessionGuard.assertCurrent();
+      await _sessionEpoch.runGuardedPersistence(
+        sessionGuard,
+        () => PrecomputedInsightsService.computeAndCache(
+          state: newState,
+          prefs: prefs,
+          beforeWrite: sessionGuard.assertCurrent,
+        ),
       );
+      sessionGuard.assertCurrent();
       _state = newState;
       // Mark this profile as successfully computed AFTER state is set.
       // If _doRecompute throws, _lastProfile stays at its previous value,
       // so the next recompute(sameProfile) will retry instead of no-op.
       _lastProfile = profile;
-      // Pre-compute insight at profile-change time (Cleo 3.0 pattern).
-      // Runs asynchronously after state is set — does not block notifyListeners.
-      // Silent degradation: never throws, cache failure is non-fatal.
-      unawaited(
-        PrecomputedInsightsService.computeAndCache(
-          state: newState,
-          prefs: prefs,
-        ),
-      );
+      sessionGuard.assertCurrent();
       notifyListeners();
+    } on SessionEpochInvalidated {
+      // Session termination owns the clear/purge boundary. Old account work
+      // must not publish, cache, log an error, or alter a new session's flags.
     } catch (e) {
+      if (!_isCurrent(sessionGuard)) return;
       debugPrint('[MintStateProvider] Recompute error: $e');
       // Engine errors must not crash the app.
       // State remains at its previous value.
       // _lastProfile is NOT set here — next call with same profile will retry.
     } finally {
-      _isRecomputing = false;
-      if (_pendingRecompute && _pendingProfile != null) {
-        _pendingRecompute = false;
-        final queued = _pendingProfile!;
-        _pendingProfile = null;
-        // Recurse for the queued call — use _doRecompute to bypass the
-        // identical-profile guard. The queued call may have come from
-        // forceRecompute, which must always run regardless of _lastProfile.
-        await _doRecompute(queued);
+      if (_isCurrent(sessionGuard)) {
+        _isRecomputing = false;
+        if (_pendingRecompute && _pendingProfile != null) {
+          _pendingRecompute = false;
+          final queued = _pendingProfile!;
+          _pendingProfile = null;
+          // Recurse for the queued call — use _doRecompute to bypass the
+          // identical-profile guard. The queued call may have come from
+          // forceRecompute, which must always run regardless of _lastProfile.
+          await _doRecompute(queued);
+        }
       }
     }
   }
 
   /// Force-clear the state (e.g. on sign-out or data reset).
-  void clear() {
+  Future<void> clear() async {
+    // Cache deletion belongs to the session-termination transaction. Do not
+    // publish an empty provider until the durable old-account cache is gone;
+    // a failed deletion keeps the coordinator blocked with memory untouched.
+    final prefs = await SharedPreferences.getInstance();
+    await PrecomputedInsightsService.clear(prefs);
     _state = null;
+    _isRecomputing = false;
     _pendingRecompute = false;
     _pendingProfile = null;
     _lastProfile = null;
-    // Clear pre-computed insight cache to avoid surfacing stale data after
-    // sign-out or profile switch.
-    unawaited(
-      SharedPreferences.getInstance().then(
-        (prefs) => PrecomputedInsightsService.clear(prefs),
-      ).catchError((Object e) {
-        debugPrint('[MintStateProvider] Insight cache clear failed: $e');
-      }),
-    );
     notifyListeners();
   }
 
@@ -155,5 +175,20 @@ class MintStateProvider extends ChangeNotifier {
   void injectStateForTest(MintUserState state) {
     _state = state;
     notifyListeners();
+  }
+
+  static Future<MintUserState> _defaultComputeState(
+    CoachProfile profile,
+    SharedPreferences prefs,
+  ) =>
+      MintStateEngine.compute(profile: profile, prefs: prefs);
+
+  static bool _isCurrent(SessionEpochGuard guard) {
+    try {
+      guard.assertCurrent();
+      return true;
+    } on SessionEpochInvalidated {
+      return false;
+    }
   }
 }

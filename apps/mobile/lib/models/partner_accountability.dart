@@ -157,6 +157,7 @@ class PartnerAccountabilityBinding {
     required this.policyVersion,
     required this.privacyContact,
     required this.rightsChannel,
+    this.lppSnapshotId,
     this.lastVerifiedAt,
     this.receiptCreatedAt,
     this.expiresAt,
@@ -171,6 +172,7 @@ class PartnerAccountabilityBinding {
   final String policyVersion;
   final String privacyContact;
   final String rightsChannel;
+  final String? lppSnapshotId;
   final DateTime? lastVerifiedAt;
   final DateTime? receiptCreatedAt;
   final DateTime? expiresAt;
@@ -183,6 +185,8 @@ class PartnerAccountabilityBinding {
     final expiry = expiresAt;
     return state == PartnerAccountabilityBindingState.active &&
         failureStatus == null &&
+        lppSnapshotId != null &&
+        lppSnapshotId!.isNotEmpty &&
         privacyContact.isNotEmpty &&
         rightsChannel.isNotEmpty &&
         verified != null &&
@@ -194,6 +198,7 @@ class PartnerAccountabilityBinding {
 
   PartnerAccountabilityBinding copyWith({
     PartnerAccountabilityBindingState? state,
+    String? lppSnapshotId,
     DateTime? lastVerifiedAt,
     DateTime? receiptCreatedAt,
     DateTime? expiresAt,
@@ -209,6 +214,7 @@ class PartnerAccountabilityBinding {
       policyVersion: policyVersion,
       privacyContact: privacyContact,
       rightsChannel: rightsChannel,
+      lppSnapshotId: lppSnapshotId ?? this.lppSnapshotId,
       lastVerifiedAt: lastVerifiedAt ?? this.lastVerifiedAt,
       receiptCreatedAt: receiptCreatedAt ?? this.receiptCreatedAt,
       expiresAt: expiresAt ?? this.expiresAt,
@@ -226,6 +232,7 @@ class PartnerAccountabilityBinding {
         'policyVersion': policyVersion,
         'privacyContact': privacyContact,
         'rightsChannel': rightsChannel,
+        'lppSnapshotId': lppSnapshotId,
         'lastVerifiedAt': lastVerifiedAt?.toUtc().toIso8601String(),
         'receiptCreatedAt': receiptCreatedAt?.toUtc().toIso8601String(),
         'expiresAt': expiresAt?.toUtc().toIso8601String(),
@@ -252,6 +259,7 @@ class PartnerAccountabilityBinding {
         policyVersion: json['policyVersion'] as String,
         privacyContact: privacyContact,
         rightsChannel: rightsChannel,
+        lppSnapshotId: json['lppSnapshotId'] as String?,
         lastVerifiedAt:
             DateTime.tryParse(json['lastVerifiedAt'] as String? ?? '')?.toUtc(),
         receiptCreatedAt:

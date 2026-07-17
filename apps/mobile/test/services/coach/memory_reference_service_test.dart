@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/coach/memory_reference_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MemoryReferenceService TESTS
@@ -47,7 +48,13 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    CoachMemoryService.debugConfigureSessionAuthority(
+      sessionEpoch: SessionEpoch(),
+      userIdReader: () async => null,
+    );
   });
+
+  tearDown(CoachMemoryService.debugResetSessionAuthority);
 
   // ════════════════════════════════════════════════════════════
   //  01. No insights → null
@@ -109,7 +116,8 @@ void main() {
   //  04. Valid age window → returns reference
   // ════════════════════════════════════════════════════════════
 
-  test('04 returns reference for insight in valid age window (3 days)', () async {
+  test('04 returns reference for insight in valid age window (3 days)',
+      () async {
     final prefs = await SharedPreferences.getInstance();
     final insight = makeInsight(
       id: 'i1',
@@ -135,9 +143,12 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
 
     // Save in order: oldest first (saveInsight inserts at position 0)
-    final old = makeInsight(id: 'old', topic: 'lpp', age: const Duration(days: 30));
-    final recent = makeInsight(id: 'recent', topic: 'lpp', age: const Duration(days: 2));
-    final tooNew = makeInsight(id: 'tooNew', topic: 'lpp', age: const Duration(hours: 5));
+    final old =
+        makeInsight(id: 'old', topic: 'lpp', age: const Duration(days: 30));
+    final recent =
+        makeInsight(id: 'recent', topic: 'lpp', age: const Duration(days: 2));
+    final tooNew =
+        makeInsight(id: 'tooNew', topic: 'lpp', age: const Duration(hours: 5));
 
     await CoachMemoryService.saveInsight(old, prefs: prefs);
     await CoachMemoryService.saveInsight(recent, prefs: prefs);
@@ -159,7 +170,8 @@ void main() {
 
   test('06 returns null for empty currentTopic', () async {
     final prefs = await SharedPreferences.getInstance();
-    final insight = makeInsight(id: 'i1', topic: 'lpp', age: const Duration(days: 5));
+    final insight =
+        makeInsight(id: 'i1', topic: 'lpp', age: const Duration(days: 5));
     await CoachMemoryService.saveInsight(insight, prefs: prefs);
 
     final ref = await MemoryReferenceService.findRelevant(
@@ -300,7 +312,8 @@ void main() {
     );
     final result = MemoryReferenceService.resolve(
       ref,
-      onTopic: (days, topic) => 'Il y a $days jours, tu m\'avais parlé de $topic.',
+      onTopic: (days, topic) =>
+          'Il y a $days jours, tu m\'avais parlé de $topic.',
       onGoal: (goal) => 'Objectif : $goal',
       onScreen: (screen) => 'Dernier écran : $screen',
     );
@@ -319,7 +332,8 @@ void main() {
     );
     final result = MemoryReferenceService.resolve(
       ref,
-      onTopic: (days, topic) => 'Il y a $days jours, tu m\'avais parlé de $topic.',
+      onTopic: (days, topic) =>
+          'Il y a $days jours, tu m\'avais parlé de $topic.',
       onGoal: (goal) => 'Objectif\u00a0: $goal. On fait le point\u00a0?',
       onScreen: (screen) => 'Dernier écran : $screen',
     );

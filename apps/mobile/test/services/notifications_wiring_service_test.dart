@@ -15,9 +15,13 @@
 /// - .planning/wave-a-notifs-wiring/PLAN.md A2
 library;
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/notifications_wiring_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
+import 'package:mint_mobile/services/session_termination_coordinator.dart';
 
 /// Recorder that replaces the real scheduling callback — no contact
 /// with `flutter_local_notifications` or the NotificationService
@@ -54,8 +58,7 @@ void main() {
   });
 
   tearDown(() {
-    NotificationsWiringService.debounce =
-        const Duration(milliseconds: 500);
+    NotificationsWiringService.debounce = const Duration(milliseconds: 500);
   });
 
   group('NotificationsWiringService — triad gate + debounce', () {
@@ -123,8 +126,7 @@ void main() {
       expect(rec.scheduled, hasLength(2));
     });
 
-    test(
-        'rapid burst of changes collapses to a single schedule via debounce',
+    test('rapid burst of changes collapses to a single schedule via debounce',
         () async {
       final rec = _Recorder();
       final service = NotificationsWiringService(scheduleOverride: rec.call);
@@ -173,14 +175,69 @@ void main() {
       expect(rec.scheduled, hasLength(2));
     });
 
-    test('null profile is ignored silently', () async {
+    test('null profile resets old-account scheduling signature', () async {
       final rec = _Recorder();
       final service = NotificationsWiringService(scheduleOverride: rec.call);
+
+      service.onProfileChanged(_profile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaire: 10000,
+      ));
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      expect(service.lastScheduledSignature, isNotNull);
 
       service.onProfileChanged(null);
       await Future<void>.delayed(const Duration(milliseconds: 30));
 
-      expect(rec.scheduled, isEmpty);
+      expect(rec.scheduled, hasLength(1));
+      expect(service.lastScheduledSignature, isNull);
+    });
+
+    test('logout drains old schedule before cancel and forbids late signature',
+        () async {
+      final epoch = SessionEpoch();
+      final scheduleStarted = Completer<void>();
+      final releaseSchedule = Completer<void>();
+      final order = <String>[];
+      final service = NotificationsWiringService(
+        sessionEpoch: epoch,
+        scheduleOverride: (_) async {
+          order.add('schedule:start');
+          scheduleStarted.complete();
+          await releaseSchedule.future;
+          order.add('schedule:end');
+        },
+      );
+      final coordinator = SessionTerminationCoordinator(
+        sessionEpoch: epoch,
+        readTerminationPending: () async => false,
+        writeTerminationPending: () async {},
+        clearTerminationPending: () async {},
+        cancelNotifications: () async => order.add('cancelAll'),
+        clearAuthTokens: () async {},
+        purgeDurableSessionData: () async {},
+        purgeRemainingLocalData: () async {},
+        clearSessionMemory: [service.clearSessionMemoryAfterPurge],
+      );
+      addTearDown(coordinator.dispose);
+      addTearDown(service.dispose);
+
+      service.onProfileChanged(_profile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaire: 10000,
+      ));
+      await scheduleStarted.future;
+      final termination = coordinator.terminate();
+      await Future<void>.delayed(Duration.zero);
+      expect(order, ['schedule:start']);
+
+      releaseSchedule.complete();
+      await termination;
+
+      expect(order, ['schedule:start', 'schedule:end', 'cancelAll']);
+      expect(service.lastScheduledSignature, isNull);
     });
   });
 }

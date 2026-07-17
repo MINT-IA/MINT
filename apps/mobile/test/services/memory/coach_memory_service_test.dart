@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CoachMemoryService TESTS — S58 / AI Memory
@@ -40,7 +41,13 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    CoachMemoryService.debugConfigureSessionAuthority(
+      sessionEpoch: SessionEpoch(),
+      userIdReader: () async => null,
+    );
   });
+
+  tearDown(CoachMemoryService.debugResetSessionAuthority);
 
   // ════════════════════════════════════════════════════════════
   //  EMPTY STATE
@@ -85,11 +92,13 @@ void main() {
 
       // Save oldest first
       await CoachMemoryService.saveInsight(
-        makeInsight(id: 'oldest', createdAt: now.subtract(const Duration(days: 7))),
+        makeInsight(
+            id: 'oldest', createdAt: now.subtract(const Duration(days: 7))),
         prefs: prefs,
       );
       await CoachMemoryService.saveInsight(
-        makeInsight(id: 'middle', createdAt: now.subtract(const Duration(days: 3))),
+        makeInsight(
+            id: 'middle', createdAt: now.subtract(const Duration(days: 3))),
         prefs: prefs,
       );
       await CoachMemoryService.saveInsight(

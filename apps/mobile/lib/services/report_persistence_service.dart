@@ -6,13 +6,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
 import 'package:mint_mobile/services/financial_core/emergency_fund_heuristic.dart';
+import 'package:mint_mobile/services/financial_plan_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 class ReportPersistenceService {
   static const String _wizardKey = 'wizard_answers_v2';
   static const String _completedKey = 'wizard_completed';
+  static const String _strictTaxSnapshotKey = '_coach_tax_snapshots_v1';
   static const String _strictLppEvidenceKey = '_coach_lpp_evidence_v1';
+  static const String _strictProfileOwnerKey = '_coach_profile_owner_v1';
   static const String _activeLppEvidenceSlotKey = 'lpp_evidence_active_slot_v1';
+  static const String _activeAuthoritySlotKey =
+      'coach_authority_active_slot_v1';
+  static const String _authorityStagingSlotKey =
+      'coach_authority_staging_slot_v1';
+  static const int _authoritySchemaVersion = 1;
+  static const int _authorityJournalSchemaVersion = 2;
+  static const int _authorityRollbackSchemaVersion = 1;
+  static const Set<String> _strictAuthorityKeys = {
+    _strictProfileOwnerKey,
+    _strictTaxSnapshotKey,
+    _strictLppEvidenceKey,
+  };
   static Future<void>? _lppPersistenceTail;
   static const _looseSelfLppKeys = <String>{
     '_coach_avoir_lpp',
@@ -30,7 +45,7 @@ class ReportPersistenceService {
     Map<String, dynamic> localAnswers,
   ) {
     final hasStrictLppRoot = localAnswers.containsKey(_strictLppEvidenceKey);
-    return Map<String, dynamic>.from(localAnswers)
+    final safe = Map<String, dynamic>.from(localAnswers)
       ..removeWhere(
         (key, _) =>
             key == '__provenance' ||
@@ -40,6 +55,10 @@ class ReportPersistenceService {
             (hasStrictLppRoot && _looseSelfLppKeys.contains(key)) ||
             key.startsWith('_coach_tax_'),
       );
+    if (localAnswers.containsKey(_strictProfileOwnerKey)) {
+      safe[_strictProfileOwnerKey] = '__secure__';
+    }
+    return safe;
   }
 
   /// Sauvegarde les réponses du wizard (incremental off).
@@ -47,16 +66,50 @@ class ReportPersistenceService {
   static Future<void> saveAnswers(Map<String, dynamic> answers) =>
       _serializeLppPersistence(() => _saveAnswers(answers));
 
+  /// Linearizable read-modify-write boundary for the canonical answer ledger.
+  ///
+  /// Callers provide only the synchronous domain mutation. Reading the current
+  /// authority, validating/restoring secure values, building the next bundle,
+  /// and publishing it all run under the same global persistence tail.
+  static Future<Map<String, dynamic>> mutateAnswers(
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) =>
+      _serializeLppPersistence(() async {
+        final prefs = await SharedPreferences.getInstance();
+        await _reconcileAuthorityStageLocked(prefs);
+        final current = await _loadAnswersForMutationLocked(prefs);
+        final candidate = mutation(Map<String, dynamic>.from(current));
+        final next = candidate == null
+            ? Map<String, dynamic>.from(current)
+            : Map<String, dynamic>.from(candidate);
+        if (candidate != null) await _saveAnswers(next);
+        final persisted = Map<String, dynamic>.unmodifiable(next);
+        publish?.call(persisted);
+        return Map<String, dynamic>.from(persisted);
+      });
+
   static Future<void> _saveAnswers(Map<String, dynamic> answers) async {
     final prefs = await SharedPreferences.getInstance();
-    final prepared = Map<String, dynamic>.from(answers);
-    if (prefs.getString(_activeLppEvidenceSlotKey) != null) {
-      prepared[_strictLppEvidenceKey] = '__secure__';
+    await _reconcileAuthorityStageLocked(prefs);
+    if (prefs.getString(_activeAuthoritySlotKey) != null ||
+        _containsStrictAuthority(answers)) {
+      await _saveAuthorityAnswersLocked(prefs, answers);
+      return;
     }
-    final cleaned = await SecureWizardStore.secureSensitiveKeys(prepared);
+    final cleaned = await SecureWizardStore.secureSensitiveKeys(answers);
     final jsonString = json.encode(cleaned);
-    await prefs.setString(_wizardKey, jsonString);
+    final stored = await prefs.setString(_wizardKey, jsonString);
+    if (!stored || prefs.getString(_wizardKey) != jsonString) {
+      await prefs.reload();
+      throw StateError('Wizard preferences publication failed');
+    }
   }
+
+  static bool _containsStrictAuthority(Map<String, dynamic> answers) =>
+      answers.keys.any(
+        _strictAuthorityKeys.contains,
+      );
 
   /// Persists the strict LPP root without replacing it before the matching
   /// placeholder map is durable.
@@ -96,61 +149,395 @@ class ReportPersistenceService {
       throw StateError('Strict LPP evidence root is required');
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final previousBytes = prefs.getString(_wizardKey);
-    final previousSlotId = prefs.getString(_activeLppEvidenceSlotKey);
-    final stagedAnswers = Map<String, dynamic>.from(answers)
-      ..[_strictLppEvidenceKey] = '__secure__';
-    final cleaned = await SecureWizardStore.secureSensitiveKeys(stagedAnswers);
-    final stagedBytes = json.encode(cleaned);
+    await _saveAuthorityAnswersLocked(
+      await SharedPreferences.getInstance(),
+      answers,
+    );
+  }
 
-    try {
-      final staged = await prefs.setString(_wizardKey, stagedBytes);
-      if (!staged || prefs.getString(_wizardKey) != stagedBytes) {
-        throw StateError('Strict LPP preferences stage failed');
+  static Future<void> _saveAuthorityAnswersLocked(
+    SharedPreferences prefs,
+    Map<String, dynamic> answers,
+  ) async {
+    await _reconcileAuthorityStageLocked(prefs);
+    final previousBytes = prefs.getString(_wizardKey);
+    final previousSlotId = prefs.getString(_activeAuthoritySlotKey);
+    Map<String, dynamic>? previousAuthority;
+    if (previousSlotId != null) {
+      if (!SecureWizardStore.isValidAuthoritySlotId(previousSlotId)) {
+        throw StateError('Invalid active authority pointer');
       }
-    } on Object {
-      await _restoreWizardBytes(prefs, previousBytes);
-      rethrow;
+      final previousPayload =
+          await SecureWizardStore.readAuthoritySlotStrict(previousSlotId);
+      if (previousPayload == null) {
+        throw StateError('Active authority payload is unavailable');
+      }
+      previousAuthority = _decodeAuthorityPayload(previousPayload);
     }
 
+    final logical = Map<String, dynamic>.from(answers);
+    for (final key in _strictAuthorityKeys) {
+      if ((!logical.containsKey(key) || logical[key] == '__secure__') &&
+          previousAuthority?.containsKey(key) == true) {
+        logical[key] = previousAuthority![key];
+      } else if (logical[key] == '__secure__') {
+        throw StateError('Unresolved strict authority placeholder');
+      }
+    }
     final nextSlotId = _newLppEvidenceSlotId();
-    final stored = await SecureWizardStore.writeLppEvidenceSlot(
+    final rollbackSlotId = _newAuthoritySlotIdExcluding({
       nextSlotId,
-      strictRoot,
+      if (previousSlotId != null) previousSlotId,
+    });
+    final rollbackStored = await SecureWizardStore.writeAuthoritySlot(
+      rollbackSlotId,
+      _encodeAuthorityRollback(previousBytes),
+    );
+    if (!rollbackStored) {
+      await SecureWizardStore.deleteAuthoritySlot(rollbackSlotId);
+      throw StateError('Strict authority rollback slot write failed');
+    }
+    final journal = _AuthorityStageJournal(
+      stagedSlotId: nextSlotId,
+      rollbackSlotId: rollbackSlotId,
+      previousActiveSlotId: previousSlotId,
+    );
+    final journalBytes = journal.encode();
+    try {
+      await _setVerifiedString(
+        prefs,
+        key: _authorityStagingSlotKey,
+        value: journalBytes,
+        failure: 'Strict authority staging journal failed',
+      );
+    } on Object catch (error, stackTrace) {
+      await prefs.reload();
+      if (prefs.getString(_authorityStagingSlotKey) != journalBytes) {
+        await SecureWizardStore.deleteAuthoritySlotStrict(rollbackSlotId);
+        Error.throwWithStackTrace(error, stackTrace);
+      }
+    }
+    final stored = await SecureWizardStore.writeAuthoritySlot(
+      nextSlotId,
+      _encodeAuthorityPayload(logical),
     );
     if (!stored) {
-      await _restoreWizardBytes(prefs, previousBytes);
-      await SecureWizardStore.deleteLppEvidenceSlot(nextSlotId);
-      throw StateError('Strict LPP secure slot write failed');
-    }
-
-    try {
-      final activated = await prefs.setString(
-        _activeLppEvidenceSlotKey,
-        nextSlotId,
-      );
-      if (!activated ||
-          prefs.getString(_activeLppEvidenceSlotKey) != nextSlotId) {
-        throw StateError('Strict LPP active slot write failed');
-      }
-    } on Object {
-      await _rollbackLppPublication(
+      await _discardStagedAuthoritySlotLocked(
         prefs,
-        previousBytes: previousBytes,
-        previousSlotId: previousSlotId,
-        failedSlotId: nextSlotId,
+        journal,
       );
-      rethrow;
+      throw StateError('Strict authority secure slot write failed');
     }
 
-    if (previousSlotId != null &&
-        previousSlotId != nextSlotId &&
-        SecureWizardStore.isValidLppEvidenceSlotId(previousSlotId)) {
-      await SecureWizardStore.deleteLppEvidenceSlot(previousSlotId);
+    final cache = SecureWizardStore.secureAuthorityCache(logical);
+    final stagedBytes = json.encode(cache);
+    try {
+      await _setVerifiedString(
+        prefs,
+        key: _wizardKey,
+        value: stagedBytes,
+        failure: 'Strict authority preferences stage failed',
+      );
+      await _setVerifiedString(
+        prefs,
+        key: _activeAuthoritySlotKey,
+        value: nextSlotId,
+        failure: 'Strict authority pointer publication failed',
+      );
+    } on Object catch (error, stackTrace) {
+      // A false/throwing platform result can still follow a durable pointer
+      // write. Once B is observed as active it is the commit, so returning an
+      // error would falsely describe a durable B as A.
+      await prefs.reload();
+      if (prefs.getString(_activeAuthoritySlotKey) == nextSlotId) {
+        await _finishAuthorityCleanupBestEffort(prefs, journal);
+        return;
+      }
+
+      try {
+        await _discardStagedAuthoritySlotLocked(
+          prefs,
+          journal,
+        );
+      } on Object {
+        // Keep the staging journal. A cold retry can inventory and delete B.
+        throw StateError('Strict authority cross-store rollback failed');
+      }
+      Error.throwWithStackTrace(error, stackTrace);
     }
-    await SecureWizardStore.deleteInactiveLppEvidenceSlots(nextSlotId);
-    await SecureWizardStore.deleteLegacyLppEvidenceRoot();
+
+    // The pointer write above is the sole commit point. Everything below is
+    // recoverable cleanup and must never turn durable B into a thrown result.
+    await _finishAuthorityCleanupBestEffort(prefs, journal);
+  }
+
+  static String _encodeAuthorityPayload(Map<String, dynamic> answers) =>
+      json.encode({
+        'schemaVersion': _authoritySchemaVersion,
+        'answers': answers,
+      });
+
+  static String _encodeAuthorityRollback(String? wizardBytes) => json.encode({
+        'schemaVersion': _authorityRollbackSchemaVersion,
+        'kind': 'authorityRollback',
+        'wizardBytes': wizardBytes,
+      });
+
+  static String? _decodeAuthorityRollback(String payload) {
+    try {
+      final decoded = json.decode(payload);
+      if (decoded is! Map ||
+          decoded.length != 3 ||
+          decoded['schemaVersion'] != _authorityRollbackSchemaVersion ||
+          decoded['kind'] != 'authorityRollback' ||
+          (decoded['wizardBytes'] != null &&
+              decoded['wizardBytes'] is! String)) {
+        throw const FormatException('Invalid authority rollback envelope');
+      }
+      return decoded['wizardBytes'] as String?;
+    } on Object catch (error) {
+      throw StateError('Invalid authority rollback payload: $error');
+    }
+  }
+
+  static Map<String, dynamic> _decodeAuthorityPayload(String payload) {
+    try {
+      final decoded = json.decode(payload);
+      if (decoded is! Map ||
+          decoded.length != 2 ||
+          decoded['schemaVersion'] != _authoritySchemaVersion ||
+          decoded['answers'] is! Map) {
+        throw const FormatException('Invalid authority envelope');
+      }
+      final answers = Map<String, dynamic>.from(decoded['answers'] as Map);
+      if (_hasUnresolvedStrictAuthorityPlaceholder(answers)) {
+        throw const FormatException('Authority contains secure placeholders');
+      }
+      return answers;
+    } on Object catch (error) {
+      throw StateError('Invalid authority payload: $error');
+    }
+  }
+
+  static bool _hasUnresolvedStrictAuthorityPlaceholder(
+    Map<String, dynamic> answers,
+  ) =>
+      _strictAuthorityKeys.any((key) => answers[key] == '__secure__');
+
+  static Map<String, dynamic> _withoutUnresolvedStrictAuthorityPlaceholders(
+    Map<String, dynamic> answers,
+  ) {
+    final unresolvedOwner = answers[_strictProfileOwnerKey] == '__secure__';
+    final unresolvedTax = answers[_strictTaxSnapshotKey] == '__secure__';
+    final unresolvedLpp = answers[_strictLppEvidenceKey] == '__secure__';
+    final safe = Map<String, dynamic>.from(answers);
+    if (unresolvedOwner) safe.remove(_strictProfileOwnerKey);
+    if (unresolvedTax) {
+      safe.removeWhere((key, _) => key.startsWith('_coach_tax_'));
+    }
+    if (unresolvedLpp) {
+      safe.remove(_strictLppEvidenceKey);
+      for (final key in _looseSelfLppKeys) {
+        safe.remove(key);
+      }
+      for (final key in legacyPartnerLppAnswerKeys) {
+        safe.remove(key);
+      }
+    }
+
+    if (unresolvedTax || unresolvedLpp) {
+      final lppPaths = <String>{
+        for (final key in LppEvidenceFactKey.values) key.profilePath,
+        for (final key in LppEvidenceFactKey.values)
+          key.manualPartnerProfilePath,
+      };
+      bool unavailablePath(Object? path) =>
+          path is String &&
+          ((unresolvedTax && path.startsWith('fiscal.')) ||
+              (unresolvedLpp && lppPaths.contains(path)));
+      for (final envelopeKey in const <String>{
+        '__provenance',
+        '_coach_data_sources',
+        '_coach_data_timestamps',
+        '_coach_data_source_dates',
+      }) {
+        final rawEnvelope = safe[envelopeKey];
+        if (rawEnvelope is! Map) continue;
+        final scrubbed = Map<String, dynamic>.from(rawEnvelope)
+          ..removeWhere((path, _) => unavailablePath(path));
+        if (scrubbed.isEmpty) {
+          safe.remove(envelopeKey);
+        } else {
+          safe[envelopeKey] = scrubbed;
+        }
+      }
+    }
+    return safe;
+  }
+
+  static Future<Map<String, dynamic>?> _readActiveAuthority(
+    SharedPreferences prefs,
+  ) async {
+    final slotId = prefs.getString(_activeAuthoritySlotKey);
+    if (slotId == null) return null;
+    if (!SecureWizardStore.isValidAuthoritySlotId(slotId)) {
+      throw StateError('Invalid active authority pointer');
+    }
+    final payload = await SecureWizardStore.readAuthoritySlotStrict(slotId);
+    if (payload == null) {
+      throw StateError('Active authority payload is unavailable');
+    }
+    return _decodeAuthorityPayload(payload);
+  }
+
+  static Future<void> _finishAuthorityCleanupBestEffort(
+    SharedPreferences prefs,
+    _AuthorityStageJournal journal,
+  ) async {
+    try {
+      await SecureWizardStore.cleanupAuthorityAfterCommitStrict(
+        journal.stagedSlotId,
+      );
+      if (prefs.getString(_activeLppEvidenceSlotKey) != null) {
+        await _removeVerifiedPreference(
+          prefs,
+          _activeLppEvidenceSlotKey,
+          'Legacy LPP pointer cleanup failed',
+        );
+      }
+      await _removeAuthorityStagingMarkerStrict(
+        prefs,
+        journal.stagedSlotId,
+      );
+    } on Object {
+      // Pointer B is already authoritative. Keep the marker as a durable
+      // tombstone so the next mutable load/save retries sensitive cleanup.
+    }
+  }
+
+  static Future<void> _removeAuthorityStagingMarkerStrict(
+    SharedPreferences prefs,
+    String committedSlotId,
+  ) async {
+    final raw = prefs.getString(_authorityStagingSlotKey);
+    if (raw == null) return;
+    final journal = _AuthorityStageJournal.decode(
+      raw,
+      legacyPreviousActiveSlotId: prefs.getString(_activeAuthoritySlotKey),
+    );
+    if (journal.stagedSlotId != committedSlotId) return;
+    await _removeVerifiedPreference(
+      prefs,
+      _authorityStagingSlotKey,
+      'Strict authority staging journal cleanup failed',
+    );
+  }
+
+  static Future<void> _discardStagedAuthoritySlotLocked(
+    SharedPreferences prefs,
+    _AuthorityStageJournal journal, {
+    bool removeJournal = true,
+  }) async {
+    final rollbackSlotId = journal.rollbackSlotId;
+    if (rollbackSlotId != null) {
+      final rollbackPayload =
+          await SecureWizardStore.readAuthoritySlotStrict(rollbackSlotId);
+      if (rollbackPayload == null) {
+        final stagedPayload = await SecureWizardStore.readAuthoritySlotStrict(
+          journal.stagedSlotId,
+        );
+        if (prefs.getString(_activeAuthoritySlotKey) !=
+                journal.previousActiveSlotId ||
+            stagedPayload != null) {
+          throw StateError('Authority rollback payload is unavailable');
+        }
+      } else {
+        await _restoreWizardBytes(
+          prefs,
+          _decodeAuthorityRollback(rollbackPayload),
+        );
+        await _restoreStringPreference(
+          prefs,
+          key: _activeAuthoritySlotKey,
+          value: journal.previousActiveSlotId,
+          failure: 'Strict authority pointer rollback failed',
+        );
+      }
+    } else {
+      // Legacy single-slot journals did not retain a before-image.
+      final activeSlotId = prefs.getString(_activeAuthoritySlotKey);
+      if (activeSlotId == null) {
+        await _restoreWizardBytes(prefs, null);
+      } else {
+        final activePayload =
+            await SecureWizardStore.readAuthoritySlotStrict(activeSlotId);
+        if (activePayload == null) {
+          throw StateError('Active authority payload is unavailable');
+        }
+        final activeCache = SecureWizardStore.secureAuthorityCache(
+          _decodeAuthorityPayload(activePayload),
+        );
+        await _setVerifiedString(
+          prefs,
+          key: _wizardKey,
+          value: json.encode(activeCache),
+          failure: 'Authority cache recovery failed',
+        );
+      }
+    }
+
+    if (journal.stagedSlotId != journal.previousActiveSlotId) {
+      await SecureWizardStore.deleteAuthoritySlotStrict(journal.stagedSlotId);
+    }
+    if (rollbackSlotId != null) {
+      await SecureWizardStore.deleteAuthoritySlotStrict(rollbackSlotId);
+    }
+    if (removeJournal) {
+      await _removeVerifiedPreference(
+        prefs,
+        _authorityStagingSlotKey,
+        'Abandoned authority stage cleanup failed',
+      );
+    }
+  }
+
+  static Future<void> _reconcileAuthorityStageLocked(
+    SharedPreferences prefs,
+  ) async {
+    final rawJournal = prefs.getString(_authorityStagingSlotKey);
+    if (rawJournal == null) return;
+    final activeSlotId = prefs.getString(_activeAuthoritySlotKey);
+    final journal = _AuthorityStageJournal.decode(
+      rawJournal,
+      legacyPreviousActiveSlotId: activeSlotId,
+    );
+    if (activeSlotId == journal.stagedSlotId) {
+      await SecureWizardStore.cleanupAuthorityAfterCommitStrict(activeSlotId!);
+      if (prefs.getString(_activeLppEvidenceSlotKey) != null) {
+        await _removeVerifiedPreference(
+          prefs,
+          _activeLppEvidenceSlotKey,
+          'Legacy LPP pointer cleanup failed',
+        );
+      }
+      await _removeAuthorityStagingMarkerStrict(
+        prefs,
+        journal.stagedSlotId,
+      );
+      return;
+    }
+    await _discardStagedAuthoritySlotLocked(prefs, journal);
+  }
+
+  static Future<void> _reconcileAuthorityStageBestEffort(
+    SharedPreferences prefs,
+  ) async {
+    try {
+      await _reconcileAuthorityStageLocked(prefs);
+    } on Object {
+      // Reads remain exact through the active pointer. The marker stays until
+      // a later restart can confirm deletion of every staged byte.
+    }
   }
 
   static String _newLppEvidenceSlotId() {
@@ -162,15 +549,69 @@ class ReportPersistenceService {
     ).join();
   }
 
+  static String _newAuthoritySlotIdExcluding(Set<String> excluded) {
+    var slotId = _newLppEvidenceSlotId();
+    while (excluded.contains(slotId)) {
+      slotId = _newLppEvidenceSlotId();
+    }
+    return slotId;
+  }
+
   static Future<void> _restoreWizardBytes(
     SharedPreferences prefs,
     String? previousBytes,
   ) async {
+    await prefs.reload();
+    if (prefs.getString(_wizardKey) == previousBytes) return;
     final restored = previousBytes == null
         ? await prefs.remove(_wizardKey)
         : await prefs.setString(_wizardKey, previousBytes);
-    if (!restored || prefs.getString(_wizardKey) != previousBytes) {
+    if (!restored) await prefs.reload();
+    if (prefs.getString(_wizardKey) != previousBytes) {
       throw StateError('Strict LPP preferences rollback failed');
+    }
+  }
+
+  static Future<void> _setVerifiedString(
+    SharedPreferences prefs, {
+    required String key,
+    required String value,
+    required String failure,
+  }) async {
+    final stored = await prefs.setString(key, value);
+    if (!stored) await prefs.reload();
+    if (!stored || prefs.getString(key) != value) throw StateError(failure);
+  }
+
+  static Future<void> _removeVerifiedPreference(
+    SharedPreferences prefs,
+    String key,
+    String failure,
+  ) async {
+    await prefs.reload();
+    if (!prefs.containsKey(key)) return;
+    final removed = await prefs.remove(key);
+    await prefs.reload();
+    if (!removed || prefs.containsKey(key)) throw StateError(failure);
+  }
+
+  static Future<void> _restoreStringPreference(
+    SharedPreferences prefs, {
+    required String key,
+    required String? value,
+    required String failure,
+  }) async {
+    await prefs.reload();
+    if (prefs.getString(key) == value) return;
+    if (value == null) {
+      await _removeVerifiedPreference(prefs, key, failure);
+    } else {
+      await _setVerifiedString(
+        prefs,
+        key: key,
+        value: value,
+        failure: failure,
+      );
     }
   }
 
@@ -187,33 +628,28 @@ class ReportPersistenceService {
     }
   }
 
-  static Future<void> _rollbackLppPublication(
-    SharedPreferences prefs, {
-    required String? previousBytes,
-    required String? previousSlotId,
-    required String failedSlotId,
-  }) async {
-    Object? rollbackFailure;
-    try {
-      await _restoreLppSlotPointer(prefs, previousSlotId);
-    } on Object catch (error) {
-      rollbackFailure = error;
-    }
-    try {
-      await _restoreWizardBytes(prefs, previousBytes);
-    } on Object catch (error) {
-      rollbackFailure ??= error;
-    }
-    await SecureWizardStore.deleteLppEvidenceSlot(failedSlotId);
-    if (rollbackFailure != null) {
-      throw StateError('Strict LPP cross-store rollback failed');
-    }
-  }
-
   /// Charge les réponses existantes.
   /// SEC-10: Sensitive financial keys are restored from encrypted storage.
-  static Future<Map<String, dynamic>> loadAnswers() async {
+  static Future<Map<String, dynamic>> loadAnswers({
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) =>
+      _serializeLppPersistence(() async {
+        final loaded = await _loadAnswersLocked();
+        final persisted = Map<String, dynamic>.unmodifiable(
+          Map<String, dynamic>.from(loaded),
+        );
+        publish?.call(persisted);
+        return Map<String, dynamic>.from(persisted);
+      });
+
+  static Future<Map<String, dynamic>> _loadAnswersLocked() async {
     final prefs = await SharedPreferences.getInstance();
+    await _reconcileAuthorityStageBestEffort(prefs);
+    final authority = await _readActiveAuthority(prefs);
+    if (authority != null) {
+      return _normalizeLegacyCashTotal(authority, persistenceLocked: true);
+    }
+    if (prefs.getString(_authorityStagingSlotKey) != null) return {};
     final jsonString = prefs.getString(_wizardKey);
 
     if (jsonString == null) return {};
@@ -221,8 +657,15 @@ class ReportPersistenceService {
     try {
       final answers = Map<String, dynamic>.from(json.decode(jsonString));
       final restored = await SecureWizardStore.restoreSensitiveKeys(answers);
-      final withLpp = await _restoreLppEvidenceRoot(prefs, restored);
-      return await _normalizeLegacyCashTotal(withLpp);
+      final withLpp = await _restoreLppEvidenceRoot(
+        prefs,
+        restored,
+        persistenceLocked: true,
+      );
+      return await _normalizeLegacyCashTotal(
+        _withoutUnresolvedStrictAuthorityPlaceholders(withLpp),
+        persistenceLocked: true,
+      );
     } catch (e, stack) {
       dev.log('Failed to decode wizard answers',
           error: e, stackTrace: stack, name: 'Persistence');
@@ -230,10 +673,90 @@ class ReportPersistenceService {
     }
   }
 
-  static Future<Map<String, dynamic>> _restoreLppEvidenceRoot(
+  static Future<Map<String, dynamic>> _loadAnswersForMutationLocked(
+    SharedPreferences prefs,
+  ) async {
+    final authority = await _readActiveAuthority(prefs);
+    if (authority != null) {
+      return _normalizeLegacyCashTotal(authority, persistenceLocked: true);
+    }
+    if (prefs.getString(_authorityStagingSlotKey) != null) {
+      throw StateError('Unresolved authority staging journal');
+    }
+    final jsonString = prefs.getString(_wizardKey);
+    if (jsonString == null) return <String, dynamic>{};
+
+    try {
+      final decoded = json.decode(jsonString);
+      if (decoded is! Map) throw const FormatException('invalid wizard map');
+      final answers = Map<String, dynamic>.from(decoded);
+      final restored =
+          await SecureWizardStore.restoreSensitiveKeysStrict(answers);
+      final withLpp = await _restoreLppEvidenceRoot(
+        prefs,
+        restored,
+        persistenceLocked: true,
+      );
+      final resolved = _withoutUnresolvedStrictAuthorityPlaceholders(withLpp);
+      if (resolved.values.any((value) => value == '__secure__')) {
+        throw StateError('Unresolved sensitive answer placeholder');
+      }
+      return _normalizeLegacyCashTotal(
+        resolved,
+        persistenceLocked: true,
+      );
+    } on Object catch (error) {
+      throw StateError('Current wizard authority is unavailable: $error');
+    }
+  }
+
+  /// Reads the current answer view without migrations or normalization writes.
+  ///
+  /// Review surfaces use this before final consent, so even legacy secure LPP
+  /// bytes must remain exactly where they are until an authoritative action.
+  static Future<Map<String, dynamic>> loadAnswersReadOnly() async {
+    final prefs = await SharedPreferences.getInstance();
+    final authority = await _readActiveAuthority(prefs);
+    if (authority != null) return authority;
+    if (prefs.getString(_authorityStagingSlotKey) != null) return {};
+    final jsonString = prefs.getString(_wizardKey);
+    if (jsonString == null) return {};
+
+    try {
+      final answers = Map<String, dynamic>.from(json.decode(jsonString));
+      final restored = await SecureWizardStore.restoreSensitiveKeys(answers);
+      final withLpp = await _restoreLppEvidenceRootReadOnly(prefs, restored);
+      return _withoutUnresolvedStrictAuthorityPlaceholders(withLpp);
+    } catch (e, stack) {
+      dev.log(
+        'Failed to decode wizard answers for read-only view',
+        error: e,
+        stackTrace: stack,
+        name: 'Persistence',
+      );
+      return {};
+    }
+  }
+
+  static Future<Map<String, dynamic>> _restoreLppEvidenceRootReadOnly(
     SharedPreferences prefs,
     Map<String, dynamic> answers,
   ) async {
+    if (answers[_strictLppEvidenceKey] != '__secure__') return answers;
+    final restored = Map<String, dynamic>.from(answers);
+    final activeSlotId = prefs.getString(_activeLppEvidenceSlotKey);
+    final root = activeSlotId == null
+        ? await SecureWizardStore.readLegacyLppEvidenceRoot()
+        : await SecureWizardStore.readLppEvidenceSlot(activeSlotId);
+    if (root != null) restored[_strictLppEvidenceKey] = root;
+    return restored;
+  }
+
+  static Future<Map<String, dynamic>> _restoreLppEvidenceRoot(
+    SharedPreferences prefs,
+    Map<String, dynamic> answers, {
+    bool persistenceLocked = false,
+  }) async {
     if (answers[_strictLppEvidenceKey] != '__secure__') return answers;
     final restored = Map<String, dynamic>.from(answers);
     final activeSlotId = prefs.getString(_activeLppEvidenceSlotKey);
@@ -245,7 +768,11 @@ class ReportPersistenceService {
 
     final legacyRoot = await SecureWizardStore.readLegacyLppEvidenceRoot();
     if (legacyRoot == null) return restored;
-    await _migrateLegacyLppEvidenceRoot(prefs, legacyRoot);
+    if (persistenceLocked) {
+      await _migrateLegacyLppEvidenceRootLocked(prefs, legacyRoot);
+    } else {
+      await _migrateLegacyLppEvidenceRoot(prefs, legacyRoot);
+    }
 
     final migratedSlotId = prefs.getString(_activeLppEvidenceSlotKey);
     if (migratedSlotId != null) {
@@ -316,8 +843,8 @@ class ReportPersistenceService {
   }
 
   static Future<Map<String, dynamic>> _normalizeLegacyCashTotal(
-    Map<String, dynamic> answers,
-  ) async {
+      Map<String, dynamic> answers,
+      {bool persistenceLocked = false}) async {
     if (!_looksLikeLegacyUnprovenancedCash(answers)) return answers;
 
     final legacyCash = _parseDouble(answers['q_cash_total']);
@@ -330,7 +857,11 @@ class ReportPersistenceService {
       'Quarantined legacy unprovenanced q_cash_total estimate',
       name: 'Persistence',
     );
-    await saveAnswers(persisted);
+    if (persistenceLocked) {
+      await _saveAnswers(persisted);
+    } else {
+      await saveAnswers(persisted);
+    }
     return cleaned;
   }
 
@@ -1036,12 +1567,30 @@ class ReportPersistenceService {
   static Future<void> clear({
     PartnerAccountabilityBindingStore? partnerAccountabilityBindingStore,
   }) async {
-    await clearDiagnostic(
-      partnerAccountabilityBindingStore: partnerAccountabilityBindingStore,
-    );
     final prefs = await SharedPreferences.getInstance();
-    await clearCoachHistory();
-    await prefs.remove(_lettersKey);
+    Object? failure;
+    try {
+      await clearDiagnostic(
+        partnerAccountabilityBindingStore: partnerAccountabilityBindingStore,
+      );
+    } on Object catch (error) {
+      failure = error;
+    }
+    try {
+      await clearCoachHistory();
+    } on Object catch (error) {
+      failure ??= error;
+    }
+    try {
+      await _removeVerifiedPreference(
+        prefs,
+        _lettersKey,
+        'Letters purge failed',
+      );
+    } on Object catch (error) {
+      failure ??= error;
+    }
+    if (failure != null) throw StateError('Local financial purge failed');
   }
 
   /// Clears coach history only:
@@ -1051,17 +1600,31 @@ class ReportPersistenceService {
   /// - user activity such as life events and dismissed or snoozed tips
   static Future<void> clearCoachHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_checkInsKey);
-    await prefs.remove(_lastScoreKey);
-    await prefs.remove(_lastScoreMonthKey);
-    await prefs.remove(_scoreHistoryKey);
-    await prefs.remove(_lastScoreReasonKey);
-    await prefs.remove(_lastScoreDeltaKey);
-    await prefs.remove(_lastScoreReasonAtKey);
-    await prefs.remove(_exploredSimulatorsKey);
-    await prefs.remove(_exploredLifeEventsKey);
-    await prefs.remove(_dismissedTipsKey);
-    await prefs.remove(_snoozedTipsKey);
+    Object? failure;
+    for (final key in const {
+      _checkInsKey,
+      _lastScoreKey,
+      _lastScoreMonthKey,
+      _scoreHistoryKey,
+      _lastScoreReasonKey,
+      _lastScoreDeltaKey,
+      _lastScoreReasonAtKey,
+      _exploredSimulatorsKey,
+      _exploredLifeEventsKey,
+      _dismissedTipsKey,
+      _snoozedTipsKey,
+    }) {
+      try {
+        await _removeVerifiedPreference(
+          prefs,
+          key,
+          'Coach history purge failed',
+        );
+      } on Object catch (error) {
+        failure ??= error;
+      }
+    }
+    if (failure != null) throw StateError('Coach history purge failed');
   }
 
   /// Efface le diagnostic/profil financier:
@@ -1078,25 +1641,123 @@ class ReportPersistenceService {
   static Future<void> _clearDiagnostic(
     PartnerAccountabilityBindingStore? partnerAccountabilityBindingStore,
   ) async {
-    await (partnerAccountabilityBindingStore ??
-            PartnerAccountabilityBindingStore())
-        .clear();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_wizardKey);
-    await prefs.remove(_activeLppEvidenceSlotKey);
-    await SecureWizardStore.deleteAll();
-    await prefs.remove(_completedKey);
-    await prefs.remove(_miniOnboardingKey);
-    await prefs.remove(_miniOnboardingVariantKey);
-    await prefs.remove(_miniOnboardingExposureTrackedKey);
-    await prefs.remove(_onboardingMetricsControlKey);
-    await prefs.remove(_onboardingMetricsChallengeKey);
-    await prefs.remove(_onboardingCohortMetricsKey);
-    await prefs.remove(_selectedIntentKey);
-    await prefs.remove(_contributionsKey);
-    await prefs.remove(_onboarding30PlanKey);
-    await prefs.remove(_coachNarrativeModeKey);
-    await prefs.remove(_hasSeenPremierEclairageKey);
-    await prefs.remove(_premierEclairageSnapshotKey);
+    Object? failure;
+    try {
+      final bindingCleared = await (partnerAccountabilityBindingStore ??
+              PartnerAccountabilityBindingStore())
+          .clear();
+      if (!bindingCleared) {
+        throw StateError('Partner accountability purge failed');
+      }
+    } on Object catch (error) {
+      failure = error;
+    }
+    try {
+      await FinancialPlanService.clear(prefs: prefs);
+    } on Object catch (error) {
+      failure ??= error;
+    }
+    try {
+      await SecureWizardStore.deleteAllStrict();
+    } on Object catch (error) {
+      failure ??= error;
+    }
+    for (final key in const {
+      _wizardKey,
+      _activeAuthoritySlotKey,
+      _authorityStagingSlotKey,
+      _activeLppEvidenceSlotKey,
+      _completedKey,
+      _miniOnboardingKey,
+      _miniOnboardingVariantKey,
+      _miniOnboardingExposureTrackedKey,
+      _onboardingMetricsControlKey,
+      _onboardingMetricsChallengeKey,
+      _onboardingCohortMetricsKey,
+      _selectedIntentKey,
+      _contributionsKey,
+      _onboarding30PlanKey,
+      _coachNarrativeModeKey,
+      _hasSeenPremierEclairageKey,
+      _premierEclairageSnapshotKey,
+    }) {
+      try {
+        await _removeVerifiedPreference(
+          prefs,
+          key,
+          'Diagnostic preference purge failed',
+        );
+      } on Object catch (error) {
+        failure ??= error;
+      }
+    }
+    if (failure != null) throw StateError('Diagnostic purge failed');
+  }
+}
+
+final class _AuthorityStageJournal {
+  const _AuthorityStageJournal({
+    required this.stagedSlotId,
+    required this.rollbackSlotId,
+    required this.previousActiveSlotId,
+  });
+
+  final String stagedSlotId;
+  final String? rollbackSlotId;
+  final String? previousActiveSlotId;
+
+  String encode() => json.encode({
+        'schemaVersion':
+            ReportPersistenceService._authorityJournalSchemaVersion,
+        'stagedSlotId': stagedSlotId,
+        'rollbackSlotId': rollbackSlotId,
+        'previousActiveSlotId': previousActiveSlotId,
+      });
+
+  static _AuthorityStageJournal decode(
+    String raw, {
+    required String? legacyPreviousActiveSlotId,
+  }) {
+    if (SecureWizardStore.isValidAuthoritySlotId(raw)) {
+      return _AuthorityStageJournal(
+        stagedSlotId: raw,
+        rollbackSlotId: null,
+        previousActiveSlotId: legacyPreviousActiveSlotId,
+      );
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map ||
+          decoded.length != 4 ||
+          decoded['schemaVersion'] !=
+              ReportPersistenceService._authorityJournalSchemaVersion) {
+        throw const FormatException('Invalid authority journal envelope');
+      }
+      final stagedSlotId = decoded['stagedSlotId'];
+      final rollbackSlotId = decoded['rollbackSlotId'];
+      final previousActiveSlotId = decoded['previousActiveSlotId'];
+      if (stagedSlotId is! String ||
+          !SecureWizardStore.isValidAuthoritySlotId(stagedSlotId) ||
+          rollbackSlotId is! String ||
+          !SecureWizardStore.isValidAuthoritySlotId(rollbackSlotId) ||
+          rollbackSlotId == stagedSlotId ||
+          (previousActiveSlotId != null &&
+              (previousActiveSlotId is! String ||
+                  !SecureWizardStore.isValidAuthoritySlotId(
+                    previousActiveSlotId,
+                  ))) ||
+          previousActiveSlotId == stagedSlotId ||
+          previousActiveSlotId == rollbackSlotId) {
+        throw const FormatException('Invalid authority journal slots');
+      }
+      return _AuthorityStageJournal(
+        stagedSlotId: stagedSlotId,
+        rollbackSlotId: rollbackSlotId,
+        previousActiveSlotId: previousActiveSlotId as String?,
+      );
+    } on Object catch (error) {
+      throw StateError('Invalid authority staging journal: $error');
+    }
   }
 }

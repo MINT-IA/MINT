@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +31,7 @@ void main() {
   group('FinancialPlanService', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});
+      FlutterSecureStorage.setMockInitialValues(<String, String>{});
     });
 
     test('Test 1: save() then loadAll() returns the saved plan', () async {
@@ -42,7 +44,8 @@ void main() {
       expect(plans.first.id, equals('plan-001'));
     });
 
-    test('Test 2: save() with same id overwrites (upsert), not duplicates', () async {
+    test('Test 2: save() with same id overwrites (upsert), not duplicates',
+        () async {
       final plan1 = _makePlan('plan-001');
       final plan2 = _makePlan('plan-001'); // same id
 
@@ -55,10 +58,12 @@ void main() {
     });
 
     test('Test 3: save() with 4th plan evicts the oldest (max 3)', () async {
-      final oldest = _makePlan('plan-oldest', generatedAt: DateTime(2026, 1, 1));
+      final oldest =
+          _makePlan('plan-oldest', generatedAt: DateTime(2026, 1, 1));
       final p2 = _makePlan('plan-002', generatedAt: DateTime(2026, 2, 1));
       final p3 = _makePlan('plan-003', generatedAt: DateTime(2026, 3, 1));
-      final newest = _makePlan('plan-newest', generatedAt: DateTime(2026, 4, 1));
+      final newest =
+          _makePlan('plan-newest', generatedAt: DateTime(2026, 4, 1));
 
       // Save oldest first (will be at tail after 3 saves)
       await FinancialPlanService.save(oldest);
@@ -73,7 +78,9 @@ void main() {
       expect(plans.any((p) => p.id == 'plan-newest'), isTrue);
     });
 
-    test('Test 4: loadAll() with corrupted SharedPreferences JSON returns empty list', () async {
+    test(
+        'Test 4: loadAll() with corrupted SharedPreferences JSON returns empty list',
+        () async {
       // Inject corrupted JSON directly
       SharedPreferences.setMockInitialValues({
         'financial_plan_v1': 'NOT VALID JSON {{{{',
@@ -96,7 +103,8 @@ void main() {
       expect(current!.id, equals('plan-newest'));
     });
 
-    test('Test 6: delete() removes plan by id, loadAll() no longer contains it', () async {
+    test('Test 6: delete() removes plan by id, loadAll() no longer contains it',
+        () async {
       final p1 = _makePlan('plan-001');
       final p2 = _makePlan('plan-002');
 

@@ -70,9 +70,14 @@ class FeatureFlags {
 
   /// Local kill switch for the Flutter-owned first financial-plan setup.
   ///
-  /// It stays outside [applyFromMap]: G1 must keep the new persisted scenario
-  /// path unavailable until its product, domain, and runtime gates all pass.
-  static bool financialPlanSetupEnabled = false;
+  /// `MINT_TEST_FINANCIAL_PLAN_SETUP` is a TEST-ONLY compile-time opt-in used
+  /// by the exact-archive production-entrypoint runtime review. Its default is
+  /// fail-closed, and this flag stays outside [applyFromMap] so the backend
+  /// cannot activate the unfinished G1 path.
+  static bool financialPlanSetupEnabled = const bool.fromEnvironment(
+    'MINT_TEST_FINANCIAL_PLAN_SETUP',
+    defaultValue: false,
+  );
 
   /// Local-only gate for the illustrative 13th AVS scenario cash-flow.
   ///

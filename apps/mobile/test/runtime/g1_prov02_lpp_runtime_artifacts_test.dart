@@ -151,13 +151,52 @@ void main() {
       contains('SlmAutoPromptService.checkAndPrompt(context)'),
     );
     expect(autoPrompt, contains('context.read<SlmProvider>()'));
-    for (final provider in const [
-      'CoachProfileProvider',
-      'ByokProvider',
-      'SlmProvider',
-    ]) {
-      expect(productionApp, contains('$provider()'), reason: provider);
-    }
+    expect(productionApp, contains('SlmProvider()'));
+    expect(
+      productionApp,
+      matches(
+        RegExp(
+          r'ByokProvider\(\s*'
+          r'sessionEpoch: context\.read<SessionEpoch>\(\),\s*'
+          r'\)',
+        ),
+      ),
+      reason: 'the real ByokProvider must reuse MintApp session epoch',
+    );
+    final sessionEpochRegistration = RegExp(
+      r'Provider<SessionEpoch>\(\s*'
+      r'lazy: false,\s*'
+      r'create: \(_\) => SessionEpoch\(\),\s*'
+      r'\)',
+    );
+    expect(
+      sessionEpochRegistration.allMatches(productionApp),
+      hasLength(1),
+      reason: 'MintApp must own exactly one eager SessionEpoch authority',
+    );
+    expect(
+      productionApp,
+      matches(
+        RegExp(
+          r'CoachProfileProvider\(\s*'
+          r'sessionEpoch: context\.read<SessionEpoch>\(\),\s*'
+          r'\)',
+        ),
+      ),
+      reason: 'the real CoachProfileProvider must reuse MintApp session epoch',
+    );
+    expect(
+      productionApp,
+      isNot(
+        matches(
+          RegExp(
+            r'CoachProfileProvider\(\s*'
+            r'sessionEpoch: SessionEpoch\(\)',
+          ),
+        ),
+      ),
+      reason: 'CoachProfileProvider must not create an isolated session epoch',
+    );
 
     for (final path in const [
       'integration_test/g1_prov02_lpp_persistence_write_patrol_test.dart',
@@ -178,6 +217,12 @@ void main() {
       expect(harness, contains('final slmProvider = SlmProvider();'));
       expect(harness, contains('slmProvider.init();'));
       expect(harness, contains('RetirementDashboardScreen()'));
+      expect(harness, contains('final sessionEpoch = SessionEpoch();'));
+      expect(
+        harness,
+        contains('ByokProvider(sessionEpoch: sessionEpoch)'),
+      );
+      expect(harness, isNot(contains('ByokProvider()')));
       for (final forbidden in const [
         'FakeSlmProvider',
         'MockSlmProvider',

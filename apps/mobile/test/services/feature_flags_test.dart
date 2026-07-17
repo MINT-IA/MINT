@@ -15,11 +15,16 @@ void main() {
     FeatureFlags.slmPluginReady = false;
     FeatureFlags.safeModeDegraded = false;
     FeatureFlags.enableGuidedSequences = false;
+    FeatureFlags.financialPlanSetupEnabled = const bool.fromEnvironment(
+      'MINT_TEST_FINANCIAL_PLAN_SETUP',
+      defaultValue: false,
+    );
     // F7: enableCoachPhase2, enableLifeEventScreens, enableAdvancedSimulators,
     //     enableMortgageTools, enableIndependantTools removed (always true, no consumers)
     FeatureFlags.enableOpenBanking = false;
     FeatureFlags.enableAdminScreens = false;
     addTearDown(() => FeatureFlags.enableGuidedSequences = false);
+    addTearDown(() => FeatureFlags.financialPlanSetupEnabled = false);
   });
 
   group('FeatureFlags — default values', () {
@@ -57,6 +62,10 @@ void main() {
 
     test('enableGuidedSequences is false by default', () {
       expect(FeatureFlags.enableGuidedSequences, isFalse);
+    });
+
+    test('financial plan setup remains false without the test-only opt-in', () {
+      expect(FeatureFlags.financialPlanSetupEnabled, isFalse);
     });
   });
 
@@ -124,6 +133,12 @@ void main() {
       FeatureFlags.enableGuidedSequences = true;
       FeatureFlags.applyFromMap({'enableGuidedSequences': false});
       expect(FeatureFlags.enableGuidedSequences, isTrue);
+    });
+
+    test('financial plan setup remains local-only', () {
+      FeatureFlags.financialPlanSetupEnabled = true;
+      FeatureFlags.applyFromMap({'financialPlanSetupEnabled': false});
+      expect(FeatureFlags.financialPlanSetupEnabled, isTrue);
     });
   });
 

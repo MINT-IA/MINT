@@ -1,13 +1,17 @@
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
-import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+const _profileOwnerId = '11111111-1111-4111-8111-111111111111';
 
 const _mandatoryMintDisclaimer =
     'Les résultats présentés sont des estimations à titre indicatif, '
@@ -21,10 +25,12 @@ CoachProfile _profile({
   return CoachProfile(
     birthYear: 1986,
     dateOfBirth: DateTime(1986, 2, 14),
+    gender: 'M',
     canton: 'VD',
     salaireBrutMensuel: 8000,
     nombreDeMois: 12,
     prevoyance: const PrevoyanceProfile(
+      hasPensionFund: true,
       avoirLppTotal: 150000,
       avoirLppObligatoire: 100000,
       avoirLppSurobligatoire: 50000,
@@ -41,6 +47,8 @@ CoachProfile _profile({
       'salaireBrutMensuel': ProfileDataSource.userInput,
       'canton': ProfileDataSource.userInput,
       'dateOfBirth': ProfileDataSource.userInput,
+      'gender': ProfileDataSource.userInput,
+      'prevoyance.hasPensionFund': ProfileDataSource.userInput,
       'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
       'prevoyance.avoirLppObligatoire': ProfileDataSource.userInput,
       'prevoyance.avoirLppSurobligatoire': ProfileDataSource.userInput,
@@ -52,6 +60,8 @@ CoachProfile _profile({
         'salaireBrutMensuel',
         'canton',
         'dateOfBirth',
+        'gender',
+        'prevoyance.hasPensionFund',
         'prevoyance.avoirLppTotal',
         'prevoyance.avoirLppObligatoire',
         'prevoyance.avoirLppSurobligatoire',
@@ -66,6 +76,62 @@ CoachProfile _profile({
   );
 }
 
+LppEvidenceSnapshot _selfLppSnapshot(CoachProfile profile) {
+  LppEvidenceFact fact(LppEvidenceFactKey key, double value) {
+    final path = switch (key) {
+      LppEvidenceFactKey.vestedBenefitsCapitalChf => 'prevoyance.avoirLppTotal',
+      LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf =>
+        'prevoyance.avoirLppObligatoire',
+      LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf =>
+        'prevoyance.avoirLppSurobligatoire',
+      _ => throw StateError('unsupported synthetic capital fact'),
+    };
+    return LppEvidenceFact(
+      value: value,
+      unit: LppEvidenceUnit.chf,
+      profileOwnerId: _profileOwnerId,
+      actorProfileOwnerId: _profileOwnerId,
+      source: profile.dataSources[path]!.name,
+      sourceDate: profile.dataSourceDates[path],
+      updatedAt: profile.dataTimestamps[path]!,
+    );
+  }
+
+  return LppEvidenceSnapshot(
+    snapshotId: '22222222-2222-4222-8222-222222222222',
+    facts: {
+      if (profile.prevoyance.avoirLppTotal case final value?)
+        LppEvidenceFactKey.vestedBenefitsCapitalChf:
+            fact(LppEvidenceFactKey.vestedBenefitsCapitalChf, value),
+      if (profile.prevoyance.avoirLppObligatoire case final value?)
+        LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf: fact(
+          LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf,
+          value,
+        ),
+      if (profile.prevoyance.avoirLppSurobligatoire case final value?)
+        LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf: fact(
+          LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf,
+          value,
+        ),
+    },
+  );
+}
+
+class _Ledger extends CoachProfileProvider {
+  _Ledger(this._profile);
+
+  final CoachProfile _profile;
+
+  @override
+  CoachProfile get profile => _profile;
+
+  @override
+  bool get isLoaded => true;
+
+  @override
+  String get canonicalProfileOwnerId => _profileOwnerId;
+}
+
 DateTime _targetInMonths(int months) {
   final now = DateTime.now();
   return DateTime(now.year, now.month + months, now.day);
@@ -73,6 +139,8 @@ DateTime _targetInMonths(int months) {
 
 Future<FinancialPlan> _simplePlan() {
   return PlanGenerationService.generate(
+    profileOwnerId: _profileOwnerId,
+    selfLppSnapshot: null,
     goalDescription: 'Constituer une réserve synthétique',
     goalCategory: 'goal_general',
     targetDate: _targetInMonths(24),
@@ -86,12 +154,15 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues(<String, String>{});
   });
 
   group('G1-BND-06 domain RED — calculator contract', () {
     test('generate fails closed without a user-owned goal amount', () async {
       expect(
         () => PlanGenerationService.generate(
+          profileOwnerId: _profileOwnerId,
+          selfLppSnapshot: null,
           goalDescription: 'Objectif sans montant',
           goalCategory: 'goal_general',
           targetDate: _targetInMonths(24),
@@ -143,12 +214,14 @@ void main() {
       final profile = CoachProfile(
         birthYear: now.year - 40,
         dateOfBirth: DateTime(now.year - 40, now.month, 1),
+        gender: 'M',
         canton: 'VD',
         // CHF 12'000/year is below the 2026 LPP entry threshold. The supplied
         // balances remain the only retirement capital in this synthetic case.
         salaireBrutMensuel: 1000,
         nombreDeMois: 12,
         prevoyance: const PrevoyanceProfile(
+          hasPensionFund: true,
           avoirLppTotal: 150000,
           avoirLppObligatoire: 100000,
           avoirLppSurobligatoire: 50000,
@@ -163,6 +236,8 @@ void main() {
         dataSources: const {
           'salaireBrutMensuel': ProfileDataSource.userInput,
           'dateOfBirth': ProfileDataSource.userInput,
+          'gender': ProfileDataSource.userInput,
+          'prevoyance.hasPensionFund': ProfileDataSource.userInput,
           'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
           'prevoyance.avoirLppObligatoire': ProfileDataSource.userInput,
           'prevoyance.avoirLppSurobligatoire': ProfileDataSource.userInput,
@@ -172,6 +247,8 @@ void main() {
           for (final path in const [
             'salaireBrutMensuel',
             'dateOfBirth',
+            'gender',
+            'prevoyance.hasPensionFund',
             'prevoyance.avoirLppTotal',
             'prevoyance.avoirLppObligatoire',
             'prevoyance.avoirLppSurobligatoire',
@@ -183,6 +260,8 @@ void main() {
       );
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: _selfLppSnapshot(profile),
         goalDescription: 'Capital retraite synthétique',
         goalCategory: 'goal_retirement_plan',
         targetDate: _targetInMonths(300),
@@ -202,11 +281,14 @@ void main() {
 
     test('retirement sources name only rules used by capital projection',
         () async {
+      final profile = _profile();
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: _selfLppSnapshot(profile),
         goalDescription: 'Capital retraite synthétique',
         goalCategory: 'goal_retirement_plan',
         targetDate: _targetInMonths(300),
-        profile: _profile(),
+        profile: profile,
         goalAmount: 300000,
         prospectiveLppReturn: 0.02,
       );
@@ -230,12 +312,13 @@ void main() {
       expect(hasLppArticle14, isFalse, reason: reason);
     });
 
-    test('plan confidence equals the canonical EnhancedConfidence score',
+    test('general plan confidence ignores unrelated profile scoring axes',
         () async {
       final profile = _profile();
-      final expected = ConfidenceScorer.scoreEnhanced(profile).combined;
 
       final plan = await PlanGenerationService.generate(
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
         goalDescription: 'Objectif synthétique',
         goalCategory: 'goal_general',
         targetDate: _targetInMonths(24),
@@ -243,30 +326,7 @@ void main() {
         goalAmount: 24000,
       );
 
-      expect(plan.confidenceLevel, closeTo(expected, 0.000001));
-    });
-
-    test('the plan-input fingerprint is explicitly version 2', () {
-      expect(
-        computeProfileHash(_profile()),
-        startsWith('mint-plan-input:v2:sha256:'),
-      );
-    });
-
-    test('a confidence-relevant mutation also invalidates the fingerprint', () {
-      final beginner = _profile();
-      final advanced = _profile(literacy: FinancialLiteracyLevel.advanced);
-
-      expect(
-        ConfidenceScorer.scoreEnhanced(advanced).combined,
-        isNot(ConfidenceScorer.scoreEnhanced(beginner).combined),
-        reason: 'Financial literacy changes the canonical understanding axis.',
-      );
-      expect(
-        computeProfileHash(advanced),
-        isNot(computeProfileHash(beginner)),
-        reason: 'A displayed plan-confidence change must make the plan stale.',
-      );
+      expect(plan.confidenceLevel, 100);
     });
 
     test('generation is side-effect free and provider alone persists the plan',
@@ -280,9 +340,13 @@ void main() {
             'PlanGenerationService must not bypass the provider save queue.',
       );
 
-      final provider = FinancialPlanProvider();
+      final ledger = _Ledger(_profile());
+      final provider = FinancialPlanProvider()..attachProfileProvider(ledger);
+      addTearDown(ledger.dispose);
       addTearDown(provider.dispose);
-      await provider.setPlan(generated);
+      await provider.setPlan(
+        generated.copyWith(confirmedAt: generated.generatedAt),
+      );
       expect((await FinancialPlanService.loadCurrent())?.id, generated.id);
     });
   });

@@ -100,9 +100,10 @@ const Map<String, double> lppBonificationsVieillesse = {
 };
 
 /// Retourne le taux de bonification LPP pour un age donne (LPP art. 16).
-/// Bonifications stop at reference retirement age 65.
+/// The default legal schedule stops when age 65 is reached. A fund-specific
+/// post-reference rate must be supplied explicitly by the caller.
 double getLppBonificationRate(int age) {
-  if (age > 65 || age < 25) return 0.0;
+  if (age >= 65 || age < 25) return 0.0;
   if (age >= 55) return 0.18;
   if (age >= 45) return 0.15;
   if (age >= 35) return 0.10;

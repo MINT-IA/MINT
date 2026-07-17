@@ -1,764 +1,385 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
-import 'package:mint_mobile/providers/financial_plan_provider.dart';
-import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/services/financial_plan_ledger_inputs.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
 
-const _retirementGoalAmount = 3000000.0;
+const _profileOwnerId = '11111111-1111-4111-8111-111111111111';
+final _now = DateTime.utc(2026, 7, 16, 12);
+final _target = DateTime.utc(2051, 2, 14);
 
-CoachProfile _retirementProfile({
+({CoachProfile profile, LppEvidenceSnapshot? snapshot}) _fixture({
+  bool? hasPensionFund = true,
+  bool hasExactDateOfBirth = true,
+  double grossMonthlySalary = 8000,
   double? total = 150000,
   double? mandatory = 100000,
-  double? extraMandatory = 50000,
-  double caisseReturn = 0.02,
-  bool caisseReturnKnown = true,
-  double? insuredSalary,
-  double? bonificationRate,
-  double monthlySalary = 8000,
-  double salaryMonths = 12,
-  Map<String, ProfileDataSource>? dataSources,
-  Map<String, DateTime>? dataTimestamps,
-  Map<String, DateTime?>? dataSourceDates,
+  double? extra = 50000,
+  DateTime? capitalUpdatedAt,
+  String? gender = 'M',
 }) {
-  final ownedPaths = <String>[
-    'salaireBrutMensuel',
-    if (total != null) 'prevoyance.avoirLppTotal',
-    if (mandatory != null) 'prevoyance.avoirLppObligatoire',
-    if (extraMandatory != null) 'prevoyance.avoirLppSurobligatoire',
-    'prevoyance.rendementCaisse',
-    'prevoyance.rendementCaisseConnu',
-    if (insuredSalary != null) 'prevoyance.salaireAssure',
-    if (bonificationRate != null) 'prevoyance.bonificationRate',
-  ];
-  final resolvedSources = <String, ProfileDataSource>{
-    for (final path in ownedPaths) path: ProfileDataSource.userInput,
-    ...?dataSources,
-  };
-  final resolvedTimestamps = <String, DateTime>{
-    for (final path in ownedPaths) path: DateTime.utc(2026, 7, 1, 8),
-    ...?dataTimestamps,
-  };
-  final resolvedSourceDates = <String, DateTime?>{
-    for (final path in ownedPaths) path: DateTime.utc(2026, 7, 1),
-    ...?dataSourceDates,
-  };
-  return CoachProfile(
+  final updatedAt = capitalUpdatedAt ?? DateTime.utc(2026, 7, 1, 8);
+  final sourceDate = DateTime.utc(2026, 6, 30);
+  const affiliationPath = 'prevoyance.hasPensionFund';
+  const salaryPath = 'salaireBrutMensuel';
+  const dateOfBirthPath = 'dateOfBirth';
+  const genderPath = 'gender';
+  const totalPath = 'prevoyance.avoirLppTotal';
+  const mandatoryPath = 'prevoyance.avoirLppObligatoire';
+  const extraPath = 'prevoyance.avoirLppSurobligatoire';
+  final profile = CoachProfile(
     birthYear: 1986,
-    dateOfBirth: DateTime(1986, 2, 14),
+    dateOfBirth: hasExactDateOfBirth ? DateTime.utc(1986, 2, 14) : null,
+    gender: gender,
     canton: 'VD',
-    salaireBrutMensuel: monthlySalary,
-    nombreDeMois: salaryMonths,
+    salaireBrutMensuel: grossMonthlySalary,
     prevoyance: PrevoyanceProfile(
+      hasPensionFund: hasPensionFund,
       avoirLppTotal: total,
       avoirLppObligatoire: mandatory,
-      avoirLppSurobligatoire: extraMandatory,
-      rendementCaisse: caisseReturn,
-      rendementCaisseConnu: caisseReturnKnown,
-      salaireAssure: insuredSalary,
-      bonificationRate: bonificationRate,
+      avoirLppSurobligatoire: extra,
       totalEpargne3a: 30000,
     ),
     goalA: GoalA(
       type: GoalAType.retraite,
-      targetDate: DateTime(2051, 7, 16),
+      targetDate: _target,
       label: 'Retraite synthétique',
     ),
-    financialLiteracyLevel: FinancialLiteracyLevel.advanced,
     inferDataSources: false,
-    dataSources: resolvedSources,
-    dataTimestamps: resolvedTimestamps,
-    dataSourceDates: resolvedSourceDates,
-    createdAt: DateTime(2026, 7, 1),
-    updatedAt: DateTime(2026, 7, 1),
+    dataSources: {
+      affiliationPath: ProfileDataSource.userInput,
+      if (grossMonthlySalary > 0) salaryPath: ProfileDataSource.userInput,
+      if (hasExactDateOfBirth) dateOfBirthPath: ProfileDataSource.userInput,
+      if (gender != null) genderPath: ProfileDataSource.userInput,
+      if (total != null) totalPath: ProfileDataSource.certificate,
+      if (mandatory != null) mandatoryPath: ProfileDataSource.certificate,
+      if (extra != null) extraPath: ProfileDataSource.certificate,
+    },
+    dataTimestamps: {
+      affiliationPath: _now,
+      if (grossMonthlySalary > 0) salaryPath: _now,
+      if (hasExactDateOfBirth) dateOfBirthPath: _now,
+      if (gender != null) genderPath: _now,
+      if (total != null) totalPath: updatedAt,
+      if (mandatory != null) mandatoryPath: updatedAt,
+      if (extra != null) extraPath: updatedAt,
+    },
+    dataSourceDates: {
+      affiliationPath: null,
+      if (grossMonthlySalary > 0) salaryPath: null,
+      if (hasExactDateOfBirth) dateOfBirthPath: null,
+      if (gender != null) genderPath: null,
+      if (total != null) totalPath: sourceDate,
+      if (mandatory != null) mandatoryPath: sourceDate,
+      if (extra != null) extraPath: sourceDate,
+    },
+  );
+
+  LppEvidenceFact fact(double value) => LppEvidenceFact(
+        value: value,
+        unit: LppEvidenceUnit.chf,
+        profileOwnerId: _profileOwnerId,
+        actorProfileOwnerId: _profileOwnerId,
+        source: ProfileDataSource.certificate.name,
+        sourceDate: sourceDate,
+        updatedAt: updatedAt,
+      );
+  final facts = <LppEvidenceFactKey, LppEvidenceFact>{
+    if (total != null) LppEvidenceFactKey.vestedBenefitsCapitalChf: fact(total),
+    if (mandatory != null)
+      LppEvidenceFactKey.mandatoryVestedBenefitsCapitalChf: fact(mandatory),
+    if (extra != null)
+      LppEvidenceFactKey.extraMandatoryVestedBenefitsCapitalChf: fact(extra),
+  };
+  return (
+    profile: profile,
+    snapshot: hasPensionFund == true && facts.isNotEmpty
+        ? LppEvidenceSnapshot(
+            snapshotId: '22222222-2222-4222-8222-222222222222',
+            facts: facts,
+          )
+        : null,
   );
 }
 
-DateTime _targetInMonths(int months) {
-  final now = DateTime.now();
-  return DateTime(now.year, now.month + months, now.day);
-}
-
-Future<FinancialPlan> _generate(CoachProfile profile) {
+Future<FinancialPlan> _generate(
+  ({CoachProfile profile, LppEvidenceSnapshot? snapshot}) fixture, {
+  double? prospectiveLppReturn = 0.02,
+  String goalCategory = 'goal_retirement_plan',
+  DateTime? targetDate,
+  DateTime? now,
+}) {
   return PlanGenerationService.generate(
     goalDescription: 'Retraite synthétique',
-    goalCategory: 'goal_retirement_plan',
-    targetDate: _targetInMonths(300),
-    profile: profile,
-    goalAmount: _retirementGoalAmount,
-    prospectiveLppReturn: 0.02,
+    goalCategory: goalCategory,
+    targetDate: targetDate ?? _target,
+    profile: fixture.profile,
+    profileOwnerId: _profileOwnerId,
+    selfLppSnapshot: fixture.snapshot,
+    goalAmount: 3000000,
+    prospectiveLppReturn: prospectiveLppReturn,
+    now: now ?? _now,
   );
 }
+
+Matcher _blockedBy(String blocker) => throwsA(
+      isA<FinancialPlanDependencyBlocked>().having(
+        (error) => error.blocker.name,
+        'blocker',
+        blocker,
+      ),
+    );
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('G1-BND-06 Swiss blockers RED — owned retirement inputs', () {
-    test(
-      'total-only retirement keeps both split facts unknown and remains computable',
-      () async {
-        final profile = _retirementProfile(
-          mandatory: null,
-          extraMandatory: null,
-        );
+  group('G1-BND-06 Swiss v3 blockers', () {
+    test('strict total basis produces a replayable legal-schedule draft',
+        () async {
+      final plan = await _generate(_fixture(
+        mandatory: null,
+        extra: null,
+      ));
 
-        final plan = await _generate(profile);
-        final inputs = FinancialPlanLedgerInputs.fromProfile(
-          profile,
-          now: DateTime.utc(2026, 7, 16, 12),
-        );
+      expect(plan.hasValidDependencyEnvelope, isTrue);
+      expect(plan.dependencyBranch, 'retirementLpp');
+      expect(plan.dependencyBasis, 'total/legalSchedule');
+      expect(plan.confirmedAt, isNull);
+      expect(
+        plan.sources,
+        equals(<String>[
+          'LPP art. 7',
+          'LPP art. 8',
+          'LPP art. 13 et 13b',
+          'LPP art. 15–16',
+          'OFAS — AVS 21 (âge de référence transitoire)',
+        ]),
+      );
+      expect(
+        plan.sources.where((source) => source.startsWith('LAVS')),
+        isEmpty,
+      );
+      expect(plan.monthlyTarget, greaterThanOrEqualTo(0));
+      expect(
+        plan.projectionAssumptions?.bonificationBasis.kind,
+        'legalAgeSchedule',
+      );
+      expect(
+        plan.projectionAssumptions?.annualProjectionUsesWholeYears,
+        isTrue,
+      );
+      expect(
+        plan.projectionAssumptions?.requiresFundAuthorizationBefore63,
+        isFalse,
+      );
+      expect(
+        plan.projectionAssumptions?.assumesPostReferenceGainfulActivity,
+        isFalse,
+      );
+    });
 
-        expect(plan.monthlyTarget, greaterThanOrEqualTo(0));
-        expect(
-          (inputs.lppMandatoryBalance, inputs.lppExtraMandatoryBalance),
-          equals((null, null)),
-          reason: 'A current combined capital is sufficient for the combined '
-              'projection, but it does not own either component split.',
-        );
-      },
-    );
+    test('material LPP conditions are structured, persisted and replayable',
+        () async {
+      final early = await _generate(
+        _fixture(mandatory: null, extra: null),
+        targetDate: DateTime.utc(2048, 2, 13),
+      );
+      final postReference = await _generate(
+        _fixture(mandatory: null, extra: null),
+        targetDate: DateTime.utc(2051, 2, 15),
+      );
 
-    test('complete split balances without a total remain computable', () async {
-      final plan = await _generate(_retirementProfile(total: null));
+      expect(
+        (
+          early.projectionAssumptions?.annualProjectionUsesWholeYears,
+          early.projectionAssumptions?.requiresFundAuthorizationBefore63,
+          early.projectionAssumptions?.assumesPostReferenceGainfulActivity,
+        ),
+        (true, true, false),
+      );
+      expect(
+        (
+          postReference.projectionAssumptions?.annualProjectionUsesWholeYears,
+          postReference
+              .projectionAssumptions?.requiresFundAuthorizationBefore63,
+          postReference
+              .projectionAssumptions?.assumesPostReferenceGainfulActivity,
+        ),
+        (true, false, true),
+      );
+      expect(early.sources, postReference.sources);
+      expect(postReference.sources, isNot(contains('LAVS art. 39')));
 
+      final restored = FinancialPlan.fromJson(postReference.toJson());
+      expect(restored.hasValidDependencyEnvelope, isTrue);
+      expect(
+        restored.projectionAssumptions?.assumesPostReferenceGainfulActivity,
+        isTrue,
+      );
+      expect(restored.sources, postReference.sources);
+    });
+
+    test('complete coherent splits are selected when total is absent',
+        () async {
+      final plan = await _generate(_fixture(total: null));
+
+      expect(plan.dependencyBasis, 'splits/legalSchedule');
       expect(plan.monthlyTarget, greaterThanOrEqualTo(0));
     });
 
-    test('retirement with no owned capital fact fails closed', () async {
-      expect(
-        () => _generate(_retirementProfile(
+    test('unknown affiliation emits the exact typed blocker', () {
+      expectLater(
+        _generate(_fixture(hasPensionFund: null)),
+        _blockedBy('affiliation'),
+      );
+    });
+
+    test('missing exact date of birth emits the exact typed blocker', () {
+      expectLater(
+        _generate(_fixture(hasExactDateOfBirth: false)),
+        _blockedBy('dateOfBirth'),
+      );
+    });
+
+    test('missing canonical AVS gender emits the exact typed blocker', () {
+      expectLater(
+        _generate(_fixture(gender: null)),
+        _blockedBy('gender'),
+      );
+    });
+
+    test('missing gross salary emits the exact typed blocker', () {
+      expectLater(
+        _generate(_fixture(grossMonthlySalary: 0)),
+        _blockedBy('salary'),
+      );
+    });
+
+    test('missing owned capital evidence fails closed', () {
+      expectLater(
+        _generate(_fixture(total: null, mandatory: null, extra: null)),
+        throwsStateError,
+      );
+    });
+
+    test('incoherent total and splits fail closed', () {
+      expectLater(_generate(_fixture(total: 150002)), throwsStateError);
+    });
+
+    test('selected capital at the exact 24-month boundary is expired', () {
+      expectLater(
+        _generate(_fixture(
+          mandatory: null,
+          extra: null,
+          capitalUpdatedAt: DateTime.utc(2024, 7, 16, 12),
+        )),
+        throwsStateError,
+      );
+    });
+
+    test('explicit no-LPP branch uses no capital or return assumption',
+        () async {
+      final plan = await _generate(
+        _fixture(
+          hasPensionFund: false,
           total: null,
           mandatory: null,
-          extraMandatory: null,
-        )),
-        throwsA(isA<ArgumentError>()),
-      );
-    });
-
-    test(
-      'total plus exactly one split preserves the missing counterpart as unknown',
-      () async {
-        final mandatoryOnly = _retirementProfile(extraMandatory: null);
-        final extraOnly = _retirementProfile(mandatory: null);
-
-        await _generate(mandatoryOnly);
-        await _generate(extraOnly);
-        final mandatoryInputs = FinancialPlanLedgerInputs.fromProfile(
-          mandatoryOnly,
-          now: DateTime.utc(2026, 7, 16, 12),
-        );
-        final extraInputs = FinancialPlanLedgerInputs.fromProfile(
-          extraOnly,
-          now: DateTime.utc(2026, 7, 16, 12),
-        );
-
-        expect(
-          (
-            (
-              mandatoryInputs.lppMandatoryBalance,
-              mandatoryInputs.lppExtraMandatoryBalance,
-            ),
-            (
-              extraInputs.lppMandatoryBalance,
-              extraInputs.lppExtraMandatoryBalance,
-            ),
-          ),
-          equals(((100000.0, null), (null, 50000.0))),
-          reason: 'A combined total permits calculation, but never grants '
-              'ownership of an absent mandatory or supra-mandatory split.',
-        );
-      },
-    );
-
-    test('one split balance without a total fails closed', () async {
-      expect(
-        () => _generate(
-          _retirementProfile(total: null, extraMandatory: null),
+          extra: null,
         ),
-        throwsA(isA<ArgumentError>()),
+        prospectiveLppReturn: null,
       );
-    });
 
-    test('total and complete splits differing by more than CHF 1 fail closed',
-        () async {
-      expect(
-        () => _generate(_retirementProfile(total: 150001.01)),
-        throwsA(isA<ArgumentError>()),
-      );
-    });
-
-    test('total and complete splits may differ by exactly CHF 1', () async {
-      final plan = await _generate(_retirementProfile(total: 150001));
-
-      expect(plan.monthlyTarget, greaterThanOrEqualTo(0));
-    });
-
-    test('declared insured salary is ignored by the legal projection',
-        () async {
-      final lower = await _generate(_retirementProfile(
-        insuredSalary: 80000,
-        bonificationRate: 0.18,
-      ));
-      final higher = await _generate(_retirementProfile(
-        insuredSalary: 90000,
-        bonificationRate: 0.18,
-      ));
-
+      expect(plan.dependencyBranch, 'retirementNoLpp');
+      expect(plan.dependencyBasis, 'none');
+      expect(plan.projectedLow, isNull);
+      expect(plan.projectedHigh, isNull);
+      expect(plan.sources, isEmpty);
       expect(
         (
-          higher.monthlyTarget,
-          lower.monthlyTarget,
-          higher.projectionAssumptions?.salaryBasis.kind,
-          higher.projectionAssumptions?.salaryBasis.annualChf,
+          plan.projectionAssumptions?.annualProjectionUsesWholeYears,
+          plan.projectionAssumptions?.requiresFundAuthorizationBefore63,
+          plan.projectionAssumptions?.assumesPostReferenceGainfulActivity,
         ),
-        equals((
-          lower.monthlyTarget,
-          lower.monthlyTarget,
-          'monthlySalaryTimesTwelve',
-          96000.0
-        )),
-        reason: 'Without a typed caisse bonification schedule, MINT must not '
-            'combine an insured caisse salary with the statutory age table.',
+        (false, false, false),
       );
     });
 
-    test(
-        'an insured caisse salary without its bonification schedule falls back to the complete legal basis',
+    test('retirement LPP legal contract blocks at Zurich 2027 civil midnight',
+        () {
+      expectLater(
+        _generate(
+          _fixture(mandatory: null, extra: null),
+          now: DateTime.utc(2026, 12, 31, 23),
+        ),
+        _blockedBy('legalContract'),
+      );
+    });
+
+    test('retirement LPP remains valid immediately before Zurich legal expiry',
         () async {
-      final legal = await _generate(_retirementProfile());
-      final incompleteCaisse = await _generate(
-        _retirementProfile(insuredSalary: 200000),
+      final plan = await _generate(
+        _fixture(mandatory: null, extra: null),
+        now: DateTime.utc(2026, 12, 31, 22, 59, 59, 999, 999),
       );
 
-      expect(
-        (
-          incompleteCaisse.monthlyTarget,
-          incompleteCaisse.projectionAssumptions?.salaryBasis.kind,
-          incompleteCaisse.projectionAssumptions?.salaryBasis.annualChf,
-          incompleteCaisse.projectionAssumptions?.bonificationBasis.kind,
-        ),
-        equals((
-          legal.monthlyTarget,
-          'monthlySalaryTimesTwelve',
-          96000.0,
-          'legalAgeSchedule',
-        )),
-        reason: 'A caisse salary and the legal age schedule are not a valid '
-            'actuarial pair. An incomplete caisse pair must use gross monthly '
-            'salary × 12 and the coordinated legal basis together.',
-      );
+      expect(plan.hasValidDependencyEnvelope, isTrue);
+      expect(plan.validUntil,
+          FinancialPlanDependencySnapshot.legalContractValidUntil);
     });
 
-    test('declared caisse bonification is ignored by the legal projection',
-        () async {
-      final lower = await _generate(_retirementProfile(
-        insuredSalary: 90000,
-        bonificationRate: 0.10,
-      ));
-      final higher = await _generate(_retirementProfile(
-        insuredSalary: 90000,
-        bonificationRate: 0.20,
-      ));
-
-      expect(
-        (
-          higher.monthlyTarget,
-          lower.monthlyTarget,
-          higher.projectionAssumptions?.bonificationBasis.kind,
-        ),
-        equals((lower.monthlyTarget, lower.monthlyTarget, 'legalAgeSchedule')),
-        reason: 'A single current caisse rate is not a future schedule and '
-            'cannot replace the statutory legal age schedule.',
+    test('general and no-LPP remain available at LPP legal expiry', () async {
+      final exactExpiry = DateTime.utc(2026, 12, 31, 23);
+      final general = await _generate(
+        _fixture(),
+        goalCategory: 'goal_general',
+        prospectiveLppReturn: null,
+        now: exactExpiry,
       );
+      final noLpp = await _generate(
+        _fixture(
+          hasPensionFund: false,
+          total: null,
+          mandatory: null,
+          extra: null,
+        ),
+        prospectiveLppReturn: null,
+        now: exactExpiry,
+      );
+
+      expect(general.dependencyBranch, 'general');
+      expect(noLpp.dependencyBranch, 'retirementNoLpp');
     });
 
-    for (final path in const [
-      'prevoyance.salaireAssure',
-      'prevoyance.bonificationRate',
+    for (final boundary in <({String name, DateTime target})>[
+      (name: '58th birthday', target: DateTime.utc(2044, 2, 14)),
+      (name: 'day after 58th birthday', target: DateTime.utc(2044, 2, 15)),
+      (name: 'day before 70th birthday', target: DateTime.utc(2056, 2, 13)),
+      (name: '70th birthday', target: DateTime.utc(2056, 2, 14)),
     ]) {
-      test('$path provenance and freshness belong to the v2 fingerprint', () {
-        CoachProfile profile({
-          ProfileDataSource source = ProfileDataSource.userInput,
-          DateTime? updatedAt,
-          DateTime? sourceDate,
-        }) {
-          return _retirementProfile(
-            insuredSalary: 90000,
-            bonificationRate: 0.18,
-            dataSources: {path: source},
-            dataTimestamps: {
-              path: updatedAt ?? DateTime.utc(2026, 7, 1, 8),
-            },
-            dataSourceDates: {
-              path: sourceDate ?? DateTime.utc(2026, 1, 1),
-            },
-          );
-        }
-
-        String fingerprint(CoachProfile value) =>
-            FinancialPlanLedgerInputs.fromProfile(
-              value,
-              now: DateTime.utc(2026, 7, 16, 12),
-            ).fingerprint;
-
-        final fingerprints = <String>{
-          fingerprint(profile()),
-          fingerprint(profile(source: ProfileDataSource.certificate)),
-          fingerprint(profile(updatedAt: DateTime.utc(2026, 7, 2, 8))),
-          fingerprint(profile(sourceDate: DateTime.utc(2026, 1, 2))),
-        };
-
-        expect(
-          fingerprints,
-          hasLength(4),
-          reason: 'The same owned value with different source, captured-at, '
-              'or source-as-of metadata is a different ledger snapshot.',
+      test('v3 retirement fixture accepts ${boundary.name}', () async {
+        final plan = await _generate(
+          _fixture(mandatory: null, extra: null),
+          targetDate: boundary.target,
         );
+
+        expect(plan.hasValidDependencyEnvelope, isTrue);
       });
     }
 
-    test('owned LPP override freshness has an explicit 24-month boundary', () {
-      final now = DateTime.utc(2026, 7, 16, 12);
-      FinancialPlanLedgerInputs inputs(DateTime sourceAsOf) {
-        return FinancialPlanLedgerInputs.fromProfile(
-          _retirementProfile(
-            insuredSalary: 90000,
-            bonificationRate: 0.18,
-            dataSourceDates: {
-              'prevoyance.salaireAssure': sourceAsOf,
-              'prevoyance.bonificationRate': sourceAsOf,
-            },
+    for (final boundary in <({String name, DateTime target})>[
+      (name: 'day before 58th birthday', target: DateTime.utc(2044, 2, 13)),
+      (name: 'day after 70th birthday', target: DateTime.utc(2056, 2, 15)),
+    ]) {
+      test('v3 retirement fixture rejects ${boundary.name}', () {
+        expectLater(
+          _generate(
+            _fixture(mandatory: null, extra: null),
+            targetDate: boundary.target,
           ),
-          now: now,
-        );
-      }
-
-      final atBoundary = inputs(DateTime.utc(2024, 7, 16));
-      final beyondBoundary = inputs(DateTime.utc(2024, 7, 15));
-
-      expect(
-        (
-          FinancialPlanLedgerInputs.currentOwnedFactMaxAgeMonths,
-          atBoundary.insuredSalaryAnnual,
-          atBoundary.bonificationRate,
-          beyondBoundary.insuredSalaryAnnual,
-          beyondBoundary.bonificationRate,
-        ),
-        equals((24, 90000.0, 0.18, null, null)),
-      );
-    });
-
-    test('fallback insured salary is monthly base times 12, not salary months',
-        () async {
-      final twelveMonths = await _generate(_retirementProfile(
-        monthlySalary: 5000,
-        salaryMonths: 12,
-      ));
-      final thirteenMonths = await _generate(_retirementProfile(
-        monthlySalary: 5000,
-        salaryMonths: 13,
-      ));
-
-      expect(
-        (
-          (thirteenMonths.monthlyTarget - twelveMonths.monthlyTarget).abs() <
-              0.000001,
-          thirteenMonths.profileHashAtGeneration ==
-              twelveMonths.profileHashAtGeneration,
-        ),
-        equals((true, true)),
-        reason: 'A 13th salary month is neither silently part of the LPP '
-            'insured-salary fallback nor a consumed retirement fingerprint '
-            'fact; without a certificate the basis is monthly base × 12.',
-      );
-    });
-
-    test(
-      'historical caisse return never becomes a future scenario assumption implicitly',
-      () async {
-        final profile = _retirementProfile(caisseReturn: 0.02);
-
-        expect(
-          () => PlanGenerationService.generate(
-            goalDescription: 'Retraite sans hypothèse prospective',
-            goalCategory: 'goal_retirement_plan',
-            targetDate: _targetInMonths(300),
-            profile: profile,
-            goalAmount: _retirementGoalAmount,
-          ),
-          throwsA(isA<ArgumentError>()),
-          reason: 'A historical or currently credited caisse rate is a ledger '
-              'fact, not user consent to project that rate every future year.',
-        );
-      },
-    );
-
-    test(
-        'retirement plan serializes the legal basis despite declared caisse inputs',
-        () async {
-      final plan = await _generate(_retirementProfile(
-        insuredSalary: 90000,
-        bonificationRate: 0.18,
-      ));
-
-      expect(
-        plan.toJson()['projectionAssumptions'],
-        equals(<String, Object>{
-          'caisseReturnBase': 0.02,
-          'caisseReturnLow': 0.01,
-          'caisseReturnHigh': 0.03,
-          'supplementalMonthlySavingsReturn': 0.0,
-          'salaryBasis': <String, Object>{
-            'kind': 'monthlySalaryTimesTwelve',
-            'annualChf': 96000.0,
-          },
-          'bonificationBasis': <String, Object>{
-            'kind': 'legalAgeSchedule',
-          },
-          'projectionAsOf': plan.generatedAt.toUtc().toIso8601String(),
-        }),
-        reason:
-            'The UI must expose that the calculator ignored caisse-specific '
-            'inputs and used one internally coherent statutory basis.',
-      );
-    });
-
-    test('retirement plan serializes visible legal fallback bases', () async {
-      final plan = await _generate(_retirementProfile());
-
-      expect(
-        plan.toJson()['projectionAssumptions'],
-        equals(<String, Object>{
-          'caisseReturnBase': 0.02,
-          'caisseReturnLow': 0.01,
-          'caisseReturnHigh': 0.03,
-          'supplementalMonthlySavingsReturn': 0.0,
-          'salaryBasis': <String, Object>{
-            'kind': 'monthlySalaryTimesTwelve',
-            'annualChf': 96000.0,
-          },
-          'bonificationBasis': <String, Object>{
-            'kind': 'legalAgeSchedule',
-          },
-          'projectionAsOf': plan.generatedAt.toUtc().toIso8601String(),
-        }),
-        reason: 'Fallback inputs are explicit assumptions, not silent facts '
-            'owned by a pension-fund certificate.',
-      );
-    });
-
-    group('retirement target age guard', () {
-      late DateTime now;
-      late CoachProfile profile;
-
-      setUp(() {
-        now = DateTime.now();
-        profile = CoachProfile(
-          birthYear: now.year - 40,
-          dateOfBirth: DateTime(now.year - 40, now.month, 1),
-          canton: 'VD',
-          salaireBrutMensuel: 8000,
-          prevoyance: const PrevoyanceProfile(
-            avoirLppTotal: 150000,
-            avoirLppObligatoire: 100000,
-            avoirLppSurobligatoire: 50000,
-            rendementCaisse: 0.02,
-          ),
-          goalA: GoalA(
-            type: GoalAType.retraite,
-            targetDate: DateTime(now.year + 18, now.month, now.day),
-            label: 'Retraite synthétique',
-          ),
-          financialLiteracyLevel: FinancialLiteracyLevel.advanced,
-          dataSources: const {
-            'salaireBrutMensuel': ProfileDataSource.userInput,
-            'dateOfBirth': ProfileDataSource.userInput,
-            'prevoyance.avoirLppTotal': ProfileDataSource.userInput,
-            'prevoyance.avoirLppObligatoire': ProfileDataSource.userInput,
-            'prevoyance.avoirLppSurobligatoire': ProfileDataSource.userInput,
-            'prevoyance.rendementCaisse': ProfileDataSource.userInput,
-          },
-          dataTimestamps: {
-            for (final path in const [
-              'salaireBrutMensuel',
-              'dateOfBirth',
-              'prevoyance.avoirLppTotal',
-              'prevoyance.avoirLppObligatoire',
-              'prevoyance.avoirLppSurobligatoire',
-              'prevoyance.rendementCaisse',
-            ])
-              path: now,
-          },
-          inferDataSources: false,
+          throwsArgumentError,
         );
       });
-
-      Future<FinancialPlan> atAge(int age) => PlanGenerationService.generate(
-            goalDescription: 'Retraite à $age ans',
-            goalCategory: 'goal_retirement_plan',
-            targetDate: DateTime(
-              now.year + (age - 40),
-              now.month,
-              now.day,
-            ),
-            profile: profile,
-            goalAmount: _retirementGoalAmount,
-            prospectiveLppReturn: 0.02,
-          );
-
-      test('ages 58 and 70 remain valid boundaries', () async {
-        await expectLater(atAge(58), completes);
-        await expectLater(atAge(70), completes);
-      });
-
-      test('age 57 fails closed', () async {
-        await expectLater(atAge(57), throwsA(isA<ArgumentError>()));
-      });
-
-      test('age 71 fails closed', () async {
-        await expectLater(atAge(71), throwsA(isA<ArgumentError>()));
-      });
-    });
-
-    test('confidence below projection threshold blocks durable retirement',
-        () async {
-      final now = DateTime.now();
-      final profile = CoachProfile(
-        birthYear: now.year - 40,
-        canton: 'VD',
-        salaireBrutMensuel: 1000,
-        prevoyance: const PrevoyanceProfile(
-          avoirLppTotal: 150000,
-          rendementCaisse: 0.02,
-        ),
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(now.year + 20, now.month, now.day),
-          label: 'Retraite peu documentée',
-        ),
-        dataSources: const {
-          'prevoyance.avoirLppTotal': ProfileDataSource.estimated,
-          'prevoyance.rendementCaisse': ProfileDataSource.estimated,
-        },
-        inferDataSources: false,
-      );
-      final confidence = ConfidenceScorer.scoreEnhanced(profile).combined;
-      expect(
-        confidence,
-        lessThan(ConfidenceScorer.minConfidenceForProjection),
-        reason: 'Fixture intentionally represents an explicit low-confidence '
-            'fallback rather than a current certificate snapshot.',
-      );
-
-      expect(
-        () => PlanGenerationService.generate(
-          goalDescription: 'Retraite peu documentée',
-          goalCategory: 'goal_retirement_plan',
-          targetDate: DateTime(now.year + 20, now.month, now.day),
-          profile: profile,
-          goalAmount: _retirementGoalAmount,
-        ),
-        throwsA(isA<ArgumentError>()),
-      );
-    });
-
-    test(
-      'explicit no-pension-fund retirement is simple supplemental savings math',
-      () async {
-        final now = DateTime.now();
-        final targetDate = DateTime(now.year + 20, now.month, now.day);
-        final profile = CoachProfile(
-          birthYear: now.year - 40,
-          dateOfBirth: DateTime(now.year - 40, now.month, 1),
-          canton: 'VD',
-          salaireBrutMensuel: 8000,
-          prevoyance: const PrevoyanceProfile(
-            hasPensionFund: false,
-            rendementCaisseConnu: false,
-          ),
-          goalA: GoalA(
-            type: GoalAType.retraite,
-            targetDate: targetDate,
-            label: 'Épargne retraite sans caisse de pension',
-          ),
-          dataSources: const {
-            'prevoyance.hasPensionFund': ProfileDataSource.userInput,
-          },
-          inferDataSources: false,
-        );
-
-        final plan = await PlanGenerationService.generate(
-          goalDescription: 'Épargne retraite sans caisse de pension',
-          goalCategory: 'goal_retirement_plan',
-          targetDate: targetDate,
-          profile: profile,
-          goalAmount: 240000,
-        );
-
-        expect(
-          (
-            plan.monthlyTarget,
-            plan.projectedOutcome,
-            plan.projectedLow,
-            plan.projectedHigh,
-            plan.sources,
-          ),
-          equals((1000.0, 240000.0, null, null, const <String>[])),
-          reason: 'An explicit no-LPP scenario owns only supplemental savings; '
-              'it does not need a caisse return or cite LPP projection rules.',
-        );
-      },
-    );
-
-    test('v2 fingerprint has a deterministic pinned-now golden', () {
-      final profile = CoachProfile(
-        birthYear: 1986,
-        dateOfBirth: DateTime(1986, 2, 14),
-        canton: 'VD',
-        salaireBrutMensuel: 8000,
-        nombreDeMois: 13,
-        prevoyance: const PrevoyanceProfile(
-          avoirLppTotal: 150000,
-          avoirLppObligatoire: 100000,
-          avoirLppSurobligatoire: 50000,
-          rendementCaisse: 0.02,
-          salaireAssure: 90000,
-          bonificationRate: 0.18,
-          totalEpargne3a: 30000,
-        ),
-        goalA: GoalA(
-          type: GoalAType.retraite,
-          targetDate: DateTime(2051, 7, 16),
-          label: 'Retraite synthétique',
-        ),
-        financialLiteracyLevel: FinancialLiteracyLevel.advanced,
-        dataSources: const {
-          'prevoyance.salaireAssure': ProfileDataSource.certificate,
-          'prevoyance.bonificationRate': ProfileDataSource.certificate,
-        },
-        dataTimestamps: {
-          'prevoyance.salaireAssure': DateTime.utc(2026, 7, 1, 8),
-          'prevoyance.bonificationRate': DateTime.utc(2026, 7, 1, 8),
-        },
-        dataSourceDates: {
-          'prevoyance.salaireAssure': DateTime.utc(2026, 7, 1),
-          'prevoyance.bonificationRate': DateTime.utc(2026, 7, 1),
-        },
-        inferDataSources: false,
-        createdAt: DateTime(2026, 7, 1),
-        updatedAt: DateTime(2026, 7, 1),
-      );
-
-      final inputs = FinancialPlanLedgerInputs.fromProfile(
-        profile,
-        now: DateTime.utc(2026, 7, 16, 12),
-      );
-
-      expect(
-        inputs.fingerprint,
-        'mint-plan-input:v2:sha256:'
-        '11d09c50ab6a48e4f0f210a9574fbe2236f3b2dc2fea6a2fa85dc0fd96cf36b6',
-        reason: 'The pinned v2 canonical payload includes insured salary, '
-            'bonification rate, effective age, and canonical confidence.',
-      );
-    });
-
-    test('scenario ownership fields survive FinancialPlan JSON roundtrip',
-        () async {
-      final generated = await _generate(_retirementProfile());
-      final confirmedAt = DateTime.utc(2026, 7, 16, 12, 30);
-      final inputAsOf = DateTime.utc(2026, 7, 15);
-      final decoded = FinancialPlan.fromJson({
-        ...generated.toJson(),
-        'goalAmount': _retirementGoalAmount,
-        'scenarioId': 'scenario-g1-bnd06-synthetic',
-        'confirmedAt': confirmedAt.toIso8601String(),
-        'inputAsOf': inputAsOf.toIso8601String(),
-      }).toJson();
-
-      expect(
-        {
-          'goalAmount': decoded['goalAmount'],
-          'scenarioId': decoded['scenarioId'],
-          'confirmedAt': decoded['confirmedAt'],
-          'inputAsOf': decoded['inputAsOf'],
-        },
-        equals({
-          'goalAmount': _retirementGoalAmount,
-          'scenarioId': 'scenario-g1-bnd06-synthetic',
-          'confirmedAt': confirmedAt.toIso8601String(),
-          'inputAsOf': inputAsOf.toIso8601String(),
-        }),
-        reason: 'A confirmed plan owns a durable scenario; GoalA is neither '
-            'its amount store nor its identity.',
-      );
-    });
-
-    test('legacy JSON recovers goal amount from one valid 100% milestone only',
-        () async {
-      final generated = await _generate(_retirementProfile());
-      final legacy = Map<String, dynamic>.from(generated.toJson())
-        ..remove('goalAmount')
-        ..['milestones'] = [
-          {
-            'targetDate': generated.targetDate.toIso8601String(),
-            'targetAmount': 24000.0,
-            'description': '100% atteint — 24000 CHF',
-          },
-        ];
-
-      expect(
-        FinancialPlan.fromJson(legacy).toJson()['goalAmount'],
-        24000.0,
-        reason: 'Legacy recovery is a bounded one-time migration, not a '
-            'general rule that the last milestone owns the scenario amount.',
-      );
-    });
-
-    test('explicit invalid goal amount never falls back to milestone output',
-        () async {
-      final generated = await _generate(_retirementProfile());
-      for (final invalidAmount in <Object>[0, -1, double.nan, 'corrupted']) {
-        final corrupted = <String, dynamic>{
-          ...generated.toJson(),
-          'goalAmount': invalidAmount,
-          'milestones': [
-            {
-              'targetDate': generated.targetDate.toIso8601String(),
-              'targetAmount': 24000.0,
-              'description': '100% atteint — 24000 CHF',
-            },
-          ],
-        };
-
-        expect(
-          FinancialPlan.fromJson(corrupted).goalAmount,
-          isNull,
-          reason: 'Only an absent legacy field can use bounded migration. An '
-              'explicit corrupted scenario amount ($invalidAmount) must '
-              'remain fail-closed.',
-        );
-      }
-    });
-
-    test('GoalA drift does not stale an unlinked confirmed scenario', () async {
-      final original = _retirementProfile();
-      final plan = await _generate(original);
-      final changedGoal = original.copyWith(
-        goalA: GoalA(
-          type: GoalAType.achatImmo,
-          targetDate: DateTime(2032, 1, 1),
-          targetAmount: 900000,
-          label: 'Projet sans lien avec le scénario retraite',
-        ),
-      );
-      final provider = FinancialPlanProvider()..setPlanDirect(plan);
-      addTearDown(provider.dispose);
-
-      provider.checkStalenessForTest(changedGoal);
-
-      expect(provider.isPlanStale, isFalse);
-    });
+    }
   });
 }

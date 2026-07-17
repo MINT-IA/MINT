@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
@@ -9,6 +12,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final class _Persistence
+    with SerializedCanonicalAnswerMutationPersistence
     implements TaxProfilePersistence, LppProfilePersistence {
   Map<String, dynamic> answers = {
     'q_birth_year': 1980,
@@ -20,10 +24,17 @@ final class _Persistence
   int loads = 0;
   int saves = 0;
   int? failOnSaveNumber;
+  int? blockedLoadNumber;
+  Completer<void>? loadReached;
+  Completer<void>? releaseLoad;
 
   @override
   Future<Map<String, dynamic>> loadAnswers() async {
     loads += 1;
+    if (loads == blockedLoadNumber) {
+      loadReached?.complete();
+      await releaseLoad!.future;
+    }
     return Map.of(answers);
   }
 
@@ -44,6 +55,9 @@ final class _BindingPersistence
   int writes = 0;
   final Map<int, _BindingWriteFailure> writeFailures = {};
   bool failDeletes = false;
+  int? blockedWriteNumber;
+  Completer<void>? writeReached;
+  Completer<void>? releaseWrite;
 
   @override
   Future<void> delete() async {
@@ -67,6 +81,10 @@ final class _BindingPersistence
       throw StateError('synthetic binding activation failure');
     }
     this.value = value;
+    if (writes == blockedWriteNumber) {
+      writeReached?.complete();
+      await releaseWrite!.future;
+    }
     if (failure == _BindingWriteFailure.afterWrite) {
       throw StateError('synthetic binding uncertain activation failure');
     }
@@ -233,6 +251,7 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
+    FlutterSecureStorage.setMockInitialValues(<String, String>{});
     FeatureFlags.typedLppEvidence = true;
     FeatureFlags.partnerLppAccountabilityEnabled = true;
   });
@@ -331,15 +350,39 @@ void main() {
       now: _now.add(const Duration(minutes: 2)),
       expiresAt: _expiresAt,
     );
-    bindingPersistence.writeFailures[bindingPersistence.writes + 1] =
+    final failingWrite = bindingPersistence.writes + 1;
+    bindingPersistence.writeFailures[failingWrite] =
         _BindingWriteFailure.afterWrite;
+    bindingPersistence.blockedWriteNumber = failingWrite;
+    bindingPersistence.writeReached = Completer<void>();
+    bindingPersistence.releaseWrite = Completer<void>();
 
-    await expectLater(
-      provider.acceptLppReview(
-        _confirmation(receiptId: _pendingReceiptId, value: 150000),
-      ),
-      throwsStateError,
+    final replacement = provider.acceptLppReview(
+      _confirmation(receiptId: _pendingReceiptId, value: 150000),
     );
+    await bindingPersistence.writeReached!.future;
+    await persistence.mutateAnswers((current) {
+      return Map<String, dynamic>.from(current)
+        ..['q_canton'] = 'GE'
+        ..['q_date_of_birth'] = '1986-08-01'
+        ..['__provenance'] = {
+          ...Map<String, dynamic>.from(
+            current['__provenance'] as Map? ?? const {},
+          ),
+          'canton': {
+            'source': 'userInput',
+            'updatedAt': '2026-07-15T10:01:30.000Z',
+            'sourceDate': null,
+          },
+          'dateOfBirth': {
+            'source': 'userInput',
+            'updatedAt': '2026-07-15T10:01:30.000Z',
+            'sourceDate': null,
+          },
+        };
+    });
+    bindingPersistence.releaseWrite!.complete();
+    await expectLater(replacement, throwsStateError);
 
     final restoredBinding = await store.load();
     expect(restoredBinding.pending, isNull);
@@ -352,7 +395,17 @@ void main() {
           ?.facts[LppEvidenceFactKey.vestedBenefitsCapitalChf]?.value,
       90000,
     );
+    expect(persistence.answers['q_canton'], 'GE');
+    expect(persistence.answers['q_date_of_birth'], '1986-08-01');
+    final restoredProvenance = Map<String, dynamic>.from(
+      persistence.answers['__provenance'] as Map,
+    );
+    expect(restoredProvenance, contains('canton'));
+    expect(restoredProvenance, contains('dateOfBirth'));
+    expect(provider.profile?.canton, 'GE');
+    expect(provider.profile?.dateOfBirth, DateTime(1986, 8, 1));
     expect(provider.profile?.conjoint?.prevoyance?.avoirLppTotal, 90000);
+    expect(provider.partnerLppAccountabilityBinding?.receiptId, _receiptId);
 
     final api = _StatusApi({
       'receiptId': _receiptId,
@@ -374,6 +427,314 @@ void main() {
     expect(cold.partnerLppAccountabilityBinding?.receiptId, _receiptId);
     expect(cold.profile?.conjoint?.prevoyance?.avoirLppTotal, 90000);
   });
+
+  test('replacement root stays hidden while binding activation is pending',
+      () async {
+    final attempt = await _preparedReplacementAttempt();
+    final activationWrite = attempt.secure.writes + 1;
+    attempt.secure.blockedWriteNumber = activationWrite;
+    attempt.secure.writeReached = Completer<void>();
+    attempt.secure.releaseWrite = Completer<void>();
+
+    final replacement = attempt.provider.acceptLppReview(
+      _confirmation(receiptId: _pendingReceiptId, value: 150000),
+    );
+    await attempt.secure.writeReached!.future;
+
+    final durableB = LppEvidenceRoot.fromJsonString(
+      attempt.root.answers['_coach_lpp_evidence_v1'],
+    )!;
+    expect(
+      durableB.manualPartner?.facts[LppEvidenceFactKey.vestedBenefitsCapitalChf]
+          ?.value,
+      150000,
+    );
+    expect(
+      attempt.provider.partnerLppAccountabilityBinding?.state,
+      isNot(PartnerAccountabilityBindingState.active),
+    );
+    expect(
+      attempt.provider.profile?.conjoint?.prevoyance?.avoirLppTotal,
+      isNull,
+    );
+
+    attempt.secure.releaseWrite!.complete();
+    await replacement;
+
+    expect(
+      attempt.provider.partnerLppAccountabilityBinding?.receiptId,
+      _pendingReceiptId,
+    );
+    expect(
+      attempt.provider.partnerLppAccountabilityBinding?.state,
+      PartnerAccountabilityBindingState.active,
+    );
+    expect(
+      attempt.provider.profile?.conjoint?.prevoyance?.avoirLppTotal,
+      150000,
+    );
+  });
+
+  test('active receipt B cannot authorize an advanced root C before cleanup',
+      () async {
+    final attempt = await _preparedReplacementAttempt();
+    final activationWrite = attempt.secure.writes + 1;
+    attempt.secure.blockedWriteNumber = activationWrite;
+    attempt.secure.writeReached = Completer<void>();
+    attempt.secure.releaseWrite = Completer<void>();
+
+    final replacement = attempt.provider.acceptLppReview(
+      _confirmation(receiptId: _pendingReceiptId, value: 150000),
+    );
+    await attempt.secure.writeReached!.future;
+    await attempt.root.mutateAnswers((current) {
+      final committedB = LppEvidenceRoot.fromJsonString(
+        current['_coach_lpp_evidence_v1'],
+      )!;
+      final snapshotB = committedB.manualPartner!;
+      final factB =
+          snapshotB.facts[LppEvidenceFactKey.vestedBenefitsCapitalChf]!;
+      return Map<String, dynamic>.from(current)
+        ..['_coach_lpp_evidence_v1'] = LppEvidenceRoot(
+          self: committedB.self,
+          manualPartner: LppEvidenceSnapshot(
+            snapshotId: '55555555-5555-4555-8555-555555555555',
+            facts: {
+              LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
+                value: 175000,
+                unit: factB.unit,
+                profileOwnerId: factB.profileOwnerId,
+                actorProfileOwnerId: factB.actorProfileOwnerId,
+                ownerKind: factB.ownerKind,
+                authorizationMode: factB.authorizationMode,
+                source: factB.source,
+                sourceDate: factB.sourceDate,
+                updatedAt: factB.updatedAt.add(const Duration(minutes: 1)),
+              ),
+            },
+            independentFacts: snapshotB.independentFacts,
+          ),
+          legacyPartnerQuarantine: committedB.legacyPartnerQuarantine,
+        ).toJsonString();
+    });
+    attempt.root.blockedLoadNumber = attempt.root.loads + 1;
+    attempt.root.loadReached = Completer<void>();
+    attempt.root.releaseLoad = Completer<void>();
+    attempt.secure.releaseWrite!.complete();
+    await attempt.root.loadReached!.future;
+
+    expect(
+      attempt.provider.currentLppSnapshot(
+        LppEvidenceOwnerKind.manualPartner,
+      ),
+      isNull,
+    );
+    expect(
+      attempt.provider.profile?.conjoint?.prevoyance?.avoirLppTotal,
+      isNull,
+    );
+    final activeB = (await attempt.store.load()).active!;
+    final crashProjection = CoachProfile.fromWizardAnswers(
+      attempt.root.answers,
+      now: () => _now.add(const Duration(minutes: 3)),
+      partnerAccountabilityBinding: activeB,
+      enforcePartnerAccountability: true,
+    );
+    expect(
+      crashProjection.conjoint?.prevoyance?.avoirLppTotal,
+      isNull,
+    );
+
+    final crashRoot = _Persistence()..answers = Map.of(attempt.root.answers);
+    final crashSecure = _BindingPersistence()..value = attempt.secure.value;
+    final crashStore = PartnerAccountabilityBindingStore(
+      persistence: crashSecure,
+    );
+    final crashApi = _StatusApi({
+      'receiptId': _pendingReceiptId,
+      'status': 'active',
+      'noticeVersion': 'notice-v1',
+      'policyVersion': 'policy-v1',
+      'expiresAt': _expiresAt.toIso8601String(),
+    });
+    final coldAfterCrash = await _coldProvider(
+      root: crashRoot,
+      store: crashStore,
+      api: crashApi,
+    );
+    expect(crashApi.statusCalls, 0);
+    expect(coldAfterCrash.partnerLppAccountabilityBinding, isNull);
+    expect(
+      coldAfterCrash.profile?.conjoint?.prevoyance?.avoirLppTotal,
+      isNull,
+    );
+    expect(
+      coldAfterCrash.currentLppSnapshot(LppEvidenceOwnerKind.manualPartner),
+      isNull,
+    );
+
+    attempt.root.releaseLoad!.complete();
+    await expectLater(replacement, throwsStateError);
+  });
+
+  test('cold legacy active binding without snapshot skips status and facts',
+      () async {
+    final root = _Persistence();
+    final secure = _BindingPersistence();
+    final store = PartnerAccountabilityBindingStore(persistence: secure);
+    await store.beginPending(
+      receiptId: _receiptId,
+      manualPartnerOwnerId: _ownerId,
+      now: _now,
+      noticeVersion: 'notice-v1',
+      policyVersion: 'policy-v1',
+      privacyContact: 'privacy@example.test',
+      rightsChannel: 'https://example.test/rights',
+    );
+    await store.markReceiptCreated(
+      receiptId: _receiptId,
+      manualPartnerOwnerId: _ownerId,
+      now: _now,
+      expiresAt: _expiresAt,
+    );
+    final warm = CoachProfileProvider(
+      taxProfilePersistence: root,
+      lppProfilePersistence: root,
+      partnerAccountabilityBindingStore: store,
+      partnerAccountabilityService: PartnerAccountabilityService(
+        api: _UnusedApi(),
+      ),
+      now: () => _now.add(const Duration(minutes: 1)),
+    );
+    await warm.loadFromWizard();
+    await warm.acceptLppReview(_confirmation());
+    final current = warm.partnerLppAccountabilityBinding!;
+    final legacy = PartnerAccountabilityBinding(
+      receiptId: current.receiptId,
+      manualPartnerOwnerId: current.manualPartnerOwnerId,
+      state: current.state,
+      createdAt: current.createdAt,
+      noticeVersion: current.noticeVersion,
+      policyVersion: current.policyVersion,
+      privacyContact: current.privacyContact,
+      rightsChannel: current.rightsChannel,
+      lastVerifiedAt: current.lastVerifiedAt,
+      receiptCreatedAt: current.receiptCreatedAt,
+      expiresAt: current.expiresAt,
+      failureStatus: current.failureStatus,
+    );
+    final legacySecure = _BindingPersistence()
+      ..value = PartnerAccountabilityBindingEnvelope(
+        active: legacy,
+      ).toJsonString();
+    final legacyStore = PartnerAccountabilityBindingStore(
+      persistence: legacySecure,
+    );
+    final api = _StatusApi({
+      'receiptId': _receiptId,
+      'status': 'active',
+      'noticeVersion': 'notice-v1',
+      'policyVersion': 'policy-v1',
+      'expiresAt': _expiresAt.toIso8601String(),
+    });
+
+    final cold = await _coldProvider(root: root, store: legacyStore, api: api);
+
+    expect(api.statusCalls, 0);
+    expect(cold.partnerLppAccountabilityBinding, isNull);
+    expect(cold.profile?.conjoint?.prevoyance?.avoirLppTotal, isNull);
+    expect(
+      cold.currentLppSnapshot(LppEvidenceOwnerKind.manualPartner),
+      isNull,
+    );
+  });
+
+  for (final deleteFails in <bool>[false, true]) {
+    test(
+        'activation failure preserves advanced root C and quarantines binding '
+        'when secure delete ${deleteFails ? 'fails' : 'succeeds'}', () async {
+      final attempt = await _preparedReplacementAttempt();
+      final failingWrite = attempt.secure.writes + 1;
+      attempt.secure.writeFailures[failingWrite] =
+          _BindingWriteFailure.afterWrite;
+      attempt.secure.blockedWriteNumber = failingWrite;
+      attempt.secure.writeReached = Completer<void>();
+      attempt.secure.releaseWrite = Completer<void>();
+      attempt.secure.failDeletes = deleteFails;
+
+      final replacement = attempt.provider.acceptLppReview(
+        _confirmation(receiptId: _pendingReceiptId, value: 150000),
+      );
+      await attempt.secure.writeReached!.future;
+      await attempt.root.mutateAnswers((current) {
+        final committedB = LppEvidenceRoot.fromJsonString(
+          current['_coach_lpp_evidence_v1'],
+        )!;
+        final snapshotB = committedB.manualPartner!;
+        final factB =
+            snapshotB.facts[LppEvidenceFactKey.vestedBenefitsCapitalChf]!;
+        final factC = LppEvidenceFact(
+          value: 175000,
+          unit: factB.unit,
+          profileOwnerId: factB.profileOwnerId,
+          actorProfileOwnerId: factB.actorProfileOwnerId,
+          ownerKind: factB.ownerKind,
+          authorizationMode: factB.authorizationMode,
+          source: factB.source,
+          sourceDate: factB.sourceDate,
+          updatedAt: factB.updatedAt.add(const Duration(minutes: 1)),
+        );
+        final rootC = LppEvidenceRoot(
+          self: committedB.self,
+          manualPartner: LppEvidenceSnapshot(
+            snapshotId: '55555555-5555-4555-8555-555555555555',
+            facts: {
+              LppEvidenceFactKey.vestedBenefitsCapitalChf: factC,
+            },
+            independentFacts: snapshotB.independentFacts,
+          ),
+          legacyPartnerQuarantine: committedB.legacyPartnerQuarantine,
+        );
+        return Map<String, dynamic>.from(current)
+          ..['_coach_lpp_evidence_v1'] = rootC.toJsonString();
+      });
+      attempt.secure.releaseWrite!.complete();
+
+      await expectLater(replacement, throwsStateError);
+
+      final durableC = LppEvidenceRoot.fromJsonString(
+        attempt.root.answers['_coach_lpp_evidence_v1'],
+      )!;
+      expect(
+        durableC.manualPartner
+            ?.facts[LppEvidenceFactKey.vestedBenefitsCapitalChf]?.value,
+        175000,
+      );
+      expect(attempt.provider.partnerLppAccountabilityBinding, isNull);
+      expect(
+        attempt.provider.profile?.conjoint?.prevoyance?.avoirLppTotal,
+        isNull,
+      );
+      expect((await attempt.store.load()).effective, isNull);
+
+      final api = _StatusApi({
+        'receiptId': _receiptId,
+        'status': 'active',
+        'noticeVersion': 'notice-v1',
+        'policyVersion': 'policy-v1',
+        'expiresAt': _expiresAt.toIso8601String(),
+      });
+      final cold = await _coldProvider(
+        root: attempt.root,
+        store: attempt.store,
+        api: api,
+      );
+
+      expect(api.statusCalls, 0);
+      expect(cold.partnerLppAccountabilityBinding, isNull);
+      expect(cold.profile?.conjoint?.prevoyance?.avoirLppTotal, isNull);
+    });
+  }
 
   for (final deleteFails in <bool>[false, true]) {
     test(
@@ -402,6 +763,11 @@ void main() {
         90000,
       );
       expect((await attempt.store.load()).effective, isNull);
+      expect(attempt.provider.partnerLppAccountabilityBinding, isNull);
+      expect(
+        attempt.provider.profile?.conjoint?.prevoyance?.avoirLppTotal,
+        isNull,
+      );
 
       final api = _StatusApi({
         'receiptId': _receiptId,
@@ -422,86 +788,92 @@ void main() {
     });
   }
 
-  test('root restore failure removes the binding and cold load stays closed',
-      () async {
-    final persistence = _Persistence();
-    final bindingPersistence = _BindingPersistence();
-    final store = PartnerAccountabilityBindingStore(
-      persistence: bindingPersistence,
-    );
-    await store.beginPending(
-      receiptId: _receiptId,
-      manualPartnerOwnerId: _ownerId,
-      now: _now,
-      noticeVersion: 'notice-v1',
-      policyVersion: 'policy-v1',
-      privacyContact: 'privacy@example.test',
-      rightsChannel: 'https://example.test/rights',
-    );
-    await store.markReceiptCreated(
-      receiptId: _receiptId,
-      manualPartnerOwnerId: _ownerId,
-      now: _now,
-      expiresAt: _expiresAt,
-    );
-    final provider = CoachProfileProvider(
-      taxProfilePersistence: persistence,
-      lppProfilePersistence: persistence,
-      partnerAccountabilityBindingStore: store,
-      partnerAccountabilityService: PartnerAccountabilityService(
-        api: _UnusedApi(),
-      ),
-      now: () => _now.add(const Duration(minutes: 1)),
-    );
-    await provider.loadFromWizard();
-    await provider.acceptLppReview(_confirmation());
-    await store.beginPending(
-      receiptId: _pendingReceiptId,
-      manualPartnerOwnerId: _ownerId,
-      now: _now.add(const Duration(minutes: 2)),
-      noticeVersion: 'notice-v1',
-      policyVersion: 'policy-v1',
-      privacyContact: 'privacy@example.test',
-      rightsChannel: 'https://example.test/rights',
-    );
-    await store.markReceiptCreated(
-      receiptId: _pendingReceiptId,
-      manualPartnerOwnerId: _ownerId,
-      now: _now.add(const Duration(minutes: 2)),
-      expiresAt: _expiresAt,
-    );
-    bindingPersistence.writeFailures[bindingPersistence.writes + 1] =
-        _BindingWriteFailure.afterWrite;
-    persistence.failOnSaveNumber = persistence.saves + 2;
+  for (final deleteFails in <bool>[false, true]) {
+    test(
+        'root restore failure removes the warm binding and cold load stays '
+        'closed when delete ${deleteFails ? 'fails' : 'succeeds'}', () async {
+      final persistence = _Persistence();
+      final bindingPersistence = _BindingPersistence();
+      final store = PartnerAccountabilityBindingStore(
+        persistence: bindingPersistence,
+      );
+      await store.beginPending(
+        receiptId: _receiptId,
+        manualPartnerOwnerId: _ownerId,
+        now: _now,
+        noticeVersion: 'notice-v1',
+        policyVersion: 'policy-v1',
+        privacyContact: 'privacy@example.test',
+        rightsChannel: 'https://example.test/rights',
+      );
+      await store.markReceiptCreated(
+        receiptId: _receiptId,
+        manualPartnerOwnerId: _ownerId,
+        now: _now,
+        expiresAt: _expiresAt,
+      );
+      final provider = CoachProfileProvider(
+        taxProfilePersistence: persistence,
+        lppProfilePersistence: persistence,
+        partnerAccountabilityBindingStore: store,
+        partnerAccountabilityService: PartnerAccountabilityService(
+          api: _UnusedApi(),
+        ),
+        now: () => _now.add(const Duration(minutes: 1)),
+      );
+      await provider.loadFromWizard();
+      await provider.acceptLppReview(_confirmation());
+      await store.beginPending(
+        receiptId: _pendingReceiptId,
+        manualPartnerOwnerId: _ownerId,
+        now: _now.add(const Duration(minutes: 2)),
+        noticeVersion: 'notice-v1',
+        policyVersion: 'policy-v1',
+        privacyContact: 'privacy@example.test',
+        rightsChannel: 'https://example.test/rights',
+      );
+      await store.markReceiptCreated(
+        receiptId: _pendingReceiptId,
+        manualPartnerOwnerId: _ownerId,
+        now: _now.add(const Duration(minutes: 2)),
+        expiresAt: _expiresAt,
+      );
+      bindingPersistence.writeFailures[bindingPersistence.writes + 1] =
+          _BindingWriteFailure.afterWrite;
+      bindingPersistence.failDeletes = deleteFails;
+      persistence.failOnSaveNumber = persistence.saves + 2;
 
-    await expectLater(
-      provider.acceptLppReview(
-        _confirmation(receiptId: _pendingReceiptId, value: 150000),
-      ),
-      throwsStateError,
-    );
+      await expectLater(
+        provider.acceptLppReview(
+          _confirmation(receiptId: _pendingReceiptId, value: 150000),
+        ),
+        throwsStateError,
+      );
 
-    expect((await store.load()).effective, isNull);
-    final api = _StatusApi({
-      'receiptId': _receiptId,
-      'status': 'active',
-      'noticeVersion': 'notice-v1',
-      'policyVersion': 'policy-v1',
-      'expiresAt': _expiresAt.toIso8601String(),
+      expect((await store.load()).effective, isNull);
+      expect(provider.partnerLppAccountabilityBinding, isNull);
+      expect(provider.profile?.conjoint?.prevoyance?.avoirLppTotal, isNull);
+      final api = _StatusApi({
+        'receiptId': _receiptId,
+        'status': 'active',
+        'noticeVersion': 'notice-v1',
+        'policyVersion': 'policy-v1',
+        'expiresAt': _expiresAt.toIso8601String(),
+      });
+      final cold = CoachProfileProvider(
+        taxProfilePersistence: persistence,
+        lppProfilePersistence: persistence,
+        partnerAccountabilityBindingStore: store,
+        partnerAccountabilityService: PartnerAccountabilityService(api: api),
+        now: () => _now.add(const Duration(minutes: 3)),
+      );
+      await cold.loadFromWizard();
+
+      expect(api.statusCalls, 0);
+      expect(cold.partnerLppAccountabilityBinding, isNull);
+      expect(cold.profile?.conjoint?.prevoyance?.avoirLppTotal, isNull);
     });
-    final cold = CoachProfileProvider(
-      taxProfilePersistence: persistence,
-      lppProfilePersistence: persistence,
-      partnerAccountabilityBindingStore: store,
-      partnerAccountabilityService: PartnerAccountabilityService(api: api),
-      now: () => _now.add(const Duration(minutes: 3)),
-    );
-    await cold.loadFromWizard();
-
-    expect(api.statusCalls, 0);
-    expect(cold.partnerLppAccountabilityBinding, isNull);
-    expect(cold.profile?.conjoint?.prevoyance?.avoirLppTotal, isNull);
-  });
+  }
 
   test('notice mismatch and flag flip reject before ledger save', () async {
     final persistence = _Persistence();

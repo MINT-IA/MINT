@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 /// Provider wrapping [SubscriptionService] for reactive UI updates.
 ///
@@ -20,13 +21,14 @@ class SubscriptionProvider extends ChangeNotifier {
   DateTime _lastRefresh = DateTime.now();
   bool _isRefreshing = false;
 
-  SubscriptionProvider()
-      : _state = SubscriptionService.currentState() {
-    // P1-4: Add error handling for fire-and-forget call.
-    refreshFromBackend().catchError(
-      (Object e) => debugPrint('[SubscriptionProvider] refreshFromBackend failed: $e'),
-    );
-  }
+  SubscriptionProvider({SessionEpoch? sessionEpoch})
+      : _sessionEpoch = sessionEpoch ?? SessionEpoch(),
+        _state = const SubscriptionState(
+          tier: SubscriptionTier.free,
+          source: SubscriptionSource.mock,
+        );
+
+  final SessionEpoch _sessionEpoch;
 
   /// Current subscription state.
   SubscriptionState get state => _state;
@@ -53,8 +55,14 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   /// Upgrade to a specific tier (defaults to premium for backward compat).
-  Future<bool> upgrade([SubscriptionTier targetTier = SubscriptionTier.premium]) async {
-    final success = await SubscriptionService.upgradeTo(targetTier);
+  Future<bool> upgrade(
+      [SubscriptionTier targetTier = SubscriptionTier.premium]) async {
+    final guard = _sessionEpoch.capture();
+    final success = await _sessionEpoch.runGuardedPersistence(
+      guard,
+      () => SubscriptionService.upgradeTo(targetTier),
+    );
+    guard.assertCurrent();
     if (success) {
       _state = SubscriptionService.currentState();
       notifyListeners();
@@ -65,7 +73,12 @@ class SubscriptionProvider extends ChangeNotifier {
 
   /// Start a 14-day free trial.
   Future<bool> startTrial() async {
-    final success = await SubscriptionService.startTrial();
+    final guard = _sessionEpoch.capture();
+    final success = await _sessionEpoch.runGuardedPersistence(
+      guard,
+      SubscriptionService.startTrial,
+    );
+    guard.assertCurrent();
     if (success) {
       _state = SubscriptionService.currentState();
       notifyListeners();
@@ -75,25 +88,42 @@ class SubscriptionProvider extends ChangeNotifier {
 
   /// Restore previous purchases.
   Future<void> restore() async {
-    _state = await SubscriptionService.restorePurchases();
+    final guard = _sessionEpoch.capture();
+    final state = await _sessionEpoch.runGuardedPersistence(
+      guard,
+      SubscriptionService.restorePurchases,
+    );
+    guard.assertCurrent();
+    _state = state;
     notifyListeners();
   }
 
   /// Refresh state from service (useful after external changes).
   void refresh() {
+    if (_sessionEpoch.isTerminationBlocked) return;
     _state = SubscriptionService.currentState();
     notifyListeners();
   }
 
   Future<void> refreshFromBackend() async {
     if (_isRefreshing) return;
+    final guard = _sessionEpoch.capture();
     _isRefreshing = true;
     try {
-      _state = await SubscriptionService.refreshFromBackend();
+      final state = await SubscriptionService.refreshFromBackend();
+      guard.assertCurrent();
+      _state = state;
       _lastRefresh = DateTime.now();
       notifyListeners();
+    } on SessionEpochInvalidated {
+      return;
     } finally {
-      _isRefreshing = false;
+      try {
+        guard.assertCurrent();
+        _isRefreshing = false;
+      } on SessionEpochInvalidated {
+        // Session clear owns the state.
+      }
     }
   }
 
@@ -103,5 +133,13 @@ class SubscriptionProvider extends ChangeNotifier {
     if (DateTime.now().difference(_lastRefresh).inMinutes >= 15) {
       await refreshFromBackend();
     }
+  }
+
+  void clearSessionMemoryAfterPurge() {
+    SubscriptionService.resetToDefault();
+    _state = SubscriptionService.currentState();
+    _isRefreshing = false;
+    _lastRefresh = DateTime.now();
+    notifyListeners();
   }
 }

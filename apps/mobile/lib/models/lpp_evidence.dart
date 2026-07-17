@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
+import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 
 enum LppEvidenceUnit {
   chf('CHF'),
@@ -742,6 +743,9 @@ class LppEvidenceSelector {
   static String? manualPartnerOwnerId(Object? rawRoot) =>
       _manualPartnerSnapshot(rawRoot)?.identityFacts.first.profileOwnerId;
 
+  static String? manualPartnerSnapshotId(Object? rawRoot) =>
+      _manualPartnerSnapshot(rawRoot)?.snapshotId;
+
   static LppEvidenceSnapshot? _manualPartnerSnapshot(Object? rawRoot) {
     final root = _decodeLppRootEnvelope(rawRoot);
     final rawManualPartner = root?['manualPartner'];
@@ -772,7 +776,6 @@ class LppEvidenceSelector {
     DateTime Function()? now,
   }) {
     final current = (now ?? DateTime.now)().toUtc();
-    final currentDay = DateTime.utc(current.year, current.month, current.day);
     for (final fact in <LppEvidenceFact>[
       ...snapshot.facts.values,
       ...snapshot.independentFacts.values,
@@ -780,8 +783,7 @@ class LppEvidenceSelector {
       final sourceDate = fact.sourceDate;
       if (fact.updatedAt.toUtc().isAfter(current) ||
           (sourceDate != null &&
-              DateTime.utc(sourceDate.year, sourceDate.month, sourceDate.day)
-                  .isAfter(currentDay))) {
+              SwissCivilTime.isFutureCivilDate(sourceDate, now: current))) {
         return null;
       }
     }

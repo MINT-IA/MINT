@@ -1,6 +1,10 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
 
-/// AVS21 reference age in months by gender and birth year (LAVS art. 21 al. 1).
+/// AVS21 reference age in months by gender and birth year.
+///
+/// Official cohort schedule: OFAS, « AVS 21 », harmonisation progressive de
+/// l'âge de référence. LAVS art. 21 defines the common reference-age rule but
+/// does not, by itself, encode the 1961–1963 transitional month schedule.
 ///
 /// Women born 1961-1963 have transitional reference ages:
 /// - Born 1960 or earlier: 64 (pre-AVS21)
@@ -43,9 +47,10 @@ class AvsReferenceAge {
       isFemale: normalizedGender == 'F',
     );
 
-    final years = totalReferenceMonths ~/ 12;
-    final months = totalReferenceMonths % 12;
-    return DateTime(year + years, month + months, day);
+    final birthDate = dateOfBirth?.isUtc == true
+        ? DateTime.utc(year, month, day)
+        : DateTime(year, month, day);
+    return _addCalendarMonths(birthDate, totalReferenceMonths);
   }
 
   static bool? hasReachedReferenceAge({
@@ -85,4 +90,15 @@ class AvsReferenceAge {
     );
     return !now.isBefore(fourYearsBefore);
   }
+}
+
+DateTime _addCalendarMonths(DateTime value, int months) {
+  final total = value.year * 12 + value.month - 1 + months;
+  final year = total ~/ 12;
+  final month = total % 12 + 1;
+  final maxDay = DateTime(year, month + 1, 0).day;
+  final day = value.day.clamp(1, maxDay);
+  return value.isUtc
+      ? DateTime.utc(year, month, day)
+      : DateTime(year, month, day);
 }

@@ -229,6 +229,7 @@ class PrecomputedInsightsService {
     required MintUserState state,
     required SharedPreferences prefs,
     DateTime? now,
+    void Function()? beforeWrite,
   }) async {
     try {
       // French fallback — same pattern as MintStateEngine.
@@ -243,16 +244,18 @@ class PrecomputedInsightsService {
 
       if (opener == null) {
         // No interesting data point — clear any stale entry.
+        beforeWrite?.call();
         await prefs.remove(_kInsightCacheKey);
         return;
       }
 
       final insight = _openerToInsight(opener, state, currentDate);
       if (insight == null) {
+        beforeWrite?.call();
         await prefs.remove(_kInsightCacheKey);
         return;
       }
-
+      beforeWrite?.call();
       await prefs.setString(
         _kInsightCacheKey,
         jsonEncode(insight.toJson()),
@@ -320,13 +323,11 @@ class PrecomputedInsightsService {
         params = {'deficit': deficit.toString()};
 
       case DataOpenerType.deadlineUrgency:
-        final daysLeft =
-            DateTime(now.year, 12, 31).difference(now).inDays + 1;
+        final daysLeft = DateTime(now.year, 12, 31).difference(now).inDays + 1;
         if (daysLeft <= 0) return null;
         final isIndepNoLpp =
             state.archetype == FinancialArchetype.independentNoLpp;
-        final plafond =
-            isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
+        final plafond = isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
         params = {
           'daysLeft': daysLeft.toString(),
           'plafond': plafond.round().toString(),
@@ -344,8 +345,7 @@ class PrecomputedInsightsService {
       case DataOpenerType.savingsOpportunity:
         final isIndepNoLpp =
             state.archetype == FinancialArchetype.independentNoLpp;
-        final plafond =
-            isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
+        final plafond = isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
         params = {'plafond': plafond.round().toString()};
 
       case DataOpenerType.progressCelebration:

@@ -3,15 +3,21 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/coach_profile_owner.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/authenticated_transport.dart';
+import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 
 const _snapshotId = '11111111-1111-4111-8111-111111111111';
 
-class _MemoryTaxPersistence implements TaxProfilePersistence {
+class _MemoryTaxPersistence
+    with SerializedCanonicalAnswerMutationPersistence
+    implements TaxProfilePersistence {
   _MemoryTaxPersistence([Map<String, dynamic> initial = const {}])
       : answers = _copy(initial);
 
@@ -43,6 +49,31 @@ class _CountingClock {
   }
 }
 
+final class _RecordingAuthenticatedTransport implements AuthenticatedTransport {
+  int credentialReads = 0;
+  final List<AuthenticatedRequest> requests = [];
+
+  @override
+  AuthenticatedOperation beginOperation() => _RecordingOperation(this);
+}
+
+final class _RecordingOperation implements AuthenticatedOperation {
+  _RecordingOperation(this.transport);
+
+  final _RecordingAuthenticatedTransport transport;
+
+  @override
+  Future<void> requireSession() async {
+    transport.credentialReads++;
+  }
+
+  @override
+  Future<AuthenticatedResponse> send(AuthenticatedRequest request) async {
+    transport.requests.add(request);
+    throw StateError('Tax rejection must precede transport.send');
+  }
+}
+
 Map<String, dynamic> _decodeStrictTaxRoot(Map<String, dynamic> answers) {
   final stored = answers['_coach_tax_snapshots_v1'];
   if (stored is String) {
@@ -55,6 +86,10 @@ Map<String, dynamic> _decodeStrictTaxRoot(Map<String, dynamic> answers) {
 }
 
 Map<String, dynamic> _strictRootAnswers(List<TaxSnapshot> snapshots) {
+  final ownerIds = snapshots.map((snapshot) => snapshot.profileOwnerId).toSet();
+  if (ownerIds.length != 1) {
+    throw ArgumentError.value(ownerIds, 'snapshots', 'one owner required');
+  }
   final provenance = <String, dynamic>{};
   for (final snapshot in snapshots) {
     final prefix = 'fiscal.snapshots.${snapshot.snapshotId}.';
@@ -71,6 +106,8 @@ Map<String, dynamic> _strictRootAnswers(List<TaxSnapshot> snapshots) {
     }
   }
   return {
+    coachProfileOwnerRootKey:
+        CoachProfileOwnerRoot(ownerIds.single).toJsonString(),
     '_coach_tax_snapshots_v1': jsonEncode({
       'schemaVersion': 1,
       'snapshots': snapshots.map((snapshot) => snapshot.toJson()).toList(),
@@ -312,12 +349,16 @@ void _expectServiceTaxRejection(
     isTrue,
     reason: '$methodName must synchronously refuse tax_declaration',
   );
-  final httpIndex = body.indexOf('http.post(');
-  expect(httpIndex, greaterThanOrEqualTo(0), reason: 'missing HTTP boundary');
+  final transportIndex = body.indexOf('_transport.beginOperation(');
+  expect(
+    transportIndex,
+    greaterThanOrEqualTo(0),
+    reason: 'missing authenticated transport boundary',
+  );
   expect(
     guard.end,
-    lessThan(httpIndex),
-    reason: '$methodName must refuse tax before HTTP',
+    lessThan(transportIndex),
+    reason: '$methodName must refuse tax before authenticated transport',
   );
   final tryIndex = body.indexOf('try {');
   if (tryIndex >= 0) {
@@ -587,18 +628,88 @@ Revenu imposable IFD: CHF 96'200''',
     );
   });
 
-  for (final method in const [
-    'extractWithVision',
-    'sendScanConfirmation',
-    'fetchPremierEclairage',
-  ]) {
-    test('DocumentService.$method rejects tax_declaration before HTTP', () {
-      _expectServiceTaxRejection(documentServiceSource, method);
+  final documentTaxRejections = <({
+    String method,
+    Future<Object?> Function(AuthenticatedTransport transport) invoke,
+  })>[
+    (
+      method: 'extractWithVision',
+      invoke: (transport) => DocumentService.extractWithVision(
+            imageBase64: 'synthetic-local-only',
+            documentType: 'tax_declaration',
+            transport: transport,
+          ),
+    ),
+    (
+      method: 'sendScanConfirmation',
+      invoke: (transport) => DocumentService.sendScanConfirmation(
+            documentType: 'tax_declaration',
+            confirmedFields: const [],
+            overallConfidence: 0,
+            transport: transport,
+          ),
+    ),
+    (
+      method: 'fetchPremierEclairage',
+      invoke: (transport) => DocumentService.fetchPremierEclairage(
+            documentType: 'tax_declaration',
+            extractedFields: const [],
+            overallConfidence: 0,
+            transport: transport,
+          ),
+    ),
+  ];
+  for (final rejection in documentTaxRejections) {
+    test(
+        'DocumentService.${rejection.method} rejects tax_declaration before transport',
+        () async {
+      final transport = _RecordingAuthenticatedTransport();
+
+      await expectLater(
+        rejection.invoke(transport),
+        throwsA(
+          isA<DocumentServiceException>().having(
+            (error) => error.code,
+            'code',
+            'tax_local_only',
+          ),
+        ),
+      );
+
+      expect(transport.credentialReads, 0);
+      expect(transport.requests, isEmpty);
     });
   }
 
-  test('RagService.extractFromImage rejects tax_declaration before HTTP', () {
+  test('RagService.extractFromImage rejects tax before transport in source',
+      () {
     _expectServiceTaxRejection(ragServiceSource, 'extractFromImage');
+  });
+
+  test('RagService.extractFromImage rejects tax before transport at runtime',
+      () async {
+    final transport = _RecordingAuthenticatedTransport();
+    final rag = RagService(transport: transport);
+
+    await expectLater(
+      rag.extractFromImage(
+        imageBase64: 'synthetic-local-only',
+        mediaType: 'image/png',
+        documentType: 'tax_declaration',
+        apiKey: 'synthetic-never-sent',
+        provider: 'claude',
+      ),
+      throwsA(
+        isA<RagApiException>().having(
+          (error) => error.code,
+          'code',
+          'tax_local_only',
+        ),
+      ),
+    );
+
+    expect(transport.credentialReads, 0);
+    expect(transport.requests, isEmpty);
   });
 
   final persistedPartialScopes = <({
@@ -911,7 +1022,7 @@ Impôt fédéral direct sur le revenu: CHF -50.00''',
     try {
       snapshot = TaxSnapshot(
         snapshotId: snapshotId,
-        profileOwnerId: 'owner-inactive-attestation',
+        profileOwnerId: '11111111-1111-4111-8111-111111111111',
         taxYear: 2023,
         basedOnTaxYear: null,
         sourceDate: DateTime.utc(2024, 7, 14),
@@ -1166,7 +1277,7 @@ Impôt fédéral direct sur le revenu: CHF -50.00''',
     TaxSnapshot snapshot(String id, DateTime sourceDate, double income) =>
         TaxSnapshot(
           snapshotId: id,
-          profileOwnerId: 'owner-1',
+          profileOwnerId: '22222222-2222-4222-8222-222222222222',
           taxYear: 2023,
           basedOnTaxYear: null,
           sourceDate: sourceDate,
@@ -1236,7 +1347,7 @@ Impôt fédéral direct sur le revenu: CHF -50.00''',
     TaxSnapshot snapshot(String id, DateTime sourceDate, double income) =>
         TaxSnapshot(
           snapshotId: id,
-          profileOwnerId: 'owner-cold-clock',
+          profileOwnerId: '33333333-3333-4333-8333-333333333333',
           taxYear: 2023,
           basedOnTaxYear: null,
           sourceDate: sourceDate,
@@ -1336,7 +1447,7 @@ Impôt fédéral direct sur le revenu: CHF -50.00''',
       FeatureFlags.typedTaxProfile = true;
       final baseSnapshot = TaxSnapshot(
         snapshotId: attestationCase.snapshotId,
-        profileOwnerId: 'owner-cold-in-force',
+        profileOwnerId: '44444444-4444-4444-8444-444444444444',
         taxYear: 2023,
         basedOnTaxYear: null,
         sourceDate: DateTime.utc(2024, 7, 14),

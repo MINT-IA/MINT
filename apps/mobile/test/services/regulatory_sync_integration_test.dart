@@ -9,7 +9,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +21,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     RegulatorySyncService.clearCache();
   });
+
+  tearDown(ApiService.debugResetHttpClient);
 
   group('RegulatorySyncService integration', () {
     test('reg() returns fallback when cache is empty', () {
@@ -58,7 +63,8 @@ void main() {
 
       expect(RegulatorySyncService.hasSynced, isTrue);
       expect(RegulatorySyncService.isFromDisk, isTrue);
-      expect(RegulatorySyncService.getCached('avs.max_monthly_pension'), 2600.0);
+      expect(
+          RegulatorySyncService.getCached('avs.max_monthly_pension'), 2600.0);
       expect(RegulatorySyncService.getCached('lpp.conversion_rate'), 0.065);
 
       // syncStatus reflects disk state
@@ -98,9 +104,53 @@ void main() {
       expect(RegulatorySyncService.hasSynced, isFalse);
 
       await RegulatorySyncService.loadFromDisk();
-      expect(RegulatorySyncService.getCached('avs.max_monthly_pension'), 2700.0);
+      expect(
+          RegulatorySyncService.getCached('avs.max_monthly_pension'), 2700.0);
       expect(RegulatorySyncService.isFromDisk, isTrue);
     });
 
+    test('changed snapshot installs before one monotonic revision signal', () {
+      final observations = <(int, double?)>[];
+      final revisionAtStart = RegulatorySyncService.revision;
+      void observe() => observations.add((
+            RegulatorySyncService.revision,
+            RegulatorySyncService.getCached('lpp.entry_threshold'),
+          ));
+      RegulatorySyncService.revisionListenable.addListener(observe);
+      addTearDown(
+        () => RegulatorySyncService.revisionListenable.removeListener(observe),
+      );
+
+      RegulatorySyncService.setMockCache({'lpp.entry_threshold': 23000});
+      RegulatorySyncService.setMockCache({'lpp.entry_threshold': 23000});
+      RegulatorySyncService.setMockCache({'lpp.entry_threshold': 24000});
+
+      expect(RegulatorySyncService.revision, revisionAtStart + 2);
+      expect(observations, <(int, double?)>[
+        (revisionAtStart + 1, 23000),
+        (revisionAtStart + 2, 24000),
+      ]);
+    });
+
+    test('failed fetch retains the installed snapshot without a signal',
+        () async {
+      RegulatorySyncService.setMockCache({'lpp.entry_threshold': 23000});
+      final revisionBeforeFailure = RegulatorySyncService.revision;
+      var signals = 0;
+      void observe() => signals++;
+      RegulatorySyncService.revisionListenable.addListener(observe);
+      addTearDown(
+        () => RegulatorySyncService.revisionListenable.removeListener(observe),
+      );
+      ApiService.debugUseHttpClient(
+        MockClient((_) async => http.Response('unavailable', 503)),
+      );
+
+      final fallback = await RegulatorySyncService.fetchConstants();
+
+      expect(fallback['lpp.entry_threshold'], 23000);
+      expect(RegulatorySyncService.revision, revisionBeforeFailure);
+      expect(signals, 0);
+    });
   });
 }

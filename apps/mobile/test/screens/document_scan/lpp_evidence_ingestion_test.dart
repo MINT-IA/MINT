@@ -33,6 +33,7 @@ import 'package:mint_mobile/services/consent/consent_service.dart';
 const _rawSentinel = 'RAW-OCR-PII-MUST-NEVER-PERSIST';
 
 final class _MemoryLppPersistence
+    with SerializedCanonicalAnswerMutationPersistence
     implements LppProfilePersistence, TaxProfilePersistence {
   _MemoryLppPersistence({
     this.failSave = false,
@@ -74,11 +75,12 @@ final class _CoachProfileSpy extends CoachProfileProvider {
   _CoachProfileSpy({
     required LppProfilePersistence persistence,
     PartnerAccountabilityBindingStore? partnerBindingStore,
+    DateTime Function()? now,
   }) : super(
           taxProfilePersistence: persistence as TaxProfilePersistence,
           lppProfilePersistence: persistence,
           partnerAccountabilityBindingStore: partnerBindingStore,
-          now: _reviewNow,
+          now: now ?? _reviewNow,
         );
 
   int acceptLppReviewCalls = 0;
@@ -413,6 +415,7 @@ _ReviewHarness _reviewHarness({
   final coach = _CoachProfileSpy(
     persistence: persistence,
     partnerBindingStore: partnerBindingStore,
+    now: reviewNow,
   );
   final biography = _BiographySpy();
   final externalSync = _ExternalSyncSpy();
@@ -2166,6 +2169,92 @@ Salaire assuré: CHF 92'000
     expect(harness.persistence.saveCalls, 0);
     expect(harness.coach.acceptLppReviewCalls, 0);
     expect(find.byKey(const Key('lpp_impact_destination')), findsNothing);
+  });
+
+  testWidgets(
+      'Zurich civil today survives review persist and cold reload at CET and CEST midnight',
+      (tester) async {
+    FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.documentLppEvidenceEnabled = true;
+    for (final boundary in <({String sourceDate, DateTime now})>[
+      (
+        sourceDate: '2026-07-16',
+        now: DateTime.utc(2026, 7, 15, 22, 5),
+      ),
+      (
+        sourceDate: '2027-01-01',
+        now: DateTime.utc(2026, 12, 31, 23, 5),
+      ),
+    ]) {
+      final harness = _reviewHarness(
+        extraction: _lppExtraction(),
+        reviewNow: () => boundary.now,
+      );
+
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+      await _enterLppSourceDate(tester, boundary.sourceDate);
+      await _tapConfirm(tester);
+
+      expect(harness.persistence.saveCalls, 1);
+      final persisted = harness.persistence.answers['_coach_lpp_evidence_v1'];
+      expect(
+        LppEvidenceSelector.selectSelf(
+          persisted,
+          now: () => boundary.now,
+        ),
+        isNotNull,
+        reason: '${boundary.sourceDate} must remain usable after cold reload',
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      harness.router.dispose();
+    }
+  });
+
+  testWidgets('Zurich civil tomorrow is rejected at CET and CEST midnight',
+      (tester) async {
+    FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.documentLppEvidenceEnabled = true;
+    for (final boundary in <({String sourceDate, DateTime now})>[
+      (
+        sourceDate: '2026-07-17',
+        now: DateTime.utc(2026, 7, 15, 22, 5),
+      ),
+      (
+        sourceDate: '2027-01-02',
+        now: DateTime.utc(2026, 12, 31, 23, 5),
+      ),
+    ]) {
+      final harness = _reviewHarness(
+        extraction: _lppExtraction(),
+        reviewNow: () => boundary.now,
+      );
+
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+      await _enterLppSourceDate(tester, boundary.sourceDate);
+      final confirm = find.byKey(const Key('lpp_review_confirm_cta'));
+      await tester.scrollUntilVisible(
+        confirm,
+        400,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(confirm);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('lpp_review_source_date_error')),
+        findsOneWidget,
+      );
+      expect(harness.persistence.saveCalls, 0);
+      expect(harness.coach.acceptLppReviewCalls, 0);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      harness.router.dispose();
+    }
   });
 
   testWidgets(

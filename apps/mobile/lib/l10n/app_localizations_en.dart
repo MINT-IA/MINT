@@ -24129,6 +24129,34 @@ class SEn extends S {
       'The required LPP facts are not yet sufficient to calculate this scenario.';
 
   @override
+  String get planSetupBlockerAffiliation =>
+      'First indicate whether you are affiliated with a pension fund.';
+
+  @override
+  String get planSetupBlockerDateOfBirth =>
+      'The exact date of birth is missing. Add it to your profile before recalculating this scenario.';
+
+  @override
+  String get planSetupBlockerSalary =>
+      'The current gross annual salary is missing or must be reconfirmed.';
+
+  @override
+  String get planSetupBlockerLpp =>
+      'A recent, confirmed LPP balance is required. Certificate reading is offered only when it is available.';
+
+  @override
+  String get planSetupBlockerLegalContract =>
+      'The LPP legal baseline for this scenario has expired. This projection is temporarily unavailable until it is updated.';
+
+  @override
+  String get planSetupBlockerOwnerAuthority =>
+      'The authority for this profile cannot be verified. Reload your data before trying again.';
+
+  @override
+  String get planSetupBlockerUnexpected =>
+      'This projection is temporarily unavailable. Try again later; no amount was saved.';
+
+  @override
   String get planSetupEnrichLpp => 'Review LPP data to confirm';
 
   @override
@@ -24189,4 +24217,39 @@ class SEn extends S {
   @override
   String get planSetupDraftChanged =>
       'The data changed after review. Review the scenario again before confirming.';
+
+  @override
+  String get planSetupBlockerGender =>
+      'Enter a canonical OASI gender (F or M) and confirm its source before recalculating this scenario.';
+
+  @override
+  String get planSetupAnnualApproximation =>
+      'Simplified annual projection: fractions of a year are not prorated.';
+
+  @override
+  String get dataBlockBirthDateLabel => 'Date of birth (YYYY-MM-DD)';
+
+  @override
+  String get dataBlockBirthDatePicker => 'Choose date of birth';
+
+  @override
+  String get dataBlockGenderLabel => 'OASI gender';
+
+  @override
+  String get dataBlockGenderFemale => 'F — female';
+
+  @override
+  String get dataBlockGenderMale => 'M — male';
+
+  @override
+  String get planCard_annualWholeYearsAssumption =>
+      'Simplified annual projection: fractions of a year are not prorated.';
+
+  @override
+  String get planCard_earlyRetirementFundAuthorization =>
+      'Condition: the pension fund rules must allow a benefit before age 63.';
+
+  @override
+  String get planCard_postReferenceActivityAssumption =>
+      'Assumption: continued gainful activity and a possible deferral with the pension fund.';
 }

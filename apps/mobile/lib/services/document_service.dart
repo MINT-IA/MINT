@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
-import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/authenticated_transport.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:uuid/uuid.dart';
 
 /// v2.7 Task 7 — client-generated UUID v4 for Idempotency-Key header on
@@ -909,11 +909,26 @@ class BudgetImportPreview {
 /// GET /api/v1/documents/, and DELETE /api/v1/documents/{id}.
 /// Documents are analyzed via Docling on the backend.
 class DocumentService {
-  static final DocumentService _instance = DocumentService._internal();
-  factory DocumentService() => _instance;
-  DocumentService._internal();
+  static final DocumentService _instance = DocumentService._internal(
+    ApiService.authenticatedTransport,
+    null,
+  );
+  factory DocumentService({
+    AuthenticatedTransport? transport,
+    String? baseUrl,
+  }) {
+    if (transport == null && baseUrl == null) return _instance;
+    return DocumentService._internal(
+      transport ?? ApiService.authenticatedTransport,
+      baseUrl,
+    );
+  }
+  DocumentService._internal(this._transport, this._baseUrlOverride);
 
-  static String get _baseUrl => ApiService.baseUrl;
+  final AuthenticatedTransport _transport;
+  final String? _baseUrlOverride;
+
+  String get _baseUrl => _baseUrlOverride ?? ApiService.baseUrl;
 
   /// Maximum file size for PDF uploads (20 MB).
   static const int maxPdfSizeBytes = 20 * 1024 * 1024;
@@ -930,6 +945,7 @@ class DocumentService {
     File file, {
     VaultDocumentType type = VaultDocumentType.lppCertificate,
   }) async {
+    final operation = _transport.beginOperation();
     // Client-side file size validation
     final fileSize = await file.length();
     if (fileSize > maxPdfSizeBytes) {
@@ -941,21 +957,19 @@ class DocumentService {
       );
     }
 
-    final token = await AuthService.getToken();
     final uri = Uri.parse('$_baseUrl/documents/upload');
-
-    final request = http.MultipartRequest('POST', uri);
-    if (token != null) {
-      request.headers['Authorization'] = 'Bearer $token';
-    }
-    // v2.7 Task 7: idempotency header (UUID v4) — safe retry on network loss.
-    request.headers['Idempotency-Key'] = _uuidGen.v4();
-    request.fields['document_type'] = type.apiValue;
-    request.files.add(await http.MultipartFile.fromPath('file', file.path));
-
-    final streamedResponse =
-        await request.send().timeout(const Duration(seconds: 120));
-    final response = await http.Response.fromStream(streamedResponse);
+    final response = await operation.send(
+      AuthenticatedRequest.multipart(
+        uri,
+        fields: {'document_type': type.apiValue},
+        files: [
+          AuthenticatedFilePart.fromPath(field: 'file', path: file.path),
+        ],
+        // Stable across the transport's one refresh retry.
+        headers: {'Idempotency-Key': _uuidGen.v4()},
+        timeout: const Duration(seconds: 120),
+      ),
+    );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -973,6 +987,7 @@ class DocumentService {
   ///
   /// Returns a [BankStatementResult] with extracted transactions and summaries.
   Future<BankStatementResult> uploadBankStatement(File file) async {
+    final operation = _transport.beginOperation();
     // Client-side file size validation
     final fileSize = await file.length();
     if (fileSize > maxStatementSizeBytes) {
@@ -984,18 +999,16 @@ class DocumentService {
       );
     }
 
-    final token = await AuthService.getToken();
     final uri = Uri.parse('$_baseUrl/documents/upload-statement');
-
-    final request = http.MultipartRequest('POST', uri);
-    if (token != null) {
-      request.headers['Authorization'] = 'Bearer $token';
-    }
-    request.files.add(await http.MultipartFile.fromPath('file', file.path));
-
-    final streamedResponse =
-        await request.send().timeout(const Duration(seconds: 120));
-    final response = await http.Response.fromStream(streamedResponse);
+    final response = await operation.send(
+      AuthenticatedRequest.multipart(
+        uri,
+        files: [
+          AuthenticatedFilePart.fromPath(field: 'file', path: file.path),
+        ],
+        timeout: const Duration(seconds: 120),
+      ),
+    );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -1012,16 +1025,9 @@ class DocumentService {
 
   /// List all documents uploaded by the current user.
   Future<List<DocumentSummary>> listDocuments() async {
-    final token = await AuthService.getToken();
+    final operation = _transport.beginOperation();
     final uri = Uri.parse('$_baseUrl/documents/');
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    if (token != null) {
-      headers['Authorization'] = 'Bearer $token';
-    }
-
-    final response = await http
-        .get(uri, headers: headers)
-        .timeout(const Duration(seconds: 30));
+    final response = await operation.send(AuthenticatedRequest.get(uri));
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
@@ -1048,16 +1054,11 @@ class DocumentService {
 
   /// Delete a document by its ID.
   Future<bool> deleteDocument(String id) async {
-    final token = await AuthService.getToken();
+    final operation = _transport.beginOperation();
     final uri = Uri.parse('$_baseUrl/documents/$id');
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    if (token != null) {
-      headers['Authorization'] = 'Bearer $token';
-    }
-
-    final response = await http
-        .delete(uri, headers: headers)
-        .timeout(const Duration(seconds: 30));
+    final response = await operation.send(
+      AuthenticatedRequest.empty(AuthenticatedHttpMethod.delete, uri),
+    );
 
     if (response.statusCode == 200 || response.statusCode == 204) {
       return true;
@@ -1093,6 +1094,7 @@ class DocumentService {
     required List<Map<String, dynamic>> confirmedFields,
     required double overallConfidence,
     String extractionMethod = 'claude_vision',
+    AuthenticatedTransport? transport,
   }) async {
     if (documentType == 'tax_declaration') {
       throw const DocumentServiceException(
@@ -1100,47 +1102,32 @@ class DocumentService {
         message: 'Tax documents must remain on device.',
       );
     }
+    final client = transport ?? ApiService.authenticatedTransport;
+    final operation = client.beginOperation();
     try {
       final baseUrl = ApiService.baseUrl;
-      var token = await AuthService.getToken();
-      if (token == null || token.isEmpty) return null;
+      await operation.requireSession();
 
-      final body = jsonEncode({
-        'documentType': documentType,
-        'confirmedFields': confirmedFields,
-        'overallConfidence': overallConfidence,
-        'extractionMethod': extractionMethod,
-        'timestamp': DateTime.now().toUtc().toIso8601String(),
-      });
-
-      var response = await http.post(
-        Uri.parse('$baseUrl/documents/scan-confirmation'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: body,
+      final response = await operation.send(
+        AuthenticatedRequest.json(
+          AuthenticatedHttpMethod.post,
+          Uri.parse('$baseUrl/documents/scan-confirmation'),
+          <String, dynamic>{
+            'documentType': documentType,
+            'confirmedFields': confirmedFields,
+            'overallConfidence': overallConfidence,
+            'extractionMethod': extractionMethod,
+            'timestamp': DateTime.now().toUtc().toIso8601String(),
+          },
+        ),
       );
-
-      if (response.statusCode == 401) {
-        final fresh = await AuthService.refreshAccessToken();
-        if (fresh != null && fresh.isNotEmpty) {
-          token = fresh;
-          response = await http.post(
-            Uri.parse('$baseUrl/documents/scan-confirmation'),
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-            body: body,
-          );
-        }
-      }
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
+    } on SessionEpochInvalidated {
+      rethrow;
     } catch (e) {
       debugPrint('[DocumentService] sendScanConfirmation error: $e');
       return null;
@@ -1157,6 +1144,7 @@ class DocumentService {
     String? languageHint,
     String? subjectKind,
     String? receiptId,
+    AuthenticatedTransport? transport,
   }) async {
     if (documentType == 'tax_declaration') {
       throw const DocumentServiceException(
@@ -1164,27 +1152,27 @@ class DocumentService {
         message: 'Tax documents must remain on device.',
       );
     }
+    final client = transport ?? ApiService.authenticatedTransport;
+    final operation = client.beginOperation();
     try {
       final baseUrl = ApiService.baseUrl;
-      final token = await AuthService.getToken();
-      if (token == null) return null;
+      await operation.requireSession();
 
-      final response = await http.post(
-        Uri.parse('$baseUrl/documents/extract-vision'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-          // v2.7 Task 7: idempotency header on retry-prone vision endpoint.
-          'Idempotency-Key': _uuidGen.v4(),
-        },
-        body: jsonEncode({
-          'documentType': documentType,
-          'imageBase64': imageBase64,
-          if (canton != null) 'canton': canton,
-          if (languageHint != null) 'languageHint': languageHint,
-          if (subjectKind != null) 'subjectKind': subjectKind,
-          if (receiptId != null) 'receiptId': receiptId,
-        }),
+      final response = await operation.send(
+        AuthenticatedRequest.json(
+          AuthenticatedHttpMethod.post,
+          Uri.parse('$baseUrl/documents/extract-vision'),
+          <String, dynamic>{
+            'documentType': documentType,
+            'imageBase64': imageBase64,
+            if (canton != null) 'canton': canton,
+            if (languageHint != null) 'languageHint': languageHint,
+            if (subjectKind != null) 'subjectKind': subjectKind,
+            if (receiptId != null) 'receiptId': receiptId,
+          },
+          // Stable across the transport's one refresh retry.
+          headers: {'Idempotency-Key': _uuidGen.v4()},
+        ),
       );
 
       if (response.statusCode == 200) {
@@ -1205,6 +1193,7 @@ class DocumentService {
       return null;
     } catch (e) {
       if (e is DocumentServiceException) rethrow;
+      if (e is SessionEpochInvalidated) rethrow;
       debugPrint('[DocumentService] extractWithVision error: $e');
       return null;
     }
@@ -1219,6 +1208,7 @@ class DocumentService {
     String? planType,
     String? planTypeWarning,
     String? canton,
+    AuthenticatedTransport? transport,
   }) async {
     if (documentType == 'tax_declaration') {
       throw const DocumentServiceException(
@@ -1226,31 +1216,33 @@ class DocumentService {
         message: 'Tax documents must remain on device.',
       );
     }
+    final client = transport ?? ApiService.authenticatedTransport;
+    final operation = client.beginOperation();
     try {
       final baseUrl = ApiService.baseUrl;
-      final token = await AuthService.getToken();
-      if (token == null) return null;
+      await operation.requireSession();
 
-      final response = await http.post(
-        Uri.parse('$baseUrl$_premierEclairageEndpoint'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'documentType': documentType,
-          'extractedFields': extractedFields,
-          'overallConfidence': overallConfidence,
-          if (planType != null) 'planType': planType,
-          if (planTypeWarning != null) 'planTypeWarning': planTypeWarning,
-          if (canton != null) 'canton': canton,
-        }),
+      final response = await operation.send(
+        AuthenticatedRequest.json(
+          AuthenticatedHttpMethod.post,
+          Uri.parse('$baseUrl$_premierEclairageEndpoint'),
+          <String, dynamic>{
+            'documentType': documentType,
+            'extractedFields': extractedFields,
+            'overallConfidence': overallConfidence,
+            if (planType != null) 'planType': planType,
+            if (planTypeWarning != null) 'planTypeWarning': planTypeWarning,
+            if (canton != null) 'canton': canton,
+          },
+        ),
       );
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
+    } on SessionEpochInvalidated {
+      rethrow;
     } catch (e) {
       debugPrint('[DocumentService] fetchPremierEclairage error: $e');
       return null;

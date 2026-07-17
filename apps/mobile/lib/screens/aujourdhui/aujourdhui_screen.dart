@@ -18,13 +18,14 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
-import 'package:mint_mobile/services/plan_generation_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 // Wave B-minimal B1 (2026-04-18): Cap du jour banner pulls the
 // highest-priority CapDecision from MintStateProvider and surfaces it
 // above the TensionCards. The provider is kept fresh by the
 // ChangeNotifierProxyProvider wired in `app.dart`.
 import 'package:mint_mobile/widgets/aujourdhui/cap_du_jour_banner.dart';
+import 'package:mint_mobile/widgets/coach/financial_plan_setup_card.dart';
 import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
 import 'package:mint_mobile/widgets/tension/cleo_loop_indicator.dart';
 import 'package:mint_mobile/widgets/tension/tension_card_widget.dart';
@@ -41,7 +42,6 @@ class AujourdhuiScreen extends StatefulWidget {
 class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
   final Set<String> _collapsedMonths = {};
   bool _initialCollapseSet = false;
-  bool _isPlanRegenerating = false;
   bool _hasPlanRegenerationError = false;
 
   Widget _homeRoute(Widget child) {
@@ -86,17 +86,11 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     });
   }
 
-  Future<void> _regenerateFinancialPlan(String _) async {
-    if (_isPlanRegenerating) return;
-
-    final ledger = context.read<CoachProfileProvider>();
+  Future<void> _openFinancialPlanReview(String _) async {
     final planProvider = context.read<FinancialPlanProvider>();
-    final profile = ledger.profile;
     final persistedPlan = planProvider.currentPlan;
     final goalAmount = persistedPlan?.goalAmount;
-
-    if (!ledger.isLoaded ||
-        profile == null ||
+    if (!FeatureFlags.financialPlanSetupEnabled ||
         persistedPlan == null ||
         goalAmount == null ||
         !goalAmount.isFinite ||
@@ -107,36 +101,22 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       }
       return;
     }
-
-    setState(() {
-      _isPlanRegenerating = true;
-      _hasPlanRegenerationError = false;
-    });
-
-    try {
-      final regenerated = await PlanGenerationService.generate(
-        goalDescription: persistedPlan.goalDescription,
-        goalCategory: persistedPlan.goalCategory,
-        targetDate: persistedPlan.targetDate,
-        profile: profile,
-        goalAmount: goalAmount,
-        prospectiveLppReturn:
-            persistedPlan.projectionAssumptions?.caisseReturnBase,
-      );
-      await planProvider.setPlan(regenerated);
-    } catch (error, stackTrace) {
-      debugPrint(
-        '[aujourdhui] financial plan regeneration failed: '
-        '$error\n$stackTrace',
-      );
-      if (mounted) {
-        setState(() => _hasPlanRegenerationError = true);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isPlanRegenerating = false);
-      }
-    }
+    setState(() => _hasPlanRegenerationError = false);
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
+        ),
+        child: FinancialPlanSetupCard(
+          goalHint: persistedPlan.goalDescription,
+          planProvider: planProvider,
+          initialPlan: persistedPlan,
+          onConfirmed: () => Navigator.of(sheetContext).pop(),
+        ),
+      ),
+    );
   }
 
   @override
@@ -144,7 +124,9 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     final provider = context.watch<TimelineProvider>();
     final ledger = context.watch<CoachProfileProvider>();
     final planProvider = context.watch<FinancialPlanProvider>();
-    final financialPlan = planProvider.currentPlan;
+    final financialPlan = FeatureFlags.financialPlanSetupEnabled
+        ? planProvider.currentPlan
+        : null;
     final l10n = S.of(context)!;
 
     if (provider.isLoading) {
@@ -183,9 +165,9 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                     child: FinancialPlanCard(
                       plan: financialPlan,
                       isStale: planProvider.isPlanStale,
-                      isRecalculating: _isPlanRegenerating,
+                      isRecalculating: false,
                       hasRecalculationError: _hasPlanRegenerationError,
-                      onRecalculate: _regenerateFinancialPlan,
+                      onRecalculate: _openFinancialPlanReview,
                     ),
                   ),
                 ),
@@ -280,9 +262,9 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                   child: FinancialPlanCard(
                     plan: financialPlan,
                     isStale: planProvider.isPlanStale,
-                    isRecalculating: _isPlanRegenerating,
+                    isRecalculating: false,
                     hasRecalculationError: _hasPlanRegenerationError,
-                    onRecalculate: _regenerateFinancialPlan,
+                    onRecalculate: _openFinancialPlanReview,
                   ),
                 ),
               ),

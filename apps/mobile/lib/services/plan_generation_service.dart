@@ -1,7 +1,9 @@
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/services/financial_core/financial_plan_calculator.dart';
 import 'package:mint_mobile/services/financial_plan_ledger_inputs.dart';
+import 'package:uuid/uuid.dart';
 
 const mandatoryMintPlanDisclaimer =
     'Les résultats présentés sont des estimations à titre indicatif, ' // lint-ignore: persisted compatibility; ARB owns UI copy.
@@ -21,18 +23,13 @@ class PlanGenerationService {
     required String goalCategory,
     required DateTime targetDate,
     required CoachProfile profile,
+    required String profileOwnerId,
+    required LppEvidenceSnapshot? selfLppSnapshot,
     double? goalAmount,
     double? prospectiveLppReturn,
     DateTime? now,
   }) async {
     final generatedAt = now ?? DateTime.now();
-    if (!targetDate.isAfter(generatedAt)) {
-      throw ArgumentError.value(
-        targetDate,
-        'targetDate',
-        'future user-owned target date required',
-      );
-    }
     if (goalAmount == null || !goalAmount.isFinite || goalAmount <= 0) {
       throw ArgumentError.value(
         goalAmount,
@@ -41,18 +38,25 @@ class PlanGenerationService {
       );
     }
 
-    final inputs =
-        FinancialPlanLedgerInputs.fromProfile(profile, now: generatedAt);
-    final calculation = FinancialPlanCalculator.calculate(
+    final inputs = FinancialPlanDependencySnapshot.fromProfile(
+      profile,
+      profileOwnerId: profileOwnerId,
       goalCategory: goalCategory,
       goalAmount: goalAmount,
       targetDate: targetDate,
-      now: generatedAt,
-      inputs: inputs,
       prospectiveLppReturn: prospectiveLppReturn,
+      selfLppSnapshot: selfLppSnapshot,
+      now: generatedAt,
     );
-    final scenarioId =
-        'scenario-${generatedAt.microsecondsSinceEpoch}-${goalCategory.hashCode.abs()}';
+    final calculation = FinancialPlanCalculator.calculate(
+      goalCategory: goalCategory,
+      goalAmount: goalAmount,
+      targetDate: inputs.targetDate,
+      now: inputs.inputAsOf,
+      inputs: inputs,
+      prospectiveLppReturn: inputs.prospectiveLppReturn,
+    );
+    final scenarioId = const Uuid().v4();
     return FinancialPlan(
       id: '${generatedAt.microsecondsSinceEpoch}_${goalCategory.hashCode.abs()}',
       goalDescription: goalDescription,
@@ -62,7 +66,7 @@ class PlanGenerationService {
       projectedOutcome: calculation.projectedOutcome,
       projectedLow: calculation.projectedLow,
       projectedHigh: calculation.projectedHigh,
-      targetDate: targetDate,
+      targetDate: inputs.targetDate,
       generatedAt: generatedAt,
       profileHashAtGeneration: inputs.fingerprint,
       coachNarrative: _defaultNarrative(
@@ -73,8 +77,13 @@ class PlanGenerationService {
       disclaimer: mandatoryMintPlanDisclaimer,
       goalAmount: goalAmount,
       scenarioId: scenarioId,
-      confirmedAt: generatedAt,
-      inputAsOf: inputs.capturedAt,
+      inputAsOf: inputs.inputAsOf,
+      profileOwnerId: inputs.profileOwnerId,
+      dependencySchemaVersion: inputs.schemaVersion,
+      dependencyBranch: inputs.branch.wireName,
+      dependencyBasis: inputs.basis.wireName,
+      dependencyHash: inputs.fingerprint,
+      validUntil: inputs.validUntil,
       projectionAssumptions: calculation.projectionAssumptions,
     );
   }

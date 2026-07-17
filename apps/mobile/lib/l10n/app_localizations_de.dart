@@ -24312,6 +24312,34 @@ class SDe extends S {
       'Die erforderlichen BVG-Fakten reichen für dieses Szenario noch nicht aus.';
 
   @override
+  String get planSetupBlockerAffiliation =>
+      'Gib zuerst an, ob du einer Pensionskasse angeschlossen bist.';
+
+  @override
+  String get planSetupBlockerDateOfBirth =>
+      'Das genaue Geburtsdatum fehlt. Ergänze es in deinem Profil, bevor du dieses Szenario neu berechnest.';
+
+  @override
+  String get planSetupBlockerSalary =>
+      'Der aktuelle Bruttojahreslohn fehlt oder muss erneut bestätigt werden.';
+
+  @override
+  String get planSetupBlockerLpp =>
+      'Ein aktuelles, bestätigtes BVG-Guthaben ist erforderlich. Das Einlesen des Ausweises wird nur angeboten, wenn es verfügbar ist.';
+
+  @override
+  String get planSetupBlockerLegalContract =>
+      'Die rechtliche BVG-Grundlage dieses Szenarios ist abgelaufen. Diese Projektion ist bis zur Aktualisierung vorübergehend nicht verfügbar.';
+
+  @override
+  String get planSetupBlockerOwnerAuthority =>
+      'Die Berechtigung für dieses Profil kann nicht überprüft werden. Lade deine Daten neu, bevor du es erneut versuchst.';
+
+  @override
+  String get planSetupBlockerUnexpected =>
+      'Diese Projektion ist vorübergehend nicht verfügbar. Versuche es später erneut; es wurde kein Betrag gespeichert.';
+
+  @override
   String get planSetupEnrichLpp => 'Zu bestätigende BVG-Daten anzeigen';
 
   @override
@@ -24372,4 +24400,39 @@ class SDe extends S {
   @override
   String get planSetupDraftChanged =>
       'Die Daten haben sich seit der Prüfung geändert. Prüfe das Szenario vor der Bestätigung erneut.';
+
+  @override
+  String get planSetupBlockerGender =>
+      'Gib ein kanonisches AHV-Geschlecht (F oder M) an und bestätige die Quelle, bevor du dieses Szenario neu berechnest.';
+
+  @override
+  String get planSetupAnnualApproximation =>
+      'Vereinfachte Jahresprojektion: Bruchteile eines Jahres werden nicht anteilsmässig berücksichtigt.';
+
+  @override
+  String get dataBlockBirthDateLabel => 'Geburtsdatum (JJJJ-MM-TT)';
+
+  @override
+  String get dataBlockBirthDatePicker => 'Geburtsdatum auswählen';
+
+  @override
+  String get dataBlockGenderLabel => 'AHV-Geschlecht';
+
+  @override
+  String get dataBlockGenderFemale => 'F — Frau';
+
+  @override
+  String get dataBlockGenderMale => 'M — Mann';
+
+  @override
+  String get planCard_annualWholeYearsAssumption =>
+      'Vereinfachte Jahresprojektion: Jahresbruchteile werden nicht anteilig berücksichtigt.';
+
+  @override
+  String get planCard_earlyRetirementFundAuthorization =>
+      'Bedingung: Das Reglement der Pensionskasse muss eine Leistung vor Alter 63 zulassen.';
+
+  @override
+  String get planCard_postReferenceActivityAssumption =>
+      'Annahme: Fortsetzung der Erwerbstätigkeit und möglicher Aufschub bei der Pensionskasse.';
 }

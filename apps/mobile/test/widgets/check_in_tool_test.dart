@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 
@@ -43,21 +45,28 @@ Widget _buildTestApp({
   );
 }
 
-CoachProfileProvider _providerWithProfile() {
-  final provider = CoachProfileProvider();
-  provider.createFromRemoteProfile({'birth_year': 1985, 'canton': 'VS'});
+Future<CoachProfileProvider> _providerWithProfile() async {
+  final sessionEpoch = SessionEpoch();
+  final provider = CoachProfileProvider(sessionEpoch: sessionEpoch);
+  final sessionGuard = sessionEpoch.capture();
+  await provider.mergeBackendUnknownProfile(
+    {'birthYear': 1985, 'canton': 'VS'},
+    sessionGuard: sessionGuard,
+  );
   return provider;
 }
 
 void main() {
-  setUpAll(() {
+  setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
-  group('WidgetRenderer record_check_in → addCheckIn persistence (T-05-04)', () {
+  group('WidgetRenderer record_check_in → addCheckIn persistence (T-05-04)',
+      () {
     testWidgets('valid input renders CheckInSummaryCard and persists check-in',
         (tester) async {
-      final provider = _providerWithProfile();
+      final provider = await _providerWithProfile();
       expect(provider.profile!.checkIns, isEmpty,
           reason: 'No check-ins before tool call');
 
@@ -93,7 +102,7 @@ void main() {
 
     testWidgets('missing month returns null — no card, no persistence',
         (tester) async {
-      final provider = _providerWithProfile();
+      final provider = await _providerWithProfile();
       late Widget? rendered;
 
       await tester.pumpWidget(_buildTestApp(
@@ -122,7 +131,7 @@ void main() {
 
     testWidgets('missing versements returns null — no card, no persistence',
         (tester) async {
-      final provider = _providerWithProfile();
+      final provider = await _providerWithProfile();
       late Widget? rendered;
 
       await tester.pumpWidget(_buildTestApp(
@@ -148,9 +157,10 @@ void main() {
       expect(provider.profile!.checkIns, isEmpty);
     });
 
-    testWidgets('missing summary_message returns null — no card, no persistence',
+    testWidgets(
+        'missing summary_message returns null — no card, no persistence',
         (tester) async {
-      final provider = _providerWithProfile();
+      final provider = await _providerWithProfile();
       late Widget? rendered;
 
       await tester.pumpWidget(_buildTestApp(
@@ -179,7 +189,7 @@ void main() {
     testWidgets(
         'T-05-04: non-numeric versements value returns null (Tampering mitigation)',
         (tester) async {
-      final provider = _providerWithProfile();
+      final provider = await _providerWithProfile();
       late Widget? rendered;
 
       await tester.pumpWidget(_buildTestApp(
@@ -208,7 +218,7 @@ void main() {
 
     testWidgets('CheckInSummaryCard displays summary message and total',
         (tester) async {
-      final provider = _providerWithProfile();
+      final provider = await _providerWithProfile();
 
       await tester.pumpWidget(_buildTestApp(
         provider: provider,
@@ -233,7 +243,8 @@ void main() {
       ));
       await tester.pump();
 
-      expect(find.text('Bravo, 700\u00a0CHF vers\u00e9s\u00a0!'), findsOneWidget);
+      expect(
+          find.text('Bravo, 700\u00a0CHF vers\u00e9s\u00a0!'), findsOneWidget);
     });
   });
 }

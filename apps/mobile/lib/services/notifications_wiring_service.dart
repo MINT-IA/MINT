@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/constants/social_insurance.dart' show resolveCanton;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 /// Listens to CoachProfileProvider changes and re-schedules coaching
 /// reminders when the user's notification-relevant triad (birthYear +
@@ -26,11 +27,14 @@ import 'package:mint_mobile/services/notification_service.dart';
 class NotificationsWiringService extends ChangeNotifier {
   NotificationsWiringService({
     Future<void> Function(CoachProfile)? scheduleOverride,
-  }) : _schedule = scheduleOverride ??
-            ((profile) =>
-                NotificationService().scheduleCoachingReminders(profile: profile));
+    SessionEpoch? sessionEpoch,
+  })  : _schedule = scheduleOverride ??
+            ((profile) => NotificationService()
+                .scheduleCoachingReminders(profile: profile)),
+        _sessionEpoch = sessionEpoch ?? SessionEpoch();
 
   final Future<void> Function(CoachProfile) _schedule;
+  final SessionEpoch _sessionEpoch;
   Timer? _debouncer;
 
   /// Signature of the last triad we scheduled for. Starts empty — the
@@ -46,11 +50,28 @@ class NotificationsWiringService extends ChangeNotifier {
   /// call with a null profile (= provider not yet loaded).
   void onProfileChanged(CoachProfile? profile) {
     _debouncer?.cancel();
-    if (profile == null) return;
-    _debouncer = Timer(debounce, () => _maybeSchedule(profile));
+    if (profile == null) {
+      _lastScheduledSignature = null;
+      return;
+    }
+    late final SessionEpochGuard guard;
+    try {
+      guard = _sessionEpoch.capture();
+    } on SessionEpochInvalidated {
+      return;
+    }
+    _debouncer = Timer(debounce, () => _maybeSchedule(profile, guard));
   }
 
-  Future<void> _maybeSchedule(CoachProfile profile) async {
+  Future<void> _maybeSchedule(
+    CoachProfile profile,
+    SessionEpochGuard guard,
+  ) async {
+    try {
+      guard.assertCurrent();
+    } on SessionEpochInvalidated {
+      return;
+    }
     if (!_hasTriad(profile)) {
       // Profile still incomplete — clear the signature so that the
       // next complete profile we observe does schedule even if the
@@ -65,11 +86,17 @@ class NotificationsWiringService extends ChangeNotifier {
       return;
     }
     try {
-      await _schedule(profile);
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => _schedule(profile),
+      );
+      guard.assertCurrent();
       _lastScheduledSignature = signature;
-      debugPrint('[NotificationsWiring] scheduled triad=$signature');
-    } catch (e, st) {
-      debugPrint('[NotificationsWiring] scheduleCoachingReminders threw: $e\n$st');
+      debugPrint('[NotificationsWiring] schedule_complete');
+    } on SessionEpochInvalidated {
+      return;
+    } catch (_) {
+      debugPrint('[NotificationsWiring] schedule_failed');
     }
   }
 
@@ -82,8 +109,7 @@ class NotificationsWiringService extends ChangeNotifier {
     //   (trailing space), "ZZ". Route through `resolveCanton()` so the
     //   26-code Swiss allowlist gates the check uniformly.
     final currentYear = DateTime.now().year;
-    final birthYearOk =
-        p.birthYear >= 1900 && p.birthYear <= currentYear + 1;
+    final birthYearOk = p.birthYear >= 1900 && p.birthYear <= currentYear + 1;
     final cantonOk = !resolveCanton(p.canton).isFallback;
     return birthYearOk && cantonOk && p.salaireBrutMensuel > 0;
   }
@@ -103,6 +129,13 @@ class NotificationsWiringService extends ChangeNotifier {
 
   @visibleForTesting
   String? get lastScheduledSignature => _lastScheduledSignature;
+
+  /// Coordinator callback after notification cancellation and durable purge.
+  void clearSessionMemoryAfterPurge() {
+    _debouncer?.cancel();
+    _debouncer = null;
+    _lastScheduledSignature = null;
+  }
 
   @override
   void dispose() {

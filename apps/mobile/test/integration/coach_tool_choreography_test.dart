@@ -19,6 +19,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,7 @@ import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
 import 'package:mint_mobile/widgets/coach/financial_plan_setup_card.dart';
@@ -116,6 +118,7 @@ Future<void> _pumpBubble(
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
     FeatureFlags.financialPlanSetupEnabled = false;
   });
 
@@ -155,8 +158,7 @@ void main() {
         expect(
           find.byType(RouteSuggestionCard),
           findsOneWidget,
-          reason:
-              'route_to_screen with intent=retirement_choice must resolve '
+          reason: 'route_to_screen with intent=retirement_choice must resolve '
               'to /rente-vs-capital via MintScreenRegistry and render a '
               'RouteSuggestionCard (not SizedBox.shrink). Facade audit STAB-01.',
         );
@@ -188,15 +190,13 @@ void main() {
         expect(
           find.text('Demande de rachat LPP'),
           findsOneWidget,
-          reason:
-              'generate_document must render the document type label '
+          reason: 'generate_document must render the document type label '
               '(facade audit STAB-02).',
         );
         expect(
           find.text('Pr\u00e9parer le document'),
           findsOneWidget,
-          reason:
-              'generate_document must expose a tappable CTA routing to '
+          reason: 'generate_document must expose a tappable CTA routing to '
               '/documents (facade audit STAB-02).',
         );
       },
@@ -232,17 +232,18 @@ void main() {
           },
         );
 
-        final coachProvider = CoachProfileProvider()
-          ..createFromRemoteProfile({
-            'birth_year': 1985,
-            'canton': 'VD',
-            'income_gross_yearly': 96000.0,
-          });
-        final planProvider = FinancialPlanProvider()
-          ..attachProfileProvider(coachProvider);
+        final sessionEpoch = SessionEpoch();
+        final coachProvider = CoachProfileProvider(sessionEpoch: sessionEpoch);
+        final sessionGuard = sessionEpoch.capture();
+        await coachProvider.mergeBackendUnknownProfile({
+          'birthYear': 1985,
+          'canton': 'VD',
+          'incomeGrossYearly': 96000.0,
+        }, sessionGuard: sessionGuard);
+        final planProvider = FinancialPlanProvider();
 
-        // The production tree hydrates the ledger and binds the plan proxy at
-        // startup. Mirror both boundaries instead of using unloaded defaults.
+        // This choreography contract owns renderer reachability only. Provider
+        // binding/reconciliation has dedicated production-wiring tests.
         await _pumpBubble(
           tester,
           call,
@@ -276,19 +277,20 @@ void main() {
 
         // record_check_in requires a profile to persist the check-in.
         // Use a default profile.
-        final coachProvider = CoachProfileProvider();
-        coachProvider.createFromRemoteProfile({
-          'birth_year': 1985,
+        final sessionEpoch = SessionEpoch();
+        final coachProvider = CoachProfileProvider(sessionEpoch: sessionEpoch);
+        final sessionGuard = sessionEpoch.capture();
+        await coachProvider.mergeBackendUnknownProfile({
+          'birthYear': 1985,
           'canton': 'VS',
-        });
+        }, sessionGuard: sessionGuard);
 
         await _pumpBubble(tester, call, coachProvider: coachProvider);
 
         expect(
           find.byType(CheckInSummaryCard),
           findsOneWidget,
-          reason:
-              'record_check_in must render a CheckInSummaryCard '
+          reason: 'record_check_in must render a CheckInSummaryCard '
               '(facade audit STAB-04). Renderer case at widget_renderer.dart:74 '
               'exists — this test guards that the BYOK exposure keeps it '
               'reachable.',

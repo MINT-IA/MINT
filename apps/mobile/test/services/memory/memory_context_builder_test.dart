@@ -4,6 +4,7 @@ import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/memory/memory_context_builder.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MemoryContextBuilder TESTS — S58 / AI Memory
@@ -64,7 +65,13 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    CoachMemoryService.debugConfigureSessionAuthority(
+      sessionEpoch: SessionEpoch(),
+      userIdReader: () async => null,
+    );
   });
+
+  tearDown(CoachMemoryService.debugResetSessionAuthority);
 
   // ════════════════════════════════════════════════════════════
   //  EMPTY STATE
@@ -80,7 +87,8 @@ void main() {
       expect(context, isEmpty);
     });
 
-    test('async buildContext returns empty when SharedPreferences empty', () async {
+    test('async buildContext returns empty when SharedPreferences empty',
+        () async {
       final prefs = await SharedPreferences.getInstance();
       final context = await MemoryContextBuilder.buildContext(
         prefs: prefs,
@@ -151,7 +159,8 @@ void main() {
     test('insight type label appears in context', () {
       final context = MemoryContextBuilder.buildContextFromData(
         insights: [
-          makeInsight(id: 'i1', type: InsightType.decision, summary: 'Capital retiré'),
+          makeInsight(
+              id: 'i1', type: InsightType.decision, summary: 'Capital retiré'),
         ],
         goals: [],
         now: now,
@@ -320,7 +329,9 @@ void main() {
   group('MemoryContextBuilder — privacy and compliance', () {
     test('context contains no banned absolute terms', () {
       final context = MemoryContextBuilder.buildContextFromData(
-        insights: [makeInsight(id: 'i1', summary: 'Discussed retirement planning')],
+        insights: [
+          makeInsight(id: 'i1', summary: 'Discussed retirement planning')
+        ],
         goals: [makeGoal(id: 'g1', description: 'Comprendre la rente')],
         now: now,
       );
@@ -391,7 +402,8 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
 
       await CoachMemoryService.saveInsight(
-        makeInsight(id: 'async1', topic: 'retraite', summary: 'Retraite en 2042'),
+        makeInsight(
+            id: 'async1', topic: 'retraite', summary: 'Retraite en 2042'),
         prefs: prefs,
       );
 

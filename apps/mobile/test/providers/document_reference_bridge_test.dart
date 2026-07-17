@@ -23,6 +23,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
 final class _MemoryProfilePersistence
+    with SerializedCanonicalAnswerMutationPersistence
     implements LppProfilePersistence, TaxProfilePersistence {
   _MemoryProfilePersistence(Map<String, dynamic> answers)
       : answers = Map<String, dynamic>.from(answers);
@@ -166,6 +167,7 @@ PartnerAccountabilityBinding _activeBinding(
       policyVersion: 'policy-v1',
       privacyContact: 'privacy@example.test',
       rightsChannel: 'https://example.test/rights',
+      lppSnapshotId: _manualSnapshotId,
       lastVerifiedAt: now.subtract(const Duration(hours: 1)),
       receiptCreatedAt: now.subtract(const Duration(days: 1)),
       expiresAt: now.add(const Duration(days: 1)),
@@ -829,6 +831,7 @@ void main() {
     await documents.hydrateReferences();
     timeline.bindLedger(ledger);
     timeline.bindDocuments(documents);
+    timeline.activateAfterSessionReady();
 
     await tester.pumpWidget(
       _authorityDetailApp(ledger: ledger, documents: documents),
@@ -963,7 +966,8 @@ void main() {
         LppEvidenceFactKey.vestedBenefitsCapitalChf.manualPartnerProfilePath;
     final pensionPath =
         LppEvidenceFactKey.retirementPensionAnnualChf.manualPartnerProfilePath;
-    expect(ledger.profile!.dataSources[capitalPath], ProfileDataSource.userInput);
+    expect(
+        ledger.profile!.dataSources[capitalPath], ProfileDataSource.userInput);
     expect(
       ledger.profile!.dataTimestamps[capitalPath],
       startedAt.subtract(const Duration(hours: 3)),
@@ -1219,7 +1223,12 @@ void main() {
       ),
     );
     expect(appSource, contains('provider.bindLedger(profileProvider)'));
-    expect(appSource, contains('provider.hydrateReferences().ignore()'));
+    expect(appSource, contains('AccountSessionInitializer('));
+    expect(
+      appSource,
+      contains('context.read<DocumentProvider>().hydrateReferences()'),
+    );
+    expect(appSource, isNot(contains('provider.hydrateReferences().ignore()')));
     expect(appSource, contains('recordConfirmedLppReview:'));
     expect(appSource, contains('context.read<DocumentProvider>()'));
     expect(

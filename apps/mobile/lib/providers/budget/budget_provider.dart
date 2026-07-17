@@ -4,10 +4,15 @@ import '../../domain/budget/budget_inputs.dart';
 import '../../domain/budget/budget_plan.dart';
 import '../../domain/budget/budget_service.dart';
 import '../../data/budget/budget_local_store.dart';
+import '../../services/session_epoch.dart';
 
 class BudgetProvider with ChangeNotifier {
+  BudgetProvider({SessionEpoch? sessionEpoch})
+      : _sessionEpoch = sessionEpoch ?? SessionEpoch();
+
   final BudgetService _service = BudgetService();
   final BudgetLocalStore _store = BudgetLocalStore();
+  final SessionEpoch _sessionEpoch;
 
   BudgetPlan? _currentPlan;
   BudgetInputs? _lastInputs;
@@ -22,6 +27,18 @@ class BudgetProvider with ChangeNotifier {
   /// `budget_inputs_v1` is a legacy derived cache, never a source of truth.
   /// The linked [CoachProfile] remains authoritative across cold starts.
   Future<bool> loadFromStorage() async {
+    try {
+      final guard = _sessionEpoch.capture();
+      return await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => _loadFromStorage(guard),
+      );
+    } on SessionEpochInvalidated {
+      return false;
+    }
+  }
+
+  Future<bool> _loadFromStorage(SessionEpochGuard guard) async {
     final savedFuture = await _store.getOverride('future');
     final savedVariables = await _store.getOverride('variables');
     bool changed;
@@ -36,23 +53,35 @@ class BudgetProvider with ChangeNotifier {
           _setStoredOverride('variables', savedVariables);
     }
     await _store.discardLegacyInputs();
+    guard.assertCurrent();
     if (changed && _lastInputs != null) {
       _recalculate();
     }
     return _lastInputs != null;
   }
 
-  Future<void> waitForOverridePersistence() =>
-      _store.waitForOverridePersistence();
+  Future<void> waitForOverridePersistence() {
+    final guard = _sessionEpoch.capture();
+    return _sessionEpoch.runGuardedPersistence(
+      guard,
+      _store.waitForOverridePersistence,
+    );
+  }
 
   void updateOverride(String key, double value) {
+    final guard = _sessionEpoch.capture();
     final opposite = key == 'future' ? 'variables' : 'future';
     _overrides.remove(opposite);
     _overrides[key] = value;
     _recalculate();
     // The last edited envelope owns the split; contradictory pairs are
     // purged from storage instead of relying on BudgetService precedence.
-    _store.saveExclusiveOverride(key, value);
+    _sessionEpoch
+        .runGuardedPersistence(
+          guard,
+          () => _store.saveExclusiveOverride(key, value),
+        )
+        .ignore();
   }
 
   /// Rehydrate synchronously from the canonical profile.
@@ -60,6 +89,7 @@ class BudgetProvider with ChangeNotifier {
   /// The production proxy calls this on every profile publication. Repeated
   /// notifications carrying the same immutable profile are idempotent.
   void rehydrateFromProfile(CoachProfile profile) {
+    if (_sessionEpoch.isTerminationBlocked) return;
     if (identical(_boundProfile, profile)) return;
     _boundProfile = profile;
     final inputs = BudgetInputs.fromCoachProfile(profile);
@@ -70,11 +100,17 @@ class BudgetProvider with ChangeNotifier {
 
   /// Efface le budget (Reset / Supprimer mes données)
   Future<void> clear() async {
+    await purgeSessionPersistence();
+    clearSessionMemoryAfterPurge();
+  }
+
+  Future<void> purgeSessionPersistence() => _store.clear();
+
+  void clearSessionMemoryAfterPurge() {
     _lastInputs = null;
     _currentPlan = null;
     _boundProfile = null;
     _overrides.clear();
-    await _store.clear();
     notifyListeners();
   }
 
