@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
@@ -29,6 +30,7 @@ final class _MemoryPersistence
   int saveAttempts = 0;
   int successfulSaves = 0;
   bool failNextSave = false;
+  bool injectStrictLppRootBeforeNextMutation = false;
   Completer<void>? nextSaveBarrier;
 
   @override
@@ -47,6 +49,18 @@ final class _MemoryPersistence
     }
     answers = Map<String, dynamic>.from(next);
     successfulSaves++;
+  }
+
+  @override
+  Future<Map<String, dynamic>> mutateAnswers(
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) {
+    if (injectStrictLppRootBeforeNextMutation) {
+      injectStrictLppRootBeforeNextMutation = false;
+      answers['_coach_lpp_evidence_v1'] = '__secure__';
+    }
+    return super.mutateAnswers(mutation, publish: publish);
   }
 }
 
@@ -81,25 +95,41 @@ void _expectUserInputProvenance(
   expect(profile.dataSourceDates[path], isNull);
 }
 
-Widget _coachApp(CoachProfileProvider provider) => MultiProvider(
-      providers: [
-        ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
-        ChangeNotifierProvider(create: (_) => ByokProvider()),
-        ChangeNotifierProvider(create: (_) => MintStateProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-      ],
-      child: const MaterialApp(
-        locale: Locale('fr'),
-        localizationsDelegates: [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.supportedLocales,
-        home: CoachChatScreen(),
+Widget _coachApp(CoachProfileProvider provider) {
+  final router = GoRouter(
+    routes: [
+      GoRoute(path: '/', builder: (_, __) => const CoachChatScreen()),
+      GoRoute(
+        path: '/scan',
+        builder: (_, state) => Scaffold(
+          body: SizedBox(
+            key: const ValueKey('lpp-reconcile-destination'),
+            child: Text(state.uri.queryParameters['type'] ?? ''),
+          ),
+        ),
       ),
-    );
+    ],
+  );
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
+      ChangeNotifierProvider(create: (_) => ByokProvider()),
+      ChangeNotifierProvider(create: (_) => MintStateProvider()),
+      ChangeNotifierProvider(create: (_) => AuthProvider()),
+    ],
+    child: MaterialApp.router(
+      routerConfig: router,
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+    ),
+  );
+}
 
 Future<void> _pumpAskAmount(
   WidgetTester tester, {
@@ -254,6 +284,30 @@ void main() {
     }
   });
 
+  test('all three canonical amounts preserve the existing 10M ceiling',
+      () async {
+    for (final canonicalKey in <String>[
+      'incomeGrossYearly',
+      'avoirLpp',
+      'pillar3aBalance',
+    ]) {
+      final atCeiling = _MemoryPersistence(_baseAnswers());
+      expect(
+        await (await _loadedProvider(atCeiling))
+            .applySaveFact(canonicalKey, 10000000.0),
+        isTrue,
+      );
+
+      final aboveCeiling = _MemoryPersistence(_baseAnswers());
+      expect(
+        await (await _loadedProvider(aboveCeiling))
+            .applySaveFact(canonicalKey, 10000000.01),
+        isFalse,
+      );
+      expect(aboveCeiling.saveAttempts, 0);
+    }
+  });
+
   test('negative and non-finite amounts fail before every side effect',
       () async {
     final outcomes = <bool>[];
@@ -310,10 +364,45 @@ void main() {
     }
   });
 
-  for (final (field, canonicalKey, answerKey, amount) in const [
-    ('salaireBrut', 'incomeGrossYearly', 'q_gross_salary_annual', '120000'),
-    ('avoirLpp', 'avoirLpp', '_coach_avoir_lpp', '70377'),
-    ('epargne3a', 'pillar3aBalance', 'q_3a_total', '32000'),
+  test(
+      'typed LPP root arriving with the canonical mutation rejects loose LPP atomically',
+      () async {
+    FeatureFlags.typedLppEvidence = true;
+    final persistence = _MemoryPersistence(_baseAnswers());
+    final provider = await _loadedProvider(persistence);
+    var notifications = 0;
+    provider.addListener(() => notifications++);
+    persistence.injectStrictLppRootBeforeNextMutation = true;
+
+    expect(await provider.applySaveFact('avoirLpp', 70377.0), isFalse);
+    expect(persistence.answers['_coach_lpp_evidence_v1'], '__secure__');
+    expect(persistence.answers, isNot(contains('_coach_avoir_lpp')));
+    expect(persistence.saveAttempts, 0);
+    expect(notifications, 0);
+  });
+
+  for (final (field, canonicalKey, answerKey, amount, expectedEcho) in const [
+    (
+      'salaireBrut',
+      'incomeGrossYearly',
+      'q_gross_salary_annual',
+      '120000',
+      "Salaire brut annuel déclaré : CHF 120'000",
+    ),
+    (
+      'avoirLpp',
+      'avoirLpp',
+      '_coach_avoir_lpp',
+      '70377',
+      "Avoir LPP déclaré : CHF 70'377",
+    ),
+    (
+      'epargne3a',
+      'pillar3aBalance',
+      'q_3a_total',
+      '32000',
+      "Épargne 3a déclarée : CHF 32'000",
+    ),
   ]) {
     testWidgets(
         'live $field callback awaits exactly one $canonicalKey write before answering',
@@ -335,6 +424,7 @@ void main() {
       expect(notifications, 1);
       expect(find.byType(ChatAmountInput), findsNothing);
       expect(find.byType(UserMessageBubble), findsNWidgets(2));
+      expect(find.text(expectedEcho), findsOneWidget);
     });
   }
 
@@ -358,6 +448,7 @@ void main() {
 
     expect(find.byType(ChatAmountInput), findsOneWidget);
     expect(find.byType(UserMessageBubble), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(persistence.saveAttempts, 1);
     expect(persistence.successfulSaves, 0);
     expect(notifications, 0);
@@ -391,6 +482,10 @@ void main() {
 
     expect(find.byType(ChatAmountInput), findsOneWidget);
     expect(find.byType(UserMessageBubble), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('coach-inline-amount-error')),
+      findsOneWidget,
+    );
     expect(persistence.saveAttempts, 1);
     expect(persistence.successfulSaves, 0);
     expect(notifications, 0);
@@ -406,5 +501,61 @@ void main() {
     expect(notifications, 1);
     expect(find.byType(ChatAmountInput), findsNothing);
     expect(find.byType(UserMessageBubble), findsNWidgets(2));
+  });
+
+  testWidgets('transient LPP save failure does not offer reconciliation',
+      (tester) async {
+    FeatureFlags.typedLppEvidence = true;
+    final persistence = _MemoryPersistence(_baseAnswers())..failNextSave = true;
+    final provider = await _loadedProvider(persistence);
+
+    await _pumpAskAmount(tester, provider: provider, field: 'avoirLpp');
+    await _enterAndSubmitAmount(tester, '70377');
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(persistence.saveAttempts, 1);
+    expect(persistence.successfulSaves, 0);
+    expect(find.byType(ChatAmountInput), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('coach-inline-amount-error')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('coach-inline-amount-lpp-reconcile')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('strict LPP conflict stays retryable and offers reconciliation',
+      (tester) async {
+    FeatureFlags.typedLppEvidence = true;
+    final persistence = _MemoryPersistence(<String, dynamic>{
+      ..._baseAnswers(),
+      '_coach_lpp_evidence_v1': '__secure__',
+    });
+    final provider = await _loadedProvider(persistence);
+
+    await _pumpAskAmount(tester, provider: provider, field: 'avoirLpp');
+    await _enterAndSubmitAmount(tester, '70377');
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(persistence.saveAttempts, 0);
+    expect(find.byType(ChatAmountInput), findsOneWidget);
+    expect(find.byType(UserMessageBubble), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('coach-inline-amount-error')),
+      findsOneWidget,
+    );
+    final reconcile =
+        find.byKey(const ValueKey('coach-inline-amount-lpp-reconcile'));
+    expect(reconcile, findsOneWidget);
+
+    await tester.tap(reconcile);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('lpp-reconcile-destination')),
+      findsOneWidget,
+    );
+    expect(find.text('lppCertificate'), findsOneWidget);
   });
 }

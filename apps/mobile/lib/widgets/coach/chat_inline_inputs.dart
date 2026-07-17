@@ -1,9 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+
+final class ChatAmountLppReconciliationRequired implements Exception {
+  const ChatAmountLppReconciliationRequired();
+}
 
 // ────────────────────────────────────────────────────────────
 //  CHAT INLINE INPUTS — S56
@@ -156,7 +161,7 @@ class ChatAmountInput extends StatefulWidget {
   final String label;
   final String? hint;
   final double? initialValue;
-  final ValueChanged<double> onSubmitted;
+  final Future<void> Function(double value) onSubmitted;
 
   const ChatAmountInput({
     super.key,
@@ -173,6 +178,9 @@ class ChatAmountInput extends StatefulWidget {
 class _ChatAmountInputState extends State<ChatAmountInput> {
   late final TextEditingController _controller;
   double _currentValue = 0;
+  bool _isSubmitting = false;
+  bool _hasSubmissionError = false;
+  bool _requiresLppReconciliation = false;
 
   @override
   void initState() {
@@ -209,6 +217,29 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
+  }
+
+  Future<void> _submit() async {
+    if (_isSubmitting) return;
+    setState(() {
+      _isSubmitting = true;
+      _hasSubmissionError = false;
+      _requiresLppReconciliation = false;
+    });
+    try {
+      await widget.onSubmitted(_currentValue);
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+    } catch (error) {
+      debugPrint('[ChatAmountInput] submission failed: ${error.runtimeType}');
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _hasSubmissionError = true;
+        _requiresLppReconciliation =
+            error is ChatAmountLppReconciliationRequired;
+      });
+    }
   }
 
   @override
@@ -268,18 +299,47 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () => widget.onSubmitted(_currentValue),
+              onPressed: _isSubmitting ? null : _submit,
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
                 shape: const StadiumBorder(),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: Text(
-                MaterialLocalizations.of(context).okButtonLabel,
-                style: MintTextStyles.titleMedium(color: MintColors.white),
-              ),
+              child: _isSubmitting
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: MintColors.white,
+                      ),
+                    )
+                  : Text(
+                      MaterialLocalizations.of(context).okButtonLabel,
+                      style: MintTextStyles.titleMedium(color: MintColors.white),
+                    ),
             ),
           ),
+          if (_hasSubmissionError) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                S.of(context)!.coachInlineAmountSaveError,
+                key: const ValueKey('coach-inline-amount-error'),
+                style: MintTextStyles.bodySmall(color: MintColors.error),
+              ),
+            ),
+            if (_requiresLppReconciliation)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: const ValueKey('coach-inline-amount-lpp-reconcile'),
+                  onPressed: () => context.push('/scan?type=lppCertificate'),
+                  icon: const Icon(Icons.document_scanner_outlined),
+                  label: Text(S.of(context)!.coachInlineAmountLppReconcile),
+                ),
+              ),
+          ],
         ],
       ),
     );

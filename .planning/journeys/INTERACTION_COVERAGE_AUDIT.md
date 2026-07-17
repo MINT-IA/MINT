@@ -4,7 +4,7 @@
 
 ## Summary
 
-- Extracted Flutter route references: 373
+- Extracted Flutter route references: 374
 - Distinct known route templates referenced: 92
 - Covered by declared Interaction Registry route nodes: 23
 - Known route templates not yet declared as route nodes: 69
@@ -31,7 +31,7 @@
 | covered by declared route node | `/independants/dividende-salaire` | apps/mobile/lib/services/response_card_service.dart:395 |
 | covered by declared route node | `/invalidite` | apps/mobile/lib/app.dart:770, apps/mobile/lib/screens/disability/disability_gap_screen.dart:94, apps/mobile/lib/screens/timeline_screen.dart:183, apps/mobile/lib/services/cap_engine.dart:835 (+2 more) |
 | covered by declared route node | `/life-event/donation` | apps/mobile/lib/app.dart:748, apps/mobile/lib/screens/timeline_screen.dart:169, apps/mobile/lib/services/cap_engine.dart:829, apps/mobile/lib/services/response_card_service.dart:316 (+1 more) |
-| covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1904, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:547, apps/mobile/lib/screens/document_scan/extraction_review_screen.dart:644, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126 (+10 more) |
+| covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1943, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:547, apps/mobile/lib/screens/document_scan/extraction_review_screen.dart:644, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126 (+11 more) |
 | covered by declared route node | `/scan/avs-guide` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:766, apps/mobile/lib/screens/expat_screen.dart:1254, apps/mobile/lib/screens/profile/financial_summary_screen.dart:140, apps/mobile/lib/widgets/profile/futur_drawer_content.dart:73 (+2 more) |
 | covered by declared route node | `/scan/impact` | apps/mobile/lib/screens/document_scan/document_impact_screen.dart:840 |
 | covered by declared route node | `/segments/independant` | apps/mobile/lib/app.dart:653, apps/mobile/lib/screens/timeline_screen.dart:120, apps/mobile/lib/services/cap_engine.dart:787, apps/mobile/lib/widgets/life_event_suggestions.dart:128 |
@@ -55,7 +55,7 @@
 | uncovered literal route | `/ask-mint` | apps/mobile/lib/screens/byok_settings_screen.dart:447 |
 | uncovered literal route | `/auth/forgot-password` | apps/mobile/lib/screens/auth/login_screen.dart:522 |
 | uncovered literal route | `/auth/login` | apps/mobile/lib/app.dart:2404, apps/mobile/lib/screens/auth/forgot_password_screen.dart:89, apps/mobile/lib/screens/auth/register_screen.dart:651, apps/mobile/lib/screens/auth/verify_email_screen.dart:86 (+7 more) |
-| uncovered literal route | `/auth/register` | apps/mobile/lib/screens/auth/login_screen.dart:560, apps/mobile/lib/screens/coach/coach_chat_screen.dart:1575, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:2510, apps/mobile/lib/widgets/auth/auth_gate_bottom_sheet.dart:86 |
+| uncovered literal route | `/auth/register` | apps/mobile/lib/screens/auth/login_screen.dart:560, apps/mobile/lib/screens/coach/coach_chat_screen.dart:1614, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:2510, apps/mobile/lib/widgets/auth/auth_gate_bottom_sheet.dart:86 |
 | uncovered literal route | `/auth/verify-email` | apps/mobile/lib/screens/auth/login_screen.dart:537, apps/mobile/lib/screens/auth/register_screen.dart:100 |
 | uncovered literal route | `/bank-import` | apps/mobile/lib/screens/documents_screen.dart:941 |
 | uncovered literal route | `/budget` | apps/mobile/lib/data/educational_themes.dart:143, apps/mobile/lib/data/educational_themes.dart:174, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:345, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:439 (+11 more) |
@@ -71,7 +71,7 @@
 | uncovered literal route | `/document-scan/avs-guide` | apps/mobile/lib/widgets/coach/explore_hub.dart:66, apps/mobile/lib/widgets/dashboard/couple_action_plan.dart:362, apps/mobile/lib/widgets/dashboard/retirement_checklist_card.dart:197 |
 | uncovered literal route | `/documents` | apps/mobile/lib/data/educational_themes.dart:122, apps/mobile/lib/screens/document_detail_screen.dart:156, apps/mobile/lib/screens/document_detail_screen.dart:160, apps/mobile/lib/screens/document_detail_screen.dart:852 (+1 more) |
 | uncovered literal route | `/documents/:id` | apps/mobile/lib/screens/documents_screen.dart:547, apps/mobile/lib/screens/documents_screen.dart:780 |
-| uncovered literal route | `/education/hub` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1206, apps/mobile/lib/widgets/coach/coach_message_bubble.dart:383, apps/mobile/lib/widgets/coach/smart_shortcuts.dart:210 |
+| uncovered literal route | `/education/hub` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1206, apps/mobile/lib/widgets/coach/coach_message_bubble.dart:387, apps/mobile/lib/widgets/coach/smart_shortcuts.dart:210 |
 | uncovered literal route | `/education/theme/:id` | apps/mobile/lib/screens/education/comprendre_hub_screen.dart:65 |
 | uncovered literal route | `/epl` | apps/mobile/lib/app.dart:590, apps/mobile/lib/screens/lpp_deep/epl_screen.dart:102, apps/mobile/lib/screens/lpp_deep/epl_screen.dart:123, apps/mobile/lib/services/response_card_service.dart:236 |
 | uncovered literal route | `/explore/famille` | apps/mobile/lib/screens/explore/explorer_screen.dart:47 |
@@ -98,7 +98,7 @@
 | uncovered literal route | `/pilier-3a` | apps/mobile/lib/app.dart:709, apps/mobile/lib/data/educational_themes.dart:112, apps/mobile/lib/screens/simulator_3a_screen.dart:167, apps/mobile/lib/screens/simulator_3a_screen.dart:88 (+8 more) |
 | uncovered literal route | `/profile` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1505 |
 | uncovered literal route | `/profile/bilan` | apps/mobile/lib/screens/budget/budget_screen.dart:675, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:914, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:125, apps/mobile/lib/services/response_card_service.dart:694 (+2 more) |
-| uncovered literal route | `/profile/byok` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1664, apps/mobile/lib/widgets/settings_sheet.dart:47 |
+| uncovered literal route | `/profile/byok` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1703, apps/mobile/lib/widgets/settings_sheet.dart:47 |
 | uncovered literal route | `/profile/privacy-control` | apps/mobile/lib/widgets/settings_sheet.dart:35 |
 | uncovered literal route | `/profile/slm` | apps/mobile/lib/widgets/settings_sheet.dart:41 |
 | uncovered literal route | `/rachat-lpp` | apps/mobile/lib/app.dart:586, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:136, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:146, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:220 (+6 more) |

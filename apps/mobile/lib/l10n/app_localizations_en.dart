@@ -22948,6 +22948,29 @@ class SEn extends S {
   String get coachResponseDegradedHint => 'Fast reply';
 
   @override
+  String get coachInlineAmountSaveError =>
+      'The amount was not saved. Try again.';
+
+  @override
+  String get coachInlineAmountLppReconcile =>
+      'Check with an occupational pension certificate';
+
+  @override
+  String coachInlineAmountEchoSalary(String amount) {
+    return 'Declared annual gross salary: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEchoLpp(String amount) {
+    return 'Declared occupational pension balance: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEcho3a(String amount) {
+    return 'Declared pillar 3a savings: CHF $amount';
+  }
+
+  @override
   String get coachBudgetDailyLimitReached =>
       'We\'ve made good progress today. Rest, I\'ll be here tomorrow.';
 

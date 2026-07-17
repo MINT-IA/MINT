@@ -37,6 +37,7 @@ import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
+import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
@@ -145,6 +146,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Tracks message indices whose inline input pickers have been answered.
   /// Once answered, the picker is replaced by the user's response text.
   final Set<int> _answeredInputIndices = {};
+  final Set<int> _savingInputIndices = {};
 
   /// Voice intensity level (1-5). Persisted in SharedPreferences.
   /// 1 = Tranquille, 2 = Clair (default), 3 = Direct, 4 = Cash, 5 = Brut
@@ -1294,18 +1296,53 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   // ════════════════════════════════════════════════════════════
 
   /// Called when the user selects a value from an inline input picker.
-  void _handleInputSubmitted(int messageIndex, String field, String value) {
-    setState(() {
-      _answeredInputIndices.add(messageIndex);
-    });
-    _updateProfileField(field, value);
-    final displayText = _displayTextForInput(field, value);
-    _sendMessage(displayText);
+  Future<void> _handleInputSubmitted(
+    int messageIndex,
+    String field,
+    String value,
+  ) async {
+    if (_savingInputIndices.contains(messageIndex)) return;
+    setState(() => _savingInputIndices.add(messageIndex));
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final canonicalKey = switch (field) {
+        'salaireBrut' => 'incomeGrossYearly',
+        'avoirLpp' => 'avoirLpp',
+        'epargne3a' => 'pillar3aBalance',
+        _ => null,
+      };
+      if (canonicalKey != null) {
+        final amount = double.tryParse(value.replaceAll("'", ''));
+        if (amount == null) {
+          throw StateError('Inline amount write rejected');
+        }
+        final result = await provider.applySaveFactWithResult(
+          canonicalKey,
+          amount,
+        );
+        if (result == CoachFactWriteResult.strictLppAuthorityConflict) {
+          throw const ChatAmountLppReconciliationRequired();
+        }
+        if (result != CoachFactWriteResult.applied) {
+          throw StateError('Inline amount write rejected');
+        }
+        _profile = provider.profile;
+      } else {
+        await _updateProfileField(field, value);
+      }
+      if (!mounted) return;
+      setState(() => _answeredInputIndices.add(messageIndex));
+      await _sendMessage(_displayTextForInput(field, value));
+    } finally {
+      if (mounted) {
+        setState(() => _savingInputIndices.remove(messageIndex));
+      }
+    }
   }
 
   /// Map a raw field+value into the correct wizard answer keys
   /// and merge into the existing profile.
-  void _updateProfileField(String field, String value) {
+  Future<void> _updateProfileField(String field, String value) async {
     final provider = context.read<CoachProfileProvider>();
     final answers = <String, dynamic>{};
 
@@ -1314,11 +1351,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         final age = int.tryParse(value);
         if (age != null) {
           answers['q_birth_year'] = DateTime.now().year - age;
-        }
-      case 'salary':
-        final salary = double.tryParse(value.replaceAll("'", ''));
-        if (salary != null) {
-          answers['q_net_income_period_chf'] = salary;
         }
       case 'canton':
         answers['q_canton'] = value;
@@ -1334,7 +1366,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     if (answers.isNotEmpty) {
-      provider.mergeAnswers(answers);
+      await provider.mergeAnswers(answers);
       _profile = provider.profile;
     }
   }
@@ -1357,12 +1389,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   String _displayTextForInput(String field, String value) {
+    final s = S.of(context)!;
+    final formatted = _formatForDisplay(value);
     switch (field) {
       case 'age':
         return 'J\u2019ai $value ans';
       case 'salary':
-        final formatted = _formatForDisplay(value);
         return 'CHF $formatted';
+      case 'salaireBrut':
+        return s.coachInlineAmountEchoSalary(formatted);
+      case 'avoirLpp':
+        return s.coachInlineAmountEchoLpp(formatted);
+      case 'epargne3a':
+        return s.coachInlineAmountEcho3a(formatted);
       case 'canton':
         return value;
       case 'civil_status':

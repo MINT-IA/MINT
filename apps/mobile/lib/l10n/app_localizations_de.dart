@@ -23117,6 +23117,29 @@ class SDe extends S {
   String get coachResponseDegradedHint => 'Schnelle Antwort';
 
   @override
+  String get coachInlineAmountSaveError =>
+      'Der Betrag wurde nicht gespeichert. Versuche es erneut.';
+
+  @override
+  String get coachInlineAmountLppReconcile =>
+      'Mit einem Pensionskassenausweis prüfen';
+
+  @override
+  String coachInlineAmountEchoSalary(String amount) {
+    return 'Deklarierter jährlicher Bruttolohn: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEchoLpp(String amount) {
+    return 'Deklariertes Pensionskassenguthaben: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEcho3a(String amount) {
+    return 'Deklariertes Säule-3a-Guthaben: CHF $amount';
+  }
+
+  @override
   String get coachBudgetDailyLimitReached =>
       'Wir sind heute gut vorangekommen. Ruh dich aus, ich bin morgen da.';
 

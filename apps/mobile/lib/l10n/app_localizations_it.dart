@@ -23125,6 +23125,29 @@ class SIt extends S {
   String get coachResponseDegradedHint => 'Risposta rapida';
 
   @override
+  String get coachInlineAmountSaveError =>
+      'L’importo non è stato salvato. Riprova.';
+
+  @override
+  String get coachInlineAmountLppReconcile =>
+      'Verificare con un certificato di previdenza professionale';
+
+  @override
+  String coachInlineAmountEchoSalary(String amount) {
+    return 'Salario lordo annuo dichiarato: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEchoLpp(String amount) {
+    return 'Avere LPP dichiarato: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEcho3a(String amount) {
+    return 'Risparmio del pilastro 3a dichiarato: CHF $amount';
+  }
+
+  @override
   String get coachBudgetDailyLimitReached =>
       'Oggi abbiamo fatto buoni progressi. Riposati, ti aspetto domani.';
 

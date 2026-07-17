@@ -23066,6 +23066,29 @@ class SPt extends S {
   String get coachResponseDegradedHint => 'Resposta rápida';
 
   @override
+  String get coachInlineAmountSaveError =>
+      'O montante não foi guardado. Tenta novamente.';
+
+  @override
+  String get coachInlineAmountLppReconcile =>
+      'Verificar com um certificado de previdência profissional';
+
+  @override
+  String coachInlineAmountEchoSalary(String amount) {
+    return 'Salário bruto anual declarado: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEchoLpp(String amount) {
+    return 'Capital LPP declarado: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEcho3a(String amount) {
+    return 'Poupança do pilar 3a declarada: CHF $amount';
+  }
+
+  @override
   String get coachBudgetDailyLimitReached =>
       'Avançámos bem hoje. Descansa, espero-te amanhã.';
 

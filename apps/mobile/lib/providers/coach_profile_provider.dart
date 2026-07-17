@@ -42,6 +42,12 @@ abstract interface class CanonicalAnswerMutationPersistence {
   });
 }
 
+enum CoachFactWriteResult {
+  applied,
+  rejected,
+  strictLppAuthorityConflict,
+}
+
 /// Serialized boundary for injected in-memory persistence implementations.
 /// Production persistence uses ReportPersistenceService's process-global tail.
 mixin SerializedCanonicalAnswerMutationPersistence {
@@ -3191,7 +3197,22 @@ class CoachProfileProvider extends ChangeNotifier {
     DateTime? sourceDate,
     SessionEpochGuard? sessionGuard,
   }) async {
-    if (partial.isEmpty) return;
+    await _mergeAnswersWithProvenanceIfAllowed(
+      partial,
+      source: source,
+      sourceDate: sourceDate,
+      sessionGuard: sessionGuard,
+    );
+  }
+
+  Future<bool> _mergeAnswersWithProvenanceIfAllowed(
+    Map<String, dynamic> partial, {
+    ProfileDataSource source = ProfileDataSource.userInput,
+    DateTime? sourceDate,
+    SessionEpochGuard? sessionGuard,
+    bool Function(Map<String, dynamic> current)? precondition,
+  }) async {
+    if (partial.isEmpty) return false;
     _validateDateOfBirthAnswer(partial);
     if (sourceDate != null &&
         SwissCivilTime.isFutureCivilDate(sourceDate, now: _now())) {
@@ -3203,11 +3224,13 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     final guard = sessionGuard ?? _sessionEpoch.capture();
     guard.assertCurrent();
+    var applied = false;
     late CoachProfile publishedProfile;
     await _mutateTaxAnswers(
       guard,
       (current) {
         guard.assertCurrent();
+        if (precondition != null && !precondition(current)) return null;
         _validateDateOfBirthAnswer(partial);
         final normalizedPartial = Map<String, dynamic>.from(
           _withExplicitCashAnswerSource(partial, source: source),
@@ -3288,10 +3311,12 @@ class CoachProfileProvider extends ChangeNotifier {
         _persistTimestamps(merged, profileWithProvenance.dataTimestamps);
         _persistProvenance(merged, profileWithProvenance);
         publishedProfile = _rebuildCanonicalProfile(merged);
+        applied = true;
         return merged;
       },
       publish: (persisted) {
         guard.assertCurrent();
+        if (!applied) return;
         _lastAnswers = _copyAnswers(persisted);
         _profile = publishedProfile;
         _isLoaded = true;
@@ -3300,6 +3325,7 @@ class CoachProfileProvider extends ChangeNotifier {
         notifyListeners();
       },
     );
+    return applied;
   }
 
   /// Apply a `save_fact` tool call locally.
@@ -3317,8 +3343,8 @@ class CoachProfileProvider extends ChangeNotifier {
   /// calls `mergeAnswers` to persist to SharedPreferences + refresh the
   /// profile.
   ///
-  /// Returns `true` when the fact was mapped and applied, `false` when the
-  /// key is unknown (caller can log — Claude occasionally hallucinates keys).
+  /// Returns `true` when the fact was mapped and applied, `false` when it was
+  /// rejected before or during the canonical mutation.
   Future<bool> applySaveFact(
     String factKey,
     dynamic factValue, {
@@ -3326,15 +3352,52 @@ class CoachProfileProvider extends ChangeNotifier {
     ProfileDataSource source = ProfileDataSource.userInput,
     DateTime? sourceDate,
   }) async {
-    if (confidence == 'low') return false; // mirror backend skip
-    final mapped = _mapFactKeyToAnswers(factKey, factValue);
-    if (mapped.isEmpty) return false;
-    await mergeAnswersWithProvenance(
-      mapped,
+    final result = await applySaveFactWithResult(
+      factKey,
+      factValue,
+      confidence: confidence,
       source: source,
       sourceDate: sourceDate,
     );
-    return true;
+    return result == CoachFactWriteResult.applied;
+  }
+
+  /// Detailed result for callers that must distinguish strict LPP authority
+  /// from a generic fact rejection without repeating the persistence read.
+  Future<CoachFactWriteResult> applySaveFactWithResult(
+    String factKey,
+    dynamic factValue, {
+    String confidence = 'medium',
+    ProfileDataSource source = ProfileDataSource.userInput,
+    DateTime? sourceDate,
+  }) async {
+    if (confidence == 'low') {
+      return CoachFactWriteResult.rejected; // mirror backend skip
+    }
+    dynamic normalizedValue = factValue;
+    if (factKey == 'incomeGrossYearly' ||
+        factKey == 'avoirLpp' ||
+        factKey == 'pillar3aBalance') {
+      final amount = _validRemoteAmount(factValue);
+      if (amount == null) return CoachFactWriteResult.rejected;
+      normalizedValue = amount;
+    }
+    final mapped = _mapFactKeyToAnswers(factKey, normalizedValue);
+    if (mapped.isEmpty) return CoachFactWriteResult.rejected;
+    final guardsStrictLppAuthority =
+        factKey == 'avoirLpp' && FeatureFlags.typedLppEvidence;
+    final applied = await _mergeAnswersWithProvenanceIfAllowed(
+      mapped,
+      source: source,
+      sourceDate: sourceDate,
+      precondition: guardsStrictLppAuthority
+          ? (current) => !current.containsKey(_lppEvidenceRootKey)
+          : null,
+    );
+    if (applied) return CoachFactWriteResult.applied;
+    return guardsStrictLppAuthority
+        ? CoachFactWriteResult.strictLppAuthorityConflict
+        : CoachFactWriteResult.rejected;
   }
 
   /// Translates a `save_fact` canonical key + value into the corresponding

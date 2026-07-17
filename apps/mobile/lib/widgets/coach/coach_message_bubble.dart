@@ -22,7 +22,7 @@ class CoachMessageBubble extends StatelessWidget {
   final int messageIndex;
   final bool isStreaming;
   final bool isInputAnswered;
-  final void Function(int messageIndex, String field, String value)?
+  final Future<void> Function(int messageIndex, String field, String value)?
       onInputSubmitted;
   final void Function(String action)? onActionTap;
 
@@ -147,8 +147,12 @@ class CoachMessageBubble extends StatelessWidget {
                 child: WidgetRenderer.build(
                       context,
                       toolCall,
-                      onInputSubmitted: (field, value) {
-                        onInputSubmitted?.call(messageIndex, field, value);
+                      onInputSubmitted: (field, value) async {
+                        await onInputSubmitted?.call(
+                          messageIndex,
+                          field,
+                          value,
+                        );
                       },
                     ) ??
                     const SizedBox.shrink(),

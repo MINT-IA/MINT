@@ -11900,6 +11900,34 @@
     "description": "Collapsed disclaimer one-liner in coach chat."
   },
   "coachResponseDegradedHint": "Réponse rapide",
+  "coachInlineAmountSaveError": "Le montant n’a pas été enregistré. Réessaie.",
+  "@coachInlineAmountSaveError": {
+    "description": "Erreur affichée sous le montant Coach quand la sauvegarde durable échoue.",
+    "x-mint-meta": { "level": "N3" }
+  },
+  "coachInlineAmountLppReconcile": "Vérifier avec un certificat LPP",
+  "@coachInlineAmountLppReconcile": {
+    "description": "Action Coach proposée quand une saisie LPP libre doit être réconciliée avec le certificat.",
+    "x-mint-meta": { "level": "N3" }
+  },
+  "coachInlineAmountEchoSalary": "Salaire brut annuel déclaré : CHF {amount}",
+  "@coachInlineAmountEchoSalary": {
+    "description": "Écho factuel Coach après sauvegarde durable du salaire brut annuel déclaré.",
+    "x-mint-meta": { "level": "N3" },
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "coachInlineAmountEchoLpp": "Avoir LPP déclaré : CHF {amount}",
+  "@coachInlineAmountEchoLpp": {
+    "description": "Écho factuel Coach après sauvegarde durable de l’avoir LPP déclaré.",
+    "x-mint-meta": { "level": "N3" },
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "coachInlineAmountEcho3a": "Épargne 3a déclarée : CHF {amount}",
+  "@coachInlineAmountEcho3a": {
+    "description": "Écho factuel Coach après sauvegarde durable de l’épargne 3a déclarée.",
+    "x-mint-meta": { "level": "N3" },
+    "placeholders": {"amount": {"type": "String"}}
+  },
   "@coachResponseDegradedHint": {
     "description": "v2.7 Task 8 — subtle chip shown below coach reply when Haiku fallback kicked in. NOT an error indicator.",
     "x-mint-meta": { "level": "N2" }

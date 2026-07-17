@@ -40355,6 +40355,36 @@ abstract class S {
   /// **'Réponse rapide'**
   String get coachResponseDegradedHint;
 
+  /// No description provided for @coachInlineAmountSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant n’a pas été enregistré. Réessaie.'**
+  String get coachInlineAmountSaveError;
+
+  /// No description provided for @coachInlineAmountLppReconcile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier avec un certificat LPP'**
+  String get coachInlineAmountLppReconcile;
+
+  /// No description provided for @coachInlineAmountEchoSalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire brut annuel déclaré : CHF {amount}'**
+  String coachInlineAmountEchoSalary(String amount);
+
+  /// No description provided for @coachInlineAmountEchoLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP déclaré : CHF {amount}'**
+  String coachInlineAmountEchoLpp(String amount);
+
+  /// No description provided for @coachInlineAmountEcho3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne 3a déclarée : CHF {amount}'**
+  String coachInlineAmountEcho3a(String amount);
+
   /// v2.7 Task 4 — shown when user hits daily token budget hard cap.
   ///
   /// In fr, this message translates to:

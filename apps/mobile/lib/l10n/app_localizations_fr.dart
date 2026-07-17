@@ -23062,6 +23062,28 @@ class SFr extends S {
   String get coachResponseDegradedHint => 'Réponse rapide';
 
   @override
+  String get coachInlineAmountSaveError =>
+      'Le montant n’a pas été enregistré. Réessaie.';
+
+  @override
+  String get coachInlineAmountLppReconcile => 'Vérifier avec un certificat LPP';
+
+  @override
+  String coachInlineAmountEchoSalary(String amount) {
+    return 'Salaire brut annuel déclaré : CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEchoLpp(String amount) {
+    return 'Avoir LPP déclaré : CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEcho3a(String amount) {
+    return 'Épargne 3a déclarée : CHF $amount';
+  }
+
+  @override
   String get coachBudgetDailyLimitReached =>
       'On a déjà bien avancé aujourd\'hui. Repose-toi, je t\'attends demain.';
 

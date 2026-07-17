@@ -11179,6 +11179,14 @@
     "description": "Collapsed disclaimer one-liner in coach chat."
   },
   "coachResponseDegradedHint": "Resposta rápida",
+  "coachInlineAmountSaveError": "O montante não foi guardado. Tenta novamente.",
+  "coachInlineAmountLppReconcile": "Verificar com um certificado de previdência profissional",
+  "coachInlineAmountEchoSalary": "Salário bruto anual declarado: CHF {amount}",
+  "@coachInlineAmountEchoSalary": {"placeholders": {"amount": {"type": "String"}}},
+  "coachInlineAmountEchoLpp": "Capital LPP declarado: CHF {amount}",
+  "@coachInlineAmountEchoLpp": {"placeholders": {"amount": {"type": "String"}}},
+  "coachInlineAmountEcho3a": "Poupança do pilar 3a declarada: CHF {amount}",
+  "@coachInlineAmountEcho3a": {"placeholders": {"amount": {"type": "String"}}},
   "@coachResponseDegradedHint": {
     "description": "v2.7 Task 8 — subtle chip shown below coach reply when Haiku fallback kicked in. NOT an error indicator."
   },

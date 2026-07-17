@@ -53,7 +53,7 @@ class WidgetRenderer {
   static Widget? build(
     BuildContext context,
     RagToolCall call, {
-    void Function(String field, String value)? onInputSubmitted,
+    Future<void> Function(String field, String value)? onInputSubmitted,
   }) {
     switch (call.name) {
       // STAB-12 (07-04): show_retirement_comparison, show_budget_overview,
@@ -233,7 +233,7 @@ class WidgetRenderer {
   static Widget? _buildInputRequest(
     BuildContext context,
     Map<String, dynamic> p,
-    void Function(String field, String value)? onInputSubmitted,
+    Future<void> Function(String field, String value)? onInputSubmitted,
   ) {
     final field = p['field_key'] as String? ?? p['field'] as String? ?? '';
     final message = p['prompt_text'] as String? ?? p['message'] as String?;
@@ -247,8 +247,8 @@ class WidgetRenderer {
         return ChatAgePicker(
           label: message,
           initialAge: 35,
-          onSelected: (age) {
-            onInputSubmitted?.call('age', '$age');
+          onSelected: (age) async {
+            await onInputSubmitted?.call('age', '$age');
           },
         );
 
@@ -256,32 +256,35 @@ class WidgetRenderer {
       case 'salaireBrut':
         return ChatAmountInput(
           label: message ?? 'Ton revenu brut annuel',
-          onSubmitted: (amount) {
-            onInputSubmitted?.call('salaireBrut', '${amount.round()}');
+          onSubmitted: (amount) async {
+            await onInputSubmitted?.call(
+              'salaireBrut',
+              '${amount.round()}',
+            );
           },
         );
 
       case 'avoirLpp':
         return ChatAmountInput(
           label: message ?? 'Avoir LPP (CHF)',
-          onSubmitted: (amount) {
-            onInputSubmitted?.call('avoirLpp', '${amount.round()}');
+          onSubmitted: (amount) async {
+            await onInputSubmitted?.call('avoirLpp', '${amount.round()}');
           },
         );
 
       case 'epargne3a':
         return ChatAmountInput(
           label: message ?? '\u00c9pargne 3a (CHF)',
-          onSubmitted: (amount) {
-            onInputSubmitted?.call('epargne3a', '${amount.round()}');
+          onSubmitted: (amount) async {
+            await onInputSubmitted?.call('epargne3a', '${amount.round()}');
           },
         );
 
       case 'canton':
         return ChatCantonPicker(
           label: message,
-          onSelected: (canton) {
-            onInputSubmitted?.call('canton', canton);
+          onSelected: (canton) async {
+            await onInputSubmitted?.call('canton', canton);
           },
         );
 
@@ -294,8 +297,8 @@ class WidgetRenderer {
             'Divorc\u00e9\u00b7e',
             'En concubinage',
           ],
-          onSelected: (choice) {
-            onInputSubmitted?.call('civil_status', choice);
+          onSelected: (choice) async {
+            await onInputSubmitted?.call('civil_status', choice);
           },
         );
 
@@ -307,8 +310,8 @@ class WidgetRenderer {
             'Ind\u00e9pendant\u00b7e',
             'Sans emploi',
           ],
-          onSelected: (choice) {
-            onInputSubmitted?.call('employment_status', choice);
+          onSelected: (choice) async {
+            await onInputSubmitted?.call('employment_status', choice);
           },
         );
 
@@ -316,8 +319,8 @@ class WidgetRenderer {
         return ChatChoiceButtons(
           label: message,
           choices: const ['0', '1', '2', '3', '4+'],
-          onSelected: (choice) {
-            onInputSubmitted?.call('children', choice);
+          onSelected: (choice) async {
+            await onInputSubmitted?.call('children', choice);
           },
         );
 
@@ -328,8 +331,8 @@ class WidgetRenderer {
         return ChatChoiceButtons(
           label: message,
           choices: choices,
-          onSelected: (choice) {
-            onInputSubmitted?.call('choice', choice);
+          onSelected: (choice) async {
+            await onInputSubmitted?.call('choice', choice);
           },
         );
 
@@ -581,7 +584,7 @@ class WidgetRenderer {
   static Widget _buildCommitmentCard(
     BuildContext context,
     Map<String, dynamic> p,
-    void Function(String field, String value)? onInputSubmitted,
+    Future<void> Function(String field, String value)? onInputSubmitted,
   ) {
     final whenText = p['when_text'] as String? ?? '';
     final whereText = p['where_text'] as String? ?? '';

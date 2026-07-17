@@ -23062,6 +23062,29 @@ class SEs extends S {
   String get coachResponseDegradedHint => 'Respuesta rápida';
 
   @override
+  String get coachInlineAmountSaveError =>
+      'El importe no se guardó. Inténtalo de nuevo.';
+
+  @override
+  String get coachInlineAmountLppReconcile =>
+      'Comprobar con un certificado de previsión profesional';
+
+  @override
+  String coachInlineAmountEchoSalary(String amount) {
+    return 'Salario bruto anual declarado: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEchoLpp(String amount) {
+    return 'Capital LPP declarado: CHF $amount';
+  }
+
+  @override
+  String coachInlineAmountEcho3a(String amount) {
+    return 'Ahorro del pilar 3a declarado: CHF $amount';
+  }
+
+  @override
   String get coachBudgetDailyLimitReached =>
       'Hemos avanzado bien hoy. Descansa, te espero mañana.';
 

@@ -11179,6 +11179,14 @@
     "description": "Collapsed disclaimer one-liner in coach chat."
   },
   "coachResponseDegradedHint": "Fast reply",
+  "coachInlineAmountSaveError": "The amount was not saved. Try again.",
+  "coachInlineAmountLppReconcile": "Check with an occupational pension certificate",
+  "coachInlineAmountEchoSalary": "Declared annual gross salary: CHF {amount}",
+  "@coachInlineAmountEchoSalary": {"placeholders": {"amount": {"type": "String"}}},
+  "coachInlineAmountEchoLpp": "Declared occupational pension balance: CHF {amount}",
+  "@coachInlineAmountEchoLpp": {"placeholders": {"amount": {"type": "String"}}},
+  "coachInlineAmountEcho3a": "Declared pillar 3a savings: CHF {amount}",
+  "@coachInlineAmountEcho3a": {"placeholders": {"amount": {"type": "String"}}},
   "@coachResponseDegradedHint": {
     "description": "v2.7 Task 8 — subtle chip shown below coach reply when Haiku fallback kicked in. NOT an error indicator."
   },
