@@ -233,19 +233,38 @@ ReadinessResult gateRachatLppDeep(CoachProfile profile) {
 
 /// Gate: /segments/frontalier — cross-border worker hub.
 ///
-/// Should only be surfaced for frontaliers (permis G) or users who have
-/// declared employmentStatus as 'frontalier'. Non-frontaliers are blocked.
+/// Permit/status may trigger collection, but only ready canonical jurisdiction
+/// evidence can open the educational result state.
 ReadinessResult gateFrontalier(CoachProfile profile) {
-  final isPermitG = profile.residencePermit == 'G';
-  final isFrontalierStatus = profile.employmentStatus == 'frontalier';
+  return gateFrontalierAt(profile, DateTime.now());
+}
 
-  if (!isPermitG && !isFrontalierStatus) {
+/// Deterministic frontier gate used by boundary tests and time-aware callers.
+ReadinessResult gateFrontalierAt(CoachProfile profile, DateTime now) {
+  final evidence = profile.frontierJurisdictionAt(now);
+  if (evidence.jurisdictionReady) {
+    if (evidence.crossBorder == true) {
+      return const ReadinessResult.ready();
+    }
     return const ReadinessResult.blocked(
       ['employmentStatus'],
       ['employmentStatus'],
     );
   }
-  return const ReadinessResult.ready();
+
+  final hasJurisdictionContext = profile.residenceCountry != null ||
+      profile.workCountry != null ||
+      profile.workCanton != null;
+  if (!profile.hasCrossBorderProductContext && !hasJurisdictionContext) {
+    return const ReadinessResult.blocked(
+      ['employmentStatus'],
+      ['employmentStatus'],
+    );
+  }
+  return ReadinessResult.partial(<String>{
+    ...evidence.missingFields,
+    ...evidence.staleFields,
+  }.toList());
 }
 
 /// Gate: /debt/ratio — budget sous tension / debt ratio calculator.
@@ -883,8 +902,8 @@ class MintScreenRegistry extends ScreenRegistry {
     route: '/segments/frontalier',
     intentTag: 'cross_border',
     behavior: ScreenBehavior.roadmapFlow,
-    requiredFields: ['employmentStatus'],
-    optionalFields: ['canton'],
+    requiredFields: ['residenceCountry', 'workCountry'],
+    optionalFields: ['workCanton', 'employmentStatus', 'residencePermit'],
     preferFromChat: true,
     customGate: gateFrontalier,
   );

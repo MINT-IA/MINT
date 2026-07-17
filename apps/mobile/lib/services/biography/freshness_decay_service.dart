@@ -92,6 +92,15 @@ class FreshnessDecayService {
     return weight(fact, now) < _refreshThreshold;
   }
 
+  /// Pure annual-tier refresh predicate for canonical facts that do not need a
+  /// [BiographyFact] wrapper. The confirmation timestamp is the authority;
+  /// callers must never substitute a document source date.
+  static bool annualNeedsRefresh(DateTime updatedAt, DateTime now) {
+    final monthsOld = now.difference(updatedAt).inDays / 30.44;
+    return _decay(monthsOld, _annualFullMonths, _annualFloorMonths) <
+        _refreshThreshold;
+  }
+
   /// Determine the freshness category for a given fact type.
   ///
   /// - Annual: salary, LPP capital, LPP rachat max, 3a capital,

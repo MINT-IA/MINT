@@ -1840,6 +1840,9 @@ class CoachProfileProvider extends ChangeNotifier {
     'q_canton': ['canton'],
     'q_commune': ['commune'],
     'q_nationality': ['nationality'],
+    'q_residence_country': ['residenceCountry'],
+    'q_work_country': ['workCountry'],
+    'q_work_canton': ['workCanton'],
     'q_residence_permit': ['residencePermit'],
     'q_civil_status': ['etatCivil'],
     'q_children': ['nombreEnfants'],
@@ -2273,6 +2276,7 @@ class CoachProfileProvider extends ChangeNotifier {
       'chômage', // lint-ignore: accepted legacy backend wire value
       'mixed',
       'mixte',
+      'frontalier',
     }.contains(value)
         ? value
         : null;
@@ -2869,8 +2873,9 @@ class CoachProfileProvider extends ChangeNotifier {
   void updateFromAnswers(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
     _validateDateOfBirthAnswer(answers);
+    _validateFrontierJurisdictionAnswers(answers);
     _lastAnswers = _copyAnswers(answers);
-    _profile = CoachProfile.fromWizardAnswers(answers);
+    _profile = CoachProfile.fromWizardAnswers(answers, now: _now);
     _isPartialProfile = false;
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
@@ -2893,6 +2898,7 @@ class CoachProfileProvider extends ChangeNotifier {
   }) async {
     if (partial.isEmpty) return;
     _validateDateOfBirthAnswer(partial);
+    _validateFrontierJurisdictionAnswers(partial);
     final guard = sessionGuard ?? _sessionEpoch.capture();
     guard.assertCurrent();
     late CoachProfile publishedProfile;
@@ -2974,6 +2980,11 @@ class CoachProfileProvider extends ChangeNotifier {
         return _validRemoteBirthYear(value) != null;
       case 'q_canton':
         return _validRemoteCanton(value) != null;
+      case 'q_residence_country':
+      case 'q_work_country':
+        return CountryCode.tryParse(value) != null;
+      case 'q_work_canton':
+        return SwissCantonCode.tryParse(value) != null;
       case 'q_gender':
         return value == 'M' || value == 'F';
       case 'q_employment_status':
@@ -3035,6 +3046,11 @@ class CoachProfileProvider extends ChangeNotifier {
         return _validRemoteBirthYear(value) != null;
       case 'q_canton':
         return _validRemoteCanton(value) != null;
+      case 'q_residence_country':
+      case 'q_work_country':
+        return CountryCode.tryParse(value) != null;
+      case 'q_work_canton':
+        return SwissCantonCode.tryParse(value) != null;
       case 'q_gender':
         return value == 'M' || value == 'F';
       case 'q_employment_status':
@@ -3190,6 +3206,32 @@ class CoachProfileProvider extends ChangeNotifier {
     }
   }
 
+  void _validateFrontierJurisdictionAnswers(Map<String, dynamic> answers) {
+    for (final key in const <String>{
+      'q_residence_country',
+      'q_work_country',
+    }) {
+      if (!answers.containsKey(key) || answers[key] == null) continue;
+      if (CountryCode.tryParse(answers[key]) == null) {
+        throw ArgumentError.value(
+          answers[key],
+          key,
+          'one of CH, FR, DE, IT, AT, LI required',
+        );
+      }
+    }
+    const cantonKey = 'q_work_canton';
+    if (answers.containsKey(cantonKey) &&
+        answers[cantonKey] != null &&
+        SwissCantonCode.tryParse(answers[cantonKey]) == null) {
+      throw ArgumentError.value(
+        answers[cantonKey],
+        cantonKey,
+        'canonical Swiss canton code required',
+      );
+    }
+  }
+
   /// Merge answers while explicitly recording their origin metadata.
   Future<void> mergeAnswersWithProvenance(
     Map<String, dynamic> partial, {
@@ -3214,6 +3256,7 @@ class CoachProfileProvider extends ChangeNotifier {
   }) async {
     if (partial.isEmpty) return false;
     _validateDateOfBirthAnswer(partial);
+    _validateFrontierJurisdictionAnswers(partial);
     if (sourceDate != null &&
         SwissCivilTime.isFutureCivilDate(sourceDate, now: _now())) {
       throw ArgumentError.value(
@@ -3232,6 +3275,7 @@ class CoachProfileProvider extends ChangeNotifier {
         guard.assertCurrent();
         if (precondition != null && !precondition(current)) return null;
         _validateDateOfBirthAnswer(partial);
+        _validateFrontierJurisdictionAnswers(partial);
         final normalizedPartial = Map<String, dynamic>.from(
           _withExplicitCashAnswerSource(partial, source: source),
         );
@@ -3251,6 +3295,16 @@ class CoachProfileProvider extends ChangeNotifier {
         }
         final merged = Map<String, dynamic>.from(current)
           ..addAll(normalizedPartial);
+        for (final key in const <String>{
+          'q_residence_country',
+          'q_work_country',
+          'q_work_canton',
+        }) {
+          if (normalizedPartial.containsKey(key) &&
+              normalizedPartial[key] == null) {
+            merged.remove(key);
+          }
+        }
         if (normalizedPartial.containsKey('q_other_fixed_costs_monthly_chf')) {
           merged.remove('_coach_depenses_autres');
         }
@@ -3258,7 +3312,8 @@ class CoachProfileProvider extends ChangeNotifier {
         if (clearsPartner) _clearPartnerAnswers(merged);
 
         final stamp = _now();
-        final persistedProfile = CoachProfile.fromWizardAnswers(current);
+        final persistedProfile =
+            CoachProfile.fromWizardAnswers(current, now: _now);
         final requestedClears = _clearedCanonicalPathsForAnswers(
           normalizedPartial,
         );
@@ -3270,7 +3325,8 @@ class CoachProfileProvider extends ChangeNotifier {
           );
         }
         final requestedStamps = _canonicalPathsForAnswers(normalizedPartial);
-        final resolvedProfile = CoachProfile.fromWizardAnswers(merged);
+        final resolvedProfile =
+            CoachProfile.fromWizardAnswers(merged, now: _now);
         final touchedPaths = <String>{...requestedStamps, ...requestedClears};
         _updateBackendUnknownPaths(
           merged,
@@ -4019,6 +4075,21 @@ class CoachProfileProvider extends ChangeNotifier {
         if (profile.canton.isNotEmpty) answers['q_canton'] = profile.canton;
         if (profile.commune != null && profile.commune!.isNotEmpty) {
           answers['q_commune'] = profile.commune;
+        }
+        if (profile.residenceCountry != null) {
+          answers['q_residence_country'] = profile.residenceCountry!.value;
+        } else {
+          answers.remove('q_residence_country');
+        }
+        if (profile.workCountry != null) {
+          answers['q_work_country'] = profile.workCountry!.value;
+        } else {
+          answers.remove('q_work_country');
+        }
+        if (profile.workCanton != null) {
+          answers['q_work_canton'] = profile.workCanton!.value;
+        } else {
+          answers.remove('q_work_canton');
         }
         if (profile.gender != null && profile.gender!.isNotEmpty) {
           answers['q_gender'] = profile.gender;

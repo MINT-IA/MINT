@@ -16,6 +16,7 @@ import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/biography/freshness_decay_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
@@ -25,6 +26,7 @@ import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 
 const coachBackendUnknownPathsKey = '_coach_backend_unknown_paths_v1';
+const Object _keepJurisdictionValue = Object();
 
 DateTime? _parseSupportedAdultBirthDate(
   Object? raw, {
@@ -97,6 +99,140 @@ enum ProfileDataSource {
   crossValidated, // Saisie + verification croisee (confiance 0.70)
   certificate, // Extrait d'un certificat scanne (confiance 0.95)
   openBanking, // Données bancaires live bLink/SFTI (confiance 1.00)
+}
+
+/// Closed country set supported by the first Swiss frontier contract.
+@immutable
+final class CountryCode {
+  const CountryCode._(this.value);
+
+  static const Set<String> supportedValues = {
+    'CH',
+    'FR',
+    'DE',
+    'IT',
+    'AT',
+    'LI',
+  };
+
+  final String value;
+
+  static CountryCode? tryParse(Object? raw) {
+    if (raw is! String || !supportedValues.contains(raw)) return null;
+    return CountryCode._(raw);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is CountryCode && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}
+
+/// Closed set of all 26 Swiss canton codes.
+@immutable
+final class SwissCantonCode {
+  const SwissCantonCode._(this.value);
+
+  static const Set<String> supportedValues = {
+    'AG',
+    'AI',
+    'AR',
+    'BE',
+    'BL',
+    'BS',
+    'FR',
+    'GE',
+    'GL',
+    'GR',
+    'JU',
+    'LU',
+    'NE',
+    'NW',
+    'OW',
+    'SG',
+    'SH',
+    'SO',
+    'SZ',
+    'TG',
+    'TI',
+    'UR',
+    'VD',
+    'VS',
+    'ZG',
+    'ZH',
+  };
+
+  final String value;
+
+  static SwissCantonCode? tryParse(Object? raw) {
+    if (raw is! String || !supportedValues.contains(raw)) return null;
+    return SwissCantonCode._(raw);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SwissCantonCode && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}
+
+enum FrontierJurisdictionState {
+  missing,
+  stale,
+  known,
+  specialistOnly;
+
+  // A concrete getter (rather than only Dart's static enum extension) keeps
+  // the evidence contract introspectable through dynamic compatibility gates.
+  String get name => switch (this) {
+        missing => 'missing',
+        stale => 'stale',
+        known => 'known',
+        specialistOnly => 'specialistOnly',
+      };
+}
+
+enum FrontierTaxInstrument {
+  domestic,
+  cdi1966Article17,
+  accord1983Candidate;
+
+  String get name => switch (this) {
+        domestic => 'domestic',
+        cdi1966Article17 => 'cdi1966Article17',
+        accord1983Candidate => 'accord1983Candidate',
+      };
+}
+
+/// Deterministic, calculation-free jurisdiction evidence for frontier routing.
+@immutable
+final class FrontierJurisdictionEvidence {
+  FrontierJurisdictionEvidence({
+    required this.state,
+    required this.jurisdictionReady,
+    required this.crossBorder,
+    required this.candidateTaxInstrument,
+    List<String> missingFields = const [],
+    List<String> staleFields = const [],
+  })  : missingFields = List.unmodifiable(missingFields),
+        staleFields = List.unmodifiable(staleFields);
+
+  final FrontierJurisdictionState state;
+  final bool jurisdictionReady;
+  final bool? crossBorder;
+  final FrontierTaxInstrument? candidateTaxInstrument;
+  final List<String> missingFields;
+  final List<String> staleFields;
 }
 
 /// Type d'objectif principal (Goal A)
@@ -2601,6 +2737,13 @@ class CoachProfile {
   final String canton;
   final String? commune;
   final String? nationality; // ISO 2-letter code, ex "CH", "US", "FR"
+
+  /// Declared residence and work jurisdictions. No legacy field can populate
+  /// these facts because nationality, permit and residence canton are not
+  /// unambiguous jurisdiction evidence.
+  final CountryCode? residenceCountry;
+  final CountryCode? workCountry;
+  final SwissCantonCode? workCanton;
   final CoachCivilStatus etatCivil;
 
   /// True when a legacy civil-status token is too ambiguous to classify.
@@ -2766,6 +2909,9 @@ class CoachProfile {
     required this.canton,
     this.commune,
     this.nationality,
+    this.residenceCountry,
+    this.workCountry,
+    this.workCanton,
     this.etatCivil = CoachCivilStatus.celibataire,
     this.civilStatusNeedsConfirmation = false,
     this.civilStatusRawValue,
@@ -2897,7 +3043,6 @@ class CoachProfile {
   // preferred over missing a genuine data change.
 
   @override
-  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is CoachProfile &&
@@ -2908,6 +3053,9 @@ class CoachProfile {
           canton == other.canton &&
           commune == other.commune &&
           nationality == other.nationality &&
+          residenceCountry == other.residenceCountry &&
+          workCountry == other.workCountry &&
+          workCanton == other.workCanton &&
           etatCivil == other.etatCivil &&
           civilStatusNeedsConfirmation == other.civilStatusNeedsConfirmation &&
           civilStatusRawValue == other.civilStatusRawValue &&
@@ -2960,6 +3108,9 @@ class CoachProfile {
         canton,
         commune,
         nationality,
+        residenceCountry,
+        workCountry,
+        workCanton,
         etatCivil,
         civilStatusNeedsConfirmation,
         civilStatusRawValue,
@@ -3082,8 +3233,122 @@ class CoachProfile {
   /// Consumers should show a warning and avoid assuming spouse income/AVS rights.
   bool get isMissingConjointData => isCouple && conjoint == null;
 
-  /// FIX-101: Cross-border worker detection (permis G).
-  bool get isCrossBorder => residencePermit?.toUpperCase() == 'G';
+  /// Permit/status may open a targeted collection flow, but prove no legal or
+  /// financial jurisdiction by themselves.
+  bool get hasCrossBorderProductContext =>
+      residencePermit?.toUpperCase() == 'G' || employmentStatus == 'frontalier';
+
+  /// Backward-compatible boolean for consumers that cannot represent unknown.
+  /// Only complete, current canonical evidence may return true.
+  bool get isCrossBorder =>
+      frontierJurisdictionAt(DateTime.now()).crossBorder == true;
+
+  /// Evaluate canonical frontier jurisdiction evidence at an explicit instant.
+  ///
+  /// This selects at most a candidate legal instrument. It never computes a
+  /// tax result and never infers facts from permit, nationality or canton of
+  /// residence.
+  FrontierJurisdictionEvidence frontierJurisdictionAt(DateTime now) {
+    final requiredPaths = <String>[
+      'residenceCountry',
+      'workCountry',
+      if (workCountry?.value == 'CH') 'workCanton',
+    ];
+    final missing = <String>[];
+    final stale = <String>[];
+
+    Object? valueFor(String path) => switch (path) {
+          'residenceCountry' => residenceCountry,
+          'workCountry' => workCountry,
+          'workCanton' => workCanton,
+          _ => null,
+        };
+
+    for (final path in requiredPaths) {
+      final source = dataSources[path];
+      final timestamp = dataTimestamps[path];
+      final known = valueFor(path) != null &&
+          userProvidedFields.contains(path) &&
+          (source == ProfileDataSource.userInput ||
+              source == ProfileDataSource.certificate) &&
+          timestamp != null &&
+          !timestamp.isAfter(now) &&
+          dataSourceDates.containsKey(path);
+      if (!known) {
+        missing.add(path);
+        continue;
+      }
+      if (path == 'workCanton' &&
+          FreshnessDecayService.annualNeedsRefresh(timestamp, now)) {
+        stale.add(path);
+      }
+    }
+
+    if (missing.isNotEmpty) {
+      return FrontierJurisdictionEvidence(
+        state: FrontierJurisdictionState.missing,
+        jurisdictionReady: false,
+        crossBorder: null,
+        candidateTaxInstrument: null,
+        missingFields: missing,
+      );
+    }
+    if (stale.isNotEmpty) {
+      return FrontierJurisdictionEvidence(
+        state: FrontierJurisdictionState.stale,
+        jurisdictionReady: false,
+        crossBorder: null,
+        candidateTaxInstrument: null,
+        staleFields: stale,
+      );
+    }
+
+    final residence = residenceCountry!.value;
+    final work = workCountry!.value;
+    final crossBorder = residence != work;
+    if (residence == 'CH' && work == 'CH') {
+      return FrontierJurisdictionEvidence(
+        state: FrontierJurisdictionState.known,
+        jurisdictionReady: true,
+        crossBorder: false,
+        candidateTaxInstrument: FrontierTaxInstrument.domestic,
+      );
+    }
+    if (residence == 'FR' && work == 'CH' && workCanton?.value == 'GE') {
+      return FrontierJurisdictionEvidence(
+        state: FrontierJurisdictionState.known,
+        jurisdictionReady: true,
+        crossBorder: true,
+        candidateTaxInstrument: FrontierTaxInstrument.cdi1966Article17,
+      );
+    }
+    const accord1983Cantons = {
+      'BE',
+      'SO',
+      'BS',
+      'BL',
+      'VD',
+      'VS',
+      'NE',
+      'JU',
+    };
+    if (residence == 'FR' &&
+        work == 'CH' &&
+        accord1983Cantons.contains(workCanton?.value)) {
+      return FrontierJurisdictionEvidence(
+        state: FrontierJurisdictionState.known,
+        jurisdictionReady: true,
+        crossBorder: true,
+        candidateTaxInstrument: FrontierTaxInstrument.accord1983Candidate,
+      );
+    }
+    return FrontierJurisdictionEvidence(
+      state: FrontierJurisdictionState.specialistOnly,
+      jurisdictionReady: true,
+      crossBorder: crossBorder,
+      candidateTaxInstrument: null,
+    );
+  }
 
   /// Total depenses fixes mensuelles
   double get totalDepensesMensuelles => depenses.totalMensuel;
@@ -3221,9 +3486,6 @@ class CoachProfile {
     // US citizens with FATCA: blocked (most Swiss providers refuse)
     if (archetype == FinancialArchetype.expatUs) return false;
     if (nationality == 'US') return false;
-    // FIX-102: Frontaliers GE can deduct 3a if quasi-resident (≥90% Swiss income)
-    // or if they have Swiss employment income (AVS-contributing salary).
-    if (isCrossBorder && revenuBrutAnnuel > 0) return true;
     return prevoyance.canContribute3a;
   }
 
@@ -3390,6 +3652,9 @@ class CoachProfile {
     String? canton,
     String? commune,
     String? nationality,
+    Object? residenceCountry = _keepJurisdictionValue,
+    Object? workCountry = _keepJurisdictionValue,
+    Object? workCanton = _keepJurisdictionValue,
     CoachCivilStatus? etatCivil,
     bool? civilStatusNeedsConfirmation,
     String? civilStatusRawValue,
@@ -3441,6 +3706,41 @@ class CoachProfile {
     DateTime? fragileModeEnteredAt,
     List<Map<String, dynamic>>? recentGravityEvents,
   }) {
+    final changesResidenceCountry =
+        !identical(residenceCountry, _keepJurisdictionValue);
+    final changesWorkCountry = !identical(workCountry, _keepJurisdictionValue);
+    final changesWorkCanton = !identical(workCanton, _keepJurisdictionValue);
+    final effectiveResidenceCountry = changesResidenceCountry
+        ? residenceCountry as CountryCode?
+        : this.residenceCountry;
+    final effectiveWorkCountry =
+        changesWorkCountry ? workCountry as CountryCode? : this.workCountry;
+    final effectiveWorkCanton =
+        changesWorkCanton ? workCanton as SwissCantonCode? : this.workCanton;
+    final effectiveDataSources =
+        Map<String, ProfileDataSource>.from(dataSources ?? this.dataSources);
+    final effectiveDataTimestamps =
+        Map<String, DateTime>.from(dataTimestamps ?? this.dataTimestamps);
+    final effectiveDataSourceDates =
+        Map<String, DateTime?>.from(dataSourceDates ?? this.dataSourceDates);
+    final effectiveUserProvidedFields =
+        Set<String>.from(userProvidedFields ?? this.userProvidedFields);
+    void purgeJurisdiction(String path) {
+      effectiveDataSources.remove(path);
+      effectiveDataTimestamps.remove(path);
+      effectiveDataSourceDates.remove(path);
+      effectiveUserProvidedFields.remove(path);
+    }
+
+    if (changesResidenceCountry && effectiveResidenceCountry == null) {
+      purgeJurisdiction('residenceCountry');
+    }
+    if (changesWorkCountry && effectiveWorkCountry == null) {
+      purgeJurisdiction('workCountry');
+    }
+    if (changesWorkCanton && effectiveWorkCanton == null) {
+      purgeJurisdiction('workCanton');
+    }
     final effectiveCivilStatus = etatCivil ?? this.etatCivil;
     final effectiveCivilStatusNeedsConfirmation =
         civilStatusNeedsConfirmation ??
@@ -3456,6 +3756,9 @@ class CoachProfile {
       canton: canton ?? this.canton,
       commune: commune ?? this.commune,
       nationality: nationality ?? this.nationality,
+      residenceCountry: effectiveResidenceCountry,
+      workCountry: effectiveWorkCountry,
+      workCanton: effectiveWorkCanton,
       etatCivil: effectiveCivilStatus,
       civilStatusNeedsConfirmation: effectiveCivilStatusNeedsConfirmation,
       civilStatusRawValue: effectiveCivilStatusNeedsConfirmation
@@ -3507,11 +3810,11 @@ class CoachProfile {
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
       initialProjectionSnapshot:
           initialProjectionSnapshot ?? this.initialProjectionSnapshot,
-      dataSources: dataSources ?? this.dataSources,
-      dataTimestamps: dataTimestamps ?? this.dataTimestamps,
-      dataSourceDates: dataSourceDates ?? this.dataSourceDates,
+      dataSources: effectiveDataSources,
+      dataTimestamps: effectiveDataTimestamps,
+      dataSourceDates: effectiveDataSourceDates,
       inferDataSources: false,
-      userProvidedFields: userProvidedFields ?? this.userProvidedFields,
+      userProvidedFields: effectiveUserProvidedFields,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       financialLiteracyLevel:
@@ -3643,6 +3946,9 @@ class CoachProfile {
       canton: (json['canton'] as String?) ?? 'ZH',
       commune: json['commune'] as String?,
       nationality: json['nationality'] as String?,
+      residenceCountry: CountryCode.tryParse(json['residenceCountry']),
+      workCountry: CountryCode.tryParse(json['workCountry']),
+      workCanton: SwissCantonCode.tryParse(json['workCanton']),
       etatCivil: civilStatusNeedsConfirmation
           ? CoachCivilStatus.celibataire
           : _parseCivilStatus(serializedCivilStatus),
@@ -3791,6 +4097,9 @@ class CoachProfile {
         'canton': canton,
         'commune': commune,
         'nationality': nationality,
+        'residenceCountry': residenceCountry?.value,
+        'workCountry': workCountry?.value,
+        'workCanton': workCanton?.value,
         'etatCivil': etatCivil.name,
         'civilStatusNeedsConfirmation': civilStatusNeedsConfirmation,
         'civilStatusRawValue': civilStatusRawValue,
@@ -3901,6 +4210,10 @@ class CoachProfile {
           );
     final canton = resolvedCanton.code;
     final commune = answers['q_commune'] as String?;
+    final residenceCountry =
+        CountryCode.tryParse(answers['q_residence_country']);
+    final workCountry = CountryCode.tryParse(answers['q_work_country']);
+    final workCanton = SwissCantonCode.tryParse(answers['q_work_canton']);
     final gender = answers['q_gender'] as String?;
     // Use precise age from dateOfBirth if available
     final int age;
@@ -4643,6 +4956,15 @@ class CoachProfile {
 
     // ── Legacy dataSources (migration input only) ────────────────
     final restoredDataSources = <String, ProfileDataSource>{};
+    if (residenceCountry != null && !isBackendUnknown('residenceCountry')) {
+      restoredDataSources['residenceCountry'] = ProfileDataSource.userInput;
+    }
+    if (workCountry != null && !isBackendUnknown('workCountry')) {
+      restoredDataSources['workCountry'] = ProfileDataSource.userInput;
+    }
+    if (workCanton != null && !isBackendUnknown('workCanton')) {
+      restoredDataSources['workCanton'] = ProfileDataSource.userInput;
+    }
     if (answers.containsKey('q_avs_contribution_years') && avsYears != null) {
       restoredDataSources['prevoyance.anneesContribuees'] =
           ProfileDataSource.userInput;
@@ -4725,6 +5047,12 @@ class CoachProfile {
         'age': baseTimestamp,
       if (resolvedCanton.isResolved && !isBackendUnknown('canton'))
         'canton': baseTimestamp,
+      if (residenceCountry != null && !isBackendUnknown('residenceCountry'))
+        'residenceCountry': ageNow,
+      if (workCountry != null && !isBackendUnknown('workCountry'))
+        'workCountry': ageNow,
+      if (workCanton != null && !isBackendUnknown('workCanton'))
+        'workCanton': ageNow,
       if (answers.containsKey('q_civil_status')) 'etatCivil': baseTimestamp,
       if ((answers.containsKey('_coach_avoir_lpp') ||
               answers.containsKey('q_avoir_lpp')) &&
@@ -4834,6 +5162,15 @@ class CoachProfile {
     }
     if (resolvedCanton.isResolved && !isBackendUnknown('canton')) {
       provided.add('canton');
+    }
+    if (residenceCountry != null && !isBackendUnknown('residenceCountry')) {
+      provided.add('residenceCountry');
+    }
+    if (workCountry != null && !isBackendUnknown('workCountry')) {
+      provided.add('workCountry');
+    }
+    if (workCanton != null && !isBackendUnknown('workCanton')) {
+      provided.add('workCanton');
     }
     if (answers.containsKey('q_commune')) provided.add('commune');
     if (answers.containsKey('q_gender') && !isBackendUnknown('gender')) {
@@ -4953,6 +5290,9 @@ class CoachProfile {
       canton: canton,
       commune: commune,
       nationality: answers['q_nationality'] as String?,
+      residenceCountry: residenceCountry,
+      workCountry: workCountry,
+      workCanton: workCanton,
       etatCivil: etatCivil,
       civilStatusNeedsConfirmation: civilStatusNeedsConfirmation,
       civilStatusRawValue: civilStatusNeedsConfirmation ? civilStatusRaw : null,
@@ -5307,6 +5647,8 @@ class CoachProfile {
       case 'mixed':
       case 'mixte':
         return 'mixte';
+      case 'frontalier':
+        return 'frontalier';
       default:
         return 'salarie';
     }

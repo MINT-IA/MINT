@@ -115,13 +115,42 @@ CoachProfile _frontalierPermitGProfile() => CoachProfile(
     );
 
 /// Frontalier profile — employmentStatus 'frontalier'.
-CoachProfile _frontalierStatusProfile() => CoachProfile(
-      birthYear: 1985,
-      canton: 'GE',
-      salaireBrutMensuel: 7000,
-      employmentStatus: 'frontalier',
-      goalA: _goal(),
+CoachProfile _frontalierStatusProfile() => CoachProfile.fromWizardAnswers(
+      const <String, dynamic>{
+        'q_birth_year': 1985,
+        'q_canton': 'GE',
+        'q_gross_salary_annual': 84000,
+        'q_employment_status': 'frontalier',
+      },
     );
+
+final _frontierAt = DateTime.utc(2026, 7, 17, 12);
+
+CoachProfile _jurisdictionProfile({
+  String? residenceCountry = 'FR',
+  String? workCountry = 'CH',
+  String? workCanton = 'GE',
+  int cantonAgeDays = 0,
+}) {
+  Map<String, Object?> provenance(int ageDays) => <String, Object?>{
+        'source': ProfileDataSource.userInput.name,
+        'updatedAt':
+            _frontierAt.subtract(Duration(days: ageDays)).toIso8601String(),
+        'sourceDate': null,
+      };
+
+  return CoachProfile.fromWizardAnswers(<String, dynamic>{
+    'q_birth_year': 1985,
+    'q_residence_country': residenceCountry,
+    'q_work_country': workCountry,
+    'q_work_canton': workCanton,
+    '__provenance': <String, Object?>{
+      if (residenceCountry != null) 'residenceCountry': provenance(0),
+      if (workCountry != null) 'workCountry': provenance(0),
+      if (workCanton != null) 'workCanton': provenance(cantonAgeDays),
+    },
+  }, now: () => _frontierAt);
+}
 
 /// Profile with income but no charges.
 CoachProfile _incomeNoChargesProfile() => CoachProfile.fromWizardAnswers(const {
@@ -320,13 +349,56 @@ void main() {
       entry = MintScreenRegistry.findByIntentStatic('cross_border')!;
     });
 
-    test('permis G → ready', () {
+    test('permis G without jurisdictions → targeted partial', () {
       final result = ReadinessGate.check(entry, _frontalierPermitGProfile());
-      expect(result.level, ReadinessLevel.ready);
+      expect(result.level, ReadinessLevel.partial);
+      expect(
+        result.missingFields,
+        containsAll(<String>['residenceCountry', 'workCountry']),
+      );
+      expect(result.missingFields, isNot(contains('workCanton')));
     });
 
-    test('employmentStatus=frontalier → ready', () {
+    test('employmentStatus=frontalier without jurisdictions → partial', () {
       final result = ReadinessGate.check(entry, _frontalierStatusProfile());
+      expect(result.level, ReadinessLevel.partial);
+      expect(
+        result.missingFields,
+        containsAll(<String>['residenceCountry', 'workCountry']),
+      );
+      expect(result.missingFields, isNot(contains('workCanton')));
+    });
+
+    test('incomplete cross-border jurisdictions → targeted partial', () {
+      final result = gateFrontalierAt(
+        _jurisdictionProfile(workCanton: null),
+        _frontierAt,
+      );
+      expect(result.level, ReadinessLevel.partial);
+      expect(result.missingFields, contains('workCanton'));
+      expect(result.missingCritical, isEmpty);
+    });
+
+    test('stale cross-border jurisdiction → targeted partial', () {
+      final result = gateFrontalierAt(
+        _jurisdictionProfile(cantonAgeDays: 783),
+        _frontierAt,
+      );
+      expect(result.level, ReadinessLevel.partial);
+      expect(result.missingFields, contains('workCanton'));
+      expect(result.missingCritical, isEmpty);
+    });
+
+    test('ready domestic jurisdictions → blocked', () {
+      final result = gateFrontalierAt(
+        _jurisdictionProfile(residenceCountry: 'CH'),
+        _frontierAt,
+      );
+      expect(result.level, ReadinessLevel.blocked);
+    });
+
+    test('ready cross-border jurisdictions → educational route ready', () {
+      final result = gateFrontalierAt(_jurisdictionProfile(), _frontierAt);
       expect(result.level, ReadinessLevel.ready);
     });
 
