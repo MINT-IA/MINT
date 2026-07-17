@@ -364,10 +364,15 @@ proves five bypass shapes red, and scans the six exact audited source files
   retroactive-3a widget proofs assert zero provider updates and unchanged LPP
   facts (`rachat_echelonne_screen_test.dart:63-113`,
   `retroactive_3a_screen_test.dart:63-91`).
-- `/pilier-3a` hydrates its simulator inputs from `CoachProfileProvider`; this
-  is deliberately not phrased as “all current financial facts” because the
-  protective `hasDebt` SafeMode boundary still reads legacy `ProfileProvider`
-  (`simulator_3a_screen.dart:114-153,182`).
+- `/pilier-3a` hydrates its simulator inputs and protective boundary from
+  `CoachProfileProvider`. Its sole production protection read is
+  `profile?.isInDebtCrisis` (`simulator_3a_screen.dart:114-153,182-203`), never
+  the any-debt alias. Unknown is fail-closed: while the provider loads, render
+  progress; once loaded without a profile, render `MintEmptyState` with the
+  diagnostic CTA to `/coach/chat`, never an implicitly debt-free simulator.
+  Because the canonical predicate also covers an emergency-fund shortfall, the
+  lock title and strategy text remain generic to financial stabilization and
+  do not assert debt.
 - `/fiscal` hydrates current facts from `CoachProfileProvider`. Because it has
   no explicit withdrawal control, `montant_retrait` and `impot_retrait` remain
   missing rather than becoming false zero
@@ -1124,7 +1129,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/epl` (593) | §4 | `/naissance` (778) | §4 |
 | `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
 | `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
-| `/first-job` (795) | §4 | `/scan/impact` (1249) | §5 |
+| `/first-job` (795) | §4 | `/scan/impact` (1248) | §5 |
 | `/expatriation` (800) | §4 | `/documents` (935) | §4 |
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |
@@ -1140,7 +1145,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/assurances/coverage` (873) | §4 | `/segments/gender-gap` (1056) | §4 |
 | `/scan` (880) | §5 | `/segments/frontalier` (1061) | §4 |
 | `/scan/avs-guide` (894) | §5 | `/life-event/housing-sale` (1066) | §4 |
-| `/scan/review` (1224) | §5 | `/life-event/donation` (1071) | §4 |
+| `/scan/review` (1223) | §5 | `/life-event/donation` (1071) | §4 |
 | `/life-event/deces-proche` (1076) | §4 | `/simulator/leasing` (1108) | §4 |
 | `/life-event/demenagement-cantonal` (1081) | §4 | `/simulator/credit` (1113) | §4 |
 | `/education/hub` (1088) | §4 | `/arbitrage/bilan` (1120) | §4 |

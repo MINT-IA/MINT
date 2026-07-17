@@ -36,7 +36,8 @@ only machine-evidence `green` is checked.
   Evidence: [`G1-PROV-02` verification](runtime-evidence/phase-37/prov-02/verification.md).
 - [x] **RDY-PROV-03**: Tax facts include typed source date and legal year.
 - [ ] **RDY-SCN-01**: Scenario assumptions/results are isolated by scenario ID.
-- [ ] **RDY-BND-01**: Legacy profile consumers migrate to canonical semantics.
+- [x] **RDY-BND-01**: Legacy profile consumers migrate to canonical semantics.
+  Evidence: [`G1-BND-01` verification](runtime-evidence/phase-37/bnd-01/verification.md).
 - [x] **RDY-BND-02**: Partner-owned facts bridge and recompute through a real scoped consumer.
 - [x] **RDY-BND-02A**: Partner facts require the named legal/privacy decision, implemented accountability, field scope, notice and revocation.
 - [x] **RDY-BND-03**: Budget facts bridge to CoachProfile and derived state.

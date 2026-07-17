@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: BND-06 is ticket- and exact-SHA runtime-GREEN at 28d0097f6 with product-domain Sonnet and final code Opus PASS; 12 hard floors remain, and G2/G3 are not authorized.
-last_updated: "2026-07-17T10:07:22Z"
-last_activity: 2026-07-17 -- BND-06 promoted after physical-archive semantic RED 6/27 and identical-command GREEN 17/17, Patrol process-death/cold-reader plus exact-archive production-entrypoint runtime, Maestro, privacy cleanup and both accepted wrapper audits PASS
+stopped_at: BND-01 is GREEN at exact pushed SHA ed5f2db13 after physical-archive RED 1/5 and identical-command GREEN 6/6; 11 hard floors remain, and G2/G3 are not authorized.
+last_updated: "2026-07-17T11:02:40Z"
+last_activity: 2026-07-17 -- BND-01 promoted after historical-reader reconciliation, physical-archive semantic RED 1/5, exact-SHA GREEN 6/6 and final Sonnet code/product-domain reruns PASS with zero P0/P1
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,16 +34,16 @@ Plan: 37-04 — partner accountability and real downstream bridge
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-17 -- `G1-BND-06` is accepted at pushed SHA
-`28d0097f6`: the physical-archive semantic RED replay is 6/27 and the
-identical command passes 17/17. The loaded canonical ledger and exact consumed
-branch inputs own plan freshness; stale or authority-unknown plans hide all
-derived figures and recovery never reverse-writes profile facts. The same SHA
-passed Patrol writer → explicit launch/termination → cold reader, exact
-Git-archive production-entrypoint build/signature/xattr/install, Maestro 1/1,
-cleanup/privacy checks, product-domain Sonnet rerun and final code Opus
-confirmation with P0/P1=0. Six nonblocking P2 follow-ups remain explicit. The
-compile-time feature defaults false. This closes only BND-06; G1 remains NO-GO.
+Last activity: 2026-07-17 -- `G1-BND-01` is accepted at pushed SHA
+`ed5f2db13`: the identical registry command has a physical-archive semantic
+RED of 1 pass / 5 failures at `d9f93e30b` and passes 6/6 in an exact archive of
+the accepted SHA. The historical five matches reconcile to the sole live
+`Simulator3aScreen` reader; the unpopulated provider, registration and two
+uncoupled widgets are gone, while `Profile` remains only as the API/Wizard DTO.
+Liquidity-only crisis copy and the absent-profile diagnostic path are
+fail-closed. Final wrapper-only Sonnet code and product-domain reruns pass with
+P0/P1=0; six nonblocking P2 follow-ups remain explicit. This closes only
+BND-01; G1 remains NO-GO.
 
 Provisional G1 score: **8.2/10 — NO-GO**.
 
@@ -124,16 +124,21 @@ Provisional G1 score: **8.2/10 — NO-GO**.
   and the production default remains false. Six audit P2s are retained as
   nonblocking activation follow-ups rather than hidden or treated as G1
   closure.
+- `G1-BND-01` is `green` at exact SHA `ed5f2db13`. Its physical-archive
+  contract moves from 1/5 to 6/6 with the identical command, reconciles the
+  historical inventory to one canonical production reader, removes the dead
+  provider/widgets and retains `Profile` only as an API/Wizard DTO. The final
+  Sonnet code and product-domain reruns pass with P0/P1=0; this ticket does not
+  waive the separate global SafeMode helper or freshness/interaction floors.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 19 `green`, 11 `ticket_only`, and one
-  `red_proven`. Therefore 12 G1 hard floors remain open.
+- The canonical registry has 31 rows: 20 `green`, 10 `ticket_only`, and one
+  `red_proven`. Therefore 11 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
-- `G1-BND-01` and `G1-COACH-01` are the remaining ordered Wave 3 floors. Their
-  named registry commands still require accepted evidence before the bridge
-  wave can close.
+- `G1-COACH-01` is the remaining ordered Wave 3 floor. Its named registry
+  command still requires accepted evidence before the bridge wave can close.
 - Eight external production facts remain unproven: controller identity,
   operational privacy contact, Anthropic role/DPA, actual processing regions,
   transfer mechanism/TIA, retention/ZDR, AIPD decision, and the public
@@ -152,11 +157,11 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-17T10:07:22Z
+Last session: 2026-07-17T11:02:40Z
 
-Stopped at: BND-06 is promoted at exact pushed SHA `28d0097f6` with complete
-ticket/runtime/audit evidence and explicit P2 dispositions. Continue only G1
-with the remaining Wave 3 contracts; do not start G2/G3.
+Stopped at: BND-01 is promoted at exact pushed SHA `ed5f2db13` with physical
+RED→GREEN, sole-live-reader reconciliation, retained DTO and final Sonnet
+audits. Continue only G1 with `G1-COACH-01`; do not start G2/G3.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-04-PLAN.md`. Do not infer

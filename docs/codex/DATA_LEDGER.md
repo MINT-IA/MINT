@@ -49,7 +49,21 @@ The ledger is **not new infrastructure**. It is the formalisation of the spine t
 | Decay | `apps/mobile/lib/services/biography/freshness_decay_service.dart` | Two-tier freshness, 0.60 refresh threshold. API is `weight(BiographyFact fact, DateTime now)` — see §5. |
 | Confidence | `services/backend/app/services/confidence/enhanced_confidence_service.py` | 4-axis score; consumes source + freshness. |
 
-**`models/profile.dart` + `ProfileProvider` are NOT part of the ledger** and are slated for deletion — but they are **not a zero-consumer dead module at `095eeaa32`**. `ProfileProvider` (`apps/mobile/lib/providers/profile_provider.dart:5`, registered in `app.dart:1425`) still has **5 live screen/widget consumers**: `simulator_3a_screen.dart:197` (`context.read<ProfileProvider>()`, legacy fallback path), `simulator_3a_screen.dart:301` (`context.watch<ProfileProvider>().profile?.hasDebt`), plus 3 widgets — `widgets/simulators/buyback_widget.dart:39`, `widgets/recommendation_card.dart:17`, `widgets/comparators/pillar3a_comparator_widget.dart:29`. Deletion is a REQUIRED but **not-yet-safe** task: these consumers MUST first be migrated to read from `CoachProfileProvider`/`MintStateProvider`, after which `ProfileProvider` + `models/profile.dart` become genuinely orphaned and can be removed. Do not extend them; do not delete them before the migration.
+**`ProfileProvider` is retired and is NOT part of the ledger.** At exact pushed
+SHA `ed5f2db13112f76753bc9e3abc23ff51d44b0ae3`, its file, import and `MintApp`
+registration are absent and production grep is zero. The historical five
+matches reconcile to one real production reader, `Simulator3aScreen`, which
+now reads `CoachProfileProvider.profile?.isInDebtCrisis`. The comparator path
+was already absent; `RecommendationCard` and `BuybackWidget` had no production
+callers and were deleted instead of preserved as unwired facades. A loaded
+provider without a profile renders an actionable diagnostic empty state rather
+than becoming implicitly debt-free. Because `isInDebtCrisis` can be activated
+by a short emergency fund without any debt, its locked copy is generic to
+financial stabilization. **`models/profile.dart` is intentionally retained but
+is still NOT part of the ledger**: `ApiService.createProfile` and
+`WizardService` use it only as an API/Wizard DTO; it has no provider, screen
+reader, or independent persistence ownership. Reintroducing `ProfileProvider`
+or extending this DTO into a parallel fact spine is forbidden.
 
 ---
 

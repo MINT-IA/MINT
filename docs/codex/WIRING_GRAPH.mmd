@@ -16,6 +16,11 @@
 %% Maestro passed; product-domain Sonnet rerun and final Opus code confirmation
 %% passed with P0/P1=0. The compile-time path stays test-only/default-off;
 %% activation and G1 remain NO-GO, and G2/G3 stay forbidden.
+%% BND-01 implementation is accepted at exact pushed SHA
+%% ed5f2db13112f76753bc9e3abc23ff51d44b0ae3: the legacy provider/registration
+%% are absent, the historical inventory reconciles to one production reader,
+%% and that reader fails closed through CoachProfile.isInDebtCrisis. The
+%% smaller Profile type remains an API/Wizard DTO, never a provider or ledger.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -57,7 +62,6 @@ flowchart TB
     TIMELINE["TimelineProvider<br/>app.dart:1867 — eager ProxyProvider2<br/>reference/read model; no financial facts"]
     DOCS["DocumentProvider<br/>app.dart:1789 — eager ProxyProvider<br/>confirmed-reference subpath: five-field raw-free metadata only<br/>pre-existing backend upload/list state remains separate"]
     PLAN["FinancialPlanProvider<br/>app.dart:1862 — eager ProxyProvider<br/>derived plan + input fingerprint<br/>never writes ledger facts"]
-    DEADP["ProfileProvider<br/>app.dart:1775 — LEGACY (5 live consumers, migrate then delete)"]
 
     CPP -- "eager proxy update<br/>rehydrateFromProfile" --> BUDGET
     CPP -- "eager attach + listen<br/>fail stale until ledger loaded" --> PLAN
@@ -477,19 +481,17 @@ flowchart TB
 %%     remains default-off, so activation and G1 are still NO-GO. The document wiring update is
 %%     code-GREEN at 11e29c0cd but does not promote BND-05 or G1; exact-SHA
 %%     runtime and wrapper acceptance remain separate gates.
-%% I-5 LEGACY PROVIDER (partial-migration target): ProfileProvider(:1425) still
-%%     has 5 live consumers:
-%%       - simulator_3a_screen.dart:197 (context.read<ProfileProvider>())
-%%       - simulator_3a_screen.dart:301 (context.watch<ProfileProvider>())
-%%       - widgets/comparators/pillar3a_comparator_widget.dart:29
-%%       - widgets/simulators/buyback_widget.dart:39
-%%       - widgets/recommendation_card.dart:17
-%%     FIX (ordered): migrate each `hasDebt` read to
-%%     CoachProfileProvider.profile?.hasDebt, THEN delete ProfileProvider +
-%%     models/profile.dart. models/profile.dart is not part of the ledger.
-%%     CHECK: grep `context.(read|watch)<ProfileProvider>` under apps/mobile/lib
-%%     expect 0 before the provider is removed.
-%%     G1 status @095eeaa32: PARTIAL; count corrected from 4 to 5.
+%% I-5 LEGACY PROVIDER (closed boundary @ed5f2db13): the historical five
+%%     matches reconcile to one production reader, simulator_3a_screen.dart:182.
+%%     It reads CoachProfileProvider.profile?.isInDebtCrisis; null never becomes
+%%     false, and the loaded no-profile state routes to /coach/chat. The
+%%     comparator path was absent; RecommendationCard and BuybackWidget had no
+%%     production callers and were deleted. ProfileProvider, its import and its
+%%     app registration are absent. models/profile.dart remains intentionally
+%%     as the ApiService/WizardService DTO only and owns no screen or persistence.
+%%     CHECK: rg '\bProfileProvider\b|providers/profile_provider\.dart'
+%%     apps/mobile/lib => 0; migration contract 6/6 at ed5f2db13.
+%%     G1 status: BND-01 bounded GREEN; G1 remains NO-GO and G2/G3 forbidden.
 %% I-6 EVERY SCREEN NODE has emptyState + partialState + errorState declared in
 %%     SCREEN_CONTRACTS.md (1:1 with the live routes above). CHECK: every
 %%     `path:` builder in app.dart has a row; no row missing those 3 states.

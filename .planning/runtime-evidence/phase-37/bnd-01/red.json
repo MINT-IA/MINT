@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-01",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/providers/legacy_provider_migration_test.dart --reporter expanded",
+  "sha": "d9f93e30b46752e07e8660e7bcbff78aad42b3c1",
+  "recorded_at": "2026-07-17T11:02:40Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "legacy_provider_migration_test",
+  "output": "The identical registry command was replayed from a physical Git archive at the semantic RED SHA with only the final contract test overlaid. It collected six tests and produced 1 pass / 5 semantic failures after reaching the versioned production sources. The failures proved that dead widgets, live legacy-provider references and app registration were still present, while the real simulator still required the legacy provider and lacked the generic liquidity-crisis copy plus actionable absent-profile route. These were not missing-file, import, syntax, command, fixture or harness failures. The contract used synthetic profiles only and no private certificate or real financial data.",
+  "synthetic_data_only": true
+}

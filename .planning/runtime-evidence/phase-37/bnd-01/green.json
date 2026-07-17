@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-01",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/providers/legacy_provider_migration_test.dart --reporter expanded",
+  "sha": "ed5f2db13112f76753bc9e3abc23ff51d44b0ae3",
+  "recorded_at": "2026-07-17T11:02:40Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "legacy_provider_migration_test",
+  "output": "The identical registry command passed 6/6 predicates in a physical Git archive of the accepted pushed SHA. The historical five matches reconcile to one production reader, Simulator3aScreen; the legacy provider, registration and two uncoupled widgets are absent; production grep is zero; the sole reader uses CoachProfile.isInDebtCrisis without turning an absent profile into debt-free; an emergency-fund-only crisis receives generic financial-stability wording; and a loaded provider without a profile exposes the real coach-chat diagnostic route. The smaller Profile model remains the API/Wizard DTO outside the retired provider boundary. Tests used synthetic profiles only and no private certificate or real financial data.",
+  "synthetic_data_only": true
+}

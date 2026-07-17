@@ -1,0 +1,94 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "CLAUDE_AUDIT_RERUN=1 tools/checks/claude_external_audit.sh code 81a9108e46c1aecd173b83d62ccf3538061bdf0b",
+      "mode": "code",
+      "model": "sonnet",
+      "base_sha": "81a9108e46c1aecd173b83d62ccf3538061bdf0b",
+      "head_sha": "ed5f2db13112f76753bc9e3abc23ff51d44b0ae3",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/bnd-01/audit-code-sonnet-rerun.md",
+      "findings": [
+        {
+          "id": "CODE-SONNET-P2-GLOBAL-NULL-SAFE-MODE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The pre-existing lookupSafeModeFlag helper maps a null canonical profile to false outside this screen's explicit fail-closed guard.",
+          "evidence": "The BND-01 production reader has its own nullable guard and never exposes the simulator while profile authority is unknown. The nine other production helper callers remain a separate global G1 inventory and are not silently waived by this ticket."
+        },
+        {
+          "id": "CODE-SONNET-P2-EMPTY-SUBTITLE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The new MintEmptyState currently receives an empty subtitle.",
+          "evidence": "This is cosmetic and does not weaken the visible title, diagnostic CTA, route or fail-closed behavior; a future copy pass may add a localized explanatory subtitle."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 2,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "CLAUDE_AUDIT_RERUN=1 tools/checks/claude_external_audit.sh product-domain 81a9108e46c1aecd173b83d62ccf3538061bdf0b",
+      "mode": "product-domain",
+      "model": "sonnet",
+      "base_sha": "81a9108e46c1aecd173b83d62ccf3538061bdf0b",
+      "head_sha": "ed5f2db13112f76753bc9e3abc23ff51d44b0ae3",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/bnd-01/audit-product-domain-sonnet-rerun.md",
+      "findings": [
+        {
+          "id": "DOMAIN-SONNET-P2-SWISS-CONSTANT-FRESHNESS",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Pre-existing 3a/LPP constants may need a 2026 source-freshness check.",
+          "evidence": "BND-01 changes no constants or calculator result. Keep the verification under the existing G1 freshness and Swiss-source floors rather than broadening this provider-retirement ticket."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-TEST-GROUP-NUMBERS",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Remaining SafeMode test group labels keep historical ordinal numbering after dead-widget deletion.",
+          "evidence": "The labels are cosmetic and no gate parses their ordinals; named predicates and pass counts remain explicit."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-PILIER3A-INTERACTION-COVERAGE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The pre-existing /pilier-3a route remains outside the interaction-registry pilot.",
+          "evidence": "The registry coverage audit remains a backlog rather than a product-failure gate, while BND-01 proves the new recovery route with a real GoRouter widget test. Track route registration separately within G1 interaction coverage."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-PORTUGUESE-GRAMMAR",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "An unrelated pre-existing Portuguese five-account phrase uses the wrong grammatical article.",
+          "evidence": "The phrase is outside the two localized strings changed by BND-01 and does not alter the accepted protection meaning; retain it for a bounded six-language copy correction."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 4,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}
