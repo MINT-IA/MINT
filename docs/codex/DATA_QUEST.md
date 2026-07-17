@@ -5,6 +5,11 @@
 > **Status:** target contract for the coding agent. Mechanical, deterministic, with live gaps called out against the REAL code at commit `095eeaa32`.
 > **Companions:** `DATA_LEDGER.md` (fields + provenance), `SCREEN_CONTRACTS.md` (per-screen `reads[]`), `WIRING_GRAPH.mmd` (invariants).
 > **Conflict order:** `rules.md` > `CLAUDE.md` > this file. This file does not override compliance (education-not-advice; ranges + `EnhancedConfidence`; no promissory terms).
+>
+> **Focused RET-REF-01 reuse snapshot:** the bounded fiscal-reference delta is
+> code-GREEN at exact pushed SHA `cdc786782` (2026-07-17). It reuses the existing
+> ConfidenceScorer/DataBlock prompt and does not implement the missing generic
+> DataQuest orchestrator, promote the ticket, close G1 or authorize G2/G3.
 
 ## 0. One sentence
 
@@ -23,6 +28,18 @@ When any surface needs data it does not have, MINT asks **only the missing or st
 | Coach write allow­list | `_SAVE_FACT_ALLOWED_KEYS` (36 keys, `coach_chat.py:924`); mobile map `_mapFactKeyToAnswers` (`coach_profile_provider.dart:557`) |
 | Field→screen mapping | `ScreenRegistry` + `ReadinessGate` (behaviors A–E) + `routes/route_metadata.dart` |
 | Freshness i18n | keys already present: `freshnessConfirm`, `freshnessStale`, `freshnessPrefix` (`confidence_scorer.dart:747-749`) |
+| Fiscal specialist-reference delta | `ConfidenceScorer.score` reuses `EnrichmentPrompt.taxDocument` (`tax.document.review`, `fiscal.assessedBaseline`, category `fiscalite`). Exact coherent reference suppresses it; every non-exact state keeps it in `/data-block/fiscalite`, whose fiscal CTA routes to `/fiscal` (`cdc786782`). |
+
+For this focused fiscal delta, `latestTaxDecisionReference` is metadata derived
+from the unique `_coach_tax_snapshots_v1` authority after exact provenance
+validation. `ConfidenceScorer` keeps the existing latest-completeness query
+status-only and uses the public precise selector for tax year, subject, canton
+and exact snapshot identity. Missing, ineligible, future, mismatched or
+same-rank-conflicted evidence therefore yields the existing Ask; an exact
+coherent reference yields no tax-document Ask. `legalYear == taxYear` records
+provenance and is not an annual TTL. This reuse adds no `DataQuest` service,
+Case, storage key, backend mirror or financial calculation, so Q-2 below remains
+an honest gap.
 
 ## 2. The `DataQuest` object (new — the orchestrator this doc specifies)
 

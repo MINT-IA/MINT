@@ -865,6 +865,36 @@ Backed by `screens/onboarding/data_block_enrichment_screen.dart` (~70% built: co
 | routesOut | back to referrer, `/coach/chat?topic=:type`, `/confidence`, the domain hub for `:type` |
 | killFlag | null |
 
+### 6.tax — exact fiscal-reference delta (G1-RET-REF-01 code-GREEN)
+
+At exact pushed SHA `cdc786782`, the existing `fiscalite` block is the visible
+consumer of the derived tax-decision reference; no new route, prompt service or
+persistence root is introduced.
+
+- The tax-document Ask is active only when the composite
+  `typedTaxProfile && documentTaxAssessmentEnabled` gate is true. Either flag off
+  hides acquisition and does not manufacture a prompt.
+- `ConfidenceScorer.score` first obtains the status-only assessed completeness
+  result, then performs a precise tax-year + subject + canton selection. It
+  suppresses the fiscal document Ask only when the selected snapshot has the
+  exact `latestTaxDecisionReference.referenceId` and its source date,
+  confirmation instant, final status and attestation are coherent.
+- Missing, appealable, ineligible, future, provenance-invalid, UUID-mismatched or
+  same-rank-conflicted evidence produces the existing
+  `EnrichmentPrompt.taxDocument`: copy code `tax.document.review`, field path
+  `fiscal.assessedBaseline`, category `fiscalite`. It never fabricates a known
+  value or silently chooses a UUID winner.
+- The prompt is rendered as part of `/data-block/fiscalite`; the block's fiscal
+  domain CTA routes to `/fiscal`. An exact coherent reference removes only this
+  tax-document Ask; unrelated fiscal deltas such as a missing municipality stay
+  visible.
+- `latestTaxDecisionReference` is metadata derived from the one
+  `_coach_tax_snapshots_v1` root after exact provenance validation. The screen
+  never reads a second root, document payload or backend copy and performs no
+  financial calculation from the reference.
+
+This is bounded code reality, not ticket promotion, G1 closure or G2/G3 GO.
+
 ### 6.validation — no silent `'revenu'` coercion (live contract)
 
 The `/data-block/:type` route must pass the matched path parameter through to

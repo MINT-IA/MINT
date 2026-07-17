@@ -33,6 +33,11 @@
 > facts and calculation-free educational states. Exact-SHA runtime proof and
 > both wrapper audit lenses are still pending, so FRONT-01 is not promoted and
 > G1 remains NO-GO.
+> **Focused RET-REF-01 tax-reference snapshot:** the bounded writer/reference/
+> consumer vertical is code-GREEN at exact pushed SHA `cdc786782` (2026-07-17).
+> It derives metadata from the one strict tax root after exact provenance
+> validation and fails closed through the existing fiscal prompt. This does not
+> promote the ticket, close G1 or authorize G2/G3.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -446,6 +451,10 @@ analytics, routes, Biography, backend/LLM payloads, or screenshots.
 `legacyDataNeedsReview`; raw quarantine values are not a consumer API.
 `legacyQuarantine` inside this root is the only tax-legacy quarantine location;
 do not create a standalone `__taxLegacyQuarantineV1` key or second store.
+`CoachProfile.latestTaxDecisionReference` is a derived metadata read-model over
+this same root, not another answer key, secure slot, backend field or document
+store. Its ordinary model `toJson` representation does not make it an
+independent persistence authority.
 
 ```text
 FiscalProfile {
@@ -559,9 +568,14 @@ There is one typed production seam and no parallel provider API:
 TaxExtractionCandidate
   -> TaxReviewConfirmation
   -> CoachProfileProvider.acceptTaxReview(confirmation)
-  -> TaxProfilePersistence
-  -> cold reload
-  -> FiscalSnapshotSelector.selectAssessedBaseline(...)
+  -> TaxProfilePersistence: one root + exact provenance, save before publish
+  -> live nextFiscal OR cold CoachProfile.fromWizardAnswers
+  -> provenanceValidatedSnapshotIds
+  -> private final-notice selector
+  -> derived latestTaxDecisionReference metadata
+  -> ConfidenceScorer precise FiscalSnapshotSelector query
+  -> exact match: no tax.document.review
+     else: /data-block/fiscalite -> /fiscal
 ```
 
 `TaxDeclarationParser.parseTaxDocument` produces the interpreted fields and
@@ -595,6 +609,55 @@ carry a future `sourceDate`, a `taxYear`/`basedOnTaxYear` outside
 provenance are excluded from provenance validation and selector consumption.
 Cold load never coerces, clamps or reinfers those snapshot values.
 
+#### 4.0.1 Derived tax-decision reference (G1-RET-REF-01 code-GREEN)
+
+At exact pushed SHA `cdc786782`, the fiscal RET-REF path is a view over the
+existing authority, never a new ledger:
+
+```text
+SpecialistReferenceEvidence latestTaxDecisionReference {
+  referenceId: TaxSnapshot.snapshotId       // exact same UUIDv4
+  kind: taxAssessmentDecision
+  ownerKind: self
+  source: certificate
+  sourceDate: TaxSnapshot.sourceDate
+  legalYear: TaxSnapshot.taxYear
+  confirmedAt: TaxSnapshot.updatedAt UTC
+  taxYear: TaxSnapshot.taxYear
+  jurisdiction: TaxSnapshot.cantonCode
+  subject: TaxSnapshot.subjectScope
+}
+```
+
+`SpecialistReferenceEvidence.latestTaxDecisionFromValidatedFiscal` receives a
+`FiscalProfile` only after the provider has built its validated-ID set. On the
+live write path, `acceptTaxReview` derives the reference from `nextFiscal` in the
+same mutation that saves the root and provenance, then publishes only after that
+save succeeds. On a cold load, `CoachProfile.fromWizardAnswers` first calls
+`_validatedFiscalSnapshotIds` and only then derives the reference. Historical
+snapshots remain readable when provenance is corrupt, but they cannot create a
+reference or suppress an Ask.
+
+The full-snapshot reference selector is library-private. It admits only a
+provenance-validated `assessmentNotice` whose status is `inForce`, whose
+explicit `inForceAttested` fact is true, and whose source date, tax year,
+canonical canton, non-unknown subject and confirmation instant are valid and
+non-future. Same-rank contenders with divergent semantic payloads produce no
+reference; UUID or `updatedAt` must not arbitrate a semantic conflict. A write
+with the same UUID replaces the whole snapshot, so replacing a final decision
+with an ineligible state clears the reference live and after restart.
+
+For this kind, `legalYear` must equal `taxYear`. It records the fiscal period of
+the decision; it is not a calendar TTL. A later civil year alone cannot make the
+reference stale. Precision instead requires the exact UUID plus tax year,
+canton, subject, source date, `updatedAt == confirmedAt`, final-notice status and
+attestation to remain coherent. Replacement, contradiction, invalid provenance
+or a relevant legal event fails closed.
+
+There is no persisted `latestTaxDecisionReference` key, second secure root,
+document payload, backend mirror or calculator output. `backendSafeAnswers`
+continues to remove `_coach_tax_snapshots_v1` and every `_coach_tax_*` key.
+
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,
 `subjectScope`, canton and, when required, municipality. Eligibility requires a
@@ -605,9 +668,11 @@ whole snapshot only: `inForce` first, then `assessedAppealable`, then newest
 non-null `sourceDate`.
 
 For `latestCompleteness`, a missing `sourceDate` is `partial+ask`, never a
-current complete baseline. A precise historical query may keep the snapshot
-visible only as `availableNeedsConfirmation`; consumers must label freshness
-unknown and must not treat that status as complete.
+current complete baseline. Its `available` result is intentionally status-only:
+`snapshot` remains null so a completeness query cannot become an implicit
+calculator or specialist-reference selector. A precise historical query may
+keep the snapshot visible only as `availableNeedsConfirmation`; consumers must
+label freshness unknown and must not treat that status as complete.
 
 Signed negative ICC/IFD taxable-income facts remain stored and provenanced
 without clamping, but neither precise nor latest selection consumes them yet.
@@ -629,10 +694,17 @@ duplicates may use newest field `updatedAt`, then lexical `snapshotId`, as a
 deterministic tie-break. Missing context/value is also `partial+ask`.
 
 The first named live cold-rehydrated caller is production
-`ConfidenceScorer.score`: after provider write, the proof destroys and
-reconstructs the provider, and scoring must obtain fiscal completeness through
-`selectAssessedBaseline`. Removing or bypassing the selector must fail the gate;
-precise calculators still require an explicit target year.
+`ConfidenceScorer.score`. It freezes one evaluation instant, checks existing
+`latestCompleteness` status, then `_hasPrecisionReadyTaxDecision` builds a public
+precise query from the reference's tax year, subject and canton. The
+`tax.document.review` prompt is suppressed only when that result is available,
+its snapshot UUID equals `referenceId`, and `precisionReadyAt` confirms exact
+source-date/confirmation/context/final-status coherence. Missing, future,
+mismatched, conflicted, provenance-invalid or merely appealable evidence keeps
+the same prompt. The prompt belongs to the existing `fiscalite` DataBlock;
+`/data-block/fiscalite` renders the delta and its fiscal block CTA routes to
+`/fiscal`. Removing or bypassing either selector must fail the gate; precise
+calculators still require an explicit target year.
 
 Tax ingestion remains behind two dedicated local kill switches that both
 default to false. `typedTaxProfile` controls the typed ledger, writer and

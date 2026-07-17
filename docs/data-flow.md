@@ -33,6 +33,11 @@ same PR. CI lint (TODO, Phase 34 extension) will enforce.
 > provider-backed collector and calculation-free evidence states. Its exact-SHA
 > runtime and wrapper audits remain pending, so FRONT-01 is not promoted and
 > G1/G2/G3 GO claims remain forbidden.
+> G1-RET-REF-01 now has one bounded tax-reference code-GREEN vertical at exact
+> pushed SHA `cdc786782` (2026-07-17): the reference is metadata derived from the
+> single strict tax root after exact provenance validation, and the existing
+> fiscal prompt fails closed on every non-exact state. This records code reality
+> only; it does not promote the ticket, close G1 or authorize G2/G3.
 
 ---
 
@@ -760,6 +765,17 @@ Document type selection
       ↓ validates status/time/subject and upserts one typed snapshot
       ↓ writes `_coach_tax_snapshots_v1` + exact `fiscal.*` provenance
       ↓ TaxProfilePersistence.saveAnswers(answers) before profile publication
+      ↓ live nextFiscal and cold CoachProfile.fromWizardAnswers validate exact
+        snapshot provenance before deriving any reference
+      ↓ private full-snapshot selector admits one assessmentNotice that is
+        inForce + explicitly attested; same-rank semantic divergence = conflict
+      ↓ derives metadata-only latestTaxDecisionReference with
+        referenceId == snapshotId and legalYear == taxYear
+        (no second root, backend mirror, document payload or calculation)
+      ↓ ConfidenceScorer keeps latestCompleteness status-only, then runs a
+        precise year + subject + canton query and checks exact identity/dates
+      ↓ exact coherent match removes tax.document.review; otherwise fail closed
+        → /data-block/fiscalite → fiscal block CTA /fiscal
   ↓
 /scan/impact (DocumentImpactScreen) shows delta in confidence score
 ```
@@ -768,6 +784,20 @@ G1-PROV-03 replaces, rather than wraps, the legacy tax branch with the single
 `TaxExtractionCandidate → TaxReviewConfirmation →
 CoachProfileProvider.acceptTaxReview → TaxProfilePersistence → cold reload →
 FiscalSnapshotSelector.selectAssessedBaseline` production seam.
+
+The accepted G1-RET-REF-01 slice at `cdc786782` extends that seam without a new
+writer or authority: `acceptTaxReview` derives the live reference from the
+just-built `FiscalProfile`, while cold reconstruction derives it only after
+`_validatedFiscalSnapshotIds`. The reference selector that can see a whole
+snapshot remains library-private. The public consumer is
+`ConfidenceScorer._hasPrecisionReadyTaxDecision`, which uses the existing
+precise selector and requires exact UUID, tax year, canton, subject, source date
+and confirmation instant coherence. A calendar-year change alone never stales
+the reference; replacement, conflict, provenance failure or a relevant legal
+event represented by a reviewed replacement does. Missing or incoherent
+evidence keeps the existing
+`tax.document.review` DataBlock prompt rather than inventing a second DataQuest
+service, persistence key or backend copy.
 
 Failure modes:
 - Keychain -34018 on iOS sim without entitlements may keep a non-fiscal value
@@ -880,8 +910,9 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 checkpoint, G1-PROV-03 typed tax provenance, the BND-02/BND-02A technical
 promotion at exact SHA `1d022c508`, the BND-03 promotion at `7ed54e282`, and
 the unpromoted BND-05 code-GREEN wiring at `11e29c0cd`, plus the unpromoted
-FRONT-01 code-GREEN wiring at `733571002`. BND-05 and FRONT-01 remain pending
-their named runtime/wrapper evidence. All checked-in
+FRONT-01 code-GREEN wiring at `733571002` and the bounded, unpromoted
+RET-REF-01 tax-reference vertical at `cdc786782`. BND-05, FRONT-01 and
+RET-REF-01 remain pending their named promotion evidence. All checked-in
 LPP/accountability defaults remain false, the production external descriptor
 and its eight facts remain unproved, 14 registry rows remain open, and
 activation and G1 remain NO-GO. There is no G1 closure or G2/G3 GO.

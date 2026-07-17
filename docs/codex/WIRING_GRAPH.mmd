@@ -25,6 +25,10 @@
 %% facts now flow through CoachProfileProvider into deterministic educational
 %% states. Exact-SHA Patrol/Maestro and both wrapper audits remain pending, so
 %% the ticket is not promoted and G1/G2/G3 GO claims remain forbidden.
+%% RET-REF-01 has a bounded tax-reference code-GREEN slice at exact pushed SHA
+%% cdc786782 on 2026-07-17. The reference is derived metadata over the one tax
+%% root, and its exact writer -> cold reader -> fail-closed prompt chain is live.
+%% This graph update does not promote the ticket, close G1 or authorize G2/G3.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -140,6 +144,33 @@ flowchart TB
 
   FRONT_WRITE -- "single durable provider seam" --> CPP
   CPP -- "current typed facts + provenance" --> FRONT_EVIDENCE
+
+  %% G1 RET-REF-01 tax slice is code-GREEN; ticket promotion remains separate.
+  subgraph TAX_REFERENCE["G1-RET-REF-01 — DERIVED TAX REFERENCE @ cdc786782"]
+    direction TB
+    TAX_FLAGS{"typedTaxProfile AND<br/>documentTaxAssessmentEnabled<br/>both default false"}
+    TAX_OFF["either flag off<br/>no acquisition and no tax-review prompt"]
+    TAX_REVIEW["TaxReviewConfirmation<br/>assessmentNotice + inForce + attested<br/>sourceDate + taxYear + canton + subject"]
+    TAX_ACCEPT["CoachProfileProvider.acceptTaxReview<br/>same UUID replaces the whole snapshot<br/>one awaited save before publish"]
+    TAX_ROOT[("ONLY _coach_tax_snapshots_v1<br/>TaxSnapshot + exact fiscal.* provenance<br/>removed from backendSafeAnswers")]
+    TAX_REBUILD["live nextFiscal OR cold fromWizardAnswers<br/>validate exact provenance before derivation"]
+    TAX_PRIVATE["private snapshot selector<br/>eligible final notice only<br/>same-rank semantic divergence = conflict"]
+    TAX_DERIVED["metadata-only latestTaxDecisionReference<br/>referenceId = snapshotId<br/>legalYear = taxYear<br/>NO second root or backend mirror"]
+    TAX_PRECISE{"ConfidenceScorer precise query<br/>taxYear + subject + canton<br/>exact UUID + sourceDate + confirmedAt"}
+    TAX_READY["exact coherent reference<br/>suppress tax.document.review"]
+    TAX_ASK["missing / mismatch / conflict / future / ineligible<br/>existing tax.document.review prompt"]
+    TAX_BLOCK["/data-block/fiscalite<br/>fiscal block CTA -> /fiscal"]
+
+    TAX_FLAGS -- "off" --> TAX_OFF
+    TAX_FLAGS -- "both on" --> TAX_REVIEW
+    TAX_REVIEW --> TAX_ACCEPT --> TAX_ROOT
+    TAX_ROOT --> TAX_REBUILD --> TAX_PRIVATE --> TAX_DERIVED --> TAX_PRECISE
+    TAX_PRIVATE -- "no unique eligible snapshot" --> TAX_ASK
+    TAX_PRECISE -- "exact coherent" --> TAX_READY
+    TAX_PRECISE -- "fail closed" --> TAX_ASK --> TAX_BLOCK
+  end
+
+  TAX_ACCEPT -- "single provider mutation" --> CPP
 
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
@@ -661,4 +692,20 @@ flowchart TB
 %% Status at 11e29c0cd: implementation only; G1-BND-05 remains ticket_only until
 %% exact-SHA runtime plus code/product-domain wrapper audits are accepted.
 %% G1/G2/G3 GO claims stay forbidden.
+%% G1-RET-REF-01 TAX REFERENCE REALITY: at exact pushed SHA cdc786782,
+%% `acceptTaxReview` atomically upserts one authoritative TaxSnapshot and its
+%% exact `fiscal.*` provenance under `_coach_tax_snapshots_v1`. Live publication
+%% and cold `CoachProfile.fromWizardAnswers` both derive the metadata-only
+%% `latestTaxDecisionReference` only after provenance validation. Its
+%% `referenceId` is the authoritative snapshot UUID; `legalYear` equals
+%% `taxYear`; there is no annual TTL, second root, backend mirror or calculation.
+%% The full-snapshot reference selector is library-private. ConfidenceScorer
+%% keeps latest-completeness status-only, then uses the public precise selector
+%% and exact UUID/context/date coherence. Any missing, mismatched, conflicting,
+%% future or ineligible state keeps `tax.document.review`, surfaced through
+%% `/data-block/fiscalite` whose fiscal CTA routes to `/fiscal`; an exact coherent
+%% reference suppresses that prompt. Gates: specialist_reference_contract_test,
+%% tax_provenance_profile_test, confidence_scorer_tax_kill_switch_test and
+%% confidence_scorer_test. This bounded code-GREEN truth does not promote
+%% G1-RET-REF-01, close G1 or authorize G2/G3.
 %% ============================================================================
