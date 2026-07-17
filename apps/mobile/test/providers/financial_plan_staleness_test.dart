@@ -913,6 +913,144 @@ void main() {
       debugDefaultTargetPlatformOverride = null;
     });
 
+    testWidgets(
+        'persisted no-LPP stale recovery reaches confirmation after retirement context',
+        (tester) async {
+      final inputAsOf = DateTime.now().toUtc().subtract(
+            const Duration(seconds: 1),
+          );
+      final targetDate = DateTime.utc(
+        inputAsOf.year,
+        inputAsOf.month + 1,
+      );
+      final initialDateOfBirth = DateTime.utc(
+        targetDate.year - 58,
+        targetDate.month,
+        targetDate.day,
+      );
+      final mutatedDateOfBirth = DateTime.utc(
+        targetDate.year - 59,
+        targetDate.month,
+        targetDate.day,
+      );
+      final initialAnswers = <String, dynamic>{
+        'q_firstname': 'Runtime synthetic',
+        'q_birth_year': initialDateOfBirth.year,
+        'q_date_of_birth':
+            '${initialDateOfBirth.year.toString().padLeft(4, '0')}-'
+                '${initialDateOfBirth.month.toString().padLeft(2, '0')}-'
+                '${initialDateOfBirth.day.toString().padLeft(2, '0')}',
+        'q_canton': 'VD',
+        'q_civil_status': 'celibataire',
+        'q_gross_salary_annual': 96000.0,
+        'q_nombre_mois': 12.0,
+        'q_has_pension_fund': false,
+        '_coach_updated_at': inputAsOf.toIso8601String(),
+        coachProfileOwnerRootKey:
+            const CoachProfileOwnerRoot(_profileOwnerId).toJsonString(),
+        '__provenance': {
+          _dateOfBirthPath: {
+            'source': ProfileDataSource.userInput.name,
+            'updatedAt': inputAsOf.toIso8601String(),
+            'sourceDate': null,
+          },
+          _hasPensionFundPath: {
+            'source': ProfileDataSource.userInput.name,
+            'updatedAt': inputAsOf.toIso8601String(),
+            'sourceDate': null,
+          },
+        },
+      };
+      final initialProfile = CoachProfile.fromWizardAnswers(initialAnswers);
+      final draft = await PlanGenerationService.generate(
+        goalDescription: 'Objectif retraite synthétique BND-06',
+        goalCategory: 'goal_retirement_plan',
+        targetDate: targetDate,
+        profile: initialProfile,
+        profileOwnerId: _profileOwnerId,
+        selfLppSnapshot: null,
+        goalAmount: 54321,
+        prospectiveLppReturn: null,
+        now: inputAsOf,
+      );
+      expect(draft.monthlyTarget, 54321);
+      expect(draft.dependencyBranch, 'retirementNoLpp');
+      await FinancialPlanService.save(draft.copyWith(confirmedAt: inputAsOf));
+
+      final mutationAt = inputAsOf.add(const Duration(milliseconds: 500));
+      final mutatedAnswers = <String, dynamic>{
+        ...initialAnswers,
+        'q_birth_year': mutatedDateOfBirth.year,
+        'q_date_of_birth':
+            '${mutatedDateOfBirth.year.toString().padLeft(4, '0')}-'
+                '${mutatedDateOfBirth.month.toString().padLeft(2, '0')}-'
+                '${mutatedDateOfBirth.day.toString().padLeft(2, '0')}',
+        '_coach_updated_at': mutationAt.toIso8601String(),
+        '__provenance': {
+          _dateOfBirthPath: {
+            'source': ProfileDataSource.userInput.name,
+            'updatedAt': mutationAt.toIso8601String(),
+            'sourceDate': null,
+          },
+          _hasPensionFundPath: {
+            'source': ProfileDataSource.userInput.name,
+            'updatedAt': inputAsOf.toIso8601String(),
+            'sourceDate': null,
+          },
+        },
+      };
+      await ReportPersistenceService.saveAnswers(mutatedAnswers);
+      await ReportPersistenceService.setMiniOnboardingCompleted(true);
+
+      debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await tester.pumpWidget(const MintApp());
+      await _pumpFrames(tester, frames: 40);
+
+      final appContext = tester.element(find.byType(MaterialApp));
+      final plans = appContext.read<FinancialPlanProvider>();
+      expect(plans.currentPlan?.dependencyBranch, 'retirementNoLpp');
+      expect(plans.isPlanStale, isTrue);
+      final routedContext = tester.element(find.byType(Scaffold).first);
+      GoRouter.of(routedContext).go('/home');
+      await _pumpFrames(tester, frames: 30);
+
+      await tester.tap(
+        find.bySemanticsIdentifier('financial_plan_stale_recalculate'),
+      );
+      await _pumpFrames(tester, frames: 10);
+      final horizon = find.bySemanticsIdentifier(
+        'financial_plan_setup_retirement_horizon',
+      );
+      await tester.ensureVisible(horizon);
+      await tester.tap(horizon);
+      await _pumpFrames(tester, frames: 5);
+      final retirementContinue = find.bySemanticsIdentifier(
+        'financial_plan_setup_retirement_continue',
+      );
+      await tester.ensureVisible(retirementContinue);
+      await tester.tap(retirementContinue);
+      await _pumpFrames(tester, frames: 5);
+      final review = find.bySemanticsIdentifier('financial_plan_setup_review');
+      await tester.ensureVisible(review);
+      await tester.tap(review);
+      await _pumpFrames(tester, frames: 40);
+
+      final visibleTexts = tester
+          .widgetList<Text>(find.byType(Text))
+          .map((text) => text.data)
+          .whereType<String>()
+          .where((text) => text.trim().isNotEmpty)
+          .toList();
+      expect(
+        find.bySemanticsIdentifier('financial_plan_setup_confirmation'),
+        findsOneWidget,
+        reason: 'Recovery stopped before confirmation. Visible text: '
+            '$visibleTexts',
+      );
+      debugDefaultTargetPlatformOverride = null;
+    });
+
     testWidgets('false kill switch keeps real MintApp plan storage dormant',
         (tester) async {
       FeatureFlags.financialPlanSetupEnabled = false;

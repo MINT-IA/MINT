@@ -183,9 +183,11 @@ class _FinancialPlanSetupCardState extends State<FinancialPlanSetupCard> {
         .replaceAll('\u00a0', '')
         .replaceAll('\u202f', '')
         .replaceAll(' ', '');
-    final amount = NumberFormat.decimalPattern(localeName)
+    final localizedAmount = NumberFormat.decimalPattern(localeName)
         .tryParse(normalizedAmount)
         ?.toDouble();
+    final amount = localizedAmount ??
+        double.tryParse(normalizedAmount.replaceAll(',', '.'));
     if (amount == null || !amount.isFinite || amount <= 0) {
       setState(
           () => _validationMessage = S.of(context)!.planSetupInvalidAmount);
