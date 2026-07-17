@@ -11589,5 +11589,10 @@
   "dataBlockGenderMale": "M — male",
   "planCard_annualWholeYearsAssumption": "Simplified annual projection: fractions of a year are not prorated.",
   "planCard_earlyRetirementFundAuthorization": "Condition: the pension fund rules must allow a benefit before age 63.",
-  "planCard_postReferenceActivityAssumption": "Assumption: continued gainful activity and a possible deferral with the pension fund."
+  "planCard_postReferenceActivityAssumption": "Assumption: continued gainful activity and a possible deferral with the pension fund.",
+  "retirementLppCapitalNoticeDeadlineTitle": "Capital withdrawal deadline",
+  "retirementLppCapitalNoticeDeadlineKnown": "Your pension fund indicates a deadline of {date}. Check it directly with the fund.",
+  "@retirementLppCapitalNoticeDeadlineKnown": {"placeholders":{"date":{"type":"String"}}},
+  "retirementLppCapitalNoticeDeadlineStale": "The deadline indicated by your pension fund was {date}. Check it directly with the fund.",
+  "@retirementLppCapitalNoticeDeadlineStale": {"placeholders":{"date":{"type":"String"}}}
 }

@@ -24402,4 +24402,18 @@ class SPt extends S {
   @override
   String get planCard_postReferenceActivityAssumption =>
       'Hipótese: continuação da atividade remunerada e possibilidade de adiamento junto da caixa de pensões.';
+
+  @override
+  String get retirementLppCapitalNoticeDeadlineTitle =>
+      'Prazo para levantamento em capital';
+
+  @override
+  String retirementLppCapitalNoticeDeadlineKnown(String date) {
+    return 'A tua caixa de pensões indica $date como prazo. Confirma-o diretamente com a caixa.';
+  }
+
+  @override
+  String retirementLppCapitalNoticeDeadlineStale(String date) {
+    return 'O prazo indicado pela tua caixa de pensões era $date. Confirma-o diretamente com a caixa.';
+  }
 }

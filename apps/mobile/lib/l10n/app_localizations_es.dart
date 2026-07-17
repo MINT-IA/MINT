@@ -24392,4 +24392,18 @@ class SEs extends S {
   @override
   String get planCard_postReferenceActivityAssumption =>
       'Hipótesis: continuidad de la actividad remunerada y posibilidad de aplazamiento con la caja de pensiones.';
+
+  @override
+  String get retirementLppCapitalNoticeDeadlineTitle =>
+      'Plazo para retirar el capital';
+
+  @override
+  String retirementLppCapitalNoticeDeadlineKnown(String date) {
+    return 'Tu caja de pensiones indica como fecha límite el $date. Verifícala directamente con la caja.';
+  }
+
+  @override
+  String retirementLppCapitalNoticeDeadlineStale(String date) {
+    return 'La fecha límite indicada por tu caja de pensiones era el $date. Verifícala directamente con la caja.';
+  }
 }

@@ -24270,4 +24270,18 @@ class SEn extends S {
   @override
   String get planCard_postReferenceActivityAssumption =>
       'Assumption: continued gainful activity and a possible deferral with the pension fund.';
+
+  @override
+  String get retirementLppCapitalNoticeDeadlineTitle =>
+      'Capital withdrawal deadline';
+
+  @override
+  String retirementLppCapitalNoticeDeadlineKnown(String date) {
+    return 'Your pension fund indicates a deadline of $date. Check it directly with the fund.';
+  }
+
+  @override
+  String retirementLppCapitalNoticeDeadlineStale(String date) {
+    return 'The deadline indicated by your pension fund was $date. Check it directly with the fund.';
+  }
 }

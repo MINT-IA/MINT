@@ -11589,5 +11589,10 @@
   "dataBlockGenderMale": "M — Mann",
   "planCard_annualWholeYearsAssumption": "Vereinfachte Jahresprojektion: Jahresbruchteile werden nicht anteilig berücksichtigt.",
   "planCard_earlyRetirementFundAuthorization": "Bedingung: Das Reglement der Pensionskasse muss eine Leistung vor Alter 63 zulassen.",
-  "planCard_postReferenceActivityAssumption": "Annahme: Fortsetzung der Erwerbstätigkeit und möglicher Aufschub bei der Pensionskasse."
+  "planCard_postReferenceActivityAssumption": "Annahme: Fortsetzung der Erwerbstätigkeit und möglicher Aufschub bei der Pensionskasse.",
+  "retirementLppCapitalNoticeDeadlineTitle": "Frist für den Kapitalbezug",
+  "retirementLppCapitalNoticeDeadlineKnown": "Deine Pensionskasse nennt den {date} als Frist. Prüfe sie direkt bei der Kasse.",
+  "@retirementLppCapitalNoticeDeadlineKnown": {"placeholders":{"date":{"type":"String"}}},
+  "retirementLppCapitalNoticeDeadlineStale": "Die von deiner Pensionskasse genannte Frist war am {date}. Prüfe sie direkt bei der Kasse.",
+  "@retirementLppCapitalNoticeDeadlineStale": {"placeholders":{"date":{"type":"String"}}}
 }

@@ -24455,4 +24455,18 @@ class SDe extends S {
   @override
   String get planCard_postReferenceActivityAssumption =>
       'Annahme: Fortsetzung der Erwerbstätigkeit und möglicher Aufschub bei der Pensionskasse.';
+
+  @override
+  String get retirementLppCapitalNoticeDeadlineTitle =>
+      'Frist für den Kapitalbezug';
+
+  @override
+  String retirementLppCapitalNoticeDeadlineKnown(String date) {
+    return 'Deine Pensionskasse nennt den $date als Frist. Prüfe sie direkt bei der Kasse.';
+  }
+
+  @override
+  String retirementLppCapitalNoticeDeadlineStale(String date) {
+    return 'Die von deiner Pensionskasse genannte Frist war am $date. Prüfe sie direkt bei der Kasse.';
+  }
 }

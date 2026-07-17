@@ -24458,4 +24458,18 @@ class SIt extends S {
   @override
   String get planCard_postReferenceActivityAssumption =>
       'Ipotesi: prosecuzione dell’attività lucrativa e possibilità di rinvio presso la cassa pensione.';
+
+  @override
+  String get retirementLppCapitalNoticeDeadlineTitle =>
+      'Termine per il prelievo in capitale';
+
+  @override
+  String retirementLppCapitalNoticeDeadlineKnown(String date) {
+    return 'La tua cassa pensione indica come termine il $date. Verificalo direttamente con la cassa.';
+  }
+
+  @override
+  String retirementLppCapitalNoticeDeadlineStale(String date) {
+    return 'Il termine indicato dalla tua cassa pensione era il $date. Verificalo direttamente con la cassa.';
+  }
 }

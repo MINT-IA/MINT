@@ -11589,5 +11589,10 @@
   "dataBlockGenderMale": "M — hombre",
   "planCard_annualWholeYearsAssumption": "Proyección anual simplificada: las fracciones de año no se prorratean.",
   "planCard_earlyRetirementFundAuthorization": "Condición: el reglamento de la caja de pensiones debe permitir una prestación antes de los 63 años.",
-  "planCard_postReferenceActivityAssumption": "Hipótesis: continuidad de la actividad remunerada y posibilidad de aplazamiento con la caja de pensiones."
+  "planCard_postReferenceActivityAssumption": "Hipótesis: continuidad de la actividad remunerada y posibilidad de aplazamiento con la caja de pensiones.",
+  "retirementLppCapitalNoticeDeadlineTitle": "Plazo para retirar el capital",
+  "retirementLppCapitalNoticeDeadlineKnown": "Tu caja de pensiones indica como fecha límite el {date}. Verifícala directamente con la caja.",
+  "@retirementLppCapitalNoticeDeadlineKnown": {"placeholders":{"date":{"type":"String"}}},
+  "retirementLppCapitalNoticeDeadlineStale": "La fecha límite indicada por tu caja de pensiones era el {date}. Verifícala directamente con la caja.",
+  "@retirementLppCapitalNoticeDeadlineStale": {"placeholders":{"date":{"type":"String"}}}
 }

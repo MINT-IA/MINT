@@ -42550,6 +42550,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Hypothèse : activité lucrative poursuivie et ajournement possible auprès de la caisse.'**
   String get planCard_postReferenceActivityAssumption;
+
+  /// No description provided for @retirementLppCapitalNoticeDeadlineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéance de retrait en capital'**
+  String get retirementLppCapitalNoticeDeadlineTitle;
+
+  /// No description provided for @retirementLppCapitalNoticeDeadlineKnown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta caisse indique une échéance au {date}. Vérifie-la directement auprès d’elle.'**
+  String retirementLppCapitalNoticeDeadlineKnown(String date);
+
+  /// No description provided for @retirementLppCapitalNoticeDeadlineStale.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’échéance indiquée par ta caisse était le {date}. Vérifie-la directement auprès d’elle.'**
+  String retirementLppCapitalNoticeDeadlineStale(String date);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

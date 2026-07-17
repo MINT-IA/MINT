@@ -2,18 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
+import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -98,6 +101,9 @@ class RetirementDashboardScreen extends StatefulWidget {
 }
 
 class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
+  static const _lppCapitalNoticeBannerId =
+      'retirement_lpp_capital_notice_deadline_education';
+
   // ── Core state ──────────────────────────────────────────
   CoachProfile? _profile;
   FinancialFitnessScore? _score;
@@ -498,6 +504,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       delegate: SliverChildListDelegate([
                         // ── ABOVE FOLD: Banner + Hero (max 2 sections) ──
 
+                        ..._buildLppCapitalNoticeEducation(profile),
+
                         // Position 0: Urgent Banner (conditional)
                         if (urgentItem.isNotEmpty) ...[
                           _UrgentBanner(item: urgentItem.first),
@@ -709,6 +717,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
+                    ..._buildLppCapitalNoticeEducation(profile),
                     if (context
                             .read<CoachProfileProvider>()
                             .partnerLppAccountabilityState !=
@@ -809,6 +818,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
+                    ..._buildLppCapitalNoticeEducation(profile),
                     MintSurface(
                       tone: MintSurfaceTone.craie,
                       padding: const EdgeInsets.all(MintSpacing.lg),
@@ -876,6 +886,55 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ],
               ))),
     );
+  }
+
+  List<Widget> _buildLppCapitalNoticeEducation(CoachProfile profile) {
+    final documents = context.watch<DocumentProvider?>();
+    final resolved = documents?.resolveLppCapitalNotice(
+      profile.lppCapitalNoticeDeadline,
+    );
+    final deadline = resolved?.deadlineDate;
+    if (deadline == null) return const <Widget>[];
+
+    final today = SwissCivilTime.civilDate(DateTime.now());
+    final deadlineDay = SwissCivilTime.businessDate(deadline);
+    final isStale = deadlineDay.isBefore(today);
+    final l = S.of(context)!;
+    final localeName = Localizations.localeOf(context).toLanguageTag();
+    final date = DateFormat.yMMMMd(localeName).format(deadlineDay);
+
+    return <Widget>[
+      Semantics(
+        identifier: _lppCapitalNoticeBannerId,
+        container: true,
+        child: MintSurface(
+          key: Key(
+            '${_lppCapitalNoticeBannerId}_${isStale ? 'stale' : 'known'}',
+          ),
+          tone: isStale ? MintSurfaceTone.craie : MintSurfaceTone.sauge,
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.retirementLppCapitalNoticeDeadlineTitle,
+                style: MintTextStyles.titleMedium(),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                isStale
+                    ? l.retirementLppCapitalNoticeDeadlineStale(date)
+                    : l.retirementLppCapitalNoticeDeadlineKnown(date),
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: MintSpacing.md),
+    ];
   }
 
   // ────────────────────────────────────────────────────────────

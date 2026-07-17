@@ -11589,5 +11589,10 @@
   "dataBlockGenderMale": "M — homem",
   "planCard_annualWholeYearsAssumption": "Projeção anual simplificada: as frações de ano não são rateadas.",
   "planCard_earlyRetirementFundAuthorization": "Condição: o regulamento da caixa de pensões deve permitir uma prestação antes dos 63 anos.",
-  "planCard_postReferenceActivityAssumption": "Hipótese: continuação da atividade remunerada e possibilidade de adiamento junto da caixa de pensões."
+  "planCard_postReferenceActivityAssumption": "Hipótese: continuação da atividade remunerada e possibilidade de adiamento junto da caixa de pensões.",
+  "retirementLppCapitalNoticeDeadlineTitle": "Prazo para levantamento em capital",
+  "retirementLppCapitalNoticeDeadlineKnown": "A tua caixa de pensões indica {date} como prazo. Confirma-o diretamente com a caixa.",
+  "@retirementLppCapitalNoticeDeadlineKnown": {"placeholders":{"date":{"type":"String"}}},
+  "retirementLppCapitalNoticeDeadlineStale": "O prazo indicado pela tua caixa de pensões era {date}. Confirma-o diretamente com a caixa.",
+  "@retirementLppCapitalNoticeDeadlineStale": {"placeholders":{"date":{"type":"String"}}}
 }

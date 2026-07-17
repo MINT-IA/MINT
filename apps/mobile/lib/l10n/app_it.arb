@@ -11589,5 +11589,10 @@
   "dataBlockGenderMale": "M — uomo",
   "planCard_annualWholeYearsAssumption": "Proiezione annuale semplificata: le frazioni d’anno non sono ripartite proporzionalmente.",
   "planCard_earlyRetirementFundAuthorization": "Condizione: il regolamento della cassa pensione deve consentire una prestazione prima dei 63 anni.",
-  "planCard_postReferenceActivityAssumption": "Ipotesi: prosecuzione dell’attività lucrativa e possibilità di rinvio presso la cassa pensione."
+  "planCard_postReferenceActivityAssumption": "Ipotesi: prosecuzione dell’attività lucrativa e possibilità di rinvio presso la cassa pensione.",
+  "retirementLppCapitalNoticeDeadlineTitle": "Termine per il prelievo in capitale",
+  "retirementLppCapitalNoticeDeadlineKnown": "La tua cassa pensione indica come termine il {date}. Verificalo direttamente con la cassa.",
+  "@retirementLppCapitalNoticeDeadlineKnown": {"placeholders":{"date":{"type":"String"}}},
+  "retirementLppCapitalNoticeDeadlineStale": "Il termine indicato dalla tua cassa pensione era il {date}. Verificalo direttamente con la cassa.",
+  "@retirementLppCapitalNoticeDeadlineStale": {"placeholders":{"date":{"type":"String"}}}
 }

@@ -12399,5 +12399,10 @@
   "dataBlockGenderMale": "M — homme",
   "planCard_annualWholeYearsAssumption": "Projection annuelle simplifiée : les fractions d’année ne sont pas proratisées.",
   "planCard_earlyRetirementFundAuthorization": "Condition : le règlement de la caisse doit autoriser une prestation avant 63 ans.",
-  "planCard_postReferenceActivityAssumption": "Hypothèse : activité lucrative poursuivie et ajournement possible auprès de la caisse."
+  "planCard_postReferenceActivityAssumption": "Hypothèse : activité lucrative poursuivie et ajournement possible auprès de la caisse.",
+  "retirementLppCapitalNoticeDeadlineTitle": "Échéance de retrait en capital",
+  "retirementLppCapitalNoticeDeadlineKnown": "Ta caisse indique une échéance au {date}. Vérifie-la directement auprès d’elle.",
+  "@retirementLppCapitalNoticeDeadlineKnown": {"placeholders":{"date":{"type":"String"}}},
+  "retirementLppCapitalNoticeDeadlineStale": "L’échéance indiquée par ta caisse était le {date}. Vérifie-la directement auprès d’elle.",
+  "@retirementLppCapitalNoticeDeadlineStale": {"placeholders":{"date":{"type":"String"}}}
 }

@@ -24383,4 +24383,18 @@ class SFr extends S {
   @override
   String get planCard_postReferenceActivityAssumption =>
       'Hypothèse : activité lucrative poursuivie et ajournement possible auprès de la caisse.';
+
+  @override
+  String get retirementLppCapitalNoticeDeadlineTitle =>
+      'Échéance de retrait en capital';
+
+  @override
+  String retirementLppCapitalNoticeDeadlineKnown(String date) {
+    return 'Ta caisse indique une échéance au $date. Vérifie-la directement auprès d’elle.';
+  }
+
+  @override
+  String retirementLppCapitalNoticeDeadlineStale(String date) {
+    return 'L’échéance indiquée par ta caisse était le $date. Vérifie-la directement auprès d’elle.';
+  }
 }
