@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: BND-05 is ticket- and exact-SHA runtime-GREEN at cbb040a4a with both wrapper audits PASS; 13 hard floors remain, BND-06 is next, and G2/G3 are not authorized.
-last_updated: "2026-07-16T09:09:00Z"
-last_activity: 2026-07-16 -- BND-05 promoted after exact RED 0/6 and GREEN 12/12, Patrol process-death/cold-reader plus exact-archive production runtime, Maestro, privacy cleanup and both wrapper audits PASS
+stopped_at: BND-06 is ticket- and exact-SHA runtime-GREEN at 28d0097f6 with product-domain Sonnet and final code Opus PASS; 12 hard floors remain, and G2/G3 are not authorized.
+last_updated: "2026-07-17T10:07:22Z"
+last_activity: 2026-07-17 -- BND-06 promoted after physical-archive semantic RED 6/27 and identical-command GREEN 17/17, Patrol process-death/cold-reader plus exact-archive production-entrypoint runtime, Maestro, privacy cleanup and both accepted wrapper audits PASS
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,15 +34,16 @@ Plan: 37-04 — partner accountability and real downstream bridge
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-16 -- `G1-BND-05` is accepted at pushed SHA
-`cbb040a4a`: the physical-archive semantic RED replay is 0/6 and the identical
-GREEN command passes 12/12. Strict owner-scoped LPP facts remain the sole
-financial authority; raw-free five-field references feed Timeline/Detail only
-while the exact owner/snapshot authority is current. The same SHA passed Patrol
-writer → explicit process death → cold reader, exact Git-archive production
-build/signature/xattr/install, Maestro 1/1, cleanup/privacy checks and both
-wrapper-only Opus audits with P0/P1=0. Seven nonblocking P2 follow-ups remain
-explicit. This closes only BND-05; BND-06 is the next canonical G1 contract.
+Last activity: 2026-07-17 -- `G1-BND-06` is accepted at pushed SHA
+`28d0097f6`: the physical-archive semantic RED replay is 6/27 and the
+identical command passes 17/17. The loaded canonical ledger and exact consumed
+branch inputs own plan freshness; stale or authority-unknown plans hide all
+derived figures and recovery never reverse-writes profile facts. The same SHA
+passed Patrol writer → explicit launch/termination → cold reader, exact
+Git-archive production-entrypoint build/signature/xattr/install, Maestro 1/1,
+cleanup/privacy checks, product-domain Sonnet rerun and final code Opus
+confirmation with P0/P1=0. Six nonblocking P2 follow-ups remain explicit. The
+compile-time feature defaults false. This closes only BND-06; G1 remains NO-GO.
 
 Provisional G1 score: **8.2/10 — NO-GO**.
 
@@ -115,16 +116,24 @@ Provisional G1 score: **8.2/10 — NO-GO**.
   Maestro, exact-archive build isolation, privacy cleanup and both wrapper
   audits pass. All LPP acquisition flags remain false. Seven audit P2s are
   retained as nonblocking follow-ups rather than hidden or treated as closure.
+- `G1-BND-06` is ticket- and runtime-`green` at exact SHA `28d0097f6`.
+  The v3 branch-aware fingerprint, eager provider, fail-closed consumer and
+  read-only recovery are accepted through identical-command RED→GREEN, Patrol
+  process death/cold hydration, exact-archive production-entrypoint build,
+  Maestro and both accepted wrapper lenses. The runtime test opt-in is explicit
+  and the production default remains false. Six audit P2s are retained as
+  nonblocking activation follow-ups rather than hidden or treated as G1
+  closure.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 18 `green`, 12 `ticket_only`, and one
-  `red_proven`. Therefore 13 G1 hard floors remain open.
+- The canonical registry has 31 rows: 19 `green`, 11 `ticket_only`, and one
+  `red_proven`. Therefore 12 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
-- `G1-BND-06` is the next ordered Wave 3 floor. Its named
-  `financial_plan_staleness_test.dart` contract still requires Wave 0 RED or a
-  baseline-GREEN plus non-vacuous control before implementation.
+- `G1-BND-01` and `G1-COACH-01` are the remaining ordered Wave 3 floors. Their
+  named registry commands still require accepted evidence before the bridge
+  wave can close.
 - Eight external production facts remain unproven: controller identity,
   operational privacy contact, Anthropic role/DPA, actual processing regions,
   transfer mechanism/TIA, retention/ZDR, AIPD decision, and the public
@@ -143,11 +152,11 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-16T09:09:00Z
+Last session: 2026-07-17T10:07:22Z
 
-Stopped at: BND-05 is promoted at exact pushed SHA `cbb040a4a` with complete
+Stopped at: BND-06 is promoted at exact pushed SHA `28d0097f6` with complete
 ticket/runtime/audit evidence and explicit P2 dispositions. Continue only G1
-with the BND-06 Wave 0 contract; do not start G2/G3.
+with the remaining Wave 3 contracts; do not start G2/G3.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
 `.planning/phases/37-ledger-runtime-readiness/37-04-PLAN.md`. Do not infer

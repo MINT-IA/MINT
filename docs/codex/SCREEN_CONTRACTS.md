@@ -7,10 +7,14 @@
 > `1d022c508` (2026-07-16) with identical-command, Patrol, Maestro and bounded
 > Claude-wrapper proof. The progressive caller and visible consumer remain
 > default-off; eight external facts keep activation and G1 NO-GO.
-> Focused BND-06 implementation snapshot: semantic RED `9e86539d2` and
-> code-GREEN `9b33758a5` (2026-07-16). The Coach and Aujourd'hui stale-plan
-> states below are live code contracts, but exact-SHA runtime, both
-> Claude-wrapper audit lenses and ticket promotion remain pending.
+> Focused BND-06 technical GREEN: semantic RED `9e86539d2`; the bounded
+> contract is accepted at exact pushed SHA
+> `28d0097f65b2f0a88d3ae6610614d912d0ba943a` (2026-07-17). Writer -> real
+> process death -> cold reader, the exact physical production-entrypoint
+> build/sign/install and Maestro passed; the product-domain Sonnet rerun and
+> final Opus code confirmation passed with zero P0/P1. The compile-time path
+> remains test-only and defaults false. Activation and G1 remain NO-GO; G2/G3
+> stay forbidden.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
 > A coding agent (Codex) implements these contracts directly. Every row is mechanical and test-verifiable. Violations are bugs, not style notes.
 
@@ -184,16 +188,23 @@ These are registered at the top of the router (`app.dart:301-339`) with `scope: 
 > `budgetGap` remains null while official AVS
 > facts are unavailable. See §10.4.
 >
-> **BND-06 plan boundary (implementation `9b33758a5`, promotion pending).**
+> **BND-06 plan boundary (technical GREEN at
+> `28d0097f65b2f0a88d3ae6610614d912d0ba943a`).**
 > Aujourd'hui watches the eagerly bound `FinancialPlanProvider` and renders
 > `FinancialPlanCard` in both empty- and populated-timeline branches. A
 > persisted plan fails closed until `CoachProfileProvider.isLoaded` with a
-> non-null profile, then whenever its versioned value/provenance fingerprint
-> differs. Recovery preserves only goal description/category, target date and
+> non-null profile, then whenever its branch-scoped v3 dependency envelope is
+> incomplete, expired or differs from the current ledger inputs consumed by
+> that branch. In particular, `retirementNoLpp` depends on owned affiliation
+> and exact birth facts, not salary; `retirementLpp` additionally requires the
+> owned gender, current salary, strict self-LPP facts and current legal
+> contract. Recovery preserves only goal description/category, target date and
 > final target amount, and recomputes the artifact from the current loaded
 > ledger. Its local in-flight/error guards prevent duplicate taps and unsafe
-> publication; exact-SHA Patrol/Maestro and wrapper audits remain acceptance
-> gates rather than claims made by this contract.
+> publication. The exact runtime barrier waits for the unique `landing_route`,
+> opens `mint:///home`, then waits for the distinct production `home_route`
+> before asserting stale recovery. The test-only compile-time flag remains
+> default-off; technical GREEN is not an activation decision.
 
 ### `/mon-argent` — Money / Budget home
 | | |
@@ -1113,7 +1124,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/epl` (593) | §4 | `/naissance` (778) | §4 |
 | `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
 | `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
-| `/first-job` (795) | §4 | `/scan/impact` (1222) | §5 |
+| `/first-job` (795) | §4 | `/scan/impact` (1249) | §5 |
 | `/expatriation` (800) | §4 | `/documents` (935) | §4 |
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |
@@ -1129,7 +1140,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/assurances/coverage` (873) | §4 | `/segments/gender-gap` (1056) | §4 |
 | `/scan` (880) | §5 | `/segments/frontalier` (1061) | §4 |
 | `/scan/avs-guide` (894) | §5 | `/life-event/housing-sale` (1066) | §4 |
-| `/scan/review` (1197) | §5 | `/life-event/donation` (1071) | §4 |
+| `/scan/review` (1224) | §5 | `/life-event/donation` (1071) | §4 |
 | `/life-event/deces-proche` (1076) | §4 | `/simulator/leasing` (1108) | §4 |
 | `/life-event/demenagement-cantonal` (1081) | §4 | `/simulator/credit` (1113) | §4 |
 | `/education/hub` (1088) | §4 | `/arbitrage/bilan` (1120) | §4 |

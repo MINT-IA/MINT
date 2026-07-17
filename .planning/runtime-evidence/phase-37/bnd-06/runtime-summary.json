@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "sha": "28d0097f65b2f0a88d3ae6610614d912d0ba943a",
+  "mobile_tree": "3acb5a92c3d0ce7cfa85c6de2fd078e6522abd16",
+  "recorded_at": "2026-07-17T09:48:39Z",
+  "synthetic_data_only": true,
+  "private_fixture_used": false,
+  "effective_runtime_attempts": 1,
+  "mode": "patrol_external_build_xcode_then_exact_archive_test_opt_in_production_entrypoint_install",
+  "stage_count": 13,
+  "all_stage_exit_codes_zero": true,
+  "writer_passed": true,
+  "explicit_launch_passed": true,
+  "explicit_process_termination_passed": true,
+  "cold_reader_passed": true,
+  "exact_git_archive_export_passed": true,
+  "physical_flutter_build_passed": true,
+  "strict_codesign_verification_passed": true,
+  "forbidden_xattr_check_passed": true,
+  "production_install_passed": true,
+  "maestro_tests": 1,
+  "maestro_failures": 0,
+  "maestro_passed": true,
+  "expected_sanitized_logs": 14,
+  "cleanup_status": "passed",
+  "original_build_restored": true,
+  "test_compile_time_opt_in": {
+    "name": "MINT_TEST_FINANCIAL_PLAN_SETUP",
+    "default": false,
+    "enabled_for_build": true,
+    "scope": "exact_archive_production_entrypoint_debug_build_only"
+  },
+  "privacy": {
+    "raw_udid_retained": false,
+    "absolute_repo_or_temp_path_retained": false,
+    "raw_logs_retained": false,
+    "xcresult_retained": false,
+    "screenshots_retained": false,
+    "private_certificates_used": false
+  },
+  "lightweight_hashes": {
+    "sanitized_metadata_json": "c6a7a95eebe37de81e2e8855ca85812c5149b68cef4164b37072a8f6d9ea3a00",
+    "maestro_report_sanitized_xml": "ddf1aaf22b18f54ce7f6b960373749344eaaf35d63c14a5cb3deb16f4a6c7928",
+    "source_manifest_sha256": "b5e027a77b4e71f6b3ab31677991e8168b460105e369baf295454ba3895b90be",
+    "audit_code_opus_final_confirmation": "a20e8862a1738b2ba1a2e88e8f0106086ff4ec322682f29267d3773794cba785",
+    "audit_product_domain_sonnet_rerun": "75ea3e97c5ba06515174e6c4201f26b0c615c2eedf29e53bab578d31596eba39"
+  },
+  "audit_result": {
+    "required_modes": 2,
+    "passed_modes": 2,
+    "unresolved_p0": 0,
+    "unresolved_p1": 0
+  },
+  "ticket_decision": "GREEN",
+  "g1_score": 8.2,
+  "g1_decision": "NO_GO",
+  "g2_g3_authorized": false
+}

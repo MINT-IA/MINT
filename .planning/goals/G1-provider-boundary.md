@@ -5,10 +5,14 @@
 > authorized by this document.
 > Evidence snapshot: code and gates rechecked at immutable commit
 > `e2cfef057c197b3b8ac122d9a9aa3ca645c85696` on 2026-07-13.
-> Focused BND-06 implementation snapshot: semantic RED `9e86539d2`,
-> code-GREEN `9b33758a5` on 2026-07-16. Runtime, both Claude-wrapper audit
-> lenses and ticket promotion remain pending; G1 remains open and G2/G3 stay
-> unauthorized.
+> Focused BND-06 technical GREEN: semantic RED `9e86539d2`; the bounded
+> contract is accepted at exact pushed SHA
+> `28d0097f65b2f0a88d3ae6610614d912d0ba943a` on 2026-07-17. Writer -> real
+> process death -> cold reader, exact physical production-entrypoint
+> build/sign/install and Maestro passed. The product-domain Sonnet rerun and
+> final Opus code confirmation both passed with zero P0/P1. The feature remains
+> a test-only compile-time opt-in that defaults false: activation and G1 stay
+> NO-GO, and G2/G3 remain unauthorized.
 
 ## Decision
 
@@ -96,7 +100,7 @@ profile writeback while that store is absent.
 | `HouseholdProvider` | membership/reference island | invitations, roles, consent, linked member IDs | authoritative partner salary, AVS, LPP, cash, or civil facts | Bridge confirmed partner facts with partner owner token; keep membership metadata separate | G1-BND-02 | yes |
 | `DocumentProvider` | raw reference store | upload state, document ID, parse status, raw document lifecycle | direct financial truth consumed by screens | Confirmed extracted facts write through ledger; navigation passes document ID only | G1-BND-05 | yes |
 | `TimelineProvider` | reference/read model | document/conversation references and chronology | separate financial facts or alternate profile | Read financial dimension from ledger; keep timeline object IDs outside ledger | G1-BND-05 | no |
-| `FinancialPlanProvider` | ledger-bound derived artifact cache | store a generated plan and its versioned input/provenance fingerprint; fail stale until the ledger is loaded and whenever it changes | feeding plan outputs back into facts; rendering stale plan figures or LLM-supplied amounts | Implemented at `9b33758a5`: keep eager profile proxy, cold reconciliation, fail-closed Coach/Aujourd'hui consumers and current-ledger regeneration; runtime/audits/promotion still pending | G1-BND-06 | no |
+| `FinancialPlanProvider` | ledger-bound derived artifact cache | store a generated plan and its branch-scoped v3 dependency envelope; fail stale until the ledger is loaded and whenever a consumed dependency, owner or validity boundary changes | feeding plan outputs back into facts; rendering stale plan figures or LLM-supplied amounts | Technical GREEN at exact pushed SHA `28d0097f65b2f0a88d3ae6610614d912d0ba943a`: eager profile proxy, cold reconciliation, fail-closed Coach/Aujourd'hui consumers and current-ledger regeneration; compile-time test flag remains default-off and activation remains NO-GO | G1-BND-06 | no |
 | backend `ProfileModel.data` | remote mirror | authenticated sync of canonical facts and provenance | primary mobile read path, profile-global freshness pretending to be per-field freshness | Add per-field source/update/source-date ownership contract through a reviewed backend slice | G1-PROV-01 | yes |
 
 ## Legacy `ProfileProvider` migration set
@@ -169,21 +173,26 @@ net amount is live.
 
 ### Financial plans
 
-At `9b33758a5`, `app.dart` registers an eager
+At `28d0097f65b2f0a88d3ae6610614d912d0ba943a`, `app.dart` registers an eager
 `ChangeNotifierProxyProvider<CoachProfileProvider, FinancialPlanProvider>`.
 Creation starts plan hydration and every proxy update idempotently attaches the
 current ledger provider. A non-null plan is stale while that provider is
 unbound, unloaded or has no profile; after load, staleness is the inequality
-between its persisted `mint-plan-input:v1:sha256:<digest>` and the fingerprint
+between its persisted `mint-plan-dependency:v3:sha256:<digest>` and the
+branch-scoped dependency fingerprint
 of the current ledger snapshot.
 
-The fingerprint is fixed-order and includes value plus `source`, `updatedAt`
-and `sourceDate` for salary, canton, total LPP, total 3a, effective
-date-of-birth-or-birth-year, salary-month count, mandatory and
-supra-mandatory LPP, and pension-fund return. Null and zero remain distinct,
-negative zero is normalized, non-finite input is rejected, instants are UTC,
-and business/source dates are calendar dates. Versioning deliberately makes an
-older incomplete hash fail closed.
+The v3 envelope always binds the canonical owner, user-owned goal amount,
+category and target date, the selected branch and capital basis, and the
+calculator-contract version. Its fact set is deliberately branch-scoped:
+`general` consumes no unrelated ledger facts; `retirementNoLpp` consumes only
+the owned pension-fund affiliation and exact birth fact; `retirementLpp`
+additionally consumes owned gender, current salary, strict self-LPP capital
+facts and the current legal/regulatory schedule. A salary change therefore
+does not falsely invalidate `retirementNoLpp`, while a birth-fact change does.
+Null and zero remain distinct, non-finite input is rejected, instants are UTC,
+and business/source dates are calendar dates. Versioning deliberately makes
+an older or structurally incomplete envelope fail closed.
 
 Both live consumers obey the same boundary. `WidgetRenderer` in Coach and
 `FinancialPlanCard` on Aujourd'hui hide every stale figure and narrative, use
@@ -195,13 +204,16 @@ tool amount into a fact or calculator input. Aujourd'hui renders this recovery
 surface for both empty and populated timelines, so cold recovery does not
 depend on non-persisted rich coach tool calls.
 
-This is implementation evidence, not promotion evidence. Exact-SHA runtime
-and both Claude-wrapper audit lenses remain mandatory. Two P2 debts are
-explicit: `PlanGenerationService.generate()` performs a persistence write
-before each caller calls `FinancialPlanProvider.setPlan()`, so the first write
-is duplicated and outside the provider queue; deterministic tests are still
-missing for hydrate-vs-set, concurrent set/save failure/dispose, multi-surface
-recovery, double tap, error, and the populated Aujourd'hui branch.
+The exact-SHA acceptance proof is complete: the writer persisted a synthetic
+`retirementNoLpp` plan, a real process death separated the cold reader, the
+recovery recalculated from a consumed birth-fact mutation without reverse
+writing ledger facts, and the exact physical production entrypoint was built,
+signed, installed and traversed by Maestro. The startup barrier distinguishes
+`landing_route` from the production `/home` readiness id `home_route`. The
+product-domain Sonnet rerun and final Opus code confirmation both passed with
+zero P0/P1. This promotes BND-06 to technical GREEN only. The compile-time
+feature remains test-only and defaults false; activation and G1 remain NO-GO,
+and G2/G3 stay unauthorized.
 
 ## Route payload boundary
 

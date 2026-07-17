@@ -1,6 +1,6 @@
 # G1 Ledger Reality Baseline — SCORECARD
 
-Date: 2026-07-16
+Date: 2026-07-17
 
 Status: **REOPENED / NO-GO**
 
@@ -11,7 +11,7 @@ Current interim score: **8.2/10**
 The historical acceptance at `53c733827` is superseded for release purposes.
 G1 was reopened after the AVS couple path could manufacture a complete
 household projection from incomplete partner evidence. The canonical Phase 37
-registry now has **31 rows: 18 GREEN, 12 `ticket_only`, 1 `red_proven`**. The B2
+registry now has **31 rows: 19 GREEN, 11 `ticket_only`, 1 `red_proven`**. The B2
 fail-closed slice and its exact runtime proof are green. The financial report/PDF now also keeps
 AVS, LPP and 3a point values, totals and replacement rates unknown until the
 required evidence exists, with a rebuilt-app Maestro/Patrol proof. Swiss-law,
@@ -44,6 +44,17 @@ P0/P1. Seven P2 observations remain explicit nonblocking follow-ups. All LPP
 acquisition flags remain false; this promotion does not close G1 or authorize
 G2/G3.
 
+`G1-BND-06` is ticket- and exact-SHA runtime-GREEN at `28d0097f6`: the
+identical registry command has a physical-archive semantic RED of 6/27 at
+`9e86539d2` and passes 17/17 at the accepted pushed SHA. Canonical consumed
+inputs and provenance own plan freshness; stale or authority-unknown plans hide
+all figures; recovery never reverse-writes ledger facts. Patrol writer → launch
+and process death → cold reader, exact-archive production-entrypoint
+build/signature/xattr/install, Maestro 1/1, cleanup/privacy, product-domain
+Sonnet rerun and final code Opus confirmation pass with no P0/P1. All six P2s
+remain explicit. The compile-time flag defaults false; activation, G1 and G2/G3
+remain NO-GO.
+
 ## Blocking ledger
 
 | severity | gate | disposition |
@@ -57,13 +68,14 @@ G2/G3.
 | GREEN — G1-BND-02 / technical G1-BND-02A | Partner certificate facts require an exact owner/active-receipt gate and visible fail-closed consumer; legacy nominative receipts must never authorize LPP; exact self 0.02 must stay distinct from missing; lifecycle and rights surfaces must fail closed. | RED remains archived at `fcf720c48`. At exact SHA `1d022c508`, BND-02 passes 7/7 and the identical combined BND-02A command passes backend 66/66 + mobile 20/20. Patrol writer→terminate→cold-reader passes 1/1 + 1/1 with restored normal build; Maestro completes 17/17 flag-off/stale-recovery steps; four Claude-wrapper final confirmations pass with P0=0/P1=0. Technical GREEN leaves every flag false. Eight external facts still make activation and G1 NO-GO. |
 | GREEN — G1-BND-03 ticket + runtime | Stale budget cache/cadence collisions could diverge from the canonical ledger, recompute the wrong charge delta, or disappear after process death. | Semantic RED remains at `683e2a1f2`. At exact pushed SHA `7ed54e282`, the identical command passes 12/12; Patrol writer→terminate→cold-reader, exact physical Git-archive production build, CodeSign/xattr checks, install and Maestro all pass. Fourteen sanitized logs, restoration/privacy verification and wrapper code/product-domain audits are accepted with P0=0/P1=0. |
 | GREEN — G1-BND-05 ticket + runtime | Confirmed document facts could bypass the canonical ledger, raw/value/acquisition data could enter reference metadata, or Timeline/Detail could survive owner/snapshot/authority drift. | Semantic RED replay remains at `cec4f0245` with 0/6; at exact pushed SHA `cbb040a4a`, the identical command passes 12/12. Patrol writer→terminate→cold-reader, exact physical Git-archive production build, CodeSign/xattr checks, install and Maestro 1/1 all pass. Thirteen stage exits, fourteen sanitized logs, restoration/privacy verification and wrapper code/product-domain audits are accepted with P0=0/P1=0; seven P2s remain explicit nonblocking follow-ups. |
+| GREEN — G1-BND-06 ticket + runtime | A persisted financial plan could stay apparently fresh after a consumed ledger value, provenance envelope or regulatory revision changes; cold recovery could expose stale figures or reverse-write derived output. | Physical-archive semantic RED at `9e86539d2` produced 6 passes / 27 failures; the identical command passes 17/17 at exact pushed SHA `28d0097f6`. Patrol writer→launch/terminate→cold-reader, exact archive production-entrypoint build, CodeSign/xattr checks, install and Maestro 1/1 pass. Thirteen stage exits, fourteen sanitized logs, restoration/privacy verification and the accepted Sonnet product-domain plus final Opus code audits pass with P0=0/P1=0. Six P2s remain explicit; the compile-time feature stays default-off. |
 | GREEN — G1-LDG-04 nominal | Display defaults or invalid persisted values could become known facts. | Fixed in `f49ba797c`: canton/expense/conversion readiness requires canonical marker plus exact timestamp path(s); invalid/negative/NaN/infinite numeric values remain partial and explicit zero expenses remain known. Canton-domain weakness closed by `62e8ca7d5`: invalid/blank/forged canton evidence fails closed and valid codes normalize. Exact proof: RED 5 failures, GREEN 30/30, models+navigation+routes 494/494 in `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-BND-04 | The lazy production proxy could miss profile mutations until a MintState UI consumer materialised it. | Fixed in `f49ba797c`: the real `MintApp` proxy is eager and the production-context test observes one notification per salary and provenance-only mutation. Exact RED-to-GREEN evidence: `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-LDG-06A core only | The first certificate-only Fitness slice penalized married/registered owners when optional spouse evidence was absent and accepted certified gap years outside `0..44`. | Quality NO-GO at `1f87a79b4`; fixed in `d44d2aa83`: the AVS Fitness criterion is person-owned and invariant to spouse/status, while self/spouse evidence rejects `-1` and `45`. Rerun: static 8/8, targeted 54/54, wider models 321/321, Doctor 7/7, analyze/diffcheck PASS. Exact proof: `g1-ldg06a-core-d44d2aa83.md`. This does not close the global consumer inventory or change 8.2/10 NO-GO. |
 | GREEN — registered-partnership AVS defect | Registered partnership could be lost or treated as cohabitation instead of marriage-equivalent for AVS. | Reverified at `ac74672db`: typed enum, migration aliases, wizard/DataBlock round trip and AVS predicates are wired; 285 targeted Flutter tests across the AVS review are GREEN. Adjacent non-AVS tax/LPP equality checks remain separate ticket scope. |
 | P0 — narrowed AVS splitting contract | The obsolete fixed-scale cap and salary-duration splitting proxy were unsafe. | Fixed-scale cap/proxy are removed or quarantined; typed cap preserves owner, entitlement, scales and unknown partner. Still open: owner-scoped official splitting evidence, statutory-trigger state and production wiring. |
 | GREEN defect / G1-AVS-02 still open | The 13th AVS could be smoothed into an ordinary monthly uplift. | Reverified absent in live mobile/backend paths: ordinary pension stays 12 payments and the supplement is separate/December-only. The broader G1-AVS-02 ticket remains open for official evidence ingestion, persistence, dedicated UI/PDF line and activation/runtime proof. |
-| G1 floor | Thirteen registry rows remain non-green. | 12 are `ticket_only`; only `G1-RUNTIME-01` is `red_proven`. The BND-02/BND-02A, BND-03 and BND-05 runtimes are slice-specific and do not close that distinct salary/canton→mortgage runtime floor. |
+| G1 floor | Twelve registry rows remain non-green. | 11 are `ticket_only`; only `G1-RUNTIME-01` is `red_proven`. The BND-02/BND-02A, BND-03, BND-05 and BND-06 runtimes are slice-specific and do not close that distinct salary/canton→mortgage runtime floor. |
 | G1 floor | Static AVS `null -> 0` and undeclared-evidence consumers remain outside the closed report slice. | The report/PDF hard floor is 8/8 GREEN. Continue the canonical inventory across profile, Pulse, expat and remaining live consumers; a slice-local green is not a global waiver. |
 | G1 source | Official future-pension ingestion is not yet live end-to-end. | Backend candidate parsing, classifier corpus and default-off boundary are green; mobile review/write-back and live consumer proof remain open. |
 | Privacy/product activation | Controller identity, privacy contact, Anthropic role/DPA and processing regions, transfer/TIA, retention/ZDR, AIPD decision and the public account-free rights channel remain unverified. | Activation stays fail-closed; optional linking is not required and manual partner entry remains an equal path. |
@@ -79,7 +91,7 @@ G2/G3.
 | UX lucidity | 1.5 | 1.3 | Report and PDF now expose neutral AVS/LPP/3a evidence gaps with real recovery CTAs instead of fabricated amounts. Couple recovery and consent UX remain open. |
 | Runtime proof | 1.5 | 1.5 | B2 has an exact committed SHA; the report runtime indexed-diff SHA exactly equals pushed commit `1bb9c8389`, with full Doctor/build, built-versus-installed payload proof, Maestro semantic positives/negatives plus visual artifacts, Patrol 2/2 and xcresult summary. |
 | Automated tests | 1.0 | 1.0 | Final report/PDF snapshot: analyze 0; 8,514 successful + 30 skipped; 0 fail. Targeted report matrix 95/95; B2 matrix 187/187. |
-| External audit | 1.0 | 0.7 | Report/PDF, PROV-03, BND-02/BND-02A, BND-03 and BND-05 closure lenses PASS without P0/P1. The BND-05 archive retains one wrapper-only first-pass Opus confirmation per lens without an audit carousel and dispositions all seven P2s. Full G1 remains NO-GO for 13 open rows; remaining global slices are not converged. |
+| External audit | 1.0 | 0.7 | Report/PDF, PROV-03, BND-02/BND-02A, BND-03, BND-05 and BND-06 closure lenses PASS without P0/P1. The BND-06 archive retains the accepted product-domain Sonnet rerun and final code Opus confirmation without an audit carousel and dispositions all six P2s. Full G1 remains NO-GO for 12 open rows; remaining global slices are not converged. |
 | Integration / privacy hygiene | 1.0 | 0.7 | Synthetic runtime data, exact owner/receipt lifecycle and targeted invalidation are green; eight external activation facts and official-source persistence remain open. |
 | Diff discipline | 0.5 | 0.5 | Provenance, recovery, nullable contract, wiring docs, runtime harness and screenshot fix are atomic commits with regular pushes. |
 | **Total** | **10.0** | **8.2** | **Below 9.0 and hard blockers remain; G1 stays NO-GO.** |
@@ -124,8 +136,11 @@ G2/G3.
 | BND-05 identical-command RED→GREEN | PASS: physical-archive semantic RED at `cec4f0245` is 0/6; the identical command passes 12/12 at exact SHA `cbb040a4a`. |
 | BND-05 exact-SHA runtime | PASS: Patrol writer→explicit termination→cold reader, exact Git archive/export, real Flutter production build, strict CodeSign/xattr verification, install and Maestro 1/1; 13 stages exit 0, 14 sanitized logs, restoration/privacy cleanup PASS with synthetic data only. |
 | BND-05 external audits | PASS: wrapper-only first-pass Opus code and product-domain lenses, P0=0/P1=0; all two code and five product-domain P2 observations remain explicit nonblocking follow-ups. |
+| BND-06 identical-command RED→GREEN | PASS: physical-archive semantic RED at `9e86539d2` is 6/27; the identical command passes 17/17 at exact pushed SHA `28d0097f6`. |
+| BND-06 exact-SHA runtime | PASS: Patrol writer→explicit launch/termination→cold reader, exact Git archive/export, real Flutter production-entrypoint build with scoped test opt-in, strict CodeSign/xattr verification, install and Maestro 1/1; 13 stages exit 0, 14 sanitized logs, restoration/privacy cleanup PASS with synthetic data only. |
+| BND-06 external audits | PASS: wrapper-only product-domain Sonnet rerun and final code Opus confirmation, P0=0/P1=0; all two code and four product-domain P2 observations remain explicit nonblocking activation follow-ups. |
 | Sonnet architecture P1 remediation | PASS: exact disclaimer REDs `21/2`, then `14/1`; final targeted 23 passed / 0 failed, accent lint 4/4 files, analyze 0, financial_core 689/689 and full Flutter 8,900 passed / 33 skipped / 0 failed |
-| Phase 37 registry | 31 total: 18 GREEN, 12 `ticket_only`, 1 `red_proven`; 13 hard floors remain open |
+| Phase 37 registry | 31 total: 19 GREEN, 11 `ticket_only`, 1 `red_proven`; 12 hard floors remain open |
 
 ## Exact B2 evidence
 
@@ -159,15 +174,18 @@ G2/G3.
 - `cbb040a4a` — close the BND-05 exact-archive runtime source, evidence privacy
   hardening and focused Maestro selector manifest; all acquisition flags remain
   false.
+- `28d0097f6` — close the BND-06 exact-SHA plan-staleness runtime and
+  disambiguate Landing from Aujourd'hui before the production home deep link;
+  the financial-plan compile-time flag remains false by default.
 
 ## Release decision
 
 - G1: **REOPENED / NO-GO at 8.2/10**.
 - `G2 allowed?` **NO**.
 - `G3 allowed?` **NO**.
-- Current machine truth: **18/31 GREEN; 13 hard floors open**.
-- Next ordered gates remain inside G1: proceed to BND-06 after this BND-05
-  promotion diff is accepted; continue the eight external LPP activation facts,
+- Current machine truth: **19/31 GREEN; 12 hard floors open**.
+- Next ordered gates remain inside G1: continue the remaining Wave 3
+  `G1-BND-01` and `G1-COACH-01` contracts; continue the eight external LPP activation facts,
   AVS splitting evidence, G1-AVS-02 activation and the global
   `G1-RUNTIME-01`. The authorized architecture rerun is recorded; do not start
   an audit carousel. Full re-score only after every hard floor is green.

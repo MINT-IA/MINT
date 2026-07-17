@@ -225,16 +225,16 @@
     },
     {
       "ticket_id": "G1-BND-06",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/providers/financial_plan_staleness_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "9e86539d21533f0daec70f1b3707def544dafa44",
+      "red_artifact": ".planning/runtime-evidence/phase-37/bnd-06/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "28d0097f65b2f0a88d3ae6610614d912d0ba943a",
+      "green_artifact": ".planning/runtime-evidence/phase-37/bnd-06/green.json",
+      "accepted_sha": "28d0097f65b2f0a88d3ae6610614d912d0ba943a"
     },
     {
       "ticket_id": "G1-COACH-01",

@@ -1,28 +1,27 @@
 # MINT G1 — état court pour téléphone
 
-Date: 2026-07-14
+Date: 2026-07-17
 
 ## En une phrase
 
-G1 avance réellement mais n'est pas fini: **13 tickets sur 31 sont GREEN et
-18 hard floors restent ouverts**. G2/G3 ne sont pas autorisés.
+G1 avance réellement mais n'est pas fini: **19 tickets sur 31 sont GREEN et
+12 hard floors restent ouverts**. G2/G3 ne sont pas autorisés.
 
 ## Ce qui vient d'être prouvé
 
-- `G1-PROV-03` code: **GREEN** à `5a772865b`.
-- Runtime réel: **GREEN** à `ac74672db`.
-- Chaîne runtime: build/install iOS, Maestro flag-off, Patrol writer, arrêt
-  processus, Patrol reader froid, deux xcresults 1/1, restauration et Doctor.
-- Suite Flutter à ce SHA: analyse 0; **8 899 passés, 33 ignorés, 0 échec**.
-- Claude Opus code: **PASS**, zéro P0/P1.
-- Claude Opus produit/domaine suisse: **PASS**, zéro P0/P1.
-- Architecture Sonnet: **PROV-03 propre** et anciennes preuves réconciliées;
-  G1 complet reste justement NO-GO car 18 tickets sont ouverts.
-- Les deux P1 d'accents français trouvés par Sonnet sont réparés et verrouillés
-  par 689/689 tests financial_core; la suite Flutter post-correction passe
-  aussi avec **8 900 réussis, 33 ignorés, 0 échec**.
-- Production: tax ingestion encore désactivée par défaut; aucune activation
-  n'est revendiquée.
+- `G1-BND-06`: **GREEN** au SHA poussé exact `28d0097f6`.
+- Commande de registre identique: RED sémantique physique 6/27 à `9e86539d2`,
+  puis **17/17 GREEN**.
+- Runtime: Patrol writer, lancement, arrêt processus, reader froid, export Git
+  exact, build de l'entrypoint de production, signature/xattr, installation et
+  Maestro **1/1**.
+- Les 13 étapes sortent à zéro, les 14 logs attendus sont sanitizés, et la
+  restauration/privacy est validée sans identifiant appareil ni artifact brut.
+- Audit produit/domaine Sonnet puis confirmation finale code Opus: **PASS**,
+  zéro P0/P1; les six P2 restent explicitement suivis.
+- Le flag compile-time du plan financier reste **false par défaut** et non
+  pilotable par le serveur. Aucune activation ni fermeture de G1 n'est
+  revendiquée.
 
 ## Pourquoi l'écran affiche « blocked »
 
@@ -40,27 +39,25 @@ Sources de vérité actuelles:
 
 | État | Nombre |
 |---|---:|
-| GREEN | 13 |
-| `ticket_only` | 17 |
+| GREEN | 19 |
+| `ticket_only` | 11 |
 | `red_proven` | 1 |
-| **Ouverts** | **18** |
+| **Ouverts** | **12** |
 
 Score provisoire: **8.2/10 — NO-GO**.
 
 ## Maintenant
 
-1. Indexer et pousser la preuve PROV-03 sanitizée.
-2. L'unique rerun architecture Sonnet est terminé et archivé; pas de carousel.
-3. Continuer les tickets G1 dans leur ordre de dépendances, notamment la
-   persistance LPP self/partenaire manuel puis les grants conjoint.
+1. Indexer la preuve BND-06 sanitizée et son registre machine.
+2. Ne pas relancer de carousel Claude: les deux lentilles acceptées sont
+   archivées avec chaque P2 dispositionné.
+3. Continuer uniquement les floors G1 restants, en commençant par les contrats
+   Wave 3 `G1-BND-01` et `G1-COACH-01` selon le lead.
 4. Ne jamais démarrer G2/G3 avant 31/31 GREEN, score ≥9.0 et zéro P0/P1.
 
-Chantier suivant déjà cadré par `mint-data-ledger-architect`:
-
-- PROV02-A: enveloppe LPP typée et atomique pour soi-même.
-- PROV02-B: partenaire manuel optionnel, owner distinct, sans compte lié.
-- PROV02-C: restart réel, privacy, audits et scorecard.
-- Import entre comptes: toujours désactivé jusqu'au lifecycle complet BND-02A.
+Les acquisitions LPP et le plan financier restent désactivés par défaut.
+L'import entre comptes reste interdit tant que ses faits externes et son
+lifecycle ne sont pas réellement validés.
 
 ## Pour reprendre dans une nouvelle tâche Codex
 

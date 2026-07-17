@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-06",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/providers/financial_plan_staleness_test.dart --reporter expanded",
+  "sha": "28d0097f65b2f0a88d3ae6610614d912d0ba943a",
+  "recorded_at": "2026-07-17T10:07:22Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "financial_plan_staleness_test",
+  "output": "The identical registry command passed 17/17 predicates at the accepted pushed SHA. A loaded canonical ledger eagerly invalidates persisted v3 plans on consumed value, provenance or regulatory drift; unloaded or stale plans suppress every derived figure; recovery preserves the goal scaffold without reverse-writing profile facts; the no-LPP retirement branch reaches confirmation after cold persistence; and the compile-time feature remains default-off. The same SHA passed Patrol writer, explicit launch/termination, cold reader, exact physical Git-archive production-entrypoint build, strict signature and extended-attribute checks, install, Maestro 1/1, cleanup/restoration, product-domain Sonnet rerun and final code Opus confirmation with P0=0/P1=0.",
+  "synthetic_data_only": true
+}

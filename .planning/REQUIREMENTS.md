@@ -44,7 +44,7 @@ only machine-evidence `green` is checked.
 - [x] **RDY-BND-04**: CoachProfile mutation recomputes MintUserState exactly once.
 - [x] **RDY-BND-05**: Documents remain references; confirmed facts enter the ledger.
   Evidence: [`G1-BND-05` verification](runtime-evidence/phase-37/bnd-05/verification.md).
-- [ ] **RDY-BND-06**: Financial plan freshness follows the profile input hash.
+- [x] **RDY-BND-06**: Financial plan freshness follows the profile input hash.
 - [ ] **RDY-COACH-01**: Live salary, LPP and 3a coach amounts write canonical facts with exact units and provenance.
 - [ ] **RDY-COACH-02**: Valid route intent remains visible and recoverable when the profile is empty.
 - [ ] **RDY-FRONT-01**: Residence country, work country, and work canton are distinct.

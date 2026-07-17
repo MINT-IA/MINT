@@ -10,9 +10,12 @@
 %% activation and G1 remain NO-GO. BND-05 has semantic RED cec4f0245 and a
 %% code-GREEN implementation at 11e29c0cd, but remains ticket_only until its
 %% exact-SHA runtime and both Claude-wrapper lenses are accepted.
-%% BND-06 has semantic RED 9e86539d2 and code-GREEN 9b33758a5; its eager
-%% ledger binding and fail-closed consumers are live, but exact-SHA runtime,
-%% both Claude-wrapper lenses and ticket promotion remain pending.
+%% BND-06 is technical GREEN at exact pushed SHA
+%% 28d0097f65b2f0a88d3ae6610614d912d0ba943a: writer -> real process death ->
+%% cold reader, exact test-opt-in production-entrypoint build/sign/install and
+%% Maestro passed; product-domain Sonnet rerun and final Opus code confirmation
+%% passed with P0/P1=0. The compile-time path stays test-only/default-off;
+%% activation and G1 remain NO-GO, and G2/G3 stay forbidden.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -234,20 +237,21 @@ flowchart TB
   B5_STORE -->|"eager bind"| DOCS
   B5_TIMELINE --> TIMELINE
 
-  %% BND-06 implementation wiring is live at 9b33758a5; promotion is pending.
-  subgraph FINANCIAL_PLAN_BOUNDARY["G1-BND-06 — LEDGER-BOUND DERIVED PLAN"]
+  %% BND-06 is technical GREEN; activation remains NO-GO.
+  subgraph FINANCIAL_PLAN_BOUNDARY["G1-BND-06 — TECHNICAL GREEN, ACTIVATION NO-GO"]
     direction TB
     B6_PLAN_STORE[("financial_plan_v1<br/>up to 3 derived plans<br/>profileHashAtGeneration")]
     B6_HYDRATE{"plan hydration + bound-ledger gate<br/>plan != null and ledger loaded with profile"}
-    B6_FINGERPRINT["mint-plan-input:v1:sha256<br/>9 fixed-order value + provenance facts<br/>DOB XOR birth year; null != zero<br/>non-finite rejected"]
+    B6_FINGERPRINT["mint-plan-dependency:v3:sha256<br/>owner + user-owned scenario + branch + basis + calculator contract<br/>general: no unrelated facts<br/>retirementNoLpp: affiliation + exact birth<br/>retirementLpp: + gender + salary + strict self-LPP + legal schedule"]
     B6_FRESH{"persisted fingerprint<br/>equals current ledger fingerprint"}
     B6_HIDDEN["fail-closed stale state<br/>hide monthly/projection/range/milestones/date/narrative<br/>semantics: financial_plan_stale_state"]
     B6_COACH["Coach WidgetRenderer consumer<br/>pending generation waits plan + ledger hydration<br/>never renders LLM monthly_amount"]
     B6_HOME["Aujourd'hui FinancialPlanCard<br/>empty + populated timeline caller<br/>durable cold recovery surface"]
     B6_RECOVER["financial_plan_stale_recalculate<br/>preserve goal description/category/date/final target<br/>recompute from current loaded CoachProfile"]
     B6_QUEUE["FinancialPlanProvider.setPlan<br/>revision guard + serialized save queue<br/>publish only newest operation"]
-    B6_DEBT["P2 debt<br/>generate() saves before setPlan(): duplicate write outside queue<br/>race/error/dispose/multi-surface tests missing"]
-    B6_STATUS["implementation @ 9b33758a5<br/>runtime + code/product-domain wrapper audits pending<br/>ticket unpromoted; G1/G2/G3 GO forbidden"]
+    B6_RUNTIME["exact-SHA runtime PASS<br/>writer → real process death → cold reader<br/>landing_route ≠ home_route readiness barrier<br/>physical build/sign/install + Maestro PASS"]
+    B6_GATE{"compile-time test opt-in<br/>default false<br/>not backend-drivable"}
+    B6_STATUS["TECHNICAL GREEN @ 28d0097f65b2f0a88d3ae6610614d912d0ba943a<br/>product Sonnet + final code Opus: P0/P1 = 0<br/>activation + G1 NO-GO; G2/G3 forbidden"]
 
     B6_PLAN_STORE --> B6_HYDRATE
     B6_FINGERPRINT --> B6_FRESH
@@ -259,8 +263,9 @@ flowchart TB
     B6_HIDDEN --> B6_RECOVER
     B6_RECOVER --> B6_QUEUE
     B6_QUEUE --> B6_PLAN_STORE
-    B6_QUEUE -. "remaining persistence boundary debt" .-> B6_DEBT
-    B6_PLAN_STORE -. "implementation evidence only" .-> B6_STATUS
+    B6_QUEUE --> B6_RUNTIME
+    B6_RUNTIME --> B6_STATUS
+    B6_GATE -. "test-only opt-in proves path without activation" .-> B6_RUNTIME
   end
 
   CPP -->|"current values + source + updatedAt + sourceDate"| B6_FINGERPRINT
@@ -467,8 +472,9 @@ flowchart TB
 %%     drift; Coach and Aujourd'hui both hide stale plan figures and never
 %%     reverse-write them. Still MISSING for HouseholdProvider and any
 %%     conversation-derived financial fact that bypasses CoachProfileProvider.
-%%     The financial-plan code wiring is GREEN at 9b33758a5, but its runtime,
-%%     wrapper audits and promotion remain pending. The document wiring update is
+%%     The financial-plan boundary is technical GREEN at exact pushed SHA
+%%     28d0097f65b2f0a88d3ae6610614d912d0ba943a; its test-only compile-time flag
+%%     remains default-off, so activation and G1 are still NO-GO. The document wiring update is
 %%     code-GREEN at 11e29c0cd but does not promote BND-05 or G1; exact-SHA
 %%     runtime and wrapper acceptance remain separate gates.
 %% I-5 LEGACY PROVIDER (partial-migration target): ProfileProvider(:1425) still

@@ -1,0 +1,94 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "tools/checks/claude_external_audit.sh code e7ef9a3cd9d2614c47e61a0b0aee9edef2089523",
+      "mode": "code",
+      "model": "opus",
+      "base_sha": "e7ef9a3cd9d2614c47e61a0b0aee9edef2089523",
+      "head_sha": "28d0097f65b2f0a88d3ae6610614d912d0ba943a",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/bnd-06/audit-code-opus-final-confirmation.md",
+      "findings": [
+        {
+          "id": "CODE-OPUS-P2-PERSISTED-AMOUNT-FALLBACK",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The persisted-format decimal fallback could misread a grouping comma if localized parsing unexpectedly fails first.",
+          "evidence": "Locale-aware parsing remains first, the fallback exists only for the canonical persisted decimal representation, and the feature stays compile-time default-off; tighten the parser before user activation."
+        },
+        {
+          "id": "CODE-OPUS-P2-TEST-OPT-IN-RUNTIME",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The exact-archive production-entrypoint runtime enables the test-only financial-plan flag and is not a shipping-default binary proof.",
+          "evidence": "Runtime metadata explicitly scopes the opt-in to the exact-archive debug proof, while the flag defaults false, is not server-drivable and is separately covered by fail-closed tests."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 2,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "CLAUDE_AUDIT_RERUN=1 tools/checks/claude_external_audit.sh product-domain e7ef9a3cd9d2614c47e61a0b0aee9edef2089523",
+      "mode": "product-domain",
+      "model": "sonnet",
+      "base_sha": "e7ef9a3cd9d2614c47e61a0b0aee9edef2089523",
+      "head_sha": "28d0097f65b2f0a88d3ae6610614d912d0ba943a",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/bnd-06/audit-product-domain-sonnet-rerun.md",
+      "findings": [
+        {
+          "id": "DOMAIN-SONNET-P2-DEFAULT-OFF-RELEASE-GATE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The technical recovery path remains test-only and delivers no production user value until a separate release decision.",
+          "evidence": "This is intentional staged rollout: MINT_TEST_FINANCIAL_PLAN_SETUP defaults false and cannot be remotely enabled; BND-06 promotion does not activate it."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-AMOUNT-COMMA-EDGE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The fallback parser could treat a non-standard grouping comma as a decimal separator.",
+          "evidence": "The localized parser runs first and the fallback repairs canonical persisted decimals; record stricter Swiss input validation before any user-facing activation."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-LPP-2026-SOURCE-CITATION",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Offline LPP fallback constants labeled 2025/2026 need an explicit OFAS OPP2 2026 source before the retirementLpp branch ships.",
+          "evidence": "The accepted retirementNoLpp runtime neither consumes nor calculates those LPP constants, the backend sync remains authoritative when available, and the whole feature remains default-off; source verification stays an activation hard floor."
+        },
+        {
+          "id": "DOMAIN-SONNET-P2-AVS-EXCLUSION-HANDOFF",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The no-LPP savings target does not state branch-specifically that future AVS income is excluded.",
+          "evidence": "The generic mandatory disclaimer remains present and no dossier activation is claimed; add explicit AVS-exclusion wording before specialist-facing release."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 4,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}
