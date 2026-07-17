@@ -38,13 +38,15 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('LandingScreen exposes the stable home route id', (tester) async {
+  testWidgets('LandingScreen exposes a unique landing readiness id',
+      (tester) async {
     final semantics = tester.ensureSemantics();
     try {
       await tester.pumpWidget(_wrapHome(const LandingScreen()));
       await tester.pump();
 
-      expect(find.bySemanticsIdentifier('home_route'), findsOneWidget);
+      expect(find.bySemanticsIdentifier('landing_route'), findsOneWidget);
+      expect(find.bySemanticsIdentifier('home_route'), findsNothing);
     } finally {
       semantics.dispose();
     }
@@ -58,6 +60,7 @@ void main() {
       await tester.pump();
 
       expect(find.bySemanticsIdentifier('home_route'), findsOneWidget);
+      expect(find.bySemanticsIdentifier('landing_route'), findsNothing);
     } finally {
       semantics.dispose();
     }

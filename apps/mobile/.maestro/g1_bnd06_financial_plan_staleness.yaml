@@ -3,6 +3,8 @@ name: G1 BND-06 persisted financial plan staleness recovery
 ---
 - launchApp:
     clearState: false
+- assertVisible:
+    id: "landing_route"
 - openLink: "mint:///home"
 - assertVisible:
     id: "home_route"

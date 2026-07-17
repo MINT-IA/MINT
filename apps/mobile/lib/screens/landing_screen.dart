@@ -80,10 +80,10 @@ class _LandingScreenState extends State<LandingScreen>
     super.dispose();
   }
 
-  Widget _homeRoute(Widget child) {
+  Widget _landingRoute(Widget child) {
     return Semantics(
       container: true,
-      identifier: 'home_route',
+      identifier: 'landing_route',
       child: child,
     );
   }
@@ -93,7 +93,7 @@ class _LandingScreenState extends State<LandingScreen>
     final l10n = S.of(context)!;
     final textTheme = Theme.of(context).textTheme;
 
-    return _homeRoute(Scaffold(
+    return _landingRoute(Scaffold(
       backgroundColor: MintColors.warmWhite,
       body: SafeArea(
         child: Center(

@@ -27,6 +27,7 @@ FLOW = ROOT / "apps/mobile/.maestro/g1_bnd06_financial_plan_staleness.yaml"
 FEATURE_FLAGS = ROOT / "apps/mobile/lib/services/feature_flags.dart"
 SETUP_CARD = ROOT / "apps/mobile/lib/widgets/coach/financial_plan_setup_card.dart"
 MAESTRO_PRODUCERS = (
+    ROOT / "apps/mobile/lib/screens/landing_screen.dart",
     ROOT / "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
     ROOT / "apps/mobile/lib/widgets/home/financial_plan_card.dart",
     SETUP_CARD,
@@ -537,6 +538,7 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
     assert isinstance(steps, list)
     for anchor in (
         "clearState: false",
+        "landing_route",
         "mint:///home",
         "home_route",
         "financial_plan_stale_state",
@@ -557,6 +559,11 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
     assert "financial_plan_setup_retirement_scope" not in contents
     assert "financial_plan_setup_return_assumption" not in contents
 
+    launch = {"launchApp": {"clearState": False}}
+    landing = {"assertVisible": {"id": "landing_route"}}
+    open_home = {"openLink": "mint:///home"}
+    home = {"assertVisible": {"id": "home_route"}}
+    stale = {"assertVisible": {"id": "financial_plan_stale_state"}}
     absent = {"assertNotVisible": MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN}
     tap = {"tapOn": {"id": "financial_plan_stale_recalculate"}}
     horizon_tap = {"tapOn": {"id": "financial_plan_setup_retirement_horizon"}}
@@ -569,8 +576,10 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
     assert absent in steps
     assert tap in steps
     assert visible in steps
+    assert steps[:5] == [launch, landing, open_home, home, stale]
     assert (
-        steps.index(absent)
+        steps.index(stale)
+        < steps.index(absent)
         < steps.index(tap)
         < steps.index(horizon_tap)
         < steps.index(continue_tap)
