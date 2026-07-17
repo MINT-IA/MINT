@@ -37619,37 +37619,37 @@ abstract class S {
   /// **'Par quoi on commence ?'**
   String get coachOpenerQuestion;
 
-  /// No description provided for @coachOnboardingStartMessage.
+  /// Initial Coach message sent after account creation to start onboarding guidance.
   ///
   /// In fr, this message translates to:
   /// **'Salut, je viens de créer mon compte. Par où je commence ?'**
   String get coachOnboardingStartMessage;
 
-  /// No description provided for @coachNotificationMonthlyCheckIn.
+  /// Monthly Coach notification inviting the user to review the month.
   ///
   /// In fr, this message translates to:
   /// **'On fait le point sur le mois ?'**
   String get coachNotificationMonthlyCheckIn;
 
-  /// No description provided for @coachNotificationCommitmentWithValue.
+  /// Coach notification following up on a named user commitment.
   ///
   /// In fr, this message translates to:
   /// **'Tu m’avais dit que tu allais {commitment}. C’est fait ?'**
   String coachNotificationCommitmentWithValue(String commitment);
 
-  /// No description provided for @coachNotificationCommitmentGeneric.
+  /// Coach notification following up when the commitment label is unavailable.
   ///
   /// In fr, this message translates to:
   /// **'Tu avais un engagement à tenir. C’est fait ?'**
   String get coachNotificationCommitmentGeneric;
 
-  /// No description provided for @coachNotificationFreshStart.
+  /// Coach notification opening a fresh monthly conversation.
   ///
   /// In fr, this message translates to:
   /// **'Nouveau mois. On commence par quoi ?'**
   String get coachNotificationFreshStart;
 
-  /// No description provided for @coachVoicePreferenceQuestion.
+  /// Coach question asking the user to choose the preferred voice intensity.
   ///
   /// In fr, this message translates to:
   /// **'Comment je te parle ?'**
@@ -40355,31 +40355,31 @@ abstract class S {
   /// **'Réponse rapide'**
   String get coachResponseDegradedHint;
 
-  /// No description provided for @coachInlineAmountSaveError.
+  /// Erreur affichée sous le montant Coach quand la sauvegarde durable échoue.
   ///
   /// In fr, this message translates to:
   /// **'Le montant n’a pas été enregistré. Réessaie.'**
   String get coachInlineAmountSaveError;
 
-  /// No description provided for @coachInlineAmountLppReconcile.
+  /// Action Coach proposée quand une saisie LPP libre doit être réconciliée avec le certificat.
   ///
   /// In fr, this message translates to:
   /// **'Vérifier avec un certificat LPP'**
   String get coachInlineAmountLppReconcile;
 
-  /// No description provided for @coachInlineAmountEchoSalary.
+  /// Écho factuel Coach après sauvegarde durable du salaire brut annuel déclaré.
   ///
   /// In fr, this message translates to:
   /// **'Salaire brut annuel déclaré : CHF {amount}'**
   String coachInlineAmountEchoSalary(String amount);
 
-  /// No description provided for @coachInlineAmountEchoLpp.
+  /// Écho factuel Coach après sauvegarde durable de l’avoir LPP déclaré.
   ///
   /// In fr, this message translates to:
   /// **'Avoir LPP déclaré : CHF {amount}'**
   String coachInlineAmountEchoLpp(String amount);
 
-  /// No description provided for @coachInlineAmountEcho3a.
+  /// Écho factuel Coach après sauvegarde durable de l’épargne 3a déclarée.
   ///
   /// In fr, this message translates to:
   /// **'Épargne 3a déclarée : CHF {amount}'**

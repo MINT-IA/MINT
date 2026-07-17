@@ -10640,9 +10640,19 @@
     "x-mint-meta": { "level": "N3" }
   },
   "coachOnboardingStartMessage": "Salut, je viens de créer mon compte. Par où je commence ?",
+  "@coachOnboardingStartMessage": {
+    "description": "Initial Coach message sent after account creation to start onboarding guidance.",
+    "x-mint-meta": { "level": "N3" }
+  },
   "coachNotificationMonthlyCheckIn": "On fait le point sur le mois ?",
+  "@coachNotificationMonthlyCheckIn": {
+    "description": "Monthly Coach notification inviting the user to review the month.",
+    "x-mint-meta": { "level": "N3" }
+  },
   "coachNotificationCommitmentWithValue": "Tu m’avais dit que tu allais {commitment}. C’est fait ?",
   "@coachNotificationCommitmentWithValue": {
+    "description": "Coach notification following up on a named user commitment.",
+    "x-mint-meta": { "level": "N3" },
     "placeholders": {
       "commitment": {
         "type": "String"
@@ -10650,8 +10660,20 @@
     }
   },
   "coachNotificationCommitmentGeneric": "Tu avais un engagement à tenir. C’est fait ?",
+  "@coachNotificationCommitmentGeneric": {
+    "description": "Coach notification following up when the commitment label is unavailable.",
+    "x-mint-meta": { "level": "N3" }
+  },
   "coachNotificationFreshStart": "Nouveau mois. On commence par quoi ?",
+  "@coachNotificationFreshStart": {
+    "description": "Coach notification opening a fresh monthly conversation.",
+    "x-mint-meta": { "level": "N3" }
+  },
   "coachVoicePreferenceQuestion": "Comment je te parle ?",
+  "@coachVoicePreferenceQuestion": {
+    "description": "Coach question asking the user to choose the preferred voice intensity.",
+    "x-mint-meta": { "level": "N3" }
+  },
   "coachStarterPaper": "Un papier que je comprends pas",
   "@coachStarterPaper": {
     "description": "Conversation starter chip — routes to scanner.",
