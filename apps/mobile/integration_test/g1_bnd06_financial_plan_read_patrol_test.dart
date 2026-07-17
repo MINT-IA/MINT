@@ -83,6 +83,7 @@ void main() {
         regenerated.dependencyHash,
         regenerated.profileHashAtGeneration,
       );
+      expect(regenerated.dependencyBranch, 'retirementNoLpp');
       final ledgerJsonAfterRegeneration = jsonEncode(
         ledger.reportAnswersSnapshot,
       );
@@ -94,7 +95,17 @@ void main() {
       expect(regenerated.monthlyTarget, 54321);
       expect(plans.isPlanStale, isFalse);
 
-      final applied = await ledger.applySaveFact('incomeGrossMonthly', 10000.0);
+      final changedDateOfBirth = DateTime.utc(
+        targetDateBefore.year - 60,
+        targetDateBefore.month,
+        targetDateBefore.day,
+      );
+      final applied = await ledger.applySaveFact(
+        'dateOfBirth',
+        '${changedDateOfBirth.year.toString().padLeft(4, '0')}-'
+            '${changedDateOfBirth.month.toString().padLeft(2, '0')}-'
+            '${changedDateOfBirth.day.toString().padLeft(2, '0')}',
+      );
       expect(applied, isTrue);
       await $.tester.pump();
       expect(plans.isPlanStale, isTrue);

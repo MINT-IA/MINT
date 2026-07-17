@@ -12,20 +12,16 @@ import yaml
 ROOT = Path(__file__).resolve().parents[3]
 ORCHESTRATOR = ROOT / "tools/simulator/patrol_bnd06_financial_plan_process_death.sh"
 WRITER = (
-    ROOT
-    / "apps/mobile/integration_test/g1_bnd06_financial_plan_write_patrol_test.dart"
+    ROOT / "apps/mobile/integration_test/g1_bnd06_financial_plan_write_patrol_test.dart"
 )
 READER = (
-    ROOT
-    / "apps/mobile/integration_test/g1_bnd06_financial_plan_read_patrol_test.dart"
+    ROOT / "apps/mobile/integration_test/g1_bnd06_financial_plan_read_patrol_test.dart"
 )
 WRITE_WRAPPER = (
-    ROOT
-    / "apps/mobile/test/patrol/g1_bnd06_financial_plan_write_runtime_test.dart"
+    ROOT / "apps/mobile/test/patrol/g1_bnd06_financial_plan_write_runtime_test.dart"
 )
 READ_WRAPPER = (
-    ROOT
-    / "apps/mobile/test/patrol/g1_bnd06_financial_plan_read_runtime_test.dart"
+    ROOT / "apps/mobile/test/patrol/g1_bnd06_financial_plan_read_runtime_test.dart"
 )
 FLOW = ROOT / "apps/mobile/.maestro/g1_bnd06_financial_plan_staleness.yaml"
 FEATURE_FLAGS = ROOT / "apps/mobile/lib/services/feature_flags.dart"
@@ -117,9 +113,7 @@ def _semantics_identifiers(source: str) -> set[str]:
         block = source[open_paren + 1 : end - 1]
         for match in re.finditer(r"\bidentifier\s*:\s*", block):
             expression = _dart_argument_expression(block, match.end())
-            identifiers.update(
-                re.findall(r"['\"]([A-Za-z0-9_-]+)['\"]", expression)
-            )
+            identifiers.update(re.findall(r"['\"]([A-Za-z0-9_-]+)['\"]", expression))
         cursor = end
     return identifiers
 
@@ -169,10 +163,10 @@ def test_orchestrator_is_bnd06_exact_head_and_source_bounded() -> None:
         "apps/mobile/lib/widgets/home/financial_plan_card.dart",
         "tools/simulator/maestro_env.sh",
         '[[ "$sha" == "$head_sha" ]]',
-        "git -C \"$repo_root\" diff --quiet \"$sha\" --",
+        'git -C "$repo_root" diff --quiet "$sha" --',
         "ls-files --others --exclude-standard -- apps/mobile",
         "runtime contract is not tracked by HEAD",
-        "git -C \"$repo_root\" archive --format=tar",
+        'git -C "$repo_root" archive --format=tar',
         "source-manifest.sha256",
     ):
         assert anchor in source, anchor
@@ -196,7 +190,7 @@ def test_orchestrator_proves_process_death_clean_build_and_physical_restore() ->
         "assert_external_build_empty",
         'rm -rf -- "$external_build"',
         "reset_between_patrol_stages=true",
-        "git -C \"$repo_root\" archive --format=tar",
+        'git -C "$repo_root" archive --format=tar',
         "production_source_exported_exact=true",
         "production_source_physical=true",
         "stat.S_ISLNK",
@@ -241,7 +235,7 @@ def test_financial_plan_test_opt_in_is_explicit_fail_closed_and_local_only() -> 
     for anchor in (
         'production_entrypoint="lib/main.dart"',
         f'test_compile_time_opt_in="{TEST_FINANCIAL_PLAN_FLAG}"',
-        'test_compile_time_opt_in_default=false',
+        "test_compile_time_opt_in_default=false",
         'test_compile_time_opt_in_scope="exact_archive_production_entrypoint_debug_build_only"',
         '"production_entrypoint": os.environ["MINT_META_PRODUCTION_ENTRYPOINT"]',
         '"test_compile_time_opt_in"',
@@ -392,12 +386,18 @@ def test_patrol_contracts_use_mint_app_and_only_synthetic_data() -> None:
             ".pdf",
         ):
             assert forbidden not in source, forbidden
-    assert _required_source(WRITE_WRAPPER).count(
-        "g1_bnd06_financial_plan_write_patrol_test.dart"
-    ) == 1
-    assert _required_source(READ_WRAPPER).count(
-        "g1_bnd06_financial_plan_read_patrol_test.dart"
-    ) == 1
+    assert (
+        _required_source(WRITE_WRAPPER).count(
+            "g1_bnd06_financial_plan_write_patrol_test.dart"
+        )
+        == 1
+    )
+    assert (
+        _required_source(READ_WRAPPER).count(
+            "g1_bnd06_financial_plan_read_patrol_test.dart"
+        )
+        == 1
+    )
 
 
 def test_patrol_contracts_enable_and_restore_financial_plan_flag() -> None:
@@ -420,21 +420,30 @@ def test_writer_generates_then_invalidates_plan_without_leaking_amount() -> None
     writer = _required_source(WRITER)
     for anchor in (
         "PlanGenerationService.generate(",
+        "goalCategory: 'goal_retirement_plan'",
+        "'q_date_of_birth'",
+        "'q_has_pension_fund': false",
+        "'prevoyance.hasPensionFund'",
+        "'source': 'userInput'",
+        "inputAsOf.month + 1",
+        "targetDate.year - 58",
+        "targetDate.year - 59",
+        "goalAmount: 54321",
+        "generated.monthlyTarget, 54321",
+        "generated.dependencyBranch, 'retirementNoLpp'",
         ".setPlan(",
-        "applySaveFact('incomeGrossMonthly'",
         "financial_plan_stale_state",
         "financial_plan_stale_recalculate",
         AMOUNT,
         "findsNothing",
     ):
         assert anchor in writer, anchor
+    date_mutation = re.search(r"applySaveFact\(\s*['\"]dateOfBirth['\"]", writer)
+    assert date_mutation, "writer must mutate a retirementNoLpp dependency"
+    assert not re.search(r"applySaveFact\(\s*['\"]incomeGrossMonthly['\"]", writer)
     assert writer.index("PlanGenerationService.generate(") < writer.index(".setPlan(")
-    assert writer.index(".setPlan(") < writer.index(
-        "applySaveFact('incomeGrossMonthly'"
-    )
-    assert writer.index("applySaveFact('incomeGrossMonthly'") < writer.index(
-        "financial_plan_stale_state"
-    )
+    assert writer.index(".setPlan(") < date_mutation.start()
+    assert date_mutation.start() < writer.index("financial_plan_stale_state")
     assert writer.index("financial_plan_stale_state") < writer.index(AMOUNT)
 
 
@@ -457,11 +466,16 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
         "profileHashAtGeneration",
         "dependencyHash",
         "isNot(initialPlanId)",
-        "applySaveFact('incomeGrossMonthly'",
+        "regenerated.dependencyBranch, 'retirementNoLpp'",
+        "targetDateBefore.year - 60",
         AMOUNT,
     ):
         assert anchor in reader, anchor
-    assert reader.count("applySaveFact('incomeGrossMonthly'") == 1
+    assert not re.search(r"applySaveFact\(\s*['\"]incomeGrossMonthly['\"]", reader)
+    date_mutations = list(
+        re.finditer(r"applySaveFact\(\s*['\"]dateOfBirth['\"]", reader)
+    )
+    assert len(date_mutations) == 1
     assert re.search(
         r"expect\(\s*ledgerJsonAfterRegeneration,\s*ledgerJsonBeforeRegeneration\s*,?\s*\)",
         reader,
@@ -480,7 +494,8 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
     new_id = reader.index("isNot(initialPlanId)")
     fingerprint_alias = reader.index("regenerated.dependencyHash", new_id)
     unchanged_ledger = reader.index("ledgerJsonAfterRegeneration", fingerprint_alias)
-    second_mutation = reader.index("applySaveFact('incomeGrossMonthly'", unchanged_ledger)
+    second_mutation = date_mutations[0].start()
+    assert second_mutation > unchanged_ledger
     final_stale = reader.index("financial_plan_stale_state", second_mutation)
     assert (
         recovery
@@ -526,9 +541,7 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
     tap = {"tapOn": {"id": "financial_plan_stale_recalculate"}}
     review_visible = {"assertVisible": {"id": "financial_plan_setup_review"}}
     review_tap = {"tapOn": {"id": "financial_plan_setup_review"}}
-    confirmation = {
-        "assertVisible": {"id": "financial_plan_setup_confirmation"}
-    }
+    confirmation = {"assertVisible": {"id": "financial_plan_setup_confirmation"}}
     confirm_tap = {"tapOn": {"id": "financial_plan_setup_confirm"}}
     visible = {"assertVisible": MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN}
     assert absent in steps

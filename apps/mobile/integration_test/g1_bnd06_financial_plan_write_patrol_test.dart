@@ -25,13 +25,40 @@ void main() {
 
       await ReportPersistenceService.clearDiagnostic();
       await FinancialPlanService.clear();
+      final inputAsOf = DateTime.now().toUtc();
+      final targetDate = DateTime.utc(
+        inputAsOf.year,
+        inputAsOf.month + 1,
+      );
+      final dateOfBirth = DateTime.utc(
+        targetDate.year - 58,
+        targetDate.month,
+        targetDate.day,
+      );
       await ReportPersistenceService.saveAnswers(<String, dynamic>{
         'q_firstname': 'Runtime synthetic',
-        'q_birth_year': 1990,
+        'q_birth_year': dateOfBirth.year,
+        'q_date_of_birth': '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+            '${dateOfBirth.month.toString().padLeft(2, '0')}-'
+            '${dateOfBirth.day.toString().padLeft(2, '0')}',
         'q_canton': 'VD',
         'q_civil_status': 'celibataire',
         'q_gross_salary_annual': 96000.0,
         'q_nombre_mois': 12.0,
+        'q_has_pension_fund': false,
+        '_coach_updated_at': inputAsOf.toIso8601String(),
+        '__provenance': {
+          'dateOfBirth': {
+            'source': 'userInput',
+            'updatedAt': inputAsOf.toIso8601String(),
+            'sourceDate': null,
+          },
+          'prevoyance.hasPensionFund': {
+            'source': 'userInput',
+            'updatedAt': inputAsOf.toIso8601String(),
+            'sourceDate': null,
+          },
+        },
       });
       await ReportPersistenceService.setMiniOnboardingCompleted(true);
 
@@ -51,9 +78,9 @@ void main() {
       final confirmationTime = DateTime.now();
       final owner = await ledger.ensureCanonicalProfileOwner();
       final generated = await PlanGenerationService.generate(
-        goalDescription: 'Objectif logement synthétique BND-06',
-        goalCategory: 'goal_house',
-        targetDate: DateTime.now().add(const Duration(days: 7)),
+        goalDescription: 'Objectif retraite synthétique BND-06',
+        goalCategory: 'goal_retirement_plan',
+        targetDate: targetDate,
         profile: profile!,
         profileOwnerId: owner,
         selfLppSnapshot: null,
@@ -61,12 +88,23 @@ void main() {
         now: confirmationTime,
       );
       expect(generated.monthlyTarget, 54321);
+      expect(generated.dependencyBranch, 'retirementNoLpp');
       expect(generated.dependencyHash, generated.profileHashAtGeneration);
       await plans.setPlan(generated.copyWith(confirmedAt: confirmationTime));
       expect(plans.currentPlan?.id, generated.id);
       expect(plans.isPlanStale, isFalse);
 
-      final applied = await ledger.applySaveFact('incomeGrossMonthly', 9000.0);
+      final changedDateOfBirth = DateTime.utc(
+        targetDate.year - 59,
+        targetDate.month,
+        targetDate.day,
+      );
+      final applied = await ledger.applySaveFact(
+        'dateOfBirth',
+        '${changedDateOfBirth.year.toString().padLeft(4, '0')}-'
+            '${changedDateOfBirth.month.toString().padLeft(2, '0')}-'
+            '${changedDateOfBirth.day.toString().padLeft(2, '0')}',
+      );
       expect(applied, isTrue);
       await $.tester.pump();
       expect(plans.isPlanStale, isTrue);
