@@ -108,6 +108,7 @@ TaxReviewConfirmation _confirmation(
   TaxExtractionCandidate candidate, {
   TaxDocumentKind kind = TaxDocumentKind.assessmentNotice,
   TaxAssessmentStatus status = TaxAssessmentStatus.assessedAppealable,
+  bool inForceAttested = false,
   int? taxYear = 2025,
   int? basedOnTaxYear,
   Object? sourceDate = _useDefaultSourceDate,
@@ -133,6 +134,7 @@ TaxReviewConfirmation _confirmation(
         : sourceDate as DateTime?,
     documentKind: kind,
     assessmentStatus: status,
+    inForceAttested: inForceAttested,
     subjectScope: subjectScope,
     cantonCode: cantonCode,
     municipalityId: municipalityId,
@@ -222,6 +224,102 @@ void main() {
       ),
       throwsA(isA<ArgumentError>()),
     );
+  });
+
+  test('in-force tax review writes a precise reference and cold reloads it',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final asOf = DateTime.utc(2026, 7, 14, 12);
+    final persistence = _MemoryTaxPersistence({
+      '_coach_profile_owner_v1': const CoachProfileOwnerRoot(
+        _ownerId,
+      ).toJsonString(),
+    });
+    final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => asOf,
+    );
+    await provider.acceptTaxReview(
+      _confirmation(
+        _candidate(_assessmentId),
+        status: TaxAssessmentStatus.inForce,
+        inForceAttested: true,
+        now: () => asOf,
+      ),
+    );
+
+    final snapshot = provider.profile!.fiscal.snapshots.single;
+    final reference = provider.profile!.latestTaxDecisionReference;
+    expect(reference, isNotNull);
+    expect(reference!.referenceId, snapshot.snapshotId);
+    expect(reference.kind, SpecialistReferenceKind.taxAssessmentDecision);
+    expect(
+      reference.precisionReadyAt(asOf, taxSnapshot: snapshot),
+      isTrue,
+    );
+
+    final cold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => asOf,
+    );
+    await cold.loadFromWizard();
+    expect(cold.profile!.latestTaxDecisionReference, reference);
+    expect(
+      cold.profile!.latestTaxDecisionReference!.toJson(),
+      reference.toJson(),
+    );
+    expect(
+      cold.profile!.latestTaxDecisionReference!.precisionReadyAt(
+        asOf,
+        taxSnapshot: cold.profile!.fiscal.snapshots.single,
+      ),
+      isTrue,
+    );
+  });
+
+  test(
+      'non-final, incomplete, and non-assessment snapshots create no reference',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    final asOf = DateTime.utc(2026, 7, 14, 12);
+    final cases = <String, TaxReviewConfirmation>{
+      'appealable': _confirmation(
+        _candidate(_assessmentId),
+        now: () => asOf,
+      ),
+      'incomplete': _confirmation(
+        _candidate(_returnId),
+        status: TaxAssessmentStatus.inForce,
+        inForceAttested: true,
+        cantonCode: null,
+        now: () => asOf,
+      ),
+      'provisional': _confirmation(
+        _candidate(_provisionalId),
+        kind: TaxDocumentKind.provisionalBill,
+        status: TaxAssessmentStatus.provisional,
+        now: () => asOf,
+      ),
+      'taxpayer-return': _confirmation(
+        _candidate(_finalBillId),
+        kind: TaxDocumentKind.taxpayerReturn,
+        status: TaxAssessmentStatus.selfDeclared,
+        now: () => asOf,
+      ),
+    };
+
+    for (final entry in cases.entries) {
+      final provider = CoachProfileProvider(
+        taxProfilePersistence: _MemoryTaxPersistence(),
+        now: () => asOf,
+      );
+      await provider.acceptTaxReview(entry.value);
+      expect(
+        provider.profile!.latestTaxDecisionReference,
+        isNull,
+        reason: entry.key,
+      );
+    }
   });
 
   test('provider rejects future tax and basis years before persistence',

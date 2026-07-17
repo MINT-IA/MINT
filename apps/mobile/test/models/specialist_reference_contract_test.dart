@@ -66,12 +66,13 @@ final _validReferences = <String, Map<String, Object?>>{
 };
 
 TaxSnapshot _taxSnapshot({
+  String snapshotId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
   int taxYear = 2025,
   String cantonCode = 'GE',
   TaxSubjectScope subjectScope = TaxSubjectScope.individual,
 }) =>
     TaxSnapshot(
-      snapshotId: '99999999-9999-4999-8999-999999999999',
+      snapshotId: snapshotId,
       profileOwnerId: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
       taxYear: taxYear,
       basedOnTaxYear: null,
@@ -463,6 +464,13 @@ void main() {
       (_taxSnapshot(cantonCode: 'VD'), 'conflict', false),
       (
         _taxSnapshot(
+          snapshotId: '99999999-9999-4999-8999-999999999999',
+        ),
+        'conflict',
+        false,
+      ),
+      (
+        _taxSnapshot(
           subjectScope: TaxSubjectScope.jointlyAssessedCouple,
         ),
         'conflict',
@@ -532,6 +540,31 @@ void main() {
         original.lppRegulationReference.hashCode);
     expect(cleared.lppRegulationReference, isNull);
     expect(changed, isNot(original));
+  });
+
+  test('calendar-year change alone does not stale durable references', () {
+    final profile = _restoreWith(_validReferences);
+    final nextYear = DateTime.utc(2027, 7, 17, 12);
+    for (final field in const <String>[
+      'lppRegulationReference',
+      'pillar3aBeneficiaryClause',
+      'latestTaxDecisionReference',
+    ]) {
+      final isTax = field == 'latestTaxDecisionReference';
+      expect(
+        _precisionContract(
+          _typedReference(profile, field),
+          asOf: nextYear,
+          taxContextRequired: isTax,
+          taxSnapshot: isTax ? _taxSnapshot() : null,
+        ),
+        allOf(
+          containsPair('state', 'known'),
+          containsPair('precisionReady', true),
+        ),
+        reason: field,
+      );
+    }
   });
 
   test('CoachProfile stays independent from provider document authority', () {
