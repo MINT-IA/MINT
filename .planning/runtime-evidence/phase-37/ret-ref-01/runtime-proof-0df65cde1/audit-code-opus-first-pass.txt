@@ -1,0 +1,26 @@
+I've completed the audit. Here's my assessment.
+
+## MINT Code Audit — G1-RET-REF-01 tax-decision reference
+
+**Scope:** Diff `8d99646be..HEAD` (986 lines, within budget). A bounded vertical slice deriving `latestTaxDecisionReference` (a `SpecialistReferenceEvidence`) from the existing typed tax root, consumed by `ConfidenceScorer` to fail-closed a fiscal review prompt.
+
+### Verification performed
+- **Full model wiring (not a facade):** `latestTaxDecisionReference` is a real field with constructor param, sentinel-based `copyWith` (`coach_profile.dart:4099,4228`), `==`/`hashCode`, strict `tryFromJson` (`:4431`), and `toJson` (`:4575`).
+- **Derivation on both paths:** live write in `acceptTaxReview` derives from `nextFiscal` *after* building the validated-ID set (`coach_profile_provider.dart:1273`), and cold `fromWizardAnswers` derives *after* `_validatedFiscalSnapshotIds` (`coach_profile.dart:5410,5779`). Corrupt provenance → no reference but history retained (test: `corrupt cold provenance preserves history but clears reference`).
+- **Real consumer:** `ConfidenceScorer._hasPrecisionReadyTaxDecision` (`confidence_scorer.dart:1090`) runs a public precise selector + `precisionReadyAt` and only suppresses `tax.document.review` on exact UUID/context/date/final-status coherence. Wired at `score()` behind the `taxAssessmentIngestionEnabled` composite kill switch (both flags default false — confirmed in `feature_flags.dart` via orchestrator asserts).
+- **Fail-closed correctness:** private `_selectLatestTaxDecisionReference` admits only provenance-validated `inForce` + `inForceAttested` assessment notices with non-future dates; same-rank semantic divergence → conflict/no reference (`:2572`); future/mismatched references rejected (`:1090` pre-checks guard the `.precise` factory against throwing).
+- **`legalYear == taxYear` invariant** enforced in `tryFromJson` (`rawTaxYear != legalYear` rejects); calendar-year staleness removed from `stateAt` — the only production consumer of `stateAt`/`precisionReadyAt` is the tax path (`confidence_scorer.dart:1111`); the other three reference kinds have no wired readers, so no regression.
+- **UI write path is real:** `tax_review_assessment_status` / `tax_review_in_force_attested` controls exist in `extraction_review_screen.dart:660-676`, attestation gated to `inForce`.
+- **Privacy:** reference carries only an opaque UUID + canton/taxYear/subjectScope — no amounts, names, or tax numbers. Not persisted as an answer key and not on the backend `save_fact` allowlist path; `_coach_tax_snapshots_v1` stays stripped by `backendSafeAnswers`.
+
+### Findings
+
+**P0:** none.
+**P1:** none.
+**P2 (non-blocking):**
+- `latestTaxDecisionReference` is serialized by `CoachProfile.toJson()`, which `_resolvedCanonicalValue` walks (`coach_profile_provider.dart:1961`). No current path ships `toJson()` wholesale to the backend, but there is no guard preventing a future one from carrying the reference metadata. Low sensitivity (canton already syncs); worth a comment.
+- Behavioral tightening: the fiscal prompt now appears for `assessedAppealable`/dated baselines that previously suppressed it. This is intentional per the swiss-domain verdict (only a final in-force decision is precision-ready) and all affected tests were updated in the fail-closed direction — flagged only for reviewer awareness, not a defect.
+
+Docs remain honestly hedged (code-GREEN only, no G1 closure / no activation / G2-G3 forbidden), consistent with the code.
+
+## Verdict: **PASS**

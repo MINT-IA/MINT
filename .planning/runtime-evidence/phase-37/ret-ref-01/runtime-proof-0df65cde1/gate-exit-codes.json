@@ -1,0 +1,18 @@
+{
+  "claude_code_opus_first_pass": 0,
+  "claude_product_domain_opus_final_confirmation": 0,
+  "claude_product_domain_sonnet_rerun": 0,
+  "docs_contract_bundle": 0,
+  "flutter_analyze": 0,
+  "flutter_full_suite": 0,
+  "maestro_flag_off": 0,
+  "mermaid_render_guard": 0,
+  "mint_os_doctor_full": 0,
+  "orchestrator_contract_tests": 0,
+  "patrol_cold_reader_xcresult": 0,
+  "patrol_explicit_terminate": 0,
+  "patrol_process_death_confirmation": 0,
+  "patrol_tooling_guard": 0,
+  "patrol_writer_xcresult": 0,
+  "runtime_build_restoration": 0
+}

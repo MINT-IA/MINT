@@ -1,0 +1,29 @@
+{
+  "app_id": "ch.mint.app",
+  "completed_steps": 9,
+  "contract": "g1_prov03_tax_flag_off",
+  "flag_off_assertions": [
+    "document_scan_tax_type_selector:not_visible",
+    "document_scan_tax_example_cta:not_visible",
+    "document_scan_tax_local_text_cta:not_visible",
+    "tax_review_confirm_cta:not_visible"
+  ],
+  "result": "Passed",
+  "runtime_sha": "0df65cde10b8dc94e1e69a37d478ff21e3208458",
+  "screenshot": {
+    "copied_to_tracked_proof": false,
+    "filename_in_local_raw_bundle": "g1_prov03_tax_flag_off.png",
+    "sha256": "a31227792d9c60450c925fe31506fb00df6235871860256c0f700e2f0b6812c9"
+  },
+  "startup_barrier": [
+    "launchApp:clearState",
+    "assertVisible:landing_route",
+    "openLink:mint:///scan?type=taxDeclaration"
+  ],
+  "synthetic_data_only": true,
+  "total_steps": 9,
+  "visual_inspection": {
+    "result": "Passed",
+    "summary": "Generic document scan rendered; tax-only acquisition and review controls were absent; no user data was visible."
+  }
+}

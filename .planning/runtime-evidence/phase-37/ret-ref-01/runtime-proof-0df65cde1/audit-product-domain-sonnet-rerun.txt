@@ -1,0 +1,89 @@
+Now I have enough evidence to form a complete verdict.
+
+---
+
+## Product/domain verdict: PASS
+
+---
+
+### Executive summary
+
+This diff implements the G1-RET-REF-01 bounded tax-reference slice: a metadata-only `latestTaxDecisionReference` derived from the single `_coach_tax_snapshots_v1` authority after exact provenance validation. The implementation is Swiss-domain correct, compliance-clean, fail-closed, and fully wired (writer → cold reload → confidence scorer → existing `fiscalite` DataBlock prompt). No P0 or P1 blockers found.
+
+---
+
+## P0 Findings
+
+**None.**
+
+No harmful Swiss law logic, no personalized advice, no misleading outputs, no privacy exposure, no flow that could drive a harmful user decision.
+
+---
+
+## P1 Findings
+
+**None that block this diff.**
+
+The reference produces zero financial calculation outputs. It solely controls suppression of an existing `tax.document.review` enrichment prompt. The Swiss domain logic is correct at every level:
+
+- `inForce + inForceAttested` are both required (never parser-inferred; `'parser classification can never manufacture inForce'` test enforces this at `tax_scan_local_only_source_contract_test.dart`)
+- `legalYear == taxYear` is Swiss-correct: a 2025 fiscal-period decision issued in 2026 has `legalYear = taxYear = 2025`; it is not stale on 1 January 2027 unless a new decision replaces it
+- The calendar TTL removal (`legalYear != civilAsOf.year` is gone) is legally accurate: Swiss tax decisions (art. 131–140 LIFD / art. 149–155 LHID) remain valid until rectified, replaced, or contested; they do not self-expire annually
+- No advice language: MINT may say "décision identifiée pour la période et la juridiction indiquées"; it cannot say "ce taux sera ton taux futur" (compliance border enforced at `swiss-domain-verdict.md §20`)
+
+---
+
+## P2 Findings
+
+### P2-a — `fiscalite` block "complete" + active tax-document Ask (UX tension, not a safety issue)
+
+**Evidence:** `confidence_scorer_test.dart:885-913`
+
+When `typedTaxProfile && documentTaxAssessmentEnabled` are both true, a user who scanned an `assessedAppealable` assessment with all amounts present will see `fiscalite` block score 15/15 (`status: 'complete'`) while the `tax.document.review` prompt is still active. `scoreAsBlocs` measures data presence; `_hasPrecisionReadyTaxDecision` measures documentary quality (requires `inForce + attested + exact UUID coherence`). These are different quality axes, and the design is intentional, but a user seeing "complete" alongside an active data-collection prompt for the same domain may dismiss the prompt.
+
+This is behind default-off flags and does not affect safety. Clarify the two-quality-axis UX (data completeness vs. source finality) in copy before activation.
+
+### P2-b — No automatic staleness for `pillar3aBeneficiaryClause` after OPP 3 June 2027
+
+**Evidence:** `swiss-domain-verdict.md §17/18/21`; `specialist_reference_contract_test.dart:'calendar-year change alone does not stale durable references'`
+
+The `stateAt` method no longer checks `legalYear != civilAsOf.year`. For `pillar3aBeneficiaryClause`, this is intentionally correct (the diff's addendum: "c'est l'entrée en vigueur effective qui doit piloter l'invalidation"). However, the OPP 3 modification entering into force on 2027-06-01 will change beneficiary-clause rules in a way the current code cannot auto-detect. The test `RETREF-D09` describes the expected stale behavior but there is no code that sets the clause stale when the legal event fires. Resolution: tracked by the existing product process; not a pre-activation blocker for the fiscal reference scope, but the activation checklist should include a dated reminder.
+
+### P2-c — `latestTaxDecisionReference` dual serialization path
+
+**Evidence:** `coach_profile.dart:4431` (`fromJson` reads it), `coach_profile.dart:4575` (`toJson` writes it), `coach_profile.dart:5410` (`fromWizardAnswers` re-derives it)
+
+The reference appears in `CoachProfile.toJson` / `fromJson` (for in-memory round-trips and tests) AND is re-derived in `fromWizardAnswers` (production cold loads). The docs explicitly state it is "not an independent persistence authority," and the `stateAt` coherence check (`taxSnapshot.updatedAt.toUtc() == confirmedAt.toUtc()`) would fail for a stale JSON-serialized reference. No functional risk has been identified, but future maintainers may find the dual path confusing. Document the canonical authority ordering in a comment at the `fromJson` call site.
+
+### P2-d — Maestro `landing_route` assertion (good defensive fix, already in the diff)
+
+**Evidence:** `g1_prov03_tax_flag_off.yaml:+assertVisible id: "landing_route"` before `openLink`
+
+The new assertion prevents a false-positive flag-off result if the launch hasn't completed before the deep-link fires. This is a correct improvement and is already included in the diff.
+
+---
+
+## Swiss domain review
+
+| Domain | Affected | Finding |
+|---|---|---|
+| **Tax (ICC/IFD)** | ✓ central | `legalYear == taxYear` correctly models fiscal-period provenance; no calendar TTL; `inForce + inForceAttested` requirement is Swiss-law correct; `assessedAppealable` is correctly labeled "taxé, entrée en force non confirmée" (fr) / "rechtskräftig" not used for it (de) — all localization reviewed. No tax rates, amounts or conclusions emitted from the reference. |
+| **LPP/prévoyance** | Not affected by this diff | LPP reference keys unchanged |
+| **3a beneficiary (OPP 3)** | Adjacent concern | June 2027 OPP 3 modification requires future auto-staleness; flagged P2-b |
+| **AVS** | Not affected | |
+| **Succession/matrimonial** | Not affected | |
+| **Mortgage/immobilier** | Not affected | |
+| **Frontalier** | Not affected | |
+
+---
+
+## MINT product logic review
+
+This change moves squarely along the **ledger → DataQuest → scenario → dossier** spine:
+
+- **Ledger**: `latestTaxDecisionReference` is derived metadata over the single `_coach_tax_snapshots_v1` root, not a second ledger. No new persistence key, no backend mirror, no financial calculation.
+- **DataQuest**: The diff reuses the existing `EnrichmentPrompt.taxDocument` and `fiscalite` DataBlock. No new DataQuest service or Case is introduced. The prompt closes only on exact reference coherence (UUID + sourceDate + confirmedAt + inForce + attested).
+- **Scenario**: Not consumed by any scenario yet; the reference is status-only for the current confidence scorer scope. No scenario is broken.
+- **Dossier/specialist handoff**: The reference tuple (UUIDv4, kind, period, canton, subject, source date) is exactly what a specialist PDF would need to locate the authoritative document. The handoff boundary is clean.
+
+One implementation detail to verify pre-activation: `_hasPrecisionReadyTaxDecision` runs a precise selector requiring `cantonalCommunalTaxableIncomeChf`. A user with a valid `inForce` decision that omits income (only wealth or only rate) will have a reference built (private selector doesn't require income) but will still see the tax-document prompt (because the precise income query fails). This is intentionally conservative and consistent with the "reference alone doesn't mean the data block is complete" design, but the prompt should eventually be decoupled from the income-field gate once the domain can express "final reference present but income still needed."

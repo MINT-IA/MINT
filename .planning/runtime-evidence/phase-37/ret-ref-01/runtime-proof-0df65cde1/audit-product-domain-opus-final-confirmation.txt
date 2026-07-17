@@ -1,0 +1,33 @@
+I've verified the critical correctness points. `copyWith` uses a `_keepSpecialistReferenceValue` sentinel (coach_profile.dart:4099, 4228-4231), so null correctly *clears* the reference — the "same-UUID replacement clears the reference" tests are genuinely backed. The field is properly declared, round-trips, and the wizard path re-derives it from the validated fiscal root (5410, 5779). Here is my verdict.
+
+---
+
+**Product/domain verdict: PASS**
+
+This is a bounded, honestly-scoped, well-tested tax-reference slice sitting entirely behind two default-false kill switches (`typedTaxProfile`, `documentTaxAssessmentEnabled`). It correctly advances the ledger→scenario spine without a facade, and the diff repeatedly and truthfully states it does not promote the ticket, close G1, or authorize G2/G3. No P0.
+
+## P0
+None. The feature is inert in production (composite flag default-false), the reference is `specialist_reference`/educational-only, carries no financial value, and feeds no tax calculation — only enrichment-prompt suppression. No path can drive a harmful decision in this diff.
+
+## P1
+**1. Stale tax baseline permanently suppresses the "add your tax assessment" re-ask (freshness incoherence).**
+- Evidence: `confidence_scorer.dart` `_hasPrecisionReadyTaxDecision` + `coach_profile.dart` `SpecialistReferenceEvidence.stateAt`. The old `if (legalYear != civilAsOf.year) return stale;` was deleted, and the matrix freshness tier moved `annual → event_static` (`.planning/goals/G1-ledger-gap-matrix.md` `latestTaxDecisionReference` row).
+- Repro/code path: `stateAt` returns `known` for any coherent in-force decision with no upper bound on `taxYear`. A user who confirms a 2025 avis in 2026 keeps `known` in 2027, 2028… → `taxDecisionPrecisionReady == true` → `EnrichmentPrompt.taxDocument` is never re-emitted, so MINT never asks for the fresher 2026/2027 assessment. Swiss taxation is annual; a multi-year-old assessment is not a current tax baseline. This inverts the Data Quest principle "re-confirm stale facts" into "a stale fact silences the ask."
+- Mitigation acknowledged: the swiss-domain addendum §21 explicitly defers annual re-confirmation to "its own contract with its own dates" and argues `legalYear` must not be a calendar TTL — a defensible modeling distinction (the 2025 decision document is genuinely immutable/event-static). Because the feature is flag-gated and activation is separately NO-GO, this is not a release blocker *now*, but it is a required condition before either flag flips: the consumer conflates "I hold a valid reference to some past decision" with "no current tax document is needed." The separate freshness contract must exist before activation.
+
+## P2
+**1. `latestTaxDecisionReference` is both derived-on-rebuild and directly (de)serialized in `CoachProfile.toJson/fromJson`.**
+- Evidence: `coach_profile.dart:4431` (`fromJson` → `tryFromJson`) and `:4575` (`toJson`). The wizard/production path re-derives from the validated fiscal root and ignores the model-level key, and `DATA_LEDGER.md` §4.0 states toJson "does not make it an independent persistence authority." Correct today (backend sync strips `_coach_tax_*`, `/rapport` uses `fromWizardAnswers`), but this is a latent two-sources-of-truth smell: any future code that treats `CoachProfile.toJson()` as authority would resurrect a stale reference divergent from the tax root. `fromJson` re-validates via fail-closed `tryFromJson`, which bounds the risk. Worth a guard/comment or excluding it from model JSON.
+
+**2. `stateAt` no longer applies any legal-event staleness to `lppRegulation`/`pillar3aBeneficiaryClause`.**
+- The removed year-comparison means a 3a beneficiary clause confirmed under 2026 OPP 3 stays `known` past the announced 2027-06-01 OPP 3 change with no automatic invalidation. No production impact today (those rows remain `NONE/NONE`, unwired), and the design explicitly requires an authority event to drive staleness — but there is currently no mechanism to detect the 2027-06-01 entry into force. Track before those references get a real consumer.
+
+## Swiss domain review
+- **Tax:** `legalYear == taxYear` is now enforced (`tryFromJson` `rawTaxYear != legalYear` → reject; `stateAt` coherence). Domain-correct: a 2025 décision de taxation emitted in 2026 keeps `legalYear=taxYear=2025`, `sourceDate=2026`. Precision now requires `assessmentNotice` + `inForce` + explicit `inForceAttested`; a merely `assessedAppealable` notice keeps prompting (`confidence_scorer_test.dart` flipped to `hasLength(1)`) — correctly conservative, since an appealable assessment can still change.
+- **Couples / tax unit:** `subjectScope` (individual vs `jointlyAssessedCouple`) is preserved and coherence-checked; the snapshot is never split or copied to a partner. Correct for Swiss joint assessment.
+- **Canton/jurisdiction:** `jurisdiction = cantonCode`, gated on `sortedCantonCodes`. Adequate for a reference identifier; communal precision stays with the snapshot.
+- **Compliance:** No advice, no ranking, no guarantee language, no invented LPP capital-notice deadline (the addendum keeps `deadlineDate` document-sourced). Reference carries no PII/financial value; persistence tests assert no name/AVS number/"AVIS DE TAXATION" leak.
+- **AVS/LPP/3a/mortgage/insurance/succession:** Not materially affected by this diff. The LPP/3a/estate specialist references remain honestly `NONE` (unwired), not falsely live.
+
+## Mint product logic review
+The change is coherent with the ledger → DataQuest → scenario → dossier spine: one authority (`_coach_tax_snapshots_v1`), a metadata-only read-model derived after provenance validation (no second root, no backend mirror, `backendSafeAnswers` still strips it), a single provider mutation (`acceptTaxReview`), and fail-closed cold reload. No duplicated user variable, no facade — writer, consumer, and tests all exist and match the matrix row. The one product-logic weakness is freshness (P1): the DataQuest re-ask is silenced by an arbitrarily old assessment, which must be resolved by the deferred annual-reconfirmation contract before this flow is activated.
