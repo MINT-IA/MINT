@@ -13,12 +13,16 @@ const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
 const _visualReadyMarkerName = 'mint-g1-front01-visual-ready-v1.marker';
 const _visualReadyMarkerPayload = 'MINT_G1_FRONT01_VISUAL_READY_V1\n';
 
-Finder _dropdownOption(String value) => find
-    .byWidgetPredicate(
-      (widget) => widget is DropdownMenuItem<String> && widget.value == value,
-      description: 'Dropdown option $value',
-    )
-    .last;
+Finder _countryOverlayOption(String code) => find.byWidgetPredicate(
+      (widget) =>
+          widget is Text && (widget.data?.trim().endsWith('($code)') ?? false),
+      description: 'Visible country option ending in ($code)',
+    );
+
+Finder _cantonOverlayOption(String code) => find.byWidgetPredicate(
+      (widget) => widget is Text && widget.data?.trim() == code,
+      description: 'Visible canton option $code',
+    );
 
 void main() {
   patrolTest(
@@ -108,8 +112,8 @@ void main() {
         find.byKey(const Key('frontier_residence_country_field')),
       ).tap();
       await $.pumpAndSettle();
-      await $(_dropdownOption('FR')).waitUntilVisible();
-      await $(_dropdownOption('FR')).tap();
+      await $(_countryOverlayOption('FR')).waitUntilVisible();
+      await $(_countryOverlayOption('FR')).tap();
       await $.pumpAndSettle();
 
       expect(
@@ -136,8 +140,8 @@ void main() {
         find.byKey(const Key('frontier_work_country_field')),
       ).tap();
       await $.pumpAndSettle();
-      await $(_dropdownOption('CH')).waitUntilVisible();
-      await $(_dropdownOption('CH')).tap();
+      await $(_countryOverlayOption('CH')).waitUntilVisible();
+      await $(_countryOverlayOption('CH')).tap();
       await $.pumpAndSettle();
 
       expect(
@@ -163,8 +167,8 @@ void main() {
         find.byKey(const Key('frontier_work_canton_field')),
       ).tap();
       await $.pumpAndSettle();
-      await $(_dropdownOption('GE')).waitUntilVisible();
-      await $(_dropdownOption('GE')).tap();
+      await $(_cantonOverlayOption('GE')).waitUntilVisible();
+      await $(_cantonOverlayOption('GE')).tap();
       await $.pumpAndSettle();
 
       await $(
