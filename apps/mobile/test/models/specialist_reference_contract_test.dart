@@ -58,6 +58,8 @@ final _validReferences = <String, Map<String, Object?>>{
       referenceId: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
       kind: 'taxAssessmentDecision',
       sourceDate: '2026-06-30',
+      legalYear: 2025,
+      confirmedAt: '2026-07-01T00:00:00.000Z',
     ),
     'taxYear': 2025,
     'jurisdiction': 'GE',
@@ -282,6 +284,21 @@ void main() {
         reason: 'Invalid evidence must preserve educational-only output.',
       );
     }
+  });
+
+  test('tax reference rejects a legal year different from its tax year', () {
+    final mismatched = <String, Object?>{
+      ..._validReferences['latestTaxDecisionReference']!,
+      'legalYear': 2026,
+    };
+
+    expect(
+      _storedReference(
+        _restoreWith({'latestTaxDecisionReference': mismatched}),
+        'latestTaxDecisionReference',
+      ),
+      isNull,
+    );
   });
 
   test('the four precision predicates remain independent', () {

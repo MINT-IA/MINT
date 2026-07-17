@@ -275,6 +275,13 @@ void main() {
       ),
       isTrue,
     );
+    FeatureFlags.documentTaxAssessmentEnabled = true;
+    expect(
+      ConfidenceScorer.score(cold.profile!, now: () => asOf)
+          .prompts
+          .where((prompt) => prompt.fieldPath == 'fiscal.assessedBaseline'),
+      isEmpty,
+    );
   });
 
   test(
@@ -320,6 +327,155 @@ void main() {
         reason: entry.key,
       );
     }
+  });
+
+  test('same UUID replacement clears an ineligible reference live and cold',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    FeatureFlags.documentTaxAssessmentEnabled = true;
+    final asOf = DateTime.utc(2026, 7, 14, 12);
+    final persistence = _MemoryTaxPersistence();
+    final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => asOf,
+    );
+    await provider.acceptTaxReview(
+      _confirmation(
+        _candidate(_assessmentId),
+        status: TaxAssessmentStatus.inForce,
+        inForceAttested: true,
+        now: () => asOf,
+      ),
+    );
+    expect(provider.profile!.latestTaxDecisionReference, isNotNull);
+
+    await provider.acceptTaxReview(
+      _confirmation(
+        _candidate(_assessmentId),
+        status: TaxAssessmentStatus.assessedAppealable,
+        now: () => asOf,
+      ),
+    );
+    expect(provider.profile!.fiscal.snapshots, hasLength(1));
+    expect(provider.profile!.latestTaxDecisionReference, isNull);
+    expect(
+      ConfidenceScorer.score(provider.profile!, now: () => asOf)
+          .prompts
+          .where((prompt) => prompt.fieldPath == 'fiscal.assessedBaseline'),
+      hasLength(1),
+    );
+
+    final cold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => asOf,
+    );
+    await cold.loadFromWizard();
+    expect(cold.profile!.fiscal.snapshots, hasLength(1));
+    expect(cold.profile!.latestTaxDecisionReference, isNull);
+    expect(
+      ConfidenceScorer.score(cold.profile!, now: () => asOf)
+          .prompts
+          .where((prompt) => prompt.fieldPath == 'fiscal.assessedBaseline'),
+      hasLength(1),
+    );
+  });
+
+  test('same-rank in-force conflict clears reference live and cold', () async {
+    FeatureFlags.typedTaxProfile = true;
+    FeatureFlags.documentTaxAssessmentEnabled = true;
+    final asOf = DateTime.utc(2026, 7, 14, 12);
+    final persistence = _MemoryTaxPersistence();
+    final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => asOf,
+    );
+    for (final confirmation in <TaxReviewConfirmation>[
+      _confirmation(
+        _candidate(_assessmentId),
+        status: TaxAssessmentStatus.inForce,
+        inForceAttested: true,
+        cantonalIncome: 98500,
+        now: () => asOf,
+      ),
+      _confirmation(
+        _candidate(_provisionalId),
+        status: TaxAssessmentStatus.inForce,
+        inForceAttested: true,
+        cantonalIncome: 112000,
+        now: () => asOf,
+      ),
+    ]) {
+      await provider.acceptTaxReview(confirmation);
+    }
+    expect(provider.profile!.fiscal.snapshots, hasLength(2));
+    expect(provider.profile!.latestTaxDecisionReference, isNull);
+    expect(
+      ConfidenceScorer.score(provider.profile!, now: () => asOf)
+          .prompts
+          .where((prompt) => prompt.fieldPath == 'fiscal.assessedBaseline'),
+      hasLength(1),
+    );
+
+    final cold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => asOf,
+    );
+    await cold.loadFromWizard();
+    expect(cold.profile!.latestTaxDecisionReference, isNull);
+    expect(
+      ConfidenceScorer.score(cold.profile!, now: () => asOf)
+          .prompts
+          .where((prompt) => prompt.fieldPath == 'fiscal.assessedBaseline'),
+      hasLength(1),
+    );
+  });
+
+  test('corrupt cold provenance preserves history but clears reference',
+      () async {
+    FeatureFlags.typedTaxProfile = true;
+    FeatureFlags.documentTaxAssessmentEnabled = true;
+    final asOf = DateTime.utc(2026, 7, 14, 12);
+    final persistence = _MemoryTaxPersistence();
+    final writer = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => asOf,
+    );
+    await writer.acceptTaxReview(
+      _confirmation(
+        _candidate(_assessmentId),
+        status: TaxAssessmentStatus.inForce,
+        inForceAttested: true,
+        now: () => asOf,
+      ),
+    );
+    expect(writer.profile!.latestTaxDecisionReference, isNotNull);
+
+    final provenance = Map<String, dynamic>.from(
+      persistence.answers['__provenance'] as Map,
+    );
+    const path = 'fiscal.snapshots.$_assessmentId.taxYear';
+    provenance[path] = Map<String, dynamic>.from(provenance[path] as Map)
+      ..['updatedAt'] = DateTime.utc(2026, 7, 13).toIso8601String();
+    persistence.answers['__provenance'] = provenance;
+    final before = jsonEncode(persistence.answers);
+    persistence.saveCalls = 0;
+
+    final cold = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      now: () => asOf,
+    );
+    await cold.loadFromWizard();
+    expect(cold.profile!.fiscal.snapshots.single.snapshotId, _assessmentId);
+    expect(cold.profile!.fiscal.provenanceValidatedSnapshotIds, isEmpty);
+    expect(cold.profile!.latestTaxDecisionReference, isNull);
+    expect(
+      ConfidenceScorer.score(cold.profile!, now: () => asOf)
+          .prompts
+          .where((prompt) => prompt.fieldPath == 'fiscal.assessedBaseline'),
+      hasLength(1),
+    );
+    expect(persistence.saveCalls, 0);
+    expect(jsonEncode(persistence.answers), before);
   });
 
   test('provider rejects future tax and basis years before persistence',
@@ -1822,7 +1978,7 @@ void main() {
   });
 
   test(
-      'two cold reloads make ConfidenceScorer follow assessed-baseline availability',
+      'cold assessedAppealable baseline keeps prompt without a final reference',
       () async {
     FeatureFlags.typedTaxProfile = true;
     FeatureFlags.documentTaxAssessmentEnabled = true;
@@ -1894,8 +2050,8 @@ void main() {
     expect(
       availableConfidence.prompts
           .where((prompt) => prompt.fieldPath == 'fiscal.assessedBaseline'),
-      isEmpty,
-      reason: 'bypassing the production selector must fail this A/B oracle',
+      hasLength(1),
+      reason: 'an assessed baseline cannot replace a precise final reference',
     );
   });
 

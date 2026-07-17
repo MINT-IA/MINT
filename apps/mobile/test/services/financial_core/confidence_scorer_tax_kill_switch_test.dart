@@ -158,6 +158,26 @@ void main() {
       reason: cases.map((testCase) => testCase.name).join(', '),
     );
   });
+
+  test('future tax reference fails closed to the review prompt', () {
+    FeatureFlags.typedTaxProfile = true;
+    FeatureFlags.documentTaxAssessmentEnabled = true;
+    final profile = _profileWithTaxReference(
+      snapshots: [_assessedTaxSnapshot()],
+      referenceId: '99999999-9999-4999-8999-999999999999',
+      referenceTaxYear: 2099,
+    );
+
+    final result = ConfidenceScorer.score(
+      profile,
+      now: () => DateTime.utc(2026, 7, 14, 12),
+    );
+    expect(
+      result.prompts
+          .where((prompt) => prompt.fieldPath == 'fiscal.assessedBaseline'),
+      hasLength(1),
+    );
+  });
 }
 
 TaxSnapshot _assessedTaxSnapshot({
@@ -191,6 +211,7 @@ TaxSnapshot _assessedTaxSnapshot({
 CoachProfile _profileWithTaxReference({
   required List<TaxSnapshot> snapshots,
   required String? referenceId,
+  int referenceTaxYear = 2025,
 }) {
   final reference = referenceId == null
       ? null
@@ -202,9 +223,9 @@ CoachProfile _profileWithTaxReference({
             'ownerKind': 'self',
             'source': 'certificate',
             'sourceDate': '2026-06-20',
-            'legalYear': 2025,
+            'legalYear': referenceTaxYear,
             'confirmedAt': '2026-07-01T00:00:00.000Z',
-            'taxYear': 2025,
+            'taxYear': referenceTaxYear,
             'jurisdiction': 'VD',
             'subject': 'individual',
           },

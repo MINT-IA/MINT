@@ -2425,7 +2425,7 @@ final class FiscalSnapshotQuery {
     TaxBaseScope? baseScope,
     DateTime Function()? now,
   }) {
-    final currentYear = (now ?? DateTime.now)().year;
+    final currentYear = SwissCivilTime.civilDate((now ?? DateTime.now)()).year;
     if (taxYear < 1900 || taxYear > currentYear) {
       throw ArgumentError.value(taxYear, 'taxYear', 'valid tax year required');
     }
@@ -2521,6 +2521,63 @@ final class FiscalSelectionResult {
 }
 
 abstract final class FiscalSnapshotSelector {
+  /// Selects the one validated, in-force assessment that may back the
+  /// specialist tax-decision reference. Unlike a completeness query, this
+  /// does not require any calculator-facing amount.
+  static FiscalSelectionResult _selectLatestTaxDecisionReference(
+    FiscalProfile fiscal, {
+    DateTime Function()? now,
+  }) {
+    if (!FeatureFlags.typedTaxProfile) {
+      return FiscalSelectionResult.partialAsk();
+    }
+    final current = (now ?? DateTime.now)();
+    final today = _civilDay(current);
+    final eligible = fiscal.snapshots.where((snapshot) {
+      if (!fiscal.provenanceValidatedSnapshotIds
+          .contains(snapshot.snapshotId)) {
+        return false;
+      }
+      if (snapshot.documentKind != TaxDocumentKind.assessmentNotice ||
+          snapshot.assessmentStatus != TaxAssessmentStatus.inForce ||
+          !snapshot.inForceAttested ||
+          snapshot.sourceDate == null ||
+          snapshot.taxYear == null ||
+          snapshot.subjectScope == TaxSubjectScope.unknown ||
+          snapshot.cantonCode == null ||
+          !sortedCantonCodes.contains(snapshot.cantonCode) ||
+          snapshot.updatedAt.toUtc().isAfter(current.toUtc())) {
+        return false;
+      }
+      if (!TaxSnapshot.hasValidTaxYears(
+        taxYear: snapshot.taxYear,
+        basedOnTaxYear: snapshot.basedOnTaxYear,
+        documentKind: snapshot.documentKind,
+        currentYear: today.year,
+      )) {
+        return false;
+      }
+      return !_civilDay(snapshot.sourceDate!).isAfter(today);
+    }).toList();
+    if (eligible.isEmpty) return FiscalSelectionResult.partialAsk();
+
+    eligible.sort(_compareRankThenTechnical);
+    final best = eligible.first;
+    final sameRank = eligible
+        .where((candidate) =>
+            candidate.taxYear == best.taxYear &&
+            candidate.assessmentStatus == best.assessmentStatus &&
+            candidate.sourceDate == best.sourceDate)
+        .toList();
+    if (sameRank.any((candidate) => !candidate.semanticallyEquals(best))) {
+      return FiscalSelectionResult.partialAsk(
+        conflicts: sameRank.map((snapshot) => snapshot.snapshotId).toList(),
+      );
+    }
+    sameRank.sort(_compareTechnical);
+    return FiscalSelectionResult.available(sameRank.first);
+  }
+
   static FiscalSelectionResult selectAssessedBaseline(
     FiscalProfile fiscal,
     FiscalSnapshotQuery query, {
@@ -2795,6 +2852,36 @@ final class SpecialistReferenceEvidence {
     this.subject,
   });
 
+  /// Rebuilds the derived specialist link from the canonical typed ledger.
+  /// The caller must supply a [FiscalProfile] whose provenance IDs have
+  /// already passed the exact cold/live validation boundary.
+  static SpecialistReferenceEvidence? latestTaxDecisionFromValidatedFiscal(
+    FiscalProfile fiscal, {
+    DateTime Function()? now,
+  }) {
+    final selection = FiscalSnapshotSelector._selectLatestTaxDecisionReference(
+      fiscal,
+      now: now,
+    );
+    final snapshot = selection.snapshot;
+    if (selection.status != FiscalSelectionStatus.available ||
+        snapshot == null) {
+      return null;
+    }
+    return SpecialistReferenceEvidence._(
+      referenceId: snapshot.snapshotId,
+      kind: SpecialistReferenceKind.taxAssessmentDecision,
+      ownerKind: LppEvidenceOwnerKind.self,
+      source: ProfileDataSource.certificate,
+      sourceDate: snapshot.sourceDate!,
+      legalYear: snapshot.taxYear!,
+      confirmedAt: snapshot.updatedAt.toUtc(),
+      taxYear: snapshot.taxYear,
+      jurisdiction: snapshot.cantonCode,
+      subject: snapshot.subjectScope,
+    );
+  }
+
   /// Parses one field against its expected kind and exact key allowlist.
   static SpecialistReferenceEvidence? tryFromJson(
     Object? raw, {
@@ -2889,7 +2976,7 @@ final class SpecialistReferenceEvidence {
             : null;
         if (rawTaxYear is! int ||
             rawTaxYear < 1900 ||
-            rawTaxYear > legalYear ||
+            rawTaxYear != legalYear ||
             rawJurisdiction is! String ||
             !sortedCantonCodes.contains(rawJurisdiction) ||
             parsedSubject == null) {
@@ -2941,16 +3028,21 @@ final class SpecialistReferenceEvidence {
     if (hasConflict) return SpecialistReferenceState.conflict;
 
     final civilAsOf = SwissCivilTime.civilDate(asOf);
-    if (legalYear != civilAsOf.year) return SpecialistReferenceState.stale;
     if (deadlineDate != null &&
         SwissCivilTime.businessDate(deadlineDate!).isBefore(civilAsOf)) {
       return SpecialistReferenceState.stale;
     }
     if (kind == SpecialistReferenceKind.taxAssessmentDecision) {
       if (taxSnapshot == null) return SpecialistReferenceState.missing;
-      final coherent = taxSnapshot.taxYear == taxYear &&
+      final coherent = taxSnapshot.snapshotId == referenceId &&
+          taxYear == legalYear &&
+          taxSnapshot.taxYear == taxYear &&
           taxSnapshot.cantonCode == jurisdiction &&
           taxSnapshot.subjectScope == subject &&
+          taxSnapshot.sourceDate != null &&
+          SwissCivilTime.businessDate(taxSnapshot.sourceDate!) ==
+              SwissCivilTime.businessDate(sourceDate) &&
+          taxSnapshot.updatedAt.toUtc() == confirmedAt.toUtc() &&
           taxSnapshot.documentKind == TaxDocumentKind.assessmentNotice &&
           taxSnapshot.assessmentStatus == TaxAssessmentStatus.inForce &&
           taxSnapshot.inForceAttested;
@@ -5315,6 +5407,11 @@ class CoachProfile {
       provenanceValidatedSnapshotIds:
           _validatedFiscalSnapshotIds(fiscal, rawProvenance, now: now),
     );
+    final latestTaxDecisionReference =
+        SpecialistReferenceEvidence.latestTaxDecisionFromValidatedFiscal(
+      fiscal,
+      now: now,
+    );
 
     // ── Legacy dataSources (migration input only) ────────────────
     final restoredDataSources = <String, ProfileDataSource>{};
@@ -5679,6 +5776,7 @@ class CoachProfile {
           : null,
       hasPillar3a: has3a,
       avsGapStatus: _parseAvsGapStatus(avsLacunesStatus),
+      latestTaxDecisionReference: latestTaxDecisionReference,
       depenses: depenses,
       prevoyance: prevoyance,
       patrimoine: patrimoine,

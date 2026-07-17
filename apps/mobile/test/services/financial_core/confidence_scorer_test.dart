@@ -882,7 +882,8 @@ void main() {
         );
       });
 
-      test('dated fiscal source can be complete and removes review prompt', () {
+      test('dated fiscal source stays reviewable without a final reference',
+          () {
         final profile = _buildProfile(
           age: 45,
           salary: 8000,
@@ -908,7 +909,7 @@ void main() {
           confidence.prompts.where(
             (prompt) => prompt.fieldPath == 'fiscal.assessedBaseline',
           ),
-          isEmpty,
+          hasLength(1),
         );
       });
     });

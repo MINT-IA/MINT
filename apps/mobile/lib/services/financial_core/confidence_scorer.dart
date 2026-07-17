@@ -24,6 +24,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/bayesian_enricher.dart';
+import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 
 /// Stable identifiers for prompts whose copy is resolved at the UI boundary.
 enum EnrichmentPromptCopyCode {
@@ -268,7 +269,12 @@ class ConfidenceScorer {
   static const double minConfidenceForProjection = 40.0;
 
   /// Score projection confidence based on profile completeness.
-  static ProjectionConfidence score(CoachProfile profile) {
+  static ProjectionConfidence score(
+    CoachProfile profile, {
+    DateTime Function()? now,
+  }) {
+    final evaluationTime = (now ?? DateTime.now)();
+    DateTime fixedNow() => evaluationTime;
     double total = 0;
     final prompts = <EnrichmentPrompt>[];
     final assumptions = <String>[];
@@ -467,9 +473,18 @@ class ConfidenceScorer {
     if (profile.commune == null || profile.commune!.isEmpty) {
       prompts.add(const EnrichmentPrompt.taxMunicipality());
     }
-    final assessedFiscalBaseline = _selectLatestAssessedFiscalBaseline(profile);
+    final assessedFiscalBaseline = _selectLatestAssessedFiscalBaseline(
+      profile,
+      now: fixedNow,
+    );
+    final taxDecisionPrecisionReady =
+        assessedFiscalBaseline.status == FiscalSelectionStatus.available &&
+            _hasPrecisionReadyTaxDecision(
+              profile,
+              now: fixedNow,
+            );
     if (FeatureFlags.taxAssessmentIngestionEnabled &&
-        assessedFiscalBaseline.status != FiscalSelectionStatus.available) {
+        !taxDecisionPrecisionReady) {
       prompts.add(const EnrichmentPrompt.taxDocument());
     }
 
@@ -1048,14 +1063,55 @@ class ConfidenceScorer {
   }
 
   static FiscalSelectionResult _selectLatestAssessedFiscalBaseline(
-    CoachProfile profile,
-  ) {
+    CoachProfile profile, {
+    DateTime Function()? now,
+  }) {
     return FiscalSnapshotSelector.selectAssessedBaseline(
       profile.fiscal,
       const FiscalSnapshotQuery.latestCompleteness(
         requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
       ),
+      now: now,
     );
+  }
+
+  static bool _hasPrecisionReadyTaxDecision(
+    CoachProfile profile, {
+    required DateTime Function() now,
+  }) {
+    final reference = profile.latestTaxDecisionReference;
+    if (reference == null ||
+        reference.taxYear == null ||
+        reference.jurisdiction == null ||
+        reference.subject == null) {
+      return false;
+    }
+    final currentYear = SwissCivilTime.civilDate(now()).year;
+    if (reference.taxYear! < 1900 ||
+        reference.taxYear! > currentYear ||
+        reference.legalYear < 1900 ||
+        reference.legalYear > currentYear) {
+      return false;
+    }
+    final preciseSelection = FiscalSnapshotSelector.selectAssessedBaseline(
+      profile.fiscal,
+      FiscalSnapshotQuery.precise(
+        requestedField: TaxSnapshotField.cantonalCommunalTaxableIncomeChf,
+        taxYear: reference.taxYear!,
+        subjectScope: reference.subject!,
+        cantonCode: reference.jurisdiction!,
+        now: now,
+      ),
+      now: now,
+    );
+    final snapshot = preciseSelection.snapshot;
+    return preciseSelection.status == FiscalSelectionStatus.available &&
+        snapshot != null &&
+        snapshot.snapshotId == reference.referenceId &&
+        reference.precisionReadyAt(
+          now(),
+          taxSnapshot: snapshot,
+        );
   }
 
   static int _compareGoalAwarePrompts(

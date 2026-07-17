@@ -1270,7 +1270,15 @@ class CoachProfileProvider extends ChangeNotifier {
         legacyDataNeedsReview: envelope.legacyQuarantine?['values'] is Map &&
             (envelope.legacyQuarantine!['values'] as Map).isNotEmpty,
       );
-      var nextProfile = persistedProfile.copyWith(fiscal: nextFiscal);
+      final latestTaxDecisionReference =
+          SpecialistReferenceEvidence.latestTaxDecisionFromValidatedFiscal(
+        nextFiscal,
+        now: _now,
+      );
+      var nextProfile = persistedProfile.copyWith(
+        fiscal: nextFiscal,
+        latestTaxDecisionReference: latestTaxDecisionReference,
+      );
       nextProfile = _withTaxSnapshotProvenance(
         nextProfile,
         snapshot,
