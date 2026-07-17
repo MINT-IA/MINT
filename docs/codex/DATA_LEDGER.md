@@ -27,6 +27,12 @@
 > P0/P1. The path remains a test-only compile-time opt-in whose default is
 > false; this technical promotion does not authorize activation, close G1 or
 > authorize G2/G3.
+> **Focused FRONT-01 implementation snapshot:** the provider-backed canonical
+> jurisdiction collector is code-GREEN at pushed SHA `733571002` (2026-07-17).
+> It replaces the legacy calculator island with three typed, provenance-bearing
+> facts and calculation-free educational states. Exact-SHA runtime proof and
+> both wrapper audit lenses are still pending, so FRONT-01 is not promoted and
+> G1 remains NO-GO.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -263,7 +269,11 @@ These facts are collected through `mergeAnswers` and reconstructed by
 | `pillar3aAnnual` | `q_3a_annual_contribution` | double CHF/yr (`CoachProfile.pillar3aAnnualContribution`) | prevoyance | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | current 3a fitness criterion and `CoachingProfile.montant3a`; legacy planned amount is fallback, never additive |
 | `pillar3aBalance` | `q_3a_total` | double CHF | prevoyance | certificate, openBanking, userInput | annual | .95 / 1.00 | applySaveFact/mergeAnswers | `totalEpargne3a`, retirement capital, `comptes3a` |
 
-> 3a writes MUST respect `canContribute3a` (false for US/FATCA; conditional for frontalier permis G). A `pillar3a*` write for a US person should be accepted as data but flagged non-contributable, not silently zeroed.
+> 3a writes MUST respect `canContribute3a` (false for US/FATCA). A permit G,
+> frontier product context, or even complete `residenceCountry`/`workCountry`/
+> `workCanton` evidence does not establish 3a eligibility. A `pillar3a*` write
+> for a US person should be accepted as data but flagged non-contributable, not
+> silently zeroed.
 
 #### Mobile-only 3a facts
 
@@ -1388,6 +1398,71 @@ this ticket to GREEN at
 `30728b8a0671a0b54bcf47807a0c69bac905e6e3`. They do not enable either flag,
 close BND-02/BND-02A, authorize activation, or make G1/G2/G3 GO.
 
+### 4.0B Frontier jurisdiction evidence (G1-FRONT-01 code-GREEN; promotion pending)
+
+FRONT-01 adds three **mobile-only** identity/jurisdiction facts. They are not
+members of the 36-key backend `save_fact` allowlist and must not be counted as
+new coach-writable keys. The live `/segments/frontalier` collector writes them
+through `CoachProfileProvider.mergeAnswers`; an eventual certificate writer
+may use the same canonical paths only after reviewed extraction.
+
+| key (field path) | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
+|---|---|---|---|---|---|---|---|---|
+| `residenceCountry` | `q_residence_country` | `CountryCode?` in `{CH,FR,DE,IT,AT,LI}` | identity | userInput, certificate | static* / life event | .60 / .95 | `mergeAnswers` | `frontierJurisdictionAt(now)`, `/segments/frontalier`, `gateFrontalierAt` |
+| `workCountry` | `q_work_country` | `CountryCode?` in `{CH,FR,DE,IT,AT,LI}` | identity | userInput, certificate | static* / job change | .60 / .95 | `mergeAnswers` | `frontierJurisdictionAt(now)`, conditional canton requirement, `/segments/frontalier`, `gateFrontalierAt` |
+| `workCanton` | `q_work_canton` | `SwissCantonCode?` (closed 26-code set) | identity | userInput, certificate | annual / job change | .60 / .95 | `mergeAnswers` | `frontierJurisdictionAt(now)`, educational instrument candidate, `/segments/frontalier`, `gateFrontalierAt` |
+
+Each fact is known only when all four authorities agree: a valid typed value,
+its `userProvidedFields` marker, `dataSources[path]` equal to `userInput` or
+`certificate`, and a non-future `dataTimestamps[path]` with an explicit
+`dataSourceDates[path]` slot. That slot may be null; it is never replaced by
+`updatedAt`. Country facts have no time-to-live. Only `workCanton` uses
+`FreshnessDecayService.annualNeedsRefresh(updatedAt, now)`: the frozen
+day-level boundary is **known at 782 days and stale at 783 days**. A stale
+canton leaves the old value visible but closes readiness until one-gesture
+reconfirmation restamps `updatedAt`.
+
+The dependency is conditional and fail-closed:
+
+```text
+requiredPaths = residenceCountry + workCountry
+              + (workCountry == CH ? workCanton : nothing)
+
+jurisdictionReady = every required path is known and current
+crossBorder = jurisdictionReady ? residenceCountry != workCountry : unknown
+```
+
+`workCanton` must therefore not be requested before the work country is known
+to be Switzerland. Changing `workCountry` outside CH clears `q_work_canton`
+in the same `mergeAnswers` snapshot; explicit null deletion also purges the
+canton's value, source, updated timestamp, source-date slot and provided-field
+marker. Cold reconstruction and JSON round-trip retain the three values and
+their provenance without inventing a default.
+
+Complete current facts select **at most** one calculation-free educational
+candidate:
+
+| canonical facts | evidence state | candidate | authorized screen behavior |
+|---|---|---|---|
+| CH / CH / any required Swiss canton | `known` (domestic branch) | `domestic` | no frontier conclusion; route to `/fiscal` only on user action |
+| FR / CH / GE | `known` | `cdi1966Article17` | explain CDI 1966 art. 17 as a candidate; facts of employment remain to confirm |
+| FR / CH / BE, SO, BS, BL, VD, VS, NE or JU | `known` | `accord1983Candidate` | explain the 1983 instrument as a candidate, never as applicable from jurisdiction alone |
+| any other complete supported pair | `specialistOnly` | none | show known facts and specialist questions; no fiscal result |
+| any required authority absent/invalid | `missing` | none | ask only the missing delta and hide conclusions |
+| required Swiss work canton below freshness threshold | `stale` | none | show prior fact and one-gesture reconfirmation; hide conclusions |
+
+Permit G, `employmentStatus=frontalier`, nationality, `q_canton`, archetype,
+salary, and any legacy `ExpatService` default are **quarantined as inference
+sources**. Permit/status may open the collector, but none may fill or upgrade a
+jurisdiction fact. The evidence never selects a tax rate or amount, social-
+insurance affiliation, health-insurance comparison, 3a eligibility, or ranked
+recommendation. The tax and social educational cards remain separate.
+
+The screen/model/provider/widget contract is code-GREEN at pushed SHA
+`733571002`; exact-SHA Patrol/Maestro proof and the code plus product-domain
+Claude-wrapper audits remain required before ticket promotion. This section is
+not a G1 closure or a G2/G3 authorization.
+
 ### 4.1 AVS / LPP detail (from certificate extraction)
 
 The self-only official AVS acquisition target is specified in
@@ -1534,7 +1609,7 @@ calculations stay null/partial.
 | `plannedContributions[]` | List\<PlannedMonthlyContribution\> | goals | userInput | volatile | .60 | mergeAnswers | `total3aMensuel`, cap plan, check-in |
 | `checkIns[]` | List\<MonthlyCheckIn\> | meta | userInput | n/a (event log) | n/a | mergeAnswers | streak, FRI history |
 | `arrivalAge` | int yr | identity | userInput, certificate | static | .60 | mergeAnswers | `archetype` (expat vs native), LPP since-25 |
-| `residencePermit` | String {B,C,L,G,Swiss} | identity | userInput, certificate | static* | .60 | mergeAnswers | `isCrossBorder`, frontalier, expat |
+| `residencePermit` | String {B,C,L,G,Swiss} | identity | userInput, certificate | static* | .60 | mergeAnswers | `hasCrossBorderProductContext` collection trigger, expat; never `isCrossBorder` or a jurisdiction fact |
 | `nationality` | String ISO-2 | identity | userInput, certificate | static | .60 | mergeAnswers | `archetype`, FATCA, 3a eligibility |
 | `nombreEnfants` | int | identity/couple | userInput | static* | .60 | mergeAnswers | allocations, AVS bonifs, succession |
 | `financialLiteracyLevel` | enum {beginner,intermediate,advanced} | meta | userInput | static* | .60 | mergeAnswers | scaffolding adaptivity (dignity principle) |

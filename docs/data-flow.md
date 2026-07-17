@@ -1,11 +1,11 @@
 # MINT Data Flow — the authoritative map
 
 **Why this file exists.** MINT data capture spans three storage layers
-(SharedPreferences, Keychain fallback, backend Postgres). Eight local write
+(SharedPreferences, Keychain fallback, backend Postgres). Ten local write
 paths mutate the local ledger (wizard, scan, coach save_fact dispatch, Dart
 regex fallback, inline coach pickers, budget form, DataBlock enrichment, tax
-annual refresh); backend facts and the one-shot account claim have separate
-contracts.
+annual refresh, reviewed bank import, and the frontier-jurisdiction collector);
+backend facts and the one-shot account claim have separate contracts.
 Drifting between them is the #1 source of « the UI says captured, the
 profile is empty at relaunch » bugs — the exact bug class that killed the
 MVP walkthrough
@@ -29,6 +29,10 @@ same PR. CI lint (TODO, Phase 34 extension) will enforce.
 > open G1 rows mean activation and G1 remain NO-GO. The
 > accepted PROV-02 persistence/runtime checkpoint remains
 > `30728b8a0671`; its narrower scope is unchanged by this later promotion.
+> G1-FRONT-01 is separately code-GREEN at pushed SHA `733571002` with a real
+> provider-backed collector and calculation-free evidence states. Its exact-SHA
+> runtime and wrapper audits remain pending, so FRONT-01 is not promoted and
+> G1/G2/G3 GO claims remain forbidden.
 
 ---
 
@@ -42,6 +46,7 @@ flowchart LR
     U --> W4[Wizard inline picker]
     U --> W5[Annual refresh]
     U --> W6[DataBlock enrichment]
+    U --> W7[Frontier jurisdiction collector]
 
     W1 --> PROV[CoachProfileProvider]
     W2 --> PROV
@@ -49,12 +54,14 @@ flowchart LR
     W4 --> PROV
     W5 --> PROV
     W6 --> PROV
+    W7 --> PROV
 
     PROV -- mergeAnswers --> SP[(SharedPreferences<br/>wizard_answers_v2)]
     SP --> LOAD[loadFromWizard → fromWizardAnswers]
     LOAD --> PROFILE[CoachProfile in memory]
     PROFILE --> CALCS[12 calculators]
     CALCS --> UI[Mon argent / Aujourd'hui / Explorer]
+    PROFILE --> FRONTUI[Frontier jurisdiction evidence<br/>educational states only; no calculator]
 
     AUTH[AuthProvider<br/>anonymous → account claim, once] --> CLAIM[(Backend Postgres<br/>localDataClaim.wizardAnswers)]
     BE[(Backend direct profile fields)] --> INBOUND[syncFromBackend<br/>backendUnknown fill-only]
@@ -163,7 +170,7 @@ fieldPath -> {source, updatedAt, sourceDate}
 
 ---
 
-## The 8 writers — who mutates `wizard_answers_v2`
+## The 10 writers — who mutates `wizard_answers_v2`
 
 Every writer persists through `ReportPersistenceService`, which encrypts
 sensitive keys via `SecureWizardStore` (Keychain) and writes the matching
@@ -181,6 +188,8 @@ only legal local I/O boundaries.
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` | `q_housing_cost_period_chf`, `q_housing_pay_frequency='monthly'`, `q_lamal_premium_monthly_chf`, `q_other_fixed_costs_monthly_chf`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux}` | Tap « Enregistrer »; the published profile then feeds the eager Budget and MintState proxies |
 | 7 | **Annual refresh** (scheduled) | `updateFromRefresh` (CoachProfileProvider) | Updates `_coach_updated_at` + tax + salary | Annual trigger (currently orphaned, cf façade audit) |
 | 8 | **DataBlock enrichment** | `data_block_enrichment_screen.dart` → `coachProvider.mergeAnswers` | `q_canton`, `q_gross_salary_annual`, `q_self_employed_income`, `q_company_profit_annual_chf`, `q_birth_year`, `q_has_pension_fund`, `q_cash_total`, `q_wealth_estimate`, `q_property_market_value`, `_coach_dettes_hypotheque`, `q_debt_payments_period_chf`, `q_has_consumer_debt`, `q_children`, `q_civil_status`, `q_housing_status` | Missing-fact collector from scenario/Data Quest flows |
+| 9 | **Reviewed bank import** | `bank_import_screen.dart` → `profileProvider.mergeAnswersWithProvenance` | `q_net_income_period_chf`, `q_pay_frequency='monthly'`; categorized charges remain preview-only | Explicit user confirmation after local CSV/PDF preview |
+| 10 | **Frontier jurisdiction collector** | `frontalier_screen.dart` → `coachProvider.mergeAnswers` | `q_residence_country`, `q_work_country`, and conditional `q_work_canton`; selecting a non-CH work country clears `q_work_canton` in the same snapshot | Inline collection on `/segments/frontalier`; stale canton reconfirmation rewrites the same value in one gesture |
 
 `/bank-import` is a manual CSV/PDF review path, not a live Open Banking feed.
 After explicit confirmation it may write only `q_net_income_period_chf` and
@@ -204,7 +213,32 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 - `q_firstname` (str), `q_birth_year` (int), `q_date_of_birth` (ISO str),
   `q_canton` (2-letter, default `ZH`), `q_civil_status`
   (celibataire/marie/concubinage/divorce/veuf), `q_children` (int),
-  `q_gender`, `q_commune`
+  `q_gender`, `q_commune`,
+  `q_residence_country` (`CH|FR|DE|IT|AT|LI`),
+  `q_work_country` (`CH|FR|DE|IT|AT|LI`),
+  `q_work_canton` (one of the 26 Swiss canton codes; required only when
+  `q_work_country == 'CH'`)
+
+**Frontier-jurisdiction boundary (G1-FRONT-01).** The three answer keys above
+reconstruct as the distinct nullable typed fields `residenceCountry`,
+`workCountry`, and `workCanton`. They carry field-centric provenance under
+those exact paths. Only `userInput` and `certificate` may make a fact known;
+each fact also needs a non-future `updatedAt`, an explicit `sourceDate` slot
+(which may be null), and its `userProvidedFields` marker. Residence and work
+country are event/static facts. `workCanton` uses annual freshness: the frozen
+boundary is known at 782 days and stale at 783 days. The source date never
+drives that predicate.
+
+`workCanton` is not required until a known `workCountry == CH`; when the work
+country changes outside Switzerland, the screen deletes the canton plus its
+provenance in the same persisted snapshot. `q_canton`, nationality, permit G,
+and `q_employment_status=frontalier` may open the collection flow but never
+populate or infer any of the three facts. Complete current facts select only a
+deterministic educational branch: CH/CH is domestic, FR/CH/GE selects the CDI
+1966 art. 17 candidate, the eight named cantons select an accord-1983
+candidate, and other complete pairs are `specialistOnly`. No branch produces a
+tax rate, amount, social-insurance conclusion, 3a eligibility, or ranked
+recommendation.
 
 **Income**
 - `q_pay_frequency` (`monthly`|`yearly`|`annuel`),
@@ -842,11 +876,12 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 
 ---
 
-*Last updated: 2026-07-16 for the accepted G1-PROV-02 person-owned LPP
+*Last updated: 2026-07-17 for the accepted G1-PROV-02 person-owned LPP
 checkpoint, G1-PROV-03 typed tax provenance, the BND-02/BND-02A technical
 promotion at exact SHA `1d022c508`, the BND-03 promotion at `7ed54e282`, and
-the unpromoted BND-05 code-GREEN wiring at `11e29c0cd`. BND-05 remains
-`ticket_only` pending runtime and wrapper audits. All checked-in
+the unpromoted BND-05 code-GREEN wiring at `11e29c0cd`, plus the unpromoted
+FRONT-01 code-GREEN wiring at `733571002`. BND-05 and FRONT-01 remain pending
+their named runtime/wrapper evidence. All checked-in
 LPP/accountability defaults remain false, the production external descriptor
 and its eight facts remain unproved, 14 registry rows remain open, and
 activation and G1 remain NO-GO. There is no G1 closure or G2/G3 GO.

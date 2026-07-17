@@ -21,6 +21,10 @@
 %% are absent, the historical inventory reconciles to one production reader,
 %% and that reader fails closed through CoachProfile.isInDebtCrisis. The
 %% smaller Profile type remains an API/Wizard DTO, never a provider or ledger.
+%% FRONT-01 is code-GREEN at pushed SHA 733571002: three canonical jurisdiction
+%% facts now flow through CoachProfileProvider into deterministic educational
+%% states. Exact-SHA Patrol/Maestro and both wrapper audits remain pending, so
+%% the ticket is not promoted and G1/G2/G3 GO claims remain forbidden.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -96,6 +100,46 @@ flowchart TB
   end
 
   COACH_SAVE -- "single canonical provider seam" --> CPP
+
+  %% G1-FRONT-01 is live/code-GREEN; runtime promotion is still pending.
+  subgraph FRONTIER_LEDGER["G1-FRONT-01 — CANONICAL JURISDICTION, NO CALCULATION"]
+    direction TB
+    FRONT_SCREEN["/segments/frontalier<br/>CoachProfileProvider-backed collector"]
+    FRONT_FIELDS["stable fields<br/>frontier_residence_country_field<br/>frontier_work_country_field<br/>frontier_work_canton_field only when workCountry = CH"]
+    FRONT_WRITE["mergeAnswers<br/>q_residence_country -> residenceCountry<br/>q_work_country -> workCountry<br/>q_work_canton -> workCanton<br/>non-CH work country clears canton atomically"]
+    FRONT_EVIDENCE["CoachProfile.frontierJurisdictionAt now<br/>typed value + provided marker<br/>userInput or certificate<br/>updatedAt not future + sourceDate slot"]
+    FRONT_REQUIRED{"required facts known?<br/>residence + work country<br/>+ canton only when work country is CH"}
+    FRONT_MISSING["missing<br/>inline delta + coach CTA<br/>no conclusion"]
+    FRONT_STALE{"work canton annual freshness<br/>782 days known / 783 stale"}
+    FRONT_RECONFIRM["stale<br/>show prior canton<br/>one-gesture provider reconfirmation"]
+    FRONT_DOMESTIC["CH / CH<br/>known domestic<br/>explicit CTA to /fiscal"]
+    FRONT_CDI["FR / CH / GE<br/>CDI 1966 art. 17 candidate"]
+    FRONT_1983["FR / CH / eight cantons<br/>accord 1983 candidate"]
+    FRONT_SPECIALIST["other complete supported pair<br/>specialistOnly"]
+    FRONT_SEPARATE["separate educational cards<br/>fiscal orientation != social insurance"]
+    FRONT_QUARANTINE["forbidden inference sources<br/>permit G / frontalier status / nationality<br/>q_canton / archetype / salary / legacy defaults"]
+    FRONT_NO_CALC["NO tax rate or amount<br/>NO 90-day gauge or ranked charges<br/>NO social affiliation or 3a eligibility"]
+
+    FRONT_SCREEN --> FRONT_FIELDS --> FRONT_WRITE
+    FRONT_EVIDENCE --> FRONT_REQUIRED
+    FRONT_REQUIRED -- "no" --> FRONT_MISSING
+    FRONT_REQUIRED -- "yes" --> FRONT_STALE
+    FRONT_STALE -- "stale" --> FRONT_RECONFIRM
+    FRONT_STALE -- "current CH/CH" --> FRONT_DOMESTIC
+    FRONT_STALE -- "current FR/CH/GE" --> FRONT_CDI
+    FRONT_STALE -- "current FR/CH/BE SO BS BL VD VS NE JU" --> FRONT_1983
+    FRONT_STALE -- "current other pair" --> FRONT_SPECIALIST
+    FRONT_RECONFIRM --> FRONT_WRITE
+    FRONT_CDI --> FRONT_SEPARATE
+    FRONT_1983 --> FRONT_SEPARATE
+    FRONT_SPECIALIST --> FRONT_SEPARATE
+    FRONT_SEPARATE --> FRONT_NO_CALC
+    FRONT_QUARANTINE -. "may open collection; never fills evidence" .-> FRONT_SCREEN
+    FRONT_QUARANTINE -. "cannot select branch" .-> FRONT_REQUIRED
+  end
+
+  FRONT_WRITE -- "single durable provider seam" --> CPP
+  CPP -- "current typed facts + provenance" --> FRONT_EVIDENCE
 
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
@@ -357,7 +401,7 @@ flowchart TB
       UNEMP["/unemployment"]; FJOB["/first-job"]; EXPAT["/expatriation"]; JOBC["/simulator/job-comparison"]
       INDEP["/segments/independant"]; IAVS["/independants/avs"]; IIJM["/independants/ijm"]
       I3A["/independants/3a"]; IDIV["/independants/dividende-salaire"]; ILPP["/independants/lpp-volontaire"]
-      FRONT["/segments/frontalier"]; GGAP["/segments/gender-gap"]
+      FRONT["/segments/frontalier<br/>provider-backed jurisdiction states"]; GGAP["/segments/gender-gap"]
     end
     subgraph SAN["sante"]
       INVAL["/invalidite"]; DINS["/disability/insurance"]; DSELF["/disability/self-employed"]
@@ -421,6 +465,8 @@ flowchart TB
     RETR --> RVC & RACHAT & DECAI
     HOME --> TL
     ARGENT --> DOCLIST --> DOCID
+    FRONT --> COACH
+    FRONT --> FISCAL
 
     %% ---- Reachability for MISC/couple/education/settings (I-7) ----
     %% couple invite lands via family hub; education hub via coach; the three

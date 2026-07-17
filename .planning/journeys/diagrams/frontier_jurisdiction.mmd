@@ -1,0 +1,79 @@
+%% ============================================================================
+%% frontier_jurisdiction.mmd — G1-FRONT-01 canonical jurisdiction journey
+%% ----------------------------------------------------------------------------
+%% Purpose: prove the frontier screen collects three durable facts, selects at
+%% most an educational legal candidate, and never revives the legacy calculator
+%% island. Sources: DATA_LEDGER.md §4.0B, SCREEN_CONTRACTS.md §4,
+%% swiss-domain-verdict.md. Code-GREEN @ 733571002; runtime promotion pending.
+%% ============================================================================
+
+flowchart TB
+  classDef route fill:#eaf6f0,stroke:#166b4a,color:#10261d,stroke-width:1px;
+  classDef fact fill:#f6f1e7,stroke:#b48a3b,color:#21180a,stroke-width:1px;
+  classDef guard fill:#fff5e6,stroke:#c26f00,color:#201307,stroke-width:1px;
+  classDef state fill:#eef1ff,stroke:#4f62c6,color:#111836,stroke-width:1px;
+  classDef no fill:#fff0f0,stroke:#c83d3d,color:#2c0f0f,stroke-width:1px;
+  classDef proof fill:#f2edf8,stroke:#7b4eb2,color:#1d102a,stroke-width:1px;
+
+  Entry["/segments/frontalier<br/>enableExplorerTravail"]:::route
+  Trigger["Permit G or frontalier status<br/>may open collection only"]:::guard
+  Collector["Provider-backed inline collector<br/>residence country -> work country<br/>-> work canton only if CH"]:::route
+  Residence["q_residence_country<br/>residenceCountry: CountryCode?"]:::fact
+  WorkCountry["q_work_country<br/>workCountry: CountryCode?"]:::fact
+  WorkCanton["q_work_canton<br/>workCanton: SwissCantonCode?"]:::fact
+  ClearCanton["Non-CH work country<br/>clear canton + provenance atomically"]:::fact
+  Provider["CoachProfileProvider.mergeAnswers<br/>persist before publish"]:::fact
+  Cold["wizard_answers_v2<br/>cold reconstruction + JSON round-trip"]:::fact
+  Provenance{"Each required path has<br/>typed value + provided marker<br/>source userInput or certificate<br/>non-future updatedAt + sourceDate slot?"}:::guard
+  Conditional{"workCountry = CH?"}:::guard
+  Fresh{"workCanton current?<br/>782 days known / 783 stale<br/>updatedAt, never sourceDate"}:::guard
+
+  Missing["missing<br/>show known values + required delta<br/>frontier_jurisdiction_missing_state<br/>coach CTA; no result"]:::state
+  Stale["stale<br/>show prior canton<br/>frontier_jurisdiction_reconfirm_cta<br/>same-value provider write"]:::state
+  Pair{"Current canonical pair"}:::guard
+  Domestic["CH / CH<br/>known domestic<br/>frontier_domestic_fiscal_cta"]:::state
+  Geneva["FR / CH / GE<br/>known<br/>CDI 1966 art. 17 candidate"]:::state
+  Accord["FR / CH / BE SO BS BL VD VS NE JU<br/>known<br/>accord 1983 candidate"]:::state
+  Specialist["Other complete supported pair<br/>specialistOnly<br/>facts + specialist questions"]:::state
+  Separate["Fiscal orientation card<br/>separate from social-insurance card"]:::route
+  NoCalc["Forbidden outputs<br/>tax rate/amount, barème default, 90-day gauge<br/>ranked CH/FR charges, social affiliation, 3a eligibility"]:::no
+  NoInference["Forbidden inference<br/>q_canton, nationality, permit G, status<br/>archetype, salary, ExpatService defaults"]:::no
+  Proof["Widget GREEN @ 733571002<br/>exact-SHA Patrol/Maestro + visual proof pending<br/>code + product-domain wrapper audits pending"]:::proof
+
+  Trigger -. "opens only" .-> Entry
+  Entry --> Collector
+  Collector --> Residence
+  Collector --> WorkCountry
+  WorkCountry --> Conditional
+  Conditional -- "yes" --> WorkCanton
+  Conditional -- "no" --> ClearCanton
+  Residence --> Provider
+  WorkCountry --> Provider
+  WorkCanton --> Provider
+  ClearCanton --> Provider
+  Provider --> Cold --> Provenance
+  Provenance -- "no" --> Missing
+  Missing --> Collector
+  Provenance -- "yes" --> Fresh
+  Fresh -- "stale" --> Stale --> Provider
+  Fresh -- "current" --> Pair
+  Pair -- "CH/CH" --> Domestic
+  Pair -- "FR/CH/GE" --> Geneva
+  Pair -- "FR/CH/eight cantons" --> Accord
+  Pair -- "other complete pair" --> Specialist
+  Geneva --> Separate
+  Accord --> Separate
+  Specialist --> Separate
+  Separate --> NoCalc
+  NoInference -. "never fills facts" .-> Collector
+  NoInference -. "never selects candidate" .-> Pair
+  Domestic --> Proof
+  Separate --> Proof
+  Missing --> Proof
+  Stale --> Proof
+
+  %% FRONT-1 workCanton is required only after workCountry is known as CH.
+  %% FRONT-2 only userInput/certificate provenance may select a branch.
+  %% FRONT-3 stale evidence closes readiness and reconfirms without blank entry.
+  %% FRONT-4 legal candidates never become personal fiscal/social conclusions.
+  %% FRONT-5 ticket promotion requires exact-SHA runtime and both wrapper lenses.
