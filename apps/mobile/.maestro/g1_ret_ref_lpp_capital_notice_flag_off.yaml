@@ -1,0 +1,17 @@
+appId: ch.mint.app
+name: G1 RET-REF LPP capital notice production-default flag-off
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: landing_route
+- openLink: "mint:///scan?type=lppCertificate"
+- assertVisible:
+    id: document_scan_capture_cta
+- assertNotVisible:
+    id: document_scan_lpp_type_selector
+- assertNotVisible:
+    id: lpp_review_confirm_cta
+- openLink: "mint:///retraite"
+- assertNotVisible:
+    id: retirement_lpp_capital_notice_deadline_education
