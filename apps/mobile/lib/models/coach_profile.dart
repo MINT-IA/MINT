@@ -27,6 +27,7 @@ import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
 
 const coachBackendUnknownPathsKey = '_coach_backend_unknown_paths_v1';
 const Object _keepJurisdictionValue = Object();
+const Object _keepSpecialistReferenceValue = Object();
 
 DateTime? _parseSupportedAdultBirthDate(
   Object? raw, {
@@ -2720,6 +2721,307 @@ abstract final class FiscalSnapshotSelector {
   }
 }
 
+/// Closed specialist-reference kinds accepted by the RET-REF-01 ledger.
+enum SpecialistReferenceKind {
+  lppRegulation,
+  lppCapitalNotice,
+  pillar3aBeneficiaryClause,
+  taxAssessmentDecision,
+}
+
+/// Precision state at an explicit evaluation instant.
+enum SpecialistReferenceState {
+  known,
+  missing,
+  stale,
+  conflict,
+  invalid;
+
+  /// Concrete getter because RET-REF callers may cross a dynamic boundary.
+  String get name => switch (this) {
+        known => 'known',
+        missing => 'missing',
+        stale => 'stale',
+        conflict => 'conflict',
+        invalid => 'invalid',
+      };
+}
+
+/// Metadata-only link to specialist-grade evidence.
+///
+/// This value object deliberately contains no filename, local path, OCR text,
+/// financial value, or document bytes. Construction from persisted JSON is
+/// strict and fail-closed so an unknown key cannot become a second ledger.
+@immutable
+final class SpecialistReferenceEvidence {
+  static final RegExp _uuidV4Pattern = RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+  );
+  static const Set<String> _commonKeys = {
+    'referenceId',
+    'kind',
+    'ownerKind',
+    'source',
+    'sourceDate',
+    'legalYear',
+    'confirmedAt',
+  };
+
+  final String referenceId;
+  final SpecialistReferenceKind kind;
+  final LppEvidenceOwnerKind ownerKind;
+  final ProfileDataSource source;
+  final DateTime sourceDate;
+  final int legalYear;
+  final DateTime confirmedAt;
+  final DateTime? deadlineDate;
+  final String? contractReferenceId;
+  final int? taxYear;
+  final String? jurisdiction;
+  final TaxSubjectScope? subject;
+
+  const SpecialistReferenceEvidence._({
+    required this.referenceId,
+    required this.kind,
+    required this.ownerKind,
+    required this.source,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.confirmedAt,
+    this.deadlineDate,
+    this.contractReferenceId,
+    this.taxYear,
+    this.jurisdiction,
+    this.subject,
+  });
+
+  /// Parses one field against its expected kind and exact key allowlist.
+  static SpecialistReferenceEvidence? tryFromJson(
+    Object? raw, {
+    required SpecialistReferenceKind expectedKind,
+    DateTime? now,
+  }) {
+    if (raw is! Map) return null;
+    final json = <String, Object?>{};
+    for (final entry in raw.entries) {
+      if (entry.key is! String) return null;
+      json[entry.key as String] = entry.value;
+    }
+
+    final extraKeys = switch (expectedKind) {
+      SpecialistReferenceKind.lppRegulation => const <String>{},
+      SpecialistReferenceKind.lppCapitalNotice => const {'deadlineDate'},
+      SpecialistReferenceKind.pillar3aBeneficiaryClause => const {
+          'contractReferenceId'
+        },
+      SpecialistReferenceKind.taxAssessmentDecision => const {
+          'taxYear',
+          'jurisdiction',
+          'subject'
+        },
+    };
+    if (!setEquals(json.keys.toSet(), {..._commonKeys, ...extraKeys})) {
+      return null;
+    }
+
+    final referenceId = json['referenceId'];
+    final kindName = json['kind'];
+    final ownerKind = LppEvidenceOwnerKind.fromWireName(json['ownerKind']);
+    final sourceName = json['source'];
+    final sourceDateRaw = json['sourceDate'];
+    final legalYear = json['legalYear'];
+    final confirmedAtRaw = json['confirmedAt'];
+    if (referenceId is! String ||
+        !_uuidV4Pattern.hasMatch(referenceId) ||
+        kindName != expectedKind.name ||
+        ownerKind == null ||
+        sourceName != ProfileDataSource.certificate.name ||
+        sourceDateRaw is! String ||
+        legalYear is! int ||
+        legalYear < 1900 ||
+        legalYear > 9999 ||
+        confirmedAtRaw is! String) {
+      return null;
+    }
+
+    final sourceDate = _parseCivilDate(sourceDateRaw);
+    final confirmedAt = DateTime.tryParse(confirmedAtRaw);
+    if (sourceDate == null ||
+        confirmedAt == null ||
+        confirmedAt.toUtc().toIso8601String() != confirmedAtRaw) {
+      return null;
+    }
+    final current = now ?? DateTime.now();
+    if (SwissCivilTime.isFutureCivilDate(sourceDate, now: current) ||
+        confirmedAt.isAfter(current.toUtc())) {
+      return null;
+    }
+
+    DateTime? deadlineDate;
+    String? contractReferenceId;
+    int? taxYear;
+    String? jurisdiction;
+    TaxSubjectScope? subject;
+    switch (expectedKind) {
+      case SpecialistReferenceKind.lppRegulation:
+        break;
+      case SpecialistReferenceKind.lppCapitalNotice:
+        final rawDeadline = json['deadlineDate'];
+        if (rawDeadline is! String) return null;
+        deadlineDate = _parseCivilDate(rawDeadline);
+        if (deadlineDate == null) return null;
+      case SpecialistReferenceKind.pillar3aBeneficiaryClause:
+        final rawContractReferenceId = json['contractReferenceId'];
+        if (rawContractReferenceId is! String ||
+            !_uuidV4Pattern.hasMatch(rawContractReferenceId)) {
+          return null;
+        }
+        contractReferenceId = rawContractReferenceId;
+      case SpecialistReferenceKind.taxAssessmentDecision:
+        final rawTaxYear = json['taxYear'];
+        final rawJurisdiction = json['jurisdiction'];
+        final rawSubject = json['subject'];
+        final parsedSubject = rawSubject is String
+            ? TaxSubjectScope.values
+                .where((value) => value != TaxSubjectScope.unknown)
+                .where((value) => value.name == rawSubject)
+                .firstOrNull
+            : null;
+        if (rawTaxYear is! int ||
+            rawTaxYear < 1900 ||
+            rawTaxYear > legalYear ||
+            rawJurisdiction is! String ||
+            !sortedCantonCodes.contains(rawJurisdiction) ||
+            parsedSubject == null) {
+          return null;
+        }
+        taxYear = rawTaxYear;
+        jurisdiction = rawJurisdiction;
+        subject = parsedSubject;
+    }
+
+    return SpecialistReferenceEvidence._(
+      referenceId: referenceId,
+      kind: expectedKind,
+      ownerKind: ownerKind,
+      source: ProfileDataSource.certificate,
+      sourceDate: sourceDate,
+      legalYear: legalYear,
+      confirmedAt: confirmedAt,
+      deadlineDate: deadlineDate,
+      contractReferenceId: contractReferenceId,
+      taxYear: taxYear,
+      jurisdiction: jurisdiction,
+      subject: subject,
+    );
+  }
+
+  static DateTime? _parseCivilDate(String raw) {
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(raw)) return null;
+    return SwissCivilTime.parseCanonicalCivilDate(raw);
+  }
+
+  /// Returns known only for evidence applicable at [asOf].
+  SpecialistReferenceState stateAt(
+    DateTime asOf, {
+    TaxSnapshot? taxSnapshot,
+    Iterable<SpecialistReferenceEvidence> conflictingReferences = const [],
+  }) {
+    if (SwissCivilTime.isFutureCivilDate(sourceDate, now: asOf) ||
+        confirmedAt.isAfter(asOf.toUtc())) {
+      return SpecialistReferenceState.invalid;
+    }
+    final hasConflict = conflictingReferences.any(
+      (peer) =>
+          peer != this &&
+          peer.kind == kind &&
+          peer.ownerKind == ownerKind &&
+          peer.legalYear == legalYear,
+    );
+    if (hasConflict) return SpecialistReferenceState.conflict;
+
+    final civilAsOf = SwissCivilTime.civilDate(asOf);
+    if (legalYear != civilAsOf.year) return SpecialistReferenceState.stale;
+    if (deadlineDate != null &&
+        SwissCivilTime.businessDate(deadlineDate!).isBefore(civilAsOf)) {
+      return SpecialistReferenceState.stale;
+    }
+    if (kind == SpecialistReferenceKind.taxAssessmentDecision) {
+      if (taxSnapshot == null) return SpecialistReferenceState.missing;
+      final coherent = taxSnapshot.taxYear == taxYear &&
+          taxSnapshot.cantonCode == jurisdiction &&
+          taxSnapshot.subjectScope == subject &&
+          taxSnapshot.documentKind == TaxDocumentKind.assessmentNotice &&
+          taxSnapshot.assessmentStatus == TaxAssessmentStatus.inForce &&
+          taxSnapshot.inForceAttested;
+      if (!coherent) return SpecialistReferenceState.conflict;
+    }
+    return SpecialistReferenceState.known;
+  }
+
+  bool precisionReadyAt(
+    DateTime asOf, {
+    TaxSnapshot? taxSnapshot,
+    Iterable<SpecialistReferenceEvidence> conflictingReferences = const [],
+  }) =>
+      stateAt(
+        asOf,
+        taxSnapshot: taxSnapshot,
+        conflictingReferences: conflictingReferences,
+      ) ==
+      SpecialistReferenceState.known;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'referenceId': referenceId,
+        'kind': kind.name,
+        'ownerKind': ownerKind.wireName,
+        'source': source.name,
+        'sourceDate': sourceDate.toIso8601String().split('T').first,
+        'legalYear': legalYear,
+        'confirmedAt': confirmedAt.toIso8601String(),
+        if (deadlineDate != null)
+          'deadlineDate': deadlineDate!.toIso8601String().split('T').first,
+        if (contractReferenceId != null)
+          'contractReferenceId': contractReferenceId,
+        if (taxYear != null) 'taxYear': taxYear,
+        if (jurisdiction != null) 'jurisdiction': jurisdiction,
+        if (subject != null) 'subject': subject!.name,
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SpecialistReferenceEvidence &&
+          referenceId == other.referenceId &&
+          kind == other.kind &&
+          ownerKind == other.ownerKind &&
+          source == other.source &&
+          sourceDate == other.sourceDate &&
+          legalYear == other.legalYear &&
+          confirmedAt == other.confirmedAt &&
+          deadlineDate == other.deadlineDate &&
+          contractReferenceId == other.contractReferenceId &&
+          taxYear == other.taxYear &&
+          jurisdiction == other.jurisdiction &&
+          subject == other.subject;
+
+  @override
+  int get hashCode => Object.hash(
+        referenceId,
+        kind,
+        ownerKind,
+        source,
+        sourceDate,
+        legalYear,
+        confirmedAt,
+        deadlineDate,
+        contractReferenceId,
+        taxYear,
+        jurisdiction,
+        subject,
+      );
+}
+
 /// Profil financier complet pour MINT Coach.
 ///
 /// Contient toutes les données nécessaires au ForecasterService
@@ -2796,6 +3098,12 @@ class CoachProfile {
 
   // === FISCALITE ===
   final FiscalProfile fiscal;
+
+  // === REFERENCES SPECIALISTES (metadata only) ===
+  final SpecialistReferenceEvidence? lppRegulationReference;
+  final SpecialistReferenceEvidence? lppCapitalNoticeDeadline;
+  final SpecialistReferenceEvidence? pillar3aBeneficiaryClause;
+  final SpecialistReferenceEvidence? latestTaxDecisionReference;
 
   // === OBJECTIFS ===
   final GoalA goalA;
@@ -2937,6 +3245,10 @@ class CoachProfile {
     this.patrimoine = const PatrimoineProfile(),
     this.dettes = const DetteProfile(),
     this.fiscal = const FiscalProfile.empty(),
+    this.lppRegulationReference,
+    this.lppCapitalNoticeDeadline,
+    this.pillar3aBeneficiaryClause,
+    this.latestTaxDecisionReference,
     required this.goalA,
     this.goalsB = const [],
     this.plannedContributions = const [],
@@ -3080,6 +3392,10 @@ class CoachProfile {
           prevoyance == other.prevoyance &&
           patrimoine == other.patrimoine &&
           dettes == other.dettes &&
+          lppRegulationReference == other.lppRegulationReference &&
+          lppCapitalNoticeDeadline == other.lppCapitalNoticeDeadline &&
+          pillar3aBeneficiaryClause == other.pillar3aBeneficiaryClause &&
+          latestTaxDecisionReference == other.latestTaxDecisionReference &&
           goalA == other.goalA &&
           listEquals(goalsB, other.goalsB) &&
           listEquals(plannedContributions, other.plannedContributions) &&
@@ -3134,6 +3450,10 @@ class CoachProfile {
         prevoyance,
         patrimoine,
         dettes,
+        lppRegulationReference,
+        lppCapitalNoticeDeadline,
+        pillar3aBeneficiaryClause,
+        latestTaxDecisionReference,
         goalA,
         goalsB.length,
         plannedContributions.length,
@@ -3679,6 +3999,10 @@ class CoachProfile {
     PatrimoineProfile? patrimoine,
     DetteProfile? dettes,
     FiscalProfile? fiscal,
+    Object? lppRegulationReference = _keepSpecialistReferenceValue,
+    Object? lppCapitalNoticeDeadline = _keepSpecialistReferenceValue,
+    Object? pillar3aBeneficiaryClause = _keepSpecialistReferenceValue,
+    Object? latestTaxDecisionReference = _keepSpecialistReferenceValue,
     GoalA? goalA,
     List<GoalB>? goalsB,
     List<PlannedMonthlyContribution>? plannedContributions,
@@ -3795,6 +4119,22 @@ class CoachProfile {
       patrimoine: patrimoine ?? this.patrimoine,
       dettes: dettes ?? this.dettes,
       fiscal: fiscal ?? this.fiscal,
+      lppRegulationReference:
+          identical(lppRegulationReference, _keepSpecialistReferenceValue)
+              ? this.lppRegulationReference
+              : lppRegulationReference as SpecialistReferenceEvidence?,
+      lppCapitalNoticeDeadline:
+          identical(lppCapitalNoticeDeadline, _keepSpecialistReferenceValue)
+              ? this.lppCapitalNoticeDeadline
+              : lppCapitalNoticeDeadline as SpecialistReferenceEvidence?,
+      pillar3aBeneficiaryClause:
+          identical(pillar3aBeneficiaryClause, _keepSpecialistReferenceValue)
+              ? this.pillar3aBeneficiaryClause
+              : pillar3aBeneficiaryClause as SpecialistReferenceEvidence?,
+      latestTaxDecisionReference:
+          identical(latestTaxDecisionReference, _keepSpecialistReferenceValue)
+              ? this.latestTaxDecisionReference
+              : latestTaxDecisionReference as SpecialistReferenceEvidence?,
       goalA: goalA ?? this.goalA,
       goalsB: goalsB ?? this.goalsB,
       plannedContributions: plannedContributions ?? this.plannedContributions,
@@ -3982,6 +4322,22 @@ class CoachProfile {
           (json['monthlySavingsContribution'] as num?)?.toDouble(),
       hasPillar3a: json['hasPillar3a'] as bool?,
       avsGapStatus: _parseAvsGapStatus(json['avsGapStatus'] as String?),
+      lppRegulationReference: SpecialistReferenceEvidence.tryFromJson(
+        json['lppRegulationReference'],
+        expectedKind: SpecialistReferenceKind.lppRegulation,
+      ),
+      lppCapitalNoticeDeadline: SpecialistReferenceEvidence.tryFromJson(
+        json['lppCapitalNoticeDeadline'],
+        expectedKind: SpecialistReferenceKind.lppCapitalNotice,
+      ),
+      pillar3aBeneficiaryClause: SpecialistReferenceEvidence.tryFromJson(
+        json['pillar3aBeneficiaryClause'],
+        expectedKind: SpecialistReferenceKind.pillar3aBeneficiaryClause,
+      ),
+      latestTaxDecisionReference: SpecialistReferenceEvidence.tryFromJson(
+        json['latestTaxDecisionReference'],
+        expectedKind: SpecialistReferenceKind.taxAssessmentDecision,
+      ),
       depenses: json['depenses'] != null
           ? DepensesProfile.fromJson(json['depenses'])
           : const DepensesProfile(),
@@ -4119,6 +4475,10 @@ class CoachProfile {
         'monthlySavingsContribution': monthlySavingsContribution,
         'hasPillar3a': hasPillar3a,
         'avsGapStatus': _avsGapStatusToCanonical(avsGapStatus),
+        'lppRegulationReference': lppRegulationReference?.toJson(),
+        'lppCapitalNoticeDeadline': lppCapitalNoticeDeadline?.toJson(),
+        'pillar3aBeneficiaryClause': pillar3aBeneficiaryClause?.toJson(),
+        'latestTaxDecisionReference': latestTaxDecisionReference?.toJson(),
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
         'patrimoine': patrimoine.toJson(),
