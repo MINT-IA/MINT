@@ -414,16 +414,93 @@ class LppEvidenceFact {
   }
 }
 
+final class LppCapitalNoticeDeadline {
+  const LppCapitalNoticeDeadline._({
+    required this.referenceId,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.confirmedAt,
+    required this.deadlineDate,
+  });
+
+  static const kind = 'lppCapitalNotice';
+
+  final String referenceId;
+  final DateTime sourceDate;
+  final int legalYear;
+  final DateTime confirmedAt;
+  final DateTime deadlineDate;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'referenceId': referenceId,
+        'kind': kind,
+        'ownerKind': LppEvidenceOwnerKind.self.wireName,
+        'source': 'certificate',
+        'sourceDate': _encodeCivilDate(sourceDate),
+        'legalYear': legalYear,
+        'confirmedAt': confirmedAt.toUtc().toIso8601String(),
+        'deadlineDate': _encodeCivilDate(deadlineDate),
+      };
+
+  static LppCapitalNoticeDeadline? fromJson(
+    Map<String, dynamic> json, {
+    DateTime Function()? now,
+  }) {
+    const allowedKeys = <String>{
+      'referenceId',
+      'kind',
+      'ownerKind',
+      'source',
+      'sourceDate',
+      'legalYear',
+      'confirmedAt',
+      'deadlineDate',
+    };
+    if (json.length != allowedKeys.length ||
+        json.keys.toSet().difference(allowedKeys).isNotEmpty ||
+        json['referenceId'] is! String ||
+        !_isCanonicalUuidV4(json['referenceId'] as String) ||
+        json['kind'] != kind ||
+        json['ownerKind'] != LppEvidenceOwnerKind.self.wireName ||
+        json['source'] != 'certificate' ||
+        json['legalYear'] is! int ||
+        (json['legalYear'] as int) < 1900 ||
+        (json['legalYear'] as int) > 9999) {
+      return null;
+    }
+    final sourceDate = _parseCanonicalCivilDate(json['sourceDate']);
+    final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
+    final deadlineDate = _parseCanonicalCivilDate(json['deadlineDate']);
+    final current = (now ?? DateTime.now)().toUtc();
+    if (sourceDate == null ||
+        confirmedAt == null ||
+        deadlineDate == null ||
+        confirmedAt.isAfter(current) ||
+        SwissCivilTime.isFutureCivilDate(sourceDate, now: current)) {
+      return null;
+    }
+    return LppCapitalNoticeDeadline._(
+      referenceId: json['referenceId'] as String,
+      sourceDate: sourceDate,
+      legalYear: json['legalYear'] as int,
+      confirmedAt: confirmedAt,
+      deadlineDate: deadlineDate,
+    );
+  }
+}
+
 class LppEvidenceSnapshot {
   const LppEvidenceSnapshot({
     required this.snapshotId,
     required this.facts,
     this.independentFacts = const {},
+    this.lppCapitalNoticeDeadline,
   });
 
   final String snapshotId;
   final Map<LppEvidenceFactKey, LppEvidenceFact> facts;
   final Map<LppEvidenceFactKey, LppEvidenceFact> independentFacts;
+  final LppCapitalNoticeDeadline? lppCapitalNoticeDeadline;
 
   Iterable<LppEvidenceFact> get identityFacts =>
       facts.isNotEmpty ? facts.values : independentFacts.values;
@@ -439,20 +516,31 @@ class LppEvidenceSnapshot {
             for (final entry in independentFacts.entries)
               entry.key.wireName: entry.value.toJson(),
           },
+        if (lppCapitalNoticeDeadline != null)
+          'lppCapitalNoticeDeadline': lppCapitalNoticeDeadline!.toJson(),
       };
 
   static LppEvidenceSnapshot? fromJson(
     Map<String, dynamic> json, {
     required LppEvidenceOwnerKind expectedOwnerKind,
+    DateTime Function()? now,
   }) {
-    const allowedKeys = {'snapshotId', 'facts', 'independentFacts'};
-    if ((json.length != 2 && json.length != 3) ||
+    const allowedKeys = {
+      'snapshotId',
+      'facts',
+      'independentFacts',
+      'lppCapitalNoticeDeadline',
+    };
+    if ((json.length < 2 || json.length > 4) ||
         json.keys.toSet().difference(allowedKeys).isNotEmpty ||
         json['snapshotId'] is! String ||
         !_isCanonicalUuidV4(json['snapshotId'] as String) ||
         json['facts'] is! Map ||
         (json.containsKey('independentFacts') &&
-            json['independentFacts'] is! Map)) {
+            json['independentFacts'] is! Map) ||
+        (json.containsKey('lppCapitalNoticeDeadline') &&
+            (expectedOwnerKind != LppEvidenceOwnerKind.self ||
+                json['lppCapitalNoticeDeadline'] is! Map))) {
       return null;
     }
     final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
@@ -507,10 +595,19 @@ class LppEvidenceSnapshot {
       }
     }
     if (facts.isEmpty && independentFacts.isEmpty) return null;
+    final rawCapitalNotice = json['lppCapitalNoticeDeadline'];
+    final capitalNotice = rawCapitalNotice == null
+        ? null
+        : LppCapitalNoticeDeadline.fromJson(
+            Map<String, dynamic>.from(rawCapitalNotice as Map),
+            now: now,
+          );
+    if (rawCapitalNotice != null && capitalNotice == null) return null;
     return LppEvidenceSnapshot(
       snapshotId: json['snapshotId'] as String,
       facts: Map.unmodifiable(facts),
       independentFacts: Map.unmodifiable(independentFacts),
+      lppCapitalNoticeDeadline: capitalNotice,
     );
   }
 }
@@ -698,6 +795,11 @@ DateTime? _parseCanonicalCivilDate(Object? raw) {
       '${canonical.day.toString().padLeft(2, '0')}';
   return encoded == raw ? canonical : null;
 }
+
+String _encodeCivilDate(DateTime value) =>
+    '${value.year.toString().padLeft(4, '0')}-'
+    '${value.month.toString().padLeft(2, '0')}-'
+    '${value.day.toString().padLeft(2, '0')}';
 
 DateTime? _parseCanonicalUtcInstant(Object? raw) {
   if (raw is! String) return null;
