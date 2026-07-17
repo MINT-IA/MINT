@@ -14,6 +14,8 @@ Authoritative code:
 - Agent loop split: [`services/backend/app/api/v1/endpoints/coach_chat.py:1890-1934`](../services/backend/app/api/v1/endpoints/coach_chat.py)
 - Flutter dispatch: [`apps/mobile/lib/screens/coach/coach_chat_screen.dart:1025-1055`](../apps/mobile/lib/screens/coach/coach_chat_screen.dart)
 - Widget renderer (Flutter tools): [`apps/mobile/lib/widgets/coach/widget_renderer.dart`](../apps/mobile/lib/widgets/coach/widget_renderer.dart)
+- Bubble callback bridge: [`apps/mobile/lib/widgets/coach/coach_message_bubble.dart`](../apps/mobile/lib/widgets/coach/coach_message_bubble.dart)
+- Inline input widgets: [`apps/mobile/lib/widgets/coach/chat_inline_inputs.dart`](../apps/mobile/lib/widgets/coach/chat_inline_inputs.dart)
 
 ---
 
@@ -95,6 +97,44 @@ Dispatched in the Flutter agent loop at
    never computed.
 7. `save_insight` → client-side memory (Hive/SharedPrefs via
    `CoachMemoryService`) — text summary, NOT structured fields.
+8. `ask_user_input` → an inline input rendered by `WidgetRenderer`. The tool is
+   read-only until the user explicitly submits; a submitted financial amount
+   must cross the awaited callback chain below before it becomes a ledger fact.
+
+### G1-COACH-01 — live `ask_user_input` amount contract
+
+The production callback chain is one asynchronous path:
+
+```text
+WidgetRenderer / ChatAmountInput
+  -> CoachMessageBubble(messageIndex, field, value)
+  -> CoachChatScreen
+  -> await CoachProfileProvider.applySaveFact(canonicalKey, amount)
+  -> durable wizard_answers_v2 save
+  -> one provider notification
+  -> mark input answered + one factual chat echo
+```
+
+Every callback layer returns/awaits `Future<void>`. `unawaited`, marking the
+bubble answered before persistence, or echoing an amount before a successful
+write violates the contract.
+
+| emitted Flutter key | canonical `applySaveFact` key | exact meaning |
+|---|---|---|
+| `salaireBrut` | `incomeGrossYearly` | CHF/year. `120000` reconstructs CHF 10'000/month only with an existing 12-period fact; with 13 periods it reconstructs about CHF 9'230.77/month. The write never changes `q_nombre_mois`. |
+| `avoirLpp` | `avoirLpp` | Current total LPP stock in CHF. It never fabricates mandatory/extra-mandatory components. While `typedLppEvidence` is active, any presence of the strict typed-LPP root key rejects the loose write before persistence, even if it is malformed/stale or has no current selector; the retry state may reconcile through `/scan?type=lppCertificate`. |
+| `epargne3a` | `pillar3aBalance` | Current total 3a stock in CHF. It never becomes an annual contribution. |
+
+Only finite values greater than or equal to zero are valid. Zero is a real
+declared fact; negative, NaN and either infinity cause no save, listener
+notification, answered state or echo. A persistence exception leaves the
+inline input visible and retryable; the successful retry saves exactly once.
+Cold reconstruction must return the same value.
+
+These three user submissions use the existing mobile envelope only:
+`ProfileDataSource.userInput`, a non-null `updatedAt`, and null `sourceDate`.
+Do not invent `SourceKind`, locator, observedAt or confirmedAt fields. Do not
+add a second key alias, capture handler, facade, or advice-shaped response.
 
 `route_to_screen` is an intent-only boundary. Its LLM-visible JSON schema is
 closed to `intent`, `confidence`, and `context_message`, with

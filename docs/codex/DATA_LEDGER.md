@@ -360,6 +360,44 @@ After T-0 and T-1, `_mapFactKeyToAnswers` handles all 36 keys and every mapper t
 
 **Task T-2 (done):** `wealthEstimate` has its own wizard key (`q_wealth_estimate`) and a distinct `fromWizardAnswers` read via `PatrimoineProfile.wealthEstimate`. `totalPatrimoine` compares it with the detailed asset sum and uses the higher aggregate total, so `totalSavings` stays on `q_cash_total` without double counting.
 
+### 3.9 G1-COACH-01 target — live inline amount write
+
+`ask_user_input` is read-only until the user submits the rendered input. The
+only authorized amount-write chain is:
+
+```text
+WidgetRenderer / ChatAmountInput
+  -> CoachMessageBubble
+  -> CoachChatScreen
+  -> await CoachProfileProvider.applySaveFact
+  -> wizard_answers_v2 save
+  -> one provider notification
+  -> answered state + one factual echo
+```
+
+The callback keys and ledger mappings are closed:
+
+| emitted key | `applySaveFact` key | stored answer | canonical result |
+|---|---|---|---|
+| `salaireBrut` | `incomeGrossYearly` | `q_gross_salary_annual` | Annual gross CHF. Existing `q_nombre_mois` remains authoritative: 120000 / 12 = 10000 monthly, while 120000 / 13 ≈ 9230.77. |
+| `avoirLpp` | `avoirLpp` | `_coach_avoir_lpp` | Total current LPP stock only; no mandatory/extra-mandatory split. While `typedLppEvidence` is active, any presence of the `_coach_lpp_evidence_v1` key rejects this loose competing write before persistence, even if it is malformed/stale or has no current selector; reconciliation uses `/scan?type=lppCertificate`. |
+| `epargne3a` | `pillar3aBalance` | `q_3a_total` | Total current 3a stock only; never `pillar3aAnnual` or a contribution. |
+
+All three accept finite values `>= 0`; zero remains an explicit known fact.
+Negative, NaN and either infinity fail before persistence and produce no
+listener notification, answered state or echo. A persistence failure likewise
+produces none of those effects and leaves the input retryable. The successful
+attempt persists exactly once, then publishes/notifies/echoes, and cold
+reconstruction returns the same value.
+
+Inline amounts use the existing mobile provenance envelope only:
+`ProfileDataSource.userInput`, non-null `updatedAt`, null `sourceDate`. The
+`.60` confidence weight is derived from `userInput`; it is not a new persisted
+confidence field. `SourceKind`, locator, observedAt and confirmedAt are not
+generic mobile-ledger metadata and must not be invented. No alternate key,
+capture facade or advice-shaped acknowledgement is authorized. COACH-01 stays
+`ticket_only` until the exact RED -> GREEN contract is accepted.
+
 ---
 
 ## 4. Ledger — mobile-only typed fields (not coach-writable)
@@ -1536,24 +1574,32 @@ The ledger `fresh` column (§3/§4) IS the authoritative `freshnessCategory` sou
 
 ---
 
-## 6. Per-field provenance contract `{source, sourceDate, updatedAt}` (the missing piece)
+## 6. Per-field provenance contract `{source, sourceDate, updatedAt}`
 
-Today (wiring findings §B-4): mobile has `dataSources` (source only) + `dataTimestamps` (updatedAt only); backend `ProfileModel` has ONE `updated_at` for the whole profile. **Missing: `sourceDate` (when the underlying document was issued, semantically separate from when MINT confirmed it) and durable backend per-field provenance.** The two events may share a calendar date; `sourceDate` must never be derived from confirmation time. `FreshnessDecayService.weight()` explicitly uses `updatedAt`, not `sourceDate` — keep that; `sourceDate` is for display ("certificat LPP 2024") and for AVS/LPP/tax barème-year tagging.
+Mobile now persists the three fields per canonical path in the reserved
+`__provenance` envelope and reconstructs them after restart. Backend
+`ProfileModel` still has one profile-wide `updated_at`; durable backend
+per-field provenance remains the residual gap described in §6.2. `sourceDate`
+is when the underlying document was issued, semantically separate from when
+MINT confirmed it; it must never be derived from confirmation time.
+`FreshnessDecayService.weight()` uses `updatedAt`, not `sourceDate`.
 
-### 6.1 Mobile — extend `CoachProfile`
+### 6.1 Mobile — implemented `CoachProfile` envelope
 
 ```
-// EXISTING (keep):
 final Map<String, ProfileDataSource> dataSources;   // field path -> source
 final Map<String, DateTime>          dataTimestamps; // field path -> updatedAt (when MINT set it)
-
-// ADD:
 final Map<String, DateTime?>         dataSourceDates; // field path -> sourceDate (document issue date), nullable
 ```
 
 - **Key convention:** the same field path already used by `dataSources` (e.g. `prevoyance.avoirLppTotal`, `patrimoine.epargneLiquide`, top-level keys like `salaireBrutMensuel`).
-- **Write rule (I-3):** every `mergeAnswers`/`applySaveFact` that sets a field MUST, in the same call, set `dataSources[path]`, `dataTimestamps[path] = now`, and `dataSourceDates[path]` (= the document date when source ∈ {certificate, openBanking}, else null). Add this to `fromWizardAnswers` reconstruction + the `copyWith` used by the provider.
-- Serialize all three maps into `wizard_answers_v2` so they survive restart.
+- **Write rule (I-3):** every `mergeAnswers`/`applySaveFact` that sets a field
+  sets `dataSources[path]`, `dataTimestamps[path] = now`, and
+  `dataSourceDates[path]` in the same mutation. Manual inline input uses
+  `userInput` and null `sourceDate`; reviewed document/feed writes carry their
+  actual source date.
+- All three maps serialize into `wizard_answers_v2` under `__provenance` and
+  `CoachProfile.fromWizardAnswers` reconstructs them after restart.
 
 **Strict-secure official AVS special case.** The generic three-map target does
 not authorize four independent writes for `avs_official_monthly_pension`.
