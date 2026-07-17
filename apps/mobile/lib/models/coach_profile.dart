@@ -3005,7 +3005,10 @@ final class SpecialistReferenceEvidence {
 
   static DateTime? _parseCivilDate(String raw) {
     if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(raw)) return null;
-    return SwissCivilTime.parseCanonicalCivilDate(raw);
+    final parsed = SwissCivilTime.parseCanonicalCivilDate(raw);
+    return parsed == null
+        ? null
+        : DateTime.utc(parsed.year, parsed.month, parsed.day);
   }
 
   /// Returns known only for evidence applicable at [asOf].
@@ -4861,6 +4864,14 @@ class CoachProfile {
             now: now,
           )
         : null;
+    final lppCapitalNoticeDeadline =
+        FeatureFlags.lppCapitalNoticeDeadlineEnabled
+            ? SpecialistReferenceEvidence.tryFromJson(
+                typedLppSelf?.lppCapitalNoticeDeadline?.toJson(),
+                expectedKind: SpecialistReferenceKind.lppCapitalNotice,
+                now: ageNow,
+              )
+            : null;
     final expectedManualPartnerOwnerId = FeatureFlags.typedLppEvidence
         ? LppEvidenceSelector.manualPartnerOwnerId(
             answers['_coach_lpp_evidence_v1'],
@@ -5776,6 +5787,7 @@ class CoachProfile {
           : null,
       hasPillar3a: has3a,
       avsGapStatus: _parseAvsGapStatus(avsLacunesStatus),
+      lppCapitalNoticeDeadline: lppCapitalNoticeDeadline,
       latestTaxDecisionReference: latestTaxDecisionReference,
       depenses: depenses,
       prevoyance: prevoyance,

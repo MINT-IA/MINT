@@ -1307,6 +1307,152 @@ class CoachProfileProvider extends ChangeNotifier {
     });
   }
 
+  Future<LppCapitalNoticeReceipt> acceptLppCapitalNotice(
+    LppCapitalNoticeReviewConfirmation confirmation,
+  ) {
+    if (!FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.lppCapitalNoticeDeadlineEnabled) {
+      return Future<LppCapitalNoticeReceipt>.error(
+        StateError('LPP capital notice deadline is disabled'),
+      );
+    }
+    final guard = _sessionEpoch.capture();
+    return _serializeLppMutation(
+      () => _acceptLppCapitalNotice(confirmation, guard),
+    );
+  }
+
+  Future<LppCapitalNoticeReceipt> _acceptLppCapitalNotice(
+    LppCapitalNoticeReviewConfirmation confirmation,
+    SessionEpochGuard sessionGuard,
+  ) async {
+    sessionGuard.assertCurrent();
+    if (!FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.lppCapitalNoticeDeadlineEnabled ||
+        !_isLoaded ||
+        confirmation.ownerKind != LppEvidenceOwnerKind.self) {
+      throw StateError('LPP capital notice deadline is unavailable');
+    }
+    final currentTime = _now();
+    if (SwissCivilTime.isFutureCivilDate(
+      confirmation.sourceDate,
+      now: currentTime,
+    )) {
+      throw ArgumentError.value(
+        confirmation.sourceDate,
+        'sourceDate',
+        'future civil source dates cannot enter the ledger',
+      );
+    }
+    final currentSnapshot = LppEvidenceSelector.selectSelf(
+      _lastAnswers[_lppEvidenceRootKey],
+      now: _now,
+    );
+    if (currentSnapshot == null ||
+        currentSnapshot.facts.isEmpty ||
+        currentSnapshot.snapshotId != confirmation.expectedSnapshotId) {
+      throw StateError('Current self LPP snapshot does not match');
+    }
+    final currentNotice = currentSnapshot.lppCapitalNoticeDeadline;
+    final expectedPreviousReferenceId =
+        confirmation.expectedPreviousReferenceId;
+    if (expectedPreviousReferenceId != null &&
+        currentNotice?.referenceId != expectedPreviousReferenceId) {
+      throw StateError('Previous capital notice reference does not match');
+    }
+    if (currentNotice != null &&
+        _capitalNoticeMatches(currentNotice, confirmation)) {
+      return _capitalNoticeReceipt(currentSnapshot, currentNotice);
+    }
+    if (currentNotice != null && expectedPreviousReferenceId == null) {
+      throw StateError('Explicit previous reference is required');
+    }
+    if (currentNotice == null && expectedPreviousReferenceId != null) {
+      throw StateError('Previous capital notice reference is absent');
+    }
+
+    final referenceId = const Uuid().v4();
+    final confirmedAt = currentTime.toUtc();
+    final notice = LppCapitalNoticeDeadline.create(
+      referenceId: referenceId,
+      sourceDate: confirmation.sourceDate,
+      legalYear: confirmation.legalYear,
+      confirmedAt: confirmedAt,
+      deadlineDate: confirmation.deadlineDate,
+    );
+    late CoachProfile publishedProfile;
+    await _mutateLppAnswers(sessionGuard, (loaded) {
+      sessionGuard.assertCurrent();
+      final root = LppEvidenceRoot.fromJsonString(
+        loaded[_lppEvidenceRootKey],
+      );
+      final self = LppEvidenceSelector.selectSelf(
+        loaded[_lppEvidenceRootKey],
+        now: _now,
+      );
+      if (root == null ||
+          self == null ||
+          self.facts.isEmpty ||
+          self.snapshotId != confirmation.expectedSnapshotId) {
+        throw StateError('Persisted self LPP snapshot changed');
+      }
+      final persistedNotice = self.lppCapitalNoticeDeadline;
+      if (persistedNotice?.referenceId != expectedPreviousReferenceId) {
+        throw StateError('Persisted capital notice reference changed');
+      }
+      final nextRoot = LppEvidenceRoot(
+        self: LppEvidenceSnapshot(
+          snapshotId: self.snapshotId,
+          facts: self.facts,
+          independentFacts: self.independentFacts,
+          lppCapitalNoticeDeadline: notice,
+        ),
+        manualPartner: root.manualPartner,
+        legacyPartnerQuarantine: root.legacyPartnerQuarantine,
+      );
+      final nextAnswers = _copyAnswers(loaded)
+        ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
+      publishedProfile = CoachProfile.fromWizardAnswers(
+        nextAnswers,
+        now: _now,
+        partnerAccountabilityBinding: _partnerLppAccountabilityBinding,
+        enforcePartnerAccountability: true,
+      );
+      return nextAnswers;
+    }, publish: (persisted) {
+      sessionGuard.assertCurrent();
+      _lastAnswers = _copyAnswers(persisted);
+      _profile = publishedProfile;
+      _isLoaded = true;
+      _isPartialProfile = true;
+      _profileUpdatedSinceBudget = true;
+      notifyListeners();
+    });
+    return LppCapitalNoticeReceipt(
+      referenceId: referenceId,
+      snapshotId: confirmation.expectedSnapshotId,
+      confirmedAt: confirmedAt,
+    );
+  }
+
+  static bool _capitalNoticeMatches(
+    LppCapitalNoticeDeadline notice,
+    LppCapitalNoticeReviewConfirmation confirmation,
+  ) =>
+      notice.sourceDate == confirmation.sourceDate &&
+      notice.legalYear == confirmation.legalYear &&
+      notice.deadlineDate == confirmation.deadlineDate;
+
+  static LppCapitalNoticeReceipt _capitalNoticeReceipt(
+    LppEvidenceSnapshot snapshot,
+    LppCapitalNoticeDeadline notice,
+  ) =>
+      LppCapitalNoticeReceipt(
+        referenceId: notice.referenceId,
+        snapshotId: snapshot.snapshotId,
+        confirmedAt: notice.confirmedAt,
+      );
+
   /// Persists one complete person-owned LPP review before exposing it in memory.
   Future<LppReviewReceipt> acceptLppReview(
     LppReviewConfirmation confirmation,

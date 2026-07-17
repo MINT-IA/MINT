@@ -254,6 +254,91 @@ class LppReviewConfirmation {
   LppEvidenceOwnerKind get subject => authorization.subject;
 }
 
+final class LppCapitalNoticeReviewConfirmation {
+  factory LppCapitalNoticeReviewConfirmation({
+    required LppEvidenceOwnerKind ownerKind,
+    required DateTime sourceDate,
+    required int legalYear,
+    required DateTime deadlineDate,
+    required String expectedSnapshotId,
+    String? expectedPreviousReferenceId,
+  }) {
+    if (ownerKind != LppEvidenceOwnerKind.self) {
+      throw ArgumentError.value(ownerKind, 'ownerKind', 'self is required');
+    }
+    if (!_isCanonicalCivilInstant(sourceDate)) {
+      throw ArgumentError.value(
+        sourceDate,
+        'sourceDate',
+        'canonical UTC civil date required',
+      );
+    }
+    if (!_isCanonicalCivilInstant(deadlineDate)) {
+      throw ArgumentError.value(
+        deadlineDate,
+        'deadlineDate',
+        'canonical UTC civil date required',
+      );
+    }
+    if (legalYear < 1900 || legalYear > 9999) {
+      throw RangeError.range(legalYear, 1900, 9999, 'legalYear');
+    }
+    if (!_isCanonicalUuidV4(expectedSnapshotId)) {
+      throw ArgumentError.value(
+        expectedSnapshotId,
+        'expectedSnapshotId',
+        'canonical UUIDv4 required',
+      );
+    }
+    if (expectedPreviousReferenceId != null &&
+        !_isCanonicalUuidV4(expectedPreviousReferenceId)) {
+      throw ArgumentError.value(
+        expectedPreviousReferenceId,
+        'expectedPreviousReferenceId',
+        'canonical UUIDv4 required',
+      );
+    }
+    return LppCapitalNoticeReviewConfirmation._(
+      ownerKind: ownerKind,
+      sourceDate: sourceDate,
+      legalYear: legalYear,
+      deadlineDate: deadlineDate,
+      expectedSnapshotId: expectedSnapshotId,
+      expectedPreviousReferenceId: expectedPreviousReferenceId,
+    );
+  }
+
+  const LppCapitalNoticeReviewConfirmation._({
+    required this.ownerKind,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.deadlineDate,
+    required this.expectedSnapshotId,
+    required this.expectedPreviousReferenceId,
+  });
+
+  final LppEvidenceOwnerKind ownerKind;
+  final DateTime sourceDate;
+  final int legalYear;
+  final DateTime deadlineDate;
+  final String expectedSnapshotId;
+  final String? expectedPreviousReferenceId;
+}
+
+final class LppCapitalNoticeReceipt {
+  const LppCapitalNoticeReceipt({
+    required this.referenceId,
+    required this.snapshotId,
+    required this.confirmedAt,
+  });
+
+  final String referenceId;
+  final String snapshotId;
+  final DateTime confirmedAt;
+  String get kind => LppCapitalNoticeDeadline.kind;
+  LppEvidenceOwnerKind get ownerKind => LppEvidenceOwnerKind.self;
+}
+
 /// Minimal acknowledgement returned only after a strict LPP snapshot is
 /// durably accepted and published by the ledger.
 ///
@@ -431,6 +516,29 @@ final class LppCapitalNoticeDeadline {
   final DateTime confirmedAt;
   final DateTime deadlineDate;
 
+  static LppCapitalNoticeDeadline create({
+    required String referenceId,
+    required DateTime sourceDate,
+    required int legalYear,
+    required DateTime confirmedAt,
+    required DateTime deadlineDate,
+  }) {
+    final parsed = fromJson(<String, dynamic>{
+      'referenceId': referenceId,
+      'kind': kind,
+      'ownerKind': LppEvidenceOwnerKind.self.wireName,
+      'source': 'certificate',
+      'sourceDate': _encodeCivilDate(sourceDate),
+      'legalYear': legalYear,
+      'confirmedAt': confirmedAt.toUtc().toIso8601String(),
+      'deadlineDate': _encodeCivilDate(deadlineDate),
+    }, now: () => confirmedAt);
+    if (parsed == null) {
+      throw ArgumentError('Invalid LPP capital notice deadline');
+    }
+    return parsed;
+  }
+
   Map<String, dynamic> toJson() => <String, dynamic>{
         'referenceId': referenceId,
         'kind': kind,
@@ -471,12 +579,16 @@ final class LppCapitalNoticeDeadline {
     final sourceDate = _parseCanonicalCivilDate(json['sourceDate']);
     final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
     final deadlineDate = _parseCanonicalCivilDate(json['deadlineDate']);
-    final current = (now ?? DateTime.now)().toUtc();
+    final current = now?.call().toUtc();
     if (sourceDate == null ||
         confirmedAt == null ||
         deadlineDate == null ||
-        confirmedAt.isAfter(current) ||
-        SwissCivilTime.isFutureCivilDate(sourceDate, now: current)) {
+        (current != null &&
+            (confirmedAt.isAfter(current) ||
+                SwissCivilTime.isFutureCivilDate(
+                  sourceDate,
+                  now: current,
+                )))) {
       return null;
     }
     return LppCapitalNoticeDeadline._(
@@ -801,6 +913,14 @@ String _encodeCivilDate(DateTime value) =>
     '${value.month.toString().padLeft(2, '0')}-'
     '${value.day.toString().padLeft(2, '0')}';
 
+bool _isCanonicalCivilInstant(DateTime value) =>
+    value.isUtc &&
+    value.hour == 0 &&
+    value.minute == 0 &&
+    value.second == 0 &&
+    value.millisecond == 0 &&
+    value.microsecond == 0;
+
 DateTime? _parseCanonicalUtcInstant(Object? raw) {
   if (raw is! String) return null;
   final parsed = DateTime.tryParse(raw);
@@ -821,6 +941,7 @@ class LppEvidenceSelector {
     final snapshot = LppEvidenceSnapshot.fromJson(
       Map<String, dynamic>.from(rawSelf),
       expectedOwnerKind: LppEvidenceOwnerKind.self,
+      now: now,
     );
     if (snapshot == null) return null;
     return _selectCurrent(snapshot, now: now);

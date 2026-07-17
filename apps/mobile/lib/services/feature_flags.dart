@@ -93,6 +93,12 @@ class FeatureFlags {
   /// Backend configuration cannot activate this path.
   static bool typedLppEvidence = false;
 
+  /// Local kill switch for the reviewed LPP capital-notice deadline.
+  ///
+  /// It remains outside [applyFromMap] so technical readiness cannot expose
+  /// the unfinished acquisition or consumer path.
+  static bool lppCapitalNoticeDeadlineEnabled = false;
+
   /// Local kill switch for every LPP-document acquisition surface.
   /// Backend configuration cannot activate this path.
   static bool documentLppEvidenceEnabled = false;
