@@ -1,11 +1,39 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/frontalier_screen.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/cap_sequence_engine.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/fiscal_service.dart';
 import 'package:mint_mobile/services/navigation/readiness_gate.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
+import 'package:provider/provider.dart';
 
 const _missingApi = 'missing-api';
+
+final class _FrontierLedgerProvider extends CoachProfileProvider {
+  _FrontierLedgerProvider(this._current);
+
+  final CoachProfile _current;
+
+  @override
+  CoachProfile get profile => _current;
+
+  @override
+  bool get hasProfile => true;
+
+  @override
+  bool get isLoaded => true;
+}
 
 Object? _readDynamic(Object? Function() read) {
   try {
@@ -105,6 +133,60 @@ Map<String, Object?> _contract(dynamic profile, DateTime asOf) {
                 const <String>[],
           ),
   };
+}
+
+Future<void> _pumpFrontierScreen(
+  WidgetTester tester,
+  CoachProfile profile,
+) async {
+  final router = GoRouter(
+    routes: <RouteBase>[
+      GoRoute(
+        path: '/',
+        builder: (_, __) => const FrontalierScreen(),
+      ),
+      GoRoute(
+        path: '/coach/chat',
+        builder: (_, __) => const Scaffold(
+          body: Text(
+            'frontier-coach-destination',
+            key: Key('frontier_coach_destination'),
+          ),
+        ),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
+
+  await tester.pumpWidget(
+    ChangeNotifierProvider<CoachProfileProvider>.value(
+      value: _FrontierLedgerProvider(profile),
+      child: MaterialApp.router(
+        locale: const Locale('fr'),
+        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        routerConfig: router,
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+double? _budgetMargin(CoachProfile profile) {
+  final sequence = CapSequenceEngine.build(
+    profile: profile,
+    memory: const CapMemory(),
+    goalIntentTag: 'budget_overview',
+    l: SFr(),
+  );
+  return sequence.steps
+      .singleWhere((step) => step.id == 'bud_03_margin')
+      .impactEstimate;
 }
 
 void main() {
@@ -298,6 +380,10 @@ void main() {
 
     final restored = CoachProfile.fromJson(json);
     expect(_contract(restored, asOf), _contract(profile, asOf));
+    expect(restored.userProvidedFields, profile.userProvidedFields);
+    expect(restored.dataSources, profile.dataSources);
+    expect(restored.dataTimestamps, profile.dataTimestamps);
+    expect(restored.dataSourceDates, profile.dataSourceDates);
   });
 
   test('copyWith preserves jurisdiction facts and supports explicit clearing',
@@ -397,17 +483,106 @@ void main() {
 
   test('permit G without canonical jurisdictions is only partial readiness',
       () {
-    final profile = CoachProfile.defaults().copyWith(residencePermit: 'G');
     final entry = MintScreenRegistry.findByIntentStatic('cross_border')!;
-    final readiness = ReadinessGate.check(entry, profile);
-    expect(readiness.level, ReadinessLevel.partial);
+    final unknown = ReadinessGate.check(
+      entry,
+      CoachProfile.defaults().copyWith(residencePermit: 'G'),
+    );
+    expect(unknown.level, ReadinessLevel.partial);
     expect(
-      readiness.missingFields,
-      containsAll(<String>[
-        'residenceCountry',
-        'workCountry',
-        'workCanton',
-      ]),
+      unknown.missingFields,
+      containsAll(<String>['residenceCountry', 'workCountry']),
+    );
+    expect(unknown.missingFields, isNot(contains('workCanton')));
+
+    final swissWork = ReadinessGate.check(
+      entry,
+      CoachProfile.fromWizardAnswers(
+        <String, dynamic>{
+          ..._jurisdictionAnswers(workCanton: null),
+          'q_residence_permit': 'G',
+        },
+        now: () => asOf,
+      ),
+    );
+    expect(swissWork.level, ReadinessLevel.partial);
+    expect(swissWork.missingFields, contains('workCanton'));
+    expect(swissWork.missingFields, isNot(contains('residenceCountry')));
+    expect(swissWork.missingFields, isNot(contains('workCountry')));
+  });
+
+  test('live screen has a positive canonical ledger consumer', () {
+    final screen =
+        File('lib/screens/frontalier_screen.dart').readAsStringSync();
+    expect(screen, contains('CoachProfileProvider'));
+    expect(screen, matches(RegExp(r'\.profile\b')));
+    expect(screen, contains('frontierJurisdictionAt'));
+  });
+
+  testWidgets('missing screen state offers a real coach capture CTA',
+      (tester) async {
+    await _pumpFrontierScreen(
+      tester,
+      CoachProfile.defaults().copyWith(residencePermit: 'G'),
+    );
+
+    expect(
+      find.byKey(const Key('frontier_jurisdiction_missing_state')),
+      findsOneWidget,
+    );
+    expect(find.byType(MintEmptyState), findsOneWidget);
+    expect(
+      find.byKey(const Key('frontier_jurisdiction_capture_cta')),
+      findsOneWidget,
+    );
+
+    await tester.tap(
+      find.byKey(const Key('frontier_jurisdiction_capture_cta')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('frontier_coach_destination')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('known screen state is backed by canonical jurisdiction',
+      (tester) async {
+    await _pumpFrontierScreen(
+      tester,
+      CoachProfile.fromWizardAnswers(
+        _jurisdictionAnswers(),
+        now: () => asOf,
+      ),
+    );
+
+    expect(
+      find.byKey(const Key('frontier_jurisdiction_known_state')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('frontier_jurisdiction_missing_state')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('non-Swiss work renders the specialist-only screen state',
+      (tester) async {
+    await _pumpFrontierScreen(
+      tester,
+      CoachProfile.fromWizardAnswers(
+        _jurisdictionAnswers(
+          residenceCountry: 'CH',
+          workCountry: 'FR',
+          workCanton: null,
+        ),
+        now: () => asOf,
+      ),
+    );
+
+    expect(
+      find.byKey(const Key('frontier_jurisdiction_specialist_only_state')),
+      findsOneWidget,
     );
   });
 
@@ -429,17 +604,86 @@ void main() {
     }
   });
 
-  test('free-margin engine does not route permit G into a tax approximation',
+  test('free-margin behavior ignores permit G and closes canonical unknowns',
       () {
-    final cap =
-        File('lib/services/cap_sequence_engine.dart').readAsStringSync();
-    expect(cap, isNot(contains('isCrossBorder: profile.isCrossBorder')));
+    final baseline = CoachProfile.defaults().copyWith(
+      birthYear: 1985,
+      canton: 'GE',
+      salaireBrutMensuel: 10000,
+      depenses: const DepensesProfile(
+        loyer: 1800,
+        assuranceMaladie: 500,
+      ),
+    );
+    final permitOnly = baseline.copyWith(residencePermit: 'G');
+    expect(_budgetMargin(permitOnly), _budgetMargin(baseline));
+
+    final canonicalWithoutDeclaredNet = CoachProfile.fromWizardAnswers(
+      <String, dynamic>{
+        ..._jurisdictionAnswers(),
+        'q_canton': 'GE',
+        'q_gross_salary_annual': 120000,
+        'q_housing_cost_period_chf': 1800,
+        'q_lamal_premium_monthly_chf': 500,
+      },
+      now: () => asOf,
+    );
+    expect(canonicalWithoutDeclaredNet.monthlyNetIncomeDeclared, isNull);
+    expect(_budgetMargin(canonicalWithoutDeclaredNet), isNull);
   });
 
-  test('net-income engine contains no flat frontier withholding table', () {
+  test('net-income behavior is always the ordinary FiscalService path', () {
+    for (final fixture in <({
+      double gross,
+      String canton,
+      String civil,
+      int children,
+    })>[
+      (gross: 72000, canton: 'GE', civil: 'celibataire', children: 0),
+      (gross: 120000, canton: 'VD', civil: 'marie', children: 2),
+      (gross: 180000, canton: 'ZH', civil: 'celibataire', children: 1),
+    ]) {
+      final actual = NetIncomeBreakdown.compute(
+        grossSalary: fixture.gross,
+        canton: fixture.canton,
+        age: 40,
+        etatCivil: fixture.civil,
+        nombreEnfants: fixture.children,
+      );
+      final ordinary = FiscalService.estimateTax(
+        revenuBrut: fixture.gross,
+        canton: fixture.canton,
+        etatCivil: fixture.civil,
+        nombreEnfants: fixture.children,
+      );
+      expect(
+        actual.incomeTaxEstimate,
+        ordinary['chargeTotale'],
+        reason: '${fixture.canton}/${fixture.civil}/${fixture.children}',
+      );
+    }
+
     final tax = File('lib/services/financial_core/tax_calculator.dart')
         .readAsStringSync();
-    expect(tax, isNot(contains('baseWithholdingRates')));
-    expect(tax, isNot(contains('bool isCrossBorder = false')));
+    final computeStart = tax.indexOf('factory NetIncomeBreakdown.compute');
+    final computeEnd = tax.indexOf('/// Estimate brut from net payslip');
+    expect(computeStart, greaterThanOrEqualTo(0));
+    expect(computeEnd, greaterThan(computeStart));
+    final computeContract = tax
+        .substring(computeStart, computeEnd)
+        .replaceAll(RegExp(r'//.*$', multiLine: true), '')
+        .replaceAll(RegExp(r'/\*[\s\S]*?\*/'), '')
+        .toLowerCase()
+        .replaceAll(RegExp(r'[\s_-]+'), ' ');
+    expect(
+      computeContract,
+      isNot(
+        matches(
+          RegExp(
+            r'cross ?border|frontier|withholding|source tax|imp[oô]t [àa] la source',
+          ),
+        ),
+      ),
+    );
   });
 }
