@@ -6361,148 +6361,152 @@ class SEs extends S {
       'LPP art. 30c — OPP2 art. 5 (mín. CHF 20\'000)';
 
   @override
-  String get frontalierAppBarTitle => 'Frontalier';
+  String get frontalierAppBarTitle => 'Situación transfronteriza';
 
   @override
-  String get frontalierTabImpots => 'Impôts';
+  String get frontalierScreenIntro =>
+      'Confirma las jurisdicciones relevantes antes de cualquier orientación. En esta pantalla no se calcula ningún importe.';
 
   @override
-  String get frontalierTab90Jours => '90 jours';
+  String get frontalierResidenceCountryLabel => 'País de residencia';
 
   @override
-  String get frontalierTabCharges => 'Charges';
+  String get frontalierWorkCountryLabel => 'País de trabajo';
 
   @override
-  String get frontalierCantonTravail => 'Cantón de trabajo';
+  String get frontalierWorkCantonLabel => 'Cantón principal de trabajo';
 
   @override
-  String get frontalierSalaireBrut => 'Salario bruto mensual';
+  String get frontalierCountryCH => 'Suiza (CH)';
 
   @override
-  String get frontalierEtatCivil => 'État civil';
+  String get frontalierCountryFR => 'Francia (FR)';
 
   @override
-  String get frontalierCelibataire => 'Célibataire';
+  String get frontalierCountryDE => 'Alemania (DE)';
 
   @override
-  String get frontalierMarie => 'Marié(e)';
+  String get frontalierCountryIT => 'Italia (IT)';
 
   @override
-  String get frontalierEnfantsCharge => 'Hijos a cargo';
+  String get frontalierCountryAT => 'Austria (AT)';
 
   @override
-  String get frontalierTauxEffectif => 'Taux effectif';
+  String get frontalierCountryLI => 'Liechtenstein (LI)';
 
   @override
-  String get frontalierTotalAnnuel => 'Total annuel';
+  String get frontalierSelectPlaceholder => 'Por confirmar';
 
   @override
-  String get frontalierParMois => 'par mois';
+  String get frontalierMissingTitle => 'Falta confirmar una jurisdicción';
 
   @override
-  String get frontalierQuasiResidentTitle => 'Casi-residente (Ginebra)';
+  String get frontalierMissingDescription =>
+      'La residencia, el país de trabajo y, si trabajas en Suiza, el cantón de trabajo permiten identificar un marco educativo sin inventar valores.';
 
   @override
-  String get frontalierQuasiResidentDesc =>
-      'Si más del 90% de tus ingresos mundiales provienen de Suiza, puedes solicitar la tributación ordinaria con deducciones (3a, gastos efectivos, etc.). Esto puede reducir significativamente tu impuesto.';
+  String get frontalierCaptureWithCoach => 'Continuar con el coach';
 
   @override
-  String get frontalierTessinTitle => 'Tesino — régimen especial';
+  String get frontalierStaleTitle => 'Hay que reconfirmar el cantón de trabajo';
 
   @override
-  String get frontalierEducationalTax =>
-      'En Suiza, los fronterizos tributan en la fuente (baremo C). La tasa varía según el cantón, el estado civil y el número de hijos. En Ginebra, si más del 90% de tus ingresos mundiales provienen de Suiza, puedes solicitar el estatus de cuasi-residente para beneficiarte de las deducciones.';
+  String get frontalierStaleDescription =>
+      'El dato anterior sigue visible, pero no se muestra orientación transfronteriza hasta que lo confirmes.';
 
   @override
-  String get frontalierJoursBureau => 'Días en la oficina en Suiza';
+  String get frontalierReconfirm => 'Sigue siendo correcto';
 
   @override
-  String get frontalierJoursHomeOffice =>
-      'Días de teletrabajo en el extranjero';
+  String get frontalierKnownTitle => 'Jurisdicciones confirmadas';
 
   @override
-  String get frontalierJaugeRisque => 'INDICADOR DE RIESGO';
+  String get frontalierKnownDescription =>
+      'Estos datos seleccionan un instrumento candidato. No bastan para concluir tu tributación o afiliación a la seguridad social.';
 
   @override
-  String get frontalierJoursHomeOfficeLabel => 'días de teletrabajo';
+  String get frontalierSpecialistTitle =>
+      'Situación que debe revisar un especialista';
 
   @override
-  String get frontalierRiskLow => 'Pas de risque';
+  String get frontalierSpecialistDescription =>
+      'Las jurisdicciones son conocidas, pero MINT no puede dar una orientación determinista segura para esta combinación.';
 
   @override
-  String get frontalierRiskMedium => 'Zona de atención';
+  String get frontalierDomesticTitle => 'Situación fiscal nacional';
 
   @override
-  String get frontalierRiskHigh => 'Riesgo fiscal — la imposición cambia';
+  String get frontalierDomesticDescription =>
+      'Tu residencia y tu trabajo están en Suiza. El recorrido transfronterizo no se aplica.';
 
   @override
-  String frontalierDaysRemaining(int days) {
-    return 'Te quedan $days días de margen';
-  }
+  String get frontalierOpenDomesticFiscal => 'Abrir el recorrido fiscal';
 
   @override
-  String get frontalierRecommandation => 'RECOMMANDATION';
+  String get frontalierFactsTitle => 'Datos del Data Ledger';
 
   @override
-  String get frontalierEducational90Days =>
-      'Desde 2023, los acuerdos bilaterales entre Suiza y sus vecinos fijan un umbral de tolerancia para el teletrabajo de fronterizos. Más allá de 90 días de teletrabajo al año, las cotizaciones sociales y la imposición pueden trasladarse al país de residencia.';
+  String get frontalierResidenceFact => 'Residencia';
 
   @override
-  String get frontalierChargesCh => 'Charges CH';
+  String get frontalierWorkCountryFact => 'Trabajo';
 
   @override
-  String frontalierChargesCountry(String country) {
-    return 'Cargas $country';
-  }
+  String get frontalierWorkCantonFact => 'Cantón de trabajo';
 
   @override
-  String frontalierDuSalaire(String percent) {
-    return '$percent% del salario';
-  }
+  String get frontalierTaxCardTitle => 'Fiscalidad — instrumento candidato';
 
   @override
-  String frontalierChargesChMoins(String amount) {
-    return 'Cargas CH más bajas: $amount/año';
-  }
+  String get frontalierCdiCandidateTitle =>
+      'Convenio franco-suizo de 1966 — candidato';
 
   @override
-  String frontalierChargesChPlus(String amount) {
-    return 'Cargas CH más altas: +$amount/año';
-  }
+  String get frontalierCdiCandidateDescription =>
+      'Para Francia / Suiza / Ginebra, el artículo 17 del convenio de 1966 es el instrumento candidato para un empleo privado por cuenta ajena. Aún deben confirmarse el tipo de empleo y otros datos; no se concluye ningún régimen ni importe.';
 
   @override
-  String get frontalierAssuranceMaladie => 'SEGURO DE ENFERMEDAD';
+  String get frontalierAccordCandidateTitle =>
+      'Acuerdo transfronterizo de 1983 — candidato';
 
   @override
-  String get frontalierLamalTitle => 'LAMal (suisse)';
+  String get frontalierAccordCandidateDescription =>
+      'Este cantón es uno de los ocho afectados, pero todavía hay que verificar los retornos, el tipo de empleo y el certificado de residencia. El acuerdo sigue siendo solo candidato.';
 
   @override
-  String get frontalierLamalDesc =>
-      'Obligatorio si trabajas en CH. Prima individual (~CHF 300-500/mes).';
+  String get frontalierSpecialistTaxDescription =>
+      'No se selecciona automáticamente ningún instrumento fiscal para esta combinación. Prepara los datos siguientes para una verificación especializada.';
 
   @override
-  String get frontalierCmuTitle => 'CMU/Seguridad Social (Francia)';
+  String get frontalierSocialCardTitle =>
+      'Seguridad social — control independiente';
 
   @override
-  String get frontalierCmuDesc =>
-      'Derecho de opción posible para fronterizos FR. Cotización ~8% de la renta fiscal.';
+  String get frontalierSocialDescription =>
+      'La afiliación a la seguridad social no se deduce de la orientación fiscal. El lugar de actividad, los empleadores, el teletrabajo y un posible certificado A1 deben verificarse por separado.';
 
   @override
-  String get frontalierAssurancePriveeTitle => 'Seguro privado (DE/IT/AT)';
+  String get frontalierQuestionsTitle => 'Preguntas para el especialista';
 
   @override
-  String get frontalierAssurancePriveeDesc =>
-      'En Alemania, opción PKV para altos ingresos. IT/AT: régimen obligatorio del país.';
+  String get frontalierQuestionResidence =>
+      '¿Qué Estado te considera residente fiscal para el año correspondiente?';
 
   @override
-  String get frontalierEducationalCharges =>
-      'Como fronterizo, cotizas a los seguros sociales suizos (AVS/AI/APG, AC, LPP). Las tasas son generalmente más bajas que en Francia o Alemania — pero la LAMal corre de tu cuenta individualmente, lo que puede compensar la ventaja.';
+  String get frontalierQuestionEmployment =>
+      '¿Tu empleo es privado, público, internacional o autónomo?';
 
   @override
-  String get frontalierPaysResidence => 'País de residencia';
+  String get frontalierQuestionEmployer =>
+      '¿Dónde está establecido tu empleador y en qué países trabajas realmente?';
 
   @override
-  String get frontalierLeSavaisTu => 'Le savais-tu ?';
+  String get frontalierQuestionA1 =>
+      '¿Existe un certificado A1 y qué período cubre?';
+
+  @override
+  String get frontalierDisclaimer =>
+      'Orientación únicamente educativa. No es un cálculo ni asesoramiento fiscal, jurídico o de seguros personalizado. Consulta a un especialista para confirmar tu situación.';
 
   @override
   String get concubinageAppBarTitle => 'Matrimonio vs Concubinato';
@@ -6703,12 +6707,6 @@ class SEs extends S {
 
   @override
   String get concubinageMarieExonereLabel => 'Marié·e';
-
-  @override
-  String get frontalierChargesTotal => 'Total';
-
-  @override
-  String get frontalierJoursSuffix => 'días';
 
   @override
   String get conversationHistoryTitle => 'Historial';
@@ -16785,10 +16783,6 @@ class SEs extends S {
 
   @override
   String get friInsufficientData => 'Completa tu perfil para ver tu puntuación';
-
-  @override
-  String get frontalierDisclaimer =>
-      'Estimaciones simplificadas con fines educativos — no constituye asesoramiento fiscal o jurídico. Los importes dependen de muchos factores. Consulta un especialista fiscal para un análisis personalizado. LSFin.';
 
   @override
   String get gamificationCommunityTitle => 'Desafío del mes';

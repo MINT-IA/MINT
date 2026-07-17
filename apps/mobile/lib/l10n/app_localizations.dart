@@ -11385,254 +11385,260 @@ abstract class S {
   /// No description provided for @frontalierAppBarTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Frontalier'**
+  /// **'Situation transfrontalière'**
   String get frontalierAppBarTitle;
 
-  /// No description provided for @frontalierTabImpots.
+  /// No description provided for @frontalierScreenIntro.
   ///
   /// In fr, this message translates to:
-  /// **'Impôts'**
-  String get frontalierTabImpots;
+  /// **'Confirme les juridictions utiles avant toute orientation. Aucun montant n’est calculé sur cet écran.'**
+  String get frontalierScreenIntro;
 
-  /// No description provided for @frontalierTab90Jours.
-  ///
-  /// In fr, this message translates to:
-  /// **'90 jours'**
-  String get frontalierTab90Jours;
-
-  /// No description provided for @frontalierTabCharges.
-  ///
-  /// In fr, this message translates to:
-  /// **'Charges'**
-  String get frontalierTabCharges;
-
-  /// No description provided for @frontalierCantonTravail.
-  ///
-  /// In fr, this message translates to:
-  /// **'Canton de travail'**
-  String get frontalierCantonTravail;
-
-  /// No description provided for @frontalierSalaireBrut.
-  ///
-  /// In fr, this message translates to:
-  /// **'Salaire brut mensuel'**
-  String get frontalierSalaireBrut;
-
-  /// No description provided for @frontalierEtatCivil.
-  ///
-  /// In fr, this message translates to:
-  /// **'État civil'**
-  String get frontalierEtatCivil;
-
-  /// No description provided for @frontalierCelibataire.
-  ///
-  /// In fr, this message translates to:
-  /// **'Célibataire'**
-  String get frontalierCelibataire;
-
-  /// No description provided for @frontalierMarie.
-  ///
-  /// In fr, this message translates to:
-  /// **'Marié(e)'**
-  String get frontalierMarie;
-
-  /// No description provided for @frontalierEnfantsCharge.
-  ///
-  /// In fr, this message translates to:
-  /// **'Enfants à charge'**
-  String get frontalierEnfantsCharge;
-
-  /// No description provided for @frontalierTauxEffectif.
-  ///
-  /// In fr, this message translates to:
-  /// **'Taux effectif'**
-  String get frontalierTauxEffectif;
-
-  /// No description provided for @frontalierTotalAnnuel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Total annuel'**
-  String get frontalierTotalAnnuel;
-
-  /// No description provided for @frontalierParMois.
-  ///
-  /// In fr, this message translates to:
-  /// **'par mois'**
-  String get frontalierParMois;
-
-  /// No description provided for @frontalierQuasiResidentTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Quasi-résident (Genève)'**
-  String get frontalierQuasiResidentTitle;
-
-  /// No description provided for @frontalierQuasiResidentDesc.
-  ///
-  /// In fr, this message translates to:
-  /// **'Si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander la taxation ordinaire avec déductions (3a, frais effectifs, etc.). Cela peut réduire significativement ton impôt.'**
-  String get frontalierQuasiResidentDesc;
-
-  /// No description provided for @frontalierTessinTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tessin — régime spécial'**
-  String get frontalierTessinTitle;
-
-  /// No description provided for @frontalierEducationalTax.
-  ///
-  /// In fr, this message translates to:
-  /// **'En Suisse, les frontaliers sont imposés à la source (barème C). Le taux varie selon le canton, l\'état civil et le nombre d\'enfants. À Genève, si plus de 90 % de tes revenus mondiaux proviennent de Suisse, tu peux demander le statut de quasi-résident pour bénéficier des déductions.'**
-  String get frontalierEducationalTax;
-
-  /// No description provided for @frontalierJoursBureau.
-  ///
-  /// In fr, this message translates to:
-  /// **'Jours au bureau en Suisse'**
-  String get frontalierJoursBureau;
-
-  /// No description provided for @frontalierJoursHomeOffice.
-  ///
-  /// In fr, this message translates to:
-  /// **'Jours en home office à l\'étranger'**
-  String get frontalierJoursHomeOffice;
-
-  /// No description provided for @frontalierJaugeRisque.
-  ///
-  /// In fr, this message translates to:
-  /// **'JAUGE DE RISQUE'**
-  String get frontalierJaugeRisque;
-
-  /// No description provided for @frontalierJoursHomeOfficeLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'jours de home office'**
-  String get frontalierJoursHomeOfficeLabel;
-
-  /// No description provided for @frontalierRiskLow.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pas de risque'**
-  String get frontalierRiskLow;
-
-  /// No description provided for @frontalierRiskMedium.
-  ///
-  /// In fr, this message translates to:
-  /// **'Zone d\'attention'**
-  String get frontalierRiskMedium;
-
-  /// No description provided for @frontalierRiskHigh.
-  ///
-  /// In fr, this message translates to:
-  /// **'Risque fiscal — l\'imposition bascule'**
-  String get frontalierRiskHigh;
-
-  /// No description provided for @frontalierDaysRemaining.
-  ///
-  /// In fr, this message translates to:
-  /// **'Il te reste {days} jours de marge'**
-  String frontalierDaysRemaining(int days);
-
-  /// No description provided for @frontalierRecommandation.
-  ///
-  /// In fr, this message translates to:
-  /// **'RECOMMANDATION'**
-  String get frontalierRecommandation;
-
-  /// No description provided for @frontalierEducational90Days.
-  ///
-  /// In fr, this message translates to:
-  /// **'Depuis 2023, les accords amiables entre la Suisse et ses voisins fixent un seuil de tolérance pour le télétravail des frontaliers. Au-delà de 90 jours de home office par an, les cotisations sociales et l\'imposition peuvent basculer vers le pays de résidence.'**
-  String get frontalierEducational90Days;
-
-  /// No description provided for @frontalierChargesCh.
-  ///
-  /// In fr, this message translates to:
-  /// **'Charges CH'**
-  String get frontalierChargesCh;
-
-  /// No description provided for @frontalierChargesCountry.
-  ///
-  /// In fr, this message translates to:
-  /// **'Charges {country}'**
-  String frontalierChargesCountry(String country);
-
-  /// No description provided for @frontalierDuSalaire.
-  ///
-  /// In fr, this message translates to:
-  /// **'{percent} % du salaire'**
-  String frontalierDuSalaire(String percent);
-
-  /// No description provided for @frontalierChargesChMoins.
-  ///
-  /// In fr, this message translates to:
-  /// **'Charges CH moins élevées : {amount}/an'**
-  String frontalierChargesChMoins(String amount);
-
-  /// No description provided for @frontalierChargesChPlus.
-  ///
-  /// In fr, this message translates to:
-  /// **'Charges CH plus élevées : +{amount}/an'**
-  String frontalierChargesChPlus(String amount);
-
-  /// No description provided for @frontalierAssuranceMaladie.
-  ///
-  /// In fr, this message translates to:
-  /// **'ASSURANCE MALADIE'**
-  String get frontalierAssuranceMaladie;
-
-  /// No description provided for @frontalierLamalTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'LAMal (suisse)'**
-  String get frontalierLamalTitle;
-
-  /// No description provided for @frontalierLamalDesc.
-  ///
-  /// In fr, this message translates to:
-  /// **'Obligatoire si tu travailles en CH. Prime individuelle (~CHF 300-500/mois).'**
-  String get frontalierLamalDesc;
-
-  /// No description provided for @frontalierCmuTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'CMU/Sécu (France)'**
-  String get frontalierCmuTitle;
-
-  /// No description provided for @frontalierCmuDesc.
-  ///
-  /// In fr, this message translates to:
-  /// **'Droit d\'option possible pour les frontaliers FR. Cotisation ~8 % du revenu fiscal.'**
-  String get frontalierCmuDesc;
-
-  /// No description provided for @frontalierAssurancePriveeTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Assurance privée (DE/IT/AT)'**
-  String get frontalierAssurancePriveeTitle;
-
-  /// No description provided for @frontalierAssurancePriveeDesc.
-  ///
-  /// In fr, this message translates to:
-  /// **'En Allemagne, option PKV pour hauts revenus. IT/AT : régime obligatoire du pays.'**
-  String get frontalierAssurancePriveeDesc;
-
-  /// No description provided for @frontalierEducationalCharges.
-  ///
-  /// In fr, this message translates to:
-  /// **'En tant que frontalier, tu cotises aux assurances sociales suisses (AVS/AI/APG, AC, LPP). Les taux sont généralement plus bas qu\'en France ou en Allemagne — mais la LAMal est à ta charge individuellement, ce qui peut compenser l\'avantage.'**
-  String get frontalierEducationalCharges;
-
-  /// No description provided for @frontalierPaysResidence.
+  /// No description provided for @frontalierResidenceCountryLabel.
   ///
   /// In fr, this message translates to:
   /// **'Pays de résidence'**
-  String get frontalierPaysResidence;
+  String get frontalierResidenceCountryLabel;
 
-  /// No description provided for @frontalierLeSavaisTu.
+  /// No description provided for @frontalierWorkCountryLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Le savais-tu ?'**
-  String get frontalierLeSavaisTu;
+  /// **'Pays de travail'**
+  String get frontalierWorkCountryLabel;
+
+  /// No description provided for @frontalierWorkCantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de travail principal'**
+  String get frontalierWorkCantonLabel;
+
+  /// No description provided for @frontalierCountryCH.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suisse (CH)'**
+  String get frontalierCountryCH;
+
+  /// No description provided for @frontalierCountryFR.
+  ///
+  /// In fr, this message translates to:
+  /// **'France (FR)'**
+  String get frontalierCountryFR;
+
+  /// No description provided for @frontalierCountryDE.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allemagne (DE)'**
+  String get frontalierCountryDE;
+
+  /// No description provided for @frontalierCountryIT.
+  ///
+  /// In fr, this message translates to:
+  /// **'Italie (IT)'**
+  String get frontalierCountryIT;
+
+  /// No description provided for @frontalierCountryAT.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autriche (AT)'**
+  String get frontalierCountryAT;
+
+  /// No description provided for @frontalierCountryLI.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liechtenstein (LI)'**
+  String get frontalierCountryLI;
+
+  /// No description provided for @frontalierSelectPlaceholder.
+  ///
+  /// In fr, this message translates to:
+  /// **'À confirmer'**
+  String get frontalierSelectPlaceholder;
+
+  /// No description provided for @frontalierMissingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une juridiction reste à confirmer'**
+  String get frontalierMissingTitle;
+
+  /// No description provided for @frontalierMissingDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'La résidence, le pays de travail et, si tu travailles en Suisse, le canton de travail permettent d’identifier un cadre éducatif sans inventer de valeur.'**
+  String get frontalierMissingDescription;
+
+  /// No description provided for @frontalierCaptureWithCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec le coach'**
+  String get frontalierCaptureWithCoach;
+
+  /// No description provided for @frontalierStaleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le canton de travail doit être reconfirmé'**
+  String get frontalierStaleTitle;
+
+  /// No description provided for @frontalierStaleDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ancien fait reste visible, mais aucune orientation transfrontalière n’est affichée avant ta confirmation.'**
+  String get frontalierStaleDescription;
+
+  /// No description provided for @frontalierReconfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toujours exact'**
+  String get frontalierReconfirm;
+
+  /// No description provided for @frontalierKnownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Juridictions confirmées'**
+  String get frontalierKnownTitle;
+
+  /// No description provided for @frontalierKnownDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces faits sélectionnent un instrument candidat. Ils ne suffisent pas à conclure ton imposition ou ton affiliation sociale.'**
+  String get frontalierKnownDescription;
+
+  /// No description provided for @frontalierSpecialistTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation à examiner avec un·e spécialiste'**
+  String get frontalierSpecialistTitle;
+
+  /// No description provided for @frontalierSpecialistDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les juridictions sont connues, mais cette combinaison ne permet pas une orientation déterministe sûre dans MINT.'**
+  String get frontalierSpecialistDescription;
+
+  /// No description provided for @frontalierDomesticTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation fiscale domestique'**
+  String get frontalierDomesticTitle;
+
+  /// No description provided for @frontalierDomesticDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta résidence et ton travail sont en Suisse. Le parcours transfrontalier ne s’applique pas.'**
+  String get frontalierDomesticDescription;
+
+  /// No description provided for @frontalierOpenDomesticFiscal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le parcours fiscal'**
+  String get frontalierOpenDomesticFiscal;
+
+  /// No description provided for @frontalierFactsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faits du Data Ledger'**
+  String get frontalierFactsTitle;
+
+  /// No description provided for @frontalierResidenceFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résidence'**
+  String get frontalierResidenceFact;
+
+  /// No description provided for @frontalierWorkCountryFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Travail'**
+  String get frontalierWorkCountryFact;
+
+  /// No description provided for @frontalierWorkCantonFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de travail'**
+  String get frontalierWorkCantonFact;
+
+  /// No description provided for @frontalierTaxCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité — instrument candidat'**
+  String get frontalierTaxCardTitle;
+
+  /// No description provided for @frontalierCdiCandidateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Convention franco-suisse de 1966 — candidat'**
+  String get frontalierCdiCandidateTitle;
+
+  /// No description provided for @frontalierCdiCandidateDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour France / Suisse / Genève, l’article 17 de la convention de 1966 est l’instrument candidat pour un emploi salarié privé. La nature de l’emploi et les autres faits restent à confirmer; aucun régime ni montant n’est conclu.'**
+  String get frontalierCdiCandidateDescription;
+
+  /// No description provided for @frontalierAccordCandidateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accord frontalier de 1983 — candidat'**
+  String get frontalierAccordCandidateTitle;
+
+  /// No description provided for @frontalierAccordCandidateDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce canton fait partie des huit cantons visés, mais les retours, la nature de l’emploi et l’attestation de résidence doivent encore être vérifiés. L’accord reste seulement candidat.'**
+  String get frontalierAccordCandidateDescription;
+
+  /// No description provided for @frontalierSpecialistTaxDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun instrument fiscal n’est sélectionné automatiquement pour cette combinaison. Prépare les faits ci-dessous pour une vérification spécialisée.'**
+  String get frontalierSpecialistTaxDescription;
+
+  /// No description provided for @frontalierSocialCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurances sociales — contrôle distinct'**
+  String get frontalierSocialCardTitle;
+
+  /// No description provided for @frontalierSocialDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’affiliation sociale ne se déduit pas de l’orientation fiscale. Le lieu d’activité, les employeurs, le télétravail et une éventuelle attestation A1 doivent être vérifiés séparément.'**
+  String get frontalierSocialDescription;
+
+  /// No description provided for @frontalierQuestionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions pour le ou la spécialiste'**
+  String get frontalierQuestionsTitle;
+
+  /// No description provided for @frontalierQuestionResidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel État te considère comme résident fiscal pour l’année concernée ?'**
+  String get frontalierQuestionResidence;
+
+  /// No description provided for @frontalierQuestionEmployment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton emploi est-il privé, public, international ou indépendant ?'**
+  String get frontalierQuestionEmployment;
+
+  /// No description provided for @frontalierQuestionEmployer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où ton employeur est-il établi et dans quels pays travailles-tu effectivement ?'**
+  String get frontalierQuestionEmployer;
+
+  /// No description provided for @frontalierQuestionA1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une attestation A1 existe-t-elle et quelle période couvre-t-elle ?'**
+  String get frontalierQuestionA1;
+
+  /// No description provided for @frontalierDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Orientation éducative uniquement. Elle ne constitue ni un calcul, ni un conseil fiscal, juridique ou assurantiel personnalisé. Consulte un·e spécialiste pour confirmer ta situation.'**
+  String get frontalierDisclaimer;
 
   /// No description provided for @concubinageAppBarTitle.
   ///
@@ -11987,18 +11993,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Marié·e'**
   String get concubinageMarieExonereLabel;
-
-  /// No description provided for @frontalierChargesTotal.
-  ///
-  /// In fr, this message translates to:
-  /// **'Total'**
-  String get frontalierChargesTotal;
-
-  /// No description provided for @frontalierJoursSuffix.
-  ///
-  /// In fr, this message translates to:
-  /// **'jours'**
-  String get frontalierJoursSuffix;
 
   /// No description provided for @conversationHistoryTitle.
   ///
@@ -29531,12 +29525,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Complète ton profil pour voir ton score'**
   String get friInsufficientData;
-
-  /// No description provided for @frontalierDisclaimer.
-  ///
-  /// In fr, this message translates to:
-  /// **'Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, convention internationale, etc.). Consulte un·e spécialiste fiscal·e pour une analyse personnalisée. LSFin.'**
-  String get frontalierDisclaimer;
 
   /// No description provided for @gamificationCommunityTitle.
   ///

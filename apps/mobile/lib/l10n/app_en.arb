@@ -3063,83 +3063,49 @@
   "renteVsCapitalEplHint": "Amount withdrawn (min 20,000)",
   "renteVsCapitalEplTooltip": "The EPL withdrawal reduces your LPP assets and therefore your capital or pension at retirement. Minimum CHF 20,000 (OPP2 art. 5). Blocks LPP buyback for 3 years.",
   "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20,000)",
-  "frontalierAppBarTitle": "Frontalier",
-  "frontalierTabImpots": "Impôts",
-  "frontalierTab90Jours": "90 jours",
-  "frontalierTabCharges": "Charges",
-  "frontalierCantonTravail": "Canton of employment",
-  "frontalierSalaireBrut": "Gross monthly salary",
-  "frontalierEtatCivil": "État civil",
-  "frontalierCelibataire": "Célibataire",
-  "frontalierMarie": "Marié(e)",
-  "frontalierEnfantsCharge": "Dependent children",
-  "frontalierTauxEffectif": "Taux effectif",
-  "frontalierTotalAnnuel": "Total annuel",
-  "frontalierParMois": "par mois",
-  "frontalierQuasiResidentTitle": "Quasi-resident (Geneva)",
-  "frontalierQuasiResidentDesc": "If more than 90% of your worldwide income comes from Switzerland, you can request ordinary taxation with deductions (3a, actual expenses, etc.). This can significantly reduce your tax.",
-  "frontalierTessinTitle": "Ticino — special regime",
-  "frontalierEducationalTax": "In Switzerland, cross-border workers are taxed at source (scale C). The rate varies by canton, marital status and number of children. In Geneva, if more than 90% of your worldwide income comes from Switzerland, you can apply for quasi-resident status to benefit from deductions.",
-  "frontalierJoursBureau": "Days at the office in Switzerland",
-  "frontalierJoursHomeOffice": "Home office days abroad",
-  "frontalierJaugeRisque": "RISK GAUGE",
-  "frontalierJoursHomeOfficeLabel": "home office days",
-  "frontalierRiskLow": "Pas de risque",
-  "frontalierRiskMedium": "Attention zone",
-  "frontalierRiskHigh": "Tax risk — taxation shifts",
-  "frontalierDaysRemaining": "You have {days} days of margin left",
-  "@frontalierDaysRemaining": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "frontalierRecommandation": "RECOMMANDATION",
-  "frontalierEducational90Days": "Since 2023, bilateral agreements between Switzerland and its neighbours set a tolerance threshold for cross-border teleworking. Beyond 90 home office days per year, social contributions and taxation may shift to the country of residence.",
-  "frontalierChargesCh": "Charges CH",
-  "frontalierChargesCountry": "Charges {country}",
-  "@frontalierChargesCountry": {
-    "placeholders": {
-      "country": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierDuSalaire": "{percent}% of salary",
-  "@frontalierDuSalaire": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierChargesChMoins": "CH charges lower: {amount}/year",
-  "@frontalierChargesChMoins": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierChargesChPlus": "CH charges higher: +{amount}/year",
-  "@frontalierChargesChPlus": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierAssuranceMaladie": "HEALTH INSURANCE",
-  "frontalierLamalTitle": "LAMal (suisse)",
-  "frontalierLamalDesc": "Mandatory if you work in CH. Individual premium (~CHF 300-500/month).",
-  "frontalierCmuTitle": "CMU/Social Security (France)",
-  "frontalierCmuDesc": "Option right available for FR cross-border workers. Contribution ~8% of taxable income.",
-  "frontalierAssurancePriveeTitle": "Private insurance (DE/IT/AT)",
-  "frontalierAssurancePriveeDesc": "In Germany, PKV option for high earners. IT/AT: mandatory regime of the country.",
-  "frontalierEducationalCharges": "As a cross-border worker, you contribute to Swiss social insurances (AVS/AI/APG, AC, LPP). Rates are generally lower than in France or Germany — but LAMal is at your individual expense, which can offset the advantage.",
-  "frontalierPaysResidence": "Country of residence",
-  "frontalierLeSavaisTu": "Le savais-tu ?",
+  "frontalierAppBarTitle": "Cross-border situation",
+  "frontalierScreenIntro": "Confirm the relevant jurisdictions before any guidance. No amount is calculated on this screen.",
+  "frontalierResidenceCountryLabel": "Country of residence",
+  "frontalierWorkCountryLabel": "Country of work",
+  "frontalierWorkCantonLabel": "Main canton of work",
+  "frontalierCountryCH": "Switzerland (CH)",
+  "frontalierCountryFR": "France (FR)",
+  "frontalierCountryDE": "Germany (DE)",
+  "frontalierCountryIT": "Italy (IT)",
+  "frontalierCountryAT": "Austria (AT)",
+  "frontalierCountryLI": "Liechtenstein (LI)",
+  "frontalierSelectPlaceholder": "To be confirmed",
+  "frontalierMissingTitle": "A jurisdiction still needs confirmation",
+  "frontalierMissingDescription": "Residence, country of work and, when working in Switzerland, canton of work identify an educational framework without inventing a value.",
+  "frontalierCaptureWithCoach": "Continue with the coach",
+  "frontalierStaleTitle": "The canton of work needs reconfirmation",
+  "frontalierStaleDescription": "The previous fact remains visible, but no cross-border guidance is shown until you confirm it.",
+  "frontalierReconfirm": "Still correct",
+  "frontalierKnownTitle": "Jurisdictions confirmed",
+  "frontalierKnownDescription": "These facts select a candidate instrument. They are not enough to conclude your taxation or social-insurance affiliation.",
+  "frontalierSpecialistTitle": "Situation to review with a specialist",
+  "frontalierSpecialistDescription": "The jurisdictions are known, but MINT cannot safely provide deterministic guidance for this combination.",
+  "frontalierDomesticTitle": "Domestic tax situation",
+  "frontalierDomesticDescription": "Your residence and work are in Switzerland. The cross-border journey does not apply.",
+  "frontalierOpenDomesticFiscal": "Open the tax journey",
+  "frontalierFactsTitle": "Data Ledger facts",
+  "frontalierResidenceFact": "Residence",
+  "frontalierWorkCountryFact": "Work",
+  "frontalierWorkCantonFact": "Canton of work",
+  "frontalierTaxCardTitle": "Tax — candidate instrument",
+  "frontalierCdiCandidateTitle": "1966 Franco-Swiss convention — candidate",
+  "frontalierCdiCandidateDescription": "For France / Switzerland / Geneva, Article 17 of the 1966 convention is the candidate instrument for private salaried employment. Employment type and other facts still need confirmation; no regime or amount is concluded.",
+  "frontalierAccordCandidateTitle": "1983 cross-border agreement — candidate",
+  "frontalierAccordCandidateDescription": "This canton is one of the eight cantons concerned, but return frequency, employment type and the residence certificate still need verification. The agreement remains a candidate only.",
+  "frontalierSpecialistTaxDescription": "No tax instrument is selected automatically for this combination. Prepare the facts below for specialist verification.",
+  "frontalierSocialCardTitle": "Social insurance — separate check",
+  "frontalierSocialDescription": "Social-insurance affiliation cannot be inferred from tax guidance. Work location, employers, remote work and any A1 certificate must be checked separately.",
+  "frontalierQuestionsTitle": "Questions for the specialist",
+  "frontalierQuestionResidence": "Which state considers you tax-resident for the relevant year?",
+  "frontalierQuestionEmployment": "Is your work private, public, international or self-employed?",
+  "frontalierQuestionEmployer": "Where is your employer established and in which countries do you actually work?",
+  "frontalierQuestionA1": "Is there an A1 certificate and which period does it cover?",
+  "frontalierDisclaimer": "Educational guidance only. It is not a calculation or personalised tax, legal or insurance advice. Consult a specialist to confirm your situation.",
   "concubinageAppBarTitle": "Marriage vs Cohabitation",
   "concubinageTabComparateur": "Comparison",
   "concubinageTabChecklist": "Checklist",
@@ -3226,8 +3192,6 @@
   "concubinageCriteriaPensionMarriage": "Court-protected",
   "concubinageCriteriaPensionConcubinage": "Prior agreement required",
   "concubinageMarieExonereLabel": "Marié·e",
-  "frontalierChargesTotal": "Total",
-  "frontalierJoursSuffix": "days",
   "conversationHistoryTitle": "History",
   "conversationNew": "New conversation",
   "conversationEmptyTitle": "No conversations",
@@ -8647,7 +8611,6 @@
   "friBarStability": "Stability",
   "friBarTitle": "Financial resilience",
   "friInsufficientData": "Complete your profile to see your score",
-  "frontalierDisclaimer": "Simplified estimates for educational purposes — does not constitute fiscal or legal advice. Amounts depend on many factors (deductions, municipality, assets, international agreements, etc.). Consult a tax specialist for a personalised analysis. LSFin.",
   "gamificationCommunityTitle": "Monthly challenge",
   "gamificationMilestonesTitle": "Your achievements",
   "gamificationOptInPrompt": "Join community challenges",

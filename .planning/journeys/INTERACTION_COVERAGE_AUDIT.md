@@ -4,7 +4,7 @@
 
 ## Summary
 
-- Extracted Flutter route references: 374
+- Extracted Flutter route references: 376
 - Distinct known route templates referenced: 92
 - Covered by declared Interaction Registry route nodes: 23
 - Known route templates not yet declared as route nodes: 69
@@ -18,7 +18,7 @@
 | covered by declared route node | `/assurances/coverage` | apps/mobile/lib/app.dart:786, apps/mobile/lib/services/response_card_service.dart:421 |
 | covered by declared route node | `/assurances/lamal` | apps/mobile/lib/app.dart:782, apps/mobile/lib/data/educational_themes.dart:185, apps/mobile/lib/services/response_card_service.dart:409 |
 | covered by declared route node | `/budget/setup` | apps/mobile/lib/screens/budget/budget_container_screen.dart:63, apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:283, apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:993, apps/mobile/lib/screens/lamal_franchise_screen.dart:119 (+2 more) |
-| covered by declared route node | `/coach/chat` | apps/mobile/lib/app.dart:2350, apps/mobile/lib/app.dart:2353, apps/mobile/lib/app.dart:2446, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:68 (+28 more) |
+| covered by declared route node | `/coach/chat` | apps/mobile/lib/app.dart:2350, apps/mobile/lib/app.dart:2353, apps/mobile/lib/app.dart:2446, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:68 (+29 more) |
 | covered by declared route node | `/data-block/:type` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1057, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1744, apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:1005, apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:267 (+16 more) |
 | covered by declared route node | `/debt/ratio` | apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:72, apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:84, apps/mobile/lib/services/response_card_service.dart:473, apps/mobile/lib/widgets/common/debt_tools_nav.dart:16 |
 | covered by declared route node | `/disability/insurance` | apps/mobile/lib/app.dart:774 |
@@ -81,7 +81,7 @@
 | uncovered literal route | `/explore/retraite` | apps/mobile/lib/screens/explore/explorer_screen.dart:41 |
 | uncovered literal route | `/explore/sante` | apps/mobile/lib/screens/explore/explorer_screen.dart:77 |
 | uncovered literal route | `/explore/travail` | apps/mobile/lib/screens/explore/explorer_screen.dart:53 |
-| uncovered literal route | `/fiscal` | apps/mobile/lib/app.dart:727, apps/mobile/lib/data/educational_themes.dart:195, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:500, apps/mobile/lib/screens/fiscal_comparator_screen.dart:156 (+8 more) |
+| uncovered literal route | `/fiscal` | apps/mobile/lib/app.dart:727, apps/mobile/lib/data/educational_themes.dart:195, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:500, apps/mobile/lib/screens/fiscal_comparator_screen.dart:156 (+9 more) |
 | uncovered literal route | `/household/accept` | apps/mobile/lib/screens/household/household_screen.dart:509 |
 | uncovered literal route | `/libre-passage` | apps/mobile/lib/app.dart:598, apps/mobile/lib/services/response_card_service.dart:105 |
 | uncovered literal route | `/life-event/deces-proche` | apps/mobile/lib/services/cap_engine.dart:805 |

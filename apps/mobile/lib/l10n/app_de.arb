@@ -3063,83 +3063,49 @@
   "renteVsCapitalEplHint": "Bezogener Betrag (min. 20'000)",
   "renteVsCapitalEplTooltip": "Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20'000 (BVV2 Art. 5). Blockiert den BVG-Einkauf für 3 Jahre.",
   "renteVsCapitalEplLegalRef": "BVG Art. 30c — BVV2 Art. 5 (min. CHF 20'000)",
-  "frontalierAppBarTitle": "Frontalier",
-  "frontalierTabImpots": "Impôts",
-  "frontalierTab90Jours": "90 jours",
-  "frontalierTabCharges": "Charges",
-  "frontalierCantonTravail": "Arbeitskanton",
-  "frontalierSalaireBrut": "Monatlicher Bruttolohn",
-  "frontalierEtatCivil": "État civil",
-  "frontalierCelibataire": "Célibataire",
-  "frontalierMarie": "Marié(e)",
-  "frontalierEnfantsCharge": "Kinder zu Lasten",
-  "frontalierTauxEffectif": "Taux effectif",
-  "frontalierTotalAnnuel": "Total annuel",
-  "frontalierParMois": "par mois",
-  "frontalierQuasiResidentTitle": "Quasi-Resident (Genf)",
-  "frontalierQuasiResidentDesc": "Wenn mehr als 90% deines weltweiten Einkommens aus der Schweiz stammen, kannst du die ordentliche Besteuerung mit Abzügen beantragen (3a, effektive Kosten usw.). Das kann deine Steuern erheblich senken.",
-  "frontalierTessinTitle": "Tessin — Sonderregelung",
-  "frontalierEducationalTax": "In der Schweiz werden Grenzgänger an der Quelle besteuert (Tarif C). Der Satz variiert nach Kanton, Zivilstand und Kinderzahl. In Genf kannst du bei mehr als 90% Schweizer Welteinkommen den Quasi-Residentenstatus beantragen, um Abzüge zu nutzen.",
-  "frontalierJoursBureau": "Bürotage in der Schweiz",
-  "frontalierJoursHomeOffice": "Homeoffice-Tage im Ausland",
-  "frontalierJaugeRisque": "RISIKOBAROMETER",
-  "frontalierJoursHomeOfficeLabel": "Home-Office-Tage",
-  "frontalierRiskLow": "Pas de risque",
-  "frontalierRiskMedium": "Aufmerksamkeitszone",
-  "frontalierRiskHigh": "Steuerrisiko — Besteuerung wechselt",
-  "frontalierDaysRemaining": "Du hast noch {days} Tage Spielraum",
-  "@frontalierDaysRemaining": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "frontalierRecommandation": "RECOMMANDATION",
-  "frontalierEducational90Days": "Seit 2023 legen bilaterale Vereinbarungen zwischen der Schweiz und ihren Nachbarn eine Toleranzschwelle für Grenzgänger-Telearbeit fest. Ab 90 Homeoffice-Tagen pro Jahr können Sozialabgaben und Besteuerung ins Wohnsitzland wechseln.",
-  "frontalierChargesCh": "Charges CH",
-  "frontalierChargesCountry": "Abgaben {country}",
-  "@frontalierChargesCountry": {
-    "placeholders": {
-      "country": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierDuSalaire": "{percent}% des Lohns",
-  "@frontalierDuSalaire": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierChargesChMoins": "CH-Abgaben tiefer: {amount}/Jahr",
-  "@frontalierChargesChMoins": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierChargesChPlus": "CH-Abgaben höher: +{amount}/Jahr",
-  "@frontalierChargesChPlus": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierAssuranceMaladie": "KRANKENVERSICHERUNG",
-  "frontalierLamalTitle": "LAMal (suisse)",
-  "frontalierLamalDesc": "Obligatorisch bei Arbeit in der CH. Individuelle Prämie (~CHF 300-500/Monat).",
-  "frontalierCmuTitle": "CMU/Sozialversicherung (Frankreich)",
-  "frontalierCmuDesc": "Optionsrecht für FR-Grenzgänger möglich. Beitrag ~8% des steuerbaren Einkommens.",
-  "frontalierAssurancePriveeTitle": "Privatversicherung (DE/IT/AT)",
-  "frontalierAssurancePriveeDesc": "In Deutschland PKV-Option für Gutverdiener. IT/AT: obligatorisches Regime des Landes.",
-  "frontalierEducationalCharges": "Als Grenzgänger zahlst du Schweizer Sozialversicherungsbeiträge (AHV/IV/EO, ALV, BVG). Die Sätze sind generell tiefer als in Frankreich oder Deutschland — aber die KVG-Prämie trägst du individuell, was den Vorteil ausgleichen kann.",
-  "frontalierPaysResidence": "Wohnsitzland",
-  "frontalierLeSavaisTu": "Le savais-tu ?",
+  "frontalierAppBarTitle": "Grenzüberschreitende Situation",
+  "frontalierScreenIntro": "Bestätige zuerst die relevanten Rechtsräume. Auf diesem Bildschirm wird kein Betrag berechnet.",
+  "frontalierResidenceCountryLabel": "Wohnsitzland",
+  "frontalierWorkCountryLabel": "Arbeitsland",
+  "frontalierWorkCantonLabel": "Hauptarbeitskanton",
+  "frontalierCountryCH": "Schweiz (CH)",
+  "frontalierCountryFR": "Frankreich (FR)",
+  "frontalierCountryDE": "Deutschland (DE)",
+  "frontalierCountryIT": "Italien (IT)",
+  "frontalierCountryAT": "Österreich (AT)",
+  "frontalierCountryLI": "Liechtenstein (LI)",
+  "frontalierSelectPlaceholder": "Zu bestätigen",
+  "frontalierMissingTitle": "Ein Rechtsraum muss noch bestätigt werden",
+  "frontalierMissingDescription": "Wohnsitz, Arbeitsland und bei Arbeit in der Schweiz der Arbeitskanton bestimmen einen Bildungsrahmen, ohne Werte zu erfinden.",
+  "frontalierCaptureWithCoach": "Mit dem Coach fortfahren",
+  "frontalierStaleTitle": "Der Arbeitskanton muss erneut bestätigt werden",
+  "frontalierStaleDescription": "Der bisherige Fakt bleibt sichtbar, aber bis zu deiner Bestätigung wird keine grenzüberschreitende Orientierung angezeigt.",
+  "frontalierReconfirm": "Weiterhin korrekt",
+  "frontalierKnownTitle": "Rechtsräume bestätigt",
+  "frontalierKnownDescription": "Diese Fakten wählen ein mögliches Instrument aus. Sie reichen nicht aus, um Besteuerung oder Sozialversicherung festzustellen.",
+  "frontalierSpecialistTitle": "Situation mit einer Fachperson prüfen",
+  "frontalierSpecialistDescription": "Die Rechtsräume sind bekannt, aber MINT kann für diese Kombination keine sichere deterministische Orientierung geben.",
+  "frontalierDomesticTitle": "Inländische Steuersituation",
+  "frontalierDomesticDescription": "Dein Wohnsitz und deine Arbeit liegen in der Schweiz. Der grenzüberschreitende Ablauf gilt nicht.",
+  "frontalierOpenDomesticFiscal": "Steuerbereich öffnen",
+  "frontalierFactsTitle": "Fakten im Data Ledger",
+  "frontalierResidenceFact": "Wohnsitz",
+  "frontalierWorkCountryFact": "Arbeit",
+  "frontalierWorkCantonFact": "Arbeitskanton",
+  "frontalierTaxCardTitle": "Steuern — mögliches Instrument",
+  "frontalierCdiCandidateTitle": "Französisch-schweizerisches Abkommen von 1966 — Kandidat",
+  "frontalierCdiCandidateDescription": "Für Frankreich / Schweiz / Genf ist Artikel 17 des Abkommens von 1966 das mögliche Instrument für eine private unselbstständige Tätigkeit. Beschäftigungsart und weitere Fakten sind noch zu bestätigen; es wird weder ein Regime noch ein Betrag festgestellt.",
+  "frontalierAccordCandidateTitle": "Grenzgängerabkommen von 1983 — Kandidat",
+  "frontalierAccordCandidateDescription": "Dieser Kanton gehört zu den acht betroffenen Kantonen, doch Rückkehrhäufigkeit, Beschäftigungsart und Wohnsitzbescheinigung müssen geprüft werden. Das Abkommen bleibt nur ein Kandidat.",
+  "frontalierSpecialistTaxDescription": "Für diese Kombination wird kein Steuerinstrument automatisch ausgewählt. Bereite die folgenden Fakten für die Fachprüfung vor.",
+  "frontalierSocialCardTitle": "Sozialversicherungen — getrennte Prüfung",
+  "frontalierSocialDescription": "Die Sozialversicherungszugehörigkeit lässt sich nicht aus der steuerlichen Orientierung ableiten. Arbeitsort, Arbeitgeber, Telearbeit und eine allfällige A1-Bescheinigung sind getrennt zu prüfen.",
+  "frontalierQuestionsTitle": "Fragen für die Fachperson",
+  "frontalierQuestionResidence": "Welcher Staat betrachtet dich im betreffenden Jahr als steuerlich ansässig?",
+  "frontalierQuestionEmployment": "Ist deine Tätigkeit privat, öffentlich, international oder selbstständig?",
+  "frontalierQuestionEmployer": "Wo ist dein Arbeitgeber ansässig und in welchen Ländern arbeitest du tatsächlich?",
+  "frontalierQuestionA1": "Gibt es eine A1-Bescheinigung und welchen Zeitraum deckt sie ab?",
+  "frontalierDisclaimer": "Nur zur Bildung und Orientierung. Dies ist weder eine Berechnung noch eine persönliche Steuer-, Rechts- oder Versicherungsberatung. Lass deine Situation von einer Fachperson bestätigen.",
   "concubinageAppBarTitle": "Heirat vs Konkubinat",
   "concubinageTabComparateur": "Vergleich",
   "concubinageTabChecklist": "Checklist",
@@ -3226,8 +3192,6 @@
   "concubinageCriteriaPensionMarriage": "Gerichtlich geschützt",
   "concubinageCriteriaPensionConcubinage": "Vorgängige Vereinbarung",
   "concubinageMarieExonereLabel": "Marié·e",
-  "frontalierChargesTotal": "Total",
-  "frontalierJoursSuffix": "Tage",
   "conversationHistoryTitle": "Verlauf",
   "conversationNew": "Neues Gespräch",
   "conversationEmptyTitle": "Keine Gespräche",
@@ -8647,7 +8611,6 @@
   "friBarStability": "Stabilität",
   "friBarTitle": "Finanzielle Resilienz",
   "friInsufficientData": "Vervollständige dein Profil, um deinen Score zu sehen",
-  "frontalierDisclaimer": "Vereinfachte Schätzungen zu Bildungszwecken — kein Steuer- oder Rechtsrat. Beträge hängen von vielen Faktoren ab. Konsultiere einen Steuerexperten für eine persönliche Analyse. LSFin.",
   "gamificationCommunityTitle": "Monatliche Herausforderung",
   "gamificationMilestonesTitle": "Deine Erfolge",
   "gamificationOptInPrompt": "An Gemeinschaftsherausforderungen teilnehmen",

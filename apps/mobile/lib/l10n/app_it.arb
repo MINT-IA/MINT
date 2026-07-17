@@ -3063,83 +3063,49 @@
   "renteVsCapitalEplHint": "Importo prelevato (min. 20'000)",
   "renteVsCapitalEplTooltip": "Il prelievo EPL riduce il tuo avere LPP e quindi il tuo capitale o la tua rendita al pensionamento. Minimo CHF 20'000 (OPP2 art. 5). Blocca il riscatto LPP per 3 anni.",
   "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min. CHF 20'000)",
-  "frontalierAppBarTitle": "Frontalier",
-  "frontalierTabImpots": "Impôts",
-  "frontalierTab90Jours": "90 jours",
-  "frontalierTabCharges": "Charges",
-  "frontalierCantonTravail": "Cantone di lavoro",
-  "frontalierSalaireBrut": "Stipendio lordo mensile",
-  "frontalierEtatCivil": "État civil",
-  "frontalierCelibataire": "Célibataire",
-  "frontalierMarie": "Marié(e)",
-  "frontalierEnfantsCharge": "Figli a carico",
-  "frontalierTauxEffectif": "Taux effectif",
-  "frontalierTotalAnnuel": "Total annuel",
-  "frontalierParMois": "par mois",
-  "frontalierQuasiResidentTitle": "Quasi-residente (Ginevra)",
-  "frontalierQuasiResidentDesc": "Se oltre il 90% dei tuoi redditi mondiali proviene dalla Svizzera, puoi richiedere la tassazione ordinaria con deduzioni (3a, spese effettive, ecc.). Questo può ridurre significativamente la tua imposta.",
-  "frontalierTessinTitle": "Ticino — regime speciale",
-  "frontalierEducationalTax": "In Svizzera, i frontalieri sono tassati alla fonte (baremo C). Il tasso varia secondo il cantone, lo stato civile e il numero di figli. A Ginevra, se più del 90% dei tuoi redditi mondiali proviene dalla Svizzera, puoi richiedere lo statuto di quasi-residente per beneficiare delle deduzioni.",
-  "frontalierJoursBureau": "Giorni in ufficio in Svizzera",
-  "frontalierJoursHomeOffice": "Giorni in telelavoro all'estero",
-  "frontalierJaugeRisque": "INDICATORE DI RISCHIO",
-  "frontalierJoursHomeOfficeLabel": "giorni di home office",
-  "frontalierRiskLow": "Pas de risque",
-  "frontalierRiskMedium": "Zona di attenzione",
-  "frontalierRiskHigh": "Rischio fiscale — l'imposizione cambia",
-  "frontalierDaysRemaining": "Ti restano {days} giorni di margine",
-  "@frontalierDaysRemaining": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "frontalierRecommandation": "RECOMMANDATION",
-  "frontalierEducational90Days": "Dal 2023, gli accordi bilaterali tra la Svizzera e i suoi vicini fissano una soglia di tolleranza per il telelavoro dei frontalieri. Oltre 90 giorni di telelavoro all'anno, i contributi sociali e l'imposizione possono trasferirsi al paese di residenza.",
-  "frontalierChargesCh": "Charges CH",
-  "frontalierChargesCountry": "Oneri {country}",
-  "@frontalierChargesCountry": {
-    "placeholders": {
-      "country": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierDuSalaire": "{percent}% dello stipendio",
-  "@frontalierDuSalaire": {
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierChargesChMoins": "Oneri CH inferiori: {amount}/anno",
-  "@frontalierChargesChMoins": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierChargesChPlus": "Oneri CH superiori: +{amount}/anno",
-  "@frontalierChargesChPlus": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "frontalierAssuranceMaladie": "ASSICURAZIONE MALATTIA",
-  "frontalierLamalTitle": "LAMal (suisse)",
-  "frontalierLamalDesc": "Obbligatoria se lavori in CH. Premio individuale (~CHF 300-500/mese).",
-  "frontalierCmuTitle": "CMU/Previdenza sociale (Francia)",
-  "frontalierCmuDesc": "Diritto d'opzione possibile per i frontalieri FR. Contributo ~8% del reddito fiscale.",
-  "frontalierAssurancePriveeTitle": "Assicurazione privata (DE/IT/AT)",
-  "frontalierAssurancePriveeDesc": "In Germania, opzione PKV per redditi elevati. IT/AT: regime obbligatorio del paese.",
-  "frontalierEducationalCharges": "Come frontaliere, contribuisci alle assicurazioni sociali svizzere (AVS/AI/IPG, AD, LPP). I tassi sono generalmente più bassi che in Francia o Germania — ma la LAMal è a tuo carico individualmente, il che può compensare il vantaggio.",
-  "frontalierPaysResidence": "Paese di residenza",
-  "frontalierLeSavaisTu": "Le savais-tu ?",
+  "frontalierAppBarTitle": "Situazione transfrontaliera",
+  "frontalierScreenIntro": "Conferma le giurisdizioni rilevanti prima di qualsiasi orientamento. In questa schermata non viene calcolato alcun importo.",
+  "frontalierResidenceCountryLabel": "Paese di residenza",
+  "frontalierWorkCountryLabel": "Paese di lavoro",
+  "frontalierWorkCantonLabel": "Cantone principale di lavoro",
+  "frontalierCountryCH": "Svizzera (CH)",
+  "frontalierCountryFR": "Francia (FR)",
+  "frontalierCountryDE": "Germania (DE)",
+  "frontalierCountryIT": "Italia (IT)",
+  "frontalierCountryAT": "Austria (AT)",
+  "frontalierCountryLI": "Liechtenstein (LI)",
+  "frontalierSelectPlaceholder": "Da confermare",
+  "frontalierMissingTitle": "Una giurisdizione deve ancora essere confermata",
+  "frontalierMissingDescription": "La residenza, il Paese di lavoro e, se lavori in Svizzera, il cantone di lavoro permettono di individuare un quadro educativo senza inventare valori.",
+  "frontalierCaptureWithCoach": "Continua con il coach",
+  "frontalierStaleTitle": "Il cantone di lavoro deve essere riconfermato",
+  "frontalierStaleDescription": "Il dato precedente resta visibile, ma non viene mostrato alcun orientamento transfrontaliero finché non lo confermi.",
+  "frontalierReconfirm": "È ancora corretto",
+  "frontalierKnownTitle": "Giurisdizioni confermate",
+  "frontalierKnownDescription": "Questi dati selezionano uno strumento candidato. Non bastano per concludere la tassazione o l’affiliazione alle assicurazioni sociali.",
+  "frontalierSpecialistTitle": "Situazione da esaminare con uno specialista",
+  "frontalierSpecialistDescription": "Le giurisdizioni sono note, ma MINT non può fornire un orientamento deterministico sicuro per questa combinazione.",
+  "frontalierDomesticTitle": "Situazione fiscale nazionale",
+  "frontalierDomesticDescription": "La tua residenza e il tuo lavoro sono in Svizzera. Il percorso transfrontaliero non si applica.",
+  "frontalierOpenDomesticFiscal": "Apri il percorso fiscale",
+  "frontalierFactsTitle": "Dati del Data Ledger",
+  "frontalierResidenceFact": "Residenza",
+  "frontalierWorkCountryFact": "Lavoro",
+  "frontalierWorkCantonFact": "Cantone di lavoro",
+  "frontalierTaxCardTitle": "Fiscalità — strumento candidato",
+  "frontalierCdiCandidateTitle": "Convenzione franco-svizzera del 1966 — candidata",
+  "frontalierCdiCandidateDescription": "Per Francia / Svizzera / Ginevra, l’articolo 17 della convenzione del 1966 è lo strumento candidato per un impiego privato dipendente. Il tipo di impiego e gli altri dati devono ancora essere confermati; non viene concluso alcun regime o importo.",
+  "frontalierAccordCandidateTitle": "Accordo transfrontaliero del 1983 — candidato",
+  "frontalierAccordCandidateDescription": "Questo cantone è tra gli otto interessati, ma rientri, tipo di impiego e certificato di residenza devono ancora essere verificati. L’accordo resta soltanto candidato.",
+  "frontalierSpecialistTaxDescription": "Per questa combinazione non viene selezionato automaticamente alcuno strumento fiscale. Prepara i dati seguenti per una verifica specialistica.",
+  "frontalierSocialCardTitle": "Assicurazioni sociali — controllo separato",
+  "frontalierSocialDescription": "L’affiliazione sociale non si deduce dall’orientamento fiscale. Luogo di attività, datori di lavoro, telelavoro ed eventuale certificato A1 devono essere verificati separatamente.",
+  "frontalierQuestionsTitle": "Domande per lo specialista",
+  "frontalierQuestionResidence": "Quale Stato ti considera residente fiscale per l’anno in questione?",
+  "frontalierQuestionEmployment": "Il tuo impiego è privato, pubblico, internazionale o indipendente?",
+  "frontalierQuestionEmployer": "Dove ha sede il tuo datore di lavoro e in quali Paesi lavori effettivamente?",
+  "frontalierQuestionA1": "Esiste un certificato A1 e quale periodo copre?",
+  "frontalierDisclaimer": "Orientamento esclusivamente educativo. Non è un calcolo né una consulenza fiscale, legale o assicurativa personalizzata. Consulta uno specialista per confermare la tua situazione.",
   "concubinageAppBarTitle": "Matrimonio vs Concubinato",
   "concubinageTabComparateur": "Confronto",
   "concubinageTabChecklist": "Checklist",
@@ -3226,8 +3192,6 @@
   "concubinageCriteriaPensionMarriage": "Protetta dal giudice",
   "concubinageCriteriaPensionConcubinage": "Accordo preventivo necessario",
   "concubinageMarieExonereLabel": "Marié·e",
-  "frontalierChargesTotal": "Total",
-  "frontalierJoursSuffix": "giorni",
   "conversationHistoryTitle": "Cronologia",
   "conversationNew": "Nuova conversazione",
   "conversationEmptyTitle": "Nessuna conversazione",
@@ -8647,7 +8611,6 @@
   "friBarStability": "Stabilità",
   "friBarTitle": "Resilienza finanziaria",
   "friInsufficientData": "Completa il tuo profilo per vedere il tuo punteggio",
-  "frontalierDisclaimer": "Stime semplificate a scopo educativo — non costituisce consulenza fiscale o legale. Gli importi dipendono da molti fattori. Consulta un esperto fiscale per un'analisi personalizzata. LSFin.",
   "gamificationCommunityTitle": "Sfida del mese",
   "gamificationMilestonesTitle": "I tuoi traguardi",
   "gamificationOptInPrompt": "Partecipare alle sfide della comunità",

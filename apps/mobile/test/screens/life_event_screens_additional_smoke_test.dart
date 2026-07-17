@@ -165,11 +165,11 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════
-  //  2. FrontalierScreen — 3-tab cross-border worker screen
+  //  2. FrontalierScreen — canonical jurisdiction collection
   // ═══════════════════════════════════════════════════════════
 
   group('FrontalierScreen', () {
-    Widget buildScreen() => _buildWrapped(const FrontalierScreen());
+    Widget buildScreen() => _buildWrappedWithProvider(const FrontalierScreen());
 
     testWidgets('renders without crash', (tester) async {
       await tester.pumpWidget(buildScreen());
@@ -180,39 +180,35 @@ void main() {
     testWidgets('displays app bar title', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: frontalierAppBarTitle = "Frontalier"
-      expect(find.textContaining('rontalier'), findsWidgets);
+      expect(find.textContaining('transfrontalière'), findsWidgets);
     });
 
-    testWidgets('shows all 3 tab labels', (tester) async {
+    testWidgets('shows canonical residence and work collectors',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: frontalierTabImpots, frontalierTab90Jours, frontalierTabCharges
-      expect(find.text('Impôts'), findsOneWidget);
-      expect(find.text('90 jours'), findsOneWidget);
-      expect(find.text('Charges'), findsOneWidget);
+      expect(
+        find.byKey(const Key('frontier_residence_country_field')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('frontier_work_country_field')),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('Tab 1 (Impots) shows canton selector', (tester) async {
+    testWidgets('shows the missing jurisdiction state without defaults',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      expect(find.textContaining('Canton'), findsWidgets);
-    });
-
-    testWidgets('Tab 2 (90 jours) renders without crash', (tester) async {
-      await tester.pumpWidget(buildScreen());
-      await tester.pump();
-      await tester.tap(find.text('90 jours'));
-      await tester.pump();
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('Tab 3 (Charges) renders without crash', (tester) async {
-      await tester.pumpWidget(buildScreen());
-      await tester.pump();
-      await tester.tap(find.text('Charges'));
-      await tester.pump();
-      expect(find.byType(Scaffold), findsOneWidget);
+      expect(
+        find.byKey(const Key('frontier_jurisdiction_missing_state')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('frontier_work_canton_field')),
+        findsNothing,
+      );
     });
   });
 
