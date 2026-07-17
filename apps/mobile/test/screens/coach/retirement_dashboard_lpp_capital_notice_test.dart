@@ -103,6 +103,7 @@ CoachProfile _profile(SpecialistReferenceEvidence candidate) => CoachProfile(
         epargneLiquide: 15000,
         investissements: 50000,
       ),
+      initialProjectionSnapshot: const <String, dynamic>{},
       goalA: GoalA(
         type: GoalAType.retraite,
         targetDate: DateTime(2050),
@@ -113,13 +114,14 @@ CoachProfile _profile(SpecialistReferenceEvidence candidate) => CoachProfile(
 Future<DocumentProvider> _documents({
   required _DashboardLedger ledger,
   String referenceId = _referenceId,
+  String? snapshotId,
 }) async {
   final documents = DocumentProvider(
     referenceStore: _MemoryReferenceStore(
       ConfirmedDocumentReference(
         referenceId: referenceId,
         kind: LppCapitalNoticeDeadline.kind,
-        snapshotId: ledger.snapshotId,
+        snapshotId: snapshotId ?? ledger.snapshotId,
         ownerKind: LppEvidenceOwnerKind.self,
         confirmedAt: ledger.confirmedAt,
       ),
@@ -290,7 +292,10 @@ void main() {
       referenceId: candidate.referenceId,
       confirmedAt: candidate.confirmedAt,
     );
-    final replacedDocuments = await _documents(ledger: replacedLedger);
+    final replacedDocuments = await _documents(
+      ledger: replacedLedger,
+      snapshotId: _snapshotId,
+    );
     await expectHidden(
       reason: 'numeric self snapshot replacement',
       ledger: replacedLedger,
