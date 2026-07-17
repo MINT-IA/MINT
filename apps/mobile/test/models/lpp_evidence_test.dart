@@ -72,6 +72,26 @@ Map<String, dynamic> _manualPartnerSnapshot({
       },
     };
 
+Map<String, dynamic> _capitalNotice({
+  String referenceId = '66666666-6666-4666-8666-666666666666',
+  String kind = 'lppCapitalNotice',
+  String ownerKind = 'self',
+  String sourceDate = '2026-02-03',
+  int legalYear = 2026,
+  String confirmedAt = '2026-02-04T09:30:00.000Z',
+  String deadlineDate = '2026-09-30',
+}) =>
+    <String, dynamic>{
+      'referenceId': referenceId,
+      'kind': kind,
+      'ownerKind': ownerKind,
+      'source': 'certificate',
+      'sourceDate': sourceDate,
+      'legalYear': legalYear,
+      'confirmedAt': confirmedAt,
+      'deadlineDate': deadlineDate,
+    };
+
 void main() {
   group('LppEvidenceRoot strict decoding', () {
     test('requires the exact root key set', () {
@@ -235,6 +255,69 @@ void main() {
           reason: '${boundary.sourceDate} is today in Zurich after midnight',
         );
       }
+    });
+
+    test(
+        'schema-v1 self snapshot accepts one exact optional capital notice without changing facts',
+        () {
+      final encoded = _validRoot();
+      final self = encoded['self']! as Map<String, dynamic>;
+      self['lppCapitalNoticeDeadline'] = _capitalNotice();
+
+      final root = LppEvidenceRoot.fromJsonString(jsonEncode(encoded));
+
+      expect(root, isNotNull);
+      expect(root!.self!.snapshotId, _snapshotId);
+      expect(root.self!.facts.keys,
+          <LppEvidenceFactKey>[LppEvidenceFactKey.vestedBenefitsCapitalChf]);
+      final notice = root.self!.lppCapitalNoticeDeadline;
+      expect(notice, isNotNull);
+      expect(notice!.referenceId, '66666666-6666-4666-8666-666666666666');
+      expect(notice.deadlineDate, DateTime.utc(2026, 9, 30));
+    });
+
+    test('capital notice rejects inference-shaped, incomplete and extra fields',
+        () {
+      for (final mutation in <void Function(Map<String, dynamic>)>[
+        (notice) => notice.remove('sourceDate'),
+        (notice) => notice.remove('legalYear'),
+        (notice) => notice.remove('deadlineDate'),
+        (notice) => notice['sourceDate'] = '2026',
+        (notice) => notice['deadlineDate'] = '2026-09',
+        (notice) => notice['kind'] = 'lpp',
+        (notice) => notice['documentType'] = 'privateLppCertificate',
+      ]) {
+        final encoded = _validRoot();
+        final notice = _capitalNotice();
+        mutation(notice);
+        (encoded['self']! as Map<String, dynamic>)['lppCapitalNoticeDeadline'] =
+            notice;
+        expect(
+          LppEvidenceRoot.fromJsonString(jsonEncode(encoded)),
+          isNull,
+        );
+      }
+    });
+
+    test('capital notice is self-only and cannot create a factless root', () {
+      final manual = _validRoot();
+      manual['manualPartner'] = _manualPartnerSnapshot()
+        ..['lppCapitalNoticeDeadline'] = _capitalNotice(
+          ownerKind: 'manualPartner',
+        );
+      expect(LppEvidenceRoot.fromJsonString(jsonEncode(manual)), isNull);
+
+      final factless = _validRoot();
+      final self = factless['self']! as Map<String, dynamic>;
+      self['facts'] = <String, dynamic>{};
+      self['lppCapitalNoticeDeadline'] = _capitalNotice();
+      expect(LppEvidenceRoot.fromJsonString(jsonEncode(factless)), isNull);
+    });
+
+    test('ordinary certificate facts alone never synthesize a capital notice',
+        () {
+      final root = LppEvidenceRoot.fromJsonString(jsonEncode(_validRoot()));
+      expect(root!.self!.lppCapitalNoticeDeadline, isNull);
     });
   });
 }

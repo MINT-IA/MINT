@@ -658,6 +658,68 @@ There is no persisted `latestTaxDecisionReference` key, second secure root,
 document payload, backend mirror or calculator output. `backendSafeAnswers`
 continues to remove `_coach_tax_snapshots_v1` and every `_coach_tax_*` key.
 
+#### 4.0.2 LPP capital-notice deadline (G1-RET-REF-01 semantic RED)
+
+The next bounded RET-REF slice is self-only and remains behind one new local
+`lppCapitalNoticeDeadlineEnabled` switch that defaults false. It augments the
+**current existing** `self` snapshot inside `_coach_lpp_evidence_v1`; it does
+not create another answer root, change `schemaVersion: 1`, or authorize G2/G3.
+The optional snapshot member is exact:
+
+```text
+self.lppCapitalNoticeDeadline {
+  referenceId: lowercase canonical UUIDv4
+  kind: lppCapitalNotice
+  ownerKind: self
+  source: certificate
+  sourceDate: YYYY-MM-DD             // explicit reviewed document date
+  legalYear: 1900...9999             // explicit; never derived from a date
+  confirmedAt: canonical UTC instant // generated once by the writer
+  deadlineDate: YYYY-MM-DD           // explicit complete capital-notice date
+}
+```
+
+This metadata contains no amount and does not modify `facts`. A notice may be
+attached only to a current self snapshot whose numeric `facts` are non-empty;
+a factless notice-only root and every `manualPartner` placement are invalid.
+The acquisition/review boundary admits only the exact reviewed pension-fund
+regulation or capital notice containing the complete deadline. A personal LPP
+certificate, its `sourceDate`, its legal/calendar year, `now`, or a legal
+constant is never authority for this record; the existing private-certificate
+corpus remains negative-only.
+
+`CoachProfileProvider.acceptLppCapitalNotice` is the sole writer. Under the
+same serialized LPP mutation it rechecks the expected current self snapshot,
+preserves its UUID and facts, then generates `referenceId` and `confirmedAt`
+once. Its receipt is the exact BND-05 tuple
+`{referenceId, kind=lppCapitalNotice, snapshotId, ownerKind=self,
+confirmedAt}`. `DocumentProvider` stores that tuple unchanged; it must not
+allocate a second UUID or clock value. A failed metadata write leaves the
+candidate unresolved and retryable with the same in-process receipt, never by
+repeating the legal-evidence write. After process death, the unmatched nested
+tuple remains invisible; this slice does not pretend the receipt itself is a
+second persisted authority.
+
+Cold `CoachProfile.fromWizardAnswers` derives the typed candidate only from a
+strict, current self snapshot. The model imports no provider. A consumer may
+use it only after `DocumentProvider` has hydrated BND-05 and exactly joined all
+five receipt fields to the current self snapshot. Missing hydration, generic
+`kind=lpp`, tuple divergence, replacement or malformed data returns no resolved
+notice.
+
+An identical retry returns the already-persisted receipt. A semantically
+different notice requires both the current `snapshotId` and
+`expectedPreviousReferenceId`; otherwise the complete mutation fails closed.
+BND replacement is one serialized list replacement, not append-and-rank. A
+later numeric self LPP review creates a new snapshot and deliberately drops the
+notice rather than inferring that the old legal deadline still applies.
+
+Deadline precision uses Zurich civil dates: yesterday is `stale`, the civil
+day of the deadline is still `known`, and changing calendar/legal year alone
+does not change state. The Retirement Dashboard may render only an educational
+deadline reminder behind the same default-false switch. It must not alter a
+calculator, projection, ranking, recommendation or advice-shaped CTA.
+
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,
 `subjectScope`, canton and, when required, municipality. Eligibility requires a

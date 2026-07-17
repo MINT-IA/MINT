@@ -172,6 +172,36 @@ flowchart TB
 
   TAX_ACCEPT -- "single provider mutation" --> CPP
 
+  %% G1 RET-REF-01 next slice: semantic RED only; no production edge yet.
+  subgraph LPP_CAPITAL_NOTICE["G1-RET-REF-01 — LPP CAPITAL NOTICE (SEMANTIC RED)"]
+    direction TB
+    LCN_FLAG{"lppCapitalNoticeDeadlineEnabled<br/>local + default false"}
+    LCN_OFF["off<br/>no writer and no dashboard reminder"]
+    LCN_REVIEW["exact reviewed fund regulation/capital notice<br/>explicit sourceDate + legalYear + deadlineDate<br/>ordinary/private certificate rejected"]
+    LCN_CURRENT{"current self LPP snapshot<br/>non-empty facts + expected snapshot id"}
+    LCN_REJECT["missing / manualPartner / factless / stale binding<br/>zero mutation"]
+    LCN_WRITE["dedicated serialized provider writer<br/>preserve snapshot UUID + facts<br/>generate referenceId + confirmedAt once"]
+    LCN_ROOT[("ONLY _coach_lpp_evidence_v1<br/>schemaVersion 1<br/>self.lppCapitalNoticeDeadline?")]
+    LCN_RECEIPT["exact receipt tuple<br/>referenceId + kind=lppCapitalNotice<br/>snapshotId + ownerKind=self + confirmedAt"]
+    LCN_BND[("BND-05 metadata store<br/>same tuple; no regenerated id/time<br/>serialized exact replacement")]
+    LCN_COLD["cold CoachProfile derivation<br/>model has no provider import"]
+    LCN_RESOLVE{"DocumentProvider hydrated<br/>all five fields + current snapshot exact"}
+    LCN_HIDDEN["unresolved / conflict / replacement<br/>no reminder"]
+    LCN_EDU["Retirement Dashboard<br/>educational deadline reminder only<br/>no calculation, ranking or advice"]
+
+    LCN_FLAG -- "off" --> LCN_OFF
+    LCN_FLAG -- "on" --> LCN_REVIEW --> LCN_CURRENT
+    LCN_CURRENT -- "no" --> LCN_REJECT
+    LCN_CURRENT -- "yes" --> LCN_WRITE --> LCN_ROOT
+    LCN_WRITE --> LCN_RECEIPT --> LCN_BND
+    LCN_ROOT --> LCN_COLD --> LCN_RESOLVE
+    LCN_BND --> LCN_RESOLVE
+    LCN_RESOLVE -- "no" --> LCN_HIDDEN
+    LCN_RESOLVE -- "yes" --> LCN_EDU
+  end
+
+  LCN_WRITE -. "target single provider mutation" .-> CPP
+
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
     direction LR
@@ -708,4 +738,14 @@ flowchart TB
 %% tax_provenance_profile_test, confidence_scorer_tax_kill_switch_test and
 %% confidence_scorer_test. This bounded code-GREEN truth does not promote
 %% G1-RET-REF-01, close G1 or authorize G2/G3.
+%% G1-RET-REF-01 LPP CAPITAL NOTICE TARGET: the semantic RED contract adds only
+%% optional self.lppCapitalNoticeDeadline metadata to the current non-empty self
+%% snapshot under the existing schema-v1 root. One flag-gated self-only writer
+%% generates referenceId/confirmedAt once; BND-05 must persist the identical
+%% kind=lppCapitalNotice tuple. Cold Profile derivation is necessary but not
+%% sufficient: DocumentProvider must exactly join the five fields and current
+%% snapshot before the educational-only Retirement Dashboard reminder exists.
+%% Ordinary/private certificates, inference, manualPartner, factless roots,
+%% implicit replacement and carry-forward to a new numeric snapshot fail closed.
+%% This is RED target truth only, not production wiring or ticket promotion.
 %% ============================================================================

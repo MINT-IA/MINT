@@ -957,6 +957,32 @@ fictive and must not expand the 36-key value allowlist.
 
 ### 7.1 Retirement evidence states — fail closed for AVS, LPP, and 3a
 
+#### LPP capital-notice deadline — G1-RET-REF-01 semantic RED
+
+`RetirementDashboardScreen` may add one educational reminder only when
+`lppCapitalNoticeDeadlineEnabled` is true **and** the cold-derived Profile
+candidate exactly resolves through hydrated BND-05 to the current self LPP
+snapshot. The stable target id is
+`retirement_lpp_capital_notice_deadline_education`.
+
+- **Known:** show the explicit `deadlineDate` and reviewed-document context.
+  The civil day of the deadline remains known.
+- **Stale:** yesterday or earlier shows an expired/stale educational state; it
+  never silently rolls the date into another year.
+- **Missing/conflict:** flag off, absent/malformed root, ordinary certificate,
+  `manualPartner`, factless snapshot, generic `kind=lpp`, unmatched BND tuple,
+  failed hydration, replaced snapshot or replacement conflict renders no
+  reminder and no inferred date.
+- **Forbidden influence:** the reference/date cannot change AVS/LPP/3a values,
+  retirement income, replacement rate, confidence, projection ranges,
+  scenario selection, CTA ranking or specialist recommendation. Calendar or
+  `legalYear` change alone is not freshness logic.
+- **Replacement:** an explicit replacement is invisible until the new exact
+  BND tuple is stored; a numeric self-snapshot replacement drops the reminder.
+
+This target uses no new route and remains default-off semantic RED. It does not
+promote RET-REF-01, close G1, or authorize G2/G3.
+
 `/rapport` and its PDF export consume evidence-bearing ledger facts; they do
 not recreate pension entitlements from illustrative inputs. The three pillars
 remain independent evidence envelopes:
