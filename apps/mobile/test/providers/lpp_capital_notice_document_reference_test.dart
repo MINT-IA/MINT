@@ -158,9 +158,8 @@ SpecialistReferenceEvidence _evidence({
   required String referenceId,
   required DateTime confirmedAt,
 }) {
-  final json = <String, dynamic>{
-    ...CoachProfile.defaults().toJson(),
-    'lppCapitalNoticeDeadline': <String, dynamic>{
+  return SpecialistReferenceEvidence.tryFromJson(
+    <String, dynamic>{
       'referenceId': referenceId,
       'kind': LppCapitalNoticeDeadline.kind,
       'ownerKind': 'self',
@@ -170,8 +169,9 @@ SpecialistReferenceEvidence _evidence({
       'confirmedAt': confirmedAt.toUtc().toIso8601String(),
       'deadlineDate': '2026-09-30',
     },
-  };
-  return CoachProfile.fromJson(json).lppCapitalNoticeDeadline!;
+    expectedKind: SpecialistReferenceKind.lppCapitalNotice,
+    now: confirmedAt.add(const Duration(seconds: 1)),
+  )!;
 }
 
 void main() {
