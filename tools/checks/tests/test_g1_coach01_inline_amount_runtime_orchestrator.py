@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 import os
+import signal
 import stat
 import subprocess
+import time
 from pathlib import Path
 
 import pytest
@@ -56,8 +58,20 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n"
         'printf \'patrol cwd=%s args=%s\\n\' "$PWD" "$*" >> "$MINT_TEST_CALLS"\n'
+        'bundle=test/patrol/test_bundle.dart\n'
+        'if [[ "$*" == *"--no-generate-bundle"* ]]; then\n'
+        '  [[ -f "$bundle" ]] || exit 64\n'
+        'else\n'
+        '  [[ ! -e "$bundle" && ! -L "$bundle" ]] || exit 65\n'
+        '  mkdir -p "$(dirname "$bundle")"\n'
+        '  printf \'generated synthetic Patrol bundle\\n\' > "$bundle"\n'
+        'fi\n'
         'printf \'private repo=%s home=%s device=%s tmp=%s\\n\' '
-        '"$MINT_TEST_REPO" "$HOME" "$MINT_TEST_DEVICE" "${TMPDIR:-/tmp}"\n',
+        '"$MINT_TEST_REPO" "$HOME" "$MINT_TEST_DEVICE" "${TMPDIR:-/tmp}"\n'
+        'if [[ "${MINT_TEST_PATROL_SLEEP:-0}" -gt 0 ]]; then\n'
+        '  sleep "$MINT_TEST_PATROL_SLEEP"\n'
+        'fi\n'
+        'exit "${MINT_TEST_PATROL_EXIT:-0}"\n',
     )
 
     fake_bin = tmp_path / "bin"
@@ -75,6 +89,11 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         '  if [[ "${MINT_TEST_DIRTY:-0}" == "1" ]]; then printf \' M tracked.dart\\n\'; fi\n'
         'elif [[ "$*" == *"ls-files --error-unmatch"* ]]; then\n'
         '  if [[ "${MINT_TEST_UNTRACKED:-0}" == "1" ]]; then exit 1; fi\n'
+        'elif [[ "$*" == *"ls-files --others"* ]]; then\n'
+        '  bundle="$MINT_TEST_REPO/apps/mobile/test/patrol/test_bundle.dart"\n'
+        '  if [[ -e "$bundle" || -L "$bundle" ]]; then\n'
+        '    printf \'apps/mobile/test/patrol/test_bundle.dart\\n\'\n'
+        '  fi\n'
         'elif [[ "$*" == *"diff --quiet"* ]]; then\n'
         '  exit 0\n'
         'else\n'
@@ -117,31 +136,42 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
     }
 
 
+def _artifacts(runtime: dict[str, str], sha: str = SHA) -> Path:
+    return (
+        Path(runtime["repo"])
+        / ".planning/runtime-evidence/phase-37/coach-01"
+        / f"runtime-{sha[:10]}-{UTC_STAMP}"
+    )
+
+
+def _runner_command(
+    runtime: dict[str, str],
+    *,
+    sha: str = SHA,
+    artifacts: Path | None = None,
+) -> list[str]:
+    return [
+        str(RUNNER),
+        "--device",
+        DEVICE,
+        "--bundle-id",
+        BUNDLE_ID,
+        "--sha",
+        sha,
+        "--artifacts",
+        str(artifacts or _artifacts(runtime, sha)),
+    ]
+
+
 def _run(
     runtime: dict[str, str],
     *,
     sha: str = SHA,
     artifacts: Path | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    repo = Path(runtime["repo"])
-    output = artifacts or (
-        repo
-        / ".planning/runtime-evidence/phase-37/coach-01"
-        / f"runtime-{sha[:10]}-{UTC_STAMP}"
-    )
     return subprocess.run(
-        [
-            str(RUNNER),
-            "--device",
-            DEVICE,
-            "--bundle-id",
-            BUNDLE_ID,
-            "--sha",
-            sha,
-            "--artifacts",
-            str(output),
-        ],
-        cwd=repo,
+        _runner_command(runtime, sha=sha, artifacts=artifacts),
+        cwd=runtime["repo"],
         env=runtime["env"],
         text=True,
         capture_output=True,
@@ -184,11 +214,9 @@ def test_runner_executes_exact_sha_and_publishes_only_sanitized_artifacts(
 
     assert result.returncode == 0, result.stderr
     repo = Path(runtime["repo"])
-    artifacts = (
-        repo
-        / ".planning/runtime-evidence/phase-37/coach-01"
-        / f"runtime-{SHA[:10]}-{UTC_STAMP}"
-    )
+    artifacts = _artifacts(runtime)
+    generated_bundle = repo / "apps/mobile/test/patrol/test_bundle.dart"
+    assert not generated_bundle.exists()
     log = artifacts / "patrol.log"
     screenshot = artifacts / "final.png"
     metadata_path = artifacts / "metadata.json"
@@ -214,9 +242,76 @@ def test_runner_executes_exact_sha_and_publishes_only_sanitized_artifacts(
     calls = Path(runtime["calls"]).read_text(encoding="utf-8")
     assert "$HOME/.pub-cache/bin/patrol" not in calls
     assert "test --target test/patrol/g1_coach01_inline_amount_runtime_test.dart" in calls
-    assert "--no-generate-bundle" in calls
+    assert "--no-generate-bundle" not in calls
     assert "--dart-define=MINT_PATROL_CLI=true" in calls
     assert f"simctl io {DEVICE} screenshot" in calls
+    assert calls.count("rev-parse HEAD") >= 3
+    assert "ls-files --others --exclude-standard -- apps/mobile" in calls
+
+
+def test_runner_removes_generated_bundle_and_writes_sanitized_failure_metadata(
+    tmp_path: Path,
+) -> None:
+    runtime = _fake_runtime(tmp_path)
+    runtime["env"]["MINT_TEST_PATROL_EXIT"] = "9"
+
+    result = _run(runtime)
+
+    assert result.returncode == 9
+    bundle = Path(runtime["repo"]) / "apps/mobile/test/patrol/test_bundle.dart"
+    assert not bundle.exists()
+    artifacts = _artifacts(runtime)
+    assert not (artifacts / "final.png").exists()
+    metadata_path = artifacts / "metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    assert metadata["result"] == "failed"
+    assert metadata["screenshotSha256"] is None
+    log = (artifacts / "patrol.log").read_text(encoding="utf-8")
+    for secret in (
+        runtime["repo"],
+        runtime["home"],
+        DEVICE,
+        runtime["env"]["TMPDIR"],
+    ):
+        assert secret not in log
+    assert "<DEVICE>" in log
+
+
+def test_runner_refuses_and_preserves_a_preexisting_bundle(tmp_path: Path) -> None:
+    runtime = _fake_runtime(tmp_path)
+    bundle = Path(runtime["repo"]) / "apps/mobile/test/patrol/test_bundle.dart"
+    bundle.write_text("preexisting bundle must survive\n", encoding="utf-8")
+
+    result = _run(runtime)
+
+    assert result.returncode != 0
+    assert bundle.read_text(encoding="utf-8") == "preexisting bundle must survive\n"
+    calls = Path(runtime["calls"]).read_text(encoding="utf-8")
+    assert "patrol cwd=" not in calls
+
+
+def test_runner_removes_generated_bundle_when_signalled(tmp_path: Path) -> None:
+    runtime = _fake_runtime(tmp_path)
+    runtime["env"]["MINT_TEST_PATROL_SLEEP"] = "30"
+    bundle = Path(runtime["repo"]) / "apps/mobile/test/patrol/test_bundle.dart"
+    process = subprocess.Popen(
+        _runner_command(runtime),
+        cwd=runtime["repo"],
+        env=runtime["env"],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline and not bundle.exists() and process.poll() is None:
+        time.sleep(0.05)
+    assert bundle.exists(), process.communicate(timeout=2)
+
+    process.send_signal(signal.SIGTERM)
+    process.communicate(timeout=5)
+
+    assert process.returncode != 0
+    assert not bundle.exists()
 
 
 @pytest.mark.parametrize("failure", ["dirty", "untracked", "sha"])

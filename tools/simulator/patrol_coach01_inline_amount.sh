@@ -65,6 +65,10 @@ repo=$(git rev-parse --show-toplevel 2>/dev/null) \
   || fail 'not inside a git checkout'
 head_sha=$(git -C "$repo" rev-parse HEAD)
 [[ "$head_sha" == "$expected_sha" ]] || fail 'requested sha is not current HEAD'
+mobile="$repo/apps/mobile"
+generated_bundle="$mobile/test/patrol/test_bundle.dart"
+[[ ! -e "$generated_bundle" && ! -L "$generated_bundle" ]] \
+  || fail 'refusing to touch a preexisting Patrol test bundle'
 
 status=$(git -C "$repo" status --porcelain --untracked-files=all)
 [[ -z "$status" ]] || fail 'HEAD must be clean before runtime evidence'
@@ -122,11 +126,45 @@ private_screenshot="$private_dir/final.png"
 sanitized_log="$artifacts_abs/patrol.log"
 final_screenshot="$artifacts_abs/final.png"
 metadata="$artifacts_abs/metadata.json"
+bundle_cleanup_armed=true
+patrol_pid=''
+
+remove_generated_bundle() {
+  if [[ "$bundle_cleanup_armed" != true ]]; then
+    return 0
+  fi
+  if [[ -e "$generated_bundle" || -L "$generated_bundle" ]]; then
+    [[ -f "$generated_bundle" && ! -L "$generated_bundle" ]] || return 1
+    rm -f -- "$generated_bundle" || return 1
+  fi
+  bundle_cleanup_armed=false
+}
 
 cleanup() {
+  local exit_status=$?
+  if ! remove_generated_bundle; then
+    exit_status=1
+  fi
   rm -rf -- "$private_dir"
+  trap - EXIT
+  exit "$exit_status"
 }
-trap cleanup EXIT INT TERM
+
+handle_signal() {
+  local exit_status=$1
+  trap - HUP INT TERM
+  if [[ -n "$patrol_pid" ]] && kill -0 "$patrol_pid" 2>/dev/null; then
+    kill -TERM "$patrol_pid" 2>/dev/null || true
+    wait "$patrol_pid" 2>/dev/null || true
+    patrol_pid=''
+  fi
+  exit "$exit_status"
+}
+
+trap cleanup EXIT
+trap 'handle_signal 129' HUP
+trap 'handle_signal 130' INT
+trap 'handle_signal 143' TERM
 
 sanitize_log() {
   python3 - \
@@ -201,19 +239,45 @@ PY
   chmod 600 "$metadata"
 }
 
+verify_runtime_sources_clean() {
+  [[ ! -e "$generated_bundle" && ! -L "$generated_bundle" ]] || return 1
+  [[ "$(git -C "$repo" rev-parse HEAD)" == "$expected_sha" ]] || return 1
+  git -C "$repo" diff --quiet "$expected_sha" -- \
+    apps/mobile "${tracked_files[@]}" || return 1
+  local untracked_mobile
+  untracked_mobile=$(git -C "$repo" ls-files --others --exclude-standard -- apps/mobile) \
+    || return 1
+  [[ -z "$untracked_mobile" ]]
+}
+
 set +e
 (
-  cd "$repo/apps/mobile"
-  "$patrol" --verbose test \
+  cd "$mobile"
+  exec "$patrol" --verbose test \
     --target test/patrol/g1_coach01_inline_amount_runtime_test.dart \
-    --no-generate-bundle \
     --device "$device" \
     --bundle-id "$bundle_id" \
     --dart-define=MINT_PATROL_CLI=true \
     --no-uninstall
-) >"$raw_log" 2>&1
+) >"$raw_log" 2>&1 &
+patrol_pid=$!
+wait "$patrol_pid"
 patrol_status=$?
+patrol_pid=''
 set -e
+
+if ! remove_generated_bundle; then
+  sanitize_log
+  log_hash=$(shasum -a 256 "$sanitized_log" | awk '{print $1}')
+  write_metadata 'failed' "$log_hash"
+  fail 'generated Patrol bundle cleanup failed'
+fi
+if ! verify_runtime_sources_clean; then
+  sanitize_log
+  log_hash=$(shasum -a 256 "$sanitized_log" | awk '{print $1}')
+  write_metadata 'failed' "$log_hash"
+  fail 'runtime sources are not clean after Patrol execution'
+fi
 
 if ((patrol_status != 0)); then
   sanitize_log
@@ -251,9 +315,7 @@ for value in forbidden:
 PY
 install -m 600 "$private_screenshot" "$final_screenshot"
 screenshot_hash=$(shasum -a 256 "$final_screenshot" | awk '{print $1}')
-post_sha=$(git -C "$repo" rev-parse HEAD)
-if [[ "$post_sha" != "$expected_sha" ]] \
-  || ! git -C "$repo" diff --quiet "$expected_sha" -- "${tracked_files[@]}"; then
+if ! verify_runtime_sources_clean; then
   write_metadata 'failed' "$log_hash" "$screenshot_hash"
   fail 'runtime contract SHA changed during Patrol execution'
 fi
