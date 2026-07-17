@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/app.dart';
-import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:patrol/patrol.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +17,11 @@ void main() {
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 8)),
     ($) async {
+      FeatureFlags.financialPlanSetupEnabled = true;
+      addTearDown(() {
+        FeatureFlags.financialPlanSetupEnabled = false;
+      });
+
       await $.pumpWidgetAndSettle(const MintApp());
       final materialApp = find.byType(MaterialApp);
       expect(materialApp, findsOneWidget);
@@ -51,6 +56,21 @@ void main() {
       await $(
         find.bySemanticsIdentifier('financial_plan_stale_recalculate'),
       ).tap();
+      final reviewButton = $(
+        find.bySemanticsIdentifier('financial_plan_setup_review'),
+      );
+      await reviewButton.scrollTo();
+      await reviewButton.waitUntilVisible();
+      await reviewButton.tap();
+      await $(
+        find.bySemanticsIdentifier('financial_plan_setup_confirmation'),
+      ).waitUntilVisible();
+      final confirmButton = $(
+        find.bySemanticsIdentifier('financial_plan_setup_confirm'),
+      );
+      await confirmButton.scrollTo();
+      await confirmButton.waitUntilVisible();
+      await confirmButton.tap();
       for (var attempt = 0; attempt < 120; attempt++) {
         if (!plans.isPlanStale && plans.currentPlan?.id != initialPlanId) break;
         await $.tester.pump(const Duration(milliseconds: 100));
@@ -60,8 +80,8 @@ void main() {
       expect(regenerated, isNotNull);
       expect(regenerated!.id, isNot(initialPlanId));
       expect(
+        regenerated.dependencyHash,
         regenerated.profileHashAtGeneration,
-        computeProfileHash(ledger.profile!),
       );
       final ledgerJsonAfterRegeneration = jsonEncode(
         ledger.reportAnswersSnapshot,

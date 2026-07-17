@@ -16,6 +16,7 @@ import 'package:mint_mobile/services/consent/partner_accountability_binding_stor
 import 'package:mint_mobile/services/consent/partner_accountability_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:patrol/patrol.dart';
 import 'package:provider/provider.dart';
 
@@ -139,10 +140,16 @@ void _expectColdSnapshot(
   }
 }
 
-Widget _runtimeApp(CoachProfileProvider provider) => MultiProvider(
+Widget _runtimeApp(
+  CoachProfileProvider provider,
+  SessionEpoch sessionEpoch,
+) =>
+    MultiProvider(
       providers: [
         ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
-        ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
+        ChangeNotifierProvider<ByokProvider>(
+          create: (_) => ByokProvider(sessionEpoch: sessionEpoch),
+        ),
         ChangeNotifierProvider<SlmProvider>(create: (_) {
           final slmProvider = SlmProvider();
           slmProvider.init();
@@ -184,16 +191,18 @@ void main() {
       final partnerApi = _RuntimePartnerApi();
       final accountabilityService =
           PartnerAccountabilityService(api: partnerApi);
+      final sessionEpoch = SessionEpoch();
       final provider = CoachProfileProvider(
         partnerAccountabilityBindingStore: bindingStore,
         partnerAccountabilityService: accountabilityService,
         now: () => _runtimeNow,
+        sessionEpoch: sessionEpoch,
       );
 
       await provider.loadFromWizard();
       expect(partnerApi.statusReads, 1);
       expect(provider.profile, isNotNull);
-      await $.pumpWidgetAndSettle(_runtimeApp(provider));
+      await $.pumpWidgetAndSettle(_runtimeApp(provider, sessionEpoch));
 
       final answers = provider.reportAnswersSnapshot;
       final rawRoot = answers['_coach_lpp_evidence_v1'];

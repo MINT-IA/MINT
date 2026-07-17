@@ -13,6 +13,22 @@ name: G1 BND-06 persisted financial plan staleness recovery
 - assertNotVisible: ".*54 321 CHF / mois.*"
 - tapOn:
     id: "financial_plan_stale_recalculate"
+- scrollUntilVisible:
+    element:
+      id: "financial_plan_setup_review"
+    direction: DOWN
+- assertVisible:
+    id: "financial_plan_setup_review"
+- tapOn:
+    id: "financial_plan_setup_review"
+- assertVisible:
+    id: "financial_plan_setup_confirmation"
+- scrollUntilVisible:
+    element:
+      id: "financial_plan_setup_confirm"
+    direction: DOWN
+- tapOn:
+    id: "financial_plan_setup_confirm"
 - assertNotVisible:
     id: "financial_plan_stale_state"
 - assertVisible: ".*54 321 CHF / mois.*"

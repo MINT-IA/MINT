@@ -56,7 +56,9 @@ runtime_paths=(
   "apps/mobile/lib/providers/coach_profile_provider.dart"
   "apps/mobile/lib/providers/financial_plan_provider.dart"
   "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart"
+  "apps/mobile/lib/services/feature_flags.dart"
   "apps/mobile/lib/services/plan_generation_service.dart"
+  "apps/mobile/lib/widgets/coach/financial_plan_setup_card.dart"
   "apps/mobile/lib/widgets/home/financial_plan_card.dart"
   "$orchestrator_path"
   "tools/simulator/maestro_env.sh"
@@ -108,8 +110,12 @@ mkdir -p "$artifacts"
 artifacts="$(cd "$artifacts" && pwd)"
 metadata="$artifacts/metadata.json"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-mode="patrol_external_build_xcode_then_exact_archive_physical_production_install"
+mode="patrol_external_build_xcode_then_exact_archive_test_opt_in_production_entrypoint_install"
 production_source_mode="git_archive"
+production_entrypoint="lib/main.dart"
+test_compile_time_opt_in="MINT_TEST_FINANCIAL_PLAN_SETUP"
+test_compile_time_opt_in_default=false
+test_compile_time_opt_in_scope="exact_archive_production_entrypoint_debug_build_only"
 write_build_exit_code=""
 write_exit_code=""
 launch_exit_code=""
@@ -228,6 +234,10 @@ write_metadata() {
   MINT_META_FINISHED="$finished_at" \
   MINT_META_MODE="$mode" \
   MINT_META_SOURCE_MODE="$production_source_mode" \
+  MINT_META_PRODUCTION_ENTRYPOINT="$production_entrypoint" \
+  MINT_META_TEST_OPT_IN_NAME="$test_compile_time_opt_in" \
+  MINT_META_TEST_OPT_IN_DEFAULT="$test_compile_time_opt_in_default" \
+  MINT_META_TEST_OPT_IN_SCOPE="$test_compile_time_opt_in_scope" \
   MINT_META_MOBILE_TREE="$production_mobile_tree" \
   MINT_META_WRITE_BUILD="$write_build_exit_code" \
   MINT_META_WRITE="$write_exit_code" \
@@ -288,6 +298,13 @@ payload = {
     "finished_at": os.environ["MINT_META_FINISHED"],
     "mode": os.environ["MINT_META_MODE"],
     "production_source_mode": os.environ["MINT_META_SOURCE_MODE"],
+    "production_entrypoint": os.environ["MINT_META_PRODUCTION_ENTRYPOINT"],
+    "test_compile_time_opt_in": {
+        "name": os.environ["MINT_META_TEST_OPT_IN_NAME"],
+        "enabled_for_build": True,
+        "default": os.environ["MINT_META_TEST_OPT_IN_DEFAULT"] == "true",
+        "scope": os.environ["MINT_META_TEST_OPT_IN_SCOPE"],
+    },
     "production_mobile_tree": os.environ["MINT_META_MOBILE_TREE"] or None,
     "write_build_exit_code": code("MINT_META_WRITE_BUILD"),
     "write_exit_code": code("MINT_META_WRITE"),
@@ -853,7 +870,8 @@ production_source_physical=true
 
 set +e
 (cd "$production_mobile" && \
-  flutter build ios --simulator --debug --target lib/main.dart) \
+  flutter build ios --simulator --debug --target lib/main.dart \
+    --dart-define=MINT_TEST_FINANCIAL_PLAN_SETUP=true) \
   >"$artifacts/production-build.raw.log" 2>&1
 production_build_exit_code=$?
 set -e

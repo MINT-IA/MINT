@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/app.dart';
-import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -18,6 +18,11 @@ void main() {
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 8)),
     ($) async {
+      FeatureFlags.financialPlanSetupEnabled = true;
+      addTearDown(() {
+        FeatureFlags.financialPlanSetupEnabled = false;
+      });
+
       await ReportPersistenceService.clearDiagnostic();
       await FinancialPlanService.clear();
       await ReportPersistenceService.saveAnswers(<String, dynamic>{
@@ -43,16 +48,21 @@ void main() {
       expect(profile, isNotNull);
       expect(plans.currentPlan, isNull);
 
+      final confirmationTime = DateTime.now();
+      final owner = await ledger.ensureCanonicalProfileOwner();
       final generated = await PlanGenerationService.generate(
         goalDescription: 'Objectif logement synthétique BND-06',
         goalCategory: 'goal_house',
         targetDate: DateTime.now().add(const Duration(days: 7)),
         profile: profile!,
+        profileOwnerId: owner,
+        selfLppSnapshot: null,
         goalAmount: 54321,
+        now: confirmationTime,
       );
       expect(generated.monthlyTarget, 54321);
-      expect(generated.profileHashAtGeneration, computeProfileHash(profile));
-      await plans.setPlan(generated);
+      expect(generated.dependencyHash, generated.profileHashAtGeneration);
+      await plans.setPlan(generated.copyWith(confirmedAt: confirmationTime));
       expect(plans.currentPlan?.id, generated.id);
       expect(plans.isPlanStale, isFalse);
 
@@ -62,7 +72,7 @@ void main() {
       expect(plans.isPlanStale, isTrue);
       expect(
         plans.currentPlan?.profileHashAtGeneration,
-        isNot(computeProfileHash(ledger.profile!)),
+        generated.profileHashAtGeneration,
       );
 
       await $.platformAutomator.mobile.openUrl('mint:///home');

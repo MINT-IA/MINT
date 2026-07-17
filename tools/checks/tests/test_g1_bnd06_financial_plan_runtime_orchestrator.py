@@ -28,13 +28,17 @@ READ_WRAPPER = (
     / "apps/mobile/test/patrol/g1_bnd06_financial_plan_read_runtime_test.dart"
 )
 FLOW = ROOT / "apps/mobile/.maestro/g1_bnd06_financial_plan_staleness.yaml"
+FEATURE_FLAGS = ROOT / "apps/mobile/lib/services/feature_flags.dart"
+SETUP_CARD = ROOT / "apps/mobile/lib/widgets/coach/financial_plan_setup_card.dart"
 MAESTRO_PRODUCERS = (
     ROOT / "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
     ROOT / "apps/mobile/lib/widgets/home/financial_plan_card.dart",
+    SETUP_CARD,
 )
 AMOUNT = "54’321 CHF / mois"
 MAESTRO_ACCESSIBILITY_AMOUNT = "54\u202f321 CHF / mois"
 MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN = f".*{MAESTRO_ACCESSIBILITY_AMOUNT}.*"
+TEST_FINANCIAL_PLAN_FLAG = "MINT_TEST_FINANCIAL_PLAN_SETUP"
 
 
 def _required_source(path: Path) -> str:
@@ -84,7 +88,9 @@ def _dart_argument_expression(source: str, start: int) -> str:
 
 
 def _semantics_identifiers(source: str) -> set[str]:
-    identifiers: set[str] = set()
+    identifiers = set(
+        re.findall(r"\bidentifier\s*:\s*['\"]([A-Za-z0-9_-]+)['\"]", source)
+    )
     cursor = 0
     while (start := source.find("Semantics(", cursor)) != -1:
         open_paren = source.index("(", start)
@@ -109,8 +115,7 @@ def _semantics_identifiers(source: str) -> set[str]:
                 depth -= 1
             end += 1
         block = source[open_paren + 1 : end - 1]
-        match = re.search(r"\bidentifier\s*:\s*", block)
-        if match is not None:
+        for match in re.finditer(r"\bidentifier\s*:\s*", block):
             expression = _dart_argument_expression(block, match.end())
             identifiers.update(
                 re.findall(r"['\"]([A-Za-z0-9_-]+)['\"]", expression)
@@ -136,6 +141,8 @@ def test_runtime_files_exist_and_orchestrator_is_valid_bash() -> None:
         WRITE_WRAPPER,
         READ_WRAPPER,
         FLOW,
+        FEATURE_FLAGS,
+        SETUP_CARD,
     )
     missing = [str(path.relative_to(ROOT)) for path in required if not path.is_file()]
     assert not missing, f"missing BND-06 runtime implementation: {missing}"
@@ -156,7 +163,9 @@ def test_orchestrator_is_bnd06_exact_head_and_source_bounded() -> None:
         "apps/mobile/lib/providers/coach_profile_provider.dart",
         "apps/mobile/lib/providers/financial_plan_provider.dart",
         "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
+        "apps/mobile/lib/services/feature_flags.dart",
         "apps/mobile/lib/services/plan_generation_service.dart",
+        "apps/mobile/lib/widgets/coach/financial_plan_setup_card.dart",
         "apps/mobile/lib/widgets/home/financial_plan_card.dart",
         "tools/simulator/maestro_env.sh",
         '[[ "$sha" == "$head_sha" ]]',
@@ -193,6 +202,7 @@ def test_orchestrator_proves_process_death_clean_build_and_physical_restore() ->
         "stat.S_ISLNK",
         "entry_status.st_nlink > 1",
         "flutter build ios --simulator --debug --target lib/main.dart",
+        f"--dart-define={TEST_FINANCIAL_PLAN_FLAG}=true",
         "codesign --verify --strict --deep",
         'xattr -r "$production_app"',
         "com.apple.FinderInfo",
@@ -203,6 +213,42 @@ def test_orchestrator_proves_process_death_clean_build_and_physical_restore() ->
         "runtime_completed=true",
     ):
         assert anchor in source, anchor
+
+    test_opt_in = f"--dart-define={TEST_FINANCIAL_PLAN_FLAG}=true"
+    assert source.count(test_opt_in) == 1
+    assert source.index("production_source_physical=true") < source.index(test_opt_in)
+
+
+def test_financial_plan_test_opt_in_is_explicit_fail_closed_and_local_only() -> None:
+    flags = _required_source(FEATURE_FLAGS)
+    declaration = re.search(
+        r"financialPlanSetupEnabled\s*=\s*const bool\.fromEnvironment\(\s*"
+        rf"['\"]{TEST_FINANCIAL_PLAN_FLAG}['\"]\s*,\s*"
+        r"defaultValue:\s*false\s*,?\s*\)",
+        flags,
+    )
+    assert declaration, "financial plan setup must use the named test-only opt-in"
+
+    apply_from_map = flags[
+        flags.index("static void applyFromMap") : flags.index(
+            "// ── Server-driven refresh", flags.index("static void applyFromMap")
+        )
+    ]
+    assert "financialPlanSetupEnabled" not in apply_from_map
+    assert TEST_FINANCIAL_PLAN_FLAG not in apply_from_map
+
+    orchestrator = _required_source(ORCHESTRATOR)
+    for anchor in (
+        'production_entrypoint="lib/main.dart"',
+        f'test_compile_time_opt_in="{TEST_FINANCIAL_PLAN_FLAG}"',
+        'test_compile_time_opt_in_default=false',
+        'test_compile_time_opt_in_scope="exact_archive_production_entrypoint_debug_build_only"',
+        '"production_entrypoint": os.environ["MINT_META_PRODUCTION_ENTRYPOINT"]',
+        '"test_compile_time_opt_in"',
+        '"default": os.environ["MINT_META_TEST_OPT_IN_DEFAULT"] == "true"',
+        '"scope": os.environ["MINT_META_TEST_OPT_IN_SCOPE"]',
+    ):
+        assert anchor in orchestrator, anchor
 
 
 def test_orchestrator_sanitizes_and_guards_every_retained_artifact(
@@ -323,14 +369,20 @@ def test_orchestrator_sanitizes_and_guards_every_retained_artifact(
 def test_patrol_contracts_use_mint_app_and_only_synthetic_data() -> None:
     writer = _required_source(WRITER)
     reader = _required_source(READER)
-    for source in (writer, reader):
+    for source, plan_name in ((writer, "generated"), (reader, "regenerated")):
         for anchor in (
             "const MintApp()",
             "CoachProfileProvider",
             "FinancialPlanProvider",
-            "computeProfileHash",
+            "dependencyHash",
+            "profileHashAtGeneration",
         ):
             assert anchor in source, anchor
+        assert re.search(
+            rf"expect\(\s*{plan_name}\.dependencyHash,\s*"
+            rf"{plan_name}\.profileHashAtGeneration\s*,?\s*\)",
+            source,
+        ), plan_name
         assert "synthetic" in source.lower()
         for forbidden in (
             "MINT_LPP_PRIVATE_MANIFEST",
@@ -346,6 +398,22 @@ def test_patrol_contracts_use_mint_app_and_only_synthetic_data() -> None:
     assert _required_source(READ_WRAPPER).count(
         "g1_bnd06_financial_plan_read_patrol_test.dart"
     ) == 1
+
+
+def test_patrol_contracts_enable_and_restore_financial_plan_flag() -> None:
+    for path in (WRITER, READER):
+        source = _required_source(path)
+        enabled = "FeatureFlags.financialPlanSetupEnabled = true;"
+        restored = "FeatureFlags.financialPlanSetupEnabled = false;"
+        pump = "await $.pumpWidgetAndSettle(const MintApp());"
+
+        assert "services/feature_flags.dart" in source, path.name
+        assert source.count(enabled) == 1, path.name
+        assert source.count(restored) == 1, path.name
+        assert "addTearDown(()" in source, path.name
+        assert source.index(enabled) < source.index("addTearDown(()"), path.name
+        assert source.index("addTearDown(()") < source.index(restored), path.name
+        assert source.index(restored) < source.index(pump), path.name
 
 
 def test_writer_generates_then_invalidates_plan_without_leaking_amount() -> None:
@@ -375,6 +443,9 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
     for anchor in (
         "financial_plan_stale_state",
         "financial_plan_stale_recalculate",
+        "financial_plan_setup_review",
+        "financial_plan_setup_confirmation",
+        "financial_plan_setup_confirm",
         "initialPlanId",
         "goalDescriptionBefore",
         "goalCategoryBefore",
@@ -384,7 +455,7 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
         "ledgerJsonAfterRegeneration",
         "jsonEncode(",
         "profileHashAtGeneration",
-        "computeProfileHash(",
+        "dependencyHash",
         "isNot(initialPlanId)",
         "applySaveFact('incomeGrossMonthly'",
         AMOUNT,
@@ -403,12 +474,25 @@ def test_cold_reader_recovers_without_reverse_writes_then_reinvalidates() -> Non
     ):
         assert reader.count(preserved) >= 2, preserved
     recovery = reader.index("financial_plan_stale_recalculate")
+    review = reader.index("financial_plan_setup_review", recovery)
+    confirmation = reader.index("financial_plan_setup_confirmation", review)
+    confirm = reader.index("'financial_plan_setup_confirm'", confirmation)
     new_id = reader.index("isNot(initialPlanId)")
-    current_hash = reader.index("computeProfileHash(", new_id)
-    unchanged_ledger = reader.index("ledgerJsonAfterRegeneration", current_hash)
+    fingerprint_alias = reader.index("regenerated.dependencyHash", new_id)
+    unchanged_ledger = reader.index("ledgerJsonAfterRegeneration", fingerprint_alias)
     second_mutation = reader.index("applySaveFact('incomeGrossMonthly'", unchanged_ledger)
     final_stale = reader.index("financial_plan_stale_state", second_mutation)
-    assert recovery < new_id < current_hash < unchanged_ledger < second_mutation < final_stale
+    assert (
+        recovery
+        < review
+        < confirmation
+        < confirm
+        < new_id
+        < fingerprint_alias
+        < unchanged_ledger
+        < second_mutation
+        < final_stale
+    )
 
 
 def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
@@ -426,6 +510,9 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
         "home_route",
         "financial_plan_stale_state",
         "financial_plan_stale_recalculate",
+        "financial_plan_setup_review",
+        "financial_plan_setup_confirmation",
+        "financial_plan_setup_confirm",
         MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN,
     ):
         assert anchor in contents, anchor
@@ -437,11 +524,25 @@ def test_maestro_preserves_cold_state_and_recovers_visible_amount() -> None:
 
     absent = {"assertNotVisible": MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN}
     tap = {"tapOn": {"id": "financial_plan_stale_recalculate"}}
+    review_visible = {"assertVisible": {"id": "financial_plan_setup_review"}}
+    review_tap = {"tapOn": {"id": "financial_plan_setup_review"}}
+    confirmation = {
+        "assertVisible": {"id": "financial_plan_setup_confirmation"}
+    }
+    confirm_tap = {"tapOn": {"id": "financial_plan_setup_confirm"}}
     visible = {"assertVisible": MAESTRO_ACCESSIBILITY_AMOUNT_PATTERN}
     assert absent in steps
     assert tap in steps
     assert visible in steps
-    assert steps.index(absent) < steps.index(tap) < steps.index(visible)
+    assert (
+        steps.index(absent)
+        < steps.index(tap)
+        < steps.index(review_visible)
+        < steps.index(review_tap)
+        < steps.index(confirmation)
+        < steps.index(confirm_tap)
+        < steps.index(visible)
+    )
 
     flow_ids = _collect_yaml_ids(steps)
     producer_ids: set[str] = set()
