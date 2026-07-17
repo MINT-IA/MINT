@@ -517,3 +517,149 @@ Tant qu’un chantier fiscal séparé n’apporte pas les tables officielles ann
 2. Le télétravail fiscal franco-suisse est borné à 40 % du temps annuel, sans seuil universel de 90 jours.
 3. Le seuil social inférieur à 50 % et l’attestation A1 sont indépendants du régime fiscal.
 4. Un permis G ne suffit jamais à sélectionner un instrument fiscal.
+
+---
+
+# G1-RET-REF-01 — Verdict Swiss-domain sur les références spécialistes
+
+**Date de vérification :** 2026-07-17
+**Rôle :** `mint-swiss-brain`
+**Périmètre :** références LPP, pilier 3a et décision fiscale ; orientation
+éducative uniquement
+
+## 14. Verdict
+
+| Contrat | Verdict |
+|---|---|
+| Une signification précise exige une référence opaque, datée et rattachée à l'année juridique pertinente | **PASS requis** |
+| Un nom de fichier, un contenu OCR, un `updatedAt` global ou l'année courante par défaut qualifie la preuve | **NO-GO** |
+| Un délai générique de demande de capital LPP est déduit de la loi | **NO-GO** |
+| Une référence incomplète, périmée ou conflictuelle conserve une sortie précise | **NO-GO** |
+| L'absence de preuve conserve une explication générale et une question pour la caisse, le prestataire ou l'autorité | **PASS requis** |
+
+RET-REF-01 peut rendre une référence **connue**, jamais le document brut ni
+une conclusion personnelle. La référence ne devient utilisable que si son
+tuple complet est valide au `asOf` explicite du calcul ou de l'écran.
+
+## 15. Sources officielles et portée
+
+| Source primaire | État vérifié | Conséquence produit |
+|---|---|---|
+| [OFAS — Prévoyance vieillesse dans la prévoyance professionnelle](https://www.bsv.admin.ch/fr/prevoyance-vieillesse-prevoyance-professionnelle) | Consultée le 2026-07-17 | Le délai de demande d'une prestation en capital est celui fixé par l'institution de prévoyance. MINT ne possède donc aucun délai universel. |
+| [OFAS — Le troisième pilier](https://www.bsv.admin.ch/fr/le-troisieme-pilier) | Publiée le 2026-02-10, consultée le 2026-07-17 | L'ordre des bénéficiaires 3a relève de l'OPP 3 et de la désignation admissible ; un résumé personnel exige la clause et l'année juridique. |
+| [Conseil fédéral/OFAS — Adaptations OPP 2 et OPP 3](https://www.bsv.admin.ch/fr/newnsb/fFBgrSAIiYiGRg9YfWRfM) | Publiées le 2026-06-12 ; modification 3a annoncée pour le 2027-06-01 | Une clause 3a sans `legalYear` peut changer de sens entre 2026 et 2027 ; l'année ne peut pas être implicite. |
+| [AFC — Formulaires et instructions IFD](https://www.estv.admin.ch/fr/formulaires-et-instructions-impot-federal-direct) | Consultée le 2026-07-17 | Les autorités cantonales sont responsables de la taxation ordinaire ; une référence fiscale doit conserver période et juridiction, pas seulement « dernière taxation ». |
+| [AFC — Impôt fédéral direct](https://www.estv.admin.ch/fr/impot-federal-direct) | Consultée le 2026-07-17 | Les factures provisoires et définitives ne sont pas interchangeables ; la référence ne promeut jamais une estimation en décision. |
+
+## 16. Type commun et frontière BND-05
+
+Le modèle cible est un **value object de référence spécialiste**, sans document :
+
+```text
+SpecialistReferenceEvidence
+  referenceId   opaque UUIDv4 déjà créé par le pont documentaire
+  kind          enum fermé du présent contrat
+  ownerKind     self ou propriétaire pseudonyme explicite
+  source        certificate uniquement
+  sourceDate    date civile du document ou de la décision
+  legalYear     année dont les règles donnent le sens
+  confirmedAt   instant UTC de confirmation dans MINT
+```
+
+`referenceId` réutilise l'identité opaque produite par BND-05. En revanche,
+`CoachProfile` ne doit pas importer `providers/document_provider.dart` :
+`ConfirmedDocumentReference` est aujourd'hui limité à `kind=lpp`, à un
+`snapshotId` LPP et à l'autorité du provider. Le writer adapte cette liaison
+vers le value object du modèle ; il ne duplique ni fichier, ni OCR, ni valeur
+financière. Un simple UUID non résolu par l'autorité BND-05 ne suffit pas à une
+écriture de production.
+
+Clés interdites dans ce value object : `filename`, `path`, `bytes`, `ocrText`,
+`sourceText`, numéro fiscal, numéro AVS, valeur financière ou copie du document.
+
+## 17. Les quatre faits canoniques
+
+| Champ | `kind` | Complément obligatoire | Fraîcheur/invalidation | Sortie autorisée quand complet |
+|---|---|---|---|---|
+| `lppRegulationReference` | `lppRegulation` | tuple commun complet | annuelle ; changement de caisse ou nouveau règlement invalide | « règlement identifié pour l'année », sans interpréter une option |
+| `lppCapitalNoticeDeadline` | `lppCapitalNotice` | tuple commun + `deadlineDate` explicite lue dans ce règlement/avis | annuelle ; changement de caisse/règlement ou délai échu invalide l'actionnabilité | date citée comme exigence de la caisse, jamais comme délai légal suisse |
+| `pillar3aBeneficiaryClause` | `pillar3aBeneficiaryClause` | tuple commun + prestataire/contrat lié par référence opaque | événement-statique, mais changement de contrat, situation familiale ou `legalYear` invalide | ordre/clause « selon le document confirmé », sans conseil successoral |
+| `latestTaxDecisionReference` | `taxAssessmentDecision` | tuple commun + `taxYear`, `jurisdiction` et `subject` cohérents avec le `TaxSnapshot` évalué | annuelle ; nouvelle décision ou divergence provisoire/définitive invalide | décision de base identifiée, sans calcul ni extension à une autre période |
+
+Pour `lppCapitalNoticeDeadline`, `deadlineDate` est une donnée du document de
+la caisse. La loi et l'OFAS n'autorisent pas MINT à remplacer cette donnée par
+« trois mois », « six mois » ou toute autre constante.
+
+`legalYear` n'est ni `DateTime.now().year`, ni l'année de `confirmedAt`.
+`sourceDate` et `confirmedAt` doivent être non futurs. Une date source absente,
+un owner absent, une source autre que `certificate`, un `kind` divergent ou un
+identifiant non canonique ferme le prédicat de précision.
+
+## 18. États et prédicats fail-closed
+
+| État | Définition | Comportement MINT |
+|---|---|---|
+| `known` | tuple complet, autorité opaque résolue, dates non futures, owner/kind cohérents, année applicable | exposer le fait référencé et ses limites |
+| `missing` | champ ou élément du tuple absent | explication générale + question ciblée |
+| `stale` | règle annuelle hors période, caisse/contrat modifié, décision remplacée ou délai échu | montrer l'ancienne référence, demander confirmation, masquer la précision |
+| `conflict` | deux autorités actuelles et divergentes pour le même owner/kind/période | aucune sélection par `updatedAt` ou UUID ; demander arbitrage |
+| `invalid` | source, date, ID, owner, kind ou payload non conforme | rejeter sans hydratation partielle |
+
+Les quatre prédicats de précision sont indépendants. Une référence LPP valide
+ne complète ni la clause 3a ni la décision fiscale. Le résultat global demeure
+`educationalOnly` tant que la référence exigée par la phrase précise n'est pas
+`known`. Aucune référence ne rend un montant, un taux ou une recommandation
+« vérifié » à elle seule.
+
+## 19. Fixtures synthétiques RED → GREEN
+
+| ID | Fixture | Attendu |
+|---|---|---|
+| RETREF-D01 | quatre champs absents | quatre prédicats faux ; éducatif uniquement |
+| RETREF-D02 | `filename=reglement.pdf` sans UUID/source/date/année | rejet ; aucun fait connu |
+| RETREF-D03 | UUID valide + `updatedAt`, sans `sourceDate` | faux |
+| RETREF-D04 | tuple complet mais `source=userInput` | faux |
+| RETREF-D05 | tuple complet avec date future | faux |
+| RETREF-D06 | règlement LPP complet, année 2026, owner self | règlement connu ; les trois autres restent faux |
+| RETREF-D07 | `deadlineDate` seule ou délai constant du code | faux |
+| RETREF-D08 | avis/règlement complet avec délai explicite de caisse | délai connu et attribué à la caisse |
+| RETREF-D09 | clause 3a 2026 complète, évaluée en 2027 sans reconfirmation | stale ; aucune conclusion bénéficiaire |
+| RETREF-D10 | clause 3a complète pour l'année évaluée | clause connue, sans recommandation |
+| RETREF-D11 | décision fiscale complète mais période/juridiction divergente du `TaxSnapshot` | conflict ou missing, jamais sélection silencieuse |
+| RETREF-D12 | décision complète, définitive, même période/juridiction/subject | référence connue, aucun taux inventé |
+| RETREF-D13 | sérialisation puis reconstruction des quatre références | mêmes tuples et mêmes états |
+| RETREF-D14 | payload JSON contenant contenu OCR ou chemin local | rejet du payload entier |
+| RETREF-D15 | deux références divergentes de même rang | conflict ; l'UUID ou `updatedAt` ne départage pas |
+
+Le RED exact doit atteindre ces prédicats métier dans le vrai modèle. Une
+absence de fichier de test, une erreur d'import ou un parseur qui ne compile
+pas ne constitue pas un RED acceptable.
+
+## 20. Frontière no-advice et handoff
+
+MINT peut dire :
+
+- « Le règlement confirmé pour 2026 contient une échéance au 30 septembre ;
+  vérifie-la avec ta caisse » ;
+- « Cette clause 3a est celle du document confirmé pour l'année applicable » ;
+- « Cette décision fiscale concerne la période et la juridiction indiquées ».
+
+MINT ne peut pas dire :
+
+- « la loi impose toujours ce délai » ;
+- « choisis le capital avant cette date » ;
+- « cette personne héritera » sans vérifier la clause et le droit applicable ;
+- « cette décision prouve ton taux futur » ;
+- « l'option est meilleure, optimale ou fiscalement recommandée ».
+
+Le handoff spécialiste transmet seulement les références opaques, périodes,
+owners, états de fraîcheur, hypothèses et questions ouvertes. Tout export du
+document brut exige un autre consentement, un autre contrat de minimisation et
+une preuve de destinataire ; RET-REF-01 ne l'autorise pas.
+
+## Key Learnings RET-REF-01
+
+1. Le délai de demande du capital LPP est fixé par l'institution de prévoyance ; MINT ne doit jamais en inventer un universel.
+2. La modification OPP 3 annoncée pour le 1er juin 2027 rend `legalYear` indispensable à toute signification de bénéficiaire 3a.
+3. Une référence opaque prouve une liaison documentaire, pas la vérité d'un montant, d'un taux ou d'un conseil.
+4. Les quatre références restent indépendantes et toute précision manquante, périmée ou conflictuelle retombe sur `educationalOnly`.
