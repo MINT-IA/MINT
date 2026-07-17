@@ -61,7 +61,7 @@ def _maestro_ids_for_action(source: str, action: str) -> set[str]:
 def _semantic_scroll_tap_identifiers(source: str) -> list[str]:
     return re.findall(
         r"\$\(\s*find\.bySemanticsIdentifier\(\s*'([^']+)'\s*,?\s*\)"
-        r"\s*\)\.scrollTo\(\)\.tap\(\);",
+        r"\s*\)\s*\.scrollTo\(\)\s*\.tap\(\);",
         source,
     )
 
@@ -354,6 +354,7 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
         "document_scan_tax_type_selector",
         "document_scan_tax_example_cta",
         "tax_review_subject_scope",
+        "tax_review_assessment_status",
         "tax_review_source_date",
         "tax_review_canton_code",
         "tax_review_cantonal_communal_taxable_income_chf",
@@ -368,6 +369,8 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
 
     runtime_option_identifiers = [
         "tax_review_subject_scope_individual",
+        "tax_review_assessment_status_in_force",
+        "tax_review_in_force_attested",
         "tax_review_cantonal_base_scope_income_and_wealth",
         "tax_review_federal_base_scope_income_only",
     ]
@@ -376,6 +379,14 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
         assert f"$(#{identifier})" not in writer
 
     assert "final optionKey = '${controlKey}_${_enumSnakeCase(option.name)}';" in (
+        extraction_review_screen
+    )
+    assert "controlKey: 'tax_review_assessment_status'" in extraction_review_screen
+    assert "value != TaxAssessmentStatus.inForce" in extraction_review_screen
+    assert "key: const Key('tax_review_in_force_attested')" in (
+        extraction_review_screen
+    )
+    assert "identifier: 'tax_review_in_force_attested'" in (
         extraction_review_screen
     )
     assert re.search(
@@ -406,6 +417,8 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     ):
         assert bypass not in writer
     assert "PII-NEVER" not in writer
+    assert "expect(snapshot.assessmentStatus, TaxAssessmentStatus.inForce);" in writer
+    assert "expect(snapshot.inForceAttested, isTrue);" in writer
 
     assert "patrolTest(" in reader
     assert "MINT_PATROL_CLI" in reader
@@ -428,8 +441,38 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     assert "closeTo(0.1915, 1e-12)" in reader
     assert "expect(snapshot.explicitAverageIncomeTaxRate, 0.1915)" not in reader
     assert "ProfileDataSource.certificate" in reader
-    assert "ConfidenceScorer.score(profile)" in reader
-    assert "fiscal.assessedBaseline" in reader
+    assert "expect(snapshot.assessmentStatus, TaxAssessmentStatus.inForce);" in reader
+    assert "expect(snapshot.inForceAttested, isTrue);" in reader
+    assert "for (final leaf in const ['assessmentStatus', 'inForceAttested'])" in (
+        reader
+    )
+    assert "ProfileDataSource.userInput" in reader
+    exact_reference_assertions = (
+        "final reference = profile.latestTaxDecisionReference;",
+        "expect(reference, isNotNull);",
+        "expect(reference!.referenceId, snapshot.snapshotId);",
+        "expect(reference.kind, SpecialistReferenceKind.taxAssessmentDecision);",
+        "expect(reference.taxYear, snapshot.taxYear);",
+        "expect(reference.legalYear, snapshot.taxYear);",
+        "expect(reference.sourceDate, snapshot.sourceDate);",
+        "expect(reference.confirmedAt, snapshot.updatedAt.toUtc());",
+    )
+    for contract in (writer, reader):
+        for assertion in exact_reference_assertions:
+            assert assertion in contract
+        assert re.search(
+            r"expect\(\s*reference\.precisionReadyAt\(\s*"
+            r"snapshot\.updatedAt,\s*taxSnapshot:\s*snapshot,\s*\),\s*"
+            r"isTrue,\s*\);",
+            contract,
+        )
+    assert re.search(
+        r"final confidence = ConfidenceScorer\.score\(profile\);\s*"
+        r"expect\(\s*confidence\.prompts\.where\(\s*"
+        r"\(prompt\) => prompt\.fieldPath == 'fiscal\.assessedBaseline',\s*"
+        r"\),\s*isEmpty,\s*\);",
+        reader,
+    )
     for bypass in (
         "ReportPersistenceService",
         "acceptTaxReview(",
