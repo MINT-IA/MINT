@@ -326,6 +326,13 @@ def test_tax_runtime_contracts_use_real_specific_seams() -> None:
     visible_ids = _maestro_ids_for_action(maestro, "assertVisible")
     hidden_ids = _maestro_ids_for_action(maestro, "assertNotVisible")
     tapped_ids = _maestro_ids_for_action(maestro, "tapOn")
+    assert "landing_route" in visible_ids
+    assert re.search(
+        r"- launchApp:\s*clearState: true\s*"
+        r"- assertVisible:\s*id: [\"']landing_route[\"']\s*"
+        r"- openLink: [\"']mint:///scan\?type=taxDeclaration[\"']",
+        maestro,
+    )
     tax_acquisition_ids = {
         "document_scan_tax_type_selector",
         "document_scan_tax_example_cta",

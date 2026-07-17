@@ -4,6 +4,8 @@ appId: ch.mint.app
 # candidate creation, review navigation, persistence, or any external path.
 - launchApp:
     clearState: true
+- assertVisible:
+    id: "landing_route"
 - openLink: "mint:///scan?type=taxDeclaration"
 - assertVisible:
     id: "document_scan_capture_cta"
