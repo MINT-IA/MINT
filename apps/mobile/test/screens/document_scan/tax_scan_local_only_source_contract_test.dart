@@ -962,7 +962,8 @@ Revenu imposable IFD: CHF 96'200''',
           positivePrompts.where(
             (prompt) => prompt.fieldPath == 'fiscal.assessedBaseline',
           ),
-          isEmpty,
+          hasLength(1),
+          reason: 'a final specialist reference is required',
         );
       }
     });
