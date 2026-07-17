@@ -67,8 +67,18 @@ head_sha=$(git -C "$repo" rev-parse HEAD)
 [[ "$head_sha" == "$expected_sha" ]] || fail 'requested sha is not current HEAD'
 mobile="$repo/apps/mobile"
 generated_bundle="$mobile/test/patrol/test_bundle.dart"
+mobile_build="$mobile/build"
+build_backup="$mobile/.dart_tool/mint-patrol-g1-coach01-build-backup-$expected_sha"
 [[ ! -e "$generated_bundle" && ! -L "$generated_bundle" ]] \
   || fail 'refusing to touch a preexisting Patrol test bundle'
+[[ ! -L "$mobile_build" ]] || fail 'refusing a preexisting build symlink'
+[[ ! -e "$mobile_build" || -d "$mobile_build" ]] \
+  || fail 'refusing a non-directory build path'
+[[ ! -e "$build_backup" && ! -L "$build_backup" ]] \
+  || fail 'refusing a preexisting build backup'
+[[ ! -L "$mobile/.dart_tool" ]] || fail 'refusing a symlinked .dart_tool directory'
+[[ ! -e "$mobile/.dart_tool" || -d "$mobile/.dart_tool" ]] \
+  || fail 'refusing a non-directory .dart_tool path'
 
 status=$(git -C "$repo" status --porcelain --untracked-files=all)
 [[ -z "$status" ]] || fail 'HEAD must be clean before runtime evidence'
@@ -128,6 +138,10 @@ final_screenshot="$artifacts_abs/final.png"
 metadata="$artifacts_abs/metadata.json"
 bundle_cleanup_armed=true
 patrol_pid=''
+external_root=''
+external_build=''
+build_isolation_armed=false
+original_build_present=false
 
 remove_generated_bundle() {
   if [[ "$bundle_cleanup_armed" != true ]]; then
@@ -140,13 +154,106 @@ remove_generated_bundle() {
   bundle_cleanup_armed=false
 }
 
+restore_build_isolation() {
+  if [[ "$build_isolation_armed" != true ]]; then
+    return 0
+  fi
+
+  local failed=0
+  local current_target=''
+  if [[ -L "$mobile_build" ]]; then
+    current_target=$(readlink "$mobile_build") || failed=1
+    if [[ "$current_target" == "$external_build" ]]; then
+      if ! rm -- "$mobile_build"; then
+        printf 'patrol_coach01_inline_amount: external build symlink cleanup failed\n' >&2
+        failed=1
+      fi
+    else
+      printf 'patrol_coach01_inline_amount: build symlink target drifted\n' >&2
+      failed=1
+    fi
+  elif [[ -e "$mobile_build" ]]; then
+    if [[ "$original_build_present" != true \
+      || -e "$build_backup" || -L "$build_backup" ]]; then
+      printf 'patrol_coach01_inline_amount: build path changed during isolation\n' >&2
+      failed=1
+    fi
+  fi
+
+  if [[ "$original_build_present" == true ]]; then
+    if [[ ! -e "$mobile_build" && ! -L "$mobile_build" \
+      && -d "$build_backup" && ! -L "$build_backup" ]]; then
+      if ! mv -- "$build_backup" "$mobile_build"; then
+        printf 'patrol_coach01_inline_amount: original build restoration failed\n' >&2
+        failed=1
+      fi
+    elif [[ ! -d "$mobile_build" || -L "$mobile_build" \
+      || -e "$build_backup" || -L "$build_backup" ]]; then
+      printf 'patrol_coach01_inline_amount: original build restoration is ambiguous\n' >&2
+      failed=1
+    fi
+  elif [[ -e "$mobile_build" || -L "$mobile_build" \
+    || -e "$build_backup" || -L "$build_backup" ]]; then
+    printf 'patrol_coach01_inline_amount: isolated build cleanup is ambiguous\n' >&2
+    failed=1
+  fi
+
+  if [[ -n "$external_root" ]]; then
+    if [[ -d "$external_root" && ! -L "$external_root" ]]; then
+      if ! rm -rf -- "$external_root"; then
+        printf 'patrol_coach01_inline_amount: external build removal failed\n' >&2
+        failed=1
+      fi
+    elif [[ -e "$external_root" || -L "$external_root" ]]; then
+      printf 'patrol_coach01_inline_amount: external build root is ambiguous\n' >&2
+      failed=1
+    fi
+  fi
+
+  if ((failed != 0)); then
+    return 1
+  fi
+  build_isolation_armed=false
+}
+
+prepare_build_isolation() {
+  mkdir -p -- "$mobile/.dart_tool" || return 1
+  external_root=$(mktemp -d "${TMPDIR:-/tmp}/mint-coach01-build.XXXXXX") \
+    || return 1
+  build_isolation_armed=true
+  external_root=$(cd "$external_root" && pwd -P) || return 1
+  case "$external_root" in
+    "$repo" | "$repo"/*)
+      printf 'patrol_coach01_inline_amount: external build root is inside the checkout\n' >&2
+      return 1
+      ;;
+  esac
+  external_build="$external_root/build"
+  mkdir -p -- "$external_build" || return 1
+
+  if [[ -d "$mobile_build" ]]; then
+    original_build_present=true
+    mv -- "$mobile_build" "$build_backup" || return 1
+  fi
+  ln -s -- "$external_build" "$mobile_build" || return 1
+}
+
 cleanup() {
   local exit_status=$?
+  local cleanup_failed=0
+  trap - EXIT HUP INT TERM
   if ! remove_generated_bundle; then
+    cleanup_failed=1
+  fi
+  if ! restore_build_isolation; then
+    cleanup_failed=1
+  fi
+  if ! rm -rf -- "$private_dir"; then
+    cleanup_failed=1
+  fi
+  if ((exit_status == 0 && cleanup_failed != 0)); then
     exit_status=1
   fi
-  rm -rf -- "$private_dir"
-  trap - EXIT
   exit "$exit_status"
 }
 
@@ -250,6 +357,10 @@ verify_runtime_sources_clean() {
   [[ -z "$untracked_mobile" ]]
 }
 
+if ! prepare_build_isolation; then
+  fail 'external build isolation setup failed'
+fi
+
 set +e
 (
   cd "$mobile"
@@ -271,6 +382,12 @@ if ! remove_generated_bundle; then
   log_hash=$(shasum -a 256 "$sanitized_log" | awk '{print $1}')
   write_metadata 'failed' "$log_hash"
   fail 'generated Patrol bundle cleanup failed'
+fi
+if ! restore_build_isolation; then
+  sanitize_log
+  log_hash=$(shasum -a 256 "$sanitized_log" | awk '{print $1}')
+  write_metadata 'failed' "$log_hash"
+  fail 'external build restoration failed'
 fi
 if ! verify_runtime_sources_clean; then
   sanitize_log

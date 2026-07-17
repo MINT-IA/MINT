@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import signal
+import shutil
 import stat
 import subprocess
 import time
@@ -42,6 +43,12 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         target = mobile / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text("tracked synthetic runtime contract\n", encoding="utf-8")
+    original_build = mobile / "build"
+    original_build.mkdir()
+    (original_build / "original-sentinel.txt").write_text(
+        "original build must survive\n",
+        encoding="utf-8",
+    )
     simulator = repo / "tools/simulator"
     simulator.mkdir(parents=True)
     (simulator / RUNNER.name).write_text(
@@ -66,6 +73,12 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         '  mkdir -p "$(dirname "$bundle")"\n'
         '  printf \'generated synthetic Patrol bundle\\n\' > "$bundle"\n'
         'fi\n'
+        'build_target="$(readlink build 2>/dev/null || true)"\n'
+        '[[ -L build && -d "$build_target" ]] || exit 66\n'
+        'case "$build_target" in "$MINT_TEST_REPO"/*) exit 67 ;; esac\n'
+        'printf \'patrol external_build=%s\\n\' "$build_target" '
+        '>> "$MINT_TEST_CALLS"\n'
+        'printf \'synthetic isolated product\\n\' > "$build_target/patrol-product.txt"\n'
         'printf \'private repo=%s home=%s device=%s tmp=%s\\n\' '
         '"$MINT_TEST_REPO" "$HOME" "$MINT_TEST_DEVICE" "${TMPDIR:-/tmp}"\n'
         'if [[ "${MINT_TEST_PATROL_SLEEP:-0}" -gt 0 ]]; then\n'
@@ -144,6 +157,29 @@ def _artifacts(runtime: dict[str, str], sha: str = SHA) -> Path:
     )
 
 
+def _build_backup(runtime: dict[str, str]) -> Path:
+    return (
+        Path(runtime["repo"])
+        / "apps/mobile/.dart_tool"
+        / f"mint-patrol-g1-coach01-build-backup-{SHA}"
+    )
+
+
+def _assert_build_restored(runtime: dict[str, str], *, originally_present: bool = True) -> None:
+    build = Path(runtime["repo"]) / "apps/mobile/build"
+    assert not build.is_symlink()
+    if originally_present:
+        assert build.is_dir()
+        assert (build / "original-sentinel.txt").read_text(encoding="utf-8") == (
+            "original build must survive\n"
+        )
+        assert not (build / "patrol-product.txt").exists()
+    else:
+        assert not build.exists()
+    assert not _build_backup(runtime).exists()
+    assert not list(Path(runtime["env"]["TMPDIR"]).glob("mint-coach01-build.*"))
+
+
 def _runner_command(
     runtime: dict[str, str],
     *,
@@ -217,6 +253,7 @@ def test_runner_executes_exact_sha_and_publishes_only_sanitized_artifacts(
     artifacts = _artifacts(runtime)
     generated_bundle = repo / "apps/mobile/test/patrol/test_bundle.dart"
     assert not generated_bundle.exists()
+    _assert_build_restored(runtime)
     log = artifacts / "patrol.log"
     screenshot = artifacts / "final.png"
     metadata_path = artifacts / "metadata.json"
@@ -245,6 +282,7 @@ def test_runner_executes_exact_sha_and_publishes_only_sanitized_artifacts(
     assert "--no-generate-bundle" not in calls
     assert "--dart-define=MINT_PATROL_CLI=true" in calls
     assert f"simctl io {DEVICE} screenshot" in calls
+    assert "patrol external_build=" in calls
     assert calls.count("rev-parse HEAD") >= 3
     assert "ls-files --others --exclude-standard -- apps/mobile" in calls
 
@@ -260,6 +298,7 @@ def test_runner_removes_generated_bundle_and_writes_sanitized_failure_metadata(
     assert result.returncode == 9
     bundle = Path(runtime["repo"]) / "apps/mobile/test/patrol/test_bundle.dart"
     assert not bundle.exists()
+    _assert_build_restored(runtime)
     artifacts = _artifacts(runtime)
     assert not (artifacts / "final.png").exists()
     metadata_path = artifacts / "metadata.json"
@@ -290,6 +329,50 @@ def test_runner_refuses_and_preserves_a_preexisting_bundle(tmp_path: Path) -> No
     assert "patrol cwd=" not in calls
 
 
+def test_runner_supports_an_initially_absent_build_directory(tmp_path: Path) -> None:
+    runtime = _fake_runtime(tmp_path)
+    shutil.rmtree(Path(runtime["repo"]) / "apps/mobile/build")
+
+    result = _run(runtime)
+
+    assert result.returncode == 0, result.stderr
+    _assert_build_restored(runtime, originally_present=False)
+
+
+@pytest.mark.parametrize("state", ["symlink", "file", "backup"])
+def test_runner_refuses_ambiguous_build_or_backup_state(
+    tmp_path: Path,
+    state: str,
+) -> None:
+    runtime = _fake_runtime(tmp_path)
+    build = Path(runtime["repo"]) / "apps/mobile/build"
+    backup = _build_backup(runtime)
+    if state == "symlink":
+        shutil.rmtree(build)
+        outside = tmp_path / "preexisting-build-target"
+        outside.mkdir()
+        build.symlink_to(outside)
+    elif state == "file":
+        shutil.rmtree(build)
+        build.write_text("ambiguous build file\n", encoding="utf-8")
+    else:
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        backup.mkdir()
+        (backup / "preexisting.txt").write_text("keep\n", encoding="utf-8")
+
+    result = _run(runtime)
+
+    assert result.returncode != 0
+    if state == "symlink":
+        assert build.is_symlink()
+    elif state == "file":
+        assert build.read_text(encoding="utf-8") == "ambiguous build file\n"
+    else:
+        assert (backup / "preexisting.txt").read_text(encoding="utf-8") == "keep\n"
+    calls = Path(runtime["calls"]).read_text(encoding="utf-8")
+    assert "patrol cwd=" not in calls
+
+
 def test_runner_removes_generated_bundle_when_signalled(tmp_path: Path) -> None:
     runtime = _fake_runtime(tmp_path)
     runtime["env"]["MINT_TEST_PATROL_SLEEP"] = "30"
@@ -312,6 +395,7 @@ def test_runner_removes_generated_bundle_when_signalled(tmp_path: Path) -> None:
 
     assert process.returncode != 0
     assert not bundle.exists()
+    _assert_build_restored(runtime)
 
 
 @pytest.mark.parametrize("failure", ["dirty", "untracked", "sha"])
