@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
@@ -78,6 +80,26 @@ void main() {
 
     test('capital notice acquisition remains default-off', () {
       expect(FeatureFlags.lppCapitalNoticeAcquisitionEnabled, isFalse);
+    });
+
+    test('pillar 3a beneficiary reference remains local-only and default-off',
+        () {
+      final source = File('lib/services/feature_flags.dart').readAsStringSync();
+      expect(
+        source,
+        contains(
+          'static bool pillar3aBeneficiaryClauseReferenceEnabled = false;',
+        ),
+        reason: 'The G1 authority path needs an explicit default-off switch.',
+      );
+      final applyFromMap = source.substring(
+        source.indexOf('static void applyFromMap'),
+      );
+      expect(
+        applyFromMap,
+        isNot(contains('pillar3aBeneficiaryClauseReferenceEnabled')),
+        reason: 'Backend configuration must not enable the local G1 path.',
+      );
     });
   });
 

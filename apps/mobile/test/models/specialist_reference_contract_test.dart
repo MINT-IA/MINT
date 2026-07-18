@@ -8,7 +8,6 @@ import 'package:mint_mobile/models/lpp_evidence.dart';
 const _referenceFields = <String>{
   'lppRegulationReference',
   'lppCapitalNoticeDeadline',
-  'pillar3aBeneficiaryClause',
   'latestTaxDecisionReference',
 };
 
@@ -47,13 +46,6 @@ final _validReferences = <String, Map<String, Object?>>{
       kind: 'lppCapitalNotice',
     ),
     'deadlineDate': '2026-09-30',
-  },
-  'pillar3aBeneficiaryClause': <String, Object?>{
-    ..._commonReference(
-      referenceId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
-      kind: 'pillar3aBeneficiaryClause',
-    ),
-    'contractReferenceId': 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
   },
   'latestTaxDecisionReference': <String, Object?>{
     ..._commonReference(
@@ -146,8 +138,6 @@ Object? _typedReference(dynamic profile, String field) => switch (field) {
         _readDynamic(() => profile.lppRegulationReference),
       'lppCapitalNoticeDeadline' =>
         _readDynamic(() => profile.lppCapitalNoticeDeadline),
-      'pillar3aBeneficiaryClause' =>
-        _readDynamic(() => profile.pillar3aBeneficiaryClause),
       'latestTaxDecisionReference' =>
         _readDynamic(() => profile.latestTaxDecisionReference),
       _ => throw ArgumentError.value(field, 'field'),
@@ -210,7 +200,7 @@ Map<String, Object?> _precisionContract(
 }
 
 void main() {
-  test('the four profile properties are typed precision-bearing evidence', () {
+  test('the three profile properties are typed precision-bearing evidence', () {
     final dynamic restored = _restoreWith(_validReferences);
 
     for (final field in _referenceFields) {
@@ -239,6 +229,41 @@ void main() {
         );
       }
     }
+  });
+
+  test(
+      'legacy singular pillar3a clause is dropped without migration or reserialization',
+      () {
+    const legacyReferenceId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+    const legacyContractId = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+    final restored = _restoreWith({
+      'pillar3aBeneficiaryClause': <String, Object?>{
+        ..._commonReference(
+          referenceId: legacyReferenceId,
+          kind: 'pillar3aBeneficiaryClause',
+        ),
+        'contractReferenceId': legacyContractId,
+      },
+    });
+    final dynamic profile = restored;
+
+    expect(
+      _readDynamic(() => profile.pillar3aBeneficiaryClause),
+      _missingApi,
+      reason: 'The singular profile slot must be removed rather than treated '
+          'as contract-scoped authority.',
+    );
+    final encoded = jsonEncode(restored.toJson());
+    expect(encoded, isNot(contains('pillar3aBeneficiaryClause')));
+    expect(encoded, isNot(contains(legacyReferenceId)));
+    expect(encoded, isNot(contains(legacyContractId)));
+    expect(
+      encoded,
+      isNot(contains('_coach_pillar3a_beneficiary_evidence_v1')),
+      reason: 'Legacy singular data must not be synthesized into the new root.',
+    );
+    final source = File('lib/models/coach_profile.dart').readAsStringSync();
+    expect(source, isNot(contains('pillar3aBeneficiaryClause')));
   });
 
   test('LPP fund relationship is self-only, mandatory, and exactly typed', () {
@@ -301,7 +326,8 @@ void main() {
     );
   });
 
-  test('the four complete specialist references survive the existing JSON path',
+  test(
+      'the three complete specialist references survive the existing JSON path',
       () {
     final restored = _restoreWith(_validReferences);
 
@@ -333,15 +359,6 @@ void main() {
           source: 'userInput',
         ),
         'deadlineDate': '2026-09-30',
-      },
-      'pillar3aBeneficiaryClause': <String, Object?>{
-        ..._commonReference(
-          referenceId: '22222222-2222-4222-8222-222222222222',
-          kind: 'pillar3aBeneficiaryClause',
-          sourceDate: '2999-01-01',
-          confirmedAt: '2999-01-02T10:00:00.000Z',
-        ),
-        'contractReferenceId': '33333333-3333-4333-8333-333333333333',
       },
       'latestTaxDecisionReference': <String, Object?>{
         ..._commonReference(
@@ -384,7 +401,7 @@ void main() {
     );
   });
 
-  test('the four precision predicates remain independent', () {
+  test('the three precision predicates remain independent', () {
     for (final knownField in _referenceFields) {
       final restored = _restoreWith(
         <String, Object?>{knownField: _validReferences[knownField]!},
@@ -666,7 +683,6 @@ void main() {
     final nextYear = DateTime.utc(2027, 7, 17, 12);
     for (final field in const <String>[
       'lppRegulationReference',
-      'pillar3aBeneficiaryClause',
       'latestTaxDecisionReference',
     ]) {
       final isTax = field == 'latestTaxDecisionReference';
