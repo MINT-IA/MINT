@@ -21,3 +21,8 @@ name: G1 RET-REF LPP capital notice production-default flag-off
 - openLink: "mint:///retraite"
 - assertNotVisible:
     id: retirement_lpp_capital_notice_deadline_education
+- openLink: "mint:///rapport"
+- assertVisible:
+    id: financial_report_screen
+- assertNotVisible:
+    id: financial_report_lpp_capital_notice_handoff
