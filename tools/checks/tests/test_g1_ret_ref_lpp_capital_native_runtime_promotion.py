@@ -175,6 +175,8 @@ def test_wrapper_only_opus_audits_are_dispositioned() -> None:
         "external IO remains synthetic",
         "deadline plausibility",
         "consent scope",
+        "supplement the seven earlier topology lenses",
+        "exact assembled runtime tree",
     ):
         assert required in dispositions
 
