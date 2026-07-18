@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import plistlib
 import re
 import stat
 import subprocess
@@ -22,22 +24,28 @@ READER = (
     "g1_ret_ref_lpp_regulation_read_patrol_test.dart"
 )
 WRITE_WRAPPER = (
-    ROOT / "apps/mobile/test/patrol/g1_ret_ref_lpp_regulation_write_runtime_test.dart"
+    ROOT / "apps/mobile/test/patrol/"
+    "g1_ret_ref_lpp_regulation_01_write_runtime_test.dart"
 )
 READ_WRAPPER = (
-    ROOT / "apps/mobile/test/patrol/g1_ret_ref_lpp_regulation_read_runtime_test.dart"
+    ROOT / "apps/mobile/test/patrol/g1_ret_ref_lpp_regulation_02_read_runtime_test.dart"
 )
 FLOW_BEFORE = (
     ROOT / "apps/mobile/.maestro/g1_ret_ref_lpp_regulation_flag_off_before.yaml"
 )
 FLOW_AFTER = ROOT / "apps/mobile/.maestro/g1_ret_ref_lpp_regulation_flag_off_after.yaml"
 FEATURE_FLAGS = ROOT / "apps/mobile/lib/services/feature_flags.dart"
+RUNTIME_SUPPORT = (
+    ROOT / "apps/mobile/integration_test/support/"
+    "g1_ret_ref_lpp_regulation_runtime_contract.dart"
+)
 RUNTIME_ASSETS = (
     ORCHESTRATOR,
     WRITER,
     READER,
     WRITE_WRAPPER,
     READ_WRAPPER,
+    RUNTIME_SUPPORT,
     FLOW_BEFORE,
     FLOW_AFTER,
 )
@@ -97,6 +105,39 @@ def test_runtime_assets_are_checked_in() -> None:
     assert _missing_assets() == []
 
 
+def test_writer_and_reader_prove_distinct_native_app_processes() -> None:
+    assert RUNTIME_SUPPORT.is_file(), RUNTIME_SUPPORT.relative_to(ROOT)
+    support = RUNTIME_SUPPORT.read_text(encoding="utf-8")
+    writer = WRITER.read_text(encoding="utf-8")
+    reader = READER.read_text(encoding="utf-8")
+
+    key = "_g1_ret_ref_lpp_regulation_writer_pid_v1"
+    assert "const g1LppRegulationWriterPidKey" in support
+    assert key in support
+    for source in (writer, reader):
+        assert "g1_ret_ref_lpp_regulation_runtime_contract.dart" in source
+        assert "dart:io" in source
+
+    writer_pid_write = "preferences.setInt(g1LppRegulationWriterPidKey, pid)"
+    assert writer_pid_write in writer
+    assert writer.index("DocumentReferenceStore.storageKey") < writer.index(
+        writer_pid_write
+    )
+
+    for anchor in (
+        "preferences.getInt(g1LppRegulationWriterPidKey)",
+        "writerPid == null",
+        "writerPid <= 0",
+        "writerPid == pid",
+        "Writer PID witness is missing or invalid",
+        "Reader reused the writer app process",
+    ):
+        assert anchor in reader, anchor
+    pid_read = reader.index("preferences.getInt(g1LppRegulationWriterPidKey)")
+    assert pid_read < reader.index("ReportPersistenceService.loadAnswers()")
+    assert pid_read < reader.index("await provider.loadFromWizard();")
+
+
 def test_orchestrator_is_valid_bash_exact_head_and_pushed_sha_bounded() -> None:
     assert ORCHESTRATOR.stat().st_mode & stat.S_IXUSR
     subprocess.run(["bash", "-n", str(ORCHESTRATOR)], check=True)
@@ -116,8 +157,8 @@ def test_orchestrator_is_valid_bash_exact_head_and_pushed_sha_bounded() -> None:
         "runtime contract is not tracked by HEAD",
         "g1_ret_ref_lpp_regulation_write_patrol_test.dart",
         "g1_ret_ref_lpp_regulation_read_patrol_test.dart",
-        "g1_ret_ref_lpp_regulation_write_runtime_test.dart",
-        "g1_ret_ref_lpp_regulation_read_runtime_test.dart",
+        "g1_ret_ref_lpp_regulation_01_write_runtime_test.dart",
+        "g1_ret_ref_lpp_regulation_02_read_runtime_test.dart",
         "g1_ret_ref_lpp_regulation_flag_off_before.yaml",
         "g1_ret_ref_lpp_regulation_flag_off_after.yaml",
         "apps/mobile/lib/app.dart",
@@ -158,14 +199,19 @@ def test_orchestrator_orders_default_off_and_process_death() -> None:
         'build_production_app "before"',
         'install_production_app "before"',
         'run_maestro "before" "$flow_before"',
-        'run_patrol_build "write"',
-        'run_xcode_test "write"',
+        "run_patrol_build",
+        "run_patrol_suite",
+        "verify_xcresult_two_of_two",
+        'resolve_app_data_container "after_suite"',
+        "capture_completed_suite_container",
         'xcrun simctl launch "$device" "$bundle_id"',
         'xcrun simctl terminate "$device" "$bundle_id"',
         'install_production_app "after"',
+        'resolve_app_data_container "after_production_install"',
+        "assert_production_reinstall_preserved_state",
         'run_maestro "after" "$flow_after"',
-        'run_patrol_build "read"',
-        'run_xcode_test "read"',
+        'resolve_app_data_container "after_maestro"',
+        'assert_same_production_container "after_maestro"',
     )
     for anchor in (
         '"$patrol_bin" --verbose build ios',
@@ -173,9 +219,11 @@ def test_orchestrator_orders_default_off_and_process_death() -> None:
         "xcodebuild test-without-building",
         '-only-testing "RunnerUITests/RunnerUITests"',
         *stages,
-        'verify_xcresult_one_of_one "write"',
-        'verify_xcresult_one_of_one "read"',
         "state_preserved_across_process_death=true",
+        "post_suite_container_and_state_captured=true",
+        "patrol_full_isolation_zero_verified=true",
+        "production_reinstall_preserved_identity_and_state=true",
+        "distinct_process_pid_verified=true",
         "production_default_off_before_passed=true",
         "production_default_off_after_passed=true",
         "flutter build ios --simulator --debug --target lib/main.dart",
@@ -187,13 +235,14 @@ def test_orchestrator_orders_default_off_and_process_death() -> None:
     ):
         assert anchor in source, anchor
 
-    assert [source.index(stage) for stage in stages] == sorted(
-        source.index(stage) for stage in stages
+    execution = source[source.index("export_production_source\nbuild_production_app") :]
+    assert [execution.index(stage) for stage in stages] == sorted(
+        execution.index(stage) for stage in stages
     )
-    assert source.count('"$patrol_bin" --verbose build ios') == 2
-    assert source.count('run_xcode_test "write"') == 1
-    assert source.count('run_xcode_test "read"') == 1
+    assert source.count('"$patrol_bin" --verbose build ios') == 1
+    assert source.count("xcodebuild test-without-building") == 1
     assert "simctl uninstall" not in source
+    assert "UseDestinationArtifacts" not in source
 
     production_build = source[
         source.index("build_production_app() {") : source.index(
@@ -201,6 +250,165 @@ def test_orchestrator_orders_default_off_and_process_death() -> None:
         )
     ]
     assert "--dart-define" not in production_build
+
+
+def test_orchestrator_one_bundle_one_suite_and_no_mid_suite_reset() -> None:
+    source = ORCHESTRATOR.read_text(encoding="utf-8")
+    patrol_build = source[
+        source.index("run_patrol_build() {") : source.index("run_patrol_suite() {")
+    ]
+    write_target = '--target "${write_target#apps/mobile/}"'
+    read_target = '--target "${read_target#apps/mobile/}"'
+    assert write_target in patrol_build
+    assert read_target in patrol_build
+    assert patrol_build.index(write_target) < patrol_build.index(read_target)
+    assert patrol_build.count('"$patrol_bin" --verbose build ios') == 1
+
+    for anchor in (
+        "FULL_ISOLATION=0",
+        "patrol_full_isolation_zero_verified=true",
+        "g1_ret_ref_lpp_regulation_01_write_runtime_test.dart",
+        "g1_ret_ref_lpp_regulation_02_read_runtime_test.dart",
+        '"$passed_tests" == "2"',
+        '"$failed_tests" == "0"',
+        "Patrol native relaunch runs writer and reader in distinct app processes",
+    ):
+        assert anchor in source, anchor
+    assert source.index("g1_ret_ref_lpp_regulation_01_write_runtime_test.dart") < (
+        source.index("g1_ret_ref_lpp_regulation_02_read_runtime_test.dart")
+    )
+    assert 'xcrun simctl install "$device" "$patrol_app"' not in source
+    assert 'xcrun simctl install "$device" "$patrol_test_host"' not in source
+    assert "--full-isolation" not in patrol_build
+
+    suite_boundary = source[
+        source.index("run_patrol_suite() {") : source.index(
+            "verify_xcresult_two_of_two() {"
+        )
+    ]
+    for forbidden in (
+        "simctl install",
+        "simctl uninstall",
+        "simctl erase",
+        "clearState: true",
+        "run_patrol_build",
+        "rm -rf",
+        "defaults import",
+        "defaults export",
+        "plutil -replace",
+        "rsync ",
+        "ditto ",
+        "tar ",
+        "cp ",
+        "mv ",
+    ):
+        assert forbidden not in suite_boundary, forbidden
+
+
+def test_orchestrator_proves_container_state_and_honest_process_boundaries() -> None:
+    source = ORCHESTRATOR.read_text(encoding="utf-8")
+    for anchor in (
+        'xcrun simctl get_app_container "$device" "$bundle_id" data',
+        "stat -f '%d:%i'",
+        'preferences_plist="$resolved_container/Library/Preferences/$bundle_id.plist"',
+        "import json",
+        "import plistlib",
+        '"flutter.wizard_answers_v2"',
+        '"flutter.coach_authority_active_slot_v1"',
+        '"flutter._confirmed_document_references_v1"',
+        "plistlib.load(handle)",
+        "isinstance(value, str) and value",
+        'json.dumps(witness, separators=(",", ":"), sort_keys=True)',
+        'suite_runtime_state_witness="$resolved_state_witness"',
+        '[[ "$resolved_state_witness" == "$suite_runtime_state_witness" ]]',
+        '[[ "$resolved_identity" == "$suite_data_container_identity" ]]',
+        "post_suite_container_and_state_captured=true",
+        "patrol_full_isolation_zero_verified=true",
+        "production_reinstall_preserved_identity_and_state=true",
+        "distinct_process_pid_verified=true",
+        '"process_boundary": "patrol_native_relaunch_distinct_pid"',
+        '"simctl_terminate_boundary": "post_suite_lifecycle_only"',
+        '"post_suite_container_and_state_captured"',
+        '"patrol_full_isolation_zero_verified"',
+        '"production_reinstall_preserved_identity_and_state"',
+        '"distinct_process_pid_verified"',
+    ):
+        assert anchor in source, anchor
+    assert (
+        source.count(
+            '[[ "$resolved_state_witness" == "$suite_runtime_state_witness" ]]'
+        )
+        == 2
+    )
+    assert 'plutil -extract "$preferences_key"' not in source
+
+    for dishonest_anchor in (
+        'resolve_app_data_container "before_suite"',
+        "suite_same_path_and_identity",
+        "assert_same_suite_container",
+        "app-container-before-suite.log",
+    ):
+        assert dishonest_anchor not in source, dishonest_anchor
+
+    assert source.count("xcodebuild test-without-building") == 1
+    xcode_runner = source[
+        source.index("run_patrol_suite() {") : source.index(
+            "verify_xcresult_two_of_two() {"
+        )
+    ]
+    assert '-only-testing "RunnerUITests/RunnerUITests"' in xcode_runner
+    for forbidden in (
+        "UseDestinationArtifacts",
+        "simctl install",
+        "simctl uninstall",
+        "simctl terminate",
+    ):
+        assert forbidden not in xcode_runner, forbidden
+
+
+def test_persisted_state_witness_is_canonical_and_fails_closed(
+    tmp_path: Path,
+) -> None:
+    source = ORCHESTRATOR.read_text(encoding="utf-8")
+    probe = _embedded_python(source, "assert_required_runtime_state")
+    preferences_path = tmp_path / "ch.mint.app.plist"
+    required = {
+        "flutter.wizard_answers_v2": '{"q_birth_year":1980}',
+        "flutter.coach_authority_active_slot_v1": "synthetic-slot",
+        "flutter._confirmed_document_references_v1": '{"references":[]}',
+    }
+
+    def run(values: dict[str, object]) -> subprocess.CompletedProcess[str]:
+        with preferences_path.open("wb") as handle:
+            plistlib.dump(values, handle)
+        return subprocess.run(
+            [sys.executable, "-", str(preferences_path)],
+            input=probe,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+    valid = run(required)
+    assert valid.returncode == 0, valid.stderr
+    assert valid.stdout.strip() == json.dumps(
+        required,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+    for key in required:
+        missing = dict(required)
+        del missing[key]
+        assert run(missing).returncode != 0
+
+        empty = dict(required)
+        empty[key] = ""
+        assert run(empty).returncode != 0
+
+        wrong_type = dict(required)
+        wrong_type[key] = 1
+        assert run(wrong_type).returncode != 0
 
 
 def test_orchestrator_retains_only_sanitized_synthetic_metadata(
@@ -217,7 +425,7 @@ def test_orchestrator_retains_only_sanitized_synthetic_metadata(
         "sanitize_log()",
         "verify_retained_artifacts()",
         'rm -f -- "$raw"',
-        'rm -rf -- "$write_xcresult" "$read_xcresult"',
+        'rm -rf -- "$suite_xcresult"',
         "raw Maestro report removal failed",
         "external build removal failed",
         '"contract": "g1_ret_ref_lpp_regulation"',
@@ -229,10 +437,12 @@ def test_orchestrator_retains_only_sanitized_synthetic_metadata(
         '"xcresult_retained": False',
         '"feature_activation": "test_process_static_flags_only"',
         '"state_preservation": "writer_process_death_cold_reader"',
-        '"write_passed_tests": 1',
-        '"write_failed_tests": 0',
-        '"read_passed_tests": 1',
-        '"read_failed_tests": 0',
+        '"suite_passed_tests": 2',
+        '"suite_failed_tests": 0',
+        '"process_boundary": "patrol_native_relaunch_distinct_pid"',
+        '"simctl_terminate_boundary": "post_suite_lifecycle_only"',
+        '"post_suite_container_and_state_captured"',
+        '"patrol_full_isolation_zero_verified"',
         '"maestro_before_exit_code"',
         '"maestro_after_exit_code"',
     ):
