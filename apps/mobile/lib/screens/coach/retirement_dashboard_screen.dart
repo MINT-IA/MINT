@@ -587,6 +587,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
                         // ── BELOW FOLD ──
 
+                        ..._buildLppRegulationEducation(profile),
+
                         // Position 2: Coach narrative card (cap retraite)
                         if (_narrative != null &&
                             _narrative!.greeting.isNotEmpty)
@@ -848,6 +850,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       ),
                     ),
                     const SizedBox(height: MintSpacing.lg),
+                    ..._buildLppRegulationEducation(profile),
                     _buildDisclaimer(),
                     const SizedBox(height: MintSpacing.xl),
                   ]),
