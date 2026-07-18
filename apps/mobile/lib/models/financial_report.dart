@@ -248,7 +248,7 @@ class Roadmap {
 
 class RoadmapPhase {
   final String title;
-  final String timeframe; // "Immédiat", "Court terme (3-6 mois)", etc.
+  final String timeframe; // Localized time-horizon label from the UI layer.
   final List<ActionItem> actions;
 
   const RoadmapPhase({
