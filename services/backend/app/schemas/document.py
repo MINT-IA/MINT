@@ -12,10 +12,19 @@ from pydantic import BaseModel, Field
 class DocumentUploadResponse(BaseModel):
     """Response from a document upload and extraction."""
 
-    id: str = Field(..., description="Unique identifier for the uploaded document")
+    id: str = Field(
+        ...,
+        description=(
+            "Opaque response identifier; durable for stored documents and "
+            "ephemeral/non-addressable for lpp_plan"
+        ),
+    )
     document_type: str = Field(
         ...,
-        description="Detected document type: 'lpp_certificate', 'salary_slip', 'unknown'",
+        description=(
+            "Detected document type: 'lpp_certificate', 'lpp_plan', "
+            "'salary_slip', 'unknown'"
+        ),
     )
     extracted_fields: dict = Field(
         default_factory=dict,
@@ -29,9 +38,12 @@ class DocumentUploadResponse(BaseModel):
     )
     fields_found: int = Field(0, description="Number of fields successfully extracted")
     fields_total: int = Field(18, description="Total possible fields")
-    raw_text_preview: str = Field(
-        "",
-        description="First 500 characters of extracted text (for user verification)",
+    raw_text_preview: Optional[str] = Field(
+        None,
+        description=(
+            "First 500 characters of extracted text for durable document "
+            "verification; null for ephemeral document authority"
+        ),
     )
     warnings: list[str] = Field(
         default_factory=list,

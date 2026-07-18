@@ -1,6 +1,6 @@
 # Source of Truth (SOT) — MINT
 
-> **LAST SYNCED**: 2026-07-13 | Production: v0.1.0
+> **LAST SYNCED**: 2026-07-18 | Production: v0.1.0
 
 ## 1. Domain Object: Profile
 
@@ -251,3 +251,19 @@ Source: `apps/mobile/lib/services/financial_core/confidence_scorer.dart`
   foreign, stale, expired, revoked, erased, scope-drifted or disabled. Legacy
   nominative receipts containing name/document/IP-derived fields never satisfy
   this gate. The legacy self LPP candidate-only contract remains unchanged.
+
+## 11. Ephemeral LPP plan authority upload (G1)
+
+- `POST /api/v1/documents/upload` parses and locally classifies the submitted
+  PDF bytes before consulting response caches.
+- A detected `lpp_plan` is general document authority, never evidence of an
+  insured person's pension facts. Its response has a new opaque UUIDv4 `id`,
+  empty `extractedFields`, zero confidence and field counts,
+  `rawTextPreview=null`, and `ragIndexed=false`.
+- The `lpp_plan` response is processing-only: the backend does not construct or
+  commit a `DocumentModel`, does not call the personal LPP certificate
+  extractor, does not query or write idempotency-key/SHA response caches, and
+  does not call RAG even when `index_in_rag=true`. The response `id` is not
+  addressable through `GET /api/v1/documents/{id}`.
+- Other detected document types retain their existing extraction, durable
+  document record, preview, cache replay/storage and optional RAG behavior.

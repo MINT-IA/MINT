@@ -7998,7 +7998,7 @@
             "type": "number"
           },
           "document_type": {
-            "description": "Detected document type: 'lpp_certificate', 'salary_slip', 'unknown'",
+            "description": "Detected document type: 'lpp_certificate', 'lpp_plan', 'salary_slip', 'unknown'",
             "title": "Document Type",
             "type": "string"
           },
@@ -8021,7 +8021,7 @@
             "type": "integer"
           },
           "id": {
-            "description": "Unique identifier for the uploaded document",
+            "description": "Opaque response identifier; durable for stored documents and ephemeral/non-addressable for lpp_plan",
             "title": "Id",
             "type": "string"
           },
@@ -8032,10 +8032,16 @@
             "type": "boolean"
           },
           "raw_text_preview": {
-            "default": "",
-            "description": "First 500 characters of extracted text (for user verification)",
-            "title": "Raw Text Preview",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "First 500 characters of extracted text for durable document verification; null for ephemeral document authority",
+            "title": "Raw Text Preview"
           },
           "warnings": {
             "description": "Any warnings or issues during extraction",

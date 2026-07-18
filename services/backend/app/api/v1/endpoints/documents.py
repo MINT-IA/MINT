@@ -460,13 +460,10 @@ async def upload_document(
 
     The raw PDF is never stored — only the extracted fields are kept.
     """
-    # v2.7 Task 7: Idempotency-Key primary cache (UUID v4 client-generated).
+    # v2.7 Task 7: Idempotency-Key + SHA response caches. Cache lookup is
+    # deliberately deferred until after local document classification so an
+    # ephemeral LPP plan can never be classified or replayed from durable state.
     from app.services import idempotency as _idem
-    if idempotency_key:
-        cached = await _idem.lookup_by_key(idempotency_key)
-        if cached is not None:
-            response.headers["X-Idempotent-Replay"] = "true"
-            return DocumentUploadResponse(**cached)
 
     # Entitlement gate: vault feature required for unlimited uploads.
     # Free users are limited to 2 documents.
@@ -523,13 +520,6 @@ async def upload_document(
 
     # v2.7 Task 7: SHA256 secondary dedup.
     file_sha = _idem.sha256_hex(file_bytes)
-    cached_sha = await _idem.lookup_by_file_sha(file_sha)
-    if cached_sha is not None:
-        response.headers["X-Idempotent-Replay"] = "true"
-        # Also mirror into key cache if a key was provided.
-        if idempotency_key and _idem.is_valid_idempotency_key(idempotency_key):
-            await _idem.store_by_key(idempotency_key, cached_sha)
-        return DocumentUploadResponse(**cached_sha)
 
     # FIX-W12: Validate PDF magic bytes (first 5 bytes must be %PDF-)
     if not file_bytes[:5] == b"%PDF-":
@@ -572,6 +562,25 @@ async def upload_document(
             "Could not identify document type. Attempting LPP extraction anyway."
         )
 
+    # Preserve replay behavior for every durable document type, but only after
+    # classifying the current bytes. A plan/regulation is processing-only: it
+    # must neither consult nor refresh response caches, including legacy cache
+    # entries that may contain another user's document id or text preview.
+    if doc_type != "lpp_plan":
+        if idempotency_key:
+            cached = await _idem.lookup_by_key(idempotency_key)
+            if cached is not None:
+                response.headers["X-Idempotent-Replay"] = "true"
+                return DocumentUploadResponse(**cached)
+
+        cached_sha = await _idem.lookup_by_file_sha(file_sha)
+        if cached_sha is not None:
+            response.headers["X-Idempotent-Replay"] = "true"
+            # Also mirror into key cache if a key was provided.
+            if idempotency_key and _idem.is_valid_idempotency_key(idempotency_key):
+                await _idem.store_by_key(idempotency_key, cached_sha)
+            return DocumentUploadResponse(**cached_sha)
+
     if doc_type == "lpp_plan":
         extracted_dict: dict = {}
         extraction_confidence = 0.0
@@ -580,6 +589,17 @@ async def upload_document(
         warnings.append(
             "LPP plan or regulation detected. Its general terms were not "
             "treated as personal pension facts."
+        )
+        return DocumentUploadResponse(
+            id=str(uuid.uuid4()),
+            document_type=doc_type,
+            extracted_fields=extracted_dict,
+            confidence=extraction_confidence,
+            fields_found=fields_found,
+            fields_total=fields_total,
+            raw_text_preview=None,
+            warnings=warnings,
+            rag_indexed=False,
         )
     else:
         try:
