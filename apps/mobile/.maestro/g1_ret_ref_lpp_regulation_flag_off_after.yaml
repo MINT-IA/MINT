@@ -1,0 +1,21 @@
+appId: ch.mint.app
+name: G1 RET-REF LPP regulation production-default after
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: landing_route
+- openLink: "mint:///scan?type=lppPlan"
+- assertVisible:
+    id: document_scan_capture_cta
+- assertNotVisible:
+    id: document_scan_lpp_plan_type_selector
+- assertNotVisible:
+    id: lpp_regulation_review_source_date
+- assertNotVisible:
+    id: lpp_regulation_review_confirm_cta
+- openLink: "mint:///retraite"
+- assertNotVisible:
+    id: retirement_lpp_regulation_reference_education
+- assertNotVisible:
+    id: retirement_lpp_regulation_handoff_sheet
