@@ -1,0 +1,33 @@
+---
+
+## Verdict: **PASS**
+
+---
+
+### Summary
+
+The diff wires `lppRegulationCandidate` end-to-end: session provider → route builder → `ExtractionReviewScreen` → two-phase accept/record flow → `/retraite` navigation. All logic paths are correctly guarded and the feature is triple-gated by default (`false`).
+
+---
+
+### Findings
+
+#### P0 — None
+
+#### P1 — None
+
+Initial concerns about missing widget tests and injection seams were resolved by inspection:
+
+- **Test coverage**: `lpp_regulation_review_screen_test.dart` (pre-committed at `e6de8a0d6`) provides a full harness covering flag-off recovery, missing-candidate recovery, 5 invalid-input cases, snapshot/reference drift, accept failure, record failure + retry, and the happy-path accept→record→navigate sequence.
+- **Static wiring test**: `lpp_regulation_review_screen_test.dart:369` reads `app.dart` as text and asserts `lppRegulationCandidate: session.lppRegulationCandidate` is present in the `/scan/review` route builder, preventing silent parameter omissions.
+- **`DocumentProvider.recordLppRegulation` testability**: Tests inject a `_DocumentSpy` via `MultiProvider`. The `context.read<DocumentProvider>()` inside `_recordAcceptedLppRegulation` resolves to the spy during widget tests. No constructor injection seam is needed.
+- **Session lifecycle**: `_reviewSessionFinalized = true` correctly prevents the `dispose` path from issuing a double-discard after `context.go('/retraite')`. `ScanSessionProvider.retainImpact` returns `false` for `lppRegulationCandidate != null`, blocking the impact screen transfer path for plan documents.
+- **Invariant enforcement**: `ScanSessionProvider.retainExtraction` throws `ArgumentError` if `lppPlan` is paired with `lppCandidate`, `lppAuthorization`, or `taxCandidate`, enforcing mutual exclusivity at session creation.
+
+#### P2 — Maintainability notes (non-blocking)
+
+| # | File:Line | Note |
+|---|-----------|------|
+| 1 | `extraction_review_screen.dart:147` | `_sourceDateController` is shared across tax, LPP certificate, and LPP regulation flows. Mutual exclusivity is enforced by `ScanSessionProvider` and `build()` branching, but the sharing is implicit. A future developer adding pre-fill for regulation documents must know to reuse this controller rather than introduce a separate one. |
+| 2 | `extraction_review_screen.dart:~560,570` | `lppRegulationReviewTitle` is rendered both as the `AppBar` title and as a `headlineMedium` in the scroll body — the title is shown twice. Intentional but slightly redundant. |
+| 3 | `extraction_review_screen.dart:~861` | `_isConfirming` is never reset to `false` on successful record; it stays `true` until `dispose`. Non-issue because the screen navigates away immediately, but can surprise a future reader tracing the flag. |

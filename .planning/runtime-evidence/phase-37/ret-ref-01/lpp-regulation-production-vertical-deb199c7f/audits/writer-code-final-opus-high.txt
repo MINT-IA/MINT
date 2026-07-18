@@ -1,0 +1,39 @@
+All 14 tests pass. The wiring is real and complete. Let me record the verdict.
+
+---
+
+## MINT External Auditor — Verdict: **PASS**
+
+**Scope:** Diff of `codex/mint-product-usability-plan-20260712` vs base `ba0f331a0` (726 lines, under budget). The change wires an **LPP pension-fund-regulation review flow** into the document scan review screen, plus localizations for six locales.
+
+### What was verified
+
+**Routing (real, not facade)**
+- `app.dart:1240` forwards `lppRegulationCandidate: session.lppRegulationCandidate` into `ExtractionReviewScreen` at `/scan/review`. A guard test (`lpp_regulation_review_screen_test.dart:369`) reads `lib/app.dart` and asserts this literal is present.
+- Upstream producer confirmed: `document_scan_screen.dart:1682-1693` opens review with the candidate only after `isExactLppPlanAuthority` + flag + drift checks.
+- `ScanSessionProvider` stores/forwards the candidate (`scan_session_provider.dart:13,107,155`).
+
+**End-to-end write path (no dangling facade)**
+- `_confirmLppRegulation` → `CoachProfileProvider.acceptLppRegulationReference` (`coach_profile_provider.dart:1462`) → `_recordAcceptedLppRegulation` → `DocumentProvider.recordLppRegulation` (`document_provider.dart:457`) → `context.go('/retraite')`. Both writer methods pre-exist and have their own bridge/provider tests.
+- Models `LppRegulationAcquisitionCandidate` / `…ReviewConfirmation` / `…Receipt` exist (`lpp_evidence.dart:342-449`) with canonical UUIDv4 + UTC-civil-instant + `[1900,9999]` legalYear validation.
+
+**Privacy / compliance**
+- Default-off composite gate: `lppRegulationAcquisitionEnabled = typedLppEvidence && documentLppEvidenceEnabled && lppRegulationReferenceEnabled` (`feature_flags.dart:121`), deliberately kept out of `applyFromMap` so backend cannot remote-activate.
+- Review UI exposes only two metadata inputs (document date + legal year); `_expectNoExternalSideEffects` proves no biography writes, no remote sync, no impact-session transfer. Only self-owned regulation (`ownerKind` self required).
+- Date parsing returns canonical `DateTime.utc` midnight, satisfying `_isCanonicalCivilInstant`; future dates rejected via `SwissCivilTime.isFutureCivilDate`.
+
+**Session lifecycle correctness**
+- `dispose()` now guards `!_reviewSessionFinalized` so a successfully-recorded session isn't double-discarded; recovery/back paths still discard. Snapshot/reference drift blocks *before* record and keeps the session recoverable.
+
+**Tests:** Ran `lpp_regulation_review_screen_test.dart` — **14/14 pass**, covering flag-off recovery, missing-candidate recovery, invalid inputs, snapshot/reference drift, accept failure (fields stay editable, no record), record-retry receipt reuse, and successful accept→record→navigate. Tax test spy updated to forward the new parameter (`tax_extraction_review_screen_test.dart:154,163`).
+
+### Findings
+- **P0:** none
+- **P1:** none
+- **P2 (non-blocking):**
+  - `_buildLppRegulationReview` renders `lppRegulationReviewTitle` twice (AppBar title + headline body at `extraction_review_screen.dart`). Cosmetic duplication, not a defect.
+  - l10n keys `lppRegulationReviewLegalYear` differ in wording between FR ("Année de référence **juridique**") and the sibling `retirementLppRegulationLegalYearLabel` ("…**légale**"). Terminology drift only; no functional impact.
+
+Localization parity holds across de/en/es/fr/it/pt with matching `.arb` and generated `app_localizations_*.dart` entries.
+
+**Verdict: PASS**

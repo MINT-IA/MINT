@@ -1,0 +1,36 @@
+I have enough to render a verdict. Let me confirm the one remaining risk — that the review screen never calls the throwing `DocumentType.lppPlan.label` — which the grep above confirms (only `field.label` and `.backendValue`, and `_confirmAndInject` returns early at line 1901 before any sync). No crash path.
+
+---
+
+# MINT Audit — G1 LPP Plan Acquisition
+
+## Verdict: **PASS** (dormant, fail-closed acquisition surface only — NOT activation clearance)
+
+The change adds an LPP pension-*plan* (regulation) document acquisition surface to `DocumentScanScreen`, gated behind a composite local kill switch. It is correctly fail-closed, privacy-gated, and well-tested. The remaining findings are completeness/wiring gaps in a path the repo explicitly keeps quarantined; none are reachable in production and none are P0.
+
+## What I verified (source of truth: code + tests)
+
+- **Fail-closed gating.** `FeatureFlags.lppRegulationAcquisitionEnabled = typedLppEvidence && documentLppEvidenceEnabled && lppRegulationReferenceEnabled` (feature_flags.dart). All three are local `static bool = false` and **absent from `applyFromMap`**, so the backend cannot enable this path.
+- **Strong zero-extraction privacy gate.** `_acquireLppRegulationFromGallery` only proceeds to review when `upload.isExactLppPlanAuthority` is true, which (document_service.dart:724-734) requires the server response to have `document_type=lpp_plan`, **empty** `extracted_fields`, `confidence==0`, `fields_found/total==0`, and `rag_indexed==false`. No amounts/entitlements can be extracted or indexed.
+- **Session isolation invariant** (scan_session_provider.dart): an `lppPlan` session must carry exactly one zero-fact `lppRegulationCandidate` and **no** LPP candidate/authorization/partner/tax payload, else it throws.
+- **Every scan-screen entry point guards `lppPlan`**: camera/paste/example/PDF-import all early-return; `_processImageFile` cleans temp bytes; `_toVaultType` maps `lppPlan`; gallery routes to the dedicated self-only handler. Consent for `lppPlan` is `[visionExtraction]` only (correctly omits `transferUsAnthropic` — no Anthropic Vision call, backend Docling classification).
+- **Confirm injects nothing** for `lppPlan` (extraction_review_screen.dart:1901-1902 returns before any fact/biography/backend write). No crash on the throwing `DocumentType.lppPlan.label` — the review screen uses only `field.label` and `.backendValue` (`'lpp_plan'`).
+- **Tests** (lpp_pre_upload_authorization_test.dart, scan_session_provider_test.dart) assert consent = `[visionExtraction]`, `transferUsAnthropic` absent, non-PDF rejected, non-exact authority rejected, snapshot-drift revalidation after upload, and flag-off short-circuit before any I/O.
+
+## Findings
+
+### P1 — Write-only acquisition candidate; review path has no consumer (façade-without-wiring)
+- `_openReview` retains `lppRegulationCandidate` into the session (document_scan_screen.dart → `retainExtraction`), but the `/scan/review` route builder (**app.dart:1235-1244**) never forwards `session.lppRegulationCandidate`, and `ExtractionReviewScreen` has **no such constructor param** (extraction_review_screen.dart:48-72). Grep confirms no production reader of `session.lppRegulationCandidate` — only tests.
+- Repro if activated: acquisition succeeds → generic zero-fact review → confirm returns early (extraction_review_screen.dart:1901) → snapshot binding (`expectedSnapshotId`/`expectedPreviousReferenceId`) is never validated, nothing persists, dead-end UX.
+- This matches the repo's own docs (`quarantined`, "production plan acquisition/writer caller … remain missing"), so it is a declared completeness gap, not deception — **must close before activation**.
+
+### P2 — Consent omits `persistence365d` on a persistent vault-upload endpoint
+- `_acquireLppRegulationFromGallery` uploads the raw PDF via `DocumentService().uploadDocument(type: VaultDocumentType.lppPlan)` → `POST /documents/upload` (document_service.dart:1003) — the **same persistent vault endpoint** the tax flow uses with `persistence365d`. The `lppPlan` flow requests only `[visionExtraction]`.
+- Correctness hinges on an **unverified backend guarantee** that `document_type=lpp_plan` raw bytes are classified-then-discarded (docs assert "no … raw document record"). `isExactLppPlanAuthority` proves no extraction/indexing but **not** non-retention of the uploaded file (it returns a document `id`).
+- Evidence needed (not in this mobile-only diff): backend `/documents/upload` handler retention/deletion behavior for `lpp_plan`.
+
+### P2 — Review screen lacks `lppPlan` flag-off recovery guard
+- `build()` has flag-off recovery scaffolds for `lppCertificate` (extraction_review_screen.dart:247) and `taxDeclaration` (267) but none for `lppPlan`. A mid-session flag flip renders a generic empty review instead of a recovery scaffold. Low severity (flag is a local static, not runtime-toggleable from backend).
+
+## Bottom line
+Safe to merge as a **dormant, fail-closed** acquisition surface. Do **not** interpret this PASS as activation readiness: the acquisition→review path has no wired consumer (P1) and the backend retention posture is unproven (P2). Flipping `lppRegulationReferenceEnabled`/`documentLppEvidenceEnabled`/`typedLppEvidence` on requires closing those first.

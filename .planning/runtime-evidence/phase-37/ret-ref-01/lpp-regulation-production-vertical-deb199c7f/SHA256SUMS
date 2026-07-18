@@ -1,0 +1,9 @@
+8aa7231903c507e423a4a674d81781f1b5b183e893e9226340d86b53f8b2394f  README.md
+c5d74173359da30770c19a50bc141b6def94c03096be6913dca3e9952323ad41  audits/acquisition-code-first-pass-opus-high.txt
+1f49ee55ac5c0a5fb4dc002f0027fdf05f138a5b4c590f748a815e263fd5e921  audits/acquisition-product-first-pass-opus-high.txt
+3d2673964426f1adb38fe7bb55dd9eac0ead77794b023e5e94f67f6072384103  audits/backend-ephemeral-code-first-pass-opus-high.txt
+8d9d4e21d7acde81c1059daba4376a4c29cc6a65f3da6ad695e2ef5b424af94e  audits/backend-ephemeral-product-first-pass-opus-high.txt
+7eca3b4e58538f74b64169c5ac2f8debb62b3c3d98ad79e3492e66a125ea783c  audits/writer-code-final-opus-high.txt
+822bbfe2d6401087cd7d413559fbca947ac6d0ff406fc80343512e8d516b83a8  audits/writer-code-rerun-sonnet-high.txt
+d2a8ac0210a6a1dccc00c5f82e6c87fffac23e2044ccd99a2f266cc8c9844d1a  audits/writer-product-final-opus-high.txt
+da07217afe9f8b29597e94f32456f126b0aabfab48baf8665e4ab3d32ceb1479  audits/writer-product-rerun-sonnet-high.txt

@@ -1,0 +1,37 @@
+I have enough evidence. The change wires a real, well-guarded, and fully-tested LPP regulation-review flow. Let me confirm my domain assessment of one terminology point across locales.
+
+The diff shows the review input FR label is `lppRegulationReviewLegalYear` = "Année de référence **juridique**", while the reference-display label `retirementLppRegulationLegalYearLabel` = "Année de référence **légale**" (and DE: "Rechtliches Referenz**jahr**" vs "Rechtlicher Referenz**stand**"). Same concept, inconsistent wording in the same locale — a P2.
+
+---
+
+Product/domain verdict: PASS
+
+## Summary of what was audited
+Base `ba0f331a0..HEAD` = two commits ("wire lpp regulation review writer", "forward regulation scan candidate in tax spy"). The change wires the previously-scaffolded **LPP pension-fund-rules (Vorsorgereglement) review** into a real writer chain and navigation, plus l10n and a coverage-audit refresh.
+
+**Life event / decision touched:** Retirement / 2e pilier (LPP/BVG) — a user ingests their *pension fund regulation* to prepare informed questions for their caisse/Pensionskasse. Notably, the flow deliberately **extracts no amounts or entitlements**; it records only two attested metadata fields (document date + legal reference year) and hands off to a specialist.
+
+## P0 — none
+No illegal/misleading advice, no confident wrong Swiss pension logic, no privacy exposure. The flow is architected to avoid computing anything law-sensitive: no conversion rate, no rachat capacity, no entitlement is derived. The specialist handoff (`retirement_dashboard_screen.dart:1011` → `_showLppRegulationHandoffSheet`) contains only neutral, question-shaped strings and an explicit boundary: `retirementLppRegulationHandoffBoundary` = "MINT does not recommend any option…" plus a privacy note that the original document is not transmitted.
+
+## P1 — none blocking
+I looked specifically for facade-without-wiring and source-of-truth duplication and found neither:
+- **Writer chain is real and idempotent.** `_confirmLppRegulation` → `CoachProfileProvider.acceptLppRegulationReference` (serialized, session-epoch guarded, strict snapshot + previous-reference matching, `coach_profile_provider.dart:1477-1574`) → `DocumentProvider.recordLppRegulation` (re-checks receipt match, replaces prior regulation reference in place, `document_provider.dart:457-517`). Single source of truth: the reference lives inside the self `LppEvidenceSnapshot`, no duplicated variable.
+- **Consumer exists** (`retirement_dashboard_screen.dart:949-1024`): `resolveLppRegulation` → `LppRegulationSpecialistHandoff` → card + "Prepare my questions" CTA. Confirmed ledger → scenario → dossier spine, not a dead screen.
+- **Degraded/missing states covered:** flag-off recovery (`lpp_regulation_review_disabled_recovery`), missing-candidate recovery, accept-error keeps fields editable, record-failure retry that reuses the accepted receipt without re-accepting. All exercised in `lpp_regulation_review_screen_test.dart` (drift, invalid date/future date/legal-year range, retry, success→`/retraite`).
+- **Flag hygiene:** `lppRegulationAcquisitionEnabled` is a local composite deliberately kept out of `applyFromMap` (`feature_flags.dart:119-124`), so it cannot half-ship to production before legal/privacy gates close.
+
+## P2 — polish / follow-ups
+1. **Inconsistent term for the same field within one locale.** Review input vs. dashboard display: FR "Année de référence **juridique**" vs "Année de référence **légale**"; DE "Rechtliches Referenz**jahr**" vs "Rechtlicher Referenz**stand**" (`app_fr.arb` / `app_localizations_de.dart`). Align the wording.
+2. **"Legal reference year" is ambiguous for a lay user** confronting a Vorsorgereglement (edition/effective year vs. applicable-law year). Low risk since it is attested metadata echoed back only into the user's own handoff prep, never computed on — but a one-line helper would improve data quality.
+3. **Regulation review is self-only and requires a pre-existing self LPP certificate snapshot** (`document_scan_screen.dart:1600-1614`). Domain-wise the Reglement and the Ausweis are independent documents; a user holding only the regulation gets a silent no-candidate path (recovery handled at the review screen, but the scan-type entry gives no explanatory feedback). Consider a "scan your certificate first" hint. Partner-owned regulation is out of scope by design — acceptable, but note it as a couple-coverage gap.
+
+## Swiss domain review
+- **LPP / 2e pilier:** Correctly treats the Vorsorgereglement as a *reference-only* artifact. No conversion rate, no coordination deduction, no rachat ceiling, no obligatoire/surobligatoire split is inferred — so there are **no current-law-sensitive constants** introduced to become stale. This is the compliant handling.
+- **AVS / 3a / tax / mortgage / insurance / succession:** Not affected. The handoff questions reference disability (AI coordination), survivors, and divorce (LPP split) purely as *questions to ask the fund*, not as MINT conclusions — within the no-advice boundary.
+- **Confidence/fact-state model:** Appropriate — the reference is stored as user-attested (`source: self`), displayed with source date, legal year, and confirmed-at; nothing is presented as "known/estimated" beyond what the user typed.
+
+## Mint product logic review
+This moves Mint firmly along the **ledger → DataQuest → scenario → dossier** spine: a scanned document produces a *typed ledger reference* (not a duplicated variable), lands the user back in the retirement scenario (`/retraite`), and surfaces a specialist-ready handoff of assumptions/open questions — exactly the "lucidity + specialist handoff," not chatbot advice. It reinforces MINT identity rather than diluting it.
+
+Recommendation: PASS; address the P2 terminology/labeling items before enabling the flag in production.

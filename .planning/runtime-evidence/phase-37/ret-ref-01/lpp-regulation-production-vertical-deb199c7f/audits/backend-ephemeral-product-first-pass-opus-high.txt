@@ -1,0 +1,30 @@
+All backing tests pass (30 passed), `uuid` is imported, and the code matches the diff. I've verified the classification precedence, the cache-deferral, and the non-persistence/non-addressability guarantees against the live source.
+
+Product/domain verdict: PASS
+
+## Summary of what the change does
+Adds a fourth document class `lpp_plan` (Vorsorgereglement / plan de prévoyance) to the `/api/v1/documents/upload` flow and quarantines it: a detected plan/regulation is parsed and classified locally, then returned as **processing-only authority** — opaque ephemeral UUID, empty `extractedFields`, zero confidence/counts, `rawTextPreview=null`, `ragIndexed=false`, no `DocumentModel`, no cache read/write, not addressable via `GET /documents/{id}`. Cache lookup is deliberately moved *after* classification so a plan can never be replayed from (or poison) durable cache state.
+
+## Findings
+
+### P0
+None.
+
+### P1
+None. The change is métier-coherent and, if anything, closes a domain hazard: a fund *regulation* carries only general terms (barèmes, generic conversion rates) and must never be mined as one insured person's LPP facts. Treating regulation text as personal 2nd-pillar data would be a genuine pension error; this diff prevents it and the extractor is provably never invoked (`test_lpp_plan_upload_never_calls_personal_certificate_extractor`, spy asserts `constructor_calls == 0`).
+
+### P2
+- **Silent reclassification of a certificate lacking a clean title heading.** `_detect_document_type` (documents.py:145-159) checks certificate *title prefixes with `line.startswith`* first, then `plan_markers` *before* the `personal_fact_score>=2` fallback. A genuine Vorsorgeausweis whose title is not captured as a line start (logo/header OCR, title mid-line) but which cites "règlement de prévoyance" **and** contains personal facts would match `plan_markers` at documents.py:152 and be classified `lpp_plan` → real pension facts silently dropped, no stored doc, only a generic warning. The common case (title present) is covered by `test_explicit_personal_certificate_wins_over_plan_reference`, but the titleless edge fails-safe into a dead end with no "upload your individual certificate instead" guidance.
+- **No productive next step / ledger value on the plan path.** The `lpp_plan` response (documents.py:589-603) returns an accurate warning but no CTA, no missing-data prompt, and no ledger write-back. Correct within a backend contract, but from the ledger → DataQuest → scenario → dossier spine this route currently ends in a null-value state; the frontend should route the user to upload the personal Vorsorgeausweis. Not in this diff.
+- **Entitlement gate still charges the ephemeral path.** The free-tier 2-document check (documents.py:471-479) runs before classification, so a free user at the limit is blocked from uploading a plan even though a plan is never stored and never counts toward the quota. Minor inconsistency.
+- **`raw_text_preview` is now `Optional[str]` defaulting to `null`** (document.py:35-41, canonical OpenAPI updated). Clients that assumed a non-null string must handle null; only `lpp_plan` returns null today.
+
+## Swiss domain review
+- **LPP / 2nd pillar (affected):** Correctly separates the *personal certificate* (Vorsorgeausweis — salaire assuré, avoir de vieillesse, taux de conversion → ledger facts) from the *regulation/plan* (Vorsorgereglement — general terms, no personal facts). FR/DE/IT markers present for both classes (documents.py:86-125). The quarantine is the domain-correct outcome: a regulation is document authority, not evidence of an insured person's pension situation.
+- **AVS / 3a / tax / mortgage / insurance / succession:** Not affected by this diff.
+- **Compliance/legal boundary:** No advice, ranking, guarantee, or product-recommendation language introduced. Warning text is factual ("its general terms were not treated as personal pension facts"). Consistent with the AVS-official-pension candidate-only posture already in the file (documents.py:404-413).
+
+## Mint product logic review
+Moves toward the ledger → DataQuest → scenario → dossier spine by protecting the **one-source-of-truth** principle: it prevents generic regulation values from being written as a user's LPP variables, and hardens privacy by deferring cache lookups so cross-user document ids / text previews cannot leak on the plan path (`test_cross_user_sha_cache_cannot_replay_or_classify_lpp_plan`, `test_idempotency_key_cache_cannot_replay_lpp_plan_response`). The residual gap is purely additive value (P2): a misdetected real certificate, and the plan path itself, currently leave the user without a routed next action or ledger write-back — a follow-up, not a blocker.
+
+Proof commands used: `pytest tests/test_lpp_plan_reference_upload_contract.py tests/test_lpp_plan_type.py` (30 passed); source verified at documents.py:77-161, 441-683 and schemas/document.py:14-56.

@@ -1,0 +1,37 @@
+Product/domain verdict: NO-GO
+
+The Swiss-domain *framing* of this change is genuinely good (metadata-only regulation, no amount/entitlement extraction, careful non-advice language, specialist handoff). But as an audited increment the acquisition route is a facade: it collects and uploads a sensitive pension document, then dead-ends in a review that writes nothing to the ledger. The intended consumer (dashboard specialist handoff) can therefore never be unlocked by this flow.
+
+## P0
+None. The whole surface is fail-closed: `lppRegulationAcquisitionEnabled` requires `typedLppEvidence && documentLppEvidenceEnabled && lppRegulationReferenceEnabled`, all three default `false` and are deliberately kept out of `applyFromMap` (`feature_flags.dart:98-103`). No production user can reach it, so nothing harmful ships.
+
+## P1
+
+1. **Facade without wiring — acquisition dead-ends, ledger never written.**
+   - `_acquireLppRegulationFromGallery` uploads the PDF, checks `isExactLppPlanAuthority`, then `_openReview(... lppRegulationCandidate: expected)` and navigates to `/scan/review` (`document_scan_screen.dart:~1470-1520`).
+   - The route builder constructs `ExtractionReviewScreen` **without** passing `session.lppRegulationCandidate` (`app.dart:1235-1244`). The candidate is retained in the session (`scan_session_provider.dart:107,155`) but never consumed.
+   - In the review screen there is no `lppPlan` guard (`extraction_review_screen.dart:246-278`); it falls through to the generic body with empty `_fields`, and `_onConfirmAll` does `case DocumentType.lppPlan: return;` (`extraction_review_screen.dart:1898-1911`) — the confirm CTA is a silent no-op.
+   - The writer that would create the reference, `acceptLppRegulationReference` (`coach_profile_provider.dart:1462`), has **no production caller** (grep: definition + tests only). So `profile.lppRegulationReference` is never set, and the retirement-dashboard education card + "Prepare my questions" handoff (`retirement_dashboard_screen.dart:949-1013`, gated on `profile.lppRegulationReference`) can never appear.
+   - Repro (flags on): pick "LPP pension fund rules" → choose PDF → backend returns exact authority → land on `/scan/review` showing a 0%-confidence empty review → tap Confirm → nothing happens, no ledger write, no navigation. Route delivers zero user value. Unlike `lppCertificate`/`taxDeclaration`, there isn't even an explicit blocked/recovery scaffold for `lppPlan` — it renders as a broken generic review.
+
+2. **Consent scope vs. server persistence — unverified.**
+   - For `lppPlan`, consent requested is only `[ConsentPurpose.visionExtraction]` (`document_scan_screen.dart` `_requestAcquisitionConsent`, `DocumentType.lppPlan => const [ConsentPurpose.visionExtraction]`). The certificate/tax paths additionally request `persistence365d` (and `transferUsAnthropic`).
+   - Yet the flow performs a backend vault upload that returns a document `id` (`document_service.dart:987`, `DocumentUploadResult.id`), i.e. server-side persistence of a person-linked pension regulation. `isExactLppPlanAuthority` only proves *no extraction / no RAG indexing* (`document_service.dart:724-734`), not *no retention*.
+   - Evidence needed: the backend handler for `POST` upload with `document_type=lpp_plan` — does it store the raw PDF (and for how long)? If it retains the document, `persistence365d` consent is missing and this becomes a genuine consent/privacy gap. Please point to the backend route or a retention test to close this.
+
+## P2
+
+3. **Incoherent "confidence" on a metadata-only legal document.** The review renders `_buildOverallConfidenceBadge()` unconditionally (`extraction_review_screen.dart:296-298`); for `lppPlan` `overallConfidence == 0`, so the user sees a "0%" confidence badge on a document whose entire design is *no extraction*. Reads as a failed scan, not an intentional metadata-only review.
+
+4. **Back-behavior asymmetry.** `_openReview` uses `context.go(location)` for `lppPlan` vs `context.push` for other types (`document_scan_screen.dart` `_openReview`). Combined with the no-op confirm, the scan screen is popped from the stack, leaving no return path to the originating scenario from the dead-end review.
+
+5. Localization is complete and consistent — `docScanLppPlanDocumentLabel` / `docScanLppPlanDocumentDescription` added across all six locales (de/en/es/fr/it/pt) with correct métier wording ("reviewed without extracting amounts or entitlements"). No missing-translation debt.
+
+## Swiss domain review
+- **LPP/BVG:** Correct conceptual separation — the *règlement de prévoyance* is treated as a legal reference document, explicitly **not** a source of capital, conversion rates, or entitlements. This is the right Swiss modeling; a pension fund regulation must not be mined for amounts. The downstream handoff questions (buy-ins, conversion, flexible retirement, disability/IV coordination, survivors, divorce split) are the correct specialist topics.
+- **Compliance language:** Strong. "MINT does not recommend any option," no ranking, no guarantee, explicit "does not confirm entitlements or amounts," specialist/pension-fund handoff. No banned promise language observed.
+- **AVS/3a/tax/mortgage/insurance/succession:** Not affected by this diff (regulation is scoped out of amount-bearing projections). Consistent with existing `planCard`/`planSetup` scope disclaimers.
+- **Gap:** because the reference is never persisted, none of the above domain value actually reaches the user — the correct métier content is stranded behind an unwired step.
+
+## Mint product logic review
+The change is aimed at the right spine (ledger → DataQuest → scenario → dossier) and the source-of-truth discipline is respected on the acquisition side: single `LppRegulationAcquisitionCandidate` keyed to the current snapshot + previous reference (`document_scan_screen.dart` `_currentLppRegulationCandidate`/`_currentLppRegulationMatches`), strict zero-fact isolation enforced in `scan_session_provider.dart:114-126`, no duplicated user variables. But it stops at **ledger → (nothing)**: the acquisition never writes the `LppRegulationReference`, so it does not advance a real user from document to dossier. As shipped this is scaffolding, not a value-delivering slice. Recommend either (a) wire the `lppPlan` review branch to `acceptLppRegulationReference` and pass the candidate through `app.dart` before enabling any flag, or (b) render an explicit blocked/recovery state for `lppPlan` review instead of a generic 0%-confidence dead-end, and resolve the persistence-consent question.

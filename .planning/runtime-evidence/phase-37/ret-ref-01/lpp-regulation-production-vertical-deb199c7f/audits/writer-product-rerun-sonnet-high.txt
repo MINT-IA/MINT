@@ -1,0 +1,57 @@
+---
+
+Product/domain verdict: **PASS**
+
+---
+
+## Findings
+
+### P0 — None
+
+### P1 — None
+
+### P2 — Polish / non-blocking
+
+**P2-1 · Title duplicated in body**
+`_buildLppRegulationReview` renders `l10n.lppRegulationReviewTitle` in both the `AppBar.title` and as the first `Column` heading (`MintTextStyles.headlineMedium`). Redundant on screen.
+`extraction_review_screen.dart:573` and `extraction_review_screen.dart:582`
+
+**P2-2 · No date picker — manual YYYY-MM-DD entry for `sourceDate`**
+Users must type the regulation document date by hand. This is consistent with the tax flow but is error-prone. The error message surfaces correctly; adding a `showDatePicker` would reduce friction. No Swiss-law impact.
+`extraction_review_screen.dart:617`
+
+**P2-3 · `legalYear` lower bound 1900 is overly permissive**
+The Swiss LPP statute (BVG) came into force 1 January 1985. A legal reference year of e.g. 1952 would pass validation and enter the ledger. The model (`LppRegulationReviewConfirmation`) and the UI both allow `≥ 1900`. The correct floor is 1985. No harmful decision risk because this field is metadata only, but it is worth tightening.
+`extraction_review_screen.dart:773`, `lpp_evidence.dart:395`
+
+**P2-4 · No previous-reference pre-population on renewal**
+When a user re-scans to update an existing regulation review, the `lppRegulationCandidate` carries `expectedPreviousReferenceId` but the UI cannot surface the previous document date or legal year as a hint. The user must re-enter both fields from scratch. Low friction but avoidable.
+`extraction_review_screen.dart:610` (fields start empty regardless of prior state)
+
+---
+
+## Swiss domain review
+
+| Domain | Status |
+|---|---|
+| LPP / pilier 2 | The flow records that the user has reviewed their Pensionskasse regulation document (règlement de prévoyance). It writes only two metadata fields (document date, legal reference year) into the ledger. No amounts, conversion rates, or entitlements are extracted or asserted. Consistent with Swiss LPP practice. |
+| Handoff questions | Six question bodies (buyback capacity, conversion rate, flexible retirement, disability, survivors, divorce) are substantively correct for a Swiss LPP pre-consultation preparation. Mandatory/extra-mandatory distinction is called out correctly in the conversion-rate question. |
+| Compliance boundary | All five language variants explicitly disclaim: "does not confirm applicability, entitlements, or amounts." The handoff sheet header ("MINT does not recommend any option") is present. No advice, no ranking, no product recommendation. |
+| AVS/AHV | Not touched. |
+| Pilier 3a | Not touched. |
+| Tax | Not touched (tax review flow is entirely separate; `_sourceDateController` is shared but flows are mutually exclusive by `retainExtraction` guard). |
+| Mortgage / insurance / succession | Not touched. |
+| Feature-flag gating | `lppRegulationAcquisitionEnabled` is a triple-gate (`typedLppEvidence && documentLppEvidenceEnabled && lppRegulationReferenceEnabled`), all three flags default to `false` and none appear in `applyFromMap`. Backend configuration cannot activate this surface. |
+
+---
+
+## Mint product logic review
+
+The change moves cleanly along the **ledger → DataQuest → scenario → dossier/specialist spine**:
+
+- **Ledger**: the LPP regulation reference is written to the typed ledger (`CoachProfileProvider.acceptLppRegulationReference`), recorded as a `ConfirmedDocumentReference` (`DocumentProvider.recordLppRegulation`), and surfaced on the retirement dashboard as a "regulation reviewed" badge.
+- **No duplicate variable**: the flow writes one new ledger field (`lppRegulationReference`) without touching LPP financial facts.
+- **No re-asking**: the flow correctly blocks if no LPP snapshot exists (`currentSnapshot.facts.isEmpty` guard in the provider), preventing a regulation reference from being recorded without prior capital facts.
+- **Specialist handoff**: the existing retirement dashboard "Prepare my questions" CTA (`retirementLppRegulationReferencePrepareQuestionsCta`) immediately becomes active after this flow completes.
+- **No impact screen**: the regulation document carries no confidence delta; the flow navigates directly to `/retraite` instead of `/scan/impact`. `retainImpact` correctly returns `false` for regulation sessions (`lppRegulationCandidate != null` guard).
+- **Test coverage**: the pre-existing `lpp_regulation_review_screen_test.dart` covers flag-off recovery, missing-candidate recovery, input validation (invalid date, future date, out-of-range year), snapshot/reference drift, accept failure, record retry, and the full happy path. The diff's addition to `tax_extraction_review_screen_test.dart` correctly propagates the new parameter to the shared spy.
