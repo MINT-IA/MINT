@@ -90,7 +90,8 @@ def _call_json(image_base64: str, prompt: str, *, max_tokens: int) -> object:
     raw_text = response.content[0].text
     if not isinstance(raw_text, str):
         raise Pillar3aBeneficiaryAuthorityUnavailable
-    return json.loads(raw_text)
+    cleaned_text = document_vision_service._strip_markdown_fences(raw_text)
+    return json.loads(cleaned_text)
 
 
 def extract_pillar3a_beneficiary_authority(
@@ -102,15 +103,13 @@ def extract_pillar3a_beneficiary_authority(
         raise Pillar3aBeneficiaryAuthorityUnavailable
 
     try:
-        classification = _AuthorityClassification.model_validate(
+        _AuthorityClassification.model_validate(
             _call_json(
                 image_base64,
                 _AUTHORITY_CLASSIFICATION_PROMPT,
                 max_tokens=160,
             )
         )
-        if not classification.is_financial:
-            raise Pillar3aBeneficiaryAuthorityUnavailable
 
         payload = Pillar3aBeneficiaryAuthorityVisionPayloadV1.model_validate(
             _call_json(

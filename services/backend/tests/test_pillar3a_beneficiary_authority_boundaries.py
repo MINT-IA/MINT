@@ -1,7 +1,8 @@
 """G1: exact 3a authority cannot fall into generic extraction writers."""
 
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch
+import json
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -13,6 +14,9 @@ from app.schemas.document_scan import (
     Pillar3aBeneficiaryAuthorityVisionPayloadV1,
 )
 from app.services.document_vision_service import extract_with_vision
+from app.services.pillar3a_beneficiary_authority import (
+    extract_pillar3a_beneficiary_authority,
+)
 from tests.conftest import TestingSessionLocal
 
 
@@ -132,3 +136,94 @@ def test_openapi_requires_every_exact_authority_response_key():
         "temporalBasis",
         "needsReview",
     }
+
+
+def _vision_response(payload: object, *, fenced: bool) -> MagicMock:
+    encoded = json.dumps(payload)
+    response = MagicMock()
+    response.content = [
+        MagicMock(text=f"```json\n{encoded}\n```" if fenced else encoded)
+    ]
+    return response
+
+
+@pytest.mark.parametrize("fenced_call_index", [0, 1])
+def test_exact_authority_accepts_known_markdown_fenced_vision_json(
+    fenced_call_index,
+):
+    classification = {
+        "is_financial": True,
+        "detected_type": "pillar_3a_beneficiary_clause",
+        "confidence": "high",
+    }
+    candidate = {
+        "documentKind": "confirmationInstitutionnelle",
+        "sourceDate": "2026-07-18",
+        "legalYear": 2026,
+        "institutionAttested": True,
+        "contractScoped": True,
+        "temporalBasis": {
+            "kind": "exactDates",
+            "designationEffectiveDate": "2026-01-15",
+            "lastAssignmentModificationDate": None,
+        },
+        "confidence": "high",
+    }
+    transport = MagicMock(
+        side_effect=[
+            _vision_response(classification, fenced=fenced_call_index == 0),
+            _vision_response(candidate, fenced=fenced_call_index == 1),
+        ]
+    )
+    with (
+        patch(
+            "app.services.document_vision_service._sync_vision_call",
+            new=transport,
+        ),
+        patch(
+            "app.services.document_vision_service.settings.ANTHROPIC_API_KEY",
+            "synthetic-test-key",
+        ),
+        patch(
+            "app.services.document_vision_service.settings.COACH_MODEL",
+            "synthetic-test-model",
+        ),
+    ):
+        result = extract_pillar3a_beneficiary_authority("c3ludGhldGlj")
+
+    assert result.document_kind == "confirmationInstitutionnelle"
+    assert result.document_authority_id.version == 4
+    assert transport.call_count == 2
+
+
+def test_manual_partner_exact_authority_rejects_before_vision_transport(client):
+    transport = MagicMock()
+    flag_lookup = AsyncMock(return_value=True)
+    with (
+        patch(
+            "app.services.flags_service.flags.is_enabled",
+            new=flag_lookup,
+        ),
+        patch(
+            "app.services.document_vision_service._sync_vision_call",
+            new=transport,
+        ),
+    ):
+        response = client.post(
+            "/api/v1/documents/extract-vision",
+            json={
+                "imageBase64": "c3ludGhldGlj",
+                "documentType": "pillar_3a_beneficiary_clause",
+                "subjectKind": "manualPartner",
+            },
+        )
+
+    assert response.status_code == 422, response.text
+    assert response.json() == {
+        "detail": {"code": "pillar3a_beneficiary_authority_unavailable"}
+    }
+    flag_lookup.assert_awaited_once_with(
+        "PILLAR3A_BENEFICIARY_AUTHORITY_ENABLED",
+        "test-user-id",
+    )
+    assert transport.call_count == 0
