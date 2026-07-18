@@ -27,7 +27,7 @@ final class ConfirmedDocumentReference {
 
   static const lppKind = 'lpp';
   static const lppCapitalNoticeKind = LppCapitalNoticeDeadline.kind;
-  static const lppRegulationKind = 'lppRegulation';
+  static const lppRegulationKind = LppRegulationReference.kind;
 
   final String referenceId;
   final String kind;
