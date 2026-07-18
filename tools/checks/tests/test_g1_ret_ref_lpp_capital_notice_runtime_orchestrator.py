@@ -209,6 +209,8 @@ def test_writer_uses_native_lpp_plan_acquisition_and_review_seam() -> None:
         "document_scan_lpp_type_selector",
         "document_scan_lpp_example_cta",
         "lpp_review_confirm_cta",
+        "await $(#lpp_impact_retirement_cta).scrollTo().tap();",
+        "expect(router.routeInformationProvider.value.uri.path, '/retraite');",
         "LppEvidenceSelector.selectSelf",
         "document_scan_lpp_plan_type_selector",
         "lppRegulationCandidate: payload.lppRegulationCandidate",
@@ -232,6 +234,12 @@ def test_writer_uses_native_lpp_plan_acquisition_and_review_seam() -> None:
         "DocumentReferenceStore.storageKey",
     ):
         assert anchor in writer, anchor
+    impact_exit_index = writer.index(
+        "await $(#lpp_impact_retirement_cta).scrollTo().tap();"
+    )
+    retirement_index = writer.index(
+        "expect(router.routeInformationProvider.value.uri.path, '/retraite');"
+    )
     route_index = writer.index("router.go('/scan?type=lppPlan')")
     plan_selector_index = writer.index("#document_scan_lpp_plan_type_selector")
     source_date_index = writer.index("#lpp_regulation_review_source_date")
@@ -240,7 +248,9 @@ def test_writer_uses_native_lpp_plan_acquisition_and_review_seam() -> None:
     deadline_index = writer.index("#lpp_capital_notice_deadline_field")
     confirm_index = writer.index("#lpp_regulation_review_confirm_cta")
     assert (
-        route_index
+        impact_exit_index
+        < retirement_index
+        < route_index
         < plan_selector_index
         < source_date_index
         < legal_year_index
