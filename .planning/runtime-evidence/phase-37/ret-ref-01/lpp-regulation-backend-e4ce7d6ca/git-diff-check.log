@@ -1,0 +1,6 @@
+$ git diff --check
+working_tree_exit_code=0
+$ git diff --check c3d64a99d..e4ce7d6ca
+slice_exit_code=0
+$ grep -RInE [[:blank:]]+$ <evidence>
+evidence_trailing_whitespace_exit_code=0

@@ -1,0 +1,43 @@
+# Sanitized bounded external audit — code lens
+
+- Wrapper: \`tools/checks/claude_external_audit.sh\`
+- Run: first-pass Opus high, supplied by \`mint-external-auditor\`
+- Base SHA: \`c3d64a99d\`
+- Implementation SHA: \`e4ce7d6caa2c34438288bdfc5662aed0ff82f0a7\`
+- Verdict: PASS
+- Severity: P0=0, P1=0
+- Sanitization: local temp/repository paths replaced; no raw document retained.
+
+---
+## MINT Audit — `codex/mint-product-usability-plan-20260712` @ base `c3d64a99d`
+
+**Scope:** LPP plan/regulation routing in the document upload path. Diff = 160 lines, within budget. Reviewed `documents.py`, both test files, and downstream consumers.
+
+### What the change does (verified)
+Splits `_detect_document_type` so a fund **plan/regulation** is classified `lpp_plan` and is deliberately *not* run through `LPPCertificateExtractor`. This is a genuine **privacy/correctness improvement**: a generic regulation (which contains words like "taux de conversion", "avoir de vieillesse") is no longer mined for "personal pension facts," stored, or indexed into RAG.
+
+### Wiring & test verification
+- Ran `test_lpp_plan_reference_upload_contract.py` + `test_documents.py` → **52 passed** (`services/backend`, python3).
+- End-to-end wiring confirmed, not a facade: `test_lpp_plan_upload_returns_only_document_authority` exercises the real endpoint and asserts `document_type == "lpp_plan"`, `extracted_fields == {}`, `fields_found/total == 0`, `rag_indexed is False`, plus the exact warning string.
+- `test_lpp_plan_upload_never_calls_personal_certificate_extractor` proves the extractor constructor/`extract` are never invoked for plans (`documents.py:505-533` else-branch is skipped). No leak of personal-fact extraction on regulations.
+- Ordering guard is correct: title-prefix (`line.startswith`) → `lpp_certificate` fires **before** the plan-marker check (`documents.py:145-153`), so a personal certificate that merely *cites* its regulation stays a certificate (covered by `test_explicit_personal_certificate_wins_over_plan_reference`, all 3 languages).
+- `document_type` is a plain `str` in `schemas/document.py` (no enum), and `lpp_plan` already exists in `_DOCUMENT_SOURCES_MAP` (`documents.py:235`) — no downstream break from the new type.
+- The extractor import was moved into the else-branch with its own `ImportError`→503 guard (`documents.py:512-519`); equivalent to prior behavior.
+
+### Findings
+
+**P0:** none.
+
+**P1:** none.
+
+**P2 (non-blocking):**
+1. **Salary check precedence over personal-fact fallback** — `documents.py:155-159`: `salary_score >= 1` is evaluated *before* `personal_fact_score >= 2`. A certificate lacking a recognizable title line but containing personal LPP facts *and* one salary keyword (e.g. a bundled employer packet with "net à payer") now routes to `salary_slip`, dropping LPP extraction. Old logic caught it via `lpp_score >= 2`. Practical risk is low (real LPP certs rarely carry payslip keywords), but it is a behavior change with no test pinning the mixed case.
+2. **Title-detection is line-prefix–anchored** — `documents.py:145-149`: a real personal certificate whose title is not extracted as its own line-leading token (PDF layout quirks) and which cites "règlement de prévoyance" in its body would be classified `lpp_plan`, silently discarding personal facts. Guarded well by the prefix list for common cases; worth a regression fixture using a real (redacted) certificate to prove robustness. Proof would require `parser.parse_pdf` output on a real sample — not available in-repo.
+
+Neither P2 involves privacy exposure (both fail *safe* — toward not extracting personal data).
+
+---
+
+## Verdict: **PASS**
+
+Change is correct, privacy-improving, and wired end-to-end with passing contract tests that assert the no-extraction/no-RAG boundary. The two P2 items are edge-case classification concerns that fail safe and do not block.

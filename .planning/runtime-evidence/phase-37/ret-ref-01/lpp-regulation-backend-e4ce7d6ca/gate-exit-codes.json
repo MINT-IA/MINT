@@ -1,0 +1,17 @@
+{
+  "backend_tree_unchanged_from_implementation_at_finalize": true,
+  "base_sha": "c3d64a99d7f08b8a35e3262d85b9d29dc2d060c9",
+  "document_classifications_31": 0,
+  "documents_docling_89": 0,
+  "full_backend_pytest": "reported_by_mint_lead_not_rerun",
+  "git_diff_check": 0,
+  "head_at_package_finalize": "38edd8cda674cbbc8519ff383d0f604ffd240bcf",
+  "head_at_test_end": "e4ce7d6caa2c34438288bdfc5662aed0ff82f0a7",
+  "head_at_test_start": "e4ce7d6caa2c34438288bdfc5662aed0ff82f0a7",
+  "implementation_sha": "e4ce7d6caa2c34438288bdfc5662aed0ff82f0a7",
+  "lpp_plan_contract_10": 0,
+  "mint_os_doctor_repo_only": 0,
+  "repository_wide_ruff": "known_no_go_92_debts_outside_slice",
+  "targeted_ruff_check": 0,
+  "targeted_ruff_format_check_follow_up": 1
+}

@@ -1,0 +1,9 @@
+$ python3 tools/checks/mint_os_doctor.py --repo-only
+PASS repo.patrol                Patrol dependency/config/test directory wired
+PASS repo.maestro_env           tools/simulator/maestro_env.sh
+PASS repo.maestro_watchdog      tools/simulator/maestro_with_watchdog.sh
+PASS repo.mermaid_guard         tools/checks/mermaid_render_guard.py
+PASS repo.claude_audit_wrapper  tools/checks/claude_external_audit.sh
+PASS repo.agent_workflow        docs/MINT_AGENT_WORKFLOW.md
+PASS repo.ios_plist_split       Debug-only Flutter VM network keys stay out of release Info.plist
+exit_code=0

@@ -1,0 +1,4 @@
+$ PYTHONWARNINGS=ignore .venv/bin/python -m pytest tests/test_lpp_plan_reference_upload_contract.py -q --disable-warnings
+..........                                                               [100%]
+10 passed in 0.37s
+exit_code=0

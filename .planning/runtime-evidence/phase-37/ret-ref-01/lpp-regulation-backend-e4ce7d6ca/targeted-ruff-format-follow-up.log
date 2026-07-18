@@ -1,0 +1,9 @@
+$ .venv/bin/ruff format --check app/api/v1/endpoints/documents.py tests/test_documents.py tests/test_lpp_plan_reference_upload_contract.py
+Would reformat: app/api/v1/endpoints/documents.py
+Would reformat: tests/test_documents.py
+2 files would be reformatted, 1 file already formatted
+exit_code=1
+
+Disposition: formatter-only follow-up. No file was rewritten because this
+quality agent owns evidence only. This is separate from \`ruff check\`, which
+passes on all three touched files, and from \`git diff --check\`, which passes.

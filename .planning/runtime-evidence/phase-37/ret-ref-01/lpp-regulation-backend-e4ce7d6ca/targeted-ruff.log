@@ -1,0 +1,3 @@
+$ .venv/bin/ruff check app/api/v1/endpoints/documents.py tests/test_documents.py tests/test_lpp_plan_reference_upload_contract.py
+All checks passed!
+exit_code=0

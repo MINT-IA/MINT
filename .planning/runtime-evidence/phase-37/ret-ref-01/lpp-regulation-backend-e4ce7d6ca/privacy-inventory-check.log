@@ -1,0 +1,13 @@
+Privacy/minimization scan
+
+Commands represented: bounded regex scans over the tracked text artifacts.
+absolute_local_path_matches=0
+email_address_matches=0
+private_key_or_pdf_magic_matches=0
+raw_pdf_or_image_artifacts=0
+private_lpp_fixture_artifacts=0
+simulator_identifier_artifacts=0
+text_artifacts_before_manifest=15
+
+result=PASS
+No matching content was copied to this report.

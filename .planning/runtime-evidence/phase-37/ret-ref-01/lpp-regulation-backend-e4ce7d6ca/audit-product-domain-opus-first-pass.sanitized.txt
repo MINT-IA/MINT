@@ -1,0 +1,46 @@
+# Sanitized bounded external audit — product/domain lens
+
+- Wrapper: \`tools/checks/claude_external_audit.sh\`
+- Run: first-pass Opus high, supplied by \`mint-external-auditor\`
+- Base SHA: \`c3d64a99d\`
+- Implementation SHA: \`e4ce7d6caa2c34438288bdfc5662aed0ff82f0a7\`
+- Verdict: PASS
+- Severity: P0=0, P1=0
+- Sanitization: local temp/repository paths replaced; no raw document retained.
+
+---
+I've verified the diff against the live repo, the schema types, the write-back path, and run the tests. Here is my audit.
+
+Product/domain verdict: PASS
+
+## Summary
+This change touches the **document-upload / LPP pension life event**. The Swiss decision it clarifies is the user's *personal* 2e pilier position (avoir de vieillesse, salaire assuré, taux de conversion) extracted from their certificate. The diff introduces a new `lpp_plan` class so that a **fund regulation/plan (Vorsorgereglement / règlement de prévoyance)** — which contains *generic* conversion rates and contribution scales — is no longer mistaken for a personal certificate and no longer extracted as personal pension facts. This is domain-correct and a genuine safety improvement: injecting a plan's generic `taux de conversion` into a user's ledger as *their* rate would have been a métier error capable of driving a wrong retirement expectation.
+
+Verified:
+- `_detect_document_type` ordering (title-heading authoritative → plan marker → salary → personal facts) at `documents.py:143-161`. A personal certificate that *cites* its own regulation still resolves to `lpp_certificate` because the heading check wins first (confirmed by FR/DE/IT tests `test_explicit_personal_certificate_wins_over_plan_reference`).
+- `lpp_plan` short-circuits extraction: `extracted_dict={}`, `confidence=0`, `fields_found=0`, no RAG indexing, and the personal `LPPCertificateExtractor` is **never constructed** (`test_lpp_plan_upload_never_calls_personal_certificate_extractor`, spy asserts 0 calls). This is the correct "facade-without-wiring" guard — the generic-terms document produces no facts rather than fake facts.
+- `document_type` is a plain `str` field in `schemas/document.py:50,72,114`, so the new `"lpp_plan"` value serializes without enum-validation failure.
+- Ledger write-back (`_merge_scan_fields_into_profile`, `documents.py:1081`) operates on confirmed extracted fields; with empty fields, an `lpp_plan` upload cannot clobber `ProfileModel.data`. Source-of-truth integrity preserved.
+- 19/19 detection + contract tests pass locally.
+
+## Findings
+
+### P0
+None.
+
+### P1
+None.
+
+### P2
+- **Certificate heading list is closed and line-anchored** (`documents.py:86-94`, matched via `line.startswith(prefix)`). A genuine personal certificate whose title is a non-listed variant (e.g. `Leistungsausweis`, `Ausweis über die berufliche Vorsorge`, or a fund-name-prefixed title on the same line) *and* which cites its `Vorsorgereglement` will fall through to the `plan_markers` branch (`documents.py:152`) and be classified `lpp_plan`, silently dropping real personal facts. This degrades safely (warning shown, no wrong data written), so it is not a blocker — but it is a recall gap worth a follow-up. Repro: feed text `"LEISTUNGSAUSWEIS\nAltersguthaben ...\ngemäss Vorsorgereglement"` → returns `lpp_plan`, personal facts lost.
+- **`salary_score >= 1` now precedes the personal-fact branch** (`documents.py:155` before `:158`). An unheaded LPP certificate that incidentally contains one salary keyword (e.g. `décompte de salaire`) would misclassify as `salary_slip`. Low real-world likelihood; note only.
+- **Warning text is English** ("LPP plan or regulation detected…", `documents.py:600-603`) inside an otherwise French-facing surface (cf. FR error strings elsewhere in the endpoint). Localization polish.
+- `lpp_plan` uploads still consume the free-tier 2-document quota (`documents.py:475-482`) while delivering no extracted value. Acceptable, but a future nicety would be surfacing "this is a reference document, upload your personal certificate to extract your figures" as an explicit next-step CTA.
+
+## Swiss domain review
+- **LPP / 2e pilier**: Directly and correctly affected. The core métier distinction between *règlement/plan de prévoyance* (document authority, generic barèmes & taux de conversion) and *certificat individuel / Vorsorgeausweis* (personal facts) is now enforced. No hard-coded Swiss constants (conversion rate, coordination deduction, BVG thresholds) are introduced or asserted in this diff, so no stale-constant exposure here.
+- **AVS / 3a / tax / mortgage / insurance / succession**: Not touched by this change.
+- **Compliance**: The new warning is descriptive and non-advisory — no ranking, guarantee, product recommendation, or hidden tax/legal conclusion. Clean.
+
+## Mint product logic review
+This moves Mint the right direction along the **ledger → DataQuest → scenario → dossier** spine by protecting the *source of truth*: a generic plan document can no longer contaminate the Data Ledger with impersonal figures presented as the user's own. It reinforces the "one source of truth / no wrong fresh facts" principle. It does not yet add positive user value for the `lpp_plan` case (no routing to "upload your personal certificate" DataQuest step, no dossier contribution) — that is the natural P2 next step, not a gate for this change.

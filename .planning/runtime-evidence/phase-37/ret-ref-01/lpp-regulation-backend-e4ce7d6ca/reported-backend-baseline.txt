@@ -1,0 +1,20 @@
+PROVENANCE: reported by mint-lead; not rerun by this evidence-only agent.
+
+Full backend pytest baseline:
+- 6,156 passed
+- 12 skipped
+- 0 failed
+
+Repository-wide Ruff baseline:
+- NO-GO
+- 92 known debts outside this bounded implementation slice
+- a prior root verification stopped before pytest because \`ruff check .\` failed
+
+Bounded slice checks executed by this evidence agent:
+- targeted \`ruff check\`: PASS
+- \`git diff --check\`: PASS
+- separate \`ruff format --check\`: formatter-only follow-up; see
+  \`targeted-ruff-format-follow-up.log\`
+
+This report is not raw command output and makes no claim that this agent reran
+the full backend suite or the repository-wide Ruff gate.

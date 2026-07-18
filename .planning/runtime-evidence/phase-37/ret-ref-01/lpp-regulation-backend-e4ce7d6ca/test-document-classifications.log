@@ -1,0 +1,4 @@
+$ PYTHONWARNINGS=ignore .venv/bin/python -m pytest tests/test_document_classification.py tests/test_lpp_document_kind_classifier_eval.py tests/test_lpp_plan_type.py -q --disable-warnings
+...............s...............                                          [100%]
+30 passed, 1 skipped in 0.29s
+exit_code=0
