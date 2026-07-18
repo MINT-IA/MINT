@@ -370,7 +370,9 @@ void main() {
       await $(#lpp_review_source_date).waitUntilVisible();
       await $(#lpp_review_source_date).enterText(_civilDate(_sourceDate));
       await $(#lpp_review_confirm_cta).scrollTo().tap();
-      await $(#lpp_impact_retirement_cta).scrollTo();
+      await $(#lpp_impact_retirement_cta).scrollTo().tap();
+      await $.pumpAndSettle();
+      expect(router.routeInformationProvider.value.uri.path, '/retraite');
 
       final numericSnapshot = LppEvidenceSelector.selectSelf(
         ledger.reportAnswersSnapshot['_coach_lpp_evidence_v1'],
