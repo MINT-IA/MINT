@@ -249,6 +249,13 @@ bool _isCanonicalUuidV4(String value) => RegExp(
 
 enum DocumentReferenceHydrationState { idle, loading, ready, failed }
 
+enum LppRegulationReferenceResolution {
+  unavailable,
+  resolved,
+  missingDocumentReference,
+  mismatchedDocumentReference,
+}
+
 /// Manages document upload state and document list.
 ///
 /// Uses [DocumentService] for backend calls and notifies listeners
@@ -638,21 +645,27 @@ class DocumentProvider extends ChangeNotifier {
   SpecialistReferenceEvidence? resolveLppRegulation(
     SpecialistReferenceEvidence? candidate,
   ) {
+    return resolveLppRegulationReference(candidate) ==
+            LppRegulationReferenceResolution.resolved
+        ? candidate
+        : null;
+  }
+
+  /// Classifies the current regulation bridge without exposing its opaque
+  /// document-reference tuple.
+  LppRegulationReferenceResolution resolveLppRegulationReference(
+    SpecialistReferenceEvidence? candidate,
+  ) {
     if (!FeatureFlags.lppRegulationReferenceEnabled ||
+        !referencesHydrated ||
         candidate == null ||
         candidate.kind != SpecialistReferenceKind.lppRegulation ||
         candidate.ownerKind != LppEvidenceOwnerKind.self) {
-      return null;
-    }
-    final reference = byId(candidate.referenceId);
-    if (reference == null ||
-        reference.kind != ConfirmedDocumentReference.lppRegulationKind ||
-        reference.ownerKind != LppEvidenceOwnerKind.self ||
-        reference.confirmedAt != candidate.confirmedAt) {
-      return null;
+      return LppRegulationReferenceResolution.unavailable;
     }
     final ledger = _ledger;
     if (ledger == null ||
+        !ledger.isLoaded ||
         ledger.profile?.lppRegulationReference != candidate ||
         !ledger.matchesAcceptedLppRegulationReceipt(
           LppRegulationReceipt(
@@ -660,9 +673,32 @@ class DocumentProvider extends ChangeNotifier {
             confirmedAt: candidate.confirmedAt,
           ),
         )) {
-      return null;
+      return LppRegulationReferenceResolution.unavailable;
     }
-    return candidate;
+
+    var hasMismatch = false;
+    for (final reference in _references) {
+      final hasCandidateId = reference.referenceId == candidate.referenceId;
+      final isSelfRegulation =
+          reference.kind == ConfirmedDocumentReference.lppRegulationKind &&
+              reference.ownerKind == LppEvidenceOwnerKind.self;
+      if (!hasCandidateId && !isSelfRegulation) continue;
+
+      final isCanonical = reference.confirmedAt.isUtc &&
+          ConfirmedDocumentReference.fromJson(reference.toJson()) != null;
+      if (isCanonical &&
+          hasCandidateId &&
+          isSelfRegulation &&
+          reference.snapshotId == null &&
+          reference.confirmedAt == candidate.confirmedAt &&
+          _isReferenceCurrent(reference, ledger)) {
+        return LppRegulationReferenceResolution.resolved;
+      }
+      hasMismatch = true;
+    }
+    return hasMismatch
+        ? LppRegulationReferenceResolution.mismatchedDocumentReference
+        : LppRegulationReferenceResolution.missingDocumentReference;
   }
 
   Future<void> deleteConfirmedReference(String referenceId) {

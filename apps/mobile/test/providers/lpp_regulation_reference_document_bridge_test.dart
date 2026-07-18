@@ -50,12 +50,15 @@ final class _MemoryReferenceStore extends DocumentReferenceStore {
   bool failNextSave;
   int loadCalls = 0;
   int saveCalls = 0;
+  Completer<void>? loadGate;
   Completer<void>? saveGate;
 
   @override
   Future<List<ConfirmedDocumentReference>> load() async {
     loadCalls += 1;
     if (failLoad) throw StateError('synthetic reference hydration failure');
+    final gate = loadGate;
+    if (gate != null) await gate.future;
     return List<ConfirmedDocumentReference>.unmodifiable(references);
   }
 
@@ -936,6 +939,174 @@ void main() {
 
     FeatureFlags.lppRegulationReferenceEnabled = false;
     expect(coldDocuments.resolveLppRegulation(candidate), isNull);
+  });
+
+  test('regulation resolution classifies every hydration state opaquely',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final accepted = await _acceptedRegulation(now);
+    addTearDown(accepted.ledger.dispose);
+    final candidate = accepted.ledger.profile!.lppRegulationReference!;
+    final exactReference = ConfirmedDocumentReference(
+      referenceId: candidate.referenceId,
+      kind: ConfirmedDocumentReference.lppRegulationKind,
+      ownerKind: LppEvidenceOwnerKind.self,
+      confirmedAt: candidate.confirmedAt,
+    );
+
+    final idle = DocumentProvider(
+      referenceStore: _MemoryReferenceStore(initial: [exactReference]),
+    );
+    addTearDown(idle.dispose);
+    idle.bindLedger(accepted.ledger);
+    expect(
+      idle.resolveLppRegulationReference(candidate),
+      LppRegulationReferenceResolution.unavailable,
+    );
+
+    final loadingStore = _MemoryReferenceStore(initial: [exactReference])
+      ..loadGate = Completer<void>();
+    final loading = DocumentProvider(referenceStore: loadingStore);
+    addTearDown(loading.dispose);
+    loading.bindLedger(accepted.ledger);
+    final hydration = loading.hydrateReferences();
+    expect(
+      loading.resolveLppRegulationReference(candidate),
+      LppRegulationReferenceResolution.unavailable,
+    );
+    loadingStore.loadGate!.complete();
+    await hydration;
+    expect(
+      loading.resolveLppRegulationReference(candidate),
+      LppRegulationReferenceResolution.resolved,
+    );
+    expect(loading.resolveLppRegulation(candidate), same(candidate));
+
+    final failed = DocumentProvider(
+      referenceStore: _MemoryReferenceStore(failLoad: true),
+    );
+    addTearDown(failed.dispose);
+    failed.bindLedger(accepted.ledger);
+    await expectLater(failed.hydrateReferences(), throwsStateError);
+    expect(
+      failed.resolveLppRegulationReference(candidate),
+      LppRegulationReferenceResolution.unavailable,
+    );
+
+    final missing = DocumentProvider(
+      referenceStore: _MemoryReferenceStore(),
+    );
+    addTearDown(missing.dispose);
+    missing.bindLedger(accepted.ledger);
+    await missing.hydrateReferences();
+    expect(
+      missing.resolveLppRegulationReference(candidate),
+      LppRegulationReferenceResolution.missingDocumentReference,
+    );
+    expect(missing.resolveLppRegulation(candidate), isNull);
+  });
+
+  test('regulation resolution distinguishes every stored mismatch from missing',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final accepted = await _acceptedRegulation(now);
+    addTearDown(accepted.ledger.dispose);
+    final candidate = accepted.ledger.profile!.lppRegulationReference!;
+
+    final mismatches = <String, ConfirmedDocumentReference>{
+      'another regulation reference': ConfirmedDocumentReference(
+        referenceId: _forgedReferenceId,
+        kind: ConfirmedDocumentReference.lppRegulationKind,
+        ownerKind: LppEvidenceOwnerKind.self,
+        confirmedAt: candidate.confirmedAt,
+      ),
+      'same id, other confirmation': ConfirmedDocumentReference(
+        referenceId: candidate.referenceId,
+        kind: ConfirmedDocumentReference.lppRegulationKind,
+        ownerKind: LppEvidenceOwnerKind.self,
+        confirmedAt: candidate.confirmedAt.subtract(const Duration(seconds: 1)),
+      ),
+      'same id, non-canonical confirmation': ConfirmedDocumentReference(
+        referenceId: candidate.referenceId,
+        kind: ConfirmedDocumentReference.lppRegulationKind,
+        ownerKind: LppEvidenceOwnerKind.self,
+        confirmedAt: candidate.confirmedAt.toLocal(),
+      ),
+      'same id, other kind': ConfirmedDocumentReference(
+        referenceId: candidate.referenceId,
+        kind: ConfirmedDocumentReference.lppKind,
+        snapshotId: _snapshotId,
+        ownerKind: LppEvidenceOwnerKind.self,
+        confirmedAt: candidate.confirmedAt,
+      ),
+      'non-canonical regulation': ConfirmedDocumentReference(
+        referenceId: 'not-a-canonical-uuid-v4',
+        kind: ConfirmedDocumentReference.lppRegulationKind,
+        ownerKind: LppEvidenceOwnerKind.self,
+        confirmedAt: candidate.confirmedAt,
+      ),
+      'snapshot-bound regulation': ConfirmedDocumentReference(
+        referenceId: candidate.referenceId,
+        kind: ConfirmedDocumentReference.lppRegulationKind,
+        snapshotId: _forgedSnapshotId,
+        ownerKind: LppEvidenceOwnerKind.self,
+        confirmedAt: candidate.confirmedAt,
+      ),
+    };
+
+    for (final entry in mismatches.entries) {
+      final documents = DocumentProvider(
+        referenceStore: _MemoryReferenceStore(initial: [entry.value]),
+      );
+      addTearDown(documents.dispose);
+      documents.bindLedger(accepted.ledger);
+      await documents.hydrateReferences();
+
+      if (entry.key == 'another regulation reference') {
+        expect(
+          documents.byId(candidate.referenceId),
+          isNull,
+          reason: 'byId hides the other tuple and cannot classify this drift.',
+        );
+      }
+
+      expect(
+        documents.resolveLppRegulationReference(candidate),
+        LppRegulationReferenceResolution.mismatchedDocumentReference,
+        reason: entry.key,
+      );
+      expect(
+        documents.resolveLppRegulation(candidate),
+        isNull,
+        reason: entry.key,
+      );
+    }
+
+    final divergentLedgerCandidate = _regulationEvidence(
+      referenceId: candidate.referenceId,
+      confirmedAt: candidate.confirmedAt,
+      legalYear: 2025,
+    );
+    final exact = DocumentProvider(
+      referenceStore: _MemoryReferenceStore(
+        initial: [
+          ConfirmedDocumentReference(
+            referenceId: candidate.referenceId,
+            kind: ConfirmedDocumentReference.lppRegulationKind,
+            ownerKind: LppEvidenceOwnerKind.self,
+            confirmedAt: candidate.confirmedAt,
+          ),
+        ],
+      ),
+    );
+    addTearDown(exact.dispose);
+    exact.bindLedger(accepted.ledger);
+    await exact.hydrateReferences();
+    expect(
+      exact.resolveLppRegulationReference(divergentLedgerCandidate),
+      LppRegulationReferenceResolution.unavailable,
+      reason: 'Only a valid current ledger candidate can classify BND drift.',
+    );
   });
 
   test(
