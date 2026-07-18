@@ -76,6 +76,21 @@ first-pass wrapper-only Opus lenses pass P0/P1=0. Five P2 follow-ups remain
 explicit. This promotion does not close G1, `G1-RUNTIME-01`, or authorize
 G2/G3.
 
+## G1-RET-REF-01 `lppCapitalNoticeDeadline` — technical atom only
+
+- **Technical status:** GREEN at exact runtime SHA
+  `e010132690bf22fe953f1bddbbecf5fee8bda723`; sanitized proof committed at
+  `3db9c2d4f`.
+- **Automated evidence:** 63 targeted tests pass, including the six-case private
+  gate; seven first-pass bounded wrapper-only Opus high audits PASS with zero
+  P0/P1.
+- **Activation boundary:** **NO-GO**. There is no production acquisition seam;
+  the runtime is synthetic-only, private fixture usage is false, and the
+  production flag remains false.
+- **Scope boundary:** this promotes only the `lppCapitalNoticeDeadline`
+  technical atom. RET-REF and G1 remain open; G2/G3 remain forbidden. The G1
+  interim score and registry disposition are unchanged.
+
 ## Blocking ledger
 
 | severity | gate | disposition |
