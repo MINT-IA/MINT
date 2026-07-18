@@ -1104,14 +1104,32 @@ void main() {
     _expectNoExternalSideEffects(harness);
   });
 
+  testWidgets('empty deadline records regulation only', (tester) async {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _harness(withCapitalCandidate: true);
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _enterReviewValues(tester, relationship: 'current');
+    await _confirmReview(tester);
+
+    expect(harness.events, const <String>['accept', 'record']);
+    expect(harness.ledger.capitalAcceptCalls, 0);
+    expect(harness.documents.capitalRecordCalls, 0);
+    expect(harness.sessions.byId(harness.scanSessionId), isNull);
+    expect(harness.router.routeInformationProvider.value.uri.path, '/retraite');
+    _expectNoExternalSideEffects(harness);
+  });
+
   for (final deadline in const <String>[
-    '',
     'dans 6 mois',
     '30.11.2026',
     '2026/11/30',
     '2026-02-30',
   ]) {
-    testWidgets('deadline "$deadline" records regulation only', (tester) async {
+    testWidgets('rejected deadline "$deadline" exposes explicit partial state',
+        (tester) async {
       FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
       final harness = _harness(withCapitalCandidate: true);
       addTearDown(harness.router.dispose);
@@ -1119,12 +1137,31 @@ void main() {
       await tester.pumpAndSettle();
 
       await _enterReviewValues(tester, relationship: 'current');
-      if (deadline.isNotEmpty) await _enterCapitalDeadline(tester, deadline);
+      await _enterCapitalDeadline(tester, deadline);
       await _confirmReview(tester);
 
       expect(harness.events, const <String>['accept', 'record']);
       expect(harness.ledger.capitalAcceptCalls, 0);
       expect(harness.documents.capitalRecordCalls, 0);
+      expect(harness.sessions.byId(harness.scanSessionId), isNotNull);
+      expect(harness.router.routeInformationProvider.value.uri.path, '/');
+      expect(
+        find.byKey(const Key('lpp_capital_notice_partial_state')),
+        findsOneWidget,
+      );
+      final continueCta = find.bySemanticsIdentifier(
+        'lpp_capital_notice_continue_without_deadline_cta',
+      );
+      expect(continueCta, findsOneWidget);
+
+      await tester.ensureVisible(continueCta);
+      await tester.pump();
+      await tester.tap(continueCta);
+      await tester.pumpAndSettle();
+
+      expect(harness.ledger.capitalAcceptCalls, 0);
+      expect(harness.documents.capitalRecordCalls, 0);
+      expect(harness.sessions.byId(harness.scanSessionId), isNull);
       expect(
           harness.router.routeInformationProvider.value.uri.path, '/retraite');
       _expectNoExternalSideEffects(harness);
