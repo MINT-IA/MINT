@@ -105,6 +105,17 @@ def test_runtime_assets_are_checked_in() -> None:
     assert _missing_assets() == []
 
 
+def test_orchestrator_is_tracked_executable_in_git_index() -> None:
+    relative = ORCHESTRATOR.relative_to(ROOT).as_posix()
+    stage = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files", "--stage", "--", relative],
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert stage.stdout.split(maxsplit=1)[0] == "100755"
+
+
 def test_writer_and_reader_prove_distinct_native_app_processes() -> None:
     assert RUNTIME_SUPPORT.is_file(), RUNTIME_SUPPORT.relative_to(ROOT)
     support = RUNTIME_SUPPORT.read_text(encoding="utf-8")
