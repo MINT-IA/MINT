@@ -73,12 +73,20 @@ def test_orchestrator_is_valid_bash_and_exact_sha_bounded() -> None:
         "g1_ret_ref_lpp_capital_notice_flag_off.yaml",
         "apps/mobile/lib/app.dart",
         "apps/mobile/lib/models/lpp_evidence.dart",
+        "apps/mobile/lib/models/financial_report.dart",
+        "apps/mobile/lib/models/lpp_capital_notice_specialist_handoff.dart",
+        "apps/mobile/lib/models/lpp_regulation_specialist_handoff.dart",
         "apps/mobile/lib/providers/coach_profile_provider.dart",
         "apps/mobile/lib/providers/document_provider.dart",
         "apps/mobile/lib/providers/scan_session_provider.dart",
         "apps/mobile/lib/screens/document_scan/document_scan_screen.dart",
         "apps/mobile/lib/screens/document_scan/extraction_review_screen.dart",
         "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart",
+        "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart",
+        "apps/mobile/lib/services/financial_report_service.dart",
+        "apps/mobile/lib/services/pdf_service.dart",
+        "apps/mobile/lib/services/report/lpp_capital_notice_section_content.dart",
+        "apps/mobile/lib/services/report/lpp_regulation_handoff_section_content.dart",
     ):
         assert anchor in source, anchor
 
@@ -287,10 +295,16 @@ def test_writer_uses_native_lpp_plan_acquisition_and_review_seam() -> None:
         assert forbidden not in writer, forbidden
 
 
-def test_cold_reader_distinct_pid_then_authority_and_snapshot_fail_closed() -> None:
+def test_cold_reader_real_report_pdf_recovery_then_invalidations() -> None:
     reader = READER.read_text(encoding="utf-8")
     assert reader.count("patrolTest(") == 1
     for anchor in (
+        "package:mint_mobile/app.dart",
+        "AccountSessionBootstrap",
+        "LppCapitalNoticeSpecialistHandoff",
+        "LppRegulationSpecialistHandoff",
+        "FinancialReportService",
+        "PdfService",
         "FeatureFlags.typedLppEvidence = true;",
         "FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;",
         "FeatureFlags.lppRegulationReferenceEnabled = true;",
@@ -299,16 +313,57 @@ def test_cold_reader_distinct_pid_then_authority_and_snapshot_fail_closed() -> N
         "getInt(g1LppCapitalNoticeWriterPidKey)",
         "expect(writerPid, isNotNull)",
         "expect(pid, isNot(writerPid))",
-        "await provider.loadFromWizard();",
+        "final originalAnswers = await ReportPersistenceService.loadAnswers();",
+        "final originalStrictRootJson = originalAnswers['_coach_lpp_evidence_v1'];",
+        "LppEvidenceRoot.fromJsonString(",
+        "final referenceStore = DocumentReferenceStore();",
+        "final originalDocumentReferences = await referenceStore.load();",
+        "await $.pumpWidgetAndSettle(const MintApp());",
+        "final bootstrap = appContext.read<AccountSessionBootstrap>();",
+        "await bootstrap.start();",
+        "final provider = appContext.read<CoachProfileProvider>();",
+        "final documents = appContext.read<DocumentProvider>();",
+        "await provider.waitForReportAnswers();",
         "documents.bindLedger(provider);",
         "await documents.hydrateReferences();",
         "final candidate = provider.profile!.lppCapitalNoticeDeadline;",
         "final resolved = documents.resolveLppCapitalNotice(candidate);",
         "expect(resolved, isNotNull);",
+        "documents.resolveLppRegulation(",
         "documents.byId(candidate!.referenceId)",
         "expect(reference.snapshotId, currentSnapshot.snapshotId);",
-        "RetirementDashboardScreen()",
+        "Future<void> expectReport({",
+        "required bool hasCapitalHandoff",
+        "required bool hasRegulationHandoff",
+        "testOnlyRootRouter.go('/rapport');",
+        "financial_report_screen",
+        "financial_report_lpp_capital_notice_handoff",
+        "financial_report_lpp_regulation_handoff",
+        "$.tester.getTopLeft(",
+        "lessThan(",
         "retirement_lpp_capital_notice_deadline_education",
+        "LppCapitalNoticeSpecialistHandoff.tryFromResolvedEvidence(",
+        "capitalNoticeEvidence: resolved",
+        "regulationEvidence:",
+        "LppRegulationSpecialistHandoff.tryFromEvidence(",
+        "FinancialReportService().generateReport(",
+        "lppCapitalNoticeHandoff:",
+        "lppRegulationHandoff:",
+        "PdfService.buildFinancialReportPdfBytes(",
+        "expect(pdfBytes.take(5), <int>[0x25, 0x50, 0x44, 0x46, 0x2d]);",
+        "expect(pdfBytes.length, greaterThan(1000));",
+        "final missingCapitalReferences =",
+        "stored.referenceId != candidate.referenceId",
+        "expect(documents.resolveLppCapitalNotice(candidate), isNull);",
+        "final mismatchedCapitalReferences =",
+        "stored.referenceId == candidate.referenceId",
+        "confirmedAt.add(const Duration(seconds: 1))",
+        "final legacyRoot = LppEvidenceRoot(",
+        "LppRegulationRecoveryReason.legacyMissingFundRelationship",
+        "await referenceStore.save(originalDocumentReferences);",
+        "await ReportPersistenceService.saveLppEvidenceAnswers(originalAnswers);",
+        "final restoredDocumentReferences = await referenceStore.load();",
+        "temporary report recovery states must restore the exact BND",
         "final authorityBeforeReplacement =",
         "provider.profile!.lppRegulationReference",
         "final replacementAuthorityReceipt =",
@@ -326,11 +381,37 @@ def test_cold_reader_distinct_pid_then_authority_and_snapshot_fail_closed() -> N
         "findsNothing",
     ):
         assert anchor in reader, anchor
+    assert "RetirementDashboardScreen()" not in reader
+    assert "Widget _dashboard(" not in reader
+    assert reader.count("hasCapitalHandoff: true") >= 2
+    assert reader.count("hasCapitalHandoff: false") >= 3
+    assert reader.count("hasRegulationHandoff: false") >= 1
+
+    hydration = reader.index("await documents.hydrateReferences();")
+    dashboard = reader.index("retirement_lpp_capital_notice_deadline_education")
+    report = reader.find("await expectReport(", dashboard)
+    pdf = reader.index("PdfService.buildFinancialReportPdfBytes(")
+    missing = reader.index("final missingCapitalReferences =")
+    mismatch = reader.index("final mismatchedCapitalReferences =")
+    legacy = reader.index("LppRegulationRecoveryReason.legacyMissingFundRelationship")
+    restoration = reader.index("await referenceStore.save(originalDocumentReferences);")
+    restored_report = reader.find("await expectReport(", restoration)
+    authority = reader.index("await provider.acceptLppRegulationReference(")
+    snapshot = reader.index("await provider.acceptLppReview(")
+    assert report >= 0
+    assert restored_report >= 0
     assert (
-        reader.index("await documents.hydrateReferences();")
-        < reader.index("retirement_lpp_capital_notice_deadline_education")
-        < reader.index("await provider.acceptLppRegulationReference(")
-        < reader.index("await provider.acceptLppReview(")
+        hydration
+        < dashboard
+        < report
+        < pdf
+        < missing
+        < mismatch
+        < legacy
+        < restoration
+        < restored_report
+        < authority
+        < snapshot
     )
     assert "acceptLppCapitalNotice(" not in reader
     assert "recordLppCapitalNotice(" not in reader
@@ -372,6 +453,8 @@ def test_wrappers_flags_and_maestro_keep_production_seam_invisible() -> None:
         "lpp_regulation_review_confirm_cta",
         "mint:///retraite",
         "retirement_lpp_capital_notice_deadline_education",
+        "mint:///rapport",
+        "financial_report_lpp_capital_notice_handoff",
         "assertNotVisible:",
     ):
         assert anchor in contents, anchor
