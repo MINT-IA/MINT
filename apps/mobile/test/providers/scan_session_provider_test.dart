@@ -15,6 +15,40 @@ const _extraction = ExtractionResult(
   sources: [],
 );
 
+const _regulationSnapshotId = '33333333-3333-4333-8333-333333333333';
+const _regulationReferenceId = '44444444-4444-4444-8444-444444444444';
+
+final _regulationCandidate = LppRegulationAcquisitionCandidate(
+  expectedSnapshotId: _regulationSnapshotId,
+  expectedPreviousReferenceId: _regulationReferenceId,
+);
+
+ExtractionResult _regulationExtraction({
+  List<ExtractedField> fields = const <ExtractedField>[],
+  double overallConfidence = 0,
+  double confidenceDelta = 0,
+  List<String> warnings = const <String>[],
+  String disclaimer = '',
+  List<String> sources = const <String>[],
+  List<ExtractionDiagnostic> diagnostics = const <ExtractionDiagnostic>[],
+  String? planType,
+  String? planTypeWarning,
+  List<String> coherenceWarnings = const <String>[],
+}) =>
+    ExtractionResult(
+      documentType: DocumentType.lppPlan,
+      fields: fields,
+      overallConfidence: overallConfidence,
+      confidenceDelta: confidenceDelta,
+      warnings: warnings,
+      disclaimer: disclaimer,
+      sources: sources,
+      diagnostics: diagnostics,
+      planType: planType,
+      planTypeWarning: planTypeWarning,
+      coherenceWarnings: coherenceWarnings,
+    );
+
 final _lppCandidate = LppExtractionAdapter.adapt(
   source: LppAcquisitionSource.localParser,
   sourceOverallConfidence: 0.99,
@@ -191,6 +225,119 @@ void main() {
         lppAuthorization: _manualPartnerAuthorization,
       ),
       throwsArgumentError,
+    );
+  });
+
+  test('LPP regulation candidate stays local and volatile until review', () {
+    final provider = ScanSessionProvider();
+    final extraction = _regulationExtraction();
+
+    final id = provider.retainExtraction(
+      extraction,
+      lppRegulationCandidate: _regulationCandidate,
+    );
+
+    final payload = provider.byId(id)!;
+    expect(payload.extraction, same(extraction));
+    expect(payload.lppRegulationCandidate, same(_regulationCandidate));
+    expect(payload.lppCandidate, isNull);
+    expect(payload.lppAuthorization, isNull);
+    expect(payload.manualPartnerAccountability, isNull);
+    expect(payload.taxCandidate, isNull);
+    expect(payload.previousConfidence, isNull);
+    expect(id, isNot(contains(_regulationSnapshotId)));
+    expect(id, isNot(contains(_regulationReferenceId)));
+
+    provider.discard(id);
+    expect(provider.byId(id), isNull);
+  });
+
+  test('LPP regulation review requires its exact candidate and type', () {
+    final provider = ScanSessionProvider();
+
+    expect(
+      () => provider.retainExtraction(_regulationExtraction()),
+      throwsArgumentError,
+    );
+    expect(
+      () => provider.retainExtraction(
+        _extraction,
+        lppRegulationCandidate: _regulationCandidate,
+      ),
+      throwsArgumentError,
+    );
+    expect(
+      () => provider.retainExtraction(
+        _regulationExtraction(),
+        lppCandidate: _lppCandidate,
+        lppAuthorization: _lppAuthorization,
+        lppRegulationCandidate: _regulationCandidate,
+      ),
+      throwsArgumentError,
+    );
+  });
+
+  test('LPP regulation review rejects every non-empty extraction channel', () {
+    final provider = ScanSessionProvider();
+    final nonEmptyExtractions = <ExtractionResult>[
+      _regulationExtraction(
+        fields: const <ExtractedField>[
+          ExtractedField(
+            fieldName: 'unexpected',
+            label: 'unexpected',
+            value: 1,
+            confidence: 1,
+            sourceText: 'raw',
+            needsReview: false,
+          ),
+        ],
+      ),
+      _regulationExtraction(overallConfidence: 0.01),
+      _regulationExtraction(confidenceDelta: 1),
+      _regulationExtraction(warnings: const <String>['unexpected']),
+      _regulationExtraction(disclaimer: 'unexpected'),
+      _regulationExtraction(sources: const <String>['unexpected']),
+      _regulationExtraction(
+        diagnostics: const <ExtractionDiagnostic>[
+          ExtractionDiagnostic.percentUnit(1),
+        ],
+      ),
+      _regulationExtraction(planType: 'legal'),
+      _regulationExtraction(planTypeWarning: 'unexpected'),
+      _regulationExtraction(
+        coherenceWarnings: const <String>['unexpected'],
+      ),
+    ];
+
+    for (final extraction in nonEmptyExtractions) {
+      expect(
+        () => provider.retainExtraction(
+          extraction,
+          lppRegulationCandidate: _regulationCandidate,
+        ),
+        throwsArgumentError,
+      );
+    }
+  });
+
+  test('LPP regulation session cannot enter the impact path', () {
+    final provider = ScanSessionProvider();
+    final id = provider.retainExtraction(
+      _regulationExtraction(),
+      lppRegulationCandidate: _regulationCandidate,
+    );
+
+    expect(
+      provider.retainImpact(
+        id,
+        extraction: _extraction,
+        previousConfidence: 31,
+      ),
+      isFalse,
+    );
+    expect(
+      provider.byId(id)?.lppRegulationCandidate,
+      same(_regulationCandidate),
     );
   });
 }
