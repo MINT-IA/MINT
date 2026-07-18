@@ -4885,14 +4885,14 @@ class CoachProfile {
             now: now,
           )
         : null;
-    final lppCapitalNoticeDeadline =
-        FeatureFlags.lppCapitalNoticeDeadlineEnabled
-            ? SpecialistReferenceEvidence.tryFromJson(
-                typedLppSelf?.lppCapitalNoticeDeadline?.toJson(),
-                expectedKind: SpecialistReferenceKind.lppCapitalNotice,
-                now: ageNow,
-              )
-            : null;
+    final lppCapitalNoticeDeadline = FeatureFlags
+            .lppCapitalNoticeDeadlineEnabled
+        ? SpecialistReferenceEvidence.tryFromJson(
+            typedLppSelf?.lppCapitalNoticeDeadline?.toSpecialistReferenceJson(),
+            expectedKind: SpecialistReferenceKind.lppCapitalNotice,
+            now: ageNow,
+          )
+        : null;
     final lppRegulationReference = FeatureFlags.lppRegulationReferenceEnabled
         ? SpecialistReferenceEvidence.tryFromJson(
             typedLppRoot?.selfRegulationReference?.toJson(),

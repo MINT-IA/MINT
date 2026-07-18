@@ -925,8 +925,10 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     final schemaVersion =
         rawRoot is String ? _lppRootSchemaVersion(rawRoot) : null;
-    final requiresSchema3Rewrite =
-        hasExistingRoot && (schemaVersion == 1 || schemaVersion == 2);
+    final requiresSchema3Rewrite = hasExistingRoot &&
+        (schemaVersion == 1 ||
+            schemaVersion == 2 ||
+            existingRoot.droppedLegacyCapitalNoticeWithoutAuthority);
 
     final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
     final migratedKeys = <String>{};
@@ -1331,7 +1333,8 @@ class CoachProfileProvider extends ChangeNotifier {
     LppCapitalNoticeReviewConfirmation confirmation,
   ) {
     if (!FeatureFlags.typedLppEvidence ||
-        !FeatureFlags.lppCapitalNoticeDeadlineEnabled) {
+        !FeatureFlags.lppCapitalNoticeDeadlineEnabled ||
+        !FeatureFlags.lppRegulationReferenceEnabled) {
       return Future<LppCapitalNoticeReceipt>.error(
         StateError('LPP capital notice deadline is disabled'),
       );
@@ -1349,6 +1352,7 @@ class CoachProfileProvider extends ChangeNotifier {
     sessionGuard.assertCurrent();
     if (!FeatureFlags.typedLppEvidence ||
         !FeatureFlags.lppCapitalNoticeDeadlineEnabled ||
+        !FeatureFlags.lppRegulationReferenceEnabled ||
         !_isLoaded ||
         confirmation.ownerKind != LppEvidenceOwnerKind.self) {
       throw StateError('LPP capital notice deadline is unavailable');
@@ -1364,14 +1368,23 @@ class CoachProfileProvider extends ChangeNotifier {
         'future civil source dates cannot enter the ledger',
       );
     }
-    final currentSnapshot = LppEvidenceSelector.selectSelf(
+    final currentRoot = LppEvidenceRoot.fromJsonString(
       _lastAnswers[_lppEvidenceRootKey],
       now: _now,
     );
+    final currentSnapshot = currentRoot?.self;
     if (currentSnapshot == null ||
         currentSnapshot.facts.isEmpty ||
         currentSnapshot.snapshotId != confirmation.expectedSnapshotId) {
       throw StateError('Current self LPP snapshot does not match');
+    }
+    final currentAuthority = currentRoot?.selfRegulationReference;
+    if (currentAuthority == null ||
+        currentAuthority.referenceId != confirmation.authorityReferenceId ||
+        currentAuthority.sourceDate != confirmation.sourceDate ||
+        currentAuthority.legalYear != confirmation.legalYear ||
+        currentAuthority.fundRelationship != LppFundRelationship.currentFund) {
+      throw StateError('Current LPP regulation authority does not match');
     }
     final currentNotice = currentSnapshot.lppCapitalNoticeDeadline;
     final expectedPreviousReferenceId =
@@ -1395,6 +1408,7 @@ class CoachProfileProvider extends ChangeNotifier {
     final confirmedAt = currentTime.toUtc();
     final notice = LppCapitalNoticeDeadline.create(
       referenceId: referenceId,
+      authorityReferenceId: confirmation.authorityReferenceId,
       sourceDate: confirmation.sourceDate,
       legalYear: confirmation.legalYear,
       confirmedAt: confirmedAt,
@@ -1416,6 +1430,15 @@ class CoachProfileProvider extends ChangeNotifier {
           self.facts.isEmpty ||
           self.snapshotId != confirmation.expectedSnapshotId) {
         throw StateError('Persisted self LPP snapshot changed');
+      }
+      final persistedAuthority = root.selfRegulationReference;
+      if (persistedAuthority == null ||
+          persistedAuthority.referenceId != confirmation.authorityReferenceId ||
+          persistedAuthority.sourceDate != confirmation.sourceDate ||
+          persistedAuthority.legalYear != confirmation.legalYear ||
+          persistedAuthority.fundRelationship !=
+              LppFundRelationship.currentFund) {
+        throw StateError('Persisted LPP regulation authority changed');
       }
       final persistedNotice = self.lppCapitalNoticeDeadline;
       if (persistedNotice?.referenceId != expectedPreviousReferenceId) {
@@ -1453,6 +1476,7 @@ class CoachProfileProvider extends ChangeNotifier {
     });
     return LppCapitalNoticeReceipt(
       referenceId: referenceId,
+      authorityReferenceId: confirmation.authorityReferenceId,
       snapshotId: confirmation.expectedSnapshotId,
       confirmedAt: confirmedAt,
     );
@@ -1462,6 +1486,7 @@ class CoachProfileProvider extends ChangeNotifier {
     LppCapitalNoticeDeadline notice,
     LppCapitalNoticeReviewConfirmation confirmation,
   ) =>
+      notice.authorityReferenceId == confirmation.authorityReferenceId &&
       notice.sourceDate == confirmation.sourceDate &&
       notice.legalYear == confirmation.legalYear &&
       notice.deadlineDate == confirmation.deadlineDate;
@@ -1472,6 +1497,7 @@ class CoachProfileProvider extends ChangeNotifier {
   ) =>
       LppCapitalNoticeReceipt(
         referenceId: notice.referenceId,
+        authorityReferenceId: notice.authorityReferenceId,
         snapshotId: snapshot.snapshotId,
         confirmedAt: notice.confirmedAt,
       );
@@ -2425,17 +2451,51 @@ class CoachProfileProvider extends ChangeNotifier {
         receipt.kind != LppCapitalNoticeDeadline.kind) {
       return false;
     }
-    final snapshot = LppEvidenceSelector.selectSelf(
+    final root = LppEvidenceRoot.fromJsonString(
       _lastAnswers[_lppEvidenceRootKey],
       now: _now,
     );
+    final notice = root?.self?.lppCapitalNoticeDeadline;
+    return notice != null &&
+        notice.authorityReferenceId == receipt.authorityReferenceId &&
+        matchesCurrentLppCapitalNoticeReference(
+          referenceId: receipt.referenceId,
+          snapshotId: receipt.snapshotId,
+          confirmedAt: receipt.confirmedAt,
+        );
+  }
+
+  /// Validates the public capital-notice projection without disclosing the
+  /// private regulation authority id carried by the strict root and receipt.
+  bool matchesCurrentLppCapitalNoticeReference({
+    required String referenceId,
+    required String snapshotId,
+    required DateTime confirmedAt,
+  }) {
+    if (!_isLoaded ||
+        !FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.lppCapitalNoticeDeadlineEnabled ||
+        !FeatureFlags.lppRegulationReferenceEnabled) {
+      return false;
+    }
+    final root = LppEvidenceRoot.fromJsonString(
+      _lastAnswers[_lppEvidenceRootKey],
+      now: _now,
+    );
+    final snapshot = root?.self;
     final notice = snapshot?.lppCapitalNoticeDeadline;
+    final authority = root?.selfRegulationReference;
     return snapshot != null &&
         snapshot.facts.isNotEmpty &&
-        snapshot.snapshotId == receipt.snapshotId &&
+        snapshot.snapshotId == snapshotId &&
         notice != null &&
-        notice.referenceId == receipt.referenceId &&
-        notice.confirmedAt == receipt.confirmedAt;
+        notice.referenceId == referenceId &&
+        notice.confirmedAt == confirmedAt &&
+        authority != null &&
+        authority.referenceId == notice.authorityReferenceId &&
+        authority.sourceDate == notice.sourceDate &&
+        authority.legalYear == notice.legalYear &&
+        authority.fundRelationship == LppFundRelationship.currentFund;
   }
 
   /// Matches the raw-free receipt to the autonomous current regulation.

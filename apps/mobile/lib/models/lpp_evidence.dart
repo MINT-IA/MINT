@@ -257,6 +257,7 @@ class LppReviewConfirmation {
 final class LppCapitalNoticeReviewConfirmation {
   factory LppCapitalNoticeReviewConfirmation({
     required LppEvidenceOwnerKind ownerKind,
+    required String authorityReferenceId,
     required DateTime sourceDate,
     required int legalYear,
     required DateTime deadlineDate,
@@ -265,6 +266,13 @@ final class LppCapitalNoticeReviewConfirmation {
   }) {
     if (ownerKind != LppEvidenceOwnerKind.self) {
       throw ArgumentError.value(ownerKind, 'ownerKind', 'self is required');
+    }
+    if (!_isCanonicalUuidV4(authorityReferenceId)) {
+      throw ArgumentError.value(
+        authorityReferenceId,
+        'authorityReferenceId',
+        'canonical UUIDv4 required',
+      );
     }
     if (!_isCanonicalCivilInstant(sourceDate)) {
       throw ArgumentError.value(
@@ -300,6 +308,7 @@ final class LppCapitalNoticeReviewConfirmation {
     }
     return LppCapitalNoticeReviewConfirmation._(
       ownerKind: ownerKind,
+      authorityReferenceId: authorityReferenceId,
       sourceDate: sourceDate,
       legalYear: legalYear,
       deadlineDate: deadlineDate,
@@ -310,6 +319,7 @@ final class LppCapitalNoticeReviewConfirmation {
 
   const LppCapitalNoticeReviewConfirmation._({
     required this.ownerKind,
+    required this.authorityReferenceId,
     required this.sourceDate,
     required this.legalYear,
     required this.deadlineDate,
@@ -318,6 +328,7 @@ final class LppCapitalNoticeReviewConfirmation {
   });
 
   final LppEvidenceOwnerKind ownerKind;
+  final String authorityReferenceId;
   final DateTime sourceDate;
   final int legalYear;
   final DateTime deadlineDate;
@@ -328,11 +339,13 @@ final class LppCapitalNoticeReviewConfirmation {
 final class LppCapitalNoticeReceipt {
   const LppCapitalNoticeReceipt({
     required this.referenceId,
+    required this.authorityReferenceId,
     required this.snapshotId,
     required this.confirmedAt,
   });
 
   final String referenceId;
+  final String authorityReferenceId;
   final String snapshotId;
   final DateTime confirmedAt;
   String get kind => LppCapitalNoticeDeadline.kind;
@@ -608,6 +621,7 @@ class LppEvidenceFact {
 final class LppCapitalNoticeDeadline {
   const LppCapitalNoticeDeadline._({
     required this.referenceId,
+    required this.authorityReferenceId,
     required this.sourceDate,
     required this.legalYear,
     required this.confirmedAt,
@@ -617,6 +631,7 @@ final class LppCapitalNoticeDeadline {
   static const kind = 'lppCapitalNotice';
 
   final String referenceId;
+  final String authorityReferenceId;
   final DateTime sourceDate;
   final int legalYear;
   final DateTime confirmedAt;
@@ -624,6 +639,7 @@ final class LppCapitalNoticeDeadline {
 
   static LppCapitalNoticeDeadline create({
     required String referenceId,
+    required String authorityReferenceId,
     required DateTime sourceDate,
     required int legalYear,
     required DateTime confirmedAt,
@@ -631,6 +647,7 @@ final class LppCapitalNoticeDeadline {
   }) {
     final parsed = fromJson(<String, dynamic>{
       'referenceId': referenceId,
+      'authorityReferenceId': authorityReferenceId,
       'kind': kind,
       'ownerKind': LppEvidenceOwnerKind.self.wireName,
       'source': 'certificate',
@@ -647,6 +664,7 @@ final class LppCapitalNoticeDeadline {
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'referenceId': referenceId,
+        'authorityReferenceId': authorityReferenceId,
         'kind': kind,
         'ownerKind': LppEvidenceOwnerKind.self.wireName,
         'source': 'certificate',
@@ -656,12 +674,20 @@ final class LppCapitalNoticeDeadline {
         'deadlineDate': _encodeCivilDate(deadlineDate),
       };
 
+  /// Public specialist projection. The durable authority id never crosses the
+  /// profile boundary even though it remains exact inside the strict root.
+  Map<String, dynamic> toSpecialistReferenceJson() => <String, dynamic>{
+        for (final entry in toJson().entries)
+          if (entry.key != 'authorityReferenceId') entry.key: entry.value,
+      };
+
   static LppCapitalNoticeDeadline? fromJson(
     Map<String, dynamic> json, {
     DateTime Function()? now,
   }) {
     const allowedKeys = <String>{
       'referenceId',
+      'authorityReferenceId',
       'kind',
       'ownerKind',
       'source',
@@ -674,6 +700,8 @@ final class LppCapitalNoticeDeadline {
         json.keys.toSet().difference(allowedKeys).isNotEmpty ||
         json['referenceId'] is! String ||
         !_isCanonicalUuidV4(json['referenceId'] as String) ||
+        json['authorityReferenceId'] is! String ||
+        !_isCanonicalUuidV4(json['authorityReferenceId'] as String) ||
         json['kind'] != kind ||
         json['ownerKind'] != LppEvidenceOwnerKind.self.wireName ||
         json['source'] != 'certificate' ||
@@ -699,6 +727,7 @@ final class LppCapitalNoticeDeadline {
     }
     return LppCapitalNoticeDeadline._(
       referenceId: json['referenceId'] as String,
+      authorityReferenceId: json['authorityReferenceId'] as String,
       sourceDate: sourceDate,
       legalYear: json['legalYear'] as int,
       confirmedAt: confirmedAt,
@@ -915,13 +944,21 @@ class LppEvidenceSnapshot {
     }
     if (facts.isEmpty && independentFacts.isEmpty) return null;
     final rawCapitalNotice = json['lppCapitalNoticeDeadline'];
-    final capitalNotice = rawCapitalNotice == null
-        ? null
-        : LppCapitalNoticeDeadline.fromJson(
-            Map<String, dynamic>.from(rawCapitalNotice as Map),
+    LppCapitalNoticeDeadline? capitalNotice;
+    if (rawCapitalNotice != null) {
+      final encodedNotice = Map<String, dynamic>.from(rawCapitalNotice as Map);
+      capitalNotice = LppCapitalNoticeDeadline.fromJson(
+        encodedNotice,
+        now: now,
+      );
+      if (capitalNotice == null &&
+          !_isValidLegacyLppCapitalNoticeWithoutAuthority(
+            encodedNotice,
             now: now,
-          );
-    if (rawCapitalNotice != null && capitalNotice == null) return null;
+          )) {
+        return null;
+      }
+    }
     return LppEvidenceSnapshot(
       snapshotId: json['snapshotId'] as String,
       facts: Map.unmodifiable(facts),
@@ -1012,6 +1049,7 @@ class LppEvidenceRoot {
     this.legacyPartnerQuarantine,
     this.selfRegulationReference,
     this.selfRegulationRecoveryReason,
+    this.droppedLegacyCapitalNoticeWithoutAuthority = false,
   });
 
   final LppEvidenceSnapshot? self;
@@ -1019,6 +1057,9 @@ class LppEvidenceRoot {
   final LppLegacyPartnerQuarantine? legacyPartnerQuarantine;
   final LppRegulationReference? selfRegulationReference;
   final LppRegulationRecoveryReason? selfRegulationRecoveryReason;
+
+  /// Transient cold-load migration marker; never serialized or projected.
+  final bool droppedLegacyCapitalNoticeWithoutAuthority;
 
   String toJsonString() => jsonEncode(<String, dynamic>{
         'schemaVersion': 3,
@@ -1063,6 +1104,7 @@ class LppEvidenceRoot {
         return null;
       }
       LppRegulationRecoveryReason? recoveryReason;
+      var droppedLegacyCapitalNoticeWithoutAuthority = false;
       if (schemaVersion == 1 && rawSelf is Map) {
         final legacySelf = Map<String, dynamic>.from(rawSelf);
         if (legacySelf.containsKey('lppRegulationReference')) {
@@ -1079,6 +1121,14 @@ class LppEvidenceRoot {
               LppRegulationRecoveryReason.legacyMissingFundRelationship;
         }
         rawSelf = legacySelf;
+      }
+      if (rawSelf is Map) {
+        final rawNotice = rawSelf['lppCapitalNoticeDeadline'];
+        droppedLegacyCapitalNoticeWithoutAuthority = rawNotice is Map &&
+            _isValidLegacyLppCapitalNoticeWithoutAuthority(
+              Map<String, dynamic>.from(rawNotice),
+              now: now,
+            );
       }
       if (schemaVersion == 3 && rawRecoveryReason != null) {
         recoveryReason =
@@ -1129,11 +1179,41 @@ class LppEvidenceRoot {
         legacyPartnerQuarantine: quarantine,
         selfRegulationReference: regulation,
         selfRegulationRecoveryReason: recoveryReason,
+        droppedLegacyCapitalNoticeWithoutAuthority:
+            droppedLegacyCapitalNoticeWithoutAuthority,
       );
     } on Object {
       return null;
     }
   }
+}
+
+bool _isValidLegacyLppCapitalNoticeWithoutAuthority(
+  Map<String, dynamic> json, {
+  DateTime Function()? now,
+}) {
+  const legacyKeys = <String>{
+    'referenceId',
+    'kind',
+    'ownerKind',
+    'source',
+    'sourceDate',
+    'legalYear',
+    'confirmedAt',
+    'deadlineDate',
+  };
+  if (json.length != legacyKeys.length ||
+      json.keys.toSet().difference(legacyKeys).isNotEmpty) {
+    return false;
+  }
+  return LppCapitalNoticeDeadline.fromJson(
+        <String, dynamic>{
+          ...json,
+          'authorityReferenceId': '00000000-0000-4000-8000-000000000001',
+        },
+        now: now,
+      ) !=
+      null;
 }
 
 const _legacyRootKeys = <String>{

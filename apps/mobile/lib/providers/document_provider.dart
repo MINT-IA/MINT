@@ -630,13 +630,16 @@ class DocumentProvider extends ChangeNotifier {
     }
     final ledger = _ledger;
     if (ledger == null ||
-        !ledger.matchesAcceptedLppCapitalNoticeReceipt(
-          LppCapitalNoticeReceipt(
-            referenceId: candidate.referenceId,
-            snapshotId: reference.snapshotId!,
-            confirmedAt: candidate.confirmedAt,
-          ),
-        )) {
+        ledger.profile?.lppCapitalNoticeDeadline != candidate ||
+        !ledger.matchesCurrentLppCapitalNoticeReference(
+          referenceId: candidate.referenceId,
+          snapshotId: reference.snapshotId!,
+          confirmedAt: candidate.confirmedAt,
+        ) ||
+        resolveLppRegulationReference(
+              ledger.profile?.lppRegulationReference,
+            ) !=
+            LppRegulationReferenceResolution.resolved) {
       return null;
     }
     return candidate;
