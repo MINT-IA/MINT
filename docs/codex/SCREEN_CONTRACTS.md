@@ -23,9 +23,10 @@
 > acquisition/review caller is live through `73b505bcf` and `4907667b8`
 > (compile repair `deb199c7f`). The backend authority is request-scoped and
 > row/cache/RAG/raw-preview free at `b30e3c109`; certificate precedence is
-> hardened at `ba0f331a0`. Exact-SHA process-death Patrol, Maestro default-off/
-> recovery and post-writer wrapper acceptance remain missing. The three local
-> flags stay false; RET-REF/G1 remain NO-GO and G2/G3 forbidden.
+> hardened at `ba0f331a0`. Post-writer Sonnet reruns and Opus final
+> code/product confirmations pass with P0/P1=0. Exact-SHA process-death Patrol,
+> Maestro before/after default-off and tracked evidence archival remain missing.
+> The three local flags stay false; RET-REF/G1 remain NO-GO and G2/G3 forbidden.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
 > A coding agent (Codex) implements these contracts directly. Every row is mechanical and test-verifiable. Violations are bugs, not style notes.
 
@@ -1053,17 +1054,20 @@ The authority gates are the backend classifier suite plus
 `lpp_regulation_reference_provider_test.dart`,
 `lpp_regulation_reference_document_bridge_test.dart`,
 `lpp_regulation_specialist_handoff_test.dart` and
-`retirement_dashboard_lpp_regulation_test.dart`. Private certificates stay
-negative; plans become positive only through a second human-reviewed manifest.
+`retirement_dashboard_lpp_regulation_test.dart`. Private plan/certificate
+classification lives only in the separate developer-local ignored seven-case
+sanitized gate; it is not runtime acceptance and contributes no retained
+fixture artifact.
 Consumer tests pass 5/5 and the targeted retirement collection passes 24/24.
 Wrapper-only Opus code/product audits pass for `d58ed29b2`, `242d7d082` and
 `f86a29cde`; the initial placement P1 is fixed and the final two slices report
 P0=0/P1=0. The full production caller and consumer are code-real, but this is not runtime
-acceptance. Exact-SHA Patrol writer -> real process death -> cold reader,
-Maestro default-off/recovery, the consolidated evidence bundle, post-writer
-wrapper audit reruns and an activation decision remain missing. All three local
-flags stay false. Activation is NO-GO, RET-REF/G1 stay open and G2/G3 are
-forbidden.
+acceptance. Post-writer Sonnet reruns and Opus final code/product
+confirmations pass with P0/P1=0. Exact-SHA synthetic-only Patrol writer -> real
+process death -> cold reader, Maestro before/after default-off, archival of the
+audit outputs in the consolidated evidence bundle and an activation decision
+remain missing. All three local flags stay false. Activation is NO-GO,
+RET-REF/G1 stay open and G2/G3 are forbidden.
 
 `/rapport` and its PDF export consume evidence-bearing ledger facts; they do
 not recreate pension entitlements from illustrative inputs. The three pillars

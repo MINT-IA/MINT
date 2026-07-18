@@ -196,73 +196,92 @@ appId: ch.mint.app
 
 ## 1A. G1 LPP regulation — required dual runtime proof (NOT RUN)
 
-The production code now has stable controls, but no checked-in flow proves the
-whole plan path on a device. Do not reuse the personal-certificate PROV-02
-runtime as a substitute: `lpp_plan` has a different PDF-only, zero-fact,
+The production code now has stable controls, but no checked-in exact-SHA run
+proves the whole plan path on a device. Do not reuse the personal-certificate
+PROV-02 runtime as a substitute: `lpp_plan` has a different PDF-only, zero-fact,
 request-scoped backend boundary and a different review writer.
 
-### Patrol exact-SHA target — real input and process death
+Private plans/certificates are deliberately outside this runtime. The ignored
+local `lpp_private_fixture_gate_test.dart` has seven sanitized classification
+cases, including a plan, and is the only private-fixture gate. Runtime and
+retained evidence must contain no private-manifest variable, ignored-fixture
+path, document hash or raw bytes and must declare `private_fixture_used=false`.
+Backend zero-fact/no-row/no-cache/no-RAG/raw-preview behavior remains proven by
+its focused backend tests and accepted audits, not borrowed from a mocked mobile
+runtime response.
 
-Add a split writer/read pair only when the runtime agent owns the device proof:
+### Patrol exact-SHA target — production-shaped synthetic input and process death
 
+The checked-in runtime atom must contain the production integration targets,
+their thin Patrol wrappers and one exact-SHA orchestrator:
+
+- `integration_test/g1_ret_ref_lpp_regulation_write_patrol_test.dart`
+- `integration_test/g1_ret_ref_lpp_regulation_read_patrol_test.dart`
 - `test/patrol/g1_ret_ref_lpp_regulation_write_runtime_test.dart`
 - `test/patrol/g1_ret_ref_lpp_regulation_read_runtime_test.dart`
+- `tools/simulator/patrol_lpp_regulation_process_death.sh`
 
-The writer must use one ignored local PDF declared by
-`test/golden/lpp_private_mobile_manifest.json`; never commit/copy the fixture,
-its bytes, filename, raw text, backend processing id or a screenshot containing
-personal data. The proof must exercise the production widgets and providers,
-not call the ledger writer directly:
+The writer must exercise the production-shaped widgets, providers and route
+payload. Injection is allowed only at the OS/network boundaries: a synthetic
+PDF picker result, granted `visionExtraction` consent and an exact zero-fact
+`DocumentUploadResult` for `VaultDocumentType.lppPlan`. It must never call
+`acceptLppRegulationReference` or `recordLppRegulation` directly.
 
-1. seed a non-empty strict self LPP snapshot and enable exactly the three local
-   regulation flags in the test entrypoint;
-2. open `/scan`, assert `document_scan_lpp_plan_type_selector`, select it and
-   assert camera/paste/debug paths are absent;
-3. use `document_scan_gallery_cta` to choose the real PDF and cross the real
-   authenticated multipart/backend classification boundary;
-4. assert `lpp_regulation_review_screen`; enter canonical values through
-   `lpp_regulation_review_source_date` and
-   `lpp_regulation_review_legal_year`; tap
-   `lpp_regulation_review_confirm_cta`;
-5. assert `/retraite` shows
-   `retirement_lpp_regulation_reference_education`, open
-   `retirement_lpp_regulation_handoff_cta`, and verify the metadata-only sheet,
-   privacy boundary and all six `retirement_lpp_regulation_question_*` nodes;
-6. terminate the app process without a graceful in-app handoff. The read target
-   must start from the normal production entrypoint, cold-load the strict root
-   and document-reference store, and resolve the same Dashboard card/sheet;
-7. write a replacement numeric self-LPP snapshot and prove the regulation card
-   disappears. No stale cached GREEN is allowed.
+1. Create a non-empty strict self snapshot through the existing typed numeric
+   review seam and enable exactly the three process-static regulation flags.
+2. Pump `DocumentScanScreen(initialType: DocumentType.lppPlan)`, select
+   `document_scan_lpp_plan_type_selector` and tap
+   `document_scan_gallery_cta`. Assert camera/paste/debug paths are absent.
+3. Inject synthetic `%PDF` bytes through `pickFile`; assert consent is exactly
+   `[visionExtraction]`; assert `uploadDocument` receives
+   `VaultDocumentType.lppPlan` and returns the strict empty/zero/RAG-false
+   response shape.
+4. Observe the production navigation URI. Its sole query key is
+   `scanSessionId`; it contains neither the synthetic backend processing id nor
+   document material. Resolve that session and pass its regulation candidate
+   into the production review screen.
+5. Enter canonical values through `lpp_regulation_review_source_date` and
+   `lpp_regulation_review_legal_year`, then tap
+   `lpp_regulation_review_confirm_cta`. Thin provider spies may call `super` only
+   to observe the production UI seam; assert exact event order `accept, record`,
+   raw-free stores, discarded scan session and the retirement card.
+6. Terminate the app process. The separate read target starts from the normal
+   entrypoint, cold-loads the strict root and reference store, hydrates
+   `DocumentProvider`, resolves the exact Dashboard card and opens the local
+   sheet/privacy boundary.
+7. Write a replacement numeric self-LPP snapshot through the existing numeric
+   review seam and prove the regulation reference/card disappear. No cached
+   GREEN survives authority replacement.
 
-The runtime backend capture must additionally prove the plan response is zero-
-fact/raw-preview-null/RAG-false and that its processing UUID is absent from
-local persistence and runtime evidence. A record-failure run must prove the
-retry CTA reuses one accepted receipt and never repeats the ledger accept.
+`legalYear` 1900...9999 is only the technical serialization bound; it does not
+validate which legal version applies. The prerequisite numeric snapshot is
+also not proof that this regulation belongs to the current pension fund and it
+excludes a regulation-only journey. Therefore this runtime can validate the
+snapshot-bound transport/writer/cold-reader atom but cannot authorize product
+activation or G1 closure. A future G1 slice must decide and implement a
+separately attested fund reference — current fund, uncertain, or former/other
+fund — without importing plan values into facts or calculations.
 
-### Maestro default-off/recovery target
+### Maestro production-default before/after targets
 
-Add `apps/mobile/.maestro/g1_ret_ref_lpp_regulation_flag_off.yaml` only with the
-runtime slice. Its minimum contract is:
+Two flows bracket the Patrol write/process-death run:
 
-```yaml
-appId: ch.mint.app
----
-- launchApp: { clearState: true }
-- openLink: "mint:///scan"
-- assertNotVisible: { id: "document_scan_lpp_plan_type_selector" }
-- openLink: "mint:///scan/review?scanSessionId=missing-regulation-session"
-- assertVisible: { id: "scan_review_recovery_cta" }
-- tapOn: { id: "scan_review_recovery_cta" }
-- assertVisible: { id: "document_scan_gallery_cta" }
-- openLink: "mint:///retraite"
-- assertNotVisible: { id: "retirement_lpp_regulation_reference_education" }
-```
+- `apps/mobile/.maestro/g1_ret_ref_lpp_regulation_flag_off_before.yaml`
+- `apps/mobile/.maestro/g1_ret_ref_lpp_regulation_flag_off_after.yaml`
 
-Acceptance requires the exact pushed SHA, physical build/sign/install command,
-Patrol writer/read outputs, Maestro output, sanitized screenshots, fixture-used
-boolean, backend zero-fact proof, and wrapper dispositions in the G1 runtime
-evidence bundle. Until that bundle exists, this section stays **NOT RUN** and
-no ticket/activation promotion is allowed.
+Both use the normal production entrypoint with all three flags false. Before
+uses `clearState:true`; after preserves state with `clearState:false`. They open
+`/scan?type=lppPlan` and `/retraite`, assert ordinary landing/scan recovery is
+visible, and assert all plan acquisition, review, Dashboard card and sheet ids
+are absent. They perform no tap or input and retain no raw Maestro media.
+
+Acceptance requires the exact pushed SHA, physical production-source export,
+build/sign/install commands, Patrol writer/read xcresult counts, both Maestro
+exit codes, sanitized metadata/logs and `private_fixture_used=false`. Post-writer
+Sonnet reruns plus Opus final code/product confirmations already pass with
+P0/P1=0; archive those outputs with the runtime bundle rather than rerunning an
+audit carousel. Until the tracked bundle is accepted, this section stays
+**NOT RUN** and no ticket/activation promotion is allowed.
 
 ## 2. Regression flows (each targets a REAL dead road — must go green after fix)
 

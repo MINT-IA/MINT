@@ -58,10 +58,11 @@
 > response's UUID is processing-only and never becomes the reference id; mobile
 > carries only the pre-existing self-snapshot tuple in a volatile
 > `scanSessionId` session. The three local flags remain false and outside remote
-> hydration. Exact-SHA process-death Maestro/Patrol, the post-writer wrapper
-> audit reruns/evidence bundle and an activation decision remain missing, so
-> the row stays quarantined, activation is NO-GO, RET-REF/G1 remain open and
-> G2/G3 forbidden.
+> hydration. Post-writer Sonnet reruns and Opus final code/product confirmations
+> pass with P0/P1=0. Exact-SHA process-death Maestro/Patrol, archival of those
+> audit outputs in the tracked runtime bundle and an activation decision remain
+> missing, so the row stays quarantined, activation is NO-GO, RET-REF/G1 remain
+> open and G2/G3 forbidden.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -842,6 +843,15 @@ and drops both optional metadata records on a new numeric self snapshot.
 fields. Generic LPP, `manualPartner`, factless/malformed/replaced roots, failed
 hydration and tuple mismatch resolve null.
 
+The `legalYear` range 1900...9999 is a syntactic serialization bound, not a
+validation of the legally applicable regulation. Likewise, the current numeric
+self snapshot is only the existing technical join: it neither attests that the
+plan belongs to the current pension fund nor admits a plan-only journey. This
+snapshot-bound atom therefore cannot authorize activation or close G1. A future
+G1 slice must decide and implement a separately attested fund reference —
+current fund, uncertain, or former/other fund — without importing plan facts or
+calculations.
+
 The live contracts are
 `test_lpp_plan_reference_upload_contract.py`,
 `document_service_test.dart`, `authenticated_transport_consumers_test.dart`,
@@ -854,16 +864,21 @@ The live contracts are
 `lpp_regulation_reference_provider_test.dart`,
 `lpp_regulation_reference_document_bridge_test.dart`,
 `lpp_regulation_specialist_handoff_test.dart` and
-`retirement_dashboard_lpp_regulation_test.dart`. Private certificates remain
-negative fixtures; private plan PDFs are local test inputs only and must never
-be committed or copied into runtime evidence.
+`retirement_dashboard_lpp_regulation_test.dart`. Private plans and
+certificates remain a separate developer-local ignored gate:
+`lpp_private_fixture_gate_test.dart` reports only seven sanitized
+classifications and never contributes a path, manifest, hash, raw byte or
+runtime artifact.
 
 This is code reality, not activation or G1 closure. Remaining hard floors are a
 single exact-SHA Patrol writer -> real process death -> cold Dashboard reader
-proof using the local plan fixture, the paired Maestro default-off/recovery
-proof, final consumer/evidence bundling, and the bounded post-writer wrapper
-reruns with zero unresolved P0/P1. Until those are accepted, the local flags
-stay false, RET-REF/G1 stay open, activation is NO-GO and G2/G3 are forbidden.
+proof using a synthetic PDF and injected exact zero-fact uploader response
+through the production-shaped widget/provider route, the paired Maestro
+before/after default-off proof, and final tracked runtime/evidence bundling.
+Post-writer Sonnet reruns plus Opus final code/product confirmations already
+pass with P0/P1=0; their outputs still need archival in that tracked bundle.
+Until runtime and bundling are accepted, the local flags stay false,
+RET-REF/G1 stay open, activation is NO-GO and G2/G3 are forbidden.
 
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,
