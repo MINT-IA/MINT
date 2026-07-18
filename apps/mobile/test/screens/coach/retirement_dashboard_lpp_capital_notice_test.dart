@@ -19,6 +19,7 @@ const _snapshotId = '11111111-1111-4111-8111-111111111111';
 const _replacementSnapshotId = '22222222-2222-4222-8222-222222222222';
 const _referenceId = '33333333-3333-4333-8333-333333333333';
 const _mismatchedReferenceId = '44444444-4444-4444-8444-444444444444';
+const _authorityReferenceId = '55555555-5555-4555-8555-555555555555';
 const _bannerId = 'retirement_lpp_capital_notice_deadline_education';
 
 final class _DashboardLedger extends CoachProfileProvider {
@@ -55,15 +56,33 @@ final class _DashboardLedger extends CoachProfileProvider {
       receipt.snapshotId == snapshotId &&
       receipt.referenceId == referenceId &&
       receipt.confirmedAt == confirmedAt;
+
+  @override
+  bool matchesCurrentLppCapitalNoticeReference({
+    required String referenceId,
+    required String snapshotId,
+    required DateTime confirmedAt,
+  }) =>
+      FeatureFlags.lppCapitalNoticeDeadlineEnabled &&
+      FeatureFlags.lppRegulationReferenceEnabled &&
+      snapshotId == this.snapshotId &&
+      referenceId == this.referenceId &&
+      confirmedAt == this.confirmedAt;
+
+  @override
+  bool matchesAcceptedLppRegulationReceipt(LppRegulationReceipt receipt) =>
+      FeatureFlags.lppRegulationReferenceEnabled &&
+      receipt.referenceId == _authorityReferenceId &&
+      receipt.confirmedAt == confirmedAt;
 }
 
 final class _MemoryReferenceStore extends DocumentReferenceStore {
-  _MemoryReferenceStore(this.reference);
+  _MemoryReferenceStore(this.references);
 
-  final ConfirmedDocumentReference reference;
+  final List<ConfirmedDocumentReference> references;
 
   @override
-  Future<List<ConfirmedDocumentReference>> load() async => [reference];
+  Future<List<ConfirmedDocumentReference>> load() async => references;
 }
 
 String _civilDate(DateTime value) => '${value.year.toString().padLeft(4, '0')}-'
@@ -89,12 +108,29 @@ SpecialistReferenceEvidence _candidate({required DateTime deadline}) {
   )!;
 }
 
+SpecialistReferenceEvidence _regulationCandidate(DateTime confirmedAt) =>
+    SpecialistReferenceEvidence.tryFromJson(
+      <String, dynamic>{
+        'referenceId': _authorityReferenceId,
+        'kind': LppRegulationReference.kind,
+        'ownerKind': LppEvidenceOwnerKind.self.wireName,
+        'source': ProfileDataSource.certificate.name,
+        'sourceDate': '2026-01-15',
+        'legalYear': 2026,
+        'confirmedAt': confirmedAt.toUtc().toIso8601String(),
+        'fundRelationship': LppFundRelationship.currentFund.wireName,
+      },
+      expectedKind: SpecialistReferenceKind.lppRegulation,
+      now: confirmedAt.add(const Duration(seconds: 1)),
+    )!;
+
 CoachProfile _profile(SpecialistReferenceEvidence candidate) => CoachProfile(
       firstName: 'Julien',
       birthYear: 1985,
       canton: 'VD',
       salaireBrutMensuel: 8000,
       lppCapitalNoticeDeadline: candidate,
+      lppRegulationReference: _regulationCandidate(candidate.confirmedAt),
       prevoyance: const PrevoyanceProfile(
         avoirLppTotal: 120000,
         totalEpargne3a: 20000,
@@ -117,7 +153,7 @@ Future<DocumentProvider> _documents({
   String? snapshotId,
 }) async {
   final documents = DocumentProvider(
-    referenceStore: _MemoryReferenceStore(
+    referenceStore: _MemoryReferenceStore([
       ConfirmedDocumentReference(
         referenceId: referenceId,
         kind: LppCapitalNoticeDeadline.kind,
@@ -125,7 +161,13 @@ Future<DocumentProvider> _documents({
         ownerKind: LppEvidenceOwnerKind.self,
         confirmedAt: ledger.confirmedAt,
       ),
-    ),
+      ConfirmedDocumentReference(
+        referenceId: _authorityReferenceId,
+        kind: ConfirmedDocumentReference.lppRegulationKind,
+        ownerKind: LppEvidenceOwnerKind.self,
+        confirmedAt: ledger.confirmedAt,
+      ),
+    ]),
   );
   documents.bindLedger(ledger);
   await documents.hydrateReferences();
@@ -165,10 +207,12 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    FeatureFlags.lppRegulationReferenceEnabled = true;
   });
 
   tearDown(() {
     FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
+    FeatureFlags.lppRegulationReferenceEnabled = false;
   });
 
   testWidgets(

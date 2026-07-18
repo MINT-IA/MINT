@@ -317,9 +317,12 @@ dynamic _constructFutureConfirmation({
       },
     );
 
-LppCapitalNoticeReviewConfirmation _capitalConfirmation() =>
+LppCapitalNoticeReviewConfirmation _capitalConfirmation(
+  String authorityReferenceId,
+) =>
     LppCapitalNoticeReviewConfirmation(
       ownerKind: LppEvidenceOwnerKind.self,
+      authorityReferenceId: authorityReferenceId,
       sourceDate: DateTime.utc(2026, 2, 3),
       legalYear: 2026,
       deadlineDate: DateTime.utc(2026, 9, 30),
@@ -650,7 +653,7 @@ void main() {
     final persistedSelf = Map<String, dynamic>.from(persisted['self']! as Map);
     expect(persistedSelf['snapshotId'], _snapshotId);
     expect(persistedSelf['facts'], expectedFacts);
-    expect(persistedSelf['lppCapitalNoticeDeadline'], capitalNotice);
+    expect(persistedSelf.containsKey('lppCapitalNoticeDeadline'), isFalse);
     expect(persistedSelf.containsKey('lppRegulationReference'), isFalse);
     expect(loaded.provider.profile!.lppRegulationReference, isNull);
     expect(
@@ -794,7 +797,7 @@ void main() {
     );
   });
 
-  test('numeric and capital-notice rebuilds preserve the recovery marker',
+  test('numeric rebuild preserves marker and notice rejects absent authority',
       () async {
     final now = DateTime.utc(2026, 7, 18, 12);
     FeatureFlags.lppRegulationReferenceEnabled = true;
@@ -807,7 +810,12 @@ void main() {
       ),
     );
     addTearDown(loaded.provider.dispose);
-    await loaded.provider.acceptLppCapitalNotice(_capitalConfirmation());
+    await expectLater(
+      loaded.provider.acceptLppCapitalNotice(
+        _capitalConfirmation('44444444-4444-4444-8444-444444444444'),
+      ),
+      throwsStateError,
+    );
     expect(
       loaded.provider.lppRegulationRecoveryReason,
       LppRegulationRecoveryReason.legacyMissingFundRelationship,
@@ -927,52 +935,28 @@ void main() {
     }
   });
 
-  test('capital notice and regulation coexist in both write orders', () async {
+  test('capital notice requires authority and replacement invalidates receipt',
+      () async {
     final now = DateTime.utc(2026, 7, 18, 12);
     FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
     FeatureFlags.lppRegulationReferenceEnabled = true;
 
-    final capitalFirst = await _loadedProvider(now);
-    addTearDown(capitalFirst.provider.dispose);
-    final capitalFirstReceipt =
-        await capitalFirst.provider.acceptLppCapitalNotice(
-      _capitalConfirmation(),
+    final loaded = await _loadedProvider(now);
+    addTearDown(loaded.provider.dispose);
+    await expectLater(
+      loaded.provider.acceptLppCapitalNotice(
+        _capitalConfirmation('44444444-4444-4444-8444-444444444444'),
+      ),
+      throwsStateError,
     );
-    final regulationSecondReceipt =
-        await capitalFirst.provider.acceptLppRegulationReference(
+    final authorityReceipt = await loaded.provider.acceptLppRegulationReference(
       _confirmation(),
     );
-    final capitalThenRegulation = LppEvidenceRoot.fromJsonString(
-      capitalFirst.persistence.answers['_coach_lpp_evidence_v1'],
-      now: () => now,
-    )!;
-    expect(
-      capitalThenRegulation.self?.lppCapitalNoticeDeadline?.referenceId,
-      capitalFirstReceipt.referenceId,
-    );
-    final dynamic capitalThenRegulationReference =
-        _rootRegulation(capitalThenRegulation);
-    expect(
-      capitalThenRegulationReference,
-      isA<LppRegulationReference>(),
-    );
-    expect(
-      capitalThenRegulationReference.referenceId,
-      regulationSecondReceipt.referenceId,
-    );
-
-    final regulationFirst = await _loadedProvider(now);
-    addTearDown(regulationFirst.provider.dispose);
-    final regulationFirstReceipt =
-        await regulationFirst.provider.acceptLppRegulationReference(
-      _confirmation(),
-    );
-    final capitalSecondReceipt =
-        await regulationFirst.provider.acceptLppCapitalNotice(
-      _capitalConfirmation(),
+    final noticeReceipt = await loaded.provider.acceptLppCapitalNotice(
+      _capitalConfirmation(authorityReceipt.referenceId),
     );
     final regulationThenCapital = LppEvidenceRoot.fromJsonString(
-      regulationFirst.persistence.answers['_coach_lpp_evidence_v1'],
+      loaded.persistence.answers['_coach_lpp_evidence_v1'],
       now: () => now,
     )!;
     final dynamic regulationThenCapitalReference =
@@ -983,11 +967,32 @@ void main() {
     );
     expect(
       regulationThenCapitalReference.referenceId,
-      regulationFirstReceipt.referenceId,
+      authorityReceipt.referenceId,
     );
     expect(
       regulationThenCapital.self?.lppCapitalNoticeDeadline?.referenceId,
-      capitalSecondReceipt.referenceId,
+      noticeReceipt.referenceId,
+    );
+    expect(
+      regulationThenCapital
+          .self?.lppCapitalNoticeDeadline?.authorityReferenceId,
+      authorityReceipt.referenceId,
+    );
+    expect(
+      loaded.provider.matchesAcceptedLppCapitalNoticeReceipt(noticeReceipt),
+      isTrue,
+    );
+
+    final replacement = await loaded.provider.acceptLppRegulationReference(
+      _confirmation(
+        legalYear: 2025,
+        expectedPreviousReferenceId: authorityReceipt.referenceId,
+      ),
+    );
+    expect(replacement.referenceId, isNot(authorityReceipt.referenceId));
+    expect(
+      loaded.provider.matchesAcceptedLppCapitalNoticeReceipt(noticeReceipt),
+      isFalse,
     );
   });
 

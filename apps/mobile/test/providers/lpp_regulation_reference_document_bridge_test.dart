@@ -250,9 +250,12 @@ Object? _snapshotIdOf(dynamic value) {
   }
 }
 
-LppCapitalNoticeReviewConfirmation _capitalConfirmation() =>
+LppCapitalNoticeReviewConfirmation _capitalConfirmation(
+  String authorityReferenceId,
+) =>
     LppCapitalNoticeReviewConfirmation(
       ownerKind: LppEvidenceOwnerKind.self,
+      authorityReferenceId: authorityReferenceId,
       sourceDate: DateTime.utc(2026, 2, 3),
       legalYear: 2026,
       deadlineDate: DateTime.utc(2026, 9, 30),
@@ -751,8 +754,9 @@ void main() {
       final accepted = await _acceptedRegulation(now);
       addTearDown(accepted.ledger.dispose);
       FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
-      final capitalReceipt =
-          await accepted.ledger.acceptLppCapitalNotice(_capitalConfirmation());
+      final capitalReceipt = await accepted.ledger.acceptLppCapitalNotice(
+        _capitalConfirmation(accepted.receipt.referenceId),
+      );
       final store = _MemoryReferenceStore()..saveGate = Completer<void>();
       final documents = DocumentProvider(referenceStore: store, now: () => now);
       addTearDown(documents.dispose);

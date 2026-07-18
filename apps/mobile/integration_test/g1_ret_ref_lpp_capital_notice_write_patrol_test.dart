@@ -186,10 +186,12 @@ void main() {
       FeatureFlags.typedLppEvidence = true;
       FeatureFlags.documentLppEvidenceEnabled = true;
       FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+      FeatureFlags.lppRegulationReferenceEnabled = true;
       addTearDown(() {
         FeatureFlags.typedLppEvidence = false;
         FeatureFlags.documentLppEvidenceEnabled = false;
         FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
+        FeatureFlags.lppRegulationReferenceEnabled = false;
       });
 
       await ReportPersistenceService.clearDiagnostic();
@@ -252,9 +254,19 @@ void main() {
 
       // No production capital-notice acquisition seam exists.
       // The bounded test-only bridge starts after the real numeric LPP scan.
+      final authorityReceipt = await provider.acceptLppRegulationReference(
+        LppRegulationReviewConfirmation(
+          ownerKind: LppEvidenceOwnerKind.self,
+          sourceDate: _sourceDate,
+          legalYear: _sourceDate.year,
+          fundRelationship: LppFundRelationship.currentFund,
+        ),
+      );
+      await documents.recordLppRegulation(authorityReceipt);
       final noticeReceipt = await provider.acceptLppCapitalNotice(
         LppCapitalNoticeReviewConfirmation(
           ownerKind: LppEvidenceOwnerKind.self,
+          authorityReferenceId: authorityReceipt.referenceId,
           sourceDate: _sourceDate,
           legalYear: _sourceDate.year,
           deadlineDate: _deadlineDate,

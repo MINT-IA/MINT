@@ -83,10 +83,12 @@ void main() {
       FeatureFlags.typedLppEvidence = true;
       FeatureFlags.documentLppEvidenceEnabled = true;
       FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+      FeatureFlags.lppRegulationReferenceEnabled = true;
       addTearDown(() {
         FeatureFlags.typedLppEvidence = false;
         FeatureFlags.documentLppEvidenceEnabled = false;
         FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
+        FeatureFlags.lppRegulationReferenceEnabled = false;
       });
 
       final now = DateTime.now().toUtc();

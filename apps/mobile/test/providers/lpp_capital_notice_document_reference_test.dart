@@ -12,6 +12,9 @@ const _snapshotId = '11111111-1111-4111-8111-111111111111';
 const _ownerId = '22222222-2222-4222-8222-222222222222';
 const _genericReferenceId = '33333333-3333-4333-8333-333333333333';
 const _forgedReferenceId = '44444444-4444-4444-8444-444444444444';
+const _authorityReferenceId = '77777777-7777-4777-8777-777777777777';
+const _forgedAuthorityReferenceId = '88888888-8888-4888-8888-888888888888';
+final _authorityConfirmedAt = DateTime.utc(2026, 2, 4, 9);
 
 final class _MemoryLppPersistence
     with SerializedCanonicalAnswerMutationPersistence
@@ -64,7 +67,7 @@ Map<String, dynamic> _answers(DateTime now) => <String, dynamic>{
       'q_civil_status': 'celibataire',
       'q_has_pension_fund': 'yes',
       '_coach_lpp_evidence_v1': jsonEncode(<String, dynamic>{
-        'schemaVersion': 1,
+        'schemaVersion': 3,
         'self': <String, dynamic>{
           'snapshotId': _snapshotId,
           'facts': <String, dynamic>{
@@ -93,6 +96,17 @@ Map<String, dynamic> _answers(DateTime now) => <String, dynamic>{
         },
         'manualPartner': null,
         'legacyPartnerQuarantine': null,
+        'selfRegulationReference': <String, dynamic>{
+          'referenceId': _authorityReferenceId,
+          'kind': 'lppRegulation',
+          'ownerKind': 'self',
+          'source': 'certificate',
+          'sourceDate': '2026-02-03',
+          'legalYear': 2026,
+          'confirmedAt': _authorityConfirmedAt.toIso8601String(),
+          'fundRelationship': 'currentFund',
+        },
+        'selfRegulationRecoveryReason': null,
       }),
     };
 
@@ -102,6 +116,7 @@ LppCapitalNoticeReviewConfirmation _confirmation({
 }) =>
     LppCapitalNoticeReviewConfirmation(
       ownerKind: LppEvidenceOwnerKind.self,
+      authorityReferenceId: _authorityReferenceId,
       sourceDate: DateTime.utc(2026, 2, 3),
       legalYear: 2026,
       deadlineDate: deadlineDate ?? DateTime.utc(2026, 9, 30),
@@ -135,6 +150,22 @@ ConfirmedDocumentReference _genericReference(DateTime now) =>
       confirmedAt: now.subtract(const Duration(minutes: 5)),
     );
 
+ConfirmedDocumentReference _authorityDocumentReference({
+  String referenceId = _authorityReferenceId,
+  DateTime? confirmedAt,
+}) =>
+    ConfirmedDocumentReference(
+      referenceId: referenceId,
+      kind: ConfirmedDocumentReference.lppRegulationKind,
+      ownerKind: LppEvidenceOwnerKind.self,
+      confirmedAt: confirmedAt ?? _authorityConfirmedAt,
+    );
+
+LppRegulationReceipt _authorityReceipt() => LppRegulationReceipt(
+      referenceId: _authorityReferenceId,
+      confirmedAt: _authorityConfirmedAt,
+    );
+
 LppReviewConfirmation _replacementReview(DateTime now) => LppReviewConfirmation(
       authorization: LppAcquisitionAuthorization(
         acquisitionId: '55555555-5555-4555-8555-555555555555',
@@ -157,6 +188,9 @@ LppReviewConfirmation _replacementReview(DateTime now) => LppReviewConfirmation(
 SpecialistReferenceEvidence _evidence({
   required String referenceId,
   required DateTime confirmedAt,
+  String sourceDate = '2026-02-03',
+  int legalYear = 2026,
+  String deadlineDate = '2026-09-30',
 }) {
   return SpecialistReferenceEvidence.tryFromJson(
     <String, dynamic>{
@@ -164,10 +198,10 @@ SpecialistReferenceEvidence _evidence({
       'kind': LppCapitalNoticeDeadline.kind,
       'ownerKind': 'self',
       'source': 'certificate',
-      'sourceDate': '2026-02-03',
-      'legalYear': 2026,
+      'sourceDate': sourceDate,
+      'legalYear': legalYear,
       'confirmedAt': confirmedAt.toUtc().toIso8601String(),
-      'deadlineDate': '2026-09-30',
+      'deadlineDate': deadlineDate,
     },
     expectedKind: SpecialistReferenceKind.lppCapitalNotice,
     now: confirmedAt.add(const Duration(seconds: 1)),
@@ -181,10 +215,12 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     FeatureFlags.typedLppEvidence = true;
     FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    FeatureFlags.lppRegulationReferenceEnabled = true;
   });
 
   tearDown(() {
     FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
+    FeatureFlags.lppRegulationReferenceEnabled = false;
     FeatureFlags.typedLppEvidence = false;
   });
 
@@ -200,19 +236,28 @@ void main() {
     for (final forged in <LppCapitalNoticeReceipt>[
       LppCapitalNoticeReceipt(
         referenceId: _forgedReferenceId,
+        authorityReferenceId: accepted.receipt.authorityReferenceId,
         snapshotId: accepted.receipt.snapshotId,
         confirmedAt: accepted.receipt.confirmedAt,
       ),
       LppCapitalNoticeReceipt(
         referenceId: accepted.receipt.referenceId,
+        authorityReferenceId: accepted.receipt.authorityReferenceId,
         snapshotId: _forgedReferenceId,
         confirmedAt: accepted.receipt.confirmedAt,
       ),
       LppCapitalNoticeReceipt(
         referenceId: accepted.receipt.referenceId,
+        authorityReferenceId: accepted.receipt.authorityReferenceId,
         snapshotId: accepted.receipt.snapshotId,
         confirmedAt:
             accepted.receipt.confirmedAt.subtract(const Duration(seconds: 1)),
+      ),
+      LppCapitalNoticeReceipt(
+        referenceId: accepted.receipt.referenceId,
+        authorityReferenceId: _forgedAuthorityReferenceId,
+        snapshotId: accepted.receipt.snapshotId,
+        confirmedAt: accepted.receipt.confirmedAt,
       ),
     ]) {
       expect(
@@ -234,6 +279,7 @@ void main() {
     addTearDown(accepted.ledger.dispose);
     final forged = LppCapitalNoticeReceipt(
       referenceId: _forgedReferenceId,
+      authorityReferenceId: accepted.receipt.authorityReferenceId,
       snapshotId: accepted.receipt.snapshotId,
       confirmedAt: accepted.receipt.confirmedAt,
     );
@@ -401,6 +447,7 @@ void main() {
     final writerDocuments = DocumentProvider(referenceStore: store);
     addTearDown(writerDocuments.dispose);
     writerDocuments.bindLedger(accepted.ledger);
+    await writerDocuments.recordLppRegulation(_authorityReceipt());
     await writerDocuments.recordLppCapitalNotice(accepted.receipt);
 
     final coldLedger = CoachProfileProvider(
@@ -419,6 +466,80 @@ void main() {
     expect(candidate, isNotNull);
     expect(coldDocuments.resolveLppCapitalNotice(candidate)?.referenceId,
         accepted.receipt.referenceId);
+  });
+
+  test('authority replacement, disappearance, or metadata mismatch unresolves',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final accepted = await _acceptedNotice(now);
+    addTearDown(accepted.ledger.dispose);
+    final acceptedRoot = LppEvidenceRoot.fromJsonString(
+      accepted.persistence.answers['_coach_lpp_evidence_v1'],
+      now: () => now,
+    )!;
+
+    Future<void> expectUnresolved(
+      String name,
+      LppRegulationReference? authority,
+    ) async {
+      final answers = _MemoryLppPersistence._copy(accepted.persistence.answers)
+        ..['_coach_lpp_evidence_v1'] = LppEvidenceRoot(
+          self: acceptedRoot.self,
+          manualPartner: acceptedRoot.manualPartner,
+          legacyPartnerQuarantine: acceptedRoot.legacyPartnerQuarantine,
+          selfRegulationReference: authority,
+          selfRegulationRecoveryReason: null,
+        ).toJsonString();
+      final persistence = _MemoryLppPersistence(answers);
+      final ledger = CoachProfileProvider(
+        taxProfilePersistence: persistence,
+        lppProfilePersistence: persistence,
+        now: () => now,
+      );
+      addTearDown(ledger.dispose);
+      await ledger.loadFromWizard();
+      final documents = DocumentProvider(
+        referenceStore: _MemoryReferenceStore(initial: [
+          _authorityDocumentReference(),
+          ConfirmedDocumentReference(
+            referenceId: accepted.receipt.referenceId,
+            kind: LppCapitalNoticeDeadline.kind,
+            snapshotId: accepted.receipt.snapshotId,
+            ownerKind: LppEvidenceOwnerKind.self,
+            confirmedAt: accepted.receipt.confirmedAt,
+          ),
+        ]),
+      );
+      addTearDown(documents.dispose);
+      documents.bindLedger(ledger);
+      await documents.hydrateReferences();
+      final candidate = ledger.profile!.lppCapitalNoticeDeadline;
+      expect(candidate, isNotNull, reason: name);
+      expect(documents.resolveLppCapitalNotice(candidate), isNull,
+          reason: name);
+    }
+
+    await expectUnresolved(
+      'replacement id',
+      LppRegulationReference.create(
+        referenceId: _forgedAuthorityReferenceId,
+        sourceDate: DateTime.utc(2026, 2, 3),
+        legalYear: 2026,
+        confirmedAt: _authorityConfirmedAt,
+        fundRelationship: LppFundRelationship.currentFund,
+      ),
+    );
+    await expectUnresolved('authority disappeared', null);
+    await expectUnresolved(
+      'authority source date mismatch',
+      LppRegulationReference.create(
+        referenceId: _authorityReferenceId,
+        sourceDate: DateTime.utc(2026, 2, 2),
+        legalYear: 2026,
+        confirmedAt: _authorityConfirmedAt,
+        fundRelationship: LppFundRelationship.currentFund,
+      ),
+    );
   });
 
   test('resolver fails closed for hydration, kind, tuple, snapshot, and flag',
@@ -444,9 +565,14 @@ void main() {
     expect(failed.resolveLppCapitalNotice(candidate), isNull);
 
     Future<DocumentProvider> hydratedWith(
-        ConfirmedDocumentReference reference) async {
+      ConfirmedDocumentReference reference, {
+      ConfirmedDocumentReference? authorityReference,
+    }) async {
       final documents = DocumentProvider(
-        referenceStore: _MemoryReferenceStore(initial: [reference]),
+        referenceStore: _MemoryReferenceStore(initial: [
+          authorityReference ?? _authorityDocumentReference(),
+          reference,
+        ]),
       );
       documents.bindLedger(accepted.ledger);
       await documents.hydrateReferences();
@@ -487,6 +613,55 @@ void main() {
       exactDocuments.resolveLppCapitalNotice(confirmationMismatch),
       isNull,
     );
+    for (final forgedCandidate in <SpecialistReferenceEvidence>[
+      _evidence(
+        referenceId: accepted.receipt.referenceId,
+        confirmedAt: accepted.receipt.confirmedAt,
+        sourceDate: '2026-02-02',
+      ),
+      _evidence(
+        referenceId: accepted.receipt.referenceId,
+        confirmedAt: accepted.receipt.confirmedAt,
+        legalYear: 2025,
+      ),
+      _evidence(
+        referenceId: accepted.receipt.referenceId,
+        confirmedAt: accepted.receipt.confirmedAt,
+        deadlineDate: '2026-10-31',
+      ),
+    ]) {
+      expect(exactDocuments.resolveLppCapitalNotice(forgedCandidate), isNull);
+    }
+
+    final missingAuthority = DocumentProvider(
+      referenceStore: _MemoryReferenceStore(initial: [
+        ConfirmedDocumentReference(
+          referenceId: accepted.receipt.referenceId,
+          kind: LppCapitalNoticeDeadline.kind,
+          snapshotId: accepted.receipt.snapshotId,
+          ownerKind: LppEvidenceOwnerKind.self,
+          confirmedAt: accepted.receipt.confirmedAt,
+        ),
+      ]),
+    );
+    addTearDown(missingAuthority.dispose);
+    missingAuthority.bindLedger(accepted.ledger);
+    await missingAuthority.hydrateReferences();
+    expect(missingAuthority.resolveLppCapitalNotice(candidate), isNull);
+
+    final mismatchedAuthority = await hydratedWith(
+      ConfirmedDocumentReference(
+        referenceId: accepted.receipt.referenceId,
+        kind: LppCapitalNoticeDeadline.kind,
+        snapshotId: accepted.receipt.snapshotId,
+        ownerKind: LppEvidenceOwnerKind.self,
+        confirmedAt: accepted.receipt.confirmedAt,
+      ),
+      authorityReference: _authorityDocumentReference(
+        confirmedAt: _authorityConfirmedAt.subtract(const Duration(seconds: 1)),
+      ),
+    );
+    expect(mismatchedAuthority.resolveLppCapitalNotice(candidate), isNull);
 
     await accepted.ledger.acceptLppReview(_replacementReview(now));
     expect(exactDocuments.resolveLppCapitalNotice(candidate), isNull);

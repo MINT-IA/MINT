@@ -170,6 +170,8 @@ def test_writer_scans_numeric_lpp_then_uses_only_bounded_notice_bridge() -> None
         "FeatureFlags.documentLppEvidenceEnabled = true;",
         "FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;",
         "FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;",
+        "FeatureFlags.lppRegulationReferenceEnabled = true;",
+        "FeatureFlags.lppRegulationReferenceEnabled = false;",
         "ReportPersistenceService.clearDiagnostic()",
         "DocumentScanScreen(",
         "ExtractionReviewScreen(",
@@ -182,15 +184,23 @@ def test_writer_scans_numeric_lpp_then_uses_only_bounded_notice_bridge() -> None
         "LppEvidenceSelector.selectSelf",
         "No production capital-notice acquisition seam exists",
         "bounded test-only bridge starts after the real numeric LPP scan",
+        "final authorityReceipt =",
+        "provider.acceptLppRegulationReference(",
+        "fundRelationship: LppFundRelationship.currentFund",
+        "await documents.recordLppRegulation(authorityReceipt)",
         "final noticeReceipt = await provider.acceptLppCapitalNotice(",
         "LppCapitalNoticeReviewConfirmation(",
         "ownerKind: LppEvidenceOwnerKind.self",
+        "authorityReferenceId: authorityReceipt.referenceId",
         "expectedSnapshotId: numericSnapshot.snapshotId",
         "await documents.recordLppCapitalNotice(noticeReceipt)",
         "DocumentReferenceStore.storageKey",
     ):
         assert anchor in writer, anchor
     assert writer.index("#lpp_review_confirm_cta") < writer.index(
+        "acceptLppRegulationReference("
+    )
+    assert writer.index("recordLppRegulation(authorityReceipt)") < writer.index(
         "acceptLppCapitalNotice("
     )
     assert writer.index("acceptLppCapitalNotice(") < writer.index(
@@ -208,6 +218,7 @@ def test_cold_reader_resolves_exact_tuple_then_new_review_hides_banner() -> None
     for anchor in (
         "FeatureFlags.typedLppEvidence = true;",
         "FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;",
+        "FeatureFlags.lppRegulationReferenceEnabled = true;",
         "await provider.loadFromWizard();",
         "documents.bindLedger(provider);",
         "await documents.hydrateReferences();",

@@ -8,6 +8,7 @@ const _ownerId = '22222222-2222-4222-8222-222222222222';
 const _partnerSnapshotId = '33333333-3333-4333-8333-333333333333';
 const _partnerOwnerId = '44444444-4444-4444-8444-444444444444';
 const _wrongActorId = '55555555-5555-4555-8555-555555555555';
+const _authorityReferenceId = '77777777-7777-4777-8777-777777777777';
 
 Map<String, dynamic> _validRoot({
   String source = 'certificate',
@@ -80,9 +81,12 @@ Map<String, dynamic> _capitalNotice({
   int legalYear = 2026,
   String confirmedAt = '2026-02-04T09:30:00.000Z',
   String deadlineDate = '2026-09-30',
+  bool includeAuthorityReferenceId = true,
 }) =>
     <String, dynamic>{
       'referenceId': referenceId,
+      if (includeAuthorityReferenceId)
+        'authorityReferenceId': _authorityReferenceId,
       'kind': kind,
       'ownerKind': ownerKind,
       'source': 'certificate',
@@ -90,6 +94,17 @@ Map<String, dynamic> _capitalNotice({
       'legalYear': legalYear,
       'confirmedAt': confirmedAt,
       'deadlineDate': deadlineDate,
+    };
+
+Map<String, dynamic> _regulation() => <String, dynamic>{
+      'referenceId': _authorityReferenceId,
+      'kind': 'lppRegulation',
+      'ownerKind': 'self',
+      'source': 'certificate',
+      'sourceDate': '2026-02-03',
+      'legalYear': 2026,
+      'confirmedAt': '2026-02-04T09:00:00.000Z',
+      'fundRelationship': 'currentFund',
     };
 
 void main() {
@@ -326,6 +341,35 @@ void main() {
       expect(notice.deadlineDate, DateTime.utc(2026, 9, 30));
     });
 
+    test('capital notice persistence binds an opaque regulation authority', () {
+      final notice = LppCapitalNoticeDeadline.create(
+        referenceId: '66666666-6666-4666-8666-666666666666',
+        authorityReferenceId: '77777777-7777-4777-8777-777777777777',
+        sourceDate: DateTime.utc(2026, 2, 3),
+        legalYear: 2026,
+        confirmedAt: DateTime.utc(2026, 2, 4, 9, 30),
+        deadlineDate: DateTime.utc(2026, 9, 30),
+      );
+
+      expect(
+        notice.authorityReferenceId,
+        '77777777-7777-4777-8777-777777777777',
+      );
+      expect(
+        notice.toJson()['authorityReferenceId'],
+        '77777777-7777-4777-8777-777777777777',
+      );
+      expect(
+        LppCapitalNoticeDeadline.fromJson(notice.toJson())
+            ?.authorityReferenceId,
+        notice.authorityReferenceId,
+      );
+      expect(
+        notice.toSpecialistReferenceJson(),
+        isNot(contains('authorityReferenceId')),
+      );
+    });
+
     test('capital notice rejects inference-shaped, incomplete and extra fields',
         () {
       for (final mutation in <void Function(Map<String, dynamic>)>[
@@ -347,6 +391,47 @@ void main() {
           isNull,
         );
       }
+    });
+
+    test(
+        'legacy notice missing only authority is dropped while facts and regulation survive',
+        () {
+      final encoded = _validRoot()
+        ..['schemaVersion'] = 3
+        ..['selfRegulationReference'] = _regulation()
+        ..['selfRegulationRecoveryReason'] = null;
+      final self = encoded['self']! as Map<String, dynamic>;
+      self['lppCapitalNoticeDeadline'] = _capitalNotice(
+        includeAuthorityReferenceId: false,
+      );
+
+      final root = LppEvidenceRoot.fromJsonString(jsonEncode(encoded));
+
+      expect(root, isNotNull);
+      expect(root!.droppedLegacyCapitalNoticeWithoutAuthority, isTrue);
+      expect(root.self!.facts, isNotEmpty);
+      expect(root.self!.lppCapitalNoticeDeadline, isNull);
+      expect(root.selfRegulationReference?.referenceId, _authorityReferenceId);
+      final rewritten = jsonDecode(root.toJsonString()) as Map<String, dynamic>;
+      expect(
+        (rewritten['self'] as Map).containsKey('lppCapitalNoticeDeadline'),
+        isFalse,
+      );
+      expect(rewritten['selfRegulationReference'], _regulation());
+    });
+
+    test('legacy notice with another malformation still rejects the whole root',
+        () {
+      final encoded = _validRoot()
+        ..['schemaVersion'] = 3
+        ..['selfRegulationReference'] = _regulation()
+        ..['selfRegulationRecoveryReason'] = null;
+      final notice = _capitalNotice(includeAuthorityReferenceId: false)
+        ..['sourceDate'] = '2026-02';
+      (encoded['self']! as Map<String, dynamic>)['lppCapitalNoticeDeadline'] =
+          notice;
+
+      expect(LppEvidenceRoot.fromJsonString(jsonEncode(encoded)), isNull);
     });
 
     test('capital notice is self-only and cannot create a factless root', () {
