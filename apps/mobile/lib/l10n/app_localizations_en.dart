@@ -24284,4 +24284,64 @@ class SEn extends S {
   String retirementLppCapitalNoticeDeadlineStale(String date) {
     return 'The deadline indicated by your pension fund was $date. Check it directly with the fund.';
   }
+
+  @override
+  String get retirementLppRegulationReferenceTitle =>
+      'Pension fund rules reviewed';
+
+  @override
+  String get retirementLppRegulationReferenceBody =>
+      'The review of these rules is confirmed. It does not confirm that they apply to your situation, or establish any entitlements or amounts.';
+
+  @override
+  String get retirementLppRegulationReferencePrepareQuestionsCta =>
+      'Prepare my questions';
+
+  @override
+  String get retirementLppRegulationHandoffTitle =>
+      'Questions to check with your pension fund';
+
+  @override
+  String get retirementLppRegulationHandoffBoundary =>
+      'MINT does not recommend any option. Confirm the applicable rules with your pension fund or a specialist.';
+
+  @override
+  String get retirementLppRegulationDocumentKindLabel => 'Document type';
+
+  @override
+  String get retirementLppRegulationDocumentKindValue => 'Pension fund rules';
+
+  @override
+  String get retirementLppRegulationSourceDateLabel => 'Document date';
+
+  @override
+  String get retirementLppRegulationLegalYearLabel => 'Legal reference year';
+
+  @override
+  String get retirementLppRegulationConfirmedAtLabel => 'Review confirmed on';
+
+  @override
+  String get retirementLppRegulationQuestionsTitle => 'Questions to ask';
+
+  @override
+  String get retirementLppRegulationQuestionBuyback => 'Pension buy-ins';
+
+  @override
+  String get retirementLppRegulationQuestionConversion => 'Pension conversion';
+
+  @override
+  String get retirementLppRegulationQuestionFlexibleRetirement =>
+      'Flexible retirement';
+
+  @override
+  String get retirementLppRegulationQuestionDisability => 'Disability';
+
+  @override
+  String get retirementLppRegulationQuestionSurvivors => 'Survivor benefits';
+
+  @override
+  String get retirementLppRegulationQuestionDivorce => 'Divorce';
+
+  @override
+  String get retirementLppRegulationHandoffClose => 'Close';
 }

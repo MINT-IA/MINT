@@ -24397,4 +24397,68 @@ class SFr extends S {
   String retirementLppCapitalNoticeDeadlineStale(String date) {
     return 'L’échéance indiquée par ta caisse était le $date. Vérifie-la directement auprès d’elle.';
   }
+
+  @override
+  String get retirementLppRegulationReferenceTitle =>
+      'Règlement de prévoyance revu';
+
+  @override
+  String get retirementLppRegulationReferenceBody =>
+      'La revue de ce règlement est confirmée. Elle ne confirme ni son application à ta situation, ni tes droits, ni aucun montant.';
+
+  @override
+  String get retirementLppRegulationReferencePrepareQuestionsCta =>
+      'Préparer mes questions';
+
+  @override
+  String get retirementLppRegulationHandoffTitle =>
+      'Questions à vérifier avec ta caisse';
+
+  @override
+  String get retirementLppRegulationHandoffBoundary =>
+      'MINT ne recommande aucune option. Confirme les règles applicables avec ta caisse de pension ou un spécialiste.';
+
+  @override
+  String get retirementLppRegulationDocumentKindLabel => 'Type de document';
+
+  @override
+  String get retirementLppRegulationDocumentKindValue =>
+      'Règlement de prévoyance';
+
+  @override
+  String get retirementLppRegulationSourceDateLabel => 'Date du document';
+
+  @override
+  String get retirementLppRegulationLegalYearLabel =>
+      'Année de référence légale';
+
+  @override
+  String get retirementLppRegulationConfirmedAtLabel => 'Revue confirmée le';
+
+  @override
+  String get retirementLppRegulationQuestionsTitle => 'Questions à poser';
+
+  @override
+  String get retirementLppRegulationQuestionBuyback => 'Rachats';
+
+  @override
+  String get retirementLppRegulationQuestionConversion =>
+      'Conversion de la rente';
+
+  @override
+  String get retirementLppRegulationQuestionFlexibleRetirement =>
+      'Retraite flexible';
+
+  @override
+  String get retirementLppRegulationQuestionDisability => 'Invalidité';
+
+  @override
+  String get retirementLppRegulationQuestionSurvivors =>
+      'Prestations aux survivants';
+
+  @override
+  String get retirementLppRegulationQuestionDivorce => 'Divorce';
+
+  @override
+  String get retirementLppRegulationHandoffClose => 'Fermer';
 }

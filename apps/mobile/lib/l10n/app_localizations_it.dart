@@ -24472,4 +24472,68 @@ class SIt extends S {
   String retirementLppCapitalNoticeDeadlineStale(String date) {
     return 'Il termine indicato dalla tua cassa pensione era il $date. Verificalo direttamente con la cassa.';
   }
+
+  @override
+  String get retirementLppRegulationReferenceTitle =>
+      'Regolamento di previdenza esaminato';
+
+  @override
+  String get retirementLppRegulationReferenceBody =>
+      'È confermato l’esame di questo regolamento. Non ne conferma l’applicazione alla tua situazione, né diritti o importi.';
+
+  @override
+  String get retirementLppRegulationReferencePrepareQuestionsCta =>
+      'Preparare le mie domande';
+
+  @override
+  String get retirementLppRegulationHandoffTitle =>
+      'Domande per la tua cassa pensione';
+
+  @override
+  String get retirementLppRegulationHandoffBoundary =>
+      'MINT non raccomanda alcuna opzione. Conferma le regole applicabili con la tua cassa pensione o uno specialista.';
+
+  @override
+  String get retirementLppRegulationDocumentKindLabel => 'Tipo di documento';
+
+  @override
+  String get retirementLppRegulationDocumentKindValue =>
+      'Regolamento di previdenza professionale';
+
+  @override
+  String get retirementLppRegulationSourceDateLabel => 'Data del documento';
+
+  @override
+  String get retirementLppRegulationLegalYearLabel =>
+      'Anno di riferimento legale';
+
+  @override
+  String get retirementLppRegulationConfirmedAtLabel => 'Esame confermato il';
+
+  @override
+  String get retirementLppRegulationQuestionsTitle => 'Domande da porre';
+
+  @override
+  String get retirementLppRegulationQuestionBuyback => 'Riscatti';
+
+  @override
+  String get retirementLppRegulationQuestionConversion =>
+      'Conversione in rendita';
+
+  @override
+  String get retirementLppRegulationQuestionFlexibleRetirement =>
+      'Pensionamento flessibile';
+
+  @override
+  String get retirementLppRegulationQuestionDisability => 'Invalidità';
+
+  @override
+  String get retirementLppRegulationQuestionSurvivors =>
+      'Prestazioni per i superstiti';
+
+  @override
+  String get retirementLppRegulationQuestionDivorce => 'Divorzio';
+
+  @override
+  String get retirementLppRegulationHandoffClose => 'Chiudi';
 }

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -103,6 +104,13 @@ class RetirementDashboardScreen extends StatefulWidget {
 class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   static const _lppCapitalNoticeBannerId =
       'retirement_lpp_capital_notice_deadline_education';
+  static const _lppRegulationCardId =
+      'retirement_lpp_regulation_reference_education';
+  static const _lppRegulationCtaId = 'retirement_lpp_regulation_handoff_cta';
+  static const _lppRegulationSheetId =
+      'retirement_lpp_regulation_handoff_sheet';
+  static const _lppRegulationCloseId =
+      'retirement_lpp_regulation_handoff_close';
 
   // ── Core state ──────────────────────────────────────────
   CoachProfile? _profile;
@@ -782,10 +790,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       ),
                     ),
                     const SizedBox(height: MintSpacing.lg),
-                    MintTrajectoryChart(
-                      result: projection,
-                      goalALabel: profile.goalA.label,
-                    ),
+                    ..._buildLppRegulationEducation(profile),
+                    _buildMissingAvsTrajectoryChart(projection, profile),
                     const SizedBox(height: MintSpacing.lg),
                     _buildDisclaimer(),
                     const SizedBox(height: MintSpacing.xl),
@@ -936,6 +942,241 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       const SizedBox(height: MintSpacing.md),
     ];
   }
+
+  List<Widget> _buildLppRegulationEducation(CoachProfile profile) {
+    final documents = context.watch<DocumentProvider?>();
+    final resolved = documents?.resolveLppRegulation(
+      profile.lppRegulationReference,
+    );
+    final handoff = LppRegulationSpecialistHandoff.tryFromEvidence(resolved);
+    if (handoff == null) return const <Widget>[];
+
+    final l = S.of(context)!;
+    final localeName = Localizations.localeOf(context).toLanguageTag();
+    final sourceDate = DateFormat.yMMMMd(localeName).format(
+      SwissCivilTime.businessDate(handoff.sourceDate),
+    );
+
+    return <Widget>[
+      Semantics(
+        identifier: _lppRegulationCardId,
+        container: true,
+        child: MintSurface(
+          key: const Key(_lppRegulationCardId),
+          tone: MintSurfaceTone.craie,
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.retirementLppRegulationReferenceTitle,
+                style: MintTextStyles.titleMedium(),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                l.retirementLppRegulationReferenceBody,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.md),
+              _buildLppRegulationMetadata(
+                l.retirementLppRegulationSourceDateLabel,
+                sourceDate,
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              _buildLppRegulationMetadata(
+                l.retirementLppRegulationLegalYearLabel,
+                '${handoff.legalYear}',
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              _buildLppRegulationMetadata(
+                l.retirementLppRegulationConfirmedAtLabel,
+                DateFormat.yMMMMd(localeName).format(
+                  SwissCivilTime.businessDate(handoff.confirmedAt),
+                ),
+              ),
+              const SizedBox(height: MintSpacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: Semantics(
+                  identifier: _lppRegulationCtaId,
+                  container: true,
+                  button: true,
+                  child: FilledButton(
+                    key: const Key(_lppRegulationCtaId),
+                    onPressed: () => _showLppRegulationHandoffSheet(handoff),
+                    child: Text(
+                      l.retirementLppRegulationReferencePrepareQuestionsCta,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: MintSpacing.lg),
+    ];
+  }
+
+  Widget _buildMissingAvsTrajectoryChart(
+    ProjectionResult projection,
+    CoachProfile profile,
+  ) {
+    final chart = MintTrajectoryChart(
+      result: projection,
+      goalALabel: profile.goalA.label,
+    );
+    if (MediaQuery.textScalerOf(context).scale(1) < 2) return chart;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 680,
+        child: chart,
+      ),
+    );
+  }
+
+  Widget _buildLppRegulationMetadata(String label, String value) => Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '$label ',
+              style: MintTextStyles.labelMedium(),
+            ),
+            TextSpan(
+              text: value,
+              style: MintTextStyles.bodyMedium(),
+            ),
+          ],
+        ),
+      );
+
+  void _showLppRegulationHandoffSheet(
+    LppRegulationSpecialistHandoff handoff,
+  ) {
+    final l = S.of(context)!;
+    final localeName = Localizations.localeOf(context).toLanguageTag();
+    final sourceDate = DateFormat.yMMMMd(localeName).format(
+      SwissCivilTime.businessDate(handoff.sourceDate),
+    );
+    final confirmedAt = DateFormat.yMMMMd(localeName).format(
+      SwissCivilTime.businessDate(handoff.confirmedAt),
+    );
+
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (sheetContext) => Semantics(
+          identifier: _lppRegulationSheetId,
+          container: true,
+          explicitChildNodes: true,
+          child: SafeArea(
+            child: SizedBox(
+              height: MediaQuery.sizeOf(sheetContext).height * 0.9,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Semantics(
+                      identifier: _lppRegulationCloseId,
+                      button: true,
+                      child: TextButton.icon(
+                        key: const Key(_lppRegulationCloseId),
+                        onPressed: () => Navigator.of(sheetContext).pop(),
+                        icon: const Icon(Icons.close),
+                        label: Text(
+                          l.retirementLppRegulationHandoffClose,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(
+                        MintSpacing.lg,
+                        0,
+                        MintSpacing.lg,
+                        MintSpacing.lg,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l.retirementLppRegulationHandoffTitle,
+                            style: MintTextStyles.titleLarge(),
+                          ),
+                          const SizedBox(height: MintSpacing.sm),
+                          Text(
+                            l.retirementLppRegulationHandoffBoundary,
+                            style: MintTextStyles.bodyMedium(
+                              color: MintColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: MintSpacing.md),
+                          _buildLppRegulationMetadata(
+                            l.retirementLppRegulationDocumentKindLabel,
+                            l.retirementLppRegulationDocumentKindValue,
+                          ),
+                          const SizedBox(height: MintSpacing.xs),
+                          _buildLppRegulationMetadata(
+                            l.retirementLppRegulationSourceDateLabel,
+                            sourceDate,
+                          ),
+                          const SizedBox(height: MintSpacing.xs),
+                          _buildLppRegulationMetadata(
+                            l.retirementLppRegulationLegalYearLabel,
+                            '${handoff.legalYear}',
+                          ),
+                          const SizedBox(height: MintSpacing.xs),
+                          _buildLppRegulationMetadata(
+                            l.retirementLppRegulationConfirmedAtLabel,
+                            confirmedAt,
+                          ),
+                          const SizedBox(height: MintSpacing.lg),
+                          Text(
+                            l.retirementLppRegulationQuestionsTitle,
+                            style: MintTextStyles.titleMedium(),
+                          ),
+                          const SizedBox(height: MintSpacing.md),
+                          for (final topic in handoff.topics) ...[
+                            Semantics(
+                              identifier:
+                                  'retirement_lpp_regulation_topic_$topic',
+                              container: true,
+                              child: Text(
+                                _lppRegulationTopicLabel(l, topic),
+                                style: MintTextStyles.titleMedium(),
+                              ),
+                            ),
+                            const SizedBox(height: MintSpacing.md),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _lppRegulationTopicLabel(S l, String topic) => switch (topic) {
+        'buyback' => l.retirementLppRegulationQuestionBuyback,
+        'conversion' => l.retirementLppRegulationQuestionConversion,
+        'flexibleRetirement' =>
+          l.retirementLppRegulationQuestionFlexibleRetirement,
+        'disability' => l.retirementLppRegulationQuestionDisability,
+        'survivors' => l.retirementLppRegulationQuestionSurvivors,
+        'divorce' => l.retirementLppRegulationQuestionDivorce,
+        _ => throw StateError('Unknown LPP regulation topic'),
+      };
 
   // ────────────────────────────────────────────────────────────
   //  APPBAR — White standard (not Pulse gradient per §4.5)

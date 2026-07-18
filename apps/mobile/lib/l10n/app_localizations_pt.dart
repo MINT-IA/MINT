@@ -24416,4 +24416,67 @@ class SPt extends S {
   String retirementLppCapitalNoticeDeadlineStale(String date) {
     return 'O prazo indicado pela tua caixa de pensões era $date. Confirma-o diretamente com a caixa.';
   }
+
+  @override
+  String get retirementLppRegulationReferenceTitle =>
+      'Regulamento de previdência revisto';
+
+  @override
+  String get retirementLppRegulationReferenceBody =>
+      'A revisão deste regulamento está confirmada. Não confirma a sua aplicação à tua situação, nem direitos ou montantes.';
+
+  @override
+  String get retirementLppRegulationReferencePrepareQuestionsCta =>
+      'Preparar as minhas perguntas';
+
+  @override
+  String get retirementLppRegulationHandoffTitle =>
+      'Perguntas para a tua caixa de pensões';
+
+  @override
+  String get retirementLppRegulationHandoffBoundary =>
+      'A MINT não recomenda nenhuma opção. Confirma as regras aplicáveis com a tua caixa de pensões ou um especialista.';
+
+  @override
+  String get retirementLppRegulationDocumentKindLabel => 'Tipo de documento';
+
+  @override
+  String get retirementLppRegulationDocumentKindValue =>
+      'Regulamento de previdência profissional';
+
+  @override
+  String get retirementLppRegulationSourceDateLabel => 'Data do documento';
+
+  @override
+  String get retirementLppRegulationLegalYearLabel => 'Ano de referência legal';
+
+  @override
+  String get retirementLppRegulationConfirmedAtLabel => 'Revisão confirmada em';
+
+  @override
+  String get retirementLppRegulationQuestionsTitle => 'Perguntas a colocar';
+
+  @override
+  String get retirementLppRegulationQuestionBuyback =>
+      'Compras na caixa de pensões';
+
+  @override
+  String get retirementLppRegulationQuestionConversion => 'Conversão em pensão';
+
+  @override
+  String get retirementLppRegulationQuestionFlexibleRetirement =>
+      'Reforma flexível';
+
+  @override
+  String get retirementLppRegulationQuestionDisability => 'Invalidez';
+
+  @override
+  String get retirementLppRegulationQuestionSurvivors =>
+      'Prestações de sobrevivência';
+
+  @override
+  String get retirementLppRegulationQuestionDivorce => 'Divórcio';
+
+  @override
+  String get retirementLppRegulationHandoffClose => 'Fechar';
 }

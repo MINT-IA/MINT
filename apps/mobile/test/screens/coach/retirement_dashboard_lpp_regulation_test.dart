@@ -323,12 +323,10 @@ void main() {
   testWidgets(
       'CTA opens a local safe scrollable metadata-only handoff at 200 percent text scale',
       (tester) async {
-    final semantics = tester.ensureSemantics();
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(() {
-      semantics.dispose();
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
       tester.platformDispatcher.clearTextScaleFactorTestValue();
@@ -349,8 +347,14 @@ void main() {
     await tester.pumpWidget(_dashboard(ledger: ledger, documents: documents));
     await tester.pump(const Duration(milliseconds: 500));
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key(_ctaId)),
+      400,
+    );
     final cta = find.bySemanticsIdentifier(_ctaId);
     expect(cta, findsOneWidget);
+    await tester.ensureVisible(cta);
+    await tester.pumpAndSettle();
     await tester.tap(cta);
     await tester.pumpAndSettle();
 

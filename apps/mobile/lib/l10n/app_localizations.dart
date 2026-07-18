@@ -42568,6 +42568,114 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'L’échéance indiquée par ta caisse était le {date}. Vérifie-la directement auprès d’elle.'**
   String retirementLppCapitalNoticeDeadlineStale(String date);
+
+  /// No description provided for @retirementLppRegulationReferenceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règlement de prévoyance revu'**
+  String get retirementLppRegulationReferenceTitle;
+
+  /// No description provided for @retirementLppRegulationReferenceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La revue de ce règlement est confirmée. Elle ne confirme ni son application à ta situation, ni tes droits, ni aucun montant.'**
+  String get retirementLppRegulationReferenceBody;
+
+  /// No description provided for @retirementLppRegulationReferencePrepareQuestionsCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer mes questions'**
+  String get retirementLppRegulationReferencePrepareQuestionsCta;
+
+  /// No description provided for @retirementLppRegulationHandoffTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions à vérifier avec ta caisse'**
+  String get retirementLppRegulationHandoffTitle;
+
+  /// No description provided for @retirementLppRegulationHandoffBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne recommande aucune option. Confirme les règles applicables avec ta caisse de pension ou un spécialiste.'**
+  String get retirementLppRegulationHandoffBoundary;
+
+  /// No description provided for @retirementLppRegulationDocumentKindLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de document'**
+  String get retirementLppRegulationDocumentKindLabel;
+
+  /// No description provided for @retirementLppRegulationDocumentKindValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règlement de prévoyance'**
+  String get retirementLppRegulationDocumentKindValue;
+
+  /// No description provided for @retirementLppRegulationSourceDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date du document'**
+  String get retirementLppRegulationSourceDateLabel;
+
+  /// No description provided for @retirementLppRegulationLegalYearLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année de référence légale'**
+  String get retirementLppRegulationLegalYearLabel;
+
+  /// No description provided for @retirementLppRegulationConfirmedAtLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revue confirmée le'**
+  String get retirementLppRegulationConfirmedAtLabel;
+
+  /// No description provided for @retirementLppRegulationQuestionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions à poser'**
+  String get retirementLppRegulationQuestionsTitle;
+
+  /// No description provided for @retirementLppRegulationQuestionBuyback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachats'**
+  String get retirementLppRegulationQuestionBuyback;
+
+  /// No description provided for @retirementLppRegulationQuestionConversion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversion de la rente'**
+  String get retirementLppRegulationQuestionConversion;
+
+  /// No description provided for @retirementLppRegulationQuestionFlexibleRetirement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite flexible'**
+  String get retirementLppRegulationQuestionFlexibleRetirement;
+
+  /// No description provided for @retirementLppRegulationQuestionDisability.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invalidité'**
+  String get retirementLppRegulationQuestionDisability;
+
+  /// No description provided for @retirementLppRegulationQuestionSurvivors.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prestations aux survivants'**
+  String get retirementLppRegulationQuestionSurvivors;
+
+  /// No description provided for @retirementLppRegulationQuestionDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorce'**
+  String get retirementLppRegulationQuestionDivorce;
+
+  /// No description provided for @retirementLppRegulationHandoffClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get retirementLppRegulationHandoffClose;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
