@@ -10,6 +10,7 @@ class ScanSessionPayload {
   final ExtractionResult extraction;
   final LppExtractionCandidate? lppCandidate;
   final LppAcquisitionAuthorization? lppAuthorization;
+  final LppRegulationAcquisitionCandidate? lppRegulationCandidate;
   final ManualPartnerAccountabilityContext? manualPartnerAccountability;
   final TaxExtractionCandidate? taxCandidate;
   final int? previousConfidence;
@@ -18,6 +19,7 @@ class ScanSessionPayload {
     required this.extraction,
     this.lppCandidate,
     this.lppAuthorization,
+    this.lppRegulationCandidate,
     this.manualPartnerAccountability,
     this.taxCandidate,
     this.previousConfidence,
@@ -31,6 +33,7 @@ class ScanSessionPayload {
       extraction: _withoutSourceText(extraction),
       lppCandidate: null,
       lppAuthorization: null,
+      lppRegulationCandidate: null,
       manualPartnerAccountability: null,
       taxCandidate: null,
       previousConfidence: previousConfidence,
@@ -67,6 +70,19 @@ ExtractionResult _withoutSourceText(ExtractionResult extraction) {
   );
 }
 
+bool _isStrictEmptyLppRegulationExtraction(ExtractionResult extraction) {
+  return extraction.fields.isEmpty &&
+      extraction.overallConfidence == 0 &&
+      extraction.confidenceDelta == 0 &&
+      extraction.warnings.isEmpty &&
+      extraction.disclaimer.isEmpty &&
+      extraction.sources.isEmpty &&
+      extraction.diagnostics.isEmpty &&
+      extraction.planType == null &&
+      extraction.planTypeWarning == null &&
+      extraction.coherenceWarnings.isEmpty;
+}
+
 /// In-memory boundary for domain data used by the scan route sequence.
 ///
 /// Route locations carry only [scanSessionId]. A cold deep link or process
@@ -88,12 +104,26 @@ class ScanSessionProvider extends ChangeNotifier {
     ExtractionResult extraction, {
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
+    LppRegulationAcquisitionCandidate? lppRegulationCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
   }) {
     final guard = _sessionEpoch.capture();
     final hasLppCandidate = lppCandidate != null;
     final hasLppAuthorization = lppAuthorization != null;
+    final isLppRegulation = extraction.documentType == DocumentType.lppPlan;
+    final hasLppRegulationCandidate = lppRegulationCandidate != null;
+    if (isLppRegulation != hasLppRegulationCandidate ||
+        (hasLppRegulationCandidate &&
+            (!_isStrictEmptyLppRegulationExtraction(extraction) ||
+                hasLppCandidate ||
+                hasLppAuthorization ||
+                manualPartnerAccountability != null ||
+                taxCandidate != null))) {
+      throw ArgumentError(
+        'LPP regulation requires one isolated zero-fact acquisition candidate',
+      );
+    }
     final requiresPartnerAccountability =
         lppAuthorization?.subject == LppEvidenceOwnerKind.manualPartner;
     if (hasLppCandidate != hasLppAuthorization ||
@@ -122,6 +152,7 @@ class ScanSessionProvider extends ChangeNotifier {
       extraction: extraction,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
+      lppRegulationCandidate: lppRegulationCandidate,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );
@@ -146,6 +177,7 @@ class ScanSessionProvider extends ChangeNotifier {
     final guard = _sessionEpoch.capture();
     final current = _sessions[id];
     if (current == null) return false;
+    if (current.lppRegulationCandidate != null) return false;
     _sessions[id] = current.withImpact(
       extraction: extraction,
       previousConfidence: previousConfidence,
