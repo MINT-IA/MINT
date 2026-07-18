@@ -316,7 +316,8 @@ def test_writer_uses_plan_picker_upload_and_volatile_review() -> None:
         "FeatureFlags.documentLppEvidenceEnabled = false;",
         "FeatureFlags.lppRegulationReferenceEnabled = false;",
         "ReportPersistenceService.clearDiagnostic()",
-        "await ledger.acceptLppReview(_initialNumericReview(",
+        "ledger.currentLppSnapshot(LppEvidenceOwnerKind.self)",
+        "reason: 'the writer must prove regulation-only first acquisition'",
         "DocumentScanScreen(",
         "initialType: DocumentType.lppPlan",
         "pickFile:",
@@ -373,6 +374,8 @@ def test_writer_uses_plan_picker_upload_and_volatile_review() -> None:
     # Runtime observes the production UI's writer seam through thin super
     # spies; it must not manually invoke the two regulation writers.
     for forbidden in (
+        "acceptLppReview(",
+        "_initialNumericReview",
         "ledger.acceptLppRegulationReference(",
         "documents.recordLppRegulation(",
         "DocumentProvider.uploadDocument",
@@ -387,7 +390,7 @@ def test_writer_uses_plan_picker_upload_and_volatile_review() -> None:
     assert "_coach_lpp_evidence_v1" not in writer[seed_start:seed_end]
 
 
-def test_cold_reader_handoff_then_numeric_replacement_hides_reference() -> None:
+def test_cold_reader_handoff_survives_numeric_addition_and_replacement() -> None:
     reader = READER.read_text(encoding="utf-8")
     assert reader.count("patrolTest(") == 1
     for anchor in (
@@ -400,11 +403,12 @@ def test_cold_reader_handoff_then_numeric_replacement_hides_reference() -> None:
         "await provider.loadFromWizard();",
         "documents.bindLedger(provider);",
         "await documents.hydrateReferences();",
+        "expect(\n        currentSnapshot,\n        isNull,",
         "final candidate = provider.profile!.lppRegulationReference;",
         "final resolved = documents.resolveLppRegulation(candidate);",
         "expect(resolved, isNotNull);",
         "documents.byId(candidate!.referenceId)",
-        "expect(reference.snapshotId, currentSnapshot.snapshotId);",
+        "expect(typedReference.snapshotId, isNull);",
         "RetirementDashboardScreen()",
         "retirement_lpp_regulation_reference_education",
         "retirement_lpp_regulation_handoff_cta",
@@ -412,12 +416,16 @@ def test_cold_reader_handoff_then_numeric_replacement_hides_reference() -> None:
         "retirement_lpp_regulation_handoff_title",
         "retirement_lpp_regulation_handoff_privacy",
         "retirement_lpp_regulation_handoff_close",
+        "await provider.acceptLppReview(_firstNumericReview(",
+        "final firstNumericSnapshot = provider.currentLppSnapshot(",
+        "expect(firstNumericReceipt.snapshotId, firstNumericSnapshot.snapshotId);",
+        "final afterAdditionReference = provider.profile!.lppRegulationReference;",
+        "documents.resolveLppRegulation(afterAdditionReference)",
         "await provider.acceptLppReview(_replacementNumericReview(",
-        "isNot(currentSnapshot.snapshotId)",
-        "expect(replacementSnapshot.lppRegulationReference, isNull);",
-        "expect(provider.profile!.lppRegulationReference, isNull);",
-        "expect(documents.resolveLppRegulation(candidate), isNull);",
-        "findsNothing",
+        "isNot(firstNumericSnapshot.snapshotId)",
+        "final preservedReference = provider.profile!.lppRegulationReference;",
+        "expect(documents.resolveLppRegulation(preservedReference), isNotNull);",
+        "findsOneWidget",
     ):
         assert anchor in reader, anchor
 
@@ -426,11 +434,12 @@ def test_cold_reader_handoff_then_numeric_replacement_hides_reference() -> None:
         < reader.index("retirement_lpp_regulation_reference_education")
         < reader.index("retirement_lpp_regulation_handoff_cta")
         < reader.index("retirement_lpp_regulation_handoff_sheet")
+        < reader.index("await provider.acceptLppReview(_firstNumericReview(")
         < reader.index("await provider.acceptLppReview(_replacementNumericReview(")
     )
     assert "acceptLppRegulationReference(" not in reader
     assert "recordLppRegulation(" not in reader
-    assert reader.count("acceptLppReview(") == 1
+    assert reader.count("acceptLppReview(") == 2
     for forbidden in (
         "MINT_LPP_PRIVATE_MANIFEST",
         "/Users/",
