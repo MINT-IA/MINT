@@ -109,13 +109,14 @@ Future<({CoachProfileProvider provider, _MemoryLppPersistence persistence})>
     'q_canton': 'VD',
   },
   SessionEpoch? sessionEpoch,
+  DateTime Function()? now,
 }) async {
   final persistence = _MemoryLppPersistence(initial);
   final provider = CoachProfileProvider(
     taxProfilePersistence: persistence,
     lppProfilePersistence: persistence,
     sessionEpoch: sessionEpoch,
-    now: () => DateTime.utc(2026, 7, 19, 10),
+    now: now ?? () => DateTime.utc(2026, 7, 19, 10),
   );
   await provider.loadFromWizard();
   persistence.resetCounts();
@@ -259,7 +260,9 @@ void main() {
   });
 
   test('attested regime persists as the exclusive temporal union', () async {
-    final loaded = await _loadedProvider();
+    final loaded = await _loadedProvider(
+      now: () => DateTime.utc(2027, 7, 19, 10),
+    );
     addTearDown(loaded.provider.dispose);
 
     final receipt = await loaded.provider.acceptPillar3aBeneficiaryReview(
