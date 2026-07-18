@@ -24,6 +24,7 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
+import 'package:mint_mobile/services/report/lpp_regulation_handoff_section_content.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -1172,11 +1173,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   ) {
     final l = S.of(context)!;
     final localeName = Localizations.localeOf(context).toLanguageTag();
-    final sourceDate = DateFormat.yMMMMd(localeName).format(
-      SwissCivilTime.businessDate(handoff.sourceDate),
-    );
-    final confirmedAt = DateFormat.yMMMMd(localeName).format(
-      SwissCivilTime.businessDate(handoff.confirmedAt),
+    final content = LppRegulationHandoffSectionContent.fromHandoff(
+      handoff: handoff,
+      l: l,
+      localeName: localeName,
     );
 
     unawaited(
@@ -1224,13 +1224,20 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                             header: true,
                             container: true,
                             child: Text(
-                              l.retirementLppRegulationHandoffTitle,
+                              content.title,
                               style: MintTextStyles.titleLarge(),
                             ),
                           ),
                           const SizedBox(height: MintSpacing.sm),
                           Text(
-                            l.retirementLppRegulationHandoffBoundary,
+                            content.referenceBody,
+                            style: MintTextStyles.bodyMedium(
+                              color: MintColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: MintSpacing.sm),
+                          Text(
+                            content.boundary,
                             style: MintTextStyles.bodyMedium(
                               color: MintColors.textSecondary,
                             ),
@@ -1241,7 +1248,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                 'retirement_lpp_regulation_handoff_privacy',
                             container: true,
                             child: Text(
-                              l.retirementLppRegulationHandoffPrivacy,
+                              content.privacy,
                               style: MintTextStyles.bodyMedium(
                                 color: MintColors.textSecondary,
                               ),
@@ -1249,23 +1256,28 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                           ),
                           const SizedBox(height: MintSpacing.md),
                           _buildLppRegulationMetadata(
-                            l.retirementLppRegulationDocumentKindLabel,
-                            l.retirementLppRegulationDocumentKindValue,
+                            content.documentKindLabel,
+                            content.documentKindValue,
                           ),
                           const SizedBox(height: MintSpacing.xs),
                           _buildLppRegulationMetadata(
-                            l.retirementLppRegulationSourceDateLabel,
-                            sourceDate,
+                            content.sourceDateLabel,
+                            content.sourceDateValue,
                           ),
                           const SizedBox(height: MintSpacing.xs),
                           _buildLppRegulationMetadata(
-                            l.retirementLppRegulationLegalYearLabel,
-                            '${handoff.legalYear}',
+                            content.legalYearLabel,
+                            content.legalYearValue,
                           ),
                           const SizedBox(height: MintSpacing.xs),
                           _buildLppRegulationMetadata(
-                            l.retirementLppRegulationConfirmedAtLabel,
-                            confirmedAt,
+                            content.confirmedAtLabel,
+                            content.confirmedAtValue,
+                          ),
+                          const SizedBox(height: MintSpacing.xs),
+                          _buildLppRegulationMetadata(
+                            content.fundRelationshipLabel,
+                            content.fundRelationshipValue,
                           ),
                           const SizedBox(height: MintSpacing.lg),
                           Semantics(
@@ -1273,7 +1285,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                 'retirement_lpp_regulation_applicability_question',
                             container: true,
                             child: Text(
-                              l.retirementLppRegulationApplicabilityQuestion,
+                              content.applicabilityQuestion,
                               style: MintTextStyles.bodyMedium(
                                 color: MintColors.textSecondary,
                               ),
@@ -1281,27 +1293,27 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                           ),
                           const SizedBox(height: MintSpacing.lg),
                           Text(
-                            l.retirementLppRegulationQuestionsTitle,
+                            content.questionsTitle,
                             style: MintTextStyles.titleMedium(),
                           ),
                           const SizedBox(height: MintSpacing.md),
-                          for (final topic in handoff.topics) ...[
+                          for (final question in content.questions) ...[
                             Semantics(
                               identifier:
-                                  'retirement_lpp_regulation_topic_$topic',
+                                  'retirement_lpp_regulation_topic_${question.topic}',
                               container: true,
                               child: Text(
-                                _lppRegulationTopicLabel(l, topic),
+                                question.title,
                                 style: MintTextStyles.titleMedium(),
                               ),
                             ),
                             const SizedBox(height: MintSpacing.xs),
                             Semantics(
                               identifier:
-                                  'retirement_lpp_regulation_question_$topic',
+                                  'retirement_lpp_regulation_question_${question.topic}',
                               container: true,
                               child: Text(
-                                _lppRegulationQuestionBody(l, topic),
+                                question.body,
                                 style: MintTextStyles.bodyMedium(
                                   color: MintColors.textSecondary,
                                 ),
@@ -1321,28 +1333,6 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       ),
     );
   }
-
-  String _lppRegulationTopicLabel(S l, String topic) => switch (topic) {
-        'buyback' => l.retirementLppRegulationQuestionBuyback,
-        'conversion' => l.retirementLppRegulationQuestionConversion,
-        'flexibleRetirement' =>
-          l.retirementLppRegulationQuestionFlexibleRetirement,
-        'disability' => l.retirementLppRegulationQuestionDisability,
-        'survivors' => l.retirementLppRegulationQuestionSurvivors,
-        'divorce' => l.retirementLppRegulationQuestionDivorce,
-        _ => throw StateError('Unknown LPP regulation topic'),
-      };
-
-  String _lppRegulationQuestionBody(S l, String topic) => switch (topic) {
-        'buyback' => l.retirementLppRegulationQuestionBuybackBody,
-        'conversion' => l.retirementLppRegulationQuestionConversionBody,
-        'flexibleRetirement' =>
-          l.retirementLppRegulationQuestionFlexibleRetirementBody,
-        'disability' => l.retirementLppRegulationQuestionDisabilityBody,
-        'survivors' => l.retirementLppRegulationQuestionSurvivorsBody,
-        'divorce' => l.retirementLppRegulationQuestionDivorceBody,
-        _ => throw StateError('Unknown LPP regulation topic'),
-      };
 
   // ────────────────────────────────────────────────────────────
   //  APPBAR — White standard (not Pulse gradient per §4.5)

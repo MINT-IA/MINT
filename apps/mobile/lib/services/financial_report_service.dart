@@ -1,6 +1,7 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
@@ -15,7 +16,11 @@ class FinancialReportService {
   final CircleScoringService _scoringService = CircleScoringService();
 
   /// Génère le rapport complet à partir des réponses du wizard
-  FinancialReport generateReport(Map<String, dynamic> answers, {S? l}) {
+  FinancialReport generateReport(
+    Map<String, dynamic> answers, {
+    S? l,
+    LppRegulationSpecialistHandoff? lppRegulationHandoff,
+  }) {
     // 1. Profil utilisateur
     final profile = _buildUserProfile(answers);
 
@@ -85,6 +90,7 @@ class FinancialReportService {
       taxSimulation: taxSim,
       retirementProjection: retirementProj,
       lppBuybackStrategy: lppStrategy,
+      lppRegulationHandoff: lppRegulationHandoff,
       priorityActions: priorityActions,
       personalizedRoadmap: roadmap,
       disclaimers: disclaimers,

@@ -1,4 +1,5 @@
 import 'circle_score.dart';
+import 'lpp_regulation_specialist_handoff.dart';
 import '../services/financial_core/replacement_rate_calculator.dart';
 
 /// Rapport financier exhaustif généré en fin de wizard
@@ -13,6 +14,9 @@ class FinancialReport {
   final TaxSimulation taxSimulation;
   final RetirementProjection? retirementProjection;
   final LppBuybackStrategy? lppBuybackStrategy;
+
+  /// Metadata-only specialist preparation from an exact local BND match.
+  final LppRegulationSpecialistHandoff? lppRegulationHandoff;
 
   // Recommandations
   final List<ActionItem> priorityActions;
@@ -48,6 +52,7 @@ class FinancialReport {
     required this.taxSimulation,
     this.retirementProjection,
     this.lppBuybackStrategy,
+    this.lppRegulationHandoff,
     required this.priorityActions,
     required this.personalizedRoadmap,
     this.disclaimers = const [],

@@ -858,6 +858,22 @@ void main() {
       ),
       findsOneWidget,
     );
+    expect(
+      find.descendant(
+        of: sheet,
+        matching: find.text(l10n.retirementLppRegulationReferenceBody),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: sheet,
+        matching: find.textContaining(
+          l10n.retirementLppRegulationFundRelationshipCurrent,
+        ),
+      ),
+      findsOneWidget,
+    );
 
     expect(handoff.applicabilityQuestion, 'applicability');
     expect(handoff.topics, const <String>[

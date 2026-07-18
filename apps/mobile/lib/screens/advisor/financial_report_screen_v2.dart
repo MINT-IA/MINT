@@ -6,7 +6,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
+import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
+import 'package:mint_mobile/services/report/lpp_regulation_handoff_section_content.dart';
 import 'package:mint_mobile/widgets/report/thematic_card.dart';
 // Wave E-PRIME (2026-04-18): MintAlertObject + VoiceResolutionContext imports
 // removed — widgets/alert/ cluster deleted with AnticipationProvider (Panel A
@@ -32,10 +34,12 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 /// remplaçant les cercles abstraits (Protection, Prévoyance, Croissance, Optimisation).
 class FinancialReportScreenV2 extends StatelessWidget {
   final Map<String, dynamic> wizardAnswers;
+  final LppRegulationSpecialistHandoff? lppRegulationHandoff;
 
   const FinancialReportScreenV2({
     super.key,
     required this.wizardAnswers,
+    this.lppRegulationHandoff,
   });
 
   // ── Route mapping by ActionCategory (replaces fragile keyword matching) ──
@@ -78,7 +82,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
       );
     }
     final reportService = FinancialReportService();
-    final report = reportService.generateReport(wizardAnswers);
+    final report = reportService.generateReport(
+      wizardAnswers,
+      lppRegulationHandoff: lppRegulationHandoff,
+    );
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
     final safeModeReasons = _buildSafeModeReasons(context, wizardAnswers);
 
@@ -190,6 +197,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
                             report.lppBuybackStrategy!, report.profile),
                       ),
 
+                    if (report.lppRegulationHandoff != null) ...[
+                      const SizedBox(height: MintSpacing.lg),
+                      _buildLppRegulationHandoffSection(context, report),
+                    ],
+
                     const SizedBox(height: MintSpacing.lg),
 
                     // ── Life event suggestions based on profile ──
@@ -219,6 +231,100 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   ],
                 ),
               ))),
+    );
+  }
+
+  Widget _buildLppRegulationHandoffSection(
+    BuildContext context,
+    FinancialReport report,
+  ) {
+    final handoff = report.lppRegulationHandoff!;
+    final content = LppRegulationHandoffSectionContent.fromHandoff(
+      handoff: handoff,
+      l: S.of(context)!,
+      localeName: Localizations.localeOf(context).toLanguageTag(),
+    );
+
+    Widget metadata(String label, String value) => Text.rich(
+          TextSpan(
+            children: <InlineSpan>[
+              TextSpan(text: '$label ', style: MintTextStyles.labelMedium()),
+              TextSpan(text: value, style: MintTextStyles.bodyMedium()),
+            ],
+          ),
+        );
+
+    return Semantics(
+      identifier: 'financial_report_lpp_regulation_handoff',
+      container: true,
+      explicitChildNodes: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
+        child: MintSurface(
+          tone: MintSurfaceTone.craie,
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(content.title, style: MintTextStyles.titleLarge()),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                content.referenceBody,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.md),
+              metadata(content.documentKindLabel, content.documentKindValue),
+              const SizedBox(height: MintSpacing.xs),
+              metadata(content.sourceDateLabel, content.sourceDateValue),
+              const SizedBox(height: MintSpacing.xs),
+              metadata(content.legalYearLabel, content.legalYearValue),
+              const SizedBox(height: MintSpacing.xs),
+              metadata(content.confirmedAtLabel, content.confirmedAtValue),
+              const SizedBox(height: MintSpacing.xs),
+              metadata(
+                content.fundRelationshipLabel,
+                content.fundRelationshipValue,
+              ),
+              const SizedBox(height: MintSpacing.lg),
+              Text(
+                content.applicabilityQuestion,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.lg),
+              Text(content.questionsTitle, style: MintTextStyles.titleMedium()),
+              const SizedBox(height: MintSpacing.md),
+              for (final question in content.questions) ...<Widget>[
+                Text(question.title, style: MintTextStyles.titleMedium()),
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  question.body,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.md),
+              ],
+              Text(
+                content.boundary,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                content.privacy,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

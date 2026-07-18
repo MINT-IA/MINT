@@ -111,6 +111,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // intent_screen.dart DELETED (KILL-01, Phase 2)
@@ -1315,6 +1316,7 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final profileProvider = context.watch<CoachProfileProvider>();
+        final documentProvider = context.watch<DocumentProvider?>();
         return FutureBuilder<Map<String, dynamic>>(
           future: profileProvider.waitForReportAnswers(),
           builder: (ctx, snapshot) {
@@ -1323,10 +1325,16 @@ final _router = GoRouter(
                 body: Center(child: CircularProgressIndicator()),
               );
             }
+            final resolved = documentProvider?.resolveLppRegulation(
+              profileProvider.profile?.lppRegulationReference,
+            );
+            final lppRegulationHandoff =
+                LppRegulationSpecialistHandoff.tryFromEvidence(resolved);
             return FinancialReportScreenV2(
               wizardAnswers: snapshot.hasError
                   ? const {}
                   : profileProvider.reportAnswersSnapshot,
+              lppRegulationHandoff: lppRegulationHandoff,
             );
           },
         );
