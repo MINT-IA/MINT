@@ -12,7 +12,7 @@
 | Fail-closed state | 1.5/1.5 | Exact cold notice resolves; authority replacement and numeric snapshot replacement both hide it. |
 | Production-default isolation | 1.5/1.5 | Physical production rebuild/install and Maestro pass with the default-off path absent. |
 | Privacy/evidence | 1.5/1.5 | Synthetic only, private fixture false, minimized allowlist retains no raw/device/result-bundle material. |
-| External audit | 1.0/1.0 | Opus high code and product/domain PASS, P0/P1=0. |
+| External audit | 1.0/1.0 | Two native-delta Opus high lenses supplement seven earlier topology lenses; code and product/domain PASS, P0/P1=0. |
 | Domain completeness | 0.2/0.5 | The fund-declared date is never inferred; external IO and dossier/PDF parity remain outside this atom. |
 
 This score is bounded to the technical atom. Capital-notice dossier/PDF parity,

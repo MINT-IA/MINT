@@ -11,6 +11,11 @@ This is the minimized, sanitized exact-source proof for the default-off
 - Wrapper-only Opus high code and product/domain lenses: PASS, P0/P1=0.
 - Synthetic data only; private fixture false.
 
+These two native-delta lenses supplement the seven earlier topology lenses for
+the BND, ledger and Dashboard slices. The exact source is the fully assembled
+runtime tree; its terminal commit fixes the final visual scroll joint rather
+than claiming that one commit implemented the complete seam.
+
 The writer uses the production UI/provider acquisition seam: a real synthetic
 numeric certificate review is followed by `/scan?type=lppPlan`, the real review
 fields, exact regulation then capital mutations, session purge and the real
