@@ -399,9 +399,8 @@ void main() {
         _replacementReview(now),
       );
       await $.pumpAndSettle();
-      final replacementSnapshot = LppEvidenceSelector.selectSelf(
-        provider.reportAnswersSnapshot['_coach_lpp_evidence_v1'],
-        now: () => now,
+      final replacementSnapshot = provider.currentLppSnapshot(
+        LppEvidenceOwnerKind.self,
       );
       expect(replacementSnapshot, isNotNull);
       if (replacementSnapshot == null) fail('Missing replacement LPP snapshot');
