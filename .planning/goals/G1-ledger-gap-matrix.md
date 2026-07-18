@@ -25,8 +25,14 @@
 > 22/22. UI assertions are traced to the tracked reader executed by the passing
 > suite; XCTest output is not misrepresented as an assertion transcript. The
 > `currentFund` relationship remains declared/unverified and does not establish
-> legal applicability or objective caisse/fund identity. PDF/dossier caveat
-> parity and an activation decision remain open. Whole RET-REF also retains
+> legal applicability or objective caisse/fund identity. Exact pushed SHA
+> `274736a50bca659579fe26f68ae4e600469e3a9a` runs the real `MintApp`
+> `/rapport` dossier, production PDF-byte builder and all three recovery
+> suppression states in the same 2/2 native suite; the 3/3 real-byte host text
+> contract proves ordered allowlisted content and privacy. Its minimized proof
+> is `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+> PDF/dossier caveat parity is closed; an activation decision remains open.
+> Whole RET-REF also retains
 > capital-notice acquisition, 3a-beneficiary and fiscal activation/currentness
 > gaps. RET-REF remains `ticket_only`, G1 remains open at 8.2/10 and G2/G3
 > remain forbidden.
@@ -166,7 +172,7 @@ evidence, external audits and the activation decision pass. Legacy
 | workCanton | NONE | NONE | CH_canton_code | userInput,certificate | annual | 0.60 | fact | self | NONE | NONE | source_tax,cross_border | FRONTALIER | P0 | yes | partial+ask | required | work_tax | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | workCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | social_security | FRONTALIER | P0 | yes | partial+ask | required | social_security_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | residenceCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | treaty,tax,social_security | FRONTALIER | P0 | yes | partial+ask | required | residence_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
-| lppRegulationReference | _coach_lpp_evidence_v1 | lppRegulationReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptLppRegulationReference,recordLppRegulation,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppRegulationEducation@lppRegulationReference | retirement_lpp_regulation_reference_education,retirement_lpp_regulation_handoff_cta,retirement_lpp_regulation_handoff_sheet,retirement_lpp_regulation_reference_recovery,retirement_lpp_regulation_reconfirm_cta | RETIREMENT | P0 | conditional | educational_only | required | regulation_terms | live | lpp_plan_classifier,lpp_regulation_document_authority,lpp_regulation_ledger_contract,lpp_regulation_provider,lpp_regulation_document_bridge,lpp_regulation_bridge_hardening,canonical_regulation_kind,bridge_wrapper_audits,writer_model_wrapper_audits,lpp_regulation_handoff_model,lpp_regulation_dashboard_consumer_5_of_5,retirement_dashboard_regression_24_of_24,consumer_wrapper_audits,autonomous_declared_fund_relationship,snapshotless_regulation_root,cold_profile_without_numeric_lpp,numeric_add_replacement_preservation,distinct_process_runtime,exact_22_of_22_evidence,production_default_off_before_after,privacy_retention_guard,bounded_opus_audits,schema3_recovery_marker,opaque_resolution_classifier,visible_legacy_missing_mismatch_recovery,recovery_copy_6_locales,recovery_runtime_missing_bnd_7cb5ea4c6,bnd_restore_compare | pdf_dossier_caveat_parity,activation_decision | yes | G1-RET-REF-01 |
+| lppRegulationReference | _coach_lpp_evidence_v1 | lppRegulationReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptLppRegulationReference,recordLppRegulation,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppRegulationEducation@lppRegulationReference | retirement_lpp_regulation_reference_education,retirement_lpp_regulation_handoff_cta,retirement_lpp_regulation_handoff_sheet,retirement_lpp_regulation_reference_recovery,retirement_lpp_regulation_reconfirm_cta,financial_report_lpp_regulation_handoff | RETIREMENT | P0 | conditional | educational_only | required | regulation_terms | live | lpp_plan_classifier,lpp_regulation_document_authority,lpp_regulation_ledger_contract,lpp_regulation_provider,lpp_regulation_document_bridge,lpp_regulation_bridge_hardening,canonical_regulation_kind,bridge_wrapper_audits,writer_model_wrapper_audits,lpp_regulation_handoff_model,lpp_regulation_dashboard_consumer_5_of_5,retirement_dashboard_regression_24_of_24,consumer_wrapper_audits,autonomous_declared_fund_relationship,snapshotless_regulation_root,cold_profile_without_numeric_lpp,numeric_add_replacement_preservation,distinct_process_runtime,exact_22_of_22_evidence,production_default_off_before_after,privacy_retention_guard,bounded_opus_audits,schema3_recovery_marker,opaque_resolution_classifier,visible_legacy_missing_mismatch_recovery,recovery_copy_6_locales,recovery_runtime_missing_bnd_7cb5ea4c6,bnd_restore_compare,dossier_pdf_parity_runtime_274736a50 | activation_decision | yes | G1-RET-REF-01 |
 | lppCapitalNoticeDeadline | _coach_lpp_evidence_v1 | lppCapitalNoticeDeadline | ISO_date | certificate | event_static | 0.95 | specialist_reference | self | acceptLppCapitalNotice,recordLppCapitalNotice,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppCapitalNoticeEducation@lppCapitalNoticeDeadline | retirement_dashboard_deadline_education | RETIREMENT | P0 | conditional | educational_only | required | withdrawal_deadline | live | ret_ref_capital_notice_green_e010132690,strict_self_root,serialized_writer,exact_raw_free_bnd,cold_dashboard_consumer,replacement_invalidation,process_death_runtime,wrapper_audits | production_acquisition_seam,activation_decision | yes | G1-RET-REF-01 |
 | pillar3aBeneficiaryClause | NONE | NONE | document_ref | certificate | event_static | 0.95 | specialist_reference | self | NONE | NONE | succession,beneficiary | RETIREMENT,SUCCESSION | P0 | conditional | educational_only | required | beneficiary_order | missing | NONE | document_reference_contract,source_date,legal_year | yes | G1-RET-REF-01 |
 | matrimonialRegime | NONE | NONE | regime_enum | userInput,certificate | event_static | source_weight | fact | household | NONE | NONE | succession,rente_capital | RETIREMENT,SUCCESSION | P0 | conditional | partial+ask | required | estate_partition | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-SUCCESSION-01 |
@@ -207,8 +213,18 @@ bounded declarative authority for the relationship label on this educational
 reference; it does not establish legal applicability or objective caisse
 verification. The runtime does not objectively prove the caisse/fund identity,
 and the matrix does not invent objective verification as a hard activation
-blocker. PDF/dossier caveat parity and an explicit activation decision remain
-open. The feature stays default-off. No plan value may become a
+blocker. At exact pushed SHA
+`274736a50bca659579fe26f68ae4e600469e3a9a`, the reader joins production
+bootstrap, shows the exact allowlisted handoff on `/rapport`, builds production
+report bytes and suppresses the section in missing, mismatch and legacy
+recovery states before restoring the root and BND. The native suite is 2/2;
+the host real-byte text contract is 3/3; Maestro before/after, 22/22 outputs,
+reinstall, cleanup, restoration and privacy pass. The minimized proof is
+`phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+The combined runtime wrapper refusal at 2579>2500 lines is explicit; accepted
+dossier, PDF and bootstrap component lenses leave P0/P1=0. PDF/dossier caveat
+parity is closed, while an explicit activation decision remains open. The
+feature stays default-off. No plan value may become a
 person fact, calculation, advice or raw document record. Capital-notice
 acquisition/activation, the 3a beneficiary reference and fiscal
 activation/currentness also keep the whole RET-REF ticket open. RET-REF remains

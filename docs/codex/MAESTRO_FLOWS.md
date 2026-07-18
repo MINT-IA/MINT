@@ -41,6 +41,16 @@
 > aggregate; UI claims come from the tracked reader executed by that passing
 > suite, not from an XCTest assertion transcript. Activation remains NO-GO,
 > G1 remains open at 8.2/10 and G2/G3 remain forbidden.
+>
+> **G1 LPP regulation dossier/PDF runtime:** exact pushed SHA
+> `274736a50bca659579fe26f68ae4e600469e3a9a` runs the same 2/2 distinct-PID
+> suite through production `MintApp` bootstrap and `/rapport`, builds production
+> report bytes, and suppresses the dossier for missing, mismatched and legacy
+> recovery. The host real-byte text contract passes 3/3. Maestro before/after
+> stays production-default-off with 22/22 outputs. The minimized proof is
+> `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+> PDF/dossier caveat parity is closed; activation remains NO-GO, RET-REF remains
+> `ticket_only`, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
 
 ## 0. Reality check — partial Maestro setup exists
 
@@ -326,8 +336,21 @@ The minimized sanitized bundle is tracked at
 by commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. This PASS closes the
 autonomous process-death/default-off runtime gap and the bounded visible
 legacy/missing/mismatch recovery debt only; runtime directly exercises the
-missing-reference branch. It does not activate the feature, objectively verify
-`currentFund`, prove PDF/dossier caveat parity or close other RET-REF work. All
+missing-reference branch.
+
+At exact pushed SHA `274736a50bca659579fe26f68ae4e600469e3a9a`, the upgraded
+reader uses production `MintApp`/`AccountSessionBootstrap`, proves the resolved
+handoff on the real `/rapport` route, builds the production report bytes, then
+proves missing, mismatched and legacy recovery each remove the dossier section
+before restoring root and BND. The native aggregate is 2/2, the real-byte host
+text contract is 3/3, and default-off Maestro/lifecycle/privacy/22-of-22 output
+gates pass. Exact runtime assertions remain source-plus-suite claims; no OS
+share-sheet or external viewer is claimed. The combined runtime audit was
+refused at 2579>2500 lines, while dossier, PDF and bootstrap component audits
+bound the accepted P0/P1=0 state. The minimized proof is
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+PDF/dossier caveat parity is closed. This does not activate the feature,
+objectively verify `currentFund`, or close other RET-REF work. All
 flags stay false, `G1-RET-REF-01` stays `ticket_only`, G1 stays open at 8.2/10
 and G2/G3 are forbidden.
 

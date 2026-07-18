@@ -42,15 +42,18 @@ and tests; it does not promote the ticket or close G1.
 | visible recovery + route | exact renders known education; legacy marker, ready missing BND and ready mismatch render state-specific six-language non-inference copy in one recovery container and reuse `/scan?type=lppPlan`; no stale id/year/relationship, fact, handoff, advice or new store/route | CODE-GREEN |
 | autonomous exact-SHA runtime | one Patrol native suite passes 2/2 at `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`: production-shaped synthetic PDF/zero-fact writer -> distinct-PID native relaunch -> regulation-only cold Dashboard reader; later numeric add and replacement both preserve the reference; `private_fixture_used=false` | **PASS** |
 | recovery exact-SHA runtime | at `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a`, the same distinct-PID 2/2 suite starts resolved, empties BND, freshly classifies `missingDocumentReference`, proves known/handoff absence plus exact recovery body/CTA and emitted scan URI, then restores/reloads/compares BND before numeric continuation | **PASS, bounded to missing BND** |
+| dossier/PDF exact-SHA runtime | at `274736a50bca659579fe26f68ae4e600469e3a9a`, the reader joins production bootstrap, opens the real `MintApp` `/rapport` route, proves the resolved allowlisted handoff, builds production report bytes, suppresses the dossier for missing/mismatch/legacy recovery, then restores root and BND; native suite 2/2 and host real-byte text contract 3/3 | **PASS, bounded; no OS share/viewer claim** |
 | assertion trace | XCTest exposes the 2/2 aggregate, not internal Flutter assertions; UI claims are grounded jointly by the tracked exact-SHA reader and passing native suite, never presented as an XCTest assertion transcript | **PASS, bounded** |
 | default-off runtime | physical production export/build/sign/install, Maestro 1/1 before and 1/1 after with all three flags false, exact canonical state/container preservation, cleanup/privacy and 22/22 retained outputs pass | **PASS** |
-| final independent review | bounded wrapper Opus-high code/product-domain vertical and runtime audits pass with P0/P1=0; accepted P2s bound the minimal router, constant checks and Patrol-only execution | **PASS, P0/P1=0** |
-| sanitized evidence | autonomous proof remains at `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`; recovery proof is tracked at `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/` by `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`, with only allowlisted summaries and verified checksums | **PASS** |
+| final independent review | dossier code PASS; its product P1 for the missing PDF is remediated by PDF code/product PASS; bootstrap code/product PASS; current P0/P1=0. The combined runtime wrapper refused 2579 lines against its 2500-line budget and is not relabelled PASS; runtime truth comes from executable exact-SHA gates | **PASS, honestly bounded** |
+| sanitized evidence | autonomous and recovery proofs remain tracked; dossier/PDF proof is `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`, with only allowlisted summaries and verified checksums | **PASS** |
 | activation | three local flags remain false and outside remote hydration | **NO-GO** |
 
 Therefore the former acquisition facade, snapshot coupling, process-death and
 visible legacy/missing/mismatch recovery gaps are closed for these bounded
 technical atoms. `fundRelationship` remains a user declaration, not objective
-caisse verification, and production flags remain false. PDF/dossier caveat
-parity, activation and the other RET-REF obligations remain open; the ticket
+caisse verification, and production flags remain false. PDF/dossier caveat parity is closed
+at exact pushed SHA `274736a50bca659579fe26f68ae4e600469e3a9a` with minimized
+proof `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+Activation and the other RET-REF obligations remain open; the ticket
 stays `ticket_only`, G1 remains open at 8.2/10 and G2/G3 remain forbidden.

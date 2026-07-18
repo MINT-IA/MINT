@@ -62,7 +62,12 @@
 > sanitized proof is tracked at
 > `phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/` by
 > bundle commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. The three local flags
-> remain false. PDF/dossier caveat parity, activation and the other RET-REF
+> remain false. At exact pushed SHA
+> `274736a50bca659579fe26f68ae4e600469e3a9a`, the real `MintApp` reader
+> proves resolved `/rapport`, production PDF-byte construction, and dossier
+> suppression for missing, mismatched and legacy recovery; the minimized proof
+> is `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+> PDF/dossier caveat parity is closed. Activation and the other RET-REF
 > obligations keep the ticket `ticket_only`, G1 open at 8.2/10 and G2/G3
 > forbidden.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
@@ -930,10 +935,18 @@ sanitized proof is tracked at
 The bounded recovery proof is separately tracked at
 `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/`
 by bundle commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`.
-The source audit aggregate is PASS with P0/P1=0; the earlier production/copy
-audit matrix is also P0/P1=0. This proves only the default-off autonomous and
-recovery technical atoms. The visible legacy/missing/mismatch recovery debt is
-closed; PDF/dossier caveat parity, activation and the capital-notice,
+At exact pushed SHA `274736a50bca659579fe26f68ae4e600469e3a9a`, the same native
+suite joins production bootstrap, renders the allowlisted handoff on the real
+`/rapport` route, builds production report bytes, suppresses the dossier for
+missing/mismatch/legacy recovery and restores both strict root and BND. The
+host real-byte text contract passes 3/3. Its minimized proof is
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+The combined runtime wrapper refused the 2579-line prompt against its 2500-line
+budget and is not called PASS. Dossier and PDF component audits plus the final
+bootstrap code/product audits bound the accepted current P0/P1=0 state. This
+proves only the default-off autonomous, recovery and dossier/PDF technical
+atoms. The visible legacy/missing/mismatch recovery debt is
+closed; PDF/dossier caveat parity is closed. Activation and the capital-notice,
 3a-beneficiary, fiscal and other RET-REF obligations remain open. All three
 flags stay false,
 `G1-RET-REF-01` stays `ticket_only`, G1 stays open at 8.2/10 and G2/G3 are

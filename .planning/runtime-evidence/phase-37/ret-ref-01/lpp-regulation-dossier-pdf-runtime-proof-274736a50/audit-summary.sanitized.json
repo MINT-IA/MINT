@@ -1,0 +1,79 @@
+{
+  "bootstrap": {
+    "code": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 1,
+      "verdict": "PASS"
+    },
+    "product_domain": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 2,
+      "verdict": "PASS"
+    },
+    "source_sha": "274736a50"
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "closed_gap": "pdf_dossier_caveat_parity",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "current_gate": {
+    "aggregate_p0": 0,
+    "aggregate_p1": 0,
+    "runtime_full_diff_audited": false,
+    "verdict": "PASS_BOUNDED"
+  },
+  "dossier_wiring": {
+    "code": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 3,
+      "verdict": "PASS"
+    },
+    "product_domain": {
+      "p0": 0,
+      "p1": 1,
+      "p2": 2,
+      "verdict": "P1_FOUND"
+    },
+    "remediated_by": "9055cf47b",
+    "remediated_p1": "pdf_handoff_omission",
+    "source_sha": "0c12f9c84"
+  },
+  "pdf_export": {
+    "code": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 2,
+      "verdict": "PASS"
+    },
+    "product_domain": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 3,
+      "verdict": "PASS"
+    },
+    "source_sha": "9055cf47b"
+  },
+  "runtime_delta": {
+    "code": {
+      "diff_budget_lines": 2500,
+      "diff_prompt_lines": 2579,
+      "verdict": "REFUSED_DIFF_BUDGET"
+    },
+    "full_diff_audited": false,
+    "product_domain": {
+      "verdict": "NOT_RUN"
+    },
+    "runtime_claim_basis": "executable_exact_sha_gates",
+    "source_sha": "df217f8c0"
+  }
+}

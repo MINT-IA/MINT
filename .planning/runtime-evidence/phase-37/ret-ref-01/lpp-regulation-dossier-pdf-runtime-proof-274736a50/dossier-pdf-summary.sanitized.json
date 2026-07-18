@@ -1,0 +1,64 @@
+{
+  "assertion_trace": {
+    "claim_basis": "tracked_contracts_plus_passing_native_and_host_suites",
+    "internal_assertions_exposed_by_xctest_output": false,
+    "source_sha": "274736a50bca659579fe26f68ae4e600469e3a9a",
+    "suite_failed_tests": 0,
+    "suite_passed_tests": 2,
+    "tracked_dossier_test": "apps/mobile/test/screens/advisor/financial_report_lpp_regulation_handoff_test.dart",
+    "tracked_pdf_text_test": "apps/mobile/test/services/lpp_regulation_handoff_pdf_test.dart",
+    "tracked_reader": "apps/mobile/integration_test/g1_ret_ref_lpp_regulation_read_patrol_test.dart"
+  },
+  "authority": {
+    "financial_amounts_inferred": false,
+    "fund_identity_objectively_proven": false,
+    "fund_relationship_verification": "declared_unverified",
+    "legal_applicability_inferred": false
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "closed_gap": "pdf_dossier_caveat_parity",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "dossier": {
+    "handoff_section_identifier": "financial_report_lpp_regulation_handoff",
+    "production_composition_root": "MintApp",
+    "production_route": "/rapport",
+    "recovery_states_suppress_handoff": [
+      "legacyMissingFundRelationship",
+      "mismatchedDocumentReference",
+      "missingDocumentReference"
+    ],
+    "resolved_handoff_visible": true,
+    "specialist_topics": [
+      "buyback",
+      "conversion",
+      "flexibleRetirement",
+      "disability",
+      "survivors",
+      "divorce"
+    ]
+  },
+  "pdf": {
+    "host_text_contract": {
+      "forbidden_sensitive_tokens_absent": true,
+      "null_handoff_section_absent": true,
+      "ordered_allowlisted_content_present": true,
+      "passed_tests": 3,
+      "production_bytes_extracted_with_pdftotext": true,
+      "status": "PASS"
+    },
+    "native_runtime": {
+      "builder": "PdfService.buildFinancialReportPdfBytes",
+      "nontrivial_length_verified": true,
+      "valid_document_header_verified": true
+    },
+    "share_sheet_or_external_app_proven": false
+  }
+}

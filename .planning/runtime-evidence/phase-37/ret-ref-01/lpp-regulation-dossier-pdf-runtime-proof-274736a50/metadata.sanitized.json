@@ -1,0 +1,63 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "closed_gap": "pdf_dossier_caveat_parity",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "cleanup_status": "passed",
+  "contract": "g1_ret_ref_lpp_regulation",
+  "distinct_process_pid_verified": true,
+  "evidence_outputs_complete": true,
+  "expected_output_count": 22,
+  "feature_activation": "test_process_static_flags_only",
+  "lifecycle": {
+    "post_suite_container_and_state_captured": true,
+    "production_reinstall_preserved_identity_and_state": true,
+    "state_preservation": "writer_process_death_cold_reader"
+  },
+  "patrol_full_isolation_zero_verified": true,
+  "privacy": {
+    "document_hash_retained": false,
+    "private_fixture_used": false,
+    "raw_document_bytes_retained": false,
+    "simulator_identifier_retained": false,
+    "synthetic_data_only": true,
+    "xcresult_retained": false
+  },
+  "process_boundary": "patrol_native_relaunch_distinct_pid",
+  "production_default_off": {
+    "after": true,
+    "before": true
+  },
+  "pushed_sha_verified": true,
+  "restoration_status": "restored",
+  "retained_output_count": 22,
+  "runtime_completed": true,
+  "source_sha": "274736a50bca659579fe26f68ae4e600469e3a9a",
+  "stage_exit_codes": {
+    "boot_status": 0,
+    "launch": 0,
+    "maestro_after": 0,
+    "maestro_before": 0,
+    "patrol_build": 0,
+    "production_build": 0,
+    "production_codesign_verify": 0,
+    "production_export": 0,
+    "production_extract": 0,
+    "production_install_after": 0,
+    "production_install_before": 0,
+    "production_xattr_inspect": 0,
+    "terminate": 0
+  },
+  "suite": {
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 2
+  }
+}

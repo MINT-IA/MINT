@@ -205,7 +205,8 @@ def test_global_g1_state_supersedes_snapshot_bound_runtime_without_promotion() -
     assert "does not establish legal applicability" in gap_matrix_words
     assert "recovery_runtime_missing_bnd_7cb5ea4c6" in gap_matrix
     assert "visible_reconfirmation_path" not in gap_matrix
-    assert "pdf_dossier_caveat_parity" in gap_matrix
+    assert "dossier_pdf_parity_runtime_274736a50" in gap_matrix
+    assert "pdf_dossier_caveat_parity" not in gap_matrix
     assert "activation_decision" in gap_matrix
     assert "objective_current_fund_identity_verification" not in gap_matrix
     assert "autonomous_fund_authority_attestation" not in gap_matrix

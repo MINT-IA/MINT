@@ -237,9 +237,9 @@ flowchart TB
 
   LCN_WRITE -- "single serialized provider mutation" --> CPP
 
-  %% Autonomous + visible recovery technical atoms are runtime-GREEN;
+  %% Autonomous, visible recovery and dossier/PDF technical atoms are runtime-GREEN;
   %% activation and other RET-REF work remain NO-GO.
-  subgraph LPP_REGULATION_REFERENCE["G1-RET-REF-01 — LPP REGULATION + RECOVERY GREEN / ACTIVATION MISSING"]
+  subgraph LPP_REGULATION_REFERENCE["G1-RET-REF-01 — LPP REGULATION + RECOVERY + DOSSIER/PDF GREEN / ACTIVATION MISSING"]
     direction TB
     LRR_FLAG{"typedLppEvidence AND documentLppEvidenceEnabled<br/>AND lppRegulationReferenceEnabled<br/>local-only + default false"}
     LRR_HIDDEN["unavailable: off / invalid candidate / provider absent<br/>hydration idle, loading or failed<br/>known and recovery hidden"]
@@ -261,14 +261,17 @@ flowchart TB
     LRR_ROUTE["success discards volatile session<br/>then context.go('/retraite')<br/>no impact/Biography/backend sync"]
     LRR_COLD["cold CoachProfile.fromWizardAnswers<br/>regulation-only profile hydrates"]
     LRR_RESOLVE{"opaque LppRegulationReferenceResolution<br/>unavailable / resolved / missingDocumentReference<br/>mismatchedDocumentReference; no tuple returned"}
-    LRR_DASH["Dashboard exact reader in all 3 loaded branches<br/>card renders declared relationship<br/>local sheet omits it"]
-    LRR_HANDOFF["6 ordered specialist questions<br/>buy-back/conversion/flexible retirement<br/>disability/survivors/divorce<br/>no advice/raw doc/network/share/export"]
+    LRR_DASH["Dashboard exact reader in all 3 loaded branches<br/>card + local sheet label declared relation<br/>shared negative-authority caveat"]
+    LRR_HANDOFF["shared allowlisted handoff content<br/>negative-authority caveat + declared relation<br/>6 ordered specialist questions<br/>no advice/raw doc/internal id/value"]
+    LRR_DOSSIER["real /rapport dossier<br/>resolved handoff visible<br/>missing/mismatch/legacy = absent"]
+    LRR_PDF["production financial-report bytes<br/>same allowlisted handoff<br/>ordered text + null/privacy contracts"]
     LRR_NUMERIC["later numeric self-LPP add/replacement<br/>preserves autonomous regulation reference"]
     LRR_RUNTIME["GREEN @ 6066f1c94786aa1bc4697c29b4a670b7cea3dca4<br/>Patrol native writer -> distinct-PID cold reader 2/2<br/>Maestro default-off + 22/22 logs"]
     LRR_RECOVERY["one Dashboard recovery container<br/>legacy / missing / mismatch bodies in 6 locales<br/>no stale tuple, fact, handoff or advice"]
     LRR_RESCAN["existing /scan?type=lppPlan<br/>reconfirm declaration from document<br/>no new route or store"]
     LRR_RECOVERY_RUNTIME["GREEN @ 7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a<br/>empty BND -> missing recovery + URI<br/>finally restore, reload, compare; same suite 2/2"]
-    LRR_OPEN["OPEN: PDF/dossier caveat parity<br/>activation + other RET-REF obligations<br/>ticket_only; G1 OPEN 8.2"]
+    LRR_DOSSIER_RUNTIME["GREEN @ 274736a50bca659579fe26f68ae4e600469e3a9a<br/>MintApp /rapport + report-byte builder<br/>native 2/2 + host text 3/3; parity closed"]
+    LRR_OPEN["OPEN: activation + other RET-REF obligations<br/>ticket_only; G1 OPEN 8.2<br/>G2/G3 forbidden"]
 
     LRR_FLAG -- "off" --> LRR_HIDDEN
     LRR_FLAG -- "test-only on" --> LRR_PREVIOUS
@@ -283,13 +286,18 @@ flowchart TB
     LRR_RECORD --> LRR_RESOLVE
     LRR_RESOLVE -- "unavailable" --> LRR_HIDDEN
     LRR_RESOLVE -- "resolved; exact wins" --> LRR_DASH --> LRR_HANDOFF
+    LRR_HANDOFF --> LRR_DOSSIER --> LRR_PDF
     LRR_ROOT -- "legacy reason + ready hydration" --> LRR_RECOVERY
     LRR_RESOLVE -- "missing or mismatch" --> LRR_RECOVERY --> LRR_RESCAN
+    LRR_RECOVERY -. "handoff null" .-> LRR_DOSSIER
     LRR_ROOT --> LRR_NUMERIC --> LRR_ROOT
     LRR_DASH -. "runtime accepted" .-> LRR_RUNTIME
     LRR_RECOVERY -. "tracked reader + aggregate suite" .-> LRR_RECOVERY_RUNTIME
     LRR_RESCAN -. "URI + BND restoration accepted" .-> LRR_RECOVERY_RUNTIME
     LRR_RECOVERY_RUNTIME -. "does not activate" .-> LRR_OPEN
+    LRR_DOSSIER -. "real route proven" .-> LRR_DOSSIER_RUNTIME
+    LRR_PDF -. "production bytes + text contract" .-> LRR_DOSSIER_RUNTIME
+    LRR_DOSSIER_RUNTIME -. "does not activate" .-> LRR_OPEN
   end
 
   LRR_ACCEPT -- "single serialized provider mutation" --> CPP
@@ -858,10 +866,10 @@ flowchart TB
 %% reason; the DocumentProvider tuple has no snapshotId. Cold
 %% resolution admits a regulation-only profile, and later numeric self-LPP add
 %% and replacement preserve the reference rather than invalidating it. The
-%% The Dashboard card displays the declared relationship. Its local sheet omits
-%% that field and renders the current privacy/boundary text, applicability
-%% question and six specialist-preparation questions without advice or values;
-%% complete relationship-specific and PDF/dossier caveat parity remains open.
+%% The Dashboard card, local sheet, /rapport dossier and financial-report bytes
+%% share one allowlisted handoff presenter: declared/unverified relationship,
+%% negative-authority caveat, privacy/boundary text, applicability question and
+%% six specialist-preparation questions without advice, values or internal ids.
 %% At exact pushed SHA 6066f1c94786aa1bc4697c29b4a670b7cea3dca4, a single
 %% Patrol native suite passes writer/read 2/2 in lexical order. The reader PID is
 %% distinct; no reinstall/reset/backup occurs between writer and reader. Exact
@@ -879,7 +887,14 @@ flowchart TB
 %% an assertion transcript. The minimized tracked recovery bundle is
 %% `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/`
 %% at ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1. Visible legacy/missing/
-%% mismatch recovery is closed; PDF/dossier caveat parity, activation and other
-%% RET-REF obligations stay open. RET-REF remains ticket_only, G1 remains open
+%% mismatch recovery is closed. At exact pushed SHA
+%% 274736a50bca659579fe26f68ae4e600469e3a9a, production bootstrap + real
+%% `/rapport`, report-byte construction, three-state dossier suppression and
+%% root/BND restoration pass in the native 2/2 suite; the real-byte host text
+%% contract passes 3/3. The minimized proof is
+%% `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+%% The combined runtime audit refusal at 2579>2500 is explicit; dossier, PDF and
+%% bootstrap component audits leave P0/P1=0. PDF/dossier caveat parity is closed;
+%% activation and other RET-REF obligations stay open. RET-REF remains ticket_only, G1 remains open
 %% at 8.2/10 and G2/G3 are forbidden.
 %% ============================================================================

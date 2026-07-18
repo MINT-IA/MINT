@@ -26,7 +26,13 @@
 > `/scan?type=lppPlan` CTA are recovery mechanics, never `DataQuest` Asks. Its
 > tracked proof is
 > `phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/` at
-> bundle commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. Activation remains
+> bundle commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. Exact pushed SHA
+> `274736a50bca659579fe26f68ae4e600469e3a9a` additionally proves that the same
+> fixed six questions and negative-authority caveat reach `/rapport` and the
+> production report bytes without collecting a DataQuest answer, and that all
+> three recovery states suppress the dossier. Its proof is
+> `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+> PDF/dossier caveat parity is closed; activation remains
 > NO-GO; RET-REF stays `ticket_only`, G1 remains open at 8.2/10 and G2/G3 are
 > forbidden.
 
@@ -239,8 +245,13 @@ and production-default Maestro passes before/after. The minimized proof is
 tracked at
 `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/`
 by bundle commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. This closes only
-the visible legacy/missing/mismatch recovery debt. PDF/dossier caveat parity,
-activation and other RET-REF work remain separate and are not new DataQuest
+the visible legacy/missing/mismatch recovery debt. At exact pushed SHA
+`274736a50bca659579fe26f68ae4e600469e3a9a`, resolved dossier/PDF parity and
+three-state dossier suppression pass through the real production composition;
+the minimized proof is
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+PDF/dossier caveat parity is closed. Activation and other RET-REF work remain
+separate and are not new DataQuest
 Asks; RET-REF remains `ticket_only`, G1 stays open at 8.2/10 and G2/G3 stay
 forbidden.
 

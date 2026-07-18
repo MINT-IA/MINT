@@ -1,0 +1,22 @@
+{
+  "assertion_trace": {
+    "internal_assertions_exposed_by_xctest_output": false,
+    "source_sha": "274736a50bca659579fe26f68ae4e600469e3a9a",
+    "tracked_reader": "apps/mobile/integration_test/g1_ret_ref_lpp_regulation_read_patrol_test.dart"
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "closed_gap": "pdf_dossier_caveat_parity",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "contract": "g1_ret_ref_lpp_regulation",
+  "failed_tests": 0,
+  "passed_tests": 2,
+  "status": "PASS"
+}

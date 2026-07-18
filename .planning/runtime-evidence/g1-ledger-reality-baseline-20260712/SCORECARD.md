@@ -100,13 +100,20 @@ G2/G3.
   recovery slice is **GREEN** at exact pushed SHA
   `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a`; its minimized proof is
   `phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/`.
+  The bounded dossier/PDF parity slice is **GREEN** at exact pushed SHA
+  `274736a50bca659579fe26f68ae4e600469e3a9a`; its minimized proof is
+  `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
 - **Runtime evidence:** one Patrol suite passes 2/2 with writer/reader distinct
   by PID. A cold profile starts without a numeric LPP snapshot; the regulation
   reference resolves before the reader removes the BND list. A freshly hydrated
-  provider then classifies `missingDocumentReference`; the known card/handoff
-  are absent, the exact French recovery body and CTA are present without stale
-  tuple data, the CTA reaches `/scan?type=lppPlan`, and `finally` restores and
-  compares the original BND before numeric addition/replacement continue.
+  provider then exercises missing, mismatched and legacy recovery states; each
+  suppresses the known handoff and `/rapport` section without stale tuple data.
+  In the resolved state the real `MintApp` `/rapport` route renders the
+  allowlisted handoff, and the production PDF byte builder executes. Its native
+  header/length checks combine with a passing 3/3 real-byte `pdftotext` contract
+  for ordered content, null omission and sensitive-token absence. `finally`
+  restores and compares the original strict root and BND before numeric
+  addition/replacement continue.
   Production-default Maestro passes 1/1 before and 1/1 after, the path remains
   default-off, production reinstall preserves state, and the retained-output
   contract is complete at 22/22. UI claims trace to the tracked reader executed
@@ -120,8 +127,9 @@ G2/G3.
   on this educational reference; it does not establish legal applicability.
   This runtime does **not** objectively prove the caisse/fund identity and does
   not relabel it as such.
-- **Activation/scope boundary:** **NO-GO** and default-off. PDF/dossier caveat
-  parity and a separate activation decision remain open. Capital-notice
+- **Activation/scope boundary:** **NO-GO** and default-off. PDF/dossier caveat parity is closed
+  only by the bounded exact-SHA slice; a separate activation decision remains
+  open. Capital-notice
   acquisition/activation, the 3a-beneficiary reference and fiscal
   activation/currentness also keep the ticket open. RET-REF remains
   `ticket_only`; the G1 interim score remains 8.2/10, G1 remains open at
@@ -144,6 +152,7 @@ G2/G3.
 | GREEN — G1-BND-01 | A production protection reader could depend on an unpopulated legacy provider, treat missing authority as debt-free, or describe a liquidity-only crisis as debt while uncoupled widgets survived as facades. | Physical-archive RED at `d9f93e30b` produced 1 pass / 5 semantic failures; the identical command passes 6/6 at exact pushed SHA `ed5f2db13`. The sole live reader uses `CoachProfile.isInDebtCrisis`, null authority routes to a diagnostic, generic six-language copy covers liquidity-only crises, dead provider/widgets are absent, and `Profile` remains only as the API/Wizard DTO. Final Sonnet code/product-domain reruns pass with P0/P1=0; six P2s stay explicit. |
 | GREEN — G1-COACH-01 ticket + runtime | Live salary/LPP/3a inline amounts could drop, use the wrong unit/authority, publish before persistence, disappear on reload or survive only behind a facade. | Semantic RED `c7809198e` was 3/10; the identical command is 14/14 at exact pushed SHA `fec1d4119e`. One serialized canonical write precedes publish; invalid/strict-LPP conflicts fail closed; retry and cold provenance pass. Dedicated Patrol is 1/1 with visually accepted synthetic evidence and cleanup; both first-pass Opus wrapper lenses pass P0/P1=0. Five P2 follow-ups remain explicit. |
 | GREEN technical atoms — RET-REF LPP regulation runtime | A production-shaped `lpp_plan` scan could stop at a zero-fact backend response, publish before persistence, leak raw bytes/identity, disappear after process death, bind regulation education to a numeric snapshot, lose the reference on numeric add/replacement, expose a stale handoff after BND loss, strand recovery without a scan route, or accidentally activate the production path. | Exact pushed SHA `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` proves the autonomous base. Exact pushed SHA `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a` adds `missingDocumentReference`: known/handoff absent, exact recovery copy/CTA present, `/scan?type=lppPlan` reached, BND restored+compared. The same suite is 2/2 with distinct PIDs; Maestro before/after 1/1, 22/22 outputs, reinstall/restoration/privacy PASS. `currentFund` remains declared/unverified, not objective caisse identity. Activation remains NO-GO/default-off, so RET-REF stays `ticket_only`. |
+| GREEN bounded parity slice — RET-REF LPP dossier/PDF | The specialist sheet, `/rapport` dossier and portable report could diverge on the declared/unverified caveat, leak internal authority, or survive a recovery state. | Exact pushed SHA `274736a50bca659579fe26f68ae4e600469e3a9a` passes the native 2/2 distinct-process suite through real `MintApp` bootstrap and `/rapport`, suppresses the dossier for missing/mismatch/legacy recovery, builds production PDF bytes, and combines with the 3/3 real-byte text contract. Maestro before/after, 22/22 outputs, reinstall/restoration/privacy PASS. The combined runtime audit was honestly refused at 2579>2500 lines; dossier, PDF and bootstrap component lenses bound the accepted P0/P1=0 state. Only `pdf_dossier_caveat_parity` closes; activation remains NO-GO. |
 | GREEN — G1-LDG-04 nominal | Display defaults or invalid persisted values could become known facts. | Fixed in `f49ba797c`: canton/expense/conversion readiness requires canonical marker plus exact timestamp path(s); invalid/negative/NaN/infinite numeric values remain partial and explicit zero expenses remain known. Canton-domain weakness closed by `62e8ca7d5`: invalid/blank/forged canton evidence fails closed and valid codes normalize. Exact proof: RED 5 failures, GREEN 30/30, models+navigation+routes 494/494 in `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-BND-04 | The lazy production proxy could miss profile mutations until a MintState UI consumer materialised it. | Fixed in `f49ba797c`: the real `MintApp` proxy is eager and the production-context test observes one notification per salary and provenance-only mutation. Exact RED-to-GREEN evidence: `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-LDG-06A core only | The first certificate-only Fitness slice penalized married/registered owners when optional spouse evidence was absent and accepted certified gap years outside `0..44`. | Quality NO-GO at `1f87a79b4`; fixed in `d44d2aa83`: the AVS Fitness criterion is person-owned and invariant to spouse/status, while self/spouse evidence rejects `-1` and `45`. Rerun: static 8/8, targeted 54/54, wider models 321/321, Doctor 7/7, analyze/diffcheck PASS. Exact proof: `g1-ldg06a-core-d44d2aa83.md`. This does not close the global consumer inventory or change 8.2/10 NO-GO. |
@@ -223,6 +232,9 @@ G2/G3.
 | RET-REF LPP regulation exact-SHA runtime | PASS at pushed `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`: one Patrol suite 2/2; distinct writer/reader PIDs; regulation-only cold profile without numeric LPP snapshot; reference preserved across numeric add/replacement; production-default Maestro before/after 1/1 + 1/1; reinstall, restoration and cleanup PASS; 22/22 retained-output contract. |
 | RET-REF LPP regulation recovery exact-SHA runtime | PASS at pushed `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a`: the second-process reader proves `missingDocumentReference`, known/handoff absence, exact French recovery body and CTA, stale-tuple non-exposure, route `/scan?type=lppPlan`, and BND restoration+comparison. The suite remains 2/2; assertions are traced to the tracked test rather than claimed as individual XCTest output records. |
 | RET-REF LPP regulation recovery bounded audits | PASS: wrapper first-pass Opus/high code and product-domain lenses both have P0=0/P1=0/P2=2. The accepted P2s bound the minimal router, tautological string checks and Patrol CLI skip; none is inflated into a full production-route or per-assertion XCTest claim. |
+| RET-REF LPP regulation dossier/PDF exact-SHA runtime | PASS at pushed `274736a50bca659579fe26f68ae4e600469e3a9a`: the real `MintApp` route shows the resolved dossier handoff, all three recovery states suppress it, production report bytes pass native header/length checks, and the host text contract passes 3/3. Claims trace to tracked exact-SHA contracts plus aggregate suites. |
+| RET-REF LPP regulation dossier/PDF audit lineage | BOUNDED PASS: dossier code PASS, its product P1 for missing PDF is remediated by PDF code/product PASS, and bootstrap code/product PASS; current P0/P1=0. The combined runtime prompt refusal at 2579>2500 is retained and is not relabelled PASS. |
+| RET-REF LPP regulation dossier/PDF minimized proof | PASS: `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/` retains only allowlisted summaries and verified checksums, without raw runtime/audit output or device/document artifacts. PDF/dossier caveat parity is closed; activation and RET-REF remain open. |
 | RET-REF LPP regulation minimized proof | PASS: the tracked allowlist and verified `SHA256SUMS` retain only sanitized aggregate metadata, Patrol/Maestro/state summaries and bounded audit acceptance. No raw runtime output, local path, device identifier/hash, document hash/bytes, result bundle, screenshot, media, private-fixture data or source document is tracked. The `currentFund` relationship remains declared/unverified and objective caisse/fund identity is not claimed. |
 | RET-REF LPP regulation bounded audits | PASS: runtime harness code/product-domain 2/2 Opus-high lenses and autonomous authority 10/10 valid Opus-high lenses, all P0=0/P1=0. Invalid isolation outputs are excluded; accepted and open P2 dispositions remain explicit. |
 | Sonnet architecture P1 remediation | PASS: exact disclaimer REDs `21/2`, then `14/1`; final targeted 23 passed / 0 failed, accent lint 4/4 files, analyze 0, financial_core 689/689 and full Flutter 8,900 passed / 33 skipped / 0 failed |
@@ -281,6 +293,9 @@ G2/G3.
 - `7cb5ea4c6` — prove the visible missing-BND recovery state, exact neutral copy,
   scan CTA route and guaranteed BND restoration inside the distinct-process
   cold reader; activation remains default-off and RET-REF/G1 remain open.
+- `274736a50` — prove real-composition `/rapport`, production PDF-byte
+  construction, three-state recovery suppression and exact restoration; close
+  only dossier/PDF caveat parity while activation and RET-REF/G1 remain open.
 
 ## Release decision
 
@@ -289,8 +304,8 @@ G2/G3.
 - `G3 allowed?` **NO**.
 - Current machine truth: **22/31 GREEN; 9 hard floors open** — 8
   `ticket_only`, including RET-REF, plus `G1-RUNTIME-01` as `red_proven`.
-- Next ordered gates remain inside G1. Continue RET-REF with PDF/dossier
-  declared-unverified caveat parity and an explicit activation decision;
+- Next ordered gates remain inside G1. PDF/dossier caveat parity is closed;
+  continue RET-REF with an explicit activation decision;
   continue capital-notice acquisition,
   3a-beneficiary reference and fiscal activation/currentness. Continue the
   eight external LPP activation facts, AVS splitting/evidence work and the

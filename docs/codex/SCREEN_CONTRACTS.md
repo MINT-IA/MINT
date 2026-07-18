@@ -1011,7 +1011,7 @@ synthetic-only, private-fixture use is false, and no production acquisition
 seam exists. Activation is therefore NO-GO. This technical atom does not
 promote RET-REF-01, close G1, or authorize G2/G3.
 
-#### LPP regulation reference — G1-RET-REF-01 autonomous + recovery runtime-GREEN atoms; activation open
+#### LPP regulation reference — G1-RET-REF-01 autonomous + recovery + dossier/PDF runtime-GREEN atoms; activation open
 
 The default-off `/scan -> /scan/review -> /retraite` production route accepts a
 regulation without any numeric LPP snapshot. `df807024d` cuts the storage
@@ -1060,19 +1060,18 @@ branches. Numeric self-LPP facts are not an entry or resolution condition.
   replacement requires the exact previous id. Numeric self-LPP addition or
   replacement preserves the autonomous regulation reference.
 
-The known card, not the sheet, renders the declared relationship under
-`retirement_lpp_regulation_fund_relation`. The sheet exposes only the localized
-document kind, `sourceDate`, `legalYear`, `confirmedAt`, its current
-no-recommendation boundary, an applicability question and six ordered
-specialist topics: buy-back, conversion, flexible retirement, disability,
-survivors and divorce. It does **not** render `handoff.fundRelationship` or
-repeat the complete relationship-specific negative-authority caveat. Its
-privacy statement says the original document is neither attached nor
-transmitted from this screen. It contains no reference/snapshot/owner/source
-token, raw document, financial value, advice, navigation, network, share or
-export behavior. Close remains local through
-`retirement_lpp_regulation_handoff_close`. PDF/dossier caveat parity therefore
-remains RED/open outside this bounded recovery atom.
+The known card renders the declared relationship under
+`retirement_lpp_regulation_fund_relation`. The sheet and `/rapport` dossier
+share `LppRegulationHandoffSectionContent`: both render the complete localized
+negative-authority reference body, document kind, `sourceDate`, `legalYear`,
+`confirmedAt`, declared relationship, no-recommendation boundary, applicability
+question, privacy notice and six ordered specialist topics: buy-back,
+conversion, flexible retirement, disability, survivors and divorce. The
+financial-report PDF consumes the same allowlisted content. No surface renders
+reference/snapshot/owner/source tokens, raw document, financial value,
+applicability answer, ranking or advice. Sheet close remains local through
+`retirement_lpp_regulation_handoff_close`; report export is the existing
+financial-report action, not a second regulation route or store.
 
 The live contracts include backend upload/classifier tests plus
 `lpp_pre_upload_authorization_test.dart`,
@@ -1128,8 +1127,23 @@ The minimized recovery bundle is tracked at
 `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/`
 by commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. The visible
 legacy/missing/mismatch recovery debt is closed, although runtime directly
-exercises only missing BND. PDF/dossier caveat parity, activation and other
-RET-REF obligations remain open. All flags stay false, `G1-RET-REF-01` stays
+exercises only missing BND.
+
+At exact pushed SHA `274736a50bca659579fe26f68ae4e600469e3a9a`, the distinct-PID
+reader joins `AccountSessionBootstrap`, uses the real `MintApp` router, proves
+the resolved handoff on `/rapport`, builds production financial-report bytes,
+then proves missing, mismatched and legacy recovery all suppress the dossier
+before restoring the exact strict root and BND. The native suite passes 2/2;
+the separate real-byte text contract passes 3/3 with ordered allowlisted text,
+null-handoff absence and sensitive-token absence. Maestro before/after remains
+production-default-off, lifecycle/privacy and 22/22 outputs pass. XCTest still
+exposes only the aggregate: runtime claims trace to the tracked exact-SHA reader,
+while exact PDF text traces to the tracked `pdftotext` contract. The combined
+runtime wrapper was refused at 2579>2500 lines; dossier, PDF and bootstrap
+component audits are the bounded P0/P1=0 lineage. The minimized proof is
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
+PDF/dossier caveat parity is closed; activation and other RET-REF obligations
+remain open. All flags stay false, `G1-RET-REF-01` stays
 `ticket_only`, G1 stays open at 8.2/10 and G2/G3 are forbidden.
 
 `/rapport` and its PDF export consume evidence-bearing ledger facts; they do
@@ -1391,7 +1405,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/epl` (593) | §4 | `/naissance` (778) | §4 |
 | `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
 | `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
-| `/first-job` (795) | §4 | `/scan/impact` (1249) | §5 |
+| `/first-job` (795) | §4 | `/scan/impact` (1250) | §5 |
 | `/expatriation` (800) | §4 | `/documents` (935) | §4 |
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |
@@ -1407,7 +1421,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/assurances/coverage` (873) | §4 | `/segments/gender-gap` (1056) | §4 |
 | `/scan` (880) | §5 | `/segments/frontalier` (1061) | §4 |
 | `/scan/avs-guide` (894) | §5 | `/life-event/housing-sale` (1066) | §4 |
-| `/scan/review` (1223) | §5 | `/life-event/donation` (1071) | §4 |
+| `/scan/review` (1224) | §5 | `/life-event/donation` (1071) | §4 |
 | `/life-event/deces-proche` (1076) | §4 | `/simulator/leasing` (1108) | §4 |
 | `/life-event/demenagement-cantonal` (1081) | §4 | `/simulator/credit` (1113) | §4 |
 | `/education/hub` (1088) | §4 | `/arbitrage/bilan` (1120) | §4 |
