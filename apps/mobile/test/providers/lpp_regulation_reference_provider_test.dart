@@ -112,6 +112,15 @@ LppRegulationReviewConfirmation _confirmation({
       expectedPreviousReferenceId: expectedPreviousReferenceId,
     );
 
+LppCapitalNoticeReviewConfirmation _capitalConfirmation() =>
+    LppCapitalNoticeReviewConfirmation(
+      ownerKind: LppEvidenceOwnerKind.self,
+      sourceDate: DateTime.utc(2026, 2, 3),
+      legalYear: 2026,
+      deadlineDate: DateTime.utc(2026, 9, 30),
+      expectedSnapshotId: _snapshotId,
+    );
+
 LppReviewConfirmation _replacementReview(DateTime now) => LppReviewConfirmation(
       authorization: LppAcquisitionAuthorization(
         acquisitionId: _replacementSnapshotId,
@@ -153,6 +162,7 @@ void main() {
   });
 
   tearDown(() {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
     FeatureFlags.lppRegulationReferenceEnabled = false;
     FeatureFlags.typedLppEvidence = false;
   });
@@ -203,7 +213,7 @@ void main() {
     addTearDown(provider.dispose);
     var notifications = 0;
     provider.addListener(() => notifications += 1);
-    final dynamic incompleteSourceDate = '2026-02';
+    const dynamic incompleteSourceDate = '2026-02';
 
     expect(
       () => LppRegulationReviewConfirmation(
@@ -297,6 +307,7 @@ void main() {
     addTearDown(loaded.provider.dispose);
     final before = LppEvidenceRoot.fromJsonString(
       loaded.persistence.answers['_coach_lpp_evidence_v1'],
+      now: () => now,
     )!;
     var notifications = 0;
     loaded.provider.addListener(() => notifications += 1);
@@ -307,6 +318,7 @@ void main() {
 
     final after = LppEvidenceRoot.fromJsonString(
       loaded.persistence.answers['_coach_lpp_evidence_v1'],
+      now: () => now,
     )!;
     final regulation = after.self!.lppRegulationReference!;
     expect(after.self!.snapshotId, before.self!.snapshotId);
@@ -356,6 +368,60 @@ void main() {
         isFalse,
       );
     }
+  });
+
+  test('capital notice and regulation coexist in both write orders', () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+
+    final capitalFirst = await _loadedProvider(now);
+    addTearDown(capitalFirst.provider.dispose);
+    final capitalFirstReceipt =
+        await capitalFirst.provider.acceptLppCapitalNotice(
+      _capitalConfirmation(),
+    );
+    final regulationSecondReceipt =
+        await capitalFirst.provider.acceptLppRegulationReference(
+      _confirmation(),
+    );
+    final capitalThenRegulation = LppEvidenceRoot.fromJsonString(
+      capitalFirst.persistence.answers['_coach_lpp_evidence_v1'],
+      now: () => now,
+    )!
+        .self!;
+    expect(
+      capitalThenRegulation.lppCapitalNoticeDeadline?.referenceId,
+      capitalFirstReceipt.referenceId,
+    );
+    expect(
+      capitalThenRegulation.lppRegulationReference?.referenceId,
+      regulationSecondReceipt.referenceId,
+    );
+
+    final regulationFirst = await _loadedProvider(now);
+    addTearDown(regulationFirst.provider.dispose);
+    final regulationFirstReceipt =
+        await regulationFirst.provider.acceptLppRegulationReference(
+      _confirmation(),
+    );
+    final capitalSecondReceipt =
+        await regulationFirst.provider.acceptLppCapitalNotice(
+      _capitalConfirmation(),
+    );
+    final regulationThenCapital = LppEvidenceRoot.fromJsonString(
+      regulationFirst.persistence.answers['_coach_lpp_evidence_v1'],
+      now: () => now,
+    )!
+        .self!;
+    expect(
+      regulationThenCapital.lppRegulationReference?.referenceId,
+      regulationFirstReceipt.referenceId,
+    );
+    expect(
+      regulationThenCapital.lppCapitalNoticeDeadline?.referenceId,
+      capitalSecondReceipt.referenceId,
+    );
   });
 
   test('identical retry is idempotent and replacement needs exact prior id',
@@ -444,6 +510,7 @@ void main() {
     expect(reviewReceipt.snapshotId, isNot(regulationReceipt.snapshotId));
     final root = LppEvidenceRoot.fromJsonString(
       loaded.persistence.answers['_coach_lpp_evidence_v1'],
+      now: () => now,
     )!;
     expect(root.self!.snapshotId, reviewReceipt.snapshotId);
     expect(root.self!.lppRegulationReference, isNull);

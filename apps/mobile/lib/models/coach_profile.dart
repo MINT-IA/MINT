@@ -4872,6 +4872,13 @@ class CoachProfile {
                 now: ageNow,
               )
             : null;
+    final lppRegulationReference = FeatureFlags.lppRegulationReferenceEnabled
+        ? SpecialistReferenceEvidence.tryFromJson(
+            typedLppSelf?.lppRegulationReference?.toJson(),
+            expectedKind: SpecialistReferenceKind.lppRegulation,
+            now: ageNow,
+          )
+        : null;
     final expectedManualPartnerOwnerId = FeatureFlags.typedLppEvidence
         ? LppEvidenceSelector.manualPartnerOwnerId(
             answers['_coach_lpp_evidence_v1'],
@@ -5788,6 +5795,7 @@ class CoachProfile {
       hasPillar3a: has3a,
       avsGapStatus: _parseAvsGapStatus(avsLacunesStatus),
       lppCapitalNoticeDeadline: lppCapitalNoticeDeadline,
+      lppRegulationReference: lppRegulationReference,
       latestTaxDecisionReference: latestTaxDecisionReference,
       depenses: depenses,
       prevoyance: prevoyance,

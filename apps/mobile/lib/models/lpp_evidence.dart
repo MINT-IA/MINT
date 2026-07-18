@@ -339,6 +339,80 @@ final class LppCapitalNoticeReceipt {
   LppEvidenceOwnerKind get ownerKind => LppEvidenceOwnerKind.self;
 }
 
+final class LppRegulationReviewConfirmation {
+  factory LppRegulationReviewConfirmation({
+    required LppEvidenceOwnerKind ownerKind,
+    required DateTime sourceDate,
+    required int legalYear,
+    required String expectedSnapshotId,
+    String? expectedPreviousReferenceId,
+  }) {
+    if (ownerKind != LppEvidenceOwnerKind.self) {
+      throw ArgumentError.value(ownerKind, 'ownerKind', 'self is required');
+    }
+    if (!_isCanonicalCivilInstant(sourceDate)) {
+      throw ArgumentError.value(
+        sourceDate,
+        'sourceDate',
+        'canonical UTC civil date required',
+      );
+    }
+    if (legalYear < 1900 || legalYear > 9999) {
+      throw RangeError.range(legalYear, 1900, 9999, 'legalYear');
+    }
+    if (!_isCanonicalUuidV4(expectedSnapshotId)) {
+      throw ArgumentError.value(
+        expectedSnapshotId,
+        'expectedSnapshotId',
+        'canonical UUIDv4 required',
+      );
+    }
+    if (expectedPreviousReferenceId != null &&
+        !_isCanonicalUuidV4(expectedPreviousReferenceId)) {
+      throw ArgumentError.value(
+        expectedPreviousReferenceId,
+        'expectedPreviousReferenceId',
+        'canonical UUIDv4 required',
+      );
+    }
+    return LppRegulationReviewConfirmation._(
+      ownerKind: ownerKind,
+      sourceDate: sourceDate,
+      legalYear: legalYear,
+      expectedSnapshotId: expectedSnapshotId,
+      expectedPreviousReferenceId: expectedPreviousReferenceId,
+    );
+  }
+
+  const LppRegulationReviewConfirmation._({
+    required this.ownerKind,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.expectedSnapshotId,
+    required this.expectedPreviousReferenceId,
+  });
+
+  final LppEvidenceOwnerKind ownerKind;
+  final DateTime sourceDate;
+  final int legalYear;
+  final String expectedSnapshotId;
+  final String? expectedPreviousReferenceId;
+}
+
+final class LppRegulationReceipt {
+  const LppRegulationReceipt({
+    required this.referenceId,
+    required this.snapshotId,
+    required this.confirmedAt,
+  });
+
+  final String referenceId;
+  final String snapshotId;
+  final DateTime confirmedAt;
+  String get kind => LppRegulationReference.kind;
+  LppEvidenceOwnerKind get ownerKind => LppEvidenceOwnerKind.self;
+}
+
 /// Minimal acknowledgement returned only after a strict LPP snapshot is
 /// durably accepted and published by the ledger.
 ///
@@ -913,7 +987,10 @@ class LppEvidenceRoot {
         'legacyPartnerQuarantine': legacyPartnerQuarantine?.toJson(),
       });
 
-  static LppEvidenceRoot? fromJsonString(Object? raw) {
+  static LppEvidenceRoot? fromJsonString(
+    Object? raw, {
+    DateTime Function()? now,
+  }) {
     if (raw is! String || raw == '__secure__') return null;
     try {
       final decoded = jsonDecode(raw);
@@ -940,12 +1017,14 @@ class LppEvidenceRoot {
           : LppEvidenceSnapshot.fromJson(
               Map<String, dynamic>.from(rawSelf as Map),
               expectedOwnerKind: LppEvidenceOwnerKind.self,
+              now: now,
             );
       final manualPartner = rawManualPartner == null
           ? null
           : LppEvidenceSnapshot.fromJson(
               Map<String, dynamic>.from(rawManualPartner as Map),
               expectedOwnerKind: LppEvidenceOwnerKind.manualPartner,
+              now: now,
             );
       final quarantine = rawQuarantine == null
           ? null

@@ -99,6 +99,10 @@ class FeatureFlags {
   /// the unfinished acquisition or consumer path.
   static bool lppCapitalNoticeDeadlineEnabled = false;
 
+  /// Local kill switch for the reviewed LPP regulation reference.
+  /// Backend configuration cannot activate this path.
+  static bool lppRegulationReferenceEnabled = false;
+
   /// Local kill switch for every LPP-document acquisition surface.
   /// Backend configuration cannot activate this path.
   static bool documentLppEvidenceEnabled = false;
