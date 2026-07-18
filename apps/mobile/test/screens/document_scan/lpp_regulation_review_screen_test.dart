@@ -23,6 +23,8 @@ const _replacementSnapshotId = '22222222-2222-4222-8222-222222222222';
 const _previousReferenceId = '33333333-3333-4333-8333-333333333333';
 const _replacementReferenceId = '44444444-4444-4444-8444-444444444444';
 const _acceptedReferenceId = '55555555-5555-4555-8555-555555555555';
+const _previousCapitalNoticeId = '66666666-6666-4666-8666-666666666666';
+const _acceptedCapitalNoticeId = '77777777-7777-4777-8777-777777777777';
 
 const _planExtraction = ExtractionResult(
   documentType: DocumentType.lppPlan,
@@ -64,8 +66,14 @@ LppRegulationAcquisitionCandidate _regulationCandidate({
 
 final _candidate = _regulationCandidate();
 
+final _capitalCandidate = LppCapitalNoticeAcquisitionCandidate(
+  expectedSnapshotId: _snapshotId,
+  expectedPreviousReferenceId: _previousCapitalNoticeId,
+);
+
 LppEvidenceSnapshot _snapshot({
   required String snapshotId,
+  String? capitalNoticeReferenceId = _previousCapitalNoticeId,
 }) {
   final sourceDate = DateTime.utc(2026, 1, 1);
   final updatedAt = DateTime.utc(2026, 7, 1, 8);
@@ -82,6 +90,16 @@ LppEvidenceSnapshot _snapshot({
         updatedAt: updatedAt,
       ),
     },
+    lppCapitalNoticeDeadline: capitalNoticeReferenceId == null
+        ? null
+        : LppCapitalNoticeDeadline.create(
+            referenceId: capitalNoticeReferenceId,
+            authorityReferenceId: _acceptedReferenceId,
+            sourceDate: DateTime.utc(2026, 2, 3),
+            legalYear: 2026,
+            confirmedAt: updatedAt,
+            deadlineDate: DateTime.utc(2026, 12, 31),
+          ),
   );
 }
 
@@ -104,6 +122,13 @@ LppRegulationReceipt _regulationReceipt() {
     ) as LppRegulationReceipt;
   }
 }
+
+final _capitalReceipt = LppCapitalNoticeReceipt(
+  referenceId: _acceptedCapitalNoticeId,
+  authorityReferenceId: _acceptedReferenceId,
+  snapshotId: _snapshotId,
+  confirmedAt: DateTime.utc(2026, 7, 18, 10),
+);
 
 ConfirmedDocumentReference _confirmedRegulationReference(
   LppRegulationReceipt receipt,
@@ -132,14 +157,19 @@ final class _LedgerSpy extends CoachProfileProvider {
   _LedgerSpy({
     required this.events,
     this.failAccept = false,
+    this.failCapitalAccept = false,
   });
 
   final List<String> events;
   bool failAccept;
+  bool failCapitalAccept;
   String currentSnapshotId = _snapshotId;
   String currentReferenceId = _previousReferenceId;
+  String? currentCapitalNoticeId = _previousCapitalNoticeId;
   int acceptCalls = 0;
+  int capitalAcceptCalls = 0;
   final confirmations = <LppRegulationReviewConfirmation>[];
+  final capitalConfirmations = <LppCapitalNoticeReviewConfirmation>[];
   final receipt = _regulationReceipt();
 
   @override
@@ -154,7 +184,10 @@ final class _LedgerSpy extends CoachProfileProvider {
   @override
   LppEvidenceSnapshot? currentLppSnapshot(LppEvidenceOwnerKind ownerKind) =>
       ownerKind == LppEvidenceOwnerKind.self
-          ? _snapshot(snapshotId: currentSnapshotId)
+          ? _snapshot(
+              snapshotId: currentSnapshotId,
+              capitalNoticeReferenceId: currentCapitalNoticeId,
+            )
           : null;
 
   @override
@@ -171,18 +204,40 @@ final class _LedgerSpy extends CoachProfileProvider {
     }
     return receipt;
   }
+
+  @override
+  Future<LppCapitalNoticeReceipt> acceptLppCapitalNotice(
+    LppCapitalNoticeReviewConfirmation confirmation,
+  ) async {
+    capitalAcceptCalls += 1;
+    capitalConfirmations.add(confirmation);
+    events.add('accept-capital');
+    if (failCapitalAccept ||
+        confirmation.expectedSnapshotId != currentSnapshotId ||
+        confirmation.expectedPreviousReferenceId != currentCapitalNoticeId ||
+        confirmation.authorityReferenceId != receipt.referenceId) {
+      throw StateError('synthetic capital accept failure');
+    }
+    return _capitalReceipt;
+  }
 }
 
 final class _DocumentSpy extends DocumentProvider {
   _DocumentSpy({
     required this.events,
     this.failRecordCalls = 0,
+    this.failCapitalRecordCalls = 0,
+    this.afterRegulationRecord,
   });
 
   final List<String> events;
   int failRecordCalls;
+  int failCapitalRecordCalls;
+  final void Function()? afterRegulationRecord;
   int recordCalls = 0;
+  int capitalRecordCalls = 0;
   final receipts = <LppRegulationReceipt>[];
+  final capitalReceipts = <LppCapitalNoticeReceipt>[];
 
   @override
   Future<ConfirmedDocumentReference> recordLppRegulation(
@@ -194,7 +249,27 @@ final class _DocumentSpy extends DocumentProvider {
     if (recordCalls <= failRecordCalls) {
       throw StateError('synthetic regulation record failure');
     }
+    afterRegulationRecord?.call();
     return _confirmedRegulationReference(receipt);
+  }
+
+  @override
+  Future<ConfirmedDocumentReference> recordLppCapitalNotice(
+    LppCapitalNoticeReceipt receipt,
+  ) async {
+    capitalRecordCalls += 1;
+    capitalReceipts.add(receipt);
+    events.add('record-capital');
+    if (capitalRecordCalls <= failCapitalRecordCalls) {
+      throw StateError('synthetic capital record failure');
+    }
+    return ConfirmedDocumentReference(
+      referenceId: receipt.referenceId,
+      kind: ConfirmedDocumentReference.lppCapitalNoticeKind,
+      snapshotId: receipt.snapshotId,
+      ownerKind: receipt.ownerKind,
+      confirmedAt: receipt.confirmedAt,
+    );
   }
 }
 
@@ -235,6 +310,7 @@ final class _ScanSessionSpy extends ScanSessionProvider {
 Widget _buildReviewScreen({
   required String scanSessionId,
   required LppRegulationAcquisitionCandidate? candidate,
+  required LppCapitalNoticeAcquisitionCandidate? capitalCandidate,
   required ScanConfirmationSender sendScanConfirmation,
 }) {
   const constructor = ExtractionReviewScreen.new;
@@ -242,6 +318,7 @@ Widget _buildReviewScreen({
     #scanSessionId: scanSessionId,
     #result: _planExtraction,
     #lppRegulationCandidate: candidate,
+    #lppCapitalNoticeCandidate: capitalCandidate,
     #sendScanConfirmation: sendScanConfirmation,
     #now: () => DateTime.utc(2026, 7, 18, 10),
   };
@@ -251,6 +328,7 @@ Widget _buildReviewScreen({
     // RED compatibility bridge: current production has not added the bounded
     // candidate parameter yet. Once it does, the first call above is used.
     named.remove(#lppRegulationCandidate);
+    named.remove(#lppCapitalNoticeCandidate);
     return Function.apply(constructor, const <dynamic>[], named) as Widget;
   }
 }
@@ -281,14 +359,26 @@ final class _Harness {
 
 _Harness _harness({
   bool withCandidate = true,
+  bool withCapitalCandidate = false,
   bool failAccept = false,
+  bool failCapitalAccept = false,
   int failRecordCalls = 0,
+  int failCapitalRecordCalls = 0,
+  void Function(_LedgerSpy ledger)? afterRegulationRecord,
 }) {
   final events = <String>[];
-  final ledger = _LedgerSpy(events: events, failAccept: failAccept);
+  final ledger = _LedgerSpy(
+    events: events,
+    failAccept: failAccept,
+    failCapitalAccept: failCapitalAccept,
+  );
   final documents = _DocumentSpy(
     events: events,
     failRecordCalls: failRecordCalls,
+    failCapitalRecordCalls: failCapitalRecordCalls,
+    afterRegulationRecord: afterRegulationRecord == null
+        ? null
+        : () => afterRegulationRecord(ledger),
   );
   final biography = _BiographySpy();
   final sessions = _ScanSessionSpy();
@@ -297,6 +387,8 @@ _Harness _harness({
       ? sessions.retainExtraction(
           _planExtraction,
           lppRegulationCandidate: _candidate,
+          lppCapitalNoticeCandidate:
+              withCapitalCandidate ? _capitalCandidate : null,
         )
       : 'missing-regulation-session';
   late final GoRouter router;
@@ -307,6 +399,8 @@ _Harness _harness({
         builder: (_, __) => _buildReviewScreen(
           scanSessionId: scanSessionId,
           candidate: withCandidate ? _candidate : null,
+          capitalCandidate:
+              withCandidate && withCapitalCandidate ? _capitalCandidate : null,
           sendScanConfirmation: ({
             required documentType,
             required confirmedFields,
@@ -431,6 +525,19 @@ Future<void> _confirmReview(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _enterCapitalDeadline(
+  WidgetTester tester,
+  String value,
+) async {
+  final field = find.bySemanticsIdentifier(
+    'lpp_capital_notice_deadline_field',
+  );
+  expect(field, findsOneWidget);
+  await tester.ensureVisible(field);
+  await tester.enterText(field, value);
+  await tester.pump();
+}
+
 void _expectNoExternalSideEffects(_Harness harness) {
   expect(harness.biography.writes, 0);
   expect(harness.syncCalls, isEmpty);
@@ -446,12 +553,14 @@ void main() {
     FeatureFlags.typedLppEvidence = true;
     FeatureFlags.documentLppEvidenceEnabled = true;
     FeatureFlags.lppRegulationReferenceEnabled = true;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
   });
 
   tearDown(() {
     FeatureFlags.typedLppEvidence = false;
     FeatureFlags.documentLppEvidenceEnabled = false;
     FeatureFlags.lppRegulationReferenceEnabled = false;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
   });
 
   test('production review route forwards the volatile regulation candidate',
@@ -467,6 +576,12 @@ void main() {
       reviewRoute,
       contains(
         'lppRegulationCandidate: session.lppRegulationCandidate',
+      ),
+    );
+    expect(
+      reviewRoute,
+      contains(
+        'lppCapitalNoticeCandidate: session.lppCapitalNoticeCandidate',
       ),
     );
   });
@@ -876,6 +991,324 @@ void main() {
       find.byKey(const Key('lpp_regulation_retirement_destination')),
       findsOneWidget,
     );
+    _expectNoExternalSideEffects(harness);
+  });
+
+  testWidgets(
+      'capital question is optional and visible only for declared current fund',
+      (tester) async {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _harness(withCapitalCandidate: true);
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.bySemanticsIdentifier('lpp_capital_notice_deadline_question'),
+      findsNothing,
+    );
+    await _enterReviewValues(tester, relationship: 'uncertain');
+    expect(
+      find.bySemanticsIdentifier('lpp_capital_notice_deadline_question'),
+      findsNothing,
+    );
+    await _chooseFundRelationship(tester, relationship: 'current');
+
+    for (final identifier in const <String>[
+      'lpp_capital_notice_deadline_question',
+      'lpp_capital_notice_deadline_field',
+      'lpp_capital_notice_deadline_hint',
+    ]) {
+      expect(find.bySemanticsIdentifier(identifier), findsOneWidget);
+    }
+    final rendered = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((widget) => widget.data ?? widget.textSpan?.toPlainText() ?? '')
+        .join('\n')
+        .toLowerCase();
+    expect(rendered, contains('non vérifiée'));
+    expect(rendered, contains('date civile complète'));
+    expect(rendered, contains('délai relatif'));
+    expect(rendered, contains('institution'));
+    expect(rendered, contains('droit perdu'));
+    expect(rendered, contains('option acceptée'));
+    expect(rendered, contains('pas un conseil'));
+  });
+
+  testWidgets('uncertain or former fund never calls capital writers',
+      (tester) async {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    for (final relationship in const <String>['uncertain', 'former_or_other']) {
+      final harness = _harness(withCapitalCandidate: true);
+      addTearDown(harness.router.dispose);
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+
+      await _enterReviewValues(tester, relationship: relationship);
+      expect(
+        find.bySemanticsIdentifier('lpp_capital_notice_deadline_field'),
+        findsNothing,
+      );
+      await _confirmReview(tester);
+
+      expect(harness.ledger.capitalAcceptCalls, 0, reason: relationship);
+      expect(harness.documents.capitalRecordCalls, 0, reason: relationship);
+      expect(harness.events, const <String>['accept', 'record']);
+      _expectNoExternalSideEffects(harness);
+    }
+  });
+
+  testWidgets(
+      'exact absolute date writes regulation then authority-bound capital',
+      (tester) async {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _harness(withCapitalCandidate: true);
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _enterReviewValues(tester, relationship: 'current');
+    await _enterCapitalDeadline(tester, '2026-11-30');
+    await _confirmReview(tester);
+
+    expect(
+      harness.events,
+      const <String>[
+        'accept',
+        'record',
+        'accept-capital',
+        'record-capital',
+      ],
+    );
+    expect(harness.ledger.acceptCalls, 1);
+    expect(harness.documents.recordCalls, 1);
+    expect(harness.ledger.capitalAcceptCalls, 1);
+    expect(harness.documents.capitalRecordCalls, 1);
+    final confirmation = harness.ledger.capitalConfirmations.single;
+    expect(confirmation.ownerKind, LppEvidenceOwnerKind.self);
+    expect(confirmation.authorityReferenceId, _acceptedReferenceId);
+    expect(confirmation.sourceDate, DateTime.utc(2026, 2, 3));
+    expect(confirmation.legalYear, 2026);
+    expect(confirmation.deadlineDate, DateTime.utc(2026, 11, 30));
+    expect(confirmation.expectedSnapshotId, _snapshotId);
+    expect(
+      confirmation.expectedPreviousReferenceId,
+      _previousCapitalNoticeId,
+    );
+    expect(
+      identical(harness.documents.capitalReceipts.single, _capitalReceipt),
+      isTrue,
+    );
+    expect(harness.sessions.byId(harness.scanSessionId), isNull);
+    expect(harness.router.routeInformationProvider.value.uri.path, '/retraite');
+    _expectNoExternalSideEffects(harness);
+  });
+
+  for (final deadline in const <String>[
+    '',
+    'dans 6 mois',
+    '30.11.2026',
+    '2026/11/30',
+    '2026-02-30',
+  ]) {
+    testWidgets('deadline "$deadline" records regulation only', (tester) async {
+      FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+      final harness = _harness(withCapitalCandidate: true);
+      addTearDown(harness.router.dispose);
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+
+      await _enterReviewValues(tester, relationship: 'current');
+      if (deadline.isNotEmpty) await _enterCapitalDeadline(tester, deadline);
+      await _confirmReview(tester);
+
+      expect(harness.events, const <String>['accept', 'record']);
+      expect(harness.ledger.capitalAcceptCalls, 0);
+      expect(harness.documents.capitalRecordCalls, 0);
+      expect(
+          harness.router.routeInformationProvider.value.uri.path, '/retraite');
+      _expectNoExternalSideEffects(harness);
+    });
+  }
+
+  testWidgets('capital flag drift records regulation only without capital UI',
+      (tester) async {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
+    final harness = _harness(withCapitalCandidate: true);
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _enterReviewValues(tester, relationship: 'current');
+    expect(
+      find.bySemanticsIdentifier('lpp_capital_notice_deadline_field'),
+      findsNothing,
+    );
+    await _confirmReview(tester);
+
+    expect(harness.events, const <String>['accept', 'record']);
+    expect(harness.ledger.capitalAcceptCalls, 0);
+    expect(harness.documents.capitalRecordCalls, 0);
+    _expectNoExternalSideEffects(harness);
+  });
+
+  testWidgets(
+      'snapshot drift after regulation record exposes explicit partial state',
+      (tester) async {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _harness(
+      withCapitalCandidate: true,
+      afterRegulationRecord: (ledger) {
+        ledger.currentSnapshotId = _replacementSnapshotId;
+      },
+    );
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _enterReviewValues(tester, relationship: 'current');
+    await _enterCapitalDeadline(tester, '2026-11-30');
+    await _confirmReview(tester);
+
+    expect(harness.events, const <String>['accept', 'record']);
+    expect(harness.ledger.capitalAcceptCalls, 0);
+    expect(harness.documents.capitalRecordCalls, 0);
+    expect(
+      find.byKey(const Key('lpp_capital_notice_partial_state')),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsIdentifier(
+        'lpp_capital_notice_continue_without_deadline_cta',
+      ),
+      findsOneWidget,
+    );
+    expect(harness.sessions.byId(harness.scanSessionId), isNotNull);
+    expect(harness.router.routeInformationProvider.value.uri.path, '/');
+    _expectNoExternalSideEffects(harness);
+  });
+
+  testWidgets('capital accept failure stays partial until explicit continue',
+      (tester) async {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _harness(
+      withCapitalCandidate: true,
+      failCapitalAccept: true,
+    );
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _enterReviewValues(tester, relationship: 'current');
+    await _enterCapitalDeadline(tester, '2026-11-30');
+    await _confirmReview(tester);
+
+    expect(
+      harness.events,
+      const <String>['accept', 'record', 'accept-capital'],
+    );
+    expect(harness.ledger.capitalAcceptCalls, 1);
+    expect(harness.documents.capitalRecordCalls, 0);
+    expect(harness.sessions.byId(harness.scanSessionId), isNotNull);
+    final continueCta = find.bySemanticsIdentifier(
+      'lpp_capital_notice_continue_without_deadline_cta',
+    );
+    expect(continueCta, findsOneWidget);
+
+    await tester.ensureVisible(continueCta);
+    await tester.pump();
+    await tester.tap(continueCta);
+    await tester.pumpAndSettle();
+
+    expect(harness.ledger.capitalAcceptCalls, 1);
+    expect(harness.documents.capitalRecordCalls, 0);
+    expect(harness.sessions.byId(harness.scanSessionId), isNull);
+    expect(harness.router.routeInformationProvider.value.uri.path, '/retraite');
+    _expectNoExternalSideEffects(harness);
+  });
+
+  testWidgets('capital record retry never reaccepts either ledger write',
+      (tester) async {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _harness(
+      withCapitalCandidate: true,
+      failCapitalRecordCalls: 1,
+    );
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _enterReviewValues(tester, relationship: 'current');
+    await _enterCapitalDeadline(tester, '2026-11-30');
+    await _confirmReview(tester);
+
+    expect(harness.ledger.acceptCalls, 1);
+    expect(harness.documents.recordCalls, 1);
+    expect(harness.ledger.capitalAcceptCalls, 1);
+    expect(harness.documents.capitalRecordCalls, 1);
+    expect(
+      find.byKey(const Key('lpp_capital_notice_record_retry_state')),
+      findsOneWidget,
+    );
+    final retry = find.bySemanticsIdentifier(
+      'lpp_capital_notice_record_retry_cta',
+    );
+    expect(retry, findsOneWidget);
+    expect(harness.sessions.byId(harness.scanSessionId), isNotNull);
+
+    await tester.tap(retry);
+    await tester.pumpAndSettle();
+
+    expect(harness.ledger.acceptCalls, 1);
+    expect(harness.documents.recordCalls, 1);
+    expect(harness.ledger.capitalAcceptCalls, 1);
+    expect(harness.documents.capitalRecordCalls, 2);
+    expect(
+      harness.documents.capitalReceipts.every(
+        (receipt) => identical(receipt, _capitalReceipt),
+      ),
+      isTrue,
+    );
+    expect(harness.sessions.byId(harness.scanSessionId), isNull);
+    expect(harness.router.routeInformationProvider.value.uri.path, '/retraite');
+    _expectNoExternalSideEffects(harness);
+  });
+
+  testWidgets('regulation record retry precedes one capital accept',
+      (tester) async {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _harness(
+      withCapitalCandidate: true,
+      failRecordCalls: 1,
+    );
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _enterReviewValues(tester, relationship: 'current');
+    await _enterCapitalDeadline(tester, '2026-11-30');
+    await _confirmReview(tester);
+    expect(harness.events, const <String>['accept', 'record']);
+
+    await tester.tap(
+      find.bySemanticsIdentifier('lpp_regulation_reference_retry_cta'),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      harness.events,
+      const <String>[
+        'accept',
+        'record',
+        'record',
+        'accept-capital',
+        'record-capital',
+      ],
+    );
+    expect(harness.ledger.acceptCalls, 1);
+    expect(harness.documents.recordCalls, 2);
+    expect(harness.ledger.capitalAcceptCalls, 1);
+    expect(harness.documents.capitalRecordCalls, 1);
     _expectNoExternalSideEffects(harness);
   });
 }

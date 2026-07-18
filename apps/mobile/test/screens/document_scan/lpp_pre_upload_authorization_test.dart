@@ -39,6 +39,8 @@ final class _StaticCoachProvider extends CoachProfileProvider {
 final class _ScanSessionSpy extends ScanSessionProvider {
   final retainedAuthorizations = <LppAcquisitionAuthorization>[];
   final retainedRegulationCandidates = <LppRegulationAcquisitionCandidate>[];
+  final retainedCapitalNoticeCandidates =
+      <LppCapitalNoticeAcquisitionCandidate>[];
   final retainedRegulationExtractions = <ExtractionResult>[];
 
   @override
@@ -47,6 +49,7 @@ final class _ScanSessionSpy extends ScanSessionProvider {
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
     LppRegulationAcquisitionCandidate? lppRegulationCandidate,
+    LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
   }) {
@@ -58,12 +61,16 @@ final class _ScanSessionSpy extends ScanSessionProvider {
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
       lppRegulationCandidate: lppRegulationCandidate,
+      lppCapitalNoticeCandidate: lppCapitalNoticeCandidate,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );
     if (lppRegulationCandidate != null) {
       retainedRegulationCandidates.add(lppRegulationCandidate);
       retainedRegulationExtractions.add(extraction);
+    }
+    if (lppCapitalNoticeCandidate != null) {
+      retainedCapitalNoticeCandidates.add(lppCapitalNoticeCandidate);
     }
     return id;
   }
@@ -131,6 +138,7 @@ const _lppPlanSnapshotId = '33333333-3333-4333-8333-333333333333';
 const _replacementSnapshotId = '44444444-4444-4444-8444-444444444444';
 const _lppPlanReferenceId = '55555555-5555-4555-8555-555555555555';
 const _replacementReferenceId = '66666666-6666-4666-8666-666666666666';
+const _previousCapitalNoticeId = '77777777-7777-4777-8777-777777777777';
 const _backendDocumentId = 'backend-document-id-must-not-survive';
 
 SpecialistReferenceEvidence _lppPlanSpecialistReference(String referenceId) {
@@ -169,6 +177,7 @@ SpecialistReferenceEvidence _lppPlanSpecialistReference(String referenceId) {
 
 LppEvidenceSnapshot _lppPlanSnapshot({
   String snapshotId = _lppPlanSnapshotId,
+  String? capitalNoticeReferenceId,
 }) {
   final sourceDate = DateTime.utc(2026, 1, 1);
   final confirmedAt = DateTime.utc(2026, 7, 1, 8);
@@ -185,6 +194,16 @@ LppEvidenceSnapshot _lppPlanSnapshot({
         updatedAt: confirmedAt,
       ),
     },
+    lppCapitalNoticeDeadline: capitalNoticeReferenceId == null
+        ? null
+        : LppCapitalNoticeDeadline.create(
+            referenceId: capitalNoticeReferenceId,
+            authorityReferenceId: _lppPlanReferenceId,
+            sourceDate: DateTime.utc(2026, 1, 1),
+            legalYear: 2026,
+            confirmedAt: confirmedAt,
+            deadlineDate: DateTime.utc(2026, 12, 31),
+          ),
   );
 }
 
@@ -701,12 +720,14 @@ void main() {
     FeatureFlags.typedLppEvidence = true;
     FeatureFlags.documentLppEvidenceEnabled = true;
     FeatureFlags.lppRegulationReferenceEnabled = false;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
     FeatureFlags.partnerLppAccountabilityEnabled = true;
   });
   tearDown(() {
     FeatureFlags.typedLppEvidence = false;
     FeatureFlags.documentLppEvidenceEnabled = false;
     FeatureFlags.lppRegulationReferenceEnabled = false;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
     FeatureFlags.partnerLppAccountabilityEnabled = false;
   });
 
@@ -764,6 +785,7 @@ void main() {
       reason: 'regulation authority must not consult numeric snapshot state',
     );
     expect(harness.sessions.retainedRegulationCandidates, hasLength(1));
+    expect(harness.sessions.retainedCapitalNoticeCandidates, isEmpty);
     expect(harness.sessions.retainedRegulationExtractions, hasLength(1));
 
     final dynamic candidate =
@@ -833,9 +855,86 @@ void main() {
   }
 
   testWidgets(
+      'capital flag off keeps regulation review open without capital candidate',
+      (tester) async {
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
+    final harness = _lppPlanHarness(snapshot: _lppPlanSnapshot());
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    await _openLppPlanImport(tester);
+
+    expect(harness.sessions.retainedRegulationCandidates, hasLength(1));
+    expect(harness.sessions.retainedCapitalNoticeCandidates, isEmpty);
+    expect(
+      harness.router.routeInformationProvider.value.uri.path,
+      '/scan/review',
+    );
+  });
+
+  testWidgets(
+      'full composite captures exact self snapshot and previous notice ids',
+      (tester) async {
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _lppPlanHarness(
+      snapshot: _lppPlanSnapshot(
+        capitalNoticeReferenceId: _previousCapitalNoticeId,
+      ),
+    );
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    await _openLppPlanImport(tester);
+
+    expect(harness.sessions.retainedRegulationCandidates, hasLength(1));
+    expect(harness.sessions.retainedCapitalNoticeCandidates, hasLength(1));
+    final candidate = harness.sessions.retainedCapitalNoticeCandidates.single;
+    expect(candidate.expectedSnapshotId, _lppPlanSnapshotId);
+    expect(
+      candidate.expectedPreviousReferenceId,
+      _previousCapitalNoticeId,
+    );
+    final uri = harness.router.routeInformationProvider.value.uri;
+    expect(uri.path, '/scan/review');
+    expect(uri.queryParameters.keys.toSet(), const <String>{'scanSessionId'});
+    expect(uri.toString(), isNot(contains(_lppPlanSnapshotId)));
+    expect(uri.toString(), isNot(contains(_previousCapitalNoticeId)));
+  });
+
+  testWidgets(
+      'empty self snapshot cannot create capital candidate but regulation opens',
+      (tester) async {
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _lppPlanHarness(
+      snapshot: const LppEvidenceSnapshot(
+        snapshotId: _lppPlanSnapshotId,
+        facts: <LppEvidenceFactKey, LppEvidenceFact>{},
+      ),
+    );
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    await _openLppPlanImport(tester);
+
+    expect(harness.sessions.retainedRegulationCandidates, hasLength(1));
+    expect(harness.sessions.retainedCapitalNoticeCandidates, isEmpty);
+    expect(
+      harness.router.routeInformationProvider.value.uri.path,
+      '/scan/review',
+    );
+  });
+
+  testWidgets(
       'numeric snapshot replacement during upload does not block regulation',
       (tester) async {
     FeatureFlags.lppRegulationReferenceEnabled = true;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
     final harness = _lppPlanHarness(
       snapshot: _lppPlanSnapshot(),
       afterUpload: (coach) {
@@ -852,9 +951,43 @@ void main() {
 
     expect(harness.counters.upload, 1);
     expect(harness.sessions.retainedRegulationCandidates, hasLength(1));
+    expect(
+      harness.sessions.retainedCapitalNoticeCandidates,
+      isEmpty,
+      reason: 'snapshot drift must drop only the optional capital candidate',
+    );
     final dynamic candidate =
         harness.sessions.retainedRegulationCandidates.single;
     expect(candidate.expectedPreviousReferenceId, isNull);
+    expect(
+      harness.router.routeInformationProvider.value.uri.path,
+      '/scan/review',
+    );
+  });
+
+  testWidgets(
+      'previous notice drift drops only capital candidate before review',
+      (tester) async {
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final harness = _lppPlanHarness(
+      snapshot: _lppPlanSnapshot(
+        capitalNoticeReferenceId: _previousCapitalNoticeId,
+      ),
+      afterUpload: (coach) {
+        coach.snapshot = _lppPlanSnapshot(
+          capitalNoticeReferenceId: '88888888-8888-4888-8888-888888888888',
+        );
+      },
+    );
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    await _openLppPlanImport(tester);
+
+    expect(harness.sessions.retainedRegulationCandidates, hasLength(1));
+    expect(harness.sessions.retainedCapitalNoticeCandidates, isEmpty);
     expect(
       harness.router.routeInformationProvider.value.uri.path,
       '/scan/review',

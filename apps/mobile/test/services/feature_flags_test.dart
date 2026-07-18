@@ -23,8 +23,16 @@ void main() {
     //     enableMortgageTools, enableIndependantTools removed (always true, no consumers)
     FeatureFlags.enableOpenBanking = false;
     FeatureFlags.enableAdminScreens = false;
+    FeatureFlags.typedLppEvidence = false;
+    FeatureFlags.documentLppEvidenceEnabled = false;
+    FeatureFlags.lppRegulationReferenceEnabled = false;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
     addTearDown(() => FeatureFlags.enableGuidedSequences = false);
     addTearDown(() => FeatureFlags.financialPlanSetupEnabled = false);
+    addTearDown(() => FeatureFlags.typedLppEvidence = false);
+    addTearDown(() => FeatureFlags.documentLppEvidenceEnabled = false);
+    addTearDown(() => FeatureFlags.lppRegulationReferenceEnabled = false);
+    addTearDown(() => FeatureFlags.lppCapitalNoticeDeadlineEnabled = false);
   });
 
   group('FeatureFlags — default values', () {
@@ -66,6 +74,10 @@ void main() {
 
     test('financial plan setup remains false without the test-only opt-in', () {
       expect(FeatureFlags.financialPlanSetupEnabled, isFalse);
+    });
+
+    test('capital notice acquisition remains default-off', () {
+      expect(FeatureFlags.lppCapitalNoticeAcquisitionEnabled, isFalse);
     });
   });
 
@@ -139,6 +151,43 @@ void main() {
       FeatureFlags.financialPlanSetupEnabled = true;
       FeatureFlags.applyFromMap({'financialPlanSetupEnabled': false});
       expect(FeatureFlags.financialPlanSetupEnabled, isTrue);
+    });
+
+    test('capital notice acquisition remains local-only and needs four flags',
+        () {
+      final switches = <void Function()>[
+        () => FeatureFlags.typedLppEvidence = false,
+        () => FeatureFlags.documentLppEvidenceEnabled = false,
+        () => FeatureFlags.lppRegulationReferenceEnabled = false,
+        () => FeatureFlags.lppCapitalNoticeDeadlineEnabled = false,
+      ];
+      for (final disableOne in switches) {
+        FeatureFlags.typedLppEvidence = true;
+        FeatureFlags.documentLppEvidenceEnabled = true;
+        FeatureFlags.lppRegulationReferenceEnabled = true;
+        FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+        disableOne();
+        expect(FeatureFlags.lppCapitalNoticeAcquisitionEnabled, isFalse);
+      }
+
+      FeatureFlags.typedLppEvidence = true;
+      FeatureFlags.documentLppEvidenceEnabled = true;
+      FeatureFlags.lppRegulationReferenceEnabled = true;
+      FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+      expect(FeatureFlags.lppCapitalNoticeAcquisitionEnabled, isTrue);
+
+      FeatureFlags.applyFromMap(const <String, dynamic>{
+        'typedLppEvidence': false,
+        'documentLppEvidenceEnabled': false,
+        'lppRegulationReferenceEnabled': false,
+        'lppCapitalNoticeDeadlineEnabled': false,
+        'lppCapitalNoticeAcquisitionEnabled': false,
+      });
+      expect(FeatureFlags.typedLppEvidence, isTrue);
+      expect(FeatureFlags.documentLppEvidenceEnabled, isTrue);
+      expect(FeatureFlags.lppRegulationReferenceEnabled, isTrue);
+      expect(FeatureFlags.lppCapitalNoticeDeadlineEnabled, isTrue);
+      expect(FeatureFlags.lppCapitalNoticeAcquisitionEnabled, isTrue);
     });
   });
 

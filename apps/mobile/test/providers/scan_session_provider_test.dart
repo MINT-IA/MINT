@@ -17,6 +17,7 @@ const _extraction = ExtractionResult(
 
 const _regulationSnapshotId = '33333333-3333-4333-8333-333333333333';
 const _regulationReferenceId = '44444444-4444-4444-8444-444444444444';
+const _capitalNoticeReferenceId = '55555555-5555-4555-8555-555555555555';
 const _missingSnapshotApi = 'missing-snapshot-api';
 
 LppRegulationAcquisitionCandidate get _regulationCandidate {
@@ -39,6 +40,12 @@ LppRegulationAcquisitionCandidate get _regulationCandidate {
     ) as LppRegulationAcquisitionCandidate;
   }
 }
+
+LppCapitalNoticeAcquisitionCandidate get _capitalNoticeCandidate =>
+    LppCapitalNoticeAcquisitionCandidate(
+      expectedSnapshotId: _regulationSnapshotId,
+      expectedPreviousReferenceId: _capitalNoticeReferenceId,
+    );
 
 Object? _candidateSnapshotId(dynamic candidate) {
   try {
@@ -253,19 +260,31 @@ void main() {
     );
   });
 
-  test('LPP regulation candidate stays local and volatile until review', () {
+  test('LPP plan keeps optional capital ids local and volatile until review',
+      () {
     final provider = ScanSessionProvider();
     final extraction = _regulationExtraction();
     final candidate = _regulationCandidate;
+    final capitalCandidate = _capitalNoticeCandidate;
 
     final id = provider.retainExtraction(
       extraction,
       lppRegulationCandidate: candidate,
+      lppCapitalNoticeCandidate: capitalCandidate,
     );
 
     final payload = provider.byId(id)!;
     expect(payload.extraction, same(extraction));
     expect(payload.lppRegulationCandidate, same(candidate));
+    expect(payload.lppCapitalNoticeCandidate, same(capitalCandidate));
+    expect(
+      payload.lppCapitalNoticeCandidate?.expectedSnapshotId,
+      _regulationSnapshotId,
+    );
+    expect(
+      payload.lppCapitalNoticeCandidate?.expectedPreviousReferenceId,
+      _capitalNoticeReferenceId,
+    );
     expect(
       _candidateSnapshotId(payload.lppRegulationCandidate),
       _missingSnapshotApi,
@@ -278,9 +297,41 @@ void main() {
     expect(payload.previousConfidence, isNull);
     expect(id, isNot(contains(_regulationSnapshotId)));
     expect(id, isNot(contains(_regulationReferenceId)));
+    expect(id, isNot(contains(_capitalNoticeReferenceId)));
 
     provider.discard(id);
     expect(provider.byId(id), isNull);
+  });
+
+  test('LPP regulation session remains valid without a capital candidate', () {
+    final provider = ScanSessionProvider();
+
+    final id = provider.retainExtraction(
+      _regulationExtraction(),
+      lppRegulationCandidate: _regulationCandidate,
+    );
+
+    expect(provider.byId(id)?.lppRegulationCandidate, isNotNull);
+    expect(provider.byId(id)?.lppCapitalNoticeCandidate, isNull);
+  });
+
+  test('capital candidate cannot escape the isolated LPP plan session', () {
+    final provider = ScanSessionProvider();
+
+    expect(
+      () => provider.retainExtraction(
+        _regulationExtraction(),
+        lppCapitalNoticeCandidate: _capitalNoticeCandidate,
+      ),
+      throwsArgumentError,
+    );
+    expect(
+      () => provider.retainExtraction(
+        _extraction,
+        lppCapitalNoticeCandidate: _capitalNoticeCandidate,
+      ),
+      throwsArgumentError,
+    );
   });
 
   test('LPP regulation review requires its exact candidate and type', () {
@@ -371,5 +422,23 @@ void main() {
       provider.byId(id)?.lppRegulationCandidate,
       same(candidate),
     );
+  });
+
+  test('impact payload purges regulation and capital acquisition candidates',
+      () {
+    final payload = ScanSessionPayload(
+      extraction: _regulationExtraction(),
+      lppRegulationCandidate: _regulationCandidate,
+      lppCapitalNoticeCandidate: _capitalNoticeCandidate,
+    );
+
+    final impact = payload.withImpact(
+      extraction: _extraction,
+      previousConfidence: 31,
+    );
+
+    expect(impact.lppRegulationCandidate, isNull);
+    expect(impact.lppCapitalNoticeCandidate, isNull);
+    expect(impact.previousConfidence, 31);
   });
 }

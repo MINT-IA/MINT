@@ -152,6 +152,7 @@ class _ScanSessionSpy extends ScanSessionProvider {
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
     LppRegulationAcquisitionCandidate? lppRegulationCandidate,
+    LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
   }) {
@@ -161,6 +162,7 @@ class _ScanSessionSpy extends ScanSessionProvider {
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
       lppRegulationCandidate: lppRegulationCandidate,
+      lppCapitalNoticeCandidate: lppCapitalNoticeCandidate,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );
