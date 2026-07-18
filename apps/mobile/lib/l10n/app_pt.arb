@@ -11621,5 +11621,15 @@
   "retirementLppRegulationQuestionDivorceBody": "Em caso de divórcio, que informações e documentos pode a caixa de pensões preparar para a partilha da previdência profissional e como poderia uma partilha ordenada pelo tribunal alterar as minhas prestações futuras?",
   "retirementLppRegulationHandoffClose": "Fechar",
   "docScanLppPlanDocumentLabel": "Regulamento de previdência LPP",
-  "docScanLppPlanDocumentDescription": "O regulamento da tua caixa é analisado sem extrair montantes nem direitos."
+  "docScanLppPlanDocumentDescription": "O regulamento da tua caixa é analisado sem extrair montantes nem direitos.",
+  "lppRegulationReviewRecoveryBody": "Este regulamento não pode ser analisado nesta sessão. Volta à digitalização para recomeçar.",
+  "lppRegulationReviewTitle": "Analisar o regulamento LPP",
+  "lppRegulationReviewBody": "Confirma apenas a data do documento e o respetivo ano de referência legal. Este passo não confirma a aplicabilidade à tua situação nem quaisquer direitos ou montantes.",
+  "lppRegulationReviewSourceDate": "Data do regulamento (AAAA-MM-DD)",
+  "lppRegulationReviewSourceDateError": "Introduz uma data válida no formato AAAA-MM-DD que não seja futura.",
+  "lppRegulationReviewLegalYear": "Ano de referência legal",
+  "lppRegulationReviewLegalYearError": "Introduz um ano entre 1900 e 9999.",
+  "lppRegulationReviewAcceptError": "A base LPP mudou ou a análise não pôde ser aceite. Verifica os campos e recomeça na digitalização, se necessário.",
+  "lppRegulationReviewRecordError": "A análise foi aceite, mas não foi possível registar a respetiva referência. Tenta novamente sem alterar os campos.",
+  "lppRegulationReviewConfirm": "Confirmar a análise"
 }

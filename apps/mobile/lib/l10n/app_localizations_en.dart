@@ -24379,4 +24379,41 @@ class SEn extends S {
   @override
   String get docScanLppPlanDocumentDescription =>
       'Your pension fund rules, reviewed without extracting amounts or entitlements.';
+
+  @override
+  String get lppRegulationReviewRecoveryBody =>
+      'These pension fund rules cannot be reviewed in this session. Return to the scan to start again.';
+
+  @override
+  String get lppRegulationReviewTitle => 'Review the LPP pension fund rules';
+
+  @override
+  String get lppRegulationReviewBody =>
+      'Confirm only the document date and its legal reference year. This step confirms neither that the rules apply to your situation nor any entitlements or amounts.';
+
+  @override
+  String get lppRegulationReviewSourceDate =>
+      'Rules document date (YYYY-MM-DD)';
+
+  @override
+  String get lppRegulationReviewSourceDateError =>
+      'Enter a valid YYYY-MM-DD date that is not in the future.';
+
+  @override
+  String get lppRegulationReviewLegalYear => 'Legal reference year';
+
+  @override
+  String get lppRegulationReviewLegalYearError =>
+      'Enter a year from 1900 to 9999.';
+
+  @override
+  String get lppRegulationReviewAcceptError =>
+      'The LPP baseline changed or the review could not be accepted. Check the fields and restart from the scan if needed.';
+
+  @override
+  String get lppRegulationReviewRecordError =>
+      'The review was accepted, but its reference could not be recorded. Retry without changing the fields.';
+
+  @override
+  String get lppRegulationReviewConfirm => 'Confirm the review';
 }

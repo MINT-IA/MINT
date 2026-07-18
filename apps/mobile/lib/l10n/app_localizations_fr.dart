@@ -24496,4 +24496,40 @@ class SFr extends S {
   @override
   String get docScanLppPlanDocumentDescription =>
       'Règlement de ta caisse, examiné sans extraire de montant ni de droit.';
+
+  @override
+  String get lppRegulationReviewRecoveryBody =>
+      'Ce règlement ne peut pas être vérifié dans cette session. Reviens au scan pour recommencer.';
+
+  @override
+  String get lppRegulationReviewTitle => 'Vérifier le règlement LPP';
+
+  @override
+  String get lppRegulationReviewBody =>
+      'Confirme uniquement la date du document et son année de référence. Cette étape ne confirme ni son applicabilité à ta situation, ni des droits ou des montants.';
+
+  @override
+  String get lppRegulationReviewSourceDate => 'Date du règlement (AAAA-MM-JJ)';
+
+  @override
+  String get lppRegulationReviewSourceDateError =>
+      'Saisis une date valide au format AAAA-MM-JJ, qui n’est pas dans le futur.';
+
+  @override
+  String get lppRegulationReviewLegalYear => 'Année de référence juridique';
+
+  @override
+  String get lppRegulationReviewLegalYearError =>
+      'Saisis une année entre 1900 et 9999.';
+
+  @override
+  String get lppRegulationReviewAcceptError =>
+      'La base LPP a changé ou la vérification n’a pas abouti. Vérifie les champs, puis recommence depuis le scan si nécessaire.';
+
+  @override
+  String get lppRegulationReviewRecordError =>
+      'La vérification est acceptée, mais sa référence n’a pas pu être enregistrée. Réessaie sans modifier les champs.';
+
+  @override
+  String get lppRegulationReviewConfirm => 'Confirmer la vérification';
 }

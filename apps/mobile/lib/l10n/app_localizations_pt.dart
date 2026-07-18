@@ -24514,4 +24514,41 @@ class SPt extends S {
   @override
   String get docScanLppPlanDocumentDescription =>
       'O regulamento da tua caixa é analisado sem extrair montantes nem direitos.';
+
+  @override
+  String get lppRegulationReviewRecoveryBody =>
+      'Este regulamento não pode ser analisado nesta sessão. Volta à digitalização para recomeçar.';
+
+  @override
+  String get lppRegulationReviewTitle => 'Analisar o regulamento LPP';
+
+  @override
+  String get lppRegulationReviewBody =>
+      'Confirma apenas a data do documento e o respetivo ano de referência legal. Este passo não confirma a aplicabilidade à tua situação nem quaisquer direitos ou montantes.';
+
+  @override
+  String get lppRegulationReviewSourceDate =>
+      'Data do regulamento (AAAA-MM-DD)';
+
+  @override
+  String get lppRegulationReviewSourceDateError =>
+      'Introduz uma data válida no formato AAAA-MM-DD que não seja futura.';
+
+  @override
+  String get lppRegulationReviewLegalYear => 'Ano de referência legal';
+
+  @override
+  String get lppRegulationReviewLegalYearError =>
+      'Introduz um ano entre 1900 e 9999.';
+
+  @override
+  String get lppRegulationReviewAcceptError =>
+      'A base LPP mudou ou a análise não pôde ser aceite. Verifica os campos e recomeça na digitalização, se necessário.';
+
+  @override
+  String get lppRegulationReviewRecordError =>
+      'A análise foi aceite, mas não foi possível registar a respetiva referência. Tenta novamente sem alterar os campos.';
+
+  @override
+  String get lppRegulationReviewConfirm => 'Confirmar a análise';
 }

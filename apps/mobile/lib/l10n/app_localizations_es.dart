@@ -24505,4 +24505,41 @@ class SEs extends S {
   @override
   String get docScanLppPlanDocumentDescription =>
       'El reglamento de tu caja se revisa sin extraer importes ni derechos.';
+
+  @override
+  String get lppRegulationReviewRecoveryBody =>
+      'Este reglamento no puede revisarse en esta sesión. Vuelve al escaneo para empezar de nuevo.';
+
+  @override
+  String get lppRegulationReviewTitle => 'Revisar el reglamento LPP';
+
+  @override
+  String get lppRegulationReviewBody =>
+      'Confirma únicamente la fecha del documento y su año de referencia legal. Este paso no confirma que se aplique a tu situación ni derechos o importes.';
+
+  @override
+  String get lppRegulationReviewSourceDate =>
+      'Fecha del reglamento (AAAA-MM-DD)';
+
+  @override
+  String get lppRegulationReviewSourceDateError =>
+      'Introduce una fecha válida en formato AAAA-MM-DD que no sea futura.';
+
+  @override
+  String get lppRegulationReviewLegalYear => 'Año de referencia legal';
+
+  @override
+  String get lppRegulationReviewLegalYearError =>
+      'Introduce un año entre 1900 y 9999.';
+
+  @override
+  String get lppRegulationReviewAcceptError =>
+      'La base LPP ha cambiado o la revisión no pudo aceptarse. Comprueba los campos y reinicia desde el escaneo si es necesario.';
+
+  @override
+  String get lppRegulationReviewRecordError =>
+      'La revisión fue aceptada, pero no se pudo registrar su referencia. Reinténtalo sin modificar los campos.';
+
+  @override
+  String get lppRegulationReviewConfirm => 'Confirmar la revisión';
 }

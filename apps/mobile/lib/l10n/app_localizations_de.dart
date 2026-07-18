@@ -24566,4 +24566,41 @@ class SDe extends S {
   @override
   String get docScanLppPlanDocumentDescription =>
       'Das Reglement deiner Pensionskasse wird geprüft, ohne Beträge oder Ansprüche zu extrahieren.';
+
+  @override
+  String get lppRegulationReviewRecoveryBody =>
+      'Dieses Vorsorgereglement kann in dieser Sitzung nicht geprüft werden. Kehre zum Scan zurück und beginne erneut.';
+
+  @override
+  String get lppRegulationReviewTitle => 'BVG-Vorsorgereglement prüfen';
+
+  @override
+  String get lppRegulationReviewBody =>
+      'Bestätige nur das Dokumentdatum und das rechtliche Referenzjahr. Dieser Schritt bestätigt weder die Anwendbarkeit auf deine Situation noch Ansprüche oder Beträge.';
+
+  @override
+  String get lppRegulationReviewSourceDate =>
+      'Datum des Reglements (JJJJ-MM-TT)';
+
+  @override
+  String get lppRegulationReviewSourceDateError =>
+      'Gib ein gültiges, nicht zukünftiges Datum im Format JJJJ-MM-TT ein.';
+
+  @override
+  String get lppRegulationReviewLegalYear => 'Rechtliches Referenzjahr';
+
+  @override
+  String get lppRegulationReviewLegalYearError =>
+      'Gib ein Jahr zwischen 1900 und 9999 ein.';
+
+  @override
+  String get lppRegulationReviewAcceptError =>
+      'Die BVG-Grundlage hat sich geändert oder die Prüfung konnte nicht akzeptiert werden. Prüfe die Felder und starte bei Bedarf erneut beim Scan.';
+
+  @override
+  String get lppRegulationReviewRecordError =>
+      'Die Prüfung wurde akzeptiert, ihre Referenz konnte jedoch nicht gespeichert werden. Versuche es erneut, ohne die Felder zu ändern.';
+
+  @override
+  String get lppRegulationReviewConfirm => 'Prüfung bestätigen';
 }

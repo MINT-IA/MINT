@@ -11621,5 +11621,15 @@
   "retirementLppRegulationQuestionDivorceBody": "Welche Auskünfte und Unterlagen kann die Pensionskasse im Scheidungsfall für die Teilung der beruflichen Vorsorge erstellen, und wie könnte eine gerichtlich angeordnete Teilung meine künftigen Leistungen verändern?",
   "retirementLppRegulationHandoffClose": "Schliessen",
   "docScanLppPlanDocumentLabel": "BVG-Vorsorgereglement",
-  "docScanLppPlanDocumentDescription": "Das Reglement deiner Pensionskasse wird geprüft, ohne Beträge oder Ansprüche zu extrahieren."
+  "docScanLppPlanDocumentDescription": "Das Reglement deiner Pensionskasse wird geprüft, ohne Beträge oder Ansprüche zu extrahieren.",
+  "lppRegulationReviewRecoveryBody": "Dieses Vorsorgereglement kann in dieser Sitzung nicht geprüft werden. Kehre zum Scan zurück und beginne erneut.",
+  "lppRegulationReviewTitle": "BVG-Vorsorgereglement prüfen",
+  "lppRegulationReviewBody": "Bestätige nur das Dokumentdatum und das rechtliche Referenzjahr. Dieser Schritt bestätigt weder die Anwendbarkeit auf deine Situation noch Ansprüche oder Beträge.",
+  "lppRegulationReviewSourceDate": "Datum des Reglements (JJJJ-MM-TT)",
+  "lppRegulationReviewSourceDateError": "Gib ein gültiges, nicht zukünftiges Datum im Format JJJJ-MM-TT ein.",
+  "lppRegulationReviewLegalYear": "Rechtliches Referenzjahr",
+  "lppRegulationReviewLegalYearError": "Gib ein Jahr zwischen 1900 und 9999 ein.",
+  "lppRegulationReviewAcceptError": "Die BVG-Grundlage hat sich geändert oder die Prüfung konnte nicht akzeptiert werden. Prüfe die Felder und starte bei Bedarf erneut beim Scan.",
+  "lppRegulationReviewRecordError": "Die Prüfung wurde akzeptiert, ihre Referenz konnte jedoch nicht gespeichert werden. Versuche es erneut, ohne die Felder zu ändern.",
+  "lppRegulationReviewConfirm": "Prüfung bestätigen"
 }

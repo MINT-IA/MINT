@@ -51,6 +51,7 @@ class ExtractionReviewScreen extends StatefulWidget {
   final ExtractionResult result;
   final LppExtractionCandidate? lppCandidate;
   final LppAcquisitionAuthorization? lppAuthorization;
+  final LppRegulationAcquisitionCandidate? lppRegulationCandidate;
   final ManualPartnerAccountabilityContext? manualPartnerAccountability;
   final TaxExtractionCandidate? taxCandidate;
   final ScanConfirmationSender? sendScanConfirmation;
@@ -66,6 +67,7 @@ class ExtractionReviewScreen extends StatefulWidget {
     required this.result,
     this.lppCandidate,
     this.lppAuthorization,
+    this.lppRegulationCandidate,
     this.manualPartnerAccountability,
     this.taxCandidate,
     this.sendScanConfirmation,
@@ -118,6 +120,13 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   bool _lppSourceDateValidationFailed = false;
   bool _lppBalanceValidationFailed = false;
   bool _lppReferenceFailed = false;
+  bool _lppRegulationSourceDateValidationFailed = false;
+  bool _lppRegulationLegalYearValidationFailed = false;
+  bool _lppRegulationAcceptFailed = false;
+  bool _lppRegulationRecordFailed = false;
+  bool _reviewSessionFinalized = false;
+  LppRegulationReviewConfirmation? _acceptedLppRegulationConfirmation;
+  LppRegulationReceipt? _acceptedLppRegulationReceipt;
   bool _taxInForceAttested = false;
   bool _federalScopeIncoherent = false;
   late final PartnerAccountabilityBindingStore _partnerBindingStore =
@@ -136,6 +145,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   final _taxYearController = TextEditingController();
   final _basedOnTaxYearController = TextEditingController();
   final _sourceDateController = TextEditingController();
+  final _lppRegulationLegalYearController = TextEditingController();
   final _cantonCodeController = TextEditingController();
   final _municipalityIdController = TextEditingController();
   final _municipalityLabelController = TextEditingController();
@@ -165,7 +175,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   @override
   void dispose() {
     if (!_partnerReceiptFinalized) unawaited(_cleanupPartnerReceipt());
-    if (!_transferredToImpact) {
+    if (!_transferredToImpact && !_reviewSessionFinalized) {
       final scanSessions = _scanSessions;
       if (scanSessions != null) {
         unawaited(Future<void>.microtask(
@@ -177,6 +187,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       _taxYearController,
       _basedOnTaxYearController,
       _sourceDateController,
+      _lppRegulationLegalYearController,
       _cantonCodeController,
       _municipalityIdController,
       _municipalityLabelController,
@@ -244,6 +255,21 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.result.documentType == DocumentType.lppPlan) {
+      if (!FeatureFlags.lppRegulationAcquisitionEnabled) {
+        return _buildLppRegulationRecovery(
+          key: const Key('lpp_regulation_review_disabled_recovery'),
+        );
+      }
+      if (widget.lppRegulationCandidate == null) {
+        return _buildLppRegulationRecovery(
+          key: const Key(
+            'lpp_regulation_review_missing_candidate_recovery',
+          ),
+        );
+      }
+      return _buildLppRegulationReview();
+    }
     if (widget.result.documentType == DocumentType.lppCertificate &&
         !FeatureFlags.lppEvidenceIngestionEnabled) {
       return _buildLppRecovery(
@@ -492,6 +518,350 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildLppRegulationRecovery({required Key key}) {
+    return Scaffold(
+      key: key,
+      backgroundColor: MintColors.background,
+      appBar: AppBar(
+        backgroundColor: MintColors.background,
+        leading: IconButton(
+          onPressed: _onBack,
+          icon: const Icon(Icons.arrow_back),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                S.of(context)!.lppRegulationReviewRecoveryBody,
+                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Semantics(
+                identifier: 'lpp_regulation_review_recovery_cta',
+                button: true,
+                child: FilledButton(
+                  key: const Key('lpp_regulation_review_recovery_cta'),
+                  onPressed: _onBack,
+                  child: Text(S.of(context)!.documentScanCancel),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLppRegulationReview() {
+    final l10n = S.of(context)!;
+    final fieldsEnabled =
+        !_isConfirming && _acceptedLppRegulationReceipt == null;
+    return Semantics(
+      identifier: 'lpp_regulation_review_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        key: const Key('lpp_regulation_review_screen'),
+        backgroundColor: MintColors.background,
+        appBar: AppBar(
+          backgroundColor: MintColors.background,
+          leading: IconButton(
+            onPressed: _onBack,
+            icon: const Icon(Icons.arrow_back),
+            tooltip: l10n.documentScanCancel,
+          ),
+          title: Text(
+            l10n.lppRegulationReviewTitle,
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
+          ),
+        ),
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.lppRegulationReviewTitle,
+                    style: MintTextStyles.headlineMedium(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  MintSurface(
+                    tone: MintSurfaceTone.porcelaine,
+                    padding: const EdgeInsets.all(14),
+                    radius: 12,
+                    child: Text(
+                      l10n.lppRegulationReviewBody,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textSecondary,
+                      ).copyWith(height: 1.5),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Semantics(
+                    identifier: 'lpp_regulation_review_source_date',
+                    textField: true,
+                    child: TextFormField(
+                      key: const Key('lpp_regulation_review_source_date'),
+                      controller: _sourceDateController,
+                      enabled: fieldsEnabled,
+                      keyboardType: TextInputType.datetime,
+                      decoration: InputDecoration(
+                        labelText: l10n.lppRegulationReviewSourceDate,
+                        border: const OutlineInputBorder(),
+                      ),
+                      onChanged: (_) {
+                        if (_lppRegulationSourceDateValidationFailed ||
+                            _lppRegulationAcceptFailed) {
+                          setState(() {
+                            _lppRegulationSourceDateValidationFailed = false;
+                            _lppRegulationAcceptFailed = false;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  if (_lppRegulationSourceDateValidationFailed) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      l10n.lppRegulationReviewSourceDateError,
+                      key: const Key(
+                        'lpp_regulation_review_source_date_error',
+                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.error),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  Semantics(
+                    identifier: 'lpp_regulation_review_legal_year',
+                    textField: true,
+                    child: TextFormField(
+                      key: const Key('lpp_regulation_review_legal_year'),
+                      controller: _lppRegulationLegalYearController,
+                      enabled: fieldsEnabled,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: l10n.lppRegulationReviewLegalYear,
+                        border: const OutlineInputBorder(),
+                      ),
+                      onChanged: (_) {
+                        if (_lppRegulationLegalYearValidationFailed ||
+                            _lppRegulationAcceptFailed) {
+                          setState(() {
+                            _lppRegulationLegalYearValidationFailed = false;
+                            _lppRegulationAcceptFailed = false;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  if (_lppRegulationLegalYearValidationFailed) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      l10n.lppRegulationReviewLegalYearError,
+                      key: const Key(
+                        'lpp_regulation_review_legal_year_error',
+                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.error),
+                    ),
+                  ],
+                  if (_lppRegulationAcceptFailed) ...[
+                    const SizedBox(height: 16),
+                    MintSurface(
+                      key: const Key('lpp_regulation_review_accept_error'),
+                      tone: MintSurfaceTone.porcelaine,
+                      padding: const EdgeInsets.all(14),
+                      child: Text(
+                        l10n.lppRegulationReviewAcceptError,
+                        style:
+                            MintTextStyles.bodyMedium(color: MintColors.error),
+                      ),
+                    ),
+                  ],
+                  if (_lppRegulationRecordFailed) ...[
+                    const SizedBox(height: 16),
+                    MintSurface(
+                      key: const Key(
+                        'lpp_regulation_reference_retry_state',
+                      ),
+                      tone: MintSurfaceTone.porcelaine,
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.lppRegulationReviewRecordError,
+                            style: MintTextStyles.bodyMedium(
+                              color: MintColors.error,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Semantics(
+                            identifier: 'lpp_regulation_reference_retry_cta',
+                            button: true,
+                            enabled: !_isConfirming,
+                            child: FilledButton(
+                              key: const Key(
+                                'lpp_regulation_reference_retry_cta',
+                              ),
+                              onPressed: _isConfirming
+                                  ? null
+                                  : _retryLppRegulationRecord,
+                              child: Text(l10n.commonRetry),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  if (_acceptedLppRegulationReceipt == null)
+                    Semantics(
+                      identifier: 'lpp_regulation_review_confirm_cta',
+                      button: true,
+                      enabled: !_isConfirming,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          key: const Key(
+                            'lpp_regulation_review_confirm_cta',
+                          ),
+                          onPressed:
+                              _isConfirming ? null : _confirmLppRegulation,
+                          child: Text(l10n.lppRegulationReviewConfirm),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmLppRegulation() async {
+    final candidate = widget.lppRegulationCandidate;
+    if (_isConfirming ||
+        candidate == null ||
+        !FeatureFlags.lppRegulationAcquisitionEnabled ||
+        _acceptedLppRegulationReceipt != null) {
+      return;
+    }
+    final rawDate = _sourceDateController.text.trim();
+    final rawLegalYear = _lppRegulationLegalYearController.text.trim();
+    DateTime? sourceDate;
+    try {
+      sourceDate = _parseOptionalTaxDate(rawDate);
+    } on FormatException {
+      sourceDate = null;
+    }
+    final legalYear = RegExp(r'^\d{4}$').hasMatch(rawLegalYear)
+        ? int.tryParse(rawLegalYear)
+        : null;
+    final current = (widget.now ?? DateTime.now)().toUtc();
+    final invalidDate = sourceDate == null ||
+        SwissCivilTime.isFutureCivilDate(sourceDate, now: current);
+    final invalidLegalYear =
+        legalYear == null || legalYear < 1900 || legalYear > 9999;
+    if (invalidDate || invalidLegalYear) {
+      setState(() {
+        _lppRegulationSourceDateValidationFailed = invalidDate;
+        _lppRegulationLegalYearValidationFailed = invalidLegalYear;
+        _lppRegulationAcceptFailed = false;
+      });
+      return;
+    }
+
+    final LppRegulationReviewConfirmation confirmation;
+    try {
+      confirmation = LppRegulationReviewConfirmation(
+        ownerKind: LppEvidenceOwnerKind.self,
+        sourceDate: sourceDate,
+        legalYear: legalYear,
+        expectedSnapshotId: candidate.expectedSnapshotId,
+        expectedPreviousReferenceId: candidate.expectedPreviousReferenceId,
+      );
+    } on ArgumentError {
+      setState(() => _lppRegulationAcceptFailed = true);
+      return;
+    }
+
+    final ledger = context.read<CoachProfileProvider>();
+    setState(() {
+      _isConfirming = true;
+      _lppRegulationSourceDateValidationFailed = false;
+      _lppRegulationLegalYearValidationFailed = false;
+      _lppRegulationAcceptFailed = false;
+      _lppRegulationRecordFailed = false;
+    });
+    final LppRegulationReceipt receipt;
+    try {
+      receipt = await ledger.acceptLppRegulationReference(confirmation);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isConfirming = false;
+          _lppRegulationAcceptFailed = true;
+        });
+      }
+      return;
+    }
+    if (!mounted) return;
+    setState(() {
+      _acceptedLppRegulationConfirmation = confirmation;
+      _acceptedLppRegulationReceipt = receipt;
+    });
+    await _recordAcceptedLppRegulation(continuingFromAccept: true);
+  }
+
+  Future<void> _retryLppRegulationRecord() async {
+    await _recordAcceptedLppRegulation(continuingFromAccept: false);
+  }
+
+  Future<void> _recordAcceptedLppRegulation({
+    required bool continuingFromAccept,
+  }) async {
+    final receipt = _acceptedLppRegulationReceipt;
+    if (receipt == null ||
+        _acceptedLppRegulationConfirmation == null ||
+        (!continuingFromAccept && _isConfirming)) {
+      return;
+    }
+    final documents = context.read<DocumentProvider>();
+    if (!continuingFromAccept) {
+      setState(() {
+        _isConfirming = true;
+        _lppRegulationRecordFailed = false;
+      });
+    }
+    try {
+      await documents.recordLppRegulation(receipt);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isConfirming = false;
+          _lppRegulationRecordFailed = true;
+        });
+      }
+      return;
+    }
+    _reviewSessionFinalized = true;
+    _scanSessions?.discard(widget.scanSessionId);
+    if (!mounted) return;
+    context.go('/retraite');
   }
 
   void _onBack() {

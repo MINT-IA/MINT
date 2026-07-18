@@ -11621,5 +11621,15 @@
   "retirementLppRegulationQuestionDivorceBody": "In caso di divorzio, quali informazioni e documenti può predisporre la cassa pensioni per la divisione della previdenza professionale e come potrebbe una divisione ordinata dal tribunale modificare le mie prestazioni future?",
   "retirementLppRegulationHandoffClose": "Chiudi",
   "docScanLppPlanDocumentLabel": "Regolamento di previdenza LPP",
-  "docScanLppPlanDocumentDescription": "Il regolamento della tua cassa viene esaminato senza estrarre importi né diritti."
+  "docScanLppPlanDocumentDescription": "Il regolamento della tua cassa viene esaminato senza estrarre importi né diritti.",
+  "lppRegulationReviewRecoveryBody": "Questo regolamento non può essere esaminato in questa sessione. Torna alla scansione per ricominciare.",
+  "lppRegulationReviewTitle": "Esaminare il regolamento LPP",
+  "lppRegulationReviewBody": "Conferma soltanto la data del documento e il suo anno di riferimento legale. Questo passaggio non conferma né l’applicabilità alla tua situazione né diritti o importi.",
+  "lppRegulationReviewSourceDate": "Data del regolamento (AAAA-MM-GG)",
+  "lppRegulationReviewSourceDateError": "Inserisci una data valida nel formato AAAA-MM-GG che non sia futura.",
+  "lppRegulationReviewLegalYear": "Anno di riferimento legale",
+  "lppRegulationReviewLegalYearError": "Inserisci un anno tra il 1900 e il 9999.",
+  "lppRegulationReviewAcceptError": "La base LPP è cambiata o la revisione non è stata accettata. Controlla i campi e riparti dalla scansione se necessario.",
+  "lppRegulationReviewRecordError": "La revisione è stata accettata, ma non è stato possibile registrarne il riferimento. Riprova senza modificare i campi.",
+  "lppRegulationReviewConfirm": "Confermare la revisione"
 }

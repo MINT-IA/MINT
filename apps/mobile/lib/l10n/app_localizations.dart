@@ -42730,6 +42730,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Règlement de ta caisse, examiné sans extraire de montant ni de droit.'**
   String get docScanLppPlanDocumentDescription;
+
+  /// No description provided for @lppRegulationReviewRecoveryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce règlement ne peut pas être vérifié dans cette session. Reviens au scan pour recommencer.'**
+  String get lppRegulationReviewRecoveryBody;
+
+  /// No description provided for @lppRegulationReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier le règlement LPP'**
+  String get lppRegulationReviewTitle;
+
+  /// No description provided for @lppRegulationReviewBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirme uniquement la date du document et son année de référence. Cette étape ne confirme ni son applicabilité à ta situation, ni des droits ou des montants.'**
+  String get lppRegulationReviewBody;
+
+  /// No description provided for @lppRegulationReviewSourceDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date du règlement (AAAA-MM-JJ)'**
+  String get lppRegulationReviewSourceDate;
+
+  /// No description provided for @lppRegulationReviewSourceDateError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis une date valide au format AAAA-MM-JJ, qui n’est pas dans le futur.'**
+  String get lppRegulationReviewSourceDateError;
+
+  /// No description provided for @lppRegulationReviewLegalYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année de référence juridique'**
+  String get lppRegulationReviewLegalYear;
+
+  /// No description provided for @lppRegulationReviewLegalYearError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis une année entre 1900 et 9999.'**
+  String get lppRegulationReviewLegalYearError;
+
+  /// No description provided for @lppRegulationReviewAcceptError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La base LPP a changé ou la vérification n’a pas abouti. Vérifie les champs, puis recommence depuis le scan si nécessaire.'**
+  String get lppRegulationReviewAcceptError;
+
+  /// No description provided for @lppRegulationReviewRecordError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La vérification est acceptée, mais sa référence n’a pas pu être enregistrée. Réessaie sans modifier les champs.'**
+  String get lppRegulationReviewRecordError;
+
+  /// No description provided for @lppRegulationReviewConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer la vérification'**
+  String get lppRegulationReviewConfirm;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

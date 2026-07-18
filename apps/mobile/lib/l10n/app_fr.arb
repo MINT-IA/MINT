@@ -12431,5 +12431,15 @@
   "retirementLppRegulationQuestionDivorceBody": "En cas de divorce, quels renseignements et documents la caisse peut-elle établir pour le partage de la prévoyance professionnelle, et comment un partage ordonné par le tribunal pourrait-il modifier mes prestations futures ?",
   "retirementLppRegulationHandoffClose": "Fermer",
   "docScanLppPlanDocumentLabel": "Règlement de prévoyance LPP",
-  "docScanLppPlanDocumentDescription": "Règlement de ta caisse, examiné sans extraire de montant ni de droit."
+  "docScanLppPlanDocumentDescription": "Règlement de ta caisse, examiné sans extraire de montant ni de droit.",
+  "lppRegulationReviewRecoveryBody": "Ce règlement ne peut pas être vérifié dans cette session. Reviens au scan pour recommencer.",
+  "lppRegulationReviewTitle": "Vérifier le règlement LPP",
+  "lppRegulationReviewBody": "Confirme uniquement la date du document et son année de référence. Cette étape ne confirme ni son applicabilité à ta situation, ni des droits ou des montants.",
+  "lppRegulationReviewSourceDate": "Date du règlement (AAAA-MM-JJ)",
+  "lppRegulationReviewSourceDateError": "Saisis une date valide au format AAAA-MM-JJ, qui n’est pas dans le futur.",
+  "lppRegulationReviewLegalYear": "Année de référence juridique",
+  "lppRegulationReviewLegalYearError": "Saisis une année entre 1900 et 9999.",
+  "lppRegulationReviewAcceptError": "La base LPP a changé ou la vérification n’a pas abouti. Vérifie les champs, puis recommence depuis le scan si nécessaire.",
+  "lppRegulationReviewRecordError": "La vérification est acceptée, mais sa référence n’a pas pu être enregistrée. Réessaie sans modifier les champs.",
+  "lppRegulationReviewConfirm": "Confirmer la vérification"
 }
