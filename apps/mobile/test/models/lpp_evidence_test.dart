@@ -203,19 +203,69 @@ void main() {
       }
     });
 
-    test('an invalid manual slot cannot hide a valid self slot', () {
-      final mutated = _validRoot()
+    test('self selector rejects semantically invalid sibling slots', () {
+      final invalidManualPartner = _validRoot()
         ..['manualPartner'] = _manualPartnerSnapshot(
           authorizationMode: 'linkedPartnerGrant',
         );
+      final invalidQuarantine = _validRoot()
+        ..['legacyPartnerQuarantine'] = <String, dynamic>{
+          'legacySchemaVersion': 0,
+          'reasonCodes': <String>[],
+          'presentKeys': <String>['_coach_conjoint_avoir_lpp'],
+          'quarantinedAt': '2026-01-15T12:00:00.000Z',
+        };
 
-      expect(
-        LppEvidenceSelector.selectSelf(
-          jsonEncode(mutated),
-          now: () => DateTime.utc(2026, 7, 14),
-        ),
-        isNotNull,
-      );
+      for (final mutated in <Map<String, dynamic>>[
+        invalidManualPartner,
+        invalidQuarantine,
+      ]) {
+        final raw = jsonEncode(mutated);
+        expect(LppEvidenceRoot.fromJsonString(raw), isNull);
+        expect(
+          LppEvidenceSelector.selectSelf(
+            raw,
+            now: () => DateTime.utc(2026, 7, 14),
+          ),
+          isNull,
+        );
+      }
+    });
+
+    test('manual selector rejects semantically invalid sibling slots', () {
+      final invalidSelf = _validRoot()
+        ..['manualPartner'] = _manualPartnerSnapshot();
+      final selfFact =
+          (((invalidSelf['self']! as Map<String, dynamic>)['facts']!
+                  as Map<String, dynamic>)['vestedBenefitsCapitalChf']!
+              as Map<String, dynamic>);
+      (selfFact['authorization']! as Map<String, dynamic>)['mode'] =
+          'linkedPartnerGrant';
+
+      final invalidQuarantine = _validRoot()
+        ..['manualPartner'] = _manualPartnerSnapshot()
+        ..['legacyPartnerQuarantine'] = <String, dynamic>{
+          'legacySchemaVersion': 0,
+          'reasonCodes': <String>['not_a_known_reason'],
+          'presentKeys': <String>['_coach_conjoint_avoir_lpp'],
+          'quarantinedAt': '2026-01-15T12:00:00.000Z',
+        };
+
+      for (final mutated in <Map<String, dynamic>>[
+        invalidSelf,
+        invalidQuarantine,
+      ]) {
+        final raw = jsonEncode(mutated);
+        expect(LppEvidenceRoot.fromJsonString(raw), isNull);
+        expect(
+          LppEvidenceSelector.selectManualPartner(
+            raw,
+            expectedOwnerId: _partnerOwnerId,
+            now: () => DateTime.utc(2026, 7, 14),
+          ),
+          isNull,
+        );
+      }
     });
 
     test('cold selector uses Zurich civil midnight in CEST and CET', () {

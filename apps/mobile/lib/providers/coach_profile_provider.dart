@@ -1510,10 +1510,12 @@ class CoachProfileProvider extends ChangeNotifier {
         'future civil source dates cannot enter the ledger',
       );
     }
-    final currentRoot = LppEvidenceRoot.fromJsonString(
-      _lastAnswers[_lppEvidenceRootKey],
-      now: _now,
-    );
+    final currentRoot = _lastAnswers.containsKey(_lppEvidenceRootKey)
+        ? LppEvidenceRoot.fromJsonString(
+            _lastAnswers[_lppEvidenceRootKey],
+            now: _now,
+          )
+        : const LppEvidenceRoot(self: null);
     if (currentRoot == null) {
       throw StateError('Current LPP evidence root is unavailable');
     }
@@ -1547,10 +1549,12 @@ class CoachProfileProvider extends ChangeNotifier {
     late CoachProfile publishedProfile;
     await _mutateLppAnswers(sessionGuard, (loaded) {
       sessionGuard.assertCurrent();
-      final root = LppEvidenceRoot.fromJsonString(
-        loaded[_lppEvidenceRootKey],
-        now: _now,
-      );
+      final root = loaded.containsKey(_lppEvidenceRootKey)
+          ? LppEvidenceRoot.fromJsonString(
+              loaded[_lppEvidenceRootKey],
+              now: _now,
+            )
+          : const LppEvidenceRoot(self: null);
       if (root == null) {
         throw StateError('Persisted LPP evidence root changed');
       }
@@ -2334,10 +2338,14 @@ class CoachProfileProvider extends ChangeNotifier {
         return LppEvidenceSelector.selectSelf(rawRoot, now: _now);
       case LppEvidenceOwnerKind.manualPartner:
         if (!FeatureFlags.partnerLppAccountabilityEnabled) return null;
-        final expectedOwnerId =
-            LppEvidenceSelector.manualPartnerOwnerId(rawRoot);
-        final expectedSnapshotId =
-            LppEvidenceSelector.manualPartnerSnapshotId(rawRoot);
+        final expectedOwnerId = LppEvidenceSelector.manualPartnerOwnerId(
+          rawRoot,
+          now: _now,
+        );
+        final expectedSnapshotId = LppEvidenceSelector.manualPartnerSnapshotId(
+          rawRoot,
+          now: _now,
+        );
         final accountabilityBinding = _partnerLppAccountabilityBinding;
         if (expectedOwnerId == null ||
             expectedSnapshotId == null ||

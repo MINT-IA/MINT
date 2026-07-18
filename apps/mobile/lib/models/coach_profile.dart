@@ -4879,10 +4879,12 @@ class CoachProfile {
             now: now,
           )
         : null;
-    final typedLppSelf = LppEvidenceSelector.selectSelf(
-      typedLppRoot?.toJsonString(),
-      now: now,
-    );
+    final typedLppSelf = FeatureFlags.typedLppEvidence
+        ? LppEvidenceSelector.selectSelf(
+            answers['_coach_lpp_evidence_v1'],
+            now: now,
+          )
+        : null;
     final lppCapitalNoticeDeadline =
         FeatureFlags.lppCapitalNoticeDeadlineEnabled
             ? SpecialistReferenceEvidence.tryFromJson(
@@ -4901,11 +4903,13 @@ class CoachProfile {
     final expectedManualPartnerOwnerId = FeatureFlags.typedLppEvidence
         ? LppEvidenceSelector.manualPartnerOwnerId(
             answers['_coach_lpp_evidence_v1'],
+            now: now,
           )
         : null;
     final expectedManualPartnerSnapshotId = FeatureFlags.typedLppEvidence
         ? LppEvidenceSelector.manualPartnerSnapshotId(
             answers['_coach_lpp_evidence_v1'],
+            now: now,
           )
         : null;
     final accountabilityOwnerMatches = !enforcePartnerAccountability ||

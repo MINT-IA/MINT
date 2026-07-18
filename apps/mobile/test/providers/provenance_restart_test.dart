@@ -1091,7 +1091,7 @@ void main() {
     );
   });
 
-  test('manual cold hydration ignores unrelated malformed quarantine', () {
+  test('manual cold hydration rejects a semantically malformed quarantine', () {
     const selfActorId = '11111111-1111-4111-8111-111111111111';
     const partnerOwnerId = '22222222-2222-4222-8222-222222222222';
     final root = LppEvidenceRoot(
@@ -1122,12 +1122,19 @@ void main() {
     };
     final rawRoot = jsonEncode(malformedEnvelope);
 
+    expect(
+      LppEvidenceRoot.fromJsonString(
+        rawRoot,
+        now: () => DateTime.utc(2026, 7, 14, 12),
+      ),
+      isNull,
+    );
     final selected = LppEvidenceSelector.selectManualPartner(
       rawRoot,
       expectedOwnerId: partnerOwnerId,
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
-    expect(selected, isNotNull);
+    expect(selected, isNull);
 
     final cold = CoachProfile.fromWizardAnswers(
       <String, dynamic>{
@@ -1137,18 +1144,11 @@ void main() {
       },
       now: () => DateTime.utc(2026, 7, 14, 12),
     );
-    final partnerPrevoyance = cold.conjoint?.prevoyance;
-    expect(partnerPrevoyance, isNotNull);
-    expect(partnerPrevoyance!.avoirLppTotal, 84000);
-    final fact = partnerPrevoyance.lppEvidenceFact(
-      LppEvidenceFactKey.vestedBenefitsCapitalChf,
-    );
-    expect(fact, isNotNull);
-    expect(fact!.status, LppEvidenceStatus.available);
+    expect(cold.conjoint?.prevoyance?.avoirLppTotal, isNull);
     const path = 'conjoint.prevoyance.avoirLppTotal';
-    expect(cold.dataSources[path], ProfileDataSource.certificate);
-    expect(cold.dataTimestamps[path], DateTime.utc(2026, 7, 14, 10));
-    expect(cold.dataSourceDates[path], DateTime.utc(2026, 6, 30));
+    expect(cold.dataSources.containsKey(path), isFalse);
+    expect(cold.dataTimestamps.containsKey(path), isFalse);
+    expect(cold.dataSourceDates.containsKey(path), isFalse);
   });
 
   test('writer rejects a loaded grant-shaped root before save or publication',

@@ -331,6 +331,33 @@ void main() {
       }
     });
 
+    test(
+        'schema 1 distinguishes an absent nested regulation from explicit non-map values',
+        () {
+      final withoutNestedRegulation = _legacySchema1Root();
+      (withoutNestedRegulation['self']! as Map<String, dynamic>)
+          .remove('lppRegulationReference');
+      expect(
+        _decode(withoutNestedRegulation),
+        isNotNull,
+        reason:
+            'Only genuine key absence is a valid legacy no-authority state.',
+      );
+
+      for (final explicitInvalid in <Object?>[
+        null,
+        'not-a-regulation-map',
+        <Object?>[],
+      ]) {
+        expect(
+          _decode(_legacySchema1RootWithReference(explicitInvalid)),
+          isNull,
+          reason: 'An explicitly present legacy authority must be a strict '
+              'seven-key map before it can be dropped: $explicitInvalid',
+        );
+      }
+    });
+
     test('numeric root reconstruction preserves the autonomous reference', () {
       final reference = _regulationReference(
         fundRelationship: 'uncertain',

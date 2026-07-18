@@ -142,13 +142,17 @@ String _rootJson(
             factless: factless,
           );
 
-Map<String, dynamic> _answers(DateTime now, {String? root}) =>
+Map<String, dynamic> _answers(
+  DateTime now, {
+  String? root,
+  bool includeLppRoot = true,
+}) =>
     <String, dynamic>{
       'q_birth_year': 1981,
       'q_canton': 'VD',
       'q_civil_status': 'celibataire',
       'q_has_pension_fund': 'yes',
-      '_coach_lpp_evidence_v1': root ?? _rootJson(now),
+      if (includeLppRoot) '_coach_lpp_evidence_v1': root ?? _rootJson(now),
     };
 
 Map<String, dynamic> _referenceJson({
@@ -301,8 +305,14 @@ LppReviewConfirmation _replacementReview(DateTime now) => LppReviewConfirmation(
     );
 
 Future<({CoachProfileProvider provider, _MemoryLppPersistence persistence})>
-    _loadedProvider(DateTime now, {String? root}) async {
-  final persistence = _MemoryLppPersistence(_answers(now, root: root));
+    _loadedProvider(
+  DateTime now, {
+  String? root,
+  bool includeLppRoot = true,
+}) async {
+  final persistence = _MemoryLppPersistence(
+    _answers(now, root: root, includeLppRoot: includeLppRoot),
+  );
   final provider = CoachProfileProvider(
     taxProfilePersistence: persistence,
     lppProfilePersistence: persistence,
@@ -423,6 +433,92 @@ void main() {
     final dynamic reference = _rootRegulation(root);
     expect(reference.fundRelationship.wireName, 'uncertain');
     expect(_receiptSnapshotId(receipt), _missingSnapshotApi);
+  });
+
+  test(
+      'first acquisition creates one exact schema 2 authority root when the key is absent',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    final loaded = await _loadedProvider(now, includeLppRoot: false);
+    addTearDown(loaded.provider.dispose);
+    expect(
+      loaded.persistence.answers.containsKey('_coach_lpp_evidence_v1'),
+      isFalse,
+    );
+
+    final receipt = await loaded.provider.acceptLppRegulationReference(
+      _confirmation(fundRelationship: 'formerOrOther'),
+    );
+
+    expect(loaded.persistence.loadCalls, 1);
+    expect(loaded.persistence.saveCalls, 1);
+    final encoded = Map<String, dynamic>.from(
+      jsonDecode(
+        loaded.persistence.answers['_coach_lpp_evidence_v1']! as String,
+      ) as Map,
+    );
+    expect(encoded.keys.toSet(), <String>{
+      'schemaVersion',
+      'self',
+      'manualPartner',
+      'legacyPartnerQuarantine',
+      'selfRegulationReference',
+    });
+    expect(encoded['schemaVersion'], 2);
+    expect(encoded['self'], isNull);
+    expect(encoded['manualPartner'], isNull);
+    expect(encoded['legacyPartnerQuarantine'], isNull);
+    final reference = Map<String, dynamic>.from(
+      encoded['selfRegulationReference']! as Map,
+    );
+    expect(reference['referenceId'], receipt.referenceId);
+    expect(reference['fundRelationship'], 'formerOrOther');
+
+    final cold = CoachProfile.fromWizardAnswers(
+      loaded.persistence.answers,
+      now: () => now,
+    );
+    expect(cold.lppRegulationReference?.referenceId, receipt.referenceId);
+    expect(cold.lppRegulationReference?.fundRelationship,
+        LppFundRelationship.formerOrOther);
+  });
+
+  test('a present malformed root fails closed before every possible save',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+
+    final outerPersistence = _MemoryLppPersistence(_answers(now));
+    final malformedOuter = CoachProfileProvider(
+      taxProfilePersistence: outerPersistence,
+      lppProfilePersistence: outerPersistence,
+      now: () => now,
+    );
+    addTearDown(malformedOuter.dispose);
+    malformedOuter.updateFromAnswers(_answers(now, root: '{malformed'));
+    await expectLater(
+      malformedOuter.acceptLppRegulationReference(_confirmation()),
+      throwsStateError,
+    );
+    expect(outerPersistence.loadCalls, 0);
+    expect(outerPersistence.saveCalls, 0);
+
+    final malformedTransaction = await _loadedProvider(
+      now,
+      includeLppRoot: false,
+    );
+    addTearDown(malformedTransaction.provider.dispose);
+    malformedTransaction.persistence.answers['_coach_lpp_evidence_v1'] =
+        '{malformed';
+    await expectLater(
+      malformedTransaction.provider.acceptLppRegulationReference(
+        _confirmation(),
+      ),
+      throwsStateError,
+    );
+    expect(malformedTransaction.persistence.loadCalls, 1);
+    expect(malformedTransaction.persistence.saveCalls, 0);
   });
 
   test('future source date rejects without persistence or notification',

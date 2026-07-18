@@ -1050,16 +1050,17 @@ class LppEvidenceRoot {
       }
       if (schemaVersion == 1 && rawSelf is Map) {
         final legacySelf = Map<String, dynamic>.from(rawSelf);
-        final nestedRegulation = legacySelf['lppRegulationReference'];
-        if (nestedRegulation != null &&
-            (nestedRegulation is! Map ||
-                !_isValidLegacyLppRegulationReference(
-                  Map<String, dynamic>.from(nestedRegulation),
-                  now: now,
-                ))) {
-          return null;
+        if (legacySelf.containsKey('lppRegulationReference')) {
+          final nestedRegulation = legacySelf['lppRegulationReference'];
+          if (nestedRegulation is! Map ||
+              !_isValidLegacyLppRegulationReference(
+                Map<String, dynamic>.from(nestedRegulation),
+                now: now,
+              )) {
+            return null;
+          }
+          legacySelf.remove('lppRegulationReference');
         }
-        legacySelf.remove('lppRegulationReference');
         rawSelf = legacySelf;
       }
       final self = rawSelf == null
@@ -1163,61 +1164,6 @@ bool _isValidLegacyLppRegulationReference(
       !SwissCivilTime.isFutureCivilDate(sourceDate, now: current);
 }
 
-Map<String, dynamic>? _decodeLppRootEnvelope(
-  Object? raw, {
-  DateTime Function()? now,
-}) {
-  if (raw is! String || raw == '__secure__') return null;
-  try {
-    final decoded = jsonDecode(raw);
-    if (decoded is! Map) return null;
-    final root = Map<String, dynamic>.from(decoded);
-    final schemaVersion = root['schemaVersion'];
-    final expectedKeys = switch (schemaVersion) {
-      1 => _legacyRootKeys,
-      2 => _rootKeys,
-      _ => const <String>{},
-    };
-    if (root.length != expectedKeys.length ||
-        root.keys.toSet().difference(expectedKeys).isNotEmpty ||
-        root['self'] != null && root['self'] is! Map ||
-        root['manualPartner'] != null && root['manualPartner'] is! Map ||
-        root['legacyPartnerQuarantine'] != null &&
-            root['legacyPartnerQuarantine'] is! Map) {
-      return null;
-    }
-    if (schemaVersion == 1 && root['self'] is Map) {
-      final self = Map<String, dynamic>.from(root['self'] as Map);
-      final nestedRegulation = self['lppRegulationReference'];
-      if (nestedRegulation != null &&
-          (nestedRegulation is! Map ||
-              !_isValidLegacyLppRegulationReference(
-                Map<String, dynamic>.from(nestedRegulation),
-                now: now,
-              ))) {
-        return null;
-      }
-      self.remove('lppRegulationReference');
-      root['self'] = self;
-    }
-    if (schemaVersion == 2) {
-      final regulation = root['selfRegulationReference'];
-      if (regulation != null &&
-          (regulation is! Map ||
-              LppRegulationReference.fromJson(
-                    Map<String, dynamic>.from(regulation),
-                    now: now,
-                  ) ==
-                  null)) {
-        return null;
-      }
-    }
-    return root;
-  } on Object {
-    return null;
-  }
-}
-
 DateTime? _parseCanonicalCivilDate(Object? raw) {
   if (raw is! String || !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(raw)) {
     return null;
@@ -1258,14 +1204,10 @@ class LppEvidenceSelector {
     Object? rawRoot, {
     DateTime Function()? now,
   }) {
-    final root = _decodeLppRootEnvelope(rawRoot, now: now);
-    final rawSelf = root?['self'];
-    if (rawSelf is! Map) return null;
-    final snapshot = LppEvidenceSnapshot.fromJson(
-      Map<String, dynamic>.from(rawSelf),
-      expectedOwnerKind: LppEvidenceOwnerKind.self,
+    final snapshot = LppEvidenceRoot.fromJsonString(
+      rawRoot,
       now: now,
-    );
+    )?.self;
     if (snapshot == null) return null;
     return _selectCurrent(snapshot, now: now);
   }
@@ -1276,7 +1218,7 @@ class LppEvidenceSelector {
     DateTime Function()? now,
   }) {
     if (!_isPseudonymousToken(expectedOwnerId)) return null;
-    final snapshot = _manualPartnerSnapshot(rawRoot);
+    final snapshot = _manualPartnerSnapshot(rawRoot, now: now);
     if (snapshot == null ||
         snapshot.facts.values.any(
           (fact) => fact.profileOwnerId != expectedOwnerId,
@@ -1286,36 +1228,26 @@ class LppEvidenceSelector {
     return _selectCurrent(snapshot, now: now);
   }
 
-  static String? manualPartnerOwnerId(Object? rawRoot) =>
-      _manualPartnerSnapshot(rawRoot)?.identityFacts.first.profileOwnerId;
+  static String? manualPartnerOwnerId(
+    Object? rawRoot, {
+    DateTime Function()? now,
+  }) =>
+      _manualPartnerSnapshot(rawRoot, now: now)
+          ?.identityFacts
+          .first
+          .profileOwnerId;
 
-  static String? manualPartnerSnapshotId(Object? rawRoot) =>
-      _manualPartnerSnapshot(rawRoot)?.snapshotId;
+  static String? manualPartnerSnapshotId(
+    Object? rawRoot, {
+    DateTime Function()? now,
+  }) =>
+      _manualPartnerSnapshot(rawRoot, now: now)?.snapshotId;
 
-  static LppEvidenceSnapshot? _manualPartnerSnapshot(Object? rawRoot) {
-    final root = _decodeLppRootEnvelope(rawRoot);
-    final rawManualPartner = root?['manualPartner'];
-    if (rawManualPartner is! Map) return null;
-    final snapshot = LppEvidenceSnapshot.fromJson(
-      Map<String, dynamic>.from(rawManualPartner),
-      expectedOwnerKind: LppEvidenceOwnerKind.manualPartner,
-    );
-    if (snapshot == null) return null;
-    final rawSelf = root?['self'];
-    if (rawSelf != null) {
-      if (rawSelf is! Map) return null;
-      final self = LppEvidenceSnapshot.fromJson(
-        Map<String, dynamic>.from(rawSelf),
-        expectedOwnerKind: LppEvidenceOwnerKind.self,
-      );
-      if (self == null ||
-          snapshot.identityFacts.first.actorProfileOwnerId !=
-              self.identityFacts.first.profileOwnerId) {
-        return null;
-      }
-    }
-    return snapshot;
-  }
+  static LppEvidenceSnapshot? _manualPartnerSnapshot(
+    Object? rawRoot, {
+    DateTime Function()? now,
+  }) =>
+      LppEvidenceRoot.fromJsonString(rawRoot, now: now)?.manualPartner;
 
   static LppEvidenceSnapshot? _selectCurrent(
     LppEvidenceSnapshot snapshot, {
