@@ -24579,11 +24579,19 @@ class SDe extends S {
 
   @override
   String get retirementLppRegulationRecoveryTitle =>
-      'Lokale Referenz erneut bestätigen';
+      'Herkunftsangabe erneut bestätigen';
+
+  @override
+  String get retirementLppRegulationRecoveryLegacyBody =>
+      'Eine nicht verifizierte Angabe nennt die Herkunft dieses Reglements nicht. Bestätige sie anhand des Dokuments erneut. MINT leitet daraus nichts über die Herkunft, die zuständige Vorsorgeeinrichtung, die Anwendbarkeit des Reglements auf deine Situation, Ansprüche oder Beträge ab.';
 
   @override
   String get retirementLppRegulationRecoveryBody =>
-      'Die Angabe besteht, aber ihre lokale Referenz fehlt. Bestätige sie über den Scan erneut, ohne die Anwendbarkeit des Reglements anzunehmen.';
+      'Eine nicht verifizierte Angabe besteht, aber ihre lokale Referenz fehlt. Bestätige sie anhand des Dokuments erneut. MINT leitet daraus nichts über die Herkunft, die zuständige Vorsorgeeinrichtung, die Anwendbarkeit des Reglements auf deine Situation, Ansprüche oder Beträge ab.';
+
+  @override
+  String get retirementLppRegulationRecoveryMismatchBody =>
+      'Eine nicht verifizierte Angabe stimmt nicht mit ihrer lokalen Referenz überein und wird ausgeblendet. Bestätige sie anhand des Dokuments erneut. MINT leitet daraus nichts über die Herkunft, die zuständige Vorsorgeeinrichtung, die Anwendbarkeit des Reglements auf deine Situation, Ansprüche oder Beträge ab.';
 
   @override
   String get retirementLppRegulationRecoveryCta => 'Angabe erneut bestätigen';

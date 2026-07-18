@@ -24391,11 +24391,19 @@ class SEn extends S {
 
   @override
   String get retirementLppRegulationRecoveryTitle =>
-      'Local reference needs reconfirmation';
+      'Origin declaration needs reconfirmation';
+
+  @override
+  String get retirementLppRegulationRecoveryLegacyBody =>
+      'An unverified declaration does not identify the origin of these rules. Reconfirm it from the document. MINT does not infer the origin, the relevant pension fund, that the rules apply to your situation, any entitlements, or any amounts.';
 
   @override
   String get retirementLppRegulationRecoveryBody =>
-      'The declaration exists, but its local reference is missing. Reconfirm it from the scan without assuming the rules apply.';
+      'An unverified declaration exists, but its local reference is missing. Reconfirm it from the document. MINT does not infer the origin, the relevant pension fund, that the rules apply to your situation, any entitlements, or any amounts.';
+
+  @override
+  String get retirementLppRegulationRecoveryMismatchBody =>
+      'An unverified declaration does not match its local reference and is hidden. Reconfirm it from the document. MINT does not infer the origin, the relevant pension fund, that the rules apply to your situation, any entitlements, or any amounts.';
 
   @override
   String get retirementLppRegulationRecoveryCta => 'Reconfirm the declaration';

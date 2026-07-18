@@ -24508,11 +24508,19 @@ class SFr extends S {
 
   @override
   String get retirementLppRegulationRecoveryTitle =>
-      'Référence locale à reconfirmer';
+      'Déclaration d’origine à reconfirmer';
+
+  @override
+  String get retirementLppRegulationRecoveryLegacyBody =>
+      'Une déclaration non vérifiée ne précise pas l’origine de ce règlement. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.';
 
   @override
   String get retirementLppRegulationRecoveryBody =>
-      'La déclaration existe, mais sa référence locale manque. Reconfirme-la depuis le scan sans supposer que le règlement s’applique.';
+      'Une déclaration non vérifiée existe, mais sa référence locale manque. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.';
+
+  @override
+  String get retirementLppRegulationRecoveryMismatchBody =>
+      'Une déclaration non vérifiée ne correspond pas à sa référence locale et est masquée. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.';
 
   @override
   String get retirementLppRegulationRecoveryCta => 'Reconfirmer la déclaration';

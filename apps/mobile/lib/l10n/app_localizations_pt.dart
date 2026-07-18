@@ -24528,11 +24528,19 @@ class SPt extends S {
 
   @override
   String get retirementLppRegulationRecoveryTitle =>
-      'Referência local a reconfirmar';
+      'Declaração de origem a reconfirmar';
+
+  @override
+  String get retirementLppRegulationRecoveryLegacyBody =>
+      'Uma declaração não verificada não identifica a origem deste regulamento. Volta a confirmá-la a partir do documento. A MINT não deduz daí a origem, a instituição de previdência em causa, a aplicação do regulamento à tua situação, quaisquer direitos ou montantes.';
 
   @override
   String get retirementLppRegulationRecoveryBody =>
-      'A declaração existe, mas falta a referência local. Volta a confirmá-la a partir da digitalização sem presumir que o regulamento se aplica.';
+      'Existe uma declaração não verificada, mas falta a referência local. Volta a confirmá-la a partir do documento. A MINT não deduz daí a origem, a instituição de previdência em causa, a aplicação do regulamento à tua situação, quaisquer direitos ou montantes.';
+
+  @override
+  String get retirementLppRegulationRecoveryMismatchBody =>
+      'Uma declaração não verificada não corresponde à referência local e fica oculta. Volta a confirmá-la a partir do documento. A MINT não deduz daí a origem, a instituição de previdência em causa, a aplicação do regulamento à tua situação, quaisquer direitos ou montantes.';
 
   @override
   String get retirementLppRegulationRecoveryCta => 'Reconfirmar a declaração';

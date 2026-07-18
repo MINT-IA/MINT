@@ -20,6 +20,12 @@ const _questionBodyKeys = <String>[
   'retirementLppRegulationQuestionDivorceBody',
 ];
 
+const _recoveryBodyKeys = <String>[
+  'retirementLppRegulationRecoveryLegacyBody',
+  'retirementLppRegulationRecoveryBody',
+  'retirementLppRegulationRecoveryMismatchBody',
+];
+
 const _declarationKeys = <String>[
   'lppRegulationReviewRecoveryBody',
   'lppRegulationReviewTitle',
@@ -29,7 +35,9 @@ const _declarationKeys = <String>[
   'retirementLppRegulationReferenceTitle',
   'retirementLppRegulationReferenceBody',
   'retirementLppRegulationConfirmedAtLabel',
+  'retirementLppRegulationRecoveryTitle',
   'retirementLppRegulationRecoveryCta',
+  ..._recoveryBodyKeys,
 ];
 
 final _possessiveFundPatterns = <String, RegExp>{
@@ -106,27 +114,27 @@ const _unverifiedTokens = <String, String>{
 
 final _confirmedObjectPatterns = <String, RegExp>{
   'fr': RegExp(
-    r'^(?:Vérifier|Examiner|Revoir) (?:ce |le )?(?:règlement|document)\b|\b(?:règlement|document) (?:est|a été) (?:revu|confirmé|vérifié)\b|\b(?:examen|revue|vérification) (?:de|du) (?:ce |le )?(?:règlement|document) est confirmé|\breconfirmer le règlement\b',
+    r'^(?:Vérifier|Examiner|Revoir) (?:ce |le )?(?:règlement|document)\b|\b(?:règlement|document) (?:est|a été) (?:revu|confirmé|vérifié)\b|\b(?:examen|revue|vérification) (?:de|du) (?:ce |le )?(?:règlement|document) est confirmé|\breconfirmer (?:le règlement|le document)\b',
     caseSensitive: false,
   ),
   'en': RegExp(
-    r'\b(?:rules|document) (?:are|is|were|was|have been|has been) (?:reviewed|confirmed|verified)\b|\breview of (?:these|the) rules is confirmed\b|\breconfirm the rules\b',
+    r'\b(?:rules|document) (?:are|is|were|was|have been|has been) (?:reviewed|confirmed|verified)\b|\breview of (?:these|the) rules is confirmed\b|\breconfirm (?:the rules|the document)\b',
     caseSensitive: false,
   ),
   'de': RegExp(
-    r'\b(?:Reglement|Dokument) (?:ist|wurde|wird) (?:geprüft|bestätigt|verifiziert)\b|\bPrüfung dieses Reglements ist bestätigt\b|\bReglement erneut bestätigen\b',
+    r'\b(?:Reglement|Dokument) (?:ist|wurde|wird) (?:geprüft|bestätigt|verifiziert)\b|\bPrüfung dieses Reglements ist bestätigt\b|\b(?:Reglement|Dokument) erneut bestätigen\b',
     caseSensitive: false,
   ),
   'es': RegExp(
-    r'\b(?:reglamento|documento) (?:está|fue|ha sido) (?:revisado|confirmado|verificado)\b|\brevisión de este reglamento está confirmada\b|\breconfirmar el reglamento\b',
+    r'\b(?:reglamento|documento) (?:está|fue|ha sido) (?:revisado|confirmado|verificado)\b|\brevisión de este reglamento está confirmada\b|\b(?:reconfirmar|volver a confirmar) (?:el reglamento|el documento)\b',
     caseSensitive: false,
   ),
   'it': RegExp(
-    r'\b(?:regolamento|documento) (?:è|è stato|viene) (?:esaminato|confermato|verificato)\b|\bè confermato l’esame di questo regolamento\b|\briconferma(?:re)? il regolamento\b',
+    r'\b(?:regolamento|documento) (?:è|è stato|viene) (?:esaminato|confermato|verificato)\b|\bè confermato l’esame di questo regolamento\b|\briconferma(?:re)? (?:il regolamento|il documento)\b',
     caseSensitive: false,
   ),
   'pt': RegExp(
-    r'\b(?:regulamento|documento) (?:é|foi|está) (?:revisto|confirmado|verificado)\b|\ba revisão deste regulamento está confirmada\b|\breconfirmar o regulamento\b',
+    r'\b(?:regulamento|documento) (?:é|foi|está) (?:revisto|confirmado|verificado)\b|\ba revisão deste regulamento está confirmada\b|\breconfirmar (?:o regulamento|o documento)\b',
     caseSensitive: false,
   ),
 };
@@ -209,6 +217,174 @@ const _approvedReferenceBodies = <String, String>{
       'L’origine indicata è una dichiarazione non verificata. Non conferma l’istituto di previdenza interessato, l’applicabilità del regolamento alla tua situazione, né diritti o importi.',
   'pt':
       'A origem indicada é uma declaração não verificada. Não confirma a instituição de previdência em causa, a aplicação do regulamento à tua situação, quaisquer direitos ou montantes.',
+};
+
+const _approvedRecoveryTitles = <String, String>{
+  'fr': 'Déclaration d’origine à reconfirmer',
+  'en': 'Origin declaration needs reconfirmation',
+  'de': 'Herkunftsangabe erneut bestätigen',
+  'es': 'Declaración de origen por reconfirmar',
+  'it': 'Dichiarazione d’origine da riconfermare',
+  'pt': 'Declaração de origem a reconfirmar',
+};
+
+const _approvedRecoveryCtas = <String, String>{
+  'fr': 'Reconfirmer la déclaration',
+  'en': 'Reconfirm the declaration',
+  'de': 'Angabe erneut bestätigen',
+  'es': 'Volver a confirmar la declaración',
+  'it': 'Riconfermare la dichiarazione',
+  'pt': 'Reconfirmar a declaração',
+};
+
+const _approvedRecoveryBodies = <String, List<String>>{
+  'fr': <String>[
+    'Une déclaration non vérifiée ne précise pas l’origine de ce règlement. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.',
+    'Une déclaration non vérifiée existe, mais sa référence locale manque. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.',
+    'Une déclaration non vérifiée ne correspond pas à sa référence locale et est masquée. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.',
+  ],
+  'en': <String>[
+    'An unverified declaration does not identify the origin of these rules. Reconfirm it from the document. MINT does not infer the origin, the relevant pension fund, that the rules apply to your situation, any entitlements, or any amounts.',
+    'An unverified declaration exists, but its local reference is missing. Reconfirm it from the document. MINT does not infer the origin, the relevant pension fund, that the rules apply to your situation, any entitlements, or any amounts.',
+    'An unverified declaration does not match its local reference and is hidden. Reconfirm it from the document. MINT does not infer the origin, the relevant pension fund, that the rules apply to your situation, any entitlements, or any amounts.',
+  ],
+  'de': <String>[
+    'Eine nicht verifizierte Angabe nennt die Herkunft dieses Reglements nicht. Bestätige sie anhand des Dokuments erneut. MINT leitet daraus nichts über die Herkunft, die zuständige Vorsorgeeinrichtung, die Anwendbarkeit des Reglements auf deine Situation, Ansprüche oder Beträge ab.',
+    'Eine nicht verifizierte Angabe besteht, aber ihre lokale Referenz fehlt. Bestätige sie anhand des Dokuments erneut. MINT leitet daraus nichts über die Herkunft, die zuständige Vorsorgeeinrichtung, die Anwendbarkeit des Reglements auf deine Situation, Ansprüche oder Beträge ab.',
+    'Eine nicht verifizierte Angabe stimmt nicht mit ihrer lokalen Referenz überein und wird ausgeblendet. Bestätige sie anhand des Dokuments erneut. MINT leitet daraus nichts über die Herkunft, die zuständige Vorsorgeeinrichtung, die Anwendbarkeit des Reglements auf deine Situation, Ansprüche oder Beträge ab.',
+  ],
+  'es': <String>[
+    'Una declaración no verificada no precisa el origen de este reglamento. Vuelve a confirmarla a partir del documento. MINT no deduce de ella ni el origen, ni la institución de previsión correspondiente, ni la aplicabilidad del reglamento a tu situación, ni derechos ni importes.',
+    'Existe una declaración no verificada, pero falta su referencia local. Vuelve a confirmarla a partir del documento. MINT no deduce de ella ni el origen, ni la institución de previsión correspondiente, ni la aplicabilidad del reglamento a tu situación, ni derechos ni importes.',
+    'Una declaración no verificada no coincide con su referencia local y queda oculta. Vuelve a confirmarla a partir del documento. MINT no deduce de ella ni el origen, ni la institución de previsión correspondiente, ni la aplicabilidad del reglamento a tu situación, ni derechos ni importes.',
+  ],
+  'it': <String>[
+    'Una dichiarazione non verificata non precisa l’origine di questo regolamento. Riconfermala a partire dal documento. MINT non ne deduce nulla sull’origine, sull’istituto di previdenza interessato, sull’applicabilità del regolamento alla tua situazione, su diritti o importi.',
+    'Esiste una dichiarazione non verificata, ma manca il riferimento locale. Riconfermala a partire dal documento. MINT non ne deduce nulla sull’origine, sull’istituto di previdenza interessato, sull’applicabilità del regolamento alla tua situazione, su diritti o importi.',
+    'Una dichiarazione non verificata non corrisponde al riferimento locale e viene nascosta. Riconfermala a partire dal documento. MINT non ne deduce nulla sull’origine, sull’istituto di previdenza interessato, sull’applicabilità del regolamento alla tua situazione, su diritti o importi.',
+  ],
+  'pt': <String>[
+    'Uma declaração não verificada não identifica a origem deste regulamento. Volta a confirmá-la a partir do documento. A MINT não deduz daí a origem, a instituição de previdência em causa, a aplicação do regulamento à tua situação, quaisquer direitos ou montantes.',
+    'Existe uma declaração não verificada, mas falta a referência local. Volta a confirmá-la a partir do documento. A MINT não deduz daí a origem, a instituição de previdência em causa, a aplicação do regulamento à tua situação, quaisquer direitos ou montantes.',
+    'Uma declaração não verificada não corresponde à referência local e fica oculta. Volta a confirmá-la a partir do documento. A MINT não deduz daí a origem, a instituição de previdência em causa, a aplicação do regulamento à tua situação, quaisquer direitos ou montantes.',
+  ],
+};
+
+const _recoveryDeclarationTokens = <String, String>{
+  'fr': 'déclaration',
+  'en': 'declaration',
+  'de': 'Angabe',
+  'es': 'declaración',
+  'it': 'dichiarazione',
+  'pt': 'declaração',
+};
+
+const _recoveryUnverifiedTokens = <String, String>{
+  'fr': 'non vérifiée',
+  'en': 'unverified',
+  'de': 'nicht verifizierte',
+  'es': 'no verificada',
+  'it': 'non verificata',
+  'pt': 'não verificada',
+};
+
+const _reconfirmFromDocumentTokens = <String, String>{
+  'fr': 'Reconfirme-la à partir du document.',
+  'en': 'Reconfirm it from the document.',
+  'de': 'Bestätige sie anhand des Dokuments erneut.',
+  'es': 'Vuelve a confirmarla a partir del documento.',
+  'it': 'Riconfermala a partire dal documento.',
+  'pt': 'Volta a confirmá-la a partir do documento.',
+};
+
+const _recoveryNonInferenceTokens = <String, List<String>>{
+  'fr': <String>[
+    'ni l’origine',
+    'ni l’institution concernée',
+    'ni l’application du règlement',
+    'ni tes droits',
+    'ni aucun montant',
+  ],
+  'en': <String>[
+    'does not infer the origin',
+    'the relevant pension fund',
+    'that the rules apply',
+    'any entitlements',
+    'any amounts',
+  ],
+  'de': <String>[
+    'nichts über die Herkunft',
+    'die zuständige Vorsorgeeinrichtung',
+    'die Anwendbarkeit des Reglements',
+    'Ansprüche',
+    'Beträge',
+  ],
+  'es': <String>[
+    'ni el origen',
+    'ni la institución de previsión',
+    'ni la aplicabilidad del reglamento',
+    'ni derechos',
+    'ni importes',
+  ],
+  'it': <String>[
+    'nulla sull’origine',
+    'sull’istituto di previdenza',
+    'sull’applicabilità del regolamento',
+    'su diritti',
+    'o importi',
+  ],
+  'pt': <String>[
+    'não deduz daí a origem',
+    'a instituição de previdência',
+    'a aplicação do regulamento',
+    'quaisquer direitos',
+    'montantes',
+  ],
+};
+
+const _recoveryDiagnosticTokens = <String, List<List<String>>>{
+  'fr': <List<String>>[
+    <String>['ne précise pas l’origine'],
+    <String>['référence locale manque'],
+    <String>['ne correspond pas à sa référence locale', 'est masquée'],
+  ],
+  'en': <List<String>>[
+    <String>['does not identify the origin'],
+    <String>['local reference is missing'],
+    <String>['does not match its local reference', 'is hidden'],
+  ],
+  'de': <List<String>>[
+    <String>['nennt die Herkunft', 'Reglements nicht'],
+    <String>['lokale Referenz fehlt'],
+    <String>['stimmt nicht mit ihrer lokalen Referenz überein', 'ausgeblendet'],
+  ],
+  'es': <List<String>>[
+    <String>['no precisa el origen'],
+    <String>['falta su referencia local'],
+    <String>['no coincide con su referencia local', 'queda oculta'],
+  ],
+  'it': <List<String>>[
+    <String>['non precisa l’origine'],
+    <String>['manca il riferimento locale'],
+    <String>['non corrisponde al riferimento locale', 'viene nascosta'],
+  ],
+  'pt': <List<String>>[
+    <String>['não identifica a origem'],
+    <String>['falta a referência local'],
+    <String>['não corresponde à referência local', 'fica oculta'],
+  ],
+};
+
+const _forbiddenRecoveryCtaMutations = <String, List<String>>{
+  'fr': <String>['Reconfirmer le règlement', 'Reconfirmer le document'],
+  'en': <String>['Reconfirm the rules', 'Reconfirm the document'],
+  'de': <String>['Reglement erneut bestätigen', 'Dokument erneut bestätigen'],
+  'es': <String>[
+    'Volver a confirmar el reglamento',
+    'Volver a confirmar el documento',
+  ],
+  'it': <String>['Riconfermare il regolamento', 'Riconfermare il documento'],
+  'pt': <String>['Reconfirmar o regulamento', 'Reconfirmar o documento'],
 };
 
 const _historicalDocScanDescriptions = <String, String>{
@@ -382,6 +558,42 @@ List<String> _validateArb(String locale, Map<String, String> arb) {
     _approvedReferenceBodies[locale]!,
     'approved-negative-authority-copy',
   );
+  requireExact(
+    'retirementLppRegulationRecoveryTitle',
+    _approvedRecoveryTitles[locale]!,
+    'approved-recovery-title',
+  );
+  requireExact(
+    'retirementLppRegulationRecoveryCta',
+    _approvedRecoveryCtas[locale]!,
+    'approved-recovery-cta',
+  );
+  final approvedRecoveryBodies = _approvedRecoveryBodies[locale]!;
+  final diagnosticTokens = _recoveryDiagnosticTokens[locale]!;
+  for (var index = 0; index < _recoveryBodyKeys.length; index += 1) {
+    final key = _recoveryBodyKeys[index];
+    requireExact(
+      key,
+      approvedRecoveryBodies[index],
+      'approved-recovery-body',
+    );
+    requireContains(
+      key,
+      _recoveryUnverifiedTokens[locale]!,
+      'recovery-unverified',
+    );
+    requireContains(
+      key,
+      _reconfirmFromDocumentTokens[locale]!,
+      'recovery-reconfirm-from-document',
+    );
+    for (final token in _recoveryNonInferenceTokens[locale]!) {
+      requireContains(key, token, 'recovery-five-non-inferences');
+    }
+    for (final token in diagnosticTokens[index]) {
+      requireContains(key, token, 'recovery-state-diagnostic');
+    }
+  }
 
   requireContains(
     'retirementLppRegulationHandoffBoundary',
@@ -510,6 +722,54 @@ void main() {
           baseline,
           key,
           'Neutral authority copy without the required semantic marker.',
+        );
+      }
+    }
+  });
+
+  test(
+      'recovery bodies mutation-lock declaration, unverified status, document reconfirmation, five non-inferences, and diagnostics',
+      () {
+    for (final locale in _locales) {
+      final baseline = _arb(locale);
+      final approvedBodies = _approvedRecoveryBodies[locale]!;
+      final diagnostics = _recoveryDiagnosticTokens[locale]!;
+      for (var index = 0; index < _recoveryBodyKeys.length; index += 1) {
+        final key = _recoveryBodyKeys[index];
+        final approved = approvedBodies[index];
+        final requiredTokens = <String>{
+          _recoveryDeclarationTokens[locale]!,
+          _recoveryUnverifiedTokens[locale]!,
+          _reconfirmFromDocumentTokens[locale]!,
+          ..._recoveryNonInferenceTokens[locale]!,
+          ...diagnostics[index],
+        };
+        for (final token in requiredTokens) {
+          expect(
+            approved.toLowerCase(),
+            contains(token.toLowerCase()),
+            reason: 'invalid mutation fixture: lang=$locale key=$key '
+                'token=$token',
+          );
+          _expectRejected(
+            locale,
+            baseline,
+            key,
+            approved.replaceFirst(token, '[authority removed]'),
+          );
+        }
+      }
+    }
+  });
+
+  test('recovery CTA can reconfirm only the declaration', () {
+    for (final locale in _locales) {
+      for (final mutation in _forbiddenRecoveryCtaMutations[locale]!) {
+        _expectRejected(
+          locale,
+          _arb(locale),
+          'retirementLppRegulationRecoveryCta',
+          mutation,
         );
       }
     }

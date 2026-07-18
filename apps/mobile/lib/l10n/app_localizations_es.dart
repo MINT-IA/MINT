@@ -24518,11 +24518,19 @@ class SEs extends S {
 
   @override
   String get retirementLppRegulationRecoveryTitle =>
-      'Referencia local pendiente de reconfirmación';
+      'Declaración de origen por reconfirmar';
+
+  @override
+  String get retirementLppRegulationRecoveryLegacyBody =>
+      'Una declaración no verificada no precisa el origen de este reglamento. Vuelve a confirmarla a partir del documento. MINT no deduce de ella ni el origen, ni la institución de previsión correspondiente, ni la aplicabilidad del reglamento a tu situación, ni derechos ni importes.';
 
   @override
   String get retirementLppRegulationRecoveryBody =>
-      'La declaración existe, pero falta su referencia local. Vuelve a confirmarla desde el escaneo sin suponer que el reglamento se aplica.';
+      'Existe una declaración no verificada, pero falta su referencia local. Vuelve a confirmarla a partir del documento. MINT no deduce de ella ni el origen, ni la institución de previsión correspondiente, ni la aplicabilidad del reglamento a tu situación, ni derechos ni importes.';
+
+  @override
+  String get retirementLppRegulationRecoveryMismatchBody =>
+      'Una declaración no verificada no coincide con su referencia local y queda oculta. Vuelve a confirmarla a partir del documento. MINT no deduce de ella ni el origen, ni la institución de previsión correspondiente, ni la aplicabilidad del reglamento a tu situación, ni derechos ni importes.';
 
   @override
   String get retirementLppRegulationRecoveryCta =>

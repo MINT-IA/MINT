@@ -42746,14 +42746,26 @@ abstract class S {
   /// No description provided for @retirementLppRegulationRecoveryTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Référence locale à reconfirmer'**
+  /// **'Déclaration d’origine à reconfirmer'**
   String get retirementLppRegulationRecoveryTitle;
+
+  /// No description provided for @retirementLppRegulationRecoveryLegacyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une déclaration non vérifiée ne précise pas l’origine de ce règlement. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.'**
+  String get retirementLppRegulationRecoveryLegacyBody;
 
   /// No description provided for @retirementLppRegulationRecoveryBody.
   ///
   /// In fr, this message translates to:
-  /// **'La déclaration existe, mais sa référence locale manque. Reconfirme-la depuis le scan sans supposer que le règlement s’applique.'**
+  /// **'Une déclaration non vérifiée existe, mais sa référence locale manque. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.'**
   String get retirementLppRegulationRecoveryBody;
+
+  /// No description provided for @retirementLppRegulationRecoveryMismatchBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une déclaration non vérifiée ne correspond pas à sa référence locale et est masquée. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.'**
+  String get retirementLppRegulationRecoveryMismatchBody;
 
   /// No description provided for @retirementLppRegulationRecoveryCta.
   ///

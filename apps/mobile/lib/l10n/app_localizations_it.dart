@@ -24584,11 +24584,19 @@ class SIt extends S {
 
   @override
   String get retirementLppRegulationRecoveryTitle =>
-      'Riferimento locale da riconfermare';
+      'Dichiarazione d’origine da riconfermare';
+
+  @override
+  String get retirementLppRegulationRecoveryLegacyBody =>
+      'Una dichiarazione non verificata non precisa l’origine di questo regolamento. Riconfermala a partire dal documento. MINT non ne deduce nulla sull’origine, sull’istituto di previdenza interessato, sull’applicabilità del regolamento alla tua situazione, su diritti o importi.';
 
   @override
   String get retirementLppRegulationRecoveryBody =>
-      'La dichiarazione esiste, ma manca il riferimento locale. Riconfermala dalla scansione senza presumere che il regolamento si applichi.';
+      'Esiste una dichiarazione non verificata, ma manca il riferimento locale. Riconfermala a partire dal documento. MINT non ne deduce nulla sull’origine, sull’istituto di previdenza interessato, sull’applicabilità del regolamento alla tua situazione, su diritti o importi.';
+
+  @override
+  String get retirementLppRegulationRecoveryMismatchBody =>
+      'Una dichiarazione non verificata non corrisponde al riferimento locale e viene nascosta. Riconfermala a partire dal documento. MINT non ne deduce nulla sull’origine, sull’istituto di previdenza interessato, sull’applicabilità del regolamento alla tua situazione, su diritti o importi.';
 
   @override
   String get retirementLppRegulationRecoveryCta =>

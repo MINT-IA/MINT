@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,6 +30,25 @@ const _sheetId = 'retirement_lpp_regulation_handoff_sheet';
 const _sheetTitleId = 'retirement_lpp_regulation_handoff_title';
 const _sheetPrivacyId = 'retirement_lpp_regulation_handoff_privacy';
 const _closeId = 'retirement_lpp_regulation_handoff_close';
+const _recoveryId = 'retirement_lpp_regulation_reference_recovery';
+const _reconfirmCtaId = 'retirement_lpp_regulation_reconfirm_cta';
+const _recoveryTitleFr = 'Déclaration d’origine à reconfirmer';
+const _recoveryCtaFr = 'Reconfirmer la déclaration';
+const _legacyRecoveryBodyFr =
+    'Une déclaration non vérifiée ne précise pas l’origine de ce règlement. '
+    'Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni '
+    'l’institution concernée, ni l’application du règlement à ta situation, '
+    'ni tes droits ni aucun montant.';
+const _missingRecoveryBodyFr =
+    'Une déclaration non vérifiée existe, mais sa référence locale manque. '
+    'Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni '
+    'l’institution concernée, ni l’application du règlement à ta situation, '
+    'ni tes droits ni aucun montant.';
+const _mismatchRecoveryBodyFr =
+    'Une déclaration non vérifiée ne correspond pas à sa référence locale et '
+    'est masquée. Reconfirme-la à partir du document. MINT n’en déduit ni '
+    'l’origine, ni l’institution concernée, ni l’application du règlement à '
+    'ta situation, ni tes droits ni aucun montant.';
 
 final class _DashboardLedger extends CoachProfileProvider {
   _DashboardLedger({
@@ -35,12 +56,14 @@ final class _DashboardLedger extends CoachProfileProvider {
     required this.snapshotId,
     required this.referenceId,
     required this.confirmedAt,
+    this.recoveryReason,
   });
 
   final CoachProfile? value;
   String? snapshotId;
   final String referenceId;
   final DateTime confirmedAt;
+  final LppRegulationRecoveryReason? recoveryReason;
 
   @override
   CoachProfile? get profile => value;
@@ -50,6 +73,10 @@ final class _DashboardLedger extends CoachProfileProvider {
 
   @override
   bool get isLoaded => true;
+
+  @override
+  LppRegulationRecoveryReason? get lppRegulationRecoveryReason =>
+      FeatureFlags.lppRegulationReferenceEnabled ? recoveryReason : null;
 
   @override
   String? currentLppSnapshotId(LppEvidenceOwnerKind ownerKind) =>
@@ -101,7 +128,7 @@ SpecialistReferenceEvidence _candidate({
   )!;
 }
 
-CoachProfile _profile(SpecialistReferenceEvidence candidate) => CoachProfile(
+CoachProfile _profile(SpecialistReferenceEvidence? candidate) => CoachProfile(
       firstName: 'Julien',
       birthYear: 1985,
       canton: 'VD',
@@ -157,6 +184,16 @@ final class _FailingReferenceStore extends DocumentReferenceStore {
   @override
   Future<List<ConfirmedDocumentReference>> load() async =>
       throw const FormatException('synthetic BND hydration failure');
+}
+
+final class _LoadingReferenceStore extends DocumentReferenceStore {
+  final gate = Completer<void>();
+
+  @override
+  Future<List<ConfirmedDocumentReference>> load() async {
+    await gate.future;
+    return const [];
+  }
 }
 
 Future<DocumentProvider> _documents({
@@ -306,6 +343,7 @@ void main() {
       snapshotId: null,
       referenceId: candidate.referenceId,
       confirmedAt: candidate.confirmedAt,
+      recoveryReason: LppRegulationRecoveryReason.legacyMissingFundRelationship,
     );
     final documents = await _documents(ledger: ledger);
     addTearDown(documents.dispose);
@@ -317,6 +355,11 @@ void main() {
     final card = find.bySemanticsIdentifier(_cardId);
     expect(card, findsOneWidget);
     expect(find.bySemanticsIdentifier(_ctaId), findsOneWidget);
+    expect(
+      find.bySemanticsIdentifier(_recoveryId),
+      findsNothing,
+      reason: 'The exact current tuple wins over a defensive stale marker.',
+    );
     expect(
       find.byKey(const Key('retirement_missing_avs_state')),
       findsOneWidget,
@@ -461,18 +504,17 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.bySemanticsIdentifier(_cardId), findsNothing);
-    final recovery = find.bySemanticsIdentifier(
-      'retirement_lpp_regulation_reference_recovery',
-    );
+    final recovery = find.bySemanticsIdentifier(_recoveryId);
     expect(recovery, findsOneWidget);
-    final recoveryText = _textUnder(tester, recovery).toLowerCase();
-    expect(recoveryText, contains('reconfirmer'));
-    expect(recoveryText, isNot(contains('règlement confirmé')));
-    expect(recoveryText, isNot(contains('règlement applicable')));
+    final recoveryText = _textUnder(tester, recovery);
+    expect(recoveryText, contains(_recoveryTitleFr));
+    expect(recoveryText, contains(_recoveryCtaFr));
+    expect(recoveryText, contains(_missingRecoveryBodyFr));
+    expect(recoveryText, isNot(contains(_referenceId)));
+    expect(recoveryText, isNot(contains('2018')));
+    expect(recoveryText.toLowerCase(), isNot(contains('règlement confirmé')));
 
-    final cta = find.bySemanticsIdentifier(
-      'retirement_lpp_regulation_reconfirm_cta',
-    );
+    final cta = find.bySemanticsIdentifier(_reconfirmCtaId);
     expect(cta, findsOneWidget);
     await tester.ensureVisible(cta);
     await tester.tap(cta);
@@ -485,6 +527,91 @@ void main() {
     expect(
       find.byKey(const Key('lpp_regulation_reconfirm_destination')),
       findsOneWidget,
+    );
+  });
+
+  testWidgets(
+      'legacy recovery marker renders neutral document reconfirmation without stale tuple data',
+      (tester) async {
+    final candidate = _candidate();
+    final ledger = _DashboardLedger(
+      value: _profile(null),
+      snapshotId: null,
+      referenceId: candidate.referenceId,
+      confirmedAt: candidate.confirmedAt,
+      recoveryReason: LppRegulationRecoveryReason.legacyMissingFundRelationship,
+    );
+    final documents = DocumentProvider(referenceStore: _EmptyReferenceStore())
+      ..bindLedger(ledger);
+    await documents.hydrateReferences();
+    addTearDown(documents.dispose);
+    addTearDown(ledger.dispose);
+    final harness = _dashboardRouter(ledger: ledger, documents: documents);
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.bySemanticsIdentifier(_cardId), findsNothing);
+    final recovery = find.bySemanticsIdentifier(_recoveryId);
+    expect(recovery, findsOneWidget);
+    final recoveryText = _textUnder(tester, recovery);
+    expect(recoveryText, contains(_recoveryTitleFr));
+    expect(recoveryText, contains(_recoveryCtaFr));
+    expect(recoveryText, contains(_legacyRecoveryBodyFr));
+    expect(recoveryText, isNot(contains(_referenceId)));
+    expect(recoveryText, isNot(contains('2018')));
+
+    final cta = find.bySemanticsIdentifier(_reconfirmCtaId);
+    await tester.ensureVisible(cta);
+    await tester.tap(cta);
+    await tester.pumpAndSettle();
+    expect(
+      harness.router.routeInformationProvider.value.uri.toString(),
+      '/scan?type=lppPlan',
+    );
+  });
+
+  testWidgets(
+      'mismatched ready BND renders masked declaration recovery instead of stale education',
+      (tester) async {
+    final candidate = _candidate(fundRelationship: 'currentFund');
+    final ledger = _DashboardLedger(
+      value: _profile(candidate),
+      snapshotId: null,
+      referenceId: candidate.referenceId,
+      confirmedAt: candidate.confirmedAt,
+    );
+    final documents = await _documents(
+      ledger: ledger,
+      referenceId: _mismatchedReferenceId,
+    );
+    addTearDown(documents.dispose);
+    addTearDown(ledger.dispose);
+    final harness = _dashboardRouter(ledger: ledger, documents: documents);
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.bySemanticsIdentifier(_cardId), findsNothing);
+    final recovery = find.bySemanticsIdentifier(_recoveryId);
+    expect(recovery, findsOneWidget);
+    final recoveryText = _textUnder(tester, recovery);
+    expect(recoveryText, contains(_recoveryTitleFr));
+    expect(recoveryText, contains(_recoveryCtaFr));
+    expect(recoveryText, contains(_mismatchRecoveryBodyFr));
+    expect(recoveryText, isNot(contains(_referenceId)));
+    expect(recoveryText, isNot(contains(_mismatchedReferenceId)));
+    expect(recoveryText, isNot(contains('ma caisse actuelle')));
+
+    final cta = find.bySemanticsIdentifier(_reconfirmCtaId);
+    await tester.ensureVisible(cta);
+    await tester.tap(cta);
+    await tester.pumpAndSettle();
+    expect(
+      harness.router.routeInformationProvider.value.uri.toString(),
+      '/scan?type=lppPlan',
     );
   });
 
@@ -525,7 +652,7 @@ void main() {
     );
   });
 
-  testWidgets('flag, provider, BND identity, and profile fail closed',
+  testWidgets('flag, provider, hydration, unavailable ledger, and profile hide',
       (tester) async {
     final candidate = _candidate();
 
@@ -539,16 +666,12 @@ void main() {
       expect(find.bySemanticsIdentifier(_cardId), findsNothing, reason: reason);
       expect(find.bySemanticsIdentifier(_ctaId), findsNothing, reason: reason);
       expect(
-        find.bySemanticsIdentifier(
-          'retirement_lpp_regulation_reference_recovery',
-        ),
+        find.bySemanticsIdentifier(_recoveryId),
         findsNothing,
         reason: reason,
       );
       expect(
-        find.bySemanticsIdentifier(
-          'retirement_lpp_regulation_reconfirm_cta',
-        ),
+        find.bySemanticsIdentifier(_reconfirmCtaId),
         findsNothing,
         reason: reason,
       );
@@ -582,20 +705,57 @@ void main() {
       ledger: providerlessLedger,
     );
 
-    final mismatchLedger = _DashboardLedger(
+    final idleLedger = _DashboardLedger(
       value: _profile(candidate),
       snapshotId: null,
       referenceId: candidate.referenceId,
       confirmedAt: candidate.confirmedAt,
     );
-    final mismatchDocuments = await _documents(
-      ledger: mismatchLedger,
-      referenceId: _mismatchedReferenceId,
+    final idleDocuments = DocumentProvider(
+      referenceStore: _EmptyReferenceStore(),
+    )..bindLedger(idleLedger);
+    await expectHidden(
+      reason: 'BND hydration idle',
+      ledger: idleLedger,
+      documents: idleDocuments,
+    );
+
+    final loadingLedger = _DashboardLedger(
+      value: _profile(candidate),
+      snapshotId: null,
+      referenceId: candidate.referenceId,
+      confirmedAt: candidate.confirmedAt,
+    );
+    final loadingStore = _LoadingReferenceStore();
+    final loadingDocuments = DocumentProvider(referenceStore: loadingStore)
+      ..bindLedger(loadingLedger);
+    final loading = loadingDocuments.hydrateReferences();
+    expect(
+      loadingDocuments.referenceHydrationState,
+      DocumentReferenceHydrationState.loading,
     );
     await expectHidden(
-      reason: 'BND reference mismatch',
-      ledger: mismatchLedger,
-      documents: mismatchDocuments,
+      reason: 'BND hydration loading',
+      ledger: loadingLedger,
+      documents: loadingDocuments,
+    );
+    loadingStore.gate.complete();
+    await loading;
+
+    final unavailableLedger = _DashboardLedger(
+      value: _profile(candidate),
+      snapshotId: null,
+      referenceId: _mismatchedReferenceId,
+      confirmedAt: candidate.confirmedAt,
+    );
+    final unavailableDocuments = DocumentProvider(
+      referenceStore: _EmptyReferenceStore(),
+    )..bindLedger(unavailableLedger);
+    await unavailableDocuments.hydrateReferences();
+    await expectHidden(
+      reason: 'ledger candidate unavailable',
+      ledger: unavailableLedger,
+      documents: unavailableDocuments,
     );
 
     final noProfileLedger = _DashboardLedger(
@@ -615,8 +775,12 @@ void main() {
       flagDocuments,
       flagLedger,
       providerlessLedger,
-      mismatchDocuments,
-      mismatchLedger,
+      idleDocuments,
+      idleLedger,
+      loadingDocuments,
+      loadingLedger,
+      unavailableDocuments,
+      unavailableLedger,
       noProfileDocuments,
       noProfileLedger,
     ]) {

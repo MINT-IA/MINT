@@ -766,9 +766,38 @@ void main() {
     );
   });
 
+  test('regulation flag gates the recovery marker getter', () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    final loaded = await _loadedProvider(
+      now,
+      root: _schema3RootJson(
+        now,
+        includeSelf: false,
+        selfRegulationRecoveryReason: 'legacyMissingFundRelationship',
+      ),
+    );
+    addTearDown(loaded.provider.dispose);
+    expect(
+      loaded.provider.lppRegulationRecoveryReason,
+      LppRegulationRecoveryReason.legacyMissingFundRelationship,
+    );
+
+    FeatureFlags.lppRegulationReferenceEnabled = false;
+
+    expect(loaded.provider.lppRegulationRecoveryReason, isNull);
+    expect(
+      jsonDecode(loaded.persistence.answers['_coach_lpp_evidence_v1'])[
+          'selfRegulationRecoveryReason'],
+      'legacyMissingFundRelationship',
+      reason: 'The feature gate masks publication without deleting authority.',
+    );
+  });
+
   test('numeric and capital-notice rebuilds preserve the recovery marker',
       () async {
     final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppRegulationReferenceEnabled = true;
     FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
     final loaded = await _loadedProvider(
       now,
@@ -798,6 +827,7 @@ void main() {
 
   test('manual-partner rebuild preserves the recovery marker', () async {
     final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppRegulationReferenceEnabled = true;
     final persistence = _MemoryLppPersistence(
       _answers(
         now,

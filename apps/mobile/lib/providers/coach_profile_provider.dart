@@ -2377,7 +2377,11 @@ class CoachProfileProvider extends ChangeNotifier {
       currentLppSnapshot(ownerKind)?.snapshotId;
 
   LppRegulationRecoveryReason? get lppRegulationRecoveryReason {
-    if (!_isLoaded || !FeatureFlags.typedLppEvidence) return null;
+    if (!_isLoaded ||
+        !FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.lppRegulationReferenceEnabled) {
+      return null;
+    }
     return LppEvidenceRoot.fromJsonString(
       _lastAnswers[_lppEvidenceRootKey],
       now: _now,

@@ -75,6 +75,12 @@ typedef RetirementProjectionBuilder = ProjectionResult Function(
   CoachProfile profile,
 );
 
+enum _LppRegulationRecoveryState {
+  legacy,
+  missingDocumentReference,
+  mismatchedDocumentReference,
+}
+
 class RetirementDashboardScreen extends StatefulWidget {
   const RetirementDashboardScreen({
     super.key,
@@ -949,19 +955,37 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   }
 
   List<Widget> _buildLppRegulationEducation(CoachProfile profile) {
+    final ledger = context.watch<CoachProfileProvider?>();
     final documents = context.watch<DocumentProvider?>();
     final candidate = profile.lppRegulationReference;
-    final resolved = documents?.resolveLppRegulation(
-      candidate,
-    );
+    final resolution = documents?.resolveLppRegulationReference(candidate) ??
+        LppRegulationReferenceResolution.unavailable;
+    final resolved = resolution == LppRegulationReferenceResolution.resolved
+        ? documents!.resolveLppRegulation(candidate)
+        : null;
     final handoff = LppRegulationSpecialistHandoff.tryFromEvidence(resolved);
     if (handoff == null) {
-      final canRecover = FeatureFlags.lppRegulationReferenceEnabled &&
-          candidate != null &&
-          documents?.referenceHydrationState ==
-              DocumentReferenceHydrationState.ready &&
-          documents!.hasStoredLppRegulationReference == false;
-      return canRecover ? _buildLppRegulationRecovery() : const <Widget>[];
+      if (!FeatureFlags.lppRegulationReferenceEnabled ||
+          ledger == null ||
+          documents == null ||
+          documents.referenceHydrationState !=
+              DocumentReferenceHydrationState.ready) {
+        return const <Widget>[];
+      }
+      final recoveryState = candidate == null &&
+              ledger.lppRegulationRecoveryReason ==
+                  LppRegulationRecoveryReason.legacyMissingFundRelationship
+          ? _LppRegulationRecoveryState.legacy
+          : switch (resolution) {
+              LppRegulationReferenceResolution.missingDocumentReference =>
+                _LppRegulationRecoveryState.missingDocumentReference,
+              LppRegulationReferenceResolution.mismatchedDocumentReference =>
+                _LppRegulationRecoveryState.mismatchedDocumentReference,
+              _ => null,
+            };
+      return recoveryState == null
+          ? const <Widget>[]
+          : _buildLppRegulationRecovery(recoveryState);
     }
 
     final l = S.of(context)!;
@@ -1045,8 +1069,18 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     ];
   }
 
-  List<Widget> _buildLppRegulationRecovery() {
+  List<Widget> _buildLppRegulationRecovery(
+    _LppRegulationRecoveryState state,
+  ) {
     final l = S.of(context)!;
+    final body = switch (state) {
+      _LppRegulationRecoveryState.legacy =>
+        l.retirementLppRegulationRecoveryLegacyBody,
+      _LppRegulationRecoveryState.missingDocumentReference =>
+        l.retirementLppRegulationRecoveryBody,
+      _LppRegulationRecoveryState.mismatchedDocumentReference =>
+        l.retirementLppRegulationRecoveryMismatchBody,
+    };
     return <Widget>[
       Semantics(
         identifier: 'retirement_lpp_regulation_reference_recovery',
@@ -1073,7 +1107,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               ),
               const SizedBox(height: MintSpacing.xs),
               Text(
-                l.retirementLppRegulationRecoveryBody,
+                body,
                 style: MintTextStyles.bodyMedium(
                   color: MintColors.textSecondary,
                 ),
