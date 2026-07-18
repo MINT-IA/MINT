@@ -216,6 +216,40 @@ flowchart TB
 
   LCN_WRITE -- "single serialized provider mutation" --> CPP
 
+  %% Observed gaps + target-only edges; no target API below is live.
+  subgraph LPP_REGULATION_REFERENCE["G1-RET-REF-01 — LPP REGULATION REFERENCE (SEMANTIC RED)"]
+    direction TB
+    LRR_BE["CURRENT backend lpp_plan + Vision distinction"]
+    LRR_COLLAPSE["CURRENT Docling LPP -> lpp_certificate"]
+    LRR_MOBILE["CURRENT no mobile lppPlan mapping/review"]
+    LRR_BND_GAP["CURRENT BND rejects lppRegulation"]
+    LRR_RED["FIRST RED<br/>lpp_regulation_reference_document_authority_test.dart"]
+    LRR_CLASSIFY["TARGET backend exact plan classifier<br/>certificate/ambiguous rejected"]
+    LRR_REVIEW["TARGET separate mobile review<br/>explicit sourceDate + legalYear<br/>plan values never person facts"]
+    LRR_PRIVATE["private certs negative<br/>plans positive only via second human-reviewed manifest"]
+    LRR_FLAG{"TARGET local-only flag<br/>default false"}
+    LRR_SELF{"TARGET current non-empty strict self snapshot"}
+    LRR_WRITE["TARGET serialized save-before-publish writer<br/>idempotent + explicit replacement"]
+    LRR_ROOT[("TARGET _coach_lpp_evidence_v1<br/>self.lppRegulationReference metadata only")]
+    LRR_BND["TARGET exact raw-free lppRegulation tuple<br/>cold resolver + current snapshot"]
+    LRR_DASH["TARGET educational Dashboard consumer"]
+    LRR_HANDOFF["TARGET specialist metadata-only handoff<br/>no advice/raw doc/new route"]
+    LRR_HIDDEN["missing/conflict/new numeric snapshot -> hidden"]
+
+    LRR_BE --> LRR_COLLAPSE
+    LRR_MOBILE --> LRR_RED
+    LRR_BND_GAP --> LRR_RED
+    LRR_RED -. "backend stage" .-> LRR_CLASSIFY -. "mobile stage" .-> LRR_REVIEW
+    LRR_PRIVATE -. "human-reviewed only" .-> LRR_REVIEW -.-> LRR_FLAG
+    LRR_FLAG -. "on after future decision" .-> LRR_SELF
+    LRR_FLAG -. "off" .-> LRR_HIDDEN
+    LRR_SELF -. "exact" .-> LRR_WRITE -.-> LRR_ROOT -.-> LRR_BND
+    LRR_BND -. "exact cold resolve" .-> LRR_DASH -.-> LRR_HANDOFF
+    LRR_DASH -. "new numeric self snapshot" .-> LRR_HIDDEN
+  end
+
+  LRR_WRITE -. "TARGET serialized provider mutation" .-> CPP
+
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
     direction LR

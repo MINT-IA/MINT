@@ -154,6 +154,18 @@ evidence, external audits and the activation decision pass. Legacy
 | estateInstrumentReferences | NONE | NONE | list_document_ref | certificate | event_static | 0.95 | specialist_reference | document_ref | NONE | NONE | will,pact,mandate | SUCCESSION,RETIREMENT | P0 | conditional | educational_only | required | specialist_handoff | missing | NONE | document_reference_contract,source_date | yes | G1-SUCCESSION-01 |
 | latestTaxDecisionReference | _coach_tax_snapshots_v1 | latestTaxDecisionReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptTaxReview,derived_on_rebuild | apps/mobile/lib/services/financial_core/confidence_scorer.dart#ConfidenceScorer._hasPrecisionReadyTaxDecision@latestTaxDecisionReference | tax_baseline,data_block_fiscal_prompt | RETIREMENT,SUCCESSION,FRONTALIER | P0 | conditional | partial+ask | required | tax_source | live | ret_ref_green_cdc786782,specialist_reference_contract,tax_provenance_profile,confidence_scorer_tax_kill_switch | frozen_runtime_proof,external_audits,activation_decision | yes | G1-RET-REF-01 |
 
+RED contract: `lppRegulationReference` intentionally remains `missing` with the same G1-RET-REF-01 ticket. Backend `lpp_plan` exists, but Docling collapses LPP
+to `lpp_certificate`; mobile has no plan mapping and BND rejects
+`lppRegulation`. Target: strict plan-not-certificate authority; explicit
+`sourceDate`+`legalYear`; current non-empty self root; local default-false flag;
+nested metadata; serialized save-before-publish/idempotent writer; explicit
+replacement/new-snapshot invalidation; exact raw-free BND; cold Dashboard and
+metadata-only handoff; no plan values as person facts/advice/raw data. First RED:
+`apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart`.
+Backend classifier and mobile authority are separate stages. Private plans need
+a second human-reviewed manifest, never relabeling. Activation NO-GO; RET-REF/G1
+open; G2/G3 forbidden.
+
 PROV-02 makes the four LPP rows previously marked `dead_on_restart` durable at
 the accepted SHA. They remain `quarantined`, not falsely `live`, until their
 named downstream/scenario gates prove real consumption; a reconstruction

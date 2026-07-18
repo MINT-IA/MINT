@@ -739,6 +739,56 @@ flag-off flow. The proof is synthetic-only, `private_fixture_used=false` and
 wrapper-only Opus-high audits pass with zero P0/P1. This technical atom does not
 activate the feature, promote RET-REF-01, close G1 or authorize G2/G3.
 
+#### 4.0.3 LPP regulation reference (G1-RET-REF-01 semantic RED)
+
+Current seams are adjacent, not end-to-end. Backend `DocumentType.lpp_plan` and its Vision prompt distinguish plan/regulation from personal certificate,
+but Docling `_detect_document_type` still collapses LPP wording to
+`lpp_certificate`; mobile `DocumentType`/`VaultDocumentType` have no `lppPlan`
+mapping; BND accepts only `lpp` and `lppCapitalNotice`. Existing
+`SpecialistReferenceKind.lppRegulation`/`CoachProfile` fields are shapes, not
+wiring. No production API, writer, resolver or consumer is claimed live.
+
+A plan/règlement describes fund rules; it is never authority for one person's salary, rate, scale, benefit, return or other fact. Exact plan classification
+and explicit review of `sourceDate` plus `legalYear` are mandatory; personal
+certificates remain negative. The target optional metadata is:
+
+```text
+TARGET — not implemented:
+self.lppRegulationReference {
+  referenceId: lowercase canonical UUIDv4
+  kind: lppRegulation
+  ownerKind: self
+  source: certificate
+  sourceDate: YYYY-MM-DD
+  legalYear: 1900...9999
+  confirmedAt: canonical UTC instant
+}
+```
+
+It requires the current non-empty strict self snapshot and a new local
+`lppRegulationReferenceEnabled` flag, default false and absent from remote
+activation. The target provider writer is serialized and save-before-publish;
+it preserves snapshot UUID/facts, generates ID/time once, returns the same
+receipt for an identical retry, requires the exact previous reference for
+replacement, and drops metadata on a new numeric self snapshot. It does not
+change schema 1 or the 13-value fact allowlist.
+
+BND stores/resolves only the unchanged raw-free tuple `{referenceId,
+kind=lppRegulation, snapshotId, ownerKind=self, confirmedAt}`. Cold resolution
+requires ready hydration plus the exact current snapshot; generic `lpp`,
+`manualPartner`, factless/malformed/replaced roots and tuple mismatch resolve
+null. The first real consumer is educational Dashboard metadata, then
+specialist-handoff metadata only: no bytes/path/OCR, values, advice or new route.
+
+Smallest RED: `apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart` expects exact raw-free
+`lppRegulation` BND parsing and rejects generic LPP, capital-notice, certificate
+aliases and payload/value keys; it fails on today's kind allowlist without a
+missing API. Implement separately: (1) backend Docling + exact Vision classifier, then (2) mobile kind/review + ledger/BND/consumer. Existing private certificates
+and `negative_plan` numeric fixtures stay negative; a private plan becomes a
+positive classifier fixture only in a second versioned, human-reviewed manifest,
+never by auto-relabeling. The row stays `missing`; activation is NO-GO,
+RET-REF/G1 remain open and G2/G3 remain forbidden.
+
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,
 `subjectScope`, canton and, when required, municipality. Eligibility requires a
