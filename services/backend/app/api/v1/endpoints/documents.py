@@ -39,6 +39,7 @@ from app.schemas.document_scan import (
     DocumentScanConfirmation,
     DocumentScanResponse,
     ExtractedFieldConfirmation,
+    Pillar3aBeneficiaryAuthorityCandidateV1,
     PremierEclairageRequest,
     PremierEclairageResponse,
     VisionExtractionRequest,
@@ -1182,6 +1183,13 @@ async def confirm_document_scan(
                 "message": "Legacy scan confirmation cannot persist this candidate.",
             },
         )
+    if body.document_type == DocumentType.pillar_3a_beneficiary_clause:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "pillar3a_beneficiary_authority_candidate_only",
+            },
+        )
 
     logger.info(
         "Scan confirmation: user=%s type=%s fields=%d confidence=%.2f method=%s",
@@ -1290,7 +1298,11 @@ def _classify_and_reject_if_needed(
 
 @router.post(
     "/extract-vision",
-    response_model=Union[DocumentUnderstandingResult, VisionExtractionResponse],
+    response_model=Union[
+        DocumentUnderstandingResult,
+        VisionExtractionResponse,
+        Pillar3aBeneficiaryAuthorityCandidateV1,
+    ],
 )
 @limiter.limit("10/minute")
 async def extract_with_claude_vision(
@@ -1324,6 +1336,38 @@ async def extract_with_claude_vision(
                 "message": "Vision activation requires a separate privacy review.",
             },
         )
+
+    if body.document_type == DocumentType.pillar_3a_beneficiary_clause:
+        from app.services.flags_service import flags as _flags
+        from app.services.pillar3a_beneficiary_authority import (
+            Pillar3aBeneficiaryAuthorityUnavailable,
+            extract_pillar3a_beneficiary_authority,
+        )
+
+        enabled = await _flags.is_enabled(
+            "PILLAR3A_BENEFICIARY_AUTHORITY_ENABLED",
+            str(current_user.id),
+        )
+        if (
+            not enabled
+            or body.subject_kind not in (None, "self")
+            or body.receipt_id is not None
+        ):
+            body.image_base64 = ""
+            raise HTTPException(
+                status_code=422,
+                detail={"code": "pillar3a_beneficiary_authority_unavailable"},
+            )
+
+        try:
+            return extract_pillar3a_beneficiary_authority(body.image_base64)
+        except Pillar3aBeneficiaryAuthorityUnavailable:
+            raise HTTPException(
+                status_code=422,
+                detail={"code": "pillar3a_beneficiary_authority_unavailable"},
+            ) from None
+        finally:
+            body.image_base64 = ""
 
     if body.receipt_id is not None and body.subject_kind != "manualPartner":
         body.image_base64 = ""

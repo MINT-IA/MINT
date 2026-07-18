@@ -286,6 +286,16 @@ DOCUMENT_FIELDS: Dict[DocumentType, TList[dict]] = {
         {"name": "versementAnnuel", "type": "float", "label": "Versement annuel", "range": (0, 40_000)},
         {"name": "fournisseur", "type": "str", "label": "Fournisseur 3a", "range": None},
     ],
+    # Compatibility metadata for enum-wide prompt/field registries. The generic
+    # extractor hard-blocks this type below; only the dedicated strict service
+    # may parse these review-only fields.
+    DocumentType.pillar_3a_beneficiary_clause: [
+        {"name": "documentKind", "type": "str", "label": "Type de confirmation institutionnelle", "range": None},
+        {"name": "sourceDate", "type": "str", "label": "Date explicite du document", "range": None},
+        {"name": "legalYear", "type": "int", "label": "Année juridique explicite", "range": (1900, 9999)},
+        {"name": "institutionAttested", "type": "bool", "label": "Attestation institutionnelle", "range": None},
+        {"name": "contractScoped", "type": "bool", "label": "Portée contractuelle exacte", "range": None},
+    ],
     DocumentType.insurance_policy: [
         {"name": "primeMensuelle", "type": "float", "label": "Prime mensuelle", "range": (0, 5_000)},
         {"name": "typeAssurance", "type": "str", "label": "Type d'assurance", "range": None},
@@ -525,6 +535,10 @@ def extract_with_vision(
     if doc_type == DocumentType.avs_official_pension:
         raise ValueError(
             "Official AVS pension Vision extraction is disabled pending privacy review"
+        )
+    if doc_type == DocumentType.pillar_3a_beneficiary_clause:
+        raise ValueError(
+            "Pillar-3a beneficiary authority uses the strict review-only extractor"
         )
 
     api_key = settings.ANTHROPIC_API_KEY

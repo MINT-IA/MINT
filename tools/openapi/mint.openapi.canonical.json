@@ -7712,6 +7712,7 @@
           "lpp_plan",
           "insurance_contract",
           "pillar_3a_attestation",
+          "pillar_3a_beneficiary_clause",
           "mortgage_attestation",
           "insurance_policy",
           "lease",
@@ -15626,6 +15627,155 @@
           "alerteAssuranceVie"
         ],
         "title": "Pillar3aAdvice",
+        "type": "object"
+      },
+      "Pillar3aBeneficiaryAttestedRegimeV1": {
+        "additionalProperties": false,
+        "description": "Institution-attested chronology regime when exact dates are unavailable.",
+        "properties": {
+          "kind": {
+            "const": "attestedRegime",
+            "title": "Kind",
+            "type": "string"
+          },
+          "regime": {
+            "enum": [
+              "pre20270601",
+              "post20270601"
+            ],
+            "title": "Regime",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "regime"
+        ],
+        "title": "Pillar3aBeneficiaryAttestedRegimeV1",
+        "type": "object"
+      },
+      "Pillar3aBeneficiaryAuthorityCandidateV1": {
+        "additionalProperties": false,
+        "description": "Review-only metadata for one exact institutional 3a authority document.",
+        "properties": {
+          "contractScoped": {
+            "const": true,
+            "title": "Contractscoped",
+            "type": "boolean"
+          },
+          "documentAuthorityId": {
+            "format": "uuid",
+            "title": "Documentauthorityid",
+            "type": "string"
+          },
+          "documentKind": {
+            "enum": [
+              "confirmationInstitutionnelle",
+              "avenantAccuse",
+              "formulaireDesignationAccuse"
+            ],
+            "title": "Documentkind",
+            "type": "string"
+          },
+          "institutionAttested": {
+            "const": true,
+            "title": "Institutionattested",
+            "type": "boolean"
+          },
+          "legalYear": {
+            "maximum": 9999.0,
+            "minimum": 1900.0,
+            "title": "Legalyear",
+            "type": "integer"
+          },
+          "needsReview": {
+            "const": true,
+            "title": "Needsreview",
+            "type": "boolean"
+          },
+          "schemaVersion": {
+            "const": 1,
+            "title": "Schemaversion",
+            "type": "integer"
+          },
+          "sourceDate": {
+            "format": "date",
+            "title": "Sourcedate",
+            "type": "string"
+          },
+          "temporalBasis": {
+            "discriminator": {
+              "mapping": {
+                "attestedRegime": "#/components/schemas/Pillar3aBeneficiaryAttestedRegimeV1",
+                "exactDates": "#/components/schemas/Pillar3aBeneficiaryExactDatesV1"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Pillar3aBeneficiaryExactDatesV1"
+              },
+              {
+                "$ref": "#/components/schemas/Pillar3aBeneficiaryAttestedRegimeV1"
+              }
+            ],
+            "title": "Temporalbasis"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "documentAuthorityId",
+          "documentKind",
+          "sourceDate",
+          "legalYear",
+          "institutionAttested",
+          "contractScoped",
+          "temporalBasis",
+          "needsReview"
+        ],
+        "title": "Pillar3aBeneficiaryAuthorityCandidateV1",
+        "type": "object"
+      },
+      "Pillar3aBeneficiaryExactDatesV1": {
+        "additionalProperties": false,
+        "description": "Institution-attested exact chronology for one 3a contract.",
+        "properties": {
+          "designationEffectiveDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Designationeffectivedate"
+          },
+          "kind": {
+            "const": "exactDates",
+            "title": "Kind",
+            "type": "string"
+          },
+          "lastAssignmentModificationDate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastassignmentmodificationdate"
+          }
+        },
+        "required": [
+          "kind",
+          "designationEffectiveDate",
+          "lastAssignmentModificationDate"
+        ],
+        "title": "Pillar3aBeneficiaryExactDatesV1",
         "type": "object"
       },
       "Pillar3aIndepRequest": {
@@ -27363,6 +27513,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/VisionExtractionResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Pillar3aBeneficiaryAuthorityCandidateV1"
                     }
                   ],
                   "title": "Response Extract With Claude Vision Api V1 Documents Extract Vision Post"

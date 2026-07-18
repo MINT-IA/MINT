@@ -6,10 +6,17 @@ Mobile sends confirmed extraction fields after user reviews OCR/Vision output.
 See: MINT_FINAL_EXECUTION_SYSTEM.md §13.11 (Chantier 4)
 """
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictBool,
+    field_validator,
+    model_validator,
+)
 from pydantic.alias_generators import to_camel
-from typing import List, Literal, Optional, Union
-from datetime import datetime, timezone
+from typing import Annotated, List, Literal, Optional, Union
+from datetime import date, datetime, timezone
 from enum import Enum
 from uuid import UUID
 
@@ -27,6 +34,7 @@ class DocumentType(str, Enum):
     insurance_contract = "insurance_contract"
     # Mobile-originated types (unified contract)
     pillar_3a_attestation = "pillar_3a_attestation"
+    pillar_3a_beneficiary_clause = "pillar_3a_beneficiary_clause"
     mortgage_attestation = "mortgage_attestation"
     insurance_policy = "insurance_policy"
     lease = "lease"
@@ -152,6 +160,150 @@ class VisionExtractionRequest(BaseModel):
         None,
         description="Active manual-partner accountability receipt",
     )
+
+
+class Pillar3aBeneficiaryExactDatesV1(BaseModel):
+    """Institution-attested exact chronology for one 3a contract."""
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+        extra="forbid",
+    )
+
+    kind: Literal["exactDates"]
+    designation_effective_date: Optional[date]
+    last_assignment_modification_date: Optional[date]
+
+    @field_validator(
+        "designation_effective_date",
+        "last_assignment_modification_date",
+        mode="before",
+    )
+    @classmethod
+    def require_canonical_civil_date(cls, value):
+        if value is None:
+            return value
+        if not isinstance(value, str) or len(value) != 10:
+            raise ValueError("civil date must be canonical YYYY-MM-DD")
+        try:
+            parsed = date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError("civil date must be canonical YYYY-MM-DD") from exc
+        if parsed.isoformat() != value:
+            raise ValueError("civil date must be canonical YYYY-MM-DD")
+        return parsed
+
+    @model_validator(mode="after")
+    def require_at_least_one_attested_date(self):
+        if (
+            self.designation_effective_date is None
+            and self.last_assignment_modification_date is None
+        ):
+            raise ValueError("at least one institution-attested date is required")
+        return self
+
+
+class Pillar3aBeneficiaryAttestedRegimeV1(BaseModel):
+    """Institution-attested chronology regime when exact dates are unavailable."""
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+        extra="forbid",
+    )
+
+    kind: Literal["attestedRegime"]
+    regime: Literal["pre20270601", "post20270601"]
+
+
+Pillar3aBeneficiaryTemporalBasisV1 = Annotated[
+    Union[
+        Pillar3aBeneficiaryExactDatesV1,
+        Pillar3aBeneficiaryAttestedRegimeV1,
+    ],
+    Field(discriminator="kind"),
+]
+
+
+class Pillar3aBeneficiaryAuthorityVisionPayloadV1(BaseModel):
+    """Strict private contract accepted from Vision before local review."""
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+        extra="forbid",
+    )
+
+    document_kind: Literal[
+        "confirmationInstitutionnelle",
+        "avenantAccuse",
+        "formulaireDesignationAccuse",
+    ]
+    source_date: date
+    legal_year: int = Field(strict=True, ge=1900, le=9999)
+    institution_attested: StrictBool
+    contract_scoped: StrictBool
+    temporal_basis: Pillar3aBeneficiaryTemporalBasisV1
+    confidence: Literal["high"]
+
+    @field_validator("source_date", mode="before")
+    @classmethod
+    def require_canonical_source_date(cls, value):
+        if not isinstance(value, str) or len(value) != 10:
+            raise ValueError("source date must be canonical YYYY-MM-DD")
+        try:
+            parsed = date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError("source date must be canonical YYYY-MM-DD") from exc
+        if parsed.isoformat() != value:
+            raise ValueError("source date must be canonical YYYY-MM-DD")
+        return parsed
+
+    @model_validator(mode="after")
+    def require_positive_authority_attestations(self):
+        if not self.institution_attested or not self.contract_scoped:
+            raise ValueError("exact institutional contract authority is required")
+        if isinstance(self.temporal_basis, Pillar3aBeneficiaryExactDatesV1):
+            attested_dates = (
+                self.temporal_basis.designation_effective_date,
+                self.temporal_basis.last_assignment_modification_date,
+            )
+            if any(
+                value is not None and value > self.source_date
+                for value in attested_dates
+            ):
+                raise ValueError("attested date cannot follow the source date")
+        elif (
+            self.temporal_basis.regime == "post20270601"
+            and self.source_date < date(2027, 6, 1)
+        ):
+            raise ValueError("post-reform authority predates the reform")
+        return self
+
+
+class Pillar3aBeneficiaryAuthorityCandidateV1(BaseModel):
+    """Review-only metadata for one exact institutional 3a authority document."""
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+        extra="forbid",
+    )
+
+    schema_version: Literal[1]
+    document_authority_id: UUID
+    document_kind: Literal[
+        "confirmationInstitutionnelle",
+        "avenantAccuse",
+        "formulaireDesignationAccuse",
+    ]
+    source_date: date
+    legal_year: int = Field(strict=True, ge=1900, le=9999)
+    institution_attested: Literal[True]
+    contract_scoped: Literal[True]
+    temporal_basis: Pillar3aBeneficiaryTemporalBasisV1
+    needs_review: Literal[True]
 
 
 class PremierEclairageRequest(BaseModel):

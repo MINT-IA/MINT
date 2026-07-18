@@ -267,3 +267,38 @@ Source: `apps/mobile/lib/services/financial_core/confidence_scorer.dart`
   addressable through `GET /api/v1/documents/{id}`.
 - Other detected document types retain their existing extraction, durable
   document record, preview, cache replay/storage and optional RAG behavior.
+
+## 12. Exact pillar-3a beneficiary authority candidate (G1, default-off)
+
+- Canonical document type: `pillar_3a_beneficiary_clause`, distinct from the
+  balance/contribution-only `pillar_3a_attestation`.
+- Entry point: `POST /api/v1/documents/extract-vision`; kill switch
+  `PILLAR3A_BENEFICIARY_AUTHORITY_ENABLED` is registered and fail-closed
+  `false` when Redis has no explicit activation.
+- The backend performs two strict Vision calls: first, exact institutional
+  authority classification; second, extraction of review metadata only. A
+  generic attestation, blank form, testament, user declaration, legal text,
+  raw OCR, non-high confidence or malformed response fails with the sole public
+  `422 {"detail":{"code":"pillar3a_beneficiary_authority_unavailable"}}`.
+- The named response `Pillar3aBeneficiaryAuthorityCandidateV1` contains exactly
+  `schemaVersion=1`, a server-generated UUIDv4 `documentAuthorityId`, one of
+  `confirmationInstitutionnelle`, `avenantAccuse` or
+  `formulaireDesignationAccuse`, explicit `sourceDate`, explicit
+  `legalYear` in `1900..9999`, `institutionAttested=true`,
+  `contractScoped=true`, one strict `temporalBasis`, and `needsReview=true`.
+- `temporalBasis` is either exact dates with at least one institution-attested
+  designation/modification date, or the explicitly attested
+  `pre20270601`/`post20270601` regime. `sourceDate` and `legalYear` are
+  provenance only and never infer that regime.
+- The candidate excludes beneficiary identity, rank/order, shares, source/OCR
+  text, analysis, contract number, `contractReferenceId` and ledger
+  `referenceId`. Its `documentAuthorityId` identifies only the exact physical
+  or institutional document authority.
+- This branch returns before generic audit/profile/document-memory logic. It
+  writes no `ProfileModel`, `DocumentMemory` or document audit row before the
+  separate mobile review accepts and binds the candidate.
+- The generic Vision extractor hard-blocks this type before transport, and
+  `POST /api/v1/documents/scan-confirmation` returns
+  `409 pillar3a_beneficiary_authority_candidate_only` before creating a
+  `DocumentModel` or merging any profile field. Only the dedicated local review
+  writer may turn an accepted candidate into ledger evidence.
