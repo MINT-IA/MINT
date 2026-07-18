@@ -24,6 +24,8 @@ const _mismatchedReferenceId = '44444444-4444-4444-8444-444444444444';
 const _cardId = 'retirement_lpp_regulation_reference_education';
 const _ctaId = 'retirement_lpp_regulation_handoff_cta';
 const _sheetId = 'retirement_lpp_regulation_handoff_sheet';
+const _sheetTitleId = 'retirement_lpp_regulation_handoff_title';
+const _sheetPrivacyId = 'retirement_lpp_regulation_handoff_privacy';
 const _closeId = 'retirement_lpp_regulation_handoff_close';
 
 final class _DashboardLedger extends CoachProfileProvider {
@@ -460,9 +462,30 @@ void main() {
     );
     expect(find.bySemanticsIdentifier(_closeId), findsOneWidget);
 
+    final title = find.bySemanticsIdentifier(_sheetTitleId);
+    expect(title, findsOneWidget);
+    expect(tester.getSemantics(title).flagsCollection.isHeader, isTrue);
+    expect(find.bySemanticsIdentifier(_sheetPrivacyId), findsOneWidget);
+    expect(
+      find.descendant(
+        of: sheet,
+        matching: find.text(
+          'Le document original n’est ni joint à cette préparation ni '
+          'transmis à ta caisse ou à un·e spécialiste depuis cet écran.',
+        ),
+      ),
+      findsOneWidget,
+    );
+
     for (final topic in handoff.topics) {
       expect(
         find.bySemanticsIdentifier('retirement_lpp_regulation_topic_$topic'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier(
+          'retirement_lpp_regulation_question_$topic',
+        ),
         findsOneWidget,
       );
     }
@@ -476,6 +499,37 @@ void main() {
     ]) {
       expect(
         find.descendant(of: sheet, matching: find.text(localizedTopic)),
+        findsOneWidget,
+      );
+    }
+    for (final question in <String>[
+      'Sur la base de mon dossier actuel, quelle capacité de rachat la caisse '
+          'peut-elle confirmer, et quelles conditions, restrictions et '
+          'conséquences possibles sur mes prestations seraient à clarifier '
+          'avant un éventuel versement ?',
+      'À ma date de retraite envisagée, quels taux de conversion la caisse '
+          'appliquerait-elle aux parts obligatoire et surobligatoire de mon '
+          'avoir, et comment seraient calculées une rente, une prestation en '
+          'capital ou une combinaison des deux ?',
+      'Quelles possibilités de retraite anticipée, partielle ou différée la '
+          'caisse peut-elle confirmer pour mon dossier, avec quels paliers et '
+          'délais d’annonce, et quels effets possibles sur une rente ou une '
+          'prestation en capital ?',
+      'En cas d’incapacité de travail durable ou d’invalidité, quelles '
+          'prestations et quelle éventuelle exonération de cotisations la '
+          'caisse examinerait-elle, après quels délais et avec quelle '
+          'coordination avec l’AI et les autres assurances ?',
+      'En cas de décès, quelles prestations de survivants ou prestations en '
+          'capital la caisse examinerait-elle pour mon ou ma partenaire et '
+          'd’autres bénéficiaires potentiels, selon quelles conditions, et '
+          'quelles déclarations ou désignations seraient nécessaires ?',
+      'En cas de divorce, quels renseignements et documents la caisse '
+          'peut-elle établir pour le partage de la prévoyance professionnelle, '
+          'et comment un partage ordonné par le tribunal pourrait-il modifier '
+          'mes prestations futures ?',
+    ]) {
+      expect(
+        find.descendant(of: sheet, matching: find.text(question)),
         findsOneWidget,
       );
     }
