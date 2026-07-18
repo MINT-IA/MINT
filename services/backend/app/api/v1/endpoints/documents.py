@@ -139,6 +139,14 @@ def _detect_document_type(text: str) -> str:
     personal_fact_score = sum(
         1 for marker in personal_fact_markers if marker in text_lower
     )
+    structured_personal_fact_score = sum(
+        1
+        for marker in personal_fact_markers
+        if any(
+            line.startswith(marker) and line.partition(":")[2].strip()
+            for line in lines
+        )
+    )
 
     # A personal-certificate heading is authoritative even when its body cites
     # the governing plan or regulation.
@@ -147,6 +155,11 @@ def _detect_document_type(text: str) -> str:
         for line in lines
         for prefix in certificate_title_prefixes
     ):
+        return "lpp_certificate"
+
+    # Label/value facts distinguish an individual certificate from plan prose
+    # that merely mentions the same concepts.
+    if structured_personal_fact_score >= 2:
         return "lpp_certificate"
 
     if any(marker in text_lower for marker in plan_markers):
