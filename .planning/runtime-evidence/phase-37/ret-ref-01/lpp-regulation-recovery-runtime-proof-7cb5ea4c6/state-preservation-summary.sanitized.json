@@ -1,0 +1,17 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "recovery_slice": "GREEN",
+    "ret_ref": "ticket_only",
+    "runtime_recovery_state": "missingDocumentReference"
+  },
+  "post_suite_state_captured": true,
+  "production_reinstall_preserved_state": true,
+  "required_runtime_state_present_after_final_maestro": true,
+  "writer_reader_distinct_processes": true
+}

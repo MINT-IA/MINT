@@ -1,0 +1,45 @@
+{
+  "assertion_trace": {
+    "claim_basis": "tracked_reader_contract_executed_in_passing_native_suite",
+    "internal_assertions_exposed_by_xctest_output": false,
+    "source_sha": "7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a",
+    "suite_failed_tests": 0,
+    "suite_passed_tests": 2,
+    "tracked_reader": "apps/mobile/integration_test/g1_ret_ref_lpp_regulation_read_patrol_test.dart"
+  },
+  "bnd_restoration": {
+    "original_list_saved_temporarily": true,
+    "persisted_list_emptied": true,
+    "restored_in_finally": true,
+    "restored_list_reloaded_and_compared": true
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "recovery_slice": "GREEN",
+    "ret_ref": "ticket_only",
+    "runtime_recovery_state": "missingDocumentReference"
+  },
+  "known_surface": {
+    "education_card_visible": false,
+    "handoff_cta_visible": false
+  },
+  "navigation": {
+    "cta_route": "/scan?type=lppPlan",
+    "route_verified_after_tap": true
+  },
+  "recovery_surface": {
+    "body_fr": "Une déclaration non vérifiée existe, mais sa référence locale manque. Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits ni aucun montant.",
+    "card_visible": true,
+    "cta_visible": true
+  },
+  "resolution": "missingDocumentReference",
+  "stale_tuple_exposure": {
+    "fund_relationship_declaration": false,
+    "local_reference_identifier": false
+  }
+}

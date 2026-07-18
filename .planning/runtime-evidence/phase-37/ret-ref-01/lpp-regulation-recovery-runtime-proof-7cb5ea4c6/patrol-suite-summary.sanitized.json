@@ -1,0 +1,22 @@
+{
+  "assertion_trace": {
+    "internal_assertions_exposed_by_xctest_output": false,
+    "source_sha": "7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a",
+    "tracked_reader": "apps/mobile/integration_test/g1_ret_ref_lpp_regulation_read_patrol_test.dart"
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "recovery_slice": "GREEN",
+    "ret_ref": "ticket_only",
+    "runtime_recovery_state": "missingDocumentReference"
+  },
+  "contract": "g1_ret_ref_lpp_regulation",
+  "failed_tests": 0,
+  "passed_tests": 2,
+  "status": "PASS"
+}

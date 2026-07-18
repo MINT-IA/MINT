@@ -1,0 +1,47 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "recovery_slice": "GREEN",
+    "ret_ref": "ticket_only",
+    "runtime_recovery_state": "missingDocumentReference"
+  },
+  "external_audit": {
+    "aggregate_p0": 0,
+    "aggregate_p1": 0,
+    "aggregate_p2": 4,
+    "aggregate_verdict": "PASS",
+    "archive_manual_preflight": "PASS",
+    "base_sha": "c37da786b477aec34f785fceaacd51d7d8e4d61e",
+    "code": {
+      "effort": "high",
+      "model": "opus",
+      "p0": 0,
+      "p1": 0,
+      "p2": 2,
+      "pass": "first",
+      "verdict": "PASS"
+    },
+    "native_runtime_run_by_audit": false,
+    "product_domain": {
+      "effort": "high",
+      "model": "opus",
+      "p0": 0,
+      "p1": 0,
+      "p2": 2,
+      "pass": "first",
+      "verdict": "PASS"
+    },
+    "source_head": "7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a",
+    "trace_disposition": {
+      "internal_assertions_exposed_by_xctest_output": false,
+      "runtime_claim_basis": "tracked_reader_contract_plus_passing_native_suite",
+      "suite_failed_tests": 0,
+      "suite_passed_tests": 2
+    }
+  }
+}

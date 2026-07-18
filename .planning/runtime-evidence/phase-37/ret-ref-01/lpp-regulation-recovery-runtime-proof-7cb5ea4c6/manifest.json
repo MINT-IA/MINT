@@ -1,0 +1,42 @@
+{
+  "artifact_allowlist": [
+    "README.md",
+    "SHA256SUMS",
+    "audit-dispositions.md",
+    "audit-summary.sanitized.json",
+    "maestro-summary.sanitized.json",
+    "manifest.json",
+    "metadata.sanitized.json",
+    "patrol-suite-summary.sanitized.json",
+    "quality-gate-scorecard.md",
+    "recovery-ui-summary.sanitized.json",
+    "state-preservation-summary.sanitized.json"
+  ],
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "recovery_slice": "GREEN",
+    "ret_ref": "ticket_only",
+    "runtime_recovery_state": "missingDocumentReference"
+  },
+  "bundle_version": 1,
+  "contract": "g1_ret_ref_lpp_regulation_recovery_ui",
+  "logical_sources": [
+    "accepted_exact_sha_runtime_metadata",
+    "accepted_sanitized_suite_and_maestro_summaries",
+    "tracked_reader_contract_at_exact_sha",
+    "bounded_external_audit"
+  ],
+  "privacy_policy": {
+    "allowlist_only": true,
+    "device_specific_evidence_retained": false,
+    "private_fixture_data_retained": false,
+    "raw_document_evidence_retained": false,
+    "raw_runtime_output_retained": false
+  },
+  "source_sha": "7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a"
+}

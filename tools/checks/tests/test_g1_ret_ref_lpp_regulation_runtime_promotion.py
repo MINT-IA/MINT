@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 SOURCE_SHA = "6066f1c94786aa1bc4697c29b4a670b7cea3dca4"
+RECOVERY_SHA = "7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a"
 AUTHORITY_SHA = "e97c0a77f0a9f17ff2cc0eb953b085547e8aa2c2"
 PROOF = (
     ROOT
@@ -197,11 +198,13 @@ def test_global_g1_state_supersedes_snapshot_bound_runtime_without_promotion() -
     assert "## G1-RET-REF-01 `lppRegulationReference` — snapshot-bound runtime atom" not in scorecard
 
     assert SOURCE_SHA in gap_matrix
-    assert "autonomous regulation-only technical atom" in gap_matrix_words
+    assert RECOVERY_SHA in gap_matrix
+    assert "autonomous regulation-only" in gap_matrix_words
     assert "currentFund` relationship is declared/unverified" in gap_matrix_words
     assert "does not objectively prove the caisse/fund identity" in gap_matrix_words
     assert "does not establish legal applicability" in gap_matrix_words
-    assert "visible_reconfirmation_path" in gap_matrix
+    assert "recovery_runtime_missing_bnd_7cb5ea4c6" in gap_matrix
+    assert "visible_reconfirmation_path" not in gap_matrix
     assert "pdf_dossier_caveat_parity" in gap_matrix
     assert "activation_decision" in gap_matrix
     assert "objective_current_fund_identity_verification" not in gap_matrix
