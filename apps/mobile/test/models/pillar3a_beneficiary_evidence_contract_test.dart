@@ -94,6 +94,7 @@ void main() {
         contractReferenceId: _contractB,
         relation: 'uncertain',
         referenceId: _referenceB,
+        sourceDate: '2027-06-01',
         temporalBasis: _attestedRegime('post20270601'),
       ),
       _contract(),
@@ -348,7 +349,7 @@ void main() {
             relation: relation,
             temporalBasis: _exactDates(
               designationEffectiveDate: null,
-              lastAssignmentModificationDate: '2027-06-01',
+              lastAssignmentModificationDate: '2027-05-31',
             ),
           ),
         ]),
@@ -359,15 +360,23 @@ void main() {
         'pre20270601',
         'post20270601',
       ]) {
+        final isPostCutoff = regime == 'post20270601';
         expect(
           _parse(<Map<String, Object?>>[
             _contract(
               relation: relation,
+              sourceDate: isPostCutoff ? '2027-06-01' : '2027-06-15',
+              confirmedAt: isPostCutoff
+                  ? '2027-06-01T10:00:00.000Z'
+                  : '2027-06-15T10:00:00.000Z',
               temporalBasis: _attestedRegime(regime),
             ),
           ]),
           isNotNull,
-          reason: '$relation/$regime',
+          reason: isPostCutoff
+              ? '$relation/post regime starts on the cutoff'
+              : '$relation/pre regime may be attested after the cutoff for an '
+                  'older unmodified designation',
         );
       }
       expect(
@@ -516,6 +525,104 @@ void main() {
         reason: jsonEncode(invalid),
       );
     }
+  });
+
+  test('evidence chronology uses Zurich civil day and the regime cutoff', () {
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(confirmedAt: '2027-05-30T22:00:00.000Z'),
+      ]),
+      isNotNull,
+      reason: '22:00Z is 00:00 on 31 May in Zurich and matches sourceDate.',
+    );
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(confirmedAt: '2027-05-30T21:59:59.000Z'),
+      ]),
+      isNull,
+      reason: 'The confirmation is still 30 May in Zurich.',
+    );
+
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(
+          sourceDate: '2027-06-01',
+          temporalBasis: _exactDates(
+            designationEffectiveDate: '2027-05-31',
+            lastAssignmentModificationDate: '2027-06-01',
+          ),
+        ),
+      ]),
+      isNotNull,
+    );
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(
+          temporalBasis: _exactDates(
+            designationEffectiveDate: '2027-06-01',
+          ),
+        ),
+      ]),
+      isNull,
+      reason: 'Designation effective date cannot follow the evidence date.',
+    );
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(
+          temporalBasis: _exactDates(
+            designationEffectiveDate: null,
+            lastAssignmentModificationDate: '2027-06-01',
+          ),
+        ),
+      ]),
+      isNull,
+      reason: 'Last assignment modification cannot follow the evidence date.',
+    );
+
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(
+          sourceDate: '2027-06-01',
+          confirmedAt: '2027-05-31T22:00:00.000Z',
+          temporalBasis: _attestedRegime('post20270601'),
+        ),
+      ]),
+      isNotNull,
+      reason: 'The post-cutoff attestation starts on 1 June Zurich civil day.',
+    );
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(
+          sourceDate: '2027-05-31',
+          confirmedAt: '2027-06-01T10:00:00.000Z',
+          temporalBasis: _attestedRegime('post20270601'),
+        ),
+      ]),
+      isNull,
+      reason: 'A pre-cutoff source cannot attest the post-cutoff regime.',
+    );
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(
+          sourceDate: '2027-06-01',
+          confirmedAt: '2027-05-31T21:59:59.000Z',
+          temporalBasis: _attestedRegime('post20270601'),
+        ),
+      ]),
+      isNull,
+      reason: 'Post-cutoff confirmation cannot precede its Zurich source day.',
+    );
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(
+          sourceDate: '2027-06-15',
+          confirmedAt: '2027-06-15T10:00:00.000Z',
+          temporalBasis: _attestedRegime('pre20270601'),
+        ),
+      ]),
+      isNotNull,
+      reason: 'A later attestation may confirm an older unmodified assignment.',
+    );
   });
 
   test('unknown and privacy-sensitive keys reject the whole root', () {
