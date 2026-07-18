@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -15,6 +16,9 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:patrol/patrol.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'support/g1_ret_ref_lpp_capital_notice_runtime_contract.dart';
 
 const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
 const _replacementAcquisitionId = '71717171-7171-4171-8171-717171717171';
@@ -76,7 +80,7 @@ LppReviewConfirmation _replacementReview(DateTime now) {
 
 void main() {
   patrolTest(
-    'cold reader resolves notice then a new self LPP review invalidates it',
+    'cold reader hides notice after authority then numeric replacement',
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 8)),
     ($) async {
@@ -92,6 +96,13 @@ void main() {
       });
 
       final now = DateTime.now().toUtc();
+      final preferences = await SharedPreferences.getInstance();
+      final writerPid = preferences.getInt(g1LppCapitalNoticeWriterPidKey);
+      expect(writerPid, isNotNull);
+      expect(pid, isNot(writerPid));
+      addTearDown(() async {
+        await preferences.remove(g1LppCapitalNoticeWriterPidKey);
+      });
       final provider = CoachProfileProvider(now: () => now);
       final documents = DocumentProvider(now: () => now);
       addTearDown(provider.dispose);
@@ -127,6 +138,40 @@ void main() {
       await $(find.bySemanticsIdentifier(
         'retirement_lpp_capital_notice_deadline_education',
       )).waitUntilVisible();
+
+      final authorityBeforeReplacement =
+          provider.profile!.lppRegulationReference;
+      expect(authorityBeforeReplacement, isNotNull);
+      if (authorityBeforeReplacement == null) {
+        fail('Missing cold regulation authority');
+      }
+      final replacementAuthoritySourceDate =
+          DateTime.utc(now.year, now.month, now.day).subtract(
+        const Duration(days: 2),
+      );
+      final replacementAuthorityReceipt =
+          await provider.acceptLppRegulationReference(
+        LppRegulationReviewConfirmation(
+          ownerKind: LppEvidenceOwnerKind.self,
+          sourceDate: replacementAuthoritySourceDate,
+          legalYear: replacementAuthoritySourceDate.year,
+          fundRelationship: LppFundRelationship.currentFund,
+          expectedPreviousReferenceId: authorityBeforeReplacement.referenceId,
+        ),
+      );
+      await documents.recordLppRegulation(replacementAuthorityReceipt);
+      await $.pumpAndSettle();
+      expect(
+        provider.profile!.lppRegulationReference?.referenceId,
+        replacementAuthorityReceipt.referenceId,
+      );
+      expect(documents.resolveLppCapitalNotice(candidate), isNull);
+      expect(
+        find.bySemanticsIdentifier(
+          'retirement_lpp_capital_notice_deadline_education',
+        ),
+        findsNothing,
+      );
 
       final replacementReceipt = await provider.acceptLppReview(
         _replacementReview(now),

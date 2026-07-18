@@ -5,13 +5,19 @@ name: G1 RET-REF LPP capital notice production-default flag-off
     clearState: true
 - assertVisible:
     id: landing_route
-- openLink: "mint:///scan?type=lppCertificate"
+- openLink: "mint:///scan?type=lppPlan"
 - assertVisible:
     id: document_scan_capture_cta
 - assertNotVisible:
-    id: document_scan_lpp_type_selector
+    id: document_scan_lpp_plan_type_selector
 - assertNotVisible:
-    id: lpp_review_confirm_cta
+    id: lpp_regulation_review_source_date
+- assertNotVisible:
+    id: lpp_regulation_review_legal_year
+- assertNotVisible:
+    id: lpp_capital_notice_deadline_field
+- assertNotVisible:
+    id: lpp_regulation_review_confirm_cta
 - openLink: "mint:///retraite"
 - assertNotVisible:
     id: retirement_lpp_capital_notice_deadline_education
