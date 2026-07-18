@@ -1,0 +1,52 @@
+{
+  "artifact_allowlist": [
+    "README.md",
+    "SHA256SUMS",
+    "audit-dispositions.md",
+    "audit-summary.sanitized.json",
+    "maestro-summary.sanitized.json",
+    "manifest.json",
+    "metadata.sanitized.json",
+    "patrol-suite-summary.sanitized.json",
+    "quality-gate-scorecard.md",
+    "report-pdf-summary.sanitized.json",
+    "state-preservation-summary.sanitized.json"
+  ],
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "CLOSED",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "bundle_version": 1,
+  "contract": "g1_ret_ref_lpp_capital_notice_dossier_pdf",
+  "logical_sources": [
+    "accepted_exact_sha_runtime_metadata",
+    "accepted_aggregate_native_and_maestro_results",
+    "tracked_exact_sha_runtime_contracts",
+    "passing_host_dossier_and_pdf_text_contracts",
+    "bounded_wrapper_audit_lineage"
+  ],
+  "privacy_policy": {
+    "allowlist_only": true,
+    "device_hash_retained": false,
+    "device_specific_evidence_retained": false,
+    "document_digest_retained": false,
+    "generated_pdf_retained": false,
+    "local_environment_location_retained": false,
+    "private_fixture_data_retained": false,
+    "raw_audit_output_retained": false,
+    "raw_document_evidence_retained": false,
+    "raw_runtime_output_retained": false,
+    "result_bundle_retained": false,
+    "screenshot_or_media_retained": false,
+    "synthetic_marker_retained": false
+  },
+  "proof_name": "lpp-capital-dossier-pdf-runtime-proof-a00b4c68a",
+  "source_sha": "a00b4c68a272cbde9f21fee14662171c4a12530f"
+}

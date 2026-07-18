@@ -1,0 +1,30 @@
+{
+  "assertion_trace": {
+    "claim_basis": "tracked_exact_sha_contracts_plus_passing_native_aggregates",
+    "internal_flutter_assertions_exposed_by_native_output": false,
+    "source_sha": "a00b4c68a272cbde9f21fee14662171c4a12530f"
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "CLOSED",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "cold_reader": {
+    "failed": 0,
+    "passed": 1,
+    "status": "PASS"
+  },
+  "contract": "g1_ret_ref_lpp_capital_notice",
+  "native_writer": {
+    "failed": 0,
+    "passed": 1,
+    "status": "PASS"
+  },
+  "status": "PASS"
+}

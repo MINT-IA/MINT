@@ -1,0 +1,53 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "CLOSED",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "build_isolation": {
+    "normal_build_core_hashes_verified": true,
+    "production_source_exported_exact": true,
+    "production_source_physical": true,
+    "restoration_status": "restored"
+  },
+  "cleanup_status": "passed",
+  "contract": "g1_ret_ref_lpp_capital_notice",
+  "feature_activation": "test_process_static_flags_only",
+  "privacy": {
+    "device_hash_retained": false,
+    "device_material_retained": false,
+    "document_digest_retained": false,
+    "generated_pdf_retained": false,
+    "local_environment_location_retained": false,
+    "private_fixture_used": false,
+    "raw_audit_output_retained": false,
+    "raw_document_bytes_retained": false,
+    "raw_runtime_output_retained": false,
+    "result_bundle_retained": false,
+    "screenshot_or_media_retained": false,
+    "synthetic_data_only": true,
+    "synthetic_marker_retained": false
+  },
+  "production_build_install_passed": true,
+  "production_ui_acquisition_seam_used": true,
+  "pushed_sha_verified": true,
+  "runtime_completed": true,
+  "source_evidence_output_count": 17,
+  "source_evidence_outputs_complete": true,
+  "source_manifest_bound": true,
+  "source_sha": "a00b4c68a272cbde9f21fee14662171c4a12530f",
+  "stage_exit_codes": {
+    "all_zero": true,
+    "stage_count": 14
+  },
+  "suite": {
+    "failed": 0,
+    "passed": 2
+  }
+}

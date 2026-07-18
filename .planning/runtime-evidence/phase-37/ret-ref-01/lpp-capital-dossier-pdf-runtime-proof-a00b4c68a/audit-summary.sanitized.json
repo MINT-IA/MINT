@@ -1,0 +1,47 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "CLOSED",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "current_gate": {
+    "aggregate_p0": 0,
+    "aggregate_p1": 0,
+    "verdict": "PASS_BOUNDED"
+  },
+  "integration_dossier_pdf": {
+    "code": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 1,
+      "verdict": "PASS"
+    },
+    "product_domain": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 3,
+      "verdict": "PASS"
+    },
+    "source_head": "1a93b735e"
+  },
+  "runtime_proof_delta": {
+    "code": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 2,
+      "verdict": "PASS"
+    },
+    "product_domain": {
+      "covered_by_prior_integration_lens": true,
+      "rerun_on_test_only_runtime_delta": false
+    },
+    "source_head": "a00b4c68a"
+  },
+  "wrapper_only": true
+}

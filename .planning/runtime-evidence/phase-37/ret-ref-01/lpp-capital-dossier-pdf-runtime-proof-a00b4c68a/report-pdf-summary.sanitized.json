@@ -1,0 +1,46 @@
+{
+  "assertion_trace": {
+    "host_contracts": {
+      "dossier_presenter_passed": 6,
+      "failed": 0,
+      "pdf_text_passed": 5,
+      "total_passed": 11
+    },
+    "native_internal_assertions_exposed_by_native_output": false,
+    "source_sha": "a00b4c68a272cbde9f21fee14662171c4a12530f",
+    "text_parity_claim_basis": "passing_host_pdf_text_contract_only"
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "CLOSED",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "dossier": {
+    "capital_before_regulation": true,
+    "production_application_composition": true,
+    "production_report_route": true,
+    "resolved_capital_and_regulation_handoffs_visible": true,
+    "shared_civil_as_of": true
+  },
+  "host_pdf_text_contract": {
+    "capital_before_regulation": true,
+    "forbidden_sensitive_tokens_absent": true,
+    "known_and_stale_allowlists_ordered": true,
+    "null_capital_handoff_omitted": true,
+    "passed_tests": 5,
+    "production_bytes_text_extracted": true,
+    "status": "PASS"
+  },
+  "native_runtime_pdf": {
+    "nontrivial_length_verified": true,
+    "text_extraction_performed": false,
+    "valid_document_header_verified": true
+  },
+  "share_sheet_or_external_viewer_proven": false
+}

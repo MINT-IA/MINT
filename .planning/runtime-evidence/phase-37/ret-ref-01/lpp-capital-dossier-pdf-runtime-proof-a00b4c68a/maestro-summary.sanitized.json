@@ -1,0 +1,20 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "CLOSED",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "capital_report_handoff_absent": true,
+  "failures": 0,
+  "fresh_state_negative_only": true,
+  "production_default_off": true,
+  "report_route_loaded": true,
+  "status": "SUCCESS",
+  "tests": 1
+}

@@ -1,0 +1,23 @@
+{
+  "authority_replacement_invalidated_capital_handoff": true,
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "CLOSED",
+    "dossier_pdf_slice": "GREEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "cleanup_passed": true,
+  "legacy_regulation_recovery_suppressed_both_handoffs": true,
+  "mismatched_capital_reference_preserved_regulation_only": true,
+  "missing_capital_reference_preserved_regulation_only": true,
+  "normal_build_restored": true,
+  "numeric_snapshot_replacement_purged_capital_notice": true,
+  "temporary_recovery_state_exactly_restored_before_final_invalidations": true,
+  "writer_reader_distinct_processes": true,
+  "writer_state_survived_explicit_process_death": true
+}
