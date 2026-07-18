@@ -19,7 +19,16 @@
 > The synthetic runtime passes 2/2 with a distinct-PID regulation-only cold
 > reader and 22/22 retained logs. `fundRelationship` remains a declared,
 > non-verified relationship, not a DataQuest answer or caisse attestation.
-> Activation remains NO-GO; RET-REF stays `ticket_only`.
+> The bounded recovery extension at exact pushed SHA
+> `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a` keeps that boundary: the
+> tuple-free `selfRegulationRecoveryReason`, opaque
+> `missingDocumentReference`/`mismatchedDocumentReference` states and existing
+> `/scan?type=lppPlan` CTA are recovery mechanics, never `DataQuest` Asks. Its
+> tracked proof is
+> `phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/` at
+> bundle commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. Activation remains
+> NO-GO; RET-REF stays `ticket_only`, G1 remains open at 8.2/10 and G2/G3 are
+> forbidden.
 
 ## 0. One sentence
 
@@ -204,10 +213,15 @@ flexible retirement, disability, survivors and divorce.
 These are **questions to take to a pension fund or specialist**, not ledger
 collection prompts. They have no `fieldPath`, `AskMode`, impact score, answer
 control, write-back, Case transition or completion effect. Closing the sheet is
-local. Missing/flag-off/tuple-drift authority hides the entire handoff rather
-than turning its text into a generic DataQuest. Any future answer capture must
-be a separately specified typed ledger/Case slice; it may not retrofit values
-into this metadata reference.
+local. Exact `resolved` evidence wins and renders the handoff. With ready BND
+hydration, the strict schema-3 marker `legacyMissingFundRelationship`,
+`missingDocumentReference` and `mismatchedDocumentReference` render
+state-specific reconfirmation copy plus the existing `/scan?type=lppPlan` CTA.
+This is document reacquisition, not a blank fact question: it creates no `Ask`,
+score, answer alias, Case transition or completion effect. `unavailable`,
+flag-off and idle/loading/failed hydration hide both handoff and recovery. Any
+future answer capture must be a separately specified typed ledger/Case slice;
+it may not retrofit values into this metadata reference or recovery marker.
 
 The exact pushed runtime SHA
 `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` proves the regulation-only writer
@@ -216,8 +230,19 @@ addition and replacement. The minimized sanitized proof is tracked at
 `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`;
 the complete 22/22-log runtime and P0/P1=0 audit archives remain local excluded
 provenance. This runtime changes neither DataQuest scope nor activation.
-Visible legacy/mismatch recovery and PDF/dossier caveat parity remain separate
-pre-activation work, not new DataQuest Asks.
+At exact pushed SHA `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a`, the same native
+suite remains 2/2 with distinct PIDs while the cold reader empties the BND,
+classifies `missingDocumentReference`, proves the neutral recovery card/body/
+CTA and emitted scan route, then restores, reloads and compares the original
+BND before numeric continuation. The retained-output contract remains 22/22
+and production-default Maestro passes before/after. The minimized proof is
+tracked at
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/`
+by bundle commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. This closes only
+the visible legacy/missing/mismatch recovery debt. PDF/dossier caveat parity,
+activation and other RET-REF work remain separate and are not new DataQuest
+Asks; RET-REF remains `ticket_only`, G1 stays open at 8.2/10 and G2/G3 stay
+forbidden.
 
 ## 8. Acceptance criteria (Codex/CI must verify)
 

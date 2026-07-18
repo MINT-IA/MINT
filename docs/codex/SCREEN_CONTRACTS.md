@@ -1011,23 +1011,25 @@ synthetic-only, private-fixture use is false, and no production acquisition
 seam exists. Activation is therefore NO-GO. This technical atom does not
 promote RET-REF-01, close G1, or authorize G2/G3.
 
-#### LPP regulation reference — G1-RET-REF-01 autonomous runtime-GREEN atom; activation open
+#### LPP regulation reference — G1-RET-REF-01 autonomous + recovery runtime-GREEN atoms; activation open
 
 The default-off `/scan -> /scan/review -> /retraite` production route accepts a
 regulation without any numeric LPP snapshot. `df807024d` cuts the storage
-contract over to schema-2 root-level `selfRegulationReference`, a snapshotless document
+contract over to root-level `selfRegulationReference`, a snapshotless document
 reference and the required declared `fundRelationship`; `40e24f608` hardens
-fail-closed root/provider behavior. The backend remains request-scoped and
-row/cache/RAG/raw-preview free, and personal-certificate precedence remains
-strict.
+fail-closed root/provider behavior. The later recovery vertical emits strict
+schema 3 with nullable tuple-free `selfRegulationRecoveryReason`; its sole
+non-null value is `legacyMissingFundRelationship`. A valid schema-1 nested
+reference becomes only that reason, schema 2 rewrites with null reason, and a
+live reference cannot coexist with the marker. The backend remains request-
+scoped and row/cache/RAG/raw-preview free, and personal-certificate precedence
+remains strict.
 
-`_RetirementDashboardScreenState._buildLppRegulationEducation` calls only
-`DocumentProvider.resolveLppRegulation(profile.lppRegulationReference)`. It
-renders in all three loaded Dashboard branches and stays hidden unless the
-local default-false/non-remote flag is on, the exact zero-fact plan boundary was reviewed
-with `sourceDate`, `legalYear` and one `LppFundRelationship`, and the cold ledger
-plus snapshotless document-reference tuple match. Numeric self-LPP facts are not
-an entry or resolution condition.
+`_RetirementDashboardScreenState._buildLppRegulationEducation` asks
+`DocumentProvider.resolveLppRegulationReference` for only the opaque enum
+`unavailable|resolved|missingDocumentReference|mismatchedDocumentReference`;
+no BND tuple crosses that boundary. It renders in all three loaded Dashboard
+branches. Numeric self-LPP facts are not an entry or resolution condition.
 
 - **Known:** neutral card `retirement_lpp_regulation_reference_education` shows
   source date, legal year, confirmation date and declared relationship; CTA
@@ -1036,24 +1038,41 @@ an entry or resolution condition.
 - **Declared relationship:** `currentFund`, `uncertain` and `formerOrOther` are
   user declarations. They neither verify the caisse, establish applicability,
   nor authorize plan facts, a calculation, rank or recommendation.
-- **Missing/conflict:** wrong kind, flag off, `manualPartner`, malformed root,
-  failed hydration or tuple drift hides the handoff. A present profile reference
-  with a missing stored document reference exposes
+- **Exact wins:** `resolved` requires the current ledger projection, exact
+  snapshotless BND and matching receipt; it renders known education before any
+  defensive legacy marker is considered.
+- **Legacy recovery:** ready hydration plus no candidate and
+  `selfRegulationRecoveryReason=legacyMissingFundRelationship` renders the
+  recovery container with `retirementLppRegulationRecoveryLegacyBody`.
+- **Missing BND:** ready hydration plus a current candidate and no related BND
+  renders the same container with `retirementLppRegulationRecoveryBody`.
+- **Mismatch:** ready hydration plus a related but non-exact BND renders the
+  same container with `retirementLppRegulationRecoveryMismatchBody`; neither
+  stale id nor relationship is rendered.
+- **Unavailable/fail-closed:** wrong kind, flag off, `manualPartner`, malformed
+  root, absent provider/profile and idle/loading/failed hydration render neither
+  known nor recovery state.
+- **Recovery route:** all three visible recovery bodies share
   `retirement_lpp_regulation_reference_recovery` and
-  `retirement_lpp_regulation_reconfirm_cta`, never stale content.
+  `retirement_lpp_regulation_reconfirm_cta`; the CTA reuses
+  `/scan?type=lppPlan`, with no new route or store.
 - **Replacement:** identical review retry is idempotent and semantic reference
   replacement requires the exact previous id. Numeric self-LPP addition or
   replacement preserves the autonomous regulation reference.
 
-The sheet exposes only the localized document kind, `sourceDate`, `legalYear`,
-`confirmedAt`, the declared relationship, an applicability question to take to
-the specialist, and six ordered specialist topics: buy-back, conversion,
-flexible retirement,
-disability, survivors and divorce. Its privacy statement says the original
-document is neither attached nor transmitted from this screen. It contains no
-reference/snapshot/owner/source token, raw document, financial value, advice,
-navigation, network, share or export behavior. Close remains local through
-`retirement_lpp_regulation_handoff_close`.
+The known card, not the sheet, renders the declared relationship under
+`retirement_lpp_regulation_fund_relation`. The sheet exposes only the localized
+document kind, `sourceDate`, `legalYear`, `confirmedAt`, its current
+no-recommendation boundary, an applicability question and six ordered
+specialist topics: buy-back, conversion, flexible retirement, disability,
+survivors and divorce. It does **not** render `handoff.fundRelationship` or
+repeat the complete relationship-specific negative-authority caveat. Its
+privacy statement says the original document is neither attached nor
+transmitted from this screen. It contains no reference/snapshot/owner/source
+token, raw document, financial value, advice, navigation, network, share or
+export behavior. Close remains local through
+`retirement_lpp_regulation_handoff_close`. PDF/dossier caveat parity therefore
+remains RED/open outside this bounded recovery atom.
 
 The live contracts include backend upload/classifier tests plus
 `lpp_pre_upload_authorization_test.dart`,
@@ -1069,7 +1088,11 @@ The live contracts include backend upload/classifier tests plus
 `lpp_regulation_reference_cold_profile_test.dart` and
 `retirement_dashboard_lpp_regulation_test.dart`. The declaration-only six-
 language copy gate forbids wording that upgrades a relationship declaration to
-verified fund authority. Private plan/certificate classification remains only
+verified fund authority. Its recovery mutation matrix covers all three bodies
+in fr/en/de/es/it/pt and requires an unverified declaration, reconfirmation from
+the document and five explicit non-inferences: origin, institution,
+applicability, rights and amounts. The CTA may reconfirm only the declaration.
+Private plan/certificate classification remains only
 in the separate ignored developer gate and contributes no runtime fixture.
 
 At exact pushed SHA `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`, one Patrol
@@ -1086,10 +1109,28 @@ The complete runtime and Opus-high audit archives remain local excluded
 provenance. The minimized tracked proof is
 `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`;
 the source audit aggregate passes with P0/P1=0. This is technical runtime
-acceptance only. Visible legacy/mismatch recovery, PDF/dossier caveat parity,
-activation and other RET-REF obligations remain open. All flags stay false,
-`G1-RET-REF-01` stays
-`ticket_only`, G1 stays open and G2/G3 are forbidden.
+acceptance only.
+
+At exact pushed SHA `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a`, the distinct-PID
+cold reader starts from the resolved known state, empties the BND, freshly
+classifies `missingDocumentReference`, and requires the known card/handoff CTA
+to disappear while the exact French recovery body and CTA appear without stale
+id or declared relationship. Tapping emits `/scan?type=lppPlan`. Its `finally`
+restores, reloads and compares the original BND before the existing numeric
+preservation checks. The native suite remains 2/2, production-default Maestro
+passes 1/1 before and 1/1 after, and retained outputs remain 22/22. XCTest
+reports only the aggregate suite result: these UI claims come from the tracked
+reader contract executed in that passing suite, not a per-assertion XCTest
+transcript. The minimal router proves URI emission, not a second full
+production-route traversal.
+
+The minimized recovery bundle is tracked at
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/`
+by commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. The visible
+legacy/missing/mismatch recovery debt is closed, although runtime directly
+exercises only missing BND. PDF/dossier caveat parity, activation and other
+RET-REF obligations remain open. All flags stay false, `G1-RET-REF-01` stays
+`ticket_only`, G1 stays open at 8.2/10 and G2/G3 are forbidden.
 
 `/rapport` and its PDF export consume evidence-bearing ledger facts; they do
 not recreate pension entitlements from illustrative inputs. The three pillars

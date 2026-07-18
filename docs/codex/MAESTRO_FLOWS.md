@@ -27,6 +27,20 @@
 > `phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`; full detailed
 > archives remain local excluded provenance. RET-REF stays `ticket_only`, all
 > flags stay false, activation and G1 remain NO-GO.
+>
+> **G1 LPP regulation recovery runtime:** exact pushed SHA
+> `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a` extends the same 2/2 native
+> suite. The distinct-PID cold reader empties the BND, freshly classifies
+> `missingDocumentReference`, proves known/handoff absence plus the exact
+> recovery body/CTA and emitted `/scan?type=lppPlan`, then restores, reloads and
+> compares the original BND before numeric continuation. Production-default
+> Maestro remains 1/1 before and 1/1 after; retained outputs remain 22/22. The
+> tracked bundle is
+> `phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/` at
+> `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. XCTest reports only the suite
+> aggregate; UI claims come from the tracked reader executed by that passing
+> suite, not from an XCTest assertion transcript. Activation remains NO-GO,
+> G1 remains open at 8.2/10 and G2/G3 remain forbidden.
 
 ## 0. Reality check — partial Maestro setup exists
 
@@ -232,10 +246,11 @@ and asks only `visionExtraction`. It selects `currentFund` through the real
 review control, which records only the selected relationship; it neither
 verifies fund identity nor establishes applicability. It proves exact
 `accept, record` ordering, a discarded volatile
-session, regulation-only schema-2 root persistence, a snapshotless raw-free
-DocumentProvider tuple, Dashboard visibility, and absence of the synthetic raw
-marker, backend processing id and document hash from durable state. It stores a
-test-only PID witness after durable writes complete.
+session, regulation-only root persistence (schema 2 in the accepted autonomous
+base; schema 3 with null recovery reason at the recovery target), a snapshotless
+raw-free DocumentProvider tuple, Dashboard visibility, and absence of the
+synthetic raw marker, backend processing id and document hash from durable
+state. It stores a test-only PID witness after durable writes complete.
 
 ### Distinct-process cold reader contract
 
@@ -280,11 +295,41 @@ are local excluded provenance, not Git-tracked bundles. The minimized sanitized
 proof is tracked at
 `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`.
 
-This PASS closes the autonomous process-death/default-off runtime gap only. It
-does not activate the feature or objectively verify `currentFund`. Visible
-legacy/mismatch recovery, PDF/dossier caveat parity and the other RET-REF
-obligations remain open; all flags stay false, `G1-RET-REF-01` stays
-`ticket_only`, G1 stays open and G2/G3 are forbidden.
+### Accepted recovery extension
+
+At pushed SHA `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a`, the reader first
+proves the exact resolved regulation, saves an empty confirmed-reference list,
+binds and hydrates a fresh `DocumentProvider`, and requires the opaque
+`missingDocumentReference` state. It then requires:
+
+- known education and handoff CTA absent;
+- recovery container, CTA and exact neutral French missing-reference body
+  present, without local id or `fundRelationship` rendering;
+- CTA emits the existing `/scan?type=lppPlan` URI through the bounded test
+  router;
+- original BND list restored in `finally`, reloaded and compared before the
+  existing numeric add/replacement assertions continue.
+
+The native result remains **2 passed / 0 failed** with distinct PIDs and no
+uninstall/reset/backup between writer and reader. Physical production
+export/build/sign/install, state/container preservation, cleanup/privacy,
+Maestro default-off before/after and `logs == expected_logs == 22` remain PASS.
+XCTest exposes only this aggregate. The recovery UI assertions are grounded by
+`integration_test/g1_ret_ref_lpp_regulation_read_patrol_test.dart` at the exact
+SHA plus the passing aggregate suite; they are not claimed as individual XCTest
+output records. The bounded router proves the emitted URI, while checked-in
+production routing and production-default Maestro provide the separate route
+wiring evidence.
+
+The minimized sanitized bundle is tracked at
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/`
+by commit `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`. This PASS closes the
+autonomous process-death/default-off runtime gap and the bounded visible
+legacy/missing/mismatch recovery debt only; runtime directly exercises the
+missing-reference branch. It does not activate the feature, objectively verify
+`currentFund`, prove PDF/dossier caveat parity or close other RET-REF work. All
+flags stay false, `G1-RET-REF-01` stays `ticket_only`, G1 stays open at 8.2/10
+and G2/G3 are forbidden.
 
 ## 2. Regression flows (each targets a REAL dead road — must go green after fix)
 

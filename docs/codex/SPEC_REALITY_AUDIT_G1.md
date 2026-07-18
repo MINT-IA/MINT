@@ -23,7 +23,7 @@ The five specs are the right architecture direction for Mint, but several claims
 
 Start with ledger parity. Until backend facts reliably land in `CoachProfile`, Data Quest, Maestro, and simulator UX will all produce misleading confidence.
 
-## Live Delta — LPP regulation authority (2026-07-18, HEAD `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`)
+## Live Delta — LPP regulation authority and recovery (2026-07-18, HEAD `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`)
 
 The 2026-07-07 audit remains the historical baseline. This focused matrix
 reconciles the G1 PROV-02/RET-REF regulation slice against live production code
@@ -37,16 +37,20 @@ and tests; it does not promote the ticket or close G1.
 | backend privacy | current bytes classified before caches; exact plan returns processing-only UUID and zero facts; no personal extractor, `DocumentModel`, GET row, RAG, raw preview or response cache (`b30e3c109`) | CODE-GREEN; backend wrapper lenses P0/P1=0 |
 | kind precedence | explicit certificate title or two structured personal `label: value` facts outrank a regulation mention (`ba0f331a0`) | CODE-GREEN |
 | review writer | dedicated source-date/legal-year plus required declared `fundRelationship` (`currentFund`, `uncertain`, `formerOrOther`); exact `accept -> record`; record-only identical-receipt retry; discard session then `/retraite`; no impact/Biography/generic sync (`df807024d`, hardened `40e24f608`) | CODE-GREEN |
-| durable authority + consumer | schema-2 root-level `selfRegulationReference`, regulation-only cold hydration, snapshotless raw-free document reference, declared/non-verified relationship and card/local sheet in all loaded Dashboard branches with privacy boundary plus six complete specialist questions (`df807024d`, `40e24f608`) | CODE-GREEN |
-| exact-SHA mobile runtime | one Patrol native suite passes 2/2 at `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`: production-shaped synthetic PDF/zero-fact writer -> distinct-PID native relaunch -> regulation-only cold Dashboard reader; later numeric add and replacement both preserve the reference; `private_fixture_used=false` | **PASS** |
-| default-off runtime | physical production export/build/sign/install, Maestro before/after with all three flags false, and exact canonical state/container-identity preservation pass | **PASS** |
-| final independent review | bounded Opus-high code/product-domain source audit at the exact SHA plus the earlier production/copy matrix | **PASS, P0/P1=0** |
-| sanitized evidence | minimized proof tracked at `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`; full runtime archive `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-autonomous-runtime-6066f1c94786a-20260718T101106Z/` has 2/2 and 22/22 logs, while the adjacent `lpp-autonomous-runtime-harness-6066f1c94/` has aggregate P0/P1=0. The two complete archives remain local excluded provenance and are not claimed as tracked | **PASS** |
+| durable authority + recovery marker | strict schema-3 root-level `selfRegulationReference` XOR tuple-free `selfRegulationRecoveryReason=legacyMissingFundRelationship`; schema-1 discards the valid nested tuple and leaves only the reason, schema 2 rewrites with null reason, malformed/null/extra and reason+reference fail closed; cold save precedes publication and only durable explicit accept clears the marker | CODE-GREEN |
+| opaque BND resolution | `LppRegulationReferenceResolution` returns only `unavailable`, `resolved`, `missingDocumentReference` or `mismatchedDocumentReference`; exact current evidence wins, no tuple is exposed, and idle/loading/failed hydration remains hidden | CODE-GREEN |
+| visible recovery + route | exact renders known education; legacy marker, ready missing BND and ready mismatch render state-specific six-language non-inference copy in one recovery container and reuse `/scan?type=lppPlan`; no stale id/year/relationship, fact, handoff, advice or new store/route | CODE-GREEN |
+| autonomous exact-SHA runtime | one Patrol native suite passes 2/2 at `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`: production-shaped synthetic PDF/zero-fact writer -> distinct-PID native relaunch -> regulation-only cold Dashboard reader; later numeric add and replacement both preserve the reference; `private_fixture_used=false` | **PASS** |
+| recovery exact-SHA runtime | at `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a`, the same distinct-PID 2/2 suite starts resolved, empties BND, freshly classifies `missingDocumentReference`, proves known/handoff absence plus exact recovery body/CTA and emitted scan URI, then restores/reloads/compares BND before numeric continuation | **PASS, bounded to missing BND** |
+| assertion trace | XCTest exposes the 2/2 aggregate, not internal Flutter assertions; UI claims are grounded jointly by the tracked exact-SHA reader and passing native suite, never presented as an XCTest assertion transcript | **PASS, bounded** |
+| default-off runtime | physical production export/build/sign/install, Maestro 1/1 before and 1/1 after with all three flags false, exact canonical state/container preservation, cleanup/privacy and 22/22 retained outputs pass | **PASS** |
+| final independent review | bounded wrapper Opus-high code/product-domain vertical and runtime audits pass with P0/P1=0; accepted P2s bound the minimal router, constant checks and Patrol-only execution | **PASS, P0/P1=0** |
+| sanitized evidence | autonomous proof remains at `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`; recovery proof is tracked at `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-recovery-runtime-proof-7cb5ea4c6/` by `ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1`, with only allowlisted summaries and verified checksums | **PASS** |
 | activation | three local flags remain false and outside remote hydration | **NO-GO** |
 
-Therefore the former acquisition facade, snapshot coupling and runtime gaps are
-closed for this bounded technical atom. `fundRelationship` is a user declaration,
-not objective caisse verification, and the production flags remain false.
-Visible recovery for legacy/mismatched authority, PDF/dossier caveat parity,
-activation and the other RET-REF obligations remain open; the ticket stays
-`ticket_only`, G1 remains open and G2/G3 remain forbidden.
+Therefore the former acquisition facade, snapshot coupling, process-death and
+visible legacy/missing/mismatch recovery gaps are closed for these bounded
+technical atoms. `fundRelationship` remains a user declaration, not objective
+caisse verification, and production flags remain false. PDF/dossier caveat
+parity, activation and the other RET-REF obligations remain open; the ticket
+stays `ticket_only`, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
