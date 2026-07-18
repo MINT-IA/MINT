@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -17,6 +18,8 @@ import 'package:patrol/patrol.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'support/g1_ret_ref_lpp_regulation_runtime_contract.dart';
 
 const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
 const _firstNumericAcquisitionId = '62626262-6262-4262-8262-626262626262';
@@ -122,6 +125,16 @@ void main() {
 
       final now = DateTime.now().toUtc();
       final preferences = await SharedPreferences.getInstance();
+      final writerPid = preferences.getInt(g1LppRegulationWriterPidKey);
+      addTearDown(() async {
+        await preferences.remove(g1LppRegulationWriterPidKey);
+      });
+      if (writerPid == null || writerPid <= 0) {
+        fail('Writer PID witness is missing or invalid; failing closed');
+      }
+      if (writerPid == pid) {
+        fail('Reader reused the writer app process; failing closed');
+      }
       final encodedWizardCache = preferences.getString('wizard_answers_v2');
       if (encodedWizardCache == null) {
         fail('Missing wizard cache before the cold regulation reader');

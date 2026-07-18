@@ -26,6 +26,8 @@ import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'support/g1_ret_ref_lpp_regulation_runtime_contract.dart';
+
 const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
 const _backendDocumentId = '91919191-9191-4191-8191-919191919191';
 const _rawMarker = '%PDF-1.7 MINT synthetic LPP regulation runtime bytes only';
@@ -195,6 +197,8 @@ void main() {
         FeatureFlags.lppRegulationReferenceEnabled = false;
       });
 
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.remove(g1LppRegulationWriterPidKey);
       await ReportPersistenceService.clearDiagnostic();
       await DocumentReferenceStore().save(const <ConfirmedDocumentReference>[]);
       await ReportPersistenceService.saveAnswers(<String, dynamic>{
@@ -310,7 +314,6 @@ void main() {
       expect(reference.confirmedAt, candidate.confirmedAt);
       expect(documents.resolveLppRegulation(candidate), isNotNull);
 
-      final preferences = await SharedPreferences.getInstance();
       final encodedReferences = preferences.getString(
         DocumentReferenceStore.storageKey,
       );
@@ -322,6 +325,11 @@ void main() {
       expect(encodedLedger, isNot(contains(_rawMarker)));
       expect(encodedLedger, isNot(contains(_backendDocumentId)));
       expect(encodedLedger, isNot(contains('documentSha256')));
+      expect(
+        await preferences.setInt(g1LppRegulationWriterPidKey, pid),
+        isTrue,
+      );
+      expect(preferences.getInt(g1LppRegulationWriterPidKey), pid);
     },
   );
 }

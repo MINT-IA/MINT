@@ -1,0 +1,1 @@
+const g1LppRegulationWriterPidKey = '_g1_ret_ref_lpp_regulation_writer_pid_v1';
