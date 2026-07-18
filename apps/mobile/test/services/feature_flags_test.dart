@@ -3,6 +3,55 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
+const _pillar3aFlagRuntimeContract = r'''
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+
+void main() {
+  test('pillar 3a beneficiary flag is false and backend-inert', () {
+    expect(FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled, isFalse);
+    FeatureFlags.applyFromMap(const <String, dynamic>{
+      'pillar3aBeneficiaryClauseReferenceEnabled': true,
+    });
+    expect(
+      FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled,
+      isFalse,
+      reason: 'Backend configuration must not enable the local G1 path.',
+    );
+
+    FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled = true;
+    FeatureFlags.applyFromMap(const <String, dynamic>{
+      'pillar3aBeneficiaryClauseReferenceEnabled': false,
+    });
+    expect(
+      FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled,
+      isTrue,
+      reason: 'Backend configuration must not disable a local test opt-in.',
+    );
+    FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled = false;
+  });
+}
+''';
+
+Future<ProcessResult> _runPillar3aFlagRuntimeContract() async {
+  final directory = await Directory.systemTemp.createTemp(
+    'mint-pillar3a-flag-contract-',
+  );
+  final generated = File(
+    '${directory.path}/pillar3a_flag_generated_test.dart',
+  );
+  try {
+    await generated.writeAsString(_pillar3aFlagRuntimeContract, flush: true);
+    return await Process.run(
+      'flutter',
+      <String>['test', generated.path, '--reporter', 'expanded'],
+      workingDirectory: Directory.current.path,
+    );
+  } finally {
+    await directory.delete(recursive: true);
+  }
+}
+
 /// Tests for FeatureFlags — server-driven feature gating.
 ///
 /// Validates default values, applyFromMap behavior, and edge cases.
@@ -82,25 +131,47 @@ void main() {
       expect(FeatureFlags.lppCapitalNoticeAcquisitionEnabled, isFalse);
     });
 
-    test('pillar 3a beneficiary reference remains local-only and default-off',
-        () {
-      final source = File('lib/services/feature_flags.dart').readAsStringSync();
-      expect(
-        source,
-        contains(
+    test(
+      'pillar 3a beneficiary reference remains local-only and default-off',
+      () async {
+        final source =
+            File('lib/services/feature_flags.dart').readAsStringSync();
+        final violations = <String>[];
+        if (!source.contains(
           'static bool pillar3aBeneficiaryClauseReferenceEnabled = false;',
-        ),
-        reason: 'The G1 authority path needs an explicit default-off switch.',
-      );
-      final applyFromMap = source.substring(
-        source.indexOf('static void applyFromMap'),
-      );
-      expect(
-        applyFromMap,
-        isNot(contains('pillar3aBeneficiaryClauseReferenceEnabled')),
-        reason: 'Backend configuration must not enable the local G1 path.',
-      );
-    });
+        )) {
+          violations.add('Missing explicit default-off production flag.');
+        }
+        final applyFromMapStart = source.indexOf('static void applyFromMap');
+        final applyFromMapEnd = source.indexOf(
+          'static Future<void> refreshFromBackend',
+          applyFromMapStart,
+        );
+        final applyFromMap = source.substring(
+          applyFromMapStart,
+          applyFromMapEnd,
+        );
+        if (applyFromMap
+            .contains('pillar3aBeneficiaryClauseReferenceEnabled')) {
+          violations.add('Backend applyFromMap can mutate the local G1 flag.');
+        }
+
+        final result = await _runPillar3aFlagRuntimeContract();
+        if (result.exitCode != 0) {
+          violations.add(
+            'Runtime default/inertia contract failed.\n'
+            'stdout:\n${result.stdout}\n'
+            'stderr:\n${result.stderr}',
+          );
+        }
+        expect(
+          violations,
+          isEmpty,
+          reason: violations.join('\n---\n'),
+        );
+      },
+      timeout: const Timeout(Duration(minutes: 2)),
+    );
   });
 
   group('FeatureFlags.applyFromMap', () {
