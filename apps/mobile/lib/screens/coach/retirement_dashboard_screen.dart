@@ -1108,15 +1108,33 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            l.retirementLppRegulationHandoffTitle,
-                            style: MintTextStyles.titleLarge(),
+                          Semantics(
+                            identifier:
+                                'retirement_lpp_regulation_handoff_title',
+                            header: true,
+                            container: true,
+                            child: Text(
+                              l.retirementLppRegulationHandoffTitle,
+                              style: MintTextStyles.titleLarge(),
+                            ),
                           ),
                           const SizedBox(height: MintSpacing.sm),
                           Text(
                             l.retirementLppRegulationHandoffBoundary,
                             style: MintTextStyles.bodyMedium(
                               color: MintColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: MintSpacing.sm),
+                          Semantics(
+                            identifier:
+                                'retirement_lpp_regulation_handoff_privacy',
+                            container: true,
+                            child: Text(
+                              l.retirementLppRegulationHandoffPrivacy,
+                              style: MintTextStyles.bodyMedium(
+                                color: MintColors.textSecondary,
+                              ),
                             ),
                           ),
                           const SizedBox(height: MintSpacing.md),
@@ -1155,6 +1173,18 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                 style: MintTextStyles.titleMedium(),
                               ),
                             ),
+                            const SizedBox(height: MintSpacing.xs),
+                            Semantics(
+                              identifier:
+                                  'retirement_lpp_regulation_question_$topic',
+                              container: true,
+                              child: Text(
+                                _lppRegulationQuestionBody(l, topic),
+                                style: MintTextStyles.bodyMedium(
+                                  color: MintColors.textSecondary,
+                                ),
+                              ),
+                            ),
                             const SizedBox(height: MintSpacing.md),
                           ],
                         ],
@@ -1178,6 +1208,17 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         'disability' => l.retirementLppRegulationQuestionDisability,
         'survivors' => l.retirementLppRegulationQuestionSurvivors,
         'divorce' => l.retirementLppRegulationQuestionDivorce,
+        _ => throw StateError('Unknown LPP regulation topic'),
+      };
+
+  String _lppRegulationQuestionBody(S l, String topic) => switch (topic) {
+        'buyback' => l.retirementLppRegulationQuestionBuybackBody,
+        'conversion' => l.retirementLppRegulationQuestionConversionBody,
+        'flexibleRetirement' =>
+          l.retirementLppRegulationQuestionFlexibleRetirementBody,
+        'disability' => l.retirementLppRegulationQuestionDisabilityBody,
+        'survivors' => l.retirementLppRegulationQuestionSurvivorsBody,
+        'divorce' => l.retirementLppRegulationQuestionDivorceBody,
         _ => throw StateError('Unknown LPP regulation topic'),
       };
 

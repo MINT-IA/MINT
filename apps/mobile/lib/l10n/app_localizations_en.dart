@@ -24343,5 +24343,33 @@ class SEn extends S {
   String get retirementLppRegulationQuestionDivorce => 'Divorce';
 
   @override
+  String get retirementLppRegulationHandoffPrivacy =>
+      'The original document is neither attached to this preparation nor sent to your pension fund or a specialist from this screen.';
+
+  @override
+  String get retirementLppRegulationQuestionBuybackBody =>
+      'Based on my current file, what buy-in capacity can the pension fund confirm, and which conditions, restrictions, and possible consequences for my benefits should be clarified before any payment?';
+
+  @override
+  String get retirementLppRegulationQuestionConversionBody =>
+      'At my intended retirement date, which conversion rates would the pension fund apply to the mandatory and extra-mandatory portions of my assets, and how would a pension, a lump-sum benefit, or a combination of both be calculated?';
+
+  @override
+  String get retirementLppRegulationQuestionFlexibleRetirementBody =>
+      'Which early, partial, or deferred retirement options can the pension fund confirm for my file, with which increments and notification deadlines, and what possible effects would there be on a pension or lump-sum benefit?';
+
+  @override
+  String get retirementLppRegulationQuestionDisabilityBody =>
+      'In the event of long-term incapacity for work or disability, which benefits and any waiver of contributions would the pension fund examine, after which waiting periods and with what coordination with disability insurance and other insurers?';
+
+  @override
+  String get retirementLppRegulationQuestionSurvivorsBody =>
+      'In the event of death, which survivor benefits or lump-sum benefits would the pension fund examine for my partner and other potential beneficiaries, under which conditions, and which declarations or beneficiary designations would be required?';
+
+  @override
+  String get retirementLppRegulationQuestionDivorceBody =>
+      'In the event of divorce, which information and documents can the pension fund provide for the division of occupational pension assets, and how could a division ordered by the court change my future benefits?';
+
+  @override
   String get retirementLppRegulationHandoffClose => 'Close';
 }

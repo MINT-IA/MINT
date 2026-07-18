@@ -24460,5 +24460,33 @@ class SFr extends S {
   String get retirementLppRegulationQuestionDivorce => 'Divorce';
 
   @override
+  String get retirementLppRegulationHandoffPrivacy =>
+      'Le document original n’est ni joint à cette préparation ni transmis à ta caisse ou à un·e spécialiste depuis cet écran.';
+
+  @override
+  String get retirementLppRegulationQuestionBuybackBody =>
+      'Sur la base de mon dossier actuel, quelle capacité de rachat la caisse peut-elle confirmer, et quelles conditions, restrictions et conséquences possibles sur mes prestations seraient à clarifier avant un éventuel versement ?';
+
+  @override
+  String get retirementLppRegulationQuestionConversionBody =>
+      'À ma date de retraite envisagée, quels taux de conversion la caisse appliquerait-elle aux parts obligatoire et surobligatoire de mon avoir, et comment seraient calculées une rente, une prestation en capital ou une combinaison des deux ?';
+
+  @override
+  String get retirementLppRegulationQuestionFlexibleRetirementBody =>
+      'Quelles possibilités de retraite anticipée, partielle ou différée la caisse peut-elle confirmer pour mon dossier, avec quels paliers et délais d’annonce, et quels effets possibles sur une rente ou une prestation en capital ?';
+
+  @override
+  String get retirementLppRegulationQuestionDisabilityBody =>
+      'En cas d’incapacité de travail durable ou d’invalidité, quelles prestations et quelle éventuelle exonération de cotisations la caisse examinerait-elle, après quels délais et avec quelle coordination avec l’AI et les autres assurances ?';
+
+  @override
+  String get retirementLppRegulationQuestionSurvivorsBody =>
+      'En cas de décès, quelles prestations de survivants ou prestations en capital la caisse examinerait-elle pour mon ou ma partenaire et d’autres bénéficiaires potentiels, selon quelles conditions, et quelles déclarations ou désignations seraient nécessaires ?';
+
+  @override
+  String get retirementLppRegulationQuestionDivorceBody =>
+      'En cas de divorce, quels renseignements et documents la caisse peut-elle établir pour le partage de la prévoyance professionnelle, et comment un partage ordonné par le tribunal pourrait-il modifier mes prestations futures ?';
+
+  @override
   String get retirementLppRegulationHandoffClose => 'Fermer';
 }

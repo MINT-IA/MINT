@@ -11612,5 +11612,12 @@
   "retirementLppRegulationQuestionDisability": "Invalidez",
   "retirementLppRegulationQuestionSurvivors": "Prestações de sobrevivência",
   "retirementLppRegulationQuestionDivorce": "Divórcio",
+  "retirementLppRegulationHandoffPrivacy": "O documento original não é anexado a esta preparação nem transmitido, a partir deste ecrã, à tua caixa de pensões ou a um especialista.",
+  "retirementLppRegulationQuestionBuybackBody": "Com base no meu processo atual, que capacidade de compra na caixa de pensões pode a caixa confirmar e que condições, restrições e possíveis consequências para as minhas prestações deveriam ser esclarecidas antes de um eventual pagamento?",
+  "retirementLppRegulationQuestionConversionBody": "Na data de reforma que tenho prevista, que taxas de conversão aplicaria a caixa de pensões às partes obrigatória e extraobrigatória do meu capital e como seriam calculadas uma pensão, uma prestação em capital ou uma combinação de ambas?",
+  "retirementLppRegulationQuestionFlexibleRetirementBody": "Que possibilidades de reforma antecipada, parcial ou diferida pode a caixa de pensões confirmar para o meu processo, com que escalões e prazos de comunicação, e que possíveis efeitos teriam sobre uma pensão ou uma prestação em capital?",
+  "retirementLppRegulationQuestionDisabilityBody": "Em caso de incapacidade duradoura para o trabalho ou invalidez, que prestações e eventual isenção de contribuições examinaria a caixa de pensões, após que períodos de espera e com que coordenação com o seguro de invalidez e os outros seguros?",
+  "retirementLppRegulationQuestionSurvivorsBody": "Em caso de falecimento, que prestações de sobrevivência ou prestações em capital examinaria a caixa de pensões para a minha pessoa parceira e outros potenciais beneficiários, sob que condições e que declarações ou designações seriam necessárias?",
+  "retirementLppRegulationQuestionDivorceBody": "Em caso de divórcio, que informações e documentos pode a caixa de pensões preparar para a partilha da previdência profissional e como poderia uma partilha ordenada pelo tribunal alterar as minhas prestações futuras?",
   "retirementLppRegulationHandoffClose": "Fechar"
 }

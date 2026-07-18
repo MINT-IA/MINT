@@ -24469,5 +24469,33 @@ class SEs extends S {
   String get retirementLppRegulationQuestionDivorce => 'Divorcio';
 
   @override
+  String get retirementLppRegulationHandoffPrivacy =>
+      'El documento original no se adjunta a esta preparación ni se transmite desde esta pantalla a tu caja de pensiones o a un especialista.';
+
+  @override
+  String get retirementLppRegulationQuestionBuybackBody =>
+      'Basándose en mi expediente actual, ¿qué capacidad de compra en la caja de pensiones puede confirmar la caja y qué condiciones, restricciones y posibles consecuencias para mis prestaciones habría que aclarar antes de un eventual pago?';
+
+  @override
+  String get retirementLppRegulationQuestionConversionBody =>
+      'En la fecha de jubilación que tengo prevista, ¿qué tasas de conversión aplicaría la caja de pensiones a las partes obligatoria y supraobligatoria de mi haber, y cómo se calcularían una renta, una prestación de capital o una combinación de ambas?';
+
+  @override
+  String get retirementLppRegulationQuestionFlexibleRetirementBody =>
+      '¿Qué posibilidades de jubilación anticipada, parcial o diferida puede confirmar la caja de pensiones para mi expediente, con qué tramos y plazos de notificación, y qué posibles efectos tendrían sobre una renta o una prestación de capital?';
+
+  @override
+  String get retirementLppRegulationQuestionDisabilityBody =>
+      'En caso de incapacidad laboral duradera o invalidez, ¿qué prestaciones y qué eventual exención de cotizaciones examinaría la caja de pensiones, tras qué periodos de espera y con qué coordinación con el seguro de invalidez y los demás seguros?';
+
+  @override
+  String get retirementLppRegulationQuestionSurvivorsBody =>
+      'En caso de fallecimiento, ¿qué prestaciones para supervivientes o prestaciones de capital examinaría la caja de pensiones para mi pareja y otras personas potencialmente beneficiarias, bajo qué condiciones y qué declaraciones o designaciones serían necesarias?';
+
+  @override
+  String get retirementLppRegulationQuestionDivorceBody =>
+      'En caso de divorcio, ¿qué información y documentos puede preparar la caja de pensiones para el reparto de la previsión profesional y cómo podría modificar mis prestaciones futuras un reparto ordenado por el tribunal?';
+
+  @override
   String get retirementLppRegulationHandoffClose => 'Cerrar';
 }

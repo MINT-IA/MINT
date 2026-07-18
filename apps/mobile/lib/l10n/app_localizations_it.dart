@@ -24535,5 +24535,33 @@ class SIt extends S {
   String get retirementLppRegulationQuestionDivorce => 'Divorzio';
 
   @override
+  String get retirementLppRegulationHandoffPrivacy =>
+      'Il documento originale non viene né allegato a questa preparazione né trasmesso dalla presente schermata alla tua cassa pensioni o a uno specialista.';
+
+  @override
+  String get retirementLppRegulationQuestionBuybackBody =>
+      'Sulla base del mio dossier attuale, quale capacità di riscatto può confermare la cassa pensioni e quali condizioni, restrizioni e possibili conseguenze sulle mie prestazioni andrebbero chiarite prima di un eventuale versamento?';
+
+  @override
+  String get retirementLppRegulationQuestionConversionBody =>
+      'Alla data di pensionamento prevista, quali aliquote di conversione applicherebbe la cassa pensioni alle parti obbligatoria e sovraobbligatoria del mio avere e come verrebbero calcolate una rendita, una prestazione in capitale o una combinazione delle due?';
+
+  @override
+  String get retirementLppRegulationQuestionFlexibleRetirementBody =>
+      'Quali possibilità di pensionamento anticipato, parziale o differito può confermare la cassa pensioni per il mio dossier, con quali scaglioni e termini di notifica, e quali possibili effetti vi sarebbero su una rendita o una prestazione in capitale?';
+
+  @override
+  String get retirementLppRegulationQuestionDisabilityBody =>
+      'In caso di incapacità lavorativa duratura o invalidità, quali prestazioni e quale eventuale esonero dal pagamento dei contributi esaminerebbe la cassa pensioni, dopo quali periodi di attesa e con quale coordinamento con l’AI e le altre assicurazioni?';
+
+  @override
+  String get retirementLppRegulationQuestionSurvivorsBody =>
+      'In caso di decesso, quali prestazioni per i superstiti o prestazioni in capitale esaminerebbe la cassa pensioni per il mio o la mia partner e altri potenziali beneficiari, a quali condizioni e quali dichiarazioni o designazioni sarebbero necessarie?';
+
+  @override
+  String get retirementLppRegulationQuestionDivorceBody =>
+      'In caso di divorzio, quali informazioni e documenti può predisporre la cassa pensioni per la divisione della previdenza professionale e come potrebbe una divisione ordinata dal tribunale modificare le mie prestazioni future?';
+
+  @override
   String get retirementLppRegulationHandoffClose => 'Chiudi';
 }

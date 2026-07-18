@@ -24530,5 +24530,33 @@ class SDe extends S {
   String get retirementLppRegulationQuestionDivorce => 'Scheidung';
 
   @override
+  String get retirementLppRegulationHandoffPrivacy =>
+      'Das Originaldokument wird von diesem Bildschirm aus weder dieser Vorbereitung beigefügt noch an deine Pensionskasse oder eine Fachperson übermittelt.';
+
+  @override
+  String get retirementLppRegulationQuestionBuybackBody =>
+      'Welche Einkaufskapazität kann die Pensionskasse auf Grundlage meines aktuellen Dossiers bestätigen, und welche Bedingungen, Einschränkungen und möglichen Folgen für meine Leistungen wären vor einer allfälligen Einzahlung zu klären?';
+
+  @override
+  String get retirementLppRegulationQuestionConversionBody =>
+      'Welche Umwandlungssätze würde die Pensionskasse an meinem vorgesehenen Pensionierungsdatum auf den obligatorischen und überobligatorischen Anteil meines Guthabens anwenden, und wie würden eine Rente, eine Kapitalleistung oder eine Kombination daraus berechnet?';
+
+  @override
+  String get retirementLppRegulationQuestionFlexibleRetirementBody =>
+      'Welche Möglichkeiten für eine vorzeitige, teilweise oder aufgeschobene Pensionierung kann die Pensionskasse für mein Dossier bestätigen, mit welchen Stufen und Meldefristen, und welche möglichen Auswirkungen hätte dies auf eine Rente oder Kapitalleistung?';
+
+  @override
+  String get retirementLppRegulationQuestionDisabilityBody =>
+      'Welche Leistungen und welche allfällige Beitragsbefreiung würde die Pensionskasse bei einer dauerhaften Arbeitsunfähigkeit oder Invalidität prüfen, nach welchen Wartefristen und mit welcher Koordination mit der IV und anderen Versicherungen?';
+
+  @override
+  String get retirementLppRegulationQuestionSurvivorsBody =>
+      'Welche Hinterlassenen- oder Kapitalleistungen würde die Pensionskasse im Todesfall für meine Partnerin oder meinen Partner und weitere mögliche Begünstigte prüfen, unter welchen Bedingungen, und welche Meldungen oder Begünstigtenbezeichnungen wären erforderlich?';
+
+  @override
+  String get retirementLppRegulationQuestionDivorceBody =>
+      'Welche Auskünfte und Unterlagen kann die Pensionskasse im Scheidungsfall für die Teilung der beruflichen Vorsorge erstellen, und wie könnte eine gerichtlich angeordnete Teilung meine künftigen Leistungen verändern?';
+
+  @override
   String get retirementLppRegulationHandoffClose => 'Schliessen';
 }

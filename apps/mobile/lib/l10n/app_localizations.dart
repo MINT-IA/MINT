@@ -42671,6 +42671,48 @@ abstract class S {
   /// **'Divorce'**
   String get retirementLppRegulationQuestionDivorce;
 
+  /// No description provided for @retirementLppRegulationHandoffPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le document original n’est ni joint à cette préparation ni transmis à ta caisse ou à un·e spécialiste depuis cet écran.'**
+  String get retirementLppRegulationHandoffPrivacy;
+
+  /// No description provided for @retirementLppRegulationQuestionBuybackBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur la base de mon dossier actuel, quelle capacité de rachat la caisse peut-elle confirmer, et quelles conditions, restrictions et conséquences possibles sur mes prestations seraient à clarifier avant un éventuel versement ?'**
+  String get retirementLppRegulationQuestionBuybackBody;
+
+  /// No description provided for @retirementLppRegulationQuestionConversionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'À ma date de retraite envisagée, quels taux de conversion la caisse appliquerait-elle aux parts obligatoire et surobligatoire de mon avoir, et comment seraient calculées une rente, une prestation en capital ou une combinaison des deux ?'**
+  String get retirementLppRegulationQuestionConversionBody;
+
+  /// No description provided for @retirementLppRegulationQuestionFlexibleRetirementBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelles possibilités de retraite anticipée, partielle ou différée la caisse peut-elle confirmer pour mon dossier, avec quels paliers et délais d’annonce, et quels effets possibles sur une rente ou une prestation en capital ?'**
+  String get retirementLppRegulationQuestionFlexibleRetirementBody;
+
+  /// No description provided for @retirementLppRegulationQuestionDisabilityBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cas d’incapacité de travail durable ou d’invalidité, quelles prestations et quelle éventuelle exonération de cotisations la caisse examinerait-elle, après quels délais et avec quelle coordination avec l’AI et les autres assurances ?'**
+  String get retirementLppRegulationQuestionDisabilityBody;
+
+  /// No description provided for @retirementLppRegulationQuestionSurvivorsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cas de décès, quelles prestations de survivants ou prestations en capital la caisse examinerait-elle pour mon ou ma partenaire et d’autres bénéficiaires potentiels, selon quelles conditions, et quelles déclarations ou désignations seraient nécessaires ?'**
+  String get retirementLppRegulationQuestionSurvivorsBody;
+
+  /// No description provided for @retirementLppRegulationQuestionDivorceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cas de divorce, quels renseignements et documents la caisse peut-elle établir pour le partage de la prévoyance professionnelle, et comment un partage ordonné par le tribunal pourrait-il modifier mes prestations futures ?'**
+  String get retirementLppRegulationQuestionDivorceBody;
+
   /// No description provided for @retirementLppRegulationHandoffClose.
   ///
   /// In fr, this message translates to:
