@@ -27,6 +27,7 @@ final class ConfirmedDocumentReference {
 
   static const lppKind = 'lpp';
   static const lppCapitalNoticeKind = LppCapitalNoticeDeadline.kind;
+  static const lppRegulationKind = 'lppRegulation';
 
   final String referenceId;
   final String kind;
@@ -56,13 +57,16 @@ final class ConfirmedDocumentReference {
         json.keys.toSet().difference(allowedKeys).isNotEmpty ||
         json['referenceId'] is! String ||
         json['snapshotId'] is! String ||
-        (json['kind'] != lppKind && json['kind'] != lppCapitalNoticeKind)) {
+        (json['kind'] != lppKind &&
+            json['kind'] != lppCapitalNoticeKind &&
+            json['kind'] != lppRegulationKind)) {
       return null;
     }
     final ownerKind = LppEvidenceOwnerKind.fromWireName(json['ownerKind']);
     final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
     if (ownerKind == null ||
-        (json['kind'] == lppCapitalNoticeKind &&
+        ((json['kind'] == lppCapitalNoticeKind ||
+                json['kind'] == lppRegulationKind) &&
             ownerKind != LppEvidenceOwnerKind.self) ||
         confirmedAt == null ||
         !_isCanonicalUuidV4(json['referenceId'] as String) ||
