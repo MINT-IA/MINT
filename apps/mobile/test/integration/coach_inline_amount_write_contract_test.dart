@@ -346,7 +346,7 @@ void main() {
     FeatureFlags.typedLppEvidence = true;
     for (final strictRoot in <String>[
       'malformed-root',
-      '{"schemaVersion":1,"self":null,"manualPartner":null,"legacyPartnerQuarantine":null}',
+      '{"schemaVersion":3,"self":null,"manualPartner":null,"legacyPartnerQuarantine":null,"selfRegulationReference":null,"selfRegulationRecoveryReason":null}',
       '__secure__',
     ]) {
       final persistence = _MemoryPersistence(<String, dynamic>{
