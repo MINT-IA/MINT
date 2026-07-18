@@ -601,18 +601,112 @@ final class LppCapitalNoticeDeadline {
   }
 }
 
+final class LppRegulationReference {
+  const LppRegulationReference._({
+    required this.referenceId,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.confirmedAt,
+  });
+
+  static const kind = 'lppRegulation';
+
+  final String referenceId;
+  final DateTime sourceDate;
+  final int legalYear;
+  final DateTime confirmedAt;
+
+  static LppRegulationReference create({
+    required String referenceId,
+    required DateTime sourceDate,
+    required int legalYear,
+    required DateTime confirmedAt,
+  }) {
+    if (!_isCanonicalCivilInstant(sourceDate) || !confirmedAt.isUtc) {
+      throw ArgumentError('Canonical UTC LPP regulation dates are required');
+    }
+    final parsed = fromJson(<String, dynamic>{
+      'referenceId': referenceId,
+      'kind': kind,
+      'ownerKind': LppEvidenceOwnerKind.self.wireName,
+      'source': 'certificate',
+      'sourceDate': _encodeCivilDate(sourceDate),
+      'legalYear': legalYear,
+      'confirmedAt': confirmedAt.toIso8601String(),
+    }, now: () => confirmedAt);
+    if (parsed == null) {
+      throw ArgumentError('Invalid LPP regulation reference');
+    }
+    return parsed;
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'referenceId': referenceId,
+        'kind': kind,
+        'ownerKind': LppEvidenceOwnerKind.self.wireName,
+        'source': 'certificate',
+        'sourceDate': _encodeCivilDate(sourceDate),
+        'legalYear': legalYear,
+        'confirmedAt': confirmedAt.toIso8601String(),
+      };
+
+  static LppRegulationReference? fromJson(
+    Map<String, dynamic> json, {
+    DateTime Function()? now,
+  }) {
+    const allowedKeys = <String>{
+      'referenceId',
+      'kind',
+      'ownerKind',
+      'source',
+      'sourceDate',
+      'legalYear',
+      'confirmedAt',
+    };
+    if (json.length != allowedKeys.length ||
+        json.keys.toSet().difference(allowedKeys).isNotEmpty ||
+        json['referenceId'] is! String ||
+        !_isCanonicalUuidV4(json['referenceId'] as String) ||
+        json['kind'] != kind ||
+        json['ownerKind'] != LppEvidenceOwnerKind.self.wireName ||
+        json['source'] != 'certificate' ||
+        json['legalYear'] is! int ||
+        (json['legalYear'] as int) < 1900 ||
+        (json['legalYear'] as int) > 9999) {
+      return null;
+    }
+    final sourceDate = _parseCanonicalCivilDate(json['sourceDate']);
+    final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
+    final current = (now ?? DateTime.now)().toUtc();
+    if (sourceDate == null ||
+        confirmedAt == null ||
+        confirmedAt.isAfter(current) ||
+        SwissCivilTime.isFutureCivilDate(sourceDate, now: current)) {
+      return null;
+    }
+    return LppRegulationReference._(
+      referenceId: json['referenceId'] as String,
+      sourceDate: sourceDate,
+      legalYear: json['legalYear'] as int,
+      confirmedAt: confirmedAt,
+    );
+  }
+}
+
 class LppEvidenceSnapshot {
   const LppEvidenceSnapshot({
     required this.snapshotId,
     required this.facts,
     this.independentFacts = const {},
     this.lppCapitalNoticeDeadline,
+    this.lppRegulationReference,
   });
 
   final String snapshotId;
   final Map<LppEvidenceFactKey, LppEvidenceFact> facts;
   final Map<LppEvidenceFactKey, LppEvidenceFact> independentFacts;
   final LppCapitalNoticeDeadline? lppCapitalNoticeDeadline;
+  final LppRegulationReference? lppRegulationReference;
 
   Iterable<LppEvidenceFact> get identityFacts =>
       facts.isNotEmpty ? facts.values : independentFacts.values;
@@ -630,6 +724,8 @@ class LppEvidenceSnapshot {
           },
         if (lppCapitalNoticeDeadline != null)
           'lppCapitalNoticeDeadline': lppCapitalNoticeDeadline!.toJson(),
+        if (lppRegulationReference != null)
+          'lppRegulationReference': lppRegulationReference!.toJson(),
       };
 
   static LppEvidenceSnapshot? fromJson(
@@ -642,8 +738,9 @@ class LppEvidenceSnapshot {
       'facts',
       'independentFacts',
       'lppCapitalNoticeDeadline',
+      'lppRegulationReference',
     };
-    if ((json.length < 2 || json.length > 4) ||
+    if ((json.length < 2 || json.length > 5) ||
         json.keys.toSet().difference(allowedKeys).isNotEmpty ||
         json['snapshotId'] is! String ||
         !_isCanonicalUuidV4(json['snapshotId'] as String) ||
@@ -652,7 +749,10 @@ class LppEvidenceSnapshot {
             json['independentFacts'] is! Map) ||
         (json.containsKey('lppCapitalNoticeDeadline') &&
             (expectedOwnerKind != LppEvidenceOwnerKind.self ||
-                json['lppCapitalNoticeDeadline'] is! Map))) {
+                json['lppCapitalNoticeDeadline'] is! Map)) ||
+        (json.containsKey('lppRegulationReference') &&
+            (expectedOwnerKind != LppEvidenceOwnerKind.self ||
+                json['lppRegulationReference'] is! Map))) {
       return null;
     }
     final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
@@ -715,11 +815,20 @@ class LppEvidenceSnapshot {
             now: now,
           );
     if (rawCapitalNotice != null && capitalNotice == null) return null;
+    final rawRegulation = json['lppRegulationReference'];
+    final regulation = rawRegulation == null
+        ? null
+        : LppRegulationReference.fromJson(
+            Map<String, dynamic>.from(rawRegulation as Map),
+            now: now,
+          );
+    if (rawRegulation != null && regulation == null) return null;
     return LppEvidenceSnapshot(
       snapshotId: json['snapshotId'] as String,
       facts: Map.unmodifiable(facts),
       independentFacts: Map.unmodifiable(independentFacts),
       lppCapitalNoticeDeadline: capitalNotice,
+      lppRegulationReference: regulation,
     );
   }
 }
