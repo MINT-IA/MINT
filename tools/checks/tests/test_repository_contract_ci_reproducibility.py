@@ -22,12 +22,27 @@ def _repository_contract_job() -> str:
     return source[start:end]
 
 
+def _flutter_job() -> str:
+    source = CI.read_text(encoding="utf-8")
+    start = source.index("\n  flutter:\n    name:") + 1
+    end = source.index("\n  # ─── Phase 32", start)
+    return source[start:end]
+
+
 def test_repository_contract_job_has_full_history_and_installs_backend() -> None:
     job = _repository_contract_job()
     assert "fetch-depth: 0" in job
     install = next(line for line in job.splitlines() if "pip install" in line)
     assert "pytest" in install
     assert "-e services/backend" in install
+
+
+def test_flutter_services_job_installs_pdf_text_extraction_tooling() -> None:
+    job = _flutter_job()
+    assert "Install PDF text extraction tooling" in job
+    assert "if: matrix.shard == 'services'" in job
+    assert "sudo apt-get update" in job
+    assert "poppler-utils" in job
 
 
 @pytest.mark.parametrize("relative_path", RUNTIME_SCRIPTS)
