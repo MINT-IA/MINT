@@ -4,6 +4,13 @@
 > `30728b8a0671a0b54bcf47807a0c69bac905e6e3`.
 > Scope: data reality only. This file does not implement G2 DataQuest or any
 > G3 product loop.
+> Focused RET-REF reality: `lppCapitalNoticeDeadline` is a technical live atom
+> at exact runtime SHA `e010132690bf22fe953f1bddbbecf5fee8bda723`, with the
+> strict self root, serialized provider writer, exact raw-free BND join, cold
+> Dashboard consumer and replacement invalidation proven. Its feature flag is
+> false, the proof is synthetic-only/private-fixture-false, and no production
+> acquisition seam exists. Activation is NO-GO; RET-REF/G1 remain open and
+> G2/G3 remain forbidden.
 
 ## Parser contract
 
@@ -141,7 +148,7 @@ evidence, external audits and the activation decision pass. Legacy
 | workCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | social_security | FRONTALIER | P0 | yes | partial+ask | required | social_security_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | residenceCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | treaty,tax,social_security | FRONTALIER | P0 | yes | partial+ask | required | residence_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | lppRegulationReference | NONE | NONE | document_ref | certificate | annual | 0.95 | specialist_reference | document_ref | NONE | NONE | rente_capital_deadlines | RETIREMENT | P0 | conditional | educational_only | required | regulation_terms | missing | NONE | document_reference_contract,source_date,legal_year | yes | G1-RET-REF-01 |
-| lppCapitalNoticeDeadline | NONE | NONE | ISO_date | certificate | annual | 0.95 | specialist_reference | self | NONE | NONE | capital_withdrawal | RETIREMENT | P0 | conditional | educational_only | required | withdrawal_deadline | missing | NONE | document_reference_contract,source_date | yes | G1-RET-REF-01 |
+| lppCapitalNoticeDeadline | _coach_lpp_evidence_v1 | lppCapitalNoticeDeadline | ISO_date | certificate | event_static | 0.95 | specialist_reference | self | acceptLppCapitalNotice,recordLppCapitalNotice,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppCapitalNoticeEducation@lppCapitalNoticeDeadline | retirement_dashboard_deadline_education | RETIREMENT | P0 | conditional | educational_only | required | withdrawal_deadline | live | ret_ref_capital_notice_green_e010132690,strict_self_root,serialized_writer,exact_raw_free_bnd,cold_dashboard_consumer,replacement_invalidation,process_death_runtime,wrapper_audits | production_acquisition_seam,activation_decision | yes | G1-RET-REF-01 |
 | pillar3aBeneficiaryClause | NONE | NONE | document_ref | certificate | event_static | 0.95 | specialist_reference | self | NONE | NONE | succession,beneficiary | RETIREMENT,SUCCESSION | P0 | conditional | educational_only | required | beneficiary_order | missing | NONE | document_reference_contract,source_date,legal_year | yes | G1-RET-REF-01 |
 | matrimonialRegime | NONE | NONE | regime_enum | userInput,certificate | event_static | source_weight | fact | household | NONE | NONE | succession,rente_capital | RETIREMENT,SUCCESSION | P0 | conditional | partial+ask | required | estate_partition | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-SUCCESSION-01 |
 | estateInstrumentReferences | NONE | NONE | list_document_ref | certificate | event_static | 0.95 | specialist_reference | document_ref | NONE | NONE | will,pact,mandate | SUCCESSION,RETIREMENT | P0 | conditional | educational_only | required | specialist_handoff | missing | NONE | document_reference_contract,source_date | yes | G1-SUCCESSION-01 |

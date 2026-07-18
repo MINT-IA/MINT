@@ -28,7 +28,12 @@
 %% RET-REF-01 has a bounded tax-reference code-GREEN slice at exact pushed SHA
 %% cdc786782 on 2026-07-17. The reference is derived metadata over the one tax
 %% root, and its exact writer -> cold reader -> fail-closed prompt chain is live.
-%% This graph update does not promote the ticket, close G1 or authorize G2/G3.
+%% Its LPP capital-notice atom is separately technical GREEN at exact runtime
+%% SHA e010132690bf22fe953f1bddbbecf5fee8bda723: self-only serialized writer,
+%% unchanged raw-free BND tuple, cold Dashboard consumer and replacement
+%% invalidation are proven. The flag remains false, the run is synthetic-only,
+%% private fixture use is false and no production acquisition seam exists.
+%% Neither atom promotes the ticket, closes G1 or authorizes G2/G3.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -172,25 +177,31 @@ flowchart TB
 
   TAX_ACCEPT -- "single provider mutation" --> CPP
 
-  %% G1 RET-REF-01 next slice: semantic RED only; no production edge yet.
-  subgraph LPP_CAPITAL_NOTICE["G1-RET-REF-01 — LPP CAPITAL NOTICE (SEMANTIC RED)"]
+  %% G1 RET-REF-01 bounded technical atom; production acquisition stays absent.
+  subgraph LPP_CAPITAL_NOTICE["G1-RET-REF-01 — LPP CAPITAL NOTICE (TECHNICAL GREEN @ e01013269)"]
     direction TB
     LCN_FLAG{"lppCapitalNoticeDeadlineEnabled<br/>local + default false"}
     LCN_OFF["off<br/>no writer and no dashboard reminder"]
+    LCN_NO_ACQ["flag on is still insufficient<br/>NO production acquisition seam<br/>activation NO-GO"]
+    LCN_TEST["synthetic runtime bridge only<br/>real numeric self-LPP scan first<br/>private fixture = false"]
     LCN_REVIEW["exact reviewed fund regulation/capital notice<br/>explicit sourceDate + legalYear + deadlineDate<br/>ordinary/private certificate rejected"]
     LCN_CURRENT{"current self LPP snapshot<br/>non-empty facts + expected snapshot id"}
-    LCN_REJECT["missing / manualPartner / factless / stale binding<br/>zero mutation"]
-    LCN_WRITE["dedicated serialized provider writer<br/>preserve snapshot UUID + facts<br/>generate referenceId + confirmedAt once"]
+    LCN_REJECT["missing / manualPartner / factless / snapshot drift<br/>zero mutation"]
+    LCN_WRITE["CoachProfileProvider.acceptLppCapitalNotice<br/>serialized; preserve snapshot UUID + facts<br/>generate referenceId + confirmedAt once"]
     LCN_ROOT[("ONLY _coach_lpp_evidence_v1<br/>schemaVersion 1<br/>self.lppCapitalNoticeDeadline?")]
     LCN_RECEIPT["exact receipt tuple<br/>referenceId + kind=lppCapitalNotice<br/>snapshotId + ownerKind=self + confirmedAt"]
-    LCN_BND[("BND-05 metadata store<br/>same tuple; no regenerated id/time<br/>serialized exact replacement")]
-    LCN_COLD["cold CoachProfile derivation<br/>model has no provider import"]
-    LCN_RESOLVE{"DocumentProvider hydrated<br/>all five fields + current snapshot exact"}
+    LCN_BND[("DocumentProvider.recordLppCapitalNotice<br/>raw-free BND-05 store; identical tuple<br/>serialized exact replacement")]
+    LCN_COLD["cold CoachProfile.fromWizardAnswers<br/>derives candidate from strict self root<br/>model has no provider import"]
+    LCN_RESOLVE{"DocumentProvider.resolveLppCapitalNotice<br/>hydrated BND + all five fields<br/>+ current snapshot exact"}
     LCN_HIDDEN["unresolved / conflict / replacement<br/>no reminder"]
-    LCN_EDU["Retirement Dashboard<br/>educational deadline reminder only<br/>no calculation, ranking or advice"]
+    LCN_EDU["real cold Retirement Dashboard consumer<br/>known/stale educational reminder<br/>no calculation, ranking, advice or CTA"]
+    LCN_REPLACE["later acceptLppReview<br/>new numeric self snapshot<br/>notice deliberately absent"]
+    LCN_RUNTIME["exact-SHA runtime e01013269<br/>Patrol writer -> terminate -> cold reader<br/>production rebuild + Maestro flag-off"]
 
     LCN_FLAG -- "off" --> LCN_OFF
-    LCN_FLAG -- "on" --> LCN_REVIEW --> LCN_CURRENT
+    LCN_FLAG -- "on, production" --> LCN_NO_ACQ
+    LCN_FLAG -. "on, bounded runtime" .-> LCN_TEST
+    LCN_TEST -. "bounded test-only input" .-> LCN_REVIEW --> LCN_CURRENT
     LCN_CURRENT -- "no" --> LCN_REJECT
     LCN_CURRENT -- "yes" --> LCN_WRITE --> LCN_ROOT
     LCN_WRITE --> LCN_RECEIPT --> LCN_BND
@@ -198,9 +209,12 @@ flowchart TB
     LCN_BND --> LCN_RESOLVE
     LCN_RESOLVE -- "no" --> LCN_HIDDEN
     LCN_RESOLVE -- "yes" --> LCN_EDU
+    LCN_EDU -- "later numeric review" --> LCN_REPLACE --> LCN_HIDDEN
+    LCN_EDU -. "display proven" .-> LCN_RUNTIME
+    LCN_REPLACE -. "invalidation proven" .-> LCN_RUNTIME
   end
 
-  LCN_WRITE -. "target single provider mutation" .-> CPP
+  LCN_WRITE -- "single serialized provider mutation" --> CPP
 
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
@@ -738,14 +752,19 @@ flowchart TB
 %% tax_provenance_profile_test, confidence_scorer_tax_kill_switch_test and
 %% confidence_scorer_test. This bounded code-GREEN truth does not promote
 %% G1-RET-REF-01, close G1 or authorize G2/G3.
-%% G1-RET-REF-01 LPP CAPITAL NOTICE TARGET: the semantic RED contract adds only
-%% optional self.lppCapitalNoticeDeadline metadata to the current non-empty self
-%% snapshot under the existing schema-v1 root. One flag-gated self-only writer
-%% generates referenceId/confirmedAt once; BND-05 must persist the identical
-%% kind=lppCapitalNotice tuple. Cold Profile derivation is necessary but not
-%% sufficient: DocumentProvider must exactly join the five fields and current
-%% snapshot before the educational-only Retirement Dashboard reminder exists.
-%% Ordinary/private certificates, inference, manualPartner, factless roots,
-%% implicit replacement and carry-forward to a new numeric snapshot fail closed.
-%% This is RED target truth only, not production wiring or ticket promotion.
+%% G1-RET-REF-01 LPP CAPITAL NOTICE REALITY: at exact runtime SHA
+%% e010132690bf22fe953f1bddbbecf5fee8bda723, optional
+%% self.lppCapitalNoticeDeadline metadata lives only on the current non-empty
+%% self snapshot under the existing schema-v1 root. The serialized provider
+%% writer generates referenceId/confirmedAt once; DocumentProvider persists and
+%% resolves the identical raw-free kind=lppCapitalNotice BND tuple. Cold Profile
+%% derivation plus the exact hydrated join feeds the real educational-only
+%% Retirement Dashboard consumer, and a later numeric self-snapshot replacement
+%% hides it. Patrol process-death, exact-source production rebuild/install and
+%% Maestro default-off evidence pass; seven bounded Opus-high audits have zero
+%% P0/P1. The proof is synthetic-only, private fixture use is false, the local
+%% flag remains false and no production acquisition seam exists. Ordinary/private
+%% certificates, inference, manualPartner and factless roots fail closed.
+%% Technical atom GREEN is not feature activation or ticket promotion:
+%% RET-REF/G1 remain open and G2/G3 remain forbidden.
 %% ============================================================================

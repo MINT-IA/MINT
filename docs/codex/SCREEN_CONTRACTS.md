@@ -957,9 +957,11 @@ fictive and must not expand the 36-key value allowlist.
 
 ### 7.1 Retirement evidence states — fail closed for AVS, LPP, and 3a
 
-#### LPP capital-notice deadline — G1-RET-REF-01 semantic RED
+#### LPP capital-notice deadline — G1-RET-REF-01 technical GREEN
 
-`RetirementDashboardScreen` may add one educational reminder only when
+At exact runtime SHA `e010132690bf22fe953f1bddbbecf5fee8bda723`, the
+technical atom is GREEN. `RetirementDashboardScreen` adds one educational
+reminder only when
 `lppCapitalNoticeDeadlineEnabled` is true **and** the cold-derived Profile
 candidate exactly resolves through hydrated BND-05 to the current self LPP
 snapshot. The stable target id is
@@ -980,7 +982,18 @@ snapshot. The stable target id is
 - **Replacement:** an explicit replacement is invisible until the new exact
   BND tuple is stored; a numeric self-snapshot replacement drops the reminder.
 
-This target uses no new route and remains default-off semantic RED. It does not
+The live technical chain is
+`CoachProfileProvider.acceptLppCapitalNotice` ->
+`DocumentProvider.recordLppCapitalNotice` -> cold
+`CoachProfile.lppCapitalNoticeDeadline` ->
+`DocumentProvider.resolveLppCapitalNotice` ->
+`_RetirementDashboardScreenState._buildLppCapitalNoticeEducation`. Patrol
+proves cold display and invalidation after a new numeric self-LPP snapshot;
+Maestro proves the production-default flag-off surface stays absent.
+
+This path uses no new route and remains default-off. Runtime data is
+synthetic-only, private-fixture use is false, and no production acquisition
+seam exists. Activation is therefore NO-GO. This technical atom does not
 promote RET-REF-01, close G1, or authorize G2/G3.
 
 `/rapport` and its PDF export consume evidence-bearing ledger facts; they do

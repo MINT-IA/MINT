@@ -38,6 +38,13 @@
 > It derives metadata from the one strict tax root after exact provenance
 > validation and fails closed through the existing fiscal prompt. This does not
 > promote the ticket, close G1 or authorize G2/G3.
+> **Focused RET-REF-01 LPP capital-notice technical GREEN:** the bounded
+> `lppCapitalNoticeDeadline` atom is runtime-GREEN at exact SHA
+> `e010132690bf22fe953f1bddbbecf5fee8bda723` (2026-07-17). It proves the
+> serialized self-only writer, unchanged raw-free BND tuple, cold Dashboard
+> consumer and replacement invalidation. The run is synthetic-only, used no
+> private fixture and used no production acquisition seam. The local flag stays
+> false; activation is NO-GO, RET-REF/G1 remain open and G2/G3 stay forbidden.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -658,13 +665,14 @@ There is no persisted `latestTaxDecisionReference` key, second secure root,
 document payload, backend mirror or calculator output. `backendSafeAnswers`
 continues to remove `_coach_tax_snapshots_v1` and every `_coach_tax_*` key.
 
-#### 4.0.2 LPP capital-notice deadline (G1-RET-REF-01 semantic RED)
+#### 4.0.2 LPP capital-notice deadline (G1-RET-REF-01 technical GREEN)
 
-The next bounded RET-REF slice is self-only and remains behind one new local
-`lppCapitalNoticeDeadlineEnabled` switch that defaults false. It augments the
-**current existing** `self` snapshot inside `_coach_lpp_evidence_v1`; it does
-not create another answer root, change `schemaVersion: 1`, or authorize G2/G3.
-The optional snapshot member is exact:
+At exact runtime SHA `e010132690bf22fe953f1bddbbecf5fee8bda723`, this
+bounded RET-REF atom is technically GREEN. It is self-only and remains behind
+the local `lppCapitalNoticeDeadlineEnabled` switch, which defaults false and is
+absent from `FeatureFlags.applyFromMap`. It augments the **current existing**
+`self` snapshot inside `_coach_lpp_evidence_v1`; it does not create another
+answer root or change `schemaVersion: 1`. The optional snapshot member is exact:
 
 ```text
 self.lppCapitalNoticeDeadline {
@@ -682,11 +690,13 @@ self.lppCapitalNoticeDeadline {
 This metadata contains no amount and does not modify `facts`. A notice may be
 attached only to a current self snapshot whose numeric `facts` are non-empty;
 a factless notice-only root and every `manualPartner` placement are invalid.
-The acquisition/review boundary admits only the exact reviewed pension-fund
-regulation or capital notice containing the complete deadline. A personal LPP
-certificate, its `sourceDate`, its legal/calendar year, `now`, or a legal
-constant is never authority for this record; the existing private-certificate
-corpus remains negative-only.
+The review contract admits only the exact reviewed pension-fund regulation or
+capital notice containing the complete deadline. No production acquisition
+caller implements that review contract yet; the accepted runtime uses one
+explicit bounded test-only bridge after a real synthetic numeric self-LPP scan.
+A personal LPP certificate, its `sourceDate`, its legal/calendar year, `now`, or
+a legal constant is never authority for this record; the existing private-
+certificate corpus remains negative-only and was not used by the runtime.
 
 `CoachProfileProvider.acceptLppCapitalNotice` is the sole writer. Under the
 same serialized LPP mutation it rechecks the expected current self snapshot,
@@ -716,9 +726,18 @@ notice rather than inferring that the old legal deadline still applies.
 
 Deadline precision uses Zurich civil dates: yesterday is `stale`, the civil
 day of the deadline is still `known`, and changing calendar/legal year alone
-does not change state. The Retirement Dashboard may render only an educational
-deadline reminder behind the same default-false switch. It must not alter a
-calculator, projection, ranking, recommendation or advice-shaped CTA.
+does not change state. `RetirementDashboardScreen` is the real cold consumer:
+it calls `DocumentProvider.resolveLppCapitalNotice`, renders only the resolved
+educational known/stale state in all three loaded-profile branches, and has no
+CTA. It does not alter a calculator, projection, ranking or recommendation.
+
+The exact-SHA runtime proves Patrol writer -> real process termination -> cold
+reader, Dashboard display, invalidation after a later numeric self-LPP review,
+an exact-source production rebuild/install and a production-default Maestro
+flag-off flow. The proof is synthetic-only, `private_fixture_used=false` and
+`production_capital_notice_acquisition_seam_used=false`. Seven bounded
+wrapper-only Opus-high audits pass with zero P0/P1. This technical atom does not
+activate the feature, promote RET-REF-01, close G1 or authorize G2/G3.
 
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,
