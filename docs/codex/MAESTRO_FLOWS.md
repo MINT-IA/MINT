@@ -17,7 +17,7 @@
 > proof rather than shipping-default chrome evidence. COACH-01 is GREEN; the
 > global Maestro+Patrol `G1-RUNTIME-01` remains `red_proven`.
 >
-> **G1 LPP capital-notice native acquisition runtime:** exact pushed SHA
+> **G1 LPP capital-notice acquisition + dossier/PDF runtime:** exact pushed SHA
 > `36152b997fbf0c32c1120ddb61f0a8e9d589aa52` passes a native writer and
 > distinct-process cold reader 2/2. The writer uses the production UI
 > acquisition seam for numeric certificate review, `/scan?type=lppPlan`, exact
@@ -27,8 +27,21 @@
 > passes; production-default Maestro passes 1/1 with the path absent. External
 > document/OCR IO remains synthetic. The minimized proof is
 > `phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`.
-> Capital-notice dossier/PDF parity and activation remain open; RET-REF stays
-> `ticket_only`, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
+> At exact pushed SHA `a00b4c68a272cbde9f21fee14662171c4a12530f`, the real
+> `MintApp`/`AccountSessionBootstrap` reader opens `/rapport`, proves the capital
+> section before regulation and builds production PDF bytes (`%PDF-`, >1000).
+> Missing or mismatched capital BND suppresses only capital; a legacy regulation
+> authority suppresses both. Exact root+BND restoration re-enables both before
+> later authority and numeric snapshot replacement are re-proven fail closed.
+> The production-default Maestro flow now also opens `/rapport` and asserts
+> `financial_report_lpp_capital_notice_handoff` absent, in addition to the
+> Dashboard absence. The synthetic-only run uses no private fixture and makes no
+> production OCR/external-IO or runtime PDF-text-extraction claim. The minimized
+> proof is
+> `phase-37/ret-ref-01/lpp-capital-dossier-pdf-runtime-proof-a00b4c68a/`.
+> `capital_notice_dossier_pdf_parity` is closed/GREEN. Activation remains
+> NO-GO/default-false; RET-REF stays `ticket_only`, G1 remains open at 8.2/10
+> and G2/G3 remain forbidden.
 >
 > **G1 LPP regulation autonomous runtime:** exact pushed SHA
 > `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` passes one Patrol native

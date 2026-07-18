@@ -39,15 +39,24 @@
 > validation and fails closed through the existing fiscal prompt. This does not
 > promote the ticket, close G1 or authorize G2/G3.
 > **Focused RET-REF-01 LPP capital-notice technical GREEN:** the bounded
-> `lppCapitalNoticeDeadline` atom is runtime-GREEN at exact SHA
+> `lppCapitalNoticeDeadline` acquisition atom is runtime-GREEN at exact SHA
 > `36152b997fbf0c32c1120ddb61f0a8e9d589aa52` (2026-07-18). The production UI
 > acquisition seam now drives numeric certificate review, `/scan?type=lppPlan`,
 > exact regulation/capital review, ordered ledger+BND writes and the Dashboard
 > consumer. A distinct cold reader proves authority and snapshot invalidation.
 > External document/OCR IO remains synthetic, no private fixture is used and the
-> local flag stays false. Capital-notice dossier/PDF parity and activation remain
-> open; RET-REF/G1 remain open and G2/G3 stay forbidden. Minimized proof:
-> `phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`.
+> local flag stays false. Its minimized proof is
+> `phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`. At exact
+> pushed SHA `a00b4c68a272cbde9f21fee14662171c4a12530f`, the same distinct-PID
+> native suite now boots the real `MintApp`, proves `/rapport` with the capital
+> section before the regulation section, constructs production PDF bytes and
+> exercises fail-closed dossier recovery plus exact root+BND restoration.
+> Production-default Maestro also proves the capital surfaces absent on both
+> `/retraite` and `/rapport`. The minimized proof is
+> `phase-37/ret-ref-01/lpp-capital-dossier-pdf-runtime-proof-a00b4c68a/`.
+> `capital_notice_dossier_pdf_parity` is therefore closed/GREEN. Activation
+> remains NO-GO/default-false; RET-REF stays `ticket_only`, G1 stays open at
+> 8.2/10 and G2/G3 stay forbidden.
 > **Focused RET-REF-01 LPP regulation autonomous + recovery reality:** the
 > production route accepts a regulation without any numeric LPP snapshot. The
 > autonomous base is runtime-GREEN at exact pushed SHA
@@ -693,7 +702,7 @@ There is no persisted `latestTaxDecisionReference` key, second secure root,
 document payload, backend mirror or calculator output. `backendSafeAnswers`
 continues to remove `_coach_tax_snapshots_v1` and every `_coach_tax_*` key.
 
-#### 4.0.2 LPP capital-notice deadline (G1-RET-REF-01 technical GREEN)
+#### 4.0.2 LPP capital-notice deadline (G1-RET-REF-01 acquisition + dossier/PDF GREEN; activation open)
 
 At exact pushed runtime SHA `36152b997fbf0c32c1120ddb61f0a8e9d589aa52`, this
 bounded RET-REF atom is technically GREEN. It is self-only and remains behind
@@ -773,9 +782,37 @@ rebuild/install and a production-default Maestro flag-off flow. Patrol passes
 `.planning/runtime-evidence/phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`.
 It is synthetic-only, `private_fixture_used=false`, uses the production UI
 acquisition seam and retains no external IO claim. Both bounded wrapper-only
-Opus-high lenses pass with zero P0/P1. Capital-notice dossier/PDF parity and
-activation remain open; this atom does not promote RET-REF-01, close G1 or
-authorize G2/G3.
+Opus-high lenses pass with zero P0/P1.
+
+The dossier/PDF vertical is separately runtime-GREEN at exact pushed SHA
+`a00b4c68a272cbde9f21fee14662171c4a12530f`. The distinct-PID cold reader boots
+the real `MintApp` through `AccountSessionBootstrap`, resolves capital and
+regulation evidence independently, and constructs
+`LppCapitalNoticeSpecialistHandoff` only from the resolved pair: `self`,
+declared/unverified `currentFund`, and identical `sourceDate`/`legalYear`. The
+shared `LppCapitalNoticeSectionContent` presenter feeds the Dashboard,
+`/rapport` and the financial-report PDF. On `/rapport`, the capital section is
+visible before the regulation section. `PdfService` produces production bytes
+with the `%PDF-` signature and a size greater than 1000 bytes; this runtime
+claim is byte construction only, not PDF text extraction.
+
+Recovery remains fail closed. Removing or mismatching only the capital BND
+tuple suppresses the capital dossier/PDF handoff while the separately resolved
+regulation section remains visible. Replacing the regulation root with the
+tuple-free legacy authority state suppresses both sections. The test then
+restores the exact strict root and ordered BND list before proving both sections
+again. Later regulation-authority replacement and numeric self-snapshot
+replacement each suppress the capital handoff; neither state is converted into
+an inferred deadline. Production-default Maestro proves both the Dashboard id
+and `financial_report_lpp_capital_notice_handoff` absent with all checked-in
+flags false. The run is synthetic-only, uses no private fixture and makes no
+production OCR/external-IO claim. Its minimized proof is
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-capital-dossier-pdf-runtime-proof-a00b4c68a/`.
+
+`capital_notice_dossier_pdf_parity` is closed/GREEN. This does not activate the
+feature: `lppCapitalNoticeDeadlineEnabled` remains false and outside remote
+configuration, RET-REF remains `ticket_only`, G1 remains open at 8.2/10, and
+G2/G3 remain forbidden.
 
 #### 4.0.3 LPP regulation reference (G1-RET-REF-01 autonomous + recovery technical atoms; activation open)
 
@@ -959,9 +996,8 @@ budget and is not called PASS. Dossier and PDF component audits plus the final
 bootstrap code/product audits bound the accepted current P0/P1=0 state. This
 proves only the default-off autonomous, recovery and dossier/PDF technical
 atoms. The visible legacy/missing/mismatch recovery debt is
-closed; PDF/dossier caveat parity is closed. Activation, capital-notice
-dossier/PDF parity, 3a-beneficiary, fiscal and other RET-REF obligations remain open. All three
-flags stay false,
+closed; PDF/dossier caveat parity is closed. Activation, 3a-beneficiary,
+fiscal and other RET-REF obligations remain open. All three flags stay false,
 `G1-RET-REF-01` stays `ticket_only`, G1 stays open at 8.2/10 and G2/G3 are
 forbidden.
 

@@ -33,6 +33,12 @@
 %% acquisition, unchanged raw-free BND tuple, cold Dashboard consumer, authority
 %% invalidation and snapshot replacement purge are proven. The flag remains
 %% false, external document/OCR IO is synthetic and private fixture use is false.
+%% At exact pushed SHA a00b4c68a272cbde9f21fee14662171c4a12530f, the real
+%% MintApp reader additionally proves ordered /rapport capital-before-regulation,
+%% production PDF bytes, fail-closed capital-BND/legacy-authority states, exact
+%% root+BND restoration and production-default Maestro absence on both surfaces.
+%% Capital dossier/PDF parity is closed; activation remains NO-GO/default-false,
+%% RET-REF remains ticket_only, G1 stays open at 8.2/10 and G2/G3 are forbidden.
 %% The LPP regulation stack is an autonomous, snapshotless production-route
 %% technical atom. df807024d + 40e24f608 move the reference to schema-2
 %% root-level selfRegulationReference, require the declared/non-verified
@@ -198,11 +204,12 @@ flowchart TB
 
   TAX_ACCEPT -- "single provider mutation" --> CPP
 
-  %% G1 RET-REF-01 bounded native technical atom; activation stays absent.
-  subgraph LPP_CAPITAL_NOTICE["G1-RET-REF-01 — LPP CAPITAL NOTICE (NATIVE GREEN @ 36152b997)"]
+  %% G1 RET-REF-01 acquisition and dossier/PDF atoms are runtime-GREEN;
+  %% activation stays absent/default-false.
+  subgraph LPP_CAPITAL_NOTICE["G1-RET-REF-01 — LPP CAPITAL NOTICE (ACQUISITION GREEN @ 36152b997; DOSSIER/PDF GREEN @ a00b4c68a)"]
     direction TB
     LCN_FLAG{"lppCapitalNoticeDeadlineEnabled<br/>local + default false"}
-    LCN_OFF["off<br/>no writer and no dashboard reminder"]
+    LCN_OFF["off<br/>no writer, Dashboard reminder or dossier section"]
     LCN_NATIVE_ACQ["production UI acquisition seam<br/>numeric certificate review -> /retraite<br/>/scan?type=lppPlan -> real review"]
     LCN_SYNTH_IO["external document/OCR IO synthetic<br/>path-only inputs + zero-fact plan response<br/>private fixture = false"]
     LCN_REVIEW["exact reviewed currentFund regulation + capital notice<br/>explicit sourceDate + legalYear + deadlineDate<br/>ordinary/private certificate rejected"]
@@ -214,11 +221,17 @@ flowchart TB
     LCN_BND[("DocumentProvider.recordLppCapitalNotice<br/>raw-free BND-05 store; identical tuple<br/>serialized exact replacement")]
     LCN_COLD["cold CoachProfile.fromWizardAnswers<br/>derives candidate from strict self root<br/>model has no provider import"]
     LCN_RESOLVE{"DocumentProvider.resolveLppCapitalNotice<br/>hydrated BND + all five fields<br/>+ current snapshot exact"}
-    LCN_HIDDEN["unresolved / conflict / replacement<br/>no reminder"]
+    LCN_HIDDEN["unresolved / conflict / replacement<br/>no capital reminder or dossier handoff"]
     LCN_EDU["real cold Retirement Dashboard consumer<br/>known/stale educational reminder<br/>no calculation, ranking, advice or CTA"]
+    LCN_HANDOFF["paired resolved-evidence handoff<br/>self + declared currentFund<br/>same sourceDate/legalYear; metadata allowlist only"]
+    LCN_DOSSIER["real MintApp /rapport<br/>capital section before regulation<br/>same shared localized presenter"]
+    LCN_PDF["production financial-report bytes<br/>same capital content before regulation<br/>byte signature/size proven; no runtime text claim"]
+    LCN_DOSSIER_RECOVERY["fail-closed report recovery<br/>capital BND missing/mismatch: capital absent, regulation present<br/>legacy authority: both absent; exact root+BND restore"]
     LCN_AUTH_REPLACE["later regulation authority replacement<br/>old notice join fails closed"]
     LCN_REPLACE["later acceptLppReview<br/>new numeric self snapshot<br/>notice deliberately absent"]
     LCN_RUNTIME["exact-SHA runtime 36152b997<br/>native writer -> terminate -> cold reader<br/>production rebuild + Maestro flag-off"]
+    LCN_DOSSIER_RUNTIME["GREEN @ a00b4c68a272cbde9f21fee14662171c4a12530f<br/>real MintApp /rapport + production PDF bytes<br/>distinct-PID 2/2 + Maestro default-off 1/1"]
+    LCN_OPEN["PARITY CLOSED / ACTIVATION OPEN<br/>flag false; ticket_only; G1 OPEN 8.2<br/>G2/G3 forbidden"]
 
     LCN_FLAG -- "off" --> LCN_OFF
     LCN_FLAG -. "on, bounded exact-SHA runtime" .-> LCN_NATIVE_ACQ
@@ -231,11 +244,19 @@ flowchart TB
     LCN_BND --> LCN_RESOLVE
     LCN_RESOLVE -- "no" --> LCN_HIDDEN
     LCN_RESOLVE -- "yes" --> LCN_EDU
+    LCN_RESOLVE -- "yes + separately resolved matching regulation" --> LCN_HANDOFF
+    LCN_HANDOFF --> LCN_DOSSIER --> LCN_PDF
+    LCN_BND -. "missing/mismatch exercised" .-> LCN_DOSSIER_RECOVERY
+    LCN_DOSSIER_RECOVERY -. "exact root+BND restoration" .-> LCN_DOSSIER
     LCN_EDU -- "later authority review" --> LCN_AUTH_REPLACE --> LCN_HIDDEN
     LCN_EDU -- "later numeric review" --> LCN_REPLACE --> LCN_HIDDEN
     LCN_EDU -. "display proven" .-> LCN_RUNTIME
     LCN_AUTH_REPLACE -. "invalidation proven" .-> LCN_RUNTIME
     LCN_REPLACE -. "invalidation proven" .-> LCN_RUNTIME
+    LCN_DOSSIER -. "ordered route proven" .-> LCN_DOSSIER_RUNTIME
+    LCN_PDF -. "production bytes proven" .-> LCN_DOSSIER_RUNTIME
+    LCN_DOSSIER_RECOVERY -. "suppression/restore proven" .-> LCN_DOSSIER_RUNTIME
+    LCN_DOSSIER_RUNTIME -. "does not activate" .-> LCN_OPEN
   end
 
   LCN_WRITE -- "single serialized provider mutation" --> CPP
@@ -304,6 +325,7 @@ flowchart TB
   end
 
   LRR_ACCEPT -- "single serialized provider mutation" --> CPP
+  LRR_RESOLVE -. "resolved currentFund + same sourceDate/legalYear" .-> LCN_HANDOFF
 
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
@@ -856,8 +878,24 @@ flowchart TB
 %% lenses have P0/P1=0. External document/OCR IO is synthetic, private fixture use
 %% is false and the local flag remains false. The minimized proof is
 %% phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/.
-%% Capital-notice dossier/PDF parity and activation remain open; RET-REF/G1 remain
-%% open and G2/G3 remain forbidden.
+%% At exact pushed SHA a00b4c68a272cbde9f21fee14662171c4a12530f, the same
+%% distinct-PID reader boots real MintApp/AccountSessionBootstrap. Independently
+%% resolved capital and regulation evidence create the metadata-only paired
+%% handoff only for self + declared currentFund + identical sourceDate/legalYear.
+%% The shared presenter feeds Dashboard, /rapport and PDF; the report renders
+%% capital before regulation and production PdfService bytes pass the %PDF-
+%% signature and >1000-byte checks. This is not runtime PDF text extraction.
+%% Missing or mismatched capital BND suppresses only capital while regulation
+%% remains visible; tuple-free legacy regulation authority suppresses both.
+%% Exact strict-root plus ordered-BND restoration re-enables both before authority
+%% and numeric-snapshot replacement are re-proven fail closed. Production-default
+%% Maestro proves Dashboard and report capital ids absent. The run is synthetic-
+%% only, private fixture use is false and production OCR/external IO is not proven.
+%% The minimized proof is phase-37/ret-ref-01/
+%% lpp-capital-dossier-pdf-runtime-proof-a00b4c68a/.
+%% capital_notice_dossier_pdf_parity is closed/GREEN. Activation remains
+%% NO-GO/default-false; RET-REF remains ticket_only, G1 remains open at 8.2/10
+%% and G2/G3 remain forbidden.
 %% G1-RET-REF-01 AUTONOMOUS LPP REGULATION REALITY: the request-scoped backend
 %% classifier and real `/scan -> /scan/review -> /retraite` route remain the
 %% transport boundary. The plan response stays processing-only, zero-fact,

@@ -19,6 +19,14 @@
 > provider-backed and code-GREEN at pushed SHA `733571002` (2026-07-17).
 > Runtime Patrol/Maestro evidence and both Claude-wrapper audit lenses remain
 > pending; this is not ticket promotion, G1 closure, or G2/G3 authorization.
+> Focused LPP capital-notice dossier/PDF reality: the acquisition atom remains
+> runtime-GREEN at `36152b997fbf0c32c1120ddb61f0a8e9d589aa52`. At exact
+> pushed SHA `a00b4c68a272cbde9f21fee14662171c4a12530f`, the distinct-PID reader
+> boots the real `MintApp`, proves ordered `/rapport` sections, production PDF
+> bytes, fail-closed BND/legacy recovery and exact root+BND restoration.
+> Production-default Maestro proves the capital surfaces absent. The dossier/
+> PDF parity blocker is closed/GREEN, but activation stays NO-GO/default-false,
+> RET-REF stays `ticket_only`, G1 stays open at 8.2/10 and G2/G3 stay forbidden.
 > Focused LPP regulation autonomous technical reality: `df807024d` and
 > `40e24f608` make acquisition snapshotless, require the declared/non-verified
 > `fundRelationship`, allow a regulation-only cold profile and preserve the
@@ -972,7 +980,7 @@ fictive and must not expand the 36-key value allowlist.
 
 ### 7.1 Retirement evidence states — fail closed for AVS, LPP, and 3a
 
-#### LPP capital-notice deadline — G1-RET-REF-01 technical GREEN
+#### LPP capital-notice deadline — G1-RET-REF-01 acquisition + dossier/PDF runtime-GREEN; activation open
 
 At exact pushed runtime SHA `36152b997fbf0c32c1120ddb61f0a8e9d589aa52`, the
 technical atom is GREEN. `RetirementDashboardScreen` adds one educational
@@ -1015,8 +1023,38 @@ surface stays absent. The minimized proof is
 This path uses no new route and remains default-off. Runtime data is
 synthetic-only and private-fixture use is false. The production UI acquisition
 seam is proven, while external document/OCR IO remains synthetic.
-Capital-notice dossier/PDF parity and activation remain NO-GO. This technical
-atom does not promote RET-REF-01, close G1, or authorize G2/G3.
+
+At exact pushed SHA `a00b4c68a272cbde9f21fee14662171c4a12530f`, the same
+distinct-PID reader boots the real `MintApp` through
+`AccountSessionBootstrap`. `/rapport` independently resolves capital and
+regulation evidence, creates `LppCapitalNoticeSpecialistHandoff` only when both
+refer to `self`, the regulation is declared/unverified `currentFund`, and
+`sourceDate` plus `legalYear` match, then passes it through
+`FinancialReportService`. Dashboard, dossier and PDF consume the same
+`LppCapitalNoticeSectionContent` presenter. The dossier renders
+`financial_report_lpp_capital_notice_handoff` before
+`financial_report_lpp_regulation_handoff`. `PdfService` produces production
+bytes with the `%PDF-` signature and a size greater than 1000 bytes; the native
+proof does not claim PDF text extraction.
+
+- **Capital BND missing or mismatched:** the capital section is absent while
+  the independently resolved regulation section remains visible.
+- **Legacy regulation authority:** both sections are absent; no stale capital
+  tuple or declared fund relationship is reused.
+- **Exact recovery:** the strict root and ordered BND list are restored and
+  reloaded before both sections become visible again.
+- **Later replacement:** regulation-authority replacement and numeric snapshot
+  replacement suppress the capital handoff fail closed; regulation may remain
+  independently visible.
+- **Production default:** Maestro visits `/retraite` and `/rapport` and proves
+  both capital ids absent with all flags false.
+
+The runtime remains synthetic-only, uses no private fixture and does not prove
+production OCR/external IO. Its minimized proof is
+`phase-37/ret-ref-01/lpp-capital-dossier-pdf-runtime-proof-a00b4c68a/`.
+`capital_notice_dossier_pdf_parity` is closed/GREEN. Activation remains
+NO-GO/default-false, RET-REF remains `ticket_only`, G1 remains open at 8.2/10,
+and G2/G3 remain forbidden.
 
 #### LPP regulation reference — G1-RET-REF-01 autonomous + recovery + dossier/PDF runtime-GREEN atoms; activation open
 
