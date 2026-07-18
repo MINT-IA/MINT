@@ -45,6 +45,18 @@
 > consumer and replacement invalidation. The run is synthetic-only, used no
 > private fixture and used no production acquisition seam. The local flag stays
 > false; activation is NO-GO, RET-REF/G1 remain open and G2/G3 stay forbidden.
+> **Focused RET-REF-01 LPP regulation authority code-GREEN:** backend plan
+> classification (`e4ce7d6ca`), raw-free BND admission (`074883d57`), nested
+> schema-1 metadata (`196138024`), the serialized writer/cold Profile
+> (`c39cf8860`) and `DocumentProvider` record/resolve (`eed6884ac`) are bounded
+> code-GREEN. Bridge hardening at `0b1a03ef4` covers missing ledger, failed
+> metadata save, session termination and concurrent capital/regulation writes;
+> `5b324da5b` makes the BND kind alias reuse the canonical model constant. Both
+> bridge wrapper audits pass, but there is still no production mobile plan
+> acquisition/review caller, named reader/consumer, process-death runtime, full
+> accepted wrapper audit/evidence set or activation decision. The local flag
+> stays false; the row is
+> quarantined, activation is NO-GO, RET-REF/G1 remain open and G2/G3 forbidden.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -739,21 +751,28 @@ flag-off flow. The proof is synthetic-only, `private_fixture_used=false` and
 wrapper-only Opus-high audits pass with zero P0/P1. This technical atom does not
 activate the feature, promote RET-REF-01, close G1 or authorize G2/G3.
 
-#### 4.0.3 LPP regulation reference (G1-RET-REF-01 semantic RED)
+#### 4.0.3 LPP regulation reference (G1-RET-REF-01 authority code-GREEN; consumer/runtime missing)
 
-Current seams are adjacent, not end-to-end. Backend `DocumentType.lpp_plan` and its Vision prompt distinguish plan/regulation from personal certificate,
-but Docling `_detect_document_type` still collapses LPP wording to
-`lpp_certificate`; mobile `DocumentType`/`VaultDocumentType` have no `lppPlan`
-mapping; BND accepts only `lpp` and `lppCapitalNotice`. Existing
-`SpecialistReferenceKind.lppRegulation`/`CoachProfile` fields are shapes, not
-wiring. No production API, writer, resolver or consumer is claimed live.
+The bounded authority stack is code-GREEN. Backend `DocumentType.lpp_plan` and
+Docling exact plan classification distinguish a regulation from a personal
+certificate at `e4ce7d6ca`; BND admits only the exact self-owned raw-free
+`lppRegulation` kind at `074883d57`. Mobile persists the strict optional model
+at `196138024`, writes and cold-rebuilds it at `c39cf8860`, then records and
+resolves the exact tuple through `DocumentProvider` at `eed6884ac`.
+The hardened bridge contract at `0b1a03ef4` additionally fails closed for a
+missing ledger, metadata-save failure and session termination, and serializes
+concurrent capital-notice/regulation mutations. At `5b324da5b`,
+`ConfirmedDocumentReference.lppRegulationKind` aliases
+`LppRegulationReference.kind` instead of repeating a wire literal.
+`DocumentType`/`VaultDocumentType` still have no production `lppPlan` mapping or
+review caller, and no named screen reader or consumer is live.
 
-A plan/règlement describes fund rules; it is never authority for one person's salary, rate, scale, benefit, return or other fact. Exact plan classification
+A plan/règlement describes fund rules; it is never authority for one person's
+salary, rate, scale, benefit, return or other fact. Exact plan classification
 and explicit review of `sourceDate` plus `legalYear` are mandatory; personal
-certificates remain negative. The target optional metadata is:
+certificates remain negative. The implemented optional metadata is:
 
 ```text
-TARGET — not implemented:
 self.lppRegulationReference {
   referenceId: lowercase canonical UUIDv4
   kind: lppRegulation
@@ -765,29 +784,37 @@ self.lppRegulationReference {
 }
 ```
 
-It requires the current non-empty strict self snapshot and a new local
-`lppRegulationReferenceEnabled` flag, default false and absent from remote
-activation. The target provider writer is serialized and save-before-publish;
-it preserves snapshot UUID/facts, generates ID/time once, returns the same
-receipt for an identical retry, requires the exact previous reference for
-replacement, and drops metadata on a new numeric self snapshot. It does not
-change schema 1 or the 13-value fact allowlist.
+It requires the current non-empty strict self snapshot and the local
+`lppRegulationReferenceEnabled` flag, which defaults false and is absent from
+remote activation. `CoachProfileProvider.acceptLppRegulationReference` is
+serialized and save-before-publish: it preserves the snapshot UUID, facts and
+sibling capital-notice metadata, generates ID/time once, returns the persisted
+receipt for an identical retry, requires the exact previous reference for a
+semantic replacement, and drops both optional metadata records on a new numeric
+self snapshot. It does not change schema 1 or the 13-value fact allowlist.
 
-BND stores/resolves only the unchanged raw-free tuple `{referenceId,
-kind=lppRegulation, snapshotId, ownerKind=self, confirmedAt}`. Cold resolution
-requires ready hydration plus the exact current snapshot; generic `lpp`,
-`manualPartner`, factless/malformed/replaced roots and tuple mismatch resolve
-null. The first real consumer is educational Dashboard metadata, then
-specialist-handoff metadata only: no bytes/path/OCR, values, advice or new route.
+`DocumentProvider.recordLppRegulation` stores only the unchanged raw-free tuple
+`{referenceId, kind=lppRegulation, snapshotId, ownerKind=self, confirmedAt}`.
+`resolveLppRegulation` requires ready hydration, the exact cold-derived
+`CoachProfile.lppRegulationReference`, the current self snapshot and all tuple
+fields. Generic `lpp`, `manualPartner`, factless/malformed/replaced roots,
+failed hydration and tuple mismatch resolve null. Educational Dashboard metadata
+and specialist-handoff metadata remain future consumers only: no bytes/path/OCR,
+values, advice or new route are authorized.
 
-Smallest RED: `apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart` expects exact raw-free
-`lppRegulation` BND parsing and rejects generic LPP, capital-notice, certificate
-aliases and payload/value keys; it fails on today's kind allowlist without a
-missing API. Implement separately: (1) backend Docling + exact Vision classifier, then (2) mobile kind/review + ledger/BND/consumer. Existing private certificates
-and `negative_plan` numeric fixtures stay negative; a private plan becomes a
-positive classifier fixture only in a second versioned, human-reviewed manifest,
-never by auto-relabeling. The row stays `missing`; activation is NO-GO,
-RET-REF/G1 remain open and G2/G3 remain forbidden.
+The bounded gates are the backend plan-classifier suite plus
+`lpp_regulation_reference_document_authority_test.dart`,
+`lpp_regulation_reference_ledger_contract_test.dart`,
+`lpp_regulation_reference_provider_test.dart` and
+`lpp_regulation_reference_document_bridge_test.dart`, including its hardening
+cases. The two bounded bridge wrapper audits pass. Existing private certificates
+and `negative_plan` numeric fixtures stay negative; a private plan may become a
+positive classifier fixture only in a second versioned, human-reviewed
+manifest, never by auto-relabeling. The authority is code-GREEN but the matrix
+row remains quarantined until a production acquisition seam, named consumer,
+process-death runtime, writer/model wrapper closures and the full accepted
+wrapper audit/evidence set exist. Activation is NO-GO, RET-REF/G1 remain open
+and G2/G3 remain forbidden.
 
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,

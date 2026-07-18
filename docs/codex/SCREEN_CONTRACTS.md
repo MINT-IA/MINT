@@ -996,14 +996,21 @@ synthetic-only, private-fixture use is false, and no production acquisition
 seam exists. Activation is therefore NO-GO. This technical atom does not
 promote RET-REF-01, close G1, or authorize G2/G3.
 
-#### LPP regulation reference — G1-RET-REF-01 semantic RED
+#### LPP regulation reference — G1-RET-REF-01 authority code-GREEN; screen consumer missing
 
-No screen is live: backend knows `lpp_plan`, but Docling collapses LPP to
-`lpp_certificate`, mobile has no plan mapping/review, and BND rejects
-`lppRegulation`. Target id `retirement_lpp_regulation_reference_education` is
-hidden unless a local default-false/non-remote flag is on, exact plan authority
-was reviewed with `sourceDate`+`legalYear`, the current strict self snapshot is
-non-empty, and cold BND resolution joins the exact raw-free tuple.
+No screen is live. Backend plan classification, raw-free BND admission, the
+nested model, serialized writer/cold Profile projection and
+`DocumentProvider.recordLppRegulation`/`resolveLppRegulation` are bounded
+code-GREEN at implementation SHA `eed6884ac`; `0b1a03ef4` hardens missing-ledger,
+save-failure, session-termination and concurrent capital/regulation behavior,
+and `5b324da5b` canonicalizes the regulation kind alias. Mobile still has no
+production plan mapping/acquisition-review caller, Dashboard renderer or
+specialist handoff.
+Target id `retirement_lpp_regulation_reference_education` therefore remains
+absent. A future consumer stays hidden unless the local default-false/non-remote
+flag is on, exact plan authority was reviewed with `sourceDate`+`legalYear`, the
+current strict self snapshot is non-empty, and cold BND resolution joins the
+exact raw-free tuple.
 
 - **Known:** neutral Dashboard education, then specialist-handoff metadata only.
 - **Missing/conflict:** certificate/ambiguous kind, flag off, `manualPartner`,
@@ -1013,11 +1020,16 @@ non-empty, and cold BND resolution joins the exact raw-free tuple.
 - **Replacement:** identical retry is idempotent; semantic replacement is
   explicit; a new numeric self snapshot invalidates the reference.
 
-First RED is `apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart`; backend classifier/
-Docling reconciliation precedes the separate mobile authority/consumer stage.
-Private certificates stay negative; plans become positive only through a second
-human-reviewed manifest. Status remains `missing`, activation NO-GO, RET-REF/G1
-open and G2/G3 forbidden.
+The authority gates are the backend classifier suite plus
+`lpp_regulation_reference_document_authority_test.dart`,
+`lpp_regulation_reference_ledger_contract_test.dart`,
+`lpp_regulation_reference_provider_test.dart` and
+`lpp_regulation_reference_document_bridge_test.dart`. Private certificates stay
+negative; plans become positive only through a second human-reviewed manifest.
+Both bridge wrapper audits pass. The authority is code-GREEN, but acquisition,
+named reader/consumer, process-death runtime, writer/model wrapper closures and
+the full accepted wrapper audit/evidence set remain missing. Activation is
+NO-GO, RET-REF/G1 stay open and G2/G3 forbidden.
 
 `/rapport` and its PDF export consume evidence-bearing ledger facts; they do
 not recreate pension entitlements from illustrative inputs. The three pillars

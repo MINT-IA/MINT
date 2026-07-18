@@ -33,7 +33,16 @@
 %% unchanged raw-free BND tuple, cold Dashboard consumer and replacement
 %% invalidation are proven. The flag remains false, the run is synthetic-only,
 %% private fixture use is false and no production acquisition seam exists.
-%% Neither atom promotes the ticket, closes G1 or authorizes G2/G3.
+%% The LPP regulation authority stack is separately code-GREEN through exact SHA
+%% eed6884ac: backend classification, self-only raw-free BND, nested schema-1
+%% metadata, serialized writer/cold Profile and DocumentProvider record/resolve.
+%% Hardening @ 0b1a03ef4 covers missing ledger, save failure, session termination
+%% and concurrent capital/regulation writes; 5b324da5b aliases the BND kind to
+%% the canonical model constant. Both bridge wrapper audits pass, but the full
+%% accepted wrapper audit/evidence set is not closed.
+%% It still has no production acquisition caller, named consumer, process-death
+%% runtime, writer/model audit closure or activation decision. No RET-REF atom
+%% promotes the ticket, closes G1 or authorizes G2/G3.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -216,39 +225,46 @@ flowchart TB
 
   LCN_WRITE -- "single serialized provider mutation" --> CPP
 
-  %% Observed gaps + target-only edges; no target API below is live.
-  subgraph LPP_REGULATION_REFERENCE["G1-RET-REF-01 — LPP REGULATION REFERENCE (SEMANTIC RED)"]
+  %% Authority is code-GREEN; product acquisition, consumer and runtime are not.
+  subgraph LPP_REGULATION_REFERENCE["G1-RET-REF-01 — LPP REGULATION AUTHORITY CODE-GREEN / CONSUMER-RUNTIME MISSING"]
     direction TB
-    LRR_BE["CURRENT backend lpp_plan + Vision distinction"]
-    LRR_COLLAPSE["CURRENT Docling LPP -> lpp_certificate"]
-    LRR_MOBILE["CURRENT no mobile lppPlan mapping/review"]
-    LRR_BND_GAP["CURRENT BND rejects lppRegulation"]
-    LRR_RED["FIRST RED<br/>lpp_regulation_reference_document_authority_test.dart"]
-    LRR_CLASSIFY["TARGET backend exact plan classifier<br/>certificate/ambiguous rejected"]
-    LRR_REVIEW["TARGET separate mobile review<br/>explicit sourceDate + legalYear<br/>plan values never person facts"]
+    LRR_BACKEND_GREEN["CODE-GREEN backend @ e4ce7d6ca<br/>exact lpp_plan classifier<br/>certificate/ambiguous rejected"]
+    LRR_ACQ_GAP["MISSING production mobile acquisition<br/>no lppPlan mapping or review caller"]
+    LRR_BND_GREEN["CODE-GREEN BND @ 074883d57<br/>self-only exact raw-free lppRegulation kind"]
+    LRR_CODE_GATES["bounded classifier + authority + model<br/>provider writer + document bridge gates"]
+    LRR_REVIEW["implemented typed confirmation<br/>explicit sourceDate + legalYear<br/>plan values never person facts"]
     LRR_PRIVATE["private certs negative<br/>plans positive only via second human-reviewed manifest"]
-    LRR_FLAG{"TARGET local-only flag<br/>default false"}
-    LRR_SELF{"TARGET current non-empty strict self snapshot"}
-    LRR_WRITE["TARGET serialized save-before-publish writer<br/>idempotent + explicit replacement"]
-    LRR_ROOT[("TARGET _coach_lpp_evidence_v1<br/>self.lppRegulationReference metadata only")]
-    LRR_BND["TARGET exact raw-free lppRegulation tuple<br/>cold resolver + current snapshot"]
-    LRR_DASH["TARGET educational Dashboard consumer"]
-    LRR_HANDOFF["TARGET specialist metadata-only handoff<br/>no advice/raw doc/new route"]
+    LRR_FLAG{"local-only flag<br/>default false + not remotely hydrated"}
+    LRR_SELF{"current non-empty strict self snapshot<br/>exact expected snapshot id"}
+    LRR_WRITE["CoachProfileProvider.acceptLppRegulationReference @ c39cf8860<br/>serialized save-before-publish<br/>idempotent + explicit replacement"]
+    LRR_ROOT[("_coach_lpp_evidence_v1 schema 1 @ 196138024<br/>self.lppRegulationReference metadata only<br/>preserve sibling capital notice")]
+    LRR_RECEIPT["exact receipt<br/>referenceId + kind=lppRegulation<br/>snapshotId + ownerKind=self + confirmedAt"]
+    LRR_BND[("DocumentProvider.recordLppRegulation @ eed6884ac<br/>hardening @ 0b1a03ef4 + canonical kind @ 5b324da5b<br/>unchanged raw-free tuple + serialized replacement")]
+    LRR_COLD["cold CoachProfile.fromWizardAnswers<br/>flag-gated strict self candidate"]
+    LRR_RESOLVE{"DocumentProvider.resolveLppRegulation<br/>ready hydration + exact tuple<br/>+ current self snapshot"}
+    LRR_DASH_GAP["MISSING named educational Dashboard consumer<br/>target id not rendered"]
+    LRR_HANDOFF_GAP["MISSING specialist metadata-only handoff<br/>no advice/raw doc/new route"]
+    LRR_RUNTIME_GAP["MISSING process-death runtime<br/>writer/model + full evidence closure<br/>activation NO-GO"]
     LRR_HIDDEN["missing/conflict/new numeric snapshot -> hidden"]
 
-    LRR_BE --> LRR_COLLAPSE
-    LRR_MOBILE --> LRR_RED
-    LRR_BND_GAP --> LRR_RED
-    LRR_RED -. "backend stage" .-> LRR_CLASSIFY -. "mobile stage" .-> LRR_REVIEW
-    LRR_PRIVATE -. "human-reviewed only" .-> LRR_REVIEW -.-> LRR_FLAG
-    LRR_FLAG -. "on after future decision" .-> LRR_SELF
-    LRR_FLAG -. "off" .-> LRR_HIDDEN
-    LRR_SELF -. "exact" .-> LRR_WRITE -.-> LRR_ROOT -.-> LRR_BND
-    LRR_BND -. "exact cold resolve" .-> LRR_DASH -.-> LRR_HANDOFF
-    LRR_DASH -. "new numeric self snapshot" .-> LRR_HIDDEN
+    LRR_BACKEND_GREEN --> LRR_CODE_GATES
+    LRR_BND_GREEN --> LRR_CODE_GATES
+    LRR_ACQ_GAP -. "bounded synthetic confirmation only" .-> LRR_REVIEW
+    LRR_PRIVATE -. "human-reviewed only" .-> LRR_REVIEW --> LRR_FLAG
+    LRR_FLAG -- "off" --> LRR_HIDDEN
+    LRR_FLAG -- "test-only on" --> LRR_SELF
+    LRR_SELF -- "exact" --> LRR_WRITE --> LRR_ROOT
+    LRR_WRITE --> LRR_RECEIPT --> LRR_BND
+    LRR_ROOT --> LRR_COLD --> LRR_RESOLVE
+    LRR_BND --> LRR_RESOLVE
+    LRR_RESOLVE -- "no" --> LRR_HIDDEN
+    LRR_RESOLVE -. "consumer not implemented" .-> LRR_DASH_GAP
+    LRR_DASH_GAP -.-> LRR_HANDOFF_GAP
+    LRR_DASH_GAP -.-> LRR_RUNTIME_GAP
+    LRR_ROOT -- "new numeric self snapshot" --> LRR_HIDDEN
   end
 
-  LRR_WRITE -. "TARGET serialized provider mutation" .-> CPP
+  LRR_WRITE -- "single serialized provider mutation" --> CPP
 
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
@@ -801,4 +817,18 @@ flowchart TB
 %% certificates, inference, manualPartner and factless roots fail closed.
 %% Technical atom GREEN is not feature activation or ticket promotion:
 %% RET-REF/G1 remain open and G2/G3 remain forbidden.
+%% G1-RET-REF-01 LPP REGULATION AUTHORITY REALITY: exact backend plan
+%% classification is GREEN at e4ce7d6ca, BND admits only the self-owned raw-free
+%% kind at 074883d57, schema-1 metadata is strict at 196138024, and the serialized
+%% writer/cold Profile path is GREEN at c39cf8860. At eed6884ac, DocumentProvider
+%% stores and resolves the identical receipt tuple only after exact hydration and
+%% current-snapshot matching. Hardening at 0b1a03ef4 covers missing ledger,
+%% metadata-save failure, session termination and concurrent capital/regulation
+%% writes; 5b324da5b makes the BND kind reuse the canonical model constant.
+%% Generic LPP, manualPartner, factless/replaced roots, flag-off and tuple drift
+%% fail closed. Both bridge wrapper audits pass, but the authority has no
+%% production plan acquisition caller, named reader/consumer, process-death
+%% runtime, writer/model wrapper closure, full accepted wrapper audit/evidence
+%% set or activation decision. Its matrix row is quarantined; RET-REF/G1 remain
+%% open, activation is NO-GO and G2/G3 remain forbidden.
 %% ============================================================================
