@@ -22,13 +22,12 @@ def _repository_contract_job() -> str:
     return source[start:end]
 
 
-def test_repository_contract_job_has_full_history_and_import_dependencies() -> None:
+def test_repository_contract_job_has_full_history_and_installs_backend() -> None:
     job = _repository_contract_job()
     assert "fetch-depth: 0" in job
     install = next(line for line in job.splitlines() if "pip install" in line)
     assert "pytest" in install
-    assert "pyyaml" in install
-    assert "fastapi" in install
+    assert "-e services/backend" in install
 
 
 @pytest.mark.parametrize("relative_path", RUNTIME_SCRIPTS)

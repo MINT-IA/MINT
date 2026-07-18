@@ -741,8 +741,8 @@ jobs:
             ~/.npm
             ~/.cache/puppeteer
           key: ${{ runner.os }}-mermaid-cli-11.4.2
-      - name: Install pytest
-        run: pip install pytest pyyaml fastapi
+      - name: Install repository contract dependencies
+        run: pip install pytest -e services/backend
       - name: Render Mermaid diagrams
         run: python3 tools/checks/mermaid_render_guard.py
       - name: Run repository contract tests
