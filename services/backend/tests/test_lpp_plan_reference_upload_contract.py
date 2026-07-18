@@ -62,6 +62,40 @@ _SYNTHETIC_PERSONAL_CERTIFICATE_TEXTS = {
 }
 
 
+_NOISY_PERSONAL_CERTIFICATE_TEXTS = {
+    "fr": """
+        *** DUPLICATA — CERTIFICAT INDIVIDUEL DE PRÉVOYANCE ***
+        Personne assurée : PERSONNE SYNTHÉTIQUE
+        Salaire assuré : CHF 81'000.00
+        Avoir de vieillesse : CHF 123'000.00
+        Les prestations sont régies par le règlement de prévoyance et le plan
+        de prévoyance de la caisse.
+    """,
+    "de": """
+        *** ARCHIVKOPIE — PERSÖNLICHER VORSORGEAUSWEIS ***
+        Versicherte Person: SYNTHETISCHE PERSON
+        Versicherter Lohn: CHF 81'000.00
+        Altersguthaben: CHF 123'000.00
+        Massgebend sind das Vorsorgereglement und der Vorsorgeplan der Kasse.
+    """,
+    "it": """
+        *** DUPLICATO — CERTIFICATO PERSONALE DI PREVIDENZA ***
+        Persona assicurata: PERSONA SINTETICA
+        Salario assicurato: CHF 81'000.00
+        Avere di vecchiaia: CHF 123'000.00
+        Si applicano il regolamento di previdenza e il piano di previdenza.
+    """,
+}
+
+
+_GENERAL_PLAN_WITH_PERSONAL_TERMS = """
+    RÈGLEMENT DE PRÉVOYANCE PROFESSIONNELLE
+    Le présent plan définit de manière générale la personne assurée, le salaire
+    assuré et la constitution de l'avoir de vieillesse. Il ne nomme aucune
+    personne et ne certifie aucun montant individuel.
+"""
+
+
 @pytest.mark.parametrize(
     "language, text",
     _SYNTHETIC_PLAN_TEXTS.items(),
@@ -78,6 +112,19 @@ def test_explicit_lpp_plan_or_regulation_is_classified_as_plan(language, text):
 )
 def test_explicit_personal_certificate_wins_over_plan_reference(language, text):
     assert _detect_document_type(text) == "lpp_certificate", language
+
+
+@pytest.mark.parametrize(
+    "language, text",
+    _NOISY_PERSONAL_CERTIFICATE_TEXTS.items(),
+    ids=_NOISY_PERSONAL_CERTIFICATE_TEXTS.keys(),
+)
+def test_noisy_personal_certificate_facts_win_over_plan_reference(language, text):
+    assert _detect_document_type(text) == "lpp_certificate", language
+
+
+def test_general_plan_terms_without_individual_facts_remain_plan():
+    assert _detect_document_type(_GENERAL_PLAN_WITH_PERSONAL_TERMS) == "lpp_plan"
 
 
 @pytest.mark.parametrize(
