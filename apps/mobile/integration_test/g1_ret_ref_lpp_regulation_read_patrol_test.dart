@@ -12,9 +12,11 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:patrol/patrol.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
 const _firstNumericAcquisitionId = '62626262-6262-4262-8262-626262626262';
@@ -23,6 +25,10 @@ const _firstNumericMarker =
     '%PDF-1.7 MINT synthetic first numeric LPP bytes only';
 const _replacementMarker =
     '%PDF-1.7 MINT synthetic replacement numeric LPP bytes only';
+
+void _requireRuntimeValue(Object? value, String message) {
+  if (value == null) fail(message);
+}
 
 Widget _dashboard({
   required CoachProfileProvider provider,
@@ -115,6 +121,51 @@ void main() {
       });
 
       final now = DateTime.now().toUtc();
+      final preferences = await SharedPreferences.getInstance();
+      final encodedWizardCache = preferences.getString('wizard_answers_v2');
+      if (encodedWizardCache == null) {
+        fail('Missing wizard cache before the cold regulation reader');
+      }
+      final wizardCache = jsonDecode(encodedWizardCache);
+      expect(wizardCache, isA<Map<String, dynamic>>());
+      expect(
+        (wizardCache as Map<String, dynamic>)['_coach_lpp_evidence_v1'],
+        '__secure__',
+        reason: 'the cache must retain only the secure LPP placeholder',
+      );
+      final activeAuthoritySlot =
+          preferences.getString('coach_authority_active_slot_v1');
+      if (activeAuthoritySlot == null) {
+        fail('Missing strict authority pointer before the cold reader');
+      }
+
+      final persistedAnswers = await ReportPersistenceService.loadAnswers();
+      final persistedRoot = LppEvidenceRoot.fromJsonString(
+        persistedAnswers['_coach_lpp_evidence_v1'],
+        now: () => now,
+      );
+      if (persistedRoot == null) {
+        fail('Missing or malformed strict LPP root before provider hydration');
+      }
+      expect(
+        persistedRoot.self,
+        isNull,
+        reason: 'the process-death reader must start regulation-only',
+      );
+      final persistedRegulation = persistedRoot.selfRegulationReference;
+      if (persistedRegulation == null) {
+        fail('Missing strict regulation reference before provider hydration');
+      }
+      final persistedDocumentReferences = await DocumentReferenceStore().load();
+      final hasPersistedDocumentReference =
+          persistedDocumentReferences.any((reference) {
+        return reference.referenceId == persistedRegulation.referenceId &&
+            reference.kind == ConfirmedDocumentReference.lppRegulationKind;
+      });
+      if (!hasPersistedDocumentReference) {
+        fail('Missing opaque document reference before provider hydration');
+      }
+
       final provider = CoachProfileProvider(now: () => now);
       final documents = DocumentProvider(now: () => now);
       addTearDown(provider.dispose);
@@ -131,8 +182,18 @@ void main() {
         isNull,
         reason: 'cold regulation authority must not require numeric LPP facts',
       );
+      expect(provider.isLoaded, isTrue);
+      final coldProfile = provider.profile;
+      if (coldProfile == null) {
+        fail('Provider did not hydrate the valid regulation-only strict root');
+      }
       final candidate = provider.profile!.lppRegulationReference;
       expect(candidate, isNotNull);
+      _requireRuntimeValue(
+        candidate,
+        'Cold profile omitted the persisted regulation reference',
+      );
+      expect(candidate?.referenceId, persistedRegulation.referenceId);
       final dynamic typedCandidate = candidate;
       final resolved = documents.resolveLppRegulation(candidate);
       expect(resolved, isNotNull);
