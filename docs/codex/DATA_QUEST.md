@@ -11,11 +11,15 @@
 > ConfidenceScorer/DataBlock prompt and does not implement the missing generic
 > DataQuest orchestrator, promote the ticket, close G1 or authorize G2/G3.
 >
-> **Focused LPP regulation handoff boundary:** the production code vertical at
-> `deb199c7f` ends in six specialist-preparation questions. They are static,
+> **Focused LPP regulation handoff boundary:** the autonomous technical atom at
+> exact pushed SHA `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` ends in six
+> specialist-preparation questions. They are static,
 > conditional educational prompts over one exact metadata reference, not
 > `DataQuest` Asks: they collect no answer, rank no product and write no fact.
-> Runtime/activation remain NO-GO.
+> The synthetic runtime passes 2/2 with a distinct-PID regulation-only cold
+> reader and 22/22 retained logs. `fundRelationship` remains a declared,
+> non-verified relationship, not a DataQuest answer or caisse attestation.
+> Activation remains NO-GO; RET-REF stays `ticket_only`.
 
 ## 0. One sentence
 
@@ -190,10 +194,12 @@ focused journey `docs/codex/PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd`.
 ### 7.2 G1-RET-REF-01 — LPP regulation specialist handoff is not a quest
 
 The exact plan review collects only authority metadata (`sourceDate`,
-`legalYear`) inside `/scan/review`; it does not ask for or infer personal LPP
-values. After the accepted reference cold-resolves, `/retraite` may display six
-ordered preparation topics: buy-back, conversion, flexible retirement,
-disability, survivors and divorce.
+`legalYear`) plus the mandatory user-declared `fundRelationship`
+(`currentFund`, `uncertain`, `formerOrOther`) inside `/scan/review`; it does not
+ask for or infer personal LPP values, and does not verify the caisse. The
+reference is autonomous from numeric LPP snapshots. After it cold-resolves,
+`/retraite` may display six ordered preparation topics: buy-back, conversion,
+flexible retirement, disability, survivors and divorce.
 
 These are **questions to take to a pension fund or specialist**, not ledger
 collection prompts. They have no `fieldPath`, `AskMode`, impact score, answer
@@ -202,6 +208,16 @@ local. Missing/flag-off/tuple-drift authority hides the entire handoff rather
 than turning its text into a generic DataQuest. Any future answer capture must
 be a separately specified typed ledger/Case slice; it may not retrofit values
 into this metadata reference.
+
+The exact pushed runtime SHA
+`6066f1c94786aa1bc4697c29b4a670b7cea3dca4` proves the regulation-only writer
+and distinct-PID cold reader, then preserves the reference through numeric LPP
+addition and replacement. The minimized sanitized proof is tracked at
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`;
+the complete 22/22-log runtime and P0/P1=0 audit archives remain local excluded
+provenance. This runtime changes neither DataQuest scope nor activation.
+Visible legacy/mismatch recovery and PDF/dossier caveat parity remain separate
+pre-activation work, not new DataQuest Asks.
 
 ## 8. Acceptance criteria (Codex/CI must verify)
 

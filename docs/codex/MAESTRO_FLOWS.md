@@ -17,12 +17,16 @@
 > proof rather than shipping-default chrome evidence. COACH-01 is GREEN; the
 > global Maestro+Patrol `G1-RUNTIME-01` remains `red_proven`.
 >
-> **G1 LPP regulation code reality:** the former acquisition facade is now a
-> real default-off `/scan -> /scan/review -> /retraite` code path through
-> `73b505bcf` and `4907667b8` (compile repair `deb199c7f`), backed by the
-> request-scoped/no-cache backend at `b30e3c109`. No dedicated exact-SHA
-> Maestro/Patrol flow is checked in or accepted yet. The runtime row below is
-> therefore a required target, not a pass; activation and G1 remain NO-GO.
+> **G1 LPP regulation autonomous runtime:** exact pushed SHA
+> `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` passes one Patrol native
+> writer/read suite 2/2 with a distinct PID, regulation-only cold hydration and
+> numeric add/replacement preservation. Production export/build/sign/install,
+> Maestro before/after default-off, container/state identity, cleanup/privacy
+> and 22/22 logs pass. `fundRelationship=currentFund` is selected as a
+> declaration, not verified caisse authority. The minimized tracked proof is
+> `phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`; full detailed
+> archives remain local excluded provenance. RET-REF stays `ticket_only`, all
+> flags stay false, activation and G1 remain NO-GO.
 
 ## 0. Reality check — partial Maestro setup exists
 
@@ -194,94 +198,93 @@ appId: ch.mint.app
 - assertVisible: { id: "succession_parents_note" }
 ```
 
-## 1A. G1 LPP regulation — required dual runtime proof (NOT RUN)
+## 1A. G1 LPP regulation — exact autonomous dual runtime proof (PASS)
 
-The production code now has stable controls, but no checked-in exact-SHA run
-proves the whole plan path on a device. Do not reuse the personal-certificate
-PROV-02 runtime as a substitute: `lpp_plan` has a different PDF-only, zero-fact,
-request-scoped backend boundary and a different review writer.
+This proof is specific to `lpp_plan`; it does not borrow PROV-02 personal-
+certificate evidence. The path is autonomous from numeric LPP snapshots and
+remains default-off. `fundRelationship` is a required user declaration, never
+objective caisse verification.
 
-Private plans/certificates are deliberately outside this runtime. The ignored
-local `lpp_private_fixture_gate_test.dart` has seven sanitized classification
-cases, including a plan, and is the only private-fixture gate. Runtime and
-retained evidence must contain no private-manifest variable, ignored-fixture
-path, document hash or raw bytes and must declare `private_fixture_used=false`.
-Backend zero-fact/no-row/no-cache/no-RAG/raw-preview behavior remains proven by
-its focused backend tests and accepted audits, not borrowed from a mocked mobile
-runtime response.
-
-### Patrol exact-SHA target — production-shaped synthetic input and process death
-
-The checked-in runtime atom must contain the production integration targets,
-their thin Patrol wrappers and one exact-SHA orchestrator:
+### Checked-in targets
 
 - `integration_test/g1_ret_ref_lpp_regulation_write_patrol_test.dart`
 - `integration_test/g1_ret_ref_lpp_regulation_read_patrol_test.dart`
-- `test/patrol/g1_ret_ref_lpp_regulation_write_runtime_test.dart`
-- `test/patrol/g1_ret_ref_lpp_regulation_read_runtime_test.dart`
+- `test/patrol/g1_ret_ref_lpp_regulation_01_write_runtime_test.dart`
+- `test/patrol/g1_ret_ref_lpp_regulation_02_read_runtime_test.dart`
+- `integration_test/support/g1_ret_ref_lpp_regulation_runtime_contract.dart`
 - `tools/simulator/patrol_lpp_regulation_process_death.sh`
+- `.maestro/g1_ret_ref_lpp_regulation_flag_off_before.yaml`
+- `.maestro/g1_ret_ref_lpp_regulation_flag_off_after.yaml`
 
-The writer must exercise the production-shaped widgets, providers and route
-payload. Injection is allowed only at the OS/network boundaries: a synthetic
-PDF picker result, granted `visionExtraction` consent and an exact zero-fact
-`DocumentUploadResult` for `VaultDocumentType.lppPlan`. It must never call
-`acceptLppRegulationReference` or `recordLppRegulation` directly.
+The orchestrator requires an exact pushed SHA, exports the production source,
+builds/signs/installs the production entrypoint, and runs the pre-PATROL Maestro
+flag-off flow. It then builds Patrol once with `FULL_ISOLATION=0` and the two
+lexicographically ordered wrappers above. One non-parallel
+`xcodebuild test-without-building` suite runs both native tests; the independent
+xcresult summary must be exactly 2 passed / 0 failed.
 
-1. Create a non-empty strict self snapshot through the existing typed numeric
-   review seam and enable exactly the three process-static regulation flags.
-2. Pump `DocumentScanScreen(initialType: DocumentType.lppPlan)`, select
-   `document_scan_lpp_plan_type_selector` and tap
-   `document_scan_gallery_cta`. Assert camera/paste/debug paths are absent.
-3. Inject synthetic `%PDF` bytes through `pickFile`; assert consent is exactly
-   `[visionExtraction]`; assert `uploadDocument` receives
-   `VaultDocumentType.lppPlan` and returns the strict empty/zero/RAG-false
-   response shape.
-4. Observe the production navigation URI. Its sole query key is
-   `scanSessionId`; it contains neither the synthetic backend processing id nor
-   document material. Resolve that session and pass its regulation candidate
-   into the production review screen.
-5. Enter canonical values through `lpp_regulation_review_source_date` and
-   `lpp_regulation_review_legal_year`, then tap
-   `lpp_regulation_review_confirm_cta`. Thin provider spies may call `super` only
-   to observe the production UI seam; assert exact event order `accept, record`,
-   raw-free stores, discarded scan session and the retirement card.
-6. Terminate the app process. The separate read target starts from the normal
-   entrypoint, cold-loads the strict root and reference store, hydrates
-   `DocumentProvider`, resolves the exact Dashboard card and opens the local
-   sheet/privacy boundary.
-7. Write a replacement numeric self-LPP snapshot through the existing numeric
-   review seam and prove the regulation reference/card disappear. No cached
-   GREEN survives authority replacement.
+### Writer contract
 
-`legalYear` 1900...9999 is only the technical serialization bound; it does not
-validate which legal version applies. The prerequisite numeric snapshot is
-also not proof that this regulation belongs to the current pension fund and it
-excludes a regulation-only journey. Therefore this runtime can validate the
-snapshot-bound transport/writer/cold-reader atom but cannot authorize product
-activation or G1 closure. A future G1 slice must decide and implement a
-separately attested fund reference — current fund, uncertain, or former/other
-fund — without importing plan values into facts or calculations.
+The writer starts with no numeric self-LPP snapshot, exercises the production-
+shaped `/scan -> /scan/review -> /retraite` widgets/providers, injects only a
+synthetic PDF picker result and the strict zero-fact `lpp_plan` transport result,
+and asks only `visionExtraction`. It selects `currentFund` through the real
+review control, which records only the selected relationship; it neither
+verifies fund identity nor establishes applicability. It proves exact
+`accept, record` ordering, a discarded volatile
+session, regulation-only schema-2 root persistence, a snapshotless raw-free
+DocumentProvider tuple, Dashboard visibility, and absence of the synthetic raw
+marker, backend processing id and document hash from durable state. It stores a
+test-only PID witness after durable writes complete.
 
-### Maestro production-default before/after targets
+### Distinct-process cold reader contract
 
-Two flows bracket the Patrol write/process-death run:
+Patrol's native relaunch starts the reader in a new application process. The
+reader fails closed unless the writer PID exists and differs from `dart:io pid`.
+No uninstall, reset, backup or second Patrol build occurs between writer and
+reader. The reader verifies the secure wizard placeholder, authority pointer,
+strict regulation-only root, opaque document reference, real
+`CoachProfileProvider.loadFromWizard()` hydration and Dashboard/sheet privacy
+boundary. It then writes a first numeric self-LPP snapshot and a replacement
+numeric snapshot through the production provider seam; both must preserve the
+same regulation reference and declared relationship.
 
-- `apps/mobile/.maestro/g1_ret_ref_lpp_regulation_flag_off_before.yaml`
-- `apps/mobile/.maestro/g1_ret_ref_lpp_regulation_flag_off_after.yaml`
+A post-suite `simctl launch/terminate` is retained only as a production
+lifecycle check; metadata names it `post_suite_lifecycle_only`, never the
+writer/read boundary. The orchestrator captures the post-suite container and
+canonical three-value state, reinstalls the production app, runs the after-
+Maestro flag-off flow without clearing state, and requires the container
+identity plus exact state to remain unchanged.
 
-Both use the normal production entrypoint with all three flags false. Before
-uses `clearState:true`; after preserves state with `clearState:false`. They open
-`/scan?type=lppPlan` and `/retraite`, assert ordinary landing/scan recovery is
-visible, and assert all plan acquisition, review, Dashboard card and sheet ids
-are absent. They perform no tap or input and retain no raw Maestro media.
+### Accepted exact-SHA result
 
-Acceptance requires the exact pushed SHA, physical production-source export,
-build/sign/install commands, Patrol writer/read xcresult counts, both Maestro
-exit codes, sanitized metadata/logs and `private_fixture_used=false`. Post-writer
-Sonnet reruns plus Opus final code/product confirmations already pass with
-P0/P1=0; archive those outputs with the runtime bundle rather than rerunning an
-audit carousel. Until the tracked bundle is accepted, this section stays
-**NOT RUN** and no ticket/activation promotion is allowed.
+At pushed SHA `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`:
+
+- Patrol suite: **2 passed / 0 failed**, `FULL_ISOLATION=0`, distinct PID true.
+- Production export/build/CodeSign/xattr/install before and after: exit 0.
+- Maestro before/after with all three production flags false: exit 0.
+- Post-suite state/container captured; production reinstall and Maestro preserve
+  identity and exact canonical state.
+- Doctor, Patrol guard, cleanup and normal-build restoration: PASS.
+- Privacy: synthetic only, private fixture false, no retained raw bytes/hash,
+  simulator identifier or xcresult.
+- Evidence completeness: `logs == expected_logs == 22`.
+- Bounded wrapper Opus-high code/product-domain source audit: aggregate
+  **P0=0 / P1=0**.
+
+The complete runtime archive
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-autonomous-runtime-6066f1c94786a-20260718T101106Z/`
+and detailed audit archive
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-autonomous-runtime-harness-6066f1c94/`
+are local excluded provenance, not Git-tracked bundles. The minimized sanitized
+proof is tracked at
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`.
+
+This PASS closes the autonomous process-death/default-off runtime gap only. It
+does not activate the feature or objectively verify `currentFund`. Visible
+legacy/mismatch recovery, PDF/dossier caveat parity and the other RET-REF
+obligations remain open; all flags stay false, `G1-RET-REF-01` stays
+`ticket_only`, G1 stays open and G2/G3 are forbidden.
 
 ## 2. Regression flows (each targets a REAL dead road — must go green after fix)
 

@@ -45,24 +45,26 @@
 > consumer and replacement invalidation. The run is synthetic-only, used no
 > private fixture and used no production acquisition seam. The local flag stays
 > false; activation is NO-GO, RET-REF/G1 remain open and G2/G3 stay forbidden.
-> **Focused RET-REF-01 LPP regulation end-to-end code reality:** the earlier
-> authority and consumer stack is now reached by the production mobile route.
-> Exact zero-fact transport mapping (`198e1b53e`), volatile candidate retention
-> (`8febd214a`), PDF-only acquisition (`73b505bcf`), request-scoped backend
-> authority with no row/cache/RAG/raw preview (`b30e3c109`), personal-certificate
-> precedence (`ba0f331a0`) and the dedicated accept -> record -> `/retraite`
-> review writer (`4907667b8`, compile repair `deb199c7f`) close the former
-> facade-without-caller gap in code. The existing exact Dashboard consumer
-> remains `d58ed29b2` + `242d7d082` + `f86a29cde`: its local metadata-only sheet
-> has the privacy boundary and six complete specialist questions. The plan
-> response's UUID is processing-only and never becomes the reference id; mobile
-> carries only the pre-existing self-snapshot tuple in a volatile
-> `scanSessionId` session. The three local flags remain false and outside remote
-> hydration. Post-writer Sonnet reruns and Opus final code/product confirmations
-> pass with P0/P1=0. Exact-SHA process-death Maestro/Patrol, archival of those
-> audit outputs in the tracked runtime bundle and an activation decision remain
-> missing, so the row stays quarantined, activation is NO-GO, RET-REF/G1 remain
-> open and G2/G3 forbidden.
+> **Focused RET-REF-01 LPP regulation autonomous technical reality:** the
+> production route now accepts a regulation without any numeric LPP snapshot.
+> `df807024d` moves the reference to schema-2 root-level
+> `selfRegulationReference`, makes the document reference snapshotless, requires
+> the declared `fundRelationship` (`currentFund`, `uncertain`,
+> `formerOrOther`) and preserves the reference across later numeric additions
+> and replacements; `40e24f608` hardens fail-closed parsing and persistence.
+> The declaration is not objective caisse verification and imports no plan
+> value. At exact pushed SHA
+> `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`, one Patrol native suite passes
+> 2/2 through a production-shaped synthetic writer and a distinct-PID,
+> regulation-only cold reader; production export/build/sign/install, Maestro
+> before/after default-off, container/state preservation, cleanup and privacy
+> all pass, with `logs == expected_logs == 22`. The minimized sanitized proof
+> is tracked at `phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`;
+> the complete runtime/audit archives remain local excluded provenance. The
+> audit aggregate is P0/P1=0. The three local flags remain false. Visible
+> legacy/mismatch recovery, PDF/dossier caveat parity, activation and the other
+> RET-REF obligations keep the ticket `ticket_only`,
+> G1 open and G2/G3 forbidden.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -757,70 +759,63 @@ flag-off flow. The proof is synthetic-only, `private_fixture_used=false` and
 wrapper-only Opus-high audits pass with zero P0/P1. This technical atom does not
 activate the feature, promote RET-REF-01, close G1 or authorize G2/G3.
 
-#### 4.0.3 LPP regulation reference (G1-RET-REF-01 end-to-end code vertical; runtime/activation missing)
+#### 4.0.3 LPP regulation reference (G1-RET-REF-01 autonomous technical atom; activation open)
 
 A plan/règlement describes fund rules; it is never authority for one person's
-salary, rate, scale, benefit, return or other financial fact. The strict
-optional metadata model and consumer remain those already accepted: backend
-classification (`e4ce7d6ca`), self-only raw-free BND admission (`074883d57`),
-schema-1 root (`196138024`), serialized provider writer/cold reconstruction
-(`c39cf8860`), `DocumentProvider` bridge (`eed6884ac`, hardened at
-`0b1a03ef4`, canonical kind at `5b324da5b`) and Dashboard/specialist consumer
-(`d58ed29b2`, `242d7d082`, `f86a29cde`).
+salary, rate, scale, benefit, return or other financial fact. The autonomous
+metadata chain keeps the earlier request-scoped backend classifier and
+Dashboard handoff, but no longer depends on a numeric LPP snapshot.
+`df807024d` performs the cutover and `40e24f608` hardens the root/parser and
+provider boundary.
 
-The former production-caller gap is now closed in code with this exact
-fail-closed chain:
+The exact fail-closed chain is:
 
 1. `FeatureFlags.lppRegulationAcquisitionEnabled` is the AND of
    `typedLppEvidence`, `documentLppEvidenceEnabled` and
    `lppRegulationReferenceEnabled`. All three are local-only, default false and
    absent from remote hydration.
-2. `/scan` exposes `DocumentType.lppPlan` only under that composite and only
-   when the current strict `self` snapshot exists with at least one numeric
-   fact. It captures `{expectedSnapshotId, expectedPreviousReferenceId}` before
-   consent and revalidates that tuple before picker, after picker and after the
-   network response.
+2. `/scan` may expose `DocumentType.lppPlan` without a numeric self-LPP
+   snapshot. Its immutable candidate carries only
+   `expectedPreviousReferenceId`; it revalidates that reference boundary before
+   consent, after the PDF picker and after the network response.
 3. Acquisition is gallery/file-picker PDF-only with `withData=false` and asks
    only `visionExtraction`. It calls `DocumentService.uploadDocument` directly
    with `VaultDocumentType.lppPlan`; it does not use `DocumentProvider`,
    `lastUploadResult`, a document-list row or an upload id as authority.
 4. The backend parses the PDF in request memory and classifies before any cache
-   lookup. Exact `lpp_plan` returns a fresh opaque UUIDv4 plus exactly
+   lookup. Exact `lpp_plan` returns a fresh processing UUIDv4 plus exactly
    `extracted_fields={}`, `confidence=0`, `fields_found=0`, `fields_total=0`,
    `raw_text_preview=null` and `rag_indexed=false`, then returns before the
    personal-certificate extractor, `DocumentModel`, commit, RAG and both SHA/
-   idempotency cache lookup/store paths. The response id is not durable and GET
-   `/documents/{id}` cannot resolve it. Two structured `label: value` personal
-   certificate facts outrank a mere regulation mention, preventing noisy
-   personal certificates from silently entering the plan path.
-5. Mobile accepts only the exact zero-fact response shape, discards the backend
-   id, creates an empty `ExtractionResult`, and retains only one
+   idempotency cache paths. The response id is not durable or GET-addressable.
+   An explicit certificate title or two structured personal facts outrank a
+   mere regulation mention.
+5. Mobile accepts only that zero-fact response, discards the processing id,
+   creates an empty `ExtractionResult`, and retains one snapshotless
    `LppRegulationAcquisitionCandidate` in `ScanSessionProvider`. The route/query
    contains only `scanSessionId`; cold restart intentionally loses this
    unconfirmed candidate.
-6. `/scan/review` renders a dedicated two-field review for canonical
-   `sourceDate` and `legalYear` (1900...9999), with no generic 0% confidence or
-   editable financial facts. It builds a self-only confirmation using the
-   retained snapshot tuple, calls
-   `CoachProfileProvider.acceptLppRegulationReference` exactly once, then calls
-   `DocumentProvider.recordLppRegulation` with the returned receipt. Accept
-   failure leaves both fields editable and records nothing. Record failure
-   locks the accepted fields and retries only `recordLppRegulation` with the
-   identical receipt. Success discards the volatile session before
-   `context.go('/retraite')`; it never writes Biography, generic backend sync,
-   impact data or personal plan values.
-7. `RetirementDashboardScreen._buildLppRegulationEducation` resolves only the
-   exact cold BND tuple. It renders the neutral card in all three loaded
-   Dashboard branches and opens a local sheet containing only document kind,
-   source date, legal year, confirmation date and six ordered questions for
-   buy-back, conversion, flexible retirement, disability, survivors and
-   divorce. It makes no recommendation, network call, share/export or raw-file
-   attachment.
+6. `/scan/review` renders `sourceDate`, `legalYear` (1900...9999) and one
+   required user declaration: `fundRelationship=currentFund|uncertain|formerOrOther`.
+   This records only the relationship selected by the user; it neither verifies
+   the caisse nor establishes applicability. The screen calls
+   `acceptLppRegulationReference` exactly once and
+   then `recordLppRegulation` with the returned receipt. Accept failure leaves
+   all fields editable and records nothing. Record failure locks the accepted
+   fields and retries record only with the identical receipt. Success discards
+   the volatile session before `/retraite`; it writes no Biography, generic
+   backend sync, impact data or plan value.
+7. `RetirementDashboardScreen._buildLppRegulationEducation` resolves the exact
+   cold ledger/reference tuple without a numeric snapshot. It renders the
+   neutral card in all three loaded branches, shows the declared relationship,
+   and opens a local sheet with the privacy boundary, applicability question
+   and six ordered specialist questions. It makes no recommendation, network
+   call, share/export or raw-file attachment.
 
-The persisted optional metadata remains:
+The persisted schema-2 metadata is root-level and independent of `self`:
 
 ```text
-self.lppRegulationReference {
+selfRegulationReference {
   referenceId: lowercase canonical UUIDv4
   kind: lppRegulation
   ownerKind: self
@@ -828,31 +823,35 @@ self.lppRegulationReference {
   sourceDate: YYYY-MM-DD
   legalYear: 1900...9999
   confirmedAt: canonical UTC instant
+  fundRelationship: currentFund | uncertain | formerOrOther
 }
 ```
 
-`CoachProfileProvider.acceptLppRegulationReference` remains serialized and
-save-before-publish: it preserves the snapshot UUID, facts and sibling capital-
-notice metadata, generates ID/time once, returns the persisted receipt for an
-identical retry, requires the exact previous reference for semantic replacement
-and drops both optional metadata records on a new numeric self snapshot.
-`DocumentProvider.recordLppRegulation` stores only the unchanged raw-free tuple
-`{referenceId, kind=lppRegulation, snapshotId, ownerKind=self, confirmedAt}`.
+`CoachProfileProvider.acceptLppRegulationReference` is serialized and
+save-before-publish. It initializes an absent strict root, rejects a present
+malformed root, generates id/time once, returns the persisted receipt for an
+identical retry, and requires the exact previous reference id for semantic
+replacement. Adding or replacing a numeric self-LPP snapshot preserves the
+root-level regulation reference. A legacy schema-1 nested regulation cannot be
+silently upgraded because it has no `fundRelationship`; it is dropped
+fail-closed rather than invented. The visible reacquisition path for every
+legacy/mismatch shape remains a G1 pre-activation debt.
+
+`DocumentProvider.recordLppRegulation` stores only the snapshotless raw-free
+tuple `{referenceId, kind=lppRegulation, ownerKind=self, confirmedAt}`.
 `resolveLppRegulation` requires ready hydration, the exact cold-derived
-`CoachProfile.lppRegulationReference`, the current self snapshot and all tuple
-fields. Generic LPP, `manualPartner`, factless/malformed/replaced roots, failed
-hydration and tuple mismatch resolve null.
+`CoachProfile.lppRegulationReference`, the stored tuple and a matching ledger
+receipt; it does not require `self` numeric facts. Generic LPP, `manualPartner`,
+malformed roots, failed hydration and tuple mismatch resolve null. When the
+profile reference remains but the store entry is missing, Dashboard exposes the
+bounded reconfirmation route instead of a stale handoff.
 
-The `legalYear` range 1900...9999 is a syntactic serialization bound, not a
-validation of the legally applicable regulation. Likewise, the current numeric
-self snapshot is only the existing technical join: it neither attests that the
-plan belongs to the current pension fund nor admits a plan-only journey. This
-snapshot-bound atom therefore cannot authorize activation or close G1. A future
-G1 slice must decide and implement a separately attested fund reference —
-current fund, uncertain, or former/other fund — without importing plan facts or
-calculations.
+The `legalYear` range is only a serialization bound. Likewise,
+`fundRelationship=currentFund` means **declared current relationship**, not an
+objective attestation by the pension fund. None of the three enum values imports
+plan values or authorizes a calculation, ranking, recommendation or activation.
 
-The live contracts are
+The live contracts include
 `test_lpp_plan_reference_upload_contract.py`,
 `document_service_test.dart`, `authenticated_transport_consumers_test.dart`,
 `lpp_pre_upload_authorization_test.dart`,
@@ -863,22 +862,40 @@ The live contracts are
 `lpp_regulation_reference_ledger_contract_test.dart`,
 `lpp_regulation_reference_provider_test.dart`,
 `lpp_regulation_reference_document_bridge_test.dart`,
-`lpp_regulation_specialist_handoff_test.dart` and
-`retirement_dashboard_lpp_regulation_test.dart`. Private plans and
-certificates remain a separate developer-local ignored gate:
-`lpp_private_fixture_gate_test.dart` reports only seven sanitized
-classifications and never contributes a path, manifest, hash, raw byte or
-runtime artifact.
+`lpp_regulation_specialist_handoff_test.dart`,
+`lpp_regulation_authority_copy_test.dart`,
+`lpp_regulation_reference_cold_profile_test.dart` and
+`retirement_dashboard_lpp_regulation_test.dart`. Private plans and certificates
+remain in the separate developer-local ignored parser gate and contribute no
+retained fixture identity, hash or raw bytes.
 
-This is code reality, not activation or G1 closure. Remaining hard floors are a
-single exact-SHA Patrol writer -> real process death -> cold Dashboard reader
-proof using a synthetic PDF and injected exact zero-fact uploader response
-through the production-shaped widget/provider route, the paired Maestro
-before/after default-off proof, and final tracked runtime/evidence bundling.
-Post-writer Sonnet reruns plus Opus final code/product confirmations already
-pass with P0/P1=0; their outputs still need archival in that tracked bundle.
-Until runtime and bundling are accepted, the local flags stay false,
-RET-REF/G1 stay open, activation is NO-GO and G2/G3 are forbidden.
+At exact pushed SHA `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`, one Patrol
+native suite passes 2/2 in lexical writer/read order. The writer exercises the
+production-shaped synthetic PDF/zero-fact route with `currentFund` explicitly
+selected and no numeric snapshot. The reader verifies a distinct PID, cold
+hydrates the regulation-only schema-2 root and snapshotless reference store,
+opens the Dashboard/six-question handoff, and proves numeric addition plus later
+numeric replacement preserve the same reference. No reinstall, reset or backup
+occurs between writer and reader; the application-container identity and exact
+canonical state survive the post-suite production install and Maestro run.
+Production export/build/sign/install, Maestro before/after default-off,
+cleanup/restoration and privacy all pass. Metadata records 2 passed, 0 failed,
+`private_fixture_used=false`, no retained raw bytes/hash/UDID/xcresult and
+`logs == expected_logs == 22`.
+
+The complete sanitized runtime archive
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-autonomous-runtime-6066f1c94786a-20260718T101106Z/`
+and bounded Opus-high code/product-domain audit archive
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-autonomous-runtime-harness-6066f1c94/`
+are local excluded provenance, not Git-tracked evidence. Their minimized
+sanitized proof is tracked at
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`.
+The source audit aggregate is PASS with P0/P1=0; the earlier production/copy
+audit matrix is also P0/P1=0. This proves only the default-off autonomous
+technical atom. Visible legacy/mismatch recovery, PDF/dossier caveat parity,
+activation and the capital-notice, 3a-beneficiary and fiscal RET-REF obligations
+remain open. All three flags stay false,
+`G1-RET-REF-01` stays `ticket_only`, G1 stays open and G2/G3 are forbidden.
 
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,
