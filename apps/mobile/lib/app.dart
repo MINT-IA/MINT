@@ -588,12 +588,12 @@ final _router = GoRouter(
               icon: Icons.add_card, label: 'Rachat LPP', route: '/rachat-lpp'),
           HubEntry(
               icon: Icons.home_work,
-              label: 'EPL (retrait pour logement)',
-              route: '/epl'), // lint-ignore legacy route label
+              label: 'EPL (retrait pour logement)', // lint-ignore legacy route label
+              route: '/epl'),
           HubEntry(
               icon: Icons.calendar_month,
-              label: 'Sequence de decaissement',
-              route: '/decaissement'), // lint-ignore legacy route label
+              label: 'Sequence de decaissement', // lint-ignore legacy route label
+              route: '/decaissement'),
           HubEntry(
               icon: Icons.account_balance_wallet,
               label: 'Libre passage',
@@ -750,9 +750,9 @@ final _router = GoRouter(
               route: '/life-event/donation'),
           HubEntry(
               icon: Icons.people,
-              label: 'Deces d\'un proche',
+              label: 'Deces d\'un proche', // lint-ignore legacy route label
               route:
-                  '/life-event/deces-proche'), // lint-ignore legacy route label
+                  '/life-event/deces-proche'),
           HubEntry(
               icon: Icons.swap_vert,
               label: 'Demenagement cantonal',
