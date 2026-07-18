@@ -48,6 +48,7 @@ generated_patrol_bundle="apps/mobile/test/patrol/test_bundle.dart"
 runtime_paths=(
   "$write_contract"
   "$read_contract"
+  "apps/mobile/integration_test/support/g1_ret_ref_lpp_capital_notice_runtime_contract.dart"
   "$write_target"
   "$read_target"
   "$maestro_flow"
@@ -56,6 +57,7 @@ runtime_paths=(
   "apps/mobile/lib/models/coach_profile.dart"
   "apps/mobile/lib/providers/coach_profile_provider.dart"
   "apps/mobile/lib/providers/document_provider.dart"
+  "apps/mobile/lib/providers/scan_session_provider.dart"
   "apps/mobile/lib/screens/document_scan/document_scan_screen.dart"
   "apps/mobile/lib/screens/document_scan/extraction_review_screen.dart"
   "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart"
@@ -342,7 +344,7 @@ payload = {
     "state_preservation": "writer_process_death_cold_reader"
     if os.environ["MINT_META_STATE_PRESERVED"] == "true"
     else None,
-    "production_capital_notice_acquisition_seam_used": False,
+    "production_capital_notice_acquisition_seam_used": True,
     "cleanup_status": os.environ["MINT_META_CLEANUP"],
     "build_isolation": {
         "enabled": os.environ["MINT_META_BUILD_ENABLED"] == "true",
