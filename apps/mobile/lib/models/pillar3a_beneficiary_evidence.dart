@@ -341,8 +341,9 @@ Pillar3aBeneficiaryTemporalBasis? _parseTemporalBasis(
       final regime = Pillar3aBeneficiaryRegime.fromWireName(json['regime']);
       if (regime == null) return null;
 
-      // The OPP3 entry-into-force boundary is carried by the evidence itself;
-      // legalYear must never be used to guess which regime applies.
+      // Beneficiary designation or assignment modification is the determining event;
+      // sourceDate, confirmedAt, and legalYear alone never determine the regime.
+      // sourceDate only rejects post-reform evidence predating the legal cutoff.
       if (regime == Pillar3aBeneficiaryRegime.post20270601 &&
           SwissCivilTime.businessDate(sourceDate).isBefore(_opp3RegimeCutoff)) {
         return null;
@@ -419,4 +420,6 @@ const _attestedRegimeKeys = <String>{'kind', 'regime'};
 final RegExp _canonicalUuidV4 = RegExp(
   r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
 );
+// Legal basis: OPP 3 art. 2 al. 2-3; RO 2026 182, ch. II al. 2;
+// OFAS, Bulletin PP no 168, ch. 1168.
 final DateTime _opp3RegimeCutoff = DateTime.utc(2027, 6, 1);
