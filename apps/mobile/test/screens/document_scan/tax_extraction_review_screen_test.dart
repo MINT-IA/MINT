@@ -151,6 +151,7 @@ class _ScanSessionSpy extends ScanSessionProvider {
     ExtractionResult extraction, {
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
+    LppRegulationAcquisitionCandidate? lppRegulationCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
   }) {
@@ -159,6 +160,7 @@ class _ScanSessionSpy extends ScanSessionProvider {
       extraction,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
+      lppRegulationCandidate: lppRegulationCandidate,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );
