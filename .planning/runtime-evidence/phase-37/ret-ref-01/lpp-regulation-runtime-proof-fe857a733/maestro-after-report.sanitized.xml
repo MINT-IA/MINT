@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - REDACTED_SIMULATOR_UDID" tests="1" failures="0" time="6.0">
+    <testcase id="G1 RET-REF LPP regulation production-default after" name="G1 RET-REF LPP regulation production-default after" classname="G1 RET-REF LPP regulation production-default after" time="6.0" status="SUCCESS"/>
+  </testsuite>
+</testsuites>

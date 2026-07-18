@@ -1,0 +1,22 @@
+{
+  "artifact_cleanup_and_retention_guard": 0,
+  "mint_os_doctor_full": 0,
+  "patrol_cold_reader": 0,
+  "patrol_cold_reader_build": 0,
+  "patrol_explicit_boot": 0,
+  "patrol_explicit_launch": 0,
+  "patrol_explicit_terminate": 0,
+  "patrol_tooling_guard": 0,
+  "patrol_writer": 0,
+  "patrol_writer_build": 0,
+  "production_build": 0,
+  "production_codesign_verify": 0,
+  "production_default_off_maestro_after": 0,
+  "production_default_off_maestro_before": 0,
+  "production_export": 0,
+  "production_extract": 0,
+  "production_install_after": 0,
+  "production_install_before": 0,
+  "production_xattr_inspection": 0,
+  "runtime_build_restoration": 0
+}
