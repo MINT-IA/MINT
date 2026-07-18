@@ -451,7 +451,26 @@ void main() {
     final legacy = Map<String, dynamic>.from(
       jsonDecode(_schema1RootJson(now)) as Map,
     );
-    final self = Map<String, dynamic>.from(legacy['self']! as Map)
+    final self = Map<String, dynamic>.from(legacy['self']! as Map);
+    final expectedFacts = Map<String, dynamic>.from(self['facts']! as Map);
+    final capitalNotice = <String, dynamic>{
+      'referenceId': '66666666-6666-4666-8666-666666666666',
+      'kind': 'lppCapitalNotice',
+      'ownerKind': 'self',
+      'source': 'certificate',
+      'sourceDate': '2026-02-03',
+      'legalYear': 2026,
+      'confirmedAt': '2026-02-04T09:30:00.000Z',
+      'deadlineDate': '2026-09-30',
+    };
+    final quarantine = <String, dynamic>{
+      'legacySchemaVersion': 0,
+      'reasonCodes': <String>['untyped_legacy_partner_lpp'],
+      'presentKeys': <String>['_coach_conjoint_avoir_lpp'],
+      'quarantinedAt': '2026-02-01T12:00:00.000Z',
+    };
+    self
+      ..['lppCapitalNoticeDeadline'] = capitalNotice
       ..['lppRegulationReference'] = <String, dynamic>{
         'referenceId': '55555555-5555-4555-8555-555555555555',
         'kind': 'lppRegulation',
@@ -461,11 +480,34 @@ void main() {
         'legalYear': 2026,
         'confirmedAt': '2026-02-04T09:30:00.000Z',
       };
-    legacy['self'] = self;
+    legacy
+      ..['self'] = self
+      ..['legacyPartnerQuarantine'] = quarantine;
 
     final loaded = await _loadedProvider(now, root: jsonEncode(legacy));
     addTearDown(loaded.provider.dispose);
 
+    final persisted = Map<String, dynamic>.from(
+      jsonDecode(
+        loaded.persistence.answers['_coach_lpp_evidence_v1']! as String,
+      ) as Map,
+    );
+    expect(persisted.keys.toSet(), <String>{
+      'schemaVersion',
+      'self',
+      'manualPartner',
+      'legacyPartnerQuarantine',
+      'selfRegulationReference',
+    });
+    expect(persisted['schemaVersion'], 2);
+    expect(persisted['manualPartner'], isNull);
+    expect(persisted['selfRegulationReference'], isNull);
+    expect(persisted['legacyPartnerQuarantine'], quarantine);
+    final persistedSelf = Map<String, dynamic>.from(persisted['self']! as Map);
+    expect(persistedSelf['snapshotId'], _snapshotId);
+    expect(persistedSelf['facts'], expectedFacts);
+    expect(persistedSelf['lppCapitalNoticeDeadline'], capitalNotice);
+    expect(persistedSelf.containsKey('lppRegulationReference'), isFalse);
     expect(loaded.provider.profile!.lppRegulationReference, isNull);
     expect(
       jsonEncode(loaded.provider.profile!.toJson()),
@@ -636,8 +678,23 @@ void main() {
       ),
     );
     expect(replacement.referenceId, isNot(first.referenceId));
-    expect(_receiptSnapshotId(replacement), _missingSnapshotApi);
     expect(loaded.persistence.saveCalls, 1);
+
+    loaded.persistence.resetCounts();
+    final replacementRetry = await loaded.provider.acceptLppRegulationReference(
+      _confirmation(
+        legalYear: 2027,
+        expectedPreviousReferenceId: first.referenceId,
+      ),
+    );
+    expect(replacementRetry.referenceId, replacement.referenceId);
+    expect(replacementRetry.confirmedAt, replacement.confirmedAt);
+    expect(
+      loaded.persistence.saveCalls,
+      0,
+      reason: 'An exact crash retry must be recognized before stale-prior CAS.',
+    );
+    expect(_receiptSnapshotId(replacement), _missingSnapshotApi);
   });
 
   test('concurrent writes serialize and cannot both replace the same prior id',

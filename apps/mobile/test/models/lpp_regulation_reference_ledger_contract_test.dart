@@ -115,6 +115,13 @@ Map<String, dynamic> _legacySchema1Root() => <String, dynamic>{
       },
     };
 
+Map<String, dynamic> _legacySchema1RootWithReference(Object? reference) {
+  final root = _legacySchema1Root();
+  final self = root['self']! as Map<String, dynamic>;
+  self['lppRegulationReference'] = reference;
+  return root;
+}
+
 LppEvidenceRoot? _decode(Map<String, dynamic> root) =>
     LppEvidenceRoot.fromJsonString(jsonEncode(root), now: _now);
 
@@ -293,6 +300,35 @@ void main() {
       );
       expect(migrated['selfRegulationReference'], isNull);
       expect(jsonEncode(migrated), isNot(contains('currentFund')));
+    });
+
+    test(
+        'schema 1 validates the exact legacy regulation payload before dropping it',
+        () {
+      final missingKey = _legacyRegulationReference()..remove('confirmedAt');
+      final extraKey = _legacyRegulationReference()
+        ..['unexpectedAuthority'] = true;
+      final wrongKind = _legacyRegulationReference()
+        ..['kind'] = 'lppCapitalNotice';
+      final malformedDate = _legacyRegulationReference()
+        ..['sourceDate'] = '2026-2-03';
+      final malformedUuid = _legacyRegulationReference()
+        ..['referenceId'] = 'not-a-canonical-uuid-v4';
+
+      for (final invalid in <Map<String, dynamic>>[
+        missingKey,
+        extraKey,
+        wrongKind,
+        malformedDate,
+        malformedUuid,
+      ]) {
+        expect(
+          _decode(_legacySchema1RootWithReference(invalid)),
+          isNull,
+          reason: 'A malformed legacy authority must reject the whole root, '
+              'not be silently stripped or promoted: ${jsonEncode(invalid)}',
+        );
+      }
     });
 
     test('numeric root reconstruction preserves the autonomous reference', () {

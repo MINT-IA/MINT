@@ -82,6 +82,19 @@ final class _FailingMigrationReferenceStore extends DocumentReferenceStore {
   }
 }
 
+final class _ObservingMigrationReferenceStore extends DocumentReferenceStore {
+  _ObservingMigrationReferenceStore(SharedPreferences preferences)
+      : super(preferencesLoader: () async => preferences);
+
+  int saveCalls = 0;
+
+  @override
+  Future<void> save(List<ConfirmedDocumentReference> references) async {
+    saveCalls += 1;
+    await super.save(references);
+  }
+}
+
 Map<String, dynamic> _numericSelf(DateTime now) => <String, dynamic>{
       'snapshotId': _snapshotId,
       'facts': <String, dynamic>{
@@ -302,11 +315,16 @@ ConfirmedDocumentReference _opaqueReference({
 SpecialistReferenceEvidence _regulationEvidence({
   required String referenceId,
   required DateTime confirmedAt,
+  String sourceDate = '2026-02-03',
+  int legalYear = 2026,
+  String fundRelationship = 'currentFund',
 }) {
   final next = _regulationJson(
     referenceId: referenceId,
+    legalYear: legalYear,
+    fundRelationship: fundRelationship,
     confirmedAt: confirmedAt.toUtc().toIso8601String(),
-  );
+  )..['sourceDate'] = sourceDate;
   return SpecialistReferenceEvidence.tryFromJson(
         next,
         expectedKind: SpecialistReferenceKind.lppRegulation,
@@ -355,6 +373,26 @@ Map<String, dynamic> _legacyReferenceRoot(DateTime confirmedAt) =>
         },
       ],
     };
+
+Map<String, dynamic> _legacyReferenceRootWithMalformedRegulation(
+  DateTime confirmedAt, {
+  required String label,
+}) {
+  final root = _legacyReferenceRoot(confirmedAt);
+  final references = root['references']! as List<Map<String, dynamic>>;
+  final regulation = references[1];
+  switch (label) {
+    case 'referenceUuid':
+      regulation['referenceId'] = 'not-a-canonical-uuid-v4';
+    case 'snapshotUuid':
+      regulation['snapshotId'] = 'not-a-canonical-snapshot-uuid-v4';
+    case 'confirmedAt':
+      regulation['confirmedAt'] = '2026-02-04';
+    case 'extraKey':
+      regulation['unexpectedAuthority'] = true;
+  }
+  return root;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -450,6 +488,44 @@ void main() {
     expect(documents.hasStoredReference(_genericReferenceId), isFalse);
     expect(documents.hasStoredReference(_forgedReferenceId), isFalse);
     expect(documents.currentReferences, isEmpty);
+  });
+
+  test(
+      'schema 1 rejects malformed legacy regulation before drop or migration save',
+      () async {
+    final confirmedAt = DateTime.utc(2026, 2, 4, 9, 30);
+
+    for (final label in <String>{
+      'referenceUuid',
+      'snapshotUuid',
+      'confirmedAt',
+      'extraKey',
+    }) {
+      final encoded = jsonEncode(
+        _legacyReferenceRootWithMalformedRegulation(
+          confirmedAt,
+          label: label,
+        ),
+      );
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        DocumentReferenceStore.storageKey: encoded,
+      });
+      final preferences = await SharedPreferences.getInstance();
+      final store = _ObservingMigrationReferenceStore(preferences);
+
+      await expectLater(
+        store.load(),
+        throwsA(isA<FormatException>()),
+        reason: label,
+      );
+
+      expect(store.saveCalls, 0, reason: label);
+      expect(
+        preferences.getString(DocumentReferenceStore.storageKey),
+        encoded,
+        reason: '$label must not publish a partially migrated root',
+      );
+    }
   });
 
   test('record rejects missing ledger before load or save', () async {
@@ -860,5 +936,55 @@ void main() {
 
     FeatureFlags.lppRegulationReferenceEnabled = false;
     expect(coldDocuments.resolveLppRegulation(candidate), isNull);
+  });
+
+  test(
+      'resolver requires the exact canonical specialist projection beyond the receipt tuple',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final accepted = await _acceptedRegulation(
+      now,
+      fundRelationship: 'currentFund',
+    );
+    addTearDown(accepted.ledger.dispose);
+    final documents = DocumentProvider(referenceStore: _MemoryReferenceStore());
+    addTearDown(documents.dispose);
+    documents.bindLedger(accepted.ledger);
+    await documents.recordLppRegulation(accepted.receipt);
+
+    final canonical = accepted.ledger.profile!.lppRegulationReference!;
+    expect(
+      documents.resolveLppRegulation(canonical),
+      same(canonical),
+      reason: 'The exact ledger-derived projection remains resolvable.',
+    );
+
+    final divergent = <String, SpecialistReferenceEvidence>{
+      'sourceDate': _regulationEvidence(
+        referenceId: accepted.receipt.referenceId,
+        confirmedAt: accepted.receipt.confirmedAt,
+        sourceDate: '2026-02-02',
+      ),
+      'legalYear': _regulationEvidence(
+        referenceId: accepted.receipt.referenceId,
+        confirmedAt: accepted.receipt.confirmedAt,
+        legalYear: 2025,
+      ),
+      'fundRelationship': _regulationEvidence(
+        referenceId: accepted.receipt.referenceId,
+        confirmedAt: accepted.receipt.confirmedAt,
+        fundRelationship: 'formerOrOther',
+      ),
+    };
+
+    for (final entry in divergent.entries) {
+      expect(entry.value.referenceId, canonical.referenceId);
+      expect(entry.value.confirmedAt, canonical.confirmedAt);
+      expect(
+        documents.resolveLppRegulation(entry.value),
+        isNull,
+        reason: '${entry.key} is ledger authority, not receipt identity.',
+      );
+    }
   });
 }
