@@ -76,20 +76,29 @@ first-pass wrapper-only Opus lenses pass P0/P1=0. Five P2 follow-ups remain
 explicit. This promotion does not close G1, `G1-RUNTIME-01`, or authorize
 G2/G3.
 
-## G1-RET-REF-01 `lppCapitalNoticeDeadline` — technical atom only
+## G1-RET-REF-01 `lppCapitalNoticeDeadline` — native acquisition runtime atom
 
-- **Technical status:** GREEN at exact runtime SHA
-  `e010132690bf22fe953f1bddbbecf5fee8bda723`; sanitized proof committed at
-  `3db9c2d4f`.
-- **Automated evidence:** 63 targeted tests pass, including the six-case private
-  gate; seven first-pass bounded wrapper-only Opus high audits PASS with zero
-  P0/P1.
-- **Activation boundary:** **NO-GO**. There is no production acquisition seam;
-  the runtime is synthetic-only, private fixture usage is false, and the
-  production flag remains false.
-- **Scope boundary:** this promotes only the `lppCapitalNoticeDeadline`
-  technical atom. RET-REF and G1 remain open; G2/G3 remain forbidden. The G1
-  interim score and registry disposition are unchanged.
+- **Technical status:** **GREEN** at exact pushed runtime SHA
+  `36152b997fbf0c32c1120ddb61f0a8e9d589aa52`; the minimized proof is
+  `phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`.
+- **Native runtime evidence:** the writer first creates a real numeric self-LPP
+  snapshot through the production certificate review, then traverses
+  `/scan?type=lppPlan`, exact Vision consent and the production review fields.
+  The real UI/provider chain emits exactly `accept regulation -> record
+  regulation -> accept capital -> record capital`, purges the volatile scan
+  session and renders the known Dashboard deadline. A distinct-process cold
+  reader hydrates the exact BND join, then proves both authority replacement
+  invalidation and numeric snapshot replacement purge. Patrol is 2/2; physical
+  production rebuild/install and production-default Maestro 1/1 pass.
+- **Audit/privacy evidence:** bounded wrapper-only Opus high code and
+  product-domain lenses PASS with P0/P1=0. Runtime data is synthetic-only,
+  private fixture usage is false and the tracked allowlist retains no raw
+  document, simulator identifier or result bundle.
+- **Activation boundary:** the **production UI acquisition seam** is now proven,
+  but external document/OCR IO remains synthetic. The local flag remains false;
+  capital-notice dossier/PDF parity and an explicit activation decision remain
+  open. RET-REF remains `ticket_only`; G1 remains open at 8.2/10 and G2/G3
+  remain forbidden.
 
 ## G1-RET-REF-01 `lppRegulationReference` — autonomous regulation-only runtime atom
 
@@ -152,6 +161,7 @@ G2/G3.
 | GREEN — G1-BND-01 | A production protection reader could depend on an unpopulated legacy provider, treat missing authority as debt-free, or describe a liquidity-only crisis as debt while uncoupled widgets survived as facades. | Physical-archive RED at `d9f93e30b` produced 1 pass / 5 semantic failures; the identical command passes 6/6 at exact pushed SHA `ed5f2db13`. The sole live reader uses `CoachProfile.isInDebtCrisis`, null authority routes to a diagnostic, generic six-language copy covers liquidity-only crises, dead provider/widgets are absent, and `Profile` remains only as the API/Wizard DTO. Final Sonnet code/product-domain reruns pass with P0/P1=0; six P2s stay explicit. |
 | GREEN — G1-COACH-01 ticket + runtime | Live salary/LPP/3a inline amounts could drop, use the wrong unit/authority, publish before persistence, disappear on reload or survive only behind a facade. | Semantic RED `c7809198e` was 3/10; the identical command is 14/14 at exact pushed SHA `fec1d4119e`. One serialized canonical write precedes publish; invalid/strict-LPP conflicts fail closed; retry and cold provenance pass. Dedicated Patrol is 1/1 with visually accepted synthetic evidence and cleanup; both first-pass Opus wrapper lenses pass P0/P1=0. Five P2 follow-ups remain explicit. |
 | GREEN technical atoms — RET-REF LPP regulation runtime | A production-shaped `lpp_plan` scan could stop at a zero-fact backend response, publish before persistence, leak raw bytes/identity, disappear after process death, bind regulation education to a numeric snapshot, lose the reference on numeric add/replacement, expose a stale handoff after BND loss, strand recovery without a scan route, or accidentally activate the production path. | Exact pushed SHA `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` proves the autonomous base. Exact pushed SHA `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a` adds `missingDocumentReference`: known/handoff absent, exact recovery copy/CTA present, `/scan?type=lppPlan` reached, BND restored+compared. The same suite is 2/2 with distinct PIDs; Maestro before/after 1/1, 22/22 outputs, reinstall/restoration/privacy PASS. `currentFund` remains declared/unverified, not objective caisse identity. Activation remains NO-GO/default-off, so RET-REF stays `ticket_only`. |
+| GREEN technical atom — RET-REF LPP capital notice native acquisition | The capital-notice writer could remain a test-only provider bridge, skip the real plan review, disappear after process death, survive authority/snapshot replacement, or accidentally expose the default production app. | Exact pushed SHA `36152b997fbf0c32c1120ddb61f0a8e9d589aa52` passes native writer + distinct cold reader 2/2, exact mutation order, session purge, Dashboard display, dual invalidation, physical production rebuild/install and Maestro 1/1 default-off. Both Opus-high wrapper lenses pass P0/P1=0. External IO is synthetic and capital-notice dossier/PDF parity plus activation remain open. |
 | GREEN bounded parity slice — RET-REF LPP dossier/PDF | The specialist sheet, `/rapport` dossier and portable report could diverge on the declared/unverified caveat, leak internal authority, or survive a recovery state. | Exact pushed SHA `274736a50bca659579fe26f68ae4e600469e3a9a` passes the native 2/2 distinct-process suite through real `MintApp` bootstrap and `/rapport`, suppresses the dossier for missing/mismatch/legacy recovery, builds production PDF bytes, and combines with the 3/3 real-byte text contract. Maestro before/after, 22/22 outputs, reinstall/restoration/privacy PASS. The combined runtime audit was honestly refused at 2579>2500 lines; dossier, PDF and bootstrap component lenses bound the accepted P0/P1=0 state. Only `pdf_dossier_caveat_parity` closes; activation remains NO-GO. |
 | GREEN — G1-LDG-04 nominal | Display defaults or invalid persisted values could become known facts. | Fixed in `f49ba797c`: canton/expense/conversion readiness requires canonical marker plus exact timestamp path(s); invalid/negative/NaN/infinite numeric values remain partial and explicit zero expenses remain known. Canton-domain weakness closed by `62e8ca7d5`: invalid/blank/forged canton evidence fails closed and valid codes normalize. Exact proof: RED 5 failures, GREEN 30/30, models+navigation+routes 494/494 in `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-BND-04 | The lazy production proxy could miss profile mutations until a MintState UI consumer materialised it. | Fixed in `f49ba797c`: the real `MintApp` proxy is eager and the production-context test observes one notification per salary and provenance-only mutation. Exact RED-to-GREEN evidence: `g1-ldg04-bnd04-f49ba797c.md`. |

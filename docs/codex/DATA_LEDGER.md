@@ -40,11 +40,14 @@
 > promote the ticket, close G1 or authorize G2/G3.
 > **Focused RET-REF-01 LPP capital-notice technical GREEN:** the bounded
 > `lppCapitalNoticeDeadline` atom is runtime-GREEN at exact SHA
-> `e010132690bf22fe953f1bddbbecf5fee8bda723` (2026-07-17). It proves the
-> serialized self-only writer, unchanged raw-free BND tuple, cold Dashboard
-> consumer and replacement invalidation. The run is synthetic-only, used no
-> private fixture and used no production acquisition seam. The local flag stays
-> false; activation is NO-GO, RET-REF/G1 remain open and G2/G3 stay forbidden.
+> `36152b997fbf0c32c1120ddb61f0a8e9d589aa52` (2026-07-18). The production UI
+> acquisition seam now drives numeric certificate review, `/scan?type=lppPlan`,
+> exact regulation/capital review, ordered ledger+BND writes and the Dashboard
+> consumer. A distinct cold reader proves authority and snapshot invalidation.
+> External document/OCR IO remains synthetic, no private fixture is used and the
+> local flag stays false. Capital-notice dossier/PDF parity and activation remain
+> open; RET-REF/G1 remain open and G2/G3 stay forbidden. Minimized proof:
+> `phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`.
 > **Focused RET-REF-01 LPP regulation autonomous + recovery reality:** the
 > production route accepts a regulation without any numeric LPP snapshot. The
 > autonomous base is runtime-GREEN at exact pushed SHA
@@ -692,16 +695,18 @@ continues to remove `_coach_tax_snapshots_v1` and every `_coach_tax_*` key.
 
 #### 4.0.2 LPP capital-notice deadline (G1-RET-REF-01 technical GREEN)
 
-At exact runtime SHA `e010132690bf22fe953f1bddbbecf5fee8bda723`, this
+At exact pushed runtime SHA `36152b997fbf0c32c1120ddb61f0a8e9d589aa52`, this
 bounded RET-REF atom is technically GREEN. It is self-only and remains behind
 the local `lppCapitalNoticeDeadlineEnabled` switch, which defaults false and is
 absent from `FeatureFlags.applyFromMap`. It augments the **current existing**
 `self` snapshot inside `_coach_lpp_evidence_v1`; it does not create another
-answer root or change `schemaVersion: 1`. The optional snapshot member is exact:
+answer root. The current root remains `schemaVersion: 3`. The optional snapshot
+member is exact:
 
 ```text
 self.lppCapitalNoticeDeadline {
   referenceId: lowercase canonical UUIDv4
+  authorityReferenceId: lowercase canonical UUIDv4 // exact regulation join
   kind: lppCapitalNotice
   ownerKind: self
   source: certificate
@@ -715,13 +720,17 @@ self.lppCapitalNoticeDeadline {
 This metadata contains no amount and does not modify `facts`. A notice may be
 attached only to a current self snapshot whose numeric `facts` are non-empty;
 a factless notice-only root and every `manualPartner` placement are invalid.
-The review contract admits only the exact reviewed pension-fund regulation or
-capital notice containing the complete deadline. No production acquisition
-caller implements that review contract yet; the accepted runtime uses one
-explicit bounded test-only bridge after a real synthetic numeric self-LPP scan.
-A personal LPP certificate, its `sourceDate`, its legal/calendar year, `now`, or
-a legal constant is never authority for this record; the existing private-
-certificate corpus remains negative-only and was not used by the runtime.
+The review contract admits only an exact reviewed pension-fund regulation with
+`fundRelationship=currentFund` plus the complete declared deadline. The
+production UI acquisition seam now implements that contract: a real synthetic
+numeric self-LPP certificate review reaches `/retraite`, then
+`/scan?type=lppPlan` uses the exact Vision consent, zero-fact plan candidate and
+real `ExtractionReviewScreen` fields before invoking the four production
+mutations in order. The volatile scan session is purged only after both strict
+writes pass. External document/OCR IO remains synthetic, so this proves the
+production screen/provider seam rather than live OCR infrastructure. A personal
+LPP certificate, its `sourceDate`, its legal/calendar year, `now`, or a legal
+constant is never authority for the deadline; private fixtures are not used.
 
 `CoachProfileProvider.acceptLppCapitalNotice` is the sole writer. Under the
 same serialized LPP mutation it rechecks the expected current self snapshot,
@@ -756,13 +765,17 @@ it calls `DocumentProvider.resolveLppCapitalNotice`, renders only the resolved
 educational known/stale state in all three loaded-profile branches, and has no
 CTA. It does not alter a calculator, projection, ranking or recommendation.
 
-The exact-SHA runtime proves Patrol writer -> real process termination -> cold
-reader, Dashboard display, invalidation after a later numeric self-LPP review,
-an exact-source production rebuild/install and a production-default Maestro
-flag-off flow. The proof is synthetic-only, `private_fixture_used=false` and
-`production_capital_notice_acquisition_seam_used=false`. Seven bounded
-wrapper-only Opus-high audits pass with zero P0/P1. This technical atom does not
-activate the feature, promote RET-REF-01, close G1 or authorize G2/G3.
+The exact-SHA runtime proves native Patrol writer -> real process termination ->
+distinct cold reader, Dashboard display, authority replacement invalidation and
+numeric snapshot replacement purge, plus an exact-source production
+rebuild/install and a production-default Maestro flag-off flow. Patrol passes
+2/2 and Maestro 1/1. The minimized proof is
+`.planning/runtime-evidence/phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`.
+It is synthetic-only, `private_fixture_used=false`, uses the production UI
+acquisition seam and retains no external IO claim. Both bounded wrapper-only
+Opus-high lenses pass with zero P0/P1. Capital-notice dossier/PDF parity and
+activation remain open; this atom does not promote RET-REF-01, close G1 or
+authorize G2/G3.
 
 #### 4.0.3 LPP regulation reference (G1-RET-REF-01 autonomous + recovery technical atoms; activation open)
 
@@ -946,8 +959,8 @@ budget and is not called PASS. Dossier and PDF component audits plus the final
 bootstrap code/product audits bound the accepted current P0/P1=0 state. This
 proves only the default-off autonomous, recovery and dossier/PDF technical
 atoms. The visible legacy/missing/mismatch recovery debt is
-closed; PDF/dossier caveat parity is closed. Activation and the capital-notice,
-3a-beneficiary, fiscal and other RET-REF obligations remain open. All three
+closed; PDF/dossier caveat parity is closed. Activation, capital-notice
+dossier/PDF parity, 3a-beneficiary, fiscal and other RET-REF obligations remain open. All three
 flags stay false,
 `G1-RET-REF-01` stays `ticket_only`, G1 stays open at 8.2/10 and G2/G3 are
 forbidden.

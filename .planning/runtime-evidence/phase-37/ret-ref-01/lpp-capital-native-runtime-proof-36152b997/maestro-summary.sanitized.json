@@ -1,0 +1,16 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "OPEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  },
+  "failures": 0,
+  "production_default_off": true,
+  "status": "SUCCESS",
+  "tests": 1
+}

@@ -1,0 +1,42 @@
+{
+  "decision": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "OPEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  },
+  "distinct_process_pid_verified": true,
+  "evidence_logs_complete": true,
+  "expected_log_count": 17,
+  "maestro": {
+    "exit_code": 0,
+    "failures": 0,
+    "tests": 1
+  },
+  "normal_build_core_hashes_verified": true,
+  "privacy": {
+    "document_hash_retained": false,
+    "private_fixture_used": false,
+    "raw_document_bytes_retained": false,
+    "simulator_identifier_retained": false,
+    "synthetic_data_only": true,
+    "xcresult_retained": false
+  },
+  "production_build_install_passed": true,
+  "production_default_off": true,
+  "production_external_io_proven": false,
+  "production_ui_acquisition_seam_used": true,
+  "pushed_sha_verified": true,
+  "retained_log_count": 17,
+  "runtime_completed": true,
+  "source_sha": "36152b997fbf0c32c1120ddb61f0a8e9d589aa52",
+  "suite": {
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 2
+  }
+}

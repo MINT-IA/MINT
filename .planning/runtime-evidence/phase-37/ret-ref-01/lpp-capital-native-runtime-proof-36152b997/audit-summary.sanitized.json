@@ -1,0 +1,33 @@
+{
+  "aggregate_p0": 0,
+  "aggregate_p1": 0,
+  "aggregate_verdict": "PASS",
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "OPEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  },
+  "code": {
+    "p0": 0,
+    "p1": 0,
+    "p2": 3,
+    "source_head": "36152b997fbf0c32c1120ddb61f0a8e9d589aa52",
+    "verdict": "PASS"
+  },
+  "lenses_passed": 2,
+  "lenses_total": 2,
+  "native_runtime_run_by_audit": false,
+  "product_domain": {
+    "p0": 0,
+    "p1": 0,
+    "p2": 3,
+    "source_head": "36152b997fbf0c32c1120ddb61f0a8e9d589aa52",
+    "verdict": "PASS"
+  },
+  "wrapper_only": true
+}

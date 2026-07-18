@@ -1,0 +1,27 @@
+{
+  "artifact_allowlist": [
+    "README.md",
+    "SHA256SUMS",
+    "acquisition-summary.sanitized.json",
+    "audit-dispositions.md",
+    "audit-summary.sanitized.json",
+    "maestro-summary.sanitized.json",
+    "manifest.json",
+    "metadata.sanitized.json",
+    "patrol-suite-summary.sanitized.json",
+    "quality-gate-scorecard.md",
+    "state-preservation-summary.sanitized.json"
+  ],
+  "decision": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "OPEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  },
+  "proof_name": "lpp-capital-native-runtime-proof-36152b997",
+  "source_sha": "36152b997fbf0c32c1120ddb61f0a8e9d589aa52"
+}

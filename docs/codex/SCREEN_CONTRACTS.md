@@ -974,7 +974,7 @@ fictive and must not expand the 36-key value allowlist.
 
 #### LPP capital-notice deadline — G1-RET-REF-01 technical GREEN
 
-At exact runtime SHA `e010132690bf22fe953f1bddbbecf5fee8bda723`, the
+At exact pushed runtime SHA `36152b997fbf0c32c1120ddb61f0a8e9d589aa52`, the
 technical atom is GREEN. `RetirementDashboardScreen` adds one educational
 reminder only when
 `lppCapitalNoticeDeadlineEnabled` is true **and** the cold-derived Profile
@@ -1002,14 +1002,21 @@ The live technical chain is
 `DocumentProvider.recordLppCapitalNotice` -> cold
 `CoachProfile.lppCapitalNoticeDeadline` ->
 `DocumentProvider.resolveLppCapitalNotice` ->
-`_RetirementDashboardScreenState._buildLppCapitalNoticeEducation`. Patrol
-proves cold display and invalidation after a new numeric self-LPP snapshot;
-Maestro proves the production-default flag-off surface stays absent.
+`_RetirementDashboardScreenState._buildLppCapitalNoticeEducation`. The native
+Patrol writer reaches that chain only through production `DocumentScanScreen`
+and `ExtractionReviewScreen`: numeric certificate review, `/scan?type=lppPlan`,
+source date, legal year, declared `currentFund`, complete deadline, then exact
+ordered regulation/capital persistence and scan-session purge. The distinct
+cold reader proves display, authority replacement invalidation and numeric
+self-LPP replacement purge. Maestro proves the production-default flag-off
+surface stays absent. The minimized proof is
+`phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`.
 
 This path uses no new route and remains default-off. Runtime data is
-synthetic-only, private-fixture use is false, and no production acquisition
-seam exists. Activation is therefore NO-GO. This technical atom does not
-promote RET-REF-01, close G1, or authorize G2/G3.
+synthetic-only and private-fixture use is false. The production UI acquisition
+seam is proven, while external document/OCR IO remains synthetic.
+Capital-notice dossier/PDF parity and activation remain NO-GO. This technical
+atom does not promote RET-REF-01, close G1, or authorize G2/G3.
 
 #### LPP regulation reference — G1-RET-REF-01 autonomous + recovery + dossier/PDF runtime-GREEN atoms; activation open
 

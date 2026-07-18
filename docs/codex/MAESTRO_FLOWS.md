@@ -17,6 +17,19 @@
 > proof rather than shipping-default chrome evidence. COACH-01 is GREEN; the
 > global Maestro+Patrol `G1-RUNTIME-01` remains `red_proven`.
 >
+> **G1 LPP capital-notice native acquisition runtime:** exact pushed SHA
+> `36152b997fbf0c32c1120ddb61f0a8e9d589aa52` passes a native writer and
+> distinct-process cold reader 2/2. The writer uses the production UI
+> acquisition seam for numeric certificate review, `/scan?type=lppPlan`, exact
+> regulation/capital fields, ordered strict writes, scan-session purge and the
+> Dashboard banner. The cold reader proves authority replacement invalidation
+> and numeric snapshot replacement purge. Exact-source production build/install
+> passes; production-default Maestro passes 1/1 with the path absent. External
+> document/OCR IO remains synthetic. The minimized proof is
+> `phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`.
+> Capital-notice dossier/PDF parity and activation remain open; RET-REF stays
+> `ticket_only`, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
+>
 > **G1 LPP regulation autonomous runtime:** exact pushed SHA
 > `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` passes one Patrol native
 > writer/read suite 2/2 with a distinct PID, regulation-only cold hydration and

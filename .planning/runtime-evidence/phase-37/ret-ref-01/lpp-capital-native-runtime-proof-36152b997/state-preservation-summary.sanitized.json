@@ -1,0 +1,18 @@
+{
+  "authority_replacement_invalidated_notice": true,
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "OPEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  },
+  "cold_reader_hydrated_exact_notice": true,
+  "deadline_banner_rendered": true,
+  "numeric_snapshot_replacement_purged_notice": true,
+  "production_default_banner_absent": true,
+  "writer_reader_distinct_processes": true
+}

@@ -1,0 +1,35 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "OPEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  },
+  "capital_candidate_from_production_scan_session": true,
+  "consent_purpose": "visionExtraction",
+  "external_document_io": "synthetic_adapter",
+  "mutation_order": [
+    "accept_regulation",
+    "record_regulation",
+    "accept_capital",
+    "record_capital"
+  ],
+  "numeric_snapshot_from_production_certificate_review": true,
+  "plan_route": "/scan?type=lppPlan",
+  "plan_session_purged_after_confirmation": true,
+  "review_fields": [
+    "sourceDate",
+    "legalYear",
+    "fundRelationship=currentFund",
+    "deadlineDate"
+  ],
+  "ui_chain": [
+    "DocumentScanScreen",
+    "ExtractionReviewScreen",
+    "RetirementDashboardScreen"
+  ]
+}

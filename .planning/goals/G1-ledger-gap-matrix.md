@@ -5,12 +5,13 @@
 > Scope: data reality only. This file does not implement G2 DataQuest or any
 > G3 product loop.
 > Focused RET-REF reality: `lppCapitalNoticeDeadline` is a technical live atom
-> at exact runtime SHA `e010132690bf22fe953f1bddbbecf5fee8bda723`, with the
-> strict self root, serialized provider writer, exact raw-free BND join, cold
-> Dashboard consumer and replacement invalidation proven. Its feature flag is
-> false, the proof is synthetic-only/private-fixture-false, and no production
-> acquisition seam exists. Activation is NO-GO; RET-REF/G1 remain open and
-> G2/G3 remain forbidden.
+> at exact pushed runtime SHA `36152b997fbf0c32c1120ddb61f0a8e9d589aa52`.
+> The production UI acquisition seam, strict self root, ordered writer, exact
+> raw-free BND join, cold Dashboard consumer, authority invalidation and
+> snapshot replacement purge are proven. External document/OCR IO remains
+> synthetic, private-fixture use is false and the feature flag stays false.
+> Capital-notice dossier/PDF parity and activation remain NO-GO; RET-REF/G1
+> remain open and G2/G3 remain forbidden.
 > Focused LPP regulation autonomous/recovery reality: exact pushed SHA
 > `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` proves the bounded autonomous
 > regulation-only base, and exact pushed SHA
@@ -173,7 +174,7 @@ evidence, external audits and the activation decision pass. Legacy
 | workCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | social_security | FRONTALIER | P0 | yes | partial+ask | required | social_security_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | residenceCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | treaty,tax,social_security | FRONTALIER | P0 | yes | partial+ask | required | residence_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | lppRegulationReference | _coach_lpp_evidence_v1 | lppRegulationReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptLppRegulationReference,recordLppRegulation,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppRegulationEducation@lppRegulationReference | retirement_lpp_regulation_reference_education,retirement_lpp_regulation_handoff_cta,retirement_lpp_regulation_handoff_sheet,retirement_lpp_regulation_reference_recovery,retirement_lpp_regulation_reconfirm_cta,financial_report_lpp_regulation_handoff | RETIREMENT | P0 | conditional | educational_only | required | regulation_terms | live | lpp_plan_classifier,lpp_regulation_document_authority,lpp_regulation_ledger_contract,lpp_regulation_provider,lpp_regulation_document_bridge,lpp_regulation_bridge_hardening,canonical_regulation_kind,bridge_wrapper_audits,writer_model_wrapper_audits,lpp_regulation_handoff_model,lpp_regulation_dashboard_consumer_5_of_5,retirement_dashboard_regression_24_of_24,consumer_wrapper_audits,autonomous_declared_fund_relationship,snapshotless_regulation_root,cold_profile_without_numeric_lpp,numeric_add_replacement_preservation,distinct_process_runtime,exact_22_of_22_evidence,production_default_off_before_after,privacy_retention_guard,bounded_opus_audits,schema3_recovery_marker,opaque_resolution_classifier,visible_legacy_missing_mismatch_recovery,recovery_copy_6_locales,recovery_runtime_missing_bnd_7cb5ea4c6,bnd_restore_compare,dossier_pdf_parity_runtime_274736a50 | activation_decision | yes | G1-RET-REF-01 |
-| lppCapitalNoticeDeadline | _coach_lpp_evidence_v1 | lppCapitalNoticeDeadline | ISO_date | certificate | event_static | 0.95 | specialist_reference | self | acceptLppCapitalNotice,recordLppCapitalNotice,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppCapitalNoticeEducation@lppCapitalNoticeDeadline | retirement_dashboard_deadline_education | RETIREMENT | P0 | conditional | educational_only | required | withdrawal_deadline | live | ret_ref_capital_notice_green_e010132690,strict_self_root,serialized_writer,exact_raw_free_bnd,cold_dashboard_consumer,replacement_invalidation,process_death_runtime,wrapper_audits | production_acquisition_seam,activation_decision | yes | G1-RET-REF-01 |
+| lppCapitalNoticeDeadline | _coach_lpp_evidence_v1 | lppCapitalNoticeDeadline | ISO_date | certificate | event_static | 0.95 | specialist_reference | self | acceptLppCapitalNotice,recordLppCapitalNotice,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppCapitalNoticeEducation@lppCapitalNoticeDeadline | retirement_dashboard_deadline_education | RETIREMENT | P0 | conditional | educational_only | required | withdrawal_deadline | live | ret_ref_capital_notice_native_green_36152b997,native_production_ui_acquisition_seam,strict_self_root,serialized_writer,exact_raw_free_bnd,cold_dashboard_consumer,authority_replacement_invalidation,snapshot_replacement_invalidation,process_death_runtime,wrapper_opus_audits | capital_notice_dossier_pdf_parity,activation_decision | yes | G1-RET-REF-01 |
 | pillar3aBeneficiaryClause | NONE | NONE | document_ref | certificate | event_static | 0.95 | specialist_reference | self | NONE | NONE | succession,beneficiary | RETIREMENT,SUCCESSION | P0 | conditional | educational_only | required | beneficiary_order | missing | NONE | document_reference_contract,source_date,legal_year | yes | G1-RET-REF-01 |
 | matrimonialRegime | NONE | NONE | regime_enum | userInput,certificate | event_static | source_weight | fact | household | NONE | NONE | succession,rente_capital | RETIREMENT,SUCCESSION | P0 | conditional | partial+ask | required | estate_partition | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-SUCCESSION-01 |
 | estateInstrumentReferences | NONE | NONE | list_document_ref | certificate | event_static | 0.95 | specialist_reference | document_ref | NONE | NONE | will,pact,mandate | SUCCESSION,RETIREMENT | P0 | conditional | educational_only | required | specialist_handoff | missing | NONE | document_reference_contract,source_date | yes | G1-SUCCESSION-01 |
@@ -224,11 +225,23 @@ reinstall, cleanup, restoration and privacy pass. The minimized proof is
 The combined runtime wrapper refusal at 2579>2500 lines is explicit; accepted
 dossier, PDF and bootstrap component lenses leave P0/P1=0. PDF/dossier caveat
 parity is closed, while an explicit activation decision remains open. The
-feature stays default-off. No plan value may become a
-person fact, calculation, advice or raw document record. Capital-notice
-acquisition/activation, the 3a beneficiary reference and fiscal
+feature stays default-off. No plan value may become a person fact,
+calculation, advice or raw document record. Capital-notice dossier/PDF parity
+and activation, the 3a beneficiary reference and fiscal
 activation/currentness also keep the whole RET-REF ticket open. RET-REF remains
 `ticket_only`, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
+
+The bounded capital-notice acquisition blocker is now superseded by exact
+pushed runtime SHA `36152b997fbf0c32c1120ddb61f0a8e9d589aa52`. The production
+UI acquisition seam performs the numeric certificate review, then
+`/scan?type=lppPlan`, the real regulation/capital review and the exact ordered
+ledger/BND writes; the scan session is purged before the Dashboard consumer.
+Writer and reader are distinct processes, authority replacement and numeric
+snapshot replacement both fail closed, and production-default Maestro remains
+absent. The minimized proof is
+`phase-37/ret-ref-01/lpp-capital-native-runtime-proof-36152b997/`. External
+document/OCR IO remains synthetic; `capital_notice_dossier_pdf_parity` and
+`activation_decision` remain the explicit blockers for this row.
 
 PROV-02 makes the four LPP rows previously marked `dead_on_restart` durable at
 the accepted SHA. They remain `quarantined`, not falsely `live`, until their

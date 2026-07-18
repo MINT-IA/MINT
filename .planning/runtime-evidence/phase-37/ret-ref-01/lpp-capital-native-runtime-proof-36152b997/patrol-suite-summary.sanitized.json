@@ -1,0 +1,24 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "capital_notice_dossier_pdf_parity": "OPEN",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  },
+  "cold_reader": {
+    "failed": 0,
+    "passed": 1,
+    "status": "PASS"
+  },
+  "contract": "g1_ret_ref_lpp_capital_notice",
+  "native_writer": {
+    "failed": 0,
+    "passed": 1,
+    "status": "PASS"
+  },
+  "status": "PASS"
+}
