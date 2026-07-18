@@ -10,6 +10,7 @@ import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
+import 'package:mint_mobile/services/account_session_bootstrap.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
@@ -178,11 +179,12 @@ void main() {
       final materialApp = find.byType(MaterialApp);
       expect(materialApp, findsOneWidget);
       final appContext = $.tester.element(materialApp);
+      final bootstrap = appContext.read<AccountSessionBootstrap>();
+      await bootstrap.start();
       final provider = appContext.read<CoachProfileProvider>();
       final documents = appContext.read<DocumentProvider>();
-      await provider.loadFromWizard();
+      await provider.waitForReportAnswers();
       documents.bindLedger(provider);
-      documents.clearLocalState();
       await documents.hydrateReferences();
       await $.pumpAndSettle();
 

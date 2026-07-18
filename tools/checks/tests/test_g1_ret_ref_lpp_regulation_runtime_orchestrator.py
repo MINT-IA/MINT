@@ -688,10 +688,14 @@ def test_cold_reader_handoff_survives_numeric_addition_and_replacement() -> None
         "expect(resolved, isNotNull);",
         "documents.byId(candidate!.referenceId)",
         "expect(typedReference.snapshotId, isNull);",
+        "import 'package:mint_mobile/services/account_session_bootstrap.dart';",
         "await $.pumpWidgetAndSettle(const MintApp());",
         "final materialApp = find.byType(MaterialApp);",
+        "final bootstrap = appContext.read<AccountSessionBootstrap>();",
+        "await bootstrap.start();",
         "read<CoachProfileProvider>()",
         "read<DocumentProvider>()",
+        "await provider.waitForReportAnswers();",
         "testOnlyRootRouter.go('/retraite');",
         "retirement_lpp_regulation_reference_education",
         "retirement_lpp_regulation_handoff_cta",
@@ -734,6 +738,32 @@ def test_cold_reader_handoff_survives_numeric_addition_and_replacement() -> None
     assert "acceptLppRegulationReference(" not in reader
     assert "recordLppRegulation(" not in reader
     assert reader.count("acceptLppReview(") == 2
+    app_bootstrap = reader[
+        reader.index("final appContext = $.tester.element(materialApp);") : reader.index(
+            "final currentSnapshot = provider.currentLppSnapshot("
+        )
+    ]
+    assert [
+        app_bootstrap.index("final bootstrap = appContext.read<AccountSessionBootstrap>();"),
+        app_bootstrap.index("await bootstrap.start();"),
+        app_bootstrap.index("final provider = appContext.read<CoachProfileProvider>();"),
+        app_bootstrap.index("await provider.waitForReportAnswers();"),
+        app_bootstrap.index("await documents.hydrateReferences();"),
+    ] == sorted(
+        [
+            app_bootstrap.index(
+                "final bootstrap = appContext.read<AccountSessionBootstrap>();"
+            ),
+            app_bootstrap.index("await bootstrap.start();"),
+            app_bootstrap.index(
+                "final provider = appContext.read<CoachProfileProvider>();"
+            ),
+            app_bootstrap.index("await provider.waitForReportAnswers();"),
+            app_bootstrap.index("await documents.hydrateReferences();"),
+        ]
+    )
+    assert "loadFromWizard" not in app_bootstrap
+    assert "clearLocalState" not in app_bootstrap
     for forbidden in (
         "MINT_LPP_PRIVATE_MANIFEST",
         "/Users/",
