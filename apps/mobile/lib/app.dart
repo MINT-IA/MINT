@@ -1239,6 +1239,7 @@ final _router = GoRouter(
           lppCandidate: session.lppCandidate,
           lppAuthorization: session.lppAuthorization,
           lppRegulationCandidate: session.lppRegulationCandidate,
+          lppCapitalNoticeCandidate: session.lppCapitalNoticeCandidate,
           manualPartnerAccountability: session.manualPartnerAccountability,
           taxCandidate: session.taxCandidate,
           recordConfirmedLppReview:

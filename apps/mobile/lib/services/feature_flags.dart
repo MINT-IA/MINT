@@ -123,6 +123,16 @@ class FeatureFlags {
       documentLppEvidenceEnabled &&
       lppRegulationReferenceEnabled;
 
+  /// Local-only composite gate for the optional capital-notice acquisition.
+  ///
+  /// It stays absent from [applyFromMap]. Regulation acquisition remains
+  /// independently available when this stricter four-flag composite is off.
+  static bool get lppCapitalNoticeAcquisitionEnabled =>
+      typedLppEvidence &&
+      documentLppEvidenceEnabled &&
+      lppRegulationReferenceEnabled &&
+      lppCapitalNoticeDeadlineEnabled;
+
   /// Local kill switch for every tax-document acquisition surface.
   ///
   /// This flag deliberately stays out of [applyFromMap]. The UI is exposed

@@ -52,6 +52,7 @@ class ExtractionReviewScreen extends StatefulWidget {
   final LppExtractionCandidate? lppCandidate;
   final LppAcquisitionAuthorization? lppAuthorization;
   final LppRegulationAcquisitionCandidate? lppRegulationCandidate;
+  final LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate;
   final ManualPartnerAccountabilityContext? manualPartnerAccountability;
   final TaxExtractionCandidate? taxCandidate;
   final ScanConfirmationSender? sendScanConfirmation;
@@ -68,6 +69,7 @@ class ExtractionReviewScreen extends StatefulWidget {
     this.lppCandidate,
     this.lppAuthorization,
     this.lppRegulationCandidate,
+    this.lppCapitalNoticeCandidate,
     this.manualPartnerAccountability,
     this.taxCandidate,
     this.sendScanConfirmation,
@@ -125,9 +127,12 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   bool _lppRegulationFundRelationshipValidationFailed = false;
   bool _lppRegulationAcceptFailed = false;
   bool _lppRegulationRecordFailed = false;
+  bool _lppCapitalNoticePartial = false;
+  bool _lppCapitalNoticeRecordFailed = false;
   bool _reviewSessionFinalized = false;
   LppRegulationReviewConfirmation? _acceptedLppRegulationConfirmation;
   LppRegulationReceipt? _acceptedLppRegulationReceipt;
+  LppCapitalNoticeReceipt? _acceptedLppCapitalNoticeReceipt;
   LppFundRelationship? _lppFundRelationship;
   bool _taxInForceAttested = false;
   bool _federalScopeIncoherent = false;
@@ -148,6 +153,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   final _basedOnTaxYearController = TextEditingController();
   final _sourceDateController = TextEditingController();
   final _lppRegulationLegalYearController = TextEditingController();
+  final _lppCapitalNoticeDeadlineController = TextEditingController();
   final _cantonCodeController = TextEditingController();
   final _municipalityIdController = TextEditingController();
   final _municipalityLabelController = TextEditingController();
@@ -159,6 +165,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   final _marginalRateController = TextEditingController();
   final _averageRateController = TextEditingController();
   final _lppRegulationRetryScrollKey = GlobalKey();
+  final _lppCapitalNoticeRetryScrollKey = GlobalKey();
 
   @override
   void initState() {
@@ -191,6 +198,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       _basedOnTaxYearController,
       _sourceDateController,
       _lppRegulationLegalYearController,
+      _lppCapitalNoticeDeadlineController,
       _cantonCodeController,
       _municipalityIdController,
       _municipalityLabelController,
@@ -715,6 +723,12 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                       style: MintTextStyles.bodySmall(color: MintColors.error),
                     ),
                   ],
+                  if (_canOfferLppCapitalNoticeDeadline) ...[
+                    const SizedBox(height: 20),
+                    _buildLppCapitalNoticeDeadlineField(
+                      enabled: fieldsEnabled,
+                    ),
+                  ],
                   if (_lppRegulationAcceptFailed) ...[
                     const SizedBox(height: 16),
                     MintSurface(
@@ -762,6 +776,92 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                  ],
+                  if (_lppCapitalNoticePartial) ...[
+                    const SizedBox(height: 16),
+                    Semantics(
+                      identifier: 'lpp_capital_notice_partial_state',
+                      container: true,
+                      explicitChildNodes: true,
+                      child: MintSurface(
+                        key: const Key('lpp_capital_notice_partial_state'),
+                        tone: MintSurfaceTone.porcelaine,
+                        padding: const EdgeInsets.all(14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.lpp_capital_notice_partial_state,
+                              style: MintTextStyles.bodyMedium(
+                                color: MintColors.error,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Semantics(
+                              identifier:
+                                  'lpp_capital_notice_continue_without_deadline_cta',
+                              button: true,
+                              enabled: !_isConfirming,
+                              child: FilledButton(
+                                key: const Key(
+                                  'lpp_capital_notice_continue_without_deadline_cta',
+                                ),
+                                onPressed: _isConfirming
+                                    ? null
+                                    : _continueWithoutLppCapitalNotice,
+                                child: Text(
+                                  l10n.lpp_capital_notice_continue_without_deadline_cta,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (_lppCapitalNoticeRecordFailed) ...[
+                    const SizedBox(height: 16),
+                    Semantics(
+                      identifier: 'lpp_capital_notice_record_retry_state',
+                      container: true,
+                      explicitChildNodes: true,
+                      child: MintSurface(
+                        key: const Key(
+                          'lpp_capital_notice_record_retry_state',
+                        ),
+                        tone: MintSurfaceTone.porcelaine,
+                        padding: const EdgeInsets.all(14),
+                        child: Column(
+                          key: _lppCapitalNoticeRetryScrollKey,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.lpp_capital_notice_record_retry_state,
+                              style: MintTextStyles.bodyMedium(
+                                color: MintColors.error,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Semantics(
+                              identifier: 'lpp_capital_notice_record_retry_cta',
+                              button: true,
+                              enabled: !_isConfirming,
+                              child: FilledButton(
+                                key: const Key(
+                                  'lpp_capital_notice_record_retry_cta',
+                                ),
+                                onPressed: _isConfirming
+                                    ? null
+                                    : _retryLppCapitalNoticeRecord,
+                                child: Text(
+                                  l10n.lpp_capital_notice_record_retry_cta,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -824,6 +924,53 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     );
   }
 
+  bool get _canOfferLppCapitalNoticeDeadline =>
+      widget.lppCapitalNoticeCandidate != null &&
+      FeatureFlags.lppCapitalNoticeAcquisitionEnabled &&
+      _lppFundRelationship == LppFundRelationship.currentFund;
+
+  Widget _buildLppCapitalNoticeDeadlineField({required bool enabled}) {
+    final l10n = S.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          identifier: 'lpp_capital_notice_deadline_question',
+          header: true,
+          child: Text(
+            l10n.lpp_capital_notice_deadline_question,
+            key: const Key('lpp_capital_notice_deadline_question'),
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Semantics(
+          identifier: 'lpp_capital_notice_deadline_field',
+          textField: true,
+          child: TextFormField(
+            key: const Key('lpp_capital_notice_deadline_field'),
+            controller: _lppCapitalNoticeDeadlineController,
+            enabled: enabled,
+            keyboardType: TextInputType.datetime,
+            decoration: InputDecoration(
+              labelText: l10n.lpp_capital_notice_deadline_field,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Semantics(
+          identifier: 'lpp_capital_notice_deadline_hint',
+          child: Text(
+            l10n.lpp_capital_notice_deadline_hint,
+            key: const Key('lpp_capital_notice_deadline_hint'),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          ),
+        ),
+      ],
+    );
+  }
+
   Future<void> _confirmLppRegulation() async {
     final candidate = widget.lppRegulationCandidate;
     if (_isConfirming ||
@@ -882,6 +1029,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       _lppRegulationFundRelationshipValidationFailed = false;
       _lppRegulationAcceptFailed = false;
       _lppRegulationRecordFailed = false;
+      _lppCapitalNoticePartial = false;
+      _lppCapitalNoticeRecordFailed = false;
     });
     final LppRegulationReceipt receipt;
     try {
@@ -945,6 +1094,137 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       }
       return;
     }
+    await _continueAfterLppRegulationRecord();
+  }
+
+  Future<void> _continueAfterLppRegulationRecord() async {
+    final regulationConfirmation = _acceptedLppRegulationConfirmation;
+    final regulationReceipt = _acceptedLppRegulationReceipt;
+    final capitalCandidate = widget.lppCapitalNoticeCandidate;
+    if (regulationConfirmation == null || regulationReceipt == null) return;
+
+    if (capitalCandidate == null ||
+        regulationConfirmation.fundRelationship !=
+            LppFundRelationship.currentFund) {
+      _finishLppRegulationReview();
+      return;
+    }
+
+    final rawDeadline = _lppCapitalNoticeDeadlineController.text.trim();
+    DateTime? deadline;
+    try {
+      deadline = _parseOptionalTaxDate(rawDeadline);
+    } on FormatException {
+      deadline = null;
+    }
+    if (deadline == null) {
+      _finishLppRegulationReview();
+      return;
+    }
+
+    if (!FeatureFlags.lppCapitalNoticeAcquisitionEnabled) {
+      _showLppCapitalNoticePartial();
+      return;
+    }
+    final ledger = context.read<CoachProfileProvider>();
+    final currentSnapshot =
+        ledger.currentLppSnapshot(LppEvidenceOwnerKind.self);
+    if (currentSnapshot == null ||
+        currentSnapshot.facts.isEmpty ||
+        currentSnapshot.snapshotId != capitalCandidate.expectedSnapshotId ||
+        currentSnapshot.lppCapitalNoticeDeadline?.referenceId !=
+            capitalCandidate.expectedPreviousReferenceId) {
+      _showLppCapitalNoticePartial();
+      return;
+    }
+
+    final LppCapitalNoticeReviewConfirmation confirmation;
+    try {
+      confirmation = LppCapitalNoticeReviewConfirmation(
+        ownerKind: LppEvidenceOwnerKind.self,
+        authorityReferenceId: regulationReceipt.referenceId,
+        sourceDate: regulationConfirmation.sourceDate,
+        legalYear: regulationConfirmation.legalYear,
+        deadlineDate: deadline,
+        expectedSnapshotId: capitalCandidate.expectedSnapshotId,
+        expectedPreviousReferenceId:
+            capitalCandidate.expectedPreviousReferenceId,
+      );
+    } on ArgumentError {
+      _showLppCapitalNoticePartial();
+      return;
+    }
+
+    final LppCapitalNoticeReceipt receipt;
+    try {
+      receipt = await ledger.acceptLppCapitalNotice(confirmation);
+    } catch (_) {
+      _showLppCapitalNoticePartial();
+      return;
+    }
+    if (!mounted) return;
+    setState(() {
+      _acceptedLppCapitalNoticeReceipt = receipt;
+      _lppCapitalNoticePartial = false;
+      _lppCapitalNoticeRecordFailed = false;
+    });
+    await _recordAcceptedLppCapitalNotice(continuingFromAccept: true);
+  }
+
+  void _showLppCapitalNoticePartial() {
+    if (!mounted) return;
+    setState(() {
+      _isConfirming = false;
+      _lppCapitalNoticePartial = true;
+      _lppCapitalNoticeRecordFailed = false;
+    });
+  }
+
+  Future<void> _retryLppCapitalNoticeRecord() async {
+    await _recordAcceptedLppCapitalNotice(continuingFromAccept: false);
+  }
+
+  Future<void> _recordAcceptedLppCapitalNotice({
+    required bool continuingFromAccept,
+  }) async {
+    final receipt = _acceptedLppCapitalNoticeReceipt;
+    if (receipt == null || (!continuingFromAccept && _isConfirming)) return;
+    if (!continuingFromAccept) {
+      setState(() {
+        _isConfirming = true;
+        _lppCapitalNoticeRecordFailed = false;
+      });
+    }
+    try {
+      await context.read<DocumentProvider>().recordLppCapitalNotice(receipt);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isConfirming = false;
+          _lppCapitalNoticeRecordFailed = true;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final retryContext = _lppCapitalNoticeRetryScrollKey.currentContext;
+          if (retryContext != null) {
+            unawaited(
+              Scrollable.ensureVisible(
+                retryContext,
+                alignment: 0.8,
+              ),
+            );
+          }
+        });
+      }
+      return;
+    }
+    _finishLppRegulationReview();
+  }
+
+  void _continueWithoutLppCapitalNotice() {
+    _finishLppRegulationReview();
+  }
+
+  void _finishLppRegulationReview() {
     _reviewSessionFinalized = true;
     _scanSessions?.discard(widget.scanSessionId);
     if (!mounted) return;

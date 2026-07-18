@@ -11,6 +11,7 @@ class ScanSessionPayload {
   final LppExtractionCandidate? lppCandidate;
   final LppAcquisitionAuthorization? lppAuthorization;
   final LppRegulationAcquisitionCandidate? lppRegulationCandidate;
+  final LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate;
   final ManualPartnerAccountabilityContext? manualPartnerAccountability;
   final TaxExtractionCandidate? taxCandidate;
   final int? previousConfidence;
@@ -20,6 +21,7 @@ class ScanSessionPayload {
     this.lppCandidate,
     this.lppAuthorization,
     this.lppRegulationCandidate,
+    this.lppCapitalNoticeCandidate,
     this.manualPartnerAccountability,
     this.taxCandidate,
     this.previousConfidence,
@@ -34,6 +36,7 @@ class ScanSessionPayload {
       lppCandidate: null,
       lppAuthorization: null,
       lppRegulationCandidate: null,
+      lppCapitalNoticeCandidate: null,
       manualPartnerAccountability: null,
       taxCandidate: null,
       previousConfidence: previousConfidence,
@@ -105,6 +108,7 @@ class ScanSessionProvider extends ChangeNotifier {
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
     LppRegulationAcquisitionCandidate? lppRegulationCandidate,
+    LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
   }) {
@@ -113,7 +117,9 @@ class ScanSessionProvider extends ChangeNotifier {
     final hasLppAuthorization = lppAuthorization != null;
     final isLppRegulation = extraction.documentType == DocumentType.lppPlan;
     final hasLppRegulationCandidate = lppRegulationCandidate != null;
+    final hasLppCapitalNoticeCandidate = lppCapitalNoticeCandidate != null;
     if (isLppRegulation != hasLppRegulationCandidate ||
+        (hasLppCapitalNoticeCandidate && !hasLppRegulationCandidate) ||
         (hasLppRegulationCandidate &&
             (!_isStrictEmptyLppRegulationExtraction(extraction) ||
                 hasLppCandidate ||
@@ -153,6 +159,7 @@ class ScanSessionProvider extends ChangeNotifier {
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
       lppRegulationCandidate: lppRegulationCandidate,
+      lppCapitalNoticeCandidate: lppCapitalNoticeCandidate,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );

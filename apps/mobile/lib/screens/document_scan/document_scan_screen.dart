@@ -886,6 +886,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     LppAcquisitionSource? lppSource,
     LppAcquisitionAuthorization? lppAuthorization,
     LppRegulationAcquisitionCandidate? lppRegulationCandidate,
+    LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     _LppAcquisitionDecision? lppDecision,
   }) async {
@@ -948,6 +949,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
       lppRegulationCandidate: lppRegulationCandidate,
+      lppCapitalNoticeCandidate:
+          extraction.documentType == DocumentType.lppPlan &&
+                  FeatureFlags.lppCapitalNoticeAcquisitionEnabled
+              ? lppCapitalNoticeCandidate
+              : null,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );
@@ -1618,9 +1624,37 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             expected.expectedPreviousReferenceId;
   }
 
+  LppCapitalNoticeAcquisitionCandidate? _currentLppCapitalNoticeCandidate() {
+    if (!FeatureFlags.lppCapitalNoticeAcquisitionEnabled) return null;
+    final snapshot = context
+        .read<CoachProfileProvider>()
+        .currentLppSnapshot(LppEvidenceOwnerKind.self);
+    if (snapshot == null || snapshot.facts.isEmpty) return null;
+    try {
+      return LppCapitalNoticeAcquisitionCandidate(
+        expectedSnapshotId: snapshot.snapshotId,
+        expectedPreviousReferenceId:
+            snapshot.lppCapitalNoticeDeadline?.referenceId,
+      );
+    } on ArgumentError {
+      return null;
+    }
+  }
+
+  bool _currentLppCapitalNoticeMatches(
+    LppCapitalNoticeAcquisitionCandidate expected,
+  ) {
+    final current = _currentLppCapitalNoticeCandidate();
+    return current != null &&
+        current.expectedSnapshotId == expected.expectedSnapshotId &&
+        current.expectedPreviousReferenceId ==
+            expected.expectedPreviousReferenceId;
+  }
+
   Future<void> _acquireLppRegulationFromGallery() async {
     if (!_lppRegulationAcquisitionEnabled) return;
     final expected = _currentLppRegulationCandidate();
+    final expectedCapitalNotice = _currentLppCapitalNoticeCandidate();
     if (expected == null) return;
     if (!await _requestAcquisitionConsent(null)) return;
     if (!mounted ||
@@ -1685,6 +1719,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           sources: <String>[],
         ),
         lppRegulationCandidate: expected,
+        lppCapitalNoticeCandidate: expectedCapitalNotice != null &&
+                _currentLppCapitalNoticeMatches(expectedCapitalNotice)
+            ? expectedCapitalNotice
+            : null,
       );
     } catch (_) {
       if (mounted) _showErrorSnack(S.of(context)!.docScanGenericError);

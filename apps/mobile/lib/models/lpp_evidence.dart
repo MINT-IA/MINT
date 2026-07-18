@@ -352,6 +352,41 @@ final class LppCapitalNoticeReceipt {
   LppEvidenceOwnerKind get ownerKind => LppEvidenceOwnerKind.self;
 }
 
+final class LppCapitalNoticeAcquisitionCandidate {
+  factory LppCapitalNoticeAcquisitionCandidate({
+    required String expectedSnapshotId,
+    String? expectedPreviousReferenceId,
+  }) {
+    if (!_isCanonicalUuidV4(expectedSnapshotId)) {
+      throw ArgumentError.value(
+        expectedSnapshotId,
+        'expectedSnapshotId',
+        'canonical UUIDv4 required',
+      );
+    }
+    if (expectedPreviousReferenceId != null &&
+        !_isCanonicalUuidV4(expectedPreviousReferenceId)) {
+      throw ArgumentError.value(
+        expectedPreviousReferenceId,
+        'expectedPreviousReferenceId',
+        'canonical UUIDv4 required',
+      );
+    }
+    return LppCapitalNoticeAcquisitionCandidate._(
+      expectedSnapshotId: expectedSnapshotId,
+      expectedPreviousReferenceId: expectedPreviousReferenceId,
+    );
+  }
+
+  const LppCapitalNoticeAcquisitionCandidate._({
+    required this.expectedSnapshotId,
+    required this.expectedPreviousReferenceId,
+  });
+
+  final String expectedSnapshotId;
+  final String? expectedPreviousReferenceId;
+}
+
 final class LppRegulationAcquisitionCandidate {
   factory LppRegulationAcquisitionCandidate({
     String? expectedPreviousReferenceId,
