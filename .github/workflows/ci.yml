@@ -727,6 +727,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -740,7 +742,7 @@ jobs:
             ~/.cache/puppeteer
           key: ${{ runner.os }}-mermaid-cli-11.4.2
       - name: Install pytest
-        run: pip install pytest pyyaml
+        run: pip install pytest pyyaml fastapi
       - name: Render Mermaid diagrams
         run: python3 tools/checks/mermaid_render_guard.py
       - name: Run repository contract tests
