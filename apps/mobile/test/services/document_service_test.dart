@@ -1,7 +1,81 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_service.dart';
 
 void main() {
+  group('LPP plan zero-fact mapping', () {
+    test('document and vault enums round-trip the exact lpp_plan slug', () {
+      expect(DocumentType.lppPlan.backendValue, 'lpp_plan');
+      expect(
+        DocumentTypeBackend.fromBackend('lpp_plan'),
+        DocumentType.lppPlan,
+      );
+      expect(VaultDocumentType.lppPlan.apiValue, 'lpp_plan');
+      expect(
+        VaultDocumentTypeX.fromApi('lpp_plan'),
+        VaultDocumentType.lppPlan,
+      );
+    });
+
+    test('upload result admits only exact zero-fact lpp_plan authority', () {
+      final exact = <String, dynamic>{
+        'id': 'plan-1',
+        'document_type': 'lpp_plan',
+        'extracted_fields': <String, dynamic>{},
+        'confidence': 0,
+        'fields_found': 0,
+        'fields_total': 0,
+        'warnings': <String>[],
+        'rag_indexed': false,
+      };
+
+      final result = DocumentUploadResult.fromJson(exact);
+
+      expect(result.documentType, VaultDocumentType.lppPlan);
+      expect(result.extractedFields.fieldsFound, 0);
+      expect(result.extractedFields.fieldsTotal, 0);
+      expect(result.confidence, 0);
+      expect(result.fieldsFound, 0);
+      expect(result.fieldsTotal, 0);
+      expect(result.ragIndexed, isFalse);
+      expect(result.isExactLppPlanAuthority, isTrue);
+
+      Map<String, dynamic> without(String key) {
+        final copy = <String, dynamic>{...exact};
+        copy.remove(key);
+        return copy;
+      }
+
+      final rejected = <String, Map<String, dynamic>>{
+        'non-plan type': <String, dynamic>{
+          ...exact,
+          'document_type': 'lpp_certificate',
+        },
+        'extracted payload': <String, dynamic>{
+          ...exact,
+          'extracted_fields': <String, dynamic>{'unexpected': 'private'},
+        },
+        'fields found': <String, dynamic>{...exact, 'fields_found': 1},
+        'fields total': <String, dynamic>{...exact, 'fields_total': 1},
+        'confidence': <String, dynamic>{...exact, 'confidence': 0.01},
+        'RAG indexed': <String, dynamic>{...exact, 'rag_indexed': true},
+        'missing extracted payload': without('extracted_fields'),
+        'missing fields found': without('fields_found'),
+        'missing fields total': without('fields_total'),
+        'missing confidence': without('confidence'),
+        'missing RAG status': without('rag_indexed'),
+      };
+
+      for (final mutation in rejected.entries) {
+        expect(
+          DocumentUploadResult.fromJson(mutation.value).isExactLppPlanAuthority,
+          isFalse,
+          reason: mutation.key,
+        );
+      }
+    });
+  });
+
   // ──────────────────────────────────────────────────────────
   // LppExtractedFields — fromJson / toJson / fieldsFound
   // ──────────────────────────────────────────────────────────

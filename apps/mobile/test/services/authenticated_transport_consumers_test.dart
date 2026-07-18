@@ -108,6 +108,38 @@ void main() {
     expect(request.timeout, const Duration(seconds: 120));
   });
 
+  test('LPP plan multipart sends the exact zero-fact document type', () async {
+    final directory = await Directory.systemTemp.createTemp('mint-lpp-plan');
+    addTearDown(() => directory.delete(recursive: true));
+    final file = File('${directory.path}/plan.pdf');
+    await file.writeAsBytes(const [1, 2, 3]);
+    final transport = _FakeTransport([
+      _jsonResponse({
+        'id': 'plan-1',
+        'document_type': 'lpp_plan',
+        'extracted_fields': <String, dynamic>{},
+        'confidence': 0,
+        'fields_found': 0,
+        'fields_total': 0,
+        'warnings': <String>[],
+        'rag_indexed': false,
+      }, statusCode: 201),
+    ]);
+
+    final result = await DocumentService(
+      transport: transport,
+      baseUrl: 'https://example.test/api/v1',
+    ).uploadDocument(file, type: VaultDocumentType.lppPlan);
+
+    expect(result.documentType, VaultDocumentType.lppPlan);
+    expect(result.isExactLppPlanAuthority, isTrue);
+    final request = transport.requests.single;
+    expect(request.bodyKind, AuthenticatedBodyKind.multipart);
+    expect(request.multipartFields, const {'document_type': 'lpp_plan'});
+    expect(request.multipartFiles.single.field, 'file');
+    expect(request.multipartFiles.single.path, file.path);
+  });
+
   test('document list preserves wrapped and bare response parsing', () async {
     Map<String, dynamic> document(String id) => {
           'id': id,
