@@ -20,6 +20,7 @@ import 'package:mint_mobile/services/consent/partner_accountability_service.dart
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
+import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:provider/provider.dart';
 
@@ -37,25 +38,34 @@ final class _StaticCoachProvider extends CoachProfileProvider {
 
 final class _ScanSessionSpy extends ScanSessionProvider {
   final retainedAuthorizations = <LppAcquisitionAuthorization>[];
+  final retainedRegulationCandidates = <LppRegulationAcquisitionCandidate>[];
+  final retainedRegulationExtractions = <ExtractionResult>[];
 
   @override
   String retainExtraction(
     ExtractionResult extraction, {
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
+    LppRegulationAcquisitionCandidate? lppRegulationCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
   }) {
     if (lppAuthorization != null) {
       retainedAuthorizations.add(lppAuthorization);
     }
-    return super.retainExtraction(
+    final id = super.retainExtraction(
       extraction,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
+      lppRegulationCandidate: lppRegulationCandidate,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );
+    if (lppRegulationCandidate != null) {
+      retainedRegulationCandidates.add(lppRegulationCandidate);
+      retainedRegulationExtractions.add(extraction);
+    }
+    return id;
   }
 }
 
@@ -71,6 +81,149 @@ final class _Counters {
   final transmittedPayloads = <Uint8List>[];
   final readPaths = <String>[];
   final consentPurposes = <List<ConsentPurpose>>[];
+}
+
+final class _LppPlanCounters {
+  int consent = 0;
+  int picker = 0;
+  int bytes = 0;
+  int upload = 0;
+  int vision = 0;
+  final consentPurposes = <List<ConsentPurpose>>[];
+  final uploadedPaths = <String>[];
+  final uploadedTypes = <VaultDocumentType>[];
+}
+
+final class _MutableLppPlanCoachProvider extends CoachProfileProvider {
+  _MutableLppPlanCoachProvider(
+    this.snapshot, {
+    this.manualPartnerSnapshot,
+  });
+
+  LppEvidenceSnapshot? snapshot;
+  final LppEvidenceSnapshot? manualPartnerSnapshot;
+  int snapshotReads = 0;
+
+  @override
+  CoachProfile get profile => CoachProfile.defaults();
+
+  @override
+  bool get hasProfile => true;
+
+  @override
+  bool get isLoaded => true;
+
+  @override
+  LppEvidenceSnapshot? currentLppSnapshot(LppEvidenceOwnerKind ownerKind) {
+    snapshotReads += 1;
+    return switch (ownerKind) {
+      LppEvidenceOwnerKind.self => snapshot,
+      LppEvidenceOwnerKind.manualPartner => manualPartnerSnapshot,
+    };
+  }
+}
+
+const _lppPlanSnapshotId = '33333333-3333-4333-8333-333333333333';
+const _replacementSnapshotId = '44444444-4444-4444-8444-444444444444';
+const _lppPlanReferenceId = '55555555-5555-4555-8555-555555555555';
+const _replacementReferenceId = '66666666-6666-4666-8666-666666666666';
+const _backendDocumentId = 'backend-document-id-must-not-survive';
+
+LppEvidenceSnapshot _lppPlanSnapshot({
+  String snapshotId = _lppPlanSnapshotId,
+  String? referenceId = _lppPlanReferenceId,
+  bool withFacts = true,
+}) {
+  final sourceDate = DateTime.utc(2026, 1, 1);
+  final confirmedAt = DateTime.utc(2026, 7, 1, 8);
+  return LppEvidenceSnapshot(
+    snapshotId: snapshotId,
+    facts: withFacts
+        ? <LppEvidenceFactKey, LppEvidenceFact>{
+            LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
+              value: 84000,
+              unit: LppEvidenceUnit.chf,
+              profileOwnerId: 'self',
+              actorProfileOwnerId: 'self',
+              source: 'certificate',
+              sourceDate: sourceDate,
+              updatedAt: confirmedAt,
+            ),
+          }
+        : const <LppEvidenceFactKey, LppEvidenceFact>{},
+    lppRegulationReference: referenceId == null
+        ? null
+        : LppRegulationReference.create(
+            referenceId: referenceId,
+            sourceDate: sourceDate,
+            legalYear: 2026,
+            confirmedAt: confirmedAt,
+          ),
+  );
+}
+
+LppEvidenceSnapshot _manualPartnerLppSnapshot() {
+  final sourceDate = DateTime.utc(2026, 1, 1);
+  final updatedAt = DateTime.utc(2026, 7, 1, 8);
+  return LppEvidenceSnapshot(
+    snapshotId: _replacementSnapshotId,
+    facts: <LppEvidenceFactKey, LppEvidenceFact>{
+      LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
+        value: 42000,
+        unit: LppEvidenceUnit.chf,
+        profileOwnerId: 'manual-partner',
+        actorProfileOwnerId: 'self',
+        ownerKind: LppEvidenceOwnerKind.manualPartner,
+        authorizationMode:
+            LppEvidenceAuthorizationMode.manualPartnerDeclaration,
+        source: 'certificate',
+        sourceDate: sourceDate,
+        updatedAt: updatedAt,
+      ),
+    },
+  );
+}
+
+Map<String, dynamic> _exactLppPlanUploadJson() => <String, dynamic>{
+      'id': _backendDocumentId,
+      'document_type': 'lpp_plan',
+      'extracted_fields': <String, dynamic>{},
+      'confidence': 0,
+      'fields_found': 0,
+      'fields_total': 0,
+      'warnings': <String>[],
+      'rag_indexed': false,
+    };
+
+DocumentUploadResult _exactLppPlanUpload() =>
+    DocumentUploadResult.fromJson(_exactLppPlanUploadJson());
+
+Map<String, DocumentUploadResult> _nonExactLppPlanUploads() {
+  final exact = _exactLppPlanUploadJson();
+  Map<String, dynamic> mutated(Map<String, dynamic> values) =>
+      <String, dynamic>{...exact, ...values};
+
+  final missingRag = <String, dynamic>{...exact}..remove('rag_indexed');
+  return <String, DocumentUploadResult>{
+    'wrong document type': DocumentUploadResult.fromJson(
+      mutated(<String, dynamic>{'document_type': 'lpp_certificate'}),
+    ),
+    'extracted payload': DocumentUploadResult.fromJson(
+      mutated(<String, dynamic>{
+        'extracted_fields': <String, dynamic>{'raw': 'forbidden'},
+      }),
+    ),
+    'non-zero confidence': DocumentUploadResult.fromJson(
+      mutated(<String, dynamic>{'confidence': 0.01}),
+    ),
+    'non-zero counters': DocumentUploadResult.fromJson(
+      mutated(<String, dynamic>{'fields_found': 1, 'fields_total': 1}),
+    ),
+    'RAG indexed': DocumentUploadResult.fromJson(
+      mutated(<String, dynamic>{'rag_indexed': true}),
+    ),
+    'missing exact-shape key': DocumentUploadResult.fromJson(missingRag),
+  };
 }
 
 const _receiptId = '11111111-1111-4111-8111-111111111111';
@@ -311,6 +464,126 @@ final _partnerGate = PartnerAccountabilityExternalGate(
   );
 }
 
+({
+  Widget widget,
+  _ScanSessionSpy sessions,
+  GoRouter router,
+  _MutableLppPlanCoachProvider coach,
+  _LppPlanCounters counters,
+}) _lppPlanHarness({
+  bool hasSnapshot = true,
+  LppEvidenceSnapshot? snapshot,
+  LppEvidenceSnapshot? manualPartnerSnapshot,
+  String extension = 'pdf',
+  DocumentUploadResult? uploadResult,
+  void Function(_MutableLppPlanCoachProvider coach)? afterUpload,
+}) {
+  final counters = _LppPlanCounters();
+  final sessions = _ScanSessionSpy();
+  final coach = _MutableLppPlanCoachProvider(
+    hasSnapshot ? snapshot ?? _lppPlanSnapshot() : null,
+    manualPartnerSnapshot: manualPartnerSnapshot,
+  );
+  late final GoRouter router;
+  router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => DocumentScanScreen(
+          initialType: DocumentType.lppPlan,
+          requireConsent: (_, purposes) async {
+            counters.consent += 1;
+            counters.consentPurposes.add(List.of(purposes));
+            return true;
+          },
+          pickFile: () async {
+            counters.picker += 1;
+            return PlatformFile(
+              name: 'regulation.$extension',
+              path: '/synthetic/regulation.$extension',
+              size: 4,
+            );
+          },
+          readFileBytes: (_) async {
+            counters.bytes += 1;
+            return Uint8List.fromList(const [37, 80, 68, 70]);
+          },
+          uploadDocument: (file, {required type}) async {
+            counters.upload += 1;
+            counters.uploadedPaths.add(file.path);
+            counters.uploadedTypes.add(type);
+            afterUpload?.call(coach);
+            return uploadResult ?? _exactLppPlanUpload();
+          },
+          visionExtractor: ({
+            required imageBase64,
+            required documentType,
+            canton,
+            languageHint,
+            subjectKind,
+            receiptId,
+          }) async {
+            counters.vision += 1;
+            throw StateError('LPP plan must never enter Vision');
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/scan/review',
+        builder: (_, state) => Scaffold(
+          key: const Key('lpp_plan_review_destination'),
+          body: Text(state.uri.queryParameters['scanSessionId'] ?? ''),
+        ),
+      ),
+    ],
+  );
+  return (
+    sessions: sessions,
+    router: router,
+    coach: coach,
+    counters: counters,
+    widget: MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CoachProfileProvider>.value(value: coach),
+        ChangeNotifierProvider<ScanSessionProvider>.value(value: sessions),
+      ],
+      child: MaterialApp.router(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        routerConfig: router,
+      ),
+    ),
+  );
+}
+
+Future<void> _openLppPlanImport(WidgetTester tester) async {
+  await tester.drag(
+    find.byType(CustomScrollView),
+    const Offset(0, -500),
+  );
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key('document_scan_gallery_cta')));
+  await tester.pumpAndSettle();
+}
+
+void _expectNoLppPlanIo(
+  _LppPlanCounters counters,
+  _ScanSessionSpy sessions,
+) {
+  expect(counters.consent, 0);
+  expect(counters.picker, 0);
+  expect(counters.bytes, 0);
+  expect(counters.upload, 0);
+  expect(counters.vision, 0);
+  expect(sessions.retainedSessionCount, 0);
+}
+
 Future<void> _openGalleryGate(WidgetTester tester) async {
   await tester.drag(
     find.byType(CustomScrollView),
@@ -419,13 +692,297 @@ void main() {
   setUp(() {
     FeatureFlags.typedLppEvidence = true;
     FeatureFlags.documentLppEvidenceEnabled = true;
+    FeatureFlags.lppRegulationReferenceEnabled = false;
     FeatureFlags.partnerLppAccountabilityEnabled = true;
   });
   tearDown(() {
     FeatureFlags.typedLppEvidence = false;
     FeatureFlags.documentLppEvidenceEnabled = false;
+    FeatureFlags.lppRegulationReferenceEnabled = false;
     FeatureFlags.partnerLppAccountabilityEnabled = false;
   });
+
+  testWidgets(
+      'LPP plan PDF retains only exact local authority and opens review route',
+      (tester) async {
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    final harness = _lppPlanHarness();
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('document_scan_lpp_plan_type_selector')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('document_scan_capture_cta')), findsNothing);
+    expect(
+      find.widgetWithIcon(TextButton, Icons.text_snippet_outlined),
+      findsNothing,
+    );
+    expect(
+      find.widgetWithIcon(OutlinedButton, Icons.science_outlined),
+      findsNothing,
+    );
+
+    await _openLppPlanImport(tester);
+
+    expect(find.byKey(const Key('lpp_acquisition_self_gate')), findsNothing);
+    expect(harness.counters.consent, 1);
+    expect(
+      harness.counters.consentPurposes.single,
+      const <ConsentPurpose>[ConsentPurpose.visionExtraction],
+    );
+    expect(
+      harness.counters.consentPurposes.single,
+      isNot(contains(ConsentPurpose.transferUsAnthropic)),
+    );
+    expect(harness.counters.picker, 1);
+    expect(harness.counters.bytes, 0);
+    expect(harness.counters.upload, 1);
+    expect(
+      harness.counters.uploadedTypes,
+      const <VaultDocumentType>[VaultDocumentType.lppPlan],
+    );
+    expect(
+      harness.counters.uploadedPaths.single,
+      '/synthetic/regulation.pdf',
+    );
+    expect(harness.counters.vision, 0);
+    expect(harness.coach.snapshotReads, greaterThanOrEqualTo(2));
+    expect(harness.sessions.retainedRegulationCandidates, hasLength(1));
+    expect(harness.sessions.retainedRegulationExtractions, hasLength(1));
+
+    final candidate = harness.sessions.retainedRegulationCandidates.single;
+    expect(candidate.expectedSnapshotId, _lppPlanSnapshotId);
+    expect(candidate.expectedPreviousReferenceId, _lppPlanReferenceId);
+    final extraction = harness.sessions.retainedRegulationExtractions.single;
+    expect(extraction.documentType, DocumentType.lppPlan);
+    expect(extraction.fields, isEmpty);
+    expect(extraction.overallConfidence, 0);
+    expect(extraction.confidenceDelta, 0);
+    expect(extraction.warnings, isEmpty);
+    expect(extraction.disclaimer, isEmpty);
+    expect(extraction.sources, isEmpty);
+    expect(extraction.diagnostics, isEmpty);
+    expect(extraction.planType, isNull);
+    expect(extraction.planTypeWarning, isNull);
+    expect(extraction.coherenceWarnings, isEmpty);
+
+    final uri = harness.router.routeInformationProvider.value.uri;
+    final scanSessionId = uri.queryParameters['scanSessionId'];
+    expect(uri.path, '/scan/review');
+    expect(uri.queryParameters.keys.toSet(), const <String>{'scanSessionId'});
+    expect(scanSessionId, isNotNull);
+    expect(
+      uri.toString(),
+      '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId!)}',
+    );
+    expect(uri.toString(), isNot(contains(_backendDocumentId)));
+    expect(scanSessionId, isNot(contains(_backendDocumentId)));
+  });
+
+  for (final disabledFlag in const <String>[
+    'typedLppEvidence',
+    'documentLppEvidenceEnabled',
+    'lppRegulationReferenceEnabled',
+  ]) {
+    testWidgets('LPP plan stops before I/O when $disabledFlag is false',
+        (tester) async {
+      FeatureFlags.typedLppEvidence = true;
+      FeatureFlags.documentLppEvidenceEnabled = true;
+      FeatureFlags.lppRegulationReferenceEnabled = true;
+      switch (disabledFlag) {
+        case 'typedLppEvidence':
+          FeatureFlags.typedLppEvidence = false;
+        case 'documentLppEvidenceEnabled':
+          FeatureFlags.documentLppEvidenceEnabled = false;
+        case 'lppRegulationReferenceEnabled':
+          FeatureFlags.lppRegulationReferenceEnabled = false;
+      }
+      final harness = _lppPlanHarness();
+      addTearDown(harness.router.dispose);
+
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('document_scan_lpp_plan_type_selector')),
+        findsNothing,
+      );
+      _expectNoLppPlanIo(harness.counters, harness.sessions);
+    });
+  }
+
+  for (final invalidSnapshot in const <String>['absent', 'empty']) {
+    testWidgets('LPP plan stops before I/O for $invalidSnapshot self snapshot',
+        (tester) async {
+      FeatureFlags.lppRegulationReferenceEnabled = true;
+      final harness = _lppPlanHarness(
+        hasSnapshot: invalidSnapshot != 'absent',
+        snapshot: invalidSnapshot == 'empty'
+            ? _lppPlanSnapshot(withFacts: false)
+            : null,
+      );
+      addTearDown(harness.router.dispose);
+
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('document_scan_lpp_plan_type_selector')),
+        findsOneWidget,
+      );
+
+      await _openLppPlanImport(tester);
+
+      expect(find.byKey(const Key('lpp_acquisition_self_gate')), findsNothing);
+      _expectNoLppPlanIo(harness.counters, harness.sessions);
+      expect(
+        harness.router.routeInformationProvider.value.uri.path,
+        '/',
+      );
+    });
+  }
+
+  testWidgets(
+      'LPP plan stops before I/O for manual-partner-only snapshot authority',
+      (tester) async {
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    final harness = _lppPlanHarness(
+      hasSnapshot: false,
+      manualPartnerSnapshot: _manualPartnerLppSnapshot(),
+    );
+    addTearDown(harness.router.dispose);
+    expect(
+      harness.coach.currentLppSnapshot(LppEvidenceOwnerKind.self),
+      isNull,
+    );
+    expect(
+      harness.coach.currentLppSnapshot(LppEvidenceOwnerKind.manualPartner),
+      isNotNull,
+    );
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('document_scan_lpp_plan_type_selector')),
+      findsOneWidget,
+    );
+
+    await _openLppPlanImport(tester);
+
+    expect(find.byKey(const Key('lpp_acquisition_self_gate')), findsNothing);
+    _expectNoLppPlanIo(harness.counters, harness.sessions);
+    expect(
+      harness.router.routeInformationProvider.value.uri.path,
+      '/',
+    );
+  });
+
+  for (final extension in const <String>['jpg', 'png', 'txt']) {
+    testWidgets('LPP plan rejects .$extension without OCR upload or Vision',
+        (tester) async {
+      FeatureFlags.lppRegulationReferenceEnabled = true;
+      final harness = _lppPlanHarness(extension: extension);
+      addTearDown(harness.router.dispose);
+
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('document_scan_lpp_plan_type_selector')),
+        findsOneWidget,
+      );
+
+      await _openLppPlanImport(tester);
+
+      expect(find.byKey(const Key('lpp_acquisition_self_gate')), findsNothing);
+      expect(harness.counters.consent, 1);
+      expect(
+        harness.counters.consentPurposes.single,
+        const <ConsentPurpose>[ConsentPurpose.visionExtraction],
+      );
+      expect(harness.counters.picker, 1);
+      expect(harness.counters.bytes, 0);
+      expect(harness.counters.upload, 0);
+      expect(harness.counters.vision, 0);
+      expect(harness.sessions.retainedSessionCount, 0);
+      expect(
+        harness.router.routeInformationProvider.value.uri.path,
+        '/',
+      );
+    });
+  }
+
+  for (final invalidUpload in _nonExactLppPlanUploads().entries) {
+    testWidgets('LPP plan rejects non-exact zero-fact ${invalidUpload.key}',
+        (tester) async {
+      FeatureFlags.lppRegulationReferenceEnabled = true;
+      expect(invalidUpload.value.isExactLppPlanAuthority, isFalse);
+      final harness = _lppPlanHarness(uploadResult: invalidUpload.value);
+      addTearDown(harness.router.dispose);
+
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('document_scan_lpp_plan_type_selector')),
+        findsOneWidget,
+      );
+
+      await _openLppPlanImport(tester);
+
+      expect(harness.counters.consent, 1);
+      expect(harness.counters.picker, 1);
+      expect(harness.counters.upload, 1);
+      expect(harness.counters.bytes, 0);
+      expect(harness.counters.vision, 0);
+      expect(harness.sessions.retainedSessionCount, 0);
+      expect(
+        harness.router.routeInformationProvider.value.uri.path,
+        '/',
+      );
+    });
+  }
+
+  final driftedSnapshots = <String, LppEvidenceSnapshot Function()>{
+    'snapshot': () => _lppPlanSnapshot(
+          snapshotId: _replacementSnapshotId,
+        ),
+    'previous reference': () => _lppPlanSnapshot(
+          referenceId: _replacementReferenceId,
+        ),
+  };
+  for (final drift in driftedSnapshots.entries) {
+    testWidgets('LPP plan revalidates ${drift.key} after upload',
+        (tester) async {
+      FeatureFlags.lppRegulationReferenceEnabled = true;
+      final harness = _lppPlanHarness(
+        afterUpload: (coach) => coach.snapshot = drift.value(),
+      );
+      addTearDown(harness.router.dispose);
+
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('document_scan_lpp_plan_type_selector')),
+        findsOneWidget,
+      );
+
+      await _openLppPlanImport(tester);
+
+      expect(harness.counters.consent, 1);
+      expect(harness.counters.picker, 1);
+      expect(harness.counters.upload, 1);
+      expect(harness.counters.bytes, 0);
+      expect(harness.counters.vision, 0);
+      expect(harness.coach.snapshotReads, greaterThanOrEqualTo(2));
+      expect(harness.sessions.retainedSessionCount, 0);
+      expect(
+        harness.router.routeInformationProvider.value.uri.path,
+        '/',
+      );
+    });
+  }
 
   testWidgets('single user sees self-only gate and cancellation does nothing',
       (tester) async {
