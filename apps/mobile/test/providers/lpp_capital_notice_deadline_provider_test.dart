@@ -203,8 +203,8 @@ void main() {
     addTearDown(provider.dispose);
     var notifications = 0;
     provider.addListener(() => notifications += 1);
-    final dynamic incompleteSourceDate = '2026-02';
-    final dynamic incompleteDeadlineDate = '2026-09';
+    const dynamic incompleteSourceDate = '2026-02';
+    const dynamic incompleteDeadlineDate = '2026-09';
 
     expect(
       () => LppCapitalNoticeReviewConfirmation(

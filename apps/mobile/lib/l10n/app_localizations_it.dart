@@ -24566,6 +24566,37 @@ class SIt extends S {
   String get retirementLppRegulationHandoffClose => 'Chiudi';
 
   @override
+  String get retirementLppRegulationFundRelationshipLabel =>
+      'Origine dichiarata';
+
+  @override
+  String get retirementLppRegulationFundRelationshipCurrent =>
+      'La mia cassa pensioni attuale — dichiarata, non verificata';
+
+  @override
+  String get retirementLppRegulationFundRelationshipUncertain =>
+      'Non lo so — dichiarato, non verificato';
+
+  @override
+  String get retirementLppRegulationFundRelationshipFormerOrOther =>
+      'Una cassa precedente o un’altra cassa — dichiarata, non verificata';
+
+  @override
+  String get retirementLppRegulationRecoveryTitle =>
+      'Riferimento locale da riconfermare';
+
+  @override
+  String get retirementLppRegulationRecoveryBody =>
+      'La dichiarazione esiste, ma manca il riferimento locale. Riconfermala dalla scansione senza presumere che il regolamento si applichi.';
+
+  @override
+  String get retirementLppRegulationRecoveryCta => 'Riconferma il regolamento';
+
+  @override
+  String get retirementLppRegulationApplicabilityQuestion =>
+      'Questo regolamento si applica alla mia situazione? Se sì, per quale periodo e secondo quale versione o quali disposizioni?';
+
+  @override
   String get docScanLppPlanDocumentLabel => 'Regolamento di previdenza LPP';
 
   @override
@@ -24607,5 +24638,23 @@ class SIt extends S {
       'La revisione è stata accettata, ma non è stato possibile registrarne il riferimento. Riprova senza modificare i campi.';
 
   @override
-  String get lppRegulationReviewConfirm => 'Confermare la revisione';
+  String get lppRegulationReviewConfirm => 'Salva la dichiarazione';
+
+  @override
+  String get lppRegulationReviewFundRelationshipQuestion =>
+      'Da quale cassa pensioni pensi provenga questo regolamento?';
+
+  @override
+  String get lppRegulationReviewFundCurrent => 'La mia cassa pensioni attuale';
+
+  @override
+  String get lppRegulationReviewFundUncertain => 'Non lo so';
+
+  @override
+  String get lppRegulationReviewFundFormerOrOther =>
+      'Una cassa precedente o un’altra cassa';
+
+  @override
+  String get lppRegulationReviewFundRelationshipRequired =>
+      'Scegli una delle tre risposte per salvare la dichiarazione.';
 }

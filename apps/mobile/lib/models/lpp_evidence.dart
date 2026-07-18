@@ -341,16 +341,8 @@ final class LppCapitalNoticeReceipt {
 
 final class LppRegulationAcquisitionCandidate {
   factory LppRegulationAcquisitionCandidate({
-    required String expectedSnapshotId,
     String? expectedPreviousReferenceId,
   }) {
-    if (!_isCanonicalUuidV4(expectedSnapshotId)) {
-      throw ArgumentError.value(
-        expectedSnapshotId,
-        'expectedSnapshotId',
-        'canonical UUIDv4 required',
-      );
-    }
     if (expectedPreviousReferenceId != null &&
         !_isCanonicalUuidV4(expectedPreviousReferenceId)) {
       throw ArgumentError.value(
@@ -360,18 +352,32 @@ final class LppRegulationAcquisitionCandidate {
       );
     }
     return LppRegulationAcquisitionCandidate._(
-      expectedSnapshotId: expectedSnapshotId,
       expectedPreviousReferenceId: expectedPreviousReferenceId,
     );
   }
 
   const LppRegulationAcquisitionCandidate._({
-    required this.expectedSnapshotId,
     required this.expectedPreviousReferenceId,
   });
 
-  final String expectedSnapshotId;
   final String? expectedPreviousReferenceId;
+}
+
+enum LppFundRelationship {
+  currentFund('currentFund'),
+  uncertain('uncertain'),
+  formerOrOther('formerOrOther');
+
+  const LppFundRelationship(this.wireName);
+
+  final String wireName;
+
+  static LppFundRelationship? fromWireName(Object? raw) => switch (raw) {
+        'currentFund' => currentFund,
+        'uncertain' => uncertain,
+        'formerOrOther' => formerOrOther,
+        _ => null,
+      };
 }
 
 final class LppRegulationReviewConfirmation {
@@ -379,7 +385,7 @@ final class LppRegulationReviewConfirmation {
     required LppEvidenceOwnerKind ownerKind,
     required DateTime sourceDate,
     required int legalYear,
-    required String expectedSnapshotId,
+    required LppFundRelationship fundRelationship,
     String? expectedPreviousReferenceId,
   }) {
     if (ownerKind != LppEvidenceOwnerKind.self) {
@@ -395,13 +401,6 @@ final class LppRegulationReviewConfirmation {
     if (legalYear < 1900 || legalYear > 9999) {
       throw RangeError.range(legalYear, 1900, 9999, 'legalYear');
     }
-    if (!_isCanonicalUuidV4(expectedSnapshotId)) {
-      throw ArgumentError.value(
-        expectedSnapshotId,
-        'expectedSnapshotId',
-        'canonical UUIDv4 required',
-      );
-    }
     if (expectedPreviousReferenceId != null &&
         !_isCanonicalUuidV4(expectedPreviousReferenceId)) {
       throw ArgumentError.value(
@@ -414,7 +413,7 @@ final class LppRegulationReviewConfirmation {
       ownerKind: ownerKind,
       sourceDate: sourceDate,
       legalYear: legalYear,
-      expectedSnapshotId: expectedSnapshotId,
+      fundRelationship: fundRelationship,
       expectedPreviousReferenceId: expectedPreviousReferenceId,
     );
   }
@@ -423,26 +422,24 @@ final class LppRegulationReviewConfirmation {
     required this.ownerKind,
     required this.sourceDate,
     required this.legalYear,
-    required this.expectedSnapshotId,
+    required this.fundRelationship,
     required this.expectedPreviousReferenceId,
   });
 
   final LppEvidenceOwnerKind ownerKind;
   final DateTime sourceDate;
   final int legalYear;
-  final String expectedSnapshotId;
+  final LppFundRelationship fundRelationship;
   final String? expectedPreviousReferenceId;
 }
 
 final class LppRegulationReceipt {
   const LppRegulationReceipt({
     required this.referenceId,
-    required this.snapshotId,
     required this.confirmedAt,
   });
 
   final String referenceId;
-  final String snapshotId;
   final DateTime confirmedAt;
   String get kind => LppRegulationReference.kind;
   LppEvidenceOwnerKind get ownerKind => LppEvidenceOwnerKind.self;
@@ -716,6 +713,7 @@ final class LppRegulationReference {
     required this.sourceDate,
     required this.legalYear,
     required this.confirmedAt,
+    required this.fundRelationship,
   });
 
   static const kind = 'lppRegulation';
@@ -724,12 +722,14 @@ final class LppRegulationReference {
   final DateTime sourceDate;
   final int legalYear;
   final DateTime confirmedAt;
+  final LppFundRelationship fundRelationship;
 
   static LppRegulationReference create({
     required String referenceId,
     required DateTime sourceDate,
     required int legalYear,
     required DateTime confirmedAt,
+    required LppFundRelationship fundRelationship,
   }) {
     if (!_isCanonicalCivilInstant(sourceDate) || !confirmedAt.isUtc) {
       throw ArgumentError('Canonical UTC LPP regulation dates are required');
@@ -742,6 +742,7 @@ final class LppRegulationReference {
       'sourceDate': _encodeCivilDate(sourceDate),
       'legalYear': legalYear,
       'confirmedAt': confirmedAt.toIso8601String(),
+      'fundRelationship': fundRelationship.wireName,
     }, now: () => confirmedAt);
     if (parsed == null) {
       throw ArgumentError('Invalid LPP regulation reference');
@@ -757,6 +758,7 @@ final class LppRegulationReference {
         'sourceDate': _encodeCivilDate(sourceDate),
         'legalYear': legalYear,
         'confirmedAt': confirmedAt.toIso8601String(),
+        'fundRelationship': fundRelationship.wireName,
       };
 
   static LppRegulationReference? fromJson(
@@ -771,6 +773,7 @@ final class LppRegulationReference {
       'sourceDate',
       'legalYear',
       'confirmedAt',
+      'fundRelationship',
     };
     if (json.length != allowedKeys.length ||
         json.keys.toSet().difference(allowedKeys).isNotEmpty ||
@@ -781,7 +784,8 @@ final class LppRegulationReference {
         json['source'] != 'certificate' ||
         json['legalYear'] is! int ||
         (json['legalYear'] as int) < 1900 ||
-        (json['legalYear'] as int) > 9999) {
+        (json['legalYear'] as int) > 9999 ||
+        LppFundRelationship.fromWireName(json['fundRelationship']) == null) {
       return null;
     }
     final sourceDate = _parseCanonicalCivilDate(json['sourceDate']);
@@ -798,6 +802,8 @@ final class LppRegulationReference {
       sourceDate: sourceDate,
       legalYear: json['legalYear'] as int,
       confirmedAt: confirmedAt,
+      fundRelationship:
+          LppFundRelationship.fromWireName(json['fundRelationship'])!,
     );
   }
 }
@@ -808,14 +814,12 @@ class LppEvidenceSnapshot {
     required this.facts,
     this.independentFacts = const {},
     this.lppCapitalNoticeDeadline,
-    this.lppRegulationReference,
   });
 
   final String snapshotId;
   final Map<LppEvidenceFactKey, LppEvidenceFact> facts;
   final Map<LppEvidenceFactKey, LppEvidenceFact> independentFacts;
   final LppCapitalNoticeDeadline? lppCapitalNoticeDeadline;
-  final LppRegulationReference? lppRegulationReference;
 
   Iterable<LppEvidenceFact> get identityFacts =>
       facts.isNotEmpty ? facts.values : independentFacts.values;
@@ -833,8 +837,6 @@ class LppEvidenceSnapshot {
           },
         if (lppCapitalNoticeDeadline != null)
           'lppCapitalNoticeDeadline': lppCapitalNoticeDeadline!.toJson(),
-        if (lppRegulationReference != null)
-          'lppRegulationReference': lppRegulationReference!.toJson(),
       };
 
   static LppEvidenceSnapshot? fromJson(
@@ -847,9 +849,8 @@ class LppEvidenceSnapshot {
       'facts',
       'independentFacts',
       'lppCapitalNoticeDeadline',
-      'lppRegulationReference',
     };
-    if ((json.length < 2 || json.length > 5) ||
+    if ((json.length < 2 || json.length > 4) ||
         json.keys.toSet().difference(allowedKeys).isNotEmpty ||
         json['snapshotId'] is! String ||
         !_isCanonicalUuidV4(json['snapshotId'] as String) ||
@@ -858,10 +859,7 @@ class LppEvidenceSnapshot {
             json['independentFacts'] is! Map) ||
         (json.containsKey('lppCapitalNoticeDeadline') &&
             (expectedOwnerKind != LppEvidenceOwnerKind.self ||
-                json['lppCapitalNoticeDeadline'] is! Map)) ||
-        (json.containsKey('lppRegulationReference') &&
-            (expectedOwnerKind != LppEvidenceOwnerKind.self ||
-                json['lppRegulationReference'] is! Map))) {
+                json['lppCapitalNoticeDeadline'] is! Map))) {
       return null;
     }
     final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
@@ -924,20 +922,11 @@ class LppEvidenceSnapshot {
             now: now,
           );
     if (rawCapitalNotice != null && capitalNotice == null) return null;
-    final rawRegulation = json['lppRegulationReference'];
-    final regulation = rawRegulation == null
-        ? null
-        : LppRegulationReference.fromJson(
-            Map<String, dynamic>.from(rawRegulation as Map),
-            now: now,
-          );
-    if (rawRegulation != null && regulation == null) return null;
     return LppEvidenceSnapshot(
       snapshotId: json['snapshotId'] as String,
       facts: Map.unmodifiable(facts),
       independentFacts: Map.unmodifiable(independentFacts),
       lppCapitalNoticeDeadline: capitalNotice,
-      lppRegulationReference: regulation,
     );
   }
 }
@@ -1009,17 +998,20 @@ class LppEvidenceRoot {
     required this.self,
     this.manualPartner,
     this.legacyPartnerQuarantine,
+    this.selfRegulationReference,
   });
 
   final LppEvidenceSnapshot? self;
   final LppEvidenceSnapshot? manualPartner;
   final LppLegacyPartnerQuarantine? legacyPartnerQuarantine;
+  final LppRegulationReference? selfRegulationReference;
 
   String toJsonString() => jsonEncode(<String, dynamic>{
-        'schemaVersion': 1,
+        'schemaVersion': 2,
         'self': self?.toJson(),
         'manualPartner': manualPartner?.toJson(),
         'legacyPartnerQuarantine': legacyPartnerQuarantine?.toJson(),
+        'selfRegulationReference': selfRegulationReference?.toJson(),
       });
 
   static LppEvidenceRoot? fromJsonString(
@@ -1031,21 +1023,44 @@ class LppEvidenceRoot {
       final decoded = jsonDecode(raw);
       if (decoded is! Map) return null;
       final root = Map<String, dynamic>.from(decoded);
-      if (root.length != _rootKeys.length ||
-          root.keys.toSet().difference(_rootKeys).isNotEmpty ||
-          root['schemaVersion'] != 1 ||
+      final schemaVersion = root['schemaVersion'];
+      final expectedKeys = switch (schemaVersion) {
+        1 => _legacyRootKeys,
+        2 => _rootKeys,
+        _ => const <String>{},
+      };
+      if (root.length != expectedKeys.length ||
+          root.keys.toSet().difference(expectedKeys).isNotEmpty ||
           !root.containsKey('self') ||
           !root.containsKey('manualPartner') ||
-          !root.containsKey('legacyPartnerQuarantine')) {
+          !root.containsKey('legacyPartnerQuarantine') ||
+          (schemaVersion == 2 &&
+              !root.containsKey('selfRegulationReference'))) {
         return null;
       }
-      final rawSelf = root['self'];
+      Object? rawSelf = root['self'];
       final rawManualPartner = root['manualPartner'];
       final rawQuarantine = root['legacyPartnerQuarantine'];
+      final rawRegulation = root['selfRegulationReference'];
       if (rawSelf != null && rawSelf is! Map ||
           rawManualPartner != null && rawManualPartner is! Map ||
-          rawQuarantine != null && rawQuarantine is! Map) {
+          rawQuarantine != null && rawQuarantine is! Map ||
+          rawRegulation != null && rawRegulation is! Map) {
         return null;
+      }
+      if (schemaVersion == 1 && rawSelf is Map) {
+        final legacySelf = Map<String, dynamic>.from(rawSelf);
+        final nestedRegulation = legacySelf['lppRegulationReference'];
+        if (nestedRegulation != null &&
+            (nestedRegulation is! Map ||
+                !_isValidLegacyLppRegulationReference(
+                  Map<String, dynamic>.from(nestedRegulation),
+                  now: now,
+                ))) {
+          return null;
+        }
+        legacySelf.remove('lppRegulationReference');
+        rawSelf = legacySelf;
       }
       final self = rawSelf == null
           ? null
@@ -1066,9 +1081,16 @@ class LppEvidenceRoot {
           : LppLegacyPartnerQuarantine.fromJson(
               Map<String, dynamic>.from(rawQuarantine as Map),
             );
+      final regulation = rawRegulation == null
+          ? null
+          : LppRegulationReference.fromJson(
+              Map<String, dynamic>.from(rawRegulation as Map),
+              now: now,
+            );
       if (rawSelf != null && self == null ||
           rawManualPartner != null && manualPartner == null ||
-          rawQuarantine != null && quarantine == null) {
+          rawQuarantine != null && quarantine == null ||
+          rawRegulation != null && regulation == null) {
         return null;
       }
       if (self != null &&
@@ -1081,6 +1103,7 @@ class LppEvidenceRoot {
         self: self,
         manualPartner: manualPartner,
         legacyPartnerQuarantine: quarantine,
+        selfRegulationReference: regulation,
       );
     } on Object {
       return null;
@@ -1088,29 +1111,106 @@ class LppEvidenceRoot {
   }
 }
 
-const _rootKeys = <String>{
+const _legacyRootKeys = <String>{
   'schemaVersion',
   'self',
   'manualPartner',
   'legacyPartnerQuarantine',
 };
 
+const _rootKeys = <String>{
+  'schemaVersion',
+  'self',
+  'manualPartner',
+  'legacyPartnerQuarantine',
+  'selfRegulationReference',
+};
+
 const _zeroSha256 =
     '0000000000000000000000000000000000000000000000000000000000000000';
 
-Map<String, dynamic>? _decodeLppRootEnvelope(Object? raw) {
+bool _isValidLegacyLppRegulationReference(
+  Map<String, dynamic> json, {
+  DateTime Function()? now,
+}) {
+  const allowedKeys = <String>{
+    'referenceId',
+    'kind',
+    'ownerKind',
+    'source',
+    'sourceDate',
+    'legalYear',
+    'confirmedAt',
+  };
+  if (json.length != allowedKeys.length ||
+      json.keys.toSet().difference(allowedKeys).isNotEmpty ||
+      json['referenceId'] is! String ||
+      !_isCanonicalUuidV4(json['referenceId'] as String) ||
+      json['kind'] != LppRegulationReference.kind ||
+      json['ownerKind'] != LppEvidenceOwnerKind.self.wireName ||
+      json['source'] != 'certificate' ||
+      json['legalYear'] is! int ||
+      (json['legalYear'] as int) < 1900 ||
+      (json['legalYear'] as int) > 9999) {
+    return false;
+  }
+  final sourceDate = _parseCanonicalCivilDate(json['sourceDate']);
+  final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
+  final current = (now ?? DateTime.now)().toUtc();
+  return sourceDate != null &&
+      confirmedAt != null &&
+      !confirmedAt.isAfter(current) &&
+      !SwissCivilTime.isFutureCivilDate(sourceDate, now: current);
+}
+
+Map<String, dynamic>? _decodeLppRootEnvelope(
+  Object? raw, {
+  DateTime Function()? now,
+}) {
   if (raw is! String || raw == '__secure__') return null;
   try {
     final decoded = jsonDecode(raw);
     if (decoded is! Map) return null;
     final root = Map<String, dynamic>.from(decoded);
-    if (root.length != _rootKeys.length ||
-        root.keys.toSet().difference(_rootKeys).isNotEmpty ||
-        root['schemaVersion'] != 1 ||
-        !root.containsKey('self') ||
-        !root.containsKey('manualPartner') ||
-        !root.containsKey('legacyPartnerQuarantine')) {
+    final schemaVersion = root['schemaVersion'];
+    final expectedKeys = switch (schemaVersion) {
+      1 => _legacyRootKeys,
+      2 => _rootKeys,
+      _ => const <String>{},
+    };
+    if (root.length != expectedKeys.length ||
+        root.keys.toSet().difference(expectedKeys).isNotEmpty ||
+        root['self'] != null && root['self'] is! Map ||
+        root['manualPartner'] != null && root['manualPartner'] is! Map ||
+        root['legacyPartnerQuarantine'] != null &&
+            root['legacyPartnerQuarantine'] is! Map) {
       return null;
+    }
+    if (schemaVersion == 1 && root['self'] is Map) {
+      final self = Map<String, dynamic>.from(root['self'] as Map);
+      final nestedRegulation = self['lppRegulationReference'];
+      if (nestedRegulation != null &&
+          (nestedRegulation is! Map ||
+              !_isValidLegacyLppRegulationReference(
+                Map<String, dynamic>.from(nestedRegulation),
+                now: now,
+              ))) {
+        return null;
+      }
+      self.remove('lppRegulationReference');
+      root['self'] = self;
+    }
+    if (schemaVersion == 2) {
+      final regulation = root['selfRegulationReference'];
+      if (regulation != null &&
+          (regulation is! Map ||
+              LppRegulationReference.fromJson(
+                    Map<String, dynamic>.from(regulation),
+                    now: now,
+                  ) ==
+                  null)) {
+        return null;
+      }
     }
     return root;
   } on Object {
@@ -1158,7 +1258,7 @@ class LppEvidenceSelector {
     Object? rawRoot, {
     DateTime Function()? now,
   }) {
-    final root = _decodeLppRootEnvelope(rawRoot);
+    final root = _decodeLppRootEnvelope(rawRoot, now: now);
     final rawSelf = root?['self'];
     if (rawSelf is! Map) return null;
     final snapshot = LppEvidenceSnapshot.fromJson(

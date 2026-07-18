@@ -24561,6 +24561,38 @@ class SDe extends S {
   String get retirementLppRegulationHandoffClose => 'Schliessen';
 
   @override
+  String get retirementLppRegulationFundRelationshipLabel =>
+      'Deklarierte Herkunft';
+
+  @override
+  String get retirementLppRegulationFundRelationshipCurrent =>
+      'Meine aktuelle Pensionskasse — deklariert, nicht verifiziert';
+
+  @override
+  String get retirementLppRegulationFundRelationshipUncertain =>
+      'Ich weiss es nicht — deklariert, nicht verifiziert';
+
+  @override
+  String get retirementLppRegulationFundRelationshipFormerOrOther =>
+      'Eine frühere oder andere Pensionskasse — deklariert, nicht verifiziert';
+
+  @override
+  String get retirementLppRegulationRecoveryTitle =>
+      'Lokale Referenz erneut bestätigen';
+
+  @override
+  String get retirementLppRegulationRecoveryBody =>
+      'Die Angabe besteht, aber ihre lokale Referenz fehlt. Bestätige sie über den Scan erneut, ohne die Anwendbarkeit des Reglements anzunehmen.';
+
+  @override
+  String get retirementLppRegulationRecoveryCta =>
+      'Reglement erneut bestätigen';
+
+  @override
+  String get retirementLppRegulationApplicabilityQuestion =>
+      'Gilt dieses Reglement für meine Situation? Falls ja, für welchen Zeitraum und gemäss welcher Version oder welchen Bestimmungen?';
+
+  @override
   String get docScanLppPlanDocumentLabel => 'BVG-Vorsorgereglement';
 
   @override
@@ -24602,5 +24634,23 @@ class SDe extends S {
       'Die Prüfung wurde akzeptiert, ihre Referenz konnte jedoch nicht gespeichert werden. Versuche es erneut, ohne die Felder zu ändern.';
 
   @override
-  String get lppRegulationReviewConfirm => 'Prüfung bestätigen';
+  String get lppRegulationReviewConfirm => 'Angabe speichern';
+
+  @override
+  String get lppRegulationReviewFundRelationshipQuestion =>
+      'Von welcher Pensionskasse stammt dieses Reglement deiner Meinung nach?';
+
+  @override
+  String get lppRegulationReviewFundCurrent => 'Meine aktuelle Pensionskasse';
+
+  @override
+  String get lppRegulationReviewFundUncertain => 'Ich weiss es nicht';
+
+  @override
+  String get lppRegulationReviewFundFormerOrOther =>
+      'Eine frühere oder andere Pensionskasse';
+
+  @override
+  String get lppRegulationReviewFundRelationshipRequired =>
+      'Wähle eine der drei Antworten, um die Angabe zu speichern.';
 }

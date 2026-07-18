@@ -20,7 +20,7 @@ final class ConfirmedDocumentReference {
   const ConfirmedDocumentReference({
     required this.referenceId,
     required this.kind,
-    required this.snapshotId,
+    this.snapshotId,
     required this.ownerKind,
     required this.confirmedAt,
   });
@@ -31,7 +31,7 @@ final class ConfirmedDocumentReference {
 
   final String referenceId;
   final String kind;
-  final String snapshotId;
+  final String? snapshotId;
   final LppEvidenceOwnerKind ownerKind;
   final DateTime confirmedAt;
 
@@ -39,44 +39,53 @@ final class ConfirmedDocumentReference {
     return <String, dynamic>{
       'referenceId': referenceId,
       'kind': kind,
-      'snapshotId': snapshotId,
+      if (snapshotId != null) 'snapshotId': snapshotId,
       'ownerKind': ownerKind.wireName,
       'confirmedAt': confirmedAt.toUtc().toIso8601String(),
     };
   }
 
   static ConfirmedDocumentReference? fromJson(Map<String, dynamic> json) {
-    const allowedKeys = <String>{
+    const snapshotBoundKeys = <String>{
       'referenceId',
       'kind',
       'snapshotId',
       'ownerKind',
       'confirmedAt',
     };
-    if (json.length != allowedKeys.length ||
-        json.keys.toSet().difference(allowedKeys).isNotEmpty ||
+    const regulationKeys = <String>{
+      'referenceId',
+      'kind',
+      'ownerKind',
+      'confirmedAt',
+    };
+    final kind = json['kind'];
+    final expectedKeys =
+        kind == lppRegulationKind ? regulationKeys : snapshotBoundKeys;
+    if (json.length != expectedKeys.length ||
+        json.keys.toSet().difference(expectedKeys).isNotEmpty ||
         json['referenceId'] is! String ||
-        json['snapshotId'] is! String ||
-        (json['kind'] != lppKind &&
-            json['kind'] != lppCapitalNoticeKind &&
-            json['kind'] != lppRegulationKind)) {
+        (kind != lppRegulationKind && json['snapshotId'] is! String) ||
+        (kind != lppKind &&
+            kind != lppCapitalNoticeKind &&
+            kind != lppRegulationKind)) {
       return null;
     }
     final ownerKind = LppEvidenceOwnerKind.fromWireName(json['ownerKind']);
     final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
     if (ownerKind == null ||
-        ((json['kind'] == lppCapitalNoticeKind ||
-                json['kind'] == lppRegulationKind) &&
+        ((kind == lppCapitalNoticeKind || kind == lppRegulationKind) &&
             ownerKind != LppEvidenceOwnerKind.self) ||
         confirmedAt == null ||
         !_isCanonicalUuidV4(json['referenceId'] as String) ||
-        !_isCanonicalUuidV4(json['snapshotId'] as String)) {
+        (kind != lppRegulationKind &&
+            !_isCanonicalUuidV4(json['snapshotId'] as String))) {
       return null;
     }
     return ConfirmedDocumentReference(
       referenceId: json['referenceId'] as String,
-      kind: json['kind'] as String,
-      snapshotId: json['snapshotId'] as String,
+      kind: kind as String,
+      snapshotId: json['snapshotId'] as String?,
       ownerKind: ownerKind,
       confirmedAt: confirmedAt,
     );
@@ -93,7 +102,7 @@ class DocumentReferenceStore {
       : _preferencesLoader = preferencesLoader ?? SharedPreferences.getInstance;
 
   static const storageKey = '_confirmed_document_references_v1';
-  static const schemaVersion = 1;
+  static const schemaVersion = 2;
 
   final SharedPreferencesLoader _preferencesLoader;
 
@@ -113,9 +122,10 @@ class DocumentReferenceStore {
     }
     final root = Map<String, dynamic>.from(decoded);
     const allowedRootKeys = <String>{'schemaVersion', 'references'};
+    final storedSchemaVersion = root['schemaVersion'];
     if (root.length != allowedRootKeys.length ||
         root.keys.toSet().difference(allowedRootKeys).isNotEmpty ||
-        root['schemaVersion'] != schemaVersion ||
+        (storedSchemaVersion != 1 && storedSchemaVersion != schemaVersion) ||
         root['references'] is! List) {
       throw const FormatException('Invalid document reference root');
     }
@@ -127,18 +137,25 @@ class DocumentReferenceStore {
       if (rawReference is! Map) {
         throw const FormatException('Invalid document reference item');
       }
-      final reference = ConfirmedDocumentReference.fromJson(
-        Map<String, dynamic>.from(rawReference),
-      );
+      final encodedReference = Map<String, dynamic>.from(rawReference);
+      final reference = storedSchemaVersion == 1
+          ? _legacyReferenceFromJson(encodedReference)
+          : ConfirmedDocumentReference.fromJson(encodedReference);
       if (reference == null || !referenceIds.add(reference.referenceId)) {
         throw const FormatException('Invalid document reference item');
       }
-      final binding = '${reference.kind}|${reference.ownerKind.wireName}|'
-          '${reference.snapshotId}';
+      if (storedSchemaVersion == 1 &&
+          reference.kind == ConfirmedDocumentReference.lppRegulationKind) {
+        continue;
+      }
+      final binding = _referenceBinding(reference);
       if (!snapshotBindings.add(binding)) {
         throw const FormatException('Duplicate document reference binding');
       }
       references.add(reference);
+    }
+    if (storedSchemaVersion == 1) {
+      await save(references);
     }
     return List.unmodifiable(references);
   }
@@ -149,10 +166,7 @@ class DocumentReferenceStore {
     for (final reference in references) {
       if (ConfirmedDocumentReference.fromJson(reference.toJson()) == null ||
           !referenceIds.add(reference.referenceId) ||
-          !snapshotBindings.add(
-            '${reference.kind}|${reference.ownerKind.wireName}|'
-            '${reference.snapshotId}',
-          )) {
+          !snapshotBindings.add(_referenceBinding(reference))) {
         throw const FormatException('Invalid document reference set');
       }
     }
@@ -169,6 +183,52 @@ class DocumentReferenceStore {
     if (!persisted) {
       throw StateError('Document reference persistence failed');
     }
+  }
+
+  static String _referenceBinding(ConfirmedDocumentReference reference) =>
+      reference.kind == ConfirmedDocumentReference.lppRegulationKind
+          ? '${reference.kind}|${reference.ownerKind.wireName}'
+          : '${reference.kind}|${reference.ownerKind.wireName}|'
+              '${reference.snapshotId}';
+
+  static ConfirmedDocumentReference? _legacyReferenceFromJson(
+    Map<String, dynamic> json,
+  ) {
+    const allowedKeys = <String>{
+      'referenceId',
+      'kind',
+      'snapshotId',
+      'ownerKind',
+      'confirmedAt',
+    };
+    if (json.length != allowedKeys.length ||
+        json.keys.toSet().difference(allowedKeys).isNotEmpty ||
+        json['referenceId'] is! String ||
+        json['snapshotId'] is! String ||
+        (json['kind'] != ConfirmedDocumentReference.lppKind &&
+            json['kind'] != ConfirmedDocumentReference.lppCapitalNoticeKind &&
+            json['kind'] != ConfirmedDocumentReference.lppRegulationKind)) {
+      return null;
+    }
+    final ownerKind = LppEvidenceOwnerKind.fromWireName(json['ownerKind']);
+    final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
+    final kind = json['kind'] as String;
+    if (ownerKind == null ||
+        ((kind == ConfirmedDocumentReference.lppCapitalNoticeKind ||
+                kind == ConfirmedDocumentReference.lppRegulationKind) &&
+            ownerKind != LppEvidenceOwnerKind.self) ||
+        confirmedAt == null ||
+        !_isCanonicalUuidV4(json['referenceId'] as String) ||
+        !_isCanonicalUuidV4(json['snapshotId'] as String)) {
+      return null;
+    }
+    return ConfirmedDocumentReference(
+      referenceId: json['referenceId'] as String,
+      kind: kind,
+      snapshotId: json['snapshotId'] as String,
+      ownerKind: ownerKind,
+      confirmedAt: confirmedAt,
+    );
   }
 }
 
@@ -240,6 +300,13 @@ class DocumentProvider extends ChangeNotifier {
   DocumentReferenceHydrationState get referenceHydrationState =>
       _referenceHydrationState;
   DocumentReferenceStore get referenceStore => _referenceStore;
+  bool get hasStoredLppRegulationReference =>
+      referencesHydrated &&
+      _references.any(
+        (reference) =>
+            reference.kind == ConfirmedDocumentReference.lppRegulationKind &&
+            reference.ownerKind == LppEvidenceOwnerKind.self,
+      );
 
   List<ConfirmedDocumentReference> get currentReferences {
     final ledger = _ledger;
@@ -247,11 +314,7 @@ class DocumentProvider extends ChangeNotifier {
       return const <ConfirmedDocumentReference>[];
     }
     return List<ConfirmedDocumentReference>.unmodifiable(
-      _references.where(
-        (reference) =>
-            ledger.currentLppSnapshotId(reference.ownerKind) ==
-            reference.snapshotId,
-      ),
+      _references.where((reference) => _isReferenceCurrent(reference, ledger)),
     );
   }
 
@@ -325,12 +388,28 @@ class DocumentProvider extends ChangeNotifier {
         break;
       }
     }
-    if (reference == null ||
-        ledger.currentLppSnapshotId(reference.ownerKind) !=
-            reference.snapshotId) {
+    if (reference == null || !_isReferenceCurrent(reference, ledger)) {
       return null;
     }
     return reference;
+  }
+
+  bool _isReferenceCurrent(
+    ConfirmedDocumentReference reference,
+    CoachProfileProvider ledger,
+  ) {
+    if (reference.kind == ConfirmedDocumentReference.lppRegulationKind) {
+      if (reference.snapshotId != null) return false;
+      return ledger.matchesAcceptedLppRegulationReceipt(
+        LppRegulationReceipt(
+          referenceId: reference.referenceId,
+          confirmedAt: reference.confirmedAt,
+        ),
+      );
+    }
+    return reference.snapshotId != null &&
+        ledger.currentLppSnapshotId(reference.ownerKind) ==
+            reference.snapshotId;
   }
 
   bool hasStoredReference(String referenceId) =>
@@ -485,14 +564,13 @@ class DocumentProvider extends ChangeNotifier {
       final reference = ConfirmedDocumentReference(
         referenceId: receipt.referenceId,
         kind: ConfirmedDocumentReference.lppRegulationKind,
-        snapshotId: receipt.snapshotId,
         ownerKind: receipt.ownerKind,
         confirmedAt: receipt.confirmedAt,
       );
       for (final existing in _references) {
         if (existing.referenceId == reference.referenceId &&
             existing.kind == reference.kind &&
-            existing.snapshotId == reference.snapshotId &&
+            existing.snapshotId == null &&
             existing.ownerKind == reference.ownerKind &&
             existing.confirmedAt == reference.confirmedAt) {
           return existing;
@@ -503,8 +581,7 @@ class DocumentProvider extends ChangeNotifier {
       for (final existing in _references) {
         final isPriorRegulation =
             existing.kind == ConfirmedDocumentReference.lppRegulationKind &&
-                existing.ownerKind == receipt.ownerKind &&
-                existing.snapshotId == receipt.snapshotId;
+                existing.ownerKind == receipt.ownerKind;
         if (isPriorRegulation) {
           if (!inserted) {
             nextReferences.add(reference);
@@ -549,7 +626,7 @@ class DocumentProvider extends ChangeNotifier {
         !ledger.matchesAcceptedLppCapitalNoticeReceipt(
           LppCapitalNoticeReceipt(
             referenceId: candidate.referenceId,
-            snapshotId: reference.snapshotId,
+            snapshotId: reference.snapshotId!,
             confirmedAt: candidate.confirmedAt,
           ),
         )) {
@@ -576,10 +653,10 @@ class DocumentProvider extends ChangeNotifier {
     }
     final ledger = _ledger;
     if (ledger == null ||
+        ledger.profile?.lppRegulationReference != candidate ||
         !ledger.matchesAcceptedLppRegulationReceipt(
           LppRegulationReceipt(
             referenceId: candidate.referenceId,
-            snapshotId: reference.snapshotId,
             confirmedAt: candidate.confirmedAt,
           ),
         )) {

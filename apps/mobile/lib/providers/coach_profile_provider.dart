@@ -923,6 +923,9 @@ class CoachProfileProvider extends ChangeNotifier {
     if (existingRoot == null) {
       return (answers: answers, migrated: false);
     }
+    final requiresSchema2Rewrite = hasExistingRoot &&
+        rawRoot is String &&
+        _lppRootSchemaVersion(rawRoot) == 1;
 
     final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
     final migratedKeys = <String>{};
@@ -1005,7 +1008,8 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     if (facts.isEmpty &&
         retainedUnprovedZeroKeys.isEmpty &&
-        legacyPartnerKeys.isEmpty) {
+        legacyPartnerKeys.isEmpty &&
+        !requiresSchema2Rewrite) {
       return (answers: answers, migrated: false);
     }
 
@@ -1030,8 +1034,18 @@ class CoachProfileProvider extends ChangeNotifier {
             ),
       manualPartner: existingRoot.manualPartner,
       legacyPartnerQuarantine: quarantine,
+      selfRegulationReference: existingRoot.selfRegulationReference,
     ).toJsonString();
     return (answers: answers, migrated: true);
+  }
+
+  static int? _lppRootSchemaVersion(String raw) {
+    try {
+      final decoded = jsonDecode(raw);
+      return decoded is Map ? decoded['schemaVersion'] as int? : null;
+    } on Object {
+      return null;
+    }
   }
 
   static ({
@@ -1411,10 +1425,10 @@ class CoachProfileProvider extends ChangeNotifier {
           facts: self.facts,
           independentFacts: self.independentFacts,
           lppCapitalNoticeDeadline: notice,
-          lppRegulationReference: self.lppRegulationReference,
         ),
         manualPartner: root.manualPartner,
         legacyPartnerQuarantine: root.legacyPartnerQuarantine,
+        selfRegulationReference: root.selfRegulationReference,
       );
       final nextAnswers = _copyAnswers(loaded)
         ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
@@ -1496,25 +1510,23 @@ class CoachProfileProvider extends ChangeNotifier {
         'future civil source dates cannot enter the ledger',
       );
     }
-    final currentSnapshot = LppEvidenceSelector.selectSelf(
+    final currentRoot = LppEvidenceRoot.fromJsonString(
       _lastAnswers[_lppEvidenceRootKey],
       now: _now,
     );
-    if (currentSnapshot == null ||
-        currentSnapshot.facts.isEmpty ||
-        currentSnapshot.snapshotId != confirmation.expectedSnapshotId) {
-      throw StateError('Current self LPP snapshot does not match');
+    if (currentRoot == null) {
+      throw StateError('Current LPP evidence root is unavailable');
     }
-    final currentReference = currentSnapshot.lppRegulationReference;
+    final currentReference = currentRoot.selfRegulationReference;
     final expectedPreviousReferenceId =
         confirmation.expectedPreviousReferenceId;
+    if (currentReference != null &&
+        _regulationReferenceMatches(currentReference, confirmation)) {
+      return _regulationReceipt(currentReference);
+    }
     if (expectedPreviousReferenceId != null &&
         currentReference?.referenceId != expectedPreviousReferenceId) {
       throw StateError('Previous regulation reference does not match');
-    }
-    if (currentReference != null &&
-        _regulationReferenceMatches(currentReference, confirmation)) {
-      return _regulationReceipt(currentSnapshot, currentReference);
     }
     if (currentReference != null && expectedPreviousReferenceId == null) {
       throw StateError('Explicit previous reference is required');
@@ -1530,6 +1542,7 @@ class CoachProfileProvider extends ChangeNotifier {
       sourceDate: confirmation.sourceDate,
       legalYear: confirmation.legalYear,
       confirmedAt: confirmedAt,
+      fundRelationship: confirmation.fundRelationship,
     );
     late CoachProfile publishedProfile;
     await _mutateLppAnswers(sessionGuard, (loaded) {
@@ -1538,30 +1551,18 @@ class CoachProfileProvider extends ChangeNotifier {
         loaded[_lppEvidenceRootKey],
         now: _now,
       );
-      final self = LppEvidenceSelector.selectSelf(
-        loaded[_lppEvidenceRootKey],
-        now: _now,
-      );
-      if (root == null ||
-          self == null ||
-          self.facts.isEmpty ||
-          self.snapshotId != confirmation.expectedSnapshotId) {
-        throw StateError('Persisted self LPP snapshot changed');
+      if (root == null) {
+        throw StateError('Persisted LPP evidence root changed');
       }
-      final persistedReference = self.lppRegulationReference;
+      final persistedReference = root.selfRegulationReference;
       if (persistedReference?.referenceId != expectedPreviousReferenceId) {
         throw StateError('Persisted regulation reference changed');
       }
       final nextRoot = LppEvidenceRoot(
-        self: LppEvidenceSnapshot(
-          snapshotId: self.snapshotId,
-          facts: self.facts,
-          independentFacts: self.independentFacts,
-          lppCapitalNoticeDeadline: self.lppCapitalNoticeDeadline,
-          lppRegulationReference: reference,
-        ),
+        self: root.self,
         manualPartner: root.manualPartner,
         legacyPartnerQuarantine: root.legacyPartnerQuarantine,
+        selfRegulationReference: reference,
       );
       final nextAnswers = _copyAnswers(loaded)
         ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
@@ -1583,7 +1584,6 @@ class CoachProfileProvider extends ChangeNotifier {
     });
     return LppRegulationReceipt(
       referenceId: referenceId,
-      snapshotId: confirmation.expectedSnapshotId,
       confirmedAt: confirmedAt,
     );
   }
@@ -1593,15 +1593,14 @@ class CoachProfileProvider extends ChangeNotifier {
     LppRegulationReviewConfirmation confirmation,
   ) =>
       reference.sourceDate == confirmation.sourceDate &&
-      reference.legalYear == confirmation.legalYear;
+      reference.legalYear == confirmation.legalYear &&
+      reference.fundRelationship == confirmation.fundRelationship;
 
   static LppRegulationReceipt _regulationReceipt(
-    LppEvidenceSnapshot snapshot,
     LppRegulationReference reference,
   ) =>
       LppRegulationReceipt(
         referenceId: reference.referenceId,
-        snapshotId: snapshot.snapshotId,
         confirmedAt: reference.confirmedAt,
       );
 
@@ -1786,6 +1785,7 @@ class CoachProfileProvider extends ChangeNotifier {
                   )
                 : currentRoot.manualPartner,
         legacyPartnerQuarantine: currentRoot.legacyPartnerQuarantine,
+        selfRegulationReference: currentRoot.selfRegulationReference,
       );
       previousLppRootJson = loaded[_lppEvidenceRootKey] as String?;
       final nextAnswers = _copyAnswers(loaded);
@@ -2061,6 +2061,7 @@ class CoachProfileProvider extends ChangeNotifier {
               self: root.self,
               manualPartner: nextManual,
               legacyPartnerQuarantine: root.legacyPartnerQuarantine,
+              selfRegulationReference: root.selfRegulationReference,
             );
             final nextAnswers = _copyAnswers(loaded)
               ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
@@ -2411,8 +2412,7 @@ class CoachProfileProvider extends ChangeNotifier {
         notice.confirmedAt == receipt.confirmedAt;
   }
 
-  /// Matches the raw-free regulation receipt to the exact current self
-  /// snapshot and its nested reviewed reference metadata.
+  /// Matches the raw-free receipt to the autonomous current regulation.
   bool matchesAcceptedLppRegulationReceipt(
     LppRegulationReceipt receipt,
   ) {
@@ -2423,15 +2423,12 @@ class CoachProfileProvider extends ChangeNotifier {
         receipt.kind != LppRegulationReference.kind) {
       return false;
     }
-    final snapshot = LppEvidenceSelector.selectSelf(
+    final root = LppEvidenceRoot.fromJsonString(
       _lastAnswers[_lppEvidenceRootKey],
       now: _now,
     );
-    final reference = snapshot?.lppRegulationReference;
-    return snapshot != null &&
-        snapshot.facts.isNotEmpty &&
-        snapshot.snapshotId == receipt.snapshotId &&
-        reference != null &&
+    final reference = root?.selfRegulationReference;
+    return reference != null &&
         reference.referenceId == receipt.referenceId &&
         reference.confirmedAt == receipt.confirmedAt;
   }
@@ -2911,6 +2908,7 @@ class CoachProfileProvider extends ChangeNotifier {
                   independentFacts: independent,
                 ),
           legacyPartnerQuarantine: root.legacyPartnerQuarantine,
+          selfRegulationReference: root.selfRegulationReference,
         );
         next[_lppEvidenceRootKey] = restoredRoot.toJsonString();
         return next;

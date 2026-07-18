@@ -24400,11 +24400,11 @@ class SFr extends S {
 
   @override
   String get retirementLppRegulationReferenceTitle =>
-      'Règlement de prévoyance revu';
+      'Règlement de prévoyance déclaré';
 
   @override
   String get retirementLppRegulationReferenceBody =>
-      'La revue de ce règlement est confirmée. Elle ne confirme ni son application à ta situation, ni tes droits, ni aucun montant.';
+      'Cette relation à une caisse est déclarée et non vérifiée. Elle ne confirme ni l’application du règlement à ta situation, ni tes droits, ni aucun montant.';
 
   @override
   String get retirementLppRegulationReferencePrepareQuestionsCta =>
@@ -24491,6 +24491,36 @@ class SFr extends S {
   String get retirementLppRegulationHandoffClose => 'Fermer';
 
   @override
+  String get retirementLppRegulationFundRelationshipLabel => 'Origine déclarée';
+
+  @override
+  String get retirementLppRegulationFundRelationshipCurrent =>
+      'Ma caisse actuelle — déclarée, non vérifiée';
+
+  @override
+  String get retirementLppRegulationFundRelationshipUncertain =>
+      'Je ne sais pas — déclaré, non vérifié';
+
+  @override
+  String get retirementLppRegulationFundRelationshipFormerOrOther =>
+      'Une ancienne ou autre caisse — déclarée, non vérifiée';
+
+  @override
+  String get retirementLppRegulationRecoveryTitle =>
+      'Référence locale à reconfirmer';
+
+  @override
+  String get retirementLppRegulationRecoveryBody =>
+      'La déclaration existe, mais sa référence locale manque. Reconfirme-la depuis le scan sans supposer que le règlement s’applique.';
+
+  @override
+  String get retirementLppRegulationRecoveryCta => 'Reconfirmer le règlement';
+
+  @override
+  String get retirementLppRegulationApplicabilityQuestion =>
+      'Ce règlement s’applique-t-il à ma situation ? Si oui, pour quelle période et selon quelle version ou quelles dispositions ?';
+
+  @override
   String get docScanLppPlanDocumentLabel => 'Règlement de prévoyance LPP';
 
   @override
@@ -24502,11 +24532,11 @@ class SFr extends S {
       'Ce règlement ne peut pas être vérifié dans cette session. Reviens au scan pour recommencer.';
 
   @override
-  String get lppRegulationReviewTitle => 'Vérifier le règlement LPP';
+  String get lppRegulationReviewTitle => 'Situer ce règlement LPP';
 
   @override
   String get lppRegulationReviewBody =>
-      'Confirme uniquement la date du document et son année de référence. Cette étape ne confirme ni son applicabilité à ta situation, ni des droits ou des montants.';
+      'Enregistre une déclaration datée et non vérifiée sur l’origine de ce règlement. Aucun nom de caisse, montant ou droit n’est déduit.';
 
   @override
   String get lppRegulationReviewSourceDate => 'Date du règlement (AAAA-MM-JJ)';
@@ -24531,5 +24561,23 @@ class SFr extends S {
       'La vérification est acceptée, mais sa référence n’a pas pu être enregistrée. Réessaie sans modifier les champs.';
 
   @override
-  String get lppRegulationReviewConfirm => 'Confirmer la vérification';
+  String get lppRegulationReviewConfirm => 'Enregistrer la déclaration';
+
+  @override
+  String get lppRegulationReviewFundRelationshipQuestion =>
+      'D’après toi, de quelle caisse vient ce règlement ?';
+
+  @override
+  String get lppRegulationReviewFundCurrent => 'Ma caisse actuelle';
+
+  @override
+  String get lppRegulationReviewFundUncertain => 'Je ne sais pas';
+
+  @override
+  String get lppRegulationReviewFundFormerOrOther =>
+      'Une ancienne ou autre caisse';
+
+  @override
+  String get lppRegulationReviewFundRelationshipRequired =>
+      'Choisis l’une des trois réponses pour enregistrer la déclaration.';
 }

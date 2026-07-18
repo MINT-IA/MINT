@@ -11620,6 +11620,14 @@
   "retirementLppRegulationQuestionSurvivorsBody": "In the event of death, which survivor benefits or lump-sum benefits would the pension fund examine for my partner and other potential beneficiaries, under which conditions, and which declarations or beneficiary designations would be required?",
   "retirementLppRegulationQuestionDivorceBody": "In the event of divorce, which information and documents can the pension fund provide for the division of occupational pension assets, and how could a division ordered by the court change my future benefits?",
   "retirementLppRegulationHandoffClose": "Close",
+  "retirementLppRegulationFundRelationshipLabel": "Declared origin",
+  "retirementLppRegulationFundRelationshipCurrent": "My current pension fund — declared, unverified",
+  "retirementLppRegulationFundRelationshipUncertain": "I don’t know — declared, unverified",
+  "retirementLppRegulationFundRelationshipFormerOrOther": "A former or another pension fund — declared, unverified",
+  "retirementLppRegulationRecoveryTitle": "Local reference needs reconfirmation",
+  "retirementLppRegulationRecoveryBody": "The declaration exists, but its local reference is missing. Reconfirm it from the scan without assuming the rules apply.",
+  "retirementLppRegulationRecoveryCta": "Reconfirm the rules",
+  "retirementLppRegulationApplicabilityQuestion": "Do these rules apply to my situation? If so, for which period and under which version or provisions?",
   "docScanLppPlanDocumentLabel": "LPP pension fund rules",
   "docScanLppPlanDocumentDescription": "Your pension fund rules, reviewed without extracting amounts or entitlements.",
   "lppRegulationReviewRecoveryBody": "These pension fund rules cannot be reviewed in this session. Return to the scan to start again.",
@@ -11631,5 +11639,10 @@
   "lppRegulationReviewLegalYearError": "Enter a year from 1900 to 9999.",
   "lppRegulationReviewAcceptError": "The LPP baseline changed or the review could not be accepted. Check the fields and restart from the scan if needed.",
   "lppRegulationReviewRecordError": "The review was accepted, but its reference could not be recorded. Retry without changing the fields.",
-  "lppRegulationReviewConfirm": "Confirm the review"
+  "lppRegulationReviewConfirm": "Save the declaration",
+  "lppRegulationReviewFundRelationshipQuestion": "Which pension fund do you think these rules come from?",
+  "lppRegulationReviewFundCurrent": "My current pension fund",
+  "lppRegulationReviewFundUncertain": "I don’t know",
+  "lppRegulationReviewFundFormerOrOther": "A former or another pension fund",
+  "lppRegulationReviewFundRelationshipRequired": "Choose one of the three answers to save the declaration."
 }

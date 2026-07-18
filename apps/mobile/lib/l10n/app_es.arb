@@ -11620,6 +11620,14 @@
   "retirementLppRegulationQuestionSurvivorsBody": "En caso de fallecimiento, ¿qué prestaciones para supervivientes o prestaciones de capital examinaría la caja de pensiones para mi pareja y otras personas potencialmente beneficiarias, bajo qué condiciones y qué declaraciones o designaciones serían necesarias?",
   "retirementLppRegulationQuestionDivorceBody": "En caso de divorcio, ¿qué información y documentos puede preparar la caja de pensiones para el reparto de la previsión profesional y cómo podría modificar mis prestaciones futuras un reparto ordenado por el tribunal?",
   "retirementLppRegulationHandoffClose": "Cerrar",
+  "retirementLppRegulationFundRelationshipLabel": "Origen declarado",
+  "retirementLppRegulationFundRelationshipCurrent": "Mi caja de pensiones actual — declarado, no verificado",
+  "retirementLppRegulationFundRelationshipUncertain": "No lo sé — declarado, no verificado",
+  "retirementLppRegulationFundRelationshipFormerOrOther": "Una caja anterior u otra caja — declarado, no verificado",
+  "retirementLppRegulationRecoveryTitle": "Referencia local pendiente de reconfirmación",
+  "retirementLppRegulationRecoveryBody": "La declaración existe, pero falta su referencia local. Vuelve a confirmarla desde el escaneo sin suponer que el reglamento se aplica.",
+  "retirementLppRegulationRecoveryCta": "Reconfirmar el reglamento",
+  "retirementLppRegulationApplicabilityQuestion": "¿Se aplica este reglamento a mi situación? En caso afirmativo, ¿para qué período y según qué versión o disposiciones?",
   "docScanLppPlanDocumentLabel": "Reglamento de previsión LPP",
   "docScanLppPlanDocumentDescription": "El reglamento de tu caja se revisa sin extraer importes ni derechos.",
   "lppRegulationReviewRecoveryBody": "Este reglamento no puede revisarse en esta sesión. Vuelve al escaneo para empezar de nuevo.",
@@ -11631,5 +11639,10 @@
   "lppRegulationReviewLegalYearError": "Introduce un año entre 1900 y 9999.",
   "lppRegulationReviewAcceptError": "La base LPP ha cambiado o la revisión no pudo aceptarse. Comprueba los campos y reinicia desde el escaneo si es necesario.",
   "lppRegulationReviewRecordError": "La revisión fue aceptada, pero no se pudo registrar su referencia. Reinténtalo sin modificar los campos.",
-  "lppRegulationReviewConfirm": "Confirmar la revisión"
+  "lppRegulationReviewConfirm": "Guardar la declaración",
+  "lppRegulationReviewFundRelationshipQuestion": "¿De qué caja de pensiones crees que procede este reglamento?",
+  "lppRegulationReviewFundCurrent": "Mi caja de pensiones actual",
+  "lppRegulationReviewFundUncertain": "No lo sé",
+  "lppRegulationReviewFundFormerOrOther": "Una caja anterior u otra caja",
+  "lppRegulationReviewFundRelationshipRequired": "Elige una de las tres respuestas para guardar la declaración."
 }

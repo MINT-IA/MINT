@@ -42572,13 +42572,13 @@ abstract class S {
   /// No description provided for @retirementLppRegulationReferenceTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Règlement de prévoyance revu'**
+  /// **'Règlement de prévoyance déclaré'**
   String get retirementLppRegulationReferenceTitle;
 
   /// No description provided for @retirementLppRegulationReferenceBody.
   ///
   /// In fr, this message translates to:
-  /// **'La revue de ce règlement est confirmée. Elle ne confirme ni son application à ta situation, ni tes droits, ni aucun montant.'**
+  /// **'Cette relation à une caisse est déclarée et non vérifiée. Elle ne confirme ni l’application du règlement à ta situation, ni tes droits, ni aucun montant.'**
   String get retirementLppRegulationReferenceBody;
 
   /// No description provided for @retirementLppRegulationReferencePrepareQuestionsCta.
@@ -42719,6 +42719,54 @@ abstract class S {
   /// **'Fermer'**
   String get retirementLppRegulationHandoffClose;
 
+  /// No description provided for @retirementLppRegulationFundRelationshipLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Origine déclarée'**
+  String get retirementLppRegulationFundRelationshipLabel;
+
+  /// No description provided for @retirementLppRegulationFundRelationshipCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma caisse actuelle — déclarée, non vérifiée'**
+  String get retirementLppRegulationFundRelationshipCurrent;
+
+  /// No description provided for @retirementLppRegulationFundRelationshipUncertain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas — déclaré, non vérifié'**
+  String get retirementLppRegulationFundRelationshipUncertain;
+
+  /// No description provided for @retirementLppRegulationFundRelationshipFormerOrOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une ancienne ou autre caisse — déclarée, non vérifiée'**
+  String get retirementLppRegulationFundRelationshipFormerOrOther;
+
+  /// No description provided for @retirementLppRegulationRecoveryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence locale à reconfirmer'**
+  String get retirementLppRegulationRecoveryTitle;
+
+  /// No description provided for @retirementLppRegulationRecoveryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La déclaration existe, mais sa référence locale manque. Reconfirme-la depuis le scan sans supposer que le règlement s’applique.'**
+  String get retirementLppRegulationRecoveryBody;
+
+  /// No description provided for @retirementLppRegulationRecoveryCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reconfirmer le règlement'**
+  String get retirementLppRegulationRecoveryCta;
+
+  /// No description provided for @retirementLppRegulationApplicabilityQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce règlement s’applique-t-il à ma situation ? Si oui, pour quelle période et selon quelle version ou quelles dispositions ?'**
+  String get retirementLppRegulationApplicabilityQuestion;
+
   /// No description provided for @docScanLppPlanDocumentLabel.
   ///
   /// In fr, this message translates to:
@@ -42740,13 +42788,13 @@ abstract class S {
   /// No description provided for @lppRegulationReviewTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Vérifier le règlement LPP'**
+  /// **'Situer ce règlement LPP'**
   String get lppRegulationReviewTitle;
 
   /// No description provided for @lppRegulationReviewBody.
   ///
   /// In fr, this message translates to:
-  /// **'Confirme uniquement la date du document et son année de référence. Cette étape ne confirme ni son applicabilité à ta situation, ni des droits ou des montants.'**
+  /// **'Enregistre une déclaration datée et non vérifiée sur l’origine de ce règlement. Aucun nom de caisse, montant ou droit n’est déduit.'**
   String get lppRegulationReviewBody;
 
   /// No description provided for @lppRegulationReviewSourceDate.
@@ -42788,8 +42836,38 @@ abstract class S {
   /// No description provided for @lppRegulationReviewConfirm.
   ///
   /// In fr, this message translates to:
-  /// **'Confirmer la vérification'**
+  /// **'Enregistrer la déclaration'**
   String get lppRegulationReviewConfirm;
+
+  /// No description provided for @lppRegulationReviewFundRelationshipQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'D’après toi, de quelle caisse vient ce règlement ?'**
+  String get lppRegulationReviewFundRelationshipQuestion;
+
+  /// No description provided for @lppRegulationReviewFundCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma caisse actuelle'**
+  String get lppRegulationReviewFundCurrent;
+
+  /// No description provided for @lppRegulationReviewFundUncertain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas'**
+  String get lppRegulationReviewFundUncertain;
+
+  /// No description provided for @lppRegulationReviewFundFormerOrOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une ancienne ou autre caisse'**
+  String get lppRegulationReviewFundFormerOrOther;
+
+  /// No description provided for @lppRegulationReviewFundRelationshipRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis l’une des trois réponses pour enregistrer la déclaration.'**
+  String get lppRegulationReviewFundRelationshipRequired;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

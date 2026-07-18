@@ -433,10 +433,12 @@ void main() {
       'self',
       'manualPartner',
       'legacyPartnerQuarantine',
+      'selfRegulationReference',
     });
-    expect(root['schemaVersion'], 1);
+    expect(root['schemaVersion'], 2);
     expect(root['manualPartner'], isNull);
     expect(root['legacyPartnerQuarantine'], isNull);
+    expect(root['selfRegulationReference'], isNull);
     final self = root['self'] as Map<String, dynamic>;
     final facts = self['facts'] as Map<String, dynamic>;
     expect(

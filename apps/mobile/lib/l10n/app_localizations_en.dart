@@ -24374,6 +24374,36 @@ class SEn extends S {
   String get retirementLppRegulationHandoffClose => 'Close';
 
   @override
+  String get retirementLppRegulationFundRelationshipLabel => 'Declared origin';
+
+  @override
+  String get retirementLppRegulationFundRelationshipCurrent =>
+      'My current pension fund — declared, unverified';
+
+  @override
+  String get retirementLppRegulationFundRelationshipUncertain =>
+      'I don’t know — declared, unverified';
+
+  @override
+  String get retirementLppRegulationFundRelationshipFormerOrOther =>
+      'A former or another pension fund — declared, unverified';
+
+  @override
+  String get retirementLppRegulationRecoveryTitle =>
+      'Local reference needs reconfirmation';
+
+  @override
+  String get retirementLppRegulationRecoveryBody =>
+      'The declaration exists, but its local reference is missing. Reconfirm it from the scan without assuming the rules apply.';
+
+  @override
+  String get retirementLppRegulationRecoveryCta => 'Reconfirm the rules';
+
+  @override
+  String get retirementLppRegulationApplicabilityQuestion =>
+      'Do these rules apply to my situation? If so, for which period and under which version or provisions?';
+
+  @override
   String get docScanLppPlanDocumentLabel => 'LPP pension fund rules';
 
   @override
@@ -24415,5 +24445,23 @@ class SEn extends S {
       'The review was accepted, but its reference could not be recorded. Retry without changing the fields.';
 
   @override
-  String get lppRegulationReviewConfirm => 'Confirm the review';
+  String get lppRegulationReviewConfirm => 'Save the declaration';
+
+  @override
+  String get lppRegulationReviewFundRelationshipQuestion =>
+      'Which pension fund do you think these rules come from?';
+
+  @override
+  String get lppRegulationReviewFundCurrent => 'My current pension fund';
+
+  @override
+  String get lppRegulationReviewFundUncertain => 'I don’t know';
+
+  @override
+  String get lppRegulationReviewFundFormerOrOther =>
+      'A former or another pension fund';
+
+  @override
+  String get lppRegulationReviewFundRelationshipRequired =>
+      'Choose one of the three answers to save the declaration.';
 }

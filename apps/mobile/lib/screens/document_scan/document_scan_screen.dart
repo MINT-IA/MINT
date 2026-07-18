@@ -1473,10 +1473,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onCameraPressed() async {
     if (!_isSupportedType(_selectedType)) return;
-    if (_selectedType == DocumentType.taxDeclaration ||
-        _selectedType == DocumentType.lppPlan) {
+    if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
+    if (_selectedType == DocumentType.lppPlan) return;
     final lppDecision = _selectedType == DocumentType.lppCertificate
         ? await _authorizeLppBeforeAcquisition()
         : null;
@@ -1598,15 +1598,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   LppRegulationAcquisitionCandidate? _currentLppRegulationCandidate() {
-    final snapshot = context.read<CoachProfileProvider>().currentLppSnapshot(
-          LppEvidenceOwnerKind.self,
-        );
-    if (snapshot == null || snapshot.facts.isEmpty) return null;
+    final reference =
+        context.read<CoachProfileProvider>().profile?.lppRegulationReference;
     try {
       return LppRegulationAcquisitionCandidate(
-        expectedSnapshotId: snapshot.snapshotId,
-        expectedPreviousReferenceId:
-            snapshot.lppRegulationReference?.referenceId,
+        expectedPreviousReferenceId: reference?.referenceId,
       );
     } on ArgumentError {
       return null;
@@ -1618,7 +1614,6 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   ) {
     final current = _currentLppRegulationCandidate();
     return current != null &&
-        current.expectedSnapshotId == expected.expectedSnapshotId &&
         current.expectedPreviousReferenceId ==
             expected.expectedPreviousReferenceId;
   }
@@ -2459,10 +2454,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     _LppAcquisitionDecision? lppDecision,
   }) async {
     if (!_isSupportedType(_selectedType)) return;
-    if (_selectedType == DocumentType.taxDeclaration ||
-        _selectedType == DocumentType.lppPlan) {
+    if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
+    if (_selectedType == DocumentType.lppPlan) return;
     if (_preValidationError != null || _preValidationHint != null) {
       if (!mounted) return;
       setState(() {

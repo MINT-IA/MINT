@@ -24509,6 +24509,36 @@ class SPt extends S {
   String get retirementLppRegulationHandoffClose => 'Fechar';
 
   @override
+  String get retirementLppRegulationFundRelationshipLabel => 'Origem declarada';
+
+  @override
+  String get retirementLppRegulationFundRelationshipCurrent =>
+      'A minha caixa de pensões atual — declarada, não verificada';
+
+  @override
+  String get retirementLppRegulationFundRelationshipUncertain =>
+      'Não sei — declarado, não verificado';
+
+  @override
+  String get retirementLppRegulationFundRelationshipFormerOrOther =>
+      'Uma caixa anterior ou outra caixa — declarada, não verificada';
+
+  @override
+  String get retirementLppRegulationRecoveryTitle =>
+      'Referência local a reconfirmar';
+
+  @override
+  String get retirementLppRegulationRecoveryBody =>
+      'A declaração existe, mas falta a referência local. Volta a confirmá-la a partir da digitalização sem presumir que o regulamento se aplica.';
+
+  @override
+  String get retirementLppRegulationRecoveryCta => 'Reconfirmar o regulamento';
+
+  @override
+  String get retirementLppRegulationApplicabilityQuestion =>
+      'Este regulamento aplica-se à minha situação? Em caso afirmativo, para que período e segundo que versão ou disposições?';
+
+  @override
   String get docScanLppPlanDocumentLabel => 'Regulamento de previdência LPP';
 
   @override
@@ -24550,5 +24580,23 @@ class SPt extends S {
       'A análise foi aceite, mas não foi possível registar a respetiva referência. Tenta novamente sem alterar os campos.';
 
   @override
-  String get lppRegulationReviewConfirm => 'Confirmar a análise';
+  String get lppRegulationReviewConfirm => 'Guardar a declaração';
+
+  @override
+  String get lppRegulationReviewFundRelationshipQuestion =>
+      'De que caixa de pensões achas que vem este regulamento?';
+
+  @override
+  String get lppRegulationReviewFundCurrent => 'A minha caixa de pensões atual';
+
+  @override
+  String get lppRegulationReviewFundUncertain => 'Não sei';
+
+  @override
+  String get lppRegulationReviewFundFormerOrOther =>
+      'Uma caixa anterior ou outra caixa';
+
+  @override
+  String get lppRegulationReviewFundRelationshipRequired =>
+      'Escolhe uma das três respostas para guardar a declaração.';
 }

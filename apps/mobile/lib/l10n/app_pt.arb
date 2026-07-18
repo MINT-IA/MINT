@@ -11620,6 +11620,14 @@
   "retirementLppRegulationQuestionSurvivorsBody": "Em caso de falecimento, que prestações de sobrevivência ou prestações em capital examinaria a caixa de pensões para a minha pessoa parceira e outros potenciais beneficiários, sob que condições e que declarações ou designações seriam necessárias?",
   "retirementLppRegulationQuestionDivorceBody": "Em caso de divórcio, que informações e documentos pode a caixa de pensões preparar para a partilha da previdência profissional e como poderia uma partilha ordenada pelo tribunal alterar as minhas prestações futuras?",
   "retirementLppRegulationHandoffClose": "Fechar",
+  "retirementLppRegulationFundRelationshipLabel": "Origem declarada",
+  "retirementLppRegulationFundRelationshipCurrent": "A minha caixa de pensões atual — declarada, não verificada",
+  "retirementLppRegulationFundRelationshipUncertain": "Não sei — declarado, não verificado",
+  "retirementLppRegulationFundRelationshipFormerOrOther": "Uma caixa anterior ou outra caixa — declarada, não verificada",
+  "retirementLppRegulationRecoveryTitle": "Referência local a reconfirmar",
+  "retirementLppRegulationRecoveryBody": "A declaração existe, mas falta a referência local. Volta a confirmá-la a partir da digitalização sem presumir que o regulamento se aplica.",
+  "retirementLppRegulationRecoveryCta": "Reconfirmar o regulamento",
+  "retirementLppRegulationApplicabilityQuestion": "Este regulamento aplica-se à minha situação? Em caso afirmativo, para que período e segundo que versão ou disposições?",
   "docScanLppPlanDocumentLabel": "Regulamento de previdência LPP",
   "docScanLppPlanDocumentDescription": "O regulamento da tua caixa é analisado sem extrair montantes nem direitos.",
   "lppRegulationReviewRecoveryBody": "Este regulamento não pode ser analisado nesta sessão. Volta à digitalização para recomeçar.",
@@ -11631,5 +11639,10 @@
   "lppRegulationReviewLegalYearError": "Introduz um ano entre 1900 e 9999.",
   "lppRegulationReviewAcceptError": "A base LPP mudou ou a análise não pôde ser aceite. Verifica os campos e recomeça na digitalização, se necessário.",
   "lppRegulationReviewRecordError": "A análise foi aceite, mas não foi possível registar a respetiva referência. Tenta novamente sem alterar os campos.",
-  "lppRegulationReviewConfirm": "Confirmar a análise"
+  "lppRegulationReviewConfirm": "Guardar a declaração",
+  "lppRegulationReviewFundRelationshipQuestion": "De que caixa de pensões achas que vem este regulamento?",
+  "lppRegulationReviewFundCurrent": "A minha caixa de pensões atual",
+  "lppRegulationReviewFundUncertain": "Não sei",
+  "lppRegulationReviewFundFormerOrOther": "Uma caixa anterior ou outra caixa",
+  "lppRegulationReviewFundRelationshipRequired": "Escolhe uma das três respostas para guardar a declaração."
 }

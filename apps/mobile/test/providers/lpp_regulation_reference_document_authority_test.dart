@@ -3,21 +3,18 @@ import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 
 const _referenceId = '11111111-1111-4111-8111-111111111111';
-const _snapshotId = '22222222-2222-4222-8222-222222222222';
 const _regulationKind = 'lppRegulation';
 const _confirmedAt = '2026-07-18T10:15:30.000Z';
 
 Map<String, dynamic> _referenceJson({
   String referenceId = _referenceId,
   String kind = _regulationKind,
-  String snapshotId = _snapshotId,
   String ownerKind = 'self',
   String confirmedAt = _confirmedAt,
 }) {
   return <String, dynamic>{
     'referenceId': referenceId,
     'kind': kind,
-    'snapshotId': snapshotId,
     'ownerKind': ownerKind,
     'confirmedAt': confirmedAt,
   };
@@ -43,7 +40,7 @@ void main() {
 
     expect(reference.referenceId, _referenceId);
     expect(reference.kind, _regulationKind);
-    expect(reference.snapshotId, _snapshotId);
+    expect(reference.snapshotId, isNull);
     expect(reference.ownerKind, LppEvidenceOwnerKind.self);
     expect(reference.confirmedAt, DateTime.utc(2026, 7, 18, 10, 15, 30));
     expect(reference.toJson(), _referenceJson());
@@ -74,7 +71,7 @@ void main() {
   test('regulation authority rejects non-canonical identifiers', () {
     for (final json in <Map<String, dynamic>>[
       _referenceJson(referenceId: 'not-a-uuid'),
-      _referenceJson(snapshotId: '22222222-2222-1222-8222-222222222222'),
+      _referenceJson()..['snapshotId'] = '22222222-2222-1222-8222-222222222222',
     ]) {
       expect(ConfirmedDocumentReference.fromJson(json), isNull);
     }

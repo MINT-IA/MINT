@@ -164,9 +164,16 @@ void main() {
   });
 
   test('null, partner, capital-notice, and other kinds fail closed', () {
+    expect(
+      SpecialistReferenceEvidence.tryFromJson(
+        _regulationJson(ownerKind: 'manualPartner'),
+        expectedKind: SpecialistReferenceKind.lppRegulation,
+        now: _confirmedAt.add(const Duration(seconds: 1)),
+      ),
+      isNull,
+    );
     for (final candidate in <SpecialistReferenceEvidence?>[
       null,
-      _regulationEvidence(ownerKind: 'manualPartner'),
       _capitalEvidence(),
       _taxEvidence(),
     ]) {

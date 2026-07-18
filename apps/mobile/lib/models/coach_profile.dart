@@ -2836,6 +2836,7 @@ final class SpecialistReferenceEvidence {
   final int? taxYear;
   final String? jurisdiction;
   final TaxSubjectScope? subject;
+  final LppFundRelationship? fundRelationship;
 
   const SpecialistReferenceEvidence._({
     required this.referenceId,
@@ -2850,6 +2851,7 @@ final class SpecialistReferenceEvidence {
     this.taxYear,
     this.jurisdiction,
     this.subject,
+    this.fundRelationship,
   });
 
   /// Rebuilds the derived specialist link from the canonical typed ledger.
@@ -2896,7 +2898,7 @@ final class SpecialistReferenceEvidence {
     }
 
     final extraKeys = switch (expectedKind) {
-      SpecialistReferenceKind.lppRegulation => const <String>{},
+      SpecialistReferenceKind.lppRegulation => const {'fundRelationship'},
       SpecialistReferenceKind.lppCapitalNotice => const {'deadlineDate'},
       SpecialistReferenceKind.pillar3aBeneficiaryClause => const {
           'contractReferenceId'
@@ -2930,6 +2932,10 @@ final class SpecialistReferenceEvidence {
         confirmedAtRaw is! String) {
       return null;
     }
+    if (expectedKind == SpecialistReferenceKind.lppRegulation &&
+        ownerKind != LppEvidenceOwnerKind.self) {
+      return null;
+    }
 
     final sourceDate = _parseCivilDate(sourceDateRaw);
     final confirmedAt = DateTime.tryParse(confirmedAtRaw);
@@ -2949,8 +2955,12 @@ final class SpecialistReferenceEvidence {
     int? taxYear;
     String? jurisdiction;
     TaxSubjectScope? subject;
+    LppFundRelationship? fundRelationship;
     switch (expectedKind) {
       case SpecialistReferenceKind.lppRegulation:
+        fundRelationship =
+            LppFundRelationship.fromWireName(json['fundRelationship']);
+        if (fundRelationship == null) return null;
         break;
       case SpecialistReferenceKind.lppCapitalNotice:
         final rawDeadline = json['deadlineDate'];
@@ -3000,6 +3010,7 @@ final class SpecialistReferenceEvidence {
       taxYear: taxYear,
       jurisdiction: jurisdiction,
       subject: subject,
+      fundRelationship: fundRelationship,
     );
   }
 
@@ -3081,6 +3092,8 @@ final class SpecialistReferenceEvidence {
         if (taxYear != null) 'taxYear': taxYear,
         if (jurisdiction != null) 'jurisdiction': jurisdiction,
         if (subject != null) 'subject': subject!.name,
+        if (fundRelationship != null)
+          'fundRelationship': fundRelationship!.wireName,
       };
 
   @override
@@ -3098,7 +3111,8 @@ final class SpecialistReferenceEvidence {
           contractReferenceId == other.contractReferenceId &&
           taxYear == other.taxYear &&
           jurisdiction == other.jurisdiction &&
-          subject == other.subject;
+          subject == other.subject &&
+          fundRelationship == other.fundRelationship;
 
   @override
   int get hashCode => Object.hash(
@@ -3114,6 +3128,7 @@ final class SpecialistReferenceEvidence {
         taxYear,
         jurisdiction,
         subject,
+        fundRelationship,
       );
 }
 
@@ -4858,12 +4873,16 @@ class CoachProfile {
     // ── Extraction-persisted fields (survive restart) ─────────
     final hasTypedLppRoot = FeatureFlags.typedLppEvidence &&
         answers.containsKey('_coach_lpp_evidence_v1');
-    final typedLppSelf = FeatureFlags.typedLppEvidence
-        ? LppEvidenceSelector.selectSelf(
+    final typedLppRoot = FeatureFlags.typedLppEvidence
+        ? LppEvidenceRoot.fromJsonString(
             answers['_coach_lpp_evidence_v1'],
             now: now,
           )
         : null;
+    final typedLppSelf = LppEvidenceSelector.selectSelf(
+      typedLppRoot?.toJsonString(),
+      now: now,
+    );
     final lppCapitalNoticeDeadline =
         FeatureFlags.lppCapitalNoticeDeadlineEnabled
             ? SpecialistReferenceEvidence.tryFromJson(
@@ -4874,7 +4893,7 @@ class CoachProfile {
             : null;
     final lppRegulationReference = FeatureFlags.lppRegulationReferenceEnabled
         ? SpecialistReferenceEvidence.tryFromJson(
-            typedLppSelf?.lppRegulationReference?.toJson(),
+            typedLppRoot?.selfRegulationReference?.toJson(),
             expectedKind: SpecialistReferenceKind.lppRegulation,
             now: ageNow,
           )

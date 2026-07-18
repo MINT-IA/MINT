@@ -11620,6 +11620,14 @@
   "retirementLppRegulationQuestionSurvivorsBody": "In caso di decesso, quali prestazioni per i superstiti o prestazioni in capitale esaminerebbe la cassa pensioni per il mio o la mia partner e altri potenziali beneficiari, a quali condizioni e quali dichiarazioni o designazioni sarebbero necessarie?",
   "retirementLppRegulationQuestionDivorceBody": "In caso di divorzio, quali informazioni e documenti può predisporre la cassa pensioni per la divisione della previdenza professionale e come potrebbe una divisione ordinata dal tribunale modificare le mie prestazioni future?",
   "retirementLppRegulationHandoffClose": "Chiudi",
+  "retirementLppRegulationFundRelationshipLabel": "Origine dichiarata",
+  "retirementLppRegulationFundRelationshipCurrent": "La mia cassa pensioni attuale — dichiarata, non verificata",
+  "retirementLppRegulationFundRelationshipUncertain": "Non lo so — dichiarato, non verificato",
+  "retirementLppRegulationFundRelationshipFormerOrOther": "Una cassa precedente o un’altra cassa — dichiarata, non verificata",
+  "retirementLppRegulationRecoveryTitle": "Riferimento locale da riconfermare",
+  "retirementLppRegulationRecoveryBody": "La dichiarazione esiste, ma manca il riferimento locale. Riconfermala dalla scansione senza presumere che il regolamento si applichi.",
+  "retirementLppRegulationRecoveryCta": "Riconferma il regolamento",
+  "retirementLppRegulationApplicabilityQuestion": "Questo regolamento si applica alla mia situazione? Se sì, per quale periodo e secondo quale versione o quali disposizioni?",
   "docScanLppPlanDocumentLabel": "Regolamento di previdenza LPP",
   "docScanLppPlanDocumentDescription": "Il regolamento della tua cassa viene esaminato senza estrarre importi né diritti.",
   "lppRegulationReviewRecoveryBody": "Questo regolamento non può essere esaminato in questa sessione. Torna alla scansione per ricominciare.",
@@ -11631,5 +11639,10 @@
   "lppRegulationReviewLegalYearError": "Inserisci un anno tra il 1900 e il 9999.",
   "lppRegulationReviewAcceptError": "La base LPP è cambiata o la revisione non è stata accettata. Controlla i campi e riparti dalla scansione se necessario.",
   "lppRegulationReviewRecordError": "La revisione è stata accettata, ma non è stato possibile registrarne il riferimento. Riprova senza modificare i campi.",
-  "lppRegulationReviewConfirm": "Confermare la revisione"
+  "lppRegulationReviewConfirm": "Salva la dichiarazione",
+  "lppRegulationReviewFundRelationshipQuestion": "Da quale cassa pensioni pensi provenga questo regolamento?",
+  "lppRegulationReviewFundCurrent": "La mia cassa pensioni attuale",
+  "lppRegulationReviewFundUncertain": "Non lo so",
+  "lppRegulationReviewFundFormerOrOther": "Una cassa precedente o un’altra cassa",
+  "lppRegulationReviewFundRelationshipRequired": "Scegli una delle tre risposte per salvare la dichiarazione."
 }

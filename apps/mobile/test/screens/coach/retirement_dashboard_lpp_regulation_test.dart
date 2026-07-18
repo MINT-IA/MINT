@@ -538,6 +538,20 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.bySemanticsIdentifier(_cardId), findsNothing, reason: reason);
       expect(find.bySemanticsIdentifier(_ctaId), findsNothing, reason: reason);
+      expect(
+        find.bySemanticsIdentifier(
+          'retirement_lpp_regulation_reference_recovery',
+        ),
+        findsNothing,
+        reason: reason,
+      );
+      expect(
+        find.bySemanticsIdentifier(
+          'retirement_lpp_regulation_reconfirm_cta',
+        ),
+        findsNothing,
+        reason: reason,
+      );
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
     }

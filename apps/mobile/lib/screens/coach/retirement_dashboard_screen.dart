@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -20,6 +21,7 @@ import 'package:mint_mobile/services/financial_core/income_conversion_calculator
 import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
@@ -948,11 +950,19 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
   List<Widget> _buildLppRegulationEducation(CoachProfile profile) {
     final documents = context.watch<DocumentProvider?>();
+    final candidate = profile.lppRegulationReference;
     final resolved = documents?.resolveLppRegulation(
-      profile.lppRegulationReference,
+      candidate,
     );
     final handoff = LppRegulationSpecialistHandoff.tryFromEvidence(resolved);
-    if (handoff == null) return const <Widget>[];
+    if (handoff == null) {
+      final canRecover = FeatureFlags.lppRegulationReferenceEnabled &&
+          candidate != null &&
+          documents?.referenceHydrationState ==
+              DocumentReferenceHydrationState.ready &&
+          documents!.hasStoredLppRegulationReference == false;
+      return canRecover ? _buildLppRegulationRecovery() : const <Widget>[];
+    }
 
     final l = S.of(context)!;
     final localeName = Localizations.localeOf(context).toLanguageTag();
@@ -999,6 +1009,18 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   SwissCivilTime.businessDate(handoff.confirmedAt),
                 ),
               ),
+              const SizedBox(height: MintSpacing.xs),
+              Semantics(
+                identifier: 'retirement_lpp_regulation_fund_relation',
+                container: true,
+                child: _buildLppRegulationMetadata(
+                  l.retirementLppRegulationFundRelationshipLabel,
+                  _lppRegulationFundRelationshipLabel(
+                    l,
+                    handoff.fundRelationship,
+                  ),
+                ),
+              ),
               const SizedBox(height: MintSpacing.md),
               SizedBox(
                 width: double.infinity,
@@ -1022,6 +1044,60 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       const SizedBox(height: MintSpacing.lg),
     ];
   }
+
+  List<Widget> _buildLppRegulationRecovery() {
+    final l = S.of(context)!;
+    return <Widget>[
+      Semantics(
+        identifier: 'retirement_lpp_regulation_reference_recovery',
+        container: true,
+        explicitChildNodes: true,
+        child: MintSurface(
+          tone: MintSurfaceTone.craie,
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.retirementLppRegulationRecoveryTitle,
+                style: MintTextStyles.titleMedium(),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Semantics(
+                identifier: 'retirement_lpp_regulation_reconfirm_cta',
+                button: true,
+                child: FilledButton(
+                  onPressed: () => context.go('/scan?type=lppPlan'),
+                  child: Text(l.retirementLppRegulationRecoveryCta),
+                ),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                l.retirementLppRegulationRecoveryBody,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: MintSpacing.lg),
+    ];
+  }
+
+  String _lppRegulationFundRelationshipLabel(
+    S l,
+    LppFundRelationship relationship,
+  ) =>
+      switch (relationship) {
+        LppFundRelationship.currentFund =>
+          l.retirementLppRegulationFundRelationshipCurrent,
+        LppFundRelationship.uncertain =>
+          l.retirementLppRegulationFundRelationshipUncertain,
+        LppFundRelationship.formerOrOther =>
+          l.retirementLppRegulationFundRelationshipFormerOrOther,
+      };
 
   Widget _buildMissingAvsTrajectoryChart(
     ProjectionResult projection,
@@ -1156,6 +1232,18 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                           _buildLppRegulationMetadata(
                             l.retirementLppRegulationConfirmedAtLabel,
                             confirmedAt,
+                          ),
+                          const SizedBox(height: MintSpacing.lg),
+                          Semantics(
+                            identifier:
+                                'retirement_lpp_regulation_applicability_question',
+                            container: true,
+                            child: Text(
+                              l.retirementLppRegulationApplicabilityQuestion,
+                              style: MintTextStyles.bodyMedium(
+                                color: MintColors.textSecondary,
+                              ),
+                            ),
                           ),
                           const SizedBox(height: MintSpacing.lg),
                           Text(

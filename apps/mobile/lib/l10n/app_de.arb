@@ -11620,6 +11620,14 @@
   "retirementLppRegulationQuestionSurvivorsBody": "Welche Hinterlassenen- oder Kapitalleistungen würde die Pensionskasse im Todesfall für meine Partnerin oder meinen Partner und weitere mögliche Begünstigte prüfen, unter welchen Bedingungen, und welche Meldungen oder Begünstigtenbezeichnungen wären erforderlich?",
   "retirementLppRegulationQuestionDivorceBody": "Welche Auskünfte und Unterlagen kann die Pensionskasse im Scheidungsfall für die Teilung der beruflichen Vorsorge erstellen, und wie könnte eine gerichtlich angeordnete Teilung meine künftigen Leistungen verändern?",
   "retirementLppRegulationHandoffClose": "Schliessen",
+  "retirementLppRegulationFundRelationshipLabel": "Deklarierte Herkunft",
+  "retirementLppRegulationFundRelationshipCurrent": "Meine aktuelle Pensionskasse — deklariert, nicht verifiziert",
+  "retirementLppRegulationFundRelationshipUncertain": "Ich weiss es nicht — deklariert, nicht verifiziert",
+  "retirementLppRegulationFundRelationshipFormerOrOther": "Eine frühere oder andere Pensionskasse — deklariert, nicht verifiziert",
+  "retirementLppRegulationRecoveryTitle": "Lokale Referenz erneut bestätigen",
+  "retirementLppRegulationRecoveryBody": "Die Angabe besteht, aber ihre lokale Referenz fehlt. Bestätige sie über den Scan erneut, ohne die Anwendbarkeit des Reglements anzunehmen.",
+  "retirementLppRegulationRecoveryCta": "Reglement erneut bestätigen",
+  "retirementLppRegulationApplicabilityQuestion": "Gilt dieses Reglement für meine Situation? Falls ja, für welchen Zeitraum und gemäss welcher Version oder welchen Bestimmungen?",
   "docScanLppPlanDocumentLabel": "BVG-Vorsorgereglement",
   "docScanLppPlanDocumentDescription": "Das Reglement deiner Pensionskasse wird geprüft, ohne Beträge oder Ansprüche zu extrahieren.",
   "lppRegulationReviewRecoveryBody": "Dieses Vorsorgereglement kann in dieser Sitzung nicht geprüft werden. Kehre zum Scan zurück und beginne erneut.",
@@ -11631,5 +11639,10 @@
   "lppRegulationReviewLegalYearError": "Gib ein Jahr zwischen 1900 und 9999 ein.",
   "lppRegulationReviewAcceptError": "Die BVG-Grundlage hat sich geändert oder die Prüfung konnte nicht akzeptiert werden. Prüfe die Felder und starte bei Bedarf erneut beim Scan.",
   "lppRegulationReviewRecordError": "Die Prüfung wurde akzeptiert, ihre Referenz konnte jedoch nicht gespeichert werden. Versuche es erneut, ohne die Felder zu ändern.",
-  "lppRegulationReviewConfirm": "Prüfung bestätigen"
+  "lppRegulationReviewConfirm": "Angabe speichern",
+  "lppRegulationReviewFundRelationshipQuestion": "Von welcher Pensionskasse stammt dieses Reglement deiner Meinung nach?",
+  "lppRegulationReviewFundCurrent": "Meine aktuelle Pensionskasse",
+  "lppRegulationReviewFundUncertain": "Ich weiss es nicht",
+  "lppRegulationReviewFundFormerOrOther": "Eine frühere oder andere Pensionskasse",
+  "lppRegulationReviewFundRelationshipRequired": "Wähle eine der drei Antworten, um die Angabe zu speichern."
 }

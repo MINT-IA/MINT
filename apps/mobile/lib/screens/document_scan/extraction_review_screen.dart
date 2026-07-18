@@ -122,11 +122,13 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   bool _lppReferenceFailed = false;
   bool _lppRegulationSourceDateValidationFailed = false;
   bool _lppRegulationLegalYearValidationFailed = false;
+  bool _lppRegulationFundRelationshipValidationFailed = false;
   bool _lppRegulationAcceptFailed = false;
   bool _lppRegulationRecordFailed = false;
   bool _reviewSessionFinalized = false;
   LppRegulationReviewConfirmation? _acceptedLppRegulationConfirmation;
   LppRegulationReceipt? _acceptedLppRegulationReceipt;
+  LppFundRelationship? _lppFundRelationship;
   bool _taxInForceAttested = false;
   bool _federalScopeIncoherent = false;
   late final PartnerAccountabilityBindingStore _partnerBindingStore =
@@ -156,6 +158,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   final _federalTaxController = TextEditingController();
   final _marginalRateController = TextEditingController();
   final _averageRateController = TextEditingController();
+  final _lppRegulationRetryScrollKey = GlobalKey();
 
   @override
   void initState() {
@@ -590,13 +593,6 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    l10n.lppRegulationReviewTitle,
-                    style: MintTextStyles.headlineMedium(
-                      color: MintColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
                   MintSurface(
                     tone: MintSurfaceTone.porcelaine,
                     padding: const EdgeInsets.all(14),
@@ -676,6 +672,49 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                       style: MintTextStyles.bodySmall(color: MintColors.error),
                     ),
                   ],
+                  const SizedBox(height: 20),
+                  Text(
+                    l10n.lppRegulationReviewFundRelationshipQuestion,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildLppFundRelationshipChoice(
+                        relationship: LppFundRelationship.currentFund,
+                        identifier: 'lpp_regulation_fund_relation_current',
+                        label: l10n.lppRegulationReviewFundCurrent,
+                        enabled: fieldsEnabled,
+                      ),
+                      _buildLppFundRelationshipChoice(
+                        relationship: LppFundRelationship.uncertain,
+                        identifier: 'lpp_regulation_fund_relation_uncertain',
+                        label: l10n.lppRegulationReviewFundUncertain,
+                        enabled: fieldsEnabled,
+                      ),
+                      _buildLppFundRelationshipChoice(
+                        relationship: LppFundRelationship.formerOrOther,
+                        identifier:
+                            'lpp_regulation_fund_relation_former_or_other',
+                        label: l10n.lppRegulationReviewFundFormerOrOther,
+                        enabled: fieldsEnabled,
+                      ),
+                    ],
+                  ),
+                  if (_lppRegulationFundRelationshipValidationFailed) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      l10n.lppRegulationReviewFundRelationshipRequired,
+                      key: const Key(
+                        'lpp_regulation_fund_relation_required_error',
+                      ),
+                      style: MintTextStyles.bodySmall(color: MintColors.error),
+                    ),
+                  ],
                   if (_lppRegulationAcceptFailed) ...[
                     const SizedBox(height: 16),
                     MintSurface(
@@ -698,6 +737,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                       tone: MintSurfaceTone.porcelaine,
                       padding: const EdgeInsets.all(14),
                       child: Column(
+                        key: _lppRegulationRetryScrollKey,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -752,6 +792,38 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     );
   }
 
+  Widget _buildLppFundRelationshipChoice({
+    required LppFundRelationship relationship,
+    required String identifier,
+    required String label,
+    required bool enabled,
+  }) {
+    final selected = _lppFundRelationship == relationship;
+    void select() {
+      setState(() {
+        _lppFundRelationship = relationship;
+        _lppRegulationFundRelationshipValidationFailed = false;
+        _lppRegulationAcceptFailed = false;
+      });
+    }
+
+    return Semantics(
+      identifier: identifier,
+      checked: selected,
+      button: true,
+      enabled: enabled,
+      onTap: enabled ? select : null,
+      child: ExcludeSemantics(
+        child: ChoiceChip(
+          key: Key(identifier),
+          label: Text(label),
+          selected: selected,
+          onSelected: enabled ? (_) => select() : null,
+        ),
+      ),
+    );
+  }
+
   Future<void> _confirmLppRegulation() async {
     final candidate = widget.lppRegulationCandidate;
     if (_isConfirming ||
@@ -776,10 +848,13 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         SwissCivilTime.isFutureCivilDate(sourceDate, now: current);
     final invalidLegalYear =
         legalYear == null || legalYear < 1900 || legalYear > 9999;
-    if (invalidDate || invalidLegalYear) {
+    final invalidFundRelationship = _lppFundRelationship == null;
+    if (invalidDate || invalidLegalYear || invalidFundRelationship) {
       setState(() {
         _lppRegulationSourceDateValidationFailed = invalidDate;
         _lppRegulationLegalYearValidationFailed = invalidLegalYear;
+        _lppRegulationFundRelationshipValidationFailed =
+            invalidFundRelationship;
         _lppRegulationAcceptFailed = false;
       });
       return;
@@ -791,7 +866,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ownerKind: LppEvidenceOwnerKind.self,
         sourceDate: sourceDate,
         legalYear: legalYear,
-        expectedSnapshotId: candidate.expectedSnapshotId,
+        fundRelationship: _lppFundRelationship!,
         expectedPreviousReferenceId: candidate.expectedPreviousReferenceId,
       );
     } on ArgumentError {
@@ -804,6 +879,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       _isConfirming = true;
       _lppRegulationSourceDateValidationFailed = false;
       _lppRegulationLegalYearValidationFailed = false;
+      _lppRegulationFundRelationshipValidationFailed = false;
       _lppRegulationAcceptFailed = false;
       _lppRegulationRecordFailed = false;
     });
@@ -854,6 +930,17 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         setState(() {
           _isConfirming = false;
           _lppRegulationRecordFailed = true;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final retryContext = _lppRegulationRetryScrollKey.currentContext;
+          if (retryContext != null) {
+            unawaited(
+              Scrollable.ensureVisible(
+                retryContext,
+                alignment: 0.8,
+              ),
+            );
+          }
         });
       }
       return;
