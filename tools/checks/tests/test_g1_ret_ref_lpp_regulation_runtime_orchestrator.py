@@ -716,6 +716,65 @@ def test_cold_reader_handoff_survives_numeric_addition_and_replacement() -> None
         assert forbidden not in reader, forbidden
 
 
+def test_cold_reader_proves_missing_reference_recovery_and_restores_bnd() -> None:
+    reader = READER.read_text(encoding="utf-8")
+    for anchor in (
+        "import 'package:go_router/go_router.dart';",
+        "const _missingDocumentReferenceBodyFr =",
+        "GoRouter _recoveryRouter()",
+        "MaterialApp.router(",
+        "final referenceStore = DocumentReferenceStore();",
+        "final originalDocumentReferences = await referenceStore.load();",
+        "await referenceStore.save(const <ConfirmedDocumentReference>[]);",
+        "final missingDocuments = DocumentProvider(now: () => now);",
+        "missingDocuments.bindLedger(provider);",
+        "await missingDocuments.hydrateReferences();",
+        "LppRegulationReferenceResolution.missingDocumentReference",
+        "_recoveryDashboard(",
+        "'retirement_lpp_regulation_reference_education'",
+        "'retirement_lpp_regulation_handoff_cta'",
+        "'retirement_lpp_regulation_reference_recovery'",
+        "'retirement_lpp_regulation_reconfirm_cta'",
+        "find.text(_missingDocumentReferenceBodyFr)",
+        "isNot(contains(candidate.referenceId))",
+        "isNot(contains(typedCandidate.fundRelationship.wireName))",
+        "recoveryRouter.routeInformationProvider.value.uri.toString()",
+        "'/scan?type=lppPlan'",
+        "finally {",
+        "await referenceStore.save(originalDocumentReferences);",
+        "final restoredDocumentReferences = await referenceStore.load();",
+        "missingDocuments.dispose();",
+        "recoveryRouter.dispose();",
+    ):
+        assert anchor in reader, anchor
+
+    persisted = reader.index(
+        "await referenceStore.save(const <ConfirmedDocumentReference>[]);"
+    )
+    hydrated = reader.index("await missingDocuments.hydrateReferences();")
+    recovery = reader.index("'retirement_lpp_regulation_reference_recovery'")
+    tapped = reader.index("'retirement_lpp_regulation_reconfirm_cta'")
+    routed = reader.index(
+        "recoveryRouter.routeInformationProvider.value.uri.toString()"
+    )
+    restored = reader.index("await referenceStore.save(originalDocumentReferences);")
+    verified = reader.index(
+        "final restoredDocumentReferences = await referenceStore.load();"
+    )
+    assert persisted < hydrated < recovery < tapped < routed < restored < verified
+
+    recovery_block = reader[persisted:restored]
+    for forbidden in (
+        "documentSha256",
+        "_firstNumericMarker",
+        "_replacementMarker",
+        "MINT_LPP_PRIVATE_MANIFEST",
+        "/Users/",
+        "test/golden",
+    ):
+        assert forbidden not in recovery_block, forbidden
+
+
 def test_wrappers_local_flags_and_dual_maestro_keep_production_default_off() -> None:
     flags = FEATURE_FLAGS.read_text(encoding="utf-8")
     for declaration in (

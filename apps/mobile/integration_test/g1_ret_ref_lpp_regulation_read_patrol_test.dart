@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -28,6 +29,11 @@ const _firstNumericMarker =
     '%PDF-1.7 MINT synthetic first numeric LPP bytes only';
 const _replacementMarker =
     '%PDF-1.7 MINT synthetic replacement numeric LPP bytes only';
+const _missingDocumentReferenceBodyFr =
+    'Une déclaration non vérifiée existe, mais sa référence locale manque. '
+    'Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni '
+    'l’institution concernée, ni l’application du règlement à ta situation, '
+    'ni tes droits ni aucun montant.';
 
 void _requireRuntimeValue(Object? value, String message) {
   if (value == null) fail(message);
@@ -54,6 +60,49 @@ Widget _dashboard({
         ],
         supportedLocales: S.supportedLocales,
         home: RetirementDashboardScreen(),
+      ),
+    );
+
+GoRouter _recoveryRouter() => GoRouter(
+      routes: <RouteBase>[
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const RetirementDashboardScreen(),
+        ),
+        GoRoute(
+          path: '/scan',
+          builder: (context, state) => Scaffold(
+            body: Semantics(
+              identifier: 'g1_lpp_regulation_recovery_scan_destination',
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      ],
+    );
+
+Widget _recoveryDashboard({
+  required CoachProfileProvider provider,
+  required DocumentProvider documents,
+  required GoRouter router,
+}) =>
+    MultiProvider(
+      providers: <SingleChildWidget>[
+        ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
+        ChangeNotifierProvider<DocumentProvider>.value(value: documents),
+        ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
+        ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
+      ],
+      child: MaterialApp.router(
+        locale: const Locale('fr'),
+        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        routerConfig: router,
       ),
     );
 
@@ -169,9 +218,10 @@ void main() {
       if (persistedRegulation == null) {
         fail('Missing strict regulation reference before provider hydration');
       }
-      final persistedDocumentReferences = await DocumentReferenceStore().load();
+      final referenceStore = DocumentReferenceStore();
+      final originalDocumentReferences = await referenceStore.load();
       final hasPersistedDocumentReference =
-          persistedDocumentReferences.any((reference) {
+          originalDocumentReferences.any((reference) {
         return reference.referenceId == persistedRegulation.referenceId &&
             reference.kind == ConfirmedDocumentReference.lppRegulationKind;
       });
@@ -267,6 +317,94 @@ void main() {
       }
       await $(#retirement_lpp_regulation_handoff_close).tap();
       await $.pumpAndSettle();
+
+      final missingDocuments = DocumentProvider(now: () => now);
+      final recoveryRouter = _recoveryRouter();
+      try {
+        await referenceStore.save(const <ConfirmedDocumentReference>[]);
+        missingDocuments.bindLedger(provider);
+        await missingDocuments.hydrateReferences();
+        expect(
+          missingDocuments.resolveLppRegulationReference(candidate),
+          LppRegulationReferenceResolution.missingDocumentReference,
+        );
+
+        await $.pumpWidgetAndSettle(
+          _recoveryDashboard(
+            provider: provider,
+            documents: missingDocuments,
+            router: recoveryRouter,
+          ),
+        );
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_reference_education',
+          ),
+          findsNothing,
+        );
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_handoff_cta',
+          ),
+          findsNothing,
+        );
+        await $(find.bySemanticsIdentifier(
+          'retirement_lpp_regulation_reference_recovery',
+        )).waitUntilVisible();
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_reconfirm_cta',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text(_missingDocumentReferenceBodyFr), findsOneWidget);
+        expect(
+          _missingDocumentReferenceBodyFr,
+          isNot(contains(candidate.referenceId)),
+        );
+        expect(
+          _missingDocumentReferenceBodyFr,
+          isNot(contains(typedCandidate.fundRelationship.wireName)),
+        );
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_fund_relation',
+          ),
+          findsNothing,
+        );
+
+        await $(find.bySemanticsIdentifier(
+          'retirement_lpp_regulation_reconfirm_cta',
+        )).tap();
+        await $.pumpAndSettle();
+        expect(
+          recoveryRouter.routeInformationProvider.value.uri.toString(),
+          '/scan?type=lppPlan',
+        );
+        expect(
+          find.bySemanticsIdentifier(
+            'g1_lpp_regulation_recovery_scan_destination',
+          ),
+          findsOneWidget,
+        );
+      } finally {
+        await referenceStore.save(originalDocumentReferences);
+        final restoredDocumentReferences = await referenceStore.load();
+        expect(
+          restoredDocumentReferences
+              .map((reference) => reference.toJson())
+              .toList(growable: false),
+          originalDocumentReferences
+              .map((reference) => reference.toJson())
+              .toList(growable: false),
+          reason: 'the temporary BND loss must not alter final runtime state',
+        );
+        await $.pumpWidgetAndSettle(
+          _dashboard(provider: provider, documents: documents),
+        );
+        missingDocuments.dispose();
+        recoveryRouter.dispose();
+      }
 
       final firstNumericReceipt =
           await provider.acceptLppReview(_firstNumericReview(now));
