@@ -24662,4 +24662,31 @@ class SDe extends S {
   @override
   String get lppRegulationReviewFundRelationshipRequired =>
       'Wähle eine der drei Antworten, um die Angabe zu speichern.';
+
+  @override
+  String get lpp_capital_notice_deadline_question =>
+      'Du hast ungeprüft angegeben, dass dies deine aktuelle Pensionskasse ist. Ist im Reglement auch eine Frist für den Kapitalbezug als Datum abgedruckt?';
+
+  @override
+  String get lpp_capital_notice_deadline_field =>
+      'Abgedrucktes Datum (JJJJ-MM-TT)';
+
+  @override
+  String get lpp_capital_notice_deadline_hint =>
+      'Optional. Übertrage nur ein ausdrücklich abgedrucktes vollständiges Kalenderdatum. Rechne eine relative Frist nie in ein Datum um. Prüfe die Institution. Diese Bildungsinformation ist keine Beratung und bedeutet weder Rechtsverlust noch Annahme einer Option.';
+
+  @override
+  String get lpp_capital_notice_partial_state =>
+      'Das Reglement wurde gespeichert, das Fristdatum jedoch nicht. Prüfe es bei der Institution. MINT leitet weder einen Rechtsverlust noch eine angenommene Option ab.';
+
+  @override
+  String get lpp_capital_notice_record_retry_state =>
+      'Das Fristdatum wurde angenommen, aber seine lokale Referenz konnte nicht gespeichert werden. Versuche es erneut, ohne es nochmals anzunehmen.';
+
+  @override
+  String get lpp_capital_notice_record_retry_cta => 'Datum erneut speichern';
+
+  @override
+  String get lpp_capital_notice_continue_without_deadline_cta =>
+      'Ohne gespeichertes Datum fortfahren';
 }

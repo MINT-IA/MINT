@@ -24474,4 +24474,31 @@ class SEn extends S {
   @override
   String get lppRegulationReviewFundRelationshipRequired =>
       'Choose one of the three answers to save the declaration.';
+
+  @override
+  String get lpp_capital_notice_deadline_question =>
+      'You declared, without verification, that this is your current pension fund. Does the regulation also print a deadline for requesting capital?';
+
+  @override
+  String get lpp_capital_notice_deadline_field =>
+      'Printed deadline (YYYY-MM-DD)';
+
+  @override
+  String get lpp_capital_notice_deadline_hint =>
+      'Optional. Copy only a complete civil date explicitly printed on the document. Never convert a relative period into a date. Check the institution. This is educational information, not advice, and never means a right was lost or an option accepted.';
+
+  @override
+  String get lpp_capital_notice_partial_state =>
+      'The regulation was saved, but the deadline was not. Check it with the institution. MINT infers neither a lost right nor an accepted option.';
+
+  @override
+  String get lpp_capital_notice_record_retry_state =>
+      'The deadline was accepted, but its local reference could not be saved. Retry without accepting it a second time.';
+
+  @override
+  String get lpp_capital_notice_record_retry_cta => 'Retry saving the date';
+
+  @override
+  String get lpp_capital_notice_continue_without_deadline_cta =>
+      'Continue without saving the date';
 }

@@ -11646,5 +11646,12 @@
   "lppRegulationReviewFundCurrent": "Mi caja de pensiones actual",
   "lppRegulationReviewFundUncertain": "No lo sé",
   "lppRegulationReviewFundFormerOrOther": "Una caja anterior u otra caja",
-  "lppRegulationReviewFundRelationshipRequired": "Elige una de las tres respuestas para guardar la declaración."
+  "lppRegulationReviewFundRelationshipRequired": "Elige una de las tres respuestas para guardar la declaración.",
+  "lpp_capital_notice_deadline_question": "Has declarado, sin verificación, que se trata de tu caja de pensiones actual. ¿El reglamento también imprime una fecha límite para solicitar el capital?",
+  "lpp_capital_notice_deadline_field": "Fecha límite impresa (AAAA-MM-DD)",
+  "lpp_capital_notice_deadline_hint": "Opcional. Copia solo una fecha civil completa impresa explícitamente. Nunca conviertas un plazo relativo en una fecha. Verifica la institución. Es información educativa, no asesoramiento, y no implica perder un derecho ni aceptar una opción.",
+  "lpp_capital_notice_partial_state": "Se guardó el reglamento, pero no la fecha límite. Verifícala con la institución. MINT no deduce la pérdida de un derecho ni la aceptación de una opción.",
+  "lpp_capital_notice_record_retry_state": "Se aceptó la fecha límite, pero no se pudo guardar su referencia local. Reinténtalo sin aceptarla por segunda vez.",
+  "lpp_capital_notice_record_retry_cta": "Reintentar guardar la fecha",
+  "lpp_capital_notice_continue_without_deadline_cta": "Continuar sin guardar la fecha"
 }

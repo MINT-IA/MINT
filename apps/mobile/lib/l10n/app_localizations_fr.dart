@@ -24590,4 +24590,32 @@ class SFr extends S {
   @override
   String get lppRegulationReviewFundRelationshipRequired =>
       'Choisis l’une des trois réponses pour enregistrer la déclaration.';
+
+  @override
+  String get lpp_capital_notice_deadline_question =>
+      'Tu as déclaré, de manière non vérifiée, qu’il s’agit de ta caisse actuelle. Le règlement imprime-t-il aussi une date limite pour demander le capital ?';
+
+  @override
+  String get lpp_capital_notice_deadline_field =>
+      'Date limite imprimée (AAAA-MM-JJ)';
+
+  @override
+  String get lpp_capital_notice_deadline_hint =>
+      'Facultatif. Recopie uniquement une date civile complète explicitement imprimée. Ne transforme jamais un délai relatif en date. Vérifie l’institution. Cette information éducative, pas un conseil, ne permet jamais de conclure à un droit perdu ni à une option acceptée.';
+
+  @override
+  String get lpp_capital_notice_partial_state =>
+      'Le règlement a été enregistré, mais pas la date limite. Vérifie-la avec l’institution. MINT ne déduit ni droit perdu ni option acceptée.';
+
+  @override
+  String get lpp_capital_notice_record_retry_state =>
+      'La date limite a été acceptée, mais sa référence locale n’a pas pu être enregistrée. Réessaie sans accepter une seconde fois.';
+
+  @override
+  String get lpp_capital_notice_record_retry_cta =>
+      'Réessayer d’enregistrer la date';
+
+  @override
+  String get lpp_capital_notice_continue_without_deadline_cta =>
+      'Continuer sans enregistrer la date';
 }

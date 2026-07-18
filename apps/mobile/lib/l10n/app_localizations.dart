@@ -42880,6 +42880,48 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Choisis l’une des trois réponses pour enregistrer la déclaration.'**
   String get lppRegulationReviewFundRelationshipRequired;
+
+  /// No description provided for @lpp_capital_notice_deadline_question.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as déclaré, de manière non vérifiée, qu’il s’agit de ta caisse actuelle. Le règlement imprime-t-il aussi une date limite pour demander le capital ?'**
+  String get lpp_capital_notice_deadline_question;
+
+  /// No description provided for @lpp_capital_notice_deadline_field.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date limite imprimée (AAAA-MM-JJ)'**
+  String get lpp_capital_notice_deadline_field;
+
+  /// No description provided for @lpp_capital_notice_deadline_hint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Facultatif. Recopie uniquement une date civile complète explicitement imprimée. Ne transforme jamais un délai relatif en date. Vérifie l’institution. Cette information éducative, pas un conseil, ne permet jamais de conclure à un droit perdu ni à une option acceptée.'**
+  String get lpp_capital_notice_deadline_hint;
+
+  /// No description provided for @lpp_capital_notice_partial_state.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le règlement a été enregistré, mais pas la date limite. Vérifie-la avec l’institution. MINT ne déduit ni droit perdu ni option acceptée.'**
+  String get lpp_capital_notice_partial_state;
+
+  /// No description provided for @lpp_capital_notice_record_retry_state.
+  ///
+  /// In fr, this message translates to:
+  /// **'La date limite a été acceptée, mais sa référence locale n’a pas pu être enregistrée. Réessaie sans accepter une seconde fois.'**
+  String get lpp_capital_notice_record_retry_state;
+
+  /// No description provided for @lpp_capital_notice_record_retry_cta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer d’enregistrer la date'**
+  String get lpp_capital_notice_record_retry_cta;
+
+  /// No description provided for @lpp_capital_notice_continue_without_deadline_cta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer sans enregistrer la date'**
+  String get lpp_capital_notice_continue_without_deadline_cta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

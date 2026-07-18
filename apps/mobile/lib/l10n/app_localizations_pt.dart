@@ -24611,4 +24611,32 @@ class SPt extends S {
   @override
   String get lppRegulationReviewFundRelationshipRequired =>
       'Escolhe uma das três respostas para guardar a declaração.';
+
+  @override
+  String get lpp_capital_notice_deadline_question =>
+      'Declaraste, sem verificação, que esta é a tua caixa de pensões atual. O regulamento também imprime uma data-limite para pedir o capital?';
+
+  @override
+  String get lpp_capital_notice_deadline_field =>
+      'Data-limite impressa (AAAA-MM-DD)';
+
+  @override
+  String get lpp_capital_notice_deadline_hint =>
+      'Opcional. Copia apenas uma data civil completa explicitamente impressa. Nunca convertas um prazo relativo numa data. Verifica a instituição. É informação educativa, não aconselhamento, e não implica perder um direito nem aceitar uma opção.';
+
+  @override
+  String get lpp_capital_notice_partial_state =>
+      'O regulamento foi guardado, mas a data-limite não. Confirma-a com a instituição. A MINT não deduz a perda de um direito nem a aceitação de uma opção.';
+
+  @override
+  String get lpp_capital_notice_record_retry_state =>
+      'A data-limite foi aceite, mas não foi possível guardar a referência local. Tenta novamente sem a aceitar uma segunda vez.';
+
+  @override
+  String get lpp_capital_notice_record_retry_cta =>
+      'Tentar guardar a data novamente';
+
+  @override
+  String get lpp_capital_notice_continue_without_deadline_cta =>
+      'Continuar sem guardar a data';
 }

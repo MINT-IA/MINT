@@ -24668,4 +24668,31 @@ class SIt extends S {
   @override
   String get lppRegulationReviewFundRelationshipRequired =>
       'Scegli una delle tre risposte per salvare la dichiarazione.';
+
+  @override
+  String get lpp_capital_notice_deadline_question =>
+      'Hai dichiarato, senza verifica, che si tratta della tua cassa pensioni attuale. Il regolamento riporta anche una data limite per chiedere il capitale?';
+
+  @override
+  String get lpp_capital_notice_deadline_field =>
+      'Data limite stampata (AAAA-MM-GG)';
+
+  @override
+  String get lpp_capital_notice_deadline_hint =>
+      'Facoltativo. Copia solo una data civile completa esplicitamente stampata. Non convertire mai un termine relativo in una data. Verifica l’istituzione. È informazione educativa, non consulenza, e non implica la perdita di un diritto né l’accettazione di un’opzione.';
+
+  @override
+  String get lpp_capital_notice_partial_state =>
+      'Il regolamento è stato salvato, ma la data limite no. Verificala con l’istituzione. MINT non deduce né la perdita di un diritto né l’accettazione di un’opzione.';
+
+  @override
+  String get lpp_capital_notice_record_retry_state =>
+      'La data limite è stata accettata, ma non è stato possibile salvarne il riferimento locale. Riprova senza accettarla una seconda volta.';
+
+  @override
+  String get lpp_capital_notice_record_retry_cta => 'Riprova a salvare la data';
+
+  @override
+  String get lpp_capital_notice_continue_without_deadline_cta =>
+      'Continua senza salvare la data';
 }
