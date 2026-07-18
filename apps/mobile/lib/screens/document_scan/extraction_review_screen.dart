@@ -1118,7 +1118,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       deadline = null;
     }
     if (deadline == null) {
-      _finishLppRegulationReview();
+      if (rawDeadline.isEmpty) {
+        _finishLppRegulationReview();
+      } else {
+        _showLppCapitalNoticePartial();
+      }
       return;
     }
 
