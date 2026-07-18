@@ -24405,17 +24405,69 @@ class SPt extends S {
 
   @override
   String get retirementLppCapitalNoticeDeadlineTitle =>
-      'Prazo para levantamento em capital';
+      'Prazo declarado para uma prestação em capital';
 
   @override
   String retirementLppCapitalNoticeDeadlineKnown(String date) {
-    return 'A tua caixa de pensões indica $date como prazo. Confirma-o diretamente com a caixa.';
+    return 'O regulamento analisado indica $date como prazo para comunicares a tua vontade de receber uma prestação em capital. Esta indicação não confirma nem que o regulamento se aplique à tua situação nem que a opção seja aceite.';
   }
 
   @override
   String retirementLppCapitalNoticeDeadlineStale(String date) {
-    return 'O prazo indicado pela tua caixa de pensões era $date. Confirma-o diretamente com a caixa.';
+    return 'O regulamento analisado indicava $date para comunicar essa vontade; essa data já passou. A MINT não pode concluir nem que um direito foi perdido nem que existe uma exceção, outro prazo ou outra modalidade.';
   }
+
+  @override
+  String get retirementLppCapitalNoticeCaveat =>
+      'Declaraste, sem verificação independente, que este regulamento provém da tua caixa de pensões atual.';
+
+  @override
+  String get retirementLppCapitalNoticeBoundary =>
+      'Apenas referência documental — não é aconselhamento. Antes de qualquer decisão, confirma diretamente com a instituição em causa o regulamento aplicável, o prazo, a forma exigida e a receção do teu pedido.';
+
+  @override
+  String get retirementLppCapitalNoticeDocumentKindLabel => 'Tipo de documento';
+
+  @override
+  String get retirementLppCapitalNoticeDocumentKindValue =>
+      'Regulamento de previdência — prazo declarado';
+
+  @override
+  String get retirementLppCapitalNoticeSourceDateLabel => 'Data do documento';
+
+  @override
+  String get retirementLppCapitalNoticeLegalYearLabel =>
+      'Ano de referência declarado';
+
+  @override
+  String get retirementLppCapitalNoticeConfirmedAtLabel =>
+      'Declaração registada em';
+
+  @override
+  String get retirementLppCapitalNoticeFundRelationshipLabel =>
+      'Origem declarada';
+
+  @override
+  String get retirementLppCapitalNoticeFundRelationshipCurrent =>
+      'A minha caixa de pensões atual — declarada, não verificada';
+
+  @override
+  String get retirementLppCapitalNoticeDeadlineLabel => 'Prazo declarado';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionsTitle => 'Perguntas a colocar';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionSubmissionForm =>
+      'Que forma exige a instituição para comunicar o meu pedido de prestação em capital e para que endereço ou serviço devo enviá-lo?';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionReceiptProof =>
+      'Como posso obter uma prova datada de que a instituição recebeu o meu pedido completo dentro do prazo aplicável?';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionChangeRevocation =>
+      'Até quando e de que forma posso alterar ou revogar o meu pedido, e é necessário o consentimento do meu cônjuge ou parceiro registado?';
 
   @override
   String get retirementLppRegulationReferenceTitle =>

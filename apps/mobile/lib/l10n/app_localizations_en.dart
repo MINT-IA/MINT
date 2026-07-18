@@ -24273,17 +24273,69 @@ class SEn extends S {
 
   @override
   String get retirementLppCapitalNoticeDeadlineTitle =>
-      'Capital withdrawal deadline';
+      'Declared deadline for a capital benefit';
 
   @override
   String retirementLppCapitalNoticeDeadlineKnown(String date) {
-    return 'Your pension fund indicates a deadline of $date. Check it directly with the fund.';
+    return 'The regulation reviewed indicates $date as the deadline for making known your intention to receive a capital benefit. This indication confirms neither that the regulation applies to your situation nor that the option will be accepted.';
   }
 
   @override
   String retirementLppCapitalNoticeDeadlineStale(String date) {
-    return 'The deadline indicated by your pension fund was $date. Check it directly with the fund.';
+    return 'The regulation reviewed indicated $date for making this intention known; that date has passed. MINT cannot conclude that a right has been lost or that an exception, another deadline or another procedure exists.';
   }
+
+  @override
+  String get retirementLppCapitalNoticeCaveat =>
+      'You declared, without independent verification, that this regulation comes from your current pension fund.';
+
+  @override
+  String get retirementLppCapitalNoticeBoundary =>
+      'Documentary reference only — not advice. Before making any decision, confirm directly with the institution concerned the applicable regulation, the deadline, the required form and receipt of your request.';
+
+  @override
+  String get retirementLppCapitalNoticeDocumentKindLabel => 'Document type';
+
+  @override
+  String get retirementLppCapitalNoticeDocumentKindValue =>
+      'Pension regulation — declared deadline';
+
+  @override
+  String get retirementLppCapitalNoticeSourceDateLabel => 'Document date';
+
+  @override
+  String get retirementLppCapitalNoticeLegalYearLabel =>
+      'Declared reference year';
+
+  @override
+  String get retirementLppCapitalNoticeConfirmedAtLabel =>
+      'Declaration recorded on';
+
+  @override
+  String get retirementLppCapitalNoticeFundRelationshipLabel =>
+      'Declared origin';
+
+  @override
+  String get retirementLppCapitalNoticeFundRelationshipCurrent =>
+      'My current pension fund — declared, unverified';
+
+  @override
+  String get retirementLppCapitalNoticeDeadlineLabel => 'Declared deadline';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionsTitle => 'Questions to ask';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionSubmissionForm =>
+      'What form does the institution require for making my capital-benefit request known, and to which address or department should I send it?';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionReceiptProof =>
+      'How can I obtain dated proof that the institution received my complete request within the applicable deadline?';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionChangeRevocation =>
+      'Until when and in what form may I change or revoke my request, and is my spouse’s or registered partner’s consent required?';
 
   @override
   String get retirementLppRegulationReferenceTitle =>

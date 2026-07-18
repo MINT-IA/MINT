@@ -42554,20 +42554,104 @@ abstract class S {
   /// No description provided for @retirementLppCapitalNoticeDeadlineTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Échéance de retrait en capital'**
+  /// **'Échéance déclarée pour une prestation en capital'**
   String get retirementLppCapitalNoticeDeadlineTitle;
 
   /// No description provided for @retirementLppCapitalNoticeDeadlineKnown.
   ///
   /// In fr, this message translates to:
-  /// **'Ta caisse indique une échéance au {date}. Vérifie-la directement auprès d’elle.'**
+  /// **'Le règlement examiné indique le {date} comme échéance pour faire connaître ta volonté de recevoir une prestation en capital. Cette indication ne confirme ni l’application du règlement à ta situation, ni l’acceptation de l’option.'**
   String retirementLppCapitalNoticeDeadlineKnown(String date);
 
   /// No description provided for @retirementLppCapitalNoticeDeadlineStale.
   ///
   /// In fr, this message translates to:
-  /// **'L’échéance indiquée par ta caisse était le {date}. Vérifie-la directement auprès d’elle.'**
+  /// **'Le règlement examiné indiquait le {date} pour faire connaître cette volonté; cette date est dépassée. MINT ne peut conclure ni à la perte d’un droit, ni à l’existence d’une exception, d’une autre échéance ou modalité.'**
   String retirementLppCapitalNoticeDeadlineStale(String date);
+
+  /// No description provided for @retirementLppCapitalNoticeCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as déclaré, sans vérification indépendante, que ce règlement provient de ta caisse actuelle.'**
+  String get retirementLppCapitalNoticeCaveat;
+
+  /// No description provided for @retirementLppCapitalNoticeBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repère documentaire uniquement — pas un conseil. Confirme directement auprès de l’institution concernée le règlement applicable, l’échéance, la forme exigée et la réception de ta demande avant toute décision.'**
+  String get retirementLppCapitalNoticeBoundary;
+
+  /// No description provided for @retirementLppCapitalNoticeDocumentKindLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de document'**
+  String get retirementLppCapitalNoticeDocumentKindLabel;
+
+  /// No description provided for @retirementLppCapitalNoticeDocumentKindValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règlement de prévoyance — échéance déclarée'**
+  String get retirementLppCapitalNoticeDocumentKindValue;
+
+  /// No description provided for @retirementLppCapitalNoticeSourceDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date du document'**
+  String get retirementLppCapitalNoticeSourceDateLabel;
+
+  /// No description provided for @retirementLppCapitalNoticeLegalYearLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année de référence déclarée'**
+  String get retirementLppCapitalNoticeLegalYearLabel;
+
+  /// No description provided for @retirementLppCapitalNoticeConfirmedAtLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration enregistrée le'**
+  String get retirementLppCapitalNoticeConfirmedAtLabel;
+
+  /// No description provided for @retirementLppCapitalNoticeFundRelationshipLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Origine déclarée'**
+  String get retirementLppCapitalNoticeFundRelationshipLabel;
+
+  /// No description provided for @retirementLppCapitalNoticeFundRelationshipCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma caisse actuelle — déclarée, non vérifiée'**
+  String get retirementLppCapitalNoticeFundRelationshipCurrent;
+
+  /// No description provided for @retirementLppCapitalNoticeDeadlineLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéance déclarée'**
+  String get retirementLppCapitalNoticeDeadlineLabel;
+
+  /// No description provided for @retirementLppCapitalNoticeQuestionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions à poser'**
+  String get retirementLppCapitalNoticeQuestionsTitle;
+
+  /// No description provided for @retirementLppCapitalNoticeQuestionSubmissionForm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle forme l’institution exige-t-elle pour faire connaître ma demande de prestation en capital, et à quelle adresse ou auprès de quel service dois-je l’envoyer ?'**
+  String get retirementLppCapitalNoticeQuestionSubmissionForm;
+
+  /// No description provided for @retirementLppCapitalNoticeQuestionReceiptProof.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment puis-je obtenir une preuve datée que l’institution a reçu ma demande complète dans le délai applicable ?'**
+  String get retirementLppCapitalNoticeQuestionReceiptProof;
+
+  /// No description provided for @retirementLppCapitalNoticeQuestionChangeRevocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jusqu’à quand et sous quelle forme puis-je modifier ou révoquer ma demande, et le consentement de mon ou ma conjoint·e est-il requis ?'**
+  String get retirementLppCapitalNoticeQuestionChangeRevocation;
 
   /// No description provided for @retirementLppRegulationReferenceTitle.
   ///

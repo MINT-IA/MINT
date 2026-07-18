@@ -24458,17 +24458,70 @@ class SDe extends S {
 
   @override
   String get retirementLppCapitalNoticeDeadlineTitle =>
-      'Frist für den Kapitalbezug';
+      'Deklarierte Frist für eine Kapitalleistung';
 
   @override
   String retirementLppCapitalNoticeDeadlineKnown(String date) {
-    return 'Deine Pensionskasse nennt den $date als Frist. Prüfe sie direkt bei der Kasse.';
+    return 'Das geprüfte Reglement nennt den $date als Frist, um deinen Willen zum Bezug einer Kapitalleistung mitzuteilen. Diese Angabe bestätigt weder, dass das Reglement auf deine Situation anwendbar ist, noch dass die Option akzeptiert wird.';
   }
 
   @override
   String retirementLppCapitalNoticeDeadlineStale(String date) {
-    return 'Die von deiner Pensionskasse genannte Frist war am $date. Prüfe sie direkt bei der Kasse.';
+    return 'Das geprüfte Reglement nannte den $date, um diesen Willen mitzuteilen; dieses Datum ist verstrichen. MINT kann weder auf den Verlust eines Rechts noch auf eine Ausnahme, eine andere Frist oder Modalität schliessen.';
   }
+
+  @override
+  String get retirementLppCapitalNoticeCaveat =>
+      'Du hast ohne unabhängige Prüfung angegeben, dass dieses Reglement von deiner aktuellen Pensionskasse stammt.';
+
+  @override
+  String get retirementLppCapitalNoticeBoundary =>
+      'Nur ein dokumentarischer Anhaltspunkt — keine Beratung. Bestätige vor jeder Entscheidung direkt bei der betroffenen Institution das anwendbare Reglement, die Frist, die verlangte Form und den Eingang deines Gesuchs.';
+
+  @override
+  String get retirementLppCapitalNoticeDocumentKindLabel => 'Dokumenttyp';
+
+  @override
+  String get retirementLppCapitalNoticeDocumentKindValue =>
+      'Vorsorgereglement — deklarierte Frist';
+
+  @override
+  String get retirementLppCapitalNoticeSourceDateLabel => 'Dokumentdatum';
+
+  @override
+  String get retirementLppCapitalNoticeLegalYearLabel =>
+      'Deklariertes Referenzjahr';
+
+  @override
+  String get retirementLppCapitalNoticeConfirmedAtLabel =>
+      'Deklaration erfasst am';
+
+  @override
+  String get retirementLppCapitalNoticeFundRelationshipLabel =>
+      'Deklarierte Herkunft';
+
+  @override
+  String get retirementLppCapitalNoticeFundRelationshipCurrent =>
+      'Meine aktuelle Pensionskasse — deklariert, nicht geprüft';
+
+  @override
+  String get retirementLppCapitalNoticeDeadlineLabel => 'Deklarierte Frist';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionsTitle =>
+      'Fragen an die Institution';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionSubmissionForm =>
+      'Welche Form verlangt die Institution für die Mitteilung meines Antrags auf eine Kapitalleistung, und an welche Adresse oder Stelle muss ich ihn senden?';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionReceiptProof =>
+      'Wie erhalte ich einen datierten Nachweis, dass die Institution meinen vollständigen Antrag innerhalb der anwendbaren Frist erhalten hat?';
+
+  @override
+  String get retirementLppCapitalNoticeQuestionChangeRevocation =>
+      'Bis wann und in welcher Form kann ich meinen Antrag ändern oder widerrufen, und ist die Zustimmung meiner Eheperson oder eingetragenen Partnerperson erforderlich?';
 
   @override
   String get retirementLppRegulationReferenceTitle =>

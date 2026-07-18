@@ -1,6 +1,7 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/family_service.dart';
@@ -19,6 +20,7 @@ class FinancialReportService {
   FinancialReport generateReport(
     Map<String, dynamic> answers, {
     S? l,
+    LppCapitalNoticeSpecialistHandoff? lppCapitalNoticeHandoff,
     LppRegulationSpecialistHandoff? lppRegulationHandoff,
   }) {
     // 1. Profil utilisateur
@@ -90,6 +92,7 @@ class FinancialReportService {
       taxSimulation: taxSim,
       retirementProjection: retirementProj,
       lppBuybackStrategy: lppStrategy,
+      lppCapitalNoticeHandoff: lppCapitalNoticeHandoff,
       lppRegulationHandoff: lppRegulationHandoff,
       priorityActions: priorityActions,
       personalizedRoadmap: roadmap,

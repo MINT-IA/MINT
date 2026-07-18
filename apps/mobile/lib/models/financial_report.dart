@@ -1,4 +1,5 @@
 import 'circle_score.dart';
+import 'lpp_capital_notice_specialist_handoff.dart';
 import 'lpp_regulation_specialist_handoff.dart';
 import '../services/financial_core/replacement_rate_calculator.dart';
 
@@ -14,6 +15,9 @@ class FinancialReport {
   final TaxSimulation taxSimulation;
   final RetirementProjection? retirementProjection;
   final LppBuybackStrategy? lppBuybackStrategy;
+
+  /// Deadline-only specialist preparation from two resolved evidence objects.
+  final LppCapitalNoticeSpecialistHandoff? lppCapitalNoticeHandoff;
 
   /// Metadata-only specialist preparation from an exact local BND match.
   final LppRegulationSpecialistHandoff? lppRegulationHandoff;
@@ -52,6 +56,7 @@ class FinancialReport {
     required this.taxSimulation,
     this.retirementProjection,
     this.lppBuybackStrategy,
+    this.lppCapitalNoticeHandoff,
     this.lppRegulationHandoff,
     required this.priorityActions,
     required this.personalizedRoadmap,
