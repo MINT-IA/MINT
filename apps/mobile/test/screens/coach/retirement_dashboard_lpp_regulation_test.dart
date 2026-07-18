@@ -12,6 +12,7 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -131,6 +132,7 @@ Future<DocumentProvider> _documents({
 Widget _dashboard({
   required CoachProfileProvider ledger,
   DocumentProvider? documents,
+  RetirementProjectionBuilder? projectionBuilder,
 }) {
   final providers = <SingleChildWidget>[
     ChangeNotifierProvider<CoachProfileProvider>.value(value: ledger),
@@ -141,17 +143,48 @@ Widget _dashboard({
   ];
   return MultiProvider(
     providers: providers,
-    child: const MaterialApp(
-      locale: Locale('fr'),
-      localizationsDelegates: [
+    child: MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
         S.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: S.supportedLocales,
-      home: RetirementDashboardScreen(),
+      home: RetirementDashboardScreen(
+        projectionBuilder: projectionBuilder,
+      ),
     ),
+  );
+}
+
+ProjectionResult _loadedProjection({required bool complete}) {
+  ProjectionScenario scenario(String label, double? retirementIncome) =>
+      ProjectionScenario(
+        label: label,
+        points: const [],
+        capitalFinal: 500000,
+        revenuAnnuelRetraite: retirementIncome,
+        revenuAnnuelRetraiteHorsAvs: 30000,
+        revenuAvsIndividuelAnnuel: complete ? 30000 : null,
+        decomposition: complete
+            ? const <String, double>{'avs': 30000, 'lpp': 30000}
+            : const <String, double>{},
+        decompositionHorsAvs: const <String, double>{'lpp': 30000},
+      );
+
+  return ProjectionResult(
+    prudent: scenario('Prudent', complete ? 55000 : null),
+    base: scenario('Base', complete ? 60000 : null),
+    optimiste: scenario('Optimiste', complete ? 65000 : null),
+    tauxRemplacementBase: complete ? 62 : null,
+    selfAvsIncluded: complete,
+    avsIncluded: complete,
+    missingFields: const <String>[],
+    milestones: const [],
+    disclaimer: 'test',
+    sources: const [],
   );
 }
 
@@ -216,6 +249,63 @@ void main() {
       expect(cardText, isNot(contains(falseStale)), reason: falseStale);
     }
   });
+
+  for (final branch in <({String name, ProjectionResult projection})>[
+    (
+      name: 'complete dashboard',
+      projection: _loadedProjection(complete: true),
+    ),
+    (
+      name: 'unavailable projection without AVS missing fields',
+      projection: _loadedProjection(complete: false),
+    ),
+  ]) {
+    testWidgets('exact cold tuple renders regulation handoff on ${branch.name}',
+        (tester) async {
+      // Ahem's fixed-width glyphs overstate this legacy hero row in widget
+      // tests; this branch test targets wiring, not typography.
+      tester.platformDispatcher.textScaleFactorTestValue = 0.4;
+      addTearDown(
+        tester.platformDispatcher.clearTextScaleFactorTestValue,
+      );
+      final candidate = _candidate();
+      final ledger = _DashboardLedger(
+        value: _profile(candidate),
+        snapshotId: _snapshotId,
+        referenceId: candidate.referenceId,
+        confirmedAt: candidate.confirmedAt,
+      );
+      final documents = await _documents(ledger: ledger);
+      addTearDown(documents.dispose);
+      addTearDown(ledger.dispose);
+
+      await tester.pumpWidget(
+        _dashboard(
+          ledger: ledger,
+          documents: documents,
+          projectionBuilder: (_) => branch.projection,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final cardKey = find.byKey(const Key(_cardId));
+      await tester.scrollUntilVisible(cardKey, 400);
+      await tester.pumpAndSettle();
+
+      expect(
+        <int>[
+          find.bySemanticsIdentifier(_cardId).evaluate().length,
+          find.bySemanticsIdentifier(_ctaId).evaluate().length,
+        ],
+        const <int>[1, 1],
+        reason: '${branch.name} must expose the regulation card and CTA',
+      );
+      expect(
+        find.byKey(const Key('retirement_missing_avs_state')),
+        findsNothing,
+      );
+    });
+  }
 
   testWidgets('flag, provider, BND identity, snapshot, and profile fail closed',
       (tester) async {
