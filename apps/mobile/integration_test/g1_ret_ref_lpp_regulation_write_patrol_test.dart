@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -30,9 +28,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
 const _backendDocumentId = '91919191-9191-4191-8191-919191919191';
-const _initialAcquisitionId = '81818181-8181-4181-8181-818181818181';
 const _rawMarker = '%PDF-1.7 MINT synthetic LPP regulation runtime bytes only';
-const _numericMarker = '%PDF-1.7 MINT synthetic initial numeric LPP bytes only';
 final _runtimeNow = DateTime.now().toUtc();
 final _sourceDate = DateTime.utc(
   _runtimeNow.subtract(const Duration(days: 1)).year,
@@ -43,31 +39,6 @@ final _sourceDate = DateTime.utc(
 String _civilDate(DateTime value) => '${value.year.toString().padLeft(4, '0')}-'
     '${value.month.toString().padLeft(2, '0')}-'
     '${value.day.toString().padLeft(2, '0')}';
-
-LppReviewConfirmation _initialNumericReview(DateTime now) {
-  final bytes = Uint8List.fromList(utf8.encode(_numericMarker));
-  return LppReviewConfirmation(
-    authorization: LppAcquisitionAuthorization(
-      acquisitionId: _initialAcquisitionId,
-      subject: LppEvidenceOwnerKind.self,
-      partnerAttested: false,
-      policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
-      declaredAt: now.subtract(const Duration(minutes: 2)),
-      documentSha256: LppAcquisitionAuthorization.sha256Hex(bytes),
-    ),
-    sourceDate: _sourceDate,
-    facts: const <LppEvidenceFactKey, LppReviewedFact>{
-      LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
-        value: 143287.50,
-        unit: LppEvidenceUnit.chf,
-      ),
-      LppEvidenceFactKey.insuredSalaryAnnualChf: LppReviewedFact(
-        value: 72540,
-        unit: LppEvidenceUnit.chfPerYear,
-      ),
-    },
-  );
-}
 
 final class _RuntimeLedger extends CoachProfileProvider {
   _RuntimeLedger({
@@ -211,7 +182,7 @@ Widget _app({
 
 void main() {
   patrolTest(
-    'acquires and reviews one synthetic LPP regulation through production UI',
+    'acquires one synthetic LPP regulation without a numeric snapshot',
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 8)),
     ($) async {
@@ -271,7 +242,11 @@ void main() {
 
       await ledger.loadFromWizard();
       await documents.hydrateReferences();
-      await ledger.acceptLppReview(_initialNumericReview(_runtimeNow));
+      expect(
+        ledger.currentLppSnapshot(LppEvidenceOwnerKind.self),
+        isNull,
+        reason: 'the writer must prove regulation-only first acquisition',
+      );
       await $.pumpWidgetAndSettle(
         _app(
           router: router,
@@ -321,7 +296,7 @@ void main() {
       final currentSnapshot = ledger.currentLppSnapshot(
         LppEvidenceOwnerKind.self,
       );
-      expect(currentSnapshot, isNotNull);
+      expect(currentSnapshot, isNull);
       final candidate = ledger.profile!.lppRegulationReference;
       expect(candidate, isNotNull);
       final dynamic typedCandidate = candidate;

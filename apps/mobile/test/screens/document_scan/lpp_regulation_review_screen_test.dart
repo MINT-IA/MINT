@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' show SemanticsAction;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -373,6 +374,30 @@ Future<void> _chooseFundRelationship(
   await tester.pump();
 }
 
+void _expectFundRelationshipControlsEnabled(
+  WidgetTester tester, {
+  required bool enabled,
+}) {
+  for (final relationship in const <String>[
+    'current',
+    'uncertain',
+    'former_or_other',
+  ]) {
+    final control = find.bySemanticsIdentifier(
+      'lpp_regulation_fund_relation_$relationship',
+    );
+    expect(control, findsOneWidget, reason: relationship);
+    expect(
+      tester
+          .getSemantics(control)
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
+      enabled,
+      reason: '$relationship must be ${enabled ? 'editable' : 'frozen'}',
+    );
+  }
+}
+
 Future<void> _enterReviewValues(
   WidgetTester tester, {
   String sourceDate = '2026-02-03',
@@ -733,6 +758,7 @@ void main() {
       expect(
           tester.widget<TextFormField>(find.byKey(Key(key))).enabled, isTrue);
     }
+    _expectFundRelationshipControlsEnabled(tester, enabled: true);
     expect(harness.sessions.byId(harness.scanSessionId), isNotNull);
     _expectNoExternalSideEffects(harness);
   });
@@ -771,6 +797,7 @@ void main() {
         isFalse,
       );
     }
+    _expectFundRelationshipControlsEnabled(tester, enabled: false);
     expect(harness.sessions.byId(harness.scanSessionId), isNotNull);
 
     await tester.tap(

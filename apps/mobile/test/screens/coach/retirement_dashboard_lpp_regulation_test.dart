@@ -638,9 +638,16 @@ void main() {
     await tester.pumpWidget(_dashboard(ledger: ledger, documents: documents));
     await tester.pump(const Duration(milliseconds: 500));
 
+    final verticalScrollable = find.byWidgetPredicate(
+      (widget) =>
+          widget is Scrollable && widget.axisDirection == AxisDirection.down,
+      description: 'vertical retirement dashboard Scrollable',
+    );
+    expect(verticalScrollable, findsOneWidget);
     await tester.scrollUntilVisible(
       find.byKey(const Key(_ctaId)),
       400,
+      scrollable: verticalScrollable,
     );
     final cta = find.bySemanticsIdentifier(_ctaId);
     expect(cta, findsOneWidget);

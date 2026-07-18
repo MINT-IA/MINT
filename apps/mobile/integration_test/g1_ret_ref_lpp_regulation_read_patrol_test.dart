@@ -17,7 +17,10 @@ import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
 const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
+const _firstNumericAcquisitionId = '62626262-6262-4262-8262-626262626262';
 const _replacementAcquisitionId = '72727272-7272-4272-8272-727272727272';
+const _firstNumericMarker =
+    '%PDF-1.7 MINT synthetic first numeric LPP bytes only';
 const _replacementMarker =
     '%PDF-1.7 MINT synthetic replacement numeric LPP bytes only';
 
@@ -70,9 +73,35 @@ LppReviewConfirmation _replacementNumericReview(DateTime now) {
   );
 }
 
+LppReviewConfirmation _firstNumericReview(DateTime now) {
+  final bytes = Uint8List.fromList(utf8.encode(_firstNumericMarker));
+  return LppReviewConfirmation(
+    authorization: LppAcquisitionAuthorization(
+      acquisitionId: _firstNumericAcquisitionId,
+      subject: LppEvidenceOwnerKind.self,
+      partnerAttested: false,
+      policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
+      declaredAt: now.subtract(const Duration(minutes: 3)),
+      documentSha256: LppAcquisitionAuthorization.sha256Hex(bytes),
+    ),
+    sourceDate: DateTime.utc(now.year, now.month, now.day)
+        .subtract(const Duration(days: 1)),
+    facts: const <LppEvidenceFactKey, LppReviewedFact>{
+      LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
+        value: 143287.50,
+        unit: LppEvidenceUnit.chf,
+      ),
+      LppEvidenceFactKey.insuredSalaryAnnualChf: LppReviewedFact(
+        value: 72540,
+        unit: LppEvidenceUnit.chfPerYear,
+      ),
+    },
+  );
+}
+
 void main() {
   patrolTest(
-    'cold reader preserves regulation handoff through numeric replacement',
+    'cold reader preserves regulation through numeric addition and replacement',
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 8)),
     ($) async {
@@ -97,8 +126,11 @@ void main() {
       final currentSnapshot = provider.currentLppSnapshot(
         LppEvidenceOwnerKind.self,
       );
-      expect(currentSnapshot, isNotNull);
-      if (currentSnapshot == null) fail('Missing cold numeric LPP snapshot');
+      expect(
+        currentSnapshot,
+        isNull,
+        reason: 'cold regulation authority must not require numeric LPP facts',
+      );
       final candidate = provider.profile!.lppRegulationReference;
       expect(candidate, isNotNull);
       final dynamic typedCandidate = candidate;
@@ -162,6 +194,36 @@ void main() {
       await $(#retirement_lpp_regulation_handoff_close).tap();
       await $.pumpAndSettle();
 
+      final firstNumericReceipt =
+          await provider.acceptLppReview(_firstNumericReview(now));
+      await $.pumpAndSettle();
+      final firstNumericSnapshot = provider.currentLppSnapshot(
+        LppEvidenceOwnerKind.self,
+      );
+      expect(firstNumericSnapshot, isNotNull);
+      if (firstNumericSnapshot == null) {
+        fail('Missing first numeric LPP snapshot');
+      }
+      expect(firstNumericReceipt.snapshotId, firstNumericSnapshot.snapshotId);
+      final afterAdditionReference = provider.profile!.lppRegulationReference;
+      expect(afterAdditionReference, isNotNull);
+      expect(afterAdditionReference!.referenceId, candidate.referenceId);
+      final dynamic typedAfterAdditionReference = afterAdditionReference;
+      expect(
+        typedAfterAdditionReference.fundRelationship.wireName,
+        typedCandidate.fundRelationship.wireName,
+      );
+      expect(
+        documents.resolveLppRegulation(afterAdditionReference),
+        isNotNull,
+      );
+      expect(
+        find.bySemanticsIdentifier(
+          'retirement_lpp_regulation_reference_education',
+        ),
+        findsOneWidget,
+      );
+
       final replacementReceipt =
           await provider.acceptLppReview(_replacementNumericReview(now));
       await $.pumpAndSettle();
@@ -172,7 +234,7 @@ void main() {
       if (replacementSnapshot == null) fail('Missing replacement snapshot');
       expect(
         replacementSnapshot.snapshotId,
-        isNot(currentSnapshot.snapshotId),
+        isNot(firstNumericSnapshot.snapshotId),
       );
       expect(replacementReceipt.snapshotId, replacementSnapshot.snapshotId);
       final preservedReference = provider.profile!.lppRegulationReference;
