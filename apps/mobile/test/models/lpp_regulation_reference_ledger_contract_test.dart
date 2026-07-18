@@ -284,7 +284,7 @@ void main() {
     });
 
     test(
-        'schema 1 migration preserves facts, capital notice, and quarantine but drops nested regulation',
+        'schema 1 migration preserves facts and quarantine but drops authority-less notice and nested regulation',
         () {
       final legacy = _legacySchema1Root();
       final legacySelf = Map<String, dynamic>.from(legacy['self']! as Map);
@@ -292,7 +292,8 @@ void main() {
       final parsed = _decode(legacy);
 
       expect(parsed, isNotNull);
-      final migrated = _roundTrip(parsed!);
+      expect(parsed!.droppedLegacyCapitalNoticeWithoutAuthority, isTrue);
+      final migrated = _roundTrip(parsed);
       final migratedSelf = Map<String, dynamic>.from(migrated['self']! as Map);
       expect(migrated['schemaVersion'], 3);
       expect(migrated.keys.toSet(), <String>{
@@ -306,8 +307,8 @@ void main() {
       expect(migratedSelf['snapshotId'], _snapshotId);
       expect(migratedSelf['facts'], legacySelf['facts']);
       expect(
-        migratedSelf['lppCapitalNoticeDeadline'],
-        legacySelf['lppCapitalNoticeDeadline'],
+        migratedSelf.containsKey('lppCapitalNoticeDeadline'),
+        isFalse,
       );
       expect(migratedSelf.containsKey('lppRegulationReference'), isFalse);
       expect(
