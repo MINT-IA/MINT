@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/session_epoch.dart';
 
 const _snapshotId = '11111111-1111-4111-8111-111111111111';
 const _ownerId = '22222222-2222-4222-8222-222222222222';
@@ -39,10 +40,12 @@ final class _MemoryReferenceStore extends DocumentReferenceStore {
   _MemoryReferenceStore({
     List<ConfirmedDocumentReference> initial = const [],
     this.failLoad = false,
+    this.failNextSave = false,
   }) : references = List<ConfirmedDocumentReference>.of(initial);
 
   List<ConfirmedDocumentReference> references;
   bool failLoad;
+  bool failNextSave;
   int loadCalls = 0;
   int saveCalls = 0;
   Completer<void>? saveGate;
@@ -59,6 +62,10 @@ final class _MemoryReferenceStore extends DocumentReferenceStore {
     saveCalls += 1;
     final gate = saveGate;
     if (gate != null) await gate.future;
+    if (failNextSave) {
+      failNextSave = false;
+      throw StateError('synthetic reference persistence failure');
+    }
     references = List<ConfirmedDocumentReference>.of(next);
   }
 }
@@ -111,6 +118,15 @@ LppRegulationReviewConfirmation _confirmation({
       legalYear: legalYear,
       expectedSnapshotId: _snapshotId,
       expectedPreviousReferenceId: expectedPreviousReferenceId,
+    );
+
+LppCapitalNoticeReviewConfirmation _capitalConfirmation() =>
+    LppCapitalNoticeReviewConfirmation(
+      ownerKind: LppEvidenceOwnerKind.self,
+      sourceDate: DateTime.utc(2026, 2, 3),
+      legalYear: 2026,
+      deadlineDate: DateTime.utc(2026, 9, 30),
+      expectedSnapshotId: _snapshotId,
     );
 
 Future<
@@ -184,11 +200,30 @@ void main() {
   setUp(() {
     FeatureFlags.typedLppEvidence = true;
     FeatureFlags.lppRegulationReferenceEnabled = true;
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
   });
 
   tearDown(() {
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
     FeatureFlags.lppRegulationReferenceEnabled = false;
     FeatureFlags.typedLppEvidence = false;
+  });
+
+  test('record rejects missing ledger before load or save', () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final accepted = await _acceptedRegulation(now);
+    addTearDown(accepted.ledger.dispose);
+    final store = _MemoryReferenceStore();
+    final documents = DocumentProvider(referenceStore: store, now: () => now);
+    addTearDown(documents.dispose);
+
+    await expectLater(
+      documents.recordLppRegulation(accepted.receipt),
+      throwsStateError,
+    );
+
+    expect(store.loadCalls, 0);
+    expect(store.saveCalls, 0);
   });
 
   test('record rejects flag-off, unloaded, and forged receipt before save',
@@ -267,6 +302,74 @@ void main() {
     expect(store.saveCalls, 1);
   });
 
+  test('reference save failure publishes nothing and retry repairs the bridge',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final accepted = await _acceptedRegulation(now);
+    addTearDown(accepted.ledger.dispose);
+    final store = _MemoryReferenceStore(failNextSave: true);
+    final documents = DocumentProvider(referenceStore: store, now: () => now);
+    addTearDown(documents.dispose);
+    documents.bindLedger(accepted.ledger);
+
+    await expectLater(
+      documents.recordLppRegulation(accepted.receipt),
+      throwsStateError,
+    );
+
+    expect(
+      accepted.ledger.matchesAcceptedLppRegulationReceipt(accepted.receipt),
+      isTrue,
+    );
+    expect(documents.hasStoredReference(accepted.receipt.referenceId), isFalse);
+    expect(store.references, isEmpty);
+    expect(store.saveCalls, 1);
+
+    final repaired = await documents.recordLppRegulation(accepted.receipt);
+
+    expect(repaired.referenceId, accepted.receipt.referenceId);
+    expect(documents.hasStoredReference(repaired.referenceId), isTrue);
+    expect(store.references, hasLength(1));
+    expect(store.saveCalls, 2);
+  });
+
+  test('session termination during reference save cannot publish old metadata',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final accepted = await _acceptedRegulation(now);
+    addTearDown(accepted.ledger.dispose);
+    final epoch = SessionEpoch();
+    final store = _MemoryReferenceStore()..saveGate = Completer<void>();
+    final documents = DocumentProvider(
+      referenceStore: store,
+      now: () => now,
+      sessionEpoch: epoch,
+    );
+    addTearDown(documents.dispose);
+    documents.bindLedger(accepted.ledger);
+
+    final pending = documents.recordLppRegulation(accepted.receipt);
+    while (store.saveCalls == 0) {
+      await Future<void>.delayed(Duration.zero);
+    }
+    var notificationsAfterTermination = 0;
+    documents.addListener(() => notificationsAfterTermination += 1);
+    epoch.beginTermination();
+    store.saveGate!.complete();
+    store.saveGate = null;
+
+    await expectLater(
+      pending,
+      throwsA(isA<SessionEpochInvalidated>()),
+    );
+
+    expect(store.references, hasLength(1));
+    expect(documents.hasStoredReference(accepted.receipt.referenceId), isFalse);
+    expect(documents.currentReferences, isEmpty);
+    expect(notificationsAfterTermination, 0);
+    epoch.completeTermination();
+  });
+
   test('replacement removes only prior regulation and preserves other kinds',
       () async {
     final now = DateTime.utc(2026, 7, 18, 12);
@@ -317,6 +420,67 @@ void main() {
       ),
       isFalse,
     );
+  });
+
+  test('concurrent regulation and capital records serialize in both orders',
+      () async {
+    Future<void> expectOrder({required bool regulationFirst}) async {
+      final now = DateTime.utc(2026, 7, 18, 12);
+      final accepted = await _acceptedRegulation(now);
+      addTearDown(accepted.ledger.dispose);
+      FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+      final capitalReceipt =
+          await accepted.ledger.acceptLppCapitalNotice(_capitalConfirmation());
+      final store = _MemoryReferenceStore()..saveGate = Completer<void>();
+      final documents = DocumentProvider(referenceStore: store, now: () => now);
+      addTearDown(documents.dispose);
+      documents.bindLedger(accepted.ledger);
+
+      final first = regulationFirst
+          ? documents.recordLppRegulation(accepted.receipt)
+          : documents.recordLppCapitalNotice(capitalReceipt);
+      final second = regulationFirst
+          ? documents.recordLppCapitalNotice(capitalReceipt)
+          : documents.recordLppRegulation(accepted.receipt);
+      while (store.saveCalls == 0) {
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(store.saveCalls, 1);
+      store.saveGate!.complete();
+      store.saveGate = null;
+
+      await Future.wait(<Future<ConfirmedDocumentReference>>[first, second]);
+
+      expect(store.saveCalls, 2);
+      expect(store.references, hasLength(2));
+      expect(
+        store.references.where(
+          (reference) => reference.kind == LppRegulationReference.kind,
+        ),
+        hasLength(1),
+      );
+      expect(
+        store.references.where(
+          (reference) => reference.kind == LppCapitalNoticeDeadline.kind,
+        ),
+        hasLength(1),
+      );
+      expect(
+        store.references.any(
+          (reference) => reference.referenceId == accepted.receipt.referenceId,
+        ),
+        isTrue,
+      );
+      expect(
+        store.references.any(
+          (reference) => reference.referenceId == capitalReceipt.referenceId,
+        ),
+        isTrue,
+      );
+    }
+
+    await expectOrder(regulationFirst: true);
+    await expectOrder(regulationFirst: false);
   });
 
   test('cold resolver requires exact hydration, kind, tuple, and snapshot',
