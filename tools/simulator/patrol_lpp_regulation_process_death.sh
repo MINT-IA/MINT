@@ -254,6 +254,7 @@ write_metadata() {
   MINT_META_DISTINCT_PID="$distinct_process_pid_verified" \
   MINT_META_DEFAULT_BEFORE="$production_default_off_before_passed" \
   MINT_META_DEFAULT_AFTER="$production_default_off_after_passed" \
+  MINT_META_RUNTIME="$runtime_completed" \
   python3 - "$metadata" "$artifacts" <<'PY'
 import json
 import os
@@ -291,6 +292,7 @@ expected_logs = [
     "app-container-after-maestro.log",
 ]
 artifacts = Path(sys.argv[2])
+logs = [name for name in expected_logs if (artifacts / name).is_file()]
 payload = {
     "contract": "g1_ret_ref_lpp_regulation",
     "sha": os.environ["MINT_META_SHA"],
@@ -333,12 +335,38 @@ payload = {
     "xcresult_retained": False,
     "cleanup_status": os.environ["MINT_META_CLEANUP"],
     "restoration_status": os.environ["MINT_META_RESTORATION"],
+    "runtime_completed": os.environ["MINT_META_RUNTIME"] == "true",
+    "evidence_logs_complete": logs == expected_logs,
     "expected_logs": expected_logs,
-    "logs": [name for name in expected_logs if (artifacts / name).is_file()],
+    "logs": logs,
 }
 with open(sys.argv[1], "w", encoding="utf-8") as handle:
     json.dump(payload, handle, indent=2, sort_keys=True)
     handle.write("\n")
+PY
+}
+
+verify_expected_logs_complete() {
+  python3 - "$metadata" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    payload = json.load(handle)
+runtime_completed = payload.get("runtime_completed")
+expected_logs = payload.get("expected_logs")
+logs = payload.get("logs")
+if not isinstance(runtime_completed, bool):
+    raise SystemExit(1)
+for values in (expected_logs, logs):
+    if not isinstance(values, list) or not all(
+        isinstance(value, str) and value for value in values
+    ):
+        raise SystemExit(1)
+    if len(values) != len(set(values)):
+        raise SystemExit(1)
+if runtime_completed and logs != expected_logs:
+    raise SystemExit(1)
 PY
 }
 
@@ -544,6 +572,20 @@ cleanup() {
   if ! verify_retained_artifacts; then
     cleanup_failed=1
   fi
+  if ! verify_expected_logs_complete; then
+    echo "patrol_lpp_regulation_process_death: runtime evidence logs are incomplete" >&2
+    cleanup_failed=1
+    cleanup_status="failed"
+  fi
+  if [[ "$cleanup_status" == "failed" ]]; then
+    if ! write_metadata; then
+      echo "patrol_lpp_regulation_process_death: final metadata write failed" >&2
+      cleanup_failed=1
+    fi
+  fi
+  if ! verify_retained_artifacts; then
+    cleanup_failed=1
+  fi
   if [[ "$exit_code" -ne 0 ]]; then
     exit "$exit_code"
   fi
@@ -739,7 +781,7 @@ PY
 capture_completed_suite_container() {
   [[ -n "$resolved_container" && -n "$resolved_identity" ]] \
     || die "completed Patrol suite container witness is unavailable"
-  assert_required_runtime_state "after_suite"
+  assert_required_runtime_state "after-suite"
   suite_data_container_identity="$resolved_identity"
   suite_runtime_state_witness="$resolved_state_witness"
   printf 'post_suite_container_and_state_captured=true\n' \
@@ -750,7 +792,7 @@ capture_completed_suite_container() {
 assert_production_reinstall_preserved_state() {
   [[ "$resolved_identity" == "$suite_data_container_identity" ]] \
     || die "production reinstall changed the app data container identity"
-  assert_required_runtime_state "after_production_install"
+  assert_required_runtime_state "after-production-install"
   [[ "$resolved_state_witness" == "$suite_runtime_state_witness" ]] \
     || die "production reinstall changed the persisted app state"
   production_data_container="$resolved_container"
@@ -941,7 +983,7 @@ run_maestro "before" "$flow_before"
 run_patrol_build
 run_patrol_suite
 verify_xcresult_two_of_two
-resolve_app_data_container "after_suite"
+resolve_app_data_container "after-suite"
 capture_completed_suite_container
 exact_sha_guard
 
@@ -965,11 +1007,11 @@ sanitize_stage_log "$artifacts/terminate.raw.log" "$artifacts/terminate.log"
 [[ "$terminate_exit_code" -eq 0 ]] || exit "$terminate_exit_code"
 
 install_production_app "after"
-resolve_app_data_container "after_production_install"
+resolve_app_data_container "after-production-install"
 assert_production_reinstall_preserved_state
 run_maestro "after" "$flow_after"
-resolve_app_data_container "after_maestro"
-assert_same_production_container "after_maestro"
+resolve_app_data_container "after-maestro"
+assert_same_production_container "after-maestro"
 
 state_preserved_across_process_death=true
 exact_sha_guard

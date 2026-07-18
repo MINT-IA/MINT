@@ -213,16 +213,16 @@ def test_orchestrator_orders_default_off_and_process_death() -> None:
         "run_patrol_build",
         "run_patrol_suite",
         "verify_xcresult_two_of_two",
-        'resolve_app_data_container "after_suite"',
+        'resolve_app_data_container "after-suite"',
         "capture_completed_suite_container",
         'xcrun simctl launch "$device" "$bundle_id"',
         'xcrun simctl terminate "$device" "$bundle_id"',
         'install_production_app "after"',
-        'resolve_app_data_container "after_production_install"',
+        'resolve_app_data_container "after-production-install"',
         "assert_production_reinstall_preserved_state",
         'run_maestro "after" "$flow_after"',
-        'resolve_app_data_container "after_maestro"',
-        'assert_same_production_container "after_maestro"',
+        'resolve_app_data_container "after-maestro"',
+        'assert_same_production_container "after-maestro"',
     )
     for anchor in (
         '"$patrol_bin" --verbose build ios',
@@ -254,6 +254,12 @@ def test_orchestrator_orders_default_off_and_process_death() -> None:
     assert source.count("xcodebuild test-without-building") == 1
     assert "simctl uninstall" not in source
     assert "UseDestinationArtifacts" not in source
+    for forbidden_stage in (
+        '"after_suite"',
+        '"after_production_install"',
+        '"after_maestro"',
+    ):
+        assert forbidden_stage not in source, forbidden_stage
 
     production_build = source[
         source.index("build_production_app() {") : source.index(
@@ -435,6 +441,7 @@ def test_orchestrator_retains_only_sanitized_synthetic_metadata(
         "REDACTED_PRIVATE_TEMP",
         "sanitize_log()",
         "verify_retained_artifacts()",
+        "verify_expected_logs_complete()",
         'rm -f -- "$raw"',
         'rm -rf -- "$suite_xcresult"',
         "raw Maestro report removal failed",
@@ -456,6 +463,8 @@ def test_orchestrator_retains_only_sanitized_synthetic_metadata(
         '"patrol_full_isolation_zero_verified"',
         '"maestro_before_exit_code"',
         '"maestro_after_exit_code"',
+        '"runtime_completed": os.environ["MINT_META_RUNTIME"] == "true"',
+        '"evidence_logs_complete": logs == expected_logs',
     ):
         assert anchor in source, anchor
 
@@ -518,11 +527,49 @@ def test_orchestrator_retains_only_sanitized_synthetic_metadata(
         (case / name).write_text(content, encoding="utf-8")
         assert run_guard(case).returncode != 0, name
 
+    evidence_gate = _embedded_python(source, "verify_expected_logs_complete")
+
+    def run_evidence_gate(
+        payload: dict[str, object],
+    ) -> subprocess.CompletedProcess[str]:
+        evidence = tmp_path / "evidence-metadata.json"
+        evidence.write_text(json.dumps(payload), encoding="utf-8")
+        return subprocess.run(
+            [sys.executable, "-", str(evidence)],
+            input=evidence_gate,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+    complete = {
+        "runtime_completed": True,
+        "expected_logs": ["doctor.log", "app-container-after-maestro.log"],
+        "logs": ["doctor.log", "app-container-after-maestro.log"],
+    }
+    assert run_evidence_gate(complete).returncode == 0
+
+    missing_completed = dict(complete)
+    missing_completed["logs"] = ["doctor.log"]
+    assert run_evidence_gate(missing_completed).returncode != 0
+
+    partial_failure = dict(missing_completed)
+    partial_failure["runtime_completed"] = False
+    assert run_evidence_gate(partial_failure).returncode == 0
+
     cleanup = source[source.index("cleanup() {") : source.index("trap cleanup EXIT")]
     guard_call = "if ! verify_retained_artifacts; then"
     assert guard_call in cleanup
     assert cleanup.index(guard_call) < cleanup.index('cleanup_status="failed"')
     assert cleanup.index(guard_call) < cleanup.index("write_metadata")
+    evidence_call = "if ! verify_expected_logs_complete; then"
+    assert evidence_call in cleanup
+    assert cleanup.index(evidence_call) < cleanup.index(
+        'if [[ "$runtime_completed" != true || "$cleanup_failed" -ne 0 ]]'
+    )
+    assert cleanup.index(evidence_call) < cleanup.index(
+        'echo "patrol_lpp_regulation_process_death: PASS sha=$sha"'
+    )
 
 
 def test_writer_uses_plan_picker_upload_and_volatile_review() -> None:
