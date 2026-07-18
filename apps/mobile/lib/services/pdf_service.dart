@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -6,6 +8,7 @@ import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/services/report/lpp_regulation_handoff_section_content.dart';
 
 class PdfService {
   static Future<void> generateSessionReportPdf(SessionReport report) async {
@@ -374,12 +377,20 @@ class PdfService {
         onLayout: (PdfPageFormat format) async => pdf.save());
   }
 
-  static Future<void> generateFinancialReportPdf(
+  static Future<Uint8List> buildFinancialReportPdfBytes(
     FinancialReport report, {
     required S l,
   }) async {
     final pdf = pw.Document();
     final generatedDate = report.generatedAt.toLocal().toString().split('.')[0];
+    final handoff = report.lppRegulationHandoff;
+    final lppRegulationContent = handoff == null
+        ? null
+        : LppRegulationHandoffSectionContent.fromHandoff(
+            handoff: handoff,
+            l: l,
+            localeName: l.localeName,
+          );
 
     pdf.addPage(
       pw.MultiPage(
@@ -846,6 +857,91 @@ class PdfService {
             ));
           }
 
+          if (lppRegulationContent != null) {
+            final content = lppRegulationContent;
+            children.add(pw.SizedBox(height: 25));
+            children.add(_pdfSectionTitle(content.title));
+            children.add(pw.SizedBox(height: 10));
+            children.add(pw.Text(
+              content.referenceBody,
+              style: const pw.TextStyle(fontSize: 9),
+            ));
+            children.add(pw.SizedBox(height: 8));
+            children.add(
+              _pdfKeyValue(content.documentKindLabel, content.documentKindValue),
+            );
+            children.add(
+              _pdfKeyValue(content.sourceDateLabel, content.sourceDateValue),
+            );
+            children.add(
+              _pdfKeyValue(content.legalYearLabel, content.legalYearValue),
+            );
+            children.add(
+              _pdfKeyValue(content.confirmedAtLabel, content.confirmedAtValue),
+            );
+            children.add(_pdfKeyValue(
+              content.fundRelationshipLabel,
+              content.fundRelationshipValue,
+            ));
+            children.add(pw.SizedBox(height: 10));
+            children.add(pw.Text(
+              content.applicabilityQuestion,
+              style: pw.TextStyle(
+                fontSize: 9,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ));
+            children.add(pw.SizedBox(height: 12));
+            children.add(pw.Text(
+              content.questionsTitle,
+              style: pw.TextStyle(
+                fontSize: 10,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue900,
+              ),
+            ));
+            children.add(pw.SizedBox(height: 6));
+            for (final question in content.questions) {
+              children.add(pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    question.title,
+                    style: pw.TextStyle(
+                      fontSize: 9,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                  pw.SizedBox(height: 2),
+                  pw.Text(
+                    question.body,
+                    style: const pw.TextStyle(
+                      fontSize: 8,
+                      color: PdfColors.grey700,
+                    ),
+                  ),
+                  pw.SizedBox(height: 8),
+                ],
+              ));
+            }
+            children.add(pw.Text(
+              content.boundary,
+              style: pw.TextStyle(
+                fontSize: 8,
+                color: PdfColors.orange800,
+                fontStyle: pw.FontStyle.italic,
+              ),
+            ));
+            children.add(pw.SizedBox(height: 4));
+            children.add(pw.Text(
+              content.privacy,
+              style: const pw.TextStyle(
+                fontSize: 8,
+                color: PdfColors.grey700,
+              ),
+            ));
+          }
+
           // ═══════════════════════════════════════════════════════
           // 7. CONFORMITÉ (Statement of Advice)
           // ═══════════════════════════════════════════════════════
@@ -951,8 +1047,15 @@ class PdfService {
       ),
     );
 
-    await Printing.sharePdf(
-        bytes: await pdf.save(), filename: 'mint_report_v2.pdf');
+    return pdf.save();
+  }
+
+  static Future<void> generateFinancialReportPdf(
+    FinancialReport report, {
+    required S l,
+  }) async {
+    final bytes = await buildFinancialReportPdfBytes(report, l: l);
+    await Printing.sharePdf(bytes: bytes, filename: 'mint_report_v2.pdf');
   }
 
   // ===== PDF V2 HELPERS =====
