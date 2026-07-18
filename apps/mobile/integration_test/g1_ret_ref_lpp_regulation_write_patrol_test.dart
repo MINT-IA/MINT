@@ -311,6 +311,7 @@ void main() {
       await $(#lpp_regulation_review_legal_year).enterText(
         '${_sourceDate.year}',
       );
+      await $(#lpp_regulation_fund_relation_current).scrollTo().tap();
       await $(#lpp_regulation_review_confirm_cta).scrollTo().tap();
       await $(#retirement_lpp_regulation_reference_education)
           .waitUntilVisible();
@@ -323,10 +324,13 @@ void main() {
       expect(currentSnapshot, isNotNull);
       final candidate = ledger.profile!.lppRegulationReference;
       expect(candidate, isNotNull);
+      final dynamic typedCandidate = candidate;
+      expect(typedCandidate.fundRelationship.wireName, 'currentFund');
       final reference = documents.byId(candidate!.referenceId);
       expect(reference, isNotNull);
       expect(reference!.kind, ConfirmedDocumentReference.lppRegulationKind);
-      expect(reference.snapshotId, currentSnapshot!.snapshotId);
+      final dynamic typedReference = reference;
+      expect(typedReference.snapshotId, isNull);
       expect(reference.ownerKind, LppEvidenceOwnerKind.self);
       expect(reference.confirmedAt, candidate.confirmedAt);
       expect(documents.resolveLppRegulation(candidate), isNotNull);

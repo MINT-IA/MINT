@@ -35,14 +35,36 @@ const _planExtraction = ExtractionResult(
   coherenceWarnings: <String>[],
 );
 
-final _candidate = LppRegulationAcquisitionCandidate(
-  expectedSnapshotId: _snapshotId,
-  expectedPreviousReferenceId: _previousReferenceId,
-);
+LppRegulationAcquisitionCandidate _regulationCandidate({
+  String? expectedPreviousReferenceId = _previousReferenceId,
+}) {
+  try {
+    return Function.apply(
+      LppRegulationAcquisitionCandidate.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        if (expectedPreviousReferenceId != null)
+          #expectedPreviousReferenceId: expectedPreviousReferenceId,
+      },
+    ) as LppRegulationAcquisitionCandidate;
+  } on NoSuchMethodError {
+    // RED compatibility bridge for the removed schema-1 snapshot argument.
+    return Function.apply(
+      LppRegulationAcquisitionCandidate.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #expectedSnapshotId: _snapshotId,
+        if (expectedPreviousReferenceId != null)
+          #expectedPreviousReferenceId: expectedPreviousReferenceId,
+      },
+    ) as LppRegulationAcquisitionCandidate;
+  }
+}
+
+final _candidate = _regulationCandidate();
 
 LppEvidenceSnapshot _snapshot({
   required String snapshotId,
-  required String referenceId,
 }) {
   final sourceDate = DateTime.utc(2026, 1, 1);
   final updatedAt = DateTime.utc(2026, 7, 1, 8);
@@ -59,13 +81,50 @@ LppEvidenceSnapshot _snapshot({
         updatedAt: updatedAt,
       ),
     },
-    lppRegulationReference: LppRegulationReference.create(
-      referenceId: referenceId,
-      sourceDate: sourceDate,
-      legalYear: 2026,
-      confirmedAt: updatedAt,
-    ),
   );
+}
+
+LppRegulationReceipt _regulationReceipt() {
+  final named = <Symbol, Object?>{
+    #referenceId: _acceptedReferenceId,
+    #confirmedAt: DateTime.utc(2026, 7, 18, 10),
+  };
+  try {
+    return Function.apply(
+      LppRegulationReceipt.new,
+      const <Object?>[],
+      named,
+    ) as LppRegulationReceipt;
+  } on NoSuchMethodError {
+    return Function.apply(
+      LppRegulationReceipt.new,
+      const <Object?>[],
+      <Symbol, Object?>{...named, #snapshotId: _snapshotId},
+    ) as LppRegulationReceipt;
+  }
+}
+
+ConfirmedDocumentReference _confirmedRegulationReference(
+  LppRegulationReceipt receipt,
+) {
+  final dynamic typedReceipt = receipt;
+  String? snapshotId;
+  try {
+    snapshotId = typedReceipt.snapshotId as String;
+  } on NoSuchMethodError {
+    snapshotId = null;
+  }
+  return Function.apply(
+    ConfirmedDocumentReference.new,
+    const <Object?>[],
+    <Symbol, Object?>{
+      #referenceId: receipt.referenceId,
+      #kind: ConfirmedDocumentReference.lppRegulationKind,
+      #snapshotId: snapshotId,
+      #ownerKind: receipt.ownerKind,
+      #confirmedAt: receipt.confirmedAt,
+    },
+  ) as ConfirmedDocumentReference;
 }
 
 final class _LedgerSpy extends CoachProfileProvider {
@@ -80,11 +139,7 @@ final class _LedgerSpy extends CoachProfileProvider {
   String currentReferenceId = _previousReferenceId;
   int acceptCalls = 0;
   final confirmations = <LppRegulationReviewConfirmation>[];
-  final receipt = LppRegulationReceipt(
-    referenceId: _acceptedReferenceId,
-    snapshotId: _snapshotId,
-    confirmedAt: DateTime.utc(2026, 7, 18, 10),
-  );
+  final receipt = _regulationReceipt();
 
   @override
   CoachProfile get profile => CoachProfile.defaults();
@@ -98,10 +153,7 @@ final class _LedgerSpy extends CoachProfileProvider {
   @override
   LppEvidenceSnapshot? currentLppSnapshot(LppEvidenceOwnerKind ownerKind) =>
       ownerKind == LppEvidenceOwnerKind.self
-          ? _snapshot(
-              snapshotId: currentSnapshotId,
-              referenceId: currentReferenceId,
-            )
+          ? _snapshot(snapshotId: currentSnapshotId)
           : null;
 
   @override
@@ -111,9 +163,9 @@ final class _LedgerSpy extends CoachProfileProvider {
     acceptCalls += 1;
     confirmations.add(confirmation);
     events.add('accept');
+    final dynamic typedConfirmation = confirmation;
     if (failAccept ||
-        confirmation.expectedSnapshotId != currentSnapshotId ||
-        confirmation.expectedPreviousReferenceId != currentReferenceId) {
+        typedConfirmation.expectedPreviousReferenceId != currentReferenceId) {
       throw StateError('synthetic regulation accept failure');
     }
     return receipt;
@@ -141,13 +193,7 @@ final class _DocumentSpy extends DocumentProvider {
     if (recordCalls <= failRecordCalls) {
       throw StateError('synthetic regulation record failure');
     }
-    return ConfirmedDocumentReference(
-      referenceId: receipt.referenceId,
-      kind: ConfirmedDocumentReference.lppRegulationKind,
-      snapshotId: receipt.snapshotId,
-      ownerKind: receipt.ownerKind,
-      confirmedAt: receipt.confirmedAt,
-    );
+    return _confirmedRegulationReference(receipt);
   }
 }
 
@@ -314,10 +360,24 @@ _Harness _harness({
   );
 }
 
+Future<void> _chooseFundRelationship(
+  WidgetTester tester, {
+  String relationship = 'uncertain',
+}) async {
+  final choice = find.bySemanticsIdentifier(
+    'lpp_regulation_fund_relation_$relationship',
+  );
+  expect(choice, findsOneWidget);
+  await tester.ensureVisible(choice);
+  await tester.tap(choice);
+  await tester.pump();
+}
+
 Future<void> _enterReviewValues(
   WidgetTester tester, {
   String sourceDate = '2026-02-03',
   String legalYear = '2026',
+  String? relationship = 'uncertain',
 }) async {
   final date = find.byKey(
     const Key('lpp_regulation_review_source_date'),
@@ -331,6 +391,9 @@ Future<void> _enterReviewValues(
   await tester.enterText(date, sourceDate);
   await tester.enterText(year, legalYear);
   await tester.pump();
+  if (relationship != null) {
+    await _chooseFundRelationship(tester, relationship: relationship);
+  }
 }
 
 Future<void> _confirmReview(WidgetTester tester) async {
@@ -444,16 +507,111 @@ void main() {
     for (final identifier in const <String>[
       'lpp_regulation_review_source_date',
       'lpp_regulation_review_legal_year',
+      'lpp_regulation_fund_relation_current',
+      'lpp_regulation_fund_relation_uncertain',
+      'lpp_regulation_fund_relation_former_or_other',
       'lpp_regulation_review_confirm_cta',
     ]) {
       expect(find.bySemanticsIdentifier(identifier), findsOneWidget);
     }
+    expect(find.text('Situer ce règlement LPP'), findsOneWidget);
+    expect(
+      find.text('D’après toi, de quelle caisse vient ce règlement ?'),
+      findsOneWidget,
+    );
+    for (final choice in const <String>[
+      'Ma caisse actuelle',
+      'Je ne sais pas',
+      'Une ancienne ou autre caisse',
+    ]) {
+      expect(find.text(choice), findsOneWidget, reason: choice);
+    }
+    for (final identifier in const <String>[
+      'lpp_regulation_fund_relation_current',
+      'lpp_regulation_fund_relation_uncertain',
+      'lpp_regulation_fund_relation_former_or_other',
+    ]) {
+      final node = tester.getSemantics(find.bySemanticsIdentifier(identifier));
+      expect(
+        node.flagsCollection.isChecked.name,
+        'isFalse',
+        reason: 'no relationship may be selected by default',
+      );
+    }
+    expect(
+      find.byKey(const Key('lpp_regulation_fund_name')),
+      findsNothing,
+      reason: 'G1 records no fund name and performs no automatic matching',
+    );
+    final rendered = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((widget) => widget.data ?? widget.textSpan?.toPlainText() ?? '')
+        .join('\n')
+        .toLowerCase();
+    expect(rendered, contains('déclaration datée'));
+    expect(rendered, contains('non vérifiée'));
     final l10n = lookupS(const Locale('fr'));
     expect(find.text(l10n.extractionReviewConfidence(0)), findsNothing);
     expect(find.byIcon(Icons.edit_outlined), findsNothing);
     expect(find.text('0%'), findsNothing);
     _expectNoExternalSideEffects(harness);
   });
+
+  testWidgets('relationship is mandatory and has no inferred default',
+      (tester) async {
+    final harness = _harness();
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+
+    await _enterReviewValues(tester, relationship: null);
+    await _confirmReview(tester);
+
+    expect(
+      find.text(
+        'Choisis l’une des trois réponses pour enregistrer la déclaration.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(
+        const Key('lpp_regulation_fund_relation_required_error'),
+      ),
+      findsOneWidget,
+    );
+    expect(harness.ledger.acceptCalls, 0);
+    expect(harness.documents.recordCalls, 0);
+    expect(harness.sessions.byId(harness.scanSessionId), isNotNull);
+    _expectNoExternalSideEffects(harness);
+  });
+
+  for (final relationship in const <({String control, String wire})>[
+    (control: 'current', wire: 'currentFund'),
+    (control: 'uncertain', wire: 'uncertain'),
+    (control: 'former_or_other', wire: 'formerOrOther'),
+  ]) {
+    testWidgets(
+        '${relationship.control} writes the exact fund relationship wire value',
+        (tester) async {
+      final harness = _harness();
+      addTearDown(harness.router.dispose);
+      await tester.pumpWidget(harness.widget);
+      await tester.pumpAndSettle();
+
+      await _enterReviewValues(
+        tester,
+        relationship: relationship.control,
+      );
+      await _confirmReview(tester);
+
+      expect(harness.ledger.acceptCalls, 1);
+      expect(harness.documents.recordCalls, 1);
+      final dynamic confirmation = harness.ledger.confirmations.single;
+      expect(confirmation.fundRelationship.wireName, relationship.wire);
+      expect(harness.sessions.byId(harness.scanSessionId), isNull);
+      _expectNoExternalSideEffects(harness);
+    });
+  }
 
   final invalidInputs = <({String name, String date, String year, String key})>[
     (
@@ -509,33 +667,48 @@ void main() {
     });
   }
 
-  final drifts = <String, void Function(_LedgerSpy ledger)>{
-    'snapshot drift': (ledger) =>
-        ledger.currentSnapshotId = _replacementSnapshotId,
-    'reference drift': (ledger) =>
-        ledger.currentReferenceId = _replacementReferenceId,
-  };
-  for (final drift in drifts.entries) {
-    testWidgets('${drift.key} blocks before regulation record', (tester) async {
-      final harness = _harness();
-      addTearDown(harness.router.dispose);
-      await tester.pumpWidget(harness.widget);
-      await tester.pumpAndSettle();
-      drift.value(harness.ledger);
+  testWidgets('numeric snapshot drift does not block regulation acceptance',
+      (tester) async {
+    final harness = _harness();
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    harness.ledger.currentSnapshotId = _replacementSnapshotId;
 
-      await _enterReviewValues(tester);
-      await _confirmReview(tester);
+    await _enterReviewValues(tester);
+    await _confirmReview(tester);
 
-      expect(harness.ledger.acceptCalls, 1);
-      expect(harness.documents.recordCalls, 0);
-      expect(harness.sessions.byId(harness.scanSessionId), isNotNull);
-      expect(
-        find.byKey(const Key('lpp_regulation_review_accept_error')),
-        findsOneWidget,
-      );
-      _expectNoExternalSideEffects(harness);
-    });
-  }
+    expect(harness.events, const <String>['accept', 'record']);
+    expect(harness.ledger.acceptCalls, 1);
+    expect(harness.documents.recordCalls, 1);
+    expect(harness.sessions.byId(harness.scanSessionId), isNull);
+    expect(
+      harness.router.routeInformationProvider.value.uri.path,
+      '/retraite',
+    );
+    _expectNoExternalSideEffects(harness);
+  });
+
+  testWidgets('previous autonomous reference drift blocks before record',
+      (tester) async {
+    final harness = _harness();
+    addTearDown(harness.router.dispose);
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    harness.ledger.currentReferenceId = _replacementReferenceId;
+
+    await _enterReviewValues(tester);
+    await _confirmReview(tester);
+
+    expect(harness.ledger.acceptCalls, 1);
+    expect(harness.documents.recordCalls, 0);
+    expect(harness.sessions.byId(harness.scanSessionId), isNotNull);
+    expect(
+      find.byKey(const Key('lpp_regulation_review_accept_error')),
+      findsOneWidget,
+    );
+    _expectNoExternalSideEffects(harness);
+  });
 
   testWidgets('accept failure keeps fields editable and never records',
       (tester) async {
@@ -614,9 +787,16 @@ void main() {
       isTrue,
     );
     expect(harness.documents.receipts[1].referenceId, _acceptedReferenceId);
-    expect(harness.documents.receipts[1].snapshotId, _snapshotId);
-    expect(harness.documents.receipts[1].confirmedAt,
-        DateTime.utc(2026, 7, 18, 10));
+    final dynamic retriedReceipt = harness.documents.receipts[1];
+    expect(
+      () => retriedReceipt.snapshotId,
+      throwsA(isA<NoSuchMethodError>()),
+      reason: 'regulation receipt must not carry numeric snapshot identity',
+    );
+    expect(
+      harness.documents.receipts[1].confirmedAt,
+      DateTime.utc(2026, 7, 18, 10),
+    );
     expect(harness.sessions.byId(harness.scanSessionId), isNull);
     expect(
       harness.router.routeInformationProvider.value.uri.path,
@@ -643,11 +823,16 @@ void main() {
       identical(harness.documents.receipts.single, harness.ledger.receipt),
       isTrue,
     );
-    final confirmation = harness.ledger.confirmations.single;
+    final dynamic confirmation = harness.ledger.confirmations.single;
     expect(confirmation.ownerKind, LppEvidenceOwnerKind.self);
     expect(confirmation.sourceDate, DateTime.utc(2026, 2, 3));
     expect(confirmation.legalYear, 2026);
-    expect(confirmation.expectedSnapshotId, _snapshotId);
+    expect(confirmation.fundRelationship.wireName, 'uncertain');
+    expect(
+      () => confirmation.expectedSnapshotId,
+      throwsA(isA<NoSuchMethodError>()),
+      reason: 'confirmation is bound only to the previous regulation reference',
+    );
     expect(confirmation.expectedPreviousReferenceId, _previousReferenceId);
     expect(harness.sessions.byId(harness.scanSessionId), isNull);
     expect(harness.sessions.discardCalls, greaterThanOrEqualTo(1));

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -37,7 +38,7 @@ final class _DashboardLedger extends CoachProfileProvider {
   });
 
   final CoachProfile? value;
-  final String snapshotId;
+  String? snapshotId;
   final String referenceId;
   final DateTime confirmedAt;
 
@@ -57,7 +58,6 @@ final class _DashboardLedger extends CoachProfileProvider {
   @override
   bool matchesAcceptedLppRegulationReceipt(LppRegulationReceipt receipt) =>
       FeatureFlags.lppRegulationReferenceEnabled &&
-      receipt.snapshotId == snapshotId &&
       receipt.referenceId == referenceId &&
       receipt.confirmedAt == confirmedAt;
 }
@@ -71,18 +71,31 @@ final class _MemoryReferenceStore extends DocumentReferenceStore {
   Future<List<ConfirmedDocumentReference>> load() async => [reference];
 }
 
-SpecialistReferenceEvidence _candidate() {
+SpecialistReferenceEvidence _candidate({
+  String fundRelationship = 'currentFund',
+}) {
   final now = DateTime.now().toUtc();
+  final json = <String, dynamic>{
+    'referenceId': _referenceId,
+    'kind': LppRegulationReference.kind,
+    'ownerKind': LppEvidenceOwnerKind.self.wireName,
+    'source': ProfileDataSource.certificate.name,
+    'sourceDate': '2017-02-03',
+    'legalYear': 2018,
+    'confirmedAt': now.subtract(const Duration(days: 1)).toIso8601String(),
+    'fundRelationship': fundRelationship,
+  };
+  final strict = SpecialistReferenceEvidence.tryFromJson(
+    json,
+    expectedKind: SpecialistReferenceKind.lppRegulation,
+    now: now,
+  );
+  if (strict != null) return strict;
+
+  // RED compatibility bridge for the schema-1 specialist projection.
+  json.remove('fundRelationship');
   return SpecialistReferenceEvidence.tryFromJson(
-    <String, dynamic>{
-      'referenceId': _referenceId,
-      'kind': LppRegulationReference.kind,
-      'ownerKind': LppEvidenceOwnerKind.self.wireName,
-      'source': ProfileDataSource.certificate.name,
-      'sourceDate': '2017-02-03',
-      'legalYear': 2018,
-      'confirmedAt': now.subtract(const Duration(days: 1)).toIso8601String(),
-    },
+    json,
     expectedKind: SpecialistReferenceKind.lppRegulation,
     now: now,
   )!;
@@ -110,18 +123,50 @@ CoachProfile _profile(SpecialistReferenceEvidence candidate) => CoachProfile(
       ),
     );
 
+ConfirmedDocumentReference _confirmedRegulationReference({
+  required String referenceId,
+  required DateTime confirmedAt,
+}) {
+  final named = <Symbol, Object?>{
+    #referenceId: referenceId,
+    #kind: LppRegulationReference.kind,
+    #ownerKind: LppEvidenceOwnerKind.self,
+    #confirmedAt: confirmedAt,
+  };
+  try {
+    return Function.apply(
+      ConfirmedDocumentReference.new,
+      const <Object?>[],
+      named,
+    ) as ConfirmedDocumentReference;
+  } on NoSuchMethodError {
+    return Function.apply(
+      ConfirmedDocumentReference.new,
+      const <Object?>[],
+      <Symbol, Object?>{...named, #snapshotId: _snapshotId},
+    ) as ConfirmedDocumentReference;
+  }
+}
+
+final class _EmptyReferenceStore extends DocumentReferenceStore {
+  @override
+  Future<List<ConfirmedDocumentReference>> load() async => const [];
+}
+
+final class _FailingReferenceStore extends DocumentReferenceStore {
+  @override
+  Future<List<ConfirmedDocumentReference>> load() async =>
+      throw const FormatException('synthetic BND hydration failure');
+}
+
 Future<DocumentProvider> _documents({
   required _DashboardLedger ledger,
   String referenceId = _referenceId,
-  String? snapshotId,
 }) async {
   final documents = DocumentProvider(
     referenceStore: _MemoryReferenceStore(
-      ConfirmedDocumentReference(
+      _confirmedRegulationReference(
         referenceId: referenceId,
-        kind: LppRegulationReference.kind,
-        snapshotId: snapshotId ?? ledger.snapshotId,
-        ownerKind: LppEvidenceOwnerKind.self,
         confirmedAt: ledger.confirmedAt,
       ),
     ),
@@ -156,6 +201,49 @@ Widget _dashboard({
       supportedLocales: S.supportedLocales,
       home: RetirementDashboardScreen(
         projectionBuilder: projectionBuilder,
+      ),
+    ),
+  );
+}
+
+({Widget widget, GoRouter router}) _dashboardRouter({
+  required CoachProfileProvider ledger,
+  required DocumentProvider documents,
+}) {
+  final router = GoRouter(
+    routes: <RouteBase>[
+      GoRoute(
+        path: '/',
+        builder: (_, __) => const RetirementDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/scan',
+        builder: (_, state) => Scaffold(
+          key: const Key('lpp_regulation_reconfirm_destination'),
+          body: Text(state.uri.toString()),
+        ),
+      ),
+    ],
+  );
+  return (
+    router: router,
+    widget: MultiProvider(
+      providers: <SingleChildWidget>[
+        ChangeNotifierProvider<CoachProfileProvider>.value(value: ledger),
+        ChangeNotifierProvider<DocumentProvider>.value(value: documents),
+        ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
+        ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
+      ],
+      child: MaterialApp.router(
+        locale: const Locale('fr'),
+        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        routerConfig: router,
       ),
     ),
   );
@@ -215,7 +303,7 @@ void main() {
     final candidate = _candidate();
     final ledger = _DashboardLedger(
       value: _profile(candidate),
-      snapshotId: _snapshotId,
+      snapshotId: null,
       referenceId: candidate.referenceId,
       confirmedAt: candidate.confirmedAt,
     );
@@ -242,6 +330,16 @@ void main() {
     final cardText = _textUnder(tester, card).toLowerCase();
     expect(cardText, contains('3 février 2017'));
     expect(cardText, contains('2018'));
+    expect(
+      find.bySemanticsIdentifier(
+        'retirement_lpp_regulation_fund_relation',
+      ),
+      findsOneWidget,
+    );
+    expect(cardText, contains('ma caisse actuelle'));
+    expect(cardText, contains('déclarée'));
+    expect(cardText, contains('non vérifiée'));
+    expect(cardText, isNot(contains('caisse confirmée')));
     for (final falseStale in <String>[
       'périmé',
       'obsolète',
@@ -273,7 +371,7 @@ void main() {
       final candidate = _candidate();
       final ledger = _DashboardLedger(
         value: _profile(candidate),
-        snapshotId: _snapshotId,
+        snapshotId: null,
         referenceId: candidate.referenceId,
         confirmedAt: candidate.confirmedAt,
       );
@@ -309,7 +407,125 @@ void main() {
     });
   }
 
-  testWidgets('flag, provider, BND identity, snapshot, and profile fail closed',
+  testWidgets(
+      'reference-only card survives numeric snapshot addition and replacement',
+      (tester) async {
+    final candidate = _candidate(fundRelationship: 'uncertain');
+    final ledger = _DashboardLedger(
+      value: _profile(candidate),
+      snapshotId: null,
+      referenceId: candidate.referenceId,
+      confirmedAt: candidate.confirmedAt,
+    );
+    final documents = await _documents(ledger: ledger);
+    addTearDown(documents.dispose);
+    addTearDown(ledger.dispose);
+
+    await tester.pumpWidget(_dashboard(ledger: ledger, documents: documents));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(ledger.currentLppSnapshotId(LppEvidenceOwnerKind.self), isNull);
+    expect(find.bySemanticsIdentifier(_cardId), findsOneWidget);
+
+    ledger.snapshotId = _snapshotId;
+    ledger.notifyListeners();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.bySemanticsIdentifier(_cardId), findsOneWidget);
+
+    ledger.snapshotId = _replacementSnapshotId;
+    ledger.notifyListeners();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.bySemanticsIdentifier(_cardId), findsOneWidget);
+    expect(find.bySemanticsIdentifier(_ctaId), findsOneWidget);
+  });
+
+  testWidgets(
+      'accepted root authority with missing ready BND renders neutral reconfirmation recovery',
+      (tester) async {
+    final candidate = _candidate(fundRelationship: 'formerOrOther');
+    final ledger = _DashboardLedger(
+      value: _profile(candidate),
+      snapshotId: null,
+      referenceId: candidate.referenceId,
+      confirmedAt: candidate.confirmedAt,
+    );
+    final documents = DocumentProvider(referenceStore: _EmptyReferenceStore())
+      ..bindLedger(ledger);
+    await documents.hydrateReferences();
+    expect(documents.referencesHydrated, isTrue);
+    addTearDown(documents.dispose);
+    addTearDown(ledger.dispose);
+    final harness = _dashboardRouter(ledger: ledger, documents: documents);
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.bySemanticsIdentifier(_cardId), findsNothing);
+    final recovery = find.bySemanticsIdentifier(
+      'retirement_lpp_regulation_reference_recovery',
+    );
+    expect(recovery, findsOneWidget);
+    final recoveryText = _textUnder(tester, recovery).toLowerCase();
+    expect(recoveryText, contains('reconfirmer'));
+    expect(recoveryText, isNot(contains('règlement confirmé')));
+    expect(recoveryText, isNot(contains('règlement applicable')));
+
+    final cta = find.bySemanticsIdentifier(
+      'retirement_lpp_regulation_reconfirm_cta',
+    );
+    expect(cta, findsOneWidget);
+    await tester.ensureVisible(cta);
+    await tester.tap(cta);
+    await tester.pumpAndSettle();
+
+    expect(
+      harness.router.routeInformationProvider.value.uri.toString(),
+      '/scan?type=lppPlan',
+    );
+    expect(
+      find.byKey(const Key('lpp_regulation_reconfirm_destination')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('failed BND hydration remains hidden and never claims recovery',
+      (tester) async {
+    final candidate = _candidate();
+    final ledger = _DashboardLedger(
+      value: _profile(candidate),
+      snapshotId: null,
+      referenceId: candidate.referenceId,
+      confirmedAt: candidate.confirmedAt,
+    );
+    final documents = DocumentProvider(referenceStore: _FailingReferenceStore())
+      ..bindLedger(ledger);
+    await expectLater(documents.hydrateReferences(), throwsFormatException);
+    expect(
+      documents.referenceHydrationState,
+      DocumentReferenceHydrationState.failed,
+    );
+    addTearDown(documents.dispose);
+    addTearDown(ledger.dispose);
+
+    await tester.pumpWidget(_dashboard(ledger: ledger, documents: documents));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.bySemanticsIdentifier(_cardId), findsNothing);
+    expect(
+      find.bySemanticsIdentifier(
+        'retirement_lpp_regulation_reference_recovery',
+      ),
+      findsNothing,
+    );
+    expect(
+      find.bySemanticsIdentifier(
+        'retirement_lpp_regulation_reconfirm_cta',
+      ),
+      findsNothing,
+    );
+  });
+
+  testWidgets('flag, provider, BND identity, and profile fail closed',
       (tester) async {
     final candidate = _candidate();
 
@@ -328,7 +544,7 @@ void main() {
 
     final flagLedger = _DashboardLedger(
       value: _profile(candidate),
-      snapshotId: _snapshotId,
+      snapshotId: null,
       referenceId: candidate.referenceId,
       confirmedAt: candidate.confirmedAt,
     );
@@ -343,7 +559,7 @@ void main() {
 
     final providerlessLedger = _DashboardLedger(
       value: _profile(candidate),
-      snapshotId: _snapshotId,
+      snapshotId: null,
       referenceId: candidate.referenceId,
       confirmedAt: candidate.confirmedAt,
     );
@@ -354,7 +570,7 @@ void main() {
 
     final mismatchLedger = _DashboardLedger(
       value: _profile(candidate),
-      snapshotId: _snapshotId,
+      snapshotId: null,
       referenceId: candidate.referenceId,
       confirmedAt: candidate.confirmedAt,
     );
@@ -368,25 +584,9 @@ void main() {
       documents: mismatchDocuments,
     );
 
-    final replacedLedger = _DashboardLedger(
-      value: _profile(candidate),
-      snapshotId: _replacementSnapshotId,
-      referenceId: candidate.referenceId,
-      confirmedAt: candidate.confirmedAt,
-    );
-    final replacedDocuments = await _documents(
-      ledger: replacedLedger,
-      snapshotId: _snapshotId,
-    );
-    await expectHidden(
-      reason: 'numeric self snapshot replacement',
-      ledger: replacedLedger,
-      documents: replacedDocuments,
-    );
-
     final noProfileLedger = _DashboardLedger(
       value: null,
-      snapshotId: _snapshotId,
+      snapshotId: null,
       referenceId: candidate.referenceId,
       confirmedAt: candidate.confirmedAt,
     );
@@ -403,8 +603,6 @@ void main() {
       providerlessLedger,
       mismatchDocuments,
       mismatchLedger,
-      replacedDocuments,
-      replacedLedger,
       noProfileDocuments,
       noProfileLedger,
     ]) {
@@ -425,10 +623,11 @@ void main() {
     });
 
     final candidate = _candidate();
-    final handoff = LppRegulationSpecialistHandoff.tryFromEvidence(candidate)!;
+    final dynamic handoff =
+        LppRegulationSpecialistHandoff.tryFromEvidence(candidate)!;
     final ledger = _DashboardLedger(
       value: _profile(candidate),
-      snapshotId: _snapshotId,
+      snapshotId: null,
       referenceId: candidate.referenceId,
       confirmedAt: candidate.confirmedAt,
     );
@@ -476,6 +675,50 @@ void main() {
       ),
       findsOneWidget,
     );
+
+    expect(handoff.applicabilityQuestion, 'applicability');
+    expect(handoff.topics, const <String>[
+      'buyback',
+      'conversion',
+      'flexibleRetirement',
+      'disability',
+      'survivors',
+      'divorce',
+    ]);
+    final applicability = find.bySemanticsIdentifier(
+      'retirement_lpp_regulation_applicability_question',
+    );
+    expect(applicability, findsOneWidget);
+    expect(
+      find.descendant(
+        of: sheet,
+        matching: find.text(
+          'Ce règlement s’applique-t-il à ma situation ? Si oui, pour quelle '
+          'période et selon quelle version ou quelles dispositions ?',
+        ),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      tester.getTopLeft(applicability).dy,
+      lessThan(
+        tester
+            .getTopLeft(
+              find.bySemanticsIdentifier(
+                'retirement_lpp_regulation_topic_buyback',
+              ),
+            )
+            .dy,
+      ),
+      reason: 'applicability is one distinct unanswered question before topics',
+    );
+    for (final forbiddenAnswer in const <String>[
+      'retirement_lpp_regulation_applicability_yes',
+      'retirement_lpp_regulation_applicability_no',
+      'retirement_lpp_regulation_applicability_answer',
+    ]) {
+      expect(find.bySemanticsIdentifier(forbiddenAnswer), findsNothing);
+    }
 
     for (final topic in handoff.topics) {
       expect(

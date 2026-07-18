@@ -72,7 +72,7 @@ LppReviewConfirmation _replacementNumericReview(DateTime now) {
 
 void main() {
   patrolTest(
-    'cold reader shows regulation handoff then numeric replacement hides it',
+    'cold reader preserves regulation handoff through numeric replacement',
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 8)),
     ($) async {
@@ -101,13 +101,15 @@ void main() {
       if (currentSnapshot == null) fail('Missing cold numeric LPP snapshot');
       final candidate = provider.profile!.lppRegulationReference;
       expect(candidate, isNotNull);
+      final dynamic typedCandidate = candidate;
       final resolved = documents.resolveLppRegulation(candidate);
       expect(resolved, isNotNull);
       final reference = documents.byId(candidate!.referenceId);
       expect(reference, isNotNull);
       expect(reference!.referenceId, candidate.referenceId);
       expect(reference.kind, ConfirmedDocumentReference.lppRegulationKind);
-      expect(reference.snapshotId, currentSnapshot.snapshotId);
+      final dynamic typedReference = reference;
+      expect(typedReference.snapshotId, isNull);
       expect(reference.ownerKind, LppEvidenceOwnerKind.self);
       expect(reference.confirmedAt, candidate.confirmedAt);
       expect(resolved!.sourceDate, candidate.sourceDate);
@@ -129,6 +131,12 @@ void main() {
       expect(
         find.bySemanticsIdentifier(
           'retirement_lpp_regulation_handoff_privacy',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier(
+          'retirement_lpp_regulation_applicability_question',
         ),
         findsOneWidget,
       );
@@ -167,14 +175,20 @@ void main() {
         isNot(currentSnapshot.snapshotId),
       );
       expect(replacementReceipt.snapshotId, replacementSnapshot.snapshotId);
-      expect(replacementSnapshot.lppRegulationReference, isNull);
-      expect(provider.profile!.lppRegulationReference, isNull);
-      expect(documents.resolveLppRegulation(candidate), isNull);
+      final preservedReference = provider.profile!.lppRegulationReference;
+      expect(preservedReference, isNotNull);
+      expect(preservedReference!.referenceId, candidate.referenceId);
+      final dynamic typedPreservedReference = preservedReference;
+      expect(
+        typedPreservedReference.fundRelationship.wireName,
+        typedCandidate.fundRelationship.wireName,
+      );
+      expect(documents.resolveLppRegulation(preservedReference), isNotNull);
       expect(
         find.bySemanticsIdentifier(
           'retirement_lpp_regulation_reference_education',
         ),
-        findsNothing,
+        findsOneWidget,
       );
       final replacementFact = replacementSnapshot
           .facts[LppEvidenceFactKey.vestedBenefitsCapitalChf];

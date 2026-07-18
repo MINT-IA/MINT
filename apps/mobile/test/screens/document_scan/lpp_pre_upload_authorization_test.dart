@@ -98,14 +98,18 @@ final class _MutableLppPlanCoachProvider extends CoachProfileProvider {
   _MutableLppPlanCoachProvider(
     this.snapshot, {
     this.manualPartnerSnapshot,
+    this.regulationReference,
   });
 
   LppEvidenceSnapshot? snapshot;
   final LppEvidenceSnapshot? manualPartnerSnapshot;
+  SpecialistReferenceEvidence? regulationReference;
   int snapshotReads = 0;
 
   @override
-  CoachProfile get profile => CoachProfile.defaults();
+  CoachProfile get profile => CoachProfile.defaults().copyWith(
+        lppRegulationReference: regulationReference,
+      );
 
   @override
   bool get hasProfile => true;
@@ -129,56 +133,56 @@ const _lppPlanReferenceId = '55555555-5555-4555-8555-555555555555';
 const _replacementReferenceId = '66666666-6666-4666-8666-666666666666';
 const _backendDocumentId = 'backend-document-id-must-not-survive';
 
+SpecialistReferenceEvidence _lppPlanSpecialistReference(String referenceId) {
+  final now = DateTime.utc(2026, 7, 18, 10);
+  final strict = SpecialistReferenceEvidence.tryFromJson(
+    <String, dynamic>{
+      'referenceId': referenceId,
+      'kind': 'lppRegulation',
+      'ownerKind': 'self',
+      'source': 'certificate',
+      'sourceDate': '2026-01-01',
+      'legalYear': 2026,
+      'confirmedAt': now.toIso8601String(),
+      'fundRelationship': 'uncertain',
+    },
+    expectedKind: SpecialistReferenceKind.lppRegulation,
+    now: now,
+  );
+  if (strict != null) return strict;
+
+  // RED compatibility bridge for the schema-1 specialist projection.
+  return SpecialistReferenceEvidence.tryFromJson(
+    <String, dynamic>{
+      'referenceId': referenceId,
+      'kind': 'lppRegulation',
+      'ownerKind': 'self',
+      'source': 'certificate',
+      'sourceDate': '2026-01-01',
+      'legalYear': 2026,
+      'confirmedAt': now.toIso8601String(),
+    },
+    expectedKind: SpecialistReferenceKind.lppRegulation,
+    now: now,
+  )!;
+}
+
 LppEvidenceSnapshot _lppPlanSnapshot({
   String snapshotId = _lppPlanSnapshotId,
-  String? referenceId = _lppPlanReferenceId,
-  bool withFacts = true,
 }) {
   final sourceDate = DateTime.utc(2026, 1, 1);
   final confirmedAt = DateTime.utc(2026, 7, 1, 8);
   return LppEvidenceSnapshot(
     snapshotId: snapshotId,
-    facts: withFacts
-        ? <LppEvidenceFactKey, LppEvidenceFact>{
-            LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
-              value: 84000,
-              unit: LppEvidenceUnit.chf,
-              profileOwnerId: 'self',
-              actorProfileOwnerId: 'self',
-              source: 'certificate',
-              sourceDate: sourceDate,
-              updatedAt: confirmedAt,
-            ),
-          }
-        : const <LppEvidenceFactKey, LppEvidenceFact>{},
-    lppRegulationReference: referenceId == null
-        ? null
-        : LppRegulationReference.create(
-            referenceId: referenceId,
-            sourceDate: sourceDate,
-            legalYear: 2026,
-            confirmedAt: confirmedAt,
-          ),
-  );
-}
-
-LppEvidenceSnapshot _manualPartnerLppSnapshot() {
-  final sourceDate = DateTime.utc(2026, 1, 1);
-  final updatedAt = DateTime.utc(2026, 7, 1, 8);
-  return LppEvidenceSnapshot(
-    snapshotId: _replacementSnapshotId,
     facts: <LppEvidenceFactKey, LppEvidenceFact>{
       LppEvidenceFactKey.vestedBenefitsCapitalChf: LppEvidenceFact(
-        value: 42000,
+        value: 84000,
         unit: LppEvidenceUnit.chf,
-        profileOwnerId: 'manual-partner',
+        profileOwnerId: 'self',
         actorProfileOwnerId: 'self',
-        ownerKind: LppEvidenceOwnerKind.manualPartner,
-        authorizationMode:
-            LppEvidenceAuthorizationMode.manualPartnerDeclaration,
         source: 'certificate',
         sourceDate: sourceDate,
-        updatedAt: updatedAt,
+        updatedAt: confirmedAt,
       ),
     },
   );
@@ -474,6 +478,7 @@ final _partnerGate = PartnerAccountabilityExternalGate(
   bool hasSnapshot = true,
   LppEvidenceSnapshot? snapshot,
   LppEvidenceSnapshot? manualPartnerSnapshot,
+  String? existingReferenceId,
   String extension = 'pdf',
   DocumentUploadResult? uploadResult,
   void Function(_MutableLppPlanCoachProvider coach)? afterUpload,
@@ -483,6 +488,9 @@ final _partnerGate = PartnerAccountabilityExternalGate(
   final coach = _MutableLppPlanCoachProvider(
     hasSnapshot ? snapshot ?? _lppPlanSnapshot() : null,
     manualPartnerSnapshot: manualPartnerSnapshot,
+    regulationReference: existingReferenceId == null
+        ? null
+        : _lppPlanSpecialistReference(existingReferenceId),
   );
   late final GoRouter router;
   router = GoRouter(
@@ -703,10 +711,10 @@ void main() {
   });
 
   testWidgets(
-      'LPP plan PDF retains only exact local authority and opens review route',
+      'regulation-only PDF opens review without a numeric self snapshot',
       (tester) async {
     FeatureFlags.lppRegulationReferenceEnabled = true;
-    final harness = _lppPlanHarness();
+    final harness = _lppPlanHarness(hasSnapshot: false);
     addTearDown(harness.router.dispose);
 
     await tester.pumpWidget(harness.widget);
@@ -750,13 +758,22 @@ void main() {
       '/synthetic/regulation.pdf',
     );
     expect(harness.counters.vision, 0);
-    expect(harness.coach.snapshotReads, greaterThanOrEqualTo(2));
+    expect(
+      harness.coach.snapshotReads,
+      0,
+      reason: 'regulation authority must not consult numeric snapshot state',
+    );
     expect(harness.sessions.retainedRegulationCandidates, hasLength(1));
     expect(harness.sessions.retainedRegulationExtractions, hasLength(1));
 
-    final candidate = harness.sessions.retainedRegulationCandidates.single;
-    expect(candidate.expectedSnapshotId, _lppPlanSnapshotId);
-    expect(candidate.expectedPreviousReferenceId, _lppPlanReferenceId);
+    final dynamic candidate =
+        harness.sessions.retainedRegulationCandidates.single;
+    expect(candidate.expectedPreviousReferenceId, isNull);
+    expect(
+      () => candidate.expectedSnapshotId,
+      throwsA(isA<NoSuchMethodError>()),
+      reason: 'the volatile regulation candidate is snapshotless',
+    );
     final extraction = harness.sessions.retainedRegulationExtractions.single;
     expect(extraction.documentType, DocumentType.lppPlan);
     expect(extraction.fields, isEmpty);
@@ -815,65 +832,59 @@ void main() {
     });
   }
 
-  for (final invalidSnapshot in const <String>['absent', 'empty']) {
-    testWidgets('LPP plan stops before I/O for $invalidSnapshot self snapshot',
-        (tester) async {
-      FeatureFlags.lppRegulationReferenceEnabled = true;
-      final harness = _lppPlanHarness(
-        hasSnapshot: invalidSnapshot != 'absent',
-        snapshot: invalidSnapshot == 'empty'
-            ? _lppPlanSnapshot(withFacts: false)
-            : null,
-      );
-      addTearDown(harness.router.dispose);
-
-      await tester.pumpWidget(harness.widget);
-      await tester.pumpAndSettle();
-      expect(
-        find.byKey(const Key('document_scan_lpp_plan_type_selector')),
-        findsOneWidget,
-      );
-
-      await _openLppPlanImport(tester);
-
-      expect(find.byKey(const Key('lpp_acquisition_self_gate')), findsNothing);
-      _expectNoLppPlanIo(harness.counters, harness.sessions);
-      expect(
-        harness.router.routeInformationProvider.value.uri.path,
-        '/',
-      );
-    });
-  }
-
   testWidgets(
-      'LPP plan stops before I/O for manual-partner-only snapshot authority',
+      'numeric snapshot replacement during upload does not block regulation',
       (tester) async {
     FeatureFlags.lppRegulationReferenceEnabled = true;
     final harness = _lppPlanHarness(
-      hasSnapshot: false,
-      manualPartnerSnapshot: _manualPartnerLppSnapshot(),
+      snapshot: _lppPlanSnapshot(),
+      afterUpload: (coach) {
+        coach.snapshot = _lppPlanSnapshot(
+          snapshotId: _replacementSnapshotId,
+        );
+      },
     );
     addTearDown(harness.router.dispose);
-    expect(
-      harness.coach.currentLppSnapshot(LppEvidenceOwnerKind.self),
-      isNull,
-    );
-    expect(
-      harness.coach.currentLppSnapshot(LppEvidenceOwnerKind.manualPartner),
-      isNotNull,
-    );
 
     await tester.pumpWidget(harness.widget);
     await tester.pumpAndSettle();
-    expect(
-      find.byKey(const Key('document_scan_lpp_plan_type_selector')),
-      findsOneWidget,
-    );
-
     await _openLppPlanImport(tester);
 
-    expect(find.byKey(const Key('lpp_acquisition_self_gate')), findsNothing);
-    _expectNoLppPlanIo(harness.counters, harness.sessions);
+    expect(harness.counters.upload, 1);
+    expect(harness.sessions.retainedRegulationCandidates, hasLength(1));
+    final dynamic candidate =
+        harness.sessions.retainedRegulationCandidates.single;
+    expect(candidate.expectedPreviousReferenceId, isNull);
+    expect(
+      harness.router.routeInformationProvider.value.uri.path,
+      '/scan/review',
+    );
+  });
+
+  testWidgets(
+      'previous autonomous reference drift blocks after upload without snapshot coupling',
+      (tester) async {
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    final harness = _lppPlanHarness(
+      snapshot: _lppPlanSnapshot(),
+      existingReferenceId: _lppPlanReferenceId,
+      afterUpload: (coach) {
+        coach.regulationReference =
+            _lppPlanSpecialistReference(_replacementReferenceId);
+      },
+    );
+    addTearDown(harness.router.dispose);
+
+    await tester.pumpWidget(harness.widget);
+    await tester.pumpAndSettle();
+    await _openLppPlanImport(tester);
+
+    expect(harness.counters.upload, 1);
+    expect(
+      harness.sessions.retainedSessionCount,
+      0,
+      reason: 'the exact previous regulation authority changed during upload',
+    );
     expect(
       harness.router.routeInformationProvider.value.uri.path,
       '/',
@@ -936,46 +947,6 @@ void main() {
       expect(harness.counters.upload, 1);
       expect(harness.counters.bytes, 0);
       expect(harness.counters.vision, 0);
-      expect(harness.sessions.retainedSessionCount, 0);
-      expect(
-        harness.router.routeInformationProvider.value.uri.path,
-        '/',
-      );
-    });
-  }
-
-  final driftedSnapshots = <String, LppEvidenceSnapshot Function()>{
-    'snapshot': () => _lppPlanSnapshot(
-          snapshotId: _replacementSnapshotId,
-        ),
-    'previous reference': () => _lppPlanSnapshot(
-          referenceId: _replacementReferenceId,
-        ),
-  };
-  for (final drift in driftedSnapshots.entries) {
-    testWidgets('LPP plan revalidates ${drift.key} after upload',
-        (tester) async {
-      FeatureFlags.lppRegulationReferenceEnabled = true;
-      final harness = _lppPlanHarness(
-        afterUpload: (coach) => coach.snapshot = drift.value(),
-      );
-      addTearDown(harness.router.dispose);
-
-      await tester.pumpWidget(harness.widget);
-      await tester.pumpAndSettle();
-      expect(
-        find.byKey(const Key('document_scan_lpp_plan_type_selector')),
-        findsOneWidget,
-      );
-
-      await _openLppPlanImport(tester);
-
-      expect(harness.counters.consent, 1);
-      expect(harness.counters.picker, 1);
-      expect(harness.counters.upload, 1);
-      expect(harness.counters.bytes, 0);
-      expect(harness.counters.vision, 0);
-      expect(harness.coach.snapshotReads, greaterThanOrEqualTo(2));
       expect(harness.sessions.retainedSessionCount, 0);
       expect(
         harness.router.routeInformationProvider.value.uri.path,
