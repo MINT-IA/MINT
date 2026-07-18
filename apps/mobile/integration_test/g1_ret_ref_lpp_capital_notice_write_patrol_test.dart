@@ -442,15 +442,30 @@ void main() {
       expect(reference!.snapshotId, numericSnapshot.snapshotId);
       expect(reference.kind, LppCapitalNoticeDeadline.kind);
       expect(reference.ownerKind, LppEvidenceOwnerKind.self);
+      final capitalBanner = find.byKey(
+        const Key('retirement_lpp_capital_notice_deadline_education_known'),
+      );
+      expect(capitalBanner, findsOneWidget);
       expect(
         find.bySemanticsIdentifier(
           'retirement_lpp_capital_notice_deadline_education',
         ),
         findsOneWidget,
       );
-      await $(#retirement_lpp_capital_notice_deadline_education).scrollTo();
-      await $(#retirement_lpp_capital_notice_deadline_education)
-          .waitUntilVisible();
+      final retirementScrollable = find.byWidgetPredicate(
+        (widget) =>
+            widget is Scrollable && widget.axisDirection == AxisDirection.down,
+        description: 'vertical retirement dashboard Scrollable',
+      );
+      expect(retirementScrollable, findsOneWidget);
+      await $.tester.scrollUntilVisible(
+        capitalBanner,
+        -300,
+        scrollable: retirementScrollable,
+      );
+      await $.tester.ensureVisible(capitalBanner);
+      await $.pumpAndSettle();
+      await $(capitalBanner).waitUntilVisible();
 
       final encodedReferences = preferences.getString(
         DocumentReferenceStore.storageKey,
