@@ -45,18 +45,25 @@
 > consumer and replacement invalidation. The run is synthetic-only, used no
 > private fixture and used no production acquisition seam. The local flag stays
 > false; activation is NO-GO, RET-REF/G1 remain open and G2/G3 stay forbidden.
-> **Focused RET-REF-01 LPP regulation authority code-GREEN:** backend plan
+> **Focused RET-REF-01 LPP regulation authority + consumer code-GREEN:** backend plan
 > classification (`e4ce7d6ca`), raw-free BND admission (`074883d57`), nested
 > schema-1 metadata (`196138024`), the serialized writer/cold Profile
 > (`c39cf8860`) and `DocumentProvider` record/resolve (`eed6884ac`) are bounded
 > code-GREEN. Bridge hardening at `0b1a03ef4` covers missing ledger, failed
 > metadata save, session termination and concurrent capital/regulation writes;
-> `5b324da5b` makes the BND kind alias reuse the canonical model constant. Both
-> bridge wrapper audits pass, but there is still no production mobile plan
-> acquisition/review caller, named reader/consumer, process-death runtime, full
-> accepted wrapper audit/evidence set or activation decision. The local flag
-> stays false; the row is
-> quarantined, activation is NO-GO, RET-REF/G1 remain open and G2/G3 forbidden.
+> `5b324da5b` makes the BND kind alias reuse the canonical model constant.
+> `RetirementDashboardScreen._buildLppRegulationEducation` is now the exact
+> reader through `DocumentProvider.resolveLppRegulation`: `d58ed29b2` adds the
+> card, CTA and local metadata-only sheet, `242d7d082` covers all three loaded
+> Dashboard branches, and `f86a29cde` adds the semantic header, privacy boundary
+> and six complete specialist questions. Targeted consumer tests pass 5/5 and
+> the retirement collection passes 24/24. Wrapper-only Opus code/product audits
+> pass for all three slices; the initial placement P1 is fixed and the final two
+> slices report P0=0/P1=0. There is still no production mobile plan
+> acquisition/review caller, process-death Maestro/Patrol proof, consumer
+> exact-SHA evidence bundle or activation decision. The local flag stays false;
+> the row is quarantined, activation is NO-GO, RET-REF/G1 remain open and G2/G3
+> forbidden.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -751,7 +758,7 @@ flag-off flow. The proof is synthetic-only, `private_fixture_used=false` and
 wrapper-only Opus-high audits pass with zero P0/P1. This technical atom does not
 activate the feature, promote RET-REF-01, close G1 or authorize G2/G3.
 
-#### 4.0.3 LPP regulation reference (G1-RET-REF-01 authority code-GREEN; consumer/runtime missing)
+#### 4.0.3 LPP regulation reference (G1-RET-REF-01 authority + consumer code-GREEN; acquisition/runtime missing)
 
 The bounded authority stack is code-GREEN. Backend `DocumentType.lpp_plan` and
 Docling exact plan classification distinguish a regulation from a personal
@@ -764,8 +771,10 @@ missing ledger, metadata-save failure and session termination, and serializes
 concurrent capital-notice/regulation mutations. At `5b324da5b`,
 `ConfirmedDocumentReference.lppRegulationKind` aliases
 `LppRegulationReference.kind` instead of repeating a wire literal.
-`DocumentType`/`VaultDocumentType` still have no production `lppPlan` mapping or
-review caller, and no named screen reader or consumer is live.
+Transport/model mapping alone is not acquisition authority: no production
+review caller performs the required `acceptLppRegulationReference` then
+`recordLppRegulation` chain. The named default-off Dashboard reader/consumer is
+implemented; this is not production acquisition or activation.
 
 A plan/règlement describes fund rules; it is never authority for one person's
 salary, rate, scale, benefit, return or other fact. Exact plan classification
@@ -798,23 +807,44 @@ self snapshot. It does not change schema 1 or the 13-value fact allowlist.
 `resolveLppRegulation` requires ready hydration, the exact cold-derived
 `CoachProfile.lppRegulationReference`, the current self snapshot and all tuple
 fields. Generic `lpp`, `manualPartner`, factless/malformed/replaced roots,
-failed hydration and tuple mismatch resolve null. Educational Dashboard metadata
-and specialist-handoff metadata remain future consumers only: no bytes/path/OCR,
-values, advice or new route are authorized.
+failed hydration and tuple mismatch resolve null.
+
+`RetirementDashboardScreen._buildLppRegulationEducation` is the exact reader:
+it calls only `DocumentProvider.resolveLppRegulation` with
+`profile.lppRegulationReference`. A non-null exact result creates
+`LppRegulationSpecialistHandoff`, then renders the neutral card
+`retirement_lpp_regulation_reference_education`, CTA
+`retirement_lpp_regulation_handoff_cta` and local sheet
+`retirement_lpp_regulation_handoff_sheet`. The same consumer sits below the
+primary content in the complete projection, AVS-missing and projection-
+unavailable loaded branches. Null resolution hides the entire surface.
+
+The sheet retains only `documentKind`, `sourceDate`, `legalYear`, `confirmedAt`
+and six ordered topics: buy-back, conversion, flexible retirement, disability,
+survivors and divorce. It renders a semantic heading, an explicit screen-local
+privacy boundary, and one complete conditional question per topic. It contains
+no reference/snapshot/owner/source token, raw bytes/path/OCR, financial value,
+advice, route, network call, share or export. The original document is neither
+attached nor transmitted from this screen.
 
 The bounded gates are the backend plan-classifier suite plus
 `lpp_regulation_reference_document_authority_test.dart`,
 `lpp_regulation_reference_ledger_contract_test.dart`,
 `lpp_regulation_reference_provider_test.dart` and
 `lpp_regulation_reference_document_bridge_test.dart`, including its hardening
-cases. The two bounded bridge wrapper audits pass. Existing private certificates
-and `negative_plan` numeric fixtures stay negative; a private plan may become a
-positive classifier fixture only in a second versioned, human-reviewed
-manifest, never by auto-relabeling. The authority is code-GREEN but the matrix
-row remains quarantined until a production acquisition seam, named consumer,
-process-death runtime, writer/model wrapper closures and the full accepted
-wrapper audit/evidence set exist. Activation is NO-GO, RET-REF/G1 remain open
-and G2/G3 remain forbidden.
+cases, `lpp_regulation_specialist_handoff_test.dart`, and
+`retirement_dashboard_lpp_regulation_test.dart`. The consumer suite passes 5/5
+and the targeted retirement collection passes 24/24. Wrapper-only Opus code and
+product/domain audits pass across the initial consumer, all-branch placement and
+complete-question slices; the initial placement P1 is fixed and the final two
+slices have zero P0/P1. Existing private certificates and `negative_plan`
+numeric fixtures stay negative; a private plan may become a positive classifier
+fixture only in a second versioned, human-reviewed manifest, never by auto-
+relabeling. Authority and consumer are code-GREEN, but the matrix row remains
+quarantined until a production acquisition seam, process-death Maestro/Patrol,
+a consumer exact-SHA evidence bundle and an activation decision exist. The
+feature flag remains false. Activation is NO-GO, RET-REF/G1 remain open and
+G2/G3 remain forbidden.
 
 Precise consumers call only
 `FiscalSnapshotSelector.selectAssessedBaseline(...)`, with exact `taxYear`,

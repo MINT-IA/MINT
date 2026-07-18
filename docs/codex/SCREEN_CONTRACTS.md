@@ -996,23 +996,30 @@ synthetic-only, private-fixture use is false, and no production acquisition
 seam exists. Activation is therefore NO-GO. This technical atom does not
 promote RET-REF-01, close G1, or authorize G2/G3.
 
-#### LPP regulation reference — G1-RET-REF-01 authority code-GREEN; screen consumer missing
+#### LPP regulation reference — G1-RET-REF-01 authority + screen consumer code-GREEN; acquisition/runtime missing
 
-No screen is live. Backend plan classification, raw-free BND admission, the
+A default-off `/retraite` consumer is implemented. Backend plan classification, raw-free BND admission, the
 nested model, serialized writer/cold Profile projection and
 `DocumentProvider.recordLppRegulation`/`resolveLppRegulation` are bounded
 code-GREEN at implementation SHA `eed6884ac`; `0b1a03ef4` hardens missing-ledger,
 save-failure, session-termination and concurrent capital/regulation behavior,
 and `5b324da5b` canonicalizes the regulation kind alias. Mobile still has no
-production plan mapping/acquisition-review caller, Dashboard renderer or
-specialist handoff.
-Target id `retirement_lpp_regulation_reference_education` therefore remains
-absent. A future consumer stays hidden unless the local default-false/non-remote
+production acquisition/review caller that performs the required accept-then-
+record writer chain, but the Dashboard renderer and local specialist handoff
+are code-GREEN through `f86a29cde`.
+
+`_RetirementDashboardScreenState._buildLppRegulationEducation` calls only
+`DocumentProvider.resolveLppRegulation(profile.lppRegulationReference)`. It
+renders in all three loaded Dashboard branches — complete projection,
+AVS-missing and projection unavailable — and stays hidden unless the local
+default-false/non-remote
 flag is on, exact plan authority was reviewed with `sourceDate`+`legalYear`, the
 current strict self snapshot is non-empty, and cold BND resolution joins the
 exact raw-free tuple.
 
-- **Known:** neutral Dashboard education, then specialist-handoff metadata only.
+- **Known:** neutral card `retirement_lpp_regulation_reference_education`, CTA
+  `retirement_lpp_regulation_handoff_cta`, then local metadata-only sheet
+  `retirement_lpp_regulation_handoff_sheet`.
 - **Missing/conflict:** certificate/ambiguous kind, flag off, `manualPartner`,
   factless/replaced root, failed hydration, generic LPP or tuple drift → hidden.
 - **Forbidden:** plan values/rates/scales/returns as person facts, calculations,
@@ -1020,16 +1027,31 @@ exact raw-free tuple.
 - **Replacement:** identical retry is idempotent; semantic replacement is
   explicit; a new numeric self snapshot invalidates the reference.
 
+The sheet exposes only the localized document kind, `sourceDate`, `legalYear`,
+`confirmedAt`, and six ordered specialist topics with complete conditional
+questions: buy-back, conversion, flexible retirement, disability, survivors
+and divorce. Its title is a semantic heading and its privacy statement says the
+original document is neither attached nor transmitted to the pension fund or a
+specialist from this screen. It contains no reference/snapshot/owner/source
+token, raw document, financial value, advice, navigation, network, share or
+export behavior. Close remains local through
+`retirement_lpp_regulation_handoff_close`.
+
 The authority gates are the backend classifier suite plus
 `lpp_regulation_reference_document_authority_test.dart`,
 `lpp_regulation_reference_ledger_contract_test.dart`,
-`lpp_regulation_reference_provider_test.dart` and
-`lpp_regulation_reference_document_bridge_test.dart`. Private certificates stay
+`lpp_regulation_reference_provider_test.dart`,
+`lpp_regulation_reference_document_bridge_test.dart`,
+`lpp_regulation_specialist_handoff_test.dart` and
+`retirement_dashboard_lpp_regulation_test.dart`. Private certificates stay
 negative; plans become positive only through a second human-reviewed manifest.
-Both bridge wrapper audits pass. The authority is code-GREEN, but acquisition,
-named reader/consumer, process-death runtime, writer/model wrapper closures and
-the full accepted wrapper audit/evidence set remain missing. Activation is
-NO-GO, RET-REF/G1 stay open and G2/G3 forbidden.
+Consumer tests pass 5/5 and the targeted retirement collection passes 24/24.
+Wrapper-only Opus code/product audits pass for `d58ed29b2`, `242d7d082` and
+`f86a29cde`; the initial placement P1 is fixed and the final two slices report
+P0=0/P1=0. Authority and consumer are code-GREEN, but production acquisition,
+process-death Maestro/Patrol proof, consumer exact-SHA evidence and activation
+remain missing. The local flag stays false. Activation is NO-GO, RET-REF/G1
+stay open and G2/G3 forbidden.
 
 `/rapport` and its PDF export consume evidence-bearing ledger facts; they do
 not recreate pension entitlements from illustrative inputs. The three pillars

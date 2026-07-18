@@ -11,15 +11,19 @@
 > false, the proof is synthetic-only/private-fixture-false, and no production
 > acquisition seam exists. Activation is NO-GO; RET-REF/G1 remain open and
 > G2/G3 remain forbidden.
-> Focused LPP regulation authority reality: backend classification, raw-free
+> Focused LPP regulation authority + consumer reality: backend classification, raw-free
 > BND, nested schema-1 metadata, serialized writer/cold Profile and
 > `DocumentProvider` record/resolve are bounded code-GREEN through exact SHA
 > `eed6884ac`; `0b1a03ef4` hardens missing-ledger, save-failure,
 > session-termination and concurrent capital/regulation behavior, while
-> `5b324da5b` canonicalizes the BND kind alias. Both bridge wrapper audits pass.
-> The row is quarantined because production acquisition, a named reader/consumer,
-> process-death runtime, writer/model wrapper closure, the full accepted wrapper
-> audit/evidence set and activation remain missing. Activation is NO-GO;
+> `5b324da5b` canonicalizes the BND kind alias. The exact Dashboard reader now
+> resolves through `DocumentProvider`: `d58ed29b2` adds the card/CTA/local sheet,
+> `242d7d082` covers all three loaded branches and `f86a29cde` adds complete
+> questions plus semantic/privacy boundaries. Consumer tests pass 5/5 and the
+> retirement collection 24/24; wrapper-only Opus code/product audits pass for
+> all three slices after the initial placement P1 was fixed. The row remains
+> quarantined because production acquisition, process-death Maestro/Patrol,
+> consumer exact-SHA evidence and activation remain missing. Activation is NO-GO;
 > RET-REF/G1 remain open and G2/G3 forbidden.
 
 ## Parser contract
@@ -157,7 +161,7 @@ evidence, external audits and the activation decision pass. Legacy
 | workCanton | NONE | NONE | CH_canton_code | userInput,certificate | annual | 0.60 | fact | self | NONE | NONE | source_tax,cross_border | FRONTALIER | P0 | yes | partial+ask | required | work_tax | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | workCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | social_security | FRONTALIER | P0 | yes | partial+ask | required | social_security_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | residenceCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | treaty,tax,social_security | FRONTALIER | P0 | yes | partial+ask | required | residence_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
-| lppRegulationReference | _coach_lpp_evidence_v1 | lppRegulationReference | document_ref | certificate | annual | 0.95 | specialist_reference | self | acceptLppRegulationReference,recordLppRegulation,derived_on_rebuild | NONE | NONE | RETIREMENT | P0 | conditional | educational_only | required | regulation_terms | quarantined | lpp_plan_classifier,lpp_regulation_document_authority,lpp_regulation_ledger_contract,lpp_regulation_provider,lpp_regulation_document_bridge,lpp_regulation_bridge_hardening,canonical_regulation_kind,bridge_wrapper_audits | production_acquisition_seam,typed_consumer,process_death_runtime,writer_model_wrapper_audits,full_exact_evidence_set,activation_decision | yes | G1-RET-REF-01 |
+| lppRegulationReference | _coach_lpp_evidence_v1 | lppRegulationReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptLppRegulationReference,recordLppRegulation,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppRegulationEducation@lppRegulationReference | retirement_lpp_regulation_reference_education,retirement_lpp_regulation_handoff_cta,retirement_lpp_regulation_handoff_sheet | RETIREMENT | P0 | conditional | educational_only | required | regulation_terms | quarantined | lpp_plan_classifier,lpp_regulation_document_authority,lpp_regulation_ledger_contract,lpp_regulation_provider,lpp_regulation_document_bridge,lpp_regulation_bridge_hardening,canonical_regulation_kind,bridge_wrapper_audits,writer_model_wrapper_audits,lpp_regulation_handoff_model,lpp_regulation_dashboard_consumer_5_of_5,retirement_dashboard_regression_24_of_24,consumer_wrapper_audits | production_acquisition_seam,process_death_runtime,consumer_exact_sha_evidence,activation_decision | yes | G1-RET-REF-01 |
 | lppCapitalNoticeDeadline | _coach_lpp_evidence_v1 | lppCapitalNoticeDeadline | ISO_date | certificate | event_static | 0.95 | specialist_reference | self | acceptLppCapitalNotice,recordLppCapitalNotice,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppCapitalNoticeEducation@lppCapitalNoticeDeadline | retirement_dashboard_deadline_education | RETIREMENT | P0 | conditional | educational_only | required | withdrawal_deadline | live | ret_ref_capital_notice_green_e010132690,strict_self_root,serialized_writer,exact_raw_free_bnd,cold_dashboard_consumer,replacement_invalidation,process_death_runtime,wrapper_audits | production_acquisition_seam,activation_decision | yes | G1-RET-REF-01 |
 | pillar3aBeneficiaryClause | NONE | NONE | document_ref | certificate | event_static | 0.95 | specialist_reference | self | NONE | NONE | succession,beneficiary | RETIREMENT,SUCCESSION | P0 | conditional | educational_only | required | beneficiary_order | missing | NONE | document_reference_contract,source_date,legal_year | yes | G1-RET-REF-01 |
 | matrimonialRegime | NONE | NONE | regime_enum | userInput,certificate | event_static | source_weight | fact | household | NONE | NONE | succession,rente_capital | RETIREMENT,SUCCESSION | P0 | conditional | partial+ask | required | estate_partition | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-SUCCESSION-01 |
@@ -169,14 +173,19 @@ G1-RET-REF-01 ticket: exact plan-not-certificate backend classification,
 explicit `sourceDate`+`legalYear`, current non-empty self root, a local
 default-false flag, nested metadata, serialized save-before-publish/idempotent
 writer, explicit replacement/new-snapshot invalidation, exact raw-free BND and
-cold fail-closed resolution. It remains `quarantined`, not `live`, because no
-production plan acquisition seam, qualified reader or named consumer exists.
+cold fail-closed resolution. Its qualified reader is
+`_RetirementDashboardScreenState._buildLppRegulationEducation`, which calls
+`DocumentProvider.resolveLppRegulation(profile.lppRegulationReference)` and
+feeds the neutral card, CTA and local metadata-only specialist sheet in all
+three loaded Dashboard branches. The sheet has a semantic header, explicit
+screen-local privacy boundary and six complete conditional questions; it has
+no IDs, raw document, financial values, advice, route, network, share or export.
 Private plans still need a second human-reviewed manifest, never relabeling.
-Both bridge wrapper audits pass, while process-death runtime, writer/model
-wrapper closures, the full accepted wrapper audit/evidence set and an activation
-decision remain missing. No plan value may become a person fact, calculation,
-advice or raw document record. Activation is NO-GO, RET-REF/G1 remain open and
-G2/G3 forbidden.
+The row remains `quarantined`, not `live`, because the production plan
+acquisition/writer caller, process-death Maestro/Patrol, consumer exact-SHA
+evidence and activation decision remain missing. No plan value may become a
+person fact, calculation, advice or raw document record. The feature flag stays
+false. Activation is NO-GO, RET-REF/G1 remain open and G2/G3 forbidden.
 
 PROV-02 makes the four LPP rows previously marked `dead_on_restart` durable at
 the accepted SHA. They remain `quarantined`, not falsely `live`, until their

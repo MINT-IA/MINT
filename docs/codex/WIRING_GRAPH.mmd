@@ -38,10 +38,13 @@
 %% metadata, serialized writer/cold Profile and DocumentProvider record/resolve.
 %% Hardening @ 0b1a03ef4 covers missing ledger, save failure, session termination
 %% and concurrent capital/regulation writes; 5b324da5b aliases the BND kind to
-%% the canonical model constant. Both bridge wrapper audits pass, but the full
-%% accepted wrapper audit/evidence set is not closed.
-%% It still has no production acquisition caller, named consumer, process-death
-%% runtime, writer/model audit closure or activation decision. No RET-REF atom
+%% the canonical model constant. The default-off Dashboard consumer is also
+%% code-GREEN: d58ed29b2 adds card/CTA/local sheet, 242d7d082 covers all three
+%% loaded branches, and f86a29cde adds the semantic/privacy boundary and six
+%% complete questions. Its three bounded wrapper code/product audits pass; the
+%% initial placement P1 is fixed and the final slices have P0=0/P1=0.
+%% It still has no production acquisition caller, process-death Maestro/Patrol,
+%% consumer exact-SHA evidence or activation decision. No RET-REF atom
 %% promotes the ticket, closes G1 or authorizes G2/G3.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
@@ -225,13 +228,13 @@ flowchart TB
 
   LCN_WRITE -- "single serialized provider mutation" --> CPP
 
-  %% Authority is code-GREEN; product acquisition, consumer and runtime are not.
-  subgraph LPP_REGULATION_REFERENCE["G1-RET-REF-01 — LPP REGULATION AUTHORITY CODE-GREEN / CONSUMER-RUNTIME MISSING"]
+  %% Authority and local consumer are code-GREEN; acquisition and runtime are not.
+  subgraph LPP_REGULATION_REFERENCE["G1-RET-REF-01 — LPP REGULATION AUTHORITY + CONSUMER CODE-GREEN / ACQUISITION-RUNTIME MISSING"]
     direction TB
     LRR_BACKEND_GREEN["CODE-GREEN backend @ e4ce7d6ca<br/>exact lpp_plan classifier<br/>certificate/ambiguous rejected"]
-    LRR_ACQ_GAP["MISSING production mobile acquisition<br/>no lppPlan mapping or review caller"]
+    LRR_ACQ_GAP["MISSING production mobile acquisition<br/>no review -> accept + record caller"]
     LRR_BND_GREEN["CODE-GREEN BND @ 074883d57<br/>self-only exact raw-free lppRegulation kind"]
-    LRR_CODE_GATES["bounded classifier + authority + model<br/>provider writer + document bridge gates"]
+    LRR_CODE_GATES["bounded classifier + authority + model<br/>provider + bridge + consumer gates"]
     LRR_REVIEW["implemented typed confirmation<br/>explicit sourceDate + legalYear<br/>plan values never person facts"]
     LRR_PRIVATE["private certs negative<br/>plans positive only via second human-reviewed manifest"]
     LRR_FLAG{"local-only flag<br/>default false + not remotely hydrated"}
@@ -242,9 +245,9 @@ flowchart TB
     LRR_BND[("DocumentProvider.recordLppRegulation @ eed6884ac<br/>hardening @ 0b1a03ef4 + canonical kind @ 5b324da5b<br/>unchanged raw-free tuple + serialized replacement")]
     LRR_COLD["cold CoachProfile.fromWizardAnswers<br/>flag-gated strict self candidate"]
     LRR_RESOLVE{"DocumentProvider.resolveLppRegulation<br/>ready hydration + exact tuple<br/>+ current self snapshot"}
-    LRR_DASH_GAP["MISSING named educational Dashboard consumer<br/>target id not rendered"]
-    LRR_HANDOFF_GAP["MISSING specialist metadata-only handoff<br/>no advice/raw doc/new route"]
-    LRR_RUNTIME_GAP["MISSING process-death runtime<br/>writer/model + full evidence closure<br/>activation NO-GO"]
+    LRR_DASH["RetirementDashboardScreen._buildLppRegulationEducation<br/>card + CTA @ d58ed29b2<br/>all 3 loaded branches @ 242d7d082"]
+    LRR_HANDOFF["local metadata-only sheet @ f86a29cde<br/>semantic header + privacy + 6 complete questions<br/>no advice/raw doc/route/network/share/export"]
+    LRR_RUNTIME_GAP["MISSING process-death Maestro/Patrol<br/>consumer exact-SHA evidence<br/>flag false + activation NO-GO"]
     LRR_HIDDEN["missing/conflict/new numeric snapshot -> hidden"]
 
     LRR_BACKEND_GREEN --> LRR_CODE_GATES
@@ -258,9 +261,8 @@ flowchart TB
     LRR_ROOT --> LRR_COLD --> LRR_RESOLVE
     LRR_BND --> LRR_RESOLVE
     LRR_RESOLVE -- "no" --> LRR_HIDDEN
-    LRR_RESOLVE -. "consumer not implemented" .-> LRR_DASH_GAP
-    LRR_DASH_GAP -.-> LRR_HANDOFF_GAP
-    LRR_DASH_GAP -.-> LRR_RUNTIME_GAP
+    LRR_RESOLVE -- "exact non-null" --> LRR_DASH --> LRR_HANDOFF
+    LRR_DASH -. "runtime not proven" .-> LRR_RUNTIME_GAP
     LRR_ROOT -- "new numeric self snapshot" --> LRR_HIDDEN
   end
 
@@ -826,9 +828,13 @@ flowchart TB
 %% metadata-save failure, session termination and concurrent capital/regulation
 %% writes; 5b324da5b makes the BND kind reuse the canonical model constant.
 %% Generic LPP, manualPartner, factless/replaced roots, flag-off and tuple drift
-%% fail closed. Both bridge wrapper audits pass, but the authority has no
-%% production plan acquisition caller, named reader/consumer, process-death
-%% runtime, writer/model wrapper closure, full accepted wrapper audit/evidence
-%% set or activation decision. Its matrix row is quarantined; RET-REF/G1 remain
+%% fail closed. The named Dashboard reader resolves the exact tuple and renders
+%% a card, CTA and local metadata-only sheet in all three loaded branches at
+%% d58ed29b2/242d7d082; f86a29cde adds a semantic/privacy boundary and six full
+%% specialist questions. Consumer tests pass 5/5, retirement tests pass 24/24,
+%% and all three bounded wrapper code/product audits pass after the initial
+%% placement P1 was fixed. The atom still has no production plan acquisition
+%% caller, process-death Maestro/Patrol, consumer exact-SHA evidence or
+%% activation decision. Its matrix row is quarantined; RET-REF/G1 remain
 %% open, activation is NO-GO and G2/G3 remain forbidden.
 %% ============================================================================
