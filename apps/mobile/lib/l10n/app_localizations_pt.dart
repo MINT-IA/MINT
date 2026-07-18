@@ -24507,4 +24507,11 @@ class SPt extends S {
 
   @override
   String get retirementLppRegulationHandoffClose => 'Fechar';
+
+  @override
+  String get docScanLppPlanDocumentLabel => 'Regulamento de previdência LPP';
+
+  @override
+  String get docScanLppPlanDocumentDescription =>
+      'O regulamento da tua caixa é analisado sem extrair montantes nem direitos.';
 }

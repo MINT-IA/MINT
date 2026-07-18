@@ -12429,5 +12429,7 @@
   "retirementLppRegulationQuestionDisabilityBody": "En cas d’incapacité de travail durable ou d’invalidité, quelles prestations et quelle éventuelle exonération de cotisations la caisse examinerait-elle, après quels délais et avec quelle coordination avec l’AI et les autres assurances ?",
   "retirementLppRegulationQuestionSurvivorsBody": "En cas de décès, quelles prestations de survivants ou prestations en capital la caisse examinerait-elle pour mon ou ma partenaire et d’autres bénéficiaires potentiels, selon quelles conditions, et quelles déclarations ou désignations seraient nécessaires ?",
   "retirementLppRegulationQuestionDivorceBody": "En cas de divorce, quels renseignements et documents la caisse peut-elle établir pour le partage de la prévoyance professionnelle, et comment un partage ordonné par le tribunal pourrait-il modifier mes prestations futures ?",
-  "retirementLppRegulationHandoffClose": "Fermer"
+  "retirementLppRegulationHandoffClose": "Fermer",
+  "docScanLppPlanDocumentLabel": "Règlement de prévoyance LPP",
+  "docScanLppPlanDocumentDescription": "Règlement de ta caisse, examiné sans extraire de montant ni de droit."
 }

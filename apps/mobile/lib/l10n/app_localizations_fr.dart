@@ -24489,4 +24489,11 @@ class SFr extends S {
 
   @override
   String get retirementLppRegulationHandoffClose => 'Fermer';
+
+  @override
+  String get docScanLppPlanDocumentLabel => 'Règlement de prévoyance LPP';
+
+  @override
+  String get docScanLppPlanDocumentDescription =>
+      'Règlement de ta caisse, examiné sans extraire de montant ni de droit.';
 }

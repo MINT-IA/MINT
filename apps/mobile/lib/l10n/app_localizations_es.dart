@@ -24498,4 +24498,11 @@ class SEs extends S {
 
   @override
   String get retirementLppRegulationHandoffClose => 'Cerrar';
+
+  @override
+  String get docScanLppPlanDocumentLabel => 'Reglamento de previsión LPP';
+
+  @override
+  String get docScanLppPlanDocumentDescription =>
+      'El reglamento de tu caja se revisa sin extraer importes ni derechos.';
 }

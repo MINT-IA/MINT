@@ -24559,4 +24559,11 @@ class SDe extends S {
 
   @override
   String get retirementLppRegulationHandoffClose => 'Schliessen';
+
+  @override
+  String get docScanLppPlanDocumentLabel => 'BVG-Vorsorgereglement';
+
+  @override
+  String get docScanLppPlanDocumentDescription =>
+      'Das Reglement deiner Pensionskasse wird geprüft, ohne Beträge oder Ansprüche zu extrahieren.';
 }

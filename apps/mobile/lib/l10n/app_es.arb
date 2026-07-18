@@ -11619,5 +11619,7 @@
   "retirementLppRegulationQuestionDisabilityBody": "En caso de incapacidad laboral duradera o invalidez, ¿qué prestaciones y qué eventual exención de cotizaciones examinaría la caja de pensiones, tras qué periodos de espera y con qué coordinación con el seguro de invalidez y los demás seguros?",
   "retirementLppRegulationQuestionSurvivorsBody": "En caso de fallecimiento, ¿qué prestaciones para supervivientes o prestaciones de capital examinaría la caja de pensiones para mi pareja y otras personas potencialmente beneficiarias, bajo qué condiciones y qué declaraciones o designaciones serían necesarias?",
   "retirementLppRegulationQuestionDivorceBody": "En caso de divorcio, ¿qué información y documentos puede preparar la caja de pensiones para el reparto de la previsión profesional y cómo podría modificar mis prestaciones futuras un reparto ordenado por el tribunal?",
-  "retirementLppRegulationHandoffClose": "Cerrar"
+  "retirementLppRegulationHandoffClose": "Cerrar",
+  "docScanLppPlanDocumentLabel": "Reglamento de previsión LPP",
+  "docScanLppPlanDocumentDescription": "El reglamento de tu caja se revisa sin extraer importes ni derechos."
 }

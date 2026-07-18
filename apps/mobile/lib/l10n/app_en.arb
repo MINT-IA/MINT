@@ -11619,5 +11619,7 @@
   "retirementLppRegulationQuestionDisabilityBody": "In the event of long-term incapacity for work or disability, which benefits and any waiver of contributions would the pension fund examine, after which waiting periods and with what coordination with disability insurance and other insurers?",
   "retirementLppRegulationQuestionSurvivorsBody": "In the event of death, which survivor benefits or lump-sum benefits would the pension fund examine for my partner and other potential beneficiaries, under which conditions, and which declarations or beneficiary designations would be required?",
   "retirementLppRegulationQuestionDivorceBody": "In the event of divorce, which information and documents can the pension fund provide for the division of occupational pension assets, and how could a division ordered by the court change my future benefits?",
-  "retirementLppRegulationHandoffClose": "Close"
+  "retirementLppRegulationHandoffClose": "Close",
+  "docScanLppPlanDocumentLabel": "LPP pension fund rules",
+  "docScanLppPlanDocumentDescription": "Your pension fund rules, reviewed without extracting amounts or entitlements."
 }

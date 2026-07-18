@@ -236,6 +236,7 @@ class DocumentScanScreen extends StatefulWidget {
 class _DocumentScanScreenState extends State<DocumentScanScreen> {
   static const _supportedTypes = <DocumentType>{
     DocumentType.lppCertificate,
+    DocumentType.lppPlan,
     DocumentType.taxDeclaration,
     DocumentType.avsExtract,
     DocumentType.salaryCertificate,
@@ -279,10 +280,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   bool get _taxAssessmentEnabled => FeatureFlags.taxAssessmentIngestionEnabled;
   bool get _lppEvidenceEnabled => FeatureFlags.lppEvidenceIngestionEnabled;
+  bool get _lppRegulationAcquisitionEnabled =>
+      FeatureFlags.lppRegulationAcquisitionEnabled;
 
   bool _isSupportedType(DocumentType type) =>
       _supportedTypes.contains(type) &&
       (type != DocumentType.lppCertificate || _lppEvidenceEnabled) &&
+      (type != DocumentType.lppPlan || _lppRegulationAcquisitionEnabled) &&
       (type != DocumentType.taxDeclaration || _taxAssessmentEnabled);
 
   DocumentType get _defaultSupportedType =>
@@ -309,9 +313,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   DateTime _currentTime() => (widget.now ?? DateTime.now)().toUtc();
 
-  bool get _lppAcquisitionStillEnabled =>
-      _selectedType != DocumentType.lppCertificate ||
-      FeatureFlags.lppEvidenceIngestionEnabled;
+  bool get _lppAcquisitionStillEnabled => switch (_selectedType) {
+        DocumentType.lppCertificate => FeatureFlags.lppEvidenceIngestionEnabled,
+        DocumentType.lppPlan => FeatureFlags.lppRegulationAcquisitionEnabled,
+        _ => true,
+      };
 
   bool _lppAcquisitionStillEnabledFor(_LppAcquisitionDecision? decision) =>
       _lppAcquisitionStillEnabled &&
@@ -630,18 +636,21 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Future<bool> _requestAcquisitionConsent(
     _LppAcquisitionDecision? decision,
   ) {
-    final purposes = _selectedType == DocumentType.lppCertificate
-        ? decision?.subject == LppEvidenceOwnerKind.manualPartner
+    final purposes = switch (_selectedType) {
+      DocumentType.lppCertificate =>
+        decision?.subject == LppEvidenceOwnerKind.manualPartner
             ? const [ConsentPurpose.visionExtraction]
             : const [
                 ConsentPurpose.visionExtraction,
                 ConsentPurpose.transferUsAnthropic,
-              ]
-        : const [
-            ConsentPurpose.visionExtraction,
-            ConsentPurpose.persistence365d,
-            ConsentPurpose.transferUsAnthropic,
-          ];
+              ],
+      DocumentType.lppPlan => const [ConsentPurpose.visionExtraction],
+      _ => const [
+          ConsentPurpose.visionExtraction,
+          ConsentPurpose.persistence365d,
+          ConsentPurpose.transferUsAnthropic,
+        ],
+    };
     final requester = widget.requireConsent;
     return requester != null
         ? requester(context, purposes)
@@ -876,11 +885,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     TaxExtractionCandidate? taxCandidate,
     LppAcquisitionSource? lppSource,
     LppAcquisitionAuthorization? lppAuthorization,
+    LppRegulationAcquisitionCandidate? lppRegulationCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     _LppAcquisitionDecision? lppDecision,
   }) async {
     if (extraction.documentType == DocumentType.lppCertificate &&
         !FeatureFlags.lppEvidenceIngestionEnabled) {
+      return;
+    }
+    if (extraction.documentType == DocumentType.lppPlan &&
+        (!FeatureFlags.lppRegulationAcquisitionEnabled ||
+            lppRegulationCandidate == null)) {
       return;
     }
     LppExtractionCandidate? lppCandidate;
@@ -932,6 +947,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       reviewExtraction,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
+      lppRegulationCandidate: lppRegulationCandidate,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
     );
@@ -942,9 +958,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     try {
       final navigateToReview = widget.navigateToReview;
       if (navigateToReview == null) {
-        await context.push(
-          '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}',
-        );
+        final location =
+            '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}';
+        if (extraction.documentType == DocumentType.lppPlan) {
+          context.go(location);
+        } else {
+          await context.push(location);
+        }
       } else {
         await navigateToReview(context, scanSessionId);
       }
@@ -1031,12 +1051,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                               _buildPreValidationError(),
                             ],
                             const SizedBox(height: 12),
-                            if (_selectedType != DocumentType.lppCertificate)
+                            if (_selectedType != DocumentType.lppCertificate &&
+                                _selectedType != DocumentType.lppPlan)
                               MintEntrance(
                                 delay: const Duration(milliseconds: 400),
                                 child: _buildPasteTextButton(),
                               ),
-                            if (kDebugMode) ...[
+                            if (kDebugMode &&
+                                _selectedType != DocumentType.lppPlan) ...[
                               const SizedBox(height: 12),
                               _buildDebugExampleButton(),
                             ],
@@ -1107,18 +1129,25 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             final isSelected = type == _selectedType;
             final isTax = type == DocumentType.taxDeclaration;
             final isLpp = type == DocumentType.lppCertificate;
+            final isLppPlan = type == DocumentType.lppPlan;
             return Semantics(
               identifier: isTax
                   ? 'document_scan_tax_type_selector'
                   : isLpp
                       ? 'document_scan_lpp_type_selector'
-                      : null,
+                      : isLppPlan
+                          ? 'document_scan_lpp_plan_type_selector'
+                          : null,
               child: ChoiceChip(
                 key: isTax
                     ? const Key('document_scan_tax_type_selector')
                     : isLpp
                         ? const Key('document_scan_lpp_type_selector')
-                        : null,
+                        : isLppPlan
+                            ? const Key(
+                                'document_scan_lpp_plan_type_selector',
+                              )
+                            : null,
                 label: Text(
                   _documentTypeLabel(type),
                   style: MintTextStyles.bodySmall(
@@ -1182,7 +1211,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
                 .copyWith(height: 1.5),
           ),
-          if (_selectedType != DocumentType.taxDeclaration) ...[
+          if (_selectedType != DocumentType.taxDeclaration &&
+              _selectedType != DocumentType.lppPlan) ...[
             const SizedBox(height: MintSpacing.sm),
             Row(
               children: [
@@ -1204,68 +1234,74 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
-  String _documentTypeLabel(DocumentType type) =>
-      type == DocumentType.taxDeclaration
-          ? S.of(context)!.docScanTaxDocumentLabel
-          : type.label;
+  String _documentTypeLabel(DocumentType type) => switch (type) {
+        DocumentType.taxDeclaration => S.of(context)!.docScanTaxDocumentLabel,
+        DocumentType.lppPlan => S.of(context)!.docScanLppPlanDocumentLabel,
+        _ => type.label,
+      };
 
-  String _documentTypeDescription(DocumentType type) =>
-      type == DocumentType.taxDeclaration
-          ? S.of(context)!.docScanTaxDocumentDescription
-          : type.description!;
+  String _documentTypeDescription(DocumentType type) => switch (type) {
+        DocumentType.taxDeclaration =>
+          S.of(context)!.docScanTaxDocumentDescription,
+        DocumentType.lppPlan =>
+          S.of(context)!.docScanLppPlanDocumentDescription,
+        _ => type.description!,
+      };
 
   Widget _buildCaptureButtons() {
     return Column(
       children: [
-        Semantics(
-          button: true,
-          identifier: 'document_scan_capture_cta',
-          label: S.of(context)!.documentScanTakePhoto,
-          onTap: _isProcessing
-              ? null
-              : () {
-                  HapticFeedback.lightImpact();
-                  (_onCameraPressed)();
-                },
-          child: ExcludeSemantics(
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: FilledButton.icon(
-                key: const Key('document_scan_capture_cta'),
-                onPressed: _isProcessing
-                    ? null
-                    : () {
-                        HapticFeedback.lightImpact();
-                        (_onCameraPressed)();
-                      },
-                icon: const Icon(
-                  kIsWeb
-                      ? Icons.upload_file_outlined
-                      : Icons.camera_alt_outlined,
-                  size: 22,
-                ),
-                label: Text(
-                  _isProcessing
-                      ? S.of(context)!.documentScanExtracting
-                      : kIsWeb
-                          ? S.of(context)!.documentScanImportFile
-                          : S.of(context)!.documentScanTakePhoto,
-                  style: MintTextStyles.titleMedium()
-                      .copyWith(fontWeight: FontWeight.w600),
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  foregroundColor: MintColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+        if (_selectedType != DocumentType.lppPlan) ...[
+          Semantics(
+            button: true,
+            identifier: 'document_scan_capture_cta',
+            label: S.of(context)!.documentScanTakePhoto,
+            onTap: _isProcessing
+                ? null
+                : () {
+                    HapticFeedback.lightImpact();
+                    (_onCameraPressed)();
+                  },
+            child: ExcludeSemantics(
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: FilledButton.icon(
+                  key: const Key('document_scan_capture_cta'),
+                  onPressed: _isProcessing
+                      ? null
+                      : () {
+                          HapticFeedback.lightImpact();
+                          (_onCameraPressed)();
+                        },
+                  icon: const Icon(
+                    kIsWeb
+                        ? Icons.upload_file_outlined
+                        : Icons.camera_alt_outlined,
+                    size: 22,
+                  ),
+                  label: Text(
+                    _isProcessing
+                        ? S.of(context)!.documentScanExtracting
+                        : kIsWeb
+                            ? S.of(context)!.documentScanImportFile
+                            : S.of(context)!.documentScanTakePhoto,
+                    style: MintTextStyles.titleMedium()
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    foregroundColor: MintColors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 12),
+          const SizedBox(height: 12),
+        ],
         Semantics(
           button: true,
           label: S.of(context)!.docScanFromGallery,
@@ -1437,7 +1473,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onCameraPressed() async {
     if (!_isSupportedType(_selectedType)) return;
-    if (_selectedType == DocumentType.taxDeclaration) {
+    if (_selectedType == DocumentType.taxDeclaration ||
+        _selectedType == DocumentType.lppPlan) {
       return;
     }
     final lppDecision = _selectedType == DocumentType.lppCertificate
@@ -1533,6 +1570,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
+    if (_selectedType == DocumentType.lppPlan) {
+      await _acquireLppRegulationFromGallery();
+      return;
+    }
     final lppDecision = _selectedType == DocumentType.lppCertificate
         ? await _authorizeLppBeforeAcquisition()
         : null;
@@ -1554,6 +1595,107 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     await _pickFromGalleryAfterGates(lppDecision);
     await _rollbackUnlessReviewOwns(lppDecision);
+  }
+
+  LppRegulationAcquisitionCandidate? _currentLppRegulationCandidate() {
+    final snapshot = context.read<CoachProfileProvider>().currentLppSnapshot(
+          LppEvidenceOwnerKind.self,
+        );
+    if (snapshot == null || snapshot.facts.isEmpty) return null;
+    try {
+      return LppRegulationAcquisitionCandidate(
+        expectedSnapshotId: snapshot.snapshotId,
+        expectedPreviousReferenceId:
+            snapshot.lppRegulationReference?.referenceId,
+      );
+    } on ArgumentError {
+      return null;
+    }
+  }
+
+  bool _currentLppRegulationMatches(
+    LppRegulationAcquisitionCandidate expected,
+  ) {
+    final current = _currentLppRegulationCandidate();
+    return current != null &&
+        current.expectedSnapshotId == expected.expectedSnapshotId &&
+        current.expectedPreviousReferenceId ==
+            expected.expectedPreviousReferenceId;
+  }
+
+  Future<void> _acquireLppRegulationFromGallery() async {
+    if (!_lppRegulationAcquisitionEnabled) return;
+    final expected = _currentLppRegulationCandidate();
+    if (expected == null) return;
+    if (!await _requestAcquisitionConsent(null)) return;
+    if (!mounted ||
+        !_lppRegulationAcquisitionEnabled ||
+        !_currentLppRegulationMatches(expected)) {
+      return;
+    }
+
+    final injectedPicker = widget.pickFile;
+    final PlatformFile? file;
+    if (injectedPicker != null) {
+      file = await injectedPicker();
+    } else {
+      final picked = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        type: FileType.custom,
+        withData: false,
+        allowedExtensions: const <String>['pdf'],
+      );
+      file = picked == null || picked.files.isEmpty ? null : picked.files.first;
+    }
+    if (file == null ||
+        !mounted ||
+        !_lppRegulationAcquisitionEnabled ||
+        !_currentLppRegulationMatches(expected) ||
+        _detectExtension(file) != 'pdf') {
+      return;
+    }
+    final path = file.path;
+    if (path == null || path.isEmpty) return;
+
+    setState(() {
+      _isProcessing = true;
+      _preValidationError = null;
+      _preValidationHint = null;
+    });
+    try {
+      final uploader = widget.uploadDocument;
+      final upload = uploader == null
+          ? await DocumentService().uploadDocument(
+              File(path),
+              type: VaultDocumentType.lppPlan,
+            )
+          : await uploader(
+              File(path),
+              type: VaultDocumentType.lppPlan,
+            );
+      if (!upload.isExactLppPlanAuthority ||
+          !mounted ||
+          !_lppRegulationAcquisitionEnabled ||
+          !_currentLppRegulationMatches(expected)) {
+        return;
+      }
+      await _openReview(
+        const ExtractionResult(
+          documentType: DocumentType.lppPlan,
+          fields: <ExtractedField>[],
+          overallConfidence: 0,
+          confidenceDelta: 0,
+          warnings: <String>[],
+          disclaimer: '',
+          sources: <String>[],
+        ),
+        lppRegulationCandidate: expected,
+      );
+    } catch (_) {
+      if (mounted) _showErrorSnack(S.of(context)!.docScanGenericError);
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
   }
 
   Future<void> _pickFromGalleryAfterGates(
@@ -1653,7 +1795,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onPasteTextPressed() async {
     if (!_isSupportedType(_selectedType)) return;
-    if (_selectedType == DocumentType.lppCertificate) return;
+    if (_selectedType == DocumentType.lppCertificate ||
+        _selectedType == DocumentType.lppPlan) {
+      return;
+    }
     if (_selectedType == DocumentType.taxDeclaration &&
         !_taxAssessmentEnabled) {
       return;
@@ -1668,6 +1813,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onUseExamplePressed() async {
     if (!_isSupportedType(_selectedType)) return;
+    if (_selectedType == DocumentType.lppPlan) return;
     if (_selectedType == DocumentType.taxDeclaration &&
         !_taxAssessmentEnabled) {
       return;
@@ -1696,6 +1842,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return;
     }
     if (_selectedType == DocumentType.taxDeclaration) {
+      return;
+    }
+    if (_selectedType == DocumentType.lppPlan) {
+      _cleanupTempFile(file.path);
       return;
     }
     if (_selectedType == DocumentType.lppCertificate && lppDecision == null) {
@@ -2309,7 +2459,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     _LppAcquisitionDecision? lppDecision,
   }) async {
     if (!_isSupportedType(_selectedType)) return;
-    if (_selectedType == DocumentType.taxDeclaration) {
+    if (_selectedType == DocumentType.taxDeclaration ||
+        _selectedType == DocumentType.lppPlan) {
       return;
     }
     if (_preValidationError != null || _preValidationHint != null) {
@@ -2809,6 +2960,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   VaultDocumentType _toVaultType(DocumentType type) {
     return switch (type) {
       DocumentType.lppCertificate => VaultDocumentType.lppCertificate,
+      DocumentType.lppPlan => VaultDocumentType.lppPlan,
       DocumentType.salaryCertificate => VaultDocumentType.salaryCertificate,
       DocumentType.threeAAttestation => VaultDocumentType.pillar3aAttestation,
       _ => VaultDocumentType.other,

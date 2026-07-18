@@ -24372,4 +24372,11 @@ class SEn extends S {
 
   @override
   String get retirementLppRegulationHandoffClose => 'Close';
+
+  @override
+  String get docScanLppPlanDocumentLabel => 'LPP pension fund rules';
+
+  @override
+  String get docScanLppPlanDocumentDescription =>
+      'Your pension fund rules, reviewed without extracting amounts or entitlements.';
 }

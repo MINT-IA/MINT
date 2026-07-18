@@ -11619,5 +11619,7 @@
   "retirementLppRegulationQuestionDisabilityBody": "Em caso de incapacidade duradoura para o trabalho ou invalidez, que prestações e eventual isenção de contribuições examinaria a caixa de pensões, após que períodos de espera e com que coordenação com o seguro de invalidez e os outros seguros?",
   "retirementLppRegulationQuestionSurvivorsBody": "Em caso de falecimento, que prestações de sobrevivência ou prestações em capital examinaria a caixa de pensões para a minha pessoa parceira e outros potenciais beneficiários, sob que condições e que declarações ou designações seriam necessárias?",
   "retirementLppRegulationQuestionDivorceBody": "Em caso de divórcio, que informações e documentos pode a caixa de pensões preparar para a partilha da previdência profissional e como poderia uma partilha ordenada pelo tribunal alterar as minhas prestações futuras?",
-  "retirementLppRegulationHandoffClose": "Fechar"
+  "retirementLppRegulationHandoffClose": "Fechar",
+  "docScanLppPlanDocumentLabel": "Regulamento de previdência LPP",
+  "docScanLppPlanDocumentDescription": "O regulamento da tua caixa é analisado sem extrair montantes nem direitos."
 }

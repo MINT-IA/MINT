@@ -11619,5 +11619,7 @@
   "retirementLppRegulationQuestionDisabilityBody": "Welche Leistungen und welche allfällige Beitragsbefreiung würde die Pensionskasse bei einer dauerhaften Arbeitsunfähigkeit oder Invalidität prüfen, nach welchen Wartefristen und mit welcher Koordination mit der IV und anderen Versicherungen?",
   "retirementLppRegulationQuestionSurvivorsBody": "Welche Hinterlassenen- oder Kapitalleistungen würde die Pensionskasse im Todesfall für meine Partnerin oder meinen Partner und weitere mögliche Begünstigte prüfen, unter welchen Bedingungen, und welche Meldungen oder Begünstigtenbezeichnungen wären erforderlich?",
   "retirementLppRegulationQuestionDivorceBody": "Welche Auskünfte und Unterlagen kann die Pensionskasse im Scheidungsfall für die Teilung der beruflichen Vorsorge erstellen, und wie könnte eine gerichtlich angeordnete Teilung meine künftigen Leistungen verändern?",
-  "retirementLppRegulationHandoffClose": "Schliessen"
+  "retirementLppRegulationHandoffClose": "Schliessen",
+  "docScanLppPlanDocumentLabel": "BVG-Vorsorgereglement",
+  "docScanLppPlanDocumentDescription": "Das Reglement deiner Pensionskasse wird geprüft, ohne Beträge oder Ansprüche zu extrahieren."
 }

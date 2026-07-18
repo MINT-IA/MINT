@@ -42718,6 +42718,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Fermer'**
   String get retirementLppRegulationHandoffClose;
+
+  /// No description provided for @docScanLppPlanDocumentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règlement de prévoyance LPP'**
+  String get docScanLppPlanDocumentLabel;
+
+  /// No description provided for @docScanLppPlanDocumentDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règlement de ta caisse, examiné sans extraire de montant ni de droit.'**
+  String get docScanLppPlanDocumentDescription;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

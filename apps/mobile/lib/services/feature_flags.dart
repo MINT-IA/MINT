@@ -116,6 +116,13 @@ class FeatureFlags {
   static bool get lppEvidenceIngestionEnabled =>
       typedLppEvidence && documentLppEvidenceEnabled;
 
+  /// Local-only composite gate for reviewed pension-regulation acquisition.
+  /// It stays absent from [applyFromMap] until the G1 runtime gates are closed.
+  static bool get lppRegulationAcquisitionEnabled =>
+      typedLppEvidence &&
+      documentLppEvidenceEnabled &&
+      lppRegulationReferenceEnabled;
+
   /// Local kill switch for every tax-document acquisition surface.
   ///
   /// This flag deliberately stays out of [applyFromMap]. The UI is exposed

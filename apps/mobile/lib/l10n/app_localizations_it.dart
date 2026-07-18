@@ -24564,4 +24564,11 @@ class SIt extends S {
 
   @override
   String get retirementLppRegulationHandoffClose => 'Chiudi';
+
+  @override
+  String get docScanLppPlanDocumentLabel => 'Regolamento di previdenza LPP';
+
+  @override
+  String get docScanLppPlanDocumentDescription =>
+      'Il regolamento della tua cassa viene esaminato senza estrarre importi né diritti.';
 }
