@@ -993,25 +993,40 @@ class LppLegacyPartnerQuarantine {
   }
 }
 
+enum LppRegulationRecoveryReason {
+  legacyMissingFundRelationship;
+
+  static LppRegulationRecoveryReason? fromWireName(Object? raw) {
+    if (raw is! String) return null;
+    for (final reason in values) {
+      if (reason.name == raw) return reason;
+    }
+    return null;
+  }
+}
+
 class LppEvidenceRoot {
   const LppEvidenceRoot({
     required this.self,
     this.manualPartner,
     this.legacyPartnerQuarantine,
     this.selfRegulationReference,
+    this.selfRegulationRecoveryReason,
   });
 
   final LppEvidenceSnapshot? self;
   final LppEvidenceSnapshot? manualPartner;
   final LppLegacyPartnerQuarantine? legacyPartnerQuarantine;
   final LppRegulationReference? selfRegulationReference;
+  final LppRegulationRecoveryReason? selfRegulationRecoveryReason;
 
   String toJsonString() => jsonEncode(<String, dynamic>{
-        'schemaVersion': 2,
+        'schemaVersion': 3,
         'self': self?.toJson(),
         'manualPartner': manualPartner?.toJson(),
         'legacyPartnerQuarantine': legacyPartnerQuarantine?.toJson(),
         'selfRegulationReference': selfRegulationReference?.toJson(),
+        'selfRegulationRecoveryReason': selfRegulationRecoveryReason?.name,
       });
 
   static LppEvidenceRoot? fromJsonString(
@@ -1026,28 +1041,28 @@ class LppEvidenceRoot {
       final schemaVersion = root['schemaVersion'];
       final expectedKeys = switch (schemaVersion) {
         1 => _legacyRootKeys,
-        2 => _rootKeys,
+        2 => _schema2RootKeys,
+        3 => _rootKeys,
         _ => const <String>{},
       };
       if (root.length != expectedKeys.length ||
           root.keys.toSet().difference(expectedKeys).isNotEmpty ||
-          !root.containsKey('self') ||
-          !root.containsKey('manualPartner') ||
-          !root.containsKey('legacyPartnerQuarantine') ||
-          (schemaVersion == 2 &&
-              !root.containsKey('selfRegulationReference'))) {
+          expectedKeys.any((key) => !root.containsKey(key))) {
         return null;
       }
       Object? rawSelf = root['self'];
       final rawManualPartner = root['manualPartner'];
       final rawQuarantine = root['legacyPartnerQuarantine'];
       final rawRegulation = root['selfRegulationReference'];
+      final rawRecoveryReason = root['selfRegulationRecoveryReason'];
       if (rawSelf != null && rawSelf is! Map ||
           rawManualPartner != null && rawManualPartner is! Map ||
           rawQuarantine != null && rawQuarantine is! Map ||
-          rawRegulation != null && rawRegulation is! Map) {
+          rawRegulation != null && rawRegulation is! Map ||
+          rawRecoveryReason != null && rawRecoveryReason is! String) {
         return null;
       }
+      LppRegulationRecoveryReason? recoveryReason;
       if (schemaVersion == 1 && rawSelf is Map) {
         final legacySelf = Map<String, dynamic>.from(rawSelf);
         if (legacySelf.containsKey('lppRegulationReference')) {
@@ -1060,8 +1075,15 @@ class LppEvidenceRoot {
             return null;
           }
           legacySelf.remove('lppRegulationReference');
+          recoveryReason =
+              LppRegulationRecoveryReason.legacyMissingFundRelationship;
         }
         rawSelf = legacySelf;
+      }
+      if (schemaVersion == 3 && rawRecoveryReason != null) {
+        recoveryReason =
+            LppRegulationRecoveryReason.fromWireName(rawRecoveryReason);
+        if (recoveryReason == null) return null;
       }
       final self = rawSelf == null
           ? null
@@ -1094,6 +1116,7 @@ class LppEvidenceRoot {
           rawRegulation != null && regulation == null) {
         return null;
       }
+      if (regulation != null && recoveryReason != null) return null;
       if (self != null &&
           manualPartner != null &&
           manualPartner.identityFacts.first.actorProfileOwnerId !=
@@ -1105,6 +1128,7 @@ class LppEvidenceRoot {
         manualPartner: manualPartner,
         legacyPartnerQuarantine: quarantine,
         selfRegulationReference: regulation,
+        selfRegulationRecoveryReason: recoveryReason,
       );
     } on Object {
       return null;
@@ -1119,12 +1143,17 @@ const _legacyRootKeys = <String>{
   'legacyPartnerQuarantine',
 };
 
-const _rootKeys = <String>{
+const _schema2RootKeys = <String>{
   'schemaVersion',
   'self',
   'manualPartner',
   'legacyPartnerQuarantine',
   'selfRegulationReference',
+};
+
+const _rootKeys = <String>{
+  ..._schema2RootKeys,
+  'selfRegulationRecoveryReason',
 };
 
 const _zeroSha256 =

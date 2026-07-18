@@ -100,6 +100,20 @@ Map<String, dynamic> _schema2Root({
       'selfRegulationReference': selfRegulationReference,
     };
 
+Map<String, dynamic> _schema3Root({
+  Map<String, dynamic>? self,
+  Map<String, dynamic>? selfRegulationReference,
+  Object? selfRegulationRecoveryReason,
+}) =>
+    <String, dynamic>{
+      'schemaVersion': 3,
+      'self': self,
+      'manualPartner': null,
+      'legacyPartnerQuarantine': null,
+      'selfRegulationReference': selfRegulationReference,
+      'selfRegulationRecoveryReason': selfRegulationRecoveryReason,
+    };
+
 Map<String, dynamic> _legacySchema1Root() => <String, dynamic>{
       'schemaVersion': 1,
       'self': _selfSnapshot(
@@ -130,7 +144,7 @@ Map<String, dynamic> _roundTrip(LppEvidenceRoot root) =>
 
 void main() {
   group('autonomous LPP regulation root contract', () {
-    test('schema 2 admits a reference-only root for each exact relationship',
+    test('schema 2 migrates a reference-only root for each exact relationship',
         () {
       for (final relationship in <String>{
         'currentFund',
@@ -154,9 +168,10 @@ void main() {
         expect(typedReference, isNotNull);
         expect(typedReference.fundRelationship.wireName, relationship);
         final encoded = _roundTrip(parsed!);
-        expect(encoded['schemaVersion'], 2);
+        expect(encoded['schemaVersion'], 3);
         expect(encoded['self'], isNull);
         expect(encoded['selfRegulationReference'], reference);
+        expect(encoded['selfRegulationRecoveryReason'], isNull);
       }
     });
 
@@ -279,13 +294,14 @@ void main() {
       expect(parsed, isNotNull);
       final migrated = _roundTrip(parsed!);
       final migratedSelf = Map<String, dynamic>.from(migrated['self']! as Map);
-      expect(migrated['schemaVersion'], 2);
+      expect(migrated['schemaVersion'], 3);
       expect(migrated.keys.toSet(), <String>{
         'schemaVersion',
         'self',
         'manualPartner',
         'legacyPartnerQuarantine',
         'selfRegulationReference',
+        'selfRegulationRecoveryReason',
       });
       expect(migratedSelf['snapshotId'], _snapshotId);
       expect(migratedSelf['facts'], legacySelf['facts']);
@@ -299,6 +315,10 @@ void main() {
         legacy['legacyPartnerQuarantine'],
       );
       expect(migrated['selfRegulationReference'], isNull);
+      expect(
+        migrated['selfRegulationRecoveryReason'],
+        'legacyMissingFundRelationship',
+      );
       expect(jsonEncode(migrated), isNot(contains('currentFund')));
     });
 
@@ -343,6 +363,11 @@ void main() {
         reason:
             'Only genuine key absence is a valid legacy no-authority state.',
       );
+      expect(
+        _roundTrip(
+            _decode(withoutNestedRegulation)!)['selfRegulationRecoveryReason'],
+        isNull,
+      );
 
       for (final explicitInvalid in <Object?>[
         null,
@@ -358,14 +383,80 @@ void main() {
       }
     });
 
-    test('numeric root reconstruction preserves the autonomous reference', () {
-      final reference = _regulationReference(
-        fundRelationship: 'uncertain',
+    test('schema 1 and schema 2 keep exact four and five key allowlists', () {
+      final schema1 = _legacySchema1Root();
+      (schema1['self']! as Map<String, dynamic>)
+          .remove('lppRegulationReference');
+      final schema2 = _schema2Root();
+      expect(_decode(schema1), isNotNull);
+      expect(_decode(schema2), isNotNull);
+
+      for (final root in <Map<String, dynamic>>[schema1, schema2]) {
+        for (final key in root.keys) {
+          expect(
+            _decode(Map<String, dynamic>.from(root)..remove(key)),
+            isNull,
+            reason: 'schema ${root['schemaVersion']} missing $key',
+          );
+        }
+        expect(
+          _decode(Map<String, dynamic>.from(root)..['extra'] = true),
+          isNull,
+          reason: 'schema ${root['schemaVersion']} extra key',
+        );
+      }
+    });
+
+    test('schema 3 requires six exact keys and one exact nullable reason', () {
+      final marker = _schema3Root(
+        selfRegulationRecoveryReason: 'legacyMissingFundRelationship',
       );
+      final parsedMarker = _decode(marker);
+      expect(parsedMarker, isNotNull);
+      expect(_roundTrip(parsedMarker!), marker);
+
+      final authority = _schema3Root(
+        selfRegulationReference: _regulationReference(),
+      );
+      expect(_decode(authority), isNotNull);
+
+      for (final key in marker.keys) {
+        final missing = Map<String, dynamic>.from(marker)..remove(key);
+        expect(_decode(missing), isNull, reason: 'missing $key');
+      }
+      expect(
+        _decode(Map<String, dynamic>.from(marker)..['extra'] = true),
+        isNull,
+      );
+      for (final invalidReason in <Object>[
+        'unknownReason',
+        1,
+        true,
+        <Object>[],
+      ]) {
+        expect(
+          _decode(_schema3Root(
+            selfRegulationRecoveryReason: invalidReason,
+          )),
+          isNull,
+          reason: '$invalidReason',
+        );
+      }
+      expect(
+        _decode(_schema3Root(
+          selfRegulationReference: _regulationReference(),
+          selfRegulationRecoveryReason: 'legacyMissingFundRelationship',
+        )),
+        isNull,
+        reason: 'authority and recovery marker cannot coexist',
+      );
+    });
+
+    test('numeric root reconstruction preserves the recovery reason', () {
       final parsed = _decode(
-        _schema2Root(
+        _schema3Root(
           self: _selfSnapshot(includeCapitalNotice: true),
-          selfRegulationReference: reference,
+          selfRegulationRecoveryReason: 'legacyMissingFundRelationship',
         ),
       );
 
@@ -395,10 +486,15 @@ void main() {
           #manualPartner: parsed.manualPartner,
           #legacyPartnerQuarantine: parsed.legacyPartnerQuarantine,
           #selfRegulationReference: typedRoot.selfRegulationReference,
+          #selfRegulationRecoveryReason: typedRoot.selfRegulationRecoveryReason,
         },
       ) as LppEvidenceRoot;
       final encoded = _roundTrip(reconstructed);
-      expect(encoded['selfRegulationReference'], reference);
+      expect(encoded['selfRegulationReference'], isNull);
+      expect(
+        encoded['selfRegulationRecoveryReason'],
+        'legacyMissingFundRelationship',
+      );
       expect((encoded['self']! as Map)['snapshotId'], _replacementSnapshotId);
       expect(
         ((encoded['self']! as Map)['facts']! as Map)['vestedBenefitsCapitalChf']

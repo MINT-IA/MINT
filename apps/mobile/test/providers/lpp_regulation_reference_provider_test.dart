@@ -22,6 +22,7 @@ final class _MemoryLppPersistence
   int loadCalls = 0;
   int saveCalls = 0;
   Completer<void>? saveGate;
+  bool failSaves = false;
 
   @override
   Future<Map<String, dynamic>> loadAnswers() async {
@@ -32,6 +33,7 @@ final class _MemoryLppPersistence
   @override
   Future<void> saveAnswers(Map<String, dynamic> next) async {
     saveCalls += 1;
+    if (failSaves) throw StateError('synthetic LPP save failure');
     final gate = saveGate;
     if (gate != null) await gate.future;
     answers = _copy(next);
@@ -115,6 +117,31 @@ String _schema2RootJson(
       'selfRegulationReference': selfRegulationReference,
     });
 
+String _schema3RootJson(
+  DateTime now, {
+  String snapshotId = _snapshotId,
+  bool includeSelf = true,
+  Map<String, dynamic>? selfRegulationReference,
+  Object? selfRegulationRecoveryReason,
+}) =>
+    jsonEncode(<String, dynamic>{
+      'schemaVersion': 3,
+      'self': includeSelf
+          ? <String, dynamic>{
+              'snapshotId': snapshotId,
+              'facts': <String, dynamic>{
+                'vestedBenefitsCapitalChf': _factJson(
+                  now.subtract(const Duration(days: 1)),
+                ),
+              },
+            }
+          : null,
+      'manualPartner': null,
+      'legacyPartnerQuarantine': null,
+      'selfRegulationReference': selfRegulationReference,
+      'selfRegulationRecoveryReason': selfRegulationRecoveryReason,
+    });
+
 bool _supportsAutonomousRoot(DateTime now) =>
     LppEvidenceRoot.fromJsonString(
       _schema2RootJson(now, includeSelf: false),
@@ -146,12 +173,14 @@ Map<String, dynamic> _answers(
   DateTime now, {
   String? root,
   bool includeLppRoot = true,
+  bool includePartner = false,
 }) =>
     <String, dynamic>{
       'q_birth_year': 1981,
       'q_canton': 'VD',
-      'q_civil_status': 'celibataire',
+      'q_civil_status': includePartner ? 'marie' : 'celibataire',
       'q_has_pension_fund': 'yes',
+      if (includePartner) 'q_partner_birth_year': 1983,
       if (includeLppRoot) '_coach_lpp_evidence_v1': root ?? _rootJson(now),
     };
 
@@ -171,6 +200,18 @@ Map<String, dynamic> _referenceJson({
       'confirmedAt': confirmedAt,
       'fundRelationship': fundRelationship,
     };
+
+String _schema1RootWithLegacyRegulationJson(DateTime now) {
+  final root = Map<String, dynamic>.from(
+    jsonDecode(_schema1RootJson(now)) as Map,
+  );
+  final self = Map<String, dynamic>.from(root['self']! as Map);
+  self['lppRegulationReference'] = Map<String, dynamic>.from(
+    _referenceJson()..remove('fundRelationship'),
+  );
+  root['self'] = self;
+  return jsonEncode(root);
+}
 
 dynamic _fundRelationship(String wireName) {
   final dynamic reference = LppRegulationReference.fromJson(
@@ -408,7 +449,7 @@ void main() {
     expect(notifications, 0);
   });
 
-  test('reference-only schema 2 accepts without a numeric self snapshot',
+  test('reference-only schema 2 migrates and accepts without a self snapshot',
       () async {
     final now = DateTime.utc(2026, 7, 18, 12);
     FeatureFlags.lppRegulationReferenceEnabled = true;
@@ -436,7 +477,7 @@ void main() {
   });
 
   test(
-      'first acquisition creates one exact schema 2 authority root when the key is absent',
+      'first acquisition creates one exact schema 3 authority root when the key is absent',
       () async {
     final now = DateTime.utc(2026, 7, 18, 12);
     FeatureFlags.lppRegulationReferenceEnabled = true;
@@ -464,11 +505,13 @@ void main() {
       'manualPartner',
       'legacyPartnerQuarantine',
       'selfRegulationReference',
+      'selfRegulationRecoveryReason',
     });
-    expect(encoded['schemaVersion'], 2);
+    expect(encoded['schemaVersion'], 3);
     expect(encoded['self'], isNull);
     expect(encoded['manualPartner'], isNull);
     expect(encoded['legacyPartnerQuarantine'], isNull);
+    expect(encoded['selfRegulationRecoveryReason'], isNull);
     final reference = Map<String, dynamic>.from(
       encoded['selfRegulationReference']! as Map,
     );
@@ -594,10 +637,15 @@ void main() {
       'manualPartner',
       'legacyPartnerQuarantine',
       'selfRegulationReference',
+      'selfRegulationRecoveryReason',
     });
-    expect(persisted['schemaVersion'], 2);
+    expect(persisted['schemaVersion'], 3);
     expect(persisted['manualPartner'], isNull);
     expect(persisted['selfRegulationReference'], isNull);
+    expect(
+      persisted['selfRegulationRecoveryReason'],
+      'legacyMissingFundRelationship',
+    );
     expect(persisted['legacyPartnerQuarantine'], quarantine);
     final persistedSelf = Map<String, dynamic>.from(persisted['self']! as Map);
     expect(persistedSelf['snapshotId'], _snapshotId);
@@ -606,8 +654,178 @@ void main() {
     expect(persistedSelf.containsKey('lppRegulationReference'), isFalse);
     expect(loaded.provider.profile!.lppRegulationReference, isNull);
     expect(
+      loaded.provider.lppRegulationRecoveryReason,
+      LppRegulationRecoveryReason.legacyMissingFundRelationship,
+    );
+    expect(
       jsonEncode(loaded.provider.profile!.toJson()),
       isNot(contains('currentFund')),
+    );
+  });
+
+  test('cold load durably rewrites exact schema 2 to schema 3 before publish',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final persistence = _MemoryLppPersistence(
+      _answers(now, root: _schema2RootJson(now)),
+    );
+    final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      lppProfilePersistence: persistence,
+      now: () => now,
+    );
+    addTearDown(provider.dispose);
+
+    await provider.loadFromWizard();
+
+    expect(persistence.saveCalls, 1);
+    final persisted = Map<String, dynamic>.from(
+      jsonDecode(
+        persistence.answers['_coach_lpp_evidence_v1']! as String,
+      ) as Map,
+    );
+    expect(persisted['schemaVersion'], 3);
+    expect(persisted.keys.toSet(), <String>{
+      'schemaVersion',
+      'self',
+      'manualPartner',
+      'legacyPartnerQuarantine',
+      'selfRegulationReference',
+      'selfRegulationRecoveryReason',
+    });
+    expect(persisted['selfRegulationRecoveryReason'], isNull);
+    expect(provider.lppRegulationRecoveryReason, isNull);
+    expect(provider.profile, isNotNull);
+  });
+
+  test('cold migration save failure publishes neither marker nor root',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final legacyRoot = _schema1RootWithLegacyRegulationJson(now);
+    final persistence = _MemoryLppPersistence(
+      _answers(now, root: legacyRoot),
+    )..failSaves = true;
+    final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      lppProfilePersistence: persistence,
+      now: () => now,
+    );
+    addTearDown(provider.dispose);
+
+    await provider.loadFromWizard();
+
+    expect(persistence.saveCalls, 1);
+    expect(persistence.answers['_coach_lpp_evidence_v1'], legacyRoot);
+    expect(
+      provider.reportAnswersSnapshot.containsKey('_coach_lpp_evidence_v1'),
+      isFalse,
+    );
+    expect(provider.lppRegulationRecoveryReason, isNull);
+  });
+
+  test('only durable regulation acceptance clears the recovery marker',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    final loaded = await _loadedProvider(
+      now,
+      root: _schema3RootJson(
+        now,
+        includeSelf: false,
+        selfRegulationRecoveryReason: 'legacyMissingFundRelationship',
+      ),
+    );
+    addTearDown(loaded.provider.dispose);
+    expect(
+      loaded.provider.lppRegulationRecoveryReason,
+      LppRegulationRecoveryReason.legacyMissingFundRelationship,
+    );
+
+    loaded.persistence.failSaves = true;
+    await expectLater(
+      loaded.provider.acceptLppRegulationReference(_confirmation()),
+      throwsStateError,
+    );
+    expect(
+      loaded.provider.lppRegulationRecoveryReason,
+      LppRegulationRecoveryReason.legacyMissingFundRelationship,
+    );
+    expect(
+      jsonDecode(loaded.persistence.answers['_coach_lpp_evidence_v1'])[
+          'selfRegulationRecoveryReason'],
+      'legacyMissingFundRelationship',
+    );
+
+    loaded.persistence.failSaves = false;
+    await loaded.provider.acceptLppRegulationReference(_confirmation());
+    expect(loaded.provider.lppRegulationRecoveryReason, isNull);
+    expect(
+      jsonDecode(loaded.persistence.answers['_coach_lpp_evidence_v1'])[
+          'selfRegulationRecoveryReason'],
+      isNull,
+    );
+  });
+
+  test('numeric and capital-notice rebuilds preserve the recovery marker',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppCapitalNoticeDeadlineEnabled = true;
+    final loaded = await _loadedProvider(
+      now,
+      root: _schema3RootJson(
+        now,
+        selfRegulationRecoveryReason: 'legacyMissingFundRelationship',
+      ),
+    );
+    addTearDown(loaded.provider.dispose);
+    await loaded.provider.acceptLppCapitalNotice(_capitalConfirmation());
+    expect(
+      loaded.provider.lppRegulationRecoveryReason,
+      LppRegulationRecoveryReason.legacyMissingFundRelationship,
+    );
+
+    await loaded.provider.acceptLppReview(_replacementReview(now));
+    expect(
+      loaded.provider.lppRegulationRecoveryReason,
+      LppRegulationRecoveryReason.legacyMissingFundRelationship,
+    );
+    expect(
+      jsonDecode(loaded.persistence.answers['_coach_lpp_evidence_v1'])[
+          'selfRegulationRecoveryReason'],
+      'legacyMissingFundRelationship',
+    );
+  });
+
+  test('manual-partner rebuild preserves the recovery marker', () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final persistence = _MemoryLppPersistence(
+      _answers(
+        now,
+        includePartner: true,
+        root: _schema3RootJson(
+          now,
+          selfRegulationRecoveryReason: 'legacyMissingFundRelationship',
+        ),
+      ),
+    );
+    final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      lppProfilePersistence: persistence,
+      now: () => now,
+    );
+    addTearDown(provider.dispose);
+    await provider.loadFromWizard();
+
+    await provider.setIndependentManualPartnerVestedBenefitsCapital(75000);
+
+    expect(
+      provider.lppRegulationRecoveryReason,
+      LppRegulationRecoveryReason.legacyMissingFundRelationship,
+    );
+    expect(
+      jsonDecode(persistence.answers['_coach_lpp_evidence_v1'])[
+          'selfRegulationRecoveryReason'],
+      'legacyMissingFundRelationship',
     );
   });
 

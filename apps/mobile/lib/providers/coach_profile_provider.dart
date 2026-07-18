@@ -923,9 +923,10 @@ class CoachProfileProvider extends ChangeNotifier {
     if (existingRoot == null) {
       return (answers: answers, migrated: false);
     }
-    final requiresSchema2Rewrite = hasExistingRoot &&
-        rawRoot is String &&
-        _lppRootSchemaVersion(rawRoot) == 1;
+    final schemaVersion =
+        rawRoot is String ? _lppRootSchemaVersion(rawRoot) : null;
+    final requiresSchema3Rewrite =
+        hasExistingRoot && (schemaVersion == 1 || schemaVersion == 2);
 
     final facts = <LppEvidenceFactKey, LppEvidenceFact>{};
     final migratedKeys = <String>{};
@@ -1009,7 +1010,7 @@ class CoachProfileProvider extends ChangeNotifier {
     if (facts.isEmpty &&
         retainedUnprovedZeroKeys.isEmpty &&
         legacyPartnerKeys.isEmpty &&
-        !requiresSchema2Rewrite) {
+        !requiresSchema3Rewrite) {
       return (answers: answers, migrated: false);
     }
 
@@ -1035,6 +1036,7 @@ class CoachProfileProvider extends ChangeNotifier {
       manualPartner: existingRoot.manualPartner,
       legacyPartnerQuarantine: quarantine,
       selfRegulationReference: existingRoot.selfRegulationReference,
+      selfRegulationRecoveryReason: existingRoot.selfRegulationRecoveryReason,
     ).toJsonString();
     return (answers: answers, migrated: true);
   }
@@ -1429,6 +1431,7 @@ class CoachProfileProvider extends ChangeNotifier {
         manualPartner: root.manualPartner,
         legacyPartnerQuarantine: root.legacyPartnerQuarantine,
         selfRegulationReference: root.selfRegulationReference,
+        selfRegulationRecoveryReason: root.selfRegulationRecoveryReason,
       );
       final nextAnswers = _copyAnswers(loaded)
         ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
@@ -1567,6 +1570,7 @@ class CoachProfileProvider extends ChangeNotifier {
         manualPartner: root.manualPartner,
         legacyPartnerQuarantine: root.legacyPartnerQuarantine,
         selfRegulationReference: reference,
+        selfRegulationRecoveryReason: null,
       );
       final nextAnswers = _copyAnswers(loaded)
         ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
@@ -1790,6 +1794,7 @@ class CoachProfileProvider extends ChangeNotifier {
                 : currentRoot.manualPartner,
         legacyPartnerQuarantine: currentRoot.legacyPartnerQuarantine,
         selfRegulationReference: currentRoot.selfRegulationReference,
+        selfRegulationRecoveryReason: currentRoot.selfRegulationRecoveryReason,
       );
       previousLppRootJson = loaded[_lppEvidenceRootKey] as String?;
       final nextAnswers = _copyAnswers(loaded);
@@ -2066,6 +2071,7 @@ class CoachProfileProvider extends ChangeNotifier {
               manualPartner: nextManual,
               legacyPartnerQuarantine: root.legacyPartnerQuarantine,
               selfRegulationReference: root.selfRegulationReference,
+              selfRegulationRecoveryReason: root.selfRegulationRecoveryReason,
             );
             final nextAnswers = _copyAnswers(loaded)
               ..[_lppEvidenceRootKey] = nextRoot.toJsonString();
@@ -2369,6 +2375,14 @@ class CoachProfileProvider extends ChangeNotifier {
 
   String? currentLppSnapshotId(LppEvidenceOwnerKind ownerKind) =>
       currentLppSnapshot(ownerKind)?.snapshotId;
+
+  LppRegulationRecoveryReason? get lppRegulationRecoveryReason {
+    if (!_isLoaded || !FeatureFlags.typedLppEvidence) return null;
+    return LppEvidenceRoot.fromJsonString(
+      _lastAnswers[_lppEvidenceRootKey],
+      now: _now,
+    )?.selfRegulationRecoveryReason;
+  }
 
   /// Validates a receipt only against the already-persisted strict root.
   ///
@@ -2917,6 +2931,7 @@ class CoachProfileProvider extends ChangeNotifier {
                 ),
           legacyPartnerQuarantine: root.legacyPartnerQuarantine,
           selfRegulationReference: root.selfRegulationReference,
+          selfRegulationRecoveryReason: root.selfRegulationRecoveryReason,
         );
         next[_lppEvidenceRootKey] = restoredRoot.toJsonString();
         return next;
