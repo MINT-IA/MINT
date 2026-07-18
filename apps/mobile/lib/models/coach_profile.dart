@@ -2782,7 +2782,6 @@ abstract final class FiscalSnapshotSelector {
 enum SpecialistReferenceKind {
   lppRegulation,
   lppCapitalNotice,
-  pillar3aBeneficiaryClause,
   taxAssessmentDecision,
 }
 
@@ -2832,7 +2831,6 @@ final class SpecialistReferenceEvidence {
   final int legalYear;
   final DateTime confirmedAt;
   final DateTime? deadlineDate;
-  final String? contractReferenceId;
   final int? taxYear;
   final String? jurisdiction;
   final TaxSubjectScope? subject;
@@ -2847,7 +2845,6 @@ final class SpecialistReferenceEvidence {
     required this.legalYear,
     required this.confirmedAt,
     this.deadlineDate,
-    this.contractReferenceId,
     this.taxYear,
     this.jurisdiction,
     this.subject,
@@ -2900,9 +2897,6 @@ final class SpecialistReferenceEvidence {
     final extraKeys = switch (expectedKind) {
       SpecialistReferenceKind.lppRegulation => const {'fundRelationship'},
       SpecialistReferenceKind.lppCapitalNotice => const {'deadlineDate'},
-      SpecialistReferenceKind.pillar3aBeneficiaryClause => const {
-          'contractReferenceId'
-        },
       SpecialistReferenceKind.taxAssessmentDecision => const {
           'taxYear',
           'jurisdiction',
@@ -2951,7 +2945,6 @@ final class SpecialistReferenceEvidence {
     }
 
     DateTime? deadlineDate;
-    String? contractReferenceId;
     int? taxYear;
     String? jurisdiction;
     TaxSubjectScope? subject;
@@ -2967,13 +2960,6 @@ final class SpecialistReferenceEvidence {
         if (rawDeadline is! String) return null;
         deadlineDate = _parseCivilDate(rawDeadline);
         if (deadlineDate == null) return null;
-      case SpecialistReferenceKind.pillar3aBeneficiaryClause:
-        final rawContractReferenceId = json['contractReferenceId'];
-        if (rawContractReferenceId is! String ||
-            !_uuidV4Pattern.hasMatch(rawContractReferenceId)) {
-          return null;
-        }
-        contractReferenceId = rawContractReferenceId;
       case SpecialistReferenceKind.taxAssessmentDecision:
         final rawTaxYear = json['taxYear'];
         final rawJurisdiction = json['jurisdiction'];
@@ -3006,7 +2992,6 @@ final class SpecialistReferenceEvidence {
       legalYear: legalYear,
       confirmedAt: confirmedAt,
       deadlineDate: deadlineDate,
-      contractReferenceId: contractReferenceId,
       taxYear: taxYear,
       jurisdiction: jurisdiction,
       subject: subject,
@@ -3087,8 +3072,6 @@ final class SpecialistReferenceEvidence {
         'confirmedAt': confirmedAt.toIso8601String(),
         if (deadlineDate != null)
           'deadlineDate': deadlineDate!.toIso8601String().split('T').first,
-        if (contractReferenceId != null)
-          'contractReferenceId': contractReferenceId,
         if (taxYear != null) 'taxYear': taxYear,
         if (jurisdiction != null) 'jurisdiction': jurisdiction,
         if (subject != null) 'subject': subject!.name,
@@ -3108,7 +3091,6 @@ final class SpecialistReferenceEvidence {
           legalYear == other.legalYear &&
           confirmedAt == other.confirmedAt &&
           deadlineDate == other.deadlineDate &&
-          contractReferenceId == other.contractReferenceId &&
           taxYear == other.taxYear &&
           jurisdiction == other.jurisdiction &&
           subject == other.subject &&
@@ -3124,7 +3106,6 @@ final class SpecialistReferenceEvidence {
         legalYear,
         confirmedAt,
         deadlineDate,
-        contractReferenceId,
         taxYear,
         jurisdiction,
         subject,
@@ -3212,7 +3193,6 @@ class CoachProfile {
   // === REFERENCES SPECIALISTES (metadata only) ===
   final SpecialistReferenceEvidence? lppRegulationReference;
   final SpecialistReferenceEvidence? lppCapitalNoticeDeadline;
-  final SpecialistReferenceEvidence? pillar3aBeneficiaryClause;
   final SpecialistReferenceEvidence? latestTaxDecisionReference;
 
   // === OBJECTIFS ===
@@ -3357,7 +3337,6 @@ class CoachProfile {
     this.fiscal = const FiscalProfile.empty(),
     this.lppRegulationReference,
     this.lppCapitalNoticeDeadline,
-    this.pillar3aBeneficiaryClause,
     this.latestTaxDecisionReference,
     required this.goalA,
     this.goalsB = const [],
@@ -3505,7 +3484,6 @@ class CoachProfile {
           fiscal == other.fiscal &&
           lppRegulationReference == other.lppRegulationReference &&
           lppCapitalNoticeDeadline == other.lppCapitalNoticeDeadline &&
-          pillar3aBeneficiaryClause == other.pillar3aBeneficiaryClause &&
           latestTaxDecisionReference == other.latestTaxDecisionReference &&
           goalA == other.goalA &&
           listEquals(goalsB, other.goalsB) &&
@@ -3564,7 +3542,6 @@ class CoachProfile {
         fiscal,
         lppRegulationReference,
         lppCapitalNoticeDeadline,
-        pillar3aBeneficiaryClause,
         latestTaxDecisionReference,
         goalA,
         goalsB.length,
@@ -4113,7 +4090,6 @@ class CoachProfile {
     FiscalProfile? fiscal,
     Object? lppRegulationReference = _keepSpecialistReferenceValue,
     Object? lppCapitalNoticeDeadline = _keepSpecialistReferenceValue,
-    Object? pillar3aBeneficiaryClause = _keepSpecialistReferenceValue,
     Object? latestTaxDecisionReference = _keepSpecialistReferenceValue,
     GoalA? goalA,
     List<GoalB>? goalsB,
@@ -4239,10 +4215,6 @@ class CoachProfile {
           identical(lppCapitalNoticeDeadline, _keepSpecialistReferenceValue)
               ? this.lppCapitalNoticeDeadline
               : lppCapitalNoticeDeadline as SpecialistReferenceEvidence?,
-      pillar3aBeneficiaryClause:
-          identical(pillar3aBeneficiaryClause, _keepSpecialistReferenceValue)
-              ? this.pillar3aBeneficiaryClause
-              : pillar3aBeneficiaryClause as SpecialistReferenceEvidence?,
       latestTaxDecisionReference:
           identical(latestTaxDecisionReference, _keepSpecialistReferenceValue)
               ? this.latestTaxDecisionReference
@@ -4442,10 +4414,6 @@ class CoachProfile {
         json['lppCapitalNoticeDeadline'],
         expectedKind: SpecialistReferenceKind.lppCapitalNotice,
       ),
-      pillar3aBeneficiaryClause: SpecialistReferenceEvidence.tryFromJson(
-        json['pillar3aBeneficiaryClause'],
-        expectedKind: SpecialistReferenceKind.pillar3aBeneficiaryClause,
-      ),
       latestTaxDecisionReference: SpecialistReferenceEvidence.tryFromJson(
         json['latestTaxDecisionReference'],
         expectedKind: SpecialistReferenceKind.taxAssessmentDecision,
@@ -4589,7 +4557,6 @@ class CoachProfile {
         'avsGapStatus': _avsGapStatusToCanonical(avsGapStatus),
         'lppRegulationReference': lppRegulationReference?.toJson(),
         'lppCapitalNoticeDeadline': lppCapitalNoticeDeadline?.toJson(),
-        'pillar3aBeneficiaryClause': pillar3aBeneficiaryClause?.toJson(),
         'latestTaxDecisionReference': latestTaxDecisionReference?.toJson(),
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),

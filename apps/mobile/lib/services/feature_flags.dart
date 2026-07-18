@@ -103,6 +103,10 @@ class FeatureFlags {
   /// Backend configuration cannot activate this path.
   static bool lppRegulationReferenceEnabled = false;
 
+  /// Local kill switch for the contract-scoped 3a beneficiary reference.
+  /// Backend configuration cannot activate this path.
+  static bool pillar3aBeneficiaryClauseReferenceEnabled = false;
+
   /// Local kill switch for every LPP-document acquisition surface.
   /// Backend configuration cannot activate this path.
   static bool documentLppEvidenceEnabled = false;
