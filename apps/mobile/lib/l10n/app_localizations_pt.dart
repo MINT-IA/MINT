@@ -24419,11 +24419,11 @@ class SPt extends S {
 
   @override
   String get retirementLppRegulationReferenceTitle =>
-      'Regulamento de previdência revisto';
+      'Origem declarada do regulamento de previdência';
 
   @override
   String get retirementLppRegulationReferenceBody =>
-      'A revisão deste regulamento está confirmada. Não confirma a sua aplicação à tua situação, nem direitos ou montantes.';
+      'A origem indicada é uma declaração não verificada. Não confirma a instituição de previdência em causa, a aplicação do regulamento à tua situação, quaisquer direitos ou montantes.';
 
   @override
   String get retirementLppRegulationReferencePrepareQuestionsCta =>
@@ -24431,11 +24431,11 @@ class SPt extends S {
 
   @override
   String get retirementLppRegulationHandoffTitle =>
-      'Perguntas para a tua caixa de pensões';
+      'Questões a esclarecer com a instituição de previdência em causa';
 
   @override
   String get retirementLppRegulationHandoffBoundary =>
-      'A MINT não recomenda nenhuma opção. Confirma as regras aplicáveis com a tua caixa de pensões ou um especialista.';
+      'A MINT não recomenda nenhuma opção. Confirma as regras aplicáveis com a instituição de previdência em causa ou com uma pessoa especialista.';
 
   @override
   String get retirementLppRegulationDocumentKindLabel => 'Tipo de documento';
@@ -24448,10 +24448,12 @@ class SPt extends S {
   String get retirementLppRegulationSourceDateLabel => 'Data do documento';
 
   @override
-  String get retirementLppRegulationLegalYearLabel => 'Ano de referência legal';
+  String get retirementLppRegulationLegalYearLabel =>
+      'Ano de referência declarado';
 
   @override
-  String get retirementLppRegulationConfirmedAtLabel => 'Revisão confirmada em';
+  String get retirementLppRegulationConfirmedAtLabel =>
+      'Declaração guardada em';
 
   @override
   String get retirementLppRegulationQuestionsTitle => 'Perguntas a colocar';
@@ -24461,7 +24463,8 @@ class SPt extends S {
       'Compras na caixa de pensões';
 
   @override
-  String get retirementLppRegulationQuestionConversion => 'Conversão em pensão';
+  String get retirementLppRegulationQuestionConversion =>
+      'Taxas de conversão e formas de prestação';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirement =>
@@ -24479,31 +24482,31 @@ class SPt extends S {
 
   @override
   String get retirementLppRegulationHandoffPrivacy =>
-      'O documento original não é anexado a esta preparação nem transmitido, a partir deste ecrã, à tua caixa de pensões ou a um especialista.';
+      'O documento original não é anexado a esta preparação nem transmitido, a partir deste ecrã, a uma instituição de previdência ou a uma pessoa especialista.';
 
   @override
   String get retirementLppRegulationQuestionBuybackBody =>
-      'Com base no meu processo atual, que capacidade de compra na caixa de pensões pode a caixa confirmar e que condições, restrições e possíveis consequências para as minhas prestações deveriam ser esclarecidas antes de um eventual pagamento?';
+      'Para a minha situação atual, que capacidade de compra pode a instituição de previdência competente confirmar e que condições, restrições e possíveis consequências para as minhas prestações deveriam ser esclarecidas antes de um eventual pagamento?';
 
   @override
   String get retirementLppRegulationQuestionConversionBody =>
-      'Na data de reforma que tenho prevista, que taxas de conversão aplicaria a caixa de pensões às partes obrigatória e extraobrigatória do meu capital e como seriam calculadas uma pensão, uma prestação em capital ou uma combinação de ambas?';
+      'Na data de reforma que tenho prevista, que taxas de conversão aplicaria a instituição de previdência competente às partes obrigatória e extraobrigatória do meu capital e como seriam calculadas uma pensão, uma prestação em capital ou uma combinação de ambas?';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirementBody =>
-      'Que possibilidades de reforma antecipada, parcial ou diferida pode a caixa de pensões confirmar para o meu processo, com que escalões e prazos de comunicação, e que possíveis efeitos teriam sobre uma pensão ou uma prestação em capital?';
+      'Que possibilidades de reforma antecipada, parcial ou diferida pode a instituição de previdência competente confirmar para o meu processo, com que escalões e prazos de comunicação, e que possíveis efeitos teriam sobre uma pensão ou uma prestação em capital?';
 
   @override
   String get retirementLppRegulationQuestionDisabilityBody =>
-      'Em caso de incapacidade duradoura para o trabalho ou invalidez, que prestações e eventual isenção de contribuições examinaria a caixa de pensões, após que períodos de espera e com que coordenação com o seguro de invalidez e os outros seguros?';
+      'Em caso de incapacidade duradoura para o trabalho ou invalidez, que prestações e eventual isenção de contribuições examinaria a instituição de previdência competente, após que períodos de espera e com que coordenação com o seguro de invalidez e os outros seguros?';
 
   @override
   String get retirementLppRegulationQuestionSurvivorsBody =>
-      'Em caso de falecimento, que prestações de sobrevivência ou prestações em capital examinaria a caixa de pensões para a minha pessoa parceira e outros potenciais beneficiários, sob que condições e que declarações ou designações seriam necessárias?';
+      'Em caso de falecimento, que prestações de sobrevivência ou prestações em capital examinaria a instituição de previdência competente para a minha pessoa parceira e outros potenciais beneficiários, sob que condições e que declarações ou designações seriam necessárias?';
 
   @override
   String get retirementLppRegulationQuestionDivorceBody =>
-      'Em caso de divórcio, que informações e documentos pode a caixa de pensões preparar para a partilha da previdência profissional e como poderia uma partilha ordenada pelo tribunal alterar as minhas prestações futuras?';
+      'Em caso de divórcio, que informações e documentos pode a instituição de previdência competente preparar para a partilha da previdência profissional e como poderia uma partilha ordenada pelo tribunal alterar as minhas prestações futuras?';
 
   @override
   String get retirementLppRegulationHandoffClose => 'Fechar';
@@ -24532,7 +24535,7 @@ class SPt extends S {
       'A declaração existe, mas falta a referência local. Volta a confirmá-la a partir da digitalização sem presumir que o regulamento se aplica.';
 
   @override
-  String get retirementLppRegulationRecoveryCta => 'Reconfirmar o regulamento';
+  String get retirementLppRegulationRecoveryCta => 'Reconfirmar a declaração';
 
   @override
   String get retirementLppRegulationApplicabilityQuestion =>
@@ -24543,18 +24546,19 @@ class SPt extends S {
 
   @override
   String get docScanLppPlanDocumentDescription =>
-      'O regulamento da tua caixa é analisado sem extrair montantes nem direitos.';
+      'Adiciona um regulamento de previdência sem extrair montantes nem direitos.';
 
   @override
   String get lppRegulationReviewRecoveryBody =>
-      'Este regulamento não pode ser analisado nesta sessão. Volta à digitalização para recomeçar.';
+      'Esta declaração não pode ser guardada nesta sessão. Volta à digitalização para recomeçar.';
 
   @override
-  String get lppRegulationReviewTitle => 'Analisar o regulamento LPP';
+  String get lppRegulationReviewTitle =>
+      'Declarar a origem deste regulamento LPP';
 
   @override
   String get lppRegulationReviewBody =>
-      'Confirma apenas a data do documento e o respetivo ano de referência legal. Este passo não confirma a aplicabilidade à tua situação nem quaisquer direitos ou montantes.';
+      'Guarda uma declaração datada e não verificada sobre a origem deste regulamento. Não é deduzido qualquer nome de caixa de pensões, montante ou direito.';
 
   @override
   String get lppRegulationReviewSourceDate =>
@@ -24573,11 +24577,11 @@ class SPt extends S {
 
   @override
   String get lppRegulationReviewAcceptError =>
-      'A base LPP mudou ou a análise não pôde ser aceite. Verifica os campos e recomeça na digitalização, se necessário.';
+      'A referência LPP guardada mudou ou não foi possível guardar a declaração. Verifica os campos e recomeça na digitalização, se necessário.';
 
   @override
   String get lppRegulationReviewRecordError =>
-      'A análise foi aceite, mas não foi possível registar a respetiva referência. Tenta novamente sem alterar os campos.';
+      'A declaração foi guardada, mas não foi possível registar a respetiva referência local. Tenta novamente sem alterar os campos.';
 
   @override
   String get lppRegulationReviewConfirm => 'Guardar a declaração';

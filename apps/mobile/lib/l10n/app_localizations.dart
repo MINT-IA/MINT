@@ -42572,13 +42572,13 @@ abstract class S {
   /// No description provided for @retirementLppRegulationReferenceTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Règlement de prévoyance déclaré'**
+  /// **'Origine du règlement déclarée'**
   String get retirementLppRegulationReferenceTitle;
 
   /// No description provided for @retirementLppRegulationReferenceBody.
   ///
   /// In fr, this message translates to:
-  /// **'Cette relation à une caisse est déclarée et non vérifiée. Elle ne confirme ni l’application du règlement à ta situation, ni tes droits, ni aucun montant.'**
+  /// **'L’origine indiquée est une déclaration non vérifiée. Elle ne confirme ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits, ni aucun montant.'**
   String get retirementLppRegulationReferenceBody;
 
   /// No description provided for @retirementLppRegulationReferencePrepareQuestionsCta.
@@ -42590,13 +42590,13 @@ abstract class S {
   /// No description provided for @retirementLppRegulationHandoffTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Questions à vérifier avec ta caisse'**
+  /// **'Questions à vérifier avec l’institution concernée'**
   String get retirementLppRegulationHandoffTitle;
 
   /// No description provided for @retirementLppRegulationHandoffBoundary.
   ///
   /// In fr, this message translates to:
-  /// **'MINT ne recommande aucune option. Confirme les règles applicables avec ta caisse de pension ou un spécialiste.'**
+  /// **'MINT ne recommande aucune option. Confirme les règles applicables avec l’institution de prévoyance concernée ou un·e spécialiste.'**
   String get retirementLppRegulationHandoffBoundary;
 
   /// No description provided for @retirementLppRegulationDocumentKindLabel.
@@ -42620,13 +42620,13 @@ abstract class S {
   /// No description provided for @retirementLppRegulationLegalYearLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Année de référence légale'**
+  /// **'Année de référence déclarée'**
   String get retirementLppRegulationLegalYearLabel;
 
   /// No description provided for @retirementLppRegulationConfirmedAtLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Revue confirmée le'**
+  /// **'Déclaration enregistrée le'**
   String get retirementLppRegulationConfirmedAtLabel;
 
   /// No description provided for @retirementLppRegulationQuestionsTitle.
@@ -42644,7 +42644,7 @@ abstract class S {
   /// No description provided for @retirementLppRegulationQuestionConversion.
   ///
   /// In fr, this message translates to:
-  /// **'Conversion de la rente'**
+  /// **'Taux de conversion et formes de prestation'**
   String get retirementLppRegulationQuestionConversion;
 
   /// No description provided for @retirementLppRegulationQuestionFlexibleRetirement.
@@ -42674,43 +42674,43 @@ abstract class S {
   /// No description provided for @retirementLppRegulationHandoffPrivacy.
   ///
   /// In fr, this message translates to:
-  /// **'Le document original n’est ni joint à cette préparation ni transmis à ta caisse ou à un·e spécialiste depuis cet écran.'**
+  /// **'Le document original n’est ni joint à cette préparation ni transmis depuis cet écran à une institution de prévoyance ou à un·e spécialiste.'**
   String get retirementLppRegulationHandoffPrivacy;
 
   /// No description provided for @retirementLppRegulationQuestionBuybackBody.
   ///
   /// In fr, this message translates to:
-  /// **'Sur la base de mon dossier actuel, quelle capacité de rachat la caisse peut-elle confirmer, et quelles conditions, restrictions et conséquences possibles sur mes prestations seraient à clarifier avant un éventuel versement ?'**
+  /// **'Pour ma situation actuelle, quelle capacité de rachat l’institution compétente peut-elle confirmer, et quelles conditions, restrictions et conséquences possibles sur mes prestations seraient à clarifier avant un éventuel versement ?'**
   String get retirementLppRegulationQuestionBuybackBody;
 
   /// No description provided for @retirementLppRegulationQuestionConversionBody.
   ///
   /// In fr, this message translates to:
-  /// **'À ma date de retraite envisagée, quels taux de conversion la caisse appliquerait-elle aux parts obligatoire et surobligatoire de mon avoir, et comment seraient calculées une rente, une prestation en capital ou une combinaison des deux ?'**
+  /// **'À ma date de retraite envisagée, quels taux de conversion l’institution compétente appliquerait-elle aux parts obligatoire et surobligatoire de mon avoir, et comment seraient calculées une rente, une prestation en capital ou une combinaison des deux ?'**
   String get retirementLppRegulationQuestionConversionBody;
 
   /// No description provided for @retirementLppRegulationQuestionFlexibleRetirementBody.
   ///
   /// In fr, this message translates to:
-  /// **'Quelles possibilités de retraite anticipée, partielle ou différée la caisse peut-elle confirmer pour mon dossier, avec quels paliers et délais d’annonce, et quels effets possibles sur une rente ou une prestation en capital ?'**
+  /// **'Quelles possibilités de retraite anticipée, partielle ou différée l’institution compétente peut-elle confirmer pour mon dossier, avec quels paliers et délais d’annonce, et quels effets possibles sur une rente ou une prestation en capital ?'**
   String get retirementLppRegulationQuestionFlexibleRetirementBody;
 
   /// No description provided for @retirementLppRegulationQuestionDisabilityBody.
   ///
   /// In fr, this message translates to:
-  /// **'En cas d’incapacité de travail durable ou d’invalidité, quelles prestations et quelle éventuelle exonération de cotisations la caisse examinerait-elle, après quels délais et avec quelle coordination avec l’AI et les autres assurances ?'**
+  /// **'En cas d’incapacité de travail durable ou d’invalidité, quelles prestations et quelle éventuelle exonération de cotisations l’institution compétente examinerait-elle, après quels délais et avec quelle coordination avec l’AI et les autres assurances ?'**
   String get retirementLppRegulationQuestionDisabilityBody;
 
   /// No description provided for @retirementLppRegulationQuestionSurvivorsBody.
   ///
   /// In fr, this message translates to:
-  /// **'En cas de décès, quelles prestations de survivants ou prestations en capital la caisse examinerait-elle pour mon ou ma partenaire et d’autres bénéficiaires potentiels, selon quelles conditions, et quelles déclarations ou désignations seraient nécessaires ?'**
+  /// **'En cas de décès, quelles prestations de survivants ou prestations en capital l’institution compétente examinerait-elle pour mon ou ma partenaire et d’autres bénéficiaires potentiels, selon quelles conditions, et quelles déclarations ou désignations seraient nécessaires ?'**
   String get retirementLppRegulationQuestionSurvivorsBody;
 
   /// No description provided for @retirementLppRegulationQuestionDivorceBody.
   ///
   /// In fr, this message translates to:
-  /// **'En cas de divorce, quels renseignements et documents la caisse peut-elle établir pour le partage de la prévoyance professionnelle, et comment un partage ordonné par le tribunal pourrait-il modifier mes prestations futures ?'**
+  /// **'En cas de divorce, quels renseignements et documents l’institution compétente peut-elle établir pour le partage de la prévoyance professionnelle, et comment un partage ordonné par le tribunal pourrait-il modifier mes prestations futures ?'**
   String get retirementLppRegulationQuestionDivorceBody;
 
   /// No description provided for @retirementLppRegulationHandoffClose.
@@ -42758,7 +42758,7 @@ abstract class S {
   /// No description provided for @retirementLppRegulationRecoveryCta.
   ///
   /// In fr, this message translates to:
-  /// **'Reconfirmer le règlement'**
+  /// **'Reconfirmer la déclaration'**
   String get retirementLppRegulationRecoveryCta;
 
   /// No description provided for @retirementLppRegulationApplicabilityQuestion.
@@ -42776,19 +42776,19 @@ abstract class S {
   /// No description provided for @docScanLppPlanDocumentDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Règlement de ta caisse, examiné sans extraire de montant ni de droit.'**
+  /// **'Ajouter un règlement de prévoyance, sans en extraire de montant ni de droit.'**
   String get docScanLppPlanDocumentDescription;
 
   /// No description provided for @lppRegulationReviewRecoveryBody.
   ///
   /// In fr, this message translates to:
-  /// **'Ce règlement ne peut pas être vérifié dans cette session. Reviens au scan pour recommencer.'**
+  /// **'Cette déclaration ne peut pas être enregistrée dans cette session. Reviens au scan pour recommencer.'**
   String get lppRegulationReviewRecoveryBody;
 
   /// No description provided for @lppRegulationReviewTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Situer ce règlement LPP'**
+  /// **'Déclarer l’origine de ce règlement LPP'**
   String get lppRegulationReviewTitle;
 
   /// No description provided for @lppRegulationReviewBody.
@@ -42824,13 +42824,13 @@ abstract class S {
   /// No description provided for @lppRegulationReviewAcceptError.
   ///
   /// In fr, this message translates to:
-  /// **'La base LPP a changé ou la vérification n’a pas abouti. Vérifie les champs, puis recommence depuis le scan si nécessaire.'**
+  /// **'La référence LPP enregistrée a changé ou la déclaration n’a pas pu être enregistrée. Vérifie les champs, puis recommence depuis le scan si nécessaire.'**
   String get lppRegulationReviewAcceptError;
 
   /// No description provided for @lppRegulationReviewRecordError.
   ///
   /// In fr, this message translates to:
-  /// **'La vérification est acceptée, mais sa référence n’a pas pu être enregistrée. Réessaie sans modifier les champs.'**
+  /// **'La déclaration a été enregistrée, mais sa référence locale n’a pas pu l’être. Réessaie sans modifier les champs.'**
   String get lppRegulationReviewRecordError;
 
   /// No description provided for @lppRegulationReviewConfirm.

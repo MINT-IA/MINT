@@ -24472,11 +24472,11 @@ class SDe extends S {
 
   @override
   String get retirementLppRegulationReferenceTitle =>
-      'Vorsorgereglement geprüft';
+      'Deklarierte Herkunft des Vorsorgereglements';
 
   @override
   String get retirementLppRegulationReferenceBody =>
-      'Die Prüfung dieses Reglements ist bestätigt. Sie bestätigt weder seine Anwendbarkeit auf deine Situation noch Ansprüche oder Beträge.';
+      'Die angegebene Herkunft ist eine nicht verifizierte Angabe. Sie bestätigt weder die zuständige Vorsorgeeinrichtung noch die Anwendbarkeit des Reglements auf deine Situation, Ansprüche oder Beträge.';
 
   @override
   String get retirementLppRegulationReferencePrepareQuestionsCta =>
@@ -24484,11 +24484,11 @@ class SDe extends S {
 
   @override
   String get retirementLppRegulationHandoffTitle =>
-      'Fragen für deine Pensionskasse';
+      'Fragen für die zuständige Vorsorgeeinrichtung';
 
   @override
   String get retirementLppRegulationHandoffBoundary =>
-      'MINT empfiehlt keine Option. Kläre die anwendbaren Regeln mit deiner Pensionskasse oder einer Fachperson.';
+      'MINT empfiehlt keine Option. Kläre die anwendbaren Regeln mit der zuständigen Vorsorgeeinrichtung oder einer Fachperson.';
 
   @override
   String get retirementLppRegulationDocumentKindLabel => 'Dokumentart';
@@ -24501,10 +24501,10 @@ class SDe extends S {
 
   @override
   String get retirementLppRegulationLegalYearLabel =>
-      'Rechtlicher Referenzstand';
+      'Angegebenes Referenzjahr';
 
   @override
-  String get retirementLppRegulationConfirmedAtLabel => 'Prüfung bestätigt am';
+  String get retirementLppRegulationConfirmedAtLabel => 'Angabe gespeichert am';
 
   @override
   String get retirementLppRegulationQuestionsTitle => 'Fragen zur Klärung';
@@ -24513,7 +24513,8 @@ class SDe extends S {
   String get retirementLppRegulationQuestionBuyback => 'Einkäufe';
 
   @override
-  String get retirementLppRegulationQuestionConversion => 'Rentenumwandlung';
+  String get retirementLppRegulationQuestionConversion =>
+      'Umwandlungssätze und Leistungsformen';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirement =>
@@ -24531,31 +24532,31 @@ class SDe extends S {
 
   @override
   String get retirementLppRegulationHandoffPrivacy =>
-      'Das Originaldokument wird von diesem Bildschirm aus weder dieser Vorbereitung beigefügt noch an deine Pensionskasse oder eine Fachperson übermittelt.';
+      'Das Originaldokument wird dieser Vorbereitung weder beigefügt noch von diesem Bildschirm aus an eine Vorsorgeeinrichtung oder eine Fachperson übermittelt.';
 
   @override
   String get retirementLppRegulationQuestionBuybackBody =>
-      'Welche Einkaufskapazität kann die Pensionskasse auf Grundlage meines aktuellen Dossiers bestätigen, und welche Bedingungen, Einschränkungen und möglichen Folgen für meine Leistungen wären vor einer allfälligen Einzahlung zu klären?';
+      'Welche Einkaufsmöglichkeit kann die zuständige Vorsorgeeinrichtung für meine aktuelle Situation bestätigen, und welche Bedingungen, Einschränkungen und möglichen Folgen für meine Leistungen wären vor einer allfälligen Einzahlung zu klären?';
 
   @override
   String get retirementLppRegulationQuestionConversionBody =>
-      'Welche Umwandlungssätze würde die Pensionskasse an meinem vorgesehenen Pensionierungsdatum auf den obligatorischen und überobligatorischen Anteil meines Guthabens anwenden, und wie würden eine Rente, eine Kapitalleistung oder eine Kombination daraus berechnet?';
+      'Welche Umwandlungssätze würde die zuständige Vorsorgeeinrichtung an meinem vorgesehenen Pensionierungsdatum auf den obligatorischen und überobligatorischen Anteil meines Guthabens anwenden, und wie würden eine Rente, eine Kapitalleistung oder eine Kombination daraus berechnet?';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirementBody =>
-      'Welche Möglichkeiten für eine vorzeitige, teilweise oder aufgeschobene Pensionierung kann die Pensionskasse für mein Dossier bestätigen, mit welchen Stufen und Meldefristen, und welche möglichen Auswirkungen hätte dies auf eine Rente oder Kapitalleistung?';
+      'Welche Möglichkeiten für eine vorzeitige, teilweise oder aufgeschobene Pensionierung kann die zuständige Vorsorgeeinrichtung für mein Dossier bestätigen, mit welchen Stufen und Meldefristen, und welche möglichen Auswirkungen hätte dies auf eine Rente oder Kapitalleistung?';
 
   @override
   String get retirementLppRegulationQuestionDisabilityBody =>
-      'Welche Leistungen und welche allfällige Beitragsbefreiung würde die Pensionskasse bei einer dauerhaften Arbeitsunfähigkeit oder Invalidität prüfen, nach welchen Wartefristen und mit welcher Koordination mit der IV und anderen Versicherungen?';
+      'Welche Leistungen und welche allfällige Beitragsbefreiung würde die zuständige Vorsorgeeinrichtung bei einer dauerhaften Arbeitsunfähigkeit oder Invalidität prüfen, nach welchen Wartefristen und mit welcher Koordination mit der IV und anderen Versicherungen?';
 
   @override
   String get retirementLppRegulationQuestionSurvivorsBody =>
-      'Welche Hinterlassenen- oder Kapitalleistungen würde die Pensionskasse im Todesfall für meine Partnerin oder meinen Partner und weitere mögliche Begünstigte prüfen, unter welchen Bedingungen, und welche Meldungen oder Begünstigtenbezeichnungen wären erforderlich?';
+      'Welche Hinterlassenen- oder Kapitalleistungen würde die zuständige Vorsorgeeinrichtung im Todesfall für meine Partnerin oder meinen Partner und weitere mögliche Begünstigte prüfen, unter welchen Bedingungen, und welche Meldungen oder Begünstigtenbezeichnungen wären erforderlich?';
 
   @override
   String get retirementLppRegulationQuestionDivorceBody =>
-      'Welche Auskünfte und Unterlagen kann die Pensionskasse im Scheidungsfall für die Teilung der beruflichen Vorsorge erstellen, und wie könnte eine gerichtlich angeordnete Teilung meine künftigen Leistungen verändern?';
+      'Welche Auskünfte und Unterlagen kann die zuständige Vorsorgeeinrichtung im Scheidungsfall für die Teilung der beruflichen Vorsorge erstellen, und wie könnte eine gerichtlich angeordnete Teilung meine künftigen Leistungen verändern?';
 
   @override
   String get retirementLppRegulationHandoffClose => 'Schliessen';
@@ -24585,8 +24586,7 @@ class SDe extends S {
       'Die Angabe besteht, aber ihre lokale Referenz fehlt. Bestätige sie über den Scan erneut, ohne die Anwendbarkeit des Reglements anzunehmen.';
 
   @override
-  String get retirementLppRegulationRecoveryCta =>
-      'Reglement erneut bestätigen';
+  String get retirementLppRegulationRecoveryCta => 'Angabe erneut bestätigen';
 
   @override
   String get retirementLppRegulationApplicabilityQuestion =>
@@ -24597,18 +24597,19 @@ class SDe extends S {
 
   @override
   String get docScanLppPlanDocumentDescription =>
-      'Das Reglement deiner Pensionskasse wird geprüft, ohne Beträge oder Ansprüche zu extrahieren.';
+      'Füge ein Vorsorgereglement hinzu, ohne Beträge oder Ansprüche daraus zu übernehmen.';
 
   @override
   String get lppRegulationReviewRecoveryBody =>
-      'Dieses Vorsorgereglement kann in dieser Sitzung nicht geprüft werden. Kehre zum Scan zurück und beginne erneut.';
+      'Diese Angabe kann in dieser Sitzung nicht gespeichert werden. Kehre zum Scan zurück und beginne erneut.';
 
   @override
-  String get lppRegulationReviewTitle => 'BVG-Vorsorgereglement prüfen';
+  String get lppRegulationReviewTitle =>
+      'Herkunft dieses BVG-Reglements angeben';
 
   @override
   String get lppRegulationReviewBody =>
-      'Bestätige nur das Dokumentdatum und das rechtliche Referenzjahr. Dieser Schritt bestätigt weder die Anwendbarkeit auf deine Situation noch Ansprüche oder Beträge.';
+      'Speichere eine datierte, nicht verifizierte Angabe zur Herkunft dieses Reglements. Weder der Name einer Pensionskasse noch Beträge oder Ansprüche werden daraus abgeleitet.';
 
   @override
   String get lppRegulationReviewSourceDate =>
@@ -24627,11 +24628,11 @@ class SDe extends S {
 
   @override
   String get lppRegulationReviewAcceptError =>
-      'Die BVG-Grundlage hat sich geändert oder die Prüfung konnte nicht akzeptiert werden. Prüfe die Felder und starte bei Bedarf erneut beim Scan.';
+      'Die gespeicherte BVG-Referenz hat sich geändert oder die Angabe konnte nicht gespeichert werden. Prüfe die Felder und beginne bei Bedarf erneut beim Scan.';
 
   @override
   String get lppRegulationReviewRecordError =>
-      'Die Prüfung wurde akzeptiert, ihre Referenz konnte jedoch nicht gespeichert werden. Versuche es erneut, ohne die Felder zu ändern.';
+      'Die Angabe wurde gespeichert, ihre lokale Referenz konnte jedoch nicht erfasst werden. Versuche es erneut, ohne die Felder zu ändern.';
 
   @override
   String get lppRegulationReviewConfirm => 'Angabe speichern';

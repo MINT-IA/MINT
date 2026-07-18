@@ -672,6 +672,7 @@ void main() {
 
     final sheet = find.bySemanticsIdentifier(_sheetId);
     expect(sheet, findsOneWidget);
+    final l10n = S.of(tester.element(sheet))!;
     expect(
       find.descendant(of: sheet, matching: find.byType(SafeArea)),
       findsWidgets,
@@ -689,10 +690,7 @@ void main() {
     expect(
       find.descendant(
         of: sheet,
-        matching: find.text(
-          'Le document original n’est ni joint à cette préparation ni '
-          'transmis à ta caisse ou à un·e spécialiste depuis cet écran.',
-        ),
+        matching: find.text(l10n.retirementLppRegulationHandoffPrivacy),
       ),
       findsOneWidget,
     );
@@ -754,12 +752,12 @@ void main() {
       );
     }
     for (final localizedTopic in <String>[
-      'Rachats',
-      'Conversion de la rente',
-      'Retraite flexible',
-      'Invalidité',
-      'Prestations aux survivants',
-      'Divorce',
+      l10n.retirementLppRegulationQuestionBuyback,
+      l10n.retirementLppRegulationQuestionConversion,
+      l10n.retirementLppRegulationQuestionFlexibleRetirement,
+      l10n.retirementLppRegulationQuestionDisability,
+      l10n.retirementLppRegulationQuestionSurvivors,
+      l10n.retirementLppRegulationQuestionDivorce,
     ]) {
       expect(
         find.descendant(of: sheet, matching: find.text(localizedTopic)),
@@ -767,30 +765,12 @@ void main() {
       );
     }
     for (final question in <String>[
-      'Sur la base de mon dossier actuel, quelle capacité de rachat la caisse '
-          'peut-elle confirmer, et quelles conditions, restrictions et '
-          'conséquences possibles sur mes prestations seraient à clarifier '
-          'avant un éventuel versement ?',
-      'À ma date de retraite envisagée, quels taux de conversion la caisse '
-          'appliquerait-elle aux parts obligatoire et surobligatoire de mon '
-          'avoir, et comment seraient calculées une rente, une prestation en '
-          'capital ou une combinaison des deux ?',
-      'Quelles possibilités de retraite anticipée, partielle ou différée la '
-          'caisse peut-elle confirmer pour mon dossier, avec quels paliers et '
-          'délais d’annonce, et quels effets possibles sur une rente ou une '
-          'prestation en capital ?',
-      'En cas d’incapacité de travail durable ou d’invalidité, quelles '
-          'prestations et quelle éventuelle exonération de cotisations la '
-          'caisse examinerait-elle, après quels délais et avec quelle '
-          'coordination avec l’AI et les autres assurances ?',
-      'En cas de décès, quelles prestations de survivants ou prestations en '
-          'capital la caisse examinerait-elle pour mon ou ma partenaire et '
-          'd’autres bénéficiaires potentiels, selon quelles conditions, et '
-          'quelles déclarations ou désignations seraient nécessaires ?',
-      'En cas de divorce, quels renseignements et documents la caisse '
-          'peut-elle établir pour le partage de la prévoyance professionnelle, '
-          'et comment un partage ordonné par le tribunal pourrait-il modifier '
-          'mes prestations futures ?',
+      l10n.retirementLppRegulationQuestionBuybackBody,
+      l10n.retirementLppRegulationQuestionConversionBody,
+      l10n.retirementLppRegulationQuestionFlexibleRetirementBody,
+      l10n.retirementLppRegulationQuestionDisabilityBody,
+      l10n.retirementLppRegulationQuestionSurvivorsBody,
+      l10n.retirementLppRegulationQuestionDivorceBody,
     ]) {
       expect(
         find.descendant(of: sheet, matching: find.text(question)),

@@ -24287,11 +24287,11 @@ class SEn extends S {
 
   @override
   String get retirementLppRegulationReferenceTitle =>
-      'Pension fund rules reviewed';
+      'Declared origin of the pension fund rules';
 
   @override
   String get retirementLppRegulationReferenceBody =>
-      'The review of these rules is confirmed. It does not confirm that they apply to your situation, or establish any entitlements or amounts.';
+      'The stated origin is an unverified declaration. It does not confirm the relevant pension fund, that the rules apply to your situation, any entitlements, or any amounts.';
 
   @override
   String get retirementLppRegulationReferencePrepareQuestionsCta =>
@@ -24299,11 +24299,11 @@ class SEn extends S {
 
   @override
   String get retirementLppRegulationHandoffTitle =>
-      'Questions to check with your pension fund';
+      'Questions to check with the relevant pension fund';
 
   @override
   String get retirementLppRegulationHandoffBoundary =>
-      'MINT does not recommend any option. Confirm the applicable rules with your pension fund or a specialist.';
+      'MINT does not recommend any option. Confirm the applicable rules with the relevant pension fund or a specialist.';
 
   @override
   String get retirementLppRegulationDocumentKindLabel => 'Document type';
@@ -24315,10 +24315,10 @@ class SEn extends S {
   String get retirementLppRegulationSourceDateLabel => 'Document date';
 
   @override
-  String get retirementLppRegulationLegalYearLabel => 'Legal reference year';
+  String get retirementLppRegulationLegalYearLabel => 'Declared reference year';
 
   @override
-  String get retirementLppRegulationConfirmedAtLabel => 'Review confirmed on';
+  String get retirementLppRegulationConfirmedAtLabel => 'Declaration saved on';
 
   @override
   String get retirementLppRegulationQuestionsTitle => 'Questions to ask';
@@ -24327,7 +24327,8 @@ class SEn extends S {
   String get retirementLppRegulationQuestionBuyback => 'Pension buy-ins';
 
   @override
-  String get retirementLppRegulationQuestionConversion => 'Pension conversion';
+  String get retirementLppRegulationQuestionConversion =>
+      'Conversion rates and benefit forms';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirement =>
@@ -24344,31 +24345,31 @@ class SEn extends S {
 
   @override
   String get retirementLppRegulationHandoffPrivacy =>
-      'The original document is neither attached to this preparation nor sent to your pension fund or a specialist from this screen.';
+      'The original document is neither attached to this preparation nor sent from this screen to any pension fund or specialist.';
 
   @override
   String get retirementLppRegulationQuestionBuybackBody =>
-      'Based on my current file, what buy-in capacity can the pension fund confirm, and which conditions, restrictions, and possible consequences for my benefits should be clarified before any payment?';
+      'For my current situation, what buy-in capacity can the responsible pension fund confirm, and which conditions, restrictions, and possible consequences for my benefits would need clarification before any potential payment?';
 
   @override
   String get retirementLppRegulationQuestionConversionBody =>
-      'At my intended retirement date, which conversion rates would the pension fund apply to the mandatory and extra-mandatory portions of my assets, and how would a pension, a lump-sum benefit, or a combination of both be calculated?';
+      'At my intended retirement date, which conversion rates would the responsible pension fund apply to the mandatory and extra-mandatory portions of my assets, and how would a pension, a lump-sum benefit, or a combination of both be calculated?';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirementBody =>
-      'Which early, partial, or deferred retirement options can the pension fund confirm for my file, with which increments and notification deadlines, and what possible effects would there be on a pension or lump-sum benefit?';
+      'Which early, partial, or deferred retirement options can the responsible pension fund confirm for my file, with which increments and notification deadlines, and what possible effects would there be on a pension or lump-sum benefit?';
 
   @override
   String get retirementLppRegulationQuestionDisabilityBody =>
-      'In the event of long-term incapacity for work or disability, which benefits and any waiver of contributions would the pension fund examine, after which waiting periods and with what coordination with disability insurance and other insurers?';
+      'In the event of long-term incapacity for work or disability, which benefits and any waiver of contributions would the responsible pension fund examine, after which waiting periods and with what coordination with disability insurance and other insurers?';
 
   @override
   String get retirementLppRegulationQuestionSurvivorsBody =>
-      'In the event of death, which survivor benefits or lump-sum benefits would the pension fund examine for my partner and other potential beneficiaries, under which conditions, and which declarations or beneficiary designations would be required?';
+      'In the event of death, which survivor benefits or lump-sum benefits would the responsible pension fund examine for my partner and other potential beneficiaries, under which conditions, and which declarations or beneficiary designations would be required?';
 
   @override
   String get retirementLppRegulationQuestionDivorceBody =>
-      'In the event of divorce, which information and documents can the pension fund provide for the division of occupational pension assets, and how could a division ordered by the court change my future benefits?';
+      'In the event of divorce, which information and documents can the responsible pension fund provide for the division of occupational pension assets, and how could a division ordered by the court change my future benefits?';
 
   @override
   String get retirementLppRegulationHandoffClose => 'Close';
@@ -24397,7 +24398,7 @@ class SEn extends S {
       'The declaration exists, but its local reference is missing. Reconfirm it from the scan without assuming the rules apply.';
 
   @override
-  String get retirementLppRegulationRecoveryCta => 'Reconfirm the rules';
+  String get retirementLppRegulationRecoveryCta => 'Reconfirm the declaration';
 
   @override
   String get retirementLppRegulationApplicabilityQuestion =>
@@ -24408,18 +24409,19 @@ class SEn extends S {
 
   @override
   String get docScanLppPlanDocumentDescription =>
-      'Your pension fund rules, reviewed without extracting amounts or entitlements.';
+      'Add pension fund rules without extracting any amounts or entitlements.';
 
   @override
   String get lppRegulationReviewRecoveryBody =>
-      'These pension fund rules cannot be reviewed in this session. Return to the scan to start again.';
+      'This declaration cannot be saved in this session. Return to the scan to start again.';
 
   @override
-  String get lppRegulationReviewTitle => 'Review the LPP pension fund rules';
+  String get lppRegulationReviewTitle =>
+      'Declare the origin of these LPP pension fund rules';
 
   @override
   String get lppRegulationReviewBody =>
-      'Confirm only the document date and its legal reference year. This step confirms neither that the rules apply to your situation nor any entitlements or amounts.';
+      'Save a dated, unverified declaration about the origin of these rules. No pension fund name, amount, or entitlement is inferred.';
 
   @override
   String get lppRegulationReviewSourceDate =>
@@ -24438,11 +24440,11 @@ class SEn extends S {
 
   @override
   String get lppRegulationReviewAcceptError =>
-      'The LPP baseline changed or the review could not be accepted. Check the fields and restart from the scan if needed.';
+      'The saved LPP reference changed or the declaration could not be saved. Check the fields and restart from the scan if needed.';
 
   @override
   String get lppRegulationReviewRecordError =>
-      'The review was accepted, but its reference could not be recorded. Retry without changing the fields.';
+      'The declaration was saved, but its local reference could not be recorded. Try again without changing the fields.';
 
   @override
   String get lppRegulationReviewConfirm => 'Save the declaration';

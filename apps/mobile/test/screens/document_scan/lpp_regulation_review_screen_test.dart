@@ -528,6 +528,11 @@ void main() {
       find.byKey(const Key('lpp_regulation_review_screen')),
       findsOneWidget,
     );
+    final screenL10n = S.of(
+      tester.element(
+        find.byKey(const Key('lpp_regulation_review_screen')),
+      ),
+    )!;
     expect(find.byType(TextFormField), findsNWidgets(2));
     for (final identifier in const <String>[
       'lpp_regulation_review_source_date',
@@ -539,7 +544,7 @@ void main() {
     ]) {
       expect(find.bySemanticsIdentifier(identifier), findsOneWidget);
     }
-    expect(find.text('Situer ce règlement LPP'), findsOneWidget);
+    expect(find.text(screenL10n.lppRegulationReviewTitle), findsOneWidget);
     expect(
       find.text('D’après toi, de quelle caisse vient ce règlement ?'),
       findsOneWidget,

@@ -24400,11 +24400,11 @@ class SFr extends S {
 
   @override
   String get retirementLppRegulationReferenceTitle =>
-      'Règlement de prévoyance déclaré';
+      'Origine du règlement déclarée';
 
   @override
   String get retirementLppRegulationReferenceBody =>
-      'Cette relation à une caisse est déclarée et non vérifiée. Elle ne confirme ni l’application du règlement à ta situation, ni tes droits, ni aucun montant.';
+      'L’origine indiquée est une déclaration non vérifiée. Elle ne confirme ni l’institution concernée, ni l’application du règlement à ta situation, ni tes droits, ni aucun montant.';
 
   @override
   String get retirementLppRegulationReferencePrepareQuestionsCta =>
@@ -24412,11 +24412,11 @@ class SFr extends S {
 
   @override
   String get retirementLppRegulationHandoffTitle =>
-      'Questions à vérifier avec ta caisse';
+      'Questions à vérifier avec l’institution concernée';
 
   @override
   String get retirementLppRegulationHandoffBoundary =>
-      'MINT ne recommande aucune option. Confirme les règles applicables avec ta caisse de pension ou un spécialiste.';
+      'MINT ne recommande aucune option. Confirme les règles applicables avec l’institution de prévoyance concernée ou un·e spécialiste.';
 
   @override
   String get retirementLppRegulationDocumentKindLabel => 'Type de document';
@@ -24430,10 +24430,11 @@ class SFr extends S {
 
   @override
   String get retirementLppRegulationLegalYearLabel =>
-      'Année de référence légale';
+      'Année de référence déclarée';
 
   @override
-  String get retirementLppRegulationConfirmedAtLabel => 'Revue confirmée le';
+  String get retirementLppRegulationConfirmedAtLabel =>
+      'Déclaration enregistrée le';
 
   @override
   String get retirementLppRegulationQuestionsTitle => 'Questions à poser';
@@ -24443,7 +24444,7 @@ class SFr extends S {
 
   @override
   String get retirementLppRegulationQuestionConversion =>
-      'Conversion de la rente';
+      'Taux de conversion et formes de prestation';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirement =>
@@ -24461,31 +24462,31 @@ class SFr extends S {
 
   @override
   String get retirementLppRegulationHandoffPrivacy =>
-      'Le document original n’est ni joint à cette préparation ni transmis à ta caisse ou à un·e spécialiste depuis cet écran.';
+      'Le document original n’est ni joint à cette préparation ni transmis depuis cet écran à une institution de prévoyance ou à un·e spécialiste.';
 
   @override
   String get retirementLppRegulationQuestionBuybackBody =>
-      'Sur la base de mon dossier actuel, quelle capacité de rachat la caisse peut-elle confirmer, et quelles conditions, restrictions et conséquences possibles sur mes prestations seraient à clarifier avant un éventuel versement ?';
+      'Pour ma situation actuelle, quelle capacité de rachat l’institution compétente peut-elle confirmer, et quelles conditions, restrictions et conséquences possibles sur mes prestations seraient à clarifier avant un éventuel versement ?';
 
   @override
   String get retirementLppRegulationQuestionConversionBody =>
-      'À ma date de retraite envisagée, quels taux de conversion la caisse appliquerait-elle aux parts obligatoire et surobligatoire de mon avoir, et comment seraient calculées une rente, une prestation en capital ou une combinaison des deux ?';
+      'À ma date de retraite envisagée, quels taux de conversion l’institution compétente appliquerait-elle aux parts obligatoire et surobligatoire de mon avoir, et comment seraient calculées une rente, une prestation en capital ou une combinaison des deux ?';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirementBody =>
-      'Quelles possibilités de retraite anticipée, partielle ou différée la caisse peut-elle confirmer pour mon dossier, avec quels paliers et délais d’annonce, et quels effets possibles sur une rente ou une prestation en capital ?';
+      'Quelles possibilités de retraite anticipée, partielle ou différée l’institution compétente peut-elle confirmer pour mon dossier, avec quels paliers et délais d’annonce, et quels effets possibles sur une rente ou une prestation en capital ?';
 
   @override
   String get retirementLppRegulationQuestionDisabilityBody =>
-      'En cas d’incapacité de travail durable ou d’invalidité, quelles prestations et quelle éventuelle exonération de cotisations la caisse examinerait-elle, après quels délais et avec quelle coordination avec l’AI et les autres assurances ?';
+      'En cas d’incapacité de travail durable ou d’invalidité, quelles prestations et quelle éventuelle exonération de cotisations l’institution compétente examinerait-elle, après quels délais et avec quelle coordination avec l’AI et les autres assurances ?';
 
   @override
   String get retirementLppRegulationQuestionSurvivorsBody =>
-      'En cas de décès, quelles prestations de survivants ou prestations en capital la caisse examinerait-elle pour mon ou ma partenaire et d’autres bénéficiaires potentiels, selon quelles conditions, et quelles déclarations ou désignations seraient nécessaires ?';
+      'En cas de décès, quelles prestations de survivants ou prestations en capital l’institution compétente examinerait-elle pour mon ou ma partenaire et d’autres bénéficiaires potentiels, selon quelles conditions, et quelles déclarations ou désignations seraient nécessaires ?';
 
   @override
   String get retirementLppRegulationQuestionDivorceBody =>
-      'En cas de divorce, quels renseignements et documents la caisse peut-elle établir pour le partage de la prévoyance professionnelle, et comment un partage ordonné par le tribunal pourrait-il modifier mes prestations futures ?';
+      'En cas de divorce, quels renseignements et documents l’institution compétente peut-elle établir pour le partage de la prévoyance professionnelle, et comment un partage ordonné par le tribunal pourrait-il modifier mes prestations futures ?';
 
   @override
   String get retirementLppRegulationHandoffClose => 'Fermer';
@@ -24514,7 +24515,7 @@ class SFr extends S {
       'La déclaration existe, mais sa référence locale manque. Reconfirme-la depuis le scan sans supposer que le règlement s’applique.';
 
   @override
-  String get retirementLppRegulationRecoveryCta => 'Reconfirmer le règlement';
+  String get retirementLppRegulationRecoveryCta => 'Reconfirmer la déclaration';
 
   @override
   String get retirementLppRegulationApplicabilityQuestion =>
@@ -24525,14 +24526,15 @@ class SFr extends S {
 
   @override
   String get docScanLppPlanDocumentDescription =>
-      'Règlement de ta caisse, examiné sans extraire de montant ni de droit.';
+      'Ajouter un règlement de prévoyance, sans en extraire de montant ni de droit.';
 
   @override
   String get lppRegulationReviewRecoveryBody =>
-      'Ce règlement ne peut pas être vérifié dans cette session. Reviens au scan pour recommencer.';
+      'Cette déclaration ne peut pas être enregistrée dans cette session. Reviens au scan pour recommencer.';
 
   @override
-  String get lppRegulationReviewTitle => 'Situer ce règlement LPP';
+  String get lppRegulationReviewTitle =>
+      'Déclarer l’origine de ce règlement LPP';
 
   @override
   String get lppRegulationReviewBody =>
@@ -24554,11 +24556,11 @@ class SFr extends S {
 
   @override
   String get lppRegulationReviewAcceptError =>
-      'La base LPP a changé ou la vérification n’a pas abouti. Vérifie les champs, puis recommence depuis le scan si nécessaire.';
+      'La référence LPP enregistrée a changé ou la déclaration n’a pas pu être enregistrée. Vérifie les champs, puis recommence depuis le scan si nécessaire.';
 
   @override
   String get lppRegulationReviewRecordError =>
-      'La vérification est acceptée, mais sa référence n’a pas pu être enregistrée. Réessaie sans modifier les champs.';
+      'La déclaration a été enregistrée, mais sa référence locale n’a pas pu l’être. Réessaie sans modifier les champs.';
 
   @override
   String get lppRegulationReviewConfirm => 'Enregistrer la déclaration';

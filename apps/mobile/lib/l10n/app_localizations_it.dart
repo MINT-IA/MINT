@@ -24475,11 +24475,11 @@ class SIt extends S {
 
   @override
   String get retirementLppRegulationReferenceTitle =>
-      'Regolamento di previdenza esaminato';
+      'Origine dichiarata del regolamento di previdenza';
 
   @override
   String get retirementLppRegulationReferenceBody =>
-      'È confermato l’esame di questo regolamento. Non ne conferma l’applicazione alla tua situazione, né diritti o importi.';
+      'L’origine indicata è una dichiarazione non verificata. Non conferma l’istituto di previdenza interessato, l’applicabilità del regolamento alla tua situazione, né diritti o importi.';
 
   @override
   String get retirementLppRegulationReferencePrepareQuestionsCta =>
@@ -24487,11 +24487,11 @@ class SIt extends S {
 
   @override
   String get retirementLppRegulationHandoffTitle =>
-      'Domande per la tua cassa pensione';
+      'Domande da chiarire con l’istituto di previdenza interessato';
 
   @override
   String get retirementLppRegulationHandoffBoundary =>
-      'MINT non raccomanda alcuna opzione. Conferma le regole applicabili con la tua cassa pensione o uno specialista.';
+      'MINT non raccomanda alcuna opzione. Verifica le regole applicabili con l’istituto di previdenza interessato o con una persona specialista.';
 
   @override
   String get retirementLppRegulationDocumentKindLabel => 'Tipo di documento';
@@ -24505,10 +24505,11 @@ class SIt extends S {
 
   @override
   String get retirementLppRegulationLegalYearLabel =>
-      'Anno di riferimento legale';
+      'Anno di riferimento dichiarato';
 
   @override
-  String get retirementLppRegulationConfirmedAtLabel => 'Esame confermato il';
+  String get retirementLppRegulationConfirmedAtLabel =>
+      'Dichiarazione salvata il';
 
   @override
   String get retirementLppRegulationQuestionsTitle => 'Domande da porre';
@@ -24518,7 +24519,7 @@ class SIt extends S {
 
   @override
   String get retirementLppRegulationQuestionConversion =>
-      'Conversione in rendita';
+      'Aliquote di conversione e forme di prestazione';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirement =>
@@ -24536,31 +24537,31 @@ class SIt extends S {
 
   @override
   String get retirementLppRegulationHandoffPrivacy =>
-      'Il documento originale non viene né allegato a questa preparazione né trasmesso dalla presente schermata alla tua cassa pensioni o a uno specialista.';
+      'Il documento originale non viene allegato a questa preparazione né trasmesso da questa schermata a un istituto di previdenza o a una persona specialista.';
 
   @override
   String get retirementLppRegulationQuestionBuybackBody =>
-      'Sulla base del mio dossier attuale, quale capacità di riscatto può confermare la cassa pensioni e quali condizioni, restrizioni e possibili conseguenze sulle mie prestazioni andrebbero chiarite prima di un eventuale versamento?';
+      'Per la mia situazione attuale, quale capacità di riscatto può confermare l’istituto di previdenza competente e quali condizioni, restrizioni e possibili conseguenze sulle mie prestazioni andrebbero chiarite prima di un eventuale versamento?';
 
   @override
   String get retirementLppRegulationQuestionConversionBody =>
-      'Alla data di pensionamento prevista, quali aliquote di conversione applicherebbe la cassa pensioni alle parti obbligatoria e sovraobbligatoria del mio avere e come verrebbero calcolate una rendita, una prestazione in capitale o una combinazione delle due?';
+      'Alla data di pensionamento prevista, quali aliquote di conversione applicherebbe l’istituto di previdenza competente alle parti obbligatoria e sovraobbligatoria del mio avere e come verrebbero calcolate una rendita, una prestazione in capitale o una combinazione delle due?';
 
   @override
   String get retirementLppRegulationQuestionFlexibleRetirementBody =>
-      'Quali possibilità di pensionamento anticipato, parziale o differito può confermare la cassa pensioni per il mio dossier, con quali scaglioni e termini di notifica, e quali possibili effetti vi sarebbero su una rendita o una prestazione in capitale?';
+      'Quali possibilità di pensionamento anticipato, parziale o differito può confermare l’istituto di previdenza competente per il mio dossier, con quali scaglioni e termini di notifica, e quali possibili effetti vi sarebbero su una rendita o una prestazione in capitale?';
 
   @override
   String get retirementLppRegulationQuestionDisabilityBody =>
-      'In caso di incapacità lavorativa duratura o invalidità, quali prestazioni e quale eventuale esonero dal pagamento dei contributi esaminerebbe la cassa pensioni, dopo quali periodi di attesa e con quale coordinamento con l’AI e le altre assicurazioni?';
+      'In caso di incapacità lavorativa duratura o invalidità, quali prestazioni e quale eventuale esonero dal pagamento dei contributi esaminerebbe l’istituto di previdenza competente, dopo quali periodi di attesa e con quale coordinamento con l’AI e le altre assicurazioni?';
 
   @override
   String get retirementLppRegulationQuestionSurvivorsBody =>
-      'In caso di decesso, quali prestazioni per i superstiti o prestazioni in capitale esaminerebbe la cassa pensioni per il mio o la mia partner e altri potenziali beneficiari, a quali condizioni e quali dichiarazioni o designazioni sarebbero necessarie?';
+      'In caso di decesso, quali prestazioni per i superstiti o prestazioni in capitale esaminerebbe l’istituto di previdenza competente per il mio o la mia partner e altri potenziali beneficiari, a quali condizioni e quali dichiarazioni o designazioni sarebbero necessarie?';
 
   @override
   String get retirementLppRegulationQuestionDivorceBody =>
-      'In caso di divorzio, quali informazioni e documenti può predisporre la cassa pensioni per la divisione della previdenza professionale e come potrebbe una divisione ordinata dal tribunale modificare le mie prestazioni future?';
+      'In caso di divorzio, quali informazioni e documenti può predisporre l’istituto di previdenza competente per la divisione della previdenza professionale e come potrebbe una divisione ordinata dal tribunale modificare le mie prestazioni future?';
 
   @override
   String get retirementLppRegulationHandoffClose => 'Chiudi';
@@ -24590,7 +24591,8 @@ class SIt extends S {
       'La dichiarazione esiste, ma manca il riferimento locale. Riconfermala dalla scansione senza presumere che il regolamento si applichi.';
 
   @override
-  String get retirementLppRegulationRecoveryCta => 'Riconferma il regolamento';
+  String get retirementLppRegulationRecoveryCta =>
+      'Riconfermare la dichiarazione';
 
   @override
   String get retirementLppRegulationApplicabilityQuestion =>
@@ -24601,18 +24603,19 @@ class SIt extends S {
 
   @override
   String get docScanLppPlanDocumentDescription =>
-      'Il regolamento della tua cassa viene esaminato senza estrarre importi né diritti.';
+      'Aggiungi un regolamento di previdenza senza estrarre importi né diritti.';
 
   @override
   String get lppRegulationReviewRecoveryBody =>
-      'Questo regolamento non può essere esaminato in questa sessione. Torna alla scansione per ricominciare.';
+      'Questa dichiarazione non può essere salvata in questa sessione. Torna alla scansione per ricominciare.';
 
   @override
-  String get lppRegulationReviewTitle => 'Esaminare il regolamento LPP';
+  String get lppRegulationReviewTitle =>
+      'Dichiarare l’origine di questo regolamento LPP';
 
   @override
   String get lppRegulationReviewBody =>
-      'Conferma soltanto la data del documento e il suo anno di riferimento legale. Questo passaggio non conferma né l’applicabilità alla tua situazione né diritti o importi.';
+      'Salva una dichiarazione datata e non verificata sull’origine di questo regolamento. Non viene dedotto alcun nome di cassa pensioni, importo o diritto.';
 
   @override
   String get lppRegulationReviewSourceDate =>
@@ -24631,11 +24634,11 @@ class SIt extends S {
 
   @override
   String get lppRegulationReviewAcceptError =>
-      'La base LPP è cambiata o la revisione non è stata accettata. Controlla i campi e riparti dalla scansione se necessario.';
+      'Il riferimento LPP salvato è cambiato oppure non è stato possibile salvare la dichiarazione. Controlla i campi e riparti dalla scansione se necessario.';
 
   @override
   String get lppRegulationReviewRecordError =>
-      'La revisione è stata accettata, ma non è stato possibile registrarne il riferimento. Riprova senza modificare i campi.';
+      'La dichiarazione è stata salvata, ma non è stato possibile registrarne il riferimento locale. Riprova senza modificare i campi.';
 
   @override
   String get lppRegulationReviewConfirm => 'Salva la dichiarazione';
