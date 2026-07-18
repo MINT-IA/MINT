@@ -283,11 +283,13 @@ final class Pillar3aBeneficiaryEvidenceRoot {
     DateTime Function()? now,
   }) {
     if (raw is! String) return null;
+    late final Object? decoded;
     try {
-      return fromJson(jsonDecode(raw), now: now);
-    } on Object {
+      decoded = jsonDecode(raw);
+    } on FormatException {
       return null;
     }
+    return fromJson(decoded, now: now);
   }
 
   @override
