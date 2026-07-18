@@ -1898,6 +1898,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     switch (widget.result.documentType) {
       case DocumentType.lppCertificate:
         return;
+      case DocumentType.lppPlan:
+        return;
       case DocumentType.avsExtract:
         await coachProvider.updateFromAvsExtraction(_fields);
       case DocumentType.taxDeclaration:

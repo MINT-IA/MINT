@@ -16,6 +16,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 /// Mapping: lppCertificate ↔ lpp_certificate, threeAAttestation ↔ pillar_3a_attestation
 enum DocumentType {
   lppCertificate, // → lpp_certificate
+  lppPlan, // → lpp_plan (metadata-only, no acquisition caller)
   taxDeclaration, // → tax_declaration
   avsExtract, // → avs_extract
   threeAAttestation, // → pillar_3a_attestation
@@ -31,6 +32,8 @@ extension DocumentTypeBackend on DocumentType {
         return 'pillar_3a_attestation';
       case DocumentType.lppCertificate:
         return 'lpp_certificate';
+      case DocumentType.lppPlan:
+        return 'lpp_plan';
       case DocumentType.taxDeclaration:
         return 'tax_declaration';
       case DocumentType.avsExtract:
@@ -48,6 +51,8 @@ extension DocumentTypeBackend on DocumentType {
         return DocumentType.threeAAttestation;
       case 'lpp_certificate':
         return DocumentType.lppCertificate;
+      case 'lpp_plan':
+        return DocumentType.lppPlan;
       case 'tax_declaration':
         return DocumentType.taxDeclaration;
       case 'avs_extract':
@@ -68,6 +73,8 @@ extension DocumentTypeLabel on DocumentType {
     switch (this) {
       case DocumentType.lppCertificate:
         return 'Certificat de prevoyance LPP';
+      case DocumentType.lppPlan:
+        throw UnsupportedError(backendValue);
       case DocumentType.taxDeclaration:
         return 'Document fiscal';
       case DocumentType.avsExtract:
@@ -89,6 +96,8 @@ extension DocumentTypeLabel on DocumentType {
     switch (this) {
       case DocumentType.lppCertificate:
         return 'Avoir LPP, parts oblig/suroblig, taux de conversion, lacune de rachat';
+      case DocumentType.lppPlan:
+        return null;
       case DocumentType.taxDeclaration:
         return null;
       case DocumentType.avsExtract:
@@ -107,6 +116,8 @@ extension DocumentTypeLabel on DocumentType {
     switch (this) {
       case DocumentType.lppCertificate:
         return 27; // +25-30 points
+      case DocumentType.lppPlan:
+        return 0;
       case DocumentType.taxDeclaration:
         return 0;
       case DocumentType.avsExtract:

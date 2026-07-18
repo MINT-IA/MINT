@@ -36,6 +36,7 @@ double? _toDouble(dynamic value) {
 /// Types of documents supported by the MINT vault.
 enum VaultDocumentType {
   lppCertificate, // Certificat de prévoyance LPP
+  lppPlan, // Règlement LPP, metadata-only
   salaryCertificate, // Certificat de salaire
   pillar3aAttestation, // Attestation 3e pilier
   insurancePolicy, // Police d'assurance (RC, ménage, vie, etc.)
@@ -49,6 +50,8 @@ extension VaultDocumentTypeX on VaultDocumentType {
     switch (this) {
       case VaultDocumentType.lppCertificate:
         return 'lpp_certificate';
+      case VaultDocumentType.lppPlan:
+        return 'lpp_plan';
       case VaultDocumentType.salaryCertificate:
         return 'salary_certificate';
       case VaultDocumentType.pillar3aAttestation:
@@ -68,6 +71,8 @@ extension VaultDocumentTypeX on VaultDocumentType {
     switch (value) {
       case 'lpp_certificate':
         return VaultDocumentType.lppCertificate;
+      case 'lpp_plan':
+        return VaultDocumentType.lppPlan;
       case 'salary_certificate':
         return VaultDocumentType.salaryCertificate;
       case 'pillar_3a_attestation':
@@ -599,6 +604,8 @@ class VaultExtractedFields {
   factory VaultExtractedFields.fromJson(
       Map<String, dynamic> json, VaultDocumentType type) {
     switch (type) {
+      case VaultDocumentType.lppPlan:
+        return VaultExtractedFields(documentType: type);
       case VaultDocumentType.lppCertificate:
         return VaultExtractedFields(
           documentType: type,
@@ -674,6 +681,8 @@ class DocumentUploadResult {
   final int fieldsFound;
   final int fieldsTotal;
   final List<String> warnings;
+  final bool ragIndexed;
+  final bool _exactLppPlanAuthority;
 
   const DocumentUploadResult({
     required this.id,
@@ -683,25 +692,59 @@ class DocumentUploadResult {
     required this.fieldsFound,
     required this.fieldsTotal,
     this.warnings = const [],
-  });
+    this.ragIndexed = false,
+  }) : _exactLppPlanAuthority = false;
+
+  const DocumentUploadResult._fromJson({
+    required this.id,
+    required this.documentType,
+    required this.extractedFields,
+    required this.confidence,
+    required this.fieldsFound,
+    required this.fieldsTotal,
+    required this.warnings,
+    required this.ragIndexed,
+    required bool exactLppPlanAuthority,
+  }) : _exactLppPlanAuthority = exactLppPlanAuthority;
+
+  bool get isExactLppPlanAuthority => _exactLppPlanAuthority;
 
   factory DocumentUploadResult.fromJson(Map<String, dynamic> json) {
-    final extractedMap =
-        json['extracted_fields'] as Map<String, dynamic>? ?? {};
+    final rawExtractedFields = json['extracted_fields'];
+    final extractedMap = rawExtractedFields is Map<String, dynamic>
+        ? rawExtractedFields
+        : <String, dynamic>{};
     // Parse document type first, default to LPP for backward compatibility
     final rawType = json['document_type'] as String? ?? 'lpp_certificate';
     final docType = VaultDocumentTypeX.fromApi(rawType);
-    return DocumentUploadResult(
+    final rawConfidence = json['confidence'];
+    final rawFieldsFound = json['fields_found'];
+    final rawFieldsTotal = json['fields_total'];
+    final ragIndexed = json['rag_indexed'] == true;
+    final exactLppPlanAuthority = rawType == 'lpp_plan' &&
+        json.containsKey('extracted_fields') &&
+        rawExtractedFields is Map<String, dynamic> &&
+        rawExtractedFields.isEmpty &&
+        rawConfidence is num &&
+        rawConfidence == 0 &&
+        rawFieldsFound is int &&
+        rawFieldsFound == 0 &&
+        rawFieldsTotal is int &&
+        rawFieldsTotal == 0 &&
+        json['rag_indexed'] == false;
+    return DocumentUploadResult._fromJson(
       id: json['id'] as String? ?? '',
       documentType: docType,
       extractedFields: VaultExtractedFields.fromJson(extractedMap, docType),
-      confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
-      fieldsFound: json['fields_found'] as int? ?? 0,
-      fieldsTotal: json['fields_total'] as int? ?? 0,
+      confidence: (rawConfidence as num?)?.toDouble() ?? 0.0,
+      fieldsFound: rawFieldsFound as int? ?? 0,
+      fieldsTotal: rawFieldsTotal as int? ?? 0,
       warnings: (json['warnings'] as List<dynamic>?)
               ?.map((w) => w as String)
               .toList() ??
           [],
+      ragIndexed: ragIndexed,
+      exactLppPlanAuthority: exactLppPlanAuthority,
     );
   }
 }

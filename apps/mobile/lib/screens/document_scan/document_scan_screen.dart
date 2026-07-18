@@ -2648,6 +2648,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           extraction: LppCertificateParser.parseLppCertificate(text),
           taxCandidate: null,
         );
+      case DocumentType.lppPlan:
+        throw UnsupportedError(_selectedType.backendValue);
       case DocumentType.taxDeclaration:
         final taxCandidate = TaxDeclarationParser.parseTaxDocument(
           text,
@@ -2680,6 +2682,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     switch (type) {
       case DocumentType.lppCertificate:
         return LppCertificateParser.sampleOcrText;
+      case DocumentType.lppPlan:
+        throw UnsupportedError(type.backendValue);
       case DocumentType.taxDeclaration:
         return TaxDeclarationParser.sampleOcrText;
       case DocumentType.avsExtract:
@@ -2972,7 +2976,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   /// Whether the user has a BYOK key for a vision-capable provider.
   bool _isVisionAvailable(BuildContext ctx) {
-    if (_selectedType == DocumentType.lppCertificate) return false;
+    if (_selectedType == DocumentType.lppCertificate ||
+        _selectedType == DocumentType.lppPlan) {
+      return false;
+    }
     final byok = ctx.read<ByokProvider>();
     if (!byok.isConfigured || byok.apiKey == null || byok.provider == null) {
       return false;
@@ -2986,6 +2993,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     switch (type) {
       case DocumentType.lppCertificate:
         return 'lpp_certificate';
+      case DocumentType.lppPlan:
+        throw UnsupportedError(type.backendValue);
       case DocumentType.taxDeclaration:
         return 'tax_declaration';
       case DocumentType.avsExtract:

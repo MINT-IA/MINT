@@ -1304,6 +1304,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     switch (type) {
       case VaultDocumentType.lppCertificate:
         return s.vaultCategoryLpp;
+      case VaultDocumentType.lppPlan:
+        return s.retirementLppRegulationDocumentKindValue;
       case VaultDocumentType.salaryCertificate:
         return s.vaultCategorySalary;
       case VaultDocumentType.pillar3aAttestation:
@@ -1323,6 +1325,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     switch (type) {
       case VaultDocumentType.lppCertificate:
         return Icons.shield_outlined;
+      case VaultDocumentType.lppPlan:
+        return Icons.description_outlined;
       case VaultDocumentType.salaryCertificate:
         return Icons.payments_outlined;
       case VaultDocumentType.pillar3aAttestation:
@@ -1341,6 +1345,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   Color _colorForType(VaultDocumentType type) {
     switch (type) {
       case VaultDocumentType.lppCertificate:
+        return MintColors.info;
+      case VaultDocumentType.lppPlan:
         return MintColors.info;
       case VaultDocumentType.salaryCertificate:
         return MintColors.success;
