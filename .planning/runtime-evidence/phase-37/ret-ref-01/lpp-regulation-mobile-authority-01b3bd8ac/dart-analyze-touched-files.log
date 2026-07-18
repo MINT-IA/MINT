@@ -37,4 +37,3 @@ $ dart analyze test/providers/lpp_regulation_reference_provider_test.dart
 Analyzing lpp_regulation_reference_provider_test.dart...
 No issues found!
 exit_code=0
-
