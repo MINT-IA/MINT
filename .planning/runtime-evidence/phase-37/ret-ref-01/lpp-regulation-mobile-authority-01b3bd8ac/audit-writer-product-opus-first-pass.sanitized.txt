@@ -1,0 +1,35 @@
+# Sanitized bounded external audit
+
+- Scope: writer
+- Lens: product-domain
+- Wrapper: tools/checks/claude_external_audit.sh
+- Run: first-pass Opus high
+- Evidence source: local temporary output omitted
+- Sanitization: repository/temp paths replaced; no raw document retained
+
+---
+All 26 related tests pass. I have enough to render a verdict.
+
+## Product/domain verdict: PASS
+
+This change adds a fail-closed, metadata-only persistence writer for an **LPP regulation reference** (a pointer that the user reviewed their pension fund's *règlement de prévoyance*, carrying only `referenceId`, `legalYear`, `sourceDate`, `confirmedAt`, owner=self). It mirrors the already-shipped `LppCapitalNoticeDeadline` pattern exactly. I verified the wiring end-to-end (model → snapshot JSON → provider writer → receipt/match → cold rebuild) and ran the suite: 9/9 provider tests and 26/26 across the related contract/authority tests pass.
+
+### Findings
+
+**P0 — none.**
+
+**P1 — none.**
+- No current-law-sensitive constants are introduced. `legalYear` is user/document-confirmed and range-checked to 1900–9999 (`lpp_evidence.dart:748`, `coach_profile.dart:2928`); no threshold, conversion rate, coordination deduction, or rule constant is baked in. The stale-constant P1 rule does not bite because there is no domain constant here.
+- No advice, ranking, guarantee, or product-recommendation surface is added — this is opaque metadata (`SpecialistReferenceEvidence` deliberately carries "no filename, path, OCR text, financial value, or bytes", `coach_profile.dart:2807`).
+- Single source of truth preserved: the reference lives inside the one `LppEvidenceSnapshot.self` root next to `lppCapitalNoticeDeadline`; coexistence in both write orders is tested, and it is correctly dropped when a newer ordinary review replaces the snapshot (`lpp_regulation_reference_provider_test.dart` "later ordinary self review… drops the regulation").
+
+**P2 — polish / next-step**
+- Write-only for now: no screen/CTA/dossier reader consumes `lppRegulationReference` in this diff. User value (surfacing "which règlement, which legal year, reviewed when" into the specialist PDF) is deferred. Acceptable because `FeatureFlags.lppRegulationReferenceEnabled` defaults false and is kept out of `applyFromMap` (`feature_flags.dart`), so backend cannot expose an empty flow — but the consumer is the piece that turns this into user value.
+- No coherence check between `legalYear` and `sourceDate` (e.g. legalYear 1901 with a 2026 source date is accepted). Low risk for specialist-facing metadata; worth a guard when the reader lands.
+
+### Swiss domain review
+- **LPP:** Directly touched. The *règlement de prévoyance* is the governing document of a 2nd-pillar fund; recording a reviewed reference with legal year + review date is legitimate specialist-dossier metadata. No entitlement, buyback, conversion-rate, or projection logic is altered. `now` is now threaded through `LppEvidenceRoot.fromJsonString` at all 12 lib callsites, so future-dated references fail closed deterministically (verified via grep).
+- **AVS / 3a / tax / mortgage / insurance / succession:** Not affected. The change is confined to the LPP self-evidence root; `SpecialistReferenceKind` for tax/3a/pillar paths are untouched.
+
+### Mint product logic review
+Moves Mint along the **ledger → dossier** spine: it extends the person-owned typed LPP evidence root with another strictly-validated, receipt-verifiable, idempotent reference (identical-retry idempotency, exact-prior-id replacement, and serialized concurrency all tested). It does not yet reach the DataQuest→scenario→dossier consumer, so it is spine groundwork rather than a completed user journey — consistent with the incremental RED→wire commit sequence, and safe because it stays behind a backend-inaccessible kill switch.

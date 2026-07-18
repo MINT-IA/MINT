@@ -1,0 +1,143 @@
+$ flutter test test/models/lpp_regulation_reference_ledger_contract_test.dart test/models/specialist_reference_contract_test.dart test/providers/lpp_regulation_reference_document_authority_test.dart test/providers/lpp_regulation_reference_provider_test.dart test/providers/lpp_regulation_reference_document_bridge_test.dart test/providers/lpp_capital_notice_document_reference_test.dart test/providers/document_reference_bridge_test.dart test/providers/account_session_epoch_test.dart --reporter expanded
+00:00 +0: loading <REPO>/apps/mobile/test/models/lpp_regulation_reference_ledger_contract_test.dart
+00:00 +0: <REPO>/apps/mobile/test/models/lpp_regulation_reference_ledger_contract_test.dart: LPP regulation reference strict ledger contract schema 1 admits and round-trips exact metadata on a non-empty self snapshot
+00:00 +1: <REPO>/apps/mobile/test/models/lpp_regulation_reference_ledger_contract_test.dart: LPP regulation reference strict ledger contract unknown payload, value, raw, path, and OCR keys reject the root
+00:00 +2: <REPO>/apps/mobile/test/models/lpp_regulation_reference_ledger_contract_test.dart: LPP regulation reference strict ledger contract manualPartner, wrong kind, and wrong source reject the root
+00:00 +3: <REPO>/apps/mobile/test/models/lpp_regulation_reference_ledger_contract_test.dart: LPP regulation reference strict ledger contract future or noncanonical source and confirmation dates reject the root
+00:00 +4: <REPO>/apps/mobile/test/models/lpp_regulation_reference_ledger_contract_test.dart: LPP regulation reference strict ledger contract invalid legal year, UUID, and factless self reject the root
+00:00 +5: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: the four profile properties are typed precision-bearing evidence
+00:00 +6: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: the four complete specialist references survive the existing JSON path
+00:00 +7: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: incomplete, non-certificate, and future tuples fail closed
+00:00 +8: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: tax reference rejects a legal year different from its tax year
+00:00 +9: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: the four precision predicates remain independent
+00:00 +10: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: Swiss civil dates use Zurich civil day and UTC confirmation
+00:00 +11: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: manualPartner hydrates with the exact BND-05 wire name
+00:00 +12: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: confirmedAt accepts only canonical toIso8601String output
+00:00 +13: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: raw OCR and local path reject a complete payload
+00:00 +14: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: tax subject is closed on TaxSubjectScope wire names
+00:00 +15: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: tax precision requires one coherent contextual TaxSnapshot
+00:00 +16: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: divergent equal-rank peers conflict without UUID tie-break
+00:00 +17: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: copyWith, equality, hash, clear-null, and round-trip agree
+00:00 +18: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: calendar-year change alone does not stale durable references
+00:00 +19: <REPO>/apps/mobile/test/models/specialist_reference_contract_test.dart: CoachProfile stays independent from provider document authority
+00:00 +20: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart: BND admits the exact raw-free self LPP regulation reference
+00:00 +21: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart: regulation authority rejects generic and capital-notice kinds
+00:00 +22: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart: regulation authority rejects a partner-owned reference
+00:00 +23: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart: regulation authority rejects non-canonical identifiers
+00:00 +24: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart: regulation authority rejects non-canonical confirmation times
+00:00 +25: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_authority_test.dart: regulation authority rejects payload-bearing references
+00:00 +26: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_provider_test.dart: local regulation-reference flag defaults false and ignores backend maps
+00:00 +27: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_provider_test.dart: flag-off rejects before persistence or publication
+00:00 +28: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_provider_test.dart: invalid typed fields cannot construct a review or touch persistence
+00:00 +29: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_provider_test.dart: invalid owner, root, binding, and dates reject without I/O or notify
+00:00 +30: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_provider_test.dart: success preserves facts and binds one generated tuple live and cold
+00:00 +31: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_provider_test.dart: capital notice and regulation coexist in both write orders
+00:00 +32: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_provider_test.dart: identical retry is idempotent and replacement needs exact prior id
+00:00 +33: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_provider_test.dart: concurrent writes serialize and cannot both replace the same prior id
+00:00 +34: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_provider_test.dart: later ordinary self review replaces snapshot and drops the regulation
+00:00 +35: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_bridge_test.dart: record rejects missing ledger before load or save
+00:00 +36: <REPO>/apps/mobile/test/providers/lpp_capital_notice_document_reference_test.dart: receipt matcher rejects forged tuple fields and flag-off state
+00:00 +37: <REPO>/apps/mobile/test/providers/lpp_capital_notice_document_reference_test.dart: receipt matcher rejects forged tuple fields and flag-off state
+00:00 +38: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_bridge_test.dart: exact raw-free record saves before publish and retry is idempotent
+00:00 +39: <REPO>/apps/mobile/test/providers/lpp_capital_notice_document_reference_test.dart: record rejects flag-off, missing, unloaded, and forged ledger pre-save
+00:00 +40: <REPO>/apps/mobile/test/providers/lpp_capital_notice_document_reference_test.dart: record rejects flag-off, missing, unloaded, and forged ledger pre-save
+00:00 +41: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_bridge_test.dart: session termination during reference save cannot publish old metadata
+00:00 +42: <REPO>/apps/mobile/test/providers/lpp_capital_notice_document_reference_test.dart: store allowlist admits only lpp and exact lppCapitalNotice kinds
+00:00 +43: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_bridge_test.dart: replacement removes only prior regulation and preserves other kinds
+00:00 +44: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_bridge_test.dart: replacement removes only prior regulation and preserves other kinds
+00:00 +45: <REPO>/apps/mobile/test/providers/lpp_capital_notice_document_reference_test.dart: notice replacement replaces its tuple while generic lpp coexists
+00:00 +46: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_bridge_test.dart: concurrent regulation and capital records serialize in both orders
+00:00 +47: <REPO>/apps/mobile/test/providers/lpp_regulation_reference_document_bridge_test.dart: concurrent regulation and capital records serialize in both orders
+00:00 +48: <REPO>/apps/mobile/test/providers/lpp_capital_notice_document_reference_test.dart: resolver fails closed for hydration, kind, tuple, snapshot, and flag
+00:00 +49: <REPO>/apps/mobile/test/providers/lpp_capital_notice_document_reference_test.dart: resolver fails closed for hydration, kind, tuple, snapshot, and flag
+00:01 +50: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: strict self review persists selected facts before returning receipt
+00:01 +51: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: reference JSON and persisted root are exact raw-free allowlists
+00:01 +52: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: hydrate-before-ledger leaks nothing, idempotent reference survives restart and snapshot swap invalidates it
+00:01 +53: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner references fail closed without current authority
+00:01 +54: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:01 +55: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:01 +56: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:01 +57: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:01 +58: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:01 +59: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:01 +60: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:01 +61: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:01 +61: <REPO>/apps/mobile/test/providers/account_session_epoch_test.dart: cold stored A releases its exact pending marker only after migration
+[Auth] best-effort failed
+00:01 +62: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +62: <REPO>/apps/mobile/test/providers/account_session_epoch_test.dart: failed claim reserves A and cold A retries the identical payload
+[AuthProvider] claimLocalData sync failed
+00:02 +63: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +64: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +65: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +66: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +67: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +68: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +69: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +70: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +71: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +71: <REPO>/apps/mobile/test/providers/account_session_epoch_test.dart: registration persists explicit identity before any backend call
+[AuthProvider] claimLocalData sync failed
+00:02 +72: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +73: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +73: <REPO>/apps/mobile/test/providers/account_session_epoch_test.dart: tokenless A blocks cold login B before read/network then admits A
+[AuthProvider] claimLocalData sync failed
+00:02 +74: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +74: <REPO>/apps/mobile/test/providers/account_session_epoch_test.dart: registration exact DOB survives identical backend birth year warm and cold
+[Auth] best-effort failed
+00:02 +75: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +75: <REPO>/apps/mobile/test/providers/account_session_epoch_test.dart: registration exact DOB survives discordant backend birth year warm and cold
+[Auth] best-effort failed
+00:02 +76: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +77: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +78: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +78: <REPO>/apps/mobile/test/providers/account_session_epoch_test.dart: late Apple hydration failure cannot publish old-session state
+[AuthProvider] claimLocalData sync failed
+[AuthProvider] Profile hydration failed
+00:02 +79: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +80: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +81: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +81: <REPO>/apps/mobile/test/providers/account_session_epoch_test.dart: magic-link persists only one complete identity after ephemeral getMe
+[AuthProvider] claimLocalData sync failed
+00:02 +82: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +83: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +84: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +85: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +86: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +87: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +88: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +89: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +90: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +91: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +92: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +93: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +94: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +95: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +96: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +97: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +98: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +99: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +100: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +101: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +102: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +103: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +104: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner detail and timeline invalidate at authority deadline without mutation
+00:02 +105: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: mounted retirement projection drops partner certificate at authority deadline but keeps independent baseline
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_suroblig → 0.058 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+00:02 +106: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: manual-partner metadata retry accepts committed receipt after authority expiry but stays hidden
+00:02 +107: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: timeline reacts to reference record delete and snapshot replacement
+00:02 +108: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: reference persistence failure never rolls back accepted ledger facts
+00:02 +109: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: malformed or raw-bearing reference roots fail closed as a whole
+00:02 +110: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: deleting a reference removes only metadata, never strict ledger facts
+00:02 +111: <REPO>/apps/mobile/test/providers/document_reference_bridge_test.dart: production route and providers wire the bridge without a facade
+00:02 +112: All tests passed!
+exit_code=0

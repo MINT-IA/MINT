@@ -1,0 +1,8 @@
+$ flutter analyze --no-pub
+Analyzing mobile...
+
+   info • Use 'const' for final variables initialized to a constant value • test/providers/lpp_capital_notice_deadline_provider_test.dart:206:5 • prefer_const_declarations
+   info • Use 'const' for final variables initialized to a constant value • test/providers/lpp_capital_notice_deadline_provider_test.dart:207:5 • prefer_const_declarations
+
+2 issues found. (ran in 7.3s)
+exit_code=1

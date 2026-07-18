@@ -1,0 +1,63 @@
+{
+  "commands": [
+    {
+      "command": "python3 tools/checks/mint_os_doctor.py --repo-only",
+      "exit_code": 0
+    },
+    {
+      "command": "flutter test <8 listed authority contract files> --reporter expanded",
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 112
+    },
+    {
+      "command": "dart analyze <each of 8 authority-slice files>",
+      "exit_code": 0,
+      "files": 8,
+      "issues": 0
+    },
+    {
+      "command": "flutter analyze --no-pub",
+      "disposition": "untouched prefer_const info baseline",
+      "exit_code": 1,
+      "issues": 2
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check c3d64a99d..01b3bd8ac",
+      "exit_code": 0
+    }
+  ],
+  "dart_analyze_touched_files": {
+    "exit_code": 0,
+    "files": 8,
+    "issues": 0
+  },
+  "external_audit_outputs": {
+    "authority_scope_p0": 0,
+    "authority_scope_p1": 0,
+    "copied_existing_outputs": 6,
+    "delivered_product_scope_p1_open_findings": 2,
+    "overall_pass": 6
+  },
+  "flutter_analyze_full_project": {
+    "disposition": "untouched_lpp_capital_notice_deadline_provider_test_prefer_const_infos",
+    "exit_code": 1,
+    "issues": 2
+  },
+  "flutter_targeted_authority_suite": {
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 112
+  },
+  "git_diff_check_slice": 0,
+  "git_diff_check_worktree": 0,
+  "implementation_sha": "01b3bd8acad2a98fce0c0f2778340c5ddef7a7a7",
+  "mint_os_doctor_repo_only": 0,
+  "privacy_minimization_scan": 0,
+  "sha256_manifest_entries": 17,
+  "sha256_verified": true
+}

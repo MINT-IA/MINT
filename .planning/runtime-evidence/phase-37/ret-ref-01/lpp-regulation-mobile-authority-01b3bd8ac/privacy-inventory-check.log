@@ -1,0 +1,16 @@
+Privacy/minimization and artifact inventory
+
+absolute_local_path_matches=0
+email_address_matches=0
+private_key_or_pdf_magic_matches=0
+binary_or_private_artifacts=0
+raw_document_artifacts=0
+ocr_payload_artifacts=0
+private_lpp_fixture_artifacts=0
+simulator_identifier_artifacts=0
+real_financial_record_artifacts=0
+text_artifacts_before_privacy_and_manifest=16
+text_artifacts_before_manifest=17
+
+result=PASS
+No matching content is copied into this report.

@@ -1,0 +1,38 @@
+# Sanitized bounded external audit
+
+- Scope: model
+- Lens: code
+- Wrapper: tools/checks/claude_external_audit.sh
+- Run: first-pass Opus high
+- Evidence source: local temporary output omitted
+- Sanitization: repository/temp paths replaced; no raw document retained
+
+---
+## MINT Code Audit — `feat(g1): persist lpp regulation metadata` (196138024 vs 38edd8cda)
+
+**Scope:** 1 file, +111/−2 (`apps/mobile/lib/models/lpp_evidence.dart`). Well within the 1200-line budget.
+
+### What the commit does
+Adds `LppRegulationReference` (mirrors the existing `LppCapitalNoticeDeadline`) and wires it as an optional `self`-only field on `LppEvidenceSnapshot`, including `toJson`/`fromJson` admission and the snapshot length-bound bump (`4 → 5`).
+
+### Verification performed
+- Ran `flutter test test/models/lpp_regulation_reference_ledger_contract_test.dart` → **5/5 pass** (admission, round-trip, forbidden-key rejection, wrong-owner/kind/source rejection, future/non-canonical date rejection, invalid year/UUID/factless rejection).
+- Ran `flutter test test/models/specialist_reference_contract_test.dart` → **15/15 pass**.
+- Confirmed strictness properties directly in code:
+  - Exact-key allowlist with length equality (`lpp_evidence.dart:657-671`) — no raw certificate content (`payload/value/raw/path/ocrText`) can be smuggled. Privacy-safe.
+  - Self-only ownership enforced in snapshot decode (`lpp_evidence.dart:757-759`); regulation-on-manualPartner is rejected (test-confirmed).
+  - Canonical civil-date + canonical UTC-instant parsing (`_parseCanonicalCivilDate`/`_parseCanonicalUtcInstant`), future-date rejection via `SwissCivilTime.isFutureCivilDate`.
+  - Length bounds recomputed correctly: `self` max = snapshotId+facts+capitalNotice+regulation = 4; `manualPartner` uses independentFacts and cannot carry either reference (mutually exclusive owner kinds). No collision with the new `≤5` bound.
+
+No P0 or P1 issues in the diff. Serialization is strict, self-scoped, and round-trip-stable.
+
+### P2
+- **Feature is not yet end-to-end wired (expected incremental TDD state, not a regression).** The audited commit only adds ledger admission/round-trip — which is exactly what the base-ref RED test declared ("the missing positive admission of `self.lppRegulationReference`").
+  - **No writer:** `LppRegulationReference.create` (`lpp_evidence.dart:619`) has zero callers, whereas its sibling `LppCapitalNoticeDeadline.create` is invoked at `apps/mobile/lib/providers/coach_profile_provider.dart:1376`.
+  - **No surfacing bridge:** the build-from-answers path maps `typedLppSelf.lppCapitalNoticeDeadline → SpecialistReferenceEvidence` (`coach_profile.dart:4867-4874`, assigned at `5790`), but there is **no** equivalent mapping for `lppRegulationReference`, so a persisted regulation reference never reaches `CoachProfile.lppRegulationReference` via derivation.
+  - `coach_profile.dart` is untouched by this commit, so this is a standing gap, not a new defect. Proof it is not yet exercised: no `lpp_regulation_reference_provider_test.dart` exists (compare `test/providers/lpp_capital_notice_deadline_provider_test.dart`), and no build-path test asserts regulation surfacing. Reviewers should ensure the follow-up commit adds the `create` caller + build bridge before any UI/specialist flow claims the field is populated.
+
+### Verdict
+**PASS**
+
+The change is correct, strictly validated, privacy-preserving, self-scoped, and fully covered by passing contract tests. The only observation (P2) is that the write and surface paths are intentionally deferred to later g1 steps; nothing in this commit is mis-wired or regressive.

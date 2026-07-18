@@ -1,0 +1,39 @@
+# Sanitized bounded external audit
+
+- Scope: document-bridge
+- Lens: code
+- Wrapper: tools/checks/claude_external_audit.sh
+- Run: first-pass Opus high
+- Evidence source: local temporary output omitted
+- Sanitization: repository/temp paths replaced; no raw document retained
+
+---
+All four bridge tests pass. The diff is small, self-consistent, and mirrors the already-established `recordLppCapitalNotice`/`resolveLppCapitalNotice` pattern. My verification:
+
+## Audit Report — LPP regulation document-reference bridge
+
+**Scope:** `apps/mobile/lib/providers/document_provider.dart` (+104), base `cae7afe9a`.
+
+### Symbol / wiring verification
+- `FeatureFlags.lppRegulationReferenceEnabled` — exists, defaults `false`, absent from remote (`feature_flags.dart:104`). ✅ gated off by default.
+- `ConfirmedDocumentReference.lppRegulationKind = 'lppRegulation'` — defined and admitted in `fromJson` validation with `ownerKind == self` enforcement (`document_provider.dart:30,60-70`). ✅
+- `LppRegulationReceipt` — defined with matching fields; `ownerKind` getter pinned to `self`, `kind` getter to `LppRegulationReference.kind` (`lpp_evidence.dart:402-414`). The `resolveLppRegulation` 3-arg constructor call matches. ✅
+- `ledger.matchesAcceptedLppRegulationReceipt` — real implementation binds snapshot identity + nested reference metadata, guarded by both `typedLppEvidence` and `lppRegulationReferenceEnabled` (`coach_profile_provider.dart:2416-2437`). ✅
+- `SpecialistReferenceKind.lppRegulation` — exists (`coach_profile.dart:2783`). ✅
+- Session-epoch guard / serialized-mutation / persist-before-publish ordering is identical to the audited capital-notice path. ✅
+- Tests exercise both new methods (flag-off/unloaded/forged rejection, persist-before-publish, idempotent retry, replacement isolation, cold-resolver strictness) — **4/4 pass** (ran locally).
+
+### Findings
+
+**P0:** none.
+
+**P1:** none.
+
+**P2 (wiring completeness, informational):**
+- `resolveLppRegulation` and `recordLppRegulation` have **no production consumer**. Grep of `apps/mobile/lib/**` shows `resolveLppCapitalNotice` is rendered by the dashboard (`retirement_dashboard_screen.dart:893`), but `resolveLppRegulation` appears only in tests. `recordLppRegulation` likewise has no `lib/` caller. This is a bridge built ahead of its UI consumer, not a defect — the writer/resolver layer is complete, gated off by default, and fully tested. Flag it only so the follow-up screen-wiring commit isn't lost. Proof: `grep -rn "resolveLppRegulation\|recordLppRegulation" apps/mobile/lib` returns only the two definitions.
+
+### Verdict
+
+**PASS**
+
+The added code is correct, privacy-preserving (receipt carries no raw values/JSON; only opaque snapshot identity crosses the boundary), feature-flag-gated, ordering-safe, and test-covered. The single P2 is expected staged work, not a blocker.

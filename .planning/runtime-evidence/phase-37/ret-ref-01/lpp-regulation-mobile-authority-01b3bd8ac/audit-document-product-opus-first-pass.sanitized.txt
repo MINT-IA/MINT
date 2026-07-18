@@ -1,0 +1,43 @@
+# Sanitized bounded external audit
+
+- Scope: document-bridge
+- Lens: product-domain
+- Wrapper: tools/checks/claude_external_audit.sh
+- Run: first-pass Opus high
+- Evidence source: local temporary output omitted
+- Sanitization: repository/temp paths replaced; no raw document retained
+
+---
+Based on my review of the diff against the live repo (model layer `lpp_evidence.dart`, ledger writer `coach_profile_provider.dart`, the specialist-reference model in `coach_profile.dart`, the consuming screen `retirement_dashboard_screen.dart`, and the bridge tests), here is the audit.
+
+## Product/domain verdict: PASS
+
+This diff adds `recordLppRegulation` / `resolveLppRegulation` to `DocumentProvider` — an opaque, raw-free bridge between a confirmed *règlement de prévoyance* document and its ledger snapshot. It is a faithful, well-tested mirror of the already-landed `recordLppCapitalNotice` / `resolveLppCapitalNotice` pattern. It is domain-coherent, privacy-preserving, and introduces no Swiss-law constants or advice surface, so nothing here can drive a harmful decision. The gaps are wiring/value-delivery, not correctness.
+
+---
+
+### P0 — none
+No misleading advice, no Swiss law/tax/pension math, no privacy exposure. The reference is raw-free (only `referenceId`, `snapshotId`, `ownerKind`, `confirmedAt`; values/source material never cross the boundary — `document_provider.dart:485-492`, doc-comment `:17-18`), and `resolveLppRegulation` returns `null` unless the ledger re-confirms via `matchesAcceptedLppRegulationReceipt` (`:578-586`), so stale/forged references cannot surface.
+
+### P1 — facade not yet delivering user value (specialist handoff incomplete)
+- **No production consumer of the read path.** `resolveLppRegulation` is called only from tests. The capital-notice twin is wired into the retirement dashboard (`retirement_dashboard_screen.dart:893`, `_buildLppCapitalNoticeEducation`, with known/stale lucidity states), but there is **no** equivalent screen/section/dossier that surfaces the regulation reference — `Grep lppRegulation apps/mobile/lib/screens` returns nothing. Repro: enable `lppRegulationReferenceEnabled`, confirm a règlement in the ledger; no route renders it and no PDF/dossier receives it.
+- **No production caller of the write path.** `recordLppRegulation` is invoked only from `lpp_regulation_reference_document_bridge_test.dart`; the coach confirmation flow (`acceptLppRegulationReference`, `coach_profile_provider.dart:1462`) writes the ledger snapshot but never calls the document bridge. So even after ledger acceptance, the document reference is never populated in a real session.
+
+  This mirrors the pre-existing capital-notice staging (its `record*` is also test-only), so it is not a regression, and the commit trail (`writer` → `bridge` → …) shows a disciplined incremental build. It does **not** block domain correctness, but this bridge must not be reported as "LPP regulation specialist handoff shipped" until a screen/dossier consumes `resolveLppRegulation` and the coach flow invokes `recordLppRegulation`. Until then the specialist-ready dossier does **not** receive the règlement pointer.
+
+### P2 — polish / next steps
+- `ConfirmedDocumentReference.lppRegulationKind` is a duplicated string literal (`document_provider.dart:30`) instead of referencing `LppRegulationReference.kind` (`lpp_evidence.dart:686`), unlike `lppCapitalNoticeKind` which aliases `LppCapitalNoticeDeadline.kind` (`:29`). Both are `'lppRegulation'`, but the inconsistency invites future drift.
+- When the UI lands, surface the same known/stale distinction the capital-notice banner uses, so the *légalYear* / *sourceDate* of the règlement communicates freshness rather than an undated pointer.
+
+---
+
+### Swiss domain review
+- **LPP / prévoyance (affected):** The *règlement de prévoyance* is the correct specialist artifact — it governs rachats, taux de conversion (obligatoire/surobligatoire), retraite anticipée, invalidité, prestations de survivants, and partage en cas de divorce. Storing an opaque, dated reference for handoff (rather than re-deriving values) is the right métier move: only a specialist reads the fund-specific règlement. Owner is correctly constrained to `self` (`coach_profile.dart:70`, `lpp_evidence.dart:350`); a partner's fund règlement is out of scope here, consistent with the manualPartner declared-facts path.
+- **Single source of truth (preserved):** No user variables are duplicated. The bridge points at the ledger snapshot; the ledger (`coach_profile_provider`) remains authority, and `resolve*` refuses to return a reference the ledger no longer vouches for. No stale/duplicated fact risk.
+- **Constants / current-law sensitivity (not affected):** No thresholds, conversion rates, or cantonal logic in this diff; only a `legalYear` sanity range (1900–9999). Nothing to mark unverified.
+- **AVS / 3a / tax / mortgage / insurance / succession:** explicitly not affected by this change.
+
+### Mint product logic review
+This moves Mint along the **ledger → (reference bridge)** portion of the ledger → DataQuest → scenario → dossier spine: it correctly extends the raw-free reference layer so a future specialist dossier can cite the règlement without importing its content. It stops one hop short of the spine's payoff — no scenario/screen/dossier yet consumes the regulation reference — so the *lucidity* and *specialist-handoff* value is plumbed but not yet lit. Complete the read-side UI/dossier and the write-side coach-flow call before treating this capability as delivered.
+
+Evidence that would close the P1: a screen or dossier builder calling `resolveLppRegulation`, and a coach/confirmation path calling `recordLppRegulation` after `acceptLppRegulationReference`.

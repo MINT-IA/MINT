@@ -1,0 +1,40 @@
+$ dart analyze lib/models/coach_profile.dart
+Analyzing coach_profile.dart...
+No issues found!
+exit_code=0
+
+$ dart analyze lib/models/lpp_evidence.dart
+Analyzing lpp_evidence.dart...
+No issues found!
+exit_code=0
+
+$ dart analyze lib/providers/coach_profile_provider.dart
+Analyzing coach_profile_provider.dart...
+No issues found!
+exit_code=0
+
+$ dart analyze lib/providers/document_provider.dart
+Analyzing document_provider.dart...
+No issues found!
+exit_code=0
+
+$ dart analyze lib/services/feature_flags.dart
+Analyzing feature_flags.dart...
+No issues found!
+exit_code=0
+
+$ dart analyze test/models/lpp_regulation_reference_ledger_contract_test.dart
+Analyzing lpp_regulation_reference_ledger_contract_test.dart...
+No issues found!
+exit_code=0
+
+$ dart analyze test/providers/lpp_regulation_reference_document_bridge_test.dart
+Analyzing lpp_regulation_reference_document_bridge_test.dart...
+No issues found!
+exit_code=0
+
+$ dart analyze test/providers/lpp_regulation_reference_provider_test.dart
+Analyzing lpp_regulation_reference_provider_test.dart...
+No issues found!
+exit_code=0
+

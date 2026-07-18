@@ -1,0 +1,31 @@
+# Sanitized bounded external audit
+
+- Scope: writer
+- Lens: code
+- Wrapper: tools/checks/claude_external_audit.sh
+- Run: first-pass Opus high
+- Evidence source: local temporary output omitted
+- Sanitization: repository/temp paths replaced; no raw document retained
+
+---
+## MINT Code Audit — LPP Regulation Reference Ledger Writer
+
+**Scope:** `45af0ba21..c39cf8860` (HEAD `c39cf8860`, "wire lpp regulation ledger writer"), 358 lines across 5 files — within the 4000-line budget.
+
+### Verification performed
+- Confirmed all referenced base-commit types exist and are fully wired (not stubs): `LppRegulationReference` with `create/toJson/fromJson` round-trip (`lpp_evidence.dart:678-768`), `LppEvidenceSnapshot.lppRegulationReference` serialized in both directions (`:801-802`, `:892-906`), `SpecialistReferenceKind.lppRegulation` (`coach_profile.dart:2783`, allowlist `:2899`, parse `:2953`), and `CoachProfile.lppRegulationReference` field/ctor/equality/hashCode/copyWith/toJson/fromJson/`fromWizardAnswers` (`:3198,3343,3491,3550,4099,4422,4575,4875,5798`).
+- **End-to-end wiring is real, not a facade:** the writer `_acceptLppRegulationReference` persists via `_mutateLppAnswers`, the value survives `toJsonString → fromJsonString`, and re-projects into a cold `CoachProfile`. Proven by test "success preserves facts and binds one generated tuple live and cold" (asserts both live root and `CoachProfile.fromWizardAnswers` cold read).
+- **Feature-flag containment:** `lppRegulationReferenceEnabled` defaults `false` (`feature_flags.dart`) and is absent from `applyFromMap` — backend cannot activate it. Verified by test "local regulation-reference flag defaults false and ignores backend maps" and by grepping `applyFromMap`.
+- **Privacy boundary intact:** `LppRegulationReceipt` and `SpecialistReferenceEvidence` for this kind carry only `referenceId/snapshotId/confirmedAt/sourceDate/legalYear/ownerKind` — no financial values cross the boundary (mirrors capital-notice design). `extraKeys` for `lppRegulation` is `{}` (`:2899`), matching `LppRegulationReference.toJson`'s exact 7-key shape.
+- **Idempotency/replacement/concurrency** logic mirrors the capital-notice writer; owner-kind restricted to `self`; future source dates rejected before persistence.
+- Ran the tests (source of truth): `lpp_regulation_reference_provider_test.dart` **9/9 pass**; regression check on `lpp_capital_notice_deadline`, `lpp_regulation_reference_document_authority`, `lpp_acquisition_authorization`, and `coach_profile_provider_test.dart` (56 tests) — **all pass**. `flutter analyze` on the 4 changed lib files — **no issues**.
+
+### Findings
+- **P0:** none
+- **P1:** none
+- **P2 (informational only):** The `now`-threading refactor demoted `_lppCanonicalSelfOwner`, `_persistedCanonicalOwners`, `_hasRejectedPersistedCanonicalAuthority`, and `_withoutLoosePartnerLppBesideOpaqueRoot` from `static` to instance methods so `LppEvidenceRoot.fromJsonString` now enforces future-date rejection during owner resolution/cold load. This is stricter (a clock-skewed future `confirmedAt`/`sourceDate` would render the whole LPP root "malformed" and drop ledger authority), but it is fail-closed and consistent with the codebase's posture; `confirmedAt` is always written as `_now().toUtc()` and source dates are future-validated at write, so it cannot fire in normal operation. No action required.
+
+### Verdict
+**PASS**
+
+The change is a clean, fully-wired extension of the established capital-notice ledger pattern: model round-trip, provider writer, profile projection, and receipt matcher are all present and exercised by passing tests, gated behind a backend-inaccessible kill switch, with no financial-value leakage across the receipt/reference boundary. No correctness, privacy, compliance, routing, or facade-without-wiring defects found.

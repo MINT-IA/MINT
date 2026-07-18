@@ -1,0 +1,37 @@
+# Sanitized bounded external audit
+
+- Scope: model
+- Lens: product-domain
+- Wrapper: tools/checks/claude_external_audit.sh
+- Run: first-pass Opus high
+- Evidence source: local temporary output omitted
+- Sanitization: repository/temp paths replaced; no raw document retained
+
+---
+All tests GREEN (19/19). The change is a pure ledger/model primitive. Here is my assessment.
+
+## Product/domain verdict: PASS
+
+This commit (`196138024 feat(g1): persist lpp regulation metadata`) adds a single ledger evidence primitive, `LppRegulationReference`, to the LPP evidence tree. It is metadata-only, self-only, strictly validated, round-trip tested, and consistent with its sibling `LppCapitalNoticeDeadline`. There is no business logic, no Swiss constant, no advice surface, and no user-facing route in this diff — so there is no P0/P1 domain hazard.
+
+### Findings
+
+**P0** — none.
+
+**P1** — none.
+
+**P2**
+
+1. **Facade-at-ledger-layer: no producer, no consumer, no DataQuest/dossier wiring yet.** `LppRegulationReference` is referenced only in the model and its own contract test — nothing writes it and nothing reads it (`Grep LppRegulationReference` → only `apps/mobile/lib/models/lpp_evidence.dart` and `test/models/lpp_regulation_reference_ledger_contract_test.dart`). Contrast the sibling `lppCapitalNoticeDeadline`, which is wired into `providers/coach_profile_provider.dart`, `screens/coach/retirement_dashboard_screen.dart`, and integration/patrol tests. This is acceptable for an incremental G1 ledger commit (it follows the RED `38edd8cda`), and it honestly adds no route/CTA it fails to deliver — hence P2, not P1. It becomes a P1 the moment a scenario claims "based on your fund's regulation" without the write-back path existing. Proof of the gap: no DataQuest question key or provider populates `LppEvidenceSnapshot.lppRegulationReference`.
+
+2. **`source` semantically conflates the *règlement* with the *certificat*.** `lpp_evidence.dart:632,647` hardcode `'source': 'certificate'` for a regulation reference. In Swiss practice the *règlement de prévoyance* and the *certificat de prévoyance* are distinct documents. This is a wire enum denoting evidence grade (certificate-level) rather than the literal document type, and the strict decoder rejects `source: 'userInput'` (test `lpp_regulation_reference_ledger_contract_test.dart:163`), so it is coherent — but a distinct provenance token or a code comment would prevent future misreads.
+
+3. **`legalYear` bound 1900–9999** (`lpp_evidence.dart:674-675`) is a sanity range, not a legal claim, so no current-law source is required. Noted only to confirm it was reviewed and is *not* a stale-constant risk.
+
+### Swiss domain review
+- **LPP (2nd pillar):** Directly touched. Recording *which* règlement version applies (by `sourceDate` + `legalYear`) is domain-sound: caisse-specific rules (conversion rate, early-retirement options, buy-in terms) live in the fund's règlement, not federal law, so provenance/staleness of that document is a legitimate ledger fact. Correctly self-only — a partner's fund règlement is not admitted (`fromJson` rejects `ownerKind: manualPartner`; test line 151-172). Crucially, no substantive parameters (taux de conversion, coordination deduction, etc.) are stored here, so **no source-of-truth duplication and no unverified legal constant** is introduced.
+- **AVS / 3a / tax / mortgage / insurance / succession:** Not affected by this diff.
+- **Privacy:** Improved posture — the decoder explicitly rejects `payload`, `value`, `raw`, `path`, `ocrText` keys (test lines 132-149), so raw document/OCR content cannot leak into the ledger via this record.
+
+### Mint product logic review
+This moves Mint along the **ledger → DataQuest → scenario → dossier** spine at the *ledger* layer only: it establishes a clean, single-source evidence node for the LPP regulation with confirmed provenance and staleness signals (`sourceDate`/`legalYear`/`confirmedAt`). It does not yet reach DataQuest (no collection question), scenario (no consumer), or dossier (no handoff). That is coherent for a TDD ledger step and does not introduce duplicated user variables or a value-less route. The outstanding product work — a DataQuest write-back and at least one scenario/dossier consumer — is tracked as P2 finding 1 and should land before any UI advertises regulation-aware results.
