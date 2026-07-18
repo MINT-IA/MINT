@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -24,6 +25,7 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/reengagement_engine.dart';
+import 'package:mint_mobile/services/report/lpp_capital_notice_section_content.dart';
 import 'package:mint_mobile/services/report/lpp_regulation_handoff_section_content.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -908,18 +910,27 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
   List<Widget> _buildLppCapitalNoticeEducation(CoachProfile profile) {
     final documents = context.watch<DocumentProvider?>();
-    final resolved = documents?.resolveLppCapitalNotice(
+    final capitalNoticeEvidence = documents?.resolveLppCapitalNotice(
       profile.lppCapitalNoticeDeadline,
     );
-    final deadline = resolved?.deadlineDate;
-    if (deadline == null) return const <Widget>[];
+    final regulationEvidence = documents?.resolveLppRegulation(
+      profile.lppRegulationReference,
+    );
+    final handoff = LppCapitalNoticeSpecialistHandoff.tryFromResolvedEvidence(
+      capitalNoticeEvidence: capitalNoticeEvidence,
+      regulationEvidence: regulationEvidence,
+    );
+    if (handoff == null) return const <Widget>[];
 
-    final today = SwissCivilTime.civilDate(DateTime.now());
-    final deadlineDay = SwissCivilTime.businessDate(deadline);
-    final isStale = deadlineDay.isBefore(today);
+    final asOf = DateTime.now();
     final l = S.of(context)!;
     final localeName = Localizations.localeOf(context).toLanguageTag();
-    final date = DateFormat.yMMMMd(localeName).format(deadlineDay);
+    final content = LppCapitalNoticeSectionContent.fromHandoff(
+      handoff: handoff,
+      l: l,
+      localeName: localeName,
+      asOf: asOf,
+    );
 
     return <Widget>[
       Semantics(
@@ -927,22 +938,34 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         container: true,
         child: MintSurface(
           key: Key(
-            '${_lppCapitalNoticeBannerId}_${isStale ? 'stale' : 'known'}',
+            '${_lppCapitalNoticeBannerId}_${content.isStale ? 'stale' : 'known'}',
           ),
-          tone: isStale ? MintSurfaceTone.craie : MintSurfaceTone.sauge,
+          tone: content.isStale ? MintSurfaceTone.craie : MintSurfaceTone.sauge,
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                l.retirementLppCapitalNoticeDeadlineTitle,
+                content.title,
                 style: MintTextStyles.titleMedium(),
               ),
               const SizedBox(height: MintSpacing.xs),
               Text(
-                isStale
-                    ? l.retirementLppCapitalNoticeDeadlineStale(date)
-                    : l.retirementLppCapitalNoticeDeadlineKnown(date),
+                content.statusBody,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                content.caveat,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                content.boundary,
                 style: MintTextStyles.bodyMedium(
                   color: MintColors.textSecondary,
                 ),

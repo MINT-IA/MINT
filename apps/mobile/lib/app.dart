@@ -111,6 +111,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
@@ -1326,15 +1327,27 @@ final _router = GoRouter(
                 body: Center(child: CircularProgressIndicator()),
               );
             }
-            final resolved = documentProvider?.resolveLppRegulation(
+            final capitalNoticeEvidence =
+                documentProvider?.resolveLppCapitalNotice(
+              profileProvider.profile?.lppCapitalNoticeDeadline,
+            );
+            final regulationEvidence = documentProvider?.resolveLppRegulation(
               profileProvider.profile?.lppRegulationReference,
             );
+            final lppCapitalNoticeHandoff =
+                LppCapitalNoticeSpecialistHandoff.tryFromResolvedEvidence(
+              capitalNoticeEvidence: capitalNoticeEvidence,
+              regulationEvidence: regulationEvidence,
+            );
             final lppRegulationHandoff =
-                LppRegulationSpecialistHandoff.tryFromEvidence(resolved);
+                LppRegulationSpecialistHandoff.tryFromEvidence(
+              regulationEvidence,
+            );
             return FinancialReportScreenV2(
               wizardAnswers: snapshot.hasError
                   ? const {}
                   : profileProvider.reportAnswersSnapshot,
+              lppCapitalNoticeHandoff: lppCapitalNoticeHandoff,
               lppRegulationHandoff: lppRegulationHandoff,
             );
           },

@@ -161,28 +161,33 @@ void main() {
         content.statusBody,
         content.caveat,
         content.boundary,
-        content.documentKindLabel,
-        content.documentKindValue,
-        content.sourceDateLabel,
-        content.sourceDateValue,
-        content.legalYearLabel,
-        content.legalYearValue,
-        content.confirmedAtLabel,
-        content.confirmedAtValue,
-        content.fundRelationshipLabel,
-        content.fundRelationshipValue,
-        content.deadlineLabel,
-        content.deadlineValue,
         content.questionsTitle,
         for (final question in content.questions) question.body,
       ]) {
         expect(
           find.descendant(
             of: section,
-            matching: find.textContaining(expected, findRichText: true),
+            matching: find.text(expected),
           ),
           findsOneWidget,
           reason: expected,
+        );
+      }
+      for (final metadataLine in <String>[
+        '${content.documentKindLabel} ${content.documentKindValue}',
+        '${content.sourceDateLabel} ${content.sourceDateValue}',
+        '${content.legalYearLabel} ${content.legalYearValue}',
+        '${content.confirmedAtLabel} ${content.confirmedAtValue}',
+        '${content.fundRelationshipLabel} ${content.fundRelationshipValue}',
+        '${content.deadlineLabel} ${content.deadlineValue}',
+      ]) {
+        expect(
+          find.descendant(
+            of: section,
+            matching: find.text(metadataLine, findRichText: true),
+          ),
+          findsOneWidget,
+          reason: metadataLine,
         );
       }
       final rendered = tester

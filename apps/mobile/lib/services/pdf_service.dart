@@ -8,6 +8,7 @@ import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/services/report/lpp_capital_notice_section_content.dart';
 import 'package:mint_mobile/services/report/lpp_regulation_handoff_section_content.dart';
 
 class PdfService {
@@ -383,11 +384,20 @@ class PdfService {
   }) async {
     final pdf = pw.Document();
     final generatedDate = report.generatedAt.toLocal().toString().split('.')[0];
-    final handoff = report.lppRegulationHandoff;
-    final lppRegulationContent = handoff == null
+    final capitalHandoff = report.lppCapitalNoticeHandoff;
+    final lppCapitalContent = capitalHandoff == null
+        ? null
+        : LppCapitalNoticeSectionContent.fromHandoff(
+            handoff: capitalHandoff,
+            l: l,
+            localeName: l.localeName,
+            asOf: report.generatedAt,
+          );
+    final regulationHandoff = report.lppRegulationHandoff;
+    final lppRegulationContent = regulationHandoff == null
         ? null
         : LppRegulationHandoffSectionContent.fromHandoff(
-            handoff: handoff,
+            handoff: regulationHandoff,
             l: l,
             localeName: l.localeName,
           );
@@ -855,6 +865,76 @@ class PdfService {
                 ],
               ),
             ));
+          }
+
+          if (lppCapitalContent != null) {
+            final content = lppCapitalContent;
+            children.add(pw.SizedBox(height: 25));
+            children.add(_pdfSectionTitle(content.title));
+            children.add(pw.SizedBox(height: 10));
+            children.add(pw.Text(
+              content.statusBody,
+              style: const pw.TextStyle(fontSize: 9),
+            ));
+            children.add(pw.SizedBox(height: 6));
+            children.add(pw.Text(
+              content.caveat,
+              style: const pw.TextStyle(
+                fontSize: 8,
+                color: PdfColors.grey700,
+              ),
+            ));
+            children.add(pw.SizedBox(height: 6));
+            children.add(pw.Text(
+              content.boundary,
+              style: pw.TextStyle(
+                fontSize: 8,
+                color: PdfColors.orange800,
+                fontStyle: pw.FontStyle.italic,
+              ),
+            ));
+            children.add(pw.SizedBox(height: 8));
+            children.add(
+              _pdfKeyValue(content.documentKindLabel, content.documentKindValue),
+            );
+            children.add(
+              _pdfKeyValue(content.sourceDateLabel, content.sourceDateValue),
+            );
+            children.add(
+              _pdfKeyValue(content.legalYearLabel, content.legalYearValue),
+            );
+            children.add(
+              _pdfKeyValue(content.confirmedAtLabel, content.confirmedAtValue),
+            );
+            children.add(_pdfKeyValue(
+              content.fundRelationshipLabel,
+              content.fundRelationshipValue,
+            ));
+            children.add(
+              _pdfKeyValue(content.deadlineLabel, content.deadlineValue),
+            );
+            children.add(pw.SizedBox(height: 12));
+            children.add(pw.Text(
+              content.questionsTitle,
+              style: pw.TextStyle(
+                fontSize: 10,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue900,
+              ),
+            ));
+            children.add(pw.SizedBox(height: 6));
+            for (final question in content.questions) {
+              children.add(pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 8),
+                child: pw.Text(
+                  question.body,
+                  style: const pw.TextStyle(
+                    fontSize: 8,
+                    color: PdfColors.grey700,
+                  ),
+                ),
+              ));
+            }
           }
 
           if (lppRegulationContent != null) {

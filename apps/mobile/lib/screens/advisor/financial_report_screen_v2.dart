@@ -6,8 +6,10 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
+import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
+import 'package:mint_mobile/services/report/lpp_capital_notice_section_content.dart';
 import 'package:mint_mobile/services/report/lpp_regulation_handoff_section_content.dart';
 import 'package:mint_mobile/widgets/report/thematic_card.dart';
 // Wave E-PRIME (2026-04-18): MintAlertObject + VoiceResolutionContext imports
@@ -34,11 +36,13 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 /// remplaçant les cercles abstraits (Protection, Prévoyance, Croissance, Optimisation).
 class FinancialReportScreenV2 extends StatelessWidget {
   final Map<String, dynamic> wizardAnswers;
+  final LppCapitalNoticeSpecialistHandoff? lppCapitalNoticeHandoff;
   final LppRegulationSpecialistHandoff? lppRegulationHandoff;
 
   const FinancialReportScreenV2({
     super.key,
     required this.wizardAnswers,
+    this.lppCapitalNoticeHandoff,
     this.lppRegulationHandoff,
   });
 
@@ -84,6 +88,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     final reportService = FinancialReportService();
     final report = reportService.generateReport(
       wizardAnswers,
+      lppCapitalNoticeHandoff: lppCapitalNoticeHandoff,
       lppRegulationHandoff: lppRegulationHandoff,
     );
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
@@ -197,6 +202,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
                             report.lppBuybackStrategy!, report.profile),
                       ),
 
+                    if (report.lppCapitalNoticeHandoff != null) ...[
+                      const SizedBox(height: MintSpacing.lg),
+                      _buildLppCapitalNoticeHandoffSection(context, report),
+                    ],
+
                     if (report.lppRegulationHandoff != null) ...[
                       const SizedBox(height: MintSpacing.lg),
                       _buildLppRegulationHandoffSection(context, report),
@@ -232,6 +242,94 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 ),
               ))),
     ));
+  }
+
+  Widget _buildLppCapitalNoticeHandoffSection(
+    BuildContext context,
+    FinancialReport report,
+  ) {
+    final content = LppCapitalNoticeSectionContent.fromHandoff(
+      handoff: report.lppCapitalNoticeHandoff!,
+      l: S.of(context)!,
+      localeName: Localizations.localeOf(context).toLanguageTag(),
+      asOf: report.generatedAt,
+    );
+
+    Widget metadata(String label, String value) => Text.rich(
+          TextSpan(
+            children: <InlineSpan>[
+              TextSpan(text: '$label ', style: MintTextStyles.labelMedium()),
+              TextSpan(text: value, style: MintTextStyles.bodyMedium()),
+            ],
+          ),
+        );
+
+    return Semantics(
+      identifier: 'financial_report_lpp_capital_notice_handoff',
+      container: true,
+      explicitChildNodes: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
+        child: MintSurface(
+          tone: content.isStale ? MintSurfaceTone.craie : MintSurfaceTone.sauge,
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(content.title, style: MintTextStyles.titleLarge()),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                content.statusBody,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                content.caveat,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                content.boundary,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.md),
+              metadata(content.documentKindLabel, content.documentKindValue),
+              const SizedBox(height: MintSpacing.xs),
+              metadata(content.sourceDateLabel, content.sourceDateValue),
+              const SizedBox(height: MintSpacing.xs),
+              metadata(content.legalYearLabel, content.legalYearValue),
+              const SizedBox(height: MintSpacing.xs),
+              metadata(content.confirmedAtLabel, content.confirmedAtValue),
+              const SizedBox(height: MintSpacing.xs),
+              metadata(
+                content.fundRelationshipLabel,
+                content.fundRelationshipValue,
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              metadata(content.deadlineLabel, content.deadlineValue),
+              const SizedBox(height: MintSpacing.lg),
+              Text(content.questionsTitle, style: MintTextStyles.titleMedium()),
+              const SizedBox(height: MintSpacing.md),
+              for (final question in content.questions) ...<Widget>[
+                Text(
+                  question.body,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.md),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildLppRegulationHandoffSection(
