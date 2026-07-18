@@ -19,3 +19,8 @@ name: G1 RET-REF LPP regulation production-default after
     id: retirement_lpp_regulation_reference_education
 - assertNotVisible:
     id: retirement_lpp_regulation_handoff_sheet
+- openLink: "mint:///rapport"
+- assertVisible:
+    id: financial_report_screen
+- assertNotVisible:
+    id: financial_report_lpp_regulation_handoff

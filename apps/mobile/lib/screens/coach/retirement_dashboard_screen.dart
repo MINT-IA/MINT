@@ -1229,12 +1229,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                             ),
                           ),
                           const SizedBox(height: MintSpacing.sm),
-                          Text(
-                            content.referenceBody,
-                            style: MintTextStyles.bodyMedium(
-                              color: MintColors.textSecondary,
-                            ),
-                          ),
+                          _withRuntimeSemantics('retirement_lpp_regulation_handoff_reference_body', Text(
+                              content.referenceBody,
+                              style: MintTextStyles.bodyMedium(
+                                color: MintColors.textSecondary,
+                              ),
+                            )),
                           const SizedBox(height: MintSpacing.sm),
                           Text(
                             content.boundary,
@@ -1275,10 +1275,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                             content.confirmedAtValue,
                           ),
                           const SizedBox(height: MintSpacing.xs),
-                          _buildLppRegulationMetadata(
-                            content.fundRelationshipLabel,
-                            content.fundRelationshipValue,
-                          ),
+                          _withRuntimeSemantics('retirement_lpp_regulation_handoff_fund_relation', _buildLppRegulationMetadata(
+                              content.fundRelationshipLabel,
+                              content.fundRelationshipValue,
+                            )),
                           const SizedBox(height: MintSpacing.lg),
                           Semantics(
                             identifier:
@@ -2247,3 +2247,9 @@ class _DataEnrichmentCard extends StatelessWidget {
     );
   }
 }
+
+Widget _withRuntimeSemantics(String identifier, Widget child) => Semantics(
+      identifier: identifier,
+      container: true,
+      child: child,
+    );

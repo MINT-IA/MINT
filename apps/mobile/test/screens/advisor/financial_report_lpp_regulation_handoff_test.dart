@@ -66,6 +66,10 @@ void main() {
     await tester.pumpWidget(_app(screen));
     await tester.pumpAndSettle();
 
+    expect(
+      find.bySemanticsIdentifier('financial_report_screen'),
+      findsOneWidget,
+    );
     final section = find.bySemanticsIdentifier(
       'financial_report_lpp_regulation_handoff',
     );
@@ -139,6 +143,27 @@ void main() {
       wizardAnswers: _answers(),
     )));
     await tester.pumpAndSettle();
+    expect(
+      find.bySemanticsIdentifier('financial_report_screen'),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsIdentifier('financial_report_lpp_regulation_handoff'),
+      findsNothing,
+    );
+  });
+
+  testWidgets('empty dossier retains the stable report screen runtime id',
+      (tester) async {
+    await tester.pumpWidget(_app(const FinancialReportScreenV2(
+      wizardAnswers: <String, dynamic>{},
+    )));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.bySemanticsIdentifier('financial_report_screen'),
+      findsOneWidget,
+    );
     expect(
       find.bySemanticsIdentifier('financial_report_lpp_regulation_handoff'),
       findsNothing,

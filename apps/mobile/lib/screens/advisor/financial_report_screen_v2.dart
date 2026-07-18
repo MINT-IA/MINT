@@ -59,7 +59,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (wizardAnswers.isEmpty) {
-      return Scaffold(
+      return _withRuntimeScreenId(Scaffold(
         backgroundColor: MintColors.surface,
         appBar: AppBar(
           title: Text(S.of(context)!.reportTonPlanMint,
@@ -79,7 +79,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           ctaLabel: S.of(context)!.financialReportEmptyCta,
           onCta: () => context.go('/coach/chat'),
         ),
-      );
+      ));
     }
     final reportService = FinancialReportService();
     final report = reportService.generateReport(
@@ -89,7 +89,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
     final safeModeReasons = _buildSafeModeReasons(context, wizardAnswers);
 
-    return Scaffold(
+    return _withRuntimeScreenId(Scaffold(
       backgroundColor: MintColors.surface,
       appBar: AppBar(
         title: Text(S.of(context)!.reportTonPlanMint,
@@ -231,7 +231,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   ],
                 ),
               ))),
-    );
+    ));
   }
 
   Widget _buildLppRegulationHandoffSection(
@@ -1100,4 +1100,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
       ),
     );
   }
+  Widget _withRuntimeScreenId(Widget child) => Semantics(
+        identifier: 'financial_report_screen',
+        container: true,
+        child: child,
+      );
+
 }

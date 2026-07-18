@@ -3,21 +3,19 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
-import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
-import 'package:mint_mobile/providers/slm_provider.dart';
-import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_report_service.dart';
+import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:patrol/patrol.dart';
 import 'package:provider/provider.dart';
-import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/g1_ret_ref_lpp_regulation_runtime_contract.dart';
@@ -34,77 +32,20 @@ const _missingDocumentReferenceBodyFr =
     'Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni '
     'l’institution concernée, ni l’application du règlement à ta situation, '
     'ni tes droits ni aucun montant.';
+const _mismatchedDocumentReferenceBodyFr =
+    'Une déclaration non vérifiée ne correspond pas à sa référence locale et '
+    'est masquée. Reconfirme-la à partir du document. MINT n’en déduit ni '
+    'l’origine, ni l’institution concernée, ni l’application du règlement à '
+    'ta situation, ni tes droits ni aucun montant.';
+const _legacyMissingFundRelationshipBodyFr =
+    'Une déclaration non vérifiée ne précise pas l’origine de ce règlement. '
+    'Reconfirme-la à partir du document. MINT n’en déduit ni l’origine, ni '
+    'l’institution concernée, ni l’application du règlement à ta situation, '
+    'ni tes droits ni aucun montant.';
 
 void _requireRuntimeValue(Object? value, String message) {
   if (value == null) fail(message);
 }
-
-Widget _dashboard({
-  required CoachProfileProvider provider,
-  required DocumentProvider documents,
-}) =>
-    MultiProvider(
-      providers: <SingleChildWidget>[
-        ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
-        ChangeNotifierProvider<DocumentProvider>.value(value: documents),
-        ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
-        ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
-      ],
-      child: const MaterialApp(
-        locale: Locale('fr'),
-        localizationsDelegates: <LocalizationsDelegate<dynamic>>[
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.supportedLocales,
-        home: RetirementDashboardScreen(),
-      ),
-    );
-
-GoRouter _recoveryRouter() => GoRouter(
-      routes: <RouteBase>[
-        GoRoute(
-          path: '/',
-          builder: (context, state) => const RetirementDashboardScreen(),
-        ),
-        GoRoute(
-          path: '/scan',
-          builder: (context, state) => Scaffold(
-            body: Semantics(
-              identifier: 'g1_lpp_regulation_recovery_scan_destination',
-              child: const SizedBox.expand(),
-            ),
-          ),
-        ),
-      ],
-    );
-
-Widget _recoveryDashboard({
-  required CoachProfileProvider provider,
-  required DocumentProvider documents,
-  required GoRouter router,
-}) =>
-    MultiProvider(
-      providers: <SingleChildWidget>[
-        ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
-        ChangeNotifierProvider<DocumentProvider>.value(value: documents),
-        ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
-        ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
-      ],
-      child: MaterialApp.router(
-        locale: const Locale('fr'),
-        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.supportedLocales,
-        routerConfig: router,
-      ),
-    );
 
 LppReviewConfirmation _replacementNumericReview(DateTime now) {
   final bytes = Uint8List.fromList(utf8.encode(_replacementMarker));
@@ -159,7 +100,7 @@ LppReviewConfirmation _firstNumericReview(DateTime now) {
 
 void main() {
   patrolTest(
-    'cold reader preserves regulation through numeric addition and replacement',
+    'cold reader proves regulation dossier, PDF, recovery, and preservation',
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 8)),
     ($) async {
@@ -201,9 +142,13 @@ void main() {
         fail('Missing strict authority pointer before the cold reader');
       }
 
-      final persistedAnswers = await ReportPersistenceService.loadAnswers();
+      final originalAnswers = await ReportPersistenceService.loadAnswers();
+      final originalStrictRootJson = originalAnswers['_coach_lpp_evidence_v1'];
+      if (originalStrictRootJson is! String) {
+        fail('Missing strict LPP root before provider hydration');
+      }
       final persistedRoot = LppEvidenceRoot.fromJsonString(
-        persistedAnswers['_coach_lpp_evidence_v1'],
+        originalStrictRootJson,
         now: () => now,
       );
       if (persistedRoot == null) {
@@ -229,13 +174,17 @@ void main() {
         fail('Missing opaque document reference before provider hydration');
       }
 
-      final provider = CoachProfileProvider(now: () => now);
-      final documents = DocumentProvider(now: () => now);
-      addTearDown(provider.dispose);
-      addTearDown(documents.dispose);
+      await $.pumpWidgetAndSettle(const MintApp());
+      final materialApp = find.byType(MaterialApp);
+      expect(materialApp, findsOneWidget);
+      final appContext = $.tester.element(materialApp);
+      final provider = appContext.read<CoachProfileProvider>();
+      final documents = appContext.read<DocumentProvider>();
       await provider.loadFromWizard();
       documents.bindLedger(provider);
+      documents.clearLocalState();
       await documents.hydrateReferences();
+      await $.pumpAndSettle();
 
       final currentSnapshot = provider.currentLppSnapshot(
         LppEvidenceOwnerKind.self,
@@ -258,6 +207,7 @@ void main() {
       );
       expect(candidate?.referenceId, persistedRegulation.referenceId);
       final dynamic typedCandidate = candidate;
+
       final resolved = documents.resolveLppRegulation(candidate);
       expect(resolved, isNotNull);
       final reference = documents.byId(candidate!.referenceId);
@@ -271,31 +221,101 @@ void main() {
       expect(resolved!.sourceDate, candidate.sourceDate);
       expect(resolved.legalYear, candidate.legalYear);
 
-      await $.pumpWidgetAndSettle(
-        _dashboard(provider: provider, documents: documents),
-      );
+      Future<void> expectReport({required bool hasHandoff}) async {
+        testOnlyRootRouter.go('/rapport');
+        await $.pumpAndSettle();
+        await $(find.bySemanticsIdentifier('financial_report_screen'))
+            .waitUntilVisible();
+        expect(
+          find.bySemanticsIdentifier(
+            'financial_report_lpp_regulation_handoff',
+          ),
+          hasHandoff ? findsOneWidget : findsNothing,
+        );
+      }
+
+      Future<void> expectRecovery(String body) async {
+        await expectReport(hasHandoff: false);
+        testOnlyRootRouter.go('/retraite');
+        await $.pumpAndSettle();
+        final recovery = find.bySemanticsIdentifier(
+          'retirement_lpp_regulation_reference_recovery',
+        );
+        await $(recovery).waitUntilVisible();
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_reference_education',
+          ),
+          findsNothing,
+        );
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_handoff_cta',
+          ),
+          findsNothing,
+        );
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_reconfirm_cta',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text(body), findsOneWidget);
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_fund_relation',
+          ),
+          findsNothing,
+        );
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_handoff_reference_body',
+          ),
+          findsNothing,
+        );
+        expect(
+          find.bySemanticsIdentifier(
+            'retirement_lpp_regulation_handoff_fund_relation',
+          ),
+          findsNothing,
+        );
+        final rendered = $.tester
+            .widgetList<Text>(
+              find.descendant(of: recovery, matching: find.byType(Text)),
+            )
+            .map(
+                (widget) => widget.data ?? widget.textSpan?.toPlainText() ?? '')
+            .join(' ');
+        expect(rendered, isNot(contains(candidate.referenceId)));
+        expect(
+          rendered,
+          isNot(contains(typedCandidate.fundRelationship.wireName)),
+        );
+      }
+
+      testOnlyRootRouter.go('/retraite');
+      await $.pumpAndSettle();
       await $(#retirement_lpp_regulation_reference_education)
           .waitUntilVisible();
+      expect(
+        find.bySemanticsIdentifier(
+          'retirement_lpp_regulation_fund_relation',
+        ),
+        findsOneWidget,
+      );
       await $(#retirement_lpp_regulation_handoff_cta).scrollTo().tap();
       await $(find.bySemanticsIdentifier(
         'retirement_lpp_regulation_handoff_sheet',
       )).waitUntilVisible();
-      expect(
-        find.bySemanticsIdentifier('retirement_lpp_regulation_handoff_title'),
-        findsOneWidget,
-      );
-      expect(
-        find.bySemanticsIdentifier(
-          'retirement_lpp_regulation_handoff_privacy',
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.bySemanticsIdentifier(
-          'retirement_lpp_regulation_applicability_question',
-        ),
-        findsOneWidget,
-      );
+      for (final identifier in const <String>[
+        'retirement_lpp_regulation_handoff_title',
+        'retirement_lpp_regulation_handoff_reference_body',
+        'retirement_lpp_regulation_handoff_fund_relation',
+        'retirement_lpp_regulation_handoff_privacy',
+        'retirement_lpp_regulation_applicability_question',
+      ]) {
+        expect(find.bySemanticsIdentifier(identifier), findsOneWidget);
+      }
       for (final topic in const <String>[
         'buyback',
         'conversion',
@@ -318,92 +338,117 @@ void main() {
       await $(#retirement_lpp_regulation_handoff_close).tap();
       await $.pumpAndSettle();
 
-      final missingDocuments = DocumentProvider(now: () => now);
-      final recoveryRouter = _recoveryRouter();
+      await expectReport(hasHandoff: true);
+      final handoff = LppRegulationSpecialistHandoff.tryFromEvidence(resolved);
+      expect(handoff, isNotNull);
+      final report = FinancialReportService().generateReport(
+        provider.reportAnswersSnapshot,
+        lppRegulationHandoff: handoff,
+      );
+      final reportContext = $.tester.element(
+        find.bySemanticsIdentifier('financial_report_screen'),
+      );
+      final pdfBytes = await PdfService.buildFinancialReportPdfBytes(
+        report,
+        l: S.of(reportContext)!,
+      );
+      expect(pdfBytes.take(5), <int>[0x25, 0x50, 0x44, 0x46, 0x2d]);
+      expect(pdfBytes.length, greaterThan(1000));
+
       try {
         await referenceStore.save(const <ConfirmedDocumentReference>[]);
-        missingDocuments.bindLedger(provider);
-        await missingDocuments.hydrateReferences();
+        documents.clearLocalState();
+        await documents.hydrateReferences();
         expect(
-          missingDocuments.resolveLppRegulationReference(candidate),
+          documents.resolveLppRegulationReference(candidate),
           LppRegulationReferenceResolution.missingDocumentReference,
         );
-
-        await $.pumpWidgetAndSettle(
-          _recoveryDashboard(
-            provider: provider,
-            documents: missingDocuments,
-            router: recoveryRouter,
-          ),
-        );
-        expect(
-          find.bySemanticsIdentifier(
-            'retirement_lpp_regulation_reference_education',
-          ),
-          findsNothing,
-        );
-        expect(
-          find.bySemanticsIdentifier(
-            'retirement_lpp_regulation_handoff_cta',
-          ),
-          findsNothing,
-        );
-        await $(find.bySemanticsIdentifier(
-          'retirement_lpp_regulation_reference_recovery',
-        )).waitUntilVisible();
-        expect(
-          find.bySemanticsIdentifier(
-            'retirement_lpp_regulation_reconfirm_cta',
-          ),
-          findsOneWidget,
-        );
+        expect(documents.resolveLppRegulation(candidate), isNull);
+        await expectRecovery(_missingDocumentReferenceBodyFr);
         expect(find.text(_missingDocumentReferenceBodyFr), findsOneWidget);
-        expect(
-          _missingDocumentReferenceBodyFr,
-          isNot(contains(candidate.referenceId)),
-        );
-        expect(
-          _missingDocumentReferenceBodyFr,
-          isNot(contains(typedCandidate.fundRelationship.wireName)),
-        );
-        expect(
-          find.bySemanticsIdentifier(
-            'retirement_lpp_regulation_fund_relation',
-          ),
-          findsNothing,
-        );
 
-        await $(find.bySemanticsIdentifier(
-          'retirement_lpp_regulation_reconfirm_cta',
-        )).tap();
+        final mismatchedDocumentReferences = originalDocumentReferences
+            .map(
+              (stored) => stored.referenceId == candidate.referenceId
+                  ? ConfirmedDocumentReference(
+                      referenceId: stored.referenceId,
+                      kind: stored.kind,
+                      snapshotId: stored.snapshotId,
+                      ownerKind: stored.ownerKind,
+                      confirmedAt:
+                          stored.confirmedAt.add(const Duration(seconds: 1)),
+                    )
+                  : stored,
+            )
+            .toList(growable: false);
+        await referenceStore.save(mismatchedDocumentReferences);
+        documents.clearLocalState();
+        await documents.hydrateReferences();
+        expect(
+          documents.resolveLppRegulationReference(candidate),
+          LppRegulationReferenceResolution.mismatchedDocumentReference,
+        );
+        expect(documents.resolveLppRegulation(candidate), isNull);
+        await expectRecovery(_mismatchedDocumentReferenceBodyFr);
+        expect(find.text(_mismatchedDocumentReferenceBodyFr), findsOneWidget);
+
+        final legacyRoot = LppEvidenceRoot(
+          self: persistedRoot.self,
+          manualPartner: persistedRoot.manualPartner,
+          legacyPartnerQuarantine: persistedRoot.legacyPartnerQuarantine,
+          selfRegulationReference: null,
+          selfRegulationRecoveryReason:
+              LppRegulationRecoveryReason.legacyMissingFundRelationship,
+        );
+        final legacyAnswers = Map<String, dynamic>.from(originalAnswers)
+          ..['_coach_lpp_evidence_v1'] = legacyRoot.toJsonString();
+        await ReportPersistenceService.saveLppEvidenceAnswers(
+          legacyAnswers,
+        );
+        await provider.loadFromWizard();
         await $.pumpAndSettle();
+        expect(provider.profile?.lppRegulationReference, isNull);
         expect(
-          recoveryRouter.routeInformationProvider.value.uri.toString(),
-          '/scan?type=lppPlan',
+          provider.lppRegulationRecoveryReason,
+          LppRegulationRecoveryReason.legacyMissingFundRelationship,
         );
         expect(
-          find.bySemanticsIdentifier(
-            'g1_lpp_regulation_recovery_scan_destination',
+          documents.resolveLppRegulationReference(
+            provider.profile?.lppRegulationReference,
           ),
-          findsOneWidget,
+          LppRegulationReferenceResolution.unavailable,
         );
+        await expectRecovery(_legacyMissingFundRelationshipBodyFr);
+        expect(find.text(_legacyMissingFundRelationshipBodyFr), findsOneWidget);
       } finally {
         await referenceStore.save(originalDocumentReferences);
+        await ReportPersistenceService.saveLppEvidenceAnswers(originalAnswers);
+        documents.clearLocalState();
+        await documents.hydrateReferences();
+        await provider.loadFromWizard();
+        await $.pumpAndSettle();
         final restoredDocumentReferences = await referenceStore.load();
         expect(
           restoredDocumentReferences
-              .map((reference) => reference.toJson())
+              .map((stored) => stored.toJson())
               .toList(growable: false),
           originalDocumentReferences
-              .map((reference) => reference.toJson())
+              .map((stored) => stored.toJson())
               .toList(growable: false),
-          reason: 'the temporary BND loss must not alter final runtime state',
+          reason: 'temporary recovery states must restore the exact BND',
         );
-        await $.pumpWidgetAndSettle(
-          _dashboard(provider: provider, documents: documents),
+        final restoredAnswers = await ReportPersistenceService.loadAnswers();
+        expect(
+            restoredAnswers['_coach_lpp_evidence_v1'], originalStrictRootJson);
+        expect(
+          provider.profile?.lppRegulationReference?.referenceId,
+          candidate.referenceId,
         );
-        missingDocuments.dispose();
-        recoveryRouter.dispose();
+        expect(documents.resolveLppRegulation(candidate), isNotNull);
+        testOnlyRootRouter.go('/retraite');
+        await $.pumpAndSettle();
+        await $(#retirement_lpp_regulation_reference_education)
+            .waitUntilVisible();
       }
 
       final firstNumericReceipt =

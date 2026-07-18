@@ -852,6 +852,18 @@ void main() {
     expect(tester.getSemantics(title).flagsCollection.isHeader, isTrue);
     expect(find.bySemanticsIdentifier(_sheetPrivacyId), findsOneWidget);
     expect(
+      find.bySemanticsIdentifier(
+        'retirement_lpp_regulation_handoff_reference_body',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsIdentifier(
+        'retirement_lpp_regulation_handoff_fund_relation',
+      ),
+      findsOneWidget,
+    );
+    expect(
       find.descendant(
         of: sheet,
         matching: find.text(l10n.retirementLppRegulationHandoffPrivacy),

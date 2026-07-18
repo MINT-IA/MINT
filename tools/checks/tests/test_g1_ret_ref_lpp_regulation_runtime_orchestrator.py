@@ -35,6 +35,12 @@ FLOW_BEFORE = (
 )
 FLOW_AFTER = ROOT / "apps/mobile/.maestro/g1_ret_ref_lpp_regulation_flag_off_after.yaml"
 FEATURE_FLAGS = ROOT / "apps/mobile/lib/services/feature_flags.dart"
+REPORT_SCREEN = (
+    ROOT / "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart"
+)
+RETIREMENT_SCREEN = (
+    ROOT / "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart"
+)
 RUNTIME_SUPPORT = (
     ROOT / "apps/mobile/integration_test/support/"
     "g1_ret_ref_lpp_regulation_runtime_contract.dart"
@@ -180,6 +186,11 @@ def test_orchestrator_is_valid_bash_exact_head_and_pushed_sha_bounded() -> None:
         "apps/mobile/lib/screens/document_scan/document_scan_screen.dart",
         "apps/mobile/lib/screens/document_scan/extraction_review_screen.dart",
         "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart",
+        "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart",
+        "apps/mobile/lib/models/financial_report.dart",
+        "apps/mobile/lib/services/financial_report_service.dart",
+        "apps/mobile/lib/services/report/lpp_regulation_handoff_section_content.dart",
+        "apps/mobile/lib/services/pdf_service.dart",
         "apps/mobile/lib/services/consent/consent_service.dart",
         "apps/mobile/lib/services/document_service.dart",
         "apps/mobile/lib/services/feature_flags.dart",
@@ -677,13 +688,28 @@ def test_cold_reader_handoff_survives_numeric_addition_and_replacement() -> None
         "expect(resolved, isNotNull);",
         "documents.byId(candidate!.referenceId)",
         "expect(typedReference.snapshotId, isNull);",
-        "RetirementDashboardScreen()",
+        "await $.pumpWidgetAndSettle(const MintApp());",
+        "final materialApp = find.byType(MaterialApp);",
+        "read<CoachProfileProvider>()",
+        "read<DocumentProvider>()",
+        "testOnlyRootRouter.go('/retraite');",
         "retirement_lpp_regulation_reference_education",
         "retirement_lpp_regulation_handoff_cta",
         "retirement_lpp_regulation_handoff_sheet",
         "retirement_lpp_regulation_handoff_title",
+        "retirement_lpp_regulation_handoff_reference_body",
+        "retirement_lpp_regulation_handoff_fund_relation",
         "retirement_lpp_regulation_handoff_privacy",
         "retirement_lpp_regulation_handoff_close",
+        "testOnlyRootRouter.go('/rapport');",
+        "financial_report_screen",
+        "financial_report_lpp_regulation_handoff",
+        "LppRegulationSpecialistHandoff.tryFromEvidence(resolved)",
+        "FinancialReportService().generateReport(",
+        "provider.reportAnswersSnapshot",
+        "PdfService.buildFinancialReportPdfBytes(",
+        "expect(pdfBytes.take(5), <int>[0x25, 0x50, 0x44, 0x46, 0x2d]);",
+        "expect(pdfBytes.length, greaterThan(1000));",
         "await provider.acceptLppReview(_firstNumericReview(",
         "final firstNumericSnapshot = provider.currentLppSnapshot(",
         "expect(firstNumericReceipt.snapshotId, firstNumericSnapshot.snapshotId);",
@@ -716,52 +742,61 @@ def test_cold_reader_handoff_survives_numeric_addition_and_replacement() -> None
         assert forbidden not in reader, forbidden
 
 
-def test_cold_reader_proves_missing_reference_recovery_and_restores_bnd() -> None:
+def test_cold_reader_proves_all_recovery_states_and_restores_authority() -> None:
     reader = READER.read_text(encoding="utf-8")
     for anchor in (
-        "import 'package:go_router/go_router.dart';",
         "const _missingDocumentReferenceBodyFr =",
-        "GoRouter _recoveryRouter()",
-        "MaterialApp.router(",
+        "const _mismatchedDocumentReferenceBodyFr =",
+        "const _legacyMissingFundRelationshipBodyFr =",
         "final referenceStore = DocumentReferenceStore();",
         "final originalDocumentReferences = await referenceStore.load();",
+        "final originalAnswers = await ReportPersistenceService.loadAnswers();",
+        "final originalStrictRootJson =",
         "await referenceStore.save(const <ConfirmedDocumentReference>[]);",
-        "final missingDocuments = DocumentProvider(now: () => now);",
-        "missingDocuments.bindLedger(provider);",
-        "await missingDocuments.hydrateReferences();",
+        "documents.clearLocalState();",
+        "await documents.hydrateReferences();",
         "LppRegulationReferenceResolution.missingDocumentReference",
-        "_recoveryDashboard(",
+        "LppRegulationReferenceResolution.mismatchedDocumentReference",
+        "LppRegulationRecoveryReason.legacyMissingFundRelationship",
+        "await ReportPersistenceService.saveLppEvidenceAnswers(",
+        "await provider.loadFromWizard();",
         "'retirement_lpp_regulation_reference_education'",
         "'retirement_lpp_regulation_handoff_cta'",
         "'retirement_lpp_regulation_reference_recovery'",
         "'retirement_lpp_regulation_reconfirm_cta'",
         "find.text(_missingDocumentReferenceBodyFr)",
+        "find.text(_mismatchedDocumentReferenceBodyFr)",
+        "find.text(_legacyMissingFundRelationshipBodyFr)",
+        "testOnlyRootRouter.go('/rapport');",
+        "'financial_report_screen'",
+        "'financial_report_lpp_regulation_handoff'",
         "isNot(contains(candidate.referenceId))",
         "isNot(contains(typedCandidate.fundRelationship.wireName))",
-        "recoveryRouter.routeInformationProvider.value.uri.toString()",
-        "'/scan?type=lppPlan'",
         "finally {",
         "await referenceStore.save(originalDocumentReferences);",
+        "await ReportPersistenceService.saveLppEvidenceAnswers(originalAnswers);",
+        "documents.clearLocalState();",
+        "await documents.hydrateReferences();",
+        "await provider.loadFromWizard();",
         "final restoredDocumentReferences = await referenceStore.load();",
-        "missingDocuments.dispose();",
-        "recoveryRouter.dispose();",
+        "final restoredAnswers = await ReportPersistenceService.loadAnswers();",
+        "restoredAnswers['_coach_lpp_evidence_v1']",
+        "originalStrictRootJson",
     ):
         assert anchor in reader, anchor
 
     persisted = reader.index(
         "await referenceStore.save(const <ConfirmedDocumentReference>[]);"
     )
-    hydrated = reader.index("await missingDocuments.hydrateReferences();")
-    recovery = reader.index("'retirement_lpp_regulation_reference_recovery'")
-    tapped = reader.index("'retirement_lpp_regulation_reconfirm_cta'")
-    routed = reader.index(
-        "recoveryRouter.routeInformationProvider.value.uri.toString()"
+    hydrated = reader.index("await documents.hydrateReferences();", persisted)
+    recovery = reader.index(
+        "await expectRecovery(_missingDocumentReferenceBodyFr);", persisted
     )
     restored = reader.index("await referenceStore.save(originalDocumentReferences);")
     verified = reader.index(
         "final restoredDocumentReferences = await referenceStore.load();"
     )
-    assert persisted < hydrated < recovery < tapped < routed < restored < verified
+    assert persisted < hydrated < recovery < restored < verified
 
     recovery_block = reader[persisted:restored]
     for forbidden in (
@@ -773,6 +808,18 @@ def test_cold_reader_proves_missing_reference_recovery_and_restores_bnd() -> Non
         "test/golden",
     ):
         assert forbidden not in recovery_block, forbidden
+
+
+def test_runtime_ui_ids_are_stable_in_normal_empty_and_handoff_states() -> None:
+    report = REPORT_SCREEN.read_text(encoding="utf-8")
+    retirement = RETIREMENT_SCREEN.read_text(encoding="utf-8")
+    assert report.count("identifier: 'financial_report_screen'") == 1
+    assert report.count("_withRuntimeScreenId(") == 3
+    for identifier in (
+        "retirement_lpp_regulation_handoff_reference_body",
+        "retirement_lpp_regulation_handoff_fund_relation",
+    ):
+        assert f"'{identifier}'" in retirement
 
 
 def test_wrappers_local_flags_and_dual_maestro_keep_production_default_off() -> None:
@@ -825,6 +872,8 @@ def test_wrappers_local_flags_and_dual_maestro_keep_production_default_off() -> 
         "lpp_regulation_review_confirm_cta",
         "retirement_lpp_regulation_reference_education",
         "retirement_lpp_regulation_handoff_sheet",
+        "financial_report_screen",
+        "financial_report_lpp_regulation_handoff",
     }
     for contents, steps in (
         (before_contents, before_steps),
@@ -832,14 +881,17 @@ def test_wrappers_local_flags_and_dual_maestro_keep_production_default_off() -> 
     ):
         assert 'openLink: "mint:///scan?type=lppPlan"' in contents
         assert 'openLink: "mint:///retraite"' in contents
+        assert 'openLink: "mint:///rapport"' in contents
         assert required_ids <= _collect_yaml_ids(steps)
         assert {
             "landing_route",
             "document_scan_capture_cta",
+            "financial_report_screen",
         } <= _ids_for_action(steps, "assertVisible")
         assert required_ids - {
             "landing_route",
             "document_scan_capture_cta",
+            "financial_report_screen",
         } <= _ids_for_action(steps, "assertNotVisible")
         for forbidden in (
             "tapOn:",
