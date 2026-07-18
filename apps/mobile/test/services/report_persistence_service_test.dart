@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _lppRoot =
     '{"schemaVersion":1,"self":null,"manualPartner":null,"legacyPartnerQuarantine":null}';
+const _pillar3aBeneficiaryRoot =
+    '{"schemaVersion":1,"contracts":[{"kind":"pillar3aBeneficiaryClause","ownerKind":"self","source":"certificate","contractReferenceId":"11111111-1111-4111-8111-111111111111","relation":"paidOrClosed","referenceId":"22222222-2222-4222-8222-222222222222","sourceDate":"2026-07-18","legalYear":2026,"confirmedAt":"2026-07-19T10:00:00.000Z","temporalBasis":null}]}';
 const _activeLppSlotKey = 'lpp_evidence_active_slot_v1';
 const _lppSlotPrefix = '_coach_lpp_evidence_slot_v1_';
 const _activeAuthoritySlotKey = 'coach_authority_active_slot_v1';
@@ -190,6 +192,23 @@ void main() {
           '_coach_taux_conversion': 0.068,
           '_coach_lpp_source': 'document_scan',
         },
+      );
+    });
+
+    test('always scrubs the contract-scoped 3a beneficiary authority root', () {
+      final localAnswers = <String, dynamic>{
+        'q_canton': 'VD',
+        '_coach_pillar3a_beneficiary_evidence_v1': _pillar3aBeneficiaryRoot,
+      };
+
+      final backendAnswers =
+          ReportPersistenceService.backendSafeAnswers(localAnswers);
+
+      expect(backendAnswers, <String, dynamic>{'q_canton': 'VD'});
+      expect(
+        localAnswers['_coach_pillar3a_beneficiary_evidence_v1'],
+        _pillar3aBeneficiaryRoot,
+        reason: 'The backend scrub must not mutate local authority.',
       );
     });
   });
@@ -650,6 +669,7 @@ void main() {
         const <String, dynamic>{
           'q_canton': 'VD',
           '_coach_lpp_evidence_v1': _lppRoot,
+          '_coach_pillar3a_beneficiary_evidence_v1': _pillar3aBeneficiaryRoot,
         },
       );
       final preferences = await SharedPreferences.getInstance();
@@ -658,7 +678,27 @@ void main() {
       const orphanSecureKey =
           '${_lppSlotPrefix}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
       mockSecureStorage['_coach_lpp_evidence_v1'] = _lppRoot;
+      mockSecureStorage['_coach_pillar3a_beneficiary_evidence_v1'] =
+          _pillar3aBeneficiaryRoot;
       mockSecureStorage[orphanSecureKey] = _lppRoot;
+
+      final authorityEnvelope = Map<String, dynamic>.from(
+        jsonDecode(mockSecureStorage[activeSecureKey]!) as Map,
+      );
+      final authorityAnswers = Map<String, dynamic>.from(
+        authorityEnvelope['answers'] as Map,
+      );
+      expect(
+        authorityAnswers['_coach_pillar3a_beneficiary_evidence_v1'],
+        _pillar3aBeneficiaryRoot,
+      );
+      expect(
+        jsonDecode(preferences.getString('wizard_answers_v2')!),
+        containsPair(
+          '_coach_pillar3a_beneficiary_evidence_v1',
+          '__secure__',
+        ),
+      );
 
       await ReportPersistenceService.clearDiagnostic();
 
@@ -666,6 +706,10 @@ void main() {
       expect(preferences.getString(_activeAuthoritySlotKey), isNull);
       expect(preferences.getString(_activeLppSlotKey), isNull);
       expect(mockSecureStorage['_coach_lpp_evidence_v1'], isNull);
+      expect(
+        mockSecureStorage['_coach_pillar3a_beneficiary_evidence_v1'],
+        isNull,
+      );
       expect(mockSecureStorage[activeSecureKey], isNull);
       expect(mockSecureStorage[orphanSecureKey], isNull);
     });

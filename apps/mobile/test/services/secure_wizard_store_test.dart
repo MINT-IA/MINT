@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,6 +15,8 @@ const _lppRootA =
     '{"schemaVersion":1,"self":null,"manualPartner":null,"legacyPartnerQuarantine":null}';
 const _lppRootB =
     '{"schemaVersion":1, "self":null,"manualPartner":null,"legacyPartnerQuarantine":null}';
+const _pillar3aBeneficiaryRoot =
+    '{"schemaVersion":1,"contracts":[{"kind":"pillar3aBeneficiaryClause","ownerKind":"self","source":"certificate","contractReferenceId":"11111111-1111-4111-8111-111111111111","relation":"paidOrClosed","referenceId":"22222222-2222-4222-8222-222222222222","sourceDate":"2026-07-18","legalYear":2026,"confirmedAt":"2026-07-19T10:00:00.000Z","temporalBasis":null}]}';
 const _activeLppSlotKey = 'lpp_evidence_active_slot_v1';
 const _lppSlotPrefix = '_coach_lpp_evidence_slot_v1_';
 const _activeAuthoritySlotKey = 'coach_authority_active_slot_v1';
@@ -72,6 +75,7 @@ void main() {
     final key = args['key'] as String?;
     if (call.method == 'write' && key != null) {
       final isLppKey = key == '_coach_lpp_evidence_v1' ||
+          key == Pillar3aBeneficiaryEvidenceRoot.answerKey ||
           key.startsWith(_lppSlotPrefix) ||
           key.startsWith(_authoritySlotPrefix);
       String? authorityLppRoot;
@@ -168,6 +172,15 @@ void main() {
       expect(SecureWizardStore.isSensitive('_coach_dettes_credit'), isTrue);
       expect(SecureWizardStore.isSensitive('_coach_dettes_leasing'), isTrue);
       expect(SecureWizardStore.isSensitive('_coach_dettes_autres'), isTrue);
+    });
+
+    test('treats the contract-scoped 3a beneficiary root as sensitive', () {
+      expect(
+        SecureWizardStore.isSensitive(
+          Pillar3aBeneficiaryEvidenceRoot.answerKey,
+        ),
+        isTrue,
+      );
     });
 
     test('does not treat public profile keys as sensitive', () {
@@ -270,6 +283,31 @@ void main() {
         expect(restored['_coach_tax_snapshots_v1'], rawRoot);
         expect(restored['_coach_tax_snapshots_v1'], isA<String>());
       }
+    });
+
+    test('pillar 3a beneficiary root round-trips only through secure storage',
+        () async {
+      final cleaned = await SecureWizardStore.secureSensitiveKeys(
+        const <String, dynamic>{
+          'q_canton': 'VD',
+          Pillar3aBeneficiaryEvidenceRoot.answerKey: _pillar3aBeneficiaryRoot,
+        },
+      );
+
+      expect(cleaned['q_canton'], 'VD');
+      expect(
+        cleaned[Pillar3aBeneficiaryEvidenceRoot.answerKey],
+        '__secure__',
+      );
+      expect(
+        secureStorageValues[Pillar3aBeneficiaryEvidenceRoot.answerKey],
+        _pillar3aBeneficiaryRoot,
+      );
+      final restored = await SecureWizardStore.restoreSensitiveKeys(cleaned);
+      expect(
+        restored[Pillar3aBeneficiaryEvidenceRoot.answerKey],
+        _pillar3aBeneficiaryRoot,
+      );
     });
 
     test(
@@ -443,6 +481,7 @@ void main() {
         const <String, dynamic>{
           'q_canton': 'VD',
           '_coach_lpp_evidence_v1': _lppRootA,
+          Pillar3aBeneficiaryEvidenceRoot.answerKey: _pillar3aBeneficiaryRoot,
         },
       );
 
@@ -460,6 +499,18 @@ void main() {
         _lppRootA,
       );
       expect(
+        _authorityAnswers(secureStorageValues, activeSecureKey)[
+            Pillar3aBeneficiaryEvidenceRoot.answerKey],
+        _pillar3aBeneficiaryRoot,
+      );
+      expect(
+        jsonDecode(preferences.getString('wizard_answers_v2')!),
+        containsPair(
+          '_coach_pillar3a_beneficiary_evidence_v1',
+          '__secure__',
+        ),
+      );
+      expect(
         preferences.getString('wizard_answers_v2'),
         isNot(contains(activeSlotId)),
       );
@@ -467,6 +518,10 @@ void main() {
       final restored = await ReportPersistenceService.loadAnswers();
       expect(restored['q_canton'], 'VD');
       expect(restored['_coach_lpp_evidence_v1'], _lppRootA);
+      expect(
+        restored['_coach_pillar3a_beneficiary_evidence_v1'],
+        _pillar3aBeneficiaryRoot,
+      );
     });
 
     test('successful replacement activates new slot and cleans the old slot',
@@ -758,6 +813,32 @@ void main() {
 
       expect(
         secureStorageValues.keys.where((key) => key.startsWith(_lppSlotPrefix)),
+        isEmpty,
+      );
+    });
+
+    test('strict purge removes fixed and unified 3a beneficiary authority',
+        () async {
+      await ReportPersistenceService.saveLppEvidenceAnswers(
+        const <String, dynamic>{
+          '_coach_lpp_evidence_v1': _lppRootA,
+          Pillar3aBeneficiaryEvidenceRoot.answerKey: _pillar3aBeneficiaryRoot,
+        },
+      );
+      await SecureWizardStore.write(
+        Pillar3aBeneficiaryEvidenceRoot.answerKey,
+        _pillar3aBeneficiaryRoot,
+      );
+
+      await SecureWizardStore.deleteAllStrict();
+
+      expect(
+        secureStorageValues[Pillar3aBeneficiaryEvidenceRoot.answerKey],
+        isNull,
+      );
+      expect(
+        secureStorageValues.keys
+            .where((key) => key.startsWith(_authoritySlotPrefix)),
         isEmpty,
       );
     });
