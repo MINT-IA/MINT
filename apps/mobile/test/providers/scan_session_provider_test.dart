@@ -17,11 +17,36 @@ const _extraction = ExtractionResult(
 
 const _regulationSnapshotId = '33333333-3333-4333-8333-333333333333';
 const _regulationReferenceId = '44444444-4444-4444-8444-444444444444';
+const _missingSnapshotApi = 'missing-snapshot-api';
 
-final _regulationCandidate = LppRegulationAcquisitionCandidate(
-  expectedSnapshotId: _regulationSnapshotId,
-  expectedPreviousReferenceId: _regulationReferenceId,
-);
+LppRegulationAcquisitionCandidate get _regulationCandidate {
+  try {
+    return Function.apply(
+      LppRegulationAcquisitionCandidate.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #expectedPreviousReferenceId: _regulationReferenceId,
+      },
+    ) as LppRegulationAcquisitionCandidate;
+  } on NoSuchMethodError {
+    return Function.apply(
+      LppRegulationAcquisitionCandidate.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #expectedSnapshotId: _regulationSnapshotId,
+        #expectedPreviousReferenceId: _regulationReferenceId,
+      },
+    ) as LppRegulationAcquisitionCandidate;
+  }
+}
+
+Object? _candidateSnapshotId(dynamic candidate) {
+  try {
+    return candidate.expectedSnapshotId;
+  } on NoSuchMethodError {
+    return _missingSnapshotApi;
+  }
+}
 
 ExtractionResult _regulationExtraction({
   List<ExtractedField> fields = const <ExtractedField>[],
@@ -231,15 +256,21 @@ void main() {
   test('LPP regulation candidate stays local and volatile until review', () {
     final provider = ScanSessionProvider();
     final extraction = _regulationExtraction();
+    final candidate = _regulationCandidate;
 
     final id = provider.retainExtraction(
       extraction,
-      lppRegulationCandidate: _regulationCandidate,
+      lppRegulationCandidate: candidate,
     );
 
     final payload = provider.byId(id)!;
     expect(payload.extraction, same(extraction));
-    expect(payload.lppRegulationCandidate, same(_regulationCandidate));
+    expect(payload.lppRegulationCandidate, same(candidate));
+    expect(
+      _candidateSnapshotId(payload.lppRegulationCandidate),
+      _missingSnapshotApi,
+      reason: 'The volatile plan authority must not retain a numeric snapshot.',
+    );
     expect(payload.lppCandidate, isNull);
     expect(payload.lppAuthorization, isNull);
     expect(payload.manualPartnerAccountability, isNull);
@@ -322,9 +353,10 @@ void main() {
 
   test('LPP regulation session cannot enter the impact path', () {
     final provider = ScanSessionProvider();
+    final candidate = _regulationCandidate;
     final id = provider.retainExtraction(
       _regulationExtraction(),
-      lppRegulationCandidate: _regulationCandidate,
+      lppRegulationCandidate: candidate,
     );
 
     expect(
@@ -337,7 +369,7 @@ void main() {
     );
     expect(
       provider.byId(id)?.lppRegulationCandidate,
-      same(_regulationCandidate),
+      same(candidate),
     );
   });
 }

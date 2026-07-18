@@ -8,6 +8,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/session_epoch.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const _snapshotId = '11111111-1111-4111-8111-111111111111';
 const _ownerId = '22222222-2222-4222-8222-222222222222';
@@ -15,6 +16,7 @@ const _genericReferenceId = '33333333-3333-4333-8333-333333333333';
 const _capitalReferenceId = '44444444-4444-4444-8444-444444444444';
 const _forgedReferenceId = '55555555-5555-4555-8555-555555555555';
 const _forgedSnapshotId = '66666666-6666-4666-8666-666666666666';
+const _missingSnapshotApi = 'missing-snapshot-api';
 
 final class _MemoryLppPersistence
     with SerializedCanonicalAnswerMutationPersistence
@@ -70,55 +72,167 @@ final class _MemoryReferenceStore extends DocumentReferenceStore {
   }
 }
 
-Map<String, dynamic> _answers(DateTime now) => <String, dynamic>{
+final class _FailingMigrationReferenceStore extends DocumentReferenceStore {
+  _FailingMigrationReferenceStore(SharedPreferences preferences)
+      : super(preferencesLoader: () async => preferences);
+
+  @override
+  Future<void> save(List<ConfirmedDocumentReference> references) async {
+    throw StateError('synthetic schema migration persistence failure');
+  }
+}
+
+Map<String, dynamic> _numericSelf(DateTime now) => <String, dynamic>{
+      'snapshotId': _snapshotId,
+      'facts': <String, dynamic>{
+        'vestedBenefitsCapitalChf': <String, dynamic>{
+          'value': 125000.0,
+          'unit': 'CHF',
+          'owner': <String, dynamic>{
+            'kind': 'self',
+            'profileOwnerId': _ownerId,
+          },
+          'actor': <String, dynamic>{'profileOwnerId': _ownerId},
+          'authorization': <String, dynamic>{
+            'mode': 'self',
+            'grantId': null,
+          },
+          'provenance': <String, dynamic>{
+            'source': 'certificate',
+            'sourceDate': '2026-01-31',
+            'updatedAt':
+                now.subtract(const Duration(days: 1)).toUtc().toIso8601String(),
+          },
+        },
+      },
+    };
+
+String _schema1Root(DateTime now) => jsonEncode(<String, dynamic>{
+      'schemaVersion': 1,
+      'self': _numericSelf(now),
+      'manualPartner': null,
+      'legacyPartnerQuarantine': null,
+    });
+
+String _schema2Root(DateTime now, {bool includeSelf = true}) =>
+    jsonEncode(<String, dynamic>{
+      'schemaVersion': 2,
+      'self': includeSelf ? _numericSelf(now) : null,
+      'manualPartner': null,
+      'legacyPartnerQuarantine': null,
+      'selfRegulationReference': null,
+    });
+
+String _compatibleRoot(DateTime now) => LppEvidenceRoot.fromJsonString(
+          _schema2Root(now),
+          now: () => now,
+        ) !=
+        null
+    ? _schema2Root(now)
+    : _schema1Root(now);
+
+Map<String, dynamic> _answers(DateTime now, {String? root}) =>
+    <String, dynamic>{
       'q_birth_year': 1981,
       'q_canton': 'VD',
       'q_civil_status': 'celibataire',
       'q_has_pension_fund': 'yes',
-      '_coach_lpp_evidence_v1': jsonEncode(<String, dynamic>{
-        'schemaVersion': 1,
-        'self': <String, dynamic>{
-          'snapshotId': _snapshotId,
-          'facts': <String, dynamic>{
-            'vestedBenefitsCapitalChf': <String, dynamic>{
-              'value': 125000.0,
-              'unit': 'CHF',
-              'owner': <String, dynamic>{
-                'kind': 'self',
-                'profileOwnerId': _ownerId,
-              },
-              'actor': <String, dynamic>{'profileOwnerId': _ownerId},
-              'authorization': <String, dynamic>{
-                'mode': 'self',
-                'grantId': null,
-              },
-              'provenance': <String, dynamic>{
-                'source': 'certificate',
-                'sourceDate': '2026-01-31',
-                'updatedAt': now
-                    .subtract(const Duration(days: 1))
-                    .toUtc()
-                    .toIso8601String(),
-              },
-            },
-          },
-        },
-        'manualPartner': null,
-        'legacyPartnerQuarantine': null,
-      }),
+      '_coach_lpp_evidence_v1': root ?? _compatibleRoot(now),
     };
+
+Map<String, dynamic> _regulationJson({
+  String referenceId = '77777777-7777-4777-8777-777777777777',
+  int legalYear = 2026,
+  String fundRelationship = 'currentFund',
+  String confirmedAt = '2026-02-04T09:30:00.000Z',
+}) =>
+    <String, dynamic>{
+      'referenceId': referenceId,
+      'kind': 'lppRegulation',
+      'ownerKind': 'self',
+      'source': 'certificate',
+      'sourceDate': '2026-02-03',
+      'legalYear': legalYear,
+      'confirmedAt': confirmedAt,
+      'fundRelationship': fundRelationship,
+    };
+
+dynamic _fundRelationship(String wireName) {
+  final dynamic reference = LppRegulationReference.fromJson(
+    _regulationJson(fundRelationship: wireName),
+    now: () => DateTime.utc(2026, 7, 18, 12),
+  );
+  return reference?.fundRelationship;
+}
 
 LppRegulationReviewConfirmation _confirmation({
   int legalYear = 2026,
+  String fundRelationship = 'currentFund',
   String? expectedPreviousReferenceId,
-}) =>
-    LppRegulationReviewConfirmation(
-      ownerKind: LppEvidenceOwnerKind.self,
-      sourceDate: DateTime.utc(2026, 2, 3),
-      legalYear: legalYear,
-      expectedSnapshotId: _snapshotId,
-      expectedPreviousReferenceId: expectedPreviousReferenceId,
-    );
+}) {
+  try {
+    return Function.apply(
+      LppRegulationReviewConfirmation.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #ownerKind: LppEvidenceOwnerKind.self,
+        #sourceDate: DateTime.utc(2026, 2, 3),
+        #legalYear: legalYear,
+        #fundRelationship: _fundRelationship(fundRelationship),
+        if (expectedPreviousReferenceId != null)
+          #expectedPreviousReferenceId: expectedPreviousReferenceId,
+      },
+    ) as LppRegulationReviewConfirmation;
+  } on NoSuchMethodError {
+    return Function.apply(
+      LppRegulationReviewConfirmation.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #ownerKind: LppEvidenceOwnerKind.self,
+        #sourceDate: DateTime.utc(2026, 2, 3),
+        #legalYear: legalYear,
+        #expectedSnapshotId: _snapshotId,
+        if (expectedPreviousReferenceId != null)
+          #expectedPreviousReferenceId: expectedPreviousReferenceId,
+      },
+    ) as LppRegulationReviewConfirmation;
+  }
+}
+
+LppRegulationReceipt _receipt({
+  required String referenceId,
+  required DateTime confirmedAt,
+  String snapshotId = _snapshotId,
+}) {
+  try {
+    return Function.apply(
+      LppRegulationReceipt.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #referenceId: referenceId,
+        #confirmedAt: confirmedAt,
+      },
+    ) as LppRegulationReceipt;
+  } on NoSuchMethodError {
+    return Function.apply(
+      LppRegulationReceipt.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #referenceId: referenceId,
+        #snapshotId: snapshotId,
+        #confirmedAt: confirmedAt,
+      },
+    ) as LppRegulationReceipt;
+  }
+}
+
+Object? _snapshotIdOf(dynamic value) {
+  try {
+    return value.snapshotId;
+  } on NoSuchMethodError {
+    return _missingSnapshotApi;
+  }
+}
 
 LppCapitalNoticeReviewConfirmation _capitalConfirmation() =>
     LppCapitalNoticeReviewConfirmation(
@@ -129,20 +243,45 @@ LppCapitalNoticeReviewConfirmation _capitalConfirmation() =>
       expectedSnapshotId: _snapshotId,
     );
 
+LppReviewConfirmation _replacementReview(DateTime now) => LppReviewConfirmation(
+      authorization: LppAcquisitionAuthorization(
+        acquisitionId: '88888888-8888-4888-8888-888888888888',
+        subject: LppEvidenceOwnerKind.self,
+        partnerAttested: false,
+        policyVersion: LppAcquisitionAuthorization.currentPolicyVersion,
+        declaredAt: now.subtract(const Duration(minutes: 5)),
+        documentSha256:
+            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      ),
+      sourceDate: DateTime.utc(2026, 3, 31),
+      facts: const <LppEvidenceFactKey, LppReviewedFact>{
+        LppEvidenceFactKey.vestedBenefitsCapitalChf: LppReviewedFact(
+          value: 130000,
+          unit: LppEvidenceUnit.chf,
+        ),
+      },
+    );
+
 Future<
     ({
       CoachProfileProvider ledger,
       _MemoryLppPersistence persistence,
       LppRegulationReceipt receipt,
-    })> _acceptedRegulation(DateTime now) async {
-  final persistence = _MemoryLppPersistence(_answers(now));
+    })> _acceptedRegulation(
+  DateTime now, {
+  String? root,
+  String fundRelationship = 'currentFund',
+}) async {
+  final persistence = _MemoryLppPersistence(_answers(now, root: root));
   final ledger = CoachProfileProvider(
     taxProfilePersistence: persistence,
     lppProfilePersistence: persistence,
     now: () => now,
   );
   await ledger.loadFromWizard();
-  final receipt = await ledger.acceptLppRegulationReference(_confirmation());
+  final receipt = await ledger.acceptLppRegulationReference(
+    _confirmation(fundRelationship: fundRelationship),
+  );
   return (ledger: ledger, persistence: persistence, receipt: receipt);
 }
 
@@ -163,20 +302,22 @@ ConfirmedDocumentReference _opaqueReference({
 SpecialistReferenceEvidence _regulationEvidence({
   required String referenceId,
   required DateTime confirmedAt,
-}) =>
-    SpecialistReferenceEvidence.tryFromJson(
-      <String, dynamic>{
-        'referenceId': referenceId,
-        'kind': LppRegulationReference.kind,
-        'ownerKind': 'self',
-        'source': 'certificate',
-        'sourceDate': '2026-02-03',
-        'legalYear': 2026,
-        'confirmedAt': confirmedAt.toUtc().toIso8601String(),
-      },
-      expectedKind: SpecialistReferenceKind.lppRegulation,
-      now: confirmedAt.add(const Duration(seconds: 1)),
-    )!;
+}) {
+  final next = _regulationJson(
+    referenceId: referenceId,
+    confirmedAt: confirmedAt.toUtc().toIso8601String(),
+  );
+  return SpecialistReferenceEvidence.tryFromJson(
+        next,
+        expectedKind: SpecialistReferenceKind.lppRegulation,
+        now: confirmedAt.add(const Duration(seconds: 1)),
+      ) ??
+      SpecialistReferenceEvidence.tryFromJson(
+        Map<String, dynamic>.from(next)..remove('fundRelationship'),
+        expectedKind: SpecialistReferenceKind.lppRegulation,
+        now: confirmedAt.add(const Duration(seconds: 1)),
+      )!;
+}
 
 SpecialistReferenceEvidence _capitalEvidence(DateTime confirmedAt) =>
     SpecialistReferenceEvidence.tryFromJson(
@@ -194,6 +335,27 @@ SpecialistReferenceEvidence _capitalEvidence(DateTime confirmedAt) =>
       now: confirmedAt.add(const Duration(seconds: 1)),
     )!;
 
+Map<String, dynamic> _legacyReferenceRoot(DateTime confirmedAt) =>
+    <String, dynamic>{
+      'schemaVersion': 1,
+      'references': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'referenceId': _genericReferenceId,
+          'kind': ConfirmedDocumentReference.lppKind,
+          'snapshotId': _snapshotId,
+          'ownerKind': 'self',
+          'confirmedAt': confirmedAt.toIso8601String(),
+        },
+        <String, dynamic>{
+          'referenceId': _forgedReferenceId,
+          'kind': LppRegulationReference.kind,
+          'snapshotId': _forgedSnapshotId,
+          'ownerKind': 'self',
+          'confirmedAt': confirmedAt.toIso8601String(),
+        },
+      ],
+    };
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -207,6 +369,87 @@ void main() {
     FeatureFlags.lppCapitalNoticeDeadlineEnabled = false;
     FeatureFlags.lppRegulationReferenceEnabled = false;
     FeatureFlags.typedLppEvidence = false;
+  });
+
+  test('regulation BND is exact metadata with no snapshot key', () {
+    final confirmedAt = DateTime.utc(2026, 2, 4, 9, 30);
+    final encoded = <String, dynamic>{
+      'referenceId': _forgedReferenceId,
+      'kind': LppRegulationReference.kind,
+      'ownerKind': 'self',
+      'confirmedAt': confirmedAt.toIso8601String(),
+    };
+
+    final reference = ConfirmedDocumentReference.fromJson(encoded);
+
+    expect(reference, isNotNull);
+    expect(reference!.toJson(), encoded);
+    expect(_snapshotIdOf(reference), isNull);
+
+    final legacySnapshotBound = <String, dynamic>{
+      ...encoded,
+      'snapshotId': _snapshotId,
+    };
+    expect(
+      ConfirmedDocumentReference.fromJson(legacySnapshotBound),
+      isNull,
+      reason: 'Legacy regulation BND rows are dropped, never promoted.',
+    );
+  });
+
+  test('store migrates schema 1 by dropping only snapshot-bound regulation',
+      () async {
+    final confirmedAt = DateTime.utc(2026, 2, 4, 9, 30);
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      DocumentReferenceStore.storageKey:
+          jsonEncode(_legacyReferenceRoot(confirmedAt)),
+    });
+    final preferences = await SharedPreferences.getInstance();
+    final store = DocumentReferenceStore(
+      preferencesLoader: () async => preferences,
+    );
+
+    final loaded = await store.load();
+
+    expect(loaded, hasLength(1));
+    expect(loaded.single.referenceId, _genericReferenceId);
+    expect(loaded.single.kind, ConfirmedDocumentReference.lppKind);
+    expect(_snapshotIdOf(loaded.single), _snapshotId);
+    final persisted = Map<String, dynamic>.from(
+      jsonDecode(
+        preferences.getString(DocumentReferenceStore.storageKey)!,
+      ) as Map,
+    );
+    expect(persisted['schemaVersion'], 2);
+    expect(persisted['references'], hasLength(1));
+    expect(
+      (persisted['references'] as List).single,
+      loaded.single.toJson(),
+    );
+  });
+
+  test('schema migration save failure publishes no hydrated references',
+      () async {
+    final confirmedAt = DateTime.utc(2026, 2, 4, 9, 30);
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      DocumentReferenceStore.storageKey:
+          jsonEncode(_legacyReferenceRoot(confirmedAt)),
+    });
+    final preferences = await SharedPreferences.getInstance();
+    final store = _FailingMigrationReferenceStore(preferences);
+    final documents = DocumentProvider(referenceStore: store);
+    addTearDown(documents.dispose);
+
+    await expectLater(documents.hydrateReferences(), throwsStateError);
+
+    expect(
+      documents.referenceHydrationState,
+      DocumentReferenceHydrationState.failed,
+    );
+    expect(documents.referencesHydrated, isFalse);
+    expect(documents.hasStoredReference(_genericReferenceId), isFalse);
+    expect(documents.hasStoredReference(_forgedReferenceId), isFalse);
+    expect(documents.currentReferences, isEmpty);
   });
 
   test('record rejects missing ledger before load or save', () async {
@@ -258,9 +501,8 @@ void main() {
 
     documents.bindLedger(accepted.ledger);
     await expectLater(
-      documents.recordLppRegulation(LppRegulationReceipt(
+      documents.recordLppRegulation(_receipt(
         referenceId: _forgedReferenceId,
-        snapshotId: accepted.receipt.snapshotId,
         confirmedAt: accepted.receipt.confirmedAt,
       )),
       throwsStateError,
@@ -292,10 +534,11 @@ void main() {
     expect(reference.toJson(), <String, dynamic>{
       'referenceId': accepted.receipt.referenceId,
       'kind': LppRegulationReference.kind,
-      'snapshotId': accepted.receipt.snapshotId,
       'ownerKind': 'self',
       'confirmedAt': accepted.receipt.confirmedAt.toIso8601String(),
     });
+    expect(_snapshotIdOf(accepted.receipt), _missingSnapshotApi);
+    expect(_snapshotIdOf(reference), isNull);
     expect(retry.toJson(), reference.toJson());
     expect(documents.hasStoredReference(reference.referenceId), isTrue);
     expect(store.references, hasLength(1));
@@ -483,10 +726,62 @@ void main() {
     await expectOrder(regulationFirst: false);
   });
 
-  test('cold resolver requires exact hydration, kind, tuple, and snapshot',
+  test(
+      'numeric snapshot replacement keeps only regulation snapshotless resolution',
       () async {
     final now = DateTime.utc(2026, 7, 18, 12);
     final accepted = await _acceptedRegulation(now);
+    addTearDown(accepted.ledger.dispose);
+    final store = _MemoryReferenceStore(initial: <ConfirmedDocumentReference>[
+      _opaqueReference(
+        referenceId: _genericReferenceId,
+        kind: ConfirmedDocumentReference.lppKind,
+        confirmedAt: now.subtract(const Duration(minutes: 2)),
+      ),
+      _opaqueReference(
+        referenceId: _capitalReferenceId,
+        kind: LppCapitalNoticeDeadline.kind,
+        confirmedAt: now.subtract(const Duration(minutes: 1)),
+      ),
+    ]);
+    final documents = DocumentProvider(referenceStore: store, now: () => now);
+    addTearDown(documents.dispose);
+    documents.bindLedger(accepted.ledger);
+    final regulation = await documents.recordLppRegulation(accepted.receipt);
+
+    expect(documents.currentReferences, hasLength(3));
+    expect(documents.byId(regulation.referenceId), isNotNull);
+    expect(documents.byId(_genericReferenceId), isNotNull);
+    expect(documents.byId(_capitalReferenceId), isNotNull);
+
+    final numericReceipt = await accepted.ledger.acceptLppReview(
+      _replacementReview(now),
+    );
+
+    expect(numericReceipt.snapshotId, isNot(_snapshotId));
+    expect(
+      documents.currentReferences.map((reference) => reference.referenceId),
+      <String>[accepted.receipt.referenceId],
+    );
+    expect(documents.byId(regulation.referenceId), isNotNull);
+    expect(documents.byId(_genericReferenceId), isNull);
+    expect(documents.byId(_capitalReferenceId), isNull);
+    expect(
+      documents.resolveLppRegulation(
+        accepted.ledger.profile!.lppRegulationReference,
+      ),
+      isNotNull,
+    );
+  });
+
+  test('cold resolver uses autonomous tuple without a numeric snapshot',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    final accepted = await _acceptedRegulation(
+      now,
+      root: _schema2Root(now, includeSelf: false),
+      fundRelationship: 'uncertain',
+    );
     addTearDown(accepted.ledger.dispose);
     final store = _MemoryReferenceStore();
     final writer = DocumentProvider(referenceStore: store);
@@ -511,6 +806,17 @@ void main() {
       coldDocuments.resolveLppRegulation(candidate)?.referenceId,
       accepted.receipt.referenceId,
     );
+    expect(_snapshotIdOf(accepted.receipt), _missingSnapshotApi);
+    expect(
+      _snapshotIdOf(
+        store.references.singleWhere(
+          (reference) => reference.kind == LppRegulationReference.kind,
+        ),
+      ),
+      isNull,
+    );
+    final dynamic typedCandidate = candidate;
+    expect(typedCandidate.fundRelationship.wireName, 'uncertain');
 
     expect(coldDocuments.resolveLppRegulation(_capitalEvidence(now)), isNull);
     expect(
@@ -529,7 +835,7 @@ void main() {
       isNull,
     );
 
-    final wrongSnapshot = DocumentProvider(
+    final legacySnapshotBound = DocumentProvider(
       referenceStore: _MemoryReferenceStore(initial: [
         _opaqueReference(
           referenceId: accepted.receipt.referenceId,
@@ -539,10 +845,10 @@ void main() {
         ),
       ]),
     );
-    addTearDown(wrongSnapshot.dispose);
-    wrongSnapshot.bindLedger(coldLedger);
-    await wrongSnapshot.hydrateReferences();
-    expect(wrongSnapshot.resolveLppRegulation(candidate), isNull);
+    addTearDown(legacySnapshotBound.dispose);
+    legacySnapshotBound.bindLedger(coldLedger);
+    await legacySnapshotBound.hydrateReferences();
+    expect(legacySnapshotBound.resolveLppRegulation(candidate), isNull);
 
     final failed = DocumentProvider(
       referenceStore: _MemoryReferenceStore(failLoad: true),

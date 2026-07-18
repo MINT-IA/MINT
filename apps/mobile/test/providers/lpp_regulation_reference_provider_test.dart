@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 const _snapshotId = '11111111-1111-4111-8111-111111111111';
 const _replacementSnapshotId = '22222222-2222-4222-8222-222222222222';
 const _ownerId = '33333333-3333-4333-8333-333333333333';
+const _missingSnapshotApi = 'missing-snapshot-api';
 
 final class _MemoryLppPersistence
     with SerializedCanonicalAnswerMutationPersistence
@@ -64,7 +65,7 @@ Map<String, dynamic> _factJson(DateTime updatedAt) => <String, dynamic>{
       },
     };
 
-String _rootJson(
+String _schema1RootJson(
   DateTime now, {
   String snapshotId = _snapshotId,
   bool includeSelf = true,
@@ -88,6 +89,59 @@ String _rootJson(
       'legacyPartnerQuarantine': null,
     });
 
+String _schema2RootJson(
+  DateTime now, {
+  String snapshotId = _snapshotId,
+  bool includeSelf = true,
+  bool factless = false,
+  Map<String, dynamic>? selfRegulationReference,
+}) =>
+    jsonEncode(<String, dynamic>{
+      'schemaVersion': 2,
+      'self': includeSelf
+          ? <String, dynamic>{
+              'snapshotId': snapshotId,
+              'facts': factless
+                  ? <String, dynamic>{}
+                  : <String, dynamic>{
+                      'vestedBenefitsCapitalChf': _factJson(
+                        now.subtract(const Duration(days: 1)),
+                      ),
+                    },
+            }
+          : null,
+      'manualPartner': null,
+      'legacyPartnerQuarantine': null,
+      'selfRegulationReference': selfRegulationReference,
+    });
+
+bool _supportsAutonomousRoot(DateTime now) =>
+    LppEvidenceRoot.fromJsonString(
+      _schema2RootJson(now, includeSelf: false),
+      now: () => now,
+    ) !=
+    null;
+
+String _rootJson(
+  DateTime now, {
+  String snapshotId = _snapshotId,
+  bool includeSelf = true,
+  bool factless = false,
+}) =>
+    _supportsAutonomousRoot(now)
+        ? _schema2RootJson(
+            now,
+            snapshotId: snapshotId,
+            includeSelf: includeSelf,
+            factless: factless,
+          )
+        : _schema1RootJson(
+            now,
+            snapshotId: snapshotId,
+            includeSelf: includeSelf,
+            factless: factless,
+          );
+
 Map<String, dynamic> _answers(DateTime now, {String? root}) =>
     <String, dynamic>{
       'q_birth_year': 1981,
@@ -97,19 +151,125 @@ Map<String, dynamic> _answers(DateTime now, {String? root}) =>
       '_coach_lpp_evidence_v1': root ?? _rootJson(now),
     };
 
+Map<String, dynamic> _referenceJson({
+  String referenceId = '44444444-4444-4444-8444-444444444444',
+  int legalYear = 2026,
+  String fundRelationship = 'currentFund',
+  String confirmedAt = '2026-02-04T09:30:00.000Z',
+}) =>
+    <String, dynamic>{
+      'referenceId': referenceId,
+      'kind': 'lppRegulation',
+      'ownerKind': 'self',
+      'source': 'certificate',
+      'sourceDate': '2026-02-03',
+      'legalYear': legalYear,
+      'confirmedAt': confirmedAt,
+      'fundRelationship': fundRelationship,
+    };
+
+dynamic _fundRelationship(String wireName) {
+  final dynamic reference = LppRegulationReference.fromJson(
+    _referenceJson(fundRelationship: wireName),
+    now: () => DateTime.utc(2026, 7, 18, 12),
+  );
+  return reference?.fundRelationship;
+}
+
 LppRegulationReviewConfirmation _confirmation({
   LppEvidenceOwnerKind ownerKind = LppEvidenceOwnerKind.self,
   DateTime? sourceDate,
   int legalYear = 2026,
-  String expectedSnapshotId = _snapshotId,
+  String fundRelationship = 'currentFund',
   String? expectedPreviousReferenceId,
+}) {
+  try {
+    return Function.apply(
+      LppRegulationReviewConfirmation.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #ownerKind: ownerKind,
+        #sourceDate: sourceDate ?? DateTime.utc(2026, 2, 3),
+        #legalYear: legalYear,
+        #fundRelationship: _fundRelationship(fundRelationship),
+        if (expectedPreviousReferenceId != null)
+          #expectedPreviousReferenceId: expectedPreviousReferenceId,
+      },
+    ) as LppRegulationReviewConfirmation;
+  } on NoSuchMethodError {
+    return Function.apply(
+      LppRegulationReviewConfirmation.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #ownerKind: ownerKind,
+        #sourceDate: sourceDate ?? DateTime.utc(2026, 2, 3),
+        #legalYear: legalYear,
+        #expectedSnapshotId: _snapshotId,
+        if (expectedPreviousReferenceId != null)
+          #expectedPreviousReferenceId: expectedPreviousReferenceId,
+      },
+    ) as LppRegulationReviewConfirmation;
+  }
+}
+
+LppRegulationReceipt _forgedReceipt({
+  required String referenceId,
+  required DateTime confirmedAt,
+  String snapshotId = _snapshotId,
+}) {
+  try {
+    return Function.apply(
+      LppRegulationReceipt.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #referenceId: referenceId,
+        #confirmedAt: confirmedAt,
+      },
+    ) as LppRegulationReceipt;
+  } on NoSuchMethodError {
+    return Function.apply(
+      LppRegulationReceipt.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #referenceId: referenceId,
+        #snapshotId: snapshotId,
+        #confirmedAt: confirmedAt,
+      },
+    ) as LppRegulationReceipt;
+  }
+}
+
+Object? _receiptSnapshotId(dynamic receipt) {
+  try {
+    return receipt.snapshotId;
+  } on NoSuchMethodError {
+    return _missingSnapshotApi;
+  }
+}
+
+Object? _rootRegulation(dynamic root) {
+  try {
+    return root.selfRegulationReference;
+  } on NoSuchMethodError {
+    return _missingSnapshotApi;
+  }
+}
+
+dynamic _constructFutureConfirmation({
+  Object? ownerKind = LppEvidenceOwnerKind.self,
+  Object? sourceDate,
+  Object? legalYear = 2026,
+  Object? fundRelationship,
 }) =>
-    LppRegulationReviewConfirmation(
-      ownerKind: ownerKind,
-      sourceDate: sourceDate ?? DateTime.utc(2026, 2, 3),
-      legalYear: legalYear,
-      expectedSnapshotId: expectedSnapshotId,
-      expectedPreviousReferenceId: expectedPreviousReferenceId,
+    Function.apply(
+      LppRegulationReviewConfirmation.new,
+      const <Object?>[],
+      <Symbol, Object?>{
+        #ownerKind: ownerKind,
+        #sourceDate: sourceDate ?? DateTime.utc(2026, 2, 3),
+        #legalYear: legalYear,
+        #fundRelationship: fundRelationship ?? _fundRelationship('currentFund'),
+      },
     );
 
 LppCapitalNoticeReviewConfirmation _capitalConfirmation() =>
@@ -216,29 +376,20 @@ void main() {
     const dynamic incompleteSourceDate = '2026-02';
 
     expect(
-      () => LppRegulationReviewConfirmation(
-        ownerKind: LppEvidenceOwnerKind.self,
+      () => _constructFutureConfirmation(
         sourceDate: incompleteSourceDate,
-        legalYear: 2026,
-        expectedSnapshotId: _snapshotId,
       ),
       throwsA(anything),
     );
     expect(
-      () => LppRegulationReviewConfirmation(
+      () => _constructFutureConfirmation(
         ownerKind: LppEvidenceOwnerKind.manualPartner,
-        sourceDate: DateTime.utc(2026, 2, 3),
-        legalYear: 2026,
-        expectedSnapshotId: _snapshotId,
       ),
       throwsA(anything),
     );
     expect(
-      () => LppRegulationReviewConfirmation(
-        ownerKind: LppEvidenceOwnerKind.self,
-        sourceDate: DateTime.utc(2026, 2, 3),
+      () => _constructFutureConfirmation(
         legalYear: 0,
-        expectedSnapshotId: _snapshotId,
       ),
       throwsA(anything),
     );
@@ -247,56 +398,79 @@ void main() {
     expect(notifications, 0);
   });
 
-  test('invalid owner, root, binding, and dates reject without I/O or notify',
+  test('reference-only schema 2 accepts without a numeric self snapshot',
       () async {
     final now = DateTime.utc(2026, 7, 18, 12);
     FeatureFlags.lppRegulationReferenceEnabled = true;
-    final cases = <({
-      String name,
-      String root,
-      LppRegulationReviewConfirmation confirmation
-    })>[
-      (
-        name: 'missing self',
-        root: _rootJson(now, includeSelf: false),
-        confirmation: _confirmation(),
-      ),
-      (
-        name: 'factless self',
-        root: _rootJson(now, factless: true),
-        confirmation: _confirmation(),
-      ),
-      (
-        name: 'stale expected snapshot',
-        root: _rootJson(now),
-        confirmation: _confirmation(
-          expectedSnapshotId: _replacementSnapshotId,
-        ),
-      ),
-      (
-        name: 'future source date',
-        root: _rootJson(now),
-        confirmation: _confirmation(
-          sourceDate: DateTime.utc(2026, 7, 19),
-        ),
-      ),
-    ];
+    final loaded = await _loadedProvider(
+      now,
+      root: _schema2RootJson(now, includeSelf: false),
+    );
+    addTearDown(loaded.provider.dispose);
 
-    for (final item in cases) {
-      final loaded = await _loadedProvider(now, root: item.root);
-      addTearDown(loaded.provider.dispose);
-      var notifications = 0;
-      loaded.provider.addListener(() => notifications += 1);
+    final confirmation = _confirmation(fundRelationship: 'uncertain');
+    expect(_receiptSnapshotId(confirmation), _missingSnapshotApi);
+    final receipt = await loaded.provider.acceptLppRegulationReference(
+      confirmation,
+    );
 
-      await expectLater(
-        loaded.provider.acceptLppRegulationReference(item.confirmation),
-        throwsA(anything),
-        reason: item.name,
-      );
-      expect(loaded.persistence.loadCalls, 0, reason: item.name);
-      expect(loaded.persistence.saveCalls, 0, reason: item.name);
-      expect(notifications, 0, reason: item.name);
-    }
+    final root = LppEvidenceRoot.fromJsonString(
+      loaded.persistence.answers['_coach_lpp_evidence_v1'],
+      now: () => now,
+    );
+    expect(root, isNotNull);
+    expect(root!.self, isNull);
+    final dynamic reference = _rootRegulation(root);
+    expect(reference.fundRelationship.wireName, 'uncertain');
+    expect(_receiptSnapshotId(receipt), _missingSnapshotApi);
+  });
+
+  test('future source date rejects without persistence or notification',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    final loaded = await _loadedProvider(now);
+    addTearDown(loaded.provider.dispose);
+    var notifications = 0;
+    loaded.provider.addListener(() => notifications += 1);
+
+    await expectLater(
+      loaded.provider.acceptLppRegulationReference(
+        _confirmation(sourceDate: DateTime.utc(2026, 7, 19)),
+      ),
+      throwsArgumentError,
+    );
+    expect(loaded.persistence.saveCalls, 0);
+    expect(notifications, 0);
+  });
+
+  test('schema 1 nested regulation is dropped without current-fund inference',
+      () async {
+    final now = DateTime.utc(2026, 7, 18, 12);
+    FeatureFlags.lppRegulationReferenceEnabled = true;
+    final legacy = Map<String, dynamic>.from(
+      jsonDecode(_schema1RootJson(now)) as Map,
+    );
+    final self = Map<String, dynamic>.from(legacy['self']! as Map)
+      ..['lppRegulationReference'] = <String, dynamic>{
+        'referenceId': '55555555-5555-4555-8555-555555555555',
+        'kind': 'lppRegulation',
+        'ownerKind': 'self',
+        'source': 'certificate',
+        'sourceDate': '2026-02-03',
+        'legalYear': 2026,
+        'confirmedAt': '2026-02-04T09:30:00.000Z',
+      };
+    legacy['self'] = self;
+
+    final loaded = await _loadedProvider(now, root: jsonEncode(legacy));
+    addTearDown(loaded.provider.dispose);
+
+    expect(loaded.provider.profile!.lppRegulationReference, isNull);
+    expect(
+      jsonEncode(loaded.provider.profile!.toJson()),
+      isNot(contains('currentFund')),
+    );
   });
 
   test('success preserves facts and binds one generated tuple live and cold',
@@ -320,15 +494,17 @@ void main() {
       loaded.persistence.answers['_coach_lpp_evidence_v1'],
       now: () => now,
     )!;
-    final regulation = after.self!.lppRegulationReference!;
+    final dynamic regulation = _rootRegulation(after);
+    expect(regulation, isA<LppRegulationReference>());
     expect(after.self!.snapshotId, before.self!.snapshotId);
     expect(after.self!.facts.keys, before.self!.facts.keys);
     expect(after.self!.facts.values.single.value,
         before.self!.facts.values.single.value);
     expect(regulation.referenceId, receipt.referenceId);
     expect(regulation.confirmedAt, receipt.confirmedAt);
+    expect(regulation.fundRelationship.wireName, 'currentFund');
     expect(receipt.kind, LppRegulationReference.kind);
-    expect(receipt.snapshotId, _snapshotId);
+    expect(_receiptSnapshotId(receipt), _missingSnapshotApi);
     expect(receipt.ownerKind, LppEvidenceOwnerKind.self);
     expect(loaded.persistence.loadCalls, 1);
     expect(loaded.persistence.saveCalls, 1);
@@ -341,25 +517,20 @@ void main() {
     expect(cold.lppRegulationReference?.referenceId, receipt.referenceId);
     expect(cold.lppRegulationReference?.sourceDate, DateTime.utc(2026, 2, 3));
     expect(cold.lppRegulationReference?.legalYear, 2026);
+    final dynamic coldReference = cold.lppRegulationReference;
+    expect(coldReference.fundRelationship.wireName, 'currentFund');
 
     expect(
       loaded.provider.matchesAcceptedLppRegulationReceipt(receipt),
       isTrue,
     );
     for (final forged in <LppRegulationReceipt>[
-      LppRegulationReceipt(
+      _forgedReceipt(
         referenceId: _replacementSnapshotId,
-        snapshotId: receipt.snapshotId,
         confirmedAt: receipt.confirmedAt,
       ),
-      LppRegulationReceipt(
+      _forgedReceipt(
         referenceId: receipt.referenceId,
-        snapshotId: _replacementSnapshotId,
-        confirmedAt: receipt.confirmedAt,
-      ),
-      LppRegulationReceipt(
-        referenceId: receipt.referenceId,
-        snapshotId: receipt.snapshotId,
         confirmedAt: receipt.confirmedAt.subtract(const Duration(seconds: 1)),
       ),
     ]) {
@@ -388,14 +559,19 @@ void main() {
     final capitalThenRegulation = LppEvidenceRoot.fromJsonString(
       capitalFirst.persistence.answers['_coach_lpp_evidence_v1'],
       now: () => now,
-    )!
-        .self!;
+    )!;
     expect(
-      capitalThenRegulation.lppCapitalNoticeDeadline?.referenceId,
+      capitalThenRegulation.self?.lppCapitalNoticeDeadline?.referenceId,
       capitalFirstReceipt.referenceId,
     );
+    final dynamic capitalThenRegulationReference =
+        _rootRegulation(capitalThenRegulation);
     expect(
-      capitalThenRegulation.lppRegulationReference?.referenceId,
+      capitalThenRegulationReference,
+      isA<LppRegulationReference>(),
+    );
+    expect(
+      capitalThenRegulationReference.referenceId,
       regulationSecondReceipt.referenceId,
     );
 
@@ -412,14 +588,19 @@ void main() {
     final regulationThenCapital = LppEvidenceRoot.fromJsonString(
       regulationFirst.persistence.answers['_coach_lpp_evidence_v1'],
       now: () => now,
-    )!
-        .self!;
+    )!;
+    final dynamic regulationThenCapitalReference =
+        _rootRegulation(regulationThenCapital);
     expect(
-      regulationThenCapital.lppRegulationReference?.referenceId,
+      regulationThenCapitalReference,
+      isA<LppRegulationReference>(),
+    );
+    expect(
+      regulationThenCapitalReference.referenceId,
       regulationFirstReceipt.referenceId,
     );
     expect(
-      regulationThenCapital.lppCapitalNoticeDeadline?.referenceId,
+      regulationThenCapital.self?.lppCapitalNoticeDeadline?.referenceId,
       capitalSecondReceipt.referenceId,
     );
   });
@@ -455,7 +636,7 @@ void main() {
       ),
     );
     expect(replacement.referenceId, isNot(first.referenceId));
-    expect(replacement.snapshotId, first.snapshotId);
+    expect(_receiptSnapshotId(replacement), _missingSnapshotApi);
     expect(loaded.persistence.saveCalls, 1);
   });
 
@@ -492,7 +673,8 @@ void main() {
     expect(loaded.persistence.saveCalls, 1);
   });
 
-  test('later ordinary self review replaces snapshot and drops the regulation',
+  test(
+      'later ordinary self review replaces numeric snapshot and preserves regulation',
       () async {
     final now = DateTime.utc(2026, 7, 18, 12);
     FeatureFlags.lppRegulationReferenceEnabled = true;
@@ -507,17 +689,22 @@ void main() {
       _replacementReview(now),
     );
 
-    expect(reviewReceipt.snapshotId, isNot(regulationReceipt.snapshotId));
+    expect(reviewReceipt.snapshotId, isNot(_snapshotId));
+    expect(_receiptSnapshotId(regulationReceipt), _missingSnapshotApi);
     final root = LppEvidenceRoot.fromJsonString(
       loaded.persistence.answers['_coach_lpp_evidence_v1'],
       now: () => now,
     )!;
     expect(root.self!.snapshotId, reviewReceipt.snapshotId);
-    expect(root.self!.lppRegulationReference, isNull);
+    final dynamic reference = _rootRegulation(root);
+    expect(reference, isA<LppRegulationReference>());
+    expect(reference.referenceId, regulationReceipt.referenceId);
+    expect(reference.fundRelationship.wireName, 'currentFund');
     final cold = CoachProfile.fromWizardAnswers(
       loaded.persistence.answers,
       now: () => now,
     );
-    expect(cold.lppRegulationReference, isNull);
+    expect(cold.lppRegulationReference?.referenceId,
+        regulationReceipt.referenceId);
   });
 }

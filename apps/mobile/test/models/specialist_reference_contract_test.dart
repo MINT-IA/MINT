@@ -23,6 +23,7 @@ Map<String, Object?> _commonReference({
   int legalYear = 2026,
   String confirmedAt = '2026-01-16T10:00:00.000Z',
   String ownerKind = 'self',
+  String fundRelationship = 'currentFund',
 }) =>
     <String, Object?>{
       'referenceId': referenceId,
@@ -32,6 +33,7 @@ Map<String, Object?> _commonReference({
       'sourceDate': sourceDate,
       'legalYear': legalYear,
       'confirmedAt': confirmedAt,
+      if (kind == 'lppRegulation') 'fundRelationship': fundRelationship,
     };
 
 final _validReferences = <String, Map<String, Object?>>{
@@ -97,12 +99,26 @@ TaxSnapshot _taxSnapshot({
     );
 
 CoachProfile _restoreWith(Map<String, Object?> specialistFields) {
-  final encoded = jsonEncode(<String, Object?>{
-    ...CoachProfile.defaults().toJson(),
-    ...specialistFields,
-  });
+  Map<String, dynamic> payload(Map<String, Object?> fields) =>
+      Map<String, dynamic>.from(jsonDecode(jsonEncode(<String, Object?>{
+        ...CoachProfile.defaults().toJson(),
+        ...fields,
+      })) as Map);
+
+  final restored = CoachProfile.fromJson(payload(specialistFields));
+  final rawRegulation = specialistFields['lppRegulationReference'];
+  if (restored.lppRegulationReference != null ||
+      rawRegulation is! Map ||
+      !rawRegulation.containsKey('fundRelationship')) {
+    return restored;
+  }
+  final legacyRegulation = Map<String, Object?>.from(rawRegulation)
+    ..remove('fundRelationship');
   return CoachProfile.fromJson(
-    Map<String, dynamic>.from(jsonDecode(encoded) as Map),
+    payload(<String, Object?>{
+      ...specialistFields,
+      'lppRegulationReference': legacyRegulation,
+    }),
   );
 }
 
@@ -215,7 +231,74 @@ void main() {
             '$field must be a typed value object whose as-of predicate, not '
             'a raw echoed Map, authorizes precise meaning.',
       );
+      if (field == 'lppRegulationReference') {
+        final dynamic reference = _typedReference(restored, field);
+        expect(
+          _readDynamic(() => reference.fundRelationship.wireName),
+          'currentFund',
+        );
+      }
     }
+  });
+
+  test('LPP fund relationship is self-only, mandatory, and exactly typed', () {
+    for (final relationship in <String>{
+      'currentFund',
+      'uncertain',
+      'formerOrOther',
+    }) {
+      final profile = _restoreWith({
+        'lppRegulationReference': _commonReference(
+          referenceId: '10101010-1010-4010-8010-101010101010',
+          kind: 'lppRegulation',
+          fundRelationship: relationship,
+        ),
+      });
+      final dynamic reference = profile.lppRegulationReference;
+      expect(reference, isNotNull, reason: relationship);
+      expect(
+        _readDynamic(() => reference.fundRelationship.wireName),
+        relationship,
+      );
+      expect(
+        _storedReference(profile, 'lppRegulationReference'),
+        containsPair('fundRelationship', relationship),
+      );
+    }
+
+    final baseline = _commonReference(
+      referenceId: '11111111-1111-4111-8111-111111111111',
+      kind: 'lppRegulation',
+    );
+    for (final invalid in <Object?>[
+      null,
+      '',
+      'current',
+      'former',
+      'CURRENT_FUND',
+      true,
+    ]) {
+      final payload = <String, Object?>{
+        ...baseline,
+        'fundRelationship': invalid,
+      };
+      expect(
+        _storedReference(
+          _restoreWith({'lppRegulationReference': payload}),
+          'lppRegulationReference',
+        ),
+        isNull,
+        reason: '$invalid',
+      );
+    }
+    final missing = <String, Object?>{...baseline}..remove('fundRelationship');
+    expect(
+      _storedReference(
+        _restoreWith({'lppRegulationReference': missing}),
+        'lppRegulationReference',
+      ),
+      isNull,
+    );
   });
 
   test('the four complete specialist references survive the existing JSON path',
@@ -349,9 +432,13 @@ void main() {
       (
         'lppCapitalNoticeDeadline',
         <String, Object?>{
-          ...common,
-          'referenceId': '13131313-1313-4313-8313-131313131313',
-          'kind': 'lppCapitalNotice',
+          ..._commonReference(
+            referenceId: '13131313-1313-4313-8313-131313131313',
+            kind: 'lppCapitalNotice',
+            sourceDate: '2026-01-01',
+            legalYear: 2026,
+            confirmedAt: '2025-12-31T23:00:00.000Z',
+          ),
           'deadlineDate': '2026-01-01',
         },
       ),
@@ -386,7 +473,7 @@ void main() {
     );
   });
 
-  test('manualPartner hydrates with the exact BND-05 wire name', () {
+  test('LPP regulation authority is self-only in CoachProfile', () {
     final profile = _restoreWith({
       'lppRegulationReference': _commonReference(
         referenceId: '15151515-1515-4515-8515-151515151515',
@@ -395,11 +482,13 @@ void main() {
       ),
     });
     final stored = _storedReference(profile, 'lppRegulationReference');
-    expect(stored, isNotNull);
-    expect(stored!['ownerKind'], 'manualPartner');
+    expect(stored, isNull);
     expect(
       _precisionContract(_typedReference(profile, 'lppRegulationReference')),
-      containsPair('state', 'known'),
+      allOf(
+        containsPair('state', 'missing'),
+        containsPair('precisionReady', false),
+      ),
     );
   });
 
@@ -433,8 +522,15 @@ void main() {
     );
   });
 
-  test('raw OCR and local path reject a complete payload', () {
-    for (final forbidden in const ['ocrText', 'path']) {
+  test('raw, numeric, fund-name, and snapshot fields reject the reference', () {
+    for (final forbidden in const [
+      'ocrText',
+      'path',
+      'amountChf',
+      'value',
+      'fundName',
+      'snapshotId',
+    ]) {
       final restored = _restoreWith({
         'lppRegulationReference': <String, Object?>{
           ..._validReferences['lppRegulationReference']!,
@@ -544,6 +640,7 @@ void main() {
         'lppRegulationReference': _commonReference(
           referenceId: '19191919-1919-4919-8919-191919191919',
           kind: 'lppRegulation',
+          fundRelationship: 'formerOrOther',
         ),
       }),
       'lppRegulationReference',
@@ -557,6 +654,11 @@ void main() {
         original.lppRegulationReference.hashCode);
     expect(cleared.lppRegulationReference, isNull);
     expect(changed, isNot(original));
+    final dynamic changedReference = changed.lppRegulationReference;
+    expect(
+      _readDynamic(() => changedReference.fundRelationship.wireName),
+      'formerOrOther',
+    );
   });
 
   test('calendar-year change alone does not stale durable references', () {
