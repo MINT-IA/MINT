@@ -10,6 +10,12 @@
 > code-GREEN at exact pushed SHA `cdc786782` (2026-07-17). It reuses the existing
 > ConfidenceScorer/DataBlock prompt and does not implement the missing generic
 > DataQuest orchestrator, promote the ticket, close G1 or authorize G2/G3.
+>
+> **Focused LPP regulation handoff boundary:** the production code vertical at
+> `deb199c7f` ends in six specialist-preparation questions. They are static,
+> conditional educational prompts over one exact metadata reference, not
+> `DataQuest` Asks: they collect no answer, rank no product and write no fact.
+> Runtime/activation remain NO-GO.
 
 ## 0. One sentence
 
@@ -180,6 +186,22 @@ focused journey `docs/codex/PARTNER_LPP_ACCOUNTABILITY_FLOW.mmd`.
   manual `userInput` fact is restored first, otherwise ask only the next
   highest-impact pension/capital fact. Never ask for the quarantined caisse
   return rate.
+
+### 7.2 G1-RET-REF-01 — LPP regulation specialist handoff is not a quest
+
+The exact plan review collects only authority metadata (`sourceDate`,
+`legalYear`) inside `/scan/review`; it does not ask for or infer personal LPP
+values. After the accepted reference cold-resolves, `/retraite` may display six
+ordered preparation topics: buy-back, conversion, flexible retirement,
+disability, survivors and divorce.
+
+These are **questions to take to a pension fund or specialist**, not ledger
+collection prompts. They have no `fieldPath`, `AskMode`, impact score, answer
+control, write-back, Case transition or completion effect. Closing the sheet is
+local. Missing/flag-off/tuple-drift authority hides the entire handoff rather
+than turning its text into a generic DataQuest. Any future answer capture must
+be a separately specified typed ledger/Case slice; it may not retrofit values
+into this metadata reference.
 
 ## 8. Acceptance criteria (Codex/CI must verify)
 

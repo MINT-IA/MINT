@@ -16,6 +16,13 @@
 > screenshot's DEBUG test overlay is explicit, so this is bounded in-test UI
 > proof rather than shipping-default chrome evidence. COACH-01 is GREEN; the
 > global Maestro+Patrol `G1-RUNTIME-01` remains `red_proven`.
+>
+> **G1 LPP regulation code reality:** the former acquisition facade is now a
+> real default-off `/scan -> /scan/review -> /retraite` code path through
+> `73b505bcf` and `4907667b8` (compile repair `deb199c7f`), backed by the
+> request-scoped/no-cache backend at `b30e3c109`. No dedicated exact-SHA
+> Maestro/Patrol flow is checked in or accepted yet. The runtime row below is
+> therefore a required target, not a pass; activation and G1 remain NO-GO.
 
 ## 0. Reality check — partial Maestro setup exists
 
@@ -186,6 +193,76 @@ appId: ch.mint.app
 # fictive property CASE.
 - assertVisible: { id: "succession_parents_note" }
 ```
+
+## 1A. G1 LPP regulation — required dual runtime proof (NOT RUN)
+
+The production code now has stable controls, but no checked-in flow proves the
+whole plan path on a device. Do not reuse the personal-certificate PROV-02
+runtime as a substitute: `lpp_plan` has a different PDF-only, zero-fact,
+request-scoped backend boundary and a different review writer.
+
+### Patrol exact-SHA target — real input and process death
+
+Add a split writer/read pair only when the runtime agent owns the device proof:
+
+- `test/patrol/g1_ret_ref_lpp_regulation_write_runtime_test.dart`
+- `test/patrol/g1_ret_ref_lpp_regulation_read_runtime_test.dart`
+
+The writer must use one ignored local PDF declared by
+`test/golden/lpp_private_mobile_manifest.json`; never commit/copy the fixture,
+its bytes, filename, raw text, backend processing id or a screenshot containing
+personal data. The proof must exercise the production widgets and providers,
+not call the ledger writer directly:
+
+1. seed a non-empty strict self LPP snapshot and enable exactly the three local
+   regulation flags in the test entrypoint;
+2. open `/scan`, assert `document_scan_lpp_plan_type_selector`, select it and
+   assert camera/paste/debug paths are absent;
+3. use `document_scan_gallery_cta` to choose the real PDF and cross the real
+   authenticated multipart/backend classification boundary;
+4. assert `lpp_regulation_review_screen`; enter canonical values through
+   `lpp_regulation_review_source_date` and
+   `lpp_regulation_review_legal_year`; tap
+   `lpp_regulation_review_confirm_cta`;
+5. assert `/retraite` shows
+   `retirement_lpp_regulation_reference_education`, open
+   `retirement_lpp_regulation_handoff_cta`, and verify the metadata-only sheet,
+   privacy boundary and all six `retirement_lpp_regulation_question_*` nodes;
+6. terminate the app process without a graceful in-app handoff. The read target
+   must start from the normal production entrypoint, cold-load the strict root
+   and document-reference store, and resolve the same Dashboard card/sheet;
+7. write a replacement numeric self-LPP snapshot and prove the regulation card
+   disappears. No stale cached GREEN is allowed.
+
+The runtime backend capture must additionally prove the plan response is zero-
+fact/raw-preview-null/RAG-false and that its processing UUID is absent from
+local persistence and runtime evidence. A record-failure run must prove the
+retry CTA reuses one accepted receipt and never repeats the ledger accept.
+
+### Maestro default-off/recovery target
+
+Add `apps/mobile/.maestro/g1_ret_ref_lpp_regulation_flag_off.yaml` only with the
+runtime slice. Its minimum contract is:
+
+```yaml
+appId: ch.mint.app
+---
+- launchApp: { clearState: true }
+- openLink: "mint:///scan"
+- assertNotVisible: { id: "document_scan_lpp_plan_type_selector" }
+- openLink: "mint:///scan/review?scanSessionId=missing-regulation-session"
+- assertVisible: { id: "scan_review_recovery_cta" }
+- tapOn: { id: "scan_review_recovery_cta" }
+- assertVisible: { id: "document_scan_gallery_cta" }
+- openLink: "mint:///retraite"
+- assertNotVisible: { id: "retirement_lpp_regulation_reference_education" }
+```
+
+Acceptance requires the exact pushed SHA, physical build/sign/install command,
+Patrol writer/read outputs, Maestro output, sanitized screenshots, fixture-used
+boolean, backend zero-fact proof, and wrapper dispositions in the G1 runtime
+evidence bundle. Until that bundle exists, this section stays **NOT RUN** and
+no ticket/activation promotion is allowed.
 
 ## 2. Regression flows (each targets a REAL dead road — must go green after fix)
 

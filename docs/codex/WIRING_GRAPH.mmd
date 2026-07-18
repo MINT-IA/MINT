@@ -33,19 +33,18 @@
 %% unchanged raw-free BND tuple, cold Dashboard consumer and replacement
 %% invalidation are proven. The flag remains false, the run is synthetic-only,
 %% private fixture use is false and no production acquisition seam exists.
-%% The LPP regulation authority stack is separately code-GREEN through exact SHA
-%% eed6884ac: backend classification, self-only raw-free BND, nested schema-1
-%% metadata, serialized writer/cold Profile and DocumentProvider record/resolve.
-%% Hardening @ 0b1a03ef4 covers missing ledger, save failure, session termination
-%% and concurrent capital/regulation writes; 5b324da5b aliases the BND kind to
-%% the canonical model constant. The default-off Dashboard consumer is also
-%% code-GREEN: d58ed29b2 adds card/CTA/local sheet, 242d7d082 covers all three
-%% loaded branches, and f86a29cde adds the semantic/privacy boundary and six
-%% complete questions. Its three bounded wrapper code/product audits pass; the
-%% initial placement P1 is fixed and the final slices have P0=0/P1=0.
-%% It still has no production acquisition caller, process-death Maestro/Patrol,
-%% consumer exact-SHA evidence or activation decision. No RET-REF atom
-%% promotes the ticket, closes G1 or authorizes G2/G3.
+%% The LPP regulation stack is now an end-to-end production-route code vertical.
+%% Exact zero-fact mapping @ 198e1b53e, volatile candidate @ 8febd214a,
+%% PDF-only mobile acquisition @ 73b505bcf, request-scoped/no-row/no-cache/no-RAG/
+%% no-raw-preview backend authority @ b30e3c109, personal-certificate precedence
+%% @ ba0f331a0 and the accept -> record -> /retraite review writer @ 4907667b8
+%% (compile repair deb199c7f) join the earlier BND/provider/cold-reader stack.
+%% The Dashboard card/local sheet remains d58ed29b2 + 242d7d082 + f86a29cde,
+%% with six specialist questions and no raw document or advice. The former
+%% production acquisition facade gap is closed in code; exact-SHA process-death
+%% Patrol, Maestro default-off/recovery, post-writer wrapper reruns/evidence and
+%% activation remain missing. No RET-REF atom promotes the ticket, closes G1 or
+%% authorizes G2/G3; all local flags remain false.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -228,45 +227,49 @@ flowchart TB
 
   LCN_WRITE -- "single serialized provider mutation" --> CPP
 
-  %% Authority and local consumer are code-GREEN; acquisition and runtime are not.
-  subgraph LPP_REGULATION_REFERENCE["G1-RET-REF-01 — LPP REGULATION AUTHORITY + CONSUMER CODE-GREEN / ACQUISITION-RUNTIME MISSING"]
+  %% Production route is code-real; exact-SHA runtime and activation are not.
+  subgraph LPP_REGULATION_REFERENCE["G1-RET-REF-01 — LPP REGULATION END-TO-END CODE / RUNTIME + ACTIVATION MISSING"]
     direction TB
-    LRR_BACKEND_GREEN["CODE-GREEN backend @ e4ce7d6ca<br/>exact lpp_plan classifier<br/>certificate/ambiguous rejected"]
-    LRR_ACQ_GAP["MISSING production mobile acquisition<br/>no review -> accept + record caller"]
-    LRR_BND_GREEN["CODE-GREEN BND @ 074883d57<br/>self-only exact raw-free lppRegulation kind"]
-    LRR_CODE_GATES["bounded classifier + authority + model<br/>provider + bridge + consumer gates"]
-    LRR_REVIEW["implemented typed confirmation<br/>explicit sourceDate + legalYear<br/>plan values never person facts"]
-    LRR_PRIVATE["private certs negative<br/>plans positive only via second human-reviewed manifest"]
-    LRR_FLAG{"local-only flag<br/>default false + not remotely hydrated"}
-    LRR_SELF{"current non-empty strict self snapshot<br/>exact expected snapshot id"}
-    LRR_WRITE["CoachProfileProvider.acceptLppRegulationReference @ c39cf8860<br/>serialized save-before-publish<br/>idempotent + explicit replacement"]
-    LRR_ROOT[("_coach_lpp_evidence_v1 schema 1 @ 196138024<br/>self.lppRegulationReference metadata only<br/>preserve sibling capital notice")]
-    LRR_RECEIPT["exact receipt<br/>referenceId + kind=lppRegulation<br/>snapshotId + ownerKind=self + confirmedAt"]
-    LRR_BND[("DocumentProvider.recordLppRegulation @ eed6884ac<br/>hardening @ 0b1a03ef4 + canonical kind @ 5b324da5b<br/>unchanged raw-free tuple + serialized replacement")]
-    LRR_COLD["cold CoachProfile.fromWizardAnswers<br/>flag-gated strict self candidate"]
-    LRR_RESOLVE{"DocumentProvider.resolveLppRegulation<br/>ready hydration + exact tuple<br/>+ current self snapshot"}
-    LRR_DASH["RetirementDashboardScreen._buildLppRegulationEducation<br/>card + CTA @ d58ed29b2<br/>all 3 loaded branches @ 242d7d082"]
-    LRR_HANDOFF["local metadata-only sheet @ f86a29cde<br/>semantic header + privacy + 6 complete questions<br/>no advice/raw doc/route/network/share/export"]
-    LRR_RUNTIME_GAP["MISSING process-death Maestro/Patrol<br/>consumer exact-SHA evidence<br/>flag false + activation NO-GO"]
-    LRR_HIDDEN["missing/conflict/new numeric snapshot -> hidden"]
+    LRR_FLAG{"typedLppEvidence AND documentLppEvidenceEnabled<br/>AND lppRegulationReferenceEnabled<br/>local-only + default false"}
+    LRR_HIDDEN["off / missing strict self facts<br/>plan selector hidden; stale review recoverable"]
+    LRR_SELF{"current non-empty strict self snapshot<br/>capture snapshotId + previous reference id"}
+    LRR_CONSENT["visionExtraction only<br/>then revalidate exact snapshot tuple"]
+    LRR_PICK["PDF-only gallery/file picker<br/>withData=false; no camera/paste/debug"]
+    LRR_UPLOAD["DocumentService.uploadDocument<br/>type=lpp_plan; direct caller<br/>no DocumentProvider/upload id authority"]
+    LRR_BACKEND{"backend classifies current bytes<br/>before cache lookup"}
+    LRR_CERT["personal certificate<br/>title or 2 structured personal facts<br/>never plan authority"]
+    LRR_EPHEMERAL["exact lpp_plan @ b30e3c109<br/>fresh processing UUID + zero facts<br/>raw preview null + RAG false<br/>no extractor/row/GET/cache"]
+    LRR_REJECT["wrong kind / nonzero fact/confidence/count<br/>RAG true / PDF or authority drift<br/>no review session"]
+    LRR_SESSION["ScanSessionProvider @ 8febd214a<br/>strict empty extraction + candidate only<br/>route carries scanSessionId; backend id discarded"]
+    LRR_REVIEW["dedicated review @ 4907667b8<br/>sourceDate + legalYear only<br/>no generic 0% or financial fields"]
+    LRR_ACCEPT["acceptLppRegulationReference<br/>serialized save-before-publish<br/>exact snapshot/reference recheck"]
+    LRR_ROOT[("_coach_lpp_evidence_v1 schema 1<br/>self.lppRegulationReference metadata only<br/>preserve sibling capital notice")]
+    LRR_RECEIPT["same accepted receipt<br/>referenceId + kind + snapshotId<br/>ownerKind=self + confirmedAt"]
+    LRR_RECORD[("DocumentProvider.recordLppRegulation<br/>raw-free tuple; failure locks fields<br/>retry record only, same receipt")]
+    LRR_ROUTE["success discards volatile session<br/>then context.go('/retraite')<br/>no impact/Biography/backend sync"]
+    LRR_COLD["cold CoachProfile.fromWizardAnswers<br/>flag-gated exact self reference"]
+    LRR_RESOLVE{"resolveLppRegulation<br/>ready hydration + exact tuple<br/>+ current self snapshot"}
+    LRR_DASH["Dashboard exact reader in all 3 loaded branches<br/>card + local metadata-only sheet"]
+    LRR_HANDOFF["6 ordered specialist questions<br/>buy-back/conversion/flexible retirement<br/>disability/survivors/divorce<br/>no advice/raw doc/network/share/export"]
+    LRR_RUNTIME_GAP["MISSING exact-SHA dual runtime<br/>Patrol writer -> process death -> cold reader<br/>Maestro flag-off/recovery + evidence/audit reruns"]
 
-    LRR_BACKEND_GREEN --> LRR_CODE_GATES
-    LRR_BND_GREEN --> LRR_CODE_GATES
-    LRR_ACQ_GAP -. "bounded synthetic confirmation only" .-> LRR_REVIEW
-    LRR_PRIVATE -. "human-reviewed only" .-> LRR_REVIEW --> LRR_FLAG
     LRR_FLAG -- "off" --> LRR_HIDDEN
     LRR_FLAG -- "test-only on" --> LRR_SELF
-    LRR_SELF -- "exact" --> LRR_WRITE --> LRR_ROOT
-    LRR_WRITE --> LRR_RECEIPT --> LRR_BND
+    LRR_SELF -- "exact" --> LRR_CONSENT --> LRR_PICK --> LRR_UPLOAD --> LRR_BACKEND
+    LRR_BACKEND -- "personal" --> LRR_CERT --> LRR_REJECT
+    LRR_BACKEND -- "exact plan" --> LRR_EPHEMERAL --> LRR_SESSION --> LRR_REVIEW
+    LRR_UPLOAD -. "any transport/authority drift" .-> LRR_REJECT
+    LRR_REVIEW --> LRR_ACCEPT --> LRR_ROOT
+    LRR_ACCEPT --> LRR_RECEIPT --> LRR_RECORD --> LRR_ROUTE
     LRR_ROOT --> LRR_COLD --> LRR_RESOLVE
-    LRR_BND --> LRR_RESOLVE
-    LRR_RESOLVE -- "no" --> LRR_HIDDEN
-    LRR_RESOLVE -- "exact non-null" --> LRR_DASH --> LRR_HANDOFF
-    LRR_DASH -. "runtime not proven" .-> LRR_RUNTIME_GAP
+    LRR_RECORD --> LRR_RESOLVE
+    LRR_RESOLVE -- "null/conflict/replaced" --> LRR_HIDDEN
+    LRR_RESOLVE -- "exact" --> LRR_DASH --> LRR_HANDOFF
+    LRR_DASH -. "runtime not yet accepted" .-> LRR_RUNTIME_GAP
     LRR_ROOT -- "new numeric self snapshot" --> LRR_HIDDEN
   end
 
-  LRR_WRITE -- "single serialized provider mutation" --> CPP
+  LRR_ACCEPT -- "single serialized provider mutation" --> CPP
 
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]
@@ -819,22 +822,36 @@ flowchart TB
 %% certificates, inference, manualPartner and factless roots fail closed.
 %% Technical atom GREEN is not feature activation or ticket promotion:
 %% RET-REF/G1 remain open and G2/G3 remain forbidden.
-%% G1-RET-REF-01 LPP REGULATION AUTHORITY REALITY: exact backend plan
-%% classification is GREEN at e4ce7d6ca, BND admits only the self-owned raw-free
-%% kind at 074883d57, schema-1 metadata is strict at 196138024, and the serialized
-%% writer/cold Profile path is GREEN at c39cf8860. At eed6884ac, DocumentProvider
-%% stores and resolves the identical receipt tuple only after exact hydration and
-%% current-snapshot matching. Hardening at 0b1a03ef4 covers missing ledger,
-%% metadata-save failure, session termination and concurrent capital/regulation
-%% writes; 5b324da5b makes the BND kind reuse the canonical model constant.
-%% Generic LPP, manualPartner, factless/replaced roots, flag-off and tuple drift
-%% fail closed. The named Dashboard reader resolves the exact tuple and renders
-%% a card, CTA and local metadata-only sheet in all three loaded branches at
-%% d58ed29b2/242d7d082; f86a29cde adds a semantic/privacy boundary and six full
-%% specialist questions. Consumer tests pass 5/5, retirement tests pass 24/24,
-%% and all three bounded wrapper code/product audits pass after the initial
-%% placement P1 was fixed. The atom still has no production plan acquisition
-%% caller, process-death Maestro/Patrol, consumer exact-SHA evidence or
-%% activation decision. Its matrix row is quarantined; RET-REF/G1 remain
-%% open, activation is NO-GO and G2/G3 remain forbidden.
+%% G1-RET-REF-01 LPP REGULATION END-TO-END CODE REALITY: the earlier exact
+%% backend classifier/BND/schema/provider/DocumentProvider/Dashboard stack is now
+%% reached by the real `/scan -> /scan/review -> /retraite` route. At 73b505bcf,
+%% the three local default-false flags form one AND gate; acquisition requires a
+%% current non-empty strict self snapshot, captures its snapshot/reference tuple,
+%% asks only visionExtraction, revalidates before/after a PDF-only withData=false
+%% picker and calls DocumentService directly with type=lpp_plan. It never treats
+%% DocumentProvider, lastUploadResult or the backend response id as authority.
+%% At b30e3c109, backend classification happens before cache lookup. Exact plans
+%% return a fresh processing UUID plus empty fields, zero confidence/counts, null
+%% raw preview and rag=false, then return before the personal extractor,
+%% DocumentModel/commit, RAG and SHA/idempotency cache lookup/store. At
+%% ba0f331a0, an explicit certificate title or two structured label:value
+%% personal facts outrank a regulation mention. Mobile exact mapping
+%% (198e1b53e) discards the processing id and retains only one strict empty
+%% extraction plus LppRegulationAcquisitionCandidate in volatile ScanSession
+%% (8febd214a); routes carry only scanSessionId and cold restart fails closed.
+%% The dedicated writer at 4907667b8 renders only sourceDate and legalYear,
+%% rechecks the candidate through acceptLppRegulationReference, then passes the
+%% returned receipt unchanged to recordLppRegulation. Accept failure stays
+%% editable and records nothing; record failure locks fields and retries record
+%% only with that same receipt. Success discards the session before /retraite and
+%% never visits impact or writes Biography, generic backend sync or plan values.
+%% The exact Dashboard resolver then renders the neutral card/local sheet in all
+%% loaded branches with six complete specialist questions and no raw document,
+%% advice, route, network, share or export. Live contracts include the backend
+%% upload suite, transport/mapping, pre-upload acquisition, volatile-session,
+%% review-writer, authority/provider/bridge, handoff and Dashboard tests. This
+%% closes the facade-without-caller gap in code only. Exact-SHA process-death
+%% Patrol, Maestro default-off/recovery, consolidated consumer evidence,
+%% post-writer wrapper reruns and activation remain missing. All local flags stay
+%% false; RET-REF/G1 remain open and G2/G3 are forbidden.
 %% ============================================================================

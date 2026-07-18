@@ -22,3 +22,28 @@ The five specs are the right architecture direction for Mint, but several claims
 ## Next Mechanical Correction
 
 Start with ledger parity. Until backend facts reliably land in `CoachProfile`, Data Quest, Maestro, and simulator UX will all produce misleading confidence.
+
+## Live Delta — LPP regulation authority (2026-07-18, HEAD `deb199c7f`)
+
+The 2026-07-07 audit remains the historical baseline. This focused matrix
+reconciles the G1 PROV-02/RET-REF regulation slice against live production code
+and tests; it does not promote the ticket or close G1.
+
+| Boundary | Live evidence | Current verdict |
+|---|---|---|
+| transport shape | `DocumentType.lppPlan`/`VaultDocumentType.lppPlan`, exact zero-fact parser and authenticated multipart tests (`198e1b53e`) | CODE-GREEN |
+| volatile authority | strict empty `ExtractionResult` plus one `LppRegulationAcquisitionCandidate`; only `scanSessionId` crosses navigation (`8febd214a`) | CODE-GREEN |
+| mobile acquisition | three local flags ANDed; current non-empty self snapshot; PDF-only `withData=false`; exact tuple revalidated before/after picker and response; direct `DocumentService` call (`73b505bcf`) | CODE-GREEN |
+| backend privacy | current bytes classified before caches; exact plan returns processing-only UUID and zero facts; no personal extractor, `DocumentModel`, GET row, RAG, raw preview or response cache (`b30e3c109`) | CODE-GREEN; backend wrapper lenses P0/P1=0 |
+| kind precedence | explicit certificate title or two structured personal `label: value` facts outrank a regulation mention (`ba0f331a0`) | CODE-GREEN |
+| review writer | dedicated source-date/legal-year review; exact `accept -> record`; record-only identical-receipt retry; discard session then `/retraite`; no impact/Biography/generic sync (`4907667b8`, spy repair `deb199c7f`) | CODE-GREEN |
+| durable authority + consumer | existing strict self metadata, exact raw-free BND resolution, card/local sheet in all loaded Dashboard branches, privacy boundary and six complete specialist questions (`eed6884ac`, `d58ed29b2`, `242d7d082`, `f86a29cde`) | CODE-GREEN |
+| exact-SHA mobile runtime | real local plan PDF -> review writer -> process termination -> cold Dashboard reader, plus replacement invalidation | **MISSING** |
+| default-off/recovery runtime | Maestro selector hidden with flags off; missing/cold `scanSessionId` recovery; no stale writer CTA | **MISSING** |
+| final independent review | bounded post-writer code and product-domain reruns/evidence disposition | **MISSING** |
+| activation | three local flags remain false and outside remote hydration | **NO-GO** |
+
+Therefore the obsolete statement is specifically **“no production mobile plan
+acquisition/review caller.”** That facade gap is closed in code. The still-live
+gap is runtime/audit/activation acceptance, not acquisition wiring. G1 remains
+open and G2/G3 remain forbidden.
