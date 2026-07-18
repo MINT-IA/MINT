@@ -11,22 +11,23 @@
 > false, the proof is synthetic-only/private-fixture-false, and no production
 > acquisition seam exists. Activation is NO-GO; RET-REF/G1 remain open and
 > G2/G3 remain forbidden.
-> Focused LPP regulation snapshot-bound reality: backend classification,
-> raw-free BND, nested schema-1 metadata, serialized writer/cold Profile,
-> `DocumentProvider` record/resolve and the exact Dashboard handoff are bounded
-> code-GREEN through the accepted authority/consumer slices. Exact pushed SHA
-> `fe857a733385357a12d564bd0a7894b30f887e82` now proves the production-shaped
-> synthetic `lpp_plan` picker/uploader, vision-only consent, exact zero-fact
-> response, UI accept-before-record, raw-free persistence, explicit process
-> death, cold Dashboard/six-question handoff, later numeric replacement
-> invalidation and production-default-off Maestro before/after. Writer and cold
-> reader are independently 1/1; Doctor, Patrol guard, restoration and privacy
-> cleanup pass. This makes the **snapshot-bound technical atom live**, not an
-> autonomous current-fund authority: an older numeric self-LPP snapshot cannot
-> attest the current caisse. `autonomous_fund_authority_attestation` from
-> architecture observation `#8730` and activation remain missing. Whole RET-REF
-> also retains the capital-notice acquisition/activation, 3a-beneficiary and
-> fiscal activation/currentness gaps. RET-REF/G1 remain open and G2/G3 forbidden.
+> Focused LPP regulation autonomous cutover reality: exact pushed SHA
+> `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` proves a bounded
+> autonomous regulation-only technical atom. One Patrol suite passes 2/2 with
+> distinct writer/reader PIDs; a cold profile starts without a numeric LPP
+> snapshot, and
+> the regulation reference survives later numeric snapshot addition and numeric
+> replacement. Production-default Maestro passes 1/1 before and 1/1 after, the
+> feature remains default-off, reinstall/restoration pass and the retained-
+> output contract is complete at 22/22. The `currentFund` relationship is
+> declared/unverified and is the intended bounded declarative authority for the
+> relationship label on this educational reference; it does not establish
+> legal applicability. This runtime does not objectively prove the caisse/fund
+> identity and does not introduce objective verification as a new hard blocker.
+> Visible legacy/mismatch recovery, dossier/PDF caveat parity and an activation
+> decision remain open. Whole RET-REF also retains capital-notice acquisition,
+> 3a-beneficiary and fiscal activation/currentness gaps. RET-REF remains
+> `ticket_only`, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
 
 ## Parser contract
 
@@ -163,37 +164,44 @@ evidence, external audits and the activation decision pass. Legacy
 | workCanton | NONE | NONE | CH_canton_code | userInput,certificate | annual | 0.60 | fact | self | NONE | NONE | source_tax,cross_border | FRONTALIER | P0 | yes | partial+ask | required | work_tax | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | workCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | social_security | FRONTALIER | P0 | yes | partial+ask | required | social_security_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | residenceCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | treaty,tax,social_security | FRONTALIER | P0 | yes | partial+ask | required | residence_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
-| lppRegulationReference | _coach_lpp_evidence_v1 | lppRegulationReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptLppRegulationReference,recordLppRegulation,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppRegulationEducation@lppRegulationReference | retirement_lpp_regulation_reference_education,retirement_lpp_regulation_handoff_cta,retirement_lpp_regulation_handoff_sheet | RETIREMENT | P0 | conditional | educational_only | required | regulation_terms | live | lpp_plan_classifier,lpp_regulation_document_authority,lpp_regulation_ledger_contract,lpp_regulation_provider,lpp_regulation_document_bridge,lpp_regulation_bridge_hardening,canonical_regulation_kind,bridge_wrapper_audits,writer_model_wrapper_audits,lpp_regulation_handoff_model,lpp_regulation_dashboard_consumer_5_of_5,retirement_dashboard_regression_24_of_24,consumer_wrapper_audits,production_shaped_lpp_plan_acquisition,synthetic_exact_sha_process_death_runtime,consumer_exact_sha_evidence,production_default_off_before_after,privacy_retention_guard | autonomous_fund_authority_attestation,activation_decision | yes | G1-RET-REF-01 |
+| lppRegulationReference | _coach_lpp_evidence_v1 | lppRegulationReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptLppRegulationReference,recordLppRegulation,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppRegulationEducation@lppRegulationReference | retirement_lpp_regulation_reference_education,retirement_lpp_regulation_handoff_cta,retirement_lpp_regulation_handoff_sheet | RETIREMENT | P0 | conditional | educational_only | required | regulation_terms | live | lpp_plan_classifier,lpp_regulation_document_authority,lpp_regulation_ledger_contract,lpp_regulation_provider,lpp_regulation_document_bridge,lpp_regulation_bridge_hardening,canonical_regulation_kind,bridge_wrapper_audits,writer_model_wrapper_audits,lpp_regulation_handoff_model,lpp_regulation_dashboard_consumer_5_of_5,retirement_dashboard_regression_24_of_24,consumer_wrapper_audits,autonomous_declared_fund_relationship,snapshotless_regulation_root,cold_profile_without_numeric_lpp,numeric_add_replacement_preservation,distinct_process_runtime,exact_22_of_22_evidence,production_default_off_before_after,privacy_retention_guard,bounded_opus_audits | visible_legacy_reprompt,visible_reconfirmation_path,pdf_dossier_caveat_parity,activation_decision | yes | G1-RET-REF-01 |
 | lppCapitalNoticeDeadline | _coach_lpp_evidence_v1 | lppCapitalNoticeDeadline | ISO_date | certificate | event_static | 0.95 | specialist_reference | self | acceptLppCapitalNotice,recordLppCapitalNotice,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppCapitalNoticeEducation@lppCapitalNoticeDeadline | retirement_dashboard_deadline_education | RETIREMENT | P0 | conditional | educational_only | required | withdrawal_deadline | live | ret_ref_capital_notice_green_e010132690,strict_self_root,serialized_writer,exact_raw_free_bnd,cold_dashboard_consumer,replacement_invalidation,process_death_runtime,wrapper_audits | production_acquisition_seam,activation_decision | yes | G1-RET-REF-01 |
 | pillar3aBeneficiaryClause | NONE | NONE | document_ref | certificate | event_static | 0.95 | specialist_reference | self | NONE | NONE | succession,beneficiary | RETIREMENT,SUCCESSION | P0 | conditional | educational_only | required | beneficiary_order | missing | NONE | document_reference_contract,source_date,legal_year | yes | G1-RET-REF-01 |
 | matrimonialRegime | NONE | NONE | regime_enum | userInput,certificate | event_static | source_weight | fact | household | NONE | NONE | succession,rente_capital | RETIREMENT,SUCCESSION | P0 | conditional | partial+ask | required | estate_partition | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-SUCCESSION-01 |
 | estateInstrumentReferences | NONE | NONE | list_document_ref | certificate | event_static | 0.95 | specialist_reference | document_ref | NONE | NONE | will,pact,mandate | SUCCESSION,RETIREMENT | P0 | conditional | educational_only | required | specialist_handoff | missing | NONE | document_reference_contract,source_date | yes | G1-SUCCESSION-01 |
 | latestTaxDecisionReference | _coach_tax_snapshots_v1 | latestTaxDecisionReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptTaxReview,derived_on_rebuild | apps/mobile/lib/services/financial_core/confidence_scorer.dart#ConfidenceScorer._hasPrecisionReadyTaxDecision@latestTaxDecisionReference | tax_baseline,data_block_fiscal_prompt | RETIREMENT,SUCCESSION,FRONTALIER | P0 | conditional | partial+ask | required | tax_source | live | ret_ref_green_cdc786782,specialist_reference_contract,tax_provenance_profile,confidence_scorer_tax_kill_switch | frozen_runtime_proof,external_audits,activation_decision | yes | G1-RET-REF-01 |
 
-`lppRegulationReference` now has a bounded, snapshot-bound live technical atom
-under the same G1-RET-REF-01 ticket: exact plan-not-certificate backend
-classification, explicit `sourceDate`+`legalYear`, current non-empty self root,
-a local default-false flag, nested metadata, serialized
-save-before-publish/idempotent writer, explicit replacement/new-snapshot
-invalidation, exact raw-free BND and cold fail-closed resolution. Its qualified reader is
-`_RetirementDashboardScreenState._buildLppRegulationEducation`, which calls
-`DocumentProvider.resolveLppRegulation(profile.lppRegulationReference)` and
-feeds the neutral card, CTA and local metadata-only specialist sheet in all
-three loaded Dashboard branches. The sheet has a semantic header, explicit
-screen-local privacy boundary and six complete conditional questions; it has
-no IDs, raw document, financial values, advice, route, network, share or export.
-Exact runtime SHA `fe857a733385357a12d564bd0a7894b30f887e82` proves the
-production-shaped synthetic acquisition/writer, explicit process death, cold
-consumer, six questions, replacement invalidation and production-default-off
-Maestro before/after with no private plan. That proof moves this row to `live`
-only inside the current **snapshot-bound** contract. It does not prove that the
-numeric self-LPP snapshot identifies the current caisse. The autonomous
-current-fund attestation from `#8730` and activation remain open; a private plan
-still requires a separate human-reviewed manifest and can never be relabelled.
-No plan value may become a person fact, calculation, advice or raw document
-record. The feature flag stays false. Capital-notice acquisition/activation,
-the 3a beneficiary reference and fiscal activation/currentness also keep the
-whole RET-REF ticket open. RET-REF/G1 remain NO-GO and G2/G3 forbidden.
+`lppRegulationReference` now has a bounded autonomous regulation-only live
+technical atom under the same G1-RET-REF-01 ticket. The schema-2 root stores a
+required user declaration (`currentFund`, `uncertain` or `formerOrOther`) without
+binding regulation applicability to a numeric LPP snapshot. Its qualified reader
+remains `_RetirementDashboardScreenState._buildLppRegulationEducation`, which
+calls `DocumentProvider.resolveLppRegulation(profile.lppRegulationReference)`
+and feeds the neutral card, CTA and local metadata-only specialist sheet in all
+three loaded Dashboard branches. The sheet retains the semantic header,
+screen-local privacy boundary and six conditional questions; it has no IDs, raw
+document, financial values, advice, route, network, share or export.
+
+Exact pushed runtime SHA `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`
+supersedes the historical `fe857a733385357a12d564bd0a7894b30f887e82`
+snapshot-bound proof for current cutover semantics. One Patrol suite passes 2/2,
+writer and cold reader are distinct by PID, a cold profile begins without a
+numeric LPP snapshot, and the regulation reference survives later numeric
+snapshot addition and replacement. Production-default Maestro passes 1/1 before
+and after; reinstall/restoration and 22/22 retained-output completeness pass.
+
+The `currentFund` relationship is declared/unverified. It is the intended
+bounded declarative authority for the relationship label on this educational
+reference; it does not establish legal applicability or objective caisse
+verification. The runtime does not objectively prove the caisse/fund identity,
+and the matrix does not invent objective verification as a hard activation
+blocker. Visible re-prompt for dropped legacy tuples, visible reconfirmation for
+stored-reference mismatch, dossier/PDF caveat parity and an explicit activation
+decision remain open. The feature stays default-off. No plan value may become a
+person fact, calculation, advice or raw document record. Capital-notice
+acquisition/activation, the 3a beneficiary reference and fiscal
+activation/currentness also keep the whole RET-REF ticket open. RET-REF remains
+`ticket_only`, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
 
 PROV-02 makes the four LPP rows previously marked `dead_on_restart` durable at
 the accepted SHA. They remain `quarantined`, not falsely `live`, until their

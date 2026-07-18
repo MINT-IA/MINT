@@ -1,0 +1,23 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "fund_identity_objectively_proven": false,
+    "fund_relationship": "currentFund",
+    "fund_relationship_verification": "declared_unverified",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  },
+  "cold_profile_started_without_numeric_lpp_snapshot": true,
+  "fund_identity_objectively_proven": false,
+  "fund_relationship": "currentFund",
+  "fund_relationship_verification": "declared_unverified",
+  "post_suite_state_captured": true,
+  "production_reinstall_preserved_state": true,
+  "regulation_reference_survived_numeric_snapshot_addition": true,
+  "regulation_reference_survived_numeric_snapshot_replacement": true,
+  "writer_reader_distinct_processes": true
+}

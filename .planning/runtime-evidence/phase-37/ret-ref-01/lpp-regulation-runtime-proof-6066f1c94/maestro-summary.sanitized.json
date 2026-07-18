@@ -1,0 +1,26 @@
+{
+  "after": {
+    "failures": 0,
+    "production_default_off": true,
+    "status": "SUCCESS",
+    "tests": 1
+  },
+  "before": {
+    "failures": 0,
+    "production_default_off": true,
+    "status": "SUCCESS",
+    "tests": 1
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "fund_identity_objectively_proven": false,
+    "fund_relationship": "currentFund",
+    "fund_relationship_verification": "declared_unverified",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  }
+}

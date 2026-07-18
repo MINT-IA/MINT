@@ -1,0 +1,33 @@
+{
+  "autonomous_authority": {
+    "aggregate_p0": 0,
+    "aggregate_p1": 0,
+    "aggregate_verdict": "PASS",
+    "invalid_isolation_outputs_excluded": true,
+    "lenses_passed": 10,
+    "lenses_total": 10,
+    "source_head": "e97c0a77f0a9f17ff2cc0eb953b085547e8aa2c2"
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "fund_identity_objectively_proven": false,
+    "fund_relationship": "currentFund",
+    "fund_relationship_verification": "declared_unverified",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "ret_ref": "ticket_only",
+    "technical_atom": "GREEN"
+  },
+  "runtime_harness": {
+    "aggregate_p0": 0,
+    "aggregate_p1": 0,
+    "aggregate_verdict": "PASS",
+    "lenses_passed": 2,
+    "lenses_total": 2,
+    "native_runtime_run_by_audit": false,
+    "product_domain_p2": 2,
+    "source_head": "6066f1c94786aa1bc4697c29b4a670b7cea3dca4"
+  }
+}

@@ -91,30 +91,32 @@ G2/G3.
   technical atom. RET-REF and G1 remain open; G2/G3 remain forbidden. The G1
   interim score and registry disposition are unchanged.
 
-## G1-RET-REF-01 `lppRegulationReference` — snapshot-bound runtime atom
+## G1-RET-REF-01 `lppRegulationReference` — autonomous regulation-only runtime atom
 
-- **Technical status:** **PASS / live inside the snapshot-bound contract** at
-  exact pushed runtime SHA
-  `fe857a733385357a12d564bd0a7894b30f887e82`; minimized sanitized proof is
-  tracked at
-  `phase-37/ret-ref-01/lpp-regulation-runtime-proof-fe857a733/`.
-- **Runtime evidence:** physical exact-SHA production build/install and
-  default-off Maestro before/after each pass 1/1; the production-shaped
-  synthetic writer passes 1/1, explicit termination exits 0, and the separate
-  cold reader passes 1/1 after resolving the Dashboard/six-question handoff and
-  proving later numeric replacement invalidation. Restoration and retained-
-  artifact privacy guards pass.
-- **Privacy boundary:** synthetic only; private fixture false; no document hash,
-  raw bytes, raw simulator identifier, screenshot or Xcode result bundle is
-  tracked.
-- **Authority/activation boundary:** **NO-GO**. The proven reference is still
-  coupled to the current numeric self-LPP snapshot. Architecture observation
-  `#8730` requires `autonomous_fund_authority_attestation`; an old numeric
-  snapshot cannot attest the current caisse. Every related flag remains false.
-- **Scope boundary:** this does not promote `G1-RET-REF-01`. Capital-notice
-  acquisition/activation, the 3a-beneficiary reference, fiscal
-  activation/currentness and the autonomous fund authority remain open. The G1
-  interim score remains 8.2/10 and G2/G3 remain forbidden.
+- **Technical status:** **PASS**. The bounded technical autonomous runtime atom
+  is **GREEN** at exact pushed SHA
+  `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`; the tracked minimized proof is
+  `phase-37/ret-ref-01/lpp-regulation-runtime-proof-6066f1c94/`.
+- **Runtime evidence:** one Patrol suite passes 2/2 with writer/reader distinct
+  by PID. A cold profile starts without a numeric LPP snapshot; the regulation
+  reference survives later numeric snapshot addition and numeric replacement.
+  Production-default Maestro passes 1/1 before and 1/1 after, the path remains
+  default-off, production reinstall preserves state, and the retained-output
+  contract is complete at 22/22.
+- **Privacy boundary:** synthetic only; private fixture false; the tracked
+  allowlist contains no raw runtime output, document hash/bytes, device
+  identifier, result bundle, screenshot, media or source document.
+- **Authority boundary:** the `currentFund` relationship is **declared/unverified**.
+  It is the intended bounded declarative authority for the relationship label
+  on this educational reference; it does not establish legal applicability.
+  This runtime does **not** objectively prove the caisse/fund identity and does
+  not relabel it as such.
+- **Activation/scope boundary:** **NO-GO** and default-off. Visible legacy and
+  identity-mismatch recovery, dossier/PDF caveat parity and a separate
+  activation decision remain open. Capital-notice acquisition/activation, the
+  3a-beneficiary reference and fiscal activation/currentness also keep the
+  ticket open. RET-REF remains `ticket_only`; the G1 interim score remains 8.2/10,
+  G1 remains open and G2/G3 remain forbidden.
 
 ## Blocking ledger
 
@@ -132,7 +134,7 @@ G2/G3.
 | GREEN — G1-BND-06 ticket + runtime | A persisted financial plan could stay apparently fresh after a consumed ledger value, provenance envelope or regulatory revision changes; cold recovery could expose stale figures or reverse-write derived output. | Physical-archive semantic RED at `9e86539d2` produced 6 passes / 27 failures; the identical command passes 17/17 at exact pushed SHA `28d0097f6`. Patrol writer→launch/terminate→cold-reader, exact archive production-entrypoint build, CodeSign/xattr checks, install and Maestro 1/1 pass. Thirteen stage exits, fourteen sanitized logs, restoration/privacy verification and the accepted Sonnet product-domain plus final Opus code audits pass with P0=0/P1=0. Six P2s remain explicit; the compile-time feature stays default-off. |
 | GREEN — G1-BND-01 | A production protection reader could depend on an unpopulated legacy provider, treat missing authority as debt-free, or describe a liquidity-only crisis as debt while uncoupled widgets survived as facades. | Physical-archive RED at `d9f93e30b` produced 1 pass / 5 semantic failures; the identical command passes 6/6 at exact pushed SHA `ed5f2db13`. The sole live reader uses `CoachProfile.isInDebtCrisis`, null authority routes to a diagnostic, generic six-language copy covers liquidity-only crises, dead provider/widgets are absent, and `Profile` remains only as the API/Wizard DTO. Final Sonnet code/product-domain reruns pass with P0/P1=0; six P2s stay explicit. |
 | GREEN — G1-COACH-01 ticket + runtime | Live salary/LPP/3a inline amounts could drop, use the wrong unit/authority, publish before persistence, disappear on reload or survive only behind a facade. | Semantic RED `c7809198e` was 3/10; the identical command is 14/14 at exact pushed SHA `fec1d4119e`. One serialized canonical write precedes publish; invalid/strict-LPP conflicts fail closed; retry and cold provenance pass. Dedicated Patrol is 1/1 with visually accepted synthetic evidence and cleanup; both first-pass Opus wrapper lenses pass P0/P1=0. Five P2 follow-ups remain explicit. |
-| GREEN technical atom — RET-REF LPP regulation runtime | A production-shaped `lpp_plan` scan could stop at a zero-fact backend response, publish before persistence, leak raw bytes/identity, disappear after process death, expose a stale handoff, or accidentally activate the production path. | Exact pushed SHA `fe857a733385357a12d564bd0a7894b30f887e82`: writer 1/1 through real scan/review UI and accept-before-record, explicit terminate 0, separate cold reader 1/1 through Dashboard/six-question handoff plus replacement invalidation, production-default Maestro before/after 1/1, exact archive build/install, restoration and privacy cleanup PASS. This is snapshot-bound only; `autonomous_fund_authority_attestation` and activation remain NO-GO, so RET-REF stays `ticket_only`. |
+| GREEN technical atom — RET-REF LPP regulation runtime | A production-shaped `lpp_plan` scan could stop at a zero-fact backend response, publish before persistence, leak raw bytes/identity, disappear after process death, bind regulation education to a numeric snapshot, lose the reference on numeric add/replacement, expose a stale handoff, or accidentally activate the production path. | Exact pushed SHA `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`: one Patrol suite 2/2; regulation-only cold profile; distinct writer/reader PIDs; reference preserved across numeric snapshot addition and replacement; production-default Maestro before/after 1/1; 22/22 retained-output contract; reinstall, restoration and privacy cleanup PASS. `currentFund` is declared/unverified and is not objective caisse identity. Activation remains NO-GO/default-off, so RET-REF stays `ticket_only`. |
 | GREEN — G1-LDG-04 nominal | Display defaults or invalid persisted values could become known facts. | Fixed in `f49ba797c`: canton/expense/conversion readiness requires canonical marker plus exact timestamp path(s); invalid/negative/NaN/infinite numeric values remain partial and explicit zero expenses remain known. Canton-domain weakness closed by `62e8ca7d5`: invalid/blank/forged canton evidence fails closed and valid codes normalize. Exact proof: RED 5 failures, GREEN 30/30, models+navigation+routes 494/494 in `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-BND-04 | The lazy production proxy could miss profile mutations until a MintState UI consumer materialised it. | Fixed in `f49ba797c`: the real `MintApp` proxy is eager and the production-context test observes one notification per salary and provenance-only mutation. Exact RED-to-GREEN evidence: `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-LDG-06A core only | The first certificate-only Fitness slice penalized married/registered owners when optional spouse evidence was absent and accepted certified gap years outside `0..44`. | Quality NO-GO at `1f87a79b4`; fixed in `d44d2aa83`: the AVS Fitness criterion is person-owned and invariant to spouse/status, while self/spouse evidence rejects `-1` and `45`. Rerun: static 8/8, targeted 54/54, wider models 321/321, Doctor 7/7, analyze/diffcheck PASS. Exact proof: `g1-ldg06a-core-d44d2aa83.md`. This does not close the global consumer inventory or change 8.2/10 NO-GO. |
@@ -155,7 +157,7 @@ G2/G3.
 | UX lucidity | 1.5 | 1.3 | Report and PDF now expose neutral AVS/LPP/3a evidence gaps with real recovery CTAs instead of fabricated amounts. Couple recovery and consent UX remain open. |
 | Runtime proof | 1.5 | 1.5 | B2 has an exact committed SHA; the report runtime indexed-diff SHA exactly equals pushed commit `1bb9c8389`, with full Doctor/build, built-versus-installed payload proof, Maestro semantic positives/negatives plus visual artifacts, Patrol 2/2 and xcresult summary. |
 | Automated tests | 1.0 | 1.0 | Final report/PDF snapshot: analyze 0; 8,514 successful + 30 skipped; 0 fail. Targeted report matrix 95/95; B2 matrix 187/187. |
-| External audit | 1.0 | 0.7 | Report/PDF, PROV-03, BND-02/BND-02A, BND-03, BND-05, BND-06, BND-01, COACH-01 and the bounded LPP-regulation slices have accepted PASS lenses without unresolved P0/P1. The LPP loop is exhausted without a carousel and keeps the autonomous-authority decision explicit. Full G1 remains NO-GO for 9 open rows; remaining global slices are not converged. |
+| External audit | 1.0 | 0.7 | Report/PDF, PROV-03, BND-02/BND-02A, BND-03, BND-05, BND-06, BND-01, COACH-01 and the bounded LPP-regulation slices have accepted PASS lenses without unresolved P0/P1. The LPP loop is exhausted without a carousel and keeps the autonomous declared/unverified authority boundary explicit. Full G1 remains NO-GO for 9 open rows; remaining global slices are not converged. |
 | Integration / privacy hygiene | 1.0 | 0.7 | Synthetic runtime data, exact owner/receipt lifecycle and targeted invalidation are green; eight external activation facts and official-source persistence remain open. |
 | Diff discipline | 0.5 | 0.5 | Provenance, recovery, nullable contract, wiring docs, runtime harness and screenshot fix are atomic commits with regular pushes. |
 | **Total** | **10.0** | **8.2** | **Below 9.0 and hard blockers remain; G1 stays NO-GO.** |
@@ -209,8 +211,9 @@ G2/G3.
 | COACH-01 identical-command RED→GREEN | PASS: semantic RED at `c7809198e` is 3/10; the identical command passes 14/14 at exact pushed SHA `fec1d4119e`. |
 | COACH-01 exact-SHA runtime + visual | PASS: dedicated two-stage Patrol/xcodebuild runs 1/1 on the real Mint Coach test surface; screenshot, metadata and sanitized log hashes match, visual review and cleanup pass. DEBUG overlay is explicit and no shipping-default chrome claim is made. |
 | COACH-01 external audits | PASS: first-pass wrapper-only Opus code and product-domain lenses, P0=0/P1=0; two audit observations are resolved and five P2 follow-ups remain explicit without a carousel. |
-| RET-REF LPP regulation exact-SHA runtime | PASS at pushed `fe857a733385357a12d564bd0a7894b30f887e82`: physical production archive/build/install; default-off Maestro before/after 1/1 + 1/1; production-shaped synthetic writer 1/1; explicit termination 0; separate cold reader 1/1; restoration and retained-artifact privacy cleanup PASS. Snapshot-bound technical atom only. |
-| RET-REF LPP regulation minimized proof | PASS: tracked metadata, exit accounting, writer/read summaries and both sanitized Maestro JUnit reports verify against `SHA256SUMS`; no raw logs, screenshot, private fixture, document hash/bytes, raw UDID or result bundle is tracked. |
+| RET-REF LPP regulation exact-SHA runtime | PASS at pushed `6066f1c94786aa1bc4697c29b4a670b7cea3dca4`: one Patrol suite 2/2; distinct writer/reader PIDs; regulation-only cold profile without numeric LPP snapshot; reference preserved across numeric add/replacement; production-default Maestro before/after 1/1 + 1/1; reinstall, restoration and cleanup PASS; 22/22 retained-output contract. |
+| RET-REF LPP regulation minimized proof | PASS: the tracked allowlist and verified `SHA256SUMS` retain only sanitized aggregate metadata, Patrol/Maestro/state summaries and bounded audit acceptance. No raw runtime output, local path, device identifier/hash, document hash/bytes, result bundle, screenshot, media, private-fixture data or source document is tracked. The `currentFund` relationship remains declared/unverified and objective caisse/fund identity is not claimed. |
+| RET-REF LPP regulation bounded audits | PASS: runtime harness code/product-domain 2/2 Opus-high lenses and autonomous authority 10/10 valid Opus-high lenses, all P0=0/P1=0. Invalid isolation outputs are excluded; accepted and open P2 dispositions remain explicit. |
 | Sonnet architecture P1 remediation | PASS: exact disclaimer REDs `21/2`, then `14/1`; final targeted 23 passed / 0 failed, accent lint 4/4 files, analyze 0, financial_core 689/689 and full Flutter 8,900 passed / 33 skipped / 0 failed |
 | Phase 37 registry | 31 total: 22 GREEN, 8 `ticket_only`, 1 `red_proven`; 9 hard floors remain open. RET-REF remains `ticket_only`; this technical atom does not alter its accepted SHA/state. |
 
@@ -258,9 +261,12 @@ G2/G3.
 - `fec1d4119e` — bind the exact-SHA Patrol visual ready/ack proof and cleanup.
 - `cb580c7a8` — accept FRONT-01 at its corrected semantic and exact-SHA
   runtime/audit boundary, bringing the registry to 22/31 GREEN.
-- `fe857a733` — prove the bounded snapshot-bound LPP-regulation writer,
-  process-death cold reader and production-default-off before/after runtime;
-  RET-REF and activation remain open.
+- `fe857a733` — historical snapshot-bound LPP-regulation runtime, superseded
+  for current cutover semantics by `6066f1c94`; RET-REF was not promoted.
+- `6066f1c94` — accept the autonomous regulation-only exact-SHA runtime with a
+  declared/unverified `currentFund` relationship, distinct processes, numeric
+  add/replacement preservation and 22/22 retained-output completeness;
+  activation remains default-off and RET-REF/G1 remain open.
 
 ## Release decision
 
@@ -269,9 +275,10 @@ G2/G3.
 - `G3 allowed?` **NO**.
 - Current machine truth: **22/31 GREEN; 9 hard floors open** — 8
   `ticket_only`, including RET-REF, plus `G1-RUNTIME-01` as `red_proven`.
-- Next ordered gates remain inside G1. Continue RET-REF with the autonomous
-  current-fund authority from `#8730`, capital-notice acquisition/activation,
-  3a-beneficiary reference and fiscal activation/currentness; continue the
+- Next ordered gates remain inside G1. Continue RET-REF with visible
+  legacy/mismatch recovery, dossier/PDF declared-unverified caveat parity and
+  an explicit activation decision; continue capital-notice acquisition,
+  3a-beneficiary reference and fiscal activation/currentness. Continue the
   eight external LPP activation facts, AVS splitting/evidence work and the
   global `G1-RUNTIME-01`. Do not start an audit carousel. Full re-score only
   after every hard floor is green.
