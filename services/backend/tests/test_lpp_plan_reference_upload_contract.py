@@ -161,6 +161,11 @@ def test_lpp_plan_upload_returns_only_document_authority(client, monkeypatch):
     assert payload["extracted_fields"] == {}
     assert payload["fields_found"] == 0
     assert payload["fields_total"] == 0
+    assert payload["warnings"] == [
+        "LPP plan or regulation detected. Its general terms were not treated "
+        "as personal pension facts."
+    ]
+    assert payload["rag_indexed"] is False
 
 
 def test_lpp_plan_upload_never_calls_personal_certificate_extractor(

@@ -336,7 +336,7 @@ class TestDetectDocumentType:
         assert _detect_document_type(text) == "unknown"
 
     def test_detect_lpp_wins_over_salary_when_mixed(self):
-        """When both LPP and salary keywords present, LPP with higher score wins."""
+        """An explicit personal-certificate title wins over salary wording."""
         text = (
             "Certificat de prévoyance professionnelle\n"
             "Avoir de vieillesse total: CHF 166'300\n"
@@ -344,13 +344,12 @@ class TestDetectDocumentType:
             "Caisse de pension\n"
             "Fiche de salaire\n"
         )
-        # 4 LPP keywords vs 1 salary keyword -> LPP wins (score >= 2)
         assert _detect_document_type(text) == "lpp_certificate"
 
-    def test_detect_single_lpp_keyword_threshold(self):
-        """A single LPP keyword still returns 'lpp_certificate' (score == 1)."""
+    def test_detect_single_lpp_keyword_is_ambiguous(self):
+        """A generic LPP mention is not personal or plan authority."""
         text = "Ce document contient le mot lpp quelque part."
-        assert _detect_document_type(text) == "lpp_certificate"
+        assert _detect_document_type(text) == "unknown"
 
     def test_detect_single_salary_keyword_threshold(self):
         """A single salary keyword returns 'salary_slip' (score == 1)."""

@@ -78,26 +78,50 @@ def _detect_document_type(text: str) -> str:
     """
     Detect the type of Swiss financial document from its text.
 
-    Returns: 'lpp_certificate', 'salary_slip', or 'unknown'.
+    Returns: 'lpp_certificate', 'lpp_plan', 'salary_slip', or 'unknown'.
     """
     text_lower = text.lower()
+    lines = [line.strip() for line in text_lower.splitlines() if line.strip()]
 
-    # LPP / BVG certificate indicators
-    lpp_keywords = [
-        "avoir de vieillesse",
-        "taux de conversion",
-        "caisse de pension",
-        "prévoyance professionnelle",
+    certificate_title_prefixes = [
+        "certificat individuel de prévoyance",
         "certificat de prévoyance",
         "certificat d'assurance",
-        "lpp",
+        "persönlicher vorsorgeausweis",
+        "vorsorgeausweis",
+        "certificato personale di previdenza",
+        "certificato di previdenza",
+    ]
+    plan_markers = [
+        "règlement de prévoyance",
+        "reglement de prevoyance",
+        "plan de prévoyance",
+        "plan de prevoyance",
+        "règlement lpp",
+        "reglement lpp",
+        "lpp règlement",
+        "lpp reglement",
+        "vorsorgereglement",
+        "vorsorgeplan",
+        "bvg-reglement",
+        "bvg reglement",
+        "regolamento di previdenza",
+        "piano di previdenza",
+    ]
+    personal_fact_markers = [
+        "avoir de vieillesse",
+        "taux de conversion",
+        "personne assurée",
+        "salaire assuré",
         "altersguthaben",
         "umwandlungssatz",
-        "pensionskasse",
-        "vorsorgeausweis",
-        "bvg",
+        "versicherte person",
+        "versicherter lohn",
         "avere di vecchiaia",
-        "previdenza professionale",
+        "tasso di conversione",
+        "tassi di conversione",
+        "persona assicurata",
+        "salario assicurato",
     ]
 
     # Salary slip indicators
@@ -111,17 +135,28 @@ def _detect_document_type(text: str) -> str:
         "nettolohn",
     ]
 
-    lpp_score = sum(1 for kw in lpp_keywords if kw in text_lower)
     salary_score = sum(1 for kw in salary_keywords if kw in text_lower)
+    personal_fact_score = sum(
+        1 for marker in personal_fact_markers if marker in text_lower
+    )
 
-    if lpp_score >= 2:
+    # A personal-certificate heading is authoritative even when its body cites
+    # the governing plan or regulation.
+    if any(
+        line.startswith(prefix)
+        for line in lines
+        for prefix in certificate_title_prefixes
+    ):
         return "lpp_certificate"
-    elif salary_score >= 2:
+
+    if any(marker in text_lower for marker in plan_markers):
+        return "lpp_plan"
+
+    if salary_score >= 1:
         return "salary_slip"
-    elif lpp_score >= 1:
+
+    if personal_fact_score >= 2:
         return "lpp_certificate"
-    elif salary_score >= 1:
-        return "salary_slip"
 
     return "unknown"
 
@@ -512,9 +547,6 @@ async def upload_document(
     # Import docling components
     try:
         from app.services.docling.parser import DocumentParser
-        from app.services.docling.extractors.lpp_certificate import (
-            LPPCertificateExtractor,
-        )
     except ImportError:
         raise HTTPException(
             status_code=503,
@@ -540,29 +572,51 @@ async def upload_document(
             "Could not identify document type. Attempting LPP extraction anyway."
         )
 
-    # Extract fields (attempt LPP extraction regardless of detected type)
-    extractor = LPPCertificateExtractor()
-    all_tables = []
-    for page in parsed.pages:
-        all_tables.extend(page.tables)
-
-    extracted = extractor.extract(parsed.full_text, tables=all_tables)
-
-    if extracted.extracted_fields_count == 0 and doc_type != "salary_slip":
+    if doc_type == "lpp_plan":
+        extracted_dict: dict = {}
+        extraction_confidence = 0.0
+        fields_found = 0
+        fields_total = 0
         warnings.append(
-            "No LPP certificate fields could be extracted. "
-            "The document may not be a pension certificate."
+            "LPP plan or regulation detected. Its general terms were not "
+            "treated as personal pension facts."
         )
+    else:
+        try:
+            from app.services.docling.extractors.lpp_certificate import (
+                LPPCertificateExtractor,
+            )
+        except ImportError:
+            raise HTTPException(
+                status_code=503,
+                detail="Docling dependencies not installed. Install with: pip install -e '.[docling]'",
+            )
+
+        # Preserve the existing extraction behavior for personal certificates,
+        # salary slips and unknown documents.
+        extractor = LPPCertificateExtractor()
+        all_tables = []
+        for page in parsed.pages:
+            all_tables.extend(page.tables)
+
+        extracted = extractor.extract(parsed.full_text, tables=all_tables)
+
+        if extracted.extracted_fields_count == 0 and doc_type != "salary_slip":
+            warnings.append(
+                "No LPP certificate fields could be extracted. "
+                "The document may not be a pension certificate."
+            )
+
+        extracted_dict = extracted.to_dict()
+        extracted_dict.pop("confidence", None)
+        extracted_dict.pop("extracted_fields_count", None)
+        extracted_dict.pop("total_fields_count", None)
+        extraction_confidence = extracted.confidence
+        fields_found = extracted.extracted_fields_count
+        fields_total = extracted.total_fields_count
 
     # Generate document ID
     doc_id = str(uuid.uuid4())[:12]
-
-    # Prepare extracted fields dict (exclude metadata fields)
-    extracted_dict = extracted.to_dict()
-    # Remove internal metadata from the user-facing payload
-    extracted_dict.pop("confidence", None)
-    extracted_dict.pop("extracted_fields_count", None)
-    extracted_dict.pop("total_fields_count", None)
 
     # Preview text (first 500 chars, privacy-safe)
     raw_preview = parsed.full_text[:500] if parsed.full_text else ""
@@ -574,9 +628,9 @@ async def upload_document(
         user_id=str(_user.id),
         document_type=doc_type,
         upload_date=now,
-        confidence=extracted.confidence,
-        fields_found=extracted.extracted_fields_count,
-        fields_total=extracted.total_fields_count,
+        confidence=extraction_confidence,
+        fields_found=fields_found,
+        fields_total=fields_total,
         extracted_fields=extracted_dict,
         warnings=warnings,
     )
@@ -585,16 +639,16 @@ async def upload_document(
 
     # Optionally index in RAG
     rag_indexed = False
-    if index_in_rag and extracted.extracted_fields_count > 0:
+    if index_in_rag and fields_found > 0:
         rag_indexed = _index_in_rag(doc_id, extracted_dict, doc_type)
 
     resp = DocumentUploadResponse(
         id=doc_id,
         document_type=doc_type,
         extracted_fields=extracted_dict,
-        confidence=extracted.confidence,
-        fields_found=extracted.extracted_fields_count,
-        fields_total=extracted.total_fields_count,
+        confidence=extraction_confidence,
+        fields_found=fields_found,
+        fields_total=fields_total,
         raw_text_preview=raw_preview,
         warnings=warnings,
         rag_indexed=rag_indexed,
