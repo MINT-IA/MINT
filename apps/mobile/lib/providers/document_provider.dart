@@ -454,6 +454,80 @@ class DocumentProvider extends ChangeNotifier {
     });
   }
 
+  Future<ConfirmedDocumentReference> recordLppRegulation(
+    LppRegulationReceipt receipt,
+  ) {
+    final ledger = _ledger;
+    if (!FeatureFlags.lppRegulationReferenceEnabled ||
+        ledger == null ||
+        !ledger.isLoaded ||
+        !ledger.matchesAcceptedLppRegulationReceipt(receipt)) {
+      return Future<ConfirmedDocumentReference>.error(
+        StateError('LPP regulation receipt is unavailable'),
+      );
+    }
+    final guard = _sessionEpoch.capture();
+    return _serializeReferenceMutation(() async {
+      guard.assertCurrent();
+      final currentLedger = _ledger;
+      if (!FeatureFlags.lppRegulationReferenceEnabled ||
+          currentLedger == null ||
+          !currentLedger.isLoaded ||
+          !currentLedger.matchesAcceptedLppRegulationReceipt(receipt)) {
+        throw StateError('LPP regulation receipt no longer matches');
+      }
+      await hydrateReferences();
+      guard.assertCurrent();
+      if (!FeatureFlags.lppRegulationReferenceEnabled ||
+          !currentLedger.matchesAcceptedLppRegulationReceipt(receipt)) {
+        throw StateError('LPP regulation receipt changed during hydration');
+      }
+      final reference = ConfirmedDocumentReference(
+        referenceId: receipt.referenceId,
+        kind: ConfirmedDocumentReference.lppRegulationKind,
+        snapshotId: receipt.snapshotId,
+        ownerKind: receipt.ownerKind,
+        confirmedAt: receipt.confirmedAt,
+      );
+      for (final existing in _references) {
+        if (existing.referenceId == reference.referenceId &&
+            existing.kind == reference.kind &&
+            existing.snapshotId == reference.snapshotId &&
+            existing.ownerKind == reference.ownerKind &&
+            existing.confirmedAt == reference.confirmedAt) {
+          return existing;
+        }
+      }
+      final nextReferences = <ConfirmedDocumentReference>[];
+      var inserted = false;
+      for (final existing in _references) {
+        final isPriorRegulation =
+            existing.kind == ConfirmedDocumentReference.lppRegulationKind &&
+                existing.ownerKind == receipt.ownerKind &&
+                existing.snapshotId == receipt.snapshotId;
+        if (isPriorRegulation) {
+          if (!inserted) {
+            nextReferences.add(reference);
+            inserted = true;
+          }
+        } else {
+          nextReferences.add(existing);
+        }
+      }
+      if (!inserted) nextReferences.add(reference);
+      final persistedReferences =
+          List<ConfirmedDocumentReference>.unmodifiable(nextReferences);
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => _referenceStore.save(persistedReferences),
+      );
+      guard.assertCurrent();
+      _references = persistedReferences;
+      notifyListeners();
+      return reference;
+    });
+  }
+
   SpecialistReferenceEvidence? resolveLppCapitalNotice(
     SpecialistReferenceEvidence? candidate,
   ) {
@@ -474,6 +548,36 @@ class DocumentProvider extends ChangeNotifier {
     if (ledger == null ||
         !ledger.matchesAcceptedLppCapitalNoticeReceipt(
           LppCapitalNoticeReceipt(
+            referenceId: candidate.referenceId,
+            snapshotId: reference.snapshotId,
+            confirmedAt: candidate.confirmedAt,
+          ),
+        )) {
+      return null;
+    }
+    return candidate;
+  }
+
+  SpecialistReferenceEvidence? resolveLppRegulation(
+    SpecialistReferenceEvidence? candidate,
+  ) {
+    if (!FeatureFlags.lppRegulationReferenceEnabled ||
+        candidate == null ||
+        candidate.kind != SpecialistReferenceKind.lppRegulation ||
+        candidate.ownerKind != LppEvidenceOwnerKind.self) {
+      return null;
+    }
+    final reference = byId(candidate.referenceId);
+    if (reference == null ||
+        reference.kind != ConfirmedDocumentReference.lppRegulationKind ||
+        reference.ownerKind != LppEvidenceOwnerKind.self ||
+        reference.confirmedAt != candidate.confirmedAt) {
+      return null;
+    }
+    final ledger = _ledger;
+    if (ledger == null ||
+        !ledger.matchesAcceptedLppRegulationReceipt(
+          LppRegulationReceipt(
             referenceId: candidate.referenceId,
             snapshotId: reference.snapshotId,
             confirmedAt: candidate.confirmedAt,
