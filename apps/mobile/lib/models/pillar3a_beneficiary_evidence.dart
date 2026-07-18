@@ -223,7 +223,7 @@ final class Pillar3aBeneficiaryEvidenceRoot {
 
   static const int schemaVersion = 1;
   static const String answerKey =
-      '_coach_pillar3a_beneficiary_evidence_v1'; // gitleaks:allow - public local schema key
+      '_coach_pillar3a_beneficiary_evidence_v1';
 
   /// Payload/abuse bound only; never a Swiss product or legal limit.
   static const int maximumContracts = 32;
