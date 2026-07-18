@@ -12,8 +12,8 @@ import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 
 const _contractA = '11111111-1111-4111-8111-111111111111';
 const _contractB = '22222222-2222-4222-8222-222222222222';
-const _referenceA = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-const _referenceB = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const _referenceA = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const _referenceB = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const _defaultTemporal = Object();
 final _asOf = DateTime.utc(2027, 7, 2, 12);
 
@@ -89,6 +89,10 @@ Map<String, dynamic> _roundTripJson(dynamic root) =>
 
 void main() {
   test('schema 1 round-trips exact wire keys in contract id order', () {
+    expect(
+      Pillar3aBeneficiaryEvidenceRoot.answerKey,
+      '_coach_pillar3a_beneficiary_evidence_v1',
+    );
     final root = _parse(<Map<String, Object?>>[
       _contract(
         contractReferenceId: _contractB,
@@ -116,6 +120,8 @@ void main() {
     expect(
       contracts.map((contract) => contract['referenceId']),
       <String>[_referenceA, _referenceB],
+      reason: 'Reference ids descend, proving records sort only by '
+          'contractReferenceId.',
     );
     for (final contract in contracts) {
       expect(contract.keys.toSet(), <String>{
@@ -280,7 +286,10 @@ void main() {
       'contractReferenceId',
       'referenceId',
     ]) {
-      for (final invalid in const <String>[
+      for (final invalid in const <Object?>[
+        null,
+        true,
+        1,
         '',
         'not-a-uuid',
         '11111111-1111-3111-8111-111111111111',
@@ -403,12 +412,20 @@ void main() {
       ]),
       isNull,
     );
-    expect(
-      _parse(<Map<String, Object?>>[
-        _contract(relation: 'unknownRelation'),
-      ]),
-      isNull,
-    );
+    for (final invalidRelation in const <Object?>[
+      null,
+      true,
+      1,
+      'unknownRelation',
+    ]) {
+      final record = <String, Object?>{..._contract()}
+        ..['relation'] = invalidRelation;
+      expect(
+        _parse(<Map<String, Object?>>[record]),
+        isNull,
+        reason: 'relation=$invalidRelation',
+      );
+    }
 
     final missingDesignation = <String, Object?>{
       ..._exactDates(lastAssignmentModificationDate: '2027-06-01'),
@@ -478,6 +495,21 @@ void main() {
   });
 
   test('civil dates and confirmation UTC are canonical and non-future', () {
+    for (final confirmedAt in <String>[
+      '2027-06-01T10:00:00.001Z',
+      DateTime.utc(2027, 6, 1, 10, 0, 0, 1, 234)
+          .toUtc()
+          .toIso8601String(),
+    ]) {
+      expect(
+        _parse(<Map<String, Object?>>[
+          _contract(confirmedAt: confirmedAt),
+        ]),
+        isNotNull,
+        reason: '$confirmedAt is canonical DateTime UTC output.',
+      );
+    }
+
     for (final invalid in <Map<String, Object?>>[
       _contract(sourceDate: null),
       _contract(sourceDate: 20270531),
@@ -489,7 +521,8 @@ void main() {
       _contract(confirmedAt: null),
       _contract(confirmedAt: 20270601),
       _contract(confirmedAt: '2027-06-01T10:00:00Z'),
-      _contract(confirmedAt: '2027-06-01T10:00:00.001Z'),
+      _contract(confirmedAt: '2027-06-01T10:00:00.000000Z'),
+      _contract(confirmedAt: '2027-06-01T10:00:00.0010Z'),
       _contract(confirmedAt: '2027-06-01T10:00:00.000z'),
       _contract(confirmedAt: '2027-06-01T10:00:00.000+00:00'),
       _contract(confirmedAt: '2027-06-01T12:00:00.000+02:00'),
