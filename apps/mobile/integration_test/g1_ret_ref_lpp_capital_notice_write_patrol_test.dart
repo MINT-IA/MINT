@@ -424,8 +424,6 @@ void main() {
         _civilDate(_deadlineDate),
       );
       await $(#lpp_regulation_review_confirm_cta).scrollTo().tap();
-      await $(#retirement_lpp_capital_notice_deadline_education)
-          .waitUntilVisible();
 
       expect(events, const <String>[
         'accept_regulation',
@@ -444,6 +442,15 @@ void main() {
       expect(reference!.snapshotId, numericSnapshot.snapshotId);
       expect(reference.kind, LppCapitalNoticeDeadline.kind);
       expect(reference.ownerKind, LppEvidenceOwnerKind.self);
+      expect(
+        find.bySemanticsIdentifier(
+          'retirement_lpp_capital_notice_deadline_education',
+        ),
+        findsOneWidget,
+      );
+      await $(#retirement_lpp_capital_notice_deadline_education).scrollTo();
+      await $(#retirement_lpp_capital_notice_deadline_education)
+          .waitUntilVisible();
 
       final encodedReferences = preferences.getString(
         DocumentReferenceStore.storageKey,
