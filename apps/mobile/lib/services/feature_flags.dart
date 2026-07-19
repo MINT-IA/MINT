@@ -68,6 +68,15 @@ class FeatureFlags {
   /// fail-closed until it has a complete product and runtime proof.
   static bool enableGuidedSequences = false;
 
+  /// Local-only kill switch for the bounded G1 EPL/rente-capital cache.
+  ///
+  /// It stays outside [applyFromMap]. Turning it off makes the production
+  /// provider purge the encrypted cache before publishing no scenario state.
+  static bool scenarioSessionCacheEnabled = const bool.fromEnvironment(
+    'MINT_TEST_G1_SCENARIO_SESSIONS',
+    defaultValue: false,
+  );
+
   /// Local kill switch for the Flutter-owned first financial-plan setup.
   ///
   /// `MINT_TEST_FINANCIAL_PLAN_SETUP` is a TEST-ONLY compile-time opt-in used

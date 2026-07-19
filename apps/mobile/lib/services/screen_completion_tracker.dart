@@ -21,6 +21,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/models/scenario_session.dart';
 
 /// Storage key prefix for all screen completion entries.
 const _kPrefix = 'screen_return_';
@@ -70,6 +71,9 @@ class ScreenCompletionTracker {
     SharedPreferences? prefs,
     DateTime? now,
   }) {
+    if (!_hasValidScenarioIdentity(screenReturn)) {
+      return Future<void>.value();
+    }
     // Emit on realtime stream FIRST — coach reacts immediately.
     if (!_controller.isClosed) {
       _controller.add(screenReturn);
@@ -183,6 +187,16 @@ class ScreenCompletionTracker {
       if (stepOutputsRaw is Map) {
         stepOutputs = Map<String, dynamic>.from(stepOutputsRaw);
       }
+      final scenarioId = map['scenarioId'] as String?;
+      final scenarioStatus = _scenarioStatusFromString(
+        map['scenarioStatus'] as String?,
+      );
+      if ((scenarioId != null || scenarioStatus != null) &&
+          (scenarioId == null ||
+              scenarioStatus == null ||
+              !isOpaqueScenarioId(scenarioId))) {
+        return null;
+      }
 
       return ScreenReturn(
         route: route,
@@ -191,6 +205,8 @@ class ScreenCompletionTracker {
         confidenceDelta: confidenceDelta,
         nextCapSuggestion: nextCap,
         stepOutputs: stepOutputs,
+        scenarioId: scenarioId,
+        scenarioStatus: scenarioStatus,
         runId: map['runId'] as String?,
         stepId: map['stepId'] as String?,
         eventId: map['eventId'] as String?,
@@ -246,6 +262,10 @@ class ScreenCompletionTracker {
             'nextCapSuggestion': screenReturn.nextCapSuggestion,
           if (screenReturn.stepOutputs != null)
             'stepOutputs': screenReturn.stepOutputs,
+          if (screenReturn.scenarioId != null)
+            'scenarioId': screenReturn.scenarioId,
+          if (screenReturn.scenarioStatus != null)
+            'scenarioStatus': screenReturn.scenarioStatus!.name,
           if (screenReturn.runId != null) 'runId': screenReturn.runId,
           if (screenReturn.stepId != null) 'stepId': screenReturn.stepId,
           if (screenReturn.eventId != null) 'eventId': screenReturn.eventId,
@@ -278,5 +298,22 @@ class ScreenCompletionTracker {
       default:
         return null;
     }
+  }
+
+  static bool _hasValidScenarioIdentity(ScreenReturn screenReturn) {
+    final id = screenReturn.scenarioId;
+    final status = screenReturn.scenarioStatus;
+    if (id == null && status == null) return true;
+    return id != null && status != null && isOpaqueScenarioId(id);
+  }
+
+  static ScenarioStatus? _scenarioStatusFromString(String? value) {
+    return switch (value) {
+      'draft' => ScenarioStatus.draft,
+      'calculated' => ScenarioStatus.calculated,
+      'completed' => ScenarioStatus.completed,
+      'abandoned' => ScenarioStatus.abandoned,
+      _ => null,
+    };
   }
 }

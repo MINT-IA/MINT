@@ -109,6 +109,7 @@ import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
+import 'package:mint_mobile/providers/scenario_session_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
@@ -1944,6 +1945,13 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             sessionEpoch: context.read<SessionEpoch>(),
           ),
         ),
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (context) => ScenarioSessionProvider(
+            sessionEpoch: context.read<SessionEpoch>(),
+            enabled: FeatureFlags.scenarioSessionCacheEnabled,
+          ),
+        ),
         ChangeNotifierProxyProvider<CoachProfileProvider, DocumentProvider>(
           lazy: false,
           create: (context) => DocumentProvider(
@@ -2118,6 +2126,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             final documents = context.read<DocumentProvider>();
             final household = context.read<HouseholdProvider>();
             final scans = context.read<ScanSessionProvider>();
+            final scenarios = context.read<ScenarioSessionProvider>();
             final biography = context.read<BiographyProvider>();
             final timeline = context.read<TimelineProvider>();
             final subscription = context.read<SubscriptionProvider>();
@@ -2137,6 +2146,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
                 documents.clearLocalState,
                 household.clearSessionMemoryAfterPurge,
                 scans.clearSessionMemoryAfterPurge,
+                scenarios.clearSessionMemoryAfterPurge,
                 biography.clearSessionMemoryAfterPurge,
                 timeline.clearSessionMemoryAfterPurge,
                 subscription.clearSessionMemoryAfterPurge,
@@ -2194,6 +2204,11 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
                 AccountSessionInitializer(
                   'budget',
                   (_) => context.read<BudgetProvider>().loadFromStorage(),
+                  stage: 1,
+                ),
+                AccountSessionInitializer(
+                  'scenario',
+                  (_) => context.read<ScenarioSessionProvider>().load(),
                   stage: 1,
                 ),
                 AccountSessionInitializer(

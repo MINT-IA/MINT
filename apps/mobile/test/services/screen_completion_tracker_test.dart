@@ -21,6 +21,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/models/scenario_session.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 
@@ -34,14 +35,17 @@ void main() {
     test('persists completed outcome for given screenId', () async {
       final prefs = await SharedPreferences.getInstance();
       await ScreenCompletionTracker.markCompleted('sim_3a', prefs: prefs);
-      final outcome = await ScreenCompletionTracker.lastOutcome('sim_3a', prefs: prefs);
+      final outcome =
+          await ScreenCompletionTracker.lastOutcome('sim_3a', prefs: prefs);
       expect(outcome, ScreenOutcome.completed);
     });
 
     test('stores the screenId field in the entry', () async {
       final prefs = await SharedPreferences.getInstance();
-      await ScreenCompletionTracker.markCompleted('rente_vs_capital', prefs: prefs);
-      final entry = await ScreenCompletionTracker.lastEntry('rente_vs_capital', prefs: prefs);
+      await ScreenCompletionTracker.markCompleted('rente_vs_capital',
+          prefs: prefs);
+      final entry = await ScreenCompletionTracker.lastEntry('rente_vs_capital',
+          prefs: prefs);
       expect(entry, isNotNull);
       expect(entry!['screenId'], 'rente_vs_capital');
     });
@@ -51,7 +55,8 @@ void main() {
     test('persists abandoned outcome', () async {
       final prefs = await SharedPreferences.getInstance();
       await ScreenCompletionTracker.markAbandoned('budget', prefs: prefs);
-      final outcome = await ScreenCompletionTracker.lastOutcome('budget', prefs: prefs);
+      final outcome =
+          await ScreenCompletionTracker.lastOutcome('budget', prefs: prefs);
       expect(outcome, ScreenOutcome.abandoned);
     });
   });
@@ -59,8 +64,11 @@ void main() {
   group('ScreenCompletionTracker — markChangedInputs', () {
     test('persists changedInputs outcome', () async {
       final prefs = await SharedPreferences.getInstance();
-      await ScreenCompletionTracker.markChangedInputs('fiscal_comparator', prefs: prefs);
-      final outcome = await ScreenCompletionTracker.lastOutcome('fiscal_comparator', prefs: prefs);
+      await ScreenCompletionTracker.markChangedInputs('fiscal_comparator',
+          prefs: prefs);
+      final outcome = await ScreenCompletionTracker.lastOutcome(
+          'fiscal_comparator',
+          prefs: prefs);
       expect(outcome, ScreenOutcome.changedInputs);
     });
   });
@@ -68,15 +76,19 @@ void main() {
   group('ScreenCompletionTracker — lastOutcome', () {
     test('returns null when no record exists', () async {
       final prefs = await SharedPreferences.getInstance();
-      final outcome = await ScreenCompletionTracker.lastOutcome('nonexistent_screen', prefs: prefs);
+      final outcome = await ScreenCompletionTracker.lastOutcome(
+          'nonexistent_screen',
+          prefs: prefs);
       expect(outcome, isNull);
     });
 
     test('returns null after clear', () async {
       final prefs = await SharedPreferences.getInstance();
-      await ScreenCompletionTracker.markCompleted('affordability', prefs: prefs);
+      await ScreenCompletionTracker.markCompleted('affordability',
+          prefs: prefs);
       await ScreenCompletionTracker.clear('affordability', prefs: prefs);
-      final outcome = await ScreenCompletionTracker.lastOutcome('affordability', prefs: prefs);
+      final outcome = await ScreenCompletionTracker.lastOutcome('affordability',
+          prefs: prefs);
       expect(outcome, isNull);
     });
   });
@@ -84,14 +96,17 @@ void main() {
   group('ScreenCompletionTracker — lastEntry', () {
     test('returns null when no record exists', () async {
       final prefs = await SharedPreferences.getInstance();
-      final entry = await ScreenCompletionTracker.lastEntry('missing', prefs: prefs);
+      final entry =
+          await ScreenCompletionTracker.lastEntry('missing', prefs: prefs);
       expect(entry, isNull);
     });
 
     test('timestamp is stored and parseable as ISO-8601', () async {
       final prefs = await SharedPreferences.getInstance();
-      await ScreenCompletionTracker.markCompleted('divorce_simulator', prefs: prefs);
-      final entry = await ScreenCompletionTracker.lastEntry('divorce_simulator', prefs: prefs);
+      await ScreenCompletionTracker.markCompleted('divorce_simulator',
+          prefs: prefs);
+      final entry = await ScreenCompletionTracker.lastEntry('divorce_simulator',
+          prefs: prefs);
       expect(entry, isNotNull);
       final ts = entry!['timestamp'] as String?;
       expect(ts, isNotNull);
@@ -100,8 +115,10 @@ void main() {
 
     test('outcome field matches string representation', () async {
       final prefs = await SharedPreferences.getInstance();
-      await ScreenCompletionTracker.markAbandoned('job_comparison', prefs: prefs);
-      final entry = await ScreenCompletionTracker.lastEntry('job_comparison', prefs: prefs);
+      await ScreenCompletionTracker.markAbandoned('job_comparison',
+          prefs: prefs);
+      final entry = await ScreenCompletionTracker.lastEntry('job_comparison',
+          prefs: prefs);
       expect(entry!['outcome'], 'abandoned');
     });
   });
@@ -109,7 +126,8 @@ void main() {
   group('ScreenCompletionTracker — clear', () {
     test('removes the stored record', () async {
       final prefs = await SharedPreferences.getInstance();
-      await ScreenCompletionTracker.markCompleted('lamal_franchise', prefs: prefs);
+      await ScreenCompletionTracker.markCompleted('lamal_franchise',
+          prefs: prefs);
       await ScreenCompletionTracker.clear('lamal_franchise', prefs: prefs);
       final raw = prefs.getString('screen_return_lamal_franchise');
       expect(raw, isNull);
@@ -151,7 +169,8 @@ void main() {
       await ScreenCompletionTracker.markCompleted('y', prefs: prefs);
       await ScreenCompletionTracker.clear('x', prefs: prefs);
 
-      expect(await ScreenCompletionTracker.lastOutcome('x', prefs: prefs), isNull);
+      expect(
+          await ScreenCompletionTracker.lastOutcome('x', prefs: prefs), isNull);
       expect(
         await ScreenCompletionTracker.lastOutcome('y', prefs: prefs),
         ScreenOutcome.completed,
@@ -162,9 +181,13 @@ void main() {
   group('ScreenCompletionTracker — overwrite', () {
     test('second write overwrites the first', () async {
       final prefs = await SharedPreferences.getInstance();
-      await ScreenCompletionTracker.markAbandoned('rachat_echelonne', prefs: prefs);
-      await ScreenCompletionTracker.markCompleted('rachat_echelonne', prefs: prefs);
-      final outcome = await ScreenCompletionTracker.lastOutcome('rachat_echelonne', prefs: prefs);
+      await ScreenCompletionTracker.markAbandoned('rachat_echelonne',
+          prefs: prefs);
+      await ScreenCompletionTracker.markCompleted('rachat_echelonne',
+          prefs: prefs);
+      final outcome = await ScreenCompletionTracker.lastOutcome(
+          'rachat_echelonne',
+          prefs: prefs);
       expect(outcome, ScreenOutcome.completed);
     });
   });
@@ -173,7 +196,8 @@ void main() {
     test('lastOutcome returns null for malformed JSON', () async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('screen_return_bad_screen', '{invalid json}');
-      final outcome = await ScreenCompletionTracker.lastOutcome('bad_screen', prefs: prefs);
+      final outcome =
+          await ScreenCompletionTracker.lastOutcome('bad_screen', prefs: prefs);
       expect(outcome, isNull);
     });
 
@@ -187,7 +211,9 @@ void main() {
           'screenId': 'unknown_outcome',
         }),
       );
-      final outcome = await ScreenCompletionTracker.lastOutcome('unknown_outcome', prefs: prefs);
+      final outcome = await ScreenCompletionTracker.lastOutcome(
+          'unknown_outcome',
+          prefs: prefs);
       expect(outcome, isNull);
     });
   });
@@ -251,6 +277,62 @@ void main() {
       expect(restored.stepId, isNull);
       expect(restored.eventId, isNull);
       expect(restored.stepOutputs, isNull);
+    });
+  });
+
+  group('G1 scenario identity persistence', () {
+    test('round-trips only typed scenario ID/status plus sequence identity',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      const scenarioId = '44444444-4444-4444-8444-444444444444';
+      const screenReturn = ScreenReturn.completed(
+        route: '/epl',
+        scenarioId: scenarioId,
+        scenarioStatus: ScenarioStatus.completed,
+        runId: 'housing_123',
+        stepId: 'housing_02_epl',
+        eventId: 'evt_housing_123_1711000001',
+      );
+
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'epl',
+        screenReturn,
+        prefs: prefs,
+      );
+      final restored =
+          await ScreenCompletionTracker.lastReturn('epl', prefs: prefs);
+      final entry =
+          await ScreenCompletionTracker.lastEntry('epl', prefs: prefs);
+
+      expect(restored?.scenarioId, scenarioId);
+      expect(restored?.scenarioStatus, ScenarioStatus.completed);
+      expect(restored?.updatedFields, isNull);
+      expect(restored?.confidenceDelta, isNull);
+      expect(restored?.stepOutputs, isNull);
+      expect(entry?.keys, containsAll(['scenarioId', 'scenarioStatus']));
+      expect(entry, isNot(contains('montant_epl')));
+      expect(entry, isNot(contains('impact_rente')));
+      expect(entry, isNot(contains('retirementMode')));
+    });
+
+    test('malformed scenario identity fails closed on read', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'screen_return_epl',
+        jsonEncode({
+          'outcome': 'completed',
+          'timestamp': DateTime.utc(2026, 7, 19).toIso8601String(),
+          'screenId': 'epl',
+          'route': '/epl',
+          'scenarioId': 'not-a-uuid',
+          'scenarioStatus': 'completed',
+        }),
+      );
+
+      expect(
+        await ScreenCompletionTracker.lastReturn('epl', prefs: prefs),
+        isNull,
+      );
     });
   });
 }
