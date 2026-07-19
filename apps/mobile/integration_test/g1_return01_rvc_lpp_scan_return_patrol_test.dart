@@ -117,7 +117,6 @@ void main() {
           .scrollTo()
           .enterText('2025-12-31');
       await $(find.byKey(const Key('lpp_review_confirm_cta'))).scrollTo().tap();
-      await $.pumpAndSettle();
 
       final impact = find.byType(DocumentImpactScreen);
       await $(impact).waitUntilVisible();
@@ -134,7 +133,6 @@ void main() {
       await $(find.byKey(const Key('lpp_impact_retirement_cta')))
           .scrollTo()
           .tap();
-      await $.pumpAndSettle();
 
       final returnedRvc = find.byType(RenteVsCapitalScreen);
       await $(returnedRvc).waitUntilVisible();
