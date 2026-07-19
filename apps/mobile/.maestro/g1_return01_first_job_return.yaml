@@ -1,0 +1,59 @@
+appId: ch.mint.app
+---
+# G1-RETURN-01: use the live First Job CTA, persist synthetic revenue facts,
+# and prove the save returns to the exact visible First Job destination.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///first-job"
+- extendedWaitUntil:
+    visible:
+      id: "first_job_ledger_facts"
+    timeout: 20000
+- assertVisible:
+    id: "first_job_ledger_facts"
+- scrollUntilVisible:
+    element:
+      id: "first_job_enrich_profile_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "first_job_enrich_profile_cta"
+- assertVisible:
+    id: "salary_input"
+- tapOn:
+    id: "salary_input"
+- inputText: "96000"
+- tapOn:
+    id: "canton_picker"
+- inputText: "GE"
+- tapOn:
+    id: "birth_year_input"
+- inputText: "2001"
+- tapOn:
+    text: "Revenu"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "first_job_ledger_facts"
+- scrollUntilVisible:
+    element:
+      id: "first_job_result_cards"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- assertVisible:
+    id: "first_job_result_cards"
