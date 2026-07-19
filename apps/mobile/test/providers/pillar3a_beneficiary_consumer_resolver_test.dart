@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_consumer.dart';
 import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_specialist_handoff.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -11,6 +13,9 @@ const _contract = '11111111-1111-4111-8111-111111111111';
 const _reference = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const _otherReference = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const _authority = '33333333-3333-4333-8333-333333333333';
+const _inactiveContract = '22222222-2222-4222-8222-222222222222';
+const _inactiveReference = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+const _inactiveAuthority = '55555555-5555-4555-8555-555555555555';
 
 final class _MemoryPersistence
     with SerializedCanonicalAnswerMutationPersistence
@@ -47,13 +52,19 @@ final class _MemoryReferenceStore extends DocumentReferenceStore {
   }
 }
 
-Map<String, dynamic> _contractJson(String relation) => <String, dynamic>{
+Map<String, dynamic> _contractJson(
+  String relation, {
+  String contractReferenceId = _contract,
+  String referenceId = _reference,
+  String documentAuthorityId = _authority,
+}) =>
+    <String, dynamic>{
       'kind': 'pillar3aBeneficiaryClause',
       'ownerKind': 'self',
       'documentSource': 'certificate',
-      'contractReferenceId': _contract,
-      'referenceId': _reference,
-      'documentAuthorityId': _authority,
+      'contractReferenceId': contractReferenceId,
+      'referenceId': referenceId,
+      'documentAuthorityId': documentAuthorityId,
       'documentKind': 'confirmationInstitutionnelle',
       'sourceDate': '2026-07-18',
       'legalYear': 2026,
@@ -80,15 +91,38 @@ Map<String, dynamic> _answersWithContract(String relation) => <String, dynamic>{
       ),
     };
 
+Map<String, dynamic> _answersWithKnownAndInactiveContracts() =>
+    <String, dynamic>{
+      'q_birth_year': 1980,
+      'q_canton': 'VD',
+      Pillar3aBeneficiaryEvidenceRoot.answerKey: jsonEncode(
+        <String, Object?>{
+          'schemaVersion': 1,
+          'contracts': <Map<String, dynamic>>[
+            _contractJson(
+              Pillar3aBeneficiaryRelation.currentActiveUnpaid.name,
+            ),
+            _contractJson(
+              Pillar3aBeneficiaryRelation.paidOrClosed.name,
+              contractReferenceId: _inactiveContract,
+              referenceId: _inactiveReference,
+              documentAuthorityId: _inactiveAuthority,
+            ),
+          ],
+        },
+      ),
+    };
+
 ConfirmedDocumentReference _referenceFor({
   String referenceId = _reference,
   String documentAuthorityId = _authority,
+  String contractReferenceId = _contract,
   DateTime? confirmedAt,
 }) =>
     ConfirmedDocumentReference(
       referenceId: referenceId,
       kind: Pillar3aBeneficiaryEvidence.kind,
-      contractReferenceId: _contract,
+      contractReferenceId: contractReferenceId,
       documentAuthorityId: documentAuthorityId,
       ownerKind: LppEvidenceOwnerKind.self,
       confirmedAt: confirmedAt ?? DateTime.utc(2026, 7, 19, 10),
@@ -593,6 +627,193 @@ void main() {
 
       documents.dispose();
       ledger.dispose();
+    }
+  });
+
+  test(
+      'specialist handoff admits only exact known authority and fails closed otherwise',
+      () async {
+    Future<Pillar3aBeneficiarySpecialistHandoff?> handoff({
+      required Map<String, dynamic> answers,
+      required List<ConfirmedDocumentReference> references,
+    }) async {
+      final ledger = await _ledger(answers);
+      final documents = await _documents(ledger, references);
+      addTearDown(documents.dispose);
+      addTearDown(ledger.dispose);
+      return documents.resolvePillar3aBeneficiarySpecialistHandoff();
+    }
+
+    final knownLedger = await _ledger(
+      _answersWithContract(
+        Pillar3aBeneficiaryRelation.currentActiveUnpaid.name,
+      ),
+    );
+    final knownDocuments = await _documents(
+      knownLedger,
+      <ConfirmedDocumentReference>[_referenceFor()],
+    );
+    addTearDown(knownDocuments.dispose);
+    addTearDown(knownLedger.dispose);
+    final known = knownDocuments.resolvePillar3aBeneficiarySpecialistHandoff();
+    expect(known, isNotNull);
+    expect(known!.entries, hasLength(1));
+    expect(
+        known.entries.single.documentKind.name, 'confirmationInstitutionnelle');
+    expect(known.entries.single.sourceDate, DateTime.utc(2026, 7, 18));
+    expect(known.entries.single.legalYear, 2026);
+    expect(
+      known.entries.single.relationConfirmedAt,
+      DateTime.utc(2026, 7, 19, 10),
+    );
+    expect(
+      known.toLocalJson(),
+      <String, Object?>{
+        'entries': <Map<String, Object?>>[
+          <String, Object?>{
+            'documentKind': 'confirmationInstitutionnelle',
+            'sourceDate': '2026-07-18',
+            'legalYear': 2026,
+            'temporalBasis': <String, Object?>{
+              'kind': 'exactDates',
+              'designationEffectiveDate': '2026-01-15',
+              'lastAssignmentModificationDate': null,
+            },
+            'relationConfirmedAt': '2026-07-19T10:00:00.000Z',
+          },
+        ],
+      },
+    );
+
+    final encoded = jsonEncode(known.toLocalJson()).toLowerCase();
+    for (final forbidden in const <String>[
+      _contract,
+      _reference,
+      _authority,
+      'contractreferenceid',
+      'referenceid',
+      'documentauthorityid',
+      'beneficiaryname',
+      'beneficiaryclass',
+      'beneficiaryorder',
+      'beneficiaryrank',
+      'beneficiaryshare',
+      'raw',
+      'path',
+      'sha256',
+      'iban',
+      'avsnumber',
+    ]) {
+      expect(encoded, isNot(contains(forbidden)), reason: forbidden);
+    }
+
+    FeatureFlags.typedLppEvidence = false;
+    expect(
+      knownDocuments.resolvePillar3aBeneficiarySpecialistHandoff(),
+      isNull,
+    );
+    FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.documentLppEvidenceEnabled = false;
+    expect(
+      knownDocuments.resolvePillar3aBeneficiarySpecialistHandoff(),
+      isNull,
+    );
+    FeatureFlags.documentLppEvidenceEnabled = true;
+
+    final invalidPresenceAnswers = _answersWithContract(
+      Pillar3aBeneficiaryRelation.currentActiveUnpaid.name,
+    )
+      ..['q_has_3a'] = false
+      ..['__provenance'] = <String, Object?>{
+        'hasPillar3a': <String, Object?>{
+          'source': 'userInput',
+          'updatedAt': '2026-07-20T00:00:00.000Z',
+          'sourceDate': null,
+        },
+      };
+    final scenarios = <Future<Pillar3aBeneficiarySpecialistHandoff?>>[
+      handoff(
+        answers: _answersWithContract(
+          Pillar3aBeneficiaryRelation.uncertain.name,
+        ),
+        references: <ConfirmedDocumentReference>[_referenceFor()],
+      ),
+      handoff(
+        answers: _answersWithContract(
+          Pillar3aBeneficiaryRelation.paidOrClosed.name,
+        ),
+        references: <ConfirmedDocumentReference>[_referenceFor()],
+      ),
+      handoff(
+        answers: _answersWithContract(
+          Pillar3aBeneficiaryRelation.currentActiveUnpaid.name,
+        ),
+        references: const <ConfirmedDocumentReference>[],
+      ),
+      handoff(
+        answers: _answersWithContract(
+          Pillar3aBeneficiaryRelation.currentActiveUnpaid.name,
+        ),
+        references: <ConfirmedDocumentReference>[
+          _referenceFor(referenceId: _otherReference),
+        ],
+      ),
+      handoff(
+        answers: invalidPresenceAnswers,
+        references: <ConfirmedDocumentReference>[_referenceFor()],
+      ),
+      handoff(
+        answers: <String, dynamic>{
+          'q_birth_year': 1980,
+          'q_canton': 'VD',
+          Pillar3aBeneficiaryEvidenceRoot.answerKey: '{invalid',
+        },
+        references: <ConfirmedDocumentReference>[_referenceFor()],
+      ),
+    ];
+    for (final future in scenarios) {
+      expect(await future, isNull);
+    }
+  });
+
+  test(
+      'specialist adapter exports known contract and excludes coherent inactive sibling',
+      () async {
+    final ledger = await _ledger(_answersWithKnownAndInactiveContracts());
+    final documents = await _documents(
+      ledger,
+      <ConfirmedDocumentReference>[
+        _referenceFor(),
+        _referenceFor(
+          referenceId: _inactiveReference,
+          documentAuthorityId: _inactiveAuthority,
+          contractReferenceId: _inactiveContract,
+        ),
+      ],
+    );
+    addTearDown(documents.dispose);
+    addTearDown(ledger.dispose);
+
+    final resolution = documents.resolvePillar3aBeneficiaryConsumer();
+    expect(
+      resolution.entries.map((entry) => entry.state),
+      <Pillar3aBeneficiaryConsumerState>[
+        Pillar3aBeneficiaryConsumerState.knownCurrentDeclared,
+        Pillar3aBeneficiaryConsumerState.inactive,
+      ],
+    );
+
+    final handoff = documents.resolvePillar3aBeneficiarySpecialistHandoff();
+    expect(handoff, isNotNull);
+    expect(handoff!.entries, hasLength(1));
+    final encoded = jsonEncode(handoff.toLocalJson()).toLowerCase();
+    for (final forbidden in const <String>[
+      _inactiveContract,
+      _inactiveReference,
+      _inactiveAuthority,
+      'inactive',
+    ]) {
+      expect(encoded, isNot(contains(forbidden)), reason: forbidden);
     }
   });
 }

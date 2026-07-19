@@ -5,7 +5,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_consumer.dart';
 import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_specialist_handoff.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -317,94 +319,6 @@ enum Pillar3aBeneficiaryReferenceResolution {
   resolved,
   missingDocumentReference,
   mismatchedDocumentReference,
-}
-
-enum Pillar3aBeneficiaryConsumerState {
-  loading,
-  unavailable,
-  empty,
-  knownCurrentDeclared,
-  needsConfirmation,
-  inactive,
-  missingDocumentReference,
-  mismatchedDocumentReference,
-  invalidPresenceProvenance,
-  invalid,
-}
-
-@immutable
-class Pillar3aBeneficiaryRenderableDocumentMetadata {
-  const Pillar3aBeneficiaryRenderableDocumentMetadata._({
-    required this.documentKind,
-    required this.sourceDate,
-    required this.legalYear,
-    required this.temporalBasis,
-    required this.relation,
-    required this.relationConfirmedAt,
-  });
-
-  final Pillar3aBeneficiaryAuthorityDocumentKind documentKind;
-  final DateTime sourceDate;
-  final int legalYear;
-  final Pillar3aBeneficiaryTemporalBasis temporalBasis;
-  final Pillar3aBeneficiaryRelation relation;
-  final DateTime relationConfirmedAt;
-}
-
-@immutable
-class Pillar3aBeneficiaryConsumerEntry {
-  const Pillar3aBeneficiaryConsumerEntry._({
-    required this.state,
-    required this.scanContractReferenceId,
-    required this.scanExpectedPreviousReferenceId,
-    required Pillar3aBeneficiaryRenderableDocumentMetadata?
-        renderablePreciseDocumentMetadata,
-  }) : _renderablePreciseDocumentMetadata = renderablePreciseDocumentMetadata;
-
-  final Pillar3aBeneficiaryConsumerState state;
-
-  /// Opaque action identity. It is transport input, never display copy.
-  final String scanContractReferenceId;
-  final String scanExpectedPreviousReferenceId;
-  final Pillar3aBeneficiaryRenderableDocumentMetadata?
-      _renderablePreciseDocumentMetadata;
-
-  Pillar3aBeneficiaryRenderableDocumentMetadata?
-      get renderablePreciseDocumentMetadata =>
-          _renderablePreciseDocumentMetadata;
-
-  bool get hasRenderablePreciseDocumentMetadata =>
-      _renderablePreciseDocumentMetadata != null;
-}
-
-@immutable
-class Pillar3aBeneficiaryConsumerResolution {
-  const Pillar3aBeneficiaryConsumerResolution._(
-    this.state, [
-    this.entries = const <Pillar3aBeneficiaryConsumerEntry>[],
-  ]);
-
-  final Pillar3aBeneficiaryConsumerState state;
-  final List<Pillar3aBeneficiaryConsumerEntry> entries;
-}
-
-Pillar3aBeneficiaryConsumerState _aggregatePillar3aBeneficiaryConsumerState(
-  List<Pillar3aBeneficiaryConsumerEntry> entries,
-) {
-  if (entries.isEmpty) return Pillar3aBeneficiaryConsumerState.invalid;
-  const priority = <Pillar3aBeneficiaryConsumerState>[
-    Pillar3aBeneficiaryConsumerState.mismatchedDocumentReference,
-    Pillar3aBeneficiaryConsumerState.missingDocumentReference,
-    Pillar3aBeneficiaryConsumerState.invalidPresenceProvenance,
-    Pillar3aBeneficiaryConsumerState.invalid,
-    Pillar3aBeneficiaryConsumerState.needsConfirmation,
-    Pillar3aBeneficiaryConsumerState.knownCurrentDeclared,
-    Pillar3aBeneficiaryConsumerState.inactive,
-  ];
-  for (final state in priority) {
-    if (entries.any((entry) => entry.state == state)) return state;
-  }
-  return Pillar3aBeneficiaryConsumerState.invalid;
 }
 
 /// Manages document upload state and document list.
@@ -991,76 +905,51 @@ class DocumentProvider extends ChangeNotifier {
     final ledger = _ledger;
     if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
         ledger == null) {
-      return const Pillar3aBeneficiaryConsumerResolution._(
-        Pillar3aBeneficiaryConsumerState.unavailable,
-      );
+      return const Pillar3aBeneficiaryConsumerResolution.unavailable();
     }
     if (ledger.isLoading) {
-      return const Pillar3aBeneficiaryConsumerResolution._(
-        Pillar3aBeneficiaryConsumerState.loading,
-      );
+      return const Pillar3aBeneficiaryConsumerResolution.loading();
     }
     switch (ledger.pillar3aBeneficiaryLedgerState) {
       case Pillar3aBeneficiaryLedgerState.unavailable:
-        return const Pillar3aBeneficiaryConsumerResolution._(
-          Pillar3aBeneficiaryConsumerState.unavailable,
-        );
+        return const Pillar3aBeneficiaryConsumerResolution.unavailable();
       case Pillar3aBeneficiaryLedgerState.missing:
-        return const Pillar3aBeneficiaryConsumerResolution._(
-          Pillar3aBeneficiaryConsumerState.empty,
-        );
+        return const Pillar3aBeneficiaryConsumerResolution.empty();
       case Pillar3aBeneficiaryLedgerState.invalid:
-        return const Pillar3aBeneficiaryConsumerResolution._(
-          Pillar3aBeneficiaryConsumerState.invalid,
-        );
+        return const Pillar3aBeneficiaryConsumerResolution.invalid();
       case Pillar3aBeneficiaryLedgerState.valid:
         break;
     }
     switch (_referenceHydrationState) {
       case DocumentReferenceHydrationState.idle:
       case DocumentReferenceHydrationState.loading:
-        return const Pillar3aBeneficiaryConsumerResolution._(
-          Pillar3aBeneficiaryConsumerState.loading,
-        );
+        return const Pillar3aBeneficiaryConsumerResolution.loading();
       case DocumentReferenceHydrationState.failed:
-        return const Pillar3aBeneficiaryConsumerResolution._(
-          Pillar3aBeneficiaryConsumerState.unavailable,
-        );
+        return const Pillar3aBeneficiaryConsumerResolution.unavailable();
       case DocumentReferenceHydrationState.ready:
         break;
     }
 
     final root = ledger.currentPillar3aBeneficiaryEvidence;
     if (root == null) {
-      return const Pillar3aBeneficiaryConsumerResolution._(
-        Pillar3aBeneficiaryConsumerState.invalid,
-      );
+      return const Pillar3aBeneficiaryConsumerResolution.invalid();
     }
-    final entries = <Pillar3aBeneficiaryConsumerEntry>[];
-    for (final evidence in root.contracts) {
-      final state = _pillar3aBeneficiaryConsumerEntryState(evidence);
-      entries.add(
-        Pillar3aBeneficiaryConsumerEntry._(
-          state: state,
-          scanContractReferenceId: evidence.contractReferenceId,
-          scanExpectedPreviousReferenceId: evidence.referenceId,
-          renderablePreciseDocumentMetadata:
-              state == Pillar3aBeneficiaryConsumerState.knownCurrentDeclared
-                  ? Pillar3aBeneficiaryRenderableDocumentMetadata._(
-                      documentKind: evidence.documentKind,
-                      sourceDate: evidence.sourceDate,
-                      legalYear: evidence.legalYear,
-                      temporalBasis: evidence.temporalBasis,
-                      relation: evidence.relation,
-                      relationConfirmedAt: evidence.relationConfirmedAt,
-                    )
-                  : null,
-        ),
-      );
+    return Pillar3aBeneficiaryConsumerResolution.fromQualifiedEvidenceRoot(
+      root,
+      resolveState: _pillar3aBeneficiaryConsumerEntryState,
+    );
+  }
+
+  /// Specialist-safe projection from the already qualified consumer boundary.
+  Pillar3aBeneficiarySpecialistHandoff?
+      resolvePillar3aBeneficiarySpecialistHandoff() {
+    if (!FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.documentLppEvidenceEnabled ||
+        !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled) {
+      return null;
     }
-    return Pillar3aBeneficiaryConsumerResolution._(
-      _aggregatePillar3aBeneficiaryConsumerState(entries),
-      List<Pillar3aBeneficiaryConsumerEntry>.unmodifiable(entries),
+    return Pillar3aBeneficiarySpecialistHandoff.tryFromConsumerResolution(
+      resolvePillar3aBeneficiaryConsumer(),
     );
   }
 

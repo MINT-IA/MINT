@@ -87,3 +87,7 @@ flutter:
     - assets/config/tax_scales_2024.json
     - assets/config/personas.json
     - assets/config/commune_multipliers.json
+    # Offline Unicode PDF fonts (SIL OFL 1.1; license shipped alongside).
+    - assets/fonts/LibreFranklin-Regular.ttf
+    - assets/fonts/LibreFranklin-Bold.ttf
+    - assets/fonts/LibreFranklin-OFL.txt

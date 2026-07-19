@@ -134,6 +134,8 @@ Future<String> _pdfText(List<int> bytes) async {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   final l = lookupS(const Locale('fr'));
 
   setUpAll(() async {

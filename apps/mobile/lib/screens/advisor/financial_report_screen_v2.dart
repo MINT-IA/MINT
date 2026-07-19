@@ -8,9 +8,11 @@ import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_specialist_handoff.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/services/report/lpp_capital_notice_section_content.dart';
 import 'package:mint_mobile/services/report/lpp_regulation_handoff_section_content.dart';
+import 'package:mint_mobile/services/report/pillar3a_beneficiary_handoff_section_content.dart';
 import 'package:mint_mobile/widgets/report/thematic_card.dart';
 // Wave E-PRIME (2026-04-18): MintAlertObject + VoiceResolutionContext imports
 // removed — widgets/alert/ cluster deleted with AnticipationProvider (Panel A
@@ -38,12 +40,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
   final Map<String, dynamic> wizardAnswers;
   final LppCapitalNoticeSpecialistHandoff? lppCapitalNoticeHandoff;
   final LppRegulationSpecialistHandoff? lppRegulationHandoff;
+  final Pillar3aBeneficiarySpecialistHandoff? pillar3aBeneficiaryHandoff;
 
   const FinancialReportScreenV2({
     super.key,
     required this.wizardAnswers,
     this.lppCapitalNoticeHandoff,
     this.lppRegulationHandoff,
+    this.pillar3aBeneficiaryHandoff,
   });
 
   // ── Route mapping by ActionCategory (replaces fragile keyword matching) ──
@@ -90,6 +94,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       wizardAnswers,
       lppCapitalNoticeHandoff: lppCapitalNoticeHandoff,
       lppRegulationHandoff: lppRegulationHandoff,
+      pillar3aBeneficiaryHandoff: pillar3aBeneficiaryHandoff,
     );
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
     final safeModeReasons = _buildSafeModeReasons(context, wizardAnswers);
@@ -210,6 +215,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     if (report.lppRegulationHandoff != null) ...[
                       const SizedBox(height: MintSpacing.lg),
                       _buildLppRegulationHandoffSection(context, report),
+                    ],
+
+                    if (report.pillar3aBeneficiaryHandoff != null) ...[
+                      const SizedBox(height: MintSpacing.lg),
+                      _buildPillar3aBeneficiaryHandoffSection(context, report),
                     ],
 
                     const SizedBox(height: MintSpacing.lg),
@@ -421,6 +431,131 @@ class FinancialReportScreenV2 extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPillar3aBeneficiaryHandoffSection(
+    BuildContext context,
+    FinancialReport report,
+  ) {
+    final l = S.of(context)!;
+    final localeName = Localizations.localeOf(context).toLanguageTag();
+    final contents = <Pillar3aBeneficiaryHandoffSectionContent>[
+      for (final entry in report.pillar3aBeneficiaryHandoff!.entries)
+        Pillar3aBeneficiaryHandoffSectionContent.fromEntry(
+          entry: entry,
+          l: l,
+          localeName: localeName,
+        ),
+    ];
+
+    Widget metadata(String label, String value) => Text.rich(
+          TextSpan(
+            children: <InlineSpan>[
+              TextSpan(text: '$label ', style: MintTextStyles.labelMedium()),
+              TextSpan(text: value, style: MintTextStyles.bodyMedium()),
+            ],
+          ),
+        );
+
+    return Semantics(
+      identifier: 'financial_report_pillar3a_beneficiary_handoff',
+      container: true,
+      explicitChildNodes: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
+        child: Column(
+          children: <Widget>[
+            for (final indexed in contents.indexed) ...<Widget>[
+              MintSurface(
+                key: Key(
+                  'financial_report_pillar3a_beneficiary_handoff_entry_'
+                  '${indexed.$1}',
+                ),
+                tone: MintSurfaceTone.craie,
+                padding: const EdgeInsets.all(MintSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(indexed.$2.title, style: MintTextStyles.titleLarge()),
+                    const SizedBox(height: MintSpacing.sm),
+                    Text(
+                      indexed.$2.statusBody,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.md),
+                    metadata(
+                      indexed.$2.documentKindLabel,
+                      indexed.$2.documentKindValue,
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    metadata(
+                      indexed.$2.sourceDateLabel,
+                      indexed.$2.sourceDateValue,
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    metadata(
+                      indexed.$2.legalYearLabel,
+                      indexed.$2.legalYearValue,
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      indexed.$2.temporalBasisLabel,
+                      style: MintTextStyles.labelMedium(),
+                    ),
+                    for (final line in indexed.$2.temporalBasisLines)
+                      Text(line, style: MintTextStyles.bodyMedium()),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      indexed.$2.declaredRelation,
+                      style: MintTextStyles.bodyMedium(),
+                    ),
+                    const SizedBox(height: MintSpacing.sm),
+                    Text(
+                      indexed.$2.freshnessCaveat,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.lg),
+                    Text(
+                      indexed.$2.questionsTitle,
+                      style: MintTextStyles.titleMedium(),
+                    ),
+                    const SizedBox(height: MintSpacing.sm),
+                    for (final question in indexed.$2.questions) ...<Widget>[
+                      Text(
+                        question,
+                        style: MintTextStyles.bodyMedium(
+                          color: MintColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: MintSpacing.sm),
+                    ],
+                    Text(
+                      indexed.$2.boundary,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.sm),
+                    Text(
+                      indexed.$2.legalFooter,
+                      style: MintTextStyles.micro(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (indexed.$1 != contents.length - 1)
+                const SizedBox(height: MintSpacing.md),
+            ],
+          ],
         ),
       ),
     );

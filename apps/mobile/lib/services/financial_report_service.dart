@@ -3,6 +3,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_specialist_handoff.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
@@ -22,6 +23,7 @@ class FinancialReportService {
     S? l,
     LppCapitalNoticeSpecialistHandoff? lppCapitalNoticeHandoff,
     LppRegulationSpecialistHandoff? lppRegulationHandoff,
+    Pillar3aBeneficiarySpecialistHandoff? pillar3aBeneficiaryHandoff,
   }) {
     // 1. Profil utilisateur
     final profile = _buildUserProfile(answers);
@@ -96,6 +98,7 @@ class FinancialReportService {
       lppBuybackStrategy: lppStrategy,
       lppCapitalNoticeHandoff: lppCapitalNoticeHandoff,
       lppRegulationHandoff: lppRegulationHandoff,
+      pillar3aBeneficiaryHandoff: pillar3aBeneficiaryHandoff,
       priorityActions: priorityActions,
       personalizedRoadmap: roadmap,
       disclaimers: disclaimers,

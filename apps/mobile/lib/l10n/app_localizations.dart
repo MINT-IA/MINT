@@ -43199,6 +43199,54 @@ abstract class S {
   /// **'La date de la source et l’année juridique ne prouvent pas qu’aucune désignation plus récente n’existe. Vérifie ce point auprès de ton institution 3a.'**
   String get pillar3aBeneficiaryReviewFreshnessCaveat;
 
+  /// No description provided for @pillar3aBeneficiaryHandoffSourceDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date portée par la source institutionnelle'**
+  String get pillar3aBeneficiaryHandoffSourceDateLabel;
+
+  /// No description provided for @pillar3aBeneficiaryHandoffLegalYearLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année juridique indiquée dans le document'**
+  String get pillar3aBeneficiaryHandoffLegalYearLabel;
+
+  /// No description provided for @pillar3aBeneficiaryHandoffDeclaredRelation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation du contrat déclarée par la personne : actif et non versé le {confirmedAt}'**
+  String pillar3aBeneficiaryHandoffDeclaredRelation(String confirmedAt);
+
+  /// No description provided for @pillar3aBeneficiaryHandoffFreshnessCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'La date de la source et l’année juridique ne permettent pas de conclure qu’aucune désignation plus récente n’existe. Le régime indiqué est celui attesté par le document; MINT ne le déduit ni de ces dates ni de la relation déclarée.'**
+  String get pillar3aBeneficiaryHandoffFreshnessCaveat;
+
+  /// No description provided for @pillar3aBeneficiaryHandoffBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne détermine ni la personne bénéficiaire, ni l’ordre, ni la part, et ne valide pas la portée juridique de la désignation.'**
+  String get pillar3aBeneficiaryHandoffBoundary;
+
+  /// No description provided for @pillar3aBeneficiaryHandoffQuestionCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle désignation est actuellement enregistrée auprès de l’institution pour ce contrat ?'**
+  String get pillar3aBeneficiaryHandoffQuestionCurrent;
+
+  /// No description provided for @pillar3aBeneficiaryHandoffQuestionTimeline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle est sa date de prise d’effet, la date de sa dernière modification et quel régime temporel l’institution confirme-t-elle ?'**
+  String get pillar3aBeneficiaryHandoffQuestionTimeline;
+
+  /// No description provided for @pillar3aBeneficiaryHandoffLegalFooter.
+  ///
+  /// In fr, this message translates to:
+  /// **'OPP 3 art. 2, al. 2–3; modification du 12 juin 2026, RO 2026 325, ch. II, al. 2; entrée en vigueur le 1er juin 2027; OFAS, Bulletin PP no 168, ch. 1168.'**
+  String get pillar3aBeneficiaryHandoffLegalFooter;
+
   /// No description provided for @retirementPillar3aBeneficiaryTitle.
   ///
   /// In fr, this message translates to:
@@ -43256,7 +43304,7 @@ abstract class S {
   /// No description provided for @retirementPillar3aBeneficiaryLegalYear.
   ///
   /// In fr, this message translates to:
-  /// **'Année juridique du document : {legalYear}'**
+  /// **'Année juridique indiquée dans le document : {legalYear}'**
   String retirementPillar3aBeneficiaryLegalYear(int legalYear);
 
   /// No description provided for @retirementPillar3aBeneficiaryDeclaredRelation.

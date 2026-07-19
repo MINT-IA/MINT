@@ -1,5 +1,4 @@
-import 'dart:typed_data';
-
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -10,6 +9,7 @@ import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/report/lpp_capital_notice_section_content.dart';
 import 'package:mint_mobile/services/report/lpp_regulation_handoff_section_content.dart';
+import 'package:mint_mobile/services/report/pillar3a_beneficiary_handoff_section_content.dart';
 
 class PdfService {
   static Future<void> generateSessionReportPdf(SessionReport report) async {
@@ -383,6 +383,19 @@ class PdfService {
     required S l,
   }) async {
     final pdf = pw.Document();
+    final regularFont = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/LibreFranklin-Regular.ttf'),
+    );
+    final boldFont = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/LibreFranklin-Bold.ttf'),
+    );
+    final pdfTheme = pw.ThemeData.withFont(
+      base: regularFont,
+      bold: boldFont,
+      italic: regularFont,
+      boldItalic: boldFont,
+      fontFallback: <pw.Font>[regularFont],
+    );
     final generatedDate = report.generatedAt.toLocal().toString().split('.')[0];
     final capitalHandoff = report.lppCapitalNoticeHandoff;
     final lppCapitalContent = capitalHandoff == null
@@ -401,9 +414,21 @@ class PdfService {
             l: l,
             localeName: l.localeName,
           );
+    final pillar3aBeneficiaryContents =
+        report.pillar3aBeneficiaryHandoff?.entries
+                .map(
+                  (entry) => Pillar3aBeneficiaryHandoffSectionContent.fromEntry(
+                    entry: entry,
+                    l: l,
+                    localeName: l.localeName,
+                  ),
+                )
+                .toList(growable: false) ??
+            const <Pillar3aBeneficiaryHandoffSectionContent>[];
 
     pdf.addPage(
       pw.MultiPage(
+        theme: pdfTheme,
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(40),
         // ── Header ──
@@ -1017,6 +1042,91 @@ class PdfService {
               content.privacy,
               style: const pw.TextStyle(
                 fontSize: 8,
+                color: PdfColors.grey700,
+              ),
+            ));
+          }
+
+          for (final content in pillar3aBeneficiaryContents) {
+            children.add(pw.SizedBox(height: 25));
+            children.add(_pdfSectionTitle(content.title));
+            children.add(pw.SizedBox(height: 10));
+            children.add(pw.Text(
+              content.statusBody,
+              style: const pw.TextStyle(fontSize: 9),
+            ));
+            children.add(pw.SizedBox(height: 8));
+            children.add(
+              _pdfKeyValue(content.documentKindLabel, content.documentKindValue),
+            );
+            children.add(
+              _pdfKeyValue(content.sourceDateLabel, content.sourceDateValue),
+            );
+            children.add(
+              _pdfKeyValue(content.legalYearLabel, content.legalYearValue),
+            );
+            children.add(pw.SizedBox(height: 6));
+            children.add(pw.Text(
+              content.temporalBasisLabel,
+              style: pw.TextStyle(
+                fontSize: 8,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ));
+            for (final line in content.temporalBasisLines) {
+              children.add(pw.Text(
+                line,
+                style: const pw.TextStyle(fontSize: 8),
+              ));
+            }
+            children.add(pw.SizedBox(height: 6));
+            children.add(pw.Text(
+              content.declaredRelation,
+              style: const pw.TextStyle(fontSize: 8),
+            ));
+            children.add(pw.SizedBox(height: 6));
+            children.add(pw.Text(
+              content.freshnessCaveat,
+              style: const pw.TextStyle(
+                fontSize: 8,
+                color: PdfColors.grey700,
+              ),
+            ));
+            children.add(pw.SizedBox(height: 12));
+            children.add(pw.Text(
+              content.questionsTitle,
+              style: pw.TextStyle(
+                fontSize: 10,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue900,
+              ),
+            ));
+            children.add(pw.SizedBox(height: 6));
+            for (final question in content.questions) {
+              children.add(pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 8),
+                child: pw.Text(
+                  question,
+                  style: const pw.TextStyle(
+                    fontSize: 8,
+                    color: PdfColors.grey700,
+                  ),
+                ),
+              ));
+            }
+            children.add(pw.Text(
+              content.boundary,
+              style: pw.TextStyle(
+                fontSize: 8,
+                color: PdfColors.orange800,
+                fontStyle: pw.FontStyle.italic,
+              ),
+            ));
+            children.add(pw.SizedBox(height: 6));
+            children.add(pw.Text(
+              content.legalFooter,
+              style: const pw.TextStyle(
+                fontSize: 7,
                 color: PdfColors.grey700,
               ),
             ));

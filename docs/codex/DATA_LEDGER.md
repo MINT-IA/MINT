@@ -82,6 +82,17 @@
 > PDF/dossier caveat parity is closed. Activation and the other RET-REF
 > obligations keep the ticket `ticket_only`, G1 open at 8.2/10 and G2/G3
 > forbidden.
+> **Focused RET-REF-01 exact 3a dossier/PDF implementation:** the default-off
+> exact 3a authority root now reaches `/rapport` and the financial-report PDF
+> only through the qualified `DocumentProvider` consumer and a closed
+> metadata-only handoff. Current code and host contracts are GREEN: only a
+> resolution that is exactly `knownCurrentDeclared` may project. In a
+> mixed known+inactive resolution, inactive entries are excluded; ambiguous
+> states fail closed. The screen and PDF share one localized
+> presenter, and the PDF uses bundled Unicode fonts without network access.
+> Wrapper audits and exact-SHA native runtime remain open, all three flags stay
+> false, RET-REF remains `ticket_only`, G1 remains open and G2/G3 remain
+> forbidden.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -1062,6 +1073,121 @@ The targeted code gates are listed in the focused tax contract. They establish
 the implemented seam and its fail-closed behavior, not production activation.
 Frozen-SHA Maestro/Patrol evidence on one simulator, external Claude audits and
 the final G1 scorecard are still required before either flag may change.
+
+### 4.0.4 Exact Pillar 3a beneficiary authority root (dossier/PDF host-GREEN; native runtime open)
+
+The exact 3a beneficiary reference is a distinct strict-secure ledger root,
+not a `pillar3aBalance`, contribution, beneficiary-order model or calculation.
+`Pillar3aBeneficiaryEvidenceRoot.answerKey` is
+`_coach_pillar3a_beneficiary_evidence_v1`; its serialized JSON string is stored
+through `SecureWizardStore`, removed by
+`ReportPersistenceService.backendSafeAnswers`, and never mirrored to the
+backend profile, Biography, coach/LLM, analytics, route/query data or dossier.
+All three local switches remain false:
+`typedLppEvidence && documentLppEvidenceEnabled &&
+pillar3aBeneficiaryClauseReferenceEnabled` is required before any acquisition,
+provider read, Dashboard surface or `/rapport` handoff.
+
+The exact closed schema is:
+
+```text
+Pillar3aBeneficiaryEvidenceRoot {
+  schemaVersion: 1
+  contracts: Pillar3aBeneficiaryEvidence[1..32]
+}
+
+Pillar3aBeneficiaryEvidence {
+  kind: pillar3aBeneficiaryClause
+  ownerKind: self
+  documentSource: certificate
+  contractReferenceId: canonical UUIDv4
+  referenceId: canonical UUIDv4
+  documentAuthorityId: canonical UUIDv4
+  documentKind: confirmationInstitutionnelle
+              | avenantAccuse
+              | formulaireDesignationAccuse
+  sourceDate: canonical civil date
+  legalYear: int 1900..9999
+  institutionAttested: true
+  contractScoped: true
+  temporalBasis:
+    {kind: exactDates, designationEffectiveDate: civil date?,
+     lastAssignmentModificationDate: civil date?}
+    | {kind: attestedRegime, regime: pre20270601 | post20270601}
+  relation: currentActiveUnpaid | uncertain | paidOrClosed
+  relationSource: userInput
+  relationConfirmedAt: canonical UTC instant
+}
+```
+
+The three UUIDs are distinct within a contract and globally unique across the
+root. Exact-date evidence contains at least one institution-attested date and
+neither date may be later than `sourceDate`. An attested regime is stored as an
+attestation, never inferred from `sourceDate`, `legalYear`,
+`relationConfirmedAt` or provenance dates. A post-1-June-2027 regime on a
+source predating that legal cutoff is invalid. Future source/confirmation dates,
+unknown keys, empty/oversized roots, duplicate identifiers and incoherent
+temporal bases invalidate the entire root fail closed.
+
+`CoachProfileProvider.acceptPillar3aBeneficiaryReview` is the only root writer.
+It performs an insertion or exact prior-reference CAS replacement, serializes
+the whole root and awaits the strict-secure save before publishing the accepted
+receipt. `DocumentProvider.recordPillar3aBeneficiaryEvidence` then persists the
+matching raw-free BND tuple
+`{referenceId, kind, contractReferenceId, documentAuthorityId, ownerKind,
+confirmedAt}`. A BND failure retries that same receipt only; it never repeats
+the Ledger mutation. No raw image/PDF/text, filename, path, hash, backend id,
+beneficiary identity, statutory class/order, rank or share enters either store.
+
+Every downstream starts at
+`DocumentProvider.resolvePillar3aBeneficiaryConsumer`. The resolver requires a
+valid root, ready BND hydration, an exact three-UUID join and coherent canonical
+`q_has_3a` provenance. Precise metadata exists only on an entry classified
+`knownCurrentDeclared`; `needsConfirmation`, `inactive`, missing/mismatched
+BND, invalid presence provenance and invalid root expose none. Higher-severity
+ambiguous/recovery states outrank known at aggregate resolution. A mixed
+known+inactive resolution may retain the aggregate `knownCurrentDeclared`
+priority; the dossier boundary therefore validates every individual entry and
+excludes only the inactive entries.
+
+The dossier projection is deliberately narrower still.
+`Pillar3aBeneficiarySpecialistHandoff.tryFromConsumerResolution` returns a
+metadata-only handoff only when the aggregate state is exactly `knownCurrentDeclared`,
+at least one entry is `knownCurrentDeclared`, every projected known entry has
+renderable precise metadata with relation `currentActiveUnpaid`, and every
+other entry is `inactive` with no precise metadata. In a mixed known+inactive
+resolution, inactive entries are excluded and the known entries remain. An
+all-inactive aggregate returns null, and loading/unavailable/empty,
+needs-confirmation, missing/mismatched BND, invalid presence provenance or
+invalid root makes the whole handoff null. Its complete allowlist
+is document kind, institutional `sourceDate`, documentary `legalYear`, the
+institution-attested temporal basis and the user's `relationConfirmedAt`.
+Opaque join ids and all beneficiary identity/order/share data are absent.
+
+The production read chain is
+`/rapport -> triple flag gate ->
+DocumentProvider.resolvePillar3aBeneficiarySpecialistHandoff ->
+DocumentProvider.resolvePillar3aBeneficiaryConsumer ->
+Pillar3aBeneficiarySpecialistHandoff.tryFromConsumerResolution ->
+FinancialReportService -> FinancialReport.pillar3aBeneficiaryHandoff`.
+`FinancialReportService` receives the already-qualified handoff and never opens
+or decodes the strict root. `FinancialReportScreenV2` and `PdfService` both
+build their display from
+`Pillar3aBeneficiaryHandoffSectionContent`, so document metadata, freshness,
+neutral specialist questions, no-advice boundary and the OPP 3/RO/OFAS footer
+remain identical. The PDF loads bundled Libre Franklin Regular/Bold TTF assets
+through `rootBundle`/`pw.Font.ttf`; it performs no runtime font download and the
+real-byte `pdftotext` contract proves exact Unicode legal punctuation offline.
+
+Current host gates cover the qualified projection, triple-gated route, report
+pass-through, mixed-inactive exclusion, ambiguous/all-inactive suppression,
+shared presenter, real PDF
+bytes/text, sensitive-token absence and offline Unicode font bundle. This is
+code/host GREEN only. The frozen exact-SHA native runtime remains open; wrapper
+code/product-domain audits are also pending. Dossier/PDF runtime parity is not
+promoted,
+activation remains NO-GO/default-false, RET-REF remains `ticket_only`, G1
+remains open and G2/G3 remain forbidden.
 
 ### 4.0A LPP certificate evidence (G1-PROV-02 ticket/runtime GREEN; activation default-off)
 

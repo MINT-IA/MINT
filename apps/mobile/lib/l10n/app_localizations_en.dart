@@ -24671,6 +24671,39 @@ class SEn extends S {
       'The source date and legal year do not prove that no newer designation exists. Check this with your pillar 3a institution.';
 
   @override
+  String get pillar3aBeneficiaryHandoffSourceDateLabel =>
+      'Date carried by the institutional source';
+
+  @override
+  String get pillar3aBeneficiaryHandoffLegalYearLabel =>
+      'Legal year stated in the document';
+
+  @override
+  String pillar3aBeneficiaryHandoffDeclaredRelation(String confirmedAt) {
+    return 'Contract situation declared by the person: active and unpaid on $confirmedAt';
+  }
+
+  @override
+  String get pillar3aBeneficiaryHandoffFreshnessCaveat =>
+      'The source date and legal year do not establish that no newer designation exists. The stated regime is the one attested by the document; MINT does not infer it from those dates or from the declared contract situation.';
+
+  @override
+  String get pillar3aBeneficiaryHandoffBoundary =>
+      'MINT does not determine the beneficiary, the order, or the share, and does not validate the legal scope of the designation.';
+
+  @override
+  String get pillar3aBeneficiaryHandoffQuestionCurrent =>
+      'Which designation is currently recorded with the institution for this contract?';
+
+  @override
+  String get pillar3aBeneficiaryHandoffQuestionTimeline =>
+      'What are its effective date and last modification date, and which temporal regime does the institution confirm?';
+
+  @override
+  String get pillar3aBeneficiaryHandoffLegalFooter =>
+      'OPP 3 Art. 2 paras. 2–3; amendment of 12 June 2026, RO 2026 325, item II para. 2; entry into force on 1 June 2027; FSIO, Occupational Benefits Bulletin no. 168, item 1168.';
+
+  @override
   String get retirementPillar3aBeneficiaryTitle =>
       'Pillar 3a beneficiary clause';
 
@@ -24708,7 +24741,7 @@ class SEn extends S {
 
   @override
   String retirementPillar3aBeneficiaryLegalYear(int legalYear) {
-    return 'Document legal year: $legalYear';
+    return 'Legal year indicated in the document: $legalYear';
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'circle_score.dart';
 import 'lpp_capital_notice_specialist_handoff.dart';
 import 'lpp_regulation_specialist_handoff.dart';
+import 'pillar3a_beneficiary_specialist_handoff.dart';
 import '../services/financial_core/replacement_rate_calculator.dart';
 
 /// Rapport financier exhaustif généré en fin de wizard
@@ -21,6 +22,9 @@ class FinancialReport {
 
   /// Metadata-only specialist preparation from an exact local BND match.
   final LppRegulationSpecialistHandoff? lppRegulationHandoff;
+
+  /// Contract-scoped 3a specialist preparation from the qualified consumer.
+  final Pillar3aBeneficiarySpecialistHandoff? pillar3aBeneficiaryHandoff;
 
   // Recommandations
   final List<ActionItem> priorityActions;
@@ -58,6 +62,7 @@ class FinancialReport {
     this.lppBuybackStrategy,
     this.lppCapitalNoticeHandoff,
     this.lppRegulationHandoff,
+    this.pillar3aBeneficiaryHandoff,
     required this.priorityActions,
     required this.personalizedRoadmap,
     this.disclaimers = const [],

@@ -12508,6 +12508,21 @@
   "pillar3aBeneficiaryRegimePost20270601": "Dès le 1er juin 2027",
   "pillar3aBeneficiaryNotProvided": "Non indiqué par l’institution",
   "pillar3aBeneficiaryReviewFreshnessCaveat": "La date de la source et l’année juridique ne prouvent pas qu’aucune désignation plus récente n’existe. Vérifie ce point auprès de ton institution 3a.",
+  "pillar3aBeneficiaryHandoffSourceDateLabel": "Date portée par la source institutionnelle",
+  "pillar3aBeneficiaryHandoffLegalYearLabel": "Année juridique indiquée dans le document",
+  "pillar3aBeneficiaryHandoffDeclaredRelation": "Situation du contrat déclarée par la personne : actif et non versé le {confirmedAt}",
+  "@pillar3aBeneficiaryHandoffDeclaredRelation": {
+    "placeholders": {
+      "confirmedAt": {
+        "type": "String"
+      }
+    }
+  },
+  "pillar3aBeneficiaryHandoffFreshnessCaveat": "La date de la source et l’année juridique ne permettent pas de conclure qu’aucune désignation plus récente n’existe. Le régime indiqué est celui attesté par le document; MINT ne le déduit ni de ces dates ni de la relation déclarée.",
+  "pillar3aBeneficiaryHandoffBoundary": "MINT ne détermine ni la personne bénéficiaire, ni l’ordre, ni la part, et ne valide pas la portée juridique de la désignation.",
+  "pillar3aBeneficiaryHandoffQuestionCurrent": "Quelle désignation est actuellement enregistrée auprès de l’institution pour ce contrat ?",
+  "pillar3aBeneficiaryHandoffQuestionTimeline": "Quelle est sa date de prise d’effet, la date de sa dernière modification et quel régime temporel l’institution confirme-t-elle ?",
+  "pillar3aBeneficiaryHandoffLegalFooter": "OPP 3 art. 2, al. 2–3; modification du 12 juin 2026, RO 2026 325, ch. II, al. 2; entrée en vigueur le 1er juin 2027; OFAS, Bulletin PP no 168, ch. 1168.",
   "retirementPillar3aBeneficiaryTitle": "Clause bénéficiaire du pilier 3a",
   "retirementPillar3aBeneficiaryStateEmpty": "Aucune référence institutionnelle n’est enregistrée pour cette clause.",
   "retirementPillar3aBeneficiaryStateKnown": "Relation actuelle déclarée : contrat actif et non versé.",
@@ -12517,7 +12532,7 @@
   "retirementPillar3aBeneficiaryStateMismatchedReference": "La référence locale ne correspond pas au document déclaré. Les anciennes métadonnées précises restent masquées.",
   "retirementPillar3aBeneficiaryStateInvalidPresenceProvenance": "La déclaration de présence du pilier 3a n’est pas fiable. La référence institutionnelle valide est conservée et aucune métadonnée précise n’est affichée.",
   "retirementPillar3aBeneficiaryStateInvalid": "La référence durable est illisible. Aucune ancienne métadonnée précise n’est affichée.",
-  "retirementPillar3aBeneficiaryLegalYear": "Année juridique du document : {legalYear}",
+  "retirementPillar3aBeneficiaryLegalYear": "Année juridique indiquée dans le document : {legalYear}",
   "retirementPillar3aBeneficiaryDeclaredRelation": "Déclaré actif et non versé le {confirmedAt}",
   "retirementPillar3aBeneficiaryNoAdviceBoundary": "Information factuelle uniquement : MINT ne peut pas conclure qui recevra le capital, ni dans quel ordre, ni selon quelle part.",
   "retirementPillar3aBeneficiarySpecialistHandoff": "À vérifier avec l’institution 3a ou un spécialiste avant toute décision.",

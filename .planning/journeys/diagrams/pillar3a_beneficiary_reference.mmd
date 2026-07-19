@@ -13,15 +13,24 @@ flowchart TB
   BND[("DocumentProvider exact BND tuple<br/>raw-free contract join")]
   RESOLVE{"strict root + exact live BND<br/>canonical presence provenance"}
   KNOWN["knownCurrentDeclared<br/>precise metadata + neutral handoff"]
+  MIXED["mixed known+inactive aggregate<br/>inactive entries are excluded<br/>at least one known entry remains"]
   CONFIRM["needsConfirmation<br/>relation-only exact-CAS reconfirmation"]
   INACTIVE["inactive<br/>paid/closed or newer canonical false"]
   MISSING["missing or mismatched BND<br/>relink/review; precise metadata hidden"]
   PRESENCE["invalidPresenceProvenance<br/>remove only q_has_3a=false<br/>and provenance.hasPillar3a"]
   INVALID["invalid strict root<br/>purge 3a BND before root reset"]
+  HANDOFF["Pillar3aBeneficiarySpecialistHandoff<br/>knownCurrentDeclared only<br/>project known metadata; skip inactive"]
+  REPORT["/rapport<br/>triple flags before specialist read<br/>mixed inactive = excluded"]
+  FINANCIAL["FinancialReportService -> FinancialReport<br/>qualified handoff only; no root decode"]
+  PRESENTER["Pillar3aBeneficiaryHandoffSectionContent<br/>shared dossier/PDF localized allowlist"]
+  DOSSIER["/rapport section<br/>neutral specialist questions + legal footer"]
+  PDF["PdfService<br/>offline bundled Unicode fonts<br/>exact punctuation; no runtime downloader"]
+  SUPPRESS["ambiguous = absent; all inactive = null<br/>no uncertain/recovery metadata projection"]
+  HOST["code + host contracts GREEN<br/>route/report/screen/real PDF/null/privacy"]
   BND_RETRY["ledgerAcceptedAwaitingBnd<br/>retry same receipt only<br/>no second Ledger mutation"]
   LIFECYCLE["cancel / route mismatch / flag drift<br/>FIFO eviction / logout / cold restart<br/>purge or localized recovery"]
   BOUNDARY["No beneficiary identity, order, rank/share<br/>no advice, calculation or inferred law"]
-  OPEN["Implementation + focused tests GREEN<br/>Opus audits, dossier/PDF and native runtime open<br/>G1 remains NO-GO; G2/G3 forbidden"]
+  OPEN["Implementation + dossier/PDF host contracts GREEN<br/>wrapper audits + exact-SHA native runtime open<br/>flags false; G1 NO-GO; G2/G3 forbidden"]
 
   FLAG -- "false" --> HIDDEN
   FLAG -- "true" --> DASH
@@ -32,6 +41,7 @@ flowchart TB
   LEDGER --> RESOLVE
   BND --> RESOLVE
   RESOLVE -- "current active" --> KNOWN
+  RESOLVE -- "known + inactive" --> MIXED
   RESOLVE -- "uncertain" --> CONFIRM
   RESOLVE -- "paid/closed or canonical false" --> INACTIVE
   RESOLVE -- "BND absent/nonexact" --> MISSING --> INTENT
@@ -41,7 +51,17 @@ flowchart TB
   CONFIRM --> BOUNDARY
   INACTIVE --> BOUNDARY
   MISSING --> BOUNDARY
+  KNOWN --> HANDOFF --> REPORT --> FINANCIAL --> PRESENTER
+  MIXED --> HANDOFF
+  PRESENTER --> DOSSIER --> HOST
+  PRESENTER --> PDF --> HOST
+  CONFIRM --> SUPPRESS
+  INACTIVE --> SUPPRESS
+  MISSING --> SUPPRESS
+  PRESENCE --> SUPPRESS
+  INVALID --> SUPPRESS
+  SUPPRESS --> HOST
   LIFECYCLE -. "terminal cleanup" .-> HIDDEN
   SCAN -. "drift/cancel" .-> LIFECYCLE
   REVIEW -. "drift/cancel" .-> LIFECYCLE
-  BOUNDARY --> OPEN
+  HOST --> OPEN

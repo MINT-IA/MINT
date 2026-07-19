@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_consumer.dart';
 import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -599,7 +600,7 @@ void main() {
         for (final expected in <String>[
           'Confirmation de l’institution 3a',
           '18 juillet 2026',
-          'Année juridique du document : 2026',
+          'Année juridique indiquée dans le document : 2026',
           '15 janvier 2026',
           'Dates attestées par l’institution, non déduites par MINT',
           'Déclaré actif et non versé le 19 juillet 2026',

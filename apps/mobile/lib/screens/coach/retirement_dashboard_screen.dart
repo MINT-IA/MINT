@@ -10,6 +10,7 @@ import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_consumer.dart';
 import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';

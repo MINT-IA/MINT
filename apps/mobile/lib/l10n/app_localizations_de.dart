@@ -24860,6 +24860,39 @@ class SDe extends S {
       'Quelldatum und Rechtsjahr beweisen nicht, dass keine neuere Begünstigung besteht. Kläre dies mit deiner 3a-Einrichtung.';
 
   @override
+  String get pillar3aBeneficiaryHandoffSourceDateLabel =>
+      'Von der institutionellen Quelle getragenes Datum';
+
+  @override
+  String get pillar3aBeneficiaryHandoffLegalYearLabel =>
+      'Im Dokument angegebenes Rechtsjahr';
+
+  @override
+  String pillar3aBeneficiaryHandoffDeclaredRelation(String confirmedAt) {
+    return 'Von der Person erklärte Vertragssituation: aktiv und noch nicht ausbezahlt am $confirmedAt';
+  }
+
+  @override
+  String get pillar3aBeneficiaryHandoffFreshnessCaveat =>
+      'Aus dem Quelldatum und dem Rechtsjahr lässt sich nicht schliessen, dass keine neuere Begünstigung besteht. Das angegebene Regime ist das im Dokument bestätigte; MINT leitet es weder aus diesen Daten noch aus der erklärten Vertragssituation ab.';
+
+  @override
+  String get pillar3aBeneficiaryHandoffBoundary =>
+      'MINT bestimmt weder die begünstigte Person noch die Reihenfolge oder den Anteil und bestätigt die rechtliche Tragweite der Begünstigung nicht.';
+
+  @override
+  String get pillar3aBeneficiaryHandoffQuestionCurrent =>
+      'Welche Begünstigung ist für diesen Vertrag derzeit bei der Einrichtung eingetragen?';
+
+  @override
+  String get pillar3aBeneficiaryHandoffQuestionTimeline =>
+      'Welches sind ihr Inkrafttretensdatum und das Datum der letzten Änderung, und welches zeitliche Regime bestätigt die Einrichtung?';
+
+  @override
+  String get pillar3aBeneficiaryHandoffLegalFooter =>
+      'BVV 3 Art. 2 Abs. 2–3; Änderung vom 12. Juni 2026, AS 2026 325, Ziff. II Abs. 2; Inkrafttreten am 1. Juni 2027; BSV, Mitteilungen über die berufliche Vorsorge Nr. 168, Rz. 1168.';
+
+  @override
   String get retirementPillar3aBeneficiaryTitle =>
       'Begünstigtenklausel der Säule 3a';
 
@@ -24897,7 +24930,7 @@ class SDe extends S {
 
   @override
   String retirementPillar3aBeneficiaryLegalYear(int legalYear) {
-    return 'Rechtsjahr des Dokuments: $legalYear';
+    return 'Im Dokument angegebenes Rechtsjahr: $legalYear';
   }
 
   @override

@@ -1435,12 +1435,19 @@ final _router = GoRouter(
                 LppRegulationSpecialistHandoff.tryFromEvidence(
               regulationEvidence,
             );
+            final pillar3aBeneficiaryHandoff = documentProvider != null &&
+                    FeatureFlags.typedLppEvidence &&
+                    FeatureFlags.documentLppEvidenceEnabled &&
+                    FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled
+                ? documentProvider.resolvePillar3aBeneficiarySpecialistHandoff()
+                : null;
             return FinancialReportScreenV2(
               wizardAnswers: snapshot.hasError
                   ? const {}
                   : profileProvider.reportAnswersSnapshot,
               lppCapitalNoticeHandoff: lppCapitalNoticeHandoff,
               lppRegulationHandoff: lppRegulationHandoff,
+              pillar3aBeneficiaryHandoff: pillar3aBeneficiaryHandoff,
             );
           },
         );

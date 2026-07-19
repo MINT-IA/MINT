@@ -24788,6 +24788,39 @@ class SFr extends S {
       'La date de la source et l’année juridique ne prouvent pas qu’aucune désignation plus récente n’existe. Vérifie ce point auprès de ton institution 3a.';
 
   @override
+  String get pillar3aBeneficiaryHandoffSourceDateLabel =>
+      'Date portée par la source institutionnelle';
+
+  @override
+  String get pillar3aBeneficiaryHandoffLegalYearLabel =>
+      'Année juridique indiquée dans le document';
+
+  @override
+  String pillar3aBeneficiaryHandoffDeclaredRelation(String confirmedAt) {
+    return 'Situation du contrat déclarée par la personne : actif et non versé le $confirmedAt';
+  }
+
+  @override
+  String get pillar3aBeneficiaryHandoffFreshnessCaveat =>
+      'La date de la source et l’année juridique ne permettent pas de conclure qu’aucune désignation plus récente n’existe. Le régime indiqué est celui attesté par le document; MINT ne le déduit ni de ces dates ni de la relation déclarée.';
+
+  @override
+  String get pillar3aBeneficiaryHandoffBoundary =>
+      'MINT ne détermine ni la personne bénéficiaire, ni l’ordre, ni la part, et ne valide pas la portée juridique de la désignation.';
+
+  @override
+  String get pillar3aBeneficiaryHandoffQuestionCurrent =>
+      'Quelle désignation est actuellement enregistrée auprès de l’institution pour ce contrat ?';
+
+  @override
+  String get pillar3aBeneficiaryHandoffQuestionTimeline =>
+      'Quelle est sa date de prise d’effet, la date de sa dernière modification et quel régime temporel l’institution confirme-t-elle ?';
+
+  @override
+  String get pillar3aBeneficiaryHandoffLegalFooter =>
+      'OPP 3 art. 2, al. 2–3; modification du 12 juin 2026, RO 2026 325, ch. II, al. 2; entrée en vigueur le 1er juin 2027; OFAS, Bulletin PP no 168, ch. 1168.';
+
+  @override
   String get retirementPillar3aBeneficiaryTitle =>
       'Clause bénéficiaire du pilier 3a';
 
@@ -24825,7 +24858,7 @@ class SFr extends S {
 
   @override
   String retirementPillar3aBeneficiaryLegalYear(int legalYear) {
-    return 'Année juridique du document : $legalYear';
+    return 'Année juridique indiquée dans le document : $legalYear';
   }
 
   @override

@@ -1200,7 +1200,7 @@ PDF/dossier caveat parity is closed; activation and other RET-REF obligations
 remain open. All flags stay false, `G1-RET-REF-01` stays
 `ticket_only`, G1 stays open at 8.2/10 and G2/G3 are forbidden.
 
-#### 3a beneficiary authority — G1-RET-REF-01 implementation GREEN; audits/runtime/dossier open
+#### 3a beneficiary authority — G1-RET-REF-01 dossier/PDF host-GREEN; audits/native runtime open
 
 This default-off path is a specialist-reference contract, not a beneficiary
 calculator. It stores no name, beneficiary class, statutory order, rank, share,
@@ -1208,10 +1208,19 @@ entitlement, recommendation or inferred legal applicability. The authoritative
 document metadata and the user's current relation declaration remain separate
 inside one strict root.
 
-The production chain is `RetirementDashboardScreen -> opaque
+The acquisition chain is `RetirementDashboardScreen -> opaque
 Pillar3aBeneficiaryScanIntent -> /scan -> /scan/review ->
 CoachProfileProvider.acceptPillar3aBeneficiaryReview ->
 DocumentProvider.recordPillar3aBeneficiaryEvidence -> /retraite`.
+The dossier data lineage reuses the accepted Ledger evidence, but `/rapport` is
+an independent route entry; there is no direct navigation edge from
+`/retraite`. Its read chain is `accepted strict root + exact BND -> /rapport ->
+FinancialReport -> PdfService`.
+At `/rapport`, the exact code boundary is `triple flag gate ->
+DocumentProvider.resolvePillar3aBeneficiarySpecialistHandoff ->
+DocumentProvider.resolvePillar3aBeneficiaryConsumer ->
+Pillar3aBeneficiarySpecialistHandoff.tryFromConsumerResolution ->
+FinancialReportService -> FinancialReport.pillar3aBeneficiaryHandoff`.
 
 - **Composite off:** if any of `typedLppEvidence`,
   `documentLppEvidenceEnabled`, or
@@ -1246,10 +1255,41 @@ DocumentProvider.recordPillar3aBeneficiaryEvidence -> /retraite`.
 - **Lifecycle:** cancellation, route mismatch, flag drift, FIFO eviction and
   logout purge both the intent and paired review session. Cold restart exposes
   localized recovery and never reconstructs a candidate from route data.
-- **Handoff boundary:** the Dashboard sheet contains only neutral questions for
+- **Dashboard handoff boundary:** the Dashboard sheet contains only neutral questions for
   the institution/specialist, freshness/no-advice copy and the attested metadata
-  allowlist. Dossier/PDF parity and exact-SHA native runtime remain open; no
-  ticket promotion or G1 closure is claimed by the implementation tests.
+  allowlist.
+- **Dossier/PDF admission:** `/rapport` checks the same three flags before any
+  specialist-handoff read. The provider wrapper rechecks those flags, resolves
+  the qualified consumer, then admits only an aggregate
+  `knownCurrentDeclared` result with at least one precise known entry. Every
+  projected known entry must carry `currentActiveUnpaid`; an `inactive` entry
+  must carry no precise metadata and is skipped. Thus mixed known+inactive
+  exports only the known entries: inactive entries are excluded. An all-inactive
+  aggregate returns null. All ambiguous states fail closed for the whole
+  handoff: loading/unavailable/empty, needs-confirmation, missing/mismatched BND,
+  invalid presence provenance and invalid root never reach the dossier/PDF.
+- **Closed metadata allowlist:** the handoff contains only document kind,
+  institution source date, documentary legal year, institution-attested exact
+  dates or regime, and user declaration date. It contains no root, BND or
+  authority id, raw document/text/path/hash, beneficiary identity, statutory
+  class/order, rank/share, financial value, calculation, recommendation or
+  inferred legal applicability.
+- **One presenter:** `/rapport` renders the stable semantics id
+  `financial_report_pillar3a_beneficiary_handoff`; the screen and `PdfService`
+  both consume `Pillar3aBeneficiaryHandoffSectionContent`. The ordered content
+  is the attested metadata, freshness caveat, two neutral specialist questions,
+  no-advice boundary and OPP 3/RO/OFAS footer.
+- **Offline exact PDF:** `PdfService` loads bundled Libre Franklin Regular/Bold
+  TTF assets via `rootBundle` and `pw.Font.ttf`, never a runtime downloader.
+  The host real-byte `pdftotext` contract proves exact Unicode punctuation and
+  sensitive-token absence while network access is denied.
+- **Current evidence level:** implementation and host contracts are GREEN for
+  resolver projection, triple-gated route, report pass-through, screen/PDF
+  parity, mixed-inactive exclusion, ambiguous/all-inactive suppression and
+  offline Unicode. The frozen exact-SHA
+  native runtime remains open; wrapper audits are also pending. No dossier/PDF
+  runtime promotion,
+  activation, RET-REF promotion or G1 closure is claimed.
 
 The focused state/control map is
 `.planning/journeys/diagrams/pillar3a_beneficiary_reference.mmd`. Contract tests
@@ -1261,7 +1301,12 @@ are `pillar3a_beneficiary_evidence_contract_test.dart`,
 `pillar3a_beneficiary_scan_intent_test.dart`,
 `pillar3a_beneficiary_acquisition_test.dart`,
 `pillar3a_beneficiary_review_screen_test.dart` and
-`retirement_dashboard_pillar3a_consumer_test.dart`.
+`retirement_dashboard_pillar3a_consumer_test.dart`. The bounded dossier/PDF host
+contracts add `pillar3a_beneficiary_specialist_handoff_test.dart`,
+`rapport_pillar3a_beneficiary_boundary_test.dart`,
+`test/services/financial_report_pillar3a_beneficiary_handoff_test.dart`,
+`test/screens/advisor/financial_report_pillar3a_beneficiary_handoff_test.dart` and
+`pillar3a_beneficiary_handoff_pdf_test.dart`.
 
 `/rapport` and its PDF export consume evidence-bearing ledger facts; they do
 not recreate pension entitlements from illustrative inputs. The three pillars
@@ -1527,7 +1572,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |
 | `/independants/avs` (817) | §4 | `/couple/accept` (960) | §4 |
-| `/independants/ijm` (822) | §4 | `/rapport` (974) | §7 |
+| `/independants/ijm` (822) | §4 | `/rapport` (1409) | §7 |
 | `/independants/3a` (827) | §4 | `/profile/admin-observability` (1018) | §4 |
 | `/independants/dividende-salaire` (832) | §4 | `/profile/admin-analytics` (1024) | §4 |
 | `/independants/lpp-volontaire` (837) | §4 | `/profile/byok` (1031) | §4 |

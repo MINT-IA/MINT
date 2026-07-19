@@ -24866,6 +24866,39 @@ class SIt extends S {
       'La data della fonte e l’anno giuridico non dimostrano che non esista una designazione più recente. Verificalo con il tuo istituto 3a.';
 
   @override
+  String get pillar3aBeneficiaryHandoffSourceDateLabel =>
+      'Data riportata dalla fonte istituzionale';
+
+  @override
+  String get pillar3aBeneficiaryHandoffLegalYearLabel =>
+      'Anno giuridico indicato nel documento';
+
+  @override
+  String pillar3aBeneficiaryHandoffDeclaredRelation(String confirmedAt) {
+    return 'Situazione del contratto dichiarata dalla persona: attivo e non ancora versato al $confirmedAt';
+  }
+
+  @override
+  String get pillar3aBeneficiaryHandoffFreshnessCaveat =>
+      'La data della fonte e l’anno giuridico non consentono di concludere che non esista una designazione più recente. Il regime indicato è quello attestato dal documento; MINT non lo deduce da tali date né dalla situazione contrattuale dichiarata.';
+
+  @override
+  String get pillar3aBeneficiaryHandoffBoundary =>
+      'MINT non determina la persona beneficiaria, l’ordine o la quota e non convalida la portata giuridica della designazione.';
+
+  @override
+  String get pillar3aBeneficiaryHandoffQuestionCurrent =>
+      'Quale designazione risulta attualmente registrata presso l’istituto per questo contratto?';
+
+  @override
+  String get pillar3aBeneficiaryHandoffQuestionTimeline =>
+      'Quali sono la sua data di effetto e la data dell’ultima modifica e quale regime temporale conferma l’istituto?';
+
+  @override
+  String get pillar3aBeneficiaryHandoffLegalFooter =>
+      'OPP 3 art. 2 cpv. 2–3; modifica del 12 giugno 2026, RU 2026 325, n. II cpv. 2; entrata in vigore il 1° giugno 2027; UFAS, Bollettino PP n. 168, n. 1168.';
+
+  @override
   String get retirementPillar3aBeneficiaryTitle =>
       'Clausola beneficiaria del pilastro 3a';
 
@@ -24903,7 +24936,7 @@ class SIt extends S {
 
   @override
   String retirementPillar3aBeneficiaryLegalYear(int legalYear) {
-    return 'Anno giuridico del documento: $legalYear';
+    return 'Anno giuridico indicato nel documento: $legalYear';
   }
 
   @override
