@@ -113,6 +113,7 @@ import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/scenario_session_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/coach_profile_owner.dart';
 import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
@@ -180,74 +181,115 @@ String? authSessionEntryRedirect({
 
 enum _ScanRecoveryTarget { review, impact }
 
+class _ScanRecoveryExitScope extends StatefulWidget {
+  const _ScanRecoveryExitScope({
+    required this.route,
+    required this.child,
+  });
+
+  final String route;
+  final Widget child;
+
+  @override
+  State<_ScanRecoveryExitScope> createState() => _ScanRecoveryExitScopeState();
+}
+
+class _ScanRecoveryExitScopeState extends State<_ScanRecoveryExitScope>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Future<bool> didPopRoute() async {
+    if (!mounted) return false;
+    context.go(widget.route);
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
 Widget _buildScanRecoveryScaffold(
   BuildContext context,
-  _ScanRecoveryTarget target,
-) {
+  _ScanRecoveryTarget target, {
+  DataBlockReturnTarget? returnTarget,
+}) {
   final s = S.of(context)!;
   final isReview = target == _ScanRecoveryTarget.review;
   final title = isReview ? s.scanReviewEmptyTitle : s.scanImpactEmptyTitle;
   final body = isReview ? s.scanReviewEmptyBody : s.scanImpactEmptyBody;
   final ctaLabel = isReview ? s.scanReviewRescan : s.scanImpactBackHome;
-  final ctaRoute = isReview ? '/scan' : '/home';
+  final ctaRoute = returnTarget?.location ?? (isReview ? '/scan' : '/home');
   final ctaIdentifier =
       isReview ? 'scan_review_recovery_cta' : 'scan_impact_recovery_cta';
   final ctaKey = Key(ctaIdentifier);
 
-  return Scaffold(
-    appBar: AppBar(
-      leading: BackButton(
-        onPressed: () {
-          final navigator = Navigator.of(context);
-          if (navigator.canPop()) {
-            navigator.pop();
-            return;
-          }
-          context.go(ctaRoute);
-        },
-      ),
-      title: Text(isReview ? s.scanReviewTitle : s.scanImpactTitle),
-    ),
-    body: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isReview ? Icons.document_scanner_outlined : Icons.insights,
-              size: 48,
-              color: MintColors.greyApple,
+  return _ScanRecoveryExitScope(
+    route: ctaRoute,
+    child: PopScope<void>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) context.go(ctaRoute);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: BackButton(
+            onPressed: () => context.go(ctaRoute),
+          ),
+          title: Text(isReview ? s.scanReviewTitle : s.scanImpactTitle),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isReview ? Icons.document_scanner_outlined : Icons.insights,
+                  size: 48,
+                  color: MintColors.greyApple,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  body,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: MintColors.textSecondary),
+                ),
+                const SizedBox(height: 24),
+                Semantics(
+                  identifier: ctaIdentifier,
+                  button: true,
+                  label: ctaLabel,
+                  onTap: () => context.go(ctaRoute),
+                  child: FilledButton.icon(
+                    key: ctaKey,
+                    onPressed: () => context.go(ctaRoute),
+                    icon: Icon(isReview ? Icons.document_scanner : Icons.home),
+                    label: Text(ctaLabel),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              body,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: MintColors.textSecondary),
-            ),
-            const SizedBox(height: 24),
-            Semantics(
-              identifier: ctaIdentifier,
-              button: true,
-              label: ctaLabel,
-              onTap: () => context.go(ctaRoute),
-              child: FilledButton.icon(
-                key: ctaKey,
-                onPressed: () => context.go(ctaRoute),
-                icon: Icon(isReview ? Icons.document_scanner : Icons.home),
-                label: Text(ctaLabel),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     ),
@@ -260,7 +302,17 @@ bool _hasExactRawScanQuery(
   required String value,
 }) {
   final values = uri.queryParametersAll[key];
-  return uri.query == '$key=$value' &&
+  final rawLocation = uri.toString();
+  final queryStart = rawLocation.indexOf('?');
+  final fragmentStart =
+      rawLocation.contains('#') ? rawLocation.indexOf('#') : rawLocation.length;
+  final rawQuery = queryStart == -1
+      ? ''
+      : rawLocation.substring(
+          queryStart + 1,
+          fragmentStart,
+        );
+  return rawQuery == '$key=${Uri.encodeQueryComponent(value)}' &&
       uri.queryParametersAll.length == 1 &&
       values != null &&
       values.length == 1 &&
@@ -271,6 +323,7 @@ class _DataBlockScanReturnEntry extends StatefulWidget {
   const _DataBlockScanReturnEntry({
     required this.scanReturnId,
     required this.target,
+    required this.ownsLiveIntent,
     this.pickFile,
     this.requireConsent,
     this.navigateToReview,
@@ -278,6 +331,7 @@ class _DataBlockScanReturnEntry extends StatefulWidget {
 
   final String scanReturnId;
   final DataBlockReturnTarget target;
+  final bool ownsLiveIntent;
   final DocumentScanFilePicker? pickFile;
   final DocumentScanConsentRequester? requireConsent;
   final DocumentScanReviewNavigator? navigateToReview;
@@ -289,6 +343,7 @@ class _DataBlockScanReturnEntry extends StatefulWidget {
 
 class _DataBlockScanReturnEntryState extends State<_DataBlockScanReturnEntry> {
   bool _cancelled = false;
+  late final bool _ownsLiveIntent = widget.ownsLiveIntent;
 
   void _cancel() {
     if (_cancelled) return;
@@ -302,6 +357,12 @@ class _DataBlockScanReturnEntryState extends State<_DataBlockScanReturnEntry> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_ownsLiveIntent) {
+      return _DataBlockScanRecoveryEntry(
+        target: widget.target,
+        scanReturnId: widget.scanReturnId,
+      );
+    }
     return PopScope<void>(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -319,6 +380,51 @@ class _DataBlockScanReturnEntryState extends State<_DataBlockScanReturnEntry> {
   }
 }
 
+class _DataBlockScanRecoveryEntry extends StatefulWidget {
+  const _DataBlockScanRecoveryEntry({
+    required this.target,
+    this.scanReturnId,
+    this.pillar3aScanContextId,
+  });
+
+  final DataBlockReturnTarget target;
+  final String? scanReturnId;
+  final String? pillar3aScanContextId;
+
+  @override
+  State<_DataBlockScanRecoveryEntry> createState() =>
+      _DataBlockScanRecoveryEntryState();
+}
+
+class _DataBlockScanRecoveryEntryState
+    extends State<_DataBlockScanRecoveryEntry> {
+  late final DataBlockReturnTarget _target = widget.target;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final sessions = context.read<ScanSessionProvider>();
+      final scanReturnId = widget.scanReturnId;
+      if (scanReturnId != null) {
+        sessions.discardDataBlockScanReturnIntent(scanReturnId);
+      }
+      final pillar3aScanContextId = widget.pillar3aScanContextId;
+      if (pillar3aScanContextId != null) {
+        sessions.discardPillar3aBeneficiaryScanIntent(pillar3aScanContextId);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => _buildScanRecoveryScaffold(
+        context,
+        _ScanRecoveryTarget.review,
+        returnTarget: _target,
+      );
+}
+
 Widget _buildScanRoute(
   BuildContext context,
   Uri uri, {
@@ -328,9 +434,8 @@ Widget _buildScanRoute(
 }) {
   final scanReturnId = uri.queryParameters['scanReturnId'];
   if (scanReturnId != null) {
-    final intent = context
-        .watch<ScanSessionProvider>()
-        .dataBlockScanReturnIntentById(scanReturnId);
+    final sessions = context.read<ScanSessionProvider>();
+    final intent = sessions.dataBlockScanReturnIntentById(scanReturnId);
     final hasExactOpaqueQuery = _hasExactRawScanQuery(
       uri,
       key: 'scanReturnId',
@@ -339,17 +444,24 @@ Widget _buildScanRoute(
     if (!hasExactOpaqueQuery ||
         !FeatureFlags.lppEvidenceIngestionEnabled ||
         intent == null ||
-        intent.kind != DataBlockScanReturnKind.rvcLpp ||
-        (intent.lifecycle != DataBlockScanReturnLifecycle.created &&
-            intent.lifecycle != DataBlockScanReturnLifecycle.processing)) {
-      return _buildScanRecoveryScaffold(
-        context,
-        _ScanRecoveryTarget.review,
+        intent.kind != DataBlockScanReturnKind.rvcLpp) {
+      final target = intent?.target ??
+          (hasExactOpaqueQuery && isCanonicalUuidV4(scanReturnId)
+              ? parseDataBlockReturnTarget('/rente-vs-capital')!
+              : DataBlockReturnTarget.home);
+      return _DataBlockScanRecoveryEntry(
+        target: target,
+        scanReturnId: intent == null ? null : scanReturnId,
+        pillar3aScanContextId: uri.queryParameters['scanContextId'],
       );
     }
+    final ownsLiveIntent =
+        intent.lifecycle == DataBlockScanReturnLifecycle.created ||
+            intent.lifecycle == DataBlockScanReturnLifecycle.processing;
     return _DataBlockScanReturnEntry(
       scanReturnId: scanReturnId,
       target: intent.target,
+      ownsLiveIntent: ownsLiveIntent,
       pickFile: pickFile,
       requireConsent: requireConsent,
       navigateToReview: navigateToReview,
@@ -404,6 +516,7 @@ Widget _buildScanRoute(
     return _buildScanRecoveryScaffold(
       context,
       _ScanRecoveryTarget.review,
+      returnTarget: DataBlockReturnTarget.home,
     );
   }
   if (requestedType == DocumentType.pillar3aBeneficiaryClause.name) {
