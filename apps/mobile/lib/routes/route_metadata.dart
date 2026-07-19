@@ -76,6 +76,81 @@ class RouteMeta {
   });
 }
 
+/// Validated internal destination used when a DataBlock collector exits.
+///
+/// Construction stays private so callers cannot bypass
+/// [parseDataBlockReturnTarget]. The fallback is intentionally a destination,
+/// not browser/history state: DataBlock can be opened from a cold deep link.
+final class DataBlockReturnTarget {
+  final String location;
+
+  const DataBlockReturnTarget._(this.location);
+
+  static const home = DataBlockReturnTarget._('/home');
+}
+
+const _dataBlockReturnQueryKeys = <String>{'tab', 'focus'};
+
+/// Parses one already-decoded `returnUri` query value and fails closed.
+///
+/// The route builder is the sole caller on the production path. Query names
+/// are checked in their encoded form so case and percent-encoded variants do
+/// not widen the two-key presentation allowlist.
+DataBlockReturnTarget parseDataBlockReturnTarget(String? rawReturnUri) {
+  if (rawReturnUri == null ||
+      rawReturnUri.isEmpty ||
+      !rawReturnUri.startsWith('/') ||
+      rawReturnUri.startsWith('//') ||
+      rawReturnUri.contains(r'\')) {
+    return DataBlockReturnTarget.home;
+  }
+
+  final uri = Uri.tryParse(rawReturnUri);
+  if (uri == null ||
+      uri.scheme.isNotEmpty ||
+      uri.hasAuthority ||
+      uri.userInfo.isNotEmpty ||
+      uri.host.isNotEmpty ||
+      uri.hasFragment ||
+      !uri.path.startsWith('/') ||
+      uri.pathSegments.any(
+        (segment) =>
+            segment == '.' || segment == '..' || segment.contains(r'\'),
+      )) {
+    return DataBlockReturnTarget.home;
+  }
+
+  final seenQueryKeys = <String>{};
+  if (uri.hasQuery) {
+    final queryStart = rawReturnUri.indexOf('?');
+    final rawQuery = rawReturnUri.substring(queryStart + 1);
+    for (final component in rawQuery.split('&')) {
+      final rawKey = component.split('=').first;
+      if (component.isEmpty ||
+          !_dataBlockReturnQueryKeys.contains(rawKey) ||
+          !seenQueryKeys.add(rawKey)) {
+        return DataBlockReturnTarget.home;
+      }
+    }
+  }
+  if (uri.queryParametersAll.values
+      .expand((values) => values)
+      .any((value) => value.contains(r'\'))) {
+    return DataBlockReturnTarget.home;
+  }
+
+  final metadata = kRouteRegistry[uri.path];
+  if (metadata == null ||
+      metadata.category != RouteCategory.destination ||
+      metadata.owner == RouteOwner.auth ||
+      metadata.owner == RouteOwner.admin ||
+      metadata.owner == RouteOwner.anonymous) {
+    return DataBlockReturnTarget.home;
+  }
+
+  return DataBlockReturnTarget._(uri.toString());
+}
+
 /// Source-of-truth map: one entry per `GoRoute`/`ScopedGoRoute` declared
 /// in `apps/mobile/lib/app.dart`. Exactly **148 non-admin entries** after the
 /// live route-alias reconciliation guarded by `tools/mint-routes`.
@@ -815,7 +890,8 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.alias,
     owner: RouteOwner.system,
     requiresAuth: true,
-    description: 'Exact-match redirect -> /profile/bilan (sub-routes pass through)',
+    description:
+        'Exact-match redirect -> /profile/bilan (sub-routes pass through)',
   ),
   // Nested profile children (composed paths per CONTEXT v4 D-04)
   '/profile/admin-observability': RouteMeta(
@@ -823,14 +899,16 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.tool,
     owner: RouteOwner.admin,
     requiresAuth: true,
-    description: 'Admin observability screen (FeatureFlags.enableAdminScreens gate)',
+    description:
+        'Admin observability screen (FeatureFlags.enableAdminScreens gate)',
   ),
   '/profile/admin-analytics': RouteMeta(
     path: '/profile/admin-analytics',
     category: RouteCategory.tool,
     owner: RouteOwner.admin,
     requiresAuth: true,
-    description: 'Admin analytics screen (FeatureFlags.enableAdminScreens gate)',
+    description:
+        'Admin analytics screen (FeatureFlags.enableAdminScreens gate)',
   ),
   '/profile/byok': RouteMeta(
     path: '/profile/byok',

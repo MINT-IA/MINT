@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/routes/route_metadata.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +28,10 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 class DataBlockEnrichmentScreen extends StatefulWidget {
   final String blockType;
   final String? initialInputKey;
+
+  /// Always supplied by the production route builder. Null only preserves
+  /// legacy direct-widget harness behavior outside GoRouter.
+  final DataBlockReturnTarget? returnTarget;
   static const Set<String> _supportedBlockTypes = {
     'revenu',
     'lpp',
@@ -42,6 +47,7 @@ class DataBlockEnrichmentScreen extends StatefulWidget {
     super.key,
     required this.blockType,
     this.initialInputKey,
+    this.returnTarget,
   });
 
   @override
@@ -90,6 +96,9 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
   bool _revenueSaved = false;
   bool _patrimoineSaved = false;
   bool _householdSaved = false;
+  bool _revenuePersistenceFailed = false;
+  bool _patrimoinePersistenceFailed = false;
+  bool _householdPersistenceFailed = false;
   String? _revenueError;
   String? _patrimoineError;
   String? _householdError;
@@ -158,7 +167,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-          onPressed: () => safePop(context),
+          onPressed: _cancelToReturnTarget,
         ),
         title: Text(
           meta.title,
@@ -265,7 +274,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
                                   if (route != null) {
                                     context.push(route);
                                   } else {
-                                    safePop(context);
+                                    _cancelToReturnTarget();
                                   }
                                 },
                                 style: FilledButton.styleFrom(
@@ -558,10 +567,13 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
           ...children,
           if (_revenueError != null) ...[
             const SizedBox(height: 8),
-            Text(
-              _revenueError!,
-              style: MintTextStyles.labelMedium(color: MintColors.error),
-            ),
+            if (_revenuePersistenceFailed)
+              _buildPersistenceError(l, _saveRevenueFacts)
+            else
+              Text(
+                _revenueError!,
+                style: MintTextStyles.labelMedium(color: MintColors.error),
+              ),
           ],
           if (_revenueSaved) ...[
             const SizedBox(height: 8),
@@ -697,7 +709,10 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         invalidBirthYear ||
         invalidDateOfBirth ||
         invalidGender) {
-      setState(() => _revenueError = l.authErrorInvalid);
+      setState(() {
+        _revenueError = l.authErrorInvalid;
+        _revenuePersistenceFailed = false;
+      });
       return;
     }
 
@@ -705,6 +720,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       _isSavingRevenue = true;
       _revenueError = null;
       _revenueSaved = false;
+      _revenuePersistenceFailed = false;
     });
 
     final answers = <String, dynamic>{
@@ -729,15 +745,23 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         'q_has_pension_fund': _hasPensionFund ? 'yes' : 'no',
     };
 
-    if (answers.isNotEmpty) {
-      await context.read<CoachProfileProvider>().mergeAnswers(answers);
-    }
+    final persisted = await _persistAnswers(answers);
     if (!mounted) return;
+    if (!persisted) {
+      setState(() {
+        _isSavingRevenue = false;
+        _revenueError = l.authErrorGeneric;
+        _revenueSaved = false;
+        _revenuePersistenceFailed = true;
+      });
+      return;
+    }
     HapticFeedback.lightImpact();
     setState(() {
       _isSavingRevenue = false;
       _revenueSaved = true;
     });
+    _exitAfterSuccessfulSave();
   }
 
   Widget _buildGenderChoice({
@@ -932,10 +956,13 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
           ],
           if (_householdError != null) ...[
             const SizedBox(height: 8),
-            Text(
-              _householdError!,
-              style: MintTextStyles.labelMedium(color: MintColors.error),
-            ),
+            if (_householdPersistenceFailed)
+              _buildPersistenceError(l, _saveHouseholdFacts)
+            else
+              Text(
+                _householdError!,
+                style: MintTextStyles.labelMedium(color: MintColors.error),
+              ),
           ],
           if (_householdSaved) ...[
             const SizedBox(height: 8),
@@ -1036,7 +1063,10 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     final children =
         collectsChildren ? int.tryParse(_childrenController.text.trim()) : null;
     if (writesChildren && (children == null || children < 0)) {
-      setState(() => _householdError = l.authErrorInvalid);
+      setState(() {
+        _householdError = l.authErrorInvalid;
+        _householdPersistenceFailed = false;
+      });
       return;
     }
 
@@ -1044,19 +1074,30 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       _isSavingHousehold = true;
       _householdError = null;
       _householdSaved = false;
+      _householdPersistenceFailed = false;
     });
 
-    await context.read<CoachProfileProvider>().mergeAnswers({
+    final persisted = await _persistAnswers({
       if (writesChildren) 'q_children': children,
       if (writesCivilStatus) 'q_civil_status': _civilStatus,
       if (writesHousingStatus) 'q_housing_status': _housingStatus,
     });
     if (!mounted) return;
+    if (!persisted) {
+      setState(() {
+        _isSavingHousehold = false;
+        _householdError = l.authErrorGeneric;
+        _householdSaved = false;
+        _householdPersistenceFailed = true;
+      });
+      return;
+    }
     HapticFeedback.lightImpact();
     setState(() {
       _isSavingHousehold = false;
       _householdSaved = true;
     });
+    _exitAfterSuccessfulSave();
   }
 
   Widget _buildPatrimoineCollector(S l) {
@@ -1135,10 +1176,13 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
             ),
           if (_patrimoineError != null) ...[
             const SizedBox(height: 8),
-            Text(
-              _patrimoineError!,
-              style: MintTextStyles.labelMedium(color: MintColors.error),
-            ),
+            if (_patrimoinePersistenceFailed)
+              _buildPersistenceError(l, _savePatrimoineFacts)
+            else
+              Text(
+                _patrimoineError!,
+                style: MintTextStyles.labelMedium(color: MintColors.error),
+              ),
           ],
           if (_patrimoineSaved) ...[
             const SizedBox(height: 8),
@@ -1212,15 +1256,19 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         (collectsMortgageBalance &&
             (mortgageBalance == null || mortgageBalance < 0)) ||
         (collectsDebtPayments && (debtPayments == null || debtPayments < 0))) {
-      setState(() => _patrimoineError = l.authErrorInvalid);
+      setState(() {
+        _patrimoineError = l.authErrorInvalid;
+        _patrimoinePersistenceFailed = false;
+      });
       return;
     }
     setState(() {
       _isSavingPatrimoine = true;
       _patrimoineError = null;
       _patrimoineSaved = false;
+      _patrimoinePersistenceFailed = false;
     });
-    await context.read<CoachProfileProvider>().mergeAnswers({
+    final persisted = await _persistAnswers({
       if (collectsCash) 'q_cash_total': cash,
       if (collectsWealthEstimate) 'q_wealth_estimate': wealthEstimate,
       if (collectsPropertyValue) 'q_property_market_value': propertyMarketValue,
@@ -1231,11 +1279,77 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       },
     });
     if (!mounted) return;
+    if (!persisted) {
+      setState(() {
+        _isSavingPatrimoine = false;
+        _patrimoineError = l.authErrorGeneric;
+        _patrimoineSaved = false;
+        _patrimoinePersistenceFailed = true;
+      });
+      return;
+    }
     HapticFeedback.lightImpact();
     setState(() {
       _isSavingPatrimoine = false;
       _patrimoineSaved = true;
     });
+    _exitAfterSuccessfulSave();
+  }
+
+  Future<bool> _persistAnswers(Map<String, dynamic> answers) async {
+    if (answers.isEmpty) return true;
+
+    final provider = context.read<CoachProfileProvider>();
+    try {
+      await provider.mergeAnswers(answers);
+      return true;
+    } on Object {
+      // This is the persistence boundary: each caller turns failure into the
+      // same visible, retryable state without clearing controller input.
+      return false;
+    }
+  }
+
+  void _exitAfterSuccessfulSave() {
+    final target = widget.returnTarget;
+    if (target != null) context.go(target.location);
+  }
+
+  void _cancelToReturnTarget() {
+    final target = widget.returnTarget;
+    if (target == null) {
+      safePop(context);
+      return;
+    }
+    context.go(target.location);
+  }
+
+  Widget _buildPersistenceError(S l, VoidCallback onRetry) {
+    return Semantics(
+      key: const Key('data_block_save_error'),
+      identifier: 'data_block_save_error',
+      container: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.authErrorGeneric,
+            style: MintTextStyles.labelMedium(color: MintColors.error),
+          ),
+          const SizedBox(height: 8),
+          Semantics(
+            identifier: 'data_block_save_retry_cta',
+            button: true,
+            label: l.commonRetry,
+            child: FilledButton(
+              key: const Key('data_block_save_retry_cta'),
+              onPressed: onRetry,
+              child: Text(l.commonRetry),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSaveSuccess(S l) {

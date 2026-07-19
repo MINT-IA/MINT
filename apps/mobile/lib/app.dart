@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/router/route_scope.dart';
 import 'package:mint_mobile/router/scoped_go_route.dart';
+import 'package:mint_mobile/routes/route_metadata.dart';
 import 'package:mint_mobile/widgets/mint_shell.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
@@ -1756,9 +1757,13 @@ final _router = GoRouter(
       scope: RouteScope.onboarding, // Onboarding enrichment flow
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
+        final returnTarget = parseDataBlockReturnTarget(
+          state.uri.queryParameters['returnUri'],
+        );
         return DataBlockEnrichmentScreen(
           blockType: state.pathParameters['type']!,
           initialInputKey: state.uri.queryParameters['inputKey'],
+          returnTarget: returnTarget,
         );
       },
     ),

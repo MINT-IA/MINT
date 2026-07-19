@@ -10,6 +10,7 @@ import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/routes/route_metadata.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,22 +24,29 @@ const _p0Origins = <String>[
   '/segments/frontalier',
 ];
 
-final _maliciousReturnUris = <String, String>{
-  'external URI': 'https://evil.example/steal',
-  'scheme-relative URI': '//evil.example/steal',
-  'unknown internal route': '/not-registered',
-  'auth route': '/auth/login?redirect=%2Fhome',
-  'admin route': '/admin/routes',
-  'plain traversal': '/first-job/../auth/login',
-  'encoded traversal': '/first-job/%2e%2e/auth/login',
-  'nested returnUri': Uri(
-    path: '/first-job',
-    queryParameters: const {'returnUri': 'https://evil.example/steal'},
-  ).toString(),
-  'sensitive query': Uri(
-    path: '/first-job',
-    queryParameters: const {'access_token': 'synthetic-secret'},
-  ).toString(),
+final _maliciousReturnUris = <String, List<String>>{
+  'external URI': const ['https://evil.example/steal'],
+  'scheme-relative URI': const ['//evil.example/steal'],
+  'unknown internal route': const ['/not-registered'],
+  'auth route': const ['/auth/login?redirect=%2Fhome'],
+  'admin route': const ['/admin/routes'],
+  'plain traversal': const ['/first-job/../auth/login'],
+  'encoded traversal': const ['/first-job/%2e%2e/auth/login'],
+  'nested returnUri': [
+    Uri(
+      path: '/first-job',
+      queryParameters: const {'returnUri': 'https://evil.example/steal'},
+    ).toString(),
+  ],
+  'non-allowlisted query keys': [
+    Uri(
+      path: '/first-job',
+      queryParameters: const {'access_token': 'synthetic-secret'},
+    ).toString(),
+    '/first-job?Access_Token=synthetic-secret',
+    '/first-job?access%5Ftoken=synthetic-secret',
+    '/first-job?t%61b=encoded-key-variant',
+  ],
 };
 
 class _FakeNotificationsPlatform extends FlutterLocalNotificationsPlatform {
@@ -161,18 +169,20 @@ void main() {
     for (final entry in _maliciousReturnUris.entries) {
       testWidgets('${entry.key} falls back to /home on save', (tester) async {
         final router = await _pumpProductionRouter(tester);
-        await _openCollector(
-          tester,
-          router,
-          returnUri: entry.value,
-          inputKey: 'q_gender',
-        );
+        for (final returnUri in entry.value) {
+          await _openCollector(
+            tester,
+            router,
+            returnUri: returnUri,
+            inputKey: 'q_gender',
+          );
 
-        await tester.tap(find.byKey(const Key('gender_f_choice')));
-        await tester.tap(find.byKey(const Key('salary_save_cta')));
-        await _pumpFrames(tester);
+          await tester.tap(find.byKey(const Key('gender_f_choice')));
+          await tester.tap(find.byKey(const Key('salary_save_cta')));
+          await _pumpFrames(tester);
 
-        expect(_currentUri(router).toString(), '/home');
+          expect(_currentUri(router).toString(), '/home');
+        }
       });
     }
   });
@@ -261,10 +271,16 @@ GoRouter _providerFailureRouter() {
       ),
       GoRoute(
         path: '/data-block/:type',
-        builder: (context, state) => DataBlockEnrichmentScreen(
-          blockType: state.pathParameters['type']!,
-          initialInputKey: state.uri.queryParameters['inputKey'],
-        ),
+        builder: (context, state) {
+          final returnTarget = parseDataBlockReturnTarget(
+            state.uri.queryParameters['returnUri'],
+          );
+          return DataBlockEnrichmentScreen(
+            blockType: state.pathParameters['type']!,
+            initialInputKey: state.uri.queryParameters['inputKey'],
+            returnTarget: returnTarget,
+          );
+        },
       ),
     ],
   );
@@ -298,13 +314,16 @@ Future<GoRouter> _pumpProductionRouter(WidgetTester tester) async {
   tester.view.physicalSize = const Size(1080, 2400);
   tester.view.devicePixelRatio = 2;
   addTearDown(() {
-    debugDefaultTargetPlatformOverride = null;
     tester.view.resetPhysicalSize();
     tester.view.resetDevicePixelRatio();
   });
 
-  await tester.pumpWidget(const MintApp());
-  await _pumpFrames(tester, frames: 40);
+  try {
+    await tester.pumpWidget(const MintApp());
+    await _pumpFrames(tester, frames: 40);
+  } finally {
+    debugDefaultTargetPlatformOverride = null;
+  }
 
   final scaffold = find.byType(Scaffold);
   expect(scaffold, findsWidgets);
