@@ -531,6 +531,7 @@ set +e
 (
   cd "$mobile"
   exec "$patrol" --verbose build ios \
+    --no-label \
     --target test/patrol/g1_scn01_scenario_isolation_runtime_test.dart \
     --simulator \
     --bundle-id "$bundle_id" \

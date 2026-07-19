@@ -88,6 +88,7 @@ def _fake_runtime(tmp_path: Path) -> dict[str, str]:
         '[[ "$*" == *"--simulator"* ]] || exit 62\n'
         '[[ "$*" == *"--bundle-id ch.mint.app"* ]] || exit 63\n'
         '[[ "$*" == *"--dart-define=MINT_PATROL_CLI=true"* ]] || exit 64\n'
+        '[[ "$*" == *"--no-label"* ]] || exit 65\n'
         'build_target="$(readlink build 2>/dev/null || true)"\n'
         '[[ -L build && -d "$build_target" ]] || exit 66\n'
         'case "$build_target" in "$MINT_TEST_REPO"/*) exit 67 ;; esac\n'
@@ -400,13 +401,15 @@ def test_runner_executes_exact_sha_and_publishes_only_sanitized_artifacts(
     calls = Path(runtime["calls"]).read_text(encoding="utf-8")
     assert "$HOME/.pub-cache/bin/patrol" not in calls
     assert (
-        "build ios --target test/patrol/g1_scn01_scenario_isolation_runtime_test.dart"
+        "build ios --no-label --target "
+        "test/patrol/g1_scn01_scenario_isolation_runtime_test.dart"
         in calls
     )
     assert "--simulator" in calls
     assert "patrol cwd=" in calls
     assert "patrol cwd=" in calls and " args=test " not in calls
     assert "--dart-define=MINT_PATROL_CLI=true" in calls
+    assert "--no-label" in calls
     assert "xcodebuild test-without-building -xctestrun " in calls
     assert "-only-testing RunnerUITests/RunnerUITests" in calls
     assert f"-destination platform=iOS Simulator,id={DEVICE}" in calls
