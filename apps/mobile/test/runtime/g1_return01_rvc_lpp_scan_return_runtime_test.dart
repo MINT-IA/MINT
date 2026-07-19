@@ -15,6 +15,8 @@ void main() {
       "FeatureFlags.documentLppEvidenceEnabled = true",
       "FeatureFlags.typedLppEvidence = false",
       "FeatureFlags.documentLppEvidenceEnabled = false",
+      'final semantics = \$.tester.ensureSemantics()',
+      'semantics.dispose',
       "const Key('indicatif_banner_lpp_cta')",
       "const Key('data_block_lpp_scan_cta')",
       "const Key('document_scan_lpp_example_cta')",

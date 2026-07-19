@@ -31,6 +31,8 @@ void main() {
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 6)),
     ($) async {
+      final semantics = $.tester.ensureSemantics();
+      addTearDown(semantics.dispose);
       final visualReadyMarker = File(
         '${Directory.systemTemp.path}/$_visualReadyMarkerName',
       );
