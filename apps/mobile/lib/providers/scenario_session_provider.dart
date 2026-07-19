@@ -82,6 +82,31 @@ final class ScenarioSessionProvider extends ChangeNotifier {
 
   ScenarioSession? sessionFor(ScenarioKind kind) => _active[kind];
 
+  /// Resolve an opaque completion reference against encrypted persistence.
+  ///
+  /// This intentionally returns only a boolean. Callers cannot obtain the
+  /// stored levers or treat them as canonical financial facts.
+  Future<bool> validatesCompleted(
+    String id,
+    ScenarioKind expectedKind,
+  ) async {
+    if (!_enabled || !isOpaqueScenarioId(id)) return false;
+    try {
+      final guard = _sessionEpoch.capture();
+      final session = await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => _store.read(id, expectedKind: expectedKind),
+      );
+      guard.assertCurrent();
+      return session?.kind == expectedKind &&
+          session?.status == ScenarioStatus.completed;
+    } on SessionEpochInvalidated {
+      return false;
+    } on Object {
+      return false;
+    }
+  }
+
   Future<void> load() async {
     if (!_enabled) {
       try {

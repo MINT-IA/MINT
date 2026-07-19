@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/models/sequence_run.dart';
+import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
@@ -193,21 +195,25 @@ void main() {
     });
 
     test('missing fiscal output pauses without completing the step', () async {
-      await SequenceChatHandler.startSequence('housing_purchase');
-      await SequenceChatHandler.handleStepReturn(
-        ScreenOutcome.completed,
-        stepOutputs: {
-          'capacite_achat': 850000.0,
-          'fonds_propres_requis': 170000.0,
-        },
-      );
-      await SequenceChatHandler.handleStepReturn(
-        ScreenOutcome.completed,
-        stepOutputs: {
-          'montant_epl': 50000.0,
-          'impact_rente': -200.0,
-        },
-      );
+      const template = SequenceTemplate.housingPurchase;
+      final run = SequenceRun.start(
+        runId: 'fiscal-missing-run',
+        templateId: template.id,
+        stepIds: template.steps.map((step) => step.id).toList(),
+      )
+          .completeStep(
+            'housing_01_affordability',
+            const {
+              'capacite_achat': 850000.0,
+              'fonds_propres_requis': 170000.0,
+            },
+          )
+          .completeScenarioStep(
+            'housing_02_epl',
+            '11111111-1111-4111-8111-111111111111',
+          )
+          .activateStep('housing_03_fiscal');
+      await SequenceStore.save(run);
 
       final result = await SequenceChatHandler.handleStepReturn(
         ScreenOutcome.completed,

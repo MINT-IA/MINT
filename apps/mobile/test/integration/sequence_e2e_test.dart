@@ -17,19 +17,62 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/models/scenario_session.dart';
 import 'package:mint_mobile/models/sequence_run.dart';
+import 'package:mint_mobile/providers/scenario_session_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/scenario/scenario_session_store.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
 
+final class _MemoryScenarioCache implements ScenarioSessionCache {
+  String? value;
+
+  @override
+  Future<void> clear() async => value = null;
+
+  @override
+  Future<String?> read() async => value;
+
+  @override
+  Future<void> write(String value) async => this.value = value;
+}
+
 void main() {
+  const eplId = '11111111-1111-4111-8111-111111111111';
+  late ScenarioSessionProvider scenarioProvider;
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     FeatureFlags.enableGuidedSequences = true;
+    scenarioProvider = ScenarioSessionProvider(
+      enabled: true,
+      store: ScenarioSessionStore(
+        cache: _MemoryScenarioCache(),
+        idFactory: () => eplId,
+        clock: () => DateTime.utc(2026, 7, 19, 12),
+      ),
+    );
     addTearDown(() => FeatureFlags.enableGuidedSequences = false);
   });
+
+  Future<void> createCompletedEpl() async {
+    await scenarioProvider.open(
+      const EplScenarioLevers(requestedWithdrawal: 50000),
+      factsReady: true,
+    );
+    await scenarioProvider.markCalculated(
+      eplId,
+      expectedKind: ScenarioKind.epl,
+    );
+    await scenarioProvider.markTerminal(
+      eplId,
+      expectedKind: ScenarioKind.epl,
+      status: ScenarioStatus.completed,
+    );
+  }
 
   // ════════════════════════════════════════════════════════════════
   //  FULL MULTI-STEP E2E FLOW
@@ -81,23 +124,31 @@ void main() {
       expect(runAfterStep1!.isEventProcessed('evt_step1_${run.runId}'), isTrue);
 
       // ── STEP 2: /epl (Tier A) ─────────────────────────────────
+      await createCompletedEpl();
       final step2Result = await SequenceChatHandler.handleRealtimeReturn(
         ScreenReturn.completed(
           route: '/epl',
           runId: run.runId,
           stepId: 'housing_02_epl',
           eventId: 'evt_step2_${run.runId}',
-          stepOutputs: const {
-            'montant_epl': 50000.0,
-            'impact_rente': -200.0,
-          },
+          scenarioId: eplId,
+          scenarioStatus: ScenarioStatus.completed,
         ),
+        scenarioValidator: scenarioProvider.validatesCompleted,
       );
 
       expect(step2Result, isNotNull);
       expect(step2Result!.action, isA<AdvanceAction>());
       final advance2 = step2Result.action as AdvanceAction;
       expect(advance2.nextStep.id, 'housing_03_fiscal');
+      expect(
+        step2Result.updatedRun.scenarioReferences['housing_02_epl']?.id,
+        eplId,
+      );
+      expect(
+        step2Result.updatedRun.stepOutputs,
+        isNot(contains('housing_02_epl')),
+      );
 
       // ── STEP 3: /fiscal (Tier A) ──────────────────────────────
       final step3Result = await SequenceChatHandler.handleRealtimeReturn(
@@ -118,7 +169,7 @@ void main() {
       final complete = step3Result.action as CompleteAction;
       // All outputs accumulated
       expect(complete.allOutputs.containsKey('housing_01_affordability'), isTrue);
-      expect(complete.allOutputs.containsKey('housing_02_epl'), isTrue);
+      expect(complete.allOutputs.containsKey('housing_02_epl'), isFalse);
       expect(complete.allOutputs.containsKey('housing_03_fiscal'), isTrue);
 
       // Verify run cleared from store
@@ -296,7 +347,7 @@ void main() {
       );
     });
 
-    test('outputs accumulate across 3 steps', () async {
+    test('legacy outputs accumulate while scenario stays opaque', () async {
       final run = await SequenceChatHandler.startSequence('housing_purchase');
 
       // Step 1
@@ -314,17 +365,21 @@ void main() {
       );
 
       // Step 2
-      await SequenceChatHandler.handleRealtimeReturn(
+      await createCompletedEpl();
+      final scenarioResult = await SequenceChatHandler.handleRealtimeReturn(
         ScreenReturn.completed(
           route: '/epl',
           runId: run.runId,
           stepId: 'housing_02_epl',
           eventId: 'evt_accum_2',
-          stepOutputs: const {
-            'montant_epl': 50000.0,
-            'impact_rente': -200.0,
-          },
+          scenarioId: eplId,
+          scenarioStatus: ScenarioStatus.completed,
         ),
+        scenarioValidator: scenarioProvider.validatesCompleted,
+      );
+      expect(
+        scenarioResult?.updatedRun.scenarioReferences['housing_02_epl']?.id,
+        eplId,
       );
 
       // Step 3 → completion with all outputs
@@ -341,9 +396,9 @@ void main() {
       expect(result, isNotNull);
       expect(result!.action, isA<CompleteAction>());
       final complete = result.action as CompleteAction;
-      expect(complete.allOutputs.length, 3);
+      expect(complete.allOutputs.length, 2);
       expect(complete.allOutputs['housing_01_affordability']!['capacite_achat'], 850000.0);
-      expect(complete.allOutputs['housing_02_epl']!['montant_epl'], 50000.0);
+      expect(complete.allOutputs, isNot(contains('housing_02_epl')));
       expect(complete.allOutputs['housing_03_fiscal']!['impot_retrait'], 3200.0);
     });
   });

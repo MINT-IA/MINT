@@ -19,7 +19,17 @@ class SequenceStore {
   /// Load the active run, or null if none.
   static Future<SequenceRun?> load({SharedPreferences? prefs}) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
-    return SequenceRun.deserialize(sp.getString(_key));
+    final raw = sp.getString(_key);
+    if (raw == null) return null;
+    final run = SequenceRun.deserialize(raw);
+    if (run == null || run.hasLegacyScenarioOutputs) {
+      final removed = await sp.remove(_key);
+      if (!removed && sp.containsKey(_key)) {
+        throw StateError('Unsafe sequence state purge failed');
+      }
+      return null;
+    }
+    return run;
   }
 
   /// Save (create or update) the active run.

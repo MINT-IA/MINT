@@ -11,6 +11,7 @@
 library;
 
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/models/scenario_session.dart';
 import 'package:mint_mobile/models/sequence_run.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -18,6 +19,12 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
+
+/// Narrow encrypted-store proof injected by the mobile composition root.
+typedef ScenarioCompletionValidator = Future<bool> Function(
+  String scenarioId,
+  ScenarioKind expectedKind,
+);
 
 /// Result of handling a step return in a guided sequence.
 ///
@@ -73,8 +80,7 @@ class SequenceChatHandler {
 
     final template = SequenceTemplate.templateForIntent(run.templateId);
     // Also try matching by templateId directly (templates use id, not intentTag)
-    final resolvedTemplate = template ??
-        _templateById(run.templateId);
+    final resolvedTemplate = template ?? _templateById(run.templateId);
     if (resolvedTemplate == null) return null;
 
     // Build a ScreenReturn from the outcome + outputs + updatedFields
@@ -101,7 +107,7 @@ class SequenceChatHandler {
     );
 
     // Apply action + persist + increment proposals for next step
-    final updatedRun = _applyAction(action, run, outcome, stepOutputs);
+    final updatedRun = _applyAction(action, run, stepOutputs);
     await _persistAndTrackProposals(action, updatedRun, run.runId, capMem);
 
     return SequenceHandlerResult(
@@ -120,24 +126,13 @@ class SequenceChatHandler {
   /// Unlike handleStepReturn (which receives a simple outcome), this
   /// receives a full ScreenReturn with stepOutputs and updatedFields.
   /// It delegates to the same SequenceCoordinator for consistent decisions.
-  static Future<SequenceHandlerResult?> handleRealtimeReturn(
-    ScreenReturn ret,
-  ) async {
+  static Future<SequenceHandlerResult?> handleRealtimeReturn(ScreenReturn ret,
+      {ScenarioCompletionValidator? scenarioValidator}) async {
     if (!FeatureFlags.enableGuidedSequences) return null;
     final run = await SequenceStore.load();
     if (run == null || !run.isActive) return null;
 
-    // Guard 1: wrong run — delayed event from a previous run.
-    if (ret.runId != null && ret.runId != run.runId) return null;
-
-    // Guard 2: wrong step — stale event from a prior step in the SAME run.
-    // e.g. step A emits while run already advanced to step B.
-    if (ret.stepId != null && run.activeStepId != null &&
-        ret.stepId != run.activeStepId) {
-      return null;
-    }
-
-    // Guard 3: idempotence — this exact event was already processed.
+    // Guard 1: idempotence — this exact event was already processed.
     if (run.isEventProcessed(ret.eventId)) {
       AnalyticsService().trackEvent(
         'duplicate_event_dropped',
@@ -153,6 +148,39 @@ class SequenceChatHandler {
 
     final template = _templateById(run.templateId);
     if (template == null) return null;
+    final activeStep =
+        template.steps.where((step) => step.id == run.activeStepId).firstOrNull;
+    if (activeStep == null) return null;
+
+    // Legacy returns keep their historical ignore semantics. Scenario-backed
+    // steps fail closed to Pause so malformed or cross-session proofs cannot
+    // silently fall through into the coach's generic completion path.
+    if (activeStep.scenarioKind != null && ret.scenarioId == null) {
+      if (ret.runId != null && ret.runId != run.runId) return null;
+      if (ret.stepId != null && ret.stepId != run.activeStepId) return null;
+    }
+    if (activeStep.scenarioKind == null) {
+      if (ret.runId != null && ret.runId != run.runId) return null;
+      if (ret.stepId != null && ret.stepId != run.activeStepId) return null;
+    }
+
+    var scenarioReferenceValidated = false;
+    if (activeStep.scenarioKind != null &&
+        scenarioValidator != null &&
+        SequenceCoordinator.isScenarioCompletionCandidate(
+          run: run,
+          step: activeStep,
+          stepReturn: ret,
+        )) {
+      try {
+        scenarioReferenceValidated = await scenarioValidator(
+          ret.scenarioId!,
+          activeStep.scenarioKind!,
+        );
+      } on Object {
+        scenarioReferenceValidated = false;
+      }
+    }
 
     // Load proposal count for anti-loop
     final capMem = await CapMemoryStore.load();
@@ -167,10 +195,11 @@ class SequenceChatHandler {
       run: run,
       stepReturn: ret,
       proposalCount: proposals,
+      scenarioReferenceValidated: scenarioReferenceValidated,
     );
 
     // Apply action + mark event processed + persist
-    var updatedRun = _applyAction(action, run, ret.outcome, ret.stepOutputs);
+    var updatedRun = _applyAction(action, run, ret.stepOutputs);
     if (ret.eventId != null) {
       updatedRun = updatedRun.markEventProcessed(ret.eventId!);
     }
@@ -205,7 +234,8 @@ class SequenceChatHandler {
     }
 
     final run = SequenceRun.start(
-      runId: preGeneratedRunId ?? '${template.id}_${DateTime.now().millisecondsSinceEpoch}',
+      runId: preGeneratedRunId ??
+          '${template.id}_${DateTime.now().millisecondsSinceEpoch}',
       templateId: template.id,
       stepIds: template.steps.map((s) => s.id).toList(),
     );
@@ -237,25 +267,34 @@ class SequenceChatHandler {
   static SequenceRun _applyAction(
     SequenceAction action,
     SequenceRun run,
-    ScreenOutcome outcome,
     Map<String, dynamic>? stepOutputs,
   ) {
     final activeStepId = run.activeStepId;
 
     switch (action) {
-      case AdvanceAction(:final nextStep):
+      case AdvanceAction(:final nextStep, :final completedScenarioId):
         // Complete current step, activate next
         var updated = run;
         if (activeStepId != null) {
-          updated = updated.completeStep(activeStepId, stepOutputs ?? {});
+          updated = completedScenarioId == null
+              ? updated.completeStep(activeStepId, stepOutputs ?? {})
+              : updated.completeScenarioStep(
+                  activeStepId,
+                  completedScenarioId,
+                );
         }
         return updated.activateStep(nextStep.id);
 
-      case CompleteAction():
+      case CompleteAction(:final completedScenarioId):
         // Complete current step, mark run as complete
         var updated = run;
         if (activeStepId != null) {
-          updated = updated.completeStep(activeStepId, stepOutputs ?? {});
+          updated = completedScenarioId == null
+              ? updated.completeStep(activeStepId, stepOutputs ?? {})
+              : updated.completeScenarioStep(
+                  activeStepId,
+                  completedScenarioId,
+                );
         }
         return updated.withStatus(SequenceRunStatus.completed);
 

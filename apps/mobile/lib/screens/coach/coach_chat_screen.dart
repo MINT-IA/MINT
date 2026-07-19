@@ -14,6 +14,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scenario_session_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
@@ -406,8 +407,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ScreenCompletionTracker.stream.listen((screenReturn) async {
       if (!mounted) return;
 
-      final sequenceResult =
-          await SequenceChatHandler.handleRealtimeReturn(screenReturn);
+      final scenarioValidator =
+          context.read<ScenarioSessionProvider?>()?.validatesCompleted;
+      final sequenceResult = await SequenceChatHandler.handleRealtimeReturn(
+        screenReturn,
+        scenarioValidator: scenarioValidator,
+      );
       if (!mounted) return;
       if (sequenceResult != null) {
         _entryPayloadContext = _sequenceReturnContext(sequenceResult);

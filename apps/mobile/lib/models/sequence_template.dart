@@ -6,6 +6,8 @@
 /// See: docs/RFC_AGENT_LOOP_STATEFUL.md §3.1–3.2
 library;
 
+import 'package:mint_mobile/models/scenario_session.dart';
+
 // ════════════════════════════════════════════════════════════════
 //  STEP DEFINITION
 // ════════════════════════════════════════════════════════════════
@@ -34,6 +36,12 @@ class SequenceStepDef {
   /// Whether this step can be skipped without blocking the sequence.
   final bool isOptional;
 
+  /// Bounded G1 scenario kind required to complete this step.
+  ///
+  /// Null for every legacy step. Non-null only for the three explicit
+  /// scenario bindings; it is never inferred from a route or intent at runtime.
+  final ScenarioKind? scenarioKind;
+
   const SequenceStepDef({
     required this.id,
     required this.order,
@@ -41,6 +49,7 @@ class SequenceStepDef {
     required this.titleKey,
     this.requiredOutputKeys = const {},
     this.isOptional = false,
+    this.scenarioKind,
   });
 }
 
@@ -100,10 +109,7 @@ class SequenceTemplate {
         order: 2,
         intentTag: 'early_pension_withdrawal',
         titleKey: 'sequenceHousingStep2',
-        requiredOutputKeys: {
-          'montant_epl',
-          'impact_rente',
-        },
+        scenarioKind: ScenarioKind.epl,
       ),
       SequenceStepDef(
         id: 'housing_03_fiscal',
@@ -174,7 +180,7 @@ class SequenceTemplate {
         order: 2,
         intentTag: 'retirement_choice',
         titleKey: 'sequenceRetirementStep2',
-        requiredOutputKeys: {'decision_mixte'},
+        scenarioKind: ScenarioKind.renteCapital,
       ),
       SequenceStepDef(
         id: 'ret_03_buyback',
@@ -240,7 +246,7 @@ class SequenceTemplate {
         order: 3,
         intentTag: 'retirement_choice',
         titleKey: 'sequencePreretraiteStep3',
-        requiredOutputKeys: {'decision_mixte'},
+        scenarioKind: ScenarioKind.renteCapital,
       ),
       SequenceStepDef(
         id: 'pre_04_withdrawal',

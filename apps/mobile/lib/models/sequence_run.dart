@@ -9,6 +9,7 @@ library;
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/models/scenario_session.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
@@ -19,6 +20,49 @@ enum StepRunState { pending, active, completed, skipped, blocked }
 
 /// Overall status of a sequence run.
 enum SequenceRunStatus { active, paused, completed, abandoned }
+
+/// Opaque proof retained for a completed scenario-backed sequence step.
+///
+/// Financial levers and derived values never cross this boundary.
+final class ScenarioStepReference {
+  const ScenarioStepReference({
+    required this.id,
+    required this.status,
+  });
+
+  final String id;
+  final ScenarioStatus status;
+
+  Map<String, String> toJson() => {
+        'scenarioId': id,
+        'scenarioStatus': status.name,
+      };
+
+  factory ScenarioStepReference.fromJson(Map<String, dynamic> json) {
+    if (json.length != 2 ||
+        json['scenarioId'] is! String ||
+        json['scenarioStatus'] != ScenarioStatus.completed.name) {
+      throw const FormatException('Invalid scenario step reference');
+    }
+    final id = json['scenarioId'] as String;
+    if (!isOpaqueScenarioId(id)) {
+      throw const FormatException('Invalid scenario step reference ID');
+    }
+    return ScenarioStepReference(
+      id: id,
+      status: ScenarioStatus.completed,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is ScenarioStepReference &&
+      other.id == id &&
+      other.status == status;
+
+  @override
+  int get hashCode => Object.hash(id, status);
+}
 
 // ════════════════════════════════════════════════════════════════
 //  RUN MODEL
@@ -56,8 +100,28 @@ class SequenceRun {
   /// See RFC_AGENT_LOOP_STATEFUL.md §6.3 (Phase 2 Completion).
   final Set<String> processedEventIds;
 
+  /// Completed scenario reference by sequence step ID.
+  ///
+  /// References contain only an opaque UUIDv4 and terminal status.
+  final Map<String, ScenarioStepReference> scenarioReferences;
+
+  /// Scenario IDs already consumed by this run.
+  ///
+  /// Unlike active step references, these survive invalidation so a cold
+  /// reload or a new event ID cannot replay the same financial scenario.
+  final Set<String> processedScenarioIds;
+
   /// Maximum number of processed event IDs to retain.
   static const int maxProcessedEvents = 20;
+
+  /// Maximum number of processed scenario IDs retained (FIFO).
+  static const int maxProcessedScenarios = 20;
+
+  static const Set<String> _scenarioStepIds = {
+    'housing_02_epl',
+    'ret_02_choice',
+    'pre_03_choice',
+  };
 
   const SequenceRun({
     required this.runId,
@@ -66,6 +130,8 @@ class SequenceRun {
     required this.stepStates,
     this.stepOutputs = const {},
     this.processedEventIds = const {},
+    this.scenarioReferences = const {},
+    this.processedScenarioIds = const {},
     this.status = SequenceRunStatus.active,
   });
 
@@ -112,6 +178,15 @@ class SequenceRun {
     return _copyWith(processedEventIds: ordered.toSet());
   }
 
+  /// Whether [scenarioId] was already consumed by this run.
+  bool isScenarioProcessed(String? scenarioId) =>
+      scenarioId != null && processedScenarioIds.contains(scenarioId);
+
+  /// Whether pre-boundary financial outputs remain on an exact scenario step.
+  bool get hasLegacyScenarioOutputs => _scenarioStepIds.any(
+        (stepId) => stepOutputs[stepId]?.isNotEmpty ?? false,
+      );
+
   // ── IMMUTABLE UPDATES ──────────────────────────────────────────
 
   /// Returns a copy with the given step marked as completed + outputs recorded.
@@ -137,6 +212,41 @@ class SequenceRun {
       }
     }
     return _copyWith(stepStates: newStates, stepOutputs: newOutputs);
+  }
+
+  /// Complete a scenario-backed step without persisting financial payloads.
+  SequenceRun completeScenarioStep(String stepId, String scenarioId) {
+    if (!_scenarioStepIds.contains(stepId)) {
+      throw ArgumentError.value(
+        stepId,
+        'stepId',
+        'Expected an exact G1 scenario step ID',
+      );
+    }
+    if (!isOpaqueScenarioId(scenarioId)) {
+      throw ArgumentError.value(scenarioId, 'scenarioId', 'Expected UUIDv4');
+    }
+    final newStates = Map<String, StepRunState>.from(stepStates);
+    newStates[stepId] = StepRunState.completed;
+    final newOutputs = Map<String, Map<String, dynamic>>.from(stepOutputs)
+      ..remove(stepId);
+    final newReferences =
+        Map<String, ScenarioStepReference>.from(scenarioReferences);
+    newReferences[stepId] = ScenarioStepReference(
+      id: scenarioId,
+      status: ScenarioStatus.completed,
+    );
+    final ordered = List<String>.from(processedScenarioIds);
+    if (!ordered.contains(scenarioId)) ordered.add(scenarioId);
+    while (ordered.length > maxProcessedScenarios) {
+      ordered.removeAt(0);
+    }
+    return _copyWith(
+      stepStates: newStates,
+      stepOutputs: newOutputs,
+      scenarioReferences: newReferences,
+      processedScenarioIds: ordered.toSet(),
+    );
   }
 
   /// Maximum serialized size per step outputs (bytes).
@@ -202,13 +312,20 @@ class SequenceRun {
   SequenceRun invalidateSteps(List<String> stepIds) {
     final newStates = Map<String, StepRunState>.from(stepStates);
     final newOutputs = Map<String, Map<String, dynamic>>.from(stepOutputs);
+    final newReferences =
+        Map<String, ScenarioStepReference>.from(scenarioReferences);
     for (final id in stepIds) {
       if (newStates.containsKey(id)) {
         newStates[id] = StepRunState.pending;
         newOutputs.remove(id);
+        newReferences.remove(id);
       }
     }
-    return _copyWith(stepStates: newStates, stepOutputs: newOutputs);
+    return _copyWith(
+      stepStates: newStates,
+      stepOutputs: newOutputs,
+      scenarioReferences: newReferences,
+    );
   }
 
   SequenceRun _copyWith({
@@ -216,6 +333,8 @@ class SequenceRun {
     Map<String, Map<String, dynamic>>? stepOutputs,
     SequenceRunStatus? status,
     Set<String>? processedEventIds,
+    Map<String, ScenarioStepReference>? scenarioReferences,
+    Set<String>? processedScenarioIds,
   }) {
     return SequenceRun(
       runId: runId,
@@ -225,6 +344,8 @@ class SequenceRun {
       stepOutputs: stepOutputs ?? this.stepOutputs,
       status: status ?? this.status,
       processedEventIds: processedEventIds ?? this.processedEventIds,
+      scenarioReferences: scenarioReferences ?? this.scenarioReferences,
+      processedScenarioIds: processedScenarioIds ?? this.processedScenarioIds,
     );
   }
 
@@ -263,27 +384,99 @@ class SequenceRun {
         'status': status.name,
         if (processedEventIds.isNotEmpty)
           'processedEventIds': processedEventIds.toList(),
+        if (scenarioReferences.isNotEmpty)
+          'scenarioReferences': scenarioReferences.map(
+            (stepId, reference) => MapEntry(stepId, reference.toJson()),
+          ),
+        if (processedScenarioIds.isNotEmpty)
+          'processedScenarioIds': processedScenarioIds.toList(),
       };
 
   factory SequenceRun.fromJson(Map<String, dynamic> json) {
+    final stepStates = (json['stepStates'] as Map<String, dynamic>).map(
+      (k, v) => MapEntry(k, StepRunState.values.byName(v as String)),
+    );
+    final scenarioReferences = _parseScenarioReferences(
+      json['scenarioReferences'],
+    );
+    final processedScenarioIds = _parseProcessedScenarioIds(
+      json['processedScenarioIds'],
+    );
+    if (scenarioReferences.values.any(
+      (reference) => !processedScenarioIds.contains(reference.id),
+    )) {
+      throw const FormatException('Unprocessed scenario step reference');
+    }
+    if (scenarioReferences.entries.any(
+      (entry) =>
+          !_scenarioStepIds.contains(entry.key) ||
+          stepStates[entry.key] != StepRunState.completed,
+    )) {
+      throw const FormatException('Invalid scenario step binding');
+    }
+    if (scenarioReferences.values
+            .map((reference) => reference.id)
+            .toSet()
+            .length !=
+        scenarioReferences.length) {
+      throw const FormatException('Duplicate scenario step reference');
+    }
     return SequenceRun(
       runId: json['runId'] as String,
       templateId: json['templateId'] as String,
       startedAt: DateTime.parse(json['startedAt'] as String),
-      stepStates: (json['stepStates'] as Map<String, dynamic>).map(
-        (k, v) => MapEntry(k, StepRunState.values.byName(v as String)),
-      ),
+      stepStates: stepStates,
       stepOutputs: (json['stepOutputs'] as Map<String, dynamic>?)?.map(
             (k, v) => MapEntry(k, Map<String, dynamic>.from(v as Map)),
           ) ??
           const {},
       status: SequenceRunStatus.values.byName(json['status'] as String),
-      processedEventIds:
-          (json['processedEventIds'] as List<dynamic>?)
+      processedEventIds: (json['processedEventIds'] as List<dynamic>?)
               ?.cast<String>()
               .toSet() ??
           const {},
+      scenarioReferences: scenarioReferences,
+      processedScenarioIds: processedScenarioIds,
     );
+  }
+
+  static Map<String, ScenarioStepReference> _parseScenarioReferences(
+    Object? raw,
+  ) {
+    if (raw == null) return const {};
+    if (raw is! Map || raw.length > maxProcessedScenarios) {
+      throw const FormatException('Invalid scenario references');
+    }
+    final parsed = <String, ScenarioStepReference>{};
+    for (final entry in raw.entries) {
+      if (entry.key is! String ||
+          (entry.key as String).isEmpty ||
+          entry.value is! Map) {
+        throw const FormatException('Invalid scenario reference entry');
+      }
+      parsed[entry.key as String] = ScenarioStepReference.fromJson(
+        Map<String, dynamic>.from(entry.value as Map),
+      );
+    }
+    return parsed;
+  }
+
+  static Set<String> _parseProcessedScenarioIds(Object? raw) {
+    if (raw == null) return const {};
+    if (raw is! List || raw.length > maxProcessedScenarios) {
+      throw const FormatException('Invalid processed scenario IDs');
+    }
+    final parsed = <String>{};
+    for (final value in raw) {
+      if (value is! String || !isOpaqueScenarioId(value)) {
+        throw const FormatException('Invalid processed scenario ID');
+      }
+      parsed.add(value);
+    }
+    if (parsed.length != raw.length) {
+      throw const FormatException('Duplicate processed scenario ID');
+    }
+    return parsed;
   }
 
   /// Serialize to JSON string for SharedPreferences.

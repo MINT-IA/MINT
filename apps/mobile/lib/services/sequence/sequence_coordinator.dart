@@ -7,6 +7,7 @@
 library;
 
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/models/scenario_session.dart';
 import 'package:mint_mobile/models/sequence_run.dart';
 import 'package:mint_mobile/models/sequence_template.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
@@ -24,18 +25,24 @@ sealed class SequenceAction {
 class AdvanceAction extends SequenceAction {
   final SequenceStepDef nextStep;
   final String route;
+  final String? completedScenarioId;
 
   const AdvanceAction({
     required this.nextStep,
     required this.route,
+    this.completedScenarioId,
   });
 }
 
 /// Sequence is complete — all steps done.
 class CompleteAction extends SequenceAction {
   final Map<String, Map<String, dynamic>> allOutputs;
+  final String? completedScenarioId;
 
-  const CompleteAction({required this.allOutputs});
+  const CompleteAction({
+    required this.allOutputs,
+    this.completedScenarioId,
+  });
 }
 
 /// User abandoned — pause and offer resumption.
@@ -92,22 +99,28 @@ class SequenceCoordinator {
     required SequenceRun run,
     required ScreenReturn stepReturn,
     required int proposalCount,
+    bool scenarioReferenceValidated = false,
   }) {
     final activeStepId = run.activeStepId;
     if (activeStepId == null) {
       return const PauseAction(canResume: false);
     }
 
-    final currentStepDef = template.steps
-        .where((s) => s.id == activeStepId)
-        .firstOrNull;
+    final currentStepDef =
+        template.steps.where((s) => s.id == activeStepId).firstOrNull;
     if (currentStepDef == null) {
       return const PauseAction(canResume: false);
     }
 
     switch (stepReturn.outcome) {
       case ScreenOutcome.completed:
-        return _handleCompleted(template, run, currentStepDef, stepReturn);
+        return _handleCompleted(
+          template,
+          run,
+          currentStepDef,
+          stepReturn,
+          scenarioReferenceValidated: scenarioReferenceValidated,
+        );
 
       case ScreenOutcome.abandoned:
         return _handleAbandoned(currentStepDef, proposalCount);
@@ -122,14 +135,57 @@ class SequenceCoordinator {
   static SequenceTemplate? templateForIntent(String intentTag) =>
       SequenceTemplate.templateForIntent(intentTag);
 
+  /// Structural half of the scenario completion proof.
+  ///
+  /// The handler must additionally validate the opaque ID against encrypted
+  /// scenario persistence and pass that proof to [decide].
+  static bool isScenarioCompletionCandidate({
+    required SequenceRun run,
+    required SequenceStepDef step,
+    required ScreenReturn stepReturn,
+  }) {
+    final expectedKind = step.scenarioKind;
+    if (expectedKind == null ||
+        stepReturn.outcome != ScreenOutcome.completed ||
+        stepReturn.scenarioStatus != ScenarioStatus.completed ||
+        !stepReturn.hasScenarioId ||
+        !stepReturn.hasSequenceId ||
+        !stepReturn.hasEventId ||
+        stepReturn.runId != run.runId ||
+        stepReturn.stepId != step.id ||
+        run.isScenarioProcessed(stepReturn.scenarioId)) {
+      return false;
+    }
+    final registered = MintScreenRegistry.findByIntentStatic(step.intentTag);
+    return registered != null && registered.route == stepReturn.route;
+  }
+
   // ── PRIVATE ────────────────────────────────────────────────────
 
-  static SequenceAction _handleCompleted(
-    SequenceTemplate template,
-    SequenceRun run,
-    SequenceStepDef currentStep,
-    ScreenReturn stepReturn,
-  ) {
+  static SequenceAction _handleCompleted(SequenceTemplate template,
+      SequenceRun run, SequenceStepDef currentStep, ScreenReturn stepReturn,
+      {required bool scenarioReferenceValidated}) {
+    if (currentStep.scenarioKind != null) {
+      if (!scenarioReferenceValidated ||
+          !isScenarioCompletionCandidate(
+            run: run,
+            step: currentStep,
+            stepReturn: stepReturn,
+          )) {
+        return const PauseAction(canResume: true);
+      }
+      final scenarioId = stepReturn.scenarioId!;
+      final updatedRun = run.completeScenarioStep(
+        currentStep.id,
+        scenarioId,
+      );
+      return _actionAfterCompletion(
+        template,
+        updatedRun,
+        completedScenarioId: scenarioId,
+      );
+    }
+
     final outputs = stepReturn.stepOutputs ?? {};
     if (!_hasRequiredOutputs(currentStep, outputs)) {
       return const PauseAction(canResume: true);
@@ -138,6 +194,14 @@ class SequenceCoordinator {
     // Merge outputs into run
     final updatedRun = run.completeStep(currentStep.id, outputs);
 
+    return _actionAfterCompletion(template, updatedRun);
+  }
+
+  static SequenceAction _actionAfterCompletion(
+    SequenceTemplate template,
+    SequenceRun updatedRun, {
+    String? completedScenarioId,
+  }) {
     // Find next actionable step
     final nextStepDef = _findNextStep(template, updatedRun);
     if (nextStepDef == null) {
@@ -147,7 +211,10 @@ class SequenceCoordinator {
         return const PauseAction(canResume: true);
       }
       // All steps done
-      return CompleteAction(allOutputs: updatedRun.stepOutputs);
+      return CompleteAction(
+        allOutputs: updatedRun.stepOutputs,
+        completedScenarioId: completedScenarioId,
+      );
     }
 
     // Resolve route via ScreenRegistry (fail-safe)
@@ -160,6 +227,7 @@ class SequenceCoordinator {
     return AdvanceAction(
       nextStep: nextStepDef,
       route: entry.route,
+      completedScenarioId: completedScenarioId,
     );
   }
 
@@ -197,7 +265,8 @@ class SequenceCoordinator {
     final invalidated = <String>[];
     for (final step in template.steps) {
       if (run.stepStates[step.id] == StepRunState.completed &&
-          run.stepOutputs.containsKey(step.id)) {
+          (run.stepOutputs.containsKey(step.id) ||
+              run.scenarioReferences.containsKey(step.id))) {
         invalidated.add(step.id);
       }
     }
