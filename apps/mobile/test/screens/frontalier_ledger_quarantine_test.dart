@@ -21,6 +21,7 @@ final class _RecordingFrontierProvider extends CoachProfileProvider {
   final DateTime Function() _now;
   final List<Map<String, dynamic>> writes = <Map<String, dynamic>>[];
   CoachProfile? _current;
+  int failuresRemaining = 0;
 
   @override
   CoachProfile? get profile => _current;
@@ -33,6 +34,10 @@ final class _RecordingFrontierProvider extends CoachProfileProvider {
 
   @override
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+    if (failuresRemaining > 0) {
+      failuresRemaining -= 1;
+      throw StateError('synthetic frontier persistence failure');
+    }
     writes.add(Map<String, dynamic>.from(partial));
     for (final entry in partial.entries) {
       if (entry.value == null) {
@@ -158,7 +163,114 @@ DropdownButton<String> _dropdown(
       find.byKey(Key(key)),
     );
 
+Future<void> _selectDropdownByTap(
+  WidgetTester tester, {
+  required String fieldKey,
+  required String optionLabel,
+}) async {
+  final field = find.byKey(Key(fieldKey));
+  expect(field, findsOneWidget);
+  await tester.ensureVisible(field);
+  await tester.tap(field);
+  await tester.pumpAndSettle();
+
+  final option = find.text(optionLabel).last;
+  expect(option, findsOneWidget);
+  await tester.tap(option);
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  testWidgets(
+      'real dropdown taps persist canonical facts without changing route',
+      (tester) async {
+    final now = DateTime.utc(2026, 7, 19, 12);
+    final provider = _RecordingFrontierProvider(
+      <String, dynamic>{'q_birth_year': 1985},
+      now: () => now,
+    );
+    final router = await _pumpScreen(tester, provider);
+    final origin = router.routeInformationProvider.value.uri.toString();
+
+    await _selectDropdownByTap(
+      tester,
+      fieldKey: 'frontier_residence_country_field',
+      optionLabel: 'France (FR)',
+    );
+    expect(router.routeInformationProvider.value.uri.toString(), origin);
+
+    await _selectDropdownByTap(
+      tester,
+      fieldKey: 'frontier_work_country_field',
+      optionLabel: 'Suisse (CH)',
+    );
+    expect(router.routeInformationProvider.value.uri.toString(), origin);
+
+    await _selectDropdownByTap(
+      tester,
+      fieldKey: 'frontier_work_canton_field',
+      optionLabel: 'GE',
+    );
+    expect(router.routeInformationProvider.value.uri.toString(), origin);
+
+    expect(provider.writes, <Map<String, dynamic>>[
+      <String, dynamic>{'q_residence_country': 'FR'},
+      <String, dynamic>{'q_work_country': 'CH'},
+      <String, dynamic>{'q_work_canton': 'GE'},
+    ]);
+    expect(provider.profile!.residenceCountry!.value, 'FR');
+    expect(provider.profile!.workCountry!.value, 'CH');
+    expect(provider.profile!.workCanton!.value, 'GE');
+    for (final field in <String>[
+      'residenceCountry',
+      'workCountry',
+      'workCanton',
+    ]) {
+      expect(provider.profile!.dataSources[field], ProfileDataSource.userInput);
+      expect(provider.profile!.dataTimestamps[field], now);
+      expect(provider.profile!.dataSourceDates[field], now);
+    }
+    expect(
+      find.byKey(const Key('frontier_jurisdiction_known_state')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+      'failed real dropdown persistence keeps route and prior jurisdiction',
+      (tester) async {
+    final provider = _RecordingFrontierProvider(_knownAnswers());
+    final router = await _pumpScreen(tester, provider);
+    final origin = router.routeInformationProvider.value.uri.toString();
+    provider.failuresRemaining = 1;
+
+    final field = find.byKey(const Key('frontier_work_country_field'));
+    expect(field, findsOneWidget);
+    await tester.tap(field);
+    await tester.pumpAndSettle();
+    final option = find.text('Allemagne (DE)').last;
+    expect(option, findsOneWidget);
+    await tester.tap(option);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    final uncaughtPersistenceError = tester.takeException();
+
+    expect(router.routeInformationProvider.value.uri.toString(), origin);
+    expect(provider.writes, isEmpty);
+    expect(provider.profile!.residenceCountry!.value, 'FR');
+    expect(provider.profile!.workCountry!.value, 'CH');
+    expect(provider.profile!.workCanton!.value, 'GE');
+    expect(
+      find.byKey(const Key('frontier_jurisdiction_known_state')),
+      findsOneWidget,
+    );
+    expect(
+      uncaughtPersistenceError,
+      isNull,
+      reason: 'the inline writer must absorb persistence failure',
+    );
+  });
+
   testWidgets('missing jurisdiction collects and persists canonical facts',
       (tester) async {
     final provider = _RecordingFrontierProvider(<String, dynamic>{
