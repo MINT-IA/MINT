@@ -19,6 +19,7 @@ final class _RecordingFrontierProvider extends CoachProfileProvider {
 
   final Map<String, dynamic> _answers;
   final DateTime Function() _now;
+  final List<Map<String, dynamic>> attempts = <Map<String, dynamic>>[];
   final List<Map<String, dynamic>> writes = <Map<String, dynamic>>[];
   CoachProfile? _current;
   int failuresRemaining = 0;
@@ -34,11 +35,13 @@ final class _RecordingFrontierProvider extends CoachProfileProvider {
 
   @override
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+    final snapshot = Map<String, dynamic>.from(partial);
+    attempts.add(snapshot);
     if (failuresRemaining > 0) {
       failuresRemaining -= 1;
       throw StateError('synthetic frontier persistence failure');
     }
-    writes.add(Map<String, dynamic>.from(partial));
+    writes.add(snapshot);
     for (final entry in partial.entries) {
       if (entry.value == null) {
         _answers.remove(entry.key);
@@ -117,8 +120,12 @@ Future<GoRouter> _pumpScreen(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   final router = GoRouter(
+    initialLocation: '/segments/frontalier',
     routes: <RouteBase>[
-      GoRoute(path: '/', builder: (_, __) => const FrontalierScreen()),
+      GoRoute(
+        path: '/segments/frontalier',
+        builder: (_, __) => const FrontalierScreen(),
+      ),
       GoRoute(
         path: '/coach/chat',
         builder: (_, __) => const Scaffold(
@@ -155,18 +162,11 @@ Future<GoRouter> _pumpScreen(
   return router;
 }
 
-DropdownButton<String> _dropdown(
-  WidgetTester tester,
-  String key,
-) =>
-    tester.widget<DropdownButton<String>>(
-      find.byKey(Key(key)),
-    );
-
-Future<void> _selectDropdownByTap(
+Future<void> _selectDropdownValueByTap(
   WidgetTester tester, {
   required String fieldKey,
-  required String optionLabel,
+  required String value,
+  bool settleAfterSelection = true,
 }) async {
   final field = find.byKey(Key(fieldKey));
   expect(field, findsOneWidget);
@@ -174,10 +174,81 @@ Future<void> _selectDropdownByTap(
   await tester.tap(field);
   await tester.pumpAndSettle();
 
-  final option = find.text(optionLabel).last;
+  final option = find
+      .byWidgetPredicate(
+        (widget) => widget is DropdownMenuItem<String> && widget.value == value,
+        description: 'DropdownMenuItem<String> value=$value',
+      )
+      .last;
   expect(option, findsOneWidget);
-  await tester.tap(option);
-  await tester.pumpAndSettle();
+  final tappable = find.ancestor(
+    of: option,
+    matching: find.byType(InkWell),
+  );
+  expect(tappable, findsOneWidget);
+  await tester.tap(tappable);
+  if (settleAfterSelection) {
+    await tester.pumpAndSettle();
+  } else {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
+enum _FrontierFailureKind { residence, workCountry, workCanton, reconfirm }
+
+final class _FrontierFailureCase {
+  const _FrontierFailureCase({
+    required this.name,
+    required this.kind,
+    required this.expectedAttempt,
+    this.fieldKey,
+    this.value,
+  });
+
+  final String name;
+  final _FrontierFailureKind kind;
+  final String? fieldKey;
+  final String? value;
+  final Map<String, dynamic> expectedAttempt;
+}
+
+const _failureCases = <_FrontierFailureCase>[
+  _FrontierFailureCase(
+    name: 'residence country',
+    kind: _FrontierFailureKind.residence,
+    fieldKey: 'frontier_residence_country_field',
+    value: 'DE',
+    expectedAttempt: <String, dynamic>{'q_residence_country': 'DE'},
+  ),
+  _FrontierFailureCase(
+    name: 'work country',
+    kind: _FrontierFailureKind.workCountry,
+    fieldKey: 'frontier_work_country_field',
+    value: 'DE',
+    expectedAttempt: <String, dynamic>{
+      'q_work_country': 'DE',
+      'q_work_canton': null,
+    },
+  ),
+  _FrontierFailureCase(
+    name: 'work canton',
+    kind: _FrontierFailureKind.workCanton,
+    fieldKey: 'frontier_work_canton_field',
+    value: 'ZH',
+    expectedAttempt: <String, dynamic>{'q_work_canton': 'ZH'},
+  ),
+  _FrontierFailureCase(
+    name: 'stale reconfirmation',
+    kind: _FrontierFailureKind.reconfirm,
+    expectedAttempt: <String, dynamic>{'q_work_canton': 'GE'},
+  ),
+];
+
+void _expectFrChGeProfile(_RecordingFrontierProvider provider) {
+  expect(provider.profile!.residenceCountry!.value, 'FR');
+  expect(provider.profile!.workCountry!.value, 'CH');
+  expect(provider.profile!.workCanton!.value, 'GE');
 }
 
 void main() {
@@ -190,37 +261,49 @@ void main() {
       now: () => now,
     );
     final router = await _pumpScreen(tester, provider);
-    final origin = router.routeInformationProvider.value.uri.toString();
+    expect(
+      router.routeInformationProvider.value.uri.toString(),
+      '/segments/frontalier',
+    );
 
-    await _selectDropdownByTap(
+    await _selectDropdownValueByTap(
       tester,
       fieldKey: 'frontier_residence_country_field',
-      optionLabel: 'France (FR)',
+      value: 'FR',
     );
-    expect(router.routeInformationProvider.value.uri.toString(), origin);
+    expect(
+      router.routeInformationProvider.value.uri.toString(),
+      '/segments/frontalier',
+    );
 
-    await _selectDropdownByTap(
+    await _selectDropdownValueByTap(
       tester,
       fieldKey: 'frontier_work_country_field',
-      optionLabel: 'Suisse (CH)',
+      value: 'CH',
     );
-    expect(router.routeInformationProvider.value.uri.toString(), origin);
+    expect(
+      router.routeInformationProvider.value.uri.toString(),
+      '/segments/frontalier',
+    );
 
-    await _selectDropdownByTap(
+    await _selectDropdownValueByTap(
       tester,
       fieldKey: 'frontier_work_canton_field',
-      optionLabel: 'GE',
+      value: 'GE',
     );
-    expect(router.routeInformationProvider.value.uri.toString(), origin);
+    expect(
+      router.routeInformationProvider.value.uri.toString(),
+      '/segments/frontalier',
+    );
 
-    expect(provider.writes, <Map<String, dynamic>>[
+    final expectedMutations = <Map<String, dynamic>>[
       <String, dynamic>{'q_residence_country': 'FR'},
       <String, dynamic>{'q_work_country': 'CH'},
       <String, dynamic>{'q_work_canton': 'GE'},
-    ]);
-    expect(provider.profile!.residenceCountry!.value, 'FR');
-    expect(provider.profile!.workCountry!.value, 'CH');
-    expect(provider.profile!.workCanton!.value, 'GE');
+    ];
+    expect(provider.attempts, expectedMutations);
+    expect(provider.writes, expectedMutations);
+    _expectFrChGeProfile(provider);
     for (final field in <String>[
       'residenceCountry',
       'workCountry',
@@ -236,40 +319,52 @@ void main() {
     );
   });
 
-  testWidgets(
-      'failed real dropdown persistence keeps route and prior jurisdiction',
-      (tester) async {
-    final provider = _RecordingFrontierProvider(_knownAnswers());
-    final router = await _pumpScreen(tester, provider);
-    final origin = router.routeInformationProvider.value.uri.toString();
-    provider.failuresRemaining = 1;
+  for (final failureCase in _failureCases) {
+    testWidgets(
+        '${failureCase.name} failure is absorbed without route or profile drift',
+        (tester) async {
+      final now = DateTime.utc(2026, 7, 19, 12);
+      final provider = _RecordingFrontierProvider(
+        failureCase.kind == _FrontierFailureKind.reconfirm
+            ? _staleAnswers(now)
+            : _knownAnswers(),
+        now: () => now,
+      );
+      final router = await _pumpScreen(tester, provider);
+      provider.failuresRemaining = 1;
 
-    final field = find.byKey(const Key('frontier_work_country_field'));
-    expect(field, findsOneWidget);
-    await tester.tap(field);
-    await tester.pumpAndSettle();
-    final option = find.text('Allemagne (DE)').last;
-    expect(option, findsOneWidget);
-    await tester.tap(option);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    final uncaughtPersistenceError = tester.takeException();
+      if (failureCase.kind == _FrontierFailureKind.reconfirm) {
+        await tester.tap(
+          find.byKey(const Key('frontier_jurisdiction_reconfirm_cta')),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+      } else {
+        await _selectDropdownValueByTap(
+          tester,
+          fieldKey: failureCase.fieldKey!,
+          value: failureCase.value!,
+          settleAfterSelection: false,
+        );
+      }
+      final uncaughtPersistenceError = tester.takeException();
 
-    expect(router.routeInformationProvider.value.uri.toString(), origin);
-    expect(provider.writes, isEmpty);
-    expect(provider.profile!.residenceCountry!.value, 'FR');
-    expect(provider.profile!.workCountry!.value, 'CH');
-    expect(provider.profile!.workCanton!.value, 'GE');
-    expect(
-      find.byKey(const Key('frontier_jurisdiction_known_state')),
-      findsOneWidget,
-    );
-    expect(
-      uncaughtPersistenceError,
-      isNull,
-      reason: 'the inline writer must absorb persistence failure',
-    );
-  });
+      expect(
+        router.routeInformationProvider.value.uri.toString(),
+        '/segments/frontalier',
+      );
+      expect(provider.attempts, <Map<String, dynamic>>[
+        failureCase.expectedAttempt,
+      ]);
+      expect(provider.writes, isEmpty);
+      _expectFrChGeProfile(provider);
+      expect(
+        uncaughtPersistenceError,
+        isNull,
+        reason: 'the inline writer must absorb persistence failure',
+      );
+    });
+  }
 
   testWidgets('missing jurisdiction collects and persists canonical facts',
       (tester) async {
@@ -277,7 +372,7 @@ void main() {
       'q_birth_year': 1985,
       'q_residence_permit': 'G',
     });
-    await _pumpScreen(tester, provider);
+    final router = await _pumpScreen(tester, provider);
 
     expect(
       find.byKey(const Key('frontier_jurisdiction_missing_state')),
@@ -292,14 +387,20 @@ void main() {
       findsNothing,
     );
 
-    _dropdown(tester, 'frontier_residence_country_field').onChanged!('FR');
-    await tester.pumpAndSettle();
+    await _selectDropdownValueByTap(
+      tester,
+      fieldKey: 'frontier_residence_country_field',
+      value: 'FR',
+    );
     expect(provider.writes.last, <String, dynamic>{
       'q_residence_country': 'FR',
     });
 
-    _dropdown(tester, 'frontier_work_country_field').onChanged!('CH');
-    await tester.pumpAndSettle();
+    await _selectDropdownValueByTap(
+      tester,
+      fieldKey: 'frontier_work_country_field',
+      value: 'CH',
+    );
     expect(provider.writes.last, <String, dynamic>{
       'q_work_country': 'CH',
     });
@@ -308,14 +409,20 @@ void main() {
       findsOneWidget,
     );
 
-    _dropdown(tester, 'frontier_work_canton_field').onChanged!('GE');
-    await tester.pumpAndSettle();
+    await _selectDropdownValueByTap(
+      tester,
+      fieldKey: 'frontier_work_canton_field',
+      value: 'GE',
+    );
     expect(provider.writes.last, <String, dynamic>{
       'q_work_canton': 'GE',
     });
-    expect(provider.profile!.residenceCountry!.value, 'FR');
-    expect(provider.profile!.workCountry!.value, 'CH');
-    expect(provider.profile!.workCanton!.value, 'GE');
+    expect(provider.attempts, provider.writes);
+    _expectFrChGeProfile(provider);
+    expect(
+      router.routeInformationProvider.value.uri.toString(),
+      '/segments/frontalier',
+    );
     expect(
       find.byKey(const Key('frontier_jurisdiction_known_state')),
       findsOneWidget,
@@ -325,11 +432,19 @@ void main() {
   testWidgets('changing work country outside CH atomically clears canton',
       (tester) async {
     final provider = _RecordingFrontierProvider(_knownAnswers());
-    await _pumpScreen(tester, provider);
+    final router = await _pumpScreen(tester, provider);
 
-    _dropdown(tester, 'frontier_work_country_field').onChanged!('DE');
-    await tester.pumpAndSettle();
+    await _selectDropdownValueByTap(
+      tester,
+      fieldKey: 'frontier_work_country_field',
+      value: 'DE',
+    );
 
+    expect(provider.attempts, hasLength(1));
+    expect(provider.attempts.single, <String, dynamic>{
+      'q_work_country': 'DE',
+      'q_work_canton': null,
+    });
     expect(provider.writes, hasLength(1));
     expect(provider.writes.single, <String, dynamic>{
       'q_work_country': 'DE',
@@ -344,6 +459,10 @@ void main() {
       find.byKey(const Key('frontier_jurisdiction_specialist_only_state')),
       findsOneWidget,
     );
+    expect(
+      router.routeInformationProvider.value.uri.toString(),
+      '/segments/frontalier',
+    );
   });
 
   testWidgets('stale canton shows the old fact and reconfirms in one gesture',
@@ -353,7 +472,7 @@ void main() {
       _staleAnswers(now),
       now: () => now,
     );
-    await _pumpScreen(tester, provider);
+    final router = await _pumpScreen(tester, provider);
 
     expect(
       find.byKey(const Key('frontier_jurisdiction_stale_state')),
@@ -366,9 +485,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(provider.writes.single, <String, dynamic>{
+    const reconfirmation = <String, dynamic>{
       'q_work_canton': 'GE',
-    });
+    };
+    expect(provider.attempts.single, reconfirmation);
+    expect(provider.writes.single, reconfirmation);
+    _expectFrChGeProfile(provider);
+    expect(
+      router.routeInformationProvider.value.uri.toString(),
+      '/segments/frontalier',
+    );
     expect(
       find.byKey(const Key('frontier_jurisdiction_known_state')),
       findsOneWidget,
