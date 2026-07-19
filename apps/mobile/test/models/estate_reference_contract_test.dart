@@ -598,4 +598,367 @@ void main() {
         {'unknown'});
     expect(_surveyComplete(profile), isFalse);
   });
+
+  test('SUCC-V01 profile JSON round-trip preserves LPart and all four slots',
+      () {
+    final profile = _profile(
+      civilStatus: 'registered_partner',
+      root: _root(
+        registeredPartnershipPropertyRegime: _arrangement(
+          confirmationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          kind: 'statutorySeparationOfProperty',
+          civilStatus: 'registeredPartnership',
+        ),
+        will: _present(
+          evidenceId: '11111111-1111-4111-8111-111111111111',
+          civilStatus: 'registeredPartnership',
+        ),
+        inheritancePact: _absent(
+          evidenceId: '22222222-2222-4222-8222-222222222222',
+          civilStatus: 'registeredPartnership',
+        ),
+        incapacityMandate: _unknown(),
+        advanceCareDirective: _unknown(),
+      ),
+    );
+    final restored = CoachProfile.fromJson(profile.toJson());
+
+    expect(
+      restored.registeredPartnershipPropertyRegime,
+      profile.registeredPartnershipPropertyRegime,
+    );
+    expect(
+      restored.estateInstrumentSlots
+          .map((slot) => (slot.kind.name, slot.state.name))
+          .toList(),
+      profile.estateInstrumentSlots
+          .map((slot) => (slot.kind.name, slot.state.name))
+          .toList(),
+    );
+    expect(restored.estateInstrumentSlots, profile.estateInstrumentSlots);
+    final encoded = jsonEncode(restored.toJson()).toLowerCase();
+    for (final forbidden in <String>[
+      'filename',
+      'path',
+      'bytes',
+      'ocr',
+      'identity',
+      'content',
+    ]) {
+      expect(encoded, isNot(contains(forbidden)));
+    }
+  });
+
+  test('SUCC-V02 copyWith replaces and explicitly clears LPart confirmation',
+      () {
+    final profile = _profile(
+      civilStatus: 'registered_partner',
+      root: _root(
+        registeredPartnershipPropertyRegime: _arrangement(
+          confirmationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          kind: 'statutorySeparationOfProperty',
+          civilStatus: 'registeredPartnership',
+        ),
+      ),
+    );
+    final replacement = RegisteredPartnershipPropertyRegimeConfirmation(
+      confirmationId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      kind:
+          RegisteredPartnershipPropertyRegimeKind.statutorySeparationOfProperty,
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+    );
+    final dynamic dynamicProfile = profile;
+
+    final dynamic replaced = dynamicProfile.copyWith(
+      registeredPartnershipPropertyRegime: replacement,
+    );
+    expect(replaced.registeredPartnershipPropertyRegime, replacement);
+    final dynamic cleared = replaced.copyWith(
+      registeredPartnershipPropertyRegime: null,
+    );
+    expect(cleared.registeredPartnershipPropertyRegime, isNull);
+  });
+
+  test('SUCC-V03 copyWith can replace the immutable four-slot view', () {
+    final profile = _profile(civilStatus: 'celibataire');
+    final slots = <EstateInstrumentSlot>[
+      EstateInstrumentSlot.absent(
+        EstateInstrumentKind.will,
+        EstateInstrumentAbsenceConfirmation(
+          evidenceId: '11111111-1111-4111-8111-111111111111',
+          confirmedAt: _fixedConfirmationInstant,
+          civilStatusAtConfirmation: CoachCivilStatus.celibataire,
+        ),
+      ),
+      for (final kind in EstateInstrumentKind.values.skip(1))
+        EstateInstrumentSlot.unknown(kind),
+    ];
+    final dynamic replaced = (profile as dynamic).copyWith(
+      estateInstrumentSlots: slots,
+    );
+
+    expect(replaced.estateInstrumentSlots, slots);
+    expect(replaced.estateInstrumentSlots, isNot(same(slots)));
+    expect(
+      () => replaced.estateInstrumentSlots.add(slots.first),
+      throwsUnsupportedError,
+    );
+  });
+
+  test('SUCC-V04 nested estate objects have value equality and stable hashes',
+      () {
+    final matrimonialA = EstateMatrimonialRegimeConfirmation(
+      confirmationId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      kind: MatrimonialRegimeKind.participationInAcquests,
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.marie,
+    );
+    final matrimonialB = EstateMatrimonialRegimeConfirmation(
+      confirmationId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      kind: MatrimonialRegimeKind.participationInAcquests,
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.marie,
+    );
+    final lpartA = RegisteredPartnershipPropertyRegimeConfirmation(
+      confirmationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      kind:
+          RegisteredPartnershipPropertyRegimeKind.statutorySeparationOfProperty,
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+    );
+    final lpartB = RegisteredPartnershipPropertyRegimeConfirmation(
+      confirmationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      kind:
+          RegisteredPartnershipPropertyRegimeKind.statutorySeparationOfProperty,
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+    );
+    final evidenceA = EstateInstrumentEvidence(
+      evidenceId: '11111111-1111-4111-8111-111111111111',
+      sourceDate: _fixedSourceDate,
+      legalYear: 2026,
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+    );
+    final evidenceB = EstateInstrumentEvidence(
+      evidenceId: '11111111-1111-4111-8111-111111111111',
+      sourceDate: _fixedSourceDate,
+      legalYear: 2026,
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+    );
+    final absenceA = EstateInstrumentAbsenceConfirmation(
+      evidenceId: '22222222-2222-4222-8222-222222222222',
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+    );
+    final absenceB = EstateInstrumentAbsenceConfirmation(
+      evidenceId: '22222222-2222-4222-8222-222222222222',
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+    );
+    final slotA = EstateInstrumentSlot.present(
+      EstateInstrumentKind.will,
+      evidenceA,
+    );
+    final slotB = EstateInstrumentSlot.present(
+      EstateInstrumentKind.will,
+      evidenceB,
+    );
+
+    expect(matrimonialA, matrimonialB);
+    expect(matrimonialA.hashCode, matrimonialB.hashCode);
+    expect(lpartA, lpartB);
+    expect(lpartA.hashCode, lpartB.hashCode);
+    expect(evidenceA, evidenceB);
+    expect(evidenceA.hashCode, evidenceB.hashCode);
+    expect(absenceA, absenceB);
+    expect(absenceA.hashCode, absenceB.hashCode);
+    expect(slotA, slotB);
+    expect(slotA.hashCode, slotB.hashCode);
+  });
+
+  test('SUCC-P01 LPart enum exposes only the adjudicated legal categories', () {
+    expect(
+      RegisteredPartnershipPropertyRegimeKind.values
+          .map((value) => value.name)
+          .toSet(),
+      <String>{
+        'statutorySeparationOfProperty',
+        'agreedParticipationInAcquestsDivision',
+        'otherPropertyAgreement',
+      },
+    );
+  });
+
+  test('SUCC-P02 survey refuses confirmations after the evaluation instant',
+      () {
+    final profile = _profile(
+      civilStatus: 'marie',
+      root: _root(
+        matrimonialRegime: _arrangement(
+          confirmationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          kind: 'participationInAcquests',
+          civilStatus: 'marie',
+        ),
+        will: _absent(
+          evidenceId: '11111111-1111-4111-8111-111111111111',
+          civilStatus: 'marie',
+        ),
+        inheritancePact: _absent(
+          evidenceId: '22222222-2222-4222-8222-222222222222',
+          civilStatus: 'marie',
+        ),
+        incapacityMandate: _absent(
+          evidenceId: '33333333-3333-4333-8333-333333333333',
+          civilStatus: 'marie',
+        ),
+        advanceCareDirective: _absent(
+          evidenceId: '44444444-4444-4444-8444-444444444444',
+          civilStatus: 'marie',
+        ),
+      ),
+    );
+
+    expect(profile.estateReferenceSurveyCompleteAt(_asOf), isTrue);
+    expect(
+      profile.estateReferenceSurveyCompleteAt(
+        _asOf.subtract(const Duration(days: 1)),
+      ),
+      isFalse,
+    );
+  });
+
+  test('SUCC-P03 survey refuses a present source date after asOf', () {
+    final present = _present(
+      evidenceId: '11111111-1111-4111-8111-111111111111',
+      civilStatus: 'celibataire',
+    );
+    final evidence = present['evidence'] as Map<String, dynamic>
+      ..['sourceDate'] = '2026-07-20'
+      ..['confirmedAt'] = '2026-01-16T10:00:00.000Z';
+    expect(evidence['sourceDate'], '2026-07-20');
+    Map<String, dynamic> earlyAbsent(String id) {
+      final slot = _absent(evidenceId: id, civilStatus: 'celibataire');
+      (slot['confirmation'] as Map<String, dynamic>)['confirmedAt'] =
+          '2026-01-16T10:00:00.000Z';
+      return slot;
+    }
+
+    final profile = _profile(
+      civilStatus: 'celibataire',
+      root: _root(
+        will: present,
+        inheritancePact: earlyAbsent('22222222-2222-4222-8222-222222222222'),
+        incapacityMandate: earlyAbsent('33333333-3333-4333-8333-333333333333'),
+        advanceCareDirective:
+            earlyAbsent('44444444-4444-4444-8444-444444444444'),
+      ),
+    );
+
+    expect(
+      profile.estateReferenceSurveyCompleteAt(DateTime.utc(2026, 7, 19)),
+      isFalse,
+    );
+  });
+
+  test('SUCC-P04 direct profile refuses duplicated or missing slot kinds', () {
+    EstateInstrumentSlot absence(EstateInstrumentKind kind, String id) =>
+        EstateInstrumentSlot.absent(
+          kind,
+          EstateInstrumentAbsenceConfirmation(
+            evidenceId: id,
+            confirmedAt: _fixedConfirmationInstant,
+            civilStatusAtConfirmation: CoachCivilStatus.celibataire,
+          ),
+        );
+    final dynamic base = CoachProfile.defaults();
+    final dynamic duplicated = base.copyWith(
+      etatCivil: CoachCivilStatus.celibataire,
+      estateInstrumentSlots: <EstateInstrumentSlot>[
+        absence(
+            EstateInstrumentKind.will, '11111111-1111-4111-8111-111111111111'),
+        absence(
+            EstateInstrumentKind.will, '22222222-2222-4222-8222-222222222222'),
+        absence(
+            EstateInstrumentKind.will, '33333333-3333-4333-8333-333333333333'),
+        absence(
+            EstateInstrumentKind.will, '44444444-4444-4444-8444-444444444444'),
+      ],
+    );
+    final dynamic missing = base.copyWith(
+      etatCivil: CoachCivilStatus.celibataire,
+      estateInstrumentSlots: <EstateInstrumentSlot>[
+        absence(
+            EstateInstrumentKind.will, '11111111-1111-4111-8111-111111111111'),
+        absence(EstateInstrumentKind.inheritancePact,
+            '22222222-2222-4222-8222-222222222222'),
+        absence(EstateInstrumentKind.incapacityMandate,
+            '33333333-3333-4333-8333-333333333333'),
+      ],
+    );
+
+    expect(duplicated.estateReferenceSurveyCompleteAt(_asOf), isFalse);
+    expect(missing.estateReferenceSurveyCompleteAt(_asOf), isFalse);
+  });
+
+  test('SUCC-P05 direct profile refuses arrangement and slots out of scope',
+      () {
+    final registeredSlots = <EstateInstrumentSlot>[
+      for (var index = 0; index < EstateInstrumentKind.values.length; index++)
+        EstateInstrumentSlot.absent(
+          EstateInstrumentKind.values[index],
+          EstateInstrumentAbsenceConfirmation(
+            evidenceId: '${index + 1}${index + 1}${index + 1}${index + 1}'
+                '${index + 1}${index + 1}${index + 1}${index + 1}-1111-4111-8111-111111111111',
+            confirmedAt: _fixedConfirmationInstant,
+            civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+          ),
+        ),
+    ];
+    final dynamic wrongArrangement =
+        (CoachProfile.defaults() as dynamic).copyWith(
+      etatCivil: CoachCivilStatus.registeredPartnership,
+      registeredPartnershipPropertyRegime:
+          RegisteredPartnershipPropertyRegimeConfirmation(
+        confirmationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        kind: RegisteredPartnershipPropertyRegimeKind
+            .statutorySeparationOfProperty,
+        confirmedAt: _fixedConfirmationInstant,
+        civilStatusAtConfirmation: CoachCivilStatus.marie,
+      ),
+      estateInstrumentSlots: registeredSlots,
+    );
+    final mismatchedSlots = <EstateInstrumentSlot>[
+      for (var index = 0; index < EstateInstrumentKind.values.length; index++)
+        EstateInstrumentSlot.absent(
+          EstateInstrumentKind.values[index],
+          EstateInstrumentAbsenceConfirmation(
+            evidenceId: '${index + 1}${index + 1}${index + 1}${index + 1}'
+                '${index + 1}${index + 1}${index + 1}${index + 1}-2222-4222-8222-222222222222',
+            confirmedAt: _fixedConfirmationInstant,
+            civilStatusAtConfirmation: CoachCivilStatus.marie,
+          ),
+        ),
+    ];
+    final dynamic wrongSlots = (CoachProfile.defaults() as dynamic).copyWith(
+      etatCivil: CoachCivilStatus.registeredPartnership,
+      registeredPartnershipPropertyRegime:
+          RegisteredPartnershipPropertyRegimeConfirmation(
+        confirmationId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        kind: RegisteredPartnershipPropertyRegimeKind
+            .statutorySeparationOfProperty,
+        confirmedAt: _fixedConfirmationInstant,
+        civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+      ),
+      estateInstrumentSlots: mismatchedSlots,
+    );
+
+    expect(wrongArrangement.estateReferenceSurveyCompleteAt(_asOf), isFalse);
+    expect(wrongSlots.estateReferenceSurveyCompleteAt(_asOf), isFalse);
+  });
 }
+
+final _fixedConfirmationInstant = DateTime.utc(2026, 7, 20, 10);
+final _fixedSourceDate = DateTime.utc(2026, 1, 15);

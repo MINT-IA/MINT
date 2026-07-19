@@ -163,13 +163,13 @@ Future<void> _confirmMarriage(
 
 Future<void> _confirmLpart(
   CoachProfileProvider provider, {
-  required String kindName,
+  required RegisteredPartnershipPropertyRegimeKind kind,
   required String? expectedPreviousConfirmationId,
 }) async {
   try {
     final dynamic dynamicProvider = provider;
     await dynamicProvider.confirmRegisteredPartnershipPropertyRegime(
-      kindName: kindName,
+      kind: kind,
       expectedPreviousConfirmationId: expectedPreviousConfirmationId,
     );
   } on NoSuchMethodError {
@@ -277,7 +277,10 @@ void main() {
     final dynamic profile = loaded.provider.profile;
     expect(profile.estateInstrumentSlots.length, 4);
     expect(profile.estateReferenceSurveyCompleteAt(_now), isTrue);
-    expect(profile.estateReferenceHandoffCompletenessAt(_now).name, 'partial');
+    expect(
+      profile.estateReferenceHandoffCompletenessAt(_now).name,
+      'surveyComplete',
+    );
     expect(loaded.persistence.saveCalls, 0);
   });
 
@@ -337,7 +340,8 @@ void main() {
     addTearDown(loaded.provider.dispose);
     await _confirmLpart(
       loaded.provider,
-      kindName: 'statutorySeparationOfProperty',
+      kind:
+          RegisteredPartnershipPropertyRegimeKind.statutorySeparationOfProperty,
       expectedPreviousConfirmationId: null,
     );
 
@@ -358,7 +362,8 @@ void main() {
     await expectLater(
       _confirmLpart(
         married.provider,
-        kindName: 'statutorySeparationOfProperty',
+        kind: RegisteredPartnershipPropertyRegimeKind
+            .statutorySeparationOfProperty,
         expectedPreviousConfirmationId: null,
       ),
       throwsStateError,
@@ -369,7 +374,8 @@ void main() {
     addTearDown(loaded.provider.dispose);
     await _confirmLpart(
       loaded.provider,
-      kindName: 'statutorySeparationOfProperty',
+      kind:
+          RegisteredPartnershipPropertyRegimeKind.statutorySeparationOfProperty,
       expectedPreviousConfirmationId: null,
     );
     final saves = loaded.persistence.saveCalls;
@@ -379,7 +385,8 @@ void main() {
     await expectLater(
       _confirmLpart(
         loaded.provider,
-        kindName: 'propertyAgreement',
+        kind: RegisteredPartnershipPropertyRegimeKind
+            .statutorySeparationOfProperty,
         expectedPreviousConfirmationId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
       ),
       throwsStateError,
@@ -387,6 +394,25 @@ void main() {
     expect(loaded.persistence.saveCalls, saves);
     expect(loaded.persistence.answers[_rootKey], before);
     expect(notifications, 0);
+  });
+
+  test('LPart writer accepts only the dedicated typed enum', () async {
+    final loaded = await _loaded(civilStatus: 'registered_partner');
+    addTearDown(loaded.provider.dispose);
+
+    await _confirmLpart(
+      loaded.provider,
+      kind:
+          RegisteredPartnershipPropertyRegimeKind.statutorySeparationOfProperty,
+      expectedPreviousConfirmationId: null,
+    );
+
+    final root = _decodedRoot(loaded.persistence.answers);
+    final lpart = Map<String, dynamic>.from(
+      root['registeredPartnershipPropertyRegime'] as Map,
+    );
+    expect(lpart['kind'], 'statutorySeparationOfProperty');
+    expect(loaded.persistence.saveCalls, 1);
   });
 
   test('instrument writer saves before publishing its scoped slot', () async {
