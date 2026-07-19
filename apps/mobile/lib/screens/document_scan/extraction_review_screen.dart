@@ -11,6 +11,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
@@ -55,6 +56,9 @@ class ExtractionReviewScreen extends StatefulWidget {
   final LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate;
   final ManualPartnerAccountabilityContext? manualPartnerAccountability;
   final TaxExtractionCandidate? taxCandidate;
+  final Pillar3aBeneficiaryAcquisitionCandidate? pillar3aBeneficiaryCandidate;
+  final String? pillar3aScanContextId;
+  final String? pillar3aReturnUri;
   final ScanConfirmationSender? sendScanConfirmation;
   final int Function(CoachProfile)? confidenceScorer;
   final DateTime Function()? now;
@@ -72,6 +76,9 @@ class ExtractionReviewScreen extends StatefulWidget {
     this.lppCapitalNoticeCandidate,
     this.manualPartnerAccountability,
     this.taxCandidate,
+    this.pillar3aBeneficiaryCandidate,
+    this.pillar3aScanContextId,
+    this.pillar3aReturnUri,
     this.sendScanConfirmation,
     this.confidenceScorer,
     this.now,
@@ -129,10 +136,14 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   bool _lppRegulationRecordFailed = false;
   bool _lppCapitalNoticePartial = false;
   bool _lppCapitalNoticeRecordFailed = false;
+  bool _pillar3aAcceptFailed = false;
+  bool _pillar3aRecordFailed = false;
   bool _reviewSessionFinalized = false;
   LppRegulationReviewConfirmation? _acceptedLppRegulationConfirmation;
   LppRegulationReceipt? _acceptedLppRegulationReceipt;
   LppCapitalNoticeReceipt? _acceptedLppCapitalNoticeReceipt;
+  Pillar3aBeneficiaryReceipt? _acceptedPillar3aReceipt;
+  Pillar3aBeneficiaryRelation? _pillar3aRelation;
   LppFundRelationship? _lppFundRelationship;
   bool _taxInForceAttested = false;
   bool _federalScopeIncoherent = false;
@@ -189,7 +200,13 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       final scanSessions = _scanSessions;
       if (scanSessions != null) {
         unawaited(Future<void>.microtask(
-          () => scanSessions.discard(widget.scanSessionId),
+          () {
+            scanSessions.discard(widget.scanSessionId);
+            final scanContextId = widget.pillar3aScanContextId;
+            if (scanContextId != null) {
+              scanSessions.discardPillar3aBeneficiaryScanIntent(scanContextId);
+            }
+          },
         ));
       }
     }
@@ -217,6 +234,27 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   bool get _requiresPartnerAccountability =>
       widget.lppAuthorization?.subject == LppEvidenceOwnerKind.manualPartner;
+
+  Pillar3aBeneficiaryScanIntent? get _pillar3aIntent =>
+      _scanSessions?.pillar3aBeneficiaryScanIntentById(
+        widget.pillar3aScanContextId,
+        returnUri: widget.pillar3aReturnUri ?? '',
+      );
+
+  bool get _pillar3aCandidateMatchesIntent {
+    final candidate = widget.pillar3aBeneficiaryCandidate;
+    final intent = _pillar3aIntent;
+    return candidate != null &&
+        intent != null &&
+        candidate.contractReferenceId == intent.contractReferenceId &&
+        candidate.expectedPreviousReferenceId ==
+            intent.expectedPreviousReferenceId &&
+        (intent.lifecycle ==
+                Pillar3aBeneficiaryScanIntentLifecycle.reviewRetained ||
+            intent.lifecycle ==
+                Pillar3aBeneficiaryScanIntentLifecycle
+                    .ledgerAcceptedAwaitingBnd);
+  }
 
   bool get _partnerAccountabilityStillValid {
     if (!_requiresPartnerAccountability) {
@@ -266,6 +304,25 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.result.documentType == DocumentType.pillar3aBeneficiaryClause) {
+      if (!FeatureFlags.typedLppEvidence ||
+          !FeatureFlags.documentLppEvidenceEnabled ||
+          !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled) {
+        _discardInvalidPillar3aHandoffAfterBuild();
+        return _buildPillar3aBeneficiaryRecovery(
+          key: const Key('pillar3a_beneficiary_review_disabled_recovery'),
+        );
+      }
+      if (!_pillar3aCandidateMatchesIntent) {
+        _discardInvalidPillar3aHandoffAfterBuild();
+        return _buildPillar3aBeneficiaryRecovery(
+          key: const Key(
+            'pillar3a_beneficiary_review_missing_candidate_recovery',
+          ),
+        );
+      }
+      return _buildPillar3aBeneficiaryReview();
+    }
     if (widget.result.documentType == DocumentType.lppPlan) {
       if (!FeatureFlags.lppRegulationAcquisitionEnabled) {
         return _buildLppRegulationRecovery(
@@ -568,6 +625,514 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildPillar3aBeneficiaryRecovery({required Key key}) {
+    return Scaffold(
+      key: key,
+      backgroundColor: MintColors.background,
+      appBar: AppBar(
+        backgroundColor: MintColors.background,
+        leading: IconButton(
+          onPressed: _onBack,
+          icon: const Icon(Icons.arrow_back),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            S.of(context)!.docScanGenericError,
+            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPillar3aBeneficiaryReview() {
+    final l10n = S.of(context)!;
+    final candidate = widget.pillar3aBeneficiaryCandidate!;
+    final fieldsEnabled = !_isConfirming && _acceptedPillar3aReceipt == null;
+    return Semantics(
+      identifier: 'pillar3a_beneficiary_review_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        key: const Key('pillar3a_beneficiary_review_screen'),
+        backgroundColor: MintColors.background,
+        appBar: AppBar(
+          backgroundColor: MintColors.background,
+          leading: IconButton(
+            onPressed: _onBack,
+            icon: const Icon(Icons.arrow_back),
+            tooltip: l10n.documentScanCancel,
+          ),
+          title: Text(
+            l10n.pillar3aBeneficiaryReviewTitle,
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
+          ),
+        ),
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildPillar3aAuthoritySummary(candidate, l10n),
+                  const SizedBox(height: 16),
+                  MintSurface(
+                    tone: MintSurfaceTone.porcelaine,
+                    padding: const EdgeInsets.all(14),
+                    radius: 12,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.pillar3aBeneficiaryReviewNotice,
+                          style: MintTextStyles.bodyMedium(
+                            color: MintColors.textPrimary,
+                          ).copyWith(height: 1.5),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          l10n.pillar3aBeneficiaryReviewHandoff,
+                          style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary,
+                          ).copyWith(height: 1.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    l10n.pillar3aBeneficiaryReviewChooseRelation,
+                    key: const Key(
+                      'pillar3a_beneficiary_choose_relation_instruction',
+                    ),
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  RadioGroup<Pillar3aBeneficiaryRelation>(
+                    groupValue: _pillar3aRelation,
+                    onChanged: (value) {
+                      if (!fieldsEnabled) return;
+                      setState(() {
+                        _pillar3aRelation = value;
+                        _pillar3aAcceptFailed = false;
+                      });
+                    },
+                    child: Column(
+                      children: [
+                        _buildPillar3aRelationChoice(
+                          relation:
+                              Pillar3aBeneficiaryRelation.currentActiveUnpaid,
+                          identifier:
+                              'pillar3a_beneficiary_relation_current_active_unpaid',
+                          label: l10n.pillar3aBeneficiaryRelationCurrent,
+                          enabled: fieldsEnabled,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildPillar3aRelationChoice(
+                          relation: Pillar3aBeneficiaryRelation.uncertain,
+                          identifier: 'pillar3a_beneficiary_relation_uncertain',
+                          label: l10n.pillar3aBeneficiaryRelationUncertain,
+                          enabled: fieldsEnabled,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildPillar3aRelationChoice(
+                          relation: Pillar3aBeneficiaryRelation.paidOrClosed,
+                          identifier:
+                              'pillar3a_beneficiary_relation_paid_or_closed',
+                          label: l10n.pillar3aBeneficiaryRelationClosed,
+                          enabled: fieldsEnabled,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_pillar3aRelation ==
+                      Pillar3aBeneficiaryRelation.uncertain) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.pillar3aBeneficiaryReviewUncertain,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textSecondary,
+                      ).copyWith(height: 1.5),
+                    ),
+                  ],
+                  if (_pillar3aAcceptFailed) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.pillar3aBeneficiaryReviewAcceptFailed,
+                      style: MintTextStyles.bodyMedium(color: MintColors.error),
+                    ),
+                  ],
+                  if (_pillar3aRecordFailed) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.pillar3aBeneficiaryReviewRecordFailed,
+                      style: MintTextStyles.bodyMedium(color: MintColors.error),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: FilledButton.icon(
+                      key: /* gitleaks:allow — receipt state, not a credential. */
+                          _acceptedPillar3aReceipt == null
+                              ? const Key('pillar3a_beneficiary_confirm_cta')
+                              : const Key(
+                                  'pillar3a_beneficiary_record_retry_cta',
+                                ),
+                      onPressed: _isConfirming ||
+                              (_acceptedPillar3aReceipt == null &&
+                                  _pillar3aRelation == null)
+                          ? null
+                          : _acceptedPillar3aReceipt == null
+                              ? _confirmPillar3aBeneficiaryReview
+                              : _recordAcceptedPillar3aReceipt,
+                      icon: const Icon(Icons.check_circle_outline, size: 22),
+                      label: Text(
+                        _acceptedPillar3aReceipt == null
+                            ? l10n.pillar3aBeneficiaryReviewConfirm
+                            : l10n.pillar3aBeneficiaryReviewRecordRetry,
+                        style:
+                            MintTextStyles.titleMedium(color: MintColors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPillar3aAuthoritySummary(
+    Pillar3aBeneficiaryAcquisitionCandidate candidate,
+    S l10n,
+  ) {
+    final authority = candidate.authority;
+    final temporalBasis = authority.temporalBasis;
+    final temporalRows = switch (temporalBasis) {
+      Pillar3aBeneficiaryExactDates() => <Widget>[
+          _buildPillar3aMetadataRow(
+            label: l10n.pillar3aBeneficiaryTemporalBasisLabel,
+            value: l10n.pillar3aBeneficiaryTemporalBasisExact,
+            valueKey: const Key('pillar3a_beneficiary_temporal_basis_value'),
+          ),
+          _buildPillar3aMetadataRow(
+            label: l10n.pillar3aBeneficiaryDesignationEffectiveDateLabel,
+            value: _formatPillar3aDate(
+              temporalBasis.designationEffectiveDate,
+              l10n,
+            ),
+            valueKey: const Key(
+              'pillar3a_beneficiary_designation_effective_date_value',
+            ),
+          ),
+          _buildPillar3aMetadataRow(
+            label: l10n.pillar3aBeneficiaryLastModificationDateLabel,
+            value: _formatPillar3aDate(
+              temporalBasis.lastAssignmentModificationDate,
+              l10n,
+            ),
+            valueKey: const Key(
+              'pillar3a_beneficiary_last_modification_date_value',
+            ),
+          ),
+        ],
+      Pillar3aBeneficiaryAttestedRegime() => <Widget>[
+          _buildPillar3aMetadataRow(
+            label: l10n.pillar3aBeneficiaryTemporalBasisLabel,
+            value: l10n.pillar3aBeneficiaryTemporalBasisRegime,
+            valueKey: const Key('pillar3a_beneficiary_temporal_basis_value'),
+          ),
+          _buildPillar3aMetadataRow(
+            label: l10n.pillar3aBeneficiaryRegimeLabel,
+            value: switch (temporalBasis.regime) {
+              Pillar3aBeneficiaryRegime.pre20270601 =>
+                l10n.pillar3aBeneficiaryRegimePre20270601,
+              Pillar3aBeneficiaryRegime.post20270601 =>
+                l10n.pillar3aBeneficiaryRegimePost20270601,
+            },
+            valueKey: const Key('pillar3a_beneficiary_regime_value'),
+          ),
+        ],
+    };
+    return MintSurface(
+      key: const Key('pillar3a_beneficiary_authority_summary'),
+      tone: MintSurfaceTone.porcelaine,
+      padding: const EdgeInsets.all(14),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.pillar3aBeneficiaryReviewAuthorityTitle,
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: 12),
+          _buildPillar3aMetadataRow(
+            label: l10n.pillar3aBeneficiaryDocumentKindLabel,
+            value: switch (authority.documentKind) {
+              Pillar3aBeneficiaryAuthorityDocumentKind
+                    .confirmationInstitutionnelle =>
+                l10n.pillar3aBeneficiaryDocumentKindConfirmation,
+              Pillar3aBeneficiaryAuthorityDocumentKind.avenantAccuse =>
+                l10n.pillar3aBeneficiaryDocumentKindAmendment,
+              Pillar3aBeneficiaryAuthorityDocumentKind
+                    .formulaireDesignationAccuse =>
+                l10n.pillar3aBeneficiaryDocumentKindDesignationForm,
+            },
+            valueKey: const Key('pillar3a_beneficiary_document_kind_value'),
+          ),
+          _buildPillar3aMetadataRow(
+            label: l10n.pillar3aBeneficiarySourceDateLabel,
+            value: _formatPillar3aDate(authority.sourceDate, l10n),
+            valueKey: const Key('pillar3a_beneficiary_source_date_value'),
+          ),
+          _buildPillar3aMetadataRow(
+            label: l10n.pillar3aBeneficiaryLegalYearLabel,
+            value: authority.legalYear.toString(),
+            valueKey: const Key('pillar3a_beneficiary_legal_year_value'),
+          ),
+          ...temporalRows,
+          const SizedBox(height: 8),
+          Text(
+            l10n.pillar3aBeneficiaryReviewFreshnessCaveat,
+            key: const Key('pillar3a_beneficiary_freshness_caveat'),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                .copyWith(height: 1.45),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPillar3aMetadataRow({
+    required String label,
+    required String value,
+    required Key valueKey,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.baseline,
+              baseline: TextBaseline.alphabetic,
+              child: Text(
+                value,
+                key: valueKey,
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatPillar3aDate(DateTime? value, S l10n) {
+    if (value == null) return l10n.pillar3aBeneficiaryNotProvided;
+    return MaterialLocalizations.of(context).formatCompactDate(value);
+  }
+
+  Widget _buildPillar3aRelationChoice({
+    required Pillar3aBeneficiaryRelation relation,
+    required String identifier,
+    required String label,
+    required bool enabled,
+  }) {
+    return Semantics(
+      identifier: identifier,
+      button: true,
+      selected: _pillar3aRelation == relation,
+      child: RadioListTile<Pillar3aBeneficiaryRelation>(
+        key: Key(identifier),
+        value: relation,
+        enabled: enabled,
+        title: Text(
+          label,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+        ),
+        contentPadding: EdgeInsets.zero,
+      ),
+    );
+  }
+
+  Pillar3aBeneficiaryReviewConfirmation?
+      _buildPillar3aBeneficiaryConfirmation() {
+    final candidate = widget.pillar3aBeneficiaryCandidate;
+    final relation = _pillar3aRelation;
+    final intent = _pillar3aIntent;
+    if (candidate == null ||
+        relation == null ||
+        intent == null ||
+        !_pillar3aCandidateMatchesIntent) {
+      return null;
+    }
+    final authority = candidate.authority;
+    if (relation == Pillar3aBeneficiaryRelation.paidOrClosed) {
+      return Pillar3aBeneficiaryReviewConfirmation.paidOrClosed(
+        contractReferenceId: candidate.contractReferenceId,
+        referenceId: candidate.referenceId,
+        documentAuthorityId: authority.documentAuthorityId,
+        documentKind: authority.documentKind,
+        sourceDate: authority.sourceDate,
+        legalYear: authority.legalYear,
+        temporalBasis: authority.temporalBasis,
+        expectedPreviousReferenceId: intent.expectedPreviousReferenceId,
+      );
+    }
+    final temporalBasis = authority.temporalBasis;
+    return switch (temporalBasis) {
+      Pillar3aBeneficiaryExactDates() =>
+        Pillar3aBeneficiaryReviewConfirmation.exactDates(
+          contractReferenceId: candidate.contractReferenceId,
+          referenceId: candidate.referenceId,
+          documentAuthorityId: authority.documentAuthorityId,
+          documentKind: authority.documentKind,
+          relation: relation,
+          sourceDate: authority.sourceDate,
+          legalYear: authority.legalYear,
+          designationEffectiveDate: temporalBasis.designationEffectiveDate,
+          lastAssignmentModificationDate:
+              temporalBasis.lastAssignmentModificationDate,
+          expectedPreviousReferenceId: intent.expectedPreviousReferenceId,
+        ),
+      Pillar3aBeneficiaryAttestedRegime() =>
+        Pillar3aBeneficiaryReviewConfirmation.attestedRegime(
+          contractReferenceId: candidate.contractReferenceId,
+          referenceId: candidate.referenceId,
+          documentAuthorityId: authority.documentAuthorityId,
+          documentKind: authority.documentKind,
+          relation: relation,
+          sourceDate: authority.sourceDate,
+          legalYear: authority.legalYear,
+          regime: temporalBasis.regime,
+          expectedPreviousReferenceId: intent.expectedPreviousReferenceId,
+        ),
+    };
+  }
+
+  Future<void> _confirmPillar3aBeneficiaryReview() async {
+    if (_isConfirming || _acceptedPillar3aReceipt != null) return;
+    final confirmation = _buildPillar3aBeneficiaryConfirmation();
+    if (confirmation == null) return;
+    setState(() {
+      _isConfirming = true;
+      _pillar3aAcceptFailed = false;
+      _pillar3aRecordFailed = false;
+    });
+    try {
+      _acceptedPillar3aReceipt = await context
+          .read<CoachProfileProvider>()
+          .acceptPillar3aBeneficiaryReview(confirmation);
+      if (!_ensurePillar3aAwaitingBnd()) {
+        throw StateError('Pillar 3a scan intent changed after Ledger accept');
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isConfirming = false;
+          _pillar3aAcceptFailed = true;
+        });
+      }
+      return;
+    }
+    await _recordAcceptedPillar3aReceipt();
+  }
+
+  Future<void> _recordAcceptedPillar3aReceipt() async {
+    final receipt = _acceptedPillar3aReceipt;
+    if (receipt == null || !mounted || !_ensurePillar3aAwaitingBnd()) return;
+    if (!_isConfirming) {
+      setState(() {
+        _isConfirming = true;
+        _pillar3aRecordFailed = false;
+      });
+    }
+    try {
+      await context
+          .read<DocumentProvider>()
+          .recordPillar3aBeneficiaryEvidence(receipt);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isConfirming = false;
+          _pillar3aRecordFailed = true;
+        });
+      }
+      return;
+    }
+    final scanContextId = widget.pillar3aScanContextId;
+    final returnUri = widget.pillar3aReturnUri;
+    if (scanContextId == null ||
+        returnUri == null ||
+        !(_scanSessions?.completePillar3aBeneficiaryScanIntent(scanContextId) ??
+            false)) {
+      if (mounted) {
+        setState(() {
+          _isConfirming = false;
+          _pillar3aRecordFailed = true;
+        });
+      }
+      return;
+    }
+    _reviewSessionFinalized = true;
+    _scanSessions?.discard(widget.scanSessionId);
+    if (!mounted) return;
+    context.go(returnUri);
+  }
+
+  bool _ensurePillar3aAwaitingBnd() {
+    if (!FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.documentLppEvidenceEnabled ||
+        !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        !_pillar3aCandidateMatchesIntent) {
+      return false;
+    }
+    final intent = _pillar3aIntent!;
+    if (intent.lifecycle ==
+        Pillar3aBeneficiaryScanIntentLifecycle.ledgerAcceptedAwaitingBnd) {
+      return true;
+    }
+    final scanContextId = widget.pillar3aScanContextId;
+    return scanContextId != null &&
+        (_scanSessions?.advancePillar3aBeneficiaryScanIntent(
+              scanContextId,
+              from: Pillar3aBeneficiaryScanIntentLifecycle.reviewRetained,
+              to: Pillar3aBeneficiaryScanIntentLifecycle
+                  .ledgerAcceptedAwaitingBnd,
+            ) ??
+            false);
+  }
+
+  void _discardInvalidPillar3aHandoffAfterBuild() {
+    final scanContextId = widget.pillar3aScanContextId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scanContextId != null) {
+        _scanSessions?.discardPillar3aBeneficiaryScanIntent(scanContextId);
+      } else {
+        _scanSessions?.discard(widget.scanSessionId);
+      }
+    });
   }
 
   Widget _buildLppRegulationReview() {

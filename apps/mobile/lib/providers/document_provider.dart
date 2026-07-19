@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -21,6 +22,8 @@ final class ConfirmedDocumentReference {
     required this.referenceId,
     required this.kind,
     this.snapshotId,
+    this.contractReferenceId,
+    this.documentAuthorityId,
     required this.ownerKind,
     required this.confirmedAt,
   });
@@ -32,6 +35,8 @@ final class ConfirmedDocumentReference {
   final String referenceId;
   final String kind;
   final String? snapshotId;
+  final String? contractReferenceId;
+  final String? documentAuthorityId;
   final LppEvidenceOwnerKind ownerKind;
   final DateTime confirmedAt;
 
@@ -40,6 +45,10 @@ final class ConfirmedDocumentReference {
       'referenceId': referenceId,
       'kind': kind,
       if (snapshotId != null) 'snapshotId': snapshotId,
+      if (contractReferenceId != null)
+        'contractReferenceId': contractReferenceId,
+      if (documentAuthorityId != null)
+        'documentAuthorityId': documentAuthorityId,
       'ownerKind': ownerKind.wireName,
       'confirmedAt': confirmedAt.toUtc().toIso8601String(),
     };
@@ -59,33 +68,67 @@ final class ConfirmedDocumentReference {
       'ownerKind',
       'confirmedAt',
     };
+    const pillar3aKeys = <String>{
+      'referenceId',
+      'kind',
+      'contractReferenceId',
+      'documentAuthorityId',
+      'ownerKind',
+      'confirmedAt',
+    };
     final kind = json['kind'];
-    final expectedKeys =
-        kind == lppRegulationKind ? regulationKeys : snapshotBoundKeys;
+    final isPillar3a = kind == Pillar3aBeneficiaryEvidence.kind;
+    final expectedKeys = isPillar3a
+        ? pillar3aKeys
+        : kind == lppRegulationKind
+            ? regulationKeys
+            : snapshotBoundKeys;
     if (json.length != expectedKeys.length ||
         json.keys.toSet().difference(expectedKeys).isNotEmpty ||
         json['referenceId'] is! String ||
-        (kind != lppRegulationKind && json['snapshotId'] is! String) ||
+        (isPillar3a &&
+            (json['contractReferenceId'] is! String ||
+                json['documentAuthorityId'] is! String)) ||
+        (!isPillar3a &&
+            kind != lppRegulationKind &&
+            json['snapshotId'] is! String) ||
         (kind != lppKind &&
             kind != lppCapitalNoticeKind &&
-            kind != lppRegulationKind)) {
+            kind != lppRegulationKind &&
+            !isPillar3a)) {
       return null;
     }
     final ownerKind = LppEvidenceOwnerKind.fromWireName(json['ownerKind']);
     final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
     if (ownerKind == null ||
-        ((kind == lppCapitalNoticeKind || kind == lppRegulationKind) &&
+        ((kind == lppCapitalNoticeKind ||
+                kind == lppRegulationKind ||
+                isPillar3a) &&
             ownerKind != LppEvidenceOwnerKind.self) ||
         confirmedAt == null ||
         !_isCanonicalUuidV4(json['referenceId'] as String) ||
-        (kind != lppRegulationKind &&
+        (!isPillar3a &&
+            kind != lppRegulationKind &&
             !_isCanonicalUuidV4(json['snapshotId'] as String))) {
       return null;
+    }
+    if (isPillar3a) {
+      final contractReferenceId = json['contractReferenceId'] as String;
+      final documentAuthorityId = json['documentAuthorityId'] as String;
+      if (!_isCanonicalUuidV4(contractReferenceId) ||
+          !_isCanonicalUuidV4(documentAuthorityId) ||
+          contractReferenceId == documentAuthorityId ||
+          contractReferenceId == json['referenceId'] ||
+          documentAuthorityId == json['referenceId']) {
+        return null;
+      }
     }
     return ConfirmedDocumentReference(
       referenceId: json['referenceId'] as String,
       kind: kind as String,
       snapshotId: json['snapshotId'] as String?,
+      contractReferenceId: json['contractReferenceId'] as String?,
+      documentAuthorityId: json['documentAuthorityId'] as String?,
       ownerKind: ownerKind,
       confirmedAt: confirmedAt,
     );
@@ -133,6 +176,7 @@ class DocumentReferenceStore {
     final references = <ConfirmedDocumentReference>[];
     final referenceIds = <String>{};
     final snapshotBindings = <String>{};
+    var pillar3aBindings = 0;
     for (final rawReference in root['references'] as List) {
       if (rawReference is! Map) {
         throw const FormatException('Invalid document reference item');
@@ -152,6 +196,11 @@ class DocumentReferenceStore {
       if (!snapshotBindings.add(binding)) {
         throw const FormatException('Duplicate document reference binding');
       }
+      if (reference.kind == Pillar3aBeneficiaryEvidence.kind &&
+          ++pillar3aBindings >
+              Pillar3aBeneficiaryEvidenceRoot.maximumContracts) {
+        throw const FormatException('Too many pillar 3a document references');
+      }
       references.add(reference);
     }
     if (storedSchemaVersion == 1) {
@@ -163,10 +212,14 @@ class DocumentReferenceStore {
   Future<void> save(List<ConfirmedDocumentReference> references) async {
     final referenceIds = <String>{};
     final snapshotBindings = <String>{};
+    var pillar3aBindings = 0;
     for (final reference in references) {
       if (ConfirmedDocumentReference.fromJson(reference.toJson()) == null ||
           !referenceIds.add(reference.referenceId) ||
-          !snapshotBindings.add(_referenceBinding(reference))) {
+          !snapshotBindings.add(_referenceBinding(reference)) ||
+          (reference.kind == Pillar3aBeneficiaryEvidence.kind &&
+              ++pillar3aBindings >
+                  Pillar3aBeneficiaryEvidenceRoot.maximumContracts)) {
         throw const FormatException('Invalid document reference set');
       }
     }
@@ -186,10 +239,13 @@ class DocumentReferenceStore {
   }
 
   static String _referenceBinding(ConfirmedDocumentReference reference) =>
-      reference.kind == ConfirmedDocumentReference.lppRegulationKind
-          ? '${reference.kind}|${reference.ownerKind.wireName}'
-          : '${reference.kind}|${reference.ownerKind.wireName}|'
-              '${reference.snapshotId}';
+      reference.kind == Pillar3aBeneficiaryEvidence.kind
+          ? '${reference.kind}|${reference.ownerKind.wireName}|'
+              '${reference.contractReferenceId}'
+          : reference.kind == ConfirmedDocumentReference.lppRegulationKind
+              ? '${reference.kind}|${reference.ownerKind.wireName}'
+              : '${reference.kind}|${reference.ownerKind.wireName}|'
+                  '${reference.snapshotId}';
 
   static ConfirmedDocumentReference? _legacyReferenceFromJson(
     Map<String, dynamic> json,
@@ -256,6 +312,101 @@ enum LppRegulationReferenceResolution {
   mismatchedDocumentReference,
 }
 
+enum Pillar3aBeneficiaryReferenceResolution {
+  unavailable,
+  resolved,
+  missingDocumentReference,
+  mismatchedDocumentReference,
+}
+
+enum Pillar3aBeneficiaryConsumerState {
+  loading,
+  unavailable,
+  empty,
+  knownCurrentDeclared,
+  needsConfirmation,
+  inactive,
+  missingDocumentReference,
+  mismatchedDocumentReference,
+  invalidPresenceProvenance,
+  invalid,
+}
+
+@immutable
+class Pillar3aBeneficiaryRenderableDocumentMetadata {
+  const Pillar3aBeneficiaryRenderableDocumentMetadata._({
+    required this.documentKind,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.temporalBasis,
+    required this.relation,
+    required this.relationConfirmedAt,
+  });
+
+  final Pillar3aBeneficiaryAuthorityDocumentKind documentKind;
+  final DateTime sourceDate;
+  final int legalYear;
+  final Pillar3aBeneficiaryTemporalBasis temporalBasis;
+  final Pillar3aBeneficiaryRelation relation;
+  final DateTime relationConfirmedAt;
+}
+
+@immutable
+class Pillar3aBeneficiaryConsumerEntry {
+  const Pillar3aBeneficiaryConsumerEntry._({
+    required this.state,
+    required this.scanContractReferenceId,
+    required this.scanExpectedPreviousReferenceId,
+    required Pillar3aBeneficiaryRenderableDocumentMetadata?
+        renderablePreciseDocumentMetadata,
+  }) : _renderablePreciseDocumentMetadata = renderablePreciseDocumentMetadata;
+
+  final Pillar3aBeneficiaryConsumerState state;
+
+  /// Opaque action identity. It is transport input, never display copy.
+  final String scanContractReferenceId;
+  final String scanExpectedPreviousReferenceId;
+  final Pillar3aBeneficiaryRenderableDocumentMetadata?
+      _renderablePreciseDocumentMetadata;
+
+  Pillar3aBeneficiaryRenderableDocumentMetadata?
+      get renderablePreciseDocumentMetadata =>
+          _renderablePreciseDocumentMetadata;
+
+  bool get hasRenderablePreciseDocumentMetadata =>
+      _renderablePreciseDocumentMetadata != null;
+}
+
+@immutable
+class Pillar3aBeneficiaryConsumerResolution {
+  const Pillar3aBeneficiaryConsumerResolution._(
+    this.state, [
+    this.entries = const <Pillar3aBeneficiaryConsumerEntry>[],
+  ]);
+
+  final Pillar3aBeneficiaryConsumerState state;
+  final List<Pillar3aBeneficiaryConsumerEntry> entries;
+}
+
+Pillar3aBeneficiaryConsumerState _aggregatePillar3aBeneficiaryConsumerState(
+  List<Pillar3aBeneficiaryConsumerEntry> entries,
+) {
+  if (entries.isEmpty) return Pillar3aBeneficiaryConsumerState.invalid;
+  const priority = <Pillar3aBeneficiaryConsumerState>[
+    Pillar3aBeneficiaryConsumerState.mismatchedDocumentReference,
+    Pillar3aBeneficiaryConsumerState.missingDocumentReference,
+    Pillar3aBeneficiaryConsumerState.invalidPresenceProvenance,
+    Pillar3aBeneficiaryConsumerState.invalid,
+    Pillar3aBeneficiaryConsumerState.needsConfirmation,
+    Pillar3aBeneficiaryConsumerState.knownCurrentDeclared,
+    Pillar3aBeneficiaryConsumerState.inactive,
+  ];
+  for (final state in priority) {
+    if (entries.any((entry) => entry.state == state)) return state;
+  }
+  return Pillar3aBeneficiaryConsumerState.invalid;
+}
+
 /// Manages document upload state and document list.
 ///
 /// Uses [DocumentService] for backend calls and notifies listeners
@@ -314,6 +465,28 @@ class DocumentProvider extends ChangeNotifier {
             reference.kind == ConfirmedDocumentReference.lppRegulationKind &&
             reference.ownerKind == LppEvidenceOwnerKind.self,
       );
+
+  /// Allocates the BND/ledger join identity before the review writer runs.
+  /// The volatile acquisition candidate owns this value across ledger and BND
+  /// retries; neither persistence layer is allowed to replace it.
+  String preallocatePillar3aBeneficiaryReferenceId({
+    required String contractReferenceId,
+    required String documentAuthorityId,
+  }) {
+    if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        !_isCanonicalUuidV4(contractReferenceId) ||
+        !_isCanonicalUuidV4(documentAuthorityId) ||
+        contractReferenceId == documentAuthorityId) {
+      throw StateError('Pillar 3a reference preallocation is unavailable');
+    }
+    final referenceId = _uuid.v4();
+    if (!_isCanonicalUuidV4(referenceId) ||
+        referenceId == contractReferenceId ||
+        referenceId == documentAuthorityId) {
+      throw StateError('Pillar 3a reference preallocation failed');
+    }
+    return referenceId;
+  }
 
   List<ConfirmedDocumentReference> get currentReferences {
     final ledger = _ledger;
@@ -405,6 +578,25 @@ class DocumentProvider extends ChangeNotifier {
     ConfirmedDocumentReference reference,
     CoachProfileProvider ledger,
   ) {
+    if (reference.kind == Pillar3aBeneficiaryEvidence.kind) {
+      if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+          reference.snapshotId != null ||
+          reference.contractReferenceId == null ||
+          reference.documentAuthorityId == null) {
+        return false;
+      }
+      final root = ledger.currentPillar3aBeneficiaryEvidence;
+      return root?.contracts.any(
+            (contract) =>
+                reference.kind == Pillar3aBeneficiaryEvidence.kind &&
+                reference.ownerKind == LppEvidenceOwnerKind.self &&
+                contract.referenceId == reference.referenceId &&
+                contract.contractReferenceId == reference.contractReferenceId &&
+                contract.documentAuthorityId == reference.documentAuthorityId &&
+                contract.relationConfirmedAt == reference.confirmedAt,
+          ) ??
+          false;
+    }
     if (reference.kind == ConfirmedDocumentReference.lppRegulationKind) {
       if (reference.snapshotId != null) return false;
       return ledger.matchesAcceptedLppRegulationReceipt(
@@ -463,6 +655,115 @@ class DocumentProvider extends ChangeNotifier {
       _references = nextReferences;
       notifyListeners();
       return reference;
+    });
+  }
+
+  Future<ConfirmedDocumentReference> recordPillar3aBeneficiaryEvidence(
+    Pillar3aBeneficiaryReceipt receipt,
+  ) {
+    final ledger = _ledger;
+    if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        ledger == null ||
+        !ledger.isLoaded ||
+        !ledger.matchesAcceptedPillar3aBeneficiaryReceipt(receipt)) {
+      return Future<ConfirmedDocumentReference>.error(
+        StateError('Pillar 3a beneficiary receipt is unavailable'),
+      );
+    }
+    final guard = _sessionEpoch.capture();
+    return _serializeReferenceMutation(() async {
+      guard.assertCurrent();
+      final currentLedger = _ledger;
+      if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+          currentLedger == null ||
+          !currentLedger.isLoaded ||
+          !currentLedger.matchesAcceptedPillar3aBeneficiaryReceipt(receipt)) {
+        throw StateError('Pillar 3a beneficiary receipt no longer matches');
+      }
+      await hydrateReferences();
+      guard.assertCurrent();
+      if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+          !currentLedger.matchesAcceptedPillar3aBeneficiaryReceipt(receipt)) {
+        throw StateError(
+          'Pillar 3a beneficiary receipt changed during hydration',
+        );
+      }
+      final reference = ConfirmedDocumentReference(
+        referenceId: receipt.referenceId,
+        kind: Pillar3aBeneficiaryEvidence.kind,
+        contractReferenceId: receipt.contractReferenceId,
+        documentAuthorityId: receipt.documentAuthorityId,
+        ownerKind: LppEvidenceOwnerKind.self,
+        confirmedAt: receipt.relationConfirmedAt,
+      );
+      for (final existing in _references) {
+        if (mapEquals(existing.toJson(), reference.toJson())) return existing;
+      }
+      final nextReferences = <ConfirmedDocumentReference>[];
+      var inserted = false;
+      for (final existing in _references) {
+        final isPriorContract =
+            existing.kind == Pillar3aBeneficiaryEvidence.kind &&
+                existing.ownerKind == LppEvidenceOwnerKind.self &&
+                existing.contractReferenceId == receipt.contractReferenceId;
+        if (isPriorContract) {
+          if (!inserted) {
+            nextReferences.add(reference);
+            inserted = true;
+          }
+        } else {
+          nextReferences.add(existing);
+        }
+      }
+      if (!inserted) nextReferences.add(reference);
+      final persistedReferences =
+          List<ConfirmedDocumentReference>.unmodifiable(nextReferences);
+      await _sessionEpoch.runGuardedPersistence(
+        guard,
+        () => _referenceStore.save(persistedReferences),
+      );
+      guard.assertCurrent();
+      _references = persistedReferences;
+      notifyListeners();
+      return reference;
+    });
+  }
+
+  Future<bool> resetInvalidPillar3aBeneficiaryEvidence() {
+    final ledger = _ledger;
+    if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        ledger == null ||
+        ledger.pillar3aBeneficiaryLedgerState !=
+            Pillar3aBeneficiaryLedgerState.invalid) {
+      return Future<bool>.value(false);
+    }
+    final guard = _sessionEpoch.capture();
+    return _serializeReferenceMutation(() async {
+      await hydrateReferences();
+      guard.assertCurrent();
+      final currentLedger = _ledger;
+      if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+          currentLedger == null ||
+          currentLedger.pillar3aBeneficiaryLedgerState !=
+              Pillar3aBeneficiaryLedgerState.invalid) {
+        return false;
+      }
+      final retained = _references
+          .where(
+            (reference) => reference.kind != Pillar3aBeneficiaryEvidence.kind,
+          )
+          .toList(growable: false);
+      if (retained.length != _references.length) {
+        await _sessionEpoch.runGuardedPersistence(
+          guard,
+          () => _referenceStore.save(retained),
+        );
+        guard.assertCurrent();
+        _references = List<ConfirmedDocumentReference>.unmodifiable(retained);
+        notifyListeners();
+      }
+      return currentLedger
+          .resetInvalidPillar3aBeneficiaryEvidenceAfterReferencePurge();
     });
   }
 
@@ -645,6 +946,154 @@ class DocumentProvider extends ChangeNotifier {
     return candidate;
   }
 
+  Pillar3aBeneficiaryReferenceResolution resolvePillar3aBeneficiaryReference(
+    Pillar3aBeneficiaryEvidence evidence,
+  ) {
+    final ledger = _ledger;
+    final root = ledger?.currentPillar3aBeneficiaryEvidence;
+    if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        !referencesHydrated ||
+        ledger == null ||
+        !ledger.isLoaded ||
+        root == null ||
+        !root.contracts.contains(evidence)) {
+      return Pillar3aBeneficiaryReferenceResolution.unavailable;
+    }
+
+    var hasMismatch = false;
+    for (final reference in _references) {
+      final hasEvidenceId = reference.referenceId == evidence.referenceId;
+      final hasContract = reference.kind == Pillar3aBeneficiaryEvidence.kind &&
+          reference.ownerKind == LppEvidenceOwnerKind.self &&
+          reference.contractReferenceId == evidence.contractReferenceId;
+      if (!hasEvidenceId && !hasContract) continue;
+      final canonical = ConfirmedDocumentReference.fromJson(
+            reference.toJson(),
+          ) !=
+          null;
+      if (canonical &&
+          hasEvidenceId &&
+          hasContract &&
+          reference.snapshotId == null &&
+          reference.documentAuthorityId == evidence.documentAuthorityId &&
+          reference.confirmedAt == evidence.relationConfirmedAt &&
+          _isReferenceCurrent(reference, ledger)) {
+        return Pillar3aBeneficiaryReferenceResolution.resolved;
+      }
+      hasMismatch = true;
+    }
+    return hasMismatch
+        ? Pillar3aBeneficiaryReferenceResolution.mismatchedDocumentReference
+        : Pillar3aBeneficiaryReferenceResolution.missingDocumentReference;
+  }
+
+  Pillar3aBeneficiaryConsumerResolution resolvePillar3aBeneficiaryConsumer() {
+    final ledger = _ledger;
+    if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        ledger == null) {
+      return const Pillar3aBeneficiaryConsumerResolution._(
+        Pillar3aBeneficiaryConsumerState.unavailable,
+      );
+    }
+    if (ledger.isLoading) {
+      return const Pillar3aBeneficiaryConsumerResolution._(
+        Pillar3aBeneficiaryConsumerState.loading,
+      );
+    }
+    switch (ledger.pillar3aBeneficiaryLedgerState) {
+      case Pillar3aBeneficiaryLedgerState.unavailable:
+        return const Pillar3aBeneficiaryConsumerResolution._(
+          Pillar3aBeneficiaryConsumerState.unavailable,
+        );
+      case Pillar3aBeneficiaryLedgerState.missing:
+        return const Pillar3aBeneficiaryConsumerResolution._(
+          Pillar3aBeneficiaryConsumerState.empty,
+        );
+      case Pillar3aBeneficiaryLedgerState.invalid:
+        return const Pillar3aBeneficiaryConsumerResolution._(
+          Pillar3aBeneficiaryConsumerState.invalid,
+        );
+      case Pillar3aBeneficiaryLedgerState.valid:
+        break;
+    }
+    switch (_referenceHydrationState) {
+      case DocumentReferenceHydrationState.idle:
+      case DocumentReferenceHydrationState.loading:
+        return const Pillar3aBeneficiaryConsumerResolution._(
+          Pillar3aBeneficiaryConsumerState.loading,
+        );
+      case DocumentReferenceHydrationState.failed:
+        return const Pillar3aBeneficiaryConsumerResolution._(
+          Pillar3aBeneficiaryConsumerState.unavailable,
+        );
+      case DocumentReferenceHydrationState.ready:
+        break;
+    }
+
+    final root = ledger.currentPillar3aBeneficiaryEvidence;
+    if (root == null) {
+      return const Pillar3aBeneficiaryConsumerResolution._(
+        Pillar3aBeneficiaryConsumerState.invalid,
+      );
+    }
+    final entries = <Pillar3aBeneficiaryConsumerEntry>[];
+    for (final evidence in root.contracts) {
+      final state = _pillar3aBeneficiaryConsumerEntryState(evidence);
+      entries.add(
+        Pillar3aBeneficiaryConsumerEntry._(
+          state: state,
+          scanContractReferenceId: evidence.contractReferenceId,
+          scanExpectedPreviousReferenceId: evidence.referenceId,
+          renderablePreciseDocumentMetadata:
+              state == Pillar3aBeneficiaryConsumerState.knownCurrentDeclared
+                  ? Pillar3aBeneficiaryRenderableDocumentMetadata._(
+                      documentKind: evidence.documentKind,
+                      sourceDate: evidence.sourceDate,
+                      legalYear: evidence.legalYear,
+                      temporalBasis: evidence.temporalBasis,
+                      relation: evidence.relation,
+                      relationConfirmedAt: evidence.relationConfirmedAt,
+                    )
+                  : null,
+        ),
+      );
+    }
+    return Pillar3aBeneficiaryConsumerResolution._(
+      _aggregatePillar3aBeneficiaryConsumerState(entries),
+      List<Pillar3aBeneficiaryConsumerEntry>.unmodifiable(entries),
+    );
+  }
+
+  Pillar3aBeneficiaryConsumerState _pillar3aBeneficiaryConsumerEntryState(
+    Pillar3aBeneficiaryEvidence evidence,
+  ) {
+    final presenceSignal =
+        _ledger!.pillar3aBeneficiaryPresenceSignalFor(evidence);
+    if (presenceSignal == Pillar3aBeneficiaryPresenceSignal.invalid) {
+      return Pillar3aBeneficiaryConsumerState.invalidPresenceProvenance;
+    }
+    switch (resolvePillar3aBeneficiaryReference(evidence)) {
+      case Pillar3aBeneficiaryReferenceResolution.unavailable:
+        return Pillar3aBeneficiaryConsumerState.invalid;
+      case Pillar3aBeneficiaryReferenceResolution.missingDocumentReference:
+        return Pillar3aBeneficiaryConsumerState.missingDocumentReference;
+      case Pillar3aBeneficiaryReferenceResolution.mismatchedDocumentReference:
+        return Pillar3aBeneficiaryConsumerState.mismatchedDocumentReference;
+      case Pillar3aBeneficiaryReferenceResolution.resolved:
+        if (presenceSignal == Pillar3aBeneficiaryPresenceSignal.inactive) {
+          return Pillar3aBeneficiaryConsumerState.inactive;
+        }
+        return switch (evidence.relation) {
+          Pillar3aBeneficiaryRelation.currentActiveUnpaid =>
+            Pillar3aBeneficiaryConsumerState.knownCurrentDeclared,
+          Pillar3aBeneficiaryRelation.uncertain =>
+            Pillar3aBeneficiaryConsumerState.needsConfirmation,
+          Pillar3aBeneficiaryRelation.paidOrClosed =>
+            Pillar3aBeneficiaryConsumerState.inactive,
+        };
+    }
+  }
+
   SpecialistReferenceEvidence? resolveLppRegulation(
     SpecialistReferenceEvidence? candidate,
   ) {
@@ -787,7 +1236,8 @@ class DocumentProvider extends ChangeNotifier {
       }
     } catch (e) {
       guard.assertCurrent();
-      _error = 'Une erreur est survenue lors de l\'upload.';
+      _error =
+          'Une erreur est survenue lors de l\'upload.'; // lint-ignore: legacy provider fallback outside BuildContext; dedicated localization migration required
       if (kDebugMode) {
         debugPrint('DocumentProvider: Unexpected upload error: $e');
       }
@@ -827,7 +1277,8 @@ class DocumentProvider extends ChangeNotifier {
       }
     } catch (e) {
       guard.assertCurrent();
-      _error = 'Impossible de charger les documents.';
+      _error =
+          'Impossible de charger les documents.'; // lint-ignore: legacy provider fallback outside BuildContext; dedicated localization migration required
       if (kDebugMode) {
         debugPrint('DocumentProvider: Unexpected load error: $e');
       }
@@ -890,7 +1341,8 @@ class DocumentProvider extends ChangeNotifier {
       return false;
     } catch (e) {
       guard.assertCurrent();
-      _error = 'Impossible de supprimer le document.';
+      _error =
+          'Impossible de supprimer le document.'; // lint-ignore: legacy provider fallback outside BuildContext; dedicated localization migration required
       if (kDebugMode) {
         debugPrint('DocumentProvider: Unexpected delete error: $e');
       }

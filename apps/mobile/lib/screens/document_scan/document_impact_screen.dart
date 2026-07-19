@@ -111,7 +111,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       return;
     }
     if (widget.result.documentType == DocumentType.lppCertificate ||
-        widget.result.documentType == DocumentType.lppPlan) {
+        widget.result.documentType == DocumentType.lppPlan ||
+        widget.result.documentType == DocumentType.pillar3aBeneficiaryClause) {
       _premierEclairageLoading = false;
       _premierEclairageFailed = true;
       return;
@@ -210,6 +211,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         return 'scan_lpp';
       case DocumentType.lppPlan:
         throw UnsupportedError(type.backendValue);
+      case DocumentType.pillar3aBeneficiaryClause:
+        throw UnsupportedError(type.backendValue);
       case DocumentType.threeAAttestation:
         return 'scan_3a';
       case DocumentType.taxDeclaration:
@@ -297,6 +300,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       case DocumentType.lppCertificate:
         return l10n.scanSummaryLppCertificate;
       case DocumentType.lppPlan:
+        throw UnsupportedError(type.backendValue);
+      case DocumentType.pillar3aBeneficiaryClause:
         throw UnsupportedError(type.backendValue);
       case DocumentType.threeAAttestation:
         return l10n.scanSummary3aAttestation;

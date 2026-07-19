@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 
 Widget _buildWrapped() {
@@ -28,6 +29,9 @@ Widget _buildWrapped() {
       ),
       ChangeNotifierProvider<ByokProvider>(
         create: (_) => ByokProvider(),
+      ),
+      ChangeNotifierProvider<ScanSessionProvider>(
+        create: (_) => ScanSessionProvider(),
       ),
     ],
     child: const MaterialApp(

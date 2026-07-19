@@ -30,6 +30,20 @@ enum Pillar3aBeneficiaryRegime {
   }
 }
 
+enum Pillar3aBeneficiaryAuthorityDocumentKind {
+  confirmationInstitutionnelle,
+  avenantAccuse,
+  formulaireDesignationAccuse;
+
+  static Pillar3aBeneficiaryAuthorityDocumentKind? fromWireName(Object? raw) {
+    if (raw is! String) return null;
+    for (final value in values) {
+      if (value.name == raw) return value;
+    }
+    return null;
+  }
+}
+
 @immutable
 sealed class Pillar3aBeneficiaryTemporalBasis {
   const Pillar3aBeneficiaryTemporalBasis();
@@ -96,39 +110,86 @@ final class Pillar3aBeneficiaryAttestedRegime
 final class Pillar3aBeneficiaryEvidence {
   const Pillar3aBeneficiaryEvidence._({
     required this.contractReferenceId,
-    required this.relation,
     required this.referenceId,
+    required this.documentAuthorityId,
+    required this.documentKind,
     required this.sourceDate,
     required this.legalYear,
-    required this.confirmedAt,
     required this.temporalBasis,
+    required this.relation,
+    required this.relationConfirmedAt,
   });
 
   static const kind = 'pillar3aBeneficiaryClause';
   static const ownerKind = 'self';
-  static const source = 'certificate';
+  static const documentSource = 'certificate';
+  static const relationSource = 'userInput';
 
   final String contractReferenceId;
-  final Pillar3aBeneficiaryRelation relation;
   final String referenceId;
+  final String documentAuthorityId;
+  final Pillar3aBeneficiaryAuthorityDocumentKind documentKind;
   final DateTime sourceDate;
 
   /// Generic legal provenance only; never an eligibility or regime inference.
   final int legalYear;
-  final DateTime confirmedAt;
-  final Pillar3aBeneficiaryTemporalBasis? temporalBasis;
+  final Pillar3aBeneficiaryTemporalBasis temporalBasis;
+  final Pillar3aBeneficiaryRelation relation;
+  final DateTime relationConfirmedAt;
+
+  static Pillar3aBeneficiaryEvidence create({
+    required String contractReferenceId,
+    required String referenceId,
+    required String documentAuthorityId,
+    required Pillar3aBeneficiaryAuthorityDocumentKind documentKind,
+    required DateTime sourceDate,
+    required int legalYear,
+    required Pillar3aBeneficiaryTemporalBasis temporalBasis,
+    required Pillar3aBeneficiaryRelation relation,
+    required DateTime relationConfirmedAt,
+  }) {
+    final candidate = fromJson(
+      <String, Object?>{
+        'kind': kind,
+        'ownerKind': ownerKind,
+        'documentSource': documentSource,
+        'contractReferenceId': contractReferenceId,
+        'referenceId': referenceId,
+        'documentAuthorityId': documentAuthorityId,
+        'documentKind': documentKind.name,
+        'sourceDate': _encodeCivilDate(sourceDate),
+        'legalYear': legalYear,
+        'institutionAttested': true,
+        'contractScoped': true,
+        'temporalBasis': temporalBasis.toJson(),
+        'relation': relation.name,
+        'relationSource': relationSource,
+        'relationConfirmedAt': relationConfirmedAt.toUtc().toIso8601String(),
+      },
+      now: relationConfirmedAt.toUtc(),
+    );
+    if (candidate == null) {
+      throw ArgumentError('Invalid pillar 3a beneficiary evidence');
+    }
+    return candidate;
+  }
 
   Map<String, Object?> toJson() => <String, Object?>{
         'kind': kind,
         'ownerKind': ownerKind,
-        'source': source,
+        'documentSource': documentSource,
         'contractReferenceId': contractReferenceId,
-        'relation': relation.name,
         'referenceId': referenceId,
+        'documentAuthorityId': documentAuthorityId,
+        'documentKind': documentKind.name,
         'sourceDate': _encodeCivilDate(sourceDate),
         'legalYear': legalYear,
-        'confirmedAt': confirmedAt.toUtc().toIso8601String(),
-        'temporalBasis': temporalBasis?.toJson(),
+        'institutionAttested': true,
+        'contractScoped': true,
+        'temporalBasis': temporalBasis.toJson(),
+        'relation': relation.name,
+        'relationSource': relationSource,
+        'relationConfirmedAt': relationConfirmedAt.toUtc().toIso8601String(),
       };
 
   static Pillar3aBeneficiaryEvidence? fromJson(
@@ -140,16 +201,31 @@ final class Pillar3aBeneficiaryEvidence {
 
     final contractReferenceId = json['contractReferenceId'];
     final referenceId = json['referenceId'];
+    final documentAuthorityId = json['documentAuthorityId'];
+    final documentKind = Pillar3aBeneficiaryAuthorityDocumentKind.fromWireName(
+      json['documentKind'],
+    );
     final relation = Pillar3aBeneficiaryRelation.fromWireName(json['relation']);
     final legalYear = json['legalYear'];
     if (json['kind'] != kind ||
         json['ownerKind'] != ownerKind ||
-        json['source'] != source ||
+        json['documentSource'] != documentSource ||
+        json['relationSource'] != relationSource ||
         contractReferenceId is! String ||
         !_canonicalUuidV4.hasMatch(contractReferenceId) ||
         referenceId is! String ||
         !_canonicalUuidV4.hasMatch(referenceId) ||
-        contractReferenceId == referenceId ||
+        documentAuthorityId is! String ||
+        !_canonicalUuidV4.hasMatch(documentAuthorityId) ||
+        <String>{
+              contractReferenceId,
+              referenceId,
+              documentAuthorityId,
+            }.length !=
+            3 ||
+        documentKind == null ||
+        json['institutionAttested'] != true ||
+        json['contractScoped'] != true ||
         relation == null ||
         legalYear is! int ||
         legalYear < 1900 ||
@@ -158,37 +234,34 @@ final class Pillar3aBeneficiaryEvidence {
     }
 
     final sourceDate = _parseCanonicalCivilDate(json['sourceDate']);
-    final confirmedAt = _parseCanonicalUtcInstant(json['confirmedAt']);
+    final relationConfirmedAt =
+        _parseCanonicalUtcInstant(json['relationConfirmedAt']);
     final current = now.toUtc();
     if (sourceDate == null ||
-        confirmedAt == null ||
+        relationConfirmedAt == null ||
         SwissCivilTime.isFutureCivilDate(sourceDate, now: current) ||
-        confirmedAt.isAfter(current) ||
-        SwissCivilTime.civilDate(confirmedAt)
+        relationConfirmedAt.isAfter(current) ||
+        SwissCivilTime.civilDate(relationConfirmedAt)
             .isBefore(SwissCivilTime.businessDate(sourceDate))) {
       return null;
     }
 
-    final rawTemporalBasis = json['temporalBasis'];
-    Pillar3aBeneficiaryTemporalBasis? temporalBasis;
-    if (relation == Pillar3aBeneficiaryRelation.paidOrClosed) {
-      if (rawTemporalBasis != null) return null;
-    } else {
-      temporalBasis = _parseTemporalBasis(
-        rawTemporalBasis,
-        sourceDate: sourceDate,
-      );
-      if (temporalBasis == null) return null;
-    }
+    final temporalBasis = _parseTemporalBasis(
+      json['temporalBasis'],
+      sourceDate: sourceDate,
+    );
+    if (temporalBasis == null) return null;
 
     return Pillar3aBeneficiaryEvidence._(
       contractReferenceId: contractReferenceId,
-      relation: relation,
       referenceId: referenceId,
+      documentAuthorityId: documentAuthorityId,
+      documentKind: documentKind,
       sourceDate: sourceDate,
       legalYear: legalYear,
-      confirmedAt: confirmedAt,
       temporalBasis: temporalBasis,
+      relation: relation,
+      relationConfirmedAt: relationConfirmedAt,
     );
   }
 
@@ -197,22 +270,26 @@ final class Pillar3aBeneficiaryEvidence {
       identical(this, other) ||
       other is Pillar3aBeneficiaryEvidence &&
           contractReferenceId == other.contractReferenceId &&
-          relation == other.relation &&
           referenceId == other.referenceId &&
+          documentAuthorityId == other.documentAuthorityId &&
+          documentKind == other.documentKind &&
           sourceDate == other.sourceDate &&
           legalYear == other.legalYear &&
-          confirmedAt == other.confirmedAt &&
-          temporalBasis == other.temporalBasis;
+          temporalBasis == other.temporalBasis &&
+          relation == other.relation &&
+          relationConfirmedAt == other.relationConfirmedAt;
 
   @override
   int get hashCode => Object.hash(
         contractReferenceId,
-        relation,
         referenceId,
+        documentAuthorityId,
+        documentKind,
         sourceDate,
         legalYear,
-        confirmedAt,
         temporalBasis,
+        relation,
+        relationConfirmedAt,
       );
 }
 
@@ -223,12 +300,29 @@ final class Pillar3aBeneficiaryEvidenceRoot {
 
   static const int schemaVersion = 1;
   static const String answerKey =
-      '_coach_pillar3a_beneficiary_evidence_v1';
+      '_coach_pillar3a_beneficiary_evidence_v1'; // gitleaks:allow — ledger field name, not a credential.
 
   /// Payload/abuse bound only; never a Swiss product or legal limit.
   static const int maximumContracts = 32;
 
   final List<Pillar3aBeneficiaryEvidence> contracts;
+
+  static Pillar3aBeneficiaryEvidenceRoot fromContracts(
+    List<Pillar3aBeneficiaryEvidence> contracts, {
+    required DateTime now,
+  }) {
+    final candidate = fromJson(
+      <String, Object?>{
+        'schemaVersion': schemaVersion,
+        'contracts': contracts.map((contract) => contract.toJson()).toList(),
+      },
+      now: () => now,
+    );
+    if (candidate == null) {
+      throw ArgumentError('Invalid pillar 3a beneficiary evidence root');
+    }
+    return candidate;
+  }
 
   Map<String, Object?> toJson() => <String, Object?>{
         'schemaVersion': schemaVersion,
@@ -257,16 +351,16 @@ final class Pillar3aBeneficiaryEvidenceRoot {
 
     final current = (now ?? DateTime.now)().toUtc();
     final contracts = <Pillar3aBeneficiaryEvidence>[];
-    final contractReferenceIds = <String>{};
-    final referenceIds = <String>{};
+    final globallyUniqueIds = <String>{};
     for (final rawContract in rawContracts) {
       final contract = Pillar3aBeneficiaryEvidence.fromJson(
         rawContract,
         now: current,
       );
       if (contract == null ||
-          !contractReferenceIds.add(contract.contractReferenceId) ||
-          !referenceIds.add(contract.referenceId)) {
+          !globallyUniqueIds.add(contract.contractReferenceId) ||
+          !globallyUniqueIds.add(contract.referenceId) ||
+          !globallyUniqueIds.add(contract.documentAuthorityId)) {
         return null;
       }
       contracts.add(contract);
@@ -300,6 +394,331 @@ final class Pillar3aBeneficiaryEvidenceRoot {
 
   @override
   int get hashCode => Object.hashAll(contracts);
+}
+
+@immutable
+final class Pillar3aBeneficiaryReviewConfirmation {
+  const Pillar3aBeneficiaryReviewConfirmation._({
+    required this.contractReferenceId,
+    required this.referenceId,
+    required this.documentAuthorityId,
+    required this.documentKind,
+    required this.relation,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.temporalBasis,
+    required this.expectedPreviousReferenceId,
+  });
+
+  final String contractReferenceId;
+  final String referenceId;
+  final String documentAuthorityId;
+  final Pillar3aBeneficiaryAuthorityDocumentKind documentKind;
+  final Pillar3aBeneficiaryRelation relation;
+  final DateTime sourceDate;
+  final int legalYear;
+  final Pillar3aBeneficiaryTemporalBasis temporalBasis;
+  final String? expectedPreviousReferenceId;
+
+  factory Pillar3aBeneficiaryReviewConfirmation.exactDates({
+    required String contractReferenceId,
+    required String referenceId,
+    required String documentAuthorityId,
+    required Pillar3aBeneficiaryAuthorityDocumentKind documentKind,
+    required Pillar3aBeneficiaryRelation relation,
+    required DateTime sourceDate,
+    required int legalYear,
+    required DateTime? designationEffectiveDate,
+    required DateTime? lastAssignmentModificationDate,
+    String? expectedPreviousReferenceId,
+  }) {
+    _validateReviewIdentity(
+      contractReferenceId,
+      referenceId,
+      documentAuthorityId,
+      expectedPreviousReferenceId,
+    );
+    if (relation == Pillar3aBeneficiaryRelation.paidOrClosed ||
+        (designationEffectiveDate == null &&
+            lastAssignmentModificationDate == null)) {
+      throw ArgumentError('Exact dates require an active relation and a date');
+    }
+    _validateReviewProvenance(sourceDate, legalYear);
+    return Pillar3aBeneficiaryReviewConfirmation._(
+      contractReferenceId: contractReferenceId,
+      referenceId: referenceId,
+      documentAuthorityId: documentAuthorityId,
+      documentKind: documentKind,
+      relation: relation,
+      sourceDate: sourceDate,
+      legalYear: legalYear,
+      temporalBasis: Pillar3aBeneficiaryExactDates._(
+        designationEffectiveDate: designationEffectiveDate,
+        lastAssignmentModificationDate: lastAssignmentModificationDate,
+      ),
+      expectedPreviousReferenceId: expectedPreviousReferenceId,
+    );
+  }
+
+  factory Pillar3aBeneficiaryReviewConfirmation.attestedRegime({
+    required String contractReferenceId,
+    required String referenceId,
+    required String documentAuthorityId,
+    required Pillar3aBeneficiaryAuthorityDocumentKind documentKind,
+    required Pillar3aBeneficiaryRelation relation,
+    required DateTime sourceDate,
+    required int legalYear,
+    required Pillar3aBeneficiaryRegime regime,
+    String? expectedPreviousReferenceId,
+  }) {
+    _validateReviewIdentity(
+      contractReferenceId,
+      referenceId,
+      documentAuthorityId,
+      expectedPreviousReferenceId,
+    );
+    if (relation == Pillar3aBeneficiaryRelation.paidOrClosed) {
+      throw ArgumentError('A closed contract cannot carry a regime');
+    }
+    _validateReviewProvenance(sourceDate, legalYear);
+    return Pillar3aBeneficiaryReviewConfirmation._(
+      contractReferenceId: contractReferenceId,
+      referenceId: referenceId,
+      documentAuthorityId: documentAuthorityId,
+      documentKind: documentKind,
+      relation: relation,
+      sourceDate: sourceDate,
+      legalYear: legalYear,
+      temporalBasis: Pillar3aBeneficiaryAttestedRegime._(regime),
+      expectedPreviousReferenceId: expectedPreviousReferenceId,
+    );
+  }
+
+  factory Pillar3aBeneficiaryReviewConfirmation.paidOrClosed({
+    required String contractReferenceId,
+    required String referenceId,
+    required String documentAuthorityId,
+    required Pillar3aBeneficiaryAuthorityDocumentKind documentKind,
+    required DateTime sourceDate,
+    required int legalYear,
+    required Pillar3aBeneficiaryTemporalBasis temporalBasis,
+    String? expectedPreviousReferenceId,
+  }) {
+    _validateReviewIdentity(
+      contractReferenceId,
+      referenceId,
+      documentAuthorityId,
+      expectedPreviousReferenceId,
+    );
+    _validateReviewProvenance(sourceDate, legalYear);
+    return Pillar3aBeneficiaryReviewConfirmation._(
+      contractReferenceId: contractReferenceId,
+      referenceId: referenceId,
+      documentAuthorityId: documentAuthorityId,
+      documentKind: documentKind,
+      relation: Pillar3aBeneficiaryRelation.paidOrClosed,
+      sourceDate: sourceDate,
+      legalYear: legalYear,
+      temporalBasis: temporalBasis,
+      expectedPreviousReferenceId: expectedPreviousReferenceId,
+    );
+  }
+}
+
+@immutable
+final class Pillar3aBeneficiaryReceipt {
+  Pillar3aBeneficiaryReceipt({
+    required this.referenceId,
+    required this.contractReferenceId,
+    required this.documentAuthorityId,
+    required this.relationConfirmedAt,
+  }) {
+    if (!_canonicalUuidV4.hasMatch(referenceId) ||
+        !_canonicalUuidV4.hasMatch(contractReferenceId) ||
+        !_canonicalUuidV4.hasMatch(documentAuthorityId) ||
+        <String>{
+              referenceId,
+              contractReferenceId,
+              documentAuthorityId,
+            }.length !=
+            3) {
+      throw ArgumentError('Invalid pillar 3a receipt identity');
+    }
+  }
+
+  final String referenceId;
+  final String contractReferenceId;
+  final String documentAuthorityId;
+  final DateTime relationConfirmedAt;
+}
+
+@immutable
+final class Pillar3aBeneficiaryAuthorityCandidateV1 {
+  const Pillar3aBeneficiaryAuthorityCandidateV1._({
+    required this.schemaVersion,
+    required this.documentAuthorityId,
+    required this.documentKind,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.institutionAttested,
+    required this.contractScoped,
+    required this.needsReview,
+    required this.temporalBasis,
+  });
+
+  final int schemaVersion;
+  final String documentAuthorityId;
+  final Pillar3aBeneficiaryAuthorityDocumentKind documentKind;
+  final DateTime sourceDate;
+  final int legalYear;
+  final bool institutionAttested;
+  final bool contractScoped;
+  final bool needsReview;
+  final Pillar3aBeneficiaryTemporalBasis temporalBasis;
+
+  factory Pillar3aBeneficiaryAuthorityCandidateV1.exactDates({
+    required int schemaVersion,
+    required String documentAuthorityId,
+    required Pillar3aBeneficiaryAuthorityDocumentKind documentKind,
+    required DateTime sourceDate,
+    required int legalYear,
+    required bool institutionAttested,
+    required bool contractScoped,
+    required bool needsReview,
+    required DateTime? designationEffectiveDate,
+    required DateTime? lastAssignmentModificationDate,
+  }) {
+    if (schemaVersion != 1 ||
+        !_canonicalUuidV4.hasMatch(documentAuthorityId) ||
+        legalYear < 1900 ||
+        legalYear > 9999 ||
+        !institutionAttested ||
+        !contractScoped ||
+        !needsReview ||
+        (designationEffectiveDate == null &&
+            lastAssignmentModificationDate == null)) {
+      throw ArgumentError('Invalid pillar 3a authority candidate');
+    }
+    return Pillar3aBeneficiaryAuthorityCandidateV1._(
+      schemaVersion: schemaVersion,
+      documentAuthorityId: documentAuthorityId,
+      documentKind: documentKind,
+      sourceDate: sourceDate,
+      legalYear: legalYear,
+      institutionAttested: institutionAttested,
+      contractScoped: contractScoped,
+      needsReview: needsReview,
+      temporalBasis: Pillar3aBeneficiaryExactDates._(
+        designationEffectiveDate: designationEffectiveDate,
+        lastAssignmentModificationDate: lastAssignmentModificationDate,
+      ),
+    );
+  }
+
+  static Pillar3aBeneficiaryAuthorityCandidateV1? tryFromVisionJson(
+    Object? raw,
+  ) {
+    final json = _strictStringMap(raw);
+    if (json == null || !_hasExactKeys(json, _authorityCandidateKeys)) {
+      return null;
+    }
+    final documentKind = Pillar3aBeneficiaryAuthorityDocumentKind.fromWireName(
+      json['documentKind'],
+    );
+    final authorityId = json['documentAuthorityId'];
+    final legalYear = json['legalYear'];
+    final sourceDate = _parseCanonicalCivilDate(json['sourceDate']);
+    if (json['schemaVersion'] != 1 ||
+        authorityId is! String ||
+        !_canonicalUuidV4.hasMatch(authorityId) ||
+        documentKind == null ||
+        sourceDate == null ||
+        legalYear is! int ||
+        legalYear < 1900 ||
+        legalYear > 9999 ||
+        json['institutionAttested'] != true ||
+        json['contractScoped'] != true ||
+        json['needsReview'] != true) {
+      return null;
+    }
+    final temporalBasis = _parseTemporalBasis(
+      json['temporalBasis'],
+      sourceDate: sourceDate,
+    );
+    if (temporalBasis == null) return null;
+    return Pillar3aBeneficiaryAuthorityCandidateV1._(
+      schemaVersion: 1,
+      documentAuthorityId: authorityId,
+      documentKind: documentKind,
+      sourceDate: sourceDate,
+      legalYear: legalYear,
+      institutionAttested: true,
+      contractScoped: true,
+      needsReview: true,
+      temporalBasis: temporalBasis,
+    );
+  }
+}
+
+@immutable
+final class Pillar3aBeneficiaryAcquisitionCandidate {
+  Pillar3aBeneficiaryAcquisitionCandidate({
+    required this.contractReferenceId,
+    required this.referenceId,
+    required this.authority,
+    this.expectedPreviousReferenceId,
+  }) {
+    if (!_canonicalUuidV4.hasMatch(contractReferenceId) ||
+        !_canonicalUuidV4.hasMatch(referenceId) ||
+        <String>{
+              contractReferenceId,
+              referenceId,
+              authority.documentAuthorityId,
+            }.length !=
+            3 ||
+        (expectedPreviousReferenceId != null &&
+            (!_canonicalUuidV4.hasMatch(expectedPreviousReferenceId!) ||
+                <String>{
+                      contractReferenceId,
+                      referenceId,
+                      authority.documentAuthorityId,
+                      expectedPreviousReferenceId!,
+                    }.length !=
+                    4))) {
+      throw ArgumentError('Invalid pillar 3a acquisition identity');
+    }
+  }
+
+  final String contractReferenceId;
+  final String referenceId;
+  final Pillar3aBeneficiaryAuthorityCandidateV1 authority;
+  final String? expectedPreviousReferenceId;
+}
+
+void _validateReviewIdentity(
+  String contractReferenceId,
+  String referenceId,
+  String documentAuthorityId,
+  String? expectedPreviousReferenceId,
+) {
+  if (!_canonicalUuidV4.hasMatch(contractReferenceId) ||
+      !_canonicalUuidV4.hasMatch(referenceId) ||
+      !_canonicalUuidV4.hasMatch(documentAuthorityId) ||
+      <String>{contractReferenceId, referenceId, documentAuthorityId}.length !=
+          3 ||
+      (expectedPreviousReferenceId != null &&
+          (!_canonicalUuidV4.hasMatch(expectedPreviousReferenceId) ||
+              expectedPreviousReferenceId == contractReferenceId ||
+              expectedPreviousReferenceId == referenceId ||
+              expectedPreviousReferenceId == documentAuthorityId))) {
+    throw ArgumentError('Invalid pillar 3a review identity');
+  }
+}
+
+void _validateReviewProvenance(DateTime sourceDate, int legalYear) {
+  if (legalYear < 1900 || legalYear > 9999 || sourceDate.year < 1900) {
+    throw ArgumentError('Invalid pillar 3a review provenance');
+  }
 }
 
 Pillar3aBeneficiaryTemporalBasis? _parseTemporalBasis(
@@ -342,7 +761,8 @@ Pillar3aBeneficiaryTemporalBasis? _parseTemporalBasis(
       if (regime == null) return null;
 
       // Beneficiary designation or assignment modification is the determining event;
-      // sourceDate, confirmedAt, and legalYear alone never determine the regime.
+      // sourceDate, relationConfirmedAt, and legalYear alone never determine
+      // the regime.
       // sourceDate only rejects post-reform evidence predating the legal cutoff.
       if (regime == Pillar3aBeneficiaryRegime.post20270601 &&
           SwissCivilTime.businessDate(sourceDate).isBefore(_opp3RegimeCutoff)) {
@@ -402,14 +822,19 @@ const _rootKeys = <String>{'schemaVersion', 'contracts'};
 const _contractKeys = <String>{
   'kind',
   'ownerKind',
-  'source',
+  'documentSource',
   'contractReferenceId',
-  'relation',
   'referenceId',
+  'documentAuthorityId',
+  'documentKind',
   'sourceDate',
   'legalYear',
-  'confirmedAt',
+  'institutionAttested',
+  'contractScoped',
   'temporalBasis',
+  'relation',
+  'relationSource',
+  'relationConfirmedAt',
 };
 const _exactDatesKeys = <String>{
   'kind',
@@ -417,6 +842,17 @@ const _exactDatesKeys = <String>{
   'lastAssignmentModificationDate',
 };
 const _attestedRegimeKeys = <String>{'kind', 'regime'};
+const _authorityCandidateKeys = <String>{
+  'schemaVersion',
+  'documentAuthorityId',
+  'documentKind',
+  'sourceDate',
+  'legalYear',
+  'institutionAttested',
+  'contractScoped',
+  'temporalBasis',
+  'needsReview',
+};
 final RegExp _canonicalUuidV4 = RegExp(
   r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
 );

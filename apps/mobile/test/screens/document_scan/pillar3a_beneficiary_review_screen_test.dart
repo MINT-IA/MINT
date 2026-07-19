@@ -17,11 +17,24 @@ import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/data.dart';
 
 const _contractId = '11111111-1111-4111-8111-111111111111';
-const _previousReferenceId = '22222222-2222-4222-8222-222222222222';
 const _authorityId = '33333333-3333-4333-8333-333333333333';
 const _acceptedReferenceId = '44444444-4444-4444-8444-444444444444';
+const _scanContextId = '22222222-2222-4222-8222-222222222222';
+
+final class _SequenceUuid extends Uuid {
+  _SequenceUuid(this.values);
+
+  final List<String> values;
+  int index = 0;
+
+  @override
+  String v4({Map<String, dynamic>? options, V4Options? config}) =>
+      values[index++];
+}
 
 const _clauseExtraction = ExtractionResult(
   documentType: DocumentType.pillar3aBeneficiaryClause,
@@ -71,8 +84,8 @@ Pillar3aBeneficiaryAuthorityCandidateV1 _authority() =>
 Pillar3aBeneficiaryAcquisitionCandidate _candidate() =>
     Pillar3aBeneficiaryAcquisitionCandidate(
       contractReferenceId: _contractId,
+      referenceId: _acceptedReferenceId,
       authority: _authority(),
-      expectedPreviousReferenceId: _previousReferenceId,
     );
 
 final class _LedgerSpy extends CoachProfileProvider {
@@ -86,7 +99,7 @@ final class _LedgerSpy extends CoachProfileProvider {
     referenceId: _acceptedReferenceId,
     contractReferenceId: _contractId,
     documentAuthorityId: _authorityId,
-    confirmedAt: DateTime.utc(2026, 7, 19, 10),
+    relationConfirmedAt: DateTime.utc(2026, 7, 19, 10),
   );
 
   @override
@@ -107,8 +120,12 @@ final class _LedgerSpy extends CoachProfileProvider {
     events.add('accept');
     if (failAccept ||
         confirmation.contractReferenceId != _contractId ||
+        confirmation.referenceId != _acceptedReferenceId ||
         confirmation.documentAuthorityId != _authorityId ||
-        confirmation.expectedPreviousReferenceId != _previousReferenceId) {
+        confirmation.documentKind !=
+            Pillar3aBeneficiaryAuthorityDocumentKind
+                .confirmationInstitutionnelle ||
+        confirmation.expectedPreviousReferenceId != null) {
       throw StateError('synthetic pillar 3a accept failure');
     }
     return receipt;
@@ -139,7 +156,7 @@ final class _DocumentSpy extends DocumentProvider {
       contractReferenceId: receipt.contractReferenceId,
       documentAuthorityId: receipt.documentAuthorityId,
       ownerKind: LppEvidenceOwnerKind.self,
-      confirmedAt: receipt.confirmedAt,
+      confirmedAt: receipt.relationConfirmedAt,
     );
   }
 }
@@ -154,6 +171,8 @@ final class _BiographySpy extends BiographyProvider {
 }
 
 final class _ScanSessionSpy extends ScanSessionProvider {
+  _ScanSessionSpy({super.uuid});
+
   int discardCalls = 0;
 
   @override
@@ -198,15 +217,32 @@ _Harness _harness({
     failRecordCalls: failRecordCalls,
   );
   final biography = _BiographySpy();
-  final sessions = _ScanSessionSpy();
+  final sessions = _ScanSessionSpy(
+    uuid: _SequenceUuid(<String>[_scanContextId, _contractId]),
+  );
   final syncCalls = <int>[];
   final extraction =
       genericBalanceOnly ? _genericBalanceExtraction : _clauseExtraction;
   final candidate = withCandidate ? _candidate() : null;
+  final scanContextId = withCandidate
+      ? sessions.retainPillar3aBeneficiaryScanIntent(
+          kind: Pillar3aBeneficiaryScanIntentKind.insertion,
+          returnUri: '/retraite',
+        )
+      : null;
+  if (scanContextId != null) {
+    sessions.advancePillar3aBeneficiaryScanIntent(
+      scanContextId,
+      from: Pillar3aBeneficiaryScanIntentLifecycle.created,
+      to: Pillar3aBeneficiaryScanIntentLifecycle.processing,
+    );
+  }
   final scanSessionId = withCandidate
       ? sessions.retainExtraction(
           extraction,
           pillar3aBeneficiaryCandidate: candidate,
+          pillar3aScanContextId: scanContextId,
+          pillar3aReturnUri: '/retraite',
         )
       : 'missing-pillar3a-session';
   late final GoRouter router;
@@ -218,6 +254,8 @@ _Harness _harness({
           scanSessionId: scanSessionId,
           result: extraction,
           pillar3aBeneficiaryCandidate: candidate,
+          pillar3aScanContextId: scanContextId,
+          pillar3aReturnUri: scanContextId == null ? null : '/retraite',
           now: () => DateTime.utc(2026, 7, 19, 10),
           sendScanConfirmation: ({
             required documentType,
@@ -292,11 +330,13 @@ void main() {
 
   setUp(() {
     FeatureFlags.typedLppEvidence = true;
+    FeatureFlags.documentLppEvidenceEnabled = true;
     FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled = true;
   });
 
   tearDown(() {
     FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled = false;
+    FeatureFlags.documentLppEvidenceEnabled = false;
     FeatureFlags.typedLppEvidence = false;
   });
 
@@ -391,18 +431,81 @@ void main() {
       find.byKey(const Key('pillar3a_beneficiary_share_field')),
       findsNothing,
     );
+    expect(
+      find.byKey(const Key('pillar3a_beneficiary_authority_summary')),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Confirmation de l’institution 3a'),
+      findsOneWidget,
+    );
+    expect(
+      (tester.widget<Text>(
+        find.byKey(const Key('pillar3a_beneficiary_source_date_value')),
+      )).data,
+      '18/07/2026',
+    );
+    expect(
+      (tester.widget<Text>(
+        find.byKey(const Key('pillar3a_beneficiary_legal_year_value')),
+      )).data,
+      '2026',
+    );
+    expect(
+      find.text('Dates attestées par l’institution, non déduites par MINT'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(
+        'La date de la source et l’année juridique ne prouvent pas',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Choisis la situation du contrat avant de confirmer.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Contrat actif, pas encore versé'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Contrat déjà versé ou clôturé'),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.byKey(const Key('pillar3a_beneficiary_confirm_cta')),
+          )
+          .onPressed,
+      isNull,
+    );
     await _confirm(tester);
     expect(harness.ledger.acceptCalls, 0);
     expect(harness.documents.recordCalls, 0);
 
     await _chooseRelation(tester, 'current_active_unpaid');
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.byKey(const Key('pillar3a_beneficiary_confirm_cta')),
+          )
+          .onPressed,
+      isNotNull,
+    );
     await _confirm(tester);
 
     expect(harness.events, <String>['accept', 'record']);
     final confirmation = harness.ledger.confirmations.single;
     expect(confirmation.contractReferenceId, _contractId);
+    expect(confirmation.referenceId, _acceptedReferenceId);
     expect(confirmation.documentAuthorityId, _authorityId);
-    expect(confirmation.expectedPreviousReferenceId, _previousReferenceId);
+    expect(
+      confirmation.documentKind,
+      Pillar3aBeneficiaryAuthorityDocumentKind.confirmationInstitutionnelle,
+    );
+    expect(confirmation.expectedPreviousReferenceId, isNull);
     expect(
       confirmation.relation,
       Pillar3aBeneficiaryRelation.currentActiveUnpaid,
@@ -424,7 +527,8 @@ void main() {
         find.byKey(const Key('pillar3a_review_destination')), findsOneWidget);
   });
 
-  testWidgets('paid or closed confirms no temporal basis then records BND',
+  testWidgets(
+      'paid or closed preserves document temporal basis then records BND',
       (tester) async {
     final harness = _harness();
     addTearDown(harness.router.dispose);
@@ -437,7 +541,10 @@ void main() {
     expect(harness.events, <String>['accept', 'record']);
     final confirmation = harness.ledger.confirmations.single;
     expect(confirmation.relation, Pillar3aBeneficiaryRelation.paidOrClosed);
-    expect(confirmation.temporalBasis, isNull);
+    expect(
+      confirmation.temporalBasis.toJson(),
+      _authority().temporalBasis.toJson(),
+    );
     expect(confirmation.sourceDate, DateTime.utc(2026, 7, 18));
     expect(confirmation.legalYear, 2026);
     expect(harness.documents.receipts.single, same(harness.ledger.receipt));
@@ -461,7 +568,7 @@ void main() {
     );
     expect(
       find.textContaining(
-        'votre institution 3a, puis un notaire ou juriste successoral',
+        'ton institution 3a, puis un notaire ou juriste successoral',
       ),
       findsOneWidget,
     );
@@ -469,7 +576,7 @@ void main() {
     await _chooseRelation(tester, 'uncertain');
     expect(
       find.textContaining(
-        'demandez une confirmation écrite à votre institution 3a',
+        'demande une confirmation écrite à ton institution 3a',
       ),
       findsOneWidget,
     );

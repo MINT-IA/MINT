@@ -525,6 +525,9 @@ class ScanSessionPayload {
   final LppAcquisitionAuthorization? lppAuthorization;
   final LppRegulationAcquisitionCandidate? lppRegulationCandidate;
   final TaxExtractionCandidate? taxCandidate;
+  final Pillar3aBeneficiaryAcquisitionCandidate? pillar3aBeneficiaryCandidate;
+  final String? pillar3aScanContextId;
+  final String? pillar3aReturnUri;
   final int? previousConfidence;
 }
 ```
@@ -532,6 +535,11 @@ class ScanSessionPayload {
 - `retainExtraction(...)` creates an opaque process-local id and retains the
   extraction plus at most one typed candidate. The registry keeps at most five
   entries and evicts the oldest insertion when the sixth is retained.
+- Exact 3a-beneficiary acquisition additionally uses a separate volatile
+  FIFO-five intent registry. The route sees only `scanContextId` and the closed
+  return URI `/retraite`; contract/reference authority remains inside the
+  registry and paired review session. Intent lifecycle is monotonic:
+  `created -> processing -> reviewRetained -> ledgerAcceptedAwaitingBnd`.
 - There is no `ScanStatus`, transition machine, timestamp, SharedPreferences
   key, restart rehydration or asynchronous recompute callback in this provider.
   A process death deliberately loses unconfirmed session data and routes to the
@@ -552,16 +560,16 @@ class ScanSessionPayload {
 | | |
 |---|---|
 | shell | root |
-| purpose | Capture or pick a document (personal LPP certificate, LPP plan/regulation, AVS extract, tax certificate). |
-| reads | optional `DocumentType.name` from query `type`; local feature flags; for a personal LPP certificate, exact `CoachProfile.conjoint != null` decides whether `manualPartner` may be offered. For `lppPlan`, only the optional previous regulation reference id forms the immutable acquisition candidate; numeric self-LPP facts are neither required nor read. Profile canton is used for backend extraction and age only for AVS parsing. `HouseholdProvider`, membership, invitation and account-link state never authorize either LPP path |
-| writes | no financial fact. Personal-certificate extraction retains its typed candidate/authorization. Exact `lppPlan` transport retains only `{expectedPreviousReferenceId}` plus a strict empty `ExtractionResult`; it discards the backend processing id. Both use the volatile `ScanSessionProvider` until review |
-| entryConditions | route available behind `enableScan`; camera/file permission. Personal LPP is selectable only when `typedLppEvidence && documentLppEvidenceEnabled`; `lppPlan` additionally requires `lppRegulationReferenceEnabled` but admits a regulation-only journey with no numeric snapshot. The technically implemented personal-certificate `manualPartner` option additionally requires exact `CoachProfile.conjoint != null`, `partnerLppAccountabilityEnabled`, represented authorization, current external facts, authenticated actor and pending/active binding. The default `/scan` builder injects no production `PartnerAccountabilityExternalGate`, so that branch remains fail-closed even if a developer flips local flags |
+| purpose | Capture or pick a document (personal LPP certificate, LPP plan/regulation, exact 3a-beneficiary authority, AVS extract, tax certificate). |
+| reads | optional legacy `DocumentType.name` from query `type`; exact 3a instead requires the closed query `{scanContextId, returnUri=/retraite}` resolving a live volatile intent. Local feature flags apply before provider reads. For a personal LPP certificate, exact `CoachProfile.conjoint != null` decides whether `manualPartner` may be offered. For `lppPlan`, only the optional previous regulation reference id forms the immutable acquisition candidate; numeric self-LPP facts are neither required nor read. Profile canton is used for backend extraction and age only for AVS parsing. `HouseholdProvider`, membership, invitation and account-link state never authorize either LPP path |
+| writes | no financial fact. Personal-certificate extraction retains its typed candidate/authorization. Exact `lppPlan` transport retains only `{expectedPreviousReferenceId}` plus a strict empty `ExtractionResult`; it discards the backend processing id. Exact 3a retains one raw-free institutional authority candidate, preallocated join id, opaque scan context and return URI. All use volatile `ScanSessionProvider` state until review |
+| entryConditions | route available behind `enableScan`; camera/file permission. Personal LPP is selectable only when `typedLppEvidence && documentLppEvidenceEnabled`; `lppPlan` additionally requires `lppRegulationReferenceEnabled` but admits a regulation-only journey with no numeric snapshot. Exact 3a requires `typedLppEvidence && documentLppEvidenceEnabled && pillar3aBeneficiaryClauseReferenceEnabled`, exact query shape and intent lifecycle `created|processing`; bare `/scan?type=pillar3aBeneficiaryClause` always recovers. The technically implemented personal-certificate `manualPartner` option additionally requires exact `CoachProfile.conjoint != null`, `partnerLppAccountabilityEnabled`, represented authorization, current external facts, authenticated actor and pending/active binding. The default `/scan` builder injects no production `PartnerAccountabilityExternalGate`, so that branch remains fail-closed even if a developer flips local flags |
 | emptyState | No camera/no doc selected → guide card + "Scanner mon certificat" CTA + `/scan/avs-guide`. i18n `scan.empty.title` / `scan.empty.cta` |
-| partialState | Local `_isProcessing` is true during extraction → progress UI; this is screen state, not a persisted session status. `lppPlan` exposes gallery/file import only, not camera, paste or debug-example paths |
-| errorState | Permission denied/extraction failure → localized recovery. A personal-certificate kind/confidence failure creates no review/session/write. `lppPlan` rejects non-PDF input, non-plan type, any extracted field/count/confidence, RAG=true, flag drift or previous-reference drift; none may create a review session |
-| routesOut | `/scan/review?scanSessionId=…`, `/scan/avs-guide`, `/data-block/:type` |
-| privacyInvariant | Personal self LPP asks `visionExtraction + transferUsAnthropic`; `manualPartner` asks `visionExtraction` under its typed notice. Exact `lppPlan` asks only `visionExtraction`, picks a PDF with `withData=false`, and calls the direct upload service. Backend plan bytes/text are request-scoped: zero personal extraction, `DocumentModel`, GET-addressable row, RAG, response cache or raw preview. Mobile never carries the backend id beyond response parsing. Authorization/SHA/raw plan data never enter the financial ledger, provenance, Biography, route/query, analytics or the metadata reference |
-| killFlag | `enableScan`; personal LPP uses `lppEvidenceIngestionEnabled`; plan acquisition uses the three-flag `lppRegulationAcquisitionEnabled` composite |
+| partialState | Local `_isProcessing` is true during extraction → progress UI; this is screen state, not a persisted session status. `lppPlan` exposes gallery/file import only, not camera, paste or debug-example paths. Exact 3a exposes camera/gallery plus image/PDF picker, but never text, paste, debug-example or manual-OCR fallback |
+| errorState | Permission denied/extraction failure → localized recovery. A personal-certificate kind/confidence failure creates no review/session/write. `lppPlan` rejects non-PDF input, non-plan type, any extracted field/count/confidence, RAG=true, flag drift or previous-reference drift. Exact 3a rejects malformed/future authority, wrong query or lifecycle, unsupported extension, sanitation/decode failure and any flag drift; all discard intent/session and create no write |
+| routesOut | ordinary paths: `/scan/review?scanSessionId=…`, `/scan/avs-guide`, `/data-block/:type`; exact 3a only: `/scan/review?scanSessionId=…&returnUri=/retraite` |
+| privacyInvariant | Personal self LPP asks `visionExtraction + transferUsAnthropic`; `manualPartner` asks `visionExtraction` under its typed notice. Exact `lppPlan` asks only `visionExtraction`, picks a PDF with `withData=false`, and calls the direct upload service. Exact 3a asks `visionExtraction + transferUsAnthropic`; images are decode/re-encoded before Vision, PDFs stay transient, and candidates contain no raw bytes/text/filename/path or beneficiary identity. Backend plan bytes/text are request-scoped: zero personal extraction, `DocumentModel`, GET-addressable row, RAG, response cache or raw preview. Mobile never carries the backend id beyond response parsing. Authorization/SHA/raw plan data never enter the financial ledger, provenance, Biography, route/query, analytics or the metadata reference |
+| killFlag | `enableScan`; personal LPP uses `lppEvidenceIngestionEnabled`; plan acquisition uses the three-flag `lppRegulationAcquisitionEnabled` composite; exact 3a requires its explicit three-flag composite |
 
 ### 5.1 G1 BND-02A/BND-02 — default-off progressive implementation; activation NO-GO
 
@@ -836,21 +844,22 @@ default-off; eight external production facts keep activation and G1 NO-GO.
 | | |
 |---|---|
 | shell | root |
-| purpose | Review and confirm one volatile typed candidate before any ledger publication. Personal-certificate and tax candidates retain their existing editors; `lppPlan` has a dedicated zero-fact metadata review |
-| reads | `ScanSessionProvider.byId(query['scanSessionId'])` -> retained extraction plus exactly one optional typed candidate. The router forwards `lppRegulationCandidate` directly from that session. Review reads the current `CoachProfileProvider` for authority revalidation and `DocumentProvider` only after ledger acceptance |
-| writes | Personal LPP keeps the existing `LppReviewConfirmation -> acceptLppReview -> retainImpact` seam. Tax keeps its typed writer. `lppPlan` builds one self-only `LppRegulationReviewConfirmation` from the retained previous-reference boundary plus `sourceDate`, `legalYear` and the required declared `fundRelationship`; it calls `acceptLppRegulationReference` exactly once, then `recordLppRegulation` with the returned receipt. It has no `retainImpact`, Biography, generic backend-sync, `applySaveFact` or financial-value write |
-| entryConditions | non-empty `scanSessionId` resolving in the volatile registry. Personal LPP additionally requires its composite flag, exact canonical candidate/authorization and any active manual-partner context. `lppPlan` requires the three-flag regulation composite, a strict empty `DocumentType.lppPlan` extraction and its paired `LppRegulationAcquisitionCandidate`; cold restart cannot reconstruct either path |
+| purpose | Review and confirm one volatile typed candidate before any ledger publication. Personal-certificate and tax candidates retain their existing editors; `lppPlan` has a dedicated zero-fact metadata review; exact 3a has an institutional-authority plus user-declared-relation review |
+| reads | `ScanSessionProvider.byId(query['scanSessionId'])` -> retained extraction plus exactly one optional typed candidate. The router forwards typed candidates directly from that session. Exact 3a additionally resolves the paired intent from `pillar3aScanContextId` and exact `returnUri`. Review reads the current `CoachProfileProvider` for authority revalidation and `DocumentProvider` only after ledger acceptance |
+| writes | Personal LPP keeps the existing `LppReviewConfirmation -> acceptLppReview -> retainImpact` seam. Tax keeps its typed writer. `lppPlan` calls `acceptLppRegulationReference` exactly once, then `recordLppRegulation` with the returned receipt. Exact 3a builds one `Pillar3aBeneficiaryReviewConfirmation`, calls `acceptPillar3aBeneficiaryReview` exactly once, advances the intent, then calls `recordPillar3aBeneficiaryEvidence` with the same receipt. Neither metadata path has `retainImpact`, Biography, generic backend sync, `applySaveFact` or financial-value write |
+| entryConditions | non-empty `scanSessionId` resolving in the volatile registry. Personal LPP additionally requires its composite flag, exact canonical candidate/authorization and any active manual-partner context. `lppPlan` requires the three-flag regulation composite, a strict empty `DocumentType.lppPlan` extraction and its paired candidate. Exact 3a requires both exact query keys, its three flags, a strict empty extraction, paired authority candidate and intent lifecycle `reviewRetained`; cold restart cannot reconstruct any typed path |
 | emptyState (LIVE) | id missing/evicted/cold-restart -> localized AppBar+back recovery scaffold; stable `scan_review_recovery_cta` routes to `/scan` |
-| disabledState (LIVE) | Personal LPP uses `lpp_review_disabled_recovery` / `lpp_review_missing_candidate_recovery`. `lppPlan` uses `lpp_regulation_review_disabled_recovery` / `lpp_regulation_review_missing_candidate_recovery`. Every recovery exposes cancel/back and no writer CTA |
+| disabledState (LIVE) | Personal LPP uses `lpp_review_disabled_recovery` / `lpp_review_missing_candidate_recovery`. `lppPlan` uses `lpp_regulation_review_disabled_recovery` / `lpp_regulation_review_missing_candidate_recovery`. Exact 3a reuses the localized scan-review recovery after discarding its paired intent/session. Every recovery exposes cancel/back and no writer CTA |
 | partialState (LIVE, personal LPP) | preserve source confidence/`needsReview`, request effective date and editable canonical values. Untouched documentary facts require a valid non-future date; corrected facts become `userInput` with null source date |
 | partialState (LIVE, `lppPlan`) | render `lpp_regulation_review_source_date`, `lpp_regulation_review_legal_year` and exactly one required declaration choice: `lpp_regulation_fund_relation_current`, `_uncertain` or `_former_or_other`, plus the neutral non-verification/no-applicability/no-entitlement boundary. Do not render the generic 0% confidence badge, extracted-field cards, values, recommendations or impact UI |
-| validationInvariant | Personal LPP keeps canonical key/value/unit plus `LppBalanceCoherence`. `lppPlan` requires canonical YYYY-MM-DD not in the future, a four-digit `legalYear` in 1900...9999 and one `LppFundRelationship`; previous-reference drift is rejected again inside the serialized provider writer before persistence. `currentFund` is a user declaration, not objective caisse verification |
-| ownerInvariant | Both paths fix owner before acquisition. `lppPlan` is self-only and carries no owner token in route/query. Personal `manualPartner` retains the §5.1 represented-authorization rules; account linking and `HouseholdProvider` remain irrelevant |
-| errorState | Personal LPP secure-save failure remains editable and publishes nothing. For `lppPlan`, accept failure leaves all three human fields editable and never calls record; record failure keeps the accepted receipt, locks all three fields and exposes `lpp_regulation_reference_retry_cta`. Retry calls record only with the identical receipt and never repeats accept |
-| success/ordering | `lppPlan`: `acceptLppRegulationReference` -> `recordLppRegulation` -> discard `scanSessionId` -> `context.go('/retraite')`. A successful session never visits `/scan/impact` |
-| routesOut | Personal LPP: `/scan/impact?scanSessionId=...`, `/scan`, `/data-block/:type`. `lppPlan`: `/retraite` on success or `/scan` recovery |
-| privacyInvariant | All route/query data remains only the opaque `scanSessionId`. Personal authorization/SHA remains volatile and is dropped by impact. The plan candidate contains only the optional previous reference id; review adds only source date, legal year and declared relationship; the final tuple remains snapshotless and raw-free. No backend upload id, path, filename, hash, plan text or plan value enters the route, root, reference, handoff or analytics |
-| killFlag | `enableScan`; personal LPP uses `lppEvidenceIngestionEnabled`; `lppPlan` uses `lppRegulationAcquisitionEnabled` |
+| partialState (LIVE, exact 3a) | render document kind, source date, legal year, exact dates or attested regime, freshness caveat and exactly one relation choice: current active/unpaid, uncertain, or paid/closed. Never render beneficiary identity, order, share/rank, internal ids, generic confidence, recommendations or legal applicability |
+| validationInvariant | Personal LPP keeps canonical key/value/unit plus `LppBalanceCoherence`. `lppPlan` requires canonical YYYY-MM-DD not in the future, a four-digit `legalYear` in 1900...9999 and one `LppFundRelationship`; previous-reference drift is rejected again inside the serialized provider writer before persistence. Exact 3a requires three distinct canonical UUIDs, institution-attested contract scope, source date not future, legal year 1900...9999, exact temporal basis, matching volatile intent and replacement CAS. Both relationship fields are user declarations, not objective applicability verification |
+| ownerInvariant | All metadata paths are self-only and fix owner before acquisition. `lppPlan` and exact 3a carry no owner token in route/query. Personal `manualPartner` retains the §5.1 represented-authorization rules; account linking and `HouseholdProvider` remain irrelevant |
+| errorState | Personal LPP secure-save failure remains editable and publishes nothing. For `lppPlan` and exact 3a, accept failure leaves human fields editable and never calls record; record failure keeps the accepted receipt, locks authority/relation fields and exposes record-only retry. Retry uses the identical receipt and never repeats accept |
+| success/ordering | `lppPlan`: accept -> record -> discard `scanSessionId` -> `/retraite`. Exact 3a: accept -> intent `ledgerAcceptedAwaitingBnd` -> record -> complete intent -> discard session -> exact return URI. Neither successful metadata session visits `/scan/impact` |
+| routesOut | Personal LPP: `/scan/impact?scanSessionId=...`, `/scan`, `/data-block/:type`. `lppPlan` and exact 3a: `/retraite` on success or localized scan recovery |
+| privacyInvariant | Ordinary route/query data remains opaque `scanSessionId`; exact 3a adds opaque `returnUri=/retraite` while contract/reference/authority ids stay volatile. Personal authorization/SHA remains volatile and is dropped by impact. The plan candidate contains only the optional previous reference id. Exact 3a persists only the closed institutional metadata + declared relation root and exact raw-free BND join. No beneficiary identity/order/share, backend upload id, path, filename, hash, raw text or financial value enters route, handoff or analytics |
+| killFlag | `enableScan`; personal LPP uses `lppEvidenceIngestionEnabled`; `lppPlan` uses `lppRegulationAcquisitionEnabled`; exact 3a requires the three explicit flags together |
 
 ### `/scan/impact` — LIVE retained-impact boundary
 | | |
@@ -1191,6 +1200,69 @@ PDF/dossier caveat parity is closed; activation and other RET-REF obligations
 remain open. All flags stay false, `G1-RET-REF-01` stays
 `ticket_only`, G1 stays open at 8.2/10 and G2/G3 are forbidden.
 
+#### 3a beneficiary authority — G1-RET-REF-01 implementation GREEN; audits/runtime/dossier open
+
+This default-off path is a specialist-reference contract, not a beneficiary
+calculator. It stores no name, beneficiary class, statutory order, rank, share,
+entitlement, recommendation or inferred legal applicability. The authoritative
+document metadata and the user's current relation declaration remain separate
+inside one strict root.
+
+The production chain is `RetirementDashboardScreen -> opaque
+Pillar3aBeneficiaryScanIntent -> /scan -> /scan/review ->
+CoachProfileProvider.acceptPillar3aBeneficiaryReview ->
+DocumentProvider.recordPillar3aBeneficiaryEvidence -> /retraite`.
+
+- **Composite off:** if any of `typedLppEvidence`,
+  `documentLppEvidenceEnabled`, or
+  `pillar3aBeneficiaryClauseReferenceEnabled` is false, the Dashboard reads no
+  consumer, renders no card/CTA and creates no scan intent.
+- **Empty:** one insertion CTA creates a process-local FIFO-five intent and
+  routes only `{scanContextId, returnUri=/retraite}`. A bare
+  `type=pillar3aBeneficiaryClause` query is rejected.
+- **Known current declared:** exact strict root + hydrated BND + matching
+  three-UUID join + `currentActiveUnpaid` renders document kind, source date,
+  legal year, temporal basis and declaration date. It never renders the opaque
+  ids or beneficiary identity/order/share.
+- **Needs confirmation:** exact authority plus relation `uncertain` renders a
+  relation-only reconfirm CTA. The writer preserves all institutional metadata
+  and uses exact prior-reference CAS.
+- **Inactive:** exact authority plus `paidOrClosed`, or a canonical newer/equal
+  `q_has_3a=false` signal, renders the inactive state without a false known card.
+- **Missing/mismatched BND:** exact root with absent or related-nonexact BND
+  renders a bounded relink/review recovery; precise metadata stays hidden.
+- **Invalid presence provenance:** valid exact authority with malformed/future
+  `q_has_3a=false` provenance renders a targeted repair. The durable mutation
+  removes only `q_has_3a` and `__provenance.hasPillar3a`, preserves the root,
+  BND and all provenance siblings, publishes only after save, and never creates
+  a scan intent or fabricates `true`.
+- **Invalid root:** the separate destructive recovery purges all 3a-beneficiary
+  BND references before removing the strict root. Selective presence repair
+  must refuse this state.
+- **Record retry:** after Ledger acceptance, intent lifecycle is
+  `ledgerAcceptedAwaitingBnd`; Dashboard/review retry calls only BND record with
+  the identical accepted receipt. Dismissing a sheet cannot strand that retry
+  or cause a second Ledger mutation.
+- **Lifecycle:** cancellation, route mismatch, flag drift, FIFO eviction and
+  logout purge both the intent and paired review session. Cold restart exposes
+  localized recovery and never reconstructs a candidate from route data.
+- **Handoff boundary:** the Dashboard sheet contains only neutral questions for
+  the institution/specialist, freshness/no-advice copy and the attested metadata
+  allowlist. Dossier/PDF parity and exact-SHA native runtime remain open; no
+  ticket promotion or G1 closure is claimed by the implementation tests.
+
+The focused state/control map is
+`.planning/journeys/diagrams/pillar3a_beneficiary_reference.mmd`. Contract tests
+are `pillar3a_beneficiary_evidence_contract_test.dart`,
+`pillar3a_beneficiary_evidence_provider_test.dart`,
+`pillar3a_beneficiary_document_bridge_test.dart`,
+`pillar3a_beneficiary_consumer_resolver_test.dart`,
+`pillar3a_beneficiary_relation_reconfirmation_test.dart`,
+`pillar3a_beneficiary_scan_intent_test.dart`,
+`pillar3a_beneficiary_acquisition_test.dart`,
+`pillar3a_beneficiary_review_screen_test.dart` and
+`retirement_dashboard_pillar3a_consumer_test.dart`.
+
 `/rapport` and its PDF export consume evidence-bearing ledger facts; they do
 not recreate pension entitlements from illustrative inputs. The three pillars
 remain independent evidence envelopes:
@@ -1450,7 +1522,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/epl` (593) | §4 | `/naissance` (778) | §4 |
 | `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
 | `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
-| `/first-job` (795) | §4 | `/scan/impact` (1252) | §5 |
+| `/first-job` (795) | §4 | `/scan/impact` (1344) | §5 |
 | `/expatriation` (800) | §4 | `/documents` (935) | §4 |
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |
@@ -1466,7 +1538,7 @@ and are NOT in this table (they carry no screen). Every path below has a
 | `/assurances/coverage` (873) | §4 | `/segments/gender-gap` (1056) | §4 |
 | `/scan` (880) | §5 | `/segments/frontalier` (1061) | §4 |
 | `/scan/avs-guide` (894) | §5 | `/life-event/housing-sale` (1066) | §4 |
-| `/scan/review` (1225) | §5 | `/life-event/donation` (1071) | §4 |
+| `/scan/review` (1275) | §5 | `/life-event/donation` (1071) | §4 |
 | `/life-event/deces-proche` (1076) | §4 | `/simulator/leasing` (1108) | §4 |
 | `/life-event/demenagement-cantonal` (1081) | §4 | `/simulator/credit` (1113) | §4 |
 | `/education/hub` (1088) | §4 | `/arbitrage/bilan` (1120) | §4 |

@@ -252,6 +252,61 @@ Widget _buildScanRecoveryScaffold(
   );
 }
 
+Widget _buildScanRoute(BuildContext context, Uri uri) {
+  final scanContextId = uri.queryParameters['scanContextId'];
+  final returnUri = uri.queryParameters['returnUri'];
+  if (scanContextId != null || returnUri != null) {
+    final intent =
+        context.watch<ScanSessionProvider>().pillar3aBeneficiaryScanIntentById(
+              scanContextId,
+              returnUri: returnUri ?? '',
+            );
+    final hasExactOpaqueQuery = uri.queryParameters.keys.toSet().length == 2 &&
+        uri.queryParameters.keys.toSet().containsAll(
+          const <String>{'scanContextId', 'returnUri'},
+        );
+    if (!hasExactOpaqueQuery ||
+        !FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.documentLppEvidenceEnabled ||
+        !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        intent == null ||
+        (intent.lifecycle != Pillar3aBeneficiaryScanIntentLifecycle.created &&
+            intent.lifecycle !=
+                Pillar3aBeneficiaryScanIntentLifecycle.processing)) {
+      if (scanContextId != null) {
+        final scanSessions = context.read<ScanSessionProvider>();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          scanSessions.discardPillar3aBeneficiaryScanIntent(scanContextId);
+        });
+      }
+      return _buildScanRecoveryScaffold(
+        context,
+        _ScanRecoveryTarget.review,
+      );
+    }
+    return DocumentScanScreen(
+      initialType: DocumentType.pillar3aBeneficiaryClause,
+      scanContextId: scanContextId,
+      returnUri: returnUri,
+    );
+  }
+  final requestedType = uri.queryParameters['type'];
+  if (requestedType == DocumentType.pillar3aBeneficiaryClause.name) {
+    return _buildScanRecoveryScaffold(
+      context,
+      _ScanRecoveryTarget.review,
+    );
+  }
+  final initialType = DocumentType.values
+      .where((type) => type.name == requestedType)
+      .firstOrNull;
+  return DocumentScanScreen(initialType: initialType);
+}
+
+@visibleForTesting
+Widget testOnlyBuildScanRoute(Uri uri) =>
+    Builder(builder: (context) => _buildScanRoute(context, uri));
+
 @visibleForTesting
 Widget testOnlyBuildScanRecoveryScaffold(String route) {
   return Builder(
@@ -588,11 +643,13 @@ final _router = GoRouter(
               icon: Icons.add_card, label: 'Rachat LPP', route: '/rachat-lpp'),
           HubEntry(
               icon: Icons.home_work,
-              label: 'EPL (retrait pour logement)', // lint-ignore legacy route label
+              label:
+                  'EPL (retrait pour logement)', // lint-ignore legacy route label
               route: '/epl'),
           HubEntry(
               icon: Icons.calendar_month,
-              label: 'Sequence de decaissement', // lint-ignore legacy route label
+              label:
+                  'Sequence de decaissement', // lint-ignore legacy route label
               route: '/decaissement'),
           HubEntry(
               icon: Icons.account_balance_wallet,
@@ -751,8 +808,7 @@ final _router = GoRouter(
           HubEntry(
               icon: Icons.people,
               label: 'Deces d\'un proche', // lint-ignore legacy route label
-              route:
-                  '/life-event/deces-proche'),
+              route: '/life-event/deces-proche'),
           HubEntry(
               icon: Icons.swap_vert,
               label: 'Demenagement cantonal',
@@ -1194,13 +1250,7 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/scan',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final requestedType = state.uri.queryParameters['type'];
-        final initialType = DocumentType.values
-            .where((type) => type.name == requestedType)
-            .firstOrNull;
-        return DocumentScanScreen(initialType: initialType);
-      },
+      builder: (context, state) => _buildScanRoute(context, state.uri),
     ),
     ScopedGoRoute(
         path: '/document-scan',
@@ -1234,6 +1284,45 @@ final _router = GoRouter(
             _ScanRecoveryTarget.review,
           );
         }
+        if (session.pillar3aBeneficiaryCandidate != null) {
+          final returnUri = state.uri.queryParameters['returnUri'];
+          final intent = context
+              .watch<ScanSessionProvider>()
+              .pillar3aBeneficiaryScanIntentById(
+                session.pillar3aScanContextId,
+                returnUri: returnUri ?? '',
+              );
+          final exactQuery =
+              state.uri.queryParameters.keys.toSet().length == 2 &&
+                  state.uri.queryParameters.keys.toSet().containsAll(
+                    const <String>{
+                      'scanSessionId',
+                      'returnUri',
+                    },
+                  );
+          if (!exactQuery ||
+              !FeatureFlags.typedLppEvidence ||
+              !FeatureFlags.documentLppEvidenceEnabled ||
+              !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+              session.pillar3aReturnUri != returnUri ||
+              intent == null ||
+              intent.lifecycle !=
+                  Pillar3aBeneficiaryScanIntentLifecycle.reviewRetained) {
+            final scanSessions = context.read<ScanSessionProvider>();
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final contextId = session.pillar3aScanContextId;
+              if (contextId != null) {
+                scanSessions.discardPillar3aBeneficiaryScanIntent(contextId);
+              } else if (scanSessionId != null) {
+                scanSessions.discard(scanSessionId);
+              }
+            });
+            return _buildScanRecoveryScaffold(
+              context,
+              _ScanRecoveryTarget.review,
+            );
+          }
+        }
         return ExtractionReviewScreen(
           scanSessionId: scanSessionId!,
           result: session.extraction,
@@ -1243,6 +1332,9 @@ final _router = GoRouter(
           lppCapitalNoticeCandidate: session.lppCapitalNoticeCandidate,
           manualPartnerAccountability: session.manualPartnerAccountability,
           taxCandidate: session.taxCandidate,
+          pillar3aBeneficiaryCandidate: session.pillar3aBeneficiaryCandidate,
+          pillar3aScanContextId: session.pillar3aScanContextId,
+          pillar3aReturnUri: session.pillar3aReturnUri,
           recordConfirmedLppReview:
               context.read<DocumentProvider>().recordConfirmedLppReview,
         );

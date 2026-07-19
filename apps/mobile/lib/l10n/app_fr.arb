@@ -12101,8 +12101,7 @@
   "dataBlockMenageCivilMarried": "Marié·e",
   "dataBlockMenageCivilCohabiting": "Concubinage",
   "dataBlockMenageCivilDivorced": "Divorcé·e",
-  "dataBlockMenageCivilWidowed": "Veuf·ve"
-,
+  "dataBlockMenageCivilWidowed": "Veuf·ve",
   "donationTaxStatusUnknownCanton": "Canton non reconnu: confirme le canton fiscal avant d’estimer l’impôt.",
   "donationTaxStatusUsualExemption": "Exonération usuelle pour ce lien de parenté dans la plupart des cantons; déclaration et exceptions à confirmer.",
   "donationTaxStatusDescendantConfirm": "Exonération usuelle des descendants à confirmer avec le canton {canton} avant toute décision.",
@@ -12275,8 +12274,7 @@
   "lppAcquisitionPartnerAttestationConfirm": "Je confirme et continue",
   "lppReviewOwnerSelf": "Mon certificat",
   "lppReviewOwnerPartner": "Certificat de mon/ma partenaire",
-  "lppReviewOwnerRestart": "Recommencer avec un autre propriétaire"
-,
+  "lppReviewOwnerRestart": "Recommencer avec un autre propriétaire",
   "lppPartnerNoticeTitle": "Données LPP de ton/ta partenaire",
   "lppPartnerNoticeSummary": "Responsable : {controller} ({privacyContact}). Destinataire : {recipient}. Régions : {processingRegions}. Transfert : {transferMechanism}. Conservation : {retentionContract}.",
   "@lppPartnerNoticeSummary": {"placeholders":{"controller":{"type":"String"},"privacyContact":{"type":"String"},"recipient":{"type":"String"},"processingRegions":{"type":"String"},"transferMechanism":{"type":"String"},"retentionContract":{"type":"String"}}},
@@ -12477,5 +12475,77 @@
   "lpp_capital_notice_partial_state": "Le règlement a été enregistré, mais pas la date limite. Vérifie-la avec l’institution. MINT ne déduit ni droit perdu ni option acceptée.",
   "lpp_capital_notice_record_retry_state": "La date limite a été acceptée, mais sa référence locale n’a pas pu être enregistrée. Réessaie sans accepter une seconde fois.",
   "lpp_capital_notice_record_retry_cta": "Réessayer d’enregistrer la date",
-  "lpp_capital_notice_continue_without_deadline_cta": "Continuer sans enregistrer la date"
+  "lpp_capital_notice_continue_without_deadline_cta": "Continuer sans enregistrer la date",
+  "pillar3aBeneficiaryScanTypeLabel": "Clause bénéficiaire 3a",
+  "pillar3aBeneficiaryScanTypeDescription": "Utilise une confirmation ou un avenant de ton institution 3a lié à un contrat précis. MINT n’extrait ni ne conserve dans le Ledger le nom, le rang ou la quote-part des bénéficiaires.",
+  "pillar3aBeneficiaryReviewTitle": "Référence bénéficiaire 3a",
+  "pillar3aBeneficiaryReviewNotice": "Ce document est référencé. MINT ne valide ni la portée juridique, ni le rang, ni les quotes-parts.",
+  "pillar3aBeneficiaryReviewHandoff": "En cas de doute, contacte ton institution 3a, puis un notaire ou juriste successoral.",
+  "pillar3aBeneficiaryReviewUncertain": "Pour clarifier ce point, demande une confirmation écrite à ton institution 3a.",
+  "pillar3aBeneficiaryRelationCurrent": "Contrat actif, pas encore versé",
+  "pillar3aBeneficiaryRelationUncertain": "Situation à confirmer",
+  "pillar3aBeneficiaryRelationClosed": "Contrat déjà versé ou clôturé",
+  "pillar3aBeneficiaryReviewConfirm": "Confirmer la référence",
+  "pillar3aBeneficiaryReviewChooseRelation": "Choisis la situation du contrat avant de confirmer.",
+  "pillar3aBeneficiaryReviewAcceptFailed": "La référence n’a pas été enregistrée. Vérifie ton choix et réessaie.",
+  "pillar3aBeneficiaryReviewRecordFailed": "La référence du document n’a pas pu être enregistrée. Réessaie sans confirmer une seconde fois.",
+  "pillar3aBeneficiaryReviewRecordRetry": "Réessayer l’enregistrement",
+  "pillar3aBeneficiaryScanPrivacyNote": "Ton image ou PDF est envoyé au backend MINT puis temporairement transmis à Anthropic pour cette analyse ponctuelle. MINT ne l’ajoute pas au Ledger. Après ta confirmation, seules des métadonnées locales de référence sans contenu brut sont conservées dans le Ledger.",
+  "pillar3aBeneficiaryReviewAuthorityTitle": "Ce que l’institution a attesté",
+  "pillar3aBeneficiaryDocumentKindLabel": "Type de document",
+  "pillar3aBeneficiaryDocumentKindConfirmation": "Confirmation de l’institution 3a",
+  "pillar3aBeneficiaryDocumentKindAmendment": "Avenant accusé par l’institution 3a",
+  "pillar3aBeneficiaryDocumentKindDesignationForm": "Formulaire de désignation accusé par l’institution 3a",
+  "pillar3aBeneficiarySourceDateLabel": "Date de la source",
+  "pillar3aBeneficiaryLegalYearLabel": "Année juridique indiquée",
+  "pillar3aBeneficiaryTemporalBasisLabel": "Base temporelle",
+  "pillar3aBeneficiaryTemporalBasisExact": "Dates attestées par l’institution, non déduites par MINT",
+  "pillar3aBeneficiaryTemporalBasisRegime": "Régime attesté par l’institution, non déduit par MINT",
+  "pillar3aBeneficiaryDesignationEffectiveDateLabel": "Prise d’effet de la désignation",
+  "pillar3aBeneficiaryLastModificationDateLabel": "Dernière modification de désignation",
+  "pillar3aBeneficiaryRegimeLabel": "Régime attesté",
+  "pillar3aBeneficiaryRegimePre20270601": "Avant le 1er juin 2027",
+  "pillar3aBeneficiaryRegimePost20270601": "Dès le 1er juin 2027",
+  "pillar3aBeneficiaryNotProvided": "Non indiqué par l’institution",
+  "pillar3aBeneficiaryReviewFreshnessCaveat": "La date de la source et l’année juridique ne prouvent pas qu’aucune désignation plus récente n’existe. Vérifie ce point auprès de ton institution 3a.",
+  "retirementPillar3aBeneficiaryTitle": "Clause bénéficiaire du pilier 3a",
+  "retirementPillar3aBeneficiaryStateEmpty": "Aucune référence institutionnelle n’est enregistrée pour cette clause.",
+  "retirementPillar3aBeneficiaryStateKnown": "Relation actuelle déclarée : contrat actif et non versé.",
+  "retirementPillar3aBeneficiaryStateNeedsConfirmation": "La relation actuelle du contrat reste à confirmer.",
+  "retirementPillar3aBeneficiaryStateInactive": "Ce contrat est déclaré déjà versé ou clôturé. Les métadonnées précises restent masquées.",
+  "retirementPillar3aBeneficiaryStateMissingReference": "La référence locale du document manque. Les anciennes métadonnées précises restent masquées.",
+  "retirementPillar3aBeneficiaryStateMismatchedReference": "La référence locale ne correspond pas au document déclaré. Les anciennes métadonnées précises restent masquées.",
+  "retirementPillar3aBeneficiaryStateInvalidPresenceProvenance": "La déclaration de présence du pilier 3a n’est pas fiable. La référence institutionnelle valide est conservée et aucune métadonnée précise n’est affichée.",
+  "retirementPillar3aBeneficiaryStateInvalid": "La référence durable est illisible. Aucune ancienne métadonnée précise n’est affichée.",
+  "retirementPillar3aBeneficiaryLegalYear": "Année juridique du document : {legalYear}",
+  "retirementPillar3aBeneficiaryDeclaredRelation": "Déclaré actif et non versé le {confirmedAt}",
+  "retirementPillar3aBeneficiaryNoAdviceBoundary": "Information factuelle uniquement : MINT ne peut pas conclure qui recevra le capital, ni dans quel ordre, ni selon quelle part.",
+  "retirementPillar3aBeneficiarySpecialistHandoff": "À vérifier avec l’institution 3a ou un spécialiste avant toute décision.",
+  "retirementPillar3aBeneficiaryInsertCta": "Ajouter une référence institutionnelle",
+  "retirementPillar3aBeneficiaryReplaceCta": "Reconfirmer depuis un document",
+  "@retirementPillar3aBeneficiaryLegalYear": {
+    "placeholders": {
+      "legalYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@retirementPillar3aBeneficiaryDeclaredRelation": {
+    "placeholders": {
+      "confirmedAt": {
+        "type": "String"
+      }
+    }
+  },
+  "retirementPillar3aBeneficiaryReconfirmCta": "Reconfirmer la relation",
+  "retirementPillar3aBeneficiaryReviewCta": "Réexaminer le contrat",
+  "retirementPillar3aBeneficiaryRelinkCta": "Relier à nouveau le document",
+  "retirementPillar3aBeneficiaryRestartCta": "Relancer la vérification",
+  "retirementPillar3aBeneficiaryPresenceResetCta": "Retirer la déclaration de présence invalide",
+  "retirementPillar3aBeneficiarySpecialistCta": "Préparer la vérification spécialiste",
+  "retirementPillar3aBeneficiarySpecialistSheetTitle": "Questions à vérifier",
+  "retirementPillar3aBeneficiarySpecialistQuestionCurrent": "Demander quelle désignation enregistrée actuellement est applicable.",
+  "retirementPillar3aBeneficiarySpecialistQuestionEffectiveDate": "Demander la date de prise d’effet de cette désignation.",
+  "retirementPillar3aBeneficiarySpecialistSheetBoundary": "MINT ne détermine ni le bénéficiaire, ni l’ordre, ni la part. Ces points doivent être confirmés par l’institution 3a ou un spécialiste.",
+  "retirementPillar3aBeneficiarySpecialistSheetClose": "Fermer"
 }

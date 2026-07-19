@@ -18,7 +18,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
@@ -36,6 +38,7 @@ import 'package:mint_mobile/services/consent/partner_accountability_binding_stor
 import 'package:mint_mobile/services/consent/partner_accountability_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -65,6 +68,37 @@ import 'package:uuid/uuid.dart';
 typedef DocumentScanFilePicker = Future<PlatformFile?> Function();
 typedef DocumentScanFileBytesReader = Future<Uint8List> Function(String path);
 typedef DocumentScanDocumentHasher = String Function(Uint8List bytes);
+typedef DocumentScanImageSanitizer = Future<Uint8List> Function(
+  Uint8List bytes,
+);
+
+@visibleForTesting
+Future<Uint8List> sanitizePillar3aImageForVision(Uint8List bytes) async {
+  ui.Codec? codec;
+  ui.Image? image;
+  try {
+    codec = bytes.length > 2 * 1024 * 1024
+        ? await ui.instantiateImageCodec(
+            bytes,
+            targetWidth: 1920,
+            targetHeight: 1920,
+          )
+        : await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+    image = frame.image;
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    if (byteData == null) {
+      throw const FormatException('Pillar 3a image re-encoding failed');
+    }
+    return byteData.buffer.asUint8List(
+      byteData.offsetInBytes,
+      byteData.lengthInBytes,
+    );
+  } finally {
+    image?.dispose();
+    codec?.dispose();
+  }
+}
 
 typedef DocumentScanConsentRequester = Future<bool> Function(
   BuildContext context,
@@ -172,15 +206,19 @@ final class _DocumentVisionResult {
     required this.extraction,
     this.lppAuthorization,
     this.manualPartnerAccountability,
+    this.pillar3aBeneficiaryCandidate,
   });
 
   final ExtractionResult extraction;
   final LppAcquisitionAuthorization? lppAuthorization;
   final ManualPartnerAccountabilityContext? manualPartnerAccountability;
+  final Pillar3aBeneficiaryAcquisitionCandidate? pillar3aBeneficiaryCandidate;
 }
 
 class DocumentScanScreen extends StatefulWidget {
   final DocumentType? initialType;
+  final String? scanContextId;
+  final String? returnUri;
   final String Function()? taxSnapshotIdFactory;
   final DocumentScanFilePicker? pickFile;
   final DocumentScanFileBytesReader? readFileBytes;
@@ -198,6 +236,14 @@ class DocumentScanScreen extends StatefulWidget {
   final String Function()? partnerOwnerIdFactory;
   final String Function()? partnerReceiptIdFactory;
 
+  /// Test seam proving the native picker allowlist without opening platform UI.
+  @visibleForTesting
+  final ValueChanged<List<String>>? onPickerAllowedExtensions;
+
+  /// Test seam; production always uses dart:ui decode/re-encode above.
+  @visibleForTesting
+  final DocumentScanImageSanitizer? pillar3aImageSanitizer;
+
   /// Test seam for observing or failing the volatile review handoff.
   @visibleForTesting
   final DocumentScanReviewNavigator? navigateToReview;
@@ -209,6 +255,8 @@ class DocumentScanScreen extends StatefulWidget {
   const DocumentScanScreen({
     super.key,
     this.initialType,
+    this.scanContextId,
+    this.returnUri,
     this.taxSnapshotIdFactory,
     this.pickFile,
     this.readFileBytes,
@@ -225,6 +273,8 @@ class DocumentScanScreen extends StatefulWidget {
     this.partnerExternalGateResolver,
     this.partnerOwnerIdFactory,
     this.partnerReceiptIdFactory,
+    this.onPickerAllowedExtensions,
+    this.pillar3aImageSanitizer,
     this.navigateToReview,
     this.writeOwnedTempFile,
   });
@@ -240,6 +290,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     DocumentType.taxDeclaration,
     DocumentType.avsExtract,
     DocumentType.salaryCertificate,
+    DocumentType.pillar3aBeneficiaryClause,
   };
 
   /// Maximum file size: 4 MB.
@@ -263,6 +314,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   final Set<String> _partnerReceiptsHandedToReview = <String>{};
   final Set<String> _terminalPartnerReceiptIds = <String>{};
   final Set<String> _erasedPartnerReceiptIds = <String>{};
+  bool _pillar3aReviewHandedOff = false;
+  ScanSessionProvider? _scanSessions;
   late final PartnerAccountabilityBindingStore _partnerBindingStore =
       widget.partnerBindingStore ?? PartnerAccountabilityBindingStore();
   late final PartnerAccountabilityService _partnerAccountabilityService =
@@ -282,11 +335,22 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   bool get _lppEvidenceEnabled => FeatureFlags.lppEvidenceIngestionEnabled;
   bool get _lppRegulationAcquisitionEnabled =>
       FeatureFlags.lppRegulationAcquisitionEnabled;
+  bool get _pillar3aBeneficiaryAcquisitionEnabled =>
+      FeatureFlags.typedLppEvidence &&
+      FeatureFlags.documentLppEvidenceEnabled &&
+      FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled;
 
   bool _isSupportedType(DocumentType type) =>
+      (widget.scanContextId == null ||
+          type == DocumentType.pillar3aBeneficiaryClause) &&
       _supportedTypes.contains(type) &&
       (type != DocumentType.lppCertificate || _lppEvidenceEnabled) &&
       (type != DocumentType.lppPlan || _lppRegulationAcquisitionEnabled) &&
+      (type != DocumentType.pillar3aBeneficiaryClause ||
+          (_pillar3aBeneficiaryAcquisitionEnabled &&
+              widget.initialType == DocumentType.pillar3aBeneficiaryClause &&
+              widget.scanContextId != null &&
+              widget.returnUri != null)) &&
       (type != DocumentType.taxDeclaration || _taxAssessmentEnabled);
 
   DocumentType get _defaultSupportedType =>
@@ -296,15 +360,70 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   void initState() {
     super.initState();
     final initial = widget.initialType;
-    if (initial != null && _isSupportedType(initial)) {
+    if (initial == DocumentType.pillar3aBeneficiaryClause &&
+        widget.scanContextId != null) {
+      _selectedType = initial!;
+    } else if (initial != null && _isSupportedType(initial)) {
       _selectedType = initial;
     } else if (!_isSupportedType(_selectedType)) {
       _selectedType = _defaultSupportedType;
     }
   }
 
+  Pillar3aBeneficiaryScanIntent? get _pillar3aScanIntent {
+    if (_selectedType != DocumentType.pillar3aBeneficiaryClause ||
+        !_pillar3aBeneficiaryAcquisitionEnabled) {
+      return null;
+    }
+    return (_scanSessions ?? context.read<ScanSessionProvider>())
+        .pillar3aBeneficiaryScanIntentById(
+      widget.scanContextId,
+      returnUri: widget.returnUri ?? '',
+    );
+  }
+
+  bool _beginPillar3aAcquisitionIfNeeded() {
+    if (_selectedType != DocumentType.pillar3aBeneficiaryClause) return true;
+    final intent = _pillar3aScanIntent;
+    if (intent == null) {
+      final id = widget.scanContextId;
+      if (id != null) {
+        _scanSessions?.discardPillar3aBeneficiaryScanIntent(id);
+      }
+      if (mounted) setState(() {});
+      return false;
+    }
+    if (intent.lifecycle == Pillar3aBeneficiaryScanIntentLifecycle.processing) {
+      return true;
+    }
+    if (intent.lifecycle != Pillar3aBeneficiaryScanIntentLifecycle.created) {
+      return false;
+    }
+    return (_scanSessions ?? context.read<ScanSessionProvider>())
+        .advancePillar3aBeneficiaryScanIntent(
+      widget.scanContextId!,
+      from: Pillar3aBeneficiaryScanIntentLifecycle.created,
+      to: Pillar3aBeneficiaryScanIntentLifecycle.processing,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scanSessions ??= context.read<ScanSessionProvider>();
+  }
+
   @override
   void dispose() {
+    if (!_pillar3aReviewHandedOff && widget.scanContextId != null) {
+      final sessions = _scanSessions;
+      final scanContextId = widget.scanContextId!;
+      if (sessions != null) {
+        unawaited(Future<void>.microtask(
+          () => sessions.discardPillar3aBeneficiaryScanIntent(scanContextId),
+        ));
+      }
+    }
     for (final path in _ownedTempPaths.toList(growable: false)) {
       _cleanupTempFile(path);
     }
@@ -316,6 +435,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   bool get _lppAcquisitionStillEnabled => switch (_selectedType) {
         DocumentType.lppCertificate => FeatureFlags.lppEvidenceIngestionEnabled,
         DocumentType.lppPlan => FeatureFlags.lppRegulationAcquisitionEnabled,
+        DocumentType.pillar3aBeneficiaryClause =>
+          _pillar3aBeneficiaryAcquisitionEnabled &&
+              _pillar3aScanIntent?.lifecycle ==
+                  Pillar3aBeneficiaryScanIntentLifecycle.processing,
         _ => true,
       };
 
@@ -645,6 +768,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 ConsentPurpose.transferUsAnthropic,
               ],
       DocumentType.lppPlan => const [ConsentPurpose.visionExtraction],
+      DocumentType.pillar3aBeneficiaryClause => const [
+          ConsentPurpose.visionExtraction,
+          ConsentPurpose.transferUsAnthropic,
+        ],
       _ => const [
           ConsentPurpose.visionExtraction,
           ConsentPurpose.persistence365d,
@@ -887,6 +1014,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     LppAcquisitionAuthorization? lppAuthorization,
     LppRegulationAcquisitionCandidate? lppRegulationCandidate,
     LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate,
+    Pillar3aBeneficiaryAcquisitionCandidate? pillar3aBeneficiaryCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     _LppAcquisitionDecision? lppDecision,
   }) async {
@@ -897,6 +1025,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (extraction.documentType == DocumentType.lppPlan &&
         (!FeatureFlags.lppRegulationAcquisitionEnabled ||
             lppRegulationCandidate == null)) {
+      return;
+    }
+    if (extraction.documentType == DocumentType.pillar3aBeneficiaryClause &&
+        (!_pillar3aBeneficiaryAcquisitionEnabled ||
+            pillar3aBeneficiaryCandidate == null)) {
       return;
     }
     LppExtractionCandidate? lppCandidate;
@@ -956,17 +1089,38 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               : null,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
+      pillar3aBeneficiaryCandidate: pillar3aBeneficiaryCandidate,
+      pillar3aScanContextId:
+          extraction.documentType == DocumentType.pillar3aBeneficiaryClause
+              ? widget.scanContextId
+              : null,
+      pillar3aReturnUri:
+          extraction.documentType == DocumentType.pillar3aBeneficiaryClause
+              ? widget.returnUri
+              : null,
     );
     final partnerReceiptId = manualPartnerAccountability?.receiptId;
     if (partnerReceiptId != null) {
       _partnerReceiptsHandedToReview.add(partnerReceiptId);
     }
+    if (extraction.documentType == DocumentType.pillar3aBeneficiaryClause) {
+      _pillar3aReviewHandedOff = true;
+    }
     try {
       final navigateToReview = widget.navigateToReview;
       if (navigateToReview == null) {
-        final location =
-            '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}';
-        if (extraction.documentType == DocumentType.lppPlan) {
+        final location = extraction.documentType ==
+                DocumentType.pillar3aBeneficiaryClause
+            ? Uri(
+                path: '/scan/review',
+                queryParameters: <String, String>{
+                  'scanSessionId': scanSessionId,
+                  'returnUri': widget.returnUri!,
+                },
+              ).toString()
+            : '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}';
+        if (extraction.documentType == DocumentType.lppPlan ||
+            extraction.documentType == DocumentType.pillar3aBeneficiaryClause) {
           context.go(location);
         } else {
           await context.push(location);
@@ -974,8 +1128,18 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       } else {
         await navigateToReview(context, scanSessionId);
       }
+      if (extraction.documentType == DocumentType.pillar3aBeneficiaryClause) {
+        _pillar3aReviewHandedOff = true;
+      }
     } catch (_) {
+      _pillar3aReviewHandedOff = false;
       scanSessions.discard(scanSessionId);
+      if (extraction.documentType == DocumentType.pillar3aBeneficiaryClause &&
+          widget.scanContextId != null) {
+        scanSessions.discardPillar3aBeneficiaryScanIntent(
+          widget.scanContextId!,
+        );
+      }
       if (partnerReceiptId != null) {
         _partnerReceiptsHandedToReview.remove(partnerReceiptId);
         await _rollbackPartnerAttempt(lppDecision);
@@ -1015,6 +1179,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_pillar3aReviewHandedOff &&
+        widget.scanContextId != null &&
+        (!_pillar3aBeneficiaryAcquisitionEnabled ||
+            _pillar3aScanIntent == null ||
+            (_pillar3aScanIntent!.lifecycle !=
+                    Pillar3aBeneficiaryScanIntentLifecycle.created &&
+                _pillar3aScanIntent!.lifecycle !=
+                    Pillar3aBeneficiaryScanIntentLifecycle.processing))) {
+      return _buildPillar3aScanRecovery();
+    }
     return Scaffold(
       backgroundColor: MintColors.background,
       body: Stack(
@@ -1040,6 +1214,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                             const SizedBox(height: 12),
                             MintEntrance(child: _buildHeader()),
                             const SizedBox(height: 24),
+                            if (_selectedType ==
+                                DocumentType.pillar3aBeneficiaryClause) ...[
+                              MintEntrance(
+                                delay: const Duration(milliseconds: 100),
+                                child: _buildCaptureButtons(),
+                              ),
+                              const SizedBox(height: 24),
+                            ],
                             MintEntrance(
                                 delay: const Duration(milliseconds: 100),
                                 child: _buildDocumentTypeSelector()),
@@ -1048,7 +1230,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                                 delay: const Duration(milliseconds: 200),
                                 child: _buildDocumentDescription()),
                             const SizedBox(height: 32),
-                            if (_selectedType != DocumentType.taxDeclaration)
+                            if (_selectedType != DocumentType.taxDeclaration &&
+                                _selectedType !=
+                                    DocumentType.pillar3aBeneficiaryClause)
                               MintEntrance(
                                   delay: const Duration(milliseconds: 300),
                                   child: _buildCaptureButtons()),
@@ -1058,13 +1242,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                             ],
                             const SizedBox(height: 12),
                             if (_selectedType != DocumentType.lppCertificate &&
-                                _selectedType != DocumentType.lppPlan)
+                                _selectedType != DocumentType.lppPlan &&
+                                _selectedType !=
+                                    DocumentType.pillar3aBeneficiaryClause)
                               MintEntrance(
                                 delay: const Duration(milliseconds: 400),
                                 child: _buildPasteTextButton(),
                               ),
                             if (kDebugMode &&
-                                _selectedType != DocumentType.lppPlan) ...[
+                                _selectedType != DocumentType.lppPlan &&
+                                _selectedType !=
+                                    DocumentType.pillar3aBeneficiaryClause) ...[
                               const SizedBox(height: 12),
                               _buildDebugExampleButton(),
                             ],
@@ -1077,6 +1265,39 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                     ],
                   ))),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPillar3aScanRecovery() {
+    final scanContextId = widget.scanContextId;
+    if (scanContextId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scanSessions?.discardPillar3aBeneficiaryScanIntent(scanContextId);
+      });
+    }
+    final l = S.of(context)!;
+    return Scaffold(
+      key: const Key('pillar3a_beneficiary_scan_recovery'),
+      appBar: AppBar(),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(l.scanReviewEmptyTitle),
+              const SizedBox(height: MintSpacing.sm),
+              Text(l.scanReviewEmptyBody, textAlign: TextAlign.center),
+              const SizedBox(height: MintSpacing.md),
+              FilledButton(
+                key: const Key('pillar3a_beneficiary_scan_recovery_cta'),
+                onPressed: () => context.go(widget.returnUri ?? '/retraite'),
+                child: Text(l.scanReviewRescan),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1117,7 +1338,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Widget _buildDocumentTypeSelector() {
     final selectable =
-        DocumentType.values.where(_isSupportedType).toList(growable: false);
+        DocumentType.values.where(_isSupportedType).toList(growable: true)
+          ..sort((left, right) {
+            if (left == right) return 0;
+            if (left == _selectedType) return -1;
+            if (right == _selectedType) return 1;
+            return left.index.compareTo(right.index);
+          });
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1136,24 +1363,32 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             final isTax = type == DocumentType.taxDeclaration;
             final isLpp = type == DocumentType.lppCertificate;
             final isLppPlan = type == DocumentType.lppPlan;
+            final isPillar3aBeneficiary =
+                type == DocumentType.pillar3aBeneficiaryClause;
             return Semantics(
-              identifier: isTax
-                  ? 'document_scan_tax_type_selector'
-                  : isLpp
-                      ? 'document_scan_lpp_type_selector'
-                      : isLppPlan
-                          ? 'document_scan_lpp_plan_type_selector'
-                          : null,
+              identifier: isPillar3aBeneficiary
+                  ? 'document_scan_pillar3a_beneficiary_clause_type_selector'
+                  : isTax
+                      ? 'document_scan_tax_type_selector'
+                      : isLpp
+                          ? 'document_scan_lpp_type_selector'
+                          : isLppPlan
+                              ? 'document_scan_lpp_plan_type_selector'
+                              : null,
               child: ChoiceChip(
-                key: isTax
-                    ? const Key('document_scan_tax_type_selector')
-                    : isLpp
-                        ? const Key('document_scan_lpp_type_selector')
-                        : isLppPlan
-                            ? const Key(
-                                'document_scan_lpp_plan_type_selector',
-                              )
-                            : null,
+                key: isPillar3aBeneficiary
+                    ? const Key(
+                        'document_scan_pillar3a_beneficiary_clause_type_selector',
+                      )
+                    : isTax
+                        ? const Key('document_scan_tax_type_selector')
+                        : isLpp
+                            ? const Key('document_scan_lpp_type_selector')
+                            : isLppPlan
+                                ? const Key(
+                                    'document_scan_lpp_plan_type_selector',
+                                  )
+                                : null,
                 label: Text(
                   _documentTypeLabel(type),
                   style: MintTextStyles.bodySmall(
@@ -1175,7 +1410,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 onSelected: (_) {
-                  setState(() => _selectedType = type);
+                  setState(() {
+                    _selectedType = type;
+                  });
                 },
               ),
             );
@@ -1218,7 +1455,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 .copyWith(height: 1.5),
           ),
           if (_selectedType != DocumentType.taxDeclaration &&
-              _selectedType != DocumentType.lppPlan) ...[
+              _selectedType != DocumentType.lppPlan &&
+              _selectedType != DocumentType.pillar3aBeneficiaryClause) ...[
             const SizedBox(height: MintSpacing.sm),
             Row(
               children: [
@@ -1243,6 +1481,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   String _documentTypeLabel(DocumentType type) => switch (type) {
         DocumentType.taxDeclaration => S.of(context)!.docScanTaxDocumentLabel,
         DocumentType.lppPlan => S.of(context)!.docScanLppPlanDocumentLabel,
+        DocumentType.pillar3aBeneficiaryClause =>
+          S.of(context)!.pillar3aBeneficiaryScanTypeLabel,
         _ => type.label,
       };
 
@@ -1251,6 +1491,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           S.of(context)!.docScanTaxDocumentDescription,
         DocumentType.lppPlan =>
           S.of(context)!.docScanLppPlanDocumentDescription,
+        DocumentType.pillar3aBeneficiaryClause =>
+          S.of(context)!.pillar3aBeneficiaryScanTypeDescription,
         _ => type.description!,
       };
 
@@ -1467,7 +1709,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              S.of(context)!.docScanPrivacyNote,
+              _selectedType == DocumentType.pillar3aBeneficiaryClause
+                  ? S.of(context)!.pillar3aBeneficiaryScanPrivacyNote
+                  : S.of(context)!.docScanPrivacyNote,
               style: MintTextStyles.labelSmall(color: MintColors.textMuted)
                   .copyWith(height: 1.5),
             ),
@@ -1479,6 +1723,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onCameraPressed() async {
     if (!_isSupportedType(_selectedType)) return;
+    if (!_beginPillar3aAcquisitionIfNeeded()) return;
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
@@ -1573,6 +1818,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onGalleryPressed() async {
     if (!_isSupportedType(_selectedType)) return;
+    if (!_beginPillar3aAcquisitionIfNeeded()) return;
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }
@@ -1736,14 +1982,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   ) async {
     if (!_lppAcquisitionStillEnabledFor(lppDecision)) return;
     try {
-      final allowedExtensions = <String>[
-        'jpg',
-        'jpeg',
-        'png',
-        'heic',
-        'txt',
-        'pdf',
-      ];
+      final allowedExtensions =
+          _selectedType == DocumentType.pillar3aBeneficiaryClause
+              ? <String>['jpg', 'jpeg', 'png', 'heic', 'pdf']
+              : <String>['jpg', 'jpeg', 'png', 'heic', 'txt', 'pdf'];
+      widget.onPickerAllowedExtensions?.call(
+        List<String>.unmodifiable(allowedExtensions),
+      );
       final injectedPicker = widget.pickFile;
       final PlatformFile? file;
       if (!_lppAcquisitionStillEnabledFor(lppDecision)) return;
@@ -1772,6 +2017,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }
       if (!await _revalidatePartnerByteBoundary(effectiveDecision)) return;
       final ext = _detectExtension(file);
+
+      if (_selectedType == DocumentType.pillar3aBeneficiaryClause &&
+          ext == 'txt') {
+        if (mounted) {
+          setState(() {
+            _preValidationError = S.of(context)!.docScanNoFieldRecognized;
+            _preValidationHint = null;
+          });
+        }
+        return;
+      }
 
       if (ext == 'txt') {
         if (!_lppAcquisitionStillEnabledFor(effectiveDecision)) return;
@@ -1829,7 +2085,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Future<void> _onPasteTextPressed() async {
     if (!_isSupportedType(_selectedType)) return;
     if (_selectedType == DocumentType.lppCertificate ||
-        _selectedType == DocumentType.lppPlan) {
+        _selectedType == DocumentType.lppPlan ||
+        _selectedType == DocumentType.pillar3aBeneficiaryClause) {
       return;
     }
     if (_selectedType == DocumentType.taxDeclaration &&
@@ -1846,7 +2103,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
   Future<void> _onUseExamplePressed() async {
     if (!_isSupportedType(_selectedType)) return;
-    if (_selectedType == DocumentType.lppPlan) return;
+    if (_selectedType == DocumentType.lppPlan ||
+        _selectedType == DocumentType.pillar3aBeneficiaryClause) {
+      return;
+    }
     if (_selectedType == DocumentType.taxDeclaration &&
         !_taxAssessmentEnabled) {
       return;
@@ -1977,6 +2237,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               : null,
           lppAuthorization: visionResult.lppAuthorization,
           manualPartnerAccountability: visionResult.manualPartnerAccountability,
+          pillar3aBeneficiaryCandidate:
+              visionResult.pillar3aBeneficiaryCandidate,
           lppDecision: lppDecision,
         );
         return;
@@ -2044,9 +2306,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (!await _revalidatePartnerByteBoundary(lppDecision)) return null;
       final rawBytes = await _readFileBytes(file.path);
       if (!_lppAcquisitionStillEnabledFor(lppDecision)) return null;
-      // TODO(P2-W12): Strip EXIF metadata before Vision API call.
-      // Requires `image` package. GPS location and camera info currently exposed.
-      final bytes = await _compressForVision(rawBytes, file.path);
+      final bytes = _selectedType == DocumentType.pillar3aBeneficiaryClause
+          ? await (widget.pillar3aImageSanitizer ??
+              sanitizePillar3aImageForVision)(rawBytes)
+          : await _compressForVision(rawBytes, file.path);
       if (!_lppAcquisitionStillEnabledFor(lppDecision)) return null;
       final lppAuthorization = lppDecision == null
           ? null
@@ -2078,9 +2341,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (!await _revalidatePartnerByteBoundary(lppDecision)) return null;
       final response = await extractor(
         imageBase64: base64Image,
-        // Convert camelCase enum to snake_case for backend contract.
-        documentType: _selectedType.name.replaceAllMapped(
-            RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
+        documentType: _selectedType.backendValue,
         canton: canton,
         languageHint: 'fr',
         subjectKind: lppDecision?.subject == LppEvidenceOwnerKind.manualPartner
@@ -2094,6 +2355,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (response == null) {
         await _failPartnerExtraction(lppDecision);
         return null;
+      }
+
+      if (_selectedType == DocumentType.pillar3aBeneficiaryClause) {
+        return _pillar3aVisionResult(response);
       }
 
       final strictLppConfidence = _selectedType == DocumentType.lppCertificate;
@@ -2189,6 +2454,50 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     }
   }
 
+  _DocumentVisionResult? _pillar3aVisionResult(
+    Map<String, dynamic> response,
+  ) {
+    if (!_pillar3aBeneficiaryAcquisitionEnabled) return null;
+    final authority =
+        Pillar3aBeneficiaryAuthorityCandidateV1.tryFromVisionJson(response);
+    final intent = _pillar3aScanIntent;
+    final contractReferenceId = intent?.contractReferenceId;
+    if (authority == null ||
+        intent == null ||
+        intent.lifecycle != Pillar3aBeneficiaryScanIntentLifecycle.processing ||
+        contractReferenceId == null ||
+        SwissCivilTime.isFutureCivilDate(
+          authority.sourceDate,
+          now: _currentTime(),
+        )) {
+      return null;
+    }
+    final referenceId = context
+        .read<DocumentProvider>()
+        .preallocatePillar3aBeneficiaryReferenceId(
+          contractReferenceId: contractReferenceId,
+          documentAuthorityId: authority.documentAuthorityId,
+        );
+    final acquisition = Pillar3aBeneficiaryAcquisitionCandidate(
+      contractReferenceId: contractReferenceId,
+      referenceId: referenceId,
+      authority: authority,
+      expectedPreviousReferenceId: intent.expectedPreviousReferenceId,
+    );
+    return _DocumentVisionResult(
+      extraction: const ExtractionResult(
+        documentType: DocumentType.pillar3aBeneficiaryClause,
+        fields: <ExtractedField>[],
+        overallConfidence: 0,
+        confidenceDelta: 0,
+        warnings: <String>[],
+        disclaimer: '',
+        sources: <String>[],
+      ),
+      pillar3aBeneficiaryCandidate: acquisition,
+    );
+  }
+
   /// Vision API fallback for PDF files when backend Docling fails.
   /// Reads PDF bytes, encodes to base64, and calls Claude Vision extraction.
   Future<_DocumentVisionResult?> _tryVisionExtractionFromPdf(
@@ -2240,8 +2549,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (!await _revalidatePartnerByteBoundary(lppDecision)) return null;
       final response = await extractor(
         imageBase64: base64Pdf,
-        documentType: _selectedType.name.replaceAllMapped(
-            RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
+        documentType: _selectedType.backendValue,
         canton: canton,
         languageHint: 'fr',
         subjectKind: lppDecision?.subject == LppEvidenceOwnerKind.manualPartner
@@ -2255,6 +2563,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (response == null) {
         await _failPartnerExtraction(lppDecision);
         return null;
+      }
+
+      if (_selectedType == DocumentType.pillar3aBeneficiaryClause) {
+        return _pillar3aVisionResult(response);
       }
 
       final strictLppConfidence = _selectedType == DocumentType.lppCertificate;
@@ -2378,6 +2690,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       DocumentType.lppCertificate => 27.0,
       DocumentType.avsExtract => 22.0,
       DocumentType.taxDeclaration => 0.0,
+      DocumentType.pillar3aBeneficiaryClause => 0.0,
       DocumentType.salaryCertificate => 20.0,
       _ => 10.0,
     };
@@ -2389,6 +2702,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     Uint8List? exactDocumentBytes,
   }) async {
     if (!_isSupportedType(_selectedType)) return;
+    if (_selectedType == DocumentType.pillar3aBeneficiaryClause) return;
     if (!mounted) return;
     if (_selectedType == DocumentType.taxDeclaration &&
         !_taxAssessmentEnabled) {
@@ -2516,8 +2830,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     }
 
     try {
-      if (_selectedType == DocumentType.lppCertificate) {
-        if (lppDecision == null || !_lppAcquisitionStillEnabled) return;
+      if (_selectedType == DocumentType.lppCertificate ||
+          _selectedType == DocumentType.pillar3aBeneficiaryClause) {
+        if ((_selectedType == DocumentType.lppCertificate &&
+                lppDecision == null) ||
+            !_lppAcquisitionStillEnabled) {
+          return;
+        }
         final visionResult = await _tryVisionExtractionFromPdf(
           localPath,
           lppDecision: lppDecision,
@@ -2525,10 +2844,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         if (visionResult != null && mounted) {
           await _openReview(
             visionResult.extraction,
-            lppSource: LppAcquisitionSource.backendVision,
+            lppSource: _selectedType == DocumentType.lppCertificate
+                ? LppAcquisitionSource.backendVision
+                : null,
             lppAuthorization: visionResult.lppAuthorization,
             manualPartnerAccountability:
                 visionResult.manualPartnerAccountability,
+            pillar3aBeneficiaryCandidate:
+                visionResult.pillar3aBeneficiaryCandidate,
             lppDecision: lppDecision,
           );
           return;
@@ -2625,8 +2948,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   label: Text(S.of(context)!.documentScanTakePhoto),
                 ),
               ),
-              if (_selectedType != DocumentType.lppCertificate ||
-                  lppDecision != null) ...[
+              if (_selectedType != DocumentType.pillar3aBeneficiaryClause &&
+                  (_selectedType != DocumentType.lppCertificate ||
+                      lppDecision != null)) ...[
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
@@ -2725,7 +3049,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (!mounted) return;
     if (!await _revalidatePartnerByteBoundary(lppDecision)) return;
     if (!mounted) return;
-    final showVision = imageFile != null && _isVisionAvailable(context);
+    final showVision = imageFile != null &&
+        _selectedType != DocumentType.pillar3aBeneficiaryClause &&
+        _isVisionAvailable(context);
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -2798,25 +3124,27 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   label: Text(S.of(context)!.documentScanRetakePhoto),
                 ),
               ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  key: _selectedType == DocumentType.lppCertificate
-                      ? const Key('lpp_recovery_manual_text_cta')
-                      : null,
-                  onPressed: () {
-                    ctx.pop();
-                    _requestManualOcrText(
-                      title: S.of(context)!.documentScanOcrTitle,
-                      hint: S.of(context)!.documentScanOcrRetryHint,
-                      lppDecision: lppDecision,
-                    );
-                  },
-                  icon: const Icon(Icons.text_snippet_outlined),
-                  label: Text(S.of(context)!.documentScanPasteOcr),
+              if (_selectedType != DocumentType.pillar3aBeneficiaryClause) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    key: _selectedType == DocumentType.lppCertificate
+                        ? const Key('lpp_recovery_manual_text_cta')
+                        : null,
+                    onPressed: () {
+                      ctx.pop();
+                      _requestManualOcrText(
+                        title: S.of(context)!.documentScanOcrTitle,
+                        hint: S.of(context)!.documentScanOcrRetryHint,
+                        lppDecision: lppDecision,
+                      );
+                    },
+                    icon: const Icon(Icons.text_snippet_outlined),
+                    label: Text(S.of(context)!.documentScanPasteOcr),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         );
@@ -2833,6 +3161,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           taxCandidate: null,
         );
       case DocumentType.lppPlan:
+      case DocumentType.pillar3aBeneficiaryClause:
         throw UnsupportedError(_selectedType.backendValue);
       case DocumentType.taxDeclaration:
         final taxCandidate = TaxDeclarationParser.parseTaxDocument(
@@ -2867,6 +3196,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       case DocumentType.lppCertificate:
         return LppCertificateParser.sampleOcrText;
       case DocumentType.lppPlan:
+      case DocumentType.pillar3aBeneficiaryClause:
         throw UnsupportedError(type.backendValue);
       case DocumentType.taxDeclaration:
         return TaxDeclarationParser.sampleOcrText;
@@ -2996,6 +3326,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       DocumentType.lppPlan => VaultDocumentType.lppPlan,
       DocumentType.salaryCertificate => VaultDocumentType.salaryCertificate,
       DocumentType.threeAAttestation => VaultDocumentType.pillar3aAttestation,
+      DocumentType.pillar3aBeneficiaryClause => VaultDocumentType.other,
       _ => VaultDocumentType.other,
     };
   }
@@ -3184,6 +3515,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         return 'tax_declaration';
       case DocumentType.avsExtract:
         return 'avs_extract';
+      case DocumentType.pillar3aBeneficiaryClause:
+        return 'pillar_3a_beneficiary_clause';
       default:
         return 'generic';
     }
@@ -3192,6 +3525,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   /// Process image via BYOK Vision LLM (Claude/GPT-4o).
   Future<void> _processImageViaVision(XFile file) async {
     if (!_isSupportedType(_selectedType)) return;
+    if (_selectedType == DocumentType.pillar3aBeneficiaryClause) return;
     if (_selectedType == DocumentType.taxDeclaration) {
       return;
     }

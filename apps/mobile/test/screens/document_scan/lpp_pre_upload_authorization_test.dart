@@ -11,6 +11,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
@@ -51,6 +52,9 @@ final class _ScanSessionSpy extends ScanSessionProvider {
     LppRegulationAcquisitionCandidate? lppRegulationCandidate,
     LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
+    Pillar3aBeneficiaryAcquisitionCandidate? pillar3aBeneficiaryCandidate,
+    String? pillar3aScanContextId,
+    String? pillar3aReturnUri,
     TaxExtractionCandidate? taxCandidate,
   }) {
     if (lppAuthorization != null) {
@@ -63,6 +67,9 @@ final class _ScanSessionSpy extends ScanSessionProvider {
       lppRegulationCandidate: lppRegulationCandidate,
       lppCapitalNoticeCandidate: lppCapitalNoticeCandidate,
       manualPartnerAccountability: manualPartnerAccountability,
+      pillar3aBeneficiaryCandidate: pillar3aBeneficiaryCandidate,
+      pillar3aScanContextId: pillar3aScanContextId,
+      pillar3aReturnUri: pillar3aReturnUri,
       taxCandidate: taxCandidate,
     );
     if (lppRegulationCandidate != null) {

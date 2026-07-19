@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -16,6 +15,8 @@ const _contractB = '22222222-2222-4222-8222-222222222222';
 const _authorityA = '33333333-3333-4333-8333-333333333333';
 const _authorityB = '44444444-4444-4444-8444-444444444444';
 const _forgedAuthority = '55555555-5555-4555-8555-555555555555';
+const _referenceA = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const _referenceB = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
 final class _MemoryLppPersistence
     with SerializedCanonicalAnswerMutationPersistence
@@ -70,13 +71,17 @@ final class _MemoryReferenceStore extends DocumentReferenceStore {
 
 Pillar3aBeneficiaryReviewConfirmation _confirmation({
   String contractReferenceId = _contractA,
+  String referenceId = _referenceA,
   String documentAuthorityId = _authorityA,
   String? expectedPreviousReferenceId,
   DateTime? lastAssignmentModificationDate,
 }) =>
     Pillar3aBeneficiaryReviewConfirmation.exactDates(
       contractReferenceId: contractReferenceId,
+      referenceId: referenceId,
       documentAuthorityId: documentAuthorityId,
+      documentKind:
+          Pillar3aBeneficiaryAuthorityDocumentKind.confirmationInstitutionnelle,
       relation: Pillar3aBeneficiaryRelation.currentActiveUnpaid,
       sourceDate: DateTime.utc(2026, 7, 18),
       legalYear: 2026,
@@ -101,9 +106,16 @@ Future<
     now: () => DateTime.utc(2026, 7, 19, 10),
   );
   await ledger.loadFromWizard();
+  final preallocator = DocumentProvider();
+  final referenceId = preallocator.preallocatePillar3aBeneficiaryReferenceId(
+    contractReferenceId: contractReferenceId,
+    documentAuthorityId: documentAuthorityId,
+  );
+  preallocator.dispose();
   final receipt = await ledger.acceptPillar3aBeneficiaryReview(
     _confirmation(
       contractReferenceId: contractReferenceId,
+      referenceId: referenceId,
       documentAuthorityId: documentAuthorityId,
     ),
   );
@@ -118,7 +130,7 @@ Pillar3aBeneficiaryReceipt _forgedReceipt(
       referenceId: receipt.referenceId,
       contractReferenceId: receipt.contractReferenceId,
       documentAuthorityId: documentAuthorityId ?? receipt.documentAuthorityId,
-      confirmedAt: receipt.confirmedAt,
+      relationConfirmedAt: receipt.relationConfirmedAt,
     );
 
 ConfirmedDocumentReference _opaqueOther({
@@ -145,6 +157,32 @@ void main() {
   tearDown(() {
     FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled = false;
     FeatureFlags.typedLppEvidence = false;
+  });
+
+  test('DocumentProvider preallocates a distinct reference before any writer',
+      () {
+    final documents = DocumentProvider();
+    addTearDown(documents.dispose);
+
+    final referenceId = documents.preallocatePillar3aBeneficiaryReferenceId(
+      contractReferenceId: _contractA,
+      documentAuthorityId: _authorityA,
+    );
+
+    expect(
+        referenceId,
+        matches(RegExp(
+          r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+        )));
+    expect(referenceId, isNot(anyOf(_contractA, _authorityA)));
+    FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled = false;
+    expect(
+      () => documents.preallocatePillar3aBeneficiaryReferenceId(
+        contractReferenceId: _contractA,
+        documentAuthorityId: _authorityA,
+      ),
+      throwsStateError,
+    );
   });
 
   test('pillar 3a BND is exact contract-bound physical metadata', () {
@@ -174,10 +212,23 @@ void main() {
       <String, dynamic>{...encoded}..remove('contractReferenceId'),
       <String, dynamic>{...encoded, 'contractReferenceId': ''},
       <String, dynamic>{...encoded, 'documentAuthorityId': ''},
+      <String, dynamic>{
+        ...encoded,
+        'documentAuthorityId': encoded['referenceId'],
+      },
       <String, dynamic>{...encoded, 'kind': 'pillar_3a_attestation'},
     ]) {
       expect(ConfirmedDocumentReference.fromJson(invalid), isNull);
     }
+    expect(
+      () => Pillar3aBeneficiaryReceipt(
+        referenceId: encoded['referenceId'] as String,
+        contractReferenceId: _contractA,
+        documentAuthorityId: encoded['referenceId'] as String,
+        relationConfirmedAt: DateTime.utc(2026, 7, 19, 10),
+      ),
+      throwsArgumentError,
+    );
   });
 
   test('store supports 32 kind-owner-contract bindings and rejects duplicates',
@@ -308,7 +359,7 @@ void main() {
     expect(notifications, 1);
   });
 
-  test('same ledger identity replaces only its exact physical authority',
+  test('newly preallocated revision replaces only its exact contract binding',
       () async {
     final accepted = await _accepted();
     addTearDown(accepted.ledger.dispose);
@@ -318,15 +369,24 @@ void main() {
     documents.bindLedger(accepted.ledger);
     await documents.recordPillar3aBeneficiaryEvidence(accepted.receipt);
 
+    final replacementReferenceId =
+        documents.preallocatePillar3aBeneficiaryReferenceId(
+      contractReferenceId: _contractA,
+      documentAuthorityId: _authorityB,
+    );
     final refreshed = await accepted.ledger.acceptPillar3aBeneficiaryReview(
-      _confirmation(documentAuthorityId: _authorityB),
+      _confirmation(
+        referenceId: replacementReferenceId,
+        documentAuthorityId: _authorityB,
+        expectedPreviousReferenceId: accepted.receipt.referenceId,
+      ),
     );
     final replacement =
         await documents.recordPillar3aBeneficiaryEvidence(refreshed);
 
-    expect(refreshed.referenceId, accepted.receipt.referenceId);
+    expect(refreshed.referenceId, replacementReferenceId);
     expect(refreshed.documentAuthorityId, _authorityB);
-    expect(replacement.referenceId, accepted.receipt.referenceId);
+    expect(replacement.referenceId, replacementReferenceId);
     expect(replacement.documentAuthorityId, _authorityB);
     expect(store.references, hasLength(1));
     expect(store.references.single.contractReferenceId, _contractA);
@@ -373,16 +433,28 @@ void main() {
     addTearDown(documents.dispose);
     documents.bindLedger(accepted.ledger);
     await documents.recordPillar3aBeneficiaryEvidence(accepted.receipt);
+    final secondReferenceId =
+        documents.preallocatePillar3aBeneficiaryReferenceId(
+      contractReferenceId: _contractB,
+      documentAuthorityId: _authorityB,
+    );
     final second = await accepted.ledger.acceptPillar3aBeneficiaryReview(
       _confirmation(
         contractReferenceId: _contractB,
+        referenceId: secondReferenceId,
         documentAuthorityId: _authorityB,
       ),
     );
     await documents.recordPillar3aBeneficiaryEvidence(second);
 
+    final replacementReferenceId =
+        documents.preallocatePillar3aBeneficiaryReferenceId(
+      contractReferenceId: _contractA,
+      documentAuthorityId: _forgedAuthority,
+    );
     final replacement = await accepted.ledger.acceptPillar3aBeneficiaryReview(
       _confirmation(
+        referenceId: replacementReferenceId,
         documentAuthorityId: _forgedAuthority,
         lastAssignmentModificationDate: DateTime.utc(2026, 6, 1),
         expectedPreviousReferenceId: accepted.receipt.referenceId,
@@ -418,7 +490,7 @@ void main() {
         contractReferenceId: accepted.receipt.contractReferenceId,
         documentAuthorityId: accepted.receipt.documentAuthorityId,
         ownerKind: LppEvidenceOwnerKind.self,
-        confirmedAt: accepted.receipt.confirmedAt,
+        confirmedAt: accepted.receipt.relationConfirmedAt,
       ),
     ]);
     final documents = DocumentProvider(referenceStore: store);
@@ -462,27 +534,97 @@ void main() {
       Pillar3aBeneficiaryReferenceResolution.missingDocumentReference,
     );
 
-    final mismatched = DocumentProvider(
-      referenceStore: _MemoryReferenceStore(
-        initial: <ConfirmedDocumentReference>[
-          ConfirmedDocumentReference(
-            referenceId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-            kind: Pillar3aBeneficiaryEvidence.kind,
-            contractReferenceId: evidence.contractReferenceId,
-            documentAuthorityId: _authorityB,
-            ownerKind: LppEvidenceOwnerKind.self,
-            confirmedAt: evidence.confirmedAt,
-          ),
-        ],
+    final exactTuple = ConfirmedDocumentReference(
+      referenceId: evidence.referenceId,
+      kind: Pillar3aBeneficiaryEvidence.kind,
+      contractReferenceId: evidence.contractReferenceId,
+      documentAuthorityId: evidence.documentAuthorityId,
+      ownerKind: LppEvidenceOwnerKind.self,
+      confirmedAt: evidence.relationConfirmedAt,
+    );
+    for (final mismatch
+        in <({String name, ConfirmedDocumentReference reference})>[
+      (
+        name: 'kind',
+        reference: ConfirmedDocumentReference(
+          referenceId: exactTuple.referenceId,
+          kind: ConfirmedDocumentReference.lppKind,
+          contractReferenceId: exactTuple.contractReferenceId,
+          documentAuthorityId: exactTuple.documentAuthorityId,
+          ownerKind: exactTuple.ownerKind,
+          confirmedAt: exactTuple.confirmedAt,
+        ),
       ),
-    );
-    addTearDown(mismatched.dispose);
-    mismatched.bindLedger(accepted.ledger);
-    await mismatched.hydrateReferences();
-    expect(
-      mismatched.resolvePillar3aBeneficiaryReference(evidence),
-      Pillar3aBeneficiaryReferenceResolution.mismatchedDocumentReference,
-    );
+      (
+        name: 'referenceId',
+        reference: ConfirmedDocumentReference(
+          referenceId: _referenceB,
+          kind: exactTuple.kind,
+          contractReferenceId: exactTuple.contractReferenceId,
+          documentAuthorityId: exactTuple.documentAuthorityId,
+          ownerKind: exactTuple.ownerKind,
+          confirmedAt: exactTuple.confirmedAt,
+        ),
+      ),
+      (
+        name: 'contractReferenceId',
+        reference: ConfirmedDocumentReference(
+          referenceId: exactTuple.referenceId,
+          kind: exactTuple.kind,
+          contractReferenceId: _contractB,
+          documentAuthorityId: exactTuple.documentAuthorityId,
+          ownerKind: exactTuple.ownerKind,
+          confirmedAt: exactTuple.confirmedAt,
+        ),
+      ),
+      (
+        name: 'documentAuthorityId',
+        reference: ConfirmedDocumentReference(
+          referenceId: exactTuple.referenceId,
+          kind: exactTuple.kind,
+          contractReferenceId: exactTuple.contractReferenceId,
+          documentAuthorityId: _authorityB,
+          ownerKind: exactTuple.ownerKind,
+          confirmedAt: exactTuple.confirmedAt,
+        ),
+      ),
+      (
+        name: 'ownerKind',
+        reference: ConfirmedDocumentReference(
+          referenceId: exactTuple.referenceId,
+          kind: exactTuple.kind,
+          contractReferenceId: exactTuple.contractReferenceId,
+          documentAuthorityId: exactTuple.documentAuthorityId,
+          ownerKind: LppEvidenceOwnerKind.manualPartner,
+          confirmedAt: exactTuple.confirmedAt,
+        ),
+      ),
+      (
+        name: 'confirmedAt',
+        reference: ConfirmedDocumentReference(
+          referenceId: exactTuple.referenceId,
+          kind: exactTuple.kind,
+          contractReferenceId: exactTuple.contractReferenceId,
+          documentAuthorityId: exactTuple.documentAuthorityId,
+          ownerKind: exactTuple.ownerKind,
+          confirmedAt: exactTuple.confirmedAt.add(const Duration(seconds: 1)),
+        ),
+      ),
+    ]) {
+      final mismatched = DocumentProvider(
+        referenceStore: _MemoryReferenceStore(
+          initial: <ConfirmedDocumentReference>[mismatch.reference],
+        ),
+      );
+      addTearDown(mismatched.dispose);
+      mismatched.bindLedger(accepted.ledger);
+      await mismatched.hydrateReferences();
+      expect(
+        mismatched.resolvePillar3aBeneficiaryReference(evidence),
+        Pillar3aBeneficiaryReferenceResolution.mismatchedDocumentReference,
+        reason: mismatch.name,
+      );
+    }
   });
 
   test('cold hydration resolves exact ledger and physical binding together',

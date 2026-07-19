@@ -11,6 +11,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/coach_profile_owner.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -161,6 +162,15 @@ final class _ReportLppProfilePersistence
       ReportPersistenceService.mutateAnswers(mutation, publish: publish);
 }
 
+enum Pillar3aBeneficiaryLedgerState { unavailable, missing, valid, invalid }
+
+enum Pillar3aBeneficiaryPresenceSignal {
+  none,
+  inactive,
+  superseded,
+  invalid,
+}
+
 /// Provider pour le profil Coach MINT.
 ///
 /// [CoachProfileProvider] is the single durable mobile fact spine.
@@ -196,6 +206,8 @@ class CoachProfileProvider extends ChangeNotifier {
 
   static const _taxSnapshotRootKey = '_coach_tax_snapshots_v1';
   static const _lppEvidenceRootKey = '_coach_lpp_evidence_v1';
+  static const _pillar3aBeneficiaryEvidenceRootKey =
+      Pillar3aBeneficiaryEvidenceRoot.answerKey;
   static const _legacySelfLppKeys = <String, LppEvidenceFactKey>{
     '_coach_avoir_lpp': LppEvidenceFactKey.vestedBenefitsCapitalChf,
     '_coach_avoir_lpp_oblig':
@@ -232,6 +244,9 @@ class CoachProfileProvider extends ChangeNotifier {
   Timer? _partnerAuthorityInvalidationTimer;
   bool _disposed = false;
   bool _hasManualPartnerLppEvidence = false;
+  bool _pillar3aBeneficiaryLedgerUnavailable = true;
+  Pillar3aBeneficiaryEvidenceRoot? _pillar3aBeneficiaryEvidence;
+  Pillar3aBeneficiaryReceipt? _acceptedPillar3aBeneficiaryReceipt;
   String? _canonicalProfileOwnerId;
   String? _stagedCanonicalProfileOwnerId;
 
@@ -243,6 +258,85 @@ class CoachProfileProvider extends ChangeNotifier {
       (_hasManualPartnerLppEvidence
           ? PartnerAccountabilityBindingState.partial
           : null);
+
+  Pillar3aBeneficiaryEvidenceRoot? get currentPillar3aBeneficiaryEvidence =>
+      FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled
+          ? _pillar3aBeneficiaryEvidence
+          : null;
+
+  Pillar3aBeneficiaryLedgerState get pillar3aBeneficiaryLedgerState {
+    if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        _isLoading ||
+        !_isLoaded ||
+        _pillar3aBeneficiaryLedgerUnavailable) {
+      return Pillar3aBeneficiaryLedgerState.unavailable;
+    }
+    if (!_lastAnswers.containsKey(_pillar3aBeneficiaryEvidenceRootKey)) {
+      return Pillar3aBeneficiaryLedgerState.missing;
+    }
+    return _pillar3aBeneficiaryEvidence == null
+        ? Pillar3aBeneficiaryLedgerState.invalid
+        : Pillar3aBeneficiaryLedgerState.valid;
+  }
+
+  Pillar3aBeneficiaryPresenceSignal pillar3aBeneficiaryPresenceSignalFor(
+    Pillar3aBeneficiaryEvidence evidence,
+  ) =>
+      _pillar3aBeneficiaryPresenceSignalForAnswers(_lastAnswers, evidence);
+
+  Pillar3aBeneficiaryPresenceSignal
+      _pillar3aBeneficiaryPresenceSignalForAnswers(
+    Map<String, dynamic> answers,
+    Pillar3aBeneficiaryEvidence evidence,
+  ) {
+    if (answers['q_has_3a'] != false) {
+      return Pillar3aBeneficiaryPresenceSignal.none;
+    }
+    final rawProvenance = answers['__provenance'];
+    if (rawProvenance is! Map || !rawProvenance.containsKey('hasPillar3a')) {
+      return Pillar3aBeneficiaryPresenceSignal.none;
+    }
+    final rawEnvelope = rawProvenance['hasPillar3a'];
+    if (rawEnvelope is! Map ||
+        rawEnvelope.length != 3 ||
+        !rawEnvelope.containsKey('source') ||
+        !rawEnvelope.containsKey('updatedAt') ||
+        !rawEnvelope.containsKey('sourceDate') ||
+        rawEnvelope['source'] != ProfileDataSource.userInput.name ||
+        rawEnvelope['sourceDate'] != null ||
+        rawEnvelope['updatedAt'] is! String) {
+      return Pillar3aBeneficiaryPresenceSignal.invalid;
+    }
+    final rawUpdatedAt = rawEnvelope['updatedAt'] as String;
+    final updatedAt = DateTime.tryParse(rawUpdatedAt);
+    if (updatedAt == null ||
+        !updatedAt.isUtc ||
+        updatedAt.toUtc().toIso8601String() != rawUpdatedAt ||
+        updatedAt.isAfter(_now().toUtc())) {
+      return Pillar3aBeneficiaryPresenceSignal.invalid;
+    }
+    return updatedAt.isBefore(evidence.relationConfirmedAt)
+        ? Pillar3aBeneficiaryPresenceSignal.superseded
+        : Pillar3aBeneficiaryPresenceSignal.inactive;
+  }
+
+  bool matchesAcceptedPillar3aBeneficiaryReceipt(
+    Pillar3aBeneficiaryReceipt receipt,
+  ) {
+    if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        _acceptedPillar3aBeneficiaryReceipt != receipt) {
+      return false;
+    }
+    final root = _pillar3aBeneficiaryEvidence;
+    if (root == null) return false;
+    return root.contracts.any(
+      (contract) =>
+          contract.referenceId == receipt.referenceId &&
+          contract.contractReferenceId == receipt.contractReferenceId &&
+          contract.documentAuthorityId == receipt.documentAuthorityId &&
+          contract.relationConfirmedAt == receipt.relationConfirmedAt,
+    );
+  }
 
   DateTime? _partnerAuthorityDeadline(
     PartnerAccountabilityBinding binding,
@@ -1327,6 +1421,372 @@ class CoachProfileProvider extends ChangeNotifier {
       _profileUpdatedSinceBudget = true;
       notifyListeners();
     });
+  }
+
+  Future<Pillar3aBeneficiaryReceipt> acceptPillar3aBeneficiaryReview(
+    Pillar3aBeneficiaryReviewConfirmation confirmation,
+  ) {
+    if (!FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        !_isLoaded) {
+      return Future<Pillar3aBeneficiaryReceipt>.error(
+        StateError('Pillar 3a beneficiary evidence is unavailable'),
+      );
+    }
+    final guard = _sessionEpoch.capture();
+    return _serializeLppMutation(
+      () => _acceptPillar3aBeneficiaryReview(confirmation, guard),
+    );
+  }
+
+  Future<Pillar3aBeneficiaryReceipt> reconfirmPillar3aBeneficiaryRelation({
+    required String contractReferenceId,
+    required String expectedReferenceId,
+    required Pillar3aBeneficiaryRelation relation,
+  }) {
+    if (!FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        pillar3aBeneficiaryLedgerState !=
+            Pillar3aBeneficiaryLedgerState.valid) {
+      return Future<Pillar3aBeneficiaryReceipt>.error(
+        StateError('Pillar 3a beneficiary relation is unavailable'),
+      );
+    }
+    final guard = _sessionEpoch.capture();
+    return _serializeLppMutation(
+      () => _reconfirmPillar3aBeneficiaryRelation(
+        contractReferenceId: contractReferenceId,
+        expectedReferenceId: expectedReferenceId,
+        relation: relation,
+        sessionGuard: guard,
+      ),
+    );
+  }
+
+  Future<Pillar3aBeneficiaryReceipt> _reconfirmPillar3aBeneficiaryRelation({
+    required String contractReferenceId,
+    required String expectedReferenceId,
+    required Pillar3aBeneficiaryRelation relation,
+    required SessionEpochGuard sessionGuard,
+  }) async {
+    sessionGuard.assertCurrent();
+    final currentTime = _now().toUtc();
+    late Pillar3aBeneficiaryEvidenceRoot publishedRoot;
+    late Pillar3aBeneficiaryEvidence publishedContract;
+    await _mutateLppAnswers(
+      sessionGuard,
+      (loaded) {
+        final root = Pillar3aBeneficiaryEvidenceRoot.fromJsonString(
+          loaded[_pillar3aBeneficiaryEvidenceRootKey],
+          now: _now,
+        );
+        if (root == null) {
+          throw StateError('Persisted pillar 3a beneficiary root changed');
+        }
+        Pillar3aBeneficiaryEvidence? current;
+        for (final contract in root.contracts) {
+          if (contract.contractReferenceId == contractReferenceId) {
+            current = contract;
+            break;
+          }
+        }
+        if (current == null || current.referenceId != expectedReferenceId) {
+          throw StateError('Persisted pillar 3a beneficiary relation changed');
+        }
+        if (current.relation == relation) {
+          publishedRoot = root;
+          publishedContract = current;
+          return null;
+        }
+        final next = Pillar3aBeneficiaryEvidence.create(
+          contractReferenceId: current.contractReferenceId,
+          referenceId: current.referenceId,
+          documentAuthorityId: current.documentAuthorityId,
+          documentKind: current.documentKind,
+          sourceDate: current.sourceDate,
+          legalYear: current.legalYear,
+          temporalBasis: current.temporalBasis,
+          relation: relation,
+          relationConfirmedAt: currentTime,
+        );
+        publishedContract = next;
+        publishedRoot = Pillar3aBeneficiaryEvidenceRoot.fromContracts(
+          <Pillar3aBeneficiaryEvidence>[
+            for (final contract in root.contracts)
+              if (contract.contractReferenceId == contractReferenceId)
+                next
+              else
+                contract,
+          ],
+          now: currentTime,
+        );
+        return _copyAnswers(loaded)
+          ..[_pillar3aBeneficiaryEvidenceRootKey] =
+              publishedRoot.toJsonString();
+      },
+      publish: (persisted) {
+        sessionGuard.assertCurrent();
+        _lastAnswers = _copyAnswers(persisted);
+        _pillar3aBeneficiaryEvidence = publishedRoot;
+        _acceptedPillar3aBeneficiaryReceipt = Pillar3aBeneficiaryReceipt(
+          referenceId: publishedContract.referenceId,
+          contractReferenceId: publishedContract.contractReferenceId,
+          documentAuthorityId: publishedContract.documentAuthorityId,
+          relationConfirmedAt: publishedContract.relationConfirmedAt,
+        );
+        notifyListeners();
+      },
+    );
+    return _acceptedPillar3aBeneficiaryReceipt!;
+  }
+
+  /// Must only be called after every Pillar 3a BND reference was purged.
+  Future<bool> resetInvalidPillar3aBeneficiaryEvidenceAfterReferencePurge() {
+    if (!FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled || !_isLoaded) {
+      return Future<bool>.value(false);
+    }
+    final guard = _sessionEpoch.capture();
+    return _serializeLppMutation(() async {
+      var removed = false;
+      await _mutateLppAnswers(
+        guard,
+        (loaded) {
+          final raw = loaded[_pillar3aBeneficiaryEvidenceRootKey];
+          if (raw == null ||
+              Pillar3aBeneficiaryEvidenceRoot.fromJsonString(
+                    raw,
+                    now: _now,
+                  ) !=
+                  null) {
+            return null;
+          }
+          removed = true;
+          return _copyAnswers(loaded)
+            ..remove(_pillar3aBeneficiaryEvidenceRootKey);
+        },
+        publish: (persisted) {
+          guard.assertCurrent();
+          _lastAnswers = _copyAnswers(persisted);
+          _pillar3aBeneficiaryEvidence = null;
+          _acceptedPillar3aBeneficiaryReceipt = null;
+          _pillar3aBeneficiaryLedgerUnavailable = false;
+          if (removed) notifyListeners();
+        },
+      );
+      return removed;
+    });
+  }
+
+  Future<bool> resetInvalidPillar3aBeneficiaryPresenceProvenance() {
+    final root = _pillar3aBeneficiaryEvidence;
+    if (!FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.documentLppEvidenceEnabled ||
+        !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        pillar3aBeneficiaryLedgerState !=
+            Pillar3aBeneficiaryLedgerState.valid ||
+        root == null ||
+        !root.contracts.any(
+          (contract) =>
+              _pillar3aBeneficiaryPresenceSignalForAnswers(
+                _lastAnswers,
+                contract,
+              ) ==
+              Pillar3aBeneficiaryPresenceSignal.invalid,
+        )) {
+      return Future<bool>.value(false);
+    }
+    final guard = _sessionEpoch.capture();
+    return _serializeLppMutation(() async {
+      var repaired = false;
+      CoachProfile? publishedProfile;
+      Pillar3aBeneficiaryEvidenceRoot? publishedRoot;
+      await _mutateLppAnswers(
+        guard,
+        (loaded) {
+          guard.assertCurrent();
+          final currentRoot = Pillar3aBeneficiaryEvidenceRoot.fromJsonString(
+            loaded[_pillar3aBeneficiaryEvidenceRootKey],
+            now: _now,
+          );
+          final rawProvenance = loaded['__provenance'];
+          if (currentRoot == null ||
+              loaded['q_has_3a'] != false ||
+              rawProvenance is! Map ||
+              rawProvenance.keys.any((key) => key is! String) ||
+              !rawProvenance.containsKey('hasPillar3a') ||
+              !currentRoot.contracts.any(
+                (contract) =>
+                    _pillar3aBeneficiaryPresenceSignalForAnswers(
+                      loaded,
+                      contract,
+                    ) ==
+                    Pillar3aBeneficiaryPresenceSignal.invalid,
+              )) {
+            return null;
+          }
+          final provenance = Map<String, dynamic>.from(rawProvenance)
+            ..remove('hasPillar3a');
+          final next = _copyAnswers(loaded)
+            ..remove('q_has_3a')
+            ..['__provenance'] = provenance;
+          publishedRoot = currentRoot;
+          publishedProfile = CoachProfile.fromWizardAnswers(
+            next,
+            now: _now,
+            partnerAccountabilityBinding: _partnerLppAccountabilityBinding,
+            enforcePartnerAccountability: true,
+          );
+          repaired = true;
+          return next;
+        },
+        publish: (persisted) {
+          guard.assertCurrent();
+          if (!repaired) return;
+          _lastAnswers = _copyAnswers(persisted);
+          _pillar3aBeneficiaryEvidence = publishedRoot;
+          _profile = publishedProfile;
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        },
+      );
+      return repaired;
+    });
+  }
+
+  Future<Pillar3aBeneficiaryReceipt> _acceptPillar3aBeneficiaryReview(
+    Pillar3aBeneficiaryReviewConfirmation confirmation,
+    SessionEpochGuard sessionGuard,
+  ) async {
+    sessionGuard.assertCurrent();
+    if (!FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        !_isLoaded) {
+      throw StateError('Pillar 3a beneficiary evidence is unavailable');
+    }
+    final currentTime = _now().toUtc();
+    if (SwissCivilTime.isFutureCivilDate(
+      confirmation.sourceDate,
+      now: currentTime,
+    )) {
+      throw ArgumentError.value(
+        confirmation.sourceDate,
+        'sourceDate',
+        'future civil source dates cannot enter the ledger',
+      );
+    }
+
+    Pillar3aBeneficiaryEvidenceRoot? parseRoot(
+      Map<String, dynamic> answers,
+    ) {
+      if (!answers.containsKey(_pillar3aBeneficiaryEvidenceRootKey)) {
+        return null;
+      }
+      final root = Pillar3aBeneficiaryEvidenceRoot.fromJsonString(
+        answers[_pillar3aBeneficiaryEvidenceRootKey],
+        now: _now,
+      );
+      if (root == null) {
+        throw StateError('Persisted pillar 3a beneficiary root is unavailable');
+      }
+      return root;
+    }
+
+    Pillar3aBeneficiaryEvidence? findContract(
+      Pillar3aBeneficiaryEvidenceRoot? root,
+    ) {
+      for (final contract
+          in root?.contracts ?? const <Pillar3aBeneficiaryEvidence>[]) {
+        if (contract.contractReferenceId == confirmation.contractReferenceId) {
+          return contract;
+        }
+      }
+      return null;
+    }
+
+    Pillar3aBeneficiaryReceipt receiptFor(
+      Pillar3aBeneficiaryEvidence contract,
+    ) =>
+        Pillar3aBeneficiaryReceipt(
+          referenceId: contract.referenceId,
+          contractReferenceId: contract.contractReferenceId,
+          documentAuthorityId: contract.documentAuthorityId,
+          relationConfirmedAt: contract.relationConfirmedAt,
+        );
+
+    bool sameLedgerContent(Pillar3aBeneficiaryEvidence contract) =>
+        contract.referenceId == confirmation.referenceId &&
+        contract.documentAuthorityId == confirmation.documentAuthorityId &&
+        contract.documentKind == confirmation.documentKind &&
+        contract.relation == confirmation.relation &&
+        contract.sourceDate == confirmation.sourceDate &&
+        contract.legalYear == confirmation.legalYear &&
+        contract.temporalBasis == confirmation.temporalBasis;
+
+    final expectedPreviousReferenceId =
+        confirmation.expectedPreviousReferenceId;
+    late Pillar3aBeneficiaryEvidenceRoot publishedRoot;
+    late Pillar3aBeneficiaryEvidence publishedContract;
+    await _mutateLppAnswers(
+      sessionGuard,
+      (loaded) {
+        sessionGuard.assertCurrent();
+        final persistedRoot = parseRoot(loaded);
+        final persistedContract = findContract(persistedRoot);
+        if (persistedContract != null && sameLedgerContent(persistedContract)) {
+          publishedRoot = persistedRoot!;
+          publishedContract = persistedContract;
+          return null;
+        }
+        if (persistedContract == null) {
+          if (expectedPreviousReferenceId != null ||
+              (persistedRoot?.contracts.length ?? 0) >=
+                  Pillar3aBeneficiaryEvidenceRoot.maximumContracts) {
+            throw StateError('Persisted pillar 3a insertion changed');
+          }
+        } else if (persistedContract.referenceId !=
+            expectedPreviousReferenceId) {
+          throw StateError('Persisted pillar 3a reference changed');
+        }
+        final nextEvidence = Pillar3aBeneficiaryEvidence.create(
+          contractReferenceId: confirmation.contractReferenceId,
+          referenceId: confirmation.referenceId,
+          documentAuthorityId: confirmation.documentAuthorityId,
+          documentKind: confirmation.documentKind,
+          sourceDate: confirmation.sourceDate,
+          legalYear: confirmation.legalYear,
+          temporalBasis: confirmation.temporalBasis,
+          relation: confirmation.relation,
+          relationConfirmedAt: currentTime,
+        );
+        final contracts = <Pillar3aBeneficiaryEvidence>[
+          for (final contract in persistedRoot?.contracts ??
+              const <Pillar3aBeneficiaryEvidence>[])
+            if (contract.contractReferenceId !=
+                confirmation.contractReferenceId)
+              contract,
+          nextEvidence,
+        ];
+        publishedRoot = Pillar3aBeneficiaryEvidenceRoot.fromContracts(
+          contracts,
+          now: currentTime,
+        );
+        publishedContract = nextEvidence;
+        return _copyAnswers(loaded)
+          ..[_pillar3aBeneficiaryEvidenceRootKey] =
+              publishedRoot.toJsonString();
+      },
+      publish: (persisted) {
+        sessionGuard.assertCurrent();
+        final rootChanged = _pillar3aBeneficiaryEvidence?.toJsonString() !=
+            publishedRoot.toJsonString();
+        _lastAnswers = _copyAnswers(persisted);
+        _pillar3aBeneficiaryEvidence = publishedRoot;
+        _acceptedPillar3aBeneficiaryReceipt = receiptFor(publishedContract);
+        if (rootChanged) notifyListeners();
+      },
+    );
+    return _acceptedPillar3aBeneficiaryReceipt!;
   }
 
   Future<LppCapitalNoticeReceipt> acceptLppCapitalNotice(
@@ -3204,6 +3664,15 @@ class CoachProfileProvider extends ChangeNotifier {
 
         _canonicalProfileOwnerId = ownerId;
         _lastAnswers = _copyAnswers(answers);
+        _pillar3aBeneficiaryEvidence =
+            FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled
+                ? Pillar3aBeneficiaryEvidenceRoot.fromJsonString(
+                    answers[_pillar3aBeneficiaryEvidenceRootKey],
+                    now: _now,
+                  )
+                : null;
+        _pillar3aBeneficiaryLedgerUnavailable = false;
+        _acceptedPillar3aBeneficiaryReceipt = null;
         _profile = nextProfile;
         _isPartialProfile = nextProfile == null ? false : partial;
         _isLoading = false;
@@ -3307,6 +3776,7 @@ class CoachProfileProvider extends ChangeNotifier {
       return;
     } catch (_) {
       sessionGuard.assertCurrent();
+      _pillar3aBeneficiaryLedgerUnavailable = true;
       if (kDebugMode) {
         debugPrint('[CoachProfile] Profile load failed');
       }
@@ -3326,6 +3796,14 @@ class CoachProfileProvider extends ChangeNotifier {
     _validateDateOfBirthAnswer(answers);
     _validateFrontierJurisdictionAnswers(answers);
     _lastAnswers = _copyAnswers(answers);
+    _pillar3aBeneficiaryEvidence =
+        FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled
+            ? Pillar3aBeneficiaryEvidenceRoot.fromJsonString(
+                answers[_pillar3aBeneficiaryEvidenceRootKey],
+                now: _now,
+              )
+            : null;
+    _pillar3aBeneficiaryLedgerUnavailable = false;
     _profile = CoachProfile.fromWizardAnswers(answers, now: _now);
     _isPartialProfile = false;
     _isLoaded = true;
@@ -5518,6 +5996,9 @@ class CoachProfileProvider extends ChangeNotifier {
   void clearSessionMemoryAfterPurge() {
     _setPartnerLppAccountabilityBinding(null);
     _hasManualPartnerLppEvidence = false;
+    _pillar3aBeneficiaryEvidence = null;
+    _pillar3aBeneficiaryLedgerUnavailable = true;
+    _acceptedPillar3aBeneficiaryReceipt = null;
     _profile = null;
     _canonicalProfileOwnerId = null;
     _stagedCanonicalProfileOwnerId = null;

@@ -43006,6 +43006,354 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Continuer sans enregistrer la date'**
   String get lpp_capital_notice_continue_without_deadline_cta;
+
+  /// No description provided for @pillar3aBeneficiaryScanTypeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clause bénéficiaire 3a'**
+  String get pillar3aBeneficiaryScanTypeLabel;
+
+  /// No description provided for @pillar3aBeneficiaryScanTypeDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilise une confirmation ou un avenant de ton institution 3a lié à un contrat précis. MINT n’extrait ni ne conserve dans le Ledger le nom, le rang ou la quote-part des bénéficiaires.'**
+  String get pillar3aBeneficiaryScanTypeDescription;
+
+  /// No description provided for @pillar3aBeneficiaryReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence bénéficiaire 3a'**
+  String get pillar3aBeneficiaryReviewTitle;
+
+  /// No description provided for @pillar3aBeneficiaryReviewNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce document est référencé. MINT ne valide ni la portée juridique, ni le rang, ni les quotes-parts.'**
+  String get pillar3aBeneficiaryReviewNotice;
+
+  /// No description provided for @pillar3aBeneficiaryReviewHandoff.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cas de doute, contacte ton institution 3a, puis un notaire ou juriste successoral.'**
+  String get pillar3aBeneficiaryReviewHandoff;
+
+  /// No description provided for @pillar3aBeneficiaryReviewUncertain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour clarifier ce point, demande une confirmation écrite à ton institution 3a.'**
+  String get pillar3aBeneficiaryReviewUncertain;
+
+  /// No description provided for @pillar3aBeneficiaryRelationCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contrat actif, pas encore versé'**
+  String get pillar3aBeneficiaryRelationCurrent;
+
+  /// No description provided for @pillar3aBeneficiaryRelationUncertain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation à confirmer'**
+  String get pillar3aBeneficiaryRelationUncertain;
+
+  /// No description provided for @pillar3aBeneficiaryRelationClosed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contrat déjà versé ou clôturé'**
+  String get pillar3aBeneficiaryRelationClosed;
+
+  /// No description provided for @pillar3aBeneficiaryReviewConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer la référence'**
+  String get pillar3aBeneficiaryReviewConfirm;
+
+  /// No description provided for @pillar3aBeneficiaryReviewChooseRelation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis la situation du contrat avant de confirmer.'**
+  String get pillar3aBeneficiaryReviewChooseRelation;
+
+  /// No description provided for @pillar3aBeneficiaryReviewAcceptFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La référence n’a pas été enregistrée. Vérifie ton choix et réessaie.'**
+  String get pillar3aBeneficiaryReviewAcceptFailed;
+
+  /// No description provided for @pillar3aBeneficiaryReviewRecordFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La référence du document n’a pas pu être enregistrée. Réessaie sans confirmer une seconde fois.'**
+  String get pillar3aBeneficiaryReviewRecordFailed;
+
+  /// No description provided for @pillar3aBeneficiaryReviewRecordRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer l’enregistrement'**
+  String get pillar3aBeneficiaryReviewRecordRetry;
+
+  /// No description provided for @pillar3aBeneficiaryScanPrivacyNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton image ou PDF est envoyé au backend MINT puis temporairement transmis à Anthropic pour cette analyse ponctuelle. MINT ne l’ajoute pas au Ledger. Après ta confirmation, seules des métadonnées locales de référence sans contenu brut sont conservées dans le Ledger.'**
+  String get pillar3aBeneficiaryScanPrivacyNote;
+
+  /// No description provided for @pillar3aBeneficiaryReviewAuthorityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que l’institution a attesté'**
+  String get pillar3aBeneficiaryReviewAuthorityTitle;
+
+  /// No description provided for @pillar3aBeneficiaryDocumentKindLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de document'**
+  String get pillar3aBeneficiaryDocumentKindLabel;
+
+  /// No description provided for @pillar3aBeneficiaryDocumentKindConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmation de l’institution 3a'**
+  String get pillar3aBeneficiaryDocumentKindConfirmation;
+
+  /// No description provided for @pillar3aBeneficiaryDocumentKindAmendment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avenant accusé par l’institution 3a'**
+  String get pillar3aBeneficiaryDocumentKindAmendment;
+
+  /// No description provided for @pillar3aBeneficiaryDocumentKindDesignationForm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formulaire de désignation accusé par l’institution 3a'**
+  String get pillar3aBeneficiaryDocumentKindDesignationForm;
+
+  /// No description provided for @pillar3aBeneficiarySourceDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de la source'**
+  String get pillar3aBeneficiarySourceDateLabel;
+
+  /// No description provided for @pillar3aBeneficiaryLegalYearLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année juridique indiquée'**
+  String get pillar3aBeneficiaryLegalYearLabel;
+
+  /// No description provided for @pillar3aBeneficiaryTemporalBasisLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base temporelle'**
+  String get pillar3aBeneficiaryTemporalBasisLabel;
+
+  /// No description provided for @pillar3aBeneficiaryTemporalBasisExact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dates attestées par l’institution, non déduites par MINT'**
+  String get pillar3aBeneficiaryTemporalBasisExact;
+
+  /// No description provided for @pillar3aBeneficiaryTemporalBasisRegime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régime attesté par l’institution, non déduit par MINT'**
+  String get pillar3aBeneficiaryTemporalBasisRegime;
+
+  /// No description provided for @pillar3aBeneficiaryDesignationEffectiveDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prise d’effet de la désignation'**
+  String get pillar3aBeneficiaryDesignationEffectiveDateLabel;
+
+  /// No description provided for @pillar3aBeneficiaryLastModificationDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière modification de désignation'**
+  String get pillar3aBeneficiaryLastModificationDateLabel;
+
+  /// No description provided for @pillar3aBeneficiaryRegimeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régime attesté'**
+  String get pillar3aBeneficiaryRegimeLabel;
+
+  /// No description provided for @pillar3aBeneficiaryRegimePre20270601.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant le 1er juin 2027'**
+  String get pillar3aBeneficiaryRegimePre20270601;
+
+  /// No description provided for @pillar3aBeneficiaryRegimePost20270601.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dès le 1er juin 2027'**
+  String get pillar3aBeneficiaryRegimePost20270601;
+
+  /// No description provided for @pillar3aBeneficiaryNotProvided.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non indiqué par l’institution'**
+  String get pillar3aBeneficiaryNotProvided;
+
+  /// No description provided for @pillar3aBeneficiaryReviewFreshnessCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'La date de la source et l’année juridique ne prouvent pas qu’aucune désignation plus récente n’existe. Vérifie ce point auprès de ton institution 3a.'**
+  String get pillar3aBeneficiaryReviewFreshnessCaveat;
+
+  /// No description provided for @retirementPillar3aBeneficiaryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clause bénéficiaire du pilier 3a'**
+  String get retirementPillar3aBeneficiaryTitle;
+
+  /// No description provided for @retirementPillar3aBeneficiaryStateEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune référence institutionnelle n’est enregistrée pour cette clause.'**
+  String get retirementPillar3aBeneficiaryStateEmpty;
+
+  /// No description provided for @retirementPillar3aBeneficiaryStateKnown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relation actuelle déclarée : contrat actif et non versé.'**
+  String get retirementPillar3aBeneficiaryStateKnown;
+
+  /// No description provided for @retirementPillar3aBeneficiaryStateNeedsConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'La relation actuelle du contrat reste à confirmer.'**
+  String get retirementPillar3aBeneficiaryStateNeedsConfirmation;
+
+  /// No description provided for @retirementPillar3aBeneficiaryStateInactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce contrat est déclaré déjà versé ou clôturé. Les métadonnées précises restent masquées.'**
+  String get retirementPillar3aBeneficiaryStateInactive;
+
+  /// No description provided for @retirementPillar3aBeneficiaryStateMissingReference.
+  ///
+  /// In fr, this message translates to:
+  /// **'La référence locale du document manque. Les anciennes métadonnées précises restent masquées.'**
+  String get retirementPillar3aBeneficiaryStateMissingReference;
+
+  /// No description provided for @retirementPillar3aBeneficiaryStateMismatchedReference.
+  ///
+  /// In fr, this message translates to:
+  /// **'La référence locale ne correspond pas au document déclaré. Les anciennes métadonnées précises restent masquées.'**
+  String get retirementPillar3aBeneficiaryStateMismatchedReference;
+
+  /// No description provided for @retirementPillar3aBeneficiaryStateInvalidPresenceProvenance.
+  ///
+  /// In fr, this message translates to:
+  /// **'La déclaration de présence du pilier 3a n’est pas fiable. La référence institutionnelle valide est conservée et aucune métadonnée précise n’est affichée.'**
+  String get retirementPillar3aBeneficiaryStateInvalidPresenceProvenance;
+
+  /// No description provided for @retirementPillar3aBeneficiaryStateInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'La référence durable est illisible. Aucune ancienne métadonnée précise n’est affichée.'**
+  String get retirementPillar3aBeneficiaryStateInvalid;
+
+  /// No description provided for @retirementPillar3aBeneficiaryLegalYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année juridique du document : {legalYear}'**
+  String retirementPillar3aBeneficiaryLegalYear(int legalYear);
+
+  /// No description provided for @retirementPillar3aBeneficiaryDeclaredRelation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaré actif et non versé le {confirmedAt}'**
+  String retirementPillar3aBeneficiaryDeclaredRelation(String confirmedAt);
+
+  /// No description provided for @retirementPillar3aBeneficiaryNoAdviceBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Information factuelle uniquement : MINT ne peut pas conclure qui recevra le capital, ni dans quel ordre, ni selon quelle part.'**
+  String get retirementPillar3aBeneficiaryNoAdviceBoundary;
+
+  /// No description provided for @retirementPillar3aBeneficiarySpecialistHandoff.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier avec l’institution 3a ou un spécialiste avant toute décision.'**
+  String get retirementPillar3aBeneficiarySpecialistHandoff;
+
+  /// No description provided for @retirementPillar3aBeneficiaryInsertCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une référence institutionnelle'**
+  String get retirementPillar3aBeneficiaryInsertCta;
+
+  /// No description provided for @retirementPillar3aBeneficiaryReplaceCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reconfirmer depuis un document'**
+  String get retirementPillar3aBeneficiaryReplaceCta;
+
+  /// No description provided for @retirementPillar3aBeneficiaryReconfirmCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reconfirmer la relation'**
+  String get retirementPillar3aBeneficiaryReconfirmCta;
+
+  /// No description provided for @retirementPillar3aBeneficiaryReviewCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réexaminer le contrat'**
+  String get retirementPillar3aBeneficiaryReviewCta;
+
+  /// No description provided for @retirementPillar3aBeneficiaryRelinkCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relier à nouveau le document'**
+  String get retirementPillar3aBeneficiaryRelinkCta;
+
+  /// No description provided for @retirementPillar3aBeneficiaryRestartCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relancer la vérification'**
+  String get retirementPillar3aBeneficiaryRestartCta;
+
+  /// No description provided for @retirementPillar3aBeneficiaryPresenceResetCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer la déclaration de présence invalide'**
+  String get retirementPillar3aBeneficiaryPresenceResetCta;
+
+  /// No description provided for @retirementPillar3aBeneficiarySpecialistCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer la vérification spécialiste'**
+  String get retirementPillar3aBeneficiarySpecialistCta;
+
+  /// No description provided for @retirementPillar3aBeneficiarySpecialistSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions à vérifier'**
+  String get retirementPillar3aBeneficiarySpecialistSheetTitle;
+
+  /// No description provided for @retirementPillar3aBeneficiarySpecialistQuestionCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander quelle désignation enregistrée actuellement est applicable.'**
+  String get retirementPillar3aBeneficiarySpecialistQuestionCurrent;
+
+  /// No description provided for @retirementPillar3aBeneficiarySpecialistQuestionEffectiveDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander la date de prise d’effet de cette désignation.'**
+  String get retirementPillar3aBeneficiarySpecialistQuestionEffectiveDate;
+
+  /// No description provided for @retirementPillar3aBeneficiarySpecialistSheetBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne détermine ni le bénéficiaire, ni l’ordre, ni la part. Ces points doivent être confirmés par l’institution 3a ou un spécialiste.'**
+  String get retirementPillar3aBeneficiarySpecialistSheetBoundary;
+
+  /// No description provided for @retirementPillar3aBeneficiarySpecialistSheetClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get retirementPillar3aBeneficiarySpecialistSheetClose;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -24553,4 +24553,222 @@ class SEn extends S {
   @override
   String get lpp_capital_notice_continue_without_deadline_cta =>
       'Continue without saving the date';
+
+  @override
+  String get pillar3aBeneficiaryScanTypeLabel => 'Pillar 3a beneficiary clause';
+
+  @override
+  String get pillar3aBeneficiaryScanTypeDescription =>
+      'Use a confirmation or amendment from your pillar 3a institution tied to one specific contract. MINT neither extracts nor retains beneficiary names, ranks, or shares in the Ledger.';
+
+  @override
+  String get pillar3aBeneficiaryReviewTitle =>
+      'Pillar 3a beneficiary reference';
+
+  @override
+  String get pillar3aBeneficiaryReviewNotice =>
+      'This document is referenced. MINT does not validate its legal effect, rank, or shares.';
+
+  @override
+  String get pillar3aBeneficiaryReviewHandoff =>
+      'If in doubt, contact your pillar 3a institution, then a notary or succession lawyer.';
+
+  @override
+  String get pillar3aBeneficiaryReviewUncertain =>
+      'To clarify this point, request written confirmation from your pillar 3a institution.';
+
+  @override
+  String get pillar3aBeneficiaryRelationCurrent =>
+      'Active contract, not yet paid out';
+
+  @override
+  String get pillar3aBeneficiaryRelationUncertain => 'Situation to confirm';
+
+  @override
+  String get pillar3aBeneficiaryRelationClosed =>
+      'Contract already paid out or closed';
+
+  @override
+  String get pillar3aBeneficiaryReviewConfirm => 'Confirm reference';
+
+  @override
+  String get pillar3aBeneficiaryReviewChooseRelation =>
+      'Choose the contract status before confirming.';
+
+  @override
+  String get pillar3aBeneficiaryReviewAcceptFailed =>
+      'The reference was not saved. Check your choice and try again.';
+
+  @override
+  String get pillar3aBeneficiaryReviewRecordFailed =>
+      'The document reference could not be saved. Retry without confirming again.';
+
+  @override
+  String get pillar3aBeneficiaryReviewRecordRetry => 'Retry saving';
+
+  @override
+  String get pillar3aBeneficiaryScanPrivacyNote =>
+      'Your image or PDF is sent to the MINT backend and then temporarily transmitted to Anthropic for this one-off analysis. MINT does not add it to the Ledger. After you confirm, only local raw-free reference metadata is retained in the Ledger.';
+
+  @override
+  String get pillar3aBeneficiaryReviewAuthorityTitle =>
+      'What the institution attested';
+
+  @override
+  String get pillar3aBeneficiaryDocumentKindLabel => 'Document type';
+
+  @override
+  String get pillar3aBeneficiaryDocumentKindConfirmation =>
+      'Pillar 3a institution confirmation';
+
+  @override
+  String get pillar3aBeneficiaryDocumentKindAmendment =>
+      'Amendment acknowledged by the pillar 3a institution';
+
+  @override
+  String get pillar3aBeneficiaryDocumentKindDesignationForm =>
+      'Designation form acknowledged by the pillar 3a institution';
+
+  @override
+  String get pillar3aBeneficiarySourceDateLabel => 'Source date';
+
+  @override
+  String get pillar3aBeneficiaryLegalYearLabel => 'Stated legal year';
+
+  @override
+  String get pillar3aBeneficiaryTemporalBasisLabel => 'Temporal basis';
+
+  @override
+  String get pillar3aBeneficiaryTemporalBasisExact =>
+      'Dates attested by the institution, not inferred by MINT';
+
+  @override
+  String get pillar3aBeneficiaryTemporalBasisRegime =>
+      'Regime attested by the institution, not inferred by MINT';
+
+  @override
+  String get pillar3aBeneficiaryDesignationEffectiveDateLabel =>
+      'Designation effective date';
+
+  @override
+  String get pillar3aBeneficiaryLastModificationDateLabel =>
+      'Last designation modification';
+
+  @override
+  String get pillar3aBeneficiaryRegimeLabel => 'Attested regime';
+
+  @override
+  String get pillar3aBeneficiaryRegimePre20270601 => 'Before 1 June 2027';
+
+  @override
+  String get pillar3aBeneficiaryRegimePost20270601 => 'From 1 June 2027';
+
+  @override
+  String get pillar3aBeneficiaryNotProvided => 'Not stated by the institution';
+
+  @override
+  String get pillar3aBeneficiaryReviewFreshnessCaveat =>
+      'The source date and legal year do not prove that no newer designation exists. Check this with your pillar 3a institution.';
+
+  @override
+  String get retirementPillar3aBeneficiaryTitle =>
+      'Pillar 3a beneficiary clause';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateEmpty =>
+      'No institutional reference is recorded for this clause.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateKnown =>
+      'Current declared relationship: active and unpaid contract.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateNeedsConfirmation =>
+      'The contract’s current relationship still needs confirmation.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateInactive =>
+      'This contract is declared paid or closed. Precise metadata remains hidden.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateMissingReference =>
+      'The local document reference is missing. Previous precise metadata remains hidden.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateMismatchedReference =>
+      'The local reference does not match the declared document. Previous precise metadata remains hidden.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateInvalidPresenceProvenance =>
+      'The Pillar 3a presence declaration is not reliable. The valid institutional reference is preserved and no precise metadata is shown.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateInvalid =>
+      'The durable reference is unreadable. No previous precise metadata is shown.';
+
+  @override
+  String retirementPillar3aBeneficiaryLegalYear(int legalYear) {
+    return 'Document legal year: $legalYear';
+  }
+
+  @override
+  String retirementPillar3aBeneficiaryDeclaredRelation(String confirmedAt) {
+    return 'Declared active and unpaid on $confirmedAt';
+  }
+
+  @override
+  String get retirementPillar3aBeneficiaryNoAdviceBoundary =>
+      'Factual information only: MINT cannot determine who will receive the capital, in what order, or in what share.';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistHandoff =>
+      'Check with the pillar 3a institution or a specialist before making any decision.';
+
+  @override
+  String get retirementPillar3aBeneficiaryInsertCta =>
+      'Add an institutional reference';
+
+  @override
+  String get retirementPillar3aBeneficiaryReplaceCta =>
+      'Reconfirm from a document';
+
+  @override
+  String get retirementPillar3aBeneficiaryReconfirmCta =>
+      'Reconfirm the relationship';
+
+  @override
+  String get retirementPillar3aBeneficiaryReviewCta => 'Review the contract';
+
+  @override
+  String get retirementPillar3aBeneficiaryRelinkCta => 'Relink the document';
+
+  @override
+  String get retirementPillar3aBeneficiaryRestartCta => 'Restart verification';
+
+  @override
+  String get retirementPillar3aBeneficiaryPresenceResetCta =>
+      'Remove invalid presence declaration';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistCta =>
+      'Prepare specialist verification';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistSheetTitle =>
+      'Questions to verify';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistQuestionCurrent =>
+      'Ask which designation is currently recorded.';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistQuestionEffectiveDate =>
+      'Ask for the effective date of that designation.';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistSheetBoundary =>
+      'MINT does not determine the beneficiary, order, or share. These points must be confirmed by the pillar 3a institution or a specialist.';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistSheetClose => 'Close';
 }

@@ -14,6 +14,8 @@ class ReportPersistenceService {
   static const String _completedKey = 'wizard_completed';
   static const String _strictTaxSnapshotKey = '_coach_tax_snapshots_v1';
   static const String _strictLppEvidenceKey = '_coach_lpp_evidence_v1';
+  static const String _strictPillar3aBeneficiaryEvidenceKey =
+      '_coach_pillar3a_beneficiary_evidence_v1';
   static const String _strictProfileOwnerKey = '_coach_profile_owner_v1';
   static const String _activeLppEvidenceSlotKey = 'lpp_evidence_active_slot_v1';
   static const String _activeAuthoritySlotKey =
@@ -27,6 +29,7 @@ class ReportPersistenceService {
     _strictProfileOwnerKey,
     _strictTaxSnapshotKey,
     _strictLppEvidenceKey,
+    _strictPillar3aBeneficiaryEvidenceKey,
   };
   static Future<void>? _lppPersistenceTail;
   static const _looseSelfLppKeys = <String>{
@@ -50,6 +53,8 @@ class ReportPersistenceService {
         (key, _) =>
             key == '__provenance' ||
             key == _strictLppEvidenceKey ||
+            key ==
+                _strictPillar3aBeneficiaryEvidenceKey || // gitleaks:allow — ledger field name, not a credential.
             key == _activeLppEvidenceSlotKey ||
             legacyPartnerLppAnswerKeys.contains(key) ||
             (hasStrictLppRoot && _looseSelfLppKeys.contains(key)) ||

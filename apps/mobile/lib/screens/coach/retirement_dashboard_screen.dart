@@ -10,9 +10,11 @@ import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/lpp_capital_notice_specialist_handoff.dart';
 import 'package:mint_mobile/models/lpp_regulation_specialist_handoff.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
@@ -146,6 +148,14 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   String? _seqRunId;
   String? _seqStepId;
   bool _finalReturnEmitted = false;
+
+  // Relation edits are durable before their local document reference is
+  // refreshed. Keep the accepted receipt volatile so a failed BND write can
+  // be retried without a second Ledger mutation.
+  final Map<String, Pillar3aBeneficiaryReceipt>
+      _pendingPillar3aRelationReceipts = <String, Pillar3aBeneficiaryReceipt>{};
+  bool _pillar3aInvalidResetFailed = false;
+  bool _pillar3aPresenceResetFailed = false;
 
   // ────────────────────────────────────────────────────────────
   //  LIFECYCLE
@@ -600,6 +610,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
                         ..._buildLppRegulationEducation(profile),
 
+                        ..._buildPillar3aBeneficiaryConsumer(),
+
                         // Position 2: Coach narrative card (cap retraite)
                         if (_narrative != null &&
                             _narrative!.greeting.isNotEmpty)
@@ -804,6 +816,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     ),
                     const SizedBox(height: MintSpacing.lg),
                     ..._buildLppRegulationEducation(profile),
+                    ..._buildPillar3aBeneficiaryConsumer(),
                     _buildMissingAvsTrajectoryChart(projection, profile),
                     const SizedBox(height: MintSpacing.lg),
                     _buildDisclaimer(),
@@ -862,6 +875,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     ),
                     const SizedBox(height: MintSpacing.lg),
                     ..._buildLppRegulationEducation(profile),
+                    ..._buildPillar3aBeneficiaryConsumer(),
                     _buildDisclaimer(),
                     const SizedBox(height: MintSpacing.xl),
                   ]),
@@ -907,6 +921,558 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               ))),
     );
   }
+
+  List<Widget> _buildPillar3aBeneficiaryConsumer() {
+    if (!FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.documentLppEvidenceEnabled ||
+        !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled) {
+      return const <Widget>[];
+    }
+    final documents = context.watch<DocumentProvider?>();
+    final scans = context.read<ScanSessionProvider?>();
+    if (documents == null || scans == null) return const <Widget>[];
+    final resolution = documents.resolvePillar3aBeneficiaryConsumer();
+    if (resolution.state == Pillar3aBeneficiaryConsumerState.loading ||
+        resolution.state == Pillar3aBeneficiaryConsumerState.unavailable) {
+      return const <Widget>[];
+    }
+
+    final cards = resolution.entries.isEmpty
+        ? <Widget>[
+            _buildPillar3aBeneficiaryConsumerCard(
+              resolution.state,
+              entryIndex: 0,
+            ),
+          ]
+        : <Widget>[
+            for (final indexed in resolution.entries.indexed)
+              _buildPillar3aBeneficiaryConsumerCard(
+                indexed.$2.state,
+                entry: indexed.$2,
+                entryIndex: indexed.$1,
+              ),
+          ];
+    return <Widget>[
+      Semantics(
+        identifier: 'retirement_pillar3a_beneficiary_reference_consumer',
+        container: true,
+        explicitChildNodes: true,
+        child: Column(
+          key: const Key('retirement_pillar3a_beneficiary_consumer'),
+          children: cards,
+        ),
+      ),
+      const SizedBox(height: MintSpacing.md),
+    ];
+  }
+
+  Widget _buildPillar3aBeneficiaryConsumerCard(
+    Pillar3aBeneficiaryConsumerState state, {
+    Pillar3aBeneficiaryConsumerEntry? entry,
+    required int entryIndex,
+  }) {
+    final l = S.of(context)!;
+    final precise = entry?.renderablePreciseDocumentMetadata;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MintSpacing.md),
+      child: Semantics(
+        identifier: _pillar3aIndexedId(
+          'retirement_pillar3a_beneficiary_reference_state_${state.name}',
+          entryIndex,
+        ),
+        container: true,
+        explicitChildNodes: true,
+        child: MintSurface(
+          key: Key(_pillar3aIndexedId(
+            'retirement_pillar3a_beneficiary_consumer_${state.name}',
+            entryIndex,
+          )),
+          tone: state == Pillar3aBeneficiaryConsumerState.knownCurrentDeclared
+              ? MintSurfaceTone.sauge
+              : MintSurfaceTone.craie,
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                l.retirementPillar3aBeneficiaryTitle,
+                style: MintTextStyles.titleMedium(),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                _pillar3aBeneficiaryStateBody(l, state),
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              if (precise != null) ...<Widget>[
+                const SizedBox(height: MintSpacing.md),
+                _buildPillar3aBeneficiaryPreciseMetadata(
+                  l,
+                  precise,
+                  entryIndex,
+                ),
+              ],
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                key: Key(_pillar3aIndexedId(
+                  'retirement_pillar3a_beneficiary_no_advice_boundary',
+                  entryIndex,
+                )),
+                l.retirementPillar3aBeneficiaryNoAdviceBoundary,
+                style: MintTextStyles.bodySmall(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              if (precise != null) ...<Widget>[
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  l.retirementPillar3aBeneficiarySpecialistHandoff,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.sm),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    key: Key(_pillar3aIndexedId(
+                      'retirement_pillar3a_beneficiary_specialist_handoff',
+                      entryIndex,
+                    )),
+                    onPressed: _showPillar3aBeneficiarySpecialistSheet,
+                    child: Text(
+                      l.retirementPillar3aBeneficiarySpecialistCta,
+                    ),
+                  ),
+                ),
+              ],
+              if (state == Pillar3aBeneficiaryConsumerState.empty ||
+                  state == Pillar3aBeneficiaryConsumerState.invalid ||
+                  entry != null) ...<Widget>[
+                const SizedBox(height: MintSpacing.md),
+                _buildPillar3aBeneficiaryAction(
+                  l,
+                  state,
+                  entry,
+                  entryIndex,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPillar3aBeneficiaryAction(
+    S l,
+    Pillar3aBeneficiaryConsumerState state,
+    Pillar3aBeneficiaryConsumerEntry? entry,
+    int entryIndex,
+  ) {
+    final hasPendingRelationReceipt = entry != null &&
+        _pendingPillar3aRelationReceipts
+            .containsKey(entry.scanContractReferenceId);
+    final (semanticBase, keyBase, label, action) = hasPendingRelationReceipt
+        ? (
+            'retirement_pillar3a_beneficiary_reference_relation_bnd_retry',
+            'retirement_pillar3a_beneficiary_relation_bnd_retry_card',
+            l.pillar3aBeneficiaryReviewRecordRetry,
+            () => _retryPendingPillar3aRelationBnd(entry),
+          )
+        : switch (state) {
+            Pillar3aBeneficiaryConsumerState.empty => (
+                'retirement_pillar3a_beneficiary_reference_insert_cta',
+                'retirement_pillar3a_beneficiary_insert_cta',
+                l.retirementPillar3aBeneficiaryInsertCta,
+                () => _openPillar3aBeneficiaryScan(null),
+              ),
+            Pillar3aBeneficiaryConsumerState.knownCurrentDeclared => (
+                'retirement_pillar3a_beneficiary_reference_replace_cta',
+                'retirement_pillar3a_beneficiary_replace_cta',
+                l.retirementPillar3aBeneficiaryReplaceCta,
+                () => _openPillar3aBeneficiaryScan(entry),
+              ),
+            Pillar3aBeneficiaryConsumerState.needsConfirmation => (
+                'retirement_pillar3a_beneficiary_reference_reconfirm_cta',
+                'retirement_pillar3a_beneficiary_reconfirm_cta',
+                l.retirementPillar3aBeneficiaryReconfirmCta,
+                () => _showPillar3aBeneficiaryRelationSheet(entry!),
+              ),
+            Pillar3aBeneficiaryConsumerState.inactive => (
+                'retirement_pillar3a_beneficiary_reference_review_cta',
+                'retirement_pillar3a_beneficiary_review_cta',
+                l.retirementPillar3aBeneficiaryReviewCta,
+                () => _showPillar3aBeneficiaryRelationSheet(entry!),
+              ),
+            Pillar3aBeneficiaryConsumerState.missingDocumentReference => (
+                'retirement_pillar3a_beneficiary_reference_relink_cta',
+                'retirement_pillar3a_beneficiary_relink_cta',
+                l.retirementPillar3aBeneficiaryRelinkCta,
+                () => _openPillar3aBeneficiaryScan(entry),
+              ),
+            Pillar3aBeneficiaryConsumerState.mismatchedDocumentReference => (
+                'retirement_pillar3a_beneficiary_reference_restart_cta',
+                'retirement_pillar3a_beneficiary_restart_cta',
+                l.retirementPillar3aBeneficiaryRestartCta,
+                () => _openPillar3aBeneficiaryScan(entry),
+              ),
+            Pillar3aBeneficiaryConsumerState.invalidPresenceProvenance => (
+                'retirement_pillar3a_beneficiary_reference_presence_reset_cta',
+                _pillar3aPresenceResetFailed
+                    ? 'retirement_pillar3a_beneficiary_presence_reset_retry'
+                    : 'retirement_pillar3a_beneficiary_presence_reset_cta',
+                _pillar3aPresenceResetFailed
+                    ? l.pillar3aBeneficiaryReviewRecordRetry
+                    : l.retirementPillar3aBeneficiaryPresenceResetCta,
+                _resetInvalidPillar3aBeneficiaryPresenceProvenance,
+              ),
+            Pillar3aBeneficiaryConsumerState.invalid => (
+                'retirement_pillar3a_beneficiary_reference_invalid_reset_cta',
+                _pillar3aInvalidResetFailed
+                    ? 'retirement_pillar3a_beneficiary_invalid_reset_retry'
+                    : 'retirement_pillar3a_beneficiary_invalid_reset_cta',
+                _pillar3aInvalidResetFailed
+                    ? l.pillar3aBeneficiaryReviewRecordRetry
+                    : l.retirementPillar3aBeneficiaryRestartCta,
+                _resetInvalidPillar3aBeneficiaryEvidence,
+              ),
+            Pillar3aBeneficiaryConsumerState.loading ||
+            Pillar3aBeneficiaryConsumerState.unavailable =>
+              throw StateError(
+                'Unavailable Pillar 3a consumer state has no action',
+              ),
+          };
+    return SizedBox(
+      width: double.infinity,
+      child: Semantics(
+        identifier: _pillar3aIndexedId(semanticBase, entryIndex),
+        button: true,
+        child: OutlinedButton(
+          key: Key(_pillar3aIndexedId(keyBase, entryIndex)),
+          onPressed: action,
+          child: Text(label),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showPillar3aBeneficiaryRelationSheet(
+    Pillar3aBeneficiaryConsumerEntry entry,
+  ) async {
+    final l = S.of(context)!;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, sheetSetState) {
+          final hasPendingReceipt = _pendingPillar3aRelationReceipts
+              .containsKey(entry.scanContractReferenceId);
+          Future<void> choose(Pillar3aBeneficiaryRelation relation) async {
+            final ledger = context.read<CoachProfileProvider>();
+            final documents = context.read<DocumentProvider>();
+            try {
+              var receipt = _pendingPillar3aRelationReceipts[
+                  entry.scanContractReferenceId];
+              receipt ??= await ledger.reconfirmPillar3aBeneficiaryRelation(
+                contractReferenceId: entry.scanContractReferenceId,
+                expectedReferenceId: entry.scanExpectedPreviousReferenceId,
+                relation: relation,
+              );
+              _pendingPillar3aRelationReceipts[entry.scanContractReferenceId] =
+                  receipt;
+              await documents.recordPillar3aBeneficiaryEvidence(receipt);
+              _pendingPillar3aRelationReceipts.remove(
+                entry.scanContractReferenceId,
+              );
+              if (sheetContext.mounted) Navigator.of(sheetContext).pop();
+            } catch (_) {
+              if (sheetContext.mounted) sheetSetState(() {});
+            }
+          }
+
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(MintSpacing.lg),
+              child: Column(
+                key: const Key(
+                  'retirement_pillar3a_beneficiary_relation_sheet',
+                ),
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Text(
+                    l.retirementPillar3aBeneficiaryTitle,
+                    style: MintTextStyles.titleMedium(),
+                  ),
+                  const SizedBox(height: MintSpacing.md),
+                  if (!hasPendingReceipt) ...<Widget>[
+                    OutlinedButton(
+                      key: const Key(
+                        'retirement_pillar3a_beneficiary_relation_active_choice',
+                      ),
+                      onPressed: () => choose(
+                        Pillar3aBeneficiaryRelation.currentActiveUnpaid,
+                      ),
+                      child: Text(l.pillar3aBeneficiaryRelationCurrent),
+                    ),
+                    OutlinedButton(
+                      onPressed: () => choose(
+                        Pillar3aBeneficiaryRelation.uncertain,
+                      ),
+                      child: Text(l.pillar3aBeneficiaryRelationUncertain),
+                    ),
+                    OutlinedButton(
+                      onPressed: () => choose(
+                        Pillar3aBeneficiaryRelation.paidOrClosed,
+                      ),
+                      child: Text(l.pillar3aBeneficiaryRelationClosed),
+                    ),
+                  ] else
+                    FilledButton(
+                      key: const Key(
+                        'retirement_pillar3a_beneficiary_relation_bnd_retry',
+                      ),
+                      onPressed: () => choose(
+                        Pillar3aBeneficiaryRelation.currentActiveUnpaid,
+                      ),
+                      child: Text(l.pillar3aBeneficiaryReviewRecordRetry),
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _retryPendingPillar3aRelationBnd(
+    Pillar3aBeneficiaryConsumerEntry entry,
+  ) async {
+    final contractReferenceId = entry.scanContractReferenceId;
+    final receipt = _pendingPillar3aRelationReceipts[contractReferenceId];
+    if (receipt == null) return;
+    try {
+      await context
+          .read<DocumentProvider>()
+          .recordPillar3aBeneficiaryEvidence(receipt);
+      if (!mounted) return;
+      setState(() {
+        _pendingPillar3aRelationReceipts.remove(contractReferenceId);
+      });
+    } catch (_) {
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<void> _resetInvalidPillar3aBeneficiaryEvidence() async {
+    try {
+      final reset = await context
+          .read<DocumentProvider>()
+          .resetInvalidPillar3aBeneficiaryEvidence();
+      if (!reset) throw StateError('Pillar 3a invalid root was not reset');
+      if (mounted) setState(() => _pillar3aInvalidResetFailed = false);
+    } catch (_) {
+      if (mounted) setState(() => _pillar3aInvalidResetFailed = true);
+    }
+  }
+
+  Future<void> _resetInvalidPillar3aBeneficiaryPresenceProvenance() async {
+    try {
+      final reset = await context
+          .read<CoachProfileProvider>()
+          .resetInvalidPillar3aBeneficiaryPresenceProvenance();
+      if (!reset) {
+        throw StateError('Pillar 3a invalid presence was not reset');
+      }
+      if (mounted) setState(() => _pillar3aPresenceResetFailed = false);
+    } catch (_) {
+      if (mounted) setState(() => _pillar3aPresenceResetFailed = true);
+    }
+  }
+
+  Future<void> _showPillar3aBeneficiarySpecialistSheet() async {
+    final l = S.of(context)!;
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: Column(
+            key: const Key(
+              'retirement_pillar3a_beneficiary_specialist_sheet',
+            ),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                l.retirementPillar3aBeneficiarySpecialistSheetTitle,
+                style: MintTextStyles.titleMedium(),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(l.retirementPillar3aBeneficiarySpecialistQuestionCurrent),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                l.retirementPillar3aBeneficiarySpecialistQuestionEffectiveDate,
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(l.retirementPillar3aBeneficiarySpecialistSheetBoundary),
+              const SizedBox(height: MintSpacing.md),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  l.retirementPillar3aBeneficiarySpecialistSheetClose,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPillar3aBeneficiaryPreciseMetadata(
+    S l,
+    Pillar3aBeneficiaryRenderableDocumentMetadata metadata,
+    int entryIndex,
+  ) {
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final format = DateFormat.yMMMMd(locale);
+    final sourceDate = format.format(
+      SwissCivilTime.businessDate(metadata.sourceDate),
+    );
+    final confirmedAt = format.format(
+      SwissCivilTime.businessDate(metadata.relationConfirmedAt),
+    );
+    return Column(
+      key: Key(_pillar3aIndexedId(
+        'retirement_pillar3a_beneficiary_precise_metadata',
+        entryIndex,
+      )),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(_pillar3aBeneficiaryDocumentKind(l, metadata.documentKind)),
+        Text('${l.pillar3aBeneficiarySourceDateLabel} : $sourceDate'),
+        Text(
+          l.retirementPillar3aBeneficiaryLegalYear(metadata.legalYear),
+        ),
+        const SizedBox(height: MintSpacing.xs),
+        ..._pillar3aBeneficiaryTemporalBasis(l, format, metadata.temporalBasis),
+        const SizedBox(height: MintSpacing.xs),
+        Text(
+          key: Key(_pillar3aIndexedId(
+            'retirement_pillar3a_beneficiary_declared_relation',
+            entryIndex,
+          )),
+          l.retirementPillar3aBeneficiaryDeclaredRelation(confirmedAt),
+        ),
+        const SizedBox(height: MintSpacing.xs),
+        Text(
+          l.pillar3aBeneficiaryReviewFreshnessCaveat,
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _pillar3aBeneficiaryTemporalBasis(
+    S l,
+    DateFormat format,
+    Pillar3aBeneficiaryTemporalBasis basis,
+  ) {
+    if (basis is Pillar3aBeneficiaryExactDates) {
+      String dateOrMissing(DateTime? date) => date == null
+          ? l.pillar3aBeneficiaryNotProvided
+          : format.format(SwissCivilTime.businessDate(date));
+      return <Widget>[
+        Text(l.pillar3aBeneficiaryTemporalBasisExact),
+        Text(
+          '${l.pillar3aBeneficiaryDesignationEffectiveDateLabel} : '
+          '${dateOrMissing(basis.designationEffectiveDate)}',
+        ),
+        Text(
+          '${l.pillar3aBeneficiaryLastModificationDateLabel} : '
+          '${dateOrMissing(basis.lastAssignmentModificationDate)}',
+        ),
+      ];
+    }
+    final regime = (basis as Pillar3aBeneficiaryAttestedRegime).regime;
+    return <Widget>[
+      Text(l.pillar3aBeneficiaryTemporalBasisRegime),
+      Text(
+        '${l.pillar3aBeneficiaryRegimeLabel} : '
+        '${regime == Pillar3aBeneficiaryRegime.pre20270601 ? l.pillar3aBeneficiaryRegimePre20270601 : l.pillar3aBeneficiaryRegimePost20270601}',
+      ),
+    ];
+  }
+
+  String _pillar3aBeneficiaryDocumentKind(
+    S l,
+    Pillar3aBeneficiaryAuthorityDocumentKind kind,
+  ) =>
+      switch (kind) {
+        Pillar3aBeneficiaryAuthorityDocumentKind.confirmationInstitutionnelle =>
+          l.pillar3aBeneficiaryDocumentKindConfirmation,
+        Pillar3aBeneficiaryAuthorityDocumentKind.avenantAccuse =>
+          l.pillar3aBeneficiaryDocumentKindAmendment,
+        Pillar3aBeneficiaryAuthorityDocumentKind.formulaireDesignationAccuse =>
+          l.pillar3aBeneficiaryDocumentKindDesignationForm,
+      };
+
+  String _pillar3aBeneficiaryStateBody(
+    S l,
+    Pillar3aBeneficiaryConsumerState state,
+  ) =>
+      switch (state) {
+        Pillar3aBeneficiaryConsumerState.empty =>
+          l.retirementPillar3aBeneficiaryStateEmpty,
+        Pillar3aBeneficiaryConsumerState.knownCurrentDeclared =>
+          l.retirementPillar3aBeneficiaryStateKnown,
+        Pillar3aBeneficiaryConsumerState.needsConfirmation =>
+          l.retirementPillar3aBeneficiaryStateNeedsConfirmation,
+        Pillar3aBeneficiaryConsumerState.inactive =>
+          l.retirementPillar3aBeneficiaryStateInactive,
+        Pillar3aBeneficiaryConsumerState.missingDocumentReference =>
+          l.retirementPillar3aBeneficiaryStateMissingReference,
+        Pillar3aBeneficiaryConsumerState.mismatchedDocumentReference =>
+          l.retirementPillar3aBeneficiaryStateMismatchedReference,
+        Pillar3aBeneficiaryConsumerState.invalidPresenceProvenance =>
+          l.retirementPillar3aBeneficiaryStateInvalidPresenceProvenance,
+        Pillar3aBeneficiaryConsumerState.invalid =>
+          l.retirementPillar3aBeneficiaryStateInvalid,
+        Pillar3aBeneficiaryConsumerState.loading ||
+        Pillar3aBeneficiaryConsumerState.unavailable =>
+          '',
+      };
+
+  void _openPillar3aBeneficiaryScan(
+    Pillar3aBeneficiaryConsumerEntry? entry,
+  ) {
+    final scans = context.read<ScanSessionProvider?>();
+    if (scans == null) return;
+    final scanContextId = scans.retainPillar3aBeneficiaryScanIntent(
+      kind: entry == null
+          ? Pillar3aBeneficiaryScanIntentKind.insertion
+          : Pillar3aBeneficiaryScanIntentKind.replacement,
+      contractReferenceId: entry?.scanContractReferenceId,
+      expectedPreviousReferenceId: entry?.scanExpectedPreviousReferenceId,
+      returnUri: '/retraite',
+    );
+    context.go(
+      Uri(
+        path: '/scan',
+        queryParameters: <String, String>{
+          'scanContextId': scanContextId,
+          'returnUri': '/retraite',
+        },
+      ).toString(),
+    );
+  }
+
+  String _pillar3aIndexedId(String base, int index) =>
+      index == 0 ? base : '${base}_${index + 1}';
 
   List<Widget> _buildLppCapitalNoticeEducation(CoachProfile profile) {
     final documents = context.watch<DocumentProvider?>();
@@ -1252,12 +1818,14 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                             ),
                           ),
                           const SizedBox(height: MintSpacing.sm),
-                          _withRuntimeSemantics('retirement_lpp_regulation_handoff_reference_body', Text(
-                              content.referenceBody,
-                              style: MintTextStyles.bodyMedium(
-                                color: MintColors.textSecondary,
-                              ),
-                            )),
+                          _withRuntimeSemantics(
+                              'retirement_lpp_regulation_handoff_reference_body',
+                              Text(
+                                content.referenceBody,
+                                style: MintTextStyles.bodyMedium(
+                                  color: MintColors.textSecondary,
+                                ),
+                              )),
                           const SizedBox(height: MintSpacing.sm),
                           Text(
                             content.boundary,
@@ -1298,10 +1866,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                             content.confirmedAtValue,
                           ),
                           const SizedBox(height: MintSpacing.xs),
-                          _withRuntimeSemantics('retirement_lpp_regulation_handoff_fund_relation', _buildLppRegulationMetadata(
-                              content.fundRelationshipLabel,
-                              content.fundRelationshipValue,
-                            )),
+                          _withRuntimeSemantics(
+                              'retirement_lpp_regulation_handoff_fund_relation',
+                              _buildLppRegulationMetadata(
+                                content.fundRelationshipLabel,
+                                content.fundRelationshipValue,
+                              )),
                           const SizedBox(height: MintSpacing.lg),
                           Semantics(
                             identifier:

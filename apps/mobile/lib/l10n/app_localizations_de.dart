@@ -24742,4 +24742,223 @@ class SDe extends S {
   @override
   String get lpp_capital_notice_continue_without_deadline_cta =>
       'Ohne gespeichertes Datum fortfahren';
+
+  @override
+  String get pillar3aBeneficiaryScanTypeLabel => 'Begünstigtenklausel Säule 3a';
+
+  @override
+  String get pillar3aBeneficiaryScanTypeDescription =>
+      'Verwende eine Bestätigung oder einen Nachtrag deiner 3a-Einrichtung zu einem bestimmten Vertrag. MINT extrahiert oder speichert Namen, Rang und Anteile der Begünstigten nicht im Ledger.';
+
+  @override
+  String get pillar3aBeneficiaryReviewTitle => 'Begünstigtenreferenz Säule 3a';
+
+  @override
+  String get pillar3aBeneficiaryReviewNotice =>
+      'Dieses Dokument wird referenziert. MINT prüft weder Rechtswirkung noch Rang oder Anteile.';
+
+  @override
+  String get pillar3aBeneficiaryReviewHandoff =>
+      'Wenden Sie sich bei Zweifeln an Ihre 3a-Einrichtung und danach an ein Notariat oder eine Fachperson für Erbrecht.';
+
+  @override
+  String get pillar3aBeneficiaryReviewUncertain =>
+      'Bitten Sie Ihre 3a-Einrichtung zur Klärung um eine schriftliche Bestätigung.';
+
+  @override
+  String get pillar3aBeneficiaryRelationCurrent =>
+      'Aktiver Vertrag, noch nicht ausbezahlt';
+
+  @override
+  String get pillar3aBeneficiaryRelationUncertain => 'Situation zu bestätigen';
+
+  @override
+  String get pillar3aBeneficiaryRelationClosed =>
+      'Bereits ausbezahlter oder geschlossener Vertrag';
+
+  @override
+  String get pillar3aBeneficiaryReviewConfirm => 'Referenz bestätigen';
+
+  @override
+  String get pillar3aBeneficiaryReviewChooseRelation =>
+      'Wählen Sie vor der Bestätigung den Vertragsstatus.';
+
+  @override
+  String get pillar3aBeneficiaryReviewAcceptFailed =>
+      'Die Referenz wurde nicht gespeichert. Prüfen Sie Ihre Auswahl und versuchen Sie es erneut.';
+
+  @override
+  String get pillar3aBeneficiaryReviewRecordFailed =>
+      'Die Dokumentreferenz konnte nicht gespeichert werden. Wiederholen Sie den Vorgang ohne erneute Bestätigung.';
+
+  @override
+  String get pillar3aBeneficiaryReviewRecordRetry => 'Speichern wiederholen';
+
+  @override
+  String get pillar3aBeneficiaryScanPrivacyNote =>
+      'Dein Bild oder PDF wird an das MINT-Backend gesendet und für diese einmalige Analyse vorübergehend an Anthropic übermittelt. MINT fügt die Datei nicht dem Ledger hinzu. Nach deiner Bestätigung bleiben dort nur lokale Referenzmetadaten ohne Rohinhalt gespeichert.';
+
+  @override
+  String get pillar3aBeneficiaryReviewAuthorityTitle =>
+      'Was die Einrichtung bestätigt hat';
+
+  @override
+  String get pillar3aBeneficiaryDocumentKindLabel => 'Dokumenttyp';
+
+  @override
+  String get pillar3aBeneficiaryDocumentKindConfirmation =>
+      'Bestätigung der 3a-Einrichtung';
+
+  @override
+  String get pillar3aBeneficiaryDocumentKindAmendment =>
+      'Von der 3a-Einrichtung bestätigter Nachtrag';
+
+  @override
+  String get pillar3aBeneficiaryDocumentKindDesignationForm =>
+      'Von der 3a-Einrichtung bestätigtes Begünstigungsformular';
+
+  @override
+  String get pillar3aBeneficiarySourceDateLabel => 'Quelldatum';
+
+  @override
+  String get pillar3aBeneficiaryLegalYearLabel => 'Angegebenes Rechtsjahr';
+
+  @override
+  String get pillar3aBeneficiaryTemporalBasisLabel => 'Zeitliche Grundlage';
+
+  @override
+  String get pillar3aBeneficiaryTemporalBasisExact =>
+      'Von der Einrichtung bestätigte Daten, nicht von MINT abgeleitet';
+
+  @override
+  String get pillar3aBeneficiaryTemporalBasisRegime =>
+      'Von der Einrichtung bestätigtes Regime, nicht von MINT abgeleitet';
+
+  @override
+  String get pillar3aBeneficiaryDesignationEffectiveDateLabel =>
+      'Wirksamkeitsdatum der Begünstigung';
+
+  @override
+  String get pillar3aBeneficiaryLastModificationDateLabel =>
+      'Letzte Änderung der Begünstigung';
+
+  @override
+  String get pillar3aBeneficiaryRegimeLabel => 'Bestätigtes Regime';
+
+  @override
+  String get pillar3aBeneficiaryRegimePre20270601 => 'Vor dem 1. Juni 2027';
+
+  @override
+  String get pillar3aBeneficiaryRegimePost20270601 => 'Ab dem 1. Juni 2027';
+
+  @override
+  String get pillar3aBeneficiaryNotProvided =>
+      'Von der Einrichtung nicht angegeben';
+
+  @override
+  String get pillar3aBeneficiaryReviewFreshnessCaveat =>
+      'Quelldatum und Rechtsjahr beweisen nicht, dass keine neuere Begünstigung besteht. Kläre dies mit deiner 3a-Einrichtung.';
+
+  @override
+  String get retirementPillar3aBeneficiaryTitle =>
+      'Begünstigtenklausel der Säule 3a';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateEmpty =>
+      'Für diese Klausel ist keine institutionelle Referenz erfasst.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateKnown =>
+      'Aktuell deklarierte Beziehung: aktiver, noch nicht ausbezahlter Vertrag.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateNeedsConfirmation =>
+      'Die aktuelle Beziehung zum Vertrag muss noch bestätigt werden.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateInactive =>
+      'Dieser Vertrag ist als ausbezahlt oder geschlossen deklariert. Genaue Metadaten bleiben ausgeblendet.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateMissingReference =>
+      'Die lokale Dokumentreferenz fehlt. Frühere genaue Metadaten bleiben ausgeblendet.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateMismatchedReference =>
+      'Die lokale Referenz stimmt nicht mit dem deklarierten Dokument überein. Frühere genaue Metadaten bleiben ausgeblendet.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateInvalidPresenceProvenance =>
+      'Die Angabe zum Vorhandensein der Säule 3a ist nicht verlässlich. Die gültige institutionelle Referenz bleibt erhalten und genaue Metadaten werden nicht angezeigt.';
+
+  @override
+  String get retirementPillar3aBeneficiaryStateInvalid =>
+      'Die dauerhafte Referenz ist nicht lesbar. Frühere genaue Metadaten werden nicht angezeigt.';
+
+  @override
+  String retirementPillar3aBeneficiaryLegalYear(int legalYear) {
+    return 'Rechtsjahr des Dokuments: $legalYear';
+  }
+
+  @override
+  String retirementPillar3aBeneficiaryDeclaredRelation(String confirmedAt) {
+    return 'Am $confirmedAt als aktiv und nicht ausbezahlt deklariert';
+  }
+
+  @override
+  String get retirementPillar3aBeneficiaryNoAdviceBoundary =>
+      'Nur sachliche Information: MINT kann nicht bestimmen, wer das Kapital in welcher Reihenfolge oder zu welchem Anteil erhält.';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistHandoff =>
+      'Vor jeder Entscheidung bei der Säule-3a-Institution oder einer Fachperson prüfen.';
+
+  @override
+  String get retirementPillar3aBeneficiaryInsertCta =>
+      'Institutionelle Referenz hinzufügen';
+
+  @override
+  String get retirementPillar3aBeneficiaryReplaceCta =>
+      'Mit einem Dokument erneut bestätigen';
+
+  @override
+  String get retirementPillar3aBeneficiaryReconfirmCta =>
+      'Beziehung erneut bestätigen';
+
+  @override
+  String get retirementPillar3aBeneficiaryReviewCta => 'Vertrag erneut prüfen';
+
+  @override
+  String get retirementPillar3aBeneficiaryRelinkCta =>
+      'Dokument erneut verknüpfen';
+
+  @override
+  String get retirementPillar3aBeneficiaryRestartCta => 'Prüfung neu starten';
+
+  @override
+  String get retirementPillar3aBeneficiaryPresenceResetCta =>
+      'Ungültige Präsenzangabe entfernen';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistCta =>
+      'Fachprüfung vorbereiten';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistSheetTitle =>
+      'Zu klärende Fragen';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistQuestionCurrent =>
+      'Fragen, welche Begünstigung aktuell erfasst ist.';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistQuestionEffectiveDate =>
+      'Nach dem Inkrafttretensdatum dieser Begünstigung fragen.';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistSheetBoundary =>
+      'MINT bestimmt weder Begünstigte noch Reihenfolge oder Anteil. Diese Punkte müssen von der Säule-3a-Institution oder einer Fachperson bestätigt werden.';
+
+  @override
+  String get retirementPillar3aBeneficiarySpecialistSheetClose => 'Schliessen';
 }

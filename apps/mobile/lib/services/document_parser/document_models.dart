@@ -20,6 +20,7 @@ enum DocumentType {
   taxDeclaration, // → tax_declaration
   avsExtract, // → avs_extract
   threeAAttestation, // → pillar_3a_attestation
+  pillar3aBeneficiaryClause, // → pillar_3a_beneficiary_clause
   mortgageAttestation, // → mortgage_attestation
   salaryCertificate, // → salary_certificate
 }
@@ -30,6 +31,8 @@ extension DocumentTypeBackend on DocumentType {
     switch (this) {
       case DocumentType.threeAAttestation:
         return 'pillar_3a_attestation';
+      case DocumentType.pillar3aBeneficiaryClause:
+        return 'pillar_3a_beneficiary_clause';
       case DocumentType.lppCertificate:
         return 'lpp_certificate';
       case DocumentType.lppPlan:
@@ -49,6 +52,8 @@ extension DocumentTypeBackend on DocumentType {
     switch (value) {
       case 'pillar_3a_attestation':
         return DocumentType.threeAAttestation;
+      case 'pillar_3a_beneficiary_clause':
+        return DocumentType.pillar3aBeneficiaryClause;
       case 'lpp_certificate':
         return DocumentType.lppCertificate;
       case 'lpp_plan':
@@ -72,19 +77,21 @@ extension DocumentTypeLabel on DocumentType {
   String get label {
     switch (this) {
       case DocumentType.lppCertificate:
-        return 'Certificat de prevoyance LPP';
+        return 'Certificat de prevoyance LPP'; // lint-ignore: legacy model copy outside BuildContext; dedicated localization migration required
       case DocumentType.lppPlan:
         throw UnsupportedError(backendValue);
       case DocumentType.taxDeclaration:
         return 'Document fiscal';
       case DocumentType.avsExtract:
-        return 'Extrait de compte AVS';
+        return 'Extrait de compte AVS'; // lint-ignore: legacy model copy outside BuildContext; dedicated localization migration required
       case DocumentType.threeAAttestation:
         return 'Attestation 3e pilier';
+      case DocumentType.pillar3aBeneficiaryClause:
+        throw UnsupportedError(backendValue);
       case DocumentType.mortgageAttestation:
         return 'Attestation hypothecaire';
       case DocumentType.salaryCertificate:
-        return 'Fiche de salaire';
+        return 'Fiche de salaire'; // lint-ignore: legacy model copy outside BuildContext; dedicated localization migration required
     }
   }
 
@@ -95,15 +102,17 @@ extension DocumentTypeLabel on DocumentType {
   String? get description {
     switch (this) {
       case DocumentType.lppCertificate:
-        return 'Avoir LPP, parts oblig/suroblig, taux de conversion, lacune de rachat';
+        return 'Avoir LPP, parts oblig/suroblig, taux de conversion, lacune de rachat'; // lint-ignore: legacy model copy outside BuildContext; dedicated localization migration required
       case DocumentType.lppPlan:
         return null;
       case DocumentType.taxDeclaration:
         return null;
       case DocumentType.avsExtract:
-        return 'Annees de cotisation, RAMD, lacunes';
+        return 'Annees de cotisation, RAMD, lacunes'; // lint-ignore: legacy model copy outside BuildContext; dedicated localization migration required
       case DocumentType.threeAAttestation:
         return 'Solde 3a, versements cumules, rendement';
+      case DocumentType.pillar3aBeneficiaryClause:
+        return null;
       case DocumentType.mortgageAttestation:
         return 'Capital restant du, taux, echeance';
       case DocumentType.salaryCertificate:
@@ -124,6 +133,8 @@ extension DocumentTypeLabel on DocumentType {
         return 22; // +20-25 points
       case DocumentType.threeAAttestation:
         return 7; // +5-10 points
+      case DocumentType.pillar3aBeneficiaryClause:
+        return 0;
       case DocumentType.mortgageAttestation:
         return 12; // +10-15 points
       case DocumentType.salaryCertificate:

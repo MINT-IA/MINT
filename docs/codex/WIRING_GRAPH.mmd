@@ -61,6 +61,12 @@
 %% lpp-regulation-recovery-runtime-proof-7cb5ea4c6 is committed at
 %% ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1. RET-REF remains ticket_only,
 %% G1 stays open at 8.2/10 and G2/G3 are forbidden.
+%% The exact 3a-beneficiary authority atom is implementation/test GREEN on the
+%% current G1 branch. It uses an opaque FIFO-5 intent, strict institutional
+%% candidate, secure whole-root Ledger write, exact raw-free BND join and a
+%% Dashboard fail-closed consumer with separate presence repair/root reset.
+%% All three flags remain false. Wrapper audits, dossier/PDF parity and native
+%% exact-SHA runtime are still open; this is not ticket or G1 promotion.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -326,6 +332,50 @@ flowchart TB
 
   LRR_ACCEPT -- "single serialized provider mutation" --> CPP
   LRR_RESOLVE -. "resolved currentFund + same sourceDate/legalYear" .-> LCN_HANDOFF
+
+  %% Exact 3a-beneficiary reference implementation is GREEN; promotion is open.
+  subgraph P3A_BENEFICIARY_REFERENCE["G1-RET-REF-01 — EXACT 3A BENEFICIARY AUTHORITY / PROMOTION OPEN"]
+    direction TB
+    P3AB_FLAG{"typedLppEvidence AND documentLppEvidenceEnabled<br/>AND pillar3aBeneficiaryClauseReferenceEnabled<br/>all default false"}
+    P3AB_HIDDEN["off / loading / unavailable<br/>no Dashboard card, CTA, intent or provider read"]
+    P3AB_DASH["RetirementDashboardScreen<br/>consumer in all loaded branches<br/>no identity, order, rank/share or advice"]
+    P3AB_INTENT["ScanSessionProvider FIFO-5 intent<br/>insertion or exact-reference replacement<br/>route gets opaque context + /retraite only"]
+    P3AB_SCAN["/scan image/PDF authority acquisition<br/>no text, paste, debug or manual OCR<br/>image decode/re-encode; transient PDF"]
+    P3AB_AUTH["strict institutional candidate<br/>3 distinct UUIDs + document kind<br/>source date + legal year + temporal basis"]
+    P3AB_REVIEW["/scan/review<br/>authority metadata + one declared relation<br/>volatile exact context; cold restart recovers"]
+    P3AB_ACCEPT["acceptPillar3aBeneficiaryReview<br/>serialized CAS replacement<br/>secure whole-root save before publication"]
+    P3AB_ROOT[("_coach_pillar3a_beneficiary_evidence_v1<br/>closed schema; document authority separate<br/>from userInput relation")]
+    P3AB_RECEIPT["accepted exact receipt<br/>same contract/reference/authority ids<br/>same relationConfirmedAt"]
+    P3AB_BND[("recordPillar3aBeneficiaryEvidence<br/>exact raw-free BND tuple<br/>record retry reuses same receipt")]
+    P3AB_RESOLVE{"strict root + hydrated exact BND<br/>canonical q_has_3a provenance"}
+    P3AB_KNOWN["knownCurrentDeclared<br/>precise metadata + neutral specialist sheet"]
+    P3AB_CONFIRM["needsConfirmation<br/>relation-only writer preserves authority"]
+    P3AB_INACTIVE["inactive<br/>paid/closed or canonical newer/equal false"]
+    P3AB_RECOVERY["missing/mismatch BND<br/>relink/review with precise metadata hidden"]
+    P3AB_PRESENCE["invalidPresenceProvenance<br/>remove only false + matching provenance<br/>preserve strict root, BND and siblings"]
+    P3AB_INVALID["invalid root<br/>purge all exact 3a BND before root reset"]
+    P3AB_OPEN["OPEN: Opus audits + dossier/PDF + native runtime<br/>ticket_only / G1 OPEN 8.2<br/>G2/G3 forbidden"]
+
+    P3AB_FLAG -- "off" --> P3AB_HIDDEN
+    P3AB_FLAG -- "test-only on" --> P3AB_DASH
+    P3AB_DASH -- "empty / replace" --> P3AB_INTENT --> P3AB_SCAN --> P3AB_AUTH --> P3AB_REVIEW
+    P3AB_REVIEW --> P3AB_ACCEPT --> P3AB_ROOT
+    P3AB_ACCEPT --> P3AB_RECEIPT --> P3AB_BND
+    P3AB_ROOT --> P3AB_RESOLVE
+    P3AB_BND --> P3AB_RESOLVE
+    P3AB_RESOLVE -- "current" --> P3AB_KNOWN
+    P3AB_RESOLVE -- "uncertain" --> P3AB_CONFIRM
+    P3AB_RESOLVE -- "inactive" --> P3AB_INACTIVE
+    P3AB_RESOLVE -- "BND missing/mismatch" --> P3AB_RECOVERY --> P3AB_INTENT
+    P3AB_RESOLVE -- "presence invalid" --> P3AB_PRESENCE --> P3AB_RESOLVE
+    P3AB_RESOLVE -- "root invalid" --> P3AB_INVALID --> P3AB_INTENT
+    P3AB_KNOWN --> P3AB_OPEN
+    P3AB_CONFIRM --> P3AB_OPEN
+    P3AB_INACTIVE --> P3AB_OPEN
+  end
+
+  P3AB_ACCEPT -- "single serialized provider mutation" --> CPP
+  P3AB_BND -- "exact document-reference join" --> DOCS
 
   %% G1 target contract only — not a claim that product wiring is live.
   subgraph AVS_SELF["G1 TARGET — OFFICIAL AVS SELF-ONLY"]

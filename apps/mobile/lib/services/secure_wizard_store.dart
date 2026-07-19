@@ -21,6 +21,8 @@ class SecureWizardStore {
   static const _operationTimeout = Duration(seconds: 2);
   static const _strictTaxSnapshotKey = '_coach_tax_snapshots_v1';
   static const _strictLppEvidenceKey = '_coach_lpp_evidence_v1';
+  static const _strictPillar3aBeneficiaryEvidenceKey =
+      '_coach_pillar3a_beneficiary_evidence_v1';
   static const _strictProfileOwnerKey = '_coach_profile_owner_v1';
   static const _lppEvidenceSlotPrefix = '_coach_lpp_evidence_slot_v1_';
   static const _financialPlanSlotPrefix = '_financial_plan_slot_v1_';
@@ -54,6 +56,7 @@ class SecureWizardStore {
     'q_wealth_estimate',
     _strictTaxSnapshotKey,
     _strictLppEvidenceKey,
+    _strictPillar3aBeneficiaryEvidenceKey,
     _strictProfileOwnerKey,
   };
 
@@ -450,6 +453,7 @@ class SecureWizardStore {
     for (final key in const {
       _strictTaxSnapshotKey,
       _strictLppEvidenceKey,
+      _strictPillar3aBeneficiaryEvidenceKey,
       _strictProfileOwnerKey,
     }) {
       await _delete(key);
@@ -576,6 +580,8 @@ class SecureWizardStore {
           cleaned[key] = '__secure__';
         } else if (key == _strictTaxSnapshotKey ||
             key == _strictLppEvidenceKey ||
+            key ==
+                _strictPillar3aBeneficiaryEvidenceKey || // gitleaks:allow — ledger field name, not a credential.
             key == _strictProfileOwnerKey) {
           throw StateError('Strict secure snapshot write failed');
         } else if (kReleaseMode) {

@@ -1,9 +1,52 @@
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/models/coach_profile_owner.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 import 'package:mint_mobile/services/session_epoch.dart';
+import 'package:uuid/uuid.dart';
+
+enum Pillar3aBeneficiaryScanIntentKind { insertion, replacement }
+
+enum Pillar3aBeneficiaryScanIntentLifecycle {
+  created,
+  processing,
+  reviewRetained,
+  ledgerAcceptedAwaitingBnd,
+}
+
+@immutable
+class Pillar3aBeneficiaryScanIntent {
+  const Pillar3aBeneficiaryScanIntent._({
+    required this.kind,
+    required this.returnUri,
+    required this.createdAt,
+    required this.lifecycle,
+    required this.contractReferenceId,
+    this.expectedPreviousReferenceId,
+  });
+
+  final Pillar3aBeneficiaryScanIntentKind kind;
+  final String returnUri;
+  final DateTime createdAt;
+  final Pillar3aBeneficiaryScanIntentLifecycle lifecycle;
+  final String contractReferenceId;
+  final String? expectedPreviousReferenceId;
+
+  Pillar3aBeneficiaryScanIntent _at(
+    Pillar3aBeneficiaryScanIntentLifecycle next,
+  ) =>
+      Pillar3aBeneficiaryScanIntent._(
+        kind: kind,
+        returnUri: returnUri,
+        createdAt: createdAt,
+        lifecycle: next,
+        contractReferenceId: contractReferenceId,
+        expectedPreviousReferenceId: expectedPreviousReferenceId,
+      );
+}
 
 @immutable
 class ScanSessionPayload {
@@ -14,6 +57,9 @@ class ScanSessionPayload {
   final LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate;
   final ManualPartnerAccountabilityContext? manualPartnerAccountability;
   final TaxExtractionCandidate? taxCandidate;
+  final Pillar3aBeneficiaryAcquisitionCandidate? pillar3aBeneficiaryCandidate;
+  final String? pillar3aScanContextId;
+  final String? pillar3aReturnUri;
   final int? previousConfidence;
 
   const ScanSessionPayload({
@@ -24,6 +70,9 @@ class ScanSessionPayload {
     this.lppCapitalNoticeCandidate,
     this.manualPartnerAccountability,
     this.taxCandidate,
+    this.pillar3aBeneficiaryCandidate,
+    this.pillar3aScanContextId,
+    this.pillar3aReturnUri,
     this.previousConfidence,
   });
 
@@ -39,6 +88,9 @@ class ScanSessionPayload {
       lppCapitalNoticeCandidate: null,
       manualPartnerAccountability: null,
       taxCandidate: null,
+      pillar3aBeneficiaryCandidate: null,
+      pillar3aScanContextId: null,
+      pillar3aReturnUri: null,
       previousConfidence: previousConfidence,
     );
   }
@@ -92,16 +144,131 @@ bool _isStrictEmptyLppRegulationExtraction(ExtractionResult extraction) {
 /// restart intentionally resolves to the existing recovery state instead of
 /// trying to reconstruct an unconfirmed OCR result from navigation payloads.
 class ScanSessionProvider extends ChangeNotifier {
-  ScanSessionProvider({SessionEpoch? sessionEpoch})
-      : _sessionEpoch = sessionEpoch ?? SessionEpoch();
+  ScanSessionProvider({
+    SessionEpoch? sessionEpoch,
+    Uuid? uuid,
+    DateTime Function()? now,
+  })  : _sessionEpoch = sessionEpoch ?? SessionEpoch(),
+        _uuid = uuid ?? const Uuid(),
+        _now = now ?? DateTime.now;
 
   static const maxRetainedSessions = 5;
+  static const maxRetainedPillar3aBeneficiaryScanIntents = 5;
   final SessionEpoch _sessionEpoch;
+  final Uuid _uuid;
+  final DateTime Function() _now;
   final Map<String, ScanSessionPayload> _sessions = {};
+  final Map<String, Pillar3aBeneficiaryScanIntent>
+      _pillar3aBeneficiaryScanIntents = {};
   int _nextId = 0;
 
   @visibleForTesting
   int get retainedSessionCount => _sessions.length;
+
+  @visibleForTesting
+  int get retainedPillar3aBeneficiaryScanIntentCount =>
+      _pillar3aBeneficiaryScanIntents.length;
+
+  String retainPillar3aBeneficiaryScanIntent({
+    required Pillar3aBeneficiaryScanIntentKind kind,
+    required String returnUri,
+    String? contractReferenceId,
+    String? expectedPreviousReferenceId,
+  }) {
+    if (returnUri != '/retraite') {
+      throw ArgumentError.value(returnUri, 'returnUri');
+    }
+    final isInsertion = kind == Pillar3aBeneficiaryScanIntentKind.insertion;
+    final hasCanonicalReplacementIds = isCanonicalUuidV4(contractReferenceId) &&
+        isCanonicalUuidV4(expectedPreviousReferenceId) &&
+        contractReferenceId != expectedPreviousReferenceId;
+    if ((isInsertion &&
+            (contractReferenceId != null ||
+                expectedPreviousReferenceId != null)) ||
+        (!isInsertion && !hasCanonicalReplacementIds)) {
+      throw ArgumentError('Invalid pillar 3a beneficiary scan intent');
+    }
+
+    final guard = _sessionEpoch.capture();
+    final id = _uuid.v4();
+    final retainedContractReferenceId =
+        isInsertion ? _uuid.v4() : contractReferenceId!;
+    if (!isCanonicalUuidV4(id) ||
+        !isCanonicalUuidV4(retainedContractReferenceId) ||
+        id == retainedContractReferenceId) {
+      throw StateError('Pillar 3a beneficiary scan identity failed');
+    }
+    _pillar3aBeneficiaryScanIntents[id] = Pillar3aBeneficiaryScanIntent._(
+      kind: kind,
+      returnUri: returnUri,
+      createdAt: _now().toUtc(),
+      lifecycle: Pillar3aBeneficiaryScanIntentLifecycle.created,
+      contractReferenceId: retainedContractReferenceId,
+      expectedPreviousReferenceId: expectedPreviousReferenceId,
+    );
+    while (_pillar3aBeneficiaryScanIntents.length >
+        maxRetainedPillar3aBeneficiaryScanIntents) {
+      final evictedId = _pillar3aBeneficiaryScanIntents.keys.first;
+      _pillar3aBeneficiaryScanIntents.remove(evictedId);
+      _sessions.removeWhere(
+        (_, session) => session.pillar3aScanContextId == evictedId,
+      );
+    }
+    guard.assertCurrent();
+    notifyListeners();
+    return id;
+  }
+
+  Pillar3aBeneficiaryScanIntent? pillar3aBeneficiaryScanIntentById(
+    String? id, {
+    required String returnUri,
+  }) {
+    if (id == null || id.isEmpty || returnUri != '/retraite') return null;
+    final intent = _pillar3aBeneficiaryScanIntents[id];
+    return intent?.returnUri == returnUri ? intent : null;
+  }
+
+  bool advancePillar3aBeneficiaryScanIntent(
+    String id, {
+    required Pillar3aBeneficiaryScanIntentLifecycle from,
+    required Pillar3aBeneficiaryScanIntentLifecycle to,
+  }) {
+    final current = _pillar3aBeneficiaryScanIntents[id];
+    if (current == null ||
+        current.lifecycle != from ||
+        !_isNextPillar3aBeneficiaryScanIntentLifecycle(from, to)) {
+      return false;
+    }
+    final guard = _sessionEpoch.capture();
+    _pillar3aBeneficiaryScanIntents[id] = current._at(to);
+    guard.assertCurrent();
+    notifyListeners();
+    return true;
+  }
+
+  bool completePillar3aBeneficiaryScanIntent(String id) {
+    final current = _pillar3aBeneficiaryScanIntents[id];
+    if (current?.lifecycle !=
+        Pillar3aBeneficiaryScanIntentLifecycle.ledgerAcceptedAwaitingBnd) {
+      return false;
+    }
+    final guard = _sessionEpoch.capture();
+    _pillar3aBeneficiaryScanIntents.remove(id);
+    guard.assertCurrent();
+    notifyListeners();
+    return true;
+  }
+
+  bool discardPillar3aBeneficiaryScanIntent(String id) {
+    final guard = _sessionEpoch.capture();
+    if (_pillar3aBeneficiaryScanIntents.remove(id) == null) return false;
+    _sessions.removeWhere(
+      (_, session) => session.pillar3aScanContextId == id,
+    );
+    guard.assertCurrent();
+    notifyListeners();
+    return true;
+  }
 
   String retainExtraction(
     ExtractionResult extraction, {
@@ -111,6 +278,9 @@ class ScanSessionProvider extends ChangeNotifier {
     LppCapitalNoticeAcquisitionCandidate? lppCapitalNoticeCandidate,
     ManualPartnerAccountabilityContext? manualPartnerAccountability,
     TaxExtractionCandidate? taxCandidate,
+    Pillar3aBeneficiaryAcquisitionCandidate? pillar3aBeneficiaryCandidate,
+    String? pillar3aScanContextId,
+    String? pillar3aReturnUri,
   }) {
     final guard = _sessionEpoch.capture();
     final hasLppCandidate = lppCandidate != null;
@@ -118,6 +288,12 @@ class ScanSessionProvider extends ChangeNotifier {
     final isLppRegulation = extraction.documentType == DocumentType.lppPlan;
     final hasLppRegulationCandidate = lppRegulationCandidate != null;
     final hasLppCapitalNoticeCandidate = lppCapitalNoticeCandidate != null;
+    final isPillar3aBeneficiary =
+        extraction.documentType == DocumentType.pillar3aBeneficiaryClause;
+    final hasPillar3aBeneficiaryCandidate =
+        pillar3aBeneficiaryCandidate != null;
+    final hasPillar3aIntentLink =
+        pillar3aScanContextId != null && pillar3aReturnUri != null;
     if (isLppRegulation != hasLppRegulationCandidate ||
         (hasLppCapitalNoticeCandidate && !hasLppRegulationCandidate) ||
         (hasLppRegulationCandidate &&
@@ -125,10 +301,40 @@ class ScanSessionProvider extends ChangeNotifier {
                 hasLppCandidate ||
                 hasLppAuthorization ||
                 manualPartnerAccountability != null ||
-                taxCandidate != null))) {
+                taxCandidate != null ||
+                hasPillar3aBeneficiaryCandidate))) {
       throw ArgumentError(
         'LPP regulation requires one isolated zero-fact acquisition candidate',
       );
+    }
+    if (isPillar3aBeneficiary != hasPillar3aBeneficiaryCandidate ||
+        isPillar3aBeneficiary != hasPillar3aIntentLink ||
+        (hasPillar3aBeneficiaryCandidate &&
+            (!_isStrictEmptyLppRegulationExtraction(extraction) ||
+                hasLppCandidate ||
+                hasLppAuthorization ||
+                hasLppRegulationCandidate ||
+                manualPartnerAccountability != null ||
+                taxCandidate != null))) {
+      throw ArgumentError(
+        'Pillar 3a beneficiary review requires one isolated authority candidate',
+      );
+    }
+    final pillar3aIntent = hasPillar3aIntentLink
+        ? pillar3aBeneficiaryScanIntentById(
+            pillar3aScanContextId,
+            returnUri: pillar3aReturnUri,
+          )
+        : null;
+    if (hasPillar3aBeneficiaryCandidate &&
+        (pillar3aIntent == null ||
+            pillar3aIntent.lifecycle !=
+                Pillar3aBeneficiaryScanIntentLifecycle.processing ||
+            pillar3aIntent.contractReferenceId !=
+                pillar3aBeneficiaryCandidate.contractReferenceId ||
+            pillar3aIntent.expectedPreviousReferenceId !=
+                pillar3aBeneficiaryCandidate.expectedPreviousReferenceId)) {
+      throw StateError('Pillar 3a beneficiary scan intent changed');
     }
     final requiresPartnerAccountability =
         lppAuthorization?.subject == LppEvidenceOwnerKind.manualPartner;
@@ -162,9 +368,25 @@ class ScanSessionProvider extends ChangeNotifier {
       lppCapitalNoticeCandidate: lppCapitalNoticeCandidate,
       manualPartnerAccountability: manualPartnerAccountability,
       taxCandidate: taxCandidate,
+      pillar3aBeneficiaryCandidate: pillar3aBeneficiaryCandidate,
+      pillar3aScanContextId: pillar3aScanContextId,
+      pillar3aReturnUri: pillar3aReturnUri,
     );
+    if (hasPillar3aIntentLink &&
+        !advancePillar3aBeneficiaryScanIntent(
+          pillar3aScanContextId,
+          from: Pillar3aBeneficiaryScanIntentLifecycle.processing,
+          to: Pillar3aBeneficiaryScanIntentLifecycle.reviewRetained,
+        )) {
+      _sessions.remove(id);
+      throw StateError('Pillar 3a beneficiary review handoff failed');
+    }
     while (_sessions.length > maxRetainedSessions) {
-      _sessions.remove(_sessions.keys.first);
+      final evicted = _sessions.remove(_sessions.keys.first);
+      final contextId = evicted?.pillar3aScanContextId;
+      if (contextId != null) {
+        _pillar3aBeneficiaryScanIntents.remove(contextId);
+      }
     }
     guard.assertCurrent();
     notifyListeners();
@@ -184,7 +406,10 @@ class ScanSessionProvider extends ChangeNotifier {
     final guard = _sessionEpoch.capture();
     final current = _sessions[id];
     if (current == null) return false;
-    if (current.lppRegulationCandidate != null) return false;
+    if (current.lppRegulationCandidate != null ||
+        current.pillar3aBeneficiaryCandidate != null) {
+      return false;
+    }
     _sessions[id] = current.withImpact(
       extraction: extraction,
       previousConfidence: previousConfidence,
@@ -196,7 +421,12 @@ class ScanSessionProvider extends ChangeNotifier {
 
   void discard(String id) {
     final guard = _sessionEpoch.capture();
-    if (_sessions.remove(id) != null) {
+    final removed = _sessions.remove(id);
+    if (removed != null) {
+      final contextId = removed.pillar3aScanContextId;
+      if (contextId != null) {
+        _pillar3aBeneficiaryScanIntents.remove(contextId);
+      }
       guard.assertCurrent();
       notifyListeners();
     }
@@ -205,7 +435,23 @@ class ScanSessionProvider extends ChangeNotifier {
   /// Drops volatile extraction candidates and authorizations on session exit.
   void clearSessionMemoryAfterPurge() {
     _sessions.clear();
+    _pillar3aBeneficiaryScanIntents.clear();
     _nextId = 0;
     notifyListeners();
   }
+}
+
+bool _isNextPillar3aBeneficiaryScanIntentLifecycle(
+  Pillar3aBeneficiaryScanIntentLifecycle from,
+  Pillar3aBeneficiaryScanIntentLifecycle to,
+) {
+  return switch (from) {
+    Pillar3aBeneficiaryScanIntentLifecycle.created =>
+      to == Pillar3aBeneficiaryScanIntentLifecycle.processing,
+    Pillar3aBeneficiaryScanIntentLifecycle.processing =>
+      to == Pillar3aBeneficiaryScanIntentLifecycle.reviewRetained,
+    Pillar3aBeneficiaryScanIntentLifecycle.reviewRetained =>
+      to == Pillar3aBeneficiaryScanIntentLifecycle.ledgerAcceptedAwaitingBnd,
+    Pillar3aBeneficiaryScanIntentLifecycle.ledgerAcceptedAwaitingBnd => false,
+  };
 }

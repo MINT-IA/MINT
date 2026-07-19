@@ -14,6 +14,8 @@ const _contractA = '11111111-1111-4111-8111-111111111111';
 const _contractB = '22222222-2222-4222-8222-222222222222';
 const _referenceA = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const _referenceB = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const _authorityA = '33333333-3333-4333-8333-333333333333';
+const _authorityB = '44444444-4444-4444-8444-444444444444';
 const _defaultTemporal = Object();
 final _asOf = DateTime.utc(2027, 7, 2, 12);
 
@@ -36,26 +38,31 @@ Map<String, Object?> _contract({
   String contractReferenceId = _contractA,
   String relation = 'currentActiveUnpaid',
   String referenceId = _referenceA,
+  String documentAuthorityId = _authorityA,
+  String documentKind = 'confirmationInstitutionnelle',
   Object? sourceDate = '2027-05-31',
   Object? legalYear = 2027,
-  Object? confirmedAt = '2027-06-01T10:00:00.000Z',
+  Object? relationConfirmedAt = '2027-06-01T10:00:00.000Z',
   Object? temporalBasis = _defaultTemporal,
 }) =>
     <String, Object?>{
       'kind': 'pillar3aBeneficiaryClause',
       'ownerKind': 'self',
-      'source': 'certificate',
+      'documentSource': 'certificate',
       'contractReferenceId': contractReferenceId,
-      'relation': relation,
       'referenceId': referenceId,
+      'documentAuthorityId': documentAuthorityId,
+      'documentKind': documentKind,
       'sourceDate': sourceDate,
       'legalYear': legalYear,
-      'confirmedAt': confirmedAt,
+      'institutionAttested': true,
+      'contractScoped': true,
       'temporalBasis': identical(temporalBasis, _defaultTemporal)
-          ? relation == 'paidOrClosed'
-              ? null
-              : _exactDates()
+          ? _exactDates()
           : temporalBasis,
+      'relation': relation,
+      'relationSource': 'userInput',
+      'relationConfirmedAt': relationConfirmedAt,
     };
 
 String _rootJson(
@@ -98,6 +105,7 @@ void main() {
         contractReferenceId: _contractB,
         relation: 'uncertain',
         referenceId: _referenceB,
+        documentAuthorityId: _authorityB,
         sourceDate: '2027-06-01',
         temporalBasis: _attestedRegime('post20270601'),
       ),
@@ -127,14 +135,19 @@ void main() {
       expect(contract.keys.toSet(), <String>{
         'kind',
         'ownerKind',
-        'source',
+        'documentSource',
         'contractReferenceId',
-        'relation',
         'referenceId',
+        'documentAuthorityId',
+        'documentKind',
         'sourceDate',
         'legalYear',
-        'confirmedAt',
+        'institutionAttested',
+        'contractScoped',
         'temporalBasis',
+        'relation',
+        'relationSource',
+        'relationConfirmedAt',
       });
     }
     expect(
@@ -223,7 +236,7 @@ void main() {
     }
   });
 
-  test('cardinality and both canonical UUID identities fail closed', () {
+  test('cardinality and all canonical UUID identities fail closed', () {
     expect(_parse(const <Map<String, Object?>>[]), isNull);
     expect(
       _parse(List<Map<String, Object?>>.generate(
@@ -233,6 +246,8 @@ void main() {
               '00000000-0000-4000-8000-${index.toString().padLeft(12, '0')}',
           referenceId:
               '10000000-0000-4000-8000-${index.toString().padLeft(12, '0')}',
+          documentAuthorityId:
+              '20000000-0000-4000-8000-${index.toString().padLeft(12, '0')}',
         ),
       )),
       isNotNull,
@@ -245,6 +260,8 @@ void main() {
               '00000000-0000-4000-8000-${index.toString().padLeft(12, '0')}',
           referenceId:
               '10000000-0000-4000-8000-${index.toString().padLeft(12, '0')}',
+          documentAuthorityId:
+              '20000000-0000-4000-8000-${index.toString().padLeft(12, '0')}',
         ),
       )),
       isNull,
@@ -255,6 +272,7 @@ void main() {
         _contract(
           contractReferenceId: _contractA,
           referenceId: _referenceB,
+          documentAuthorityId: _authorityB,
         ),
       ]),
       isNull,
@@ -266,10 +284,23 @@ void main() {
         _contract(
           contractReferenceId: _contractB,
           referenceId: _referenceA,
+          documentAuthorityId: _authorityB,
         ),
       ]),
       isNull,
       reason: 'referenceId must be unique',
+    );
+    expect(
+      _parse(<Map<String, Object?>>[
+        _contract(),
+        _contract(
+          contractReferenceId: _contractB,
+          referenceId: _referenceB,
+          documentAuthorityId: _authorityA,
+        ),
+      ]),
+      isNull,
+      reason: 'documentAuthorityId must be unique',
     );
     expect(
       _parse(<Map<String, Object?>>[
@@ -285,6 +316,7 @@ void main() {
     for (final field in const <String>[
       'contractReferenceId',
       'referenceId',
+      'documentAuthorityId',
     ]) {
       for (final invalid in const <Object?>[
         null,
@@ -310,14 +342,19 @@ void main() {
     for (final required in const <String>[
       'kind',
       'ownerKind',
-      'source',
+      'documentSource',
       'contractReferenceId',
-      'relation',
       'referenceId',
+      'documentAuthorityId',
+      'documentKind',
       'sourceDate',
       'legalYear',
-      'confirmedAt',
+      'institutionAttested',
+      'contractScoped',
       'temporalBasis',
+      'relation',
+      'relationSource',
+      'relationConfirmedAt',
     ]) {
       final missing = <String, Object?>{..._contract()}..remove(required);
       expect(
@@ -329,7 +366,11 @@ void main() {
     for (final invalid in <Map<String, Object?>>[
       <String, Object?>{..._contract(), 'kind': 'other'},
       <String, Object?>{..._contract(), 'ownerKind': 'partner'},
-      <String, Object?>{..._contract(), 'source': 'userInput'},
+      <String, Object?>{..._contract(), 'documentSource': 'userInput'},
+      <String, Object?>{..._contract(), 'relationSource': 'certificate'},
+      <String, Object?>{..._contract(), 'institutionAttested': false},
+      <String, Object?>{..._contract(), 'contractScoped': false},
+      <String, Object?>{..._contract(), 'documentKind': 'generic'},
       <String, Object?>{..._contract(), 'unknown': true},
     ]) {
       expect(
@@ -375,7 +416,7 @@ void main() {
             _contract(
               relation: relation,
               sourceDate: isPostCutoff ? '2027-06-01' : '2027-06-15',
-              confirmedAt: isPostCutoff
+              relationConfirmedAt: isPostCutoff
                   ? '2027-06-01T10:00:00.000Z'
                   : '2027-06-15T10:00:00.000Z',
               temporalBasis: _attestedRegime(regime),
@@ -401,7 +442,7 @@ void main() {
       _parse(<Map<String, Object?>>[
         _contract(relation: 'paidOrClosed', temporalBasis: null),
       ]),
-      isNotNull,
+      isNull,
     );
     expect(
       _parse(<Map<String, Object?>>[
@@ -410,7 +451,7 @@ void main() {
           temporalBasis: _exactDates(),
         ),
       ]),
-      isNull,
+      isNotNull,
     );
     for (final invalidRelation in const <Object?>[
       null,
@@ -495,7 +536,7 @@ void main() {
   });
 
   test('civil dates and confirmation UTC are canonical and non-future', () {
-    for (final confirmedAt in <String>[
+    for (final relationConfirmedAt in <String>[
       '2027-06-01T10:00:00.001Z',
       DateTime.utc(2027, 6, 1, 10, 0, 0, 1, 234)
           .toUtc()
@@ -503,10 +544,10 @@ void main() {
     ]) {
       expect(
         _parse(<Map<String, Object?>>[
-          _contract(confirmedAt: confirmedAt),
+          _contract(relationConfirmedAt: relationConfirmedAt),
         ]),
         isNotNull,
-        reason: '$confirmedAt is canonical DateTime UTC output.',
+        reason: '$relationConfirmedAt is canonical DateTime UTC output.',
       );
     }
 
@@ -518,15 +559,15 @@ void main() {
       _contract(sourceDate: '2027-04-31'),
       _contract(sourceDate: '2027-07-03'),
       _contract(sourceDate: '2027-05-31T00:00:00.000Z'),
-      _contract(confirmedAt: null),
-      _contract(confirmedAt: 20270601),
-      _contract(confirmedAt: '2027-06-01T10:00:00Z'),
-      _contract(confirmedAt: '2027-06-01T10:00:00.000000Z'),
-      _contract(confirmedAt: '2027-06-01T10:00:00.0010Z'),
-      _contract(confirmedAt: '2027-06-01T10:00:00.000z'),
-      _contract(confirmedAt: '2027-06-01T10:00:00.000+00:00'),
-      _contract(confirmedAt: '2027-06-01T12:00:00.000+02:00'),
-      _contract(confirmedAt: '2027-07-03T00:00:00.000Z'),
+      _contract(relationConfirmedAt: null),
+      _contract(relationConfirmedAt: 20270601),
+      _contract(relationConfirmedAt: '2027-06-01T10:00:00Z'),
+      _contract(relationConfirmedAt: '2027-06-01T10:00:00.000000Z'),
+      _contract(relationConfirmedAt: '2027-06-01T10:00:00.0010Z'),
+      _contract(relationConfirmedAt: '2027-06-01T10:00:00.000z'),
+      _contract(relationConfirmedAt: '2027-06-01T10:00:00.000+00:00'),
+      _contract(relationConfirmedAt: '2027-06-01T12:00:00.000+02:00'),
+      _contract(relationConfirmedAt: '2027-07-03T00:00:00.000Z'),
       _contract(
         temporalBasis: _exactDates(designationEffectiveDate: 20270531),
       ),
@@ -563,14 +604,14 @@ void main() {
   test('evidence chronology uses Zurich civil day and the regime cutoff', () {
     expect(
       _parse(<Map<String, Object?>>[
-        _contract(confirmedAt: '2027-05-30T22:00:00.000Z'),
+        _contract(relationConfirmedAt: '2027-05-30T22:00:00.000Z'),
       ]),
       isNotNull,
       reason: '22:00Z is 00:00 on 31 May in Zurich and matches sourceDate.',
     );
     expect(
       _parse(<Map<String, Object?>>[
-        _contract(confirmedAt: '2027-05-30T21:59:59.000Z'),
+        _contract(relationConfirmedAt: '2027-05-30T21:59:59.000Z'),
       ]),
       isNull,
       reason: 'The confirmation is still 30 May in Zurich.',
@@ -616,7 +657,7 @@ void main() {
       _parse(<Map<String, Object?>>[
         _contract(
           sourceDate: '2027-06-01',
-          confirmedAt: '2027-05-31T22:00:00.000Z',
+          relationConfirmedAt: '2027-05-31T22:00:00.000Z',
           temporalBasis: _attestedRegime('post20270601'),
         ),
       ]),
@@ -627,7 +668,7 @@ void main() {
       _parse(<Map<String, Object?>>[
         _contract(
           sourceDate: '2027-05-31',
-          confirmedAt: '2027-06-01T10:00:00.000Z',
+          relationConfirmedAt: '2027-06-01T10:00:00.000Z',
           temporalBasis: _attestedRegime('post20270601'),
         ),
       ]),
@@ -638,7 +679,7 @@ void main() {
       _parse(<Map<String, Object?>>[
         _contract(
           sourceDate: '2027-06-01',
-          confirmedAt: '2027-05-31T21:59:59.000Z',
+          relationConfirmedAt: '2027-05-31T21:59:59.000Z',
           temporalBasis: _attestedRegime('post20270601'),
         ),
       ]),
@@ -649,7 +690,7 @@ void main() {
       _parse(<Map<String, Object?>>[
         _contract(
           sourceDate: '2027-06-15',
-          confirmedAt: '2027-06-15T10:00:00.000Z',
+          relationConfirmedAt: '2027-06-15T10:00:00.000Z',
           temporalBasis: _attestedRegime('pre20270601'),
         ),
       ]),
@@ -748,6 +789,7 @@ void main() {
         contractReferenceId: _contractB,
         relation: 'uncertain',
         referenceId: _referenceB,
+        documentAuthorityId: _authorityB,
       ),
     ]);
     expect(root, isNotNull);
@@ -812,7 +854,7 @@ void main() {
       'RO 2026 182, ch. II al. 2',
       'OFAS, Bulletin PP no 168, ch. 1168',
       'Beneficiary designation or assignment modification is the determining event',
-      'sourceDate, confirmedAt, and legalYear alone never determine the regime',
+      'sourceDate, relationConfirmedAt, and legalYear alone never determine',
       'schemaVersion',
       'fromJsonString',
       'toJsonString',

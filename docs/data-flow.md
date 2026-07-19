@@ -751,6 +751,34 @@ Document type selection
   │   ↓ BND-02/BND-02A technical GREEN @ 1d022c508
   │      activation/G1 NO-GO: eight external production facts remain unproved
   │
+  ├─ 3a beneficiary reference (G1-RET-REF-01 implementation GREEN; runtime open)
+  │   ↓ typedLppEvidence && documentLppEvidenceEnabled
+  │      && pillar3aBeneficiaryClauseReferenceEnabled before provider read/CTA
+  │   ↓ Dashboard creates insertion or exact-reference replacement intent
+  │      in a volatile FIFO-5 registry; contract ids never enter the route
+  │   ↓ `/scan` carries only `{scanContextId, returnUri=/retraite}`
+  │   ↓ image/PDF allowlist; no text, paste, debug example or manual-OCR fallback
+  │      image bytes are decode/re-encoded before Vision; PDF remains transient
+  │   ↓ strict authority candidate requires document kind, source civil date,
+  │      legal year, institution authority id and exact dates or attested regime
+  │   ↓ preallocated reference id joins candidate to the same volatile intent
+  │   ↓ ScanSessionProvider retains raw-free candidate plus opaque context;
+  │      `/scan/review` carries only `{scanSessionId, returnUri=/retraite}`
+  │   ↓ review displays institutional metadata, freshness caveat and one required
+  │      user-declared relation: current active, uncertain, or paid/closed
+  │   ↓ CoachProfileProvider.acceptPillar3aBeneficiaryReview serializes an exact
+  │      CAS replacement into `_coach_pillar3a_beneficiary_evidence_v1`
+  │   ↓ awaited secure whole-root save before accepted receipt/publication
+  │   ↓ DocumentProvider.recordPillar3aBeneficiaryEvidence writes the exact
+  │      raw-free BND tuple; failed BND keeps the same receipt retryable
+  │   ↓ cold Dashboard resolution requires strict root + exact live BND and maps
+  │      only declared relation to known / needs-confirmation / inactive
+  │   ↓ malformed presence provenance offers a targeted durable repair that
+  │      removes only `q_has_3a=false` plus `__provenance.hasPillar3a`;
+  │      malformed root uses the separate destructive BND-first reset
+  │   ↓ no beneficiary identity, rank/share, raw text, internal id, calculation,
+  │      recommendation or inferred legal order is rendered or persisted
+  │
   ├─ AVS / salaire: camera, gallery, PDF or OCR paste
   │   ↓ DocumentService.extractDocumentData (backend)
   │   ↓ ExtractionResult → ExtractionReviewScreen → Confirmer
@@ -815,6 +843,12 @@ Failure modes:
   staging but before pointer commit may require the user to review the legacy
   loose facts again; it does not publish a value-only or metadata-only typed
   fact.
+- The strict 3a-beneficiary root is secure-only and fail-closed. A missing,
+  malformed or unresolved placeholder never falls back to beneficiary identity,
+  legacy clause wording or a generic 3a balance. BND record failure retries the
+  exact accepted receipt without repeating the Ledger mutation. Logout, route
+  cancellation, flag drift and FIFO eviction purge both the volatile intent and
+  any paired review session.
 - Manual-partner authority drift at the byte boundary or public review handoff
   terminalizes the attempt. It performs at most one receipt DELETE, restores
   the `shadowed`/previous active binding, cleans owned temporary files and
@@ -906,13 +940,15 @@ The `route_registry_parity` CI lint will fail the PR otherwise.
 
 ---
 
-*Last updated: 2026-07-17 for the accepted G1-PROV-02 person-owned LPP
+*Last updated: 2026-07-19 for the accepted G1-PROV-02 person-owned LPP
 checkpoint, G1-PROV-03 typed tax provenance, the BND-02/BND-02A technical
 promotion at exact SHA `1d022c508`, the BND-03 promotion at `7ed54e282`, and
 the unpromoted BND-05 code-GREEN wiring at `11e29c0cd`, plus the unpromoted
 FRONT-01 code-GREEN wiring at `733571002` and the bounded, unpromoted
-RET-REF-01 tax-reference vertical at `cdc786782`. BND-05, FRONT-01 and
-RET-REF-01 remain pending their named promotion evidence. All checked-in
+RET-REF-01 tax-reference vertical at `cdc786782`, plus the exact
+3a-beneficiary authority/BND/Dashboard implementation whose audits and runtime
+promotion remain pending. BND-05, FRONT-01 and RET-REF-01 remain pending their
+named promotion evidence. All checked-in
 LPP/accountability defaults remain false, the production external descriptor
 and its eight facts remain unproved, 14 registry rows remain open, and
 activation and G1 remain NO-GO. There is no G1 closure or G2/G3 GO.

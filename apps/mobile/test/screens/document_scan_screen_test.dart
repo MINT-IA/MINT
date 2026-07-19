@@ -2,23 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 Widget _wrap(Widget child) {
-  return ChangeNotifierProvider(
-    create: (_) => CoachProfileProvider(),
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
+      ),
+      ChangeNotifierProvider<ScanSessionProvider>(
+        create: (_) => ScanSessionProvider(),
+      ),
+    ],
     child: MaterialApp(
-  locale: const Locale('fr'),
-  localizationsDelegates: const [
-    S.delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-  ],
-  supportedLocales: S.supportedLocales,home: child),
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      home: child,
+    ),
   );
 }
 
@@ -30,7 +40,11 @@ void main() {
     // Scroll down to reveal capture buttons (ConstrainedBox narrows content)
     final scrollable = find.byType(Scrollable);
     if (scrollable.evaluate().isNotEmpty) {
-      await tester.scrollUntilVisible(find.text('Prendre une photo'), 200, scrollable: scrollable.first);
+      await tester.scrollUntilVisible(
+        find.text('Prendre une photo'),
+        200,
+        scrollable: scrollable.first,
+      );
       await tester.pumpAndSettle();
     }
 
