@@ -185,7 +185,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     });
   }
 
-  String _revenueDataBlockRoute() => '/data-block/revenu';
+  String _revenueDataBlockRoute() => Uri(
+        path: '/data-block/revenu',
+        queryParameters: const {'returnUri': '/first-job'},
+      ).toString();
 
   @override
   Widget build(BuildContext context) {

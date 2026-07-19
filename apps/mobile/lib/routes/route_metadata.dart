@@ -93,12 +93,14 @@ const _dataBlockReturnQueryKeys = <String>{'tab', 'focus'};
 
 /// Parses one already-decoded `returnUri` query value and fails closed.
 ///
-/// The route builder is the sole caller on the production path. Query names
-/// are checked in their encoded form so case and percent-encoded variants do
-/// not widen the two-key presentation allowlist.
-DataBlockReturnTarget parseDataBlockReturnTarget(String? rawReturnUri) {
-  if (rawReturnUri == null ||
-      rawReturnUri.isEmpty ||
+/// Absence preserves the pre-contract history behavior. A present but invalid
+/// value becomes the typed `/home` fallback. The route builder is the sole
+/// caller on the production path. Query names are checked in their encoded
+/// form so case and percent-encoded variants do not widen the two-key
+/// presentation allowlist.
+DataBlockReturnTarget? parseDataBlockReturnTarget(String? rawReturnUri) {
+  if (rawReturnUri == null) return null;
+  if (rawReturnUri.isEmpty ||
       !rawReturnUri.startsWith('/') ||
       rawReturnUri.startsWith('//') ||
       rawReturnUri.contains(r'\')) {
@@ -252,7 +254,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.destination,
     owner: RouteOwner.system,
     requiresAuth: true,
-    description: 'Tab 1 — Mon argent dashboard',
+    description: 'Money dashboard tab index 1',
   ),
   '/coach/chat': RouteMeta(
     path: '/coach/chat',
