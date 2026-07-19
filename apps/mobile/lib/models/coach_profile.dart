@@ -28,6 +28,7 @@ import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
 const coachBackendUnknownPathsKey = '_coach_backend_unknown_paths_v1';
 const Object _keepJurisdictionValue = Object();
 const Object _keepSpecialistReferenceValue = Object();
+const Object _keepEstateValue = Object();
 
 DateTime? _parseSupportedAdultBirthDate(
   Object? raw, {
@@ -3113,6 +3114,211 @@ final class SpecialistReferenceEvidence {
       );
 }
 
+/// Explicitly confirmed matrimonial regime; null always means unknown.
+enum MatrimonialRegimeKind {
+  participationInAcquests,
+  communityOfProperty,
+  separationOfProperty,
+  other;
+
+  String get name => switch (this) {
+        participationInAcquests => 'participationInAcquests',
+        communityOfProperty => 'communityOfProperty',
+        separationOfProperty => 'separationOfProperty',
+        other => 'other',
+      };
+
+  static MatrimonialRegimeKind? tryParse(Object? raw) => raw is String
+      ? MatrimonialRegimeKind.values
+          .where((value) => value.name == raw)
+          .firstOrNull
+      : null;
+}
+
+/// Closed set of estate instruments that may carry an opaque reference.
+enum EstateInstrumentKind {
+  will,
+  inheritancePact,
+  incapacityMandate,
+  advanceCareDirective;
+
+  String get name => switch (this) {
+        will => 'will',
+        inheritancePact => 'inheritancePact',
+        incapacityMandate => 'incapacityMandate',
+        advanceCareDirective => 'advanceCareDirective',
+      };
+
+  static EstateInstrumentKind? tryParse(Object? raw) => raw is String
+      ? EstateInstrumentKind.values
+          .where((value) => value.name == raw)
+          .firstOrNull
+      : null;
+}
+
+/// Fail-closed aggregate state for specialist estate preparation.
+enum EstateReferenceState {
+  known,
+  missing,
+  conflict,
+  invalid,
+  needsReconfirmation;
+
+  String get name => switch (this) {
+        known => 'known',
+        missing => 'missing',
+        conflict => 'conflict',
+        invalid => 'invalid',
+        needsReconfirmation => 'needsReconfirmation',
+      };
+}
+
+/// Raw-free metadata link to one explicitly confirmed estate instrument.
+@immutable
+final class EstateInstrumentReference {
+  static final RegExp _uuidV4Pattern = RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+  );
+  static const Set<String> _keys = {
+    'referenceId',
+    'kind',
+    'ownerKind',
+    'source',
+    'sourceDate',
+    'legalYear',
+    'confirmedAt',
+  };
+
+  final String referenceId;
+  final EstateInstrumentKind kind;
+  final LppEvidenceOwnerKind ownerKind;
+  final ProfileDataSource source;
+  final DateTime sourceDate;
+  final int legalYear;
+  final DateTime confirmedAt;
+
+  const EstateInstrumentReference._({
+    required this.referenceId,
+    required this.kind,
+    required this.ownerKind,
+    required this.source,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.confirmedAt,
+  });
+
+  /// Parses only the seven-field metadata contract; any extra key rejects it.
+  static EstateInstrumentReference? tryFromJson(
+    Object? raw, {
+    DateTime? now,
+  }) {
+    if (raw is! Map) return null;
+    final json = <String, Object?>{};
+    for (final entry in raw.entries) {
+      if (entry.key is! String) return null;
+      json[entry.key as String] = entry.value;
+    }
+    if (!setEquals(json.keys.toSet(), _keys)) return null;
+
+    final referenceId = json['referenceId'];
+    final kind = EstateInstrumentKind.tryParse(json['kind']);
+    final ownerKind = LppEvidenceOwnerKind.fromWireName(json['ownerKind']);
+    final sourceDateRaw = json['sourceDate'];
+    final legalYear = json['legalYear'];
+    final confirmedAtRaw = json['confirmedAt'];
+    if (referenceId is! String ||
+        !_uuidV4Pattern.hasMatch(referenceId) ||
+        kind == null ||
+        ownerKind != LppEvidenceOwnerKind.self ||
+        json['source'] != ProfileDataSource.certificate.name ||
+        sourceDateRaw is! String ||
+        legalYear is! int ||
+        legalYear < 1900 ||
+        legalYear > 9999 ||
+        confirmedAtRaw is! String) {
+      return null;
+    }
+
+    final sourceDate = _parseCivilDate(sourceDateRaw);
+    final confirmedAt = DateTime.tryParse(confirmedAtRaw);
+    if (sourceDate == null ||
+        confirmedAt == null ||
+        confirmedAt.toUtc().toIso8601String() != confirmedAtRaw) {
+      return null;
+    }
+    final current = now ?? DateTime.now();
+    if (SwissCivilTime.isFutureCivilDate(sourceDate, now: current) ||
+        confirmedAt.isAfter(current.toUtc())) {
+      return null;
+    }
+
+    return EstateInstrumentReference._(
+      referenceId: referenceId,
+      kind: kind,
+      ownerKind: LppEvidenceOwnerKind.self,
+      source: ProfileDataSource.certificate,
+      sourceDate: sourceDate,
+      legalYear: legalYear,
+      confirmedAt: confirmedAt,
+    );
+  }
+
+  static DateTime? _parseCivilDate(String raw) {
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(raw)) return null;
+    final parsed = SwissCivilTime.parseCanonicalCivilDate(raw);
+    return parsed == null
+        ? null
+        : DateTime.utc(parsed.year, parsed.month, parsed.day);
+  }
+
+  bool isValidAt(DateTime asOf) =>
+      !SwissCivilTime.isFutureCivilDate(sourceDate, now: asOf) &&
+      !confirmedAt.isAfter(asOf.toUtc());
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'referenceId': referenceId,
+        'kind': kind.name,
+        'ownerKind': ownerKind.wireName,
+        'source': source.name,
+        'sourceDate': sourceDate.toIso8601String().split('T').first,
+        'legalYear': legalYear,
+        'confirmedAt': confirmedAt.toIso8601String(),
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EstateInstrumentReference &&
+          referenceId == other.referenceId &&
+          kind == other.kind &&
+          ownerKind == other.ownerKind &&
+          source == other.source &&
+          sourceDate == other.sourceDate &&
+          legalYear == other.legalYear &&
+          confirmedAt == other.confirmedAt;
+
+  @override
+  int get hashCode => Object.hash(
+        referenceId,
+        kind,
+        ownerKind,
+        source,
+        sourceDate,
+        legalYear,
+        confirmedAt,
+      );
+}
+
+List<EstateInstrumentReference> _restoreEstateInstrumentReferences(
+  Object? raw,
+) {
+  if (raw is! List) return const [];
+  return raw
+      .map(EstateInstrumentReference.tryFromJson)
+      .whereType<EstateInstrumentReference>()
+      .toList(growable: false);
+}
+
 /// Profil financier complet pour MINT Coach.
 ///
 /// Contient toutes les données nécessaires au ForecasterService
@@ -3194,6 +3400,14 @@ class CoachProfile {
   final SpecialistReferenceEvidence? lppRegulationReference;
   final SpecialistReferenceEvidence? lppCapitalNoticeDeadline;
   final SpecialistReferenceEvidence? latestTaxDecisionReference;
+
+  // === SUCCESSION (explicit, metadata only) ===
+  final MatrimonialRegimeKind? matrimonialRegime;
+  final List<EstateInstrumentReference> estateInstrumentReferences;
+
+  /// Civil-status changes never delete estate facts, but suspend precision
+  /// until a dedicated writer reconfirms their scope.
+  final bool estateFactsNeedReconfirmation;
 
   // === OBJECTIFS ===
   final GoalA goalA;
@@ -3338,6 +3552,9 @@ class CoachProfile {
     this.lppRegulationReference,
     this.lppCapitalNoticeDeadline,
     this.latestTaxDecisionReference,
+    this.matrimonialRegime,
+    List<EstateInstrumentReference> estateInstrumentReferences = const [],
+    bool estateFactsNeedReconfirmation = false,
     required this.goalA,
     this.goalsB = const [],
     this.plannedContributions = const [],
@@ -3365,7 +3582,13 @@ class CoachProfile {
     this.n5IssuedThisWeek = 0,
     this.fragileModeEnteredAt,
     this.recentGravityEvents = const [],
-  })  : createdAt = createdAt ?? DateTime.now(),
+  })  : estateInstrumentReferences =
+            List<EstateInstrumentReference>.unmodifiable(
+                estateInstrumentReferences),
+        estateFactsNeedReconfirmation = estateFactsNeedReconfirmation &&
+            (matrimonialRegime != null ||
+                estateInstrumentReferences.isNotEmpty),
+        createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         dataSources = inferDataSources
             ? _resolveDataSources(dataSources, prevoyance)
@@ -3485,6 +3708,11 @@ class CoachProfile {
           lppRegulationReference == other.lppRegulationReference &&
           lppCapitalNoticeDeadline == other.lppCapitalNoticeDeadline &&
           latestTaxDecisionReference == other.latestTaxDecisionReference &&
+          matrimonialRegime == other.matrimonialRegime &&
+          listEquals(
+              estateInstrumentReferences, other.estateInstrumentReferences) &&
+          estateFactsNeedReconfirmation ==
+              other.estateFactsNeedReconfirmation &&
           goalA == other.goalA &&
           listEquals(goalsB, other.goalsB) &&
           listEquals(plannedContributions, other.plannedContributions) &&
@@ -3543,6 +3771,9 @@ class CoachProfile {
         lppRegulationReference,
         lppCapitalNoticeDeadline,
         latestTaxDecisionReference,
+        matrimonialRegime,
+        Object.hashAll(estateInstrumentReferences),
+        estateFactsNeedReconfirmation,
         goalA,
         goalsB.length,
         plannedContributions.length,
@@ -3567,6 +3798,34 @@ class CoachProfile {
   // ════════════════════════════════════════════════════════════════
   //  COMPUTED PROPERTIES
   // ════════════════════════════════════════════════════════════════
+
+  /// Aggregate estate evidence state at an explicit evaluation instant.
+  EstateReferenceState estateReferenceStateAt(DateTime asOf) {
+    if (civilStatusNeedsConfirmation || estateFactsNeedReconfirmation) {
+      return EstateReferenceState.needsReconfirmation;
+    }
+    if (matrimonialRegime == null || estateInstrumentReferences.isEmpty) {
+      return EstateReferenceState.missing;
+    }
+    if (estateInstrumentReferences
+        .any((reference) => !reference.isValidAt(asOf))) {
+      return EstateReferenceState.invalid;
+    }
+    final kinds = estateInstrumentReferences
+        .map((reference) => reference.kind)
+        .toList(growable: false);
+    if (kinds.toSet().length != kinds.length) {
+      return EstateReferenceState.conflict;
+    }
+    if (!kinds.toSet().containsAll(EstateInstrumentKind.values)) {
+      return EstateReferenceState.missing;
+    }
+    return EstateReferenceState.known;
+  }
+
+  /// Precise specialist preparation requires regime plus all four instruments.
+  bool estateSpecialistReadyAt(DateTime asOf) =>
+      estateReferenceStateAt(asOf) == EstateReferenceState.known;
 
   /// Age actuel — précis au jour si dateOfBirth est disponible,
   /// sinon fallback sur birthYear (précision ±1 an).
@@ -4099,6 +4358,9 @@ class CoachProfile {
     Object? lppRegulationReference = _keepSpecialistReferenceValue,
     Object? lppCapitalNoticeDeadline = _keepSpecialistReferenceValue,
     Object? latestTaxDecisionReference = _keepSpecialistReferenceValue,
+    Object? matrimonialRegime = _keepEstateValue,
+    List<EstateInstrumentReference>? estateInstrumentReferences,
+    Object? estateFactsNeedReconfirmation = _keepEstateValue,
     GoalA? goalA,
     List<GoalB>? goalsB,
     List<PlannedMonthlyContribution>? plannedContributions,
@@ -4169,6 +4431,18 @@ class CoachProfile {
         effectiveCivilStatus == CoachCivilStatus.marie ||
         effectiveCivilStatus == CoachCivilStatus.registeredPartnership ||
         effectiveCivilStatus == CoachCivilStatus.concubinage;
+    final effectiveMatrimonialRegime =
+        identical(matrimonialRegime, _keepEstateValue)
+            ? this.matrimonialRegime
+            : matrimonialRegime as MatrimonialRegimeKind?;
+    final effectiveEstateReferences =
+        estateInstrumentReferences ?? this.estateInstrumentReferences;
+    final civilStatusChanged =
+        etatCivil != null && effectiveCivilStatus != this.etatCivil;
+    final effectiveEstateFactsNeedReconfirmation =
+        identical(estateFactsNeedReconfirmation, _keepEstateValue)
+            ? (this.estateFactsNeedReconfirmation || civilStatusChanged)
+            : estateFactsNeedReconfirmation as bool;
     return CoachProfile(
       firstName: firstName ?? this.firstName,
       birthYear: birthYear ?? this.birthYear,
@@ -4227,6 +4501,9 @@ class CoachProfile {
           identical(latestTaxDecisionReference, _keepSpecialistReferenceValue)
               ? this.latestTaxDecisionReference
               : latestTaxDecisionReference as SpecialistReferenceEvidence?,
+      matrimonialRegime: effectiveMatrimonialRegime,
+      estateInstrumentReferences: effectiveEstateReferences,
+      estateFactsNeedReconfirmation: effectiveEstateFactsNeedReconfirmation,
       goalA: goalA ?? this.goalA,
       goalsB: goalsB ?? this.goalsB,
       plannedContributions: plannedContributions ?? this.plannedContributions,
@@ -4426,6 +4703,13 @@ class CoachProfile {
         json['latestTaxDecisionReference'],
         expectedKind: SpecialistReferenceKind.taxAssessmentDecision,
       ),
+      matrimonialRegime:
+          MatrimonialRegimeKind.tryParse(json['matrimonialRegime']),
+      estateInstrumentReferences: _restoreEstateInstrumentReferences(
+        json['estateInstrumentReferences'],
+      ),
+      estateFactsNeedReconfirmation:
+          json['estateFactsNeedReconfirmation'] == true,
       depenses: json['depenses'] != null
           ? DepensesProfile.fromJson(json['depenses'])
           : const DepensesProfile(),
@@ -4566,6 +4850,11 @@ class CoachProfile {
         'lppRegulationReference': lppRegulationReference?.toJson(),
         'lppCapitalNoticeDeadline': lppCapitalNoticeDeadline?.toJson(),
         'latestTaxDecisionReference': latestTaxDecisionReference?.toJson(),
+        'matrimonialRegime': matrimonialRegime?.name,
+        'estateInstrumentReferences': estateInstrumentReferences
+            .map((reference) => reference.toJson())
+            .toList(),
+        'estateFactsNeedReconfirmation': estateFactsNeedReconfirmation,
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
         'patrimoine': patrimoine.toJson(),
