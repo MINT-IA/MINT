@@ -1,0 +1,20 @@
+appId: ch.mint.app
+name: G1 RET-REF exact pillar 3a production-default before
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: landing_route
+- openLink: "mint:///scan?type=pillar3aBeneficiaryClause"
+- assertVisible:
+    id: scan_review_recovery_cta
+- assertNotVisible:
+    id: document_scan_pillar3a_beneficiary_clause_type_selector
+- openLink: "mint:///retraite"
+- assertNotVisible:
+    id: retirement_pillar3a_beneficiary_reference_consumer
+- openLink: "mint:///rapport"
+- assertVisible:
+    id: financial_report_screen
+- assertNotVisible:
+    id: financial_report_pillar3a_beneficiary_handoff
