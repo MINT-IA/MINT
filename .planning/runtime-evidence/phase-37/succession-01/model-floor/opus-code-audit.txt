@@ -1,0 +1,36 @@
+Audit complete. All evidence gathered.
+
+---
+
+# MINT External Audit — Succession/Estate Reference Contract
+
+**Scope:** Staged change to `apps/mobile/lib/models/coach_profile.dart` (GREEN implementation for the `test(g1): define succession reference RED` contract at base `852c124af`). Diff ≈ 900 lines, within the 2500 budget.
+
+## Verdict: **PASS**
+
+---
+
+## Evidence summary
+
+- **Contract satisfied:** `flutter test test/models/estate_reference_contract_test.dart` → **10/10 pass** (SUCC-D01…D10), covering fail-closed defaults, no-inference from household facts, strict tuple validation, non-certificate/future rejection, PII-key rejection, duplicate-kind conflict, and civil-status drift suspension.
+- **Static analysis clean:** `flutter analyze lib/models/coach_profile.dart` → "No issues found!"
+- **Privacy posture verified (code path):** `EstateInstrumentReference.tryFromJson` (`coach_profile.dart:3149`) requires `setEquals(json.keys.toSet(), _keys)` against exactly 7 metadata keys, so any injected `filename`/`path`/`bytes`/`ocr`/`content` key drops the entire reference (SUCC-D08, test lines 290–311). Serialized form (`toJson`, `coach_profile.dart:3220`) emits only `referenceId` (UUIDv4), `kind`, `ownerKind`, `source`, `sourceDate`, `legalYear`, `confirmedAt` — no raw document data. Good defensive design.
+- **Fail-closed under partial data (code path):** `_restoreEstateInstrumentReferences` (`coach_profile.dart:3238`) silently drops invalid entries via `whereType`; `estateReferenceStateAt` (`coach_profile.dart:3900`) requires regime + all four instrument kinds and `isValidAt(asOf)` for `known`, else `missing`/`invalid`/`conflict`. Dropped references degrade to non-ready, never to a false-positive `known`.
+- **Round-trip integrity:** `matrimonialRegime`, `estateInstrumentReferences`, `estateFactsNeedReconfirmation` are wired through constructor, `==`/`hashCode`, `copyWith` (with `_keepEstateValue` sentinel for null-vs-absent), `fromJson`, and `toJson`. Constructor invariant gates the reconfirmation flag on presence of facts (`coach_profile.dart:3399`), and `copyWith` sets it on civil-status change while preserving estate facts (`coach_profile.dart:4400`) — verified by SUCC-D10.
+
+## Findings
+
+### P0 — none
+### P1 — none
+
+### P2 (advisory, no action required for merge)
+
+1. **No runtime consumer of estate readiness (facade check — benign).** `estateReferenceStateAt` / `estateSpecialistReadyAt` / `matrimonialRegime` are referenced only in `coach_profile.dart`, its contract test, and `.planning/goals/G1-ledger-gap-matrix.md` (Grep: 3 files). No service, router, coaching gate, or UI consumes estate readiness yet. This is consistent with a contract-first RED→GREEN domain freeze and is **not** a dangerous facade: there is no UI advertising a succession capability that silently no-ops. Flagging only so a later gate PR must actually wire `estateSpecialistReadyAt` before any user-facing succession claim ships.
+
+2. **`known` requires all four instrument kinds present** (`coach_profile.dart:3914`, `!kinds.toSet().containsAll(EstateInstrumentKind.values)` → `missing`). A user who legitimately has only a will + mandate can never reach `known`/ready. This matches the frozen contract (SUCC-D05 uses all four; no partial-valid case is tested), so it is intentional — but confirm the domain intends "specialist-ready" to mean the complete four-document set rather than "all declared instruments valid."
+
+## What would strengthen confidence further
+- A test asserting behavior for a **valid-but-partial** instrument set (e.g. only `will` + `incapacityMandate`) to lock in the "all-four" semantics as intended rather than incidental.
+- When the readiness gate is wired, an integration test proving `estateSpecialistReadyAt=false` actually suppresses any succession-specialist prompt/routing.
+
+No correctness, privacy, compliance, or serialization defects found in the staged change.

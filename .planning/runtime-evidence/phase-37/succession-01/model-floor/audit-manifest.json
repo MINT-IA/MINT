@@ -1,0 +1,14 @@
+{
+  "wrapper": "tools/checks/claude_external_audit.sh",
+  "mode": "code",
+  "base_ref": "852c124af",
+  "model": "opus",
+  "effort": "high",
+  "verdict": "PASS",
+  "p0": 0,
+  "p1": 0,
+  "p2": 2,
+  "audit_file": "opus-code-audit.txt",
+  "audit_sha256": "b802bc0d3346f167fe471cc747aa059247140d770fde12992d4a522e027b4d62",
+  "adjudication": "P2 all-four readiness is the frozen conservative domain contract; facade warning remains open until writer/persistence/consumer/runtime wiring."
+}

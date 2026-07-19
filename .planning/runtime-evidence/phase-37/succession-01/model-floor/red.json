@@ -1,0 +1,11 @@
+{
+  "ticket": "G1-SUCCESSION-01-model-floor",
+  "state": "red_proven",
+  "sha": "852c124af",
+  "command": "cd apps/mobile && flutter test test/models/estate_reference_contract_test.dart test/models/specialist_reference_contract_test.dart test/models/coach_profile_semantic_roundtrip_test.dart --reporter expanded",
+  "exit_code": 1,
+  "expected_semantic_failures": 10,
+  "adjacent_tests_green": 29,
+  "log": "red-output.txt",
+  "sha256": "3421f735385980e228189dae927f7ca3e30abc3728a063acfd3bb93147242b62"
+}

@@ -1,0 +1,14 @@
+{
+  "ticket": "G1-SUCCESSION-01-model-floor",
+  "state": "green_proven_not_ticket_closed",
+  "sha": "7849711b33cecfe73eb85dfacc6ded04a0eaa49a",
+  "command": "cd apps/mobile && flutter test test/models/estate_reference_contract_test.dart test/models/specialist_reference_contract_test.dart test/models/coach_profile_semantic_roundtrip_test.dart --reporter expanded",
+  "exit_code": 0,
+  "tests_passed": 39,
+  "analyze": "No issues found",
+  "log": "green-output.txt",
+  "sha256": "7495e9e02f6ecf2f483d7497ef8cbe9c2c96270742281978541668b481802868",
+  "github_ci_run": 29705666342,
+  "github_ci_url": "https://github.com/MINT-IA/MINT/actions/runs/29705666342",
+  "github_ci_conclusion": "success"
+}

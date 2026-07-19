@@ -1,0 +1,41 @@
+00:00 +0: loading /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart
+00:00 +0: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D01 default profile is explicitly unknown and fail-closed
+00:00 +1: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D02 household facts never infer estate facts
+00:00 +2: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D03 non-married statuses never fabricate absence
+00:00 +3: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D04 legacy presence booleans are ignored and not reserialized
+00:00 +4: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D05 complete explicit facts round-trip with value semantics
+00:00 +5: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D06 every required tuple member is fail-closed
+00:00 +6: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D07 non-certificate and future references are rejected
+00:00 +7: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D08 raw or identifying keys are rejected without leakage
+00:00 +8: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D09 duplicate kinds conflict without silent selection
+00:00 +9: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/estate_reference_contract_test.dart: SUCC-D10 civil-status drift preserves facts but suspends readiness
+00:00 +10: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: the three profile properties are typed precision-bearing evidence
+00:00 +11: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: legacy singular pillar3a clause is dropped without migration or reserialization
+00:00 +12: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: LPP fund relationship is self-only, mandatory, and exactly typed
+00:00 +13: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: the three complete specialist references survive the existing JSON path
+00:00 +14: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: incomplete, non-certificate, and future tuples fail closed
+00:00 +15: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: tax reference rejects a legal year different from its tax year
+00:00 +16: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: the three precision predicates remain independent
+00:00 +17: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: Swiss civil dates use Zurich civil day and UTC confirmation
+00:00 +18: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: LPP regulation authority is self-only in CoachProfile
+00:00 +19: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: confirmedAt accepts only canonical toIso8601String output
+00:00 +20: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: raw, numeric, fund-name, and snapshot fields reject the reference
+00:00 +21: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: tax subject is closed on TaxSubjectScope wire names
+00:00 +22: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: tax precision requires one coherent contextual TaxSnapshot
+00:00 +23: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: divergent equal-rank peers conflict without UUID tie-break
+00:00 +24: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: copyWith, equality, hash, clear-null, and round-trip agree
+00:00 +25: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: calendar-year change alone does not stale durable references
+00:00 +26: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/specialist_reference_contract_test.dart: CoachProfile stays independent from provider document authority
+00:00 +27: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: legacy household and employment aliases serialize canonically
+00:00 +28: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: explicit unemployed never falls back to employee
+00:00 +29: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: registered_partner stays registered partnership through wizard -> model -> json -> model
+00:00 +30: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: explicit registered partnership aliases converge
+00:00 +31: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: registered partner update does not clear spouse answers
+00:00 +32: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: AVS legal predicates are distinct
+00:00 +33: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: bare partenariat is quarantined for reconfirmation
+00:00 +34: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: foreign union tokens require recognition confirmation
+00:00 +35: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: pacs merge and restart preserve partner facts
+00:00 +36: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart:  PACS  merge and restart preserve partner facts
+00:00 +37: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: civil_union merge and restart preserve partner facts
+00:00 +38: /Users/julienbattaglia/Desktop/MINT.nosync/apps/mobile/test/models/coach_profile_semantic_roundtrip_test.dart: foreign_registered_partnership merge and restart preserve partner facts
+00:00 +39: All tests passed!
