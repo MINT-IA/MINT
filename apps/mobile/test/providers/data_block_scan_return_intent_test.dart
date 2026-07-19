@@ -10,6 +10,7 @@ const _rvcOrigin = '/rente-vs-capital';
 const _pillarReturnUri = '/retraite';
 const _pillarAuthorityId = '22222222-2222-4222-8222-222222222222';
 const _pillarReferenceId = '33333333-3333-4333-8333-333333333333';
+const _taxSnapshotId = '44444444-4444-4444-8444-444444444444';
 
 final _lppCandidate = LppExtractionAdapter.adapt(
   source: LppAcquisitionSource.localParser,
@@ -91,6 +92,21 @@ const _wrongDocumentExtraction = ExtractionResult(
   warnings: <String>[],
   disclaimer: '',
   sources: <String>[],
+);
+
+const _taxExtraction = ExtractionResult(
+  documentType: DocumentType.taxDeclaration,
+  fields: <ExtractedField>[],
+  overallConfidence: 0,
+  confidenceDelta: 0,
+  warnings: <String>[],
+  disclaimer: '',
+  sources: <String>[],
+);
+
+final _taxCandidate = TaxExtractionCandidate.fromExtractionResult(
+  _taxExtraction,
+  snapshotIdFactory: () => _taxSnapshotId,
 );
 
 void main() {
@@ -327,6 +343,59 @@ void main() {
       _retainProcessingRvcIntent(provider),
       _lppReviewExtraction,
       lppCandidate: _lppCandidate,
+    );
+  });
+
+  test('RVC review rejects a valid tax candidate with zero mutation', () {
+    final provider = ScanSessionProvider();
+    addTearDown(provider.dispose);
+    _expectRvcReviewArgumentError(
+      provider,
+      _retainProcessingRvcIntent(provider),
+      _lppReviewExtraction,
+      lppCandidate: _lppCandidate,
+      lppAuthorization: _lppAuthorization,
+      taxCandidate: _taxCandidate,
+    );
+  });
+
+  test('RVC review rejects a lone real Pillar3a context with zero mutation',
+      () {
+    final provider = ScanSessionProvider();
+    addTearDown(provider.dispose);
+    final pillarContextId = provider.retainPillar3aBeneficiaryScanIntent(
+      kind: Pillar3aBeneficiaryScanIntentKind.insertion,
+      returnUri: _pillarReturnUri,
+    );
+    expect(
+      provider.advancePillar3aBeneficiaryScanIntent(
+        pillarContextId,
+        from: Pillar3aBeneficiaryScanIntentLifecycle.created,
+        to: Pillar3aBeneficiaryScanIntentLifecycle.processing,
+      ),
+      isTrue,
+    );
+
+    _expectRvcReviewArgumentError(
+      provider,
+      _retainProcessingRvcIntent(provider),
+      _lppReviewExtraction,
+      lppCandidate: _lppCandidate,
+      lppAuthorization: _lppAuthorization,
+      pillar3aScanContextId: pillarContextId,
+    );
+  });
+
+  test('RVC review rejects a lone Pillar3a return URI with zero mutation', () {
+    final provider = ScanSessionProvider();
+    addTearDown(provider.dispose);
+    _expectRvcReviewArgumentError(
+      provider,
+      _retainProcessingRvcIntent(provider),
+      _lppReviewExtraction,
+      lppCandidate: _lppCandidate,
+      lppAuthorization: _lppAuthorization,
+      pillar3aReturnUri: _pillarReturnUri,
     );
   });
 
@@ -881,6 +950,7 @@ void _expectRvcReviewArgumentError(
   ExtractionResult extraction, {
   LppExtractionCandidate? lppCandidate,
   LppAcquisitionAuthorization? lppAuthorization,
+  TaxExtractionCandidate? taxCandidate,
   Pillar3aBeneficiaryAcquisitionCandidate? pillar3aBeneficiaryCandidate,
   String? pillar3aScanContextId,
   String? pillar3aReturnUri,
@@ -902,6 +972,7 @@ void _expectRvcReviewArgumentError(
       dataBlockScanReturnIntentId: intentId,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
+      taxCandidate: taxCandidate,
       pillar3aBeneficiaryCandidate: pillar3aBeneficiaryCandidate,
       pillar3aScanContextId: pillar3aScanContextId,
       pillar3aReturnUri: pillar3aReturnUri,
@@ -971,13 +1042,12 @@ void _expectRvcReviewArgumentError(
 }) {
   final intent = provider.dataBlockScanReturnIntentById(intentId);
   final session = provider.byId(scanSessionId);
-  final pillarIntent =
-      pillar3aScanContextId == null || pillar3aReturnUri == null
-          ? null
-          : provider.pillar3aBeneficiaryScanIntentById(
-              pillar3aScanContextId,
-              returnUri: pillar3aReturnUri,
-            );
+  final pillarIntent = pillar3aScanContextId == null
+      ? null
+      : provider.pillar3aBeneficiaryScanIntentById(
+          pillar3aScanContextId,
+          returnUri: pillar3aReturnUri ?? _pillarReturnUri,
+        );
   return (
     sessionCount: provider.retainedSessionCount,
     rvcIntentCount: provider.retainedDataBlockScanReturnIntentCount,

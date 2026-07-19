@@ -211,6 +211,31 @@ class ScanSessionProvider extends ChangeNotifier {
   int get retainedPillar3aBeneficiaryScanIntentCount =>
       _pillar3aBeneficiaryScanIntents.length;
 
+  // The session registry is capped at five, so reverse lookup keeps the
+  // session payload as the only intent-link SOT without an unbounded scan.
+  String? _scanSessionIdForDataBlockScanReturnIntent(String intentId) {
+    for (final entry in _sessions.entries) {
+      if (entry.value.dataBlockScanReturnIntentId == intentId) {
+        return entry.key;
+      }
+    }
+    return null;
+  }
+
+  ScanSessionPayload? _removeScanSession(String id) {
+    final removed = _sessions.remove(id);
+    if (removed == null) return null;
+    final dataBlockIntentId = removed.dataBlockScanReturnIntentId;
+    if (dataBlockIntentId != null) {
+      _dataBlockScanReturnIntents.remove(dataBlockIntentId);
+    }
+    final pillar3aContextId = removed.pillar3aScanContextId;
+    if (pillar3aContextId != null) {
+      _pillar3aBeneficiaryScanIntents.remove(pillar3aContextId);
+    }
+    return removed;
+  }
+
   String retainDataBlockScanReturnIntent({
     required DataBlockScanReturnKind kind,
     required DataBlockReturnTarget target,
@@ -232,9 +257,13 @@ class ScanSessionProvider extends ChangeNotifier {
     );
     while (_dataBlockScanReturnIntents.length >
         maxRetainedDataBlockScanReturnIntents) {
-      _dataBlockScanReturnIntents.remove(
-        _dataBlockScanReturnIntents.keys.first,
-      );
+      final evictedIntentId = _dataBlockScanReturnIntents.keys.first;
+      final linkedSessionId =
+          _scanSessionIdForDataBlockScanReturnIntent(evictedIntentId);
+      _dataBlockScanReturnIntents.remove(evictedIntentId);
+      if (linkedSessionId != null) {
+        _removeScanSession(linkedSessionId);
+      }
     }
     guard.assertCurrent();
     notifyListeners();
@@ -267,7 +296,11 @@ class ScanSessionProvider extends ChangeNotifier {
 
   bool discardDataBlockScanReturnIntent(String id) {
     final guard = _sessionEpoch.capture();
+    final linkedSessionId = _scanSessionIdForDataBlockScanReturnIntent(id);
     if (_dataBlockScanReturnIntents.remove(id) == null) return false;
+    if (linkedSessionId != null) {
+      _removeScanSession(linkedSessionId);
+    }
     guard.assertCurrent();
     notifyListeners();
     return true;
@@ -399,6 +432,34 @@ class ScanSessionProvider extends ChangeNotifier {
         pillar3aBeneficiaryCandidate != null;
     final hasPillar3aIntentLink =
         pillar3aScanContextId != null && pillar3aReturnUri != null;
+    final dataBlockIntent = dataBlockScanReturnIntentId == null
+        ? null
+        : _dataBlockScanReturnIntents[dataBlockScanReturnIntentId];
+    if (dataBlockScanReturnIntentId != null &&
+        (dataBlockIntent == null ||
+            dataBlockIntent.kind != DataBlockScanReturnKind.rvcLpp ||
+            dataBlockIntent.lifecycle !=
+                DataBlockScanReturnLifecycle.processing ||
+            _scanSessionIdForDataBlockScanReturnIntent(
+                  dataBlockScanReturnIntentId,
+                ) !=
+                null)) {
+      throw StateError('RVC scan return intent changed');
+    }
+    if (dataBlockScanReturnIntentId != null &&
+        (extraction.documentType != DocumentType.lppCertificate ||
+            !hasLppCandidate ||
+            !hasLppAuthorization ||
+            hasLppRegulationCandidate ||
+            hasLppCapitalNoticeCandidate ||
+            taxCandidate != null ||
+            hasPillar3aBeneficiaryCandidate ||
+            pillar3aScanContextId != null ||
+            pillar3aReturnUri != null)) {
+      throw ArgumentError(
+        'RVC scan return requires one isolated authorized LPP certificate',
+      );
+    }
     if (isLppRegulation != hasLppRegulationCandidate ||
         (hasLppCapitalNoticeCandidate && !hasLppRegulationCandidate) ||
         (hasLppRegulationCandidate &&
@@ -467,6 +528,7 @@ class ScanSessionProvider extends ChangeNotifier {
     final id = '${DateTime.now().microsecondsSinceEpoch}-${_nextId++}';
     _sessions[id] = ScanSessionPayload(
       extraction: extraction,
+      dataBlockScanReturnIntentId: dataBlockScanReturnIntentId,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
       lppRegulationCandidate: lppRegulationCandidate,
@@ -477,7 +539,10 @@ class ScanSessionProvider extends ChangeNotifier {
       pillar3aScanContextId: pillar3aScanContextId,
       pillar3aReturnUri: pillar3aReturnUri,
     );
-    if (hasPillar3aIntentLink &&
+    if (dataBlockScanReturnIntentId != null) {
+      _dataBlockScanReturnIntents[dataBlockScanReturnIntentId] =
+          dataBlockIntent!._at(DataBlockScanReturnLifecycle.reviewRetained);
+    } else if (hasPillar3aIntentLink &&
         !advancePillar3aBeneficiaryScanIntent(
           pillar3aScanContextId,
           from: Pillar3aBeneficiaryScanIntentLifecycle.processing,
@@ -487,11 +552,7 @@ class ScanSessionProvider extends ChangeNotifier {
       throw StateError('Pillar 3a beneficiary review handoff failed');
     }
     while (_sessions.length > maxRetainedSessions) {
-      final evicted = _sessions.remove(_sessions.keys.first);
-      final contextId = evicted?.pillar3aScanContextId;
-      if (contextId != null) {
-        _pillar3aBeneficiaryScanIntents.remove(contextId);
-      }
+      _removeScanSession(_sessions.keys.first);
     }
     guard.assertCurrent();
     notifyListeners();
@@ -515,10 +576,29 @@ class ScanSessionProvider extends ChangeNotifier {
         current.pillar3aBeneficiaryCandidate != null) {
       return false;
     }
+    final dataBlockIntentId = current.dataBlockScanReturnIntentId;
+    final dataBlockIntent = dataBlockIntentId == null
+        ? null
+        : _dataBlockScanReturnIntents[dataBlockIntentId];
+    if (dataBlockIntentId != null &&
+        (extraction.documentType != DocumentType.lppCertificate ||
+            current.extraction.documentType != DocumentType.lppCertificate ||
+            dataBlockIntent == null ||
+            dataBlockIntent.kind != DataBlockScanReturnKind.rvcLpp ||
+            dataBlockIntent.lifecycle !=
+                DataBlockScanReturnLifecycle.reviewRetained ||
+            _scanSessionIdForDataBlockScanReturnIntent(dataBlockIntentId) !=
+                id)) {
+      return false;
+    }
     _sessions[id] = current.withImpact(
       extraction: extraction,
       previousConfidence: previousConfidence,
     );
+    if (dataBlockIntentId != null) {
+      _dataBlockScanReturnIntents[dataBlockIntentId] =
+          dataBlockIntent!._at(DataBlockScanReturnLifecycle.impactRetained);
+    }
     guard.assertCurrent();
     notifyListeners();
     return true;
@@ -526,12 +606,8 @@ class ScanSessionProvider extends ChangeNotifier {
 
   void discard(String id) {
     final guard = _sessionEpoch.capture();
-    final removed = _sessions.remove(id);
+    final removed = _removeScanSession(id);
     if (removed != null) {
-      final contextId = removed.pillar3aScanContextId;
-      if (contextId != null) {
-        _pillar3aBeneficiaryScanIntents.remove(contextId);
-      }
       guard.assertCurrent();
       notifyListeners();
     }
