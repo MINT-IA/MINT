@@ -12,7 +12,7 @@
   "cleanup_status": "passed",
   "distinct_process_pid_verified": true,
   "evidence_outputs_complete": true,
-  "expected_output_count": 25,
+  "expected_output_count": 26,
   "privacy": {
     "document_hash_retained": false,
     "private_fixture_used": false,
@@ -31,7 +31,7 @@
   "production_source_physical": true,
   "pushed_sha_verified": true,
   "restoration_status": "restored",
-  "retained_output_count": 25,
+  "retained_output_count": 26,
   "runtime_completed": true,
   "source_sha": "fc1023fd73da8256acda8fbc438317ca391e7c74",
   "suite": {

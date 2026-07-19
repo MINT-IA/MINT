@@ -1292,7 +1292,7 @@ FinancialReportService -> FinancialReport.pillar3aBeneficiaryHandoff`.
   mismatched BND, invalid presence provenance and invalid root suppress the
   handoff; selective presence repair preserves root/reference, destructive
   root reset removes both durably, and exact restoration makes the handoff
-  visible again. Writer 1/1, reader 1/1 and retained outputs 25/25 pass.
+  visible again. Writer 1/1, reader 1/1 and retained outputs 26/26 pass.
 - **Runtime boundary:** Maestro production-default-off passes 1/1 before and
   1/1 after. Production rebuild/install/reinstall preserves app identity and
   state. The retained proof is synthetic-only with no private fixture, raw

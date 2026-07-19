@@ -1197,7 +1197,7 @@ exact state restoration makes the handoff visible again. The production
 reinstall preserves application identity and state.
 
 The Patrol contract passes writer 1/1 then distinct cold reader 1/1, with
-writer/reader build isolation and 25/25 retained outputs. Production-default
+writer/reader build isolation and 26/26 retained outputs. Production-default
 Maestro passes 1/1 before and 1/1 after. Retained evidence is synthetic-only:
 no private fixture, raw document bytes/hash, simulator identifier or xcresult
 is kept. Bounded wrapper lineage has current aggregate P0/P1=0; the official

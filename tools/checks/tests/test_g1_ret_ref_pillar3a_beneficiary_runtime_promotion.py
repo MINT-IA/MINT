@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import re
@@ -31,6 +32,9 @@ TRACKED_WRITER = (
 TRACKED_READER = (
     "apps/mobile/integration_test/"
     "g1_ret_ref_pillar3a_beneficiary_read_patrol_test.dart"
+)
+TRACKED_ORCHESTRATOR = (
+    "tools/simulator/patrol_pillar3a_beneficiary_process_death.sh"
 )
 
 ARTIFACTS = {
@@ -74,9 +78,26 @@ def _git_show(path: str) -> str:
     ).stdout
 
 
+def _exact_runtime_expected_logs() -> list[str]:
+    source = _git_show(TRACKED_ORCHESTRATOR)
+    assignments = re.findall(
+        r"^expected_logs = (\[.*?^\])$",
+        source,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    expected_lists = [ast.literal_eval(assignment) for assignment in assignments]
+    assert len(expected_lists) == 2
+    assert expected_lists[0] == expected_lists[1]
+    assert all(isinstance(name, str) and name for name in expected_lists[0])
+    return expected_lists[0]
+
+
 def test_minimized_runtime_bundle_is_complete_and_bounded() -> None:
     assert PROOF.is_dir(), "TDD RED: exact 3a runtime proof bundle is missing"
     assert {path.name for path in PROOF.iterdir() if path.is_file()} == ARTIFACTS
+
+    expected_output_count = len(_exact_runtime_expected_logs())
+    assert expected_output_count == 26
 
     metadata = _json("metadata.sanitized.json")
     assert metadata == {
@@ -84,7 +105,7 @@ def test_minimized_runtime_bundle_is_complete_and_bounded() -> None:
         "cleanup_status": "passed",
         "distinct_process_pid_verified": True,
         "evidence_outputs_complete": True,
-        "expected_output_count": 25,
+        "expected_output_count": expected_output_count,
         "production_build_install_passed": True,
         "production_default_off": {"after": True, "before": True},
         "production_reinstall_preserved_identity_and_state": True,
@@ -92,7 +113,7 @@ def test_minimized_runtime_bundle_is_complete_and_bounded() -> None:
         "production_source_physical": True,
         "pushed_sha_verified": True,
         "restoration_status": "restored",
-        "retained_output_count": 25,
+        "retained_output_count": expected_output_count,
         "runtime_completed": True,
         "source_sha": SOURCE_SHA,
         "suite": {
