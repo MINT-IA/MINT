@@ -8,12 +8,15 @@ import pytest
 
 from app.main import app
 from app.models.document import DocumentModel
+from app.models.document_audit import DocumentAuditLog
+from app.models.document_memory import DocumentMemory
 from app.models.profile_model import ProfileModel
 from app.schemas.document_scan import (
     DocumentType,
     Pillar3aBeneficiaryAuthorityVisionPayloadV1,
 )
 from app.services.document_vision_service import extract_with_vision
+from app.services.flags_service import flags
 from app.services.pillar3a_beneficiary_authority import (
     extract_pillar3a_beneficiary_authority,
 )
@@ -227,3 +230,111 @@ def test_manual_partner_exact_authority_rejects_before_vision_transport(client):
         "test-user-id",
     )
     assert transport.call_count == 0
+
+
+def test_exact_authority_production_default_off_rejects_self_before_transport(
+    client,
+):
+    transport = MagicMock()
+    redis_lookup = AsyncMock(return_value=None)
+    flags.invalidate("PILLAR3A_BENEFICIARY_AUTHORITY_ENABLED")
+    try:
+        with (
+            patch.object(flags, "_get_redis", new=redis_lookup),
+            patch(
+                "app.services.document_vision_service._sync_vision_call",
+                new=transport,
+            ),
+            patch(
+                "app.services.pillar3a_beneficiary_authority.settings."
+                "ANTHROPIC_API_KEY",
+                "synthetic-test-key",
+            ),
+        ):
+            response = client.post(
+                "/api/v1/documents/extract-vision",
+                json={
+                    "imageBase64": "c3ludGhldGlj",
+                    "documentType": "pillar_3a_beneficiary_clause",
+                    "subjectKind": "self",
+                },
+            )
+    finally:
+        flags.invalidate("PILLAR3A_BENEFICIARY_AUTHORITY_ENABLED")
+
+    assert response.status_code == 422, response.text
+    assert response.json() == {
+        "detail": {"code": "pillar3a_beneficiary_authority_unavailable"}
+    }
+    redis_lookup.assert_awaited_once_with()
+    assert transport.call_count == 0
+
+
+def test_exact_authority_missing_api_key_is_opaque_and_write_free(client):
+    db = TestingSessionLocal()
+    try:
+        db.add(
+            ProfileModel(
+                id="profile-exact-3a-missing-key",
+                user_id="test-user-id",
+                data={"preExisting": "untouched"},
+                updated_at=datetime.now(timezone.utc),
+            )
+        )
+        db.commit()
+        counts_before = {
+            "documents": db.query(DocumentModel).count(),
+            "documentAuditLogs": db.query(DocumentAuditLog).count(),
+            "documentMemory": db.query(DocumentMemory).count(),
+        }
+    finally:
+        db.close()
+
+    transport = MagicMock()
+    flag_lookup = AsyncMock(return_value=True)
+    with (
+        patch(
+            "app.services.flags_service.flags.is_enabled",
+            new=flag_lookup,
+        ),
+        patch(
+            "app.services.document_vision_service._sync_vision_call",
+            new=transport,
+        ),
+        patch(
+            "app.services.pillar3a_beneficiary_authority.settings."
+            "ANTHROPIC_API_KEY",
+            "",
+        ),
+    ):
+        response = client.post(
+            "/api/v1/documents/extract-vision",
+            json={
+                "imageBase64": "c3ludGhldGlj",
+                "documentType": "pillar_3a_beneficiary_clause",
+                "subjectKind": "self",
+            },
+        )
+
+    assert response.status_code == 422, response.text
+    assert response.json() == {
+        "detail": {"code": "pillar3a_beneficiary_authority_unavailable"}
+    }
+    flag_lookup.assert_awaited_once_with(
+        "PILLAR3A_BENEFICIARY_AUTHORITY_ENABLED",
+        "test-user-id",
+    )
+    assert transport.call_count == 0
+
+    db = TestingSessionLocal()
+    try:
+        profile = db.query(ProfileModel).filter_by(user_id="test-user-id").one()
+        assert profile.data == {"preExisting": "untouched"}
+        assert db.query(DocumentModel).count() == counts_before["documents"]
+        assert (
+            db.query(DocumentAuditLog).count()
+            == counts_before["documentAuditLogs"]
+        )
+        assert db.query(DocumentMemory).count() == counts_before["documentMemory"]
+    finally:
+        db.close()
