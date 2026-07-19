@@ -868,6 +868,44 @@ void main() {
     );
   });
 
+  test('SUCC-V07 direct JSON serializes only the four-slot instrument SOT', () {
+    const evidenceId = '11111111-1111-4111-8111-111111111111';
+    final profile = _profile(
+      civilStatus: 'celibataire',
+      root: _root(
+        will: _present(
+          evidenceId: evidenceId,
+          civilStatus: 'celibataire',
+        ),
+      ),
+    );
+    expect(profile.estateInstrumentReferences, hasLength(1));
+
+    final projection = profile.toJson();
+    final encoded = jsonEncode(projection);
+    final slots = Map<String, dynamic>.from(
+      projection['estateInstrumentSlots'] as Map,
+    );
+
+    expect(
+      (
+        projection.containsKey('estateInstrumentReferences'),
+        RegExp(RegExp.escape(evidenceId)).allMatches(encoded).length,
+        slots.keys.toSet(),
+      ),
+      (
+        false,
+        1,
+        <String>{
+          'will',
+          'inheritancePact',
+          'incapacityMandate',
+          'advanceCareDirective',
+        },
+      ),
+    );
+  });
+
   test('SUCC-P01 LPart enum exposes only the adjudicated legal categories', () {
     expect(
       RegisteredPartnershipPropertyRegimeKind.values
