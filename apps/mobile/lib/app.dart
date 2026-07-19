@@ -309,6 +309,7 @@ class _DataBlockScanReturnEntryState extends State<_DataBlockScanReturnEntry> {
       },
       child: DocumentScanScreen(
         initialType: DocumentType.lppCertificate,
+        dataBlockScanReturnIntentId: widget.scanReturnId,
         onBack: _cancel,
         pickFile: widget.pickFile,
         requireConsent: widget.requireConsent,

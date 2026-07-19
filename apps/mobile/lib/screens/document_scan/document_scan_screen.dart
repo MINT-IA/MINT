@@ -217,6 +217,7 @@ final class _DocumentVisionResult {
 
 class DocumentScanScreen extends StatefulWidget {
   final DocumentType? initialType;
+  final String? dataBlockScanReturnIntentId;
   final String? scanContextId;
   final String? returnUri;
   final VoidCallback? onBack;
@@ -256,6 +257,7 @@ class DocumentScanScreen extends StatefulWidget {
   const DocumentScanScreen({
     super.key,
     this.initialType,
+    this.dataBlockScanReturnIntentId,
     this.scanContextId,
     this.returnUri,
     this.onBack,
@@ -343,6 +345,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled;
 
   bool _isSupportedType(DocumentType type) =>
+      (widget.dataBlockScanReturnIntentId == null ||
+          type == DocumentType.lppCertificate) &&
       (widget.scanContextId == null ||
           type == DocumentType.pillar3aBeneficiaryClause) &&
       _supportedTypes.contains(type) &&
@@ -406,6 +410,27 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       widget.scanContextId!,
       from: Pillar3aBeneficiaryScanIntentLifecycle.created,
       to: Pillar3aBeneficiaryScanIntentLifecycle.processing,
+    );
+  }
+
+  bool _beginDataBlockAcquisitionIfNeeded() {
+    final id = widget.dataBlockScanReturnIntentId;
+    if (id == null) return true;
+    final sessions = _scanSessions ?? context.read<ScanSessionProvider>();
+    final intent = sessions.dataBlockScanReturnIntentById(id);
+    if (intent == null || intent.kind != DataBlockScanReturnKind.rvcLpp) {
+      return false;
+    }
+    if (intent.lifecycle == DataBlockScanReturnLifecycle.processing) {
+      return true;
+    }
+    if (intent.lifecycle != DataBlockScanReturnLifecycle.created) {
+      return false;
+    }
+    return sessions.advanceDataBlockScanReturnIntent(
+      id,
+      from: DataBlockScanReturnLifecycle.created,
+      to: DataBlockScanReturnLifecycle.processing,
     );
   }
 
@@ -1081,6 +1106,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final scanSessions = context.read<ScanSessionProvider>();
     final scanSessionId = scanSessions.retainExtraction(
       reviewExtraction,
+      dataBlockScanReturnIntentId:
+          extraction.documentType == DocumentType.lppCertificate
+              ? widget.dataBlockScanReturnIntentId
+              : null,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
       lppRegulationCandidate: lppRegulationCandidate,
@@ -1111,16 +1140,26 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     try {
       final navigateToReview = widget.navigateToReview;
       if (navigateToReview == null) {
-        final location = extraction.documentType ==
-                DocumentType.pillar3aBeneficiaryClause
-            ? Uri(
-                path: '/scan/review',
-                queryParameters: <String, String>{
-                  'scanSessionId': scanSessionId,
-                  'returnUri': widget.returnUri!,
-                },
-              ).toString()
-            : '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}';
+        final location = switch (extraction.documentType) {
+          DocumentType.pillar3aBeneficiaryClause => Uri(
+              path: '/scan/review',
+              queryParameters: <String, String>{
+                'scanSessionId': scanSessionId,
+                'returnUri': widget.returnUri!,
+              },
+            ).toString(),
+          DocumentType.lppCertificate
+              when widget.dataBlockScanReturnIntentId != null =>
+            Uri(
+              path: '/scan/review',
+              queryParameters: <String, String>{
+                'scanSessionId': scanSessionId,
+                'scanReturnId': widget.dataBlockScanReturnIntentId!,
+              },
+            ).toString(),
+          _ =>
+            '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}',
+        };
         if (extraction.documentType == DocumentType.lppPlan ||
             extraction.documentType == DocumentType.pillar3aBeneficiaryClause) {
           context.go(location);
@@ -1768,6 +1807,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         await _rollbackPartnerAttempt(lppDecision);
         return;
       }
+      if (!_beginDataBlockAcquisitionIfNeeded()) {
+        await _rollbackPartnerAttempt(lppDecision);
+        return;
+      }
       final pages = await NativeDocumentScanner.scan(maxPages: 5);
       if (!_lppAcquisitionStillEnabledFor(lppDecision)) {
         await _rollbackPartnerAttempt(lppDecision);
@@ -1994,6 +2037,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       final injectedPicker = widget.pickFile;
       final PlatformFile? file;
       if (!_lppAcquisitionStillEnabledFor(lppDecision)) return;
+      if (!_beginDataBlockAcquisitionIfNeeded()) return;
       if (injectedPicker != null) {
         file = await injectedPicker();
       } else {
@@ -2120,6 +2164,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return;
     }
     if (!_lppAcquisitionStillEnabled) return;
+    if (!_beginDataBlockAcquisitionIfNeeded()) return;
     final text = _sampleTextForType(_selectedType);
     await _processOcrText(
       text,
