@@ -1,0 +1,11 @@
+{
+  "bundleId": "ch.mint.app",
+  "caseId": "G1-SCN-01",
+  "commitSha": "464d5c56b1067df31b77b8c01eb87cd5085f49c6",
+  "device": "<redacted>",
+  "logSha256": "6c6923c84655dc1bd8f660f55a0bd9826e08b467084e62be4ad443d28717dbb6",
+  "patrolTarget": "test/patrol/g1_scn01_scenario_isolation_runtime_test.dart",
+  "result": "passed",
+  "schemaVersion": 1,
+  "screenshotSha256": "d8519665344eae3fff1cb3237538ee2be0f19b3e98ecc9e41e53f1874fccfda1"
+}

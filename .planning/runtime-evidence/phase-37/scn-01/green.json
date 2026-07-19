@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-SCN-01",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/providers/scenario_fact_isolation_test.dart --reporter expanded",
+  "sha": "464d5c56b1067df31b77b8c01eb87cd5085f49c6",
+  "recorded_at": "2026-07-19T11:21:20Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "scenario_fact_isolation_test",
+  "output": "The identical registry command passed 11/11 at the accepted pushed SHA. EPL and rente-capital use opaque UUIDv4 scenario IDs, typed isolated levers and a closed lifecycle; no certified fact or derived amount enters scenario persistence or completion payloads. Reload rereads current canonical facts and recomputes, while missing/stale facts, malformed identity, cache failure, session change and disabled flags fail closed.",
+  "synthetic_data_only": true
+}

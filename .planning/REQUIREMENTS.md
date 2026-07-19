@@ -35,7 +35,8 @@ only machine-evidence `green` is checked.
 - [x] **RDY-PROV-02**: Certificate facts and provenance survive restart.
   Evidence: [`G1-PROV-02` verification](runtime-evidence/phase-37/prov-02/verification.md).
 - [x] **RDY-PROV-03**: Tax facts include typed source date and legal year.
-- [ ] **RDY-SCN-01**: Scenario assumptions/results are isolated by scenario ID.
+- [x] **RDY-SCN-01**: Scenario assumptions/results are isolated by scenario ID.
+  Evidence: [`G1-SCN-01` verification](runtime-evidence/phase-37/scn-01/verification.md).
 - [x] **RDY-BND-01**: Legacy profile consumers migrate to canonical semantics.
   Evidence: [`G1-BND-01` verification](runtime-evidence/phase-37/bnd-01/verification.md).
 - [x] **RDY-BND-02**: Partner-owned facts bridge and recompute through a real scoped consumer.

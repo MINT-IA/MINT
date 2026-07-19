@@ -11,7 +11,7 @@ Current interim score: **8.2/10**
 The historical acceptance at `53c733827` is superseded for release purposes.
 G1 was reopened after the AVS couple path could manufacture a complete
 household projection from incomplete partner evidence. The canonical Phase 37
-registry now has **31 rows: 23 GREEN, 7 `ticket_only`, 1 `red_proven`**. The B2
+registry now has **31 rows: 24 GREEN, 6 `ticket_only`, 1 `red_proven`**. The B2
 fail-closed slice and its exact runtime proof are green. The financial report/PDF now also keeps
 AVS, LPP and 3a point values, totals and replacement rates unknown until the
 required evidence exists, with a rebuilt-app Maestro/Patrol proof. Swiss-law,
@@ -26,6 +26,16 @@ same-value cold provenance restamp and canonical scan-writer tier delegation
 are wired. GitHub run `29679202008`, Vercel and final Opus code/product-domain
 audits pass with P0/P1=0. Generic reconfirmation UI remains deferred; this does
 not close G1 or authorize G2/G3.
+
+`G1-SCN-01` is technical and runtime GREEN at exact pushed SHA
+`464d5c56b1067df31b77b8c01eb87cd5085f49c6`: identical-command semantic
+RED **0/1** becomes GREEN **11/11**. Certified facts remain canonical; a
+bounded encrypted cache stores only opaque UUIDv4 identity, lifecycle and
+typed levers; reload recomputes and strict sequence validation exports only
+ID/status. The checked-in 100755 runner passes real iOS Patrol **1/1** and its
+clean no-label screenshot is visually accepted. GitHub run `29684891621`,
+Vercel and final wrapper audits pass P0/P1=0. Ten P2s remain explicit; G1
+remains 8.2/10 NO-GO and G2/G3 remain forbidden.
 
 `G1-PROV-02` is also ticket- and runtime-GREEN at exact SHA `30728b8a0671`:
 same-command semantic RED-to-GREEN, native writer, explicit process death,
@@ -224,7 +234,7 @@ G2/G3.
 | GREEN — registered-partnership AVS defect | Registered partnership could be lost or treated as cohabitation instead of marriage-equivalent for AVS. | Reverified at `ac74672db`: typed enum, migration aliases, wizard/DataBlock round trip and AVS predicates are wired; 285 targeted Flutter tests across the AVS review are GREEN. Adjacent non-AVS tax/LPP equality checks remain separate ticket scope. |
 | P0 — narrowed AVS splitting contract | The obsolete fixed-scale cap and salary-duration splitting proxy were unsafe. | Fixed-scale cap/proxy are removed or quarantined; typed cap preserves owner, entitlement, scales and unknown partner. Still open: owner-scoped official splitting evidence, statutory-trigger state and production wiring. |
 | GREEN defect / G1-AVS-02 still open | The 13th AVS could be smoothed into an ordinary monthly uplift. | Reverified absent in live mobile/backend paths: ordinary pension stays 12 payments and the supplement is separate/December-only. The broader G1-AVS-02 ticket remains open for official evidence ingestion, persistence, dedicated UI/PDF line and activation/runtime proof. |
-| G1 floor | Nine registry rows remain non-green. | 8 are `ticket_only`; only `G1-RUNTIME-01` is `red_proven`. RET-REF remains one of the eight despite its bounded capital-notice and LPP-regulation technical atoms. The BND-02/BND-02A, BND-03, BND-05, BND-06 and RET-REF runtimes are slice-specific and do not close the distinct salary/canton→mortgage runtime floor. |
+| G1 floor | Seven registry rows remain non-green. | 6 are `ticket_only`; only `G1-RUNTIME-01` is `red_proven`. RET-REF remains one of the six despite its bounded capital-notice and LPP-regulation technical atoms. The BND-02/BND-02A, BND-03, BND-05, BND-06 and RET-REF runtimes are slice-specific and do not close the distinct salary/canton→mortgage runtime floor. |
 | G1 floor | Static AVS `null -> 0` and undeclared-evidence consumers remain outside the closed report slice. | The report/PDF hard floor is 8/8 GREEN. Continue the canonical inventory across profile, Pulse, expat and remaining live consumers; a slice-local green is not a global waiver. |
 | G1 source | Official future-pension ingestion is not yet live end-to-end. | Backend candidate parsing, classifier corpus and default-off boundary are green; mobile review/write-back and live consumer proof remain open. |
 | Privacy/product activation | Controller identity, privacy contact, Anthropic role/DPA and processing regions, transfer/TIA, retention/ZDR, AIPD decision and the public account-free rights channel remain unverified. | Activation stays fail-closed; optional linking is not required and manual partner entry remains an equal path. |
@@ -240,7 +250,7 @@ G2/G3.
 | UX lucidity | 1.5 | 1.3 | Report and PDF now expose neutral AVS/LPP/3a evidence gaps with real recovery CTAs instead of fabricated amounts. Couple recovery and consent UX remain open. |
 | Runtime proof | 1.5 | 1.5 | B2 has an exact committed SHA; the report runtime indexed-diff SHA exactly equals pushed commit `1bb9c8389`, with full Doctor/build, built-versus-installed payload proof, Maestro semantic positives/negatives plus visual artifacts, Patrol 2/2 and xcresult summary. The bounded capital dossier/PDF slice adds exact-SHA real-route/PDF-byte evidence without claiming native text extraction. |
 | Automated tests | 1.0 | 1.0 | Final report/PDF snapshot: analyze 0; 8,514 successful + 30 skipped; 0 fail. Targeted report matrix 95/95; B2 matrix 187/187. |
-| External audit | 1.0 | 0.7 | Report/PDF, PROV-03, BND-02/BND-02A, BND-03, BND-05, BND-06, BND-01, COACH-01, FRESH-01 and the bounded LPP regulation/capital dossier slices have accepted PASS lenses without unresolved P0/P1. The LPP loop is exhausted without a carousel and keeps the autonomous declared/unverified authority boundary explicit. Full G1 remains NO-GO for 8 open rows; remaining global slices are not converged. |
+| External audit | 1.0 | 0.7 | Report/PDF, PROV-03, BND-02/BND-02A, BND-03, BND-05, BND-06, BND-01, COACH-01, SCN-01, FRESH-01 and the bounded LPP regulation/capital dossier slices have accepted PASS lenses without unresolved P0/P1. The LPP loop is exhausted without a carousel and keeps the autonomous declared/unverified authority boundary explicit. Full G1 remains NO-GO for 7 open rows; remaining global slices are not converged. |
 | Integration / privacy hygiene | 1.0 | 0.7 | Synthetic runtime data, exact owner/receipt lifecycle and targeted invalidation are green; eight external activation facts and official-source persistence remain open. |
 | Diff discipline | 0.5 | 0.5 | Provenance, recovery, nullable contract, wiring docs, runtime harness and screenshot fix are atomic commits with regular pushes. |
 | **Total** | **10.0** | **8.2** | **Below 9.0 and hard blockers remain; G1 stays NO-GO.** |
@@ -308,7 +318,7 @@ G2/G3.
 | RET-REF exact 3a minimized proof | PASS: `phase-37/ret-ref-01/pillar3a-beneficiary-runtime-proof-fc1023fd7/` retains only allowlisted aggregate runtime, acquisition, recovery, report, state, Maestro, CI and audit summaries with verified checksums. No raw transcript, local path, device identifier, document material, generated report, result bundle, media or private fixture is tracked. |
 | RET-REF exact 3a audit lineage | PASS_BOUNDED: harness code PASS P0/P1=0; product-domain legal cutoff request closed with the official OFAS source; final runtime/persistence delta Opus code PASS P0/P1=0. Remaining naming/shared-flag notes are nonblocking P2. |
 | Sonnet architecture P1 remediation | PASS: exact disclaimer REDs `21/2`, then `14/1`; final targeted 23 passed / 0 failed, accent lint 4/4 files, analyze 0, financial_core 689/689 and full Flutter 8,900 passed / 33 skipped / 0 failed |
-| Phase 37 registry | 31 total: 23 GREEN, 7 `ticket_only`, 1 `red_proven`; 8 hard floors remain open. FRESH-01 is bounded technical GREEN; RET-REF remains `ticket_only`. |
+| Phase 37 registry | 31 total: 24 GREEN, 6 `ticket_only`, 1 `red_proven`; 7 hard floors remain open. SCN-01 and bounded FRESH-01 are technical GREEN; RET-REF remains `ticket_only`. |
 
 ## Exact B2 evidence
 
@@ -357,6 +367,10 @@ G2/G3.
 - `32bec6a6a` — wire canonical freshness through the real Frontier consumer,
   remove the contradictory scan tier table and pass exact-SHA CI/audits,
   bringing the registry to 23/31 GREEN without starting G2 UI.
+- `464d5c56b` — close SCN-01 with strict fact/lever isolation, opaque
+  sequence references, versioned executable Patrol 1/1, clean visual proof and
+  exact-SHA GitHub/Vercel/audit acceptance, bringing the registry to 24/31
+  GREEN without starting G2/G3.
 - `fe857a733` — historical snapshot-bound LPP-regulation runtime, superseded
   for current cutover semantics by `6066f1c94`; RET-REF was not promoted.
 - `6066f1c94` — accept the autonomous regulation-only exact-SHA runtime with a
@@ -383,7 +397,7 @@ G2/G3.
 - G1: **REOPENED / NO-GO at 8.2/10**.
 - `G2 allowed?` **NO**.
 - `G3 allowed?` **NO**.
-- Current machine truth: **23/31 GREEN; 8 hard floors open** — 7
+- Current machine truth: **24/31 GREEN; 7 hard floors open** — 6
   `ticket_only`, including RET-REF, plus `G1-RUNTIME-01` as `red_proven`.
 - Next ordered gates remain inside G1. Regulation, capital-notice and exact 3a
   technical atoms are green; continue RET-REF with explicit activation

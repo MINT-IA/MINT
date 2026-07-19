@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-SCN-01",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/providers/scenario_fact_isolation_test.dart --reporter expanded",
+  "sha": "d1276b753b9d7b04e54815c12383681297bddb50",
+  "recorded_at": "2026-07-19T08:57:33Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "scenario_fact_isolation_test",
+  "output": "The identical registry command compiled and reached the real EPL completion boundary, then finished 0/1 because EplScreen still emitted raw financial stepOutputs containing montant_epl and impact_rente. This was a semantic privacy/isolation failure, not a missing file, import, syntax, fixture, command or harness failure. All data was synthetic.",
+  "synthetic_data_only": true
+}

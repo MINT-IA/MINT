@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "ticket_id": "G1-SCN-01",
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "accepted_sha": "464d5c56b1067df31b77b8c01eb87cd5085f49c6",
+  "runs": [
+    {
+      "mode": "code",
+      "model": "opus",
+      "effort": "high",
+      "rerun": true,
+      "command": "CLAUDE_AUDIT_RERUN=1 CLAUDE_AUDIT_MODEL=opus CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1 tools/checks/claude_external_audit.sh code bcf3a067c",
+      "base_sha": "bcf3a067c634d5ae1e748d0f2382be79c1fefb88",
+      "head_sha": "464d5c56b1067df31b77b8c01eb87cd5085f49c6",
+      "accepted_sha": "464d5c56b1067df31b77b8c01eb87cd5085f49c6",
+      "accepted_sha_delta": "none",
+      "exit_code": 0,
+      "verdict": "PASS",
+      "output_artifact": ".planning/runtime-evidence/phase-37/scn-01/audit-code-opus-runtime-final-confirmation.md",
+      "supporting_partitions": [
+        {
+          "model": "opus",
+          "artifact": ".planning/runtime-evidence/phase-37/scn-01/audit-code-opus-core.md",
+          "scope": "core scenario provider/store and two real callers",
+          "verdict": "PASS",
+          "p0": 0,
+          "p1": 0
+        },
+        {
+          "model": "opus",
+          "artifact": ".planning/runtime-evidence/phase-37/scn-01/audit-code-opus-sequence.md",
+          "scope": "exact sequence bridge blobs in bounded isolated physical worktree",
+          "verdict": "PASS",
+          "p0": 0,
+          "p1": 0
+        },
+        {
+          "model": "opus",
+          "artifact": ".planning/runtime-evidence/phase-37/scn-01/audit-code-opus-p2.md",
+          "scope": "durable purge and first-frame fail-closed UI delta",
+          "verdict": "PASS",
+          "p0": 0,
+          "p1": 0
+        },
+        {
+          "model": "sonnet",
+          "artifact": ".planning/runtime-evidence/phase-37/scn-01/audit-code-sonnet-runtime-rerun.md",
+          "scope": "one allowed same-gate rerun after the initial runtime NO-GO; 25/25 orchestrator tests",
+          "verdict": "PASS",
+          "p0": 0,
+          "p1": 0
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 3,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0
+      }
+    },
+    {
+      "mode": "product-domain",
+      "model": "opus",
+      "effort": "high",
+      "command": "tools/checks/claude_external_audit.sh product-domain <bounded exact-blob base>",
+      "base_sha": "bounded-isolated-snapshot-parent",
+      "head_sha": "683a072d186a9d93215ea82b0596cbad55f2a95a",
+      "blob_mapping": "All audited production/test blobs match final sequence commit b447c10d8; default 2500-line budget remained enforced.",
+      "exit_code": 0,
+      "verdict": "PASS",
+      "output_artifact": ".planning/runtime-evidence/phase-37/scn-01/audit-product-domain-opus.md",
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 4,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0
+      }
+    }
+  ],
+  "failed_attempts": [
+    {
+      "mode": "code",
+      "model": "opus",
+      "effort": "high",
+      "command": "tools/checks/claude_external_audit.sh code bcf3a067c",
+      "head_sha": "35425deccf461804651724f20e76cfe62badf757",
+      "exit_code": 0,
+      "verdict": "NO-GO",
+      "output_artifact": ".planning/runtime-evidence/phase-37/scn-01/audit-code-opus-runtime-initial-no-go.md",
+      "findings": [
+        {
+          "severity": "p1",
+          "status": "resolved",
+          "summary": "Runtime proof had no checked-in orchestrator and could not complete its marker handshake from a clean checkout."
+        },
+        {
+          "severity": "p2",
+          "status": "resolved",
+          "summary": "The input absence assertion targeted TextFormField while production used TextField."
+        }
+      ]
+    }
+  ],
+  "clean_room_regressions": [
+    {
+      "sha": "544852052180fcb0a46f8ab8956fcec1976a47d7",
+      "github_actions_run": 29684539042,
+      "status": "resolved",
+      "summary": "Repository contract tests caught missing Git executable mode; 24 PermissionError failures, all other jobs green."
+    },
+    {
+      "sha": "464d5c56b1067df31b77b8c01eb87cd5085f49c6",
+      "github_actions_run": 29684891621,
+      "status": "success",
+      "summary": "Mode-fixed rerun; repository contract tests pass in clean checkout."
+    }
+  ],
+  "accepted_p2_followups": [
+    "Enable guided sequences and scenario cache together or add explicit recovery.",
+    "Normalize wrong-run scenario events instead of a resumable Pause if UX evidence warrants it.",
+    "Future dossier assembler must dereference opaque scenario IDs from the encrypted store.",
+    "Revalidate fact freshness when validating a long-lived completed scenario.",
+    "Explain privacy-safe legacy-run discard during migration.",
+    "Replace the brief happy-path unavailable flash with a neutral loading state.",
+    "Make the runner explicit about its .dart_tool gitignore dependency.",
+    "Model .dart_tool ignore drift in the fake-git orchestrator tests.",
+    "Document that failed runtime screenshots are intentionally not retained.",
+    "Tighten the defensive app-container part-count guard."
+  ],
+  "result": {
+    "passed_modes": 2,
+    "unresolved_p0": 0,
+    "unresolved_p1": 0,
+    "decision": "PASS"
+  }
+}

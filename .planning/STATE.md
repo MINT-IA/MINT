@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: G1-FRESH-01 is bounded technical GREEN at exact pushed SHA 32bec6a6a after controlled semantic 31/33, identical-command exact-archive 33/33, GitHub/Vercel PASS and final Opus code/product PASS; 8 hard floors remain, and G2/G3 are not authorized.
-last_updated: "2026-07-19T08:19:00Z"
-last_activity: 2026-07-19 -- G1-FRESH-01 promoted as bounded technical core after controlled semantic 31/33, exact-archive GREEN 33/33, real Frontier wiring, canonical scan tiers, GitHub/Vercel clean-room PASS and final Opus code/product PASS with zero P0/P1
+stopped_at: G1-SCN-01 is GREEN at exact pushed SHA 464d5c56b after semantic RED 0/1, identical-command GREEN 11/11, versioned Patrol 1/1, GitHub/Vercel PASS and final Opus confirmation; 7 hard floors remain, and G2/G3 are not authorized.
+last_updated: "2026-07-19T11:25:00Z"
+last_activity: 2026-07-19 -- G1-SCN-01 promoted after exact RED→GREEN, strict fact/lever isolation, opaque sequence proof, real no-label Patrol, GitHub/Vercel clean-room PASS and final Opus P0/P1=0
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,15 +34,14 @@ Plan: 37-06 — Scenario, freshness, safe-return and recovery floors
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-19 -- `G1-FRESH-01` is accepted as a bounded
-technical core at exact pushed SHA `32bec6a6a`. The non-vacuous controlled
-mutation finishes 31/33 and the identical unmodified exact-archive command
-passes 33/33. The 61-path registry plus four specialist references are
-matrix-derived, Frontier is a real consumer, same-value provenance survives
-cold reload, and the scan writer delegates to the canonical tier SOT. GitHub
-run `29679202008`, Vercel, Doctor, Mermaid, Patrol tooling and final Opus
-code/product-domain lenses pass with P0/P1=0. Generic reconfirmation UI remains
-deferred; G1 stays NO-GO and G2/G3 remain forbidden.
+Last activity: 2026-07-19 -- `G1-SCN-01` is accepted at exact pushed SHA
+`464d5c56b`. The identical registry command moves from semantic RED **0/1**
+to GREEN **11/11**; facts stay canonical while an encrypted bounded cache owns
+only UUIDv4 identity, lifecycle and typed levers. Exact sequence/store/route
+validation carries only opaque ID/status. The checked-in executable runner
+passes real iOS Patrol **1/1** with a clean no-label screenshot. GitHub run
+`29684891621`, Vercel, Doctor, Mermaid, runner contracts and final Opus code
+confirmation pass with P0/P1=0. G1 stays NO-GO and G2/G3 remain forbidden.
 
 Provisional G1 score: **8.2/10 — NO-GO**.
 
@@ -152,17 +151,24 @@ Provisional G1 score: **8.2/10 — NO-GO**.
   archive command is 33/33, and the real Frontier consumer plus canonical scan
   writer are wired. GitHub/Vercel and final Opus code/product-domain lenses
   pass P0/P1=0. Generic reconfirmation UI remains deferred; no G2 work started.
+- `G1-SCN-01` is `green` at exact pushed SHA `464d5c56b`. The exact
+  command moves from semantic 0/1 to 11/11; EPL and rente-capital keep
+  certified facts outside the encrypted scenario cache and expose only opaque
+  ID/status to strict sequence validation. The versioned 100755 Patrol runner
+  passes 1/1 with visually accepted no-label proof; GitHub/Vercel and final
+  wrapper audits pass P0/P1=0. Ten P2 follow-ups remain explicit and do not
+  authorize G2/G3.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 23 `green`, 7 `ticket_only`, and one
-  `red_proven`. Therefore 8 G1 hard floors remain open.
+- The canonical registry has 31 rows: 24 `green`, 6 `ticket_only`, and one
+  `red_proven`. Therefore 7 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
-- Wave 3 is technically closed; `G1-FRONT-01` and the bounded
-  `G1-FRESH-01` core are accepted. Seven ticket-only floors plus
-  `G1-RUNTIME-01` remain; RET-REF stays ticket-only and must keep precise
-  retirement meaning educational until its remaining activation gates close.
+- Wave 3 is technically closed; `G1-FRONT-01`, bounded `G1-FRESH-01` and
+  `G1-SCN-01` are accepted. Six ticket-only floors plus `G1-RUNTIME-01`
+  remain; RET-REF stays ticket-only and must keep precise retirement meaning
+  educational until its remaining activation gates close.
 - Eight external production facts remain unproven: controller identity,
   operational privacy contact, Anthropic role/DPA, actual processing regions,
   transfer mechanism/TIA, retention/ZDR, AIPD decision, and the public
@@ -181,16 +187,16 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-17T16:21:08Z
+Last session: 2026-07-19T11:25:00Z
 
-Stopped at: FRONT-01 is promoted at exact pushed SHA `cb580c7a8` with corrected
-semantic RED 15/20, identical-command GREEN 20/20, a true physical Patrol RED,
-repaired Patrol 1/1, bounded visual proof, full Flutter/analyzer/Doctor and
-first-pass Opus audits. Continue only G1 with `G1-RET-REF-01`; do not start
-G2/G3.
+Stopped at: SCN-01 is promoted at exact pushed SHA `464d5c56b` with semantic
+RED 0/1, identical-command GREEN 11/11, versioned executable Patrol 1/1, clean
+visual proof, GitHub/Vercel and final wrapper audits P0/P1=0. Continue only G1
+with the next open Plan 37-06 ticket; do not start G2/G3.
 
-Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json` and
-`.planning/phases/37-ledger-runtime-readiness/37-05-PLAN.md`. Do not infer
+Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json`,
+`.planning/runtime-evidence/phase-37/scn-01/verification.md` and
+`.planning/phases/37-ledger-runtime-readiness/37-06-PLAN.md`. Do not infer
 progress from plan numbering alone.
 
 ## Performance Metrics

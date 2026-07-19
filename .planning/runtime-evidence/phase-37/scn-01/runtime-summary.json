@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "ticket_id": "G1-SCN-01",
+  "sha": "464d5c56b1067df31b77b8c01eb87cd5085f49c6",
+  "recorded_at": "2026-07-19T11:21:20Z",
+  "synthetic_data_only": true,
+  "private_fixture_used": false,
+  "accepted_runtime_artifact": ".planning/runtime-evidence/phase-37/scn-01/runtime-464d5c56b1-20260719T111834Z",
+  "mode": "versioned_patrol_build_then_xcodebuild_test_without_building_exact_sha_debug_test_bundle_no_label",
+  "patrol_target": "test/patrol/g1_scn01_scenario_isolation_runtime_test.dart",
+  "patrol_tests": 1,
+  "patrol_failures": 0,
+  "patrol_passed": true,
+  "real_mint_rente_capital_screen_rendered": true,
+  "stale_facts_fail_closed": true,
+  "scenario_cache_reads": 0,
+  "scenario_cache_writes": 0,
+  "scenario_cache_clears": 0,
+  "scenario_session_created": false,
+  "financial_inputs_or_defaults_rendered": false,
+  "visual_review": {
+    "status": "accepted",
+    "screenshot": "final.png",
+    "observed_state": "clean Rente ou capital title and Calcul non disponible card; no Patrol test label, inputs, sliders, CHF amount or seed figure",
+    "debug_ribbon_present": true,
+    "patrol_test_name_overlay_present": false,
+    "shipping_default_chrome_claimed": false
+  },
+  "cleanup_status": "passed",
+  "original_build_restored": true,
+  "generated_bundle_removed": true,
+  "xcresult_retained": false,
+  "versioned_runner": {
+    "path": "tools/simulator/patrol_scn01_scenario_isolation.sh",
+    "git_mode": "100755",
+    "contract_tests_passed": 25,
+    "contract_tests_failed": 0
+  },
+  "local_validation": {
+    "registry_passed": 11,
+    "registry_failed": 0,
+    "targeted_passed": 149,
+    "targeted_skipped": 5,
+    "targeted_failed": 0,
+    "repository_contracts_passed": 482,
+    "repository_contracts_failed": 0,
+    "analyze_issues": 0,
+    "doctor_repo_and_host_passed": true,
+    "mermaid_guard_passed": true,
+    "patrol_tooling_guard_passed": true
+  },
+  "clean_room": {
+    "github_actions_run": 29684891621,
+    "github_actions_url": "https://github.com/MINT-IA/MINT/actions/runs/29684891621",
+    "github_actions_status": "success",
+    "vercel_deployment": "G6DkrHXSUNtV8ojZmpbDuDcc8gpi",
+    "vercel_status": "success"
+  },
+  "privacy": {
+    "raw_udid_retained": false,
+    "absolute_repo_or_temp_path_retained": false,
+    "private_certificates_used": false,
+    "synthetic_financial_data_only": true
+  },
+  "lightweight_hashes": {
+    "sanitized_metadata_json": "b12a81942395a9282ceb191bedab7964e5a10fbc493e3a2b33e9b1f7e06e1b31",
+    "sanitized_patrol_log": "6c6923c84655dc1bd8f660f55a0bd9826e08b467084e62be4ad443d28717dbb6",
+    "final_screenshot_png": "d8519665344eae3fff1cb3237538ee2be0f19b3e98ecc9e41e53f1874fccfda1",
+    "audit_code_opus_core": "a89ec5021b5651c1065463ebdaa0ee462a2d585807d601fa8105b802f8b3c967",
+    "audit_code_opus_p2": "354f71e93d9b60e1effa802731c1e037b593465eca3c10d401aba7b07d81e3ab",
+    "audit_code_opus_runtime_final_confirmation": "5ac8f5a1e254faae46ee86f773657e3efa531ea5c5af39411eca7a6c6ff5390b",
+    "audit_code_opus_runtime_initial_no_go": "6a63df0f7a2ab463a50eb47c56a57f70651c5fc30f223e1e22fc61c5f3c21192",
+    "audit_code_opus_sequence": "e3022ea9a3621e08a18e9b6ee297314770898e7bd86936cfd2685531923b4de6",
+    "audit_code_sonnet_runtime_rerun": "e36ca0321f0def143c45836c425c95a399ab390576438b77a2c2351989c4e800",
+    "audit_product_domain_opus": "01169831391ce56e1fe1677b690c3435c18057b1125eab52997f31c8a098fe0e"
+  },
+  "audit_result": {
+    "required_modes": 2,
+    "passed_modes": 2,
+    "unresolved_p0": 0,
+    "unresolved_p1": 0,
+    "accepted_p2_followups": 10
+  },
+  "ticket_decision": "GREEN",
+  "g1_score": 8.2,
+  "g1_decision": "NO_GO",
+  "g2_g3_authorized": false
+}

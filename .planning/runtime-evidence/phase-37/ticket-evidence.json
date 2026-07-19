@@ -134,16 +134,16 @@
     },
     {
       "ticket_id": "G1-SCN-01",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/providers/scenario_fact_isolation_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "d1276b753b9d7b04e54815c12383681297bddb50",
+      "red_artifact": ".planning/runtime-evidence/phase-37/scn-01/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "464d5c56b1067df31b77b8c01eb87cd5085f49c6",
+      "green_artifact": ".planning/runtime-evidence/phase-37/scn-01/green.json",
+      "accepted_sha": "464d5c56b1067df31b77b8c01eb87cd5085f49c6"
     },
     {
       "ticket_id": "G1-BND-01",
