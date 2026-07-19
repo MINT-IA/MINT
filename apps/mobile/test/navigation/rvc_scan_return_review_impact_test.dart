@@ -873,6 +873,51 @@ void main() {
   });
 
   testWidgets(
+      'impact Coach CTA consumes once, keeps Coach destination, and replays through RVC recovery',
+      (tester) async {
+    final sessions = _ConsumeSpy();
+    final fixture = _retainRvcImpact(sessions);
+    final survivor = _retainSurvivor(sessions);
+    final oldUri = _impactUri(fixture.scanSessionId, fixture.scanReturnId);
+    final harness = _RouteHarness.impact(
+      sessions: sessions,
+      uri: oldUri,
+    );
+
+    await harness.pump(tester);
+    final coachCta = find.widgetWithIcon(
+      OutlinedButton,
+      Icons.chat_bubble_outline_rounded,
+    );
+    expect(coachCta, findsOneWidget);
+    await tester.ensureVisible(coachCta);
+    await tester.tap(coachCta);
+    await tester.pumpAndSettle();
+
+    expect(sessions.consumeCalls, 1);
+    expect(sessions.consumeIds, <String>[fixture.scanReturnId]);
+    expect(sessions.byId(fixture.scanSessionId), isNull);
+    expect(
+      sessions.dataBlockScanReturnIntentById(fixture.scanReturnId),
+      isNull,
+    );
+    expect(find.byKey(const Key('coach_destination')), findsOneWidget);
+    _expectSurvivor(sessions, survivor);
+
+    harness.router.go(oldUri.toString());
+    await tester.pumpAndSettle();
+    expect(find.byType(DocumentImpactScreen), findsNothing);
+    expect(find.byKey(const Key('scan_impact_recovery_cta')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('scan_impact_recovery_cta')));
+    await tester.pumpAndSettle();
+
+    expect(sessions.consumeCalls, 1);
+    expect(sessions.consumeIds, <String>[fixture.scanReturnId]);
+    expect(find.byKey(const Key('rvc_destination')), findsOneWidget);
+    _expectSurvivor(sessions, survivor);
+  });
+
+  testWidgets(
       'impact AppBar terminal consumes once, returns RVC, and replays through recovery',
       (tester) async {
     final sessions = _ConsumeSpy();
@@ -1530,6 +1575,10 @@ final class _RouteHarness {
         GoRoute(
           path: '/home',
           builder: (_, __) => const Scaffold(key: Key('home_destination')),
+        ),
+        GoRoute(
+          path: '/coach/chat',
+          builder: (_, __) => const Scaffold(key: Key('coach_destination')),
         ),
         GoRoute(
           path: '/scan',
