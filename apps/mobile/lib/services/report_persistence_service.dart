@@ -88,18 +88,37 @@ class ReportPersistenceService {
         final next = candidate == null
             ? Map<String, dynamic>.from(current)
             : Map<String, dynamic>.from(candidate);
-        if (candidate != null) await _saveAnswers(next);
+        if (candidate != null) {
+          // Only this canonical boundary owns both snapshots. A bare
+          // saveAnswers map may be intentionally partial and must not erase
+          // secure authority merely because a strict key is absent.
+          final removedStrictAuthorityKeys = <String>{
+            for (final key in _strictAuthorityKeys)
+              if (current.containsKey(key) && !next.containsKey(key)) key,
+          };
+          await _saveAnswers(
+            next,
+            removedStrictAuthorityKeys: removedStrictAuthorityKeys,
+          );
+        }
         final persisted = Map<String, dynamic>.unmodifiable(next);
         publish?.call(persisted);
         return Map<String, dynamic>.from(persisted);
       });
 
-  static Future<void> _saveAnswers(Map<String, dynamic> answers) async {
+  static Future<void> _saveAnswers(
+    Map<String, dynamic> answers, {
+    Set<String> removedStrictAuthorityKeys = const <String>{},
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     await _reconcileAuthorityStageLocked(prefs);
     if (prefs.getString(_activeAuthoritySlotKey) != null ||
         _containsStrictAuthority(answers)) {
-      await _saveAuthorityAnswersLocked(prefs, answers);
+      await _saveAuthorityAnswersLocked(
+        prefs,
+        answers,
+        removedStrictAuthorityKeys: removedStrictAuthorityKeys,
+      );
       return;
     }
     final cleaned = await SecureWizardStore.secureSensitiveKeys(answers);
@@ -162,8 +181,9 @@ class ReportPersistenceService {
 
   static Future<void> _saveAuthorityAnswersLocked(
     SharedPreferences prefs,
-    Map<String, dynamic> answers,
-  ) async {
+    Map<String, dynamic> answers, {
+    Set<String> removedStrictAuthorityKeys = const <String>{},
+  }) async {
     await _reconcileAuthorityStageLocked(prefs);
     final previousBytes = prefs.getString(_wizardKey);
     final previousSlotId = prefs.getString(_activeAuthoritySlotKey);
@@ -182,6 +202,10 @@ class ReportPersistenceService {
 
     final logical = Map<String, dynamic>.from(answers);
     for (final key in _strictAuthorityKeys) {
+      if (removedStrictAuthorityKeys.contains(key)) {
+        logical.remove(key);
+        continue;
+      }
       if ((!logical.containsKey(key) || logical[key] == '__secure__') &&
           previousAuthority?.containsKey(key) == true) {
         logical[key] = previousAuthority![key];

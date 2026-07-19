@@ -29,6 +29,8 @@ const _authoritySlotPrefix = '_coach_authority_slot_v1_';
 const _ownerKey = '_coach_profile_owner_v1';
 const _taxKey = '_coach_tax_snapshots_v1';
 const _lppKey = '_coach_lpp_evidence_v1';
+const _pillar3aKey = // gitleaks:allow — ledger field name, not a credential.
+    '_coach_pillar3a_beneficiary_evidence_v1';
 
 const _lppRootA =
     '{"schemaVersion":1,"self":null,"manualPartner":null,"legacyPartnerQuarantine":{"legacySchemaVersion":0,"reasonCodes":["A"],"presentKeys":["legacy_a"],"quarantinedAt":"2026-07-16T08:00:00.000Z"}}';
@@ -501,6 +503,36 @@ void main() {
     expect(result['q_canton'], 'VD');
     expect(published?['q_canton'], 'VD');
     expect(prefs.getString(_activeAuthoritySlotKey), pointerBefore);
+  });
+
+  test('canonical mutation durably removes one strict authority root',
+      () async {
+    const ownerRoot = CoachProfileOwnerRoot(_owner);
+    await ReportPersistenceService.saveAnswers({
+      'q_canton': 'VD',
+      _ownerKey: ownerRoot.toJsonString(),
+      _taxKey: _taxRootA,
+      _lppKey: _lppRootA,
+      _pillar3aKey: '{invalid',
+    });
+    await ReportPersistenceService.saveAnswers({'q_canton': 'GE'});
+    expect(
+      (await ReportPersistenceService.loadAnswers())[_pillar3aKey],
+      '{invalid',
+    );
+
+    final published = await ReportPersistenceService.mutateAnswers(
+      (current) => Map<String, dynamic>.from(current)..remove(_pillar3aKey),
+    );
+    expect(published, isNot(contains(_pillar3aKey)));
+
+    SharedPreferences.resetStatic();
+    final cold = await ReportPersistenceService.loadAnswers();
+    expect(cold, isNot(contains(_pillar3aKey)));
+    expect(cold[_ownerKey], ownerRoot.toJsonString());
+    expect(cold[_taxKey], _taxRootA);
+    expect(cold[_lppKey], _lppRootA);
+    expect(cold['q_canton'], 'GE');
   });
 
   test('cold loose hydration tolerates unavailable sensitive placeholder',
