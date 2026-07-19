@@ -77,6 +77,7 @@ does not cover. Each has a recommended future phase.
 | 12 | `apps/mobile/lib/screens/documents_screen.dart` | 36 (adjacent) | `_confidenceColor(int confidence)` local helper for OCR confidence display | Phase 8b polish | Extraction confidence (OCR), not projection trust. Belongs to `ExtractionConfidenceChip` sibling. Not MTC. |
 | 13 | `apps/mobile/lib/screens/arbitrage/arbitrage_bilan_screen.dart` | 32 | `_confidenceColor(double score)` local helper | Phase 9 arbitrage sweep | One of 4 arbitrage screens (#32-35 in AUDIT-01). All migrate together when Phase 9 rewrites the arbitrage family; piecemeal migration would churn 4 screens twice. |
 | 14 | `apps/mobile/lib/services/coach/prompt_registry.dart` | — (new since AUDIT-01) | Reads `ctx.confidenceScore < 70` inside a system prompt string literal (engine-adjacent, not a renderer) | Phase 8b polish | This is a COACH PROMPT, not a UI surface. The `< 70` threshold appears inside an interpolated system-prompt string telling Claude to "mentionne les fourchettes, pas les absolus" when confidence is low. It's a logic-gate consumer analogous to DO-NOT-MIGRATE #1-7, but was not listed in AUDIT-01 because it post-dates the audit. Recommended disposition: either add to DO-NOT-MIGRATE list (adjacent to #5, #6) or refactor to read `enhancedConfidence.combined < 70` via the engine boundary. Low urgency — the prompt content is internal, not user-facing. |
+| 15 | `apps/mobile/lib/widgets/home/financial_plan_card.dart` | 10 | `plan.confidenceLevel < 70` drives the Home enrichment CTA; this is a calculation-confidence renderer, not a DO-NOT-MIGRATE logic gate | `G1-MTC-HOME-PLAN-01` | Migrate to `MintTrameConfiance` in one future slice with the sibling `plan_preview_card.dart`; migrating only one would leave duplicate Home/preview confidence semantics. |
 
 ### C. Transitively absorbed (no action needed)
 
@@ -97,11 +98,11 @@ migrations and do not need their own entry:
 - **AUDIT-01 total classified hits**: 42
 - **Phase 8a Plan 08a-02 migration targets**: 11 (D-01 table)
 - **DO-NOT-MIGRATE (MTC-11 lock)**: 7 (AUDIT-01 §DO-NOT-MIGRATE)
-- **Residue documented here**: 14 entries (6 un-migrated targets + 8 deferred)
+- **Residue documented here**: 15 entries (6 un-migrated targets + 9 deferred)
 - **Transitively absorbed**: 3
 - **Remaining unexplained**: 0
 
-Sum: 11 + 7 + 8 (deferred) + 3 (absorbed) + engine sources (3) + extraction/freshness siblings (10 — AUDIT-01 rows 4, 18, 20, 22, 28, 29, 36, 37, 38, 39) ≈ 42. The accounting closes.
+Sum: 11 + 7 + 9 (deferred) + 3 (absorbed) + engine sources (3) + extraction/freshness siblings (10 — AUDIT-01 rows 4, 18, 20, 22, 28, 29, 36, 37, 38, 39) ≈ 42. The accounting closes.
 
 > **Rows 7-8 in the residue baseline** are intentional Plan 08a-02 back-compat: they both live in (A) migration targets OR (B) deferred, never both. The CI gate's `RESIDUE_BASELINE` set is the single source of truth for which files are currently allowed to carry legacy patterns.
 

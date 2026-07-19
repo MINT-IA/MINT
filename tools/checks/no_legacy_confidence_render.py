@@ -136,6 +136,8 @@ RESIDUE_BASELINE = {
     "apps/mobile/lib/screens/onboarding/premier_eclairage_screen.dart",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/demenagement_cantonal_screen.dart",
+    # Section B row 15 — G1-MTC-HOME-PLAN-01; migrate with PlanPreviewCard.
+    "apps/mobile/lib/widgets/home/financial_plan_card.dart",
     # Prompt registry mentions the < 70 threshold in a prompt string; not
     # a renderer, but matches the grep. Engine-adjacent coach prompt.
     "apps/mobile/lib/services/coach/prompt_registry.dart",
