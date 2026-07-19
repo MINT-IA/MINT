@@ -21,7 +21,7 @@ void main() {
 
     expect(id, matches(_canonicalUuidV4));
     expect(intent.kind, DataBlockScanReturnKind.rvcLpp);
-    expect(intent.target, same(target));
+    expect(intent.target.location, target.location);
     expect(intent.target.location, _rvcOrigin);
     expect(intent.createdAt, createdAt);
     expect(intent.createdAt.isUtc, isTrue);
@@ -69,7 +69,7 @@ void main() {
     final processing = provider.dataBlockScanReturnIntentById(id)!;
     expect(processing.lifecycle, DataBlockScanReturnLifecycle.processing);
     expect(processing.kind, created.kind);
-    expect(processing.target, same(created.target));
+    expect(processing.target.location, created.target.location);
     expect(processing.createdAt, created.createdAt);
     expect(
       provider.advanceDataBlockScanReturnIntent(

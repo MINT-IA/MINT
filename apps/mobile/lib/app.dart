@@ -271,10 +271,16 @@ class _DataBlockScanReturnEntry extends StatefulWidget {
   const _DataBlockScanReturnEntry({
     required this.scanReturnId,
     required this.target,
+    this.pickFile,
+    this.requireConsent,
+    this.navigateToReview,
   });
 
   final String scanReturnId;
   final DataBlockReturnTarget target;
+  final DocumentScanFilePicker? pickFile;
+  final DocumentScanConsentRequester? requireConsent;
+  final DocumentScanReviewNavigator? navigateToReview;
 
   @override
   State<_DataBlockScanReturnEntry> createState() =>
@@ -304,12 +310,21 @@ class _DataBlockScanReturnEntryState extends State<_DataBlockScanReturnEntry> {
       child: DocumentScanScreen(
         initialType: DocumentType.lppCertificate,
         onBack: _cancel,
+        pickFile: widget.pickFile,
+        requireConsent: widget.requireConsent,
+        navigateToReview: widget.navigateToReview,
       ),
     );
   }
 }
 
-Widget _buildScanRoute(BuildContext context, Uri uri) {
+Widget _buildScanRoute(
+  BuildContext context,
+  Uri uri, {
+  DocumentScanFilePicker? pickFile,
+  DocumentScanConsentRequester? requireConsent,
+  DocumentScanReviewNavigator? navigateToReview,
+}) {
   final scanReturnId = uri.queryParameters['scanReturnId'];
   if (scanReturnId != null) {
     final intent = context
@@ -334,6 +349,9 @@ Widget _buildScanRoute(BuildContext context, Uri uri) {
     return _DataBlockScanReturnEntry(
       scanReturnId: scanReturnId,
       target: intent.target,
+      pickFile: pickFile,
+      requireConsent: requireConsent,
+      navigateToReview: navigateToReview,
     );
   }
 
@@ -400,8 +418,21 @@ Widget _buildScanRoute(BuildContext context, Uri uri) {
 }
 
 @visibleForTesting
-Widget testOnlyBuildScanRoute(Uri uri) =>
-    Builder(builder: (context) => _buildScanRoute(context, uri));
+Widget testOnlyBuildScanRoute(
+  Uri uri, {
+  DocumentScanFilePicker? pickFile,
+  DocumentScanConsentRequester? requireConsent,
+  DocumentScanReviewNavigator? navigateToReview,
+}) =>
+    Builder(
+      builder: (context) => _buildScanRoute(
+        context,
+        uri,
+        pickFile: pickFile,
+        requireConsent: requireConsent,
+        navigateToReview: navigateToReview,
+      ),
+    );
 
 @visibleForTesting
 Widget testOnlyBuildScanRecoveryScaffold(String route) {
