@@ -115,9 +115,9 @@ final _knownInvalidRawCases = <_RawInvalidCase>[
     ),
   ),
   _RawInvalidCase(
-    'encoded scanSessionId key',
+    'double-encoded scanSessionId key',
     (path, sessionId, returnId) => Uri.parse(
-      '$path?scan%53essionId=$sessionId&scanReturnId=$returnId',
+      '$path?scan%2553essionId=$sessionId&scanReturnId=$returnId',
     ),
   ),
   _RawInvalidCase(
@@ -141,9 +141,9 @@ final _knownInvalidRawCases = <_RawInvalidCase>[
     ),
   ),
   _RawInvalidCase(
-    'encoded scanReturnId key',
+    'double-encoded scanReturnId key',
     (path, sessionId, returnId) => Uri.parse(
-      '$path?scanSessionId=$sessionId&scan%52eturnId=$returnId',
+      '$path?scanSessionId=$sessionId&scan%2552eturnId=$returnId',
     ),
   ),
   _RawInvalidCase(

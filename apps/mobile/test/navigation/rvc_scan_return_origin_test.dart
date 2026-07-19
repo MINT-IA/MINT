@@ -47,6 +47,33 @@ final class _RvcHarness {
   final GoRouter router;
 }
 
+final class _DataBlockAdvanceSpy extends ScanSessionProvider {
+  int advanceCalls = 0;
+  String? advancedId;
+  DataBlockScanReturnLifecycle? advancedFrom;
+  DataBlockScanReturnLifecycle? advancedTo;
+  DataBlockScanReturnLifecycle? lifecycleAfterAdvance;
+
+  @override
+  bool advanceDataBlockScanReturnIntent(
+    String id, {
+    required DataBlockScanReturnLifecycle from,
+    required DataBlockScanReturnLifecycle to,
+  }) {
+    advanceCalls += 1;
+    advancedId = id;
+    advancedFrom = from;
+    advancedTo = to;
+    final advanced = super.advanceDataBlockScanReturnIntent(
+      id,
+      from: from,
+      to: to,
+    );
+    lifecycleAfterAdvance = dataBlockScanReturnIntentById(id)?.lifecycle;
+    return advanced;
+  }
+}
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -184,6 +211,7 @@ void main() {
       testWidgets(
           '${action.name} stays created through self gate then advances at acquisition',
           (tester) async {
+        final advanceSpy = _DataBlockAdvanceSpy();
         final consentGate = Completer<bool>();
         var consentRequested = false;
         var pickerCalls = 0;
@@ -192,6 +220,7 @@ void main() {
         late String scanReturnId;
         harness = await _pumpRvcRouter(
           tester,
+          sessions: advanceSpy,
           requireConsent: (_, __) {
             consentRequested = true;
             return consentGate.future;
@@ -212,6 +241,7 @@ void main() {
               ?.lifecycle,
           DataBlockScanReturnLifecycle.created,
         );
+        expect(advanceSpy.advanceCalls, 0);
 
         final cta = find.byKey(action.key);
         expect(cta, findsOneWidget);
@@ -229,6 +259,7 @@ void main() {
               ?.lifecycle,
           DataBlockScanReturnLifecycle.created,
         );
+        expect(advanceSpy.advanceCalls, 0);
         await tester.tap(find.byKey(const Key('lpp_acquisition_cancel')));
         await tester.pump();
         expect(
@@ -237,6 +268,7 @@ void main() {
               ?.lifecycle,
           DataBlockScanReturnLifecycle.created,
         );
+        expect(advanceSpy.advanceCalls, 0);
 
         await tester.tap(cta);
         await tester.pump();
@@ -259,6 +291,7 @@ void main() {
                 ?.lifecycle,
             DataBlockScanReturnLifecycle.created,
           );
+          expect(advanceSpy.advanceCalls, 0);
           consentGate.complete(true);
           await _pumpFrames(tester);
           expect(pickerCalls, 1);
@@ -268,11 +301,27 @@ void main() {
           expect(consentRequested, isFalse);
           expect(pickerCalls, 0);
         }
+        expect(advanceSpy.advanceCalls, 1);
+        expect(advanceSpy.advancedId, scanReturnId);
+        expect(
+          advanceSpy.advancedFrom,
+          DataBlockScanReturnLifecycle.created,
+        );
+        expect(
+          advanceSpy.advancedTo,
+          DataBlockScanReturnLifecycle.processing,
+        );
+        expect(
+          advanceSpy.lifecycleAfterAdvance,
+          DataBlockScanReturnLifecycle.processing,
+        );
         expect(
           harness.sessions
               .dataBlockScanReturnIntentById(scanReturnId)
               ?.lifecycle,
-          DataBlockScanReturnLifecycle.processing,
+          action.name == 'example'
+              ? DataBlockScanReturnLifecycle.reviewRetained
+              : DataBlockScanReturnLifecycle.processing,
         );
       });
     }
@@ -374,7 +423,7 @@ void main() {
           },
         ),
         Uri.parse(
-          '/scan?scan%52eturnId=11111111-1111-4111-8111-111111111111',
+          '/scan?scan%2552eturnId=11111111-1111-4111-8111-111111111111',
         ),
         Uri.parse(
           '/scan?scanReturnId=11111111-1111-4111-8111-111111111111'
@@ -442,9 +491,9 @@ void main() {
         ),
       ),
       (
-        name: 'percent-encoded key',
+        name: 'double-encoded key',
         uri: Uri.parse(
-          '/scan?scan%52eturnId=$_unknownScanReturnId',
+          '/scan?scan%2552eturnId=$_unknownScanReturnId',
         ),
       ),
       (
@@ -727,6 +776,7 @@ void main() {
 
 Future<_RvcHarness> _pumpRvcRouter(
   WidgetTester tester, {
+  ScanSessionProvider? sessions,
   DocumentScanFilePicker? pickFile,
   DocumentScanConsentRequester? requireConsent,
   DocumentScanReviewNavigator? navigateToReview,
@@ -737,7 +787,7 @@ Future<_RvcHarness> _pumpRvcRouter(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   final profileProvider = _StaticProfileProvider(_rvcProfile());
-  final sessions = ScanSessionProvider();
+  final activeSessions = sessions ?? ScanSessionProvider();
   final router = GoRouter(
     initialLocation: _rvcOrigin,
     routes: <RouteBase>[
@@ -777,7 +827,7 @@ Future<_RvcHarness> _pumpRvcRouter(
     ],
   );
   addTearDown(profileProvider.dispose);
-  addTearDown(sessions.dispose);
+  addTearDown(activeSessions.dispose);
   addTearDown(router.dispose);
 
   await tester.pumpWidget(
@@ -786,7 +836,9 @@ Future<_RvcHarness> _pumpRvcRouter(
         ChangeNotifierProvider<CoachProfileProvider>.value(
           value: profileProvider,
         ),
-        ChangeNotifierProvider<ScanSessionProvider>.value(value: sessions),
+        ChangeNotifierProvider<ScanSessionProvider>.value(
+          value: activeSessions,
+        ),
         ChangeNotifierProvider<DocumentProvider>(
           create: (_) => DocumentProvider(),
         ),
@@ -807,7 +859,7 @@ Future<_RvcHarness> _pumpRvcRouter(
     ),
   );
   await _pumpFrames(tester, frames: 30);
-  return _RvcHarness(sessions: sessions, router: router);
+  return _RvcHarness(sessions: activeSessions, router: router);
 }
 
 Future<_RvcHarness> _pumpScanRouter(
