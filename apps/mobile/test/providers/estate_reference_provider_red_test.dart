@@ -19,6 +19,7 @@ final class _MemoryPersistence
   Map<String, dynamic> answers;
   int saveCalls = 0;
   Completer<void>? saveGate;
+  Object? saveFailure;
 
   @override
   Future<Map<String, dynamic>> loadAnswers() async => _copy(answers);
@@ -28,12 +29,15 @@ final class _MemoryPersistence
     saveCalls += 1;
     final gate = saveGate;
     if (gate != null) await gate.future;
+    final failure = saveFailure;
+    if (failure != null) throw failure;
     answers = _copy(next);
   }
 
   void reset() {
     saveCalls = 0;
     saveGate = null;
+    saveFailure = null;
   }
 
   static Map<String, dynamic> _copy(Map<String, dynamic> value) =>
@@ -546,6 +550,46 @@ void main() {
     );
     expect(loaded.persistence.saveCalls, saves);
     expect(_decodedRoot(loaded.persistence.answers), before);
+    expect(notifications, 0);
+  });
+
+  test('estate save failure rethrows without publishing any state', () async {
+    final loaded = await _loaded();
+    addTearDown(loaded.provider.dispose);
+    final failure = StateError('forced estate persistence failure');
+    final persistedBefore = jsonEncode(loaded.persistence.answers);
+    final profileBefore = loaded.provider.profile;
+    final profileJsonBefore = jsonEncode(profileBefore!.toJson());
+    final publishedAnswersBefore =
+        jsonEncode(loaded.provider.reportAnswersSnapshot);
+    final wasLoaded = loaded.provider.isLoaded;
+    final wasUpdatedSinceBudget = loaded.provider.profileUpdatedSinceBudget;
+    var notifications = 0;
+    loaded.provider.addListener(() => notifications += 1);
+    loaded.persistence.saveFailure = failure;
+
+    await expectLater(
+      _confirmAbsent(
+        loaded.provider,
+        kind: EstateInstrumentKind.will,
+        expectedPreviousEvidenceId: null,
+      ),
+      throwsA(same(failure)),
+    );
+
+    expect(loaded.persistence.saveCalls, 1);
+    expect(jsonEncode(loaded.persistence.answers), persistedBefore);
+    expect(loaded.provider.profile, same(profileBefore));
+    expect(jsonEncode(loaded.provider.profile!.toJson()), profileJsonBefore);
+    expect(
+      jsonEncode(loaded.provider.reportAnswersSnapshot),
+      publishedAnswersBefore,
+    );
+    expect(loaded.provider.isLoaded, wasLoaded);
+    expect(
+      loaded.provider.profileUpdatedSinceBudget,
+      wasUpdatedSinceBudget,
+    );
     expect(notifications, 0);
   });
 
