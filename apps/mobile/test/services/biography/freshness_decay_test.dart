@@ -149,6 +149,24 @@ void main() {
       );
       expect(FreshnessDecayService.needsRefresh(fact, now), isFalse);
     });
+
+    test('future timestamps fail closed at the freshness floor', () {
+      final fact = _factAt(
+        updatedAt: now.add(const Duration(microseconds: 1)),
+        freshnessCategory: 'annual',
+      );
+      expect(FreshnessDecayService.weight(fact, now), 0.3);
+      expect(FreshnessDecayService.needsRefresh(fact, now), isTrue);
+    });
+
+    test('unknown persisted categories fail closed at the freshness floor', () {
+      final fact = _factAt(
+        updatedAt: now,
+        freshnessCategory: 'invented-tier',
+      );
+      expect(FreshnessDecayService.weight(fact, now), 0.3);
+      expect(FreshnessDecayService.needsRefresh(fact, now), isTrue);
+    });
   });
 
   // ── categoryFor Tests ──────────────────────────────────────
@@ -159,23 +177,31 @@ void main() {
     });
 
     test('lppCapital returns annual', () {
-      expect(
-          FreshnessDecayService.categoryFor(FactType.lppCapital), 'annual');
+      expect(FreshnessDecayService.categoryFor(FactType.lppCapital), 'annual');
     });
 
     test('threeACapital returns annual', () {
-      expect(FreshnessDecayService.categoryFor(FactType.threeACapital),
-          'annual');
+      expect(
+          FreshnessDecayService.categoryFor(FactType.threeACapital), 'annual');
     });
 
     test('mortgageDebt returns volatile', () {
-      expect(FreshnessDecayService.categoryFor(FactType.mortgageDebt),
-          'volatile');
+      expect(
+          FreshnessDecayService.categoryFor(FactType.mortgageDebt), 'volatile');
     });
 
-    test('lifeEvent returns annual (default)', () {
-      expect(
-          FreshnessDecayService.categoryFor(FactType.lifeEvent), 'annual');
+    test('lifeEvent returns event_static', () {
+      expect(FreshnessDecayService.categoryFor(FactType.lifeEvent),
+          'event_static');
+    });
+
+    test('taxRate returns annual', () {
+      expect(FreshnessDecayService.categoryFor(FactType.taxRate), 'annual');
+    });
+
+    test('alertAcknowledged returns static', () {
+      expect(FreshnessDecayService.categoryFor(FactType.alertAcknowledged),
+          'static');
     });
   });
 }

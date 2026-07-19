@@ -22,6 +22,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
+import 'package:mint_mobile/services/biography/freshness_decay_service.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/consent/partner_accountability_binding_store.dart';
 import 'package:mint_mobile/services/consent/partner_accountability_service.dart';
@@ -3234,7 +3235,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           sourceDate: now,
           createdAt: now,
           updatedAt: now,
-          freshnessCategory: _freshnessCategoryFor(factType),
+          freshnessCategory: FreshnessDecayService.categoryFor(factType),
         ));
       } catch (_) {
         // Biography write is best-effort; never block confirmation UX
@@ -3543,28 +3544,5 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       return FactType.canton;
     }
     return null;
-  }
-
-  /// Returns the freshness category for a given FactType.
-  /// Volatile: 3-month decay. Annual: 12-month decay.
-  String _freshnessCategoryFor(FactType type) {
-    switch (type) {
-      case FactType.taxRate:
-        return 'volatile';
-      case FactType.salary:
-      case FactType.lppCapital:
-      case FactType.lppRachatMax:
-      case FactType.threeACapital:
-      case FactType.avsContributionYears:
-      case FactType.mortgageDebt:
-      case FactType.canton:
-      case FactType.civilStatus:
-      case FactType.employmentStatus:
-      case FactType.lifeEvent:
-      case FactType.userDecision:
-      case FactType.coachPreference:
-      case FactType.alertAcknowledged:
-        return 'annual';
-    }
   }
 }

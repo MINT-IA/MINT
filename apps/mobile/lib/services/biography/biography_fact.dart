@@ -97,7 +97,10 @@ class BiographyFact {
   /// Whether this fact has been soft-deleted (privacy screen).
   final bool isDeleted;
 
-  /// Freshness category: 'annual' (12-month threshold) or 'volatile' (3-month threshold).
+  /// Persisted tier: static, event_static, annual or volatile.
+  ///
+  /// The annual default preserves legacy narrative records. External financial
+  /// writers must pass FreshnessDecayService.categoryFor(factType).
   final String freshnessCategory;
 
   const BiographyFact({
@@ -184,8 +187,7 @@ class BiographyFact {
       causalLinks: _decodeStringList(json['causalLinks']),
       temporalLinks: _decodeStringList(json['temporalLinks']),
       isDeleted: json['isDeleted'] == 1 || json['isDeleted'] == true,
-      freshnessCategory:
-          (json['freshnessCategory'] as String?) ?? 'annual',
+      freshnessCategory: (json['freshnessCategory'] as String?) ?? 'annual',
     );
   }
 

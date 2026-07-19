@@ -1977,11 +1977,14 @@ Each fact is known only when all four authorities agree: a valid typed value,
 its `userProvidedFields` marker, `dataSources[path]` equal to `userInput` or
 `certificate`, and a non-future `dataTimestamps[path]` with an explicit
 `dataSourceDates[path]` slot. That slot may be null; it is never replaced by
-`updatedAt`. Country facts have no time-to-live. Only `workCanton` uses
-`FreshnessDecayService.annualNeedsRefresh(updatedAt, now)`: the frozen
-day-level boundary is **known at 782 days and stale at 783 days**. A stale
-canton leaves the old value visible but closes readiness until one-gesture
-reconfirmation restamps `updatedAt`.
+`updatedAt`. `frontierJurisdictionAt(now)` passes each required value plus its
+canonical source and timestamp to
+`FreshnessDecayService.assessLedgerField(...)`. The registry classifies both
+country paths as `event_static` with no calendar TTL and `workCanton` as
+`annual`; the frozen boundary is **known at 782 days and stale at 783 days**.
+A stale canton leaves the old value visible but closes readiness until
+one-gesture reconfirmation restamps it with `source=userInput`,
+`updatedAt=now` and `sourceDate=null`.
 
 The dependency is conditional and fail-closed:
 
@@ -2185,27 +2188,55 @@ calculations stay null/partial.
 
 Reuse `data_block_enrichment_screen.dart` (`/data-block/:type`), `rank_enrichment_prompts()`, `freshness_decay_service.dart`. Do NOT rebuild.
 
-### 5.1 The freshness bridge (required — the API takes a `BiographyFact`, not a field path)
+### 5.1 The freshness bridge (G1-FRESH-01 technical contract)
 
-`FreshnessDecayService.weight()` has ONE signature: `static double weight(BiographyFact fact, DateTime now)`. There is **no** field-path or `dataTimestamps`-map overload. A ledger field path is NOT directly acceptable. Two distinct freshness systems exist and must not be conflated: (a) `BiographyRepository` immutable facts (which carry `updatedAt` + `freshnessCategory`), and (b) `CoachProfile.dataTimestamps`/`dataSourceDates` provenance maps.
+`CoachProfile` is the canonical ledger; `BiographyRepository` is narrative
+history and never overrides or refreshes the profile. The former T-3 proposal
+to query that asynchronous repository behind a synchronous service was
+non-implementable and would also create a `CoachProfile` ↔ freshness-service
+import cycle.
 
-**Task T-3 (mandatory):** add an adapter `FreshnessDecayService.weightForField(String fieldPath, CoachProfile profile, DateTime now)` that resolves a field path to freshness inputs WITHOUT inventing a new decay model:
+Existing biography rows retain their persisted category: they are immutable
+narrative history, not a second ledger, so G1-FRESH does not silently rewrite
+them during profile reads. The `annual` constructor/decode fallback preserves
+legacy narrative rows; every external financial writer must pass
+`FreshnessDecayService.categoryFor(factType)`.
 
-1. Look up the latest `BiographyFact` for the path via the existing `BiographyRepository.getLatestFactForField(fieldPath)`. If found, return `weight(fact, now)`.
-2. Fallback when no BiographyFact exists: synthesise a transient `BiographyFact` with
-   - `updatedAt = profile.dataTimestamps[fieldPath]` (if absent ⇒ treat as maximally stale ⇒ weight = floor 0.30),
-   - `freshnessCategory =` the ledger `fresh` column for that path, mapped: `annual`→`'annual'`, `volatile`→`'volatile'`, `static`→ return `1.0` (static fields never decay; skip the weight call),
-   then return `weight(synthetic, now)`.
+The implemented bridge is pure, synchronous and model-free:
 
-The ledger `fresh` column (§3/§4) IS the authoritative `freshnessCategory` source for the fallback. Provide a `const Map<String,String> kFieldFreshnessCategory` generated from the ledger (one entry per field path) so the adapter never guesses.
+```dart
+FreshnessDecayService.assessLedgerField(
+  fieldPath: path,
+  previousValue: value,
+  updatedAt: profile.dataTimestamps[path],
+  sourceName: profile.dataSources[path]?.name,
+  now: now,
+)
+```
+
+`ledgerFieldPolicies` is an exact, test-derived projection of the 61 concrete
+addressable paths in `G1_P0_CANONICAL_KEYS`, including the three already typed
+frontier paths. Duplicate paths require one tier and union their allowed
+sources. `NONE`, fiscal collection wildcards and aliases are not guessable and
+fail closed. The four live `specialist_reference` paths remain in a distinct
+set: strict root/BND/intrinsic selectors own them, never a generic TTL.
+
+The adapter preserves `previousValue` in every result. Missing/future
+`updatedAt`, an unknown path or disallowed source yields `invalid` at weight
+0.30. `static` and `event_static` never calendar-decay; `annual` and `volatile`
+reuse the existing linear model and strict `<0.60` boundary. A stale field that
+allows `userInput` returns `confirmAsUserInput`; confirmation keeps the value
+but writes `{source:userInput, updatedAt:now, sourceDate:null}`. A
+certificate-only field returns `renewEvidence` and cannot renew certificate
+confidence through a tap.
 
 ### 5.2 Delta-engine capability table
 
 | Capability | Where it goes | Mechanical rule |
 |---|---|---|
 | Per-field provenance | §6 | `{source, sourceDate, updatedAt}` per field (mobile maps + backend). |
-| Stale → re-confirm | `data_block_enrichment_screen.dart` | If `FreshnessDecayService.weightForField(path, profile, now) < 0.60` ⇒ show "On a noté X (il y a N mois) — toujours juste ?" with [Confirmer]/[Corriger] (all strings via `AppLocalizations`). Confirm ⇒ `mergeAnswers` same value, new `updatedAt` (resets decay). NEVER blank the field. |
-| Diff not form | data-block + collection flows | Only render inputs for fields where value is null OR `weightForField < 0.60`. Skip fields already fresh. (I-6) |
+| Stale → re-confirm | canonical provider now; generic data-block UI remains deferred | `assessLedgerField(...).reconfirmation == confirmAsUserInput` keeps the prior value and uses the existing same-value provider writer. `renewEvidence` routes to reviewed evidence instead. NEVER blank the field. G1-FRESH-01 proves state + durable writer/cold reload; it does not start G2/DataQuest UI. |
+| Diff not form | data-block + collection flows (deferred UI) | Future UI renders null values as new questions and non-current present values as confirmation/review states. It consumes the adapter result and never reproduces decay rules. (I-6) |
 | Before/after delta | new widget in data-block | Snapshot `MintUserState` before write into `initialProjectionSnapshot`; after `mergeAnswers` resolves, diff `budgetSnapshot.present.monthlyCharges/monthlyFree`, `confidenceScore`, or the relevant projection. Diff `budgetGap` only when the official AVS inputs needed to compute it exist; otherwise it remains null. |
 | Goal-aware prioritization | `suggest_actions` (backend, `coach_chat.py:~900`) | Replace the hardcoded if-chains (currently `if data.get(...)` blocks) with `rank_enrichment_prompts()`, then re-weight by `goal`/`primaryFocus` (e.g. goal=house ⇒ boost mortgage/affordability fields). |
 | Smart stage-2 sequencing | after `minimal_profile_service` | After the 3-field bootstrap (age/grossSalary/canton), sequence next asks by `rank_enrichment_prompts()` effective impact, not fixed order. |
@@ -2366,9 +2397,16 @@ Assert `source_crosswalk.py` maps every mobile `ProfileDataSource` member to the
 
 ### 8.7 Freshness adapter (§5.1) — unit tests
 
-- `weightForField` returns 1.0 for `static` fields regardless of age.
-- With no BiographyFact and no `dataTimestamps[path]` ⇒ returns floor 0.30.
-- `annual`: full@≤12mo → 0.30@≥36mo; `volatile`: full@≤3mo → 0.30@≥12mo; `needsRefresh` true below 0.60 (extend existing `FreshnessDecayService` tests; constants `_floor=0.3`, `_refreshThreshold=0.60`).
+- registry parity covers all 61 addressable matrix paths and rejects tier
+  conflicts; specialist references remain separate;
+- `static` / `event_static` stay current without a calendar TTL;
+- `annual` is current at day 782 and stale at 783; `volatile` is current at
+  day 247 and stale at 248;
+- missing/future timestamp, unknown path or forbidden source fails closed at
+  0.30 while retaining the previous value;
+- certificate-only fields require evidence renewal; a mixed-source stale value
+  may be restamped only as user input with null `sourceDate`;
+- the real frontier consumer and same-value provider writer pass a cold reload.
 
 ### 8.8 Ranged projections (I-5)
 

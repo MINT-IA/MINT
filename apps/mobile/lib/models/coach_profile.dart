@@ -3676,20 +3676,28 @@ class CoachProfile {
     for (final path in requiredPaths) {
       final source = dataSources[path];
       final timestamp = dataTimestamps[path];
-      final known = valueFor(path) != null &&
-          userProvidedFields.contains(path) &&
-          (source == ProfileDataSource.userInput ||
-              source == ProfileDataSource.certificate) &&
-          timestamp != null &&
-          !timestamp.isAfter(now) &&
-          dataSourceDates.containsKey(path);
-      if (!known) {
+      final value = valueFor(path);
+      if (value == null ||
+          !userProvidedFields.contains(path) ||
+          !dataSourceDates.containsKey(path)) {
         missing.add(path);
         continue;
       }
-      if (path == 'workCanton' &&
-          FreshnessDecayService.annualNeedsRefresh(timestamp, now)) {
-        stale.add(path);
+      final freshness = FreshnessDecayService.assessLedgerField<Object>(
+        fieldPath: path,
+        previousValue: value,
+        updatedAt: timestamp,
+        sourceName: source?.name,
+        now: now,
+      );
+      switch (freshness.state) {
+        case LedgerFreshnessState.current:
+          break;
+        case LedgerFreshnessState.stale:
+          stale.add(path);
+        case LedgerFreshnessState.invalid:
+        case LedgerFreshnessState.separateReference:
+          missing.add(path);
       }
     }
 

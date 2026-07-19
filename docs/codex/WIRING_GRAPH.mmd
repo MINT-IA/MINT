@@ -156,6 +156,7 @@ flowchart TB
     FRONT_FIELDS["stable fields<br/>frontier_residence_country_field<br/>frontier_work_country_field<br/>frontier_work_canton_field only when workCountry = CH"]
     FRONT_WRITE["mergeAnswers<br/>q_residence_country -> residenceCountry<br/>q_work_country -> workCountry<br/>q_work_canton -> workCanton<br/>non-CH work country clears canton atomically"]
     FRONT_EVIDENCE["CoachProfile.frontierJurisdictionAt now<br/>typed value + provided marker<br/>userInput or certificate<br/>updatedAt not future + sourceDate slot"]
+    FRONT_FRESHNESS["FreshnessDecayService.assessLedgerField<br/>61-path matrix registry; model-free/sync<br/>static/event_static no TTL; unknown fails closed"]
     FRONT_REQUIRED{"required facts known?<br/>residence + work country<br/>+ canton only when work country is CH"}
     FRONT_MISSING["missing<br/>inline delta + coach CTA<br/>no conclusion"]
     FRONT_STALE{"work canton annual freshness<br/>782 days known / 783 stale"}
@@ -169,7 +170,7 @@ flowchart TB
     FRONT_NO_CALC["NO tax rate or amount<br/>NO 90-day gauge or ranked charges<br/>NO social affiliation or 3a eligibility"]
 
     FRONT_SCREEN --> FRONT_FIELDS --> FRONT_WRITE
-    FRONT_EVIDENCE --> FRONT_REQUIRED
+    FRONT_EVIDENCE --> FRONT_FRESHNESS --> FRONT_REQUIRED
     FRONT_REQUIRED -- "no" --> FRONT_MISSING
     FRONT_REQUIRED -- "yes" --> FRONT_STALE
     FRONT_STALE -- "stale" --> FRONT_RECONFIRM

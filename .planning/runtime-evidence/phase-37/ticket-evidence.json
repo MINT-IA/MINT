@@ -369,7 +369,7 @@
     {
       "ticket_id": "G1-FRESH-01",
       "state": "ticket_only",
-      "command": "cd apps/mobile && flutter test test/services/biography/stale_reconfirmation_test.dart --reporter expanded",
+      "command": "cd apps/mobile && flutter test test/services/biography/stale_reconfirmation_test.dart test/services/biography/freshness_decay_test.dart test/screens/document_scan/extraction_freshness_tier_contract_test.dart --reporter expanded",
       "evidence_mode": null,
       "red_sha": null,
       "red_artifact": null,
