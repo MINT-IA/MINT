@@ -22,6 +22,10 @@ and create exact blocking tickets for route-state work that remains. G1 may be
 closed with those tickets and `G2 allowed? NO`; it must not pre-build G2/G3 to
 make this matrix look green.
 
+The encrypted cache authorised by G1-SCN-01 is deliberately limited to EPL and
+rente-capital as a G1 closure slice. It is not Mint's universal scenario model
+and does not narrow the product to retirement or housing.
+
 The present route reality still blocks G2 because screens calculate from
 illustrative local defaults and stale facts cannot be distinguished from fresh
 facts. The audited scenario-to-fact mutations are mechanically closed, but the
@@ -50,7 +54,7 @@ Case-local scenario model is not implemented. In particular:
 | class | meaning | persistence rule |
 |---|---|---|
 | `durable_fact` | A real user circumstance or balance that may be reused by another Case. | Persist only through `CoachProfileProvider`; provenance and freshness required. |
-| `scenario_lever` | A hypothetical alternative, offer, choice, or sensitivity assumption. | Session/Case-local only; never silently promoted to the profile. |
+| `scenario_lever` | A hypothetical alternative, offer, choice, or sensitivity assumption. | Session/Case-local only; it may be cached encrypted with opaque ID/status when explicitly scoped, but is never silently promoted to the profile and its outputs remain recomputed. |
 | `derived_output` | A calculator/result value produced from facts and levers. | Recompute; do not store as a user fact. A separately labelled snapshot may exist only as Case evidence. |
 | `specialist_only` | Exact regulation, clause, deadline, legal classification, or source-sensitive value requiring authoritative evidence. | Persist only as sourced evidence after confirmation; otherwise remain an open dossier question. |
 
@@ -119,7 +123,7 @@ the same control remains a scenario lever.
 | `/fiscal` | canton, income and household/tax context | `durable_fact` | typed `CoachProfile` fields | T0/T1 | personalised tax comparison | partial fact inventory and missing asks | exact personal tax or withdrawal-tax conclusion | cantonal tax authority/fiduciary | yes | G1 fixed: source facts hydrate from `CoachProfileProvider` (`fiscal_comparator_screen.dart:107-132`); no financial route prefill is consumed. |
 | `/fiscal` | planned `montant_retrait` | `scenario_lever` | none | S | withdrawal-tax scenario only | remain missing until an explicit local/Case control exists | `montant_retrait = 0` or `impot_retrait = 0` inferred from absence | fiduciary/pension/3a provider | no | Fail closed: the screen has no withdrawal control, so final return omits `impot_retrait` instead of fabricating zero (`fiscal_comparator_screen.dart:149-186`). |
 | `/decaissement` | all displayed calendar values | `derived_output` once wired; currently static education | none | D | Retirement Case facts and levers | educational decumulation principles | personalised calendar | pension/tax specialist | no | Screen reads no ledger facts and treats viewing as completion (`optimisation_decaissement_screen.dart:30-60,63-100`). |
-| retirement Case | LPP/AVS/capital projections, tax ranges, decumulation, survivor/housing/succession impacts | `derived_output` | none | D | complete/fresh minimum-fact groups | partial state plus open questions | confident recommendation or “best” choice | dossier handoff to pension/tax/notary/bank | no | G1 fixed for the audited routes: derived outputs are recomputed/local and the static hard floor rejects writes into profile-shaped targets (`no_scenario_writeback_to_profile_test.dart:5-46,48-90,92-159`). G1-SCN-01 may persist only opaque ID/status plus typed EPL/rente-capital levers in a bounded encrypted local cache; outputs and general Case evidence persistence remain future scoped. |
+| retirement Case | LPP/AVS/capital projections, tax ranges, decumulation, survivor/housing/succession impacts | `derived_output` | none | D | complete/fresh minimum-fact groups | partial state plus open questions | confident recommendation or “best” choice | dossier handoff to pension/tax/notary/bank | no | `persist? = no` applies to these derived outputs. G1 fixed for the audited routes: outputs are recomputed/local and the static hard floor rejects writes into profile-shaped targets (`no_scenario_writeback_to_profile_test.dart:5-46,48-90,92-159`). G1-SCN-01 may persist only opaque ID/status plus typed EPL/rente-capital levers in a bounded encrypted local cache; outputs and general Case evidence persistence remain future scoped. |
 
 ## 4. Disability / protection
 
