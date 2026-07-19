@@ -121,11 +121,24 @@ void _expectUnavailableWithoutFinancialData({
     );
   }
 
-  final renderedText = tester
-      .widgetList<Text>(find.byType(Text, skipOffstage: false))
+  final unavailableText = tester
+      .widgetList<Text>(
+        find.descendant(
+          of: find.byKey(
+            const Key('rvc_scenario_unavailable'),
+            skipOffstage: false,
+          ),
+          matching: find.byType(Text, skipOffstage: false),
+          skipOffstage: false,
+        ),
+      )
       .map((widget) => widget.data ?? widget.textSpan?.toPlainText() ?? '')
       .join(' ');
-  expect(RegExp(r'CHF|\d').hasMatch(renderedText), isFalse);
+  expect(
+    RegExp(r'CHF|\d').hasMatch(unavailableText),
+    isFalse,
+    reason: 'unavailable text: $unavailableText',
+  );
   expect(cache.value, isNull);
   expect(cache.readCount, 0);
   expect(cache.writeCount, 0);
