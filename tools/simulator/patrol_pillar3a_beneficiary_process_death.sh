@@ -173,6 +173,7 @@ read_build_exit_code=""
 read_exit_code=""
 read_passed_tests=""
 read_failed_tests=""
+boot_request_exit_code=""
 boot_status_exit_code=""
 launch_exit_code=""
 terminate_exit_code=""
@@ -256,6 +257,7 @@ write_metadata() {
   MINT_META_READ="$read_exit_code" \
   MINT_META_READ_PASSED="$read_passed_tests" \
   MINT_META_READ_FAILED="$read_failed_tests" \
+  MINT_META_BOOT_REQUEST="$boot_request_exit_code" \
   MINT_META_BOOT="$boot_status_exit_code" \
   MINT_META_LAUNCH="$launch_exit_code" \
   MINT_META_TERMINATE="$terminate_exit_code" \
@@ -336,6 +338,7 @@ payload = {
     "read_exit_code": code("MINT_META_READ"),
     "read_passed_tests": 1 if os.environ["MINT_META_READ_PASSED"] == "1" else None,
     "read_failed_tests": 0 if os.environ["MINT_META_READ_FAILED"] == "0" else None,
+    "boot_request_exit_code": code("MINT_META_BOOT_REQUEST"),
     "boot_status_exit_code": code("MINT_META_BOOT"),
     "launch_exit_code": code("MINT_META_LAUNCH"),
     "terminate_exit_code": code("MINT_META_TERMINATE"),
@@ -1018,6 +1021,18 @@ install_production_app() {
   [[ "$stage_sanitization_failed" -eq 0 ]] || die "$stage install sanitization failed"
 }
 
+boot_simulator() {
+  set +e
+  xcrun simctl boot "$device" >"$artifacts/bootstatus.raw.log" 2>&1
+  boot_request_exit_code=$?
+  xcrun simctl bootstatus "$device" -b >>"$artifacts/bootstatus.raw.log" 2>&1
+  boot_status_exit_code=$?
+  set -e
+  sanitize_stage_log "$artifacts/bootstatus.raw.log" "$artifacts/bootstatus.log"
+  [[ "$boot_status_exit_code" -eq 0 ]] || exit "$boot_status_exit_code"
+  [[ "$stage_sanitization_failed" -eq 0 ]] || die "bootstatus sanitization failed"
+}
+
 run_maestro() {
   local stage="$1"
   local flow="$2"
@@ -1086,6 +1101,7 @@ mkdir -p "$external_build"
 
 export_production_source
 build_production_app "before"
+boot_simulator
 install_production_app "before"
 run_maestro "before" "$flow_before"
 
@@ -1094,12 +1110,6 @@ run_xcode_test "write"
 verify_xcresult_one_of_one "write"
 exact_sha_guard
 
-set +e
-xcrun simctl bootstatus "$device" -b >"$artifacts/bootstatus.raw.log" 2>&1
-boot_status_exit_code=$?
-set -e
-sanitize_stage_log "$artifacts/bootstatus.raw.log" "$artifacts/bootstatus.log"
-[[ "$boot_status_exit_code" -eq 0 ]] || exit "$boot_status_exit_code"
 set +e
 xcrun simctl launch "$device" "$bundle_id" >"$artifacts/launch.raw.log" 2>&1
 launch_exit_code=$?

@@ -278,6 +278,9 @@ def test_orchestrator_is_valid_exact_pushed_sha_and_two_process_bounded() -> Non
         "writer_reader_build_isolation_verified=false",
         "writer_reader_build_isolation_verified=true",
         '"writer_reader_build_isolation_verified"',
+        'xcrun simctl boot "$device"',
+        'xcrun simctl bootstatus "$device" -b',
+        'boot_simulator',
         "run_xcode_test \"write\"",
         'xcrun simctl launch "$device" "$bundle_id"',
         'xcrun simctl terminate "$device" "$bundle_id"',
@@ -294,6 +297,8 @@ def test_orchestrator_is_valid_exact_pushed_sha_and_two_process_bounded() -> Non
         assert anchor in source, anchor
 
     stages = (
+        "boot_simulator",
+        'install_production_app "before"',
         'run_maestro "before" "$flow_before"',
         'run_xcode_test "write"',
         'xcrun simctl launch "$device" "$bundle_id"',
