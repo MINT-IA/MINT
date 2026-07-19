@@ -119,7 +119,7 @@ the same control remains a scenario lever.
 | `/fiscal` | canton, income and household/tax context | `durable_fact` | typed `CoachProfile` fields | T0/T1 | personalised tax comparison | partial fact inventory and missing asks | exact personal tax or withdrawal-tax conclusion | cantonal tax authority/fiduciary | yes | G1 fixed: source facts hydrate from `CoachProfileProvider` (`fiscal_comparator_screen.dart:107-132`); no financial route prefill is consumed. |
 | `/fiscal` | planned `montant_retrait` | `scenario_lever` | none | S | withdrawal-tax scenario only | remain missing until an explicit local/Case control exists | `montant_retrait = 0` or `impot_retrait = 0` inferred from absence | fiduciary/pension/3a provider | no | Fail closed: the screen has no withdrawal control, so final return omits `impot_retrait` instead of fabricating zero (`fiscal_comparator_screen.dart:149-186`). |
 | `/decaissement` | all displayed calendar values | `derived_output` once wired; currently static education | none | D | Retirement Case facts and levers | educational decumulation principles | personalised calendar | pension/tax specialist | no | Screen reads no ledger facts and treats viewing as completion (`optimisation_decaissement_screen.dart:30-60,63-100`). |
-| retirement Case | LPP/AVS/capital projections, tax ranges, decumulation, survivor/housing/succession impacts | `derived_output` | none | D | complete/fresh minimum-fact groups | partial state plus open questions | confident recommendation or “best” choice | dossier handoff to pension/tax/notary/bank | no | G1 fixed for the audited routes: derived outputs are recomputed/local and the static hard floor rejects writes into profile-shaped targets (`no_scenario_writeback_to_profile_test.dart:5-46,48-90,92-159`). Case evidence persistence remains future scoped. |
+| retirement Case | LPP/AVS/capital projections, tax ranges, decumulation, survivor/housing/succession impacts | `derived_output` | none | D | complete/fresh minimum-fact groups | partial state plus open questions | confident recommendation or “best” choice | dossier handoff to pension/tax/notary/bank | no | G1 fixed for the audited routes: derived outputs are recomputed/local and the static hard floor rejects writes into profile-shaped targets (`no_scenario_writeback_to_profile_test.dart:5-46,48-90,92-159`). G1-SCN-01 may persist only opaque ID/status plus typed EPL/rente-capital levers in a bounded encrypted local cache; outputs and general Case evidence persistence remain future scoped. |
 
 ## 4. Disability / protection
 
@@ -181,8 +181,9 @@ the same control remains a scenario lever.
   complete loop in G1.
 - Add provenance/freshness lookup so a fresh fact is reused, a stale fact is
   shown with its prior value, and `reconfirm` never starts from a blank input.
-- Add a canonical Case-local store for scenario levers; do not overload
-  `CoachProfile` or `ScreenReturn.updatedFields` with user facts.
+- Add a bounded encrypted local cache for typed EPL/rente-capital scenario
+  levers and opaque ID/status; do not overload `CoachProfile` or
+  `ScreenReturn.updatedFields`, and do not build CaseRegistry/DataQuest in G1.
 - Every missing/stale Ask must carry an encoded `returnUri` to the exact origin
   route.
 
