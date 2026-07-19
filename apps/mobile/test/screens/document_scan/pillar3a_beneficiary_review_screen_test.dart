@@ -343,14 +343,17 @@ void main() {
   test('production review route forwards the exact volatile clause candidate',
       () {
     final source = File('lib/app.dart').readAsStringSync();
-    final reviewStart = source.indexOf("path: '/scan/review'");
-    final impactStart = source.indexOf("path: '/scan/impact'", reviewStart);
+    final reviewStart = source.indexOf('Widget _buildScanReviewRoute(');
+    final impactStart = source.indexOf(
+      'Widget _buildScanImpactRoute(',
+      reviewStart,
+    );
     expect(reviewStart, greaterThanOrEqualTo(0));
     expect(impactStart, greaterThan(reviewStart));
-    final reviewRoute = source.substring(reviewStart, impactStart);
+    final reviewBuilder = source.substring(reviewStart, impactStart);
 
     expect(
-      reviewRoute,
+      reviewBuilder,
       contains(
         'pillar3aBeneficiaryCandidate: '
         'session.pillar3aBeneficiaryCandidate',
