@@ -107,8 +107,105 @@ CoachProfile _profile() {
   );
 }
 
+CoachProfile _staleProfile() => _profile().copyWith(
+      dataTimestamps: {
+        for (final field in _profile().dataTimestamps.keys)
+          field: DateTime.utc(2020),
+      },
+    );
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets(
+    'stale facts show unavailable on first frame without default figures',
+    (tester) async {
+      tester.view.physicalSize = const Size(1200, 5000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final cache = _MemoryCache();
+      final scenarioProvider = ScenarioSessionProvider(
+        store: ScenarioSessionStore(
+          cache: cache,
+          idFactory: () => '55555555-5555-4555-8555-555555555555',
+        ),
+        enabled: true,
+      );
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: _RecordingProfileProvider(_staleProfile()),
+            ),
+            ChangeNotifierProvider<ScenarioSessionProvider>.value(
+              value: scenarioProvider,
+            ),
+          ],
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: _Launcher(),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('open_rvc')));
+      await tester.pump();
+      expect(
+        find.byKey(
+          const Key('rvc_scenario_unavailable'),
+          skipOffstage: false,
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byType(TextFormField, skipOffstage: false),
+        findsNothing,
+      );
+      expect(find.byType(Slider, skipOffstage: false), findsNothing);
+      for (final rawDefault in const [
+        '50',
+        '100000',
+        '350000',
+        '500000',
+        '150000',
+        '37000',
+      ]) {
+        expect(find.text(rawDefault), findsNothing);
+      }
+
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(
+        find.byKey(const Key('rvc_scenario_unavailable')),
+        findsOneWidget,
+      );
+      expect(find.byType(TextFormField), findsNothing);
+      expect(find.byType(Slider), findsNothing);
+      final unavailableText = tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byKey(const Key('rvc_scenario_unavailable')),
+              matching: find.byType(Text),
+            ),
+          )
+          .map((widget) => widget.data ?? '')
+          .join(' ');
+      expect(RegExp(r'CHF|\d').hasMatch(unavailableText), isFalse);
+      expect(cache.value, isNull);
+      expect(
+        scenarioProvider.sessionFor(ScenarioKind.renteCapital),
+        isNull,
+      );
+    },
+  );
 
   testWidgets(
     'real rente-capital caller returns only local scenario identity',

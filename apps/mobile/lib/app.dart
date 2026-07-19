@@ -2137,6 +2137,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
               purgeDurableSessionData: () async {
                 await coach.purgeDurableSessionData();
                 await budget.purgeSessionPersistence();
+                await scenarios.purgeSessionPersistence();
               },
               clearSessionMemory: [
                 coach.clearSessionMemoryAfterPurge,

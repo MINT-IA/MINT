@@ -49,6 +49,17 @@ final class _MemoryScenarioCache implements ScenarioSessionCache {
 }
 
 void main() {
+  test('production session termination explicitly purges scenario persistence',
+      () {
+    final source = File('lib/app.dart').readAsStringSync();
+    expect(
+      source,
+      contains('await scenarios.purgeSessionPersistence();'),
+      reason: 'The scenario cache must be part of the strict durable purge, '
+          'not only the later in-memory clear or global secure-storage sweep.',
+    );
+  });
+
   test(
     'EPL and rente-capital completion payloads never expose scenario outputs',
     () {

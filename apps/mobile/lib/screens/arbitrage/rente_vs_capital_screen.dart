@@ -110,6 +110,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   ScenarioSessionProvider? _scenarioProvider;
   String? _scenarioId;
   bool _scenarioBoundaryRequired = false;
+  bool _scenarioUnavailable = false;
   int? _currentAgeOverride;
   double? _grossAnnualSalaryOverride;
   double? _lppTotalOverride;
@@ -197,6 +198,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       _didAutoFill = true;
       _scenarioBoundaryRequired =
           context.read<ScenarioSessionProvider?>()?.enabled ?? false;
+      _scenarioUnavailable = _scenarioBoundaryRequired;
       _autoFillFromProfile();
     }
   }
@@ -305,6 +307,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       factsReady: factsReady,
     );
     if (session == null || session.kind != ScenarioKind.renteCapital) {
+      if (mounted) setState(() => _scenarioUnavailable = true);
       return;
     }
     _scenarioId = session.id;
@@ -316,6 +319,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final levers = session.levers;
     if (levers is! RenteCapitalScenarioLevers) return;
     setState(() {
+      _scenarioUnavailable = false;
       _scenarioId = session.id;
       _inputMode = levers.inputMode == RenteCapitalInputMode.certificate
           ? _InputMode.certificate
@@ -711,6 +715,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             padding: const EdgeInsets.all(MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                if (_scenarioUnavailable)
+                  _buildScenarioUnavailable()
+                else ...[
                 // ── Hero intro (why this matters) ──
                 _buildHeroIntro(),
                 const SizedBox(height: MintSpacing.lg),
@@ -801,11 +808,40 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   _buildDisclaimerCard(),
                   const SizedBox(height: MintSpacing.xl),
                 ],
+                ],
               ]),
             ),
           ),
         ],
       )))),
+    );
+  }
+
+  Widget _buildScenarioUnavailable() {
+    return MintSurface(
+      key: const Key('rvc_scenario_unavailable'),
+      tone: MintSurfaceTone.porcelaine,
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      radius: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.lock_clock_outlined,
+            color: MintColors.textSecondary,
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            S.of(context)!.premierEclairageCardErrorTitle,
+            style: MintTextStyles.titleMedium(),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            S.of(context)!.independantLedgerFactsSubtitle,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          ),
+        ],
+      ),
     );
   }
 
