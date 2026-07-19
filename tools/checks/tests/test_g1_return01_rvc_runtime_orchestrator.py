@@ -42,9 +42,11 @@ def test_rvc_runner_is_exact_sha_clean_and_joins_patrol_maestro_visual_proof() -
     ):
         assert token in runner
 
-    assert runner.index("wait_for_visual_marker") < runner.index(
-        "maestro_with_watchdog.sh"
+    runtime_wait = runner.index("      wait_for_visual_marker")
+    maestro_call = runner.index(
+        "bash tools/simulator/maestro_with_watchdog.sh", runtime_wait
     )
-    assert runner.index("maestro_with_watchdog.sh") < runner.index(
-        "remove_visual_marker"
+    marker_ack = runner.index(
+        "        if ! remove_visual_marker", maestro_call
     )
+    assert runtime_wait < maestro_call < marker_ack

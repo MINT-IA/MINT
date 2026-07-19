@@ -157,9 +157,6 @@ visual_marker_payload='MINT_G1_RETURN01_RVC_LPP_VISUAL_READY_V1'
 app_container=''
 visual_marker=''
 
-# Orchestration order contract: wait_for_visual_marker ->
-# maestro_with_watchdog.sh -> remove_visual_marker.
-
 remove_generated_bundle() {
   if [[ "$bundle_cleanup_armed" != true ]]; then
     return 0
