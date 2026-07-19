@@ -101,7 +101,7 @@ void _expectUnavailableWithoutFinancialData({
     findsOneWidget,
   );
   expect(
-    find.byType(TextFormField, skipOffstage: false),
+    find.byType(TextField, skipOffstage: false),
     findsNothing,
   );
   expect(find.byType(Slider, skipOffstage: false), findsNothing);
