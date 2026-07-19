@@ -588,7 +588,7 @@ void main() {
       _RecoveryExit.systemBack,
     ]) {
       testWidgets(
-        '${recoveryCase.label} Impact recovery and replay exit RVC through ${exit.name}',
+        '${recoveryCase.label} Impact first recovery exits RVC and replay exits ${recoveryCase.replayDestination.name} through ${exit.name}',
         (tester) async {
           final scenario = recoveryCase.build();
           final harness = _RouteHarness.impact(
@@ -602,6 +602,8 @@ void main() {
               : <String>[scenario.knownPair!.scanReturnId];
           expect(scenario.sessions.discardCalls, expectedDiscardIds.length);
           expect(scenario.sessions.discardIds, expectedDiscardIds);
+          expect(scenario.sessions.consumeCalls, 0);
+          expect(scenario.sessions.consumeIds, isEmpty);
           expect(find.byType(DocumentImpactScreen), findsNothing);
           final knownPair = scenario.knownPair;
           if (knownPair != null) {
@@ -624,20 +626,28 @@ void main() {
           await tester.pumpAndSettle();
           expect(scenario.sessions.discardCalls, expectedDiscardIds.length);
           expect(scenario.sessions.discardIds, expectedDiscardIds);
+          expect(scenario.sessions.consumeCalls, 0);
+          expect(scenario.sessions.consumeIds, isEmpty);
           expect(find.byType(DocumentImpactScreen), findsNothing);
           await _exitRecovery(
             tester,
             exit,
             ctaKey: const Key('scan_impact_recovery_cta'),
           );
-          expect(find.byKey(const Key('rvc_destination')), findsOneWidget);
+          expect(
+            find.byKey(
+              Key('${recoveryCase.replayDestination.name}_destination'),
+            ),
+            findsOneWidget,
+          );
           _expectSurvivor(scenario.sessions, scenario.survivor);
         },
       );
     }
   }
 
-  testWidgets('known-altered Review purges once and replays only through RVC',
+  testWidgets(
+      'known-altered Review purges once, exits RVC, then replays only Home',
       (tester) async {
     final sessions = _DiscardSpy();
     final fixture = _retainRvcReview(sessions);
@@ -654,6 +664,8 @@ void main() {
     await harness.pump(tester);
     expect(sessions.discardCalls, 1);
     expect(sessions.discardIds, <String>[fixture.scanReturnId]);
+    expect(sessions.consumeCalls, 0);
+    expect(sessions.consumeIds, isEmpty);
     _expectKnownPairPurged(
       sessions,
       fixture,
@@ -671,13 +683,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(sessions.discardCalls, 1);
     expect(sessions.discardIds, <String>[fixture.scanReturnId]);
+    expect(sessions.consumeCalls, 0);
+    expect(sessions.consumeIds, isEmpty);
     expect(find.byType(ExtractionReviewScreen), findsNothing);
     await _exitRecovery(
       tester,
       _RecoveryExit.cta,
       ctaKey: const Key('scan_review_recovery_cta'),
     );
-    expect(find.byKey(const Key('rvc_destination')), findsOneWidget);
+    expect(find.byKey(const Key('home_destination')), findsOneWidget);
     _expectSurvivor(sessions, survivor);
   });
 
@@ -1092,10 +1106,17 @@ void _expectSurvivor(ScanSessionProvider sessions, _Survivor survivor) {
 
 typedef _ImpactRecoveryBuilder = _ImpactRecoveryScenario Function();
 
+enum _ReplayDestination { rvc, home }
+
 final class _ImpactRecoveryCase {
-  const _ImpactRecoveryCase(this.label, this.build);
+  const _ImpactRecoveryCase(
+    this.label,
+    this.replayDestination,
+    this.build,
+  );
 
   final String label;
+  final _ReplayDestination replayDestination;
   final _ImpactRecoveryBuilder build;
 }
 
@@ -1114,30 +1135,38 @@ final class _ImpactRecoveryScenario {
 }
 
 final _impactRecoveryCases = <_ImpactRecoveryCase>[
-  _ImpactRecoveryCase('canonical process-loss', () {
-    final sessions = _DiscardSpy();
-    return _ImpactRecoveryScenario(
-      sessions: sessions,
-      survivor: _retainSurvivor(sessions),
-      oldUri: Uri.parse(
-        '/scan/impact?scanSessionId=lost-session'
-        '&scanReturnId=11111111-1111-4111-8111-111111111111',
-      ),
-    );
-  }),
-  _ImpactRecoveryCase('known-altered', () {
-    final sessions = _DiscardSpy();
-    final fixture = _retainRvcImpact(sessions);
-    return _ImpactRecoveryScenario(
-      sessions: sessions,
-      survivor: _retainSurvivor(sessions),
-      oldUri: Uri.parse(
-        '/scan/impact?scanSessionId=${fixture.scanSessionId}'
-        '&scanReturnId=${fixture.scanReturnId}&returnUri=%2Fhome',
-      ),
-      knownPair: fixture,
-    );
-  }),
+  _ImpactRecoveryCase(
+    'canonical process-loss',
+    _ReplayDestination.rvc,
+    () {
+      final sessions = _DiscardSpy();
+      return _ImpactRecoveryScenario(
+        sessions: sessions,
+        survivor: _retainSurvivor(sessions),
+        oldUri: Uri.parse(
+          '/scan/impact?scanSessionId=lost-session'
+          '&scanReturnId=11111111-1111-4111-8111-111111111111',
+        ),
+      );
+    },
+  ),
+  _ImpactRecoveryCase(
+    'known-altered',
+    _ReplayDestination.home,
+    () {
+      final sessions = _DiscardSpy();
+      final fixture = _retainRvcImpact(sessions);
+      return _ImpactRecoveryScenario(
+        sessions: sessions,
+        survivor: _retainSurvivor(sessions),
+        oldUri: Uri.parse(
+          '/scan/impact?scanSessionId=${fixture.scanSessionId}'
+          '&scanReturnId=${fixture.scanReturnId}&returnUri=%2Fhome',
+        ),
+        knownPair: fixture,
+      );
+    },
+  ),
 ];
 
 typedef _RawUriBuilder = Uri Function(
@@ -1350,12 +1379,21 @@ final class _ConsumeSpy extends ScanSessionProvider {
 final class _DiscardSpy extends ScanSessionProvider {
   int discardCalls = 0;
   final List<String> discardIds = <String>[];
+  int consumeCalls = 0;
+  final List<String> consumeIds = <String>[];
 
   @override
   bool discardDataBlockScanReturnIntent(String id) {
     discardCalls += 1;
     discardIds.add(id);
     return super.discardDataBlockScanReturnIntent(id);
+  }
+
+  @override
+  DataBlockReturnTarget? consumeDataBlockScanReturnIntent(String id) {
+    consumeCalls += 1;
+    consumeIds.add(id);
+    return super.consumeDataBlockScanReturnIntent(id);
   }
 }
 
