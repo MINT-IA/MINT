@@ -160,7 +160,7 @@ void main() {
     expect(
       _read(
         complete,
-        (dynamic value) => value.matrimonialRegime.kind.name,
+        (dynamic value) => value.matrimonialRegime.name,
         'scoped matrimonialRegime confirmation',
       ),
       'participationInAcquests',
@@ -779,6 +779,95 @@ void main() {
     expect(slotA.hashCode, slotB.hashCode);
   });
 
+  test('SUCC-V05 direct JSON preserves stale slots with carried evidence', () {
+    final presentEvidence = EstateInstrumentEvidence(
+      evidenceId: '11111111-1111-4111-8111-111111111111',
+      sourceDate: _fixedSourceDate,
+      legalYear: 2026,
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.marie,
+    );
+    final absenceConfirmation = EstateInstrumentAbsenceConfirmation(
+      evidenceId: '22222222-2222-4222-8222-222222222222',
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.marie,
+    );
+    final stalePresent = EstateInstrumentSlot.present(
+      EstateInstrumentKind.will,
+      presentEvidence,
+    ).stale();
+    final staleAbsent = EstateInstrumentSlot.absent(
+      EstateInstrumentKind.inheritancePact,
+      absenceConfirmation,
+    ).stale();
+    final profile = CoachProfile.defaults().copyWith(
+      etatCivil: CoachCivilStatus.celibataire,
+      estateInstrumentSlots: <EstateInstrumentSlot>[
+        stalePresent,
+        staleAbsent,
+        const EstateInstrumentSlot.unknown(
+          EstateInstrumentKind.incapacityMandate,
+        ),
+        const EstateInstrumentSlot.unknown(
+          EstateInstrumentKind.advanceCareDirective,
+        ),
+      ],
+      estateFactsNeedReconfirmation: true,
+    );
+
+    final restored = CoachProfile.fromJson(profile.toJson());
+    final restoredPresent = restored.estateInstrumentSlots.singleWhere(
+      (slot) => slot.kind == EstateInstrumentKind.will,
+    );
+    final restoredAbsent = restored.estateInstrumentSlots.singleWhere(
+      (slot) => slot.kind == EstateInstrumentKind.inheritancePact,
+    );
+
+    expect(
+      (
+        restoredPresent.state,
+        restoredPresent.evidence,
+        restoredAbsent.state,
+        restoredAbsent.absenceConfirmation,
+        restored.estateFactsNeedReconfirmation,
+        restored.estateReferenceStateAt(_asOf),
+      ),
+      (
+        EstateInstrumentSlotState.stale,
+        presentEvidence,
+        EstateInstrumentSlotState.stale,
+        absenceConfirmation,
+        true,
+        EstateReferenceState.needsReconfirmation,
+      ),
+    );
+  });
+
+  test('SUCC-V06 direct JSON preserves an invalid slot state', () {
+    final profile = CoachProfile.defaults().copyWith(
+      estateInstrumentSlots: <EstateInstrumentSlot>[
+        const EstateInstrumentSlot.invalid(EstateInstrumentKind.will),
+        for (final kind in EstateInstrumentKind.values.skip(1))
+          EstateInstrumentSlot.unknown(kind),
+      ],
+    );
+
+    final restored = CoachProfile.fromJson(profile.toJson());
+
+    expect(
+      (
+        restored.estateInstrumentSlots
+            .singleWhere((slot) => slot.kind == EstateInstrumentKind.will)
+            .state,
+        restored.estateReferenceStateAt(_asOf),
+      ),
+      (
+        EstateInstrumentSlotState.invalid,
+        EstateReferenceState.invalid,
+      ),
+    );
+  });
+
   test('SUCC-P01 LPart enum exposes only the adjudicated legal categories', () {
     expect(
       RegisteredPartnershipPropertyRegimeKind.values
@@ -957,6 +1046,39 @@ void main() {
 
     expect(wrongArrangement.estateReferenceSurveyCompleteAt(_asOf), isFalse);
     expect(wrongSlots.estateReferenceSurveyCompleteAt(_asOf), isFalse);
+  });
+
+  test('SUCC-P06 marriage applicability requires a scoped confirmation', () {
+    final marriedWithoutConfirmation = CoachProfile.defaults().copyWith(
+      etatCivil: CoachCivilStatus.marie,
+      matrimonialRegime: MatrimonialRegimeKind.participationInAcquests,
+    );
+
+    expect(
+      marriedWithoutConfirmation.currentEstateArrangementApplicability,
+      EstateArrangementApplicability.unknown,
+    );
+  });
+
+  test('SUCC-P07 LPart applicability rejects a mismatched civil scope', () {
+    final partnershipWithMismatchedConfirmation =
+        CoachProfile.defaults().copyWith(
+      etatCivil: CoachCivilStatus.registeredPartnership,
+      registeredPartnershipPropertyRegime:
+          RegisteredPartnershipPropertyRegimeConfirmation(
+        confirmationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        kind: RegisteredPartnershipPropertyRegimeKind
+            .statutorySeparationOfProperty,
+        confirmedAt: _fixedConfirmationInstant,
+        civilStatusAtConfirmation: CoachCivilStatus.marie,
+      ),
+    );
+
+    expect(
+      partnershipWithMismatchedConfirmation
+          .currentEstateArrangementApplicability,
+      EstateArrangementApplicability.unknown,
+    );
   });
 }
 
