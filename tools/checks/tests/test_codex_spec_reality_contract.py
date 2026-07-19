@@ -191,7 +191,9 @@ def test_exact_3a_dossier_docs_follow_the_qualified_consumer_boundary() -> None:
         "exactly `knownCurrentDeclared`",
         "mixed known+inactive",
         "inactive entries are excluded",
-        "native runtime remains open",
+        "fc1023fd73da8256acda8fbc438317ca391e7c74",
+        "pillar3a-beneficiary-runtime-proof-fc1023fd7",
+        "activation remains NO-GO",
     ):
         assert marker in ledger, f"DATA_LEDGER missing exact 3a marker {marker!r}"
 
@@ -206,8 +208,9 @@ def test_exact_3a_dossier_docs_follow_the_qualified_consumer_boundary() -> None:
         "mixed known+inactive",
         "inactive entries are excluded",
         "ambiguous states fail closed",
-        "host contracts",
-        "native runtime remains open",
+        "fc1023fd73da8256acda8fbc438317ca391e7c74",
+        "pillar3a-beneficiary-runtime-proof-fc1023fd7",
+        "activation remains NO-GO",
     ):
         assert marker in contracts, f"SCREEN_CONTRACTS missing {marker!r}"
     assert "-> /retraite -> /rapport" not in contracts
@@ -221,7 +224,8 @@ def test_exact_3a_dossier_docs_follow_the_qualified_consumer_boundary() -> None:
             "knownCurrentDeclared only",
             "mixed inactive = excluded",
             "ambiguous = absent",
-            "native runtime open",
+            "fc1023fd7",
+            "ACTIVATION OPEN",
         ):
             assert marker in rendered_graph, f"Mermaid contract missing {marker!r}"
 
@@ -234,13 +238,17 @@ def test_exact_3a_dossier_docs_follow_the_qualified_consumer_boundary() -> None:
     assert "acceptPillar3aBeneficiaryReview,recordPillar3aBeneficiaryEvidence" in row
     assert "beneficiary_order" not in row
     assert "| missing |" not in row
-    assert "| quarantined |" in row
+    assert "| live |" in row
     assert "dossier_pdf_host_contract" in row
-    assert "exact_sha_native_runtime" in row
+    assert "exact_sha_native_runtime_fc1023fd7" in row
+    assert "wrapper_runtime_audits" in row
+    assert "| activation_decision | yes | G1-RET-REF-01 |" in row
 
     stale_claims = (
         "audits/runtime/dossier open",
         "OPEN: Opus audits + dossier/PDF + native runtime",
+        "native runtime remains open",
+        "native runtime open",
     )
     for claim in stale_claims:
         assert claim not in contracts

@@ -1101,12 +1101,14 @@ def _ledger_receivers(
     source: str,
     member: str,
     class_name: str,
-) -> tuple[set[str], dict[str, set[str]]]:
+) -> tuple[set[str], set[str], dict[str, set[str]]]:
     """Resolve receivers whose canonical origin is proven inside one member.
 
     Detached sub-ledger parameters deliberately fail closed: canonical type
     identity does not prove they belong to the owner profile. A sub-ledger
     receiver qualifies only when acquired from an eligible profile in-member.
+    Direct canonical provider receivers remain eligible because strict-secure
+    projections intentionally live on CoachProfileProvider, not CoachProfile.
     """
 
     structural_member = _mask_dart_source(member, mask_strings=True)
@@ -1175,7 +1177,7 @@ def _ledger_receivers(
                 for match in inferred.finditer(structural_member)
             )
 
-    return coach_receivers, subledger_receivers
+    return coach_receivers, provider_receivers, subledger_receivers
 
 
 def _qualified_ledger_access_occurs(
@@ -1192,10 +1194,13 @@ def _qualified_ledger_access_occurs(
     if profile_path in {"", "NONE"} or token != path_parts[-1]:
         return False
 
-    coach_receivers, subledger_receivers = _ledger_receivers(
+    coach_receivers, provider_receivers, subledger_receivers = _ledger_receivers(
         source, member, class_name
     )
     structural_body = _mask_dart_source(body, mask_strings=True)
+    for receiver in provider_receivers:
+        if _receiver_access_pattern(receiver, path_parts).search(structural_body):
+            return True
     for receiver in coach_receivers:
         if _receiver_access_pattern(receiver, path_parts).search(structural_body):
             return True
@@ -1840,6 +1845,31 @@ def test_semantic_reader_anchor_accepts_canonical_provider_and_derived_subledger
         "classification": "fact",
         "reader_evidence": (
             "lib/consumer.dart#SampleConsumer.compute@hasPensionFund"
+        ),
+    }
+
+    assert _reader_evidence_errors(row, root=tmp_path) == []
+
+
+def test_semantic_reader_anchor_accepts_direct_canonical_provider_projection(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "lib/consumer.dart"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text(
+        "import 'package:mint_mobile/providers/coach_profile_provider.dart';\n"
+        "class SampleConsumer { Object? compute(CoachProfileProvider ledger) "
+        "=> ledger.currentPillar3aBeneficiaryEvidence; }",
+        encoding="utf-8",
+    )
+    row = {
+        "canonical_key": "pillar3aBeneficiaryClause",  # gitleaks:allow
+        "storage_key": "_coach_pillar3a_beneficiary_evidence_v1",  # gitleaks:allow
+        "coach_profile_path": "currentPillar3aBeneficiaryEvidence",
+        "classification": "specialist_reference",
+        "reader_evidence": (
+            "lib/consumer.dart#SampleConsumer.compute@"
+            "currentPillar3aBeneficiaryEvidence"
         ),
     }
 

@@ -61,16 +61,18 @@
 %% lpp-regulation-recovery-runtime-proof-7cb5ea4c6 is committed at
 %% ce5a020503c9e1733a81fa01b8dc6dd79b7c01d1. RET-REF remains ticket_only,
 %% G1 stays open at 8.2/10 and G2/G3 are forbidden.
-%% The exact 3a-beneficiary authority atom and dossier/PDF host contracts are
-%% GREEN on the current G1 branch. An opaque FIFO-5 intent, strict institutional
-%% candidate, secure whole-root Ledger write and exact raw-free BND join feed one
-%% qualified consumer. /rapport checks the same three flags before that consumer
-%% read and projects only an aggregate knownCurrentDeclared resolution through a
-%% metadata-only handoff, FinancialReport and a shared screen/PDF presenter.
-%% Mixed known+inactive excludes inactive entries; ambiguous/all-inactive states
-%% suppress the whole section. Offline bundled Unicode
-%% fonts preserve the exact legal footer. All three flags remain false; wrapper
-%% audits and native exact-SHA runtime are still open. No ticket/G1 promotion.
+%% The exact 3a-beneficiary authority atom is technically GREEN at exact pushed
+%% SHA fc1023fd73da8256acda8fbc438317ca391e7c74. A production-screen native
+%% writer persists the strict root then its exact raw-free BND; a separately
+%% built, distinct-process cold reader hydrates that root+BND, boots real MintApp,
+%% opens /rapport and builds real PDF bytes with network denied. The same proof
+%% covers missing/mismatched BND, invalid presence provenance, invalid root,
+%% restoration, reinstall state, Maestro default-off before/after and minimized
+%% synthetic-only privacy. Bounded audit lineage is current with aggregate
+%% P0/P1=0 and a final exact-delta P0/P1/P2=0. The accepted proof is
+%% pillar3a-beneficiary-runtime-proof-fc1023fd7. All three flags remain false;
+%% activation remains NO-GO, RET-REF remains ticket_only, G1 remains open at
+%% 8.2/10 and G2/G3 remain forbidden.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -337,9 +339,9 @@ flowchart TB
   LRR_ACCEPT -- "single serialized provider mutation" --> CPP
   LRR_RESOLVE -. "resolved currentFund + same sourceDate/legalYear" .-> LCN_HANDOFF
 
-  %% Exact 3a-beneficiary reference + dossier/PDF host contracts are GREEN;
-  %% wrapper audits and frozen native runtime remain open.
-  subgraph P3A_BENEFICIARY_REFERENCE["G1-RET-REF-01 — EXACT 3A BENEFICIARY AUTHORITY / PROMOTION OPEN"]
+  %% Exact 3a-beneficiary technical atom is GREEN at fc1023fd73da8256acda8fbc438317ca391e7c74;
+  %% activation remains open/default-off and cannot promote RET-REF or G1.
+  subgraph P3A_BENEFICIARY_REFERENCE["G1-RET-REF-01 — EXACT 3A BENEFICIARY AUTHORITY / ACTIVATION OPEN"]
     direction TB
     P3AB_FLAG{"typedLppEvidence AND documentLppEvidenceEnabled<br/>AND pillar3aBeneficiaryClauseReferenceEnabled<br/>all default false"}
     P3AB_HIDDEN["off / loading / unavailable<br/>no Dashboard card, CTA, intent or provider read"]
@@ -366,9 +368,12 @@ flowchart TB
     P3AB_PRESENTER["Pillar3aBeneficiaryHandoffSectionContent<br/>one localized screen/PDF presenter"]
     P3AB_DOSSIER["/rapport exact 3a section<br/>stable semantics id + neutral specialist questions"]
     P3AB_PDF["PdfService<br/>offline bundled Unicode fonts<br/>exact legal punctuation; no downloader"]
-    P3AB_HOST["code + host contracts GREEN<br/>route/report/screen/real PDF/null/privacy"]
+    P3AB_HOST["TECHNICAL GREEN @ fc1023fd7<br/>native writer -> distinct cold reader<br/>real /rapport/PDF + recovery/restoration"]
     P3AB_SUPPRESS["ambiguous = absent; all inactive = null<br/>no uncertain/recovery metadata projection"]
-    P3AB_OPEN["OPEN: wrapper audits + exact-SHA native runtime<br/>native runtime open; flags false<br/>ticket_only / G1 OPEN; G2/G3 forbidden"]
+    P3AB_RUNTIME["production-screen writer 1/1 + cold reader 1/1<br/>strict root+BND; isolated builds; 25/25 outputs<br/>reinstall identity/state preserved"]
+    P3AB_MAESTRO["Maestro default-off<br/>before 1/1 + after 1/1"]
+    P3AB_PROOF["pillar3a-beneficiary-runtime-proof-fc1023fd7<br/>synthetic-only; no raw/hash/device/xcresult<br/>bounded audits current P0/P1=0"]
+    P3AB_OPEN["ACTIVATION OPEN / NO-GO / flags false<br/>RET-REF ticket_only / G1 OPEN 8.2<br/>G2/G3 forbidden"]
 
     P3AB_FLAG -- "off" --> P3AB_HIDDEN
     P3AB_FLAG -- "test-only on" --> P3AB_DASH
@@ -394,7 +399,7 @@ flowchart TB
     P3AB_PRESENCE --> P3AB_SUPPRESS
     P3AB_INVALID --> P3AB_SUPPRESS
     P3AB_SUPPRESS --> P3AB_HOST
-    P3AB_HOST --> P3AB_OPEN
+    P3AB_HOST --> P3AB_RUNTIME --> P3AB_MAESTRO --> P3AB_PROOF --> P3AB_OPEN
   end
 
   P3AB_ACCEPT -- "single serialized provider mutation" --> CPP
@@ -1013,4 +1018,33 @@ flowchart TB
 %% bootstrap component audits leave P0/P1=0. PDF/dossier caveat parity is closed;
 %% activation and other RET-REF obligations stay open. RET-REF remains ticket_only, G1 remains open
 %% at 8.2/10 and G2/G3 are forbidden.
+%% G1-RET-REF-01 EXACT 3A BENEFICIARY REALITY: at exact pushed SHA
+%% fc1023fd73da8256acda8fbc438317ca391e7c74, the production-screen writer
+%% crosses RetirementDashboardScreen, DocumentScanScreen and
+%% ExtractionReviewScreen with visionExtraction + transferUsAnthropic consent,
+%% declares currentActiveUnpaid, commits accept then record, purges the volatile
+%% scan session and never attempts raw-vault upload. Its external document IO is
+%% the synthetic in-process adapter. A separately built cold reader with a
+%% distinct PID hydrates the exact strict root+BND, boots real MintApp, opens
+%% `/rapport`, displays the known handoff and builds production
+%% PdfService.buildFinancialReportPdfBytes bytes with network forbidden.
+%% The reader also proves fail-closed missingDocumentReference,
+%% mismatchedDocumentReference, invalidPresenceProvenance and invalidRoot states:
+%% invalid-presence repair preserves root/reference, invalid-root reset durably
+%% removes both, and exact restoration makes the handoff visible again. Writer
+%% 1/1, reader 1/1, isolated production builds, 25/25 retained outputs,
+%% cleanup/restoration and production reinstall identity/state all pass. Maestro
+%% before 1/1 and after 1/1 keep the three production flags default-off. The run
+%% is synthetic-only and retains no private fixture, raw bytes, document hash,
+%% simulator identifier or xcresult. Wrapper-only bounded audit lineage is
+%% current PASS_BOUNDED with aggregate P0/P1=0; the final code delta from
+%% f20254a16 to this exact SHA is PASS with P0/P1/P2=0. The earlier runtime-
+%% harness code lens is PASS with P2=2 and the product-domain lens is
+%% PASS_WITH_VERIFICATION_REQUEST with P1=1/P2=2; the cutoff disposition is
+%% CLOSED on the official 2026-06-12 reform decision and 2027-06-01 entry into
+%% force. The minimized accepted proof is
+%% `.planning/runtime-evidence/phase-37/ret-ref-01/
+%% pillar3a-beneficiary-runtime-proof-fc1023fd7/`. This technical GREEN is not
+%% activation: all three flags remain false, activation remains NO-GO, RET-REF
+%% remains ticket_only, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
 %% ============================================================================

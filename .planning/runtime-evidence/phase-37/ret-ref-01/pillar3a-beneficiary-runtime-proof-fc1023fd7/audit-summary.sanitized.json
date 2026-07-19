@@ -1,0 +1,47 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "pillar3a_beneficiary_atom": "GREEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "current_gate": {
+    "aggregate_p0": 0,
+    "aggregate_p1": 0,
+    "verdict": "PASS_BOUNDED"
+  },
+  "final_delta_code": {
+    "base_sha": "f20254a16",
+    "p0": 0,
+    "p1": 0,
+    "p2": 0,
+    "source_head": "fc1023fd73da8256acda8fbc438317ca391e7c74",
+    "verdict": "PASS"
+  },
+  "legal_cutoff_disposition": {
+    "official_source_verified": true,
+    "opp3_entry_into_force": "2027-06-01",
+    "reform_decision_date": "2026-06-12",
+    "status": "CLOSED"
+  },
+  "runtime_harness": {
+    "code": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 2,
+      "verdict": "PASS"
+    },
+    "product_domain": {
+      "p0": 0,
+      "p1": 1,
+      "p2": 2,
+      "verdict": "PASS_WITH_VERIFICATION_REQUEST"
+    },
+    "source_head": "f20254a16"
+  },
+  "wrapper_only": true
+}

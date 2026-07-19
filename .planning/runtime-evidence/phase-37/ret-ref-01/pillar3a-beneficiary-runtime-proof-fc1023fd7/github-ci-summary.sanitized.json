@@ -1,0 +1,24 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "pillar3a_beneficiary_atom": "GREEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "head_sha": "fc1023fd73da8256acda8fbc438317ca391e7c74",
+  "run_id": 29675502851,
+  "status": "SUCCESS",
+  "verified_gates": [
+    "backend",
+    "flutter_screens",
+    "flutter_services",
+    "flutter_widgets",
+    "privacy",
+    "repository_contracts",
+    "vercel"
+  ]
+}

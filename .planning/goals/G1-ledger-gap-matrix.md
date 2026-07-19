@@ -39,21 +39,27 @@
 > contract proves ordered allowlisted content and privacy. Its minimized proof
 > is `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/`.
 > PDF/dossier caveat parity is closed; an activation decision remains open.
-> Whole RET-REF also retains
-> capital-notice acquisition, 3a-beneficiary and fiscal activation/currentness
-> gaps. RET-REF remains `ticket_only`, G1 remains open at 8.2/10 and G2/G3
+> Whole RET-REF also retains capital-notice, 3a-beneficiary and fiscal
+> activation/currentness gaps. RET-REF remains `ticket_only`, G1 remains open
+> at 8.2/10 and G2/G3
 > remain forbidden.
-> Focused exact 3a dossier/PDF reality: the strict-secure root, serialized
-> writer, exact raw-free BND join, fail-closed consumer, metadata-only specialist
-> handoff, `/rapport` route, `FinancialReport` pass-through, screen and real-PDF
-> host contracts are GREEN on the current branch. Only an aggregate
+> Focused exact 3a reality: exact pushed SHA
+> `fc1023fd73da8256acda8fbc438317ca391e7c74` passes the real Dashboard -> scan
+> -> review writer and a separately rebuilt, distinct-process cold reader. The
+> strict-secure root, serialized writer, exact raw-free BND join, fail-closed
+> consumer, metadata-only specialist handoff, `/rapport` route,
+> `FinancialReport` pass-through, offline PDF, recovery and exact restoration
+> are proven. Production Maestro passes default-off before and after; source
+> isolation, reinstall/state preservation, cleanup, GitHub run `29675502851`,
+> privacy and bounded wrapper audits pass with current P0/P1=0. The minimized
+> proof is
+> `phase-37/ret-ref-01/pillar3a-beneficiary-runtime-proof-fc1023fd7/`. Only an aggregate
 > `knownCurrentDeclared` state is admitted; mixed known+inactive exports only
 > known entries, while inactive entries are excluded. Ambiguous/all-inactive
 > states suppress the whole section, and no beneficiary identity, order or
-> share is modelled. The
-> three flags remain false; wrapper audits, exact-SHA native runtime and
-> activation remain open. The row is therefore quarantined, not promoted live;
-> RET-REF/G1 remain open and G2/G3 remain forbidden.
+> share is modelled. The technical atom is live, but the three flags remain
+> false and activation remains NO-GO. RET-REF stays `ticket_only`, G1 stays open
+> at 8.2/10 and G2/G3 remain forbidden.
 
 ## Parser contract
 
@@ -192,7 +198,7 @@ evidence, external audits and the activation decision pass. Legacy
 | residenceCountry | NONE | NONE | ISO_country_code | userInput,certificate | event_static | 0.60 | fact | self | NONE | NONE | treaty,tax,social_security | FRONTALIER | P0 | yes | partial+ask | required | residence_jurisdiction | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-FRONT-01 |
 | lppRegulationReference | _coach_lpp_evidence_v1 | lppRegulationReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptLppRegulationReference,recordLppRegulation,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppRegulationEducation@lppRegulationReference | retirement_lpp_regulation_reference_education,retirement_lpp_regulation_handoff_cta,retirement_lpp_regulation_handoff_sheet,retirement_lpp_regulation_reference_recovery,retirement_lpp_regulation_reconfirm_cta,financial_report_lpp_regulation_handoff | RETIREMENT | P0 | conditional | educational_only | required | regulation_terms | live | lpp_plan_classifier,lpp_regulation_document_authority,lpp_regulation_ledger_contract,lpp_regulation_provider,lpp_regulation_document_bridge,lpp_regulation_bridge_hardening,canonical_regulation_kind,bridge_wrapper_audits,writer_model_wrapper_audits,lpp_regulation_handoff_model,lpp_regulation_dashboard_consumer_5_of_5,retirement_dashboard_regression_24_of_24,consumer_wrapper_audits,autonomous_declared_fund_relationship,snapshotless_regulation_root,cold_profile_without_numeric_lpp,numeric_add_replacement_preservation,distinct_process_runtime,exact_22_of_22_evidence,production_default_off_before_after,privacy_retention_guard,bounded_opus_audits,schema3_recovery_marker,opaque_resolution_classifier,visible_legacy_missing_mismatch_recovery,recovery_copy_6_locales,recovery_runtime_missing_bnd_7cb5ea4c6,bnd_restore_compare,dossier_pdf_parity_runtime_274736a50 | activation_decision | yes | G1-RET-REF-01 |
 | lppCapitalNoticeDeadline | _coach_lpp_evidence_v1 | lppCapitalNoticeDeadline | ISO_date | certificate | event_static | 0.95 | specialist_reference | self | acceptLppCapitalNotice,recordLppCapitalNotice,derived_on_rebuild | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart#_RetirementDashboardScreenState._buildLppCapitalNoticeEducation@lppCapitalNoticeDeadline | retirement_dashboard_deadline_education,financial_report_lpp_capital_notice_handoff,pdf_lpp_capital_notice_section | RETIREMENT | P0 | conditional | educational_only | required | withdrawal_deadline | live | ret_ref_capital_notice_native_green_36152b997,native_production_ui_acquisition_seam,strict_self_root,serialized_writer,exact_raw_free_bnd,cold_dashboard_consumer,authority_replacement_invalidation,snapshot_replacement_invalidation,process_death_runtime,wrapper_opus_audits,capital_notice_dossier_pdf_exact_sha_a00b4c68a,report_route_handoff_order,pdf_header_length_runtime,host_dossier_pdf_parity_11_of_11,recovery_suppression_exact_restoration,runtime_code_opus_audit,integration_code_product_opus_audits,minimized_proof_checksums | activation_decision | yes | G1-RET-REF-01 |
-| pillar3aBeneficiaryClause | _coach_pillar3a_beneficiary_evidence_v1 | currentPillar3aBeneficiaryEvidence | document_ref | certificate,userInput | event_static | 0.95 | specialist_reference | self | acceptPillar3aBeneficiaryReview,recordPillar3aBeneficiaryEvidence | apps/mobile/lib/providers/document_provider.dart#DocumentProvider.resolvePillar3aBeneficiaryConsumer@currentPillar3aBeneficiaryEvidence | retirement_pillar3a_beneficiary_authority,retirement_pillar3a_beneficiary_handoff_sheet,financial_report_pillar3a_beneficiary_handoff,pdf_pillar3a_beneficiary_section | RETIREMENT,SUCCESSION | P0 | conditional | educational_only | required | institutional_attestation_declared_relation_specialist_handoff | quarantined | exact_secure_root,serialized_cas_writer,raw_free_bnd_join,fail_closed_consumer,dossier_pdf_host_contract,offline_unicode_pdf | exact_sha_native_runtime,wrapper_code_product_audits,activation_decision | yes | G1-RET-REF-01 |
+| pillar3aBeneficiaryClause | _coach_pillar3a_beneficiary_evidence_v1 | currentPillar3aBeneficiaryEvidence | document_ref | certificate,userInput | event_static | 0.95 | specialist_reference | self | acceptPillar3aBeneficiaryReview,recordPillar3aBeneficiaryEvidence | apps/mobile/lib/providers/document_provider.dart#DocumentProvider._isReferenceCurrent@currentPillar3aBeneficiaryEvidence | retirement_pillar3a_beneficiary_authority,retirement_pillar3a_beneficiary_handoff_sheet,financial_report_pillar3a_beneficiary_handoff,pdf_pillar3a_beneficiary_section | RETIREMENT,SUCCESSION | P0 | conditional | educational_only | required | institutional_attestation_declared_relation_specialist_handoff | live | exact_secure_root,serialized_cas_writer,raw_free_bnd_join,fail_closed_consumer,dossier_pdf_host_contract,offline_unicode_pdf,exact_sha_native_runtime_fc1023fd7,distinct_process_cold_reader,production_default_off_before_after,strict_root_durable_deletion,github_clean_room_29675502851,wrapper_runtime_audits,minimized_proof_checksums | activation_decision | yes | G1-RET-REF-01 |
 | matrimonialRegime | NONE | NONE | regime_enum | userInput,certificate | event_static | source_weight | fact | household | NONE | NONE | succession,rente_capital | RETIREMENT,SUCCESSION | P0 | conditional | partial+ask | required | estate_partition | missing | NONE | canonical_storage,typed_field,provenance_on_write | yes | G1-SUCCESSION-01 |
 | estateInstrumentReferences | NONE | NONE | list_document_ref | certificate | event_static | 0.95 | specialist_reference | document_ref | NONE | NONE | will,pact,mandate | SUCCESSION,RETIREMENT | P0 | conditional | educational_only | required | specialist_handoff | missing | NONE | document_reference_contract,source_date | yes | G1-SUCCESSION-01 |
 | latestTaxDecisionReference | _coach_tax_snapshots_v1 | latestTaxDecisionReference | document_ref | certificate | event_static | 0.95 | specialist_reference | self | acceptTaxReview,derived_on_rebuild | apps/mobile/lib/services/financial_core/confidence_scorer.dart#ConfidenceScorer._hasPrecisionReadyTaxDecision@latestTaxDecisionReference | tax_baseline,data_block_fiscal_prompt | RETIREMENT,SUCCESSION,FRONTALIER | P0 | conditional | partial+ask | required | tax_source | live | ret_ref_green_cdc786782,specialist_reference_contract,tax_provenance_profile,confidence_scorer_tax_kill_switch | frozen_runtime_proof,external_audits,activation_decision | yes | G1-RET-REF-01 |
@@ -205,11 +211,12 @@ row's `currentPillar3aBeneficiaryEvidence` path is the dedicated secure-root
 projection on `CoachProfileProvider`, not a `CoachProfile` financial value.
 Mixed known+inactive resolution does not promote the inactive contract: only
 known metadata is projected; every ambiguous state fails the whole handoff.
-`quarantined` records the actual proof level: production code and host dossier/
-PDF contracts exist behind three default-false flags, but wrapper audits,
-frozen exact-SHA native runtime and activation are still missing. It must not be
-changed to `live` until those gates are accepted and the ledger reader gate can
-validate this dedicated secure-root consumer mechanically.
+`live` records the bounded technical proof at exact pushed SHA
+`fc1023fd73da8256acda8fbc438317ca391e7c74`: native acquisition, a distinct
+cold reader, dossier/PDF, fail-closed recovery, durable invalid-root deletion,
+restoration, production default-off before/after, clean-room CI and bounded
+audits are accepted. It does not activate the path. All three flags remain
+false and the explicit activation decision remains open.
 
 `lppRegulationReference` now has bounded autonomous regulation-only and visible
 recovery technical atoms under the same G1-RET-REF-01 ticket. The schema-3 root

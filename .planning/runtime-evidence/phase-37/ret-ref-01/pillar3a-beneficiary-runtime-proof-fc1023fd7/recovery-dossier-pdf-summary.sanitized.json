@@ -1,0 +1,29 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "pillar3a_beneficiary_atom": "GREEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "invalid_presence_reset_preserved_root_and_reference": true,
+  "invalid_root_reset_durably_removed_root_and_reference": true,
+  "known_current_declared_handoff_visible": true,
+  "network_forbidden_during_pdf_build": true,
+  "pdf": {
+    "builder": "PdfService.buildFinancialReportPdfBytes",
+    "nontrivial_length_verified": true,
+    "valid_document_header_verified": true
+  },
+  "recovery_states_suppress_handoff": [
+    "missingDocumentReference",
+    "mismatchedDocumentReference",
+    "invalidPresenceProvenance",
+    "invalidRoot"
+  ],
+  "report_route": "/rapport",
+  "restored_handoff_visible": true
+}

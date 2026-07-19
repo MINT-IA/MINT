@@ -1,0 +1,50 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "pillar3a_beneficiary_atom": "GREEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "cleanup_status": "passed",
+  "distinct_process_pid_verified": true,
+  "evidence_outputs_complete": true,
+  "expected_output_count": 25,
+  "privacy": {
+    "document_hash_retained": false,
+    "private_fixture_used": false,
+    "raw_document_bytes_retained": false,
+    "simulator_identifier_retained": false,
+    "synthetic_data_only": true,
+    "xcresult_retained": false
+  },
+  "production_build_install_passed": true,
+  "production_default_off": {
+    "after": true,
+    "before": true
+  },
+  "production_reinstall_preserved_identity_and_state": true,
+  "production_source_exported_exact": true,
+  "production_source_physical": true,
+  "pushed_sha_verified": true,
+  "restoration_status": "restored",
+  "retained_output_count": 25,
+  "runtime_completed": true,
+  "source_sha": "fc1023fd73da8256acda8fbc438317ca391e7c74",
+  "suite": {
+    "reader": {
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 1
+    },
+    "writer": {
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 1
+    }
+  },
+  "writer_reader_build_isolation_verified": true
+}

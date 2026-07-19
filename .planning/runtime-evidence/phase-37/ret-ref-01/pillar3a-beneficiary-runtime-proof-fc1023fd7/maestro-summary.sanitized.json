@@ -1,0 +1,24 @@
+{
+  "after": {
+    "failures": 0,
+    "production_default_off": true,
+    "status": "SUCCESS",
+    "tests": 1
+  },
+  "before": {
+    "failures": 0,
+    "production_default_off": true,
+    "status": "SUCCESS",
+    "tests": 1
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "pillar3a_beneficiary_atom": "GREEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  }
+}

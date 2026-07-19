@@ -1,0 +1,31 @@
+{
+  "assertion_trace": {
+    "claim_basis": "tracked_contracts_plus_passing_exact_sha_runtime",
+    "internal_assertions_exposed_by_xctest_output": false,
+    "source_sha": "fc1023fd73da8256acda8fbc438317ca391e7c74",
+    "tracked_reader": "apps/mobile/integration_test/g1_ret_ref_pillar3a_beneficiary_read_patrol_test.dart",
+    "tracked_writer": "apps/mobile/integration_test/g1_ret_ref_pillar3a_beneficiary_write_patrol_test.dart"
+  },
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "pillar3a_beneficiary_atom": "GREEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "cold_reader": {
+    "failed": 0,
+    "passed": 1,
+    "status": "PASS"
+  },
+  "contract": "g1_ret_ref_pillar3a_beneficiary",
+  "native_writer": {
+    "failed": 0,
+    "passed": 1,
+    "status": "PASS"
+  },
+  "status": "PASS"
+}

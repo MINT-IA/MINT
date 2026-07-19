@@ -1,0 +1,30 @@
+{
+  "boundary": {
+    "activation": "NO-GO",
+    "g1": "OPEN",
+    "g1_score": "8.2/10",
+    "g2": "FORBIDDEN",
+    "g3": "FORBIDDEN",
+    "pillar3a_beneficiary_atom": "GREEN",
+    "production_default_off": true,
+    "ret_ref": "ticket_only"
+  },
+  "consent_purposes": [
+    "visionExtraction",
+    "transferUsAnthropic"
+  ],
+  "durable_raw_document_material_absent": true,
+  "external_document_io": "synthetic_in_process_adapter",
+  "mutation_order": [
+    "accept",
+    "record"
+  ],
+  "production_screens": [
+    "RetirementDashboardScreen",
+    "DocumentScanScreen",
+    "ExtractionReviewScreen"
+  ],
+  "raw_document_vault_upload_attempted": false,
+  "review_relation": "currentActiveUnpaid",
+  "scan_session_purged_after_confirmation": true
+}

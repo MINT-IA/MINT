@@ -26,11 +26,13 @@ flowchart TB
   DOSSIER["/rapport section<br/>neutral specialist questions + legal footer"]
   PDF["PdfService<br/>offline bundled Unicode fonts<br/>exact punctuation; no runtime downloader"]
   SUPPRESS["ambiguous = absent; all inactive = null<br/>no uncertain/recovery metadata projection"]
-  HOST["code + host contracts GREEN<br/>route/report/screen/real PDF/null/privacy"]
+  HOST["TECHNICAL GREEN @ fc1023fd7<br/>native writer -> distinct cold reader<br/>real /rapport/PDF + recovery/restoration"]
   BND_RETRY["ledgerAcceptedAwaitingBnd<br/>retry same receipt only<br/>no second Ledger mutation"]
   LIFECYCLE["cancel / route mismatch / flag drift<br/>FIFO eviction / logout / cold restart<br/>purge or localized recovery"]
   BOUNDARY["No beneficiary identity, order, rank/share<br/>no advice, calculation or inferred law"]
-  OPEN["Implementation + dossier/PDF host contracts GREEN<br/>wrapper audits + exact-SHA native runtime open<br/>flags false; G1 NO-GO; G2/G3 forbidden"]
+  RUNTIME["writer 1/1 + cold reader 1/1<br/>isolated builds; 25/25 outputs<br/>reinstall identity/state preserved"]
+  PROOF["pillar3a-beneficiary-runtime-proof-fc1023fd7<br/>synthetic-only; no raw/hash/device/xcresult<br/>bounded audits current P0/P1=0"]
+  OPEN["ACTIVATION OPEN / NO-GO / flags false<br/>RET-REF ticket_only / G1 OPEN 8.2<br/>G2/G3 forbidden"]
 
   FLAG -- "false" --> HIDDEN
   FLAG -- "true" --> DASH
@@ -64,4 +66,4 @@ flowchart TB
   LIFECYCLE -. "terminal cleanup" .-> HIDDEN
   SCAN -. "drift/cancel" .-> LIFECYCLE
   REVIEW -. "drift/cancel" .-> LIFECYCLE
-  HOST --> OPEN
+  HOST --> RUNTIME --> PROOF --> OPEN

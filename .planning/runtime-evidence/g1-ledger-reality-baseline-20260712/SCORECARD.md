@@ -152,11 +152,43 @@ G2/G3.
   not relabel it as such.
 - **Activation/scope boundary:** **NO-GO** and default-off. PDF/dossier caveat parity is closed
   only by the bounded exact-SHA slice; a separate activation decision remains
-  open. Capital-notice
-  acquisition/activation, the 3a-beneficiary reference and fiscal
-  activation/currentness also keep the ticket open. RET-REF remains
+  open. Capital-notice, 3a-beneficiary and fiscal activation/currentness also
+  keep the ticket open. RET-REF remains
   `ticket_only`; the G1 interim score remains 8.2/10, G1 remains open at
   8.2/10 and G2/G3 remain forbidden.
+
+## G1-RET-REF-01 `pillar3aBeneficiaryClause` — exact native runtime atom
+
+- **Technical status:** **GREEN** at exact pushed SHA
+  `fc1023fd73da8256acda8fbc438317ca391e7c74`; the minimized proof is
+  `phase-37/ret-ref-01/pillar3a-beneficiary-runtime-proof-fc1023fd7/`.
+- **Native acquisition:** the writer traverses the real
+  `RetirementDashboardScreen -> DocumentScanScreen -> ExtractionReviewScreen`
+  chain with a synthetic institutional document adapter. It obtains the exact
+  consent scopes, persists the strict Ledger root before the raw-free BND join,
+  never attempts document-vault upload and purges its volatile scan session.
+- **Cold consumer and recovery:** a separately rebuilt reader runs in a
+  distinct process, starts the real `MintApp`, hydrates the exact root+BND,
+  renders the qualified `/rapport` handoff and builds offline production report
+  bytes. Missing/mismatched BND, invalid presence provenance and invalid root
+  suppress the handoff. Presence repair preserves authority; destructive
+  invalid-root recovery durably removes root and BND; final restoration is
+  exact.
+- **Runtime/clean-room evidence:** writer 1/1, cold reader 1/1, production build,
+  code signature, physical exact-source export, build isolation,
+  state-preserving reinstall and cleanup pass. Maestro proves all three flags
+  remain default-off before and after. GitHub run `29675502851`, its repository,
+  backend, Flutter and privacy gates, and Vercel all pass at the same SHA.
+- **Audit/privacy evidence:** the harness Opus code lens passes P0/P1=0; its
+  product-domain legal-source request is closed against the official OFAS
+  bulletin, and the final Opus delta audit passes P0/P1=0. The tracked bundle
+  retains summaries only: no runtime/audit transcript, local path, device
+  material, document digest/bytes, generated report, result bundle or media.
+- **Activation boundary:** technical `live` is not product activation. The
+  three flags remain false and the explicit activation decision remains open.
+  RET-REF stays `ticket_only`; G1 remains open at 8.2/10 and G2/G3 remain
+  forbidden. Beneficiary identity, order, rank and share remain intentionally
+  outside MINT's model, not activation backlog.
 
 ## Blocking ledger
 
@@ -176,6 +208,7 @@ G2/G3.
 | GREEN — G1-COACH-01 ticket + runtime | Live salary/LPP/3a inline amounts could drop, use the wrong unit/authority, publish before persistence, disappear on reload or survive only behind a facade. | Semantic RED `c7809198e` was 3/10; the identical command is 14/14 at exact pushed SHA `fec1d4119e`. One serialized canonical write precedes publish; invalid/strict-LPP conflicts fail closed; retry and cold provenance pass. Dedicated Patrol is 1/1 with visually accepted synthetic evidence and cleanup; both first-pass Opus wrapper lenses pass P0/P1=0. Five P2 follow-ups remain explicit. |
 | GREEN technical atoms — RET-REF LPP regulation runtime | A production-shaped `lpp_plan` scan could stop at a zero-fact backend response, publish before persistence, leak raw bytes/identity, disappear after process death, bind regulation education to a numeric snapshot, lose the reference on numeric add/replacement, expose a stale handoff after BND loss, strand recovery without a scan route, or accidentally activate the production path. | Exact pushed SHA `6066f1c94786aa1bc4697c29b4a670b7cea3dca4` proves the autonomous base. Exact pushed SHA `7cb5ea4c64e0a59d4e2f38f8f67eff7c924bd32a` adds `missingDocumentReference`: known/handoff absent, exact recovery copy/CTA present, `/scan?type=lppPlan` reached, BND restored+compared. The same suite is 2/2 with distinct PIDs; Maestro before/after 1/1, 22/22 outputs, reinstall/restoration/privacy PASS. `currentFund` remains declared/unverified, not objective caisse identity. Activation remains NO-GO/default-off, so RET-REF stays `ticket_only`. |
 | GREEN technical atom — RET-REF LPP capital notice native acquisition | The capital-notice writer could remain a test-only provider bridge, skip the real plan review, disappear after process death, survive authority/snapshot replacement, or accidentally expose the default production app. | Exact pushed SHA `36152b997fbf0c32c1120ddb61f0a8e9d589aa52` passes native writer + distinct cold reader 2/2, exact mutation order, session purge, Dashboard display, dual invalidation, physical production rebuild/install and Maestro 1/1 default-off. Exact pushed SHA `a00b4c68a272cbde9f21fee14662171c4a12530f` additionally closes only the capital dossier/PDF parity slice with real-route ordering, PDF header/length runtime proof, host text parity and recovery restoration. Accepted Opus lenses have P0/P1=0. External IO remains synthetic and activation remains open. |
+| GREEN technical atom — RET-REF exact 3a beneficiary | The 3a authority could stop at host tests, retain document material, disappear after process death, leak a stale dossier through broken BND/provenance/root state, resurrect a deleted strict root or accidentally activate production. | Exact pushed SHA `fc1023fd73da8256acda8fbc438317ca391e7c74` passes real-screen writer 1/1 and separately rebuilt distinct-process cold reader 1/1, Ledger→BND ordering, session purge, real `/rapport`, offline report bytes, four fail-closed recovery states, durable invalid-root deletion and exact restoration. Production source/build/install/reinstall and Maestro default-off before/after pass. GitHub run `29675502851`, Vercel, minimized privacy checks and bounded wrapper lineage pass with current P0/P1=0. Activation remains NO-GO. |
 | GREEN bounded parity slice — RET-REF LPP dossier/PDF | The specialist sheet, `/rapport` dossier and portable report could diverge on the declared/unverified caveat, leak internal authority, or survive a recovery state. | Exact pushed SHA `274736a50bca659579fe26f68ae4e600469e3a9a` passes the native 2/2 distinct-process suite through real `MintApp` bootstrap and `/rapport`, suppresses the dossier for missing/mismatch/legacy recovery, builds production PDF bytes, and combines with the 3/3 real-byte text contract. Maestro before/after, 22/22 outputs, reinstall/restoration/privacy PASS. The combined runtime audit was honestly refused at 2579>2500 lines; dossier, PDF and bootstrap component lenses bound the accepted P0/P1=0 state. Only `pdf_dossier_caveat_parity` closes; activation remains NO-GO. |
 | GREEN — G1-LDG-04 nominal | Display defaults or invalid persisted values could become known facts. | Fixed in `f49ba797c`: canton/expense/conversion readiness requires canonical marker plus exact timestamp path(s); invalid/negative/NaN/infinite numeric values remain partial and explicit zero expenses remain known. Canton-domain weakness closed by `62e8ca7d5`: invalid/blank/forged canton evidence fails closed and valid codes normalize. Exact proof: RED 5 failures, GREEN 30/30, models+navigation+routes 494/494 in `g1-ldg04-bnd04-f49ba797c.md`. |
 | GREEN — G1-BND-04 | The lazy production proxy could miss profile mutations until a MintState UI consumer materialised it. | Fixed in `f49ba797c`: the real `MintApp` proxy is eager and the production-context test observes one notification per salary and provenance-only mutation. Exact RED-to-GREEN evidence: `g1-ldg04-bnd04-f49ba797c.md`. |
@@ -264,6 +297,8 @@ G2/G3.
 | RET-REF LPP regulation dossier/PDF minimized proof | PASS: `phase-37/ret-ref-01/lpp-regulation-dossier-pdf-runtime-proof-274736a50/` retains only allowlisted summaries and verified checksums, without raw runtime/audit output or device/document artifacts. PDF/dossier caveat parity is closed; activation and RET-REF remain open. |
 | RET-REF LPP regulation minimized proof | PASS: the tracked allowlist and verified `SHA256SUMS` retain only sanitized aggregate metadata, Patrol/Maestro/state summaries and bounded audit acceptance. No raw runtime output, local path, device identifier/hash, document hash/bytes, result bundle, screenshot, media, private-fixture data or source document is tracked. The `currentFund` relationship remains declared/unverified and objective caisse/fund identity is not claimed. |
 | RET-REF LPP regulation bounded audits | PASS: runtime harness code/product-domain 2/2 Opus-high lenses and autonomous authority 10/10 valid Opus-high lenses, all P0=0/P1=0. Invalid isolation outputs are excluded; accepted and open P2 dispositions remain explicit. |
+| RET-REF exact 3a minimized proof | PASS: `phase-37/ret-ref-01/pillar3a-beneficiary-runtime-proof-fc1023fd7/` retains only allowlisted aggregate runtime, acquisition, recovery, report, state, Maestro, CI and audit summaries with verified checksums. No raw transcript, local path, device identifier, document material, generated report, result bundle, media or private fixture is tracked. |
+| RET-REF exact 3a audit lineage | PASS_BOUNDED: harness code PASS P0/P1=0; product-domain legal cutoff request closed with the official OFAS source; final runtime/persistence delta Opus code PASS P0/P1=0. Remaining naming/shared-flag notes are nonblocking P2. |
 | Sonnet architecture P1 remediation | PASS: exact disclaimer REDs `21/2`, then `14/1`; final targeted 23 passed / 0 failed, accent lint 4/4 files, analyze 0, financial_core 689/689 and full Flutter 8,900 passed / 33 skipped / 0 failed |
 | Phase 37 registry | 31 total: 22 GREEN, 8 `ticket_only`, 1 `red_proven`; 9 hard floors remain open. RET-REF remains `ticket_only`; this technical atom does not alter its accepted SHA/state. |
 
@@ -327,6 +362,10 @@ G2/G3.
   bounded PDF header/length runtime, host text parity, three-state suppression
   and exact restoration; close only `capital_notice_dossier_pdf_parity` while
   activation and RET-REF/G1 remain open.
+- `fc1023fd7` — accept the exact 3a writer -> distinct cold reader runtime,
+  durable invalid-root deletion, real dossier/offline report, production
+  default-off before/after, GitHub clean-room and bounded audit lineage; promote
+  only the 3a ledger row to technical live while activation remains NO-GO.
 
 ## Release decision
 
@@ -335,9 +374,9 @@ G2/G3.
 - `G3 allowed?` **NO**.
 - Current machine truth: **22/31 GREEN; 9 hard floors open** — 8
   `ticket_only`, including RET-REF, plus `G1-RUNTIME-01` as `red_proven`.
-- Next ordered gates remain inside G1. Regulation and capital-notice
-  PDF/dossier parity are closed; continue RET-REF with an explicit activation
-  decision, 3a-beneficiary reference and fiscal activation/currentness.
+- Next ordered gates remain inside G1. Regulation, capital-notice and exact 3a
+  technical atoms are green; continue RET-REF with explicit activation
+  decisions and fiscal activation/currentness.
   Continue the eight external LPP activation facts, AVS splitting/evidence
   work and the global `G1-RUNTIME-01`. Do not start an audit carousel. Full
   re-score only after every hard floor is green.

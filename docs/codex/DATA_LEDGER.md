@@ -82,17 +82,16 @@
 > PDF/dossier caveat parity is closed. Activation and the other RET-REF
 > obligations keep the ticket `ticket_only`, G1 open at 8.2/10 and G2/G3
 > forbidden.
-> **Focused RET-REF-01 exact 3a dossier/PDF implementation:** the default-off
-> exact 3a authority root now reaches `/rapport` and the financial-report PDF
-> only through the qualified `DocumentProvider` consumer and a closed
-> metadata-only handoff. Current code and host contracts are GREEN: only a
-> resolution that is exactly `knownCurrentDeclared` may project. In a
-> mixed known+inactive resolution, inactive entries are excluded; ambiguous
-> states fail closed. The screen and PDF share one localized
-> presenter, and the PDF uses bundled Unicode fonts without network access.
-> Wrapper audits and exact-SHA native runtime remain open, all three flags stay
-> false, RET-REF remains `ticket_only`, G1 remains open and G2/G3 remain
-> forbidden.
+> **Focused RET-REF-01 exact 3a technical GREEN:** accepted exact pushed SHA
+> `fc1023fd73da8256acda8fbc438317ca391e7c74` proves the default-off native
+> writer -> distinct cold reader, strict-secure root + exact raw-free BND,
+> qualified `/rapport`/PDF, fail-closed recovery + exact restoration, Maestro
+> production-default absence before/after, privacy and bounded wrapper audit
+> lineage. The minimized proof is
+> `phase-37/ret-ref-01/pillar3a-beneficiary-runtime-proof-fc1023fd7/`.
+> External document IO remains a synthetic in-process adapter. All three flags
+> stay false; activation remains NO-GO, RET-REF remains `ticket_only`, G1
+> remains open at 8.2/10 and G2/G3 remain forbidden.
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 > **Focused AVS contract:** [AVS_OFFICIAL_PENSION_INGESTION.md](AVS_OFFICIAL_PENSION_INGESTION.md) defines the default-off, self-only acquisition path and its `avs_official_pension` document type.
@@ -1074,7 +1073,7 @@ the implemented seam and its fail-closed behavior, not production activation.
 Frozen-SHA Maestro/Patrol evidence on one simulator, external Claude audits and
 the final G1 scorecard are still required before either flag may change.
 
-### 4.0.4 Exact Pillar 3a beneficiary authority root (dossier/PDF host-GREEN; native runtime open)
+### 4.0.4 Exact Pillar 3a beneficiary authority root (exact-SHA technical GREEN; activation open)
 
 The exact 3a beneficiary reference is a distinct strict-secure ledger root,
 not a `pillar3aBalance`, contribution, beneficiary-order model or calculation.
@@ -1179,15 +1178,36 @@ remain identical. The PDF loads bundled Libre Franklin Regular/Bold TTF assets
 through `rootBundle`/`pw.Font.ttf`; it performs no runtime font download and the
 real-byte `pdftotext` contract proves exact Unicode legal punctuation offline.
 
-Current host gates cover the qualified projection, triple-gated route, report
-pass-through, mixed-inactive exclusion, ambiguous/all-inactive suppression,
-shared presenter, real PDF
-bytes/text, sensitive-token absence and offline Unicode font bundle. This is
-code/host GREEN only. The frozen exact-SHA native runtime remains open; wrapper
-code/product-domain audits are also pending. Dossier/PDF runtime parity is not
-promoted,
-activation remains NO-GO/default-false, RET-REF remains `ticket_only`, G1
-remains open and G2/G3 remain forbidden.
+At exact pushed SHA `fc1023fd73da8256acda8fbc438317ca391e7c74`, the native
+writer reaches the production `RetirementDashboardScreen`, `DocumentScanScreen`
+and `ExtractionReviewScreen`, requests only `visionExtraction` plus
+`transferUsAnthropic`, selects `currentActiveUnpaid`, and proves the ordered
+`accept -> record` mutation plus scan-session purge. Raw PDF bytes never enter
+the document vault; external document IO remains a synthetic in-process
+adapter, not production OCR/network proof.
+
+The reader runs in a distinct process and separately built application, cold-
+hydrates the exact strict root and BND, boots the real `MintApp`, opens
+`/rapport`, renders the qualified known handoff and constructs production
+`PdfService.buildFinancialReportPdfBytes` bytes with network access forbidden.
+It then proves missing and mismatched BND, invalid presence provenance and an
+invalid root all suppress the handoff. Selective presence repair preserves the
+strict root/reference; destructive invalid-root reset durably removes both;
+exact state restoration makes the handoff visible again. The production
+reinstall preserves application identity and state.
+
+The Patrol contract passes writer 1/1 then distinct cold reader 1/1, with
+writer/reader build isolation and 25/25 retained outputs. Production-default
+Maestro passes 1/1 before and 1/1 after. Retained evidence is synthetic-only:
+no private fixture, raw document bytes/hash, simulator identifier or xcresult
+is kept. Bounded wrapper lineage has current aggregate P0/P1=0; the official
+1-June-2027 cutoff verification is closed and the final runtime delta code
+audit passes P0/P1/P2=0. The minimized sanitized proof is
+`.planning/runtime-evidence/phase-37/ret-ref-01/pillar3a-beneficiary-runtime-proof-fc1023fd7/`.
+
+This closes the exact 3a default-off technical atom only. All three flags remain
+false; activation remains NO-GO, RET-REF remains `ticket_only`, G1 remains open
+at 8.2/10 and G2/G3 remain forbidden.
 
 ### 4.0A LPP certificate evidence (G1-PROV-02 ticket/runtime GREEN; activation default-off)
 

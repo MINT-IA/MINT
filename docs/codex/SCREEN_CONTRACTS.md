@@ -1200,7 +1200,7 @@ PDF/dossier caveat parity is closed; activation and other RET-REF obligations
 remain open. All flags stay false, `G1-RET-REF-01` stays
 `ticket_only`, G1 stays open at 8.2/10 and G2/G3 are forbidden.
 
-#### 3a beneficiary authority — G1-RET-REF-01 dossier/PDF host-GREEN; audits/native runtime open
+#### 3a beneficiary authority — G1-RET-REF-01 exact-SHA technical GREEN; activation open
 
 This default-off path is a specialist-reference contract, not a beneficiary
 calculator. It stores no name, beneficiary class, statutory order, rank, share,
@@ -1283,13 +1283,27 @@ FinancialReportService -> FinancialReport.pillar3aBeneficiaryHandoff`.
   TTF assets via `rootBundle` and `pw.Font.ttf`, never a runtime downloader.
   The host real-byte `pdftotext` contract proves exact Unicode punctuation and
   sensitive-token absence while network access is denied.
-- **Current evidence level:** implementation and host contracts are GREEN for
-  resolver projection, triple-gated route, report pass-through, screen/PDF
-  parity, mixed-inactive exclusion, ambiguous/all-inactive suppression and
-  offline Unicode. The frozen exact-SHA
-  native runtime remains open; wrapper audits are also pending. No dossier/PDF
-  runtime promotion,
-  activation, RET-REF promotion or G1 closure is claimed.
+- **Accepted exact-SHA technical atom:** at pushed SHA
+  `fc1023fd73da8256acda8fbc438317ca391e7c74`, the production-screen native
+  writer performs the exact 3a scan/review, ordered strict-root then BND write,
+  and volatile-session purge. A separately built distinct-process cold reader
+  hydrates the exact root+BND, boots the real `MintApp`, renders `/rapport`, and
+  constructs the production PDF with network access forbidden. Missing and
+  mismatched BND, invalid presence provenance and invalid root suppress the
+  handoff; selective presence repair preserves root/reference, destructive
+  root reset removes both durably, and exact restoration makes the handoff
+  visible again. Writer 1/1, reader 1/1 and retained outputs 25/25 pass.
+- **Runtime boundary:** Maestro production-default-off passes 1/1 before and
+  1/1 after. Production rebuild/install/reinstall preserves app identity and
+  state. The retained proof is synthetic-only with no private fixture, raw
+  document bytes/hash, simulator identifier or xcresult; external document IO
+  remains a synthetic in-process adapter. Bounded wrapper lineage has current
+  P0/P1=0, the official cutoff verification is closed and the final delta code
+  audit passes P0/P1/P2=0. Minimized proof:
+  `phase-37/ret-ref-01/pillar3a-beneficiary-runtime-proof-fc1023fd7/`.
+- **Release boundary:** this is technical GREEN only. All three flags remain
+  false; activation remains NO-GO, RET-REF remains `ticket_only`, G1 remains
+  open at 8.2/10 and G2/G3 remain forbidden.
 
 The focused state/control map is
 `.planning/journeys/diagrams/pillar3a_beneficiary_reference.mmd`. Contract tests
