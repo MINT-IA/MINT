@@ -51,50 +51,83 @@ Map<String, dynamic> _answers({
       if (root != null) _rootKey: root,
     };
 
-Map<String, dynamic> _referenceJson({
-  required String referenceId,
+Map<String, dynamic> _unknown() => <String, dynamic>{'state': 'unknown'};
+
+Map<String, dynamic> _arrangement({
+  required String confirmationId,
   required String kind,
-  String sourceDate = '2026-01-15',
-  String confirmedAt = '2026-01-16T10:00:00.000Z',
+  required String civilStatus,
 }) =>
     <String, dynamic>{
-      'referenceId': referenceId,
+      'confirmationId': confirmationId,
       'kind': kind,
-      'ownerKind': 'self',
-      'source': 'certificate',
-      'sourceDate': sourceDate,
-      'legalYear': 2026,
-      'confirmedAt': confirmedAt,
+      'source': 'userInput',
+      'confirmedAt': _now.toIso8601String(),
+      'civilStatusAtConfirmation': civilStatus,
+    };
+
+Map<String, dynamic> _present({
+  required String evidenceId,
+  required String civilStatus,
+  String sourceDate = '2026-01-15',
+}) =>
+    <String, dynamic>{
+      'state': 'confirmedPresent',
+      'evidence': <String, dynamic>{
+        'evidenceId': evidenceId,
+        'ownerKind': 'self',
+        'source': 'certificate',
+        'sourceDate': sourceDate,
+        'legalYear': 2026,
+        'confirmedAt': _now.toIso8601String(),
+        'civilStatusAtConfirmation': civilStatus,
+      },
+    };
+
+Map<String, dynamic> _absent({
+  required String evidenceId,
+  required String civilStatus,
+}) =>
+    <String, dynamic>{
+      'state': 'confirmedAbsent',
+      'confirmation': <String, dynamic>{
+        'evidenceId': evidenceId,
+        'ownerKind': 'self',
+        'source': 'userInput',
+        'confirmedAt': _now.toIso8601String(),
+        'civilStatusAtConfirmation': civilStatus,
+      },
     };
 
 String _root({
-  String? regime,
-  String civilStatusAtConfirmation = 'celibataire',
-  List<Map<String, dynamic>> references = const [],
+  Map<String, dynamic>? matrimonialRegime,
+  Map<String, dynamic>? registeredPartnershipPropertyRegime,
+  Map<String, dynamic>? will,
+  Map<String, dynamic>? inheritancePact,
+  Map<String, dynamic>? incapacityMandate,
+  Map<String, dynamic>? advanceCareDirective,
 }) =>
     jsonEncode(<String, dynamic>{
       'schemaVersion': 1,
-      'matrimonialRegime': regime == null
-          ? null
-          : <String, dynamic>{
-              'kind': regime,
-              'source': 'userInput',
-              'updatedAt': _now.toIso8601String(),
-            },
-      'civilStatusAtConfirmation': civilStatusAtConfirmation,
-      'estateInstrumentReferences': references,
+      'matrimonialRegime': matrimonialRegime,
+      'registeredPartnershipPropertyRegime':
+          registeredPartnershipPropertyRegime,
+      'estateInstruments': <String, dynamic>{
+        'will': will ?? _unknown(),
+        'inheritancePact': inheritancePact ?? _unknown(),
+        'incapacityMandate': incapacityMandate ?? _unknown(),
+        'advanceCareDirective': advanceCareDirective ?? _unknown(),
+      },
     });
 
 Map<String, dynamic> _decodedRoot(Map<String, dynamic> answers) {
   final raw = answers[_rootKey];
-  expect(raw, isA<String>(), reason: 'one atomic JSON root must be durable');
+  expect(raw, isA<String>());
   return Map<String, dynamic>.from(jsonDecode(raw as String) as Map);
 }
 
-List<Map<String, dynamic>> _decodedReferences(Map<String, dynamic> root) =>
-    (root['estateInstrumentReferences'] as List)
-        .map((raw) => Map<String, dynamic>.from(raw as Map))
-        .toList(growable: false);
+Map<String, dynamic> _slots(Map<String, dynamic> root) =>
+    Map<String, dynamic>.from(root['estateInstruments'] as Map);
 
 Future<({CoachProfileProvider provider, _MemoryPersistence persistence})>
     _loaded({String? root, String civilStatus = 'celibataire'}) async {
@@ -111,403 +144,460 @@ Future<({CoachProfileProvider provider, _MemoryPersistence persistence})>
   return (provider: provider, persistence: persistence);
 }
 
-Future<void> _confirmRegime(
+Future<void> _confirmMarriage(
   CoachProfileProvider provider,
-  MatrimonialRegimeKind regime,
-) async {
-  try {
-    final dynamic dynamicProvider = provider;
-    await dynamicProvider.confirmMatrimonialRegime(regime);
-  } on NoSuchMethodError {
-    fail(
-      'CoachProfileProvider.confirmMatrimonialRegime must persist the '
-      'userInput provenance, confirmation instant, and current civil status '
-      'before publishing.',
-    );
-  }
-}
-
-Future<EstateInstrumentReference> _confirmReference(
-  CoachProfileProvider provider, {
-  required EstateInstrumentKind kind,
-  required DateTime sourceDate,
-  required int legalYear,
-  required String? expectedPreviousReferenceId,
+  MatrimonialRegimeKind kind, {
+  required String? expectedPreviousConfirmationId,
 }) async {
   try {
     final dynamic dynamicProvider = provider;
-    final dynamic result =
-        await dynamicProvider.confirmEstateInstrumentReference(
-      kind: kind,
-      sourceDate: sourceDate,
-      legalYear: legalYear,
-      expectedPreviousReferenceId: expectedPreviousReferenceId,
+    await dynamicProvider.confirmMatrimonialRegime(
+      kind,
+      expectedPreviousConfirmationId: expectedPreviousConfirmationId,
     );
-    expect(
-      result,
-      isA<EstateInstrumentReference>(),
-      reason: 'the writer must return the provider-generated reference',
-    );
-    return result as EstateInstrumentReference;
   } on NoSuchMethodError {
     fail(
-      'CoachProfileProvider.confirmEstateInstrumentReference must generate '
-      'the UUIDv4/self/certificate/confirmedAt tuple and enforce exact-ID CAS.',
+        'confirmMatrimonialRegime must use confirmationId CAS and marie scope.');
+  }
+}
+
+Future<void> _confirmLpart(
+  CoachProfileProvider provider, {
+  required String kindName,
+  required String? expectedPreviousConfirmationId,
+}) async {
+  try {
+    final dynamic dynamicProvider = provider;
+    await dynamicProvider.confirmRegisteredPartnershipPropertyRegime(
+      kindName: kindName,
+      expectedPreviousConfirmationId: expectedPreviousConfirmationId,
+    );
+  } on NoSuchMethodError {
+    fail(
+      'confirmRegisteredPartnershipPropertyRegime must be a dedicated '
+      'registered-partnership writer with its own enum.',
     );
   }
 }
 
-Future<void> _rethrowEarlyFailure(Future<Object?> write) async {
-  Object? error;
-  StackTrace? stackTrace;
-  unawaited(
-    write.then<void>(
-      (_) {},
-      onError: (Object caught, StackTrace caughtStack) {
-        error = caught;
-        stackTrace = caughtStack;
-      },
-    ),
-  );
-  await Future<void>.delayed(Duration.zero);
-  if (error != null) Error.throwWithStackTrace(error!, stackTrace!);
-}
-
-Future<({EstateInstrumentReference? value, Object? error})> _capture(
-  Future<EstateInstrumentReference> future,
-) async {
+Future<void> _confirmPresent(
+  CoachProfileProvider provider, {
+  required EstateInstrumentKind kind,
+  required String? expectedPreviousEvidenceId,
+}) async {
   try {
-    return (value: await future, error: null);
-  } catch (error) {
-    return (value: null, error: error);
+    final dynamic dynamicProvider = provider;
+    await dynamicProvider.confirmEstateInstrumentPresent(
+      kind: kind,
+      sourceDate: DateTime.utc(2026, 1, 15),
+      legalYear: 2026,
+      expectedPreviousEvidenceId: expectedPreviousEvidenceId,
+    );
+  } on NoSuchMethodError {
+    fail('confirmEstateInstrumentPresent must publish a scoped evidence slot.');
   }
 }
 
-List<Map<String, dynamic>> _completeReferences() => <Map<String, dynamic>>[
-      _referenceJson(
-        referenceId: '11111111-1111-4111-8111-111111111111',
-        kind: 'will',
-      ),
-      _referenceJson(
-        referenceId: '22222222-2222-4222-8222-222222222222',
-        kind: 'inheritancePact',
-      ),
-      _referenceJson(
-        referenceId: '33333333-3333-4333-8333-333333333333',
-        kind: 'incapacityMandate',
-      ),
-      _referenceJson(
-        referenceId: '44444444-4444-4444-8444-444444444444',
-        kind: 'advanceCareDirective',
-      ),
-    ];
+Future<void> _confirmAbsent(
+  CoachProfileProvider provider, {
+  required EstateInstrumentKind kind,
+  required String? expectedPreviousEvidenceId,
+}) async {
+  try {
+    final dynamic dynamicProvider = provider;
+    await dynamicProvider.confirmEstateInstrumentAbsent(
+      kind: kind,
+      expectedPreviousEvidenceId: expectedPreviousEvidenceId,
+    );
+  } on NoSuchMethodError {
+    fail(
+        'confirmEstateInstrumentAbsent must persist explicit user confirmation.');
+  }
+}
+
+Future<void> _early(Future<void> write) async {
+  Object? error;
+  StackTrace? stack;
+  unawaited(write.then<void>((_) {}, onError: (Object e, StackTrace s) {
+    error = e;
+    stack = s;
+  }));
+  await Future<void>.delayed(Duration.zero);
+  if (error != null) Error.throwWithStackTrace(error!, stack!);
+}
+
+Future<({Object? error})> _capture(Future<void> write) async {
+  try {
+    await write;
+    return (error: null,);
+  } catch (error) {
+    return (error: error,);
+  }
+}
+
+void _rethrowContractFailure(Iterable<({Object? error})> results) {
+  for (final result in results) {
+    if (result.error is TestFailure) throw result.error!;
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('cold load restores matching estate facts without persisted readiness',
+  test('cold load consumes exact four-slot root and narrow survey API',
       () async {
     final loaded = await _loaded(
-      root: _root(
-        regime: 'participationInAcquests',
-        references: _completeReferences(),
-      ),
-    );
-    addTearDown(loaded.provider.dispose);
-
-    expect(
-      loaded.provider.profile?.matrimonialRegime,
-      MatrimonialRegimeKind.participationInAcquests,
-    );
-    expect(loaded.provider.profile?.estateInstrumentReferences, hasLength(4));
-    expect(loaded.provider.profile?.estateFactsNeedReconfirmation, isFalse);
-    expect(loaded.provider.profile?.estateSpecialistReadyAt(_now), isTrue);
-    expect(loaded.persistence.saveCalls, 0);
-  });
-
-  test('cold load derives reconfirmation after civil-status drift', () async {
-    final loaded = await _loaded(
-      root: _root(
-        regime: 'separationOfProperty',
-        civilStatusAtConfirmation: 'celibataire',
-        references: _completeReferences(),
-      ),
       civilStatus: 'marie',
+      root: _root(
+        matrimonialRegime: _arrangement(
+          confirmationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          kind: 'participationInAcquests',
+          civilStatus: 'marie',
+        ),
+        will: _present(
+          evidenceId: '11111111-1111-4111-8111-111111111111',
+          civilStatus: 'marie',
+        ),
+        inheritancePact: _absent(
+          evidenceId: '22222222-2222-4222-8222-222222222222',
+          civilStatus: 'marie',
+        ),
+        incapacityMandate: _absent(
+          evidenceId: '33333333-3333-4333-8333-333333333333',
+          civilStatus: 'marie',
+        ),
+        advanceCareDirective: _absent(
+          evidenceId: '44444444-4444-4444-8444-444444444444',
+          civilStatus: 'marie',
+        ),
+      ),
     );
     addTearDown(loaded.provider.dispose);
 
-    expect(loaded.provider.profile?.matrimonialRegime,
-        MatrimonialRegimeKind.separationOfProperty);
-    expect(loaded.provider.profile?.estateInstrumentReferences, hasLength(4));
-    expect(loaded.provider.profile?.estateFactsNeedReconfirmation, isTrue);
-    expect(
-      loaded.provider.profile?.estateReferenceStateAt(_now),
-      EstateReferenceState.needsReconfirmation,
-    );
-    expect(loaded.provider.profile?.estateSpecialistReadyAt(_now), isFalse);
+    final dynamic profile = loaded.provider.profile;
+    expect(profile.estateInstrumentSlots.length, 4);
+    expect(profile.estateReferenceSurveyCompleteAt(_now), isTrue);
+    expect(profile.estateReferenceHandoffCompletenessAt(_now).name, 'partial');
     expect(loaded.persistence.saveCalls, 0);
   });
 
-  test('cold load treats ambiguous current civil status as reconfirmation',
+  test(
+      'marriage writer is marie-only and saves exact confirmation before publish',
       () async {
-    final loaded = await _loaded(
-      root: _root(
-        regime: 'separationOfProperty',
-        references: _completeReferences(),
+    final nonMarried = await _loaded(civilStatus: 'celibataire');
+    addTearDown(nonMarried.provider.dispose);
+    await expectLater(
+      _confirmMarriage(
+        nonMarried.provider,
+        MatrimonialRegimeKind.separationOfProperty,
+        expectedPreviousConfirmationId: null,
       ),
-      civilStatus: 'pacs',
+      throwsStateError,
     );
-    addTearDown(loaded.provider.dispose);
+    expect(nonMarried.persistence.saveCalls, 0);
 
-    expect(loaded.provider.profile?.civilStatusNeedsConfirmation, isTrue);
-    expect(loaded.provider.profile?.matrimonialRegime,
-        MatrimonialRegimeKind.separationOfProperty);
-    expect(loaded.provider.profile?.estateInstrumentReferences, hasLength(4));
-    expect(
-      loaded.provider.profile?.estateReferenceStateAt(_now),
-      EstateReferenceState.needsReconfirmation,
+    final loaded = await _loaded(civilStatus: 'marie');
+    addTearDown(loaded.provider.dispose);
+    final gate = Completer<void>();
+    loaded.persistence.saveGate = gate;
+    var notifications = 0;
+    loaded.provider.addListener(() => notifications += 1);
+    final write = _confirmMarriage(
+      loaded.provider,
+      MatrimonialRegimeKind.separationOfProperty,
+      expectedPreviousConfirmationId: null,
     );
-    expect(loaded.provider.profile?.estateSpecialistReadyAt(_now), isFalse);
+    await _early(write);
+    expect(loaded.persistence.saveCalls, 1);
+    expect(notifications, 0);
+    gate.complete();
+    await write;
+
+    final root = _decodedRoot(loaded.persistence.answers);
+    expect(root.keys.toSet(), {
+      'schemaVersion',
+      'matrimonialRegime',
+      'registeredPartnershipPropertyRegime',
+      'estateInstruments',
+    });
+    final regime = Map<String, dynamic>.from(root['matrimonialRegime'] as Map);
+    expect(regime['confirmationId'], matches(_uuidV4));
+    expect(regime['kind'], 'separationOfProperty');
+    expect(regime['source'], 'userInput');
+    expect(regime['confirmedAt'], _now.toIso8601String());
+    expect(regime['civilStatusAtConfirmation'], 'marie');
+    expect(root['registeredPartnershipPropertyRegime'], isNull);
+    expect(_slots(root).values, everyElement({'state': 'unknown'}));
+    expect(notifications, 1);
   });
 
-  test('matrimonial regime saves provenance and civil status before publish',
+  test('registered partnership has a dedicated writer and root field',
       () async {
+    final loaded = await _loaded(civilStatus: 'registered_partner');
+    addTearDown(loaded.provider.dispose);
+    await _confirmLpart(
+      loaded.provider,
+      kindName: 'statutorySeparationOfProperty',
+      expectedPreviousConfirmationId: null,
+    );
+
+    final root = _decodedRoot(loaded.persistence.answers);
+    expect(root['matrimonialRegime'], isNull);
+    final lpart = Map<String, dynamic>.from(
+      root['registeredPartnershipPropertyRegime'] as Map,
+    );
+    expect(lpart['confirmationId'], matches(_uuidV4));
+    expect(lpart['kind'], 'statutorySeparationOfProperty');
+    expect(lpart['civilStatusAtConfirmation'], 'registeredPartnership');
+  });
+
+  test('LPart writer is partnership-only and uses confirmationId CAS',
+      () async {
+    final married = await _loaded(civilStatus: 'marie');
+    addTearDown(married.provider.dispose);
+    await expectLater(
+      _confirmLpart(
+        married.provider,
+        kindName: 'statutorySeparationOfProperty',
+        expectedPreviousConfirmationId: null,
+      ),
+      throwsStateError,
+    );
+    expect(married.persistence.saveCalls, 0);
+
+    final loaded = await _loaded(civilStatus: 'registered_partner');
+    addTearDown(loaded.provider.dispose);
+    await _confirmLpart(
+      loaded.provider,
+      kindName: 'statutorySeparationOfProperty',
+      expectedPreviousConfirmationId: null,
+    );
+    final saves = loaded.persistence.saveCalls;
+    final before = loaded.persistence.answers[_rootKey];
+    var notifications = 0;
+    loaded.provider.addListener(() => notifications += 1);
+    await expectLater(
+      _confirmLpart(
+        loaded.provider,
+        kindName: 'propertyAgreement',
+        expectedPreviousConfirmationId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      ),
+      throwsStateError,
+    );
+    expect(loaded.persistence.saveCalls, saves);
+    expect(loaded.persistence.answers[_rootKey], before);
+    expect(notifications, 0);
+  });
+
+  test('instrument writer saves before publishing its scoped slot', () async {
     final loaded = await _loaded();
     addTearDown(loaded.provider.dispose);
     final gate = Completer<void>();
     loaded.persistence.saveGate = gate;
     var notifications = 0;
     loaded.provider.addListener(() => notifications += 1);
-
-    final write = _confirmRegime(
+    final write = _confirmPresent(
       loaded.provider,
-      MatrimonialRegimeKind.separationOfProperty,
+      kind: EstateInstrumentKind.will,
+      expectedPreviousEvidenceId: null,
     );
-    await _rethrowEarlyFailure(write);
+    await _early(write);
 
     expect(loaded.persistence.saveCalls, 1);
     expect(loaded.persistence.answers.containsKey(_rootKey), isFalse);
-    expect(loaded.provider.profile?.matrimonialRegime, isNull);
     expect(notifications, 0);
-
     gate.complete();
     await write;
     expect(
-      _decodedRoot(loaded.persistence.answers),
-      <String, dynamic>{
-        'schemaVersion': 1,
-        'matrimonialRegime': <String, dynamic>{
-          'kind': 'separationOfProperty',
-          'source': 'userInput',
-          'updatedAt': _now.toIso8601String(),
-        },
-        'civilStatusAtConfirmation': 'celibataire',
-        'estateInstrumentReferences': <dynamic>[],
-      },
+      (_slots(_decodedRoot(loaded.persistence.answers))['will']
+          as Map)['state'],
+      'confirmedPresent',
     );
-    expect(
-      jsonEncode(_decodedRoot(loaded.persistence.answers)),
-      isNot(contains('estateFactsNeedReconfirmation')),
-    );
-    expect(loaded.provider.profile?.matrimonialRegime,
-        MatrimonialRegimeKind.separationOfProperty);
     expect(notifications, 1);
   });
 
-  test('reference writer generates raw-free tuple and saves before publish',
-      () async {
-    final loaded = await _loaded(
-      root: _root(regime: 'participationInAcquests'),
-    );
+  test('present and absent writers persist scoped raw-free slots', () async {
+    final loaded = await _loaded(civilStatus: 'celibataire');
     addTearDown(loaded.provider.dispose);
-    final gate = Completer<void>();
-    loaded.persistence.saveGate = gate;
-    var notifications = 0;
-    loaded.provider.addListener(() => notifications += 1);
-
-    final write = _confirmReference(
+    await _confirmPresent(
       loaded.provider,
       kind: EstateInstrumentKind.will,
-      sourceDate: DateTime.utc(2026, 1, 15),
-      legalYear: 2026,
-      expectedPreviousReferenceId: null,
+      expectedPreviousEvidenceId: null,
     );
-    await _rethrowEarlyFailure(write);
+    await _confirmAbsent(
+      loaded.provider,
+      kind: EstateInstrumentKind.inheritancePact,
+      expectedPreviousEvidenceId: null,
+    );
 
-    expect(loaded.persistence.saveCalls, 1);
-    expect(loaded.provider.profile?.estateInstrumentReferences, isEmpty);
-    expect(notifications, 0);
-
-    gate.complete();
-    final reference = await write;
-    expect(reference.referenceId, matches(_uuidV4));
-    expect(reference.kind, EstateInstrumentKind.will);
-    expect(reference.ownerKind.name, 'self');
-    expect(reference.source.name, 'certificate');
-    expect(reference.sourceDate, DateTime.utc(2026, 1, 15));
-    expect(reference.legalYear, 2026);
-    expect(reference.confirmedAt, _now);
-
-    final root = _decodedRoot(loaded.persistence.answers);
-    expect(root.keys.toSet(), <String>{
-      'schemaVersion',
-      'matrimonialRegime',
-      'civilStatusAtConfirmation',
-      'estateInstrumentReferences',
-    });
-    expect(
-        _decodedReferences(root), <Map<String, dynamic>>[reference.toJson()]);
-    final encoded = jsonEncode(root).toLowerCase();
-    for (final forbidden in <String>[
-      'filename',
-      'path',
-      'bytes',
-      'ocr',
-      'identity',
-      'content',
-    ]) {
+    final slots = _slots(_decodedRoot(loaded.persistence.answers));
+    final present = Map<String, dynamic>.from(slots['will'] as Map);
+    final evidence = Map<String, dynamic>.from(present['evidence'] as Map);
+    expect(present['state'], 'confirmedPresent');
+    expect(evidence['evidenceId'], matches(_uuidV4));
+    expect(evidence['source'], 'certificate');
+    expect(evidence['civilStatusAtConfirmation'], 'celibataire');
+    final absent = Map<String, dynamic>.from(slots['inheritancePact'] as Map);
+    final confirmation =
+        Map<String, dynamic>.from(absent['confirmation'] as Map);
+    expect(absent['state'], 'confirmedAbsent');
+    expect(confirmation['evidenceId'], matches(_uuidV4));
+    expect(confirmation['ownerKind'], 'self');
+    expect(confirmation['source'], 'userInput');
+    expect(confirmation['confirmedAt'], _now.toIso8601String());
+    expect(confirmation['civilStatusAtConfirmation'], 'celibataire');
+    final encoded = jsonEncode(slots).toLowerCase();
+    for (final forbidden in ['filename', 'path', 'bytes', 'ocr', 'identity']) {
       expect(encoded, isNot(contains(forbidden)));
     }
-    expect(loaded.provider.profile?.estateInstrumentReferences,
-        <EstateInstrumentReference>[reference]);
-    expect(notifications, 1);
   });
 
-  test('two concurrent creations of one kind enforce expected-null CAS',
+  test('same-kind present-versus-absent expected-null race has one winner',
       () async {
-    final loaded = await _loaded(
-      root: _root(regime: 'participationInAcquests'),
-    );
+    final loaded = await _loaded();
     addTearDown(loaded.provider.dispose);
-
     final results = await Future.wait([
-      _capture(_confirmReference(
+      _capture(_confirmPresent(
         loaded.provider,
         kind: EstateInstrumentKind.will,
-        sourceDate: DateTime.utc(2026, 1, 15),
-        legalYear: 2026,
-        expectedPreviousReferenceId: null,
+        expectedPreviousEvidenceId: null,
       )),
-      _capture(_confirmReference(
+      _capture(_confirmAbsent(
         loaded.provider,
         kind: EstateInstrumentKind.will,
-        sourceDate: DateTime.utc(2026, 2, 15),
-        legalYear: 2026,
-        expectedPreviousReferenceId: null,
+        expectedPreviousEvidenceId: null,
       )),
     ]);
-
-    for (final result in results) {
-      if (result.error is TestFailure) throw result.error!;
-    }
-
-    expect(results.where((result) => result.value != null), hasLength(1));
-    expect(
-      results.where((result) => result.error is StateError),
-      hasLength(1),
-      reason: 'the stale expected-null creation must fail closed',
-    );
+    _rethrowContractFailure(results);
+    expect(results.where((result) => result.error == null), hasLength(1));
+    expect(results.where((result) => result.error is StateError), hasLength(1));
     expect(loaded.persistence.saveCalls, 1);
-    expect(
-      _decodedReferences(_decodedRoot(loaded.persistence.answers))
-          .where((reference) => reference['kind'] == 'will'),
-      hasLength(1),
-    );
+    expect(_slots(_decodedRoot(loaded.persistence.answers))['will'],
+        isNot({'state': 'unknown'}));
   });
 
-  test('concurrent creations of different kinds both survive', () async {
-    final loaded = await _loaded(
-      root: _root(regime: 'participationInAcquests'),
-    );
+  test('different-kind concurrent confirmations both survive', () async {
+    final loaded = await _loaded();
     addTearDown(loaded.provider.dispose);
-
-    final created = await Future.wait([
-      _confirmReference(
+    await Future.wait([
+      _confirmPresent(
         loaded.provider,
         kind: EstateInstrumentKind.will,
-        sourceDate: DateTime.utc(2026, 1, 15),
-        legalYear: 2026,
-        expectedPreviousReferenceId: null,
+        expectedPreviousEvidenceId: null,
       ),
-      _confirmReference(
+      _confirmAbsent(
         loaded.provider,
         kind: EstateInstrumentKind.inheritancePact,
-        sourceDate: DateTime.utc(2026, 2, 15),
-        legalYear: 2026,
-        expectedPreviousReferenceId: null,
+        expectedPreviousEvidenceId: null,
       ),
     ]);
-
-    expect(created.map((reference) => reference.kind).toSet(), {
-      EstateInstrumentKind.will,
-      EstateInstrumentKind.inheritancePact,
-    });
+    final slots = _slots(_decodedRoot(loaded.persistence.answers));
+    expect((slots['will'] as Map)['state'], 'confirmedPresent');
+    expect((slots['inheritancePact'] as Map)['state'], 'confirmedAbsent');
     expect(loaded.persistence.saveCalls, 2);
-    expect(
-      _decodedReferences(_decodedRoot(loaded.persistence.answers))
-          .map((reference) => reference['kind'])
-          .toSet(),
-      {'will', 'inheritancePact'},
-    );
   });
 
-  test(
-      'replacement requires the exact previous ID and stale CAS publishes none',
-      () async {
-    final loaded = await _loaded(
-      root: _root(regime: 'participationInAcquests'),
-    );
+  test('stale evidence CAS causes zero save and zero publication', () async {
+    final loaded = await _loaded();
     addTearDown(loaded.provider.dispose);
-    final original = await _confirmReference(
+    await _confirmAbsent(
       loaded.provider,
       kind: EstateInstrumentKind.will,
-      sourceDate: DateTime.utc(2026, 1, 15),
-      legalYear: 2026,
-      expectedPreviousReferenceId: null,
+      expectedPreviousEvidenceId: null,
     );
+    final before = _decodedRoot(loaded.persistence.answers);
+    final saves = loaded.persistence.saveCalls;
     var notifications = 0;
     loaded.provider.addListener(() => notifications += 1);
-    final savesBeforeStale = loaded.persistence.saveCalls;
-    final rootBeforeStale = loaded.persistence.answers[_rootKey];
 
     await expectLater(
-      _confirmReference(
+      _confirmPresent(
         loaded.provider,
         kind: EstateInstrumentKind.will,
-        sourceDate: DateTime.utc(2026, 2, 15),
-        legalYear: 2026,
-        expectedPreviousReferenceId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        expectedPreviousEvidenceId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
       ),
       throwsStateError,
     );
-    expect(loaded.persistence.saveCalls, savesBeforeStale);
-    expect(loaded.persistence.answers[_rootKey], rootBeforeStale);
+    expect(loaded.persistence.saveCalls, saves);
+    expect(_decodedRoot(loaded.persistence.answers), before);
     expect(notifications, 0);
-    expect(
-      loaded.provider.profile?.estateInstrumentReferences.single.referenceId,
-      original.referenceId,
-    );
+  });
 
-    final replacement = await _confirmReference(
+  test('stale arrangement confirmationId causes zero save and publication',
+      () async {
+    final loaded = await _loaded(civilStatus: 'marie');
+    addTearDown(loaded.provider.dispose);
+    await _confirmMarriage(
+      loaded.provider,
+      MatrimonialRegimeKind.communityOfProperty,
+      expectedPreviousConfirmationId: null,
+    );
+    final saves = loaded.persistence.saveCalls;
+    final before = loaded.persistence.answers[_rootKey];
+    var notifications = 0;
+    loaded.provider.addListener(() => notifications += 1);
+    await expectLater(
+      _confirmMarriage(
+        loaded.provider,
+        MatrimonialRegimeKind.separationOfProperty,
+        expectedPreviousConfirmationId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      ),
+      throwsStateError,
+    );
+    expect(loaded.persistence.saveCalls, saves);
+    expect(loaded.persistence.answers[_rootKey], before);
+    expect(notifications, 0);
+  });
+
+  test('legacy global-civil root is refused by every writer', () async {
+    final loaded = await _loaded(
+      civilStatus: 'marie',
+      root: jsonEncode(<String, dynamic>{
+        'schemaVersion': 1,
+        'matrimonialRegime': null,
+        'civilStatusAtConfirmation': 'marie',
+        'estateInstrumentReferences': <dynamic>[],
+      }),
+    );
+    addTearDown(loaded.provider.dispose);
+    final before = loaded.persistence.answers[_rootKey];
+    await expectLater(
+      _confirmMarriage(
+        loaded.provider,
+        MatrimonialRegimeKind.separationOfProperty,
+        expectedPreviousConfirmationId: null,
+      ),
+      throwsStateError,
+    );
+    await expectLater(
+      _confirmAbsent(
+        loaded.provider,
+        kind: EstateInstrumentKind.will,
+        expectedPreviousEvidenceId: null,
+      ),
+      throwsStateError,
+    );
+    expect(loaded.persistence.saveCalls, 0);
+    expect(loaded.persistence.answers[_rootKey], before);
+  });
+
+  test('estate writers preserve an existing full-profile classification',
+      () async {
+    final loaded = await _loaded(civilStatus: 'marie');
+    addTearDown(loaded.provider.dispose);
+    loaded.provider.updateFromAnswers(loaded.persistence.answers);
+    expect(loaded.provider.isPartialProfile, isFalse);
+    await _confirmMarriage(
+      loaded.provider,
+      MatrimonialRegimeKind.participationInAcquests,
+      expectedPreviousConfirmationId: null,
+    );
+    expect(loaded.provider.isPartialProfile, isFalse);
+    await _confirmAbsent(
       loaded.provider,
       kind: EstateInstrumentKind.will,
-      sourceDate: DateTime.utc(2026, 2, 15),
-      legalYear: 2026,
-      expectedPreviousReferenceId: original.referenceId,
+      expectedPreviousEvidenceId: null,
     );
-    expect(replacement.referenceId, isNot(original.referenceId));
-    expect(loaded.persistence.saveCalls, savesBeforeStale + 1);
-    expect(notifications, 1);
-    expect(
-      loaded.provider.profile?.estateInstrumentReferences.single,
-      replacement,
-    );
-
-    final cold = await _loaded(
-      root: loaded.persistence.answers[_rootKey] as String,
-    );
-    addTearDown(cold.provider.dispose);
-    expect(cold.provider.profile?.estateInstrumentReferences,
-        <EstateInstrumentReference>[replacement]);
+    expect(loaded.provider.isPartialProfile, isFalse);
   });
 }

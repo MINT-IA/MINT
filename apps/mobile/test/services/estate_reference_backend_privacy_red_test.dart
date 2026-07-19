@@ -14,22 +14,30 @@ const _authoritySlotPrefix = '_coach_authority_slot_v1_';
 String _estateRoot() => jsonEncode(<String, dynamic>{
       'schemaVersion': 1,
       'matrimonialRegime': <String, dynamic>{
+        'confirmationId': 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         'kind': 'participationInAcquests',
         'source': 'userInput',
-        'updatedAt': '2026-07-20T10:00:00.000Z',
+        'confirmedAt': '2026-07-20T10:00:00.000Z',
+        'civilStatusAtConfirmation': 'marie',
       },
-      'civilStatusAtConfirmation': 'celibataire',
-      'estateInstrumentReferences': <Map<String, dynamic>>[
-        <String, dynamic>{
-          'referenceId': '11111111-1111-4111-8111-111111111111',
-          'kind': 'will',
-          'ownerKind': 'self',
-          'source': 'certificate',
-          'sourceDate': '2026-01-15',
-          'legalYear': 2026,
-          'confirmedAt': '2026-01-16T10:00:00.000Z',
+      'registeredPartnershipPropertyRegime': null,
+      'estateInstruments': <String, dynamic>{
+        'will': <String, dynamic>{
+          'state': 'confirmedPresent',
+          'evidence': <String, dynamic>{
+            'evidenceId': '11111111-1111-4111-8111-111111111111',
+            'ownerKind': 'self',
+            'source': 'certificate',
+            'sourceDate': '2026-01-15',
+            'legalYear': 2026,
+            'confirmedAt': '2026-01-16T10:00:00.000Z',
+            'civilStatusAtConfirmation': 'marie',
+          },
         },
-      ],
+        'inheritancePact': <String, dynamic>{'state': 'unknown'},
+        'incapacityMandate': <String, dynamic>{'state': 'unknown'},
+        'advanceCareDirective': <String, dynamic>{'state': 'unknown'},
+      },
     });
 
 Map<String, dynamic> _activeAuthorityAnswers(
