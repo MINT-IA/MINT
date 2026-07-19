@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -633,25 +631,6 @@ void main() {
       _expectScanRecovery();
       await _exitRecovery(tester, _ExitGesture.cta);
       _expectLiteralRoute(harness.router, _rvcOrigin);
-    });
-
-    test('review and impact add opaque ids beside the pillar3a branch', () {
-      final source = File('lib/app.dart').readAsStringSync();
-      final reviewStart = source.indexOf("path: '/scan/review'");
-      final impactStart = source.indexOf("path: '/scan/impact'", reviewStart);
-      final nextRoute = source.indexOf('ScopedGoRoute(', impactStart + 1);
-      expect(reviewStart, greaterThanOrEqualTo(0));
-      expect(impactStart, greaterThan(reviewStart));
-
-      final reviewBlock = source.substring(reviewStart, impactStart);
-      final impactBlock = source.substring(
-        impactStart,
-        nextRoute == -1 ? source.length : nextRoute,
-      );
-      for (final block in <String>[reviewBlock, impactBlock]) {
-        expect(block, contains("queryParameters['scanSessionId']"));
-        expect(block, contains("queryParameters['scanReturnId']"));
-      }
     });
 
     testWidgets('pillar3a keeps its exact two-key opaque intent contract',

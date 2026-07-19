@@ -417,6 +417,85 @@ Widget _buildScanRoute(
   return DocumentScanScreen(initialType: initialType);
 }
 
+Widget _buildScanReviewRoute(BuildContext context, Uri uri) {
+  final scanSessionId = uri.queryParameters['scanSessionId'];
+  final session = context.watch<ScanSessionProvider>().byId(scanSessionId);
+  if (session == null) {
+    return _buildScanRecoveryScaffold(
+      context,
+      _ScanRecoveryTarget.review,
+    );
+  }
+  if (session.pillar3aBeneficiaryCandidate != null) {
+    final returnUri = uri.queryParameters['returnUri'];
+    final intent =
+        context.watch<ScanSessionProvider>().pillar3aBeneficiaryScanIntentById(
+              session.pillar3aScanContextId,
+              returnUri: returnUri ?? '',
+            );
+    final exactQuery = uri.queryParameters.keys.toSet().length == 2 &&
+        uri.queryParameters.keys.toSet().containsAll(
+          const <String>{
+            'scanSessionId',
+            'returnUri',
+          },
+        );
+    if (!exactQuery ||
+        !FeatureFlags.typedLppEvidence ||
+        !FeatureFlags.documentLppEvidenceEnabled ||
+        !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
+        session.pillar3aReturnUri != returnUri ||
+        intent == null ||
+        intent.lifecycle !=
+            Pillar3aBeneficiaryScanIntentLifecycle.reviewRetained) {
+      final scanSessions = context.read<ScanSessionProvider>();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final contextId = session.pillar3aScanContextId;
+        if (contextId != null) {
+          scanSessions.discardPillar3aBeneficiaryScanIntent(contextId);
+        } else if (scanSessionId != null) {
+          scanSessions.discard(scanSessionId);
+        }
+      });
+      return _buildScanRecoveryScaffold(
+        context,
+        _ScanRecoveryTarget.review,
+      );
+    }
+  }
+  return ExtractionReviewScreen(
+    scanSessionId: scanSessionId!,
+    result: session.extraction,
+    lppCandidate: session.lppCandidate,
+    lppAuthorization: session.lppAuthorization,
+    lppRegulationCandidate: session.lppRegulationCandidate,
+    lppCapitalNoticeCandidate: session.lppCapitalNoticeCandidate,
+    manualPartnerAccountability: session.manualPartnerAccountability,
+    taxCandidate: session.taxCandidate,
+    pillar3aBeneficiaryCandidate: session.pillar3aBeneficiaryCandidate,
+    pillar3aScanContextId: session.pillar3aScanContextId,
+    pillar3aReturnUri: session.pillar3aReturnUri,
+    recordConfirmedLppReview:
+        context.read<DocumentProvider>().recordConfirmedLppReview,
+  );
+}
+
+Widget _buildScanImpactRoute(BuildContext context, Uri uri) {
+  final scanSessionId = uri.queryParameters['scanSessionId'];
+  final session = context.watch<ScanSessionProvider>().byId(scanSessionId);
+  if (session == null || session.previousConfidence == null) {
+    return _buildScanRecoveryScaffold(
+      context,
+      _ScanRecoveryTarget.impact,
+    );
+  }
+  return DocumentImpactScreen(
+    scanSessionId: scanSessionId!,
+    result: session.extraction,
+    previousConfidence: session.previousConfidence!,
+  );
+}
+
 @visibleForTesting
 Widget testOnlyBuildScanRoute(
   Uri uri, {
@@ -433,6 +512,14 @@ Widget testOnlyBuildScanRoute(
         navigateToReview: navigateToReview,
       ),
     );
+
+@visibleForTesting
+Widget testOnlyBuildScanReviewRoute(Uri uri) =>
+    Builder(builder: (context) => _buildScanReviewRoute(context, uri));
+
+@visibleForTesting
+Widget testOnlyBuildScanImpactRoute(Uri uri) =>
+    Builder(builder: (context) => _buildScanImpactRoute(context, uri));
 
 @visibleForTesting
 Widget testOnlyBuildScanRecoveryScaffold(String route) {
@@ -1401,91 +1488,12 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/scan/review',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final scanSessionId = state.uri.queryParameters['scanSessionId'];
-        final session =
-            context.watch<ScanSessionProvider>().byId(scanSessionId);
-        if (session == null) {
-          return _buildScanRecoveryScaffold(
-            context,
-            _ScanRecoveryTarget.review,
-          );
-        }
-        if (session.pillar3aBeneficiaryCandidate != null) {
-          final returnUri = state.uri.queryParameters['returnUri'];
-          final intent = context
-              .watch<ScanSessionProvider>()
-              .pillar3aBeneficiaryScanIntentById(
-                session.pillar3aScanContextId,
-                returnUri: returnUri ?? '',
-              );
-          final exactQuery =
-              state.uri.queryParameters.keys.toSet().length == 2 &&
-                  state.uri.queryParameters.keys.toSet().containsAll(
-                    const <String>{
-                      'scanSessionId',
-                      'returnUri',
-                    },
-                  );
-          if (!exactQuery ||
-              !FeatureFlags.typedLppEvidence ||
-              !FeatureFlags.documentLppEvidenceEnabled ||
-              !FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled ||
-              session.pillar3aReturnUri != returnUri ||
-              intent == null ||
-              intent.lifecycle !=
-                  Pillar3aBeneficiaryScanIntentLifecycle.reviewRetained) {
-            final scanSessions = context.read<ScanSessionProvider>();
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final contextId = session.pillar3aScanContextId;
-              if (contextId != null) {
-                scanSessions.discardPillar3aBeneficiaryScanIntent(contextId);
-              } else if (scanSessionId != null) {
-                scanSessions.discard(scanSessionId);
-              }
-            });
-            return _buildScanRecoveryScaffold(
-              context,
-              _ScanRecoveryTarget.review,
-            );
-          }
-        }
-        return ExtractionReviewScreen(
-          scanSessionId: scanSessionId!,
-          result: session.extraction,
-          lppCandidate: session.lppCandidate,
-          lppAuthorization: session.lppAuthorization,
-          lppRegulationCandidate: session.lppRegulationCandidate,
-          lppCapitalNoticeCandidate: session.lppCapitalNoticeCandidate,
-          manualPartnerAccountability: session.manualPartnerAccountability,
-          taxCandidate: session.taxCandidate,
-          pillar3aBeneficiaryCandidate: session.pillar3aBeneficiaryCandidate,
-          pillar3aScanContextId: session.pillar3aScanContextId,
-          pillar3aReturnUri: session.pillar3aReturnUri,
-          recordConfirmedLppReview:
-              context.read<DocumentProvider>().recordConfirmedLppReview,
-        );
-      },
+      builder: (context, state) => _buildScanReviewRoute(context, state.uri),
     ),
     ScopedGoRoute(
       path: '/scan/impact',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final scanSessionId = state.uri.queryParameters['scanSessionId'];
-        final session =
-            context.watch<ScanSessionProvider>().byId(scanSessionId);
-        if (session == null || session.previousConfidence == null) {
-          return _buildScanRecoveryScaffold(
-            context,
-            _ScanRecoveryTarget.impact,
-          );
-        }
-        return DocumentImpactScreen(
-          scanSessionId: scanSessionId!,
-          result: session.extraction,
-          previousConfidence: session.previousConfidence!,
-        );
-      },
+      builder: (context, state) => _buildScanImpactRoute(context, state.uri),
     ),
 
     ScopedGoRoute(

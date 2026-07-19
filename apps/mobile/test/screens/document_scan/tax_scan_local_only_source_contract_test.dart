@@ -413,9 +413,12 @@ void main() {
       'ScopedGoRoute',
       "path: '/scan/review'",
     );
-    expect(route, contains('context.watch<ScanSessionProvider>()'));
-    expect(route, contains('ExtractionReviewScreen('));
-    expect(route, contains('taxCandidate: session.taxCandidate'));
+    expect(route, contains('_buildScanReviewRoute(context, state.uri)'));
+
+    final builder = _methodBody(appSource, '_buildScanReviewRoute');
+    expect(builder, contains('context.watch<ScanSessionProvider>()'));
+    expect(builder, contains('ExtractionReviewScreen('));
+    expect(builder, contains('taxCandidate: session.taxCandidate'));
   });
 
   test('tax parser branch returns an explicit typed extraction bundle only',
