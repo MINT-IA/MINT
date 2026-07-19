@@ -138,10 +138,13 @@ private_dir=$(mktemp -d "${TMPDIR:-/tmp}/mint-return01-rvc.XXXXXX")
 raw_log="$private_dir/patrol.raw.log"
 maestro_private_dir="$private_dir/maestro"
 maestro_raw_log="$maestro_private_dir/maestro.log"
+maestro_screenshot_stem="$private_dir/maestro-rvc-final"
+maestro_private_screenshot="$maestro_screenshot_stem.png"
 private_screenshot="$private_dir/final.png"
 sanitized_log="$artifacts_abs/patrol.log"
 sanitized_maestro_log="$artifacts_abs/maestro.log"
 final_screenshot="$artifacts_abs/final.png"
+maestro_final_screenshot="$artifacts_abs/maestro-final.png"
 metadata="$artifacts_abs/metadata.json"
 bundle_cleanup_armed=true
 patrol_pid=''
@@ -467,6 +470,7 @@ write_metadata() {
   local log_hash=$2
   local screenshot_hash=${3:-}
   local maestro_log_hash=${4:-}
+  local maestro_screenshot_hash=${5:-}
   python3 - \
     "$metadata" \
     "$expected_sha" \
@@ -474,12 +478,22 @@ write_metadata() {
     "$result" \
     "$log_hash" \
     "$screenshot_hash" \
-    "$maestro_log_hash" <<'PY'
+    "$maestro_log_hash" \
+    "$maestro_screenshot_hash" <<'PY'
 import json
 import pathlib
 import sys
 
-path, sha, bundle, result, log_hash, screenshot_hash, maestro_log_hash = sys.argv[1:]
+(
+    path,
+    sha,
+    bundle,
+    result,
+    log_hash,
+    screenshot_hash,
+    maestro_log_hash,
+    maestro_screenshot_hash,
+) = sys.argv[1:]
 payload = {
     "schemaVersion": 1,
     "caseId": "G1-RETURN-01-RVC-LPP",
@@ -492,6 +506,7 @@ payload = {
     "device": "<redacted>",
     "logSha256": log_hash,
     "maestroLogSha256": maestro_log_hash or None,
+    "maestroScreenshotSha256": maestro_screenshot_hash or None,
     "screenshotSha256": screenshot_hash or None,
 }
 pathlib.Path(path).write_text(
@@ -605,12 +620,19 @@ if ((runtime_status == 0)); then
             MINT_BUNDLE_ID="$bundle_id" \
             bash tools/simulator/maestro_with_watchdog.sh \
               test --device "$device" \
+              --env MINT_RVC_SCREENSHOT="$maestro_screenshot_stem" \
               apps/mobile/.maestro/g1_return01_rvc_lpp_scan_return.yaml
         ) >>"$raw_log" 2>&1
         maestro_status=$?
         set -e
         if ((maestro_status != 0)); then
           printf 'Maestro visual attachment failed\n' >>"$raw_log"
+          screenshot_status=2
+        elif [[ ! -s "$maestro_private_screenshot" \
+          || -L "$maestro_private_screenshot" ]]; then
+          printf 'Maestro visual screenshot is missing or ambiguous\n' \
+            >>"$raw_log"
+          maestro_status=2
           screenshot_status=2
         fi
         set +e
@@ -700,6 +722,7 @@ fi
 
 python3 - \
   "$private_screenshot" \
+  "$maestro_private_screenshot" \
   "$repo" \
   "$HOME" \
   "$private_dir" \
@@ -708,18 +731,25 @@ python3 - \
 import pathlib
 import sys
 
-path, *forbidden = sys.argv[1:]
-payload = pathlib.Path(path).read_bytes()
-for value in forbidden:
-    if value and value.encode() in payload:
-        raise SystemExit("screenshot contains a private runtime identifier")
+simctl_path, maestro_path, *forbidden = sys.argv[1:]
+for path in (simctl_path, maestro_path):
+    payload = pathlib.Path(path).read_bytes()
+    for value in forbidden:
+        if value and value.encode() in payload:
+            raise SystemExit("screenshot contains a private runtime identifier")
 PY
 install -m 600 "$private_screenshot" "$final_screenshot"
+install -m 600 "$maestro_private_screenshot" "$maestro_final_screenshot"
 screenshot_hash=$(shasum -a 256 "$final_screenshot" | awk '{print $1}')
+maestro_screenshot_hash=$(
+  shasum -a 256 "$maestro_final_screenshot" | awk '{print $1}'
+)
 if ! verify_runtime_sources_clean; then
-  write_metadata 'failed' "$log_hash" "$screenshot_hash" "$maestro_log_hash"
+  write_metadata 'failed' "$log_hash" "$screenshot_hash" \
+    "$maestro_log_hash" "$maestro_screenshot_hash"
   fail 'runtime contract SHA changed during Patrol execution'
 fi
-write_metadata 'passed' "$log_hash" "$screenshot_hash" "$maestro_log_hash"
+write_metadata 'passed' "$log_hash" "$screenshot_hash" \
+  "$maestro_log_hash" "$maestro_screenshot_hash"
 
 printf 'RVC LPP runtime evidence written.\n'

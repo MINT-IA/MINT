@@ -30,6 +30,8 @@ def test_rvc_runner_is_exact_sha_clean_and_joins_patrol_maestro_visual_proof() -
         ".planning/runtime-evidence/phase-37/return-01-rvc",
         "test/patrol/g1_return01_rvc_lpp_scan_return_runtime_test.dart",
         ".maestro/g1_return01_rvc_lpp_scan_return.yaml",
+        "MINT_RVC_SCREENSHOT",
+        "maestro-final.png",
         "MINT_G1_RETURN01_RVC_LPP_VISUAL_READY_V1",
         "maestro_with_watchdog.sh",
         '"caseId": "G1-RETURN-01-RVC-LPP"',

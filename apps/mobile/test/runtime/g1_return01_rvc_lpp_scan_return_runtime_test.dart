@@ -15,8 +15,6 @@ void main() {
       "FeatureFlags.documentLppEvidenceEnabled = true",
       "FeatureFlags.typedLppEvidence = false",
       "FeatureFlags.documentLppEvidenceEnabled = false",
-      'final semantics = \$.tester.ensureSemantics()',
-      'semantics.dispose',
       "const Key('indicatif_banner_lpp_cta')",
       "const Key('data_block_lpp_scan_cta')",
       "const Key('document_scan_lpp_example_cta')",
@@ -39,14 +37,17 @@ void main() {
     expect(flow.existsSync(), isTrue);
     final contents = flow.readAsStringSync();
     expect(contents, contains('appId: ch.mint.app'));
-    expect(contents, contains('id: "rvc_screen"'));
     expect(
-        contents, contains('takeScreenshot: g1_return01_rvc_lpp_exact_return'));
+      contents,
+      contains(r'takeScreenshot: ${MINT_RVC_SCREENSHOT}'),
+    );
     for (final forbidden in const <String>[
       'launchApp',
       'stopApp',
       'clearState',
       'openLink',
+      'assertVisible',
+      'extendedWaitUntil',
     ]) {
       expect(contents, isNot(contains(forbidden)), reason: forbidden);
     }
