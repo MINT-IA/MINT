@@ -757,6 +757,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   IndicatifBanner(
                     confidenceScore: _result!.confidenceScore,
                     topEnrichmentCategory: 'lpp',
+                    returnUri: '/rente-vs-capital',
                   ),
 
                   if (_hasEstimatedValues && _inputMode == _InputMode.estimate)

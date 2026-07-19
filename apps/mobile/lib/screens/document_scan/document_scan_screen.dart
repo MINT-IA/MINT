@@ -219,6 +219,7 @@ class DocumentScanScreen extends StatefulWidget {
   final DocumentType? initialType;
   final String? scanContextId;
   final String? returnUri;
+  final VoidCallback? onBack;
   final String Function()? taxSnapshotIdFactory;
   final DocumentScanFilePicker? pickFile;
   final DocumentScanFileBytesReader? readFileBytes;
@@ -257,6 +258,7 @@ class DocumentScanScreen extends StatefulWidget {
     this.initialType,
     this.scanContextId,
     this.returnUri,
+    this.onBack,
     this.taxSnapshotIdFactory,
     this.pickFile,
     this.readFileBytes,
@@ -1310,7 +1312,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => safePop(context),
+        onPressed: widget.onBack ?? () => safePop(context),
       ),
       title: Text(
         S.of(context)!.docScanAppBarTitle,

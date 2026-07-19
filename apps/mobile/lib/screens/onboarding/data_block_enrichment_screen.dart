@@ -8,8 +8,10 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/cross_validation_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/swiss_civil_time.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -272,7 +274,29 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
                                   final route =
                                       _enrichmentRoute(canonicalBlockType);
                                   if (route != null) {
-                                    context.push(route);
+                                    final returnTarget = widget.returnTarget;
+                                    if (canonicalBlockType == 'lpp' &&
+                                        returnTarget?.location ==
+                                            '/rente-vs-capital' &&
+                                        FeatureFlags
+                                            .lppEvidenceIngestionEnabled) {
+                                      final scanReturnId = context
+                                          .read<ScanSessionProvider>()
+                                          .retainDataBlockScanReturnIntent(
+                                            kind: DataBlockScanReturnKind.rvcLpp,
+                                            target: returnTarget!,
+                                          );
+                                      context.push(
+                                        Uri(
+                                          path: route,
+                                          queryParameters: <String, String>{
+                                            'scanReturnId': scanReturnId,
+                                          },
+                                        ).toString(),
+                                      );
+                                    } else {
+                                      context.push(route);
+                                    }
                                   } else {
                                     _cancelToReturnTarget();
                                   }

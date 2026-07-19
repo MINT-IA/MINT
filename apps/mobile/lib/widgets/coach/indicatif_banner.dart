@@ -29,11 +29,15 @@ class IndicatifBanner extends StatelessWidget {
   /// Falls back to 'lpp' if null.
   final String? topEnrichmentCategory;
 
+  /// Optional validated internal origin carried into the DataBlock route.
+  final String? returnUri;
+
   const IndicatifBanner({
     super.key,
     required this.confidenceScore,
     this.confidence,
     this.topEnrichmentCategory,
+    this.returnUri,
   });
 
   /// Maps enrichment categories to data block route types.
@@ -46,6 +50,13 @@ class IndicatifBanner extends StatelessWidget {
     'objectif_retraite': 'objectifRetraite',
     'menage': 'compositionMenage',
   };
+
+  String _dataBlockLocation(String route) => Uri(
+        path: '/data-block/$route',
+        queryParameters: returnUri == null
+            ? null
+            : <String, String>{'returnUri': returnUri!},
+      ).toString();
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +107,7 @@ class IndicatifBanner extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
-              onPressed: () => context.push('/data-block/$route'),
+              onPressed: () => context.push(_dataBlockLocation(route)),
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(
                 S.of(context)!.indicativeBannerCta,

@@ -3,12 +3,40 @@ import 'package:mint_mobile/models/coach_profile_owner.dart';
 import 'package:mint_mobile/models/lpp_evidence.dart';
 import 'package:mint_mobile/models/partner_accountability.dart';
 import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
+import 'package:mint_mobile/routes/route_metadata.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_extraction_adapter.dart';
 import 'package:mint_mobile/services/session_epoch.dart';
 import 'package:uuid/uuid.dart';
 
 enum Pillar3aBeneficiaryScanIntentKind { insertion, replacement }
+
+enum DataBlockScanReturnKind { rvcLpp }
+
+enum DataBlockScanReturnLifecycle { created, processing }
+
+@immutable
+final class DataBlockScanReturnIntent {
+  const DataBlockScanReturnIntent._({
+    required this.kind,
+    required this.target,
+    required this.createdAt,
+    required this.lifecycle,
+  });
+
+  final DataBlockScanReturnKind kind;
+  final DataBlockReturnTarget target;
+  final DateTime createdAt;
+  final DataBlockScanReturnLifecycle lifecycle;
+
+  DataBlockScanReturnIntent _at(DataBlockScanReturnLifecycle next) =>
+      DataBlockScanReturnIntent._(
+        kind: kind,
+        target: target,
+        createdAt: createdAt,
+        lifecycle: next,
+      );
+}
 
 enum Pillar3aBeneficiaryScanIntentLifecycle {
   created,
@@ -153,11 +181,13 @@ class ScanSessionProvider extends ChangeNotifier {
         _now = now ?? DateTime.now;
 
   static const maxRetainedSessions = 5;
+  static const maxRetainedDataBlockScanReturnIntents = 5;
   static const maxRetainedPillar3aBeneficiaryScanIntents = 5;
   final SessionEpoch _sessionEpoch;
   final Uuid _uuid;
   final DateTime Function() _now;
   final Map<String, ScanSessionPayload> _sessions = {};
+  final Map<String, DataBlockScanReturnIntent> _dataBlockScanReturnIntents = {};
   final Map<String, Pillar3aBeneficiaryScanIntent>
       _pillar3aBeneficiaryScanIntents = {};
   int _nextId = 0;
@@ -166,8 +196,74 @@ class ScanSessionProvider extends ChangeNotifier {
   int get retainedSessionCount => _sessions.length;
 
   @visibleForTesting
+  int get retainedDataBlockScanReturnIntentCount =>
+      _dataBlockScanReturnIntents.length;
+
+  @visibleForTesting
   int get retainedPillar3aBeneficiaryScanIntentCount =>
       _pillar3aBeneficiaryScanIntents.length;
+
+  String retainDataBlockScanReturnIntent({
+    required DataBlockScanReturnKind kind,
+    required DataBlockReturnTarget target,
+  }) {
+    if (kind != DataBlockScanReturnKind.rvcLpp ||
+        target.location != '/rente-vs-capital') {
+      throw ArgumentError('Invalid DataBlock scan return intent');
+    }
+    final guard = _sessionEpoch.capture();
+    final id = _uuid.v4();
+    if (!isCanonicalUuidV4(id)) {
+      throw StateError('RVC LPP scan identity failed');
+    }
+    _dataBlockScanReturnIntents[id] = DataBlockScanReturnIntent._(
+      kind: kind,
+      target: target,
+      createdAt: _now().toUtc(),
+      lifecycle: DataBlockScanReturnLifecycle.created,
+    );
+    while (_dataBlockScanReturnIntents.length >
+        maxRetainedDataBlockScanReturnIntents) {
+      _dataBlockScanReturnIntents.remove(
+        _dataBlockScanReturnIntents.keys.first,
+      );
+    }
+    guard.assertCurrent();
+    notifyListeners();
+    return id;
+  }
+
+  DataBlockScanReturnIntent? dataBlockScanReturnIntentById(String? id) {
+    if (!isCanonicalUuidV4(id)) return null;
+    return _dataBlockScanReturnIntents[id];
+  }
+
+  bool advanceDataBlockScanReturnIntent(
+    String id, {
+    required DataBlockScanReturnLifecycle from,
+    required DataBlockScanReturnLifecycle to,
+  }) {
+    final current = _dataBlockScanReturnIntents[id];
+    if (current == null ||
+        current.lifecycle != from ||
+        from != DataBlockScanReturnLifecycle.created ||
+        to != DataBlockScanReturnLifecycle.processing) {
+      return false;
+    }
+    final guard = _sessionEpoch.capture();
+    _dataBlockScanReturnIntents[id] = current._at(to);
+    guard.assertCurrent();
+    notifyListeners();
+    return true;
+  }
+
+  bool discardDataBlockScanReturnIntent(String id) {
+    final guard = _sessionEpoch.capture();
+    if (_dataBlockScanReturnIntents.remove(id) == null) return false;
+    guard.assertCurrent();
+    notifyListeners();
+    return true;
+  }
 
   String retainPillar3aBeneficiaryScanIntent({
     required Pillar3aBeneficiaryScanIntentKind kind,
@@ -435,6 +531,7 @@ class ScanSessionProvider extends ChangeNotifier {
   /// Drops volatile extraction candidates and authorizations on session exit.
   void clearSessionMemoryAfterPurge() {
     _sessions.clear();
+    _dataBlockScanReturnIntents.clear();
     _pillar3aBeneficiaryScanIntents.clear();
     _nextId = 0;
     notifyListeners();

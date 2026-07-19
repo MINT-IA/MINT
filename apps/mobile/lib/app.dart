@@ -254,7 +254,89 @@ Widget _buildScanRecoveryScaffold(
   );
 }
 
+bool _hasExactRawScanQuery(
+  Uri uri, {
+  required String key,
+  required String value,
+}) {
+  final values = uri.queryParametersAll[key];
+  return uri.query == '$key=$value' &&
+      uri.queryParametersAll.length == 1 &&
+      values != null &&
+      values.length == 1 &&
+      values.single == value;
+}
+
+class _DataBlockScanReturnEntry extends StatefulWidget {
+  const _DataBlockScanReturnEntry({
+    required this.scanReturnId,
+    required this.target,
+  });
+
+  final String scanReturnId;
+  final DataBlockReturnTarget target;
+
+  @override
+  State<_DataBlockScanReturnEntry> createState() =>
+      _DataBlockScanReturnEntryState();
+}
+
+class _DataBlockScanReturnEntryState extends State<_DataBlockScanReturnEntry> {
+  bool _cancelled = false;
+
+  void _cancel() {
+    if (_cancelled) return;
+    _cancelled = true;
+    final router = GoRouter.of(context);
+    context
+        .read<ScanSessionProvider>()
+        .discardDataBlockScanReturnIntent(widget.scanReturnId);
+    router.go(widget.target.location);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope<void>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _cancel();
+      },
+      child: DocumentScanScreen(
+        initialType: DocumentType.lppCertificate,
+        onBack: _cancel,
+      ),
+    );
+  }
+}
+
 Widget _buildScanRoute(BuildContext context, Uri uri) {
+  final scanReturnId = uri.queryParameters['scanReturnId'];
+  if (scanReturnId != null) {
+    final intent = context
+        .watch<ScanSessionProvider>()
+        .dataBlockScanReturnIntentById(scanReturnId);
+    final hasExactOpaqueQuery = _hasExactRawScanQuery(
+      uri,
+      key: 'scanReturnId',
+      value: scanReturnId,
+    );
+    if (!hasExactOpaqueQuery ||
+        !FeatureFlags.lppEvidenceIngestionEnabled ||
+        intent == null ||
+        intent.kind != DataBlockScanReturnKind.rvcLpp ||
+        (intent.lifecycle != DataBlockScanReturnLifecycle.created &&
+            intent.lifecycle != DataBlockScanReturnLifecycle.processing)) {
+      return _buildScanRecoveryScaffold(
+        context,
+        _ScanRecoveryTarget.review,
+      );
+    }
+    return _DataBlockScanReturnEntry(
+      scanReturnId: scanReturnId,
+      target: intent.target,
+    );
+  }
+
   final scanContextId = uri.queryParameters['scanContextId'];
   final returnUri = uri.queryParameters['returnUri'];
   if (scanContextId != null || returnUri != null) {
@@ -293,6 +375,18 @@ Widget _buildScanRoute(BuildContext context, Uri uri) {
     );
   }
   final requestedType = uri.queryParameters['type'];
+  if (uri.hasQuery &&
+      (requestedType == null ||
+          !_hasExactRawScanQuery(
+            uri,
+            key: 'type',
+            value: requestedType,
+          ))) {
+    return _buildScanRecoveryScaffold(
+      context,
+      _ScanRecoveryTarget.review,
+    );
+  }
   if (requestedType == DocumentType.pillar3aBeneficiaryClause.name) {
     return _buildScanRecoveryScaffold(
       context,
