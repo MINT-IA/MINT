@@ -73,7 +73,7 @@ Bounded contract files are
 `apps/mobile/test/navigation/rvc_scan_return_origin_test.dart`,
 `apps/mobile/test/navigation/rvc_scan_return_review_impact_test.dart`, and
 `apps/mobile/test/providers/data_block_scan_return_intent_test.dart`. Exact-SHA
-native proof at `0447ac488bdc861b2e64933a29c89b142b240d56` runs the real
+native proof at `bc839242abc3e2c376363359cd77994355d77190` runs the real
 RVC → LPP DataBlock → synthetic certificate → Review → Impact → consumed RVC
 return with Patrol, while Maestro and simctl capture the returned pixels. The
 sanitized proof and direct visual review are archived under

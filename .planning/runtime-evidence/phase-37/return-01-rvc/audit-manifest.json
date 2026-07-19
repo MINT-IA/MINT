@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "gate": "G1-RETURN-01-RVC-LPP",
+  "runtimeSourceSha": "bc839242abc3e2c376363359cd77994355d77190",
+  "globalTicketState": "ticket_only",
+  "globalG1State": "NO-GO",
+  "audits": [
+    {
+      "file": "audit-code-opus-first-168c8159a.md",
+      "model": "opus",
+      "mode": "code",
+      "verdict": "PASS",
+      "p0": 0,
+      "p1": 0
+    },
+    {
+      "file": "audit-code-sonnet-rerun-0447ac488.md",
+      "model": "sonnet",
+      "mode": "code-rerun",
+      "verdict": "PASS"
+    },
+    {
+      "file": "audit-code-opus-final-0447ac488.md",
+      "model": "opus",
+      "mode": "code-final-confirmation",
+      "verdict": "PASS",
+      "p0": 0,
+      "p1": 0
+    },
+    {
+      "file": "audit-product-domain-opus-pre-writeback-0447ac488.md",
+      "model": "opus",
+      "mode": "product-domain",
+      "verdict": "PASS",
+      "p0": 0,
+      "p1": 0
+    }
+  ],
+  "runtime": {
+    "directory": "runtime-bc839242ab-20260719T212504Z",
+    "patrol": "passed",
+    "maestro": "passed",
+    "visualReview": "passed"
+  }
+}

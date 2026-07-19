@@ -1,0 +1,15 @@
+{
+  "bundleId": "ch.mint.app",
+  "caseId": "G1-RETURN-01-RVC-LPP",
+  "commitSha": "bc839242abc3e2c376363359cd77994355d77190",
+  "device": "<redacted>",
+  "logSha256": "c5489b145b4e1d4c25c2c8e72819cdebff67004abbd9f64c6a60749c8b44f6d2",
+  "maestroLogSha256": "5caf6b3a24766b1957f4c82f19bd3c9d28d3ceea8ab8a4d70b5974ed94fe81b2",
+  "maestroResult": "passed",
+  "maestroScreenshotSha256": "cf4e467030c9a0b50bce7510a46efc06218819c70e9f207155ed0a27f6c784bb",
+  "patrolResult": "passed",
+  "patrolTarget": "test/patrol/g1_return01_rvc_lpp_scan_return_runtime_test.dart",
+  "result": "passed",
+  "schemaVersion": 1,
+  "screenshotSha256": "a7ff42adeee29202d52101ab9b7d6c4c1ee9b9ff143a2e9ea062b91aab85878f"
+}
