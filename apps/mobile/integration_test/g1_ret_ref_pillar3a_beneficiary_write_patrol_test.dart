@@ -328,9 +328,9 @@ void main() {
         ),
       );
 
-      await $(#retirement_pillar3a_beneficiary_reference_insert_cta)
-          .scrollTo()
-          .tap();
+      await $(find.bySemanticsIdentifier(
+        'retirement_pillar3a_beneficiary_reference_insert_cta',
+      )).scrollTo().tap();
       await $(#document_scan_pillar3a_beneficiary_clause_type_selector)
           .waitUntilVisible();
       await $(#document_scan_gallery_cta).scrollTo().tap();

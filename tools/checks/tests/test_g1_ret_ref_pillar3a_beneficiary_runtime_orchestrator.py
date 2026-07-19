@@ -140,8 +140,14 @@ def test_writer_uses_real_screens_and_transient_synthetic_pdf() -> None:
         "sanity_avoir_lpp_7M.pdf",
         "MINT_LPP_PRIVATE_MANIFEST",
         "uploadCalls.add",
+        "$(#retirement_pillar3a_beneficiary_reference_insert_cta)",
     ):
         assert forbidden not in source, forbidden
+
+    assert (
+        "find.bySemanticsIdentifier(\n"
+        "        'retirement_pillar3a_beneficiary_reference_insert_cta'"
+    ) in source
 
     dashboard = source.index("retirement_pillar3a_beneficiary_reference_insert_cta")
     scan = source.index("document_scan_gallery_cta")
