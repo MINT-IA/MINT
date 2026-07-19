@@ -107,6 +107,7 @@ def test_writer_uses_real_screens_and_transient_synthetic_pdf() -> None:
         "FeatureFlags.documentLppEvidenceEnabled = true;",
         "FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled = true;",
         "FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled = false;",
+        "ReportPersistenceService.setMiniOnboardingCompleted(true)",
         "RetirementDashboardScreen(",
         "DocumentScanScreen(",
         "ExtractionReviewScreen(",
@@ -133,6 +134,9 @@ def test_writer_uses_real_screens_and_transient_synthetic_pdf() -> None:
         "currentActiveUnpaid",
         "g1Pillar3aBeneficiaryWriterPidKey",
         "preferences.setInt(g1Pillar3aBeneficiaryWriterPidKey, pid)",
+        "expect(ledger.profile, isNotNull)",
+        "Pillar3aBeneficiaryLedgerState.missing",
+        "Pillar3aBeneficiaryConsumerState.empty",
     ):
         assert anchor in source, anchor
 

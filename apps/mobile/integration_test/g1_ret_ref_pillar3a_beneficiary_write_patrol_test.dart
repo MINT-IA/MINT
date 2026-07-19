@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/pillar3a_beneficiary_consumer.dart';
 import 'package:mint_mobile/models/pillar3a_beneficiary_evidence.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -271,6 +272,7 @@ void main() {
         'q_has_pension_fund': 'yes',
         '__provenance': <String, dynamic>{},
       });
+      await ReportPersistenceService.setMiniOnboardingCompleted(true);
 
       final syntheticDirectory =
           await Directory.systemTemp.createTemp('mint-pillar3a-runtime-');
@@ -318,6 +320,15 @@ void main() {
 
       await ledger.loadFromWizard();
       await documents.hydrateReferences();
+      expect(ledger.profile, isNotNull);
+      expect(
+        ledger.pillar3aBeneficiaryLedgerState,
+        Pillar3aBeneficiaryLedgerState.missing,
+      );
+      expect(
+        documents.resolvePillar3aBeneficiaryConsumer().state,
+        Pillar3aBeneficiaryConsumerState.empty,
+      );
       await $.pumpWidgetAndSettle(
         _app(
           router: router,
