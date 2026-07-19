@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/scenario_session.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scenario_session_provider.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
@@ -103,6 +105,21 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   String? _seqRunId;
   String? _seqStepId;
   bool _finalReturnEmitted = false;
+  bool _popRequested = false;
+
+  ScenarioSessionProvider? _scenarioProvider;
+  String? _scenarioId;
+  bool _scenarioBoundaryRequired = false;
+  int? _currentAgeOverride;
+  double? _grossAnnualSalaryOverride;
+  double? _lppTotalOverride;
+  double? _lppObligatoryOverride;
+  double? _lppExtraMandatoryOverride;
+  double? _annualPensionOverride;
+  double? _obligatoryConversionRateOverride;
+  double? _extraMandatoryConversionRateOverride;
+  String? _cantonOverride;
+  bool? _marriedOverride;
 
   // ── New fields ──
   final _rachatAnnuelCtrl = TextEditingController(text: '0');
@@ -113,8 +130,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   @override
   void initState() {
     super.initState();
-    _recalculate();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         final extra = GoRouterState.of(context).extra;
         if (extra is Map<String, dynamic>) {
@@ -122,33 +138,56 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           _seqStepId = extra['stepId'] as String?;
         }
       } catch (_) {}
+      await _initializeScenario();
+      if (mounted) _recalculate();
     });
   }
 
   void _emitFinalReturnOnPop() {
     if (_finalReturnEmitted) return;
-    if (_seqRunId == null || _seqStepId == null) return;
+    _popRequested = true;
+    if (_scenarioProvider == null || _scenarioId == null) return;
     _finalReturnEmitted = true;
+    _emitScenarioTerminal().ignore();
+  }
 
-    if (!_hasUserInteracted) {
-      ScreenCompletionTracker.markCompletedWithReturn('rente_vs_capital',
-        ScreenReturn.abandoned(
-          route: '/rente-vs-capital',
-          runId: _seqRunId, stepId: _seqStepId,
-          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-        ));
-      return;
-    }
-
-    // decision_mixte: which option the user was viewing when they left
-    final mode = _inputMode == _InputMode.certificate ? 'certificate' : 'estimate';
-    ScreenCompletionTracker.markCompletedWithReturn('rente_vs_capital',
-      ScreenReturn.completed(
-        route: '/rente-vs-capital',
-        stepOutputs: {'decision_mixte': mode},
-        runId: _seqRunId, stepId: _seqStepId,
-        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-      ));
+  Future<void> _emitScenarioTerminal() async {
+    final provider = _scenarioProvider;
+    final id = _scenarioId;
+    if (provider == null || id == null) return;
+    final status = _hasUserInteracted
+        ? ScenarioStatus.completed
+        : ScenarioStatus.abandoned;
+    final terminal = await provider.markTerminal(
+      id,
+      expectedKind: ScenarioKind.renteCapital,
+      status: status,
+    );
+    if (terminal == null) return;
+    final eventId = _seqRunId == null
+        ? null
+        : 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}';
+    final screenReturn = _hasUserInteracted
+        ? ScreenReturn.completed(
+            route: '/rente-vs-capital',
+            scenarioId: terminal.id,
+            scenarioStatus: terminal.status,
+            runId: _seqRunId,
+            stepId: _seqStepId,
+            eventId: eventId,
+          )
+        : ScreenReturn.abandoned(
+            route: '/rente-vs-capital',
+            scenarioId: terminal.id,
+            scenarioStatus: terminal.status,
+            runId: _seqRunId,
+            stepId: _seqStepId,
+            eventId: eventId,
+          );
+    await ScreenCompletionTracker.markCompletedWithReturn(
+      'rente_vs_capital',
+      screenReturn,
+    );
   }
 
   @override
@@ -156,6 +195,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     super.didChangeDependencies();
     if (!_didAutoFill) {
       _didAutoFill = true;
+      _scenarioBoundaryRequired =
+          context.read<ScenarioSessionProvider?>()?.enabled ?? false;
       _autoFillFromProfile();
     }
   }
@@ -250,6 +291,164 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   }
 
+  Future<void> _initializeScenario() async {
+    final provider = context.read<ScenarioSessionProvider?>();
+    if (provider == null || !provider.enabled) return;
+    _scenarioProvider = provider;
+    final profile = context.read<CoachProfileProvider>().profile;
+    final factsReady = ScenarioSessionProvider.renteCapitalFactsReady(
+      profile,
+      DateTime.now(),
+    );
+    final session = await provider.open(
+      _scenarioLevers,
+      factsReady: factsReady,
+    );
+    if (session == null || session.kind != ScenarioKind.renteCapital) {
+      return;
+    }
+    _scenarioId = session.id;
+    if (!mounted || _popRequested) {
+      _finalReturnEmitted = true;
+      await _emitScenarioTerminal();
+      return;
+    }
+    final levers = session.levers;
+    if (levers is! RenteCapitalScenarioLevers) return;
+    setState(() {
+      _scenarioId = session.id;
+      _inputMode = levers.inputMode == RenteCapitalInputMode.certificate
+          ? _InputMode.certificate
+          : _InputMode.estimate;
+      _ageRetraiteSlider.value = levers.retirementAge.toDouble();
+      _rachatAnnuelCtrl.text = levers.annualBuyback.round().toString();
+      _hasEpl = levers.hasEpl;
+      _eplAmountCtrl.text = levers.eplAmount.round().toString();
+      _hypotheses = {
+        'rendement': levers.returnRatePercent,
+        'swr': levers.withdrawalRatePercent,
+        'inflation': levers.inflationPercent,
+      };
+      _lifeExpectancy = levers.lifeExpectancy;
+      _currentAgeOverride = levers.currentAgeOverride;
+      _grossAnnualSalaryOverride = levers.grossAnnualSalaryOverride;
+      _lppTotalOverride = levers.lppTotalOverride;
+      _lppObligatoryOverride = levers.lppObligatoryOverride;
+      _lppExtraMandatoryOverride = levers.lppExtraMandatoryOverride;
+      _annualPensionOverride = levers.annualPensionOverride;
+      _obligatoryConversionRateOverride =
+          levers.obligatoryConversionRateOverride;
+      _extraMandatoryConversionRateOverride =
+          levers.extraMandatoryConversionRateOverride;
+      _cantonOverride = levers.cantonOverride;
+      _marriedOverride = levers.marriedOverride;
+      if (levers.currentAgeOverride case final value?) {
+        _ageCtrl.text = value.toString();
+      }
+      if (levers.grossAnnualSalaryOverride case final value?) {
+        _salaryCtrl.text = value.round().toString();
+      }
+      if (levers.lppTotalOverride case final value?) {
+        _lppTotalCtrl.text = value.round().toString();
+      }
+      if (levers.lppObligatoryOverride case final value?) {
+        _capitalObligCtrl.text = value.round().toString();
+      }
+      if (levers.lppExtraMandatoryOverride case final value?) {
+        _capitalSurobCtrl.text = value.round().toString();
+      }
+      if (levers.annualPensionOverride case final value?) {
+        _renteCtrl.text = value.round().toString();
+      }
+      if (levers.obligatoryConversionRateOverride case final value?) {
+        _tcObligCtrl.text = value.toString();
+      }
+      if (levers.extraMandatoryConversionRateOverride case final value?) {
+        _tcSurobCtrl.text = value.toString();
+      }
+      if (levers.cantonOverride case final value?) _canton = value;
+      if (levers.marriedOverride case final value?) _isMarried = value;
+    });
+  }
+
+  RenteCapitalScenarioLevers get _scenarioLevers =>
+      RenteCapitalScenarioLevers(
+        retirementAge: _ageRetraite,
+        annualBuyback: _currencyValue(_rachatAnnuelCtrl),
+        hasEpl: _hasEpl,
+        eplAmount: _currencyValue(_eplAmountCtrl),
+        returnRatePercent: _hypotheses['rendement'] ?? 3,
+        withdrawalRatePercent: _hypotheses['swr'] ?? 4,
+        inflationPercent: _hypotheses['inflation'] ?? 2,
+        lifeExpectancy: _lifeExpectancy,
+        inputMode: _inputMode == _InputMode.certificate
+            ? RenteCapitalInputMode.certificate
+            : RenteCapitalInputMode.estimate,
+        currentAgeOverride: _currentAgeOverride,
+        grossAnnualSalaryOverride: _grossAnnualSalaryOverride,
+        lppTotalOverride: _lppTotalOverride,
+        lppObligatoryOverride: _lppObligatoryOverride,
+        lppExtraMandatoryOverride: _lppExtraMandatoryOverride,
+        annualPensionOverride: _annualPensionOverride,
+        obligatoryConversionRateOverride: _obligatoryConversionRateOverride,
+        extraMandatoryConversionRateOverride:
+            _extraMandatoryConversionRateOverride,
+        cantonOverride: _cantonOverride,
+        marriedOverride: _marriedOverride,
+      );
+
+  static double _currencyValue(TextEditingController controller) =>
+      double.tryParse(controller.text.replaceAll("'", '')) ?? 0;
+
+  void _captureFactOverride(String? fieldName) {
+    switch (fieldName) {
+      case 'age':
+        _currentAgeOverride = int.tryParse(_ageCtrl.text);
+      case 'salaire_brut':
+        _grossAnnualSalaryOverride = _currencyValue(_salaryCtrl);
+      case 'lpp_total':
+        _lppTotalOverride = _currencyValue(_lppTotalCtrl);
+      case 'lpp_obligatoire':
+        _lppObligatoryOverride = _currencyValue(_capitalObligCtrl);
+      case 'lpp_surobligatoire':
+        _lppExtraMandatoryOverride = _currencyValue(_capitalSurobCtrl);
+      case 'rente_projetee':
+        _annualPensionOverride = _currencyValue(_renteCtrl);
+      case 'taux_conversion_obligatoire':
+        _obligatoryConversionRateOverride =
+            double.tryParse(_tcObligCtrl.text);
+      case 'taux_conversion_surobligatoire':
+        _extraMandatoryConversionRateOverride =
+            double.tryParse(_tcSurobCtrl.text);
+    }
+  }
+
+  void _persistScenarioLevers() {
+    final provider = _scenarioProvider;
+    final id = _scenarioId;
+    if (provider == null || id == null) return;
+    final profile = context.read<CoachProfileProvider>().profile;
+    final factsReady = ScenarioSessionProvider.renteCapitalFactsReady(
+      profile,
+      DateTime.now(),
+    );
+    try {
+      final levers = RenteCapitalScenarioLevers.fromJson(
+        Map<String, dynamic>.from(_scenarioLevers.toJson()),
+      );
+      provider
+          .saveLevers(
+            id,
+            expectedKind: ScenarioKind.renteCapital,
+            levers: levers,
+            factsReady: factsReady,
+          )
+          .ignore();
+    } on FormatException {
+      // Invalid draft input never crosses the encrypted persistence boundary.
+    }
+  }
+
   @override
   void dispose() {
     _debounceTimer?.cancel();
@@ -281,11 +480,23 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   /// Used by all user-facing onChanged handlers.
   void _userRecalculate() {
     _hasUserInteracted = true;
+    _persistScenarioLevers();
     _recalculate();
   }
 
   Future<void> _recalculateAsync() async {
     final requestId = ++_requestCounter;
+    final scenarioId = _scenarioId;
+    if (_scenarioBoundaryRequired && !_matchesScenarioRequest(scenarioId)) {
+      if (mounted) {
+        setState(() {
+          _result = null;
+          _isLoading = false;
+          _hasError = false;
+        });
+      }
+      return;
+    }
     final ageRetraite = _ageRetraiteSlider.value.round();
 
     double capitalOblig, capitalSurob, renteAnnuelle;
@@ -365,9 +576,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         horizon: horizon,
         isMarried: _isMarried,
       );
-      if (!mounted || requestId != _requestCounter) return;
+      if (!mounted ||
+          requestId != _requestCounter ||
+          !_matchesScenarioRequest(scenarioId)) {
+        return;
+      }
       setState(() => _result = result);
-      _emitScreenReturn(result);
+      await _markScenarioCalculated(scenarioId);
       return;
     } catch (_) {
       try {
@@ -389,11 +604,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           currentAge: currentAge,
           grossAnnualSalary: salary,
         );
-        if (!mounted || requestId != _requestCounter) return;
+        if (!mounted ||
+            requestId != _requestCounter ||
+            !_matchesScenarioRequest(scenarioId)) {
+          return;
+        }
         setState(() => _result = fallback);
-        _emitScreenReturn(fallback);
+        await _markScenarioCalculated(scenarioId);
       } catch (_) {
-        if (!mounted || requestId != _requestCounter) return;
+        if (!mounted ||
+            requestId != _requestCounter ||
+            !_matchesScenarioRequest(scenarioId)) {
+          return;
+        }
         setState(() => _hasError = true);
       }
     } finally {
@@ -403,21 +626,26 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     }
   }
 
-  void _emitScreenReturn(ArbitrageResult result) {
-    // F2-6: Only emit ScreenReturn after user has actively interacted.
-    // Prevents premature completion on initial auto-fill + auto-calc.
-    if (!_hasUserInteracted) return;
-    if (_seqRunId != null) return; // Sequence mode: terminal only on pop
-    final mode = _inputMode == _InputMode.certificate
-        ? 'certificate'
-        : 'estimate';
-    final screenReturn = ScreenReturn.completed(
-      route: '/rente-vs-capital',
-      stepOutputs: {'retirementMode': mode},
-    );
-    ScreenCompletionTracker.markCompletedWithReturn(
-      'rente_vs_capital',
-      screenReturn,
+  bool _matchesScenarioRequest(String? capturedId) {
+    if (!_scenarioBoundaryRequired) return true;
+    final provider = _scenarioProvider;
+    if (provider == null || capturedId == null || _scenarioId != capturedId) {
+      return false;
+    }
+    final active = provider.sessionFor(ScenarioKind.renteCapital);
+    return active?.id == capturedId &&
+        active?.kind == ScenarioKind.renteCapital &&
+        !active!.isTerminal;
+  }
+
+  Future<void> _markScenarioCalculated(String? capturedId) async {
+    if (!_scenarioBoundaryRequired || capturedId == null) return;
+    if (!_matchesScenarioRequest(capturedId)) return;
+    final active = _scenarioProvider?.sessionFor(ScenarioKind.renteCapital);
+    if (active?.status != ScenarioStatus.draft) return;
+    await _scenarioProvider?.markCalculated(
+      capturedId,
+      expectedKind: ScenarioKind.renteCapital,
     );
   }
 
@@ -834,6 +1062,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   child: _buildLabeledField(
                     controller: _tcObligCtrl,
                     label: S.of(context)!.renteVsCapitalTcOblig,
+                    fieldName: 'taux_conversion_obligatoire',
                     isPercent: true,
                   ),
                 ),
@@ -842,6 +1071,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   child: _buildLabeledField(
                     controller: _tcSurobCtrl,
                     label: S.of(context)!.renteVsCapitalTcSurob,
+                    fieldName: 'taux_conversion_surobligatoire',
                     isPercent: true,
                   ),
                 ),
@@ -904,7 +1134,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                           );
                         }).toList(),
                         onChanged: (v) {
-                          if (v != null) { _canton = v; _userRecalculate(); }
+                          if (v != null) {
+                            _canton = v;
+                            _cantonOverride = v;
+                            _userRecalculate();
+                          }
                         },
                       ),
                     ),
@@ -923,7 +1157,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     child: Switch(
                       value: _isMarried,
                       activeTrackColor: MintColors.primary,
-                      onChanged: (v) { _isMarried = v; _userRecalculate(); },
+                      onChanged: (v) {
+                        _isMarried = v;
+                        _marriedOverride = v;
+                        _userRecalculate();
+                      },
                     ),
                   ),
                 ],
@@ -1025,7 +1263,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               horizontal: MintSpacing.md, vertical: 14,
             ),
           ),
-          onChanged: (_) => _userRecalculate(),
+          onChanged: (_) {
+            _captureFactOverride(fieldName);
+            _userRecalculate();
+          },
         ),
       ],
     );

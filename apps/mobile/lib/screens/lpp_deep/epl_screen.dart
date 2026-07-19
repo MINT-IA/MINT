@@ -3,6 +3,7 @@ import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scenario_session_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -10,6 +11,7 @@ import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/models/scenario_session.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -37,6 +39,16 @@ class _EplScreenState extends State<EplScreen> {
 
   /// Guard: ensures _emitFinalReturn fires exactly once.
   bool _finalReturnEmitted = false;
+
+  ScenarioSessionProvider? _scenarioProvider;
+  String? _scenarioId;
+  bool _scenarioUnavailable = false;
+  bool _scenarioBoundaryInitialized = false;
+  double? _lppBalanceOverride;
+  int? _ageOverride;
+  String? _cantonOverride;
+  bool? _recentBuybackOverride;
+  int? _yearsSinceBuybackOverride;
 
   double _avoirTotal = 300000;
   int _age = 40;
@@ -70,7 +82,20 @@ class _EplScreenState extends State<EplScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
       _initializeFromProfile();
+      _initializeScenario();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_scenarioBoundaryInitialized) return;
+    _scenarioBoundaryInitialized = true;
+    final provider = context.read<ScenarioSessionProvider?>();
+    if (provider?.enabled ?? false) {
+      _scenarioProvider = provider;
+      _scenarioUnavailable = true;
+    }
   }
 
   /// Read sequence runId/stepId ephemera from GoRouter.extra if present.
@@ -86,50 +111,48 @@ class _EplScreenState extends State<EplScreen> {
     }
   }
 
-  /// Emits a terminal ScreenReturn when the user leaves the screen.
-  /// If in a guided sequence (Tier A), includes runId/stepId/eventId
-  /// and stepOutputs for the SequenceCoordinator to advance the run.
-  /// If user didn't interact → abandoned (so coordinator can retry).
+  /// Emits only local scenario identity plus existing sequence ephemera.
   void _emitFinalReturn() {
     if (_finalReturnEmitted) return;
-    if (_seqRunId == null || _seqStepId == null) return;
+    if (_scenarioProvider == null || _scenarioId == null) return;
     _finalReturnEmitted = true;
+    _emitScenarioTerminal().ignore();
+  }
 
-    if (!_hasUserInteracted) {
-      // User opened screen but left without interacting → abandoned.
-      // The coordinator will offer a retry instead of leaving sequence stuck.
-      final screenReturn = ScreenReturn.abandoned(
-        route: '/epl',
-        runId: _seqRunId,
-        stepId: _seqStepId,
-        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-      );
-      ScreenCompletionTracker.markCompletedWithReturn('epl', screenReturn);
-      return;
-    }
-
-    final result = _result;
-    final eplImpact = LppCalculator.computeEplImpact(
-      currentBalance: _avoirTotal,
-      eplAmount: result.montantSouhaiteApplicable,
-      eplRepaid: 0,
-      currentAge: _age,
-      retirementAge: avsAgeReferenceHomme,
-      grossAnnualSalary: _grossAnnualSalary,
-      caisseReturn: lppTauxInteretMin / 100,
-      conversionRate: lppTauxConversionMinDecimal,
+  Future<void> _emitScenarioTerminal() async {
+    final provider = _scenarioProvider;
+    final id = _scenarioId;
+    if (provider == null || id == null) return;
+    final status = _hasUserInteracted
+        ? ScenarioStatus.completed
+        : ScenarioStatus.abandoned;
+    final terminal = await provider.markTerminal(
+      id,
+      expectedKind: ScenarioKind.epl,
+      status: status,
     );
-    final screenReturn = ScreenReturn.completed(
-      route: '/epl',
-      stepOutputs: {
-        'montant_epl': result.montantSouhaiteApplicable,
-        'impact_rente': eplImpact.monthlyGapFromEpl,
-      },
-      runId: _seqRunId,
-      stepId: _seqStepId,
-      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-    );
-    ScreenCompletionTracker.markCompletedWithReturn('epl', screenReturn);
+    if (terminal == null) return;
+    final eventId = _seqRunId == null
+        ? null
+        : 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}';
+    final screenReturn = _hasUserInteracted
+        ? ScreenReturn.completed(
+            route: '/epl',
+            scenarioId: terminal.id,
+            scenarioStatus: terminal.status,
+            runId: _seqRunId,
+            stepId: _seqStepId,
+            eventId: eventId,
+          )
+        : ScreenReturn.abandoned(
+            route: '/epl',
+            scenarioId: terminal.id,
+            scenarioStatus: terminal.status,
+            runId: _seqRunId,
+            stepId: _seqStepId,
+            eventId: eventId,
+          );
+    await ScreenCompletionTracker.markCompletedWithReturn('epl', screenReturn);
   }
 
   void _initializeFromProfile() {
@@ -180,6 +203,79 @@ class _EplScreenState extends State<EplScreen> {
     }
   }
 
+  Future<void> _initializeScenario() async {
+    final provider = context.read<ScenarioSessionProvider?>();
+    if (provider == null || !provider.enabled) return;
+    _scenarioProvider = provider;
+    final profile = context.read<CoachProfileProvider>().profile;
+    final factsReady = ScenarioSessionProvider.eplFactsReady(
+      profile,
+      DateTime.now(),
+    );
+    final session = await provider.open(
+      EplScenarioLevers(requestedWithdrawal: _montantSouhaite),
+      factsReady: factsReady,
+    );
+    if (!mounted) return;
+    if (session == null || session.kind != ScenarioKind.epl) {
+      setState(() => _scenarioUnavailable = true);
+      return;
+    }
+    final levers = session.levers;
+    if (levers is! EplScenarioLevers) return;
+    setState(() {
+      _scenarioUnavailable = false;
+      _scenarioId = session.id;
+      _montantSouhaite = levers.requestedWithdrawal;
+      _lppBalanceOverride = levers.lppBalanceOverride;
+      _ageOverride = levers.ageOverride;
+      _cantonOverride = levers.cantonOverride;
+      _recentBuybackOverride = levers.recentBuybackOverride;
+      _yearsSinceBuybackOverride = levers.yearsSinceBuybackOverride;
+      if (levers.lppBalanceOverride case final value?) _avoirTotal = value;
+      if (levers.ageOverride case final value?) _age = value;
+      if (levers.cantonOverride case final value?) _canton = value;
+      if (levers.recentBuybackOverride case final value?) _aRachete = value;
+      if (levers.yearsSinceBuybackOverride case final value?) {
+        _anneesSDepuisRachat = value;
+      }
+    });
+    if (session.status == ScenarioStatus.draft) {
+      await provider.markCalculated(
+        session.id,
+        expectedKind: ScenarioKind.epl,
+      );
+    }
+  }
+
+  EplScenarioLevers get _scenarioLevers => EplScenarioLevers(
+        requestedWithdrawal: _montantSouhaite,
+        lppBalanceOverride: _lppBalanceOverride,
+        ageOverride: _ageOverride,
+        cantonOverride: _cantonOverride,
+        recentBuybackOverride: _recentBuybackOverride,
+        yearsSinceBuybackOverride: _yearsSinceBuybackOverride,
+      );
+
+  void _persistScenarioLevers() {
+    final provider = _scenarioProvider;
+    final id = _scenarioId;
+    if (provider == null || id == null) return;
+    final profile = context.read<CoachProfileProvider>().profile;
+    final factsReady = ScenarioSessionProvider.eplFactsReady(
+      profile,
+      DateTime.now(),
+    );
+    provider
+        .saveLevers(
+          id,
+          expectedKind: ScenarioKind.epl,
+          levers: _scenarioLevers,
+          factsReady: factsReady,
+        )
+        .ignore();
+  }
+
   @override
   Widget build(BuildContext context) {
     final result = _result;
@@ -224,6 +320,9 @@ class _EplScreenState extends State<EplScreen> {
                 _buildIntroCard(l),
                 const SizedBox(height: MintSpacing.lg),
 
+                if (_scenarioUnavailable)
+                  _buildScenarioUnavailable(l)
+                else ...[
                 // Sliders
                 _buildSlidersSection(l),
                 const SizedBox(height: MintSpacing.lg),
@@ -269,6 +368,7 @@ class _EplScreenState extends State<EplScreen> {
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
                 const SizedBox(height: MintSpacing.xxl),
+                ],
               ]),
             ),
           ),
@@ -291,6 +391,34 @@ class _EplScreenState extends State<EplScreen> {
           const SizedBox(height: MintSpacing.sm),
           Text(
             l.eplIntroBody,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScenarioUnavailable(S l) {
+    return MintSurface(
+      key: const Key('epl_scenario_unavailable'),
+      tone: MintSurfaceTone.porcelaine,
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      radius: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.lock_clock_outlined,
+            color: MintColors.textSecondary,
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            l.premierEclairageCardErrorTitle,
+            style: MintTextStyles.titleMedium(),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            l.independantLedgerFactsSubtitle,
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
@@ -323,7 +451,14 @@ class _EplScreenState extends State<EplScreen> {
             max: 800000,
             divisions: 160,
             format: 'CHF ${formatChf(_avoirTotal)}',
-            onChanged: (v) => setState(() { _hasUserInteracted = true; _avoirTotal = v; }),
+            onChanged: (v) {
+              setState(() {
+                _hasUserInteracted = true;
+                _avoirTotal = v;
+                _lppBalanceOverride = v;
+              });
+              _persistScenarioLevers();
+            },
           )),
           const SizedBox(height: MintSpacing.sm + 4),
 
@@ -335,7 +470,14 @@ class _EplScreenState extends State<EplScreen> {
             max: 65,
             divisions: 40,
             format: l.eplLabelAgeFormat(_age),
-            onChanged: (v) => setState(() { _hasUserInteracted = true; _age = v.round(); }),
+            onChanged: (v) {
+              setState(() {
+                _hasUserInteracted = true;
+                _age = v.round();
+                _ageOverride = _age;
+              });
+              _persistScenarioLevers();
+            },
           )),
           const SizedBox(height: MintSpacing.sm + 4),
 
@@ -349,6 +491,7 @@ class _EplScreenState extends State<EplScreen> {
             format: 'CHF ${formatChf(_montantSouhaite)}',
             onChanged: (v) {
               setState(() { _hasUserInteracted = true; _montantSouhaite = v; });
+              _persistScenarioLevers();
             },
           )),
           const SizedBox(height: MintSpacing.sm + 4),
@@ -375,7 +518,14 @@ class _EplScreenState extends State<EplScreen> {
                     );
                   }).toList(),
                   onChanged: (v) {
-                    if (v != null) setState(() { _hasUserInteracted = true; _canton = v; });
+                    if (v != null) {
+                      setState(() {
+                        _hasUserInteracted = true;
+                        _canton = v;
+                        _cantonOverride = v;
+                      });
+                      _persistScenarioLevers();
+                    }
                   },
                 ),
               ),
@@ -408,11 +558,15 @@ class _EplScreenState extends State<EplScreen> {
                 child: Switch(
                   value: _aRachete,
                   activeTrackColor: MintColors.primary,
-                  onChanged: (v) => setState(() {
-                    _hasUserInteracted = true;
-                    _aRachete = v;
-                    if (!v) _anneesSDepuisRachat = 0;
-                  }),
+                  onChanged: (v) {
+                    setState(() {
+                      _hasUserInteracted = true;
+                      _aRachete = v;
+                      _recentBuybackOverride = v;
+                      if (!v) _anneesSDepuisRachat = 0;
+                    });
+                    _persistScenarioLevers();
+                  },
                 ),
               ),
             ],
@@ -427,8 +581,14 @@ class _EplScreenState extends State<EplScreen> {
               max: 5,
               divisions: 5,
               format: l.eplLabelAnneesSDepuisRachatFormat(_anneesSDepuisRachat, _anneesSDepuisRachat > 1 ? 's' : ''),
-              onChanged: (v) =>
-                  setState(() { _hasUserInteracted = true; _anneesSDepuisRachat = v.round(); }),
+              onChanged: (v) {
+                setState(() {
+                  _hasUserInteracted = true;
+                  _anneesSDepuisRachat = v.round();
+                  _yearsSinceBuybackOverride = _anneesSDepuisRachat;
+                });
+                _persistScenarioLevers();
+              },
             ),
           ],
         ],
