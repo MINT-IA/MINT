@@ -263,11 +263,17 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
                           !_shouldShowHouseholdCollector(canonicalBlockType) &&
                           !_shouldShowPatrimoineCollector(canonicalBlockType))
                         Semantics(
+                            identifier: canonicalBlockType == 'lpp'
+                                ? 'data_block_lpp_scan_cta'
+                                : null,
                             button: true,
                             label: meta.ctaLabel,
                             child: SizedBox(
                               width: double.infinity,
                               child: FilledButton(
+                                key: canonicalBlockType == 'lpp'
+                                    ? const Key('data_block_lpp_scan_cta')
+                                    : null,
                                 onPressed: () {
                                   HapticFeedback.lightImpact();
                                   // Navigate to the appropriate enrichment flow

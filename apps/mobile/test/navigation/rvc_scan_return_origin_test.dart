@@ -93,9 +93,18 @@ void main() {
         (tester) async {
       await _pumpRvcRouter(tester);
 
+      expect(
+        find.bySemanticsIdentifier('indicatif_banner_lpp_cta'),
+        findsOneWidget,
+      );
+
       await _tapIndicatifCta(tester);
 
       _expectLppCollector(tester);
+      expect(
+        find.bySemanticsIdentifier('data_block_lpp_scan_cta'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('real LPP CTA carries an opaque RVC scanReturnId into scan',
@@ -368,6 +377,10 @@ void main() {
       final session = harness.sessions.byId(scanSessionId);
       expect(session, isNotNull);
       expect(session!.dataBlockScanReturnIntentId, scanReturnId);
+      expect(
+        session.lppAuthorization?.documentSha256,
+        '44e89678edff36f64383a75c37bdcaa3c7ca49e7cb7242a3bb9c1371df9780f2',
+      );
       expect(
         harness.sessions.dataBlockScanReturnIntentById(scanReturnId)?.lifecycle,
         DataBlockScanReturnLifecycle.reviewRetained,
@@ -1082,6 +1095,7 @@ void _expectRvcOrigin(WidgetTester tester) {
   final origin = find.byType(RenteVsCapitalScreen);
   expect(origin, findsOneWidget);
   expect(GoRouterState.of(tester.element(origin)).uri.toString(), _rvcOrigin);
+  expect(find.bySemanticsIdentifier('rvc_screen'), findsOneWidget);
 }
 
 bool _isCanonicalUuidV4(String? value) =>

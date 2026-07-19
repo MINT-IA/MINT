@@ -695,7 +695,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturnOnPop();
       },
-      child: Scaffold(
+      child: Semantics(
+        identifier: 'rvc_screen',
+        container: true,
+        child: Scaffold(
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── SliverAppBar (white standard — Simulator screen) ──
@@ -815,6 +818,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ),
         ],
       )))),
+      ),
     );
   }
 

@@ -1,0 +1,12 @@
+appId: ch.mint.app
+---
+# Attach to the Patrol-driven process while it waits on
+# mint-g1-return01-rvc-lpp-visual-ready-v1.marker. Do not relaunch: the two
+# feature flags are intentionally enabled only inside that Patrol process.
+- extendedWaitUntil:
+    visible:
+      id: "rvc_screen"
+    timeout: 20000
+- assertVisible:
+    id: "rvc_screen"
+- takeScreenshot: g1_return01_rvc_lpp_exact_return

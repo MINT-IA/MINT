@@ -106,17 +106,22 @@ class IndicatifBanner extends StatelessWidget {
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: () => context.push(_dataBlockLocation(route)),
-              icon: const Icon(Icons.arrow_forward, size: 16),
-              label: Text(
-                S.of(context)!.indicativeBannerCta,
-                style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-              ),
-              style: TextButton.styleFrom(
-                foregroundColor: MintColors.primary,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Semantics(
+              identifier: 'indicatif_banner_${route}_cta',
+              button: true,
+              child: TextButton.icon(
+                key: Key('indicatif_banner_${route}_cta'),
+                onPressed: () => context.push(_dataBlockLocation(route)),
+                icon: const Icon(Icons.arrow_forward, size: 16),
+                label: Text(
+                  S.of(context)!.indicativeBannerCta,
+                  style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
+                ),
+                style: TextButton.styleFrom(
+                  foregroundColor: MintColors.primary,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                ),
               ),
             ),
           ),
