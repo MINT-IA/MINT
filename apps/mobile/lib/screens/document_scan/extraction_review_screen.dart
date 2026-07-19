@@ -66,6 +66,8 @@ class ExtractionReviewScreen extends StatefulWidget {
   final PartnerAccountabilityBindingStore? partnerBindingStore;
   final PartnerAccountabilityService? partnerAccountabilityService;
   final LppReviewReferenceRecorder? recordConfirmedLppReview;
+  final VoidCallback? onBack;
+  final VoidCallback? onImpactRetained;
 
   const ExtractionReviewScreen({
     super.key,
@@ -86,6 +88,8 @@ class ExtractionReviewScreen extends StatefulWidget {
     this.partnerBindingStore,
     this.partnerAccountabilityService,
     this.recordConfirmedLppReview,
+    this.onBack,
+    this.onImpactRetained,
   });
 
   @override
@@ -1803,6 +1807,12 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   void _onBack() {
     unawaited(_cleanupPartnerReceipt());
+    final onBack = widget.onBack;
+    if (onBack != null) {
+      _reviewSessionFinalized = true;
+      onBack();
+      return;
+    }
     _scanSessions?.discard(widget.scanSessionId);
     safePop(context);
   }
@@ -3101,9 +3111,14 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         return;
       }
       _transferredToImpact = true;
-      context.go(
-        '/scan/impact?scanSessionId=${Uri.encodeQueryComponent(widget.scanSessionId)}',
-      );
+      final onImpactRetained = widget.onImpactRetained;
+      if (onImpactRetained != null) {
+        onImpactRetained();
+      } else {
+        context.go(
+          '/scan/impact?scanSessionId=${Uri.encodeQueryComponent(widget.scanSessionId)}',
+        );
+      }
       return;
     }
     if (widget.result.documentType == DocumentType.taxDeclaration) {

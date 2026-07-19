@@ -219,6 +219,44 @@ class _ScanRecoveryExitScopeState extends State<_ScanRecoveryExitScope>
   Widget build(BuildContext context) => widget.child;
 }
 
+class _ScanRouteExitScope extends StatefulWidget {
+  const _ScanRouteExitScope({
+    required this.onExit,
+    required this.child,
+  });
+
+  final VoidCallback onExit;
+  final Widget child;
+
+  @override
+  State<_ScanRouteExitScope> createState() => _ScanRouteExitScopeState();
+}
+
+class _ScanRouteExitScopeState extends State<_ScanRouteExitScope>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Future<bool> didPopRoute() async {
+    if (!mounted) return false;
+    widget.onExit();
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
 Widget _buildScanRecoveryScaffold(
   BuildContext context,
   _ScanRecoveryTarget target, {
@@ -319,6 +357,26 @@ bool _hasExactRawScanQuery(
       values.single == value;
 }
 
+bool _hasExactRawRvcPairQuery(Uri uri) {
+  const expectedKeys = <String>{'scanSessionId', 'scanReturnId'};
+  final parameters = uri.queryParametersAll;
+  if (parameters.keys.toSet().length != expectedKeys.length ||
+      !parameters.keys.toSet().containsAll(expectedKeys) ||
+      parameters.values.any((values) => values.length != 1)) {
+    return false;
+  }
+  final components = uri.query.split('&');
+  if (components.length != expectedKeys.length) return false;
+  final rawKeys = <String>{};
+  for (final component in components) {
+    final separator = component.indexOf('=');
+    if (separator <= 0) return false;
+    rawKeys.add(component.substring(0, separator));
+  }
+  return rawKeys.length == expectedKeys.length &&
+      rawKeys.containsAll(expectedKeys);
+}
+
 class _DataBlockScanReturnEntry extends StatefulWidget {
   const _DataBlockScanReturnEntry({
     required this.scanReturnId,
@@ -384,12 +442,16 @@ class _DataBlockScanRecoveryEntry extends StatefulWidget {
   const _DataBlockScanRecoveryEntry({
     required this.target,
     this.scanReturnId,
+    this.scanSessionId,
     this.pillar3aScanContextId,
+    this.recoveryTarget = _ScanRecoveryTarget.review,
   });
 
   final DataBlockReturnTarget target;
   final String? scanReturnId;
+  final String? scanSessionId;
   final String? pillar3aScanContextId;
+  final _ScanRecoveryTarget recoveryTarget;
 
   @override
   State<_DataBlockScanRecoveryEntry> createState() =>
@@ -409,6 +471,9 @@ class _DataBlockScanRecoveryEntryState
       final scanReturnId = widget.scanReturnId;
       if (scanReturnId != null) {
         sessions.discardDataBlockScanReturnIntent(scanReturnId);
+      } else {
+        final scanSessionId = widget.scanSessionId;
+        if (scanSessionId != null) sessions.discard(scanSessionId);
       }
       final pillar3aScanContextId = widget.pillar3aScanContextId;
       if (pillar3aScanContextId != null) {
@@ -420,9 +485,213 @@ class _DataBlockScanRecoveryEntryState
   @override
   Widget build(BuildContext context) => _buildScanRecoveryScaffold(
         context,
-        _ScanRecoveryTarget.review,
+        widget.recoveryTarget,
         returnTarget: _target,
       );
+}
+
+final class _RvcScanRouteResolution {
+  const _RvcScanRouteResolution({
+    required this.scanSessionId,
+    required this.scanReturnId,
+    required this.session,
+    required this.intent,
+    required this.target,
+    required this.exactPair,
+    this.cleanupScanReturnId,
+    this.cleanupScanSessionId,
+  });
+
+  final String? scanSessionId;
+  final String? scanReturnId;
+  final ScanSessionPayload? session;
+  final DataBlockScanReturnIntent? intent;
+  final DataBlockReturnTarget target;
+  final bool exactPair;
+  final String? cleanupScanReturnId;
+  final String? cleanupScanSessionId;
+}
+
+_RvcScanRouteResolution? _resolveRvcScanRoute(
+  BuildContext context,
+  Uri uri,
+) {
+  final sessions = context.read<ScanSessionProvider>();
+  final scanSessionId = uri.queryParameters['scanSessionId'];
+  final scanReturnId = uri.queryParameters['scanReturnId'];
+  final session = sessions.byId(scanSessionId);
+  final linkedScanReturnId = session?.dataBlockScanReturnIntentId;
+  final linkedIntent =
+      sessions.dataBlockScanReturnIntentById(linkedScanReturnId);
+  final queriedIntent = sessions.dataBlockScanReturnIntentById(scanReturnId);
+  final hasRvcSignal = linkedScanReturnId != null ||
+      queriedIntent?.kind == DataBlockScanReturnKind.rvcLpp ||
+      uri.queryParametersAll.containsKey('scanReturnId');
+  if (!hasRvcSignal) return null;
+
+  final linkedAuthority = linkedScanReturnId != null;
+  final intent = linkedAuthority ? linkedIntent : queriedIntent;
+  final authoritativeScanReturnId =
+      linkedAuthority ? linkedScanReturnId : scanReturnId;
+  final exactPair = _hasExactRawRvcPairQuery(uri);
+  final canonicalReturnId = isCanonicalUuidV4(scanReturnId);
+  final shouldRecoverToRvc = intent?.kind == DataBlockScanReturnKind.rvcLpp ||
+      (canonicalReturnId && exactPair) ||
+      (linkedAuthority && isCanonicalUuidV4(linkedScanReturnId));
+  final target = intent?.target ??
+      (shouldRecoverToRvc
+          ? parseDataBlockReturnTarget('/rente-vs-capital')!
+          : DataBlockReturnTarget.home);
+
+  return _RvcScanRouteResolution(
+    scanSessionId: scanSessionId,
+    scanReturnId: scanReturnId,
+    session: session,
+    intent: intent,
+    target: target,
+    exactPair: exactPair,
+    cleanupScanReturnId: intent == null ? null : authoritativeScanReturnId,
+    cleanupScanSessionId:
+        linkedAuthority && intent == null ? scanSessionId : null,
+  );
+}
+
+bool _isValidRvcReview(_RvcScanRouteResolution resolution) {
+  final session = resolution.session;
+  return resolution.exactPair &&
+      FeatureFlags.lppEvidenceIngestionEnabled &&
+      resolution.scanSessionId != null &&
+      resolution.scanReturnId != null &&
+      session != null &&
+      session.dataBlockScanReturnIntentId == resolution.scanReturnId &&
+      resolution.intent?.kind == DataBlockScanReturnKind.rvcLpp &&
+      resolution.intent?.lifecycle ==
+          DataBlockScanReturnLifecycle.reviewRetained &&
+      session.extraction.documentType == DocumentType.lppCertificate &&
+      session.lppCandidate != null &&
+      session.lppAuthorization != null;
+}
+
+bool _isValidRvcImpact(_RvcScanRouteResolution resolution) {
+  final session = resolution.session;
+  return resolution.exactPair &&
+      FeatureFlags.lppEvidenceIngestionEnabled &&
+      resolution.scanSessionId != null &&
+      resolution.scanReturnId != null &&
+      session != null &&
+      session.dataBlockScanReturnIntentId == resolution.scanReturnId &&
+      resolution.intent?.kind == DataBlockScanReturnKind.rvcLpp &&
+      resolution.intent?.lifecycle ==
+          DataBlockScanReturnLifecycle.impactRetained &&
+      session.extraction.documentType == DocumentType.lppCertificate &&
+      session.previousConfidence != null;
+}
+
+class _RvcReviewRouteEntry extends StatefulWidget {
+  const _RvcReviewRouteEntry({super.key, required this.resolution});
+
+  final _RvcScanRouteResolution resolution;
+
+  @override
+  State<_RvcReviewRouteEntry> createState() => _RvcReviewRouteEntryState();
+}
+
+class _RvcReviewRouteEntryState extends State<_RvcReviewRouteEntry> {
+  late final _RvcScanRouteResolution _resolution = widget.resolution;
+  late final bool _initiallyValid = _isValidRvcReview(_resolution);
+  bool _cancelled = false;
+
+  void _cancel() {
+    if (_cancelled) return;
+    _cancelled = true;
+    final router = GoRouter.of(context);
+    context
+        .read<ScanSessionProvider>()
+        .discardDataBlockScanReturnIntent(_resolution.scanReturnId!);
+    router.go(_resolution.target.location);
+  }
+
+  void _goToImpact() {
+    if (!mounted) return;
+    final uri = Uri(
+      path: '/scan/impact',
+      queryParameters: <String, String>{
+        'scanSessionId': _resolution.scanSessionId!,
+        'scanReturnId': _resolution.scanReturnId!,
+      },
+    );
+    context.go(uri.toString());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_initiallyValid) {
+      return _DataBlockScanRecoveryEntry(
+        target: _resolution.target,
+        scanReturnId: _resolution.cleanupScanReturnId,
+        scanSessionId: _resolution.cleanupScanSessionId,
+      );
+    }
+    final session = _resolution.session!;
+    return _ScanRouteExitScope(
+      onExit: _cancel,
+      child: PopScope<void>(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _cancel();
+        },
+        child: ExtractionReviewScreen(
+          scanSessionId: _resolution.scanSessionId!,
+          result: session.extraction,
+          lppCandidate: session.lppCandidate,
+          lppAuthorization: session.lppAuthorization,
+          lppRegulationCandidate: session.lppRegulationCandidate,
+          lppCapitalNoticeCandidate: session.lppCapitalNoticeCandidate,
+          manualPartnerAccountability: session.manualPartnerAccountability,
+          taxCandidate: session.taxCandidate,
+          pillar3aBeneficiaryCandidate: session.pillar3aBeneficiaryCandidate,
+          pillar3aScanContextId: session.pillar3aScanContextId,
+          pillar3aReturnUri: session.pillar3aReturnUri,
+          recordConfirmedLppReview:
+              context.read<DocumentProvider>().recordConfirmedLppReview,
+          onBack: _cancel,
+          onImpactRetained: _goToImpact,
+        ),
+      ),
+    );
+  }
+}
+
+class _RvcImpactRouteEntry extends StatefulWidget {
+  const _RvcImpactRouteEntry({super.key, required this.resolution});
+
+  final _RvcScanRouteResolution resolution;
+
+  @override
+  State<_RvcImpactRouteEntry> createState() => _RvcImpactRouteEntryState();
+}
+
+class _RvcImpactRouteEntryState extends State<_RvcImpactRouteEntry> {
+  late final _RvcScanRouteResolution _resolution = widget.resolution;
+  late final bool _initiallyValid = _isValidRvcImpact(_resolution);
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_initiallyValid) {
+      return _DataBlockScanRecoveryEntry(
+        target: _resolution.target,
+        scanReturnId: _resolution.cleanupScanReturnId,
+        scanSessionId: _resolution.cleanupScanSessionId,
+        recoveryTarget: _ScanRecoveryTarget.impact,
+      );
+    }
+    final session = _resolution.session!;
+    return DocumentImpactScreen(
+      scanSessionId: _resolution.scanSessionId!,
+      result: session.extraction,
+      previousConfidence: session.previousConfidence!,
+    );
+  }
 }
 
 Widget _buildScanRoute(
@@ -532,6 +801,13 @@ Widget _buildScanRoute(
 }
 
 Widget _buildScanReviewRoute(BuildContext context, Uri uri) {
+  final rvcResolution = _resolveRvcScanRoute(context, uri);
+  if (rvcResolution != null) {
+    return _RvcReviewRouteEntry(
+      key: ValueKey<String>(uri.toString()),
+      resolution: rvcResolution,
+    );
+  }
   final scanSessionId = uri.queryParameters['scanSessionId'];
   final session = context.watch<ScanSessionProvider>().byId(scanSessionId);
   if (session == null) {
@@ -595,6 +871,13 @@ Widget _buildScanReviewRoute(BuildContext context, Uri uri) {
 }
 
 Widget _buildScanImpactRoute(BuildContext context, Uri uri) {
+  final rvcResolution = _resolveRvcScanRoute(context, uri);
+  if (rvcResolution != null) {
+    return _RvcImpactRouteEntry(
+      key: ValueKey<String>(uri.toString()),
+      resolution: rvcResolution,
+    );
+  }
   final scanSessionId = uri.queryParameters['scanSessionId'];
   final session = context.watch<ScanSessionProvider>().byId(scanSessionId);
   if (session == null || session.previousConfidence == null) {
