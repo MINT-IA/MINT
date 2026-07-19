@@ -692,3 +692,224 @@ est en 2026 ; elle ne devient pas périmée au 1er janvier suivant.
 2. La modification OPP 3 annoncée pour le 1er juin 2027 rend `legalYear` indispensable comme provenance, mais insuffisant comme TTL ; l'entrée en vigueur effective doit piloter l'invalidation.
 3. Une référence opaque prouve une liaison documentaire, pas la vérité d'un montant, d'un taux ou d'un conseil.
 4. Les quatre références restent indépendantes et toute précision manquante, périmée ou conflictuelle retombe sur `educationalOnly`.
+
+---
+
+# G1-SUCCESSION-01 — Verdict Swiss-domain sur le régime et les instruments
+
+**Date de vérification :** 2026-07-19
+**Rôle :** `mint-swiss-brain`
+**Périmètre :** faits de régime matrimonial, testament, pacte successoral,
+mandat pour cause d'inaptitude et directives anticipées ; aucune nouvelle
+calculatrice, route ou recommandation successorale
+
+## 22. Verdict
+
+| Contrat | Verdict |
+|---|---|
+| Le mariage, le partenariat, le concubinage, les enfants ou le ménage permettent d'affirmer le régime effectivement applicable | **NO-GO** |
+| L'absence d'une référence prouve l'absence d'un testament, pacte, mandat ou directives | **NO-GO** |
+| Des faits explicitement confirmés, typés, datés et sérialisés autorisent une préparation spécialiste bornée | **PASS requis** |
+| Une situation incomplète conserve les instruments `unknown` et une sortie éducative sans montant personnel | **PASS requis** |
+
+`G1-SUCCESSION-01` est actuellement **NO-GO** :
+`estate_reference_contract_test.dart` et les champs canoniques n'existent pas.
+De plus, le live `/succession` dérive un `FamilyStatus` de l'état civil puis
+affiche un scénario « Avec testament » visuellement favorisé, une part de 50 %
+et un taux concubin de 24 %. Ajouter seulement des champs au modèle laisserait
+donc un consumer contraire au fail-closed et au no-advice.
+
+## 23. Sources officielles et portée au 2026-07-19
+
+| Source primaire | État vérifié | Conséquence produit |
+|---|---|---|
+| [Fedlex — Code civil suisse, RS 210, état 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/24/233_245_233/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-24-233_245_233-20260101-fr-pdf-a.pdf) | art. 181, 196, 470 à 472 vérifiés le 2026-07-19 | Le régime ordinaire est la participation aux acquêts, mais un contrat ou un régime extraordinaire peut s'appliquer ; la liquidation réelle n'est donc jamais déduite du seul mariage. |
+| [OFJ — entrée en vigueur de la révision successorale](https://www.bj.admin.ch/fr/nsb?id=83570) | Révision entrée en vigueur le 01.01.2023 | Ne jamais réintroduire les fractions antérieures à 2023. |
+| [OFJ — dossier Droit successoral](https://www.bj.admin.ch/fr/droit-successoral) | Consulté le 2026-07-19 | Toute précision future doit rester liée à la version Fedlex applicable. |
+
+Depuis 2023, les héritiers réservataires de l'art. 470 CC sont les descendants,
+le conjoint et le partenaire enregistré survivants. L'art. 471 fixe leur
+réserve à la moitié du droit successoral légal ; les père et mère n'ont plus de
+réserve. L'art. 472 ajoute une frontière en cas de procédure de divorce. Ces
+règles autorisent une explication générale, pas une distribution personnelle :
+il faut encore connaître notamment le régime et sa liquidation, les héritiers,
+les dispositions pour cause de mort, les libéralités pertinentes et, dans un
+cas transfrontalier, le droit applicable.
+
+## 24. Modèle minimal et invariants
+
+```text
+MatrimonialRegimeKind? matrimonialRegime
+  participationInAcquests | communityOfProperty |
+  separationOfProperty | other
+
+EstateInstrumentReference[] estateInstrumentReferences
+  kind: will | inheritancePact | incapacityMandate |
+        advanceCareDirective
+  referenceId: UUIDv4 opaque
+  ownerKind: self
+  source: certificate
+  sourceDate: date civile
+  legalYear: année juridique explicitement confirmée
+  confirmedAt: instant UTC canonique
+```
+
+- `null` ou liste vide signifie **unknown**, jamais `notApplicable`, « absent »
+  ou « aucun testament ».
+- `fromWizardAnswers` ne dérive rien de `civilStatus`, `married`, partenaire,
+  enfants, canton, objectifs ou anciens booléens `hasWill` / `hasMandate`.
+- Un payload peut être écrit uniquement par une clé dédiée explicite et garde
+  sa provenance par le writer canonique.
+- Un kind dupliqué avec deux tuples divergents produit `conflict`; ni UUID ni
+  `updatedAt` ne départage.
+- Toute référence incomplète, future, non-certificate ou contenant filename,
+  path, bytes, OCR, identité ou contenu est rejetée en bloc.
+- Le changement d'état civil ne crée ni ne détruit silencieusement un fait ; il
+  invalide la précision jusqu'à confirmation si sa portée a pu changer.
+
+## 25. Fixtures SUCCESSION-01 RED → GREEN
+
+| ID | Fixture | Attendu |
+|---|---|---|
+| SUCC-D01 | profil par défaut | régime nul, liste vide, readiness faux |
+| SUCC-D02 | marié, partenaire et enfants, sans clés dédiées | tous les faits restent unknown |
+| SUCC-D03 | célibataire, concubin ou partenariat enregistré, sans références | aucun `notApplicable` ou instrument absent n'est fabriqué |
+| SUCC-D04 | anciens booléens `hasWill`, `testamentExists`, `hasPact`, `hasMandate` | ignorés et non resérialisés |
+| SUCC-D05 | régime explicite + quatre références complètes | round-trip exact, quatre kinds indépendants |
+| SUCC-D06 | tuple privé de UUID, owner, sourceDate, legalYear ou confirmedAt | rejet et educational-only |
+| SUCC-D07 | source autre que `certificate` ou date future | invalid, aucune précision |
+| SUCC-D08 | filename, path, OCR ou document brut | rejet sans fuite dans `toJson` |
+| SUCC-D09 | deux références divergentes du même kind | conflict, aucune sélection silencieuse |
+| SUCC-D10 | changement de civilStatus après confirmation | aucun fait inventé ; précision suspendue si portée à reconfirmer |
+
+Le RED doit être sémantique dans le modèle réel. Un fichier absent, une erreur
+d'import ou un échec de compilation n'est pas une preuve RED acceptable.
+
+## 26. Frontière no-advice et handoff
+
+MINT peut dire : « Le régime ou le document n'est pas encore confirmé ; voici
+les points à vérifier avec un·e notaire ou juriste. » MINT ne peut pas dire
+« ce régime s'applique », « cette personne recevra 50 % », « ce testament est
+préférable » ou afficher un impôt cantonal personnel depuis un taux générique.
+
+Le handoff minimal contient les états connus/unknown/conflict, références
+opaques, dates/années, hypothèses ouvertes et questions sur le régime, les
+héritiers, les dispositions, les libéralités et le droit applicable. Il exclut
+le document brut, l'identité des bénéficiaires et toute recommandation.
+
+## Key Learnings SUCCESSION-01
+
+1. Le régime ordinaire légal n'est pas une preuve du régime réellement applicable à un couple donné.
+2. Une référence absente prouve seulement que MINT ne sait pas, jamais que l'instrument n'existe pas.
+3. Les fractions 2023 peuvent soutenir une éducation générale, pas une distribution personnelle sans faits successoraux complets.
+
+---
+
+# G1-AVS-02 — Verdict Swiss-domain sur la 13e rente de vieillesse
+
+**Date de vérification :** 2026-07-19
+**Rôle :** `mint-swiss-brain`
+**Périmètre :** preuve officielle owner-scoped, cold restart et cash-flows
+visibles séparés ; aucun lissage mensuel ni activation implicite
+
+## 27. Verdict
+
+Le noyau `AvsThirteenthPensionCalculator` est déjà substantiellement
+implémenté : son test ciblé passe **72/72** sur le checkout audité. Cela ne
+ferme pas `G1-AVS-02`.
+
+| Contrat | État actuel |
+|---|---|
+| Calcul par mois, centimes exacts, droit décembre, exclusions et fail-closed | **Implémenté / test ciblé GREEN** |
+| Ingestion et persistance owner-scoped de douze mois + décision décembre | **Manquant** |
+| Destruction/reconstruction du provider et preuve cold restart | **Manquant** |
+| Rente mensuelle ordinaire, supplément décembre et total annuel rendus sur trois lignes distinctes | **Manquant** |
+| Runtime d'activation et consentement | **Manquant ; flag correctement false** |
+| Version de règle distinguant date d'effet et état documentaire | **À corriger** |
+
+L'unique bridge produit, dans `IndependantsService`, utilise encore l'owner
+générique `independant-self-scenario` et fusionne le supplément dans
+`projectionSansLpp` / `projectionAvecLpp` lorsque le flag de test est forcé.
+Les fichiers `avs_thirteenth_evidence_restart_test.dart` et
+`avs_thirteenth_cashflow_rendering_test.dart` sont absents. L'exact command du
+ticket n'a donc pas encore de RED sémantique complet ni de GREEN.
+
+## 28. Sources officielles et snapshot applicable
+
+| Source primaire | État vérifié | Conséquence produit |
+|---|---|---|
+| [OFAS — C 13 RV, no 318.303.06](https://sozialversicherungen.admin.ch/fr/d/21610/download) | Valable dès le 01.01.2026, **état 17.06.2026**, vérifiée le 2026-07-19 | Source opérationnelle des conditions, mois, arrondis, exclusions, mutations, corrections et cas transitoires. |
+| [OFAS — mise en œuvre de la 13e rente AVS](https://www.bsv.admin.ch/fr/misenoeuvre-13-rente-avs) | Publiée le 19.06.2026 | Premier versement décembre 2026 ; aucun montant précis avant décembre ; caisse de décembre compétente. |
+| [Fedlex — LAVS art. 34ter, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | En vigueur dès le 01.01.2026 | Base légale du supplément annuel. |
+
+`effectiveFrom=2026-01-01` et la version documentaire sont deux faits
+différents. Le token actuel `OFAS-C13RV-2026-01-01` ne prouve pas que le
+snapshot **état 17.06.2026** est celui qui a été appliqué, notamment pour le
+chapitre 12 précisé en juin. Le contrat doit conserver un identifiant tel que
+`C13RV-318.303.06-state-2026-06-17` en plus de l'année légale.
+
+## 29. Règles gelées
+
+1. Le droit naît seulement si la personne est en vie le 1er décembre et a
+   droit à une rente de vieillesse AVS en décembre.
+2. Pour chaque mois, la part vaut 8,3333 % de la rente de vieillesse
+   déterminante effectivement versée, arrondie aux centimes ; la somme est
+   arrondie commercialement au franc au paiement.
+3. Sont incluses les rentes vieillesse ordinaires/extraordinaires, déjà
+   plafonnées, réduites pour anticipation, augmentées après ajournement et avec
+   supplément de veuvage lorsque la caisse les classe ainsi.
+4. Sont exclues les rentes AI/survivants/enfants, la rente complémentaire, le
+   supplément AVS 21 et les prestations inconnues. Une composante inconnue
+   bloque la certification.
+5. Le couple est calculé séparément pour chaque owner après plafonnement des
+   rentes mensuelles ; aucun second plafond n'est appliqué au supplément.
+6. Avant décembre ou sans preuve de la caisse compétente, seul un scénario
+   éducatif daté est possible. Une déclaration documentée ne devient pas une
+   décision de caisse.
+7. Un décès ou une extinction du droit avant le 1er décembre produit zéro
+   sourcé sans prorata. Un décès en décembre laisse la rente de décembre et le
+   supplément dus comme prestations en cours.
+8. La rente mensuelle ordinaire reste inchangée ; le supplément n'est jamais
+   lissé par `13/12` ni absorbé dans un revenu récurrent.
+
+## 30. Fixtures AVS-02 RED → GREEN complémentaires
+
+Les 72 cas du noyau sont conservés. Les RED manquants doivent atteindre les
+vrais writer, reload et renderer :
+
+| ID | Fixture | Attendu |
+|---|---|---|
+| AVS13-I01 | douze mois et décision décembre officiels, owner self, centimes exacts | save-before-publish puis cold reload identique |
+| AVS13-I02 | données partner mélangées au root self | rejet owner mismatch ; aucun total ménage |
+| AVS13-I03 | référence/sourceDate/version d'un mois absente | `sourceTooWeak`, aucun montant certifié |
+| AVS13-I04 | snapshot effectif 01.01.2026 mais état de circulaire antérieur au 17.06.2026 pour un cas chap. 12 | version non qualifiée, partial+ask |
+| AVS13-I05 | décision décembre `unknown` avant décembre | `pendingDecember`, estimation éducative datée seulement |
+| AVS13-I06 | restart après persistance officielle complète | mêmes owners, mois, exclusions, source dates et décision ; aucun double |
+| AVS13-I07 | écran avec preuve certifiée | trois lignes distinctes : rente ordinaire mensuelle, supplément décembre, total annuel |
+| AVS13-I08 | écran pending/declared/scenario | aucune ligne libellée certifiée ; hypothèses/source visibles |
+| AVS13-I09 | AI, survivant, enfant, complémentaire et AVS 21 | cash-flows exclus visibles séparément, jamais ajoutés au supplément |
+| AVS13-I10 | flag false après preuve et restart | aucune surface activée ; activation nécessite une décision et un runtime distincts |
+
+## 31. Frontière no-advice, consentement et confidentialité
+
+Le produit peut expliquer la règle, afficher un montant fourni/certifié par la
+caisse avec sa date, ou une estimation explicitement éducative. Il ne peut pas
+promettre le versement, appeler un scénario « ton montant », lisser le
+supplément dans le budget mensuel, ni choisir entre rente de vieillesse et rente
+de survivant. La caisse rend la décision et traite contestations/corrections.
+
+Le root persistant conserve un owner pseudonyme, des montants mensuels exacts,
+la classification, les références opaques et les dates. Il ne conserve ni
+numéro AVS, ni identité de caisse en clair, ni document brut. L'ingestion et un
+handoff éventuel exigent consentement explicite, finalité annoncée, aperçu et
+suppression. Les logs, audits et captures restent synthétiques et sans PII.
+
+Le flag `enableAvsThirteenthScenarioCashflow` reste false jusqu'à la preuve
+writer → process death → cold reader, au rendu séparé, au runtime exact-SHA et
+aux audits wrapper code/product-domain sans P0/P1.
+
+## Key Learnings AVS-02
+
+1. Un noyau de calcul 72/72 ne prouve ni l'autorité persistée ni le rendu produit.
+2. La date d'effet 01.01.2026 ne remplace pas la version de circulaire état 17.06.2026.
+3. Le supplément de décembre est un cash-flow séparé, jamais un treizième mois récurrent lissé.
