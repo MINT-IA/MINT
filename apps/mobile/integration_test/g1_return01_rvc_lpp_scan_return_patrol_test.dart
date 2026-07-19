@@ -141,6 +141,10 @@ void main() {
         _rvcRoute,
       );
       expect(
+        profile.profile?.prevoyance.avoirLppTotal,
+        closeTo(143287.50, 0.01),
+      );
+      expect(
         sessions.dataBlockScanReturnIntentById(scanReturnId),
         isNull,
       );

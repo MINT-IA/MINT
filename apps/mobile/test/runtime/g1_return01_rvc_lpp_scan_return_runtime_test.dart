@@ -22,6 +22,7 @@ void main() {
       "const Key('lpp_review_confirm_cta')",
       "const Key('lpp_impact_retirement_cta')",
       '44e89678edff36f64383a75c37bdcaa3c7ca49e7cb7242a3bb9c1371df9780f2',
+      'closeTo(143287.50, 0.01)',
       "'scanSessionId': scanSessionId!",
       "'scanReturnId': scanReturnId!",
       "'mint-g1-return01-rvc-lpp-visual-ready-v1.marker'",

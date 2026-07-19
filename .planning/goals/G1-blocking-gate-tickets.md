@@ -55,7 +55,7 @@ output fails closed and the ticket remains explicit here.
 | G1-RETURN-01 | return_uri_test | mint-data-quest-architect | apps/mobile/lib/screens/onboarding/data_block_enrichment_screen.dart, apps/mobile/test/navigation/data_block_return_uri_test.dart | A collection CTA loses its originating case or returns to a fixed route after save, cancel, or error recovery. | All six P0 loops entering data-block with encoded returnUri and one invalid external URI. | `cd apps/mobile && flutter test test/navigation/data_block_return_uri_test.dart --reporter expanded` | `cd apps/mobile && flutter test test/navigation/data_block_return_uri_test.dart --reporter expanded` | yes | WORK,HOUSING,RETIREMENT,DISABILITY,SUCCESSION,FRONTALIER | Accept only internal registered returnUri values and restore the exact originating route. | ticket_only |
 | G1-RUNTIME-01 | runtime_persistence_test | mint-quality-gate | apps/mobile/.maestro/r4_persistence.yaml, apps/mobile/integration_test/g1_p0_persistence_write_patrol_test.dart, apps/mobile/integration_test/g1_p0_persistence_read_patrol_test.dart, tools/simulator/patrol_persistence_process_death.sh, tools/checks/tests/test_patrol_persistence_orchestrator.py | The composite runtime gate fails when a real P0 input does not survive process death or does not change a downstream consumer after restart. | Seed salary and canton, run a distinct persistent Patrol write process, terminate the app with simctl, run a distinct read process, then inspect mortgage consumer semantics; Maestro proves the same contract on the same UDID. | `UDID="${UDID:?set UDID}" && python3 tools/checks/mint_os_doctor.py && python3 tools/checks/patrol_tooling_guard.py && MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/phase-37/runtime-01/maestro bash tools/simulator/maestro_with_watchdog.sh test --device "$UDID" apps/mobile/.maestro/r4_persistence.yaml && bash tools/simulator/patrol_persistence_process_death.sh --device "$UDID" --bundle-id ch.mint.app --sha "$(git rev-parse HEAD)" --artifacts .planning/runtime-evidence/phase-37/runtime-01/patrol` | `UDID="${UDID:?set UDID}" && python3 tools/checks/mint_os_doctor.py && python3 tools/checks/patrol_tooling_guard.py && MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/phase-37/runtime-01/maestro bash tools/simulator/maestro_with_watchdog.sh test --device "$UDID" apps/mobile/.maestro/r4_persistence.yaml && bash tools/simulator/patrol_persistence_process_death.sh --device "$UDID" --bundle-id ch.mint.app --sha "$(git rev-parse HEAD)" --artifacts .planning/runtime-evidence/phase-37/runtime-01/patrol` | yes | WORK,HOUSING | Make the one canonical Mint OS Maestro-plus-two-stage-Patrol command pass on one UDID/SHA and retain both artifact sets plus the successful simctl termination proof. | red_proven |
 
-### G1-RETURN-01 bounded RVC LPP atom — code GREEN, ticket still open
+### G1-RETURN-01 bounded RVC LPP atom — code + native GREEN, ticket still open
 
 At pushed SHA `6ce073dff3`, the RVC LPP path validates the decoded internal
 `returnUri` once in DataBlock, then carries only a typed volatile UUIDv4
@@ -72,9 +72,15 @@ without live typed authority fails Home.
 Bounded contract files are
 `apps/mobile/test/navigation/rvc_scan_return_origin_test.dart`,
 `apps/mobile/test/navigation/rvc_scan_return_review_impact_test.dart`, and
-`apps/mobile/test/providers/data_block_scan_return_intent_test.dart`. This atom
-does **not** satisfy the registry predicate over every six-loop save/cancel/error
-exit and has no dedicated exact-SHA RVC Maestro/Patrol evidence. Therefore
+`apps/mobile/test/providers/data_block_scan_return_intent_test.dart`. Exact-SHA
+native proof at `0447ac488bdc861b2e64933a29c89b142b240d56` runs the real
+RVC → LPP DataBlock → synthetic certificate → Review → Impact → consumed RVC
+return with Patrol, while Maestro and simctl capture the returned pixels. The
+sanitized proof and direct visual review are archived under
+`.planning/runtime-evidence/phase-37/return-01-rvc/`.
+
+This atom does **not** satisfy the registry predicate over every six-loop
+save/cancel/error exit. Therefore
 `G1-RETURN-01` remains `ticket_only`, the machine mirror remains unchanged, and
 the canonical inventory remains **24/31 GREEN with 7 open rows**.
 

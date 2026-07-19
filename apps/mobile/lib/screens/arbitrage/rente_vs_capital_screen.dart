@@ -699,7 +699,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         identifier: 'rvc_screen',
         container: true,
         child: Scaffold(
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+          body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── SliverAppBar (white standard — Simulator screen) ──
           SliverAppBar(

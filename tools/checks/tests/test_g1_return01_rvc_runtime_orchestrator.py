@@ -29,6 +29,7 @@ def test_rvc_runner_is_exact_sha_clean_and_joins_patrol_maestro_visual_proof() -
         "runtime contract files must be tracked at HEAD",
         ".planning/runtime-evidence/phase-37/return-01-rvc",
         "test/patrol/g1_return01_rvc_lpp_scan_return_runtime_test.dart",
+        "--dart-define=MINT_PATROL_CLI=true",
         ".maestro/g1_return01_rvc_lpp_scan_return.yaml",
         "MINT_RVC_SCREENSHOT",
         "maestro-final.png",
