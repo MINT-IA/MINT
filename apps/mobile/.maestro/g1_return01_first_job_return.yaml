@@ -9,6 +9,18 @@ appId: ch.mint.app
     text: "Cancel"
     optional: true
 - openLink: "mint:///first-job"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       id: "first_job_ledger_facts"

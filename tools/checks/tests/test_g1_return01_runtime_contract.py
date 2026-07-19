@@ -35,10 +35,21 @@ def test_maestro_uses_the_real_first_job_cta_and_returns_visibly() -> None:
     flow = MAESTRO.read_text(encoding="utf-8")
 
     assert 'openLink: "mint:///first-job"' in flow
+    open_link = flow.index('openLink: "mint:///first-job"')
+    first_job_wait = flow.index('- extendedWaitUntil:')
+    for consent_label in ('Ouvrir', 'Open'):
+        consent_handler = (
+            '- runFlow:\n'
+            '    when:\n'
+            f'      visible: "{consent_label}"\n'
+            '    commands:\n'
+            f'      - tapOn: "{consent_label}"\n'
+            '      - waitForAnimationToEnd'
+        )
+        assert consent_handler in flow
+        assert open_link < flow.index(consent_handler) < first_job_wait
     assert '- extendedWaitUntil:\n    visible:\n      id: "first_job_ledger_facts"\n    timeout: 20000' in flow
-    assert flow.index('openLink: "mint:///first-job"') < flow.index(
-        '- extendedWaitUntil:'
-    ) < flow.index('id: "first_job_ledger_facts"')
+    assert open_link < first_job_wait < flow.index('id: "first_job_ledger_facts"')
     assert 'id: "first_job_enrich_profile_cta"' in flow
     assert 'openLink: "mint:///data-block/revenu' not in flow
     assert flow.index('id: "first_job_enrich_profile_cta"') < flow.index(
