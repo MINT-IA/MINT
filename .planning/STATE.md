@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: FRONT-01 is GREEN at exact pushed SHA cb580c7a8 after corrected semantic RED 15/20, identical-command GREEN 20/20, a true Patrol RED then exact-SHA Patrol 1/1, full Flutter 9567/44 and two wrapper PASS verdicts; 9 hard floors remain, and G2/G3 are not authorized.
-last_updated: "2026-07-17T16:21:08Z"
-last_activity: 2026-07-17 -- FRONT-01 promoted after corrected semantic RED 15/20, identical-command GREEN 20/20, exact-SHA Patrol 1/1 with bounded visual proof, full Flutter/analyzer/Doctor PASS, and first-pass Opus code/product-domain audits PASS with zero P0/P1
+stopped_at: G1-FRESH-01 is bounded technical GREEN at exact pushed SHA 32bec6a6a after controlled semantic 31/33, identical-command exact-archive 33/33, GitHub/Vercel PASS and final Opus code/product PASS; 8 hard floors remain, and G2/G3 are not authorized.
+last_updated: "2026-07-19T08:19:00Z"
+last_activity: 2026-07-19 -- G1-FRESH-01 promoted as bounded technical core after controlled semantic 31/33, exact-archive GREEN 33/33, real Frontier wiring, canonical scan tiers, GitHub/Vercel clean-room PASS and final Opus code/product PASS with zero P0/P1
 progress:
   total_phases: 14
   completed_phases: 0
@@ -30,21 +30,19 @@ own sourced data and leaves with clear questions plus a specialist-ready dossier
 
 Phase: 37 (ledger-runtime-readiness) — EXECUTING
 
-Plan: 37-05 — Swiss jurisdiction and specialist reference floors
+Plan: 37-06 — Scenario, freshness, safe-return and recovery floors
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-17 -- `G1-FRONT-01` is accepted at pushed SHA
-`cb580c7a8`: the identical corrected registry command moves from 15 controls
-passing / 5 semantic failures at `18e0918f6` to 20/20 GREEN. Residence country,
-work country and work canton are independent typed facts with fail-closed
-provenance/freshness, real provider persistence and missing/known/specialist
-states. The old defaulted fiscal/social calculators and universal 90-day rule
-are quarantined. A first physical Patrol run proved the offstage-selector RED;
-the repaired exact-SHA run passed 1/1 with bounded visual proof. Full Flutter is
-9,567 pass / 44 skip, analyzer and Doctor pass, and first-pass wrapper-only Opus
-code/product-domain audits pass with P0/P1=0. Four nonblocking P2 follow-ups
-remain explicit. This closes only FRONT-01; G1 remains NO-GO.
+Last activity: 2026-07-19 -- `G1-FRESH-01` is accepted as a bounded
+technical core at exact pushed SHA `32bec6a6a`. The non-vacuous controlled
+mutation finishes 31/33 and the identical unmodified exact-archive command
+passes 33/33. The 61-path registry plus four specialist references are
+matrix-derived, Frontier is a real consumer, same-value provenance survives
+cold reload, and the scan writer delegates to the canonical tier SOT. GitHub
+run `29679202008`, Vercel, Doctor, Mermaid, Patrol tooling and final Opus
+code/product-domain lenses pass with P0/P1=0. Generic reconfirmation UI remains
+deferred; G1 stays NO-GO and G2/G3 remain forbidden.
 
 Provisional G1 score: **8.2/10 — NO-GO**.
 
@@ -149,17 +147,22 @@ Provisional G1 score: **8.2/10 — NO-GO**.
   Flutter/analyzer/Doctor and both first-pass Opus wrapper lenses pass with
   P0/P1=0. Four P2 follow-ups remain explicit; G1 stays NO-GO and G2/G3 remain
   forbidden.
+- `G1-FRESH-01` is bounded technical `green` at exact pushed SHA
+  `32bec6a6a`: controlled semantic evidence is 31/33, the identical exact-
+  archive command is 33/33, and the real Frontier consumer plus canonical scan
+  writer are wired. GitHub/Vercel and final Opus code/product-domain lenses
+  pass P0/P1=0. Generic reconfirmation UI remains deferred; no G2 work started.
 
 ## Active Blockers
 
-- The canonical registry has 31 rows: 22 `green`, 8 `ticket_only`, and one
-  `red_proven`. Therefore 9 G1 hard floors remain open.
+- The canonical registry has 31 rows: 23 `green`, 7 `ticket_only`, and one
+  `red_proven`. Therefore 8 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
-- Wave 3 is technically closed and `G1-FRONT-01` is the first accepted Wave 4
-  floor. The next ordered ticket is `G1-RET-REF-01`; it remains `ticket_only`
-  and must keep precise retirement meaning educational until an opaque
-  specialist reference, source date and legal year are complete.
+- Wave 3 is technically closed; `G1-FRONT-01` and the bounded
+  `G1-FRESH-01` core are accepted. Seven ticket-only floors plus
+  `G1-RUNTIME-01` remain; RET-REF stays ticket-only and must keep precise
+  retirement meaning educational until its remaining activation gates close.
 - Eight external production facts remain unproven: controller identity,
   operational privacy contact, Anthropic role/DPA, actual processing regions,
   transfer mechanism/TIA, retention/ZDR, AIPD decision, and the public

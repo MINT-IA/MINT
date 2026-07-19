@@ -57,7 +57,7 @@ only machine-evidence `green` is checked.
 - [x] **RDY-AVS-01**: Couple AVS law uses person-first, status- and scale-aware semantics.
 - [ ] **RDY-AVS-02**: Official 13th-pension evidence survives restart and renders separate monthly, December and annual cash flows.
 - [x] **RDY-AVS-03**: Unofficial gap counts remain unpriced until an official scale or amount exists.
-- [ ] **RDY-FRESH-01**: Stale values remain visible for reconfirmation.
+- [x] **RDY-FRESH-01**: Stale values remain visible for reconfirmation.
 - [ ] **RDY-RETURN-01**: Collection returns safely to the exact originating case.
 - [ ] **RDY-RUNTIME-01**: Maestro and Patrol prove persistence, restart, and recompute.
 - [ ] **RDY-GATE-01**: All 31 ticket rows become evidence-backed GREEN; Phase 37

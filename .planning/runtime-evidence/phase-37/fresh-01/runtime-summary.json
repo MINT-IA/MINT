@@ -1,0 +1,44 @@
+{
+  "ticket_id": "G1-FRESH-01",
+  "accepted_sha": "32bec6a6af16c0198663e11f2799e55a0d5e9426",
+  "scope": "bounded_technical_core",
+  "synthetic_data_only": true,
+  "exact_archive_evidence": {
+    "control": "31_passed_2_semantic_failures",
+    "green": "33_passed_0_failed",
+    "command_identical": true
+  },
+  "local_regression": {
+    "biography_and_document_scan": "349_passed",
+    "repository_contracts": "448_passed",
+    "flutter_analyze": "pass",
+    "doctor_repo_only": "pass",
+    "mermaid_guard": "pass",
+    "patrol_tooling_guard": "pass"
+  },
+  "github": {
+    "repository": "MINT-IA/MINT",
+    "pull_request": 949,
+    "run_id": 29679202008,
+    "run_url": "https://github.com/MINT-IA/MINT/actions/runs/29679202008",
+    "head_sha": "32bec6a6af16c0198663e11f2799e55a0d5e9426",
+    "conclusion": "success",
+    "ci_gate": "success",
+    "cancelled_duplicate_run_id": 29679201753,
+    "cancelled_duplicate_disposition": "concurrency_cancellation_not_product_failure"
+  },
+  "vercel": {
+    "deployment_id": "CoKhYfhxC8CE3xsG42EfCoZBwmNH",
+    "conclusion": "success"
+  },
+  "mobile_runtime": {
+    "new_user_interface": false,
+    "new_maestro_or_patrol_flow_required": false,
+    "reason": "This slice rewires an existing Frontier consumer and adds no screen, route, or activation path; Patrol tooling availability is still guarded."
+  },
+  "boundary": {
+    "g1": "open_8.2_of_10_no_go",
+    "g2": "forbidden",
+    "g3": "forbidden"
+  }
+}

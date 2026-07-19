@@ -1,0 +1,80 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "tools/checks/claude_external_audit.sh code d23a5988eef5ed9a297d040c502e94f52989276e",
+      "mode": "code",
+      "model": "opus",
+      "base_sha": "d23a5988eef5ed9a297d040c502e94f52989276e",
+      "head_sha": "32bec6a6af16c0198663e11f2799e55a0d5e9426",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/fresh-01/audit-code-opus-final-confirmation.md",
+      "findings": [
+        {
+          "id": "CODE-OPUS-P2-DEFERRED-CONSUMERS",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The generic registry exposes reconfirmation results for many fields while only the Frontier consumer is wired in production.",
+          "evidence": "The accepted slice has a real three-path Frontier caller and explicitly defers generic stale-reconfirmation UI; promotion is technical only and does not authorize G2."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 1,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "tools/checks/claude_external_audit.sh product-domain d23a5988eef5ed9a297d040c502e94f52989276e",
+      "mode": "product-domain",
+      "model": "opus",
+      "base_sha": "d23a5988eef5ed9a297d040c502e94f52989276e",
+      "head_sha": "32bec6a6af16c0198663e11f2799e55a0d5e9426",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/fresh-01/audit-product-domain-opus.md",
+      "findings": [
+        {
+          "id": "DOMAIN-OPUS-P2-DEFERRED-CONSUMERS",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Fifty-eight generic policies do not yet surface a product reconfirmation action.",
+          "evidence": "The remaining UI is explicitly deferred, while the existing Frontier caller prevents a facade-only implementation; G2 remains forbidden."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-BIOGRAPHY-CADENCE",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "New event-static and static Biography writes change refresh cadence while legacy stored annual rows remain unchanged.",
+          "evidence": "Biography is historical narrative rather than canonical ledger authority; persisted categories are retained to avoid silent migration."
+        },
+        {
+          "id": "DOMAIN-OPUS-P2-LEGACY-DEFAULT",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "BiographyFact still has an annual legacy constructor/decoder default.",
+          "evidence": "The scan writer now delegates to categoryFor and regression tests block the contradictory private table; remaining writer hardening is a nonblocking follow-up."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 3,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}

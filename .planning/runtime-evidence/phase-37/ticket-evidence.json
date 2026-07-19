@@ -368,16 +368,16 @@
     },
     {
       "ticket_id": "G1-FRESH-01",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/services/biography/stale_reconfirmation_test.dart test/services/biography/freshness_decay_test.dart test/screens/document_scan/extraction_freshness_tier_contract_test.dart --reporter expanded",
-      "evidence_mode": null,
+      "evidence_mode": "baseline_green_controlled",
       "red_sha": null,
       "red_artifact": null,
-      "control_sha": null,
-      "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "control_sha": "32bec6a6af16c0198663e11f2799e55a0d5e9426",
+      "control_artifact": ".planning/runtime-evidence/phase-37/fresh-01/control.json",
+      "green_sha": "32bec6a6af16c0198663e11f2799e55a0d5e9426",
+      "green_artifact": ".planning/runtime-evidence/phase-37/fresh-01/green.json",
+      "accepted_sha": "32bec6a6af16c0198663e11f2799e55a0d5e9426"
     },
     {
       "ticket_id": "G1-RETURN-01",

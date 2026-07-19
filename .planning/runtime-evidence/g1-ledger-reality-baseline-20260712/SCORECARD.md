@@ -11,13 +11,21 @@ Current interim score: **8.2/10**
 The historical acceptance at `53c733827` is superseded for release purposes.
 G1 was reopened after the AVS couple path could manufacture a complete
 household projection from incomplete partner evidence. The canonical Phase 37
-registry now has **31 rows: 22 GREEN, 8 `ticket_only`, 1 `red_proven`**. The B2
+registry now has **31 rows: 23 GREEN, 7 `ticket_only`, 1 `red_proven`**. The B2
 fail-closed slice and its exact runtime proof are green. The financial report/PDF now also keeps
 AVS, LPP and 3a point values, totals and replacement rates unknown until the
 required evidence exists, with a rebuilt-app Maestro/Patrol proof. Swiss-law,
 official-source live wiring, partner-consent and remaining fallback gates still
 block G1. `G1-PROV-03` is code- and runtime-GREEN with code/product-domain
 audits PASS, but remains dark-launched. G2/G3 are forbidden.
+
+`G1-FRESH-01` is bounded technical GREEN at exact SHA `32bec6a6af16`:
+an isolated semantic threshold control finishes 31/33 and the identical
+unmodified physical-archive command passes 33/33. The real Frontier consumer,
+same-value cold provenance restamp and canonical scan-writer tier delegation
+are wired. GitHub run `29679202008`, Vercel and final Opus code/product-domain
+audits pass with P0/P1=0. Generic reconfirmation UI remains deferred; this does
+not close G1 or authorize G2/G3.
 
 `G1-PROV-02` is also ticket- and runtime-GREEN at exact SHA `30728b8a0671`:
 same-command semantic RED-to-GREEN, native writer, explicit process death,
@@ -232,7 +240,7 @@ G2/G3.
 | UX lucidity | 1.5 | 1.3 | Report and PDF now expose neutral AVS/LPP/3a evidence gaps with real recovery CTAs instead of fabricated amounts. Couple recovery and consent UX remain open. |
 | Runtime proof | 1.5 | 1.5 | B2 has an exact committed SHA; the report runtime indexed-diff SHA exactly equals pushed commit `1bb9c8389`, with full Doctor/build, built-versus-installed payload proof, Maestro semantic positives/negatives plus visual artifacts, Patrol 2/2 and xcresult summary. The bounded capital dossier/PDF slice adds exact-SHA real-route/PDF-byte evidence without claiming native text extraction. |
 | Automated tests | 1.0 | 1.0 | Final report/PDF snapshot: analyze 0; 8,514 successful + 30 skipped; 0 fail. Targeted report matrix 95/95; B2 matrix 187/187. |
-| External audit | 1.0 | 0.7 | Report/PDF, PROV-03, BND-02/BND-02A, BND-03, BND-05, BND-06, BND-01, COACH-01 and the bounded LPP regulation/capital dossier slices have accepted PASS lenses without unresolved P0/P1. The LPP loop is exhausted without a carousel and keeps the autonomous declared/unverified authority boundary explicit. Full G1 remains NO-GO for 9 open rows; remaining global slices are not converged. |
+| External audit | 1.0 | 0.7 | Report/PDF, PROV-03, BND-02/BND-02A, BND-03, BND-05, BND-06, BND-01, COACH-01, FRESH-01 and the bounded LPP regulation/capital dossier slices have accepted PASS lenses without unresolved P0/P1. The LPP loop is exhausted without a carousel and keeps the autonomous declared/unverified authority boundary explicit. Full G1 remains NO-GO for 8 open rows; remaining global slices are not converged. |
 | Integration / privacy hygiene | 1.0 | 0.7 | Synthetic runtime data, exact owner/receipt lifecycle and targeted invalidation are green; eight external activation facts and official-source persistence remain open. |
 | Diff discipline | 0.5 | 0.5 | Provenance, recovery, nullable contract, wiring docs, runtime harness and screenshot fix are atomic commits with regular pushes. |
 | **Total** | **10.0** | **8.2** | **Below 9.0 and hard blockers remain; G1 stays NO-GO.** |
@@ -300,7 +308,7 @@ G2/G3.
 | RET-REF exact 3a minimized proof | PASS: `phase-37/ret-ref-01/pillar3a-beneficiary-runtime-proof-fc1023fd7/` retains only allowlisted aggregate runtime, acquisition, recovery, report, state, Maestro, CI and audit summaries with verified checksums. No raw transcript, local path, device identifier, document material, generated report, result bundle, media or private fixture is tracked. |
 | RET-REF exact 3a audit lineage | PASS_BOUNDED: harness code PASS P0/P1=0; product-domain legal cutoff request closed with the official OFAS source; final runtime/persistence delta Opus code PASS P0/P1=0. Remaining naming/shared-flag notes are nonblocking P2. |
 | Sonnet architecture P1 remediation | PASS: exact disclaimer REDs `21/2`, then `14/1`; final targeted 23 passed / 0 failed, accent lint 4/4 files, analyze 0, financial_core 689/689 and full Flutter 8,900 passed / 33 skipped / 0 failed |
-| Phase 37 registry | 31 total: 22 GREEN, 8 `ticket_only`, 1 `red_proven`; 9 hard floors remain open. RET-REF remains `ticket_only`; this technical atom does not alter its accepted SHA/state. |
+| Phase 37 registry | 31 total: 23 GREEN, 7 `ticket_only`, 1 `red_proven`; 8 hard floors remain open. FRESH-01 is bounded technical GREEN; RET-REF remains `ticket_only`. |
 
 ## Exact B2 evidence
 
@@ -346,6 +354,9 @@ G2/G3.
 - `fec1d4119e` — bind the exact-SHA Patrol visual ready/ack proof and cleanup.
 - `cb580c7a8` — accept FRONT-01 at its corrected semantic and exact-SHA
   runtime/audit boundary, bringing the registry to 22/31 GREEN.
+- `32bec6a6a` — wire canonical freshness through the real Frontier consumer,
+  remove the contradictory scan tier table and pass exact-SHA CI/audits,
+  bringing the registry to 23/31 GREEN without starting G2 UI.
 - `fe857a733` — historical snapshot-bound LPP-regulation runtime, superseded
   for current cutover semantics by `6066f1c94`; RET-REF was not promoted.
 - `6066f1c94` — accept the autonomous regulation-only exact-SHA runtime with a
@@ -372,7 +383,7 @@ G2/G3.
 - G1: **REOPENED / NO-GO at 8.2/10**.
 - `G2 allowed?` **NO**.
 - `G3 allowed?` **NO**.
-- Current machine truth: **22/31 GREEN; 9 hard floors open** — 8
+- Current machine truth: **23/31 GREEN; 8 hard floors open** — 7
   `ticket_only`, including RET-REF, plus `G1-RUNTIME-01` as `red_proven`.
 - Next ordered gates remain inside G1. Regulation, capital-notice and exact 3a
   technical atoms are green; continue RET-REF with explicit activation

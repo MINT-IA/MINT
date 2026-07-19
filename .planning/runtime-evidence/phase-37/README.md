@@ -37,9 +37,9 @@ exactly one `architecture` run. Failed, quota-limited, authentication-failed,
 timed-out, or superseded attempts remain separate artifacts and never become a
 second accepted `runs[]` entry.
 
-Current machine truth after `G1-BND-05` promotion: **18 `green`, 12
-`ticket_only`, 1 `red_proven`; 13 of 31 hard floors remain open**. G1 remains
-**8.2/10 — NO-GO** and `G1-BND-06` is the next canonical ticket.
+Current machine truth after `G1-FRESH-01` promotion: **23 `green`, 7
+`ticket_only`, 1 `red_proven`; 8 of 31 hard floors remain open**. G1 remains
+**8.2/10 — NO-GO**; G2/G3 stay forbidden.
 
 `G2 allowed` remains **NO** until all 31 records are `green`, runtime evidence
 is accepted on the same product SHA, required audits have zero unresolved

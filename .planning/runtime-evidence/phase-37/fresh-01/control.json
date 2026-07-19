@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-FRESH-01",
+  "stage": "CONTROL",
+  "command": "cd apps/mobile && flutter test test/services/biography/stale_reconfirmation_test.dart test/services/biography/freshness_decay_test.dart test/screens/document_scan/extraction_freshness_tier_contract_test.dart --reporter expanded",
+  "sha": "32bec6a6af16c0198663e11f2799e55a0d5e9426",
+  "recorded_at": "2026-07-19T08:19:13Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "stale_reconfirmation_test",
+  "output": "From a physical Git archive of the accepted SHA, one isolated controlled mutation changed only the refresh decision threshold from 0.60 to 0.90. The identical command reached all three compiled test surfaces and finished 31 passed / 2 semantic failures: the annual day-782 value and volatile day-247 value were incorrectly classified stale instead of current. This proves both frozen boundary predicates are non-vacuous. The mutation was confined to the disposable archive and used synthetic fixtures only.",
+  "synthetic_data_only": true
+}

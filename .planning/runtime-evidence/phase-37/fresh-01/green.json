@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-FRESH-01",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/services/biography/stale_reconfirmation_test.dart test/services/biography/freshness_decay_test.dart test/screens/document_scan/extraction_freshness_tier_contract_test.dart --reporter expanded",
+  "sha": "32bec6a6af16c0198663e11f2799e55a0d5e9426",
+  "recorded_at": "2026-07-19T08:19:13Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "stale_reconfirmation_test",
+  "output": "The identical command passed 33/33 predicates from an unmodified physical Git archive of the exact accepted SHA. It proves the exact 61-path matrix plus 4 specialist references, static/event-static behavior, annual 782/783 and volatile 247/248 boundaries, fail-closed timestamps/path/source/category, certificate renewal versus user reconfirmation, sourceDate isolation, same-value provenance restamp with cold reload, and canonical document-scan tier delegation.",
+  "synthetic_data_only": true
+}
