@@ -856,6 +856,6 @@ const _authorityCandidateKeys = <String>{
 final RegExp _canonicalUuidV4 = RegExp(
   r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
 );
-// Legal basis: OPP 3 art. 2 al. 2-3; RO 2026 182, ch. II al. 2;
+// Legal basis: OPP 3 art. 2 al. 2-3; RO 2026 325, ch. II al. 2;
 // OFAS, Bulletin PP no 168, ch. 1168.
 final DateTime _opp3RegimeCutoff = DateTime.utc(2027, 6, 1);

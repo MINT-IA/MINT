@@ -851,7 +851,7 @@ void main() {
       'designationEffectiveDate',
       'lastAssignmentModificationDate',
       'OPP 3 art. 2 al. 2-3',
-      'RO 2026 182, ch. II al. 2',
+      'RO 2026 325, ch. II al. 2',
       'OFAS, Bulletin PP no 168, ch. 1168',
       'Beneficiary designation or assignment modification is the determining event',
       'sourceDate, relationConfirmedAt, and legalYear alone never determine',
@@ -863,6 +863,11 @@ void main() {
     ]) {
       expect(source, contains(anchor), reason: anchor);
     }
+    expect(
+      source,
+      isNot(contains('RO 2026 182, ch. II al. 2')),
+      reason: 'The unrelated former citation must not re-enter the model',
+    );
   });
 
   test(
