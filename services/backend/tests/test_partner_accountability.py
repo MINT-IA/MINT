@@ -9,6 +9,10 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 from fastapi.routing import APIRoute
+try:
+    from fastapi.routing import iter_route_contexts
+except ImportError:  # FastAPI < 0.139 keeps included APIRoutes flat.
+    iter_route_contexts = None
 import pytest
 
 from app.core.auth import require_current_user
@@ -66,12 +70,21 @@ def _enable_synthetic_contract(monkeypatch) -> None:
     monkeypatch.setenv(_POLICY_VERSION_ENV, _POLICY_VERSION)
 
 
+def _effective_api_routes():
+    if iter_route_contexts is None:
+        return (route for route in app.routes if isinstance(route, APIRoute))
+    return (
+        route_context
+        for route_context in iter_route_contexts(app.routes)
+        if isinstance(route_context.original_route, APIRoute)
+    )
+
+
 def _create_route() -> APIRoute:
     matches = [
         route
-        for route in app.routes
-        if isinstance(route, APIRoute)
-        and route.path == _CREATE_PATH
+        for route in _effective_api_routes()
+        if route.path == _CREATE_PATH
         and "POST" in route.methods
     ]
     assert len(matches) == 1, (
@@ -85,8 +98,7 @@ def test_partner_accountability_lifecycle_routes_are_isolated_and_jwt_gated():
     """Create/list/status/revoke/erase cannot fall back to legacy consent APIs."""
     routes = {
         (method, route.path): route
-        for route in app.routes
-        if isinstance(route, APIRoute)
+        for route in _effective_api_routes()
         for method in route.methods
     }
 
