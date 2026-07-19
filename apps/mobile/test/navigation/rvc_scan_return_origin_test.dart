@@ -22,6 +22,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _rvcOrigin = '/rente-vs-capital';
+const _unknownScanReturnId = '11111111-1111-4111-8111-111111111111';
+
+enum _ExitGesture { cta, appBarBack, systemBack }
 
 final class _StaticProfileProvider extends CoachProfileProvider {
   _StaticProfileProvider(this._profile);
@@ -36,6 +39,13 @@ final class _StaticProfileProvider extends CoachProfileProvider {
 
   @override
   bool get isLoaded => true;
+}
+
+final class _RvcHarness {
+  const _RvcHarness({required this.sessions, required this.router});
+
+  final ScanSessionProvider sessions;
+  final GoRouter router;
 }
 
 void main() {
@@ -124,6 +134,77 @@ void main() {
 
       _expectRvcOrigin(tester);
     });
+
+    testWidgets('opaque RVC token locks the live scanner to LPP only',
+        (tester) async {
+      final harness = await _pumpRvcRouter(tester);
+      final scanReturnId = await _openRvcScan(tester);
+
+      expect(find.byType(ChoiceChip), findsOneWidget);
+      expect(
+        find.byKey(const Key('document_scan_lpp_type_selector')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('document_scan_tax_type_selector')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const Key('document_scan_lpp_plan_type_selector')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(
+          const Key('document_scan_pillar3a_beneficiary_clause_type_selector'),
+        ),
+        findsNothing,
+      );
+      expect(
+        harness.sessions.dataBlockScanReturnIntentById(scanReturnId)?.lifecycle,
+        DataBlockScanReturnLifecycle.created,
+      );
+    });
+
+    for (final action in <({String name, Key key})>[
+      (
+        name: 'camera',
+        key: const Key('document_scan_capture_cta'),
+      ),
+      (
+        name: 'gallery',
+        key: const Key('document_scan_gallery_cta'),
+      ),
+      (
+        name: 'example',
+        key: const Key('document_scan_lpp_example_cta'),
+      ),
+    ]) {
+      testWidgets(
+          '${action.name} advances created to processing only at the real action boundary',
+          (tester) async {
+        final harness = await _pumpRvcRouter(tester);
+        final scanReturnId = await _openRvcScan(tester);
+        expect(
+          harness.sessions
+              .dataBlockScanReturnIntentById(scanReturnId)
+              ?.lifecycle,
+          DataBlockScanReturnLifecycle.created,
+        );
+
+        final cta = find.byKey(action.key);
+        expect(cta, findsOneWidget);
+        await tester.ensureVisible(cta);
+        await tester.tap(cta);
+        await tester.pump();
+
+        expect(
+          harness.sessions
+              .dataBlockScanReturnIntentById(scanReturnId)
+              ?.lifecycle,
+          DataBlockScanReturnLifecycle.processing,
+        );
+      });
+    }
   });
 
   group('G1-RETURN-01 RVC scan security boundary', () {
@@ -198,6 +279,193 @@ void main() {
       }
     });
 
+    for (final exit in _ExitGesture.values) {
+      testWidgets(
+          'canonical unknown process-loss ${exit.name} recovers to literal RVC',
+          (tester) async {
+        final sessions = ScanSessionProvider();
+        addTearDown(sessions.dispose);
+        final harness = await _pumpScanRouter(
+          tester,
+          sessions,
+          Uri(
+            path: '/scan',
+            queryParameters: const <String, String>{
+              'scanReturnId': _unknownScanReturnId,
+            },
+          ),
+        );
+
+        _expectScanRecovery();
+        await _exitRecovery(tester, exit);
+
+        _expectLiteralRoute(harness.router, _rvcOrigin);
+      });
+    }
+
+    for (final hostileCase in <({String name, Uri uri})>[
+      (
+        name: 'malformed identity',
+        uri: Uri(
+          path: '/scan',
+          queryParameters: const <String, String>{
+            'scanReturnId': 'not-a-uuid',
+          },
+        ),
+      ),
+      (
+        name: 'sensitive extra query',
+        uri: Uri(
+          path: '/scan',
+          queryParameters: const <String, String>{
+            'scanReturnId': _unknownScanReturnId,
+            'access_token': 'synthetic-secret',
+          },
+        ),
+      ),
+    ]) {
+      testWidgets('${hostileCase.name} recovery terminates at literal home',
+          (tester) async {
+        final sessions = ScanSessionProvider();
+        addTearDown(sessions.dispose);
+        final harness = await _pumpScanRouter(
+          tester,
+          sessions,
+          hostileCase.uri,
+        );
+
+        _expectScanRecovery();
+        await _exitRecovery(tester, _ExitGesture.cta);
+
+        _expectLiteralRoute(harness.router, '/home');
+      });
+    }
+
+    testWidgets('known altered query captures target then discards the intent',
+        (tester) async {
+      final sessions = ScanSessionProvider();
+      addTearDown(sessions.dispose);
+      final scanReturnId = _retainRvcIntent(sessions);
+
+      await _pumpScanRouter(
+        tester,
+        sessions,
+        Uri(
+          path: '/scan',
+          queryParameters: <String, String>{
+            'scanReturnId': scanReturnId,
+            'flow': 'altered',
+          },
+        ),
+      );
+
+      _expectScanRecovery();
+      expect(
+        sessions.dataBlockScanReturnIntentById(scanReturnId),
+        isNull,
+      );
+    });
+
+    testWidgets('known altered query terminates at its captured RVC target',
+        (tester) async {
+      final sessions = ScanSessionProvider();
+      addTearDown(sessions.dispose);
+      final scanReturnId = _retainRvcIntent(sessions);
+      final harness = await _pumpScanRouter(
+        tester,
+        sessions,
+        Uri(
+          path: '/scan',
+          queryParameters: <String, String>{
+            'scanReturnId': scanReturnId,
+            'flow': 'altered',
+          },
+        ),
+      );
+
+      _expectScanRecovery();
+      await _exitRecovery(tester, _ExitGesture.cta);
+
+      _expectLiteralRoute(harness.router, _rvcOrigin);
+      expect(
+        sessions.dataBlockScanReturnIntentById(scanReturnId),
+        isNull,
+      );
+    });
+
+    for (final exit in <_ExitGesture>[
+      _ExitGesture.appBarBack,
+      _ExitGesture.systemBack,
+    ]) {
+      testWidgets('live scan ${exit.name} returns to RVC and discards the token',
+          (tester) async {
+        final harness = await _pumpRvcRouter(tester);
+        final scanReturnId = await _openRvcScan(tester);
+
+        await _exitLiveScan(tester, exit);
+
+        _expectRvcOrigin(tester);
+        expect(
+          harness.sessions.dataBlockScanReturnIntentById(scanReturnId),
+          isNull,
+        );
+      });
+    }
+
+    testWidgets('mixed Pillar3a and RVC opaque ids fail closed and are purged',
+        (tester) async {
+      final sessions = ScanSessionProvider();
+      addTearDown(sessions.dispose);
+      final scanReturnId = _retainRvcIntent(sessions);
+      final scanContextId = sessions.retainPillar3aBeneficiaryScanIntent(
+        kind: Pillar3aBeneficiaryScanIntentKind.insertion,
+        returnUri: '/retraite',
+      );
+      final harness = await _pumpScanRouter(
+        tester,
+        sessions,
+        Uri(
+          path: '/scan',
+          queryParameters: <String, String>{
+            'scanReturnId': scanReturnId,
+            'scanContextId': scanContextId,
+            'returnUri': '/retraite',
+          },
+        ),
+      );
+
+      expect(find.byType(DocumentScanScreen), findsNothing);
+      _expectScanRecovery();
+      expect(sessions.dataBlockScanReturnIntentById(scanReturnId), isNull);
+      expect(
+        sessions.pillar3aBeneficiaryScanIntentById(
+          scanContextId,
+          returnUri: '/retraite',
+        ),
+        isNull,
+      );
+      await _exitRecovery(tester, _ExitGesture.cta);
+      _expectLiteralRoute(harness.router, _rvcOrigin);
+    });
+
+    testWidgets('RVC LPP token remains usable with the Pillar3a flag off',
+        (tester) async {
+      FeatureFlags.pillar3aBeneficiaryClauseReferenceEnabled = false;
+
+      final harness = await _pumpRvcRouter(tester);
+      final scanReturnId = await _openRvcScan(tester);
+
+      expect(find.byType(DocumentScanScreen), findsOneWidget);
+      expect(
+        harness.sessions.dataBlockScanReturnIntentById(scanReturnId)?.kind,
+        DataBlockScanReturnKind.rvcLpp,
+      );
+      expect(
+        harness.sessions.dataBlockScanReturnIntentById(scanReturnId)?.lifecycle,
+        DataBlockScanReturnLifecycle.created,
+      );
+    });
+
     test('review and impact add opaque ids beside the pillar3a branch', () {
       final source = File('lib/app.dart').readAsStringSync();
       final reviewStart = source.indexOf("path: '/scan/review'");
@@ -260,7 +528,7 @@ void main() {
   });
 }
 
-Future<void> _pumpRvcRouter(WidgetTester tester) async {
+Future<_RvcHarness> _pumpRvcRouter(WidgetTester tester) async {
   tester.view.physicalSize = const Size(1440, 16000);
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.resetPhysicalSize);
@@ -288,6 +556,12 @@ Future<void> _pumpRvcRouter(WidgetTester tester) async {
       GoRoute(
         path: '/scan',
         builder: (_, state) => testOnlyBuildScanRoute(state.uri),
+      ),
+      GoRoute(
+        path: '/scan/review',
+        builder: (_, __) => const Scaffold(
+          key: Key('rvc_scan_review_destination'),
+        ),
       ),
       GoRoute(
         path: '/home',
@@ -326,6 +600,72 @@ Future<void> _pumpRvcRouter(WidgetTester tester) async {
     ),
   );
   await _pumpFrames(tester, frames: 30);
+  return _RvcHarness(sessions: sessions, router: router);
+}
+
+Future<_RvcHarness> _pumpScanRouter(
+  WidgetTester tester,
+  ScanSessionProvider sessions,
+  Uri initialUri,
+) async {
+  tester.view.physicalSize = const Size(1440, 16000);
+  tester.view.devicePixelRatio = 2;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
+  final profileProvider = _StaticProfileProvider(_rvcProfile());
+  final router = GoRouter(
+    initialLocation: initialUri.toString(),
+    routes: <RouteBase>[
+      GoRoute(
+        path: '/scan',
+        builder: (_, state) => testOnlyBuildScanRoute(state.uri),
+      ),
+      GoRoute(
+        path: _rvcOrigin,
+        builder: (_, __) => const Scaffold(
+          key: Key('literal_rvc_destination'),
+        ),
+      ),
+      GoRoute(
+        path: '/home',
+        builder: (_, __) => const Scaffold(
+          key: Key('literal_home_destination'),
+        ),
+      ),
+    ],
+  );
+  addTearDown(profileProvider.dispose);
+  addTearDown(router.dispose);
+
+  await tester.pumpWidget(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: profileProvider,
+        ),
+        ChangeNotifierProvider<ScanSessionProvider>.value(value: sessions),
+        ChangeNotifierProvider<DocumentProvider>(
+          create: (_) => DocumentProvider(),
+        ),
+        ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
+        ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
+      ],
+      child: MaterialApp.router(
+        locale: const Locale('fr'),
+        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        routerConfig: router,
+      ),
+    ),
+  );
+  await _pumpFrames(tester);
+  return _RvcHarness(sessions: sessions, router: router);
 }
 
 Widget _scanBoundaryHarness(ScanSessionProvider sessions, Uri uri) {
@@ -351,6 +691,96 @@ Widget _scanBoundaryHarness(ScanSessionProvider sessions, Uri uri) {
       supportedLocales: S.supportedLocales,
       home: testOnlyBuildScanRoute(uri),
     ),
+  );
+}
+
+String _retainRvcIntent(ScanSessionProvider sessions) =>
+    sessions.retainDataBlockScanReturnIntent(
+      kind: DataBlockScanReturnKind.rvcLpp,
+      target: parseDataBlockReturnTarget(_rvcOrigin)!,
+    );
+
+Future<String> _openRvcScan(WidgetTester tester) async {
+  await _tapIndicatifCta(tester);
+  _expectLppCollector(tester);
+
+  final lppCta = find.descendant(
+    of: find.byType(DataBlockEnrichmentScreen),
+    matching: find.byType(FilledButton),
+  );
+  expect(lppCta, findsOneWidget);
+  await tester.tap(lppCta);
+  await _pumpFrames(tester);
+
+  final scan = find.byType(DocumentScanScreen);
+  expect(scan, findsOneWidget);
+  final uri = GoRouterState.of(tester.element(scan)).uri;
+  expect(uri.path, '/scan');
+  expect(uri.queryParameters.keys, const <String>['scanReturnId']);
+  final scanReturnId = uri.queryParameters['scanReturnId'];
+  expect(_isCanonicalUuidV4(scanReturnId), isTrue);
+  return scanReturnId!;
+}
+
+void _expectScanRecovery() {
+  expect(find.byType(DocumentScanScreen), findsNothing);
+  expect(
+    find.byKey(const Key('scan_review_recovery_cta')),
+    findsOneWidget,
+  );
+}
+
+Future<void> _exitRecovery(
+  WidgetTester tester,
+  _ExitGesture exit,
+) async {
+  switch (exit) {
+    case _ExitGesture.cta:
+      await tester.tap(find.byKey(const Key('scan_review_recovery_cta')));
+      break;
+    case _ExitGesture.appBarBack:
+      await tester.tap(find.byType(BackButton));
+      break;
+    case _ExitGesture.systemBack:
+      await tester.binding.handlePopRoute();
+      break;
+  }
+  await _pumpFrames(tester);
+}
+
+Future<void> _exitLiveScan(
+  WidgetTester tester,
+  _ExitGesture exit,
+) async {
+  switch (exit) {
+    case _ExitGesture.appBarBack:
+      final scan = find.byType(DocumentScanScreen);
+      expect(scan, findsOneWidget);
+      final back = find.descendant(
+        of: scan,
+        matching: find.byIcon(Icons.arrow_back),
+      );
+      expect(back, findsOneWidget);
+      await tester.tap(back);
+      break;
+    case _ExitGesture.systemBack:
+      await tester.binding.handlePopRoute();
+      break;
+    case _ExitGesture.cta:
+      throw StateError('Live scan has no recovery CTA');
+  }
+  await _pumpFrames(tester);
+}
+
+void _expectLiteralRoute(GoRouter router, String route) {
+  expect(router.routeInformationProvider.value.uri.toString(), route);
+  expect(
+    find.byKey(
+      Key(route == _rvcOrigin
+          ? 'literal_rvc_destination'
+          : 'literal_home_destination'),
+    ),
+    findsOneWidget,
   );
 }
 
