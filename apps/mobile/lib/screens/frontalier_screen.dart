@@ -102,7 +102,8 @@ class FrontalierScreen extends StatelessWidget {
               items: _countryItems(l10n),
               onChanged: (value) async {
                 if (value == null) return;
-                await context.read<CoachProfileProvider>().mergeAnswers(
+                await _persistLedgerAnswers(
+                  context,
                   <String, dynamic>{'q_residence_country': value},
                 );
               },
@@ -119,7 +120,8 @@ class FrontalierScreen extends StatelessWidget {
               items: _countryItems(l10n),
               onChanged: (value) async {
                 if (value == null) return;
-                await context.read<CoachProfileProvider>().mergeAnswers(
+                await _persistLedgerAnswers(
+                  context,
                   <String, dynamic>{
                     'q_work_country': value,
                     if (value != 'CH') 'q_work_canton': null,
@@ -147,7 +149,8 @@ class FrontalierScreen extends StatelessWidget {
                     .toList(growable: false),
                 onChanged: (value) async {
                   if (value == null) return;
-                  await context.read<CoachProfileProvider>().mergeAnswers(
+                  await _persistLedgerAnswers(
+                    context,
                     <String, dynamic>{'q_work_canton': value},
                   );
                 },
@@ -167,6 +170,18 @@ class FrontalierScreen extends StatelessWidget {
       ),
       child: DropdownButtonHideUnderline(child: child),
     );
+  }
+
+  Future<void> _persistLedgerAnswers(
+    BuildContext context,
+    Map<String, dynamic> answers,
+  ) async {
+    try {
+      await context.read<CoachProfileProvider>().mergeAnswers(answers);
+    } on Object {
+      // The provider publishes only after persistence succeeds, so retaining
+      // its previous snapshot is safer than drifting the visible jurisdiction.
+    }
   }
 
   List<DropdownMenuItem<String>> _countryItems(S l10n) => _countryCodes
@@ -231,7 +246,8 @@ class FrontalierScreen extends StatelessWidget {
           onPressed: evidence.staleFields.contains('workCanton') &&
                   profile.workCanton != null
               ? () async {
-                  await context.read<CoachProfileProvider>().mergeAnswers(
+                  await _persistLedgerAnswers(
+                    context,
                     <String, dynamic>{
                       'q_work_canton': profile.workCanton!.value,
                     },
