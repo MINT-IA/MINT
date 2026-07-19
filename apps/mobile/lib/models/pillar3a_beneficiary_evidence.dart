@@ -858,4 +858,7 @@ final RegExp _canonicalUuidV4 = RegExp(
 );
 // Legal basis: OPP 3 art. 2 al. 2-3; RO 2026 325, ch. II al. 2;
 // OFAS, Bulletin PP no 168, ch. 1168.
+// Official final publication: https://www.fedlex.admin.ch/eli/oc/2026/325/fr
+// OFAS Bulletin 168: https://sozialversicherungen.admin.ch/fr/d/20963/download
+// Federal Council release: https://www.bsv.admin.ch/fr/newnsb/fFBgrSAIiYiGRg9YfWRfM
 final DateTime _opp3RegimeCutoff = DateTime.utc(2027, 6, 1);
