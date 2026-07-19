@@ -50,6 +50,8 @@ class DocumentImpactScreen extends StatefulWidget {
   final int previousConfidence; // 0-100
   final PremierEclairageFetcher? fetchPremierEclairage;
   final ScanEventSaver? saveScanEvent;
+  final VoidCallback? onTerminal;
+  final VoidCallback? onCoachTerminal;
 
   const DocumentImpactScreen({
     super.key,
@@ -58,6 +60,8 @@ class DocumentImpactScreen extends StatefulWidget {
     required this.previousConfidence,
     this.fetchPremierEclairage,
     this.saveScanEvent,
+    this.onTerminal,
+    this.onCoachTerminal,
   });
 
   @override
@@ -385,7 +389,9 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
 
   @override
   void dispose() {
-    _scanSessions?.discard(widget.scanSessionId);
+    if (widget.onTerminal == null && widget.onCoachTerminal == null) {
+      _scanSessions?.discard(widget.scanSessionId);
+    }
     _masterController.dispose();
     _pulseController.dispose();
     super.dispose();
@@ -834,6 +840,11 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                 ? const Key('lpp_impact_retirement_cta')
                 : null,
             onPressed: () {
+              final onTerminal = widget.onTerminal;
+              if (onTerminal != null) {
+                onTerminal();
+                return;
+              }
               _scanSessions?.discard(widget.scanSessionId);
               if (widget.result.documentType == DocumentType.taxDeclaration) {
                 context.go('/coach/chat');
@@ -904,6 +915,11 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         height: 48,
         child: OutlinedButton.icon(
           onPressed: () {
+            final onCoachTerminal = widget.onCoachTerminal;
+            if (onCoachTerminal != null) {
+              onCoachTerminal();
+              return;
+            }
             // Navigate to coach tab to discuss the impact.
             context.go('/coach/chat');
           },

@@ -674,6 +674,26 @@ class _RvcImpactRouteEntry extends StatefulWidget {
 class _RvcImpactRouteEntryState extends State<_RvcImpactRouteEntry> {
   late final _RvcScanRouteResolution _resolution = widget.resolution;
   late final bool _initiallyValid = _isValidRvcImpact(_resolution);
+  bool _terminalized = false;
+
+  void _consumeAndNavigate({String? successRoute}) {
+    if (_terminalized) return;
+    _terminalized = true;
+    final router = GoRouter.of(context);
+    final target = context
+        .read<ScanSessionProvider>()
+        .consumeDataBlockScanReturnIntent(_resolution.scanReturnId!);
+    router.go(
+      target == null
+          ? DataBlockReturnTarget.home.location
+          : successRoute ?? target.location,
+    );
+  }
+
+  void _terminalize() => _consumeAndNavigate();
+
+  void _terminalizeToCoach() =>
+      _consumeAndNavigate(successRoute: '/coach/chat');
 
   @override
   Widget build(BuildContext context) {
@@ -686,10 +706,40 @@ class _RvcImpactRouteEntryState extends State<_RvcImpactRouteEntry> {
       );
     }
     final session = _resolution.session!;
-    return DocumentImpactScreen(
-      scanSessionId: _resolution.scanSessionId!,
-      result: session.extraction,
-      previousConfidence: session.previousConfidence!,
+    return _ScanRouteExitScope(
+      onExit: _terminalize,
+      child: PopScope<void>(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _terminalize();
+        },
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: DocumentImpactScreen(
+                scanSessionId: _resolution.scanSessionId!,
+                result: session.extraction,
+                previousConfidence: session.previousConfidence!,
+                onTerminal: _terminalize,
+                onCoachTerminal: _terminalizeToCoach,
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              child: SafeArea(
+                right: false,
+                bottom: false,
+                child: Semantics(
+                  identifier: 'document_impact_back_cta',
+                  button: true,
+                  child: BackButton(onPressed: _terminalize),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
