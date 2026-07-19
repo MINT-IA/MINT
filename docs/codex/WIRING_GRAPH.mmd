@@ -613,6 +613,37 @@ flowchart TB
   B6_COACH --> PLAN
   B6_HOME --> PLAN
 
+  %% Bounded G1-RETURN-01 atom: the LPP collector validates the decoded origin
+  %% once, then every downstream route carries opaque identifiers only. This
+  %% code/contract atom is GREEN at 6ce073dff; dedicated Maestro/Patrol runtime
+  %% and the other G1-RETURN-01 loops remain open.
+  subgraph RVC_SCAN_RETURN["G1 RVC — OPAQUE LPP SCAN RETURN (BOUNDED GREEN)"]
+    direction LR
+    RVC_RET_ORIGIN["/rente-vs-capital"]
+    RVC_RET_DB["/data-block/lpp<br/>validate decoded returnUri once<br/>retain typed rvcLpp target"]
+    RVC_RET_CREATED["created<br/>UUIDv4 scanReturnId<br/>volatile FIFO-5"]
+    RVC_RET_PROCESSING["/scan?scanReturnId=…<br/>created → processing CAS<br/>no returnUri"]
+    RVC_RET_REVIEW["/scan/review<br/>exact scanSessionId + scanReturnId<br/>linked reviewRetained pair"]
+    RVC_RET_IMPACT["/scan/impact<br/>same exact pair<br/>linked impactRetained pair"]
+    RVC_RET_CONSUME["route-owned terminal guard<br/>capture target before delete<br/>consume pair exactly once"]
+    RVC_RET_COACH["/coach/chat<br/>Coach success only"]
+    RVC_RET_HOME["/home<br/>null or untrusted authority"]
+    RVC_RET_RECOVERY["recovery<br/>purge linked pair only<br/>survivors unchanged"]
+
+    RVC_RET_ORIGIN -->|"returnUri=/rente-vs-capital"| RVC_RET_DB
+    RVC_RET_DB -->|"scanReturnId only"| RVC_RET_CREATED
+    RVC_RET_CREATED --> RVC_RET_PROCESSING
+    RVC_RET_PROCESSING -->|"retain linked extraction; processing → reviewRetained"| RVC_RET_REVIEW
+    RVC_RET_REVIEW -->|"retain source-free impact; reviewRetained → impactRetained"| RVC_RET_IMPACT
+    RVC_RET_IMPACT --> RVC_RET_CONSUME
+    RVC_RET_CONSUME -->|"main / AppBar / system back"| RVC_RET_ORIGIN
+    RVC_RET_CONSUME -->|"typed target exists + Coach terminal"| RVC_RET_COACH
+    RVC_RET_CONSUME -->|"consume returns null"| RVC_RET_HOME
+    RVC_RET_PROCESSING & RVC_RET_REVIEW & RVC_RET_IMPACT -. "cancel / invalid / eviction / logout" .-> RVC_RET_RECOVERY
+    RVC_RET_RECOVERY -->|"canonical process loss or replay"| RVC_RET_ORIGIN
+    RVC_RET_RECOVERY -->|"malformed or altered replay without live typed authority"| RVC_RET_HOME
+  end
+
   %% ==========================================================================
   %% PART B — NAVIGATION GRAPH (apps/mobile/lib/app.dart:301-1340)
   %% Nodes = live screens (have a builder). Dashed edges = redirect routes
@@ -680,8 +711,8 @@ flowchart TB
     end
     subgraph DATA["collection / documents / report"]
       SCAN["/scan"]; SCANAVS["/scan/avs-guide"]
-      SREVIEW["/scan/review<br/>builds from extra (:903)"]:::trap
-      SIMPACT["/scan/impact<br/>builds from extra (:916)"]:::trap
+      SREVIEW["/scan/review<br/>identifier-only retained session<br/>RVC: exact linked opaque pair"]
+      SIMPACT["/scan/impact<br/>identifier-only retained impact<br/>RVC: exact linked opaque pair"]
       DBLOCK["/data-block/:type<br/>DataBlockEnrichmentScreen"]
       DOCLIST["/documents"]; DOCID["/documents/:id"]; BANKIMP["/bank-import<br/>manual CSV/PDF<br/>confirmed income: userInput<br/>charges: preview only"]
       RAPPORT["/rapport<br/>depends on extra (:974)"]:::trap
@@ -722,6 +753,8 @@ flowchart TB
     ARGENT --> BUD --> BSET
     ARGENT --> CDEBT --> DRATIO & DHELP & DREPAY
     COACH --> DBLOCK
+    RVC -->|"missing LPP; validated returnUri"| DBLOCK
+    DBLOCK -->|"RVC LPP: opaque scanReturnId only"| SCAN
     COACH --> SCAN --> SCANAVS
     EXPAT --> SCANAVS
     SCANAVS --> SCAN
@@ -758,11 +791,14 @@ flowchart TB
 %% ============================================================================
 %% REALITY-AUDITED ROADS (G1 @ 095eeaa32)
 %% ----------------------------------------------------------------------------
-%% D-1 /scan/review  (app.dart:909; null branch :913-916) builds Scaffold(Text('Document non
-%%     disponible')) when state.extra is null. No AppBar, no back, no CTA, not
-%%     i18n. FIX: resolve doc from ledger by id; render errorState with recovery
-%%     CTA -> /scan. (Violates I-1, I-2, I-6.)
-%% D-2 /scan/impact  (app.dart:922; null branch :925-931) same trap. Same fix.
+%% D-1 /scan/review  FIXED mechanically: resolves a volatile session by opaque
+%%     scanSessionId and renders localized recovery when it is absent. The RVC
+%%     branch additionally requires the exact linked scanReturnId at lifecycle
+%%     reviewRetained; raw returnUri is neither accepted nor reinterpreted.
+%% D-2 /scan/impact  FIXED mechanically: resolves retained impact by identifier.
+%%     RVC requires the exact linked impactRetained pair and a route-owned,
+%%     idempotent terminal consume. This is a bounded G1-RETURN-01 atom, not the
+%%     global six-loop/runtime closure.
 %% D-3 /rapport      (app.dart:980) PARTIAL: still reads wizardAnswers from
 %%     extra (:983-986), but now falls back to ReportPersistenceService
 %%     (:987-999). Remaining gap: no timeout/errorState if load stalls/fails.
@@ -780,15 +816,16 @@ flowchart TB
 %% I-1 SINGLE SOURCE: no GoRoute `builder:` in app.dart reads domain financial
 %%     data from `state.extra`. Allowed in extra: ids, enums, ephemeral UI.
 %%     CHECK: grep builders for `state.extra` casts to domain models; expect 0.
-%%     G1 status @095eeaa32: FALSE. /scan/review, /scan/impact, /rapport, and
-%%     /confidence still consume domain objects/maps/results from state.extra.
-%% I-2 EXTRA IS EPHEMERAL: every route whose builder currently consumes extra
-%%     (/scan/review :909, /scan/impact :922, /rapport :980, /confidence :1205)
+%%     G1 scan status: identifier-only. RVC Review/Impact use an exact linked
+%%     opaque pair; they do not consume domain data or returnUri from extra.
+%%     Other historical route findings remain governed by their own contracts.
+%% I-2 EXTRA IS EPHEMERAL: every route whose builder consumes ephemeral state
 %%     must resolve its
 %%     data from CoachProfileProvider/MintStateProvider by id and render an
 %%     errorState (recovery CTA + i18n key) when the id is absent.
-%%     G1 status @095eeaa32: PARTIAL. /rapport has persisted fallback; scan and
-%%     confidence remain extra/domain dependent.
+%%     G1 scan status: GREEN mechanically. Missing Review/Impact identifiers
+%%     recover safely; RVC validates exact query keys, link and lifecycle.
+%%     This does not close unrelated route/provider or runtime obligations.
 %% I-3 SINGLE WRITE PATH: no screen/service writes wizard_answers_v2 or backend
 %%     ProfileModel.data except via CoachProfileProvider.mergeAnswers /
 %%     applySaveFact / updateProfile. CHECK: grep report_persistence_service
@@ -839,8 +876,8 @@ flowchart TB
 %% I-6 EVERY SCREEN NODE has emptyState + partialState + errorState declared in
 %%     SCREEN_CONTRACTS.md (1:1 with the live routes above). CHECK: every
 %%     `path:` builder in app.dart has a row; no row missing those 3 states.
-%%     G1 status @095eeaa32: PARTIAL. Contracts exist, but scan/rapport/confidence
-%%     code and the named route tests do not yet prove the degraded states.
+%%     G1 status: PARTIAL globally. Scan degraded states and the bounded RVC
+%%     pair contract are covered; unrelated report/confidence obligations remain.
 %% I-7 NO ORPHAN / NO DEAD-END: every NAV node is reachable from a shell tab,
 %%     a hub, or an explicit deep-link/settings entry point (COUPLE via H_FAM,
 %%     EHUB via COACH, SCOMP/SLEAS/SCRED via ARGENT, LANGUE/ABOUT/ADMINR via

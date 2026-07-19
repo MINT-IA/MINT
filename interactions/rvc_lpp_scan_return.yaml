@@ -7,7 +7,7 @@ flow:
     - coach.route.rvc_terminal
     - home.route.rvc_fallback
   invariants:
-    max_depth: 4
+    max_depth: 5
     back_never_loses_input: true
     every_scene_has_exit: true
     raw_return_uri_stops_at_data_block: true

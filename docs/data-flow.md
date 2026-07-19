@@ -751,6 +751,31 @@ Document type selection
   │   ↓ BND-02/BND-02A technical GREEN @ 1d022c508
   │      activation/G1 NO-GO: eight external production facts remain unproved
   │
+  ├─ Rente-vs-capital LPP return (bounded G1-RETURN-01 atom GREEN)
+  │   ↓ `/rente-vs-capital` opens
+  │      `/data-block/lpp?returnUri=%2Frente-vs-capital`
+  │   ↓ DataBlock validates that already-decoded internal origin exactly once
+  │      and retains `{kind: rvcLpp, target: renteVsCapital, lifecycle: created}`
+  │      in a volatile FIFO-5 registry under UUIDv4 `scanReturnId`
+  │   ↓ `/scan` carries `scanReturnId` only; raw `returnUri` never travels farther
+  │   ↓ scanner resolves the typed intent and CAS-advances created → processing
+  │   ↓ retained extraction links `ScanSession.dataBlockScanReturnIntentId`
+  │      and CAS-advances processing → reviewRetained
+  │   ↓ `/scan/review` admits exactly `{scanSessionId, scanReturnId}` only when
+  │      the pair is linked and the intent is exactly reviewRetained
+  │   ↓ confirmation retains a source-text-free impact and CAS-advances
+  │      reviewRetained → impactRetained; Review keeps the same exact pair
+  │   ↓ `/scan/impact` admits only that linked impactRetained pair
+  │   ↓ the route-owned terminal guard captures the typed target, then consumes
+  │      and deletes the pair exactly once: main/AppBar/system-back return RVC,
+  │      Coach success goes `/coach/chat`, and a null consume fails to `/home`
+  │   ↓ cancel, invalid pair, FIFO eviction and logout purge only the linked pair;
+  │      unrelated retained sessions and intents survive
+  │   ↓ canonical process-loss/replay recovers to RVC; malformed or altered
+  │      replay without live typed authority fails closed to Home
+  │   ↓ bounded widget/provider suites are GREEN at `6ce073dff`; this is not a
+  │      Maestro/Patrol runtime claim and does not close global G1-RETURN-01
+  │
   ├─ 3a beneficiary reference (G1-RET-REF-01 implementation GREEN; runtime open)
   │   ↓ typedLppEvidence && documentLppEvidenceEnabled
   │      && pillar3aBeneficiaryClauseReferenceEnabled before provider read/CTA
@@ -849,6 +874,13 @@ Failure modes:
   exact accepted receipt without repeating the Ledger mutation. Logout, route
   cancellation, flag drift and FIFO eviction purge both the volatile intent and
   any paired review session.
+- The RVC scan return has one destination authority: its typed volatile intent.
+  Downstream Review/Impact routes never reinterpret a raw `returnUri`. Lifecycle
+  transitions are monotone CAS operations, invalid/mismatched pairs are purged
+  without touching survivors, and terminal consumption captures the target
+  before deleting the linked pair. A canonical lost/replayed pair may show the
+  RVC recovery CTA; malformed or altered replay without live authority goes
+  Home. This bounded path does not promote the six-loop G1-RETURN-01 ticket.
 - Manual-partner authority drift at the byte boundary or public review handoff
   terminalizes the attempt. It performs at most one receipt DELETE, restores
   the `shadowed`/previous active binding, cleans owned temporary files and
