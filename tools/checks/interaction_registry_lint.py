@@ -158,7 +158,20 @@ def _validate_data_block_edge_reference(
     if not widget_path.is_file():
         return
     text = widget_path.read_text(encoding="utf-8", errors="ignore")
-    if expected_literal not in text:
+    data_block_type = expected_literal.rsplit("/", maxsplit=1)[-1]
+    indicatif_banner = root / "apps/mobile/lib/widgets/coach/indicatif_banner.dart"
+    banner_text = (
+        indicatif_banner.read_text(encoding="utf-8", errors="ignore")
+        if indicatif_banner.is_file()
+        else ""
+    )
+    references_typed_banner = (
+        "IndicatifBanner(" in text
+        and f"topEnrichmentCategory: '{data_block_type}'" in text
+        and "path: '/data-block/$route'" in banner_text
+        and f"'{data_block_type}': '{data_block_type}'" in banner_text
+    )
+    if expected_literal not in text and not references_typed_banner:
         errors.append(
             f"{rel_path}: edge {edge_id} target instance {expected_literal} "
             f"is not referenced in source widget {widget}",

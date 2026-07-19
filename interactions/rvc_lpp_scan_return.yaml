@@ -1,0 +1,206 @@
+schema_version: 1
+flow:
+  id: rvc_lpp_scan_return
+  title: "Rente-capital LPP enrichment returns through an opaque scan capability"
+  exits:
+    - rvc.route.comparison
+    - coach.route.rvc_terminal
+    - home.route.rvc_fallback
+  invariants:
+    max_depth: 4
+    back_never_loses_input: true
+    every_scene_has_exit: true
+    raw_return_uri_stops_at_data_block: true
+    linked_pair_is_only_authority: true
+    terminal_consume_is_exactly_once: true
+
+nodes:
+  - id: rvc.route.comparison
+    kind: route
+    route: /rente-vs-capital
+    widget: screens/arbitrage/rente_vs_capital_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.lpp
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: reset_to(rvc.route.comparison)}
+    states: [content, partial, loading, error.compute]
+
+  - id: rvcscan.route.capture
+    kind: route
+    route: /scan
+    widget: screens/document_scan/document_scan_screen.dart
+    entries:
+      - {via: flow, back: reset_to(rvc.route.comparison)}
+      - {via: deeplink, back: reset_to(rvc.route.comparison)}
+    states: [content, loading, error.network, error.compute, error.guard]
+
+  - id: rvcscan.route.review
+    kind: route
+    route: /scan/review
+    widget: screens/document_scan/extraction_review_screen.dart
+    entries:
+      - {via: flow, back: reset_to(rvc.route.comparison)}
+      - {via: deeplink, back: reset_to(rvc.route.comparison)}
+    states: [content, partial, error.guard]
+
+  - id: rvcscan.route.impact
+    kind: route
+    route: /scan/impact
+    widget: screens/document_scan/document_impact_screen.dart
+    entries:
+      - {via: flow, back: reset_to(rvc.route.comparison)}
+      - {via: deeplink, back: reset_to(rvc.route.comparison)}
+    states: [content, error.guard]
+
+  - id: coach.route.rvc_terminal
+    kind: route
+    route: /coach/chat
+    widget: screens/coach/coach_chat_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.network]
+
+  - id: home.route.rvc_fallback
+    kind: route
+    route: /home
+    widget: screens/aujourdhui/aujourdhui_screen.dart
+    entries:
+      - {via: flow, back: reset_to(home.route.rvc_fallback)}
+    states: [content, loading]
+
+edges:
+  - id: rvc.edge.enrich_lpp
+    from: rvc.route.comparison
+    to: db.route.lpp
+    trigger: tap
+    intent: "Collect the missing LPP evidence before comparing pension and capital"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {returnUri: InternalRouteToken}
+    transition: push
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_origin_test.dart
+
+  - id: rvc.edge.collector.open_scan
+    from: db.route.lpp
+    to: rvcscan.route.capture
+    trigger: tap
+    intent: "Exchange the validated RVC origin for one typed opaque scan-return id"
+    payload:
+      query_params: {scanReturnId: OpaqueScanReturnId}
+    transition: push
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/providers/data_block_scan_return_intent_test.dart
+
+  - id: rvc.edge.scan.open_review
+    from: rvcscan.route.capture
+    to: rvcscan.route.review
+    trigger: submit
+    intent: "Retain a source-safe extraction and open its exactly linked review pair"
+    payload:
+      query_params:
+        scanSessionId: OpaqueScanSessionId
+        scanReturnId: OpaqueScanReturnId
+    transition: push
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_review_impact_test.dart
+
+  - id: rvc.edge.review.confirm
+    from: rvcscan.route.review
+    to: rvcscan.route.impact
+    trigger: submit
+    intent: "Advance the same linked opaque pair after retaining source-free impact"
+    payload:
+      query_params:
+        scanSessionId: OpaqueScanSessionId
+        scanReturnId: OpaqueScanReturnId
+    transition: go
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_review_impact_test.dart
+
+  - id: rvc.edge.scan.cancel
+    from: rvcscan.route.capture
+    to: rvc.route.comparison
+    trigger: tap
+    intent: "Purge only the linked RVC capability and return to the comparison"
+    payload: {}
+    transition: go
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_origin_test.dart
+
+  - id: rvc.edge.review.cancel
+    from: rvcscan.route.review
+    to: rvc.route.comparison
+    trigger: tap
+    intent: "Purge only the exact review pair and preserve unrelated sessions"
+    payload: {}
+    transition: go
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_review_impact_test.dart
+
+  - id: rvc.edge.impact.main_terminal
+    from: rvcscan.route.impact
+    to: rvc.route.comparison
+    trigger: tap
+    intent: "Consume the linked pair exactly once and return its captured typed target"
+    payload: {}
+    transition: go
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_review_impact_test.dart
+
+  - id: rvc.edge.impact.appbar_terminal
+    from: rvcscan.route.impact
+    to: rvc.route.comparison
+    trigger: tap
+    intent: "Apply the same exact-once terminal contract from the AppBar"
+    payload: {}
+    transition: go
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_review_impact_test.dart
+
+  - id: rvc.edge.impact.system_terminal
+    from: rvcscan.route.impact
+    to: rvc.route.comparison
+    trigger: system
+    intent: "Apply the same exact-once terminal contract from system back"
+    payload: {}
+    transition: go
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_review_impact_test.dart
+
+  - id: rvc.edge.impact.coach_terminal
+    from: rvcscan.route.impact
+    to: coach.route.rvc_terminal
+    trigger: tap
+    intent: "Consume the RVC pair once while preserving the explicit Coach destination"
+    payload: {}
+    transition: go
+    back: pop
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_review_impact_test.dart
+
+  - id: rvc.edge.recovery.canonical
+    from: rvcscan.route.capture
+    to: rvc.route.comparison
+    trigger: system
+    intent: "Recover a canonical process-loss or replay without inventing new authority"
+    payload: {}
+    transition: go
+    back: reset_to(rvc.route.comparison)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_origin_test.dart
+
+  - id: rvc.edge.recovery.untrusted
+    from: rvcscan.route.capture
+    to: home.route.rvc_fallback
+    trigger: system
+    intent: "Fail closed when malformed or altered input has no live typed authority"
+    payload: {}
+    transition: go
+    back: reset_to(home.route.rvc_fallback)
+    test_ref: apps/mobile/test/navigation/rvc_scan_return_origin_test.dart

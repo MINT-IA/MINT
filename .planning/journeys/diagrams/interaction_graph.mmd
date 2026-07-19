@@ -5,8 +5,10 @@ flowchart LR
 
   budget_route_setup["budget.route.setup<br/>/budget/setup"]:::route
   coach_route_chat["coach.route.chat<br/>/coach/chat"]:::route
+  coach_route_rvc_terminal["coach.route.rvc_terminal<br/>/coach/chat"]:::route
   coverage_route_check["coverage.route.check<br/>/assurances/coverage"]:::route
   db_route_composition_menage["db.route.composition_menage<br/>/data-block/:type"]:::route
+  db_route_lpp["db.route.lpp<br/>/data-block/:type"]:::route
   db_route_patrimoine["db.route.patrimoine<br/>/data-block/:type"]:::route
   db_route_revenu["db.route.revenu<br/>/data-block/:type"]:::route
   debt_route_ratio["debt.route.ratio<br/>/debt/ratio"]:::route
@@ -17,6 +19,7 @@ flowchart LR
   expat_route_expatriation["expat.route.expatriation<br/>/expatriation"]:::route
   firstjob_route_first_job["firstjob.route.first_job<br/>/first-job"]:::route
   home_route_dashboard["home.route.dashboard<br/>/home"]:::route
+  home_route_rvc_fallback["home.route.rvc_fallback<br/>/home"]:::route
   indep_route_avs["indep.route.avs<br/>/independants/avs"]:::route
   indep_route_divsalary["indep.route.divsalary<br/>/independants/dividende-salaire"]:::route
   indep_route_hub["indep.route.hub<br/>/segments/independant"]:::route
@@ -26,6 +29,10 @@ flowchart LR
   jobcompare_route_comparison["jobcompare.route.comparison<br/>/simulator/job-comparison"]:::route
   lamal_route_franchise["lamal.route.franchise<br/>/assurances/lamal"]:::route
   mortgage_route_hypotheque["mortgage.route.hypotheque<br/>/hypotheque"]:::route
+  rvc_route_comparison["rvc.route.comparison<br/>/rente-vs-capital"]:::route
+  rvcscan_route_capture["rvcscan.route.capture<br/>/scan"]:::route
+  rvcscan_route_impact["rvcscan.route.impact<br/>/scan/impact"]:::route
+  rvcscan_route_review["rvcscan.route.review<br/>/scan/review"]:::route
   scan_route_avs_guide["scan.route.avs_guide<br/>/scan/avs-guide"]:::route
   scan_route_capture["scan.route.capture<br/>/scan"]:::route
   scan_route_impact_recovery["scan.route.impact_recovery<br/>/scan/impact"]:::route
@@ -75,12 +82,28 @@ flowchart LR
   jobcompare_route_comparison -->|"jobcompare.edge.comparison.enrich_salary<br/>tap / push"| db_route_revenu
   lamal_route_franchise -->|"lamal.edge.franchise.enrich_health_costs<br/>tap / push"| budget_route_setup
   db_route_revenu -->|"db.edge.revenu.submit<br/>submit / push"| mortgage_route_hypotheque
+  db_route_lpp -->|"rvc.edge.collector.open_scan<br/>tap / push"| rvcscan_route_capture
+  rvc_route_comparison -->|"rvc.edge.enrich_lpp<br/>tap / push"| db_route_lpp
+  rvcscan_route_impact -->|"rvc.edge.impact.appbar_terminal<br/>tap / go"| rvc_route_comparison
+  rvcscan_route_impact -->|"rvc.edge.impact.coach_terminal<br/>tap / go"| coach_route_rvc_terminal
+  rvcscan_route_impact -->|"rvc.edge.impact.main_terminal<br/>tap / go"| rvc_route_comparison
+  rvcscan_route_impact -->|"rvc.edge.impact.system_terminal<br/>system / go"| rvc_route_comparison
+  rvcscan_route_capture -->|"rvc.edge.recovery.canonical<br/>system / go"| rvc_route_comparison
+  rvcscan_route_capture -->|"rvc.edge.recovery.untrusted<br/>system / go"| home_route_rvc_fallback
+  rvcscan_route_review -->|"rvc.edge.review.cancel<br/>tap / go"| rvc_route_comparison
+  rvcscan_route_review -->|"rvc.edge.review.confirm<br/>submit / go"| rvcscan_route_impact
+  rvcscan_route_capture -->|"rvc.edge.scan.cancel<br/>tap / go"| rvc_route_comparison
+  rvcscan_route_capture -->|"rvc.edge.scan.open_review<br/>submit / push"| rvcscan_route_review
   succession_route_overview -->|"succession.edge.transmission.enrich_mortgage_balance<br/>tap / push"| db_route_patrimoine
   succession_route_overview -->|"succession.edge.transmission.enrich_property_value<br/>tap / push"| db_route_patrimoine
   unemployment_route_overview -->|"unemployment.edge.enrich_budget<br/>tap / push"| budget_route_setup
   unemployment_route_overview -->|"unemployment.edge.enrich_salary_age_contributions<br/>tap / push"| db_route_revenu
 
+  db_route_lpp -. "back" .-> rvc_route_comparison
   db_route_patrimoine -. "back" .-> succession_route_overview
   mortgage_route_hypotheque -. "back" .-> home_route_dashboard
+  rvcscan_route_capture -. "back" .-> rvc_route_comparison
+  rvcscan_route_impact -. "back" .-> rvc_route_comparison
+  rvcscan_route_review -. "back" .-> rvc_route_comparison
   scan_route_impact_recovery -. "back" .-> home_route_dashboard
   scan_route_review_recovery -. "back" .-> scan_route_capture

@@ -333,6 +333,34 @@ edges:
     ) in interaction_registry_lint.check(tmp_path)
 
 
+def test_data_block_reference_follows_typed_indicatif_banner(tmp_path: Path) -> None:
+    source = tmp_path / "apps/mobile/lib/screens/arbitrage/rvc_screen.dart"
+    source.parent.mkdir(parents=True)
+    source.write_text(
+        "IndicatifBanner(topEnrichmentCategory: 'lpp', returnUri: '/rente-vs-capital');\n",
+        encoding="utf-8",
+    )
+    banner = tmp_path / "apps/mobile/lib/widgets/coach/indicatif_banner.dart"
+    banner.parent.mkdir(parents=True)
+    banner.write_text(
+        "const routes = {'lpp': 'lpp'};\n"
+        "String location(String route) => Uri(path: '/data-block/$route').toString();\n",
+        encoding="utf-8",
+    )
+    errors: list[str] = []
+
+    interaction_registry_lint._validate_data_block_edge_reference(
+        tmp_path,
+        "interactions/rvc_lpp_scan_return.yaml",
+        "rvc.edge.enrich_lpp",
+        {"widget": "screens/arbitrage/rvc_screen.dart"},
+        {"id": "db.route.lpp", "route": "/data-block/:type"},
+        errors,
+    )
+
+    assert errors == []
+
+
 def test_interaction_registry_lint_rejects_unenforced_data_block_node_name(tmp_path: Path) -> None:
     _write_minimal_repo(tmp_path)
     _write_registry(tmp_path)
