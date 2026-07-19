@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import subprocess
 from pathlib import Path
 
 
@@ -19,6 +20,15 @@ def test_return01_runtime_contract_files_exist() -> None:
     for path in (MAESTRO, INTEGRATION, WRAPPER, RUNNER):
         assert path.is_file(), f"missing RETURN-01 runtime contract: {path}"
     assert os.access(RUNNER, os.X_OK), "RETURN-01 runner must be executable"
+
+
+def test_return01_runner_is_tracked_executable() -> None:
+    index_entry = subprocess.check_output(
+        ["git", "ls-files", "--stage", "--", str(RUNNER.relative_to(ROOT))],
+        cwd=ROOT,
+        text=True,
+    )
+    assert index_entry.startswith("100755 "), index_entry
 
 
 def test_maestro_uses_the_real_first_job_cta_and_returns_visibly() -> None:
