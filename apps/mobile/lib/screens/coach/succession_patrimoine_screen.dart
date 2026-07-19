@@ -79,7 +79,13 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                     body: l.dataBlockPatrimoineDesc,
                     ctaLabel: l.dataBlockPatrimoineCta,
                     onPressed: () => context.push(
-                      '/data-block/patrimoine?inputKey=q_property_market_value',
+                      Uri(
+                        path: '/data-block/patrimoine',
+                        queryParameters: const <String, String>{
+                          'inputKey': 'q_property_market_value',
+                          'returnUri': '/succession',
+                        },
+                      ).toString(),
                     ),
                   ),
                   const SizedBox(height: MintSpacing.lg),
@@ -98,7 +104,13 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       body: l.dataBlockPatrimoineDesc,
                       ctaLabel: l.dataBlockPatrimoineCta,
                       onPressed: () => context.push(
-                        '/data-block/patrimoine?inputKey=_coach_dettes_hypotheque',
+                        Uri(
+                          path: '/data-block/patrimoine',
+                          queryParameters: const <String, String>{
+                            'inputKey': '_coach_dettes_hypotheque',
+                            'returnUri': '/succession',
+                          },
+                        ).toString(),
                       ),
                     ),
                     const SizedBox(height: MintSpacing.lg),

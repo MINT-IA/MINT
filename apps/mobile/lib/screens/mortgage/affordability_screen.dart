@@ -277,8 +277,19 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 // SECTION 5 — CONFIDENCE NOTICE (donnees estimees)
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 MintConfidenceNotice(
+                  key: const Key('mortgage_enrich_profile_cta'),
                   percent: 45,
                   message: l.affordabilityCalculationNote,
+                  ctaLabel: l.dataQualityEnrich,
+                  onTap: () => context.push(
+                    Uri(
+                      path: '/data-block/revenu',
+                      queryParameters: const <String, String>{
+                        'inputKey': 'q_gross_salary_annual',
+                        'returnUri': '/hypotheque',
+                      },
+                    ).toString(),
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
 

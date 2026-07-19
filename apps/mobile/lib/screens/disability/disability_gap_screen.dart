@@ -483,16 +483,23 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     final missingExpenses = monthlyExpenses == null;
     final hasMissing =
         missingSalary || missingAge || missingSavings || missingExpenses;
+    String dataBlockRoute(String path, String inputKey) => Uri(
+          path: path,
+          queryParameters: <String, String>{
+            'inputKey': inputKey,
+            'returnUri': '/invalidite',
+          },
+        ).toString();
     final missingFactRoute = missingSalary
-        ? '/data-block/revenu?inputKey=q_gross_salary_annual'
+        ? dataBlockRoute('/data-block/revenu', 'q_gross_salary_annual')
         : missingAge
-            ? '/data-block/revenu?inputKey=q_birth_year'
+            ? dataBlockRoute('/data-block/revenu', 'q_birth_year')
             : missingSavings
-                ? '/data-block/patrimoine?inputKey=q_cash_total'
+                ? dataBlockRoute('/data-block/patrimoine', 'q_cash_total')
                 : '/budget/setup';
     final route = hasMissing
         ? missingFactRoute
-        : '/data-block/revenu?inputKey=q_gross_salary_annual';
+        : dataBlockRoute('/data-block/revenu', 'q_gross_salary_annual');
 
     return Semantics(
       key: const Key('disability_gap_ledger_facts'),

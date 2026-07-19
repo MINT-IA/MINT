@@ -88,6 +88,7 @@ class MintConfidenceNotice extends StatelessWidget {
           if (ctaLabel != null && onTap != null) ...[
             const SizedBox(height: MintSpacing.md),
             GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: onTap,
               child: Row(
                 children: [
