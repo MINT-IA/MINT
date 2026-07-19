@@ -276,6 +276,54 @@ void main() {
         );
       });
     }
+
+    testWidgets(
+        'real LPP example retains the opaque pair and opens exact Review URI',
+        (tester) async {
+      final harness = await _pumpRvcRouter(tester);
+      final scanReturnId = await _openRvcScan(tester);
+
+      final example = find.byKey(const Key('document_scan_lpp_example_cta'));
+      expect(example, findsOneWidget);
+      await tester.ensureVisible(example);
+      await tester.tap(example);
+      await tester.pump();
+
+      expect(
+          find.byKey(const Key('lpp_acquisition_self_gate')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('lpp_acquisition_self_continue')));
+      await _pumpFrames(tester);
+
+      final review = find.byKey(const Key('rvc_scan_review_destination'));
+      expect(review, findsOneWidget);
+      final reviewUri = GoRouterState.of(tester.element(review)).uri;
+      expect(reviewUri.path, '/scan/review');
+      final rawKeys = reviewUri.query
+          .split('&')
+          .map((component) => component.split('=').first)
+          .toList(growable: false);
+      expect(rawKeys, hasLength(2));
+      expect(rawKeys.toSet(), <String>{'scanSessionId', 'scanReturnId'});
+      expect(reviewUri.queryParametersAll, hasLength(2));
+      expect(
+        reviewUri.queryParametersAll['scanSessionId'],
+        hasLength(1),
+      );
+      expect(
+        reviewUri.queryParametersAll['scanReturnId'],
+        <String>[scanReturnId],
+      );
+
+      final scanSessionId = reviewUri.queryParameters['scanSessionId'];
+      expect(scanSessionId, isNotNull);
+      final session = harness.sessions.byId(scanSessionId);
+      expect(session, isNotNull);
+      expect(session!.dataBlockScanReturnIntentId, scanReturnId);
+      expect(
+        harness.sessions.dataBlockScanReturnIntentById(scanReturnId)?.lifecycle,
+        DataBlockScanReturnLifecycle.reviewRetained,
+      );
+    });
   });
 
   group('G1-RETURN-01 RVC scan security boundary', () {
@@ -488,7 +536,8 @@ void main() {
       _ExitGesture.appBarBack,
       _ExitGesture.systemBack,
     ]) {
-      testWidgets('live scan ${exit.name} returns to RVC and discards the token',
+      testWidgets(
+          'live scan ${exit.name} returns to RVC and discards the token',
           (tester) async {
         final harness = await _pumpRvcRouter(tester);
         final scanReturnId = await _openRvcScan(tester);
