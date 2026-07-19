@@ -47,6 +47,7 @@ final class _ScanSessionSpy extends ScanSessionProvider {
   @override
   String retainExtraction(
     ExtractionResult extraction, {
+    String? dataBlockScanReturnIntentId,
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
     LppRegulationAcquisitionCandidate? lppRegulationCandidate,
@@ -62,6 +63,7 @@ final class _ScanSessionSpy extends ScanSessionProvider {
     }
     final id = super.retainExtraction(
       extraction,
+      dataBlockScanReturnIntentId: dataBlockScanReturnIntentId,
       lppCandidate: lppCandidate,
       lppAuthorization: lppAuthorization,
       lppRegulationCandidate: lppRegulationCandidate,

@@ -13,7 +13,12 @@ enum Pillar3aBeneficiaryScanIntentKind { insertion, replacement }
 
 enum DataBlockScanReturnKind { rvcLpp }
 
-enum DataBlockScanReturnLifecycle { created, processing }
+enum DataBlockScanReturnLifecycle {
+  created,
+  processing,
+  reviewRetained,
+  impactRetained,
+}
 
 @immutable
 final class DataBlockScanReturnIntent {
@@ -79,6 +84,7 @@ class Pillar3aBeneficiaryScanIntent {
 @immutable
 class ScanSessionPayload {
   final ExtractionResult extraction;
+  final String? dataBlockScanReturnIntentId;
   final LppExtractionCandidate? lppCandidate;
   final LppAcquisitionAuthorization? lppAuthorization;
   final LppRegulationAcquisitionCandidate? lppRegulationCandidate;
@@ -92,6 +98,7 @@ class ScanSessionPayload {
 
   const ScanSessionPayload({
     required this.extraction,
+    this.dataBlockScanReturnIntentId,
     this.lppCandidate,
     this.lppAuthorization,
     this.lppRegulationCandidate,
@@ -110,6 +117,7 @@ class ScanSessionPayload {
   }) {
     return ScanSessionPayload(
       extraction: _withoutSourceText(extraction),
+      dataBlockScanReturnIntentId: dataBlockScanReturnIntentId,
       lppCandidate: null,
       lppAuthorization: null,
       lppRegulationCandidate: null,
@@ -368,6 +376,7 @@ class ScanSessionProvider extends ChangeNotifier {
 
   String retainExtraction(
     ExtractionResult extraction, {
+    String? dataBlockScanReturnIntentId,
     LppExtractionCandidate? lppCandidate,
     LppAcquisitionAuthorization? lppAuthorization,
     LppRegulationAcquisitionCandidate? lppRegulationCandidate,
