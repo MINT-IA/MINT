@@ -568,18 +568,36 @@ void main() {
     final source = File('lib/app.dart').readAsStringSync();
     final reviewStart = source.indexOf("path: '/scan/review'");
     final impactStart = source.indexOf("path: '/scan/impact'", reviewStart);
+    final reviewBuilderStart = source.indexOf(
+      'Widget _buildScanReviewRoute(BuildContext context, Uri uri)',
+    );
+    final impactBuilderStart = source.indexOf(
+      'Widget _buildScanImpactRoute(BuildContext context, Uri uri)',
+      reviewBuilderStart,
+    );
     expect(reviewStart, greaterThanOrEqualTo(0));
     expect(impactStart, greaterThan(reviewStart));
+    expect(reviewBuilderStart, greaterThanOrEqualTo(0));
+    expect(impactBuilderStart, greaterThan(reviewBuilderStart));
     final reviewRoute = source.substring(reviewStart, impactStart);
+    final reviewBuilder = source.substring(
+      reviewBuilderStart,
+      impactBuilderStart,
+    );
 
     expect(
       reviewRoute,
+      contains('_buildScanReviewRoute(context, state.uri)'),
+    );
+
+    expect(
+      reviewBuilder,
       contains(
         'lppRegulationCandidate: session.lppRegulationCandidate',
       ),
     );
     expect(
-      reviewRoute,
+      reviewBuilder,
       contains(
         'lppCapitalNoticeCandidate: session.lppCapitalNoticeCandidate',
       ),

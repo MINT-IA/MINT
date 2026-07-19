@@ -47,6 +47,18 @@ def _line_number(path: Path, needle: str) -> int:
     raise AssertionError(f"{needle!r} not found in {path}")
 
 
+def _scoped_route_line_number(path: Path, route_path: str) -> int:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    needle = f"path: '{route_path}'"
+    for index, line in enumerate(lines):
+        if needle not in line:
+            continue
+        prefix = "\n".join(lines[max(0, index - 3) : index])
+        if "ScopedGoRoute(" in prefix:
+            return index + 1
+    raise AssertionError(f"ScopedGoRoute {route_path!r} not found in {path}")
+
+
 def test_all_codex_specs_point_to_this_existing_gate() -> None:
     gate = "tools/checks/tests/test_codex_spec_reality_contract.py"
     assert (ROOT / gate).is_file()
@@ -108,8 +120,8 @@ def test_data_ledger_records_t1_save_fact_repairs() -> None:
 
 def test_screen_contract_scan_route_line_refs_match_router() -> None:
     contracts = SCREEN_CONTRACTS.read_text(encoding="utf-8")
-    review_line = _line_number(APP_DART, "path: '/scan/review'")
-    impact_line = _line_number(APP_DART, "path: '/scan/impact'")
+    review_line = _scoped_route_line_number(APP_DART, "/scan/review")
+    impact_line = _scoped_route_line_number(APP_DART, "/scan/impact")
 
     assert f"`/scan/review` ({review_line})" in contracts
     assert f"`/scan/impact` ({impact_line})" in contracts
