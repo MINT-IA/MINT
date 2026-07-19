@@ -680,6 +680,99 @@ void main() {
     );
   });
 
+  test('consume rejects unknown created processing and review lifecycles', () {
+    final provider = ScanSessionProvider();
+    addTearDown(provider.dispose);
+    const unknownIntentId = '55555555-5555-4555-8555-555555555555';
+    final createdIntentId = _retainRvcIntent(provider);
+    final processingIntentId = _retainProcessingRvcIntent(provider);
+    final reviewIntentId = _retainProcessingRvcIntent(provider);
+    final reviewSessionId = _retainRvcReview(provider, reviewIntentId);
+
+    _expectConsumeRejected(provider, unknownIntentId);
+    _expectConsumeRejected(provider, createdIntentId);
+    _expectConsumeRejected(provider, processingIntentId);
+    _expectConsumeRejected(
+      provider,
+      reviewIntentId,
+      scanSessionId: reviewSessionId,
+    );
+  });
+
+  test('consume resolves impact target once and preserves every survivor', () {
+    final provider = ScanSessionProvider();
+    addTearDown(provider.dispose);
+    final targetIntentId = _retainProcessingRvcIntent(provider);
+    final targetSessionId = _retainRvcReview(provider, targetIntentId);
+    expect(
+      provider.retainImpact(
+        targetSessionId,
+        extraction: _lppImpactExtraction,
+        previousConfidence: 40,
+      ),
+      isTrue,
+    );
+    final expectedTarget =
+        provider.dataBlockScanReturnIntentById(targetIntentId)!.target;
+
+    final linkedSurvivorIntentId = _retainProcessingRvcIntent(provider);
+    final linkedSurvivorSessionId =
+        _retainRvcReview(provider, linkedSurvivorIntentId);
+    final linkedSurvivorBefore = _survivorSnapshot(
+      provider,
+      scanSessionId: linkedSurvivorSessionId,
+      intentId: linkedSurvivorIntentId,
+    );
+    final genericSurvivors = _retainNonLinkedSurvivors(provider);
+
+    var notifications = 0;
+    void listener() => notifications += 1;
+    provider.addListener(listener);
+    final resolved = provider.consumeDataBlockScanReturnIntent(targetIntentId);
+    provider.removeListener(listener);
+
+    expect(
+      _survivorSnapshot(
+        provider,
+        scanSessionId: linkedSurvivorSessionId,
+        intentId: linkedSurvivorIntentId,
+      ),
+      linkedSurvivorBefore,
+    );
+    expect(
+      _survivorSnapshot(
+        provider,
+        scanSessionId: genericSurvivors.scanSessionId,
+        intentId: genericSurvivors.intentId,
+      ),
+      genericSurvivors.snapshot,
+    );
+    expect(
+      (
+        target: resolved?.location,
+        notifications: notifications,
+        intentRemoved:
+            provider.dataBlockScanReturnIntentById(targetIntentId) == null,
+        sessionRemoved: provider.byId(targetSessionId) == null,
+      ),
+      (
+        target: expectedTarget.location,
+        notifications: 1,
+        intentRemoved: true,
+        sessionRemoved: true,
+      ),
+    );
+
+    notifications = 0;
+    provider.addListener(listener);
+    final replayed = provider.consumeDataBlockScanReturnIntent(targetIntentId);
+    provider.removeListener(listener);
+    expect(
+      (target: replayed, notifications: notifications),
+      (target: null, notifications: 0),
+    );
+  });
+
   test('discarding linked session also discards its RVC intent', () {
     final provider = ScanSessionProvider();
     addTearDown(provider.dispose);
@@ -881,6 +974,39 @@ Object _survivorSnapshot(
             createdAt: intent.createdAt,
             lifecycle: intent.lifecycle,
           ),
+  );
+}
+
+void _expectConsumeRejected(
+  ScanSessionProvider provider,
+  String intentId, {
+  String? scanSessionId,
+}) {
+  final before = _providerSnapshot(
+    provider,
+    intentId: intentId,
+    scanSessionId: scanSessionId,
+  );
+  var notifications = 0;
+  void listener() => notifications += 1;
+  provider.addListener(listener);
+  final resolved = provider.consumeDataBlockScanReturnIntent(intentId);
+  provider.removeListener(listener);
+  expect(
+    (
+      target: resolved,
+      notifications: notifications,
+      snapshot: _providerSnapshot(
+        provider,
+        intentId: intentId,
+        scanSessionId: scanSessionId,
+      ),
+    ),
+    (
+      target: null,
+      notifications: 0,
+      snapshot: before,
+    ),
   );
 }
 

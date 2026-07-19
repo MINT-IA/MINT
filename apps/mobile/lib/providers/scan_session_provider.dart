@@ -294,6 +294,21 @@ class ScanSessionProvider extends ChangeNotifier {
     return true;
   }
 
+  DataBlockReturnTarget? consumeDataBlockScanReturnIntent(String id) {
+    final intent = _dataBlockScanReturnIntents[id];
+    if (intent?.lifecycle != DataBlockScanReturnLifecycle.impactRetained) {
+      return null;
+    }
+    final linkedSessionId = _scanSessionIdForDataBlockScanReturnIntent(id);
+    if (linkedSessionId == null) return null;
+    final guard = _sessionEpoch.capture();
+    final target = intent!.target;
+    _removeScanSession(linkedSessionId);
+    guard.assertCurrent();
+    notifyListeners();
+    return target;
+  }
+
   bool discardDataBlockScanReturnIntent(String id) {
     final guard = _sessionEpoch.capture();
     final linkedSessionId = _scanSessionIdForDataBlockScanReturnIntent(id);
