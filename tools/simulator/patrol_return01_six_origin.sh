@@ -386,6 +386,8 @@ root = pathlib.Path(sys.argv[1]).resolve(strict=True)
 if not root.is_dir():
     raise SystemExit("app data container is not a directory")
 digest = hashlib.sha256()
+file_count = 0
+byte_count = 0
 for relative_root in (pathlib.Path("Documents"), pathlib.Path("Library/Preferences")):
     selected = root / relative_root
     if not selected.exists():
@@ -406,8 +408,12 @@ for relative_root in (pathlib.Path("Documents"), pathlib.Path("Library/Preferenc
             digest.update(relative)
             with path.open("rb") as handle:
                 for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                    byte_count += len(chunk)
                     digest.update(chunk)
-print(digest.hexdigest())
+            file_count += 1
+if file_count < 1 or byte_count < 1:
+    raise SystemExit("persistent app data is empty")
+print(f"{file_count}:{byte_count}:{digest.hexdigest()}")
 PY
 }
 
@@ -422,6 +428,8 @@ run_maestro_stage() {
   local container_after=''
   local data_before=''
   local data_after=''
+  local container_identity='reset'
+  local persistent_data='not_applicable'
   mkdir -p "$private_stage"
   case "$stage" in
     work_save | succession_save)
@@ -444,15 +452,20 @@ run_maestro_stage() {
   if [[ -n "$container_before" ]]; then
     container_after=$(resolve_app_container) \
       || die "$stage post-overlay app container is invalid"
-    [[ "$container_before" == "$container_after" ]] \
-      || die "$stage production overlay changed app data container"
     data_after=$(fingerprint_persistent_app_data "$container_after") \
       || die "$stage post-overlay persistent app data is invalid"
+    if [[ "$container_before" == "$container_after" ]]; then
+      container_identity='preserved'
+    else
+      container_identity='relocated'
+    fi
     [[ "$data_before" == "$data_after" ]] \
       || die "$stage production overlay changed persistent app data"
+    persistent_data='verified'
   fi
-  printf 'stage=%s production_overlay=verified synthetic_seed=%s\n' \
+  printf 'stage=%s production_overlay=verified synthetic_seed=%s container_identity=%s persistent_data=%s\n' \
     "$stage" "$([[ -n "$container_before" ]] && printf preserved || printf reset)" \
+    "$container_identity" "$persistent_data" \
     >"$artifacts/production-overlay-$stage.log"
   local maestro_status=0
   local junit_retained=false

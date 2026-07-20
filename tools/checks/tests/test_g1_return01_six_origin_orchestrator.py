@@ -178,7 +178,7 @@ def test_runner_executes_the_five_non_rvc_stages_in_order() -> None:
         assert text.index(f"run_patrol_stage {stage}") < text.index(
             f"run_maestro_stage {stage}"
         )
-    assert "production overlay changed app data container" in text
+    assert "production overlay changed persistent app data" in text
 
 
 def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> None:
@@ -208,17 +208,32 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
         'xcrun simctl install "$device" "$normal_app"', pre_fingerprint
     )
     post_container = function.index("container_after=$(resolve_app_container)", install)
-    same_container = function.index(
-        '[[ "$container_before" == "$container_after" ]]', post_container
-    )
     post_fingerprint = function.index(
         "data_after=$(fingerprint_persistent_app_data \"$container_after\")",
-        same_container,
+        post_container,
     )
+    relocated = function.index("container_identity='relocated'", post_fingerprint)
     same_data = function.index('[[ "$data_before" == "$data_after" ]]', post_fingerprint)
     assert "production overlay changed persistent app data" in function[same_data:]
     assert pre_container < pre_fingerprint < install < post_container
-    assert post_container < same_container < post_fingerprint < same_data
+    assert post_container < post_fingerprint < relocated < same_data
+    assert "production overlay changed app data container" not in function
+    assert "containerIdentityPreserved" not in text
+
+    fingerprint_match = re.search(
+        r"fingerprint_persistent_app_data\(\) \{\n(.*?)\n\}", text, flags=re.S
+    )
+    assert fingerprint_match is not None
+    fingerprint = fingerprint_match.group(1)
+    assert "file_count" in fingerprint
+    assert "byte_count" in fingerprint
+    assert 'if file_count < 1 or byte_count < 1:' in fingerprint
+    assert 'print(f"{file_count}:{byte_count}:{digest.hexdigest()}")' in fingerprint
+
+    overlay_log = function.index(">\"$artifacts/production-overlay-$stage.log\"")
+    assert "container_identity=%s" in function[:overlay_log]
+    assert "persistent_data=%s" in function[:overlay_log]
+    assert '"$container_identity" "$persistent_data"' in function[:overlay_log]
 
     seeded_label = "housing_cancel | disability_validation_cancel | frontalier_inline)"
     seeded_start = function.index(seeded_label)
