@@ -741,6 +741,8 @@ if (
 ):
     raise SystemExit(1)
 selected = json.dumps({
+    "miniOnboardingCompleted": False,
+    "propertyMarketValuePresent": False,
     "q_birth_year": birth_year,
     "q_canton": canton,
     "q_civil_status": civil_status,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import plistlib
 import re
@@ -210,6 +211,21 @@ def test_seed_witness_python_is_exact_and_retains_no_raw_values(
     )
     assert match is not None
     program = match.group(1)
+    seed_contract = (
+        MOBILE / "integration_test/g1_succession_civil_guard_seed_patrol_test.dart"
+    ).read_text(encoding="utf-8")
+    seed_birth_year = int(
+        re.search(r"'q_birth_year': (\d+)", seed_contract).group(1)  # type: ignore[union-attr]
+    )
+    seed_canton = re.search(
+        r"'q_canton': '([^']+)'", seed_contract
+    ).group(1)  # type: ignore[union-attr]
+    seed_civil_status = re.search(
+        r"'q_civil_status': '([^']+)'", seed_contract
+    ).group(1)  # type: ignore[union-attr]
+    assert f"birth_year != {seed_birth_year}" in program
+    assert f'canton != "{seed_canton}"' in program
+    assert f'civil_status != "{seed_civil_status}"' in program
     preferences = tmp_path / "ch.mint.app.plist"
 
     def run(values: dict[str, object]) -> subprocess.CompletedProcess[str]:
@@ -227,9 +243,9 @@ def test_seed_witness_python_is_exact_and_retains_no_raw_values(
         {
             "flutter.wizard_answers_v2": json.dumps(
                 {
-                    "q_birth_year": 1980,
-                    "q_canton": "VD",
-                    "q_civil_status": "partenariat",
+                    "q_birth_year": seed_birth_year,
+                    "q_canton": seed_canton,
+                    "q_civil_status": seed_civil_status,
                 }
             ),
             "flutter.mini_onboarding_completed": False,
@@ -252,6 +268,20 @@ def test_seed_witness_python_is_exact_and_retains_no_raw_values(
     assert witness["miniOnboardingIncomplete"] is True
     assert witness["propertyMarketValueAbsent"] is True
     assert len(witness["selectedValuesSha256"]) == 64
+    selected = json.dumps(
+        {
+            "miniOnboardingCompleted": False,
+            "propertyMarketValuePresent": False,
+            "q_birth_year": seed_birth_year,
+            "q_canton": seed_canton,
+            "q_civil_status": seed_civil_status,
+        },
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    assert witness["selectedValuesSha256"] == hashlib.sha256(
+        selected.encode()
+    ).hexdigest()
     assert "partenariat" not in valid.stdout
     assert str(preferences) not in valid.stdout
     assert "900000" not in valid.stdout
