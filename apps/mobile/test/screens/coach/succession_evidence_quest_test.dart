@@ -467,6 +467,10 @@ void main() {
 
   testWidgets('terminal survey copy remains neutral and bounded',
       (tester) async {
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final loaded = await _provider(_allAbsentRoot());
     await tester.pumpWidget(_wrap(loaded.provider));
     expect(find.byKey(const Key('succession_reference_survey_recorded')),

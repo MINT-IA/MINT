@@ -4,20 +4,20 @@
 /// Cible : profils AgeBand.retirement (65+), particulièrement 70+.
 ///
 /// Sources légales : CC art. 457-640, LPP art. 20, OPP3 art. 2.
-/// Disclaimer LSFin obligatoire (outil éducatif, pas un conseil juridique).
+/// Information générale uniquement, sans conseil juridique ou fiscal personnalisé.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
-import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/widgets/coach/succession_evidence_quest.dart';
 import 'package:mint_mobile/widgets/coach/death_urgency_guide_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -35,7 +35,6 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
         profile?.dettes.hypotheque ?? profile?.patrimoine.mortgageBalance;
     final hasPropertyValue = propertyValue > 0;
     final hasMortgageBalance = mortgageBalance != null && mortgageBalance >= 0;
-    final initialFamilyStatus = _familyStatusFromProfile(profile);
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -117,12 +116,8 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   ],
                 ],
 
-                // ── P8-A : Testament invisible ───────────────
-                if (hasPropertyValue) ...[
-                  TestamentInvisibleWidget(
-                    patrimoine: propertyValue,
-                    initialStatus: initialFamilyStatus,
-                  ),
+                if (FeatureFlags.successionEvidenceCollectionEnabled) ...[
+                  const SuccessionEvidenceQuest(),
                   const SizedBox(height: MintSpacing.lg),
                 ],
 
@@ -248,7 +243,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 EduLegalSources(sources: l.successionSources),
                 const SizedBox(height: MintSpacing.md),
 
-                // ── Disclaimer LSFin ──────────────────────────
+                // ── Limite éducative et renvoi spécialiste ─────
                 EduDisclaimer(text: l.successionDisclaimer),
                 const SizedBox(height: MintSpacing.xl),
               ]),
@@ -258,14 +253,6 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
       ))),
     );
   }
-}
-
-FamilyStatus _familyStatusFromProfile(CoachProfile? profile) {
-  return switch (profile?.etatCivil) {
-    CoachCivilStatus.marie => FamilyStatus.married,
-    CoachCivilStatus.concubinage => FamilyStatus.concubin,
-    _ => FamilyStatus.single,
-  };
 }
 
 // ── Widgets internes ─────────────────────────────────────────
@@ -321,7 +308,17 @@ class _PropertyTransmissionNote extends StatelessWidget {
               value: mortgage,
             ),
             const SizedBox(height: 8),
-            _FactRow(label: l.patrimoineNetLabel, value: netValue),
+            _FactRow(
+              label: l.successionPropertyNetIndicative,
+              value: netValue,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l.successionPropertyNotEstateNet,
+              style: MintTextStyles.labelSmall(
+                color: MintColors.textSecondary,
+              ),
+            ),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -64,8 +65,6 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
                   )),
                   const SizedBox(height: 8),
                   _buildSupportNote(),
-                  const SizedBox(height: 16),
-                  _buildDisclaimer(),
                 ],
               ),
             ),
@@ -91,7 +90,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Guide de première urgence',
+                  S.of(context)!.successionDeathGuideTitle,
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
@@ -99,8 +98,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ce n\'est pas le moment de tout gérer seul·e. '
-            'Voici les étapes, dans l\'ordre, avec bienveillance.',
+            S.of(context)!.successionDeathGuideIntro,
             style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
           ),
         ],
@@ -210,14 +208,12 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tu n\'es pas seul·e',
+                  S.of(context)!.successionDeathGuideSupportTitle,
                   style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Un·e notaire, un·e avocat·e ou un service d\'aide sociale '
-                  'peut t\'accompagner pour les démarches administratives. '
-                  'Prends le temps du deuil — les délais légaux sont en semaines, pas en heures.',
+                  S.of(context)!.successionDeathGuideSupportBody,
                   style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
@@ -225,14 +221,6 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDisclaimer() {
-    return Text(
-      'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
-      'Source : CC art. 537-640 (succession), LAVS art. 23-24 (rentes survivants).',
-      style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }
 }

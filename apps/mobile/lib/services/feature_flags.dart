@@ -88,6 +88,12 @@ class FeatureFlags {
     defaultValue: false,
   );
 
+  /// Local-only G1 succession evidence collector; never backend-hydrated.
+  static bool successionEvidenceCollectionEnabled = const bool.fromEnvironment(
+    'MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION',
+    defaultValue: false,
+  );
+
   /// Local-only gate for the illustrative 13th AVS scenario cash-flow.
   ///
   /// It must remain absent from [applyFromMap]: backend flags cannot turn
