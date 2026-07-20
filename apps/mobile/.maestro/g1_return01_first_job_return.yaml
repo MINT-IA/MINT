@@ -2,6 +2,7 @@ appId: ch.mint.app
 ---
 # G1-RETURN-01: use the live First Job CTA, persist synthetic revenue facts,
 # and prove the save returns to the exact visible First Job destination.
+# Build contract: --dart-define=MINT_TEST_FIRST_JOB=true.
 - stopApp
 - launchApp:
     clearState: true
@@ -58,14 +59,16 @@ appId: ch.mint.app
     centerElement: true
 - tapOn:
     id: "salary_save_cta"
-- assertVisible:
-    id: "first_job_ledger_facts"
+- extendedWaitUntil:
+    visible:
+      id: "first_job_salary_authority"
+    timeout: 20000
 - scrollUntilVisible:
     element:
-      id: "first_job_result_cards"
+      id: "first_job_salary_authority"
     direction: DOWN
     speed: 5
     visibilityPercentage: 20
     centerElement: true
 - assertVisible:
-    id: "first_job_result_cards"
+    id: "first_job_salary_authority"

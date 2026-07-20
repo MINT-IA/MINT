@@ -34,6 +34,7 @@ def test_return01_runner_is_tracked_executable() -> None:
 def test_maestro_uses_the_real_first_job_cta_and_returns_visibly() -> None:
     flow = MAESTRO.read_text(encoding="utf-8")
 
+    assert "Build contract: --dart-define=MINT_TEST_FIRST_JOB=true" in flow
     assert 'openLink: "mint:///first-job"' in flow
     open_link = flow.index('openLink: "mint:///first-job"')
     first_job_wait = flow.index('- extendedWaitUntil:')
@@ -56,9 +57,10 @@ def test_maestro_uses_the_real_first_job_cta_and_returns_visibly() -> None:
         'id: "salary_input"'
     )
     assert flow.index('id: "salary_save_cta"') < flow.rindex(
-        'id: "first_job_ledger_facts"'
+        'id: "first_job_salary_authority"'
     )
-    assert 'id: "first_job_result_cards"' in flow
+    assert 'id: "first_job_salary_authority"' in flow
+    assert 'id: "first_job_result_cards"' not in flow
 
 
 def test_patrol_proves_exact_uri_and_persisted_synthetic_facts() -> None:
@@ -67,6 +69,8 @@ def test_patrol_proves_exact_uri_and_persisted_synthetic_facts() -> None:
     for token in (
         "patrolTest(",
         "bool.fromEnvironment('MINT_PATROL_CLI')",
+        "bool.fromEnvironment('MINT_TEST_FIRST_JOB')",
+        "FeatureFlags.enableFirstJobScreen",
         "const MintApp()",
         "testOnlyRootRouter.go('/first-job')",
         "first_job_enrich_profile_cta",
@@ -84,6 +88,7 @@ def test_patrol_proves_exact_uri_and_persisted_synthetic_facts() -> None:
         "persisted['q_canton'], 'GE'",
         "persisted['q_birth_year'], 2001",
         "MINT_G1_RETURN01_VISUAL_READY_V1\\n",
+        "first_job_salary_authority",
     ):
         assert token in integration
     assert integration.index("first_job_enrich_profile_cta") < integration.index(
@@ -110,6 +115,7 @@ def test_runner_is_exact_sha_fail_closed_and_writes_return01_evidence() -> None:
         ".planning/runtime-evidence/phase-37/return-01",
         "test/patrol/g1_return01_first_job_return_runtime_test.dart",
         "--no-label",
+        "--dart-define=MINT_TEST_FIRST_JOB=true",
         '"caseId": "G1-RETURN-01"',
         "MINT_G1_RETURN01_VISUAL_READY_V1",
         "verify_runtime_sources_clean",

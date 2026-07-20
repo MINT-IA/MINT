@@ -535,7 +535,8 @@ set +e
     --target test/patrol/g1_return01_first_job_return_runtime_test.dart \
     --simulator \
     --bundle-id "$bundle_id" \
-    --dart-define=MINT_PATROL_CLI=true
+    --dart-define=MINT_PATROL_CLI=true \
+    --dart-define=MINT_TEST_FIRST_JOB=true
 ) >"$raw_log" 2>&1 &
 patrol_pid=$!
 wait "$patrol_pid"
