@@ -120,6 +120,31 @@ def test_flag_off_is_not_a_vacuous_absence_only_check() -> None:
     assert "assertNotVisible" in text
 
 
+def test_bound_maestro_flows_match_every_runner_preflight_needle() -> None:
+    off = (MOBILE / ".maestro/g1_succession_flag_off.yaml").read_text(
+        encoding="utf-8"
+    )
+    on = (MOBILE / ".maestro/g1_succession_progressive.yaml").read_text(
+        encoding="utf-8"
+    )
+    for needle in (
+        "assertVisible",
+        "succession_parents_note",
+        "assertNotVisible",
+        "succession_reference_quest",
+    ):
+        assert needle in off, f"flag-off flow lacks runner needle {needle}"
+    for needle in (
+        "succession_reference_quest",
+        "succession_civil_status_guard",
+        "succession_civil_status_confirm",
+        "civil_status_single_choice",
+        "household_save_cta",
+        "succession_instrument_will_question",
+    ):
+        assert needle in on, f"flag-on flow lacks runner needle {needle}"
+
+
 def test_runner_retains_only_sanitized_private_safe_evidence() -> None:
     text = source()
     assert "private_root=\"$(mktemp -d" in text
@@ -264,6 +289,9 @@ def test_artifacts_path_is_case_scoped_and_exact_sha_timestamped() -> None:
 
 
 def test_bound_mobile_targets_make_cold_reader_the_first_post_death_advance() -> None:
+    present = (
+        MOBILE / "integration_test/g1_succession_native_present_patrol_test.dart"
+    ).read_text(encoding="utf-8")
     writer = (
         MOBILE / "integration_test/g1_succession_absent_write_patrol_test.dart"
     ).read_text(encoding="utf-8")
@@ -273,6 +301,14 @@ def test_bound_mobile_targets_make_cold_reader_the_first_post_death_advance() ->
     support = (
         MOBILE / "integration_test/support/g1_succession_runtime_contract.dart"
     ).read_text(encoding="utf-8")
+    for needle in (
+        "succession_instrument_will_source_date",
+        "succession_instrument_will_legal_year",
+        ".enterText(",
+        "EstateEvidenceRoot.fromJsonString",
+        "EstateInstrumentSlotState.confirmedPresent",
+    ):
+        assert needle in present, f"native-present contract lacks {needle}"
     assert "succession_answer_saved" in writer
     last_saved = writer.rindex("succession_answer_saved")
     next_positions = [
@@ -283,5 +319,10 @@ def test_bound_mobile_targets_make_cold_reader_the_first_post_death_advance() ->
     assert "succession_instrument_inheritancePact_question" not in writer
     assert "successionWriterPid" in support
     assert "successionWriterStateWitness" in support
-    assert "expect(pid, isNot(writerPid))" in reader
-    assert "succession_instrument_inheritancePact_question" in reader
+    for needle in (
+        "expect(pid, isNot(writerPid))",
+        "successionWriterStateWitness",
+        "EstateInstrumentSlotState.confirmedAbsent",
+        "succession_instrument_inheritancePact_question",
+    ):
+        assert needle in reader, f"cold-reader contract lacks {needle}"
