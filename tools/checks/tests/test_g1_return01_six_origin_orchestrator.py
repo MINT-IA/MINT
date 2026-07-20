@@ -235,10 +235,57 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
     assert "persistent_data=%s" in function[:overlay_log]
     assert '"$container_identity" "$persistent_data"' in function[:overlay_log]
 
-    seeded_label = "housing_cancel | disability_validation_cancel | frontalier_inline)"
+    seeded_label = "housing_cancel | frontalier_inline)"
     seeded_start = function.index(seeded_label)
     seeded_case = function[seeded_start : function.index(";;", seeded_start)]
     assert "simctl uninstall" not in seeded_case
+    assert "disability_validation_cancel" not in seeded_case
+
+    reset_label = "work_save | disability_validation_cancel | succession_save)"
+    reset_start = function.index(reset_label)
+    reset_case = function[reset_start : function.index(";;", reset_start)]
+    assert 'xcrun simctl uninstall "$device" "$bundle_id"' in reset_case
+    assert "container_before=" not in reset_case
+    assert "fingerprint_persistent_app_data" not in reset_case
+    assert "synthetic_seed='preserved'" not in reset_case
+    assert "local synthetic_seed='reset'" in function[:reset_start]
+    assert "local container_identity='reset'" in function[:reset_start]
+    assert "local persistent_data='not_applicable'" in function[:reset_start]
+    assert function.index(reset_label) < function.index(
+        'xcrun simctl install "$device" "$normal_app"'
+    )
+    assert '"$stage" "$synthetic_seed"' in function
+
+
+def test_disability_maestro_seeds_salary_through_production_ui_before_origin() -> None:
+    flow = (
+        ROOT / "apps/mobile/.maestro/g1_return01_disability_return.yaml"
+    ).read_text(encoding="utf-8")
+
+    mortgage = flow.index('- openLink: "mint:///hypotheque"')
+    mortgage_ready = flow.index('id: "mortgage_afford_result"', mortgage)
+    mortgage_cta = flow.index('id: "mortgage_enrich_profile_cta"', mortgage_ready)
+    salary_input = flow.index('id: "salary_input"', mortgage_cta)
+    salary_value = flow.index('- inputText: "96000"', salary_input)
+    salary_save = flow.index('id: "salary_save_cta"', salary_value)
+    invalidite = flow.index('- openLink: "mint:///invalidite"', salary_save)
+    disability_ready = flow.index('id: "disability_gap_ledger_facts"', invalidite)
+    birth_year = flow.index('id: "birth_year_input"', disability_ready)
+    invalid_value = flow.index('- inputText: "1800"', birth_year)
+    cancel = flow.index('id: "data_block_cancel_return_cta"', invalid_value)
+
+    assert mortgage < mortgage_ready < mortgage_cta < salary_input
+    assert salary_input < salary_value < salary_save < invalidite
+    assert invalidite < disability_ready < birth_year < invalid_value < cancel
+    assert flow.count('- inputText: "96000"') == 1
+    for forbidden in (
+        "clearState: true",
+        "returnUri=",
+        "SharedPreferences",
+        "flutter_secure_storage",
+        "Keychain",
+    ):
+        assert forbidden not in flow
 
 
 def test_each_stage_has_exact_maestro_flow_and_strict_witness_contract() -> None:

@@ -1,10 +1,50 @@
 appId: ch.mint.app
 ---
-# Black-box companion for the disability_validation_cancel Patrol stage.
+# Black-box companion for the independent disability Patrol witness. This
+# normal app owns its salary seed because test-host credentials are isolated.
 - launchApp
 - extendedWaitUntil:
     visible:
       id: "landing_route"
+    timeout: 20000
+- openLink: "mint:///hypotheque"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "mortgage_afford_result"
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: "mortgage_enrich_profile_cta"
+    direction: DOWN
+- tapOn:
+    id: "mortgage_enrich_profile_cta"
+- assertVisible:
+    id: "salary_input"
+- tapOn:
+    id: "salary_input"
+- eraseText
+- inputText: "96000"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+- tapOn:
+    id: "salary_save_cta"
+- extendedWaitUntil:
+    visible:
+      id: "mortgage_afford_result"
     timeout: 20000
 - openLink: "mint:///invalidite"
 - runFlow:

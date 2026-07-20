@@ -428,21 +428,23 @@ run_maestro_stage() {
   local container_after=''
   local data_before=''
   local data_after=''
+  local synthetic_seed='reset'
   local container_identity='reset'
   local persistent_data='not_applicable'
   mkdir -p "$private_stage"
   case "$stage" in
-    work_save | succession_save)
+    work_save | disability_validation_cancel | succession_save)
       # These black-box flows own their synthetic save from an empty install.
       xcrun simctl uninstall "$device" "$bundle_id" >/dev/null 2>&1 || true
       ;;
-    housing_cancel | disability_validation_cancel | frontalier_inline)
+    housing_cancel | frontalier_inline)
       # Preserve the integration-test-created synthetic seed while replacing
       # the test host with the physically exported normal application.
       container_before=$(resolve_app_container) \
         || die "$stage pre-overlay app container is invalid"
       data_before=$(fingerprint_persistent_app_data "$container_before") \
         || die "$stage pre-overlay persistent app data is invalid"
+      synthetic_seed='preserved'
       ;;
     *)
       die "unknown Maestro stage $stage"
@@ -464,7 +466,7 @@ run_maestro_stage() {
     persistent_data='verified'
   fi
   printf 'stage=%s production_overlay=verified synthetic_seed=%s container_identity=%s persistent_data=%s\n' \
-    "$stage" "$([[ -n "$container_before" ]] && printf preserved || printf reset)" \
+    "$stage" "$synthetic_seed" \
     "$container_identity" "$persistent_data" \
     >"$artifacts/production-overlay-$stage.log"
   local maestro_status=0

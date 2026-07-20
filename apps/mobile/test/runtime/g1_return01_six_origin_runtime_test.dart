@@ -185,6 +185,58 @@ void main() {
     }
   });
 
+  test('Disability Maestro seeds salary before opening the real origin', () {
+    final source = _read('.maestro/g1_return01_disability_return.yaml');
+    final mortgage = source.indexOf('- openLink: "mint:///hypotheque"');
+    final mortgageReady = source.indexOf(
+      'id: "mortgage_afford_result"',
+      mortgage,
+    );
+    final mortgageCta = source.indexOf(
+      'id: "mortgage_enrich_profile_cta"',
+      mortgageReady,
+    );
+    final salaryInput = source.indexOf('id: "salary_input"', mortgageCta);
+    final salaryValue = source.indexOf('- inputText: "96000"', salaryInput);
+    final salarySave = source.indexOf('id: "salary_save_cta"', salaryValue);
+    final invalidite = source.indexOf(
+      '- openLink: "mint:///invalidite"',
+      salarySave,
+    );
+    final disabilityReady = source.indexOf(
+      'id: "disability_gap_ledger_facts"',
+      invalidite,
+    );
+    final birthYear = source.indexOf('id: "birth_year_input"', disabilityReady);
+    final invalidValue = source.indexOf('- inputText: "1800"', birthYear);
+    final cancel = source.indexOf(
+      'id: "data_block_cancel_return_cta"',
+      invalidValue,
+    );
+
+    expect(mortgage, greaterThanOrEqualTo(0));
+    expect(mortgageReady, greaterThan(mortgage));
+    expect(mortgageCta, greaterThan(mortgageReady));
+    expect(salaryInput, greaterThan(mortgageCta));
+    expect(salaryValue, greaterThan(salaryInput));
+    expect(salarySave, greaterThan(salaryValue));
+    expect(invalidite, greaterThan(salarySave));
+    expect(disabilityReady, greaterThan(invalidite));
+    expect(birthYear, greaterThan(disabilityReady));
+    expect(invalidValue, greaterThan(birthYear));
+    expect(cancel, greaterThan(invalidValue));
+    expect(RegExp('- inputText: "96000"').allMatches(source), hasLength(1));
+    for (final forbidden in const <String>[
+      'clearState: true',
+      'returnUri=',
+      'SharedPreferences',
+      'flutter_secure_storage',
+      'Keychain',
+    ]) {
+      expect(source, isNot(contains(forbidden)), reason: forbidden);
+    }
+  });
+
   test('Maestro waits on visible route anchors before scrolling to CTAs', () {
     const cases = <String, (String, String)>{
       '.maestro/g1_return01_work_return.yaml': (
