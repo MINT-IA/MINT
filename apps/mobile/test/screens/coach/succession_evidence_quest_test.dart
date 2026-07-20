@@ -160,6 +160,8 @@ void main() {
     await tester.pumpWidget(_wrap(loaded.provider));
     expect(
         find.byKey(const Key('succession_civil_status_guard')), findsOneWidget);
+    expect(find.byKey(const Key('succession_civil_status_confirm')),
+        findsOneWidget);
     expect(loaded.persistence.saves, 0);
     await tester.tap(find.text('Confirmer'));
     await tester.pumpAndSettle();
