@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:patrol/patrol.dart';
 
 const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
@@ -141,8 +142,16 @@ Future<_StageProof> _runHousingCancel(PatrolIntegrationTester $) async {
   await $.pumpAndSettle();
   final routeBefore = _expectExactRoute('/hypotheque');
 
-  final cta = find.byKey(const Key('mortgage_enrich_profile_cta'));
-  await $(cta).scrollTo().tap();
+  final housingNotice = find.byKey(const Key('mortgage_enrich_profile_cta'));
+  expect(housingNotice, findsOneWidget);
+  expect($.tester.widget(housingNotice), isA<MintConfidenceNotice>());
+  final housingCta = find.descendant(
+    of: housingNotice,
+    matching: find.byType(GestureDetector),
+  );
+  expect(housingCta, findsOneWidget);
+  await $(housingNotice).scrollTo();
+  await $(housingCta).tap();
   await $.pumpAndSettle();
   final collectorRouteVerified = _expectCollector(
     $,

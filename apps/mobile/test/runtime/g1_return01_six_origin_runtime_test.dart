@@ -76,6 +76,47 @@ void main() {
     expect(_read(wrapper), contains(target.split('/').last));
   });
 
+  test('Housing Patrol taps the actionable notice descendant', () {
+    final source = _read(
+      'integration_test/g1_return01_six_origin_patrol_test.dart',
+    );
+    final start = source.indexOf('Future<_StageProof> _runHousingCancel');
+    final end = source.indexOf(
+      'Future<_StageProof> _runDisabilityValidationCancel',
+    );
+    expect(start, greaterThanOrEqualTo(0));
+    expect(end, greaterThan(start));
+    final housing = source.substring(start, end);
+
+    final notice = housing.indexOf(
+      "final housingNotice = find.byKey(const Key('mortgage_enrich_profile_cta'))",
+    );
+    final typeAssertion = housing.indexOf(
+      r'expect($.tester.widget(housingNotice), isA<MintConfidenceNotice>())',
+    );
+    final descendant = housing.indexOf(
+      'final housingCta = find.descendant(',
+    );
+    final exactlyOne = housing.indexOf(
+      'expect(housingCta, findsOneWidget)',
+    );
+    final scroll = housing.indexOf(r'await $(housingNotice).scrollTo()');
+    final tap = housing.indexOf(r'await $(housingCta).tap()');
+    final collector = housing.indexOf('final collectorRouteVerified');
+
+    expect(typeAssertion, greaterThan(notice));
+    expect(descendant, greaterThan(typeAssertion));
+    expect(exactlyOne, greaterThan(descendant));
+    expect(scroll, greaterThan(exactlyOne));
+    expect(tap, greaterThan(scroll));
+    expect(collector, greaterThan(tap));
+    expect(housing, isNot(contains(r'await $(cta).scrollTo().tap()')));
+    expect(
+      housing,
+      isNot(contains(r'await $(housingNotice).scrollTo().tap()')),
+    );
+  });
+
   test('installed-app Maestro flows use stable production selectors', () {
     const flows = <String, List<String>>{
       '.maestro/g1_return01_work_return.yaml': <String>[
