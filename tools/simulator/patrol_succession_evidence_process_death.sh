@@ -952,6 +952,7 @@ capture_screenshot "civil-return.png"
 run_patrol_stage "native_present" "$native_present_target"
 install_production_app "flag_on-present" "$flag_on_app"
 run_logged "flag-on-present-launch" xcrun simctl launch "$device" "$bundle_id"
+wait_for_landing "native-present"
 run_logged "flag-on-present-openurl" xcrun simctl openurl "$device" "mint:///succession"
 wait_for_succession_quest "native-present"
 capture_screenshot "native-present.png"
@@ -975,6 +976,7 @@ state_preserved_across_process_death=true
 # the cold-reader container and yields a clean-chrome deterministic screenshot.
 install_production_app "flag_on-cold" "$flag_on_app"
 run_logged "flag-on-cold-launch" xcrun simctl launch "$device" "$bundle_id"
+wait_for_landing "cold-continuation"
 run_logged "flag-on-cold-openurl" xcrun simctl openurl "$device" "mint:///succession"
 wait_for_succession_quest "cold-continuation"
 capture_screenshot "cold-continuation.png"
@@ -987,6 +989,8 @@ expected_stage_artifacts=(
   civil_guard_seed-xcresult-summary.sanitized.json
   seed-witness-post-terminate.json
   seed-witness-post-overlay.json
+  hierarchy-flag_on-seeded-landing.log
+  hierarchy-native-present-landing.log
   native_present-build.log
   native_present-test.log
   native_present-xcresult-summary.sanitized.json
@@ -996,6 +1000,7 @@ expected_stage_artifacts=(
   cold_read-build.log
   cold_read-test.log
   cold_read-xcresult-summary.sanitized.json
+  hierarchy-cold-continuation-landing.log
 )
 for retained in "${expected_stage_artifacts[@]}"; do
   [[ -s "$artifacts/$retained" ]] || die "retained stage evidence is missing: $retained"

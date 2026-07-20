@@ -694,6 +694,17 @@ def test_runner_isolates_and_restores_build_state_and_captures_visuals() -> None
     assert 'run_logged "flag-on-present-openurl"' in text
     assert 'install_production_app "flag_on-cold" "$flag_on_app"' in text
     assert 'run_logged "flag-on-cold-openurl"' in text
+    assert "hierarchy-flag_on-seeded-landing.log" in text
+    for stage, prefix in (
+        ("native-present", "flag-on-present"),
+        ("cold-continuation", "flag-on-cold"),
+    ):
+        launch = text.index(f'run_logged "{prefix}-launch"')
+        landing = text.index(f'wait_for_landing "{stage}"', launch)
+        openurl = text.index(f'run_logged "{prefix}-openurl"', landing)
+        quest = text.index(f'wait_for_succession_quest "{stage}"', openurl)
+        assert launch < landing < openurl < quest
+        assert f"hierarchy-{stage}-landing.log" in text
     assert "PNG signature or dimensions are invalid" in text
     assert "sleep 2" not in text
     assert "wait_for_succession_quest" in text
