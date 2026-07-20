@@ -1,0 +1,35 @@
+appId: ch.mint.app
+---
+# Flag-on build hook:
+# --dart-define=MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION=true
+- stopApp
+- launchApp:
+    clearState: true
+- openLink: "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"
+- assertVisible:
+    id: "property_market_value_input"
+- tapOn:
+    id: "property_market_value_input"
+- inputText: "900000"
+- tapOn:
+    id: "patrimoine_save_cta"
+- extendedWaitUntil:
+    visible:
+      id: "succession_civil_status_guard"
+    timeout: 20000
+- assertVisible:
+    id: "succession_civil_status_guard"
+- tapOn:
+    id: "succession_civil_status_confirm"
+- assertVisible:
+    id: "civil_status_single_choice"
+- tapOn:
+    id: "civil_status_single_choice"
+- tapOn:
+    id: "household_save_cta"
+- extendedWaitUntil:
+    visible:
+      id: "succession_instrument_will_question"
+    timeout: 20000
+- assertVisible:
+    id: "succession_instrument_will_question"

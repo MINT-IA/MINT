@@ -162,6 +162,12 @@ void main() {
         find.byKey(const Key('succession_civil_status_guard')), findsOneWidget);
     expect(find.byKey(const Key('succession_civil_status_confirm')),
         findsOneWidget);
+    expect(find.bySemanticsIdentifier('succession_reference_quest'),
+        findsOneWidget);
+    expect(find.bySemanticsIdentifier('succession_civil_status_guard'),
+        findsOneWidget);
+    expect(find.bySemanticsIdentifier('succession_civil_status_confirm'),
+        findsOneWidget);
     expect(loaded.persistence.saves, 0);
     await tester.tap(find.text('Confirmer'));
     await tester.pumpAndSettle();
@@ -236,6 +242,8 @@ void main() {
       (tester) async {
     final loaded = await _provider(_unknownRoot());
     await tester.pumpWidget(_wrap(loaded.provider));
+    expect(find.bySemanticsIdentifier('succession_instrument_will_question'),
+        findsOneWidget);
     await tester
         .tap(find.byKey(const Key('succession_instrument_will_present')));
     await tester.pump();

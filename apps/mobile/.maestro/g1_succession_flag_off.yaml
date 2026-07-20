@@ -1,0 +1,20 @@
+appId: ch.mint.app
+---
+# Physical production-default build: no succession feature dart-define.
+- stopApp
+- launchApp:
+    clearState: true
+- openLink: "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"
+- assertVisible:
+    id: "property_market_value_input"
+- tapOn:
+    id: "property_market_value_input"
+- inputText: "900000"
+- tapOn:
+    id: "patrimoine_save_cta"
+- extendedWaitUntil:
+    visible:
+      id: "succession_parents_note"
+    timeout: 20000
+- assertNotVisible:
+    id: "succession_reference_quest"
