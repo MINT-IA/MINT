@@ -22,6 +22,7 @@ import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
 import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:provider/provider.dart';
@@ -173,6 +174,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
+    final originalFirstJobFlag = FeatureFlags.enableFirstJobScreen;
+    addTearDown(
+      () => FeatureFlags.enableFirstJobScreen = originalFirstJobFlag,
+    );
+    FeatureFlags.enableFirstJobScreen = true;
     FlutterSecureStorage.setMockInitialValues({});
     SharedPreferences.setMockInitialValues({});
     FlutterLocalNotificationsPlatform.instance = _FakeNotificationsPlatform();
