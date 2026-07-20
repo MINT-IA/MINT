@@ -389,7 +389,7 @@ proves five bypass shapes red, and scans the six exact audited source files
 | `/life-event/deces-proche` | enableExplorerFamille | Death of a relative: survivor benefits + estate steps. | `conjoint`, `nombreEnfants`, `patrimoine`, `canton` | `/succession`, `/coach/chat` |
 | `/life-event/housing-sale` | enableExplorerLogement | Sale of a primary residence. | `patrimoine`, `canton`, `prevoyance.avoirLppTotal` | `/hypotheque`, `/fiscal`, `/coach/chat` |
 | `/life-event/demenagement-cantonal` | enableExplorerFiscalite | Inter-cantonal move tax/benefit impact. | `canton`, `salaireBrutMensuel`, `nombreEnfants` | `/cantonal-benchmark`, `/fiscal`, `/coach/chat` |
-| `/first-job` | enableExplorerTravail | First-job transition. | `employmentStatus`, `salaireBrutMensuel`, `archetype`, `nationality` | `/data-block/revenu`, `/data-block/lpp`, `/coach/chat` |
+| `/first-job` | enableExplorerTravail | First-job transition. Whole-screen financial/narrative coherence is blocking under `G1-COHERENCE-01`; one presentation authority must own every salary/LPP/net rendering, with no unsupported 3a/LAMal ranking or duplicated checklist/projection story. | `employmentStatus`, `salaireBrutMensuel`, `archetype`, `nationality`; exact LPP deduction only from reviewed payslip/certificate authority | `/data-block/revenu`, `/data-block/lpp`, `/assurances/lamal`, `/coach/chat` |
 | `/expatriation` | enableExplorerTravail | Expatriation orientation. Its AVS tab keeps years abroad as a nullable local scenario lever, never an AVS-gap fact; only CI-observed self missing contribution years may unlock a raw contribution-duration benchmark. That benchmark is neither a pension reduction nor an official decision: the compensation office examines possible compensation, then determines the official scale and amount. | `CoachProfile.avsGapEvidence.selfCertifiedYears` only when certificate-ready as CI-observed periods to examine; years abroad is local and nullable | `/scan/avs-guide`, back |
 | `/segments/independant` | enableExplorerTravail | Independent entry hub. Reads declared independent income, age, and canton from the Data Ledger; it must render partial/missing state instead of defaulting to a fictive CHF 80'000 / age 42 / ZH scenario. Coverage controls must disclose provenance: voluntary LPP and 3a are profile facts persisted to `q_has_voluntary_lpp` / `q_has_3a`; IJM and LAA are temporary comparison assumptions until their dedicated ledger facts exist. | `employmentStatus`, `q_self_employed_income`, `q_birth_year`, `q_canton`, `q_has_voluntary_lpp`, `q_has_pension_fund`, `q_has_3a` | `/data-block/revenu?inputKey=q_self_employed_income`, `/data-block/revenu?inputKey=q_birth_year`, `/data-block/revenu?inputKey=q_canton` |
 | `/unemployment` | enableExplorerTravail | Swiss unemployment lucidity. Reads known ledger facts only; result stays partial until explicit gross annual salary, birth year/date, and LACI contribution months over the last 24 months are user-provided. It must not derive LACI insured earnings from net-income estimates. Children/disability controls are scenario/current-situation levers; children may hydrate from the ledger when already known. Age is a known fact even after 65; the ordinary LACI calculator then renders a non-eligible AVS-reference transition state instead of re-asking age or producing a normal benefit. The budget crash-test must use declared monthly net income plus only ledger expenses (`q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, optional transport); it may compare those against a clearly labelled estimated net LACI cash-flow derived from the gross benefit, but never against the gross benefit itself. If budget facts are missing it renders a collection CTA, never invented ratios and never gross-vs-net cash-flow mixing. | `q_gross_salary_annual`, `q_net_income_period_chf`, `q_birth_year`, `q_date_of_birth`, `q_gender`, `q_unemployment_contribution_months`, `q_children`, `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `depenses.transport` | `/data-block/revenu?inputKey=q_gross_salary_annual`, `/data-block/revenu?inputKey=q_birth_year`, `/data-block/revenu?inputKey=q_unemployment_contribution_months`, `/budget/setup`, `/coach/chat` |
@@ -409,6 +409,39 @@ proves five bypass shapes red, and scans the six exact audited source files
 | `/education/hub`, `/education/theme/:id` | null | General-population educational modules. | `financialLiteracyLevel` only; `id` from `state.pathParameters['id']` (§0) | `/coach/chat`, `/explore` |
 | `/open-banking`, `/open-banking/transactions`, `/open-banking/consents` | enableOpenBanking (in-route redirect) | Aggregation onboarding + transactions + consent (riskiest flow; consent-gated). | `∅` pre-consent; writes accounts post-consent via `mergeAnswers()` | `/mon-argent`, `/confidence`, `/data-block/patrimoine` |
 | `/bank-import` | null | Manual CSV/PDF statement review fallback; not a live Open Banking source. | `∅` pre-confirmation; after explicit review writes only `q_net_income_period_chf` + `q_pay_frequency` via `mergeAnswers()` with `userInput` provenance. Categorized charges remain preview-only and never write housing, LAMal, tax, debt, or `q_other_fixed_costs_monthly_chf`. | `/mon-argent`, `/open-banking`, `/coach/chat` |
+
+#### G1-COHERENCE-01 First Job whole-screen contract
+
+`/first-job` is accepted as one assembled journey, not as a collection of
+independently green widgets. Its target wiring is rendered in
+`FIRST_JOB_COHERENCE.mmd` and its blocking evidence contract lives in
+`.planning/goals/G1-first-job-screen-coherence-2026-07-20.md`.
+
+- One injected presentation result owns every visible salary, LPP, employer
+  contribution and net meaning. A child widget may narrate that result but may
+  not recalculate it.
+- A statutory LPP age credit on coordinated salary is not an exact payslip
+  deduction. Without reviewed plan/payslip authority, the value stays
+  explicitly illustrative or unknown and an unqualified exact net stays hidden.
+- The 3a annual ceiling is not a monthly recommendation. Insurance policy,
+  bank-foundation account, pure-risk protection and mixed savings are distinct;
+  no provider class is preferred without suitability facts.
+- First Job does not invent LAMal premiums. It either links to the existing
+  real-input `/assurances/lamal` comparison or explains cost participation
+  neutrally. No `TOP` or age-only franchise recommendation exists.
+- Exactly one first-job checklist and one active projection basis render. Every
+  projection names contribution, start age, horizon and assumptions, and all
+  CHF values use the canonical formatter.
+- Acceptance includes a full-height device capture plus native hierarchy so
+  duplication and cross-section contradiction cannot hide between crops.
+
+This gate is currently **OPEN P0** and blocks `RDY-GATE-01`, the Phase 37 score
+and G2/G3 even while the 31-row ledger/runtime registry remains unchanged.
+The route must be protected by default-false
+`FeatureFlags.enableFirstJobScreen`, outside `applyFromMap`, with bounded
+compile-time `MINT_TEST_FIRST_JOB` opt-in until this contract is GREEN. The
+generic `RouteMeta.killFlag` field is descriptive metadata and is not accepted
+as a kill-switch proof.
 
 #### G1-SUCCESSION-01 live default-off consumer contract
 

@@ -1,0 +1,25 @@
+## MINT external audit — G1-COHERENCE-01 planning rerun
+
+**Base:** `98846cf64153a096b6e19cd3686a328780e50c02`
+**Wrapper/model:** `tools/checks/claude_external_audit.sh product-domain`,
+Sonnet/high, `CLAUDE_AUDIT_RERUN=1`
+
+### Verdict
+
+**NO-GO for the live product state.** The revised documentation accurately
+registers the P0, but the route is still reachable and the RED test does not
+yet exist. This is an expected implementation blocker, not a claim that the
+planning contract is false.
+
+### Required next slice
+
+1. Add default-false `FeatureFlags.enableFirstJobScreen`, outside remote config,
+   with bounded `MINT_TEST_FIRST_JOB` compile-time opt-in.
+2. Guard `/first-job` and prove production-default redirect in a router test.
+3. Create `first_job_whole_screen_coherence_test.dart` as semantic RED.
+4. Collapse the dual LPP/net authority, remove advice/rankings and duplicate
+   checklists, fix projection meaning/format, then make the identical command
+   GREEN before any flag activation.
+
+No further rerun is authorized until those findings are fixed. One Opus final
+confirmation may close the gate after implementation.

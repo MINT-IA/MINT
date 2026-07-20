@@ -1,5 +1,11 @@
 # MINT — Strategic Roadmap V2 (Benchmark-Driven)
 
+> **HISTORICAL STRATEGY SNAPSHOT — NOT EXECUTION AUTHORITY (2026-07-20).**
+> Current sequencing, gates and status live in [`.planning/ROADMAP.md`](../.planning/ROADMAP.md),
+> [`.planning/STATE.md`](../.planning/STATE.md) and the Phase 37 machine registry.
+> The shipped percentages and test counts below describe an older review and
+> must not be used to authorize G2/G3 or a release.
+
 > Date: March 2026 | Version: 3.0 | Production: v1.0.0
 > Updated: 29 March 2026 — All 4 phases audited, 102+ bugs fixed, all features wired E2E
 > Based on: `visions/MINT_Analyse_Strategique_Benchmark.md` (40+ apps, 18 research themes)
@@ -9,14 +15,9 @@
 > Mission updated: "Mint te dit ce que personne n'a intérêt à te dire."
 > Execution method: Autoresearch Dev Agents (`visions/MINT_Autoresearch_Dev_Agents.md`)
 >
-> **PRODUCTION STATUS**: 13,040 tests green | 0 flutter analyze warnings | 6 languages synced | 8 archetypes | 134 routes | 123 screens
->
-> | Phase | Status | Completion |
-> |-------|--------|------------|
-> | Phase 1 "Le Conversationnel" | **SHIPPED** | 100% |
-> | Phase 2 "Le Compagnon" | **SHIPPED** | 100% |
-> | Phase 3 "L'Expert" | **SHIPPED** | 100% |
-> | Phase 4 "La Référence" | **SHIPPED** | 90% (pending real institutional APIs + DACH expansion) |
+> Historical production counts and completion percentages were removed because
+> they conflict with the current reopened acceptance state. Git history retains
+> the March snapshot when historical analysis is required.
 
 ---
 

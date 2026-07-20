@@ -1,0 +1,26 @@
+## MINT external audit — G1-COHERENCE-01 planning first pass
+
+**Base:** `98846cf64153a096b6e19cd3686a328780e50c02`
+**Wrapper/model:** `tools/checks/claude_external_audit.sh product-domain`, Opus/high
+
+### Verdict
+
+**PASS on the planning direction, with P1 corrections required before the
+planning slice can be accepted.**
+
+### Findings and disposition
+
+- The live First Job contradictions are P0-grade, not P1: confidently wrong
+  LPP/net logic and unsupported product recommendations. The goal, roadmap,
+  state, handoff and screen contract now classify the gate as **OPEN P0**.
+- `RouteMeta.killFlag` is metadata rather than enforcement. The contract now
+  requires default-false `FeatureFlags.enableFirstJobScreen`, outside remote
+  `applyFromMap`, a bounded compile-time opt-in and a real router test.
+- The independent Film calculator must be deleted/subordinated, not left dead.
+- The CHF regression must exercise the canonical formatter with the real
+  projection value, not rely on a source-string match.
+- Misleading historic production percentages were removed from
+  `docs/ROADMAP_V2.md` while Git history retains them.
+
+No P0/P1 was introduced by the documentation diff; the findings describe the
+live product path that the new gate correctly blocks.

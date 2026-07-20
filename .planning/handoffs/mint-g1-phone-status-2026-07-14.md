@@ -4,8 +4,9 @@ Date: 2026-07-20
 
 ## En une phrase
 
-G1 avance réellement mais n'est pas fini: **25 tickets sur 31 sont GREEN et
-6 hard floors restent ouverts**. G2/G3 ne sont pas autorisés.
+G1 avance réellement mais n'est pas fini: **25 tickets sur 31 sont GREEN,
+6 floors de registre restent ouverts et `G1-COHERENCE-01` ajoute un P0
+d'acceptation écran**. G2/G3 ne sont pas autorisés.
 
 ## Ce qui vient d'être prouvé
 
@@ -45,12 +46,15 @@ Score provisoire: **8.2/10 — NO-GO**.
 
 ## Maintenant
 
-1. Continuer exclusivement les cinq tickets `ticket_only` restants et
+1. Fermer `G1-COHERENCE-01` sur l'écran Premier emploi avant de considérer la
+   capture Work comme acceptable.
+2. Continuer exclusivement les cinq tickets `ticket_only` restants et
    `G1-RUNTIME-01`.
-2. Ne pas relancer les audits SUCCESSION-01 déjà PASS.
-3. Ne pas confondre cette preuve de succession avec le runtime global
+3. Ne pas relancer les audits SUCCESSION-01 déjà PASS.
+4. Ne pas confondre cette preuve de succession avec le runtime global
    `G1-RUNTIME-01`, qui reste `red_proven`.
-4. Ne jamais démarrer G2/G3 avant 31/31 GREEN, score ≥9.0 et zéro P0/P1.
+5. Ne jamais démarrer G2/G3 avant 31/31 GREEN, cohérence écran GREEN, score
+   ≥9.0 et zéro P0/P1.
 
 Les chemins d'acquisition concernés restent régis par leurs flags et décisions
 d'activation propres. Un ticket technique GREEN n'autorise pas une activation

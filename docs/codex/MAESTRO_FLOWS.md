@@ -106,7 +106,7 @@
   <array>
     <dict>
       <key>CFBundleURLName</key>
-      <string>ch.mint.coach</string>
+      <string>ch.mint.app</string>
       <key>CFBundleURLSchemes</key>
       <array><string>mint</string></array>
     </dict>

@@ -16,8 +16,9 @@ release requires 9.5/10 and zero open P0/P1.
 ## Historical boundary
 
 - v2.8 is archived as **incomplete**, not completed.
-- G1 Ledger Reality Baseline closed at `5f8de38ec`, but its 23 readiness tickets
-  remain the hard floor before G2.
+- The historical G1 acceptance at `5f8de38ec` was reopened after false-complete
+  financial paths were found. The live 31-row Phase 37 registry plus the
+  whole-screen coherence hard floor remain authoritative before G2.
 - Phase numbering continues at 37.
 - The old `v2.9 Chat Vivant` seed is preserved as Phase 49 after G6.
 
@@ -44,7 +45,8 @@ flowchart TD
 
 ### Phase 37: Ledger Runtime Readiness
 
-**Goal:** Implement and prove all 31 G1 blocking tickets so the data spine is actually ready for G2.
+**Goal:** Implement and prove all 31 G1 ledger/runtime tickets and the
+whole-screen coherence hard floor so the product spine is actually ready for G2.
 
 **Depends on**: G1 baseline at `5f8de38ec`
 
@@ -61,12 +63,15 @@ flowchart TD
 
 **Success Criteria** (what must be TRUE):
 
-1. All 23 named ticket tests exist with captured RED and GREEN evidence.
+1. All 31 named ticket tests exist with captured RED and GREEN evidence, and
+   `G1-COHERENCE-01` proves the assembled First Job screen has one narrative
+   truth rather than several independently green contradictions.
 2. Targeted and affected full suites pass; Maestro and Patrol prove restart/recompute.
 3. Claude code, architecture, and product-domain audits have no P0/P1 and score is >=9.0.
 
-**Status:** in progress — 2/8 plans complete; SOURCE-01 green,
-G1-RUNTIME-01 red_proven, G2 blocked.
+**Status:** in progress — live registry 25/31 GREEN, five `ticket_only`,
+`G1-RUNTIME-01` `red_proven`; `G1-COHERENCE-01` is an open P0 acceptance hard
+floor. G2 remains blocked.
 
 ### Phase 38: Mint OS Operating Runway
 
@@ -263,8 +268,8 @@ spine, never as a parallel calculator/state system.
 
 | phase | status | score | next hard floor |
 |---|---|---:|---|
-| 37 Ledger readiness | in progress (2/8) | — | 37-02 ledger foundations; G2 remains NO |
-| 38 Operating runway | blocked by 37 | — | 31/31 G1 GREEN |
+| 37 Ledger readiness | in progress (25/31 registry GREEN) | 8.2 interim | RETURN-01 plus First Job whole-screen coherence; G2 remains NO |
+| 38 Operating runway | blocked by 37 | — | 31/31 G1 GREEN + coherence hard floor |
 | 39 G2 DataQuest | blocked by 37-38 | — | G2 allowed YES |
 | 40-45 six G3 loops | blocked by 39 | — | G2 accepted |
 | 46 G4 Dossier/PDF | blocked by 45 | — | six loops accepted |

@@ -1,0 +1,23 @@
+flowchart TD
+  LEDGER["Canonical ledger facts<br/>salary · age · canton · provenance"]
+  PAYSLIP["Reviewed payslip / LPP certificate<br/>optional exact deduction authority"]
+  MODEL["One First Job presentation model<br/>single salary/LPP/net authority"]
+
+  LEDGER --> MODEL
+  PAYSLIP -->|"exact evidence when available"| MODEL
+
+  MODEL --> SALARY["One salary explanation<br/>unknown stays unknown"]
+  MODEL --> P3A["Neutral 3a education<br/>annual ceiling ≠ monthly advice"]
+  MODEL --> LAMAL["LAMal handoff or real-input scenarios<br/>no fictive premium ranking"]
+  MODEL --> CHECK["One conditional first-job checklist"]
+  MODEL --> PROJECTION["One named projection basis<br/>contribution · horizon · assumptions"]
+
+  SALARY --> CAPTURE["Whole-screen proof<br/>widget invariants + semantics + full capture"]
+  P3A --> CAPTURE
+  LAMAL --> CAPTURE
+  CHECK --> CAPTURE
+  PROJECTION --> CAPTURE
+
+  CAPTURE --> GATE{"G1-COHERENCE-01<br/>P0/P1 = 0?"}
+  GATE -->|"no"| BLOCK["RDY-GATE-01 blocked<br/>G2/G3 NO"]
+  GATE -->|"yes + all other G1 floors"| ELIGIBLE["Eligible for final G1 score/decision"]

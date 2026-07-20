@@ -34,15 +34,15 @@ Plan: 37-06 — Scenario, freshness, safe-return and recovery floors
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-20 -- `G1-SUCCESSION-01` is accepted. The exact
-registry command is semantic RED **0/10** at `852c124af` and GREEN **10/10**
-at `7849711b3`. The full runtime runner passes at exact pushed SHA
-`32aed9f99c87f2aab738d8860b117fc3a3a7ce5e`: Doctor, default-off/on
-Maestro, civil-guard seed preservation across production overlay, four Patrol
-stages, distinct writer/reader process death, strict below-fold quest probes,
-four inspected screenshots, privacy checks, checksums, restoration and cleanup
-are all green. Wrapper audits retain P0/P1=0. The registry is **25/31 GREEN**;
-G1 stays NO-GO and G2/G3 remain forbidden.
+Last activity: 2026-07-20 -- the seventeenth RETURN-01 runtime reached
+Frontalier after Work, Housing, Disability and Succession passed Patrol plus
+Maestro. Its first hard fail (native dropdown identifier absent) is repaired,
+audited, pushed at `98846cf64153a096b6e19cd3686a328780e50c02`, and exact-SHA
+GitHub run `29756940451` is GREEN. Direct review of the retained First Job
+capture also opened `G1-COHERENCE-01` as P0: contradictory LPP/net calculations,
+duplicated salary/checklist stories, unsupported 3a/LAMal recommendations and
+unlabelled projection bases block whole-screen acceptance. The registry remains
+**25/31 GREEN**; G1 stays NO-GO and G2/G3 remain forbidden.
 
 Provisional G1 score: **8.2/10 — NO-GO**.
 
@@ -171,6 +171,9 @@ Provisional G1 score: **8.2/10 — NO-GO**.
 
 - The canonical registry has 31 rows: 25 `green`, 5 `ticket_only`, and one
   `red_proven`. Therefore 6 G1 hard floors remain open.
+- `G1-COHERENCE-01` is an additional open P0 acceptance hard floor under
+  RDY-GATE-01. It does not alter the 31-row ledger/runtime count, but G1 cannot
+  score >=9.0 or authorize G2/G3 until the assembled First Job screen passes.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
 - Wave 3 is technically closed; `G1-FRONT-01`, bounded `G1-FRESH-01`,

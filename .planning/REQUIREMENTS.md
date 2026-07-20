@@ -61,8 +61,9 @@ only machine-evidence `green` is checked.
 - [x] **RDY-FRESH-01**: Stale values remain visible for reconfirmation.
 - [ ] **RDY-RETURN-01**: Collection returns safely to the exact originating case.
 - [ ] **RDY-RUNTIME-01**: Maestro and Patrol prove persistence, restart, and recompute.
-- [ ] **RDY-GATE-01**: All 31 ticket rows become evidence-backed GREEN; Phase 37
-  score >=9.0 and G2 decision explicitly becomes YES.
+- [ ] **RDY-GATE-01**: All 31 ticket rows become evidence-backed GREEN;
+  `G1-COHERENCE-01` proves the assembled First Job screen has one financial and
+  narrative truth; Phase 37 score >=9.0 and G2 decision explicitly becomes YES.
 
 ## Phase 38 — Mint OS operating runway and v2.8 convergence
 

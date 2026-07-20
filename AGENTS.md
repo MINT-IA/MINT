@@ -3,7 +3,8 @@
 > **Start here, every session.** This file tells any agent (human or LLM)
 > how to navigate MINT so the rules in `CLAUDE.md` apply to the right code.
 > Team structure + spawning recipes live further down.
-> Full ruleset: [`CLAUDE.md`](CLAUDE.md) · Roadmap: [`docs/ROADMAP_V2.md`](docs/ROADMAP_V2.md).
+> Full ruleset: [`CLAUDE.md`](CLAUDE.md) · Execution roadmap: [`.planning/ROADMAP.md`](.planning/ROADMAP.md).
+> `docs/ROADMAP_V2.md` is a historical strategic snapshot, not current execution truth.
 > Agent/Codex/Claude workflow: [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md).
 
 ---

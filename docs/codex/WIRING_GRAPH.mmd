@@ -848,9 +848,10 @@ flowchart TB
 %%     RVC requires the exact linked impactRetained pair and a route-owned,
 %%     idempotent terminal consume. This is a bounded G1-RETURN-01 atom, not the
 %%     global five-routed-origin plus Frontalier-in-place/runtime closure.
-%% D-3 /rapport      (app.dart:980) PARTIAL: still reads wizardAnswers from
-%%     extra (:983-986), but now falls back to ReportPersistenceService
-%%     (:987-999). Remaining gap: no timeout/errorState if load stalls/fails.
+%% D-3 /rapport      FIXED at HEAD: the route waits on
+%%     CoachProfileProvider.waitForReportAnswers() and reads the provider's
+%%     reportAnswersSnapshot; it does not read domain data from state.extra.
+%%     CHECK: app.dart contains no `.extra` access.
 %% D-4 /tools        FIXED at HEAD for query preservation and report actions:
 %%     /tools uses _redirectPreservingQuery (app.dart:1191-1193), and report
 %%     investment/other actions route to /coach/chat?topic=... (financial_report_screen_v2.dart:51-52).
