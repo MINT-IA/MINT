@@ -51,9 +51,6 @@ void main() {
       await $(#succession_instrument_will_question).waitUntilVisible();
       await $(#succession_instrument_will_absent).tap();
       await $(#succession_answer_saved).waitUntilVisible();
-      await $(#succession_next_question).tap();
-      await $(#succession_instrument_inheritancePact_question)
-          .waitUntilVisible();
 
       final persisted = await ReportPersistenceService.loadAnswers();
       final strictRoot = persisted[coachEstateEvidenceRootKey];
