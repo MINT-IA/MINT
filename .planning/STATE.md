@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: G1-SUCCESSION-01 is GREEN after exact-command RED 0/10 at 852c124af, GREEN 10/10 at 7849711b3, and full exact-SHA runtime PASS at pushed 32aed9f99; 6 hard floors remain, and G2/G3 are not authorized.
-last_updated: "2026-07-20T06:15:00Z"
-last_activity: 2026-07-20 -- G1-SUCCESSION-01 promoted after exact-command RED→GREEN and full pushed-SHA production/Patrol/Maestro process-death proof; registry is 25/31 GREEN and G1 remains NO-GO.
+stopped_at: G1-RETURN-01 is GREEN after semantic RED 72/82, accepted exact-command 82/82, exact-SHA CI SUCCESS, and full six-origin Patrol/Maestro plus linked RVC runtime PASS; 5 registry hard floors remain, and G2/G3 are not authorized.
+last_updated: "2026-07-20T20:52:14Z"
+last_activity: 2026-07-20 -- G1-RETURN-01 promoted on exact command and complete pushed-SHA six-origin runtime evidence; registry is 26/31 GREEN and G1 remains NO-GO.
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,15 +34,17 @@ Plan: 37-06 — Scenario, freshness, safe-return and recovery floors
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-20 -- the seventeenth RETURN-01 runtime reached
-Frontalier after Work, Housing, Disability and Succession passed Patrol plus
-Maestro. Its first hard fail (native dropdown identifier absent) is repaired,
-audited, pushed at `98846cf64153a096b6e19cd3686a328780e50c02`, and exact-SHA
-GitHub run `29756940451` is GREEN. Direct review of the retained First Job
-capture also opened `G1-COHERENCE-01` as P0: contradictory LPP/net calculations,
-duplicated salary/checklist stories, unsupported 3a/LAMal recommendations and
-unlabelled projection bases block whole-screen acceptance. The registry remains
-**25/31 GREEN**; G1 stays NO-GO and G2/G3 remain forbidden.
+Last activity: 2026-07-20 -- `G1-RETURN-01` is GREEN. The canonical command
+moved from semantic RED 72/82 at `0035356f9` to 82/82 and was re-confirmed at
+pushed `d13d032504837cd4bc9233cb6309ebd36b24e4bb`; exact-SHA GitHub run
+`29777377274` succeeded. The full runtime at pushed
+`5eb8a78a2b38caba9ef165ad90f023773bba81f0` passed five Patrol and five
+Maestro origin stages, including Frontalier cold FR/CH/GE, then the linked RVC
+runtime, checksums, cleanup and restoration. `G1-COHERENCE-01` remains a
+separate open P0 because the inspected First Job screen still has contradictory
+LPP/net calculations, duplicate stories, unsupported recommendation-shaped
+copy and incoherent projection bases. The registry is **26/31 GREEN**; G1 stays
+NO-GO and G2/G3 remain forbidden.
 
 Provisional G1 score: **8.2/10 — NO-GO**.
 
@@ -167,18 +169,26 @@ Provisional G1 score: **8.2/10 — NO-GO**.
   default-off/on routes and strict visible quest anchors are proven. This
   closes one ticket only and does not authorize G2/G3.
 
+- `G1-RETURN-01` is `green`: semantic RED 72/82 at `0035356f9`, initial
+  implementation GREEN 82/82 at `6427a9772`, and accepted exact-command 82/82
+  at pushed `d13d03250` with GitHub CI run `29777377274` successful. Full
+  pushed-source runtime `5eb8a78a2` passes five Patrol plus five Maestro stages
+  for Work, Housing, Disability, Succession and Frontalier cold FR/CH/GE, then
+  the linked RVC Patrol/Maestro proof, exactness, checksum, cleanup and
+  restoration gates. This does not close `G1-RUNTIME-01` or authorize G2/G3.
+
 ## Active Blockers
 
-- The canonical registry has 31 rows: 25 `green`, 5 `ticket_only`, and one
-  `red_proven`. Therefore 6 G1 hard floors remain open.
+- The canonical registry has 31 rows: 26 `green`, 4 `ticket_only`, and one
+  `red_proven`. Therefore 5 G1 hard floors remain open.
 - `G1-COHERENCE-01` is an additional open P0 acceptance hard floor under
   RDY-GATE-01. It does not alter the 31-row ledger/runtime count, but G1 cannot
   score >=9.0 or authorize G2/G3 until the assembled First Job screen passes.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
 - Wave 3 is technically closed; `G1-FRONT-01`, bounded `G1-FRESH-01`,
-  `G1-SCN-01` and `G1-SUCCESSION-01` are accepted. Five ticket-only floors
-  plus `G1-RUNTIME-01` remain; RET-REF stays ticket-only and must keep precise retirement meaning
+  `G1-SCN-01`, `G1-SUCCESSION-01` and `G1-RETURN-01` are accepted. Four
+  ticket-only floors plus `G1-RUNTIME-01` remain; RET-REF stays ticket-only and must keep precise retirement meaning
   educational until its remaining activation gates close.
 - Eight external production facts remain unproven: controller identity,
   operational privacy contact, Anthropic role/DPA, actual processing regions,
@@ -198,15 +208,15 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-20T06:15:00Z
+Last session: 2026-07-20T20:52:14Z
 
-Stopped at: SUCCESSION-01 is promoted with exact-command RED→GREEN and a
-full exact-pushed-SHA production/Patrol/Maestro process-death PASS at
-`32aed9f99`. Registry truth is 25/31 GREEN; six hard floors remain. Continue
-only G1 with the next open Plan 37-06 ticket; do not start G2/G3.
+Stopped at: RETURN-01 is promoted with exact-command RED→GREEN, exact-SHA CI,
+five-origin Patrol/Maestro and linked RVC PASS at pushed `5eb8a78a2`. Registry
+truth is 26/31 GREEN; five hard floors remain. Continue only G1 with the next
+open Plan 37-06 ticket; do not start G2/G3.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json`,
-`.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/metadata.json`
+`.planning/runtime-evidence/phase-37/return-01/verification.md`
 and `.planning/phases/37-ledger-runtime-readiness/37-06-PLAN.md`. Do not infer
 progress from plan numbering alone.
 

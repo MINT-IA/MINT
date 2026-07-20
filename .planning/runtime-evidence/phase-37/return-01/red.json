@@ -2,7 +2,7 @@
   "ticket_id": "G1-RETURN-01",
   "command": "cd apps/mobile && flutter test test/navigation/data_block_return_uri_test.dart --reporter expanded",
   "recorded_at": "2026-07-20T07:05:52Z",
-  "assertion": "data_block_return_uri_test",
+  "assertion": "return_uri_test",
   "synthetic_data_only": true,
   "stage": "RED",
   "sha": "0035356f969236031772bc1956e956a6414c9487",

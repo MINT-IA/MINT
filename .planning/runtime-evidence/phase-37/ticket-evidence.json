@@ -381,16 +381,16 @@
     },
     {
       "ticket_id": "G1-RETURN-01",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/navigation/data_block_return_uri_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "0035356f969236031772bc1956e956a6414c9487",
+      "red_artifact": ".planning/runtime-evidence/phase-37/return-01/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "d13d032504837cd4bc9233cb6309ebd36b24e4bb",
+      "green_artifact": ".planning/runtime-evidence/phase-37/return-01/green.json",
+      "accepted_sha": "d13d032504837cd4bc9233cb6309ebd36b24e4bb"
     },
     {
       "ticket_id": "G1-RUNTIME-01",

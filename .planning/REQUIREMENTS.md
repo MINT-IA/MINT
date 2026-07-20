@@ -59,7 +59,8 @@ only machine-evidence `green` is checked.
 - [ ] **RDY-AVS-02**: Official 13th-pension evidence survives restart and renders separate monthly, December and annual cash flows.
 - [x] **RDY-AVS-03**: Unofficial gap counts remain unpriced until an official scale or amount exists.
 - [x] **RDY-FRESH-01**: Stale values remain visible for reconfirmation.
-- [ ] **RDY-RETURN-01**: Collection returns safely to the exact originating case.
+- [x] **RDY-RETURN-01**: Collection returns safely to the exact originating case.
+  Evidence: [`G1-RETURN-01` verification](runtime-evidence/phase-37/return-01/verification.md).
 - [ ] **RDY-RUNTIME-01**: Maestro and Patrol prove persistence, restart, and recompute.
 - [ ] **RDY-GATE-01**: All 31 ticket rows become evidence-backed GREEN;
   `G1-COHERENCE-01` proves the assembled First Job screen has one financial and

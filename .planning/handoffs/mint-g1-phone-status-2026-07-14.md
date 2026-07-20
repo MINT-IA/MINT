@@ -4,61 +4,66 @@ Date: 2026-07-20
 
 ## En une phrase
 
-G1 avance réellement mais n'est pas fini: **25 tickets sur 31 sont GREEN,
-6 floors de registre restent ouverts et `G1-COHERENCE-01` ajoute un P0
-d'acceptation écran**. G2/G3 ne sont pas autorisés.
+`G1-RETURN-01` est réellement **GREEN**: le registre est maintenant à **26/31**,
+avec **5 floors de registre ouverts**. `G1-COHERENCE-01` reste en plus un P0
+d'acceptation écran. G1 reste **NO-GO** et G2/G3 ne sont pas autorisés.
 
 ## Ce qui vient d'être prouvé
 
-- `G1-SUCCESSION-01`: **GREEN**.
-- Commande canonique exacte: RED sémantique **0/10** à `852c124af`, puis
-  **10/10 GREEN** à `7849711b3`.
+- Commande canonique RETURN identique: RED sémantique **72/82** à
+  `0035356f969236031772bc1956e956a6414c9487`; GREEN initial **82/82** à
+  `6427a97722db879d74ccb04bde50d3c75e755112`; réconfirmation **82/82** au
+  SHA poussé `d13d032504837cd4bc9233cb6309ebd36b24e4bb`.
+- GitHub CI exact-SHA: run `29777377274` **SUCCESS**.
 - Runtime complet au SHA poussé exact
-  `32aed9f99c87f2aab738d8860b117fc3a3a7ce5e`: Doctor, build production
-  flag-off/on, Maestro, seed civil, overlay sans effacement, Patrol
-  `native_present`, `absent_write`, mort de processus et `cold_read`.
-- Les quatre suites Patrol passent 1/1; les quatre rapports Maestro passent
-  1/1. Les témoins seed sont byte-identiques et les processus writer/reader
-  sont distincts.
-- Les probes bornés font défiler puis confirment l'ancre Succession dans la
-  hiérarchie. Les quatre screenshots ont été inspectés et acceptés par le lead.
-- Les 69 entrées de `SHA256SUMS` sont vérifiées; données synthétiques seulement,
-  sorties brutes non conservées, cleanup et restauration PASS.
-- Audits wrapper code/produit/readiness/probe: PASS, zéro P0/P1, sans carousel.
+  `5eb8a78a2b38caba9ef165ad90f023773bba81f0`: cinq Patrol 1/1 et cinq
+  Maestro pour Work save, Housing cancel/no-write, Disability validation
+  cancel/no-write, Succession save et Frontalier inline.
+- Frontalier sélectionne FR/CH/GE par l'UI de production puis les retrouve après
+  relance froide; aucun DataBlock/`returnUri` n'est fabriqué.
+- Le runtime RVC lié passe aussi Patrol et Maestro sur le même SHA source.
+- Métadonnées, source physique exacte, overlays, témoins de store, hiérarchies,
+  screenshots, checksums, données synthétiques, cleanup, restauration et arbre
+  source propre: PASS.
+- Les audits wrapper archivés n'ont pas de P0/P1 non résolu.
 
 ## Sources de vérité
 
 1. `.planning/runtime-evidence/phase-37/ticket-evidence.json`
-2. `.planning/STATE.md`
-3. `.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/SCORECARD.md`
-4. `.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/metadata.json`
+2. `.planning/runtime-evidence/phase-37/return-01/verification.md`
+3. `.planning/runtime-evidence/phase-37/return-01/runtime-5eb8a78a2b-20260720T202301Z/metadata.json`
+4. `.planning/STATE.md`
+5. `.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/SCORECARD.md`
 
 ## État exact
 
 | État | Nombre |
 |---|---:|
-| GREEN | 25 |
-| `ticket_only` | 5 |
+| GREEN | 26 |
+| `ticket_only` | 4 |
 | `red_proven` | 1 |
-| **Ouverts** | **6** |
+| **Floors de registre ouverts** | **5** |
 
-Score provisoire: **8.2/10 — NO-GO**.
+Ouverts: `G1-COACH-02`, `G1-RET-STATE-01`, `G1-RET-REF-01`, `G1-AVS-02` et
+`G1-RUNTIME-01`.
+
+Score provisoire inchangé: **8.2/10 — NO-GO**.
 
 ## Maintenant
 
-1. Fermer `G1-COHERENCE-01` sur l'écran Premier emploi avant de considérer la
-   capture Work comme acceptable.
-2. Continuer exclusivement les cinq tickets `ticket_only` restants et
-   `G1-RUNTIME-01`.
-3. Ne pas relancer les audits SUCCESSION-01 déjà PASS.
-4. Ne pas confondre cette preuve de succession avec le runtime global
+1. Ne pas confondre RETURN-01 GREEN avec le runtime global
    `G1-RUNTIME-01`, qui reste `red_proven`.
+2. Fermer méthodiquement les quatre tickets `ticket_only` puis
+   `G1-RUNTIME-01`.
+3. Fermer séparément `G1-COHERENCE-01`: l'écran Premier emploi inspecté reste
+   incohérent sur les calculs LPP/net, les doublons, les formulations de conseil
+   et les bases de projection.
+4. Ne pas relancer les audits RETURN déjà PASS sans nouveau diff pertinent.
 5. Ne jamais démarrer G2/G3 avant 31/31 GREEN, cohérence écran GREEN, score
    ≥9.0 et zéro P0/P1.
 
-Les chemins d'acquisition concernés restent régis par leurs flags et décisions
-d'activation propres. Un ticket technique GREEN n'autorise pas une activation
-produit globale.
+Les flags et décisions d'activation restent indépendants. Un ticket technique
+GREEN n'autorise pas une activation produit globale.
 
 ## Pour reprendre dans une nouvelle tâche Codex
 
