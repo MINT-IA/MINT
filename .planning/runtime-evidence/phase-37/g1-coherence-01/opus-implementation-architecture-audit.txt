@@ -1,0 +1,43 @@
+# MINT External Audit — Phase 37 / G1-COHERENCE-01 (architecture mode)
+
+**Scope audited:** the phase-37 `g1-coherence-01` evidence chain and the First Job "coherence repair" it certifies (service rewrite, screen rewrite, fail-closed route gate, film-widget deletion, l10n, and the G1-RETURN-01 six-origin proof re-anchoring). Branch `codex/g1-capital-native-proof-20260718`, worktree vs. HEAD.
+
+**Method:** I treated the checked-in code/tests as source of truth and challenged the docs. The evidence directory contains **two NO-GO first-pass audits** (`opus-implementation-code-audit.txt`, `sonnet-implementation-code-rerun.txt`) and a **PASS Opus final confirmation** (`opus-implementation-code-final-confirmation.txt`). The core audit question is whether that final PASS legitimately reflects fixed code or papers over the earlier P1s. I verified each earlier P1 against live code and ran the suite myself.
+
+## Both prior NO-GO P1s are genuinely remediated (verified in live code)
+
+- **Opus P1 — stale six-origin proof selectors** (`first_job_result_cards`/`first_job_ledger_facts`, `mint:///first-job` waits): **FIXED.** `.maestro/g1_return01_work_return.yaml:25,28,51,55,58` now drives `first_job_enrich_profile_cta` → data-block → `first_job_salary_authority`; the runtime guard `test/runtime/g1_return01_six_origin_runtime_test.dart:75-78,276-277,324-326` now *forbids* the old keys and *requires* the new ones. Patrol targets at `integration_test/g1_return01_first_job_return_patrol_test.dart:53,95` and `..._six_origin_patrol_test.dart:108,128` use the new keys.
+- **Sonnet P1 (F1) — `_enrichmentCta` dropped `Semantics(identifier:)`** so Maestro `id:` would time out: **FIXED.** `first_job_screen.dart:201-204` restores `Semantics(key:…, identifier: 'first_job_enrich_profile_cta', button: true)`. The coherence test asserts it live via `find.bySemanticsIdentifier('first_job_enrich_profile_cta')` (`first_job_whole_screen_coherence_test.dart:85`).
+- **Product-domain P2 — facade hub tile:** **FIXED.** The `HubEntry(label:'Premier emploi', route:'/first-job')` is now gated behind `if (FeatureFlags.enableFirstJobScreen)` (`app.dart:1362`).
+- **Sonnet P2-A — vacuous `first_job_result_cards findsNothing`:** **FIXED.** Smoke test now asserts the real states (`life_event_screens_additional_smoke_test.dart:597,604,621,627`).
+
+## Core invariants independently confirmed
+
+- **Fail-closed gate is real.** `enableFirstJobScreen = const bool.fromEnvironment('MINT_TEST_FIRST_JOB', defaultValue:false)` (`feature_flags.dart:75-78`) and is **absent** from `applyFromMap` (`feature_flags.dart:202-231`) — backend cannot enable it. `/first-job` redirects via `firstJobFeatureRedirect()` → `/explore/travail` (`app.dart:1825-1827,2440-2441`); target route has no redirect of its own (`app.dart:1357`) → no loop. Coherence test proves the backend-cannot-enable invariant (`first_job_whole_screen_coherence_test.dart:50-54`).
+- **No façade / no dangling wiring.** `grep` for `FirstSalaryFilmWidget`/`first_salary_film_widget` returns zero refs; the modified `first_salary_film_widget_test.dart` no longer imports the deleted widget. `flutter analyze` on the four touched sources: **No issues found**.
+- **Model honesty.** `FirstJobResult.lppEmploye`/`netEstime` are hard-`null` (`first_job_service.dart:65,68`); the age-credit is a labelled statutory illustration only, never subtracted (`first_job_salary_financial_facts.dart:46-57`).
+- **Tests observed GREEN, not asserted.** I ran the suite: 22/22 pass across `first_job_whole_screen_coherence_test`, `first_job_service_test`, `financial_core/first_job_salary_financial_facts_test`, `g1_return01_six_origin_runtime_test`, `first_job_screen_test`, plus `i18n/hardcoded_string_audit_test` (22 pass). This closes the two "evidence-needed" P2s in the final-confirmation doc.
+
+The Opus final-confirmation PASS is defensible and matches the code. The audit loop obeyed the AGENTS.md contract (one first pass, one Sonnet rerun, one Opus final confirmation — no carousel).
+
+## Findings
+
+### P0
+None.
+
+### P1
+None unresolved. Every P0/P1 raised by the two NO-GO audits is remediated in the current worktree, verified file-by-file and by a green test run.
+
+### P2 (non-blocking, for backlog)
+1. **Soft dead-ends while gated.** Seven live surfaces still emit `/first-job` (`coach/intent_router.dart:75`, `coach/tool_call_parser.dart:97`, `widgets/life_event_suggestions.dart:108`, `screens/timeline_screen.dart:106`, `services/response_card_service.dart:348`, `navigation/screen_registry.dart:855`, `cap_sequence_engine.dart:485`). With the flag off, a coach suggestion bounces the user to the Travail hub where the tile is hidden — graceful, no crash, but a dead suggestion. Reuse `firstJobFeatureRedirect()`'s flag at suggestion time.
+2. **Unlocalized user-facing labels.** `SalaryDeductionItem.label` `'AVS/AI/APG'` and `'Chomage (AC)'` (`first_job_service.dart:71,77`) are rendered verbatim (`first_job_screen.dart:249`) in all 6 locales. The hardcoded-string gate passes, but `'Chomage (AC)'` is untranslated FR outside `fr`.
+3. **Dead l10n surface.** Legacy `narrativeFirstJob*`, `firstJob3a*`, `firstJobChecklist*`, `firstSalary*` keys remain in all six `.arb`/`.dart` with no consumer after the film-widget deletion — harmless, but prune to keep the l10n set honest.
+4. **Stray empty evidence file.** `opus-implementation-architecture-audit.txt` is **0 bytes** (untracked). The two contractually-mandated lenses (`code`, `product-domain`) are present and PASS, so no gate is actually missing — but an empty file under a gate directory invites a future false "architecture lens ran" claim. Delete it or fill it.
+5. **Static-flag mutation without teardown** in `first_job_whole_screen_coherence_test.dart:50` and the smoke test — harmless today (env default already false), but add `addTearDown` for ordering hygiene.
+6. **Constant provenance via literal fallbacks.** Test run logs `reg() FALLBACK` for every AVS/AC/LPP constant (registry cache miss → hardcoded literals in `social_insurance.dart`). Values match 2025/2026; risk is low because they only feed a labelled illustration, never a hard figure the user acts on. A dated source reference beside the constants would prove freshness.
+
+## Verdict
+
+# PASS
+
+The phase evidence is sound: the two prior NO-GO audits' P0/P1 findings are genuinely fixed in the checked-in code (not merely re-narrated), the change is fail-closed and fully wired with no façade, and I independently reproduced clean `flutter analyze` plus 22 green tests and the i18n gate. Only P2 items remain, none of which block acceptance of G1-COHERENCE-01. Address the seven `/first-job` soft dead-ends (P2-1) and the empty architecture evidence file (P2-4) in follow-up.

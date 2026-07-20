@@ -43690,6 +43690,126 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Guide des démarches après le décès d’un proche'**
   String get successionDeathGuideSemanticsLabel;
+
+  /// No description provided for @firstJobCoherenceIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une seule lecture de ton premier salaire, fondée sur tes données et honnête sur ce qui reste à confirmer.'**
+  String get firstJobCoherenceIntro;
+
+  /// No description provided for @firstJobGrossKnown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire brut mensuel connu'**
+  String get firstJobGrossKnown;
+
+  /// No description provided for @firstJobKnownDeductionsIllustrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS/AI/APG et AC — illustrations légales'**
+  String get firstJobKnownDeductionsIllustrative;
+
+  /// No description provided for @firstJobPayslipAcLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance-chômage (AC)'**
+  String get firstJobPayslipAcLabel;
+
+  /// No description provided for @firstJobLppExactUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP exacte : à confirmer sur la fiche de salaire ou le certificat LPP'**
+  String get firstJobLppExactUnknown;
+
+  /// No description provided for @firstJobNetExactUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Net exact : à confirmer après lecture de toutes les retenues'**
+  String get firstJobNetExactUnknown;
+
+  /// No description provided for @firstJobLppIllustration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonification de vieillesse légale illustrative : {amount}/mois sur le salaire coordonné. Ce n’est pas ta retenue LPP.'**
+  String firstJobLppIllustration(String amount);
+
+  /// No description provided for @firstJobEvidenceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute ou vérifie tes données de revenu pour garder cette lecture reliée à ton dossier.'**
+  String get firstJobEvidenceHint;
+
+  /// No description provided for @firstJobPillar3aNeutralTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a : comparer avant de choisir'**
+  String get firstJobPillar3aNeutralTitle;
+
+  /// No description provided for @firstJobPillar3aNeutralBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les solutions bancaires et d’assurance sont des formes reconnues. Compare frais, flexibilité, couverture de risque, liquidité et situation fiscale. Le plafond annuel n’est ni une cible ni une mensualité recommandée.'**
+  String get firstJobPillar3aNeutralBody;
+
+  /// No description provided for @firstJobLamalNeutralTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'LAMal : utiliser des primes réelles'**
+  String get firstJobLamalNeutralTitle;
+
+  /// No description provided for @firstJobLamalNeutralBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La franchise dépend de ta prime officielle, de tes dépenses attendues et de ta capacité à absorber les coûts. MINT ne classe aucune franchise sans ces données.'**
+  String get firstJobLamalNeutralBody;
+
+  /// No description provided for @firstJobLamalNeutralButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer avec mes données LAMal'**
+  String get firstJobLamalNeutralButton;
+
+  /// No description provided for @firstJobChecklistCoherentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Checklist premier emploi'**
+  String get firstJobChecklistCoherentTitle;
+
+  /// No description provided for @firstJobNoProjection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune projection patrimoniale n’est affichée tant qu’une contribution, un horizon et des hypothèses explicites ne sont pas choisis.'**
+  String get firstJobNoProjection;
+
+  /// No description provided for @firstJobCoherentChecklist1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer ta fiche de salaire avec ton contrat de travail'**
+  String get firstJobCoherentChecklist1;
+
+  /// No description provided for @firstJobCoherentChecklist2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander le certificat de prévoyance de ta caisse LPP'**
+  String get firstJobCoherentChecklist2;
+
+  /// No description provided for @firstJobCoherentChecklist3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer les primes LAMal avec tes données sur Priminfo'**
+  String get firstJobCoherentChecklist3;
+
+  /// No description provided for @firstJobCoherentChecklist4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier tes couvertures de risque et tes besoins de liquidité'**
+  String get firstJobCoherentChecklist4;
+
+  /// No description provided for @firstJobCoherentChecklist5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conserver ton certificat de salaire pour ta fiscalité'**
+  String get firstJobCoherentChecklist5;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

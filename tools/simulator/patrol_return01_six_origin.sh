@@ -103,7 +103,7 @@ witness_name_for_stage() {
 
 final_anchor_for_stage() {
   case "${1:-}" in
-    work_save) printf '%s\n' 'first_job_result_cards' ;;
+    work_save) printf '%s\n' 'first_job_salary_authority' ;;
     housing_cancel) printf '%s\n' 'mortgage_enrich_profile_cta' ;;
     disability_validation_cancel) printf '%s\n' 'disability_gap_ledger_facts' ;;
     succession_save) printf '%s\n' 'succession_mortgage_missing' ;;
@@ -170,6 +170,7 @@ chmod 700 "$artifacts"
 private_root=$(mktemp -d "${TMPDIR:-/tmp}/mint-return01-six.XXXXXX")
 source_root="$private_root/source"
 normal_app=''
+first_job_app=''
 cleanup_status='pending'
 restoration_status='pending'
 
@@ -268,16 +269,34 @@ build_physical_source() {
     flutter pub get
     flutter build ios --simulator --debug
   ) >"$private_root/production-build.raw.log" 2>&1
-  sanitize_log "$private_root/production-build.raw.log" "$artifacts/production-build.log"
   [[ -d "$built_app" && ! -L "$built_app" ]] || die 'physical production app missing'
   normal_app="$private_root/normal-production-app/Runner.app"
   mkdir -p "${normal_app%/*}"
   /usr/bin/ditto "$built_app" "$normal_app"
   [[ -d "$normal_app" && ! -L "$normal_app" ]] \
     || die 'immutable production app snapshot missing'
-  codesign --verify --deep --strict "$normal_app" \
-    >"$private_root/production-codesign.raw.log" 2>&1
-  xattr -lr "$normal_app" >"$private_root/production-xattrs.raw.log" 2>&1 || true
+
+  (
+    cd "$source_root/apps/mobile"
+    flutter build ios --simulator --debug --dart-define=MINT_TEST_FIRST_JOB=true
+  ) >>"$private_root/production-build.raw.log" 2>&1
+  [[ -d "$built_app" && ! -L "$built_app" ]] \
+    || die 'physical First Job proof app missing'
+  first_job_app="$private_root/first-job-proof-app/Runner.app"
+  mkdir -p "${first_job_app%/*}"
+  /usr/bin/ditto "$built_app" "$first_job_app"
+  [[ -d "$first_job_app" && ! -L "$first_job_app" ]] \
+    || die 'immutable First Job proof app snapshot missing'
+
+  sanitize_log "$private_root/production-build.raw.log" "$artifacts/production-build.log"
+  {
+    codesign --verify --deep --strict "$normal_app"
+    codesign --verify --deep --strict "$first_job_app"
+  } >"$private_root/production-codesign.raw.log" 2>&1
+  {
+    xattr -lr "$normal_app" || true
+    xattr -lr "$first_job_app" || true
+  } >"$private_root/production-xattrs.raw.log" 2>&1
   sanitize_log "$private_root/production-codesign.raw.log" "$artifacts/production-codesign.log"
   sanitize_log "$private_root/production-xattrs.raw.log" "$artifacts/production-xattrs.log"
   xcrun simctl uninstall "$device" "$bundle_id" \
@@ -431,9 +450,16 @@ run_maestro_stage() {
   local synthetic_seed='reset'
   local container_identity='reset'
   local persistent_data='not_applicable'
+  local overlay_app=$normal_app
   mkdir -p "$private_stage"
   case "$stage" in
-    work_save | disability_validation_cancel | succession_save)
+    work_save)
+      overlay_app=$first_job_app
+      [[ -d "$overlay_app" && ! -L "$overlay_app" ]] \
+        || die 'First Job Maestro proof app is invalid'
+      xcrun simctl uninstall "$device" "$bundle_id" >/dev/null 2>&1 || true
+      ;;
+    disability_validation_cancel | succession_save)
       # These black-box flows own their synthetic save from an empty install.
       xcrun simctl uninstall "$device" "$bundle_id" >/dev/null 2>&1 || true
       ;;
@@ -450,7 +476,7 @@ run_maestro_stage() {
       die "unknown Maestro stage $stage"
       ;;
   esac
-  xcrun simctl install "$device" "$normal_app" >/dev/null
+  xcrun simctl install "$device" "$overlay_app" >/dev/null
   if [[ -n "$container_before" ]]; then
     container_after=$(resolve_app_container) \
       || die "$stage post-overlay app container is invalid"
@@ -628,8 +654,12 @@ run_patrol_stage() {
   local raw="$private_root/patrol-$stage.raw.log"
   local patrol_status=0
   local app_container witness_source witness_name
+  local -a first_job_define=()
   witness_name=$(witness_name_for_stage "$stage") \
     || die "unknown Patrol stage $stage"
+  case "$stage" in
+    work_save) first_job_define=(--dart-define=MINT_TEST_FIRST_JOB=true) ;;
+  esac
   set +e
   (
     cd "$source_root/apps/mobile"
@@ -637,6 +667,7 @@ run_patrol_stage() {
       "$patrol" test -t "test/patrol/g1_return01_six_origin_runtime_test.dart" \
         --no-uninstall --device "$device" \
         --dart-define=MINT_PATROL_CLI=true \
+        "${first_job_define[@]}" \
         --dart-define=MINT_G1_RETURN01_STAGE="$stage" \
         --dart-define=MINT_G1_RETURN01_SOURCE_SHA="$expected_sha"
   ) >"$raw" 2>&1

@@ -24976,4 +24976,81 @@ class SEn extends S {
   @override
   String get successionDeathGuideSemanticsLabel =>
       'Guide to steps after the death of a loved one';
+
+  @override
+  String get firstJobCoherenceIntro =>
+      'One reading of your first salary, based on your data and honest about what remains to be confirmed.';
+
+  @override
+  String get firstJobGrossKnown => 'Known gross monthly salary';
+
+  @override
+  String get firstJobKnownDeductionsIllustrative =>
+      'OASI/DI/IC and unemployment insurance — statutory illustrations';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Unemployment insurance (ALV/AC)';
+
+  @override
+  String get firstJobLppExactUnknown =>
+      'Exact occupational pension deduction: confirm on your payslip or pension certificate';
+
+  @override
+  String get firstJobNetExactUnknown =>
+      'Exact net: confirm after reviewing every deduction';
+
+  @override
+  String firstJobLppIllustration(String amount) {
+    return 'Illustrative statutory retirement credit: $amount/month on coordinated salary. This is not your pension deduction.';
+  }
+
+  @override
+  String get firstJobEvidenceHint =>
+      'Add or verify your income data to keep this reading linked to your file.';
+
+  @override
+  String get firstJobPillar3aNeutralTitle =>
+      'Pillar 3a: compare before choosing';
+
+  @override
+  String get firstJobPillar3aNeutralBody =>
+      'Bank and insurance solutions are recognised forms. Compare fees, flexibility, risk cover, liquidity and tax situation. The annual ceiling is neither a target nor a recommended monthly payment.';
+
+  @override
+  String get firstJobLamalNeutralTitle => 'Health insurance: use real premiums';
+
+  @override
+  String get firstJobLamalNeutralBody =>
+      'The deductible depends on your official premium, expected spending and ability to absorb costs. MINT ranks no deductible without those inputs.';
+
+  @override
+  String get firstJobLamalNeutralButton =>
+      'Compare with my health-insurance data';
+
+  @override
+  String get firstJobChecklistCoherentTitle => 'First-job checklist';
+
+  @override
+  String get firstJobNoProjection =>
+      'No wealth projection is shown until a contribution, horizon and explicit assumptions are selected.';
+
+  @override
+  String get firstJobCoherentChecklist1 =>
+      'Compare your payslip with your employment contract';
+
+  @override
+  String get firstJobCoherentChecklist2 =>
+      'Request your pension fund certificate';
+
+  @override
+  String get firstJobCoherentChecklist3 =>
+      'Compare health-insurance premiums with your data on Priminfo';
+
+  @override
+  String get firstJobCoherentChecklist4 =>
+      'Review risk cover and liquidity needs';
+
+  @override
+  String get firstJobCoherentChecklist5 =>
+      'Keep your salary certificate for tax purposes';
 }

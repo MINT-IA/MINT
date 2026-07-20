@@ -1356,26 +1356,30 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/explore/travail',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ExploreHubScreen(
+      builder: (context, state) => ExploreHubScreen(
         title: 'Travail & Statut',
         entries: [
-          HubEntry(
-              icon: Icons.school, label: 'Premier emploi', route: '/first-job'),
-          HubEntry(
+          if (FeatureFlags.enableFirstJobScreen)
+            const HubEntry(
+              icon: Icons.school,
+              label: 'Premier emploi',
+              route: '/first-job',
+            ),
+          const HubEntry(
               icon: Icons.work_off, label: 'Chomage', route: '/unemployment'),
-          HubEntry(
+          const HubEntry(
               icon: Icons.compare,
               label: 'Comparateur d\'emplois',
               route: '/simulator/job-comparison'),
-          HubEntry(
+          const HubEntry(
               icon: Icons.business_center,
               label: 'Independant',
               route: '/segments/independant'),
-          HubEntry(
+          const HubEntry(
               icon: Icons.flight_takeoff,
               label: 'Expatriation',
               route: '/expatriation'),
-          HubEntry(
+          const HubEntry(
               icon: Icons.badge,
               label: 'Frontalier',
               route: '/segments/frontalier'),
@@ -1820,6 +1824,7 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/first-job',
       parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) => firstJobFeatureRedirect(),
       builder: (context, state) => const FirstJobScreen(),
     ),
     ScopedGoRoute(
@@ -2430,6 +2435,10 @@ final _router = GoRouter(
         }),
   ],
 );
+
+@visibleForTesting
+String? firstJobFeatureRedirect() =>
+    FeatureFlags.enableFirstJobScreen ? null : '/explore/travail';
 
 /// Test-only accessor for the root GoRouter. Used by
 /// `test/app_router_observers_test.dart` (Phase 31-01 OBS-05) to assert

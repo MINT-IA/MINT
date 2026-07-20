@@ -15,6 +15,7 @@ void main() {
     for (final anchor in const <String>[
       "String.fromEnvironment('MINT_G1_RETURN01_STAGE')",
       "String.fromEnvironment('MINT_G1_RETURN01_SOURCE_SHA')",
+      "bool.fromEnvironment('MINT_TEST_FIRST_JOB')",
       "'work_save'",
       "'housing_cancel'",
       "'disability_validation_cancel'",
@@ -23,6 +24,7 @@ void main() {
       'const MintApp()',
       'testOnlyRootRouter.go',
       "const Key('first_job_enrich_profile_cta')",
+      "const Key('first_job_salary_authority')",
       "const Key('mortgage_enrich_profile_cta')",
       "const Key('disability_gap_enrich_cta')",
       "const Key('succession_property_missing')",
@@ -70,6 +72,8 @@ void main() {
       'const storeUnchanged =',
       'const validationRetained = _stage',
       'const frontalier = _stage',
+      "const Key('first_job_result_cards')",
+      "const Key('first_job_ledger_facts')",
     ]) {
       expect(source, isNot(contains(forbidden)), reason: forbidden);
     }
@@ -121,13 +125,13 @@ void main() {
     );
   });
 
-  test('installed-app Maestro flows use stable production selectors', () {
+  test('installed-app Maestro flows use stable bounded-proof selectors', () {
     const flows = <String, List<String>>{
       '.maestro/g1_return01_work_return.yaml': <String>[
         'first_job_enrich_profile_cta',
         'salary_input',
         'salary_save_cta',
-        'first_job_result_cards',
+        'first_job_salary_authority',
       ],
       '.maestro/g1_return01_housing_cancel_return.yaml': <String>[
         'mortgage_enrich_profile_cta',
@@ -166,6 +170,10 @@ void main() {
       expect(source, isNot(contains('clearState: true')), reason: entry.key);
       expect(source, isNot(contains('returnUri=')), reason: entry.key);
     }
+    expect(
+      _read('.maestro/g1_return01_work_return.yaml'),
+      contains('Build contract: --dart-define=MINT_TEST_FIRST_JOB=true'),
+    );
   });
 
   test('cancel Maestro flows tap the collector return action', () {
@@ -248,11 +256,27 @@ void main() {
   });
 
   test('Maestro waits on visible route anchors before scrolling to CTAs', () {
+    final work = _read('.maestro/g1_return01_work_return.yaml');
+    final workReady = work.indexOf(
+      '- extendedWaitUntil:\n    visible:\n'
+      '      id: "first_job_enrich_profile_cta"',
+    );
+    final workTap = work.indexOf(
+      '- tapOn:\n    id: "first_job_enrich_profile_cta"',
+    );
+    final salaryAuthority = work.indexOf(
+      '- extendedWaitUntil:\n    visible:\n'
+      '      id: "first_job_salary_authority"',
+      workTap,
+    );
+
+    expect(workReady, greaterThanOrEqualTo(0));
+    expect(workTap, greaterThan(workReady));
+    expect(salaryAuthority, greaterThan(workTap));
+    expect(work, isNot(contains('first_job_ledger_facts')));
+    expect(work, isNot(contains('first_job_result_cards')));
+
     const cases = <String, (String, String)>{
-      '.maestro/g1_return01_work_return.yaml': (
-        'first_job_ledger_facts',
-        'first_job_enrich_profile_cta',
-      ),
       '.maestro/g1_return01_housing_cancel_return.yaml': (
         'mortgage_afford_result',
         'mortgage_enrich_profile_cta',
@@ -279,6 +303,58 @@ void main() {
         )),
         reason: entry.key,
       );
+    }
+  });
+
+  test('both First Job Patrol targets require the bounded compile-time gate',
+      () {
+    for (final path in const <String>[
+      'integration_test/g1_return01_first_job_return_patrol_test.dart',
+      'integration_test/g1_return01_six_origin_patrol_test.dart',
+    ]) {
+      final source = _read(path);
+      expect(source, contains("bool.fromEnvironment('MINT_TEST_FIRST_JOB')"),
+          reason: path);
+      expect(source, contains('FeatureFlags.enableFirstJobScreen'),
+          reason: path);
+      expect(source, contains('--dart-define=MINT_TEST_FIRST_JOB=true'),
+          reason: path);
+      expect(source, contains("const Key('first_job_salary_authority')"),
+          reason: path);
+      expect(source, isNot(contains("const Key('first_job_result_cards')")),
+          reason: path);
+      expect(source, isNot(contains("const Key('first_job_ledger_facts')")),
+          reason: path);
+    }
+  });
+
+  test('First Job runtime anchor is live and runner wires the bounded build',
+      () {
+    final screen = _read('lib/screens/first_job_screen.dart');
+    expect(
+      screen,
+      contains("key: const Key('first_job_salary_authority')"),
+    );
+    expect(
+      screen,
+      contains("identifier: 'first_job_salary_authority'"),
+    );
+    expect(
+      screen,
+      contains("identifier: 'first_job_enrich_profile_cta'"),
+    );
+
+    final runner = _read('../../tools/simulator/patrol_return01_six_origin.sh');
+    for (final anchor in const <String>[
+      'first_job_app=',
+      'flutter build ios --simulator --debug '
+          '--dart-define=MINT_TEST_FIRST_JOB=true',
+      'work_save)\n      overlay_app=\$first_job_app',
+      'work_save) first_job_define=(--dart-define=MINT_TEST_FIRST_JOB=true)',
+      r'"${first_job_define[@]}"',
+      "work_save) printf '%s\\n' 'first_job_salary_authority'",
+    ]) {
+      expect(runner, contains(anchor), reason: anchor);
     }
   });
 

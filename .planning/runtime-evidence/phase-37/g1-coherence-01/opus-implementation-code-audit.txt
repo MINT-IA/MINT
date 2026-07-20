@@ -1,0 +1,37 @@
+## MINT External Audit — `codex/g1-capital-native-proof-20260718`
+
+**Scope:** First Job screen "coherence repair" — service model rewrite, screen rewrite, fail-closed route gate, film-widget deletion, l10n additions, test rewrites.
+
+I verified the substantive parts of the change and traced the ripple effects into the pre-existing G1-RETURN-01 proof artifacts.
+
+### What is correct (confirmed)
+- **Route target exists.** `firstJobFeatureRedirect()` → `/explore/travail` (`app.dart:2436-2437`); that route is registered (`app.dart:1357`, `route_metadata.dart:303`). No dangling redirect.
+- **Fail-closed gate is genuine.** `enableFirstJobScreen` is a compile-time `bool.fromEnvironment('MINT_TEST_FIRST_JOB', defaultValue:false)` and is **not** in `applyFromMap` (`feature_flags.dart:202-231`), so the backend cannot enable it. `first_job_whole_screen_coherence_test.dart:50-53` proves it.
+- **No compilation breakage.** `FirstJobResult`/`FirstJobService`/`analyzeSalary` are referenced only by the first-job files + their tests. The deleted `FirstSalaryFilmWidget` has zero remaining references. `formatChfWithPrefix` exists (`utils/chf_formatter.dart:29`).
+- **Golden/metadata tests stay green legitimately.** `route_guard_snapshot.golden.txt` captures only `(path, scope)` — both unchanged; `route_metadata_test.dart` has no `/first-job` killFlag assertion.
+- **Honest model.** `netEstime`/`lppEmploye` are now always null; the age-credit is retained only as a clearly-labelled illustration ("This is not your pension deduction") and never subtracted. Numeric assertions check out (age-30/6000 → age credit 265.65 = 45'540 × 7% / 12).
+
+### P0
+None.
+
+### P1
+**1. G1-RETURN-01 work-origin runtime proof is now unreproducible, and its guard test gives false-green.**
+The rewrite (a) gates `/first-job` fail-closed, (b) **renames** the stable selector `first_job_result_cards` → `first_job_salary_authority`, and (c) makes `first_job_ledger_facts` render **only** in the incomplete-facts branch (`first_job_screen.dart` `_missingFactsCard`, `key: Key('first_job_ledger_facts')`, rendered iff `result == null`; complete state uses `first_job_salary_authority`). The proof artifacts were **not** updated:
+- `.maestro/g1_return01_work_return.yaml:9,24,54,57` — still `openLink: "mint:///first-job"`, waits on `first_job_ledger_facts`, taps `first_job_result_cards`.
+- `integration_test/g1_return01_first_job_return_patrol_test.dart:39-88` — `go('/first-job')`, expects `FirstJobScreen` visible (line 42) and `Key('first_job_result_cards')` (line 86-88).
+- `test/runtime/g1_return01_six_origin_runtime_test.dart:130,253` — asserts the YAML still contains `first_job_result_cards` / `first_job_ledger_facts`, so it **passes** while enforcing selectors the app no longer produces.
+
+Reproduction:
+- Run the patrol flow with `MINT_PATROL_CLI=true`: shipped defaults redirect `/first-job` → `/explore/travail`, so `find.byType(FirstJobScreen).waitUntilVisible()` (line 42) can never succeed. Even forcing `MINT_TEST_FIRST_JOB=true`, line 86-88 fails — the rewritten screen never builds `Key('first_job_result_cards')`.
+- The patrol test is `skip: !_runningFromPatrolCli` (default skipped), so `flutter test` silently passes it; the six-origin guard only scans stale YAML text, so CI stays green. Net: the "capital-native proof" for the work origin is misrepresented as passing.
+
+Impact bound: this does **not** affect shipped behavior (route is intentionally fail-closed) — it is a test-integrity / facade-in-the-test-layer defect. Fix: update or explicitly retire the work-origin Maestro flow + patrol test + six-origin guard to the new selectors / fail-closed reality, so the guard cannot be green while the flow is dead.
+
+### P2
+- **Legacy proof file `integration_test/g1_return01_first_job_return_patrol_test.dart` still imports `screens/first_job_screen.dart` and asserts the old contract.** It compiles (Key strings) but is now semantically dead; leaving it in `test/patrol/…` as an imported-but-skipped test hides the rot. Recommend deleting or rewriting alongside P1.
+- **Unused l10n keys left behind.** The old `narrativeFirstJob*`, `firstJob3a*`, `firstJobLamal*` (old), `firstJobChecklist*`, `firstSalary*` keys remain in all six `.arb`/`.dart` files but are no longer referenced by any screen (film widget deleted). Harmless to runtime, but dead surface area worth pruning to keep the l10n set honest.
+
+### Verdict
+# NO-GO
+
+The product change itself (honest salary model, fail-closed route, removal of fabricated net/employer-cost/"recommended franchise" facade) is clean and well-tested. The blocker is P1: this branch's stated deliverable is a runtime *proof*, and the change silently invalidates the work-origin proof while a guard test continues to report success against selectors that no longer exist. Re-align the Maestro flow, the patrol integration test, and `g1_return01_six_origin_runtime_test.dart` with the new selectors / fail-closed route (or explicitly retire the work origin from the six-origin proof), then this is a clear PASS.

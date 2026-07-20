@@ -6,10 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:patrol/patrol.dart';
 
 const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
+const _firstJobProofEnabled = bool.fromEnvironment('MINT_TEST_FIRST_JOB');
 const _visualReadyMarkerName = 'mint-g1-return01-visual-ready-v1.marker';
 const _visualReadyMarkerPayload = 'MINT_G1_RETURN01_VISUAL_READY_V1\n';
 
@@ -19,6 +21,12 @@ void main() {
     skip: !_runningFromPatrolCli,
     timeout: const Timeout(Duration(minutes: 6)),
     ($) async {
+      if (!_firstJobProofEnabled || !FeatureFlags.enableFirstJobScreen) {
+        fail(
+          'First Job runtime proof requires '
+          '--dart-define=MINT_TEST_FIRST_JOB=true',
+        );
+      }
       final visualReadyMarker = File(
         '${Directory.systemTemp.path}/$_visualReadyMarkerName',
       );
@@ -83,9 +91,11 @@ void main() {
       expect(persisted['q_canton'], 'GE');
       expect(persisted['q_birth_year'], 2001);
 
-      final resultCards = find.byKey(const Key('first_job_result_cards'));
-      await $(resultCards).scrollTo();
-      await $(resultCards).waitUntilVisible();
+      final salaryAuthority = find.byKey(
+        const Key('first_job_salary_authority'),
+      );
+      await $(salaryAuthority).scrollTo();
+      await $(salaryAuthority).waitUntilVisible();
 
       await visualReadyMarker.writeAsString(
         _visualReadyMarkerPayload,

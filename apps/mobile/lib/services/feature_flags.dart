@@ -68,6 +68,15 @@ class FeatureFlags {
   /// fail-closed until it has a complete product and runtime proof.
   static bool enableGuidedSequences = false;
 
+  /// Fail-closed gate for the First Job coherence repair.
+  ///
+  /// This remains outside [applyFromMap]. Only the bounded compile-time test
+  /// opt-in can expose the route before G1-COHERENCE-01 is accepted.
+  static bool enableFirstJobScreen = const bool.fromEnvironment(
+    'MINT_TEST_FIRST_JOB',
+    defaultValue: false,
+  );
+
   /// Local-only kill switch for the bounded G1 EPL/rente-capital cache.
   ///
   /// It stays outside [applyFromMap]. Turning it off makes the production

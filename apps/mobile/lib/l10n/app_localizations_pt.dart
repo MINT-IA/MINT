@@ -25121,4 +25121,80 @@ class SPt extends S {
   @override
   String get successionDeathGuideSemanticsLabel =>
       'Guia de procedimentos após o falecimento de um ente querido';
+
+  @override
+  String get firstJobCoherenceIntro =>
+      'Uma única leitura do teu primeiro salário, baseada nos teus dados e clara sobre o que falta confirmar.';
+
+  @override
+  String get firstJobGrossKnown => 'Salário bruto mensal conhecido';
+
+  @override
+  String get firstJobKnownDeductionsIllustrative =>
+      'AVS/AI/APG e desemprego — ilustrações legais';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Seguro-desemprego (AC)';
+
+  @override
+  String get firstJobLppExactUnknown =>
+      'Dedução LPP exata: confirmar no recibo salarial ou certificado de previdência';
+
+  @override
+  String get firstJobNetExactUnknown =>
+      'Líquido exato: confirmar após rever todas as deduções';
+
+  @override
+  String firstJobLppIllustration(String amount) {
+    return 'Crédito legal de velhice ilustrativo: $amount/mês sobre o salário coordenado. Não é a tua dedução LPP.';
+  }
+
+  @override
+  String get firstJobEvidenceHint =>
+      'Adiciona ou verifica os dados salariais para manter esta leitura ligada ao teu dossiê.';
+
+  @override
+  String get firstJobPillar3aNeutralTitle =>
+      'Pilar 3a: compara antes de escolher';
+
+  @override
+  String get firstJobPillar3aNeutralBody =>
+      'As soluções bancárias e de seguros são formas reconhecidas. Compara custos, flexibilidade, cobertura de risco, liquidez e situação fiscal. O limite anual não é um objetivo nem uma mensalidade recomendada.';
+
+  @override
+  String get firstJobLamalNeutralTitle => 'LAMal: usar prémios reais';
+
+  @override
+  String get firstJobLamalNeutralBody =>
+      'A franquia depende do prémio oficial, das despesas previstas e da capacidade para suportar custos. A MINT não classifica franquias sem esses dados.';
+
+  @override
+  String get firstJobLamalNeutralButton => 'Comparar com os meus dados LAMal';
+
+  @override
+  String get firstJobChecklistCoherentTitle => 'Checklist do primeiro emprego';
+
+  @override
+  String get firstJobNoProjection =>
+      'Não é apresentada qualquer projeção patrimonial até serem escolhidos contribuição, horizonte e pressupostos explícitos.';
+
+  @override
+  String get firstJobCoherentChecklist1 =>
+      'Comparar o recibo salarial com o contrato de trabalho';
+
+  @override
+  String get firstJobCoherentChecklist2 =>
+      'Pedir o certificado de previdência da tua caixa LPP';
+
+  @override
+  String get firstJobCoherentChecklist3 =>
+      'Comparar prémios LAMal com os teus dados no Priminfo';
+
+  @override
+  String get firstJobCoherentChecklist4 =>
+      'Verificar coberturas de risco e necessidades de liquidez';
+
+  @override
+  String get firstJobCoherentChecklist5 =>
+      'Guardar o certificado salarial para os impostos';
 }

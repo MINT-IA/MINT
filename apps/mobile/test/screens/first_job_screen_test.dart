@@ -13,6 +13,7 @@ import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/routes/route_metadata.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -72,34 +73,18 @@ void main() {
     expect(enrichCta, findsOneWidget);
   });
 
-  testWidgets(
-      'production route without returnUri preserves legacy pop and save behavior',
-      (tester) async {
+  testWidgets('production /first-job is fail-closed', (tester) async {
     expect(parseDataBlockReturnTarget(null), isNull);
+    final original = FeatureFlags.enableFirstJobScreen;
+    addTearDown(() => FeatureFlags.enableFirstJobScreen = original);
+    FeatureFlags.enableFirstJobScreen = false;
     final router = await _pumpProductionRouter(tester);
     router.go('/first-job');
     await _pumpFrames(tester);
-
-    GoRouter.of(tester.element(find.byType(FirstJobScreen))).push(
-      '/data-block/revenu?inputKey=q_gender',
-    );
-    await _pumpFrames(tester);
-    expect(find.byType(DataBlockEnrichmentScreen), findsOneWidget);
-
-    await tester.tap(find.byIcon(Icons.arrow_back));
-    await _pumpFrames(tester);
-    expect(find.byType(FirstJobScreen), findsOneWidget);
-
-    GoRouter.of(tester.element(find.byType(FirstJobScreen))).push(
-      '/data-block/revenu?inputKey=q_gender',
-    );
-    await _pumpFrames(tester);
-    await tester.tap(find.byKey(const Key('gender_f_choice')));
-    await tester.tap(find.byKey(const Key('salary_save_cta')));
-    await _pumpFrames(tester);
-
-    expect(find.byType(DataBlockEnrichmentScreen), findsOneWidget);
-    expect(find.byKey(const Key('data_block_save_success')), findsOneWidget);
+    expect(find.byType(FirstJobScreen), findsNothing);
+    expect(find.text('Premier emploi'), findsNothing);
+    expect(router.routerDelegate.currentConfiguration.uri.path,
+        '/explore/travail');
   });
 }
 

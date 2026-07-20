@@ -25,7 +25,6 @@ import 'package:mint_mobile/screens/unemployment_screen.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/demenagement_cantonal_screen.dart';
 import 'package:mint_mobile/screens/deces_proche_screen.dart';
-import 'package:mint_mobile/services/first_job_service.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
@@ -601,7 +600,10 @@ void main() {
       expect(find.byKey(const Key('first_job_canton_fact')), findsOneWidget);
       expect(find.text('Manquant'), findsNWidgets(3));
       expect(find.byType(MintPremiumSlider), findsNothing);
-      expect(find.byKey(const Key('first_job_result_cards')), findsNothing);
+      expect(
+        find.byKey(const Key('first_job_salary_authority')),
+        findsNothing,
+      );
       expect(find.textContaining("5'000"), findsNothing);
     });
 
@@ -616,25 +618,22 @@ void main() {
       ));
       await tester.pump();
 
-      expect(find.byKey(const Key('first_job_ledger_facts')), findsOneWidget);
+      expect(find.byKey(const Key('first_job_ledger_facts')), findsNothing);
       expect(find.textContaining("7'500"), findsWidgets);
-      expect(find.text('25 ans'), findsWidgets);
-      expect(find.text('VD'), findsWidgets);
+      expect(find.textContaining('25 ans'), findsWidgets);
+      expect(find.textContaining('VD'), findsWidgets);
       expect(
         find.byKey(
-          const Key('first_job_result_cards'),
+          const Key('first_job_salary_authority'),
           skipOffstage: false,
         ),
         findsOneWidget,
       );
-      expect(
-        find.byType(MintPremiumSlider, skipOffstage: false),
-        findsOneWidget,
-      );
+      expect(find.byType(MintPremiumSlider, skipOffstage: false), findsNothing);
       expect(find.textContaining("5'000"), findsNothing);
     });
 
-    testWidgets('keeps selected salary scenario after provider notify',
+    testWidgets('keeps the canonical salary authority after provider notify',
         (tester) async {
       final currentYear = DateTime.now().year;
       final provider = RecordingCoachProfileProvider({
@@ -642,44 +641,15 @@ void main() {
         'q_birth_year': currentYear - 25,
         'q_canton': 'VD',
       });
-      final medianResult = FirstJobService.analyzeSalary(
-        salaireBrutMensuel: 6500,
-        age: 25,
-        canton: 'VD',
-      );
-      final medianEmployerCost =
-          FirstJobService.formatChf(medianResult.cotisationsEmployeur);
-
       await tester.pumpWidget(buildScreen(provider: provider));
       await tester.pump();
-
-      await tester.scrollUntilVisible(
-        find.textContaining('Médian CH'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.textContaining('Médian CH'));
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.byKey(const Key('first_job_result_cards')),
-        -200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text(medianEmployerCost), findsOneWidget);
+      expect(
+          find.byKey(const Key('first_job_salary_authority')), findsOneWidget);
 
       await provider.mergeAnswers({'q_unrelated_notify': true});
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.byKey(const Key('first_job_result_cards')),
-        -200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text(medianEmployerCost), findsOneWidget);
+      expect(
+          find.byKey(const Key('first_job_salary_authority')), findsOneWidget);
     });
   });
 

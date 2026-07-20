@@ -7,11 +7,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:patrol/patrol.dart';
 
 const _runningFromPatrolCli = bool.fromEnvironment('MINT_PATROL_CLI');
+const _firstJobProofEnabled = bool.fromEnvironment('MINT_TEST_FIRST_JOB');
 const _stage = String.fromEnvironment('MINT_G1_RETURN01_STAGE');
 const _sourceSha = String.fromEnvironment('MINT_G1_RETURN01_SOURCE_SHA');
 const _supportedStages = <String>{
@@ -92,6 +94,12 @@ void main() {
 }
 
 Future<_StageProof> _runWorkSave(PatrolIntegrationTester $) async {
+  if (!_firstJobProofEnabled || !FeatureFlags.enableFirstJobScreen) {
+    fail(
+      'First Job runtime proof requires '
+      '--dart-define=MINT_TEST_FIRST_JOB=true',
+    );
+  }
   await $.pumpWidgetAndSettle(const MintApp());
   testOnlyRootRouter.go('/first-job');
   await $.pumpAndSettle();
@@ -115,7 +123,10 @@ Future<_StageProof> _runWorkSave(PatrolIntegrationTester $) async {
       persisted['q_canton'] == 'GE' &&
       persisted['q_birth_year'] == 2001;
   expect(storeWriteVerified, isTrue);
-  await _scrollAndWait($, find.byKey(const Key('first_job_result_cards')));
+  await _scrollAndWait(
+    $,
+    find.byKey(const Key('first_job_salary_authority')),
+  );
   final routeAfterVerified = routeAfter == routeBefore;
   expect(routeAfterVerified, isTrue);
   return _StageProof(

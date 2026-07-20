@@ -79,7 +79,7 @@ def test_stage_mappings_are_bash_32_compatible_and_executable(tmp_path: Path) ->
         "work_save": (
             "apps/mobile/.maestro/g1_return01_work_return.yaml",
             "mint-g1-return01-work_save-witness-v1.json",
-            "first_job_result_cards",
+            "first_job_salary_authority",
         ),
         "housing_cancel": (
             "apps/mobile/.maestro/g1_return01_housing_cancel_return.yaml",
@@ -193,8 +193,26 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
         'normal_app="$private_root/normal-production-app/Runner.app"', built_app
     )
     snapshot = build.index('/usr/bin/ditto "$built_app" "$normal_app"', immutable_app)
-    verify = build.index('codesign --verify --deep --strict "$normal_app"', snapshot)
-    assert built_app < immutable_app < snapshot < verify
+    bounded_build = build.index(
+        "flutter build ios --simulator --debug "
+        "--dart-define=MINT_TEST_FIRST_JOB=true",
+        snapshot,
+    )
+    bounded_app = build.index(
+        'first_job_app="$private_root/first-job-proof-app/Runner.app"',
+        bounded_build,
+    )
+    bounded_snapshot = build.index(
+        '/usr/bin/ditto "$built_app" "$first_job_app"', bounded_app
+    )
+    verify = build.index(
+        'codesign --verify --deep --strict "$normal_app"', bounded_snapshot
+    )
+    bounded_verify = build.index(
+        'codesign --verify --deep --strict "$first_job_app"', verify
+    )
+    assert built_app < immutable_app < snapshot < bounded_build
+    assert bounded_build < bounded_app < bounded_snapshot < verify < bounded_verify
 
     function_match = re.search(r"run_maestro_stage\(\) \{\n(.*?)\n\}", text, flags=re.S)
     assert function_match is not None
@@ -204,8 +222,10 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
         "data_before=$(fingerprint_persistent_app_data \"$container_before\")",
         pre_container,
     )
+    default_overlay = function.index("local overlay_app=$normal_app")
+    bounded_overlay = function.index("work_save)\n      overlay_app=$first_job_app")
     install = function.index(
-        'xcrun simctl install "$device" "$normal_app"', pre_fingerprint
+        'xcrun simctl install "$device" "$overlay_app"', pre_fingerprint
     )
     post_container = function.index("container_after=$(resolve_app_container)", install)
     post_fingerprint = function.index(
@@ -215,10 +235,18 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
     relocated = function.index("container_identity='relocated'", post_fingerprint)
     same_data = function.index('[[ "$data_before" == "$data_after" ]]', post_fingerprint)
     assert "production overlay changed persistent app data" in function[same_data:]
+    assert default_overlay < bounded_overlay < pre_container
     assert pre_container < pre_fingerprint < install < post_container
     assert post_container < post_fingerprint < relocated < same_data
     assert "production overlay changed app data container" not in function
     assert "containerIdentityPreserved" not in text
+    assert "local -a first_job_define=()" in text
+    assert (
+        "work_save) first_job_define=(--dart-define=MINT_TEST_FIRST_JOB=true)"
+        in text
+    )
+    assert '"${first_job_define[@]}"' in text
+    assert text.count("--dart-define=MINT_TEST_FIRST_JOB=true") == 2
 
     fingerprint_match = re.search(
         r"fingerprint_persistent_app_data\(\) \{\n(.*?)\n\}", text, flags=re.S
@@ -241,7 +269,13 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
     assert "simctl uninstall" not in seeded_case
     assert "disability_validation_cancel" not in seeded_case
 
-    reset_label = "work_save | disability_validation_cancel | succession_save)"
+    work_start = function.index("work_save)")
+    work_case = function[work_start : function.index(";;", work_start)]
+    assert "overlay_app=$first_job_app" in work_case
+    assert 'xcrun simctl uninstall "$device" "$bundle_id"' in work_case
+    assert "container_before=" not in work_case
+
+    reset_label = "disability_validation_cancel | succession_save)"
     reset_start = function.index(reset_label)
     reset_case = function[reset_start : function.index(";;", reset_start)]
     assert 'xcrun simctl uninstall "$device" "$bundle_id"' in reset_case
@@ -252,7 +286,7 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
     assert "local container_identity='reset'" in function[:reset_start]
     assert "local persistent_data='not_applicable'" in function[:reset_start]
     assert function.index(reset_label) < function.index(
-        'xcrun simctl install "$device" "$normal_app"'
+        'xcrun simctl install "$device" "$overlay_app"'
     )
     assert '"$stage" "$synthetic_seed"' in function
 
@@ -321,7 +355,7 @@ def test_each_stage_has_exact_maestro_flow_and_strict_witness_contract() -> None
         "noDataBlockVerified",
         "frontalierCanonicalWritesVerified",
         "capture_hierarchy",
-        "first_job_result_cards",
+        "first_job_salary_authority",
         "mortgage_enrich_profile_cta",
         "disability_gap_ledger_facts",
         "succession_mortgage_missing",

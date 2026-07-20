@@ -1,0 +1,42 @@
+`/explore/travail` (app.dart:1357) has no redirect guard, so the fallback always renders — no redirect loop.
+
+---
+
+# MINT External Audit — Code Mode
+
+**Scope:** G1 First Job coherence repair + fail-closed gating (`codex/g1-capital-native-proof-20260718`, worktree vs HEAD).
+
+## Verdict: **PASS**
+
+The change is a genuine implementation (fully wired and exercised under the `MINT_TEST_FIRST_JOB` compile-time flag), fail-closed in production, and removes the previously non-compliant advisory content (fabricated exact net, "évite les assurances-vie / privilégie fintech" 3a steering, franchise-2500 recommendation, employer-hidden-cost hero, wealth projections). No P0/P1 issues found.
+
+### Verification performed
+- **No dangling references from the large deletions.** The removed `FirstSalaryFilmWidget` has zero remaining importers (incl. its rewritten test). Removed service types/fields (`FirstJobResult.cotisationsEmployeur/plafondAnnuel3a/franchiseOptions/eligible3a`, the service's `FranchiseOption`) are consumed only by `first_job_service.dart` + `first_job_screen.dart`. The `FranchiseOption` still used by `disability_insurance_screen.dart` is a **different** class in `franchise_cost_widget.dart` (fields `franchiseAmount`/`monthlyPremiumSavings`), not the deleted one — no compile break.
+- **Fail-closed gating is real.** `enableFirstJobScreen` = `const bool.fromEnvironment('MINT_TEST_FIRST_JOB', defaultValue:false)` and is **absent** from `applyFromMap` (feature_flags.dart:202–231) — backend config cannot enable it. Route `/first-job` redirects via `firstJobFeatureRedirect()` → `/explore/travail` (app.dart:1825, 2440). Coherence test asserts the backend-cannot-enable invariant.
+- **Routing is safe.** Redirect target `/explore/travail` (app.dart:1357) has no guard/redirect of its own → no loop, no bounce-to-`/`. Hub entry is conditionally hidden behind the same flag, keeping the disabled state internally consistent.
+- **Model honesty verified in code.** `analyzeSalary` returns `lppEmploye:null`, `netEstime:null`, no LPP line in `deductionItems`; the age credit is retained only as a clearly-labeled statutory illustration ("This is not your pension deduction") and never subtracted. l10n keys added across all 6 locales (de/en/es/fr/it/pt) in both `.arb` and generated `.dart` — no missing-locale crash.
+- **Runtime-proof plumbing is self-consistent.** The orchestrator test and `patrol_return01_six_origin.sh` agree: exactly two `--dart-define=MINT_TEST_FIRST_JOB=true` occurrences, a separate immutable `first-job-proof-app` snapshot, work_save overlay switched to it, and both Patrol targets fail hard if the gate is unset.
+
+## Findings
+
+### P2 — Gated route still advertised by live production surfaces
+With the flag off in production, `/first-job` redirects to `/explore/travail`, but several surfaces still emit that route:
+- `lib/services/coach/intent_router.dart:75` (`suggestedRoute: '/first-job'`)
+- `lib/services/coach/tool_call_parser.dart:97`
+- `lib/widgets/life_event_suggestions.dart:108`
+- `lib/screens/timeline_screen.dart:106`
+- `lib/services/response_card_service.dart:348`
+- `lib/services/navigation/screen_registry.dart:855`, `lib/services/cap_sequence_engine.dart:485`
+
+**Consequence (graceful, not a crash):** the coach can still suggest "Premier emploi" and the user is bounced to the Travail hub where that entry is now hidden — a soft dead-end. Recommend filtering `/first-job` from coach suggestions / life-event cards while gated, or reusing `firstJobFeatureRedirect()`'s flag at suggestion time.
+
+### P2 (evidence-needed) — Test/lint execution not confirmed in this audit
+I could not run `flutter analyze` / the Dart suite here, so green is asserted from source, not observed. Two spots worth a real run:
+- Hardcoded service labels `'Chomage (AC)'` and new `'AANP (illustration)'` (first_job_service.dart:97,102) may be examined by `test/i18n/hardcoded_string_audit_test.dart`.
+- Full mobile suite + `flutter analyze apps/mobile`.
+
+**Proof commands:** `cd apps/mobile && flutter analyze && flutter test test/screens/first_job_whole_screen_coherence_test.dart test/services/first_job_service_test.dart test/screens/first_job_screen_test.dart test/i18n/hardcoded_string_audit_test.dart`.
+
+### Non-blocking notes
+- `first_job_screen_test.dart` "fail-closed" test mutates `FeatureFlags.enableFirstJobScreen = false` without an `addTearDown` reset; harmless because the env default is already `false`, but a reset would be more hygienic against future ordering changes.
+- Smoke tests instantiate `FirstJobScreen` directly (not via router), so the redirect gate is correctly not exercised there — intended.

@@ -688,7 +688,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.destination,
     owner: RouteOwner.travail,
     requiresAuth: true,
-    killFlag: 'enableExplorerTravail',
+    killFlag: 'enableFirstJobScreen',
   ),
   '/expatriation': RouteMeta(
     path: '/expatriation',

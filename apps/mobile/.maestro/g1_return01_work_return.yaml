@@ -1,6 +1,7 @@
 appId: ch.mint.app
 ---
 # Black-box companion for the work_save Patrol stage.
+# Build contract: --dart-define=MINT_TEST_FIRST_JOB=true.
 - launchApp
 - extendedWaitUntil:
     visible:
@@ -21,12 +22,8 @@ appId: ch.mint.app
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "first_job_ledger_facts"
-    timeout: 20000
-- scrollUntilVisible:
-    element:
       id: "first_job_enrich_profile_cta"
-    direction: DOWN
+    timeout: 20000
 - tapOn:
     id: "first_job_enrich_profile_cta"
 - assertVisible:
@@ -49,9 +46,13 @@ appId: ch.mint.app
     direction: DOWN
 - tapOn:
     id: "salary_save_cta"
+- extendedWaitUntil:
+    visible:
+      id: "first_job_salary_authority"
+    timeout: 20000
 - scrollUntilVisible:
     element:
-      id: "first_job_result_cards"
+      id: "first_job_salary_authority"
     direction: DOWN
 - assertVisible:
-    id: "first_job_result_cards"
+    id: "first_job_salary_authority"

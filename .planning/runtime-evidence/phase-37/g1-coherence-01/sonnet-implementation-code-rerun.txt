@@ -1,0 +1,124 @@
+---
+
+## MINT External Audit — code mode
+
+**Branch:** `codex/g1-capital-native-proof-20260718`
+**Base ref:** HEAD (unstaged worktree changes)
+
+---
+
+## VERDICT: NO-GO
+
+---
+
+### P1 — Maestro proof broken: `_enrichmentCta` drops its semantic identifier
+
+**File:** `apps/mobile/lib/screens/first_job_screen.dart:201-212`
+
+```dart
+Widget _enrichmentCta(BuildContext context, S s) => Container(
+      key: const Key('first_job_enrich_profile_cta'),   // widget key only
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
+        onPressed: () { ... context.push(_revenueRoute()); },
+        icon: const Icon(Icons.fact_check_outlined),
+        label: Text(s.firstJobEvidenceHint),
+      ),
+    );
+```
+
+The Maestro flow `.maestro/g1_return01_work_return.yaml:23-28` depends on:
+
+```yaml
+- extendedWaitUntil:
+    visible:
+      id: "first_job_enrich_profile_cta"
+    timeout: 20000
+- tapOn:
+    id: "first_job_enrich_profile_cta"
+```
+
+Maestro's `id:` resolves against the iOS `accessibilityIdentifier`, which in Flutter comes from `Semantics(identifier: ...)`. A plain `Container` with only a widget `Key` does **not** produce an accessibility identifier. Every other Maestro-targeted widget in the codebase uses an explicit semantics wrapper — confirmed via `data_block_enrichment_screen.dart` where `_buildRevenueTextField` is defined as `Semantics(identifier: semanticsIdentifier, child: TextField(key: key, ...))`.
+
+The runtime test (`g1_return01_six_origin_runtime_test.dart`) checks that `first_job_salary_authority` has both a key and an identifier (line-level assertions). It never checks `first_job_enrich_profile_cta`. The gap is unguarded.
+
+**The old code had the identifier explicitly:**
+
+```dart
+// removed by this diff:
+Semantics(
+  key: const Key('first_job_enrich_profile_cta'),
+  identifier: 'first_job_enrich_profile_cta',
+  button: true,
+  child: TextButton.icon(...),
+)
+```
+
+**Reproduction:**
+1. Build with `--dart-define=MINT_TEST_FIRST_JOB=true`
+2. Install on simulator and run `maestro test .maestro/g1_return01_work_return.yaml`
+3. `extendedWaitUntil visible id: "first_job_enrich_profile_cta"` times out after 20 s — the accessibility identifier is absent from the semantic tree
+4. Maestro exits non-zero; the `work_save` G1 proof cannot be generated
+
+**Required fix:** Restore the `Semantics` wrapper on `_enrichmentCta`:
+
+```dart
+Widget _enrichmentCta(BuildContext context, S s) => Semantics(
+      key: const Key('first_job_enrich_profile_cta'),
+      identifier: 'first_job_enrich_profile_cta',
+      button: true,
+      child: Container(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: () { _hasUserInteracted = true; context.push(_revenueRoute()); },
+          icon: const Icon(Icons.fact_check_outlined),
+          label: Text(s.firstJobEvidenceHint),
+        ),
+      ),
+    );
+```
+
+---
+
+### P2-A — Vacuous assertion on removed key `first_job_result_cards`
+
+**File:** `apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart`
+
+```dart
+expect(find.byKey(const Key('first_job_result_cards')), findsNothing);
+```
+
+The key `first_job_result_cards` no longer exists anywhere in the screen. This assertion is trivially true and provides no coverage signal. It should either be replaced with `expect(find.byKey(const Key('first_job_salary_authority')), findsNothing)` (guarding the absent-without-data case) or removed.
+
+---
+
+### P2-B — `applyFromMap` exclusion confirmed, no action needed
+
+`FeatureFlags.applyFromMap` (lines 202–231 of `feature_flags.dart`) does not contain a branch for `enableFirstJobScreen`. The backend cannot activate the route. The coherence test guards this correctly. No issue.
+
+---
+
+### P2-C — `ExploreHubScreen('Travail')` is no longer `const`
+
+**File:** `apps/mobile/lib/app.dart`
+
+The `if (FeatureFlags.enableFirstJobScreen)` conditional inside the `entries:` list prevents the builder closure from using `const`. Minor rebuild cost on every route navigation. Non-blocking.
+
+---
+
+### P2-D — Statutory rate tests eliminated from `first_job_service_test.dart`
+
+The test file drops from 522 lines to 48. The illustrative contribution computations (AVS at 5.3%, blended AC ceiling, LPP age-bracket rates) are now covered only by a single smoke group. The screen explicitly labels them "illustrative" and disclaims them, but the numerical accuracy is now under-tested. Not a compliance failure given the disclaimer, but a regression in test depth.
+
+---
+
+### Summary
+
+| ID | Severity | Location | Finding |
+|----|----------|----------|---------|
+| F1 | **P1** | `first_job_screen.dart:201` | `_enrichmentCta` drops `Semantics(identifier:)` — Maestro `work_save` proof step will timeout and fail |
+| F2 | P2 | `life_event_screens_additional_smoke_test.dart` | Assertion on `first_job_result_cards` is vacuously true (key removed) |
+| F3 | P2 | `app.dart` travail hub builder | `ExploreHubScreen` no longer `const` |
+| F4 | P2 | `first_job_service_test.dart` | Statutory contribution rate assertions eliminated |
+
+**F1 is a blocking defect.** The G1 `work_save` Maestro proof cannot succeed because `id: "first_job_enrich_profile_cta"` will not resolve against the iOS accessibility tree. Restore the `Semantics(identifier: 'first_job_enrich_profile_cta', button: true)` wrapper and add a runtime-test assertion that `first_job_screen.dart` contains `identifier: 'first_job_enrich_profile_cta'` (mirroring the existing check for `first_job_salary_authority`).

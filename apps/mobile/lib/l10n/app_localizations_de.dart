@@ -25171,4 +25171,80 @@ class SDe extends S {
   @override
   String get successionDeathGuideSemanticsLabel =>
       'Leitfaden zu Schritten nach dem Tod einer nahestehenden Person';
+
+  @override
+  String get firstJobCoherenceIntro =>
+      'Eine einzige Einordnung deines ersten Lohns – auf Basis deiner Daten und ehrlich dazu, was noch zu bestätigen ist.';
+
+  @override
+  String get firstJobGrossKnown => 'Bekannter monatlicher Bruttolohn';
+
+  @override
+  String get firstJobKnownDeductionsIllustrative =>
+      'AHV/IV/EO und ALV — gesetzliche Illustrationen';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Arbeitslosenversicherung (ALV)';
+
+  @override
+  String get firstJobLppExactUnknown =>
+      'Genauer BVG-Abzug: auf Lohnabrechnung oder Vorsorgeausweis bestätigen';
+
+  @override
+  String get firstJobNetExactUnknown =>
+      'Genauer Nettolohn: nach Prüfung aller Abzüge bestätigen';
+
+  @override
+  String firstJobLppIllustration(String amount) {
+    return 'Illustrative gesetzliche Altersgutschrift: $amount/Monat auf dem koordinierten Lohn. Das ist nicht dein BVG-Abzug.';
+  }
+
+  @override
+  String get firstJobEvidenceHint =>
+      'Ergänze oder prüfe deine Lohndaten, damit diese Einordnung mit deinem Dossier verbunden bleibt.';
+
+  @override
+  String get firstJobPillar3aNeutralTitle =>
+      'Säule 3a: vor der Wahl vergleichen';
+
+  @override
+  String get firstJobPillar3aNeutralBody =>
+      'Bank- und Versicherungslösungen sind anerkannte Formen. Vergleiche Kosten, Flexibilität, Risikoschutz, Liquidität und Steuersituation. Der jährliche Höchstbetrag ist weder Ziel noch empfohlene Monatsrate.';
+
+  @override
+  String get firstJobLamalNeutralTitle => 'KVG: echte Prämien verwenden';
+
+  @override
+  String get firstJobLamalNeutralBody =>
+      'Die Franchise hängt von deiner offiziellen Prämie, den erwarteten Ausgaben und deiner finanziellen Tragfähigkeit ab. MINT bewertet keine Franchise ohne diese Angaben.';
+
+  @override
+  String get firstJobLamalNeutralButton => 'Mit meinen KVG-Daten vergleichen';
+
+  @override
+  String get firstJobChecklistCoherentTitle => 'Checkliste erster Job';
+
+  @override
+  String get firstJobNoProjection =>
+      'Es wird keine Vermögensprojektion angezeigt, solange Beitrag, Horizont und Annahmen nicht ausdrücklich gewählt sind.';
+
+  @override
+  String get firstJobCoherentChecklist1 =>
+      'Lohnabrechnung mit dem Arbeitsvertrag vergleichen';
+
+  @override
+  String get firstJobCoherentChecklist2 =>
+      'Vorsorgeausweis deiner Pensionskasse anfordern';
+
+  @override
+  String get firstJobCoherentChecklist3 =>
+      'KVG-Prämien mit deinen Daten auf Priminfo vergleichen';
+
+  @override
+  String get firstJobCoherentChecklist4 =>
+      'Risikoschutz und Liquiditätsbedarf prüfen';
+
+  @override
+  String get firstJobCoherentChecklist5 =>
+      'Lohnausweis für die Steuern aufbewahren';
 }

@@ -1,0 +1,28 @@
+Product/domain verdict: PASS
+
+This change is a compliance-and-coherence **repair** of the "Premier emploi" (First Job) life-event screen, shipped fail-closed (`enableFirstJobScreen` defaults false, outside `applyFromMap`, production route redirects to `/explore/travail`). It removes several genuine Swiss-domain and compliance defects rather than introducing them. Wiring verified against the live repo: no dangling imports of the deleted `first_salary_film_widget.dart`, `/explore/travail` redirect target exists, `formatChfWithPrefix` and `getLppBonificationRate` exist, and the flag is genuinely backend-unreachable.
+
+## What the flow clarifies
+Life event: entering the workforce / first Swiss salary. The Swiss decision it now frames honestly: "what is actually deducted from my gross, what is only illustrative, and what must I confirm with primary documents (payslip, LPP certificate, Priminfo)." It no longer pretends to output an exact net, an employee LPP figure, a franchise recommendation, or a wealth projection.
+
+## P0 — none
+
+## P1 — none
+The previously shippable version contained P0/P1-grade problems that this diff **removes**, which is why the net verdict is PASS:
+- Fabricated employee LPP as `bonification/2` and a derived exact net (`first_job_service.dart` old lines) — the new model returns `lppEmploye: null` and `netEstime: null` and states "This is not your pension deduction" (`app_en.arb` `firstJobLppIllustration`; enforced by `first_job_service_test.dart:` "never converts an age credit into an employee LPP deduction").
+- Product recommendation / ranking: franchise `2500` as `franchiseRecommandee`, and advice strings "Évite les 3a liés à une assurance-vie", "Privilégie un 3a fintech" — all deleted; replaced by neutral `firstJobPillar3aNeutralBody` / `firstJobLamalNeutralBody` ("MINT ranks no deductible without those inputs").
+- Malformed Swiss number formatting in the old projection (`'${fv.round() ~/ 1000}\'000'` → "1641'000") — removed; `first_job_whole_screen_coherence_test.dart` asserts the canonical formatter.
+
+## P2
+- **Dead entry point in the degraded state.** With the flag off, `/first-job` redirects to `/explore/travail` (`app.dart:2436` `firstJobFeatureRedirect`), but that hub still advertises `HubEntry(label: 'Premier emploi', route: '/first-job')` (`app.dart:1362`). In production a user tapping "Premier emploi" is silently bounced back to the same hub. Dormancy is intentional and documented, but the hub tile should be hidden or disabled while the feature is fail-closed to avoid a facade tile.
+- **Over-cautious labeling of exact statutory rates.** AVS/AI/APG (5.3%) and AC (1.1%) are legally fixed employee rates, yet grouped under `firstJobKnownDeductionsIllustrative` ("Illustrative statutory contributions"). This *understates* certainty (safe direction), but AANP (1.3%, genuinely variable) and the two fixed rates deserve different confidence framing rather than one "illustrative" bucket.
+- **Constant provenance not proven in-diff.** `_avsAiApgRate=0.053`, `_aanpIllustrativeRate=0.013` are literals; LPP `lppSeuilEntree=22680` / `lppDeductionCoordination=26460` come from `social_insurance.dart`. These match 2025 values (which hold for 2026, no AVS re-indexation in an off-year), so not stale — but only the LPP path feeds a *labeled illustration*, never a hard figure the user acts on, so residual risk is low. Would be proven by a dated source reference next to the constants.
+
+## Swiss domain review
+- **AVS/LPP/3a:** AVS employee 5.3% correct/current. LPP age-credit gate (`age>=25` + annual ≥ entry threshold) correct; the bonification is now presented as a labeled statutory retirement credit on coordinated salary, explicitly "not your deduction" — the correct fix for the prior conflation. 3a: ceiling framed as "neither a target nor a recommended monthly payment" — compliant; no more tax-saving estimate or product steer.
+- **Tax:** removed the canton-aware `estimate3aTaxSaving` output from the surface; no hidden tax conclusion remains.
+- **Insurance (LAMal/LAA):** franchise ranking removed; handoff to `/assurances/lamal` and Priminfo with "use real premiums." AANP correctly marked illustrative.
+- **Mortgage / succession / inheritance / disability:** not affected by this flow; the six-origin runtime harness for those stages is only re-anchored to the new `first_job_salary_authority` key.
+
+## Mint product logic review
+Moves toward the ledger → DataQuest → scenario → dossier spine: single source of truth (facts read only from `CoachProfileProvider.userProvidedFields`, no duplicated variables), explicit known/missing distinction (`_missingFactsCard` vs `_salaryAuthority`), progressive collection via `/data-block/revenu?returnUri=/first-job` with correct return-to-origin, and honest deferral of any projection until assumptions are chosen (`firstJobNoProjection`). It trades engagement widgets for lucidity, which is the intended MINT identity. The only spine gap is that this screen is a reading/handoff surface, not yet a dossier producer — acceptable for this life event, and it is correctly dormant in production pending G1-COHERENCE-01 acceptance.
