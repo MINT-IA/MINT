@@ -1,0 +1,38 @@
+Only `${tracked_files[@]}` remains — a plain indexed-array expansion, fully Bash-3.2 compatible. No other Bash-4-only constructs.
+
+I have enough to render a verdict.
+
+---
+
+# MINT Code Audit — `codex/g1-capital-native-proof-20260718`
+
+**Scope:** Unstaged worktree diff to two files (net ~small, well within budget):
+- `tools/simulator/patrol_return01_six_origin.sh`
+- `tools/checks/tests/test_g1_return01_six_origin_orchestrator.py`
+
+## What the change does
+Replaces three Bash-4-only associative arrays (`declare -A maestro_flows / witness_names / final_anchors`) with three `case`-based lookup functions (`maestro_flow_for_stage`, `witness_name_for_stage`, `final_anchor_for_stage`), and rewires all call sites (`tracked_files` builder line 119–123, `run_maestro_stage` line 309–310, `run_patrol_stage` line 475).
+
+## Verification performed
+- **Motivation is real, not cosmetic:** system shell is `GNU bash 3.2.57`, and the runner shebang is `#!/usr/bin/env bash`. The prior `declare -A` would have failed at runtime on the default macOS interpreter. This is a legitimate correctness fix, not a facade.
+- **Completeness:** grep confirms zero residual references to the old array names anywhere in the script; the only remaining subscript expansion is `"${tracked_files[@]}"` (plain indexed array, Bash-3.2 safe).
+- **No other Bash-4-isms** (`local -A`, `${v,,}`/`${v^^}`, `mapfile`/`readarray`, `wait -n`) introduced or lingering.
+- **Syntax:** `bash -n` clean.
+- **Behavioral equivalence:** functions emit `printf '%s\n'` (trailing newline stripped by `$(...)`), return `2` on unknown stage; every call site guards with `|| die`, and `tracked_files` only calls them with the five valid stages (return 0). Semantics preserved.
+- **Tests:** all 15 pass. The weakened assertion in `test_each_stage_has_exact_maestro_flow_and_strict_witness_contract` (dropping the `[stage]="..."` literal check) is more than compensated by the new `test_stage_mappings_are_bash_32_compatible_and_executable`, which *executes* the extracted functions and asserts the exact stage→flow/witness/anchor triples **and** that unknown stages fail (exit 41/42/43). Mapping integrity is strengthened, not weakened.
+
+## Findings
+
+**P0:** None.
+
+**P1:** None.
+
+**P2 (informational, not blocking):**
+- The sibling runner `tools/simulator/patrol_return01_rvc_lpp_scan_return.sh` is invoked in the same chain (line ~region of `run_rvc_stage`) but is outside this diff. If it still contains `declare -A`, the end-to-end RVC stage would fail on Bash 3.2 despite this fix. *Proof command:* `grep -n 'declare -A' tools/simulator/patrol_return01_rvc_lpp_scan_return.sh`. Recommend confirming before relying on a full six-origin run; not a defect in the audited diff.
+
+## Privacy / compliance / routing
+Unaffected by this change. Sanitization (`sanitize_log`), allowlist (`verify_artifact_allowlist`), privacy inventory (`verify_privacy_inventory`), witness schema validation, exact-SHA gating, and cleanup/restoration logic are untouched. The refactor moves only static string lookups; no synthetic/real data-class or routing invariants are affected.
+
+---
+
+## Verdict: **PASS**

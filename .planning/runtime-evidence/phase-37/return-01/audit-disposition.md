@@ -65,3 +65,19 @@ Accepted audits: `opus-mobile-runtime-harness-audit.txt` (code) and
 
 No same-gate carousel rerun was launched after the observed-witness hardening.
 The harness remains unaccepted until its first exact-SHA runtime completes.
+
+## Bash 3.2 runtime-runner audit disposition
+
+Accepted audit: `opus-bash32-runtime-runner-audit.txt` — **PASS**, P0=0,
+P1=0.
+
+1. **Sibling RVC runner portability.** The auditor requested an explicit check
+   that the separately invoked RVC runner did not retain Bash-4-only constructs.
+   `grep` found no `declare -A`, `local -A`, `mapfile`, `readarray`, `wait -n`,
+   or Bash-4 case-conversion expansion, and `/bin/bash -n` passed.
+2. **Runtime acceptance remains outstanding.** The mapping regression executes
+   the three checked-in lookup functions under macOS `/bin/bash` 3.2 and proves
+   exact outputs plus unknown-stage rejection, but it is not native app proof.
+   The full six-outcome runtime must restart from a new pushed exact SHA.
+
+No rerun is warranted: the only P2 verification is resolved directly above.
