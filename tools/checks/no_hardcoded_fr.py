@@ -12,7 +12,9 @@ Exit codes:
   1 — violations found (stderr has `path:line: snippet` rows)
 
 Use --file <path> to lint a whole single file (pattern used by ingest_git.py),
-or --staged-file <path> to lint only added/modified lines in the Git index.
+--staged-file <path> to lint only added/modified lines in the Git index, or
+--changed-file <path> with --base-ref <ref> to lint only lines introduced
+between that Git ref and HEAD (the CI mode).
 """
 from __future__ import annotations
 
@@ -300,6 +302,54 @@ def scan_staged_file(path: Path) -> list[tuple[int, str, str]]:
     )
 
 
+def scan_changed_file(path: Path, base_ref: str) -> list[tuple[int, str, str]]:
+    if _is_legacy_allowed(path) or _is_excluded(path) or path.suffix not in TEXT_EXTS:
+        return []
+    repo_root, relative = _repo_relative_path(path)
+    diff_result = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--unified=0",
+            "--no-ext-diff",
+            "--no-color",
+            base_ref,
+            "HEAD",
+            "--",
+            relative.as_posix(),
+        ],
+        cwd=repo_root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if diff_result.returncode != 0:
+        raise RuntimeError(
+            diff_result.stderr.strip() or f"git diff from {base_ref} failed for {path}"
+        )
+    added_line_numbers = {
+        lineno for lineno, _ in added_lines_from_unified_diff(diff_result.stdout)
+    }
+    if not added_line_numbers:
+        return []
+
+    head_result = subprocess.run(
+        ["git", "show", f"HEAD:{relative.as_posix()}"],
+        cwd=repo_root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if head_result.returncode != 0:
+        raise RuntimeError(
+            head_result.stderr.strip() or f"cannot read HEAD content for {path}"
+        )
+    return scan_lines(
+        enumerate(head_result.stdout.splitlines(), start=1),
+        report_line_numbers=added_line_numbers,
+    )
+
+
 def _collect_paths(scope: list[str]) -> list[Path]:
     paths: list[Path] = []
     for s in scope:
@@ -331,6 +381,11 @@ def main() -> int:
         "--staged-file",
         help="Lint only lines added or modified in the staged diff for one file",
     )
+    mode.add_argument(
+        "--changed-file",
+        help="Lint only lines introduced between --base-ref and HEAD for one file",
+    )
+    ap.add_argument("--base-ref", help="Git base ref for --changed-file mode")
     ap.add_argument(
         "--scope",
         nargs="*",
@@ -340,8 +395,16 @@ def main() -> int:
     args = ap.parse_args()
 
     staged_mode = args.staged_file is not None
+    changed_mode = args.changed_file is not None
+    if changed_mode and not args.base_ref:
+        ap.error("--changed-file requires --base-ref")
+    if args.base_ref and not changed_mode:
+        ap.error("--base-ref requires --changed-file")
+
     if staged_mode:
         paths = [Path(args.staged_file)]
+    elif changed_mode:
+        paths = [Path(args.changed_file)]
     elif args.file:
         target = Path(args.file)
         if not target.exists():
@@ -354,7 +417,12 @@ def main() -> int:
     found = 0
     for path in paths:
         try:
-            violations = scan_staged_file(path) if staged_mode else scan_file(path)
+            if staged_mode:
+                violations = scan_staged_file(path)
+            elif changed_mode:
+                violations = scan_changed_file(path, args.base_ref)
+            else:
+                violations = scan_file(path)
         except RuntimeError as exc:
             print(f"no_hardcoded_fr: {exc}", file=sys.stderr)
             return 1

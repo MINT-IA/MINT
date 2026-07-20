@@ -16,9 +16,11 @@ def _load_linter():
     return module
 
 
-def _run_linter(repo: Path, mode: str, path: str) -> subprocess.CompletedProcess[str]:
+def _run_linter(
+    repo: Path, mode: str, path: str, *extra_args: str
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, str(SCRIPT), mode, path],
+        [sys.executable, str(SCRIPT), mode, path, *extra_args],
         cwd=repo,
         text=True,
         capture_output=True,
@@ -34,6 +36,16 @@ def _git(repo: Path, *args: str) -> None:
         capture_output=True,
         check=True,
     )
+
+
+def _git_output(repo: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", *args],
+        cwd=repo,
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
 
 
 def test_staged_diff_parser_keeps_new_line_numbers_across_hunks() -> None:
@@ -111,6 +123,70 @@ def test_staged_file_mode_handles_new_files(tmp_path: Path) -> None:
 
     assert result.returncode == 1
     assert "apps/mobile/lib/new_screen.dart:2:" in result.stderr
+
+
+def test_changed_file_mode_ignores_legacy_fr_but_rejects_new_fr(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    target = repo / "apps/mobile/lib/example.dart"
+    target.parent.mkdir(parents=True)
+    target.write_text("const legacy = 'épargne ancienne';\n", encoding="utf-8")
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "mint@example.test")
+    _git(repo, "config", "user.name", "MINT Test")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-qm", "baseline")
+    base_ref = _git_output(repo, "rev-parse", "HEAD")
+
+    target.write_text(
+        "const legacy = 'épargne ancienne';\nconst safe = 'Hello';\n",
+        encoding="utf-8",
+    )
+    _git(repo, "add", str(target.relative_to(repo)))
+    _git(repo, "commit", "-qm", "safe change")
+
+    safe_change = _run_linter(
+        repo,
+        "--changed-file",
+        str(target.relative_to(repo)),
+        "--base-ref",
+        base_ref,
+    )
+
+    assert safe_change.returncode == 0, safe_change.stderr
+
+    target.write_text(
+        "const legacy = 'épargne ancienne';\n"
+        "const safe = 'Hello';\n"
+        "const fresh = 'épargne nouvelle';\n",
+        encoding="utf-8",
+    )
+    _git(repo, "add", str(target.relative_to(repo)))
+    _git(repo, "commit", "-qm", "hardcoded French change")
+
+    hardcoded_change = _run_linter(
+        repo,
+        "--changed-file",
+        str(target.relative_to(repo)),
+        "--base-ref",
+        base_ref,
+    )
+
+    assert hardcoded_change.returncode == 1
+    assert "apps/mobile/lib/example.dart:3:" in hardcoded_change.stderr
+    assert "épargne nouvelle" in hardcoded_change.stderr
+    assert "épargne ancienne" not in hardcoded_change.stderr
+
+
+def test_ci_uses_changed_lines_mode_for_hardcoded_fr() -> None:
+    config = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    block = config.split("  no-hardcoded-fr:", maxsplit=1)[1].split(
+        "  financial-core-gate:", maxsplit=1
+    )[0]
+
+    assert 'no_hardcoded_fr.py --changed-file "$file" --base-ref "$BASE_REF"' in block
+    assert 'no_hardcoded_fr.py --file "$file"' not in block
 
 
 def test_lefthook_uses_staged_file_mode_for_hardcoded_fr() -> None:

@@ -201,7 +201,7 @@ jobs:
             [[ -f "$file" ]] || continue
             case "$file" in
               apps/mobile/lib/*.dart)
-                python3 tools/checks/no_hardcoded_fr.py --file "$file"
+                python3 tools/checks/no_hardcoded_fr.py --changed-file "$file" --base-ref "$BASE_REF"
                 found=1
                 ;;
             esac
