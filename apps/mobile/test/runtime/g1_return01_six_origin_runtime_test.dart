@@ -122,4 +122,39 @@ void main() {
       expect(source, isNot(contains('returnUri=')), reason: entry.key);
     }
   });
+
+  test('Maestro waits on visible route anchors before scrolling to CTAs', () {
+    const cases = <String, (String, String)>{
+      '.maestro/g1_return01_work_return.yaml': (
+        'first_job_ledger_facts',
+        'first_job_enrich_profile_cta',
+      ),
+      '.maestro/g1_return01_housing_cancel_return.yaml': (
+        'mortgage_afford_result',
+        'mortgage_enrich_profile_cta',
+      ),
+    };
+
+    for (final entry in cases.entries) {
+      final source = _read(entry.key);
+      final anchor = entry.value.$1;
+      final cta = entry.value.$2;
+      final waitAnchor = source.indexOf(
+        '- extendedWaitUntil:\n    visible:\n      id: "$anchor"',
+      );
+      final scrollCta = source.indexOf(
+        '- scrollUntilVisible:\n    element:\n      id: "$cta"',
+      );
+
+      expect(waitAnchor, greaterThanOrEqualTo(0), reason: entry.key);
+      expect(scrollCta, greaterThan(waitAnchor), reason: entry.key);
+      expect(
+        source,
+        isNot(contains(
+          '- extendedWaitUntil:\n    visible:\n      id: "$cta"',
+        )),
+        reason: entry.key,
+      );
+    }
+  });
 }

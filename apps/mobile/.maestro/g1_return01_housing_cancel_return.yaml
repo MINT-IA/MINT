@@ -17,7 +17,7 @@ appId: ch.mint.app
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "mortgage_enrich_profile_cta"
+      id: "mortgage_afford_result"
     timeout: 20000
 - scrollUntilVisible:
     element:

@@ -17,8 +17,12 @@ appId: ch.mint.app
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "first_job_enrich_profile_cta"
+      id: "first_job_ledger_facts"
     timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: "first_job_enrich_profile_cta"
+    direction: DOWN
 - tapOn:
     id: "first_job_enrich_profile_cta"
 - assertVisible:
