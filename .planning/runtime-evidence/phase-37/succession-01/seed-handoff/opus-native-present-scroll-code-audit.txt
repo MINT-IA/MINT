@@ -1,0 +1,28 @@
+## MINT External Audit — code mode
+
+**Scope:** Diff `58669d931` → `HEAD` (branch `codex/g1-capital-native-proof-20260718`, ahead 1). 5 lines across 2 test files. Within the 2500-line budget.
+
+### What changed
+1. `g1_succession_native_present_patrol_test.dart:33` — save action changed from `.tap()` to `.scrollTo().tap()`.
+2. `succession_runtime_harness_contract_test.dart:44-47` — new assertion requiring the native test to contain the `.scrollTo().tap()` pattern.
+
+### Verification
+
+**Compile correctness (the risky part of the change):** `scrollTo()` returns `Future<PatrolFinder>` (`patrol_finders-3.5.0/.../patrol_finder.dart:352`), which has no direct `.tap()`. However, the `ActionCombiner` extension on `Future<PatrolFinder>` (`patrol_finder.dart:673-688`) supplies `tap()` precisely for "not yet visible" finders. So `$(#...).scrollTo().tap()` compiles and does the intended scroll-then-tap. ✅
+
+**Behavioral justification (not a facade):** The `_will_save` button is rendered *after* two `TextField`s (`succession_evidence_quest.dart:332-344`, key `${prefix}_save`). After entering the date and legal-year fields, the save `ElevatedButton` can sit below the fold / behind the keyboard — so scrolling before tapping is a legitimate flakiness fix, not cosmetic. The `will` prefix resolves the key to the `succession_instrument_will_save` that the test targets, and `succession_answer_saved` exists (`:112`). ✅
+
+**Contract test coherence:** The raw-string assertion `r'$(#succession_instrument_will_save).scrollTo().tap()'` (`:46`) matches line 33 exactly (`contains` substring). Test is a pure file-read guard and will pass. ✅
+
+### Findings
+- **P0:** none
+- **P1:** none
+- **P2:** none
+
+The other four tests in the contract file are untouched and unaffected. No privacy, routing, or wiring regressions introduced — the diff only tightens an integration test and adds a matching guard.
+
+*Not executed:* `flutter test test/runtime/succession_runtime_harness_contract_test.dart` and the Patrol run (gated by `MINT_PATROL_CLI`, requires a device). The contract test's pass is provable by inspection above; the Patrol test remains `skip`-gated so it does not affect the unit suite.
+
+---
+
+**VERDICT: PASS**
