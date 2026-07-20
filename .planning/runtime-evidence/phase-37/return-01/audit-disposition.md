@@ -270,3 +270,32 @@ RED was 18 pass / 1 fail on the absent immutable snapshot. GREEN is 19/19
 targeted and 27/27 across the combined RETURN/RVC runner contracts; Bash parse,
 ShellCheck, Python compilation and diff checks pass. A fresh exact pushed SHA
 must still rerun the whole native matrix.
+
+## Relocated-container data-identity audit disposition
+
+Accepted audit: `opus-relocated-container-audit.txt` — **PASS**, P0=0,
+P1=0; one informational P2 notes the intentional difference from
+process-death container-identity witnesses.
+
+The eighth exact-SHA run
+(`a4c9e1a6e6a800ecb148addd7382702ef6593cbe`) confirmed that the
+immutable normal-app snapshot fixed the mutable-output alias but did not stop
+iOS Simulator 26.2 from assigning a different data-container path. Work
+Patrol+Maestro and Housing Patrol again passed, then the runner failed closed
+before Housing Maestro on path identity. No later proof is accepted.
+
+Container UUID/path identity is not the ledger-preservation property. The
+runner now validates both pre/post container paths independently, forbids an
+explicit uninstall in seeded stages, and fingerprints post-install data even
+when the path changes. Acceptance requires the exact same non-empty
+`file_count:byte_count:sha256` tuple across `Documents` and
+`Library/Preferences`; empty roots, symlinks, non-regular files, invalid
+containers or any byte/count/hash drift hard-fail. The retained overlay log
+contains only `container_identity=preserved|relocated` and
+`persistent_data=verified`, never raw paths or UUIDs.
+
+RED was 18 pass / 1 fail on the still-fatal path inequality. GREEN is 19/19
+targeted and 27/27 combined RETURN/RVC contracts; Bash parse, ShellCheck,
+Python compilation and diff checks pass. This does not transfer or repair data:
+the next exact-SHA runtime must prove that the platform preserves the synthetic
+ledger bytes naturally, then complete every remaining stage.

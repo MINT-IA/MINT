@@ -1,0 +1,36 @@
+I have enough evidence to render a verdict. Let me confirm the empty-container behavior conclusion by reviewing the fingerprint fail-closed path once more against the pre/post flow — already covered by lines 414-416 and 452-464.
+
+## MINT External Audit — G1 return01 production overlay
+
+**Scope:** Worktree diff (unstaged) against base `a4c9e1a6e` — 2 files, 38 insertions / 10 deletions (well under 700-line budget).
+- `tools/simulator/patrol_return01_six_origin.sh`
+- `tools/checks/tests/test_g1_return01_six_origin_orchestrator.py`
+
+### What changed
+The previous commit (`96df1bb0 "freeze return production overlay"`) enforced a hard invariant that the app **data container path** must be byte-identical before/after installing the physically-exported production app over the seeded test install:
+```bash
+[[ "$container_before" == "$container_after" ]] || die "... changed app data container"
+```
+The worktree change (`patrol_return01_six_origin.sh:452-464`) **removes** that path-equality `die` and replaces it with a soft `preserved`/`relocated` classification, while keeping — and strengthening — the persistent-data content check.
+
+### Correctness assessment
+This is a **net strengthening** of the actual invariant, not a weakening:
+
+1. **Empty-container facade closed.** `fingerprint_persistent_app_data` now counts files/bytes and fails closed on empty state (`patrol_return01_six_origin.sh:414-416`): `if file_count < 1 or byte_count < 1: raise SystemExit("persistent app data is empty")`. Previously two empty `Documents`/`Library/Preferences` trees produced identical SHA-256 digests, so `data_before == data_after` would falsely "prove" seed preservation even if the seed was never written. That hole is now closed.
+2. **Relocation tolerance is sound.** `data_after` is fingerprinted from the *actual* post-install container resolved via `simctl get_app_container ... data` (`:453-455`). A wiped/reseeded container is caught either by the empty-data `die` or the content-mismatch `die` at `:462-463`. There is no code path where a relocated-and-wiped container passes.
+3. **No downstream consumer contradicted.** `production-overlay-$stage.log` (`:466-469`) is produced but not read by any witness, manifest, or verifier (grep confirms only the `printf` writer and the test's format assertion). No artifact treats `container_identity=relocated` as a violation, so tolerating relocation introduces no inconsistency.
+
+### Test/script consistency
+- `bash -n` clean.
+- Full contract suite green: `19 passed in 0.91s`.
+- Test assertions track the script precisely: ordering `post_container < post_fingerprint < relocated < same_data` matches `:453→455→457→462`; the removed string `"production overlay changed app data container"` and `"containerIdentityPreserved"` are asserted absent and are absent; the new `file_count`/`byte_count`/format-string assertions match `:389-416`; the log-format tokens (`container_identity=%s`, `persistent_data=%s`) match `:466`.
+
+### Findings
+- **P0:** none.
+- **P1:** none.
+- **P2 (informational, not a defect):** The sibling process-death script `patrol_succession_evidence_process_death.sh:322,959-961` still enforces container-identity preservation as a retained witness field (`seed_overlay_container_identity_verified`), whereas return01 now only records identity as a non-fatal log line. This is a defensible divergence (different flows: install-overlay vs. process-death), but if container-identity preservation is meant to be a cross-flow guarantee, return01 no longer asserts it in a retained artifact — only via the fail-closed inline `die` on data content. No repro of harm; the real seed-preservation property remains fail-closed.
+
+### Verdict
+**PASS**
+
+Small, internally consistent change; tests green; the modification strengthens the seed-preservation guarantee (non-empty + content-identical) while dropping an orthogonal, environment-dependent path-equality check. No privacy/routing/facade regressions found. The only residual observation (P2) is an intentional cross-script divergence with no demonstrable failure path.
