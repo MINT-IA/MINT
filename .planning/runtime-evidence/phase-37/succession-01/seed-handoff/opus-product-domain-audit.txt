@@ -1,0 +1,28 @@
+The wiring is genuine and honest: the flag is compile-define default-false, absent from `applyFromMap` (not backend-hydratable), the quest mounts only when enabled, and the flag-off semantics marker is non-interactive on the notions-clés heading. The `partenariat` ambiguity handling is Swiss-domain-correct.
+
+Product/domain verdict: PASS
+
+## Summary of what this diff is
+Docs + proof-harness only (mermaid, `MAESTRO_FLOWS.md`, `SCREEN_CONTRACTS.md`, orchestrator test, `patrol_succession_evidence_process_death.sh`). No Dart/product logic changes. It hardens the `civil_guard_seed` setup→production handoff: after seeding it now terminates the process, resolves the physical app-data container, captures a `device:inode` identity plus a **sanitized** seed witness (SHA of selected values, no raw PII), overlays the flag-on production app, and hard-fails on any identity rotation or state mutation before Maestro. Direct plist injection and mini-onboarding shortcut are explicitly forbidden; setup writes must cross `ReportPersistenceService`.
+
+## Findings
+
+### P0
+- None.
+
+### P1
+- None. The change is a rigor increase, not a new domain claim. It keeps the case honestly OPEN (`patrol_succession_evidence_process_death.sh` metadata never emits a PASS; docs at `docs/codex/MAESTRO_FLOWS.md` state "this target is a contract, not a PASS claim").
+
+### P2
+- **Misleading diagnostic on state mutation.** `wait_for_seed_witness` (`tools/simulator/patrol_succession_evidence_process_death.sh`, witness function) loops-then-`die`s with `"$stage did not expose the flushed civil-guard seed before timeout"` whenever the embedded Python exits non-zero. A genuine post-overlay *state mutation* (e.g. `q_property_market_value` appearing, canton/birth-year drift) is exactly the hard-fail this diff exists to catch, yet it degrades to a generic 30s "timeout" message instead of an immediate "seed state mutated" verdict. Safety still holds (it fails closed, never a false PASS), but the operator loses the signal the diff is designed to surface. Recommend distinguishing "witness absent (retry)" from "witness present but non-conforming (immediate hard-fail)".
+- **Fixture values hard-coded in two places.** The seed identity (`q_birth_year=1980`, `q_canton=VD`) is pinned in the shell witness Python (`SEED_WITNESS_PYTHON`) and mirrored in `docs/codex/SCREEN_CONTRACTS.md` / `MAESTRO_FLOWS.md`. If the `civil_guard_seed` patrol fixture ever changes, the witness silently stops matching (see P2 above). A single source-of-truth constant or a comment linking the fixture would reduce drift risk.
+- **Witness SHA scope.** `selectedValuesSha256` covers only `q_birth_year/q_canton/q_civil_status`; mini-onboarding and property-absence are asserted as separate booleans rather than folded into the digest. Functionally sound (Python `die`s if either flips), but folding them into the hashed selection would make the `cmp -s` witness comparison fully self-describing.
+
+## Swiss domain review
+- **Succession / civil status (core life event):** Correct and important. Bare `q_civil_status='partenariat'` is treated as ambiguous (`coach_profile.dart:7296-7308` `_isAmbiguousCivilStatus` → `civilStatusNeedsConfirmation`), forcing confirmation via the canonical `/data-block/composition_menage` return. This is domain-critical: a *partenaire enregistré* is a legal heir with a réserve, whereas a *concubin* has no statutory inheritance right and faces high cantonal succession tax — the flow correctly refuses to assume either. Marriage vs registered-partnership regimes are kept distinct (`MatrimonialRegimeKind` vs `RegisteredPartnershipPropertyRegimeKind`), and divorce/widowhood still surfaces the prior-union specialist question without asserting liquidation. No fabricated defaults.
+- **Estate instruments:** will / inheritancePact / incapacityMandate / advanceCareDirective collected as a survey with stale-before-unknown ordering; terminal copy explicitly denies verified dossier, distribution, advice, and specialist readiness. Boundaries preserved by this diff.
+- **AVS / LPP / 3a / tax / mortgage / insurance:** Not touched. The `q_property_market_value` reference here is only the provider-publication activation boundary for the seed handoff; it does not alter mortgage or succession-tax computation.
+- **Constants/thresholds:** None introduced or modified — no current-law-sensitive figures to flag.
+
+## Mint product logic review
+The change advances the **ledger → DataQuest → scenario → dossier** spine in the right direction. It reinforces one-source-of-truth discipline: setup facts must land through `ReportPersistenceService` and survive a real container overlay byte-identically, with plist injection and onboarding shortcuts forbidden — i.e. no ledger back-doors. The default-off collector remains flag-gated and non-backend-hydratable (`feature_flags.dart:92`, absent from `applyFromMap`), so no backend response can expose the unfinished path. The proof stays honestly OPEN (no PASS asserted), and the survey→dossier boundary (no advice, no distribution, no specialist-ready claim) is intact. Net: a privacy-safe, fail-closed hardening consistent with Mint's lucidity model.

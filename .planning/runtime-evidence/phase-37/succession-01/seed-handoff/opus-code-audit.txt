@@ -1,0 +1,27 @@
+I have enough to render a verdict. Let me summarize what I verified.
+
+## Audit: G1-SUCCESSION-01 seed-witness continuity contract
+
+**Scope of diff:** two diagrams/docs (`succession_evidence.mmd`, `MAESTRO_FLOWS.md`, `SCREEN_CONTRACTS.md`), the orchestrator test suite, and the runner shell script. No production Dart code is touched, so there is no app-level routing/privacy/compliance surface changed — only the runtime-evidence harness that gates a still-*open* (non-PASS) contract.
+
+### Verification performed
+- **Bash validity:** `bash -n` on `patrol_succession_evidence_process_death.sh` → OK (matches `test_runner_is_valid_strict_bash`).
+- **Tests as source of truth:** `pytest tools/checks/tests/test_g1_succession_runtime_orchestrator.py` → **16 passed**. This includes the new `test_seed_witness_python_is_exact_and_retains_no_raw_values`, which actually executes the extracted Python against synthetic plists and asserts negative cases fail closed.
+- **No facade / wiring intact:** all 8 referenced contract files exist (`g1_succession_*_patrol_test.dart`, wrapper, both `.maestro` flows).
+- **Storage-key truth:** witness reads `flutter.wizard_answers_v2` + `flutter.mini_onboarding_completed`; these match `report_persistence_service.dart:13,985`. `wizard_answers_v2` is a JSON string (`:129`), matching the witness's `json.loads(...) if isinstance(str)`.
+- **Witness readability vs. secure store:** `q_birth_year/q_canton/q_civil_status/q_property_market_value` are **not** in `SecureWizardStore._sensitiveKeys` (`secure_wizard_store.dart:37-63`), so they stay in the plist and the direct-plist witness/absence checks are valid — not vacuous.
+- **Seed contract truth:** `g1_succession_civil_guard_seed_patrol_test.dart` writes exactly the 1980/VD/partenariat triple via `ReportPersistenceService.saveAnswers`, asserts mini-onboarding stays false, and rehydrates `civilStatusNeedsConfirmation == true`. No `setMiniOnboardingCompleted`, no plist injection — matches the docs' forbidden-shortcut clause.
+- **Ordering / double-terminate hazard handled:** a second `simctl terminate` now exists (post-seed). The test correctly re-anchors process-death search from `absent_write` (`death = index(..., writer)`), and the full seed→overlay→identity→cmp→launch→maestro ordering is asserted both in script and test. Mismatch paths `die` (map to diagram `HandoffFail`).
+- **Privacy:** witness JSON emits only booleans + `selectedValuesSha256` (hashed); `die` messages carry no values; final scan covers `.json`. Confirmed by the dedicated no-raw-values test.
+
+### Findings
+
+**P0:** none.
+**P1:** none.
+**P2 (informational, no action required):**
+- The final privacy scanner (`patrol_succession_evidence_process_death.sh`, closing Python block) only greps retained artifacts for path identifiers (repo/home/device/private_root), not domain tokens like `partenariat`. The seed witness is safe by construction and covered by `test_seed_witness_python_is_exact_and_retains_no_raw_values`, so this is defense-in-depth only, not a gap.
+- Correctness of the whole contract still depends on `simctl install`-over preserving the data-container inode and SharedPreferences flushing on `terminate` before the witness read. Both are handled defensively (post-terminate capture + 30s `wait_for_seed_witness` poll), but these are runtime assumptions that only the actual exact-SHA evidence bundle can prove — which the docs already acknowledge ("contract, not a PASS claim").
+
+The change is internally consistent, tests are meaningful (they execute the extracted logic, not just string-match), wiring is real, and no PASS is falsely asserted.
+
+## Verdict: **PASS**
