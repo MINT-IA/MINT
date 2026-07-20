@@ -42,9 +42,11 @@ appId: ch.mint.app
     direction: DOWN
 - tapOn:
     id: "salary_save_cta"
+# The nested collector returns at Mortgage's retained scroll position, where
+# this CTA is visible and the top result anchor is offscreen.
 - extendedWaitUntil:
     visible:
-      id: "mortgage_afford_result"
+      id: "mortgage_enrich_profile_cta"
     timeout: 20000
 - openLink: "mint:///invalidite"
 - runFlow:

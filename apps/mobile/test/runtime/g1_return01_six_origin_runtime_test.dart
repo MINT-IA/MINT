@@ -199,9 +199,13 @@ void main() {
     final salaryInput = source.indexOf('id: "salary_input"', mortgageCta);
     final salaryValue = source.indexOf('- inputText: "96000"', salaryInput);
     final salarySave = source.indexOf('id: "salary_save_cta"', salaryValue);
+    final mortgageCtaReadyAfterSave = source.indexOf(
+      '- extendedWaitUntil:\n    visible:\n      id: "mortgage_enrich_profile_cta"',
+      salarySave,
+    );
     final invalidite = source.indexOf(
       '- openLink: "mint:///invalidite"',
-      salarySave,
+      mortgageCtaReadyAfterSave,
     );
     final disabilityReady = source.indexOf(
       'id: "disability_gap_ledger_facts"',
@@ -220,12 +224,18 @@ void main() {
     expect(salaryInput, greaterThan(mortgageCta));
     expect(salaryValue, greaterThan(salaryInput));
     expect(salarySave, greaterThan(salaryValue));
-    expect(invalidite, greaterThan(salarySave));
+    expect(mortgageCtaReadyAfterSave, greaterThan(salarySave));
+    expect(invalidite, greaterThan(mortgageCtaReadyAfterSave));
     expect(disabilityReady, greaterThan(invalidite));
     expect(birthYear, greaterThan(disabilityReady));
     expect(invalidValue, greaterThan(birthYear));
     expect(cancel, greaterThan(invalidValue));
     expect(RegExp('- inputText: "96000"').allMatches(source), hasLength(1));
+    expect(
+      RegExp('id: "mortgage_afford_result"').allMatches(source),
+      hasLength(1),
+      reason: 'Only the initial Mortgage arrival uses the top result anchor',
+    );
     for (final forbidden in const <String>[
       'clearState: true',
       'returnUri=',

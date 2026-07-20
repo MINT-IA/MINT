@@ -268,16 +268,25 @@ def test_disability_maestro_seeds_salary_through_production_ui_before_origin() -
     salary_input = flow.index('id: "salary_input"', mortgage_cta)
     salary_value = flow.index('- inputText: "96000"', salary_input)
     salary_save = flow.index('id: "salary_save_cta"', salary_value)
-    invalidite = flow.index('- openLink: "mint:///invalidite"', salary_save)
+    mortgage_cta_ready_after_save = flow.index(
+        '- extendedWaitUntil:\n    visible:\n'
+        '      id: "mortgage_enrich_profile_cta"',
+        salary_save,
+    )
+    invalidite = flow.index(
+        '- openLink: "mint:///invalidite"', mortgage_cta_ready_after_save
+    )
     disability_ready = flow.index('id: "disability_gap_ledger_facts"', invalidite)
     birth_year = flow.index('id: "birth_year_input"', disability_ready)
     invalid_value = flow.index('- inputText: "1800"', birth_year)
     cancel = flow.index('id: "data_block_cancel_return_cta"', invalid_value)
 
     assert mortgage < mortgage_ready < mortgage_cta < salary_input
-    assert salary_input < salary_value < salary_save < invalidite
+    assert salary_input < salary_value < salary_save < mortgage_cta_ready_after_save
+    assert mortgage_cta_ready_after_save < invalidite
     assert invalidite < disability_ready < birth_year < invalid_value < cancel
     assert flow.count('- inputText: "96000"') == 1
+    assert flow.count('id: "mortgage_afford_result"') == 1
     for forbidden in (
         "clearState: true",
         "returnUri=",
