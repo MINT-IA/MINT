@@ -16,6 +16,7 @@ class MintConfidenceNotice extends StatelessWidget {
   final String message;
   final String? ctaLabel;
   final VoidCallback? onTap;
+  final String? actionSemanticsIdentifier;
 
   const MintConfidenceNotice({
     super.key,
@@ -23,6 +24,7 @@ class MintConfidenceNotice extends StatelessWidget {
     required this.message,
     this.ctaLabel,
     this.onTap,
+    this.actionSemanticsIdentifier,
   });
 
   bool get _isLow => percent < 50;
@@ -87,24 +89,28 @@ class MintConfidenceNotice extends StatelessWidget {
           // CTA
           if (ctaLabel != null && onTap != null) ...[
             const SizedBox(height: MintSpacing.md),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: onTap,
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 16,
-                    color: MintColors.textPrimary,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    ctaLabel!,
-                    style: MintTextStyles.bodySmall(
+            Semantics(
+              identifier: actionSemanticsIdentifier,
+              button: true,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onTap,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 16,
                       color: MintColors.textPrimary,
-                    ).copyWith(fontWeight: FontWeight.w600),
-                  ),
-                ],
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      ctaLabel!,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

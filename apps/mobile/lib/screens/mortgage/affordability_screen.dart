@@ -281,6 +281,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                   percent: 45,
                   message: l.affordabilityCalculationNote,
                   ctaLabel: l.dataQualityEnrich,
+                  actionSemanticsIdentifier: 'mortgage_enrich_profile_cta',
                   onTap: () => context.push(
                     Uri(
                       path: '/data-block/revenu',
