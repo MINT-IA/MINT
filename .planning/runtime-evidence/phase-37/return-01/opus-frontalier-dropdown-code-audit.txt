@@ -1,0 +1,27 @@
+## MINT External Audit — code mode
+
+**Base:** `f857b389dd2f1608db4d27a17226ad7e502c8f56`
+**Wrapper/model:** `tools/checks/claude_external_audit.sh code`, Opus/high
+
+### Verification
+
+- Confirmed all three existing real `DropdownButton<String>` controls retain
+  their Flutter Keys, values, items and callbacks.
+- Confirmed each native identifier resolves to the same merged semantics node
+  as its real dropdown, owns a tap action and is distinct from the other two.
+- Confirmed the non-CH work-country transition still clears the stale canton
+  atomically and the conditional CH canton selector is unchanged.
+- Authoritative lead rerun: 148 focused tests passed; targeted analysis and
+  diff checks were clean.
+
+### Findings
+
+- **P0:** none.
+- **P1:** none.
+- **P2:** `button: true` is a slight role approximation for a dropdown, but it
+  is consistent with the current native automation contract and does not alter
+  product behavior.
+
+### Verdict
+
+**PASS** — P0=0, P1=0.

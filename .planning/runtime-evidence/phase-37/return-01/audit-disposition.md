@@ -643,3 +643,33 @@ Accepted audits:
 
 A new pushed exact SHA, GitHub clean-room success and seventeenth complete
 runtime are required. The sixteenth run remains diagnostic only.
+
+## Seventeenth runtime and Frontalier actionable-dropdown disposition
+
+The seventeenth canonical run used exact pushed SHA
+`f857b389dd2f1608db4d27a17226ad7e502c8f56` and stopped at the first hard
+failure in
+`.planning/runtime-evidence/phase-37/return-01/runtime-f857b389dd-20260720T152542Z`.
+Work, Housing, Disability and Succession passed Patrol+Maestro. Frontalier
+Patrol also passed. Frontalier Maestro then failed before its first selector
+action because `frontier_residence_country_field` was absent from the native
+hierarchy. RVC was not reached; no evidence was composed or promoted.
+
+Direct inspection of all five retained PNGs and the Frontalier hierarchy shows
+the dropdown visibly rendered while its Flutter Key was unavailable to native
+black-box selection. Each existing real residence-country, work-country and
+conditional work-canton `DropdownButton` now owns a stable merged semantics
+identifier. RED proved the native residence identifier was absent while the
+Flutter Key existed. GREEN proves all three identifiers are distinct, each owns
+the tap action and button flag, and each shares its node with the real dropdown.
+The original callbacks, inline `mergeAnswers`, atomic stale-canton clearing,
+conditional canton and route behavior remain unchanged. Focused screen,
+navigation and RETURN suites pass 148/148; targeted analysis and diff checks are
+clean. Implementation commit: `5c2011d68`.
+
+Accepted audits:
+- `opus-frontalier-dropdown-code-audit.txt` — **PASS**, P0=0, P1=0.
+- `opus-frontalier-dropdown-product-domain-audit.txt` — **PASS**, P0=0, P1=0.
+
+A new pushed exact SHA, GitHub clean-room success and eighteenth complete
+runtime are required. The seventeenth run remains diagnostic only.

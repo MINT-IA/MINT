@@ -1,0 +1,28 @@
+## MINT External Audit — product-domain mode
+
+**Base:** `f857b389dd2f1608db4d27a17226ad7e502c8f56`
+**Wrapper/model:** `tools/checks/claude_external_audit.sh product-domain`, Opus/high
+
+### Verification
+
+- Confirmed the diff is limited to accessibility/automation targeting; no
+  Swiss rule, constant, route intent, compliance copy or ledger meaning moves.
+- Confirmed ledger write-back remains single-source through
+  `_persistLedgerAnswers` and `mergeAnswers`.
+- Confirmed selecting a non-CH work country still nulls `q_work_canton`, so a
+  stale cantonal fact cannot contaminate jurisdiction evidence.
+- Confirmed the existing orientation and specialist-handoff framing remains
+  unchanged and no new advice surface is introduced.
+
+### Findings
+
+- **P0:** none.
+- **P1:** none.
+- **P2:** `button: true` is a mild assistive-role mismatch for a dropdown; a
+  combobox/menu role would be semantically sharper if Flutter/native tooling
+  exposes a stable equivalent. Duplicated Key/identifier strings may merit a
+  future shared constant if drift appears.
+
+### Verdict
+
+**PASS** — P0=0, P1=0.
