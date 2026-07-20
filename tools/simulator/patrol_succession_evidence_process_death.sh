@@ -280,7 +280,7 @@ PY
 }
 verify_patrol_contracts
 
-for command_name in git python3 tar find shasum xcrun xcodebuild flutter codesign xattr plutil; do
+for command_name in git python3 tar find shasum stat cmp xcrun xcodebuild flutter codesign xattr plutil; do
   command -v "$command_name" >/dev/null 2>&1 || die "$command_name is required"
 done
 patrol_bin="${PATROL_BIN:-$HOME/.pub-cache/bin/patrol}"
@@ -317,7 +317,13 @@ flag_off_route_anchor_verified=false
 flag_off_marker_verified=false
 flag_on_civil_return_verified=false
 civil_guard_seed_verified=false
+seed_post_terminate_witness_verified=false
+seed_post_overlay_witness_verified=false
+seed_overlay_container_identity_verified=false
+seed_witnesses_equal_verified=false
 seed_state_preserved_to_maestro=false
+seed_witness_container_identity=""
+seed_post_terminate_container_identity=""
 synthetic_data_only=true
 raw_runtime_outputs_retained=false
 
@@ -683,6 +689,89 @@ PY
   exact_sha_guard
 }
 
+wait_for_seed_witness() {
+  local stage="$1"
+  local deadline=$((SECONDS + 30))
+  local candidate=""
+  local identity=""
+  local preferences_plist=""
+  local witness=""
+  local status=1
+  while ((SECONDS <= deadline)); do
+    set +e
+    candidate="$(xcrun simctl get_app_container "$device" "$bundle_id" data 2>/dev/null)"
+    status=$?
+    set -e
+    if ((status == 0)) && [[ -n "$candidate" && -d "$candidate" && ! -L "$candidate" ]]; then
+      identity="$(stat -f '%d:%i' "$candidate")"
+      [[ "$identity" =~ ^[0-9]+:[0-9]+$ ]] \
+        || die "$stage app data identity is invalid"
+      preferences_plist="$candidate/Library/Preferences/$bundle_id.plist"
+      if [[ -f "$preferences_plist" && ! -L "$preferences_plist" ]]; then
+        set +e
+        # SEED_WITNESS_PYTHON_BEGIN
+        witness="$(python3 - "$preferences_plist" <<'PY'
+import hashlib
+import json
+import plistlib
+import sys
+
+try:
+    with open(sys.argv[1], "rb") as handle:
+        preferences = plistlib.load(handle)
+    raw_answers = preferences.get("flutter.wizard_answers_v2")
+    answers = json.loads(raw_answers) if isinstance(raw_answers, str) else None
+except (OSError, ValueError, plistlib.InvalidFileException):
+    raise SystemExit(1)
+if not isinstance(answers, dict):
+    raise SystemExit(1)
+civil_status = answers.get("q_civil_status")
+birth_year = answers.get("q_birth_year")
+canton = answers.get("q_canton")
+mini_incomplete = (
+    preferences.get("flutter.mini_onboarding_completed", False) is False
+)
+property_absent = "q_property_market_value" not in answers
+if (
+    birth_year != 1980
+    or canton != "VD"
+    or civil_status != "partenariat"
+    or not mini_incomplete
+    or not property_absent
+):
+    raise SystemExit(1)
+selected = json.dumps({
+    "q_birth_year": birth_year,
+    "q_canton": canton,
+    "q_civil_status": civil_status,
+}, separators=(",", ":"), sort_keys=True)
+print(json.dumps({
+    "birthYearExpected": True,
+    "cantonExpected": True,
+    "civilStatusAmbiguous": True,
+    "miniOnboardingIncomplete": True,
+    "propertyMarketValueAbsent": True,
+    "schemaVersion": 1,
+    "selectedValuesSha256": hashlib.sha256(selected.encode()).hexdigest(),
+}, separators=(",", ":"), sort_keys=True))
+PY
+)"
+        status=$?
+        # SEED_WITNESS_PYTHON_END
+        set -e
+        if ((status == 0)); then
+          printf '%s\n' "$witness" >"$artifacts/seed-witness-$stage.json"
+          chmod 600 "$artifacts/seed-witness-$stage.json"
+          seed_witness_container_identity="$identity"
+          return 0
+        fi
+      fi
+    fi
+    sleep 1
+  done
+  die "$stage did not expose the flushed civil-guard seed before timeout"
+}
+
 wait_for_landing() {
   local stage="$1"
   local deadline=$((SECONDS + 30))
@@ -803,7 +892,21 @@ capture_screenshot "flag-off.png"
 build_production_app "flag_on" true
 run_patrol_stage "civil_guard_seed" "$civil_guard_seed_target"
 civil_guard_seed_verified=true
+run_logged "civil-guard-seed-terminate" \
+  xcrun simctl terminate "$device" "$bundle_id"
+wait_for_seed_witness "post-terminate"
+seed_post_terminate_witness_verified=true
+seed_post_terminate_container_identity="$seed_witness_container_identity"
 install_production_app "flag_on-seeded" "$flag_on_app"
+wait_for_seed_witness "post-overlay"
+seed_post_overlay_witness_verified=true
+[[ "$seed_witness_container_identity" == "$seed_post_terminate_container_identity" ]] \
+  || die "flag-on overlay changed the app data device/inode identity"
+seed_overlay_container_identity_verified=true
+cmp -s "$artifacts/seed-witness-post-terminate.json" \
+  "$artifacts/seed-witness-post-overlay.json" \
+  || die "flag-on overlay changed the selected seed witness"
+seed_witnesses_equal_verified=true
 run_logged "flag-on-seeded-launch" xcrun simctl launch "$device" "$bundle_id"
 wait_for_landing "flag_on-seeded"
 run_logged "flag-on-seeded-openurl" xcrun simctl openurl "$device" \
@@ -852,6 +955,8 @@ expected_stage_artifacts=(
   civil_guard_seed-build.log
   civil_guard_seed-test.log
   civil_guard_seed-xcresult-summary.sanitized.json
+  seed-witness-post-terminate.json
+  seed-witness-post-overlay.json
   native_present-build.log
   native_present-test.log
   native_present-xcresult-summary.sanitized.json
@@ -879,6 +984,10 @@ python3 - \
   "$flag_off_marker_verified" \
   "$flag_on_civil_return_verified" \
   "$civil_guard_seed_verified" \
+  "$seed_post_terminate_witness_verified" \
+  "$seed_post_overlay_witness_verified" \
+  "$seed_overlay_container_identity_verified" \
+  "$seed_witnesses_equal_verified" \
   "$seed_state_preserved_to_maestro" \
   "$writer_reader_distinct_pid_verified" \
   "$state_preserved_across_process_death" \
@@ -911,6 +1020,10 @@ def parse_bool(value: str) -> bool:
     flag_off_marker,
     flag_on_return,
     civil_guard_seed,
+    seed_post_terminate,
+    seed_post_overlay,
+    seed_overlay_identity,
+    seed_witnesses_equal,
     seed_preserved_to_maestro,
     distinct_pid,
     state_preserved,
@@ -933,6 +1046,10 @@ payload = {
     "flagOffExplicitMarkerVerified": parse_bool(flag_off_marker),
     "flagOnCivilReturnVerified": parse_bool(flag_on_return),
     "civilGuardSeedVerified": parse_bool(civil_guard_seed),
+    "seedPostTerminateWitnessVerified": parse_bool(seed_post_terminate),
+    "seedPostOverlayWitnessVerified": parse_bool(seed_post_overlay),
+    "seedOverlayContainerIdentityVerified": parse_bool(seed_overlay_identity),
+    "seedWitnessesEqualVerified": parse_bool(seed_witnesses_equal),
     "seedStatePreservedToMaestro": parse_bool(seed_preserved_to_maestro),
     "setupPatrolStages": ["civil_guard_seed"],
     "patrolStages": ["native_present", "absent_write", "cold_read"],

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import plistlib
 import re
 import subprocess
 from pathlib import Path
@@ -68,8 +69,8 @@ def test_runner_uses_three_isolated_patrol_stages_and_real_process_death() -> No
     assert "writer_reader_distinct_pid_verified=true" in text
     assert "state_preserved_across_process_death=true" in text
     assert "no_data_erase_between_writer_reader=true" in text
-    death = text.index('xcrun simctl terminate "$device" "$bundle_id"')
     writer = text.index('run_patrol_stage "absent_write"')
+    death = text.index('xcrun simctl terminate "$device" "$bundle_id"', writer)
     reader = text.index('run_patrol_stage "cold_read"')
     assert writer < death < reader
     forbidden_between = text[writer:reader]
@@ -104,10 +105,36 @@ def test_runner_seeds_civil_guard_without_erasing_before_flag_on_maestro() -> No
         'run_patrol_stage "civil_guard_seed" "$civil_guard_seed_target"', build
     )
     seed_verified = text.index("civil_guard_seed_verified=true", seed)
-    install = text.index(
-        'install_production_app "flag_on-seeded" "$flag_on_app"', seed_verified
+    terminate = text.index(
+        'xcrun simctl terminate "$device" "$bundle_id"', seed_verified
     )
-    launch = text.index('xcrun simctl launch "$device" "$bundle_id"', install)
+    post_terminate = text.index(
+        'wait_for_seed_witness "post-terminate"', terminate
+    )
+    post_terminate_verified = text.index(
+        "seed_post_terminate_witness_verified=true", post_terminate
+    )
+    identity_captured = text.index(
+        'seed_post_terminate_container_identity="$seed_witness_container_identity"',
+        post_terminate_verified,
+    )
+    install = text.index(
+        'install_production_app "flag_on-seeded" "$flag_on_app"',
+        identity_captured,
+    )
+    post_overlay = text.index('wait_for_seed_witness "post-overlay"', install)
+    post_overlay_verified = text.index(
+        "seed_post_overlay_witness_verified=true", post_overlay
+    )
+    identity_verified = text.index(
+        "seed_overlay_container_identity_verified=true", post_overlay_verified
+    )
+    witnesses_equal = text.index(
+        "seed_witnesses_equal_verified=true", identity_verified
+    )
+    launch = text.index(
+        'xcrun simctl launch "$device" "$bundle_id"', witnesses_equal
+    )
     landing = text.index('wait_for_landing "flag_on-seeded"', launch)
     openurl = text.index('xcrun simctl openurl "$device"', landing)
     property_anchor = text.index('wait_for_property_input "flag_on-seeded"', openurl)
@@ -124,7 +151,15 @@ def test_runner_seeds_civil_guard_without_erasing_before_flag_on_maestro() -> No
         build
         < seed
         < seed_verified
+        < terminate
+        < post_terminate
+        < post_terminate_verified
+        < identity_captured
         < install
+        < post_overlay
+        < post_overlay_verified
+        < identity_verified
+        < witnesses_equal
         < launch
         < landing
         < openurl
@@ -133,9 +168,127 @@ def test_runner_seeds_civil_guard_without_erasing_before_flag_on_maestro() -> No
         < preserved
         < native_present
     )
-    seed_to_maestro = text[seed:maestro]
+    seed_to_maestro = text[post_terminate:maestro]
     for forbidden in ("uninstall", "clearDiagnostic", "clearState"):
         assert forbidden not in seed_to_maestro
+    for artifact in (
+        "seed-witness-post-terminate.json",
+        "seed-witness-post-overlay.json",
+    ):
+        assert artifact in text
+    witness_function = text.split("wait_for_seed_witness() {", 1)[1].split(
+        "wait_for_landing() {", 1
+    )[0]
+    assert (
+        'xcrun simctl get_app_container "$device" "$bundle_id" data'
+        in witness_function
+    )
+    assert "stat -f '%d:%i'" in witness_function
+    assert 'printf \'%s\\n\' "$candidate"' not in witness_function
+    assert (
+        '[[ "$seed_witness_container_identity" == '
+        '"$seed_post_terminate_container_identity" ]]' in text
+    )
+    compare = text.index("cmp -s", post_overlay_verified)
+    first_witness = text.index(
+        '"$artifacts/seed-witness-post-terminate.json"', compare
+    )
+    second_witness = text.index(
+        '"$artifacts/seed-witness-post-overlay.json"', first_witness
+    )
+    assert compare < first_witness < second_witness < witnesses_equal
+
+
+def test_seed_witness_python_is_exact_and_retains_no_raw_values(
+    tmp_path: Path,
+) -> None:
+    text = source()
+    match = re.search(
+        r"# SEED_WITNESS_PYTHON_BEGIN\n.*?<<'PY'\n(.*?)\nPY\n.*?# SEED_WITNESS_PYTHON_END",
+        text,
+        re.S,
+    )
+    assert match is not None
+    program = match.group(1)
+    preferences = tmp_path / "ch.mint.app.plist"
+
+    def run(values: dict[str, object]) -> subprocess.CompletedProcess[str]:
+        with preferences.open("wb") as handle:
+            plistlib.dump(values, handle)
+        return subprocess.run(
+            ["python3", "-", str(preferences)],
+            input=program,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+    valid = run(
+        {
+            "flutter.wizard_answers_v2": json.dumps(
+                {
+                    "q_birth_year": 1980,
+                    "q_canton": "VD",
+                    "q_civil_status": "partenariat",
+                }
+            ),
+            "flutter.mini_onboarding_completed": False,
+        }
+    )
+    assert valid.returncode == 0, valid.stderr
+    witness = json.loads(valid.stdout)
+    assert set(witness) == {
+        "birthYearExpected",
+        "cantonExpected",
+        "civilStatusAmbiguous",
+        "miniOnboardingIncomplete",
+        "propertyMarketValueAbsent",
+        "schemaVersion",
+        "selectedValuesSha256",
+    }
+    assert witness["birthYearExpected"] is True
+    assert witness["cantonExpected"] is True
+    assert witness["civilStatusAmbiguous"] is True
+    assert witness["miniOnboardingIncomplete"] is True
+    assert witness["propertyMarketValueAbsent"] is True
+    assert len(witness["selectedValuesSha256"]) == 64
+    assert "partenariat" not in valid.stdout
+    assert str(preferences) not in valid.stdout
+    assert "900000" not in valid.stdout
+
+    invalid_values = (
+        {"q_civil_status": "celibataire"},
+        {"q_civil_status": "partenariat", "q_property_market_value": 900000},
+        {
+            "q_birth_year": 1979,
+            "q_canton": "VD",
+            "q_civil_status": "partenariat",
+        },
+        {
+            "q_birth_year": 1980,
+            "q_canton": "GE",
+            "q_civil_status": "partenariat",
+        },
+    )
+    for answers in invalid_values:
+        result = run(
+            {
+                "flutter.wizard_answers_v2": json.dumps(answers),
+                "flutter.mini_onboarding_completed": False,
+            }
+        )
+        assert result.returncode != 0
+        assert result.stdout == ""
+    completed = run(
+        {
+            "flutter.wizard_answers_v2": json.dumps(
+                {"q_civil_status": "partenariat"}
+            ),
+            "flutter.mini_onboarding_completed": True,
+        }
+    )
+    assert completed.returncode != 0
+    assert completed.stdout == ""
 
 
 def test_runner_builds_physical_exact_archive_default_off_and_flag_on_apps() -> None:
@@ -378,6 +531,10 @@ def test_metadata_python_executes_with_strict_real_booleans(tmp_path: Path) -> N
         "true",
         "true",
         "true",
+        "true",
+        "true",
+        "true",
+        "true",
         "false",
         "true",
     ]
@@ -398,6 +555,10 @@ def test_metadata_python_executes_with_strict_real_booleans(tmp_path: Path) -> N
         "flagOffExplicitMarkerVerified",
         "flagOnCivilReturnVerified",
         "civilGuardSeedVerified",
+        "seedPostTerminateWitnessVerified",
+        "seedPostOverlayWitnessVerified",
+        "seedOverlayContainerIdentityVerified",
+        "seedWitnessesEqualVerified",
         "seedStatePreservedToMaestro",
         "writerReaderDistinctPidVerified",
         "statePreservedAcrossProcessDeath",
