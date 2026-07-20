@@ -1,0 +1,323 @@
+from __future__ import annotations
+
+import json
+import re
+import subprocess
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[3]
+RUNNER = ROOT / "tools/simulator/patrol_return01_six_origin.sh"
+
+
+def source() -> str:
+    return RUNNER.read_text(encoding="utf-8")
+
+
+def test_runner_exists_and_has_a_strict_shell_contract() -> None:
+    assert RUNNER.is_file()
+    text = source()
+    assert text.startswith("#!/usr/bin/env bash\nset -euo pipefail\n")
+    assert "umask 077" in text
+    assert "trap cleanup EXIT" in text
+    assert "trap 'exit 129' HUP" in text
+    assert "trap 'exit 130' INT" in text
+    assert "trap 'exit 143' TERM" in text
+
+
+def test_runner_requires_exact_clean_pushed_sha_device_bundle_and_fresh_root() -> None:
+    text = source()
+    for token in (
+        "device must be an iOS Simulator UDID",
+        "unexpected iOS bundle id",
+        "sha must be 40 lowercase hex characters",
+        "requested sha is not current HEAD",
+        "HEAD must equal its configured upstream",
+        "HEAD must be clean before runtime evidence",
+        "runtime-<shortsha>-<UTC>",
+        "artifacts directory already exists",
+        "requested iOS Simulator is not booted",
+    ):
+        assert token in text
+    assert "rev-parse '@{upstream}'" in text
+
+
+def test_runner_requires_all_versioned_mobile_contracts_at_the_exact_sha() -> None:
+    text = source()
+    for token in (
+        "apps/mobile/integration_test/g1_return01_six_origin_patrol_test.dart",
+        "apps/mobile/test/patrol/g1_return01_six_origin_runtime_test.dart",
+        "apps/mobile/test/runtime/g1_return01_six_origin_runtime_test.dart",
+        "apps/mobile/.maestro/g1_return01_work_return.yaml",
+        "apps/mobile/.maestro/g1_return01_housing_cancel_return.yaml",
+        "apps/mobile/.maestro/g1_return01_disability_return.yaml",
+        "apps/mobile/.maestro/g1_return01_succession_return.yaml",
+        "apps/mobile/.maestro/g1_return01_frontalier_inline.yaml",
+        "tools/simulator/patrol_return01_rvc_lpp_scan_return.sh",
+        "runtime contract files must be tracked at HEAD",
+        "runtime contract files differ from the requested SHA",
+    ):
+        assert token in text
+
+
+def test_runner_runs_doctor_and_patrol_guard_before_any_mobile_stage() -> None:
+    text = source()
+    doctor = text.index("python3 tools/checks/mint_os_doctor.py")
+    patrol_guard = text.index("python3 tools/checks/patrol_tooling_guard.py")
+    first_stage = text.index("run_patrol_stage work_save")
+    assert doctor < patrol_guard < first_stage
+    assert 'sanitize_log "$private_root/doctor.raw.log" "$artifacts/doctor.log"' in text
+    assert (
+        'sanitize_log "$private_root/patrol-tooling.raw.log" '
+        '"$artifacts/patrol-tooling.log"'
+    ) in text
+
+
+def test_runner_exports_and_builds_physical_exact_source() -> None:
+    text = source()
+    for token in (
+        "git archive --format=tar",
+        "source-manifest.sha256",
+        "productionSourceExportedExact",
+        "productionSourcePhysical",
+        "productionOverlayVerified",
+        "flutter build ios --simulator --debug",
+        "xcrun simctl install",
+        "codesign --verify",
+        "xattr",
+    ):
+        assert token in text
+    assert text.index("git archive --format=tar") < text.index(
+        "run_patrol_stage work_save"
+    )
+
+
+def test_runner_executes_the_five_non_rvc_stages_in_order() -> None:
+    text = source()
+    calls = re.findall(
+        r"run_patrol_stage (work_save|housing_cancel|disability_validation_cancel|succession_save|frontalier_inline)",
+        text,
+    )
+    assert calls == [
+        "work_save",
+        "housing_cancel",
+        "disability_validation_cancel",
+        "succession_save",
+        "frontalier_inline",
+    ]
+    assert "MINT_G1_RETURN01_STAGE" in text
+    assert "--dart-define=MINT_PATROL_CLI=true" in text
+    assert "--no-uninstall" in text
+    for stage in calls:
+        assert text.index(f"run_patrol_stage {stage}") < text.index(
+            f"run_maestro_stage {stage}"
+        )
+    assert "production overlay changed app data container" in text
+
+
+def test_each_stage_has_exact_maestro_flow_and_strict_witness_contract() -> None:
+    text = source()
+    expected = {
+        "work_save": "g1_return01_work_return.yaml",
+        "housing_cancel": "g1_return01_housing_cancel_return.yaml",
+        "disability_validation_cancel": "g1_return01_disability_return.yaml",
+        "succession_save": "g1_return01_succession_return.yaml",
+        "frontalier_inline": "g1_return01_frontalier_inline.yaml",
+    }
+    for stage, flow in expected.items():
+        assert f'[{stage}]="apps/mobile/.maestro/{flow}"' in text
+        assert f'[{stage}]="mint-g1-return01-{stage}-witness-v1.json"' in text
+    for token in (
+        "validate_stage_witness",
+        '"schemaVersion"',
+        "routeBefore",
+        "collectorRouteVerified",
+        "routeAfterVerified",
+        "storeWriteVerified",
+        "storeUnchangedVerified",
+        "validationRetainedVerified",
+        "noDataBlockVerified",
+        "frontalierCanonicalWritesVerified",
+        "capture_hierarchy",
+        "first_job_result_cards",
+        "mortgage_enrich_profile_cta",
+        "disability_gap_ledger_facts",
+        "succession_mortgage_missing",
+        "frontier_jurisdiction_known_state",
+        "Maestro JUnit is not a clean pass",
+    ):
+        assert token in text
+
+
+def test_rvc_is_a_separate_required_exact_sha_stage() -> None:
+    text = source()
+    rvc_call = text.index("patrol_return01_rvc_lpp_scan_return.sh")
+    assert "return-01-rvc/runtime-${expected_sha:0:10}-$timestamp" in text
+    assert "validate_rvc_metadata" in text
+    assert '"sourceSha"' in text or '"commitSha"' in text
+    assert "rvcExactShaVerified" in text
+    assert rvc_call < text.index("write_metadata passed")
+
+
+def test_runner_never_injects_a_production_persistence_failure() -> None:
+    text = source().lower()
+    forbidden = (
+        "mint_inject_persistence_failure",
+        "failure_query",
+        "debug_failure_route",
+        "throwingcoachprofileprovider",
+        "failuresremaining",
+    )
+    for token in forbidden:
+        assert token not in text
+    assert "productionFailureInjectionUsed" in source()
+
+
+def test_runner_sanitizes_an_allowlist_and_rejects_private_or_raw_outputs() -> None:
+    text = source()
+    for token in (
+        "REDACTED_REPO",
+        "REDACTED_HOME",
+        "REDACTED_SIMULATOR_UDID",
+        "REDACTED_PRIVATE_TEMP",
+        "rawRuntimeOutputsRetained",
+        "syntheticDataOnly",
+        "verify_artifact_allowlist",
+        "verify_privacy_inventory",
+        "SHA256SUMS",
+    ):
+        assert token in text
+    assert "find \"$artifacts\" -type f -print0" in text
+
+
+def test_runner_records_restoration_cleanup_and_rechecks_exact_sha() -> None:
+    text = source()
+    for token in (
+        "restore_normal_build",
+        "verify_runtime_sources_clean",
+        "restorationStatus",
+        "cleanupStatus",
+        "pushedShaVerified",
+        "sourceTreeCleanAfterRuntime",
+        "HEAD/upstream changed during runtime evidence",
+    ):
+        assert token in text
+    assert text.rindex("verify_runtime_sources_clean") < text.index(
+        "write_metadata passed"
+    )
+
+
+def test_metadata_is_fail_closed_for_all_six_origins_and_artifacts() -> None:
+    text = source()
+    for token in (
+        '"caseId": "G1-RETURN-01"',
+        '"workSaveVerified"',
+        '"housingCancelNoWriteVerified"',
+        '"disabilityValidationCancelNoWriteVerified"',
+        '"successionSaveVerified"',
+        '"frontalierInlineNoDataBlockVerified"',
+        '"rvcExactShaVerified"',
+        '"maestroStagesVerified"',
+        '"patrolStagesVerified"',
+        '"hierarchyWitnessesVerified"',
+        '"storeWitnessesVerified"',
+        '"screenshotsVerified"',
+        '"checksumsVerified"',
+    ):
+        assert token in text
+
+
+def _witness_validator_program() -> str:
+    match = re.search(
+        r"validate_stage_witness\(\) \{.*?<<'PY'\n(.*?)\nPY",
+        source(),
+        flags=re.S,
+    )
+    assert match is not None
+    return match.group(1)
+
+
+def _witness(stage: str) -> dict[str, object]:
+    origins = {
+        "work_save": "/first-job",
+        "housing_cancel": "/hypotheque",
+        "disability_validation_cancel": "/invalidite",
+        "succession_save": "/succession",
+        "frontalier_inline": "/segments/frontalier",
+    }
+    return {
+        "schemaVersion": 1,
+        "caseId": "G1-RETURN-01",
+        "stage": stage,
+        "sourceSha": "a" * 40,
+        "syntheticDataOnly": True,
+        "routeBefore": origins[stage],
+        "routeAfter": origins[stage],
+        "collectorRouteVerified": stage != "frontalier_inline",
+        "routeAfterVerified": True,
+        "storeWriteVerified": stage in {"work_save", "succession_save"},
+        "storeUnchangedVerified": stage
+        in {"housing_cancel", "disability_validation_cancel"},
+        "validationRetainedVerified": stage
+        == "disability_validation_cancel",
+        "noDataBlockVerified": stage == "frontalier_inline",
+        "frontalierCanonicalWritesVerified": stage == "frontalier_inline",
+    }
+
+
+def _run_witness_validator(
+    tmp_path: Path, stage: str, payload: dict[str, object]
+) -> subprocess.CompletedProcess[str]:
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    source_path = tmp_path / f"{stage}.source.json"
+    retained_path = tmp_path / f"{stage}.retained.json"
+    source_path.write_text(json.dumps(payload), encoding="utf-8")
+    return subprocess.run(
+        ["python3", "-", str(source_path), str(retained_path), stage, "a" * 40],
+        input=_witness_validator_program(),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+
+def test_embedded_witness_validator_accepts_all_five_exact_schemas(
+    tmp_path: Path,
+) -> None:
+    for stage in (
+        "work_save",
+        "housing_cancel",
+        "disability_validation_cancel",
+        "succession_save",
+        "frontalier_inline",
+    ):
+        result = _run_witness_validator(tmp_path, stage, _witness(stage))
+        assert result.returncode == 0, result.stderr
+        retained = json.loads(
+            (tmp_path / f"{stage}.retained.json").read_text(encoding="utf-8")
+        )
+        assert retained == _witness(stage)
+
+
+def test_embedded_witness_validator_rejects_drift_and_fake_booleans(
+    tmp_path: Path,
+) -> None:
+    mutations: list[tuple[str, object]] = [
+        ("schemaVersion", 2),
+        ("sourceSha", "b" * 40),
+        ("routeAfter", "/home"),
+        ("routeAfterVerified", 1),
+        ("storeWriteVerified", True),
+    ]
+    for index, (key, value) in enumerate(mutations):
+        payload = _witness("housing_cancel")
+        payload[key] = value
+        result = _run_witness_validator(
+            tmp_path / f"mutation-{index}", "housing_cancel", payload
+        )
+        assert result.returncode != 0, (key, result.stdout, result.stderr)
+
+    payload = _witness("work_save")
+    payload["rawFinancialValue"] = 96000
+    result = _run_witness_validator(tmp_path / "extra", "work_save", payload)
+    assert result.returncode != 0
