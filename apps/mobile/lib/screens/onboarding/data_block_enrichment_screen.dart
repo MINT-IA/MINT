@@ -352,7 +352,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     if (_revenueInputsSeeded || profile == null) return;
     _revenueInputsSeeded = true;
     if (profile.canton.isNotEmpty) _cantonController.text = profile.canton;
-    if (profile.revenuBrutAnnuel > 0) {
+    if (profile.userProvidedFields.contains('grossSalaryAnnual') &&
+        profile.revenuBrutAnnuel > 0) {
       _salaryController.text = '${profile.revenuBrutAnnuel.round()}';
     }
     final selfEmployedIncome = profile.selfEmployedNetIncome;

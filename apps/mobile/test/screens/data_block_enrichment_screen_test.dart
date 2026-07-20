@@ -903,6 +903,61 @@ void main() {
     expect(tester.widget<SwitchListTile>(tile).value, true);
   });
 
+  testWidgets('gross salary collector never seeds an unreadable fallback',
+      (tester) async {
+    final provider = CoachProfileProvider()
+      ..updateFromAnswers({
+        'q_gross_salary_annual': '__secure__',
+        'q_canton': 'GE',
+        'q_birth_year': 1990,
+        'q_employment_status': 'salarie',
+      });
+
+    expect(provider.profile!.revenuBrutAnnuel, greaterThan(0));
+    expect(provider.profile!.userProvidedFields, isNot(contains('salary')));
+    expect(
+      provider.profile!.userProvidedFields,
+      isNot(contains('grossSalaryAnnual')),
+    );
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'revenu',
+        initialInputKey: 'q_gross_salary_annual',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    final salaryInput = tester.widget<TextField>(
+      find.byKey(const Key('salary_input')),
+    );
+    expect(salaryInput.controller!.text, isEmpty);
+  });
+
+  testWidgets('gross salary collector seeds a declared annual gross fact',
+      (tester) async {
+    final provider = CoachProfileProvider()
+      ..updateFromAnswers({
+        'q_gross_salary_annual': 96000,
+        'q_employment_status': 'salarie',
+      });
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'revenu',
+        initialInputKey: 'q_gross_salary_annual',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    final salaryInput = tester.widget<TextField>(
+      find.byKey(const Key('salary_input')),
+    );
+    expect(salaryInput.controller!.text, '96000');
+  });
+
   testWidgets('revenue block rejects underage birth year', (tester) async {
     final provider = CoachProfileProvider();
     final underageBirthYear = DateTime.now().year - 17;

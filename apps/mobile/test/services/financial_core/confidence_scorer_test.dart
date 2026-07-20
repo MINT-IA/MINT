@@ -34,6 +34,44 @@ void main() {
       expect(confidence.prompts, isNotEmpty);
     });
 
+    test('display fallback is not a known salary fact', () {
+      final fallbackProfile = CoachProfile.fromWizardAnswers({
+        'q_gross_salary_annual': '__secure__',
+        'q_employment_status': 'salarie',
+      });
+
+      expect(fallbackProfile.salaireBrutMensuel, greaterThan(0));
+      expect(fallbackProfile.userProvidedFields, isNot(contains('salary')));
+
+      final confidence = ConfidenceScorer.score(fallbackProfile);
+      final revenue = ConfidenceScorer.scoreAsBlocs(fallbackProfile)['revenu']!;
+      expect(revenue.score, 0);
+      expect(revenue.status, 'missing');
+      expect(
+        confidence.prompts,
+        contains(predicate<EnrichmentPrompt>(
+          (prompt) => prompt.fieldPath == 'salaireBrutMensuel',
+        )),
+      );
+    });
+
+    test('declared net and gross salaries remain known for scoring', () {
+      final netProfile = CoachProfile.fromWizardAnswers({
+        'q_net_income_period_chf': 5000,
+        'q_pay_frequency': 'monthly',
+      });
+      final grossProfile = CoachProfile.fromWizardAnswers({
+        'q_gross_salary_annual': 96000,
+      });
+
+      for (final profile in [netProfile, grossProfile]) {
+        expect(profile.userProvidedFields, contains('salary'));
+        final revenue = ConfidenceScorer.scoreAsBlocs(profile)['revenu']!;
+        expect(revenue.score, 12);
+        expect(revenue.status, 'complete');
+      }
+    });
+
     test('expat without foreign pension → penalty + prompt', () {
       final profile = _buildProfile(
         age: 45,
@@ -964,6 +1002,7 @@ CoachProfile _buildProfile({
     residencePermit: residencePermit,
     dataSources: dataSources,
     dataTimestamps: dataTimestamps,
+    userProvidedFields: salary > 0 ? const {'salary'} : const {},
     financialLiteracyLevel: financialLiteracyLevel,
     checkIns: checkIns,
     targetRetirementAge: targetRetirementAge,

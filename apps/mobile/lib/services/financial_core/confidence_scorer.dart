@@ -268,6 +268,10 @@ class ConfidenceScorer {
   /// Below this threshold, show enrichment prompts instead.
   static const double minConfidenceForProjection = 40.0;
 
+  static bool _hasKnownSalary(CoachProfile profile) =>
+      profile.userProvidedFields.contains('salary') &&
+      profile.salaireBrutMensuel > 0;
+
   /// Score projection confidence based on profile completeness.
   static ProjectionConfidence score(
     CoachProfile profile, {
@@ -280,7 +284,7 @@ class ConfidenceScorer {
     final assumptions = <String>[];
 
     // --- Salaire (12 pts) ---
-    if (profile.salaireBrutMensuel > 0) {
+    if (_hasKnownSalary(profile)) {
       total += _wSalaire;
     } else {
       assumptions.add('Salaire non renseigne — estimation impossible');
@@ -589,7 +593,7 @@ class ConfidenceScorer {
     final blocs = <String, BlockScore>{};
 
     // --- Salaire ---
-    final salaire = profile.salaireBrutMensuel > 0 ? _wSalaire.toDouble() : 0.0;
+    final salaire = _hasKnownSalary(profile) ? _wSalaire.toDouble() : 0.0;
     blocs['revenu'] = BlockScore(
       score: salaire,
       maxScore: _wSalaire.toDouble(),
