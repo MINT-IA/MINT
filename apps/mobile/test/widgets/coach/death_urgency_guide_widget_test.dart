@@ -80,7 +80,9 @@ void main() {
   testWidgets('has Semantics label', (tester) async {
     await tester.pumpWidget(buildWidget());
     expect(
-      find.bySemanticsLabel(RegExp('urgence décès', caseSensitive: false)),
+      find.bySemanticsLabel(
+        RegExp('Guide des démarches après le décès d’un proche'),
+      ),
       findsOneWidget,
     );
   });

@@ -15,7 +15,6 @@ import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/widgets/coach/succession_evidence_quest.dart';
-import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -220,6 +219,57 @@ void main() {
       expect(find.textContaining('CO art. 239'), findsWidgets);
     });
 
+    testWidgets('uses current neutral Swiss succession-law education',
+        (tester) async {
+      tester.view.physicalSize = const Size(1440, 16000);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
+      await tester.pump();
+
+      expect(find.textContaining('1er janvier 2023'), findsOneWidget);
+      expect(
+        find.textContaining('moitié du droit successoral légal'),
+        findsOneWidget,
+      );
+      expect(
+          find.textContaining('parents n’ont plus de réserve'), findsOneWidget);
+      expect(find.textContaining('divorce'), findsOneWidget);
+      expect(find.textContaining('dissolution du partenariat'), findsOneWidget);
+      expect(
+        find.textContaining('MINT n’en déduit aucune part personnelle'),
+        findsOneWidget,
+      );
+      expect(find.text('CC art. 470–472'), findsOneWidget);
+      expect(find.text('CC art. 470 al. 2'), findsNothing);
+      expect(
+        find.textContaining('disposer pour cause de mort'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('MINT ne la calcule pas'),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'LPP art. 19–20a et règlement de l’institution · OPP 3 art. 2',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining(
+          'LPP art. 19–20a et règlement de l’institution — prestations de survivants et autres bénéficiaires',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('LPP art. 20 — Bénéficiaires du capital LPP'),
+        findsNothing,
+      );
+      expect(find.textContaining('votre part personnelle'), findsNothing);
+      expect(find.textContaining('vous pouvez léguer'), findsNothing);
+    });
+
     testWidgets('CTA uses spécialiste (not banned conseiller title)',
         (tester) async {
       tester.view.physicalSize = const Size(1440, 16000);
@@ -239,7 +289,6 @@ void main() {
       await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
       await tester.pump();
       expect(find.byType(SuccessionEvidenceQuest), findsNothing);
-      expect(find.byType(TestamentInvisibleWidget), findsNothing);
     });
 
     testWidgets('local collector flag exposes the real quest only',
@@ -250,7 +299,6 @@ void main() {
       await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
       await tester.pump();
       expect(find.byType(SuccessionEvidenceQuest), findsOneWidget);
-      expect(find.byType(TestamentInvisibleWidget), findsNothing);
     });
 
     testWidgets('asks for property value before rendering a fictive case',
@@ -265,7 +313,6 @@ void main() {
       expect(
           find.byKey(const Key('succession_property_missing')), findsOneWidget);
       expect(find.byKey(const Key('succession_parents_note')), findsNothing);
-      expect(find.byType(TestamentInvisibleWidget), findsNothing);
       expect(find.textContaining("500'000"), findsNothing);
       expect(find.textContaining("50'000"), findsNothing);
       expect(find.textContaining('Enfant 1'), findsNothing);
@@ -313,7 +360,6 @@ void main() {
       expect(find.byKey(const Key('succession_parents_note')), findsOneWidget);
       expect(
           find.byKey(const Key('succession_mortgage_missing')), findsNothing);
-      expect(find.byType(TestamentInvisibleWidget), findsNothing);
       expect(find.textContaining("950'000"), findsWidgets);
       expect(find.textContaining("320'000"), findsWidgets);
       expect(find.textContaining("630'000"), findsWidgets);

@@ -115,6 +115,13 @@ List<dynamic> _slots(dynamic profile) => _read(
     ) as List<dynamic>;
 
 void main() {
+  test('estate aggregate state exposes only live reachable branches', () {
+    expect(
+      EstateReferenceState.values.map((state) => state.name),
+      <String>['known', 'missing', 'invalid', 'needsReconfirmation'],
+    );
+  });
+
   test('SUCC-R01 default exposes four unknown slots, never inferred absence',
       () {
     final dynamic profile = _profile(civilStatus: 'celibataire');
