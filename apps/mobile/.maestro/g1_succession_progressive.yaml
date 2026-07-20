@@ -6,6 +6,18 @@ appId: ch.mint.app
 - launchApp:
     clearState: true
 - openLink: "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
 - assertVisible:
     id: "property_market_value_input"
 - tapOn:
