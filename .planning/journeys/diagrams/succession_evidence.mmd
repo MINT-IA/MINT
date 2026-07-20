@@ -51,8 +51,12 @@ flowchart TB
   Cold["kill/relaunch -> cold wizard_answers_v2<br/>provider projections choose next delta"]:::fact
   Runtime["OPEN runtime acceptance<br/>flag off/on Maestro + civil return<br/>Patrol native present input + process death<br/>screenshots + exact-SHA CI"]:::proof
   FreshSetup["Runtime setup truth<br/>fresh profile defaults to confirmed celibataire<br/>and does NOT render the civil guard"]:::proof
-  CivilSeed["setupPatrolStages: civil_guard_seed<br/>persist legacy q_civil_status = partenariat<br/>mini-onboarding remains incomplete<br/>fresh model rehydration requires confirmation<br/>no provider publication claim"]:::proof
-  FlagOnOverlay["install exact flag-on production app<br/>over the same container<br/>NO uninstall / clear before Maestro"]:::proof
+  CivilSeed["setupPatrolStages: civil_guard_seed<br/>Patrol writer 1/1 PASS<br/>persist legacy q_civil_status = partenariat<br/>mini-onboarding remains incomplete<br/>no provider publication claim"]:::proof
+  SeedWitness["terminate setup process; no clear/uninstall<br/>sanitized exact witness<br/>birth 1980; canton VD; civil partenariat<br/>mini false; property absent"]:::proof
+  ContainerGate{"freshly resolve physical container<br/>same device:inode after overlay?<br/>raw path may rotate"}:::guard
+  FlagOnOverlay["install exact flag-on production app<br/>NO uninstall / clear / backup / restore<br/>exact seed state remains identical"]:::proof
+  HandoffFail["identity/state mismatch = hard-fail<br/>no Maestro; no runtime evidence<br/>forbid mini-onboarding and plist injection"]:::no
+  FreshProduction["terminate then fresh production launch<br/>real property DataBlock merge publishes profile<br/>then Maestro proves civil return"]:::proof
   ProcessStages["patrolStages only<br/>native_present -> absent_write -> cold_read<br/>setup seed is not process-death evidence"]:::proof
 
   Entry --> Flag
@@ -82,7 +86,9 @@ flowchart TB
   Absent --> InstrumentWrite
   InstrumentWrite --> Save
   Order -- "none" --> Terminal --> Boundary --> Runtime
-  Runtime -. "pending civil-guard setup contract" .-> FreshSetup --> CivilSeed --> FlagOnOverlay --> CivilGuard
+  Runtime -. "pending civil-guard setup contract" .-> FreshSetup --> CivilSeed --> SeedWitness --> ContainerGate
+  ContainerGate -- "yes; state byte-identical" --> FlagOnOverlay --> FreshProduction --> CivilGuard
+  ContainerGate -- "no" --> HandoffFail
   Runtime -. "pending process-death contract" .-> ProcessStages
   Terminal -- "modify exact slot" --> Order
   Root --> Privacy
@@ -98,4 +104,6 @@ flowchart TB
   %% SUCC-6 terminal survey completeness never means legal/dossier readiness.
   %% SUCC-7 runtime promotion needs exact-SHA flag-off/on and cold-reader proof.
   %% SUCC-8 civil_guard_seed is setup-only and must stay outside patrolStages.
-  %% SUCC-9 flag-on production install preserves the setup container before Maestro.
+  %% SUCC-9 setup-to-production handoff requires a stable device:inode and exact sanitized state witness.
+  %% SUCC-10 raw paths may rotate; any identity/state mismatch hard-fails before Maestro.
+  %% SUCC-11 mini-onboarding completion and direct plist injection are forbidden setup shortcuts.

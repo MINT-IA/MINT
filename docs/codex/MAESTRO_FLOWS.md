@@ -257,9 +257,9 @@ Targets:
   insertion marker;
 - `apps/mobile/.maestro/g1_succession_progressive.yaml` for the flag-on civil
   guard/return contract;
-- `civil_guard_seed`, a distinct Patrol **setup** stage that persists only the
-  legacy ambiguous `q_civil_status='partenariat'` fixture without completing
-  mini-onboarding;
+- `civil_guard_seed`, a distinct Patrol **setup writer** that must finish
+  exactly `1/1 PASS` after persisting only the legacy ambiguous
+  `q_civil_status='partenariat'` fixture without completing mini-onboarding;
 - dedicated Patrol targets for native present input, explicit absent write and
   distinct-process cold read;
 - build the flag-on target with
@@ -289,36 +289,49 @@ Required proof sequence:
    scroll down to `succession_reference_quest_flag_off` and assert it visible.
    The marker is attached to the notions-clés heading at the disabled quest
    insertion point; it is not a placeholder quest or a domain-state widget.
-2. **Truthful civil-guard setup:** a fresh profile defaults to confirmed
-   `celibataire`; it cannot prove this branch. Run the isolated
-   `civil_guard_seed` Patrol setup first. It persists the quarantined legacy
-   `q_civil_status='partenariat'`, does not complete mini-onboarding, and uses
+2. **Truthful civil-guard setup and verified handoff:** a fresh profile defaults
+   to confirmed `celibataire`; it cannot prove this branch. Run the isolated
+   `civil_guard_seed` Patrol writer first and require exactly `1/1 PASS`. It
+   persists the quarantined legacy `q_civil_status='partenariat'`, does not
+   complete mini-onboarding, and uses
    `CoachProfile.fromWizardAnswers(persisted)` for a fresh model rehydration
    verifying `civilStatusNeedsConfirmation == true`. It does not claim that the
-   minimal pre-onboarding answers make the provider publish a profile. Then install
-   the exact flag-on production app over the same container with **no uninstall
-   or clear** before Maestro.
-3. **Civil guard/return:** in that seeded flag-on production app, scroll to
+   minimal pre-onboarding answers make the provider publish a profile. Terminate
+   that process without uninstalling or clearing data, resolve the physical app
+   data container, and capture its `device:inode` plus a sanitized witness for
+   exactly `q_birth_year=1980`, `q_canton=VD`,
+   `q_civil_status=partenariat`, mini-onboarding `false`, and
+   `q_property_market_value` absent. A raw container path may rotate; it must be
+   resolved afresh rather than treated as identity.
+3. **Exact production overlay:** install the exact flag-on production app with
+   no uninstall, clear, backup or restore boundary. Resolve the data container
+   again and require the same `device:inode` and byte-identical sanitized seed
+   witness, then perform a fresh production launch. Any missing fact, stale
+   property value, identity rotation or state mutation is a hard-fail before
+   Maestro. Setting mini-onboarding complete or using direct plist injection is
+   forbidden; setup writes must cross `ReportPersistenceService`.
+4. **Civil guard/return:** in that seeded flag-on production app, use the real
+   property DataBlock save to publish the merged production profile, scroll to
    `succession_civil_status_guard`, assert both the
    `succession_reference_quest` root and guard, tap the stable confirm CTA,
    verify the targeted `q_civil_status` DataBlock, save, and prove return to
    `/succession` without losing query ownership.
-4. **Progressive explicit absence:** choose an arrangement with no preselected
+5. **Progressive explicit absence:** choose an arrangement with no preselected
    value; save; declare will absent; assert durable acknowledgement; explicitly
    advance; assert inheritance-pact question. Unknown must never auto-become
    absent and only one primary slot may be visible.
-5. **Native present input:** in Patrol, choose present, enter a real civil date
+6. **Native present input:** in Patrol, choose present, enter a real civil date
    and legal year through the exact field ids, save, then inspect the persisted
    strict root. No Maestro-only text injection may stand in for the native input
    proof.
-6. **Kill/relaunch:** terminate after will is saved, relaunch without clearing
+7. **Kill/relaunch:** terminate after will is saved, relaunch without clearing
    state, open `/succession`, and assert the next question or stale prior-state
    reconfirmation from cold `wizard_answers_v2`; never seed the reader directly.
-7. **Failure boundaries:** a harnessed persistence failure keeps the question
+8. **Failure boundaries:** a harnessed persistence failure keeps the question
    and retry id; a CAS change reloads instead of overwriting; an invalid root
    exposes only reload/support. These may be widget/Patrol assertions where
    Maestro cannot inject the persistence seam.
-8. **Terminal boundary and screenshots:** inspect representative guard,
+9. **Terminal boundary and screenshots:** inspect representative guard,
    unknown, stale/prior, present-input, absent, failure and terminal screens.
    Terminal copy must visibly deny verified dossier, legal distribution,
    specialist readiness and advice.
@@ -333,9 +346,11 @@ Runtime metadata separates setup from evidence stages:
 ```
 
 The seed is a fixture-preparation boundary, not an additional writer/reader
-stage and not evidence of process death. The three `patrolStages` retain their
-own native-present, durable absent-write, terminate and distinct-process
-cold-read contract.
+stage and not evidence of process death. Its accepted output includes the
+sanitized pre-overlay and post-overlay witnesses and the stable `device:inode`;
+an asserted install-over relationship without those comparisons is no evidence.
+The three `patrolStages` retain their own native-present, durable absent-write,
+terminate and distinct-process cold-read contract.
 
 Accepted runtime evidence must record exact pushed SHA, app/bundle id, compile
 define state, writer and cold-reader PIDs, Doctor/Patrol/Maestro commands,

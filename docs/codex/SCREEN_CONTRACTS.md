@@ -481,21 +481,35 @@ G1/G2/G3 promotion is unchanged.
 ambiguous-state fixture: absent `q_civil_status` currently reconstructs as
 confirmed `celibataire` with `civilStatusNeedsConfirmation == false`. The guard
 proof must therefore not pretend that a clean install naturally reaches it.
-The runtime contract uses a separate Patrol setup stage, `civil_guard_seed`, to
-persist the quarantined legacy value `q_civil_status='partenariat'` while
-leaving mini-onboarding incomplete, then verifies a fresh model rehydration via
+The runtime contract uses a separate Patrol setup writer,
+`civil_guard_seed`. It must finish exactly `1/1 PASS` after persisting the
+quarantined legacy value `q_civil_status='partenariat'` while leaving
+mini-onboarding incomplete, then verify that
 `CoachProfile.fromWizardAnswers(persisted)` reports
 `civilStatusNeedsConfirmation == true`. The minimal pre-onboarding answers do
-not make `CoachProfileProvider` publish a profile. Bare `partenariat` is deliberately
-ambiguous; it is not confirmation of registered partnership or concubinage.
+not make `CoachProfileProvider` publish a profile. Bare `partenariat` is
+deliberately ambiguous; it is not confirmation of registered partnership or
+concubinage.
 
-After that setup stage, the runner installs the exact flag-on production app
-**over the existing simulator container**, with no uninstall, state clear or
-backup/restore boundary before Maestro. This preserves the seeded ambiguity so
-the production entrypoint can render the real civil guard and complete the
-canonical DataBlock return. Evidence metadata must list this preparatory stage
-only in `setupPatrolStages: [civil_guard_seed]`; the independent process-death
-chain remains exactly `patrolStages: [native_present, absent_write, cold_read]`.
+The seed handoff is verified, never inferred from a same-bundle install. After
+the writer, the runner terminates the setup process without uninstalling or
+clearing data, resolves the physical application data container, and captures
+its `device:inode` identity plus a sanitized exact-state witness. The witness
+must prove `q_birth_year=1980`, `q_canton=VD`,
+`q_civil_status=partenariat`, mini-onboarding `false`, and
+`q_property_market_value` absent. Raw container paths may rotate and are not the
+identity contract; the freshly resolved container must retain the same
+`device:inode`. The runner then overlays the exact flag-on production app,
+resolves the container again, and requires the exact sanitized seed state to be
+byte-for-byte identical before a fresh production launch and Maestro. Any
+identity or state mismatch is a hard-fail and cannot produce runtime evidence.
+Direct plist injection and setting mini-onboarding complete are forbidden:
+the writer must cross `ReportPersistenceService`, and the real production
+DataBlock write remains the activation boundary for provider publication.
+
+Evidence metadata must list this preparatory stage only in
+`setupPatrolStages: [civil_guard_seed]`; the independent process-death chain
+remains exactly `patrolStages: [native_present, absent_write, cold_read]`.
 Setup seeding is neither a fourth process-death stage nor product runtime proof
 by itself. No PASS is claimed until the complete exact-SHA run is accepted.
 
