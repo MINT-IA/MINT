@@ -82,7 +82,8 @@
 
 - `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml` exists at `095eeaa32`; R-1/R-2 scan recovery flows are checked in by the G1 repair slice.
 - The F-2 stable ids are present: `salary_input`, `canton_picker`, `birth_year_input`, `has_pension_fund_switch`, `salary_save_cta`, `mortgage_afford_result`, `mortgage_income_amount`.
-- The F-5 stable ids are present: `succession_property_missing`, `property_market_value_input`, `patrimoine_save_cta`, `succession_parents_note`.
+- The F-5 property stable ids are present: `succession_property_missing`, `property_market_value_input`, `patrimoine_save_cta`, `succession_parents_note`.
+- The default-off SUCCESSION reference consumer adds real stable ids for the quest root, civil guard plus `succession_civil_status_confirm` CTA, arrangement, exact four slots, stale/prior/reconfirm, present/absent metadata, save/error/next, invalid recovery and terminal review. The new progressive Maestro file is not checked in and the existing Patrol target remains property-only, so SUCCESSION runtime promotion is still open.
 - IDs for F-1/F-3/F-6 are still missing or not fully wired (`coach_input`, `coach_send`, `retirement_gap_value`, `divorce_regime_picker`, `divorce_lpp_split_result`, `report_investment_card`).
 - **Deep links are partial.** iOS has `CFBundleURLSchemes` with `mint` (`ios/Runner/Info.plist:21-29`). Android still has no `mint://` intent-filter on `MainActivity` (only `MAIN`/`LAUNCHER`, `AndroidManifest.xml:25-28`; `https` appears only under `<queries>`, `:34-38`). Android `openLink: "mint:///..."` is dead until Task M-0a registers the scheme.
 
@@ -247,6 +248,66 @@ appId: ch.mint.app
 # fictive property CASE.
 - assertVisible: { id: "succession_parents_note" }
 ```
+
+### F-5S succession reference — default-off progressive authority proof (TARGET, not yet accepted)
+
+Targets:
+
+- add `apps/mobile/.maestro/g1_succession_progressive.yaml`;
+- extend `apps/mobile/test/patrol/succession_transmission_runtime_test.dart`
+  beyond its existing property-value proof;
+- build the flag-on target with
+  `--dart-define=MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION=true`;
+- keep a normal production-default build to prove the collector is absent when
+  the define is omitted.
+
+The target must use these **existing literal ids**, never translated text:
+
+| proof state | ids |
+|---|---|
+| quest present/absent | `succession_reference_quest` (assert present only in flag-on build) |
+| ambiguous civil status | `succession_civil_status_guard`, `succession_civil_status_confirm` |
+| arrangement | `succession_arrangement_question`, `succession_arrangement_enum`, `succession_arrangement_save` |
+| exact will question | `succession_instrument_will_question`, `succession_instrument_will_absent`, `succession_instrument_will_present` |
+| accepted write/explicit advance | `succession_answer_saved`, `succession_next_question` |
+| next exact slot | `succession_instrument_inheritancePact_question` |
+| present metadata | `succession_instrument_{kind}_source_date`, `succession_instrument_{kind}_legal_year`, `succession_instrument_{kind}_save` |
+| stale cold reader | `succession_instrument_{kind}_stale`, `succession_instrument_{kind}_prior_state`, `succession_instrument_{kind}_reconfirm` |
+| invalid/failure | `succession_reference_invalid`, `succession_reference_reload`, `succession_instrument_{kind}_save_error` |
+| terminal review | `succession_reference_survey_recorded`, `succession_instrument_{kind}_summary`, `succession_instrument_{kind}_modify` |
+
+Required proof sequence:
+
+1. **Flag off:** launch normal production entrypoint, open `/succession`, assert
+   `succession_reference_quest` absent while the rest of the route still renders.
+2. **Civil guard/return:** on flag-on build with ambiguous civil status, assert
+   guard, tap the new stable CTA, verify the targeted `q_civil_status` DataBlock,
+   save, and prove return to `/succession` without losing query ownership.
+3. **Progressive explicit absence:** choose an arrangement with no preselected
+   value; save; declare will absent; assert durable acknowledgement; explicitly
+   advance; assert inheritance-pact question. Unknown must never auto-become
+   absent and only one primary slot may be visible.
+4. **Native present input:** in Patrol, choose present, enter a real civil date
+   and legal year through the exact field ids, save, then inspect the persisted
+   strict root. No Maestro-only text injection may stand in for the native input
+   proof.
+5. **Kill/relaunch:** terminate after will is saved, relaunch without clearing
+   state, open `/succession`, and assert the next question or stale prior-state
+   reconfirmation from cold `wizard_answers_v2`; never seed the reader directly.
+6. **Failure boundaries:** a harnessed persistence failure keeps the question
+   and retry id; a CAS change reloads instead of overwriting; an invalid root
+   exposes only reload/support. These may be widget/Patrol assertions where
+   Maestro cannot inject the persistence seam.
+7. **Terminal boundary and screenshots:** inspect representative guard,
+   unknown, stale/prior, present-input, absent, failure and terminal screens.
+   Terminal copy must visibly deny verified dossier, legal distribution,
+   specialist readiness and advice.
+
+Accepted runtime evidence must record exact pushed SHA, app/bundle id, compile
+define state, writer and cold-reader PIDs, Doctor/Patrol/Maestro commands,
+screenshots and direct visual verdict under `.planning/runtime-evidence/`.
+Until that bundle exists and exact-SHA CI is green, this target is a contract,
+not a PASS claim.
 
 ## 1A. G1 LPP regulation — exact autonomous dual runtime proof (PASS)
 

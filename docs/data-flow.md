@@ -197,9 +197,9 @@ screen owns a second local I/O boundary.
 | 8 | **DataBlock enrichment** | `data_block_enrichment_screen.dart` → `coachProvider.mergeAnswers` | `q_canton`, `q_gross_salary_annual`, `q_self_employed_income`, `q_company_profit_annual_chf`, `q_birth_year`, `q_has_pension_fund`, `q_cash_total`, `q_wealth_estimate`, `q_property_market_value`, `_coach_dettes_hypotheque`, `q_debt_payments_period_chf`, `q_has_consumer_debt`, `q_children`, `q_civil_status`, `q_housing_status` | Missing-fact collector from scenario/Data Quest flows |
 | 9 | **Reviewed bank import** | `bank_import_screen.dart` → `profileProvider.mergeAnswersWithProvenance` | `q_net_income_period_chf`, `q_pay_frequency='monthly'`; categorized charges remain preview-only | Explicit user confirmation after local CSV/PDF preview |
 | 10 | **Frontier jurisdiction collector** | `frontalier_screen.dart` → `coachProvider.mergeAnswers` | `q_residence_country`, `q_work_country`, and conditional `q_work_canton`; selecting a non-CH work country clears `q_work_canton` in the same snapshot | Inline collection on `/segments/frontalier`; stale canton reconfirmation rewrites the same value in one gesture |
-| 11 | **Succession reference confirmation** (provider foundation only) | `CoachProfileProvider.confirmMatrimonialRegime`, `confirmRegisteredPartnershipPropertyRegime`, `confirmEstateInstrumentPresent`, `confirmEstateInstrumentAbsent` | strict-secure `_coach_estate_evidence_v1` only: scoped marriage/LPart confirmation plus the exact four instrument slots | A future production collector must call these APIs. At `2adf4b243` no production screen calls them, so this is not a completed user flow or ticket promotion. |
+| 11 | **Succession reference confirmation** (default-off live consumer) | `SuccessionPatrimoineScreen` → `SuccessionEvidenceQuest` → `CoachProfileProvider.confirmMatrimonialRegime`, `confirmRegisteredPartnershipPropertyRegime`, `confirmEstateInstrumentPresent`, `confirmEstateInstrumentAbsent` | strict-secure `_coach_estate_evidence_v1` only: scoped marriage/LPart confirmation plus the exact four instrument slots | `/succession`, only when local compile flag `MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION=true`; the flag defaults false and is absent from `FeatureFlags.applyFromMap`. Each answer awaits the typed whole-root save before the UI advances. |
 
-### Succession reference authority (G1-SUCCESSION-01 foundation; consumer open)
+### Succession reference authority (G1-SUCCESSION-01 live consumer; runtime acceptance open)
 
 `wizard_answers_v2['_coach_estate_evidence_v1']` is the sole succession-
 reference authority. It is a schema-v1 JSON string registered both as a strict
@@ -231,12 +231,29 @@ means only that current-arrangement applicability is resolved and all four
 instrument slots are explicitly present/absent; it does **not** establish a
 complete estate, legal distribution, specialist-ready dossier, or advice.
 
-At commit `2adf4b243`, repository grep finds no production caller of any of the
-four provider writers and `/succession` reads none of these projections. The
-existing screen still reads property/mortgage/family facts and renders the
-legacy `TestamentInvisibleWidget`. Therefore the model/writer foundation is
-GREEN evidence only; G1-SUCCESSION-01 remains open until a neutral production
-collector/reader, degraded states, and runtime proof are implemented.
+At pushed commit `9152a0368`, `/succession` has a real, default-off production
+consumer. `SuccessionEvidenceQuest` first routes an unresolved civil status to
+`/data-block/composition_menage?inputKey=q_civil_status&returnUri=/succession`.
+It then asks an explicit nullable marriage or LPart arrangement when applicable
+and exactly one instrument delta at a time, sorting `stale` before `unknown`.
+Stale evidence shows the prior state and metadata before a one-gesture CAS
+reconfirmation; present evidence requires a civil `sourceDate` and explicit
+`legalYear`; absence is an explicit `userInput` confirmation. It never opens,
+stores or transmits a raw document, path, filename, OCR output or document
+bytes.
+
+The consumer disables writes while a save is in flight. Persistence failure
+keeps the same question and an explicit retry; a CAS conflict reloads the
+provider and reports that the data changed; an invalid root offers reload/
+support only and never resets authority from the screen. The terminal review
+shows all four declared states and modification controls, but explicitly says
+that the survey is neither a verified legal dossier nor specialist-ready.
+`TestamentInvisibleWidget` is no longer rendered by the production route.
+The local flag `FeatureFlags.successionEvidenceCollectionEnabled` defaults
+false, is enabled only by `MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION`, and is
+not backend-overridable. This closes the former “no production caller” gap;
+G1-SUCCESSION-01 still remains open until exact-SHA CI plus accepted
+Maestro/Patrol restart evidence and direct visual proof are recorded.
 
 `/bank-import` is a manual CSV/PDF review path, not a live Open Banking feed.
 After explicit confirmation it may write only `q_net_income_period_chf` and

@@ -410,40 +410,72 @@ proves five bypass shapes red, and scans the six exact audited source files
 | `/open-banking`, `/open-banking/transactions`, `/open-banking/consents` | enableOpenBanking (in-route redirect) | Aggregation onboarding + transactions + consent (riskiest flow; consent-gated). | `∅` pre-consent; writes accounts post-consent via `mergeAnswers()` | `/mon-argent`, `/confidence`, `/data-block/patrimoine` |
 | `/bank-import` | null | Manual CSV/PDF statement review fallback; not a live Open Banking source. | `∅` pre-confirmation; after explicit review writes only `q_net_income_period_chf` + `q_pay_frequency` via `mergeAnswers()` with `userInput` provenance. Categorized charges remain preview-only and never write housing, LAMal, tax, debt, or `q_other_fixed_costs_monthly_chf`. | `/mon-argent`, `/open-banking`, `/coach/chat` |
 
-#### G1-SUCCESSION-01 authority foundation and production-consumer gap
+#### G1-SUCCESSION-01 live default-off consumer contract
 
-At `2adf4b243`, `_coach_estate_evidence_v1` is a strict-secure, backend-redacted
-schema-v1 authority with one scoped marriage confirmation, one distinct scoped
-LPart property-arrangement confirmation, and exactly four instrument slots:
-will, inheritance pact, incapacity mandate, and advance care directive. Each
-slot is unknown, explicitly certificate-present, or explicitly user-confirmed
-absent; no absence is inferred. The provider exposes typed CAS writers and
-publishes only after the whole-root save succeeds.
+At pushed `9152a0368`, `_coach_estate_evidence_v1` remains the sole
+strict-secure, backend-redacted schema-v1 authority, and `/succession` has a
+real consumer: `SuccessionPatrimoineScreen` mounts
+`SuccessionEvidenceQuest` only when
+`FeatureFlags.successionEvidenceCollectionEnabled` is true. The compile define
+`MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION` is false by default and the flag is
+absent from `FeatureFlags.applyFromMap`, so no backend response can expose the
+unfinished path. The legacy `TestamentInvisibleWidget` is not rendered by the
+route in either flag state.
 
-This is **not yet a screen contract implementation**. Repository grep shows no
-production caller of `confirmMatrimonialRegime`,
-`confirmRegisteredPartnershipPropertyRegime`,
-`confirmEstateInstrumentPresent`, or `confirmEstateInstrumentAbsent`.
-`SuccessionPatrimoineScreen` also does not read
-`currentEstateArrangementApplicability`, `estateReferenceStateAt`,
-`estateReferenceSurveyCompleteAt`, or
-`estateReferenceHandoffCompletenessAt`; it still renders the legacy
-`TestamentInvisibleWidget` from property/family inputs.
+**Ordered route behavior:**
 
-Required next vertical before ticket promotion:
+1. A missing/unloaded profile renders retry. An ambiguous civil status renders
+   `succession_civil_status_guard` and returns through the exact canonical route
+   `/data-block/composition_menage?inputKey=q_civil_status&returnUri=/succession`.
+2. `marie` asks a nullable `MatrimonialRegimeKind`; `registeredPartnership`
+   asks the distinct nullable `RegisteredPartnershipPropertyRegimeKind`.
+   Non-union statuses skip arrangement collection. No default selection may
+   fabricate user confirmation; divorce/widowhood also renders the prior-union
+   specialist question without claiming the former union is liquidated.
+3. The collector sorts exact slots `stale` before `unknown`, then preserves enum
+   order: `will`, `inheritancePact`, `incapacityMandate`,
+   `advanceCareDirective`. Only one primary instrument question is visible.
+4. A stale question exposes its prior present/absent state and metadata before
+   the one-gesture reconfirm action. Present requires exact `YYYY-MM-DD`
+   `sourceDate` plus explicit `legalYear`; absent is an explicit declaration.
+   Every write sends the prior confirmation/evidence id from the rendered
+   snapshot to the typed CAS provider writer.
+5. While a write is in flight, controls are disabled. Save failure retains the
+   same card and retry; CAS `StateError` reloads the provider and reports changed
+   data; validation leaves authority untouched; invalid root exposes reload/
+   support only and never repairs, clears or overwrites the strict root.
+6. The terminal state renders all four present/absent summaries plus an exact
+   per-slot modify control. Its copy states that the survey is recorded but is
+   not a verified legal dossier, complete estate/distribution, advice, or a
+   specialist-ready handoff. No raw file, filename, path, OCR output, document
+   bytes or free-form legal content is collected.
 
-- a neutral progressive collector/reviewer calls only those provider writers;
-- married and registered-partnership arrangements remain separate, while
-  non-union applicability is rendered as not applicable rather than fabricated;
-- all four instrument states expose unknown/present/absent plus invalid/stale
-  recovery without treating a missing document as absence;
-- `surveyComplete` copy says only that the reference survey is complete and
-  never implies complete estate composition, legal distribution, or advice;
-- the production screen removes/replaces the unsafe legacy consumer and gains
-  widget plus Maestro/Patrol writer→restart→reader proof.
+**Stable control/state ids already in Flutter:**
 
-Until those points are evidenced, G1-SUCCESSION-01 remains open and this route
-must not claim dossier/specialist readiness.
+| state/control | stable id(s) | contract |
+|---|---|---|
+| collector root / unloaded recovery | `succession_reference_quest`, `succession_reference_retry` | real provider-backed surface; retry calls `loadFromWizard` |
+| civil-status guard | `succession_civil_status_guard`, `succession_civil_status_confirm` | blocks all estate writes; the CTA routes to the canonical DataBlock/return URI |
+| arrangement | `succession_arrangement_question`, `succession_arrangement_enum`, `succession_arrangement_save` | distinct marriage/LPart enum; save disabled until explicit selection |
+| prior-union boundary | `succession_prior_union_specialist_question` | visible for divorce/widowhood; informational question only |
+| instrument question | `succession_instrument_{kind}_question` | `{kind}` is exactly `will`, `inheritancePact`, `incapacityMandate`, or `advanceCareDirective` |
+| stale/prior evidence | `succession_instrument_{kind}_stale`, `succession_instrument_{kind}_prior_state`, `succession_instrument_{kind}_reconfirm` | prior fact visible before same-metadata CAS reconfirm |
+| explicit state controls | `succession_instrument_{kind}_present`, `succession_instrument_{kind}_absent` | present opens metadata fields; absent writes explicit `userInput` absence |
+| present metadata/save | `succession_instrument_{kind}_source_date`, `succession_instrument_{kind}_legal_year`, `succession_instrument_{kind}_save` | metadata only; no raw document ingestion |
+| validation/persistence errors | `succession_instrument_{kind}_validation_error`, `succession_instrument_{kind}_save_error` | retains the same question and authority |
+| CAS/persistence message after arrangement | `succession_save_error` | rendered by the shared arrangement error boundary |
+| inter-question acknowledgement | `succession_answer_saved`, `succession_next_question` | advances only after awaited durable save |
+| invalid authority | `succession_reference_invalid`, `succession_reference_reload` | reload/support only; no reset facade |
+| terminal review | `succession_reference_survey_recorded`, `succession_instrument_{kind}_summary`, `succession_instrument_{kind}_summary_prior_state`, `succession_instrument_{kind}_modify` | editable four-slot survey; never dossier readiness |
+
+The civil guard now has a dedicated literal CTA id,
+`succession_civil_status_confirm`, with a widget contract. Runtime acceptance
+is still open: the checked-in `test/patrol/succession_transmission_runtime_test.dart`
+proves only the older property-value path, and
+`.maestro/g1_succession_progressive.yaml` is not yet checked in. Until the
+flag-off/flag-on flows, real input, kill/relaunch cold reader, screenshots and
+exact-SHA CI are accepted, SUCCESSION-01 remains open; G1/G2/G3 promotion is
+unchanged.
 
 #### G1-FRONT-01 stable control/state map
 

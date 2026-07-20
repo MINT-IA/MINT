@@ -255,6 +255,51 @@ separate and are not new DataQuest
 Asks; RET-REF remains `ticket_only`, G1 stays open at 8.2/10 and G2/G3 stay
 forbidden.
 
+### 7.3 G1-SUCCESSION-01 — bounded estate-reference Case (live; runtime acceptance open)
+
+This is a real progressive collector at pushed `9152a0368`, not evidence that
+the generic Q-2 `DataQuest` service or Q-6 global Case registry now exists. Its
+bounded Case contract is:
+
+| Case field | exact contract |
+|---|---|
+| `caseId` | `succession_reference_confirmation` |
+| route | `/succession`, inside `SuccessionEvidenceQuest` |
+| activation | local compile flag `MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION`; default false and absent from backend `applyFromMap` |
+| minimum variables | confirmed `q_civil_status`; current marriage/LPart arrangement only when applicable; exact four `_coach_estate_evidence_v1.estateInstruments` slots explicitly present or absent |
+| useful variables | prior-union state for the specialist question; present-slot `sourceDate` and `legalYear` metadata |
+| blocking guard | ambiguous civil status → `/data-block/composition_menage?inputKey=q_civil_status&returnUri=/succession`; invalid root → reload/support only |
+| non-blocking enrichment | one applicable arrangement question, then one exact instrument slot at a time; no property, heir, share, reserve or distribution conclusion |
+| target screen | `/succession`; no PDF/dossier section is unlocked by this survey |
+| runtime targets | `.maestro/g1_succession_progressive.yaml` (to add) and `test/patrol/succession_transmission_runtime_test.dart` (to extend from its older property-only proof) |
+
+The next-question order is deterministic and local to this Case:
+
+1. unresolved civil status;
+2. current marriage or LPart arrangement, if applicable, with no preselection;
+3. the first `stale` slot in enum order;
+4. otherwise the first `unknown` slot in enum order;
+5. editable terminal review after all four are explicitly present/absent.
+
+A stale slot is the exact §3 reconfirm pattern: show the prior state/date/year
+or prior absence confirmation before offering same-metadata reconfirmation.
+Unknown never means absent. Present requires civil date plus explicit legal
+year; absent requires a deliberate user action. Each action calls the dedicated
+typed CAS writer rather than `mergeAnswers`, because this is a strict authority
+root. Save success is awaited before the acknowledgement/next control appears;
+persistence failure retains the same Ask; CAS conflict reloads the provider and
+does not retry a stale id. Dismiss/auto-advance is intentionally absent for this
+heavy event; each durable answer is followed by an explicit next gesture.
+
+The payoff is deliberately narrow: known facts become reviewable and reusable,
+and stale declarations become reconfirmable. “Survey recorded” never means
+complete estate composition, verified instrument content/effect, legal advice,
+specialist-ready handoff or dossier readiness. No file picker, filename/path,
+raw bytes, OCR output or free-form legal content belongs to this Case. Runtime
+promotion remains pending until both flag states, civil guard/return, explicit
+absent and present input, kill/relaunch cold continuation, visual proof and
+exact-SHA CI are accepted.
+
 ## 8. Acceptance criteria (Codex/CI must verify)
 
 - **DQ-1** A screen with all `reads[]` fresh triggers **zero** Asks (planQuest returns []).

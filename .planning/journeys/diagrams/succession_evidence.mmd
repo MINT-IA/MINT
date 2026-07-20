@@ -1,0 +1,93 @@
+%% ============================================================================
+%% succession_evidence.mmd — G1-SUCCESSION-01 progressive reference journey
+%% ----------------------------------------------------------------------------
+%% Purpose: map the real default-off /succession consumer from civil-status
+%% guard through typed CAS writes, cold reconstruction and narrow terminal
+%% review. Sources: DATA_LEDGER.md §4.0S, DATA_QUEST.md §7.3,
+%% SCREEN_CONTRACTS.md §4. Consumer wired @ pushed 9152a0368; exact-SHA native
+%% runtime acceptance remains open. This diagram does not promote G1/G2/G3.
+%% ============================================================================
+
+flowchart TB
+  classDef route fill:#eaf6f0,stroke:#166b4a,color:#10261d,stroke-width:1px;
+  classDef fact fill:#f6f1e7,stroke:#b48a3b,color:#21180a,stroke-width:1px;
+  classDef guard fill:#fff5e6,stroke:#c26f00,color:#201307,stroke-width:1px;
+  classDef state fill:#eef1ff,stroke:#4f62c6,color:#111836,stroke-width:1px;
+  classDef no fill:#fff0f0,stroke:#c83d3d,color:#2c0f0f,stroke-width:1px;
+  classDef proof fill:#f2edf8,stroke:#7b4eb2,color:#1d102a,stroke-width:1px;
+
+  Entry["/succession<br/>SuccessionPatrimoineScreen"]:::route
+  Flag{"successionEvidenceCollectionEnabled?<br/>MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION<br/>default false; never backend-hydrated"}:::guard
+  Off["Flag off<br/>quest id absent<br/>route remains usable"]:::state
+  Quest["SuccessionEvidenceQuest<br/>succession_reference_quest"]:::route
+  Profile{"CoachProfile loaded?"}:::guard
+  Reload["succession_reference_retry<br/>loadFromWizard"]:::state
+  Civil{"civilStatusNeedsConfirmation?"}:::guard
+  CivilGuard["succession_civil_status_guard<br/>succession_civil_status_confirm"]:::state
+  DataBlock["/data-block/composition_menage<br/>inputKey=q_civil_status<br/>returnUri=/succession"]:::route
+  Invalid{"estateReferenceStateAt = invalid?"}:::guard
+  InvalidState["succession_reference_invalid<br/>succession_reference_reload<br/>reload/support only; no reset"]:::state
+
+  Arrangement{"current arrangement applicability<br/>unknown?"}:::guard
+  Marriage["marie: nullable MatrimonialRegimeKind<br/>succession_arrangement_enum"]:::state
+  LPart["registeredPartnership: nullable distinct<br/>RegisteredPartnershipPropertyRegimeKind"]:::state
+  NonUnion["non-union<br/>arrangement notApplicable<br/>no fabricated selection"]:::state
+  ArrangementWrite["succession_arrangement_save<br/>typed arrangement writer + rendered CAS id"]:::fact
+
+  Order["sort exact four slots<br/>stale first, then unknown<br/>enum order inside state"]:::guard
+  Stale["show prior state/date/year first<br/>{kind}_stale + {kind}_prior_state<br/>{kind}_reconfirm"]:::state
+  Unknown["unknown is not absent<br/>{kind}_question"]:::state
+  Present["explicit present<br/>{kind}_source_date + {kind}_legal_year<br/>{kind}_save"]:::state
+  Absent["explicit absent<br/>{kind}_absent<br/>source userInput"]:::state
+  InstrumentWrite["confirmEstateInstrumentPresent OR Absent<br/>expectedPreviousEvidenceId from rendered slot"]:::fact
+  Save["estate persistence seam<br/>reload canonical root -> CAS -> one awaited<br/>whole-root secure save -> publish/notify"]:::fact
+  Root[("_coach_estate_evidence_v1<br/>scoped marriage/LPart + exact slots<br/>will / inheritancePact / incapacityMandate /<br/>advanceCareDirective")]:::fact
+  Ack["succession_answer_saved<br/>explicit succession_next_question"]:::state
+  Failure["save failure: retain question + retry<br/>CAS conflict: reload + changed-data error<br/>validation: no write"]:::state
+  More{"stale or unknown slot remains?"}:::guard
+  Terminal["succession_reference_survey_recorded<br/>four summaries + per-slot modify"]:::state
+  Boundary["Survey only<br/>NOT verified content/effects, complete estate,<br/>distribution, advice, dossier or specialist readiness"]:::no
+  Privacy["Forbidden data<br/>raw document / filename / local path / OCR<br/>bytes / free-form legal content / backend mirror"]:::no
+  Cold["kill/relaunch -> cold wizard_answers_v2<br/>provider projections choose next delta"]:::fact
+  Runtime["OPEN runtime acceptance<br/>flag off/on Maestro + civil return<br/>Patrol native present input + process death<br/>screenshots + exact-SHA CI"]:::proof
+
+  Entry --> Flag
+  Flag -- "false" --> Off --> Runtime
+  Flag -- "true" --> Quest --> Profile
+  Profile -- "no" --> Reload --> Quest
+  Profile -- "yes" --> Civil
+  Civil -- "yes" --> CivilGuard --> DataBlock --> Quest
+  Civil -- "no" --> Invalid
+  Invalid -- "yes" --> InvalidState --> Runtime
+  Invalid -- "no" --> Arrangement
+  Arrangement -- "marie" --> Marriage --> ArrangementWrite
+  Arrangement -- "LPart" --> LPart --> ArrangementWrite
+  Arrangement -- "not applicable / already known" --> NonUnion --> Order
+  ArrangementWrite --> Save
+  Save --> Root --> Ack --> Cold --> Quest
+  Save -. "rejected" .-> Failure --> Runtime
+  Arrangement -- "known" --> Order
+  Order -- "stale" --> Stale
+  Order -- "unknown" --> Unknown
+  Stale -- "same fact" --> InstrumentWrite
+  Stale -- "modify present" --> Present
+  Stale -- "modify absent" --> Absent
+  Unknown -- "present" --> Present
+  Unknown -- "absent" --> Absent
+  Present --> InstrumentWrite
+  Absent --> InstrumentWrite
+  InstrumentWrite --> Save
+  Order -- "none" --> Terminal --> Boundary --> Runtime
+  Terminal -- "modify exact slot" --> Order
+  Root --> Privacy
+  Ack --> More
+  More -- "yes, explicit next" --> Order
+  More -- "no" --> Terminal
+
+  %% SUCC-1 the default-off flag is local-only and not backend-overridable.
+  %% SUCC-2 q_civil_status is the only pre-write guard and returns to /succession.
+  %% SUCC-3 stale precedes unknown; unknown never implies absence.
+  %% SUCC-4 each durable answer uses one typed writer with rendered-snapshot CAS.
+  %% SUCC-5 save precedes publish, acknowledgement and next-question selection.
+  %% SUCC-6 terminal survey completeness never means legal/dossier readiness.
+  %% SUCC-7 runtime promotion needs exact-SHA flag-off/on and cold-reader proof.

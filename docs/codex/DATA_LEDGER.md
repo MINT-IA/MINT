@@ -476,7 +476,7 @@ bounded ticket does not close G1 or authorize G2/G3.
 
 These exist on `CoachProfile` sub-models and are written by wizard / scan extraction / simulator write-back via `mergeAnswers`/`updateProfile`. They are **not** in the allowlist (the coach cannot set them by chat today). Listed because computations consume them and the provenance contract (§6) applies.
 
-### 4.0S Succession reference authority (G1-SUCCESSION-01 model/writer foundation; consumer open)
+### 4.0S Succession reference authority (G1-SUCCESSION-01 live consumer; runtime acceptance open)
 
 The only succession-reference authority is the sensitive answer key
 `wizard_answers_v2['_coach_estate_evidence_v1']`. It contains a JSON **string**
@@ -582,14 +582,33 @@ The public read model is narrow:
 | `estateReferenceSurveyCompleteAt(asOf)` | arrangement applicability resolved and every exact slot explicitly present/absent at `asOf` | It is not a complete legal dossier or specialist-ready conclusion. |
 | `estateReferenceHandoffCompletenessAt(asOf)` | `partial` or the narrowly named `surveyComplete` | It must not be rendered as legal completeness/advice. |
 
-**Current live gap at `2adf4b243`.** Grep outside the model/provider finds no
-production caller for any of the four writers, and
-`SuccessionPatrimoineScreen` reads none of these projections. It still reads
-property, mortgage and family facts and renders the legacy
-`TestamentInvisibleWidget`. This section records a GREEN authority/model
-foundation only. G1-SUCCESSION-01 remains open until a neutral progressive
-collector/reader is wired, fail-closed states are visible, the unsafe legacy
-consumer is removed/replaced, and runtime evidence is accepted.
+**Live consumer at pushed `9152a0368`; runtime promotion pending.**
+`SuccessionPatrimoineScreen` now conditionally mounts
+`SuccessionEvidenceQuest` behind the local-only
+`FeatureFlags.successionEvidenceCollectionEnabled`. The flag defaults false,
+is compiled on only with `MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION=true`, and
+is deliberately absent from `FeatureFlags.applyFromMap`; a backend response
+cannot activate it.
+
+The consumer reads `civilStatusNeedsConfirmation`,
+`currentEstateArrangementApplicability`, `estateReferenceStateAt(asOf)` and
+the exact `estateInstrumentSlots`. It routes an ambiguous civil status through
+the canonical `q_civil_status` DataBlock with `returnUri=/succession`, keeps
+marriage and LPart enums distinct and nullable until explicit selection, then
+asks one slot at a time with `stale` before `unknown`. Every action calls one of
+the four typed writers above with the id from the rendered snapshot. Save
+failure retains the current card; CAS conflict reloads the canonical provider;
+invalid authority permits reload/support only. Completion renders an editable
+four-slot review and the narrow `surveyComplete` boundary, never estate,
+distribution, legal-dossier or specialist readiness.
+
+No raw document, filename, local path, OCR output, document byte or free-form
+legal content enters this root. Present confirmation records only the exact
+metadata contract; absent confirmation is explicit `userInput`. The legacy
+`TestamentInvisibleWidget` is no longer a production route consumer. This
+closes the former no-caller/facade gap, but does not promote SUCCESSION-01:
+exact-SHA CI, flag-off/flag-on Maestro, native Patrol process-death/cold-reader
+proof and accepted screenshots remain separate gates.
 
 ### 4.0 Tax assessment snapshots (G1-PROV-03 implemented; composite default-off)
 
