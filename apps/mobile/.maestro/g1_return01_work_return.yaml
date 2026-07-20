@@ -1,0 +1,49 @@
+appId: ch.mint.app
+---
+# Black-box companion for the work_save Patrol stage.
+- launchApp
+- openLink: "mint:///first-job"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "first_job_enrich_profile_cta"
+    timeout: 20000
+- tapOn:
+    id: "first_job_enrich_profile_cta"
+- assertVisible:
+    id: "salary_input"
+- tapOn:
+    id: "salary_input"
+- eraseText
+- inputText: "96000"
+- tapOn:
+    id: "canton_picker"
+- eraseText
+- inputText: "GE"
+- tapOn:
+    id: "birth_year_input"
+- eraseText
+- inputText: "2001"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+- tapOn:
+    id: "salary_save_cta"
+- scrollUntilVisible:
+    element:
+      id: "first_job_result_cards"
+    direction: DOWN
+- assertVisible:
+    id: "first_job_result_cards"

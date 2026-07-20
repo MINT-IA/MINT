@@ -1,0 +1,37 @@
+appId: ch.mint.app
+---
+# Black-box companion for the frontalier_inline Patrol stage.
+- launchApp
+- openLink: "mint:///segments/frontalier"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "frontier_residence_country_field"
+    timeout: 20000
+- assertVisible:
+    id: "frontier_residence_country_field"
+- assertVisible:
+    id: "frontier_work_country_field"
+- scrollUntilVisible:
+    element:
+      id: "frontier_work_canton_field"
+    direction: DOWN
+- assertVisible:
+    id: "frontier_work_canton_field"
+- scrollUntilVisible:
+    element:
+      id: "frontier_jurisdiction_known_state"
+    direction: DOWN
+- assertVisible:
+    id: "frontier_jurisdiction_known_state"

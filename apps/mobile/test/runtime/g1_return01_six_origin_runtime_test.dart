@@ -1,0 +1,125 @@
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+
+String _read(String path) => File(path).readAsStringSync();
+
+void main() {
+  test('versioned Patrol target owns the five non-RVC runtime stages', () {
+    const target = 'integration_test/g1_return01_six_origin_patrol_test.dart';
+    const wrapper = 'test/patrol/g1_return01_six_origin_runtime_test.dart';
+    expect(File(target).existsSync(), isTrue, reason: target);
+    expect(File(wrapper).existsSync(), isTrue, reason: wrapper);
+
+    final source = _read(target);
+    for (final anchor in const <String>[
+      "String.fromEnvironment('MINT_G1_RETURN01_STAGE')",
+      "String.fromEnvironment('MINT_G1_RETURN01_SOURCE_SHA')",
+      "'work_save'",
+      "'housing_cancel'",
+      "'disability_validation_cancel'",
+      "'succession_save'",
+      "'frontalier_inline'",
+      'const MintApp()',
+      'testOnlyRootRouter.go',
+      "const Key('first_job_enrich_profile_cta')",
+      "const Key('mortgage_enrich_profile_cta')",
+      "const Key('disability_gap_enrich_cta')",
+      "const Key('succession_property_missing')",
+      "const Key('frontier_residence_country_field')",
+      "const Key('frontier_work_country_field')",
+      "const Key('frontier_work_canton_field')",
+      'ReportPersistenceService.loadAnswers()',
+      "'returnUri'",
+      "'/data-block/revenu'",
+      "'/data-block/patrimoine'",
+      r'mint-g1-return01-$_stage-witness-v1.json',
+      "'schemaVersion': 1",
+      "'caseId': 'G1-RETURN-01'",
+      "'syntheticDataOnly': true",
+      "'collectorRouteVerified'",
+      "'routeAfterVerified': proof.routeAfterVerified",
+      "'storeWriteVerified'",
+      "'storeUnchangedVerified'",
+      "'validationRetainedVerified'",
+      "'noDataBlockVerified'",
+      "'frontalierCanonicalWritesVerified'",
+      'rename(witness.path)',
+      'final class _StageProof',
+      '_writeWitness(witness, proof)',
+      'proof.collectorRouteVerified',
+      'proof.storeWriteVerified',
+      'proof.storeUnchangedVerified',
+      'proof.validationRetainedVerified',
+      'proof.noDataBlockVerified',
+      'proof.frontalierCanonicalWritesVerified',
+    ]) {
+      expect(source, contains(anchor), reason: anchor);
+    }
+    for (final forbidden in const <String>[
+      'g1_return01_rvc_lpp_scan_return_patrol_test.dart',
+      'debugFailure',
+      'forceFailure',
+      'failureInjection',
+      'returnUri=https',
+      'visual-ready',
+      'visualReady',
+      'Duration(seconds: 90)',
+      'const collector = _stage',
+      'const storeWrite = _stage',
+      'const storeUnchanged =',
+      'const validationRetained = _stage',
+      'const frontalier = _stage',
+    ]) {
+      expect(source, isNot(contains(forbidden)), reason: forbidden);
+    }
+    expect(_read(wrapper), contains(target.split('/').last));
+  });
+
+  test('installed-app Maestro flows use stable production selectors', () {
+    const flows = <String, List<String>>{
+      '.maestro/g1_return01_work_return.yaml': <String>[
+        'first_job_enrich_profile_cta',
+        'salary_input',
+        'salary_save_cta',
+        'first_job_result_cards',
+      ],
+      '.maestro/g1_return01_housing_cancel_return.yaml': <String>[
+        'mortgage_enrich_profile_cta',
+        'salary_input',
+        'mortgage_enrich_profile_cta',
+      ],
+      '.maestro/g1_return01_disability_return.yaml': <String>[
+        'disability_gap_enrich_cta',
+        'birth_year_input',
+        'disability_gap_ledger_facts',
+      ],
+      '.maestro/g1_return01_succession_return.yaml': <String>[
+        'succession_property_missing',
+        'property_market_value_input',
+        'patrimoine_save_cta',
+      ],
+      '.maestro/g1_return01_frontalier_inline.yaml': <String>[
+        'frontier_residence_country_field',
+        'frontier_work_country_field',
+        'frontier_work_canton_field',
+        'frontier_jurisdiction_known_state',
+      ],
+    };
+
+    for (final entry in flows.entries) {
+      expect(File(entry.key).existsSync(), isTrue, reason: entry.key);
+      final source = _read(entry.key);
+      expect(source, contains('appId: ch.mint.app'), reason: entry.key);
+      expect(source, contains('openLink: "mint:///'), reason: entry.key);
+      expect(source, contains('visible: "Ouvrir"'), reason: entry.key);
+      expect(source, contains('visible: "Open"'), reason: entry.key);
+      for (final selector in entry.value) {
+        expect(source, contains('id: "$selector"'),
+            reason: '${entry.key}: $selector');
+      }
+      expect(source, isNot(contains('clearState: true')), reason: entry.key);
+      expect(source, isNot(contains('returnUri=')), reason: entry.key);
+    }
+  });
+}

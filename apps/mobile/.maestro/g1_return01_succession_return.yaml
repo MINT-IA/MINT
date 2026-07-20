@@ -1,0 +1,41 @@
+appId: ch.mint.app
+---
+# Black-box companion for the succession_save Patrol stage.
+- launchApp
+- openLink: "mint:///succession"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "succession_property_missing"
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: "succession_property_missing"
+    direction: DOWN
+- tapOn:
+    id: "succession_property_missing"
+- assertVisible:
+    id: "property_market_value_input"
+- tapOn:
+    id: "property_market_value_input"
+- eraseText
+- inputText: "950000"
+- scrollUntilVisible:
+    element:
+      id: "patrimoine_save_cta"
+    direction: DOWN
+- tapOn:
+    id: "patrimoine_save_cta"
+- assertVisible:
+    id: "succession_mortgage_missing"

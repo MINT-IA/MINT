@@ -1,0 +1,44 @@
+appId: ch.mint.app
+---
+# Black-box companion for the disability_validation_cancel Patrol stage.
+- launchApp
+- openLink: "mint:///invalidite"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "disability_gap_ledger_facts"
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: "disability_gap_enrich_cta"
+    direction: DOWN
+- tapOn:
+    id: "disability_gap_enrich_cta"
+- assertVisible:
+    id: "birth_year_input"
+- tapOn:
+    id: "birth_year_input"
+- eraseText
+- inputText: "1800"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "birth_year_input"
+- back
+- assertVisible:
+    id: "disability_gap_ledger_facts"
