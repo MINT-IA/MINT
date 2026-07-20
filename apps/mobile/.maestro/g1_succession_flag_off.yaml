@@ -1,22 +1,11 @@
 appId: ch.mint.app
 ---
 # Physical production-default build: no succession feature dart-define.
-- stopApp
-- launchApp:
-    clearState: true
-- openLink: "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"
-- runFlow:
-    when:
-      visible: "Ouvrir"
-    commands:
-      - tapOn: "Ouvrir"
-      - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible: "Open"
-    commands:
-      - tapOn: "Open"
-      - waitForAnimationToEnd
+# Runner precondition: clean install, launch, then simctl openurl to collector.
+- extendedWaitUntil:
+    visible:
+      id: "property_market_value_input"
+    timeout: 20000
 - assertVisible:
     id: "property_market_value_input"
 - tapOn:
