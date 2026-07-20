@@ -122,26 +122,31 @@ from pathlib import Path
 off = Path(sys.argv[1]).read_text(encoding="utf-8")
 on = Path(sys.argv[2]).read_text(encoding="utf-8")
 
-def require_deep_link_confirmation(flow, label):
-    markers = (
-        '- openLink: "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"',
-        '- runFlow:\n    when:\n      visible: "Ouvrir"',
-        '- tapOn: "Ouvrir"',
-        '- runFlow:\n    when:\n      visible: "Open"',
-        '- tapOn: "Open"',
-        'id: "property_market_value_input"',
-    )
-    cursor = 0
-    for marker in markers:
-        position = flow.find(marker, cursor)
-        if position < 0:
+def require_prepared_route_flow(flow, label):
+    for forbidden in ("- stopApp", "- launchApp:", "clearState:", "- openLink:"):
+        if forbidden in flow:
             raise SystemExit(
-                f"{label} flow lacks required iOS deep-link confirmation order at {marker!r}"
+                f"{label} has forbidden in prepared Maestro flow: {forbidden}"
             )
-        cursor = position + len(marker)
+    lines = flow.split("---", 1)[1].splitlines()
+    while lines and (not lines[0].strip() or lines[0].lstrip().startswith("#")):
+        lines.pop(0)
+    commands = "\n".join(lines)
+    required_start = (
+        '- extendedWaitUntil:\n'
+        '    visible:\n'
+        '      id: "property_market_value_input"\n'
+        '    timeout: 20000\n'
+        '- assertVisible:\n'
+        '    id: "property_market_value_input"'
+    )
+    if not commands.startswith(required_start):
+        raise SystemExit(
+            f"{label} must start from the prepared property route with wait then assertion"
+        )
 
-require_deep_link_confirmation(off, "flag-off")
-require_deep_link_confirmation(on, "flag-on")
+require_prepared_route_flow(off, "flag-off")
+require_prepared_route_flow(on, "flag-on")
 
 for needle in ("assertVisible", "succession_parents_note", "assertNotVisible", "succession_reference_quest"):
     if needle not in off:
@@ -581,6 +586,21 @@ install_production_app() {
   run_logged "production-$stage-install" xcrun simctl install "$device" "$app"
 }
 
+prepare_maestro_route() {
+  local stage="$1"
+  local app="$2"
+  install_production_app "$stage-prime" "$app"
+  run_logged "production-$stage-uninstall" \
+    xcrun simctl uninstall "$device" "$bundle_id"
+  install_production_app "$stage-final" "$app"
+  run_logged "production-$stage-launch" \
+    xcrun simctl launch "$device" "$bundle_id"
+  run_logged "production-$stage-openurl" \
+    xcrun simctl openurl "$device" \
+      "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"
+  wait_for_property_input "$stage"
+}
+
 run_maestro() {
   local stage="$1"
   local flow="$2"
@@ -607,6 +627,38 @@ if tests < 1 or failures != 0:
     raise SystemExit(f"invalid Maestro result tests={tests} failures={failures}")
 PY
   exact_sha_guard
+}
+
+wait_for_property_input() {
+  local stage="$1"
+  local deadline=$((SECONDS + 30))
+  local raw="$private_root/hierarchy-$stage-property.raw.log"
+  local attempt="$private_root/hierarchy-$stage-property-attempt.raw.log"
+  local found=false
+  local status=0
+  local attempt_number=0
+  : >"$raw"
+  while ((SECONDS <= deadline)); do
+    attempt_number=$((attempt_number + 1))
+    set +e
+    bash "$maestro_runner" --udid "$device" hierarchy --compact \
+      >"$attempt" 2>&1
+    status=$?
+    set -e
+    {
+      printf '%s\n' "attempt=$attempt_number status=$status"
+      cat "$attempt"
+    } >>"$raw"
+    if ((status == 0)) && grep -Fq 'property_market_value_input' "$attempt"; then
+      found=true
+      break
+    fi
+    sleep 1
+  done
+  rm -f -- "$attempt"
+  sanitize_log "$raw" "$artifacts/hierarchy-$stage-property.log"
+  [[ "$found" == true ]] \
+    || die "$stage did not expose property_market_value_input before timeout"
 }
 
 wait_for_succession_quest() {
@@ -651,7 +703,7 @@ sanitize_log "$private_root/patrol-tooling.raw.log" "$artifacts/patrol-tooling.l
 # Production-default proof is built from a physical exact archive with no
 # succession define. Its visible route anchor makes quest absence non-vacuous.
 build_production_app "flag_off" false
-install_production_app "flag_off" "$flag_off_app"
+prepare_maestro_route "flag_off" "$flag_off_app"
 run_maestro "flag_off" "$flag_off_flow"
 flag_off_route_anchor_verified=true
 flag_off_quest_absence_verified=true
@@ -661,7 +713,7 @@ capture_screenshot "flag-off.png"
 # not a Patrol app. Maestro proves the civil guard, canonical DataBlock and
 # return to the next exact succession question.
 build_production_app "flag_on" true
-install_production_app "flag_on" "$flag_on_app"
+prepare_maestro_route "flag_on" "$flag_on_app"
 run_maestro "flag_on" "$flag_on_flow"
 flag_on_civil_return_verified=true
 capture_screenshot "civil-return.png"
