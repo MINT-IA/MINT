@@ -1,0 +1,23 @@
+## MINT Audit — G1 Return Overlay Router-Readiness (code mode)
+
+**Scope:** Unstaged worktree diff on `codex/g1-capital-native-proof-20260718` (base `17a84584`). 4 files, +40 lines.
+
+### What changed
+- Adds an `extendedWaitUntil visible id:"landing_route"` (20s) between `launchApp` and `openLink` in three Maestro black-box flows: `g1_return01_disability_return.yaml`, `g1_return01_frontalier_inline.yaml`, `g1_return01_housing_cancel_return.yaml`.
+- Adds a new runtime test `overlay Maestro flows wait for router readiness before links` covering those three flows.
+
+### Verification
+- `landing_route` is a real wired identifier, not a facade: `apps/mobile/lib/screens/landing_screen.dart:86` (`Semantics(identifier: 'landing_route')`). The wait targets a widget the router actually renders.
+- Ordering enforced by the new test matches the YAML: `launchApp` → `landing_route` wait → `openLink` → route anchor wait. Confirmed structurally in `g1_return01_disability_return.yaml:4-9,22-25`.
+- Test string patterns (indentation `- extendedWaitUntil:\n    visible:\n      id:`) exactly match the emitted YAML — no false-passing assertion.
+- Deep-link URIs (`mint:///invalidite`, `mint:///segments/frontalier`, `mint:///hypotheque`) are unchanged; no routing behavior altered, only startup-race hardening.
+- Test suite executed: `flutter test test/runtime/g1_return01_six_origin_runtime_test.dart` → **+6 All tests passed**.
+
+### Findings
+- **P0:** none
+- **P1:** none
+- **P2:** none material. (Minor: the three flows now duplicate the readiness-wait pattern also validated in the older `fresh-install` test; consolidation is cosmetic, not required.)
+
+No privacy, compliance, or facade-without-wiring risks. Change is test-only + additive robustness, and the covering test is genuine (asserts real IDs, real ordering, passes).
+
+## Verdict: PASS

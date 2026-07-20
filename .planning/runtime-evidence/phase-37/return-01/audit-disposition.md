@@ -299,3 +299,28 @@ targeted and 27/27 combined RETURN/RVC contracts; Bash parse, ShellCheck,
 Python compilation and diff checks pass. This does not transfer or repair data:
 the next exact-SHA runtime must prove that the platform preserves the synthetic
 ledger bytes naturally, then complete every remaining stage.
+
+## Overlay router-readiness audit disposition
+
+Accepted audit: `opus-overlay-router-ready-audit.txt` — **PASS**, P0=0,
+P1=0, P2=0.
+
+The ninth exact-SHA run
+(`17a84584670ed461a75227829cc7886f8bf4800f`) proved the new data
+invariant in the live simulator:
+`container_identity=relocated persistent_data=verified`. Work
+Patrol+Maestro and Housing Patrol passed. Housing Maestro then failed waiting
+for `mortgage_afford_result`. Its retained 1206x2622 PNG was directly
+inspected and shows the production MINT landing screen; the retained hierarchy
+independently contains `landing_route`. No later stage is accepted.
+
+The normal-app overlay preserves the synthetic ledger bytes but restarts router
+initialisation. Housing, Disability and Frontalier now apply the already-proven
+black-box ordering used by Work and Succession:
+`launchApp -> landing_route -> openLink -> route anchor`. The three business
+routes, selectors and gestures are unchanged. A RED contract failed on the
+missing Housing readiness boundary; GREEN is 6/6, targeted analysis is clean,
+and all three YAML flows parse.
+
+A fresh pushed exact SHA must rerun the full matrix. Prior Work/Housing atoms
+remain diagnostic only.
