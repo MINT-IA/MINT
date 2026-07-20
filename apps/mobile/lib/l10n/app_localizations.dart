@@ -15946,19 +15946,19 @@ abstract class S {
   /// No description provided for @successionReservesBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les réserves héréditaires sont une notion générale du droit suisse. Leur application dépend de la situation familiale et doit être vérifiée par un·e spécialiste.'**
+  /// **'Depuis le 1er janvier 2023, le CC protège par une réserve les descendants ainsi que le conjoint ou partenaire enregistré survivant. La réserve est égale à la moitié du droit successoral légal ; les parents n’ont plus de réserve. Des règles particulières s’appliquent notamment lorsqu’une procédure de divorce ou de dissolution du partenariat est pendante. MINT n’en déduit aucune part personnelle.'**
   String get successionReservesBody;
 
   /// No description provided for @successionQuotiteSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'CC art. 470 al. 2'**
+  /// **'CC art. 470–472'**
   String get successionQuotiteSubtitle;
 
   /// No description provided for @successionQuotiteBody.
   ///
   /// In fr, this message translates to:
-  /// **'La quotité disponible est une notion générale. MINT ne la calcule pas pour votre situation et ne valide aucune disposition.'**
+  /// **'La quotité disponible est ce dont une personne peut disposer pour cause de mort au-delà des réserves applicables. En l’absence de descendants, conjoint ou partenaire enregistré visés par l’art. 470 CC, le CC permet de disposer de toute la succession. Son étendue dépend des faits ; MINT ne la calcule pas et ne valide aucune disposition.'**
   String get successionQuotiteBody;
 
   /// No description provided for @successionTestamentBody.
@@ -15994,7 +15994,7 @@ abstract class S {
   /// No description provided for @successionBeneficiairesSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'LPP art. 20 · OPP3 art. 2'**
+  /// **'LPP art. 19–20a et règlement de l’institution · OPP 3 art. 2'**
   String get successionBeneficiairesSubtitle;
 
   /// No description provided for @successionBeneficiairesBody.
@@ -16054,7 +16054,7 @@ abstract class S {
   /// No description provided for @successionSources.
   ///
   /// In fr, this message translates to:
-  /// **'• CC art. 457–640 — Droit des successions\n• CC art. 470–471 — Réserves héréditaires\n• CC art. 498–504 — Formes du testament\n• LPP art. 20 — Bénéficiaires du capital LPP\n• OPP3 art. 2 — Bénéficiaires du pilier 3a'**
+  /// **'• CC art. 457–640 — Droit des successions\n• CC art. 470–472 — Réserves héréditaires et quotité disponible\n• CC art. 498–504 — Formes du testament\n• LPP art. 19–20a et règlement de l’institution — prestations de survivants et autres bénéficiaires\n• OPP 3 art. 2 — Bénéficiaires du pilier 3a'**
   String get successionSources;
 
   /// No description provided for @naissanceAllocForCanton.
@@ -43520,7 +43520,7 @@ abstract class S {
   /// No description provided for @successionQuestYearLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Année juridique'**
+  /// **'Année de référence du document (déclarée, non validée juridiquement)'**
   String get successionQuestYearLabel;
 
   /// No description provided for @successionQuestChanged.
@@ -43684,6 +43684,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ne constitue pas la masse successorale nette'**
   String get successionPropertyNotEstateNet;
+
+  /// No description provided for @successionDeathGuideSemanticsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Guide des démarches après le décès d’un proche'**
+  String get successionDeathGuideSemanticsLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

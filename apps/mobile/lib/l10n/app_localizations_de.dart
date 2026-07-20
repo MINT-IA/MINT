@@ -9031,14 +9031,14 @@ class SDe extends S {
 
   @override
   String get successionReservesBody =>
-      'Pflichtteile sind ein allgemeiner Begriff des Schweizer Rechts. Die Anwendung hängt von der Familie ab und ist fachlich zu prüfen.';
+      'Seit dem 1. Januar 2023 schützt das ZGB Nachkommen sowie den überlebenden Ehegatten oder eingetragenen Partner durch einen Pflichtteil. Der Pflichtteil entspricht der Hälfte des gesetzlichen Erbanspruchs; Eltern haben keinen Pflichtteil mehr. Besondere Regeln gelten insbesondere bei einem hängigen Scheidungs- oder Auflösungsverfahren. MINT leitet daraus keinen persönlichen Anteil ab.';
 
   @override
-  String get successionQuotiteSubtitle => 'ZGB Art. 470 Abs. 2';
+  String get successionQuotiteSubtitle => 'ZGB Art. 470–472';
 
   @override
   String get successionQuotiteBody =>
-      'Die verfügbare Quote ist ein allgemeiner Begriff. MINT berechnet sie nicht für Ihre Situation und validiert keine Verfügung.';
+      'Die verfügbare Quote ist der Teil, über den eine Person von Todes wegen über die anwendbaren Pflichtteile hinaus verfügen kann. Fehlen Nachkommen, Ehegatte oder eingetragener Partner nach Art. 470 ZGB, erlaubt das ZGB die Verfügung über den ganzen Nachlass. Ihr Umfang hängt von den Tatsachen ab; MINT berechnet sie nicht und validiert keine Verfügung.';
 
   @override
   String get successionTestamentBody =>
@@ -9058,7 +9058,8 @@ class SDe extends S {
   String get successionBeneficiairesTitle => 'BVG- und 3a-Begünstigte';
 
   @override
-  String get successionBeneficiairesSubtitle => 'BVG Art. 20 · BVV3 Art. 2';
+  String get successionBeneficiairesSubtitle =>
+      'BVG Art. 19–20a und Reglement der Einrichtung · BVV 3 Art. 2';
 
   @override
   String get successionBeneficiairesBody =>
@@ -9096,7 +9097,7 @@ class SDe extends S {
 
   @override
   String get successionSources =>
-      '• ZGB Art. 457–640 — Erbrecht\n• ZGB Art. 470–471 — Pflichtteile\n• ZGB Art. 498–504 — Testamentsformen\n• BVG Art. 20 — BVG-Begünstigte\n• BVV3 Art. 2 — 3a-Begünstigte';
+      '• ZGB Art. 457–640 — Erbrecht\n• ZGB Art. 470–472 — Pflichtteile und verfügbare Quote\n• ZGB Art. 498–504 — Testamentsformen\n• BVG Art. 19–20a und Reglement der Einrichtung — Hinterlassenenleistungen und weitere Begünstigte\n• BVV 3 Art. 2 — 3a-Begünstigte';
 
   @override
   String naissanceAllocForCanton(String canton, int count, String plural) {
@@ -25065,7 +25066,8 @@ class SDe extends S {
   String get successionQuestDateLabel => 'Dokumentdatum (JJJJ-MM-TT)';
 
   @override
-  String get successionQuestYearLabel => 'Rechtsjahr';
+  String get successionQuestYearLabel =>
+      'Referenzjahr des Dokuments (deklariert, nicht rechtlich geprüft)';
 
   @override
   String get successionQuestChanged =>
@@ -25165,4 +25167,8 @@ class SDe extends S {
   @override
   String get successionPropertyNotEstateNet =>
       'Stellt nicht den Nettonachlass dar';
+
+  @override
+  String get successionDeathGuideSemanticsLabel =>
+      'Leitfaden zu Schritten nach dem Tod einer nahestehenden Person';
 }

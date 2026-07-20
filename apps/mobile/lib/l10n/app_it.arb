@@ -4149,15 +4149,15 @@
   "successionAlertTitle": "Riferimenti da confermare",
   "successionAlertBody": "Gli effetti successori dipendono da fatti e documenti da verificare. MINT organizza solo dati confermati e non determina massa netta, eredi o quote.",
   "successionNotionsCles": "Le nozioni chiave",
-  "successionReservesBody": "Le porzioni legittime sono un concetto generale del diritto svizzero. L’applicazione dipende dalla famiglia e richiede verifica specialistica.",
-  "successionQuotiteSubtitle": "CC art. 470 cpv. 2",
-  "successionQuotiteBody": "La quota disponibile è un concetto generale. MINT non la calcola per la situazione personale e non convalida disposizioni.",
+  "successionReservesBody": "Dal 1° gennaio 2023, il CC protegge mediante una porzione legittima i discendenti e il coniuge o partner registrato superstite. La porzione legittima equivale alla metà del diritto successorio legale; i genitori non hanno più una porzione legittima. Regole particolari si applicano soprattutto quando è pendente una procedura di divorzio o scioglimento dell’unione. MINT non ne deduce alcuna quota personale.",
+  "successionQuotiteSubtitle": "CC art. 470–472",
+  "successionQuotiteBody": "La quota disponibile è ciò di cui una persona può disporre a causa di morte oltre le porzioni legittime applicabili. In assenza di discendenti, coniuge o partner registrato ai sensi dell’art. 470 CC, il CC consente di disporre dell’intera successione. La sua estensione dipende dai fatti; MINT non la calcola e non convalida alcuna disposizione.",
   "successionTestamentBody": "Un testamento può assumere forme diverse soggette a requisiti legali. Validità, contenuto ed effetti devono essere verificati.",
   "successionDonationTitle": "Donazione in vita",
   "successionDonationSubtitle": "CO art. 239 ss",
   "successionDonationBody": "Una donazione può avere effetti civili e fiscali variabili secondo i fatti e il cantone. Serve una verifica specialistica.",
   "successionBeneficiairesTitle": "Beneficiari LPP e 3a",
-  "successionBeneficiairesSubtitle": "LPP art. 20 · OPP3 art. 2",
+  "successionBeneficiairesSubtitle": "LPP art. 19–20a e regolamento dell’istituto · OPP 3 art. 2",
   "successionBeneficiairesBody": "LPP e pilastro 3a seguono regole legali e contrattuali proprie. Beneficiari ed effetti vanno confermati con gli istituti.",
   "successionDecesProche": "In caso di decesso di una persona cara",
   "successionCheck1": "Designazioni 3a da confermare con ogni istituto",
@@ -4167,7 +4167,7 @@
   "successionCheck5": "Luogo di conservazione da comunicare secondo la propria scelta",
   "successionSpecialisteTitle": "Preparare un confronto con uno specialista",
   "successionSpecialisteBody": "Uno specialista di diritto successorio può verificare fatti, documenti ed effetti nella situazione personale.",
-  "successionSources": "• CC art. 457–640 — Diritto successorio\n• CC art. 470–471 — Porzioni legittime\n• CC art. 498–504 — Forme del testamento\n• LPP art. 20 — Beneficiari LPP\n• OPP3 art. 2 — Beneficiari 3a",
+  "successionSources": "• CC art. 457–640 — Diritto successorio\n• CC art. 470–472 — Porzioni legittime e quota disponibile\n• CC art. 498–504 — Forme del testamento\n• LPP art. 19–20a e regolamento dell’istituto — prestazioni per superstiti e altri beneficiari\n• OPP 3 art. 2 — Beneficiari del pilastro 3a",
   "naissanceAllocForCanton": "Assegni familiari a {canton} per {count} figlio{plural}",
   "@naissanceAllocForCanton": {
     "placeholders": {
@@ -11751,7 +11751,7 @@
   "successionQuestReconfirm": "Riconferma senza modifiche",
   "successionQuestStale": "Questa risposta deve essere riconfermata.",
   "successionQuestDateLabel": "Data del documento (AAAA-MM-GG)",
-  "successionQuestYearLabel": "Anno giuridico",
+  "successionQuestYearLabel": "Anno di riferimento del documento (dichiarato, non convalidato giuridicamente)",
   "successionQuestChanged": "I dati sono cambiati e sono stati ricaricati. Li verifichi e riprovi.",
   "successionQuestValidation": "Inserisca una data civile esatta e un anno valido.",
   "successionQuestSaveError": "Salvataggio non riuscito. Può riprovare.",
@@ -11778,5 +11778,6 @@
   "successionQuestTerminalCaveat": "Documenti, contenuto, validità ed effetti giuridici non verificati.",
   "successionQuestModifySlot": "Modifica questo dato",
   "successionPropertyNetIndicative": "Valore immobiliare netto indicativo (valore dichiarato − ipoteca dichiarata)",
-  "successionPropertyNotEstateNet": "Non costituisce la massa successoria netta"
+  "successionPropertyNotEstateNet": "Non costituisce la massa successoria netta",
+  "successionDeathGuideSemanticsLabel": "Guida alle procedure dopo il decesso di una persona cara"
 }

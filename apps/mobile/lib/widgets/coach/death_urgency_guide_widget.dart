@@ -43,7 +43,7 @@ class _DeathUrgencyGuideWidgetState extends State<DeathUrgencyGuideWidget> {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Guide urgence décès proche checklist phases administratives',
+      label: S.of(context)!.successionDeathGuideSemanticsLabel,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,

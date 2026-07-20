@@ -90,8 +90,7 @@ class _SuccessionEvidenceQuestState extends State<SuccessionEvidenceQuest> {
       );
     }
     final state = profile.estateReferenceStateAt(DateTime.now());
-    if (state == EstateReferenceState.invalid ||
-        state == EstateReferenceState.conflict) {
+    if (state == EstateReferenceState.invalid) {
       return _message(
         l.successionQuestInvalidRoot,
         key: 'succession_reference_invalid',

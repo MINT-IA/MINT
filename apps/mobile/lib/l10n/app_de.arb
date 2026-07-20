@@ -4149,15 +4149,15 @@
   "successionAlertTitle": "Zu bestätigende Angaben",
   "successionAlertBody": "Nachlassfolgen hängen von zu prüfenden Tatsachen und Dokumenten ab. MINT ordnet nur bestätigte Angaben und bestimmt weder Nettonachlass noch Erben oder Anteile.",
   "successionNotionsCles": "Die wichtigsten Begriffe",
-  "successionReservesBody": "Pflichtteile sind ein allgemeiner Begriff des Schweizer Rechts. Die Anwendung hängt von der Familie ab und ist fachlich zu prüfen.",
-  "successionQuotiteSubtitle": "ZGB Art. 470 Abs. 2",
-  "successionQuotiteBody": "Die verfügbare Quote ist ein allgemeiner Begriff. MINT berechnet sie nicht für Ihre Situation und validiert keine Verfügung.",
+  "successionReservesBody": "Seit dem 1. Januar 2023 schützt das ZGB Nachkommen sowie den überlebenden Ehegatten oder eingetragenen Partner durch einen Pflichtteil. Der Pflichtteil entspricht der Hälfte des gesetzlichen Erbanspruchs; Eltern haben keinen Pflichtteil mehr. Besondere Regeln gelten insbesondere bei einem hängigen Scheidungs- oder Auflösungsverfahren. MINT leitet daraus keinen persönlichen Anteil ab.",
+  "successionQuotiteSubtitle": "ZGB Art. 470–472",
+  "successionQuotiteBody": "Die verfügbare Quote ist der Teil, über den eine Person von Todes wegen über die anwendbaren Pflichtteile hinaus verfügen kann. Fehlen Nachkommen, Ehegatte oder eingetragener Partner nach Art. 470 ZGB, erlaubt das ZGB die Verfügung über den ganzen Nachlass. Ihr Umfang hängt von den Tatsachen ab; MINT berechnet sie nicht und validiert keine Verfügung.",
   "successionTestamentBody": "Ein Testament kann verschiedenen gesetzlichen Formvorgaben unterliegen. Gültigkeit, Inhalt und Wirkungen sind zu prüfen.",
   "successionDonationTitle": "Schenkung zu Lebzeiten",
   "successionDonationSubtitle": "OR Art. 239 ff.",
   "successionDonationBody": "Eine Schenkung kann je nach Tatsachen und Kanton zivil- und steuerrechtliche Wirkungen haben. Eine Fachprüfung ist nötig.",
   "successionBeneficiairesTitle": "BVG- und 3a-Begünstigte",
-  "successionBeneficiairesSubtitle": "BVG Art. 20 · BVV3 Art. 2",
+  "successionBeneficiairesSubtitle": "BVG Art. 19–20a und Reglement der Einrichtung · BVV 3 Art. 2",
   "successionBeneficiairesBody": "BVG und Säule 3a folgen eigenen gesetzlichen und vertraglichen Regeln. Begünstigte und Wirkungen sind mit den Institutionen zu bestätigen.",
   "successionDecesProche": "Im Todesfall eines Angehörigen",
   "successionCheck1": "3a-Begünstigungen bei jeder Institution zu bestätigen",
@@ -4167,7 +4167,7 @@
   "successionCheck5": "Aufbewahrungsort nach eigener Wahl mitzuteilen",
   "successionSpecialisteTitle": "Fachgespräch vorbereiten",
   "successionSpecialisteBody": "Eine Fachperson für Erbrecht kann Tatsachen, Dokumente und deren Wirkungen in Ihrer Situation prüfen.",
-  "successionSources": "• ZGB Art. 457–640 — Erbrecht\n• ZGB Art. 470–471 — Pflichtteile\n• ZGB Art. 498–504 — Testamentsformen\n• BVG Art. 20 — BVG-Begünstigte\n• BVV3 Art. 2 — 3a-Begünstigte",
+  "successionSources": "• ZGB Art. 457–640 — Erbrecht\n• ZGB Art. 470–472 — Pflichtteile und verfügbare Quote\n• ZGB Art. 498–504 — Testamentsformen\n• BVG Art. 19–20a und Reglement der Einrichtung — Hinterlassenenleistungen und weitere Begünstigte\n• BVV 3 Art. 2 — 3a-Begünstigte",
   "naissanceAllocForCanton": "Familienzulagen in {canton} für {count} Kind{plural}",
   "@naissanceAllocForCanton": {
     "placeholders": {
@@ -11751,7 +11751,7 @@
   "successionQuestReconfirm": "Unverändert erneut bestätigen",
   "successionQuestStale": "Diese Antwort muss erneut bestätigt werden.",
   "successionQuestDateLabel": "Dokumentdatum (JJJJ-MM-TT)",
-  "successionQuestYearLabel": "Rechtsjahr",
+  "successionQuestYearLabel": "Referenzjahr des Dokuments (deklariert, nicht rechtlich geprüft)",
   "successionQuestChanged": "Die Daten wurden geändert und neu geladen. Prüfen Sie sie und versuchen Sie es erneut.",
   "successionQuestValidation": "Geben Sie ein genaues Kalenderdatum und ein gültiges Jahr ein.",
   "successionQuestSaveError": "Speichern nicht möglich. Sie können es erneut versuchen.",
@@ -11778,5 +11778,6 @@
   "successionQuestTerminalCaveat": "Dokumente, Inhalte, Gültigkeit und rechtliche Wirkungen nicht geprüft.",
   "successionQuestModifySlot": "Diese Angabe ändern",
   "successionPropertyNetIndicative": "Indikativer Nettoimmobilienwert (deklarierter Wert − deklarierte Hypothek)",
-  "successionPropertyNotEstateNet": "Stellt nicht den Nettonachlass dar"
+  "successionPropertyNotEstateNet": "Stellt nicht den Nettonachlass dar",
+  "successionDeathGuideSemanticsLabel": "Leitfaden zu Schritten nach dem Tod einer nahestehenden Person"
 }

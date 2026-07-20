@@ -3160,14 +3160,12 @@ enum EstateInstrumentKind {
 enum EstateReferenceState {
   known,
   missing,
-  conflict,
   invalid,
   needsReconfirmation;
 
   String get name => switch (this) {
         known => 'known',
         missing => 'missing',
-        conflict => 'conflict',
         invalid => 'invalid',
         needsReconfirmation => 'needsReconfirmation',
       };

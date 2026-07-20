@@ -9010,14 +9010,14 @@ class SEs extends S {
 
   @override
   String get successionReservesBody =>
-      'Las reservas son un concepto general del derecho suizo. Su aplicación depende de la familia y requiere revisión especializada.';
+      'Desde el 1 de enero de 2023, el CC protege mediante una reserva a los descendientes y al cónyuge o pareja registrada superviviente. La reserva equivale a la mitad del derecho sucesorio legal; los padres ya no tienen reserva. Se aplican reglas especiales, en particular cuando está pendiente un procedimiento de divorcio o de disolución de la pareja. MINT no deduce ninguna parte personal.';
 
   @override
-  String get successionQuotiteSubtitle => 'CC art. 470 al. 2';
+  String get successionQuotiteSubtitle => 'CC art. 470–472';
 
   @override
   String get successionQuotiteBody =>
-      'La porción disponible es un concepto general. MINT no la calcula para su situación ni valida disposiciones.';
+      'La porción disponible es aquello de lo que una persona puede disponer por causa de muerte más allá de las reservas aplicables. Si no hay descendientes, cónyuge o pareja registrada contemplados por el art. 470 CC, el CC permite disponer de toda la sucesión. Su alcance depende de los hechos; MINT no la calcula ni valida ninguna disposición.';
 
   @override
   String get successionTestamentBody =>
@@ -9037,7 +9037,8 @@ class SEs extends S {
   String get successionBeneficiairesTitle => 'Beneficiarios LPP y 3a';
 
   @override
-  String get successionBeneficiairesSubtitle => 'LPP art. 20 · OPP3 art. 2';
+  String get successionBeneficiairesSubtitle =>
+      'LPP art. 19–20a y reglamento de la institución · OPP 3 art. 2';
 
   @override
   String get successionBeneficiairesBody =>
@@ -9077,7 +9078,7 @@ class SEs extends S {
 
   @override
   String get successionSources =>
-      '• CC art. 457–640 — Derecho de sucesiones\n• CC art. 470–471 — Reservas hereditarias\n• CC art. 498–504 — Formas de testamento\n• LPP art. 20 — Beneficiarios LPP\n• OPP3 art. 2 — Beneficiarios 3a';
+      '• CC art. 457–640 — Derecho de sucesiones\n• CC art. 470–472 — Reservas y porción disponible\n• CC art. 498–504 — Formas de testamento\n• LPP art. 19–20a y reglamento de la institución — prestaciones de supervivencia y otros beneficiarios\n• OPP 3 art. 2 — Beneficiarios del pilar 3a';
 
   @override
   String naissanceAllocForCanton(String canton, int count, String plural) {
@@ -25009,7 +25010,8 @@ class SEs extends S {
   String get successionQuestDateLabel => 'Fecha del documento (AAAA-MM-DD)';
 
   @override
-  String get successionQuestYearLabel => 'Año jurídico';
+  String get successionQuestYearLabel =>
+      'Año de referencia del documento (declarado, no validado jurídicamente)';
 
   @override
   String get successionQuestChanged =>
@@ -25108,4 +25110,8 @@ class SEs extends S {
   @override
   String get successionPropertyNotEstateNet =>
       'No constituye la masa sucesoria neta';
+
+  @override
+  String get successionDeathGuideSemanticsLabel =>
+      'Guía de trámites tras el fallecimiento de un ser querido';
 }

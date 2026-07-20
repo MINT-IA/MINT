@@ -9025,14 +9025,14 @@ class SIt extends S {
 
   @override
   String get successionReservesBody =>
-      'Le porzioni legittime sono un concetto generale del diritto svizzero. L’applicazione dipende dalla famiglia e richiede verifica specialistica.';
+      'Dal 1° gennaio 2023, il CC protegge mediante una porzione legittima i discendenti e il coniuge o partner registrato superstite. La porzione legittima equivale alla metà del diritto successorio legale; i genitori non hanno più una porzione legittima. Regole particolari si applicano soprattutto quando è pendente una procedura di divorzio o scioglimento dell’unione. MINT non ne deduce alcuna quota personale.';
 
   @override
-  String get successionQuotiteSubtitle => 'CC art. 470 cpv. 2';
+  String get successionQuotiteSubtitle => 'CC art. 470–472';
 
   @override
   String get successionQuotiteBody =>
-      'La quota disponibile è un concetto generale. MINT non la calcola per la situazione personale e non convalida disposizioni.';
+      'La quota disponibile è ciò di cui una persona può disporre a causa di morte oltre le porzioni legittime applicabili. In assenza di discendenti, coniuge o partner registrato ai sensi dell’art. 470 CC, il CC consente di disporre dell’intera successione. La sua estensione dipende dai fatti; MINT non la calcola e non convalida alcuna disposizione.';
 
   @override
   String get successionTestamentBody =>
@@ -9052,7 +9052,8 @@ class SIt extends S {
   String get successionBeneficiairesTitle => 'Beneficiari LPP e 3a';
 
   @override
-  String get successionBeneficiairesSubtitle => 'LPP art. 20 · OPP3 art. 2';
+  String get successionBeneficiairesSubtitle =>
+      'LPP art. 19–20a e regolamento dell’istituto · OPP 3 art. 2';
 
   @override
   String get successionBeneficiairesBody =>
@@ -9091,7 +9092,7 @@ class SIt extends S {
 
   @override
   String get successionSources =>
-      '• CC art. 457–640 — Diritto successorio\n• CC art. 470–471 — Porzioni legittime\n• CC art. 498–504 — Forme del testamento\n• LPP art. 20 — Beneficiari LPP\n• OPP3 art. 2 — Beneficiari 3a';
+      '• CC art. 457–640 — Diritto successorio\n• CC art. 470–472 — Porzioni legittime e quota disponibile\n• CC art. 498–504 — Forme del testamento\n• LPP art. 19–20a e regolamento dell’istituto — prestazioni per superstiti e altri beneficiari\n• OPP 3 art. 2 — Beneficiari del pilastro 3a';
 
   @override
   String naissanceAllocForCanton(String canton, int count, String plural) {
@@ -25069,7 +25070,8 @@ class SIt extends S {
   String get successionQuestDateLabel => 'Data del documento (AAAA-MM-GG)';
 
   @override
-  String get successionQuestYearLabel => 'Anno giuridico';
+  String get successionQuestYearLabel =>
+      'Anno di riferimento del documento (dichiarato, non convalidato giuridicamente)';
 
   @override
   String get successionQuestChanged =>
@@ -25170,4 +25172,8 @@ class SIt extends S {
   @override
   String get successionPropertyNotEstateNet =>
       'Non costituisce la massa successoria netta';
+
+  @override
+  String get successionDeathGuideSemanticsLabel =>
+      'Guida alle procedure dopo il decesso di una persona cara';
 }

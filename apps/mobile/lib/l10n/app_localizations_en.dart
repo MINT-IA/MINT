@@ -8962,14 +8962,14 @@ class SEn extends S {
 
   @override
   String get successionReservesBody =>
-      'Statutory portions are a general concept of Swiss law. Their application depends on family circumstances and requires specialist review.';
+      'Since 1 January 2023, the CC protects descendants and the surviving spouse or registered partner through a statutory portion. The statutory portion equals half the statutory inheritance entitlement; parents no longer have a statutory portion. Special rules apply in particular when divorce or partnership-dissolution proceedings are pending. MINT derives no personal share from this.';
 
   @override
-  String get successionQuotiteSubtitle => 'CC art. 470 para. 2';
+  String get successionQuotiteSubtitle => 'CC art. 470–472';
 
   @override
   String get successionQuotiteBody =>
-      'The disposable portion is a general concept. MINT does not calculate it for your situation or validate any disposition.';
+      'The disposable portion is what a person may dispose of upon death beyond the applicable statutory portions. If there are no descendants, spouse or registered partner covered by CC art. 470, the CC permits disposition of the entire estate. Its extent depends on the facts; MINT does not calculate it or validate any disposition.';
 
   @override
   String get successionTestamentBody =>
@@ -8989,7 +8989,8 @@ class SEn extends S {
   String get successionBeneficiairesTitle => 'LPP and 3a beneficiaries';
 
   @override
-  String get successionBeneficiairesSubtitle => 'LPP art. 20 · OPP3 art. 2';
+  String get successionBeneficiairesSubtitle =>
+      'LPP art. 19–20a and institution regulations · OPP 3 art. 2';
 
   @override
   String get successionBeneficiairesBody =>
@@ -9028,7 +9029,7 @@ class SEn extends S {
 
   @override
   String get successionSources =>
-      '• CC art. 457–640 — Law of succession\n• CC art. 470–471 — Statutory portions\n• CC art. 498–504 — Forms of will\n• LPP art. 20 — LPP beneficiaries\n• OPP3 art. 2 — Pillar 3a beneficiaries';
+      '• CC art. 457–640 — Law of succession\n• CC art. 470–472 — Statutory portions and disposable portion\n• CC art. 498–504 — Forms of will\n• LPP art. 19–20a and institution regulations — survivor benefits and other beneficiaries\n• OPP 3 art. 2 — Pillar 3a beneficiaries';
 
   @override
   String naissanceAllocForCanton(String canton, int count, String plural) {
@@ -24872,7 +24873,8 @@ class SEn extends S {
   String get successionQuestDateLabel => 'Document date (YYYY-MM-DD)';
 
   @override
-  String get successionQuestYearLabel => 'Legal year';
+  String get successionQuestYearLabel =>
+      'Document reference year (declared, not legally validated)';
 
   @override
   String get successionQuestChanged =>
@@ -24970,4 +24972,8 @@ class SEn extends S {
   @override
   String get successionPropertyNotEstateNet =>
       'Does not constitute the net estate';
+
+  @override
+  String get successionDeathGuideSemanticsLabel =>
+      'Guide to steps after the death of a loved one';
 }

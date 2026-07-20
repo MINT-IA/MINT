@@ -4149,15 +4149,15 @@
   "successionAlertTitle": "Referências por confirmar",
   "successionAlertBody": "Os efeitos sucessórios dependem de factos e documentos a rever. A MINT apenas organiza dados confirmados; não determina património líquido, herdeiros ou partes.",
   "successionNotionsCles": "As noções-chave",
-  "successionReservesBody": "As reservas são um conceito geral do direito suíço. A aplicação depende da família e exige revisão especializada.",
-  "successionQuotiteSubtitle": "CC art. 470 al. 2",
-  "successionQuotiteBody": "A porção disponível é um conceito geral. A MINT não a calcula para a situação pessoal nem valida disposições.",
+  "successionReservesBody": "Desde 1 de janeiro de 2023, o CC protege por meio de uma reserva os descendentes e o cônjuge ou parceiro registado sobrevivo. A reserva equivale a metade do direito sucessório legal; os pais deixaram de ter reserva. Aplicam-se regras especiais, nomeadamente quando está pendente um processo de divórcio ou dissolução da parceria. A MINT não deduz daí qualquer parte pessoal.",
+  "successionQuotiteSubtitle": "CC art. 470–472",
+  "successionQuotiteBody": "A porção disponível é aquilo de que uma pessoa pode dispor por morte além das reservas aplicáveis. Na ausência de descendentes, cônjuge ou parceiro registado abrangidos pelo art. 470 CC, o CC permite dispor de toda a sucessão. A sua extensão depende dos factos; a MINT não a calcula nem valida qualquer disposição.",
   "successionTestamentBody": "Um testamento pode assumir formas diferentes sujeitas a requisitos legais. Validade, conteúdo e efeitos devem ser revistos.",
   "successionDonationTitle": "Doação em vida",
   "successionDonationSubtitle": "CO art. 239 ss",
   "successionDonationBody": "Uma doação pode ter efeitos civis e fiscais variáveis segundo os factos e o cantão. Exige revisão especializada.",
   "successionBeneficiairesTitle": "Beneficiários LPP e 3a",
-  "successionBeneficiairesSubtitle": "LPP art. 20 · OPP3 art. 2",
+  "successionBeneficiairesSubtitle": "LPP art. 19–20a e regulamento da instituição · OPP 3 art. 2",
   "successionBeneficiairesBody": "LPP e pilar 3a seguem regras legais e contratuais próprias. Beneficiários e efeitos devem ser confirmados com as instituições.",
   "successionDecesProche": "Em caso de falecimento de um ente querido",
   "successionCheck1": "Designações 3a a confirmar com cada instituição",
@@ -4167,7 +4167,7 @@
   "successionCheck5": "Local de conservação a comunicar conforme a sua escolha",
   "successionSpecialisteTitle": "Preparar conversa com especialista",
   "successionSpecialisteBody": "Um especialista em direito sucessório pode rever factos, documentos e efeitos na situação pessoal.",
-  "successionSources": "• CC art. 457–640 — Direito das sucessões\n• CC art. 470–471 — Reservas hereditárias\n• CC art. 498–504 — Formas de testamento\n• LPP art. 20 — Beneficiários LPP\n• OPP3 art. 2 — Beneficiários 3a",
+  "successionSources": "• CC art. 457–640 — Direito das sucessões\n• CC art. 470–472 — Reservas e porção disponível\n• CC art. 498–504 — Formas do testamento\n• LPP art. 19–20a e regulamento da instituição — prestações de sobrevivência e outros beneficiários\n• OPP 3 art. 2 — Beneficiários do pilar 3a",
   "naissanceAllocForCanton": "Abonos de família em {canton} para {count} filho{plural}",
   "@naissanceAllocForCanton": {
     "placeholders": {
@@ -11751,7 +11751,7 @@
   "successionQuestReconfirm": "Voltar a confirmar sem alterações",
   "successionQuestStale": "Esta resposta precisa de ser reconfirmada.",
   "successionQuestDateLabel": "Data do documento (AAAA-MM-DD)",
-  "successionQuestYearLabel": "Ano jurídico",
+  "successionQuestYearLabel": "Ano de referência do documento (declarado, não validado juridicamente)",
   "successionQuestChanged": "Os dados foram alterados e recarregados. Reveja-os e tente novamente.",
   "successionQuestValidation": "Introduza uma data civil exata e um ano válido.",
   "successionQuestSaveError": "Não foi possível guardar. Pode tentar novamente.",
@@ -11778,5 +11778,6 @@
   "successionQuestTerminalCaveat": "Documentos, conteúdo, validade e efeitos jurídicos não verificados.",
   "successionQuestModifySlot": "Modificar este dado",
   "successionPropertyNetIndicative": "Valor imobiliário líquido indicativo (valor declarado − hipoteca declarada)",
-  "successionPropertyNotEstateNet": "Não constitui o património sucessório líquido"
+  "successionPropertyNotEstateNet": "Não constitui o património sucessório líquido",
+  "successionDeathGuideSemanticsLabel": "Guia de procedimentos após o falecimento de um ente querido"
 }

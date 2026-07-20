@@ -4451,15 +4451,15 @@
   "successionAlertTitle": "Des repères à confirmer",
   "successionAlertBody": "La situation successorale dépend de faits et de documents à vérifier. MINT organise uniquement les éléments que vous confirmez et ne détermine ni la masse nette, ni les héritiers, ni leurs parts.",
   "successionNotionsCles": "Les notions clés",
-  "successionReservesBody": "Les réserves héréditaires sont une notion générale du droit suisse. Leur application dépend de la situation familiale et doit être vérifiée par un·e spécialiste.",
-  "successionQuotiteSubtitle": "CC art. 470 al. 2",
-  "successionQuotiteBody": "La quotité disponible est une notion générale. MINT ne la calcule pas pour votre situation et ne valide aucune disposition.",
+  "successionReservesBody": "Depuis le 1er janvier 2023, le CC protège par une réserve les descendants ainsi que le conjoint ou partenaire enregistré survivant. La réserve est égale à la moitié du droit successoral légal ; les parents n’ont plus de réserve. Des règles particulières s’appliquent notamment lorsqu’une procédure de divorce ou de dissolution du partenariat est pendante. MINT n’en déduit aucune part personnelle.",
+  "successionQuotiteSubtitle": "CC art. 470–472",
+  "successionQuotiteBody": "La quotité disponible est ce dont une personne peut disposer pour cause de mort au-delà des réserves applicables. En l’absence de descendants, conjoint ou partenaire enregistré visés par l’art. 470 CC, le CC permet de disposer de toute la succession. Son étendue dépend des faits ; MINT ne la calcule pas et ne valide aucune disposition.",
   "successionTestamentBody": "Un testament peut prendre différentes formes soumises à des conditions légales. Sa validité, son contenu et ses effets doivent être vérifiés.",
   "successionDonationTitle": "Donation du vivant",
   "successionDonationSubtitle": "CO art. 239 ss",
   "successionDonationBody": "Une donation peut avoir des effets civils et fiscaux qui varient selon les faits et le canton. Un examen spécialisé est nécessaire.",
   "successionBeneficiairesTitle": "Bénéficiaires LPP et 3a",
-  "successionBeneficiairesSubtitle": "LPP art. 20 · OPP3 art. 2",
+  "successionBeneficiairesSubtitle": "LPP art. 19–20a et règlement de l’institution · OPP 3 art. 2",
   "successionBeneficiairesBody": "Les règles LPP et 3a suivent leurs propres bases légales et contrats. Les bénéficiaires et les effets doivent être confirmés auprès des institutions concernées.",
   "successionDecesProche": "En cas de décès d'un proche",
   "successionCheck1": "Désignations 3a à confirmer auprès de chaque institution",
@@ -4469,7 +4469,7 @@
   "successionCheck5": "Lieu de conservation à communiquer selon votre choix",
   "successionSpecialisteTitle": "Préparer un échange avec un·e spécialiste",
   "successionSpecialisteBody": "Un·e spécialiste du droit successoral peut examiner les faits, les documents et leurs effets dans votre situation.",
-  "successionSources": "• CC art. 457–640 — Droit des successions\n• CC art. 470–471 — Réserves héréditaires\n• CC art. 498–504 — Formes du testament\n• LPP art. 20 — Bénéficiaires du capital LPP\n• OPP3 art. 2 — Bénéficiaires du pilier 3a",
+  "successionSources": "• CC art. 457–640 — Droit des successions\n• CC art. 470–472 — Réserves héréditaires et quotité disponible\n• CC art. 498–504 — Formes du testament\n• LPP art. 19–20a et règlement de l’institution — prestations de survivants et autres bénéficiaires\n• OPP 3 art. 2 — Bénéficiaires du pilier 3a",
   "naissanceAllocForCanton": "Allocations familiales à {canton} pour {count} enfant{plural}",
   "@naissanceAllocForCanton": {
     "placeholders": {
@@ -12582,7 +12582,7 @@
   "successionQuestReconfirm": "Reconfirmer sans modification",
   "successionQuestStale": "Cette réponse doit être reconfirmée.",
   "successionQuestDateLabel": "Date du document (AAAA-MM-JJ)",
-  "successionQuestYearLabel": "Année juridique",
+  "successionQuestYearLabel": "Année de référence du document (déclarée, non validée juridiquement)",
   "successionQuestChanged": "Les données ont changé. Elles ont été rechargées ; vérifiez puis réessayez.",
   "successionQuestValidation": "Saisissez une date civile exacte et une année valides.",
   "successionQuestSaveError": "Enregistrement impossible. Vous pouvez réessayer.",
@@ -12609,5 +12609,6 @@
   "successionQuestTerminalCaveat": "Documents : contenu, validité et effets non vérifiés.",
   "successionQuestModifySlot": "Modifier cette référence",
   "successionPropertyNetIndicative": "Valeur immobilière nette indicative (valeur déclarée − hypothèque déclarée)",
-  "successionPropertyNotEstateNet": "Ne constitue pas la masse successorale nette"
+  "successionPropertyNotEstateNet": "Ne constitue pas la masse successorale nette",
+  "successionDeathGuideSemanticsLabel": "Guide des démarches après le décès d’un proche"
 }
