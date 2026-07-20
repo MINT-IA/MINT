@@ -1,0 +1,26 @@
+Product/domain verdict: PASS
+
+This change is scoped to accessibility/semantics wiring on the `MintConfidenceNotice` CTA and its single consumer (the mortgage affordability screen). It touches no Swiss financial logic, no ledger write path, no routing target, and no compliance copy. It is backward-compatible and test-covered.
+
+## P0
+None.
+
+## P1
+None. No mandatory Swiss variable, source-of-truth, or advice-boundary regression is introduced by this diff.
+
+## P2 (pre-existing, surfaced by the audit but not caused by this diff)
+- **Static confidence figure not justified by data state** — `apps/mobile/lib/screens/mortgage/affordability_screen.dart:281` hardcodes `percent: 45` on the affordability confidence notice. This value is fixed regardless of how many of the four inputs (revenu, LPP, épargne, canton) are actually known vs. estimated — even the auto-fill path (`_initializeFromProfile`, lines 55-95) that can populate real profile values leaves confidence at 45. The métier requirement "distinguish known/missing/estimated, and justify confidence" is not met: the number is a facade. Not introduced here, but the diff makes this CTA more prominent/actionable, so it is worth fixing next.
+- **Enrich CTA narrows to salary only** — `affordability_screen.dart:284-292` the "améliorer mes données" action routes to `/data-block/revenu` with `inputKey: 'q_gross_salary_annual'` only. The low-confidence signal spans equity, LPP and canton too, so tapping "enrich" and returning will not move the (hardcoded) confidence, which can feel like a dead-end. Pre-existing; consider routing to the missing-input the ledger actually reports as lowest quality.
+- **Duplicate identifier string** — the same literal `'mortgage_enrich_profile_cta'` is used for both the widget `Key` (line 280) and `actionSemanticsIdentifier` (line 284). Harmless, but the file-scan test at `mint_confidence_notice_test.dart:45-56` couples the source text to that literal, so any future rename must touch three places.
+
+## Verification performed
+- Confirmed the new `Semantics(button: true)` wrapper only activates when `ctaLabel != null && onTap != null`; the other consumer `demenagement_cantonal_screen.dart:161-164` passes no CTA, so its semantics tree is unchanged (no regression).
+- Confirmed the route target `/data-block/revenu` + `returnUri: /hypotheque` is a live, tested path (`test/navigation/data_block_return_uri_test.dart`, `data_block_live_origin_roundtrip_test.dart`), so this is not a facade-without-wiring CTA.
+- New test `mint_confidence_notice_test.dart:8-43` correctly asserts the notice body is not actionable and only the CTA carries the button semantics — matches the widget change.
+
+## Swiss domain review
+- **AVS / LPP / 3a / tax / insurance / succession**: not affected. No thresholds, rates, or eligibility logic changed.
+- **Mortgage**: business logic untouched. The ASB-based capacity computation (`mortgage_service`, referenced at `affordability_screen.dart:29`, household-income rule at lines 62-68) is unchanged by this diff. No new or stale mortgage constant is introduced, so no current-law verification is triggered here. The only mortgage-relevant residue is the pre-existing hardcoded confidence (P2 above), which is presentational, not a capacity constant.
+
+## Mint product logic review
+Neutral-to-mildly-positive on the ledger → DataQuest → scenario → dossier spine. It improves the accessibility/testability of the existing "enrich my data" bridge from the mortgage scenario back into the DataQuest (`/data-block/revenu`), which is the correct direction. It does not, however, close the loop on confidence: the scenario still shows a fixed 45% that does not respond to ledger completeness, so the "no confident-but-unjustified number" principle remains partially unmet (tracked as P2). No new source-of-truth duplication is introduced.

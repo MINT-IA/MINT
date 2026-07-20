@@ -324,3 +324,32 @@ and all three YAML flows parse.
 
 A fresh pushed exact SHA must rerun the full matrix. Prior Work/Housing atoms
 remain diagnostic only.
+
+## Housing actionable-semantics audit disposition
+
+Accepted audits: `opus-housing-semantics-code-audit.txt` and
+`opus-housing-semantics-product-domain-audit.txt` — both **PASS**, P0=0,
+P1=0. Product-domain P2 observations about the pre-existing static 45% and
+salary-only enrichment scope are not introduced or widened by this accessibility
+fix and remain outside RETURN-01's route-stability acceptance.
+
+The tenth exact-SHA run
+(`5d8c28c00735612a5ccfff428771840be7aad957`) proved Work
+Patrol+Maestro, Housing Patrol, relocated-container data identity and Housing
+router readiness. Housing Maestro then failed because
+`mortgage_enrich_profile_cta` was visually present but absent as a dedicated
+resource id. The retained PNG was directly inspected: it shows the correct
+Capacité d'achat screen. The retained hierarchy merges the card copy and exposes
+no action id.
+
+`MintConfidenceNotice` now accepts an optional action semantics identifier
+and attaches it only to the CTA node that contains the real `GestureDetector`
+callback. Mortgage passes the exact stable id. The outer keyed notice remains
+the lazy scroll anchor used by Patrol, the body remains non-actionable, and the
+unique descendant action remains intact. RED failed because the semantics
+parameter did not exist; GREEN proves message taps do nothing, one button
+semantics node exists, and its tap fires once. Widget/runtime/navigation suites
+pass 116/116 and targeted analysis is clean.
+
+No prior runtime atoms are composed. A new pushed exact SHA must restart all
+stages.

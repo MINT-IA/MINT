@@ -1,0 +1,37 @@
+# MINT External Auditor — Code Audit
+
+**Scope:** Unstaged worktree diff on `codex/g1-capital-native-proof-20260718` (base `5d8c28c00`). Two modified files + one new test, ~120 diff lines — within budget.
+
+## What the change does
+
+Adds an optional `actionSemanticsIdentifier` to `MintConfidenceNotice`, wraps the *inner* CTA (`GestureDetector`) in `Semantics(identifier:, button: true)`, and wires the mortgage affordability screen to pass the stable id `mortgage_enrich_profile_cta`. A new widget/source test is added.
+
+## Wiring verification (facade check)
+
+The identifier is attached to the **real actionable element**, not a decorative wrapper:
+
+- `mint_confidence_notice.dart:92-95` — `Semantics(identifier: actionSemanticsIdentifier, button: true)` wraps exactly the `GestureDetector` carrying `onTap`.
+- `affordability_screen.dart:280,284` — same widget keeps `Key('mortgage_enrich_profile_cta')` and now also passes `actionSemanticsIdentifier: 'mortgage_enrich_profile_cta'`.
+
+This completes previously-dangling wiring. The Maestro companion flow `apps/mobile/.maestro/g1_return01_housing_cancel_return.yaml:28,31,36` drives the CTA via `id: "mortgage_enrich_profile_cta"`. A Flutter `Key` is **not** exposed as an accessibility identifier, so before this diff Maestro's `tapOn: id` could not resolve that node; the new `Semantics(identifier:)` is exactly what makes that black-box flow tappable. Wiring is real, not a facade.
+
+## Consistency with existing tests
+
+- `data_block_return_uri_test.dart:665-672`, `data_block_live_origin_roundtrip_test.dart:366`, and `g1_return01_six_origin_patrol_test.dart:145-154` locate the notice `byKey`, then tap `find.descendant(... find.byType(GestureDetector))`. The refactor preserves **exactly one** `GestureDetector` inside the notice, so these `findsOneWidget` + tap paths still hold.
+- New test `mint_confidence_notice_test.dart:27-41` correctly asserts the whole notice is *not* actionable (tapping the message text yields `taps == 0`), the CTA carries `isButton`, and tapping it fires `onTap` once. `find.bySemanticsIdentifier` resolves a single node because the identifier lives only on the inner CTA (the outer `Key` is not a semantics id).
+- `flagsCollection.isButton` (line 39) is already used elsewhere in-repo (`wcag_audit_test.dart`, `coach_live_region_test.dart`, etc.), confirming API availability in the pinned Flutter version.
+
+## Findings
+
+**P0:** None.
+
+**P1:** None.
+
+**P2 (informational only):**
+- `demenagement_cantonal_screen.dart:161` uses `MintConfidenceNotice` without `actionSemanticsIdentifier`. Its CTA now gains `button: true` with a `null` identifier. This is a benign, positive a11y change; no test asserts the previous absence of button semantics. No action required, but if that screen also has a black-box E2E flow, it would benefit from a stable identifier too.
+
+## Verdict
+
+**PASS**
+
+The change is correct, wires a stable semantics identifier to the genuine actionable CTA, is covered by a focused test asserting the non-actionable-container invariant, and remains compatible with all existing `byKey`/descendant-`GestureDetector` and Maestro `id` consumers. No privacy, routing, or facade-without-wiring risk introduced.
