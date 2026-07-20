@@ -1,0 +1,24 @@
+## MINT External Audit — product-domain mode
+
+**Base:** `3bb8a846c18e0aa475b3faade8a9af6050853e95`
+**Wrapper:** `tools/checks/claude_external_audit.sh product-domain`
+**Model/effort:** wrapper default first-pass Opus/high
+**Scope:** four test/runtime-infrastructure files; no Swiss calculation, constant, or compliance copy changed.
+
+### Verification performed by Opus
+
+- Confirmed Mortgage writes the canonical shared salary fact and Disability reads that same fact: one profile, no duplicate variable, no re-ask.
+- Confirmed progressive collection then asks for the next missing fact, birth year, rather than salary again.
+- Confirmed `1800` exercises the real validation-retention path and cancel restores the originating Disability scenario.
+- Confirmed AVS/AI, LPP, tax, insurance, mortgage-calculation, succession, disclaimer, legal-source, and dossier logic are unaffected.
+- Confirmed the change strengthens the ledger -> DataQuest -> scenario spine and adds no advice, ranking, guarantee, or privacy shortcut.
+
+### Findings
+
+- **P0:** none.
+- **P1:** none.
+- **P2:** document the intentional cross-scenario ledger reuse more explicitly; the numeric fixture is plausible but remains a test magic number.
+
+### Verdict
+
+**PASS** — product/domain contract strengthened; P0=0, P1=0.

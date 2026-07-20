@@ -1,0 +1,24 @@
+## MINT External Audit — code mode
+
+**Base:** `3bb8a846c18e0aa475b3faade8a9af6050853e95`
+**Wrapper:** `tools/checks/claude_external_audit.sh code`
+**Model/effort:** wrapper default first-pass Opus/high
+**Scope:** four test/runtime-infrastructure files; no production Dart changed.
+
+### Verification performed by Opus
+
+- Traced `mortgage_enrich_profile_cta -> salary_input -> salary_save_cta` into the real shared Revenue DataBlock and confirmed `96000` produces an authoritative salary fact.
+- Confirmed Disability consumes the same fact and then routes its enrich CTA to missing birth year; without the UI seed, the strict `birth_year_input` assertion fails.
+- Confirmed invalid birth year `1800` is retained and cancel returns to the Disability ledger facts.
+- Confirmed the authoritative Patrol witness is unchanged and the shell, Python, Dart, and Maestro contracts agree.
+- Confirmed reset stages uninstall before installing the immutable normal app, while only true preserve stages claim a preserved synthetic seed.
+
+### Findings
+
+- **P0:** none.
+- **P1:** none.
+- **P2:** the YAML rationale could state more explicitly that Mortgage is deliberately proving cross-scenario ledger reuse; `production_overlay=verified` is a pre-existing broad label for reset stages.
+
+### Verdict
+
+**PASS** — correctly wired, self-contained test-infrastructure repair; P0=0, P1=0.

@@ -547,3 +547,31 @@ Authoritative local verification is 39/39 copy-gate contracts, Python compile,
 Ruff, Actionlint, diff check and full lefthook PASS; the three exact failing
 mobile files pass 113/113 with targeted analysis clean. A fresh push and
 GitHub run must still prove the new head SHA before any native runtime resumes.
+
+## Disability normal-app seed audit disposition
+
+Accepted audits: `opus-disability-normal-seed-code-audit.txt` and
+`opus-disability-normal-seed-product-domain-audit.txt` — both **PASS**, P0=0
+and P1=0. Their P2 notes are documentation/label observations only; they do
+not weaken the runtime contract or introduce product logic.
+
+The fourteenth exact-SHA run established that a regular-file container
+fingerprint cannot prove Keychain continuity between the Patrol test host and
+the separately installed normal Runner app. Disability therefore no longer
+inherits a Patrol salary seed. Its Maestro stage now resets the app, installs
+the immutable normal binary, opens the real Mortgage scenario, reaches the
+shared Revenue DataBlock through `mortgage_enrich_profile_cta`, enters exactly
+`96000`, saves through `salary_save_cta`, and only then opens `/invalidite`.
+The strict expected next fact remains `birth_year_input`; invalid `1800` must
+be retained and the real cancel CTA must restore Disability ledger facts.
+
+RED contracts failed under the former preserve-seed harness. GREEN is 20/20
+Python orchestrator contracts and 8/8 Dart runtime contracts, with YAML parse,
+Bash syntax, ShellCheck, Python compile, Dart format, Flutter analyze and diff
+check clean. Negative contracts forbid state clearing, return-URI injection and
+direct SharedPreferences/flutter_secure_storage/Keychain shortcuts.
+Implementation commit: `6862b5ad3`.
+
+A fresh pushed exact SHA and clean-room GitHub CI success are required before
+the fifteenth complete RETURN-01 runtime. No prior runtime atom may be composed
+into acceptance.
