@@ -530,14 +530,23 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                     ).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
-                TextButton.icon(
-                  key: const Key('disability_gap_enrich_cta'),
-                  onPressed: () => context.push(route),
-                  icon: Icon(
-                    hasMissing ? Icons.add_circle_outline : Icons.edit_outlined,
-                    size: 18,
+                MergeSemantics(
+                  child: Semantics(
+                    identifier: 'disability_gap_enrich_cta',
+                    button: true,
+                    child: TextButton.icon(
+                      key: const Key('disability_gap_enrich_cta'),
+                      onPressed: () => context.push(route),
+                      icon: Icon(
+                        hasMissing
+                            ? Icons.add_circle_outline
+                            : Icons.edit_outlined,
+                        size: 18,
+                      ),
+                      label:
+                          Text(hasMissing ? s.dataQualityEnrich : s.commonEdit),
+                    ),
                   ),
-                  label: Text(hasMissing ? s.dataQualityEnrich : s.commonEdit),
                 ),
               ],
             ),

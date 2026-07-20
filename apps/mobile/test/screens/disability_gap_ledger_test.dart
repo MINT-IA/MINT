@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -246,24 +248,55 @@ void main() {
 
   testWidgets('routes the next missing fact to its targeted data block',
       (tester) async {
-    final provider = _RecordingCoachProfileProvider(_answers(
-      grossSalaryAnnual: 96000,
-      birthYear: DateTime.now().year - 45,
-    ));
+    final semantics = tester.ensureSemantics();
+    try {
+      final provider = _RecordingCoachProfileProvider(_answers(
+        grossSalaryAnnual: 96000,
+        birthYear: DateTime.now().year - 45,
+      ));
 
-    await tester.pumpWidget(_buildWithRouter(
-      provider,
-      const DisabilityGapScreen(),
-    ));
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(_buildWithRouter(
+        provider,
+        const DisabilityGapScreen(),
+      ));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('disability_gap_enrich_cta')));
-    await tester.pumpAndSettle();
+      final ledgerFacts = find.bySemanticsIdentifier(
+        'disability_gap_ledger_facts',
+      );
+      final enrichAction = find.bySemanticsIdentifier(
+        'disability_gap_enrich_cta',
+      );
+      final textButton = find.descendant(
+        of: enrichAction,
+        matching: find.byType(TextButton),
+      );
 
-    expect(
-      find.text('data-block:patrimoine:q_cash_total'),
-      findsOneWidget,
-    );
+      expect(enrichAction, findsOneWidget);
+      expect(textButton, findsOneWidget);
+      final enrichNode = tester.getSemantics(enrichAction);
+      expect(
+          enrichNode.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      expect(enrichNode.getSemanticsData().flagsCollection.isButton, isTrue);
+      expect(enrichNode.id, tester.getSemantics(textButton).id);
+
+      final ledgerRect = tester.getRect(ledgerFacts);
+      final enrichRect = tester.getRect(enrichAction);
+      expect(ledgerRect.contains(enrichRect.topLeft), isTrue);
+      expect(ledgerRect.contains(enrichRect.bottomRight), isTrue);
+      expect(enrichRect.size.width * enrichRect.size.height,
+          lessThan(ledgerRect.size.width * ledgerRect.size.height));
+
+      await tester.tap(enrichAction);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('data-block:patrimoine:q_cash_total'),
+        findsOneWidget,
+      );
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('routes missing expenses to budget setup', (tester) async {
