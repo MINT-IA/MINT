@@ -23,6 +23,10 @@ const _supportedStages = <String>{
   'succession_save',
   'frontalier_inline',
 };
+const _maestroSeedStages = <String>{
+  'housing_cancel',
+  'frontalier_inline',
+};
 
 final class _StageProof {
   const _StageProof({
@@ -71,7 +75,9 @@ void main() {
         'mint-g1-return01-$_stage-witness-v1.json',
       );
       addTearDown(() async {
-        await ReportPersistenceService.clearDiagnostic();
+        if (!_maestroSeedStages.contains(_stage)) {
+          await ReportPersistenceService.clearDiagnostic();
+        }
       });
       if (await witness.exists()) await witness.delete();
 

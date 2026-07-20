@@ -1,0 +1,68 @@
+All assertions confirmed. Here is the audit report.
+
+---
+
+## Audit Report — `codex/g1-capital-native-proof-20260718`
+
+**Scope:** 4 unstaged-worktree files, 119 net effective lines of change.
+
+---
+
+### Verdict: PASS
+
+No P0 or P1 findings. One P2 cosmetic finding noted below.
+
+---
+
+### Summary of Changes Reviewed
+
+| File | Change |
+|---|---|
+| `g1_return01_six_origin_patrol_test.dart` | Adds `_maestroSeedStages` constant; makes teardown `clearDiagnostic()` conditional on non-seed stages |
+| `g1_return01_six_origin_runtime_test.dart` | Adds structural test verifying teardown conditionality and `_maestroSeedStages` membership |
+| `test_g1_return01_six_origin_orchestrator.py` | Adds `test_restoration_removes_seeded_app_before_clean_normal_launch` verifying uninstall→absence-check→install→launch ordering |
+| `patrol_return01_six_origin.sh` | Adds explicit uninstall + absence verification in `restore_normal_build()`; extends artifact allowlist regex |
+
+---
+
+### P0 Findings
+
+None.
+
+---
+
+### P1 Findings
+
+None.
+
+---
+
+### P2 Findings
+
+**P2 — Diagnostic message lost on cleanup retry**
+`tools/simulator/patrol_return01_six_origin.sh:217-222`
+
+**Description:** When `restore_normal_build` fails the absence check (`get_app_container` returns 0, meaning seeded app is still installed), it appends the line `"seeded app remained installed after restoration uninstall"` to `$private_root/restoration-uninstall.raw.log` via `>>`, then returns 1. If `cleanup()` then retries `restore_normal_build`, the second `xcrun simctl uninstall` call redirects output with `>` (truncate), silently overwriting the raw log and losing the first call's diagnostic message.
+
+**Reproduction path:**
+1. Seeded app install somehow survives `xcrun simctl uninstall` on first call.
+2. `restore_normal_build` appends the diagnostic line and returns 1.
+3. `cleanup()` retries: second call's `>"$private_root/restoration-uninstall.raw.log"` truncates the file; first call's message is gone.
+
+**Impact:** Cosmetic only — this is already a failed run path with no metadata written. The correctness invariant (app restored or `cleanup_failed=1`) is maintained.
+
+---
+
+### Correctness Checks Passed
+
+**Dart teardown/seeding coherence:** `_maestroSeedStages = {'housing_cancel', 'frontalier_inline'}` matches exactly the `housing_cancel | frontalier_inline` branch in `run_maestro_stage` that uses `synthetic_seed='preserved'` / `container_identity` fingerprinting. The remaining three stages (`work_save`, `disability_validation_cancel`, `succession_save`) use fresh installs and are correctly cleared by the teardown. Confirmed via live assertion run.
+
+**Structural ordering in Dart test:** `addTearDown` → conditional → `clearDiagnostic()` inside if → `});` → unconditional pre-stage `clearDiagnostic()` → `switch (_stage)` dispatch. Ordering is strict and confirmed.
+
+**Shell `restore_normal_build` ordering:** terminate → uninstall → absence check → install → launch → sanitize (all three logs, including new `restoration-uninstall`) → `restoration_status='restored'`. Confirmed via Python assertion run.
+
+**Allowlist regex:** `restoration-(?:uninstall|install|launch)\.log` correctly added, covers the new `restoration-uninstall.log` output. Confirmed literal presence in script text.
+
+**Python orchestrator test regex safety:** Both `restore_normal_build()` and `cleanup()` regex captures are non-greedy and terminated by `\n}`. Neither function contains inner `}` characters (only `fi`/`))` close their internal blocks), so both regexes capture exactly the intended function body.
+
+**Privacy:** `restoration-uninstall.raw.log` is sanitized by the existing `sanitize_log` pipeline (redacts repo, home, private_root, temp_root, simulator UDID) before being written to `$artifacts`. No raw PII escapes the artifacts boundary.

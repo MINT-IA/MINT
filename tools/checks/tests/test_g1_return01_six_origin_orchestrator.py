@@ -579,6 +579,47 @@ def test_runner_records_restoration_cleanup_and_rechecks_exact_sha() -> None:
     )
 
 
+def test_restoration_removes_seeded_app_before_clean_normal_launch() -> None:
+    text = source()
+    match = re.search(r"restore_normal_build\(\) \{\n(.*?)\n\}", text, flags=re.S)
+    assert match is not None
+    restoration = match.group(1)
+
+    terminate = restoration.index(
+        'xcrun simctl terminate "$device" "$bundle_id"'
+    )
+    uninstall = restoration.index(
+        'xcrun simctl uninstall "$device" "$bundle_id"', terminate
+    )
+    absence_check = restoration.index(
+        'xcrun simctl get_app_container "$device" "$bundle_id" app', uninstall
+    )
+    install = restoration.index(
+        'xcrun simctl install "$device" "$normal_app"', absence_check
+    )
+    launch = restoration.index(
+        'xcrun simctl launch "$device" "$bundle_id"', install
+    )
+    assert terminate < uninstall < absence_check < install < launch
+    assert (
+        '>>"$private_root/restoration-uninstall.raw.log" 2>&1 || true'
+        in restoration
+    )
+    assert (
+        'sanitize_log "$private_root/restoration-uninstall.raw.log" \\\n'
+        '    "$artifacts/restoration-uninstall.log"' in restoration
+    )
+    assert "restoration_status='restored'" in restoration[launch:]
+
+    cleanup_match = re.search(r"cleanup\(\) \{\n(.*?)\n\}", text, flags=re.S)
+    assert cleanup_match is not None
+    cleanup = cleanup_match.group(1)
+    assert "if [[ \"$restoration_status\" != 'restored'" in cleanup
+    assert "restore_normal_build || cleanup_failed=1" in cleanup
+    assert text.index("trap cleanup EXIT") < text.index("export_physical_source()")
+    assert "restoration-(?:uninstall|install|launch)\\.log" in text
+
+
 def test_metadata_is_fail_closed_for_all_six_origins_and_artifacts() -> None:
     text = source()
     for token in (

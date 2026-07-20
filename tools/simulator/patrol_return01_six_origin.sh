@@ -214,10 +214,19 @@ verify_runtime_sources_clean() {
 restore_normal_build() {
   [[ -n "$normal_app" && -d "$normal_app" && ! -L "$normal_app" ]] || return 1
   xcrun simctl terminate "$device" "$bundle_id" >/dev/null 2>&1 || true
+  xcrun simctl uninstall "$device" "$bundle_id" \
+    >>"$private_root/restoration-uninstall.raw.log" 2>&1 || true
+  if xcrun simctl get_app_container "$device" "$bundle_id" app >/dev/null 2>&1; then
+    printf 'seeded app remained installed after restoration uninstall\n' \
+      >>"$private_root/restoration-uninstall.raw.log"
+    return 1
+  fi
   xcrun simctl install "$device" "$normal_app" \
     >"$private_root/restoration-install.raw.log" 2>&1 || return 1
   xcrun simctl launch "$device" "$bundle_id" \
     >"$private_root/restoration-launch.raw.log" 2>&1 || return 1
+  sanitize_log "$private_root/restoration-uninstall.raw.log" \
+    "$artifacts/restoration-uninstall.log"
   sanitize_log "$private_root/restoration-install.raw.log" "$artifacts/restoration-install.log"
   sanitize_log "$private_root/restoration-launch.raw.log" "$artifacts/restoration-launch.log"
   restoration_status='restored'
@@ -764,7 +773,7 @@ PY
 verify_artifact_allowlist() {
   find "$artifacts" -type f -print0 | MINT_ARTIFACT_ROOT="$artifacts" python3 -c '
 import os, re, sys
-allowed = re.compile(r"^(?:metadata\.json|device\.sha256|source-manifest\.sha256|SHA256SUMS|doctor\.log|patrol-tooling\.log|production-(?:export|build|codesign|xattrs|install|uninstall|overlay-(?:work_save|housing_cancel|disability_validation_cancel|succession_save|frontalier_inline))\.log|restoration-(?:install|launch)\.log|rvc-(?:runner\.log|link\.json)|(?:maestro|patrol)-(?:work_save|housing_cancel|disability_validation_cancel|succession_save|frontalier_inline)(?:-report\.sanitized\.xml|-xcresult-summary\.sanitized\.json|\.log|\.png)|hierarchy-(?:maestro|patrol)-(?:work_save|housing_cancel|disability_validation_cancel|succession_save|frontalier_inline)\.log|witness-(?:work_save|housing_cancel|disability_validation_cancel|succession_save|frontalier_inline)\.json)$")
+allowed = re.compile(r"^(?:metadata\.json|device\.sha256|source-manifest\.sha256|SHA256SUMS|doctor\.log|patrol-tooling\.log|production-(?:export|build|codesign|xattrs|install|uninstall|overlay-(?:work_save|housing_cancel|disability_validation_cancel|succession_save|frontalier_inline))\.log|restoration-(?:uninstall|install|launch)\.log|rvc-(?:runner\.log|link\.json)|(?:maestro|patrol)-(?:work_save|housing_cancel|disability_validation_cancel|succession_save|frontalier_inline)(?:-report\.sanitized\.xml|-xcresult-summary\.sanitized\.json|\.log|\.png)|hierarchy-(?:maestro|patrol)-(?:work_save|housing_cancel|disability_validation_cancel|succession_save|frontalier_inline)\.log|witness-(?:work_save|housing_cancel|disability_validation_cancel|succession_save|frontalier_inline)\.json)$")
 root = os.environ["MINT_ARTIFACT_ROOT"]
 items = sys.stdin.buffer.read().split(b"\0")
 for raw in filter(None, items):

@@ -1,0 +1,31 @@
+# MINT External Audit — G1-RETURN-01 six-origin runtime harness
+
+**Scope:** 4 worktree-modified files (Patrol integration test, Dart runtime contract test, Python orchestrator test, orchestrator shell script). Reviewed against the on-disk source of truth, not just the diff.
+
+## What the change does
+1. **`patrol_test.dart`** — teardown no longer unconditionally clears diagnostic state; it now *preserves* the synthetic seed for exactly `housing_cancel` and `frontalier_inline` (`_maestroSeedStages`, lines 26-29, 77-81). The pre-stage `clearDiagnostic()` (line 84) is retained.
+2. **`patrol_return01_six_origin.sh`** — `restore_normal_build()` now terminates → **uninstalls** → asserts the container is gone → installs the normal app → launches (lines 216-232). New `restoration-uninstall.log` added to the artifact allowlist (line 776).
+3. **Test files** — added structural assertions locking the teardown-preservation shape and the uninstall-before-restore ordering.
+
+## Correctness / coherence verification
+- The Dart `_maestroSeedStages` set (`housing_cancel`, `frontalier_inline`) **exactly matches** the shell `run_maestro_stage` branch that sets `synthetic_seed='preserved'` and refuses to uninstall (`patrol_return01_six_origin.sh:475-483`). The other three stages (`work_save`, `disability_validation_cancel`, `succession_save`) uninstall for a clean install (lines 465-474) and are correctly excluded from the seed set. This resolves a prior inconsistency where teardown wiped the seed the Maestro overlay stage expected to fingerprint.
+- Seed does not leak across stages: every Patrol stage re-clears at start (`patrol_test.dart:84`); the `disability`/`succession`/`work` Maestro stages uninstall first. The final `restore_normal_build` (line 858) now uninstalls, so no synthetic seed survives into the "restored production" app — a genuine privacy/cleanliness improvement, not a regression.
+- New `restoration-uninstall.raw.log` is routed through `sanitize_log` (lines 228-229) and is allowlisted (line 776); `verify_privacy_inventory` scans it. No raw private path exposure. The failure-path message is appended only to the raw log and only when the function `return 1`s, so it is never emitted to `$artifacts`.
+- Test↔implementation alignment confirmed line-by-line: ordering `terminate<uninstall<absence_check<install<launch`, the two-line `sanitize_log` continuation, `restoration_status='restored'` after launch, cleanup guards, `trap cleanup EXIT` before `export_physical_source()`, and the allowlist regex token all match the actual script.
+- Referenced Maestro flows and the RVC runner exist; the runtime test's `.maestro/…` relative paths resolve under `apps/mobile/` (its cwd), consistent with the orchestrator's `apps/mobile/.maestro/…`.
+
+## Findings
+
+### P0 — none
+
+### P1 — none
+
+### P2
+- **Style: missing PEP8 blank line.** `tools/checks/tests/test_g1_return01_six_origin_orchestrator.py:618` has only one blank line before the top-level `def test_metadata_is_fail_closed_...` (E302). Harmless unless the repo enforces flake8/E3 rules in CI (ruff's default select does not include E3). To prove impact: `ruff check tools/checks/tests/test_g1_return01_six_origin_orchestrator.py` / `flake8 …`.
+- **Weak test class (pre-existing pattern).** The added Python/Dart tests are source-grep/string-ordering assertions, not behavioral. They lock code shape but cannot catch a runtime simctl/Maestro failure. This matches the established harness convention and the shell script *is* actually invoked by the orchestrator, so it is not a facade-without-wiring; noted only so the guarantee is not overstated.
+
+## Residual (not provable statically)
+The behavioral claim that the `frontalier_inline` Maestro flow remains green when its `frontier_*` fields are **pre-filled** by the preserved Patrol seed cannot be confirmed without a booted simulator run. Proof would require executing `tools/simulator/patrol_return01_six_origin.sh` and inspecting `maestro-frontalier_inline-report.sanitized.xml` (`tests≥1, failures=0, errors=0`).
+
+## Verdict
+**PASS** — The change is internally coherent, tests match the implementation, the restore-uninstall step is a real privacy/cleanliness improvement, and no P0/P1 correctness, privacy, routing, or facade issues were found. Only a cosmetic P2 lint nit remains.

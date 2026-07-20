@@ -125,6 +125,52 @@ void main() {
     );
   });
 
+  test(
+      'Patrol teardown preserves only the two seeds consumed by Maestro while pre-clear remains',
+      () {
+    final source = _read(
+      'integration_test/g1_return01_six_origin_patrol_test.dart',
+    );
+    const seededStages = "const _maestroSeedStages = <String>{\n"
+        "  'housing_cancel',\n"
+        "  'frontalier_inline',\n"
+        "};";
+    expect(source, contains(seededStages));
+    expect(RegExp("'housing_cancel'").allMatches(seededStages), hasLength(1));
+    expect(
+        RegExp("'frontalier_inline'").allMatches(seededStages), hasLength(1));
+    for (final unseededStage in const <String>[
+      'work_save',
+      'disability_validation_cancel',
+      'succession_save',
+    ]) {
+      expect(seededStages, isNot(contains("'$unseededStage'")));
+    }
+
+    final teardown = source.indexOf('addTearDown(() async {');
+    final conditional = source.indexOf(
+      'if (!_maestroSeedStages.contains(_stage))',
+      teardown,
+    );
+    final teardownClear = source.indexOf(
+      'await ReportPersistenceService.clearDiagnostic();',
+      conditional,
+    );
+    final teardownEnd = source.indexOf('});', teardownClear);
+    final preStageClear = source.indexOf(
+      'await ReportPersistenceService.clearDiagnostic();',
+      teardownEnd,
+    );
+    final stageDispatch = source.indexOf('final proof = await switch (_stage)');
+
+    expect(teardown, greaterThanOrEqualTo(0));
+    expect(conditional, greaterThan(teardown));
+    expect(teardownClear, greaterThan(conditional));
+    expect(teardownEnd, greaterThan(teardownClear));
+    expect(preStageClear, greaterThan(teardownEnd));
+    expect(stageDispatch, greaterThan(preStageClear));
+  });
+
   test('installed-app Maestro flows use stable bounded-proof selectors', () {
     const flows = <String, List<String>>{
       '.maestro/g1_return01_work_return.yaml': <String>[
