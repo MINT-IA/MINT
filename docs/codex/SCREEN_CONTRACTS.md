@@ -384,7 +384,7 @@ proves five bypass shapes red, and scans the six exact audited source files
 | `/fiscal` | enableExplorerFiscalite | Tax across 3 tiers; regime-detected. | `canton`, `salaireBrutMensuel`, `archetype`, tax-regime | `/3a-retroactif`, `/scan`, `/coach/chat` |
 | `/cantonal-benchmark` | enableExplorerFiscalite | Cross-canton tax/benefit benchmark (illustrative). | `canton`, `salaireBrutMensuel` | `/fiscal`, `/coach/chat` |
 | `/divorce`, `/mariage`, `/naissance`, `/concubinage` | enableExplorerFamille | Family life events. | `conjoint`, `nombreEnfants`, `patrimoine`, `prevoyance` | `/succession`, `/couple`, `/data-block/compositionMenage`, `/coach/chat` |
-| `/succession` | enableExplorerFamille | Estate organisation / property transmission. Current production code reads property/mortgage/family facts only; it does **not** consume `_coach_estate_evidence_v1`, its four provider writers, or the estate readiness APIs. That is an explicit G1-SUCCESSION-01 gap, not completion. Existing rules remain: no fictive patrimoine, local value slider, recommendation, or legal decision presented as MINT's answer. Missing property/mortgage states route to their exact patrimoine collectors. The next consumer must progressively collect/review the scoped marriage/LPart arrangement and four explicit instrument states, show invalid/stale/missing states, and describe `surveyComplete` only as reference-survey completeness. | **Current:** `patrimoine.propertyMarketValue`, `_coach_dettes_hypotheque`, `conjoint`, `nombreEnfants`, `canton`. **Target/open:** `currentEstateArrangementApplicability`, `estateInstrumentSlots`, `estateReferenceStateAt(asOf)`, `estateReferenceHandoffCompletenessAt(asOf)` | `/data-block/patrimoine?inputKey=q_property_market_value`, `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`, `/coach/chat`; estate collector route/controls are not yet production-wired |
+| `/succession` | enableExplorerFamille | Estate organisation / property transmission. The production route consumes property/mortgage facts and, behind the local-only default-off succession flag, the strict `_coach_estate_evidence_v1` authority through the live progressive quest. It guards ambiguous civil status, keeps marriage/LPart distinct, asks stale before unknown, and describes `surveyComplete` only as reference-survey completeness. No fictive patrimoine, recommendation, legal distribution, verified dossier or specialist-ready claim. Runtime is accepted at pushed `32aed9f99c87f2aab738d8860b117fc3a3a7ce5e`; activation remains separate. | `patrimoine.propertyMarketValue`, `_coach_dettes_hypotheque`, `civilStatusNeedsConfirmation`, `currentEstateArrangementApplicability`, `estateInstrumentSlots`, `estateReferenceStateAt(asOf)`, `estateReferenceHandoffCompletenessAt(asOf)` | `/data-block/patrimoine?inputKey=q_property_market_value`, `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`, `/data-block/composition_menage?inputKey=q_civil_status&returnUri=/succession`, `/coach/chat` |
 | `/life-event/donation` | enableExplorerFamille | Gift/donation lucidity screen. Reads age, canton, civil status, children, broad wealth reference, and property value for real-estate gifts from the ledger only. It must render a missing-facts state and keep result cards hidden until the required facts are user-provided. The estate base for réserve/quotité is shown as an estimated net estate base, not "fortune totale": `q_wealth_estimate` reconciled with user-provided liquid savings from `q_cash_total`, positive user-provided investments from `q_investments_total`, and net real-estate value only when both `q_property_market_value` and `_coach_dettes_hypotheque` are known. `q_wealth_estimate` is not mandatory when these detailed facts already form a positive net estate base; if no broad estimate exists, the screen marks the rebuilt estate base as partial because other assets may still be missing. It must surface the reconciliation status: divergent broad estimate/details require decomposition before high-stakes output, and known property with missing mortgage shows a secondary CTA to `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`. It must not feed gross property value or heuristic investment estimates into succession-reserve calculations. Real-estate gifts additionally require `_coach_dettes_hypotheque` and use net value through `SuccessionReserveCalculator.netRealEstateGiftValue`. Donation amount, relationship, donation type, and advancement-of-inheritance flag are scenario assumptions to confirm, not profile facts. Marital-property regime is not collected in this screen until MINT has dedicated facts for own property/acquired property and can use them without fake precision. Swiss gift tax must never use a flat hardcoded cantonal rate or silently fallback to another canton; for non-exempt relationships and all descendant gifts it renders an "estimated/to confirm" state and specialist/fiscal-authority checklist unless an authoritative canton table is later wired. It may show educational forces and specialist questions, but no legal/tax recommendation. | `q_birth_year`, `q_canton`, `q_civil_status`, `q_children`, `q_wealth_estimate`, `q_cash_total`, `q_investments_total`, `q_property_market_value` + `_coach_dettes_hypotheque` for real-estate donation | `/data-block/revenu?inputKey=q_birth_year`, `/data-block/revenu?inputKey=q_canton`, `/data-block/composition_menage?inputKey=q_civil_status`, `/data-block/composition_menage?inputKey=q_children`, `/data-block/patrimoine?inputKey=q_wealth_estimate`, `/data-block/patrimoine?inputKey=q_property_market_value`, `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`, `/coach/chat` |
 | `/life-event/deces-proche` | enableExplorerFamille | Death of a relative: survivor benefits + estate steps. | `conjoint`, `nombreEnfants`, `patrimoine`, `canton` | `/succession`, `/coach/chat` |
 | `/life-event/housing-sale` | enableExplorerLogement | Sale of a primary residence. | `patrimoine`, `canton`, `prevoyance.avoirLppTotal` | `/hypotheque`, `/fiscal`, `/coach/chat` |
@@ -412,7 +412,8 @@ proves five bypass shapes red, and scans the six exact audited source files
 
 #### G1-SUCCESSION-01 live default-off consumer contract
 
-At pushed `9152a0368`, `_coach_estate_evidence_v1` remains the sole
+At pushed `32aed9f99c87f2aab738d8860b117fc3a3a7ce5e`,
+`_coach_estate_evidence_v1` remains the sole
 strict-secure, backend-redacted schema-v1 authority, and `/succession` has a
 real consumer: `SuccessionPatrimoineScreen` mounts
 `SuccessionEvidenceQuest` only when
@@ -470,12 +471,9 @@ route in either flag state.
 | terminal review | `succession_reference_survey_recorded`, `succession_instrument_{kind}_summary`, `succession_instrument_{kind}_summary_prior_state`, `succession_instrument_{kind}_modify` | editable four-slot survey; never dossier readiness |
 
 The civil guard has a dedicated literal CTA id,
-`succession_civil_status_confirm`, with a widget contract. The runtime harness
-now names separate flag-off/flag-on Maestro contracts and dedicated native
-present, absent-write and cold-read Patrol targets. Their existence is not an
-execution claim: until those flows, real input, kill/relaunch cold reader,
-screenshots and exact-SHA CI are accepted, SUCCESSION-01 remains open;
-G1/G2/G3 promotion is unchanged.
+`succession_civil_status_confirm`, with a widget contract. Separate flag-off/
+flag-on Maestro flows and the setup, native-present, absent-write and cold-read
+Patrol stages passed in the accepted exact-SHA production bundle named below.
 
 **Civil-guard runtime setup boundary.** A fresh `CoachProfile` is not an
 ambiguous-state fixture: absent `q_civil_status` currently reconstructs as
@@ -511,7 +509,14 @@ Evidence metadata must list this preparatory stage only in
 `setupPatrolStages: [civil_guard_seed]`; the independent process-death chain
 remains exactly `patrolStages: [native_present, absent_write, cold_read]`.
 Setup seeding is neither a fourth process-death stage nor product runtime proof
-by itself. No PASS is claimed until the complete exact-SHA run is accepted.
+by itself. The complete proof is accepted at
+`.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/`:
+metadata records the physical exact source, equal sanitized seed witnesses,
+stable overlay identity, civil return, native present, durable absence,
+distinct writer/reader PIDs, no data erase, cold continuation and cleanup PASS;
+`flag-off.png`, `civil-return.png`, `native-present.png` and
+`cold-continuation.png` were visually accepted. The flag remains default-off,
+and this SUCCESSION-01 proof does not authorize G2/G3.
 
 #### G1-FRONT-01 stable control/state map
 

@@ -255,11 +255,12 @@ separate and are not new DataQuest
 Asks; RET-REF remains `ticket_only`, G1 stays open at 8.2/10 and G2/G3 stay
 forbidden.
 
-### 7.3 G1-SUCCESSION-01 — bounded estate-reference Case (live; runtime acceptance open)
+### 7.3 G1-SUCCESSION-01 — bounded estate-reference Case (live; runtime accepted)
 
-This is a real progressive collector at pushed `9152a0368`, not evidence that
-the generic Q-2 `DataQuest` service or Q-6 global Case registry now exists. Its
-bounded Case contract is:
+This is a real progressive collector with accepted production runtime at pushed
+`32aed9f99c87f2aab738d8860b117fc3a3a7ce5e`, not evidence that the generic Q-2
+`DataQuest` service or Q-6 global Case registry now exists. Its bounded Case
+contract is:
 
 | Case field | exact contract |
 |---|---|
@@ -271,7 +272,7 @@ bounded Case contract is:
 | blocking guard | ambiguous civil status → `/data-block/composition_menage?inputKey=q_civil_status&returnUri=/succession`; invalid root → reload/support only |
 | non-blocking enrichment | one applicable arrangement question, then one exact instrument slot at a time; no property, heir, share, reserve or distribution conclusion |
 | target screen | `/succession`; no PDF/dossier section is unlocked by this survey |
-| runtime targets | `.maestro/g1_succession_progressive.yaml` (to add) and `test/patrol/succession_transmission_runtime_test.dart` (to extend from its older property-only proof) |
+| accepted runtime | flag-off/flag-on Maestro plus `civil_guard_seed`, `native_present`, `absent_write` and distinct-process `cold_read`; exact bundle `.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/` |
 
 The next-question order is deterministic and local to this Case:
 
@@ -295,10 +296,11 @@ The payoff is deliberately narrow: known facts become reviewable and reusable,
 and stale declarations become reconfirmable. “Survey recorded” never means
 complete estate composition, verified instrument content/effect, legal advice,
 specialist-ready handoff or dossier readiness. No file picker, filename/path,
-raw bytes, OCR output or free-form legal content belongs to this Case. Runtime
-promotion remains pending until both flag states, civil guard/return, explicit
-absent and present input, kill/relaunch cold continuation, visual proof and
-exact-SHA CI are accepted.
+raw bytes, OCR output or free-form legal content belongs to this Case. Both flag
+states, civil guard/return, explicit absent and present input, kill/relaunch
+cold continuation and the representative screenshots are accepted in the exact
+bundle above. The flag remains default-off; this bounded Case does not create a
+global registry or authorize G2/G3.
 
 ## 8. Acceptance criteria (Codex/CI must verify)
 

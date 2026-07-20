@@ -74,12 +74,14 @@
 %% activation remains NO-GO, RET-REF remains ticket_only, G1 remains open at
 %% 8.2/10 and G2/G3 remain forbidden.
 %% SUCCESSION-01 has a real default-off `/succession` consumer at pushed commit
-%% 9152a0368 over the strict `_coach_estate_evidence_v1` authority. It guards
+%% 32aed9f99c87f2aab738d8860b117fc3a3a7ce5e over the strict
+%% `_coach_estate_evidence_v1` authority. It guards
 %% civil status through DataBlock/returnUri, keeps marriage and LPart distinct,
 %% asks stale before unknown, and calls the four typed CAS writers. Save/CAS/
 %% invalid-root states fail closed and the terminal survey disclaims dossier or
-%% specialist readiness. Exact-SHA CI and native Maestro/Patrol/visual runtime
-%% acceptance remain open, so no ticket/G1/G2/G3 GO is claimed.
+%% specialist readiness. The accepted physical seed-overlay, Maestro, native
+%% Patrol/process-death and visual proof is under `.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/`. The flag stays
+%% default-off and no G2/G3 GO is claimed.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -197,8 +199,8 @@ flowchart TB
   FRONT_WRITE -- "single durable provider seam" --> CPP
   CPP -- "current typed facts + provenance" --> FRONT_EVIDENCE
 
-  %% G1-SUCCESSION-01: real default-off consumer; runtime acceptance open.
-  subgraph SUCCESSION_REFERENCE["G1-SUCCESSION-01 — FLAG-GATED ESTATE REFERENCE CONSUMER @ 9152a0368"]
+  %% G1-SUCCESSION-01: real default-off consumer; runtime accepted.
+  subgraph SUCCESSION_REFERENCE["G1-SUCCESSION-01 — FLAG-GATED ESTATE REFERENCE CONSUMER @ 32aed9f99c87"]
     direction TB
     ESTATE_FLAG{"successionEvidenceCollectionEnabled?<br/>compile define default false<br/>not in backend applyFromMap"}
     ESTATE_QUEST["/succession -> SuccessionEvidenceQuest<br/>real CoachProfileProvider consumer"]
@@ -216,7 +218,7 @@ flowchart TB
     ESTATE_NARROW["surveyComplete = arrangement applicability resolved<br/>+ all 4 slots explicitly present/absent<br/>NOT estate/distribution/dossier readiness"]
     ESTATE_FAILURE["fail closed<br/>save: retain question + retry<br/>CAS: reload + changed-data state<br/>invalid root: reload/support only"]
     ESTATE_PRIVACY["metadata only<br/>NO raw document / filename / path<br/>OCR output / bytes / free-form legal content"]
-    ESTATE_RUNTIME["OPEN acceptance<br/>flag-off + flag-on Maestro<br/>Patrol input -> kill/relaunch -> cold reader<br/>screenshots + exact-SHA CI"]
+    ESTATE_RUNTIME["ACCEPTED @ 32aed9f99c87<br/>physical seed-overlay + flag-off/on Maestro<br/>native present/absent -> distinct-process cold read<br/>4 visually accepted screenshots"]
 
     ESTATE_FLAG -- "false" --> SUCC
     ESTATE_FLAG -- "true" --> ESTATE_QUEST --> ESTATE_CIVIL
@@ -1131,7 +1133,8 @@ flowchart TB
 %% pillar3a-beneficiary-runtime-proof-fc1023fd7/`. This technical GREEN is not
 %% activation: all three flags remain false, activation remains NO-GO, RET-REF
 %% remains ticket_only, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
-%% G1-SUCCESSION-01 ESTATE REFERENCE REALITY: at pushed commit 9152a0368,
+%% G1-SUCCESSION-01 ESTATE REFERENCE REALITY: at pushed commit
+%% 32aed9f99c87f2aab738d8860b117fc3a3a7ce5e,
 %% `_coach_estate_evidence_v1` is strict-secure and backend-redacted; its exact
 %% four instrument slots are the sole SOT, while marriage and LPart confirmations
 %% remain separately typed and civil-scoped. Provider writers reload and CAS the
@@ -1142,7 +1145,9 @@ flowchart TB
 %% civil status, asks stale before unknown, calls only typed CAS writers, retains
 %% questions on failure and renders editable terminal facts without dossier/
 %% specialist readiness. The legacy TestamentInvisibleWidget is not rendered.
-%% The compile flag is false by default and not backend-overridable. Exact-SHA CI,
-%% flag-off/on Maestro, native process-death Patrol and visual evidence remain
-%% promotion gates: SUCCESSION-01 and G1 remain open; G2/G3 remain forbidden.
+%% The compile flag is false by default and not backend-overridable. Exact
+%% physical seed-overlay identity/state, flag-off/on Maestro, native present/
+%% absent writes, distinct-process cold continuation and four screenshots are
+%% accepted under `.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/`. This closes the bounded SUCCESSION-01
+%% runtime gate only; activation is separate and G2/G3 remain forbidden.
 %% ============================================================================

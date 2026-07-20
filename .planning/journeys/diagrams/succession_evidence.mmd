@@ -4,8 +4,10 @@
 %% Purpose: map the real default-off /succession consumer from civil-status
 %% guard through typed CAS writes, cold reconstruction and narrow terminal
 %% review. Sources: DATA_LEDGER.md §4.0S, DATA_QUEST.md §7.3,
-%% SCREEN_CONTRACTS.md §4. Consumer wired @ pushed 9152a0368; exact-SHA native
-%% runtime acceptance remains open. This diagram does not promote G1/G2/G3.
+%% SCREEN_CONTRACTS.md §4. Consumer and runtime accepted @ pushed
+%% 32aed9f99c87f2aab738d8860b117fc3a3a7ce5e with exact bundle
+%% .planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/. This does not activate the flag or
+%% promote G2/G3.
 %% ============================================================================
 
 flowchart TB
@@ -49,7 +51,7 @@ flowchart TB
   Boundary["Survey only<br/>NOT verified content/effects, complete estate,<br/>distribution, advice, dossier or specialist readiness"]:::no
   Privacy["Forbidden data<br/>raw document / filename / local path / OCR<br/>bytes / free-form legal content / backend mirror"]:::no
   Cold["kill/relaunch -> cold wizard_answers_v2<br/>provider projections choose next delta"]:::fact
-  Runtime["OPEN runtime acceptance<br/>flag off/on Maestro + civil return<br/>Patrol native present input + process death<br/>screenshots + exact-SHA CI"]:::proof
+  Runtime["ACCEPTED @ 32aed9f99c87<br/>physical seed-overlay + flag off/on Maestro<br/>native present/absent + distinct-process cold read<br/>4 visually accepted screenshots"]:::proof
   FreshSetup["Runtime setup truth<br/>fresh profile defaults to confirmed celibataire<br/>and does NOT render the civil guard"]:::proof
   CivilSeed["setupPatrolStages: civil_guard_seed<br/>Patrol writer 1/1 PASS<br/>persist legacy q_civil_status = partenariat<br/>mini-onboarding remains incomplete<br/>no provider publication claim"]:::proof
   SeedWitness["terminate setup process; no clear/uninstall<br/>sanitized exact witness<br/>birth 1980; canton VD; civil partenariat<br/>mini false; property absent"]:::proof
@@ -86,10 +88,10 @@ flowchart TB
   Absent --> InstrumentWrite
   InstrumentWrite --> Save
   Order -- "none" --> Terminal --> Boundary --> Runtime
-  Runtime -. "pending civil-guard setup contract" .-> FreshSetup --> CivilSeed --> SeedWitness --> ContainerGate
+  Runtime -. "accepted civil-guard setup proof" .-> FreshSetup --> CivilSeed --> SeedWitness --> ContainerGate
   ContainerGate -- "yes; state byte-identical" --> FlagOnOverlay --> FreshProduction --> CivilGuard
   ContainerGate -- "no" --> HandoffFail
-  Runtime -. "pending process-death contract" .-> ProcessStages
+  Runtime -. "accepted process-death proof" .-> ProcessStages
   Terminal -- "modify exact slot" --> Order
   Root --> Privacy
   Ack --> More
@@ -102,7 +104,7 @@ flowchart TB
   %% SUCC-4 each durable answer uses one typed writer with rendered-snapshot CAS.
   %% SUCC-5 save precedes publish, acknowledgement and next-question selection.
   %% SUCC-6 terminal survey completeness never means legal/dossier readiness.
-  %% SUCC-7 runtime promotion needs exact-SHA flag-off/on and cold-reader proof.
+  %% SUCC-7 exact-SHA flag-off/on, seed-overlay and cold-reader proof passed at 32aed9f99c87.
   %% SUCC-8 civil_guard_seed is setup-only and must stay outside patrolStages.
   %% SUCC-9 setup-to-production handoff requires a stable device:inode and exact sanitized state witness.
   %% SUCC-10 raw paths may rotate; any identity/state mismatch hard-fails before Maestro.

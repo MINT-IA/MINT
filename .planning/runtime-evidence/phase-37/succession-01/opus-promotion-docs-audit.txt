@@ -1,0 +1,42 @@
+I have enough to render a verdict. The diff is docs-only, flipping G1-SUCCESSION-01 from "runtime acceptance open" to "accepted/PASS." I verified every claim against checked-in code and the evidence bundle.
+
+---
+
+## MINT External Auditor — Verdict
+
+# PASS
+
+The worktree diff is documentation-only (`DATA_LEDGER.md`, `DATA_QUEST.md`, `MAESTRO_FLOWS.md`, `SCREEN_CONTRACTS.md`, `WIRING_GRAPH.mmd`, `succession_evidence.mmd`) promoting SUCCESSION-01 runtime to accepted. Every material claim is backed by checked-in code, tests, and a real evidence bundle. No facade-without-wiring risk.
+
+### What was verified (source of truth, not docs)
+
+**Wiring is real (anti-facade):**
+- Flag `successionEvidenceCollectionEnabled` exists, `defaultValue: false`, sourced only from `MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION` — `feature_flags.dart:92-95`.
+- Flag is **absent** from `applyFromMap` (`feature_flags.dart:193-222`) → backend cannot activate it. Confirmed by reading the full method body.
+- Quest is conditionally mounted in the real route screen: `succession_patrimoine_screen.dart:121-124` (`if (evidenceCollectionEnabled) ... const SuccessionEvidenceQuest()`); flag-off marker at `:127-135`. `TestamentInvisibleWidget` not rendered.
+- Quest invokes all four typed writers (`succession_evidence_quest.dart:218,222,265,271,297,325,357`).
+- Provider writers are genuine, not stubs: `coach_profile_provider.dart:652-696` performs CAS (`evidenceId != expectedPreviousEvidenceId → StateError`), future-date/legalYear validation, scoped-slot-only replacement via `_writeEstateRoot`.
+
+**Tests / flows exist:**
+- Maestro: `.maestro/g1_succession_flag_off.yaml`, `g1_succession_progressive.yaml`.
+- Patrol stages: civil_guard_seed, native_present, absent_write, cold_read (integration_test + test/patrol wrappers).
+- Acceptance contract test `test/runtime/succession_runtime_harness_contract_test.dart` (added at HEAD `acf76d387`) asserts selectors/structure of the flows.
+
+**Evidence bundle is real and consistent** (`.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/`):
+- `metadata.json`: `sourceSha 32aed9f99c87…`, `pushedShaVerified`, `writerReaderDistinctPidVerified`, `seedWitnessesEqualVerified`, all `true`.
+- 4 xcresult summaries = `{"passed_tests":1,"failed_tests":0}`; corroborated by genuine XCTest logs (real PIDs, timestamps, `** TEST EXECUTE SUCCEEDED **`, distinct reader PID 90956).
+- `maestro-flag_on.log` / `maestro-flag_off.log`: `1/1 Flow Passed`.
+- Seed witnesses post-terminate == post-overlay (identical `selectedValuesSha256`).
+- 4 screenshots present with SHA manifest.
+- SHA consistency: branch is ahead 1 of origin, so `32aed9f99c87` (bundle source) = pushed origin tip; HEAD `acf76d387` carries the bundle + acceptance.
+
+### Findings
+
+**P0:** none.
+**P1:** none.
+
+**P2 (informational, no action required):**
+- The acceptance artifacts (bundle + contract test) live in HEAD `acf76d387`, which is **one commit ahead of origin / unpushed**; the runtime attests source `32aed9f99c87`. This is legitimate (evidence captured against the pushed SHA before the acceptance commit), but the doc phrase "accepted @ pushed 32aed9f99c87" should not be read as implying the acceptance commit itself is pushed. Proof: `git status` "ahead 1"; `git rev-parse HEAD` = `acf76d387`.
+- `succession-01/green.json` records a different SHA (`7849711b…`) for the model-floor `estate_reference_contract_test` — a separate atom, not the runtime bundle. No inconsistency, but worth noting it is not the runtime SHA.
+
+Scope respected: default-off flag unchanged, no G2/G3 promotion claimed. Docs faithfully match code.

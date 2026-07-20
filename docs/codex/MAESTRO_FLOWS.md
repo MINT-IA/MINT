@@ -249,7 +249,7 @@ appId: ch.mint.app
 - assertVisible: { id: "succession_parents_note" }
 ```
 
-### F-5S succession reference — default-off progressive authority proof (TARGET, not yet accepted)
+### F-5S succession reference — default-off progressive authority proof (PASS)
 
 Targets:
 
@@ -352,11 +352,17 @@ an asserted install-over relationship without those comparisons is no evidence.
 The three `patrolStages` retain their own native-present, durable absent-write,
 terminate and distinct-process cold-read contract.
 
-Accepted runtime evidence must record exact pushed SHA, app/bundle id, compile
-define state, writer and cold-reader PIDs, Doctor/Patrol/Maestro commands,
-screenshots and direct visual verdict under `.planning/runtime-evidence/`.
-Until that bundle exists and exact-SHA CI is green, this target is a contract,
-not a PASS claim.
+**Accepted runtime:** pushed SHA
+`32aed9f99c87f2aab738d8860b117fc3a3a7ce5e`, bundle
+`.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/`.
+`metadata.json` records exact physical source export, pushed-SHA binding,
+flag-off marker, equal post-terminate/post-overlay seed witnesses, stable
+container identity, civil guard return, native present, durable absent write,
+distinct-process cold read, no erase, cleanup and completed runtime. All four
+Patrol stages passed 1/1; flag-off, flag-on, native-present quest probe and cold-
+continuation quest probe each passed 1/1. The four hashed screenshots were
+visually accepted. This PASS proves the bounded default-off path; it does not
+activate the flag or authorize G2/G3.
 
 ## 1A. G1 LPP regulation — exact autonomous dual runtime proof (PASS)
 

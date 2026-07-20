@@ -476,7 +476,7 @@ bounded ticket does not close G1 or authorize G2/G3.
 
 These exist on `CoachProfile` sub-models and are written by wizard / scan extraction / simulator write-back via `mergeAnswers`/`updateProfile`. They are **not** in the allowlist (the coach cannot set them by chat today). Listed because computations consume them and the provenance contract (§6) applies.
 
-### 4.0S Succession reference authority (G1-SUCCESSION-01 live consumer; runtime acceptance open)
+### 4.0S Succession reference authority (G1-SUCCESSION-01 live consumer; runtime accepted)
 
 The only succession-reference authority is the sensitive answer key
 `wizard_answers_v2['_coach_estate_evidence_v1']`. It contains a JSON **string**
@@ -582,7 +582,8 @@ The public read model is narrow:
 | `estateReferenceSurveyCompleteAt(asOf)` | arrangement applicability resolved and every exact slot explicitly present/absent at `asOf` | It is not a complete legal dossier or specialist-ready conclusion. |
 | `estateReferenceHandoffCompletenessAt(asOf)` | `partial` or the narrowly named `surveyComplete` | It must not be rendered as legal completeness/advice. |
 
-**Live consumer at pushed `9152a0368`; runtime promotion pending.**
+**Live consumer and accepted runtime at pushed
+`32aed9f99c87f2aab738d8860b117fc3a3a7ce5e`.**
 `SuccessionPatrimoineScreen` now conditionally mounts
 `SuccessionEvidenceQuest` behind the local-only
 `FeatureFlags.successionEvidenceCollectionEnabled`. The flag defaults false,
@@ -605,10 +606,14 @@ distribution, legal-dossier or specialist readiness.
 No raw document, filename, local path, OCR output, document byte or free-form
 legal content enters this root. Present confirmation records only the exact
 metadata contract; absent confirmation is explicit `userInput`. The legacy
-`TestamentInvisibleWidget` is no longer a production route consumer. This
-closes the former no-caller/facade gap, but does not promote SUCCESSION-01:
-exact-SHA CI, flag-off/flag-on Maestro, native Patrol process-death/cold-reader
-proof and accepted screenshots remain separate gates.
+`TestamentInvisibleWidget` is no longer a production route consumer. The
+accepted physical production proof is
+`.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/`:
+it binds the pushed SHA, exact flag-off/flag-on production builds, verified
+seed-overlay identity/state, civil guard return, native present/absent writers,
+distinct-process cold continuation and four visually accepted screenshots.
+This closes the former no-caller/runtime-proof gap for SUCCESSION-01 only; it
+does not activate the default-off flag or authorize G2/G3.
 
 ### 4.0 Tax assessment snapshots (G1-PROV-03 implemented; composite default-off)
 
