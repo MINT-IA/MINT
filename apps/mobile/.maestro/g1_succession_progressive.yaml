@@ -14,10 +14,13 @@ appId: ch.mint.app
 - inputText: "900000"
 - tapOn:
     id: "patrimoine_save_cta"
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       id: "succession_civil_status_guard"
-    timeout: 20000
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
 - assertVisible:
     id: "succession_reference_quest"
 - assertVisible:

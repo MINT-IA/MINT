@@ -103,7 +103,7 @@ def test_runner_builds_physical_exact_archive_default_off_and_flag_on_apps() -> 
     assert 'prepare_maestro_route "flag_off" "$flag_off_app"' in text
     assert 'prepare_maestro_route "flag_on" "$flag_on_app"' in text
     assert "flag_off_route_anchor_verified=true" in text
-    assert "flag_off_quest_absence_verified=true" in text
+    assert "flag_off_marker_verified=true" in text
     assert "flag_on_civil_return_verified=true" in text
     build_function = text.split("build_production_app() {", 1)[1].split(
         "install_production_app() {", 1
@@ -115,11 +115,13 @@ def test_runner_builds_physical_exact_archive_default_off_and_flag_on_apps() -> 
 
 def test_flag_off_is_not_a_vacuous_absence_only_check() -> None:
     text = source()
-    assert "succession_parents_note" in text
-    assert "succession_reference_quest" in text
+    assert "succession_reference_quest_flag_off" in text
     assert "verify_maestro_contract" in text
     assert "assertVisible" in text
-    assert "assertNotVisible" in text
+    assert "flag_off_marker_verified" in text
+    assert "flagOffExplicitMarkerVerified" in text
+    assert "flag_off_quest_absence_verified" not in text
+    assert "flagOffQuestAbsenceVerified" not in text
 
 
 def _assert_flow_starts_from_prepared_property_route(flow: str) -> None:
@@ -214,9 +216,7 @@ def test_bound_maestro_flows_match_every_runner_preflight_needle() -> None:
     )
     for needle in (
         "assertVisible",
-        "succession_parents_note",
-        "assertNotVisible",
-        "succession_reference_quest",
+        "succession_reference_quest_flag_off",
     ):
         assert needle in off, f"flag-off flow lacks runner needle {needle}"
     for needle in (
@@ -230,6 +230,43 @@ def test_bound_maestro_flows_match_every_runner_preflight_needle() -> None:
         assert needle in on, f"flag-on flow lacks runner needle {needle}"
     _assert_flow_starts_from_prepared_property_route(off)
     _assert_flow_starts_from_prepared_property_route(on)
+
+    assert "assertNotVisible" not in off
+    save = off.index('id: "patrimoine_save_cta"')
+    off_scroll = off.index("- scrollUntilVisible:", save)
+    off_scroll_target = off.index(
+        'id: "succession_reference_quest_flag_off"', off_scroll
+    )
+    off_direction = off.index("direction: DOWN", off_scroll_target)
+    off_marker_assert = off.index("- assertVisible:", off_direction)
+    off_marker = off.index(
+        'id: "succession_reference_quest_flag_off"', off_marker_assert
+    )
+    assert (
+        save
+        < off_scroll
+        < off_scroll_target
+        < off_direction
+        < off_marker_assert
+        < off_marker
+    )
+
+    save = on.index('id: "patrimoine_save_cta"')
+    scroll = on.index("- scrollUntilVisible:", save)
+    scroll_target = on.index('id: "succession_civil_status_guard"', scroll)
+    direction = on.index("direction: DOWN", scroll_target)
+    guard_assert = on.index("- assertVisible:", direction)
+    guard_id = on.index('id: "succession_civil_status_guard"', guard_assert)
+    guard_tap = on.index('id: "succession_civil_status_confirm"', guard_id)
+    assert (
+        save
+        < scroll
+        < scroll_target
+        < direction
+        < guard_assert
+        < guard_id
+        < guard_tap
+    )
 
 
 def test_runner_retains_only_sanitized_private_safe_evidence() -> None:
@@ -293,7 +330,7 @@ def test_metadata_python_executes_with_strict_real_booleans(tmp_path: Path) -> N
         "productionSourceExportedExact",
         "productionSourcePhysical",
         "flagOffRouteAnchorVerified",
-        "flagOffQuestAbsenceVerified",
+        "flagOffExplicitMarkerVerified",
         "flagOnCivilReturnVerified",
         "writerReaderDistinctPidVerified",
         "statePreservedAcrossProcessDeath",

@@ -84,8 +84,24 @@ void main() {
 
   test('production-default Maestro proves the quest is flag-off', () {
     final source = _read('.maestro/g1_succession_flag_off.yaml');
-    expect(source, contains('clearState: true'));
-    expect(source, contains('id: "succession_reference_quest"'));
-    expect(source, contains('assertNotVisible:'));
+    expect(source, contains('id: "property_market_value_input"'));
+    expect(source, isNot(contains('clearState: true')));
+    expect(source, isNot(contains('openLink:')));
+
+    final save = source.indexOf('id: "patrimoine_save_cta"');
+    final scroll = source.indexOf('- scrollUntilVisible:', save);
+    final marker = source.indexOf(
+      'id: "succession_reference_quest_flag_off"',
+      scroll,
+    );
+    final assertion = source.indexOf('- assertVisible:', marker);
+    expect(save, greaterThanOrEqualTo(0));
+    expect(scroll, greaterThan(save));
+    expect(marker, greaterThan(scroll));
+    expect(assertion, greaterThan(marker));
+    expect(
+      source.indexOf('id: "succession_reference_quest_flag_off"', assertion),
+      greaterThan(assertion),
+    );
   });
 }

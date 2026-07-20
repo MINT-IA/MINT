@@ -148,9 +148,27 @@ def require_prepared_route_flow(flow, label):
 require_prepared_route_flow(off, "flag-off")
 require_prepared_route_flow(on, "flag-on")
 
-for needle in ("assertVisible", "succession_parents_note", "assertNotVisible", "succession_reference_quest"):
+def require_ordered(flow, label, markers):
+    cursor = 0
+    for marker in markers:
+        position = flow.find(marker, cursor)
+        if position < 0:
+            raise SystemExit(f"{label} flow lacks ordered marker {marker!r}")
+        cursor = position + len(marker)
+
+for needle in ("assertVisible", "succession_reference_quest_flag_off"):
     if needle not in off:
         raise SystemExit(f"flag-off flow lacks {needle}")
+require_ordered(
+    off,
+    "flag-off",
+    (
+        'id: "patrimoine_save_cta"',
+        '- scrollUntilVisible:\n    element:\n      id: "succession_reference_quest_flag_off"',
+        'direction: DOWN',
+        '- assertVisible:\n    id: "succession_reference_quest_flag_off"',
+    ),
+)
 for needle in (
     "succession_reference_quest",
     "succession_civil_status_guard",
@@ -161,6 +179,18 @@ for needle in (
 ):
     if needle not in on:
         raise SystemExit(f"flag-on flow lacks {needle}")
+require_ordered(
+    on,
+    "flag-on",
+    (
+        'id: "patrimoine_save_cta"',
+        '- scrollUntilVisible:\n    element:\n      id: "succession_civil_status_guard"',
+        'direction: DOWN',
+        '- assertVisible:\n    id: "succession_reference_quest"',
+        '- assertVisible:\n    id: "succession_civil_status_guard"',
+        '- tapOn:\n    id: "succession_civil_status_confirm"',
+    ),
+)
 PY
 }
 verify_maestro_contract
@@ -263,7 +293,7 @@ no_data_erase_between_writer_reader=false
 production_source_exported_exact=false
 production_source_physical=false
 flag_off_route_anchor_verified=false
-flag_off_quest_absence_verified=false
+flag_off_marker_verified=false
 flag_on_civil_return_verified=false
 synthetic_data_only=true
 raw_runtime_outputs_retained=false
@@ -734,12 +764,13 @@ python3 "$repo_root/tools/checks/patrol_tooling_guard.py" >"$private_root/patrol
 sanitize_log "$private_root/patrol-tooling.raw.log" "$artifacts/patrol-tooling.log"
 
 # Production-default proof is built from a physical exact archive with no
-# succession define. Its visible route anchor makes quest absence non-vacuous.
+# succession define. It scrolls to the explicit marker rendered at the disabled
+# quest insertion point, so the flag-off proof is positive and non-vacuous.
 build_production_app "flag_off" false
 prepare_maestro_route "flag_off" "$flag_off_app"
 run_maestro "flag_off" "$flag_off_flow"
 flag_off_route_anchor_verified=true
-flag_off_quest_absence_verified=true
+flag_off_marker_verified=true
 capture_screenshot "flag-off.png"
 
 # This is the exact production entrypoint with one test-only compile define,
@@ -808,7 +839,7 @@ python3 - \
   "$production_source_exported_exact" \
   "$production_source_physical" \
   "$flag_off_route_anchor_verified" \
-  "$flag_off_quest_absence_verified" \
+  "$flag_off_marker_verified" \
   "$flag_on_civil_return_verified" \
   "$writer_reader_distinct_pid_verified" \
   "$state_preserved_across_process_death" \
@@ -838,7 +869,7 @@ def parse_bool(value: str) -> bool:
     source_exported_exact,
     source_physical,
     flag_off_anchor,
-    flag_off_absence,
+    flag_off_marker,
     flag_on_return,
     distinct_pid,
     state_preserved,
@@ -858,7 +889,7 @@ payload = {
     "productionSourceExportedExact": parse_bool(source_exported_exact),
     "productionSourcePhysical": parse_bool(source_physical),
     "flagOffRouteAnchorVerified": parse_bool(flag_off_anchor),
-    "flagOffQuestAbsenceVerified": parse_bool(flag_off_absence),
+    "flagOffExplicitMarkerVerified": parse_bool(flag_off_marker),
     "flagOnCivilReturnVerified": parse_bool(flag_on_return),
     "patrolStages": ["native_present", "absent_write", "cold_read"],
     "writerReaderDistinctPidVerified": parse_bool(distinct_pid),
