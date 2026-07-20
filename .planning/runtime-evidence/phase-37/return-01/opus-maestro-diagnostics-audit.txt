@@ -1,0 +1,31 @@
+I've reviewed the two changed files, the surrounding runner logic, the `sanitize_log`/`die` helpers, run the test suite, and syntax-checked the script.
+
+## Audit: G1 return-01 six-origin runner — Maestro fail-closed handling
+
+**Scope reviewed:** `tools/simulator/patrol_return01_six_origin.sh` (`run_maestro_stage`, `sanitize_log`, header) and `tools/checks/tests/test_g1_return01_six_origin_orchestrator.py` (new `test_maestro_failure_is_sanitized_and_named_before_fail_closed_exit` + neighbors).
+
+### What the change does
+Previously the Maestro subshell ran under inherited `set -e`, so a failing Maestro run aborted the script *before* sanitizing `report.xml`, and there was no explicit nonzero-status handling. The new code (`patrol_return01_six_origin.sh:340-367`):
+1. `set +e` around the run, captures `maestro_status=$?`, restores `set -e`.
+2. Validates + sanitizes the raw log (`maestro.raw.log` → `maestro-$stage.log`).
+3. Conditionally sanitizes `report.xml` → `maestro-$stage-report.sanitized.xml`, setting `junit_retained`.
+4. **Then** fails closed: `die` on nonzero status, else `die` if no JUnit artifact, else runs the strict JUnit clean-pass check.
+
+### Correctness / safety verification
+- **Fail-closed preserved:** `die` → `exit 2` (`:16-19`). Nonzero Maestro status always exits nonzero after evidence is sanitized. Ordering is correct — the failure `die` (`:363`) precedes the `junit_retained` check, so a crash that never wrote `report.xml` still fails with the named error rather than a confusing "no JUnit" message.
+- **Shell options intact:** `set +e` only clears errexit; `-u` and `pipefail` from `set -euo pipefail` (`:2`) remain active; `set -e` (`:351`) restores errexit. No option leak.
+- **Privacy:** raw logs stay in `$private_root` (umask 077, `:4`); only `sanitize_log` output (repo/home/UDID/UUID redaction, `chmod 600`, `:176-202`) reaches `$artifacts`. Test asserts `maestro.raw.log` is not referenced after the failure `die` (`test_...:250`), preventing raw private-path leakage in the terminal failure — verified against the code.
+- **No facade:** the test parses the actual `run_maestro_stage` body and asserts the real ordering `command < capture < restore_errexit < sanitize_log < junit_exists < sanitize_junit < named_failure`; the script matches. Wiring is real, not stubbed.
+
+### Verification run
+- `pytest tools/checks/tests/test_g1_return01_six_origin_orchestrator.py` → **16 passed**.
+- `bash -n tools/simulator/patrol_return01_six_origin.sh` → **syntax-ok**.
+
+### Findings
+- **P0:** none.
+- **P1:** none.
+- **P2 (informational, not blocking):** With `set +e` active the inner subshell (`:343-349`) inherits errexit-off, so a failing `cd "$source_root"` would no longer short-circuit the subshell (pre-change it did). This is not a safety regression — a wrong-cwd run cannot locate `$flow`, so Maestro exits nonzero and the captured-status `die` still fails closed. No action required; noting for completeness.
+
+Note: this diff only exercises the runtime evidence *harness*; it is not itself proof that the six origins pass at runtime (that requires the generated `.planning/runtime-evidence/.../metadata.json` on a booted simulator, out of scope for a code-mode audit).
+
+## Verdict: PASS

@@ -81,3 +81,29 @@ P1=0.
    The full six-outcome runtime must restart from a new pushed exact SHA.
 
 No rerun is warranted: the only P2 verification is resolved directly above.
+
+## Maestro failure-diagnostics audit disposition
+
+Accepted audit: `opus-maestro-diagnostics-audit.txt` — **PASS**, P0=0,
+P1=0.
+
+The first retry on exact pushed SHA
+`08d2160bf3117615add8cb7cbf03b85a60e38944` reached Work Patrol 1/1 and
+then exited 1 in Work Maestro. This is **not** a partial acceptance: no
+`metadata.json`, final checksums, screenshot/hierarchy, later stages or exact-
+SHA RVC proof exist. Normal-app restoration and private cleanup passed.
+
+1. **The original Maestro detail was lost before sanitisation.** Fixed by
+   explicitly capturing the command status, validating and sanitising the raw
+   log, sanitising JUnit when present, and only then emitting a stage-named
+   fail-closed error. The regression locks this order.
+2. **Errexit is disabled inside the bounded Maestro subshell.** Accepted as
+   nonblocking: `-u` and `pipefail` remain active, the Maestro command is the
+   final subshell command, its status is captured, and any nonzero status still
+   terminates through the named failure after privacy-safe evidence retention.
+3. **Runtime acceptance remains outstanding.** A fresh exact pushed SHA must
+   rerun the entire matrix; the retained Work Patrol witness from the failed run
+   is diagnostic only and cannot be composed into a later PASS.
+
+No audit carousel rerun is warranted. The next native attempt must diagnose the
+actual Work Maestro failure if it recurs.
