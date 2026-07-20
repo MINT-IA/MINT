@@ -28,15 +28,15 @@ appId: ch.mint.app
 - tapOn:
     id: "frontier_residence_country_field"
 - tapOn:
-    text: "France.*FR"
+    text: "France \\(FR\\)"
 - assertVisible:
-    text: "France.*FR"
+    text: "France \\(FR\\)"
 - tapOn:
     id: "frontier_work_country_field"
 - tapOn:
-    text: "Suisse.*CH"
+    text: "Suisse \\(CH\\)"
 - assertVisible:
-    text: "Suisse.*CH"
+    text: "Suisse \\(CH\\)"
 - extendedWaitUntil:
     visible:
       id: "frontier_work_canton_field"
@@ -82,11 +82,11 @@ appId: ch.mint.app
 - assertVisible:
     id: "frontier_residence_country_field"
 - assertVisible:
-    text: "France.*FR"
+    text: "France \\(FR\\)"
 - assertVisible:
     id: "frontier_work_country_field"
 - assertVisible:
-    text: "Suisse.*CH"
+    text: "Suisse \\(CH\\)"
 - extendedWaitUntil:
     visible:
       id: "frontier_work_canton_field"

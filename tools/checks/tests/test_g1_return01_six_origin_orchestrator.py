@@ -308,12 +308,14 @@ def test_frontalier_maestro_owns_fresh_production_ui_write_and_cold_readback() -
     residence_tap = flow.index(
         '- tapOn:\n    id: "frontier_residence_country_field"', first_open
     )
-    france = flow.index('- tapOn:\n    text: "France.*FR"', residence_tap)
+    france = flow.index(
+        '- tapOn:\n    text: "France \\\\(FR\\\\)"', residence_tap
+    )
     work_tap = flow.index(
         '- tapOn:\n    id: "frontier_work_country_field"', france
     )
     switzerland = flow.index(
-        '- tapOn:\n    text: "Suisse.*CH"', work_tap
+        '- tapOn:\n    text: "Suisse \\\\(CH\\\\)"', work_tap
     )
     canton_tap = flow.index(
         '- tapOn:\n    id: "frontier_work_canton_field"', switzerland
@@ -328,9 +330,11 @@ def test_frontalier_maestro_owns_fresh_production_ui_write_and_cold_readback() -
     second_residence = flow.index(
         'id: "frontier_residence_country_field"', second_open
     )
-    readback_france = flow.index('text: "France.*FR"', second_residence)
+    readback_france = flow.index(
+        'text: "France \\\\(FR\\\\)"', second_residence
+    )
     readback_switzerland = flow.index(
-        'text: "Suisse.*CH"', readback_france
+        'text: "Suisse \\\\(CH\\\\)"', readback_france
     )
     readback_geneva = flow.index('text: "GE"', readback_switzerland)
     second_known = flow.index(

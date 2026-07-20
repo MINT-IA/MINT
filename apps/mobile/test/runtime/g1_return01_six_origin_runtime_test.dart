@@ -469,7 +469,7 @@ void main() {
       firstOpen,
     );
     final france = source.indexOf(
-      '- tapOn:\n    text: "France.*FR"',
+      '- tapOn:\n    text: "France \\\\(FR\\\\)"',
       residenceTap,
     );
     final workTap = source.indexOf(
@@ -477,7 +477,7 @@ void main() {
       france,
     );
     final switzerland = source.indexOf(
-      '- tapOn:\n    text: "Suisse.*CH"',
+      '- tapOn:\n    text: "Suisse \\\\(CH\\\\)"',
       workTap,
     );
     final cantonTap = source.indexOf(
@@ -506,11 +506,11 @@ void main() {
       secondOpen,
     );
     final readbackFrance = source.indexOf(
-      'text: "France.*FR"',
+      'text: "France \\\\(FR\\\\)"',
       secondResidence,
     );
     final readbackSwitzerland = source.indexOf(
-      'text: "Suisse.*CH"',
+      'text: "Suisse \\\\(CH\\\\)"',
       readbackFrance,
     );
     final readbackGeneva = source.indexOf(
