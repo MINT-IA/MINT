@@ -1,0 +1,26 @@
+## MINT External Audit — product-domain mode
+
+**Base:** `0d7190d81a9ee4791a057bb605eca9f6bea702e8`
+**Wrapper/model:** `tools/checks/claude_external_audit.sh product-domain`, Opus/high
+
+### Verification
+
+- Confirmed this is test-harness-only; no Swiss calculation, constant,
+  compliance copy, route, or persistence behavior changed.
+- Confirmed one salary fact is still created through production Mortgage UI
+  and consumed by Invalidité without a duplicate variable or re-ask.
+- Confirmed the Invalidité facts anchor, invalid birth-year retention, and real
+  cancel-to-origin contract remain intact.
+- Confirmed the visible CTA is a legitimate post-save settlement barrier.
+
+### Findings
+
+- **P0:** none.
+- **P1:** none.
+- **P2:** a dedicated numeric recomputation assertion would be stronger than a
+  visibility barrier, and the Invalidité métier figures remain outside this
+  harness slice. Neither is introduced by this anchor repair.
+
+### Verdict
+
+**PASS** — P0=0, P1=0.

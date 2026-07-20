@@ -1,0 +1,21 @@
+## MINT External Audit — code mode, first pass
+
+**Base:** `0d7190d81a9ee4791a057bb605eca9f6bea702e8`
+**Wrapper/model:** `tools/checks/claude_external_audit.sh code`, Opus/high
+
+### Initial finding
+
+**NO-GO, P1=1.** Opus inferred from source that `context.go('/hypotheque')`
+would rebuild Mortgage at scroll offset zero, making `mortgage_afford_result`
+visible and `mortgage_enrich_profile_cta` below the fold. It therefore predicted
+the replacement CTA wait would time out.
+
+### Disposition
+
+The inference conflicts with the retained artifacts from the immediately prior
+15th exact-SHA runtime. Its post-save screenshot and native hierarchy show the
+actual returned viewport: `mortgage_afford_result` is offscreen, while the real
+`mortgage_enrich_profile_cta` is visible at `[44,665][358,683]`. The former
+anchor is the recorded hard failure. The runtime invariant was documented in
+the YAML and sent through the contractually required Sonnet same-gate rerun.
+See `sonnet-disability-post-save-anchor-code-rerun.txt`.

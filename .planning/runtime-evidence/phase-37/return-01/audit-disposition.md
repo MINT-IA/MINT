@@ -575,3 +575,40 @@ Implementation commit: `6862b5ad3`.
 A fresh pushed exact SHA and clean-room GitHub CI success are required before
 the fifteenth complete RETURN-01 runtime. No prior runtime atom may be composed
 into acceptance.
+
+## Fifteenth runtime and Disability post-save anchor disposition
+
+The fifteenth canonical exact-SHA run used
+`0d7190d81a9ee4791a057bb605eca9f6bea702e8` and stopped at the first hard
+failure in
+`.planning/runtime-evidence/phase-37/return-01/runtime-0d7190d81a-20260720T142843Z`.
+Work and Housing passed Patrol+Maestro. Disability Patrol, witness validation,
+normal-app reset, immutable production overlay and production-UI salary save
+also passed. Disability Maestro then failed on the post-save assertion that
+`mortgage_afford_result` was visible. No Invalidité black-box action or later
+stage was accepted, and no evidence was composed or promoted.
+
+Direct inspection of every retained PNG plus the Disability hierarchy proves
+the returned Mortgage viewport retained its lower scroll position. The top
+result anchor was offscreen; `mortgage_enrich_profile_cta` was visible at
+`[44,665][358,683]`. The flow now keeps the result anchor for initial arrival
+only, then waits on that visible CTA after `salary_save_cta` before opening
+`/invalidite`. RED contracts in both Python and Dart failed against the former
+YAML. GREEN is Python 20/20 and Dart 8/8 with YAML parse, format, targeted
+analysis and diff check clean. Implementation commit: `bd48a05b5`.
+
+The first Opus code audit raised P1 from a source-only inference that Mortgage
+would rebuild at scroll top. That inference was rejected because it contradicts
+the captured device viewport and native hierarchy from the exact failing step.
+The hidden retained-scroll invariant was documented, then the required Sonnet
+same-gate rerun passed with P0=0/P1=0. Opus product-domain also passed with
+P0=0/P1=0. Accepted evidence:
+
+- `opus-disability-post-save-anchor-code-audit.txt` — initial P1 plus empirical
+  disposition.
+- `sonnet-disability-post-save-anchor-code-rerun.txt` — **PASS**, P0=0, P1=0.
+- `opus-disability-post-save-anchor-product-domain-audit.txt` — **PASS**, P0=0,
+  P1=0.
+
+A new pushed exact SHA, GitHub clean-room success and sixteenth complete runtime
+are required. The fifteenth run remains diagnostic only.

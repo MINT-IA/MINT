@@ -1,0 +1,24 @@
+## MINT External Audit — code mode, rerun
+
+**Base:** `0d7190d81a9ee4791a057bb605eca9f6bea702e8`
+**Wrapper/model:** `CLAUDE_AUDIT_RERUN=1 tools/checks/claude_external_audit.sh code`, Sonnet/high
+
+### Verification
+
+- Confirmed the initial `mortgage_afford_result` wait remains exactly once.
+- Confirmed the post-save visible CTA wait occurs after `salary_save_cta` and
+  before the Invalidité deep link.
+- Confirmed the Dart and Python ordering/count contracts match the YAML.
+- Confirmed forbidden direct-state/storage shortcuts remain absent.
+- Accepted the retained-scroll runtime evidence as the relevant behavior.
+
+### Findings
+
+- **P0:** none.
+- **P1:** none.
+- **P2:** improve the count-assertion message and avoid pinning comment prose;
+  both were corrected before commit.
+
+### Verdict
+
+**PASS** — P0=0, P1=0.
