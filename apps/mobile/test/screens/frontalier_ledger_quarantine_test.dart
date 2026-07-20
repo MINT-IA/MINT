@@ -298,6 +298,26 @@ void main() {
     }
   });
 
+  testWidgets('FR CH GE known state exposes its native runtime id',
+      (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      final provider = _RecordingFrontierProvider(_knownAnswers());
+      await _pumpScreen(tester, provider);
+
+      expect(
+        find.bySemanticsIdentifier('frontier_jurisdiction_known_state'),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('frontier_jurisdiction_known_state')),
+        findsOneWidget,
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
   testWidgets(
       'real dropdown taps persist canonical facts without changing route',
       (tester) async {

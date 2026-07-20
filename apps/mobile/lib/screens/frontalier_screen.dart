@@ -322,12 +322,15 @@ class FrontalierScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        _stateCard(
-          key: const Key('frontier_jurisdiction_known_state'),
-          icon: Icons.verified_outlined,
-          title: l10n.frontalierKnownTitle,
-          body: l10n.frontalierKnownDescription,
-          tone: MintSurfaceTone.sauge,
+        Semantics(
+          identifier: 'frontier_jurisdiction_known_state',
+          child: _stateCard(
+            key: const Key('frontier_jurisdiction_known_state'),
+            icon: Icons.verified_outlined,
+            title: l10n.frontalierKnownTitle,
+            body: l10n.frontalierKnownDescription,
+            tone: MintSurfaceTone.sauge,
+          ),
         ),
         const SizedBox(height: MintSpacing.md),
         _factsCard(profile, l10n),
