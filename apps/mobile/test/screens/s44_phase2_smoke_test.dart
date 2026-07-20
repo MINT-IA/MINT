@@ -189,13 +189,15 @@ void main() {
       expect(find.textContaining('uccession'), findsWidgets);
     });
 
-    testWidgets('shows disclaimer (LSFin)', (tester) async {
+    testWidgets('uses a legal-advice disclaimer without LSFin framing', (tester) async {
       tester.view.physicalSize = const Size(1440, 16000);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() => tester.view.resetPhysicalSize());
       await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
       await tester.pump();
       expect(find.textContaining('éducatif'), findsWidgets);
+      expect(find.textContaining('conseil juridique'), findsWidgets);
+      expect(find.textContaining('LSFin'), findsNothing);
     });
 
     testWidgets('shows legal sources section title', (tester) async {
