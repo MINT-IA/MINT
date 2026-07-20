@@ -1,0 +1,43 @@
+# MINT Code Audit — G1-RETURN-01 Six-Origin Runtime Harness
+
+## Scope
+Staged worktree adds a runtime-evidence harness for the G1-RETURN-01 "six origin" DataBlock return contract: one Patrol integration test (5 in-app stages), 5 Maestro black-box flows, a runtime string-anchor contract test, an orchestrator shell script, and a pytest that exercises the orchestrator's embedded witness validator. No production `lib/` code is in this diff; the behavioral fix it validates (`fix(g1): restrict data block return origins`, `6427a9772`) is already committed.
+
+## Verification performed (facade-without-wiring check)
+Every asserted route, key, and behavior traces to real, wired production code:
+
+- **Routes** all exist in `apps/mobile/lib/app.dart`: `/first-job` (1363), `/hypotheque` (1394), `/invalidite` (1489), `/succession` (1643), `/segments/frontalier` (1381), plus the `/data-block/:type` builder at `app.dart:2335-2348`.
+- **Return wiring is real**: `app.dart:2340` calls `parseDataBlockReturnTarget(returnUri)` and passes `inputKey`; the collector navigates back via `context.go(target.location)` on save (`data_block_enrichment_screen.dart:1343-1346`) and on cancel (`1348-1355`).
+- **Widget keys exist**: `first_job_enrich_profile_cta`/`first_job_result_cards` (`first_job_screen.dart:402,521`), `mortgage_enrich_profile_cta` (`affordability_screen.dart:280`), `disability_gap_enrich_cta`/`disability_gap_ledger_facts` (`disability_gap_screen.dart:534,505`), `succession_property_missing`/`succession_mortgage_missing` (`succession_patrimoine_screen.dart:76,101`), and the four `frontier_*` fields (`frontalier_screen.dart:98+`).
+- **Route param assertions match producers**: work→`revenu?returnUri=/first-job` (no inputKey, `first_job_screen.dart:188-191`); housing→`inputKey=q_gross_salary_annual&returnUri=/hypotheque` (`affordability_screen.dart:287-289`); disability→`inputKey=q_birth_year&returnUri=/invalidite` (`disability_gap_screen.dart:486-496`); succession→`patrimoine?inputKey=q_property_market_value&returnUri=/succession` (`succession_patrimoine_screen.dart:84-87`).
+- **"Validation retained / store unchanged" claim is genuinely exercised**: entering `1800` triggers `invalidBirthYear` (`birthYear < 1900`, `data_block_enrichment_screen.dart:717`) → early return without persist/navigate (`742-747`). The test's assertion that it stays on the collector with bytes unchanged is real, not staged.
+- **Frontalier inline writes are real**: `frontalier_screen.dart:107,126,138` write `q_residence_country`/`q_work_country`/`q_work_canton` directly (no `/data-block`), consistent with `noDataBlockVerified`.
+
+## Regression check on the whitelist (`6427a9772`)
+`_dataBlockReturnOriginPaths` (`route_metadata.dart:97-103`) narrows valid return origins to 5 paths. I enumerated every `/data-block` caller that passes a literal `returnUri`: all resolve to whitelisted paths (`/hypotheque`, `/invalidite`, `/rente-vs-capital`, `/first-job`, `/succession`). The `returnUri: '/retraite'` occurrences (`retirement_dashboard_screen.dart:1462,1469`) target `/scan`, not `/data-block`, and use the separate scan return path — **not orphaned**. No caller silently falls back to `/home`.
+
+## Privacy / compliance
+Orchestrator (`tools/simulator/patrol_return01_six_origin.sh`) enforces `umask 077`, `chmod 600` on outputs, log sanitization (`REDACTED_REPO/HOME/PRIVATE_TEMP/SIMULATOR_UDID`, UUID regex), a `verify_privacy_inventory` scan rejecting `/Users/`, `julienbattaglia`, temp paths, an artifact allowlist, `syntheticDataOnly: true`, and `rawRuntimeOutputsRetained: false`. Witness validator is fail-closed (exact key set, real-boolean checks, per-stage truth matrix).
+
+## Runnable tests — executed
+- `pytest tools/checks/tests/test_g1_return01_six_origin_orchestrator.py` → **14 passed** (includes running the extracted embedded witness validator against synthetic payloads and drift/fake-boolean rejection).
+- `flutter test test/runtime/g1_return01_six_origin_runtime_test.dart` → **2 passed**.
+
+## Findings
+
+### P0
+None.
+
+### P1
+None.
+
+### P2 (non-blocking)
+- **P2-1 — Patrol behavioral coverage is CI-invisible.** `integration_test/g1_return01_six_origin_patrol_test.dart:21` uses `skip: !_runningFromPatrolCli` (env `MINT_PATROL_CLI`). Under plain `flutter test` the behavioral assertions never run; they only execute on a booted simulator via the manual orchestrator. Inherent to Patrol, but the "green" status depends on manual on-device execution.
+- **P2-2 — Runtime contract test is structural, not behavioral.** `test/runtime/g1_return01_six_origin_runtime_test.dart` asserts the integration file *contains* anchor strings; it guards test-file shape, not app behavior. Fine as a drift guard, but it should not be mistaken for behavioral coverage.
+- **P2-3 — No evidence artifacts in the diff.** The witnesses/metadata this harness produces are generated at runtime and are not part of the change, so this audit can validate harness correctness but cannot confirm an actual passing on-device run occurred. Proof would require the generated `.planning/runtime-evidence/phase-37/return-01/.../metadata.json` with `result: passed`.
+
+## Verdict
+
+**PASS**
+
+The harness is correctly constructed and every route, key, query-parameter, and validation/return behavior it asserts is wired to real production code; the whitelist restriction it validates introduces no caller regression; privacy controls and the fail-closed witness validator are sound; and both runnable test suites pass. The P2 items are transparency/coverage caveats, not correctness or compliance defects.

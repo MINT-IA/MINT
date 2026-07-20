@@ -41,3 +41,27 @@ Accepted audits: `opus-green-code-audit.txt` and
 
 No carousel rerun is warranted. Runtime and registry promotion remain separate
 fail-closed gates.
+
+## Six-origin runtime harness audit dispositions
+
+Accepted audits: `opus-mobile-runtime-harness-audit.txt` (code) and
+`opus-runtime-harness-product-domain-audit.txt` — both **PASS**, P0=0, P1=0.
+
+1. **Witness booleans initially mirrored the stage name.** Fixed before commit:
+   every stage now returns an observed `_StageProof` built from actual router
+   URIs, collector state, persisted writes, byte-stable no-write comparisons,
+   retained invalid input, and Frontalier no-DataBlock/canonical-write checks.
+   The static contract rejects reintroduction of stage-derived truth booleans.
+2. **Patrol behavior is simulator-only and CI-invisible.** Accepted only as a
+   transparency boundary: static/contract tests cannot promote the ticket. The
+   checked-in exact-SHA orchestrator must actually run and retain successful
+   artifacts before RETURN-01 changes state.
+3. **The static runtime contract is structural.** It is a drift guard, never a
+   substitute for the five native stages, independent Maestro flows, exact-SHA
+   RVC rerun, screenshots, witnesses and restoration.
+4. **Disability uses the existing `revenu` block for birth year.** This is the
+   current canonical storage surface and no alias was added. The naming wrinkle
+   is tracked as a nonblocking product-language follow-up.
+
+No same-gate carousel rerun was launched after the observed-witness hardening.
+The harness remains unaccepted until its first exact-SHA runtime completes.
