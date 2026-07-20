@@ -1,0 +1,24 @@
+## MINT External Audit — Verdict: **PASS**
+
+### Scope
+Diff against base `15fdec644` (branch `codex/g1-capital-native-proof-20260718`, ahead 1). Two files, 92 lines, well under the 2500-line budget. The change makes the civil-guard succession seed termination idempotent: it now tolerates an already-stopped simulator app instead of hard-failing.
+
+### Verification performed
+- `bash -n` on the runner: **OK** (strict `set -euo pipefail` header intact).
+- `pytest tools/checks/tests/test_g1_succession_runtime_orchestrator.py`: **17 passed**.
+- Confirmed the new function is actually wired, not a facade: defined at `patrol_succession_evidence_process_death.sh:458`, invoked at `:926` replacing the prior `run_logged "civil-guard-seed-terminate" xcrun simctl terminate ...`.
+
+### Correctness assessment
+- **Classifier is strict/conservative** (`:449-455`): accepts already-dead only when exit status is *exactly* 3 **and** the raw log contains `domain=NSPOSIXErrorDomain, code=3` **and** an exact-line match of `found nothing to terminate`. Any deviation (`code=4`, status `1`, `permission denied`, or the message without the domain line) falls through to `exit "$status"` (`:472`). The dedicated test `test_seed_terminate_classifier_accepts_only_exact_already_dead_error` exercises all five branches and passes. This is fail-loud, so misclassification cannot silently mask a genuine termination failure.
+- **Ordering is sound** (`:467-470`): the classifier reads the raw log *before* `sanitize_log` deletes it (`rm -f -- "$raw"` at `:432`). Test asserts `classify_before_sanitize < sanitize`; code confirms.
+- **Invariant preserved**: "found nothing to terminate" literally means no live process, which satisfies the process-death precondition. The subsequent `wait_for_seed_witness "post-terminate"` + container device/inode identity checks (`:930-940`) still independently prove the encrypted container survived and was not erased. The seed→maestro window is still guarded against `uninstall`/`clearDiagnostic`/`clearState` by the test's `seed_to_maestro` forbidden-substring check.
+
+### Privacy/compliance
+- The raw terminate output is sanitized (repo/home/UDID/private-temp redaction) before being retained as `civil-guard-seed-terminate.log`; the classifier only greps the raw file and emits nothing. No raw-value leak introduced.
+
+### Findings
+- **P0:** none.
+- **P1:** none.
+- **P2 (non-blocking):** The `grep -Fxq 'found nothing to terminate'` exact-line match is brittle to future Xcode/simctl message-format drift (e.g., added trailing punctuation or whitespace). Impact is bounded and safe — drift produces a hard `exit`, never a false pass — so this is a maintenance note, not a defect. No action required to merge.
+
+No correctness, routing, privacy, or facade-without-wiring issues found in the diff.
