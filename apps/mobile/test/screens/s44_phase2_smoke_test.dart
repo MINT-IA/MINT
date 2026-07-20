@@ -54,7 +54,6 @@ Widget _wrap(Widget child, {CoachProfileProvider? coachProfileProvider}) {
   );
 }
 
-
 // ═════════════════════════════════════════════════════════════
 //  1. AgeBandPolicy — boundary tests
 // ═════════════════════════════════════════════════════════════
@@ -191,7 +190,8 @@ void main() {
       expect(find.textContaining('uccession'), findsWidgets);
     });
 
-    testWidgets('uses a legal-advice disclaimer without LSFin framing', (tester) async {
+    testWidgets('uses a legal-advice disclaimer without LSFin framing',
+        (tester) async {
       tester.view.physicalSize = const Size(1440, 16000);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -233,7 +233,8 @@ void main() {
 
     testWidgets('collector flag is fail-closed and unsafe widget stays absent',
         (tester) async {
-      addTearDown(() => FeatureFlags.successionEvidenceCollectionEnabled = false);
+      addTearDown(
+          () => FeatureFlags.successionEvidenceCollectionEnabled = false);
       FeatureFlags.successionEvidenceCollectionEnabled = false;
       await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
       await tester.pump();
@@ -243,7 +244,8 @@ void main() {
 
     testWidgets('local collector flag exposes the real quest only',
         (tester) async {
-      addTearDown(() => FeatureFlags.successionEvidenceCollectionEnabled = false);
+      addTearDown(
+          () => FeatureFlags.successionEvidenceCollectionEnabled = false);
       FeatureFlags.successionEvidenceCollectionEnabled = true;
       await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
       await tester.pump();
@@ -260,7 +262,8 @@ void main() {
       await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
       await tester.pump();
 
-      expect(find.byKey(const Key('succession_property_missing')), findsOneWidget);
+      expect(
+          find.byKey(const Key('succession_property_missing')), findsOneWidget);
       expect(find.byKey(const Key('succession_parents_note')), findsNothing);
       expect(find.byType(TestamentInvisibleWidget), findsNothing);
       expect(find.textContaining("500'000"), findsNothing);
@@ -280,7 +283,8 @@ void main() {
       await tester.tap(find.text('Renseigner mon patrimoine').first);
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('property_market_value_input')), findsOneWidget);
+      expect(
+          find.byKey(const Key('property_market_value_input')), findsOneWidget);
       expect(find.byKey(const Key('savings_input')), findsNothing);
       expect(find.byKey(const Key('mortgage_balance_input')), findsNothing);
     });
@@ -304,13 +308,30 @@ void main() {
       ));
       await tester.pump();
 
-      expect(find.byKey(const Key('succession_property_missing')), findsNothing);
+      expect(
+          find.byKey(const Key('succession_property_missing')), findsNothing);
       expect(find.byKey(const Key('succession_parents_note')), findsOneWidget);
-      expect(find.byKey(const Key('succession_mortgage_missing')), findsNothing);
+      expect(
+          find.byKey(const Key('succession_mortgage_missing')), findsNothing);
       expect(find.byType(TestamentInvisibleWidget), findsNothing);
       expect(find.textContaining("950'000"), findsWidgets);
       expect(find.textContaining("320'000"), findsWidgets);
       expect(find.textContaining("630'000"), findsWidgets);
+      expect(
+        find.text(
+          'Valeur immobilière nette indicative (valeur déclarée − hypothèque déclarée)',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Ne constitue pas la masse successorale nette'),
+        findsOneWidget,
+      );
+      expect(find.text('Patrimoine net'), findsNothing);
+      expect(find.textContaining('Avec testament'), findsNothing);
+      expect(find.textContaining('24 %'), findsNothing);
+      expect(find.textContaining('Partenaire reçoit'), findsNothing);
+      expect(find.textContaining('isOptimized'), findsNothing);
     });
 
     testWidgets('missing mortgage CTA opens targeted mortgage DataBlock',
@@ -334,7 +355,8 @@ void main() {
 
       expect(find.byKey(const Key('mortgage_balance_input')), findsOneWidget);
       expect(find.byKey(const Key('savings_input')), findsNothing);
-      expect(find.byKey(const Key('property_market_value_input')), findsNothing);
+      expect(
+          find.byKey(const Key('property_market_value_input')), findsNothing);
     });
   });
 }

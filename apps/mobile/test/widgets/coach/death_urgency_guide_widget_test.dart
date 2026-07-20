@@ -46,7 +46,7 @@ void main() {
 
   testWidgets('renders title', (tester) async {
     await tester.pumpWidget(buildWidget());
-    expect(find.textContaining('urgence'), findsWidgets);
+    expect(find.textContaining('Repères'), findsWidgets);
   });
 
   testWidgets('shows phase timeframes', (tester) async {
@@ -67,17 +67,14 @@ void main() {
 
   testWidgets('shows support note', (tester) async {
     await tester.pumpWidget(buildWidget());
-    expect(find.textContaining('seul'), findsWidgets);
+    expect(find.textContaining('Soutien'), findsWidgets);
   });
 
-  testWidgets('shows CC legal reference', (tester) async {
+  testWidgets('leaves legal sources and disclaimer to the parent screen',
+      (tester) async {
     await tester.pumpWidget(buildWidget());
-    expect(find.textContaining('CC'), findsWidgets);
-  });
-
-  testWidgets('shows disclaimer', (tester) async {
-    await tester.pumpWidget(buildWidget());
-    expect(find.textContaining('conseil'), findsWidgets);
+    expect(find.textContaining('LSFin'), findsNothing);
+    expect(find.textContaining('CC art.'), findsNothing);
   });
 
   testWidgets('has Semantics label', (tester) async {
