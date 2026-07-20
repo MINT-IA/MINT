@@ -3309,14 +3309,738 @@ final class EstateInstrumentReference {
       );
 }
 
-List<EstateInstrumentReference> _restoreEstateInstrumentReferences(
-  Object? raw,
+const String coachEstateEvidenceRootKey = '_coach_estate_evidence_v1';
+
+enum RegisteredPartnershipPropertyRegimeKind {
+  statutorySeparationOfProperty,
+  agreedParticipationInAcquestsDivision,
+  otherPropertyAgreement;
+
+  String get name => switch (this) {
+        statutorySeparationOfProperty => 'statutorySeparationOfProperty',
+        agreedParticipationInAcquestsDivision =>
+          'agreedParticipationInAcquestsDivision',
+        otherPropertyAgreement => 'otherPropertyAgreement',
+      };
+
+  static RegisteredPartnershipPropertyRegimeKind? tryParse(Object? raw) =>
+      raw is String
+          ? values.where((value) => value.name == raw).firstOrNull
+          : null;
+}
+
+enum EstateArrangementApplicability {
+  known,
+  notApplicable,
+  unknown;
+
+  String get name => switch (this) {
+        known => 'known',
+        notApplicable => 'notApplicable',
+        unknown => 'unknown',
+      };
+}
+
+enum EstateInstrumentSlotState {
+  unknown,
+  confirmedPresent,
+  confirmedAbsent,
+  invalid,
+  stale;
+
+  String get name => switch (this) {
+        unknown => 'unknown',
+        confirmedPresent => 'confirmedPresent',
+        confirmedAbsent => 'confirmedAbsent',
+        invalid => 'invalid',
+        stale => 'stale',
+      };
+}
+
+enum EstateReferenceHandoffCompleteness {
+  partial,
+  surveyComplete;
+
+  String get name => switch (this) {
+        partial => 'partial',
+        surveyComplete => 'surveyComplete',
+      };
+}
+
+@immutable
+final class EstateMatrimonialRegimeConfirmation {
+  static const _keys = {
+    'confirmationId',
+    'kind',
+    'source',
+    'confirmedAt',
+    'civilStatusAtConfirmation',
+  };
+
+  final String confirmationId;
+  final MatrimonialRegimeKind kind;
+  final DateTime confirmedAt;
+  final CoachCivilStatus civilStatusAtConfirmation;
+
+  const EstateMatrimonialRegimeConfirmation({
+    required this.confirmationId,
+    required this.kind,
+    required this.confirmedAt,
+    required this.civilStatusAtConfirmation,
+  });
+
+  static EstateMatrimonialRegimeConfirmation? tryFromJson(
+    Object? raw, {
+    required DateTime now,
+  }) {
+    final json = _strictStringMap(raw, _keys);
+    if (json == null || json['source'] != ProfileDataSource.userInput.name) {
+      return null;
+    }
+    final id = json['confirmationId'];
+    final kind = MatrimonialRegimeKind.tryParse(json['kind']);
+    final confirmedAt = _strictUtc(json['confirmedAt'], now);
+    final status = _strictCivilStatus(json['civilStatusAtConfirmation']);
+    if (id is! String ||
+        !_estateUuidV4.hasMatch(id) ||
+        kind == null ||
+        confirmedAt == null ||
+        status != CoachCivilStatus.marie) {
+      return null;
+    }
+    return EstateMatrimonialRegimeConfirmation(
+      confirmationId: id,
+      kind: kind,
+      confirmedAt: confirmedAt,
+      civilStatusAtConfirmation: CoachCivilStatus.marie,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'confirmationId': confirmationId,
+        'kind': kind.name,
+        'source': ProfileDataSource.userInput.name,
+        'confirmedAt': confirmedAt.toUtc().toIso8601String(),
+        'civilStatusAtConfirmation': civilStatusAtConfirmation.name,
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EstateMatrimonialRegimeConfirmation &&
+          confirmationId == other.confirmationId &&
+          kind == other.kind &&
+          confirmedAt == other.confirmedAt &&
+          civilStatusAtConfirmation == other.civilStatusAtConfirmation;
+
+  @override
+  int get hashCode => Object.hash(
+        confirmationId,
+        kind,
+        confirmedAt,
+        civilStatusAtConfirmation,
+      );
+}
+
+@immutable
+final class RegisteredPartnershipPropertyRegimeConfirmation {
+  static const _keys = {
+    'confirmationId',
+    'kind',
+    'source',
+    'confirmedAt',
+    'civilStatusAtConfirmation',
+  };
+
+  final String confirmationId;
+  final RegisteredPartnershipPropertyRegimeKind kind;
+  final DateTime confirmedAt;
+  final CoachCivilStatus civilStatusAtConfirmation;
+
+  const RegisteredPartnershipPropertyRegimeConfirmation({
+    required this.confirmationId,
+    required this.kind,
+    required this.confirmedAt,
+    required this.civilStatusAtConfirmation,
+  });
+
+  static RegisteredPartnershipPropertyRegimeConfirmation? tryFromJson(
+    Object? raw, {
+    required DateTime now,
+  }) {
+    final json = _strictStringMap(raw, _keys);
+    if (json == null || json['source'] != ProfileDataSource.userInput.name) {
+      return null;
+    }
+    final id = json['confirmationId'];
+    final kind = RegisteredPartnershipPropertyRegimeKind.tryParse(json['kind']);
+    final confirmedAt = _strictUtc(json['confirmedAt'], now);
+    final status = _strictCivilStatus(json['civilStatusAtConfirmation']);
+    if (id is! String ||
+        !_estateUuidV4.hasMatch(id) ||
+        kind == null ||
+        confirmedAt == null ||
+        status != CoachCivilStatus.registeredPartnership) {
+      return null;
+    }
+    return RegisteredPartnershipPropertyRegimeConfirmation(
+      confirmationId: id,
+      kind: kind,
+      confirmedAt: confirmedAt,
+      civilStatusAtConfirmation: CoachCivilStatus.registeredPartnership,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'confirmationId': confirmationId,
+        'kind': kind.name,
+        'source': ProfileDataSource.userInput.name,
+        'confirmedAt': confirmedAt.toUtc().toIso8601String(),
+        'civilStatusAtConfirmation': civilStatusAtConfirmation.name,
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RegisteredPartnershipPropertyRegimeConfirmation &&
+          confirmationId == other.confirmationId &&
+          kind == other.kind &&
+          confirmedAt == other.confirmedAt &&
+          civilStatusAtConfirmation == other.civilStatusAtConfirmation;
+
+  @override
+  int get hashCode => Object.hash(
+        confirmationId,
+        kind,
+        confirmedAt,
+        civilStatusAtConfirmation,
+      );
+}
+
+@immutable
+final class EstateInstrumentEvidence {
+  static const _keys = {
+    'evidenceId',
+    'ownerKind',
+    'source',
+    'sourceDate',
+    'legalYear',
+    'confirmedAt',
+    'civilStatusAtConfirmation',
+  };
+
+  final String evidenceId;
+  final DateTime sourceDate;
+  final int legalYear;
+  final DateTime confirmedAt;
+  final CoachCivilStatus civilStatusAtConfirmation;
+
+  const EstateInstrumentEvidence({
+    required this.evidenceId,
+    required this.sourceDate,
+    required this.legalYear,
+    required this.confirmedAt,
+    required this.civilStatusAtConfirmation,
+  });
+
+  static EstateInstrumentEvidence? tryFromJson(Object? raw, DateTime now) {
+    final json = _strictStringMap(raw, _keys);
+    if (json == null ||
+        json['ownerKind'] != 'self' ||
+        json['source'] != 'certificate') {
+      return null;
+    }
+    final id = json['evidenceId'];
+    final dateRaw = json['sourceDate'];
+    final year = json['legalYear'];
+    final sourceDate =
+        dateRaw is String && RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(dateRaw)
+            ? SwissCivilTime.parseCanonicalCivilDate(dateRaw)
+            : null;
+    final confirmedAt = _strictUtc(json['confirmedAt'], now);
+    final status = _strictCivilStatus(json['civilStatusAtConfirmation']);
+    if (id is! String ||
+        !_estateUuidV4.hasMatch(id) ||
+        sourceDate == null ||
+        SwissCivilTime.isFutureCivilDate(sourceDate, now: now) ||
+        year is! int ||
+        year < 1900 ||
+        year > 9999 ||
+        confirmedAt == null ||
+        status == null) {
+      return null;
+    }
+    return EstateInstrumentEvidence(
+      evidenceId: id,
+      sourceDate:
+          DateTime.utc(sourceDate.year, sourceDate.month, sourceDate.day),
+      legalYear: year,
+      confirmedAt: confirmedAt,
+      civilStatusAtConfirmation: status,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'evidenceId': evidenceId,
+        'ownerKind': 'self',
+        'source': 'certificate',
+        'sourceDate': sourceDate.toIso8601String().split('T').first,
+        'legalYear': legalYear,
+        'confirmedAt': confirmedAt.toUtc().toIso8601String(),
+        'civilStatusAtConfirmation': civilStatusAtConfirmation.name,
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EstateInstrumentEvidence &&
+          evidenceId == other.evidenceId &&
+          sourceDate == other.sourceDate &&
+          legalYear == other.legalYear &&
+          confirmedAt == other.confirmedAt &&
+          civilStatusAtConfirmation == other.civilStatusAtConfirmation;
+
+  @override
+  int get hashCode => Object.hash(
+        evidenceId,
+        sourceDate,
+        legalYear,
+        confirmedAt,
+        civilStatusAtConfirmation,
+      );
+}
+
+@immutable
+final class EstateInstrumentAbsenceConfirmation {
+  static const _keys = {
+    'evidenceId',
+    'ownerKind',
+    'source',
+    'confirmedAt',
+    'civilStatusAtConfirmation',
+  };
+
+  final String evidenceId;
+  final DateTime confirmedAt;
+  final CoachCivilStatus civilStatusAtConfirmation;
+
+  const EstateInstrumentAbsenceConfirmation({
+    required this.evidenceId,
+    required this.confirmedAt,
+    required this.civilStatusAtConfirmation,
+  });
+
+  static EstateInstrumentAbsenceConfirmation? tryFromJson(
+    Object? raw,
+    DateTime now,
+  ) {
+    final json = _strictStringMap(raw, _keys);
+    if (json == null ||
+        json['ownerKind'] != 'self' ||
+        json['source'] != 'userInput') {
+      return null;
+    }
+    final id = json['evidenceId'];
+    final confirmedAt = _strictUtc(json['confirmedAt'], now);
+    final status = _strictCivilStatus(json['civilStatusAtConfirmation']);
+    if (id is! String ||
+        !_estateUuidV4.hasMatch(id) ||
+        confirmedAt == null ||
+        status == null) {
+      return null;
+    }
+    return EstateInstrumentAbsenceConfirmation(
+      evidenceId: id,
+      confirmedAt: confirmedAt,
+      civilStatusAtConfirmation: status,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'evidenceId': evidenceId,
+        'ownerKind': 'self',
+        'source': 'userInput',
+        'confirmedAt': confirmedAt.toUtc().toIso8601String(),
+        'civilStatusAtConfirmation': civilStatusAtConfirmation.name,
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EstateInstrumentAbsenceConfirmation &&
+          evidenceId == other.evidenceId &&
+          confirmedAt == other.confirmedAt &&
+          civilStatusAtConfirmation == other.civilStatusAtConfirmation;
+
+  @override
+  int get hashCode => Object.hash(
+        evidenceId,
+        confirmedAt,
+        civilStatusAtConfirmation,
+      );
+}
+
+@immutable
+final class EstateInstrumentSlot {
+  final EstateInstrumentKind kind;
+  final EstateInstrumentSlotState state;
+  final EstateInstrumentEvidence? evidence;
+  final EstateInstrumentAbsenceConfirmation? absenceConfirmation;
+
+  const EstateInstrumentSlot._({
+    required this.kind,
+    required this.state,
+    this.evidence,
+    this.absenceConfirmation,
+  });
+
+  const EstateInstrumentSlot.unknown(EstateInstrumentKind kind)
+      : this._(kind: kind, state: EstateInstrumentSlotState.unknown);
+
+  const EstateInstrumentSlot.invalid(EstateInstrumentKind kind)
+      : this._(kind: kind, state: EstateInstrumentSlotState.invalid);
+
+  const EstateInstrumentSlot.present(
+    EstateInstrumentKind kind,
+    EstateInstrumentEvidence evidence,
+  ) : this._(
+          kind: kind,
+          state: EstateInstrumentSlotState.confirmedPresent,
+          evidence: evidence,
+        );
+
+  const EstateInstrumentSlot.absent(
+    EstateInstrumentKind kind,
+    EstateInstrumentAbsenceConfirmation confirmation,
+  ) : this._(
+          kind: kind,
+          state: EstateInstrumentSlotState.confirmedAbsent,
+          absenceConfirmation: confirmation,
+        );
+
+  EstateInstrumentSlot stale() => EstateInstrumentSlot._(
+        kind: kind,
+        state: EstateInstrumentSlotState.stale,
+        evidence: evidence,
+        absenceConfirmation: absenceConfirmation,
+      );
+
+  String? get evidenceId =>
+      evidence?.evidenceId ?? absenceConfirmation?.evidenceId;
+
+  static EstateInstrumentSlot parse(
+    EstateInstrumentKind kind,
+    Object? raw,
+    DateTime now,
+  ) {
+    if (raw is! Map || raw.keys.any((key) => key is! String)) {
+      return EstateInstrumentSlot.invalid(kind);
+    }
+    final json = Map<String, dynamic>.from(raw);
+    final state = json['state'];
+    if (state == 'unknown' && setEquals(json.keys.toSet(), const {'state'})) {
+      return EstateInstrumentSlot.unknown(kind);
+    }
+    if (state == 'confirmedPresent' &&
+        setEquals(json.keys.toSet(), const {'state', 'evidence'})) {
+      final evidence =
+          EstateInstrumentEvidence.tryFromJson(json['evidence'], now);
+      return evidence == null
+          ? EstateInstrumentSlot.invalid(kind)
+          : EstateInstrumentSlot._(
+              kind: kind,
+              state: EstateInstrumentSlotState.confirmedPresent,
+              evidence: evidence,
+            );
+    }
+    if (state == 'confirmedAbsent' &&
+        setEquals(json.keys.toSet(), const {'state', 'confirmation'})) {
+      final absence = EstateInstrumentAbsenceConfirmation.tryFromJson(
+        json['confirmation'],
+        now,
+      );
+      return absence == null
+          ? EstateInstrumentSlot.invalid(kind)
+          : EstateInstrumentSlot._(
+              kind: kind,
+              state: EstateInstrumentSlotState.confirmedAbsent,
+              absenceConfirmation: absence,
+            );
+    }
+    return EstateInstrumentSlot.invalid(kind);
+  }
+
+  static EstateInstrumentSlot parseProjection(
+    EstateInstrumentKind kind,
+    Object? raw,
+    DateTime now,
+  ) {
+    if (raw is! Map || raw.keys.any((key) => key is! String)) {
+      return EstateInstrumentSlot.invalid(kind);
+    }
+    final json = Map<String, dynamic>.from(raw);
+    final keys = json.keys.toSet();
+    final state = json['state'];
+    if (state == EstateInstrumentSlotState.invalid.name &&
+        setEquals(keys, const {'state'})) {
+      return EstateInstrumentSlot.invalid(kind);
+    }
+    if (state == EstateInstrumentSlotState.stale.name &&
+        setEquals(keys, const {'state', 'evidence'})) {
+      final evidence = EstateInstrumentEvidence.tryFromJson(
+        json['evidence'],
+        now,
+      );
+      return evidence == null
+          ? EstateInstrumentSlot.invalid(kind)
+          : EstateInstrumentSlot._(
+              kind: kind,
+              state: EstateInstrumentSlotState.stale,
+              evidence: evidence,
+            );
+    }
+    if (state == EstateInstrumentSlotState.stale.name &&
+        setEquals(keys, const {'state', 'confirmation'})) {
+      final absence = EstateInstrumentAbsenceConfirmation.tryFromJson(
+        json['confirmation'],
+        now,
+      );
+      return absence == null
+          ? EstateInstrumentSlot.invalid(kind)
+          : EstateInstrumentSlot._(
+              kind: kind,
+              state: EstateInstrumentSlotState.stale,
+              absenceConfirmation: absence,
+            );
+    }
+    return parse(kind, json, now);
+  }
+
+  Map<String, dynamic> toJson() => switch (state) {
+        EstateInstrumentSlotState.unknown => {'state': 'unknown'},
+        EstateInstrumentSlotState.confirmedPresent => {
+            'state': 'confirmedPresent',
+            'evidence': evidence!.toJson(),
+          },
+        EstateInstrumentSlotState.confirmedAbsent => {
+            'state': 'confirmedAbsent',
+            'confirmation': absenceConfirmation!.toJson(),
+          },
+        EstateInstrumentSlotState.invalid ||
+        EstateInstrumentSlotState.stale =>
+          {'state': state.name},
+      };
+
+  Map<String, dynamic> toProjectionJson() => switch (state) {
+        EstateInstrumentSlotState.stale when evidence != null => {
+            'state': state.name,
+            'evidence': evidence!.toJson(),
+          },
+        EstateInstrumentSlotState.stale when absenceConfirmation != null => {
+            'state': state.name,
+            'confirmation': absenceConfirmation!.toJson(),
+          },
+        _ => toJson(),
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EstateInstrumentSlot &&
+          kind == other.kind &&
+          state == other.state &&
+          evidence == other.evidence &&
+          absenceConfirmation == other.absenceConfirmation;
+
+  @override
+  int get hashCode => Object.hash(
+        kind,
+        state,
+        evidence,
+        absenceConfirmation,
+      );
+}
+
+@immutable
+final class EstateEvidenceRoot {
+  static const _keys = {
+    'schemaVersion',
+    'matrimonialRegime',
+    'registeredPartnershipPropertyRegime',
+    'estateInstruments',
+  };
+  static const _instrumentKeys = {
+    'will',
+    'inheritancePact',
+    'incapacityMandate',
+    'advanceCareDirective',
+  };
+
+  final EstateMatrimonialRegimeConfirmation? matrimonialRegime;
+  final RegisteredPartnershipPropertyRegimeConfirmation?
+      registeredPartnershipPropertyRegime;
+  final List<EstateInstrumentSlot> estateInstruments;
+  final bool isValid;
+
+  EstateEvidenceRoot({
+    required this.matrimonialRegime,
+    required this.registeredPartnershipPropertyRegime,
+    required List<EstateInstrumentSlot> estateInstruments,
+    this.isValid = true,
+  }) : estateInstruments = List.unmodifiable(estateInstruments);
+
+  factory EstateEvidenceRoot.empty() => EstateEvidenceRoot(
+        matrimonialRegime: null,
+        registeredPartnershipPropertyRegime: null,
+        estateInstruments: [
+          for (final kind in EstateInstrumentKind.values)
+            EstateInstrumentSlot.unknown(kind),
+        ],
+      );
+
+  static EstateEvidenceRoot? fromJsonString(
+    Object? raw, {
+    required DateTime Function() now,
+  }) {
+    if (raw is! String || raw == '__secure__') return null;
+    try {
+      final decoded = jsonDecode(raw);
+      final json = _strictStringMap(decoded, _keys);
+      if (json == null || json['schemaVersion'] != 1) return null;
+      final instrumentsRaw = json['estateInstruments'];
+      if (instrumentsRaw is! Map ||
+          instrumentsRaw.keys.any((key) => key is! String) ||
+          !setEquals(instrumentsRaw.keys.toSet(), _instrumentKeys)) {
+        return null;
+      }
+      final instant = now().toUtc();
+      final marriageRaw = json['matrimonialRegime'];
+      final lpartRaw = json['registeredPartnershipPropertyRegime'];
+      final marriage = marriageRaw == null
+          ? null
+          : EstateMatrimonialRegimeConfirmation.tryFromJson(
+              marriageRaw,
+              now: instant,
+            );
+      final lpart = lpartRaw == null
+          ? null
+          : RegisteredPartnershipPropertyRegimeConfirmation.tryFromJson(
+              lpartRaw,
+              now: instant,
+            );
+      final slots = <EstateInstrumentSlot>[
+        for (final kind in EstateInstrumentKind.values)
+          EstateInstrumentSlot.parse(kind, instrumentsRaw[kind.name], instant),
+      ];
+      return EstateEvidenceRoot(
+        matrimonialRegime: marriage,
+        registeredPartnershipPropertyRegime: lpart,
+        estateInstruments: slots,
+        isValid: (marriageRaw == null || marriage != null) &&
+            (lpartRaw == null || lpart != null) &&
+            !slots
+                .any((slot) => slot.state == EstateInstrumentSlotState.invalid),
+      );
+    } on FormatException {
+      return null;
+    }
+  }
+
+  static EstateEvidenceRoot? fromJsonStringForMutation(Object? raw) =>
+      fromJsonString(
+        raw,
+        now: () => _estateSerializationUpperBound,
+      );
+
+  String toJsonString() {
+    final kinds = estateInstruments.map((slot) => slot.kind).toSet();
+    final hasCanonicalSlots =
+        estateInstruments.length == EstateInstrumentKind.values.length &&
+            setEquals(kinds, EstateInstrumentKind.values.toSet()) &&
+            estateInstruments.every(
+              (slot) =>
+                  slot.state == EstateInstrumentSlotState.unknown ||
+                  slot.state == EstateInstrumentSlotState.confirmedPresent ||
+                  slot.state == EstateInstrumentSlotState.confirmedAbsent,
+            );
+    if (!isValid || !hasCanonicalSlots) {
+      throw StateError('Estate evidence root is not canonical');
+    }
+    return jsonEncode({
+      'schemaVersion': 1,
+      'matrimonialRegime': matrimonialRegime?.toJson(),
+      'registeredPartnershipPropertyRegime':
+          registeredPartnershipPropertyRegime?.toJson(),
+      'estateInstruments': {
+        for (final slot in estateInstruments) slot.kind.name: slot.toJson(),
+      },
+    });
+  }
+}
+
+final _estateUuidV4 = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+);
+final _estateSerializationUpperBound = DateTime.utc(9999, 12, 31, 23, 59, 59);
+
+Map<String, dynamic>? _strictStringMap(Object? raw, Set<String> keys) {
+  if (raw is! Map || raw.keys.any((key) => key is! String)) return null;
+  final json = Map<String, dynamic>.from(raw);
+  return setEquals(json.keys.toSet(), keys) ? json : null;
+}
+
+DateTime? _strictUtc(Object? raw, DateTime now) {
+  if (raw is! String) return null;
+  final value = DateTime.tryParse(raw);
+  if (value == null ||
+      !value.isUtc ||
+      value.toIso8601String() != raw ||
+      value.isAfter(now.toUtc())) {
+    return null;
+  }
+  return value;
+}
+
+CoachCivilStatus? _strictCivilStatus(Object? raw) => raw is String
+    ? CoachCivilStatus.values.where((value) => value.name == raw).firstOrNull
+    : null;
+
+EstateInstrumentReference? _estateReferenceView(
+  EstateInstrumentSlot slot,
+  DateTime now,
 ) {
-  if (raw is! List) return const [];
-  return raw
-      .map(EstateInstrumentReference.tryFromJson)
-      .whereType<EstateInstrumentReference>()
-      .toList(growable: false);
+  final evidence = slot.evidence;
+  if (slot.state != EstateInstrumentSlotState.confirmedPresent ||
+      evidence == null) {
+    return null;
+  }
+  return EstateInstrumentReference.tryFromJson({
+    'referenceId': evidence.evidenceId,
+    'kind': slot.kind.name,
+    'ownerKind': 'self',
+    'source': 'certificate',
+    'sourceDate': evidence.sourceDate.toIso8601String().split('T').first,
+    'legalYear': evidence.legalYear,
+    'confirmedAt': evidence.confirmedAt.toIso8601String(),
+  }, now: now);
+}
+
+List<EstateInstrumentSlot> _restoreEstateInstrumentSlots(
+  Object? raw, {
+  required DateTime now,
+}) {
+  if (raw == null) return const [];
+  if (raw is! Map ||
+      raw.keys.any((key) => key is! String) ||
+      !setEquals(raw.keys.toSet(), EstateEvidenceRoot._instrumentKeys)) {
+    return const [];
+  }
+  final json = Map<String, dynamic>.from(raw);
+  final slots = <EstateInstrumentSlot>[
+    for (final kind in EstateInstrumentKind.values)
+      EstateInstrumentSlot.parseProjection(kind, json[kind.name], now),
+  ];
+  return slots;
 }
 
 /// Profil financier complet pour MINT Coach.
@@ -3403,7 +4127,22 @@ class CoachProfile {
 
   // === SUCCESSION (explicit, metadata only) ===
   final MatrimonialRegimeKind? matrimonialRegime;
-  final List<EstateInstrumentReference> estateInstrumentReferences;
+  final EstateMatrimonialRegimeConfirmation? matrimonialRegimeConfirmation;
+  final RegisteredPartnershipPropertyRegimeConfirmation?
+      registeredPartnershipPropertyRegime;
+  final List<EstateInstrumentSlot> estateInstrumentSlots;
+
+  List<EstateInstrumentReference> get estateInstrumentReferences =>
+      List<EstateInstrumentReference>.unmodifiable(
+        estateInstrumentSlots
+            .map(
+              (slot) => _estateReferenceView(
+                slot,
+                _estateSerializationUpperBound,
+              ),
+            )
+            .whereType<EstateInstrumentReference>(),
+      );
 
   /// Civil-status changes never delete estate facts, but suspend precision
   /// until a dedicated writer reconfirms their scope.
@@ -3553,8 +4292,10 @@ class CoachProfile {
     this.lppCapitalNoticeDeadline,
     this.latestTaxDecisionReference,
     this.matrimonialRegime,
-    List<EstateInstrumentReference> estateInstrumentReferences = const [],
-    bool estateFactsNeedReconfirmation = false,
+    this.matrimonialRegimeConfirmation,
+    this.registeredPartnershipPropertyRegime,
+    List<EstateInstrumentSlot> estateInstrumentSlots = const [],
+    this.estateFactsNeedReconfirmation = false,
     required this.goalA,
     this.goalsB = const [],
     this.plannedContributions = const [],
@@ -3582,12 +4323,14 @@ class CoachProfile {
     this.n5IssuedThisWeek = 0,
     this.fragileModeEnteredAt,
     this.recentGravityEvents = const [],
-  })  : estateInstrumentReferences =
-            List<EstateInstrumentReference>.unmodifiable(
-                estateInstrumentReferences),
-        estateFactsNeedReconfirmation = estateFactsNeedReconfirmation &&
-            (matrimonialRegime != null ||
-                estateInstrumentReferences.isNotEmpty),
+  })  : estateInstrumentSlots = List<EstateInstrumentSlot>.unmodifiable(
+          estateInstrumentSlots.isEmpty
+              ? [
+                  for (final kind in EstateInstrumentKind.values)
+                    EstateInstrumentSlot.unknown(kind),
+                ]
+              : estateInstrumentSlots,
+        ),
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         dataSources = inferDataSources
@@ -3709,8 +4452,11 @@ class CoachProfile {
           lppCapitalNoticeDeadline == other.lppCapitalNoticeDeadline &&
           latestTaxDecisionReference == other.latestTaxDecisionReference &&
           matrimonialRegime == other.matrimonialRegime &&
-          listEquals(
-              estateInstrumentReferences, other.estateInstrumentReferences) &&
+          matrimonialRegimeConfirmation ==
+              other.matrimonialRegimeConfirmation &&
+          registeredPartnershipPropertyRegime ==
+              other.registeredPartnershipPropertyRegime &&
+          listEquals(estateInstrumentSlots, other.estateInstrumentSlots) &&
           estateFactsNeedReconfirmation ==
               other.estateFactsNeedReconfirmation &&
           goalA == other.goalA &&
@@ -3772,7 +4518,9 @@ class CoachProfile {
         lppCapitalNoticeDeadline,
         latestTaxDecisionReference,
         matrimonialRegime,
-        Object.hashAll(estateInstrumentReferences),
+        matrimonialRegimeConfirmation,
+        registeredPartnershipPropertyRegime,
+        Object.hashAll(estateInstrumentSlots),
         estateFactsNeedReconfirmation,
         goalA,
         goalsB.length,
@@ -3801,31 +4549,106 @@ class CoachProfile {
 
   /// Aggregate estate evidence state at an explicit evaluation instant.
   EstateReferenceState estateReferenceStateAt(DateTime asOf) {
-    if (civilStatusNeedsConfirmation || estateFactsNeedReconfirmation) {
+    if (civilStatusNeedsConfirmation ||
+        estateFactsNeedReconfirmation ||
+        estateInstrumentSlots
+            .any((slot) => slot.state == EstateInstrumentSlotState.stale)) {
       return EstateReferenceState.needsReconfirmation;
     }
-    if (matrimonialRegime == null || estateInstrumentReferences.isEmpty) {
-      return EstateReferenceState.missing;
-    }
-    if (estateInstrumentReferences
-        .any((reference) => !reference.isValidAt(asOf))) {
+    if (estateInstrumentSlots
+        .any((slot) => slot.state == EstateInstrumentSlotState.invalid)) {
       return EstateReferenceState.invalid;
     }
-    final kinds = estateInstrumentReferences
-        .map((reference) => reference.kind)
-        .toList(growable: false);
-    if (kinds.toSet().length != kinds.length) {
-      return EstateReferenceState.conflict;
-    }
-    if (!kinds.toSet().containsAll(EstateInstrumentKind.values)) {
+    if (!estateReferenceSurveyCompleteAt(asOf)) {
       return EstateReferenceState.missing;
     }
     return EstateReferenceState.known;
   }
 
-  /// Precise specialist preparation requires regime plus all four instruments.
-  bool estateSpecialistReadyAt(DateTime asOf) =>
-      estateReferenceStateAt(asOf) == EstateReferenceState.known;
+  EstateArrangementApplicability get currentEstateArrangementApplicability {
+    if (civilStatusNeedsConfirmation) {
+      return EstateArrangementApplicability.unknown;
+    }
+    return switch (etatCivil) {
+      CoachCivilStatus.marie => matrimonialRegimeConfirmation != null &&
+              matrimonialRegimeConfirmation!.kind == matrimonialRegime &&
+              matrimonialRegimeConfirmation!.civilStatusAtConfirmation ==
+                  CoachCivilStatus.marie
+          ? EstateArrangementApplicability.known
+          : EstateArrangementApplicability.unknown,
+      CoachCivilStatus.registeredPartnership =>
+        registeredPartnershipPropertyRegime != null &&
+                registeredPartnershipPropertyRegime!
+                        .civilStatusAtConfirmation ==
+                    CoachCivilStatus.registeredPartnership
+            ? EstateArrangementApplicability.known
+            : EstateArrangementApplicability.unknown,
+      CoachCivilStatus.celibataire ||
+      CoachCivilStatus.divorce ||
+      CoachCivilStatus.veuf ||
+      CoachCivilStatus.concubinage =>
+        EstateArrangementApplicability.notApplicable,
+    };
+  }
+
+  bool estateReferenceSurveyCompleteAt(DateTime asOf) {
+    if (civilStatusNeedsConfirmation) return false;
+    final instant = asOf.toUtc();
+    final civilDay = DateTime.utc(instant.year, instant.month, instant.day);
+    final arrangementIsCurrent = switch (etatCivil) {
+      CoachCivilStatus.marie => matrimonialRegimeConfirmation != null &&
+          matrimonialRegimeConfirmation!.kind == matrimonialRegime &&
+          matrimonialRegimeConfirmation!.civilStatusAtConfirmation ==
+              CoachCivilStatus.marie &&
+          !matrimonialRegimeConfirmation!.confirmedAt.toUtc().isAfter(
+                instant,
+              ),
+      CoachCivilStatus.registeredPartnership =>
+        registeredPartnershipPropertyRegime != null &&
+            registeredPartnershipPropertyRegime!.civilStatusAtConfirmation ==
+                CoachCivilStatus.registeredPartnership &&
+            !registeredPartnershipPropertyRegime!.confirmedAt.toUtc().isAfter(
+                  instant,
+                ),
+      CoachCivilStatus.celibataire ||
+      CoachCivilStatus.divorce ||
+      CoachCivilStatus.veuf ||
+      CoachCivilStatus.concubinage =>
+        true,
+    };
+    if (!arrangementIsCurrent ||
+        estateInstrumentSlots.length != EstateInstrumentKind.values.length ||
+        !setEquals(
+          estateInstrumentSlots.map((slot) => slot.kind).toSet(),
+          EstateInstrumentKind.values.toSet(),
+        )) {
+      return false;
+    }
+    return estateInstrumentSlots.every((slot) {
+      final evidence = slot.evidence;
+      final absence = slot.absenceConfirmation;
+      final isTerminal =
+          slot.state == EstateInstrumentSlotState.confirmedPresent ||
+              slot.state == EstateInstrumentSlotState.confirmedAbsent;
+      final scopedStatus = evidence?.civilStatusAtConfirmation ??
+          absence?.civilStatusAtConfirmation;
+      final confirmedAt = evidence?.confirmedAt ?? absence?.confirmedAt;
+      if (!isTerminal ||
+          scopedStatus != etatCivil ||
+          confirmedAt == null ||
+          confirmedAt.toUtc().isAfter(instant)) {
+        return false;
+      }
+      return evidence == null || !evidence.sourceDate.isAfter(civilDay);
+    });
+  }
+
+  EstateReferenceHandoffCompleteness estateReferenceHandoffCompletenessAt(
+    DateTime asOf,
+  ) =>
+      estateReferenceSurveyCompleteAt(asOf)
+          ? EstateReferenceHandoffCompleteness.surveyComplete
+          : EstateReferenceHandoffCompleteness.partial;
 
   /// Age actuel — précis au jour si dateOfBirth est disponible,
   /// sinon fallback sur birthYear (précision ±1 an).
@@ -4359,7 +5182,9 @@ class CoachProfile {
     Object? lppCapitalNoticeDeadline = _keepSpecialistReferenceValue,
     Object? latestTaxDecisionReference = _keepSpecialistReferenceValue,
     Object? matrimonialRegime = _keepEstateValue,
-    List<EstateInstrumentReference>? estateInstrumentReferences,
+    Object? matrimonialRegimeConfirmation = _keepEstateValue,
+    Object? registeredPartnershipPropertyRegime = _keepEstateValue,
+    List<EstateInstrumentSlot>? estateInstrumentSlots,
     Object? estateFactsNeedReconfirmation = _keepEstateValue,
     GoalA? goalA,
     List<GoalB>? goalsB,
@@ -4435,13 +5260,46 @@ class CoachProfile {
         identical(matrimonialRegime, _keepEstateValue)
             ? this.matrimonialRegime
             : matrimonialRegime as MatrimonialRegimeKind?;
-    final effectiveEstateReferences =
-        estateInstrumentReferences ?? this.estateInstrumentReferences;
+    final effectiveMatrimonialRegimeConfirmation = identical(
+            matrimonialRegimeConfirmation, _keepEstateValue)
+        ? (identical(matrimonialRegime, _keepEstateValue)
+            ? this.matrimonialRegimeConfirmation
+            : null)
+        : matrimonialRegimeConfirmation as EstateMatrimonialRegimeConfirmation?;
+    final effectiveRegisteredPartnershipPropertyRegime =
+        identical(registeredPartnershipPropertyRegime, _keepEstateValue)
+            ? this.registeredPartnershipPropertyRegime
+            : registeredPartnershipPropertyRegime
+                as RegisteredPartnershipPropertyRegimeConfirmation?;
+    final requestedEstateSlots =
+        estateInstrumentSlots ?? this.estateInstrumentSlots;
     final civilStatusChanged =
         etatCivil != null && effectiveCivilStatus != this.etatCivil;
+    final effectiveEstateSlots = civilStatusChanged
+        ? <EstateInstrumentSlot>[
+            for (final slot in requestedEstateSlots)
+              if ((slot.state == EstateInstrumentSlotState.confirmedPresent ||
+                      slot.state ==
+                          EstateInstrumentSlotState.confirmedAbsent) &&
+                  (slot.evidence?.civilStatusAtConfirmation ??
+                          slot.absenceConfirmation
+                              ?.civilStatusAtConfirmation) !=
+                      effectiveCivilStatus)
+                slot.stale()
+              else
+                slot,
+          ]
+        : requestedEstateSlots;
+    final hasActualEstateFacts = effectiveMatrimonialRegime != null ||
+        effectiveMatrimonialRegimeConfirmation != null ||
+        effectiveRegisteredPartnershipPropertyRegime != null ||
+        requestedEstateSlots.any(
+          (slot) => slot.state != EstateInstrumentSlotState.unknown,
+        );
     final effectiveEstateFactsNeedReconfirmation =
         identical(estateFactsNeedReconfirmation, _keepEstateValue)
-            ? (this.estateFactsNeedReconfirmation || civilStatusChanged)
+            ? (this.estateFactsNeedReconfirmation ||
+                (civilStatusChanged && hasActualEstateFacts))
             : estateFactsNeedReconfirmation as bool;
     return CoachProfile(
       firstName: firstName ?? this.firstName,
@@ -4502,7 +5360,10 @@ class CoachProfile {
               ? this.latestTaxDecisionReference
               : latestTaxDecisionReference as SpecialistReferenceEvidence?,
       matrimonialRegime: effectiveMatrimonialRegime,
-      estateInstrumentReferences: effectiveEstateReferences,
+      matrimonialRegimeConfirmation: effectiveMatrimonialRegimeConfirmation,
+      registeredPartnershipPropertyRegime:
+          effectiveRegisteredPartnershipPropertyRegime,
+      estateInstrumentSlots: effectiveEstateSlots,
       estateFactsNeedReconfirmation: effectiveEstateFactsNeedReconfirmation,
       goalA: goalA ?? this.goalA,
       goalsB: goalsB ?? this.goalsB,
@@ -4645,6 +5506,14 @@ class CoachProfile {
     final civilStatusNeedsConfirmation =
         (json['civilStatusNeedsConfirmation'] as bool? ?? false) ||
             _isAmbiguousCivilStatus(retainedCivilStatusRaw);
+    // Direct profile hydration preserves the serialized projection. Temporal
+    // eligibility is evaluated explicitly by estateReferenceSurveyCompleteAt.
+    final estateNow = _estateSerializationUpperBound;
+    final matrimonialRegimeConfirmation =
+        EstateMatrimonialRegimeConfirmation.tryFromJson(
+      json['matrimonialRegimeConfirmation'],
+      now: estateNow,
+    );
     return CoachProfile(
       firstName: json['firstName'] as String?,
       birthYear: (json['birthYear'] as int?) ?? 1980,
@@ -4705,8 +5574,15 @@ class CoachProfile {
       ),
       matrimonialRegime:
           MatrimonialRegimeKind.tryParse(json['matrimonialRegime']),
-      estateInstrumentReferences: _restoreEstateInstrumentReferences(
-        json['estateInstrumentReferences'],
+      matrimonialRegimeConfirmation: matrimonialRegimeConfirmation,
+      registeredPartnershipPropertyRegime:
+          RegisteredPartnershipPropertyRegimeConfirmation.tryFromJson(
+        json['registeredPartnershipPropertyRegime'],
+        now: estateNow,
+      ),
+      estateInstrumentSlots: _restoreEstateInstrumentSlots(
+        json['estateInstrumentSlots'],
+        now: estateNow,
       ),
       estateFactsNeedReconfirmation:
           json['estateFactsNeedReconfirmation'] == true,
@@ -4851,9 +5727,14 @@ class CoachProfile {
         'lppCapitalNoticeDeadline': lppCapitalNoticeDeadline?.toJson(),
         'latestTaxDecisionReference': latestTaxDecisionReference?.toJson(),
         'matrimonialRegime': matrimonialRegime?.name,
-        'estateInstrumentReferences': estateInstrumentReferences
-            .map((reference) => reference.toJson())
-            .toList(),
+        'matrimonialRegimeConfirmation':
+            matrimonialRegimeConfirmation?.toJson(),
+        'registeredPartnershipPropertyRegime':
+            registeredPartnershipPropertyRegime?.toJson(),
+        'estateInstrumentSlots': {
+          for (final slot in estateInstrumentSlots)
+            slot.kind.name: slot.toProjectionJson(),
+        },
         'estateFactsNeedReconfirmation': estateFactsNeedReconfirmation,
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
@@ -4975,6 +5856,41 @@ class CoachProfile {
     final etatCivil = civilStatusNeedsConfirmation
         ? CoachCivilStatus.celibataire
         : _parseCivilStatus(civilStatusRaw);
+    final estateRoot = EstateEvidenceRoot.fromJsonString(
+      answers[coachEstateEvidenceRootKey],
+      now: () => ageNow,
+    );
+    final structuralEstateRoot = estateRoot ??
+        EstateEvidenceRoot.fromJsonStringForMutation(
+          answers[coachEstateEvidenceRootKey],
+        );
+    final hasStrictlyFutureEstateFacts = estateRoot == null &&
+        structuralEstateRoot != null &&
+        structuralEstateRoot.isValid;
+    final rawEstateSlots = hasStrictlyFutureEstateFacts
+        ? <EstateInstrumentSlot>[
+            for (final kind in EstateInstrumentKind.values)
+              EstateInstrumentSlot.invalid(kind),
+          ]
+        : estateRoot?.estateInstruments ??
+            EstateEvidenceRoot.empty().estateInstruments;
+    final estateSlots = <EstateInstrumentSlot>[
+      for (final slot in rawEstateSlots)
+        if (slot.state == EstateInstrumentSlotState.confirmedPresent ||
+            slot.state == EstateInstrumentSlotState.confirmedAbsent)
+          if (civilStatusNeedsConfirmation ||
+              (slot.evidence?.civilStatusAtConfirmation ??
+                      slot.absenceConfirmation?.civilStatusAtConfirmation) !=
+                  etatCivil)
+            slot.stale()
+          else
+            slot
+        else
+          slot,
+    ];
+    final estateFactsNeedReconfirmation = estateSlots.any(
+      (slot) => slot.state == EstateInstrumentSlotState.stale,
+    );
 
     // Children
     final childrenRaw = answers['q_children'];
@@ -6084,6 +7000,12 @@ class CoachProfile {
       lppCapitalNoticeDeadline: lppCapitalNoticeDeadline,
       lppRegulationReference: lppRegulationReference,
       latestTaxDecisionReference: latestTaxDecisionReference,
+      matrimonialRegime: estateRoot?.matrimonialRegime?.kind,
+      matrimonialRegimeConfirmation: estateRoot?.matrimonialRegime,
+      registeredPartnershipPropertyRegime:
+          estateRoot?.registeredPartnershipPropertyRegime,
+      estateInstrumentSlots: estateSlots,
+      estateFactsNeedReconfirmation: estateFactsNeedReconfirmation,
       depenses: depenses,
       prevoyance: prevoyance,
       patrimoine: patrimoine,

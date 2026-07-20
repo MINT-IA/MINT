@@ -146,6 +146,7 @@ Future<({CoachProfileProvider provider, _MemoryPersistence persistence})>
   final provider = CoachProfileProvider(
     taxProfilePersistence: persistence,
     lppProfilePersistence: persistence,
+    estateProfilePersistence: persistence,
     now: () => _now,
   );
   await provider.loadFromWizard();
@@ -661,6 +662,7 @@ void main() {
     final provider = CoachProfileProvider(
       taxProfilePersistence: persistence,
       lppProfilePersistence: persistence,
+      estateProfilePersistence: persistence,
       now: () => clock,
     );
     addTearDown(provider.dispose);

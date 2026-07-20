@@ -23,6 +23,7 @@ class SecureWizardStore {
   static const _strictLppEvidenceKey = '_coach_lpp_evidence_v1';
   static const _strictPillar3aBeneficiaryEvidenceKey =
       '_coach_pillar3a_beneficiary_evidence_v1';
+  static const _strictEstateEvidenceKey = '_coach_estate_evidence_v1';
   static const _strictProfileOwnerKey = '_coach_profile_owner_v1';
   static const _lppEvidenceSlotPrefix = '_coach_lpp_evidence_slot_v1_';
   static const _financialPlanSlotPrefix = '_financial_plan_slot_v1_';
@@ -57,6 +58,7 @@ class SecureWizardStore {
     _strictTaxSnapshotKey,
     _strictLppEvidenceKey,
     _strictPillar3aBeneficiaryEvidenceKey,
+    _strictEstateEvidenceKey,
     _strictProfileOwnerKey,
   };
 
@@ -454,6 +456,7 @@ class SecureWizardStore {
       _strictTaxSnapshotKey,
       _strictLppEvidenceKey,
       _strictPillar3aBeneficiaryEvidenceKey,
+      _strictEstateEvidenceKey,
       _strictProfileOwnerKey,
     }) {
       await _delete(key);
@@ -582,6 +585,7 @@ class SecureWizardStore {
             key == _strictLppEvidenceKey ||
             key ==
                 _strictPillar3aBeneficiaryEvidenceKey || // gitleaks:allow — ledger field name, not a credential.
+            key == _strictEstateEvidenceKey ||
             key == _strictProfileOwnerKey) {
           throw StateError('Strict secure snapshot write failed');
         } else if (kReleaseMode) {
@@ -635,7 +639,9 @@ class SecureWizardStore {
         // The strict tax root is a JSON string contract. Even malformed scalar
         // text must reach fail-closed quarantine byte-for-byte; generic answer
         // coercion would otherwise turn `true` or `123` into a different value.
-        if (key == _strictTaxSnapshotKey || key == _strictProfileOwnerKey) {
+        if (key == _strictTaxSnapshotKey ||
+            key == _strictEstateEvidenceKey ||
+            key == _strictProfileOwnerKey) {
           restored[key] = value;
           continue;
         }

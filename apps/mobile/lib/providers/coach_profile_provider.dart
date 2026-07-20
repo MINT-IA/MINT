@@ -162,6 +162,24 @@ final class _ReportLppProfilePersistence
       ReportPersistenceService.mutateAnswers(mutation, publish: publish);
 }
 
+final class _ReportEstateProfilePersistence
+    implements CanonicalAnswerMutationPersistence {
+  const _ReportEstateProfilePersistence();
+
+  @override
+  Future<Map<String, dynamic>> inspectAnswers(
+    void Function(Map<String, dynamic> persisted) inspect,
+  ) =>
+      ReportPersistenceService.loadAnswers(publish: inspect);
+
+  @override
+  Future<Map<String, dynamic>> mutateAnswers(
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) =>
+      ReportPersistenceService.mutateAnswers(mutation, publish: publish);
+}
+
 enum Pillar3aBeneficiaryLedgerState { unavailable, missing, valid, invalid }
 
 enum Pillar3aBeneficiaryPresenceSignal {
@@ -187,6 +205,7 @@ class CoachProfileProvider extends ChangeNotifier {
   CoachProfileProvider({
     TaxProfilePersistence? taxProfilePersistence,
     LppProfilePersistence? lppProfilePersistence,
+    CanonicalAnswerMutationPersistence? estateProfilePersistence,
     PartnerAccountabilityBindingStore? partnerAccountabilityBindingStore,
     PartnerAccountabilityService? partnerAccountabilityService,
     SessionEpoch? sessionEpoch,
@@ -195,6 +214,8 @@ class CoachProfileProvider extends ChangeNotifier {
             taxProfilePersistence ?? const _ReportTaxProfilePersistence(),
         _lppProfilePersistence =
             lppProfilePersistence ?? const _ReportLppProfilePersistence(),
+        _estateProfilePersistence =
+            estateProfilePersistence ?? const _ReportEstateProfilePersistence(),
         _partnerAccountabilityBindingStore =
             partnerAccountabilityBindingStore ??
                 PartnerAccountabilityBindingStore(),
@@ -206,6 +227,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
   static const _taxSnapshotRootKey = '_coach_tax_snapshots_v1';
   static const _lppEvidenceRootKey = '_coach_lpp_evidence_v1';
+  static const _estateEvidenceRootKey = coachEstateEvidenceRootKey;
   static const _pillar3aBeneficiaryEvidenceRootKey =
       Pillar3aBeneficiaryEvidenceRoot.answerKey;
   static const _legacySelfLppKeys = <String, LppEvidenceFactKey>{
@@ -223,6 +245,7 @@ class CoachProfileProvider extends ChangeNotifier {
   };
   final TaxProfilePersistence _taxProfilePersistence;
   final LppProfilePersistence _lppProfilePersistence;
+  final CanonicalAnswerMutationPersistence _estateProfilePersistence;
   final PartnerAccountabilityBindingStore _partnerAccountabilityBindingStore;
   final PartnerAccountabilityService _partnerAccountabilityService;
   final bool _usesInjectedTaxPersistence;
@@ -495,6 +518,18 @@ class CoachProfileProvider extends ChangeNotifier {
         publish: publish,
       );
 
+  Future<Map<String, dynamic>> _mutateEstateAnswers(
+    SessionEpochGuard sessionGuard,
+    Map<String, dynamic>? Function(Map<String, dynamic> current) mutation, {
+    void Function(Map<String, dynamic> persisted)? publish,
+  }) =>
+      _mutateCanonicalAnswers(
+        persistence: _estateProfilePersistence,
+        sessionGuard: sessionGuard,
+        mutation: mutation,
+        publish: publish,
+      );
+
   Future<Map<String, dynamic>> _inspectTaxAnswers(
     SessionEpochGuard sessionGuard,
     void Function(Map<String, dynamic> persisted) inspect,
@@ -504,6 +539,188 @@ class CoachProfileProvider extends ChangeNotifier {
           sessionGuard.assertCurrent();
           inspect(persisted);
         });
+      });
+
+  EstateEvidenceRoot _estateRootFromAnswers(Map<String, dynamic> answers) {
+    if (!answers.containsKey(_estateEvidenceRootKey)) {
+      return EstateEvidenceRoot.empty();
+    }
+    final root = EstateEvidenceRoot.fromJsonStringForMutation(
+      answers[_estateEvidenceRootKey],
+    );
+    if (root == null || !root.isValid) {
+      throw StateError('Persisted estate evidence root is unavailable');
+    }
+    return root;
+  }
+
+  CoachCivilStatus _confirmedCivilStatus(Map<String, dynamic> answers) {
+    final profile = CoachProfile.fromWizardAnswers(answers, now: _now);
+    if (profile.civilStatusNeedsConfirmation) {
+      throw StateError('Civil status requires confirmation');
+    }
+    return profile.etatCivil;
+  }
+
+  Future<void> _writeEstateRoot(
+    EstateEvidenceRoot Function(
+      EstateEvidenceRoot root,
+      CoachCivilStatus civilStatus,
+      DateTime confirmedAt,
+    ) build,
+  ) async {
+    if (!_isLoaded) throw StateError('Estate evidence is unavailable');
+    final guard = _sessionEpoch.capture();
+    final confirmedAt = _now().toUtc();
+    late CoachProfile publishedProfile;
+    await _mutateEstateAnswers(
+      guard,
+      (loaded) {
+        final root = _estateRootFromAnswers(loaded);
+        final civilStatus = _confirmedCivilStatus(loaded);
+        final nextRoot = build(root, civilStatus, confirmedAt);
+        final nextAnswers = _copyAnswers(loaded)
+          ..[_estateEvidenceRootKey] = nextRoot.toJsonString();
+        publishedProfile = CoachProfile.fromWizardAnswers(
+          nextAnswers,
+          now: _now,
+          partnerAccountabilityBinding: _partnerLppAccountabilityBinding,
+          enforcePartnerAccountability: true,
+        );
+        return nextAnswers;
+      },
+      publish: (persisted) {
+        _lastAnswers = _copyAnswers(persisted);
+        _profile = publishedProfile;
+        _isLoaded = true;
+        _profileUpdatedSinceBudget = true;
+        notifyListeners();
+      },
+    );
+  }
+
+  Future<void> confirmMatrimonialRegime(
+    MatrimonialRegimeKind kind, {
+    required String? expectedPreviousConfirmationId,
+  }) =>
+      _writeEstateRoot((root, civilStatus, confirmedAt) {
+        if (civilStatus != CoachCivilStatus.marie) {
+          throw StateError('Matrimonial regime requires married status');
+        }
+        if (root.matrimonialRegime?.confirmationId !=
+            expectedPreviousConfirmationId) {
+          throw StateError('Persisted matrimonial confirmation changed');
+        }
+        return EstateEvidenceRoot(
+          matrimonialRegime: EstateMatrimonialRegimeConfirmation(
+            confirmationId: const Uuid().v4(),
+            kind: kind,
+            confirmedAt: confirmedAt,
+            civilStatusAtConfirmation: civilStatus,
+          ),
+          registeredPartnershipPropertyRegime:
+              root.registeredPartnershipPropertyRegime,
+          estateInstruments: root.estateInstruments,
+        );
+      });
+
+  Future<void> confirmRegisteredPartnershipPropertyRegime({
+    required RegisteredPartnershipPropertyRegimeKind kind,
+    required String? expectedPreviousConfirmationId,
+  }) =>
+      _writeEstateRoot((root, civilStatus, confirmedAt) {
+        if (civilStatus != CoachCivilStatus.registeredPartnership) {
+          throw StateError('LPart arrangement requires registered partnership');
+        }
+        if (root.registeredPartnershipPropertyRegime?.confirmationId !=
+            expectedPreviousConfirmationId) {
+          throw StateError('Persisted LPart confirmation changed');
+        }
+        return EstateEvidenceRoot(
+          matrimonialRegime: root.matrimonialRegime,
+          registeredPartnershipPropertyRegime:
+              RegisteredPartnershipPropertyRegimeConfirmation(
+            confirmationId: const Uuid().v4(),
+            kind: kind,
+            confirmedAt: confirmedAt,
+            civilStatusAtConfirmation: civilStatus,
+          ),
+          estateInstruments: root.estateInstruments,
+        );
+      });
+
+  Future<void> confirmEstateInstrumentPresent({
+    required EstateInstrumentKind kind,
+    required DateTime sourceDate,
+    required int legalYear,
+    required String? expectedPreviousEvidenceId,
+  }) =>
+      _writeEstateRoot((root, civilStatus, confirmedAt) {
+        final current =
+            root.estateInstruments.where((slot) => slot.kind == kind).single;
+        if (current.evidenceId != expectedPreviousEvidenceId) {
+          throw StateError('Persisted estate evidence changed');
+        }
+        final civilDate = DateTime.utc(
+          sourceDate.year,
+          sourceDate.month,
+          sourceDate.day,
+        );
+        if (SwissCivilTime.isFutureCivilDate(civilDate, now: confirmedAt) ||
+            legalYear < 1900 ||
+            legalYear > 9999) {
+          throw ArgumentError('Invalid estate evidence date or year');
+        }
+        final evidence = EstateInstrumentEvidence(
+          evidenceId: const Uuid().v4(),
+          sourceDate: civilDate,
+          legalYear: legalYear,
+          confirmedAt: confirmedAt,
+          civilStatusAtConfirmation: civilStatus,
+        );
+        final slots = [
+          for (final slot in root.estateInstruments)
+            if (slot.kind == kind)
+              EstateInstrumentSlot.present(kind, evidence)
+            else
+              slot,
+        ];
+        return EstateEvidenceRoot(
+          matrimonialRegime: root.matrimonialRegime,
+          registeredPartnershipPropertyRegime:
+              root.registeredPartnershipPropertyRegime,
+          estateInstruments: slots,
+        );
+      });
+
+  Future<void> confirmEstateInstrumentAbsent({
+    required EstateInstrumentKind kind,
+    required String? expectedPreviousEvidenceId,
+  }) =>
+      _writeEstateRoot((root, civilStatus, confirmedAt) {
+        final current =
+            root.estateInstruments.where((slot) => slot.kind == kind).single;
+        if (current.evidenceId != expectedPreviousEvidenceId) {
+          throw StateError('Persisted estate evidence changed');
+        }
+        final absence = EstateInstrumentAbsenceConfirmation(
+          evidenceId: const Uuid().v4(),
+          confirmedAt: confirmedAt,
+          civilStatusAtConfirmation: civilStatus,
+        );
+        final slots = [
+          for (final slot in root.estateInstruments)
+            if (slot.kind == kind)
+              EstateInstrumentSlot.absent(kind, absence)
+            else
+              slot,
+        ];
+        return EstateEvidenceRoot(
+          matrimonialRegime: root.matrimonialRegime,
+          registeredPartnershipPropertyRegime:
+              root.registeredPartnershipPropertyRegime,
+          estateInstruments: slots,
+        );
       });
 
   Future<Map<String, dynamic>> _mutateCanonicalAnswers({

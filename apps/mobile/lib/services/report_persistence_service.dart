@@ -16,6 +16,7 @@ class ReportPersistenceService {
   static const String _strictLppEvidenceKey = '_coach_lpp_evidence_v1';
   static const String _strictPillar3aBeneficiaryEvidenceKey =
       '_coach_pillar3a_beneficiary_evidence_v1';
+  static const String _strictEstateEvidenceKey = '_coach_estate_evidence_v1';
   static const String _strictProfileOwnerKey = '_coach_profile_owner_v1';
   static const String _activeLppEvidenceSlotKey = 'lpp_evidence_active_slot_v1';
   static const String _activeAuthoritySlotKey =
@@ -30,6 +31,7 @@ class ReportPersistenceService {
     _strictTaxSnapshotKey,
     _strictLppEvidenceKey,
     _strictPillar3aBeneficiaryEvidenceKey,
+    _strictEstateEvidenceKey,
   };
   static Future<void>? _lppPersistenceTail;
   static const _looseSelfLppKeys = <String>{
@@ -55,6 +57,7 @@ class ReportPersistenceService {
             key == _strictLppEvidenceKey ||
             key ==
                 _strictPillar3aBeneficiaryEvidenceKey || // gitleaks:allow — ledger field name, not a credential.
+            key == _strictEstateEvidenceKey ||
             key == _activeLppEvidenceSlotKey ||
             legacyPartnerLppAnswerKeys.contains(key) ||
             (hasStrictLppRoot && _looseSelfLppKeys.contains(key)) ||
@@ -359,6 +362,7 @@ class ReportPersistenceService {
     final unresolvedOwner = answers[_strictProfileOwnerKey] == '__secure__';
     final unresolvedTax = answers[_strictTaxSnapshotKey] == '__secure__';
     final unresolvedLpp = answers[_strictLppEvidenceKey] == '__secure__';
+    final unresolvedEstate = answers[_strictEstateEvidenceKey] == '__secure__';
     final safe = Map<String, dynamic>.from(answers);
     if (unresolvedOwner) safe.remove(_strictProfileOwnerKey);
     if (unresolvedTax) {
@@ -373,6 +377,7 @@ class ReportPersistenceService {
         safe.remove(key);
       }
     }
+    if (unresolvedEstate) safe.remove(_strictEstateEvidenceKey);
 
     if (unresolvedTax || unresolvedLpp) {
       final lppPaths = <String>{
