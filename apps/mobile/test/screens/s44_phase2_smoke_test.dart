@@ -4,6 +4,8 @@
 //  (OptimisationDecaissementScreen, SuccessionPatrimoineScreen)
 // ────────────────────────────────────────────────────────────
 
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -336,20 +338,45 @@ void main() {
 
     testWidgets('property missing CTA opens targeted property DataBlock',
         (tester) async {
+      final semantics = tester.ensureSemantics();
       tester.view.physicalSize = const Size(1440, 16000);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() => tester.view.resetPhysicalSize());
+      try {
+        await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
+        await tester.pumpAndSettle();
 
-      await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
-      await tester.pumpAndSettle();
+        final card = find.byKey(const Key('succession_property_missing'));
+        final action =
+            find.bySemanticsIdentifier('succession_property_missing');
+        final button = find.descendant(
+          of: action,
+          matching: find.byType(FilledButton),
+        );
+        expect(action, findsOneWidget);
+        expect(button, findsOneWidget);
+        final actionNode = tester.getSemantics(action);
+        expect(
+          actionNode.getSemanticsData().hasAction(SemanticsAction.tap),
+          isTrue,
+        );
+        expect(actionNode.getSemanticsData().flagsCollection.isButton, isTrue);
+        expect(actionNode.id, tester.getSemantics(button).id);
+        expect(
+          tester.getRect(action).size.height,
+          lessThan(tester.getRect(card).size.height),
+        );
 
-      await tester.tap(find.text('Renseigner mon patrimoine').first);
-      await tester.pumpAndSettle();
+        await tester.tap(action);
+        await tester.pumpAndSettle();
 
-      expect(
-          find.byKey(const Key('property_market_value_input')), findsOneWidget);
-      expect(find.byKey(const Key('savings_input')), findsNothing);
-      expect(find.byKey(const Key('mortgage_balance_input')), findsNothing);
+        expect(find.byKey(const Key('property_market_value_input')),
+            findsOneWidget);
+        expect(find.byKey(const Key('savings_input')), findsNothing);
+        expect(find.byKey(const Key('mortgage_balance_input')), findsNothing);
+      } finally {
+        semantics.dispose();
+      }
     });
 
     testWidgets('renders transmission note from ledger property facts',

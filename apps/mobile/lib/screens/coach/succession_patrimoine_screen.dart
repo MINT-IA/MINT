@@ -386,7 +386,6 @@ class _MissingFactCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      identifier: semanticsIdentifier,
       container: true,
       child: MintSurface(
         tone: MintSurfaceTone.craie,
@@ -417,10 +416,16 @@ class _MissingFactCard extends StatelessWidget {
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerLeft,
-              child: FilledButton.icon(
-                onPressed: onPressed,
-                icon: const Icon(Icons.add_circle_outline, size: 18),
-                label: Text(ctaLabel),
+              child: MergeSemantics(
+                child: Semantics(
+                  identifier: semanticsIdentifier,
+                  button: true,
+                  child: FilledButton.icon(
+                    onPressed: onPressed,
+                    icon: const Icon(Icons.add_circle_outline, size: 18),
+                    label: Text(ctaLabel),
+                  ),
+                ),
               ),
             ),
           ],
