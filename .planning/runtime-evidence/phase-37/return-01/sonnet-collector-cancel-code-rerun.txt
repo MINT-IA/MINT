@@ -1,0 +1,44 @@
+All 26 tests pass, including the new one. The audit is complete.
+
+---
+
+## Verdict: PASS
+
+No P0 or P1 findings. One P2 observation noted below.
+
+---
+
+### Scope
+
+Five files changed: two Maestro YAML flows, one production screen, one runtime structural test, one widget test.
+
+---
+
+### P2 — `MergeSemantics` is novel in production code (low risk, confirmed working)
+
+**File:** `apps/mobile/lib/screens/onboarding/data_block_enrichment_screen.dart:170`
+
+`MergeSemantics` appears nowhere else in `/lib/` — it is introduced here for the first time. The pattern `MergeSemantics > Semantics(identifier, button:true) > IconButton` is correct Flutter semantics: `MergeSemantics` collapses all descendant nodes into one, so the merged node owns both the identifier from the inner `Semantics` widget and the `tap` action from `IconButton`. The widget test (`'stable cancel action returns through the real IconButton'`) explicitly verifies:
+
+- `find.bySemanticsIdentifier` resolves to exactly one node
+- `cancelNode.getSemanticsData().hasAction(SemanticsAction.tap)` is true
+- `cancelNode.flagsCollection.isButton` is true
+- The `IconButton`'s semantics ID equals the identified node's ID (merge confirmed)
+- Navigation actually completes on tap
+
+The test passes on Flutter 3.41.6 / Dart 3.11.4. `flagsCollection` is an established project-wide pattern (used in 10+ test files). No compile risk.
+
+---
+
+### Supporting evidence
+
+| Check | Result |
+|---|---|
+| `flagsCollection.isButton` API validity | Confirmed — used in `wcag_audit_test.dart`, `mint_confidence_notice_test.dart`, `expat_avs_opt_in_test.dart` etc. |
+| `- back` removed from both YAMLs | Confirmed — grep returned no matches |
+| `data_block_cancel_return_cta` present in both YAMLs | 1 occurrence each |
+| `_cancelToReturnTarget` routes correctly | `safePop` or `context.go(target.location)` — same logic as before, only the trigger changed |
+| New widget test | PASS |
+| New runtime/structural test | PASS |
+| Full `data_block_enrichment_screen_test` suite | 26/26 PASS |
+| Full `g1_return01_six_origin_runtime_test` suite | 7/7 PASS |

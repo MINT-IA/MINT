@@ -1,0 +1,58 @@
+---
+
+## Product/domain verdict: PASS
+
+---
+
+### What this diff does
+
+This is a pure **test-infrastructure hardening** change. It replaces the Maestro `- back` OS-gesture with an explicit `- tapOn: id: "data_block_cancel_return_cta"` on both the disability and housing cancel E2E flows, exposes a stable `Semantics(identifier: ...)` node on the `AppBar` back button to make that selector possible, and adds two new automated tests that verify the contract end-to-end.
+
+No Swiss financial logic, no domain constants, no routing changes, no variable definitions, no data collection changes.
+
+---
+
+### Findings
+
+#### P0 — None
+
+#### P1 — None
+
+#### P2
+
+**P2-A — `_exitAfterSuccessfulSave()` has no `safePop` fallback** (`data_block_enrichment_screen.dart:1350–1352`)
+
+When `returnTarget == null` (legacy harness, direct-widget use, or any future caller that doesn't supply a target), a successful save silently does nothing — the user stays on the enrichment screen with no exit. The cancel path at line 1357–1359 correctly falls back to `safePop(context)`, but the success path does not. This is a pre-existing asymmetry not introduced by this diff, but the new test coverage now makes it more visible. No user harm in the flows tested here (production callers supply `returnTarget`), but worth closing.
+
+**P2-B — Widget test covers only the `safePop` branch of `_cancelToReturnTarget`** (`data_block_enrichment_screen_test.dart:107–142`)
+
+`_realRouteHarness` does not pass `returnTarget`, so the test exercises `safePop` only. The `context.go(target.location)` branch — which is what production disability and housing cancel flows actually hit — is covered only through the Maestro E2E YAML, not at the widget-test level. Not a blocker (Maestro covers it), but a gap for unit-test completeness.
+
+**P2-C — Maestro `assertVisible` for disability flow uses the enrichment screen anchor, not the origin screen route anchor** (`g1_return01_disability_return.yaml:48`)
+
+After cancel, the YAML asserts `id: "disability_gap_ledger_facts"`. That is the correct origin-screen anchor. The selector is correct and consistent with the runtime test at `g1_return01_six_origin_runtime_test.dart`. No issue — noting it as an audit observation that the assertion is tight and domain-appropriate.
+
+---
+
+### Swiss domain review
+
+No Swiss-domain items are affected by this diff:
+
+- AVS / LPP / 3a: not touched
+- Tax / canton logic: not touched
+- Mortgage capacity rules: not touched
+- Disability income gap logic: not touched
+- Insurance / succession / inheritance: not touched
+- Confidence scoring and "known / estimated / missing / specialist-only" states: not touched
+
+The disability and housing scenarios are exercised only at the Maestro interaction layer (open deep-link → open enrichment screen → attempt invalid input → cancel). Domain logic behind those scenarios (gap computation, mortgage capacity, return routing after a successful save) is unchanged.
+
+---
+
+### MINT product logic review
+
+The change moves in the right direction for the **ledger → DataQuest → scenario → dossier** spine:
+
+- The enrichment screen remains the canonical enrichment entry point for all data-block types; this change makes its cancel interaction **deterministic** for automated proofs.
+- The stable `data_block_cancel_return_cta` identifier means the Patrol/Maestro test can now attest, as a cryptographic witness, that the cancel from within enrichment reliably returns the user to the originating scenario screen — rather than relying on an OS back gesture that can be intercepted or ambiguous across Android/iOS.
+- No facade-without-wiring risk: the semantics node is wired directly to `_cancelToReturnTarget()`, the widget test fires the actual tap action through the real Flutter routing stack, and the Maestro flows assert the originating route is restored.

@@ -1,0 +1,28 @@
+Product/domain verdict: PASS
+
+This diff is a test-determinism / selector-stability change. It replaces the fragile Maestro `- back` device gesture with a tap on a stable production selector (`data_block_cancel_return_cta`) exposed on the enrichment screen's app-bar cancel button, plus the widget/runtime tests that assert this. No Swiss financial logic, constants, compliance copy, or routing semantics are altered.
+
+Behavioral verification (source of truth = code, not the diff summary):
+- `data_block_enrichment_screen.dart:170-178` wraps the existing back `IconButton` in a `Semantics(container, button, identifier)`. `onPressed` still calls `_cancelToReturnTarget` — the tap target and behavior are unchanged.
+- `_cancelToReturnTarget` (`:1353-1360`) correctly returns to the originating scenario: `context.go(target.location)` when a `returnTarget` exists, else `safePop`. This preserves the "return to the originating scenario" contract — no ledger write-back is expected on cancel, which is correct (cancel = discard, save path is `_exitAfterSuccessfulSave`).
+- The Maestro companions now assert the collector returns to its origin anchor (`disability_gap_ledger_facts`, `mortgage_enrich_profile_cta`) after cancel — coherent with the widget-test assertion `find.text('ledger-return-destination')`.
+- Identifier is unique (`grep` = 1 occurrence), no selector collision.
+
+### P0
+None.
+
+### P1
+None.
+
+### P2
+- `data_block_enrichment_screen.dart:170-174`: `Semantics(container: true, button: true)` wrapping an `IconButton` (itself a button semantics node) produces two nested button nodes in the accessibility tree. The IconButton has no tooltip/label, so no label regression, and the widget test confirms tap + descendant IconButton resolve. Consider `excludeSemantics`-style merging or moving the identifier onto the IconButton via `MergeSemantics` if screen-reader redundancy matters. Non-blocking.
+- The disability Maestro flow relies on birth year `1800` being rejected (asserts `birth_year_input` still visible before cancel). That rejection logic is outside this diff; the flow is only a black-box companion, so it's fine, but the guardrail (implausible-birth-year rejection) is untested here directly.
+
+### Swiss domain review
+- AVS / LPP / 3a / tax / mortgage / insurance / succession: **not affected.** No thresholds, rates, capacity ratios, coverage rules, or inheritance/donation constants are touched. The mortgage and disability flows referenced are only navigation anchors, not calculation logic. Nothing current-law-sensitive is introduced or modified, so there is no stale-constant exposure to flag.
+- No advice, ranking, guarantee, or product-recommendation language is added; compliance surface is unchanged.
+
+### Mint product logic review
+- Neutral-to-positive on the ledger → DataQuest → scenario → dossier spine. It hardens the DataQuest "enrich a block, cancel, return to the originating scenario" loop with a stable production identifier instead of an OS back gesture, reducing flaky return-path coverage. It does not add or duplicate any user variable, does not change the single source of truth, and does not alter what a specialist PDF/dossier would receive. Cancel correctly discards without polluting the ledger.
+
+Net: a safe, in-scope reliability improvement to the return-to-scenario interaction; no domain or compliance risk.

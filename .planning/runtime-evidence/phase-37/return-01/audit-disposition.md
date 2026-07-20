@@ -384,3 +384,47 @@ notice while body taps remain inert. Widget/runtime/navigation suites pass
 No prior runtime atoms are composed. A fresh pushed exact SHA must restart the
 complete matrix and prove the real native hit bounds before RETURN-01 can move
 out of `ticket_only`.
+
+## Collector cancel-action audit disposition
+
+First-pass Opus audits:
+`opus-collector-cancel-code-audit.txt` and
+`opus-collector-cancel-product-domain-audit.txt` — both **PASS**, P0=0 and
+P1=0. They identified one actionable P2: wrapping the existing `IconButton`
+in a separate semantics container could expose an identifier node without the
+native tap action and duplicate the accessibility button. A RED widget
+assertion confirmed that the identified node lacked `SemanticsAction.tap`.
+
+Accepted reruns:
+`sonnet-collector-cancel-code-rerun.txt` and
+`sonnet-collector-cancel-product-domain-rerun.txt` — both **PASS**, P0=0 and
+P1=0. `MergeSemantics` now produces one node that owns the stable identifier,
+button flag and real `IconButton` tap action. Remaining P2 observations concern
+the pre-existing successful-save fallback and the fact that this focused widget
+test exercises `safePop`; the routed `context.go(target.location)` branch is
+already covered by the RETURN-01 navigation matrices and remains the black-box
+runtime subject. Neither observation blocks this cancel-selector fix.
+
+The twelfth exact-SHA run
+(`858a9b843eec08f3cb6036c9cb2699fa463458e8`) stopped at
+`.planning/runtime-evidence/phase-37/return-01/runtime-858a9b843e-20260720T114621Z`.
+It proved Work Patrol+Maestro, Housing Patrol, witness/store preservation,
+production overlay and persistent-data identity. Housing Maestro then proved
+the earlier semantics-boundary fix by tapping `mortgage_enrich_profile_cta`
+and reaching `salary_input`; its generic iOS `back` command did not exit the
+Revenu collector, so the final origin assertion failed. Direct inspection of
+the retained PNG and hierarchy confirms Revenu, `salary_input` and
+`salary_save_cta` remained visible. No later stage or prior atom is accepted.
+
+Housing and Disability Maestro now tap the stable
+`data_block_cancel_return_cta` that is wired directly to the unchanged
+`_cancelToReturnTarget` callback. The contract forbids generic `back` in those
+flows. RED covered the missing selector and non-actionable semantics node;
+GREEN proves one merged actionable node, real return navigation, both YAML
+selectors and no duplicate button. The targeted screen/runtime/Patrol/navigation
+bundle passes 141 tests with one expected non-CLI Patrol skip; targeted analysis,
+YAML parsing and diff checks are clean. Implementation commit: `338c06fdb`.
+
+A new pushed exact SHA must restart the complete RETURN-01 matrix. Promotion
+remains forbidden until every stage, checksum, cleanup and inspected capture is
+complete in one accepted run.

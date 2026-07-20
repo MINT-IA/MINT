@@ -1,0 +1,24 @@
+All evidence checks out. Let me summarize the audit.
+
+## MINT External Audit — `codex/g1-capital-native-proof-20260718`
+
+**Scope:** Worktree diff vs base `858a9b843`. Change swaps the two "cancel" G1-return Maestro flows from the generic `- back` action to tapping a stable production selector `data_block_cancel_return_cta`, backed by a new `Semantics(identifier: …)` wrapper on the collector app-bar back button, plus supporting tests.
+
+### Verification performed
+- **Wiring is real, not a facade.** The new selector wraps the *existing* `IconButton` whose `onPressed` is still `_cancelToReturnTarget` (`data_block_enrichment_screen.dart:170-181`). That method navigates via `context.go(target.location)` or `safePop(context)` (`:1353-1360`) — unchanged, functioning return logic.
+- **Tests pass.** Ran both changed suites: `flutter test test/runtime/g1_return01_six_origin_runtime_test.dart test/screens/data_block_enrichment_screen_test.dart` → **All 33 tests passed**, including:
+  - New `stable cancel action returns through the real IconButton` — confirms `find.bySemanticsIdentifier('data_block_cancel_return_cta')` resolves to exactly one node, contains the `IconButton`, and tapping it returns to the ledger destination.
+  - Pre-existing `real gender and DOB routes …` — still taps `find.byIcon(Icons.arrow_back)` and passes, proving the `Semantics` wrapper does **not** break icon-based tapping.
+- **Native/black-box consistency.** The Patrol whitebox counterpart (`g1_return01_six_origin_patrol_test.dart:395-402`) taps the same widget via `find.byIcon(Icons.arrow_back)` descendant of `DataBlockEnrichmentScreen` — unaffected by the wrapper, so Maestro (identifier) and Patrol (icon) target the same control.
+- **No stray `- back`.** Runtime test asserts `isNot(contains('\n- back\n'))` for both flows; grep confirms the selector only appears in the two flows, the screen, and their tests. No other flow relied on the removed `- back`.
+- **No privacy/compliance/routing surface touched.** No data capture, persistence, or route-target changes; return destinations preserved.
+
+### Findings
+- **P0:** none.
+- **P1:** none.
+- **P2 (cosmetic accessibility redundancy):** `data_block_enrichment_screen.dart:170-181` wraps the `IconButton` in `Semantics(container: true, button: true, …)`. The `IconButton` already emits a button semantics node, so `container:true` introduces a second, nested button node (identifier node has no tap action; child holds the action). Tests confirm this is functionally harmless — a single identifier node is found and taps land on the button — so this is a minor nit, not a defect. Dropping `container/button` and letting it merge would be marginally cleaner.
+
+### Verdict
+**PASS**
+
+Wiring is genuine and test-proven, native/black-box selectors are consistent, all 33 tests green, and no correctness, privacy, compliance, or routing regressions. The single P2 is cosmetic.
