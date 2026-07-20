@@ -314,6 +314,60 @@ def test_maestro_outputs_are_private_and_failure_diagnostics_are_best_effort() -
     assert named_failure < semantic_check < strict_hierarchy < strict_screenshot
 
 
+def test_hierarchy_patrol_and_rvc_failures_are_isolated_and_observable() -> None:
+    text = source()
+
+    hierarchy_match = re.search(r"capture_hierarchy\(\) \{\n(.*?)\n\}", text, flags=re.S)
+    assert hierarchy_match is not None
+    hierarchy = hierarchy_match.group(1)
+    command = hierarchy.index('bash "$maestro_runner" --udid "$device" hierarchy --compact')
+    assert 'local private_home="$private_root/maestro-hierarchy-$label-java-home"' in hierarchy
+    assert 'local walker="$private_root/maestro-hierarchy-$label-walker"' in hierarchy
+    assert hierarchy.index('MAESTRO_OPTS="-Duser.home=$private_home"') < command
+    assert hierarchy.index('MINT_WALKER_ARTIFACTS="$walker"') < command
+    assert 'grep -Fq -- "$anchor"' in hierarchy[command:]
+
+    patrol_match = re.search(r"run_patrol_stage\(\) \{\n(.*?)\n\}", text, flags=re.S)
+    assert patrol_match is not None
+    patrol = patrol_match.group(1)
+    patrol_command = patrol.index('"$patrol" test')
+    patrol_capture = patrol.index("patrol_status=$?", patrol_command)
+    patrol_restore = patrol.index("set -e", patrol_capture)
+    patrol_sanitize = patrol.index(
+        'sanitize_log "$raw" "$artifacts/patrol-$stage.log"', patrol_restore
+    )
+    patrol_failure = patrol.index("if ((patrol_status != 0)); then", patrol_sanitize)
+    patrol_archive = patrol.index('archive_xcresult_summary "$stage"', patrol_failure)
+    patrol_die = patrol.index(
+        'die "Patrol stage $stage failed with exit $patrol_status; sanitized log retained"',
+        patrol_archive,
+    )
+    patrol_pass_archive = patrol.index('archive_xcresult_summary "$stage"', patrol_die)
+    assert "set +e" in patrol[:patrol_command]
+    assert patrol_command < patrol_capture < patrol_restore < patrol_sanitize
+    assert patrol_sanitize < patrol_failure < patrol_archive < patrol_die
+    assert "if ! (" in patrol[patrol_failure:patrol_archive]
+    assert patrol_die < patrol_pass_archive
+
+    rvc_match = re.search(r"run_rvc_stage\(\) \{\n(.*?)\n\}", text, flags=re.S)
+    assert rvc_match is not None
+    rvc = rvc_match.group(1)
+    rvc_command = rvc.index('bash "$rvc_runner"')
+    rvc_capture = rvc.index("rvc_status=$?", rvc_command)
+    rvc_restore = rvc.index("set -e", rvc_capture)
+    rvc_sanitize = rvc.index(
+        'sanitize_log "$private_root/rvc-runner.raw.log" "$artifacts/rvc-runner.log"',
+        rvc_restore,
+    )
+    rvc_die = rvc.index(
+        'die "RVC stage failed with exit $rvc_status; sanitized log retained"',
+        rvc_sanitize,
+    )
+    metadata = rvc.index('validate_rvc_metadata "$rvc_artifacts/metadata.json"', rvc_die)
+    assert "set +e" in rvc[:rvc_command]
+    assert rvc_command < rvc_capture < rvc_restore < rvc_sanitize < rvc_die < metadata
+
+
 def test_rvc_is_a_separate_required_exact_sha_stage() -> None:
     text = source()
     rvc_call = text.index("patrol_return01_rvc_lpp_scan_return.sh")

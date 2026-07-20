@@ -287,7 +287,12 @@ capture_hierarchy() {
   local label=$1
   local anchor=$2
   local raw="$private_root/hierarchy-$label.raw.log"
-  bash "$maestro_runner" --udid "$device" hierarchy --compact >"$raw" 2>&1
+  local private_home="$private_root/maestro-hierarchy-$label-java-home"
+  local walker="$private_root/maestro-hierarchy-$label-walker"
+  mkdir -p "$private_home" "$walker"
+  MAESTRO_OPTS="-Duser.home=$private_home" \
+    MINT_WALKER_ARTIFACTS="$walker" \
+    bash "$maestro_runner" --udid "$device" hierarchy --compact >"$raw" 2>&1
   sanitize_log "$raw" "$artifacts/hierarchy-$label.log"
   [[ -s "$artifacts/hierarchy-$label.log" ]] || die "$label hierarchy is empty"
   grep -Fq -- "$anchor" "$artifacts/hierarchy-$label.log" \
@@ -556,9 +561,11 @@ archive_xcresult_summary() {
 run_patrol_stage() {
   local stage=$1
   local raw="$private_root/patrol-$stage.raw.log"
+  local patrol_status=0
   local app_container witness_source witness_name
   witness_name=$(witness_name_for_stage "$stage") \
     || die "unknown Patrol stage $stage"
+  set +e
   (
     cd "$source_root/apps/mobile"
     MINT_G1_RETURN01_STAGE="$stage" \
@@ -568,7 +575,18 @@ run_patrol_stage() {
         --dart-define=MINT_G1_RETURN01_STAGE="$stage" \
         --dart-define=MINT_G1_RETURN01_SOURCE_SHA="$expected_sha"
   ) >"$raw" 2>&1
+  patrol_status=$?
+  set -e
   sanitize_log "$raw" "$artifacts/patrol-$stage.log"
+  if ((patrol_status != 0)); then
+    if ! (
+      set -e
+      archive_xcresult_summary "$stage"
+    ); then
+      rm -f -- "$artifacts/patrol-$stage-xcresult-summary.sanitized.json" || true
+    fi
+    die "Patrol stage $stage failed with exit $patrol_status; sanitized log retained"
+  fi
   archive_xcresult_summary "$stage"
   app_container=$(resolve_app_container) || die "$stage app container is invalid"
   witness_source="$app_container/tmp/$witness_name"
@@ -598,10 +616,17 @@ run_rvc_stage() {
   local timestamp=${artifacts##*-}
   timestamp=${timestamp%Z}Z
   local rvc_artifacts="$repo/.planning/runtime-evidence/phase-37/return-01-rvc/runtime-${expected_sha:0:10}-$timestamp"
+  local rvc_status=0
+  set +e
   bash "$rvc_runner" --device "$device" --bundle-id "$bundle_id" \
     --sha "$expected_sha" --artifacts "$rvc_artifacts" \
     >"$private_root/rvc-runner.raw.log" 2>&1
+  rvc_status=$?
+  set -e
   sanitize_log "$private_root/rvc-runner.raw.log" "$artifacts/rvc-runner.log"
+  if ((rvc_status != 0)); then
+    die "RVC stage failed with exit $rvc_status; sanitized log retained"
+  fi
   validate_rvc_metadata "$rvc_artifacts/metadata.json"
   python3 - "$artifacts/rvc-link.json" "$repo" "$rvc_artifacts" <<'PY'
 import json
