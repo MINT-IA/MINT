@@ -17,12 +17,16 @@ final class _MemoryPersistence
   _MemoryPersistence(Map<String, dynamic> initial) : answers = _copy(initial);
 
   Map<String, dynamic> answers;
+  int loadCalls = 0;
   int saveCalls = 0;
   Completer<void>? saveGate;
   Object? saveFailure;
 
   @override
-  Future<Map<String, dynamic>> loadAnswers() async => _copy(answers);
+  Future<Map<String, dynamic>> loadAnswers() async {
+    loadCalls += 1;
+    return _copy(answers);
+  }
 
   @override
   Future<void> saveAnswers(Map<String, dynamic> next) async {
@@ -35,6 +39,7 @@ final class _MemoryPersistence
   }
 
   void reset() {
+    loadCalls = 0;
     saveCalls = 0;
     saveGate = null;
     saveFailure = null;
@@ -286,6 +291,42 @@ void main() {
       'surveyComplete',
     );
     expect(loaded.persistence.saveCalls, 0);
+  });
+
+  test('estate writer uses only its dedicated generic persistence seam',
+      () async {
+    final initial = _answers();
+    final tax = _MemoryPersistence(initial);
+    final lpp = _MemoryPersistence(initial);
+    final estate = _MemoryPersistence(initial);
+    final provider = Function.apply(
+      CoachProfileProvider.new,
+      const <dynamic>[],
+      <Symbol, dynamic>{
+        #taxProfilePersistence: tax,
+        #lppProfilePersistence: lpp,
+        #estateProfilePersistence: estate,
+        #now: () => _now,
+      },
+    ) as CoachProfileProvider;
+    addTearDown(provider.dispose);
+    await provider.loadFromWizard();
+    tax.reset();
+    lpp.reset();
+    estate.reset();
+
+    await _confirmAbsent(
+      provider,
+      kind: EstateInstrumentKind.will,
+      expectedPreviousEvidenceId: null,
+    );
+
+    expect((tax.loadCalls, tax.saveCalls), (0, 0));
+    expect((lpp.loadCalls, lpp.saveCalls), (0, 0));
+    expect((estate.loadCalls, estate.saveCalls), (1, 1));
+    expect(estate.answers.containsKey(_rootKey), isTrue);
+    expect(tax.answers.containsKey(_rootKey), isFalse);
+    expect(lpp.answers.containsKey(_rootKey), isFalse);
   });
 
   test(
@@ -591,6 +632,70 @@ void main() {
       wasUpdatedSinceBudget,
     );
     expect(notifications, 0);
+  });
+
+  test('clock rollback does not brick a different-slot estate write', () async {
+    final t1 = _now;
+    final t0 = t1.subtract(const Duration(hours: 1));
+    Map<String, dynamic> absenceAtT0(String id) {
+      final slot = _absent(evidenceId: id, civilStatus: 'celibataire');
+      (slot['confirmation'] as Map<String, dynamic>)['confirmedAt'] =
+          t0.toIso8601String();
+      return slot;
+    }
+
+    final initialRoot = _root(
+      will: _present(
+        evidenceId: '11111111-1111-4111-8111-111111111111',
+        civilStatus: 'celibataire',
+      ),
+      incapacityMandate: absenceAtT0(
+        '33333333-3333-4333-8333-333333333333',
+      ),
+      advanceCareDirective: absenceAtT0(
+        '44444444-4444-4444-8444-444444444444',
+      ),
+    );
+    var clock = t1;
+    final persistence = _MemoryPersistence(_answers(root: initialRoot));
+    final provider = CoachProfileProvider(
+      taxProfilePersistence: persistence,
+      lppProfilePersistence: persistence,
+      now: () => clock,
+    );
+    addTearDown(provider.dispose);
+    await provider.loadFromWizard();
+    persistence.reset();
+    clock = t0;
+
+    await _confirmAbsent(
+      provider,
+      kind: EstateInstrumentKind.inheritancePact,
+      expectedPreviousEvidenceId: null,
+    );
+
+    final slots = _slots(_decodedRoot(persistence.answers));
+    final will = Map<String, dynamic>.from(slots['will'] as Map);
+    final willEvidence = Map<String, dynamic>.from(will['evidence'] as Map);
+    final pact = Map<String, dynamic>.from(slots['inheritancePact'] as Map);
+    final pactConfirmation =
+        Map<String, dynamic>.from(pact['confirmation'] as Map);
+    expect(willEvidence['confirmedAt'], t1.toIso8601String());
+    expect(pactConfirmation['confirmedAt'], t0.toIso8601String());
+    final stateAtRollback = provider.profile!.estateReferenceStateAt(t0);
+    expect(
+      (
+        provider.profile!.estateReferenceSurveyCompleteAt(t0),
+        stateAtRollback,
+        stateAtRollback == EstateReferenceState.known,
+      ),
+      (
+        false,
+        EstateReferenceState.invalid,
+        false,
+      ),
+    );
+    expect(persistence.saveCalls, 1);
   });
 
   test('stale arrangement confirmationId causes zero save and publication',

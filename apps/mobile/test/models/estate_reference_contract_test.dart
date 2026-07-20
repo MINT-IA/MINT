@@ -599,6 +599,49 @@ void main() {
     expect(_surveyComplete(profile), isFalse);
   });
 
+  group('SUCC-R16 authority root refuses noncanonical slots', () {
+    final evidence = EstateInstrumentEvidence(
+      evidenceId: '11111111-1111-4111-8111-111111111111',
+      sourceDate: _fixedSourceDate,
+      legalYear: 2026,
+      confirmedAt: _fixedConfirmationInstant,
+      civilStatusAtConfirmation: CoachCivilStatus.celibataire,
+    );
+    final canonicalUnknown = <EstateInstrumentSlot>[
+      for (final kind in EstateInstrumentKind.values)
+        EstateInstrumentSlot.unknown(kind),
+    ];
+    final cases = <String, List<EstateInstrumentSlot>>{
+      'stale': <EstateInstrumentSlot>[
+        EstateInstrumentSlot.present(
+          EstateInstrumentKind.will,
+          evidence,
+        ).stale(),
+        ...canonicalUnknown.skip(1),
+      ],
+      'invalid': <EstateInstrumentSlot>[
+        const EstateInstrumentSlot.invalid(EstateInstrumentKind.will),
+        ...canonicalUnknown.skip(1),
+      ],
+      'duplicated': <EstateInstrumentSlot>[
+        for (var index = 0; index < EstateInstrumentKind.values.length; index++)
+          const EstateInstrumentSlot.unknown(EstateInstrumentKind.will),
+      ],
+      'missing': canonicalUnknown.take(3).toList(growable: false),
+    };
+
+    for (final entry in cases.entries) {
+      test(entry.key, () {
+        final root = EstateEvidenceRoot(
+          matrimonialRegime: null,
+          registeredPartnershipPropertyRegime: null,
+          estateInstruments: entry.value,
+        );
+        expect(root.toJsonString, throwsStateError);
+      });
+    }
+  });
+
   test('SUCC-V01 profile JSON round-trip preserves LPart and all four slots',
       () {
     final profile = _profile(
@@ -891,18 +934,20 @@ void main() {
       (
         projection.containsKey('estateInstrumentReferences'),
         RegExp(RegExp.escape(evidenceId)).allMatches(encoded).length,
-        slots.keys.toSet(),
       ),
       (
         false,
         1,
-        <String>{
-          'will',
-          'inheritancePact',
-          'incapacityMandate',
-          'advanceCareDirective',
-        },
       ),
+    );
+    expect(
+      slots.keys,
+      unorderedEquals(<String>{
+        'will',
+        'inheritancePact',
+        'incapacityMandate',
+        'advanceCareDirective',
+      }),
     );
   });
 
@@ -1116,6 +1161,19 @@ void main() {
       partnershipWithMismatchedConfirmation
           .currentEstateArrangementApplicability,
       EstateArrangementApplicability.unknown,
+    );
+  });
+
+  test('SUCC-P08 legacy reconfirmation marker drives aggregate state', () {
+    final legacyProjection = CoachProfile.defaults().toJson()
+      ..['estateFactsNeedReconfirmation'] = true;
+
+    final restored = CoachProfile.fromJson(legacyProjection);
+
+    expect(restored.estateFactsNeedReconfirmation, isTrue);
+    expect(
+      restored.estateReferenceStateAt(_asOf),
+      EstateReferenceState.needsReconfirmation,
     );
   });
 }
