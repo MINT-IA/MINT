@@ -1,0 +1,29 @@
+## Audit Verdict: **PASS**
+
+### Scope
+Diff is 14 lines across 2 files, well under budget. It adds a landing-route synchronization gate to two stages of the succession process-death evidence script, plus matching test coverage.
+
+### What the change does
+`tools/simulator/patrol_succession_evidence_process_death.sh`:
+- Inserts `wait_for_landing "native-present"` between app launch and `openurl` (line 955).
+- Inserts `wait_for_landing "cold-continuation"` for the cold-read stage (line 979).
+- Adds `hierarchy-native-present-landing.log` and `hierarchy-cold-continuation-landing.log` to the retained `expected_stage_artifacts` (checked with `[[ -s ]]`).
+
+`tools/checks/tests/test_g1_succession_runtime_orchestrator.py`:
+- Asserts strict ordering `launch < landing < openurl < quest` for both stages and that the landing logs are referenced.
+
+### Verification (not facade)
+- `wait_for_landing` is a real, pre-existing function (`patrol_succession_evidence_process_death.sh:806`) already used for the seeded stage. It polls `maestro hierarchy` for the `landing_route` marker with a 30s deadline and `die`s on timeout — genuine gating, not a no-op.
+- The `landing_route` marker is a real widget identifier in production code: `apps/mobile/lib/screens/landing_screen.dart:86`.
+- Artifact naming is consistent: function writes `$artifacts/hierarchy-$stage-landing.log` (line 833) → `hierarchy-native-present-landing.log` / `hierarchy-cold-continuation-landing.log`, exactly matching the new `expected_stage_artifacts` entries.
+- Privacy: both new logs pass through `sanitize_log` before landing in `$artifacts`; raw output stays in `$private_root`. Consistent with sibling poll functions.
+- No new metadata boolean was introduced, so there is no risk of a vacuous "verified" claim tied to the added sync.
+- `python3 -m pytest ...test_g1_succession_runtime_orchestrator.py` → **17 passed**.
+- `bash -n` on the script → syntax OK.
+
+### Findings
+- **P0:** none
+- **P1:** none
+- **P2 (non-blocking, pre-existing):** `wait_for_landing "flag_on-seeded"` (line 941) produces `hierarchy-flag_on-seeded-landing.log` that is *not* asserted in `expected_stage_artifacts`. This predates the diff and is out of scope, but for symmetry with the two stages this change just added, consider retaining it too.
+
+The change is correct, tightens sync ordering to reduce race flakiness before `openurl`, is backed by matching tests that exercise the real script text, and introduces no privacy or verification-integrity regressions.
