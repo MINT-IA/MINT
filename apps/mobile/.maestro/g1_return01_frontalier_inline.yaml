@@ -2,6 +2,10 @@ appId: ch.mint.app
 ---
 # Black-box companion for the frontalier_inline Patrol stage.
 - launchApp
+- extendedWaitUntil:
+    visible:
+      id: "landing_route"
+    timeout: 20000
 - openLink: "mint:///segments/frontalier"
 - runFlow:
     when:

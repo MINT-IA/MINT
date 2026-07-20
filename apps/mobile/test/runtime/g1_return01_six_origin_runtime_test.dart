@@ -221,4 +221,32 @@ void main() {
       expect(openLink, greaterThan(landingReady), reason: path);
     }
   });
+
+  test('overlay Maestro flows wait for router readiness before links', () {
+    const cases = <String, String>{
+      '.maestro/g1_return01_housing_cancel_return.yaml':
+          'mortgage_afford_result',
+      '.maestro/g1_return01_disability_return.yaml':
+          'disability_gap_ledger_facts',
+      '.maestro/g1_return01_frontalier_inline.yaml':
+          'frontier_residence_country_field',
+    };
+
+    for (final entry in cases.entries) {
+      final source = _read(entry.key);
+      final launch = source.indexOf('- launchApp');
+      final landingReady = source.indexOf(
+        '- extendedWaitUntil:\n    visible:\n      id: "landing_route"',
+      );
+      final openLink = source.indexOf('- openLink:');
+      final routeReady = source.indexOf(
+        '- extendedWaitUntil:\n    visible:\n      id: "${entry.value}"',
+      );
+
+      expect(launch, greaterThanOrEqualTo(0), reason: entry.key);
+      expect(landingReady, greaterThan(launch), reason: entry.key);
+      expect(openLink, greaterThan(landingReady), reason: entry.key);
+      expect(routeReady, greaterThan(openLink), reason: entry.key);
+    }
+  });
 }
