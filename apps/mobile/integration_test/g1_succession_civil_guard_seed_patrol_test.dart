@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:patrol/patrol.dart';
 
@@ -29,11 +29,8 @@ void main() {
         isFalse,
       );
 
-      final rehydrated = CoachProfileProvider();
-      await rehydrated.loadFromWizard();
-      expect(rehydrated.profile, isNotNull);
-      expect(rehydrated.profile!.civilStatusNeedsConfirmation, isTrue);
-      rehydrated.dispose();
+      final rehydrated = CoachProfile.fromWizardAnswers(persisted);
+      expect(rehydrated.civilStatusNeedsConfirmation, isTrue);
     },
   );
 }

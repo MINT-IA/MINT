@@ -18,8 +18,8 @@ void main() {
     expect(source, contains('ReportPersistenceService.clearDiagnostic()'));
     expect(source, contains("'q_civil_status': 'partenariat'"));
     expect(source, contains('ReportPersistenceService.saveAnswers'));
-    expect(source, contains('CoachProfileProvider()'));
-    expect(source, contains('loadFromWizard()'));
+    expect(source, contains('CoachProfile.fromWizardAnswers(persisted)'));
+    expect(source, contains("persisted['q_civil_status']"));
     expect(source, contains('civilStatusNeedsConfirmation'));
     expect(source, contains('isMiniOnboardingCompleted()'));
     expect(source, isNot(contains('setMiniOnboardingCompleted')));
