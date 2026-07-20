@@ -58,18 +58,24 @@ class _SuccessionEvidenceQuestState extends State<SuccessionEvidenceQuest> {
     final l = S.of(context)!;
     final provider = context.watch<CoachProfileProvider>();
     final profile = provider.profile;
-    return Card(
-      key: const Key('succession_reference_quest'),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: profile == null
-            ? _message(
-                l.successionQuestUnloaded,
-                buttonKey: 'succession_reference_retry',
-                button: l.successionQuestReload,
-                onPressed: provider.isLoading ? null : provider.loadFromWizard,
-              )
-            : _content(provider, profile, l),
+    return Semantics(
+      identifier: 'succession_reference_quest',
+      container: true,
+      explicitChildNodes: true,
+      child: Card(
+        key: const Key('succession_reference_quest'),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: profile == null
+              ? _message(
+                  l.successionQuestUnloaded,
+                  buttonKey: 'succession_reference_retry',
+                  button: l.successionQuestReload,
+                  onPressed:
+                      provider.isLoading ? null : provider.loadFromWizard,
+                )
+              : _content(provider, profile, l),
+        ),
       ),
     );
   }
@@ -236,7 +242,7 @@ class _SuccessionEvidenceQuestState extends State<SuccessionEvidenceQuest> {
     final reviewing =
         slot.state == EstateInstrumentSlotState.confirmedPresent ||
             slot.state == EstateInstrumentSlotState.confirmedAbsent;
-    return Column(
+    final content = Column(
       key: Key('${prefix}_question'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -362,6 +368,14 @@ class _SuccessionEvidenceQuestState extends State<SuccessionEvidenceQuest> {
         _errorWidget(l, prefix: prefix),
       ],
     );
+    return slot.kind == EstateInstrumentKind.will
+        ? Semantics(
+            identifier: 'succession_instrument_will_question',
+            container: true,
+            explicitChildNodes: true,
+            child: content,
+          )
+        : content;
   }
 
   Widget _priorState(EstateInstrumentSlot slot, S l, String prefix) {
@@ -476,20 +490,39 @@ class _SuccessionEvidenceQuestState extends State<SuccessionEvidenceQuest> {
     String? buttonKey,
     String? button,
     VoidCallback? onPressed,
-  }) =>
-      Column(
-        key: key == null ? null : Key(key),
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(text),
-          if (button != null)
-            ElevatedButton(
-              key: buttonKey == null ? null : Key(buttonKey),
-              onPressed: onPressed,
-              child: Text(button),
-            ),
-        ],
-      );
+  }) {
+    final content = Column(
+      key: key == null ? null : Key(key),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(text),
+        if (button != null)
+          buttonKey == 'succession_civil_status_confirm'
+              ? Semantics(
+                  identifier: 'succession_civil_status_confirm',
+                  button: true,
+                  child: ElevatedButton(
+                    key: Key(buttonKey!),
+                    onPressed: onPressed,
+                    child: Text(button),
+                  ),
+                )
+              : ElevatedButton(
+                  key: buttonKey == null ? null : Key(buttonKey),
+                  onPressed: onPressed,
+                  child: Text(button),
+                ),
+      ],
+    );
+    return key == 'succession_civil_status_guard'
+        ? Semantics(
+            identifier: 'succession_civil_status_guard',
+            container: true,
+            explicitChildNodes: true,
+            child: content,
+          )
+        : content;
+  }
 }
 
 enum _QuestError { changed, validation, persistence }
