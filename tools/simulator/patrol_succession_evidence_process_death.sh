@@ -445,6 +445,35 @@ run_logged() {
   ((status == 0)) || exit "$status"
 }
 
+# SEED_TERMINATE_CLASSIFIER_BEGIN
+seed_terminate_is_already_dead() {
+  local status="$1"
+  local raw="$2"
+  ((status == 3)) \
+    && grep -Fq 'domain=NSPOSIXErrorDomain, code=3' "$raw" \
+    && grep -Fxq 'found nothing to terminate' "$raw"
+}
+# SEED_TERMINATE_CLASSIFIER_END
+
+terminate_seed_app_idempotently() {
+  local name="$1"
+  local raw="$private_root/$name.raw.log"
+  local status
+  local already_dead=false
+  set +e
+  xcrun simctl terminate "$device" "$bundle_id" >"$raw" 2>&1
+  status=$?
+  set -e
+  if seed_terminate_is_already_dead "$status" "$raw"; then
+    already_dead=true
+  fi
+  sanitize_log "$raw" "$artifacts/$name.log"
+  if ((status == 0)) || [[ "$already_dead" == true ]]; then
+    return 0
+  fi
+  exit "$status"
+}
+
 reset_external_build() {
   [[ -L "$mobile_build" && "$(readlink "$mobile_build")" == "$external_build" ]] \
     || die "Patrol build isolation drifted"
@@ -894,8 +923,7 @@ capture_screenshot "flag-off.png"
 build_production_app "flag_on" true
 run_patrol_stage "civil_guard_seed" "$civil_guard_seed_target"
 civil_guard_seed_verified=true
-run_logged "civil-guard-seed-terminate" \
-  xcrun simctl terminate "$device" "$bundle_id"
+terminate_seed_app_idempotently "civil-guard-seed-terminate"
 wait_for_seed_witness "post-terminate"
 seed_post_terminate_witness_verified=true
 seed_post_terminate_container_identity="$seed_witness_container_identity"

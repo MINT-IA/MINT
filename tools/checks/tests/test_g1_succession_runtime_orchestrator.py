@@ -107,7 +107,8 @@ def test_runner_seeds_civil_guard_without_erasing_before_flag_on_maestro() -> No
     )
     seed_verified = text.index("civil_guard_seed_verified=true", seed)
     terminate = text.index(
-        'xcrun simctl terminate "$device" "$bundle_id"', seed_verified
+        'terminate_seed_app_idempotently "civil-guard-seed-terminate"',
+        seed_verified,
     )
     post_terminate = text.index(
         'wait_for_seed_witness "post-terminate"', terminate
@@ -198,6 +199,66 @@ def test_runner_seeds_civil_guard_without_erasing_before_flag_on_maestro() -> No
         '"$artifacts/seed-witness-post-overlay.json"', first_witness
     )
     assert compare < first_witness < second_witness < witnesses_equal
+
+
+def test_seed_terminate_classifier_accepts_only_exact_already_dead_error(
+    tmp_path: Path,
+) -> None:
+    text = source()
+    match = re.search(
+        r"# SEED_TERMINATE_CLASSIFIER_BEGIN\n(.*?)\n# SEED_TERMINATE_CLASSIFIER_END",
+        text,
+        re.S,
+    )
+    assert match is not None
+    classifier = match.group(1)
+
+    def classify(status: int, diagnostic: str) -> subprocess.CompletedProcess[str]:
+        log = tmp_path / "terminate.log"
+        log.write_text(diagnostic, encoding="utf-8")
+        return subprocess.run(
+            [
+                "bash",
+                "-c",
+                f"{classifier}\nseed_terminate_is_already_dead \"$1\" \"$2\"",
+                "classifier",
+                str(status),
+                str(log),
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+    exact = """An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=3):
+Simulator device failed to terminate ch.mint.app.
+found nothing to terminate
+"""
+    assert classify(3, exact).returncode == 0
+    assert classify(1, exact).returncode != 0
+    assert classify(3, "found nothing to terminate\n").returncode != 0
+    assert (
+        classify(
+            3,
+            "An error was encountered (domain=NSPOSIXErrorDomain, code=3): permission denied\n",
+        ).returncode
+        != 0
+    )
+    assert classify(3, exact.replace("code=3", "code=4")).returncode != 0
+
+    assert 'terminate_seed_app_idempotently "civil-guard-seed-terminate"' in text
+    boundary = text.split("terminate_seed_app_idempotently() {", 1)[1].split(
+        "reset_external_build() {", 1
+    )[0]
+    assert 'sanitize_log "$raw" "$artifacts/$name.log"' in boundary
+    assert 'seed_terminate_is_already_dead "$status" "$raw"' in boundary
+    assert 'exit "$status"' in boundary
+    classify_before_sanitize = boundary.index(
+        'seed_terminate_is_already_dead "$status" "$raw"'
+    )
+    sanitize = boundary.index('sanitize_log "$raw" "$artifacts/$name.log"')
+    assert classify_before_sanitize < sanitize
 
 
 def test_seed_witness_python_is_exact_and_retains_no_raw_values(
