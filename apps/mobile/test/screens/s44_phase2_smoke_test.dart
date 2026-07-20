@@ -289,6 +289,14 @@ void main() {
       await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
       await tester.pump();
       expect(find.byType(SuccessionEvidenceQuest), findsNothing);
+      expect(
+        find.bySemanticsIdentifier('succession_reference_quest_flag_off'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier('succession_reference_quest'),
+        findsNothing,
+      );
     });
 
     testWidgets('local collector flag exposes the real quest only',
@@ -299,6 +307,14 @@ void main() {
       await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
       await tester.pump();
       expect(find.byType(SuccessionEvidenceQuest), findsOneWidget);
+      expect(
+        find.bySemanticsIdentifier('succession_reference_quest'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier('succession_reference_quest_flag_off'),
+        findsNothing,
+      );
     });
 
     testWidgets('asks for property value before rendering a fictive case',

@@ -35,6 +35,8 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
         profile?.dettes.hypotheque ?? profile?.patrimoine.mortgageBalance;
     final hasPropertyValue = propertyValue > 0;
     final hasMortgageBalance = mortgageBalance != null && mortgageBalance >= 0;
+    final evidenceCollectionEnabled =
+        FeatureFlags.successionEvidenceCollectionEnabled;
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -116,13 +118,21 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   ],
                 ],
 
-                if (FeatureFlags.successionEvidenceCollectionEnabled) ...[
+                if (evidenceCollectionEnabled) ...[
                   const SuccessionEvidenceQuest(),
                   const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // ── Concepts clés ────────────────────────────
-                MintEntrance(child: EduSectionTitle(text: l.successionNotionsCles)),
+                Semantics(
+                  identifier: evidenceCollectionEnabled
+                      ? null
+                      : 'succession_reference_quest_flag_off',
+                  container: !evidenceCollectionEnabled,
+                  child: MintEntrance(
+                    child: EduSectionTitle(text: l.successionNotionsCles),
+                  ),
+                ),
                 const SizedBox(height: MintSpacing.sm + 4),
 
                 _ConceptCard(
