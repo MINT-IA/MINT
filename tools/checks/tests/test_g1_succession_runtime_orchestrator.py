@@ -172,6 +172,7 @@ def test_runner_primes_clears_reinstalls_and_opens_each_maestro_route() -> None:
         'xcrun simctl uninstall "$device" "$bundle_id"',
         'install_production_app "$stage-final" "$app"',
         'xcrun simctl launch "$device" "$bundle_id"',
+        'wait_for_landing "$stage"',
         'xcrun simctl openurl "$device"',
         '"mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"',
         'wait_for_property_input "$stage"',
@@ -194,6 +195,14 @@ def test_runner_primes_clears_reinstalls_and_opens_each_maestro_route() -> None:
     assert 'bash "$maestro_runner" --udid "$device" hierarchy --compact' in poll
     assert "grep -Fq 'property_market_value_input'" in poll
     assert 'sanitize_log "$raw" "$artifacts/hierarchy-$stage-property.log"' in poll
+
+    landing_poll = text.split("wait_for_landing() {", 1)[1].split(
+        "wait_for_property_input() {", 1
+    )[0]
+    assert "local deadline=$((SECONDS + 30))" in landing_poll
+    assert 'bash "$maestro_runner" --udid "$device" hierarchy --compact' in landing_poll
+    assert "grep -Fq 'landing_route'" in landing_poll
+    assert 'sanitize_log "$raw" "$artifacts/hierarchy-$stage-landing.log"' in landing_poll
 
 
 def test_bound_maestro_flows_match_every_runner_preflight_needle() -> None:
