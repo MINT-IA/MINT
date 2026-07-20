@@ -283,7 +283,7 @@ void main() {
       expect(find.byKey(const Key('succession_property_missing')), findsNothing);
       expect(find.byKey(const Key('succession_parents_note')), findsOneWidget);
       expect(find.byKey(const Key('succession_mortgage_missing')), findsNothing);
-      expect(find.byType(TestamentInvisibleWidget), findsOneWidget);
+      expect(find.byType(TestamentInvisibleWidget), findsNothing);
       expect(find.textContaining("950'000"), findsWidgets);
       expect(find.textContaining("320'000"), findsWidgets);
       expect(find.textContaining("630'000"), findsWidgets);

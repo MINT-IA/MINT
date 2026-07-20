@@ -70,6 +70,10 @@ void main() {
       'MINT_TEST_FINANCIAL_PLAN_SETUP',
       defaultValue: false,
     );
+    FeatureFlags.successionEvidenceCollectionEnabled = false;
+    addTearDown(
+      () => FeatureFlags.successionEvidenceCollectionEnabled = false,
+    );
     // F7: enableCoachPhase2, enableLifeEventScreens, enableAdvancedSimulators,
     //     enableMortgageTools, enableIndependantTools removed (always true, no consumers)
     FeatureFlags.enableOpenBanking = false;
@@ -125,6 +129,14 @@ void main() {
 
     test('financial plan setup remains false without the test-only opt-in', () {
       expect(FeatureFlags.financialPlanSetupEnabled, isFalse);
+    });
+
+    test('succession evidence collection is default-off and backend-inert', () {
+      expect(FeatureFlags.successionEvidenceCollectionEnabled, isFalse);
+      FeatureFlags.applyFromMap(const <String, dynamic>{
+        'successionEvidenceCollectionEnabled': true,
+      });
+      expect(FeatureFlags.successionEvidenceCollectionEnabled, isFalse);
     });
 
     test('capital notice acquisition remains default-off', () {
