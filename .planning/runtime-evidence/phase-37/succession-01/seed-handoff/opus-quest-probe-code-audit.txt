@@ -1,0 +1,30 @@
+# MINT External Audit — G1 Succession Quest Probe (code mode)
+
+**Scope:** Diff of `fd111ba5..HEAD` (1 commit, 114 lines) touching the process-death evidence runner and its orchestrator test. No production app code is modified.
+
+## What changed
+`wait_for_succession_quest()` was rewritten from a read-only `hierarchy --compact` poll-and-grep into a Maestro `scrollUntilVisible` + `assertVisible` probe against `succession_reference_quest`, followed by a JUNIT-report gate and a hierarchy-anchor confirmation. The test file was updated to lock this ordering and the new retained artifacts.
+
+## Verification performed
+- **Tests are source of truth:** `pytest test_g1_succession_runtime_orchestrator.py` → **17 passed** against the live script (`patrol_succession_evidence_process_death.sh:870`).
+- **Syntax:** `bash -n` → OK.
+- **Not a facade:** anchor `succession_reference_quest` is a real production widget key (`apps/mobile/lib/widgets/coach/succession_evidence_quest.dart:62,66`) and is already asserted-visible by the flag-on flow (`g1_succession_progressive.yaml:25`). The probe is wired at both call sites (`:983` native-present, `:1007` cold-continuation), matching `expected_stage_artifacts`.
+- **Pattern consistency:** the new probe mirrors the accepted `run_maestro()` contract (`:693`) — same `maestro test` passthrough via `maestro_env.sh` (pure `exec` wrapper), same JUNIT parse, same `exact_sha_guard` (`:925`) at exit.
+- **Privacy:** raw logs, `--debug-output`, and `--test-output-dir` all land in `private_root` (mktemp) and are `rm -rf`'d by `cleanup()`; only `sanitize_log`'d outputs reach `$artifacts`. No new leak surface.
+
+## Findings
+
+### P0 — none
+
+### P1 — none
+
+### P2 (non-blocking)
+- **Logic duplication:** the quest probe re-implements the `maestro test` invocation + JUNIT-XML parse already present in `run_maestro()` (`:699-717`) instead of factoring a helper. Divergence risk if one is later changed. Evidence: `:896-915` vs `:699-717`. Not a defect.
+- **Stricter gate is an improvement, note only:** the probe changed `tests < 1` → `tests != 1` and now requires actual on-screen visibility rather than mere presence in a hierarchy dump. This makes the flag-on visual proof non-vacuous (a lazily-built Flutter list item absent until scrolled would previously have failed the grep spuriously; now it is deterministically scrolled into view). No correctness concern.
+
+## Notes on evidence semantics
+The authoritative process-death/state-preservation proof remains in the Patrol stages (`native_present`/`absent_write`/`cold_read` with PID + state witnesses); `wait_for_succession_quest` is corroborating visual confirmation. The added UI scroll runs after those proofs and cannot retroactively affect them. The established repo assumption that `maestro test` does not relaunch/clear the deep-linked route (enforced for bound flows via `require_prepared_route_flow` and here via the inline `launchApp|openLink|clearState|stopApp` guard at `:892`) is preserved.
+
+---
+
+## Verdict: **PASS**
