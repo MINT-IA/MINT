@@ -30,9 +30,11 @@ def test_runner_is_valid_strict_bash() -> None:
 def test_runner_binds_every_tracked_runtime_contract_to_exact_pushed_head() -> None:
     text = source()
     for path in (
+        "apps/mobile/integration_test/g1_succession_civil_guard_seed_patrol_test.dart",
         "apps/mobile/integration_test/g1_succession_native_present_patrol_test.dart",
         "apps/mobile/integration_test/g1_succession_absent_write_patrol_test.dart",
         "apps/mobile/integration_test/g1_succession_cold_read_patrol_test.dart",
+        "apps/mobile/test/patrol/g1_succession_civil_guard_seed_runtime_test.dart",
         "apps/mobile/test/patrol/g1_succession_native_present_runtime_test.dart",
         "apps/mobile/test/patrol/g1_succession_absent_write_runtime_test.dart",
         "apps/mobile/test/patrol/g1_succession_cold_read_runtime_test.dart",
@@ -75,6 +77,65 @@ def test_runner_uses_three_isolated_patrol_stages_and_real_process_death() -> No
     assert "clearDiagnostic" not in forbidden_between
 
 
+def test_runner_seeds_civil_guard_without_erasing_before_flag_on_maestro() -> None:
+    text = source()
+    for needle in (
+        "clearDiagnostic()",
+        "saveAnswers",
+        "'q_civil_status': 'partenariat'",
+        "isMiniOnboardingCompleted()",
+        "CoachProfileProvider()",
+        "loadFromWizard()",
+        "civilStatusNeedsConfirmation",
+    ):
+        assert needle in text
+    seed_contract = (
+        MOBILE / "integration_test/g1_succession_civil_guard_seed_patrol_test.dart"
+    ).read_text(encoding="utf-8")
+    assert "setMiniOnboardingCompleted" not in seed_contract
+    assert 'run_patrol_stage "civil_guard_seed" "$civil_guard_seed_target"' in text
+    for suffix in ("build.log", "test.log", "xcresult-summary.sanitized.json"):
+        assert f"civil_guard_seed-{suffix}" in text
+
+    build = text.index('build_production_app "flag_on" true')
+    seed = text.index(
+        'run_patrol_stage "civil_guard_seed" "$civil_guard_seed_target"', build
+    )
+    seed_verified = text.index("civil_guard_seed_verified=true", seed)
+    install = text.index(
+        'install_production_app "flag_on-seeded" "$flag_on_app"', seed_verified
+    )
+    launch = text.index('xcrun simctl launch "$device" "$bundle_id"', install)
+    landing = text.index('wait_for_landing "flag_on-seeded"', launch)
+    openurl = text.index('xcrun simctl openurl "$device"', landing)
+    property_anchor = text.index('wait_for_property_input "flag_on-seeded"', openurl)
+    maestro = text.index('run_maestro "flag_on" "$flag_on_flow"', property_anchor)
+    preserved = text.index("seed_state_preserved_to_maestro=true", maestro)
+    native_present = text.index(
+        'run_patrol_stage "native_present" "$native_present_target"', preserved
+    )
+    native_contract = (
+        MOBILE / "integration_test/g1_succession_native_present_patrol_test.dart"
+    ).read_text(encoding="utf-8")
+    assert "ReportPersistenceService.clearDiagnostic()" in native_contract
+    assert (
+        build
+        < seed
+        < seed_verified
+        < install
+        < launch
+        < landing
+        < openurl
+        < property_anchor
+        < maestro
+        < preserved
+        < native_present
+    )
+    seed_to_maestro = text[seed:maestro]
+    for forbidden in ("uninstall", "clearDiagnostic", "clearState"):
+        assert forbidden not in seed_to_maestro
+
+
 def test_runner_builds_physical_exact_archive_default_off_and_flag_on_apps() -> None:
     text = source()
     archive = 'git -C "$repo_root" archive --format=tar "$sha" -- apps/mobile'
@@ -101,7 +162,7 @@ def test_runner_builds_physical_exact_archive_default_off_and_flag_on_apps() -> 
     assert 'run_maestro "flag_off" "$flag_off_flow"' in text
     assert 'run_maestro "flag_on" "$flag_on_flow"' in text
     assert 'prepare_maestro_route "flag_off" "$flag_off_app"' in text
-    assert 'prepare_maestro_route "flag_on" "$flag_on_app"' in text
+    assert 'prepare_maestro_route "flag_on" "$flag_on_app"' not in text
     assert "flag_off_route_anchor_verified=true" in text
     assert "flag_off_marker_verified=true" in text
     assert "flag_on_civil_return_verified=true" in text
@@ -166,7 +227,7 @@ def test_runner_preflights_maestro_as_attached_prepared_route_proof() -> None:
     assert "must start from the prepared property route" in text
 
 
-def test_runner_primes_clears_reinstalls_and_opens_each_maestro_route() -> None:
+def test_runner_primes_clears_reinstalls_and_opens_flag_off_maestro_route() -> None:
     text = source()
     body = text.split("prepare_maestro_route() {", 1)[1].split("run_maestro() {", 1)[0]
     ordered = (
@@ -184,7 +245,7 @@ def test_runner_primes_clears_reinstalls_and_opens_each_maestro_route() -> None:
         position = body.index(needle, cursor)
         cursor = position + len(needle)
 
-    for stage in ("flag_off", "flag_on"):
+    for stage in ("flag_off",):
         build = text.index(f'build_production_app "{stage}"')
         prepare = text.index(f'prepare_maestro_route "{stage}"', build)
         maestro = text.index(f'run_maestro "{stage}"', prepare)
@@ -313,6 +374,8 @@ def test_metadata_python_executes_with_strict_real_booleans(tmp_path: Path) -> N
         "true",
         "true",
         "true",
+        "true",
+        "true",
         "false",
         "true",
     ]
@@ -332,6 +395,8 @@ def test_metadata_python_executes_with_strict_real_booleans(tmp_path: Path) -> N
         "flagOffRouteAnchorVerified",
         "flagOffExplicitMarkerVerified",
         "flagOnCivilReturnVerified",
+        "civilGuardSeedVerified",
+        "seedStatePreservedToMaestro",
         "writerReaderDistinctPidVerified",
         "statePreservedAcrossProcessDeath",
         "noDataEraseBetweenWriterReader",
@@ -340,6 +405,8 @@ def test_metadata_python_executes_with_strict_real_booleans(tmp_path: Path) -> N
     ):
         assert payload[key] is True
     assert payload["rawRuntimeOutputsRetained"] is False
+    assert payload["setupPatrolStages"] == ["civil_guard_seed"]
+    assert payload["patrolStages"] == ["native_present", "absent_write", "cold_read"]
 
     invalid = subprocess.run(
         ["python3", "-", *args[:-1], "not-a-bool"],

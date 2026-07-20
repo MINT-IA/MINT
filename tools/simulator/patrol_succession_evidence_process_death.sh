@@ -57,9 +57,11 @@ git -C "$repo_root" merge-base --is-ancestor "$sha" "$upstream_ref" \
   || die "runtime requires a clean worktree"
 
 mobile_root="$repo_root/apps/mobile"
+civil_guard_seed_contract="apps/mobile/integration_test/g1_succession_civil_guard_seed_patrol_test.dart"
 native_present_contract="apps/mobile/integration_test/g1_succession_native_present_patrol_test.dart"
 absent_write_contract="apps/mobile/integration_test/g1_succession_absent_write_patrol_test.dart"
 cold_read_contract="apps/mobile/integration_test/g1_succession_cold_read_patrol_test.dart"
+civil_guard_seed_target="apps/mobile/test/patrol/g1_succession_civil_guard_seed_runtime_test.dart"
 native_present_target="apps/mobile/test/patrol/g1_succession_native_present_runtime_test.dart"
 absent_write_target="apps/mobile/test/patrol/g1_succession_absent_write_runtime_test.dart"
 cold_read_target="apps/mobile/test/patrol/g1_succession_cold_read_runtime_test.dart"
@@ -70,9 +72,11 @@ orchestrator_path="tools/simulator/patrol_succession_evidence_process_death.sh"
 maestro_wrapper="tools/simulator/maestro_env.sh"
 generated_patrol_bundle="apps/mobile/test/patrol/test_bundle.dart"
 runtime_paths=(
+  "$civil_guard_seed_contract"
   "$native_present_contract"
   "$absent_write_contract"
   "$cold_read_contract"
+  "$civil_guard_seed_target"
   "$native_present_target"
   "$absent_write_target"
   "$cold_read_target"
@@ -197,19 +201,35 @@ verify_maestro_contract
 
 verify_patrol_contracts() {
   python3 - \
+    "$repo_root/$civil_guard_seed_contract" \
     "$repo_root/$native_present_contract" \
     "$repo_root/$absent_write_contract" \
     "$repo_root/$cold_read_contract" \
+    "$repo_root/$civil_guard_seed_target" \
     "$repo_root/$native_present_target" \
     "$repo_root/$absent_write_target" \
     "$repo_root/$cold_read_target" <<'PY'
 import sys
 from pathlib import Path
 
-present, writer, reader, *wrappers = [
+seed, present, writer, reader, *wrappers = [
     Path(value).read_text(encoding="utf-8") for value in sys.argv[1:]
 ]
 for needle in (
+    "clearDiagnostic()",
+    "saveAnswers",
+    "'q_civil_status': 'partenariat'",
+    "isMiniOnboardingCompleted()",
+    "CoachProfileProvider()",
+    "loadFromWizard()",
+    "civilStatusNeedsConfirmation",
+):
+    if needle not in seed:
+        raise SystemExit(f"civil-guard seed contract lacks {needle}")
+if "setMiniOnboardingCompleted" in seed:
+    raise SystemExit("civil-guard seed must not complete onboarding")
+for needle in (
+    "clearDiagnostic()",
     "succession_instrument_will_source_date",
     "succession_instrument_will_legal_year",
     ".enterText(",
@@ -248,6 +268,7 @@ for needle in (
     if needle not in reader:
         raise SystemExit(f"cold reader lacks {needle}")
 expected_imports = (
+    "g1_succession_civil_guard_seed_patrol_test.dart",
     "g1_succession_native_present_patrol_test.dart",
     "g1_succession_absent_write_patrol_test.dart",
     "g1_succession_cold_read_patrol_test.dart",
@@ -295,6 +316,8 @@ production_source_physical=false
 flag_off_route_anchor_verified=false
 flag_off_marker_verified=false
 flag_on_civil_return_verified=false
+civil_guard_seed_verified=false
+seed_state_preserved_to_maestro=false
 synthetic_data_only=true
 raw_runtime_outputs_retained=false
 
@@ -774,14 +797,25 @@ flag_off_marker_verified=true
 capture_screenshot "flag-off.png"
 
 # This is the exact production entrypoint with one test-only compile define,
-# not a Patrol app. Maestro proves the civil guard, canonical DataBlock and
-# return to the next exact succession question.
+# not a Patrol app. The isolated setup stage seeds an ambiguous legacy civil
+# status without completing onboarding. Installing over it must preserve the
+# encrypted container; unlike flag-off, this boundary must never uninstall.
 build_production_app "flag_on" true
-prepare_maestro_route "flag_on" "$flag_on_app"
+run_patrol_stage "civil_guard_seed" "$civil_guard_seed_target"
+civil_guard_seed_verified=true
+install_production_app "flag_on-seeded" "$flag_on_app"
+run_logged "flag-on-seeded-launch" xcrun simctl launch "$device" "$bundle_id"
+wait_for_landing "flag_on-seeded"
+run_logged "flag-on-seeded-openurl" xcrun simctl openurl "$device" \
+  "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"
+wait_for_property_input "flag_on-seeded"
 run_maestro "flag_on" "$flag_on_flow"
+seed_state_preserved_to_maestro=true
 flag_on_civil_return_verified=true
 capture_screenshot "civil-return.png"
 
+# This stage begins the independent three-stage process-death evidence chain
+# and clears the setup seed through its checked-in clearDiagnostic contract.
 run_patrol_stage "native_present" "$native_present_target"
 install_production_app "flag_on-present" "$flag_on_app"
 run_logged "flag-on-present-launch" xcrun simctl launch "$device" "$bundle_id"
@@ -815,6 +849,9 @@ capture_screenshot "cold-continuation.png"
 runtime_completed=true
 
 expected_stage_artifacts=(
+  civil_guard_seed-build.log
+  civil_guard_seed-test.log
+  civil_guard_seed-xcresult-summary.sanitized.json
   native_present-build.log
   native_present-test.log
   native_present-xcresult-summary.sanitized.json
@@ -841,6 +878,8 @@ python3 - \
   "$flag_off_route_anchor_verified" \
   "$flag_off_marker_verified" \
   "$flag_on_civil_return_verified" \
+  "$civil_guard_seed_verified" \
+  "$seed_state_preserved_to_maestro" \
   "$writer_reader_distinct_pid_verified" \
   "$state_preserved_across_process_death" \
   "$no_data_erase_between_writer_reader" \
@@ -871,6 +910,8 @@ def parse_bool(value: str) -> bool:
     flag_off_anchor,
     flag_off_marker,
     flag_on_return,
+    civil_guard_seed,
+    seed_preserved_to_maestro,
     distinct_pid,
     state_preserved,
     no_data_erase,
@@ -891,6 +932,9 @@ payload = {
     "flagOffRouteAnchorVerified": parse_bool(flag_off_anchor),
     "flagOffExplicitMarkerVerified": parse_bool(flag_off_marker),
     "flagOnCivilReturnVerified": parse_bool(flag_on_return),
+    "civilGuardSeedVerified": parse_bool(civil_guard_seed),
+    "seedStatePreservedToMaestro": parse_bool(seed_preserved_to_maestro),
+    "setupPatrolStages": ["civil_guard_seed"],
     "patrolStages": ["native_present", "absent_write", "cold_read"],
     "writerReaderDistinctPidVerified": parse_bool(distinct_pid),
     "statePreservedAcrossProcessDeath": parse_bool(state_preserved),
