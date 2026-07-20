@@ -14,7 +14,8 @@ Plan 01 only needs the early-ship version to make `ingest_git.py` run lints
 on each Claude commit's diff and populate the `violations` table.
 
 Pattern list sourced from MEMORY.md feedback files + 30.5-CONTEXT.md D-14.
-Use --file <path> to lint a single file (pattern used by ingest_git.py).
+Use --file <path> for whole-file ingestion, --staged-file <path> for local
+added lines, or --changed-file <path> with --base-ref <ref> for CI additions.
 """
 
 from __future__ import annotations
@@ -22,6 +23,7 @@ from __future__ import annotations
 import argparse
 import ast
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import NamedTuple
@@ -65,6 +67,9 @@ TECHNICAL_TOKEN_RE = re.compile(r"[a-z][a-z0-9_]*(?:[-.][a-z0-9_]+)*")
 DART_INTERPOLATION_RE = re.compile(r"\$(?:[A-Za-z_]\w*|\{[^{}]*\})")
 PYTHON_INTERPOLATION_RE = re.compile(r"\{[^{}]*\}")
 CHECK_SELF_TEST_PARTS = ("tools", "checks", "tests")
+UNIFIED_DIFF_HUNK_RE = re.compile(
+    r"^@@ -\d+(?:,\d+)? \+(?P<new_start>\d+)(?:,\d+)? @@"
+)
 
 
 class SourceLiteral(NamedTuple):
@@ -252,17 +257,12 @@ def _line_for_lint(path: Path, line: str) -> str:
     return lint_line
 
 
-def scan_file(path: Path) -> list[tuple[int, str, str]]:
-    """Return list of (lineno, snippet, pattern->correction) violations."""
+def _scan_text(path: Path, text: str) -> list[tuple[int, str, str]]:
     if path.name == "accent_lint_fr.py":
         return []
     if path.suffix == ".arb" and path.name != "app_fr.arb":
         return []
     if NON_FRENCH_GENERATED_L10N_RE.match(path.name):
-        return []
-    try:
-        text = path.read_text(encoding="utf-8", errors="ignore")
-    except OSError:
         return []
     if path.suffix in {".dart", ".py"}:
         return _scan_source_file(path, text)
@@ -274,6 +274,113 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
                 snippet = line.strip()[:140]
                 out.append((lineno, snippet, f"{pat} -> {correct}"))
     return out
+
+
+def scan_file(path: Path) -> list[tuple[int, str, str]]:
+    """Return list of (lineno, snippet, pattern->correction) violations."""
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return []
+    return _scan_text(path, text)
+
+
+def _repo_relative_path(path: Path) -> tuple[Path, Path]:
+    root_result = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if root_result.returncode != 0:
+        raise RuntimeError(root_result.stderr.strip() or "not inside a Git repository")
+    repo_root = Path(root_result.stdout.strip()).resolve()
+    absolute = path.resolve() if path.is_absolute() else (repo_root / path).resolve()
+    try:
+        return repo_root, absolute.relative_to(repo_root)
+    except ValueError as exc:
+        raise RuntimeError(f"file is outside the Git repository: {path}") from exc
+
+
+def _added_line_numbers(diff: str) -> set[int]:
+    numbers: set[int] = set()
+    new_lineno: int | None = None
+    for line in diff.splitlines():
+        hunk = UNIFIED_DIFF_HUNK_RE.match(line)
+        if hunk:
+            new_lineno = int(hunk.group("new_start"))
+            continue
+        if new_lineno is None or line.startswith("+++"):
+            continue
+        if line.startswith("+"):
+            numbers.add(new_lineno)
+            new_lineno += 1
+        elif line.startswith(" "):
+            new_lineno += 1
+        elif line.startswith("-") or line.startswith("\\"):
+            continue
+    return numbers
+
+
+def _scan_git_diff_file(
+    path: Path,
+    *,
+    diff_args: list[str],
+    content_spec: str,
+) -> list[tuple[int, str, str]]:
+    if _is_check_self_test_path(path) or path.suffix not in TEXT_EXTS:
+        return []
+    repo_root, relative = _repo_relative_path(path)
+    diff_result = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--unified=0",
+            "--no-ext-diff",
+            "--no-color",
+            *diff_args,
+            "--",
+            relative.as_posix(),
+        ],
+        cwd=repo_root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if diff_result.returncode != 0:
+        raise RuntimeError(diff_result.stderr.strip() or f"git diff failed for {path}")
+    added = _added_line_numbers(diff_result.stdout)
+    if not added:
+        return []
+
+    source_result = subprocess.run(
+        ["git", "show", f"{content_spec}:{relative.as_posix()}"],
+        cwd=repo_root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if source_result.returncode != 0:
+        raise RuntimeError(
+            source_result.stderr.strip() or f"cannot read Git content for {path}"
+        )
+    return [
+        violation
+        for violation in _scan_text(path, source_result.stdout)
+        if violation[0] in added
+    ]
+
+
+def scan_staged_file(path: Path) -> list[tuple[int, str, str]]:
+    return _scan_git_diff_file(path, diff_args=["--cached"], content_spec="")
+
+
+def scan_changed_file(path: Path, base_ref: str) -> list[tuple[int, str, str]]:
+    return _scan_git_diff_file(
+        path,
+        diff_args=[base_ref, "HEAD"],
+        content_spec="HEAD",
+    )
 
 
 def _collect_paths(scope: list[str]) -> list[Path]:
@@ -300,7 +407,13 @@ def main() -> int:
     ap = argparse.ArgumentParser(
         description="Early-ship FR accent lint — scans for ASCII-flattened French words"
     )
-    ap.add_argument("--file", help="Lint a single file (absolute or relative path)")
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument("--file", help="Lint a single file (absolute or relative path)")
+    mode.add_argument("--staged-file", help="Lint only lines added in the Git index")
+    mode.add_argument(
+        "--changed-file", help="Lint only lines introduced from --base-ref to HEAD"
+    )
+    ap.add_argument("--base-ref", help="Git base ref for --changed-file mode")
     ap.add_argument(
         "--scope",
         nargs="*",
@@ -309,7 +422,18 @@ def main() -> int:
     )
     args = ap.parse_args()
 
-    if args.file:
+    staged_mode = args.staged_file is not None
+    changed_mode = args.changed_file is not None
+    if changed_mode and not args.base_ref:
+        ap.error("--changed-file requires --base-ref")
+    if args.base_ref and not changed_mode:
+        ap.error("--base-ref requires --changed-file")
+
+    if staged_mode:
+        paths = [Path(args.staged_file)]
+    elif changed_mode:
+        paths = [Path(args.changed_file)]
+    elif args.file:
         target = Path(args.file)
         if not target.exists():
             print(f"accent_lint_fr: file not found: {target}", file=sys.stderr)
@@ -320,7 +444,17 @@ def main() -> int:
 
     found = 0
     for path in paths:
-        for lineno, snippet, pat in scan_file(path):
+        try:
+            if staged_mode:
+                violations = scan_staged_file(path)
+            elif changed_mode:
+                violations = scan_changed_file(path, args.base_ref)
+            else:
+                violations = scan_file(path)
+        except RuntimeError as exc:
+            print(f"accent_lint_fr: {exc}", file=sys.stderr)
+            return 1
+        for lineno, snippet, pat in violations:
             print(f"{path}:{lineno}: {snippet} ({pat})", file=sys.stderr)
             found += 1
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib.util
 import json
 from pathlib import Path
@@ -14,13 +16,34 @@ accent_lint_fr = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(accent_lint_fr)
 
 
-def _run_cli(path: Path) -> subprocess.CompletedProcess[str]:
+def _run_cli(*args: str | Path, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, str(LINT), "--file", str(path)],
+        [sys.executable, str(LINT), *(str(arg) for arg in args)],
+        cwd=cwd,
         check=False,
         capture_output=True,
         text=True,
     )
+
+
+def _git(repo: Path, *args: str) -> None:
+    subprocess.run(
+        ["git", *args],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
+def _git_output(repo: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", *args],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
 
 
 def test_markdown_code_spans_are_not_french_copy(tmp_path: Path) -> None:
@@ -247,7 +270,7 @@ def test_cli_blocks_unaccented_copy_in_production_dart_and_python(
     python.write_text("show_message('Reste en securite')\n", encoding="utf-8")
 
     for production_file in (dart, python):
-        result = _run_cli(production_file)
+        result = _run_cli("--file", production_file)
         assert result.returncode == 1
         assert "sécurité" in result.stderr
 
@@ -260,4 +283,92 @@ def test_cli_ignores_check_self_test_fixtures_but_direct_scan_stays_active(
     fixture.write_text("show_message('Reste en securite')\n", encoding="utf-8")
 
     assert accent_lint_fr.scan_file(fixture)
-    assert _run_cli(fixture).returncode == 0
+    assert _run_cli("--file", fixture).returncode == 0
+
+
+def test_staged_mode_ignores_legacy_debt_and_rejects_new_flattened_french(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    target = repo / "apps/mobile/test/visibility_score_service_test.dart"
+    target.parent.mkdir(parents=True)
+    target.write_text("test('securite legacy', () {});\n", encoding="utf-8")
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "mint@example.test")
+    _git(repo, "config", "user.name", "MINT Test")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-qm", "baseline")
+
+    target.write_text(
+        "test('securite legacy', () {});\nconst provenance = 'salary';\n",
+        encoding="utf-8",
+    )
+    _git(repo, "add", str(target.relative_to(repo)))
+
+    safe = _run_cli("--staged-file", target.relative_to(repo), cwd=repo)
+    assert safe.returncode == 0, safe.stderr
+
+    target.write_text(
+        target.read_text(encoding="utf-8") + "Text('Reste en securite');\n",
+        encoding="utf-8",
+    )
+    _git(repo, "add", str(target.relative_to(repo)))
+
+    violation = _run_cli("--staged-file", target.relative_to(repo), cwd=repo)
+    assert violation.returncode == 1
+    assert "Reste en securite" in violation.stderr
+    assert "securite legacy" not in violation.stderr
+
+
+def test_changed_mode_preserves_multiline_context_and_reports_only_added_lines(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    target = repo / "apps/mobile/lib/screen.dart"
+    target.parent.mkdir(parents=True)
+    target.write_text("const label = '''\nLegacy copy\n''';\n", encoding="utf-8")
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "mint@example.test")
+    _git(repo, "config", "user.name", "MINT Test")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-qm", "baseline")
+    base_ref = _git_output(repo, "rev-parse", "HEAD")
+
+    target.write_text(
+        "const label = '''\nLegacy copy\nReste en securite\n''';\n",
+        encoding="utf-8",
+    )
+    _git(repo, "add", str(target.relative_to(repo)))
+    _git(repo, "commit", "-qm", "new flattened French")
+
+    result = _run_cli(
+        "--changed-file",
+        target.relative_to(repo),
+        "--base-ref",
+        base_ref,
+        cwd=repo,
+    )
+
+    assert result.returncode == 1
+    assert "screen.dart:3:" in result.stderr
+    assert "Reste en securite" in result.stderr
+    assert "Legacy copy" not in result.stderr
+
+
+def test_local_and_ci_use_introduced_lines_modes() -> None:
+    lefthook = (ROOT / "lefthook.yml").read_text(encoding="utf-8")
+    local_block = lefthook.split("    accent-lint-fr:", maxsplit=1)[1].split(
+        "    no-hardcoded-fr:", maxsplit=1
+    )[0]
+    workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    ci_block = workflow.split("  accent-lint-fr:", maxsplit=1)[1].split(
+        "  no-hardcoded-fr:", maxsplit=1
+    )[0]
+
+    assert 'accent_lint_fr.py --staged-file "$file"' in local_block
+    assert 'accent_lint_fr.py --file "$file"' not in local_block
+    assert (
+        'accent_lint_fr.py --changed-file "$file" --base-ref "$BASE_REF"'
+        in ci_block
+    )
+    assert 'accent_lint_fr.py --file "$file"' not in ci_block
