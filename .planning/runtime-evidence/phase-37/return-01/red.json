@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-RETURN-01",
+  "command": "cd apps/mobile && flutter test test/navigation/data_block_return_uri_test.dart --reporter expanded",
+  "recorded_at": "2026-07-20T07:05:52Z",
+  "assertion": "data_block_return_uri_test",
+  "synthetic_data_only": true,
+  "stage": "RED",
+  "sha": "0035356f969236031772bc1956e956a6414c9487",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "output": "Exact canonical command reached all 82 RETURN predicates: 72 passed, 10 failed semantically. Registered-but-inappropriate /settings/langue and /rapport targets reached those destinations instead of typed /home on save, AppBar cancel, validation recovery, persistence retry-success, and persistence-failure cancel; no compile, import, fixture, label, or timing failure occurred."
+}
