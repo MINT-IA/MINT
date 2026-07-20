@@ -1,10 +1,11 @@
 # MINT Data Flow — the authoritative map
 
 **Why this file exists.** MINT data capture spans three storage layers
-(SharedPreferences, Keychain fallback, backend Postgres). Ten local write
+(SharedPreferences, Keychain fallback, backend Postgres). Eleven local write
 paths mutate the local ledger (wizard, scan, coach save_fact dispatch, Dart
 regex fallback, inline coach pickers, budget form, DataBlock enrichment, tax
-annual refresh, reviewed bank import, and the frontier-jurisdiction collector);
+annual refresh, reviewed bank import, the frontier-jurisdiction collector, and
+succession reference confirmation);
 backend facts and the one-shot account claim have separate contracts.
 Drifting between them is the #1 source of « the UI says captured, the
 profile is empty at relaunch » bugs — the exact bug class that killed the
@@ -175,13 +176,14 @@ fieldPath -> {source, updatedAt, sourceDate}
 
 ---
 
-## The 10 writers — who mutates `wizard_answers_v2`
+## The 11 writers — who mutates `wizard_answers_v2`
 
 Every writer persists through `ReportPersistenceService`, which encrypts
 sensitive keys via `SecureWizardStore` (Keychain) and writes the matching
-SharedPreferences representation. Ordinary maps use `saveAnswers(answers)`;
-the strict typed LPP root uses `saveLppEvidenceAnswers(answers)`. These are the
-only legal local I/O boundaries.
+SharedPreferences representation. Ordinary maps use the canonical answer
+mutation/save boundary; specialized typed roots may expose a narrower provider
+persistence interface but still terminate in `ReportPersistenceService`. No
+screen owns a second local I/O boundary.
 
 | # | Writer | Entry points | Keys written | Lifecycle trigger |
 |---|---|---|---|---|
@@ -195,6 +197,46 @@ only legal local I/O boundaries.
 | 8 | **DataBlock enrichment** | `data_block_enrichment_screen.dart` → `coachProvider.mergeAnswers` | `q_canton`, `q_gross_salary_annual`, `q_self_employed_income`, `q_company_profit_annual_chf`, `q_birth_year`, `q_has_pension_fund`, `q_cash_total`, `q_wealth_estimate`, `q_property_market_value`, `_coach_dettes_hypotheque`, `q_debt_payments_period_chf`, `q_has_consumer_debt`, `q_children`, `q_civil_status`, `q_housing_status` | Missing-fact collector from scenario/Data Quest flows |
 | 9 | **Reviewed bank import** | `bank_import_screen.dart` → `profileProvider.mergeAnswersWithProvenance` | `q_net_income_period_chf`, `q_pay_frequency='monthly'`; categorized charges remain preview-only | Explicit user confirmation after local CSV/PDF preview |
 | 10 | **Frontier jurisdiction collector** | `frontalier_screen.dart` → `coachProvider.mergeAnswers` | `q_residence_country`, `q_work_country`, and conditional `q_work_canton`; selecting a non-CH work country clears `q_work_canton` in the same snapshot | Inline collection on `/segments/frontalier`; stale canton reconfirmation rewrites the same value in one gesture |
+| 11 | **Succession reference confirmation** (provider foundation only) | `CoachProfileProvider.confirmMatrimonialRegime`, `confirmRegisteredPartnershipPropertyRegime`, `confirmEstateInstrumentPresent`, `confirmEstateInstrumentAbsent` | strict-secure `_coach_estate_evidence_v1` only: scoped marriage/LPart confirmation plus the exact four instrument slots | A future production collector must call these APIs. At `2adf4b243` no production screen calls them, so this is not a completed user flow or ticket promotion. |
+
+### Succession reference authority (G1-SUCCESSION-01 foundation; consumer open)
+
+`wizard_answers_v2['_coach_estate_evidence_v1']` is the sole succession-
+reference authority. It is a schema-v1 JSON string registered both as a strict
+authority key in `ReportPersistenceService` and as sensitive in
+`SecureWizardStore`; SharedPreferences may contain only the `__secure__`
+placeholder, and `backendSafeAnswers` removes the root. There is no backend
+mirror, loose regime key, independent reference list, or document payload.
+
+The root contains exactly one optional marriage confirmation, one optional
+registered-partnership (LPart) property-arrangement confirmation, and exactly
+four keyed slots: `will`, `inheritancePact`, `incapacityMandate`, and
+`advanceCareDirective`. An absent instrument is never inferred: every slot is
+`unknown`, explicitly `confirmedPresent` from certificate metadata, or
+explicitly `confirmedAbsent` from user input. Each confirmation carries its own
+UUIDv4, UTC confirmation instant, and `civilStatusAtConfirmation`; present
+instrument evidence additionally carries an explicit civil `sourceDate` and
+`legalYear`. A civil-status change preserves the authority but projects affected
+facts as stale/needs-reconfirmation rather than silently re-scoping them.
+
+The four provider writers use compare-and-swap IDs against the reloaded
+canonical root, an estate-specific persistence seam, and one awaited whole-root
+save before profile publication/listener notification. Marriage and LPart are
+distinct typed writers: a matrimonial regime is accepted only for `marie`, and
+a registered-partnership arrangement only for `registeredPartnership`.
+`CoachProfile` exposes `currentEstateArrangementApplicability`,
+`estateReferenceStateAt(asOf)`, `estateReferenceSurveyCompleteAt(asOf)`, and
+`estateReferenceHandoffCompletenessAt(asOf)` as projections. `surveyComplete`
+means only that current-arrangement applicability is resolved and all four
+instrument slots are explicitly present/absent; it does **not** establish a
+complete estate, legal distribution, specialist-ready dossier, or advice.
+
+At commit `2adf4b243`, repository grep finds no production caller of any of the
+four provider writers and `/succession` reads none of these projections. The
+existing screen still reads property/mortgage/family facts and renders the
+legacy `TestamentInvisibleWidget`. Therefore the model/writer foundation is
+GREEN evidence only; G1-SUCCESSION-01 remains open until a neutral production
+collector/reader, degraded states, and runtime proof are implemented.
 
 `/bank-import` is a manual CSV/PDF review path, not a live Open Banking feed.
 After explicit confirmation it may write only `q_net_income_period_chf` and

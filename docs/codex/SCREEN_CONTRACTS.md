@@ -384,7 +384,7 @@ proves five bypass shapes red, and scans the six exact audited source files
 | `/fiscal` | enableExplorerFiscalite | Tax across 3 tiers; regime-detected. | `canton`, `salaireBrutMensuel`, `archetype`, tax-regime | `/3a-retroactif`, `/scan`, `/coach/chat` |
 | `/cantonal-benchmark` | enableExplorerFiscalite | Cross-canton tax/benefit benchmark (illustrative). | `canton`, `salaireBrutMensuel` | `/fiscal`, `/coach/chat` |
 | `/divorce`, `/mariage`, `/naissance`, `/concubinage` | enableExplorerFamille | Family life events. | `conjoint`, `nombreEnfants`, `patrimoine`, `prevoyance` | `/succession`, `/couple`, `/data-block/compositionMenage`, `/coach/chat` |
-| `/succession` | enableExplorerFamille | Estate organisation / property transmission. Reads property-transmission facts from the ledger only: no fictive patrimoine, no local property-value slider, no recommendation to sell/give/reserve usufruct. If `q_property_market_value` is missing it renders `succession_property_missing` and routes to `/data-block/patrimoine?inputKey=q_property_market_value`; if mortgage is missing after a known property value it routes to `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`. It may explain Swiss legal/financial forces and prepare questions for notary/fiscalist/bank/pension fund, but it must not present a legal decision as MINT's answer. | `patrimoine.propertyMarketValue`, `_coach_dettes_hypotheque`, `conjoint`, `nombreEnfants`, `canton` | `/data-block/patrimoine?inputKey=q_property_market_value`, `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`, `/coach/chat` |
+| `/succession` | enableExplorerFamille | Estate organisation / property transmission. Current production code reads property/mortgage/family facts only; it does **not** consume `_coach_estate_evidence_v1`, its four provider writers, or the estate readiness APIs. That is an explicit G1-SUCCESSION-01 gap, not completion. Existing rules remain: no fictive patrimoine, local value slider, recommendation, or legal decision presented as MINT's answer. Missing property/mortgage states route to their exact patrimoine collectors. The next consumer must progressively collect/review the scoped marriage/LPart arrangement and four explicit instrument states, show invalid/stale/missing states, and describe `surveyComplete` only as reference-survey completeness. | **Current:** `patrimoine.propertyMarketValue`, `_coach_dettes_hypotheque`, `conjoint`, `nombreEnfants`, `canton`. **Target/open:** `currentEstateArrangementApplicability`, `estateInstrumentSlots`, `estateReferenceStateAt(asOf)`, `estateReferenceHandoffCompletenessAt(asOf)` | `/data-block/patrimoine?inputKey=q_property_market_value`, `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`, `/coach/chat`; estate collector route/controls are not yet production-wired |
 | `/life-event/donation` | enableExplorerFamille | Gift/donation lucidity screen. Reads age, canton, civil status, children, broad wealth reference, and property value for real-estate gifts from the ledger only. It must render a missing-facts state and keep result cards hidden until the required facts are user-provided. The estate base for réserve/quotité is shown as an estimated net estate base, not "fortune totale": `q_wealth_estimate` reconciled with user-provided liquid savings from `q_cash_total`, positive user-provided investments from `q_investments_total`, and net real-estate value only when both `q_property_market_value` and `_coach_dettes_hypotheque` are known. `q_wealth_estimate` is not mandatory when these detailed facts already form a positive net estate base; if no broad estimate exists, the screen marks the rebuilt estate base as partial because other assets may still be missing. It must surface the reconciliation status: divergent broad estimate/details require decomposition before high-stakes output, and known property with missing mortgage shows a secondary CTA to `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`. It must not feed gross property value or heuristic investment estimates into succession-reserve calculations. Real-estate gifts additionally require `_coach_dettes_hypotheque` and use net value through `SuccessionReserveCalculator.netRealEstateGiftValue`. Donation amount, relationship, donation type, and advancement-of-inheritance flag are scenario assumptions to confirm, not profile facts. Marital-property regime is not collected in this screen until MINT has dedicated facts for own property/acquired property and can use them without fake precision. Swiss gift tax must never use a flat hardcoded cantonal rate or silently fallback to another canton; for non-exempt relationships and all descendant gifts it renders an "estimated/to confirm" state and specialist/fiscal-authority checklist unless an authoritative canton table is later wired. It may show educational forces and specialist questions, but no legal/tax recommendation. | `q_birth_year`, `q_canton`, `q_civil_status`, `q_children`, `q_wealth_estimate`, `q_cash_total`, `q_investments_total`, `q_property_market_value` + `_coach_dettes_hypotheque` for real-estate donation | `/data-block/revenu?inputKey=q_birth_year`, `/data-block/revenu?inputKey=q_canton`, `/data-block/composition_menage?inputKey=q_civil_status`, `/data-block/composition_menage?inputKey=q_children`, `/data-block/patrimoine?inputKey=q_wealth_estimate`, `/data-block/patrimoine?inputKey=q_property_market_value`, `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`, `/coach/chat` |
 | `/life-event/deces-proche` | enableExplorerFamille | Death of a relative: survivor benefits + estate steps. | `conjoint`, `nombreEnfants`, `patrimoine`, `canton` | `/succession`, `/coach/chat` |
 | `/life-event/housing-sale` | enableExplorerLogement | Sale of a primary residence. | `patrimoine`, `canton`, `prevoyance.avoirLppTotal` | `/hypotheque`, `/fiscal`, `/coach/chat` |
@@ -409,6 +409,41 @@ proves five bypass shapes red, and scans the six exact audited source files
 | `/education/hub`, `/education/theme/:id` | null | General-population educational modules. | `financialLiteracyLevel` only; `id` from `state.pathParameters['id']` (§0) | `/coach/chat`, `/explore` |
 | `/open-banking`, `/open-banking/transactions`, `/open-banking/consents` | enableOpenBanking (in-route redirect) | Aggregation onboarding + transactions + consent (riskiest flow; consent-gated). | `∅` pre-consent; writes accounts post-consent via `mergeAnswers()` | `/mon-argent`, `/confidence`, `/data-block/patrimoine` |
 | `/bank-import` | null | Manual CSV/PDF statement review fallback; not a live Open Banking source. | `∅` pre-confirmation; after explicit review writes only `q_net_income_period_chf` + `q_pay_frequency` via `mergeAnswers()` with `userInput` provenance. Categorized charges remain preview-only and never write housing, LAMal, tax, debt, or `q_other_fixed_costs_monthly_chf`. | `/mon-argent`, `/open-banking`, `/coach/chat` |
+
+#### G1-SUCCESSION-01 authority foundation and production-consumer gap
+
+At `2adf4b243`, `_coach_estate_evidence_v1` is a strict-secure, backend-redacted
+schema-v1 authority with one scoped marriage confirmation, one distinct scoped
+LPart property-arrangement confirmation, and exactly four instrument slots:
+will, inheritance pact, incapacity mandate, and advance care directive. Each
+slot is unknown, explicitly certificate-present, or explicitly user-confirmed
+absent; no absence is inferred. The provider exposes typed CAS writers and
+publishes only after the whole-root save succeeds.
+
+This is **not yet a screen contract implementation**. Repository grep shows no
+production caller of `confirmMatrimonialRegime`,
+`confirmRegisteredPartnershipPropertyRegime`,
+`confirmEstateInstrumentPresent`, or `confirmEstateInstrumentAbsent`.
+`SuccessionPatrimoineScreen` also does not read
+`currentEstateArrangementApplicability`, `estateReferenceStateAt`,
+`estateReferenceSurveyCompleteAt`, or
+`estateReferenceHandoffCompletenessAt`; it still renders the legacy
+`TestamentInvisibleWidget` from property/family inputs.
+
+Required next vertical before ticket promotion:
+
+- a neutral progressive collector/reviewer calls only those provider writers;
+- married and registered-partnership arrangements remain separate, while
+  non-union applicability is rendered as not applicable rather than fabricated;
+- all four instrument states expose unknown/present/absent plus invalid/stale
+  recovery without treating a missing document as absence;
+- `surveyComplete` copy says only that the reference survey is complete and
+  never implies complete estate composition, legal distribution, or advice;
+- the production screen removes/replaces the unsafe legacy consumer and gains
+  widget plus Maestro/Patrol writer→restart→reader proof.
+
+Until those points are evidenced, G1-SUCCESSION-01 remains open and this route
+must not claim dossier/specialist readiness.
 
 #### G1-FRONT-01 stable control/state map
 

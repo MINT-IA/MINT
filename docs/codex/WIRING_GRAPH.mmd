@@ -73,6 +73,12 @@
 %% pillar3a-beneficiary-runtime-proof-fc1023fd7. All three flags remain false;
 %% activation remains NO-GO, RET-REF remains ticket_only, G1 remains open at
 %% 8.2/10 and G2/G3 remain forbidden.
+%% SUCCESSION-01 has a strict authority/model+writer foundation at exact commit
+%% 2adf4b243: one secure `_coach_estate_evidence_v1` root, scoped marriage/LPart
+%% confirmations, exact four-slot instrument SOT, CAS writes and fail-closed
+%% readiness projections. No production widget calls those writers or reads the
+%% projections; `/succession` still renders its legacy property/family consumer.
+%% Therefore SUCCESSION-01 remains open and no ticket/G1/G2/G3 GO is claimed.
 %% Treat refs as evidence snapshots, not evergreen truth.
 %% Status: target contract + live gap ledger. Verified/false/obsolete statuses
 %% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
@@ -189,6 +195,31 @@ flowchart TB
 
   FRONT_WRITE -- "single durable provider seam" --> CPP
   CPP -- "current typed facts + provenance" --> FRONT_EVIDENCE
+
+  %% G1-SUCCESSION-01: strict authority foundation only; production consumer open.
+  subgraph SUCCESSION_REFERENCE["G1-SUCCESSION-01 — ESTATE REFERENCE AUTHORITY @ 2adf4b243 (CONSUMER OPEN)"]
+    direction TB
+    ESTATE_CIVIL["confirmed q_civil_status<br/>marie / registeredPartnership / non-union"]
+    ESTATE_MARRIAGE["confirmMatrimonialRegime<br/>marie only + expected prior confirmation UUID"]
+    ESTATE_LPART["confirmRegisteredPartnershipPropertyRegime<br/>registeredPartnership only + distinct typed enum + CAS"]
+    ESTATE_PRESENT["confirmEstateInstrumentPresent<br/>kind + civil sourceDate + legalYear + expected evidence UUID"]
+    ESTATE_ABSENT["confirmEstateInstrumentAbsent<br/>explicit userInput absence + expected evidence UUID"]
+    ESTATE_MUTATE["independent estate persistence seam<br/>reload canonical root + one awaited whole-root save<br/>before profile publish/notify"]
+    ESTATE_ROOT[("strict-secure _coach_estate_evidence_v1<br/>schemaVersion 1; backend-redacted<br/>scoped marriage + scoped LPart<br/>EXACT slots: will / inheritancePact /<br/>incapacityMandate / advanceCareDirective")]
+    ESTATE_SLOT["each slot authority: unknown OR<br/>confirmedPresent certificate metadata OR<br/>confirmedAbsent userInput metadata<br/>NO inferred absence; invalid/stale are projections"]
+    ESTATE_PROJECT["CoachProfile projections<br/>currentEstateArrangementApplicability<br/>estateReferenceStateAt(asOf)<br/>estateReferenceSurveyCompleteAt(asOf)<br/>estateReferenceHandoffCompletenessAt(asOf)"]
+    ESTATE_NARROW["surveyComplete = arrangement applicability resolved<br/>+ all 4 slots explicitly present/absent<br/>NOT estate/distribution/dossier readiness"]
+    ESTATE_GAP["OPEN: no production writer caller<br/>/succession reads none of these projections<br/>legacy TestamentInvisibleWidget remains"]
+
+    ESTATE_CIVIL --> ESTATE_MARRIAGE & ESTATE_LPART
+    ESTATE_CIVIL --> ESTATE_PRESENT & ESTATE_ABSENT
+    ESTATE_MARRIAGE & ESTATE_LPART & ESTATE_PRESENT & ESTATE_ABSENT --> ESTATE_MUTATE
+    ESTATE_MUTATE --> ESTATE_ROOT --> ESTATE_SLOT --> ESTATE_PROJECT --> ESTATE_NARROW
+    ESTATE_PROJECT -. "not wired" .-> ESTATE_GAP
+  end
+
+  ESTATE_MUTATE -- "typed provider mutation" --> CPP
+  ESTATE_GAP -. "current live route" .-> SUCC
 
   %% G1 RET-REF-01 tax slice is code-GREEN; ticket promotion remains separate.
   subgraph TAX_REFERENCE["G1-RET-REF-01 — DERIVED TAX REFERENCE @ cdc786782"]
@@ -1085,4 +1116,15 @@ flowchart TB
 %% pillar3a-beneficiary-runtime-proof-fc1023fd7/`. This technical GREEN is not
 %% activation: all three flags remain false, activation remains NO-GO, RET-REF
 %% remains ticket_only, G1 remains open at 8.2/10 and G2/G3 remain forbidden.
+%% G1-SUCCESSION-01 ESTATE REFERENCE REALITY: at exact commit 2adf4b243,
+%% `_coach_estate_evidence_v1` is strict-secure and backend-redacted; its exact
+%% four instrument slots are the sole SOT, while marriage and LPart confirmations
+%% remain separately typed and civil-scoped. Provider writers reload and CAS the
+%% canonical root through an independent persistence seam and publish only after
+%% the whole-root save. CoachProfile readiness APIs fail closed on missing, stale,
+%% invalid or future evidence, and `surveyComplete` has narrow survey semantics.
+%% No production caller invokes these writers or consumes these projections; the
+%% current `/succession` route still uses property/family facts and the legacy
+%% TestamentInvisibleWidget. This is foundation evidence only: SUCCESSION-01 and
+%% G1 remain open, and G2/G3 remain forbidden.
 %% ============================================================================

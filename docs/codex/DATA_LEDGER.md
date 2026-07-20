@@ -138,7 +138,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 
 - **I-1 — SINGLE SOURCE.** Every screen reads the domain data it renders from the ledger (`context.watch<MintStateProvider>().state` or `CoachProfileProvider.profile`) ONLY. A screen MUST NOT read domain data from `GoRouter.extra`.
 - **I-2 — extra carries only ephemera.** `GoRouter.extra` / query params may carry ids, enums, ephemeral UI selection. They MUST NOT carry the financial values a screen needs to render. (Fixes `/scan/review`, `/scan/impact`, `/rapport`, `/portfolio` dead roads — wiring findings §C; per-route contracts in §7A.)
-- **I-3 — SINGLE WRITE PATH.** Every write goes through `CoachProfileProvider.mergeAnswers()` or `.applySaveFact()` (which itself calls `mergeAnswers`). No `SharedPreferences`/file/DB write of domain data from a screen or service that bypasses the provider. Simulators that write back MUST call `provider.updateProfile()` (already correct — keep it).
+- **I-3 — SINGLE WRITE PATH.** Every ordinary answer write goes through `CoachProfileProvider.mergeAnswers()` or `.applySaveFact()` (which itself calls `mergeAnswers`); typed strict authorities use their dedicated `CoachProfileProvider` writer and still terminate in the canonical `ReportPersistenceService` mutation boundary. No screen/service writes domain data directly to `SharedPreferences`, secure storage, files, or a database. Simulators that write back MUST call `provider.updateProfile()` (already correct — keep it).
 - **I-4 — NO ISLANDS.** Every provider that owns durable facts MUST bridge into the ledger/recompute so `MintUserState` is never stale. `BudgetProvider` is a one-way eager projection of `CoachProfile`. BND-05 now makes confirmed-document chronology/detail an eager, read-only projection of the strict ledger: the `DocumentProvider` confirmed-reference subpath owns only opaque raw-free metadata and `TimelineProvider` listens to it; neither subpath owns financial facts. The provider's pre-existing backend upload/list state remains a separate volatile surface. BND-06 makes `FinancialPlanProvider` an eager derived-artifact projection of the loaded ledger and invalidates its plan on input/provenance drift without writing plan outputs back into facts. `HouseholdProvider` and conversation-derived financial facts retain their §7 bridge debt. See §7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
@@ -475,6 +475,121 @@ bounded ticket does not close G1 or authorize G2/G3.
 ## 4. Ledger — mobile-only typed fields (not coach-writable)
 
 These exist on `CoachProfile` sub-models and are written by wizard / scan extraction / simulator write-back via `mergeAnswers`/`updateProfile`. They are **not** in the allowlist (the coach cannot set them by chat today). Listed because computations consume them and the provenance contract (§6) applies.
+
+### 4.0S Succession reference authority (G1-SUCCESSION-01 model/writer foundation; consumer open)
+
+The only succession-reference authority is the sensitive answer key
+`wizard_answers_v2['_coach_estate_evidence_v1']`. It contains a JSON **string**
+with an exact schema-v1 root:
+
+```text
+{
+  "schemaVersion": 1,
+  "matrimonialRegime": null | {
+    "confirmationId": UUIDv4,
+    "kind": participationInAcquests | separationOfProperty |
+            communityOfProperty | other,
+    "source": userInput,
+    "confirmedAt": canonical UTC instant,
+    "civilStatusAtConfirmation": marie
+  },
+  "registeredPartnershipPropertyRegime": null | {
+    "confirmationId": UUIDv4,
+    "kind": statutorySeparationOfProperty |
+            agreedParticipationInAcquestsDivision |
+            otherPropertyAgreement,
+    "source": userInput,
+    "confirmedAt": canonical UTC instant,
+    "civilStatusAtConfirmation": registeredPartnership
+  },
+  "estateInstruments": {
+    "will": EstateInstrumentSlot,
+    "inheritancePact": EstateInstrumentSlot,
+    "incapacityMandate": EstateInstrumentSlot,
+    "advanceCareDirective": EstateInstrumentSlot
+  }
+}
+```
+
+The four slots are the sole SOT. Each slot has exactly one of these canonical
+authority states:
+
+```text
+unknown:          {state: unknown}
+confirmedPresent: {
+  state: confirmedPresent,
+  evidence: {
+    evidenceId: UUIDv4, ownerKind: self, source: certificate,
+    sourceDate: YYYY-MM-DD, legalYear: 1900..9999,
+    confirmedAt: canonical UTC instant,
+    civilStatusAtConfirmation: CoachCivilStatus
+  }
+}
+confirmedAbsent:  {
+  state: confirmedAbsent,
+  confirmation: {
+    evidenceId: UUIDv4, ownerKind: self, source: userInput,
+    confirmedAt: canonical UTC instant,
+    civilStatusAtConfirmation: CoachCivilStatus
+  }
+}
+```
+
+Absence is never derived from household booleans, a missing document, or an
+empty list. `invalid` and `stale` are fail-closed **projection** states; they are
+not serializable authority states. A malformed envelope rejects the root. A
+malformed slot makes that slot invalid without manufacturing or erasing the
+other three. Live parsing rejects future confirmation/source dates; the
+mutation parser is structurally time-independent so a local clock rollback does
+not brick later CAS repair, while the newly published profile is still rebuilt
+against the live clock.
+
+`_coach_estate_evidence_v1` is in both
+`ReportPersistenceService._strictAuthorityKeys` and
+`SecureWizardStore._sensitiveKeys`. It is stored through the unified authority
+journal/secure boundary, cannot fall back to a plain release write, and is
+removed by `backendSafeAnswers`. There is no backend/LLM mirror, no parallel
+`estateInstrumentReferences` persistence, and no loose matrimonial or LPart
+answer key. `CoachProfile.estateInstrumentReferences` is only an unmodifiable
+metadata projection of present slots.
+
+The only typed write APIs are:
+
+```text
+confirmMatrimonialRegime(kind, expectedPreviousConfirmationId)
+confirmRegisteredPartnershipPropertyRegime(
+  kind, expectedPreviousConfirmationId)
+confirmEstateInstrumentPresent(
+  kind, sourceDate, legalYear, expectedPreviousEvidenceId)
+confirmEstateInstrumentAbsent(kind, expectedPreviousEvidenceId)
+```
+
+Every writer reloads the canonical root through the independent estate
+persistence seam, validates current confirmed civil status, compares the exact
+prior confirmation/evidence id, replaces only its scoped member, and awaits one
+whole-root save before publishing `_profile` or notifying listeners. Marriage
+and registered partnership are deliberately distinct domains: the first writer
+requires `marie`; the second requires `registeredPartnership`. A stale CAS,
+legacy/noncanonical root, unresolved civil status, wrong union kind, or save
+failure produces no publish/notify.
+
+The public read model is narrow:
+
+| projection | meaning | forbidden inference |
+|---|---|---|
+| `currentEstateArrangementApplicability` | `known` only for a current scoped marriage/LPart confirmation; `notApplicable` for current non-union statuses; otherwise `unknown` | It does not resolve property composition or liquidation of a prior union. |
+| `estateReferenceStateAt(asOf)` | `known`, `missing`, `needsReconfirmation`, or `invalid` over current scoped evidence | It is not estate-value, reserve-share, or distribution readiness. |
+| `estateReferenceSurveyCompleteAt(asOf)` | arrangement applicability resolved and every exact slot explicitly present/absent at `asOf` | It is not a complete legal dossier or specialist-ready conclusion. |
+| `estateReferenceHandoffCompletenessAt(asOf)` | `partial` or the narrowly named `surveyComplete` | It must not be rendered as legal completeness/advice. |
+
+**Current live gap at `2adf4b243`.** Grep outside the model/provider finds no
+production caller for any of the four writers, and
+`SuccessionPatrimoineScreen` reads none of these projections. It still reads
+property, mortgage and family facts and renders the legacy
+`TestamentInvisibleWidget`. This section records a GREEN authority/model
+foundation only. G1-SUCCESSION-01 remains open until a neutral progressive
+collector/reader is wired, fail-closed states are visible, the unsafe legacy
+consumer is removed/replaced, and runtime evidence is accepted.
 
 ### 4.0 Tax assessment snapshots (G1-PROV-03 implemented; composite default-off)
 
