@@ -1,0 +1,37 @@
+Verified the fix end-to-end: read the guard, confirmed the allowlist entries against the registry, traced every production `returnUri` producer, checked wiring, and ran the full test suite (82/82 GREEN).
+
+Product/domain verdict: PASS
+
+## What this change does
+Two files: a RED evidence record (`return-01/red.json`) and a one-line-of-logic hardening in `parseDataBlockReturnTarget`. The parser previously accepted *any* registered non-auth/non-admin/non-anonymous `destination` route as a DataBlock collector return target. The fix adds `_dataBlockReturnOriginPaths` (`route_metadata.dart:97-103`) and gates on it at `route_metadata.dart:157`, so only the five screens that actually emit a collector intent are honored; everything else fails closed to typed `/home`.
+
+The life events touched: **first job** (`/first-job`, travail/AVS-LPP-3a onboarding), **mortgage affordability** (`/hypotheque`), **rente-vs-capital** (`/rente-vs-capital`, LPP payout decision), **disability gap** (`/invalidite`, AI/LAA/LPP), **succession** (`/succession`). Each is a legitimate return-to-origin scenario.
+
+## Verification performed
+- All 5 allowlist paths exist in `kRouteRegistry` as `RouteCategory.destination` with product owners (travail/logement/retraite/sante/patrimoine) — consistent with the surviving metadata guard (`route_metadata.dart:369,474,560,686,746`).
+- Enumerated every `/data-block/...` producer: `first_job_screen.dart:190`, `affordability_screen.dart:289`, `rente_vs_capital_screen.dart:763`, `disability_gap_screen.dart:490`, `succession_patrimoine_screen.dart:87,112`, `succession_evidence_quest.dart:95`. **All emit a returnUri inside the allowlist** — the allowlist is complete, no legitimate flow is broken.
+- The `retirement_dashboard_screen.dart:1462 returnUri:'/retraite'` is the **`/scan` doc-scan** flow (`context.go('/scan?...')`), not the DataBlock parser — correctly unaffected.
+- Production wiring confirmed at `app.dart:2340-2346` (real route builder calls the parser), not test-only.
+- Ran `flutter test test/navigation/data_block_return_uri_test.dart` → **82 passed** (RED record now GREEN). Malicious/inappropriate targets `/settings/langue`, `/rapport`, `/auth/login`, `/admin/routes`, traversal, and nested-URI exfil all fall back to `/home`.
+
+## P0
+None.
+
+## P1
+None.
+
+## P2
+- `route_metadata.dart:97` introduces a **second source of truth** (allowlist) that must stay in sync with actual producers. Nothing enforces "every DataBlock producer's returnUri ∈ allowlist." Adding a new collector-emitting screen without updating this set would silently degrade its return-to-origin to `/home` — a quiet product regression. A producer↔allowlist parity check (analogous to `route_registry_parity.py`) would close the drift risk.
+- `allocation_annuelle_screen.dart:201` and `location_vs_propriete_screen.dart:190` render `IndicatifBanner` **without** `returnUri`, so their enrichment relies on history-pop rather than the typed return-to-origin pattern used by `rente-vs-capital`. Pre-existing (not a regression from this diff), but inconsistent with the spine; worth a follow-up so those arbitrage scenarios also get deterministic return.
+- The evidence folder holds the RED record but no paired GREEN artifact for `return-01` (the RVC sibling has full runtime evidence). I confirmed GREEN by running the suite; committing the GREEN counterpart would complete the audit trail.
+
+## Swiss domain review
+- **AVS/LPP/3a**: Not altered. The rente-vs-capital LPP payout screen and first-job onboarding retain their collector return; no conversion-rate, coordination-deduction, or threshold constant is touched.
+- **Mortgage**: `/hypotheque` affordability return preserved; no affordability/33%-income or 80% LTV logic in scope.
+- **Insurance/disability**: `/invalidite` (AI/LAA/LPP gap) return preserved; no coverage constant touched.
+- **Succession**: `/succession` return preserved, including the civil-status confirmation quest (`succession_evidence_quest.dart:95`); no inheritance-share/forced-heirship rule touched.
+- **Tax/canton**: Untouched. No cantonal constant, scale, or advice string in this diff.
+- No advice, ranking, guarantee, or product-recommendation language is introduced — this is pure navigation authority.
+
+## Mint product logic review
+This moves Mint **toward** the ledger → DataQuest → scenario → dossier spine. It enforces that a missing-data collector, once satisfied and written back via `mergeAnswers` (single source of truth, tested at `:524-527`), returns the user to the exact originating Swiss scenario rather than leaking to settings/report/auth surfaces. Forged and off-domain targets fail closed to `/home`, and encoded origin queries round-trip exactly once (`:323-350`) so scenario context (tab/focus) survives. Net effect: tighter, more coherent progressive-data-collection loop with no duplicated user variables and no new domain risk.

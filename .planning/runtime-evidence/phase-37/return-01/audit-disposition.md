@@ -21,3 +21,23 @@ P1=0.
 
 No audit rerun is warranted: neither P2 changes the accepted planning decision,
 and the ticket remains `ticket_only` until its exact RED -> GREEN proof exists.
+
+## GREEN implementation audit dispositions
+
+Accepted audits: `opus-green-code-audit.txt` and
+`opus-green-product-domain-audit.txt` — both **PASS**, P0=0, P1=0.
+
+1. **The five-path allowlist is hand-maintained.** Current producer completeness
+   is directly tested by the 82-predicate canonical suite and the existing live-
+   origin suite. A future producer/allowlist parity guard remains a nonblocking
+   drift-hardening follow-up; it is not represented as automatic today.
+2. **Two non-P0 IndicatifBanner callers still rely on history.** Annual-
+   allocation and rent-versus-buy are outside the six P0 RETURN ticket and were
+   not promoted by this fix. Their deterministic typed return is tracked as a
+   separate follow-up rather than silently widening G1-RETURN-01.
+3. **Paired GREEN artifact.** Closed in this same delivery by `green.json`,
+   bound to exact SHA `6427a97722db879d74ccb04bde50d3c75e755112` and the
+   identical 82/82 command.
+
+No carousel rerun is warranted. Runtime and registry promotion remain separate
+fail-closed gates.

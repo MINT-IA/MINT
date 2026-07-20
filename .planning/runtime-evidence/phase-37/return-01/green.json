@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-RETURN-01",
+  "command": "cd apps/mobile && flutter test test/navigation/data_block_return_uri_test.dart --reporter expanded",
+  "recorded_at": "2026-07-20T07:09:47Z",
+  "assertion": "data_block_return_uri_test",
+  "synthetic_data_only": true,
+  "stage": "GREEN",
+  "sha": "6427a97722db879d74ccb04bde50d3c75e755112",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "output": "Exact canonical command passed all 82 RETURN predicates: five real routed producers, Frontalier in-place stability, save/cancel/validation/persistence-retry terminal matrix, query canonicalization, and adversarial registered-but-inappropriate destinations all fail closed to typed Home."
+}

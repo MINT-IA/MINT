@@ -1,0 +1,39 @@
+All tests pass. I have enough evidence to render a verdict.
+
+---
+
+# MINT Code Audit — G1-RETURN-01 (DataBlock return-origin restriction)
+
+**Scope:** 3 commits ahead of base `0035356`; diff = 24 lines across `route_metadata.dart` (allowlist gate) + `red.json` (evidence artifact). Within budget.
+
+## What the change does
+Adds `_dataBlockReturnOriginPaths` (5 entries) and inserts `!_dataBlockReturnOriginPaths.contains(uri.path)` into the fail-closed gate of `parseDataBlockReturnTarget` (`route_metadata.dart:97-103, 157`). This narrows DataBlock return authority from "any registry destination" to the five screens that have a real collector producer.
+
+## Verification performed
+
+**Correctness / routing**
+- All 5 allowlisted origins exist in `kRouteRegistry` as `RouteCategory.destination` with non-excluded owners: `/first-job` (travail:689), `/hypotheque` (logement:563), `/rente-vs-capital` (retraite:372), `/invalidite` (sante:749), `/succession` (patrimoine:477). They pass the residual gate.
+- The two regression targets exploited pre-fix are both registry destinations owned by `system` — `/settings/langue` (`:1078`) and `/rapport` (`:884`) — which is exactly why the old owner/category gate let them through. The allowlist now excludes them.
+- **Producer coverage is complete:** every production DataBlock producer emits one of the 5 allowlisted origins (`first_job_screen.dart:190`, `affordability_screen.dart:289`, `disability_gap_screen.dart:490`, `succession_patrimoine_screen.dart:87/112`, `succession_evidence_quest.dart:95`, `rente_vs_capital_screen.dart:763` via IndicatifBanner). No production producer emits an origin outside the allowlist.
+- **No collateral regression:** `/retraite` `returnUri` (`retirement_dashboard_screen.dart:1462/1469`) targets the `/scan` flow, which uses the separate `ScanSessionProvider`/`ExtractionReview` return mechanism — not `parseDataBlockReturnTarget`. The `independants/*` producers push `/data-block/revenu` with no `returnUri`, so the `null`/absence branch (history behavior) is preserved.
+
+**Wiring (facade check)** — Not a facade: production route builder calls the parser at `app.dart:2340-2346`; the collector CTA consumes `returnTarget.location` at `data_block_enrichment_screen.dart:283-293`.
+
+**Tests (source of truth)** — Ran the canonical command myself:
+- `data_block_return_uri_test.dart`: **82/82 pass** (RED artifact recorded 72 pass / 10 fail at base sha; fix flips it green). Malicious matrix now asserts `/settings/langue` and `/rapport` fall back to `/home` on save, AppBar cancel, validation recovery, persistence retry-success, and persistence-failure cancel.
+- Sibling parsers unaffected: `data_block_live_origin_roundtrip_test.dart` (35) + `goroute_health_test.dart` — **all pass**.
+
+**Privacy/compliance** — `red.json` is `synthetic_data_only: true`; no secrets or PII. Query allowlist (`tab`/`focus`) and the `\`/traversal/scheme fail-closed guards are untouched and still enforced.
+
+## Findings
+
+**P0:** none.
+**P1:** none.
+**P2 (maintainability, non-blocking):**
+- `_dataBlockReturnOriginPaths` is a hand-maintained set with **no parity lint** analogous to `route_registry_parity.py`. A future DataBlock producer added with a new origin would silently fail-closed to `/home` with no CI signal. Current producers are covered by `data_block_live_origin_roundtrip_test.dart`, so this is latent, not active. *Proof of gap:* no reference to `_dataBlockReturnOriginPaths` exists under `tools/checks/` (grep returns only `route_metadata.dart` and the test's local `_routedOrigins` copy). Suggest a check asserting producer `returnUri` literals ⊆ allowlist.
+
+## Verdict
+
+**PASS**
+
+The fix is correct, minimally scoped, fully wired into the production route builder, and the recorded RED→GREEN transition reproduces (82/82). The only issue is a P2 drift-guard gap that does not affect current correctness.
