@@ -1,0 +1,36 @@
+## MINT External Audit — Code Mode
+
+**Scope:** 3 unstaged files (2 Maestro flows + 1 runtime test), ~63 diff lines. Within budget.
+
+### What changed
+The two Maestro E2E flows (`work_return`, `housing_cancel_return`) now `extendedWaitUntil` a **route anchor that renders at the top of the screen** (`first_job_ledger_facts`, `mortgage_afford_result`) before `scrollUntilVisible` to the below-the-fold CTA — instead of waiting directly on the CTA. A new test asserts this ordering invariant.
+
+### Verification performed
+
+1. **Selectors exist in production code (no facade risk):**
+   - `mortgage_afford_result` → `affordability_screen.dart:210-212` (Semantics identifier + Key) ✓
+   - `first_job_ledger_facts` → `first_job_screen.dart:370-371` ✓
+   - CTAs `mortgage_enrich_profile_cta` / `first_job_enrich_profile_cta` still present (`affordability_screen.dart:280`, `first_job_screen.dart:402`) ✓
+
+2. **Anchor-above-CTA ordering is real** (required for a `DOWN` scroll to reach the CTA):
+   - Mortgage: `mortgage_afford_result` = Section 2 (line 210), CTA = Section 5 (line 280) — anchor precedes CTA ✓
+   - First-job: `first_job_ledger_facts` is the container (line 370); CTA is a child within it (line 402) — anchor renders first ✓
+
+3. **Test matches YAML byte-for-byte:** The exact-string `indexOf` probes (`- extendedWaitUntil:\n    visible:\n      id:` and `- scrollUntilVisible:\n    element:\n      id:`) match the 4/6-space indentation in both YAMLs (`work_return.yaml:18-25`, `housing_cancel_return.yaml:18-25`). `waitAnchor >= 0`, `scrollCta > waitAnchor`, and "no `extendedWaitUntil` on the CTA" all hold ✓
+
+4. **No regression to the existing selector test** (`test:79-124`): housing_cancel still contains `mortgage_enrich_profile_cta`/`salary_input`; work still contains all four required selectors ✓
+
+5. **No forbidden anti-patterns introduced:** no `clearState`, `returnUri=`, `debugFailure`, or synthetic hooks in the touched flows.
+
+### Findings
+- **P0:** none
+- **P1:** none
+- **P2:** none
+
+Note: the new test relies on exact whitespace/newline formatting of the YAML. If a future `dprint`/formatter reflows these files, the `indexOf` string probes become brittle. Non-blocking, but worth a comment on the test. No compliance/privacy/routing surface is touched (return URIs and data-block routes unchanged).
+
+### Verdict
+
+**PASS**
+
+Selectors are wired to real widgets, the wait-then-scroll invariant reflects actual DOM ordering, and the new test faithfully encodes the change with no facade or regression risk. (I could not execute `flutter test` in this audit to confirm green, but static verification of every asserted string against source is conclusive.)

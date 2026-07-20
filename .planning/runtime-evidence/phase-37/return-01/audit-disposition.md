@@ -107,3 +107,27 @@ SHA RVC proof exist. Normal-app restoration and private cleanup passed.
 
 No audit carousel rerun is warranted. The next native attempt must diagnose the
 actual Work Maestro failure if it recurs.
+
+## Maestro offscreen-anchor audit disposition
+
+Accepted audit: `opus-maestro-scroll-audit.txt` — **PASS**, P0=0, P1=0,
+P2=0.
+
+The diagnostic rerun on exact pushed SHA
+`9e97782e6b27c42d4c92a0ec7912842e5d28b08d` proved Work Patrol 1/1 and
+then a named Work Maestro failure: `first_job_enrich_profile_cta` was not
+visible after 20 seconds. The sanitised JUnit reports one test/one failure.
+This remains a hard fail with no partial acceptance.
+
+The cause was a black-box flow contradiction, not missing production wiring:
+the flow waited for a below-fold CTA before issuing its scroll. Work now waits
+on the initially visible `first_job_ledger_facts` route anchor and then scrolls
+to the CTA. The same pre-runtime defect was removed from Housing by waiting on
+`mortgage_afford_result` before scrolling to `mortgage_enrich_profile_cta`.
+A RED -> GREEN contract locks both orderings and forbids direct visible-waits on
+those offscreen CTAs. The other three flows were inspected and did not repeat
+this proven contradiction.
+
+The audit noted exact-whitespace parsing as a possible future test-maintenance
+cost, with no correctness finding. Runtime acceptance still requires a fresh
+full exact-SHA run.
