@@ -612,3 +612,34 @@ P0=0/P1=0. Accepted evidence:
 
 A new pushed exact SHA, GitHub clean-room success and sixteenth complete runtime
 are required. The fifteenth run remains diagnostic only.
+
+## Sixteenth runtime and Succession actionable-CTA disposition
+
+The sixteenth canonical run used exact pushed SHA
+`157c2c5643c2221e326fb3632782f0dd86646ca3` and stopped at the first hard
+failure in
+`.planning/runtime-evidence/phase-37/return-01/runtime-157c2c5643-20260720T145947Z`.
+Work, Housing and Disability passed Patrol+Maestro, including the repaired
+Disability normal-app salary seed and retained-scroll anchor. Succession Patrol
+also passed. Succession Maestro then failed because `property_market_value_input`
+was absent after tapping `succession_property_missing`. Frontalier and RVC were
+not reached; no evidence was composed or promoted.
+
+Direct inspection of all four retained PNGs and the Succession hierarchy shows
+the identifier on the full Patrimoine container, while the visible real
+`Renseigner mon patrimoine` child CTA had no native identifier. The identifier
+now belongs to the existing real `FilledButton.icon` node via merged semantics;
+the card keeps its structural Flutter Key. RED proved the identified node had
+no `SemanticsAction.tap`. GREEN proves the identifier, button flag, tap action
+and FilledButton share one node, its bounds are smaller than the card, and the
+existing callback opens only `property_market_value_input`. Focused screen,
+navigation and RETURN suites pass 145/145 and targeted analysis is clean.
+Implementation commit: `9897bed13`.
+
+Accepted audits:
+- `opus-succession-actionable-cta-code-audit.txt` — **PASS**, P0=0, P1=0.
+- `opus-succession-actionable-cta-product-domain-audit.txt` — **PASS**, P0=0,
+  P1=0.
+
+A new pushed exact SHA, GitHub clean-room success and seventeenth complete
+runtime are required. The sixteenth run remains diagnostic only.

@@ -1,0 +1,26 @@
+## MINT External Audit — code mode
+
+**Base:** `157c2c5643c2221e326fb3632782f0dd86646ca3`
+**Wrapper/model:** `tools/checks/claude_external_audit.sh code`, Opus/high
+
+### Verification
+
+- Confirmed the structural `Key('succession_property_missing')` remains on the
+  card, preserving by-Key Patrol and navigation consumers.
+- Confirmed the native identifier now resolves to the existing real
+  `FilledButton.icon`, with button flag and tap action on the same merged node.
+- Confirmed the existing targeted property route, callback, label and layout
+  remain unchanged; no duplicate navigation or facade was introduced.
+- Ran the focused screen suite: 29/29 passed; dependent selector wiring remains
+  compatible.
+
+### Findings
+
+- **P0:** none.
+- **P1:** none.
+- **P2:** informational only — Maestro center-tap now targets the actual button,
+  which is strictly stronger than the former card-container target.
+
+### Verdict
+
+**PASS** — P0=0, P1=0.

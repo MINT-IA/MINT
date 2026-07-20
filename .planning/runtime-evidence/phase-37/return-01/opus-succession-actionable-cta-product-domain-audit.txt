@@ -1,0 +1,25 @@
+## MINT External Audit — product-domain mode
+
+**Base:** `157c2c5643c2221e326fb3632782f0dd86646ca3`
+**Wrapper/model:** `tools/checks/claude_external_audit.sh product-domain`, Opus/high
+
+### Verification
+
+- Confirmed the change is accessibility/automation targeting only; no Swiss
+  rule, constant, route intent, compliance copy or ledger meaning changed.
+- Confirmed property and mortgage missing-fact CTAs still open their exact
+  targeted Patrimoine collectors and return to Succession.
+- Confirmed the test now exercises the real button and only the property input.
+- Reviewed the existing non-advice succession framing and post-2023 reserves
+  education; both remain untouched.
+
+### Findings
+
+- **P0:** none.
+- **P1:** none.
+- **P2:** the specialist dossier/PDF handoff remains a pre-existing product gap,
+  outside this focused G1 runtime-selector repair.
+
+### Verdict
+
+**PASS** — P0=0, P1=0.
