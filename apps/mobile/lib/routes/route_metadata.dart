@@ -91,6 +91,17 @@ final class DataBlockReturnTarget {
 
 const _dataBlockReturnQueryKeys = <String>{'tab', 'focus'};
 
+// Route registry membership only proves that a path exists. DataBlock return
+// authority is narrower: these are the product screens with a real collector
+// producer and an explicit return-to-origin contract.
+const _dataBlockReturnOriginPaths = <String>{
+  '/first-job',
+  '/hypotheque',
+  '/rente-vs-capital',
+  '/invalidite',
+  '/succession',
+};
+
 /// Parses one already-decoded `returnUri` query value and fails closed.
 ///
 /// Absence preserves the pre-contract history behavior. A present but invalid
@@ -143,6 +154,7 @@ DataBlockReturnTarget? parseDataBlockReturnTarget(String? rawReturnUri) {
 
   final metadata = kRouteRegistry[uri.path];
   if (metadata == null ||
+      !_dataBlockReturnOriginPaths.contains(uri.path) ||
       metadata.category != RouteCategory.destination ||
       metadata.owner == RouteOwner.auth ||
       metadata.owner == RouteOwner.admin ||
