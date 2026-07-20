@@ -83,7 +83,7 @@
 - `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml` exists at `095eeaa32`; R-1/R-2 scan recovery flows are checked in by the G1 repair slice.
 - The F-2 stable ids are present: `salary_input`, `canton_picker`, `birth_year_input`, `has_pension_fund_switch`, `salary_save_cta`, `mortgage_afford_result`, `mortgage_income_amount`.
 - The F-5 property stable ids are present: `succession_property_missing`, `property_market_value_input`, `patrimoine_save_cta`, `succession_parents_note`.
-- The default-off SUCCESSION reference consumer adds real stable ids for the quest root, civil guard plus `succession_civil_status_confirm` CTA, arrangement, exact four slots, stale/prior/reconfirm, present/absent metadata, save/error/next, invalid recovery and terminal review. The new progressive Maestro file is not checked in and the existing Patrol target remains property-only, so SUCCESSION runtime promotion is still open.
+- The default-off SUCCESSION reference consumer adds a truthful disabled insertion marker, `succession_reference_quest_flag_off`, on the existing notions-clés heading. The flag-off flow scrolls to and asserts that marker; it does not assert a hidden quest. The flag-on flow scrolls to `succession_civil_status_guard`, then asserts the quest root and guard before using `succession_civil_status_confirm`. These YAML/runtime targets exist as contracts, but no SUCCESSION runtime PASS or promotion is claimed here.
 - IDs for F-1/F-3/F-6 are still missing or not fully wired (`coach_input`, `coach_send`, `retirement_gap_value`, `divorce_regime_picker`, `divorce_lpp_split_result`, `report_investment_card`).
 - **Deep links are partial.** iOS has `CFBundleURLSchemes` with `mint` (`ios/Runner/Info.plist:21-29`). Android still has no `mint://` intent-filter on `MainActivity` (only `MAIN`/`LAUNCHER`, `AndroidManifest.xml:25-28`; `https` appears only under `<queries>`, `:34-38`). Android `openLink: "mint:///..."` is dead until Task M-0a registers the scheme.
 
@@ -253,9 +253,12 @@ appId: ch.mint.app
 
 Targets:
 
-- add `apps/mobile/.maestro/g1_succession_progressive.yaml`;
-- extend `apps/mobile/test/patrol/succession_transmission_runtime_test.dart`
-  beyond its existing property-value proof;
+- `apps/mobile/.maestro/g1_succession_flag_off.yaml` for the explicit disabled
+  insertion marker;
+- `apps/mobile/.maestro/g1_succession_progressive.yaml` for the flag-on civil
+  guard/return contract;
+- dedicated Patrol targets for native present input, explicit absent write and
+  distinct-process cold read;
 - build the flag-on target with
   `--dart-define=MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION=true`;
 - keep a normal production-default build to prove the collector is absent when
@@ -265,7 +268,8 @@ The target must use these **existing literal ids**, never translated text:
 
 | proof state | ids |
 |---|---|
-| quest present/absent | `succession_reference_quest` (assert present only in flag-on build) |
+| flag-off insertion point | `succession_reference_quest_flag_off` (semantics marker on the existing notions-clés heading; no hidden quest assertion) |
+| flag-on quest root | `succession_reference_quest` |
 | ambiguous civil status | `succession_civil_status_guard`, `succession_civil_status_confirm` |
 | arrangement | `succession_arrangement_question`, `succession_arrangement_enum`, `succession_arrangement_save` |
 | exact will question | `succession_instrument_will_question`, `succession_instrument_will_absent`, `succession_instrument_will_present` |
@@ -278,11 +282,15 @@ The target must use these **existing literal ids**, never translated text:
 
 Required proof sequence:
 
-1. **Flag off:** launch normal production entrypoint, open `/succession`, assert
-   `succession_reference_quest` absent while the rest of the route still renders.
-2. **Civil guard/return:** on flag-on build with ambiguous civil status, assert
-   guard, tap the new stable CTA, verify the targeted `q_civil_status` DataBlock,
-   save, and prove return to `/succession` without losing query ownership.
+1. **Flag off:** launch the normal production entrypoint, reach `/succession`,
+   scroll down to `succession_reference_quest_flag_off` and assert it visible.
+   The marker is attached to the notions-clés heading at the disabled quest
+   insertion point; it is not a placeholder quest or a domain-state widget.
+2. **Civil guard/return:** on the flag-on build with ambiguous civil status,
+   scroll to `succession_civil_status_guard`, assert both the
+   `succession_reference_quest` root and guard, tap the stable confirm CTA,
+   verify the targeted `q_civil_status` DataBlock, save, and prove return to
+   `/succession` without losing query ownership.
 3. **Progressive explicit absence:** choose an arrangement with no preselected
    value; save; declare will absent; assert durable acknowledgement; explicitly
    advance; assert inheritance-pact question. Unknown must never auto-become

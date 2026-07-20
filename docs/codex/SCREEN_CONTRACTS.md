@@ -454,6 +454,7 @@ route in either flag state.
 
 | state/control | stable id(s) | contract |
 |---|---|---|
+| disabled quest insertion point | `succession_reference_quest_flag_off` | explicit semantics marker on the existing notions-clés heading only while the local collector flag is false; non-interactive, absent when flag-on, and suitable for scroll/assert proof without inventing a hidden quest widget |
 | collector root / unloaded recovery | `succession_reference_quest`, `succession_reference_retry` | real provider-backed surface; retry calls `loadFromWizard` |
 | civil-status guard | `succession_civil_status_guard`, `succession_civil_status_confirm` | blocks all estate writes; the CTA routes to the canonical DataBlock/return URI |
 | arrangement | `succession_arrangement_question`, `succession_arrangement_enum`, `succession_arrangement_save` | distinct marriage/LPart enum; save disabled until explicit selection |
@@ -468,14 +469,13 @@ route in either flag state.
 | invalid authority | `succession_reference_invalid`, `succession_reference_reload` | reload/support only; no reset facade |
 | terminal review | `succession_reference_survey_recorded`, `succession_instrument_{kind}_summary`, `succession_instrument_{kind}_summary_prior_state`, `succession_instrument_{kind}_modify` | editable four-slot survey; never dossier readiness |
 
-The civil guard now has a dedicated literal CTA id,
-`succession_civil_status_confirm`, with a widget contract. Runtime acceptance
-is still open: the checked-in `test/patrol/succession_transmission_runtime_test.dart`
-proves only the older property-value path, and
-`.maestro/g1_succession_progressive.yaml` is not yet checked in. Until the
-flag-off/flag-on flows, real input, kill/relaunch cold reader, screenshots and
-exact-SHA CI are accepted, SUCCESSION-01 remains open; G1/G2/G3 promotion is
-unchanged.
+The civil guard has a dedicated literal CTA id,
+`succession_civil_status_confirm`, with a widget contract. The runtime harness
+now names separate flag-off/flag-on Maestro contracts and dedicated native
+present, absent-write and cold-read Patrol targets. Their existence is not an
+execution claim: until those flows, real input, kill/relaunch cold reader,
+screenshots and exact-SHA CI are accepted, SUCCESSION-01 remains open;
+G1/G2/G3 promotion is unchanged.
 
 #### G1-FRONT-01 stable control/state map
 

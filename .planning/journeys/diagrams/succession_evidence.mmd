@@ -18,7 +18,7 @@ flowchart TB
 
   Entry["/succession<br/>SuccessionPatrimoineScreen"]:::route
   Flag{"successionEvidenceCollectionEnabled?<br/>MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION<br/>default false; never backend-hydrated"}:::guard
-  Off["Flag off<br/>quest id absent<br/>route remains usable"]:::state
+  Off["Flag off<br/>succession_reference_quest_flag_off<br/>semantics marker on notions-clés heading<br/>no hidden quest widget"]:::state
   Quest["SuccessionEvidenceQuest<br/>succession_reference_quest"]:::route
   Profile{"CoachProfile loaded?"}:::guard
   Reload["succession_reference_retry<br/>loadFromWizard"]:::state
