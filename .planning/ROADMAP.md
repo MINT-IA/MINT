@@ -69,9 +69,10 @@ whole-screen coherence hard floor so the product spine is actually ready for G2.
 2. Targeted and affected full suites pass; Maestro and Patrol prove restart/recompute.
 3. Claude code, architecture, and product-domain audits have no P0/P1 and score is >=9.0.
 
-**Status:** in progress — live registry 25/31 GREEN, five `ticket_only`,
-`G1-RUNTIME-01` `red_proven`; `G1-COHERENCE-01` is an open P0 acceptance hard
-floor. G2 remains blocked.
+**Status:** in progress — live registry 26/31 GREEN, four `ticket_only`,
+`G1-RUNTIME-01` `red_proven`; the separate `G1-COHERENCE-01` acceptance hard
+floor is GREEN. Five registry floors still block `RDY-GATE-01`; G2 remains
+blocked.
 
 ### Phase 38: Mint OS Operating Runway
 
@@ -268,7 +269,7 @@ spine, never as a parallel calculator/state system.
 
 | phase | status | score | next hard floor |
 |---|---|---:|---|
-| 37 Ledger readiness | in progress (25/31 registry GREEN) | 8.2 interim | RETURN-01 plus First Job whole-screen coherence; G2 remains NO |
+| 37 Ledger readiness | in progress (26/31 registry GREEN; coherence GREEN) | 8.2 interim | five registry floors; G2 remains NO |
 | 38 Operating runway | blocked by 37 | — | 31/31 G1 GREEN + coherence hard floor |
 | 39 G2 DataQuest | blocked by 37-38 | — | G2 allowed YES |
 | 40-45 six G3 loops | blocked by 39 | — | G2 accepted |

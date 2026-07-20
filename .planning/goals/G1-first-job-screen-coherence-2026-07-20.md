@@ -5,9 +5,32 @@ Date: 2026-07-20
 Owner chain: `mint-swiss-brain` → `mint-data-ledger-architect` → `mint-mobile`
 → `mint-quality-gate` → `mint-external-auditor` → `mint-lead`
 
-Status: **OPEN P0 — blocks `RDY-GATE-01`, score >=9.0 and G2/G3.** This is a
-whole-screen acceptance hard floor over the existing 31-row ledger/runtime
-registry; it does not silently change a registry row or claim implementation.
+Status: **GREEN / ACCEPTED — the separate whole-screen hard floor is closed.**
+This acceptance does not change any row in the 31-row ledger/runtime registry,
+check `RDY-GATE-01`, raise the 8.2/10 interim score, or authorize G2/G3.
+
+## Accepted evidence
+
+- Implementation commit: `e050b59556e07339f80d051eb352227b0d4af295`
+  (`fix(g1): make First Job screen coherent`).
+- The unchanged command below passes **9/9**; its dedicated assembled-screen
+  contract passes **4/4**.
+- The accepted pushed runtime source
+  `5eb8a78a2b38caba9ef165ad90f023773bba81f0` descends from the implementation
+  commit. Its Work Patrol and Maestro stages pass, and the parent metadata,
+  checksums, cleanup and restoration gates pass.
+- Direct inspection of `maestro-work_save.png` together with
+  `hierarchy-maestro-work_save.log` confirms one salary story: CHF 8'000;
+  AVS/AI/APG and AC explicitly labelled as illustrations; exact LPP and exact
+  net explicitly unknown; the age credit explicitly not presented as the LPP
+  deduction; and a neutral bank/insurance 3a comparison. The prior fabricated
+  premium table, contradictory projections and duplicated checklist/salary
+  surfaces are absent.
+- Wrapper implementation audits archived under
+  `.planning/runtime-evidence/phase-37/g1-coherence-01/` finish with code,
+  product-domain and architecture **PASS**, with no unresolved P0/P1.
+- The route remains fail-closed: `FeatureFlags.enableFirstJobScreen` defaults
+  false and backend configuration cannot enable it.
 
 ## Why this gate exists
 

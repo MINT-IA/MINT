@@ -64,11 +64,24 @@ The wrapper audit lineage and dispositions are archived beside this report,
 including code and product-domain lenses. Accepted records report no unresolved
 P0/P1. No new audit was launched for this registry-only promotion.
 
+## Adjacent First Job coherence acceptance
+
+The Work stage at the same pushed runtime source also supplies the native proof
+for the separate `G1-COHERENCE-01` hard floor. Its Patrol and Maestro stages
+pass. Direct inspection of `maestro-work_save.png` and
+`hierarchy-maestro-work_save.log` shows one salary authority with CHF 8'000,
+AVS/AC labelled illustrations, exact LPP/net explicitly unknown, the statutory
+age credit explicitly distinguished from the employee deduction, and neutral
+3a comparison copy. Implementation `e050b5955`, the unchanged 9/9 coherence
+command (including the dedicated 4/4 assembled-screen contract), and the final
+code/product-domain/architecture wrapper PASS lineage are accepted separately.
+This closes the coherence floor without changing the RETURN ticket or registry.
+
 ## Residual boundaries
 
 This proof closes safe return behavior only. It does not prove the separate
 salary/canton -> mortgage persistence/recompute predicate in
-`G1-RUNTIME-01`, does not close the four other `ticket_only` rows, and does not
-close the still-open `G1-COHERENCE-01` assembled First Job screen acceptance
-floor. Registry truth after promotion is 26/31 GREEN, four `ticket_only`, one
-`red_proven`: five hard floors remain.
+`G1-RUNTIME-01` and does not close the four other `ticket_only` rows.
+`G1-COHERENCE-01` is now accepted as a separate non-registry hard floor, but
+registry truth remains 26/31 GREEN, four `ticket_only`, one `red_proven`: five
+registry hard floors remain.

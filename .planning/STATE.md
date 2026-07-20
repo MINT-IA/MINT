@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: G1-RETURN-01 is GREEN after semantic RED 72/82, accepted exact-command 82/82, exact-SHA CI SUCCESS, and full six-origin Patrol/Maestro plus linked RVC runtime PASS; 5 registry hard floors remain, and G2/G3 are not authorized.
-last_updated: "2026-07-20T20:52:14Z"
-last_activity: 2026-07-20 -- G1-RETURN-01 promoted on exact command and complete pushed-SHA six-origin runtime evidence; registry is 26/31 GREEN and G1 remains NO-GO.
+stopped_at: G1-RETURN-01 and the separate G1-COHERENCE-01 screen hard floor are GREEN; 5 registry hard floors remain, RDY-GATE-01 is unchecked, and G2/G3 are not authorized.
+last_updated: "2026-07-20T21:05:22Z"
+last_activity: 2026-07-20 -- G1-COHERENCE-01 accepted on unchanged tests, exact pushed runtime visual/semantic proof and final wrapper audits; registry remains 26/31 GREEN and G1 remains NO-GO.
 progress:
   total_phases: 14
   completed_phases: 0
@@ -40,10 +40,12 @@ pushed `d13d032504837cd4bc9233cb6309ebd36b24e4bb`; exact-SHA GitHub run
 `29777377274` succeeded. The full runtime at pushed
 `5eb8a78a2b38caba9ef165ad90f023773bba81f0` passed five Patrol and five
 Maestro origin stages, including Frontalier cold FR/CH/GE, then the linked RVC
-runtime, checksums, cleanup and restoration. `G1-COHERENCE-01` remains a
-separate open P0 because the inspected First Job screen still has contradictory
-LPP/net calculations, duplicate stories, unsupported recommendation-shaped
-copy and incoherent projection bases. The registry is **26/31 GREEN**; G1 stays
+runtime, checksums, cleanup and restoration. `G1-COHERENCE-01` is now a
+separate accepted hard floor: implementation `e050b5955`, unchanged command
+9/9 (dedicated screen contract 4/4), Work Patrol/Maestro and direct
+screenshot/hierarchy inspection at pushed source `5eb8a78a2`, plus final code,
+product-domain and architecture wrapper PASS with P0/P1=0. The registry is
+**26/31 GREEN**; five registry floors keep `RDY-GATE-01` unchecked, G1 stays
 NO-GO and G2/G3 remain forbidden.
 
 Provisional G1 score: **8.2/10 — NO-GO**.
@@ -177,13 +179,18 @@ Provisional G1 score: **8.2/10 — NO-GO**.
   the linked RVC Patrol/Maestro proof, exactness, checksum, cleanup and
   restoration gates. This does not close `G1-RUNTIME-01` or authorize G2/G3.
 
+- `G1-COHERENCE-01` is GREEN as a separate non-registry acceptance floor at
+  implementation `e050b5955`. The unchanged command passes 9/9, the dedicated
+  assembled-screen contract passes 4/4, Work Patrol/Maestro and direct
+  screenshot/hierarchy inspection pass at pushed source `5eb8a78a2`, and final
+  code/product-domain/architecture wrapper lenses have P0/P1=0. The screen
+  remains fail-closed by default and backend configuration cannot enable it.
+  This does not check `RDY-GATE-01` or authorize G2/G3.
+
 ## Active Blockers
 
 - The canonical registry has 31 rows: 26 `green`, 4 `ticket_only`, and one
   `red_proven`. Therefore 5 G1 hard floors remain open.
-- `G1-COHERENCE-01` is an additional open P0 acceptance hard floor under
-  RDY-GATE-01. It does not alter the 31-row ledger/runtime count, but G1 cannot
-  score >=9.0 or authorize G2/G3 until the assembled First Job screen passes.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
 - Wave 3 is technically closed; `G1-FRONT-01`, bounded `G1-FRESH-01`,
@@ -208,12 +215,12 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-20T20:52:14Z
+Last session: 2026-07-20
 
-Stopped at: RETURN-01 is promoted with exact-command RED→GREEN, exact-SHA CI,
-five-origin Patrol/Maestro and linked RVC PASS at pushed `5eb8a78a2`. Registry
-truth is 26/31 GREEN; five hard floors remain. Continue only G1 with the next
-open Plan 37-06 ticket; do not start G2/G3.
+Stopped at: RETURN-01 and the separate COHERENCE-01 hard floor are GREEN.
+Registry truth is 26/31 GREEN; five registry hard floors remain and
+`RDY-GATE-01` is unchecked. Continue only G1 with the next open Plan 37-06
+ticket; do not start G2/G3.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json`,
 `.planning/runtime-evidence/phase-37/return-01/verification.md`

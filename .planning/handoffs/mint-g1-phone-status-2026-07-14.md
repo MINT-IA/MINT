@@ -4,9 +4,10 @@ Date: 2026-07-20
 
 ## En une phrase
 
-`G1-RETURN-01` est réellement **GREEN**: le registre est maintenant à **26/31**,
-avec **5 floors de registre ouverts**. `G1-COHERENCE-01` reste en plus un P0
-d'acceptation écran. G1 reste **NO-GO** et G2/G3 ne sont pas autorisés.
+`G1-RETURN-01` est réellement **GREEN** et le hard floor séparé
+`G1-COHERENCE-01` est désormais **GREEN / accepté**. Le registre reste à
+**26/31**, avec **5 floors de registre ouverts**. G1 reste **NO-GO** et G2/G3
+ne sont pas autorisés.
 
 ## Ce qui vient d'être prouvé
 
@@ -26,6 +27,12 @@ d'acceptation écran. G1 reste **NO-GO** et G2/G3 ne sont pas autorisés.
   screenshots, checksums, données synthétiques, cleanup, restauration et arbre
   source propre: PASS.
 - Les audits wrapper archivés n'ont pas de P0/P1 non résolu.
+- L'implémentation `e050b5955` ferme la cohérence de l'écran Premier emploi:
+  commande inchangée 9/9, contrat écran dédié 4/4, audits code,
+  product-domain et architecture PASS P0/P1=0. La capture Work et sa hiérarchie
+  montrent une seule histoire salaire (CHF 8'000), AVS/AC illustratifs,
+  LPP/net exacts inconnus, bonification d'âge distincte de la retenue et
+  comparaison 3a neutre. Le flag reste false et non activable par le backend.
 
 ## Sources de vérité
 
@@ -55,10 +62,11 @@ Score provisoire inchangé: **8.2/10 — NO-GO**.
    `G1-RUNTIME-01`, qui reste `red_proven`.
 2. Fermer méthodiquement les quatre tickets `ticket_only` puis
    `G1-RUNTIME-01`.
-3. Fermer séparément `G1-COHERENCE-01`: l'écran Premier emploi inspecté reste
-   incohérent sur les calculs LPP/net, les doublons, les formulations de conseil
-   et les bases de projection.
-4. Ne pas relancer les audits RETURN déjà PASS sans nouveau diff pertinent.
+3. Conserver `G1-COHERENCE-01` fermé sans le confondre avec une ligne du
+   registre ni avec `RDY-GATE-01`, qui reste non coché tant que les cinq floors
+   de registre sont ouverts.
+4. Ne pas relancer les audits RETURN/cohérence déjà PASS sans nouveau diff
+   pertinent.
 5. Ne jamais démarrer G2/G3 avant 31/31 GREEN, cohérence écran GREEN, score
    ≥9.0 et zéro P0/P1.
 
