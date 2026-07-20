@@ -1,0 +1,25 @@
+## MINT External Audit — Code Mode
+
+**Scope:** Two test-file changes on `codex/g1-capital-native-proof-20260718` (unstaged worktree diff), ~2 files / well under the 1100-line budget.
+
+### What changed
+- `g1_return01_six_origin_patrol_test.dart` — `_runHousingCancel` no longer taps the `mortgage_enrich_profile_cta` key directly. It now (1) asserts the keyed widget is a `MintConfidenceNotice`, (2) resolves the actionable `GestureDetector` descendant, asserts exactly one, then (3) `scrollTo()` the notice and `tap()` the descendant CTA.
+- `g1_return01_six_origin_runtime_test.dart` — adds a static guard test enforcing the notice→type-assert→descendant→findsOneWidget→scroll→tap→collector ordering inside the housing function, and forbids the old `$(cta).scrollTo().tap()` / `$(housingNotice).scrollTo().tap()` shortcuts.
+
+### Correctness verification
+- **Widget structure matches production.** `mint_confidence_notice.dart:91` places the sole `GestureDetector` (with `HitTestBehavior.opaque`, `onTap`) at the bottom of a tall `Column`; the `Key` is on the outer `Container` (`affordability_screen.dart:280`). Tapping the key's center could land on the progress bar / message text rather than the CTA, so the descendant-tap is the correct actionable target — this **strengthens** the test against a false-navigation dead zone rather than weakening it.
+- **Consistent with existing suites.** The new pattern mirrors the already-checked-in widget tests `data_block_return_uri_test.dart:666-672` and `data_block_live_origin_roundtrip_test.dart:366-372` (same `isA<MintConfidenceNotice>()` + `find.descendant(... GestureDetector)`).
+- **Runtime guard is sound.** Boundary slice uses `_runHousingCancel` → `_runDisabilityValidationCancel`; housing precedes disability in file order, so the substring is well-formed, and every asserted anchor is present verbatim in the patrol source (lines 145-156). Forbidden shortcuts are absent.
+- **No behavioral/routing/store impact.** Import added (`mint_confidence_notice.dart`) is used. `collectorRouteVerified`, `storeUnchangedVerified`, cancel path, and `_StageProof` flags are unchanged. No production code touched; no privacy/compliance surface affected (synthetic data only, `syntheticDataOnly: true` preserved).
+
+### Findings
+- **P0:** none
+- **P1:** none
+- **P2:** none
+
+### Note (not blocking)
+The runtime test is pure static string-matching; it guards the interaction *shape* but cannot prove the Patrol test executes green on-device. To prove runtime behavior: `cd apps/mobile && patrol test --target integration_test/g1_return01_six_origin_patrol_test.dart --dart-define=MINT_PATROL_CLI=true --dart-define=MINT_G1_RETURN01_STAGE=housing_cancel --dart-define=MINT_G1_RETURN01_SOURCE_SHA=<40hex>`. The static guard (`flutter test test/runtime/g1_return01_six_origin_runtime_test.dart`) is the checked-in proof and is internally consistent with the patrol source.
+
+---
+
+## Verdict: **PASS**

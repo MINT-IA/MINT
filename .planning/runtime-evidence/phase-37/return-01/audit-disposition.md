@@ -192,3 +192,21 @@ acceptance.
 
 No audit rerun is warranted. A fresh exact-SHA runtime must now reveal the
 actual Housing Patrol failure if it recurs.
+
+## Housing actionable-node audit disposition
+
+Accepted audit: `opus-housing-action-audit.txt` — **PASS**, P0=0, P1=0,
+P2=0.
+
+The fifth exact-SHA run (`e84e935c39f4a24ea4eee66394b16f7451b2aac8`)
+again proved Work Patrol+Maestro, then retained the exact Housing Patrol failure:
+the outer `mortgage_enrich_profile_cta` notice accepted a hit-test, but no
+`DataBlockEnrichmentScreen` appeared. Production places the key on the notice
+Container while the callback belongs to its sole descendant `GestureDetector`.
+The Patrol stage now scrolls the notice, asserts the production widget type and
+unique actionable descendant, taps that descendant, and only then verifies the
+collector. This matches both canonical live-origin widget suites.
+
+The static RED -> GREEN guard cannot itself promote runtime; it only prevents
+reintroducing the parent-container tap. A fresh full exact-SHA run remains
+mandatory.
