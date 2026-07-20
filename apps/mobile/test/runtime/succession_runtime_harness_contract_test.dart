@@ -41,6 +41,10 @@ void main() {
     final native = _read(nativePath);
     expect(native, contains('succession_instrument_will_source_date'));
     expect(native, contains('succession_instrument_will_legal_year'));
+    expect(
+      native,
+      contains(r'$(#succession_instrument_will_save).scrollTo().tap()'),
+    );
     expect(native, contains('ReportPersistenceService.loadAnswers()'));
     expect(native, contains('EstateInstrumentSlotState.confirmedPresent'));
 

@@ -30,7 +30,7 @@ void main() {
       await $(#succession_instrument_will_present).tap();
       await $(#succession_instrument_will_source_date).enterText('2026-01-15');
       await $(#succession_instrument_will_legal_year).enterText('2026');
-      await $(#succession_instrument_will_save).tap();
+      await $(#succession_instrument_will_save).scrollTo().tap();
       await $(#succession_answer_saved).waitUntilVisible();
 
       final persisted = await ReportPersistenceService.loadAnswers();
