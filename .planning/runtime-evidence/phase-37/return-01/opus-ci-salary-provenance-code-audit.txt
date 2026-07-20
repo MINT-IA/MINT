@@ -1,0 +1,33 @@
+## MINT External Audit — code mode
+
+**Scope:** worktree diff vs base `39463483` (5 files: `ci.yml`, 3 Dart test files, `no_hardcoded_fr.py` + its contract test). Well within the 1800-line budget.
+
+### What the change actually does
+1. **`no_hardcoded_fr.py`** — adds a `--changed-file <path> --base-ref <ref>` mode that diffs `base_ref..HEAD`, collects added line numbers, and scans `git show HEAD:<file>` for only those lines. Mirrors the existing `--staged-file` implementation.
+2. **`ci.yml`** — swaps the hardcoded-FR job from whole-file (`--file`) to changed-lines (`--changed-file`) scanning.
+3. **Dart tests** — fixture updates adding `userProvidedFields: {'salary'}` when `salaire > 0`, and one behavioral expectation flip in `mint_state_engine_test.dart`: at low confidence the budget snapshot is now expected **present** (`BudgetStage.presentOnly`, finite `monthlyFree`) instead of null.
+4. **Contract test** — adds `--changed-file` coverage and locks CI into changed-lines mode.
+
+### Verification performed
+- **Production symbols exist and are wired** (not facade): `userProvidedFields` on `CoachProfile` (`coach_profile.dart:4220`) is consumed across ~30 production files (confidence scorer, readiness gate, screens); `BudgetStage.presentOnly` (`budget_snapshot.dart:21`).
+- **Test/production alignment confirmed empirically:** `MintStateEngine` always computes the budget snapshot regardless of confidence (`mint_state_engine.dart:201-210`), so the flipped expectation matches production rather than masking a regression. The old null-expectation was the stale one.
+- **Ran the three modified Dart test files:** `All tests passed!` (113 tests).
+- **Ran the Python contract suite:** `13 passed`.
+- **CI narrowing is intentional & consistent:** the job comment already declared "changed files only … prevents making the debt larger"; the old `--file` implementation was stricter than documented intent. Change aligns CI with the local lefthook (`--staged-file`) and ingest (`--file`) callers — all three callers verified non-broken. Locked by `test_ci_uses_changed_lines_mode_for_hardcoded_fr`.
+- **`scan_changed_file` correctness:** new-line-number mapping from `--unified=0` diff onto `HEAD:` content is identical to the proven staged path; `--changed-file`/`--base-ref` mutual-requirement validation present; CI base-ref zero-sha fallback (`${BASE_REF//0/}` → `HEAD^`) intact.
+
+### Findings
+
+**P0 — none.**
+
+**P1 — none.**
+
+**P2 (non-blocking observations):**
+- The CI gate is genuinely narrowed: legacy hardcoded-FR in a *touched but unmodified* line is no longer flagged on CI (only newly-added lines). This is deliberate and documented, but worth noting it trades touch-time cleanup pressure for pure "don't grow the debt." No compliance/privacy impact.
+- `_emptyProfile()` (salary 5000, age 36) reaches `presentOnly` only because the retirement projection returns `avsIncluded == false` for an uncertified minimal profile — the assertion is correct today but is coupled to projection internals rather than an explicit low-data guard. The test's `if (confidenceScore < 30)` guard keeps it robust.
+
+### Verdict
+
+**PASS**
+
+Evidence is complete: modified tests compile and pass against current production, the new linter mode and CI wiring are tested and consistent with sibling callers, and the behavioral test flip reflects existing production behavior rather than concealing a regression. No P0/P1 issues.

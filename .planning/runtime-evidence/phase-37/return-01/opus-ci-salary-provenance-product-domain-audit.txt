@@ -1,0 +1,41 @@
+All 113 Dart tests pass and the Python contract tests pass (13 passed). The changes align tests with already-committed source behavior. Here's my audit.
+
+Product/domain verdict: PASS
+
+## Scope of this diff
+Working-tree changes only (no committed source logic changed). Three categories:
+1. **CI tooling** — `no-hardcoded-fr` job switches from `--file` (full-file scan) to `--changed-file … --base-ref` (changed-lines scan), plus the linter and its contract tests gain that mode.
+2. **Test fixtures** — `cap_engine_test.dart` / `visibility_score_service_test.dart` now stamp `userProvidedFields: salary>0 ? {'salary'} : {}` on helper profiles.
+3. **Test expectation** — `mint_state_engine_test.dart` flips the low-confidence budget assertion from "null" to `BudgetStage.presentOnly` / `monthlyFree` non-null.
+
+## Verification performed
+- `mint_state_engine.dart:201-210` — `BudgetSnapshot` is **always** computed; retirement projection is the only thing gated on confidence. `budget_living_engine.dart:91-100` returns `presentOnly` when AVS evidence is absent. The updated test matches the shipped code (the old `isNull` assertion was stale against current source).
+- `confidence_scorer.dart:271-273` — `_hasKnownSalary` requires `userProvidedFields.contains('salary') && salary>0`. The G1 "salary fallback = unknown" rule (commits `064dc8e9f`, `394634838`) means a defaulted salary is no longer treated as a known fact. The fixture change correctly re-marks salary as user-provided so the salary-dependent cap/visibility scenarios still exercise the "known" path — it mirrors ledger provenance rather than duplicating a variable.
+- `flutter test` on all three files: **All tests passed** (113).
+- `pytest tools/checks/tests/test_no_hardcoded_fr_contract.py`: **13 passed**. The `--changed-file` mode uses `git diff <base> HEAD` + `git show HEAD:<path>`, and CI now matches the lefthook staged-line semantics.
+
+## Findings
+
+### P0
+None.
+
+### P1
+None. The one domain-sensitive behavior change (surfacing a present-day budget at low confidence) is honest: it is explicitly staged `presentOnly`, tax is flagged `isTaxEstimated` (`budget_inputs.dart:120-133`), and no retirement/projection claim is made. This is coherent with the lucidity model and delivers immediate user value without over-claiming.
+
+### P2
+- **CI backstop is now narrower** (`.github/workflows/ci.yml:186`): the server-side hardcoded-FR gate no longer full-scans touched files, only newly-introduced lines. This is intentional and matches the documented "don't grow the debt" policy and the lefthook, but it does mean a file carrying legacy FR debt can be edited without the server catching the pre-existing lines. Acceptable, worth a one-line note in the job comment.
+- **`presentOnly` budget with undeclared expenses** (`budget_living_engine.dart:168`): for a profile with income but no `loyer`/`assuranceMaladie`, `monthlyFree` = net − estimatedTax only, which can read optimistically high. Not misleading given the `presentOnly` staging + estimated-tax flag, but the consuming UI should keep prompting for housing/health (DataQuest continuation). Outside this diff.
+
+## Swiss domain review
+- **AVS/LPP/3a**: Not altered. Couple caps still respect LAVS art. 35 (no plafonnement for concubins), FATCA blocks conjoint 3a, `canContribute3a` gates 3a eligibility — all tests green.
+- **Tax**: Present-budget tax remains an *estimate* via `TaxEstimatorService`, flagged `isTaxEstimated`; no personalized tax conclusion introduced.
+- **Mortgage/insurance/succession/disability**: Not touched by this diff; `disability_gap` cap logic unchanged and passing.
+- **Salary provenance (métier correctness)**: Positive — treating a fallback salary as "unknown" for confidence is the correct Swiss-lucidity stance (don't project a retirement gap off a number the user never confirmed).
+
+## Mint product logic review
+The change strengthens the **ledger → DataQuest → scenario → dossier** spine:
+- `userProvidedFields` is the single provenance source of truth; the fixtures reflect it rather than inventing a parallel flag (no duplicated user variable).
+- Surfacing a `presentOnly` budget at low confidence gives a real "here is your today" frame while honestly withholding the retirement projection — a proper known/estimated/missing distinction.
+- The salary-fallback rule prevents Mint from asking-then-assuming, keeping projections from firing on unconfirmed data.
+
+No specialist-handoff, compliance-language, or routing regressions are introduced by this diff.

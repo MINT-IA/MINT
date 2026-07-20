@@ -1,0 +1,35 @@
+All 113 tests pass. The audited change and its worktree companions are internally consistent and well-covered. Here is my assessment.
+
+---
+
+## MINT External Audit — `codex/g1-capital-native-proof-20260718`
+
+**Scope audited:** committed diff `39463483…01fda779` (ahead 1) plus the staged/unstaged worktree changes that form the same logical unit (CI/lefthook lint-gate narrowing + accent-lint `--changed-file` mode + 3 staged Dart test files).
+
+### What the change does
+- `no_hardcoded_fr.py` gains a `--changed-file <path> --base-ref <ref>` CI mode that lints **only lines introduced between base and HEAD** (reads `git show HEAD:file`, filters violations to the added-line set). CI's `no-hardcoded-fr` job switches from whole-file (`--file`) to this mode.
+- Symmetric refactor of `accent_lint_fr.py` (adds `--staged-file` + `--changed-file`; factors `scan_file`→`_scan_text`); CI accent-lint → `--changed-file`, lefthook accent-lint → `--staged-file`.
+- Staged Dart tests add `userProvidedFields` provenance and flip the low-confidence `budgetSnapshot` expectation from null → `presentOnly`.
+
+### Verification performed
+- `pytest tools/checks/tests/test_no_hardcoded_fr_contract.py test_accent_lint_fr_contract.py` → **35 passed**.
+- `flutter test` on the 3 staged Dart files → **113 passed** (the `Tax scales not loaded` lines are logs, not failures).
+- Confirmed source is wired for the test claims: `CoachProfile.userProvidedFields` exists (`coach_profile.dart:4220,4315`); `BudgetStage.presentOnly` exists (`budget_snapshot.dart:21`); engine computes `budgetSnapshot` unconditionally with graceful degradation (`mint_state_engine.dart:201-210`). No facade-without-wiring.
+- Line-number mapping is sound: added-line numbers derive from `--unified=0` diff in HEAD coordinates; content scanned is full `git show HEAD:file` enumerated from 1, so multiline-string/regexp context is preserved and only added lines are emitted (covered by `test_changed_mode_preserves_multiline_context…` and `test_multiline_concatenated_regexp…`).
+
+### Findings
+
+**P0 — none.**
+
+**P1 — none.**
+
+**P2 (non-blocking):**
+- **Intentional coverage reduction.** CI now only flags *newly introduced* hardcoded-FR / accent debt; pre-existing debt on unchanged lines of a *modified* file is no longer caught server-side (`ci.yml` no-hardcoded-fr step; `no_hardcoded_fr.py:scan_changed_file`). This is the documented intent ("lint only introduced French debt") and matches lefthook's staged semantics, but it is a genuine loosening — a file can be touched without its legacy debt being surfaced.
+- **Case-glob reliance.** CI uses `apps/mobile/lib/*.dart` in a bash `case` (where `*` matches `/`, so subdir files do match), while lefthook uses `apps/mobile/lib/**/*.dart`. Correct today but subtly divergent from the lefthook glob; worth aligning to avoid a future maintainer assuming filename-glob semantics.
+- **Partial staging.** The 3 Dart test files are staged while the coupled tooling changes (`accent_lint_fr.py`, `lefthook.yml`, `ci.yml`, contract test) are unstaged. Each set is independently self-consistent (index-only commit still compiles and passes), so this is a staging-hygiene note, not a defect — but the accent-lint tooling and its CI/lefthook wiring must land in the same commit to stay consistent.
+
+### Verdict
+
+**PASS**
+
+Correctness, routing, tests, and wiring check out; no privacy/compliance regression (the affected gate is i18n copy, and the narrowing is intentional and documented). The only items are P2 observations.

@@ -502,3 +502,48 @@ therefore reset the Disability black-box state and seed a real salary through
 production UI before opening `/invalidite`, while retaining the expected
 `birth_year_input` contract. A new pushed exact SHA must restart the complete
 RETURN-01 matrix after that harness fix.
+
+## Exact-SHA CI salary-provenance repair disposition
+
+GitHub Actions run
+[`29746585832`](https://github.com/MINT-IA/MINT/actions/runs/29746585832)
+completed **FAILURE** for exact head SHA
+`39463483825eeaa3c5494b1da922409e98ed6d4d`. The clean-room run exposed two
+real verification gaps rather than invalidating the salary-fallback product
+fix:
+
+1. `No hardcoded FR` rescanned every literal in a changed Dart file and failed
+   on 32 pre-existing literals in `confidence_scorer.dart`, although lefthook
+   already enforced only indexed additions.
+2. `Flutter services` reproduced six failures: five direct `CoachProfile`
+   fixtures described a declared positive salary without the now-required
+   `salary` provenance marker, and one MintState assertion incorrectly assumed
+   low confidence removes the present-day budget as well as retirement
+   projections.
+
+The copy-debt gates now share an introduced-lines contract without sacrificing
+lexical context. Hardcoded-FR CI uses base-SHA additions; accent lint uses
+indexed additions in lefthook and base-SHA additions in CI. Both scan the full
+index/HEAD blob first, then filter reported line numbers, so multiline literals
+and regex remain visible. Whole-file mode remains available for ingestion.
+No file or token is allowlisted, and negative tests prove newly added French or
+flattened-accent debt still fails. Commits: `01fda779b` and `3edc20ae6`.
+
+The test fixtures now mark only intentionally declared positive salary facts
+with `userProvidedFields: {'salary'}`. The deliberately unknown `_emptyProfile`
+remains unmarked and low-confidence. Its test now asserts the shipped product
+boundary: FRI/replacement/retirement projections stay absent, while the honest
+present-day budget remains available as `BudgetStage.presentOnly` with a finite
+monthly value. Commit: `746836b73`.
+
+Accepted audits:
+- `opus-ci-salary-provenance-code-audit.txt` — **PASS**, P0=0, P1=0.
+- `opus-ci-salary-provenance-product-domain-audit.txt` — **PASS**, P0=0,
+  P1=0.
+- `opus-introduced-debt-gates-code-audit.txt` — **PASS**, P0=0, P1=0 after
+  the accent-gate correction.
+
+Authoritative local verification is 39/39 copy-gate contracts, Python compile,
+Ruff, Actionlint, diff check and full lefthook PASS; the three exact failing
+mobile files pass 113/113 with targeted analysis clean. A fresh push and
+GitHub run must still prove the new head SHA before any native runtime resumes.
