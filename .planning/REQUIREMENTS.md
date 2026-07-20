@@ -54,7 +54,7 @@ only machine-evidence `green` is checked.
   Evidence: [`G1-FRONT-01` verification](runtime-evidence/phase-37/front-01/verification.md).
 - [ ] **RDY-RET-REF-01**: Retirement precision requires specialist-grade references.
 - [ ] **RDY-RET-STATE-01**: Unavailable retirement projections offer cause-specific target-date recovery without re-asking ready AVS facts.
-- [ ] **RDY-SUCCESSION-01**: Estate output never infers absent regime/instruments.
+- [x] **RDY-SUCCESSION-01**: Estate output never infers absent regime/instruments.
 - [x] **RDY-AVS-01**: Couple AVS law uses person-first, status- and scale-aware semantics.
 - [ ] **RDY-AVS-02**: Official 13th-pension evidence survives restart and renders separate monthly, December and annual cash flows.
 - [x] **RDY-AVS-03**: Unofficial gap counts remain unpriced until an official scale or amount exists.

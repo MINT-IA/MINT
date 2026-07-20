@@ -1,0 +1,40 @@
+attempt=1 status=0
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:REDACTED_HOME/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+None: 
+element_num,depth,attributes,parent_num
+0,0,"bounds=[0,0][0,0]",
+1,1,"accessibilityText=MINT; bounds=[0,0][402,874]; enabled=true; enabled=true",0
+2,2,"bounds=[0,0][402,874]; enabled=true; enabled=true",1
+3,3,"bounds=[0,0][402,874]; enabled=true; enabled=true",2
+4,4,"bounds=[0,0][402,874]; enabled=true; enabled=true",3
+5,5,"bounds=[0,0][402,874]; enabled=true; enabled=true",4
+6,6,"bounds=[0,0][402,874]; enabled=true; enabled=true",5
+11,7,"bounds=[0,0][402,874]; enabled=true; enabled=true",6
+8,7,"bounds=[0,0][402,874]; enabled=true; enabled=true",6
+11,8,"bounds=[0,0][402,874]; enabled=true; enabled=true",8
+10,8,"bounds=[0,0][402,874]; enabled=true; enabled=true",8
+11,9,"bounds=[0,0][402,874]; enabled=true; enabled=true",10
+12,9,"bounds=[0,0][402,874]; enabled=true; enabled=true",10
+13,10,"accessibilityText=MINT
+MINT
+Ta vie financière, en clair.
+Parle à Mint
+Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.
+J’ai déjà un compte; resource-id=landing_route; bounds=[0,0][402,874]; enabled=true; enabled=true",12
+14,10,"accessibilityText=On éclaire. Tu décides.
+On éclaire. Tu décides.; bounds=[32,455][370,490]; enabled=true; enabled=true",12
+15,10,"accessibilityText=Parle à Mint; bounds=[32,567][370,623]; enabled=true; enabled=true",12
+16,1,"bounds=[0,0][0,0]",0
+17,2,"bounds=[0,0][402,54]; enabled=true; enabled=true",16
+18,2,"bounds=[0,0][402,54]; enabled=true; enabled=true",16
+19,3,"bounds=[0,0][402,54]; enabled=true; enabled=true",18
+20,4,"bounds=[0,0][402,54]; enabled=true; enabled=true",19
+21,5,"accessibilityText=08:10; bounds=[51,22][97,42]; enabled=true; enabled=true",20
+22,5,"accessibilityText=Cellular; value=No signal; text=No signal; bounds=[288,26][307,38]; enabled=true; enabled=true",20
+23,5,"value=SSID, 3 of 3 Wi-Fi bars; text=SSID, 3 of 3 Wi-Fi bars; resource-id=3 of 3 Wi-Fi bars; bounds=[315,26][332,38]; enabled=true; enabled=true",20
+24,5,"accessibilityText=100% battery power; value=Not charging; text=Not charging; bounds=[339,26][366,39]; enabled=true; enabled=true",20
+

@@ -1,0 +1,77 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -xctestrun REDACTED_PRIVATE_TEMP/patrol-build/ios_integ/Build/Products/Runner_iphonesimulator26.2-arm64-x86_64.xctestrun -only-testing RunnerUITests/RunnerUITests -parallel-testing-enabled NO -destination "platform=iOS Simulator,id=REDACTED_SIMULATOR_UDID" -resultBundlePath REDACTED_PRIVATE_TEMP/patrol-build/absent_write.xcresult
+
+2026-07-20 08:11:26.736 xcodebuild[87668:44594733] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+Writing result bundle at path:
+	REDACTED_PRIVATE_TEMP/patrol-build/absent_write.xcresult
+
+2026-07-20 08:11:26.739 xcodebuild[87668:44594733] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-07-20 08:11:27.089 xcodebuild[87668:44594733] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-07-20 08:11:28.277390+0200 RunnerUITests-Runner[87671:44594992] [Default] Running tests...
+objc[87671]: Class FileUtils is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/PrivateFrameworks/OSAnalytics.framework/OSAnalytics (0x1f386e4b8) and REDACTED_HOME/Library/Developer/CoreSimulator/Devices/REDACTED_SIMULATOR_UDID/data/Containers/Bundle/Application/CFE55A6E-99AF-46EE-A929-B6624C298E1B/RunnerUITests-Runner.app/PlugIns/RunnerUITests.xctest/RunnerUITests (0x10e1bd9e8). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =      nans Interface orientation changed to Portrait
+2026-07-20 08:11:30.165013+0200 RunnerUITests-Runner[87671:44594992] PatrolServer: INFO: PATROL_TEST_PORT is null, falling back to default (8081)
+2026-07-20 08:11:30.165110+0200 RunnerUITests-Runner[87671:44594992] PatrolServer: INFO: PatrolServer constructor called
+2026-07-20 08:11:30.165218+0200 RunnerUITests-Runner[87671:44594992] PatrolServer: INFO: PATROL_ENABLED flag is defined
+2026-07-20 08:11:30.172609+0200 RunnerUITests-Runner[87671:44594992] PatrolServer: INFO: Starting server...
+2026-07-20 08:11:30.176832+0200 RunnerUITests-Runner[87671:44594992] PatrolServer: INFO: Server started on http://0.0.0.0:8081
+2026-07-20 08:11:30.176959+0200 RunnerUITests-Runner[87671:44594992] PatrolServer: INFO: PATROL_APP_PORT is null, falling back to default (8082)
+2026-07-20 08:11:30.177003+0200 RunnerUITests-Runner[87671:44594992] PatrolAppServiceClient: created, port: 8082
+    t =      nans Checking existence of `"Allow" Button`
+    t =      nans Open ch.mint.app
+    t =      nans     Launch ch.mint.app
+    t =      nans         Terminate ch.mint.app:82471
+    t =      nans         Setting up automation session
+    t =      nans         Wait for ch.mint.app to idle
+2026-07-20 08:11:33.462541+0200 RunnerUITests-Runner[87671:44595021] PatrolServer: INFO: App reported that it is ready
+2026-07-20 08:11:34.490185+0200 RunnerUITests-Runner[87671:44594992] PatrolAppServiceClient.listDartTests()
+2026-07-20 08:11:34.525118+0200 RunnerUITests-Runner[87671:44595021] [connection] nw_socket_handle_socket_event [C1.1.1:1] Socket SO_ERROR [61: Connection refused]
+2026-07-20 08:11:34.525263+0200 RunnerUITests-Runner[87671:44595021] [connection] nw_endpoint_flow_failed_with_error [C1.1.1 ::1.8082 in_progress socket-flow (satisfied (Path is satisfied), interface: lo0)] already failing, returning
+2026-07-20 08:11:34.544066+0200 RunnerUITests-Runner[87671:44595026] PatrolAppServiceClient.listDartTests(): succeeded
+2026-07-20 08:11:35.496168+0200 RunnerUITests-Runner[87671:44594992] Got 1 Dart tests: (
+        {
+        name = "g1_succession_absent_write_runtime_test writes explicit arrangement and will absence before process death";
+        skip = 0;
+    }
+)
+2026-07-20 08:11:35.496687+0200 RunnerUITests-Runner[87671:44594992] RunnerUITests.testInvocations(): selectorName = g1_succession_absent_write_runtime_test writes explicit arrangement and will absence before process death, signature: <NSMethodSignature: 0x9e2f0e61f21c087f>
+Test Suite 'Selected tests' started at 2026-07-20 08:11:35.518.
+Test Suite 'RunnerUITests.xctest' started at 2026-07-20 08:11:35.518.
+Test Suite 'RunnerUITests' started at 2026-07-20 08:11:35.519.
+Test Case '-[RunnerUITests g1_succession_absent_write_runtime_test writes explicit arrangement and will absence before process death]' started.
+    t =     0.00s Start Test at 2026-07-20 08:11:35.520
+    t =     0.02s Set Up
+2026-07-20 08:11:35.541571+0200 RunnerUITests-Runner[87671:44594992] RunnerUITests running Dart test: g1_succession_absent_write_runtime_test writes explicit arrangement and will absence before process death
+    t =     0.02s Open ch.mint.app
+    t =     0.02s     Launch ch.mint.app
+    t =     0.02s         Terminate ch.mint.app:87675
+    t =     1.33s         Setting up automation session
+    t =     1.92s         Wait for ch.mint.app to idle
+2026-07-20 08:11:37.829112+0200 RunnerUITests-Runner[87671:44595024] PatrolServer: INFO: App reported that it is ready
+2026-07-20 08:11:39.922746+0200 RunnerUITests-Runner[87671:44594992] PatrolAppServiceClient.runDartTest(g1_succession_absent_write_runtime_test writes explicit arrangement and will absence before process death)
+2026-07-20 08:11:39.932841+0200 RunnerUITests-Runner[87671:44595022] [connection] nw_socket_handle_socket_event [C2.1.1:1] Socket SO_ERROR [61: Connection refused]
+2026-07-20 08:11:39.933046+0200 RunnerUITests-Runner[87671:44595022] [connection] nw_endpoint_flow_failed_with_error [C2.1.1 ::1.8082 in_progress socket-flow (satisfied (Path is satisfied), interface: lo0)] already failing, returning
+2026-07-20 08:11:43.684704+0200 RunnerUITests-Runner[87671:44594992] PatrolServer: INFO: opening url mint:///succession...
+    t =     8.17s Opening default application for URL mint:///succession
+    t =     8.18s     Wait for ch.mint.app to idle
+2026-07-20 08:11:43.705288+0200 RunnerUITests-Runner[87671:44594992] PatrolServer: INFO: done opening url mint:///succession
+2026-07-20 08:11:43.708492+0200 RunnerUITests-Runner[87671:44594992] PatrolServer: INFO: result: ()
+2026-07-20 08:11:48.077247+0200 RunnerUITests-Runner[87671:44595021] runDartTest("g1_succession_absent_write_runtime_test writes explicit arrangement and will absence before process death"): call finished, test result: PASSED
+    t =    13.48s Tear Down
+Test Case '-[RunnerUITests g1_succession_absent_write_runtime_test writes explicit arrangement and will absence before process death]' passed (13.743 seconds).
+Test Suite 'RunnerUITests' passed at 2026-07-20 08:11:49.264.
+	 Executed 1 test, with 0 failures (0 unexpected) in 13.743 (13.745) seconds
+Test Suite 'RunnerUITests.xctest' passed at 2026-07-20 08:11:49.264.
+	 Executed 1 test, with 0 failures (0 unexpected) in 13.743 (13.746) seconds
+Test Suite 'Selected tests' passed at 2026-07-20 08:11:49.266.
+	 Executed 1 test, with 0 failures (0 unexpected) in 13.743 (13.748) seconds
+2026-07-20 08:11:49.576 xcodebuild[87668:44594733] [MT] IDETestOperationsObserverDebug: 22.467 elapsed -- Testing started completed.
+2026-07-20 08:11:49.576 xcodebuild[87668:44594733] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-07-20 08:11:49.576 xcodebuild[87668:44594733] [MT] IDETestOperationsObserverDebug: 22.467 sec, +22.467 sec -- end
+
+Test session results, code coverage, and logs:
+	REDACTED_PRIVATE_TEMP
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

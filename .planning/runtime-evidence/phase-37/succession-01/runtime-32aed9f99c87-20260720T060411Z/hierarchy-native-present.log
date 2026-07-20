@@ -1,0 +1,68 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:REDACTED_HOME/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+None: 
+element_num,depth,attributes,parent_num
+0,0,"bounds=[0,0][0,0]",
+1,1,"accessibilityText=MINT; bounds=[0,0][402,874]; enabled=true; enabled=true",0
+2,2,"bounds=[0,0][402,874]; enabled=true; enabled=true",1
+3,3,"bounds=[0,0][402,874]; enabled=true; enabled=true",2
+4,4,"bounds=[0,0][402,874]; enabled=true; enabled=true",3
+5,5,"bounds=[0,0][402,874]; enabled=true; enabled=true",4
+6,6,"bounds=[0,0][402,874]; enabled=true; enabled=true",5
+47,7,"bounds=[0,0][402,874]; enabled=true; enabled=true",6
+8,7,"bounds=[0,0][402,874]; enabled=true; enabled=true",6
+47,8,"bounds=[0,0][402,874]; enabled=true; enabled=true",8
+10,8,"bounds=[0,0][402,874]; enabled=true; enabled=true",8
+47,9,"bounds=[0,0][402,874]; enabled=true; enabled=true",10
+12,9,"bounds=[0,0][402,874]; enabled=true; enabled=true",10
+47,10,"bounds=[0,0][402,874]; enabled=true; enabled=true",12
+14,10,"bounds=[0,0][402,874]; enabled=true; enabled=true",12
+15,11,"bounds=[0,0][402,118]; enabled=true; enabled=true",14
+16,11,"accessibilityText=Préparer les éléments pour un échange successoral; bounds=[16,77][386,103]; enabled=true; enabled=true",14
+17,10,"bounds=[0,0][402,874]; enabled=true; enabled=true",12
+47,11,"bounds=[0,0][402,874]; enabled=true; enabled=true",17
+47,11,"bounds=[0,0][402,874]; enabled=true; enabled=true",17
+47,11,"bounds=[0,0][402,874]; enabled=true; enabled=true",17
+21,11,"bounds=[0,0][402,874]; enabled=true; enabled=true",17
+22,12,"bounds=[24,118][378,323]; enabled=true; enabled=true",21
+23,12,"bounds=[0,0][402,874]; enabled=true; enabled=true",21
+24,13,"accessibilityText=Hypothèque restante
+Épargne libre, investissements, immobilier : ces données complètent ta projection et permettent de calculer ton Financial Resilience Index.; resource-id=succession_mortgage_missing; bounds=[24,118][378,323]; enabled=true; enabled=true",23
+25,13,"accessibilityText=Renseigner mon patrimoine; bounds=[48,244][337,299]; enabled=true; enabled=true",23
+26,11,"bounds=[24,323][378,347]; enabled=true; enabled=true",17
+27,11,"bounds=[0,0][402,874]; enabled=true; enabled=true",17
+32,12,"bounds=[24,347][378,609]; enabled=true; enabled=true",27
+29,12,"bounds=[0,0][402,874]; enabled=true; enabled=true",27
+30,13,"resource-id=succession_reference_quest; bounds=[24,347][378,609]; enabled=true; enabled=true",29
+31,13,"bounds=[0,0][402,874]; enabled=true; enabled=true",29
+32,14,"bounds=[24,347][378,609]; enabled=true; enabled=true",31
+33,14,"bounds=[0,0][402,874]; enabled=true; enabled=true",31
+34,15,"resource-id=succession_instrument_will_question; bounds=[40,363][362,593]; enabled=true; enabled=true",33
+35,15,"accessibilityText=Testament; bounds=[40,363][112,383]; enabled=true; enabled=true",33
+36,15,"accessibilityText=MINT ne sait pas si ce document existe : ni sa présence ni son absence ne sont prouvées.; bounds=[40,383][362,423]; enabled=true; enabled=true",33
+37,15,"accessibilityText=MINT organise vos faits confirmés sans vérifier le contenu ni les effets juridiques du document.; bounds=[40,423][362,483]; enabled=true; enabled=true",33
+38,15,"accessibilityText=Je déclare ce document absent; bounds=[40,483][333,538]; enabled=true; enabled=true",33
+39,15,"accessibilityText=Présent; bounds=[40,538][148,593]; enabled=true; enabled=true",33
+40,11,"bounds=[24,609][378,633]; enabled=true; enabled=true",17
+41,11,"accessibilityText=Les notions clés; bounds=[24,633][378,654]; enabled=true; enabled=true",17
+42,11,"bounds=[24,654][378,666]; enabled=true; enabled=true",17
+43,11,"bounds=[0,0][402,874]; enabled=true; enabled=true",17
+44,12,"bounds=[24,666][378,874]; enabled=true; enabled=true",43
+45,12,"accessibilityText=Réserves héréditaires
+CC art. 470–471
+Depuis le 1er janvier 2023, le CC protège par une réserve les descendants ainsi que le conjoint ou partenaire enregistré survivant. La réserve est égale à la moitié du droit successoral légal ; les parents n’ont plus de réserve. Des règles particulières s’appliquent notamment lorsqu’une procédure de divorce ou de dissolution du partenariat est pendante. MINT n’en déduit aucune part personnelle.; bounds=[24,666][378,874]; enabled=true; enabled=true",43
+47,11,"bounds=[0,0][402,874]; enabled=true; enabled=true",17
+47,11,"bounds=[0,0][402,874]; enabled=true; enabled=true",17
+48,1,"bounds=[0,0][0,0]",0
+49,2,"bounds=[0,0][402,54]; enabled=true; enabled=true",48
+50,2,"bounds=[0,0][402,54]; enabled=true; enabled=true",48
+51,3,"bounds=[0,0][402,54]; enabled=true; enabled=true",50
+52,4,"bounds=[0,0][402,54]; enabled=true; enabled=true",51
+53,5,"accessibilityText=08:10; bounds=[51,22][97,42]; enabled=true; enabled=true",52
+54,5,"accessibilityText=Cellular; value=No signal; text=No signal; bounds=[288,26][307,38]; enabled=true; enabled=true",52
+55,5,"value=SSID, 3 of 3 Wi-Fi bars; text=SSID, 3 of 3 Wi-Fi bars; resource-id=3 of 3 Wi-Fi bars; bounds=[315,26][332,38]; enabled=true; enabled=true",52
+56,5,"accessibilityText=100% battery power; value=Not charging; text=Not charging; bounds=[339,26][366,39]; enabled=true; enabled=true",52
+

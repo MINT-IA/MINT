@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-SUCCESSION-01",
+  "command": "cd apps/mobile && flutter test test/models/estate_reference_contract_test.dart --reporter expanded",
+  "recorded_at": "2026-07-20T06:22:39Z",
+  "assertion": "estate_reference_contract_test",
+  "synthetic_data_only": true,
+  "stage": "GREEN",
+  "sha": "7849711b33cecfe73eb85dfacc6ded04a0eaa49a",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "output": "Exact canonical command passed all 10 SUCC-D estate reference predicates: 10 passed, 0 failed."
+}

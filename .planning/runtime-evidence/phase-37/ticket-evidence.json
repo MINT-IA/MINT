@@ -342,16 +342,16 @@
     },
     {
       "ticket_id": "G1-SUCCESSION-01",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd apps/mobile && flutter test test/models/estate_reference_contract_test.dart --reporter expanded",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "852c124af7ecda5f1588ce62a2ba7dcfe35259bd",
+      "red_artifact": ".planning/runtime-evidence/phase-37/succession-01/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "7849711b33cecfe73eb85dfacc6ded04a0eaa49a",
+      "green_artifact": ".planning/runtime-evidence/phase-37/succession-01/green.json",
+      "accepted_sha": "7849711b33cecfe73eb85dfacc6ded04a0eaa49a"
     },
     {
       "ticket_id": "G1-SOURCE-01",

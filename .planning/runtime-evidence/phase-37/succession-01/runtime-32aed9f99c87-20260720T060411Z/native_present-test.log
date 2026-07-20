@@ -1,0 +1,77 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -xctestrun REDACTED_PRIVATE_TEMP/patrol-build/ios_integ/Build/Products/Runner_iphonesimulator26.2-arm64-x86_64.xctestrun -only-testing RunnerUITests/RunnerUITests -parallel-testing-enabled NO -destination "platform=iOS Simulator,id=REDACTED_SIMULATOR_UDID" -resultBundlePath REDACTED_PRIVATE_TEMP/patrol-build/native_present.xcresult
+
+2026-07-20 08:09:31.738 xcodebuild[80611:44560082] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+Writing result bundle at path:
+	REDACTED_PRIVATE_TEMP/patrol-build/native_present.xcresult
+
+2026-07-20 08:09:31.741 xcodebuild[80611:44560082] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-07-20 08:09:32.116 xcodebuild[80611:44560082] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-07-20 08:09:33.392580+0200 RunnerUITests-Runner[81286:44561774] [Default] Running tests...
+objc[81286]: Class FileUtils is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/PrivateFrameworks/OSAnalytics.framework/OSAnalytics (0x1f386e4b8) and REDACTED_HOME/Library/Developer/CoreSimulator/Devices/REDACTED_SIMULATOR_UDID/data/Containers/Bundle/Application/9B988A4E-FAD8-4E1D-84E6-5E46E35E6758/RunnerUITests-Runner.app/PlugIns/RunnerUITests.xctest/RunnerUITests (0x1101bd9e8). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =      nans Interface orientation changed to Portrait
+2026-07-20 08:09:35.284282+0200 RunnerUITests-Runner[81286:44561774] PatrolServer: INFO: PATROL_TEST_PORT is null, falling back to default (8081)
+2026-07-20 08:09:35.284338+0200 RunnerUITests-Runner[81286:44561774] PatrolServer: INFO: PatrolServer constructor called
+2026-07-20 08:09:35.284377+0200 RunnerUITests-Runner[81286:44561774] PatrolServer: INFO: PATROL_ENABLED flag is defined
+2026-07-20 08:09:35.291126+0200 RunnerUITests-Runner[81286:44561774] PatrolServer: INFO: Starting server...
+2026-07-20 08:09:35.294643+0200 RunnerUITests-Runner[81286:44561774] PatrolServer: INFO: Server started on http://0.0.0.0:8081
+2026-07-20 08:09:35.294742+0200 RunnerUITests-Runner[81286:44561774] PatrolServer: INFO: PATROL_APP_PORT is null, falling back to default (8082)
+2026-07-20 08:09:35.294772+0200 RunnerUITests-Runner[81286:44561774] PatrolAppServiceClient: created, port: 8082
+    t =      nans Checking existence of `"Allow" Button`
+    t =      nans Open ch.mint.app
+    t =      nans     Launch ch.mint.app
+    t =      nans         Terminate ch.mint.app:74377
+    t =      nans         Setting up automation session
+    t =      nans         Wait for ch.mint.app to idle
+2026-07-20 08:09:38.714777+0200 RunnerUITests-Runner[81286:44561863] PatrolServer: INFO: App reported that it is ready
+2026-07-20 08:09:39.737464+0200 RunnerUITests-Runner[81286:44561774] PatrolAppServiceClient.listDartTests()
+2026-07-20 08:09:39.774162+0200 RunnerUITests-Runner[81286:44561866] [connection] nw_socket_handle_socket_event [C1.1.1:1] Socket SO_ERROR [61: Connection refused]
+2026-07-20 08:09:39.774312+0200 RunnerUITests-Runner[81286:44561866] [connection] nw_endpoint_flow_failed_with_error [C1.1.1 ::1.8082 in_progress socket-flow (satisfied (Path is satisfied), interface: lo0)] already failing, returning
+2026-07-20 08:09:39.793987+0200 RunnerUITests-Runner[81286:44561863] PatrolAppServiceClient.listDartTests(): succeeded
+2026-07-20 08:09:40.748461+0200 RunnerUITests-Runner[81286:44561774] Got 1 Dart tests: (
+        {
+        name = "g1_succession_native_present_runtime_test native metadata input persists the strict will reference";
+        skip = 0;
+    }
+)
+2026-07-20 08:09:40.748994+0200 RunnerUITests-Runner[81286:44561774] RunnerUITests.testInvocations(): selectorName = g1_succession_native_present_runtime_test native metadata input persists the strict will reference, signature: <NSMethodSignature: 0x8baf2525dd9161bf>
+Test Suite 'Selected tests' started at 2026-07-20 08:09:40.773.
+Test Suite 'RunnerUITests.xctest' started at 2026-07-20 08:09:40.773.
+Test Suite 'RunnerUITests' started at 2026-07-20 08:09:40.773.
+Test Case '-[RunnerUITests g1_succession_native_present_runtime_test native metadata input persists the strict will reference]' started.
+    t =     0.00s Start Test at 2026-07-20 08:09:40.775
+    t =     0.02s Set Up
+2026-07-20 08:09:40.796354+0200 RunnerUITests-Runner[81286:44561774] RunnerUITests running Dart test: g1_succession_native_present_runtime_test native metadata input persists the strict will reference
+    t =     0.02s Open ch.mint.app
+    t =     0.02s     Launch ch.mint.app
+    t =     0.02s         Terminate ch.mint.app:81446
+    t =     1.32s         Setting up automation session
+    t =     1.91s         Wait for ch.mint.app to idle
+2026-07-20 08:09:43.082186+0200 RunnerUITests-Runner[81286:44561863] PatrolServer: INFO: App reported that it is ready
+2026-07-20 08:09:45.166332+0200 RunnerUITests-Runner[81286:44561774] PatrolAppServiceClient.runDartTest(g1_succession_native_present_runtime_test native metadata input persists the strict will reference)
+2026-07-20 08:09:45.171413+0200 RunnerUITests-Runner[81286:44561863] [connection] nw_socket_handle_socket_event [C2.1.1:1] Socket SO_ERROR [61: Connection refused]
+2026-07-20 08:09:45.171535+0200 RunnerUITests-Runner[81286:44561863] [connection] nw_endpoint_flow_failed_with_error [C2.1.1 ::1.8082 in_progress socket-flow (satisfied (Path is satisfied), interface: lo0)] already failing, returning
+2026-07-20 08:09:49.121669+0200 RunnerUITests-Runner[81286:44561774] PatrolServer: INFO: opening url mint:///succession...
+    t =     8.35s Opening default application for URL mint:///succession
+    t =     8.36s     Wait for ch.mint.app to idle
+2026-07-20 08:09:49.147067+0200 RunnerUITests-Runner[81286:44561774] PatrolServer: INFO: done opening url mint:///succession
+2026-07-20 08:09:49.149901+0200 RunnerUITests-Runner[81286:44561774] PatrolServer: INFO: result: ()
+2026-07-20 08:09:55.921870+0200 RunnerUITests-Runner[81286:44561864] runDartTest("g1_succession_native_present_runtime_test native metadata input persists the strict will reference"): call finished, test result: PASSED
+    t =    15.48s Tear Down
+Test Case '-[RunnerUITests g1_succession_native_present_runtime_test native metadata input persists the strict will reference]' passed (15.738 seconds).
+Test Suite 'RunnerUITests' passed at 2026-07-20 08:09:56.518.
+	 Executed 1 test, with 0 failures (0 unexpected) in 15.738 (15.744) seconds
+Test Suite 'RunnerUITests.xctest' passed at 2026-07-20 08:09:56.521.
+	 Executed 1 test, with 0 failures (0 unexpected) in 15.738 (15.748) seconds
+Test Suite 'Selected tests' passed at 2026-07-20 08:09:56.522.
+	 Executed 1 test, with 0 failures (0 unexpected) in 15.738 (15.749) seconds
+2026-07-20 08:09:56.832 xcodebuild[80611:44560082] [MT] IDETestOperationsObserverDebug: 24.696 elapsed -- Testing started completed.
+2026-07-20 08:09:56.832 xcodebuild[80611:44560082] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-07-20 08:09:56.832 xcodebuild[80611:44560082] [MT] IDETestOperationsObserverDebug: 24.696 sec, +24.696 sec -- end
+
+Test session results, code coverage, and logs:
+	REDACTED_PRIVATE_TEMP
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

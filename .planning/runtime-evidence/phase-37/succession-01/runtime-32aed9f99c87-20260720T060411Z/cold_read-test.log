@@ -1,0 +1,76 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -xctestrun REDACTED_PRIVATE_TEMP/patrol-build/ios_integ/Build/Products/Runner_iphonesimulator26.2-arm64-x86_64.xctestrun -only-testing RunnerUITests/RunnerUITests -parallel-testing-enabled NO -destination "platform=iOS Simulator,id=REDACTED_SIMULATOR_UDID" -resultBundlePath REDACTED_PRIVATE_TEMP/patrol-build/cold_read.xcresult
+
+2026-07-20 08:12:49.904 xcodebuild[90954:44613824] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+Writing result bundle at path:
+	REDACTED_PRIVATE_TEMP/patrol-build/cold_read.xcresult
+
+2026-07-20 08:12:49.907 xcodebuild[90954:44613824] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-07-20 08:12:50.243 xcodebuild[90954:44613824] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-07-20 08:12:51.443914+0200 RunnerUITests-Runner[90956:44614062] [Default] Running tests...
+objc[90956]: Class FileUtils is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/PrivateFrameworks/OSAnalytics.framework/OSAnalytics (0x1f386e4b8) and REDACTED_HOME/Library/Developer/CoreSimulator/Devices/REDACTED_SIMULATOR_UDID/data/Containers/Bundle/Application/8793B46F-5535-41F0-9684-7DBB21BA8092/RunnerUITests-Runner.app/PlugIns/RunnerUITests.xctest/RunnerUITests (0x1111bd9e8). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =      nans Interface orientation changed to Portrait
+2026-07-20 08:12:53.299987+0200 RunnerUITests-Runner[90956:44614062] PatrolServer: INFO: PATROL_TEST_PORT is null, falling back to default (8081)
+2026-07-20 08:12:53.300073+0200 RunnerUITests-Runner[90956:44614062] PatrolServer: INFO: PatrolServer constructor called
+2026-07-20 08:12:53.300136+0200 RunnerUITests-Runner[90956:44614062] PatrolServer: INFO: PATROL_ENABLED flag is defined
+2026-07-20 08:12:53.307905+0200 RunnerUITests-Runner[90956:44614062] PatrolServer: INFO: Starting server...
+2026-07-20 08:12:53.312352+0200 RunnerUITests-Runner[90956:44614062] PatrolServer: INFO: Server started on http://0.0.0.0:8081
+2026-07-20 08:12:53.312597+0200 RunnerUITests-Runner[90956:44614062] PatrolServer: INFO: PATROL_APP_PORT is null, falling back to default (8082)
+2026-07-20 08:12:53.312684+0200 RunnerUITests-Runner[90956:44614062] PatrolAppServiceClient: created, port: 8082
+    t =      nans Checking existence of `"Allow" Button`
+    t =      nans Open ch.mint.app
+    t =      nans     Launch ch.mint.app
+    t =      nans         Setting up automation session
+    t =      nans         Wait for ch.mint.app to idle
+2026-07-20 08:12:55.645957+0200 RunnerUITests-Runner[90956:44614099] PatrolServer: INFO: App reported that it is ready
+2026-07-20 08:12:56.678102+0200 RunnerUITests-Runner[90956:44614062] PatrolAppServiceClient.listDartTests()
+2026-07-20 08:12:56.712806+0200 RunnerUITests-Runner[90956:44614104] [connection] nw_socket_handle_socket_event [C1.1.1:1] Socket SO_ERROR [61: Connection refused]
+2026-07-20 08:12:56.712943+0200 RunnerUITests-Runner[90956:44614104] [connection] nw_endpoint_flow_failed_with_error [C1.1.1 ::1.8082 in_progress socket-flow (satisfied (Path is satisfied), interface: lo0)] already failing, returning
+2026-07-20 08:12:56.731383+0200 RunnerUITests-Runner[90956:44614100] PatrolAppServiceClient.listDartTests(): succeeded
+2026-07-20 08:12:57.683666+0200 RunnerUITests-Runner[90956:44614062] Got 1 Dart tests: (
+        {
+        name = "g1_succession_cold_read_runtime_test cold process resumes at inheritance pact without seeding the reader";
+        skip = 0;
+    }
+)
+2026-07-20 08:12:57.683798+0200 RunnerUITests-Runner[90956:44614062] RunnerUITests.testInvocations(): selectorName = g1_succession_cold_read_runtime_test cold process resumes at inheritance pact without seeding the reader, signature: <NSMethodSignature: 0xa6ba3bf019fe0a1f>
+Test Suite 'Selected tests' started at 2026-07-20 08:12:57.693.
+Test Suite 'RunnerUITests.xctest' started at 2026-07-20 08:12:57.694.
+Test Suite 'RunnerUITests' started at 2026-07-20 08:12:57.694.
+Test Case '-[RunnerUITests g1_succession_cold_read_runtime_test cold process resumes at inheritance pact without seeding the reader]' started.
+    t =     0.00s Start Test at 2026-07-20 08:12:57.695
+    t =     0.02s Set Up
+2026-07-20 08:12:57.712874+0200 RunnerUITests-Runner[90956:44614062] RunnerUITests running Dart test: g1_succession_cold_read_runtime_test cold process resumes at inheritance pact without seeding the reader
+    t =     0.02s Open ch.mint.app
+    t =     0.02s     Launch ch.mint.app
+    t =     0.02s         Terminate ch.mint.app:90962
+    t =     1.32s         Setting up automation session
+    t =     1.90s         Wait for ch.mint.app to idle
+2026-07-20 08:12:59.986844+0200 RunnerUITests-Runner[90956:44614104] PatrolServer: INFO: App reported that it is ready
+2026-07-20 08:13:02.081762+0200 RunnerUITests-Runner[90956:44614062] PatrolAppServiceClient.runDartTest(g1_succession_cold_read_runtime_test cold process resumes at inheritance pact without seeding the reader)
+2026-07-20 08:13:02.093125+0200 RunnerUITests-Runner[90956:44614099] [connection] nw_socket_handle_socket_event [C2.1.1:1] Socket SO_ERROR [61: Connection refused]
+2026-07-20 08:13:02.093335+0200 RunnerUITests-Runner[90956:44614099] [connection] nw_endpoint_flow_failed_with_error [C2.1.1 ::1.8082 in_progress socket-flow (satisfied (Path is satisfied), interface: lo0)] already failing, returning
+2026-07-20 08:13:05.856519+0200 RunnerUITests-Runner[90956:44614062] PatrolServer: INFO: opening url mint:///succession...
+    t =     8.16s Opening default application for URL mint:///succession
+    t =     8.18s     Wait for ch.mint.app to idle
+2026-07-20 08:13:05.879820+0200 RunnerUITests-Runner[90956:44614062] PatrolServer: INFO: done opening url mint:///succession
+2026-07-20 08:13:05.883452+0200 RunnerUITests-Runner[90956:44614062] PatrolServer: INFO: result: ()
+2026-07-20 08:13:08.927206+0200 RunnerUITests-Runner[90956:44614100] runDartTest("g1_succession_cold_read_runtime_test cold process resumes at inheritance pact without seeding the reader"): call finished, test result: PASSED
+    t =    11.46s Tear Down
+Test Case '-[RunnerUITests g1_succession_cold_read_runtime_test cold process resumes at inheritance pact without seeding the reader]' passed (11.733 seconds).
+Test Suite 'RunnerUITests' passed at 2026-07-20 08:13:09.428.
+	 Executed 1 test, with 0 failures (0 unexpected) in 11.733 (11.734) seconds
+Test Suite 'RunnerUITests.xctest' passed at 2026-07-20 08:13:09.429.
+	 Executed 1 test, with 0 failures (0 unexpected) in 11.733 (11.735) seconds
+Test Suite 'Selected tests' passed at 2026-07-20 08:13:09.429.
+	 Executed 1 test, with 0 failures (0 unexpected) in 11.733 (11.736) seconds
+2026-07-20 08:13:09.747 xcodebuild[90954:44613824] [MT] IDETestOperationsObserverDebug: 19.485 elapsed -- Testing started completed.
+2026-07-20 08:13:09.747 xcodebuild[90954:44613824] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-07-20 08:13:09.747 xcodebuild[90954:44613824] [MT] IDETestOperationsObserverDebug: 19.485 sec, +19.485 sec -- end
+
+Test session results, code coverage, and logs:
+	REDACTED_PRIVATE_TEMP
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

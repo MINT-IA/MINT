@@ -1,0 +1,36 @@
+{
+  "bundleId": "ch.mint.app",
+  "caseId": "G1-SUCCESSION-01",
+  "civilGuardSeedVerified": true,
+  "cleanupStatus": "passed",
+  "deviceSha256": "50d7fab848506b639eb5b5e65986885f2aa5af593bb8255586d340850eeca638",
+  "flagOffExplicitMarkerVerified": true,
+  "flagOffRouteAnchorVerified": true,
+  "flagOnCivilReturnVerified": true,
+  "noDataEraseBetweenWriterReader": true,
+  "patrolStages": [
+    "native_present",
+    "absent_write",
+    "cold_read"
+  ],
+  "productionSourceExportedExact": true,
+  "productionSourceMode": "git_archive_physical",
+  "productionSourcePhysical": true,
+  "pushedShaVerified": true,
+  "rawRuntimeOutputsRetained": false,
+  "restorationStatus": "restored",
+  "runtimeCompleted": true,
+  "schemaVersion": 1,
+  "seedOverlayContainerIdentityVerified": true,
+  "seedPostOverlayWitnessVerified": true,
+  "seedPostTerminateWitnessVerified": true,
+  "seedStatePreservedToMaestro": true,
+  "seedWitnessesEqualVerified": true,
+  "setupPatrolStages": [
+    "civil_guard_seed"
+  ],
+  "sourceSha": "32aed9f99c87f2aab738d8860b117fc3a3a7ce5e",
+  "statePreservedAcrossProcessDeath": true,
+  "syntheticDataOnly": true,
+  "writerReaderDistinctPidVerified": true
+}

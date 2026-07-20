@@ -1,0 +1,12 @@
+PASS repo.patrol                Patrol dependency/config/test directory wired
+PASS repo.maestro_env           tools/simulator/maestro_env.sh
+PASS repo.maestro_watchdog      tools/simulator/maestro_with_watchdog.sh
+PASS repo.mermaid_guard         tools/checks/mermaid_render_guard.py
+PASS repo.claude_audit_wrapper  tools/checks/claude_external_audit.sh
+PASS repo.agent_workflow        docs/MINT_AGENT_WORKFLOW.md
+PASS repo.ios_plist_split       Debug-only Flutter VM network keys stay out of release Info.plist
+PASS host.patrol_cli            REDACTED_HOME/.pub-cache/bin/patrol
+PASS host.maestro_cli           REDACTED_HOME/.maestro/bin/maestro
+PASS host.mermaid_cli           11.16.0
+PASS host.claude_cli            REDACTED_HOME/.local/bin/claude
+PASS host.beads_cli             bd version 1.1.0 (Homebrew)

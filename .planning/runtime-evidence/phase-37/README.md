@@ -37,8 +37,8 @@ exactly one `architecture` run. Failed, quota-limited, authentication-failed,
 timed-out, or superseded attempts remain separate artifacts and never become a
 second accepted `runs[]` entry.
 
-Current machine truth after `G1-SCN-01` promotion: **24 `green`, 6
-`ticket_only`, 1 `red_proven`; 7 of 31 hard floors remain open**. G1 remains
+Current machine truth after `G1-SUCCESSION-01` promotion: **25 `green`, 5
+`ticket_only`, 1 `red_proven`; 6 of 31 hard floors remain open**. G1 remains
 **8.2/10 — NO-GO**; G2/G3 stay forbidden.
 
 `G2 allowed` remains **NO** until all 31 records are `green`, runtime evidence

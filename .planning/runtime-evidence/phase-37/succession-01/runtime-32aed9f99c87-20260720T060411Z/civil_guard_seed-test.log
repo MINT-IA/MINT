@@ -1,0 +1,72 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -xctestrun REDACTED_PRIVATE_TEMP/patrol-build/ios_integ/Build/Products/Runner_iphonesimulator26.2-arm64-x86_64.xctestrun -only-testing RunnerUITests/RunnerUITests -parallel-testing-enabled NO -destination "platform=iOS Simulator,id=REDACTED_SIMULATOR_UDID" -resultBundlePath REDACTED_PRIVATE_TEMP/patrol-build/civil_guard_seed.xcresult
+
+2026-07-20 08:07:35.387 xcodebuild[73967:44524383] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+Writing result bundle at path:
+	REDACTED_PRIVATE_TEMP/patrol-build/civil_guard_seed.xcresult
+
+2026-07-20 08:07:35.390 xcodebuild[73967:44524383] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-07-20 08:07:35.742 xcodebuild[73967:44524383] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-07-20 08:07:36.980794+0200 RunnerUITests-Runner[73969:44524650] [Default] Running tests...
+objc[73969]: Class FileUtils is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/System/Library/PrivateFrameworks/OSAnalytics.framework/OSAnalytics (0x1f386e4b8) and REDACTED_HOME/Library/Developer/CoreSimulator/Devices/REDACTED_SIMULATOR_UDID/data/Containers/Bundle/Application/5D644798-63B7-4311-A6DE-2681E507AB9B/RunnerUITests-Runner.app/PlugIns/RunnerUITests.xctest/RunnerUITests (0x10e1bd9e8). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =      nans Interface orientation changed to Portrait
+2026-07-20 08:07:38.893835+0200 RunnerUITests-Runner[73969:44524650] PatrolServer: INFO: PATROL_TEST_PORT is null, falling back to default (8081)
+2026-07-20 08:07:38.893924+0200 RunnerUITests-Runner[73969:44524650] PatrolServer: INFO: PatrolServer constructor called
+2026-07-20 08:07:38.893987+0200 RunnerUITests-Runner[73969:44524650] PatrolServer: INFO: PATROL_ENABLED flag is defined
+2026-07-20 08:07:38.901351+0200 RunnerUITests-Runner[73969:44524650] PatrolServer: INFO: Starting server...
+2026-07-20 08:07:38.904976+0200 RunnerUITests-Runner[73969:44524650] PatrolServer: INFO: Server started on http://0.0.0.0:8081
+2026-07-20 08:07:38.905100+0200 RunnerUITests-Runner[73969:44524650] PatrolServer: INFO: PATROL_APP_PORT is null, falling back to default (8082)
+2026-07-20 08:07:38.905140+0200 RunnerUITests-Runner[73969:44524650] PatrolAppServiceClient: created, port: 8082
+    t =      nans Checking existence of `"Allow" Button`
+    t =      nans Open ch.mint.app
+    t =      nans     Launch ch.mint.app
+    t =      nans         Terminate ch.mint.app:65660
+    t =      nans         Setting up automation session
+    t =      nans         Wait for ch.mint.app to idle
+2026-07-20 08:07:42.097156+0200 RunnerUITests-Runner[73969:44524685] PatrolServer: INFO: App reported that it is ready
+2026-07-20 08:07:43.120185+0200 RunnerUITests-Runner[73969:44524650] PatrolAppServiceClient.listDartTests()
+2026-07-20 08:07:43.157246+0200 RunnerUITests-Runner[73969:44524687] [connection] nw_socket_handle_socket_event [C1.1.1:1] Socket SO_ERROR [61: Connection refused]
+2026-07-20 08:07:43.157356+0200 RunnerUITests-Runner[73969:44524687] [connection] nw_endpoint_flow_failed_with_error [C1.1.1 ::1.8082 in_progress socket-flow (satisfied (Path is satisfied), interface: lo0)] already failing, returning
+2026-07-20 08:07:43.176174+0200 RunnerUITests-Runner[73969:44524682] PatrolAppServiceClient.listDartTests(): succeeded
+2026-07-20 08:07:44.128539+0200 RunnerUITests-Runner[73969:44524650] Got 1 Dart tests: (
+        {
+        name = "g1_succession_civil_guard_seed_runtime_test seeds ambiguous legacy civil status without completing onboarding";
+        skip = 0;
+    }
+)
+2026-07-20 08:07:44.129226+0200 RunnerUITests-Runner[73969:44524650] RunnerUITests.testInvocations(): selectorName = g1_succession_civil_guard_seed_runtime_test seeds ambiguous legacy civil status without completing onboarding, signature: <NSMethodSignature: 0xa109ea97a4a17867>
+Test Suite 'Selected tests' started at 2026-07-20 08:07:44.160.
+Test Suite 'RunnerUITests.xctest' started at 2026-07-20 08:07:44.160.
+Test Suite 'RunnerUITests' started at 2026-07-20 08:07:44.161.
+Test Case '-[RunnerUITests g1_succession_civil_guard_seed_runtime_test seeds ambiguous legacy civil status without completing onboarding]' started.
+    t =     0.00s Start Test at 2026-07-20 08:07:44.162
+    t =     0.02s Set Up
+2026-07-20 08:07:44.184521+0200 RunnerUITests-Runner[73969:44524650] RunnerUITests running Dart test: g1_succession_civil_guard_seed_runtime_test seeds ambiguous legacy civil status without completing onboarding
+    t =     0.02s Open ch.mint.app
+    t =     0.03s     Launch ch.mint.app
+    t =     0.03s         Terminate ch.mint.app:73982
+    t =     1.32s         Setting up automation session
+    t =     1.91s         Wait for ch.mint.app to idle
+2026-07-20 08:07:46.420515+0200 RunnerUITests-Runner[73969:44524682] PatrolServer: INFO: App reported that it is ready
+2026-07-20 08:07:48.520671+0200 RunnerUITests-Runner[73969:44524650] PatrolAppServiceClient.runDartTest(g1_succession_civil_guard_seed_runtime_test seeds ambiguous legacy civil status without completing onboarding)
+2026-07-20 08:07:48.530821+0200 RunnerUITests-Runner[73969:44524682] [connection] nw_socket_handle_socket_event [C2.1.1:1] Socket SO_ERROR [61: Connection refused]
+2026-07-20 08:07:48.531110+0200 RunnerUITests-Runner[73969:44524682] [connection] nw_endpoint_flow_failed_with_error [C2.1.1 ::1.8082 in_progress socket-flow (satisfied (Path is satisfied), interface: lo0)] already failing, returning
+2026-07-20 08:07:48.615670+0200 RunnerUITests-Runner[73969:44524687] runDartTest("g1_succession_civil_guard_seed_runtime_test seeds ambiguous legacy civil status without completing onboarding"): call finished, test result: PASSED
+    t =     5.37s Tear Down
+Test Case '-[RunnerUITests g1_succession_civil_guard_seed_runtime_test seeds ambiguous legacy civil status without completing onboarding]' passed (5.604 seconds).
+Test Suite 'RunnerUITests' passed at 2026-07-20 08:07:49.766.
+	 Executed 1 test, with 0 failures (0 unexpected) in 5.604 (5.605) seconds
+Test Suite 'RunnerUITests.xctest' passed at 2026-07-20 08:07:49.766.
+	 Executed 1 test, with 0 failures (0 unexpected) in 5.604 (5.606) seconds
+Test Suite 'Selected tests' passed at 2026-07-20 08:07:49.767.
+	 Executed 1 test, with 0 failures (0 unexpected) in 5.604 (5.607) seconds
+2026-07-20 08:07:50.077 xcodebuild[73967:44524383] [MT] IDETestOperationsObserverDebug: 14.316 elapsed -- Testing started completed.
+2026-07-20 08:07:50.077 xcodebuild[73967:44524383] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-07-20 08:07:50.077 xcodebuild[73967:44524383] [MT] IDETestOperationsObserverDebug: 14.316 sec, +14.316 sec -- end
+
+Test session results, code coverage, and logs:
+	REDACTED_PRIVATE_TEMP
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

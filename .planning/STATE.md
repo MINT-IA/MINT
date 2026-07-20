@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: G1-SCN-01 is GREEN at exact pushed SHA 464d5c56b after semantic RED 0/1, identical-command GREEN 11/11, versioned Patrol 1/1, GitHub/Vercel PASS and final Opus confirmation; 7 hard floors remain, and G2/G3 are not authorized.
-last_updated: "2026-07-19T11:25:00Z"
-last_activity: 2026-07-19 -- G1-SCN-01 promoted after exact RED→GREEN, strict fact/lever isolation, opaque sequence proof, real no-label Patrol, GitHub/Vercel clean-room PASS and final Opus P0/P1=0
+stopped_at: G1-SUCCESSION-01 is GREEN after exact-command RED 0/10 at 852c124af, GREEN 10/10 at 7849711b3, and full exact-SHA runtime PASS at pushed 32aed9f99; 6 hard floors remain, and G2/G3 are not authorized.
+last_updated: "2026-07-20T06:15:00Z"
+last_activity: 2026-07-20 -- G1-SUCCESSION-01 promoted after exact-command RED→GREEN and full pushed-SHA production/Patrol/Maestro process-death proof; registry is 25/31 GREEN and G1 remains NO-GO.
 progress:
   total_phases: 14
   completed_phases: 0
@@ -34,14 +34,15 @@ Plan: 37-06 — Scenario, freshness, safe-return and recovery floors
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-19 -- `G1-SCN-01` is accepted at exact pushed SHA
-`464d5c56b`. The identical registry command moves from semantic RED **0/1**
-to GREEN **11/11**; facts stay canonical while an encrypted bounded cache owns
-only UUIDv4 identity, lifecycle and typed levers. Exact sequence/store/route
-validation carries only opaque ID/status. The checked-in executable runner
-passes real iOS Patrol **1/1** with a clean no-label screenshot. GitHub run
-`29684891621`, Vercel, Doctor, Mermaid, runner contracts and final Opus code
-confirmation pass with P0/P1=0. G1 stays NO-GO and G2/G3 remain forbidden.
+Last activity: 2026-07-20 -- `G1-SUCCESSION-01` is accepted. The exact
+registry command is semantic RED **0/10** at `852c124af` and GREEN **10/10**
+at `7849711b3`. The full runtime runner passes at exact pushed SHA
+`32aed9f99c87f2aab738d8860b117fc3a3a7ce5e`: Doctor, default-off/on
+Maestro, civil-guard seed preservation across production overlay, four Patrol
+stages, distinct writer/reader process death, strict below-fold quest probes,
+four inspected screenshots, privacy checks, checksums, restoration and cleanup
+are all green. Wrapper audits retain P0/P1=0. The registry is **25/31 GREEN**;
+G1 stays NO-GO and G2/G3 remain forbidden.
 
 Provisional G1 score: **8.2/10 — NO-GO**.
 
@@ -159,15 +160,22 @@ Provisional G1 score: **8.2/10 — NO-GO**.
   wrapper audits pass P0/P1=0. Ten P2 follow-ups remain explicit and do not
   authorize G2/G3.
 
+- `G1-SUCCESSION-01` is `green`: exact-command RED 0/10 at
+  `852c124af`, GREEN 10/10 at `7849711b3`, and exact pushed runtime PASS at
+  `32aed9f99`. Explicit matrimonial-regime and estate-instrument references
+  remain fail-closed; seed/overlay continuity, native present/absent/cold state,
+  default-off/on routes and strict visible quest anchors are proven. This
+  closes one ticket only and does not authorize G2/G3.
+
 ## Active Blockers
 
-- The canonical registry has 31 rows: 24 `green`, 6 `ticket_only`, and one
-  `red_proven`. Therefore 7 G1 hard floors remain open.
+- The canonical registry has 31 rows: 25 `green`, 5 `ticket_only`, and one
+  `red_proven`. Therefore 6 G1 hard floors remain open.
 - `G1-RUNTIME-01` remains `red_proven` at the distinct salary/canton to
   mortgage cold-relaunch consumer; the PROV-03 tax runtime does not close it.
-- Wave 3 is technically closed; `G1-FRONT-01`, bounded `G1-FRESH-01` and
-  `G1-SCN-01` are accepted. Six ticket-only floors plus `G1-RUNTIME-01`
-  remain; RET-REF stays ticket-only and must keep precise retirement meaning
+- Wave 3 is technically closed; `G1-FRONT-01`, bounded `G1-FRESH-01`,
+  `G1-SCN-01` and `G1-SUCCESSION-01` are accepted. Five ticket-only floors
+  plus `G1-RUNTIME-01` remain; RET-REF stays ticket-only and must keep precise retirement meaning
   educational until its remaining activation gates close.
 - Eight external production facts remain unproven: controller identity,
   operational privacy contact, Anthropic role/DPA, actual processing regions,
@@ -187,16 +195,16 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-19T11:25:00Z
+Last session: 2026-07-20T06:15:00Z
 
-Stopped at: SCN-01 is promoted at exact pushed SHA `464d5c56b` with semantic
-RED 0/1, identical-command GREEN 11/11, versioned executable Patrol 1/1, clean
-visual proof, GitHub/Vercel and final wrapper audits P0/P1=0. Continue only G1
-with the next open Plan 37-06 ticket; do not start G2/G3.
+Stopped at: SUCCESSION-01 is promoted with exact-command RED→GREEN and a
+full exact-pushed-SHA production/Patrol/Maestro process-death PASS at
+`32aed9f99`. Registry truth is 25/31 GREEN; six hard floors remain. Continue
+only G1 with the next open Plan 37-06 ticket; do not start G2/G3.
 
 Resume files: `.planning/runtime-evidence/phase-37/ticket-evidence.json`,
-`.planning/runtime-evidence/phase-37/scn-01/verification.md` and
-`.planning/phases/37-ledger-runtime-readiness/37-06-PLAN.md`. Do not infer
+`.planning/runtime-evidence/phase-37/succession-01/runtime-32aed9f99c87-20260720T060411Z/metadata.json`
+and `.planning/phases/37-ledger-runtime-readiness/37-06-PLAN.md`. Do not infer
 progress from plan numbering alone.
 
 ## Performance Metrics

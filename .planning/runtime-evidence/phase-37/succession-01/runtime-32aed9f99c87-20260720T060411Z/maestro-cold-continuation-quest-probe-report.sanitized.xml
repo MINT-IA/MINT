@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="MINT-G1-RETURN01-da94e9e15 - iOS 26.2 - REDACTED_SIMULATOR_UDID" tests="1" failures="0" time="4.0">
+    <testcase id="maestro-cold-continuation-quest-probe" name="maestro-cold-continuation-quest-probe" classname="maestro-cold-continuation-quest-probe" time="4.0" status="SUCCESS"/>
+  </testsuite>
+</testsuites>
