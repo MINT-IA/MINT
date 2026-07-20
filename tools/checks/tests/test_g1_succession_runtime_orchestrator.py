@@ -100,6 +100,8 @@ def test_runner_builds_physical_exact_archive_default_off_and_flag_on_apps() -> 
     assert "MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION" not in off.group(2)
     assert 'run_maestro "flag_off" "$flag_off_flow"' in text
     assert 'run_maestro "flag_on" "$flag_on_flow"' in text
+    assert 'prepare_maestro_route "flag_off" "$flag_off_app"' in text
+    assert 'prepare_maestro_route "flag_on" "$flag_on_app"' in text
     assert "flag_off_route_anchor_verified=true" in text
     assert "flag_off_quest_absence_verified=true" in text
     assert "flag_on_civil_return_verified=true" in text
@@ -120,43 +122,78 @@ def test_flag_off_is_not_a_vacuous_absence_only_check() -> None:
     assert "assertNotVisible" in text
 
 
-def _assert_ios_deep_link_confirmation_precedes_property_assertion(flow: str) -> None:
-    open_link = flow.index(
-        '- openLink: "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"'
+def _assert_flow_starts_from_prepared_property_route(flow: str) -> None:
+    for forbidden in ("- stopApp", "- launchApp:", "clearState:", "- openLink:"):
+        assert forbidden not in flow
+
+    lines = flow.split("---", 1)[1].splitlines()
+    while lines and (not lines[0].strip() or lines[0].lstrip().startswith("#")):
+        lines.pop(0)
+    commands = "\n".join(lines)
+    assert commands.startswith("- extendedWaitUntil:")
+    route_wait = commands.index("- extendedWaitUntil:")
+    route_wait_visible = commands.index("visible:", route_wait)
+    route_wait_property = commands.index(
+        'id: "property_market_value_input"', route_wait_visible
     )
-    ouvrir_flow = flow.index("- runFlow:", open_link)
-    ouvrir_when = flow.index("when:", ouvrir_flow)
-    ouvrir_visible = flow.index('visible: "Ouvrir"', ouvrir_when)
-    ouvrir_tap = flow.index('- tapOn: "Ouvrir"', ouvrir_visible)
-    open_flow = flow.index("- runFlow:", ouvrir_tap)
-    open_when = flow.index("when:", open_flow)
-    open_visible = flow.index('visible: "Open"', open_when)
-    open_tap = flow.index('- tapOn: "Open"', open_visible)
-    property_assertion = flow.index('id: "property_market_value_input"', open_tap)
+    route_wait_timeout = commands.index("timeout: 20000", route_wait_property)
+    property_assertion = commands.index("- assertVisible:", route_wait_timeout)
+    property_assertion_id = commands.index(
+        'id: "property_market_value_input"', property_assertion
+    )
 
     assert (
-        open_link
-        < ouvrir_flow
-        < ouvrir_when
-        < ouvrir_visible
-        < ouvrir_tap
-        < open_flow
-        < open_when
-        < open_visible
-        < open_tap
+        route_wait
+        < route_wait_visible
+        < route_wait_property
+        < route_wait_timeout
         < property_assertion
+        < property_assertion_id
     )
 
 
-def test_runner_preflights_ios_deep_link_confirmation_order() -> None:
+def test_runner_preflights_maestro_as_attached_prepared_route_proof() -> None:
     text = source()
-    assert "require_deep_link_confirmation" in text
-    assert 'visible: "Ouvrir"' in text
-    assert '- tapOn: "Ouvrir"' in text
-    assert 'visible: "Open"' in text
-    assert '- tapOn: "Open"' in text
+    assert "require_prepared_route_flow" in text
+    for forbidden in ("- stopApp", "- launchApp:", "clearState:", "- openLink:"):
+        assert forbidden in text
+    assert "forbidden in prepared Maestro flow" in text
+    assert "- extendedWaitUntil:" in text
+    assert "timeout: 20000" in text
     assert 'id: "property_market_value_input"' in text
-    assert "deep-link confirmation order" in text
+    assert "must start from the prepared property route" in text
+
+
+def test_runner_primes_clears_reinstalls_and_opens_each_maestro_route() -> None:
+    text = source()
+    body = text.split("prepare_maestro_route() {", 1)[1].split("run_maestro() {", 1)[0]
+    ordered = (
+        'install_production_app "$stage-prime" "$app"',
+        'xcrun simctl uninstall "$device" "$bundle_id"',
+        'install_production_app "$stage-final" "$app"',
+        'xcrun simctl launch "$device" "$bundle_id"',
+        'xcrun simctl openurl "$device"',
+        '"mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"',
+        'wait_for_property_input "$stage"',
+    )
+    cursor = 0
+    for needle in ordered:
+        position = body.index(needle, cursor)
+        cursor = position + len(needle)
+
+    for stage in ("flag_off", "flag_on"):
+        build = text.index(f'build_production_app "{stage}"')
+        prepare = text.index(f'prepare_maestro_route "{stage}"', build)
+        maestro = text.index(f'run_maestro "{stage}"', prepare)
+        assert build < prepare < maestro
+
+    poll = text.split("wait_for_property_input() {", 1)[1].split(
+        "wait_for_succession_quest() {", 1
+    )[0]
+    assert "local deadline=$((SECONDS + 30))" in poll
+    assert 'bash "$maestro_runner" --udid "$device" hierarchy --compact' in poll
+    assert "grep -Fq 'property_market_value_input'" in poll
+    assert 'sanitize_log "$raw" "$artifacts/hierarchy-$stage-property.log"' in poll
 
 
 def test_bound_maestro_flows_match_every_runner_preflight_needle() -> None:
@@ -182,8 +219,8 @@ def test_bound_maestro_flows_match_every_runner_preflight_needle() -> None:
         "succession_instrument_will_question",
     ):
         assert needle in on, f"flag-on flow lacks runner needle {needle}"
-    _assert_ios_deep_link_confirmation_precedes_property_assertion(off)
-    _assert_ios_deep_link_confirmation_precedes_property_assertion(on)
+    _assert_flow_starts_from_prepared_property_route(off)
+    _assert_flow_starts_from_prepared_property_route(on)
 
 
 def test_runner_retains_only_sanitized_private_safe_evidence() -> None:
