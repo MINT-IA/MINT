@@ -664,7 +664,8 @@ flowchart TB
   %% Bounded G1-RETURN-01 atom: the LPP collector validates the decoded origin
   %% once, then every downstream route carries opaque identifiers only. This
   %% code/contract atom is GREEN at 6ce073dff; dedicated Maestro/Patrol runtime
-  %% and the other G1-RETURN-01 loops remain open.
+  %% and the other four routed origins plus the Frontalier in-place
+  %% route-stability outcome remain open.
   subgraph RVC_SCAN_RETURN["G1 RVC — OPAQUE LPP SCAN RETURN (BOUNDED GREEN)"]
     direction LR
     RVC_RET_ORIGIN["/rente-vs-capital"]
@@ -846,7 +847,7 @@ flowchart TB
 %% D-2 /scan/impact  FIXED mechanically: resolves retained impact by identifier.
 %%     RVC requires the exact linked impactRetained pair and a route-owned,
 %%     idempotent terminal consume. This is a bounded G1-RETURN-01 atom, not the
-%%     global six-loop/runtime closure.
+%%     global five-routed-origin plus Frontalier-in-place/runtime closure.
 %% D-3 /rapport      (app.dart:980) PARTIAL: still reads wizardAnswers from
 %%     extra (:983-986), but now falls back to ReportPersistenceService
 %%     (:987-999). Remaining gap: no timeout/errorState if load stalls/fails.

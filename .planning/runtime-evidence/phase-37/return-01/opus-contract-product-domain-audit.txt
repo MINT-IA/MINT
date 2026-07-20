@@ -1,0 +1,31 @@
+I have enough to render a verdict. The diff is documentation-only (a new planning contract-decision, the G1-RETURN-01 ticket-row rewording, the 37-06 plan task, and WIRING_GRAPH comments). I verified every load-bearing claim against the checked-in code.
+
+Product/domain verdict: PASS
+
+## What this change actually does
+Docs-only. It rewrites `G1-RETURN-01` from a "six routed DataBlock origins" model to "**five routed origins + one in-place Frontalier collector**," and adds a planning contract-decision. The ticket stays `ticket_only`, G1 stays NO-GO, G2/G3 stay forbidden. No production code, constants, or Swiss math change.
+
+## Verification of load-bearing claims (all confirmed true)
+- **Frontalier is an inline jurisdiction collector, not a DataBlock origin** — `frontalier_screen.dart:22-23,77-159` reads `CoachProfileProvider.profile`, writes only `q_residence_country` / `q_work_country` / conditional `q_work_canton` via `mergeAnswers`, and evaluates `frontierJurisdictionAt(now)`. No `returnUri`, no DataBlock. Matches the doc.
+- **`frontierJurisdictionAt` requires exactly those three facts** — `coach_profile.dart:4740-4781` (`residenceCountry`, `workCountry`, conditional `workCanton`); it never consumes salary or residence canton. Matches.
+- **DataBlock has no jurisdiction category** — `data_block_enrichment_screen.dart:37-46` supports `{revenu, lpp, avs, 3a, patrimoine, fiscalite, objectifRetraite, compositionMenage}`. Confirmed: routing Frontalier through DataBlock for "symmetry" would require a nonexistent category or misuse `q_canton`.
+- **The five routed origins already emit `returnUri`** — `first_job_screen.dart`, `affordability_screen.dart`, `rente_vs_capital_screen.dart`, `disability_gap_screen.dart`, `succession_patrimoine_screen.dart` all appear in the `returnUri` grep. The doc does not overclaim these as GREEN; it explicitly requires a fresh RED→GREEN.
+- **SCREEN_CONTRACTS.md:398** already codifies the inline-collector Frontalier contract and `/coach/chat`, `/fiscal` exits. Consistent.
+
+## P0
+None.
+
+## P1
+None. The decision is domain-correct and fail-closed. Critically, forcing a `q_canton` DataBlock Ask onto Frontalier would have been a genuine Swiss-domain bug: a French resident working in Geneva has residence=FR (a country, not a canton) and workCanton=GE — `q_canton` (residence canton) is semantically wrong and would conflate residence vs. work canton. The decision to keep the inline delta collection is the correct MINT-ledger choice (no duplicated variable, no re-ask of a fresh known fact).
+
+## P2
+- **Overstated Frontalier failure recovery** (`frontalier_screen.dart:175-185`). The decision doc's FRONTALIER row says persistence-error "visible retry/recovery belongs to the Frontalier/FRONT contract." In the live code `_persistLedgerAnswers` swallows all errors on `Object` with only a comment and no user-visible retry — the dropdown silently reverts. A user could believe a work-country change was saved when it was not. This is pre-existing G1-FRONT-01 behavior, not introduced here, and RETURN-01 stays open, so it is not a blocker — but the planning doc describes a recovery affordance the code does not currently provide. Recommend the FRONT contract actually add the deferred visible retry rather than assume it exists.
+- **Scope boundary is asserted, not test-guarded in this diff.** Several other screens emit DataBlock CTAs without `returnUri` (donation, unemployment, coverage-check, debt-ratio, independants). The doc reasonably scopes RETURN-01 to the six P0 loops, but nothing here prevents a future non-P0 collector from regressing return behavior. Acceptable as a documented scope decision.
+
+## Swiss domain review
+- **Frontalier / cross-border tax:** Coherent. The checked-in engine labels FR/CH/GE as **CDI 1966 art. 17 candidate** and the eight cantons {BE, SO, BS, BL, VD, VS, NE, JU} as **accord-1983 candidate** (`coach_profile.dart:4814-4841`) — correct Swiss treaty geography (Geneva is deliberately excluded from the 1983 agreement and handled under its own regime). Output is candidate/specialist-only with no tax amount or rate, respecting the no-advice boundary.
+- **AVS / LPP / 3a / mortgage / insurance / succession:** Not affected by this diff. No constants, thresholds, or projection math touched.
+- **Legal boundary:** Preserved. No advice, ranking, guarantee, or product recommendation is introduced; the adversarial returnUri matrix (external/scheme-relative/traversal/nested-return/sensitive-query → typed Home fallback) is sound open-redirect and privacy hygiene.
+
+## Mint product logic review
+Moves Mint in the right direction on the ledger → DataQuest → scenario → dossier spine. It resolves a latent incoherence (a duplicate jurisdiction Ask forced for matrix symmetry) in favor of single-source, no-re-ask collection, and keeps a fail-closed posture: ticket remains open, both flags off, no promotion or route added. The typed-target-parsed-once contract and terminal-consume-once design are consistent with the existing RVC bounded atom. Net: an honest planning refinement, correctly scoped, no facade-without-wiring risk because it wires nothing new and claims nothing GREEN.
