@@ -220,8 +220,8 @@ for needle in (
     "saveAnswers",
     "'q_civil_status': 'partenariat'",
     "isMiniOnboardingCompleted()",
-    "CoachProfileProvider()",
-    "loadFromWizard()",
+    "persisted['q_civil_status']",
+    "CoachProfile.fromWizardAnswers(persisted)",
     "civilStatusNeedsConfirmation",
 ):
     if needle not in seed:

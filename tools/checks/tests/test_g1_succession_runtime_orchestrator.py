@@ -84,11 +84,13 @@ def test_runner_seeds_civil_guard_without_erasing_before_flag_on_maestro() -> No
         "saveAnswers",
         "'q_civil_status': 'partenariat'",
         "isMiniOnboardingCompleted()",
-        "CoachProfileProvider()",
-        "loadFromWizard()",
+        "persisted['q_civil_status']",
+        "CoachProfile.fromWizardAnswers(persisted)",
         "civilStatusNeedsConfirmation",
     ):
         assert needle in text
+    assert "CoachProfileProvider()" not in text
+    assert "loadFromWizard()" not in text
     seed_contract = (
         MOBILE / "integration_test/g1_succession_civil_guard_seed_patrol_test.dart"
     ).read_text(encoding="utf-8")
