@@ -143,6 +143,7 @@ Future<_StageProof> _runHousingCancel(PatrolIntegrationTester $) async {
   final routeBefore = _expectExactRoute('/hypotheque');
 
   final housingNotice = find.byKey(const Key('mortgage_enrich_profile_cta'));
+  await $(housingNotice).scrollTo();
   expect(housingNotice, findsOneWidget);
   expect($.tester.widget(housingNotice), isA<MintConfidenceNotice>());
   final housingCta = find.descendant(
@@ -150,7 +151,6 @@ Future<_StageProof> _runHousingCancel(PatrolIntegrationTester $) async {
     matching: find.byType(GestureDetector),
   );
   expect(housingCta, findsOneWidget);
-  await $(housingNotice).scrollTo();
   await $(housingCta).tap();
   await $.pumpAndSettle();
   final collectorRouteVerified = _expectCollector(

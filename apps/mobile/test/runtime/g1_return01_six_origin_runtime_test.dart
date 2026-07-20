@@ -91,6 +91,10 @@ void main() {
     final notice = housing.indexOf(
       "final housingNotice = find.byKey(const Key('mortgage_enrich_profile_cta'))",
     );
+    final scroll = housing.indexOf(r'await $(housingNotice).scrollTo()');
+    final presence = housing.indexOf(
+      'expect(housingNotice, findsOneWidget)',
+    );
     final typeAssertion = housing.indexOf(
       r'expect($.tester.widget(housingNotice), isA<MintConfidenceNotice>())',
     );
@@ -100,15 +104,15 @@ void main() {
     final exactlyOne = housing.indexOf(
       'expect(housingCta, findsOneWidget)',
     );
-    final scroll = housing.indexOf(r'await $(housingNotice).scrollTo()');
     final tap = housing.indexOf(r'await $(housingCta).tap()');
     final collector = housing.indexOf('final collectorRouteVerified');
 
-    expect(typeAssertion, greaterThan(notice));
+    expect(scroll, greaterThan(notice));
+    expect(presence, greaterThan(scroll));
+    expect(typeAssertion, greaterThan(presence));
     expect(descendant, greaterThan(typeAssertion));
     expect(exactlyOne, greaterThan(descendant));
-    expect(scroll, greaterThan(exactlyOne));
-    expect(tap, greaterThan(scroll));
+    expect(tap, greaterThan(exactlyOne));
     expect(collector, greaterThan(tap));
     expect(housing, isNot(contains(r'await $(cta).scrollTo().tap()')));
     expect(
