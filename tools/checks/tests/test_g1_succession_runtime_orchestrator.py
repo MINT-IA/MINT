@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 from pathlib import Path
@@ -133,6 +134,73 @@ def test_runner_retains_only_sanitized_private_safe_evidence() -> None:
     assert "cleanup_status=passed" in text
     assert "SHA256SUMS" in text
     assert "trap cleanup EXIT HUP INT TERM" in text
+    assert 'python3 - "$artifacts" "$repo_root" "$HOME" "$device" "$private_root"' in text
+
+
+def test_metadata_python_executes_with_strict_real_booleans(tmp_path: Path) -> None:
+    text = source()
+    match = re.search(
+        r"# METADATA_PYTHON_BEGIN\n.*?<<'PY'\n(.*?)\nPY\n# METADATA_PYTHON_END",
+        text,
+        re.S,
+    )
+    assert match is not None
+    program = match.group(1)
+    metadata = tmp_path / "metadata.json"
+    device_sha = tmp_path / "device.sha256"
+    device_sha.write_text("a" * 64 + "\n", encoding="utf-8")
+    args = [
+        str(metadata),
+        "1" * 40,
+        "ch.mint.app",
+        str(device_sha),
+        "true",
+        "true",
+        "true",
+        "true",
+        "true",
+        "true",
+        "true",
+        "true",
+        "true",
+        "true",
+        "false",
+        "true",
+    ]
+    result = subprocess.run(
+        ["python3", "-", *args],
+        input=program,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(metadata.read_text(encoding="utf-8"))
+    for key in (
+        "pushedShaVerified",
+        "productionSourceExportedExact",
+        "productionSourcePhysical",
+        "flagOffRouteAnchorVerified",
+        "flagOffQuestAbsenceVerified",
+        "flagOnCivilReturnVerified",
+        "writerReaderDistinctPidVerified",
+        "statePreservedAcrossProcessDeath",
+        "noDataEraseBetweenWriterReader",
+        "syntheticDataOnly",
+        "runtimeCompleted",
+    ):
+        assert payload[key] is True
+    assert payload["rawRuntimeOutputsRetained"] is False
+
+    invalid = subprocess.run(
+        ["python3", "-", *args[:-1], "not-a-bool"],
+        input=program,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert invalid.returncode != 0
+    assert "invalid boolean" in invalid.stderr
 
 
 def test_runner_isolates_and_restores_build_state_and_captures_visuals() -> None:
@@ -157,6 +225,12 @@ def test_runner_isolates_and_restores_build_state_and_captures_visuals() -> None
     assert 'install_production_app "flag_on-cold" "$flag_on_app"' in text
     assert 'run_logged "flag-on-cold-openurl"' in text
     assert "PNG signature or dimensions are invalid" in text
+    assert "sleep 2" not in text
+    assert "wait_for_succession_quest" in text
+    assert 'bash "$maestro_runner" --udid "$device" hierarchy --compact' in text
+    assert "deadline=$((SECONDS + 30))" in text
+    assert "succession_reference_quest" in text
+    assert 'sanitize_log "$raw" "$artifacts/hierarchy-$stage.log"' in text
 
 
 def test_patrol_bundle_is_removed_before_each_exact_sha_stage_guard() -> None:
