@@ -85,6 +85,7 @@ def test_runner_builds_physical_exact_archive_default_off_and_flag_on_apps() -> 
     assert "production_source_exported_exact=true" in text
     assert "production_source_physical=true" in text
     assert "reject_source_aliases" in text
+    assert 'reject_source_aliases "$root/apps/mobile" || exit 1' in text
     assert 'build_production_app "flag_off" false' in text
     assert 'build_production_app "flag_on" true' in text
     assert "flutter build ios --simulator --debug --target lib/main.dart" in text
