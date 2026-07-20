@@ -5,6 +5,27 @@ import 'package:flutter_test/flutter_test.dart';
 String _read(String path) => File(path).readAsStringSync();
 
 void main() {
+  test('civil-guard seed persists ambiguous legacy status without onboarding',
+      () {
+    const target =
+        'integration_test/g1_succession_civil_guard_seed_patrol_test.dart';
+    const wrapper =
+        'test/patrol/g1_succession_civil_guard_seed_runtime_test.dart';
+    expect(File(target).existsSync(), isTrue, reason: target);
+    expect(File(wrapper).existsSync(), isTrue, reason: wrapper);
+
+    final source = _read(target);
+    expect(source, contains('ReportPersistenceService.clearDiagnostic()'));
+    expect(source, contains("'q_civil_status': 'partenariat'"));
+    expect(source, contains('ReportPersistenceService.saveAnswers'));
+    expect(source, contains('CoachProfileProvider()'));
+    expect(source, contains('loadFromWizard()'));
+    expect(source, contains('civilStatusNeedsConfirmation'));
+    expect(source, contains('isMiniOnboardingCompleted()'));
+    expect(source, isNot(contains('setMiniOnboardingCompleted')));
+    expect(_read(wrapper), contains(target.split('/').last));
+  });
+
   test('Patrol harness separates native, writer, and cold-reader processes',
       () {
     const nativePath =
