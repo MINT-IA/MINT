@@ -120,6 +120,45 @@ def test_flag_off_is_not_a_vacuous_absence_only_check() -> None:
     assert "assertNotVisible" in text
 
 
+def _assert_ios_deep_link_confirmation_precedes_property_assertion(flow: str) -> None:
+    open_link = flow.index(
+        '- openLink: "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"'
+    )
+    ouvrir_flow = flow.index("- runFlow:", open_link)
+    ouvrir_when = flow.index("when:", ouvrir_flow)
+    ouvrir_visible = flow.index('visible: "Ouvrir"', ouvrir_when)
+    ouvrir_tap = flow.index('- tapOn: "Ouvrir"', ouvrir_visible)
+    open_flow = flow.index("- runFlow:", ouvrir_tap)
+    open_when = flow.index("when:", open_flow)
+    open_visible = flow.index('visible: "Open"', open_when)
+    open_tap = flow.index('- tapOn: "Open"', open_visible)
+    property_assertion = flow.index('id: "property_market_value_input"', open_tap)
+
+    assert (
+        open_link
+        < ouvrir_flow
+        < ouvrir_when
+        < ouvrir_visible
+        < ouvrir_tap
+        < open_flow
+        < open_when
+        < open_visible
+        < open_tap
+        < property_assertion
+    )
+
+
+def test_runner_preflights_ios_deep_link_confirmation_order() -> None:
+    text = source()
+    assert "require_deep_link_confirmation" in text
+    assert 'visible: "Ouvrir"' in text
+    assert '- tapOn: "Ouvrir"' in text
+    assert 'visible: "Open"' in text
+    assert '- tapOn: "Open"' in text
+    assert 'id: "property_market_value_input"' in text
+    assert "deep-link confirmation order" in text
+
+
 def test_bound_maestro_flows_match_every_runner_preflight_needle() -> None:
     off = (MOBILE / ".maestro/g1_succession_flag_off.yaml").read_text(
         encoding="utf-8"
@@ -143,6 +182,8 @@ def test_bound_maestro_flows_match_every_runner_preflight_needle() -> None:
         "succession_instrument_will_question",
     ):
         assert needle in on, f"flag-on flow lacks runner needle {needle}"
+    _assert_ios_deep_link_confirmation_precedes_property_assertion(off)
+    _assert_ios_deep_link_confirmation_precedes_property_assertion(on)
 
 
 def test_runner_retains_only_sanitized_private_safe_evidence() -> None:
