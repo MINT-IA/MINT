@@ -1,0 +1,26 @@
+## MINT Code Audit — `codex/g1-capital-native-proof-20260718`
+
+**Scope:** Two unstaged test-only files (Patrol integration test + its runtime guard). No production/runtime code, routing, or persistence logic is touched. Diff is well within the 900-line budget.
+
+### What changed
+`_runHousingCancel` reorders the housing-notice interaction so `scrollTo()` runs *before* the presence/type assertions instead of just before `tap()`:
+
+- `patrol_test.dart:145-154` — new order: define finder → `scrollTo()` → `findsOneWidget` → `isA<MintConfidenceNotice>()` → descendant lookup → `findsOneWidget` → `tap()`.
+- `runtime_test.dart:94-116` — the ordering guard was updated to match, adding `scroll` and `presence` index anchors and asserting `scroll > notice`, `presence > scroll`, `typeAssertion > presence`, … `collector > tap`.
+
+### Verification
+- **Consistency:** Runtime guard ordering (`runtime_test.dart:110-116`) exactly matches the source ordering (`patrol_test.dart:145-156`). All indexOf anchors are unique in the `_runHousingCancel` slice; the `scrollTo()` string at line 146 does not collide with the later `_scrollAndWait(...)` at line 169.
+- **Negative guards intact:** `isNot(contains('await $(cta).scrollTo().tap()'))` and `isNot(contains('await $(housingNotice).scrollTo().tap()'))` still enforce the descendant-tap contract (`runtime_test.dart:117-121`).
+- **Behavioral soundness:** Scrolling the notice into view before `findsOneWidget`/type checks is strictly more robust for a lazily-built widget inside a scrollable — it cannot mask a facade, since the explicit presence + `MintConfidenceNotice` type + descendant `GestureDetector` assertions still run and the real `tap()` → collector route verification (`/data-block/revenu`, origin `/hypotheque`) is unchanged.
+- **No privacy/compliance surface:** witness remains `syntheticDataOnly`, only synthetic answers (`q_birth_year: 1985`) are seeded, `storeUnchangedVerified` canonical-byte comparison is preserved (`patrol_test.dart:166-168`).
+
+### Findings
+- **P0:** none
+- **P1:** none
+- **P2:** none material. (Minor: `scrollTo()` now precedes the explicit presence assert, so a missing notice surfaces as a Patrol scroll failure rather than the `findsOneWidget` message — this is a diagnostic nuance, not a correctness issue, and the scroll-first order is the more reliable choice.)
+
+Not independently executed: `flutter test test/runtime/g1_return01_six_origin_runtime_test.dart` (runtime guard) would confirm the ordering asserts pass; static index-order analysis above already proves they hold.
+
+---
+
+## Verdict: **PASS**

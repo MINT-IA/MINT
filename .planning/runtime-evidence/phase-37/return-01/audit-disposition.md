@@ -210,3 +210,28 @@ collector. This matches both canonical live-origin widget suites.
 The static RED -> GREEN guard cannot itself promote runtime; it only prevents
 reintroducing the parent-container tap. A fresh full exact-SHA run remains
 mandatory.
+
+## Housing lazy-Sliver materialisation audit disposition
+
+Accepted audit: `opus-housing-lazy-scroll-audit.txt` — **PASS**, P0=0,
+P1=0, P2=0.
+
+The sixth exact-SHA run (`a8069a9c2a561f522aa2e55d111d9fa19fa453a8`)
+again proved Work Patrol+Maestro, then failed Housing Patrol before opening the
+collector: the new pre-scroll `findsOneWidget` assertion saw zero
+`mortgage_enrich_profile_cta` widgets. The Section-5 notice is a lazily built
+`SliverList` child on the native viewport. The preceding runtime had already
+proved that Patrol's keyed `scrollTo()` can materialise it.
+
+Housing now creates the stable keyed finder, scrolls first to materialise the
+lazy child, then fail-closes on presence, production widget type, unique
+descendant `GestureDetector`, descendant tap, collector route/origin, cancel
+return, and byte-identical Data Ledger storage. The RED -> GREEN static contract
+locks that exact ordering. The audit accepts the minor diagnostic tradeoff that
+a missing notice now surfaces as a scroll failure rather than a
+`findsOneWidget` failure.
+
+No prior Work or Housing evidence is composed into acceptance. RETURN-01 remains
+`ticket_only` until a fresh pushed exact SHA passes the entire five-origin
+Patrol/Maestro matrix, strict hierarchy and screenshots, RVC, restoration,
+privacy/isolation, metadata, and checksums.
