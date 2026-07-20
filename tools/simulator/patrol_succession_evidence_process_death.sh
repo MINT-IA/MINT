@@ -587,6 +587,38 @@ PY
   exact_sha_guard
 }
 
+wait_for_succession_quest() {
+  local stage="$1"
+  local deadline=$((SECONDS + 30))
+  local raw="$private_root/hierarchy-$stage.raw.log"
+  local attempt="$private_root/hierarchy-$stage-attempt.raw.log"
+  local found=false
+  local status=0
+  local attempt_number=0
+  : >"$raw"
+  while ((SECONDS <= deadline)); do
+    attempt_number=$((attempt_number + 1))
+    set +e
+    bash "$maestro_runner" --udid "$device" hierarchy --compact \
+      >"$attempt" 2>&1
+    status=$?
+    set -e
+    {
+      printf '%s\n' "attempt=$attempt_number status=$status"
+      cat "$attempt"
+    } >>"$raw"
+    if ((status == 0)) && grep -Fq 'succession_reference_quest' "$attempt"; then
+      found=true
+      break
+    fi
+    sleep 1
+  done
+  rm -f -- "$attempt"
+  sanitize_log "$raw" "$artifacts/hierarchy-$stage.log"
+  [[ "$found" == true ]] \
+    || die "$stage did not expose succession_reference_quest before timeout"
+}
+
 python3 "$repo_root/tools/checks/mint_os_doctor.py" >"$private_root/doctor.raw.log" 2>&1 \
   || { sanitize_log "$private_root/doctor.raw.log" "$artifacts/doctor.log"; exit 1; }
 sanitize_log "$private_root/doctor.raw.log" "$artifacts/doctor.log"
@@ -616,7 +648,7 @@ run_patrol_stage "native_present" "$native_present_target"
 install_production_app "flag_on-present" "$flag_on_app"
 run_logged "flag-on-present-launch" xcrun simctl launch "$device" "$bundle_id"
 run_logged "flag-on-present-openurl" xcrun simctl openurl "$device" "mint:///succession"
-sleep 2
+wait_for_succession_quest "native-present"
 capture_screenshot "native-present.png"
 
 run_patrol_stage "absent_write" "$absent_write_target"
@@ -639,7 +671,7 @@ state_preserved_across_process_death=true
 install_production_app "flag_on-cold" "$flag_on_app"
 run_logged "flag-on-cold-launch" xcrun simctl launch "$device" "$bundle_id"
 run_logged "flag-on-cold-openurl" xcrun simctl openurl "$device" "mint:///succession"
-sleep 2
+wait_for_succession_quest "cold-continuation"
 capture_screenshot "cold-continuation.png"
 
 runtime_completed=true
@@ -659,34 +691,84 @@ for retained in "${expected_stage_artifacts[@]}"; do
   [[ -s "$artifacts/$retained" ]] || die "retained stage evidence is missing: $retained"
 done
 
-python3 - "$artifacts/metadata.json" <<PY
+# METADATA_PYTHON_BEGIN
+python3 - \
+  "$artifacts/metadata.json" \
+  "$sha" \
+  "$bundle_id" \
+  "$artifacts/device.sha256" \
+  true \
+  "$production_source_exported_exact" \
+  "$production_source_physical" \
+  "$flag_off_route_anchor_verified" \
+  "$flag_off_quest_absence_verified" \
+  "$flag_on_civil_return_verified" \
+  "$writer_reader_distinct_pid_verified" \
+  "$state_preserved_across_process_death" \
+  "$no_data_erase_between_writer_reader" \
+  "$synthetic_data_only" \
+  "$raw_runtime_outputs_retained" \
+  "$runtime_completed" <<'PY'
 import json
+import sys
 from pathlib import Path
+
+
+def parse_bool(value: str) -> bool:
+    if value == "true":
+        return True
+    if value == "false":
+        return False
+    raise ValueError(f"invalid boolean: {value!r}")
+
+
+(
+    metadata_path,
+    source_sha,
+    bundle_id,
+    device_sha_path,
+    pushed_sha_verified,
+    source_exported_exact,
+    source_physical,
+    flag_off_anchor,
+    flag_off_absence,
+    flag_on_return,
+    distinct_pid,
+    state_preserved,
+    no_data_erase,
+    synthetic_only,
+    raw_outputs_retained,
+    completed,
+) = sys.argv[1:]
 payload = {
     "schemaVersion": 1,
     "caseId": "G1-SUCCESSION-01",
-    "sourceSha": "$sha",
-    "bundleId": "$bundle_id",
-    "deviceSha256": Path("$artifacts/device.sha256").read_text().strip(),
-    "pushedShaVerified": True,
+    "sourceSha": source_sha,
+    "bundleId": bundle_id,
+    "deviceSha256": Path(device_sha_path).read_text().strip(),
+    "pushedShaVerified": parse_bool(pushed_sha_verified),
     "productionSourceMode": "git_archive_physical",
-    "productionSourceExportedExact": $production_source_exported_exact,
-    "productionSourcePhysical": $production_source_physical,
-    "flagOffRouteAnchorVerified": $flag_off_route_anchor_verified,
-    "flagOffQuestAbsenceVerified": $flag_off_quest_absence_verified,
-    "flagOnCivilReturnVerified": $flag_on_civil_return_verified,
+    "productionSourceExportedExact": parse_bool(source_exported_exact),
+    "productionSourcePhysical": parse_bool(source_physical),
+    "flagOffRouteAnchorVerified": parse_bool(flag_off_anchor),
+    "flagOffQuestAbsenceVerified": parse_bool(flag_off_absence),
+    "flagOnCivilReturnVerified": parse_bool(flag_on_return),
     "patrolStages": ["native_present", "absent_write", "cold_read"],
-    "writerReaderDistinctPidVerified": $writer_reader_distinct_pid_verified,
-    "statePreservedAcrossProcessDeath": $state_preserved_across_process_death,
-    "noDataEraseBetweenWriterReader": $no_data_erase_between_writer_reader,
-    "syntheticDataOnly": $synthetic_data_only,
-    "rawRuntimeOutputsRetained": $raw_runtime_outputs_retained,
-    "runtimeCompleted": $runtime_completed,
+    "writerReaderDistinctPidVerified": parse_bool(distinct_pid),
+    "statePreservedAcrossProcessDeath": parse_bool(state_preserved),
+    "noDataEraseBetweenWriterReader": parse_bool(no_data_erase),
+    "syntheticDataOnly": parse_bool(synthetic_only),
+    "rawRuntimeOutputsRetained": parse_bool(raw_outputs_retained),
+    "runtimeCompleted": parse_bool(completed),
     "cleanupStatus": "pending_until_exit",
     "restorationStatus": "pending_until_exit",
 }
-Path("$artifacts/metadata.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+Path(metadata_path).write_text(
+    json.dumps(payload, indent=2, sort_keys=True) + "\n",
+    encoding="utf-8",
+)
 PY
+# METADATA_PYTHON_END
 
 python3 - "$artifacts" <<'PY'
 import hashlib
@@ -730,15 +812,15 @@ for path in sorted(root.iterdir(), key=lambda value: value.name):
 PY
 exact_sha_guard
 
-python3 - "$artifacts" "$repo_root" "$HOME" "$device" <<'PY'
+python3 - "$artifacts" "$repo_root" "$HOME" "$device" "$private_root" <<'PY'
 import sys
 from pathlib import Path
-root, repo, home, device = sys.argv[1:]
+root, repo, home, device, private_root = sys.argv[1:]
 for path in Path(root).iterdir():
     if path.suffix not in {".log", ".json", ".xml", ".sha256"} and path.name not in {"SHA256SUMS"}:
         continue
     data = path.read_bytes()
-    for private in (repo, home, device):
+    for private in (repo, home, device, private_root):
         if private.encode() in data:
             raise SystemExit(f"retained evidence leaks a private identifier: {path.name}")
 PY
