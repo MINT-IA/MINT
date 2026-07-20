@@ -262,14 +262,19 @@ export_physical_source() {
 }
 
 build_physical_source() {
+  local built_app="$source_root/apps/mobile/build/ios/iphonesimulator/Runner.app"
   (
     cd "$source_root/apps/mobile"
     flutter pub get
     flutter build ios --simulator --debug
   ) >"$private_root/production-build.raw.log" 2>&1
   sanitize_log "$private_root/production-build.raw.log" "$artifacts/production-build.log"
-  normal_app="$source_root/apps/mobile/build/ios/iphonesimulator/Runner.app"
-  [[ -d "$normal_app" && ! -L "$normal_app" ]] || die 'physical production app missing'
+  [[ -d "$built_app" && ! -L "$built_app" ]] || die 'physical production app missing'
+  normal_app="$private_root/normal-production-app/Runner.app"
+  mkdir -p "${normal_app%/*}"
+  /usr/bin/ditto "$built_app" "$normal_app"
+  [[ -d "$normal_app" && ! -L "$normal_app" ]] \
+    || die 'immutable production app snapshot missing'
   codesign --verify --deep --strict "$normal_app" \
     >"$private_root/production-codesign.raw.log" 2>&1
   xattr -lr "$normal_app" >"$private_root/production-xattrs.raw.log" 2>&1 || true
@@ -369,6 +374,43 @@ PY
   return 0
 }
 
+fingerprint_persistent_app_data() {
+  local container=$1
+  python3 - "$container" <<'PY'
+import hashlib
+import os
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1]).resolve(strict=True)
+if not root.is_dir():
+    raise SystemExit("app data container is not a directory")
+digest = hashlib.sha256()
+for relative_root in (pathlib.Path("Documents"), pathlib.Path("Library/Preferences")):
+    selected = root / relative_root
+    if not selected.exists():
+        continue
+    if selected.is_symlink() or not selected.is_dir():
+        raise SystemExit(f"invalid persistent data root: {relative_root}")
+    for directory, names, files in os.walk(selected, followlinks=False):
+        names.sort()
+        directory_path = pathlib.Path(directory)
+        if any((directory_path / name).is_symlink() for name in names):
+            raise SystemExit("persistent data contains a directory symlink")
+        for name in sorted(files):
+            path = directory_path / name
+            if path.is_symlink() or not path.is_file():
+                raise SystemExit("persistent data contains a non-regular file")
+            relative = path.relative_to(root).as_posix().encode("utf-8")
+            digest.update(len(relative).to_bytes(8, "big"))
+            digest.update(relative)
+            with path.open("rb") as handle:
+                for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                    digest.update(chunk)
+print(digest.hexdigest())
+PY
+}
+
 run_maestro_stage() {
   local stage=$1
   local flow=''
@@ -378,6 +420,8 @@ run_maestro_stage() {
   local private_stage="$private_root/maestro-$stage"
   local container_before=''
   local container_after=''
+  local data_before=''
+  local data_after=''
   mkdir -p "$private_stage"
   case "$stage" in
     work_save | succession_save)
@@ -389,6 +433,8 @@ run_maestro_stage() {
       # the test host with the physically exported normal application.
       container_before=$(resolve_app_container) \
         || die "$stage pre-overlay app container is invalid"
+      data_before=$(fingerprint_persistent_app_data "$container_before") \
+        || die "$stage pre-overlay persistent app data is invalid"
       ;;
     *)
       die "unknown Maestro stage $stage"
@@ -400,6 +446,10 @@ run_maestro_stage() {
       || die "$stage post-overlay app container is invalid"
     [[ "$container_before" == "$container_after" ]] \
       || die "$stage production overlay changed app data container"
+    data_after=$(fingerprint_persistent_app_data "$container_after") \
+      || die "$stage post-overlay persistent app data is invalid"
+    [[ "$data_before" == "$data_after" ]] \
+      || die "$stage production overlay changed persistent app data"
   fi
   printf 'stage=%s production_overlay=verified synthetic_seed=%s\n' \
     "$stage" "$([[ -n "$container_before" ]] && printf preserved || printf reset)" \

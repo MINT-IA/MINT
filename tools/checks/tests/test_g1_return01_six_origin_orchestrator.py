@@ -181,6 +181,51 @@ def test_runner_executes_the_five_non_rvc_stages_in_order() -> None:
     assert "production overlay changed app data container" in text
 
 
+def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> None:
+    text = source()
+    build_match = re.search(r"build_physical_source\(\) \{\n(.*?)\n\}", text, flags=re.S)
+    assert build_match is not None
+    build = build_match.group(1)
+    built_app = build.index(
+        'local built_app="$source_root/apps/mobile/build/ios/iphonesimulator/Runner.app"'
+    )
+    immutable_app = build.index(
+        'normal_app="$private_root/normal-production-app/Runner.app"', built_app
+    )
+    snapshot = build.index('/usr/bin/ditto "$built_app" "$normal_app"', immutable_app)
+    verify = build.index('codesign --verify --deep --strict "$normal_app"', snapshot)
+    assert built_app < immutable_app < snapshot < verify
+
+    function_match = re.search(r"run_maestro_stage\(\) \{\n(.*?)\n\}", text, flags=re.S)
+    assert function_match is not None
+    function = function_match.group(1)
+    pre_container = function.index("container_before=$(resolve_app_container)")
+    pre_fingerprint = function.index(
+        "data_before=$(fingerprint_persistent_app_data \"$container_before\")",
+        pre_container,
+    )
+    install = function.index(
+        'xcrun simctl install "$device" "$normal_app"', pre_fingerprint
+    )
+    post_container = function.index("container_after=$(resolve_app_container)", install)
+    same_container = function.index(
+        '[[ "$container_before" == "$container_after" ]]', post_container
+    )
+    post_fingerprint = function.index(
+        "data_after=$(fingerprint_persistent_app_data \"$container_after\")",
+        same_container,
+    )
+    same_data = function.index('[[ "$data_before" == "$data_after" ]]', post_fingerprint)
+    assert "production overlay changed persistent app data" in function[same_data:]
+    assert pre_container < pre_fingerprint < install < post_container
+    assert post_container < same_container < post_fingerprint < same_data
+
+    seeded_label = "housing_cancel | disability_validation_cancel | frontalier_inline)"
+    seeded_start = function.index(seeded_label)
+    seeded_case = function[seeded_start : function.index(";;", seeded_start)]
+    assert "simctl uninstall" not in seeded_case
+
+
 def test_each_stage_has_exact_maestro_flow_and_strict_witness_contract() -> None:
     text = source()
     expected = {
