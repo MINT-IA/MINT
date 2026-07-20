@@ -18,6 +18,8 @@ appId: ch.mint.app
       id: "succession_civil_status_guard"
     timeout: 20000
 - assertVisible:
+    id: "succession_reference_quest"
+- assertVisible:
     id: "succession_civil_status_guard"
 - tapOn:
     id: "succession_civil_status_confirm"
