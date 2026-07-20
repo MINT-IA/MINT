@@ -83,6 +83,7 @@ class _SuccessionEvidenceQuestState extends State<SuccessionEvidenceQuest> {
       return _message(
         l.successionQuestCivilGuard,
         key: 'succession_civil_status_guard',
+        buttonKey: 'succession_civil_status_confirm',
         button: l.successionQuestConfirm,
         onPressed: () => context.push(
           '/data-block/composition_menage?inputKey=q_civil_status&returnUri=/succession',
