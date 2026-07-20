@@ -41,6 +41,8 @@ void main() {
       patrimoine: patrimoine,
       depenses: depenses,
       arrivalAge: arrivalAge,
+      userProvidedFields:
+          salaireBrutMensuel > 0 ? const {'salary'} : const {},
       goalA: GoalA(
         type: GoalAType.retraite,
         targetDate: DateTime(2045),
@@ -963,6 +965,7 @@ void main() {
         employmentStatus: 'salarie',
         etatCivil: CoachCivilStatus.marie,
         dettes: const DetteProfile(creditConsommation: 30000),
+        userProvidedFields: const {'salary'},
         conjoint: const ConjointProfile(
           firstName: 'Lauren',
           birthYear: 1982,

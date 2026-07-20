@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
@@ -124,10 +125,12 @@ void main() {
         expect(state.hasProjections, isFalse);
         expect(state.friScore, isNull);
         expect(state.replacementRate, isNull);
-        // BudgetSnapshot also requires confidence >= 30
-        expect(state.budgetSnapshot, isNull);
-        expect(state.hasBudgetSnapshot, isFalse);
-        expect(state.monthlyFree, isNull);
+        // Present-day budget remains available without unlocking projections.
+        expect(state.budgetSnapshot, isNotNull);
+        expect(state.budgetSnapshot!.stage, BudgetStage.presentOnly);
+        expect(state.hasBudgetSnapshot, isTrue);
+        expect(state.monthlyFree, isNotNull);
+        expect(state.monthlyFree!.isFinite, isTrue);
       }
     });
 

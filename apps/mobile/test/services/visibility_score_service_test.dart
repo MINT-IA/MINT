@@ -33,6 +33,7 @@ CoachProfile _makeProfile({
     patrimoine: patrimoine,
     depenses: depenses,
     conjoint: conjoint,
+    userProvidedFields: salaire > 0 ? const {'salary'} : const {},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2045),
