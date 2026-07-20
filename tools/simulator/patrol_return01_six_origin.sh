@@ -337,6 +337,9 @@ run_maestro_stage() {
   printf 'stage=%s production_overlay=verified synthetic_seed=%s\n' \
     "$stage" "$([[ -n "$container_before" ]] && printf preserved || printf reset)" \
     >"$artifacts/production-overlay-$stage.log"
+  local maestro_status=0
+  local junit_retained=false
+  set +e
   (
     cd "$source_root"
     MINT_WALKER_ARTIFACTS="$private_stage" \
@@ -344,8 +347,24 @@ run_maestro_stage() {
         --device "$device" --format JUNIT \
         --output "$private_stage/report.xml" "$flow"
   ) >"$private_stage/maestro.raw.log" 2>&1
+  maestro_status=$?
+  set -e
+  [[ -f "$private_stage/maestro.raw.log" \
+    && ! -L "$private_stage/maestro.raw.log" ]] \
+    || die "Maestro stage $stage produced an invalid raw log"
   sanitize_log "$private_stage/maestro.raw.log" "$artifacts/maestro-$stage.log"
-  sanitize_log "$private_stage/report.xml" "$artifacts/maestro-$stage-report.sanitized.xml"
+  if [[ -e "$private_stage/report.xml" || -L "$private_stage/report.xml" ]]; then
+    [[ -f "$private_stage/report.xml" && ! -L "$private_stage/report.xml" ]] \
+      || die "Maestro stage $stage produced an invalid JUnit artifact"
+    sanitize_log "$private_stage/report.xml" \
+      "$artifacts/maestro-$stage-report.sanitized.xml"
+    junit_retained=true
+  fi
+  if ((maestro_status != 0)); then
+    die "Maestro stage $stage failed with exit $maestro_status; sanitized log retained"
+  fi
+  [[ "$junit_retained" == true ]] \
+    || die "Maestro stage $stage passed without a JUnit artifact"
   python3 - "$artifacts/maestro-$stage-report.sanitized.xml" <<'PY'
 import pathlib
 import sys

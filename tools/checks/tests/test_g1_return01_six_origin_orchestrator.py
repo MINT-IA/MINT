@@ -215,6 +215,41 @@ def test_each_stage_has_exact_maestro_flow_and_strict_witness_contract() -> None
         assert token in text
 
 
+def test_maestro_failure_is_sanitized_and_named_before_fail_closed_exit() -> None:
+    text = source()
+    match = re.search(r"run_maestro_stage\(\) \{\n(.*?)\n\}", text, flags=re.S)
+    assert match is not None
+    function = match.group(1)
+
+    command = function.index("bash tools/simulator/maestro_with_watchdog.sh test")
+    capture = function.index("maestro_status=$?", command)
+    restore_errexit = function.index("set -e", capture)
+    sanitize_log = function.index(
+        'sanitize_log "$private_stage/maestro.raw.log" '
+        '"$artifacts/maestro-$stage.log"',
+        restore_errexit,
+    )
+    junit_exists = function.index(
+        '[[ -f "$private_stage/report.xml"', sanitize_log
+    )
+    sanitize_junit = function.index(
+        'sanitize_log "$private_stage/report.xml"', junit_exists
+    )
+    assert (
+        '"$artifacts/maestro-$stage-report.sanitized.xml"'
+        in function[sanitize_junit:]
+    )
+    named_failure = function.index(
+        'die "Maestro stage $stage failed with exit $maestro_status',
+        sanitize_junit,
+    )
+    assert command < capture < restore_errexit < sanitize_log
+    assert sanitize_log < junit_exists < sanitize_junit < named_failure
+    assert "set +e" in function[:command]
+    assert "sanitized log retained" in function[named_failure:]
+    assert "maestro.raw.log" not in function[named_failure:]
+
+
 def test_rvc_is_a_separate_required_exact_sha_stage() -> None:
     text = source()
     rvc_call = text.index("patrol_return01_rvc_lpp_scan_return.sh")
