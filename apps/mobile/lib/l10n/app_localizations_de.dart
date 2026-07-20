@@ -906,7 +906,7 @@ class SDe extends S {
       'Die dargestellten Ergebnisse sind Richtwertschätzungen und stellen keine persönliche Rechts- oder Finanzberatung dar. Jede Situation ist einzigartig. Konsultieren Sie eine·n auf Familienrecht spezialisierte·n Anwält·in und eine·n Finanzspezialist·in vor jeder Entscheidung.';
 
   @override
-  String get successionTitle => 'Erbschaft und Nachlass';
+  String get successionTitle => 'Angaben für ein Nachlassgespräch vorbereiten';
 
   @override
   String get successionSituationSubtitle => 'Zivilstand, Erben';
@@ -937,7 +937,7 @@ class SDe extends S {
 
   @override
   String get successionDisclaimer =>
-      'Bildungsinformation, keine Rechtsberatung (FIDLEG/ZGB).';
+      'Allgemeine Bildungsinformationen. Sie ersetzen weder eine auf Ihre Situation zugeschnittene Rechts- noch Steuerberatung.';
 
   @override
   String get coachingAge25Title => '25 Jahre: Säule 3a eröffnen';
@@ -3175,7 +3175,7 @@ class SDe extends S {
   String get successionQuotiteTitle => 'Verfügbare Quote';
 
   @override
-  String get successionChecklistTitle => 'Checkliste Vermögensschutz';
+  String get successionChecklistTitle => 'Fragen für ein Fachgespräch';
 
   @override
   String get mariageProtectionItem1 =>
@@ -9020,30 +9020,29 @@ class SDe extends S {
       'Bildungsinformation, keine Steuerberatung (FIDLEG).';
 
   @override
-  String get successionAlertTitle =>
-      'Ohne Testament erbt dein·e Lebenspartner·in nichts';
+  String get successionAlertTitle => 'Zu bestätigende Angaben';
 
   @override
   String get successionAlertBody =>
-      'Das Schweizer Erbrecht (ZGB Art. 457 ff.) schützt zuerst Nachkommen, dann Eltern und Ehegatten.';
+      'Nachlassfolgen hängen von zu prüfenden Tatsachen und Dokumenten ab. MINT ordnet nur bestätigte Angaben und bestimmt weder Nettonachlass noch Erben oder Anteile.';
 
   @override
   String get successionNotionsCles => 'Die wichtigsten Begriffe';
 
   @override
   String get successionReservesBody =>
-      'Ein Anteil deines Nachlasses ist gesetzlich Nachkommen und Ehegatten vorbehalten.';
+      'Pflichtteile sind ein allgemeiner Begriff des Schweizer Rechts. Die Anwendung hängt von der Familie ab und ist fachlich zu prüfen.';
 
   @override
   String get successionQuotiteSubtitle => 'ZGB Art. 470 Abs. 2';
 
   @override
   String get successionQuotiteBody =>
-      'Was nach den Pflichtteilen übrig bleibt, ist deine verfügbare Quote — frei vererbbar.';
+      'Die verfügbare Quote ist ein allgemeiner Begriff. MINT berechnet sie nicht für Ihre Situation und validiert keine Verfügung.';
 
   @override
   String get successionTestamentBody =>
-      'Zwei Formen: eigenhändig oder notariell. Kein Testament = gesetzliche Erbfolge.';
+      'Ein Testament kann verschiedenen gesetzlichen Formvorgaben unterliegen. Gültigkeit, Inhalt und Wirkungen sind zu prüfen.';
 
   @override
   String get successionDonationTitle => 'Schenkung zu Lebzeiten';
@@ -9053,7 +9052,7 @@ class SDe extends S {
 
   @override
   String get successionDonationBody =>
-      'Schenken zu Lebzeiten nimmt die Erbfolge vorweg und kann die Erbschaftssteuer senken.';
+      'Eine Schenkung kann je nach Tatsachen und Kanton zivil- und steuerrechtliche Wirkungen haben. Eine Fachprüfung ist nötig.';
 
   @override
   String get successionBeneficiairesTitle => 'BVG- und 3a-Begünstigte';
@@ -9063,35 +9062,37 @@ class SDe extends S {
 
   @override
   String get successionBeneficiairesBody =>
-      'BVG-Kapital und 3a-Guthaben gehören NICHT zum ordentlichen Nachlass.';
+      'BVG und Säule 3a folgen eigenen gesetzlichen und vertraglichen Regeln. Begünstigte und Wirkungen sind mit den Institutionen zu bestätigen.';
 
   @override
   String get successionDecesProche => 'Im Todesfall eines Angehörigen';
 
   @override
-  String get successionCheck1 => 'Begünstigte auf jedem 3a-Konto prüfen';
+  String get successionCheck1 =>
+      '3a-Begünstigungen bei jeder Institution zu bestätigen';
 
   @override
-  String get successionCheck2 => 'BVG-Begünstigte bei der Pensionskasse prüfen';
+  String get successionCheck2 =>
+      'BVG-Regeln und Begünstigungen bei der Kasse zu bestätigen';
 
   @override
-  String get successionCheck3 => 'Testament verfassen oder aktualisieren';
+  String get successionCheck3 =>
+      'Existenz, Datum und Rechtsjahr von Verfügungen zu bestätigen';
 
   @override
   String get successionCheck4 =>
-      'Güterstand prüfen, falls verheiratet (ZGB Art. 181 ff.)';
+      'Ehe- oder Partnerschaftsregelung separat zu bestätigen';
 
   @override
   String get successionCheck5 =>
-      'Angehörige über den Testamentsort informieren';
+      'Aufbewahrungsort nach eigener Wahl mitzuteilen';
 
   @override
-  String get successionSpecialisteTitle =>
-      'Notar·in oder Fachperson konsultieren';
+  String get successionSpecialisteTitle => 'Fachgespräch vorbereiten';
 
   @override
   String get successionSpecialisteBody =>
-      'Ein·e Notar·in kann dein Testament verfassen oder prüfen.';
+      'Eine Fachperson für Erbrecht kann Tatsachen, Dokumente und deren Wirkungen in Ihrer Situation prüfen.';
 
   @override
   String get successionSources =>
@@ -20663,63 +20664,64 @@ class SDe extends S {
 
   @override
   String get successionDemarchesAction1 =>
-      'Hinterlassenenrenten AHV beantragen (AHVG Art. 23)';
+      'Voraussetzungen für Hinterlassenenleistungen zu klären';
 
   @override
   String get successionDemarchesAction2 =>
-      'BVG-Kasse für Todesfallkapital kontaktieren';
+      'Todesfallleistungen der beruflichen Vorsorge mit der Kasse zu klären';
 
   @override
   String get successionDemarchesAction3 =>
-      'Abos und Verträge auf den Namen des Verstorbenen kündigen';
+      'Verträge auf den Namen der verstorbenen Person zu ermitteln';
 
   @override
   String get successionDemarchesAction4 =>
-      'Vermögen und Schulden inventarisieren';
+      'Vermögenswerte und Schulden zu dokumentieren, ohne einen Nettonachlass festzulegen';
 
   @override
-  String get successionDemarchesAction5 => 'Erbscheine beim Notar beantragen';
+  String get successionDemarchesAction5 =>
+      'Notwendigkeit und Verfahren für einen Erbschein zu klären';
 
   @override
   String get successionLegaleAction1 =>
-      'Erbschaftsverfahren beim Notar eröffnen';
+      'Zuständige Behörde oder Fachperson für das Verfahren zu ermitteln';
 
   @override
   String get successionLegaleAction2 =>
-      'Vermögen gemäss Testament oder Gesetz (ZGB Art. 537) aufteilen';
+      'Wirkungen eines Testaments oder gesetzlicher Regeln prüfen zu lassen';
 
   @override
   String get successionLegaleAction3 =>
-      'Steuererklärung für das Todesjahr einreichen';
+      'Steuerpflichten im Zusammenhang mit dem Todesfall zu klären';
 
   @override
   String get successionLegaleAction4 =>
-      'Begünstigte Ihrer eigenen Verträge aktualisieren';
+      'Begünstigungen in eigenen Verträgen separat zu prüfen';
 
   @override
-  String get successionTimeframeDemarches => 'T+8 bis T+30';
+  String get successionTimeframeDemarches => 'In den folgenden Wochen';
 
   @override
-  String get successionTimeframeLegale => 'T+31 bis T+365';
+  String get successionTimeframeLegale => 'Je nach Verfahren';
 
   @override
-  String get successionTimeframeUrgence => 'T+1 bis T+7';
+  String get successionTimeframeUrgence => 'In den ersten Tagen';
 
   @override
   String get successionUrgenceAction1 =>
-      'Todesfall beim Zivilstandsamt innerhalb von 2 Tagen melden';
+      'Frist und zuständige Behörde für die Todesfallmeldung zu bestätigen';
 
   @override
   String get successionUrgenceAction2 =>
-      'Arbeitgeber und Versicherungen (KVG, BVG) informieren';
+      'Relevante Kontakte bei Arbeitgeber und Versicherungen zu ermitteln';
 
   @override
   String get successionUrgenceAction3 =>
-      'Gemeinsame Bankkonten bei Bedarf sperren';
+      'Verfügung über Bankkonten mit den Instituten zu klären';
 
   @override
   String get successionUrgenceAction4 =>
-      'Notar kontaktieren, falls ein Testament vorhanden war';
+      'Existenz einer Verfügung und zuständige Rechtsberatung zu bestätigen';
 
   @override
   String get summaryCapaciteAchat => 'Kaufkapazität';
@@ -24994,4 +24996,173 @@ class SDe extends S {
 
   @override
   String get retirementPillar3aBeneficiarySpecialistSheetClose => 'Schliessen';
+
+  @override
+  String get successionQuestUnloaded =>
+      'Die Angaben wurden noch nicht geladen.';
+
+  @override
+  String get successionQuestReload => 'Neu laden';
+
+  @override
+  String get successionQuestCivilGuard =>
+      'Bestätigen Sie zuerst Ihren Zivilstand.';
+
+  @override
+  String get successionQuestConfirm => 'Bestätigen';
+
+  @override
+  String get successionQuestInvalidRoot =>
+      'Diese Angaben können nicht verwendet werden: MINT verwendet keine davon. Neu laden oder Support kontaktieren.';
+
+  @override
+  String get successionQuestSaved => 'Antwort gespeichert.';
+
+  @override
+  String get successionQuestNext => 'Nächste Frage';
+
+  @override
+  String get successionQuestSurveyRecorded =>
+      'Referenzfragebogen erfasst. Er ist kein fachlich fertiges Dossier und bestätigt weder Nettonachlass noch Erben, Anteile oder Verteilung.';
+
+  @override
+  String get successionQuestMarriageQuestion =>
+      'Welchen ehelichen Güterstand bestätigen Sie?';
+
+  @override
+  String get successionQuestLpartQuestion =>
+      'Deklarierte vermögensrechtliche Verhältnisse der eingetragenen Partnerschaft';
+
+  @override
+  String get successionQuestPriorUnion =>
+      'Eine frühere Verbindung ist erfasst, aber von MINT nicht geprüft. Vor jeder Berechnung oder Verteilung ist fachlich zu klären, ob die Liquidation endgültig abgeschlossen ist und daraus folgende Vermögenswerte, Schulden oder Ansprüche berücksichtigt sind.';
+
+  @override
+  String get successionQuestGuidance =>
+      'MINT ordnet bestätigte Tatsachen, ohne Dokumentinhalte oder rechtliche Wirkungen zu prüfen.';
+
+  @override
+  String get successionQuestSave => 'Speichern';
+
+  @override
+  String get successionQuestAbsent =>
+      'Ich erkläre dieses Dokument als nicht vorhanden';
+
+  @override
+  String get successionQuestPresent => 'Vorhanden';
+
+  @override
+  String get successionQuestModify => 'Angaben ändern';
+
+  @override
+  String get successionQuestReconfirm => 'Unverändert erneut bestätigen';
+
+  @override
+  String get successionQuestStale =>
+      'Diese Antwort muss erneut bestätigt werden.';
+
+  @override
+  String get successionQuestDateLabel => 'Dokumentdatum (JJJJ-MM-TT)';
+
+  @override
+  String get successionQuestYearLabel => 'Rechtsjahr';
+
+  @override
+  String get successionQuestChanged =>
+      'Die Daten wurden geändert und neu geladen. Prüfen Sie sie und versuchen Sie es erneut.';
+
+  @override
+  String get successionQuestValidation =>
+      'Geben Sie ein genaues Kalenderdatum und ein gültiges Jahr ein.';
+
+  @override
+  String get successionQuestSaveError =>
+      'Speichern nicht möglich. Sie können es erneut versuchen.';
+
+  @override
+  String get successionQuestInstrumentWill => 'Testament';
+
+  @override
+  String get successionQuestInstrumentInheritancePact => 'Erbvertrag';
+
+  @override
+  String get successionQuestInstrumentIncapacityMandate => 'Vorsorgeauftrag';
+
+  @override
+  String get successionQuestInstrumentAdvanceCareDirective =>
+      'Patientenverfügung';
+
+  @override
+  String get successionQuestMarriageParticipation =>
+      'Errungenschaftsbeteiligung';
+
+  @override
+  String get successionQuestMarriageCommunity => 'Gütergemeinschaft';
+
+  @override
+  String get successionQuestMarriageSeparation => 'Gütertrennung';
+
+  @override
+  String get successionQuestMarriageOther => 'Anderer Güterstand';
+
+  @override
+  String get successionQuestLpartStatutory =>
+      'Gütertrennung — Grundregel nach PartG';
+
+  @override
+  String get successionQuestLpartParticipation =>
+      'Vereinbarung über eine Teilung nach den Regeln der Errungenschaftsbeteiligung';
+
+  @override
+  String get successionQuestLpartOther =>
+      'Andere vermögensrechtliche Vereinbarung';
+
+  @override
+  String get successionDeathGuideTitle =>
+      'Orientierung nach dem Tod einer nahestehenden Person';
+
+  @override
+  String get successionDeathGuideIntro =>
+      'Die Schritte hängen von der Situation und den zuständigen Behörden ab. Diese allgemeinen Hinweise müssen bestätigt werden.';
+
+  @override
+  String get successionDeathGuideSupportTitle =>
+      'Unterstützung kann verfügbar sein';
+
+  @override
+  String get successionDeathGuideSupportBody =>
+      'Eine Notarin, ein Notar, eine Anwältin, ein Anwalt oder ein Sozialdienst kann die geltenden Schritte und Fristen klären.';
+
+  @override
+  String get successionQuestUnknown =>
+      'MINT weiss nicht, ob dieses Dokument existiert: Weder sein Vorhandensein noch sein Fehlen ist nachgewiesen.';
+
+  @override
+  String get successionQuestPriorPresent => 'Vorhanden';
+
+  @override
+  String get successionQuestPriorAbsent => 'Nicht vorhanden';
+
+  @override
+  String get successionQuestPriorEffectsCaveat =>
+      'Inhalt, Gültigkeit und rechtliche Wirkungen nicht geprüft.';
+
+  @override
+  String get successionQuestPriorAbsenceCaveat =>
+      'Fehlen beruht auf einer nicht geprüften persönlichen Erklärung.';
+
+  @override
+  String get successionQuestTerminalCaveat =>
+      'Dokumente, Inhalte, Gültigkeit und rechtliche Wirkungen nicht geprüft.';
+
+  @override
+  String get successionQuestModifySlot => 'Diese Angabe ändern';
+
+  @override
+  String get successionPropertyNetIndicative =>
+      'Indikativer Nettoimmobilienwert (deklarierter Wert − deklarierte Hypothek)';
+
+  @override
+  String get successionPropertyNotEstateNet =>
+      'Stellt nicht den Nettonachlass dar';
 }

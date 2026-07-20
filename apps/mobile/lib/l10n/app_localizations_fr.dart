@@ -902,7 +902,8 @@ class SFr extends S {
       'Les résultats présentés sont des estimations à titre indicatif et ne constituent pas un conseil juridique ou financier personnalisé. Chaque situation est unique. Consultez un(e) avocat(e) spécialisé(e) en droit de la famille et un·e spécialiste en finances avant toute décision.';
 
   @override
-  String get successionTitle => 'Succession et transmission';
+  String get successionTitle =>
+      'Préparer les éléments pour un échange successoral';
 
   @override
   String get successionSituationSubtitle => 'Statut civil, héritiers';
@@ -933,7 +934,7 @@ class SFr extends S {
 
   @override
   String get successionDisclaimer =>
-      'Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.';
+      'Information générale à caractère éducatif. Ne remplace pas un conseil juridique ou fiscal adapté à votre situation.';
 
   @override
   String get coachingAge25Title => '25 ans : démarrer son 3e pilier';
@@ -3158,7 +3159,7 @@ class SFr extends S {
   String get successionQuotiteTitle => 'Quotité disponible';
 
   @override
-  String get successionChecklistTitle => 'Checklist protection patrimoine';
+  String get successionChecklistTitle => 'Questions pour un échange spécialisé';
 
   @override
   String get mariageProtectionItem1 =>
@@ -9000,30 +9001,29 @@ class SFr extends S {
       'Information à caractère éducatif, ne constitue pas un conseil fiscal au sens de la LSFin.';
 
   @override
-  String get successionAlertTitle =>
-      'Sans testament, ton concubin·e hérite de rien';
+  String get successionAlertTitle => 'Des repères à confirmer';
 
   @override
   String get successionAlertBody =>
-      'Le droit successoral suisse (CC art. 457 ss) protège d\'abord les descendants, puis les parents et le conjoint·e légal·e. Sans lien légal et sans testament, un·e concubin·e est exclu·e de la succession.';
+      'La situation successorale dépend de faits et de documents à vérifier. MINT organise uniquement les éléments que vous confirmez et ne détermine ni la masse nette, ni les héritiers, ni leurs parts.';
 
   @override
   String get successionNotionsCles => 'Les notions clés';
 
   @override
   String get successionReservesBody =>
-      'Une part de ta succession est réservée par la loi à tes descendants et à ton conjoint·e. Cette part ne peut pas être écartée par testament.';
+      'Les réserves héréditaires sont une notion générale du droit suisse. Leur application dépend de la situation familiale et doit être vérifiée par un·e spécialiste.';
 
   @override
   String get successionQuotiteSubtitle => 'CC art. 470 al. 2';
 
   @override
   String get successionQuotiteBody =>
-      'Ce qui reste après les réserves héréditaires est ta quotité disponible — la part que tu peux léguer librement.';
+      'La quotité disponible est une notion générale. MINT ne la calcule pas pour votre situation et ne valide aucune disposition.';
 
   @override
   String get successionTestamentBody =>
-      'Deux formes valides : olographe (manuscrit) ou notarié (devant notaire). Pas de testament = succession légale par défaut.';
+      'Un testament peut prendre différentes formes soumises à des conditions légales. Sa validité, son contenu et ses effets doivent être vérifiés.';
 
   @override
   String get successionDonationTitle => 'Donation du vivant';
@@ -9033,7 +9033,7 @@ class SFr extends S {
 
   @override
   String get successionDonationBody =>
-      'Transmettre de ton vivant permet d\'anticiper la succession et de réduire potentiellement l\'impôt successoral.';
+      'Une donation peut avoir des effets civils et fiscaux qui varient selon les faits et le canton. Un examen spécialisé est nécessaire.';
 
   @override
   String get successionBeneficiairesTitle => 'Bénéficiaires LPP et 3a';
@@ -9043,37 +9043,38 @@ class SFr extends S {
 
   @override
   String get successionBeneficiairesBody =>
-      'Le capital LPP et le solde 3a ne font pas partie de ta succession ordinaire — ils sont versés aux bénéficiaires désignés.';
+      'Les règles LPP et 3a suivent leurs propres bases légales et contrats. Les bénéficiaires et les effets doivent être confirmés auprès des institutions concernées.';
 
   @override
   String get successionDecesProche => 'En cas de décès d\'un proche';
 
   @override
   String get successionCheck1 =>
-      'Vérifier la désignation des bénéficiaires sur chaque compte 3a';
+      'Désignations 3a à confirmer auprès de chaque institution';
 
   @override
   String get successionCheck2 =>
-      'Vérifier la désignation de bénéficiaire LPP auprès de ta caisse';
+      'Règles et désignations LPP à confirmer auprès de la caisse';
 
   @override
-  String get successionCheck3 => 'Rédiger ou mettre à jour ton testament';
+  String get successionCheck3 =>
+      'Existence, date et année juridique des dispositions à confirmer';
 
   @override
   String get successionCheck4 =>
-      'Vérifier ton régime matrimonial si marié·e (CC art. 181 ss)';
+      'Régime matrimonial ou LPart à confirmer séparément';
 
   @override
   String get successionCheck5 =>
-      'Informer tes proches de l\'emplacement de ton testament';
+      'Lieu de conservation à communiquer selon votre choix';
 
   @override
   String get successionSpecialisteTitle =>
-      'Consulter un·e notaire ou spécialiste';
+      'Préparer un échange avec un·e spécialiste';
 
   @override
   String get successionSpecialisteBody =>
-      'Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament.';
+      'Un·e spécialiste du droit successoral peut examiner les faits, les documents et leurs effets dans votre situation.';
 
   @override
   String get successionSources =>
@@ -20610,64 +20611,64 @@ class SFr extends S {
 
   @override
   String get successionDemarchesAction1 =>
-      'Demander les rentes de survivants AVS (LAVS art. 23)';
+      'Conditions des prestations de survivants AVS à clarifier';
 
   @override
   String get successionDemarchesAction2 =>
-      'Contacter la caisse LPP pour le capital décès';
+      'Prestations décès LPP à clarifier auprès de la caisse';
 
   @override
   String get successionDemarchesAction3 =>
-      'Résilier les abonnements et contrats au nom du défunt';
+      'Contrats au nom de la personne décédée à recenser';
 
   @override
   String get successionDemarchesAction4 =>
-      'Faire l’inventaire des avoirs et dettes';
+      'Avoirs et dettes à documenter sans conclure à la masse nette';
 
   @override
   String get successionDemarchesAction5 =>
-      'Demander les certificats d’héritiers au notaire';
+      'Besoin et procédure d’un certificat d’héritier à clarifier';
 
   @override
   String get successionLegaleAction1 =>
-      'Ouvrir la procédure de succession avec le notaire';
+      'Autorité ou spécialiste compétent pour la procédure à identifier';
 
   @override
   String get successionLegaleAction2 =>
-      'Partager les biens selon le testament ou la loi (CC art. 537)';
+      'Effets du testament ou de la loi à faire vérifier';
 
   @override
   String get successionLegaleAction3 =>
-      'Déposer la déclaration fiscale pour l’année du décès';
+      'Obligations fiscales liées au décès à clarifier';
 
   @override
   String get successionLegaleAction4 =>
-      'Mettre à jour les bénéficiaires de vos propres contrats';
+      'Désignations de ses propres contrats à revoir séparément';
 
   @override
-  String get successionTimeframeDemarches => 'J+8 à J+30';
+  String get successionTimeframeDemarches => 'Semaines suivantes';
 
   @override
-  String get successionTimeframeLegale => 'J+31 à J+365';
+  String get successionTimeframeLegale => 'Selon la procédure';
 
   @override
-  String get successionTimeframeUrgence => 'J+1 à J+7';
+  String get successionTimeframeUrgence => 'Premiers jours';
 
   @override
   String get successionUrgenceAction1 =>
-      'Déclarer le décès à l’état civil dans les 2 jours';
+      'Délai et autorité compétente pour la déclaration du décès à confirmer';
 
   @override
   String get successionUrgenceAction2 =>
-      'Informer l’employeur et les assurances (LAMal, LPP)';
+      'Contacts utiles auprès de l’employeur et des assurances à identifier';
 
   @override
   String get successionUrgenceAction3 =>
-      'Bloquer les comptes bancaires conjoints si nécessaire';
+      'Fonctionnement des comptes bancaires à clarifier avec les établissements';
 
   @override
   String get successionUrgenceAction4 =>
-      'Contacter le notaire si la personne avait un testament';
+      'Existence d’une disposition et interlocuteur juridique à confirmer';
 
   @override
   String get summaryCapaciteAchat => 'Capacité d\'achat';
@@ -24923,4 +24924,168 @@ class SFr extends S {
 
   @override
   String get retirementPillar3aBeneficiarySpecialistSheetClose => 'Fermer';
+
+  @override
+  String get successionQuestUnloaded =>
+      'Les références ne sont pas encore chargées.';
+
+  @override
+  String get successionQuestReload => 'Recharger';
+
+  @override
+  String get successionQuestCivilGuard => 'Confirmez d’abord votre état civil.';
+
+  @override
+  String get successionQuestConfirm => 'Confirmer';
+
+  @override
+  String get successionQuestInvalidRoot =>
+      'Ces références ne peuvent pas être utilisées : MINT n’en utilise aucune. Rechargez-les ou contactez le support.';
+
+  @override
+  String get successionQuestSaved => 'Réponse enregistrée.';
+
+  @override
+  String get successionQuestNext => 'Question suivante';
+
+  @override
+  String get successionQuestSurveyRecorded =>
+      'Questionnaire de références enregistré. Il ne constitue pas un dossier prêt pour un·e spécialiste et ne confirme ni la masse successorale nette, ni les héritiers, ni les parts, ni la répartition.';
+
+  @override
+  String get successionQuestMarriageQuestion =>
+      'Quel régime matrimonial confirmez-vous ?';
+
+  @override
+  String get successionQuestLpartQuestion =>
+      'Rapports patrimoniaux du partenariat enregistré déclarés';
+
+  @override
+  String get successionQuestPriorUnion =>
+      'Une union antérieure est indiquée, sans vérification par MINT. Avant tout calcul ou toute répartition, demandez à un·e spécialiste si la liquidation est définitivement close et si les actifs, dettes ou créances qui en résultent sont reflétés.';
+
+  @override
+  String get successionQuestGuidance =>
+      'MINT organise vos faits confirmés sans vérifier le contenu ni les effets juridiques du document.';
+
+  @override
+  String get successionQuestSave => 'Enregistrer';
+
+  @override
+  String get successionQuestAbsent => 'Je déclare ce document absent';
+
+  @override
+  String get successionQuestPresent => 'Présent';
+
+  @override
+  String get successionQuestModify => 'Modifier les références';
+
+  @override
+  String get successionQuestReconfirm => 'Reconfirmer sans modification';
+
+  @override
+  String get successionQuestStale => 'Cette réponse doit être reconfirmée.';
+
+  @override
+  String get successionQuestDateLabel => 'Date du document (AAAA-MM-JJ)';
+
+  @override
+  String get successionQuestYearLabel => 'Année juridique';
+
+  @override
+  String get successionQuestChanged =>
+      'Les données ont changé. Elles ont été rechargées ; vérifiez puis réessayez.';
+
+  @override
+  String get successionQuestValidation =>
+      'Saisissez une date civile exacte et une année valides.';
+
+  @override
+  String get successionQuestSaveError =>
+      'Enregistrement impossible. Vous pouvez réessayer.';
+
+  @override
+  String get successionQuestInstrumentWill => 'Testament';
+
+  @override
+  String get successionQuestInstrumentInheritancePact => 'Pacte successoral';
+
+  @override
+  String get successionQuestInstrumentIncapacityMandate =>
+      'Mandat pour cause d’inaptitude';
+
+  @override
+  String get successionQuestInstrumentAdvanceCareDirective =>
+      'Directives anticipées';
+
+  @override
+  String get successionQuestMarriageParticipation =>
+      'Participation aux acquêts';
+
+  @override
+  String get successionQuestMarriageCommunity => 'Communauté de biens';
+
+  @override
+  String get successionQuestMarriageSeparation => 'Séparation de biens';
+
+  @override
+  String get successionQuestMarriageOther => 'Autre régime';
+
+  @override
+  String get successionQuestLpartStatutory =>
+      'Séparation des biens — règle de base LPart';
+
+  @override
+  String get successionQuestLpartParticipation =>
+      'Convention prévoyant un partage selon les règles de la participation aux acquêts';
+
+  @override
+  String get successionQuestLpartOther => 'Autre convention patrimoniale';
+
+  @override
+  String get successionDeathGuideTitle => 'Repères après le décès d’un proche';
+
+  @override
+  String get successionDeathGuideIntro =>
+      'Les démarches dépendent de la situation et des autorités concernées. Ces repères généraux sont à confirmer.';
+
+  @override
+  String get successionDeathGuideSupportTitle => 'Soutien possible';
+
+  @override
+  String get successionDeathGuideSupportBody =>
+      'Un·e notaire, un·e avocat·e ou un service d’aide sociale peut clarifier les démarches et les délais applicables.';
+
+  @override
+  String get successionQuestUnknown =>
+      'MINT ne sait pas si ce document existe : ni sa présence ni son absence ne sont prouvées.';
+
+  @override
+  String get successionQuestPriorPresent => 'Présent';
+
+  @override
+  String get successionQuestPriorAbsent => 'Absent';
+
+  @override
+  String get successionQuestPriorEffectsCaveat =>
+      'Contenu, validité et effets juridiques non vérifiés.';
+
+  @override
+  String get successionQuestPriorAbsenceCaveat =>
+      'Absence fondée sur une déclaration non vérifiée.';
+
+  @override
+  String get successionQuestTerminalCaveat =>
+      'Documents : contenu, validité et effets non vérifiés.';
+
+  @override
+  String get successionQuestModifySlot => 'Modifier cette référence';
+
+  @override
+  String get successionPropertyNetIndicative =>
+      'Valeur immobilière nette indicative (valeur déclarée − hypothèque déclarée)';
+
+  @override
+  String get successionPropertyNotEstateNet =>
+      'Ne constitue pas la masse successorale nette';
 }

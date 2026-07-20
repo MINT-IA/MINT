@@ -1734,7 +1734,7 @@ abstract class S {
   /// No description provided for @successionTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Succession et transmission'**
+  /// **'Préparer les éléments pour un échange successoral'**
   String get successionTitle;
 
   /// No description provided for @successionSituationSubtitle.
@@ -1788,7 +1788,7 @@ abstract class S {
   /// No description provided for @successionDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.'**
+  /// **'Information générale à caractère éducatif. Ne remplace pas un conseil juridique ou fiscal adapté à votre situation.'**
   String get successionDisclaimer;
 
   /// No description provided for @coachingAge25Title.
@@ -5796,7 +5796,7 @@ abstract class S {
   /// No description provided for @successionChecklistTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Checklist protection patrimoine'**
+  /// **'Questions pour un échange spécialisé'**
   String get successionChecklistTitle;
 
   /// No description provided for @mariageProtectionItem1.
@@ -15928,13 +15928,13 @@ abstract class S {
   /// No description provided for @successionAlertTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Sans testament, ton concubin·e hérite de rien'**
+  /// **'Des repères à confirmer'**
   String get successionAlertTitle;
 
   /// No description provided for @successionAlertBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le droit successoral suisse (CC art. 457 ss) protège d\'abord les descendants, puis les parents et le conjoint·e légal·e. Sans lien légal et sans testament, un·e concubin·e est exclu·e de la succession.'**
+  /// **'La situation successorale dépend de faits et de documents à vérifier. MINT organise uniquement les éléments que vous confirmez et ne détermine ni la masse nette, ni les héritiers, ni leurs parts.'**
   String get successionAlertBody;
 
   /// No description provided for @successionNotionsCles.
@@ -15946,7 +15946,7 @@ abstract class S {
   /// No description provided for @successionReservesBody.
   ///
   /// In fr, this message translates to:
-  /// **'Une part de ta succession est réservée par la loi à tes descendants et à ton conjoint·e. Cette part ne peut pas être écartée par testament.'**
+  /// **'Les réserves héréditaires sont une notion générale du droit suisse. Leur application dépend de la situation familiale et doit être vérifiée par un·e spécialiste.'**
   String get successionReservesBody;
 
   /// No description provided for @successionQuotiteSubtitle.
@@ -15958,13 +15958,13 @@ abstract class S {
   /// No description provided for @successionQuotiteBody.
   ///
   /// In fr, this message translates to:
-  /// **'Ce qui reste après les réserves héréditaires est ta quotité disponible — la part que tu peux léguer librement.'**
+  /// **'La quotité disponible est une notion générale. MINT ne la calcule pas pour votre situation et ne valide aucune disposition.'**
   String get successionQuotiteBody;
 
   /// No description provided for @successionTestamentBody.
   ///
   /// In fr, this message translates to:
-  /// **'Deux formes valides : olographe (manuscrit) ou notarié (devant notaire). Pas de testament = succession légale par défaut.'**
+  /// **'Un testament peut prendre différentes formes soumises à des conditions légales. Sa validité, son contenu et ses effets doivent être vérifiés.'**
   String get successionTestamentBody;
 
   /// No description provided for @successionDonationTitle.
@@ -15982,7 +15982,7 @@ abstract class S {
   /// No description provided for @successionDonationBody.
   ///
   /// In fr, this message translates to:
-  /// **'Transmettre de ton vivant permet d\'anticiper la succession et de réduire potentiellement l\'impôt successoral.'**
+  /// **'Une donation peut avoir des effets civils et fiscaux qui varient selon les faits et le canton. Un examen spécialisé est nécessaire.'**
   String get successionDonationBody;
 
   /// No description provided for @successionBeneficiairesTitle.
@@ -16000,7 +16000,7 @@ abstract class S {
   /// No description provided for @successionBeneficiairesBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le capital LPP et le solde 3a ne font pas partie de ta succession ordinaire — ils sont versés aux bénéficiaires désignés.'**
+  /// **'Les règles LPP et 3a suivent leurs propres bases légales et contrats. Les bénéficiaires et les effets doivent être confirmés auprès des institutions concernées.'**
   String get successionBeneficiairesBody;
 
   /// No description provided for @successionDecesProche.
@@ -16012,43 +16012,43 @@ abstract class S {
   /// No description provided for @successionCheck1.
   ///
   /// In fr, this message translates to:
-  /// **'Vérifier la désignation des bénéficiaires sur chaque compte 3a'**
+  /// **'Désignations 3a à confirmer auprès de chaque institution'**
   String get successionCheck1;
 
   /// No description provided for @successionCheck2.
   ///
   /// In fr, this message translates to:
-  /// **'Vérifier la désignation de bénéficiaire LPP auprès de ta caisse'**
+  /// **'Règles et désignations LPP à confirmer auprès de la caisse'**
   String get successionCheck2;
 
   /// No description provided for @successionCheck3.
   ///
   /// In fr, this message translates to:
-  /// **'Rédiger ou mettre à jour ton testament'**
+  /// **'Existence, date et année juridique des dispositions à confirmer'**
   String get successionCheck3;
 
   /// No description provided for @successionCheck4.
   ///
   /// In fr, this message translates to:
-  /// **'Vérifier ton régime matrimonial si marié·e (CC art. 181 ss)'**
+  /// **'Régime matrimonial ou LPart à confirmer séparément'**
   String get successionCheck4;
 
   /// No description provided for @successionCheck5.
   ///
   /// In fr, this message translates to:
-  /// **'Informer tes proches de l\'emplacement de ton testament'**
+  /// **'Lieu de conservation à communiquer selon votre choix'**
   String get successionCheck5;
 
   /// No description provided for @successionSpecialisteTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Consulter un·e notaire ou spécialiste'**
+  /// **'Préparer un échange avec un·e spécialiste'**
   String get successionSpecialisteTitle;
 
   /// No description provided for @successionSpecialisteBody.
   ///
   /// In fr, this message translates to:
-  /// **'Un·e notaire ou spécialiste en droit successoral peut rédiger ou réviser ton testament.'**
+  /// **'Un·e spécialiste du droit successoral peut examiner les faits, les documents et leurs effets dans votre situation.'**
   String get successionSpecialisteBody;
 
   /// No description provided for @successionSources.
@@ -36146,97 +36146,97 @@ abstract class S {
   /// No description provided for @successionDemarchesAction1.
   ///
   /// In fr, this message translates to:
-  /// **'Demander les rentes de survivants AVS (LAVS art. 23)'**
+  /// **'Conditions des prestations de survivants AVS à clarifier'**
   String get successionDemarchesAction1;
 
   /// No description provided for @successionDemarchesAction2.
   ///
   /// In fr, this message translates to:
-  /// **'Contacter la caisse LPP pour le capital décès'**
+  /// **'Prestations décès LPP à clarifier auprès de la caisse'**
   String get successionDemarchesAction2;
 
   /// No description provided for @successionDemarchesAction3.
   ///
   /// In fr, this message translates to:
-  /// **'Résilier les abonnements et contrats au nom du défunt'**
+  /// **'Contrats au nom de la personne décédée à recenser'**
   String get successionDemarchesAction3;
 
   /// No description provided for @successionDemarchesAction4.
   ///
   /// In fr, this message translates to:
-  /// **'Faire l’inventaire des avoirs et dettes'**
+  /// **'Avoirs et dettes à documenter sans conclure à la masse nette'**
   String get successionDemarchesAction4;
 
   /// No description provided for @successionDemarchesAction5.
   ///
   /// In fr, this message translates to:
-  /// **'Demander les certificats d’héritiers au notaire'**
+  /// **'Besoin et procédure d’un certificat d’héritier à clarifier'**
   String get successionDemarchesAction5;
 
   /// No description provided for @successionLegaleAction1.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir la procédure de succession avec le notaire'**
+  /// **'Autorité ou spécialiste compétent pour la procédure à identifier'**
   String get successionLegaleAction1;
 
   /// No description provided for @successionLegaleAction2.
   ///
   /// In fr, this message translates to:
-  /// **'Partager les biens selon le testament ou la loi (CC art. 537)'**
+  /// **'Effets du testament ou de la loi à faire vérifier'**
   String get successionLegaleAction2;
 
   /// No description provided for @successionLegaleAction3.
   ///
   /// In fr, this message translates to:
-  /// **'Déposer la déclaration fiscale pour l’année du décès'**
+  /// **'Obligations fiscales liées au décès à clarifier'**
   String get successionLegaleAction3;
 
   /// No description provided for @successionLegaleAction4.
   ///
   /// In fr, this message translates to:
-  /// **'Mettre à jour les bénéficiaires de vos propres contrats'**
+  /// **'Désignations de ses propres contrats à revoir séparément'**
   String get successionLegaleAction4;
 
   /// No description provided for @successionTimeframeDemarches.
   ///
   /// In fr, this message translates to:
-  /// **'J+8 à J+30'**
+  /// **'Semaines suivantes'**
   String get successionTimeframeDemarches;
 
   /// No description provided for @successionTimeframeLegale.
   ///
   /// In fr, this message translates to:
-  /// **'J+31 à J+365'**
+  /// **'Selon la procédure'**
   String get successionTimeframeLegale;
 
   /// No description provided for @successionTimeframeUrgence.
   ///
   /// In fr, this message translates to:
-  /// **'J+1 à J+7'**
+  /// **'Premiers jours'**
   String get successionTimeframeUrgence;
 
   /// No description provided for @successionUrgenceAction1.
   ///
   /// In fr, this message translates to:
-  /// **'Déclarer le décès à l’état civil dans les 2 jours'**
+  /// **'Délai et autorité compétente pour la déclaration du décès à confirmer'**
   String get successionUrgenceAction1;
 
   /// No description provided for @successionUrgenceAction2.
   ///
   /// In fr, this message translates to:
-  /// **'Informer l’employeur et les assurances (LAMal, LPP)'**
+  /// **'Contacts utiles auprès de l’employeur et des assurances à identifier'**
   String get successionUrgenceAction2;
 
   /// No description provided for @successionUrgenceAction3.
   ///
   /// In fr, this message translates to:
-  /// **'Bloquer les comptes bancaires conjoints si nécessaire'**
+  /// **'Fonctionnement des comptes bancaires à clarifier avec les établissements'**
   String get successionUrgenceAction3;
 
   /// No description provided for @successionUrgenceAction4.
   ///
   /// In fr, this message translates to:
-  /// **'Contacter le notaire si la personne avait un testament'**
+  /// **'Existence d’une disposition et interlocuteur juridique à confirmer'**
   String get successionUrgenceAction4;
 
   /// No description provided for @summaryCapaciteAchat.
@@ -43402,6 +43402,288 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Fermer'**
   String get retirementPillar3aBeneficiarySpecialistSheetClose;
+
+  /// No description provided for @successionQuestUnloaded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les références ne sont pas encore chargées.'**
+  String get successionQuestUnloaded;
+
+  /// No description provided for @successionQuestReload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharger'**
+  String get successionQuestReload;
+
+  /// No description provided for @successionQuestCivilGuard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmez d’abord votre état civil.'**
+  String get successionQuestCivilGuard;
+
+  /// No description provided for @successionQuestConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get successionQuestConfirm;
+
+  /// No description provided for @successionQuestInvalidRoot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces références ne peuvent pas être utilisées : MINT n’en utilise aucune. Rechargez-les ou contactez le support.'**
+  String get successionQuestInvalidRoot;
+
+  /// No description provided for @successionQuestSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse enregistrée.'**
+  String get successionQuestSaved;
+
+  /// No description provided for @successionQuestNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question suivante'**
+  String get successionQuestNext;
+
+  /// No description provided for @successionQuestSurveyRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questionnaire de références enregistré. Il ne constitue pas un dossier prêt pour un·e spécialiste et ne confirme ni la masse successorale nette, ni les héritiers, ni les parts, ni la répartition.'**
+  String get successionQuestSurveyRecorded;
+
+  /// No description provided for @successionQuestMarriageQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel régime matrimonial confirmez-vous ?'**
+  String get successionQuestMarriageQuestion;
+
+  /// No description provided for @successionQuestLpartQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rapports patrimoniaux du partenariat enregistré déclarés'**
+  String get successionQuestLpartQuestion;
+
+  /// No description provided for @successionQuestPriorUnion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une union antérieure est indiquée, sans vérification par MINT. Avant tout calcul ou toute répartition, demandez à un·e spécialiste si la liquidation est définitivement close et si les actifs, dettes ou créances qui en résultent sont reflétés.'**
+  String get successionQuestPriorUnion;
+
+  /// No description provided for @successionQuestGuidance.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT organise vos faits confirmés sans vérifier le contenu ni les effets juridiques du document.'**
+  String get successionQuestGuidance;
+
+  /// No description provided for @successionQuestSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get successionQuestSave;
+
+  /// No description provided for @successionQuestAbsent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je déclare ce document absent'**
+  String get successionQuestAbsent;
+
+  /// No description provided for @successionQuestPresent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présent'**
+  String get successionQuestPresent;
+
+  /// No description provided for @successionQuestModify.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier les références'**
+  String get successionQuestModify;
+
+  /// No description provided for @successionQuestReconfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reconfirmer sans modification'**
+  String get successionQuestReconfirm;
+
+  /// No description provided for @successionQuestStale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette réponse doit être reconfirmée.'**
+  String get successionQuestStale;
+
+  /// No description provided for @successionQuestDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date du document (AAAA-MM-JJ)'**
+  String get successionQuestDateLabel;
+
+  /// No description provided for @successionQuestYearLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année juridique'**
+  String get successionQuestYearLabel;
+
+  /// No description provided for @successionQuestChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les données ont changé. Elles ont été rechargées ; vérifiez puis réessayez.'**
+  String get successionQuestChanged;
+
+  /// No description provided for @successionQuestValidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez une date civile exacte et une année valides.'**
+  String get successionQuestValidation;
+
+  /// No description provided for @successionQuestSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement impossible. Vous pouvez réessayer.'**
+  String get successionQuestSaveError;
+
+  /// No description provided for @successionQuestInstrumentWill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Testament'**
+  String get successionQuestInstrumentWill;
+
+  /// No description provided for @successionQuestInstrumentInheritancePact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pacte successoral'**
+  String get successionQuestInstrumentInheritancePact;
+
+  /// No description provided for @successionQuestInstrumentIncapacityMandate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mandat pour cause d’inaptitude'**
+  String get successionQuestInstrumentIncapacityMandate;
+
+  /// No description provided for @successionQuestInstrumentAdvanceCareDirective.
+  ///
+  /// In fr, this message translates to:
+  /// **'Directives anticipées'**
+  String get successionQuestInstrumentAdvanceCareDirective;
+
+  /// No description provided for @successionQuestMarriageParticipation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participation aux acquêts'**
+  String get successionQuestMarriageParticipation;
+
+  /// No description provided for @successionQuestMarriageCommunity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Communauté de biens'**
+  String get successionQuestMarriageCommunity;
+
+  /// No description provided for @successionQuestMarriageSeparation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séparation de biens'**
+  String get successionQuestMarriageSeparation;
+
+  /// No description provided for @successionQuestMarriageOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre régime'**
+  String get successionQuestMarriageOther;
+
+  /// No description provided for @successionQuestLpartStatutory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séparation des biens — règle de base LPart'**
+  String get successionQuestLpartStatutory;
+
+  /// No description provided for @successionQuestLpartParticipation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Convention prévoyant un partage selon les règles de la participation aux acquêts'**
+  String get successionQuestLpartParticipation;
+
+  /// No description provided for @successionQuestLpartOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre convention patrimoniale'**
+  String get successionQuestLpartOther;
+
+  /// No description provided for @successionDeathGuideTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repères après le décès d’un proche'**
+  String get successionDeathGuideTitle;
+
+  /// No description provided for @successionDeathGuideIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les démarches dépendent de la situation et des autorités concernées. Ces repères généraux sont à confirmer.'**
+  String get successionDeathGuideIntro;
+
+  /// No description provided for @successionDeathGuideSupportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soutien possible'**
+  String get successionDeathGuideSupportTitle;
+
+  /// No description provided for @successionDeathGuideSupportBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un·e notaire, un·e avocat·e ou un service d’aide sociale peut clarifier les démarches et les délais applicables.'**
+  String get successionDeathGuideSupportBody;
+
+  /// No description provided for @successionQuestUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne sait pas si ce document existe : ni sa présence ni son absence ne sont prouvées.'**
+  String get successionQuestUnknown;
+
+  /// No description provided for @successionQuestPriorPresent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présent'**
+  String get successionQuestPriorPresent;
+
+  /// No description provided for @successionQuestPriorAbsent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Absent'**
+  String get successionQuestPriorAbsent;
+
+  /// No description provided for @successionQuestPriorEffectsCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu, validité et effets juridiques non vérifiés.'**
+  String get successionQuestPriorEffectsCaveat;
+
+  /// No description provided for @successionQuestPriorAbsenceCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Absence fondée sur une déclaration non vérifiée.'**
+  String get successionQuestPriorAbsenceCaveat;
+
+  /// No description provided for @successionQuestTerminalCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Documents : contenu, validité et effets non vérifiés.'**
+  String get successionQuestTerminalCaveat;
+
+  /// No description provided for @successionQuestModifySlot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier cette référence'**
+  String get successionQuestModifySlot;
+
+  /// No description provided for @successionPropertyNetIndicative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur immobilière nette indicative (valeur déclarée − hypothèque déclarée)'**
+  String get successionPropertyNetIndicative;
+
+  /// No description provided for @successionPropertyNotEstateNet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne constitue pas la masse successorale nette'**
+  String get successionPropertyNotEstateNet;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
