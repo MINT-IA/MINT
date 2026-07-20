@@ -13,6 +13,8 @@ import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/widgets/coach/succession_evidence_quest.dart';
 import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -227,6 +229,26 @@ void main() {
       await tester.pump();
       // "spécialiste" should appear in the CTA
       expect(find.textContaining('spécialiste'), findsWidgets);
+    });
+
+    testWidgets('collector flag is fail-closed and unsafe widget stays absent',
+        (tester) async {
+      addTearDown(() => FeatureFlags.successionEvidenceCollectionEnabled = false);
+      FeatureFlags.successionEvidenceCollectionEnabled = false;
+      await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
+      await tester.pump();
+      expect(find.byType(SuccessionEvidenceQuest), findsNothing);
+      expect(find.byType(TestamentInvisibleWidget), findsNothing);
+    });
+
+    testWidgets('local collector flag exposes the real quest only',
+        (tester) async {
+      addTearDown(() => FeatureFlags.successionEvidenceCollectionEnabled = false);
+      FeatureFlags.successionEvidenceCollectionEnabled = true;
+      await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
+      await tester.pump();
+      expect(find.byType(SuccessionEvidenceQuest), findsOneWidget);
+      expect(find.byType(TestamentInvisibleWidget), findsNothing);
     });
 
     testWidgets('asks for property value before rendering a fictive case',

@@ -41,6 +41,23 @@ Map<String, dynamic> _unknownRoot({Object? will}) => <String, dynamic>{
       }),
     };
 
+Map<String, dynamic> _staleRoot() {
+  final answers = _unknownRoot();
+  final raw = jsonDecode(answers['_coach_estate_evidence_v1'] as String) as Map;
+  (raw['estateInstruments'] as Map)['will'] = <String, dynamic>{
+    'state': 'confirmedAbsent',
+    'confirmation': <String, dynamic>{
+      'evidenceId': '55555555-5555-4555-8555-555555555555',
+      'ownerKind': 'self',
+      'source': 'userInput',
+      'confirmedAt': DateTime.utc(2026, 7, 20).toIso8601String(),
+      'civilStatusAtConfirmation': 'marie',
+    },
+  };
+  answers['_coach_estate_evidence_v1'] = jsonEncode(raw);
+  return answers;
+}
+
 Map<String, dynamic> _allAbsentRoot() {
   final now = DateTime.utc(2026, 7, 20).toIso8601String();
   Map<String, dynamic> absent(String id) => <String, dynamic>{
@@ -131,7 +148,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(const Key('succession_instrument_will_save')));
     await tester.pump();
-    expect(find.byKey(const Key('succession_instrument_will_invalid')), findsOneWidget);
+    expect(find.byKey(const Key('succession_instrument_will_validation_error')), findsOneWidget);
     expect(loaded.persistence.saves, 0);
     await tester.enterText(find.byKey(const Key('succession_instrument_will_source_date')), '2026-01-15');
     await tester.enterText(find.byKey(const Key('succession_instrument_will_legal_year')), '2026');
@@ -139,6 +156,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('succession_answer_saved')), findsOneWidget);
     expect(loaded.persistence.saves, 1);
+    final root = jsonDecode(
+      loaded.persistence.answers['_coach_estate_evidence_v1'] as String,
+    ) as Map;
+    final slot = (root['estateInstruments'] as Map)['will'] as Map;
+    expect(slot['state'], 'confirmedPresent');
+    expect((slot['evidence'] as Map)['sourceDate'], '2026-01-15');
+    expect((slot['evidence'] as Map)['legalYear'], 2026);
   });
 
   testWidgets('absence persists once and never auto-advances', (tester) async {
@@ -154,6 +178,43 @@ void main() {
     expect(find.byKey(const Key('succession_instrument_inheritancePact_question')), findsOneWidget);
   });
 
+  testWidgets('stale reconfirmation uses the rendered evidence CAS id',
+      (tester) async {
+    final loaded = await _provider(_staleRoot());
+    await tester.pumpWidget(_wrap(loaded.provider));
+    expect(find.byKey(const Key('succession_instrument_will_stale')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('succession_instrument_will_reconfirm')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('succession_instrument_will_absent')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('succession_answer_saved')), findsOneWidget);
+    expect(loaded.persistence.saves, 1);
+  });
+
+  testWidgets('CAS loss refreshes and never shows optimistic success',
+      (tester) async {
+    final loaded = await _provider(_unknownRoot());
+    await tester.pumpWidget(_wrap(loaded.provider));
+    final changed = _unknownRoot();
+    final raw = jsonDecode(changed['_coach_estate_evidence_v1'] as String) as Map;
+    (raw['estateInstruments'] as Map)['will'] = <String, dynamic>{
+      'state': 'confirmedAbsent',
+      'confirmation': <String, dynamic>{
+        'evidenceId': '66666666-6666-4666-8666-666666666666',
+        'ownerKind': 'self',
+        'source': 'userInput',
+        'confirmedAt': DateTime.utc(2026, 7, 20).toIso8601String(),
+        'civilStatusAtConfirmation': 'celibataire',
+      },
+    };
+    loaded.persistence.answers['_coach_estate_evidence_v1'] = jsonEncode(raw);
+    await tester.tap(find.byKey(const Key('succession_instrument_will_absent')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('succession_answer_saved')), findsNothing);
+    expect(find.textContaining('données ont changé'), findsOneWidget);
+    expect(loaded.persistence.saves, 0);
+  });
+
   testWidgets('invalid root blocks every save and offers only reload/support',
       (tester) async {
     final loaded = await _provider(_unknownRoot(will: <String, dynamic>{'state': 'confirmedPresent'}));
@@ -161,6 +222,11 @@ void main() {
     expect(find.byKey(const Key('succession_reference_invalid')), findsOneWidget);
     expect(find.textContaining('support'), findsOneWidget);
     expect(find.byKey(const Key('succession_instrument_will_save')), findsNothing);
+    final exactRoot = loaded.persistence.answers['_coach_estate_evidence_v1'];
+    expect(loaded.persistence.saves, 0);
+    await tester.tap(find.text('Recharger'));
+    await tester.pumpAndSettle();
+    expect(loaded.persistence.answers['_coach_estate_evidence_v1'], exactRoot);
     expect(loaded.persistence.saves, 0);
   });
 
