@@ -157,4 +157,23 @@ void main() {
       );
     }
   });
+
+  test('fresh-install Maestro flows wait for router readiness before links',
+      () {
+    for (final path in const <String>[
+      '.maestro/g1_return01_work_return.yaml',
+      '.maestro/g1_return01_succession_return.yaml',
+    ]) {
+      final source = _read(path);
+      final launch = source.indexOf('- launchApp');
+      final landingReady = source.indexOf(
+        '- extendedWaitUntil:\n    visible:\n      id: "landing_route"',
+      );
+      final openLink = source.indexOf('- openLink:');
+
+      expect(launch, greaterThanOrEqualTo(0), reason: path);
+      expect(landingReady, greaterThan(launch), reason: path);
+      expect(openLink, greaterThan(landingReady), reason: path);
+    }
+  });
 }
