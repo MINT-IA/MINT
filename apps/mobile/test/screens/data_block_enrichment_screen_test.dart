@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -100,6 +102,43 @@ void main() {
   setUp(() {
     FlutterSecureStorage.setMockInitialValues({});
     SharedPreferences.setMockInitialValues({});
+  });
+
+  testWidgets('stable cancel action returns through the real IconButton',
+      (tester) async {
+    final provider = CoachProfileProvider();
+    addTearDown(provider.dispose);
+    await tester.pumpWidget(_realRouteHarness(provider));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('open_gender_collector')));
+    await tester.pumpAndSettle();
+
+    final semantics = tester.ensureSemantics();
+    try {
+      final cancel = find.bySemanticsIdentifier('data_block_cancel_return_cta');
+      expect(cancel, findsOneWidget);
+      final iconButton =
+          find.descendant(of: cancel, matching: find.byType(IconButton));
+      expect(iconButton, findsOneWidget);
+      final cancelNode = tester.getSemantics(cancel);
+      expect(
+        cancelNode.getSemanticsData().hasAction(SemanticsAction.tap),
+        isTrue,
+        reason: 'the identified node must own the real cancel action',
+      );
+      expect(cancelNode.flagsCollection.isButton, isTrue);
+      expect(
+        tester.getSemantics(iconButton).id,
+        cancelNode.id,
+        reason: 'the IconButton must merge into one identified button node',
+      );
+
+      await tester.tap(cancel);
+      await tester.pumpAndSettle();
+      expect(find.text('ledger-return-destination'), findsOneWidget);
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('revenue block captures canonical first salary facts only',

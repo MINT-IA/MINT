@@ -168,6 +168,23 @@ void main() {
     }
   });
 
+  test('cancel Maestro flows tap the collector return action', () {
+    for (final path in const <String>[
+      '.maestro/g1_return01_housing_cancel_return.yaml',
+      '.maestro/g1_return01_disability_return.yaml',
+    ]) {
+      final source = _read(path);
+      expect(
+        source,
+        contains(
+          '- tapOn:\n    id: "data_block_cancel_return_cta"',
+        ),
+        reason: path,
+      );
+      expect(source, isNot(contains('\n- back\n')), reason: path);
+    }
+  });
+
   test('Maestro waits on visible route anchors before scrolling to CTAs', () {
     const cases = <String, (String, String)>{
       '.maestro/g1_return01_work_return.yaml': (

@@ -43,6 +43,7 @@ appId: ch.mint.app
     id: "salary_save_cta"
 - assertVisible:
     id: "birth_year_input"
-- back
+- tapOn:
+    id: "data_block_cancel_return_cta"
 - assertVisible:
     id: "disability_gap_ledger_facts"

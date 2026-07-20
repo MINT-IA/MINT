@@ -167,9 +167,15 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       appBar: AppBar(
         backgroundColor: MintColors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-          onPressed: _cancelToReturnTarget,
+        leading: MergeSemantics(
+          child: Semantics(
+            identifier: 'data_block_cancel_return_cta',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+              onPressed: _cancelToReturnTarget,
+            ),
+          ),
         ),
         title: Text(
           meta.title,
@@ -289,7 +295,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
                                       final scanReturnId = context
                                           .read<ScanSessionProvider>()
                                           .retainDataBlockScanReturnIntent(
-                                            kind: DataBlockScanReturnKind.rvcLpp,
+                                            kind:
+                                                DataBlockScanReturnKind.rvcLpp,
                                             target: returnTarget!,
                                           );
                                       context.push(

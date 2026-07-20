@@ -31,6 +31,7 @@ appId: ch.mint.app
     id: "mortgage_enrich_profile_cta"
 - assertVisible:
     id: "salary_input"
-- back
+- tapOn:
+    id: "data_block_cancel_return_cta"
 - assertVisible:
     id: "mortgage_enrich_profile_cta"
