@@ -1,0 +1,37 @@
+All 83 tests pass. The wiring is fully verified. Here's my audit.
+
+---
+
+# MINT External Audit — `codex/g1-capital-native-proof-20260718`
+
+**Scope:** Worktree diff (4 files, ~600 lines) vs base `588397da5`. Theme: prevent a *display fallback* salary (`__secure__` / backend-unknown) from being treated as a user-declared salary fact in (a) confidence scoring and (b) revenue-block input seeding.
+
+## What the change does
+- `confidence_scorer.dart`: new `_hasKnownSalary(profile)` = `userProvidedFields.contains('salary') && salaireBrutMensuel > 0`, replacing the bare `salaireBrutMensuel > 0` in both `score()` and `scoreAsBlocs()`.
+- `data_block_enrichment_screen.dart:355-357`: gross-salary controller now seeds only when `userProvidedFields.contains('grossSalaryAnnual') && revenuBrutAnnuel > 0`.
+
+## Wiring verification (facade-without-wiring risk — cleared)
+The two markers are genuinely populated, persisted, and restored:
+- `'salary'` set at `coach_profile.dart:6877-6882` when net *or* gross income resolves and is not backend-unknown.
+- `'grossSalaryAnnual'` set at `coach_profile.dart:6887-6890` only when gross resolves.
+- `hasResolvedAnswer` (`5796-5799`) explicitly excludes `'__secure__'`; `_parseDouble` also rejects it (`3903`), so `grossSalaryDirect` is null and `salaireBrutMensuel` falls back to the derived `netIncome/(1-rate)` — positive but *not* a declared fact. Confidence correctly scores it 0.
+- `userProvidedFields` round-trips through `toJson`/`fromJson` (`5770`, `5676`) and `copyWith` (`5232`). No path builds a salary-bearing profile that silently loses the marker in production flows.
+- `salary_input` provably maps to `q_gross_salary_annual` (`data_block_enrichment_screen.dart:765`), so gating its seeding on `grossSalaryAnnual` (not `salary`) is the correct, non-arbitrary marker choice.
+
+## Test evidence
+Ran both modified suites: **83/83 passed**, including the two new fallback-hardening tests (`gross salary collector never seeds an unreadable fallback`, `display fallback is not a known salary fact`) and the declared-fact positive cases. Test helper `_buildProfile` was correctly updated to seed `userProvidedFields: {'salary'}` when `salary > 0`, keeping the existing suite honest.
+
+## Findings
+
+**P0:** None.
+
+**P1:** None.
+
+**P2 (informational, non-blocking):**
+- `data_block_enrichment_screen.dart:355-357` — net-income-only profiles (marker `salary`/`netIncome` present, `grossSalaryAnnual` absent) no longer prefill the derived gross into the full revenue block; the field renders empty and the user must re-enter a gross > 0 to save (validation at `data_block_enrichment_screen.dart:738`). This is a deliberate "don't launder a derived estimate into a declared fact" behavior change, consistent with the confidence gating, but it is a visible UX regression for that cohort. No test covers the net-only re-entry path — worth an explicit test if the behavior is intended to persist.
+
+## Verdict
+
+**PASS**
+
+Change is correctly scoped, fully wired on both the model-population and consumer sides, and the privacy/correctness intent (fallback ≠ declared fact) is enforced in both confidence scoring and seeding with passing tests. The single P2 is an intentional, defensible UX trade-off, not a defect.

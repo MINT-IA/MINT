@@ -460,3 +460,45 @@ analysis and diff checks are clean. Implementation commit: `422d618e1`.
 A fresh pushed exact SHA must restart every RETURN-01 stage. Prior successful
 Work/Housing/Disability Patrol atoms remain diagnostic only and cannot be
 composed into acceptance.
+
+## Salary-fallback ledger-truth audit disposition
+
+Accepted audits: `opus-salary-fallback-truth-code-audit.txt` and
+`opus-salary-fallback-truth-product-domain-audit.txt` — both **PASS**, P0=0
+and P1=0. The code audit records the intentional net-income-only re-entry UX
+trade-off rather than laundering a derived gross estimate into a declared
+fact. The product/domain audit also notes a pre-existing self-employed-income
+scoring vocabulary gap; it is not introduced as a new authority path by this
+focused fallback correction.
+
+The fourteenth exact-SHA run
+(`588397da5cbb8edc78711e33b26c316955af12ce`) stopped at
+`.planning/runtime-evidence/phase-37/return-01/runtime-588397da5c-20260720T125316Z`.
+It proved Work and Housing Patrol+Maestro, Disability Patrol, retained invalid
+input, witness/store preservation, production overlay and the newly actionable
+Disability CTA. Disability Maestro tapped that CTA but reached the Revenu
+collector with `salary_input` prefilled as `68966`, score `12 / 12 pts` and
+status `Complet`, instead of the contractually missing `birth_year_input`.
+Direct inspection of the retained PNG and hierarchy confirms those exact
+values. No later stage is accepted.
+
+Two independent defects were separated rather than hidden by weakening the
+Maestro assertion. First, an unreadable secure salary (`__secure__`) was
+correctly absent from `userProvidedFields`, but the model's positive display
+fallback still seeded the gross salary field and earned the full salary score.
+The collector now requires exact `grossSalaryAnnual` provenance before
+prefilling, while both confidence surfaces require shared `salary` provenance
+plus a positive value before awarding 12 points. RED tests reproduced the
+`68966` prefill and 12/12 score; GREEN tests prove the fallback stays empty and
+missing while real declared net and gross incomes remain known. The two
+focused suites pass 83/83 and targeted analysis is clean. Implementation
+commit: `064dc8e9f`.
+
+Second, `persistent_data=verified` fingerprints only regular files under
+`Documents` and `Library/Preferences`; it does not prove Keychain continuity
+between the Patrol test host and the normal Runner overlay. Patrol stage seeds
+are whole-map replacements, not cumulative. The next harness correction must
+therefore reset the Disability black-box state and seed a real salary through
+production UI before opening `/invalidite`, while retaining the expected
+`birth_year_input` contract. A new pushed exact SHA must restart the complete
+RETURN-01 matrix after that harness fix.

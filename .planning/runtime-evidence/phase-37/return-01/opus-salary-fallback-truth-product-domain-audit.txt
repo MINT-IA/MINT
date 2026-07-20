@@ -1,0 +1,32 @@
+Both affected test suites are green (55 unit + 28 widget). I have enough to render a verdict.
+
+---
+
+Product/domain verdict: PASS
+
+## What this change does
+It draws the ledger distinction between a **genuine user-declared salary fact** and a **display/fallback artifact**:
+- `confidence_scorer.dart:271-273` adds `_hasKnownSalary` = `userProvidedFields.contains('salary') && salaireBrutMensuel > 0`, applied to both the 12-pt salaire block in `score()` (`confidence_scorer.dart:287`) and the `revenu` block in `scoreAsBlocs()` (`confidence_scorer.dart:517`).
+- `data_block_enrichment_screen.dart:355` now seeds the gross-salary field only when `userProvidedFields.contains('grossSalaryAnnual')`, so an unreadable encrypted placeholder or a net-derived gross is not shown as if typed.
+
+This is coherent with the ledger doctrine and with the already-shipped confidence adapter, which already uses `['salary','grossSalaryAnnual']` as income provenance (`coach_profile_confidence_adapter.dart:30-34`). The two markers are correctly differentiated: `grossSalaryAnnual` gates seeding of the *gross annual* input field; `salary` (net OR gross) gates income-presence scoring.
+
+## Findings
+
+### P0
+None.
+
+### P1
+None.
+
+### P2
+- **Self-employed/independent income under-credited.** `salary` is only added for `q_net_income_period_chf`/`q_gross_salary_annual` (`coach_profile.dart:6877-6882`); it excludes `q_self_employed_income`/`q_company_profit_annual_chf`. Because `salaireBrutMensuel` is still derived for independents (`coach_profile.dart:5939`), an independent who fully declared income now scores 0 on the income block and receives the prompt *"Ajoute ton salaire … Renseigne ton salaire brut mensuel"* (`confidence_scorer.dart:290-297`) — mildly incoherent for someone with no salaire brut. This mirrors pre-existing adapter behavior (income fact at `coach_profile_confidence_adapter.dart:30-34` also excludes self-employed income), so the diff makes the raw scorer *consistent* rather than newly broken. Consider having `_hasKnownSalary` also accept `selfEmployedNetIncome`/`companyProfitAnnual` provenance. Not a blocker. No test covers the self-employed-income-only scoring path.
+
+## Swiss domain review
+- **AVS / LPP / 3a / mortgage / insurance / succession:** not affected. No thresholds, conversion rates, law citations, or the V2 weight table (LAVS art. 21/29, LPP art. 14/15/19, OPP3 art. 7) were changed. No stale-constant risk introduced.
+- **Tax:** not affected.
+- **Net→gross conversion:** unchanged (`socialChargesRate` fallback ≈13% documented at `coach_profile.dart:5925-5928`); the diff only changes *whether* a derived figure is treated as a known fact, not the math.
+- **Lucidity win (privacy + confidence integrity):** Previously an empty `fromWizardAnswers` profile fell back to net-income 5000 → `salaireBrutMensuel ≈ 5747` → old `salaireBrutMensuel > 0` awarded +12 and marked `revenu` "complete", inflating confidence toward `minConfidenceForProjection = 40` on a fabricated salary, and the screen would render the `__secure__`/derived value as the user's own figure. The diff correctly closes both the confidence-inflation and the "fabricated-as-known" display defects; degraded state now shows an empty field, not a wrong number (`data_block_enrichment_screen_test.dart` "never seeds an unreadable fallback").
+
+## Mint product logic review
+Moves Mint toward the ledger → DataQuest → scenario spine: it enforces one source of truth (provenance markers, not raw derived values), stops re-presenting estimated/fallback data as declared facts, keeps the enrichment prompt firing when income is genuinely missing, and preserves a clean degraded state on unreadable encrypted values. Known/missing/estimated separation is respected (`revenu` → `status: 'missing'` for the fallback, verified by the passing test). No advice, ranking, guarantee, or product-recommendation language introduced.
