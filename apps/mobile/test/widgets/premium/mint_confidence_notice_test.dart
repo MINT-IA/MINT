@@ -14,6 +14,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: MintConfidenceNotice(
+            key: const Key('confidence_notice'),
             percent: 45,
             message: 'Estimation à préciser',
             ctaLabel: 'Améliorer mes données',
@@ -29,6 +30,13 @@ void main() {
 
     final action = find.bySemanticsIdentifier('mortgage_enrich_profile_cta');
     expect(action, findsOneWidget);
+    expect(tester.widget<Semantics>(action).container, isTrue);
+    final noticeRect = tester.getRect(
+      find.byKey(const Key('confidence_notice')),
+    );
+    final actionRect = tester.getRect(action);
+    expect(actionRect.height, lessThan(noticeRect.height));
+    expect(noticeRect.contains(actionRect.center), isTrue);
     expect(
       find.descendant(
         of: find.byType(MintConfidenceNotice),
