@@ -595,6 +595,7 @@ prepare_maestro_route() {
   install_production_app "$stage-final" "$app"
   run_logged "production-$stage-launch" \
     xcrun simctl launch "$device" "$bundle_id"
+  wait_for_landing "$stage"
   run_logged "production-$stage-openurl" \
     xcrun simctl openurl "$device" \
       "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"
@@ -627,6 +628,38 @@ if tests < 1 or failures != 0:
     raise SystemExit(f"invalid Maestro result tests={tests} failures={failures}")
 PY
   exact_sha_guard
+}
+
+wait_for_landing() {
+  local stage="$1"
+  local deadline=$((SECONDS + 30))
+  local raw="$private_root/hierarchy-$stage-landing.raw.log"
+  local attempt="$private_root/hierarchy-$stage-landing-attempt.raw.log"
+  local found=false
+  local status=0
+  local attempt_number=0
+  : >"$raw"
+  while ((SECONDS <= deadline)); do
+    attempt_number=$((attempt_number + 1))
+    set +e
+    bash "$maestro_runner" --udid "$device" hierarchy --compact \
+      >"$attempt" 2>&1
+    status=$?
+    set -e
+    {
+      printf '%s\n' "attempt=$attempt_number status=$status"
+      cat "$attempt"
+    } >>"$raw"
+    if ((status == 0)) && grep -Fq 'landing_route' "$attempt"; then
+      found=true
+      break
+    fi
+    sleep 1
+  done
+  rm -f -- "$attempt"
+  sanitize_log "$raw" "$artifacts/hierarchy-$stage-landing.log"
+  [[ "$found" == true ]] \
+    || die "$stage did not expose landing_route before timeout"
 }
 
 wait_for_property_input() {
