@@ -250,6 +250,70 @@ def test_maestro_failure_is_sanitized_and_named_before_fail_closed_exit() -> Non
     assert "maestro.raw.log" not in function[named_failure:]
 
 
+def test_maestro_outputs_are_private_and_failure_diagnostics_are_best_effort() -> None:
+    text = source()
+    match = re.search(r"run_maestro_stage\(\) \{\n(.*?)\n\}", text, flags=re.S)
+    assert match is not None
+    function = match.group(1)
+
+    command = function.index("bash tools/simulator/maestro_with_watchdog.sh test")
+    test_output = function.index(
+        '--test-output-dir "$private_stage/test-output"', command
+    )
+    debug_output = function.index(
+        '--debug-output "$private_stage/debug-output"', command
+    )
+    flatten = function.index("--flatten-debug-output", command)
+    flow = function.index('"$flow"', command)
+    capture_status = function.index("maestro_status=$?", flow)
+    failure_branch = function.index("if ((maestro_status != 0)); then")
+    failure_diagnostics = function.index(
+        'capture_failed_maestro_diagnostics "$stage" "$private_stage" || true',
+        failure_branch,
+    )
+    named_failure = function.index(
+        'die "Maestro stage $stage failed with exit $maestro_status',
+        failure_diagnostics,
+    )
+
+    assert command < test_output < flow < capture_status
+    assert command < debug_output < flow
+    assert command < flatten < flow
+    assert failure_branch < failure_diagnostics < named_failure
+    assert "$HOME/.maestro" not in function
+
+    helper_match = re.search(
+        r"capture_failed_maestro_diagnostics\(\) \{\n(.*?)\n\}", text, flags=re.S
+    )
+    assert helper_match is not None
+    helper = helper_match.group(1)
+    assert 'xcrun simctl io "$device" screenshot "$artifacts/maestro-$stage.png"' in helper
+    assert "hierarchy --compact" not in helper
+    assert 'python3 - "$private_stage/debug-output" "$hierarchy_raw"' in helper
+    assert 'glob("commands-*.json")' in helper
+    assert '["metadata"]["error"]["hierarchyRoot"]' in helper
+    assert "path.is_symlink()" in helper
+    assert (
+        'sanitize_log "$hierarchy_raw" '
+        '"$artifacts/hierarchy-maestro-$stage.log"'
+        in helper.replace("\\\n", "")
+    )
+    assert 'rm -f -- "$artifacts/maestro-$stage.png"' in helper
+    assert 'rm -f -- "$artifacts/hierarchy-maestro-$stage.log"' in helper
+    assert helper.rstrip().endswith("return 0")
+
+    semantic_check = function.index(
+        'python3 - "$artifacts/maestro-$stage-report.sanitized.xml"'
+    )
+    strict_hierarchy = function.index(
+        'capture_hierarchy "maestro-$stage" "$anchor"', semantic_check
+    )
+    strict_screenshot = function.index(
+        'capture_screenshot "maestro-$stage"', strict_hierarchy
+    )
+    assert named_failure < semantic_check < strict_hierarchy < strict_screenshot
+
+
 def test_rvc_is_a_separate_required_exact_sha_stage() -> None:
     text = source()
     rvc_call = text.index("patrol_return01_rvc_lpp_scan_return.sh")

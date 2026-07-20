@@ -302,6 +302,68 @@ capture_screenshot() {
     || die "$label screenshot is missing"
 }
 
+capture_failed_maestro_diagnostics() {
+  local stage=$1
+  local private_stage=$2
+  local hierarchy_raw="$private_stage/failure-hierarchy.raw.log"
+
+  if xcrun simctl io "$device" screenshot "$artifacts/maestro-$stage.png" \
+    >"$private_stage/failure-screenshot.raw.log" 2>&1; then
+    [[ -s "$artifacts/maestro-$stage.png" \
+      && ! -L "$artifacts/maestro-$stage.png" ]] \
+      || rm -f -- "$artifacts/maestro-$stage.png" || true
+  else
+    rm -f -- "$artifacts/maestro-$stage.png" || true
+  fi
+
+  if python3 - "$private_stage/debug-output" "$hierarchy_raw" \
+    2>"$private_stage/failure-hierarchy-extract.raw.log" <<'PY'
+import json
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1]).resolve(strict=True)
+destination = pathlib.Path(sys.argv[2])
+for path in reversed(sorted(root.glob("commands-*.json"))):
+    if path.is_symlink() or not path.is_file():
+        continue
+    resolved = path.resolve(strict=True)
+    if resolved.parent != root:
+        continue
+    try:
+        commands = json.loads(resolved.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        continue
+    if not isinstance(commands, list):
+        continue
+    for command in reversed(commands):
+        try:
+            hierarchy = command["metadata"]["error"]["hierarchyRoot"]
+        except (KeyError, TypeError):
+            continue
+        if not isinstance(hierarchy, (dict, list)):
+            continue
+        destination.write_text(
+            json.dumps(hierarchy, ensure_ascii=False, separators=(",", ":"), sort_keys=True),
+            encoding="utf-8",
+        )
+        raise SystemExit(0)
+raise SystemExit(1)
+PY
+  then
+    if sanitize_log "$hierarchy_raw" "$artifacts/hierarchy-maestro-$stage.log"; then
+      [[ -s "$artifacts/hierarchy-maestro-$stage.log" \
+        && ! -L "$artifacts/hierarchy-maestro-$stage.log" ]] \
+        || rm -f -- "$artifacts/hierarchy-maestro-$stage.log" || true
+    else
+      rm -f -- "$artifacts/hierarchy-maestro-$stage.log" || true
+    fi
+  else
+    rm -f -- "$artifacts/hierarchy-maestro-$stage.log" || true
+  fi
+  return 0
+}
+
 run_maestro_stage() {
   local stage=$1
   local flow=''
@@ -345,6 +407,9 @@ run_maestro_stage() {
     MINT_WALKER_ARTIFACTS="$private_stage" \
       bash tools/simulator/maestro_with_watchdog.sh test \
         --device "$device" --format JUNIT \
+        --test-output-dir "$private_stage/test-output" \
+        --debug-output "$private_stage/debug-output" \
+        --flatten-debug-output \
         --output "$private_stage/report.xml" "$flow"
   ) >"$private_stage/maestro.raw.log" 2>&1
   maestro_status=$?
@@ -361,6 +426,7 @@ run_maestro_stage() {
     junit_retained=true
   fi
   if ((maestro_status != 0)); then
+    capture_failed_maestro_diagnostics "$stage" "$private_stage" || true
     die "Maestro stage $stage failed with exit $maestro_status; sanitized log retained"
   fi
   [[ "$junit_retained" == true ]] \
