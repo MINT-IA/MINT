@@ -654,7 +654,10 @@ run_patrol_stage() {
   local raw="$private_root/patrol-$stage.raw.log"
   local patrol_status=0
   local app_container witness_source witness_name
-  local -a first_job_define=()
+  # Bash 3.2 + `set -u` treats an empty-array expansion as unbound. Keep one
+  # explicit false value for non-First-Job stages and replace it only for the
+  # bounded work proof.
+  local -a first_job_define=(--dart-define=MINT_TEST_FIRST_JOB=false)
   witness_name=$(witness_name_for_stage "$stage") \
     || die "unknown Patrol stage $stage"
   case "$stage" in

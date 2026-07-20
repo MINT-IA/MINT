@@ -240,7 +240,10 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
     assert post_container < post_fingerprint < relocated < same_data
     assert "production overlay changed app data container" not in function
     assert "containerIdentityPreserved" not in text
-    assert "local -a first_job_define=()" in text
+    assert (
+        "local -a first_job_define=(--dart-define=MINT_TEST_FIRST_JOB=false)"
+        in text
+    )
     assert (
         "work_save) first_job_define=(--dart-define=MINT_TEST_FIRST_JOB=true)"
         in text
