@@ -131,3 +131,36 @@ this proven contradiction.
 The audit noted exact-whitespace parsing as a possible future test-maintenance
 cost, with no correctness finding. Runtime acceptance still requires a fresh
 full exact-SHA run.
+
+## Fresh-install readiness and Maestro isolation audit disposition
+
+Accepted audit: `opus-startup-isolation-audit.txt` — **PASS**, P0=0,
+P1=0.
+
+The third diagnostic run on exact pushed SHA
+`f851da9790ed76f3367d4adb5e2a395278c4a5b5` proved Work Patrol 1/1 and
+failed Work Maestro on `first_job_ledger_facts`. Direct inspection of Maestro's
+failure screenshot showed the production landing screen, proving the deep link
+raced cold-start router readiness. A bounded device reproduction that waited
+for `landing_route` before opening `/first-job` passed 1/1; its screenshot was
+directly inspected and showed the intended Premier emploi screen and CTA.
+Work and Succession now lock this readiness ordering because they are the two
+runner stages that uninstall before the black-box flow.
+
+1. **Overlay-preserved flows lack the same landing wait.** Accepted pending
+   runtime evidence, not widened speculatively: those three stages preserve an
+   existing data container and may not render `landing_route`; their strict
+   route anchors fail closed if a link is lost.
+2. **Global raw Maestro traces.** The runner now sends both test and debug
+   outputs into the private stage. Independent passing and intentionally failing
+   dry flows created zero new `~/.maestro/tests` directories. The failing dry
+   proved `commands-*.json`, log and screenshot land under private
+   `debug-output`; the hierarchy extractor therefore reads only that directory,
+   rejects symlinks/out-of-root files, and sanitises `hierarchyRoot` before
+   retention. A simctl screenshot is best-effort, while the original named
+   Maestro failure remains authoritative.
+3. **Acceptance remains outstanding.** These fixes and dry proofs do not compose
+   with prior partial Patrol evidence. The full matrix must restart on one new
+   exact pushed SHA.
+
+No audit rerun is warranted. Runtime remains fail-closed.

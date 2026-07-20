@@ -1,0 +1,39 @@
+# MINT External Audit — Verdict: **PASS**
+
+## Scope
+Two commits over base `f851da9`, 157 lines, entirely test/tooling. No production `apps/mobile/lib` code changed (verified via `git diff --stat … -- apps/mobile/lib` → empty). Two concerns audited: (1) `landing_route` router-readiness wait added to fresh-install Maestro flows, (2) new `capture_failed_maestro_diagnostics` best-effort failure helper.
+
+## Verification performed
+
+**Facade-without-wiring — anchor is real and wired**
+- `landing_route` is a live `Semantics(identifier: 'landing_route')` on the launch screen: `apps/mobile/lib/screens/landing_screen.dart:86`. Not a dead selector.
+- The wait is scoped exactly to the two flows that cold-start from an empty install (`work_save`, `succession_save`), which are precisely the stages that `xcrun simctl uninstall` before launch: `tools/simulator/patrol_return01_six_origin.sh:378-381`. Design is coherent — the readiness gate is added where the cold-start race actually exists.
+- Dart test `fresh-install Maestro flows wait for router readiness…` asserts `launchApp < landing_route wait < openLink` ordering for both flows (`g1_return01_six_origin_runtime_test.dart:100-118`); matches the checked-in YAML (`g1_return01_work_return.yaml:4-9`, `g1_return01_succession_return.yaml:4-9`).
+
+**CLI flags are forwarded (not silently dropped)**
+- New `--test-output-dir`/`--debug-output`/`--flatten-debug-output`/`--output` land on `maestro_with_watchdog.sh`, which forwards all args verbatim: `bash "$MAESTRO_ENV" "$@"` (`maestro_with_watchdog.sh:155`). No arg-parsing barrier.
+
+**Privacy — failure diagnostics are sanitized**
+- Extracted UI hierarchy is written to a private path (`$private_stage/failure-hierarchy.raw.log`) then passed through `sanitize_log` before landing in `$artifacts` (`patrol_return01_six_origin.sh:319-360`). `sanitize_log` redacts repo/home/private-temp/UDID and all UUIDs (`:176-201`), output `chmod 600`.
+- Debug/test output dirs point at `$private_stage`, not `~/.maestro`; the orchestrator test enforces `"$HOME/.maestro" not in function`.
+- Screenshot png is written unsanitized to `$artifacts` — acceptable and consistent with the success-path `capture_screenshot` (`:297-303`); witnesses assert `syntheticDataOnly` so no real PII in frames.
+
+**Fail-closed / no false-PASS risk**
+- Helper is invoked only on `maestro_status != 0`, guarded with `|| true`, and always `return 0` (`:305-364`, `:418`), so it cannot mask the failure — the subsequent `die` still fires. On success the helper never runs, so no artifact-name collision with success-path `maestro-$stage.png` / `hierarchy-maestro-$stage.log`.
+- Symlink/path-traversal hardening in the extractor: `path.is_symlink()`, `resolved.parent != root`, `resolve(strict=True)`, type-guards on parsed JSON (`:325-345`).
+- Any die aborts before metadata is written, so a failing run yields no evidence bundle — no path to a spurious PASS.
+
+**Test/impl fidelity**
+- `test_maestro_outputs_are_private_and_failure_diagnostics_are_best_effort` asserts each concrete token (`--flatten-debug-output`, `capture_failed_maestro_diagnostics … || true`, `["metadata"]["error"]["hierarchyRoot"]`, `path.is_symlink()`, `rm -f` cleanups, `return 0`) and ordering `failure_branch < diagnostics < named_failure < semantic_check < strict_hierarchy < strict_screenshot` — all present in the shell source. Tests are strict, not tautological.
+
+## Findings
+
+**P0:** none.
+**P1:** none.
+
+**P2 (observation, not blocking):** The three seed-preserving flows (`housing_cancel`, `disability_validation_cancel`, `frontalier_inline`) also `launchApp`→`openLink` after a production-overlay reinstall and did *not* receive the `landing_route` gate. They share the same theoretical cold-start deep-link race. This is not a regression from this diff (pre-existing) and is fail-closed: if a deep link were dropped, the flow's later `extendedWaitUntil` on the result anchor times out and fails loudly — no false PASS. Worth applying the same gate for symmetry/robustness.
+
+## Evidence gaps
+None material. The privacy/correctness claims are provable from static source. A live gate would require running `tools/simulator/patrol_return01_six_origin.sh` on a booted sim (not available in this audit), but that is a runtime-flakiness concern, not a correctness/compliance one.
+
+**Verdict: PASS**
