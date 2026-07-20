@@ -60,6 +60,72 @@ def test_runner_requires_all_versioned_mobile_contracts_at_the_exact_sha() -> No
         assert token in text
 
 
+def test_stage_mappings_are_bash_32_compatible_and_executable(tmp_path: Path) -> None:
+    text = source()
+    assert "declare -A" not in text
+    assert re.search(r"\$\{(?:maestro_flows|witness_names|final_anchors)\[", text) is None
+
+    functions: list[str] = []
+    for name in (
+        "maestro_flow_for_stage",
+        "witness_name_for_stage",
+        "final_anchor_for_stage",
+    ):
+        match = re.search(rf"{name}\(\) \{{\n.*?\n\}}", text, flags=re.S)
+        assert match is not None, f"missing Bash-3 mapping function {name}"
+        functions.append(match.group(0))
+
+    expected = {
+        "work_save": (
+            "apps/mobile/.maestro/g1_return01_work_return.yaml",
+            "mint-g1-return01-work_save-witness-v1.json",
+            "first_job_result_cards",
+        ),
+        "housing_cancel": (
+            "apps/mobile/.maestro/g1_return01_housing_cancel_return.yaml",
+            "mint-g1-return01-housing_cancel-witness-v1.json",
+            "mortgage_enrich_profile_cta",
+        ),
+        "disability_validation_cancel": (
+            "apps/mobile/.maestro/g1_return01_disability_return.yaml",
+            "mint-g1-return01-disability_validation_cancel-witness-v1.json",
+            "disability_gap_ledger_facts",
+        ),
+        "succession_save": (
+            "apps/mobile/.maestro/g1_return01_succession_return.yaml",
+            "mint-g1-return01-succession_save-witness-v1.json",
+            "succession_mortgage_missing",
+        ),
+        "frontalier_inline": (
+            "apps/mobile/.maestro/g1_return01_frontalier_inline.yaml",
+            "mint-g1-return01-frontalier_inline-witness-v1.json",
+            "frontier_jurisdiction_known_state",
+        ),
+    }
+    script = tmp_path / "mapping-contract.sh"
+    body = ["#!/bin/bash", "set -eu", *functions]
+    for stage, values in expected.items():
+        body.extend(
+            [
+                f'test "$(maestro_flow_for_stage {stage})" = "{values[0]}"',
+                f'test "$(witness_name_for_stage {stage})" = "{values[1]}"',
+                f'test "$(final_anchor_for_stage {stage})" = "{values[2]}"',
+            ]
+        )
+    body.extend(
+        [
+            "if maestro_flow_for_stage unknown >/dev/null 2>&1; then exit 41; fi",
+            "if witness_name_for_stage unknown >/dev/null 2>&1; then exit 42; fi",
+            "if final_anchor_for_stage unknown >/dev/null 2>&1; then exit 43; fi",
+        ]
+    )
+    script.write_text("\n".join(body) + "\n", encoding="utf-8")
+    result = subprocess.run(
+        ["/bin/bash", str(script)], text=True, capture_output=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
 def test_runner_runs_doctor_and_patrol_guard_before_any_mobile_stage() -> None:
     text = source()
     doctor = text.index("python3 tools/checks/mint_os_doctor.py")
@@ -125,8 +191,8 @@ def test_each_stage_has_exact_maestro_flow_and_strict_witness_contract() -> None
         "frontalier_inline": "g1_return01_frontalier_inline.yaml",
     }
     for stage, flow in expected.items():
-        assert f'[{stage}]="apps/mobile/.maestro/{flow}"' in text
-        assert f'[{stage}]="mint-g1-return01-{stage}-witness-v1.json"' in text
+        assert f"apps/mobile/.maestro/{flow}" in text
+        assert f"mint-g1-return01-{stage}-witness-v1.json" in text
     for token in (
         "validate_stage_witness",
         '"schemaVersion"',

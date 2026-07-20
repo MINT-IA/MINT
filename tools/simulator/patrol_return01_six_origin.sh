@@ -78,37 +78,49 @@ maestro_runner="$repo/tools/simulator/maestro_with_watchdog.sh"
 integration_target='apps/mobile/integration_test/g1_return01_six_origin_patrol_test.dart'
 patrol_wrapper='apps/mobile/test/patrol/g1_return01_six_origin_runtime_test.dart'
 runtime_contract='apps/mobile/test/runtime/g1_return01_six_origin_runtime_test.dart'
-declare -A maestro_flows=(
-  [work_save]="apps/mobile/.maestro/g1_return01_work_return.yaml"
-  [housing_cancel]="apps/mobile/.maestro/g1_return01_housing_cancel_return.yaml"
-  [disability_validation_cancel]="apps/mobile/.maestro/g1_return01_disability_return.yaml"
-  [succession_save]="apps/mobile/.maestro/g1_return01_succession_return.yaml"
-  [frontalier_inline]="apps/mobile/.maestro/g1_return01_frontalier_inline.yaml"
-)
-declare -A witness_names=(
-  [work_save]="mint-g1-return01-work_save-witness-v1.json"
-  [housing_cancel]="mint-g1-return01-housing_cancel-witness-v1.json"
-  [disability_validation_cancel]="mint-g1-return01-disability_validation_cancel-witness-v1.json"
-  [succession_save]="mint-g1-return01-succession_save-witness-v1.json"
-  [frontalier_inline]="mint-g1-return01-frontalier_inline-witness-v1.json"
-)
-declare -A final_anchors=(
-  [work_save]='first_job_result_cards'
-  [housing_cancel]='mortgage_enrich_profile_cta'
-  [disability_validation_cancel]='disability_gap_ledger_facts'
-  [succession_save]='succession_mortgage_missing'
-  [frontalier_inline]='frontier_jurisdiction_known_state'
-)
+
+maestro_flow_for_stage() {
+  case "${1:-}" in
+    work_save) printf '%s\n' 'apps/mobile/.maestro/g1_return01_work_return.yaml' ;;
+    housing_cancel) printf '%s\n' 'apps/mobile/.maestro/g1_return01_housing_cancel_return.yaml' ;;
+    disability_validation_cancel) printf '%s\n' 'apps/mobile/.maestro/g1_return01_disability_return.yaml' ;;
+    succession_save) printf '%s\n' 'apps/mobile/.maestro/g1_return01_succession_return.yaml' ;;
+    frontalier_inline) printf '%s\n' 'apps/mobile/.maestro/g1_return01_frontalier_inline.yaml' ;;
+    *) return 2 ;;
+  esac
+}
+
+witness_name_for_stage() {
+  case "${1:-}" in
+    work_save) printf '%s\n' 'mint-g1-return01-work_save-witness-v1.json' ;;
+    housing_cancel) printf '%s\n' 'mint-g1-return01-housing_cancel-witness-v1.json' ;;
+    disability_validation_cancel) printf '%s\n' 'mint-g1-return01-disability_validation_cancel-witness-v1.json' ;;
+    succession_save) printf '%s\n' 'mint-g1-return01-succession_save-witness-v1.json' ;;
+    frontalier_inline) printf '%s\n' 'mint-g1-return01-frontalier_inline-witness-v1.json' ;;
+    *) return 2 ;;
+  esac
+}
+
+final_anchor_for_stage() {
+  case "${1:-}" in
+    work_save) printf '%s\n' 'first_job_result_cards' ;;
+    housing_cancel) printf '%s\n' 'mortgage_enrich_profile_cta' ;;
+    disability_validation_cancel) printf '%s\n' 'disability_gap_ledger_facts' ;;
+    succession_save) printf '%s\n' 'succession_mortgage_missing' ;;
+    frontalier_inline) printf '%s\n' 'frontier_jurisdiction_known_state' ;;
+    *) return 2 ;;
+  esac
+}
 
 tracked_files=(
   "$integration_target"
   "$patrol_wrapper"
   "$runtime_contract"
-  "${maestro_flows[work_save]}"
-  "${maestro_flows[housing_cancel]}"
-  "${maestro_flows[disability_validation_cancel]}"
-  "${maestro_flows[succession_save]}"
-  "${maestro_flows[frontalier_inline]}"
+  "$(maestro_flow_for_stage work_save)"
+  "$(maestro_flow_for_stage housing_cancel)"
+  "$(maestro_flow_for_stage disability_validation_cancel)"
+  "$(maestro_flow_for_stage succession_save)"
+  "$(maestro_flow_for_stage frontalier_inline)"
   'tools/simulator/patrol_return01_rvc_lpp_scan_return.sh'
   'tools/simulator/patrol_return01_six_origin.sh'
   'tools/simulator/maestro_with_watchdog.sh'
@@ -292,7 +304,10 @@ capture_screenshot() {
 
 run_maestro_stage() {
   local stage=$1
-  local flow=${maestro_flows[$stage]}
+  local flow=''
+  local anchor=''
+  flow=$(maestro_flow_for_stage "$stage") || die "unknown Maestro stage $stage"
+  anchor=$(final_anchor_for_stage "$stage") || die "unknown Maestro stage $stage"
   local private_stage="$private_root/maestro-$stage"
   local container_before=''
   local container_after=''
@@ -346,7 +361,7 @@ errors = sum(int(s.attrib.get("errors", "0")) for s in suites)
 if tests < 1 or failures != 0 or errors != 0:
     raise SystemExit("Maestro JUnit is not a clean pass")
 PY
-  capture_hierarchy "maestro-$stage" "${final_anchors[$stage]}"
+  capture_hierarchy "maestro-$stage" "$anchor"
   capture_screenshot "maestro-$stage"
 }
 
@@ -456,7 +471,9 @@ archive_xcresult_summary() {
 run_patrol_stage() {
   local stage=$1
   local raw="$private_root/patrol-$stage.raw.log"
-  local app_container witness_source
+  local app_container witness_source witness_name
+  witness_name=$(witness_name_for_stage "$stage") \
+    || die "unknown Patrol stage $stage"
   (
     cd "$source_root/apps/mobile"
     MINT_G1_RETURN01_STAGE="$stage" \
@@ -469,7 +486,7 @@ run_patrol_stage() {
   sanitize_log "$raw" "$artifacts/patrol-$stage.log"
   archive_xcresult_summary "$stage"
   app_container=$(resolve_app_container) || die "$stage app container is invalid"
-  witness_source="$app_container/tmp/${witness_names[$stage]}"
+  witness_source="$app_container/tmp/$witness_name"
   [[ -s "$witness_source" && ! -L "$witness_source" ]] \
     || die "$stage strict witness is missing"
   validate_stage_witness "$stage" "$witness_source" "$artifacts/witness-$stage.json"
