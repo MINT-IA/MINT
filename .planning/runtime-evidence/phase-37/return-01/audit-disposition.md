@@ -164,3 +164,31 @@ runner stages that uninstall before the black-box flow.
    exact pushed SHA.
 
 No audit rerun is warranted. Runtime remains fail-closed.
+
+## Patrol/RVC observability and strict-hierarchy isolation disposition
+
+Accepted audit: `opus-patrol-rvc-observability-audit.txt` — **PASS**, P0=0,
+P1=0.
+
+The fourth exact-SHA run (`81c22f5242e1d657a9130a7d828d8304d5822102`)
+proved Work Patrol 1/1 and Work Maestro 1/1 with strict hierarchy and PNG, then
+failed in Housing Patrol. Its raw failure was lost because Patrol still ran
+under global `set -e`; this is diagnostic progress only, never partial
+acceptance.
+
+1. **Patrol and RVC redirected-command failures.** Both now capture status,
+   restore errexit, sanitise their raw log, and only then emit a named hard
+   failure. Patrol's xcresult summary is best-effort in an isolated subshell so
+   missing/invalid diagnostics cannot replace the primary status. The same
+   latent black hole was closed proactively for the exact-SHA RVC runner.
+2. **Strict hierarchy leaked a second Maestro trace.** `capture_hierarchy` now
+   sets a per-label private Java `user.home` and private walker directory. A
+   bounded live dry returned 0 with a 5045-byte hierarchy, populated only the
+   private Java home, and created zero new real-home Maestro test directories.
+   This directly closes the auditor's P2 evidence request.
+3. **RVC failure evidence directory.** Accepted as the pre-existing evidence
+   output model. Failed evidence is not accepted or composed into a later PASS;
+   a full run must still reach the terminal exactness/privacy/checksum gates.
+
+No audit rerun is warranted. A fresh exact-SHA runtime must now reveal the
+actual Housing Patrol failure if it recurs.

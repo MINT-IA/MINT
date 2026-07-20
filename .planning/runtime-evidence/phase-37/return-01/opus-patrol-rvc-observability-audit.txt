@@ -1,0 +1,30 @@
+# MINT External Audit — `codex/g1-capital-native-proof-20260718` @ HEAD (cd2a9cd20)
+
+**Scope:** `HEAD~1..HEAD` — "fix(g1): retain patrol and rvc diagnostics". 80 lines across a test file and one orchestrator shell script (within 1200-line budget).
+
+## What the diff does
+1. `capture_hierarchy()` — routes maestro `hierarchy` runs through isolated `MAESTRO_OPTS=-Duser.home=…` and `MINT_WALKER_ARTIFACTS=…` under `$private_root` (`patrol_return01_six_origin.sh:290-295`).
+2. `run_patrol_stage()` — wraps `patrol test` in `set +e`/`set -e`, captures exit, sanitizes the log, then on failure best-effort archives the xcresult summary and fail-closes via `die` (`:568-589`).
+3. `run_rvc_stage()` — same status-capture + sanitize + fail-closed pattern for the RVC runner (`:619-629`).
+4. New test `test_hierarchy_patrol_and_rvc_failures_are_isolated_and_observable` pinning the ordering/isolation invariants.
+
+## Verification performed
+- **Wiring (facade check):** `MINT_WALKER_ARTIFACTS` is consumed — `maestro_with_watchdog.sh:61` `ARTIFACT_DIR="${MINT_WALKER_ARTIFACTS:-$REPO_ROOT/.planning/_walker/$TS}"`. Previously it defaulted **into the repo tree** (`$REPO_ROOT/.planning/_walker/…`), so this redirect is a real cleanliness fix, not a facade. `MAESTRO_OPTS` is the documented maestro JVM-opts env var, exported inline to the `maestro_env.sh → $HOME/.maestro/bin/maestro` exec (`maestro_env.sh:41`).
+- **Fail-closed correctness:** In `run_patrol_stage`, `archive_xcresult_summary` (which itself calls `die` on missing xcresult) is confined to `if ! ( set -e; … )`, so diagnostics failure cannot mask the primary `die`; partial sanitized JSON is `rm -f`'d. Both failure paths still terminate non-zero with logs already sanitized.
+- **Privacy:** Retained artifacts on failure (`patrol-$stage.log`, `patrol-$stage-xcresult-summary.sanitized.json`) are sanitized and match the allowlist regex (`:...allowed = re.compile(...)`). Isolation dirs live under `$private_root`, which `cleanup()` `rm -rf`'s. No raw logs promoted to `$artifacts`.
+- **Tests:** `pytest tools/checks/tests/test_g1_return01_six_origin_orchestrator.py` → **18 passed**. Test ordering assertions match current source (`patrol_command < patrol_capture < patrol_restore < patrol_sanitize < patrol_failure < patrol_archive < patrol_die < patrol_pass_archive`).
+- **Shell:** `bash -n` clean.
+
+## Findings
+
+**P0:** none.
+
+**P1:** none.
+
+**P2 (non-blocking):**
+- `capture_hierarchy` `user.home` isolation depends on the external maestro launcher honoring `MAESTRO_OPTS`; this cannot be proven from the repo. If it were ignored, maestro would still write to the real `$HOME/.maestro` — outside the repo tree, so no cleanliness regression, and the repo-polluting path (`MINT_WALKER_ARTIFACTS`) is verifiably wired. Defense-in-depth only. Proof would require an integration run asserting `$private_home/.maestro` is populated and `$HOME/.maestro/tests` is untouched.
+- `run_rvc_stage` writes `$rvc_artifacts` under `$repo/.planning/runtime-evidence/…`; on RVC failure it `die`s before `verify_runtime_sources_clean`, so the tree-clean gate is not reached with those files present. Pre-existing design (evidence output), not introduced here.
+
+## Verdict
+
+**PASS** — Small, correct, fully-wired change. Isolation env vars are consumed by real code paths, failure handling is fail-closed after sanitization with no non-allowlisted artifacts leaked, and the new test suite passes and accurately pins the behavior.
