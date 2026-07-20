@@ -266,7 +266,7 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
     assert "persistent_data=%s" in function[:overlay_log]
     assert '"$container_identity" "$persistent_data"' in function[:overlay_log]
 
-    seeded_label = "housing_cancel | frontalier_inline)"
+    seeded_label = "housing_cancel)"
     seeded_start = function.index(seeded_label)
     seeded_case = function[seeded_start : function.index(";;", seeded_start)]
     assert "simctl uninstall" not in seeded_case
@@ -278,7 +278,9 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
     assert 'xcrun simctl uninstall "$device" "$bundle_id"' in work_case
     assert "container_before=" not in work_case
 
-    reset_label = "disability_validation_cancel | succession_save)"
+    reset_label = (
+        "disability_validation_cancel | succession_save | frontalier_inline)"
+    )
     reset_start = function.index(reset_label)
     reset_case = function[reset_start : function.index(";;", reset_start)]
     assert 'xcrun simctl uninstall "$device" "$bundle_id"' in reset_case
@@ -292,6 +294,92 @@ def test_production_overlay_uses_immutable_app_and_preserves_seeded_data() -> No
         'xcrun simctl install "$device" "$overlay_app"'
     )
     assert '"$stage" "$synthetic_seed"' in function
+
+
+def test_frontalier_maestro_owns_fresh_production_ui_write_and_cold_readback() -> None:
+    flow = (
+        ROOT / "apps/mobile/.maestro/g1_return01_frontalier_inline.yaml"
+    ).read_text(encoding="utf-8")
+
+    fresh_launch = flow.index("- launchApp:\n    clearState: true")
+    first_open = flow.index(
+        '- openLink: "mint:///segments/frontalier"', fresh_launch
+    )
+    residence_tap = flow.index(
+        '- tapOn:\n    id: "frontier_residence_country_field"', first_open
+    )
+    france = flow.index('- tapOn:\n    text: "France.*FR"', residence_tap)
+    work_tap = flow.index(
+        '- tapOn:\n    id: "frontier_work_country_field"', france
+    )
+    switzerland = flow.index(
+        '- tapOn:\n    text: "Suisse.*CH"', work_tap
+    )
+    canton_tap = flow.index(
+        '- tapOn:\n    id: "frontier_work_canton_field"', switzerland
+    )
+    geneva = flow.index('- tapOn:\n    text: "GE"', canton_tap)
+    first_known = flow.index('id: "frontier_jurisdiction_known_state"', geneva)
+    stop = flow.index("- stopApp", first_known)
+    cold_launch = flow.index("- launchApp:\n    clearState: false", stop)
+    second_open = flow.index(
+        '- openLink: "mint:///segments/frontalier"', cold_launch
+    )
+    second_residence = flow.index(
+        'id: "frontier_residence_country_field"', second_open
+    )
+    readback_france = flow.index('text: "France.*FR"', second_residence)
+    readback_switzerland = flow.index(
+        'text: "Suisse.*CH"', readback_france
+    )
+    readback_geneva = flow.index('text: "GE"', readback_switzerland)
+    second_known = flow.index(
+        'id: "frontier_jurisdiction_known_state"', readback_geneva
+    )
+
+    assert fresh_launch < first_open < residence_tap < france < work_tap
+    assert work_tap < switzerland < canton_tap < geneva < first_known
+    assert first_known < stop < cold_launch < second_open < second_residence
+    assert second_residence < readback_france < readback_switzerland
+    assert readback_switzerland < readback_geneva < second_known
+    assert flow.count('openLink: "mint:///segments/frontalier"') == 2
+    for forbidden in (
+        "SharedPreferences",
+        "flutter_secure_storage",
+        "Keychain",
+        "wizard_answers_v2",
+        "q_residence_country",
+        "q_work_country",
+        "q_work_canton",
+        "inputText:",
+        "runScript:",
+    ):
+        assert forbidden not in flow
+
+
+def test_only_housing_cross_build_seed_is_preserved() -> None:
+    patrol = (
+        ROOT
+        / "apps/mobile/integration_test/g1_return01_six_origin_patrol_test.dart"
+    ).read_text(encoding="utf-8")
+    assert (
+        "const _maestroSeedStages = <String>{\n"
+        "  'housing_cancel',\n"
+        "};"
+    ) in patrol
+
+    function_match = re.search(r"run_maestro_stage\(\) \{\n(.*?)\n\}", source(), re.S)
+    assert function_match is not None
+    function = function_match.group(1)
+    seeded_start = function.index("housing_cancel)")
+    seeded_case = function[seeded_start : function.index(";;", seeded_start)]
+    reset_label = "disability_validation_cancel | succession_save | frontalier_inline)"
+    reset_start = function.index(reset_label)
+    reset_case = function[reset_start : function.index(";;", reset_start)]
+    assert "frontalier_inline" not in seeded_case
+    assert "container_before=$(resolve_app_container)" in seeded_case
+    assert 'xcrun simctl uninstall "$device" "$bundle_id"' in reset_case
+    assert "container_before=" not in reset_case
 
 
 def test_disability_maestro_seeds_salary_through_production_ui_before_origin() -> None:

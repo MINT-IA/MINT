@@ -468,11 +468,11 @@ run_maestro_stage() {
         || die 'First Job Maestro proof app is invalid'
       xcrun simctl uninstall "$device" "$bundle_id" >/dev/null 2>&1 || true
       ;;
-    disability_validation_cancel | succession_save)
+    disability_validation_cancel | succession_save | frontalier_inline)
       # These black-box flows own their synthetic save from an empty install.
       xcrun simctl uninstall "$device" "$bundle_id" >/dev/null 2>&1 || true
       ;;
-    housing_cancel | frontalier_inline)
+    housing_cancel)
       # Preserve the integration-test-created synthetic seed while replacing
       # the test host with the physically exported normal application.
       container_before=$(resolve_app_container) \

@@ -126,23 +126,21 @@ void main() {
   });
 
   test(
-      'Patrol teardown preserves only the two seeds consumed by Maestro while pre-clear remains',
+      'Patrol teardown preserves only the Housing seed consumed by Maestro while pre-clear remains',
       () {
     final source = _read(
       'integration_test/g1_return01_six_origin_patrol_test.dart',
     );
     const seededStages = "const _maestroSeedStages = <String>{\n"
         "  'housing_cancel',\n"
-        "  'frontalier_inline',\n"
         "};";
     expect(source, contains(seededStages));
     expect(RegExp("'housing_cancel'").allMatches(seededStages), hasLength(1));
-    expect(
-        RegExp("'frontalier_inline'").allMatches(seededStages), hasLength(1));
     for (final unseededStage in const <String>[
       'work_save',
       'disability_validation_cancel',
       'succession_save',
+      'frontalier_inline',
     ]) {
       expect(seededStages, isNot(contains("'$unseededStage'")));
     }
@@ -213,7 +211,11 @@ void main() {
         expect(source, contains('id: "$selector"'),
             reason: '${entry.key}: $selector');
       }
-      expect(source, isNot(contains('clearState: true')), reason: entry.key);
+      if (entry.key.endsWith('g1_return01_frontalier_inline.yaml')) {
+        expect(source, contains('clearState: true'), reason: entry.key);
+      } else {
+        expect(source, isNot(contains('clearState: true')), reason: entry.key);
+      }
       expect(source, isNot(contains('returnUri=')), reason: entry.key);
     }
     expect(
@@ -409,6 +411,7 @@ void main() {
     for (final path in const <String>[
       '.maestro/g1_return01_work_return.yaml',
       '.maestro/g1_return01_succession_return.yaml',
+      '.maestro/g1_return01_frontalier_inline.yaml',
     ]) {
       final source = _read(path);
       final launch = source.indexOf('- launchApp');
@@ -429,8 +432,6 @@ void main() {
           'mortgage_afford_result',
       '.maestro/g1_return01_disability_return.yaml':
           'disability_gap_ledger_facts',
-      '.maestro/g1_return01_frontalier_inline.yaml':
-          'frontier_residence_country_field',
     };
 
     for (final entry in cases.entries) {
@@ -448,6 +449,112 @@ void main() {
       expect(landingReady, greaterThan(launch), reason: entry.key);
       expect(openLink, greaterThan(landingReady), reason: entry.key);
       expect(routeReady, greaterThan(openLink), reason: entry.key);
+    }
+  });
+
+  test(
+      'Frontalier Maestro creates FR CH GE through production UI then proves cold readback',
+      () {
+    final source = _read('.maestro/g1_return01_frontalier_inline.yaml');
+
+    final freshLaunch = source.indexOf(
+      '- launchApp:\n    clearState: true',
+    );
+    final firstOpen = source.indexOf(
+      '- openLink: "mint:///segments/frontalier"',
+      freshLaunch,
+    );
+    final residenceTap = source.indexOf(
+      '- tapOn:\n    id: "frontier_residence_country_field"',
+      firstOpen,
+    );
+    final france = source.indexOf(
+      '- tapOn:\n    text: "France.*FR"',
+      residenceTap,
+    );
+    final workTap = source.indexOf(
+      '- tapOn:\n    id: "frontier_work_country_field"',
+      france,
+    );
+    final switzerland = source.indexOf(
+      '- tapOn:\n    text: "Suisse.*CH"',
+      workTap,
+    );
+    final cantonTap = source.indexOf(
+      '- tapOn:\n    id: "frontier_work_canton_field"',
+      switzerland,
+    );
+    final geneva = source.indexOf(
+      '- tapOn:\n    text: "GE"',
+      cantonTap,
+    );
+    final firstKnown = source.indexOf(
+      'id: "frontier_jurisdiction_known_state"',
+      geneva,
+    );
+    final stop = source.indexOf('- stopApp', firstKnown);
+    final coldLaunch = source.indexOf(
+      '- launchApp:\n    clearState: false',
+      stop,
+    );
+    final secondOpen = source.indexOf(
+      '- openLink: "mint:///segments/frontalier"',
+      coldLaunch,
+    );
+    final secondResidence = source.indexOf(
+      'id: "frontier_residence_country_field"',
+      secondOpen,
+    );
+    final readbackFrance = source.indexOf(
+      'text: "France.*FR"',
+      secondResidence,
+    );
+    final readbackSwitzerland = source.indexOf(
+      'text: "Suisse.*CH"',
+      readbackFrance,
+    );
+    final readbackGeneva = source.indexOf(
+      'text: "GE"',
+      readbackSwitzerland,
+    );
+    final secondKnown = source.indexOf(
+      'id: "frontier_jurisdiction_known_state"',
+      readbackGeneva,
+    );
+
+    expect(freshLaunch, greaterThanOrEqualTo(0));
+    expect(firstOpen, greaterThan(freshLaunch));
+    expect(residenceTap, greaterThan(firstOpen));
+    expect(france, greaterThan(residenceTap));
+    expect(workTap, greaterThan(france));
+    expect(switzerland, greaterThan(workTap));
+    expect(cantonTap, greaterThan(switzerland));
+    expect(geneva, greaterThan(cantonTap));
+    expect(firstKnown, greaterThan(geneva));
+    expect(stop, greaterThan(firstKnown));
+    expect(coldLaunch, greaterThan(stop));
+    expect(secondOpen, greaterThan(coldLaunch));
+    expect(secondResidence, greaterThan(secondOpen));
+    expect(readbackFrance, greaterThan(secondResidence));
+    expect(readbackSwitzerland, greaterThan(readbackFrance));
+    expect(readbackGeneva, greaterThan(readbackSwitzerland));
+    expect(secondKnown, greaterThan(readbackGeneva));
+    expect(
+      RegExp('openLink: "mint:///segments/frontalier"').allMatches(source),
+      hasLength(2),
+    );
+    for (final forbidden in const <String>[
+      'SharedPreferences',
+      'flutter_secure_storage',
+      'Keychain',
+      'wizard_answers_v2',
+      'q_residence_country',
+      'q_work_country',
+      'q_work_canton',
+      'inputText:',
+      'runScript:',
+    ]) {
+      expect(source, isNot(contains(forbidden)), reason: forbidden);
     }
   });
 }

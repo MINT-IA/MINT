@@ -1,7 +1,63 @@
 appId: ch.mint.app
 ---
-# Black-box companion for the frontalier_inline Patrol stage.
-- launchApp
+# Production-owned black-box proof. Patrol proves the same inline writer
+# independently; this flow creates its own facts through the normal app.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "landing_route"
+    timeout: 20000
+- openLink: "mint:///segments/frontalier"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "frontier_residence_country_field"
+    timeout: 20000
+- tapOn:
+    id: "frontier_residence_country_field"
+- tapOn:
+    text: "France.*FR"
+- assertVisible:
+    text: "France.*FR"
+- tapOn:
+    id: "frontier_work_country_field"
+- tapOn:
+    text: "Suisse.*CH"
+- assertVisible:
+    text: "Suisse.*CH"
+- extendedWaitUntil:
+    visible:
+      id: "frontier_work_canton_field"
+    timeout: 20000
+- tapOn:
+    id: "frontier_work_canton_field"
+- tapOn:
+    text: "GE"
+- assertVisible:
+    text: "GE"
+- scrollUntilVisible:
+    element:
+      id: "frontier_jurisdiction_known_state"
+    direction: DOWN
+- assertVisible:
+    id: "frontier_jurisdiction_known_state"
+
+# A real process stop and state-preserving launch must cold-read the same facts.
+- stopApp
+- launchApp:
+    clearState: false
 - extendedWaitUntil:
     visible:
       id: "landing_route"
@@ -26,13 +82,19 @@ appId: ch.mint.app
 - assertVisible:
     id: "frontier_residence_country_field"
 - assertVisible:
+    text: "France.*FR"
+- assertVisible:
     id: "frontier_work_country_field"
-- scrollUntilVisible:
-    element:
+- assertVisible:
+    text: "Suisse.*CH"
+- extendedWaitUntil:
+    visible:
       id: "frontier_work_canton_field"
-    direction: DOWN
+    timeout: 20000
 - assertVisible:
     id: "frontier_work_canton_field"
+- assertVisible:
+    text: "GE"
 - scrollUntilVisible:
     element:
       id: "frontier_jurisdiction_known_state"

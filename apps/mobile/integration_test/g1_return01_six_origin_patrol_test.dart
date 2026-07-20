@@ -25,7 +25,6 @@ const _supportedStages = <String>{
 };
 const _maestroSeedStages = <String>{
   'housing_cancel',
-  'frontalier_inline',
 };
 
 final class _StageProof {
