@@ -235,3 +235,38 @@ No prior Work or Housing evidence is composed into acceptance. RETURN-01 remains
 `ticket_only` until a fresh pushed exact SHA passes the entire five-origin
 Patrol/Maestro matrix, strict hierarchy and screenshots, RVC, restoration,
 privacy/isolation, metadata, and checksums.
+
+## Immutable production-overlay audit disposition
+
+Accepted audit: `opus-immutable-overlay-audit.txt` — **PASS**, P0=0,
+P1=0; one informational P2 documents the deliberately bounded persistent-data
+roots.
+
+The seventh exact-SHA run
+(`f65e13b1ad4acf134824d8ccf843ecc0006d85f4`) proved Work
+Patrol+Maestro and, for the first time, Housing Patrol 1/1 with exact route,
+collector, no-write and return witnesses. It then failed closed before Housing
+Maestro: installing `normal_app` changed the app data container. No later
+stage, RVC, metadata or checksum exists, so none of those passing atoms is
+accepted or composable.
+
+The cause was an aliasing defect in the evidence runner. `normal_app` pointed
+inside Flutter's mutable build output, which each Patrol invocation rebuilt
+with the test bundle. The later overlay therefore no longer referenced the
+original physically exported normal application. The runner now snapshots the
+fresh production build with `ditto` under its private root before Patrol can
+mutate build outputs. Codesign, xattrs, every overlay and final restoration use
+only that immutable copy.
+
+Seed-preserving overlays remain fail-closed: no uninstall is allowed, the
+pre/post app-container path must be identical, and a deterministic SHA-256 over
+regular non-symlink files in `Documents` and `Library/Preferences` must be
+byte-identical. These roots cover MINT's current app-container persistence;
+secure-storage material is outside the app data container. A future
+Application Support database must explicitly widen this contract rather than
+silently inheriting the claim.
+
+RED was 18 pass / 1 fail on the absent immutable snapshot. GREEN is 19/19
+targeted and 27/27 across the combined RETURN/RVC runner contracts; Bash parse,
+ShellCheck, Python compilation and diff checks pass. A fresh exact pushed SHA
+must still rerun the whole native matrix.

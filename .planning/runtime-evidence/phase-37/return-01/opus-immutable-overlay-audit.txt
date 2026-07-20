@@ -1,0 +1,36 @@
+All 19 orchestrator tests pass, the shell parses cleanly, and I've verified the persistence model. Here is the audit.
+
+## Audit — `codex/g1-capital-native-proof-20260718` worktree diff
+
+**Scope:** two files changed (uncommitted worktree), ~110 net lines — well under the 900-line budget.
+- `tools/simulator/patrol_return01_six_origin.sh`
+- `tools/checks/tests/test_g1_return01_six_origin_orchestrator.py`
+
+**What the change does**
+1. `build_physical_source()` now `ditto`-snapshots the freshly built `Runner.app` into an immutable copy under `$private_root/normal-production-app/Runner.app` and repoints `normal_app` there (script lines 265–286), instead of installing the mutable in-tree build output.
+2. Adds `fingerprint_persistent_app_data()` (lines 378–412): SHA-256 over `Documents` + `Library/Preferences`, with symlink / non-regular-file / directory-symlink guards and `resolve(strict=True)`.
+3. `run_maestro_stage()` now fingerprints the seeded stages' data container **before and after** the production-overlay install and fails closed on drift (lines 434–453).
+4. Tests assert the immutability + before→install→after ordering (`test_production_overlay_uses_immutable_app_and_preserves_seeded_data`).
+
+### Correctness — clean
+- Wiring is real, not a facade: `fingerprint_persistent_app_data` is invoked in the live path at `patrol_return01_six_origin.sh:436` and `:449`, not only in tests.
+- Cleanup ordering is safe despite `normal_app` now living inside `$private_root`: `cleanup()` runs `restore_normal_build` (which installs `$normal_app`) *before* `rm -rf "$private_root"` (lines 226–240), and both restore and the `-d "$normal_app"` guards still hold at that point.
+- The data-preservation invariant is sound for this app: the mobile app persists **exclusively via `SharedPreferences`** (grep shows no `getApplicationSupportDirectory` / Hive / drift / sqflite usage). On iOS that maps to `Library/Preferences/<bundle>.plist`, which the fingerprint covers; file-based writes would land in `Documents`, also covered. Comparing before vs. an app-only `simctl install` (which does not touch the data container) correctly detects any unexpected data mutation, fail-closed.
+
+### Privacy — clean
+- The fingerprint emits only a hex digest; file contents are hashed, never logged (lines 405–410).
+- Symlink and non-regular-file rejection prevents traversal outside the container; `resolve(strict=True)` + device-UDID validation in `resolve_app_container` remain intact.
+
+### Findings
+
+**P0:** none.
+**P1:** none.
+
+**P2 (informational, no action required):** `fingerprint_persistent_app_data` covers only `Documents` and `Library/Preferences` (`patrol_return01_six_origin.sh:389`). This is correct *for the current app* (SharedPreferences-only). If MINT later adopts a DB in `Library/Application Support` (Drift/Hive/sqflite), the "persistent app data unchanged" guarantee would silently under-cover it. Worth a comment pinning the assumption to the SharedPreferences persistence model.
+
+### Verification performed
+- `bash -n tools/simulator/patrol_return01_six_origin.sh` → OK
+- `pytest tools/checks/tests/test_g1_return01_six_origin_orchestrator.py` → 19 passed
+- Persistence-model check: `Grep getApplicationSupportDirectory|Hive|drift|sqflite` under `apps/mobile/lib` → SharedPreferences only, confirming fingerprint coverage is adequate.
+
+## Verdict: **PASS**
