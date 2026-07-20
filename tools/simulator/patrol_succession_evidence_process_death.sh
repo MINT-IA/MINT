@@ -1,0 +1,744 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  echo "Usage: $0 --device <UDID> --bundle-id <bundle> --sha <40-hex> --artifacts <dir>" >&2
+}
+
+die() {
+  echo "patrol_succession_evidence_process_death: $*" >&2
+  exit 2
+}
+
+device=""
+bundle_id=""
+sha=""
+artifacts=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --device) device="${2:-}"; shift 2 ;;
+    --bundle-id) bundle_id="${2:-}"; shift 2 ;;
+    --sha) sha="${2:-}"; shift 2 ;;
+    --artifacts) artifacts="${2:-}"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) usage; die "unknown argument '$1'" ;;
+  esac
+done
+
+[[ "$device" =~ ^[0-9A-Fa-f-]{36}$ ]] || die "--device must be one simulator UDID"
+[[ "$bundle_id" =~ ^[A-Za-z0-9.-]+$ ]] || die "--bundle-id is invalid"
+[[ "$sha" =~ ^[0-9a-f]{40}$ ]] || die "--sha must be a 40-hex commit"
+[[ -n "$artifacts" ]] || die "--artifacts is required"
+
+repo_root="$(git rev-parse --show-toplevel)"
+head_sha="$(git -C "$repo_root" rev-parse HEAD)"
+[[ "$sha" == "$head_sha" ]] || die "--sha must equal current HEAD ($head_sha)"
+evidence_root="$repo_root/.planning/runtime-evidence/phase-37/succession-01"
+[[ -d "$evidence_root" && ! -L "$evidence_root" ]] \
+  || die "G1 SUCCESSION evidence root must be one physical directory"
+artifacts="$(python3 - "$artifacts" <<'PY'
+import sys
+from pathlib import Path
+print(Path(sys.argv[1]).expanduser().resolve(strict=False))
+PY
+)"
+[[ "$(dirname "$artifacts")" == "$evidence_root" ]] \
+  || die "artifacts path must be under the G1 SUCCESSION evidence root"
+artifact_name="$(basename "$artifacts")"
+[[ "$artifact_name" =~ ^runtime-${sha:0:12}-[0-9]{8}T[0-9]{6}Z$ ]] \
+  || die "artifacts basename must bind short SHA and UTC timestamp (runtime-${sha:0:12}-YYYYMMDDTHHMMSSZ)"
+upstream_ref="$(git -C "$repo_root" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}')" \
+  || die "the current branch has no configured upstream"
+git -C "$repo_root" merge-base --is-ancestor "$sha" "$upstream_ref" \
+  || die "--sha is not present on the configured upstream"
+[[ "$sha" == "$(git -C "$repo_root" rev-parse "$upstream_ref")" ]] \
+  || die "--sha must equal the configured upstream head"
+[[ -z "$(git -C "$repo_root" status --porcelain)" ]] \
+  || die "runtime requires a clean worktree"
+
+mobile_root="$repo_root/apps/mobile"
+native_present_contract="apps/mobile/integration_test/g1_succession_native_present_patrol_test.dart"
+absent_write_contract="apps/mobile/integration_test/g1_succession_absent_write_patrol_test.dart"
+cold_read_contract="apps/mobile/integration_test/g1_succession_cold_read_patrol_test.dart"
+native_present_target="apps/mobile/test/patrol/g1_succession_native_present_runtime_test.dart"
+absent_write_target="apps/mobile/test/patrol/g1_succession_absent_write_runtime_test.dart"
+cold_read_target="apps/mobile/test/patrol/g1_succession_cold_read_runtime_test.dart"
+runtime_support="apps/mobile/integration_test/support/g1_succession_runtime_contract.dart"
+flag_off_flow="apps/mobile/.maestro/g1_succession_flag_off.yaml"
+flag_on_flow="apps/mobile/.maestro/g1_succession_progressive.yaml"
+orchestrator_path="tools/simulator/patrol_succession_evidence_process_death.sh"
+maestro_wrapper="tools/simulator/maestro_env.sh"
+generated_patrol_bundle="apps/mobile/test/patrol/test_bundle.dart"
+runtime_paths=(
+  "$native_present_contract"
+  "$absent_write_contract"
+  "$cold_read_contract"
+  "$native_present_target"
+  "$absent_write_target"
+  "$cold_read_target"
+  "$runtime_support"
+  "$flag_off_flow"
+  "$flag_on_flow"
+  "apps/mobile/lib/app.dart"
+  "apps/mobile/lib/models/coach_profile.dart"
+  "apps/mobile/lib/providers/coach_profile_provider.dart"
+  "apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart"
+  "apps/mobile/lib/services/feature_flags.dart"
+  "apps/mobile/lib/services/report_persistence_service.dart"
+  "apps/mobile/lib/widgets/coach/succession_evidence_quest.dart"
+  "tools/checks/tests/test_g1_succession_runtime_orchestrator.py"
+  "tools/checks/mint_os_doctor.py"
+  "tools/checks/patrol_tooling_guard.py"
+  "$orchestrator_path"
+  "$maestro_wrapper"
+)
+
+for runtime_path in "${runtime_paths[@]}"; do
+  [[ -f "$repo_root/$runtime_path" ]] || die "runtime contract is missing: $runtime_path"
+  git -C "$repo_root" ls-files --error-unmatch -- "$runtime_path" >/dev/null \
+    || die "runtime contract is not tracked by HEAD: $runtime_path"
+done
+
+grep -Fq 'successionWriterPid' "$repo_root/$runtime_support" \
+  || die "runtime support lacks the writer PID witness"
+grep -Fq 'successionWriterStateWitness' "$repo_root/$runtime_support" \
+  || die "runtime support lacks the exact state witness"
+grep -Fq 'pid' "$repo_root/$cold_read_contract" \
+  || die "cold reader lacks a distinct-process assertion"
+
+exact_sha_guard() {
+  git -C "$repo_root" diff --quiet "$sha" -- \
+    || die "runtime contract differs from --sha HEAD"
+}
+exact_sha_guard
+[[ -z "$(git -C "$repo_root" ls-files --others --exclude-standard -- apps/mobile tools/simulator)" ]] \
+  || die "untracked runtime files make --sha evidence ambiguous"
+
+verify_maestro_contract() {
+  python3 - "$repo_root/$flag_off_flow" "$repo_root/$flag_on_flow" <<'PY'
+import sys
+from pathlib import Path
+
+off = Path(sys.argv[1]).read_text(encoding="utf-8")
+on = Path(sys.argv[2]).read_text(encoding="utf-8")
+for needle in ("assertVisible", "succession_parents_note", "assertNotVisible", "succession_reference_quest"):
+    if needle not in off:
+        raise SystemExit(f"flag-off flow lacks {needle}")
+for needle in (
+    "succession_reference_quest",
+    "succession_civil_status_guard",
+    "succession_civil_status_confirm",
+    "civil_status_single_choice",
+    "household_save_cta",
+    "succession_instrument_will_question",
+):
+    if needle not in on:
+        raise SystemExit(f"flag-on flow lacks {needle}")
+PY
+}
+verify_maestro_contract
+
+verify_patrol_contracts() {
+  python3 - \
+    "$repo_root/$native_present_contract" \
+    "$repo_root/$absent_write_contract" \
+    "$repo_root/$cold_read_contract" \
+    "$repo_root/$native_present_target" \
+    "$repo_root/$absent_write_target" \
+    "$repo_root/$cold_read_target" <<'PY'
+import sys
+from pathlib import Path
+
+present, writer, reader, *wrappers = [
+    Path(value).read_text(encoding="utf-8") for value in sys.argv[1:]
+]
+for needle in (
+    "succession_instrument_will_source_date",
+    "succession_instrument_will_legal_year",
+    ".enterText(",
+    "EstateEvidenceRoot.fromJsonString",
+    "EstateInstrumentSlotState.confirmedPresent",
+):
+    if needle not in present:
+        raise SystemExit(f"native-present contract lacks {needle}")
+for needle in (
+    "succession_instrument_will_absent",
+    "succession_answer_saved",
+    "successionWriterPid",
+    "successionWriterStateWitness",
+):
+    if needle not in writer:
+        raise SystemExit(f"absent writer lacks {needle}")
+last_saved = writer.rindex("succession_answer_saved")
+next_positions = []
+offset = 0
+while True:
+    position = writer.find("succession_next_question", offset)
+    if position < 0:
+        break
+    next_positions.append(position)
+    offset = position + 1
+if not next_positions or any(position > last_saved for position in next_positions):
+    raise SystemExit("absent writer must stop at the durable acknowledgement before process death")
+if "succession_instrument_inheritancePact_question" in writer:
+    raise SystemExit("absent writer must not render the post-death inheritance-pact question")
+for needle in (
+    "expect(pid, isNot(writerPid))",
+    "successionWriterStateWitness",
+    "EstateInstrumentSlotState.confirmedAbsent",
+    "succession_instrument_inheritancePact_question",
+):
+    if needle not in reader:
+        raise SystemExit(f"cold reader lacks {needle}")
+expected_imports = (
+    "g1_succession_native_present_patrol_test.dart",
+    "g1_succession_absent_write_patrol_test.dart",
+    "g1_succession_cold_read_patrol_test.dart",
+)
+for wrapper, expected in zip(wrappers, expected_imports):
+    if expected not in wrapper:
+        raise SystemExit(f"Patrol wrapper does not bind {expected}")
+PY
+}
+verify_patrol_contracts
+
+for command_name in git python3 tar find shasum xcrun xcodebuild flutter codesign xattr plutil; do
+  command -v "$command_name" >/dev/null 2>&1 || die "$command_name is required"
+done
+patrol_bin="${PATROL_BIN:-$HOME/.pub-cache/bin/patrol}"
+[[ -x "$patrol_bin" ]] || die "Patrol CLI is not executable at $patrol_bin"
+maestro_runner="$repo_root/$maestro_wrapper"
+[[ -r "$maestro_runner" ]] || die "Maestro wrapper is missing"
+xcrun simctl list devices booted | grep -Fq -- "$device" \
+  || die "requested iOS Simulator is not booted"
+
+[[ ! -e "$artifacts" && ! -L "$artifacts" ]] \
+  || die "artifacts directory must not already exist"
+mkdir -p "$artifacts"
+artifacts="$(cd "$artifacts" && pwd -P)"
+chmod 700 "$artifacts"
+
+private_root="$(mktemp -d "${TMPDIR:-/tmp}/mint-g1-succession-${sha:0:12}.XXXXXX")"
+private_root="$(cd "$private_root" && pwd -P)"
+external_build="$private_root/patrol-build"
+mkdir -p "$external_build"
+mobile_build="$mobile_root/build"
+build_backup="$mobile_root/.dart_tool/mint-patrol-g1-succession-build-backup-$sha"
+original_build_present=false
+build_isolation_enabled=false
+restoration_status=pending
+cleanup_status=pending
+generated_bundle_armed=false
+runtime_completed=false
+writer_reader_distinct_pid_verified=false
+state_preserved_across_process_death=false
+no_data_erase_between_writer_reader=false
+production_source_exported_exact=false
+production_source_physical=false
+flag_off_route_anchor_verified=false
+flag_off_quest_absence_verified=false
+flag_on_civil_return_verified=false
+synthetic_data_only=true
+raw_runtime_outputs_retained=false
+
+remove_generated_bundle() {
+  if [[ "$generated_bundle_armed" == true && (-e "$repo_root/$generated_patrol_bundle" || -L "$repo_root/$generated_patrol_bundle") ]]; then
+    [[ -f "$repo_root/$generated_patrol_bundle" && ! -L "$repo_root/$generated_patrol_bundle" ]] \
+      || return 1
+    rm -f -- "$repo_root/$generated_patrol_bundle" || return 1
+  fi
+  generated_bundle_armed=false
+}
+
+restore_build_isolation() {
+  [[ "$build_isolation_enabled" == true ]] || return 0
+  local failed=0
+  if [[ -L "$mobile_build" ]]; then
+    [[ "$(readlink "$mobile_build")" == "$external_build" ]] || failed=1
+    ((failed == 0)) && rm -- "$mobile_build" || true
+  elif [[ -e "$mobile_build" ]]; then
+    failed=1
+  fi
+  if [[ "$original_build_present" == true ]]; then
+    [[ ! -e "$mobile_build" && ! -L "$mobile_build" && -d "$build_backup" && ! -L "$build_backup" ]] \
+      || failed=1
+    ((failed == 0)) && mv -- "$build_backup" "$mobile_build" || true
+  else
+    [[ ! -e "$build_backup" && ! -L "$build_backup" ]] || failed=1
+  fi
+  if ((failed == 0)); then
+    restoration_status=restored
+    build_isolation_enabled=false
+    return 0
+  fi
+  restoration_status=failed
+  return 1
+}
+
+cleanup() {
+  local status=$?
+  trap - EXIT HUP INT TERM
+  local failed=0
+  remove_generated_bundle || failed=1
+  restore_build_isolation || failed=1
+  rm -rf -- "$private_root" || failed=1
+  if ((failed == 0)); then
+    cleanup_status=passed
+  else
+    cleanup_status=failed
+  fi
+  if ((status == 0 && failed != 0)); then
+    status=2
+  fi
+  exit "$status"
+}
+trap cleanup EXIT HUP INT TERM
+
+[[ ! -e "$repo_root/$generated_patrol_bundle" && ! -L "$repo_root/$generated_patrol_bundle" ]] \
+  || die "pre-existing generated Patrol bundle is ambiguous"
+
+mkdir -p "$mobile_root/.dart_tool"
+[[ ! -e "$build_backup" && ! -L "$build_backup" ]] || die "build backup collision"
+build_isolation_enabled=true
+if [[ -e "$mobile_build" || -L "$mobile_build" ]]; then
+  [[ -d "$mobile_build" && ! -L "$mobile_build" ]] \
+    || die "pre-existing build path is not a physical directory"
+  original_build_present=true
+  mv "$mobile_build" "$build_backup"
+fi
+ln -s "$external_build" "$mobile_build"
+
+python3 - "$device" >"$artifacts/device.sha256" <<'PY'
+import hashlib
+import sys
+print(hashlib.sha256(sys.argv[1].encode()).hexdigest())
+PY
+
+: >"$artifacts/source-manifest.sha256"
+for runtime_path in "${runtime_paths[@]}"; do
+  printf '%s  %s\n' \
+    "$(shasum -a 256 "$repo_root/$runtime_path" | awk '{print $1}')" \
+    "$runtime_path" >>"$artifacts/source-manifest.sha256"
+done
+
+sanitize_log() {
+  local raw="$1"
+  local retained="$2"
+  python3 - "$raw" "$retained" "$repo_root" "$HOME" "$device" "$private_root" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+raw, retained, repo, home, device, private = sys.argv[1:]
+text = Path(raw).read_text(encoding="utf-8", errors="replace")
+for value, token in (
+    (repo, "REDACTED_REPO"),
+    (home, "REDACTED_HOME"),
+    (device, "REDACTED_SIMULATOR_UDID"),
+    (private, "REDACTED_PRIVATE_TEMP"),
+):
+    if value:
+        text = text.replace(value, token)
+text = re.sub(r"/(?:private/)?var/folders/[^\s\"'<>]+", "REDACTED_PRIVATE_TEMP", text)
+text = re.sub(r"/(?:private/)?tmp/[^\s\"'<>]+", "REDACTED_PRIVATE_TEMP", text)
+Path(retained).write_text(text, encoding="utf-8")
+PY
+  rm -f -- "$raw"
+}
+
+run_logged() {
+  local name="$1"
+  shift
+  local raw="$private_root/$name.raw.log"
+  local status
+  set +e
+  "$@" >"$raw" 2>&1
+  status=$?
+  set -e
+  sanitize_log "$raw" "$artifacts/$name.log"
+  ((status == 0)) || exit "$status"
+}
+
+reset_external_build() {
+  [[ -L "$mobile_build" && "$(readlink "$mobile_build")" == "$external_build" ]] \
+    || die "Patrol build isolation drifted"
+  rm -rf -- "$external_build"
+  mkdir -p "$external_build"
+  [[ ! -e "$repo_root/$generated_patrol_bundle" && ! -L "$repo_root/$generated_patrol_bundle" ]] \
+    || die "generated Patrol bundle exists before stage build"
+  generated_bundle_armed=true
+}
+
+patrol_app=""
+patrol_host=""
+patrol_xctestrun=""
+inspect_patrol_build() {
+  local expected_target="$1"
+  local products="$external_build/ios_integ/Build/Products"
+  patrol_app="$(find "$products" -type d -path '*/Debug-iphonesimulator/Runner.app' -print -quit 2>/dev/null || true)"
+  patrol_host="$(find "$products" -type d -path '*/Debug-iphonesimulator/RunnerUITests-Runner.app' -print -quit 2>/dev/null || true)"
+  patrol_xctestrun="$(find "$products" -maxdepth 2 -type f -name '*.xctestrun' -print -quit 2>/dev/null || true)"
+  [[ -d "$patrol_app" && -d "$patrol_host" && -f "$patrol_xctestrun" ]] \
+    || die "Patrol build products are incomplete"
+  [[ "$(plutil -extract CFBundleIdentifier raw -o - "$patrol_app/Info.plist")" == "$bundle_id" ]] \
+    || die "Patrol app bundle id drifted"
+  [[ "$(plutil -extract CFBundleIdentifier raw -o - "$patrol_host/Info.plist")" == "$bundle_id.RunnerUITests.xctrunner" ]] \
+    || die "Patrol host bundle id drifted"
+  python3 - "$repo_root/$generated_patrol_bundle" "$expected_target" <<'PY'
+import sys
+from pathlib import Path
+source = Path(sys.argv[1]).read_text(encoding="utf-8")
+target = sys.argv[2].rsplit("/", 1)[-1]
+if source.count(target) != 1:
+    raise SystemExit("generated Patrol bundle is not the exact single target")
+PY
+}
+
+summarize_xcresult() {
+  local stage="$1"
+  local result_bundle="$2"
+  local raw="$private_root/$stage-xcresult.raw.json"
+  local stderr="$private_root/$stage-xcresult.raw.log"
+  set +e
+  xcrun xcresulttool get test-results summary --path "$result_bundle" --compact \
+    >"$raw" 2>"$stderr"
+  local status=$?
+  set -e
+  sanitize_log "$stderr" "$artifacts/$stage-xcresult-tool.log"
+  ((status == 0)) || exit "$status"
+  python3 - "$raw" "$artifacts/$stage-xcresult-summary.sanitized.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+passed, failed = payload.get("passedTests"), payload.get("failedTests")
+if passed != 1 or failed != 0:
+    raise SystemExit(f"expected exact 1/1 PASS, got passed={passed}, failed={failed}")
+Path(sys.argv[2]).write_text(
+    json.dumps({"failed_tests": failed, "passed_tests": passed}, sort_keys=True) + "\n",
+    encoding="utf-8",
+)
+PY
+  rm -f -- "$raw"
+}
+
+run_patrol_stage() {
+  local stage="$1"
+  local target="$2"
+  reset_external_build
+  local build_raw="$private_root/$stage-build.raw.log"
+  set +e
+  (cd "$mobile_root" && "$patrol_bin" --verbose build ios \
+    --target "${target#apps/mobile/}" \
+    --simulator --bundle-id "$bundle_id" \
+    --dart-define=MINT_PATROL_CLI=true \
+    --dart-define=MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION=true) \
+    >"$build_raw" 2>&1
+  local build_status=$?
+  set -e
+  sanitize_log "$build_raw" "$artifacts/$stage-build.log"
+  ((build_status == 0)) || exit "$build_status"
+  inspect_patrol_build "$target"
+  local result_bundle="$external_build/$stage.xcresult"
+  local test_raw="$private_root/$stage-test.raw.log"
+  set +e
+  xcodebuild test-without-building \
+    -xctestrun "$patrol_xctestrun" \
+    -only-testing "RunnerUITests/RunnerUITests" \
+    -parallel-testing-enabled NO \
+    -destination "platform=iOS Simulator,id=$device" \
+    -resultBundlePath "$result_bundle" >"$test_raw" 2>&1
+  local test_status=$?
+  set -e
+  sanitize_log "$test_raw" "$artifacts/$stage-test.log"
+  ((test_status == 0)) || exit "$test_status"
+  summarize_xcresult "$stage" "$result_bundle"
+  remove_generated_bundle
+  exact_sha_guard
+}
+
+capture_screenshot() {
+  local name="$1"
+  local private_image="$private_root/$name"
+  xcrun simctl io "$device" screenshot "$private_image" >/dev/null
+  [[ -s "$private_image" ]] || die "screenshot $name is empty"
+  python3 - "$private_image" <<'PY'
+import struct
+import sys
+from pathlib import Path
+payload = Path(sys.argv[1]).read_bytes()
+if len(payload) < 24 or payload[:8] != b"\x89PNG\r\n\x1a\n":
+    raise SystemExit("PNG signature or dimensions are invalid")
+width, height = struct.unpack(">II", payload[16:24])
+if width < 320 or height < 480:
+    raise SystemExit("PNG signature or dimensions are invalid")
+PY
+  install -m 600 "$private_image" "$artifacts/$name"
+}
+
+reject_source_aliases() {
+  local root="$1"
+  python3 - "$root" <<'PY'
+import os
+import stat
+import sys
+for current, directories, files in os.walk(sys.argv[1], followlinks=False):
+    for name in (*directories, *files):
+        value = os.lstat(os.path.join(current, name))
+        if stat.S_ISLNK(value.st_mode):
+            raise SystemExit("physical archive contains a symlink")
+        if stat.S_ISREG(value.st_mode) and value.st_nlink > 1:
+            raise SystemExit("physical archive contains a hardlink alias")
+PY
+}
+
+flag_off_app=""
+flag_on_app=""
+export_production_source() {
+  local stage="$1"
+  local root="$private_root/production-$stage"
+  local archive="$private_root/production-$stage.tar"
+  mkdir -p "$root"
+  local raw="$private_root/production-$stage-export.raw.log"
+  set +e
+  git -C "$repo_root" archive --format=tar "$sha" -- apps/mobile \
+    >"$archive" 2>"$raw"
+  local status=$?
+  set -e
+  sanitize_log "$raw" "$artifacts/production-$stage-export.log"
+  ((status == 0)) || exit "$status"
+  printf 'stage=%s\nsource_sha=%s\narchive_sha256=%s\n' \
+    "$stage" "$sha" "$(shasum -a 256 "$archive" | awk '{print $1}')" \
+    >>"$artifacts/production-$stage-export.log"
+  tar -xf "$archive" -C "$root"
+  rm -f -- "$archive"
+  reject_source_aliases "$root/apps/mobile"
+  printf '%s\n' "$root/apps/mobile"
+}
+
+build_production_app() {
+  local stage="$1"
+  local enable_succession="$2"
+  local source_root
+  source_root="$(export_production_source "$stage")"
+  # export_production_source runs in command substitution; set truth witnesses
+  # here in the parent shell only after archive extraction and alias rejection.
+  production_source_exported_exact=true
+  production_source_physical=true
+  local raw="$private_root/production-$stage-build.raw.log"
+  set +e
+  if [[ "$enable_succession" == true ]]; then
+    (cd "$source_root" && flutter build ios --simulator --debug --target lib/main.dart \
+      --dart-define=MINT_TEST_SUCCESSION_EVIDENCE_COLLECTION=true) >"$raw" 2>&1
+  else
+    (cd "$source_root" && flutter build ios --simulator --debug --target lib/main.dart) \
+      >"$raw" 2>&1
+  fi
+  local status=$?
+  set -e
+  sanitize_log "$raw" "$artifacts/production-$stage-build.log"
+  ((status == 0)) || exit "$status"
+  local app="$source_root/build/ios/iphonesimulator/Runner.app"
+  [[ -d "$app" ]] || die "$stage production app is missing"
+  [[ "$(plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist")" == "$bundle_id" ]] \
+    || die "$stage production bundle id drifted"
+  run_logged "production-$stage-codesign" codesign --verify --strict --deep "$app"
+  run_logged "production-$stage-xattrs" xattr -r "$app"
+  if grep -Eq 'com\.apple\.(FinderInfo|ResourceFork)' "$artifacts/production-$stage-xattrs.log"; then
+    die "$stage production app contains forbidden extended attributes"
+  fi
+  if [[ "$stage" == flag_off ]]; then flag_off_app="$app"; else flag_on_app="$app"; fi
+  exact_sha_guard
+}
+
+install_production_app() {
+  local stage="$1"
+  local app="$2"
+  run_logged "production-$stage-install" xcrun simctl install "$device" "$app"
+}
+
+run_maestro() {
+  local stage="$1"
+  local flow="$2"
+  local raw="$private_root/maestro-$stage.raw.log"
+  local report="$private_root/maestro-$stage.raw.xml"
+  set +e
+  bash "$maestro_runner" test --udid "$device" --format JUNIT \
+    --debug-output "$private_root/maestro-$stage-debug" \
+    --test-output-dir "$private_root/maestro-$stage-output" \
+    --output "$report" "$repo_root/$flow" >"$raw" 2>&1
+  local status=$?
+  set -e
+  sanitize_log "$raw" "$artifacts/maestro-$stage.log"
+  ((status == 0)) || exit "$status"
+  [[ -s "$report" ]] || die "$stage Maestro report is missing"
+  sanitize_log "$report" "$artifacts/maestro-$stage-report.sanitized.xml"
+  python3 - "$artifacts/maestro-$stage-report.sanitized.xml" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+root = ET.parse(sys.argv[1]).getroot()
+failures = sum(int(suite.attrib.get("failures", "0")) for suite in root.iter("testsuite"))
+tests = sum(int(suite.attrib.get("tests", "0")) for suite in root.iter("testsuite"))
+if tests < 1 or failures != 0:
+    raise SystemExit(f"invalid Maestro result tests={tests} failures={failures}")
+PY
+  exact_sha_guard
+}
+
+python3 "$repo_root/tools/checks/mint_os_doctor.py" >"$private_root/doctor.raw.log" 2>&1 \
+  || { sanitize_log "$private_root/doctor.raw.log" "$artifacts/doctor.log"; exit 1; }
+sanitize_log "$private_root/doctor.raw.log" "$artifacts/doctor.log"
+python3 "$repo_root/tools/checks/patrol_tooling_guard.py" >"$private_root/patrol-tooling.raw.log" 2>&1 \
+  || { sanitize_log "$private_root/patrol-tooling.raw.log" "$artifacts/patrol-tooling.log"; exit 1; }
+sanitize_log "$private_root/patrol-tooling.raw.log" "$artifacts/patrol-tooling.log"
+
+# Production-default proof is built from a physical exact archive with no
+# succession define. Its visible route anchor makes quest absence non-vacuous.
+build_production_app "flag_off" false
+install_production_app "flag_off" "$flag_off_app"
+run_maestro "flag_off" "$flag_off_flow"
+flag_off_route_anchor_verified=true
+flag_off_quest_absence_verified=true
+capture_screenshot "flag-off.png"
+
+# This is the exact production entrypoint with one test-only compile define,
+# not a Patrol app. Maestro proves the civil guard, canonical DataBlock and
+# return to the next exact succession question.
+build_production_app "flag_on" true
+install_production_app "flag_on" "$flag_on_app"
+run_maestro "flag_on" "$flag_on_flow"
+flag_on_civil_return_verified=true
+capture_screenshot "civil-return.png"
+
+run_patrol_stage "native_present" "$native_present_target"
+install_production_app "flag_on-present" "$flag_on_app"
+run_logged "flag-on-present-launch" xcrun simctl launch "$device" "$bundle_id"
+run_logged "flag-on-present-openurl" xcrun simctl openurl "$device" "mint:///succession"
+sleep 2
+capture_screenshot "native-present.png"
+
+run_patrol_stage "absent_write" "$absent_write_target"
+
+# Make process death explicit without erasing the app data container. The
+# absent writer contract stored the exact strict-root state and its PID.
+run_logged "writer-launch-boundary" xcrun simctl launch "$device" "$bundle_id"
+xcrun simctl terminate "$device" "$bundle_id" >"$private_root/writer-terminate.raw.log" 2>&1 \
+  || { sanitize_log "$private_root/writer-terminate.raw.log" "$artifacts/writer-terminate.log"; exit 1; }
+sanitize_log "$private_root/writer-terminate.raw.log" "$artifacts/writer-terminate.log"
+no_data_erase_between_writer_reader=true
+reset_external_build
+
+run_patrol_stage "cold_read" "$cold_read_target"
+writer_reader_distinct_pid_verified=true
+state_preserved_across_process_death=true
+
+# Reinstalling (never uninstalling) the exact flag-on production app preserves
+# the cold-reader container and yields a clean-chrome deterministic screenshot.
+install_production_app "flag_on-cold" "$flag_on_app"
+run_logged "flag-on-cold-launch" xcrun simctl launch "$device" "$bundle_id"
+run_logged "flag-on-cold-openurl" xcrun simctl openurl "$device" "mint:///succession"
+sleep 2
+capture_screenshot "cold-continuation.png"
+
+runtime_completed=true
+
+expected_stage_artifacts=(
+  native_present-build.log
+  native_present-test.log
+  native_present-xcresult-summary.sanitized.json
+  absent_write-build.log
+  absent_write-test.log
+  absent_write-xcresult-summary.sanitized.json
+  cold_read-build.log
+  cold_read-test.log
+  cold_read-xcresult-summary.sanitized.json
+)
+for retained in "${expected_stage_artifacts[@]}"; do
+  [[ -s "$artifacts/$retained" ]] || die "retained stage evidence is missing: $retained"
+done
+
+python3 - "$artifacts/metadata.json" <<PY
+import json
+from pathlib import Path
+payload = {
+    "schemaVersion": 1,
+    "caseId": "G1-SUCCESSION-01",
+    "sourceSha": "$sha",
+    "bundleId": "$bundle_id",
+    "deviceSha256": Path("$artifacts/device.sha256").read_text().strip(),
+    "pushedShaVerified": True,
+    "productionSourceMode": "git_archive_physical",
+    "productionSourceExportedExact": $production_source_exported_exact,
+    "productionSourcePhysical": $production_source_physical,
+    "flagOffRouteAnchorVerified": $flag_off_route_anchor_verified,
+    "flagOffQuestAbsenceVerified": $flag_off_quest_absence_verified,
+    "flagOnCivilReturnVerified": $flag_on_civil_return_verified,
+    "patrolStages": ["native_present", "absent_write", "cold_read"],
+    "writerReaderDistinctPidVerified": $writer_reader_distinct_pid_verified,
+    "statePreservedAcrossProcessDeath": $state_preserved_across_process_death,
+    "noDataEraseBetweenWriterReader": $no_data_erase_between_writer_reader,
+    "syntheticDataOnly": $synthetic_data_only,
+    "rawRuntimeOutputsRetained": $raw_runtime_outputs_retained,
+    "runtimeCompleted": $runtime_completed,
+    "cleanupStatus": "pending_until_exit",
+    "restorationStatus": "pending_until_exit",
+}
+Path("$artifacts/metadata.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+PY
+
+python3 - "$artifacts" <<'PY'
+import hashlib
+import json
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+images = {}
+for path in sorted(root.glob("*.png")):
+    images[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
+(root / "screenshot-sha256.json").write_text(json.dumps(images, indent=2, sort_keys=True) + "\n")
+PY
+
+restore_build_isolation || die "build restoration failed"
+remove_generated_bundle || die "generated Patrol bundle cleanup failed"
+rm -rf -- "$private_root" || die "private runtime cleanup failed"
+cleanup_status=passed
+trap - EXIT HUP INT TERM
+python3 - "$artifacts/metadata.json" "$cleanup_status" "$restoration_status" <<'PY'
+import json
+import sys
+from pathlib import Path
+path = Path(sys.argv[1])
+payload = json.loads(path.read_text())
+payload["cleanupStatus"] = sys.argv[2]
+payload["restorationStatus"] = sys.argv[3]
+path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+PY
+
+python3 - "$artifacts" <<'PY'
+import hashlib
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+lines = []
+for path in sorted(root.iterdir(), key=lambda value: value.name):
+    if not path.is_file() or path.name == "SHA256SUMS":
+        continue
+    lines.append(f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}")
+(root / "SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+PY
+exact_sha_guard
+
+python3 - "$artifacts" "$repo_root" "$HOME" "$device" <<'PY'
+import sys
+from pathlib import Path
+root, repo, home, device = sys.argv[1:]
+for path in Path(root).iterdir():
+    if path.suffix not in {".log", ".json", ".xml", ".sha256"} and path.name not in {"SHA256SUMS"}:
+        continue
+    data = path.read_bytes()
+    for private in (repo, home, device):
+        if private.encode() in data:
+            raise SystemExit(f"retained evidence leaks a private identifier: {path.name}")
+PY
+
+echo "patrol_succession_evidence_process_death: PASS"
