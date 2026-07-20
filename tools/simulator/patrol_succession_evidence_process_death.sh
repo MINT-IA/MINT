@@ -121,6 +121,28 @@ from pathlib import Path
 
 off = Path(sys.argv[1]).read_text(encoding="utf-8")
 on = Path(sys.argv[2]).read_text(encoding="utf-8")
+
+def require_deep_link_confirmation(flow, label):
+    markers = (
+        '- openLink: "mint:///data-block/patrimoine?inputKey=q_property_market_value&returnUri=/succession"',
+        '- runFlow:\n    when:\n      visible: "Ouvrir"',
+        '- tapOn: "Ouvrir"',
+        '- runFlow:\n    when:\n      visible: "Open"',
+        '- tapOn: "Open"',
+        'id: "property_market_value_input"',
+    )
+    cursor = 0
+    for marker in markers:
+        position = flow.find(marker, cursor)
+        if position < 0:
+            raise SystemExit(
+                f"{label} flow lacks required iOS deep-link confirmation order at {marker!r}"
+            )
+        cursor = position + len(marker)
+
+require_deep_link_confirmation(off, "flag-off")
+require_deep_link_confirmation(on, "flag-on")
+
 for needle in ("assertVisible", "succession_parents_note", "assertNotVisible", "succession_reference_quest"):
     if needle not in off:
         raise SystemExit(f"flag-off flow lacks {needle}")
