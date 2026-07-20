@@ -353,3 +353,34 @@ pass 116/116 and targeted analysis is clean.
 
 No prior runtime atoms are composed. A new pushed exact SHA must restart all
 stages.
+
+## Housing semantic-boundary audit disposition
+
+Accepted audits: `opus-housing-semantics-boundary-code-audit.txt` and
+`opus-housing-semantics-boundary-product-domain-audit.txt` — both **PASS**,
+P0=0 and P1=0. Their P2 notes are non-blocking and pre-existing: the widget
+geometry test uses a synthetic insertion context, and Mortgage still displays
+the unchanged static 45% confidence value. Neither observation is introduced
+or widened by this native semantics boundary fix.
+
+The eleventh exact-SHA run
+(`da84012ff43d1a9376645c3017d9009195d99cab`) proved Work
+Patrol+Maestro, Housing Patrol, relocated-container data identity, Housing
+router readiness, and native discovery of `mortgage_enrich_profile_cta`.
+Housing Maestro then tapped that id but never reached `salary_input`. Direct
+inspection of the retained screenshot and hierarchy showed the correct
+Capacité d'achat screen and a semantics node spanning the whole confidence
+notice (`[24,531]-[378,703]`); its centre lay outside the visible CTA. No later
+stage is accepted.
+
+The CTA `Semantics` node now declares `container: true`, preserving a distinct
+native accessibility boundary around exactly the actionable
+`GestureDetector`. The test first failed because the node was not a container,
+then GREEN proves the action rectangle is smaller than and contained within the
+notice while body taps remain inert. Widget/runtime/navigation suites pass
+116/116, targeted analysis is clean, and the implementation is committed as
+`a3150e84e`.
+
+No prior runtime atoms are composed. A fresh pushed exact SHA must restart the
+complete matrix and prove the real native hit bounds before RETURN-01 can move
+out of `ticket_only`.

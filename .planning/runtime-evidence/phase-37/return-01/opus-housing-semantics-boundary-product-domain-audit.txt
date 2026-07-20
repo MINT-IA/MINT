@@ -1,0 +1,30 @@
+Product/domain verdict: PASS
+
+## Scope of change
+The unstaged diff is narrow and purely accessibility/semantics:
+- `mint_confidence_notice.dart:93` adds `container: true` to the `Semantics` wrapper around the optional CTA, so the CTA becomes its own discrete accessible node (button) distinct from the surrounding notice.
+- `mint_confidence_notice_test.dart` strengthens the test to assert `container == true`, that the CTA rect is strictly smaller than the notice and geometrically contained within it, and that tapping the message body does **not** trigger `onTap`.
+
+No Swiss financial constants, thresholds, routing, or copy were touched. The change cannot alter any AVS/LPP/3a/tax/mortgage/insurance/succession computation.
+
+## Findings
+
+### P0
+None.
+
+### P1
+None. The change is confined to a11y node grouping and matching test assertions; no domain logic, compliance copy, or ledger write-back path is affected.
+
+### P2
+- `affordability_screen.dart:281` — `percent: 45` is a hard-coded literal confidence, not a value derived from which ledger inputs are known/estimated. This is **pre-existing** (outside this diff) but worth flagging: a static "Fiabilité : 45 %" is not justified per-user and undercuts the known/missing/estimated distinction the notice exists to convey. Not introduced here, so not a blocker for this diff.
+- `mint_confidence_notice.dart:30` — `_isLow` threshold `< 50` is a UI/tone constant only (peche vs sauge surface), no domain meaning; acceptable.
+
+## Swiss domain review
+- **Mortgage**: The only consumer touched by the test is the affordability screen. The confidence notice routes the user to `/data-block/revenu` (inputKey `q_gross_salary_annual`) with `returnUri: /hypotheque` — correct progressive-collection + return-to-originating-scenario behavior. Unchanged by this diff.
+- **AVS / LPP / 3a / tax / insurance / succession**: Not affected. No pension, tax, or inheritance logic is in scope.
+- No new compliance-sensitive copy, no advice/ranking/guarantee language introduced.
+
+## Mint product logic review
+The change reinforces the ledger → DataQuest spine indirectly: the confidence CTA (the "improve my data" affordance that feeds the Data Ledger) is now a properly isolated, screen-reader-addressable button rather than an ambiguous region, and the test proves the whole notice is not accidentally actionable. This is a legitimate a11y correctness fix that keeps the missing-data → enrich-profile handoff intact. It moves nothing backward on the scenario/dossier spine and does not regress source-of-truth handling.
+
+Proof of correctness available via `flutter test apps/mobile/test/widgets/premium/mint_confidence_notice_test.dart` (the file-scrape sub-test also pins the stable identifier `mortgage_enrich_profile_cta` against `affordability_screen.dart`).

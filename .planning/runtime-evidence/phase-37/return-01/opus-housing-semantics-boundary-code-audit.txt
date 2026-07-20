@@ -1,0 +1,24 @@
+## MINT External Audit — Code Mode
+
+**Scope:** Unstaged worktree change to `MintConfidenceNotice` (a11y semantics `container: true`) + its test. Base `da84012ff`. Diff well within 300-line budget.
+
+### What the change does
+- `mint_confidence_notice.dart:93` adds `container: true` to the `Semantics` node wrapping the CTA. This forces the CTA into its own standalone semantics container so `bySemanticsIdentifier` resolves to *only* the button subtree, not the whole notice.
+- `mint_confidence_notice_test.dart` strengthens the assertions: verifies `container == true`, that the action rect is strictly smaller than and geometrically contained within the notice, and that only the CTA (not the whole card) is tappable.
+
+### Verification performed
+- **Tests pass:** `flutter test test/widgets/premium/mint_confidence_notice_test.dart` → `+2: All tests passed!` (both the widget test and the source-contract test).
+- **No facade risk — CTA is fully wired:** `affordability_screen.dart:285-293` routes `onTap` to `context.push('/data-block/revenu?inputKey=q_gross_salary_annual&returnUri=/hypotheque')`. The `/data-block/:type` route is really registered (`app.dart:2336`, `route_metadata.dart:1176`), and the same `revenu`/`q_gross_salary_annual`/`returnUri` pattern is used consistently elsewhere in the codebase.
+- **Contract holds:** the `actionSemanticsIdentifier: 'mortgage_enrich_profile_cta'` string asserted by the source-contract test is present at `affordability_screen.dart:284`.
+- **No privacy/compliance surface:** pure UI/semantics change; no data collection, logging, or PII handling introduced. `percent`/`message` are display-only.
+
+### Findings
+- **P0:** none
+- **P1:** none
+- **P2 (non-blocking):** The test's `find.byKey(const Key('confidence_notice'))` uses a test-local key that differs from production's `Key('mortgage_enrich_profile_cta')` (`affordability_screen.dart:280`). Harmless, but note the geometric containment assertions exercise a synthetic layout, not the production insertion context. No action required.
+
+### Verdict
+
+**PASS**
+
+Clean, correctly-tested accessibility fix; CTA is genuinely wired to an existing route with no facade or regression risk.
