@@ -292,8 +292,10 @@ Required proof sequence:
 2. **Truthful civil-guard setup:** a fresh profile defaults to confirmed
    `celibataire`; it cannot prove this branch. Run the isolated
    `civil_guard_seed` Patrol setup first. It persists the quarantined legacy
-   `q_civil_status='partenariat'`, does not complete mini-onboarding, reloads the
-   provider and verifies `civilStatusNeedsConfirmation == true`. Then install
+   `q_civil_status='partenariat'`, does not complete mini-onboarding, and uses
+   `CoachProfile.fromWizardAnswers(persisted)` for a fresh model rehydration
+   verifying `civilStatusNeedsConfirmation == true`. It does not claim that the
+   minimal pre-onboarding answers make the provider publish a profile. Then install
    the exact flag-on production app over the same container with **no uninstall
    or clear** before Maestro.
 3. **Civil guard/return:** in that seeded flag-on production app, scroll to

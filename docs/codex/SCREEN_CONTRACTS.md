@@ -483,8 +483,10 @@ confirmed `celibataire` with `civilStatusNeedsConfirmation == false`. The guard
 proof must therefore not pretend that a clean install naturally reaches it.
 The runtime contract uses a separate Patrol setup stage, `civil_guard_seed`, to
 persist the quarantined legacy value `q_civil_status='partenariat'` while
-leaving mini-onboarding incomplete, then verifies a fresh provider instance reports
-`civilStatusNeedsConfirmation == true`. Bare `partenariat` is deliberately
+leaving mini-onboarding incomplete, then verifies a fresh model rehydration via
+`CoachProfile.fromWizardAnswers(persisted)` reports
+`civilStatusNeedsConfirmation == true`. The minimal pre-onboarding answers do
+not make `CoachProfileProvider` publish a profile. Bare `partenariat` is deliberately
 ambiguous; it is not confirmation of registered partnership or concubinage.
 
 After that setup stage, the runner installs the exact flag-on production app
