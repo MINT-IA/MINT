@@ -512,7 +512,9 @@ export_production_source() {
     >>"$artifacts/production-$stage-export.log"
   tar -xf "$archive" -C "$root"
   rm -f -- "$archive"
-  reject_source_aliases "$root/apps/mobile"
+  # Bash 3.2 disables errexit inside command substitution. Keep this explicit:
+  # otherwise the following printf can mask a failed physical-source guard.
+  reject_source_aliases "$root/apps/mobile" || exit 1
   printf '%s\n' "$root/apps/mobile"
 }
 
