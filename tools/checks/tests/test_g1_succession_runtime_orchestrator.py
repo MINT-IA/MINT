@@ -513,6 +513,56 @@ def test_runner_primes_clears_reinstalls_and_opens_flag_off_maestro_route() -> N
     assert "grep -Fq 'landing_route'" in landing_poll
     assert 'sanitize_log "$raw" "$artifacts/hierarchy-$stage-landing.log"' in landing_poll
 
+    quest_probe = text.split("wait_for_succession_quest() {", 1)[1].split(
+        'python3 "$repo_root/tools/checks/mint_os_doctor.py"', 1
+    )[0]
+    private_flow = quest_probe.split('<<YAML\n', 1)[1].split('\nYAML', 1)[0]
+    for forbidden in ("launchApp", "openLink", "clearState", "stopApp"):
+        assert forbidden not in private_flow
+    scroll = quest_probe.index("- scrollUntilVisible:")
+    scroll_anchor = quest_probe.index('id: "succession_reference_quest"', scroll)
+    direction = quest_probe.index("direction: DOWN", scroll_anchor)
+    assertion = quest_probe.index("- assertVisible:", direction)
+    asserted_anchor = quest_probe.index(
+        'id: "succession_reference_quest"', assertion
+    )
+    maestro = quest_probe.index('bash "$maestro_runner" test --udid "$device"')
+    sanitize_log = quest_probe.index(
+        'sanitize_log "$maestro_raw" "$artifacts/maestro-$stage-quest-probe.log"',
+        maestro,
+    )
+    sanitize_report = quest_probe.index(
+        '"$artifacts/maestro-$stage-quest-probe-report.sanitized.xml"',
+        sanitize_log,
+    )
+    hierarchy = quest_probe.index(
+        'bash "$maestro_runner" --udid "$device" hierarchy --compact',
+        sanitize_report,
+    )
+    strict_anchor = quest_probe.index(
+        "grep -Fq 'succession_reference_quest'", hierarchy
+    )
+    assert (
+        scroll
+        < scroll_anchor
+        < direction
+        < assertion
+        < asserted_anchor
+        < maestro
+        < sanitize_log
+        < sanitize_report
+        < hierarchy
+        < strict_anchor
+    )
+    assert "while ((SECONDS <= deadline))" not in quest_probe
+    for stage in ("native-present", "cold-continuation"):
+        for artifact in (
+            f"maestro-{stage}-quest-probe.log",
+            f"maestro-{stage}-quest-probe-report.sanitized.xml",
+            f"hierarchy-{stage}.log",
+        ):
+            assert artifact in text
+
 
 def test_bound_maestro_flows_match_every_runner_preflight_needle() -> None:
     off = (MOBILE / ".maestro/g1_succession_flag_off.yaml").read_text(
@@ -711,7 +761,10 @@ def test_runner_isolates_and_restores_build_state_and_captures_visuals() -> None
     assert 'bash "$maestro_runner" --udid "$device" hierarchy --compact' in text
     assert "deadline=$((SECONDS + 30))" in text
     assert "succession_reference_quest" in text
-    assert 'sanitize_log "$raw" "$artifacts/hierarchy-$stage.log"' in text
+    assert (
+        'sanitize_log "$hierarchy_raw" "$artifacts/hierarchy-$stage.log"'
+        in text
+    )
 
 
 def test_patrol_bundle_is_removed_before_each_exact_sha_stage_guard() -> None:

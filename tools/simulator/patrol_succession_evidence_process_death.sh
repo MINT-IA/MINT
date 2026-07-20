@@ -869,34 +869,60 @@ wait_for_property_input() {
 
 wait_for_succession_quest() {
   local stage="$1"
-  local deadline=$((SECONDS + 30))
-  local raw="$private_root/hierarchy-$stage.raw.log"
-  local attempt="$private_root/hierarchy-$stage-attempt.raw.log"
-  local found=false
-  local status=0
-  local attempt_number=0
-  : >"$raw"
-  while ((SECONDS <= deadline)); do
-    attempt_number=$((attempt_number + 1))
-    set +e
-    bash "$maestro_runner" --udid "$device" hierarchy --compact \
-      >"$attempt" 2>&1
-    status=$?
-    set -e
-    {
-      printf '%s\n' "attempt=$attempt_number status=$status"
-      cat "$attempt"
-    } >>"$raw"
-    if ((status == 0)) && grep -Fq 'succession_reference_quest' "$attempt"; then
-      found=true
-      break
-    fi
-    sleep 1
-  done
-  rm -f -- "$attempt"
-  sanitize_log "$raw" "$artifacts/hierarchy-$stage.log"
-  [[ "$found" == true ]] \
-    || die "$stage did not expose succession_reference_quest before timeout"
+  local flow="$private_root/maestro-$stage-quest-probe.yaml"
+  local maestro_raw="$private_root/maestro-$stage-quest-probe.raw.log"
+  local report="$private_root/maestro-$stage-quest-probe.raw.xml"
+  local hierarchy_raw="$private_root/hierarchy-$stage.raw.log"
+  local status
+  cat >"$flow" <<YAML
+appId: $bundle_id
+---
+- scrollUntilVisible:
+    element:
+      id: "succession_reference_quest"
+    direction: DOWN
+    timeout: 20000
+    speed: 40
+    visibilityPercentage: 20
+    centerElement: true
+- assertVisible:
+    id: "succession_reference_quest"
+YAML
+  chmod 600 "$flow"
+  if grep -Eq 'launchApp|openLink|clearState|stopApp' "$flow"; then
+    die "$stage quest probe contains a destructive or routing command"
+  fi
+  set +e
+  bash "$maestro_runner" test --udid "$device" --format JUNIT \
+    --debug-output "$private_root/maestro-$stage-quest-probe-debug" \
+    --test-output-dir "$private_root/maestro-$stage-quest-probe-output" \
+    --output "$report" "$flow" >"$maestro_raw" 2>&1
+  status=$?
+  set -e
+  sanitize_log "$maestro_raw" "$artifacts/maestro-$stage-quest-probe.log"
+  ((status == 0)) || exit "$status"
+  [[ -s "$report" ]] || die "$stage quest probe Maestro report is missing"
+  sanitize_log "$report" \
+    "$artifacts/maestro-$stage-quest-probe-report.sanitized.xml"
+  python3 - "$artifacts/maestro-$stage-quest-probe-report.sanitized.xml" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+root = ET.parse(sys.argv[1]).getroot()
+failures = sum(int(suite.attrib.get("failures", "0")) for suite in root.iter("testsuite"))
+tests = sum(int(suite.attrib.get("tests", "0")) for suite in root.iter("testsuite"))
+if tests != 1 or failures != 0:
+    raise SystemExit(f"invalid quest probe result tests={tests} failures={failures}")
+PY
+  set +e
+  bash "$maestro_runner" --udid "$device" hierarchy --compact \
+    >"$hierarchy_raw" 2>&1
+  status=$?
+  set -e
+  sanitize_log "$hierarchy_raw" "$artifacts/hierarchy-$stage.log"
+  ((status == 0)) || exit "$status"
+  grep -Fq 'succession_reference_quest' "$artifacts/hierarchy-$stage.log" \
+    || die "$stage quest probe passed without a hierarchy anchor"
+  exact_sha_guard
 }
 
 python3 "$repo_root/tools/checks/mint_os_doctor.py" >"$private_root/doctor.raw.log" 2>&1 \
@@ -991,6 +1017,9 @@ expected_stage_artifacts=(
   seed-witness-post-overlay.json
   hierarchy-flag_on-seeded-landing.log
   hierarchy-native-present-landing.log
+  maestro-native-present-quest-probe.log
+  maestro-native-present-quest-probe-report.sanitized.xml
+  hierarchy-native-present.log
   native_present-build.log
   native_present-test.log
   native_present-xcresult-summary.sanitized.json
@@ -1001,6 +1030,9 @@ expected_stage_artifacts=(
   cold_read-test.log
   cold_read-xcresult-summary.sanitized.json
   hierarchy-cold-continuation-landing.log
+  maestro-cold-continuation-quest-probe.log
+  maestro-cold-continuation-quest-probe-report.sanitized.xml
+  hierarchy-cold-continuation.log
 )
 for retained in "${expected_stage_artifacts[@]}"; do
   [[ -s "$artifacts/$retained" ]] || die "retained stage evidence is missing: $retained"
