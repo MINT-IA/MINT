@@ -1,0 +1,29 @@
+## MINT External Audit — Code Mode
+
+**Scope:** Unstaged worktree diff (base `ae33f01d`), 2 files, ~150 lines — within budget.
+
+### What changed
+The disability gap "enrich" CTA in `disability_gap_screen.dart:533-550` is now wrapped in `MergeSemantics` + `Semantics(identifier: 'disability_gap_enrich_cta', button: true)` around the existing `TextButton.icon`. The test (`disability_gap_ledger_test.dart`) migrates the "routes next missing fact" case from key-tap to a semantics-node assertion (single merged node, `hasAction(tap)`, `isButton`, containment within the ledger card, and merged-id equality with the underlying `TextButton`).
+
+### Verification performed
+- `flutter test test/screens/disability_gap_ledger_test.dart` → **All 6 tests passed** (including the two router-tap cases that exercise `context.push(route)` → `/data-block/patrimoine?inputKey=q_cash_total` and `/budget/setup`).
+- `flutter analyze` on both files → **No issues found**.
+
+### Routing / correctness
+Route derivation (`disability_gap_screen.dart:493-502`) is unchanged by this diff; the `missingSalary → missingAge → missingSavings → missingExpenses` cascade and the `returnUri: '/invalidite'` query param are preserved. The `onPressed: () => context.push(route)` wiring is intact and covered by both router tests — no facade-without-wiring risk.
+
+### Findings
+
+**P0:** None.
+
+**P1:** None.
+
+**P2 (non-blocking):**
+- `disability_gap_screen.dart:535,538` — the CTA now carries the string `disability_gap_enrich_cta` in two namespaces (semantics `identifier` and widget `Key`). Harmless, but the test suite is now split in intent: the migrated case (`disability_gap_ledger_test.dart:186-191`) locates via `bySemanticsIdentifier`, while "routes missing expenses to budget setup" (line ~301) still taps `find.byKey`. Consider standardizing on one locator to avoid future drift if either handle is removed.
+
+### Privacy / compliance
+No PII surfaced, no new persistence, no network. Change is a pure accessibility refinement (merging icon+label into one focusable button node).
+
+---
+
+## Verdict: **PASS**

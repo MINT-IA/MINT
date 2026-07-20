@@ -1,0 +1,22 @@
+## Product/domain verdict: PASS
+
+This unstaged change is an accessibility/semantics-only refactor of the "enrich" CTA on the disability gap screen. It wraps the existing `TextButton.icon` in `MergeSemantics` + `Semantics(identifier: 'disability_gap_enrich_cta', button: true)` and upgrades the routing test to assert the CTA exposes a single tappable button node contained within the ledger-facts card. No Swiss financial logic, constants, routing targets, or compliance copy were changed.
+
+### Findings
+
+**P0** — none.
+
+**P1** — none. The change does not touch any Swiss-law-sensitive constant, calculator, or advice surface. All domain logic (`DisabilityInsuranceCalculator`, LAI/LPP/LAMal grades, emergency-reserve months) is untouched by this diff.
+
+**P2**
+- `disability_gap_screen.dart:538` — the `Key('disability_gap_enrich_cta')` now lives on the inner `TextButton` while the same string is used as the `Semantics.identifier` on the wrapper. It works (the older test at `disability_gap_ledger_test.dart:315` still finds the key; the new test finds the identifier), but the doubled name is a mild maintenance smell — a reader can't tell at a glance whether tests target the widget key or the semantics node. Consider distinct names.
+- `disability_gap_ledger_test.dart:283-288` — the new geometric assertions (enrich rect contained in ledger rect, area strictly smaller) are layout-coupled and could become brittle under theme/padding changes. Acceptable for an a11y-containment guard, but flag as fragile.
+- Pre-existing (not introduced here, so not blocking this diff): the "nothing missing" branch routes the CTA to edit `q_gross_salary_annual` (`:502`) rather than offering to edit whichever fact the user most likely wants; a fact-row-level edit affordance would be more coherent with the ledger model. Out of scope for this change.
+
+### Swiss domain review
+- **Disability (LAI/LPP/LAMal/APG):** unaffected by this diff. The falaise/countdown/reset/scorecard logic, the `hasIjm` toggle, and the LAI art. 28 / LPP art. 23-26 / LAMal art. 67-77 legal refs (`:227`, `:234`, `:241`) are unchanged. Missing/known fact distinction (`dataBlockStatusMissing`, `dataQualityMissingSection`, "Manquant" ×4) and the `EduDisclaimer` + `EduLegalSources` handoff remain intact.
+- **AVS / 3a / tax / mortgage / inheritance / donation:** not touched.
+- No new constant or threshold was introduced, so there is nothing new to mark unverified.
+
+### Mint product logic review
+Neutral-to-positive on the ledger → DataQuest → scenario → dossier spine. The enrich CTA is part of the progressive-collection loop (routes each missing fact to its targeted `/data-block/...` with `returnUri: '/invalidite'`, `:490`); making it a first-class, screen-reader-addressable button strengthens the DataQuest write-back entry point without duplicating any user variable. Source-of-truth discipline is preserved: facts still come solely from `userProvidedFields` gating (`:49`, `:58`, `:67`, `:77`), and results stay locked until all four facts are truly known (`:304-307`). No facade-without-wiring risk — the CTA's `context.push(route)` is exercised by two routing tests hitting real go_router probes.

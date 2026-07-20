@@ -428,3 +428,35 @@ YAML parsing and diff checks are clean. Implementation commit: `338c06fdb`.
 A new pushed exact SHA must restart the complete RETURN-01 matrix. Promotion
 remains forbidden until every stage, checksum, cleanup and inspected capture is
 complete in one accepted run.
+
+## Disability actionable-semantics audit disposition
+
+Accepted audits: `opus-disability-cta-code-audit.txt` and
+`opus-disability-cta-product-domain-audit.txt` — both **PASS**, P0=0 and P1=0.
+Their P2 notes describe intentional dual proof handles (Flutter `Key` for
+Patrol and native semantics identifier for Maestro), a deliberately strict
+geometry guard, and a pre-existing all-facts-known edit choice. None changes
+the routed missing-fact contract or blocks this accessibility fix.
+
+The thirteenth exact-SHA run
+(`ae33f01df4983686e258cb3080d35496ddc3d6ea`) stopped at
+`.planning/runtime-evidence/phase-37/return-01/runtime-ae33f01df4-20260720T122658Z`.
+It proved Work and Housing Patrol+Maestro, including the newly targeted Housing
+cancel action. Disability Patrol, witness/store preservation, retained invalid
+input and production-overlay data identity also passed. Disability Maestro then
+failed before its first tap because `disability_gap_enrich_cta` was absent from
+the native hierarchy. Direct inspection of all three retained PNGs and the
+hierarchy confirms the visible Enrichir mon profil text was merged into the
+large `disability_gap_ledger_facts` node. No later stage is accepted.
+
+The real Disability `TextButton.icon` now uses `MergeSemantics` with the stable
+identifier and button flag. RED proved no identified semantics node existed;
+GREEN proves the identifier, button flag and `SemanticsAction.tap` belong to
+the same node as the real TextButton, its bounds remain inside and smaller than
+the ledger card, and the original `context.push(route)` reaches the same
+targeted DataBlock. Ledger/runtime/navigation suites pass 121/121 and targeted
+analysis and diff checks are clean. Implementation commit: `422d618e1`.
+
+A fresh pushed exact SHA must restart every RETURN-01 stage. Prior successful
+Work/Housing/Disability Patrol atoms remain diagnostic only and cannot be
+composed into acceptance.
