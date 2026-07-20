@@ -94,66 +94,75 @@ class FrontalierScreen extends StatelessWidget {
           const SizedBox(height: MintSpacing.md),
           _dropdownField(
             label: l10n.frontalierResidenceCountryLabel,
-            child: DropdownButton<String>(
-              key: const Key('frontier_residence_country_field'),
-              value: profile?.residenceCountry?.value,
-              isExpanded: true,
-              hint: Text(l10n.frontalierSelectPlaceholder),
-              items: _countryItems(l10n),
-              onChanged: (value) async {
-                if (value == null) return;
-                await _persistLedgerAnswers(
-                  context,
-                  <String, dynamic>{'q_residence_country': value},
-                );
-              },
+            child: _actionableDropdown(
+              identifier: 'frontier_residence_country_field',
+              child: DropdownButton<String>(
+                key: const Key('frontier_residence_country_field'),
+                value: profile?.residenceCountry?.value,
+                isExpanded: true,
+                hint: Text(l10n.frontalierSelectPlaceholder),
+                items: _countryItems(l10n),
+                onChanged: (value) async {
+                  if (value == null) return;
+                  await _persistLedgerAnswers(
+                    context,
+                    <String, dynamic>{'q_residence_country': value},
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: MintSpacing.md),
           _dropdownField(
             label: l10n.frontalierWorkCountryLabel,
-            child: DropdownButton<String>(
-              key: const Key('frontier_work_country_field'),
-              value: workCountry,
-              isExpanded: true,
-              hint: Text(l10n.frontalierSelectPlaceholder),
-              items: _countryItems(l10n),
-              onChanged: (value) async {
-                if (value == null) return;
-                await _persistLedgerAnswers(
-                  context,
-                  <String, dynamic>{
-                    'q_work_country': value,
-                    if (value != 'CH') 'q_work_canton': null,
-                  },
-                );
-              },
+            child: _actionableDropdown(
+              identifier: 'frontier_work_country_field',
+              child: DropdownButton<String>(
+                key: const Key('frontier_work_country_field'),
+                value: workCountry,
+                isExpanded: true,
+                hint: Text(l10n.frontalierSelectPlaceholder),
+                items: _countryItems(l10n),
+                onChanged: (value) async {
+                  if (value == null) return;
+                  await _persistLedgerAnswers(
+                    context,
+                    <String, dynamic>{
+                      'q_work_country': value,
+                      if (value != 'CH') 'q_work_canton': null,
+                    },
+                  );
+                },
+              ),
             ),
           ),
           if (workCountry == 'CH') ...<Widget>[
             const SizedBox(height: MintSpacing.md),
             _dropdownField(
               label: l10n.frontalierWorkCantonLabel,
-              child: DropdownButton<String>(
-                key: const Key('frontier_work_canton_field'),
-                value: profile?.workCanton?.value,
-                isExpanded: true,
-                hint: Text(l10n.frontalierSelectPlaceholder),
-                items: SwissCantonCode.supportedValues
-                    .map(
-                      (code) => DropdownMenuItem<String>(
-                        value: code,
-                        child: Text(code),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: (value) async {
-                  if (value == null) return;
-                  await _persistLedgerAnswers(
-                    context,
-                    <String, dynamic>{'q_work_canton': value},
-                  );
-                },
+              child: _actionableDropdown(
+                identifier: 'frontier_work_canton_field',
+                child: DropdownButton<String>(
+                  key: const Key('frontier_work_canton_field'),
+                  value: profile?.workCanton?.value,
+                  isExpanded: true,
+                  hint: Text(l10n.frontalierSelectPlaceholder),
+                  items: SwissCantonCode.supportedValues
+                      .map(
+                        (code) => DropdownMenuItem<String>(
+                          value: code,
+                          child: Text(code),
+                        ),
+                      )
+                      .toList(growable: false),
+                  onChanged: (value) async {
+                    if (value == null) return;
+                    await _persistLedgerAnswers(
+                      context,
+                      <String, dynamic>{'q_work_canton': value},
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -169,6 +178,19 @@ class FrontalierScreen extends StatelessWidget {
         border: const OutlineInputBorder(),
       ),
       child: DropdownButtonHideUnderline(child: child),
+    );
+  }
+
+  Widget _actionableDropdown({
+    required String identifier,
+    required Widget child,
+  }) {
+    return MergeSemantics(
+      child: Semantics(
+        identifier: identifier,
+        button: true,
+        child: child,
+      ),
     );
   }
 

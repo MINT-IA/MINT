@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -252,6 +254,50 @@ void _expectFrChGeProfile(_RecordingFrontierProvider provider) {
 }
 
 void main() {
+  testWidgets('real jurisdiction dropdowns expose actionable native ids',
+      (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      final provider = _RecordingFrontierProvider(_knownAnswers());
+      await _pumpScreen(tester, provider);
+
+      final nodeIds = <int>{};
+      for (final identifier in <String>[
+        'frontier_residence_country_field',
+        'frontier_work_country_field',
+        'frontier_work_canton_field',
+      ]) {
+        final action = find.bySemanticsIdentifier(identifier);
+        final dropdown = find.descendant(
+          of: action,
+          matching: find.byType(DropdownButton<String>),
+        );
+        expect(action, findsOneWidget, reason: identifier);
+        expect(dropdown, findsOneWidget, reason: identifier);
+        final actionNode = tester.getSemantics(action);
+        expect(
+          actionNode.getSemanticsData().hasAction(SemanticsAction.tap),
+          isTrue,
+          reason: identifier,
+        );
+        expect(
+          actionNode.getSemanticsData().flagsCollection.isButton,
+          isTrue,
+          reason: identifier,
+        );
+        expect(
+          actionNode.id,
+          tester.getSemantics(dropdown).id,
+          reason: identifier,
+        );
+        nodeIds.add(actionNode.id);
+      }
+      expect(nodeIds, hasLength(3));
+    } finally {
+      semantics.dispose();
+    }
+  });
+
   testWidgets(
       'real dropdown taps persist canonical facts without changing route',
       (tester) async {
