@@ -257,6 +257,9 @@ Targets:
   insertion marker;
 - `apps/mobile/.maestro/g1_succession_progressive.yaml` for the flag-on civil
   guard/return contract;
+- `civil_guard_seed`, a distinct Patrol **setup** stage that persists only the
+  legacy ambiguous `q_civil_status='partenariat'` fixture without completing
+  mini-onboarding;
 - dedicated Patrol targets for native present input, explicit absent write and
   distinct-process cold read;
 - build the flag-on target with
@@ -286,30 +289,51 @@ Required proof sequence:
    scroll down to `succession_reference_quest_flag_off` and assert it visible.
    The marker is attached to the notions-clés heading at the disabled quest
    insertion point; it is not a placeholder quest or a domain-state widget.
-2. **Civil guard/return:** on the flag-on build with ambiguous civil status,
-   scroll to `succession_civil_status_guard`, assert both the
+2. **Truthful civil-guard setup:** a fresh profile defaults to confirmed
+   `celibataire`; it cannot prove this branch. Run the isolated
+   `civil_guard_seed` Patrol setup first. It persists the quarantined legacy
+   `q_civil_status='partenariat'`, does not complete mini-onboarding, reloads the
+   provider and verifies `civilStatusNeedsConfirmation == true`. Then install
+   the exact flag-on production app over the same container with **no uninstall
+   or clear** before Maestro.
+3. **Civil guard/return:** in that seeded flag-on production app, scroll to
+   `succession_civil_status_guard`, assert both the
    `succession_reference_quest` root and guard, tap the stable confirm CTA,
    verify the targeted `q_civil_status` DataBlock, save, and prove return to
    `/succession` without losing query ownership.
-3. **Progressive explicit absence:** choose an arrangement with no preselected
+4. **Progressive explicit absence:** choose an arrangement with no preselected
    value; save; declare will absent; assert durable acknowledgement; explicitly
    advance; assert inheritance-pact question. Unknown must never auto-become
    absent and only one primary slot may be visible.
-4. **Native present input:** in Patrol, choose present, enter a real civil date
+5. **Native present input:** in Patrol, choose present, enter a real civil date
    and legal year through the exact field ids, save, then inspect the persisted
    strict root. No Maestro-only text injection may stand in for the native input
    proof.
-5. **Kill/relaunch:** terminate after will is saved, relaunch without clearing
+6. **Kill/relaunch:** terminate after will is saved, relaunch without clearing
    state, open `/succession`, and assert the next question or stale prior-state
    reconfirmation from cold `wizard_answers_v2`; never seed the reader directly.
-6. **Failure boundaries:** a harnessed persistence failure keeps the question
+7. **Failure boundaries:** a harnessed persistence failure keeps the question
    and retry id; a CAS change reloads instead of overwriting; an invalid root
    exposes only reload/support. These may be widget/Patrol assertions where
    Maestro cannot inject the persistence seam.
-7. **Terminal boundary and screenshots:** inspect representative guard,
+8. **Terminal boundary and screenshots:** inspect representative guard,
    unknown, stale/prior, present-input, absent, failure and terminal screens.
    Terminal copy must visibly deny verified dossier, legal distribution,
    specialist readiness and advice.
+
+Runtime metadata separates setup from evidence stages:
+
+```json
+{
+  "setupPatrolStages": ["civil_guard_seed"],
+  "patrolStages": ["native_present", "absent_write", "cold_read"]
+}
+```
+
+The seed is a fixture-preparation boundary, not an additional writer/reader
+stage and not evidence of process death. The three `patrolStages` retain their
+own native-present, durable absent-write, terminate and distinct-process
+cold-read contract.
 
 Accepted runtime evidence must record exact pushed SHA, app/bundle id, compile
 define state, writer and cold-reader PIDs, Doctor/Patrol/Maestro commands,

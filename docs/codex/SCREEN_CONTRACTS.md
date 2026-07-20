@@ -477,6 +477,26 @@ execution claim: until those flows, real input, kill/relaunch cold reader,
 screenshots and exact-SHA CI are accepted, SUCCESSION-01 remains open;
 G1/G2/G3 promotion is unchanged.
 
+**Civil-guard runtime setup boundary.** A fresh `CoachProfile` is not an
+ambiguous-state fixture: absent `q_civil_status` currently reconstructs as
+confirmed `celibataire` with `civilStatusNeedsConfirmation == false`. The guard
+proof must therefore not pretend that a clean install naturally reaches it.
+The runtime contract uses a separate Patrol setup stage, `civil_guard_seed`, to
+persist the quarantined legacy value `q_civil_status='partenariat'` while
+leaving mini-onboarding incomplete, then verifies a fresh provider instance reports
+`civilStatusNeedsConfirmation == true`. Bare `partenariat` is deliberately
+ambiguous; it is not confirmation of registered partnership or concubinage.
+
+After that setup stage, the runner installs the exact flag-on production app
+**over the existing simulator container**, with no uninstall, state clear or
+backup/restore boundary before Maestro. This preserves the seeded ambiguity so
+the production entrypoint can render the real civil guard and complete the
+canonical DataBlock return. Evidence metadata must list this preparatory stage
+only in `setupPatrolStages: [civil_guard_seed]`; the independent process-death
+chain remains exactly `patrolStages: [native_present, absent_write, cold_read]`.
+Setup seeding is neither a fourth process-death stage nor product runtime proof
+by itself. No PASS is claimed until the complete exact-SHA run is accepted.
+
 #### G1-FRONT-01 stable control/state map
 
 These are checked-in Flutter `Key` values for widget/Patrol selection. They do

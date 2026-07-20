@@ -50,6 +50,10 @@ flowchart TB
   Privacy["Forbidden data<br/>raw document / filename / local path / OCR<br/>bytes / free-form legal content / backend mirror"]:::no
   Cold["kill/relaunch -> cold wizard_answers_v2<br/>provider projections choose next delta"]:::fact
   Runtime["OPEN runtime acceptance<br/>flag off/on Maestro + civil return<br/>Patrol native present input + process death<br/>screenshots + exact-SHA CI"]:::proof
+  FreshSetup["Runtime setup truth<br/>fresh profile defaults to confirmed celibataire<br/>and does NOT render the civil guard"]:::proof
+  CivilSeed["setupPatrolStages: civil_guard_seed<br/>persist legacy q_civil_status = partenariat<br/>mini-onboarding remains incomplete<br/>fresh provider instance requires confirmation"]:::proof
+  FlagOnOverlay["install exact flag-on production app<br/>over the same container<br/>NO uninstall / clear before Maestro"]:::proof
+  ProcessStages["patrolStages only<br/>native_present -> absent_write -> cold_read<br/>setup seed is not process-death evidence"]:::proof
 
   Entry --> Flag
   Flag -- "false" --> Off --> Runtime
@@ -78,6 +82,8 @@ flowchart TB
   Absent --> InstrumentWrite
   InstrumentWrite --> Save
   Order -- "none" --> Terminal --> Boundary --> Runtime
+  Runtime -. "pending civil-guard setup contract" .-> FreshSetup --> CivilSeed --> FlagOnOverlay --> CivilGuard
+  Runtime -. "pending process-death contract" .-> ProcessStages
   Terminal -- "modify exact slot" --> Order
   Root --> Privacy
   Ack --> More
@@ -91,3 +97,5 @@ flowchart TB
   %% SUCC-5 save precedes publish, acknowledgement and next-question selection.
   %% SUCC-6 terminal survey completeness never means legal/dossier readiness.
   %% SUCC-7 runtime promotion needs exact-SHA flag-off/on and cold-reader proof.
+  %% SUCC-8 civil_guard_seed is setup-only and must stay outside patrolStages.
+  %% SUCC-9 flag-on production install preserves the setup container before Maestro.
