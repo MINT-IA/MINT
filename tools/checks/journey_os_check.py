@@ -98,6 +98,7 @@ ALLOW = {
     "services/backend/app/models/consent.py",
     "services/backend/alembic/versions/p125_consent_shred_pending.py",
     "services/backend/tests/services/consent/test_consent_service.py",
+    "services/backend/tests/fixtures/test_pg_fixture_self.py",
     "services/backend/tests/test_allocation_annuelle.py",
     "services/backend/tests/test_arbitrage_allocation_annuelle_grounding.py",
     "services/backend/education_inserts/concepts/avs_cotisations_independants.md",
