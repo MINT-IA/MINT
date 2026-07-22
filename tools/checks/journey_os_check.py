@@ -70,6 +70,8 @@ ALLOW = {
     "apps/mobile/lib/services/retroactive_3a_calculator.dart",
     "apps/mobile/test/services/retroactive_3a_calculator_test.dart",
     "apps/mobile/test/services/phase5_production_bugs_test.dart",
+    ".github/workflows/ci.yml",
+    "tools/checks/ci_gate_aggregation_check.py",
     ".gitignore",
     ".planning/phases/remediation-audit-2026-07/CONTEXT.md",
     ".planning/phases/remediation-audit-2026-07/AUTHORIZED_FILES.md",
