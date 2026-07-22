@@ -102,6 +102,8 @@ class ConsentService:
         get the byte-identical behaviour. New callers (`grant_with_basis`)
         inject `{"basis": "..."}` for audit-trail provenance.
         """
+        # Retry paresseux d'un crypto-shred en attente (MINT_nosync-tqj).
+        self.retry_pending_shreds(db, user_id)
         prev_signature = merkle_chain.latest_signature(db, user_id)
         # Full microsecond precision — two consecutive grants in the same
         # second must order deterministically in verify_chain.
@@ -362,6 +364,7 @@ class ConsentService:
         If purpose == persistence_365d AND this was the last active grant for
         that purpose, `cascade_scheduled=True` and a shred is initiated.
         """
+        self.retry_pending_shreds(db, user_id)
         row: Optional[ConsentModel] = (
             db.query(ConsentModel)
             .filter(
@@ -393,12 +396,49 @@ class ConsentService:
                 .count()
             )
             if active == 0:
-                # Fire immediate shred hook — the 30-day grace period is an
-                # operational policy layered on top (scheduled job deferred
-                # per 29-01 summary). Tests stub shred_hook.
-                self._shred(db, user_id)
+                # Audit T02-F49 (MINT_nosync-tqj): le retour de _shred etait
+                # ignore — l'API affirmait cascade_scheduled=True meme quand
+                # rien n'avait ete efface, sans retry. Desormais un echec est
+                # enregistre DURABLEMENT (shred_pending) et re-tente a chaque
+                # interaction consent (grant/revoke) + sweep exposable en job.
+                # `cascade=True` reste donc veridique : l'effacement est
+                # effectue ou durablement programme.
+                shred_ok = self._shred(db, user_id)
+                if not shred_ok:
+                    logger.error(
+                        "consent.cascade_shred FAILED — marked durable "
+                        "shred_pending user=%s receipt=%s",
+                        user_id,
+                        row.receipt_id,
+                    )
+                    row.shred_pending = True
+                    db.commit()
                 cascade = True
         return row, cascade
+
+    # -- durable shred retry ---------------------------------------------------
+    def retry_pending_shreds(self, db, user_id: str) -> int:
+        """Re-attempt crypto-shreds marked durable by a failed cascade.
+
+        Returns the number of users actually shredded (0 or 1 here). Called
+        lazily from grant()/revoke(); also usable by a periodic sweep.
+        """
+        pending = (
+            db.query(ConsentModel)
+            .filter(
+                ConsentModel.user_id == user_id,
+                ConsentModel.shred_pending.is_(True),
+            )
+            .all()
+        )
+        if not pending:
+            return 0
+        if not self._shred(db, user_id):
+            return 0  # keep the durable flags — retried next interaction
+        for row in pending:
+            row.shred_pending = False
+        db.commit()
+        return 1
 
     # -- list ------------------------------------------------------------------
     def list_for_user(self, db, user_id: str) -> List[ConsentModel]:

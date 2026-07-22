@@ -160,3 +160,61 @@ def test_signature_over_receipt_json_is_deterministic_verifiable(db, service):
     from app.services.consent.receipt_builder import verify_signature
     row = service.grant(db, user_id="u1", purpose="vision_extraction", policy_version="v2.3.0")
     assert verify_signature(row.receipt_json, row.signature)
+
+
+# --- durable shred (audit T02-F49, beads MINT_nosync-tqj) --------------------
+
+def _failing_service():
+    calls = []
+
+    def failing_shred(db, user_id):
+        calls.append(user_id)
+        return False
+
+    svc = ConsentService(shred_hook=failing_shred)
+    svc._shred_calls = calls  # type: ignore[attr-defined]
+    return svc
+
+
+def test_failed_shred_marks_durable_pending(db):
+    """Un shred qui échoue est enregistré durablement (pas fail-open)."""
+    svc = _failing_service()
+    row = svc.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+    revoked, cascade = svc.revoke(db, user_id="u1", receipt_id=row.receipt_id)
+    # cascade reste vrai : l'effacement est durablement programmé (retry).
+    assert cascade is True
+    db.refresh(revoked)
+    assert revoked.shred_pending is True
+
+
+def test_pending_shred_retried_on_next_grant(db):
+    """Le shred en attente est re-tenté à la prochaine interaction consent."""
+    svc = _failing_service()
+    row = svc.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+    svc.revoke(db, user_id="u1", receipt_id=row.receipt_id)
+
+    # Le hook fonctionne à nouveau (p.ex. vault redevenu joignable).
+    svc._shred_hook = lambda db_, uid: True
+    svc.grant(db, user_id="u1", purpose="vision_extraction", policy_version="v2.3.0")
+
+    pending = [r for r in svc.list_for_user(db, "u1") if r.shred_pending]
+    assert pending == []
+
+
+def test_successful_shred_leaves_no_pending(db, service):
+    row = service.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+    revoked, cascade = service.revoke(db, user_id="u1", receipt_id=row.receipt_id)
+    assert cascade is True
+    db.refresh(revoked)
+    assert revoked.shred_pending is False
+
+
+def test_pending_marker_does_not_break_merkle_chain(db):
+    """Le marqueur durable vit HORS receipt_json — la chaîne reste vérifiable."""
+    from app.services.consent.merkle_chain import verify_chain
+
+    svc = _failing_service()
+    row = svc.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+    svc.revoke(db, user_id="u1", receipt_id=row.receipt_id)
+    ok, err = verify_chain(db, "u1")
+    assert ok, f"chaîne cassée: {err}"
