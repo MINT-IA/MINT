@@ -92,49 +92,48 @@ void main() {
       expect(result.totalRetroactive, 7258.0); // 2025 limit
     });
 
-    test('in 2030, max retroactive = 5 years, breakdown = [2025-2029]', () {
+    test('in 2030, annual cap = one petit max — oldest gap (2025) filled', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 10,
         tauxMarginal: 0.30,
         referenceYear: 2030,
       );
 
-      // 2030 - 2025 = 5 eligible years: 2029, 2028, 2027, 2026, 2025
-      expect(result.breakdown.length, 5);
-      final years = result.breakdown.map((e) => e.year).toList();
-      expect(years, contains(2025));
-      expect(years, contains(2029));
-      // No year before 2025
-      for (final y in years) {
-        expect(y, greaterThanOrEqualTo(2025));
+      // 2025-2029 éligibles, mais le rachat payable en 2030 est plafonné à
+      // UN petit max (OPP3 art. 7a) → seule la lacune la plus ancienne (2025)
+      // est comblée cette année-là.
+      expect(result.breakdown.length, 1);
+      expect(result.breakdown.first.year, 2025);
+      expect(result.totalRetroactive, lessThanOrEqualTo(7258.0));
+      for (final entry in result.breakdown) {
+        expect(entry.year, greaterThanOrEqualTo(2025));
       }
     });
 
-    test('in 2035, max retroactive = 10 years, breakdown = [2025-2034]', () {
+    test('in 2035, annual cap still one petit max — oldest gap (2025)', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 10,
         tauxMarginal: 0.30,
         referenceYear: 2035,
       );
 
-      // 2035 - 2025 = 10 eligible years, capped at max 10
-      expect(result.breakdown.length, 10);
-      final years = result.breakdown.map((e) => e.year).toList();
-      expect(years, contains(2025));
-      expect(years, contains(2034));
+      expect(result.breakdown.length, 1);
+      expect(result.breakdown.first.year, 2025);
+      expect(result.totalRetroactive, lessThanOrEqualTo(7258.0));
     });
 
-    test('in 2040, gapYears=10 still capped at 10 (not 15)', () {
+    test('in 2040, 10-year window applies — oldest eligible gap is 2030', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 15,
         tauxMarginal: 0.30,
         referenceYear: 2040,
       );
 
-      // OPP3 art. 7: max 10 years
-      expect(result.gapYears, 10);
-      expect(result.breakdown.length, 10);
-      // Most recent 10 years: 2039..2030 (all >= 2025)
+      // Fenêtre 10 ans (2030-2039) + cap annuel un petit max → la plus
+      // ancienne lacune encore dans la fenêtre (2030) est comblée.
+      expect(result.gapYears, 1);
+      expect(result.breakdown.length, 1);
+      expect(result.breakdown.first.year, 2030);
       for (final entry in result.breakdown) {
         expect(entry.year, greaterThanOrEqualTo(2025));
       }
