@@ -64,9 +64,22 @@ class LppBuybackAdvancedSimulator {
 
       if (y <= staggeringYears) {
         contribution = buybackPerYear;
-        // Estimate tax saving for this year's slice
-        currentYearTaxSaving = RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: contribution, canton: canton);
-        totalTaxSavings += currentYearTaxSaving;
+        // Art. 79b al. 3 LPP (ATF 142 II 399) : un retrait en capital dans
+        // les 3 ans qui suivent un rachat entraine la reprise de la deduction
+        // par l'AFC. Le simulateur retire le capital a la retraite : les
+        // tranches rachetees a moins de 3 ans de l'horizon ne creditent
+        // aucune economie (fix beads MINT_nosync-okl).
+        // Convention temporelle : la contribution est versee en DEBUT d'annee
+        // y (elle produit l'interet de l'annee y, lignes ci-dessous), le
+        // retrait a lieu en fin d'annee [yearsUntilRetirement] -> delai ecoule
+        // = yearsUntilRetirement - y + 1. Un rachat a exactement 3 ans est
+        // AUTORISE (delai echu) — review Codex : bloque ssi delai < 3.
+        final withinBlocage = (yearsUntilRetirement - y + 1) < 3;
+        if (!withinBlocage) {
+          // Estimate tax saving for this year's slice
+          currentYearTaxSaving = RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: contribution, canton: canton);
+          totalTaxSavings += currentYearTaxSaving;
+        }
       }
 
       // Add contribution and interests

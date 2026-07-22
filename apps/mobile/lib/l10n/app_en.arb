@@ -2604,7 +2604,7 @@
   "simLppBuybackBonASavoir": "Good to know",
   "simLppBuybackBonASavoirItem1": "LPP buyback is one of the few tax planning tools accessible to all employees in Switzerland.",
   "simLppBuybackBonASavoirItem2": "Every franc bought back is deductible from your taxable income (LIFD art. 33 al. 1 let. d).",
-  "simLppBuybackBonASavoirItem3": "Warning: any EPL withdrawal is blocked for 3 years after a buyback (LPP art. 79b al. 3).",
+  "simLppBuybackBonASavoirItem3": "Caution: for 3 years after a buyback, no capital withdrawal (retirement or home-ownership) is possible on that amount — withdrawing within that period voids the tax deduction (LPP art. 79b para. 3).",
   "simLppBuybackDisclaimer": "Simulation including fund interest ({fundRate}%) and indicative tax impact spread over {staggeringYears} years for a taxable income of CHF {taxableIncome}. Real return is calculated on your actual net effort.",
   "simRealInterestTitle": "Real Interest Simulator",
   "simRealInterestSubtitle": "Capital + reinvested tax impact (virtual)",

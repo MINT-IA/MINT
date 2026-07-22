@@ -2629,7 +2629,7 @@
   "simLppBuybackBonASavoir": "Bon à savoir",
   "simLppBuybackBonASavoirItem1": "Le rachat LPP est l'un des rares outils de planification fiscale accessibles à tous les salarié·e·s en Suisse.",
   "simLppBuybackBonASavoirItem2": "Chaque franc racheté est déductible de ton revenu imposable (LIFD art. 33 al. 1 let. d).",
-  "simLppBuybackBonASavoirItem3": "Attention : tout retrait EPL est bloqué pendant 3 ans après un rachat (LPP art. 79b al. 3).",
+  "simLppBuybackBonASavoirItem3": "Attention : pendant les 3 ans qui suivent un rachat, aucun retrait en capital (retraite ou EPL) n’est possible sur ce montant — un retrait dans ce délai entraîne la reprise de la déduction (LPP art. 79b al. 3).",
   "simLppBuybackDisclaimer": "Simulation incluant l'intérêt de la caisse ({fundRate} %) et l'impact fiscal indicatif lissé sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.",
   "@simLppBuybackDisclaimer": {
     "placeholders": {

@@ -149,8 +149,17 @@ def _build_rachat_lpp_option(
         # Growth on total
         growth = capital_lpp * rendement_lpp
         capital_lpp += growth
-        # Tax saving
-        annual_tax_saving = this_year_buyback * taux_marginal
+        # Tax saving — art. 79b al. 3 LPP (ATF 142 II 399) : le retrait en
+        # capital (modélisé à la retraite ci-dessous) dans les 3 ans d'un
+        # rachat entraîne la reprise de la déduction par l'AFC. Convention
+        # start-of-year (le rachat produit le rendement de sa propre année,
+        # ci-dessus) : délai écoulé = annees - i ; bloqué ssi < 3.
+        # Fix beads MINT_nosync-okl (review Codex) — le docstring citait déjà
+        # l'art. 79b sans l'implémenter.
+        within_blocage = (annees - i) < 3
+        annual_tax_saving = (
+            0.0 if within_blocage else this_year_buyback * taux_marginal
+        )
         cumulative_tax_saving += annual_tax_saving
 
         trajectory.append(YearlySnapshot(

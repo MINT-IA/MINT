@@ -2698,7 +2698,7 @@
   "simLppBuybackBonASavoir": "Bon à savoir",
   "simLppBuybackBonASavoirItem1": "O resgate LPP é uma das raras ferramentas de planeamento fiscal acessíveis a todos. Cada franco resgatado reduz diretamente o teu rendimento tributável.",
   "simLppBuybackBonASavoirItem2": "Cada franco resgatado é dedutível do teu rendimento tributável (LIFD art. 33 al. 1 let. d). Quanto mais alto for o teu escalão marginal, maior o efeito de alavanca.",
-  "simLppBuybackBonASavoirItem3": "Atenção: qualquer levantamento EPL fica bloqueado durante 3 anos após um resgate (LPP art. 79b al. 3). Planeia os teus resgates em conformidade.",
+  "simLppBuybackBonASavoirItem3": "Atenção: durante os 3 anos após um resgate, nenhum levantamento em capital (reforma ou habitação) é possível sobre esse montante — um levantamento nesse prazo anula a dedução fiscal (LPP art. 79b al. 3).",
   "simLppBuybackDisclaimer": "Simulação incluindo o juro da caixa ({fundRate} %) e o impacto fiscal indicativo distribuído ao longo de {staggeringYears} anos para um rendimento tributável de CHF {taxableIncome}. O rendimento real é calculado sobre o teu esforço líquido real.",
   "simRealInterestTitle": "Simulador de Juro Real",
   "simRealInterestSubtitle": "Capital + impacto fiscal reinvestido (virtual)",

@@ -2698,7 +2698,7 @@
   "simLppBuybackBonASavoir": "Bon à savoir",
   "simLppBuybackBonASavoirItem1": "Il riscatto LPP è uno dei rari strumenti di pianificazione fiscale accessibili a tutti. Ogni franco riscattato riduce direttamente il tuo reddito imponibile.",
   "simLppBuybackBonASavoirItem2": "Ogni franco riscattato è deducibile dal tuo reddito imponibile (LIFD art. 33 cpv. 1 lett. d). Più alto è il tuo tasso marginale, maggiore è l'effetto leva.",
-  "simLppBuybackBonASavoirItem3": "Attenzione: ogni prelievo EPL è bloccato per 3 anni dopo un riscatto (LPP art. 79b cpv. 3). Pianifica i tuoi riscatti di conseguenza.",
+  "simLppBuybackBonASavoirItem3": "Attenzione: nei 3 anni successivi a un riscatto non è possibile alcun prelievo in capitale (pensionamento o abitazione) su tale importo — un prelievo entro tale termine comporta la ripresa della deduzione fiscale (LPP art. 79b cpv. 3).",
   "simLppBuybackDisclaimer": "Simulazione comprendente l'interesse della cassa ({fundRate} %) e l'impatto fiscale indicativo distribuito su {staggeringYears} anni per un reddito imponibile di CHF {taxableIncome}. Il rendimento reale è calcolato sul tuo sforzo netto reale.",
   "simRealInterestTitle": "Simulatore d'Interesse Reale",
   "simRealInterestSubtitle": "Capitale + impatto fiscale reinvestito (virtuale)",
