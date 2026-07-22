@@ -23251,7 +23251,7 @@ class SEn extends S {
 
   @override
   String get consentPurposeTransferUsAnthropicWhy =>
-      'Your documents and — when you use the coach — your pseudonymized financial profile (amounts included, never your name or IBAN) and your messages go through the Claude API (Anthropic, USA) in Zero Data Retention mode.';
+      'Your documents (Zero Data Retention) and — when you use the coach — your pseudonymized financial profile (exact amounts included, never your name, IBAN or AVS number) and your messages go through the Claude API (Anthropic, USA).';
 
   @override
   String get consentPurposeCoupleProjection => 'Couple projections';

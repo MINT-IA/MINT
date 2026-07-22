@@ -324,7 +324,7 @@ class ConsentService:
         subject_name: str,
         doc_hash: str,
         declared_from_ip: Optional[str],
-        policy_version: str = "v2.3.0",
+        policy_version: str = "v2.4.0",
         subject_role: str = "declared_other",
     ) -> ConsentModel:
         """Create a THIRD_PARTY_ATTESTATION receipt bound to (doc_hash, subject_name).

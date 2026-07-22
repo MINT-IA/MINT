@@ -23367,7 +23367,7 @@ class SEs extends S {
 
   @override
   String get consentPurposeTransferUsAnthropicWhy =>
-      'Tus documentos y — cuando usas el coach — tu perfil financiero seudonimizado (importes incluidos, nunca tu nombre ni tu IBAN) y tus mensajes pasan por la API Claude (Anthropic, EE. UU.) en modo Zero Data Retention.';
+      'Tus documentos (Zero Data Retention) y — cuando usas el coach — tu perfil financiero seudonimizado (importes exactos incluidos, nunca tu nombre, tu IBAN ni tu n.º AVS) y tus mensajes pasan por la API Claude (Anthropic, EE. UU.).';
 
   @override
   String get consentPurposeCoupleProjection => 'Proyecciones de pareja';

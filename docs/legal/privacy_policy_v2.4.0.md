@@ -1,4 +1,4 @@
-# MINT — Politique de confidentialité v2.3.0
+# MINT — Politique de confidentialité v2.4.0
 
 > **Statut** : brouillon technique — version finale à valider avec avocat (Walder Wyss / MLL Legal).
 > Cette version est utilisée par le système de consentement granulaire (Phase 29-02 / PRIV-01).
@@ -31,11 +31,11 @@ Tu peux révoquer chaque consentement à tout moment depuis l'espace "Ma vie pri
 
 ### 3.3 `transfer_us_anthropic`
 
-- **Quoi** : envoi du document (masqué des PII lorsque possible) aux serveurs Anthropic aux États-Unis.
-- **Pourquoi** : appel de l'API Claude Vision.
-- **Durée** : le temps de l'appel. Anthropic opère en mode Zero Data Retention (ZDR).
+- **Quoi** : envoi aux serveurs Anthropic (États-Unis) de : (a) tes documents (masqués des PII lorsque possible) pour la lecture IA ; (b) ton profil financier pseudonymisé — montants exacts inclus (revenus, LPP, 3a), jamais ton nom, IBAN ou n° AVS — et le contenu de tes messages, lorsque tu utilises le coach AI.
+- **Pourquoi** : appel de l'API Claude (lecture Vision des documents, réponses personnalisées du coach).
+- **Durée** : le temps de l'appel. Pour les documents, Anthropic opère en mode Zero Data Retention (ZDR) ; pour le coach, la rétention suit l'accord commercial Anthropic en vigueur.
 - **Base** : Swiss-US Data Privacy Framework (reconnu par la Suisse depuis septembre 2024).
-- **Statut** : cette finalité sera désactivée à l'issue de la migration vers AWS Bedrock Frankfurt (Phase 29-06).
+- **Statut** : une migration vers AWS Bedrock (Francfort) est prévue pour réduire le volet documents de ce transfert ; tant qu'elle n'est pas achevée, Anthropic US reste utilisé, y compris comme repli.
 
 ### 3.4 `couple_projection`
 

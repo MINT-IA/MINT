@@ -23428,7 +23428,7 @@ class SIt extends S {
 
   @override
   String get consentPurposeTransferUsAnthropicWhy =>
-      'I tuoi documenti e — quando usi il coach — il tuo profilo finanziario pseudonimizzato (importi inclusi, mai il tuo nome o IBAN) e i tuoi messaggi passano dall\'API Claude (Anthropic, USA) in modalità Zero Data Retention.';
+      'I tuoi documenti (Zero Data Retention) e — quando usi il coach — il tuo profilo finanziario pseudonimizzato (importi esatti inclusi, mai il tuo nome, il tuo IBAN o il tuo n. AVS) e i tuoi messaggi passano dall\'API Claude (Anthropic, USA).';
 
   @override
   String get consentPurposeCoupleProjection => 'Proiezioni di coppia';

@@ -12226,7 +12226,7 @@
   "consentPurposePersistence365d": "Mémoire chiffrée 365 jours",
   "consentPurposePersistence365dWhy": "Les données extraites sont conservées chiffrées (AES-256) pendant 365 jours, puis purgées. Révocation : suppression cryptographique sous 30 jours.",
   "consentPurposeTransferUsAnthropic": "Traitement IA (Anthropic, US)",
-  "consentPurposeTransferUsAnthropicWhy": "Tes documents et — quand tu utilises le coach — ton profil financier pseudonymisé (montants inclus, jamais ton nom ni ton IBAN) et tes messages passent par l'API Claude (Anthropic, États-Unis) en mode Zero Data Retention.",
+  "consentPurposeTransferUsAnthropicWhy": "Tes documents (Zero Data Retention) et — quand tu utilises le coach — ton profil financier pseudonymisé (montants exacts inclus, jamais ton nom, ton IBAN ni ton n° AVS) et tes messages passent par l'API Claude (Anthropic, États-Unis).",
   "consentPurposeCoupleProjection": "Projections de couple",
   "consentPurposeCoupleProjectionWhy": "MINT utilise les données de ta/ton partenaire pour les scénarios de couple. Tu confirmes avoir obtenu son consentement.",
   "consentRevoke": "Révoquer",
