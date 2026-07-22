@@ -5673,7 +5673,7 @@
             "type": "string"
           },
           "policyVersion": {
-            "default": "v2.3.0",
+            "default": "v2.4.0",
             "title": "Policyversion",
             "type": "string"
           },
