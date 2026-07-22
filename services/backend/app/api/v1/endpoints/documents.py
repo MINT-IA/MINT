@@ -1259,6 +1259,14 @@ async def extract_with_claude_vision(
                         "declarationEndpoint": "/api/v1/consents/grant-nominative",
                     },
                 )
+            # Gate passe (doc declare ou non-tiers). Les docs flagges tiers ne
+            # sont persistes qu'ICI, apres validation de la declaration —
+            # plus jamais avant le gate (audit T06-F10, MINT_nosync-tih).
+            if result.third_party_detected:
+                from app.services.document_vision_service import (
+                    persist_document_memory,
+                )
+                persist_document_memory(db, str(current_user.id), result)
             return result
         except HTTPException:
             raise
