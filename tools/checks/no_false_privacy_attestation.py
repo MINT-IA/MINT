@@ -26,6 +26,9 @@ ATTESTATION_DOCS = [
     "LEGAL_RELEASE_CHECK.md",
     "docs/DATA_ACQUISITION_STRATEGY.md",
     "PRIVACY.md",
+    "legal/PRIVACY.md",
+    # Référence FR de l'app — les 5 autres locales suivent par parité ARB.
+    "apps/mobile/lib/l10n/app_fr.arb",
 ]
 
 # The canonical honest disclosure of the US transfer (source of truth).
@@ -40,6 +43,14 @@ FALSE_PROMISE_PATTERNS = [
     r"aucun document ne (sera|transite|quitte)",
     r"(traitement|parsing).{0,40}(int[ée]gralement|integralement).{0,20}(sur )?ton appareil",
     r"toutes tes donn[ée]es personnelles restent sur ton appareil",
+    # Audit T08-F35 (MINT_nosync-27m) : le coach REÇOIT les montants exacts
+    # (salaire, LPP, 3a) via _PROFILE_SAFE_FIELDS -> prompt Anthropic US.
+    # Toute attestation « agrégé seulement / jamais le salaire exact » est fausse.
+    r"re[çc]oit uniquement des donn[ée]es agr[ée]g[ée]es",
+    r"jamais (de donn[ée]es personnelles identifiantes \(salaire|ton salaire exact)",
+    r"contexte agr[ée]g[ée] \(pas de pii\)",
+    r"salaire exact n['’]est (pas|jamais) (envoy|partag)",
+    r'"dataTransparencySalaryDetail":.*[Jj]amais envoy',
 ]
 
 _COMPILED = [re.compile(p, re.IGNORECASE) for p in FALSE_PROMISE_PATTERNS]
@@ -78,9 +89,15 @@ def main() -> int:
         for h in hits:
             print(f"  ✗ {h}")
         print(
-            "\nFix: state that document OCR runs server-side via Anthropic "
-            "Vision (US) with PII masking when possible (see "
+            "\nFix (documents): state that document OCR runs server-side via "
+            "Anthropic Vision (US) with PII masking when possible (see "
             f"{CANONICAL_POLICY} §3.3), or remove the false claim."
+        )
+        print(
+            "Fix (coach): exact profile amounts ARE sent to the Anthropic "
+            "coach (_PROFILE_SAFE_FIELDS -> prompt) — state it truthfully "
+            "(pseudonymized profile incl. amounts; user messages sent as-is), "
+            "never claim aggregated-only / never-exact-salary."
         )
         return 1
 

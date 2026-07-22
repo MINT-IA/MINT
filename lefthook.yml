@@ -129,7 +129,7 @@ pre-commit:
       # Vision (US) transfer. Keeps public/compliance docs truthful (nLPD). Bypass
       # via LEFTHOOK_BYPASS=1 is grep-able per CLAUDE.md §5 dev rules.
       run: python3 tools/checks/no_false_privacy_attestation.py
-      glob: "{PRIVACY.md,LEGAL_RELEASE_CHECK.md,docs/DATA_ACQUISITION_STRATEGY.md}"
+      glob: "{PRIVACY.md,legal/PRIVACY.md,LEGAL_RELEASE_CHECK.md,docs/DATA_ACQUISITION_STRATEGY.md,tools/checks/no_false_privacy_attestation.py}"
       tags: [compliance, nlpd, privacy, audit-2026-07]
       fail_text: "False on-device privacy attestation vs privacy_policy_v2.3.0 §3.3 (real Anthropic Vision US transfer). Align the doc with reality or remove the claim."
     ci-gate-aggregation-check:

@@ -21683,7 +21683,7 @@ class SEn extends S {
 
   @override
   String get coachTransparencyBYOK =>
-      'Response via your Claude API. Your exact salary is NOT sent — only your age, canton and archetype are shared.';
+      'Response via your Claude API. Your pseudonymized financial profile (amounts included, never your name or IBAN) and your message are shared to personalize the answer.';
 
   @override
   String get coachTransparencyServer =>
@@ -21697,7 +21697,7 @@ class SEn extends S {
 
   @override
   String get dataTransparencySalaryDetail =>
-      'Stored only on your phone. Never sent.';
+      'Saved in your encrypted profile. Shared with the AI coach only when you use it.';
 
   @override
   String get dataTransparencyScan => 'When you scan a document';
@@ -21711,7 +21711,7 @@ class SEn extends S {
 
   @override
   String get dataTransparencyCoachDetail =>
-      'Local SLM (nothing sent) or Claude API (your choice). Your exact salary is never shared.';
+      'Local SLM (nothing sent) or Claude API: your pseudonymized profile (amounts included, never your name or IBAN) and your messages are shared.';
 
   @override
   String get dataTransparencyImport => 'When you import a statement';

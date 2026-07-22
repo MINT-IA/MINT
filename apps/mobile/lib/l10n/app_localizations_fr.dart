@@ -21789,7 +21789,7 @@ class SFr extends S {
 
   @override
   String get coachTransparencyBYOK =>
-      'Réponse via ton API Claude. Ton salaire exact n\'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.';
+      'Réponse via ton API Claude. Ton profil financier pseudonymisé (montants inclus, jamais ton nom ni ton IBAN) et ton message sont partagés pour personnaliser la réponse.';
 
   @override
   String get coachTransparencyServer =>
@@ -21803,7 +21803,7 @@ class SFr extends S {
 
   @override
   String get dataTransparencySalaryDetail =>
-      'Stocké uniquement sur ton téléphone. Jamais envoyé.';
+      'Enregistré dans ton profil chiffré. Partagé avec le coach AI uniquement quand tu l\'utilises.';
 
   @override
   String get dataTransparencyScan => 'Quand tu scannes un document';
@@ -21817,7 +21817,7 @@ class SFr extends S {
 
   @override
   String get dataTransparencyCoachDetail =>
-      'SLM local (rien envoyé) ou API Claude (ton choix). Ton salaire exact n\'est jamais partagé.';
+      'SLM local (rien n\'est envoyé) ou API Claude : ton profil pseudonymisé (montants inclus, jamais ton nom ni ton IBAN) et tes messages sont partagés.';
 
   @override
   String get dataTransparencyImport => 'Quand tu importes un relevé';

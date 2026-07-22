@@ -475,3 +475,14 @@ class TestLifecycleToneDirectives:
         assert "chf" in lower_section or "amounts" in lower_section or "direct" in lower_section, (
             "LIFECYCLE TONE DIRECTIVES must contain concrete terms (CHF, amounts, direct)"
         )
+
+
+def test_context_section_label_is_truthful():
+    """Audit T08-F35 (MINT_nosync-27m) : le prompt transmet des montants
+    EXACTS — le label ne doit plus prétendre « agrégées, non identifiantes »."""
+    from app.services.coach.claude_coach_service import _build_context_section
+
+    ctx = CoachContext(archetype="swiss_native", age=40, canton="VD")
+    section = _build_context_section(ctx)
+    assert "agrégées, non identifiantes" not in section
+    assert "pseudonymisé" in section

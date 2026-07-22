@@ -21802,7 +21802,7 @@ class SPt extends S {
 
   @override
   String get coachTransparencyBYOK =>
-      'Resposta via a tua API Claude. O teu salário exato NÃO é enviado — apenas a tua idade, cantão e arquétipo são partilhados.';
+      'Resposta via a tua API Claude. O teu perfil financeiro pseudonimizado (montantes incluídos, nunca o teu nome ou IBAN) e a tua mensagem são partilhados para personalizar a resposta.';
 
   @override
   String get coachTransparencyServer =>
@@ -21816,7 +21816,7 @@ class SPt extends S {
 
   @override
   String get dataTransparencySalaryDetail =>
-      'Guardado apenas no teu telemóvel. Nunca enviado.';
+      'Guardado no teu perfil cifrado. Partilhado com o coach AI apenas quando o usas.';
 
   @override
   String get dataTransparencyScan => 'Quando digitalizas um documento';
@@ -21830,7 +21830,7 @@ class SPt extends S {
 
   @override
   String get dataTransparencyCoachDetail =>
-      'SLM local (nada enviado) ou API Claude (a tua escolha). O teu salário exato nunca é partilhado.';
+      'SLM local (nada enviado) ou API Claude: o teu perfil pseudonimizado (montantes incluídos, nunca o teu nome ou IBAN) e as tuas mensagens são partilhados.';
 
   @override
   String get dataTransparencyImport => 'Quando importas um extrato';
