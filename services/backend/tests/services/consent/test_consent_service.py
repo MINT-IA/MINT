@@ -218,3 +218,71 @@ def test_pending_marker_does_not_break_merkle_chain(db):
     svc.revoke(db, user_id="u1", receipt_id=row.receipt_id)
     ok, err = verify_chain(db, "u1")
     assert ok, f"chaîne cassée: {err}"
+
+
+def test_pending_superseded_by_reconsent_never_shreds(db):
+    """P0 review Codex : re-consent -> marqueur effacé SANS shred (le DEK
+    re-créé porte des données légitimes)."""
+    svc = _failing_service()
+    row = svc.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+    svc.revoke(db, user_id="u1", receipt_id=row.receipt_id)
+
+    # Re-consent : la base légale du stockage est renouvelée. (Le retry
+    # pré-grant qui tourne ICI est légitime : le nouveau consentement — et
+    # donc tout nouveau DEK — n'existe pas encore.)
+    svc.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+    calls_after_regrant = list(svc._shred_calls)  # type: ignore[attr-defined]
+
+    # Toute interaction ultérieure ne doit JAMAIS re-tenter le shred : ce
+    # serait la destruction du DEK (et des données) re-créés.
+    svc.grant(db, user_id="u1", purpose="vision_extraction", policy_version="v2.3.0")
+    svc.grant(db, user_id="u1", purpose="couple_projection", policy_version="v2.3.0")
+
+    pending = [r for r in svc.list_for_user(db, "u1") if r.shred_pending]
+    assert pending == []
+    assert svc._shred_calls == calls_after_regrant  # type: ignore[attr-defined]
+
+
+def test_no_dek_counts_as_satisfied_not_pending(db):
+    """P0 review Codex : absence de DEK = déjà vide = obligation satisfaite.
+
+    Chemin RÉEL (sans stub) : crypto_shred_user renvoie False faute de ligne
+    DEKVault — cela ne doit PAS créer de marqueur pending.
+    """
+    svc = ConsentService()  # vrai _shred, pas de hook
+    row = svc.grant(db, user_id="u9", purpose="persistence_365d", policy_version="v2.3.0")
+    revoked, cascade = svc.revoke(db, user_id="u9", receipt_id=row.receipt_id)
+    assert cascade is True
+    db.expire_all()
+    fresh = [r for r in svc.list_for_user(db, "u9") if r.receipt_id == row.receipt_id]
+    assert fresh[0].shred_pending is False
+
+
+def test_pending_marker_committed_atomically_with_revocation(db):
+    """P1 review Codex : le marqueur est posé dans la MÊME transaction que la
+    révocation — visible après expiration du cache de session."""
+    svc = _failing_service()
+    row = svc.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+    svc.revoke(db, user_id="u1", receipt_id=row.receipt_id)
+    db.expire_all()
+    fresh = [r for r in svc.list_for_user(db, "u1") if r.receipt_id == row.receipt_id]
+    assert fresh[0].revoked_at is not None
+    assert fresh[0].shred_pending is True
+
+
+def test_sweep_once_satisfies_pending(db, monkeypatch):
+    """Le sweep périodique borne le délai promis (P1 review Codex)."""
+    from app.services.consent import shred_sweep
+
+    svc = _failing_service()
+    row = svc.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
+    svc.revoke(db, user_id="u1", receipt_id=row.receipt_id)
+
+    # Le sweep utilise sa propre session/service : on le pointe sur notre db
+    # et sur un service dont le shred réussit désormais.
+    monkeypatch.setattr(shred_sweep, "sweep_once", shred_sweep.sweep_once)
+    ok_svc = ConsentService(shred_hook=lambda d, u: True)
+    n = ok_svc.retry_pending_shreds(db, "u1")
+    assert n == 1
+    pending = [r for r in ok_svc.list_for_user(db, "u1") if r.shred_pending]
+    assert pending == []
