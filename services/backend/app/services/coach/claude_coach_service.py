@@ -1139,11 +1139,14 @@ def _build_context_section(ctx: CoachContext) -> str:
     """Build the user-specific context section of the system prompt.
 
     Privacy: NEVER includes IBAN, full name, NPA, employer, or raw account
-    numbers. Only aggregated financial indicators are passed.
+    numbers. Exact profile amounts (income, LPP, 3a) ARE passed — disclosed
+    in PRIVACY.md/legal/PRIVACY.md and consented via transfer_us_anthropic
+    (audit T08-F35, MINT_nosync-27m — the previous "aggregated only" claim
+    was false).
     """
     known = ctx.known_values or {}
 
-    lines = ["CONTEXTE UTILISATEUR (données agrégées, non identifiantes) :"]
+    lines = ["CONTEXTE UTILISATEUR (profil financier pseudonymisé — sans nom, IBAN ni n° AVS) :"]
 
     if ctx.archetype:
         lines.append(f"- Archétype : {ctx.archetype}")

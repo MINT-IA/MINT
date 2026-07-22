@@ -41,7 +41,7 @@ Base légale : consentement (nLPD art. 6 al. 6 let. a).
 | Sous-traitant | Service | Localisation | Données concernées |
 |---------------|---------|-------------|-------------------|
 | **Railway Inc.** | Hébergement backend (PostgreSQL) | USA (Oregon) | Profil financier chiffré |
-| **Anthropic PBC** | Coach AI (Claude API) | USA | Contexte agrégé (pas de PII) |
+| **Anthropic PBC** | Coach AI (Claude API) | USA | Profil financier pseudonymisé, montants exacts inclus (revenus, LPP, 3a) — sans nom, IBAN ni n° AVS |
 | **Sentry Inc.** | Monitoring d'erreurs | USA (Virginia) | Stack traces (pas de PII, `send_default_pii=False`) |
 | **Apple Inc.** | Distribution iOS (TestFlight/App Store) | USA | Métadonnées app uniquement |
 | **Google LLC** | Distribution Android (Play Store) | USA | Métadonnées app uniquement |
@@ -56,7 +56,7 @@ Base légale : consentement (nLPD art. 6 al. 6 let. a).
 Des données sont transférées aux USA via les sous-traitants ci-dessus.
 Garanties : contrats standard de protection des données (SCC) conformes aux exigences du PFPDT.
 
-**Important** : Le coach AI (Anthropic Claude) reçoit uniquement des données agrégées (scores, ratios), JAMAIS de données personnelles identifiantes (salaire exact, IBAN, nom, numéro AVS). Voir la documentation technique `CoachContext`.
+**Important** : Le coach AI (Anthropic Claude) reçoit ton profil financier pseudonymisé, y compris des montants exacts (revenus, avoirs LPP, épargne 3a, dépenses), transmis avec ton consentement explicite (finalité `transfer_us_anthropic`, révocable dans Profil → Consentements et retrait) et sous clauses contractuelles types (SCC). Il ne reçoit ni ton nom, ni ton IBAN, ni ton numéro AVS, ni ton employeur, ni ton adresse. Voir la documentation technique `CoachContext`.
 
 En Phase 2, nous prévoyons un hébergement en Suisse pour les données utilisateurs.
 

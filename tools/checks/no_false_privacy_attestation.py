@@ -26,6 +26,7 @@ ATTESTATION_DOCS = [
     "LEGAL_RELEASE_CHECK.md",
     "docs/DATA_ACQUISITION_STRATEGY.md",
     "PRIVACY.md",
+    "legal/PRIVACY.md",
 ]
 
 # The canonical honest disclosure of the US transfer (source of truth).
@@ -40,6 +41,12 @@ FALSE_PROMISE_PATTERNS = [
     r"aucun document ne (sera|transite|quitte)",
     r"(traitement|parsing).{0,40}(int[ée]gralement|integralement).{0,20}(sur )?ton appareil",
     r"toutes tes donn[ée]es personnelles restent sur ton appareil",
+    # Audit T08-F35 (MINT_nosync-27m) : le coach REÇOIT les montants exacts
+    # (salaire, LPP, 3a) via _PROFILE_SAFE_FIELDS -> prompt Anthropic US.
+    # Toute attestation « agrégé seulement / jamais le salaire exact » est fausse.
+    r"re[çc]oit uniquement des donn[ée]es agr[ée]g[ée]es",
+    r"jamais (de donn[ée]es personnelles identifiantes \(salaire|ton salaire exact)",
+    r"contexte agr[ée]g[ée] \(pas de pii\)",
 ]
 
 _COMPILED = [re.compile(p, re.IGNORECASE) for p in FALSE_PROMISE_PATTERNS]

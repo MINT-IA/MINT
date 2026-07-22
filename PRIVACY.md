@@ -169,7 +169,7 @@ En Phase 1, nous utilisons les sous-traitants suivants :
 - Garanties : Standard Contractual Clauses (SCC)
 
 **Anthropic / OpenAI** (États-Unis) — uniquement si tu actives BYOK
-- Données : contexte coaching anonymisé (âge, canton, archetype, score FRI — jamais ton salaire exact — voir CoachContext)
+- Données : profil coaching pseudonymisé (âge, canton, archetype, score FRI et montants exacts du profil financier — revenus, LPP, 3a — transmis avec ton consentement ; jamais ton nom, IBAN ou n° AVS — voir CoachContext)
 - Durée : aucune rétention (mode API, pas d'entraînement — pas stocké par MINT)
 - Base légale : consentement explicite (byokDataSharing / activation explicite du coach AI)
 - Tu utilises ta propre clé API — MINT n'est pas responsable du traitement par le fournisseur LLM
