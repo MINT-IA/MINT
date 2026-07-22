@@ -23371,7 +23371,7 @@ class SPt extends S {
 
   @override
   String get consentPurposeTransferUsAnthropicWhy =>
-      'Os documentos passam pela API Claude (Anthropic, Estados Unidos) em modo Zero Data Retention. Esta transferência desaparecerá após a migração para AWS Frankfurt.';
+      'Os teus documentos e — quando usas o coach — o teu perfil financeiro pseudonimizado (montantes incluídos, nunca o teu nome ou IBAN) e as tuas mensagens passam pela API Claude (Anthropic, EUA) em modo Zero Data Retention.';
 
   @override
   String get consentPurposeCoupleProjection => 'Projeções de casal';

@@ -31,11 +31,11 @@ Tu peux révoquer chaque consentement à tout moment depuis l'espace "Ma vie pri
 
 ### 3.3 `transfer_us_anthropic`
 
-- **Quoi** : envoi du document (masqué des PII lorsque possible) aux serveurs Anthropic aux États-Unis.
-- **Pourquoi** : appel de l'API Claude Vision.
+- **Quoi** : envoi aux serveurs Anthropic (États-Unis) de : (a) tes documents (masqués des PII lorsque possible) pour la lecture IA ; (b) ton profil financier pseudonymisé — montants exacts inclus (revenus, LPP, 3a), jamais ton nom, IBAN ou n° AVS — et le contenu de tes messages, lorsque tu utilises le coach AI.
+- **Pourquoi** : appel de l'API Claude (lecture Vision des documents, réponses personnalisées du coach).
 - **Durée** : le temps de l'appel. Anthropic opère en mode Zero Data Retention (ZDR).
 - **Base** : Swiss-US Data Privacy Framework (reconnu par la Suisse depuis septembre 2024).
-- **Statut** : cette finalité sera désactivée à l'issue de la migration vers AWS Bedrock Frankfurt (Phase 29-06).
+- **Statut** : le volet documents sera désactivé à l'issue de la migration vers AWS Bedrock Frankfurt (Phase 29-06).
 
 ### 3.4 `couple_projection`
 

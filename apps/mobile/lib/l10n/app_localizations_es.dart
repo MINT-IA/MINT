@@ -23367,7 +23367,7 @@ class SEs extends S {
 
   @override
   String get consentPurposeTransferUsAnthropicWhy =>
-      'Los documentos pasan por la API Claude (Anthropic, Estados Unidos) en modo Zero Data Retention. Este transferencia desaparecerá tras la migración a AWS Frankfurt.';
+      'Tus documentos y — cuando usas el coach — tu perfil financiero seudonimizado (importes incluidos, nunca tu nombre ni tu IBAN) y tus mensajes pasan por la API Claude (Anthropic, EE. UU.) en modo Zero Data Retention.';
 
   @override
   String get consentPurposeCoupleProjection => 'Proyecciones de pareja';

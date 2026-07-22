@@ -62,6 +62,8 @@ ALLOW = {
     "LEGAL_RELEASE_CHECK.md",
     "docs/DATA_ACQUISITION_STRATEGY.md",
     "legal/PRIVACY.md",
+    "docs/legal/privacy_policy_v2.3.0.md",
+    "services/backend/tests/test_purpose_label_coverage.py",
     "services/backend/app/services/coach/claude_coach_service.py",
     "services/backend/tests/test_claude_coach.py",
     "apps/mobile/lib/services/financial_core/arbitrage_engine.dart",

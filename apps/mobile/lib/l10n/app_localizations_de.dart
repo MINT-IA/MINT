@@ -23422,7 +23422,7 @@ class SDe extends S {
 
   @override
   String get consentPurposeTransferUsAnthropicWhy =>
-      'Dokumente laufen über die Claude-API (Anthropic, USA) im Zero-Data-Retention-Modus. Dieser Transfer entfällt nach der AWS-Frankfurt-Migration.';
+      'Deine Dokumente und — wenn du den Coach nutzt — dein pseudonymisiertes Finanzprofil (inkl. Beträge, nie dein Name oder IBAN) und deine Nachrichten laufen über die Claude-API (Anthropic, USA) im Zero-Data-Retention-Modus.';
 
   @override
   String get consentPurposeCoupleProjection => 'Paar-Projektionen';
