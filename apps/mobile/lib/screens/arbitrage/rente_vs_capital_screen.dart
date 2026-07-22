@@ -562,6 +562,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         horizon: horizon,
         isMarried: _isMarried,
         currentAge: currentAge,
+        inputMode: _inputMode == _InputMode.certificate
+            ? 'certificate'
+            : 'estimate',
       );
       if (!mounted || requestId != _requestCounter) return;
       setState(() => _result = result);
