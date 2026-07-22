@@ -38191,7 +38191,7 @@ abstract class S {
   /// No description provided for @coachTransparencyBYOK.
   ///
   /// In fr, this message translates to:
-  /// **'Réponse via ton API Claude. Ton salaire exact n\'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.'**
+  /// **'Réponse via ton API Claude. Ton profil financier pseudonymisé (montants inclus, jamais ton nom ni ton IBAN) et ton message sont partagés pour personnaliser la réponse.'**
   String get coachTransparencyBYOK;
 
   /// No description provided for @coachTransparencyServer.
@@ -38215,7 +38215,7 @@ abstract class S {
   /// No description provided for @dataTransparencySalaryDetail.
   ///
   /// In fr, this message translates to:
-  /// **'Stocké uniquement sur ton téléphone. Jamais envoyé.'**
+  /// **'Enregistré dans ton profil chiffré. Partagé avec le coach AI uniquement quand tu l\'utilises.'**
   String get dataTransparencySalaryDetail;
 
   /// No description provided for @dataTransparencyScan.
@@ -38239,7 +38239,7 @@ abstract class S {
   /// No description provided for @dataTransparencyCoachDetail.
   ///
   /// In fr, this message translates to:
-  /// **'SLM local (rien envoyé) ou API Claude (ton choix). Ton salaire exact n\'est jamais partagé.'**
+  /// **'SLM local (rien n\'est envoyé) ou API Claude : ton profil pseudonymisé (montants inclus, jamais ton nom ni ton IBAN) et tes messages sont partagés.'**
   String get dataTransparencyCoachDetail;
 
   /// No description provided for @dataTransparencyImport.

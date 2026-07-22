@@ -21798,7 +21798,7 @@ class SEs extends S {
 
   @override
   String get coachTransparencyBYOK =>
-      'Respuesta a través de tu API Claude. Tu salario exacto NO se envía — solo tu edad, cantón y arquetipo se comparten.';
+      'Respuesta vía tu API de Claude. Tu perfil financiero seudonimizado (importes incluidos, nunca tu nombre ni tu IBAN) y tu mensaje se comparten para personalizar la respuesta.';
 
   @override
   String get coachTransparencyServer =>
@@ -21812,7 +21812,7 @@ class SEs extends S {
 
   @override
   String get dataTransparencySalaryDetail =>
-      'Almacenado solo en tu teléfono. Nunca enviado.';
+      'Guardado en tu perfil cifrado. Compartido con el coach AI solo cuando lo usas.';
 
   @override
   String get dataTransparencyScan => 'Cuando escaneas un documento';
@@ -21826,7 +21826,7 @@ class SEs extends S {
 
   @override
   String get dataTransparencyCoachDetail =>
-      'SLM local (nada enviado) o API Claude (tu elección). Tu salario exacto nunca se comparte.';
+      'SLM local (nada se envía) o API de Claude: tu perfil seudonimizado (importes incluidos, nunca tu nombre ni tu IBAN) y tus mensajes se comparten.';
 
   @override
   String get dataTransparencyImport => 'Cuando importas un extracto';

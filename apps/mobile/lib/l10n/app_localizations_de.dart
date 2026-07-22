@@ -21848,7 +21848,7 @@ class SDe extends S {
 
   @override
   String get coachTransparencyBYOK =>
-      'Antwort über deine Claude-API. Dein genaues Gehalt wird NICHT gesendet — nur Alter, Kanton und Archetyp werden geteilt.';
+      'Antwort über deine Claude-API. Dein pseudonymisiertes Finanzprofil (inkl. Beträge, nie dein Name oder IBAN) und deine Nachricht werden zur Personalisierung geteilt.';
 
   @override
   String get coachTransparencyServer =>
@@ -21862,7 +21862,7 @@ class SDe extends S {
 
   @override
   String get dataTransparencySalaryDetail =>
-      'Nur auf deinem Telefon gespeichert. Nie gesendet.';
+      'In deinem verschlüsselten Profil gespeichert. Nur beim Nutzen des AI-Coachs geteilt.';
 
   @override
   String get dataTransparencyScan => 'Wenn du ein Dokument scannst';
@@ -21876,7 +21876,7 @@ class SDe extends S {
 
   @override
   String get dataTransparencyCoachDetail =>
-      'Lokales SLM (nichts gesendet) oder Claude-API (deine Wahl). Dein genaues Gehalt wird nie geteilt.';
+      'Lokales SLM (nichts gesendet) oder Claude-API: dein pseudonymisiertes Profil (inkl. Beträge, nie dein Name oder IBAN) und deine Nachrichten werden geteilt.';
 
   @override
   String get dataTransparencyImport => 'Wenn du einen Kontoauszug importierst';

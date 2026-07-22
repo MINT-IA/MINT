@@ -56,7 +56,7 @@ Base légale : consentement (nLPD art. 6 al. 6 let. a).
 Des données sont transférées aux USA via les sous-traitants ci-dessus.
 Garanties : contrats standard de protection des données (SCC) conformes aux exigences du PFPDT.
 
-**Important** : Le coach AI (Anthropic Claude) reçoit ton profil financier pseudonymisé, y compris des montants exacts (revenus, avoirs LPP, épargne 3a, dépenses), transmis avec ton consentement explicite (finalité `transfer_us_anthropic`, révocable dans Profil → Consentements et retrait) et sous clauses contractuelles types (SCC). Il ne reçoit ni ton nom, ni ton IBAN, ni ton numéro AVS, ni ton employeur, ni ton adresse. Voir la documentation technique `CoachContext`.
+**Important** : Le coach AI (Anthropic Claude) reçoit ton profil financier pseudonymisé, y compris des montants exacts (revenus, avoirs LPP, épargne 3a, dépenses), sous clauses contractuelles types (SCC) — finalité `transfer_us_anthropic`, retrait possible dans Profil → Consentements et retrait. Le contexte de profil préparé par MINT ne contient ni ton nom, ni ton IBAN, ni ton numéro AVS, ni ton employeur, ni ton adresse ; en revanche, le contenu des messages que tu écris au coach est transmis tel quel. Voir la documentation technique `CoachContext`.
 
 En Phase 2, nous prévoyons un hébergement en Suisse pour les données utilisateurs.
 

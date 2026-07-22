@@ -168,11 +168,11 @@ En Phase 1, nous utilisons les sous-traitants suivants :
 - Base légale : exécution du contrat
 - Garanties : Standard Contractual Clauses (SCC)
 
-**Anthropic / OpenAI** (États-Unis) — uniquement si tu actives BYOK
-- Données : profil coaching pseudonymisé (âge, canton, archetype, score FRI et montants exacts du profil financier — revenus, LPP, 3a — transmis avec ton consentement ; jamais ton nom, IBAN ou n° AVS — voir CoachContext)
+**Anthropic** (États-Unis) — quand tu utilises le coach AI (clé serveur MINT par défaut, ou ta propre clé si tu actives BYOK)
+- Données : profil coaching pseudonymisé (âge, canton, archetype, score FRI et montants exacts du profil financier — revenus, LPP, 3a) et le contenu de tes messages, transmis tels quels. Le contexte préparé par MINT ne contient ni ton nom, ni ton IBAN, ni ton n° AVS — voir CoachContext
 - Durée : aucune rétention (mode API, pas d'entraînement — pas stocké par MINT)
-- Base légale : consentement explicite (byokDataSharing / activation explicite du coach AI)
-- Tu utilises ta propre clé API — MINT n'est pas responsable du traitement par le fournisseur LLM
+- Base légale : exécution du contrat (utilisation du coach) ; finalité `transfer_us_anthropic`, retrait possible dans Profil → Consentements et retrait
+- En mode BYOK, tu utilises ta propre clé API — MINT n'est pas responsable du traitement par le fournisseur LLM
 
 **Apple / Google** — uniquement si tu utilises la reconnaissance vocale
 - Données : signal vocal pour la saisie vocale (speech-to-text), traité sur l'appareil
