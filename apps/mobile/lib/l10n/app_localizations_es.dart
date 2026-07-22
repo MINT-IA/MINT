@@ -5534,7 +5534,7 @@ class SEs extends S {
 
   @override
   String get simLppBuybackBonASavoirItem3 =>
-      'Atención: todo retiro EPL queda bloqueado durante 3 años tras una compra (LPP art. 79b al. 3). Planifica tus compras en consecuencia.';
+      'Atención: durante los 3 años posteriores a una recompra, no es posible ningún retiro en capital (jubilación o vivienda) sobre ese importe — un retiro en ese plazo anula la deducción fiscal (LPP art. 79b al. 3).';
 
   @override
   String simLppBuybackDisclaimer(

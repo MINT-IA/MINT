@@ -930,6 +930,10 @@ class ArbitrageEngine {
           'Taux hypothecaire : ${(tauxHypothecaire * 100).toStringAsFixed(2)} %',
         if (potentielRachatLpp > 0)
           'Potentiel de rachat LPP : ${chf.formatChfWithPrefix(potentielRachatLpp)}',
+        if (potentielRachatLpp > 0)
+          'Blocage rachat LPP (art. 79b al. 3) modélisé comme reprise de la '
+              'déduction sur les 3 dernières années ; le capital racheté '
+              'reste compté disponible à l\'horizon (simplification).',
       ],
       disclaimer:
           'Outil éducatif — ne constitue pas un conseil financier (LSFin). '

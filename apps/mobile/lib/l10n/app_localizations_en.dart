@@ -5500,7 +5500,7 @@ class SEn extends S {
 
   @override
   String get simLppBuybackBonASavoirItem3 =>
-      'Warning: any EPL withdrawal is blocked for 3 years after a buyback (LPP art. 79b al. 3).';
+      'Caution: for 3 years after a buyback, no capital withdrawal (retirement or home-ownership) is possible on that amount — withdrawing within that period voids the tax deduction (LPP art. 79b para. 3).';
 
   @override
   String simLppBuybackDisclaimer(

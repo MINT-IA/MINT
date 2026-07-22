@@ -2604,7 +2604,7 @@
   "simLppBuybackBonASavoir": "Bon à savoir",
   "simLppBuybackBonASavoirItem1": "Der BVG-Einkauf ist eines der wenigen Steuerplanungsinstrumente, die allen zugänglich sind. Jeder eingekaufte Franken reduziert dein steuerbares Einkommen direkt.",
   "simLppBuybackBonASavoirItem2": "Jeder eingekaufte Franken ist von deinem steuerbaren Einkommen abzugsfähig (DBG Art. 33 Abs. 1 Bst. d). Je höher dein Grenzsteuersatz, desto grösser der Hebeleffekt.",
-  "simLppBuybackBonASavoirItem3": "Achtung: Jeder WEF-Bezug ist 3 Jahre nach einem Einkauf gesperrt (BVG Art. 79b Abs. 3). Plane deine Einkäufe entsprechend.",
+  "simLppBuybackBonASavoirItem3": "Achtung: Während 3 Jahren nach einem Einkauf ist kein Kapitalbezug (Pensionierung oder WEF) auf diesem Betrag möglich — ein Bezug innerhalb dieser Frist führt zur Aufrechnung des Steuerabzugs (BVG Art. 79b Abs. 3).",
   "simLppBuybackDisclaimer": "Simulation inklusive Kassenzins ({fundRate} %) und indikativem Steuereffekt, geglättet über {staggeringYears} Jahre für ein steuerbares Einkommen von CHF {taxableIncome}. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.",
   "simRealInterestTitle": "Realzins-Simulator",
   "simRealInterestSubtitle": "Kapital + reinvestierter Steuereffekt (virtuell)",

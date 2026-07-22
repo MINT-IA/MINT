@@ -424,16 +424,21 @@ void main() {
         taxableIncome: 120000,
         canton: 'ZH',
       );
-      // Annees 3,4,5 sont a moins de 3 ans du retrait -> reprise AFC.
-      expect(result.breakdown[2].taxSaving, 0);
+      // Contribution en debut d'annee y, retrait fin d'annee 5 : delai =
+      // 5 - y + 1. y=3 -> exactement 3 ans (delai echu, AUTORISE) ;
+      // y=4 (2 ans) et y=5 (1 an) -> reprise AFC.
       expect(result.breakdown[3].taxSaving, 0);
       expect(result.breakdown[4].taxSaving, 0);
-      // Annees 1,2 restent creditees.
+      // Annees 1,2,3 restent creditees.
       expect(result.breakdown[0].taxSaving, greaterThan(0));
       expect(result.breakdown[1].taxSaving, greaterThan(0));
+      expect(result.breakdown[2].taxSaving, greaterThan(0));
       expect(
         result.totalTaxSavings,
-        closeTo(result.breakdown[0].taxSaving + result.breakdown[1].taxSaving,
+        closeTo(
+            result.breakdown[0].taxSaving +
+                result.breakdown[1].taxSaving +
+                result.breakdown[2].taxSaving,
             0.01),
       );
     });

@@ -5544,7 +5544,7 @@ class SIt extends S {
 
   @override
   String get simLppBuybackBonASavoirItem3 =>
-      'Attenzione: ogni prelievo EPL è bloccato per 3 anni dopo un riscatto (LPP art. 79b cpv. 3). Pianifica i tuoi riscatti di conseguenza.';
+      'Attenzione: nei 3 anni successivi a un riscatto non è possibile alcun prelievo in capitale (pensionamento o abitazione) su tale importo — un prelievo entro tale termine comporta la ripresa della deduzione fiscale (LPP art. 79b cpv. 3).';
 
   @override
   String simLppBuybackDisclaimer(

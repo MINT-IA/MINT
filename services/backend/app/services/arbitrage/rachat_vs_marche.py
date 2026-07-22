@@ -95,8 +95,11 @@ def _build_rachat_option(
     """
     trajectory: List[YearlySnapshot] = []
 
-    # Immediate tax saving from buyback
-    tax_saving = montant * taux_marginal
+    # Immediate tax saving from buyback — art. 79b al. 3 LPP (ATF 142 II 399):
+    # le retrait en capital modélisé à la retraite (dernière année) dans les
+    # 3 ans du rachat (versé en t=0) entraîne la reprise de la déduction.
+    # Fix beads MINT_nosync-okl (review Codex).
+    tax_saving = montant * taux_marginal if annees_avant_retraite >= 3 else 0.0
 
     # Capital grows in LPP at caisse rate
     capital = montant

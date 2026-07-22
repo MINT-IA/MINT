@@ -5530,7 +5530,7 @@ class SPt extends S {
 
   @override
   String get simLppBuybackBonASavoirItem3 =>
-      'Atenção: qualquer levantamento EPL fica bloqueado durante 3 anos após um resgate (LPP art. 79b al. 3). Planeia os teus resgates em conformidade.';
+      'Atenção: durante os 3 anos após um resgate, nenhum levantamento em capital (reforma ou habitação) é possível sobre esse montante — um levantamento nesse prazo anula a dedução fiscal (LPP art. 79b al. 3).';
 
   @override
   String simLppBuybackDisclaimer(

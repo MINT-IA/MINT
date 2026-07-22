@@ -10027,7 +10027,7 @@ abstract class S {
   /// No description provided for @simLppBuybackBonASavoirItem3.
   ///
   /// In fr, this message translates to:
-  /// **'Attention : tout retrait EPL est bloqué pendant 3 ans après un rachat (LPP art. 79b al. 3).'**
+  /// **'Attention : pendant les 3 ans qui suivent un rachat, aucun retrait en capital (retraite ou EPL) n’est possible sur ce montant — un retrait dans ce délai entraîne la reprise de la déduction (LPP art. 79b al. 3).'**
   String get simLppBuybackBonASavoirItem3;
 
   /// No description provided for @simLppBuybackDisclaimer.

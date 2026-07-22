@@ -5549,7 +5549,7 @@ class SDe extends S {
 
   @override
   String get simLppBuybackBonASavoirItem3 =>
-      'Achtung: Jeder WEF-Bezug ist 3 Jahre nach einem Einkauf gesperrt (BVG Art. 79b Abs. 3). Plane deine Einkäufe entsprechend.';
+      'Achtung: Während 3 Jahren nach einem Einkauf ist kein Kapitalbezug (Pensionierung oder WEF) auf diesem Betrag möglich — ein Bezug innerhalb dieser Frist führt zur Aufrechnung des Steuerabzugs (BVG Art. 79b Abs. 3).';
 
   @override
   String simLppBuybackDisclaimer(
