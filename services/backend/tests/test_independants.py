@@ -636,3 +636,11 @@ class TestAvsBaremeDoctrine2025:
         assert svc.calculate_avs_contribution(15_000.0) == 805.65
         assert svc.calculate_avs_contribution(40_000.0) == 2_691.20
         assert svc.calculate_avs_contribution(70_000.0) == 7_000.0
+
+    def test_sliver_negative_difference_copy_says_moins(self):
+        """10'050 (min fixe 530 < part salarie) -> copy 'de moins', pas '+-X de plus'."""
+        result = calculer_cotisation_avs(10_050.0)
+        assert result.cotisation_avs_ai_apg == 530.0
+        assert result.difference_vs_salarie < 0
+        assert "de moins" in result.premier_eclairage
+        assert "de plus" not in result.premier_eclairage

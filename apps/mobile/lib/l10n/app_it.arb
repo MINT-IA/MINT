@@ -1554,7 +1554,7 @@
       }
     }
   },
-  "independantAvsBody": "Il tuo contributo AVS stimato: {amount}/anno (aliquota decrescente per redditi inferiori a CHF 58’800, poi ~10.6% sopra).",
+  "independantAvsBody": "Il tuo contributo AVS stimato: {amount}/anno (aliquota decrescente per redditi inferiori a CHF 60’500, poi 10.0% sopra).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -5050,7 +5050,7 @@
   },
   "avsCotisationsBonASavoir": "Buono a sapersi",
   "avsCotisationsEduDegressifTitle": "Scala degressiva",
-  "avsCotisationsEduDegressifBody": "L'aliquota diminuisce per i redditi bassi (tra CHF 10’100 e CHF 60’500). Sopra CHF 60’500 si applica l'aliquota piena del 10.6%.",
+  "avsCotisationsEduDegressifBody": "L'aliquota diminuisce per i redditi bassi (tra CHF 10’100 e CHF 60’500). Sopra CHF 60’500 si applica l'aliquota piena del 10.0%.",
   "avsCotisationsEduDoubleChargeTitle": "Doppio onere",
   "avsCotisationsEduDoubleChargeBody": "Un dipendente paga solo il 5.3%; il datore copre l'altra metà. Come indipendente, sostieni il costo totale.",
   "avsCotisationsEduMinTitle": "Contributo minimo",

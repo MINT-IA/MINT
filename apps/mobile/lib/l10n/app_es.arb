@@ -1554,7 +1554,7 @@
       }
     }
   },
-  "independantAvsBody": "Tu cotización AVS estimada: {amount}/año (tasa decreciente para ingresos inferiores a CHF 58’800, luego ~10.6% por encima).",
+  "independantAvsBody": "Tu cotización AVS estimada: {amount}/año (tasa decreciente para ingresos inferiores a CHF 60’500, luego 10.0% por encima).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -5050,7 +5050,7 @@
   },
   "avsCotisationsBonASavoir": "Bueno saber",
   "avsCotisationsEduDegressifTitle": "Escala degresiva",
-  "avsCotisationsEduDegressifBody": "La tasa baja para ingresos bajos (entre CHF 10’100 y CHF 60’500). Por encima, la tasa completa del 10.6% se aplica.",
+  "avsCotisationsEduDegressifBody": "La tasa baja para ingresos bajos (entre CHF 10’100 y CHF 60’500). Por encima, la tasa completa del 10.0% se aplica.",
   "avsCotisationsEduDoubleChargeTitle": "Doble carga",
   "avsCotisationsEduDoubleChargeBody": "Un empleado solo paga 5.3%; el empleador cubre la otra mitad. Como independiente, asumes la totalidad.",
   "avsCotisationsEduMinTitle": "Cotización mínima",

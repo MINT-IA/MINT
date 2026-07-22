@@ -112,10 +112,22 @@ def calculer_cotisation_avs(revenu_net_activite: float) -> AvsCotisationResult:
     cotisation_salarie = round(revenu_net_activite * AVS_COTISATION_SALARIE, 2)
     difference = round(cotisation - cotisation_salarie, 2)
 
+    # Sur le sliver 10'000-10'100 (cotisation minimale fixe), la difference
+    # peut etre negative — "-3 CHF de plus" serait absurde (review Codex
+    # MINT_nosync-iy5). La copy suit le signe.
+    if difference >= 0:
+        comparaison = (
+            f"soit {difference:+,.0f} CHF de plus qu'un-e salarie-e "
+            f"sur le meme revenu."
+        )
+    else:
+        comparaison = (
+            f"soit {abs(difference):,.0f} CHF de moins qu'un-e salarie-e "
+            f"sur le meme revenu."
+        )
     premier_eclairage = (
         f"En tant qu'independant-e, tu paies {cotisation:,.0f} CHF/an de cotisations "
-        f"AVS/AI/APG, soit {difference:+,.0f} CHF de plus qu'un-e salarie-e "
-        f"sur le meme revenu."
+        f"AVS/AI/APG, {comparaison}"
     )
 
     return AvsCotisationResult(

@@ -1554,7 +1554,7 @@
       }
     }
   },
-  "independantAvsBody": "Your estimated AVS contribution: {amount}/year (degressive rate for income below CHF 58,800, then ~10.6% above).",
+  "independantAvsBody": "Your estimated AVS contribution: {amount}/year (degressive rate for income below CHF 60,500, then 10.0% above).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -5050,7 +5050,7 @@
   },
   "avsCotisationsBonASavoir": "Good to know",
   "avsCotisationsEduDegressifTitle": "Degressive scale",
-  "avsCotisationsEduDegressifBody": "The rate decreases for low incomes (between CHF 10,100 and CHF 60,500). Above CHF 60,500, the full 10.6% rate applies.",
+  "avsCotisationsEduDegressifBody": "The rate decreases for low incomes (between CHF 10,100 and CHF 60,500). Above CHF 60,500, the full 10.0% rate applies.",
   "avsCotisationsEduDoubleChargeTitle": "Double burden",
   "avsCotisationsEduDoubleChargeBody": "An employee only pays 5.3%; the employer covers the other half. As self-employed, you bear the full cost.",
   "avsCotisationsEduMinTitle": "Minimum contribution",

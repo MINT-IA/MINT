@@ -3504,7 +3504,7 @@ class SPt extends S {
 
   @override
   String independantAvsBody(String amount) {
-    return 'A tua contribuição AVS estimada: $amount/ano (taxa degressiva para rendimentos inferiores a CHF 58’800, depois ~10.6% acima).';
+    return 'A tua contribuição AVS estimada: $amount/ano (taxa degressiva para rendimentos inferiores a CHF 60’500, depois 10.0% acima).';
   }
 
   @override
@@ -10605,7 +10605,7 @@ class SPt extends S {
 
   @override
   String get avsCotisationsEduDegressifBody =>
-      'A taxa diminui para rendimentos baixos (entre CHF 10’100 e CHF 60’500). Acima, aplica-se a taxa plena de 10.6%.';
+      'A taxa diminui para rendimentos baixos (entre CHF 10’100 e CHF 60’500). Acima, aplica-se a taxa plena de 10.0%.';
 
   @override
   String get avsCotisationsEduDoubleChargeTitle => 'Duplo encargo';

@@ -1572,7 +1572,7 @@
       }
     }
   },
-  "independantAvsBody": "Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6 % au-dessus).",
+  "independantAvsBody": "Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 60’500, puis 10.0 % au-dessus).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -5445,7 +5445,7 @@
   },
   "avsCotisationsBonASavoir": "Bon à savoir",
   "avsCotisationsEduDegressifTitle": "Barème dégressif",
-  "avsCotisationsEduDegressifBody": "Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.6 % s’applique.",
+  "avsCotisationsEduDegressifBody": "Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.0 % s’applique.",
   "avsCotisationsEduDoubleChargeTitle": "Double charge",
   "avsCotisationsEduDoubleChargeBody": "Un·e salarié·e ne paie que 5.3 % ; l’employeur prend en charge l’autre moitié. En tant qu’indépendant·e, tu assumes la totalité.",
   "avsCotisationsEduMinTitle": "Cotisation minimale",
