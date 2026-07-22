@@ -185,6 +185,14 @@ class WithdrawalSequencingService {
     final totalTaxNaive = naiveSequence.fold(0.0, (sum, e) => sum + e.tax);
 
     // ── 3. Scenario OPTIMISE: echelonner les retraits ────────────
+    // Age de reference AVS genre (AVS21, LAVS art. 21 al. 1) : la fenetre
+    // OPP3 art. 3 (retrait anticipe 5 ans avant l'age de reference) depend
+    // du sexe pour les cohortes transitoires — reutilise avsReferenceAge
+    // comme AvsCalculator, jamais l'age hommes en dur pour tout le monde.
+    final int avsRefAge = profile.gender == 'F'
+        ? avsReferenceAge(birthYear: profile.birthYear, isFemale: true)
+        : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble())
+            .toInt();
     final optimizedSequence = _buildOptimizedSequence(
       capitalSources: capitalSources,
       retirementAge: retirementAge,
@@ -192,6 +200,7 @@ class WithdrawalSequencingService {
       currentYear: currentYear,
       canton: canton,
       isMarried: isMarried,
+      avsReferenceAgeForProfile: avsRefAge,
     );
     final totalTaxOptimized =
         optimizedSequence.fold(0.0, (sum, e) => sum + e.tax);
@@ -374,6 +383,7 @@ class WithdrawalSequencingService {
     required int currentYear,
     required String canton,
     required bool isMarried,
+    required int avsReferenceAgeForProfile,
   }) {
     // Separer les sources 3a et non-3a.
     final sources3a =
@@ -387,12 +397,10 @@ class WithdrawalSequencingService {
 
     // --- Planifier les retraits 3a ---
     // OPP3 art. 3: retrait anticipe 3a possible 5 ans avant l'age AVS
-    // de reference (65), soit au plus tot a 60 ans. La fenetre ne depend
-    // PAS de l'age de retraite choisi par l'utilisateur.
-    final int avsReferenceAge =
-        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    // de reference du profil (genre pour les cohortes AVS21). La fenetre
+    // ne depend PAS de l'age de retraite choisi par l'utilisateur.
     final earliestWithdrawalAge =
-        (avsReferenceAge - 5).clamp(currentAge, 99); // = max(currentAge, 60)
+        (avsReferenceAgeForProfile - 5).clamp(currentAge, 99);
     final latestWithdrawalAge = retirementAge.clamp(earliestWithdrawalAge, 70);
 
     // Echelonner les comptes 3a: un par annee, en commencant le plus tot.
