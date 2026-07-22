@@ -218,9 +218,9 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
         "Mots-clés : 3a, retrait, étalement, fiscal, canton, capital."
     ),
     "retroactive_3a_service__calculate_retroactive_3a": (
-        "Calcule la possibilité de versement rétroactif 3a (LIFD art. 33 al. 1 "
-        "let. e, jusqu'à 10 ans en arrière selon réforme 2025) selon années "
-        "manquantes et capacité de versement. Estime l'économie fiscale CHF. "
+        "Calcule le rachat rétroactif 3a (OPP3 art. 7a / LIFD art. 33 al. 1 "
+        "let. e) : comble les lacunes dès 2025 (fenêtre 10 ans), plafonné au "
+        "petit maximum 3a par année civile. Estime l'économie fiscale CHF. "
         "Mots-clés : 3a, rétroactif, déduction, fiscal, prévoyance."
     ),
     "cross_pillar_service__CrossPillarService_compute": (
