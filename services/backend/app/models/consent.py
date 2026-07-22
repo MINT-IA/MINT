@@ -35,6 +35,7 @@ from sqlalchemy import (
     String,
 )
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.sql import expression
 from sqlalchemy.types import JSON
 
 from app.core.database import Base
@@ -78,6 +79,11 @@ class ConsentModel(Base):
     consent_timestamp = Column(DateTime, nullable=True)
     revoked_at = Column(DateTime, nullable=True)
     receipt_json = Column(JSONType, nullable=True)
+    # Audit T02-F49 (MINT_nosync-tqj): un crypto-shred de cascade qui echoue
+    # est enregistre durablement ici (retry au prochain appel consent / sweep).
+    # PAS dans receipt_json — il est signe (chaine Merkle), le muter casserait
+    # verify_chain.
+    shred_pending = Column(Boolean, nullable=False, default=False, server_default=expression.false())
     prev_hash = Column(String(64), nullable=True)  # sha256 hex of prev signature, null on genesis
     signature = Column(String(64), nullable=True)  # HMAC-SHA256 hex
 

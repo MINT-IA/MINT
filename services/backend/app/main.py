@@ -138,6 +138,18 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logger.warning("SLO monitor startup failed (non-fatal): %s", exc)
 
+    # MINT_nosync-tqj: sweep périodique des crypto-shreds en attente — borne
+    # le délai des CASCADE_GRACE_DAYS promis par l'endpoint de révocation
+    # (le retry paresseux seul ne garantit aucun délai).
+    shred_sweep_task = None
+    try:
+        from app.services.consent import shred_sweep
+        import asyncio as _asyncio
+        shred_sweep_task = _asyncio.create_task(shred_sweep.run_forever())
+        logger.info("Consent shred sweep started")
+    except Exception as exc:
+        logger.warning("Consent shred sweep startup failed (non-fatal): %s", exc)
+
     yield
 
     # Shutdown: stop SLO monitor
@@ -146,6 +158,11 @@ async def lifespan(app: FastAPI):
             from app.services.slo_monitor import slo_monitor
             slo_monitor.stop()
             slo_task.cancel()
+        except Exception:
+            pass
+    if shred_sweep_task is not None:
+        try:
+            shred_sweep_task.cancel()
         except Exception:
             pass
 
