@@ -1206,16 +1206,7 @@ class ApiService {
     }
 
     // Capital exhaustion age
-    int? capitalEpuiseAge;
-    if (capitalOption != null && capitalOption.trajectory.length > 1) {
-      final firstCashflow = capitalOption.trajectory.first.annualCashflow;
-      for (int i = 1; i < capitalOption.trajectory.length; i++) {
-        if (capitalOption.trajectory[i].annualCashflow < firstCashflow * 0.1) {
-          capitalEpuiseAge = capitalOption.trajectory[i].year;
-          break;
-        }
-      }
-    }
+    final capitalEpuiseAge = capitalEpuiseAgeFromTrajectory(capitalOption);
 
     return ArbitrageResult(
       options: options,
@@ -1253,6 +1244,23 @@ class ApiService {
       renteReelleAn20: renteReelleAn20,
       calculationReceipt: calculationReceipt,
     );
+  }
+
+  /// Âge d'épuisement du capital — lecture déterministe de la trajectoire.
+  ///
+  /// Le backend plafonne chaque retrait au capital restant, donc
+  /// `netPatrimony` (capital réel restant, arrondi à 2 décimales côté
+  /// serveur) touche 0 l'année de l'épuisement. Remplace l'heuristique
+  /// « cashflow < 10 % de l'an 1 » (off-by-one + faux négatifs, même défaut
+  /// que arbitrage_engine — beads MINT_nosync-t5r). Le champ `year` de la
+  /// trajectoire backend porte l'âge (age_retraite + i).
+  @visibleForTesting
+  static int? capitalEpuiseAgeFromTrajectory(TrajectoireOption? capitalOption) {
+    if (capitalOption == null) return null;
+    for (final snap in capitalOption.trajectory) {
+      if (snap.netPatrimony <= 0.005) return snap.year;
+    }
+    return null;
   }
 
   static ArbitrageCalculationReceipt? _parseArbitrageCalculationReceipt(

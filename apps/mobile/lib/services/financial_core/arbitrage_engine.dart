@@ -379,19 +379,13 @@ class ArbitrageEngine {
     final initialWithdrawal = capitalAfterReturn * tauxRetrait;
     final capitalRetraitMensuel = initialWithdrawal / 12;
 
-    // Capital exhaustion age
+    // Capital exhaustion age — deterministic read of the trajectory.
+    // _buildCapitalTrajectory caps each withdrawal to the remaining capital,
+    // so netPatrimony (real remaining capital, no cashflow mixed in) hits
+    // exactly 0 the year the capital is drained.
     int? capitalEpuiseAge;
     for (int i = 1; i < capitalTrajectory.length; i++) {
-      // Capital trajectory netPatrimony includes cumulative cashflow,
-      // so check if the remaining capital portion is <= 0.
-      // We detect exhaustion when annual cashflow drops to near-zero
-      // (the capital portion is drained).
-      final snap = capitalTrajectory[i];
-      // Extract remaining capital: netPatrimony - cumulativeCashflow
-      // Since we don't track separately, use the trajectory's design:
-      // when the withdrawal is capped to remaining capital and capital is 0
-      if (i > 1 &&
-          snap.annualCashflow < capitalTrajectory[1].annualCashflow * 0.1) {
+      if (capitalTrajectory[i].netPatrimony <= 1e-9) {
         capitalEpuiseAge = ageRetraite + i;
         break;
       }

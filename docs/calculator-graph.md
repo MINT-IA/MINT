@@ -86,6 +86,7 @@ Julien + Lauren golden values.
 | **ArbitrageEngine** (composite) | `arbitrage_engine.dart` | profile + constants | action list | ArbitrageBilanScreen, coach suggestions |
 | **BayesianEnricher** | `bayesian_enricher.dart` | profile + priors | enriched profile w/ estimates | ConfidenceScorer |
 | **MonteCarloService** | `monte_carlo_service.dart` | profile + scenarios | probability distributions | RetirementDashboard scenarios (Prudent/Base/Optimiste) |
+| **MortalityOfs** | `mortality_ofs.dart` | age + gender + rng | sampled death age (table OFS 2023) | MonteCarloService (tirage longévité par simulation) |
 | **WithdrawalSequencingService** | `withdrawal_sequencing_service.dart` | retirement params | sequencing plan | DecaissementScreen |
 | **TornadoSensitivityService** | `tornado_sensitivity_service.dart` | FRI inputs | sensitivity chart data | FinancialSummaryScreen tornado chart |
 
