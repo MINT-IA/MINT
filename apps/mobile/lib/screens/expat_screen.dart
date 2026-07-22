@@ -47,9 +47,8 @@ class _ExpatScreenState extends State<ExpatScreen>
   double _livingExpenses = 1000000;
   double _actualIncome = 5000000;
   Map<String, dynamic>? _forfaitResult;
-  // MINT_nosync-9f8 : top cantons calcules via FiscalService (plus de
-  // classement fabrique). Etat + recompute suivant l'idiome du fichier.
-  List<CantonRanking> _topCantons = const [];
+  // MINT_nosync-9f8 : top cantons calcules via FiscalService au build
+  // (plus de classement fabrique).
   bool _topCantonsHasChildren = false;
 
   // ── Tab 2: Depart inputs ──────────────────────────────
@@ -72,7 +71,6 @@ class _ExpatScreenState extends State<ExpatScreen>
     _recalculateForfait();
     _recalculateDepart();
     _recalculateAvs();
-    _recalculateTopCantons();
   }
 
   @override
@@ -85,19 +83,15 @@ class _ExpatScreenState extends State<ExpatScreen>
   /// charge fiscale du canton d'ancrage - charge du candidat, via
   /// FiscalService (modele simplifie MINT, 26 cantons). Exclut l'ancrage, ne
   /// garde que les ecarts positifs, max 5 — jamais de rangs rembourres.
-  void _recalculateTopCantons() {
-    final provider = context.read<CoachProfileProvider>();
-    final profile = provider.hasProfile ? provider.profile : null;
-    final anchorCanton = (profile != null && profile.canton.isNotEmpty)
-        ? profile.canton
-        : _forfaitCanton;
-    final profileIncome = profile?.revenuBrutAnnuel ?? 0;
-    final income = profileIncome > 0 ? profileIncome.toDouble() : _actualIncome;
-    final etatCivil = (profile != null && profile.etatCivil.name == 'marie')
-        ? 'marie'
-        : 'celibataire';
-    final enfants = _topCantonsHasChildren ? 1 : 0;
-
+  /// Calcule au build (<1 ms pour 26 cantons) : reste coherent avec
+  /// l'hydratation asynchrone du profil (review Codex — un state fige en
+  /// initState restait rassis quand le profil arrivait apres).
+  List<CantonRanking> _computeTopCantons({
+    required String anchorCanton,
+    required double income,
+    required String etatCivil,
+    required int enfants,
+  }) {
     final chargeActuelle = (FiscalService.estimateTax(
           revenuBrut: income,
           canton: anchorCanton,
@@ -125,7 +119,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       ));
       if (candidates.length == 5) break;
     }
-    _topCantons = candidates;
+    return candidates;
   }
 
   void _recalculateForfait() {
@@ -261,21 +255,41 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildTopCantonSection() {
-    final provider = context.read<CoachProfileProvider>();
+    final provider = context.watch<CoachProfileProvider>();
     final profile = provider.hasProfile ? provider.profile : null;
-    final anchorCanton = (profile != null && profile.canton.isNotEmpty)
-        ? profile.canton
-        : _forfaitCanton;
+    // Ancre resolue UNIQUEMENT vers un code connu du modele — un canton de
+    // profil non resolu ne doit jamais fabriquer une ancre (review Codex).
+    final profileCanton = profile?.canton ?? '';
+    final anchorCanton =
+        FiscalService.effectiveRates100kSingle.containsKey(profileCanton)
+            ? profileCanton
+            : _forfaitCanton;
+    final isMarried = profile != null && profile.etatCivil.name == 'marie';
+    final etatCivil = isMarried ? 'marie' : 'celibataire';
+    // Marie : revenu du couple (imposition commune) quand disponible.
+    final profileIncome = isMarried
+        ? (profile.revenuBrutAnnuelCouple)
+        : (profile?.revenuBrutAnnuel ?? 0);
+    final income = profileIncome > 0 ? profileIncome.toDouble() : _actualIncome;
+    // Le modele famille de FiscalService n'a de variante enfants que pour
+    // les maries — le toggle serait numeriquement inerte sinon (facade,
+    // review Codex) : masque hors mariage, pre-regle sur le profil.
+    final enfants = isMarried
+        ? (_topCantonsHasChildren || profile.nombreEnfants > 0 ? 1 : 0)
+        : 0;
+
     return TopCantonWidget(
       currentCanton: anchorCanton,
-      rankings: _topCantons,
-      hasChildren: _topCantonsHasChildren,
-      onChildrenChanged: (v) {
-        setState(() {
-          _topCantonsHasChildren = v;
-          _recalculateTopCantons();
-        });
-      },
+      rankings: _computeTopCantons(
+        anchorCanton: anchorCanton,
+        income: income,
+        etatCivil: etatCivil,
+        enfants: enfants,
+      ),
+      hasChildren: enfants > 0,
+      onChildrenChanged: isMarried
+          ? (v) => setState(() => _topCantonsHasChildren = v)
+          : null,
     );
   }
 
@@ -325,7 +339,6 @@ class _ExpatScreenState extends State<ExpatScreen>
                       if (v != null) {
                         _forfaitCanton = v;
                         _recalculateForfait();
-                        _recalculateTopCantons();
                       }
                     },
                   ),
@@ -356,7 +369,6 @@ class _ExpatScreenState extends State<ExpatScreen>
               setState(() {
                 _actualIncome = v;
                 _recalculateForfait();
-                _recalculateTopCantons();
               });
             },
             min: 500000,
