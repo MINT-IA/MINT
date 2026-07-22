@@ -77,6 +77,18 @@ void main() {
       expect(result.breakdown.first.year, 2030);
     });
 
+    test('gapYears 0 yields no retroactive (no fabricated gap)', () {
+      final result = Retroactive3aCalculator.calculate(
+        gapYears: 0,
+        tauxMarginal: 0.30,
+        referenceYear: 2026,
+      );
+      expect(result.gapYears, 0);
+      expect(result.totalRetroactive, 0.0);
+      expect(result.breakdown, isEmpty);
+      expect(result.premierEclairage, isNot(contains('rattraper')));
+    });
+
     test('referenceYear 2025: no past year buyable yet', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 5,

@@ -92,11 +92,12 @@ class TestRetroactive3aEdgeCases:
         assert result.gap_years == 1
         assert len(result.breakdown) == 1
 
-    def test_gap_years_zero_treated_as_one(self):
-        """Gap < 1 traité comme 1 (année 2025 en 2026)."""
+    def test_gap_years_zero_yields_no_retroactive(self):
+        """Aucune lacune déclarée -> aucun rachat fabriqué (review Codex -i0v)."""
         result = calculate_retroactive_3a(gap_years=0, taux_marginal=0.30)
-        assert result.gap_years == 1
-        assert len(result.breakdown) == 1
+        assert result.gap_years == 0
+        assert result.total_retroactive == 0.0
+        assert result.breakdown == []
 
     def test_zero_taux_marginal_no_savings(self):
         """Taux marginal nul → économie nulle."""

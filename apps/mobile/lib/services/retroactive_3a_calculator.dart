@@ -128,9 +128,10 @@ class Retroactive3aCalculator {
             pilier3aRetroactiveFirstEligibleYear
         ? effectiveRefYear - pilier3aMaxRetroactiveYears
         : pilier3aRetroactiveFirstEligibleYear;
-    final requestedCount = gapYears < 1 ? 1 : gapYears;
+    // gapYears <= 0 = aucune lacune déclarée -> aucun rachat (ne pas fabriquer
+    // une lacune ; défaut relevé par la review Codex sur le port de parité).
     final eligible = <int>[
-      for (int i = requestedCount; i >= 1; i--)
+      for (int i = gapYears; i >= 1; i--)
         if (effectiveRefYear - i >= earliest) effectiveRefYear - i,
     ]; // ascendant = lacunes les plus anciennes d'abord
 

@@ -132,7 +132,10 @@ def calculate_retroactive_3a(
     earliest = max(
         RETRO_3A_FIRST_ELIGIBLE_GAP_YEAR, reference_year - MAX_RETROACTIVE_YEARS
     )
-    requested = [reference_year - i for i in range(1, max(1, gap_years) + 1)]
+    # gap_years <= 0 = aucune lacune déclarée -> aucun rachat (ne pas fabriquer
+    # une lacune ; défaut hérité de S52, relevé par la review Codex de la parité
+    # Dart, MINT_nosync-i0v).
+    requested = [reference_year - i for i in range(1, gap_years + 1)]
     eligible = sorted(
         {y for y in requested if earliest <= y <= reference_year - 1}
     )  # ascendant = lacunes les plus anciennes d'abord (fenêtre 10 ans)
