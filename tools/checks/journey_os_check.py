@@ -55,6 +55,18 @@ ALLOW = {
     "docs/MINT_AGENT_WORKFLOW.md",
     "lefthook.yml",
     "rules.md",
+    # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
+    "tools/checks/journey_os_check.py",
+    "tools/checks/no_false_privacy_attestation.py",
+    "PRIVACY.md",
+    "LEGAL_RELEASE_CHECK.md",
+    "docs/DATA_ACQUISITION_STRATEGY.md",
+    "apps/mobile/lib/services/financial_core/arbitrage_engine.dart",
+    "apps/mobile/test/simulators/rente_vs_capital_test.dart",
+    ".gitignore",
+    ".planning/phases/remediation-audit-2026-07/CONTEXT.md",
+    ".planning/phases/remediation-audit-2026-07/AUTHORIZED_FILES.md",
+    # --- end remediation audit 2026-07 ---
     "apps/mobile/lib/app.dart",
     "apps/mobile/lib/models/screen_return.dart",
     "apps/mobile/lib/providers/auth_provider.dart",

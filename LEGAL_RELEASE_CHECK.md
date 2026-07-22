@@ -48,7 +48,7 @@ This checklist must pass before any major release or merging features related to
 
 ## 8. Data Acquisition Compliance (verified S42-S47)
 - [x] Document images NEVER stored (deleted after OCR extraction).
-- [x] On-device OCR by default (document never leaves phone).
+- [x] Document OCR runs server-side (Anthropic Claude Vision, US) — PII-masked when possible, Zero Data Retention, Swiss-US DPF basis; disclosed in privacy_policy_v2.3.0 §3.3. (On-device OCR was removed 2026-04-17.)
 - [x] Cloud OCR requires explicit consent + data deleted after processing.
 - [x] Extracted values require user confirmation before profile injection.
 - [x] Source quality tracked per field (ProfileDataSource enum: estimated → openBanking, S46).
