@@ -206,6 +206,26 @@ class TestMultiAccount:
             assert cur.economie_vs_bloc >= prev.economie_vs_bloc - 0.01
             assert cur.economie_marginale <= prev.economie_marginale + 0.01
 
+    def test_marginales_derive_from_rounded_displayed_values(self, multi_service):
+        """Cohérence interne de la table (repro Codex : 100'900 ZH).
+
+        Les marginales doivent être exactement la différence des économies
+        AFFICHÉES (arrondies), et jamais un zéro négatif.
+        """
+        result = multi_service.simulate_staggered_withdrawal(
+            avoir_total=100_900,
+            nb_comptes=3,
+            canton="ZH",
+            revenu_imposable=120_000,
+            age_retrait_debut=60,
+            age_retrait_fin=64,
+        )
+        prev = 0.0
+        for s in result.scenarios:
+            assert s.economie_marginale == round(s.economie_vs_bloc - prev, 2)
+            assert str(s.economie_marginale) != "-0.0"
+            prev = s.economie_vs_bloc
+
     def test_scenarios_expose_provider_fees(self, multi_service):
         """Les frais annuels par compte apparaissent dans chaque scenario."""
         result = multi_service.simulate_staggered_withdrawal(

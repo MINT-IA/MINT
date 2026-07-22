@@ -299,22 +299,28 @@ class MultiAccountService:
         bloc_tax = avoir_total * bloc_taux
 
         scenarios: List[AccountScenario] = []
-        previous_saving = 0.0
+        # Les marginales sont dérivées des valeurs ARRONDIES affichées, pas
+        # des floats bruts — sinon la table peut montrer des lignes
+        # incohérentes (review Codex : -0.0 marginal avec économies affichées
+        # identiques). `+ 0.0` normalise le zéro négatif.
+        previous_saving_rounded = 0.0
         for n in range(2, min(6, annees_max + 1)):
             part = avoir_total / n
             part_taux = self._calc_effective_rate(part, base_rate)
             total_tax = part * part_taux * n
-            saving = bloc_tax - total_tax
+            saving_rounded = round(bloc_tax - total_tax, 2)
             scenarios.append(AccountScenario(
                 nb_comptes=n,
                 impot_total=round(total_tax, 2),
-                economie_vs_bloc=round(saving, 2),
-                economie_marginale=round(saving - previous_saving, 2),
+                economie_vs_bloc=saving_rounded,
+                economie_marginale=round(
+                    saving_rounded - previous_saving_rounded, 2
+                ) + 0.0,
                 frais_annuels_supplementaires=round(
                     (n - 1) * frais_annuels_par_compte, 2
                 ),
             ))
-            previous_saving = saving
+            previous_saving_rounded = saving_rounded
 
         return scenarios
 

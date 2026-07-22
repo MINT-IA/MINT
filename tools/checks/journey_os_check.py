@@ -93,6 +93,7 @@ ALLOW = {
     "services/backend/app/schemas/pillar_3a_deep.py",
     "services/backend/app/api/v1/endpoints/pillar_3a_deep.py",
     "services/backend/tests/test_pillar_3a_deep.py",
+    "tools/openapi/openapi.json",
     "services/backend/tests/test_allocation_annuelle.py",
     "services/backend/tests/test_arbitrage_allocation_annuelle_grounding.py",
     "services/backend/education_inserts/concepts/avs_cotisations_independants.md",
