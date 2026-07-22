@@ -44,6 +44,22 @@ class YearlyWithdrawalEntry:
 
 
 @dataclass
+class AccountScenario:
+    """Un scénario « N comptes » présenté sans classement (LSFin no-ranking).
+
+    L'économie marginale de chaque compte supplémentaire est à comparer aux
+    frais annuels du prestataire (droits de garde / frais d'administration,
+    variables selon le provider) — audit T02-F03 (MINT_nosync-eml) : l'ancien
+    « nombre optimal » ignorait ces frais et sur-recommandait des comptes.
+    """
+    nb_comptes: int
+    impot_total: float            # Impôt total avec N comptes (CHF)
+    economie_vs_bloc: float       # Économie brute vs retrait en bloc (CHF)
+    economie_marginale: float     # Gain additionnel vs le scénario N-1 (CHF)
+    frais_annuels_supplementaires: float  # (N-1) x frais annuels par compte
+
+
+@dataclass
 class StaggeredWithdrawalResult:
     """Complete result of staggered vs bloc withdrawal comparison."""
 
@@ -59,8 +75,8 @@ class StaggeredWithdrawalResult:
     economy: float               # Tax savings from staggering (CHF)
     economy_pct: float           # Savings as percentage
 
-    # Plan details
-    optimal_accounts: int        # Recommended number of accounts (2-5)
+    # Plan details — scénarios comparés SANS désigner de vainqueur (LSFin)
+    scenarios: List["AccountScenario"]
     yearly_plan: List[YearlyWithdrawalEntry]
 
     # Metadata
@@ -84,7 +100,7 @@ class MultiAccountService:
     - Each 3a account must be withdrawn in full (no partial withdrawal)
     - Multiple accounts enable staggered withdrawal across years
     - Capital withdrawal tax is progressive in most cantons (LIFD art. 38)
-    - Optimal: 2-5 accounts, one withdrawn per year in the last years before retirement
+    - En pratique: 2-5 comptes, un retrait par annee dans les dernieres annees avant la retraite
 
     Sources:
         - OPP3 art. 1, 3 (conditions retrait 3a)
@@ -103,6 +119,7 @@ class MultiAccountService:
         revenu_imposable: float,
         age_retrait_debut: int,
         age_retrait_fin: int,
+        frais_annuels_par_compte: float = 0.0,
     ) -> StaggeredWithdrawalResult:
         """Simulate staggered vs bloc 3a withdrawal.
 
@@ -176,8 +193,11 @@ class MultiAccountService:
             if avoir_total > 0 else 0.0
         )
 
-        # 5. Optimal accounts recommendation
-        optimal = self._recommend_optimal_accounts(avoir_total, base_rate, annees_disponibles)
+        # 5. Scénarios par nombre de comptes (sans classement)
+        scenarios = self._build_account_scenarios(
+            avoir_total, base_rate, annees_disponibles,
+            max(0.0, frais_annuels_par_compte),
+        )
 
         # 6. Chiffre choc
         if economy > 0:
@@ -211,7 +231,7 @@ class MultiAccountService:
             staggered_taux_effectif=staggered_taux,
             economy=economy,
             economy_pct=economy_pct,
-            optimal_accounts=optimal,
+            scenarios=scenarios,
             yearly_plan=yearly_plan,
             avoir_total=avoir_total,
             nb_comptes=nb_comptes_effectif,
@@ -255,43 +275,48 @@ class MultiAccountService:
         effective_rate = total_tax / montant if montant > 0 else 0.0
         return min(effective_rate, 0.25)  # Cap at 25% for realism
 
-    def _recommend_optimal_accounts(
-        self, avoir_total: float, base_rate: float, annees_max: int,
-    ) -> int:
-        """Recommend the optimal number of 3a accounts.
+    def _build_account_scenarios(
+        self,
+        avoir_total: float,
+        base_rate: float,
+        annees_max: int,
+        frais_annuels_par_compte: float,
+    ) -> List[AccountScenario]:
+        """Construit les scénarios 2..5 comptes SANS désigner de vainqueur.
 
-        Tests 2-5 accounts and returns the one with the best tax savings.
-        Considers diminishing returns and practical limits.
-
-        Args:
-            avoir_total: Total 3a savings (CHF).
-            base_rate: Base cantonal rate.
-            annees_max: Maximum years available.
-
-        Returns:
-            Optimal number of accounts (2-5).
+        Remplace l'ancien `_recommend_optimal_accounts` (audit T02-F03) qui
+        renvoyait un unique « nombre optimal » maximisant l'économie brute,
+        sans aucun paramètre de frais provider et avec un seuil de 500 CHF non
+        sourcé. Ici chaque scénario expose l'économie marginale du compte
+        supplémentaire ET les frais annuels correspondants — l'utilisateur (ou
+        l'écran) compare, l'outil ne tranche pas (LSFin : pas de
+        « optimal / meilleur »).
         """
         if avoir_total <= 0:
-            return 2  # Default recommendation
-
-        best_n = 2
-        best_saving = 0.0
+            return []
 
         bloc_taux = self._calc_effective_rate(avoir_total, base_rate)
         bloc_tax = avoir_total * bloc_taux
 
+        scenarios: List[AccountScenario] = []
+        previous_saving = 0.0
         for n in range(2, min(6, annees_max + 1)):
             part = avoir_total / n
             part_taux = self._calc_effective_rate(part, base_rate)
             total_tax = part * part_taux * n
             saving = bloc_tax - total_tax
+            scenarios.append(AccountScenario(
+                nb_comptes=n,
+                impot_total=round(total_tax, 2),
+                economie_vs_bloc=round(saving, 2),
+                economie_marginale=round(saving - previous_saving, 2),
+                frais_annuels_supplementaires=round(
+                    (n - 1) * frais_annuels_par_compte, 2
+                ),
+            ))
+            previous_saving = saving
 
-            # Account for diminishing returns — marginal benefit must be > 500 CHF
-            if saving > best_saving and (n == 2 or saving - best_saving > 500):
-                best_saving = saving
-                best_n = n
-
-        return best_n
+        return scenarios
 
     def _generate_alerts(
         self,
@@ -318,8 +343,9 @@ class MultiAccountService:
 
         if avoir_total > 200_000 and nb_comptes < 3:
             alerts.append(
-                f"Avec {avoir_total:,.0f} CHF d'avoir 3a, au moins 3 comptes "
-                f"sont recommandes pour optimiser l'echelonnement fiscal.".replace(",", "'")
+                f"Avec {avoir_total:,.0f} CHF d'avoir 3a, envisager au moins "
+                f"3 comptes pourrait renforcer l'effet de l'échelonnement "
+                f"fiscal.".replace(",", "'")
             )
 
         if age_fin - age_debut < nb_comptes - 1:
@@ -337,6 +363,13 @@ class MultiAccountService:
         alerts.append(
             "Rappel: chaque compte 3a doit etre retire en totalite. "
             "Il n'est pas possible de retirer partiellement un compte 3a."
+        )
+
+        alerts.append(
+            "Chaque compte supplémentaire entraîne des frais annuels selon le "
+            "prestataire (droits de garde, frais d'administration). Comparez "
+            "l'économie marginale de chaque scénario à ces frais avant "
+            "d'ouvrir un compte."
         )
 
         if economy > 10_000:

@@ -183,8 +183,12 @@ class TestMultiAccount:
         assert result.bloc_tax == 0.0
         assert result.staggered_tax == 0.0
 
-    def test_optimal_accounts_between_2_and_5(self, multi_service):
-        """Optimal accounts recommendation should be between 2 and 5."""
+    def test_scenarios_no_single_winner(self, multi_service):
+        """Scenarios 2-5 comptes presentes SANS vainqueur (audit T02-F03).
+
+        L'ancien champ optimal_accounts designait un unique « nombre
+        optimal » (terme LSFin) sans parametre de frais provider.
+        """
         result = multi_service.simulate_staggered_withdrawal(
             avoir_total=300_000,
             nb_comptes=3,
@@ -193,7 +197,56 @@ class TestMultiAccount:
             age_retrait_debut=60,
             age_retrait_fin=64,
         )
-        assert 2 <= result.optimal_accounts <= 5
+        assert not hasattr(result, "optimal_accounts")
+        ns = [s.nb_comptes for s in result.scenarios]
+        assert ns == [2, 3, 4, 5]
+        # Economie marginale decroissante (progressivite) et coherente.
+        assert result.scenarios[0].economie_marginale == result.scenarios[0].economie_vs_bloc
+        for prev, cur in zip(result.scenarios, result.scenarios[1:]):
+            assert cur.economie_vs_bloc >= prev.economie_vs_bloc - 0.01
+            assert cur.economie_marginale <= prev.economie_marginale + 0.01
+
+    def test_scenarios_expose_provider_fees(self, multi_service):
+        """Les frais annuels par compte apparaissent dans chaque scenario."""
+        result = multi_service.simulate_staggered_withdrawal(
+            avoir_total=100_000,
+            nb_comptes=3,
+            canton="VD",
+            revenu_imposable=120_000,
+            age_retrait_debut=60,
+            age_retrait_fin=64,
+            frais_annuels_par_compte=36.0,
+        )
+        by_n = {s.nb_comptes: s for s in result.scenarios}
+        assert by_n[2].frais_annuels_supplementaires == 36.0
+        assert by_n[5].frais_annuels_supplementaires == 144.0
+
+    def test_fees_alert_present(self, multi_service):
+        """L'alerte frais-par-compte est toujours presente (T02-F03)."""
+        result = multi_service.simulate_staggered_withdrawal(
+            avoir_total=100_000,
+            nb_comptes=3,
+            canton="VD",
+            revenu_imposable=120_000,
+            age_retrait_debut=60,
+            age_retrait_fin=64,
+        )
+        assert any("frais annuels" in a for a in result.alerts)
+
+    def test_no_banned_terms_in_user_facing_output(self, multi_service):
+        """Aucun terme LSFin banni dans les surfaces user-facing."""
+        result = multi_service.simulate_staggered_withdrawal(
+            avoir_total=300_000,
+            nb_comptes=3,
+            canton="VD",
+            revenu_imposable=150_000,
+            age_retrait_debut=60,
+            age_retrait_fin=64,
+        )
+        surfaces = [result.premier_eclairage, *result.alerts]
+        for term in ("optimal", "optimis", "garanti", "meilleur"):
+            for s in surfaces:
+                assert term not in s.lower(), f"terme banni '{term}' dans: {s}"
 
 
 # ===========================================================================
