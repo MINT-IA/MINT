@@ -378,10 +378,21 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
+          # Real staging-log scan requires a VERIFIED `railway logs` invocation
+          # (service/environment context) — no workflow has ever run one; arming
+          # it untested inside the sole required check could block every backend
+          # PR. Tracked separately (audit T15-F02 follow-up). Until then the
+          # fixture fallback is kept but made HONEST: it annotates loudly that
+          # no real staging log was scanned, instead of claiming token absence.
           if [[ -n "${RAILWAY_TOKEN:-}" ]] && command -v railway >/dev/null 2>&1; then
             python3 scripts/check_pii_in_logs.py --railway
           else
-            echo "RAILWAY_TOKEN absent; scanning test fixture instead."
+            if [[ -z "${RAILWAY_TOKEN:-}" ]]; then
+              reason="RAILWAY_TOKEN absent"
+            else
+              reason="railway CLI not installed"
+            fi
+            echo "::warning title=PII log gate ran on FIXTURE::${reason} — staging logs were NOT scanned (PRIV-03). Real-scan arming tracked in beads."
             mkdir -p /tmp/pii_fixture
             printf 'INFO document fingerprint computed count=5\nINFO consent receipt issued purpose=projection\n' > /tmp/pii_fixture/clean.log
             python3 scripts/check_pii_in_logs.py --fixture /tmp/pii_fixture/clean.log
@@ -709,7 +720,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, contracts-drift, pii-log-gate]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -724,6 +735,8 @@ jobs:
           cli_tests="${{ needs.mint-routes-tests.result }}"
           admin_sanity="${{ needs.admin-build-sanity.result }}"
           cache_gi="${{ needs.cache-gitignore-check.result }}"
+          contracts_drift="${{ needs.contracts-drift.result }}"
+          pii_log="${{ needs.pii-log-gate.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
@@ -732,8 +745,15 @@ jobs:
           [[ "$cli_tests" == "skipped" ]] && cli_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          # pii-log-gate has a path-filter `if` (backend changes || push):
+          # a skip is legitimate on mobile-only PRs.
+          [[ "$pii_log" == "skipped" ]] && pii_log="success"
+          # contracts-drift has NO path filter: a skip is never legitimate
+          # (cancellation or infra failure) — do NOT collapse it to success.
+          # Audit T15-F01/F02 (MINT_nosync-aoa): its red previously skipped
+          # backend/flutter, which collapsed to success -> gate stayed green.
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$contracts_drift" != "success" ]] || [[ "$pii_log" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi contracts_drift=$contracts_drift pii_log=$pii_log"
             exit 1
           fi
           echo "All checks passed"

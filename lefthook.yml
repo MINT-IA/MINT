@@ -132,6 +132,16 @@ pre-commit:
       glob: "{PRIVACY.md,LEGAL_RELEASE_CHECK.md,docs/DATA_ACQUISITION_STRATEGY.md}"
       tags: [compliance, nlpd, privacy, audit-2026-07]
       fail_text: "False on-device privacy attestation vs privacy_policy_v2.3.0 §3.3 (real Anthropic Vision US transfer). Align the doc with reality or remove the claim."
+    ci-gate-aggregation-check:
+      # Audit 2026-07 (T15-F01/F02, beads MINT_nosync-aoa): "CI Gate" is the sole
+      # required status check; its needs list once omitted contracts-drift and
+      # pii-log-gate, and skipped->success collapsing let a red contracts-drift
+      # produce a green gate. This lint keeps the compliance jobs mechanically
+      # wired into the aggregator so the regression cannot come back silently.
+      run: python3 tools/checks/ci_gate_aggregation_check.py
+      glob: "{.github/workflows/ci.yml,tools/checks/ci_gate_aggregation_check.py}"
+      tags: [compliance, ci, audit-2026-07]
+      fail_text: "ci-gate no longer gates the compliance jobs (contracts-drift / pii-log-gate). Re-wire needs + aggregation — audit T15-F01/F02."
     no-3a-ceiling-as-tax-saving-gate:
       # Trust rule: CHF 7'258 / CHF 36'288 are 3a deductible contribution
       # ceilings, not the user's tax saving. Tax impact requires a separate
