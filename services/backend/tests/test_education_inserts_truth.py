@@ -56,25 +56,36 @@ def test_donation_exempt_line_excludes_taxing_cantons():
         )
 
 
-def test_donation_geneva_expenditure_caveat_present():
+def _section(text, header):
+    assert header in text, f"section absente : {header}"
+    return text.split(header, 1)[1].split("\n## ", 1)[0]
+
+
+def test_donation_geneva_expenditure_caveat_present_in_both_sections():
+    # Le caveat GE doit vivre dans CHAQUE section servie — le retirer d'une
+    # seule (éclairage OU Niveau 1) doit rendre le test rouge.
     t = DON.read_text(encoding="utf-8")
-    assert "d'après la dépense" in t, (
-        "caveat GE manquant : l'exonération ligne directe tombe pour "
-        "l'imposition d'après la dépense (forfait fiscal)"
-    )
-    assert "forfait fiscal" in t
+    for header in ("## Premier Éclairage", "## Niveau 1"):
+        sec = _section(t, header)
+        assert "d'après la dépense" in sec, (
+            f"caveat GE manquant dans {header} : l'exonération ligne directe "
+            "tombe pour l'imposition d'après la dépense (forfait fiscal)"
+        )
+        assert "forfait fiscal" in sec, f"caveat GE incomplet dans {header}"
 
 
 def test_donation_eclairage_not_overbroad():
     t = DON.read_text(encoding="utf-8")
     # L'ancien éclairage prétendait « exonérée dans 23 cantons » alors qu'un
     # don de 100k reste sous les franchises AI (300k) et VD (300k) : seule NE
-    # le taxerait. Le comptage de cantons est banni de l'éclairage.
+    # le taxerait. Le comptage de cantons est banni de l'éclairage, et les
+    # chiffres de l'éclairage sont verrouillés section-scoped (une mutation
+    # du taux NE dans l'éclairage seul doit rendre le test rouge).
     assert "23 cantons" not in t
-    eclairage = t.split("## Premier Éclairage", 1)[1].split("##", 1)[0]
+    eclairage = _section(t, "## Premier Éclairage")
     assert "Neuchâtel" in eclairage
-    assert "CHF 10'000" in eclairage
-    assert "CHF 300'000" in eclairage
+    assert f"(3{NBSP}% au-delà d'une franchise de CHF 10'000 par an)" in eclairage
+    assert "au-delà de CHF 300'000 par an" in eclairage
 
 
 def test_copies_are_synced():
