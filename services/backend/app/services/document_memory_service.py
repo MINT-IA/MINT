@@ -163,6 +163,11 @@ def _entry_fields(db, user_id: str, entry: Dict[str, Any]) -> Dict[str, Any]:
         try:
             plain = decrypt_text(db, user_id, base64.b64decode(enc))
             return json.loads(plain) if plain else {}
+        except DEKRevokedError:
+            # Post-crypto-shred : ne JAMAIS degrader en silence — l'upsert
+            # doit echouer plutot que d'ecrire une nouvelle entree apres
+            # l'effacement (review Codex MINT_nosync-tih).
+            raise
         except Exception as exc:
             logger.warning("field_history decrypt failed user=%s err=%s", user_id, exc)
             return {}

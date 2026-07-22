@@ -49,25 +49,6 @@ from app.services.document_memory_service import (
 )
 
 
-def persist_document_memory(db, user_id: str, result) -> None:
-    """Persistance DocumentMemory + diff — appelable APRES le gate tiers.
-
-    Utilise par analyze_document pour les docs non flagges, et par l'endpoint
-    documents.py pour les docs tiers UNE FOIS la declaration validee
-    (require_declaration_or_block) — audit T06-F10, MINT_nosync-tih.
-    """
-    import logging as _logging
-
-    try:
-        diff = _upsert_and_diff(db, user_id, result)
-        result.diff_from_previous = diff
-        result.fingerprint = _compute_fingerprint(
-            result.document_class.value, result.issuer_guess, None,
-        )
-    except Exception as exc:
-        _logging.getLogger(__name__).warning(
-            "document_memory upsert failed err=%s", exc
-        )
 from app.services.document_pdf_preflight import (
     preflight_pdf as _preflight_pdf,
     select_pages_for_vision as _select_pages,
@@ -230,6 +211,29 @@ async def _async_vision_call(
         purpose="document_vision",
     ))
 logger = logging.getLogger(__name__)
+
+
+def persist_document_memory(db, user_id: str, result) -> None:
+    """Persistance DocumentMemory + diff — appelable APRES le gate tiers.
+
+    Utilise par analyze_document pour les docs non flagges, et par l'endpoint
+    documents.py pour les docs tiers UNE FOIS la declaration validee
+    (require_declaration_or_block) — audit T06-F10, MINT_nosync-tih.
+    Ne persiste que les extractions reussies (les champs d'un doc rejete par
+    NumericSanity ne doivent pas entrer en memoire — review Codex).
+    """
+    from app.schemas.document_understanding import ExtractionStatus as _S
+
+    if result.extraction_status != _S.success:
+        return
+    try:
+        diff = _upsert_and_diff(db, user_id, result)
+        result.diff_from_previous = diff
+        result.fingerprint = _compute_fingerprint(
+            result.document_class.value, result.issuer_guess, None,
+        )
+    except Exception as exc:
+        logger.warning("document_memory upsert failed err=%s", exc)
 
 
 def _build_vision_content_block(base64_data: str) -> dict:
@@ -1424,8 +1428,10 @@ async def understand_document(
     except Exception as exc:
         logger.warning("token_budget consume failed err=%s", exc)
 
-    # 10. Idempotency store
-    if file_sha:
+    # 10. Idempotency store — jamais pour les docs flagges tiers : le cache
+    # rejouerait un resultat SANS memoire/diff et contournerait le gate de
+    # declaration au prochain upload identique (review Codex MINT_nosync-tih).
+    if file_sha and not result.third_party_detected:
         try:
             await _idempotency.store_by_file_sha(
                 file_sha, result.model_dump(mode="json"),

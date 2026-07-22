@@ -96,7 +96,6 @@ def test_field_history_encrypted_under_privacy_v2(db):
 
 def test_field_history_diff_reads_encrypted_previous(db):
     """Le diff fonctionne au travers d'une entrée précédente chiffrée."""
-    import json as _json
     import app.services.document_memory_service as dms
     from app.models import User
 
