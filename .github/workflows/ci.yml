@@ -724,6 +724,12 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - name: Self-verify gate wiring (audit T15-F01/F02)
+        # Remote counterpart of the lefthook ci-gate-aggregation-check gate:
+        # a commit pushed with hooks bypassed cannot silently disconnect the
+        # compliance jobs from the sole required check (Codex review -aoa).
+        run: python3 tools/checks/ci_gate_aggregation_check.py
       - name: Check results
         run: |
           # Skip check if job was skipped (no relevant changes)

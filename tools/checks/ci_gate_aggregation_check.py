@@ -29,8 +29,15 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CI_YML = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 
-# Compliance jobs that must be wired into the sole required check.
-REQUIRED_IN_GATE = ["contracts-drift", "pii-log-gate"]
+# Compliance jobs that must be wired into the sole required check, mapped to
+# the shell variable carrying their result in the aggregation script. EVERY
+# entry must appear in needs, be read, AND be tied to the failure predicate
+# (Codex review MINT_nosync-aoa: checking the predicate for only one job let
+# a mutation silently disconnect pii-log-gate).
+REQUIRED_IN_GATE = {
+    "contracts-drift": "contracts_drift",
+    "pii-log-gate": "pii_log",
+}
 # Jobs with no path-filter `if:` — a skip is never legitimate, so the
 # aggregator must not collapse their skipped result to success.
 NO_SKIP_COLLAPSE = {"contracts-drift": "contracts_drift"}
@@ -58,11 +65,16 @@ def main() -> int:
 
     needs_m = re.search(r"needs:\s*\[([^\]]*)\]", block)
     needs = [n.strip() for n in needs_m.group(1).split(",")] if needs_m else []
-    for job in REQUIRED_IN_GATE:
+    for job, var in REQUIRED_IN_GATE.items():
         if job not in needs:
             errors.append(f"ci-gate needs is missing compliance job '{job}'")
         if f"needs.{job}.result" not in block:
             errors.append(f"ci-gate script never reads needs.{job}.result")
+        # The variable must be tied to the final failure predicate.
+        if not re.search(rf'"\${var}"\s*!=\s*"success"', block):
+            errors.append(
+                f"ci-gate final condition does not fail on '{job}' != success"
+            )
 
     for job, var in NO_SKIP_COLLAPSE.items():
         if re.search(rf'"\${var}"\s*==\s*"skipped"', block):
@@ -70,11 +82,6 @@ def main() -> int:
                 f"ci-gate collapses skipped->success for '{job}' — it has no "
                 "path-filter `if`, a skip is never legitimate (cancelled or "
                 "dependency failure must fail the gate)"
-            )
-        # The variable must appear in the final failure condition.
-        if not re.search(rf'"\${var}"\s*!=\s*"success"', block):
-            errors.append(
-                f"ci-gate final condition does not fail on '{job}' != success"
             )
 
     if errors:
