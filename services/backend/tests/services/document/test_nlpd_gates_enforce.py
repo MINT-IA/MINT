@@ -148,3 +148,24 @@ def test_flagged_third_party_doc_not_persisted_by_analyze_path(db):
     persist_document_memory(db, "u-tp", result)
     rows = db.query(DocumentMemory).filter_by(user_id="u-tp").count()
     assert rows == 1
+
+
+def test_persist_document_memory_swallows_upsert_failure(db):
+    """Le wrapper ne fait jamais échouer l'analyse si l'upsert lève."""
+    import app.services.document_vision_service as dvs
+
+    result = _mk_understanding()
+    with patch.object(dvs, "_upsert_and_diff", side_effect=RuntimeError("boom")):
+        dvs.persist_document_memory(db, "u-err", result)  # ne lève pas
+    assert result.diff_from_previous is None
+
+
+def test_persist_document_memory_sets_diff_and_fingerprint(db):
+    from app.models import User
+    import app.services.document_vision_service as dvs
+
+    db.add(User(id="u-ok", email="ok@test.ch", hashed_password="x"))
+    db.commit()
+    result = _mk_understanding()
+    dvs.persist_document_memory(db, "u-ok", result)
+    assert result.fingerprint
