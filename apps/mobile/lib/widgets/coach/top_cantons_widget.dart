@@ -107,12 +107,12 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
         children: [
           Row(
             children: [
-              const Text('🏆', style: TextStyle(fontSize: 22)),
+              Text('🏆', style: MintTextStyles.headlineSmall()),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Cantons à simuler',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -244,7 +244,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('💡', style: TextStyle(fontSize: 18)),
+          Text('💡', style: MintTextStyles.titleLarge()),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
