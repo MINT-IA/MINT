@@ -21,10 +21,12 @@ class YearlyRetroactiveEntry {
 
 /// Result of a retroactive 3a calculation.
 class Retroactive3aResult {
-  /// Number of gap years effectively used (clamped 1-10).
+  /// Number of gap years effectively filled (bounded by eligibility AND the
+  /// per-calendar-year cap — in practice 1 for a full unpaid gap).
   final int gapYears;
 
-  /// Sum of all retroactive yearly limits.
+  /// Sum of all retroactive yearly amounts (capped at one "petit" 3a max
+  /// per calendar year of buy-in — OPP3 art. 7a).
   final double totalRetroactive;
 
   /// Current year 3a limit (not part of retroactive).
@@ -62,26 +64,36 @@ class Retroactive3aResult {
 }
 
 /// Pure-function calculator for the retroactive Pillar 3a catch-up
-/// available from 2026 under OPP3 art. 7 (amendment).
+/// (réforme OPP3 art. 7a, en vigueur 2025-01-01 — RO 2024 687).
 ///
-/// Allows Swiss residents to contribute for up to 10 missed years
-/// in addition to the current-year contribution, deductible in the
-/// year the payment is made.
+/// Doctrine (parité avec le backend `retroactive_3a_service.py`,
+/// MINT_nosync-cli / MINT_nosync-i0v) :
+///   - seules les lacunes >= 2025 sont rachetables (fenêtre 10 ans) ;
+///     premier rachat possible en 2026 (pour l'année 2025) ;
+///   - le rachat rétroactif payable au cours d'UNE année civile est
+///     plafonné au « petit » maximum 3a (CHF 7'258 en 2025/2026),
+///     identique avec ou sans LPP (asymétrie documentée de la réforme —
+///     le grand 3a ne s'applique qu'à la cotisation ordinaire courante) ;
+///   - les lacunes les plus anciennes sont comblées d'abord (proches de
+///     sortir de la fenêtre de 10 ans).
 class Retroactive3aCalculator {
   Retroactive3aCalculator._();
 
+  /// Petit plafond 3a de l'année — plafond légal du rachat rétroactif
+  /// payable en une année civile, identique avec ou sans LPP.
+  static double _petitMaxForYear(int year) =>
+      pilier3aHistoricalLimits[year] ??
+      reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+
   /// Calculate retroactive 3a potential.
   ///
-  /// [gapYears] — number of past years without 3a contributions (clamped 1-10).
-  /// [tauxMarginal] — user's marginal tax rate as a decimal (e.g. 0.35 for 35%).
-  /// [hasLpp] — true if affiliated to a pension fund (small 3a), false for independent without LPP (large 3a).
-  /// [referenceYear] — the year the catch-up payment is made (default 2026).
-  /// Calculate retroactive 3a potential.
-  ///
-  /// [gapYears] — number of past years without 3a contributions (clamped 1-10).
+  /// [gapYears] — number of past years without 3a contributions (bounded to
+  /// the eligible years >= 2025 within the 10-year window).
   /// [tauxMarginal] — user's marginal tax rate as a decimal (0.0-1.0).
-  /// [hasLpp] — true for "petit 3a" (fixed limit), false for "grand 3a" (20% revenu, capped).
-  /// [revenuNetAnnuel] — only used when [hasLpp] is false (for 20% income cap).
+  /// [hasLpp] — affects ONLY the ordinary current-year contribution (grand 3a
+  /// sans LPP) ; the retroactive buy-in is capped at the petit max for all.
+  /// [revenuNetAnnuel] — only used when [hasLpp] is false (20% income cap on
+  /// the current-year contribution).
   /// [referenceYear] — the year the catch-up payment is made.
   /// Defaults to the current calendar year (pas de hardcode 2026).
   static Retroactive3aResult calculate({
@@ -92,85 +104,76 @@ class Retroactive3aCalculator {
     int? referenceYear,
   }) {
     final effectiveRefYear = referenceYear ?? DateTime.now().year;
-    // swiss-brain Q1 2026-04-18 : OPP3 art. 7a entré en vigueur
-    // 01.01.2025 (RO 2024 687). Les lacunes rachetables sont celles
-    // postérieures au 31.12.2024, cap à 10 ans d'historique max.
-    //   - 2025 : 0 année passée rachetable (seule l'année courante).
-    //   - 2026 : 1 année passée (2025).
-    //   - 2035+ : 10 ans permanent.
-    final dynamicCap = (effectiveRefYear - pilier3aRetroactiveFirstEligibleYear)
-        .clamp(0, pilier3aMaxRetroactiveYears);
-    final effectiveGap = gapYears.clamp(0, dynamicCap);
     // Clamp taux marginal at the realistic Swiss maximum (~45%).
     // Audit simulateur 2026-04-18 P1-9 : ancien clamp à 60% surestimait
-    // l'économie de 15-33%. Le taux marginal fédéral+cantonal+communal
-    // plafonne autour de 43-45% dans les cantons les plus lourds
-    // (GE couple, fortune élevée, enfants = 0). Cohérent avec
-    // tax_calculator.dart:estimateMarginalRate qui cap aussi ~45%.
+    // l'économie de 15-33%. Cohérent avec tax_calculator.dart. (NB : le
+    // backend clampe à 0.60 — divergence connue, voir MINT_nosync-i0v.)
     final effectiveTaux = tauxMarginal.clamp(0.0, 0.45);
 
-    // Build yearly breakdown (most recent gap year first).
-    final breakdown = <YearlyRetroactiveEntry>[];
-    double totalRetroactive = 0;
-
-    // Plafond de l'année du rachat (pas de l'année manquée) — OPP3 art. 7a al. 2.
-    // swiss-brain Q1 2026-04-18 : pas de table historique — tout se rachète
-    // au plafond courant.
-    final baseLimit = pilier3aHistoricalLimits[effectiveRefYear] ??
-        reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
-
-    for (int i = 1; i <= effectiveGap; i++) {
-      final year = effectiveRefYear - i;
-      // Défensif : ceinture/bretelles malgré le clamp plus haut.
-      if (year < pilier3aRetroactiveFirstEligibleYear) break;
-
-      double effectiveLimit;
-      if (hasLpp) {
-        // Petit 3a: fixed annual limit per year.
-        effectiveLimit = baseLimit;
-      } else {
-        // Grand 3a (sans LPP): 20% of net income, capped at the year's grand limit.
-        // Scale the historical "petit" limit to the "grand" equivalent for that year.
-        final grandLimitForYear =
-            baseLimit * (reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) / reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
-        if (revenuNetAnnuel != null) {
-          // Apply the 20% income rule: min(20% income, grand limit).
-          effectiveLimit = (revenuNetAnnuel * reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp))
-              .clamp(0, grandLimitForYear);
-        } else {
-          // No income provided — use the max grand limit (conservative estimate).
-          effectiveLimit = grandLimitForYear;
-        }
-      }
-
-      totalRetroactive += effectiveLimit;
-      breakdown.add(YearlyRetroactiveEntry(year: year, limit: effectiveLimit));
-    }
-
-    // Current year contribution (not retroactive, but part of total).
+    // ── Cotisation ordinaire de l'année courante (séparée du rachat) ──
     double currentYearLimit;
     if (hasLpp) {
       currentYearLimit = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     } else if (revenuNetAnnuel != null) {
-      currentYearLimit =
-          (revenuNetAnnuel * reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp)).clamp(0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp));
+      currentYearLimit = (revenuNetAnnuel *
+              reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp))
+          .clamp(0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
+          .toDouble();
     } else {
       currentYearLimit = reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
     }
-    final totalContribution = totalRetroactive + currentYearLimit;
 
-    // Tax savings — all retroactive amounts deductible in referenceYear.
+    // ── Années de lacune ÉLIGIBLES (>= 2025, fenêtre 10 ans) ──
+    final earliest = effectiveRefYear - pilier3aMaxRetroactiveYears >
+            pilier3aRetroactiveFirstEligibleYear
+        ? effectiveRefYear - pilier3aMaxRetroactiveYears
+        : pilier3aRetroactiveFirstEligibleYear;
+    final requestedCount = gapYears < 1 ? 1 : gapYears;
+    final eligible = <int>[
+      for (int i = requestedCount; i >= 1; i--)
+        if (effectiveRefYear - i >= earliest) effectiveRefYear - i,
+    ]; // ascendant = lacunes les plus anciennes d'abord
+
+    // ── Rachat rétroactif : plafonné au petit max TOTAL sur l'année civile ──
+    double annualCap = _petitMaxForYear(effectiveRefYear);
+    // Sans LPP à revenu nul : aucune capacité de rachat.
+    if (!hasLpp && revenuNetAnnuel != null && currentYearLimit <= 0) {
+      annualCap = 0;
+    }
+
+    final filled = <YearlyRetroactiveEntry>[];
+    double totalRetroactive = 0;
+    for (final year in eligible) {
+      if (totalRetroactive >= annualCap) break;
+      final room = annualCap - totalRetroactive;
+      final petitMax = _petitMaxForYear(year);
+      final amount = petitMax < room ? petitMax : room;
+      if (amount <= 0) continue;
+      totalRetroactive += amount;
+      filled.add(YearlyRetroactiveEntry(year: year, limit: amount));
+    }
+    // Affichage : plus récentes d'abord.
+    final breakdown = filled.reversed.toList();
+
+    final totalContribution = totalRetroactive + currentYearLimit;
     final economiesFiscales = totalRetroactive * effectiveTaux;
 
-    // Chiffre choc — use shared CHF formatter.
-    final premierEclairage =
-        'Tu peux rattraper $effectiveGap an${effectiveGap > 1 ? "s" : ""} '
-        "d'\u00e9pargne 3a et \u00e9conomiser "
-        "CHF\u00a0${formatChf(economiesFiscales)} d'imp\u00f4ts "
-        'en $referenceYear.';
+    final n = breakdown.length;
+    final String premierEclairage;
+    if (n == 0) {
+      premierEclairage =
+          'En $effectiveRefYear, aucune année de lacune 3a n’est '
+          'encore rachetable (le rachat rétroactif s’applique aux '
+          'lacunes dès $pilier3aRetroactiveFirstEligibleYear).';
+    } else {
+      premierEclairage = 'Tu peux rattraper $n an${n > 1 ? "s" : ""} '
+          "d'épargne 3a et économiser "
+          "CHF ${formatChf(economiesFiscales)} d'impôts "
+          'en $effectiveRefYear.';
+    }
 
     return Retroactive3aResult(
-      gapYears: effectiveGap,
+      gapYears: n,
       totalRetroactive: totalRetroactive,
       totalCurrentYear: currentYearLimit,
       totalContribution: totalContribution,
@@ -178,15 +181,16 @@ class Retroactive3aCalculator {
       breakdown: breakdown,
       premierEclairage: premierEclairage,
       disclaimer:
-          'Outil \u00e9ducatif\u00a0\u2014 ne constitue pas un conseil fiscal (LSFin). '
-          'Le rattrapage 3a est disponible d\u00e8s 2026 (OPP3 art. 7). '
-          "L'\u00e9conomie fiscale d\u00e9pend de ton taux marginal r\u00e9el.",
+          'Outil éducatif — ne constitue pas un conseil fiscal (LSFin). '
+          'Le rachat 3a rétroactif (OPP3 art. 7a, en vigueur depuis 2025) '
+          'comble les lacunes dès 2025, plafonné au petit maximum 3a '
+          'par année civile. '
+          "L'économie fiscale dépend de ton taux marginal réel.",
       sources: const [
-        'OPP3 art. 7 (amendement 2026)',
+        'OPP3 art. 7a (en vigueur 2025-01-01)',
         'LIFD art. 33 al. 1 let. e',
-        'Plafonds annuels OFAS',
+        'Plafonds annuels BSV/OFAS',
       ],
     );
   }
-
 }
