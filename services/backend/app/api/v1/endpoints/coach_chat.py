@@ -202,6 +202,7 @@ class _NoRagOrchestrator:
             context_chunks=[],  # No RAG context
             tools=tools,
             conversation_history=conversation_history,
+            user_id=user_id,
         )
 
         tool_calls = None

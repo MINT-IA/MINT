@@ -284,19 +284,23 @@ class _NoRagOrchestrator:
         # force (a definition ask is more specific than a number lookup).
         force_tool = (not force_definition) and bool(_FINANCE_KW.search(question))
 
-        # Direct Anthropic SDK call (LLMClient.generate doesn't support
-        # multi-block content for tool_result — see llm_client.py:196-198).
-        # Anonymous path has no conversation_history beyond the single user
-        # message, so a thin direct call is the simplest surgical path.
+        # Appels via LLMRouter (PRIV-07 / beads MINT_nosync-4lj) : le chemin
+        # anonyme suit le même routage résidence que le coach authentifié
+        # (Bedrock-EU si BEDROCK_EU_PRIMARY_ENABLED global, sinon US direct
+        # documenté). LLMClient.generate ne supporte pas le contenu
+        # multi-block tool_result, d'où la construction LLMRequest directe.
+        # Pas de user_id anonyme -> résolution du flag au scope global.
         try:
             from anthropic import AsyncAnthropic
         except ImportError as exc:
             raise RuntimeError(
                 "anthropic package missing — install via pip install -e '.[rag]'"
             ) from exc
+        from app.services.llm.router import LLMRequest, LLMRouter
 
         resolved_model = model or "claude-sonnet-4-5-20250929"
         client = AsyncAnthropic(api_key=api_key, timeout=60.0)
+        router = LLMRouter(anthropic_client=client)
 
         messages: list[dict] = [{"role": "user", "content": question}]
         # First-call-only force (Codex fix_6): definition intent → explain_concept;
@@ -310,14 +314,15 @@ class _NoRagOrchestrator:
             tool_choice = {"type": "auto"}
 
         # First LLM turn — may emit text + tool_use blocks.
-        first = await client.messages.create(
+        first = await router.invoke(LLMRequest(
             model=resolved_model,
             max_tokens=600,
             system=system_prompt,
             messages=messages,
             tools=anon_tools,
             tool_choice=tool_choice,
-        )
+            purpose="anonymous_chat",
+        ))
 
         tokens_first = (first.usage.input_tokens + first.usage.output_tokens) if first.usage else 0
         tool_use_blocks = [b for b in first.content if getattr(b, "type", None) == "tool_use"]
@@ -429,7 +434,7 @@ class _NoRagOrchestrator:
                 {"role": "user", "content": tool_result_content},
             ]
 
-            second = await client.messages.create(
+            second = await router.invoke(LLMRequest(
                 model=resolved_model,
                 max_tokens=600,
                 system=system_prompt,
@@ -438,7 +443,8 @@ class _NoRagOrchestrator:
                 # Second pass = LLM should now answer with grounded text.
                 # Don't re-force the tool (already executed), let it narrate.
                 tool_choice={"type": "auto"},
-            )
+                purpose="anonymous_chat",
+            ))
             tokens_total += (second.usage.input_tokens + second.usage.output_tokens) if second.usage else 0
 
             second_text = "\n".join(
