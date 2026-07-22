@@ -42,8 +42,14 @@ class HallucinationDetector:
     """Extracts numbers from LLM text, compares against known values."""
 
     # Regex patterns for Swiss financial numbers
+    # Audit T07-F02 (MINT_nosync-3vi) : l'ancien pattern ne matchait que le
+    # format prefixe « CHF 4200 » — jamais « 4200 CHF » ni « 4200 francs »,
+    # LE format dominant en francais suisse (tous les premier_eclairage et
+    # prompts emettent « X CHF »). Le detecteur etait borgne meme arme.
     CHF_PATTERN = re.compile(
-        r"CHF\s*([\d']+(?:[.,]\d+)?)", re.IGNORECASE
+        r"CHF\s*([\d']+(?:[.,]\d+)?)"
+        r"|([\d']+(?:[.,]\d+)?)\s*(?:CHF|francs?)\b",
+        re.IGNORECASE,
     )
     # CRIT #4 fix: capture integer percentages (85%, 100%) not just decimals.
     PCT_PATTERN = re.compile(
@@ -140,9 +146,10 @@ class HallucinationDetector:
         """
         results = []
 
-        # CHF amounts
+        # CHF amounts (prefixe « CHF 4200 » ou suffixe « 4200 CHF/francs »)
         for match in self.CHF_PATTERN.finditer(text):
-            value = self._parse_swiss_number(match.group(1))
+            raw = match.group(1) or match.group(2)
+            value = self._parse_swiss_number(raw)
             results.append((match.group(0), value, "chf"))
 
         # Percentages

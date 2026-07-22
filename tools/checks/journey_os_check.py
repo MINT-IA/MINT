@@ -252,6 +252,8 @@ ALLOW = {
     "apps/mobile/test/widgets/pulse/pulse_widgets_test.dart",
     "docs/ROUTE_POLICY.md",
     "services/backend/app/api/v1/endpoints/coach_chat.py",
+    "services/backend/app/services/coach/hallucination_detector.py",
+    "services/backend/tests/test_hallucination_guard_wired.py",
     "services/backend/app/api/v1/endpoints/auth.py",
     "services/backend/app/schemas/auth.py",
     "services/backend/app/services/coach/compliance_guard.py",
