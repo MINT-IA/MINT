@@ -24295,4 +24295,13 @@ class SIt extends S {
   @override
   String get privacyControlConsentCenterSubtitle =>
       'Vedi le tue autorizzazioni e ritirane una';
+
+  @override
+  String expatTopCantonsEmpty(Object canton) {
+    return 'Il tuo cantone ($canton) è già tra i meno tassati del modello — nessun divario favorevole da mostrare.';
+  }
+
+  @override
+  String get expatTopCantonsDisclaimer =>
+      'Strumento educativo — non costituisce consulenza fiscale ai sensi della LSerFi. Imposte stimate con il modello semplificato MINT per cantone (tariffe cantonali, capoluogo) — non sono calcoli fiscali esatti. Divario basato solo sul reddito — varia con patrimonio e situazione familiare.';
 }

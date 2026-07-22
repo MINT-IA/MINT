@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/expat_service.dart';
+import 'package:mint_mobile/services/fiscal_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -46,6 +47,10 @@ class _ExpatScreenState extends State<ExpatScreen>
   double _livingExpenses = 1000000;
   double _actualIncome = 5000000;
   Map<String, dynamic>? _forfaitResult;
+  // MINT_nosync-9f8 : top cantons calcules via FiscalService (plus de
+  // classement fabrique). Etat + recompute suivant l'idiome du fichier.
+  List<CantonRanking> _topCantons = const [];
+  bool _topCantonsHasChildren = false;
 
   // ── Tab 2: Depart inputs ──────────────────────────────
   DateTime _departureDate = DateTime.now().add(const Duration(days: 180));
@@ -67,12 +72,60 @@ class _ExpatScreenState extends State<ExpatScreen>
     _recalculateForfait();
     _recalculateDepart();
     _recalculateAvs();
+    _recalculateTopCantons();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  /// Classement REEL des cantons (audit T05-F41, MINT_nosync-9f8) : ecart =
+  /// charge fiscale du canton d'ancrage - charge du candidat, via
+  /// FiscalService (modele simplifie MINT, 26 cantons). Exclut l'ancrage, ne
+  /// garde que les ecarts positifs, max 5 — jamais de rangs rembourres.
+  void _recalculateTopCantons() {
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.hasProfile ? provider.profile : null;
+    final anchorCanton = (profile != null && profile.canton.isNotEmpty)
+        ? profile.canton
+        : _forfaitCanton;
+    final profileIncome = profile?.revenuBrutAnnuel ?? 0;
+    final income = profileIncome > 0 ? profileIncome.toDouble() : _actualIncome;
+    final etatCivil = (profile != null && profile.etatCivil.name == 'marie')
+        ? 'marie'
+        : 'celibataire';
+    final enfants = _topCantonsHasChildren ? 1 : 0;
+
+    final chargeActuelle = (FiscalService.estimateTax(
+          revenuBrut: income,
+          canton: anchorCanton,
+          etatCivil: etatCivil,
+          nombreEnfants: enfants,
+        )['chargeTotale'] as double?) ??
+        0;
+
+    final all = FiscalService.compareAllCantons(
+      revenuBrut: income,
+      etatCivil: etatCivil,
+      nombreEnfants: enfants,
+    );
+    final candidates = <CantonRanking>[];
+    for (final m in all) {
+      final code = m['canton'] as String;
+      if (code == anchorCanton) continue;
+      final saving = chargeActuelle - ((m['chargeTotale'] as double?) ?? 0);
+      if (saving <= 0) continue;
+      candidates.add(CantonRanking(
+        rank: candidates.length + 1,
+        canton: (m['cantonNom'] as String?) ?? code,
+        shortCode: code,
+        annualTaxSaving: saving.roundToDouble(),
+      ));
+      if (candidates.length == 5) break;
+    }
+    _topCantons = candidates;
   }
 
   void _recalculateForfait() {
@@ -208,53 +261,21 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildTopCantonSection() {
-    final scale = (_actualIncome / 100000).clamp(0.3, 10.0);
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.hasProfile ? provider.profile : null;
+    final anchorCanton = (profile != null && profile.canton.isNotEmpty)
+        ? profile.canton
+        : _forfaitCanton;
     return TopCantonWidget(
-      currentCanton: _departCanton,
-      rankings: [
-        CantonRanking(
-          rank: 1,
-          canton: 'Schwyz',
-          shortCode: 'SZ',
-          annualTaxSaving: (8500 * scale).roundToDouble(),
-          monthlyLamal: 310,
-          monthlyRent: 1800,
-          highlight: S.of(context)!.expatHighlightSchwyz,
-        ),
-        CantonRanking(
-          rank: 2,
-          canton: 'Zoug',
-          shortCode: 'ZG',
-          annualTaxSaving: (7200 * scale).roundToDouble(),
-          monthlyLamal: 295,
-          monthlyRent: 2200,
-          highlight: S.of(context)!.expatHighlightZug,
-        ),
-        CantonRanking(
-          rank: 3,
-          canton: 'Nidwald',
-          shortCode: 'NW',
-          annualTaxSaving: (5800 * scale).roundToDouble(),
-          monthlyLamal: 288,
-          monthlyRent: 1600,
-        ),
-        CantonRanking(
-          rank: 4,
-          canton: 'Uri',
-          shortCode: 'UR',
-          annualTaxSaving: (5100 * scale).roundToDouble(),
-          monthlyLamal: 280,
-          monthlyRent: 1400,
-        ),
-        CantonRanking(
-          rank: 5,
-          canton: 'Appenzell Rh.-Int.',
-          shortCode: 'AI',
-          annualTaxSaving: (4600 * scale).roundToDouble(),
-          monthlyLamal: 285,
-          monthlyRent: 1500,
-        ),
-      ],
+      currentCanton: anchorCanton,
+      rankings: _topCantons,
+      hasChildren: _topCantonsHasChildren,
+      onChildrenChanged: (v) {
+        setState(() {
+          _topCantonsHasChildren = v;
+          _recalculateTopCantons();
+        });
+      },
     );
   }
 
@@ -304,6 +325,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                       if (v != null) {
                         _forfaitCanton = v;
                         _recalculateForfait();
+                        _recalculateTopCantons();
                       }
                     },
                   ),
@@ -334,6 +356,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               setState(() {
                 _actualIncome = v;
                 _recalculateForfait();
+                _recalculateTopCantons();
               });
             },
             min: 500000,

@@ -11528,5 +11528,12 @@
   "eclairageCompoundGrowthEdgeHeadline": "Your time advantage",
   "eclairageCompoundGrowthEdgeBody": "Starting to invest early rather than later could make a difference over the long run, for a modest monthly effort. Compounding rewards duration.",
   "privacyControlConsentCenterTitle": "Consents and withdrawal",
-  "privacyControlConsentCenterSubtitle": "See your permissions and withdraw one"
+  "privacyControlConsentCenterSubtitle": "See your permissions and withdraw one",
+  "expatTopCantonsEmpty": "Your canton ({canton}) is already among the lowest-taxed in the model — no favourable gap to display.",
+  "@expatTopCantonsEmpty": {
+    "placeholders": {
+      "canton": {}
+    }
+  },
+  "expatTopCantonsDisclaimer": "Educational tool — not tax advice under FinSA. Taxes estimated with MINT's simplified per-canton model (cantonal scales, capital city) — these are not exact tax calculations. Gap based on income only — varies with wealth and family situation."
 }

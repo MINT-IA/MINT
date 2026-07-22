@@ -24233,4 +24233,13 @@ class SEs extends S {
   @override
   String get privacyControlConsentCenterSubtitle =>
       'Ver tus autorizaciones y retirar una';
+
+  @override
+  String expatTopCantonsEmpty(Object canton) {
+    return 'Tu cantón ($canton) ya está entre los menos gravados del modelo — ningún diferencial favorable que mostrar.';
+  }
+
+  @override
+  String get expatTopCantonsDisclaimer =>
+      'Herramienta educativa — no constituye asesoramiento fiscal según la LSFin. Impuestos estimados con el modelo simplificado MINT por cantón (baremos cantonales, capital) — no son cálculos fiscales exactos. Diferencial basado solo en los ingresos — varía según patrimonio y situación familiar.';
 }

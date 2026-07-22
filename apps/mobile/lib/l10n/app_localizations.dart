@@ -42363,6 +42363,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Voir tes autorisations et en retirer une'**
   String get privacyControlConsentCenterSubtitle;
+
+  /// No description provided for @expatTopCantonsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton ({canton}) figure déjà parmi les moins imposés du modèle — aucun écart favorable à afficher.'**
+  String expatTopCantonsEmpty(Object canton);
+
+  /// No description provided for @expatTopCantonsDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil fiscal au sens de la LSFin. Impôts estimés via le modèle simplifié MINT par canton (barèmes cantonaux, chef-lieu) — ce ne sont pas des calculs fiscaux exacts. Écart calculé sur le revenu seul — varie selon le patrimoine et la situation familiale.'**
+  String get expatTopCantonsDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

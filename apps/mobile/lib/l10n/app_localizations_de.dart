@@ -24293,4 +24293,13 @@ class SDe extends S {
   @override
   String get privacyControlConsentCenterSubtitle =>
       'Deine Freigaben ansehen und eine widerrufen';
+
+  @override
+  String expatTopCantonsEmpty(Object canton) {
+    return 'Dein Kanton ($canton) gehört im Modell bereits zu den steuergünstigsten — kein vorteilhafter Unterschied anzuzeigen.';
+  }
+
+  @override
+  String get expatTopCantonsDisclaimer =>
+      'Bildungstool — keine Steuerberatung im Sinne des FIDLEG. Steuern geschätzt mit dem vereinfachten MINT-Kantonsmodell (kantonale Tarife, Hauptort) — keine exakten Steuerberechnungen. Differenz nur auf dem Einkommen — variiert mit Vermögen und Familiensituation.';
 }
