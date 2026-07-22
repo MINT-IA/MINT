@@ -108,6 +108,8 @@ ALLOW = {
     "services/backend/tests/services/consent/test_consent_service_extensions.py",
     "apps/mobile/lib/screens/profile/privacy_control_screen.dart",
     "apps/mobile/test/screens/profile/privacy_control_screen_test.dart",
+    "apps/mobile/test/golden_screenshots/goldens/privacy_15_fr.png",
+    "apps/mobile/test/golden_screenshots/goldens/privacy_se_fr.png",
     "services/backend/tests/test_allocation_annuelle.py",
     "services/backend/tests/test_arbitrage_allocation_annuelle_grounding.py",
     "services/backend/education_inserts/concepts/avs_cotisations_independants.md",

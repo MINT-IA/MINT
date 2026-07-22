@@ -58,6 +58,11 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
+      // La tuile fixe au-dessus du Expanded peut deborder si le clavier
+      // retrecit le body ; le seul champ texte de cet ecran vit dans une
+      // bottom-sheet modale qui gere ses propres insets -> pas de resize
+      // du body (review Codex MINT_nosync-2vh).
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: MintColors.porcelaine,
         surfaceTintColor: MintColors.porcelaine,
@@ -104,11 +109,12 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
         MintSpacing.md,
         0,
       ),
+      // Un seul proprietaire de semantique : le ListTile annonce deja
+      // titre + sous-titre ; dupliquer label/hint ici concatene et rend la
+      // lecture VoiceOver repetitive (review Codex MINT_nosync-2vh).
       child: Semantics(
         identifier: 'privacy_control_consent_center_nav',
         button: true,
-        label: l.privacyControlConsentCenterTitle,
-        hint: l.privacyControlConsentCenterSubtitle,
         onTap: () => context.push('/profile/privacy'),
         child: Card(
           color: MintColors.card,
