@@ -2002,15 +2002,25 @@ class ArbitrageEngine {
           math.min(nominalWithdrawal, math.max(0, capitalNet));
       capitalNet -= capitalWithdrawal;
 
-      final totalNominalCashflow =
-          renteObligatoire - renteTax + capitalWithdrawal;
-      cumulativeCashflow += totalNominalCashflow;
+      // Cashflow réel de l'année, cohérent avec l'option Rente pure
+      // (_buildRenteTrajectory) : l'impôt est déjà calculé sur la rente RÉELLE
+      // (realRente), on ne le re-déflate donc pas une seconde fois. Le retrait
+      // de capital, lui, est nominal (indexé inflation) -> déflaté à l'année y.
+      // Fix beads MINT_nosync-1px : l'ancien code re-déflatait tout le
+      // totalNominalCashflow (impôt compris) -> impôt déflaté deux fois ->
+      // cashflow mixte sur-estimé, biais d'arbitrage vers le capital.
+      final realNetRente = realRente - renteTax;
+      final realCapitalWithdrawal =
+          capitalWithdrawal / math.pow(1 + inflation, y);
+      final realCashflow = realNetRente + realCapitalWithdrawal;
+
+      cumulativeCashflow += realCashflow;
       cumulativeTax += renteTax;
 
-      // Express in real terms
+      // capitalNet est nominal -> déflaté à l'année y ; cumulativeCashflow est
+      // déjà en francs réels (chaque année déflatée à son propre millésime).
       final realPatrimony =
-          (capitalNet + cumulativeCashflow) / math.pow(1 + inflation, y);
-      final realCashflow = totalNominalCashflow / math.pow(1 + inflation, y);
+          capitalNet / math.pow(1 + inflation, y) + cumulativeCashflow;
 
       snapshots.add(YearlySnapshot(
         year: startYear + y,
