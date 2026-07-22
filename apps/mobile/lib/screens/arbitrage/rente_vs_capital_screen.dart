@@ -116,6 +116,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // a l'auto-fill et passee au fallback local pour qu'un profil = un score sur
   // toutes les surfaces (plus de moteur de confiance d'arbitrage divergent).
   double? _canonicalConfidence;
+  // Couche 4 (audit T05-F03, MINT_nosync-84r) : on garde l'EnhancedConfidence
+  // COMPLET — ses axisPrompts alimentent le CTA d'enrichissement de la
+  // banniere (avant : categorie 'lpp' codee en dur, la couche 4 etait jetee).
+  EnhancedConfidence? _canonicalEnhanced;
 
   // ── GoRouter prefill from coach suggestion ──
   // The prefill map is read from GoRouterState.extra in the postFrameCallback
@@ -210,7 +214,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     if (profile == null) return;
 
     // D12 : score canonique unique, calcule sur ce profil.
-    _canonicalConfidence = ConfidenceScorer.scoreEnhanced(profile).combined;
+    _canonicalEnhanced = ConfidenceScorer.scoreEnhanced(profile);
+    _canonicalConfidence = _canonicalEnhanced!.combined;
 
     final sources = profile.dataSources;
     bool changed = false;
@@ -651,6 +656,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   //  BUILD — 4 BLOCS
   // ═══════════════════════════════════════════════════════════════
 
+  /// Prompt d'enrichissement au plus fort impact (couche 4). axisPrompts est
+  /// emis en ordre de verification, pas par impact — max explicite.
+  String? _topPromptCategory() {
+    final prompts = _canonicalEnhanced?.axisPrompts;
+    if (prompts == null || prompts.isEmpty) return null;
+    var best = prompts.first;
+    for (final p in prompts.skip(1)) {
+      if (p.impact > best.impact) best = p;
+    }
+    return best.category;
+  }
+
   @override
   Widget build(BuildContext context) {
     final chartOptions = _result == null
@@ -755,7 +772,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                                 // ── Confidence banner ──
                                 IndicatifBanner(
                                   confidenceScore: _result!.confidenceScore,
-                                  topEnrichmentCategory: 'lpp',
+                                  // Couche 4 : categorie du prompt au plus
+                                  // FORT impact du profil reel — axisPrompts
+                                  // n'est PAS trie (ordre d'emission, cf.
+                                  // confidence_scorer.dart:425), on prend le
+                                  // max. Plus de 'lpp' code en dur
+                                  // (MINT_nosync-84r).
+                                  topEnrichmentCategory: _topPromptCategory(),
                                 ),
 
                                 if (_hasEstimatedValues &&
