@@ -25,8 +25,6 @@ from app.services.independant_service import (
 )
 from app.constants.social_insurance import (
     AVS_COTISATION_MIN_INDEPENDANT,
-    AVS_COTISATION_TOTAL,
-    AVS_BAREME_DEGRESSIF_PLAFOND,
     AVS_SEUIL_REVENU_MIN_INDEPENDANT,
     PILIER_3A_PLAFOND_AVEC_LPP,
     PILIER_3A_PLAFOND_SANS_LPP,
@@ -64,22 +62,21 @@ class TestAvsBaremeMinimum:
 class TestAvsBaremeBrackets:
     """Income at bracket boundaries should use correct degressive rate."""
 
-    def test_income_at_first_bracket_lower(self, service):
-        """Income at 9800 (first bracket lower) should use first bracket rate."""
+    def test_income_below_scale_entry_is_fixed_minimum(self, service):
+        """Income below the scale entry (10'100) -> fixed minimum CHF 530."""
         result = service.calculate_avs_contribution(9_800.0)
-        # 9800 is the threshold — at exactly this it should enter degressive
-        assert result == AVS_COTISATION_MIN_INDEPENDANT or result > 0
+        assert result == AVS_COTISATION_MIN_INDEPENDANT
 
     def test_income_at_mid_bracket(self, service):
-        """Income in the middle bracket (38201-43000) should use 6.8% rate."""
+        """Income in bracket 38'000-40'500 uses the official 6.728% rate."""
         result = service.calculate_avs_contribution(40_000.0)
-        expected = round(40_000 * 0.068, 2)
+        expected = round(40_000 * 0.06728, 2)
         assert result == expected
 
-    def test_income_at_last_bracket(self, service):
-        """Income at the top degressive bracket (52601-58800)."""
+    def test_income_at_last_degressive_bracket(self, service):
+        """Income in bracket 53'000-55'500 uses the official 8.580% rate."""
         result = service.calculate_avs_contribution(55_000.0)
-        expected = round(55_000 * 0.092, 2)
+        expected = round(55_000 * 0.08580, 2)
         assert result == expected
 
 
@@ -88,21 +85,18 @@ class TestAvsBaremeBrackets:
 # ===========================================================================
 
 class TestAvsBaremeHighIncome:
-    """High income above the degressive ceiling should use flat AVS rate."""
+    """High income above the degressive ceiling uses the independent full rate."""
 
     def test_income_above_ceiling_uses_full_rate(self, service):
-        """Income above AVS_BAREME_DEGRESSIF_PLAFOND -> full AVS_COTISATION_TOTAL."""
+        """Income >= 60'500 -> 10.0% (AVS 8.1 + AI 1.4 + APG 0.5), pas 10.6%."""
         income = 100_000.0
         result = service.calculate_avs_contribution(income)
-        expected = round(income * AVS_COTISATION_TOTAL, 2)
-        assert result == expected
+        assert result == round(income * 0.10, 2)
 
     def test_income_just_above_ceiling(self, service):
-        """Income at ceiling + 1 should use full rate."""
-        income = AVS_BAREME_DEGRESSIF_PLAFOND + 1
-        result = service.calculate_avs_contribution(income)
-        expected = round(income * AVS_COTISATION_TOTAL, 2)
-        assert result == expected
+        """Income at 60'501 uses the 10.0% full rate."""
+        result = service.calculate_avs_contribution(60_501.0)
+        assert result == round(60_501.0 * 0.10, 2)
 
 
 # ===========================================================================

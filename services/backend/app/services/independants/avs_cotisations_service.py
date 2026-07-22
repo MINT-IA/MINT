@@ -23,6 +23,7 @@ from app.constants.social_insurance import (
     AVS_BAREME_INDEPENDANT,
     AVS_COTISATION_MIN_INDEPENDANT,
     AVS_COTISATION_SALARIE,
+    AVS_SEUIL_REVENU_MIN_INDEPENDANT,
 )
 
 DISCLAIMER = (
@@ -95,9 +96,15 @@ def calculer_cotisation_avs(revenu_net_activite: float) -> AvsCotisationResult:
             sources=list(SOURCES),
         )
 
-    taux = _find_rate(revenu_net_activite)
-    cotisation_brute = round(revenu_net_activite * taux, 2)
-    cotisation = max(cotisation_brute, AVS_COTISATION_MIN_INDEPENDANT)
+    # Sous le seuil (CHF 10'100), la loi prévoit une cotisation minimale FIXE
+    # (LAVS art. 8 al. 2) — pas un taux appliqué au revenu. Le barème RAVS
+    # art. 21 ne commence qu'à 10'100 (audit T02-F17, MINT_nosync-iy5).
+    if revenu_net_activite < AVS_SEUIL_REVENU_MIN_INDEPENDANT:
+        cotisation = AVS_COTISATION_MIN_INDEPENDANT
+    else:
+        taux = _find_rate(revenu_net_activite)
+        cotisation_brute = round(revenu_net_activite * taux, 2)
+        cotisation = max(cotisation_brute, AVS_COTISATION_MIN_INDEPENDANT)
     taux_effectif = round(cotisation / revenu_net_activite, 5) if revenu_net_activite > 0 else 0.0
 
     # Comparison: what an employee would pay on same gross income

@@ -453,31 +453,44 @@ AVS_SEUIL_REVENU_MIN_INDEPENDANT: float = _get("avs.independent_min_income_thres
 """Seuil de revenu en dessous duquel la cotisation minimale s'applique (LAVS art. 8).
 En dessous de ce seuil, l'independant paie la cotisation minimale forfaitaire."""
 
-AVS_BAREME_DEGRESSIF_PLAFOND: float = 58_800.0
-"""Plafond du bareme degressif AVS independants (LAVS art. 8).
-Au-dessus de ce montant, le taux plein de 10.6% s'applique.
-Note: le bareme detaille AVS_BAREME_INDEPENDANT utilise 60'500 comme seuil
-du taux plein. Cette constante est conservee pour compatibilite."""
-
 # AVS_RENTE_MAX_ANNUELLE already defined above as _get("avs.max_annual_pension")
 
 AVS_BAREME_INDEPENDANT: List[Tuple[float, float, float]] = [
-    (0,       10_100,  0.05371),
-    (10_100,  17_600,  0.05828),
-    (17_600,  22_200,  0.06542),
-    (22_200,  27_200,  0.07158),
-    (27_200,  32_300,  0.07773),
-    (32_300,  37_800,  0.08386),
-    (37_800,  43_200,  0.09002),
-    (43_200,  48_800,  0.09610),
-    (48_800,  54_300,  0.10222),
-    (54_300,  60_500,  0.10413),
-    (60_500,  float('inf'), 0.10600),
+    (10_100,  17_600,  0.05371),
+    (17_600,  23_000,  0.05494),
+    (23_000,  25_500,  0.05617),
+    (25_500,  28_000,  0.05741),
+    (28_000,  30_500,  0.05864),
+    (30_500,  33_000,  0.05987),
+    (33_000,  35_500,  0.06235),
+    (35_500,  38_000,  0.06481),
+    (38_000,  40_500,  0.06728),
+    (40_500,  43_000,  0.06976),
+    (43_000,  45_500,  0.07222),
+    (45_500,  48_000,  0.07469),
+    (48_000,  50_500,  0.07840),
+    (50_500,  53_000,  0.08209),
+    (53_000,  55_500,  0.08580),
+    (55_500,  58_000,  0.08951),
+    (58_000,  60_500,  0.09321),
+    (60_500,  float('inf'), 0.10000),
 ]
-"""Bareme degressif AVS/AI/APG pour independants (LAVS art. 8, RAVS art. 21-23).
+"""Bareme degressif AVS/AI/APG pour independants (RAVS art. 21, LAVS art. 8).
 
-Chaque tranche applique un taux unique sur la totalite du revenu (pas marginal).
-Valeurs 2025/2026. Le taux final (10.6%) correspond au taux plein AVS/AI/APG.
+Barème officiel 2025 = 2026 (adaptation biennale des rentes ; prochaine au
+1.1.2027). Sources : Mémento AVS 2.02 + Caisse cantonale vaudoise de
+compensation + node1922 (pages 2025 et 2026 identiques).
+
+Chaque tranche applique un taux unique sur la totalité du revenu (non
+marginal, borne inférieure incluse). Taux plein indépendant dès CHF 60'500 :
+10.0% (AVS 8.1 + AI 1.4 + APG 0.5) — PAS 10.6%, qui est le taux
+salarié+employeur. Sous CHF 10'100 (AVS_SEUIL_REVENU_MIN_INDEPENDANT) :
+cotisation minimale FIXE (AVS_COTISATION_MIN_INDEPENDANT, CHF 530), pas un
+taux — le barème commence donc à 10'100. Les frais d'administration de la
+caisse (OAVS art. 69, max 5%) s'ajoutent et ne sont pas inclus ici.
+
+Correction audit T02-F17 (beads MINT_nosync-iy5) : l'ancienne table avait des
+bornes et des taux erronés (10.222%/10.413% impossibles, taux plein 10.6%).
 """
 
 
