@@ -221,26 +221,32 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
           _buildComparisonBar(label: s.avsCotisationsIndependant, value: r.cotisationAnnuelle, ratio: indepRatio, color: MintColors.error),
           const SizedBox(height: MintSpacing.md),
           _buildComparisonBar(label: s.avsCotisationsSalarie, value: r.cotisationSalarie, ratio: salarieRatio, color: MintColors.success),
-          const SizedBox(height: MintSpacing.md),
-          Container(
-            padding: const EdgeInsets.all(MintSpacing.sm + 4),
-            decoration: BoxDecoration(
-              color: MintColors.error.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.arrow_upward, size: 16, color: MintColors.error),
-                const SizedBox(width: MintSpacing.sm),
-                Expanded(
-                  child: Text(
-                    s.avsCotisationsSurcout(IndependantsService.formatChf(r.differenceAnnuelle)),
-                    style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
+          // Sur le sliver 10'000-10'100 (cotisation minimale fixe), la
+          // difference peut etre negative — la copy "Surcout +X" serait
+          // fausse. On n'affiche le surcout que s'il existe (review Codex
+          // MINT_nosync-iy5).
+          if (r.differenceAnnuelle > 0) ...[
+            const SizedBox(height: MintSpacing.md),
+            Container(
+              padding: const EdgeInsets.all(MintSpacing.sm + 4),
+              decoration: BoxDecoration(
+                color: MintColors.error.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.arrow_upward, size: 16, color: MintColors.error),
+                  const SizedBox(width: MintSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      s.avsCotisationsSurcout(IndependantsService.formatChf(r.differenceAnnuelle)),
+                      style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -315,7 +321,9 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('5.37\u00a0%', style: MintTextStyles.labelSmall()),
-              Text('10.6\u00a0%', style: MintTextStyles.labelSmall()),
+              // Taux plein INDEPENDANT: 10.0% (AVS 8.1 + AI 1.4 + APG 0.5),
+              // pas 10.6% (salarie+employeur) \u2014 audit T02-F17.
+              Text('10.0\u00a0%', style: MintTextStyles.labelSmall()),
             ],
           ),
           const SizedBox(height: MintSpacing.sm + 4),

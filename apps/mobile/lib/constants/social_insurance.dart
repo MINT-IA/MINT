@@ -188,6 +188,10 @@ double avsMaxAnnualRenteForYear(int year) {
 /// Cotisation AVS minimale annuelle pour independants (LAVS art. 8).
 const double avsCotisationMinIndependant = 530.0;
 
+/// Seuil de revenu sous lequel la cotisation minimale FIXE s'applique
+/// (LAVS art. 8 al. 2). Le bareme degressif RAVS art. 21 commence ici.
+const double avsSeuilRevenuMinIndependant = 10100.0;
+
 /// Bonus par annee d'ajournement de la rente AVS (LAVS art. 39).
 const Map<int, double> avsDeferralBonus = {
   1: 0.052, // +5.2%

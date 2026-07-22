@@ -3506,7 +3506,7 @@ class SEs extends S {
 
   @override
   String independantAvsBody(String amount) {
-    return 'Tu cotización AVS estimada: $amount/año (tasa decreciente para ingresos inferiores a CHF 58’800, luego ~10.6% por encima).';
+    return 'Tu cotización AVS estimada: $amount/año (tasa decreciente para ingresos inferiores a CHF 60’500, luego 10.0% por encima).';
   }
 
   @override
@@ -10608,7 +10608,7 @@ class SEs extends S {
 
   @override
   String get avsCotisationsEduDegressifBody =>
-      'La tasa baja para ingresos bajos (entre CHF 10’100 y CHF 60’500). Por encima, la tasa completa del 10.6% se aplica.';
+      'La tasa baja para ingresos bajos (entre CHF 10’100 y CHF 60’500). Por encima, la tasa completa del 10.0% se aplica.';
 
   @override
   String get avsCotisationsEduDoubleChargeTitle => 'Doble carga';

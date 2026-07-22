@@ -6433,7 +6433,7 @@ abstract class S {
   /// No description provided for @independantAvsBody.
   ///
   /// In fr, this message translates to:
-  /// **'Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6 % au-dessus).'**
+  /// **'Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 60’500, puis 10.0 % au-dessus).'**
   String independantAvsBody(String amount);
 
   /// No description provided for @independantAvsSource.
@@ -18712,7 +18712,7 @@ abstract class S {
   /// No description provided for @avsCotisationsEduDegressifBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.6 % s’applique.'**
+  /// **'Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.0 % s’applique.'**
   String get avsCotisationsEduDegressifBody;
 
   /// No description provided for @avsCotisationsEduDoubleChargeTitle.

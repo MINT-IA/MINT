@@ -3484,7 +3484,7 @@ class SEn extends S {
 
   @override
   String independantAvsBody(String amount) {
-    return 'Your estimated AVS contribution: $amount/year (degressive rate for income below CHF 58,800, then ~10.6% above).';
+    return 'Your estimated AVS contribution: $amount/year (degressive rate for income below CHF 60,500, then 10.0% above).';
   }
 
   @override
@@ -10550,7 +10550,7 @@ class SEn extends S {
 
   @override
   String get avsCotisationsEduDegressifBody =>
-      'The rate decreases for low incomes (between CHF 10,100 and CHF 60,500). Above CHF 60,500, the full 10.6% rate applies.';
+      'The rate decreases for low incomes (between CHF 10,100 and CHF 60,500). Above CHF 60,500, the full 10.0% rate applies.';
 
   @override
   String get avsCotisationsEduDoubleChargeTitle => 'Double burden';

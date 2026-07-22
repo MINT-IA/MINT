@@ -76,23 +76,23 @@ class TestAvsCotisations:
         assert result.cotisation_avs_ai_apg == AVS_COTISATION_MIN_INDEPENDANT
 
     def test_income_at_first_bracket_boundary(self):
-        """Income at the first bracket boundary (10'100) should use correct rate."""
+        """Income at the scale entry (10'100) uses the first bracket rate."""
         result = calculer_cotisation_avs(10_100.0)
-        # At 10'100, we enter the second bracket (10'100 to 17'600)
-        expected = round(10_100 * 0.05828, 2)
+        # At 10'100 the RAVS art. 21 scale starts: bracket 10'100-17'600, 5.371%
+        expected = round(10_100 * 0.05371, 2)
         assert result.cotisation_avs_ai_apg == expected
 
     def test_high_income_uses_full_rate(self):
-        """Income >= 60'500 should use the full 10.6% rate."""
+        """Income >= 60'500 uses the full INDEPENDENT rate: 10.0% (not 10.6%)."""
         result = calculer_cotisation_avs(100_000.0)
-        expected = round(100_000 * 0.106, 2)
+        expected = round(100_000 * 0.10, 2)
         assert result.cotisation_avs_ai_apg == expected
-        assert abs(result.taux_effectif - 0.106) < 0.001
+        assert abs(result.taux_effectif - 0.10) < 0.001
 
     def test_income_at_60500_boundary(self):
-        """Income exactly at 60'500 should use full rate."""
+        """Income exactly at 60'500 should use the 10.0% full rate."""
         result = calculer_cotisation_avs(60_500.0)
-        expected = round(60_500 * 0.106, 2)
+        expected = round(60_500 * 0.10, 2)
         assert result.cotisation_avs_ai_apg == expected
 
     def test_bareme_progression_is_monotonic(self):
@@ -132,10 +132,10 @@ class TestAvsCotisations:
         assert "CHF" in result.premier_eclairage
 
     def test_middle_bracket_income(self):
-        """Income in the middle bracket should use correct rate."""
-        # 37'800 to 43'200: rate 0.09002
+        """Income in a middle bracket should use its official rate."""
+        # 38'000 to 40'500: rate 6.728% (Mémento 2.02)
         result = calculer_cotisation_avs(40_000.0)
-        expected = round(40_000 * 0.09002, 2)
+        expected = round(40_000 * 0.06728, 2)
         assert result.cotisation_avs_ai_apg == expected
 
 
@@ -583,3 +583,64 @@ class TestIndependantsCompliance:
             assert len(sources) >= 2, (
                 f"Source list should have at least 2 entries: {sources}"
             )
+
+
+class TestAvsBaremeDoctrine2025:
+    """Goldens officiels barème indépendant 2025/2026 (identiques).
+
+    Sources: Mémento AVS 2.02 + Caisse cantonale vaudoise de compensation +
+    node1922 (2025 et 2026). Taux plein indépendant = 10.0% (AVS 8.1 + AI 1.4
+    + APG 0.5) dès CHF 60'500 — PAS 10.6% (taux salarié+employeur). Sous
+    CHF 10'100 : cotisation minimale fixe CHF 530. Barème non-marginal.
+    Audit T02-F17 (beads MINT_nosync-iy5) : les deux anciennes tables étaient
+    fausses ; ces goldens sont codés en dur depuis les sources officielles.
+    """
+
+    def test_golden_8000_minimum_fixed(self):
+        result = calculer_cotisation_avs(8_000.0)
+        assert result.cotisation_avs_ai_apg == 530.0
+
+    def test_golden_9900_below_threshold_is_fixed_minimum(self):
+        # 9'900 < 10'100 : minimum FIXE (pas 9'900 x taux).
+        result = calculer_cotisation_avs(9_900.0)
+        assert result.cotisation_avs_ai_apg == 530.0
+
+    def test_golden_10100_first_bracket(self):
+        result = calculer_cotisation_avs(10_100.0)
+        assert result.cotisation_avs_ai_apg == 542.47  # 10'100 x 5.371%
+
+    def test_golden_15000(self):
+        result = calculer_cotisation_avs(15_000.0)
+        assert result.cotisation_avs_ai_apg == 805.65  # 15'000 x 5.371%
+
+    def test_golden_40000(self):
+        result = calculer_cotisation_avs(40_000.0)
+        assert result.cotisation_avs_ai_apg == 2_691.20  # 40'000 x 6.728%
+
+    def test_golden_60500_full_rate(self):
+        result = calculer_cotisation_avs(60_500.0)
+        assert result.cotisation_avs_ai_apg == 6_050.0  # 10.0%
+
+    def test_golden_70000_full_rate(self):
+        result = calculer_cotisation_avs(70_000.0)
+        assert result.cotisation_avs_ai_apg == 7_000.0  # 10.0%, pas 7'420 (10.6%)
+
+    def test_full_rate_is_independent_not_salaried(self):
+        result = calculer_cotisation_avs(100_000.0)
+        assert abs(result.taux_effectif - 0.10) < 0.001  # jamais 0.106
+
+    def test_independant_service_delegates_to_same_bareme(self):
+        """Table A supprimée : IndependantService doit rendre les mêmes goldens."""
+        from app.services.independant_service import IndependantService
+        svc = IndependantService()
+        assert svc.calculate_avs_contribution(15_000.0) == 805.65
+        assert svc.calculate_avs_contribution(40_000.0) == 2_691.20
+        assert svc.calculate_avs_contribution(70_000.0) == 7_000.0
+
+    def test_sliver_negative_difference_copy_says_moins(self):
+        """10'050 (min fixe 530 < part salarie) -> copy 'de moins', pas '+-X de plus'."""
+        result = calculer_cotisation_avs(10_050.0)
+        assert result.cotisation_avs_ai_apg == 530.0
+        assert result.difference_vs_salarie < 0
+        assert "de moins" in result.premier_eclairage
+        assert "de plus" not in result.premier_eclairage

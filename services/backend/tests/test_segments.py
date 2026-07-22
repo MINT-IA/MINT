@@ -27,10 +27,11 @@ from app.services.frontalier_service import (
 from app.services.independant_service import (
     IndependantService,
     IndependantInput,
-    AVS_FULL_RATE,
-    AVS_MINIMUM_CONTRIBUTION,
     PLAFOND_3A_INDEPENDANT_MAX,
     PLAFOND_3A_SALARIE,
+)
+from app.constants.social_insurance import (
+    AVS_COTISATION_MIN_INDEPENDANT as AVS_MINIMUM_CONTRIBUTION,
 )
 
 
@@ -380,10 +381,9 @@ class TestIndependant:
     """Tests for self-employed worker analysis."""
 
     def test_avs_full_rate_high_income(self, independant_service):
-        """High income (> 58800): full AVS rate 10.6%."""
+        """High income (>= 60'500): full independent rate 10.0% (pas 10.6%)."""
         cotisation = independant_service.calculate_avs_contribution(100_000.0)
-        expected = round(100_000.0 * AVS_FULL_RATE, 2)
-        assert cotisation == expected
+        assert cotisation == round(100_000.0 * 0.10, 2)
 
     def test_avs_minimum_low_income(self, independant_service):
         """Very low income (< 9800): minimum contribution."""
@@ -395,7 +395,7 @@ class TestIndependant:
         cotisation = independant_service.calculate_avs_contribution(30_000.0)
         # Should be between minimum and full rate
         assert cotisation > AVS_MINIMUM_CONTRIBUTION
-        assert cotisation < 30_000.0 * AVS_FULL_RATE
+        assert cotisation < 30_000.0 * 0.10
 
     def test_avs_zero_income(self, independant_service):
         """Zero income: zero contribution."""

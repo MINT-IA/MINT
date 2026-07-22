@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/independants_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SEGMENTS SOCIOLOGIQUES SERVICE — Sprint S12 / Chantier 6
@@ -706,25 +707,11 @@ class IndependantResult {
 /// Key risks: no mandatory LPP, no mandatory IJM (CRITICAL),
 /// no mandatory LAA.
 class IndependantService {
-  // ── Constants (delegated to social_insurance.dart) ─────────
-
-  /// Simplified degressive AVS rates for low incomes.
-  /// Key: income threshold, Value: effective rate.
-  static const List<_AvsDegressifBracket> _avsDegressifBrackets = [
-    _AvsDegressifBracket(threshold: 9800, rate: 0.0),
-    _AvsDegressifBracket(threshold: 17400, rate: 0.043),
-    _AvsDegressifBracket(threshold: 21100, rate: 0.046),
-    _AvsDegressifBracket(threshold: 24900, rate: 0.049),
-    _AvsDegressifBracket(threshold: 28600, rate: 0.052),
-    _AvsDegressifBracket(threshold: 32400, rate: 0.056),
-    _AvsDegressifBracket(threshold: 36100, rate: 0.060),
-    _AvsDegressifBracket(threshold: 39900, rate: 0.064),
-    _AvsDegressifBracket(threshold: 43600, rate: 0.069),
-    _AvsDegressifBracket(threshold: 47400, rate: 0.074),
-    _AvsDegressifBracket(threshold: 51100, rate: 0.079),
-    _AvsDegressifBracket(threshold: 54900, rate: 0.085),
-    _AvsDegressifBracket(threshold: 58800, rate: 0.092),
-  ];
+  // AVS: the local simplified bracket table (audit T02-F17, MINT_nosync-iy5,
+  // Codex review finding 1) was a stale scale — zero below 9'800 (the law
+  // prescribes the fixed minimum), paritaire 10.6% above 58'800 (independent
+  // full rate = 10.0% from 60'500). _computeAvsContribution now delegates to
+  // the single Dart source IndependantsService.calculateAvsCotisations.
 
   // ── Public API ─────────────────────────────────────────────
 
@@ -839,22 +826,16 @@ class IndependantService {
     ];
   }
 
-  /// Compute AVS contribution for self-employed (degressive scale).
+  /// Compute AVS contribution for self-employed (official RAVS art. 21 scale).
+  ///
+  /// Delegates to the single Dart source (rule-4 single-source) — no local
+  /// duplicate table. Below the threshold the fixed minimum applies.
   static double _computeAvsContribution(double revenuNet) {
     if (revenuNet <= 0) {
       return 0;
     }
-    if (revenuNet >= 58800) {
-      return revenuNet * reg('avs.contribution_rate_total', avsCotisationTotal);
-    }
-
-    // Find applicable bracket
-    for (int i = _avsDegressifBrackets.length - 1; i >= 0; i--) {
-      if (revenuNet >= _avsDegressifBrackets[i].threshold) {
-        return revenuNet * _avsDegressifBrackets[i].rate;
-      }
-    }
-    return 0; // below minimum threshold
+    return IndependantsService.calculateAvsCotisations(revenuNet)
+        .cotisationAnnuelle;
   }
 
   /// Compute estimated monthly protection costs.
@@ -982,15 +963,4 @@ class IndependantService {
 
     return recs;
   }
-}
-
-/// Internal helper for AVS degressive brackets.
-class _AvsDegressifBracket {
-  final double threshold;
-  final double rate;
-
-  const _AvsDegressifBracket({
-    required this.threshold,
-    required this.rate,
-  });
 }

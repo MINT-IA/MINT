@@ -9,35 +9,37 @@ tags: [avs, independant, cotisation, bareme, lavs]
 L'utilisateur est indépendant·e ou envisage de le devenir, et veut comprendre ses obligations de cotisation AVS.
 
 ## Premier Éclairage
-Un·e indépendant·e paie entre 5.371 % et 10.60 % de son revenu net en cotisations AVS/AI/APG — contre un taux fixe de 5.30 % pour un·e salarié·e (l'employeur payant les 5.30 % restants). En dessous de CHF 9'800/an de revenu, tu bénéficies du barème dégressif.
+Un·e indépendant·e paie entre 5.371 % et 10.0 % de son revenu net en cotisations AVS/AI/APG (AVS 8.1 % + AI 1.4 % + APG 0.5 %) — un·e salarié·e ne voit que 5.30 % sur sa fiche de paie, l'employeur payant l'autre moitié. Entre CHF 10'100 et CHF 60'500 de revenu net, le barème dégressif réduit ton taux.
 
 ## Niveau 0
-Imagine que tes cotisations AVS sont une facture partagée en deux. Quand tu es salarié·e, ton employeur paie la moitié — tu ne vois que "ta part" sur ta fiche de paie. Quand tu es indépendant·e, tu paies le tout toi-même : la part employé ET la part employeur.
+Imagine que tes cotisations AVS sont une facture partagée en deux. Quand tu es salarié·e, ton employeur paie la moitié — tu ne vois que "ta part" sur ta fiche de paie. Quand tu es indépendant·e, tu paies le tout toi-même, à un taux légèrement réduit (10.0 % au lieu du total salarié+employeur de 10.6 %).
 
-Mais il y a une petite compensation : si tes revenus sont modestes (en dessous d'environ CHF 58'800/an), le taux diminue progressivement. C'est le "barème dégressif" — une sorte de rabais pour les petits revenus d'indépendant·e·s.
+Il y a une compensation pour les petits revenus : en dessous de CHF 60'500/an, le taux diminue progressivement, jusqu'à 5.371 %. C'est le "barème dégressif" — une sorte de rabais pour les revenus modestes d'indépendant·e·s.
 
-Attention : même si tu ne gagnes presque rien, tu dois payer au minimum CHF 530/an de cotisation AVS. C'est le ticket d'entrée pour éviter des lacunes dans ton historique.
+Attention : même si tu ne gagnes presque rien (moins de CHF 10'100/an), tu dois payer la cotisation minimale de CHF 530/an. C'est le ticket d'entrée pour éviter des lacunes dans ton historique.
 
 ## Niveau 1
-Les cotisations AVS des indépendant·e·s sont régies par LAVS art. 8 :
+Les cotisations AVS des indépendant·e·s sont régies par LAVS art. 8 et OAVS (RAVS) art. 21 :
 
-**Taux de cotisation (AVS/AI/APG)** :
-- Revenu net ≥ CHF 58'800/an : taux plein de 10.60 % (identique au total salarié+employeur)
-- Revenu net < CHF 58'800/an : barème dégressif (LAVS art. 8 al. 2), minimum 5.371 %
-- Cotisation minimale : CHF 530/an (LAVS art. 8 al. 2), quelle que soit la situation
+**Taux de cotisation (AVS/AI/APG), barème 2025/2026** :
+- Revenu net ≥ CHF 60'500/an : taux plein indépendant de 10.0 % (AVS 8.1 % + AI 1.4 % + APG 0.5 %) — inférieur au total salarié+employeur (10.6 %)
+- Revenu net entre CHF 10'100 et CHF 60'500 : barème dégressif (OAVS art. 21), de 5.371 % à 9.321 %
+- Revenu net < CHF 10'100/an : cotisation minimale fixe de CHF 530/an (LAVS art. 8 al. 2)
+- Le taux de la tranche s'applique à la totalité du revenu (barème non marginal)
 
 **Base de calcul** :
 - Revenu net de l'activité indépendante, après déduction des frais professionnels.
 - Déterminé par la taxation fiscale (déclaration d'impôt).
-- Les cotisations AVS sont elles-mêmes déductibles du revenu.
+- Les frais d'administration de la caisse de compensation (OAVS art. 69, max 5 % des cotisations) s'ajoutent au barème.
 
-**Barème dégressif (extrait)** :
-| Revenu net annuel | Taux approx. |
+**Barème dégressif (extrait, Mémento AVS 2.02)** :
+| Revenu net annuel | Taux |
 |-------------------|-------------|
-| < CHF 9'800 | 5.371 % (minimum CHF 530) |
-| CHF 17'600 | ~6.6 % |
-| CHF 36'600 | ~8.5 % |
-| ≥ CHF 58'800 | 10.60 % (taux plein) |
+| < CHF 10'100 | cotisation minimale fixe CHF 530 |
+| CHF 10'100 – 17'600 | 5.371 % |
+| CHF 38'000 – 40'500 | 6.728 % |
+| CHF 58'000 – 60'500 | 9.321 % |
+| ≥ CHF 60'500 | 10.0 % (taux plein indépendant) |
 
 **Acomptes et décompte** :
 - La caisse de compensation fixe des acomptes provisionnels basés sur le dernier revenu connu.
@@ -48,9 +50,9 @@ Les cotisations AVS des indépendant·e·s sont régies par LAVS art. 8 :
 
 ## Sources
 - LAVS art. 8 (cotisations des indépendant·e·s)
-- LAVS art. 9 (adaptation des cotisations)
-- LAVS art. 10 (cotisations des personnes sans activité lucrative)
-- OAVS art. 21 ss (barème dégressif détaillé)
+- LAVS art. 9 (revenu déterminant)
+- OAVS (RAVS) art. 21 (barème dégressif détaillé)
+- Mémento AVS 2.02 — Cotisations des indépendants (2025/2026)
 
 ## Disclaimer
-Information à caractère éducatif — ne constitue pas un conseil en prévoyance au sens de la LSFin. Le montant exact de tes cotisations dépend de ta caisse de compensation et de ta taxation fiscale. Consulte ta caisse AVS ou un·e spécialiste.
+Information à caractère éducatif — ne constitue pas un conseil en prévoyance au sens de la LSFin. Le montant exact de tes cotisations dépend de ta caisse de compensation (frais d'administration en sus) et de ta taxation fiscale. Consulte ta caisse AVS ou un·e spécialiste.

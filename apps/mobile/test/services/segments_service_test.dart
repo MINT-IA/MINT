@@ -466,7 +466,7 @@ void main() {
       expect(result.plafond3a, 7258);
     });
 
-    test('AVS contribution at full rate for income >= 58800', () {
+    test('AVS contribution at full INDEPENDENT rate for income >= 60500', () {
       final result = IndependantService.analyse(
         input: const IndependantInput(
           revenuNet: 100000,
@@ -474,19 +474,19 @@ void main() {
           canton: 'ZH',
         ),
       );
-      // 100000 * 0.106 = 10600
-      expect(result.cotisationAvsAnnuelle, closeTo(10600, 0.01));
+      // 100000 * 10.0% (AVS 8.1 + AI 1.4 + APG 0.5) — pas 10.6% (salarie).
+      expect(result.cotisationAvsAnnuelle, closeTo(10000, 0.01));
     });
 
-    test('AVS contribution zero for income below threshold', () {
+    test('AVS contribution below threshold = fixed minimum (LAVS art. 8)', () {
       final result = IndependantService.analyse(
         input: const IndependantInput(
-          revenuNet: 5000, // below 9800
+          revenuNet: 5000, // below 10'100 -> cotisation minimale fixe
           age: 40,
           canton: 'VD',
         ),
       );
-      expect(result.cotisationAvsAnnuelle, 0);
+      expect(result.cotisationAvsAnnuelle, 530.0);
     });
 
     test('AVS contribution degressive for mid-range income', () {
@@ -497,8 +497,8 @@ void main() {
           canton: 'VD',
         ),
       );
-      // 30000 is between 28600 (5.2%) and 32400 (5.6%), so should use 5.2%
-      expect(result.cotisationAvsAnnuelle, closeTo(30000 * 0.052, 0.01));
+      // 30'000 dans la tranche officielle 28'000-30'500 -> 5.864% (Memento 2.02)
+      expect(result.cotisationAvsAnnuelle, closeTo(30000 * 0.05864, 0.01));
     });
 
     test('zero income returns zero AVS', () {

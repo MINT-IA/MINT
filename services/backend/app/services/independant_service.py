@@ -39,12 +39,11 @@ Ethical requirements:
 from dataclasses import dataclass
 from typing import List
 
+from app.services.independants.avs_cotisations_service import (  # noqa: F401
+    calculer_cotisation_avs,
+)
 from app.constants.social_insurance import (
     AVS_AGE_REFERENCE_HOMME as RETIREMENT_AGE,
-    AVS_BAREME_DEGRESSIF_PLAFOND as AVS_DEGRESSIVE_UPPER,
-    AVS_COTISATION_MIN_INDEPENDANT as AVS_MINIMUM_CONTRIBUTION,
-    AVS_COTISATION_TOTAL as AVS_FULL_RATE,
-    AVS_SEUIL_REVENU_MIN_INDEPENDANT as AVS_MINIMUM_INCOME_THRESHOLD,
     PILIER_3A_PLAFOND_AVEC_LPP as PLAFOND_3A_SALARIE,
     PILIER_3A_PLAFOND_SANS_LPP as PLAFOND_3A_INDEPENDANT_MAX,
     PILIER_3A_TAUX_REVENU_SANS_LPP as PLAFOND_3A_INDEPENDANT_TAUX,
@@ -67,21 +66,10 @@ from app.services.independants.indemnity_rates import (  # noqa: E402
     LAA_ESTIMATE_RATE,
 )
 
-# Degressive rates (simplified brackets for independant AVS calculation)
-# Kept local because AVS_BAREME_INDEPENDANT in social_insurance.py uses
-# a different (more precise) bracket structure with non-marginal rates.
-AVS_DEGRESSIVE_BRACKETS = [
-    (9_800, 17_600, 0.048),
-    (17_601, 21_400, 0.051),
-    (21_401, 23_800, 0.054),
-    (23_801, 28_600, 0.057),
-    (28_601, 33_400, 0.060),
-    (33_401, 38_200, 0.064),
-    (38_201, 43_000, 0.068),
-    (43_001, 47_800, 0.074),
-    (47_801, 52_600, 0.080),
-    (52_601, 58_800, 0.092),
-]
+# AVS: the duplicated local bracket table (audit T02-F17, MINT_nosync-iy5)
+# was a stale pre-2020 scale diverging from the official one by up to +21%.
+# calculate_avs_contribution now delegates to the S18 single source
+# `calculer_cotisation_avs` (RAVS art. 21 scale in social_insurance.py).
 
 
 # ---------------------------------------------------------------------------
@@ -142,30 +130,19 @@ class IndependantService:
     def calculate_avs_contribution(self, revenu_net: float) -> float:
         """Calculate AVS contribution for self-employed (LAVS art. 8).
 
-        Uses degressive scale for low incomes, full rate above threshold.
+        Delegates to the S18 single source `calculer_cotisation_avs`
+        (official RAVS art. 21 scale — no local duplicate table,
+        audit T02-F17 / MINT_nosync-iy5).
 
         Args:
             revenu_net: Annual net income from self-employment.
 
         Returns:
-            Annual AVS contribution in CHF.
+            Annual AVS/AI/APG contribution in CHF.
         """
         if revenu_net <= 0:
             return 0.0
-
-        if revenu_net < AVS_MINIMUM_INCOME_THRESHOLD:
-            return AVS_MINIMUM_CONTRIBUTION
-
-        if revenu_net > AVS_DEGRESSIVE_UPPER:
-            return round(revenu_net * AVS_FULL_RATE, 2)
-
-        # Apply degressive scale
-        for lower, upper, rate in AVS_DEGRESSIVE_BRACKETS:
-            if lower <= revenu_net <= upper:
-                return round(revenu_net * rate, 2)
-
-        # Fallback: should not reach here, but use full rate
-        return round(revenu_net * AVS_FULL_RATE, 2)
+        return calculer_cotisation_avs(revenu_net).cotisation_avs_ai_apg
 
     def calculate_3a_plafond(self, revenu_net: float) -> float:
         """Calculate 3a grand plafond for self-employed without LPP.

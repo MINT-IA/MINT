@@ -3522,7 +3522,7 @@ class SDe extends S {
 
   @override
   String independantAvsBody(String amount) {
-    return 'Dein geschätzter AHV-Beitrag: $amount/Jahr (degressiver Satz für Einkommen unter CHF 58’800, dann ~10.6% darüber).';
+    return 'Dein geschätzter AHV-Beitrag: $amount/Jahr (degressiver Satz für Einkommen unter CHF 60’500, dann 10.0% darüber).';
   }
 
   @override
@@ -10640,7 +10640,7 @@ class SDe extends S {
 
   @override
   String get avsCotisationsEduDegressifBody =>
-      'Der Satz sinkt bei niedrigen Einkommen (zwischen CHF 10’100 und CHF 60’500). Über CHF 60’500 gilt der volle Satz von 10.6 %.';
+      'Der Satz sinkt bei niedrigen Einkommen (zwischen CHF 10’100 und CHF 60’500). Über CHF 60’500 gilt der volle Satz von 10.0 %.';
 
   @override
   String get avsCotisationsEduDoubleChargeTitle => 'Doppelbelastung';

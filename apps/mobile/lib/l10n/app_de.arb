@@ -1554,7 +1554,7 @@
       }
     }
   },
-  "independantAvsBody": "Dein geschätzter AHV-Beitrag: {amount}/Jahr (degressiver Satz für Einkommen unter CHF 58’800, dann ~10.6% darüber).",
+  "independantAvsBody": "Dein geschätzter AHV-Beitrag: {amount}/Jahr (degressiver Satz für Einkommen unter CHF 60’500, dann 10.0% darüber).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -5050,7 +5050,7 @@
   },
   "avsCotisationsBonASavoir": "Gut zu wissen",
   "avsCotisationsEduDegressifTitle": "Degressive Skala",
-  "avsCotisationsEduDegressifBody": "Der Satz sinkt bei niedrigen Einkommen (zwischen CHF 10’100 und CHF 60’500). Über CHF 60’500 gilt der volle Satz von 10.6 %.",
+  "avsCotisationsEduDegressifBody": "Der Satz sinkt bei niedrigen Einkommen (zwischen CHF 10’100 und CHF 60’500). Über CHF 60’500 gilt der volle Satz von 10.0 %.",
   "avsCotisationsEduDoubleChargeTitle": "Doppelbelastung",
   "avsCotisationsEduDoubleChargeBody": "Angestellte zahlen nur 5.3 %; der Arbeitgeber übernimmt die andere Hälfte. Als Selbstständige·r trägst du die volle Last.",
   "avsCotisationsEduMinTitle": "Mindestbeitrag",

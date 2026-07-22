@@ -3503,7 +3503,7 @@ class SFr extends S {
 
   @override
   String independantAvsBody(String amount) {
-    return 'Ta cotisation AVS estimée : $amount/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6 % au-dessus).';
+    return 'Ta cotisation AVS estimée : $amount/an (taux dégressif pour les revenus inférieurs à CHF 60’500, puis 10.0 % au-dessus).';
   }
 
   @override
@@ -10610,7 +10610,7 @@ class SFr extends S {
 
   @override
   String get avsCotisationsEduDegressifBody =>
-      'Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.6 % s’applique.';
+      'Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.0 % s’applique.';
 
   @override
   String get avsCotisationsEduDoubleChargeTitle => 'Double charge';

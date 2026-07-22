@@ -1554,7 +1554,7 @@
       }
     }
   },
-  "independantAvsBody": "A tua contribuição AVS estimada: {amount}/ano (taxa degressiva para rendimentos inferiores a CHF 58’800, depois ~10.6% acima).",
+  "independantAvsBody": "A tua contribuição AVS estimada: {amount}/ano (taxa degressiva para rendimentos inferiores a CHF 60’500, depois 10.0% acima).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -5050,7 +5050,7 @@
   },
   "avsCotisationsBonASavoir": "Bom saber",
   "avsCotisationsEduDegressifTitle": "Escala degressiva",
-  "avsCotisationsEduDegressifBody": "A taxa diminui para rendimentos baixos (entre CHF 10’100 e CHF 60’500). Acima, aplica-se a taxa plena de 10.6%.",
+  "avsCotisationsEduDegressifBody": "A taxa diminui para rendimentos baixos (entre CHF 10’100 e CHF 60’500). Acima, aplica-se a taxa plena de 10.0%.",
   "avsCotisationsEduDoubleChargeTitle": "Duplo encargo",
   "avsCotisationsEduDoubleChargeBody": "Um empregado paga apenas 5.3%; o empregador cobre a outra metade. Como independente, assumes a totalidade.",
   "avsCotisationsEduMinTitle": "Contribuição mínima",

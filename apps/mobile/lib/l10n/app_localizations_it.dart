@@ -3516,7 +3516,7 @@ class SIt extends S {
 
   @override
   String independantAvsBody(String amount) {
-    return 'Il tuo contributo AVS stimato: $amount/anno (aliquota decrescente per redditi inferiori a CHF 58’800, poi ~10.6% sopra).';
+    return 'Il tuo contributo AVS stimato: $amount/anno (aliquota decrescente per redditi inferiori a CHF 60’500, poi 10.0% sopra).';
   }
 
   @override
@@ -10631,7 +10631,7 @@ class SIt extends S {
 
   @override
   String get avsCotisationsEduDegressifBody =>
-      'L\'aliquota diminuisce per i redditi bassi (tra CHF 10’100 e CHF 60’500). Sopra CHF 60’500 si applica l\'aliquota piena del 10.6%.';
+      'L\'aliquota diminuisce per i redditi bassi (tra CHF 10’100 e CHF 60’500). Sopra CHF 60’500 si applica l\'aliquota piena del 10.0%.';
 
   @override
   String get avsCotisationsEduDoubleChargeTitle => 'Doppio onere';
