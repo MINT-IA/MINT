@@ -301,157 +301,165 @@ class _NoRagOrchestrator:
         resolved_model = model or "claude-sonnet-4-5-20250929"
         client = AsyncAnthropic(api_key=api_key, timeout=60.0)
         router = LLMRouter(anthropic_client=client)
+        try:
 
-        messages: list[dict] = [{"role": "user", "content": question}]
-        # First-call-only force (Codex fix_6): definition intent → explain_concept;
-        # else finance keyword → get_regulatory_constant; else auto. The follow-up
-        # call after a tool_result reverts to auto (already the case below).
-        if force_definition:
-            tool_choice: dict = {"type": "tool", "name": "explain_concept"}
-        elif force_tool:
-            tool_choice = {"type": "tool", "name": "get_regulatory_constant"}
-        else:
-            tool_choice = {"type": "auto"}
+            messages: list[dict] = [{"role": "user", "content": question}]
+            # First-call-only force (Codex fix_6): definition intent → explain_concept;
+            # else finance keyword → get_regulatory_constant; else auto. The follow-up
+            # call after a tool_result reverts to auto (already the case below).
+            if force_definition:
+                tool_choice: dict = {"type": "tool", "name": "explain_concept"}
+            elif force_tool:
+                tool_choice = {"type": "tool", "name": "get_regulatory_constant"}
+            else:
+                tool_choice = {"type": "auto"}
 
-        # First LLM turn — may emit text + tool_use blocks.
-        first = await router.invoke(LLMRequest(
-            model=resolved_model,
-            max_tokens=600,
-            system=system_prompt,
-            messages=messages,
-            tools=anon_tools,
-            tool_choice=tool_choice,
-            purpose="anonymous_chat",
-        ))
-
-        tokens_first = (first.usage.input_tokens + first.usage.output_tokens) if first.usage else 0
-        tool_use_blocks = [b for b in first.content if getattr(b, "type", None) == "tool_use"]
-        text_blocks_first = [b.text for b in first.content if getattr(b, "type", None) == "text"]
-
-        # Couche B — 1-iteration tool-use agent loop. If LLM invoked the tool,
-        # execute it locally and feed the result back so the LLM can produce
-        # final user-facing text grounded on the registry value.
-        final_text = "\n".join(text_blocks_first)
-        tokens_total = tokens_first
-        executed_tool_names: list[str] = []
-
-        if tool_use_blocks:
-            # Sub-phase 01.4 panel FLAG #1 — import from shared module (NOT
-            # coach_chat) so the anonymous path keeps T-13-06 isolation from
-            # the authenticated auth/billing/consent stack.
-            from app.services.regulatory.tool_handler import (
-                handle_regulatory_constant,
-            )
-            # Sub-phase 01.4 panel FLAG #3 — observability for tool fire.
-            from app.observability.coach_breadcrumbs import (
-                emit_coach_tool_breadcrumb,
-            )
-            import hashlib as _hashlib
-            import json as _json
-            import time as _time
-
-            _t0 = _time.monotonic()
-
-            # Build the assistant turn carrying the original content blocks so
-            # Anthropic understands the conversation state.
-            assistant_content: list[dict] = []
-            for b in first.content:
-                btype = getattr(b, "type", None)
-                if btype == "text":
-                    assistant_content.append({"type": "text", "text": b.text})
-                elif btype == "tool_use":
-                    assistant_content.append({
-                        "type": "tool_use",
-                        "id": b.id,
-                        "name": b.name,
-                        "input": b.input,
-                    })
-
-            # Execute each tool_use and build the user turn carrying tool_result blocks.
-            tool_result_content: list[dict] = []
-            for b in tool_use_blocks:
-                if b.name == "get_regulatory_constant":
-                    tool_input_dict = b.input or {}
-                    result_str = handle_regulatory_constant(tool_input_dict)
-                    executed_tool_names.append("get_regulatory_constant")
-                    # Sub-phase 01.4 panel FLAG #3 — Sentry breadcrumb so prod
-                    # can verify the fix is actually firing. Payload is non-PII
-                    # by construction (SHA-256 hash of input dict).
-                    try:  # pragma: no cover — telemetry-only
-                        _inputs_hash = _hashlib.sha256(
-                            _json.dumps(tool_input_dict, sort_keys=True).encode()
-                        ).hexdigest()
-                        emit_coach_tool_breadcrumb(
-                            tool_name="regulatory_constant",
-                            inputs_hash=_inputs_hash,
-                            profile_id_hashed="anonymous",
-                            elapsed_ms=int((_time.monotonic() - _t0) * 1000),
-                            flag_state="on",
-                            extra_tags={"path": "anonymous"},
-                        )
-                    except Exception:
-                        pass  # fail-open per coach_breadcrumbs.py contract
-                elif b.name == "explain_concept":
-                    # Codex fix_6 — resolve the curated CONCEPT_REGISTRY page so
-                    # the anonymous LLM grounds its definition on the registry,
-                    # never on its weights (the W1 rachat-inversion fix). Imported
-                    # from the shared coach_tools module (no endpoint import →
-                    # preserves T-13-06 isolation; handle_explain_concept touches
-                    # no auth/profile/DB).
-                    from app.services.coach.coach_tools import (
-                        handle_explain_concept,
-                    )
-
-                    tool_input_dict = b.input or {}
-                    result_str = handle_explain_concept(tool_input_dict)
-                    executed_tool_names.append("explain_concept")
-                    try:  # pragma: no cover — telemetry-only
-                        _inputs_hash = _hashlib.sha256(
-                            _json.dumps(tool_input_dict, sort_keys=True).encode()
-                        ).hexdigest()
-                        emit_coach_tool_breadcrumb(
-                            tool_name="explain_concept",
-                            inputs_hash=_inputs_hash,
-                            profile_id_hashed="anonymous",
-                            elapsed_ms=int((_time.monotonic() - _t0) * 1000),
-                            flag_state="on",
-                            extra_tags={"path": "anonymous"},
-                        )
-                    except Exception:
-                        pass  # fail-open per coach_breadcrumbs.py contract
-                else:
-                    # Unknown tool — return error so the LLM doesn't pretend it ran.
-                    result_str = f"Erreur : outil '{b.name}' non disponible en mode anonyme."
-                tool_result_content.append({
-                    "type": "tool_result",
-                    "tool_use_id": b.id,
-                    "content": result_str,
-                })
-
-            messages_followup = [
-                *messages,
-                {"role": "assistant", "content": assistant_content},
-                {"role": "user", "content": tool_result_content},
-            ]
-
-            second = await router.invoke(LLMRequest(
+            # First LLM turn — may emit text + tool_use blocks.
+            first = await router.invoke(LLMRequest(
                 model=resolved_model,
                 max_tokens=600,
                 system=system_prompt,
-                messages=messages_followup,
+                messages=messages,
                 tools=anon_tools,
-                # Second pass = LLM should now answer with grounded text.
-                # Don't re-force the tool (already executed), let it narrate.
-                tool_choice={"type": "auto"},
+                tool_choice=tool_choice,
                 purpose="anonymous_chat",
             ))
-            tokens_total += (second.usage.input_tokens + second.usage.output_tokens) if second.usage else 0
 
-            second_text = "\n".join(
-                b.text for b in second.content if getattr(b, "type", None) == "text"
-            )
-            if second_text.strip():
-                final_text = second_text
+            tokens_first = (first.usage.input_tokens + first.usage.output_tokens) if first.usage else 0
+            tool_use_blocks = [b for b in first.content if getattr(b, "type", None) == "tool_use"]
+            text_blocks_first = [b.text for b in first.content if getattr(b, "type", None) == "text"]
+
+            # Couche B — 1-iteration tool-use agent loop. If LLM invoked the tool,
+            # execute it locally and feed the result back so the LLM can produce
+            # final user-facing text grounded on the registry value.
+            final_text = "\n".join(text_blocks_first)
+            tokens_total = tokens_first
+            executed_tool_names: list[str] = []
+
+            if tool_use_blocks:
+                # Sub-phase 01.4 panel FLAG #1 — import from shared module (NOT
+                # coach_chat) so the anonymous path keeps T-13-06 isolation from
+                # the authenticated auth/billing/consent stack.
+                from app.services.regulatory.tool_handler import (
+                    handle_regulatory_constant,
+                )
+                # Sub-phase 01.4 panel FLAG #3 — observability for tool fire.
+                from app.observability.coach_breadcrumbs import (
+                    emit_coach_tool_breadcrumb,
+                )
+                import hashlib as _hashlib
+                import json as _json
+                import time as _time
+
+                _t0 = _time.monotonic()
+
+                # Build the assistant turn carrying the original content blocks so
+                # Anthropic understands the conversation state.
+                assistant_content: list[dict] = []
+                for b in first.content:
+                    btype = getattr(b, "type", None)
+                    if btype == "text":
+                        assistant_content.append({"type": "text", "text": b.text})
+                    elif btype == "tool_use":
+                        assistant_content.append({
+                            "type": "tool_use",
+                            "id": b.id,
+                            "name": b.name,
+                            "input": b.input,
+                        })
+
+                # Execute each tool_use and build the user turn carrying tool_result blocks.
+                tool_result_content: list[dict] = []
+                for b in tool_use_blocks:
+                    if b.name == "get_regulatory_constant":
+                        tool_input_dict = b.input or {}
+                        result_str = handle_regulatory_constant(tool_input_dict)
+                        executed_tool_names.append("get_regulatory_constant")
+                        # Sub-phase 01.4 panel FLAG #3 — Sentry breadcrumb so prod
+                        # can verify the fix is actually firing. Payload is non-PII
+                        # by construction (SHA-256 hash of input dict).
+                        try:  # pragma: no cover — telemetry-only
+                            _inputs_hash = _hashlib.sha256(
+                                _json.dumps(tool_input_dict, sort_keys=True).encode()
+                            ).hexdigest()
+                            emit_coach_tool_breadcrumb(
+                                tool_name="regulatory_constant",
+                                inputs_hash=_inputs_hash,
+                                profile_id_hashed="anonymous",
+                                elapsed_ms=int((_time.monotonic() - _t0) * 1000),
+                                flag_state="on",
+                                extra_tags={"path": "anonymous"},
+                            )
+                        except Exception:
+                            pass  # fail-open per coach_breadcrumbs.py contract
+                    elif b.name == "explain_concept":
+                        # Codex fix_6 — resolve the curated CONCEPT_REGISTRY page so
+                        # the anonymous LLM grounds its definition on the registry,
+                        # never on its weights (the W1 rachat-inversion fix). Imported
+                        # from the shared coach_tools module (no endpoint import →
+                        # preserves T-13-06 isolation; handle_explain_concept touches
+                        # no auth/profile/DB).
+                        from app.services.coach.coach_tools import (
+                            handle_explain_concept,
+                        )
+
+                        tool_input_dict = b.input or {}
+                        result_str = handle_explain_concept(tool_input_dict)
+                        executed_tool_names.append("explain_concept")
+                        try:  # pragma: no cover — telemetry-only
+                            _inputs_hash = _hashlib.sha256(
+                                _json.dumps(tool_input_dict, sort_keys=True).encode()
+                            ).hexdigest()
+                            emit_coach_tool_breadcrumb(
+                                tool_name="explain_concept",
+                                inputs_hash=_inputs_hash,
+                                profile_id_hashed="anonymous",
+                                elapsed_ms=int((_time.monotonic() - _t0) * 1000),
+                                flag_state="on",
+                                extra_tags={"path": "anonymous"},
+                            )
+                        except Exception:
+                            pass  # fail-open per coach_breadcrumbs.py contract
+                    else:
+                        # Unknown tool — return error so the LLM doesn't pretend it ran.
+                        result_str = f"Erreur : outil '{b.name}' non disponible en mode anonyme."
+                    tool_result_content.append({
+                        "type": "tool_result",
+                        "tool_use_id": b.id,
+                        "content": result_str,
+                    })
+
+                messages_followup = [
+                    *messages,
+                    {"role": "assistant", "content": assistant_content},
+                    {"role": "user", "content": tool_result_content},
+                ]
+
+                second = await router.invoke(LLMRequest(
+                    model=resolved_model,
+                    max_tokens=600,
+                    system=system_prompt,
+                    messages=messages_followup,
+                    tools=anon_tools,
+                    # Second pass = LLM should now answer with grounded text.
+                    # Don't re-force the tool (already executed), let it narrate.
+                    tool_choice={"type": "auto"},
+                    purpose="anonymous_chat",
+                ))
+                tokens_total += (second.usage.input_tokens + second.usage.output_tokens) if second.usage else 0
+
+                second_text = "\n".join(
+                    b.text for b in second.content if getattr(b, "type", None) == "text"
+                )
+                if second_text.strip():
+                    final_text = second_text
+        finally:
+            # Client injecté = possédé par nous (le routeur ne ferme
+            # jamais un client injecté) — fermeture déterministe.
+            try:
+                await client.close()
+            except Exception:  # pragma: no cover — hygiène best-effort
+                pass
 
         # CJT-021 — anonymous path must share the authenticated path's
         # temporal fail-closed invariant: a current-year question must never
