@@ -7,7 +7,9 @@ endpoint stack which is sync). The async migration is out of scope here.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
+import json
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -93,6 +95,10 @@ def upsert_and_diff(
     new_fields_dict: Dict[str, Any] = {
         f.field_name: f.value for f in result.extracted_fields
     }
+    # Audit T06-F10 (MINT_nosync-tih) : les montants exacts ne sont plus
+    # ecrits en clair — sous PRIVACY_V2 le blob fields est chiffre via le DEK
+    # utilisateur (pattern PRIV-04, meme flag que evidence_text).
+    use_enc = _flag_privacy_v2(user_id)
 
     existing = (
         db.query(DocumentMemory)
@@ -104,15 +110,22 @@ def upsert_and_diff(
     )
 
     diff: Optional[Dict[str, FieldDiff]] = None
-    history_entry = {
-        "date": datetime.now(timezone.utc).isoformat(),
-        "fields": new_fields_dict,
-    }
+    if use_enc:
+        blob = encrypt_text(db, user_id, json.dumps(new_fields_dict, sort_keys=True))
+        history_entry = {
+            "date": datetime.now(timezone.utc).isoformat(),
+            "fields_enc": base64.b64encode(blob).decode("ascii") if blob else None,
+        }
+    else:
+        history_entry = {
+            "date": datetime.now(timezone.utc).isoformat(),
+            "fields": new_fields_dict,
+        }
 
     if existing is not None:
         history: List[Dict[str, Any]] = list(existing.field_history or [])
         if history:
-            last = history[-1].get("fields") or {}
+            last = _entry_fields(db, user_id, history[-1])
             diff = _diff_fields(last, new_fields_dict) or None
         history.append(history_entry)
         existing.field_history = history
@@ -141,6 +154,19 @@ def upsert_and_diff(
         return None
 
     return diff
+
+
+def _entry_fields(db, user_id: str, entry: Dict[str, Any]) -> Dict[str, Any]:
+    """Lit les fields d'une entree d'historique — chiffree ou legacy clair."""
+    enc = entry.get("fields_enc")
+    if enc:
+        try:
+            plain = decrypt_text(db, user_id, base64.b64decode(enc))
+            return json.loads(plain) if plain else {}
+        except Exception as exc:
+            logger.warning("field_history decrypt failed user=%s err=%s", user_id, exc)
+            return {}
+    return entry.get("fields") or {}
 
 
 def _flag_privacy_v2(user_id: str) -> bool:

@@ -293,13 +293,27 @@ class ConsentService:
                 deny_pointer=pointer,
             )
 
-        # Default branch: log_only OR unknown/misconfigured mode (fail-OPEN).
-        if mode != "log_only":
-            logger.warning(
-                "consent_gate_unknown_mode_defaulting_to_log_only",
-                extra={"mode": mode},
-            )
-        return ConsentCheckResult(grant_exists=False, allow=True)
+        # log_only: explicit observe-only mode (choix produit, cf. -tih pour
+        # le passage en hard_block une fois l'UX de grant accessible).
+        if mode == "log_only":
+            return ConsentCheckResult(grant_exists=False, allow=True)
+
+        # Mode inconnu/mal configure -> FAIL-CLOSED (audit T10-F02,
+        # MINT_nosync-tih) : une typo d'env var ne doit jamais desactiver
+        # silencieusement le gate.
+        logger.error(
+            "consent_gate_unknown_mode_failing_closed",
+            extra={"mode": mode},
+        )
+        return ConsentCheckResult(
+            grant_exists=False,
+            allow=False,
+            deny_pointer={
+                "action": "POST /api/v1/consents/grant",
+                "purpose": purpose.value,
+                "modal_copy_key": f"consent_modal_{purpose.value}",
+            },
+        )
 
     # -- grant nominative (PRIV-02) -------------------------------------------
     def grant_nominative(

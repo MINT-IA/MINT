@@ -47,6 +47,27 @@ from app.services.document_memory_service import (
     compute_fingerprint as _compute_fingerprint,
     upsert_and_diff as _upsert_and_diff,
 )
+
+
+def persist_document_memory(db, user_id: str, result) -> None:
+    """Persistance DocumentMemory + diff — appelable APRES le gate tiers.
+
+    Utilise par analyze_document pour les docs non flagges, et par l'endpoint
+    documents.py pour les docs tiers UNE FOIS la declaration validee
+    (require_declaration_or_block) — audit T06-F10, MINT_nosync-tih.
+    """
+    import logging as _logging
+
+    try:
+        diff = _upsert_and_diff(db, user_id, result)
+        result.diff_from_previous = diff
+        result.fingerprint = _compute_fingerprint(
+            result.document_class.value, result.issuer_guess, None,
+        )
+    except Exception as exc:
+        _logging.getLogger(__name__).warning(
+            "document_memory upsert failed err=%s", exc
+        )
 from app.services.document_pdf_preflight import (
     preflight_pdf as _preflight_pdf,
     select_pages_for_vision as _select_pages,
@@ -1280,18 +1301,11 @@ async def understand_document(
     if result.render_mode != _RM.reject:
         result.render_mode = _select_render_mode(result)
 
-    # 6. Document Memory upsert + diff
-    if db is not None and result.extraction_status == _ES.success:
-        try:
-            diff = _upsert_and_diff(db, user_id, result)
-            result.diff_from_previous = diff
-            result.fingerprint = _compute_fingerprint(
-                result.document_class.value, result.issuer_guess, None,
-            )
-        except Exception as exc:
-            logger.warning("document_memory upsert failed err=%s", exc)
-
-    # 7. Third-party detection (silent flag)
+    # 6. Third-party detection (silent flag) — AVANT toute persistance
+    # durable (audit T06-F10, MINT_nosync-tih : l'ancien ordre commitait les
+    # montants d'un tiers dans DocumentMemory avant le gate de declaration
+    # nLPD de l'endpoint ; la persistance des docs flagges se fait desormais
+    # APRES le gate via persist_document_memory).
     try:
         flagged, name = _detect_third_party(
             result, profile_first_name, profile_last_name, partner_first_name,
@@ -1300,6 +1314,17 @@ async def understand_document(
         result.third_party_name = name
     except Exception as exc:
         logger.warning("third-party detection failed err=%s", exc)
+
+    # 7. Document Memory upsert + diff — UNIQUEMENT pour les documents non
+    # flagges tiers. Les docs flagges sont persistes APRES le gate de
+    # declaration (endpoint documents.py -> persist_document_memory), jamais
+    # avant (audit T06-F10, MINT_nosync-tih).
+    if (
+        db is not None
+        and result.extraction_status == _ES.success
+        and not result.third_party_detected
+    ):
+        persist_document_memory(db, user_id, result)
 
     # 8a. PII pre-scrub (Phase 29-03 pii_scrubber) — strip IBAN/AVS/phone/
     #     employer names from Vision free text BEFORE the judge sees it.
