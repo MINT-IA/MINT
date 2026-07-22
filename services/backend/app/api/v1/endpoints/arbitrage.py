@@ -104,9 +104,13 @@ def _rvc_calculation_receipt(
 ) -> ArbitrageCalculationReceiptSchema:
     """Build the receipt mobile requires before displaying RvC figures."""
     current_age = resolved.get("current_age")
-    missing_inputs = []
-    if current_age is None:
-        missing_inputs.append("current_age")
+    # current_age n'est PAS un intrant du calcul backend :
+    # compare_rente_vs_capital ne le consomme jamais (aucune projection
+    # côté serveur). Le flaguer « missing » bloquait tout résultat du mode
+    # certificat (readiness != ready -> receipt mobile fail-closed), alors
+    # que le certificat livre des valeurs réelles. Il reste exposé dans les
+    # assumptions comme métadonnée. beads MINT_nosync-8wy.
+    missing_inputs: list[str] = []
 
     taux_conversion_obligatoire = (
         resolved["taux_conversion_obligatoire"]

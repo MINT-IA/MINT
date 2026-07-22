@@ -476,7 +476,13 @@ class ArbitrageEngine {
       if (capitalLppTotal <= 0) 'capital_lpp_total',
       if (renteAnnuelleProposee <= 0) 'rente_annuelle_proposee',
       if (canton.trim().isEmpty) 'canton',
-      if (currentAge == null) 'current_age',
+      // current_age n'est requis que si une projection est demandée
+      // (salaire fourni). Le mode certificat calcule sur les valeurs
+      // réelles sans projection (beads MINT_nosync-8wy).
+      if (currentAge == null &&
+          grossAnnualSalary != null &&
+          grossAnnualSalary > 0)
+        'current_age',
       if (horizon <= 0) 'horizon_years',
       if (capitalLppTotal > 0 && tauxRetrait <= 0) 'safe_withdrawal_rate',
       if (capitalObligatoire > 0 && tauxConversionObligatoire <= 0)
