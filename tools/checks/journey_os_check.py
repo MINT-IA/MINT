@@ -78,6 +78,8 @@ ALLOW = {
     "apps/mobile/lib/services/financial_core/mortality_ofs.dart",
     "apps/mobile/test/services/financial_core/mortality_ofs_test.dart",
     "docs/calculator-graph.md",
+    "apps/mobile/lib/services/api_service.dart",
+    "apps/mobile/test/services/api_service_capital_epuise_test.dart",
     "apps/mobile/test/simulators/rente_vs_capital_test.dart",
     "apps/mobile/test/services/financial_core/arbitrage_engine_mixed_deflation_test.dart",
     "services/backend/app/services/pillar_3a_deep/retroactive_3a_service.py",

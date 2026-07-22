@@ -91,6 +91,29 @@ void main() {
         expect(ages.every((a) => a >= 70 && a <= 105), isTrue);
       }
     });
+
+    test('au-delà de la table (105+) : rend l\'âge courant, jamais moins', () {
+      // Codex re-review : un profil de 106-150 ans recevait un âge de décès
+      // 104/105 < âge courant -> revenus projetés à zéro dès l'an 1.
+      for (final age in [105, 106, 120, 150]) {
+        final ages = sample(currentAge: age, gender: 'M');
+        expect(ages.every((a) => a == age), isTrue,
+            reason: 'à $age ans (hors table), l\'âge courant doit être '
+                'rendu tel quel — pas un décès dans le passé');
+      }
+    });
+
+    test('conditionnement explicite à max(âge, 60) : 30 ans == 60 ans', () {
+      // La mortalité avant 60 n'est pas modélisée : la personne est réputée
+      // atteindre 60 vivante. Même graine -> tirages identiques.
+      expect(sample(currentAge: 30, gender: 'F'),
+          sample(currentAge: 60, gender: 'F'));
+    });
+
+    test('dernière tranche (104) : décès à 104 ou 105 uniquement', () {
+      final ages = sample(currentAge: 104, gender: 'F');
+      expect(ages.every((a) => a == 104 || a == 105), isTrue);
+    });
   });
 
   group('câblage Monte Carlo', () {

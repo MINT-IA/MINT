@@ -44,9 +44,13 @@ class MortalityOfs {
   /// Tire un âge de décès par inverse-CDF sur la survie conditionnelle
   /// S(t)/S(a), interpolation linéaire entre les ancres quinquennales.
   ///
-  /// [currentAge] : l'âge de conditionnement est plafonné à la première
-  /// ancre (60) — la mortalité avant 60 ans n'est pas modélisée (hors
-  /// scope d'une projection retraite) — et borné à 104 au-delà.
+  /// [currentAge] : le point de conditionnement est EXPLICITEMENT
+  /// max(currentAge, 60) — la mortalité avant 60 ans n'est pas modélisée
+  /// (la personne est réputée atteindre 60 ans vivante ; hors scope d'une
+  /// projection retraite). Un âge courant de 30 produit donc la même
+  /// distribution qu'un âge de 60. Au-delà de la dernière ancre (105),
+  /// la table ne modélise plus rien : l'âge courant est rendu tel quel
+  /// (vivant cette année) — jamais un âge de décès < âge courant.
   /// [gender] : 'M' → table hommes, 'F' → table femmes. Genre inconnu →
   /// table FEMMES (survie la plus longue) : le risque modélisé est la
   /// LONGÉVITÉ (survivre à son capital), le choix prudent est la vie la
@@ -56,8 +60,10 @@ class MortalityOfs {
     required int currentAge,
     String? gender,
   }) {
+    if (currentAge >= _anchorAges.last) return currentAge;
     final table = gender == 'M' ? _survivorsMen : _survivorsWomen;
-    final conditionAge = currentAge.clamp(_anchorAges.first, 104);
+    final conditionAge =
+        currentAge.clamp(_anchorAges.first, _anchorAges.last - 1);
     final sAtCondition = _survivalAt(table, conditionAge.toDouble());
 
     // P(T > t | T > a) = S(t)/S(a) = u  ->  chercher t tel que
