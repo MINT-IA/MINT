@@ -158,6 +158,8 @@ class RAGOrchestrator:
                 response_text,
                 language,
                 cursor_level=cursor_level,
+                profile_context=profile_context,
+                user_message=question,
             )
         else:
             filtered = {"text": "", "warnings": [], "disclaimers_added": []}

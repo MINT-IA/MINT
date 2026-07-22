@@ -46,9 +46,13 @@ class HallucinationDetector:
     # format prefixe « CHF 4200 » — jamais « 4200 CHF » ni « 4200 francs »,
     # LE format dominant en francais suisse (tous les premier_eclairage et
     # prompts emettent « X CHF »). Le detecteur etait borgne meme arme.
+    # Nombres groupés suisses : apostrophe ASCII ou typographique, espace,
+    # espace insécable. Le lookbehind interdit un match PARTIEL du groupe
+    # (« 4 200 CHF » ne doit jamais devenir « 200 CHF » — review Codex).
+    _NUM = r"(?:\d{1,3}(?:['\u2019\u00a0 ]\d{3})+|\d+)(?:[.,]\d+)?"
     CHF_PATTERN = re.compile(
-        r"CHF\s*([\d']+(?:[.,]\d+)?)"
-        r"|([\d']+(?:[.,]\d+)?)\s*(?:CHF|francs?)\b",
+        r"CHF\s*(" + _NUM + r")"
+        r"|(?<!\d)(?<!\d[.,'\u2019\u00a0 ])(" + _NUM + r")\s*(?:CHF|francs?)\b",
         re.IGNORECASE,
     )
     # CRIT #4 fix: capture integer percentages (85%, 100%) not just decimals.
@@ -132,7 +136,12 @@ class HallucinationDetector:
     @staticmethod
     def _parse_swiss_number(text: str) -> float:
         """Parse a Swiss-formatted number (e.g., 1'820 or 1,820.50)."""
-        cleaned = text.replace("'", "").replace(" ", "")
+        cleaned = (
+            text.replace("'", "")
+            .replace("\u2019", "")
+            .replace("\u00a0", "")
+            .replace(" ", "")
+        )
         cleaned = cleaned.replace(",", ".")
         try:
             return float(cleaned)

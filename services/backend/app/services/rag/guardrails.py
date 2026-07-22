@@ -280,6 +280,7 @@ class ComplianceGuardrails:
         language: str = "fr",
         cursor_level: Optional[str] = None,
         profile_context: Optional[dict] = None,
+        user_message: Optional[str] = None,
     ) -> dict:
         """
         Apply compliance filters to a generated response.
@@ -318,9 +319,22 @@ class ComplianceGuardrails:
                 if profile_context:
                     from app.services.coach.coach_models import CoachContext
 
-                    guard_context = CoachContext(known_values=dict(profile_context))
+                    # Contrat numérique typé (review Codex) : le profil brut
+                    # contient des strings/bools (archetype, canton,
+                    # data_source...) — les passer au détecteur provoquait un
+                    # TypeError (HTTP 502) ; les bools compteraient comme 0/1.
+                    numeric_values = {
+                        k: float(v)
+                        for k, v in profile_context.items()
+                        if isinstance(v, (int, float)) and not isinstance(v, bool)
+                    }
+                    if numeric_values:
+                        guard_context = CoachContext(known_values=numeric_values)
                 result = guard.validate(
-                    response, cursor_level=cursor_level, context=guard_context
+                    response,
+                    cursor_level=cursor_level,
+                    context=guard_context,
+                    user_message=user_message,
                 )
                 filter_warnings.extend(result.violations)
                 if result.use_fallback:

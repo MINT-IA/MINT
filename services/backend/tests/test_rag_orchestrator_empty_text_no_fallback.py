@@ -133,7 +133,11 @@ async def test_query_still_filters_response_when_text_is_present():
         )
 
     orchestrator.guardrails.filter_response.assert_called_once_with(
-        "Voici un point sur ta situation.", "fr", cursor_level=None
+        "Voici un point sur ta situation.",
+        "fr",
+        cursor_level=None,
+        profile_context=None,
+        user_message="ok",
     )
     assert result["answer"] == "Filtered reply"
 
@@ -178,6 +182,10 @@ async def test_query_forwards_cursor_level_to_compliance_filter():
         )
 
     orchestrator.guardrails.filter_response.assert_called_once_with(
-        "Tu devrais absolument acheter ce produit bancaire.", "fr", cursor_level="N5"
+        "Tu devrais absolument acheter ce produit bancaire.",
+        "fr",
+        cursor_level="N5",
+        profile_context=None,
+        user_message="que dois-je faire?",
     )
     assert result["answer"] == "Filtered N5 reply"
