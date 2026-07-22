@@ -24229,4 +24229,13 @@ class SFr extends S {
   @override
   String get privacyControlConsentCenterSubtitle =>
       'Voir tes autorisations et en retirer une';
+
+  @override
+  String expatTopCantonsEmpty(Object canton) {
+    return 'Ton canton ($canton) figure déjà parmi les moins imposés du modèle — aucun écart favorable à afficher.';
+  }
+
+  @override
+  String get expatTopCantonsDisclaimer =>
+      'Outil éducatif — ne constitue pas un conseil fiscal au sens de la LSFin. Impôts estimés via le modèle simplifié MINT par canton (barèmes cantonaux, chef-lieu) — ce ne sont pas des calculs fiscaux exacts. Écart calculé sur le revenu seul — varie selon le patrimoine et la situation familiale.';
 }

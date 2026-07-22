@@ -24240,4 +24240,13 @@ class SPt extends S {
   @override
   String get privacyControlConsentCenterSubtitle =>
       'Ver as tuas autorizações e retirar uma';
+
+  @override
+  String expatTopCantonsEmpty(Object canton) {
+    return 'O teu cantão ($canton) já está entre os menos tributados do modelo — nenhuma diferença favorável a mostrar.';
+  }
+
+  @override
+  String get expatTopCantonsDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento fiscal segundo a LSFin. Impostos estimados com o modelo simplificado MINT por cantão (tabelas cantonais, capital) — não são cálculos fiscais exatos. Diferença baseada apenas no rendimento — varia com o património e a situação familiar.';
 }

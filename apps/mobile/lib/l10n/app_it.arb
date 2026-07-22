@@ -11511,5 +11511,12 @@
   "eclairageCompoundGrowthEdgeHeadline": "Il tuo vantaggio di tempo",
   "eclairageCompoundGrowthEdgeBody": "Iniziare a investire presto anziché più tardi potrebbe fare la differenza nel lungo periodo, con uno sforzo mensile modesto. La capitalizzazione premia la durata.",
   "privacyControlConsentCenterTitle": "Consensi e revoca",
-  "privacyControlConsentCenterSubtitle": "Vedi le tue autorizzazioni e ritirane una"
+  "privacyControlConsentCenterSubtitle": "Vedi le tue autorizzazioni e ritirane una",
+  "expatTopCantonsEmpty": "Il tuo cantone ({canton}) è già tra i meno tassati del modello — nessun divario favorevole da mostrare.",
+  "@expatTopCantonsEmpty": {
+    "placeholders": {
+      "canton": {}
+    }
+  },
+  "expatTopCantonsDisclaimer": "Strumento educativo — non costituisce consulenza fiscale ai sensi della LSerFi. Imposte stimate con il modello semplificato MINT per cantone (tariffe cantonali, capoluogo) — non sono calcoli fiscali esatti. Divario basato solo sul reddito — varia con patrimonio e situazione familiare."
 }

@@ -11508,5 +11508,12 @@
   "eclairageCompoundGrowthEdgeHeadline": "Dein Zeitvorteil",
   "eclairageCompoundGrowthEdgeBody": "Früh statt spät mit dem Investieren zu beginnen, könnte langfristig einen Unterschied machen, bei moderatem monatlichem Aufwand. Der Zinseszins belohnt die Dauer.",
   "privacyControlConsentCenterTitle": "Einwilligungen und Widerruf",
-  "privacyControlConsentCenterSubtitle": "Deine Freigaben ansehen und eine widerrufen"
+  "privacyControlConsentCenterSubtitle": "Deine Freigaben ansehen und eine widerrufen",
+  "expatTopCantonsEmpty": "Dein Kanton ({canton}) gehört im Modell bereits zu den steuergünstigsten — kein vorteilhafter Unterschied anzuzeigen.",
+  "@expatTopCantonsEmpty": {
+    "placeholders": {
+      "canton": {}
+    }
+  },
+  "expatTopCantonsDisclaimer": "Bildungstool — keine Steuerberatung im Sinne des FIDLEG. Steuern geschätzt mit dem vereinfachten MINT-Kantonsmodell (kantonale Tarife, Hauptort) — keine exakten Steuerberechnungen. Differenz nur auf dem Einkommen — variiert mit Vermögen und Familiensituation."
 }

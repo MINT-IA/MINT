@@ -24110,4 +24110,13 @@ class SEn extends S {
   @override
   String get privacyControlConsentCenterSubtitle =>
       'See your permissions and withdraw one';
+
+  @override
+  String expatTopCantonsEmpty(Object canton) {
+    return 'Your canton ($canton) is already among the lowest-taxed in the model — no favourable gap to display.';
+  }
+
+  @override
+  String get expatTopCantonsDisclaimer =>
+      'Educational tool — not tax advice under FinSA. Taxes estimated with MINT\'s simplified per-canton model (cantonal scales, capital city) — these are not exact tax calculations. Gap based on income only — varies with wealth and family situation.';
 }
