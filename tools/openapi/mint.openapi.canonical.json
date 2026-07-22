@@ -145,6 +145,40 @@
         "title": "AcceptResponse",
         "type": "object"
       },
+      "AccountScenarioResponse": {
+        "description": "Un scenario N comptes: economie marginale vs frais annuels.",
+        "properties": {
+          "economieMarginale": {
+            "title": "Economiemarginale",
+            "type": "number"
+          },
+          "economieVsBloc": {
+            "title": "Economievsbloc",
+            "type": "number"
+          },
+          "fraisAnnuelsSupplementaires": {
+            "title": "Fraisannuelssupplementaires",
+            "type": "number"
+          },
+          "impotTotal": {
+            "title": "Impottotal",
+            "type": "number"
+          },
+          "nbComptes": {
+            "title": "Nbcomptes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "nbComptes",
+          "impotTotal",
+          "economieVsBloc",
+          "economieMarginale",
+          "fraisAnnuelsSupplementaires"
+        ],
+        "title": "AccountScenarioResponse",
+        "type": "object"
+      },
       "ActionItemResponse": {
         "description": "A single action item.",
         "properties": {
@@ -21704,6 +21738,13 @@
             "title": "Canton",
             "type": "string"
           },
+          "fraisAnnuelsParCompte": {
+            "default": 0.0,
+            "description": "Frais annuels par compte 3a (CHF, selon prestataire)",
+            "minimum": 0.0,
+            "title": "Fraisannuelsparcompte",
+            "type": "number"
+          },
           "nbComptes": {
             "default": 3,
             "description": "Nombre de comptes 3a (1-5)",
@@ -21776,15 +21817,18 @@
             "title": "Nbcomptes",
             "type": "integer"
           },
-          "optimalAccounts": {
-            "description": "Nombre optimal de comptes recommande",
-            "title": "Optimalaccounts",
-            "type": "integer"
-          },
           "premierEclairage": {
             "description": "Chiffre choc pour l'utilisateur",
             "title": "Premiereclairage",
             "type": "string"
+          },
+          "scenarios": {
+            "description": "Scenarios par nombre de comptes (2-5), sans classement",
+            "items": {
+              "$ref": "#/components/schemas/AccountScenarioResponse"
+            },
+            "title": "Scenarios",
+            "type": "array"
           },
           "sources": {
             "items": {
@@ -21819,7 +21863,6 @@
           "staggeredTauxEffectif",
           "economy",
           "economyPct",
-          "optimalAccounts",
           "yearlyPlan",
           "avoirTotal",
           "nbComptes",

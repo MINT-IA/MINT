@@ -13,6 +13,7 @@ from fastapi import APIRouter, Request
 
 from app.core.rate_limit import limiter
 from app.schemas.pillar_3a_deep import (
+    AccountScenarioResponse,
     StaggeredWithdrawalRequest,
     StaggeredWithdrawalResponse,
     YearlyWithdrawalEntryResponse,
@@ -60,6 +61,7 @@ def simulate_staggered_withdrawal(
         revenu_imposable=body.revenuImposable,
         age_retrait_debut=body.ageRetraitDebut,
         age_retrait_fin=body.ageRetraitFin,
+        frais_annuels_par_compte=body.fraisAnnuelsParCompte,
     )
 
     return StaggeredWithdrawalResponse(
@@ -69,7 +71,16 @@ def simulate_staggered_withdrawal(
         staggeredTauxEffectif=result.staggered_taux_effectif,
         economy=result.economy,
         economyPct=result.economy_pct,
-        optimalAccounts=result.optimal_accounts,
+        scenarios=[
+            AccountScenarioResponse(
+                nbComptes=s.nb_comptes,
+                impotTotal=s.impot_total,
+                economieVsBloc=s.economie_vs_bloc,
+                economieMarginale=s.economie_marginale,
+                fraisAnnuelsSupplementaires=s.frais_annuels_supplementaires,
+            )
+            for s in result.scenarios
+        ],
         yearlyPlan=[
             YearlyWithdrawalEntryResponse(
                 annee=entry.annee,

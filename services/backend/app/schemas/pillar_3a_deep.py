@@ -31,6 +31,11 @@ class StaggeredWithdrawalRequest(BaseModel):
         3, alias="nbComptes",
         description="Nombre de comptes 3a (1-5)", ge=1, le=5
     )
+    fraisAnnuelsParCompte: float = Field(
+        0.0, alias="fraisAnnuelsParCompte",
+        description="Frais annuels par compte 3a (CHF, selon prestataire)",
+        ge=0,
+    )
     canton: str = Field(
         ..., description="Code canton (ex: ZH, VD, GE)",
         min_length=2, max_length=2
@@ -71,6 +76,20 @@ class YearlyWithdrawalEntryResponse(BaseModel):
     )
 
 
+class AccountScenarioResponse(BaseModel):
+    """Un scenario N comptes: economie marginale vs frais annuels."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    nbComptes: int = Field(..., alias="nbComptes")
+    impotTotal: float = Field(..., alias="impotTotal")
+    economieVsBloc: float = Field(..., alias="economieVsBloc")
+    economieMarginale: float = Field(..., alias="economieMarginale")
+    fraisAnnuelsSupplementaires: float = Field(
+        ..., alias="fraisAnnuelsSupplementaires"
+    )
+
+
 class StaggeredWithdrawalResponse(BaseModel):
     """Full response for staggered withdrawal simulation."""
 
@@ -103,10 +122,10 @@ class StaggeredWithdrawalResponse(BaseModel):
         description="Economie en pourcentage (%)"
     )
 
-    # Plan
-    optimalAccounts: int = Field(
-        ..., alias="optimalAccounts",
-        description="Nombre optimal de comptes recommande"
+    # Plan — scénarios compares sans designer de vainqueur (LSFin)
+    scenarios: List["AccountScenarioResponse"] = Field(
+        default_factory=list,
+        description="Scenarios par nombre de comptes (2-5), sans classement"
     )
     yearlyPlan: List[YearlyWithdrawalEntryResponse] = Field(
         ..., alias="yearlyPlan",
