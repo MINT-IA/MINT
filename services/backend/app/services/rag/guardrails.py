@@ -279,6 +279,8 @@ class ComplianceGuardrails:
         response: str,
         language: str = "fr",
         cursor_level: Optional[str] = None,
+        profile_context: Optional[dict] = None,
+        user_message: Optional[str] = None,
     ) -> dict:
         """
         Apply compliance filters to a generated response.
@@ -308,7 +310,32 @@ class ComplianceGuardrails:
                 from app.services.coach.compliance_guard import ComplianceGuard
 
                 guard = ComplianceGuard()
-                result = guard.validate(response, cursor_level=cursor_level)
+                # Audit T07-F02 (MINT_nosync-3vi) : la couche L3 anti-
+                # hallucination (cross-check CHF/% vs financial_core) était
+                # MORTE en prod — validate() n'a jamais reçu de context. On
+                # threade les known_values du profil (mêmes champs safe que le
+                # prompt) pour que le détecteur compare les chiffres émis.
+                guard_context = None
+                if profile_context:
+                    from app.services.coach.coach_models import CoachContext
+
+                    # Contrat numérique typé (review Codex) : le profil brut
+                    # contient des strings/bools (archetype, canton,
+                    # data_source...) — les passer au détecteur provoquait un
+                    # TypeError (HTTP 502) ; les bools compteraient comme 0/1.
+                    numeric_values = {
+                        k: float(v)
+                        for k, v in profile_context.items()
+                        if isinstance(v, (int, float)) and not isinstance(v, bool)
+                    }
+                    if numeric_values:
+                        guard_context = CoachContext(known_values=numeric_values)
+                result = guard.validate(
+                    response,
+                    cursor_level=cursor_level,
+                    context=guard_context,
+                    user_message=user_message,
+                )
                 filter_warnings.extend(result.violations)
                 if result.use_fallback:
                     # CRIT #3 fix: when ComplianceGuard rejects (prescriptive,

@@ -222,6 +222,7 @@ class _NoRagOrchestrator:
                 response_text,
                 language,
                 cursor_level=cursor_level,
+                profile_context=profile_context,
             )
             answer_text = filtered["text"]
             disclaimers_out = filtered["disclaimers_added"]

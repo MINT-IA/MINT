@@ -387,6 +387,7 @@ class ComplianceGuard:
         component_type: ComponentType = ComponentType.general,
         user_id: Optional[str] = None,
         cursor_level: Optional[str] = None,
+        user_message: Optional[str] = None,
     ) -> ComplianceResult:
         """Validate LLM output through 5 compliance layers.
 
@@ -586,6 +587,19 @@ class ComplianceGuard:
         # future registry-anchored checks can fire on anonymous traffic.
         if context is not None:
             hallucinations = self._detector.detect(text, context.known_values)
+            # Exemption de provenance (review Codex MINT_nosync-3vi) : un
+            # nombre présent dans le MESSAGE UTILISATEUR du tour courant
+            # (« j'ai reçu 4200 CHF ») est une déclaration nouvelle, pas une
+            # hallucination — le comparer au profil stocké détruirait des
+            # réponses légitimes (fallback complet).
+            if hallucinations and user_message:
+                user_numbers = {
+                    v for _, v, _ in self._detector.extract_numbers(user_message)
+                }
+                hallucinations = [
+                    h for h in hallucinations
+                    if h.found_value not in user_numbers
+                ]
             if hallucinations:
                 major = [h for h in hallucinations if h.deviation_pct >= _HALLUCINATION_MAJOR_THRESHOLD_PCT]
                 minor = [h for h in hallucinations if h.deviation_pct < _HALLUCINATION_MAJOR_THRESHOLD_PCT]
