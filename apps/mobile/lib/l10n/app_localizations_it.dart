@@ -23428,7 +23428,7 @@ class SIt extends S {
 
   @override
   String get consentPurposeTransferUsAnthropicWhy =>
-      'I documenti transitano tramite l\'API Claude (Anthropic, Stati Uniti) in modalità Zero Data Retention. Questo trasferimento verrà rimosso con la migrazione ad AWS Frankfurt.';
+      'I tuoi documenti (Zero Data Retention) e — quando usi il coach — il tuo profilo finanziario pseudonimizzato (importi esatti inclusi, mai il tuo nome, il tuo IBAN o il tuo n. AVS) e i tuoi messaggi passano dall\'API Claude (Anthropic, USA).';
 
   @override
   String get consentPurposeCoupleProjection => 'Proiezioni di coppia';

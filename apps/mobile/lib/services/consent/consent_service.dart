@@ -164,7 +164,7 @@ class _LocalConsentStore {
 class ConsentService {
   /// Current privacy policy version the mobile app will negotiate against.
   /// Bump this to trigger re-consent UX (policy diff view).
-  static const String currentPolicyVersion = 'v2.3.0';
+  static const String currentPolicyVersion = 'v2.4.0';
 
   static List<ConsentReceipt>? _cache;
   static final _LocalConsentStore _localStore = _LocalConsentStore();

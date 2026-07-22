@@ -11199,7 +11199,7 @@
   "consentPurposePersistence365d": "Encrypted memory 365 days",
   "consentPurposePersistence365dWhy": "Extracted data is stored encrypted (AES-256) for 365 days, then purged. Revocation: cryptographic deletion within 30 days.",
   "consentPurposeTransferUsAnthropic": "AI processing (Anthropic, US)",
-  "consentPurposeTransferUsAnthropicWhy": "Documents transit the Claude API (Anthropic, United States) under Zero Data Retention. This transfer will be removed once we migrate to AWS Frankfurt.",
+  "consentPurposeTransferUsAnthropicWhy": "Your documents (Zero Data Retention) and — when you use the coach — your pseudonymized financial profile (exact amounts included, never your name, IBAN or AVS number) and your messages go through the Claude API (Anthropic, USA).",
   "consentPurposeCoupleProjection": "Couple projections",
   "consentPurposeCoupleProjectionWhy": "MINT uses your partner's data for couple scenarios. You confirm you have obtained their consent.",
   "consentRevoke": "Revoke",

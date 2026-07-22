@@ -40867,7 +40867,7 @@ abstract class S {
   /// No description provided for @consentPurposeTransferUsAnthropicWhy.
   ///
   /// In fr, this message translates to:
-  /// **'Les documents passent par l\'API Claude (Anthropic, États-Unis) en mode Zero Data Retention. Ce transfert sera supprimé à la migration AWS Frankfurt.'**
+  /// **'Tes documents (Zero Data Retention) et — quand tu utilises le coach — ton profil financier pseudonymisé (montants exacts inclus, jamais ton nom, ton IBAN ni ton n° AVS) et tes messages passent par l\'API Claude (Anthropic, États-Unis).'**
   String get consentPurposeTransferUsAnthropicWhy;
 
   /// No description provided for @consentPurposeCoupleProjection.

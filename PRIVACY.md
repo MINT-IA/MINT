@@ -68,7 +68,7 @@ Pour assurer le bon fonctionnement de l'application, nous pouvons collecter :
 Dans une phase ulterieure, MINT permettra l'upload de documents tels que des certificats de prevoyance LPP ou des releves bancaires. Voici comment ces documents seront traites :
 
 - Le document est envoyé (masqué des PII lorsque possible) à l'API Claude Vision d'Anthropic (États-Unis, Zero Data Retention, base Swiss-US Data Privacy Framework) le temps de l'extraction
-- **Le document n'est pas conservé côté serveur** après l'appel (voir privacy_policy_v2.3.0 §3.3) ; cette finalité sera désactivée à la migration vers AWS Bedrock Frankfurt
+- **Le document n'est pas conservé côté serveur** après l'appel (voir privacy_policy_v2.4.0 §3.3) ; une migration vers AWS Bedrock (Francfort) est prévue pour réduire le volet documents de ce transfert — tant qu'elle n'est pas achevée, Anthropic US reste utilisé, y compris comme repli
 - Les donnees extraites sont immediatement anonymisees et les documents sources sont **supprimes apres extraction**
 - Tu seras informe·e et devras donner ton consentement explicite avant chaque upload
 
@@ -298,7 +298,7 @@ Certains sous-traitants techniques (voir section 7.3) sont hébergés aux États
 
 - **Railway** (hébergement backend) : serveurs US. Les données transmises sont des calculs génériques (barèmes, taux légaux) sans données personnelles identifiables. Garanties : Standard Contractual Clauses (SCC) conformément à l'art. 16 al. 2 let. d nLPD.
 - **Sentry** (monitoring) : serveurs US. Uniquement des logs d'erreurs anonymisés. Garanties : SCC.
-- **Anthropic / OpenAI** (coach AI) : serveurs US. Contexte anonymisé uniquement. Garanties : SCC + mode API sans rétention.
+- **Anthropic** (coach AI) : serveurs US. Profil pseudonymisé (montants exacts inclus, jamais nom/IBAN/n° AVS) et messages transmis tels quels. Garanties : SCC + mode API sans rétention.
 - **Google Fonts** : serveurs US. Adresse IP uniquement au premier chargement. Garanties : SCC.
 
 **Hébergement suisse prévu en Phase 2** : la migration vers un hébergeur suisse (Infomaniak, Exoscale ou équivalent) est planifiée pour la Phase 2 afin de supprimer tout transfert transfrontalier de données.
