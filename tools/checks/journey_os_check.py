@@ -124,6 +124,7 @@ ALLOW = {
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/widgets/coach/top_cantons_widget.dart",
     "apps/mobile/test/screens/expat_top_cantons_real_test.dart",
+    "apps/mobile/test/screens/arbitrage/rvc_layer4_prompts_test.dart",
     "services/backend/tests/test_allocation_annuelle.py",
     "services/backend/tests/test_arbitrage_allocation_annuelle_grounding.py",
     "services/backend/education_inserts/concepts/avs_cotisations_independants.md",
