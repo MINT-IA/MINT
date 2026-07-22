@@ -24226,4 +24226,11 @@ class SEs extends S {
   @override
   String get eclairageCompoundGrowthEdgeBody =>
       'Empezar a invertir pronto en lugar de más tarde podría marcar una diferencia a largo plazo, con un esfuerzo mensual modesto. La capitalización recompensa la duración.';
+
+  @override
+  String get privacyControlConsentCenterTitle => 'Consentimientos y retirada';
+
+  @override
+  String get privacyControlConsentCenterSubtitle =>
+      'Ver tus autorizaciones y retirar una';
 }

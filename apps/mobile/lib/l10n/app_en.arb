@@ -11526,5 +11526,7 @@
   "eclairageLiquidityRunwayHeadline": "Your liquidity reserve",
   "eclairageLiquidityRunwayBody": "Using your current expenses as a benchmark, a reserve of 3 to 6 months is often cited by independent advisors to absorb an unexpected event.",
   "eclairageCompoundGrowthEdgeHeadline": "Your time advantage",
-  "eclairageCompoundGrowthEdgeBody": "Starting to invest early rather than later could make a difference over the long run, for a modest monthly effort. Compounding rewards duration."
+  "eclairageCompoundGrowthEdgeBody": "Starting to invest early rather than later could make a difference over the long run, for a modest monthly effort. Compounding rewards duration.",
+  "privacyControlConsentCenterTitle": "Consents and withdrawal",
+  "privacyControlConsentCenterSubtitle": "See your permissions and withdraw one"
 }

@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
@@ -205,6 +208,14 @@ Future<BiographyProvider> _createProvider(
   return BiographyProvider(repository: repo);
 }
 
+class _FakeAuth extends ChangeNotifier implements AuthProvider {
+  @override
+  bool isLoggedIn = false;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -366,6 +377,74 @@ void main() {
 
       expect(find.text('VD'), findsNothing);
       expect(find.textContaining('Aucune donn'), findsOneWidget);
+    });
+  });
+
+  group('Entrée centre de consentements (nLPD, MINT_nosync-2vh)', () {
+    Widget buildRouterApp(BiographyProvider provider) {
+      final router = GoRouter(
+        initialLocation: '/profile/privacy-control',
+        routes: [
+          GoRoute(
+            path: '/profile/privacy-control',
+            builder: (_, __) => const PrivacyControlScreen(),
+          ),
+          GoRoute(
+            path: '/profile/privacy',
+            builder: (_, __) => const PrivacyCenterScreen(),
+          ),
+        ],
+      );
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BiographyProvider>.value(value: provider),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<AuthProvider>.value(value: _FakeAuth()),
+        ],
+        child: MaterialApp.router(
+          localizationsDelegates: S.localizationsDelegates,
+          supportedLocales: S.supportedLocales,
+          locale: const Locale('fr'),
+          routerConfig: router,
+        ),
+      );
+    }
+
+    testWidgets('tuile visible même en état vide (droit de retrait)',
+        (tester) async {
+      final provider = await _createProvider();
+      await tester.pumpWidget(_buildTestApp(provider: provider));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Consentements et retrait'), findsOneWidget);
+      expect(
+        find.text('Voir tes autorisations et en retirer une'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('tuile visible avec des facts (état liste)', (tester) async {
+      final provider = await _createProvider([
+        _freshFact(id: 'f1', type: FactType.salary, value: '95000'),
+      ]);
+      await tester.pumpWidget(_buildTestApp(provider: provider));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Consentements et retrait'), findsOneWidget);
+    });
+
+    testWidgets('le tap navigue vers le centre de consentements',
+        (tester) async {
+      final provider = await _createProvider();
+      await tester.pumpWidget(buildRouterApp(provider));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Consentements et retrait'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PrivacyCenterScreen), findsOneWidget);
     });
   });
 }

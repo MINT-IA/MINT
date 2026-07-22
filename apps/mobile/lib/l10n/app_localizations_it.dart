@@ -24288,4 +24288,11 @@ class SIt extends S {
   @override
   String get eclairageCompoundGrowthEdgeBody =>
       'Iniziare a investire presto anziché più tardi potrebbe fare la differenza nel lungo periodo, con uno sforzo mensile modesto. La capitalizzazione premia la durata.';
+
+  @override
+  String get privacyControlConsentCenterTitle => 'Consensi e revoca';
+
+  @override
+  String get privacyControlConsentCenterSubtitle =>
+      'Vedi le tue autorizzazioni e ritirane una';
 }

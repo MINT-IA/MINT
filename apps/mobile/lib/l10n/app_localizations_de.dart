@@ -24286,4 +24286,11 @@ class SDe extends S {
   @override
   String get eclairageCompoundGrowthEdgeBody =>
       'Früh statt spät mit dem Investieren zu beginnen, könnte langfristig einen Unterschied machen, bei moderatem monatlichem Aufwand. Der Zinseszins belohnt die Dauer.';
+
+  @override
+  String get privacyControlConsentCenterTitle => 'Einwilligungen und Widerruf';
+
+  @override
+  String get privacyControlConsentCenterSubtitle =>
+      'Deine Freigaben ansehen und eine widerrufen';
 }

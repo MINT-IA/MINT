@@ -24103,4 +24103,11 @@ class SEn extends S {
   @override
   String get eclairageCompoundGrowthEdgeBody =>
       'Starting to invest early rather than later could make a difference over the long run, for a modest monthly effort. Compounding rewards duration.';
+
+  @override
+  String get privacyControlConsentCenterTitle => 'Consents and withdrawal';
+
+  @override
+  String get privacyControlConsentCenterSubtitle =>
+      'See your permissions and withdraw one';
 }
