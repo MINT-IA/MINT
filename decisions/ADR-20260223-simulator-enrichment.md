@@ -1,6 +1,9 @@
 # ADR-20260223 — Simulator Data Enrichment Pattern
 
-**Status**: Accepted
+**Status**: Superseded — never implemented (audit 2026-07, T16-F04 / beads MINT_nosync-a2h) :
+`CoachProfileProvider.updateFromSimulator()` et `SimulatorDelta` n'ont jamais existé dans
+`apps/mobile/lib` (0 occurrence). Le pattern Prefill → Delta → OptIn Save reste une piste
+valable mais NON construite — ne pas s'y référer comme un état existant.
 **Date**: 2026-02-23
 **Authors**: Julien + Claude (architecture)
 **Depends on**: ADR-20260223-unified-financial-engine.md
