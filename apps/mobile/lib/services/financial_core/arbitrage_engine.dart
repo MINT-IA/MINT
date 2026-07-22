@@ -2064,8 +2064,15 @@ class ArbitrageEngine {
       // Then add this year's contribution
       balance += montantAnnuel;
 
-      // Tax saving from deduction
-      final taxSaving = deductible ? montantAnnuel * tauxMarginal : 0.0;
+      // Tax saving from deduction. Art. 79b al. 3 LPP (ATF 142 II 399) : un
+      // retrait en capital dans les [blocageYears] ans qui suivent un rachat
+      // entraîne la reprise de la déduction par l'AFC — les versements des
+      // dernières années avant l'horizon (retrait capital) ne créditent donc
+      // aucune économie. Fix beads MINT_nosync-okl : le paramètre était reçu
+      // mais jamais lu (le label UI annonçait déjà « blocage 3 ans »).
+      final withinBlocage = (horizon - y) < blocageYears;
+      final taxSaving =
+          (deductible && !withinBlocage) ? montantAnnuel * tauxMarginal : 0.0;
       cumulativeTaxSaving += taxSaving;
 
       snapshots.add(YearlySnapshot(

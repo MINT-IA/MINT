@@ -409,4 +409,60 @@ void main() {
       expect(result.totalTaxSavings, lessThan(25000));
     });
   });
+
+  group('LppBuybackAdvancedSimulator - blocage 3 ans (art. 79b al. 3)', () {
+    // beads MINT_nosync-okl : un retrait en capital dans les 3 ans qui
+    // suivent un rachat entraine la reprise de la deduction (ATF 142 II 399).
+    // Les tranches rachetees a moins de 3 ans de la retraite ne doivent
+    // crediter AUCUNE economie d'impot.
+    test('tranches dans la fenetre de blocage: economie non creditee', () {
+      final result = LppBuybackAdvancedSimulator.simulate(
+        totalBuybackPotential: 100000,
+        yearsUntilRetirement: 5,
+        staggeringYears: 5,
+        annualInterestRate: 0,
+        taxableIncome: 120000,
+        canton: 'ZH',
+      );
+      // Annees 3,4,5 sont a moins de 3 ans du retrait -> reprise AFC.
+      expect(result.breakdown[2].taxSaving, 0);
+      expect(result.breakdown[3].taxSaving, 0);
+      expect(result.breakdown[4].taxSaving, 0);
+      // Annees 1,2 restent creditees.
+      expect(result.breakdown[0].taxSaving, greaterThan(0));
+      expect(result.breakdown[1].taxSaving, greaterThan(0));
+      expect(
+        result.totalTaxSavings,
+        closeTo(result.breakdown[0].taxSaving + result.breakdown[1].taxSaving,
+            0.01),
+      );
+    });
+
+    test('tranches hors fenetre: comportement inchange', () {
+      final result = LppBuybackAdvancedSimulator.simulate(
+        totalBuybackPotential: 100000,
+        yearsUntilRetirement: 10,
+        staggeringYears: 5,
+        annualInterestRate: 0,
+        taxableIncome: 120000,
+        canton: 'ZH',
+      );
+      for (int i = 0; i < 5; i++) {
+        expect(result.breakdown[i].taxSaving, greaterThan(0));
+      }
+    });
+
+    test('rachat unique a 2 ans de la retraite: zero economie creditee', () {
+      final result = LppBuybackAdvancedSimulator.simulate(
+        totalBuybackPotential: 50000,
+        yearsUntilRetirement: 2,
+        staggeringYears: 1,
+        annualInterestRate: 0.01,
+        taxableIncome: 120000,
+        canton: 'ZH',
+      );
+      expect(result.totalTaxSavings, 0);
+      expect(result.netEffort, 50000);
+    });
+  });
 }
