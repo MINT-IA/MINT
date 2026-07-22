@@ -168,3 +168,34 @@ def test_persist_document_memory_sets_diff_and_fingerprint(db):
     result = _mk_understanding()
     dvs.persist_document_memory(db, "u-ok", result)
     assert result.fingerprint
+
+
+def test_entry_fields_propagates_dek_revoked(db):
+    """Post-shred: l'upsert échoue, il ne réécrit jamais une entrée."""
+    import app.services.document_memory_service as dms
+    from app.services.encryption.key_vault import DEKRevokedError
+
+    entry = {"date": "2026-01-01", "fields_enc": "Q1Q="}
+    with patch.object(dms, "decrypt_text", side_effect=DEKRevokedError("shredded")):
+        with pytest.raises(DEKRevokedError):
+            dms._entry_fields(db, "u-shred", entry)
+
+
+def test_entry_fields_generic_decrypt_failure_returns_empty(db):
+    import app.services.document_memory_service as dms
+
+    entry = {"date": "2026-01-01", "fields_enc": "Q1Q="}
+    with patch.object(dms, "decrypt_text", side_effect=RuntimeError("kaboom")):
+        assert dms._entry_fields(db, "u-x", entry) == {}
+
+
+def test_persist_document_memory_skips_non_success(db):
+    """Les champs d'une extraction rejetée n'entrent jamais en mémoire."""
+    from app.schemas.document_understanding import ExtractionStatus
+    from app.models.document_memory import DocumentMemory
+    import app.services.document_vision_service as dvs
+
+    result = _mk_understanding()
+    result.extraction_status = ExtractionStatus.parse_error
+    dvs.persist_document_memory(db, "u-rej", result)
+    assert db.query(DocumentMemory).filter_by(user_id="u-rej").count() == 0
