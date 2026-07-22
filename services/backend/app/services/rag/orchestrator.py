@@ -131,6 +131,7 @@ class RAGOrchestrator:
             tools=tools,
             conversation_history=conversation_history,
             tool_choice=tool_choice,
+            user_id=user_id,
         )
 
         # Step 5: Handle tool_use responses vs plain text

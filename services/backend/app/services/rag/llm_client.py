@@ -117,6 +117,7 @@ class LLMClient:
         tools: list[dict] | None = None,
         conversation_history: list[dict] | None = None,
         tool_choice: dict | None = None,
+        user_id: str | None = None,
     ) -> str | dict:
         """
         Generate a response using the configured LLM.
@@ -142,6 +143,7 @@ class LLMClient:
                 system_prompt, augmented_message, tools=tools,
                 conversation_history=conversation_history,
                 tool_choice=tool_choice,
+                user_id=user_id,
             )
         elif self.provider == "openai":
             return await self._call_openai(system_prompt, augmented_message)
@@ -174,8 +176,16 @@ class LLMClient:
         tools: list[dict] | None = None,
         conversation_history: list[dict] | None = None,
         tool_choice: dict | None = None,
+        user_id: str | None = None,
     ) -> str | dict:
-        """Call the Anthropic Claude API, optionally with tool definitions.
+        """Call Claude via the LLMRouter, optionally with tool definitions.
+
+        PRIV-07 / beads MINT_nosync-4lj : tout le trafic LLM passe par
+        LLMRouter — l'utilisateur flaggé BEDROCK_EU_PRIMARY_ENABLED est routé
+        Bedrock-EU, sinon Anthropic US direct (défaut documenté et consenti,
+        purpose transfer_us_anthropic). Le client Anthropic est injecté avec
+        la clé du LLMClient (BYOK-compatible) ; ``user_id`` scope la
+        résolution du flag.
 
         When tools are provided and the response contains tool_use blocks,
         returns a dict: {"text": str, "tool_calls": [{"name": ..., "input": ...}]}.
@@ -187,8 +197,10 @@ class LLMClient:
             raise ImportError(
                 "anthropic package not installed. Install with: pip install -e '.[rag]'"
             )
+        from app.services.llm.router import LLMRequest, LLMRouter
 
         client = AsyncAnthropic(api_key=self.api_key, timeout=60.0)
+        router = LLMRouter(anthropic_client=client)
         try:
             # Build multi-turn messages array from conversation history.
             # Prior exchanges give Claude context about what it already asked.
@@ -214,14 +226,14 @@ class LLMClient:
             # moins cher sur les appels suivants de la même session.
             # Tool-use réponses (save_fact/route_to_screen) ont besoin de
             # ~100 tokens JSON, ça tient large dans 600.
-            kwargs: dict = {
+            request_kwargs: dict = {
                 "model": self.model,
                 "max_tokens": 600,
                 "system": system_prompt,
                 "messages": messages,
             }
             if tools:
-                kwargs["tools"] = tools
+                request_kwargs["tools"] = tools
                 # Explicit tool_choice so Claude always considers tools.
                 # Without this, Sonnet sometimes skips tool_use entirely even
                 # when the system prompt says "MANDATORY call save_fact".
@@ -235,9 +247,9 @@ class LLMClient:
                 # to auto on follow-up iterations (coach_chat._run_agent_loop),
                 # so the loop terminates with a text answer after the tool_result.
                 if tool_choice is not None:
-                    kwargs["tool_choice"] = tool_choice
+                    request_kwargs["tool_choice"] = tool_choice
                 else:
-                    kwargs["tool_choice"] = {
+                    request_kwargs["tool_choice"] = {
                         "type": "auto",
                         "disable_parallel_tool_use": False,
                     }
@@ -246,6 +258,17 @@ class LLMClient:
             # connection/timeout). Wait: 0.5s, 1s, 2s (max 8s). Final failure
             # is wrapped into CoachUpstreamError so the orchestrator can
             # trigger the Haiku fallback chain (Task 3).
+            request = LLMRequest(
+                model=request_kwargs["model"],
+                messages=request_kwargs["messages"],
+                system=request_kwargs["system"],
+                max_tokens=request_kwargs["max_tokens"],
+                tools=request_kwargs.get("tools"),
+                tool_choice=request_kwargs.get("tool_choice"),
+                user_id=user_id,
+                purpose="coach_chat",
+            )
+
             attempt_no = 0
             response = None
             try:
@@ -262,7 +285,7 @@ class LLMClient:
                                 "anthropic retry %d/3 for model=%s",
                                 attempt_no, self.model,
                             )
-                        response = await client.messages.create(**kwargs)
+                        response = await router.invoke(request)
             except Exception as retry_exc:
                 # All retries exhausted OR non-retryable error.
                 status = getattr(retry_exc, "status_code", None)
@@ -314,6 +337,12 @@ class LLMClient:
         except Exception as e:
             logger.error("Claude API call failed: %s", e)
             raise
+        finally:
+            # Client injecté = possédé par nous, pas par le routeur.
+            try:
+                await client.close()
+            except Exception:  # pragma: no cover — hygiène best-effort
+                pass
 
     async def _call_openai(self, system_prompt: str, user_message: str) -> str:
         """Call the OpenAI API."""
@@ -349,6 +378,7 @@ class LLMClient:
         media_type: str,
         system_prompt: str,
         user_prompt: str,
+        user_id: str | None = None,
     ) -> str:
         """Generate a response from a document image via vision-capable LLM.
 
@@ -367,6 +397,7 @@ class LLMClient:
         if self.provider == "claude":
             return await self._call_claude_vision(
                 image_base64, media_type, system_prompt, user_prompt,
+                user_id=user_id,
             )
         elif self.provider == "openai":
             return await self._call_openai_vision(
@@ -384,18 +415,26 @@ class LLMClient:
         media_type: str,
         system_prompt: str,
         user_prompt: str,
+        user_id: str | None = None,
     ) -> str:
-        """Call Claude API with image content block."""
+        """Call Claude with an image content block, via the LLMRouter.
+
+        PRIV-07 / beads MINT_nosync-4lj : même routage EU-flag que le chemin
+        texte (Bedrock-EU si BEDROCK_EU_PRIMARY_ENABLED, sinon US direct
+        documenté/consenti).
+        """
         try:
             from anthropic import AsyncAnthropic
         except ImportError:
             raise ImportError(
                 "anthropic package not installed. Install with: pip install -e '.[rag]'"
             )
+        from app.services.llm.router import LLMRequest, LLMRouter
 
         client = AsyncAnthropic(api_key=self.api_key, timeout=60.0)
+        router = LLMRouter(anthropic_client=client)
         try:
-            response = await client.messages.create(
+            response = await router.invoke(LLMRequest(
                 model=self.model,
                 max_tokens=4096,
                 system=system_prompt,
@@ -418,13 +457,20 @@ class LLMClient:
                         ],
                     },
                 ],
-            )
+                user_id=user_id,
+                purpose="coach_vision",
+            ))
             if not response.content:
                 raise ValueError("Claude vision returned an empty response")
             return response.content[0].text
         except Exception as e:
             logger.error("Claude vision API call failed: %s", e)
             raise
+        finally:
+            try:
+                await client.close()
+            except Exception:  # pragma: no cover — hygiène best-effort
+                pass
 
     async def _call_openai_vision(
         self,
