@@ -63,9 +63,11 @@ ALLOW = {
     "docs/DATA_ACQUISITION_STRATEGY.md",
     "apps/mobile/lib/services/financial_core/arbitrage_engine.dart",
     "apps/mobile/test/simulators/rente_vs_capital_test.dart",
+    "apps/mobile/test/services/financial_core/arbitrage_engine_mixed_deflation_test.dart",
     ".gitignore",
     ".planning/phases/remediation-audit-2026-07/CONTEXT.md",
     ".planning/phases/remediation-audit-2026-07/AUTHORIZED_FILES.md",
+    ".planning/phases/remediation-audit-2026-07/BACKLOG-DEV-VERIFIED.html",
     # --- end remediation audit 2026-07 ---
     "apps/mobile/lib/app.dart",
     "apps/mobile/lib/models/screen_return.dart",
