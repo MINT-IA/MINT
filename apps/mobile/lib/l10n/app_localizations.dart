@@ -42351,6 +42351,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Commencer à investir tôt plutôt que plus tard pourrait faire une différence à long terme, pour un effort mensuel modeste. La capitalisation récompense la durée.'**
   String get eclairageCompoundGrowthEdgeBody;
+
+  /// No description provided for @privacyControlConsentCenterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consentements et retrait'**
+  String get privacyControlConsentCenterTitle;
+
+  /// No description provided for @privacyControlConsentCenterSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir tes autorisations et en retirer une'**
+  String get privacyControlConsentCenterSubtitle;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

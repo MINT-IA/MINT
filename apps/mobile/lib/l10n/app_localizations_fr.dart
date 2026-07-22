@@ -24222,4 +24222,11 @@ class SFr extends S {
   @override
   String get eclairageCompoundGrowthEdgeBody =>
       'Commencer à investir tôt plutôt que plus tard pourrait faire une différence à long terme, pour un effort mensuel modeste. La capitalisation récompense la durée.';
+
+  @override
+  String get privacyControlConsentCenterTitle => 'Consentements et retrait';
+
+  @override
+  String get privacyControlConsentCenterSubtitle =>
+      'Voir tes autorisations et en retirer une';
 }

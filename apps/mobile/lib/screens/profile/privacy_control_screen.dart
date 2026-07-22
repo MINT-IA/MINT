@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -57,6 +58,11 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
+      // La tuile fixe au-dessus du Expanded peut deborder si le clavier
+      // retrecit le body ; le seul champ texte de cet ecran vit dans une
+      // bottom-sheet modale qui gere ses propres insets -> pas de resize
+      // du body (review Codex MINT_nosync-2vh).
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: MintColors.porcelaine,
         surfaceTintColor: MintColors.porcelaine,
@@ -81,7 +87,69 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
             ),
         ],
       ),
-      body: _buildBody(context, l, provider),
+      body: Column(
+        children: [
+          _buildConsentCenterTile(context, l),
+          Expanded(child: _buildBody(context, l, provider)),
+        ],
+      ),
+    );
+  }
+
+  /// Entrée permanente vers le centre de consentements (nLPD, droit de
+  /// retrait). Épinglée AU-DESSUS du dispatch d'états du body : le retrait
+  /// doit rester accessible même si le chargement des facts échoue
+  /// (audit T05-F48, beads MINT_nosync-2vh — la route /profile/privacy était
+  /// orpheline, atteignable uniquement par deeplink).
+  Widget _buildConsentCenterTile(BuildContext context, S l) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        MintSpacing.md,
+        MintSpacing.md,
+        MintSpacing.md,
+        0,
+      ),
+      // Un seul proprietaire de semantique : le ListTile annonce deja
+      // titre + sous-titre ; dupliquer label/hint ici concatene et rend la
+      // lecture VoiceOver repetitive (review Codex MINT_nosync-2vh).
+      child: Semantics(
+        identifier: 'privacy_control_consent_center_nav',
+        button: true,
+        onTap: () => context.push('/profile/privacy'),
+        child: Card(
+          color: MintColors.card,
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: MintColors.lightBorder),
+          ),
+          child: ListTile(
+            leading: const Icon(
+              Icons.verified_user_outlined,
+              color: MintColors.textSecondary,
+              size: 22,
+            ),
+            title: Text(
+              l.privacyControlConsentCenterTitle,
+              style: MintTextStyles.labelMedium(
+                color: MintColors.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              l.privacyControlConsentCenterSubtitle,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ),
+            ),
+            trailing: const Icon(
+              Icons.chevron_right,
+              color: MintColors.textMuted,
+            ),
+            onTap: () => context.push('/profile/privacy'),
+          ),
+        ),
+      ),
     );
   }
 

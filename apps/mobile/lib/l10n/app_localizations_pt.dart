@@ -24233,4 +24233,11 @@ class SPt extends S {
   @override
   String get eclairageCompoundGrowthEdgeBody =>
       'Começar a investir cedo em vez de mais tarde poderia fazer a diferença a longo prazo, para um esforço mensal modesto. A capitalização recompensa a duração.';
+
+  @override
+  String get privacyControlConsentCenterTitle => 'Consentimentos e retirada';
+
+  @override
+  String get privacyControlConsentCenterSubtitle =>
+      'Ver as tuas autorizações e retirar uma';
 }

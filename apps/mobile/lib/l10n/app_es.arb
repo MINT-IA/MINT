@@ -11509,5 +11509,7 @@
   "eclairageLiquidityRunwayHeadline": "Tu reserva de liquidez",
   "eclairageLiquidityRunwayBody": "Tomando tus gastos corrientes como referencia, los asesores independientes suelen citar una reserva de 3 a 6 meses para absorber un imprevisto.",
   "eclairageCompoundGrowthEdgeHeadline": "Tu ventaja de tiempo",
-  "eclairageCompoundGrowthEdgeBody": "Empezar a invertir pronto en lugar de más tarde podría marcar una diferencia a largo plazo, con un esfuerzo mensual modesto. La capitalización recompensa la duración."
+  "eclairageCompoundGrowthEdgeBody": "Empezar a invertir pronto en lugar de más tarde podría marcar una diferencia a largo plazo, con un esfuerzo mensual modesto. La capitalización recompensa la duración.",
+  "privacyControlConsentCenterTitle": "Consentimientos y retirada",
+  "privacyControlConsentCenterSubtitle": "Ver tus autorizaciones y retirar una"
 }
