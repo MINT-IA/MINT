@@ -418,8 +418,14 @@ def test_endpoint_returns_complete_calculation_receipt(client):
     assert "LIFD art. 38" in sources
 
 
-def test_endpoint_receipt_requires_current_age(client):
-    """Missing current_age must keep backend output behind receipt-required gate."""
+def test_endpoint_receipt_ready_without_current_age(client):
+    """Certificate-mode calls (no current_age) get a READY receipt.
+
+    beads MINT_nosync-8wy : compare_rente_vs_capital ne consomme jamais
+    current_age (aucune projection serveur) — l'ancien flag « missing »
+    inconditionnel bloquait tout résultat du mode certificat côté mobile
+    (receipt fail-closed). current_age reste exposé en métadonnée (None).
+    """
     response = client.post(
         "/api/v1/arbitrage/rente-vs-capital",
         json={
@@ -433,6 +439,6 @@ def test_endpoint_receipt_requires_current_age(client):
 
     assert response.status_code == 200
     receipt = response.json()["calculationReceipt"]
-    assert receipt["readiness"] == "missing_inputs"
-    assert receipt["missingRequiredInputs"] == ["current_age"]
+    assert receipt["readiness"] == "ready"
+    assert receipt["missingRequiredInputs"] == []
     assert receipt["assumptions"]["current_age"] is None
