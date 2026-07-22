@@ -122,6 +122,16 @@ pre-commit:
       glob: "apps/mobile/lib/l10n/*.arb"
       tags: [compliance, lsfin, phase-34-guard-01]
       fail_text: "LSFin banned terms detected in ARB. Rewrite using permitted vocabulary (« vise à fournir », « est conçue pour », …) — CLAUDE.md TOP rule #1."
+    no-false-privacy-attestation-gate:
+      # Audit 2026-07 (T16-F02/F34/F36): forbids "document never leaves phone" /
+      # "on-device OCR by default" / "toutes tes données restent sur ton appareil"
+      # attestations while privacy_policy_v2.3.0 §3.3 discloses the real Anthropic
+      # Vision (US) transfer. Keeps public/compliance docs truthful (nLPD). Bypass
+      # via LEFTHOOK_BYPASS=1 is grep-able per CLAUDE.md §5 dev rules.
+      run: python3 tools/checks/no_false_privacy_attestation.py
+      glob: "{PRIVACY.md,LEGAL_RELEASE_CHECK.md,docs/DATA_ACQUISITION_STRATEGY.md}"
+      tags: [compliance, nlpd, privacy, audit-2026-07]
+      fail_text: "False on-device privacy attestation vs privacy_policy_v2.3.0 §3.3 (real Anthropic Vision US transfer). Align the doc with reality or remove the claim."
     no-3a-ceiling-as-tax-saving-gate:
       # Trust rule: CHF 7'258 / CHF 36'288 are 3a deductible contribution
       # ceilings, not the user's tax saving. Tax impact requires a separate

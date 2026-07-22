@@ -67,8 +67,8 @@ Pour assurer le bon fonctionnement de l'application, nous pouvons collecter :
 
 Dans une phase ulterieure, MINT permettra l'upload de documents tels que des certificats de prevoyance LPP ou des releves bancaires. Voici comment ces documents seront traites :
 
-- Les documents seront traites **exclusivement en memoire** pour en extraire les donnees pertinentes
-- **Aucun document ne sera stocke sur un serveur** — le traitement se fait integralement sur ton appareil ou en memoire volatile
+- Le document est envoyé (masqué des PII lorsque possible) à l'API Claude Vision d'Anthropic (États-Unis, Zero Data Retention, base Swiss-US Data Privacy Framework) le temps de l'extraction
+- **Le document n'est pas conservé côté serveur** après l'appel (voir privacy_policy_v2.3.0 §3.3) ; cette finalité sera désactivée à la migration vers AWS Bedrock Frankfurt
 - Les donnees extraites sont immediatement anonymisees et les documents sources sont **supprimes apres extraction**
 - Tu seras informe·e et devras donner ton consentement explicite avant chaque upload
 
@@ -98,7 +98,7 @@ Nous ne traitons **jamais** tes donnees a des fins de :
 
 ### 5.1 Stockage local (Phase 1 — actuel)
 
-En Phase 1, **toutes tes donnees personnelles restent sur ton appareil**. Concretement :
+En Phase 1, une partie de tes données reste sur ton appareil ; **les données de profil sont toutefois synchronisées avec notre backend** (détaillé plus bas dans cette même section). Concrètement :
 
 - Les preferences et parametres de profil sont stockes via **SharedPreferences** (stockage cle-valeur local)
 - Les donnees sensibles (resultats de simulation, donnees financieres detaillees) sont chiffrees via **FlutterSecureStorage**, qui utilise :
