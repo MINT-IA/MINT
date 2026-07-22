@@ -28,7 +28,7 @@ Le salaire coordonné est régi par LPP art. 8 :
 - Seuil d'accès LPP : CHF 22'680 (LPP art. 7) — en dessous, pas d'assujettissement obligatoire.
 - Déduction de coordination : CHF 26'460 (LPP art. 8 al. 1) — correspond à 7/8 de la rente AVS maximale.
 - Salaire coordonné minimum : CHF 3'780/an (LPP art. 8 al. 2).
-- Salaire coordonné maximum : CHF 62'475 − CHF 26'460 = CHF 36'015 (salaire plafonné à CHF 88'200 − coordination).
+- Salaire coordonné maximum : CHF 90'720 − CHF 26'460 = CHF 64'260 (salaire annuel AVS plafonné à la limite supérieure de CHF 90'720, moins la déduction de coordination). Montants identiques en 2025 et 2026 (prochaine adaptation prévue au 1.1.2027).
 
 **Problème du temps partiel** :
 - La déduction de coordination est fixe (CHF 26'460), indépendamment du taux d'activité.
