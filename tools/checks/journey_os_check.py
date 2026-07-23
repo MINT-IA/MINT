@@ -211,6 +211,10 @@ ALLOW = {
     "services/backend/tests/fixtures/coach_tools_parity_v1.jsonl",
     "services/backend/tests/test_coach_tools_parity.py",
     "tools/fixtures/rachat_parity_v1.json",
+    # PR capital-tax-v2-model (bead -2i2) : modèle capital v2 disponible
+    "apps/mobile/test/services/financial_core/capital_tax_parity_fixture_test.dart",
+    "services/backend/tests/test_capital_tax_parity_fixture.py",
+    "tools/fixtures/capital_tax_parity_v1.json",
     # PR rachat-79b-window (bead -a6e) : fenêtre art. 79b al. 3 flux live
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/lib/services/lpp_deep_service.dart",
