@@ -165,8 +165,12 @@ class EPLService:
             montant_effectif = 0.0
 
         # 5. Tax estimate (progressive brackets — aligned with Flutter + pillar_3a_deep)
-        taux_impot = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton_upper, _DEFAULT_TAUX_RETRAIT)
-        impot_estime = calculate_progressive_capital_tax(montant_effectif, taux_impot)
+        # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+        from app.services.fiscal.cantonal_comparator import (
+            estimate_capital_withdrawal_tax,
+        )
+
+        impot_estime = estimate_capital_withdrawal_tax(montant_effectif, canton_upper)
 
         # 6. Impact on death and disability benefits
         impact = self._calc_impact_prestations(

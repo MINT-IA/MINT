@@ -122,8 +122,12 @@ class LppConversionService:
         rente_nette_mensuelle = round(rente_nette_annuelle / 12, 2)
 
         # Capital option
-        taux = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton_upper, _DEFAULT_TAUX_RETRAIT)
-        impot = calculate_progressive_capital_tax(capital_lpp, taux)
+        # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+        from app.services.fiscal.cantonal_comparator import (
+            estimate_capital_withdrawal_tax,
+        )
+
+        impot = estimate_capital_withdrawal_tax(capital_lpp, canton_upper)
         capital_net = round(capital_lpp - impot, 2)
 
         # Breakeven SIMPLIFIÉ — cumul NOMINAL d'une rente constante vs

@@ -215,6 +215,10 @@ ALLOW = {
     "apps/mobile/test/services/financial_core/capital_tax_parity_fixture_test.dart",
     "services/backend/tests/test_capital_tax_parity_fixture.py",
     "tools/fixtures/capital_tax_parity_v1.json",
+    # PR capital-v2-switch (bead -2i2 PR B) : bascule des consommateurs
+    "apps/mobile/lib/services/financial_core/tax_calculator.dart",
+    "services/backend/app/services/lpp_deep/epl_service.py",
+    "services/backend/app/services/mortgage/epl_combined_service.py",
     # PR rachat-79b-window (bead -a6e) : fenêtre art. 79b al. 3 flux live
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/lib/services/lpp_deep_service.dart",

@@ -492,18 +492,17 @@ def compute_rente_vs_capital(
 
     capital_total = avoir_obligatoire + avoir_surobligatoire
 
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton)
-    if base_rate is None:
+    if canton not in TAUX_IMPOT_RETRAIT_CAPITAL:
         raise ValueError(f"Canton non supporté: {canton}")
 
-    # Coefficient marié PAR CANTON (miroir mobile, audit swiss-brain Q5 —
-    # le scalaire uniforme 0.85 était faux ; beads MINT_nosync-ku6).
-    effective_rate = (
-        base_rate * married_capital_tax_discount_for(canton)
-        if statut_civil == "married"
-        else base_rate
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
     )
-    impot_retrait = calculate_progressive_capital_tax(capital_total, effective_rate)
+
+    impot_retrait = estimate_capital_withdrawal_tax(
+        capital_total, canton, is_married=statut_civil == "married"
+    )
     capital_net = capital_total - impot_retrait
 
     nb_mois_85 = (85 - age_retraite) * 12

@@ -1,4 +1,5 @@
 import 'dart:math' show max;
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
@@ -273,19 +274,18 @@ class RetirementTaxCalculator {
     bool isMarried = false,
   }) {
     if (capitalBrut <= 0) return 0;
-    // Wave 7 edge-case audit C1 (2026-04-18) : normalise + valide le
-    // canton via resolveCanton() plutôt que le direct ?? 'ZH'. En debug
-    // mode, un canton invalide/vide affiche un warning sur stdout pour
-    // faire remonter le caller. La valeur de repli reste ZH en prod
-    // pour ne pas casser les écrans legacy, mais la provenance est
-    // traçable si le caller consomme ResolvedCanton directement.
+    // Beads MINT_nosync-2i2 PR B : délégation au modèle v2 (IFD art. 38
+    // exacte + interpolation sur 130 points ESTV officiels — l'ancien
+    // « taux de base x multiplicateurs par tranche » approximait à ±40%
+    // sur certains cantons). resolveCanton conservé (Wave 7 C1 : canton
+    // invalide -> warning debug + repli ZH traçable). Le point de bascule
+    // est ICI : les 11 consommateurs suivent automatiquement.
     final cantonCode = resolveCanton(canton).code;
-    final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
-    // Audit 2026-04-18 Q5 : coefficient marié par CANTON, plus un scalaire
-    // uniforme 0.85. ZH/ZG (splitting intégral) → ~0.70 ; VS → 0.81 ; etc.
-    final discount = isMarried ? marriedCapitalTaxDiscountFor(cantonCode) : 1.0;
-    final effectiveRate = baseRate * discount;
-    return progressiveTax(capitalBrut, effectiveRate);
+    return estimateCapitalWithdrawalTaxV2(
+      capitalBrut,
+      cantonCode,
+      isMarried: isMarried,
+    );
   }
 
   /// Progressive tax on a given amount (LIFD art. 38).
