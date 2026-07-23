@@ -524,10 +524,13 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_title="LAVS art. 21 (réforme AVS 21)",
         source_type="law",
         description=(
-            "Âge de référence AVS pour les femmes : valeur transitoire 64.5 "
-            "en 2026 (cohorte née en 1962). La réforme AVS 21 relève l'âge "
-            "progressivement de 64 à 65 ans pour les naissances 1961-1963 ; "
-            "il atteint 65 ans en 2028."
+            "Âge de référence AVS pour les femmes : SCALAIRE TRANSITOIRE "
+            "64.5 (cohorte 1962, retraites prises en 2026). NE PAS consommer "
+            "dans un moteur — l'âge "
+            "dépend de la COHORTE (réforme AVS 21 : <=1960 64 ; 1961 "
+            "64+3 mois ; 1962 64+6 mois ; 1963 64+9 mois ; 1964+ 65). "
+            "Utiliser avs_reference_age(birth_year, is_female) backend / "
+            "avsReferenceAge(birthYear, isFemale) Dart (beads -xx9)."
         ),
         reviewed_at=_REVIEWED,
     ),

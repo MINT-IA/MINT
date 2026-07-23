@@ -481,19 +481,12 @@ def _avs_compute_monthly_rente(
     # Gender-aware reference age (AVS21, LAVS art. 21 al. 1).
     # MIRROR Dart avs_calculator.dart:44-47 — refAge resolution.
     if is_female is not None and birth_year is not None:
-        # MIRROR Dart social_insurance.dart:150-157 (avsReferenceAge).
-        if not is_female:
-            ref_age = _AVS_AGE_REFERENCE_HOMME
-        elif birth_year <= 1960:
-            ref_age = 64
-        elif birth_year == 1961:
-            ref_age = 64
-        elif birth_year == 1962:
-            ref_age = 64
-        elif birth_year == 1963:
-            ref_age = 65
-        else:
-            ref_age = 65
+        # Fonction partagée par cohorte (beads -xx9) — miroir Dart
+        # social_insurance.dart avsReferenceAge, une seule implémentation
+        # backend (règle 4).
+        from app.constants.social_insurance import avs_reference_age
+
+        ref_age = avs_reference_age(birth_year, is_female)
     else:
         ref_age = _AVS_AGE_REFERENCE_HOMME  # 65 — male/unknown default.
 

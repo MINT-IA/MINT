@@ -456,3 +456,35 @@ def test_minimal_profile_archetype_signals_default_none():
         "None to False — that breaks the FATCA hard gate."
     )
     assert u.nationality is None
+
+
+class TestReferenceAgeCohort:
+    """Beads MINT_nosync-xx9 : l'âge de référence femmes dépend de la COHORTE.
+
+    L'ancien _get_retirement_age servait int(64.5) = 64 à TOUTES les femmes —
+    faux pour les cohortes 1963+ (65 depuis la réforme AVS 21). Miroir exact
+    du Dart avsReferenceAge (social_insurance.dart).
+    """
+
+    def test_woman_born_1990_gets_65(self):
+        from app.services.onboarding.minimal_profile_service import (
+            _get_retirement_age,
+        )
+
+        assert _get_retirement_age("female", 1990) == 65, (
+            "cohorte 1964+ : 65 ans — l'ancien scalaire 64 sous-estimait "
+            "l'âge de référence de la quasi-totalité des utilisatrices"
+        )
+
+    def test_transitional_cohorts_match_dart_convention(self):
+        from app.constants.social_insurance import avs_reference_age
+
+        # Convention années entières partagée avec le Dart : 1961/1962 -> 64,
+        # 1963 -> 65 (officiel : +3/+6/+9 mois).
+        assert avs_reference_age(1960, True) == 64
+        assert avs_reference_age(1961, True) == 64
+        assert avs_reference_age(1962, True) == 64
+        assert avs_reference_age(1963, True) == 65
+        assert avs_reference_age(1964, True) == 65
+        # Hommes : 65 toutes cohortes.
+        assert avs_reference_age(1961, False) == 65
