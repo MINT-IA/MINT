@@ -9054,6 +9054,29 @@ class SDe extends S {
       'Nach jedem Einkauf ist jeder WEF-Bezug für 3 Jahre gesperrt.';
 
   @override
+  String get rachatEchelonneFenetre79bBadge =>
+      'Steuervorteil entfällt bei Kapital';
+
+  @override
+  String rachatEchelonneSiCapitalLabel(String montant) {
+    return 'Steuereffekt bei Kapitalbezug mit 65: CHF $montant';
+  }
+
+  @override
+  String get rachatEchelonneFenetre79bNote =>
+      'Einkäufe weniger als 3 Jahre vor einem Kapitalbezug: Der Abzug würde annulliert und von der Steuerbehörde zurückgefordert (Art. 79b Abs. 3 BVG). Annahme: vollständiger Bezug mit 65 — eine Frühpensionierung verschiebt das Fenster entsprechend. Die 3-jährige WEF-Sperre (eigene Karte unten) ist eine andere Wirkung desselben Artikels. Zwei Szenarien — die Wahl Rente oder Kapital bleibt bei dir.';
+
+  @override
+  String rachatEchelonneHeroSiCapital(String montant) {
+    return 'Bei Kapitalbezug mit 65 wird die Differenz CHF $montant (Ersparnisse der letzten Tranchen werden zurückgefordert).';
+  }
+
+  @override
+  String rachatEchelonneSiCapitalShort(String montant) {
+    return 'Bei Kapital: CHF $montant';
+  }
+
+  @override
   String get rachatEchelonneTauxMarginalTitle => 'Grenzsteuersatz';
 
   @override

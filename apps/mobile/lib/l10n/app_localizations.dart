@@ -15943,6 +15943,36 @@ abstract class S {
   /// **'Après chaque rachat, tout retrait EPL (encouragement à la propriété du logement) est bloqué pendant 3 ans. Planifie en conséquence si un achat immobilier est prévu.'**
   String get rachatEchelonneBlockageBody;
 
+  /// No description provided for @rachatEchelonneFenetre79bBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avantage fiscal annulé si capital'**
+  String get rachatEchelonneFenetre79bBadge;
+
+  /// No description provided for @rachatEchelonneSiCapitalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact fiscal si retrait en capital à 65 ans : CHF {montant}'**
+  String rachatEchelonneSiCapitalLabel(String montant);
+
+  /// No description provided for @rachatEchelonneFenetre79bNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tranches versées à moins de 3 ans d\'un retrait en capital : la déduction serait annulée et reprise par l\'administration fiscale (art. 79b al. 3 LPP). Hypothèse : retrait intégral à 65 ans — une retraite anticipée décale la fenêtre d\'autant. Le blocage EPL de 3 ans (carte dédiée ci-dessous) est un effet distinct du même article. Deux scénarios présentés — le choix rente ou capital reste le tien.'**
+  String get rachatEchelonneFenetre79bNote;
+
+  /// No description provided for @rachatEchelonneHeroSiCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si retrait en capital à 65 ans, l\'écart devient CHF {montant} (économies reprises par le fisc sur les tranches récentes).'**
+  String rachatEchelonneHeroSiCapital(String montant);
+
+  /// No description provided for @rachatEchelonneSiCapitalShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si capital : CHF {montant}'**
+  String rachatEchelonneSiCapitalShort(String montant);
+
   /// No description provided for @rachatEchelonneTauxMarginalTitle.
   ///
   /// In fr, this message translates to:

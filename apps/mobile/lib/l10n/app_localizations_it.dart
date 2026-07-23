@@ -9044,6 +9044,29 @@ class SIt extends S {
       'Dopo ogni riscatto, qualsiasi prelievo EPL è bloccato per 3 anni.';
 
   @override
+  String get rachatEchelonneFenetre79bBadge =>
+      'Vantaggio fiscale annullato se capitale';
+
+  @override
+  String rachatEchelonneSiCapitalLabel(String montant) {
+    return 'Impatto fiscale se prelievo di capitale a 65 anni: CHF $montant';
+  }
+
+  @override
+  String get rachatEchelonneFenetre79bNote =>
+      'Versamenti effettuati meno di 3 anni prima di un prelievo di capitale: la deduzione verrebbe annullata e ripresa dall\'autorità fiscale (art. 79b cpv. 3 LPP). Ipotesi: prelievo integrale a 65 anni — un pensionamento anticipato sposta la finestra. Il blocco PPA di 3 anni (scheda dedicata sotto) è un effetto distinto dello stesso articolo. Due scenari — la scelta tra rendita o capitale resta tua.';
+
+  @override
+  String rachatEchelonneHeroSiCapital(String montant) {
+    return 'Se prelevi il capitale a 65 anni, la differenza diventa CHF $montant (risparmi delle rate recenti ripresi dal fisco).';
+  }
+
+  @override
+  String rachatEchelonneSiCapitalShort(String montant) {
+    return 'Se capitale: CHF $montant';
+  }
+
+  @override
   String get rachatEchelonneTauxMarginalTitle => 'Aliquota marginale';
 
   @override

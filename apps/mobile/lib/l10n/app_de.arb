@@ -4156,6 +4156,32 @@
   "rachatEchelonneRachat": "Einkauf",
   "rachatEchelonneBlockageTitle": "BVG Art. 79b Abs. 3 — WEF-Sperre",
   "rachatEchelonneBlockageBody": "Nach jedem Einkauf ist jeder WEF-Bezug für 3 Jahre gesperrt.",
+  "rachatEchelonneFenetre79bBadge": "Steuervorteil entfällt bei Kapital",
+  "rachatEchelonneSiCapitalLabel": "Steuereffekt bei Kapitalbezug mit 65: CHF {montant}",
+  "@rachatEchelonneSiCapitalLabel": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneFenetre79bNote": "Einkäufe weniger als 3 Jahre vor einem Kapitalbezug: Der Abzug würde annulliert und von der Steuerbehörde zurückgefordert (Art. 79b Abs. 3 BVG). Annahme: vollständiger Bezug mit 65 — eine Frühpensionierung verschiebt das Fenster entsprechend. Die 3-jährige WEF-Sperre (eigene Karte unten) ist eine andere Wirkung desselben Artikels. Zwei Szenarien — die Wahl Rente oder Kapital bleibt bei dir.",
+  "rachatEchelonneHeroSiCapital": "Bei Kapitalbezug mit 65 wird die Differenz CHF {montant} (Ersparnisse der letzten Tranchen werden zurückgefordert).",
+  "@rachatEchelonneHeroSiCapital": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneSiCapitalShort": "Bei Kapital: CHF {montant}",
+  "@rachatEchelonneSiCapitalShort": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "rachatEchelonneTauxMarginalTitle": "Grenzsteuersatz",
   "rachatEchelonneTauxMarginalBody": "Der Grenzsteuersatz ist der Steuerprozentsatz auf deinen letzten verdienten Franken. Bei 32 % entspricht ein Abzug von CHF 1'000 einem indikativen Steuereffekt von CHF 320. Je höher dein Einkommen, desto stärker kann dieser Satz steigen.",
   "rachatEchelonneTauxMarginalTip": "Deshalb ist es klug, Einkäufe zu staffeln.",

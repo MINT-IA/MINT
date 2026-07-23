@@ -9022,6 +9022,29 @@ class SPt extends S {
       'Após cada resgate, qualquer levantamento EPL fica bloqueado durante 3 anos.';
 
   @override
+  String get rachatEchelonneFenetre79bBadge =>
+      'Vantagem fiscal anulada se capital';
+
+  @override
+  String rachatEchelonneSiCapitalLabel(String montant) {
+    return 'Impacto fiscal se levantares o capital aos 65: CHF $montant';
+  }
+
+  @override
+  String get rachatEchelonneFenetre79bNote =>
+      'Parcelas pagas menos de 3 anos antes de um levantamento de capital: a dedução seria anulada e revogada pela autoridade fiscal (art. 79b n.º 3 LPP). Hipótese: levantamento integral aos 65 — uma reforma antecipada desloca a janela. O bloqueio EPL de 3 anos (cartão dedicado abaixo) é um efeito distinto do mesmo artigo. Dois cenários — a escolha entre renda ou capital continua a ser tua.';
+
+  @override
+  String rachatEchelonneHeroSiCapital(String montant) {
+    return 'Se levantares o capital aos 65, a diferença passa a CHF $montant (poupanças das parcelas recentes revogadas pelo fisco).';
+  }
+
+  @override
+  String rachatEchelonneSiCapitalShort(String montant) {
+    return 'Se capital: CHF $montant';
+  }
+
+  @override
   String get rachatEchelonneTauxMarginalTitle => 'Taxa marginal de impostos';
 
   @override

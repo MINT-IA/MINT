@@ -9025,6 +9025,29 @@ class SEs extends S {
       'Después de cada rescate, cualquier retiro EPL queda bloqueado durante 3 años.';
 
   @override
+  String get rachatEchelonneFenetre79bBadge =>
+      'Ventaja fiscal anulada si capital';
+
+  @override
+  String rachatEchelonneSiCapitalLabel(String montant) {
+    return 'Impacto fiscal si retiras el capital a los 65: CHF $montant';
+  }
+
+  @override
+  String get rachatEchelonneFenetre79bNote =>
+      'Tramos aportados menos de 3 años antes de un retiro de capital: la deducción sería anulada y revocada por la autoridad fiscal (art. 79b párr. 3 LPP). Hipótesis: retiro íntegro a los 65 — una jubilación anticipada desplaza la ventana. El bloqueo EPL de 3 años (tarjeta dedicada abajo) es un efecto distinto del mismo artículo. Dos escenarios — la elección entre renta o capital sigue siendo tuya.';
+
+  @override
+  String rachatEchelonneHeroSiCapital(String montant) {
+    return 'Si retiras el capital a los 65, la diferencia pasa a ser CHF $montant (ahorros de los tramos recientes revocados por el fisco).';
+  }
+
+  @override
+  String rachatEchelonneSiCapitalShort(String montant) {
+    return 'Si capital: CHF $montant';
+  }
+
+  @override
   String get rachatEchelonneTauxMarginalTitle => 'Tasa impositiva marginal';
 
   @override

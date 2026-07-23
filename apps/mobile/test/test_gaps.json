@@ -114,12 +114,6 @@
     "priority": "high"
   },
   {
-    "file": "lib/services/simulators/lpp_buyback_advanced_simulator.dart",
-    "current_tests": 0,
-    "target_tests": 10,
-    "priority": "high"
-  },
-  {
     "file": "lib/services/simulators/real_interest_calculator.dart",
     "current_tests": 0,
     "target_tests": 10,
