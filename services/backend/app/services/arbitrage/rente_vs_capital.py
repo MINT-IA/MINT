@@ -81,36 +81,20 @@ def _estimate_income_tax_on_rente(rente_annuelle: float, canton: str, is_married
     Returns:
         Estimated annual income tax (CHF).
     """
-    from app.services.fiscal.cantonal_comparator import (
-        EFFECTIVE_RATES_100K_SINGLE,
-        FEDERAL_BRACKETS,
-    )
+    from app.services.fiscal.cantonal_comparator import estimate_income_tax
 
     # Revenu imposable: ~85% of rente after standard deductions
     # (assurance maladie, frais médicaux, déduction forfaitaire — LIFD art. 33)
     # This is a simplification; actual deductions depend on personal situation.
-    revenu_imposable = rente_annuelle * 0.85
-
-    # Federal tax via progressive brackets (LIFD art. 36)
-    impot_federal = 0.0
-    prev_bound = 0.0
-    for upper, rate in FEDERAL_BRACKETS:
-        if revenu_imposable <= prev_bound:
-            break
-        taxable = min(revenu_imposable, upper) - prev_bound
-        impot_federal += taxable * rate
-        prev_bound = upper
-
-    # Cantonal+communal tax via effective rate scaled by income
-    cantonal_rate = EFFECTIVE_RATES_100K_SINGLE.get(canton.upper(), 0.13)
-    # Scale rate for income level (rates calibrated at 100k)
-    income_factor = max(0.6, min(1.5, rente_annuelle / 100_000))
-    impot_cantonal = revenu_imposable * cantonal_rate * income_factor
-
-    total = impot_federal + impot_cantonal
-    if is_married:
-        total *= 0.80  # Splitting benefit
-    return round(total, 2)
+    # Modèle fiscal partagé (beads -81n) : income_factor_base = rente BRUTE,
+    # comportement historique verrouillé par rvc_parity_v1.json + le miroir
+    # Dart estimateIncomeTaxOnRenteRvc.
+    return estimate_income_tax(
+        rente_annuelle * 0.85,
+        canton,
+        is_married=is_married,
+        income_factor_base=rente_annuelle,
+    )
 
 
 def _get_capital_tax(capital: float, canton: str, is_married: bool) -> float:
