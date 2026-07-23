@@ -77,3 +77,60 @@ def test_eclairage_branch_follows_total_not_residual():
         "le chiffre choc doit suivre la valeur totale (capital devant), "
         f"pas le seul résiduel : {result.premier_eclairage!r}"
     )
+
+
+def test_eclairage_wording_names_total_economic_value():
+    """Review Codex PR #971 : le libellé doit nommer la métrique réelle
+    (« valeur economique totale »), pas « revenus cumules » / « patrimoine
+    cumule » qui ne décrivent plus ce qui est comparé."""
+    for rente in (20000.0, 60000.0):  # les deux branches
+        result = compare_rente_vs_capital(
+            capital_lpp_total=500000.0,
+            capital_obligatoire=400000.0,
+            capital_surobligatoire=100000.0,
+            rente_annuelle_proposee=rente,
+            canton="VD",
+            horizon=25,
+        )
+        assert "valeur economique" in result.premier_eclairage, (
+            result.premier_eclairage
+        )
+
+
+def test_sensitivity_spread_uses_total_values():
+    """Review Codex PR #971 : la sensitivity Tornado répétait l'asymétrie
+    (compute_terminal_spread sur terminal_value bruts). Le spread RvC doit
+    passer par les valeurs économiques totales."""
+    from app.services.arbitrage.rente_vs_capital import (
+        _rvc_total_value_spread,
+        _total_economic_value,
+    )
+
+    result = compare_rente_vs_capital(
+        capital_lpp_total=500000.0,
+        capital_obligatoire=400000.0,
+        capital_surobligatoire=100000.0,
+        rente_annuelle_proposee=34000.0,
+        canton="VD",
+        horizon=25,
+    )
+    totals = [_total_economic_value(o) for o in result.options]
+    assert _rvc_total_value_spread(result.options) == max(totals) - min(totals)
+
+    capital = next(o for o in result.options if o.id == "full_capital")
+    assert _total_economic_value(capital) > capital.terminal_value, (
+        "le total capital doit ré-additionner les retraits consommés"
+    )
+
+    # Verrou de câblage : la sensitivity RvC ne repasse plus par le spread
+    # générique sur terminal_value bruts.
+    from pathlib import Path
+
+    source = (
+        Path(__file__).resolve().parents[1]
+        / "app/services/arbitrage/rente_vs_capital.py"
+    ).read_text(encoding="utf-8")
+    assert "compute_terminal_spread(" not in source, (
+        "rente_vs_capital ne doit plus appeler compute_terminal_spread "
+        "(asymétrie résiduel-vs-cumulé) — utiliser _rvc_total_value_spread"
+    )
