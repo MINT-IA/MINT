@@ -24302,4 +24302,8 @@ class SPt extends S {
   @override
   String get reportSpouseIncomeMissingPrompt =>
       'Adiciona o rendimento do teu cônjuge: a sua renda AVS é estimada no mínimo legal até lá.';
+
+  @override
+  String get reportSpouseDataMissingPrompt =>
+      'Adiciona o rendimento e os anos de contribuição do teu cônjuge: a sua renda AVS não é estimada até lá.';
 }

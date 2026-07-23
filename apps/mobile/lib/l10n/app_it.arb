@@ -11601,5 +11601,6 @@
   "@coupleMonoIncomeCta": {
     "description": "CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)"
   },
-  "reportSpouseIncomeMissingPrompt": "Aggiungi il reddito del/della coniuge: la sua rendita AVS è stimata al minimo legale nel frattempo."
+  "reportSpouseIncomeMissingPrompt": "Aggiungi il reddito del/della coniuge: la sua rendita AVS è stimata al minimo legale nel frattempo.",
+  "reportSpouseDataMissingPrompt": "Aggiungi il reddito e gli anni di contribuzione del/della coniuge: la sua rendita AVS non è stimata nel frattempo."
 }

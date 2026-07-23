@@ -145,23 +145,70 @@ void main() {
       );
     });
 
-    test('Married avec revenu conjoint renseigné : inchangé (données réelles)',
+    test('Married sans AUCUNE donnée conjoint -> rien estimé (0) + prompt dédié',
         () {
+      // Review Codex PR #980 : sans années de cotisation, computeMonthlyRente
+      // suppose une carrière complète — la borne 1'260 surestimait un
+      // conjoint arrivé tardivement. Aucune donnée -> rien d'estimé.
       final service = FinancialReportService();
-      final report = service.generateReport({
+      final answers = {
         'q_birth_year': 1980,
         'q_canton': 'ZH',
         'q_civil_status': 'married',
         'q_employment_status': 'employee',
-        'q_net_income_period_chf': 8000,
-        'q_partner_net_income_chf': 8000,
+        'q_net_income_period_chf': 4000,
+        'q_avs_contribution_years': 40,
+        'q_current_lpp_capital': 150000,
+      };
+      final report = service.generateReport(answers);
+      final userAlone = service
+          .generateReport({...answers, 'q_civil_status': 'single'})
+          .retirementProjection!
+          .monthlyAvsRent;
+
+      expect(report.retirementProjection!.monthlyAvsRent,
+          closeTo(userAlone, 1.0),
+          reason: 'aucune donnée conjoint = aucune rente conjoint inventée');
+      expect(
+        report.enrichmentPrompts
+            .any((p) => p.contains('années de cotisation')),
+        isTrue,
+        reason: 'le prompt dédié doit demander revenu ET années',
+      );
+    });
+
+    test('Married avec revenu conjoint renseigné : inchangé (données réelles)',
+        () {
+      // Revenus DIFFÉRENTS et modestes (4000 vs 1500) : discriminant contre
+      // une réintroduction du clonage (review PR #980 — deux revenus égaux,
+      // ou des totaux saturés par le cap couple LAVS 35, ne distinguaient
+      // pas substitution et donnée réelle). Sous le cap, le total doit
+      // refléter strictement le revenu conjoint RÉEL : au-dessus de la
+      // borne minimale, en dessous du plafond couple.
+      final base = {
+        'q_birth_year': 1980,
+        'q_canton': 'ZH',
+        'q_civil_status': 'married',
+        'q_employment_status': 'employee',
+        'q_net_income_period_chf': 4000,
         'q_avs_lacunes_status': 'yes',
         'q_avs_contribution_years': 40,
         'q_spouse_avs_contribution_years': 42,
         'q_current_lpp_capital': 150000,
-      });
-      // Deux hauts revenus RÉELS -> les deux au max -> cap couple 3780.
-      expect(report.retirementProjection?.monthlyAvsRent, closeTo(3780.0, 1.0));
+      };
+      final total = FinancialReportService()
+          .generateReport({...base, 'q_partner_net_income_chf': 1500})
+          .retirementProjection!
+          .monthlyAvsRent;
+      final withMinBound = FinancialReportService()
+          .generateReport(base)
+          .retirementProjection!
+          .monthlyAvsRent;
+      expect(total, greaterThan(withMinBound),
+          reason: 'un revenu réel 1500 net vaut plus que la borne minimale');
+      expect(total, lessThan(3780.0),
+          reason: 'total sous le cap couple : la donnée réelle est visible, '
+              'pas saturée');
     });
   });
 }

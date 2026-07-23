@@ -24357,4 +24357,8 @@ class SIt extends S {
   @override
   String get reportSpouseIncomeMissingPrompt =>
       'Aggiungi il reddito del/della coniuge: la sua rendita AVS è stimata al minimo legale nel frattempo.';
+
+  @override
+  String get reportSpouseDataMissingPrompt =>
+      'Aggiungi il reddito e gli anni di contribuzione del/della coniuge: la sua rendita AVS non è stimata nel frattempo.';
 }

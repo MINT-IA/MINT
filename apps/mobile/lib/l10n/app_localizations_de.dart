@@ -24355,4 +24355,8 @@ class SDe extends S {
   @override
   String get reportSpouseIncomeMissingPrompt =>
       'Erfasse das Einkommen deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin auf dem gesetzlichen Minimum geschätzt.';
+
+  @override
+  String get reportSpouseDataMissingPrompt =>
+      'Erfasse Einkommen und Beitragsjahre deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin nicht geschätzt.';
 }

@@ -42459,6 +42459,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Renseigne le revenu de ton/ta conjoint·e : sa rente AVS est estimée au minimum légal en attendant.'**
   String get reportSpouseIncomeMissingPrompt;
+
+  /// No description provided for @reportSpouseDataMissingPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n\'est pas estimée en attendant.'**
+  String get reportSpouseDataMissingPrompt;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

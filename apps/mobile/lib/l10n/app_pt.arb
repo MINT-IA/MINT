@@ -11601,5 +11601,6 @@
   "@coupleMonoIncomeCta": {
     "description": "CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)"
   },
-  "reportSpouseIncomeMissingPrompt": "Adiciona o rendimento do teu cônjuge: a sua renda AVS é estimada no mínimo legal até lá."
+  "reportSpouseIncomeMissingPrompt": "Adiciona o rendimento do teu cônjuge: a sua renda AVS é estimada no mínimo legal até lá.",
+  "reportSpouseDataMissingPrompt": "Adiciona o rendimento e os anos de contribuição do teu cônjuge: a sua renda AVS não é estimada até lá."
 }

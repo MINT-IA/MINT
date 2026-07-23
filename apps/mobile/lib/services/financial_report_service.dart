@@ -82,11 +82,19 @@ class FinancialReportService {
 
     // -pd4 : la borne prudente conjoint (revenu inconnu) doit être DITE.
     if (profile.isMarried && profile.spouseMonthlyNetIncome == null) {
+      final hasSpouseCareerData = profile.spouseContributionYears != null ||
+          profile.spouseAvsGapYears != null;
       enrichmentPrompts = [
         ...enrichmentPrompts,
-        l?.reportSpouseIncomeMissingPrompt ??
-            'Renseigne le revenu de ton/ta conjoint\u00b7e\u00a0: sa rente AVS est '
-                'estimée au minimum légal en attendant.',
+        if (hasSpouseCareerData)
+          l?.reportSpouseIncomeMissingPrompt ??
+              'Renseigne le revenu de ton/ta conjoint\u00b7e\u00a0: sa rente AVS '
+                  'est estimée au minimum légal en attendant.'
+        else
+          l?.reportSpouseDataMissingPrompt ??
+              'Renseigne le revenu et les années de cotisation de ton/ta '
+                  'conjoint\u00b7e\u00a0: sa rente AVS n\u2019est pas estimée en '
+                  'attendant.',
       ];
     }
 
@@ -999,15 +1007,25 @@ class FinancialReportService {
               age: spouseAge,
             )
           : avsRAMDMin;
-      final spouseRente = AvsCalculator.computeMonthlyRente(
-        currentAge: spouseAge,
-        retirementAge: spouseRefAge,
-        lacunes: profile.spouseAvsGapYears ?? 0,
-        anneesContribuees: profile.spouseContributionYears,
-        grossAnnualSalary: spouseGrossAnnual,
-        isFemale: hasSpouseGender ? spouseIsFemale : null,
-        birthYear: hasSpouseGender ? spouseBirthYear : null,
-      );
+      // Review Codex PR #980 : sans années de cotisation conjoint,
+      // computeMonthlyRente suppose une carrière complète (44 ans depuis
+      // 20) — la « borne prudente » 1'260 surestimait alors un conjoint
+      // arrivé tardivement. AUCUNE donnée conjoint (ni revenu, ni années,
+      // ni lacunes) -> rien n'est estimé (0), et la limite est dite.
+      final hasSpouseCareerData = profile.spouseContributionYears != null ||
+          profile.spouseAvsGapYears != null;
+      final spouseRente =
+          (profile.spouseMonthlyNetIncome == null && !hasSpouseCareerData)
+              ? 0.0
+              : AvsCalculator.computeMonthlyRente(
+                  currentAge: spouseAge,
+                  retirementAge: spouseRefAge,
+                  lacunes: profile.spouseAvsGapYears ?? 0,
+                  anneesContribuees: profile.spouseContributionYears,
+                  grossAnnualSalary: spouseGrossAnnual,
+                  isFemale: hasSpouseGender ? spouseIsFemale : null,
+                  birthYear: hasSpouseGender ? spouseBirthYear : null,
+                );
 
       // Apply married couple cap (LAVS art. 35 — 150% of individual max)
       final couple = AvsCalculator.computeCouple(

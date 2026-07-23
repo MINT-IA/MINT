@@ -24171,4 +24171,8 @@ class SEn extends S {
   @override
   String get reportSpouseIncomeMissingPrompt =>
       'Add your spouse\'s income: their AVS pension is estimated at the legal minimum until then.';
+
+  @override
+  String get reportSpouseDataMissingPrompt =>
+      'Add your spouse\'s income and contribution years: their AVS pension is not estimated until then.';
 }
