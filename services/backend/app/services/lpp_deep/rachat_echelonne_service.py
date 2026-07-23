@@ -18,6 +18,8 @@ Sprint S15 — Chantier 4: LPP approfondi.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
 
 DISCLAIMER = (
     "MINT est un outil educatif. Ce service ne constitue pas un conseil "
@@ -178,16 +180,25 @@ class RachatEchelonneService:
             revenu_avant = revenu_imposable
             revenu_apres = revenu_imposable - montant
 
-            taux_avant = self._get_marginal_rate(
-                revenu_avant, canton_upper, taux_marginal_estime
-            )
-            taux_apres = self._get_marginal_rate(
-                revenu_apres, canton_upper, None  # Always compute from table after deduction
-            )
-
-            # Tax savings: use the average marginal rate across the deduction range
-            taux_effectif = (taux_avant + taux_apres) / 2
-            economie = round(montant * taux_effectif, 2)
+            # Beads MINT_nosync-81n/-97h : l'ancienne approximation
+            # « montant x taux marginal moyen » sur paliers hardcodés
+            # INVERSAIT la conclusion bloc/étalé vs le moteur mobile.
+            # Le modèle v2 (interpolation 130 points ESTV, partagé avec
+            # RvC) calcule la VRAIE différence d'impôts. L'override
+            # taux_marginal_estime (appelant) reste respecté.
+            if taux_marginal_estime is not None:
+                economie = round(montant * taux_marginal_estime, 2)
+                taux_avant = taux_marginal_estime
+                taux_apres = taux_marginal_estime
+            else:
+                economie = round(
+                    estimate_income_tax(revenu_avant, canton_upper)
+                    - estimate_income_tax(revenu_apres, canton_upper),
+                    2,
+                )
+                # Taux moyen effectif sur la tranche (exposé au coach).
+                taux_avant = round(economie / montant, 4) if montant else 0.0
+                taux_apres = taux_avant
             cout_net = round(montant - economie, 2)
 
             plan.append(RachatAnnuelEntry(
@@ -207,15 +218,15 @@ class RachatEchelonneService:
         total_cout_net = round(rachat_max - total_economie, 2)
 
         # Bloc comparison: entire amount in year 1
-        bloc_taux_avant = self._get_marginal_rate(
-            revenu_imposable, canton_upper, taux_marginal_estime
-        )
-        bloc_revenu_apres = revenu_imposable - rachat_max
-        bloc_taux_apres = self._get_marginal_rate(
-            bloc_revenu_apres, canton_upper, None
-        )
-        bloc_taux_effectif = (bloc_taux_avant + bloc_taux_apres) / 2
-        bloc_economie = round(rachat_max * bloc_taux_effectif, 2)
+        bloc_revenu_apres = max(0.0, revenu_imposable - rachat_max)
+        if taux_marginal_estime is not None:
+            bloc_economie = round(rachat_max * taux_marginal_estime, 2)
+        else:
+            bloc_economie = round(
+                estimate_income_tax(revenu_imposable, canton_upper)
+                - estimate_income_tax(bloc_revenu_apres, canton_upper),
+                2,
+            )
         bloc_cout_net = round(rachat_max - bloc_economie, 2)
 
         # Delta

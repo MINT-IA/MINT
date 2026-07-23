@@ -1,0 +1,321 @@
+{
+  "meta": {
+    "bead": "MINT_nosync-97h",
+    "lot": "lot4_VD_VS_NE_GE_JU",
+    "collected_at": "2026-07-23",
+    "tax_year_primary": 2026,
+    "cross_check_year": 2025,
+    "profile": "personne célibataire, sans enfant, sans fortune, sans confession (Confession=autre/aucune), commune = chef-lieu du canton",
+    "income_basis": "revenu IMPOSABLE (saisi identique pour l'assiette cantonale et fédérale via TaxableIncomeCanton = TaxableIncomeFed)",
+    "method": "Valeurs calculées en direct (2026-07-23) par l'API JSON officielle du simulateur fiscal ESTV (swisstaxcalculator.estv.admin.ch), opération API_calculateSimpleTaxes (POST https://swisstaxcalculator.estv.admin.ch/delegate/ost-integration/v1/lg-proxy/operation/c3b67379_ESTV/API_calculateSimpleTaxes). WebFetch ne supporte que GET ; l'API ESTV exige POST — collecte faite via curl/urllib sur la même API que l'interface web officielle. Aucune valeur de mémoire. TaxLocationID résolus via API_searchLocation et vérifiés par le no BFS de chaque réponse (Lausanne 5586, Sion 6266, Neuchâtel 6458, Genève 6621, Delémont 6711).",
+    "field_semantics": {
+      "cantonal_communal": "IncomeTaxCanton + IncomeTaxCity + PersonalTax (impôt/taxe personnel-le : VS Sion 24 CHF, GE 25 CHF, 0 ailleurs) ; impôt paroissial = 0 (sans confession)",
+      "ifd": "IncomeTaxFed (impôt fédéral direct)",
+      "total": "TotalTax ESTV (= cantonal_communal + ifd, vérifié par assertion sur chaque point)"
+    },
+    "caveats": "Barèmes 2026 tels que servis par l'ESTV au 2026-07-23. L'IFD est calculé sur le même revenu imposable que l'assiette cantonale (les assiettes réelles peuvent différer selon les déductions). Points 2025 fournis en cross_check ; écarts 2025→2026 faibles (indexation), NE inchangé.",
+    "units": "CHF, montants annuels arrondis par l'ESTV"
+  },
+  "cantons": {
+    "VD": {
+      "chef_lieu": "Lausanne",
+      "tax_year": 2026,
+      "points": {
+        "40000": {
+          "cantonal_communal": 5666,
+          "ifd": 198,
+          "total": 5864
+        },
+        "70000": {
+          "cantonal_communal": 12039,
+          "ifd": 968,
+          "total": 13007
+        },
+        "100000": {
+          "cantonal_communal": 19588,
+          "ifd": 2684,
+          "total": 22272
+        },
+        "150000": {
+          "cantonal_communal": 33776,
+          "ifd": 7076,
+          "total": 40852
+        },
+        "250000": {
+          "cantonal_communal": 65070,
+          "ifd": 19503,
+          "total": 84573
+        }
+      },
+      "cross_check_2025": {
+        "40000": {
+          "cantonal_communal": 5705,
+          "ifd": 198,
+          "total": 5903
+        },
+        "70000": {
+          "cantonal_communal": 12122,
+          "ifd": 968,
+          "total": 13090
+        },
+        "100000": {
+          "cantonal_communal": 19727,
+          "ifd": 2688,
+          "total": 22415
+        },
+        "150000": {
+          "cantonal_communal": 34014,
+          "ifd": 7081,
+          "total": 41095
+        },
+        "250000": {
+          "cantonal_communal": 65529,
+          "ifd": 19514,
+          "total": 85043
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV API_calculateSimpleTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID vérifié BFS 5586 (Lausanne), célibataire, 0 enfant, fortune 0, sans confession."
+    },
+    "VS": {
+      "chef_lieu": "Sion",
+      "tax_year": 2026,
+      "points": {
+        "40000": {
+          "cantonal_communal": 3750,
+          "ifd": 198,
+          "total": 3948
+        },
+        "70000": {
+          "cantonal_communal": 9467,
+          "ifd": 968,
+          "total": 10435
+        },
+        "100000": {
+          "cantonal_communal": 16829,
+          "ifd": 2684,
+          "total": 19513
+        },
+        "150000": {
+          "cantonal_communal": 32371,
+          "ifd": 7076,
+          "total": 39447
+        },
+        "250000": {
+          "cantonal_communal": 59684,
+          "ifd": 19503,
+          "total": 79187
+        }
+      },
+      "cross_check_2025": {
+        "40000": {
+          "cantonal_communal": 3750,
+          "ifd": 198,
+          "total": 3948
+        },
+        "70000": {
+          "cantonal_communal": 9677,
+          "ifd": 968,
+          "total": 10645
+        },
+        "100000": {
+          "cantonal_communal": 17129,
+          "ifd": 2688,
+          "total": 19817
+        },
+        "150000": {
+          "cantonal_communal": 32609,
+          "ifd": 7081,
+          "total": 39690
+        },
+        "250000": {
+          "cantonal_communal": 59684,
+          "ifd": 19514,
+          "total": 79198
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV API_calculateSimpleTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID vérifié BFS 6266 (Sion), célibataire, 0 enfant, fortune 0, sans confession."
+    },
+    "NE": {
+      "chef_lieu": "Neuchâtel",
+      "tax_year": 2026,
+      "points": {
+        "40000": {
+          "cantonal_communal": 5511,
+          "ifd": 198,
+          "total": 5709
+        },
+        "70000": {
+          "cantonal_communal": 12657,
+          "ifd": 968,
+          "total": 13625
+        },
+        "100000": {
+          "cantonal_communal": 20555,
+          "ifd": 2684,
+          "total": 23239
+        },
+        "150000": {
+          "cantonal_communal": 34781,
+          "ifd": 7076,
+          "total": 41857
+        },
+        "250000": {
+          "cantonal_communal": 62646,
+          "ifd": 19503,
+          "total": 82149
+        }
+      },
+      "cross_check_2025": {
+        "40000": {
+          "cantonal_communal": 5511,
+          "ifd": 198,
+          "total": 5709
+        },
+        "70000": {
+          "cantonal_communal": 12657,
+          "ifd": 968,
+          "total": 13625
+        },
+        "100000": {
+          "cantonal_communal": 20555,
+          "ifd": 2688,
+          "total": 23243
+        },
+        "150000": {
+          "cantonal_communal": 34781,
+          "ifd": 7081,
+          "total": 41862
+        },
+        "250000": {
+          "cantonal_communal": 62646,
+          "ifd": 19514,
+          "total": 82160
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV API_calculateSimpleTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID vérifié BFS 6458 (Neuchâtel), célibataire, 0 enfant, fortune 0, sans confession."
+    },
+    "GE": {
+      "chef_lieu": "Genève",
+      "tax_year": 2026,
+      "points": {
+        "40000": {
+          "cantonal_communal": 3706,
+          "ifd": 198,
+          "total": 3904
+        },
+        "70000": {
+          "cantonal_communal": 10593,
+          "ifd": 968,
+          "total": 11561
+        },
+        "100000": {
+          "cantonal_communal": 17967,
+          "ifd": 2684,
+          "total": 20651
+        },
+        "150000": {
+          "cantonal_communal": 30803,
+          "ifd": 7076,
+          "total": 37879
+        },
+        "250000": {
+          "cantonal_communal": 58279,
+          "ifd": 19503,
+          "total": 77782
+        }
+      },
+      "cross_check_2025": {
+        "40000": {
+          "cantonal_communal": 3719,
+          "ifd": 198,
+          "total": 3917
+        },
+        "70000": {
+          "cantonal_communal": 10609,
+          "ifd": 968,
+          "total": 11577
+        },
+        "100000": {
+          "cantonal_communal": 17986,
+          "ifd": 2688,
+          "total": 20674
+        },
+        "150000": {
+          "cantonal_communal": 30827,
+          "ifd": 7081,
+          "total": 37908
+        },
+        "250000": {
+          "cantonal_communal": 58310,
+          "ifd": 19514,
+          "total": 77824
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV API_calculateSimpleTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID vérifié BFS 6621 (Genève), célibataire, 0 enfant, fortune 0, sans confession."
+    },
+    "JU": {
+      "chef_lieu": "Delémont",
+      "tax_year": 2026,
+      "points": {
+        "40000": {
+          "cantonal_communal": 4875,
+          "ifd": 198,
+          "total": 5073
+        },
+        "70000": {
+          "cantonal_communal": 11430,
+          "ifd": 968,
+          "total": 12398
+        },
+        "100000": {
+          "cantonal_communal": 18651,
+          "ifd": 2684,
+          "total": 21335
+        },
+        "150000": {
+          "cantonal_communal": 31852,
+          "ifd": 7076,
+          "total": 38928
+        },
+        "250000": {
+          "cantonal_communal": 58743,
+          "ifd": 19503,
+          "total": 78246
+        }
+      },
+      "cross_check_2025": {
+        "40000": {
+          "cantonal_communal": 4893,
+          "ifd": 198,
+          "total": 5091
+        },
+        "70000": {
+          "cantonal_communal": 11454,
+          "ifd": 968,
+          "total": 12422
+        },
+        "100000": {
+          "cantonal_communal": 18680,
+          "ifd": 2688,
+          "total": 21368
+        },
+        "150000": {
+          "cantonal_communal": 31881,
+          "ifd": 7081,
+          "total": 38962
+        },
+        "250000": {
+          "cantonal_communal": 58777,
+          "ifd": 19514,
+          "total": 78291
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV API_calculateSimpleTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID vérifié BFS 6711 (Delémont), célibataire, 0 enfant, fortune 0, sans confession."
+    }
+  }
+}

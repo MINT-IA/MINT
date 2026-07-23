@@ -1,6 +1,6 @@
 {
   "_doc": "Goldens de parité croisée RvC (beads MINT_nosync-axj). Backend rente_vs_capital.py = canonique (L2 comparer, ADR data-architecture) ; arbitrage_engine.dart = miroir fallback offline. Les DEUX suites (pytest test_rvc_parity_fixture.py + flutter rvc_parity_fixture_test.dart) pinent ces valeurs : toute dérive unilatérale casse la suite du côté qui dérive. Recalibration = backend d'abord, puis miroir Dart, puis régénérer ces expected AVEC citation.",
-  "_provenance": "Générés 2026-07-23 après unification -axj : impôt rente miroir (0.85 × IFD 2026 + taux effectif cantonal 100k clampé 0.6-1.5, marié ×0.80), coefficient capital marié PAR CANTON (audit swiss-brain 2026-04-18 Q5), horizon défaut 30, breakeven relatif (années après retraite).",
+  "_provenance": "Générés 2026-07-23 après unification -axj : impôt rente miroir (0.85 × IFD 2026 + taux effectif cantonal 100k clampé 0.6-1.5, marié ×0.80), coefficient capital marié PAR CANTON (audit swiss-brain 2026-04-18 Q5), horizon défaut 30, breakeven relatif (années après retraite). RÉGÉNÉRÉS 2026-07-23 (soir) après le modèle fiscal v2 -97h (interpolation 130 points ESTV — l'impôt rente change).",
   "tolerance_chf": 0.05,
   "cases": [
     {
@@ -15,10 +15,19 @@
         "is_married": false
       },
       "expected": {
-        "breakeven_year": 12,
-        "full_rente": { "terminal_value": 540318.51, "cumulative_tax_impact": 45385.18 },
-        "full_capital": { "terminal_value": 77374.05, "cumulative_tax_impact": 48400.0 },
-        "mixed": { "terminal_value": 578523.35, "cumulative_tax_impact": 47490.55 }
+        "breakeven_year": 13,
+        "full_rente": {
+          "terminal_value": 514276.07,
+          "cumulative_tax_impact": 71427.62
+        },
+        "full_capital": {
+          "terminal_value": 77374.05,
+          "cumulative_tax_impact": 48400.0
+        },
+        "mixed": {
+          "terminal_value": 560814.5,
+          "cumulative_tax_impact": 65199.4
+        }
       }
     },
     {
@@ -34,9 +43,18 @@
       },
       "expected": {
         "breakeven_year": 12,
-        "full_rente": { "terminal_value": 1004414.04, "cumulative_tax_impact": 70615.83 },
-        "full_capital": { "terminal_value": 0.0, "cumulative_tax_impact": 57761.25 },
-        "mixed": { "terminal_value": 1037379.97, "cumulative_tax_impact": 68067.49 }
+        "full_rente": {
+          "terminal_value": 1004450.6,
+          "cumulative_tax_impact": 70579.27
+        },
+        "full_capital": {
+          "terminal_value": 0.0,
+          "cumulative_tax_impact": 57761.25
+        },
+        "mixed": {
+          "terminal_value": 1037405.85,
+          "cumulative_tax_impact": 68041.61
+        }
       }
     },
     {
@@ -51,10 +69,19 @@
         "is_married": false
       },
       "expected": {
-        "breakeven_year": 12,
-        "full_rente": { "terminal_value": 619963.02, "cumulative_tax_impact": 51930.65 },
-        "full_capital": { "terminal_value": 0.0, "cumulative_tax_impact": 48400.0 },
-        "mixed": { "terminal_value": 633537.76, "cumulative_tax_impact": 51941.27 }
+        "breakeven_year": 13,
+        "full_rente": {
+          "terminal_value": 590088.27,
+          "cumulative_tax_impact": 81805.4
+        },
+        "full_capital": {
+          "terminal_value": 0.0,
+          "cumulative_tax_impact": 48400.0
+        },
+        "mixed": {
+          "terminal_value": 613222.94,
+          "cumulative_tax_impact": 72256.09
+        }
       }
     }
   ]

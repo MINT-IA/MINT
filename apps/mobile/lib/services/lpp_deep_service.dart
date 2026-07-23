@@ -1,9 +1,9 @@
 import 'dart:math';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
-import 'package:mint_mobile/services/tax_estimator_service.dart';
 
 // ============================================================================
 // LPP Deep Service — Sprint S15 (Chantier 4)
@@ -135,35 +135,25 @@ class RachatEchelonneSimulator {
 
     // --- Impôt de base (sans rachat) ---
     // Use NetIncomeBreakdown to convert gross → net (replaces hardcoded * 0.87)
-    final baseBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: revenuImposable,
-      canton: canton,
-      age: clampedAge,
-    );
-    final netMensuel = baseBreakdown.monthlyNetPayslip;
-    final impotSansRachat = TaxEstimatorService.estimateAnnualTax(
-      netMonthlyIncome: netMensuel,
-      cantonCode: canton,
-      civilStatus: civilStatus,
-      childrenCount: 0,
-      age: clampedAge,
+    // Beads -81n/-97h : l'ancien chemin imposable -> net (Newton-Raphson)
+    // -> impôt sur le net rendait le modèle NON CONVEXE (l'étalé sortait
+    // PIRE que le bloc — impossible avec un impôt progressif) et inversait
+    // la conclusion vs le coach. Le modèle v2 partagé taxe le revenu
+    // IMPOSABLE directement (miroir backend, 130 points ESTV).
+    final isMarriedCivil = civilStatus == 'married';
+    final impotSansRachat = estimateIncomeTaxV2(
+      revenuImposable,
+      canton,
+      isMarried: isMarriedCivil,
     );
 
     // --- Bloc (1 an) ---
     // On ne peut déduire que min(rachat, revenu) en 1 an (LIFD art. 33).
     final blocDeductible = clampedRachat.clamp(0.0, revenuImposable);
-    final blocBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: revenuImposable - blocDeductible,
-      canton: canton,
-      age: clampedAge,
-    );
-    final netMensuelApresBloc = blocBreakdown.monthlyNetPayslip;
-    final impotApresBloc = TaxEstimatorService.estimateAnnualTax(
-      netMonthlyIncome: netMensuelApresBloc,
-      cantonCode: canton,
-      civilStatus: civilStatus,
-      childrenCount: 0,
-      age: clampedAge,
+    final impotApresBloc = estimateIncomeTaxV2(
+      revenuImposable - blocDeductible,
+      canton,
+      isMarried: isMarriedCivil,
     );
     final economieBlocTotal =
         (impotSansRachat - impotApresBloc).clamp(0.0, impotSansRachat);
@@ -210,18 +200,10 @@ class RachatEchelonneSimulator {
     double totalEconomieSiCapital = 0;
     int tranchesEnFenetre = 0;
 
-    final echelonBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: revenuImposable - rachatAnnuelEffectif,
-      canton: canton,
-      age: clampedAge,
-    );
-    final netMensuelApresEchelon = echelonBreakdown.monthlyNetPayslip;
-    final impotApresEchelon = TaxEstimatorService.estimateAnnualTax(
-      netMonthlyIncome: netMensuelApresEchelon,
-      cantonCode: canton,
-      civilStatus: civilStatus,
-      childrenCount: 0,
-      age: clampedAge,
+    final impotApresEchelon = estimateIncomeTaxV2(
+      revenuImposable - rachatAnnuelEffectif,
+      canton,
+      isMarried: isMarriedCivil,
     );
     final economieAnnuelle =
         (impotSansRachat - impotApresEchelon).clamp(0.0, impotSansRachat);

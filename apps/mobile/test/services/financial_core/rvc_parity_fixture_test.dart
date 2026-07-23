@@ -17,27 +17,24 @@ import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 
 void main() {
-  test('arrondi miroir : demi-centime en half-even comme round() Python', () {
-    // Review Codex PR #978 : rente 5'000 VD célibataire -> total exact
-    // 379.695 ; round(x, 2) Python (half-even) donne 379.69, l'arrondi
-    // naïf Dart donnait 379.70. Le miroir doit être exact au centime.
+  test('miroir exact au centime sur les cas historiques d\'arrondi', () {
+    // Cas construits par les reviews Codex #978 (demi-centime, tie binaire
+    // 0.125) sous le modèle v1. Sous le modèle v2 -97h (interpolation 130
+    // points ESTV) ces entrées ne tombent plus sur des frontières de tie,
+    // mais les verrous restent : la valeur Dart doit égaler EXACTEMENT la
+    // sortie du backend v2 (_estimate_income_tax_on_rente, citée), et le
+    // mécanisme _roundPyMirror2 (half-even décimal) est inchangé.
     expect(
       ArbitrageEngine.estimateIncomeTaxOnRenteRvc(5000, 'VD', false),
-      379.69,
+      602.01, // == backend v2 (sonde python 2026-07-23)
     );
-  });
-
-  test('arrondi miroir : tie binaire EXACT en half-even (contre-exemple Codex)', () {
-    // Review round 3 : rente 1.6460580202530979 VD -> impôt pré-arrondi
-    // EXACTEMENT 0.125 (représentable en binaire). round() Python donne
-    // 0.12 (half-even) ; toStringAsFixed seul donnerait 0.13.
     expect(
       ArbitrageEngine.estimateIncomeTaxOnRenteRvc(
         1.6460580202530979,
         'VD',
         false,
       ),
-      0.12,
+      0.2, // == backend v2
     );
   });
 
