@@ -683,7 +683,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             color: selected ? MintColors.primary : MintColors.transparent,
             borderRadius: BorderRadius.circular(7),
           ),
-          child: Text(label, style: MintTextStyles.labelSmall(color: selected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontSize: 12)),
+          child: Text(label, style: MintTextStyles.labelMedium(color: selected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600)),
         ),
       ),
     );
@@ -1007,7 +1007,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(color: lineColor, shape: BoxShape.circle),
-                  child: Center(child: Text('${year.annee}', style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w800, fontSize: 14))),
+                  child: Center(child: Text('${year.annee}', style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800))),
                 ),
                 if (!isLast)
                   Expanded(child: Container(width: 3, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [lineColor, Color.lerp(MintColors.primary, MintColors.success, (index + 2) / total)!]), borderRadius: BorderRadius.circular(2)))),
@@ -1048,7 +1048,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(color: lineColor.withAlpha(25), borderRadius: BorderRadius.circular(8)),
-                        child: Text('${lacunePercent.toStringAsFixed(0)}\u00a0%', style: MintTextStyles.micro(color: lineColor).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal, fontSize: 10)),
+                        child: Text('${lacunePercent.toStringAsFixed(0)}\u00a0%', style: MintTextStyles.micro(color: lineColor).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal)),
                       ),
                     ],
                   ),
@@ -1160,7 +1160,8 @@ class _WaterfallPainter extends CustomPainter {
       canvas.drawLine(Offset(chartLeft, y), Offset(chartRight, y), gridPaint);
       textPainter.text = TextSpan(
         text: '${_brackets[_brackets.length - 1 - i].label}\n${_brackets[_brackets.length - 1 - i].rate}%',
-        style: const TextStyle(fontSize: 10, color: MintColors.textMuted, height: 1.3),
+        style: MintTextStyles.micro(color: MintColors.textMuted)
+            .copyWith(fontStyle: FontStyle.normal, height: 1.3),
       );
       textPainter.layout(maxWidth: 60);
       textPainter.paint(canvas, Offset(4, y + 2));
@@ -1177,22 +1178,22 @@ class _WaterfallPainter extends CustomPainter {
     _drawDeductionBar(canvas: canvas, x: blocX, width: barWidth, deduction: blocDeduction, chartTop: chartTop, chartBottom: chartBottom, color: MintColors.warning);
     _drawDeductionBar(canvas: canvas, x: echelX, width: barWidth, deduction: echelonneDeduction, chartTop: chartTop, chartBottom: chartBottom, color: MintColors.success);
 
-    textPainter.text = const TextSpan(text: 'Bloc', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: MintColors.textSecondary));
+    textPainter.text = TextSpan(text: 'Bloc', style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600));
     textPainter.layout();
     textPainter.paint(canvas, Offset(blocX + barWidth / 2 - textPainter.width / 2, chartBottom + 8));
 
     final echelLabel = 'x$horizon';
-    textPainter.text = TextSpan(text: echelLabel, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: MintColors.textSecondary));
+    textPainter.text = TextSpan(text: echelLabel, style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600));
     textPainter.layout();
     textPainter.paint(canvas, Offset(echelX + barWidth / 2 - textPainter.width / 2, chartBottom + 8));
 
     final blocBarHeight = _getBarHeight(blocDeduction, chartHeight);
-    textPainter.text = TextSpan(text: 'CHF ${_formatShort(blocDeduction)}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.primary));
+    textPainter.text = TextSpan(text: 'CHF ${_formatShort(blocDeduction)}', style: MintTextStyles.micro(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal));
     textPainter.layout();
     textPainter.paint(canvas, Offset(blocX + barWidth / 2 - textPainter.width / 2, (chartBottom - blocBarHeight - 14).clamp(0.0, chartBottom)));
 
     final echelBarHeight = _getBarHeight(echelonneDeduction, chartHeight);
-    textPainter.text = TextSpan(text: 'CHF ${_formatShort(echelonneDeduction)}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.primary));
+    textPainter.text = TextSpan(text: 'CHF ${_formatShort(echelonneDeduction)}', style: MintTextStyles.micro(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal));
     textPainter.layout();
     textPainter.paint(canvas, Offset(echelX + barWidth / 2 - textPainter.width / 2, (chartBottom - echelBarHeight - 14).clamp(0.0, chartBottom)));
   }
