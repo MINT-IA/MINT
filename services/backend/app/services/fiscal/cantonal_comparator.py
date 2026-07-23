@@ -134,16 +134,16 @@ FEDERAL_BRACKETS = [
 ]
 
 DISCLAIMER = (
-    "Estimations basees sur le bareme IFD 2026 et des taux cantonaux simplifies. "
+    "Estimations basées sur le barème IFD 2026 et des taux cantonaux simplifiés. "
     "Les taux effectifs varient selon la commune, la fortune, "
-    "et les deductions individuelles. Consulte ton administration "
-    "fiscale cantonale ou un ou une specialiste fiscal·e. "
+    "et les déductions individuelles. Consulte ton administration "
+    "fiscale cantonale ou un ou une spécialiste fiscal·e. "
     "Ne constitue pas un conseil fiscal (LSFin)."
 )
 
 SOURCES = [
-    "Administration federale des contributions — Charge fiscale en Suisse 2024",
-    "LIFD art. 36 (bareme federal)",
+    "Administration fédérale des contributions — Charge fiscale en Suisse 2024",
+    "LIFD art. 36 (barème fédéral)",
     "LHID art. 1 (harmonisation fiscale)",
 ]
 

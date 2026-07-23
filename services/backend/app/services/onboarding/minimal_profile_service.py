@@ -211,8 +211,8 @@ def _estimate_avs_monthly(gross_salary: float, contribution_years: int) -> float
     """Estimate monthly AVS rente based on RAMD and contribution years.
 
     Uses LAVS art. 34 formula:
-    - If RAMD <= 14'700 CHF: minimum rente (1'260 CHF/month)
-    - If RAMD >= 88'200 CHF: maximum rente (2'520 CHF/month)
+    - If RAMD <= 15'120 CHF: minimum rente (1'260 CHF/month)
+    - If RAMD >= 90'720 CHF: maximum rente (2'520 CHF/month)
     - Between: linear interpolation
 
     Then apply reduction for incomplete contribution years (< 44).

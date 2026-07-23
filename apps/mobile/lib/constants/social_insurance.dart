@@ -193,11 +193,12 @@ const double avsCotisationMinIndependant = 530.0;
 const double avsSeuilRevenuMinIndependant = 10100.0;
 
 /// Bonus par annee d'ajournement de la rente AVS (LAVS art. 39).
+// Mémento OFAS 3.04 « Flexibilisation de la retraite » (audit -zaw).
 const Map<int, double> avsDeferralBonus = {
   1: 0.052, // +5.2%
-  2: 0.106, // +10.6%
-  3: 0.164, // +16.4%
-  4: 0.227, // +22.7%
+  2: 0.108, // +10.8%
+  3: 0.171, // +17.1%
+  4: 0.240, // +24.0%
   5: 0.315, // +31.5%
 };
 

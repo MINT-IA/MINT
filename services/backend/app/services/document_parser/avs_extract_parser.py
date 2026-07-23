@@ -189,7 +189,7 @@ _MAX_CONFIDENCE_DELTA = 25.0
 _DISCLAIMER = (
     "Cet outil est educatif et ne constitue pas un conseil financier, "
     "fiscal ou juridique personnalise. Les valeurs extraites sont indicatives "
-    "et doivent etre verifiees. Consulte un-e specialiste pour ta situation "
+    "et doivent être vérifiées. Consulte un-e spécialiste pour ta situation "
     "personnelle (LSFin art. 3). L'image source n'est jamais stockee."
 )
 
@@ -435,9 +435,9 @@ def _cross_validate_avs(result: ExtractionResult) -> None:
             ramd_f.needs_review = True
         elif ramd_f.value > 200_000:
             result.warnings.append(
-                f"Le RAMD ({ramd_f.value:,.0f} CHF) semble tres eleve. "
-                "Le RAMD est plafonne a environ 88'200 CHF pour le calcul de la rente. "
-                "Verifie ce montant."
+                f"Le RAMD ({ramd_f.value:,.0f} CHF) semble très élevé. "
+                "Le RAMD est plafonné à 90'720 CHF pour le calcul de la rente. "
+                "Vérifie ce montant."
             )
             ramd_f.needs_review = True
 
@@ -531,7 +531,7 @@ def estimate_avs_confidence_delta(
     Le delta depend de:
     - Quels champs ont ete extraits
     - L'impact de chaque champ sur la precision des projections
-    - Quels champs etaient deja renseignes dans le profil actuel
+    - Quels champs étaient déjà renseignés dans le profil actuel
 
     Args:
         extraction: Resultat de l'extraction AVS.

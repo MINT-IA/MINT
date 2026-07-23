@@ -561,7 +561,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 39",
         source_type="law",
-        description="Supplément de rente pour 2 ans d'ajournement : +10.6%.",
+        description="Supplément de rente pour 2 ans d'ajournement : +10.8%.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
@@ -572,7 +572,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 39",
         source_type="law",
-        description="Supplément de rente pour 3 ans d'ajournement : +16.4%.",
+        description="Supplément de rente pour 3 ans d'ajournement : +17.1%.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
@@ -583,7 +583,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 39",
         source_type="law",
-        description="Supplément de rente pour 4 ans d'ajournement : +22.7%.",
+        description="Supplément de rente pour 4 ans d'ajournement : +24.0%.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(

@@ -64,7 +64,7 @@ void main() {
 
     test('1a. AVS Julien — individual monthly rente', () {
       // Julien: born 1977, age 49, contributing since 20 → 29 years so far
-      // Salary 122'207/an > 88'200 → max RAMD → should get near-max rente
+      // Salary 122'207/an > 90'720 → max RAMD → should get near-max rente
       // At 65: 29 current + 16 future = 45 → capped at 44 → full contribution
       final rente = AvsCalculator.computeMonthlyRente(
         currentAge: 49,

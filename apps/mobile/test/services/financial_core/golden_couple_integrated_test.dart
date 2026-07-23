@@ -59,7 +59,7 @@ const double kCombinedSalary = 189207.0;
 // ══════════════════════════════════════════════════════════════════════════════
 //  AVS DERIVATION (reference, not from law lookup at runtime)
 //
-//  Julien: salary > avsRAMDMax (88'200) → renteFromRAMD = 2520 CHF/mois
+//  Julien: salary > avsRAMDMax (90'720) → renteFromRAMD = 2520 CHF/mois
 //          currentYears = 49-20 = 29, futureYears = 65-49 = 16 → total 45,
 //          capped at 44 → gapFactor = 1.0 → rente = 2520 CHF/mois
 //
@@ -88,7 +88,7 @@ void main() {
 
   group('AvsCalculator — individual rentes (LAVS art. 34)', () {
     test('G1.1 Julien renteFromRAMD returns max (salary > avsRAMDMax)', () {
-      // Salary 122'207 exceeds avsRAMDMax (88'200) → must return max rente.
+      // Salary 122'207 exceeds avsRAMDMax (90'720) → must return max rente.
       final rente = AvsCalculator.renteFromRAMD(kJulienSalary);
       expect(
         rente,

@@ -515,36 +515,11 @@ disability-gap and APG-specific calculations, but must NOT be added again here.
 # ══════════════════════════════════════════════════════════════════════════════
 
 AVS_ECHELLE_44: List[Tuple[float, float]] = [
-    (14_700, 1_260),
-    (17_640, 1_299),
-    (20_580, 1_338),
-    (23_520, 1_377),
-    (26_460, 1_416),
-    (29_400, 1_470),
-    (32_340, 1_524),
-    (35_280, 1_578),
-    (38_220, 1_632),
-    (41_160, 1_686),
-    (44_100, 1_743),
-    (47_040, 1_800),
-    (49_980, 1_857),
-    (52_920, 1_914),
-    (55_860, 1_971),
-    (58_800, 2_028),
-    (61_740, 2_085),
-    (64_680, 2_142),
-    (67_620, 2_199),
-    (70_560, 2_256),
-    (73_500, 2_313),
-    (76_440, 2_370),
-    (79_380, 2_427),
-    (82_320, 2_462),
-    (85_260, 2_491),
-    (88_200, 2_520),
+    tuple(row) for row in _get("avs.echelle44")  # type: ignore[arg-type]
 ]
 """Echelle 44 — table officielle OFAS (rentes mensuelles AVS, 44 ans de cotisation).
-Source : Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025).
-Format: (RAMD CHF/an, rente mensuelle CHF/mois)."""
+Alimentée par le registre (avs.echelle44 — doc OFAS 318.117.011 p. 20, 51 paliers).
+Format: (RAMD CHF/an « jusqu'à », rente mensuelle CHF/mois)."""
 
 
 def rente_from_ramd(gross_annual_salary: float) -> float:
