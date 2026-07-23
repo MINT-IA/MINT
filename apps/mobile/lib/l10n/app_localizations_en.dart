@@ -24180,4 +24180,9 @@ class SEn extends S {
   String repaymentBudgetEffectiveNote(String montant) {
     return 'Your minimum payments total CHF $montant — the plan uses this amount';
   }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Entered budget CHF $saisi, the plan uses CHF $effectif (minimum payments). Button, edits the budget.';
+  }
 }

@@ -11610,5 +11610,16 @@
         "type": "String"
       }
     }
+  },
+  "semanticsRepaymentBudgetEffective": "Orçamento inserido CHF {saisi}, o plano usa CHF {effectif} (prestações mínimas). Botão, edita o orçamento.",
+  "@semanticsRepaymentBudgetEffective": {
+    "placeholders": {
+      "saisi": {
+        "type": "String"
+      },
+      "effectif": {
+        "type": "String"
+      }
+    }
   }
 }

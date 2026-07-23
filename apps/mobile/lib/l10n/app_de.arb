@@ -11607,5 +11607,16 @@
         "type": "String"
       }
     }
+  },
+  "semanticsRepaymentBudgetEffective": "Eingegebenes Budget CHF {saisi}, der Plan rechnet mit CHF {effectif} (Mindestraten). Schaltfläche, ändert das Budget.",
+  "@semanticsRepaymentBudgetEffective": {
+    "placeholders": {
+      "saisi": {
+        "type": "String"
+      },
+      "effectif": {
+        "type": "String"
+      }
+    }
   }
 }

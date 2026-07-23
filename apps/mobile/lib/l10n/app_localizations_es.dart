@@ -24304,4 +24304,9 @@ class SEs extends S {
   String repaymentBudgetEffectiveNote(String montant) {
     return 'Tus cuotas mínimas suman CHF $montant — el plan se basa en este importe';
   }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Presupuesto introducido CHF $saisi, el plan usa CHF $effectif (cuotas mínimas). Botón, edita el presupuesto.';
+  }
 }

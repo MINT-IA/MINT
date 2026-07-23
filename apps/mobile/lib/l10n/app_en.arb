@@ -11627,5 +11627,16 @@
         "type": "String"
       }
     }
+  },
+  "semanticsRepaymentBudgetEffective": "Entered budget CHF {saisi}, the plan uses CHF {effectif} (minimum payments). Button, edits the budget.",
+  "@semanticsRepaymentBudgetEffective": {
+    "placeholders": {
+      "saisi": {
+        "type": "String"
+      },
+      "effectif": {
+        "type": "String"
+      }
+    }
   }
 }

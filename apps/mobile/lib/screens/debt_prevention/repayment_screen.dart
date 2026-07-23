@@ -115,6 +115,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   final List<_DebtInput> _dettes = [];
 
   double _budgetMensuel = 800;
+  // -g5v r2 : le déficit réel exige que le BUDGET ait été saisi — éditer
+  // un taux ne fait pas du 800 par défaut un budget voulu.
+  bool _budgetTouched = false;
   double _monthlyIncome = 0;
 
   void _hydrateFromProfile() {
@@ -248,7 +251,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     // Budget SAISI insuffisant -> déficit RÉEL (négatif
                     // légitime, mode critique mérité). Placeholder jamais
                     // touché -> budget effectif (pas de critique fictif).
-                    monthlyMargin: _hasUserInteracted
+                    monthlyMargin: _budgetTouched
                         ? _budgetMensuel - _sumMensualitesMin
                         : _budgetEffectif - _sumMensualitesMin,
                     daysSinceLastLate: 0,
@@ -566,6 +569,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     bool decimals = false,
     required ValueChanged<double> onChanged,
   }) {
+    // -g5v r2 : dès l'ouverture d'un éditeur, geler l'hydratation — un
+    // notify pendant la saisie reconstruisait la liste et orphelinait
+    // l'objet dette capturé (la saisie disparaissait).
+    _hasUserInteracted = true;
     final controller = TextEditingController(
       text: decimals
           ? currentValue.toStringAsFixed(1)
@@ -712,13 +719,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         min: 200,
         max: 5000,
         prefix: 'CHF',
-        onChanged: (v) => setState(() { _hasUserInteracted = true; _budgetMensuel = v; }),
+        onChanged: (v) => setState(() { _hasUserInteracted = true; _budgetTouched = true; _budgetMensuel = v; }),
       ),
       child: Semantics(
         button: true,
         label: _dettes.isNotEmpty && _budgetEffectif > _budgetMensuel
-            ? S.of(context)!.semanticsRepaymentBudget(
-                formatChf(_budgetEffectif))
+            ? S.of(context)!.semanticsRepaymentBudgetEffective(
+                formatChf(_budgetMensuel), formatChf(_budgetEffectif))
             : S.of(context)!.semanticsRepaymentBudget(
                 formatChf(_budgetMensuel)),
         child: Container(

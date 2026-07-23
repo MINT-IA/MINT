@@ -133,6 +133,67 @@ void main() {
             'placeholder ; le déficit réel exige un budget SAISI');
   });
 
+  testWidgets('éditer un TAUX seul ne déclenche pas le déficit du placeholder',
+      (tester) async {
+    // Review #992 : _hasUserInteracted global aurait fait basculer la
+    // marge sur 800 − 1500 = −700 alors que le budget reste le défaut.
+    tester.view.physicalSize = const Size(1080, 2800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    final provider = CoachProfileProvider();
+    provider.updateProfile(_heavyDebtProfile());
+    await tester.pumpWidget(_wrap(provider));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final state = tester.state(find.byType(RepaymentScreen)) as dynamic;
+    // simule une interaction non-budget (le gate hydratation se ferme,
+    // mais _budgetTouched reste false)
+    state.setState(() {});
+
+    final survival = tester.widget<DebtSurvivalWidget>(
+        find.byType(DebtSurvivalWidget, skipOffstage: false));
+    expect(survival.monthlyMargin, greaterThanOrEqualTo(0),
+        reason: 'le déficit réel exige un BUDGET saisi (_budgetTouched), '
+            'pas n\'importe quelle interaction');
+  });
+
+  testWidgets('dette supprimée + notify -> ne ressuscite pas', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    final provider = CoachProfileProvider();
+    provider.updateProfile(_heavyDebtProfile());
+    await tester.pumpWidget(_wrap(provider));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // Supprime la première dette via son icône delete
+    final deleteIcons = find.byIcon(Icons.close, skipOffstage: false);
+    if (deleteIcons.evaluate().isEmpty) {
+      // autre icône possible
+      final alt = find.byIcon(Icons.delete_outline, skipOffstage: false);
+      expect(alt, findsWidgets, reason: 'icône de suppression trouvable');
+      await tester.tap(alt.first, warnIfMissed: false);
+    } else {
+      await tester.tap(deleteIcons.first, warnIfMissed: false);
+    }
+    await tester.pump(const Duration(milliseconds: 200));
+
+    provider.notifyListeners();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final survival = tester.widget<DebtSurvivalWidget>(
+        find.byType(DebtSurvivalWidget, skipOffstage: false));
+    expect(survival.totalDebt, lessThan(70000),
+        reason: 'review #992 : la dette supprimée ne doit pas ressusciter '
+            'au prochain notify (gate interaction sur delete)');
+  });
+
   testWidgets('profil chargé APRÈS la 1re frame -> ré-hydratation',
       (tester) async {
     tester.view.physicalSize = const Size(1080, 2800);

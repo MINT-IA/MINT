@@ -13119,10 +13119,21 @@
   },
   "reportSpouseIncomeMissingPrompt": "Renseigne le revenu de ton/ta conjoint·e : sa rente AVS est estimée au minimum légal en attendant.",
   "reportSpouseDataMissingPrompt": "Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n’est pas estimée en attendant.",
-  "repaymentBudgetEffectiveNote": "Tes mensualités minimales totalisent CHF {montant} — le plan se base sur ce montant",
+  "repaymentBudgetEffectiveNote": "Tes mensualités minimales totalisent CHF {montant} — le plan se base sur ce montant",
   "@repaymentBudgetEffectiveNote": {
     "placeholders": {
       "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "semanticsRepaymentBudgetEffective": "Budget saisi CHF {saisi}, le plan se base sur CHF {effectif} (mensualités minimales). Bouton, modifie le budget.",
+  "@semanticsRepaymentBudgetEffective": {
+    "placeholders": {
+      "saisi": {
+        "type": "String"
+      },
+      "effectif": {
         "type": "String"
       }
     }

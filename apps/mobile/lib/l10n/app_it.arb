@@ -11610,5 +11610,16 @@
         "type": "String"
       }
     }
+  },
+  "semanticsRepaymentBudgetEffective": "Budget inserito CHF {saisi}, il piano usa CHF {effectif} (rate minime). Pulsante, modifica il budget.",
+  "@semanticsRepaymentBudgetEffective": {
+    "placeholders": {
+      "saisi": {
+        "type": "String"
+      },
+      "effectif": {
+        "type": "String"
+      }
+    }
   }
 }

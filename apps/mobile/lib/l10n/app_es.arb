@@ -11610,5 +11610,16 @@
         "type": "String"
       }
     }
+  },
+  "semanticsRepaymentBudgetEffective": "Presupuesto introducido CHF {saisi}, el plan usa CHF {effectif} (cuotas mínimas). Botón, edita el presupuesto.",
+  "@semanticsRepaymentBudgetEffective": {
+    "placeholders": {
+      "saisi": {
+        "type": "String"
+      },
+      "effectif": {
+        "type": "String"
+      }
+    }
   }
 }

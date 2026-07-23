@@ -24366,4 +24366,9 @@ class SIt extends S {
   String repaymentBudgetEffectiveNote(String montant) {
     return 'Le tue rate minime totalizzano CHF $montant — il piano si basa su questo importo';
   }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Budget inserito CHF $saisi, il piano usa CHF $effectif (rate minime). Pulsante, modifica il budget.';
+  }
 }
