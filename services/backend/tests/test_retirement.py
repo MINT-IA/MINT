@@ -596,3 +596,37 @@ class TestRetirementEndpoints:
         assert "penaliteOuBonusPct" in data
         assert "renteCoupleeMensuelle" in data or "renteCoupleeMensuelle" not in data
         assert data["scenario"] == "anticipation"
+
+
+class TestLppConversionCanonicalTax:
+    """Beads MINT_nosync-amq : sans override, l'impôt rente vient du modèle
+    v2 canonique (fin du flat 25% qui surestimait ~2x)."""
+
+    def test_default_uses_canonical_model(self):
+        from app.services.fiscal.cantonal_comparator import (
+            estimate_income_tax_on_rente,
+        )
+        from app.services.retirement.lpp_conversion_service import (
+            LppConversionService,
+        )
+
+        result = LppConversionService().compare(capital_lpp=500_000, canton="ZH")
+        rente_brute = result.option_rente_annuelle
+        assert result.rente_impot_annuel == estimate_income_tax_on_rente(
+            rente_brute, "ZH"
+        ), "défaut (None) -> convention canonique partagée, pas un flat"
+        # Le flat 25% donnait 8'500 sur 34'000 de rente — le modèle v2 est
+        # nettement plus bas pour une rente typique.
+        assert result.rente_impot_annuel < rente_brute * 0.25
+
+    def test_explicit_override_still_flat(self):
+        from app.services.retirement.lpp_conversion_service import (
+            LppConversionService,
+        )
+
+        result = LppConversionService().compare(
+            capital_lpp=500_000, taux_marginal_revenu=0.25
+        )
+        assert result.rente_impot_annuel == round(
+            result.option_rente_annuelle * 0.25, 2
+        )

@@ -204,6 +204,9 @@ ALLOW = {
     "apps/mobile/test/services/rachat_parity_fixture_test.dart",
     "services/backend/app/services/lpp_deep/rachat_echelonne_service.py",
     "services/backend/tests/test_rachat_parity_fixture.py",
+    # PR lpp-conversion-canonical (bead -amq) : 4e moteur RvC au modèle v2
+    "services/backend/app/services/retirement/lpp_conversion_service.py",
+    "services/backend/tests/test_retirement.py",
     "tools/fixtures/rachat_parity_v1.json",
     # PR rachat-79b-window (bead -a6e) : fenêtre art. 79b al. 3 flux live
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",

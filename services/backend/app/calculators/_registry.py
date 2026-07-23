@@ -98,6 +98,13 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
         "life_events_served": ["taxes"],
         "output_type": "L1",
     },
+    "cantonal_comparator__estimate_income_tax_on_rente": {
+        "name": "cantonal_comparator__estimate_income_tax_on_rente",
+        "file": "app/services/fiscal/cantonal_comparator.py",
+        "profile_fields_needed": ["rente_annuelle", "canton", "is_married"],
+        "life_events_served": ["taxes"],
+        "output_type": "L1",
+    },
     "church_tax_service__ChurchTaxService_compare_church_tax_all_cantons": {
         "name": "church_tax_service__ChurchTaxService_compare_church_tax_all_cantons",
         "file": "app/services/fiscal/church_tax_service.py",
@@ -582,6 +589,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "calendrier_retraits__compare_calendrier_retraits",
         "cantonal_comparator__CantonalComparator_estimate_tax",
         "cantonal_comparator__estimate_income_tax",
+        "cantonal_comparator__estimate_income_tax_on_rente",
         "church_tax_service__ChurchTaxService_estimate_church_tax",
         "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage",
         "concubinage_service__ConcubinageService_estimate_inheritance_tax",
@@ -779,6 +787,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
     "is_married": {
         "calendrier_retraits__compare_calendrier_retraits",
         "cantonal_comparator__estimate_income_tax",
+        "cantonal_comparator__estimate_income_tax_on_rente",
         "concubinage_service__ConcubinageService_estimate_inheritance_tax",
         "location_vs_propriete__compare_location_vs_propriete",
         "rachat_vs_marche__compare_rachat_vs_marche",
@@ -895,6 +904,9 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "allocation_annuelle__compare_allocation_annuelle",
         "location_vs_propriete__compare_location_vs_propriete",
         "rachat_vs_marche__compare_rachat_vs_marche",
+    },
+    "rente_annuelle": {
+        "cantonal_comparator__estimate_income_tax_on_rente",
     },
     "rente_annuelle_proposee": {
         "rente_vs_capital__compare_rente_vs_capital",

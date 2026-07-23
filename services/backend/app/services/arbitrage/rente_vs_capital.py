@@ -68,33 +68,11 @@ _SOURCES = [
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _estimate_income_tax_on_rente(rente_annuelle: float, canton: str, is_married: bool) -> float:
-    """Estimate annual income tax on rente income.
+    """Wrapper de compat interne — la convention canonique vit dans
+    fiscal.cantonal_comparator.estimate_income_tax_on_rente (beads -amq)."""
+    from app.services.fiscal.cantonal_comparator import estimate_income_tax_on_rente
 
-    Uses federal progressive brackets (LIFD art. 36) + cantonal effective rates
-    from CantonalComparator for a realistic estimation instead of multiplier hack.
-
-    Args:
-        rente_annuelle: Annual rente income (CHF).
-        canton: Canton code.
-        is_married: Whether the person is married (splitting benefit).
-
-    Returns:
-        Estimated annual income tax (CHF).
-    """
-    from app.services.fiscal.cantonal_comparator import estimate_income_tax
-
-    # Revenu imposable: ~85% of rente after standard deductions
-    # (assurance maladie, frais médicaux, déduction forfaitaire — LIFD art. 33)
-    # This is a simplification; actual deductions depend on personal situation.
-    # Modèle fiscal partagé (beads -81n) : income_factor_base = rente BRUTE,
-    # comportement historique verrouillé par rvc_parity_v1.json + le miroir
-    # Dart estimateIncomeTaxOnRenteRvc.
-    return estimate_income_tax(
-        rente_annuelle * 0.85,
-        canton,
-        is_married=is_married,
-        income_factor_base=rente_annuelle,
-    )
+    return estimate_income_tax_on_rente(rente_annuelle, canton, is_married=is_married)
 
 
 def _get_capital_tax(capital: float, canton: str, is_married: bool) -> float:
