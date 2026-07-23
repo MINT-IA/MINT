@@ -160,8 +160,13 @@ class LppConversionService:
         )
 
         premier_eclairage = (
-            f"Rente = CHF {rente_nette_mensuelle:,.0f}/mois net a vie | "
-            f"Capital = CHF {capital_net:,.0f} net (breakeven a {breakeven} ans)"
+            f"Rente = CHF {rente_nette_mensuelle:,.0f}/mois net à vie | "
+            f"Capital = CHF {capital_net:,.0f} net "
+            + (
+                f"(breakeven à {breakeven} ans)"
+                if breakeven_atteint
+                else f"(pas de croisement avant {life_expectancy} ans)"
+            )
         )
 
         return LppConversionResult(

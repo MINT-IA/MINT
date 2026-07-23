@@ -630,3 +630,19 @@ class TestLppConversionCanonicalTax:
         assert result.rente_impot_annuel == round(
             result.option_rente_annuelle * 0.25, 2
         )
+
+    def test_no_crossover_is_said_not_fabricated(self):
+        """Review #989 r2 : horizon court -> le cumul de rente ne rattrape
+        jamais le capital ; les DEUX chaînes user-facing doivent le dire au
+        lieu d'afficher un breakeven fabriqué à life_expectancy."""
+        from app.services.retirement.lpp_conversion_service import (
+            LppConversionService,
+        )
+
+        result = LppConversionService().compare(
+            capital_lpp=500_000, canton="ZH", retirement_age=65,
+            life_expectancy=70,
+        )
+        assert "pas de croisement" in result.premier_eclairage
+        assert "ne rattrape pas" in result.recommandation_neutre
+        assert f"breakeven à" not in result.premier_eclairage
