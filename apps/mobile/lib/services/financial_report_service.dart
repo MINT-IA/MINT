@@ -80,6 +80,16 @@ class FinancialReportService {
       // Fallback: confidence remains 0 if profile cannot be built
     }
 
+    // -pd4 : la borne prudente conjoint (revenu inconnu) doit être DITE.
+    if (profile.isMarried && profile.spouseMonthlyNetIncome == null) {
+      enrichmentPrompts = [
+        ...enrichmentPrompts,
+        l?.reportSpouseIncomeMissingPrompt ??
+            'Renseigne le revenu de ton/ta conjoint\u00b7e\u00a0: sa rente AVS est '
+                'estimée au minimum légal en attendant.',
+      ];
+    }
+
     final pillar3aHasLpp = _hasPillar3aLppAffiliation(profile);
     final pillar3aMaxApplicable = _applicablePillar3aMax(
       profile,
@@ -976,13 +986,19 @@ class FinancialReportService {
               birthYear: spouseBirthYear, isFemale: spouseIsFemale)
           : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble())
               .toInt();
-      // Use spouse's income when available; fall back to user's salary
+      // Beads MINT_nosync-pd4 (Codex review PR #976) : l'ancien fallback
+      // clonait le salaire de l'UTILISATEUR sur le conjoint sans revenu
+      // renseigné — fabrication de données qui gonflait la rente couple.
+      // Honnête : revenu inconnu -> borne PRUDENTE = rente minimale légale
+      // (RAMD <= minimum -> 1'260/mois) x gapFactor conjoint. La limite est
+      // dite via un prompt d'enrichissement au call site — jamais une
+      // estimation basse silencieuse.
       final spouseGrossAnnual = profile.spouseMonthlyNetIncome != null
           ? NetIncomeBreakdown.estimateBrutFromNet(
               profile.spouseMonthlyNetIncome! * 12,
               age: spouseAge,
             )
-          : grossAnnualSalary;
+          : avsRAMDMin;
       final spouseRente = AvsCalculator.computeMonthlyRente(
         currentAge: spouseAge,
         retirementAge: spouseRefAge,

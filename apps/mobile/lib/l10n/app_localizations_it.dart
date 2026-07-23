@@ -24353,4 +24353,8 @@ class SIt extends S {
 
   @override
   String get coupleMonoIncomeCta => 'Aggiungi il suo reddito con il coach';
+
+  @override
+  String get reportSpouseIncomeMissingPrompt =>
+      'Aggiungi il reddito del/della coniuge: la sua rendita AVS è stimata al minimo legale nel frattempo.';
 }

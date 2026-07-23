@@ -42453,6 +42453,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ajouter son revenu avec le coach'**
   String get coupleMonoIncomeCta;
+
+  /// No description provided for @reportSpouseIncomeMissingPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne le revenu de ton/ta conjoint·e : sa rente AVS est estimée au minimum légal en attendant.'**
+  String get reportSpouseIncomeMissingPrompt;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -11600,5 +11600,6 @@
   "coupleMonoIncomeCta": "Añadir sus ingresos con el coach",
   "@coupleMonoIncomeCta": {
     "description": "CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)"
-  }
+  },
+  "reportSpouseIncomeMissingPrompt": "Añade los ingresos de tu cónyuge: su renta AVS se estima en el mínimo legal hasta entonces."
 }

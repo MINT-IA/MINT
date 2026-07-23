@@ -24167,4 +24167,8 @@ class SEn extends S {
 
   @override
   String get coupleMonoIncomeCta => 'Add their income with the coach';
+
+  @override
+  String get reportSpouseIncomeMissingPrompt =>
+      'Add your spouse\'s income: their AVS pension is estimated at the legal minimum until then.';
 }

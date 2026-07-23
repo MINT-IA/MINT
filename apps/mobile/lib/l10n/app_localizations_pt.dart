@@ -24298,4 +24298,8 @@ class SPt extends S {
 
   @override
   String get coupleMonoIncomeCta => 'Adicionar o rendimento com o coach';
+
+  @override
+  String get reportSpouseIncomeMissingPrompt =>
+      'Adiciona o rendimento do teu cônjuge: a sua renda AVS é estimada no mínimo legal até lá.';
 }

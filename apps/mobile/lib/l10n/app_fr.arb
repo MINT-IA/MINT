@@ -13116,5 +13116,6 @@
   "coupleMonoIncomeCta": "Ajouter son revenu avec le coach",
   "@coupleMonoIncomeCta": {
     "description": "CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)"
-  }
+  },
+  "reportSpouseIncomeMissingPrompt": "Renseigne le revenu de ton/ta conjoint·e : sa rente AVS est estimée au minimum légal en attendant."
 }

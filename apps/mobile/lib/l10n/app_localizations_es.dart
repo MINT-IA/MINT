@@ -24291,4 +24291,8 @@ class SEs extends S {
 
   @override
   String get coupleMonoIncomeCta => 'Añadir sus ingresos con el coach';
+
+  @override
+  String get reportSpouseIncomeMissingPrompt =>
+      'Añade los ingresos de tu cónyuge: su renta AVS se estima en el mínimo legal hasta entonces.';
 }

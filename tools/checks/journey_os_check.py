@@ -204,6 +204,8 @@ ALLOW = {
     "apps/mobile/test/screens/lpp_deep/rachat_echelonne_screen_test.dart",
     "apps/mobile/test/services/rachat_echelonne_fenetre_79b_test.dart",
     "apps/mobile/test/test_gaps.json",
+    # PR report-honest-spouse (bead -pd4) : fin de la substitution conjoint
+    "apps/mobile/lib/services/financial_report_service.dart",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
