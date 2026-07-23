@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 import 'package:mint_mobile/services/financial_core/generated/regulatory_constants.g.dart';
 import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
@@ -79,57 +80,12 @@ class ArbitrageEngine {
   // ── Impôt revenu sur la rente — MIROIR EXACT du backend canonique ──
   // MIRROR services/backend/app/services/arbitrage/rente_vs_capital.py
   // (`_estimate_income_tax_on_rente`) + fiscal/cantonal_comparator.py
-  // (FEDERAL_BRACKETS 2026, EFFECTIVE_RATES_100K_SINGLE).
+  // (FEDERAL_BRACKETS 2026, CANTONAL_COMMUNAL_TAX_CHF interpolée v2 -97h).
   // Beads MINT_nosync-axj : RvC est L2 « comparer » -> backend canonique ;
   // ce fallback offline doit produire LE MÊME chiffre, pas un chiffre
   // « plus riche » — l'utilisateur ne doit jamais voir un montant qui
   // dépend de la surface qui a répondu. Toute recalibration passe par le
   // backend d'abord, puis ce miroir (goldens croisés rvc_parity_v1.json).
-
-  /// Barème IFD 2026 (LIFD art. 36, célibataire) — (borne sup, taux tranche).
-  static const List<List<double>> _rvcFederalBrackets2026 = [
-    [15200, 0.0000],
-    [33200, 0.0077],
-    [43500, 0.0088],
-    [58000, 0.0264],
-    [76200, 0.0297],
-    [82100, 0.0594],
-    [108900, 0.0660],
-    [141500, 0.0880],
-    [185100, 0.1100],
-    [794000, 0.1320],
-    [double.infinity, 0.1150],
-  ];
-
-  /// Taux effectifs cantonaux+communaux calibrés à 100k (célibataire).
-  static const Map<String, double> _rvcEffectiveRates100kSingle = {
-    'ZG': 0.0823,
-    'NW': 0.0891,
-    'OW': 0.0934,
-    'AI': 0.0956,
-    'AR': 0.1012,
-    'SZ': 0.1034,
-    'UR': 0.1067,
-    'LU': 0.1089,
-    'GL': 0.1102,
-    'TG': 0.1145,
-    'SH': 0.1167,
-    'AG': 0.1189,
-    'GR': 0.1203,
-    'BL': 0.1256,
-    'SG': 0.1278,
-    'ZH': 0.1290,
-    'FR': 0.1312,
-    'SO': 0.1334,
-    'TI': 0.1356,
-    'BE': 0.1389,
-    'NE': 0.1423,
-    'VS': 0.1456,
-    'VD': 0.1489,
-    'JU': 0.1512,
-    'GE': 0.1545,
-    'BS': 0.1578,
-  };
 
   /// Impôt annuel estimé sur une rente LPP (miroir backend, voir bloc
   /// MIRROR ci-dessus). Public : les tests de propriété (ex. non-double-
@@ -140,33 +96,13 @@ class ArbitrageEngine {
     bool isMarried,
   ) {
     // Revenu imposable ≈ 85% de la rente après déductions forfaitaires
-    // (LIFD art. 33) — même simplification que le backend.
-    final revenuImposable = renteAnnuelle * 0.85;
-
-    double impotFederal = 0.0;
-    double prevBound = 0.0;
-    for (final bracket in _rvcFederalBrackets2026) {
-      final upper = bracket[0];
-      final rate = bracket[1];
-      if (revenuImposable <= prevBound) break;
-      final taxable = math.min(revenuImposable, upper) - prevBound;
-      impotFederal += taxable * rate;
-      prevBound = upper;
-    }
-
-    final cantonalRate =
-        _rvcEffectiveRates100kSingle[canton.toUpperCase()] ?? 0.13;
-    // Facteur d'échelle du taux effectif selon le niveau de revenu
-    // (calibré à 100k) — même clamp que le backend.
-    final incomeFactor = (renteAnnuelle / 100000).clamp(0.6, 1.5);
-    final impotCantonal = revenuImposable * cantonalRate * incomeFactor;
-
-    var total = impotFederal + impotCantonal;
-    if (isMarried) {
-      total *= 0.80; // Splitting benefit
-    }
-    return _roundPyMirror2(total);
+    // (LIFD art. 33) — même simplification que le backend. Modèle v2
+    // partagé (income_tax_model_v2.dart, miroir backend -97h).
+    return _roundPyMirror2(
+      estimateIncomeTaxV2(renteAnnuelle * 0.85, canton, isMarried: isMarried),
+    );
   }
+
 
   /// Arrondi à 2 décimales — miroir exact de ``round(x, 2)`` Python
   /// (review Codex PR #978, rounds 2-3).

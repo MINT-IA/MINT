@@ -199,6 +199,12 @@ ALLOW = {
     "apps/mobile/test/services/financial_core/rvc_parity_fixture_test.dart",
     "services/backend/tests/test_rvc_parity_fixture.py",
     "tools/fixtures/rvc_parity_v1.json",
+    # PR tax-model-v2 (beads -97h/-81n) : modèle fiscal v2 partagé
+    "apps/mobile/lib/services/financial_core/income_tax_model_v2.dart",
+    "apps/mobile/test/services/rachat_parity_fixture_test.dart",
+    "services/backend/app/services/lpp_deep/rachat_echelonne_service.py",
+    "services/backend/tests/test_rachat_parity_fixture.py",
+    "tools/fixtures/rachat_parity_v1.json",
     # PR rachat-79b-window (bead -a6e) : fenêtre art. 79b al. 3 flux live
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/lib/services/lpp_deep_service.dart",

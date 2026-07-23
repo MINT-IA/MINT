@@ -29,6 +29,11 @@ from typing import List
 
 # Effective tax rates by canton (single, no children, 100k income, chef-lieu)
 # Source: Administration federale des contributions — Charge fiscale 2024
+# DÉPRÉCIÉ pour les calculs d'impôt (beads -97h) : remplacé par
+# estimate_income_tax v2 (interpolation CANTONAL_COMMUNAL_TAX_CHF, 130
+# points ESTV) dans RvC et rachat échelonné. Reste consommé UNIQUEMENT par
+# compare() (écran comparaison cantonale) — à migrer vers v2 dans une
+# itération dédiée ; ne PAS brancher de nouveau calcul dessus.
 EFFECTIVE_RATES_100K_SINGLE = {
     "ZG": 0.0823,   # Zoug — lowest
     "NW": 0.0891,
