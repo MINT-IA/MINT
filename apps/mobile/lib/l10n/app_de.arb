@@ -11599,5 +11599,13 @@
     "description": "CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)"
   },
   "reportSpouseIncomeMissingPrompt": "Erfasse das Einkommen deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin auf dem gesetzlichen Minimum geschätzt.",
-  "reportSpouseDataMissingPrompt": "Erfasse Einkommen und Beitragsjahre deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin nicht geschätzt."
+  "reportSpouseDataMissingPrompt": "Erfasse Einkommen und Beitragsjahre deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin nicht geschätzt.",
+  "repaymentBudgetEffectiveNote": "Deine Mindestraten betragen insgesamt CHF {montant} — der Plan rechnet damit",
+  "@repaymentBudgetEffectiveNote": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  }
 }

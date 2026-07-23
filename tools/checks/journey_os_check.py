@@ -225,6 +225,7 @@ ALLOW = {
     "apps/mobile/lib/services/retirement_service.dart",
     "apps/mobile/test/services/pillar_3a_deep_service_test.dart",
     "apps/mobile/test/services/retirement_service_test.dart",
+    "apps/mobile/test/screens/debt_prevention/repayment_g5v_test.dart",
     "apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart",
     "apps/mobile/test/services/financial_core/tax_calculator_test.dart",
     "apps/mobile/test/services/lpp_deep_service_test.dart",

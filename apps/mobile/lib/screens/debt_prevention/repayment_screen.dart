@@ -42,7 +42,29 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
       _hydrateFromProfile();
+      // Beads -g5v (4) : si le profil charge APRÈS la première frame
+      // (hydratation async), ré-hydrater tant que l'utilisateur n'a pas
+      // commencé à éditer — sinon l'écran reste sur l'état vide/défauts.
+      try {
+        _profileProvider = context.read<CoachProfileProvider>();
+        _profileProvider!.addListener(_onProfileChanged);
+      } catch (_) {
+        // Pas de provider (harnais isolé) : hydratation one-shot.
+      }
     });
+  }
+
+  CoachProfileProvider? _profileProvider;
+
+  void _onProfileChanged() {
+    if (!mounted || _hasUserInteracted) return;
+    _hydrateFromProfile();
+  }
+
+  @override
+  void dispose() {
+    _profileProvider?.removeListener(_onProfileChanged);
+    super.dispose();
   }
 
   void _readSequenceContext() {
@@ -111,6 +133,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     final d = p.dettes;
     setState(() {
       _monthlyIncome = p.salaireBrutMensuel * p.nombreDeMois / 12;
+      // Panel -g5v : hydratation IDEMPOTENTE — le listener re-déclenche à
+      // chaque notify du provider ; sans clear, les dettes se dupliquaient
+      // (Σmin doublée -> tous les chiffres faux).
+      _dettes.clear();
       if ((d.creditConsommation ?? 0) > 0) {
         _dettes.add(_DebtInput(
           nom: s.repaymentDebtCreditConso,
@@ -147,6 +173,16 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       }
     });
   }
+
+  double get _sumMensualitesMin =>
+      _dettes.fold<double>(0, (s, d) => s + d.mensualiteMin);
+
+  /// Budget réellement utilisé par le planner : jamais sous les minimums
+  /// contractuels (miroir de RepaymentPlanner max(budget, sumMin)) —
+  /// beads -g5v, l'UI doit montrer CE montant quand il diffère du saisi.
+  double get _budgetEffectif => _budgetMensuel > _sumMensualitesMin
+      ? _budgetMensuel
+      : _sumMensualitesMin;
 
   RepaymentComparisonResult? get _result {
     if (_dettes.isEmpty) return null;
@@ -202,11 +238,19 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 // Rendu UNIQUEMENT sur des dettes réelles (profil ou
                 // saisies) — jamais « libéré/critique » sur du fictif.
                 if (_dettes.isNotEmpty) ...[
+                  // Beads -g5v : marge basée sur le budget EFFECTIF du
+                  // planner (max(budget, Σminimums)) — l'ancien calcul
+                  // « budget saisi − minimums » devenait négatif sur le
+                  // placeholder 800 et pilotait un état « critique » fictif.
                   MintEntrance(child: DebtSurvivalWidget(
                     totalDebt:
                         _dettes.fold<double>(0, (s, d) => s + d.montant),
-                    monthlyMargin: _budgetMensuel -
-                        _dettes.fold<double>(0, (s, d) => s + d.mensualiteMin),
+                    // Budget SAISI insuffisant -> déficit RÉEL (négatif
+                    // légitime, mode critique mérité). Placeholder jamais
+                    // touché -> budget effectif (pas de critique fictif).
+                    monthlyMargin: _hasUserInteracted
+                        ? _budgetMensuel - _sumMensualitesMin
+                        : _budgetEffectif - _sumMensualitesMin,
                     daysSinceLastLate: 0,
                     monthlyIncome: _monthlyIncome,
                   )),
@@ -383,7 +427,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 button: true,
                 label: S.of(context)!.semanticsRepaymentDeleteDebt(dette.nom),
                 child: GestureDetector(
-                  onTap: () => setState(() => _dettes.removeAt(index)),
+                  // -g5v : la suppression est une INTERACTION — sans le
+                  // flag, la dette ressuscitait au prochain notify.
+                  onTap: () => setState(() {
+                    _hasUserInteracted = true;
+                    _dettes.removeAt(index);
+                  }),
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
@@ -644,6 +693,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   void _addDebt() {
+    _hasUserInteracted = true;
     setState(() {
       _dettes.add(_DebtInput(
         nom: S.of(context)!.repaymentNewDebt,
@@ -666,7 +716,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       ),
       child: Semantics(
         button: true,
-        label: S.of(context)!.semanticsRepaymentBudget(formatChf(_budgetMensuel)),
+        label: _dettes.isNotEmpty && _budgetEffectif > _budgetMensuel
+            ? S.of(context)!.semanticsRepaymentBudget(
+                formatChf(_budgetEffectif))
+            : S.of(context)!.semanticsRepaymentBudget(
+                formatChf(_budgetMensuel)),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -699,6 +753,18 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                       S.of(context)!.repaymentBudgetDisplay(formatChf(_budgetMensuel)),
                       style: MintTextStyles.headlineMedium(color: MintColors.primary),
                     ),
+                    if (_dettes.isNotEmpty &&
+                        _budgetEffectif > _budgetMensuel) ...[
+                      const SizedBox(height: 2),
+                      // -g5v : les minimums contractuels dépassent le budget
+                      // saisi — le plan calcule sur ce montant, le dire.
+                      Text(
+                        S.of(context)!.repaymentBudgetEffectiveNote(
+                            formatChf(_budgetEffectif)),
+                        style: MintTextStyles.labelSmall(
+                            color: MintColors.warningAaa),
+                      ),
+                    ],
                   ],
                 ),
               ),

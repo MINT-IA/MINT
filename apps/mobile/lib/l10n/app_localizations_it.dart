@@ -24361,4 +24361,9 @@ class SIt extends S {
   @override
   String get reportSpouseDataMissingPrompt =>
       'Aggiungi il reddito e gli anni di contribuzione del/della coniuge: la sua rendita AVS non è stimata nel frattempo.';
+
+  @override
+  String repaymentBudgetEffectiveNote(String montant) {
+    return 'Le tue rate minime totalizzano CHF $montant — il piano si basa su questo importo';
+  }
 }
