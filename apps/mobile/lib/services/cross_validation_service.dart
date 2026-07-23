@@ -207,18 +207,26 @@ class CrossValidationService {
 
     if (ratio > 0.33) {
       final pct = (ratio * 100).toStringAsFixed(0);
+      // Beads MINT_nosync-irm : le ratio est calculé sur
+      // revenuBrutAnnuelCouple, qui retombe sur le revenu SOLO quand le
+      // conjoint n'est pas renseigné — le taux est alors surestimé et
+      // l'alerte peut être fausse. La limite est dite dans la suggestion.
+      final monoRevenu = profile.isMissingConjointIncome
+          ? ' Revenu du/de la conjoint\u00b7e non renseigné\u00a0: le taux '
+              'réel de ton ménage pourrait être plus bas.'
+          : '';
       alerts.add(ValidationAlert(
         block: 'patrimoine',
         message:
-            'Ton taux d\'effort hypothecaire theorique est de $pct% '
-            '(limite: 33%). Les banques pourraient refuser ce financement.',
+            'Ton taux d\'effort hypothécaire théorique est de $pct% '
+            '(limite\u00a0: 33%). Les banques pourraient refuser ce financement.',
         severity: ratio > 0.40
             ? AlertSeverity.error
             : AlertSeverity.warning,
         suggestion:
-            'Calcul: interet theorique 5% + amortissement 1% + '
-            'entretien 1% du bien. Revenu brut du menage: '
-            '${_fmtChf(grossAnnual)}/an.',
+            'Calcul\u00a0: intérêt théorique 5% + amortissement 1% + '
+            'entretien 1% du bien. Revenu brut du ménage\u00a0: '
+            '${_fmtChf(grossAnnual)}/an.$monoRevenu',
       ));
     }
   }

@@ -206,6 +206,9 @@ ALLOW = {
     "apps/mobile/test/test_gaps.json",
     # PR report-honest-spouse (bead -pd4) : fin de la substitution conjoint
     "apps/mobile/lib/services/financial_report_service.dart",
+    # PR mortgage-alert-honest (bead -irm) : alerte Tragbarkeit honnête
+    "apps/mobile/lib/services/cross_validation_service.dart",
+    "apps/mobile/test/services/cross_validation_service_test.dart",
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",

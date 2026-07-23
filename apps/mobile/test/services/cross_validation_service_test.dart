@@ -16,6 +16,8 @@ CoachProfile _makeProfile({
   int? arrivalAge,
   int? targetRetirementAge,
   List<PlannedMonthlyContribution> plannedContributions = const [],
+  CoachCivilStatus? etatCivil,
+  ConjointProfile? conjoint,
 }) {
   return CoachProfile(
     birthYear: birthYear,
@@ -27,6 +29,8 @@ CoachProfile _makeProfile({
     arrivalAge: arrivalAge,
     targetRetirementAge: targetRetirementAge,
     plannedContributions: plannedContributions,
+    etatCivil: etatCivil ?? CoachCivilStatus.celibataire,
+    conjoint: conjoint,
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2041),
@@ -288,6 +292,48 @@ void main() {
           alerts.where((a) => a.block == 'patrimoine').toList();
       expect(patrimoineAlerts, isNotEmpty);
       expect(patrimoineAlerts.first.severity, AlertSeverity.warning);
+    });
+
+    test('Marié sans revenu conjoint -> l\'alerte DIT le ménage incomplet',
+        () {
+      // Beads MINT_nosync-irm : le taux d'effort est calculé sur
+      // revenuBrutAnnuelCouple, qui retombe en silence sur le revenu solo
+      // quand le conjoint n'est pas renseigné — le ratio est SURESTIMÉ et
+      // l'alerte « les banques pourraient refuser » peut être fausse et
+      // anxiogène. La limite doit être dite dans l'alerte elle-même.
+      final profile = _makeProfile(
+        etatCivil: CoachCivilStatus.marie,
+        patrimoine: const PatrimoineProfile(
+          mortgageBalance: 800000,
+          propertyMarketValue: 1000000,
+        ),
+      );
+      final alerts = CrossValidationService.validate(profile);
+      final alert = alerts.firstWhere((a) => a.block == 'patrimoine');
+      expect(
+        alert.suggestion,
+        contains('conjoint'),
+        reason: 'ratio calculé sur un ménage incomplet : le dire, sinon '
+            'l\'alerte oriente à tort',
+      );
+    });
+
+    test('Marié AVEC revenu conjoint -> pas de mention ménage incomplet', () {
+      final profile = _makeProfile(
+        etatCivil: CoachCivilStatus.marie,
+        conjoint: const ConjointProfile(salaireBrutMensuel: 6000),
+        patrimoine: const PatrimoineProfile(
+          mortgageBalance: 800000,
+          propertyMarketValue: 1000000,
+        ),
+      );
+      final alerts = CrossValidationService.validate(profile);
+      final patrimoineAlerts =
+          alerts.where((a) => a.block == 'patrimoine').toList();
+      if (patrimoineAlerts.isNotEmpty) {
+        expect(patrimoineAlerts.first.suggestion ?? '',
+            isNot(contains('conjoint')));
+      }
     });
 
     test('Mortgage under 33% = no alert', () {
