@@ -114,6 +114,15 @@ class Settings(BaseSettings):
     # POST /consents/grant -> retry, coach_chat_screen). Un utilisateur sans
     # grant TRANSFER_US_ANTHROPIC reçoit la sheet à son premier message et
     # le coach répond après consentement — plus aucun envoi US sans grant.
+    #
+    # Décision rollout (review PR #972) : PAS de gating par version client.
+    # Un client antérieur au flux (sans parsing du deny_pointer) voit une
+    # erreur générique jusqu'à sa mise à jour — fail-CLOSED délibéré : un
+    # client incapable de recueillir le consentement ne doit pas continuer
+    # à envoyer les messages aux US sans grant (nLPD > confort). Population
+    # affectée : testeurs TestFlight internes pré-launch uniquement. Les
+    # requêtes coach portent désormais X-App-Version si un gating serveur
+    # devient nécessaire post-launch.
     CONSENT_GATE_ENFORCEMENT_MODE: Literal["log_only", "soft_block", "hard_block"] = "hard_block"
 
     # Apple IAP / StoreKit

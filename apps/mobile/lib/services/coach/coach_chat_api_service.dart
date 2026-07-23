@@ -186,6 +186,10 @@ class CoachChatApiService {
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
+      // Review Codex PR #972 : les autres services envoient déjà
+      // X-App-Version ; le coach l'omettait, privant le backend de tout
+      // levier de compatibilité par version (ex. gating du consent gate).
+      'X-App-Version': ApiService.appVersionHeaderValue,
     };
     final encoded = jsonEncode(body);
     if (testClient != null) {
