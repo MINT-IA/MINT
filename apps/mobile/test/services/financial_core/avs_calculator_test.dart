@@ -100,8 +100,8 @@ void main() {
         grossAnnualSalary: 100000,
       );
       expect(deferred, greaterThan(normal));
-      // 2 years deferral → +10.6%
-      expect(deferred / normal, closeTo(1.106, 0.02));
+      // 2 years deferral → +10.8% (Mémento OFAS 3.04, audit -zaw)
+      expect(deferred / normal, closeTo(1.108, 0.005));
     });
 
     test('lacunes reduce rente proportionally', () {
