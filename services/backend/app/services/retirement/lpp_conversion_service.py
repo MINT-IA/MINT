@@ -15,7 +15,7 @@ Sprint S21 — Retraite complete.
 """
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import Optional,  List
 
 from app.constants.social_insurance import (
     LPP_TAUX_CONVERSION_MIN,
@@ -75,7 +75,7 @@ class LppConversionService:
         canton: str = "ZH",
         retirement_age: int = 65,
         life_expectancy: int = 87,
-        taux_marginal_revenu: float = 0.25,
+        taux_marginal_revenu: Optional[float] = None,
     ) -> LppConversionResult:
         """Compare rente vs capital withdrawal for given LPP capital.
 
@@ -84,9 +84,10 @@ class LppConversionService:
             canton: Canton code for tax estimation.
             retirement_age: Age at retirement.
             life_expectancy: Assumed life expectancy.
-            taux_marginal_revenu: Estimated marginal income tax rate for rente
-                taxation (LIFD art. 22 — rente LPP is taxable income).
-                Default 0.25 (25%) for mid-income retirees.
+            taux_marginal_revenu: override EXPLICITE du taux marginal pour
+                la rente (flat). None (défaut) -> convention canonique
+                estimate_income_tax_on_rente (modèle v2, beads -amq) —
+                l'ancien flat 25% surestimait l'impôt d'une rente typique.
 
         Returns:
             LppConversionResult with complete comparison.
@@ -98,9 +99,23 @@ class LppConversionService:
         rente_brute_annuelle = round(capital_lpp * LPP_CONVERSION_RATE, 2)
         rente_brute_mensuelle = round(rente_brute_annuelle / 12, 2)
 
-        # Rente income tax (LIFD art. 22 — rente LPP is taxable income)
-        taux_marginal = max(0.0, min(0.50, taux_marginal_revenu))
-        rente_impot_annuel = round(rente_brute_annuelle * taux_marginal, 2)
+        # Rente income tax (LIFD art. 22 — rente LPP is taxable income).
+        # Beads MINT_nosync-amq : le taux marginal FLAT (défaut 25%)
+        # surestimait l'impôt d'une rente typique (~15-20% effectif au
+        # modèle v2) — la convention canonique partagée (rente x0.85 sur
+        # le modèle interpolé 130 points ESTV) remplace le flat. L'override
+        # explicite de l'appelant reste respecté (compat API).
+        from app.services.fiscal.cantonal_comparator import (
+            estimate_income_tax_on_rente,
+        )
+
+        if taux_marginal_revenu is not None:
+            taux_marginal = max(0.0, min(0.50, taux_marginal_revenu))
+            rente_impot_annuel = round(rente_brute_annuelle * taux_marginal, 2)
+        else:
+            rente_impot_annuel = estimate_income_tax_on_rente(
+                rente_brute_annuelle, canton_upper
+            )
 
         # Rente net after income tax
         rente_nette_annuelle = round(rente_brute_annuelle - rente_impot_annuel, 2)
@@ -111,30 +126,47 @@ class LppConversionService:
         impot = calculate_progressive_capital_tax(capital_lpp, taux)
         capital_net = round(capital_lpp - impot, 2)
 
-        # Breakeven — uses net rente (after tax) vs net capital
+        # Breakeven SIMPLIFIÉ — cumul NOMINAL d'une rente constante vs
+        # capital net, sans rendement ni trajectoire patrimoniale
+        # (contrairement au RvC complet rente_vs_capital.py — sémantique
+        # volontairement distincte, review #989 : ce comparateur est le
+        # niveau « overview », le RvC est le simulateur complet).
         duree = max(0, life_expectancy - retirement_age)
         breakeven = retirement_age
+        breakeven_atteint = False
         if rente_nette_annuelle > 0:
             cumul = 0.0
             for y in range(duree + 1):
                 cumul += rente_nette_annuelle
                 if cumul >= capital_net:
                     breakeven = retirement_age + y
+                    breakeven_atteint = True
                     break
             else:
-                breakeven = life_expectancy  # Never reached
+                breakeven = life_expectancy  # jamais atteint sur l'horizon
 
         recommandation = (
-            f"La rente LPP te verse CHF {rente_nette_mensuelle:,.0f}/mois net a vie "
-            f"(brut CHF {rente_brute_mensuelle:,.0f}, impot ~CHF {round(rente_impot_annuel / 12):,.0f}/mois). "
-            f"Le capital te donne CHF {capital_net:,.0f} net apres impot de retrait. "
-            f"Si tu vis au-dela de {breakeven} ans, la rente nette est plus avantageuse en cumul. "
-            f"Aucune option n'est universellement meilleure — cela depend de ta situation."
+            f"La rente LPP te verse CHF {rente_nette_mensuelle:,.0f}/mois net à vie "
+            f"(brut CHF {rente_brute_mensuelle:,.0f}, impôt ~CHF {round(rente_impot_annuel / 12):,.0f}/mois). "
+            f"Le capital te donne CHF {capital_net:,.0f} net après impôt de retrait. "
+            + (
+                f"Si tu vis au-delà de {breakeven} ans, la rente nette dépasse "
+                f"le capital en cumul. "
+                if breakeven_atteint
+                else f"Sur l'horizon simulé (jusqu'à {life_expectancy} ans), le "
+                f"cumul de la rente nette ne rattrape pas le capital net. "
+            )
+            + "Les deux options présentent des profils différents — le choix dépend de ta situation."
         )
 
         premier_eclairage = (
-            f"Rente = CHF {rente_nette_mensuelle:,.0f}/mois net a vie | "
-            f"Capital = CHF {capital_net:,.0f} net (breakeven a {breakeven} ans)"
+            f"Rente = CHF {rente_nette_mensuelle:,.0f}/mois net à vie | "
+            f"Capital = CHF {capital_net:,.0f} net "
+            + (
+                f"(breakeven à {breakeven} ans)"
+                if breakeven_atteint
+                else f"(pas de croisement avant {life_expectancy} ans)"
+            )
         )
 
         return LppConversionResult(

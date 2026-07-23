@@ -596,3 +596,53 @@ class TestRetirementEndpoints:
         assert "penaliteOuBonusPct" in data
         assert "renteCoupleeMensuelle" in data or "renteCoupleeMensuelle" not in data
         assert data["scenario"] == "anticipation"
+
+
+class TestLppConversionCanonicalTax:
+    """Beads MINT_nosync-amq : sans override, l'impôt rente vient du modèle
+    v2 canonique (fin du flat 25% qui surestimait ~2x)."""
+
+    def test_default_uses_canonical_model(self):
+        from app.services.fiscal.cantonal_comparator import (
+            estimate_income_tax_on_rente,
+        )
+        from app.services.retirement.lpp_conversion_service import (
+            LppConversionService,
+        )
+
+        result = LppConversionService().compare(capital_lpp=500_000, canton="ZH")
+        rente_brute = result.option_rente_annuelle
+        assert result.rente_impot_annuel == estimate_income_tax_on_rente(
+            rente_brute, "ZH"
+        ), "défaut (None) -> convention canonique partagée, pas un flat"
+        # Le flat 25% donnait 8'500 sur 34'000 de rente — le modèle v2 est
+        # nettement plus bas pour une rente typique.
+        assert result.rente_impot_annuel < rente_brute * 0.25
+
+    def test_explicit_override_still_flat(self):
+        from app.services.retirement.lpp_conversion_service import (
+            LppConversionService,
+        )
+
+        result = LppConversionService().compare(
+            capital_lpp=500_000, taux_marginal_revenu=0.25
+        )
+        assert result.rente_impot_annuel == round(
+            result.option_rente_annuelle * 0.25, 2
+        )
+
+    def test_no_crossover_is_said_not_fabricated(self):
+        """Review #989 r2 : horizon court -> le cumul de rente ne rattrape
+        jamais le capital ; les DEUX chaînes user-facing doivent le dire au
+        lieu d'afficher un breakeven fabriqué à life_expectancy."""
+        from app.services.retirement.lpp_conversion_service import (
+            LppConversionService,
+        )
+
+        result = LppConversionService().compare(
+            capital_lpp=500_000, canton="ZH", retirement_age=65,
+            life_expectancy=70,
+        )
+        assert "pas de croisement" in result.premier_eclairage
+        assert "ne rattrape pas" in result.recommandation_neutre
+        assert f"breakeven à" not in result.premier_eclairage

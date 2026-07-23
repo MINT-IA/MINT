@@ -247,6 +247,28 @@ def estimate_income_tax(
     return round(total, 2)
 
 
+def estimate_income_tax_on_rente(
+    rente_annuelle: float,
+    canton: str,
+    is_married: bool = False,
+) -> float:
+    """Impôt revenu sur une rente LPP/AVS — convention CANONIQUE partagée.
+
+    Revenu imposable ≈ 85% de la rente (déductions forfaitaires LIFD
+    art. 33, simplification documentée) sur le modèle v2. Consommée par
+    rente_vs_capital ET LppConversionService (beads MINT_nosync-amq —
+    le 4e moteur taxait la rente à un taux marginal FLAT 25%).
+    Comportement verrouillé par rvc_parity_v1.json + le miroir Dart
+    estimateIncomeTaxOnRenteRvc.
+    """
+    return estimate_income_tax(
+        rente_annuelle * 0.85,
+        canton,
+        is_married=is_married,
+        income_factor_base=rente_annuelle,
+    )
+
+
 DISCLAIMER = (
     "Estimations basées sur le barème IFD 2026 et des taux cantonaux simplifiés. "
     "Les taux effectifs varient selon la commune, la fortune, "
