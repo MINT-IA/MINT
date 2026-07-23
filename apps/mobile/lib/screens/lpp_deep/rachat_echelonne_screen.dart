@@ -681,7 +681,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
             color: selected ? MintColors.primary : MintColors.transparent,
-            borderRadius: BorderRadius.circular(7),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Text(label, style: MintTextStyles.labelMedium(color: selected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600)),
         ),
@@ -909,7 +909,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3))),
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
         const SizedBox(width: 6),
         Text(label, style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.w500)),
       ],
