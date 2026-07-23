@@ -156,6 +156,14 @@ def estimate_income_tax(
         income_factor_base: base du facteur d'échelle du taux effectif ;
             None -> taxable_income. rente_vs_capital passe la rente BRUTE
             (comportement historique verrouillé par rvc_parity_v1.json).
+
+    LIMITE STRUCTURELLE (beads MINT_nosync-97h, review #987) : la composante
+    cantonale vaut ``revenu x taux(100k) x clamp(revenu/100k, 0.6, 1.5)`` —
+    entre les bornes du clamp elle évolue QUASI QUADRATIQUEMENT. Les
+    NIVEAUX d'impôt sont des estimations utilisables ; les DIFFÉRENCES
+    entre deux appels ne sont PAS un taux marginal fiable (ex. ~47.5%
+    implicite à 140k VD). Ne pas brancher un calcul d'économie marginale
+    (rachat, déductions) dessus avant le recalibrage multi-points -97h.
     """
     impot_federal = 0.0
     prev_bound = 0.0
