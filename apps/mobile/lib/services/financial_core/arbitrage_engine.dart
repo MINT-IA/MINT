@@ -165,8 +165,19 @@ class ArbitrageEngine {
     if (isMarried) {
       total *= 0.80; // Splitting benefit
     }
-    return (total * 100).roundToDouble() / 100;
+    return _roundPyMirror2(total);
   }
+
+  /// Arrondi à 2 décimales — miroir de ``round(x, 2)`` Python (review Codex
+  /// PR #978 : ``(x*100).roundToDouble()`` divergeait au demi-centime,
+  /// 379.70 Dart vs 379.69 backend). ``round()`` Python arrondit sur la
+  /// représentation DÉCIMALE du double (le total calculé vaut
+  /// 379.694999999… en binaire -> 379.69) ; ``toStringAsFixed`` opère sur
+  /// la même représentation décimale et reproduit ce comportement. Écart
+  /// théorique résiduel : un tie binaire EXACT (.005 représentable, ex.
+  /// 0.125) — impossible pour un impôt issu de produits de taux.
+  static double _roundPyMirror2(double value) =>
+      double.parse(value.toStringAsFixed(2));
 
   /// Compare full rente, full capital, and mixed (obligatoire rente +
   /// surobligatoire capital) strategies over [horizon] years.

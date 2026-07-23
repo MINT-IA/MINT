@@ -17,6 +17,16 @@ import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 
 void main() {
+  test('arrondi miroir : demi-centime en half-even comme round() Python', () {
+    // Review Codex PR #978 : rente 5'000 VD célibataire -> total exact
+    // 379.695 ; round(x, 2) Python (half-even) donne 379.69, l'arrondi
+    // naïf Dart donnait 379.70. Le miroir doit être exact au centime.
+    expect(
+      ArbitrageEngine.estimateIncomeTaxOnRenteRvc(5000, 'VD', false),
+      379.69,
+    );
+  });
+
   final fixture = File('../../tools/fixtures/rvc_parity_v1.json');
   final data =
       jsonDecode(fixture.readAsStringSync()) as Map<String, dynamic>;
