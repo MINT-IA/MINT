@@ -310,10 +310,21 @@ class ConsentService {
   /// authenticated mode — sheet shows, user accepts, receipt is persisted
   /// on-device. No silent failure on « Depuis la galerie » in mode local.
   /// The catch below remains for true network/server errors only.
+  /// Seam de test du flux sheet+grant (beads MINT_nosync-tcr) : permet aux
+  /// tests d'écran de simuler acceptation/refus sans pomper la vraie
+  /// ConsentSheet ni le réseau. Jamais utilisé en production.
+  @visibleForTesting
+  static Future<bool> Function(
+    BuildContext context,
+    List<ConsentPurpose> required,
+  )? promptOverrideForTests;
+
   Future<bool> requireGrantedOrPrompt(
     BuildContext context,
     List<ConsentPurpose> required,
   ) async {
+    final override = promptOverrideForTests;
+    if (override != null) return override(context, required);
     final List<ConsentReceipt> consents;
     try {
       consents = await list(force: true);

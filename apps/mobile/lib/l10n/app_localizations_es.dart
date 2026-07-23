@@ -24242,4 +24242,8 @@ class SEs extends S {
   @override
   String get expatTopCantonsDisclaimer =>
       'Herramienta educativa — no constituye asesoramiento fiscal según la LSFin. Impuestos estimados con el modelo simplificado MINT por cantón (baremos cantonales, capital) — no son cálculos fiscales exactos. Diferencial basado solo en los ingresos — varía según patrimonio y situación familiar.';
+
+  @override
+  String get coachConsentDeclined =>
+      'El coach necesita tu consentimiento para enviar tus mensajes al servicio de IA (servidores en Estados Unidos). Sin él, el coach no puede responder. Reenvía tu mensaje cuando quieras: se te pedirá el consentimiento de nuevo.';
 }

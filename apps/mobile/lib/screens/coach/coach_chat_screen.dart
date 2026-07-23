@@ -44,6 +44,7 @@ import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
+import 'package:mint_mobile/services/consent/consent_service.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart'
     show ProactiveTrigger, ProactiveTriggerType;
@@ -201,6 +202,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   /// Whether the silent opener is currently displayed (no messages yet).
   bool _showSilentOpener = false;
+
+  /// Garde anti-boucle du flux consentement (beads MINT_nosync-tcr) :
+  /// un seul retry après grant — si le backend re-403 malgré le grant,
+  /// l'erreur générique s'affiche au lieu de re-présenter la sheet.
+  bool _consentRetryInFlight = false;
 
   // Random greeting index removed 2026-04-18 (performative voice deprecated).
 
@@ -1325,6 +1331,46 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _maybeShowProactiveOptIn();
   }
 
+  /// Flux consent-avant-coach (beads MINT_nosync-tcr).
+  ///
+  /// Déclenché par le 403 deny_pointer du consent gate backend
+  /// (hard_block) : présente la ConsentSheet (libellé élargi -65y),
+  /// enregistre le grant via POST /consents/grant, puis rejoue le même
+  /// message UNE fois. Refus -> message système explicite, pas de renvoi.
+  Future<void> _handleConsentRequired(String text,
+      {String? memoryBlock}) async {
+    final granted = await ConsentService().requireGrantedOrPrompt(
+      context,
+      const [ConsentPurpose.transferUsAnthropic],
+    );
+    if (!mounted) return;
+
+    if (granted) {
+      _consentRetryInFlight = true;
+      try {
+        await _handleStandardResponse(text, memoryBlock: memoryBlock);
+      } finally {
+        _consentRetryInFlight = false;
+      }
+      return;
+    }
+
+    final s = S.of(context)!;
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'system',
+        content: s.coachConsentDeclined,
+        timestamp: DateTime.now(),
+        // Panel -tcr : la voie de reprise promise par le message
+        // (« renvoie ton message ») doit être à un tap — le renvoi
+        // re-déclenche la ConsentSheet.
+        suggestedActions: [text],
+      ));
+      _isLoading = false;
+    });
+    _scrollToBottom();
+  }
+
   /// Handle standard (non-streaming) response via orchestrator.
   Future<void> _handleStandardResponse(String text,
       {String? memoryBlock}) async {
@@ -1510,6 +1556,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     } catch (e) {
       if (!mounted) return;
       debugPrint('[CoachChat] Standard response error: $e');
+
+      // ── Consent gate (beads MINT_nosync-tcr) : le backend hard_block
+      // répond 403 deny_pointer quand le grant TRANSFER_US_ANTHROPIC
+      // manque. Au premier message sans grant : ConsentSheet -> POST
+      // /consents/grant -> retry du même message. Un refus affiche un
+      // message explicite (le coach ne peut pas répondre sans transfert).
+      if (e is CoachChatApiException &&
+          e.code == 'consent_required' &&
+          !_consentRetryInFlight) {
+        await _handleConsentRequired(text, memoryBlock: memoryBlock);
+        return;
+      }
 
       // ── Anonymous fallback: if user is not logged in, try the public
       // /anonymous/chat endpoint (3 free messages) before showing an error.

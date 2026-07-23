@@ -47,6 +47,13 @@ def test_endpoint_replaces_repeated_uncited_absurd_budget_number_with_fallback(
                 "app.api.v1.endpoints.coach_chat._get_orchestrator",
                 return_value=orchestrator,
             ),
+            patch(
+                "app.services.consent.consent_service.consent_service.check_or_log",
+                return_value=__import__(
+                    "app.services.consent.consent_service",
+                    fromlist=["ConsentCheckResult"],
+                ).ConsentCheckResult(grant_exists=True, allow=True),
+            ),
             TestClient(app) as client,
         ):
             response = client.post(

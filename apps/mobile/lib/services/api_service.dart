@@ -221,6 +221,10 @@ class ApiService {
   /// app bundle, etc.) — backend treats 1.0.0 as "unknown legacy" client.
   static String _appVersion = '1.0.0';
 
+  /// Valeur du header `X-App-Version` pour les services qui construisent
+  /// leurs propres requêtes (ex. CoachChatApiService — review PR #972).
+  static String get appVersionHeaderValue => _appVersion;
+
   /// One-shot boot init for [_appVersion]. Must be awaited in main.dart
   /// before runApp so the FIRST request already carries the real version.
   /// Idempotent: subsequent calls re-fetch but the result is stable.
