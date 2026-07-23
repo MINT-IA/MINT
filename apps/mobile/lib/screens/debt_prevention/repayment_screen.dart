@@ -606,7 +606,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 label: S.of(context)!.semanticsRepaymentValidate,
                 child: SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                // Bouton pré-existant déplacé par ce diff — MintCTA arrive en
+                // Phase MVP-CTA-UNIFICATION-V1.
+                child: FilledButton( // lint-ignore: prefer_mint_cta
                   onPressed: () {
                     HapticFeedback.lightImpact();
                     final parsed = double.tryParse(

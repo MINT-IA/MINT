@@ -798,7 +798,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                // Bouton pré-existant déplacé par ce diff — MintCTA arrive en
+                // Phase MVP-CTA-UNIFICATION-V1.
+                child: FilledButton( // lint-ignore: prefer_mint_cta
                   onPressed: () {
                     final parsed = double.tryParse(
                       controller.text
