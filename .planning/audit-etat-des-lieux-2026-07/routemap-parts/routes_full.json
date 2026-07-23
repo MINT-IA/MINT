@@ -1,0 +1,634 @@
+[
+ {
+  "path": "/",
+  "screen": "LandingScreen"
+ },
+ {
+  "path": "/3a-deep/comparator",
+  "screen": "ProviderComparatorScreen"
+ },
+ {
+  "path": "/3a-deep/real-return",
+  "screen": "RealReturnScreen"
+ },
+ {
+  "path": "/3a-deep/staggered-withdrawal",
+  "screen": "StaggeredWithdrawalScreen"
+ },
+ {
+  "path": "/3a-retroactif",
+  "screen": "Retroactive3aScreen"
+ },
+ {
+  "path": "/__e2e/budget-direct-inputs",
+  "screen": "DebugBudgetBootstrapScreen"
+ },
+ {
+  "path": "/__e2e/row23-independent-no-lpp-profile",
+  "screen": "DebugMint2AccountClaimScreen"
+ },
+ {
+  "path": "/about",
+  "screen": "AboutScreen"
+ },
+ {
+  "path": "/achievements",
+  "screen": "?"
+ },
+ {
+  "path": "/admin/debug-spine",
+  "screen": "AdminShell"
+ },
+ {
+  "path": "/admin/routes",
+  "screen": "AdminShell"
+ },
+ {
+  "path": "/advisor",
+  "screen": "?"
+ },
+ {
+  "path": "/advisor/plan-30-days",
+  "screen": "?"
+ },
+ {
+  "path": "/advisor/wizard",
+  "screen": "?"
+ },
+ {
+  "path": "/anonymous/chat",
+  "screen": "?"
+ },
+ {
+  "path": "/arbitrage/allocation-annuelle",
+  "screen": "AllocationAnnuelleScreen"
+ },
+ {
+  "path": "/arbitrage/bilan",
+  "screen": "ArbitrageBilanScreen"
+ },
+ {
+  "path": "/arbitrage/calendrier-retraits",
+  "screen": "?"
+ },
+ {
+  "path": "/arbitrage/location-vs-propriete",
+  "screen": "LocationVsProprieteScreen"
+ },
+ {
+  "path": "/arbitrage/rachat-vs-marche",
+  "screen": "?"
+ },
+ {
+  "path": "/arbitrage/rente-vs-capital",
+  "screen": "?"
+ },
+ {
+  "path": "/ask-mint",
+  "screen": "?"
+ },
+ {
+  "path": "/assurances/coverage",
+  "screen": "CoverageCheckScreen"
+ },
+ {
+  "path": "/assurances/lamal",
+  "screen": "LamalFranchiseScreen"
+ },
+ {
+  "path": "/auth/forgot-password",
+  "screen": "ForgotPasswordScreen"
+ },
+ {
+  "path": "/auth/login",
+  "screen": "LoginScreen"
+ },
+ {
+  "path": "/auth/register",
+  "screen": "RegisterScreen"
+ },
+ {
+  "path": "/auth/verify",
+  "screen": "?"
+ },
+ {
+  "path": "/auth/verify-email",
+  "screen": "VerifyEmailScreen"
+ },
+ {
+  "path": "/bank-import",
+  "screen": "BankImportScreen"
+ },
+ {
+  "path": "/budget",
+  "screen": "BudgetContainerScreen"
+ },
+ {
+  "path": "/budget/setup",
+  "screen": "BudgetSetupScreen"
+ },
+ {
+  "path": "/cantonal-benchmark",
+  "screen": "CantonalBenchmarkScreen"
+ },
+ {
+  "path": "/check/debt",
+  "screen": "DebtRiskCheckScreen"
+ },
+ {
+  "path": "/coach/agir",
+  "screen": "?"
+ },
+ {
+  "path": "/coach/chat",
+  "screen": "CoachChatScreen"
+ },
+ {
+  "path": "/coach/checkin",
+  "screen": "?"
+ },
+ {
+  "path": "/coach/cockpit",
+  "screen": "?"
+ },
+ {
+  "path": "/coach/dashboard",
+  "screen": "?"
+ },
+ {
+  "path": "/coach/decaissement",
+  "screen": "?"
+ },
+ {
+  "path": "/coach/history",
+  "screen": "ConversationHistoryScreen"
+ },
+ {
+  "path": "/coach/refresh",
+  "screen": "?"
+ },
+ {
+  "path": "/coach/succession",
+  "screen": "?"
+ },
+ {
+  "path": "/concubinage",
+  "screen": "ConcubinageScreen"
+ },
+ {
+  "path": "/confidence",
+  "screen": "ConfidenceDashboardScreen"
+ },
+ {
+  "path": "/couple",
+  "screen": "HouseholdScreen"
+ },
+ {
+  "path": "/couple/accept",
+  "screen": "AcceptInvitationScreen"
+ },
+ {
+  "path": "/data-block/:type",
+  "screen": "DataBlockEnrichmentScreen"
+ },
+ {
+  "path": "/debt/help",
+  "screen": "HelpResourcesScreen"
+ },
+ {
+  "path": "/debt/ratio",
+  "screen": "DebtRatioScreen"
+ },
+ {
+  "path": "/debt/repayment",
+  "screen": "RepaymentScreen"
+ },
+ {
+  "path": "/debug/chat-as-verb",
+  "screen": "ChatAsVerbDemoScreen"
+ },
+ {
+  "path": "/decaissement",
+  "screen": "OptimisationDecaissementScreen"
+ },
+ {
+  "path": "/disability/gap",
+  "screen": "?"
+ },
+ {
+  "path": "/disability/insurance",
+  "screen": "DisabilityInsuranceScreen"
+ },
+ {
+  "path": "/disability/self-employed",
+  "screen": "DisabilitySelfEmployedScreen"
+ },
+ {
+  "path": "/divorce",
+  "screen": "DivorceSimulatorScreen"
+ },
+ {
+  "path": "/document-scan",
+  "screen": "?"
+ },
+ {
+  "path": "/document-scan/avs-guide",
+  "screen": "?"
+ },
+ {
+  "path": "/documents",
+  "screen": "DocumentsScreen"
+ },
+ {
+  "path": "/documents/:id",
+  "screen": "DocumentDetailScreen"
+ },
+ {
+  "path": "/education/hub",
+  "screen": "ComprendreHubScreen"
+ },
+ {
+  "path": "/education/theme/:id",
+  "screen": "ThemeDetailScreen"
+ },
+ {
+  "path": "/epl",
+  "screen": "EplScreen"
+ },
+ {
+  "path": "/expatriation",
+  "screen": "ExpatScreen"
+ },
+ {
+  "path": "/explore",
+  "screen": "ExplorerScreen"
+ },
+ {
+  "path": "/explore/famille",
+  "screen": "ExploreHubScreen"
+ },
+ {
+  "path": "/explore/fiscalite",
+  "screen": "ExploreHubScreen"
+ },
+ {
+  "path": "/explore/logement",
+  "screen": "ExploreHubScreen"
+ },
+ {
+  "path": "/explore/patrimoine",
+  "screen": "ExploreHubScreen"
+ },
+ {
+  "path": "/explore/retraite",
+  "screen": "ExploreHubScreen"
+ },
+ {
+  "path": "/explore/sante",
+  "screen": "ExploreHubScreen"
+ },
+ {
+  "path": "/explore/travail",
+  "screen": "ExploreHubScreen"
+ },
+ {
+  "path": "/first-job",
+  "screen": "FirstJobScreen"
+ },
+ {
+  "path": "/fiscal",
+  "screen": "FiscalComparatorScreen"
+ },
+ {
+  "path": "/home",
+  "screen": "Scaffold"
+ },
+ {
+  "path": "/household",
+  "screen": "?"
+ },
+ {
+  "path": "/household/accept",
+  "screen": "?"
+ },
+ {
+  "path": "/hypotheque",
+  "screen": "AffordabilityScreen"
+ },
+ {
+  "path": "/independants/3a",
+  "screen": "Pillar3aIndepScreen"
+ },
+ {
+  "path": "/independants/avs",
+  "screen": "AvsCotisationsScreen"
+ },
+ {
+  "path": "/independants/dividende-salaire",
+  "screen": "DividendeVsSalaireScreen"
+ },
+ {
+  "path": "/independants/ijm",
+  "screen": "IjmScreen"
+ },
+ {
+  "path": "/independants/lpp-volontaire",
+  "screen": "LppVolontaireScreen"
+ },
+ {
+  "path": "/invalidite",
+  "screen": "DisabilityGapScreen"
+ },
+ {
+  "path": "/libre-passage",
+  "screen": "LibrePassageScreen"
+ },
+ {
+  "path": "/life-event/deces-proche",
+  "screen": "DecesProcheScreen"
+ },
+ {
+  "path": "/life-event/demenagement-cantonal",
+  "screen": "DemenagementCantonalScreen"
+ },
+ {
+  "path": "/life-event/divorce",
+  "screen": "?"
+ },
+ {
+  "path": "/life-event/donation",
+  "screen": "DonationScreen"
+ },
+ {
+  "path": "/life-event/housing-sale",
+  "screen": "HousingSaleScreen"
+ },
+ {
+  "path": "/life-event/succession",
+  "screen": "?"
+ },
+ {
+  "path": "/lpp-deep/epl",
+  "screen": "?"
+ },
+ {
+  "path": "/lpp-deep/libre-passage",
+  "screen": "?"
+ },
+ {
+  "path": "/lpp-deep/rachat",
+  "screen": "?"
+ },
+ {
+  "path": "/mariage",
+  "screen": "MariageScreen"
+ },
+ {
+  "path": "/mon-argent",
+  "screen": "MonArgentScreen"
+ },
+ {
+  "path": "/mortgage/affordability",
+  "screen": "?"
+ },
+ {
+  "path": "/mortgage/amortization",
+  "screen": "AmortizationScreen"
+ },
+ {
+  "path": "/mortgage/epl-combined",
+  "screen": "EplCombinedScreen"
+ },
+ {
+  "path": "/mortgage/imputed-rental",
+  "screen": "ImputedRentalScreen"
+ },
+ {
+  "path": "/mortgage/saron-vs-fixed",
+  "screen": "SaronVsFixedScreen"
+ },
+ {
+  "path": "/naissance",
+  "screen": "NaissanceScreen"
+ },
+ {
+  "path": "/onb",
+  "screen": "OnboardingShellScreen"
+ },
+ {
+  "path": "/onboarding/enrichment",
+  "screen": "?"
+ },
+ {
+  "path": "/onboarding/intent",
+  "screen": "?"
+ },
+ {
+  "path": "/onboarding/minimal",
+  "screen": "?"
+ },
+ {
+  "path": "/onboarding/plan",
+  "screen": "?"
+ },
+ {
+  "path": "/onboarding/premier-eclairage",
+  "screen": "?"
+ },
+ {
+  "path": "/onboarding/promise",
+  "screen": "?"
+ },
+ {
+  "path": "/onboarding/quick",
+  "screen": "?"
+ },
+ {
+  "path": "/onboarding/quick-start",
+  "screen": "?"
+ },
+ {
+  "path": "/onboarding/smart",
+  "screen": "?"
+ },
+ {
+  "path": "/open-banking",
+  "screen": "OpenBankingHubScreen"
+ },
+ {
+  "path": "/open-banking/consents",
+  "screen": "ConsentScreen"
+ },
+ {
+  "path": "/open-banking/transactions",
+  "screen": "TransactionListScreen"
+ },
+ {
+  "path": "/pilier-3a",
+  "screen": "Simulator3aScreen"
+ },
+ {
+  "path": "/portfolio",
+  "screen": "?"
+ },
+ {
+  "path": "/profile",
+  "screen": "<redirect → /profile/bilan>"
+ },
+ {
+  "path": "/profile/admin-analytics",
+  "screen": "AdminAnalyticsScreen"
+ },
+ {
+  "path": "/profile/admin-observability",
+  "screen": "AdminObservabilityScreen"
+ },
+ {
+  "path": "/profile/bilan",
+  "screen": "FinancialSummaryScreen"
+ },
+ {
+  "path": "/profile/byok",
+  "screen": "ByokSettingsScreen"
+ },
+ {
+  "path": "/profile/privacy",
+  "screen": "PrivacyCenterScreen"
+ },
+ {
+  "path": "/profile/privacy-control",
+  "screen": "PrivacyControlScreen"
+ },
+ {
+  "path": "/profile/slm",
+  "screen": "SlmSettingsScreen"
+ },
+ {
+  "path": "/rachat-lpp",
+  "screen": "RachatEchelonneScreen"
+ },
+ {
+  "path": "/rapport",
+  "screen": "FinancialReportScreenV2"
+ },
+ {
+  "path": "/rente-vs-capital",
+  "screen": "?"
+ },
+ {
+  "path": "/report",
+  "screen": "?"
+ },
+ {
+  "path": "/report/v2",
+  "screen": "?"
+ },
+ {
+  "path": "/retirement",
+  "screen": "?"
+ },
+ {
+  "path": "/retirement/projection",
+  "screen": "?"
+ },
+ {
+  "path": "/retraite",
+  "screen": "RetirementDashboardScreen"
+ },
+ {
+  "path": "/retraite/rente-vs-capital",
+  "screen": "RenteVsCapitalScreen"
+ },
+ {
+  "path": "/scan",
+  "screen": "DocumentScanScreen"
+ },
+ {
+  "path": "/scan/avs-guide",
+  "screen": "AvsGuideScreen"
+ },
+ {
+  "path": "/scan/impact",
+  "screen": "Scaffold"
+ },
+ {
+  "path": "/scan/review",
+  "screen": "Scaffold"
+ },
+ {
+  "path": "/score-reveal",
+  "screen": "?"
+ },
+ {
+  "path": "/segments/frontalier",
+  "screen": "FrontalierScreen"
+ },
+ {
+  "path": "/segments/gender-gap",
+  "screen": "GenderGapScreen"
+ },
+ {
+  "path": "/segments/independant",
+  "screen": "IndependantScreen"
+ },
+ {
+  "path": "/settings/confidentialite",
+  "screen": "ConfidentialiteSettingsScreen"
+ },
+ {
+  "path": "/settings/langue",
+  "screen": "LangueSettingsScreen"
+ },
+ {
+  "path": "/simulator/3a",
+  "screen": "?"
+ },
+ {
+  "path": "/simulator/compound",
+  "screen": "SimulatorCompoundScreen"
+ },
+ {
+  "path": "/simulator/credit",
+  "screen": "ConsumerCreditSimulatorScreen"
+ },
+ {
+  "path": "/simulator/disability-gap",
+  "screen": "?"
+ },
+ {
+  "path": "/simulator/job-comparison",
+  "screen": "JobComparisonScreen"
+ },
+ {
+  "path": "/simulator/leasing",
+  "screen": "SimulatorLeasingScreen"
+ },
+ {
+  "path": "/simulator/rente-capital",
+  "screen": "?"
+ },
+ {
+  "path": "/start",
+  "screen": "?"
+ },
+ {
+  "path": "/succession",
+  "screen": "SuccessionPatrimoineScreen"
+ },
+ {
+  "path": "/timeline",
+  "screen": "TimelineScreen"
+ },
+ {
+  "path": "/tools",
+  "screen": "?"
+ },
+ {
+  "path": "/unemployment",
+  "screen": "UnemploymentScreen"
+ },
+ {
+  "path": "/waitlist",
+  "screen": "WaitlistProvider"
+ }
+]

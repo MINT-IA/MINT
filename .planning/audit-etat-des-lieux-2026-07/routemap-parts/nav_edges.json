@@ -1,0 +1,286 @@
+{
+ "screen_edges": {
+  "AcceptInvitationScreen": [
+   "/couple"
+  ],
+  "AnonymousChatScreen": [
+   "/"
+  ],
+  "ArbitrageBilanScreen": [
+   "/coach/chat"
+  ],
+  "AujourdhuiScreen": [
+   "/coach/chat"
+  ],
+  "AvsGuideScreen": [
+   "/scan",
+   "/scan/review"
+  ],
+  "BudgetContainerScreen": [
+   "/budget/setup"
+  ],
+  "BudgetScreen": [
+   "/coach/chat",
+   "/profile/bilan"
+  ],
+  "BudgetSetupScreen": [
+   "/coach/chat?topic=budget"
+  ],
+  "ByokSettingsScreen": [
+   "/ask-mint"
+  ],
+  "CantonalBenchmarkScreen": [
+   "/coach/chat"
+  ],
+  "CoachChatScreen": [
+   "/auth/login",
+   "/auth/register",
+   "/profile/byok",
+   "/scan",
+   "/waitlist"
+  ],
+  "ConfidentialiteSettingsScreen": [
+   "/profile/bilan"
+  ],
+  "ConversationHistoryScreen": [
+   "/coach/chat"
+  ],
+  "DebtRatioScreen": [
+   "/debt/repayment"
+  ],
+  "DocumentImpactScreen": [
+   "/coach/chat"
+  ],
+  "DocumentScanScreen": [
+   "/auth/register",
+   "/scan/review"
+  ],
+  "DocumentsScreen": [
+   "/bank-import"
+  ],
+  "ExtractionReviewScreen": [
+   "/scan/impact"
+  ],
+  "FinancialSummaryScreen": [
+   "/onb",
+   "/scan",
+   "/settings/confidentialite"
+  ],
+  "ForgotPasswordScreen": [
+   "/auth/login"
+  ],
+  "HouseholdScreen": [
+   "/auth/login",
+   "/household/accept"
+  ],
+  "LandingScreen": [
+   "/auth/login",
+   "/start"
+  ],
+  "LoginScreen": [
+   "/",
+   "/auth/forgot-password",
+   "/auth/register",
+   "/auth/verify-email"
+  ],
+  "MonArgentScreen": [
+   "/budget",
+   "/budget/setup",
+   "/coach/chat?topic=budget",
+   "/profile/bilan",
+   "/scan"
+  ],
+  "OnboardingShellScreen": [
+   "/retraite/rente-vs-capital",
+   "/waitlist"
+  ],
+  "PrivacyCenterScreen": [
+   "/"
+  ],
+  "PrivacyControlScreen": [
+   "/profile/privacy"
+  ],
+  "RegisterScreen": [
+   "/",
+   "/about",
+   "/auth/login"
+  ],
+  "RetirementDashboardScreen": [
+   "/education/hub",
+   "/onb",
+   "/profile",
+   "/profile/bilan",
+   "/retraite"
+  ],
+  "Retroactive3aScreen": [
+   "/coach/chat"
+  ],
+  "Simulator3aScreen": [
+   "/coach?intent=fatca_3a_alternatives"
+  ],
+  "StaggeredWithdrawalScreen": [
+   "/coach/chat"
+  ],
+  "VerifyEmailScreen": [
+   "/auth/login"
+  ],
+  "financial_report_screen_v2": [
+   "/coach/chat",
+   "/mon-argent"
+  ],
+  "waitlist_success": [
+   "/"
+  ]
+ },
+ "widget_edges": {
+  "arbitrage_teaser_card": [
+   "/arbitrage/bilan"
+  ],
+  "cap_du_jour_banner": [
+   "/coach/chat",
+   "/scan"
+  ],
+  "coach_message_bubble": [
+   "/budget",
+   "/education/hub",
+   "/fiscal",
+   "/pilier-3a",
+   "/retraite",
+   "/retraite/rente-vs-capital"
+  ],
+  "commitments_and_checkins_card": [
+   "/coach/chat"
+  ],
+  "data_quality_card": [
+   "/scan"
+  ],
+  "document_scan_cta": [
+   "/scan"
+  ],
+  "early_retirement_comparison": [
+   "/retraite"
+  ],
+  "eclairage_card": [
+   "/auth/register?redirect=/anonymous/chat"
+  ],
+  "hero_retirement_card": [
+   "/scan"
+  ],
+  "profile_drawer": [
+   "/",
+   "/auth/login"
+  ],
+  "smart_shortcuts": [
+   "/retraite"
+  ],
+  "trajectory_card": [
+   "/retraite"
+  ],
+  "widget_renderer": [
+   "/budget",
+   "/documents",
+   "/retraite"
+  ]
+ },
+ "screen_to_route": {
+  "LandingScreen": "/",
+  "OnboardingShellScreen": "/start",
+  "LoginScreen": "/auth/login",
+  "RegisterScreen": "/auth/register",
+  "ForgotPasswordScreen": "/auth/forgot-password",
+  "VerifyEmailScreen": "/auth/verify-email",
+  "WaitlistProvider": "/waitlist",
+  "ChatAsVerbDemoScreen": "/debug/chat-as-verb",
+  "DebugMint2AccountClaimScreen": "/__e2e/row23-independent-no-lpp-profile",
+  "DebugBudgetBootstrapScreen": "/__e2e/budget-direct-inputs",
+  "Scaffold": "/home",
+  "MonArgentScreen": "/mon-argent",
+  "CoachChatScreen": "/coach/chat",
+  "ExplorerScreen": "/explore",
+  "ExploreHubScreen": "/explore/retraite",
+  "RetirementDashboardScreen": "/retraite",
+  "RenteVsCapitalScreen": "/retirement",
+  "RachatEchelonneScreen": "/simulator/rente-capital",
+  "EplScreen": "/lpp-deep/rachat",
+  "OptimisationDecaissementScreen": "/lpp-deep/epl",
+  "ConversationHistoryScreen": "/coach/checkin",
+  "SuccessionPatrimoineScreen": "/succession",
+  "LibrePassageScreen": "/coach/succession",
+  "Simulator3aScreen": "/lpp-deep/libre-passage",
+  "ProviderComparatorScreen": "/simulator/3a",
+  "RealReturnScreen": "/3a-deep/real-return",
+  "StaggeredWithdrawalScreen": "/3a-deep/staggered-withdrawal",
+  "Retroactive3aScreen": "/3a-retroactif",
+  "FiscalComparatorScreen": "/fiscal",
+  "AffordabilityScreen": "/hypotheque",
+  "AmortizationScreen": "/mortgage/affordability",
+  "EplCombinedScreen": "/mortgage/epl-combined",
+  "ImputedRentalScreen": "/mortgage/imputed-rental",
+  "SaronVsFixedScreen": "/mortgage/saron-vs-fixed",
+  "BudgetContainerScreen": "/budget",
+  "BudgetSetupScreen": "/budget/setup",
+  "DebtRiskCheckScreen": "/check/debt",
+  "DebtRatioScreen": "/debt/ratio",
+  "HelpResourcesScreen": "/debt/help",
+  "RepaymentScreen": "/debt/repayment",
+  "DivorceSimulatorScreen": "/divorce",
+  "MariageScreen": "/life-event/divorce",
+  "NaissanceScreen": "/naissance",
+  "ConcubinageScreen": "/concubinage",
+  "UnemploymentScreen": "/unemployment",
+  "FirstJobScreen": "/first-job",
+  "ExpatScreen": "/expatriation",
+  "JobComparisonScreen": "/simulator/job-comparison",
+  "IndependantScreen": "/segments/independant",
+  "AvsCotisationsScreen": "/independants/avs",
+  "IjmScreen": "/independants/ijm",
+  "Pillar3aIndepScreen": "/independants/3a",
+  "DividendeVsSalaireScreen": "/independants/dividende-salaire",
+  "LppVolontaireScreen": "/independants/lpp-volontaire",
+  "DisabilityGapScreen": "/invalidite",
+  "DisabilityInsuranceScreen": "/disability/gap",
+  "DisabilitySelfEmployedScreen": "/disability/self-employed",
+  "LamalFranchiseScreen": "/assurances/lamal",
+  "CoverageCheckScreen": "/assurances/coverage",
+  "DocumentScanScreen": "/scan",
+  "AvsGuideScreen": "/document-scan",
+  "DocumentsScreen": "/documents",
+  "DocumentDetailScreen": "/documents/:id",
+  "HouseholdScreen": "/couple",
+  "AcceptInvitationScreen": "/household",
+  "FinancialReportScreenV2": "/household/accept",
+  "AdminObservabilityScreen": "/profile",
+  "AdminAnalyticsScreen": "admin-analytics",
+  "ByokSettingsScreen": "byok",
+  "SlmSettingsScreen": "slm",
+  "FinancialSummaryScreen": "bilan",
+  "PrivacyControlScreen": "privacy-control",
+  "PrivacyCenterScreen": "privacy",
+  "GenderGapScreen": "/segments/gender-gap",
+  "FrontalierScreen": "/segments/frontalier",
+  "HousingSaleScreen": "/life-event/housing-sale",
+  "DonationScreen": "/life-event/donation",
+  "DecesProcheScreen": "/life-event/deces-proche",
+  "DemenagementCantonalScreen": "/life-event/demenagement-cantonal",
+  "ComprendreHubScreen": "/education/hub",
+  "ThemeDetailScreen": "/education/theme/:id",
+  "SimulatorCompoundScreen": "/simulator/compound",
+  "SimulatorLeasingScreen": "/simulator/leasing",
+  "ConsumerCreditSimulatorScreen": "/simulator/credit",
+  "ArbitrageBilanScreen": "/arbitrage/bilan",
+  "AllocationAnnuelleScreen": "/arbitrage/allocation-annuelle",
+  "LocationVsProprieteScreen": "/arbitrage/location-vs-propriete",
+  "CantonalBenchmarkScreen": "/achievements",
+  "LangueSettingsScreen": "/settings/langue",
+  "ConfidentialiteSettingsScreen": "/settings/confidentialite",
+  "AboutScreen": "/about",
+  "AdminShell": "/admin/routes",
+  "TimelineScreen": "/tools",
+  "ConfidenceDashboardScreen": "/confidence",
+  "DataBlockEnrichmentScreen": "/onboarding/plan",
+  "OpenBankingHubScreen": "/open-banking",
+  "TransactionListScreen": "/open-banking/transactions",
+  "ConsentScreen": "/open-banking/consents",
+  "BankImportScreen": "/bank-import"
+ }
+}
