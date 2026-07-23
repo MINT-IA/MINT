@@ -15,6 +15,8 @@
 //  (mêmes tables, mêmes conventions d'interpolation).
 // ────────────────────────────────────────────────────────────
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 /// Barème IFD 2026 (LIFD art. 36, célibataire) — (borne sup, taux tranche).
 const List<List<double>> incomeTaxFederalBrackets2026 = [
   [15200, 0.0000],
@@ -179,7 +181,6 @@ double estimateCapitalWithdrawalTaxV2(
   double amount,
   String canton, {
   bool isMarried = false,
-  double Function(String canton)? marriedDiscountFor,
 }) {
   if (amount <= 0) return 0;
 
@@ -222,8 +223,11 @@ double estimateCapitalWithdrawalTaxV2(
     }
   }
 
-  if (isMarried && marriedDiscountFor != null) {
-    cantonal *= marriedDiscountFor(canton.toUpperCase());
+  if (isMarried) {
+    // Coefficient par canton importé directement (review #990 : une
+    // dépendance injectable nullable permettait une divergence silencieuse
+    // marié == célibataire si le caller oubliait l'injection).
+    cantonal *= marriedCapitalTaxDiscountFor(canton.toUpperCase());
   }
   return ifd + cantonal;
 }

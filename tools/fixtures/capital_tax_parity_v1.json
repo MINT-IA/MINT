@@ -37,6 +37,20 @@
       "is_married": false,
       "expected": 151250.29,
       "estv_reference": null
+    },
+    {
+      "amount": 500000,
+      "canton": "ZH",
+      "is_married": true,
+      "expected": 28434.6,
+      "estv_reference": null
+    },
+    {
+      "amount": 400000,
+      "canton": "BS",
+      "is_married": true,
+      "expected": 31435.69,
+      "estv_reference": null
     }
   ]
 }
