@@ -186,14 +186,32 @@ void main() {
     });
 
     testWidgets('has add debt button', (tester) async {
-      await tester.pumpWidget(_appWithDebts());
+      // Assertion volontairement SANS provider (review PR #974) : le bouton
+      // d'ajout doit exister même sur un écran vide non hydraté.
+      await tester.pumpWidget(
+        const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: RepaymentScreen(),
+        ),
+      );
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
 
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();
+      // MintEntrance (delay 150 ms) : laisser l'animation monter la section.
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
 
-      expect(find.byIcon(Icons.add_circle_outline), findsWidgets);
+      expect(
+          find.byIcon(Icons.add_circle_outline, skipOffstage: false),
+          findsWidgets);
     });
 
     testWidgets('has delete buttons for debts', (tester) async {

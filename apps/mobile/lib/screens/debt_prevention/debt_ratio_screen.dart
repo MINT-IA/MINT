@@ -17,6 +17,9 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -42,6 +45,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     ReportPersistenceService.markSimulatorExplored('debt');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
+      _hydrateFromProfile();
     });
   }
 
@@ -87,12 +91,39 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     ScreenCompletionTracker.markCompletedWithReturn('debt_ratio', screenReturn);
   }
 
-  double _revenusMensuels = 6000;
-  double _chargesDetteMensuelles = 500;
-  double _loyer = 1500;
-  double _autresCharges = 300;
+  // beads MINT_nosync-64r (review PR #974, ILLOG-01) : plus de valeurs
+  // fictives par défaut — hydratation depuis le profil ; les sliders
+  // restent la source éditable par l'utilisateur.
+  double _revenusMensuels = 0;
+  double _chargesDetteMensuelles = 0;
+  double _loyer = 0;
+  double _autresCharges = 0;
   bool _estCelibataire = true;
   int _nombreEnfants = 0;
+
+  void _hydrateFromProfile() {
+    if (!mounted) return;
+    final CoachProfile? profile;
+    try {
+      profile = context.read<CoachProfileProvider>().profile;
+    } catch (_) {
+      return; // harnais isolé / deeplink froid : sliders à zéro, éditables
+    }
+    if (profile == null) return;
+    final CoachProfile prof = profile;
+    final d = prof.dettes;
+    setState(() {
+      _revenusMensuels =
+          prof.salaireBrutMensuel * prof.nombreDeMois / 12;
+      _chargesDetteMensuelles = (d.mensualiteCreditConso ?? 0) +
+          (d.mensualiteLeasing ?? 0) +
+          (d.mensualiteHypotheque ?? 0);
+      _loyer = prof.depenses.loyer;
+      _autresCharges = prof.depenses.assuranceMaladie;
+      _estCelibataire = prof.etatCivil != CoachCivilStatus.marie;
+      _nombreEnfants = prof.nombreEnfants;
+    });
+  }
 
   DebtRatioResult get _result => DebtRatioCalculator.calculate(
         revenusMensuels: _revenusMensuels,

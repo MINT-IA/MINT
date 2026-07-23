@@ -24132,4 +24132,10 @@ class SEn extends S {
 
   @override
   String get repaymentDebtAutres => 'Other debts';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Rate (estimated)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Installment (estimated)';
 }

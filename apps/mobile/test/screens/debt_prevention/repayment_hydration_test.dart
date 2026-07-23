@@ -116,7 +116,67 @@ void main() {
     expect(find.byType(DebtSurvivalWidget, skipOffstage: false), findsNothing,
         reason: 'pas de statut « libéré/critique » sur du vide');
     final l10n = await S.delegate.load(const Locale('fr'));
+    // Cardinalité EXACTE (review PR #974) : une seule invite d'état vide,
+    // pas d'empilement empty-state + add-hint.
     expect(find.text(l10n.repaymentEmptyState, skipOffstage: false),
-        findsWidgets, reason: 'état vide explicite attendu');
+        findsOneWidget, reason: 'exactement UNE invite d\'état vide');
+    expect(find.text(l10n.repaymentAddDebtHint, skipOffstage: false),
+        findsNothing,
+        reason: 'le hint additionnel ne doit pas doubler l\'état vide');
+  });
+
+  testWidgets(
+      'autresDettes hydraté avec provenance « estimé » (taux + mensualité)',
+      (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(_app(_profile(
+      dettes: const DetteProfile(autresDettes: 6000),
+    )));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final l10n = await S.delegate.load(const Locale('fr'));
+    expect(find.text(l10n.repaymentDebtAutres, skipOffstage: false),
+        findsOneWidget);
+    // Taux et mensualité inconnus du profil -> labels « (estimé) » visibles :
+    // la provenance de l'hypothèse MINT est affichée, pas déguisée.
+    expect(
+        find.text(l10n.repaymentFieldRateEstimated, skipOffstage: false),
+        findsOneWidget);
+    expect(
+        find.text(l10n.repaymentFieldInstallmentEstimated,
+            skipOffstage: false),
+        findsOneWidget);
+  });
+
+  testWidgets('taux réels du profil -> PAS de label « estimé »',
+      (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(_app(_profile(
+      dettes: const DetteProfile(
+        creditConsommation: 12000,
+        tauxCreditConso: 8.5,
+        mensualiteCreditConso: 280,
+      ),
+    )));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final l10n = await S.delegate.load(const Locale('fr'));
+    expect(find.text(l10n.repaymentFieldRateEstimated, skipOffstage: false),
+        findsNothing,
+        reason: 'donnée du profil = pas une hypothèse, pas de tag');
+    expect(find.text(l10n.repaymentFieldRate, skipOffstage: false),
+        findsOneWidget);
   });
 }

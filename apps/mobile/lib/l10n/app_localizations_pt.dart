@@ -24262,4 +24262,10 @@ class SPt extends S {
 
   @override
   String get repaymentDebtAutres => 'Outras dívidas';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Taxa (estimada)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Prestação (estimada)';
 }

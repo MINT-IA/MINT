@@ -24255,4 +24255,10 @@ class SEs extends S {
 
   @override
   String get repaymentDebtAutres => 'Otras deudas';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Tasa (estimada)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Cuota (estimada)';
 }

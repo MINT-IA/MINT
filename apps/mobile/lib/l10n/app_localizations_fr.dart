@@ -24251,4 +24251,10 @@ class SFr extends S {
 
   @override
   String get repaymentDebtAutres => 'Autres dettes';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Taux (estimé)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Mensualité (estimée)';
 }

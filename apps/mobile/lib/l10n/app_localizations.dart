@@ -42399,6 +42399,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Autres dettes'**
   String get repaymentDebtAutres;
+
+  /// Label du champ taux quand la valeur est une hypothèse MINT (absente du profil) — provenance visible (review -64r)
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux (estimé)'**
+  String get repaymentFieldRateEstimated;
+
+  /// Label du champ mensualité quand la valeur est une hypothèse MINT — provenance visible (review -64r)
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensualité (estimée)'**
+  String get repaymentFieldInstallmentEstimated;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

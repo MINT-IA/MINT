@@ -120,6 +120,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           tauxAnnuel: d.tauxCreditConso ?? 9.9,
           mensualiteMin: d.mensualiteCreditConso ??
               (d.creditConsommation! * 0.02).roundToDouble(),
+          tauxEstime: d.tauxCreditConso == null,
+          mensualiteEstimee: d.mensualiteCreditConso == null,
         ));
       }
       if ((d.leasing ?? 0) > 0) {
@@ -129,6 +131,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           tauxAnnuel: d.tauxLeasing ?? 4.9,
           mensualiteMin:
               d.mensualiteLeasing ?? (d.leasing! * 0.03).roundToDouble(),
+          tauxEstime: d.tauxLeasing == null,
+          mensualiteEstimee: d.mensualiteLeasing == null,
         ));
       }
       if ((d.autresDettes ?? 0) > 0) {
@@ -137,6 +141,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           montant: d.autresDettes!,
           tauxAnnuel: 5.0,
           mensualiteMin: (d.autresDettes! * 0.02).roundToDouble(),
+          tauxEstime: true,
+          mensualiteEstimee: true,
         ));
       }
     });
@@ -291,10 +297,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             if (result.economieInterets > 0)
               Text(
                 S.of(context)!.repaymentDiffStrategies(formatChf(result.economieInterets)),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: color,
-                ),
+                style: MintTextStyles.labelMedium(color: color),
               ),
           ],
         ),
@@ -335,20 +338,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             if (i < _dettes.length - 1) const SizedBox(height: 12),
           ],
 
-          if (_dettes.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Text(
-                  S.of(context)!.repaymentAddDebtHint,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: MintColors.textMuted,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
+          // Cardinalité état vide (panel + review -64r) : quand la liste est
+          // vide, l'UNIQUE invite est repaymentEmptyState en bas d'écran —
+          // pas de hint dupliqué ici.
         ],
       ),
     );
@@ -429,7 +421,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               Expanded(
                 flex: 2,
                 child: _buildInlineValue(
-                  label: S.of(context)!.repaymentFieldRate,
+                  label: dette.tauxEstime
+                      ? S.of(context)!.repaymentFieldRateEstimated
+                      : S.of(context)!.repaymentFieldRate,
                   display: '${dette.tauxAnnuel.toStringAsFixed(1)}\u00a0%',
                   onTap: () => _showValueEditor(
                     label: S.of(context)!.repaymentFieldRateLabel,
@@ -439,7 +433,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     prefix: '',
                     suffix: '%',
                     decimals: true,
-                    onChanged: (v) => setState(() { _hasUserInteracted = true; dette.tauxAnnuel = v; }),
+                    onChanged: (v) => setState(() {
+                      _hasUserInteracted = true;
+                      dette.tauxAnnuel = v;
+                      dette.tauxEstime = false;
+                    }),
                   ),
                 ),
               ),
@@ -447,7 +445,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               Expanded(
                 flex: 3,
                 child: _buildInlineValue(
-                  label: S.of(context)!.repaymentFieldInstallment,
+                  label: dette.mensualiteEstimee
+                      ? S.of(context)!.repaymentFieldInstallmentEstimated
+                      : S.of(context)!.repaymentFieldInstallment,
                   display: 'CHF\u00a0${formatChf(dette.mensualiteMin)}',
                   onTap: () => _showValueEditor(
                     label: S.of(context)!.repaymentFieldInstallmentLabel,
@@ -455,8 +455,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     min: 50,
                     max: 3000,
                     prefix: 'CHF',
-                    onChanged: (v) =>
-                        setState(() { _hasUserInteracted = true; dette.mensualiteMin = v; }),
+                    onChanged: (v) => setState(() {
+                      _hasUserInteracted = true;
+                      dette.mensualiteMin = v;
+                      dette.mensualiteEstimee = false;
+                    }),
                   ),
                 ),
               ),
@@ -487,12 +490,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
+              style: MintTextStyles.labelSmall(
                 color: MintColors.textMuted,
-                letterSpacing: 0.5,
-              ),
+              ).copyWith(letterSpacing: 0.5),
             ),
             const SizedBox(height: 3),
             Text(
@@ -598,10 +598,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   decimals ? min.toStringAsFixed(1) : formatChf(min),
                   decimals ? max.toStringAsFixed(1) : formatChf(max),
                 ),
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
               const SizedBox(height: 20),
               Semantics(
@@ -632,10 +629,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   ),
                   child: Text(
                     S.of(context)!.repaymentValidate,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.labelLarge(),
                   ),
                 ),
               )),
@@ -773,10 +767,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 const Divider(height: 16),
                 Text(
                   S.of(context)!.repaymentDifference(formatChf(result.economieInterets)),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                  style: MintTextStyles.bodySmall(
                     color: MintColors.success,
+                  ).copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -834,18 +828,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           const SizedBox(height: 4),
           Text(
             S.of(context)!.repaymentInteretsDisplay(formatChf(interets)),
-            style: const TextStyle(
-              fontSize: 11,
-              color: MintColors.redDeep,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.redDeep),
           ),
           const SizedBox(height: 8),
           Text(
             '✓ $pro',
-            style: const TextStyle(
-              fontSize: 10,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -1016,10 +1004,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           const SizedBox(height: 16),
           Text(
             S.of(context)!.repaymentEmptyState,
-            style: const TextStyle(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -1059,10 +1044,18 @@ class _DebtInput {
   double tauxAnnuel; // en % (ex: 9.9)
   double mensualiteMin;
 
+  /// Provenance (review -64r) : true quand la valeur est une hypothèse MINT
+  /// (taux/mensualité absents du profil) et non une donnée de l'utilisateur.
+  /// Remise à false dès que l'utilisateur édite la valeur.
+  bool tauxEstime;
+  bool mensualiteEstimee;
+
   _DebtInput({
     required this.nom,
     required this.montant,
     required this.tauxAnnuel,
     required this.mensualiteMin,
+    this.tauxEstime = false,
+    this.mensualiteEstimee = false,
   });
 }

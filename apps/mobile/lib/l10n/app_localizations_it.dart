@@ -24317,4 +24317,10 @@ class SIt extends S {
 
   @override
   String get repaymentDebtAutres => 'Altri debiti';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Tasso (stimato)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Rata (stimata)';
 }

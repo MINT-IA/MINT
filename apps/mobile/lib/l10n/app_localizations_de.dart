@@ -24315,4 +24315,10 @@ class SDe extends S {
 
   @override
   String get repaymentDebtAutres => 'Andere Schulden';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Zins (geschätzt)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Rate (geschätzt)';
 }

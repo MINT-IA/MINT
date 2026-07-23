@@ -159,6 +159,8 @@ ALLOW = {
     "apps/mobile/test/screens/coach/coach_consent_gate_flow_test.dart",
     "apps/mobile/lib/screens/debt_prevention/repayment_screen.dart",
     "apps/mobile/test/screens/debt_prevention/repayment_hydration_test.dart",
+    "apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart",
+    "apps/mobile/test/screens/debt_prevention/debt_ratio_hydration_test.dart",
     "apps/mobile/test/screens/debt_prevention_screens_smoke_test.dart",
     "services/backend/app/services/arbitrage/rente_vs_capital.py",
     "services/backend/app/api/v1/endpoints/arbitrage.py",
