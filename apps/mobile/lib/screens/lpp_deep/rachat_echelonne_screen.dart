@@ -653,7 +653,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       Semantics(
                         button: true,
                         label: l.rachatEchelonneAuto,
-                        child: TextButton(
+                        child: TextButton( // lint-ignore: prefer_mint_cta
                           onPressed: () { setState(() { _manualTauxOverride = false; }); _onInputChanged(); },
                           style: TextButton.styleFrom(foregroundColor: MintColors.info, textStyle: MintTextStyles.labelSmall(), padding: EdgeInsets.zero, minimumSize: const Size(0, 32)),
                           child: Text(l.rachatEchelonneAuto),
