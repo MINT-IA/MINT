@@ -42381,6 +42381,36 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Le coach a besoin de ton accord pour transmettre tes messages au service d\'IA (serveurs aux États-Unis). Sans cet accord, il ne peut pas répondre. Renvoie ton message quand tu veux : la demande d\'accord te sera proposée à nouveau.'**
   String get coachConsentDeclined;
+
+  /// Nom de dette hydratée depuis profile.dettes.creditConsommation (beads MINT_nosync-64r)
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédit conso'**
+  String get repaymentDebtCreditConso;
+
+  /// Nom de dette hydratée depuis profile.dettes.leasing
+  ///
+  /// In fr, this message translates to:
+  /// **'Leasing'**
+  String get repaymentDebtLeasing;
+
+  /// Nom de dette hydratée depuis profile.dettes.autresDettes
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres dettes'**
+  String get repaymentDebtAutres;
+
+  /// Label du champ taux quand la valeur est une hypothèse MINT (absente du profil) — provenance visible (review -64r)
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux (estimé)'**
+  String get repaymentFieldRateEstimated;
+
+  /// Label du champ mensualité quand la valeur est une hypothèse MINT — provenance visible (review -64r)
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensualité (estimée)'**
+  String get repaymentFieldInstallmentEstimated;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

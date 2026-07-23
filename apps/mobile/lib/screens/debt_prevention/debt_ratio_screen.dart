@@ -17,6 +17,9 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -42,6 +45,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     ReportPersistenceService.markSimulatorExplored('debt');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
+      _hydrateFromProfile();
     });
   }
 
@@ -87,12 +91,39 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     ScreenCompletionTracker.markCompletedWithReturn('debt_ratio', screenReturn);
   }
 
-  double _revenusMensuels = 6000;
-  double _chargesDetteMensuelles = 500;
-  double _loyer = 1500;
-  double _autresCharges = 300;
+  // beads MINT_nosync-64r (review PR #974, ILLOG-01) : plus de valeurs
+  // fictives par défaut — hydratation depuis le profil ; les sliders
+  // restent la source éditable par l'utilisateur.
+  double _revenusMensuels = 0;
+  double _chargesDetteMensuelles = 0;
+  double _loyer = 0;
+  double _autresCharges = 0;
   bool _estCelibataire = true;
   int _nombreEnfants = 0;
+
+  void _hydrateFromProfile() {
+    if (!mounted) return;
+    final CoachProfile? profile;
+    try {
+      profile = context.read<CoachProfileProvider>().profile;
+    } catch (_) {
+      return; // harnais isolé / deeplink froid : sliders à zéro, éditables
+    }
+    if (profile == null) return;
+    final CoachProfile prof = profile;
+    final d = prof.dettes;
+    setState(() {
+      _revenusMensuels =
+          prof.salaireBrutMensuel * prof.nombreDeMois / 12;
+      _chargesDetteMensuelles = (d.mensualiteCreditConso ?? 0) +
+          (d.mensualiteLeasing ?? 0) +
+          (d.mensualiteHypotheque ?? 0);
+      _loyer = prof.depenses.loyer;
+      _autresCharges = prof.depenses.assuranceMaladie;
+      _estCelibataire = prof.etatCivil != CoachCivilStatus.marie;
+      _nombreEnfants = prof.nombreEnfants;
+    });
+  }
 
   DebtRatioResult get _result => DebtRatioCalculator.calculate(
         revenusMensuels: _revenusMensuels,
@@ -348,10 +379,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 ),
                 Text(
                   _showDetails ? '' : S.of(context)!.debtRatioRefineSuffix,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(
+                      color: MintColors.textMuted),
                 ),
                 const SizedBox(width: 8),
                 AnimatedRotation(
@@ -475,10 +504,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+                  style: MintTextStyles.labelSmall(
                     color: color,
+                  ).copyWith(
+                    fontWeight: FontWeight.w600,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -576,10 +605,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            style: MintTextStyles.labelSmall(
               color: MintColors.primary,
+            ).copyWith(
+              fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
             ),
           ),
@@ -607,9 +636,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       alignment: Alignment.center,
                       child: Text(
                         options[i],
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.labelMedium(
                           color: isSelected
                               ? MintColors.white
                               : MintColors.textMuted,
@@ -645,10 +672,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            style: MintTextStyles.labelSmall(
               color: MintColors.primary,
+            ).copyWith(
+              fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
             ),
           ),
@@ -673,9 +700,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   alignment: Alignment.center,
                   child: Text(
                     display,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                    style: MintTextStyles.bodySmall(
                       color: isSelected
                           ? MintColors.white
                           : MintColors.textMuted,
@@ -767,15 +792,15 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               const SizedBox(height: 8),
               Text(
                 S.of(context)!.debtRatioMinMaxDisplay(formatChf(min), formatChf(max)),
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted),
               ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                // Bouton pré-existant déplacé par ce diff — MintCTA arrive en
+                // Phase MVP-CTA-UNIFICATION-V1.
+                child: FilledButton( // lint-ignore: prefer_mint_cta
                   onPressed: () {
                     final parsed = double.tryParse(
                       controller.text
@@ -797,10 +822,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   ),
                   child: Text(
                     S.of(context)!.debtRatioValidate,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.labelLarge(),
                   ),
                 ),
               ),
@@ -857,11 +879,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   Expanded(
                     child: Text(
                       S.of(context)!.debtRatioMinVitalWarning,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: MintColors.redDark,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: MintTextStyles.labelMedium(
+                          color: MintColors.redDark),
                     ),
                   ),
                 ],
@@ -978,11 +997,11 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     const SizedBox(height: 4),
                     Text(
                       S.of(context)!.debtRatioCtaDescription,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isRouge ? MintColors.redDark : MintColors.deepOrange,
-                        height: 1.3,
-                      ),
+                      style: MintTextStyles.labelMedium(
+                        color: isRouge
+                            ? MintColors.redDark
+                            : MintColors.deepOrange,
+                      ).copyWith(fontWeight: FontWeight.w400, height: 1.3),
                     ),
                   ],
                 ),

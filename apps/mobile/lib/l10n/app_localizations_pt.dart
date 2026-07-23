@@ -24253,4 +24253,19 @@ class SPt extends S {
   @override
   String get coachConsentDeclined =>
       'O coach precisa do teu consentimento para enviar as tuas mensagens ao serviço de IA (servidores nos Estados Unidos). Sem ele, o coach não pode responder. Reenvia a tua mensagem quando quiseres: o pedido de consentimento será apresentado novamente.';
+
+  @override
+  String get repaymentDebtCreditConso => 'Crédito ao consumo';
+
+  @override
+  String get repaymentDebtLeasing => 'Leasing';
+
+  @override
+  String get repaymentDebtAutres => 'Outras dívidas';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Taxa (estimada)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Prestação (estimada)';
 }

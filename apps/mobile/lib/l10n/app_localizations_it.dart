@@ -24308,4 +24308,19 @@ class SIt extends S {
   @override
   String get coachConsentDeclined =>
       'Il coach ha bisogno del tuo consenso per trasmettere i tuoi messaggi al servizio di IA (server negli Stati Uniti). Senza, il coach non può rispondere. Rinvia il tuo messaggio quando vuoi: ti verrà richiesto di nuovo il consenso.';
+
+  @override
+  String get repaymentDebtCreditConso => 'Credito al consumo';
+
+  @override
+  String get repaymentDebtLeasing => 'Leasing';
+
+  @override
+  String get repaymentDebtAutres => 'Altri debiti';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Tasso (stimato)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Rata (stimata)';
 }

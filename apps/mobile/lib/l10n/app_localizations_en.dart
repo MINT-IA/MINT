@@ -24123,4 +24123,19 @@ class SEn extends S {
   @override
   String get coachConsentDeclined =>
       'The coach needs your consent to send your messages to the AI service (servers in the United States). Without it, the coach cannot reply. Resend your message anytime: you will be asked for consent again.';
+
+  @override
+  String get repaymentDebtCreditConso => 'Consumer credit';
+
+  @override
+  String get repaymentDebtLeasing => 'Leasing';
+
+  @override
+  String get repaymentDebtAutres => 'Other debts';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Rate (estimated)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Installment (estimated)';
 }

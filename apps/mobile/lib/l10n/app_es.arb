@@ -11546,5 +11546,25 @@
   "coachConsentDeclined": "El coach necesita tu consentimiento para enviar tus mensajes al servicio de IA (servidores en Estados Unidos). Sin él, el coach no puede responder. Reenvía tu mensaje cuando quieras: se te pedirá el consentimiento de nuevo.",
   "@coachConsentDeclined": {
     "description": "Message systeme du chat coach quand l'utilisateur refuse le consentement transfer_us_anthropic (beads MINT_nosync-tcr). Panel: la voie de reprise citee doit etre VRAIE — renvoyer le message re-declenche la sheet ; Profil->Confidentialite n'offre PAS de grant (dead-end interdit)."
+  },
+  "repaymentDebtCreditConso": "Crédito de consumo",
+  "@repaymentDebtCreditConso": {
+    "description": "Nom de dette hydratée depuis profile.dettes.creditConsommation (beads MINT_nosync-64r)"
+  },
+  "repaymentDebtLeasing": "Leasing",
+  "@repaymentDebtLeasing": {
+    "description": "Nom de dette hydratée depuis profile.dettes.leasing"
+  },
+  "repaymentDebtAutres": "Otras deudas",
+  "@repaymentDebtAutres": {
+    "description": "Nom de dette hydratée depuis profile.dettes.autresDettes"
+  },
+  "repaymentFieldRateEstimated": "Tasa (estimada)",
+  "@repaymentFieldRateEstimated": {
+    "description": "Label du champ taux quand la valeur est une hypothèse MINT (absente du profil) — provenance visible (review -64r)"
+  },
+  "repaymentFieldInstallmentEstimated": "Cuota (estimada)",
+  "@repaymentFieldInstallmentEstimated": {
+    "description": "Label du champ mensualité quand la valeur est une hypothèse MINT — provenance visible (review -64r)"
   }
 }
