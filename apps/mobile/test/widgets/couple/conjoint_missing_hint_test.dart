@@ -23,6 +23,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/couple/conjoint_missing_hint.dart';
+import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
 
 CoachProfile _profile({
   CoachCivilStatus etatCivil = CoachCivilStatus.marie,
@@ -154,6 +155,65 @@ void main() {
         isTrue,
         reason: 'panel : en concubinage l\'imposition est séparée — le '
             'calcul solo est correct, pas de fausse alerte');
+  });
+
+  group('comportemental écran — AffordabilityScreen rendu (round 2 #976)', () {
+    Widget affordabilityApp(CoachProfile profile) {
+      final provider = CoachProfileProvider();
+      provider.updateProfile(profile);
+      return ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: provider,
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: AffordabilityScreen(),
+        ),
+      );
+    }
+
+    testWidgets('marié, conjoint sans revenu -> bandeau rendu dans l\'écran',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+      await tester.pumpWidget(affordabilityApp(_profile(
+        conjoint: const ConjointProfile(firstName: 'Lau'),
+      )));
+      await tester.pump(const Duration(milliseconds: 400));
+      final l10n = await S.delegate.load(const Locale('fr'));
+      expect(
+          find.text(l10n.coupleMonoIncomeHint, skipOffstage: false),
+          findsOneWidget,
+          reason: 'écran réel : le calcul est mono-revenu, le bandeau doit '
+              'être rendu');
+    });
+
+    testWidgets('marié, conjoint AVEC revenu -> pas de bandeau',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+      await tester.pumpWidget(affordabilityApp(_profile(
+        conjoint: const ConjointProfile(salaireBrutMensuel: 6500),
+      )));
+      await tester.pump(const Duration(milliseconds: 400));
+      final l10n = await S.delegate.load(const Locale('fr'));
+      expect(find.text(l10n.coupleMonoIncomeHint, skipOffstage: false),
+          findsNothing,
+          reason: 'deux revenus réels agrégés -> pas de bandeau');
+    });
   });
 
   test('câblage : les 3 surfaces couple consomment le hint', () {
