@@ -187,6 +187,11 @@ async def stream_understanding(
                 db, user_id, result, use_encryption=_use_enc
             )
         except ThirdPartyDeclarationRequired as gate:
+            # Review Codex PR #975 : miroir STRICT du 428 unaire — un doc
+            # tiers NON déclaré ne divulgue RIEN d'autre que le pointer de
+            # déclaration. Court-circuit immédiat : pas de classify, pas de
+            # field events (montants du tiers), pas de narrative, done
+            # minimal sans résumé ni nom.
             third_party_gate_payload = {
                 "code": "third_party_declaration_required",
                 "subjectNames": gate.subject_names,
@@ -197,6 +202,18 @@ async def stream_understanding(
                 "event": "third_party_declaration_required",
                 "data": third_party_gate_payload,
             }
+            yield {
+                "event": "done",
+                "data": {
+                    "render_mode": "reject",
+                    "overall_confidence": 0.0,
+                    "extraction_status": result.extraction_status.value,
+                    "third_party_declaration_required": (
+                        third_party_gate_payload
+                    ),
+                },
+            }
+            return
 
     # Classify confirmed — single coalesced event with the human-readable summary.
     yield {

@@ -1266,7 +1266,18 @@ async def extract_with_claude_vision(
                 from app.services.document_vision_service import (
                     persist_document_memory,
                 )
-                persist_document_memory(db, str(current_user.id), result)
+                # Review Codex PR #975 : endpoint ASYNC — résoudre le flag
+                # PRIVACY_V2 ici (await) sinon le pont sync timeout vers
+                # False et écrit en clair.
+                try:
+                    _use_enc = await _flags.is_enabled(
+                        "PRIVACY_V2_ENABLED", str(current_user.id)
+                    )
+                except Exception:
+                    _use_enc = False
+                persist_document_memory(
+                    db, str(current_user.id), result, use_encryption=_use_enc
+                )
             return result
         except HTTPException:
             raise

@@ -66,6 +66,19 @@ async def test_sse_undeclared_third_party_emits_gate_event_and_skips_persist(
         "le chemin SSE doit porter le blocage 428 du chemin unaire via un "
         f"événement dédié — événements vus : {names}"
     )
+    # Review Codex PR #975 : miroir STRICT du 428 — AUCUNE divulgation en
+    # aval du gate (pas de field events avec les montants du tiers, pas de
+    # narrative, pas de classify).
+    assert "field" not in names, (
+        f"fuite : field events streamés pour un tiers NON déclaré — {names}"
+    )
+    assert "narrative" not in names
+    assert "stage" not in [
+        e["event"] for e in events
+        if e.get("data", {}).get("stage") == "classify_confirmed"
+    ] or all(
+        e.get("data", {}).get("stage") != "classify_confirmed" for e in events
+    ), "classify_confirmed ne doit pas suivre un gate non déclaré"
     gate = next(
         e for e in events if e["event"] == "third_party_declaration_required"
     )
@@ -78,6 +91,10 @@ async def test_sse_undeclared_third_party_emits_gate_event_and_skips_persist(
     done = events[-1]
     assert done["event"] == "done"
     assert done["data"]["third_party_declaration_required"] is not None
+    assert done["data"]["render_mode"] == "reject"
+    assert "summary" not in done["data"] and "third_party_name" not in done["data"], (
+        "le done post-gate doit rester minimal (aucune info du document)"
+    )
     assert persist_calls == [], (
         "un doc tiers NON déclaré ne doit jamais être persisté (PRIV-02)"
     )
@@ -238,3 +255,124 @@ def test_sync_e2e_428_grant_retry_persists(client, monkeypatch):
         assert rows, "le doc tiers déclaré doit être persisté après retry"
     finally:
         db.close()
+
+
+def test_sync_e2e_declared_with_privacy_v2_persists_encrypted(
+    client, monkeypatch
+):
+    """Chemin unaire ASYNC + PRIVACY_V2 ON : la persistance post-déclaration
+    doit passer par le flag résolu en await -> field_history chiffré.
+
+    Review Codex PR #975 (blocker 2) : sans forwarding, le pont sync
+    timeout-ait vers False et écrivait les montants du tiers EN CLAIR.
+    Vrai persist (aucun stub mémoire) — seul understand_document est doublé
+    et le chiffrement est doublé par un marqueur déterministe.
+    """
+    from tests.conftest import TestingSessionLocal
+    from app.models.document_memory import DocumentMemory
+    from app.services import document_vision_service as dvs
+    import app.services.document_memory_service as dms
+
+    async def _fake_understand(**kwargs):
+        return _third_party_result()
+
+    monkeypatch.setattr(dvs, "understand_document", _fake_understand)
+    monkeypatch.setattr(
+        dms, "encrypt_text", lambda db, uid, data: b"CIPHERTEXT-E2E",
+    )
+
+    # DocumentMemory n'est pas purgé par clean_database (conftest) — isoler
+    # ce test de la row créée par le e2e plaintext précédent.
+    _pre = TestingSessionLocal()
+    try:
+        _pre.query(DocumentMemory).delete()
+        _pre.commit()
+    finally:
+        _pre.close()
+
+    from app.services import flags_service
+
+    async def _all_flags_on(name, user_id=None):
+        return name in ("DOCUMENTS_V2_ENABLED", "PRIVACY_V2_ENABLED")
+
+    monkeypatch.setattr(
+        flags_service.flags, "is_enabled", _all_flags_on, raising=False,
+    )
+
+    payload = {"documentType": "lpp_certificate", "imageBase64": _png_b64()}
+
+    first = client.post("/api/v1/documents/extract-vision", json=payload)
+    assert first.status_code == 428
+    doc_hash = first.json()["detail"]["docHash"]
+
+    granted = client.post(
+        "/api/v1/consents/grant-nominative",
+        json={
+            "subject_name": "Lauren Example",
+            "doc_hash": doc_hash,
+            "subject_role": "declared_partner",
+        },
+    )
+    assert granted.status_code in (200, 201), granted.text
+
+    retry = client.post("/api/v1/documents/extract-vision", json=payload)
+    assert retry.status_code == 200, retry.text
+
+    db = TestingSessionLocal()
+    try:
+        row = (
+            db.query(DocumentMemory)
+            .filter_by(user_id="test-user-id")
+            .one()
+        )
+        entry = row.field_history[0]
+        assert entry.get("fields_enc"), (
+            "PRIVACY_V2 ON : le blob doit être chiffré (fields_enc), pas "
+            f"en clair — entrée : {list(entry.keys())}"
+        )
+        assert "70377" not in str(row.field_history), (
+            "montant du tiers en CLAIR malgré PRIVACY_V2"
+        )
+    finally:
+        db.close()
+
+
+@pytest.mark.asyncio
+async def test_sse_flag_resolution_failure_fails_closed_plaintext(monkeypatch):
+    """Si la résolution async du flag échoue, on retombe sur False (legacy
+    plaintext), sans casser le stream (branche except couverte)."""
+    from app.services import document_stream as ds
+    from app.services import document_third_party as dtp
+    from app.services import document_vision_service as dvs
+    from app.services import flags_service
+
+    monkeypatch.setattr(
+        dtp, "require_declaration_or_block", lambda *a, **k: None,
+    )
+
+    async def _boom(name, user_id=None):
+        raise RuntimeError("redis down")
+
+    monkeypatch.setattr(
+        flags_service.flags, "is_enabled", _boom, raising=False,
+    )
+
+    persist_calls = []
+    monkeypatch.setattr(
+        dvs, "persist_document_memory",
+        lambda db, user_id, result, use_encryption=None: persist_calls.append(
+            use_encryption
+        ),
+    )
+
+    with patch.object(
+        ds, "understand_document",
+        new=AsyncMock(return_value=_third_party_result()),
+    ):
+        events = await _collect(ds.stream_understanding(
+            _PNG_BYTES, user_id="u-sse-flagfail", db=object(),
+            file_sha="sha-tp-3",
+        ))
+
+    assert persist_calls == [False]
+    assert events[-1]["event"] == "done"

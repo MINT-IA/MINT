@@ -219,6 +219,11 @@ def persist_evidence_text(
 ) -> None:
     """Write evidence_text + vision_raw to the memory row.
 
+    NOTE (review PR #975) : aucun appelant de production à ce jour —
+    utilitaire conservé pour les scripts/backfills ; tout appelant ASYNC
+    futur DOIT résoudre le flag et passer use_encryption (pont sync cassé
+    en boucle active).
+
     Flag ON  → writes go into *_enc columns (plaintext columns stay NULL).
     Flag OFF → writes go into plaintext columns (legacy path).
 
