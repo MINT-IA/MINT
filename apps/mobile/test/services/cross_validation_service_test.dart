@@ -328,12 +328,11 @@ void main() {
         ),
       );
       final alerts = CrossValidationService.validate(profile);
-      final patrimoineAlerts =
-          alerts.where((a) => a.block == 'patrimoine').toList();
-      if (patrimoineAlerts.isNotEmpty) {
-        expect(patrimoineAlerts.first.suggestion ?? '',
-            isNot(contains('conjoint')));
-      }
+      // Charges 58'000 / (99'996 + 72'000) = 33.7% > 33% : l'alerte DOIT
+      // exister — un if-vide avalerait l'assertion (review Codex #983).
+      final alert = alerts.firstWhere((a) => a.block == 'patrimoine');
+      expect(alert.severity, AlertSeverity.warning);
+      expect(alert.suggestion ?? '', isNot(contains('conjoint')));
     });
 
     test('Mortgage under 33% = no alert', () {
