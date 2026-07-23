@@ -1,0 +1,42 @@
+{
+  "_doc": "Goldens de parité croisée du modèle capital v2 (beads MINT_nosync-2i2). estimate_capital_withdrawal_tax (backend) et estimateCapitalWithdrawalTaxV2 (Dart) partagent la table ESTV — les DEUX suites pinnent ces valeurs, calibrées sur les points officiels (ZH 500k == ESTV à <1 CHF).",
+  "_provenance": "API ESTV API_calculateManyCapitalTaxes 2026-07-23, 26 cantons x 5 montants, célibataire homme 65 ans.",
+  "tolerance_chf": 0.05,
+  "cases": [
+    {
+      "amount": 500000,
+      "canton": "ZH",
+      "is_married": false,
+      "expected": 35067.69,
+      "estv_reference": 35068
+    },
+    {
+      "amount": 1000000,
+      "canton": "GE",
+      "is_married": false,
+      "expected": 81069.29,
+      "estv_reference": 81069
+    },
+    {
+      "amount": 250000,
+      "canton": "VD",
+      "is_married": false,
+      "expected": 17360.69,
+      "estv_reference": null
+    },
+    {
+      "amount": 175000,
+      "canton": "ZG",
+      "is_married": false,
+      "expected": 6739.63,
+      "estv_reference": null
+    },
+    {
+      "amount": 1500000,
+      "canton": "BS",
+      "is_married": false,
+      "expected": 151250.29,
+      "estv_reference": null
+    }
+  ]
+}

@@ -179,6 +179,108 @@ CANTONAL_COMMUNAL_TAX_CHF = {
 }
 
 
+# Impôt cantonal+communal (chef-lieu) sur une PRESTATION EN CAPITAL de
+# prévoyance (retrait LPP/3a) en CHF — 26 cantons x 5 montants, API
+# officielle ESTV API_calculateManyCapitalTaxes (collecte 2026-07-23,
+# beads MINT_nosync-2i2). Profil : célibataire, sans enfant, sans
+# confession, homme 65 ans (TI/VS sensibles âge/sexe — documenté).
+# L'IFD (art. 38 LIFD) N'EST PAS incluse : elle vaut exactement 1/5 du
+# barème revenu (vérifié sur les 130 points : 537/3'901/10'501/17'101/
+# 23'000) et se calcule via les FEDERAL_BRACKETS.
+# Données brutes : .planning/.../constants-audit/capital_tax_2026/.
+CAPITAL_TAX_POINTS_AMOUNT = [100_000, 250_000, 500_000, 750_000, 1_000_000]
+
+CANTONAL_CAPITAL_TAX_CHF = {
+    "AG": [4142, 13287, 29398, 45815, 62233],
+    "AI": [2774, 7600, 15200, 22800, 30400],
+    "AR": [7400, 18500, 39042, 63708, 88374],
+    "BE": [4091, 12422, 30758, 51708, 73154],
+    "BL": [3300, 8250, 23100, 47850, 72600],
+    "BS": [4750, 16750, 36750, 56750, 76750],
+    "FR": [2700, 13500, 36000, 58500, 81000],
+    "GE": [3588, 11650, 26550, 42203, 58069],
+    "GL": [4828, 12070, 24140, 36210, 48280],
+    "GR": [2700, 6750, 18000, 27000, 36000],
+    "JU": [5637, 17495, 37682, 57870, 78057],
+    "LU": [3016, 9106, 19256, 29406, 39556],
+    "NE": [5139, 15661, 31775, 48148, 64519],
+    "NW": [3035, 8520, 17045, 25570, 34095],
+    "OW": [5119, 12798, 25596, 38394, 51192],
+    "SG": [5346, 13365, 26730, 40095, 53460],
+    "SH": [2542, 7870, 15741, 23611, 31482],
+    "SO": [4489, 13799, 28350, 42525, 56700],
+    "SZ": [1389, 8140, 21375, 32063, 42750],
+    "TG": [6024, 15060, 30120, 45180, 60240],
+    "TI": [3860, 9650, 24841, 43425, 57900],  # sensible âge/sexe (homme/65 retenu)
+    "UR": [3705, 9263, 18525, 27788, 37050],
+    "VD": [4052, 13460, 31446, 49542, 67638],
+    "VS": [4200, 11434, 33420, 60000, 80000],  # sensible âge/sexe (homme/65 retenu)
+    "ZG": [2197, 7352, 17752, 28152, 38552],
+    "ZH": [4280, 10700, 24567, 52601, 86542],
+}
+
+
+def estimate_capital_withdrawal_tax(
+    amount: float,
+    canton: str,
+    is_married: bool = False,
+) -> float:
+    """Impôt total sur un retrait en capital 2e/3e pilier — modèle v2 -2i2.
+
+    IFD art. 38 (1/5 du barème revenu progressif, plafond 11.5%/5) +
+    impôt cantonal+communal INTERPOLÉ entre points calibrés ESTV.
+    Remplace « taux de base cantonal x multiplicateurs par tranche »
+    (approximation à ±40% sur certains cantons). Marié : coefficient
+    par canton ``married_capital_tax_discount_for`` appliqué à la part
+    cantonale (approximation documentée — les points collectés sont
+    célibataire).
+
+    Interpolation : linéaire sur l'impôt ; <100k : linéaire depuis (0, 0) ;
+    >1M : extrapolation à la pente du dernier segment. Estimation
+    éducative, jamais un conseil fiscal (LSFin).
+    """
+    from app.constants.social_insurance import married_capital_tax_discount_for
+
+    if amount <= 0:
+        return 0.0
+
+    # IFD art. 38 : 1/5 du barème revenu appliqué au montant.
+    ifd_full = 0.0
+    prev_bound = 0.0
+    for upper, rate in FEDERAL_BRACKETS:
+        if amount <= prev_bound:
+            break
+        taxable = min(amount, upper) - prev_bound
+        ifd_full += taxable * rate
+        prev_bound = upper
+    ifd = ifd_full / 5.0
+
+    pts = CANTONAL_CAPITAL_TAX_CHF.get(canton.upper())
+    if pts is None:
+        pts = [
+            sum(v[i] for v in CANTONAL_CAPITAL_TAX_CHF.values())
+            / len(CANTONAL_CAPITAL_TAX_CHF)
+            for i in range(len(CAPITAL_TAX_POINTS_AMOUNT))
+        ]
+    amounts = CAPITAL_TAX_POINTS_AMOUNT
+    if amount <= amounts[0]:
+        cantonal = pts[0] * (amount / amounts[0])
+    elif amount >= amounts[-1]:
+        slope = (pts[-1] - pts[-2]) / (amounts[-1] - amounts[-2])
+        cantonal = pts[-1] + slope * (amount - amounts[-1])
+    else:
+        cantonal = pts[-1]
+        for i in range(len(amounts) - 1):
+            if amounts[i] <= amount <= amounts[i + 1]:
+                ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i])
+                cantonal = pts[i] + ratio * (pts[i + 1] - pts[i])
+                break
+
+    if is_married:
+        cantonal *= married_capital_tax_discount_for(canton)
+    return round(ifd + cantonal, 2)
+
+
 def estimate_income_tax(
     taxable_income: float,
     canton: str,

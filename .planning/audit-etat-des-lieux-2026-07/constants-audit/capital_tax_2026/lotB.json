@@ -1,0 +1,810 @@
+{
+ "meta": {
+  "bead": "MINT_nosync-2i2",
+  "lot": "lotB_SH_AR_AI_SG_GR_AG_TG_TI_VD_VS_NE_GE_JU",
+  "collected_at": "2026-07-23",
+  "tax_year_primary": 2026,
+  "cross_check_year": 2025,
+  "subject": "impôt TOTAL sur une prestation en capital de prévoyance (retrait LPP/3a), imposition séparée",
+  "profile": "personne célibataire, sans enfant, sans confession (Confession1=4 NO_CONFESSION), homme (Gender=1), âge au versement 65 ans, commune = chef-lieu du canton",
+  "amounts_chf": [
+   100000,
+   250000,
+   500000,
+   750000,
+   1000000
+  ],
+  "method": "Valeurs calculées en direct (2026-07-23) par l'API JSON officielle du simulateur fiscal ESTV (swisstaxcalculator.estv.admin.ch), opération API_calculateManyCapitalTaxes (POST https://swisstaxcalculator.estv.admin.ch/delegate/ost-integration/v1/lg-proxy/operation/c3b67379_ESTV/API_calculateManyCapitalTaxes) — endpoint du mode « prestations en capital » (#/calculator/capital-payment), identifié dans le bundle officiel main.js 1.4.64-SNAPSHOT. Payload: {SimKey:null, TaxYear, TaxGroupID:<TaxLocationID>, Relationship:1 (SINGLE), Confession1:4 (NO_CONFESSION), NumberOfChildren:0, Gender:1, AgeAtPayment:65, Capital:<montant>, Confession2:0}. TaxLocationID résolus via API_searchLocation et vérifiés par le no BFS de chaque réponse. Réponses brutes archivées dans le scratchpad de session (capital_lotB/raw/, 169 fichiers requête+réponse). Aucune valeur de mémoire.",
+  "field_semantics": {
+   "cantonal_communal": "TaxCanton + TaxCity + TaxChurch (impôt paroissial = 0, sans confession) de la réponse ESTV",
+   "ifd": "TaxFed (IFD art. 38 LIFD = 1/5 du barème ordinaire ; vérifié : 537 à 100k = 1/5 de 2684, 23000 à 1M = 1/5 de 11.5%)",
+   "total": "cantonal_communal + ifd (la réponse capital de l'ESTV ne renvoie pas de champ Total ; somme vérifiée par assertion)"
+  },
+  "ifd_uniformity_check": "IFD identique dans les 13 cantons pour chaque montant (537 / 3901 / 10501 / 17101 / 23000 CHF) — conforme au droit fédéral",
+  "sensitivity_check": "Genre (F vs M) et âge au versement (58 vs 65) testés à 500k CHF, TaxYear 2026, dans les 13 cantons : sans effet SAUF TI et VS (imposition dépendante de l'âge et du sexe, méthode type conversion en rente) — TI 500k: M/65=24841, F/65=23723, M/58=21760 (part cant.+comm.) ; VS 500k: M/65=33420, F/65=31563, M/58=29152. Les points retenus = homme/65 ans.",
+  "caveats": "Barèmes 2026 tels que servis par l'ESTV au 2026-07-23. Impôt personnel/taxe personnelle non prélevé sur les prestations en capital (absent de la réponse ESTV). Cross-check 2025 fourni ; écarts 2025→2026 faibles (indexation), max observé AG -1184 CHF à 500k.",
+  "units": "CHF, montants annuels arrondis par l'ESTV"
+ },
+ "cantons": {
+  "SH": {
+   "chef_lieu": "Schaffhouse",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 2542,
+     "ifd": 537,
+     "total": 3079
+    },
+    "250000": {
+     "cantonal_communal": 7870,
+     "ifd": 3901,
+     "total": 11771
+    },
+    "500000": {
+     "cantonal_communal": 15741,
+     "ifd": 10501,
+     "total": 26242
+    },
+    "750000": {
+     "cantonal_communal": 23611,
+     "ifd": 17101,
+     "total": 40712
+    },
+    "1000000": {
+     "cantonal_communal": 31482,
+     "ifd": 23000,
+     "total": 54482
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 2638,
+     "ifd": 538,
+     "total": 3176
+    },
+    "250000": {
+     "cantonal_communal": 8167,
+     "ifd": 3903,
+     "total": 12070
+    },
+    "500000": {
+     "cantonal_communal": 16335,
+     "ifd": 10503,
+     "total": 26838
+    },
+    "750000": {
+     "cantonal_communal": 24502,
+     "ifd": 17103,
+     "total": 41605
+    },
+    "1000000": {
+     "cantonal_communal": 32670,
+     "ifd": 23000,
+     "total": 55670
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 820000000 vérifié BFS 2939 (Schaffhausen), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "AR": {
+   "chef_lieu": "Herisau",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 7400,
+     "ifd": 537,
+     "total": 7937
+    },
+    "250000": {
+     "cantonal_communal": 18500,
+     "ifd": 3901,
+     "total": 22401
+    },
+    "500000": {
+     "cantonal_communal": 39042,
+     "ifd": 10501,
+     "total": 49543
+    },
+    "750000": {
+     "cantonal_communal": 63708,
+     "ifd": 17101,
+     "total": 80809
+    },
+    "1000000": {
+     "cantonal_communal": 88374,
+     "ifd": 23000,
+     "total": 111374
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 7400,
+     "ifd": 538,
+     "total": 7938
+    },
+    "250000": {
+     "cantonal_communal": 18500,
+     "ifd": 3903,
+     "total": 22403
+    },
+    "500000": {
+     "cantonal_communal": 39042,
+     "ifd": 10503,
+     "total": 49545
+    },
+    "750000": {
+     "cantonal_communal": 63708,
+     "ifd": 17103,
+     "total": 80811
+    },
+    "1000000": {
+     "cantonal_communal": 88374,
+     "ifd": 23000,
+     "total": 111374
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 910000000 vérifié BFS 3001 (Herisau), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "AI": {
+   "chef_lieu": "Appenzell",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 2774,
+     "ifd": 537,
+     "total": 3311
+    },
+    "250000": {
+     "cantonal_communal": 7600,
+     "ifd": 3901,
+     "total": 11501
+    },
+    "500000": {
+     "cantonal_communal": 15200,
+     "ifd": 10501,
+     "total": 25701
+    },
+    "750000": {
+     "cantonal_communal": 22800,
+     "ifd": 17101,
+     "total": 39901
+    },
+    "1000000": {
+     "cantonal_communal": 30400,
+     "ifd": 23000,
+     "total": 53400
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 2774,
+     "ifd": 538,
+     "total": 3312
+    },
+    "250000": {
+     "cantonal_communal": 7600,
+     "ifd": 3903,
+     "total": 11503
+    },
+    "500000": {
+     "cantonal_communal": 15200,
+     "ifd": 10503,
+     "total": 25703
+    },
+    "750000": {
+     "cantonal_communal": 22800,
+     "ifd": 17103,
+     "total": 39903
+    },
+    "1000000": {
+     "cantonal_communal": 30400,
+     "ifd": 23000,
+     "total": 53400
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 905000000 vérifié BFS 3101 (Appenzell), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "SG": {
+   "chef_lieu": "Saint-Gall",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 5346,
+     "ifd": 537,
+     "total": 5883
+    },
+    "250000": {
+     "cantonal_communal": 13365,
+     "ifd": 3901,
+     "total": 17266
+    },
+    "500000": {
+     "cantonal_communal": 26730,
+     "ifd": 10501,
+     "total": 37231
+    },
+    "750000": {
+     "cantonal_communal": 40095,
+     "ifd": 17101,
+     "total": 57196
+    },
+    "1000000": {
+     "cantonal_communal": 53460,
+     "ifd": 23000,
+     "total": 76460
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 5346,
+     "ifd": 538,
+     "total": 5884
+    },
+    "250000": {
+     "cantonal_communal": 13365,
+     "ifd": 3903,
+     "total": 17268
+    },
+    "500000": {
+     "cantonal_communal": 26730,
+     "ifd": 10503,
+     "total": 37233
+    },
+    "750000": {
+     "cantonal_communal": 40095,
+     "ifd": 17103,
+     "total": 57198
+    },
+    "1000000": {
+     "cantonal_communal": 53460,
+     "ifd": 23000,
+     "total": 76460
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 900000000 vérifié BFS 3203 (St. Gallen), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "GR": {
+   "chef_lieu": "Coire",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 2700,
+     "ifd": 537,
+     "total": 3237
+    },
+    "250000": {
+     "cantonal_communal": 6750,
+     "ifd": 3901,
+     "total": 10651
+    },
+    "500000": {
+     "cantonal_communal": 18000,
+     "ifd": 10501,
+     "total": 28501
+    },
+    "750000": {
+     "cantonal_communal": 27000,
+     "ifd": 17101,
+     "total": 44101
+    },
+    "1000000": {
+     "cantonal_communal": 36000,
+     "ifd": 23000,
+     "total": 59000
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 2745,
+     "ifd": 538,
+     "total": 3283
+    },
+    "250000": {
+     "cantonal_communal": 6863,
+     "ifd": 3903,
+     "total": 10766
+    },
+    "500000": {
+     "cantonal_communal": 18300,
+     "ifd": 10503,
+     "total": 28803
+    },
+    "750000": {
+     "cantonal_communal": 27450,
+     "ifd": 17103,
+     "total": 44553
+    },
+    "1000000": {
+     "cantonal_communal": 36600,
+     "ifd": 23000,
+     "total": 59600
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 700000000 vérifié BFS 3901 (Chur), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "AG": {
+   "chef_lieu": "Aarau",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 4142,
+     "ifd": 537,
+     "total": 4679
+    },
+    "250000": {
+     "cantonal_communal": 13287,
+     "ifd": 3901,
+     "total": 17188
+    },
+    "500000": {
+     "cantonal_communal": 29398,
+     "ifd": 10501,
+     "total": 39899
+    },
+    "750000": {
+     "cantonal_communal": 45815,
+     "ifd": 17101,
+     "total": 62916
+    },
+    "1000000": {
+     "cantonal_communal": 62233,
+     "ifd": 23000,
+     "total": 85233
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 4308,
+     "ifd": 538,
+     "total": 4846
+    },
+    "250000": {
+     "cantonal_communal": 13821,
+     "ifd": 3903,
+     "total": 17724
+    },
+    "500000": {
+     "cantonal_communal": 30580,
+     "ifd": 10503,
+     "total": 41083
+    },
+    "750000": {
+     "cantonal_communal": 47657,
+     "ifd": 17103,
+     "total": 64760
+    },
+    "1000000": {
+     "cantonal_communal": 64735,
+     "ifd": 23000,
+     "total": 87735
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 500000000 vérifié BFS 4001 (Aarau), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "TG": {
+   "chef_lieu": "Frauenfeld",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 6024,
+     "ifd": 537,
+     "total": 6561
+    },
+    "250000": {
+     "cantonal_communal": 15060,
+     "ifd": 3901,
+     "total": 18961
+    },
+    "500000": {
+     "cantonal_communal": 30120,
+     "ifd": 10501,
+     "total": 40621
+    },
+    "750000": {
+     "cantonal_communal": 45180,
+     "ifd": 17101,
+     "total": 62281
+    },
+    "1000000": {
+     "cantonal_communal": 60240,
+     "ifd": 23000,
+     "total": 83240
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 6072,
+     "ifd": 538,
+     "total": 6610
+    },
+    "250000": {
+     "cantonal_communal": 15180,
+     "ifd": 3903,
+     "total": 19083
+    },
+    "500000": {
+     "cantonal_communal": 30360,
+     "ifd": 10503,
+     "total": 40863
+    },
+    "750000": {
+     "cantonal_communal": 45540,
+     "ifd": 17103,
+     "total": 62643
+    },
+    "1000000": {
+     "cantonal_communal": 60720,
+     "ifd": 23000,
+     "total": 83720
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 850000000 vérifié BFS 4566 (Frauenfeld), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "TI": {
+   "chef_lieu": "Bellinzone",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 3860,
+     "ifd": 537,
+     "total": 4397
+    },
+    "250000": {
+     "cantonal_communal": 9650,
+     "ifd": 3901,
+     "total": 13551
+    },
+    "500000": {
+     "cantonal_communal": 24841,
+     "ifd": 10501,
+     "total": 35342
+    },
+    "750000": {
+     "cantonal_communal": 43425,
+     "ifd": 17101,
+     "total": 60526
+    },
+    "1000000": {
+     "cantonal_communal": 57900,
+     "ifd": 23000,
+     "total": 80900
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 3860,
+     "ifd": 538,
+     "total": 4398
+    },
+    "250000": {
+     "cantonal_communal": 9650,
+     "ifd": 3903,
+     "total": 13553
+    },
+    "500000": {
+     "cantonal_communal": 24841,
+     "ifd": 10503,
+     "total": 35344
+    },
+    "750000": {
+     "cantonal_communal": 43425,
+     "ifd": 17103,
+     "total": 60528
+    },
+    "1000000": {
+     "cantonal_communal": 57900,
+     "ifd": 23000,
+     "total": 80900
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 650000000 vérifié BFS 5002 (Bellinzona), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "VD": {
+   "chef_lieu": "Lausanne",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 4052,
+     "ifd": 537,
+     "total": 4589
+    },
+    "250000": {
+     "cantonal_communal": 13460,
+     "ifd": 3901,
+     "total": 17361
+    },
+    "500000": {
+     "cantonal_communal": 31446,
+     "ifd": 10501,
+     "total": 41947
+    },
+    "750000": {
+     "cantonal_communal": 49542,
+     "ifd": 17101,
+     "total": 66643
+    },
+    "1000000": {
+     "cantonal_communal": 67638,
+     "ifd": 23000,
+     "total": 90638
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 4053,
+     "ifd": 538,
+     "total": 4591
+    },
+    "250000": {
+     "cantonal_communal": 13463,
+     "ifd": 3903,
+     "total": 17366
+    },
+    "500000": {
+     "cantonal_communal": 31449,
+     "ifd": 10503,
+     "total": 41952
+    },
+    "750000": {
+     "cantonal_communal": 49546,
+     "ifd": 17103,
+     "total": 66649
+    },
+    "1000000": {
+     "cantonal_communal": 67641,
+     "ifd": 23000,
+     "total": 90641
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 100000000 vérifié BFS 5586 (Lausanne), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "VS": {
+   "chef_lieu": "Sion",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 4200,
+     "ifd": 537,
+     "total": 4737
+    },
+    "250000": {
+     "cantonal_communal": 11434,
+     "ifd": 3901,
+     "total": 15335
+    },
+    "500000": {
+     "cantonal_communal": 33420,
+     "ifd": 10501,
+     "total": 43921
+    },
+    "750000": {
+     "cantonal_communal": 60000,
+     "ifd": 17101,
+     "total": 77101
+    },
+    "1000000": {
+     "cantonal_communal": 80000,
+     "ifd": 23000,
+     "total": 103000
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 4200,
+     "ifd": 538,
+     "total": 4738
+    },
+    "250000": {
+     "cantonal_communal": 11434,
+     "ifd": 3903,
+     "total": 15337
+    },
+    "500000": {
+     "cantonal_communal": 33420,
+     "ifd": 10503,
+     "total": 43923
+    },
+    "750000": {
+     "cantonal_communal": 60000,
+     "ifd": 17103,
+     "total": 77103
+    },
+    "1000000": {
+     "cantonal_communal": 80000,
+     "ifd": 23000,
+     "total": 103000
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 195000000 vérifié BFS 6266 (Sion), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "NE": {
+   "chef_lieu": "Neuchâtel",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 5139,
+     "ifd": 537,
+     "total": 5676
+    },
+    "250000": {
+     "cantonal_communal": 15661,
+     "ifd": 3901,
+     "total": 19562
+    },
+    "500000": {
+     "cantonal_communal": 31775,
+     "ifd": 10501,
+     "total": 42276
+    },
+    "750000": {
+     "cantonal_communal": 48148,
+     "ifd": 17101,
+     "total": 65249
+    },
+    "1000000": {
+     "cantonal_communal": 64519,
+     "ifd": 23000,
+     "total": 87519
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 5139,
+     "ifd": 538,
+     "total": 5677
+    },
+    "250000": {
+     "cantonal_communal": 15661,
+     "ifd": 3903,
+     "total": 19564
+    },
+    "500000": {
+     "cantonal_communal": 31775,
+     "ifd": 10503,
+     "total": 42278
+    },
+    "750000": {
+     "cantonal_communal": 48148,
+     "ifd": 17103,
+     "total": 65251
+    },
+    "1000000": {
+     "cantonal_communal": 64519,
+     "ifd": 23000,
+     "total": 87519
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 200000000 vérifié BFS 6458 (Neuchâtel), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "GE": {
+   "chef_lieu": "Genève",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 3588,
+     "ifd": 537,
+     "total": 4125
+    },
+    "250000": {
+     "cantonal_communal": 11650,
+     "ifd": 3901,
+     "total": 15551
+    },
+    "500000": {
+     "cantonal_communal": 26550,
+     "ifd": 10501,
+     "total": 37051
+    },
+    "750000": {
+     "cantonal_communal": 42203,
+     "ifd": 17101,
+     "total": 59304
+    },
+    "1000000": {
+     "cantonal_communal": 58069,
+     "ifd": 23000,
+     "total": 81069
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 3592,
+     "ifd": 538,
+     "total": 4130
+    },
+    "250000": {
+     "cantonal_communal": 11657,
+     "ifd": 3903,
+     "total": 15560
+    },
+    "500000": {
+     "cantonal_communal": 26562,
+     "ifd": 10503,
+     "total": 37065
+    },
+    "750000": {
+     "cantonal_communal": 42218,
+     "ifd": 17103,
+     "total": 59321
+    },
+    "1000000": {
+     "cantonal_communal": 58084,
+     "ifd": 23000,
+     "total": 81084
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 120000000 vérifié BFS 6621 (Genève), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  },
+  "JU": {
+   "chef_lieu": "Delémont",
+   "tax_year": 2026,
+   "points": {
+    "100000": {
+     "cantonal_communal": 5637,
+     "ifd": 537,
+     "total": 6174
+    },
+    "250000": {
+     "cantonal_communal": 17495,
+     "ifd": 3901,
+     "total": 21396
+    },
+    "500000": {
+     "cantonal_communal": 37682,
+     "ifd": 10501,
+     "total": 48183
+    },
+    "750000": {
+     "cantonal_communal": 57870,
+     "ifd": 17101,
+     "total": 74971
+    },
+    "1000000": {
+     "cantonal_communal": 78057,
+     "ifd": 23000,
+     "total": 101057
+    }
+   },
+   "cross_check_2025": {
+    "100000": {
+     "cantonal_communal": 5637,
+     "ifd": 538,
+     "total": 6175
+    },
+    "250000": {
+     "cantonal_communal": 17495,
+     "ifd": 3903,
+     "total": 21398
+    },
+    "500000": {
+     "cantonal_communal": 37682,
+     "ifd": 10503,
+     "total": 48185
+    },
+    "750000": {
+     "cantonal_communal": 57870,
+     "ifd": 17103,
+     "total": 74973
+    },
+    "1000000": {
+     "cantonal_communal": 78057,
+     "ifd": 23000,
+     "total": 101057
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment",
+   "source_note": "API officielle ESTV API_calculateManyCapitalTaxes, TaxYear 2026 (cross-check 2025), TaxLocationID 280000000 vérifié BFS 6711 (Delémont), célibataire, 0 enfant, sans confession (Confession1=4), homme, âge au versement 65."
+  }
+ }
+}

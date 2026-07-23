@@ -128,3 +128,102 @@ double estimateIncomeTaxV2(
   }
   return total;
 }
+
+
+/// Montants de la table capital (CHF).
+const List<double> capitalTaxPointsAmount = [
+  100000,
+  250000,
+  500000,
+  750000,
+  1000000,
+];
+
+/// Impôt cantonal+communal (chef-lieu) sur une PRESTATION EN CAPITAL de
+/// prévoyance — MIRROR backend CANTONAL_CAPITAL_TAX_CHF (beads -2i2,
+/// API ESTV API_calculateManyCapitalTaxes, 2026-07-23, célibataire
+/// homme 65 ans ; TI/VS sensibles âge/sexe, documenté). IFD art. 38
+/// (1/5 du barème revenu) NON incluse — calculée séparément.
+const Map<String, List<double>> cantonalCapitalTaxChf = {
+  'AG': [4142, 13287, 29398, 45815, 62233],
+  'AI': [2774, 7600, 15200, 22800, 30400],
+  'AR': [7400, 18500, 39042, 63708, 88374],
+  'BE': [4091, 12422, 30758, 51708, 73154],
+  'BL': [3300, 8250, 23100, 47850, 72600],
+  'BS': [4750, 16750, 36750, 56750, 76750],
+  'FR': [2700, 13500, 36000, 58500, 81000],
+  'GE': [3588, 11650, 26550, 42203, 58069],
+  'GL': [4828, 12070, 24140, 36210, 48280],
+  'GR': [2700, 6750, 18000, 27000, 36000],
+  'JU': [5637, 17495, 37682, 57870, 78057],
+  'LU': [3016, 9106, 19256, 29406, 39556],
+  'NE': [5139, 15661, 31775, 48148, 64519],
+  'NW': [3035, 8520, 17045, 25570, 34095],
+  'OW': [5119, 12798, 25596, 38394, 51192],
+  'SG': [5346, 13365, 26730, 40095, 53460],
+  'SH': [2542, 7870, 15741, 23611, 31482],
+  'SO': [4489, 13799, 28350, 42525, 56700],
+  'SZ': [1389, 8140, 21375, 32063, 42750],
+  'TG': [6024, 15060, 30120, 45180, 60240],
+  'TI': [3860, 9650, 24841, 43425, 57900], // sensible âge/sexe (homme/65 retenu)
+  'UR': [3705, 9263, 18525, 27788, 37050],
+  'VD': [4052, 13460, 31446, 49542, 67638],
+  'VS': [4200, 11434, 33420, 60000, 80000], // sensible âge/sexe (homme/65 retenu)
+  'ZG': [2197, 7352, 17752, 28152, 38552],
+  'ZH': [4280, 10700, 24567, 52601, 86542],
+};
+
+/// Impôt total sur un retrait en capital 2e/3e pilier — modèle v2 -2i2,
+/// MIRROR exact du backend estimate_capital_withdrawal_tax.
+double estimateCapitalWithdrawalTaxV2(
+  double amount,
+  String canton, {
+  bool isMarried = false,
+  double Function(String canton)? marriedDiscountFor,
+}) {
+  if (amount <= 0) return 0;
+
+  var ifdFull = 0.0;
+  var prevBound = 0.0;
+  for (final bracket in incomeTaxFederalBrackets2026) {
+    final upper = bracket[0];
+    final rate = bracket[1];
+    if (amount <= prevBound) break;
+    final taxable = (amount < upper ? amount : upper) - prevBound;
+    ifdFull += taxable * rate;
+    prevBound = upper;
+  }
+  final ifd = ifdFull / 5.0;
+
+  var pts = cantonalCapitalTaxChf[canton.toUpperCase()];
+  if (pts == null) {
+    final all = cantonalCapitalTaxChf.values.toList();
+    pts = List<double>.generate(
+      capitalTaxPointsAmount.length,
+      (i) => all.fold<double>(0, (s, v) => s + v[i]) / all.length,
+    );
+  }
+  final amounts = capitalTaxPointsAmount;
+  double cantonal;
+  if (amount <= amounts.first) {
+    cantonal = pts.first * (amount / amounts.first);
+  } else if (amount >= amounts.last) {
+    final slope = (pts[pts.length - 1] - pts[pts.length - 2]) /
+        (amounts[amounts.length - 1] - amounts[amounts.length - 2]);
+    cantonal = pts.last + slope * (amount - amounts.last);
+  } else {
+    cantonal = pts.last;
+    for (var i = 0; i < amounts.length - 1; i++) {
+      if (amount >= amounts[i] && amount <= amounts[i + 1]) {
+        final ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i]);
+        cantonal = pts[i] + ratio * (pts[i + 1] - pts[i]);
+        break;
+      }
+    }
+  }
+
+  if (isMarried && marriedDiscountFor != null) {
+    cantonal *= marriedDiscountFor(canton.toUpperCase());
+  }
+  return ifd + cantonal;
+}
