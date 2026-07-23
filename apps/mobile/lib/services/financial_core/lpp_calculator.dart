@@ -213,13 +213,10 @@ class LppCalculator {
     // Capital portion: progressive withdrawal tax + SWR
     final capitalBrut = projectedBalance * lppCapitalPct;
     final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
-    final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
-    // Audit 2026-04-18 Q5 : coefficient marié cantonal (ZH 0.73, ZG 0.70,
-    // VS 0.81, ...) au lieu du scalaire 0.85 uniforme.
-    final discount = isMarried ? marriedCapitalTaxDiscountFor(cantonCode) : 1.0;
-    final effectiveBaseRate = baseRate * discount;
-    final tax =
-        RetirementTaxCalculator.progressiveTax(capitalBrut, effectiveBaseRate);
+    // v2 -2i2 : façade unique (IFD art. 38 + interpolation ESTV ; marié
+    // = coefficient cantonal sur la part cantonale, audit Q5 via modèle).
+    final tax = RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: capitalBrut, canton: cantonCode, isMarried: isMarried);
     final capitalNet = capitalBrut - tax;
     final swr = horizonYears != null
         ? adjustedSwr(
@@ -500,20 +497,12 @@ class LppCalculator {
     }
 
     final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
-    final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
-    // Audit 2026-04-18 Q5 : coefficient marié par canton (map + fallback).
-    final discount = isMarried ? marriedCapitalTaxDiscountFor(cantonCode) : 1.0;
-    final effectiveRate = baseRate * discount;
-
-    // Strategy 1: same year — combined capital taxed together
-    final taxSameYear =
-        RetirementTaxCalculator.progressiveTax(combinedCapital, effectiveRate);
-
-    // Strategy 2: staggered — each taxed separately in different years
-    final taxUser =
-        RetirementTaxCalculator.progressiveTax(userCapital, effectiveRate);
-    final taxConjoint =
-        RetirementTaxCalculator.progressiveTax(conjointCapital, effectiveRate);
+    // v2 -2i2 : façade unique par montant (marié via le modèle).
+    double capTax(double m) => RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: m, canton: cantonCode, isMarried: isMarried);
+    final taxSameYear = capTax(combinedCapital);
+    final taxUser = capTax(userCapital);
+    final taxConjoint = capTax(conjointCapital);
     final taxStaggered = taxUser + taxConjoint;
 
     final saving = taxSameYear - taxStaggered;

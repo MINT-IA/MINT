@@ -88,8 +88,11 @@ class RetirementService {
     final renteMensuelle = renteAnnuelle / 12;
 
     // Capital tax
-    final taux = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
-    final impot = RetirementTaxCalculator.progressiveTax(capitalLpp, taux);
+    // v2 -2i2 : façade unique (IFD art. 38 + interpolation ESTV).
+    final impot = RetirementTaxCalculator.capitalWithdrawalTax(
+      capitalBrut: capitalLpp,
+      canton: canton,
+    );
     final capitalNet = capitalLpp - impot;
 
     // Breakeven
@@ -114,7 +117,9 @@ class RetirementService {
       'capitalImpot': impot,
       'capitalNet': capitalNet,
       'breakevenAge': breakeven,
-      'tauxImpot': taux,
+      // v2 : taux effectif dérivé du modèle (l'ancien taux de base
+      // cantonal n'existe plus dans ce chemin).
+      'tauxImpot': capitalLpp > 0 ? impot / capitalLpp : 0.0,
     };
   }
 

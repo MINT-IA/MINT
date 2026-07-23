@@ -145,11 +145,14 @@ class MultiAccountService:
         nb_comptes_effectif = min(nb_comptes, annees_disponibles)
         nb_comptes_effectif = max(1, nb_comptes_effectif)
 
-        base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton_upper, _DEFAULT_TAUX_RETRAIT)
+        # Beads -2i2 PR B (review #991) : modèle v2 (IFD art. 38 +
+        # interpolation ESTV) — dernier consommateur backend migré.
+        from app.services.fiscal.cantonal_comparator import (
+            estimate_capital_withdrawal_tax,
+        )
 
         # 1. Calculate bloc tax (all at once)
-        bloc_taux = self._calc_effective_rate(avoir_total, base_rate)
-        bloc_tax = round(avoir_total * bloc_taux, 2)
+        bloc_tax = estimate_capital_withdrawal_tax(avoir_total, canton_upper)
 
         # 2. Calculate staggered tax (split across N years)
         montant_par_compte = round(avoir_total / nb_comptes_effectif, 2)
@@ -165,8 +168,7 @@ class MultiAccountService:
             else:
                 montant = montant_par_compte
 
-            taux = self._calc_effective_rate(montant, base_rate)
-            impot = round(montant * taux, 2)
+            impot = estimate_capital_withdrawal_tax(montant, canton_upper)
             net = round(montant - impot, 2)
 
             yearly_plan.append(YearlyWithdrawalEntry(
