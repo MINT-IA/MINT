@@ -537,10 +537,15 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         ValueError: If age, salary, or canton are invalid.
     """
     # ── Resolve age from birth_date when provided ────────────────────────────
+    # Review Codex PR #985 : quand birth_date existe, bd.year est LA cohorte
+    # exacte — la re-dériver de l'âge bascule la frontière (une femme née le
+    # 31.12.1962 a 63 ans mi-2026 -> dérivation 1963 -> 65 ans au lieu de 64).
+    birth_year_exact: int | None = None
     if input.birth_date:
         from datetime import date
         try:
             bd = date.fromisoformat(input.birth_date[:10])
+            birth_year_exact = bd.year
             today = date.today()
             computed_age = today.year - bd.year - (
                 (today.month, today.day) < (bd.month, bd.day)
@@ -620,7 +625,12 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     # ── P2-26: Gender-aware retirement age (AVS21) ─────────────────────────
     from datetime import date as _date
     retirement_age = _get_retirement_age(
-        getattr(input, "gender", None), _date.today().year - input.age
+        getattr(input, "gender", None),
+        # Cohorte exacte si birth_date fourni ; sinon dérivation par l'âge
+        # (±1 an, documenté dans _get_retirement_age).
+        birth_year_exact
+        if birth_year_exact is not None
+        else _date.today().year - input.age,
     )
 
     # ── AVS projection ──────────────────────────────────────────────────────

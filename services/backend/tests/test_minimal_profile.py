@@ -488,3 +488,36 @@ class TestReferenceAgeCohort:
         assert avs_reference_age(1964, True) == 65
         # Hommes : 65 toutes cohortes.
         assert avs_reference_age(1961, False) == 65
+
+    def test_birth_date_end_of_1962_keeps_cohort_64(self, monkeypatch):
+        """Régression review #985 : née le 31.12.1962 (63 ans mi-2026) —
+        la dérivation par l'âge donnait cohorte 1963 -> 65 ; bd.year doit
+        primer. On espionne l'argument transmis à _get_retirement_age
+        (retirement_age n'est pas exposé dans le résultat)."""
+        import app.services.onboarding.minimal_profile_service as mps
+        from app.services.onboarding.onboarding_models import (
+            MinimalProfileInput,
+        )
+
+        captured = {}
+        orig = mps._get_retirement_age
+
+        def spy(gender, birth_year):
+            captured["birth_year"] = birth_year
+            return orig(gender, birth_year)
+
+        monkeypatch.setattr(mps, "_get_retirement_age", spy)
+        mps.compute_minimal_profile(
+            MinimalProfileInput(
+                age=40,  # volontairement faux : birth_date doit primer
+                gross_salary=90_000,
+                canton="VD",
+                birth_date="1962-12-31",
+                gender="female",
+            )
+        )
+        assert captured["birth_year"] == 1962, (
+            "bd.year doit primer sur la dérivation par l'âge — une femme "
+            "née le 31.12.1962 reste cohorte 1962 (64 ans, AVS 21)"
+        )
+        assert orig("female", 1962) == 64
