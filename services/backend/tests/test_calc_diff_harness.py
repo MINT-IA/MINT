@@ -28,7 +28,7 @@ from pathlib import Path
 import pytest
 
 from app.constants.social_insurance import (
-    MARRIED_CAPITAL_TAX_DISCOUNT,
+    married_capital_tax_discount_for,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     calculate_progressive_capital_tax,
     get_ai_rente_monthly,
@@ -63,22 +63,15 @@ def _python_capital_tax(canton: str, amount: float, married: bool) -> float:
     """Python-side computation matching Dart RetirementTaxCalculator.capitalWithdrawalTax.
 
     Pulls `base_rate` from `TAUX_IMPOT_RETRAIT_CAPITAL[canton]` (fallback
-    `DEFAULT_CAPITAL_TAX_RATE` per Dart parity). Applies the global
-    `MARRIED_CAPITAL_TAX_DISCOUNT` scalar if married. Calls the canonical
-    progressive helper. NEVER re-implements brackets here (CLAUDE.md §4
-    NEVER #3, ADR-20260223).
-
-    Known asymmetry vs. Dart : `tax_calculator.dart:238` uses a per-canton
-    `marriedCapitalTaxDiscountFor(cantonCode)` while the Python side uses a
-    single `MARRIED_CAPITAL_TAX_DISCOUNT` scalar. Expected divergence on
-    married rows at non-ZH/ZG cantons may exceed `TOL_CANTON_TAX_CHF` ; the
-    failure mode is the gate working correctly — fix path is to port the
-    per-canton discount table to Python (deferred to backlog 999.4 per
-    CONTEXT D-03) OR tighten the fixture matrix to skip married × non-
-    ZH/ZG until then. See SUMMARY.md.
+    `DEFAULT_CAPITAL_TAX_RATE` per Dart parity). Applies the PER-CANTON
+    married discount (`married_capital_tax_discount_for`, mirror of Dart
+    `marriedCapitalTaxDiscountFor` — beads MINT_nosync-axj/-ku6 : the old
+    global 0.85 scalar was the documented Python/Dart asymmetry, now
+    removed). Calls the canonical progressive helper. NEVER re-implements
+    brackets here (CLAUDE.md §4 NEVER #3, ADR-20260223).
     """
     base = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton, DEFAULT_CAPITAL_TAX_RATE)
-    rate = base * (MARRIED_CAPITAL_TAX_DISCOUNT if married else 1.0)
+    rate = base * (married_capital_tax_discount_for(canton) if married else 1.0)
     return calculate_progressive_capital_tax(amount, rate)
 
 
