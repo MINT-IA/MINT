@@ -318,8 +318,8 @@ class TestRenteVsCapital:
         r = compute_rente_vs_capital(200_000, 300_000, 0.05, 65, "ZH", "single")
         assert r["rente_annuelle"] == pytest.approx(28_600, abs=1)
         assert r["rente_mensuelle"] == pytest.approx(2_383.33, abs=1)
-        assert r["impot_retrait"] == pytest.approx(39_325, abs=1)
-        assert r["capital_net"] == pytest.approx(460_675, abs=1)
+        assert r["impot_retrait"] == pytest.approx(35_067.69, abs=1)  # == point ESTV ZH 500k (v2 -2i2)
+        assert r["capital_net"] == pytest.approx(464_932.31, abs=1)
         # Prudent 1%: capital runs out before 85
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
         # Central 3%: surplus at 85
@@ -337,8 +337,8 @@ class TestRenteVsCapital:
         """
         r = compute_rente_vs_capital(150_000, 100_000, 0.045, 64, "VD", "married")
         assert r["rente_annuelle"] == pytest.approx(14_700, abs=1)
-        assert r["impot_retrait"] == pytest.approx(17_472, abs=1)
-        assert r["capital_net"] == pytest.approx(232_528, abs=1)
+        assert r["impot_retrait"] == pytest.approx(14_399.49, abs=1)  # v2 : interp VD 250k x coeff marié 0.78
+        assert r["capital_net"] == pytest.approx(235_600.51, abs=1)
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
         assert r["scenarios"]["central"]["break_even_age"] is not None
 
@@ -350,8 +350,8 @@ class TestRenteVsCapital:
         """
         r = compute_rente_vs_capital(400_000, 600_000, 0.055, 65, "GE", "single")
         assert r["rente_annuelle"] == pytest.approx(60_200, abs=1)
-        assert r["impot_retrait"] == pytest.approx(101_625, abs=1)
-        assert r["capital_net"] == pytest.approx(898_375, abs=1)
+        assert r["impot_retrait"] == pytest.approx(81_069.29, abs=1)  # == point ESTV GE 1M (v2)
+        assert r["capital_net"] == pytest.approx(918_930.71, abs=1)
         assert r["scenarios"]["optimiste"]["capital_85"] > 300_000
 
     def test_anna_bs_married_100k(self):
@@ -363,8 +363,8 @@ class TestRenteVsCapital:
         """
         r = compute_rente_vs_capital(80_000, 20_000, 0.04, 64, "BS", "married")
         assert r["rente_annuelle"] == pytest.approx(6_240, abs=1)
-        assert r["impot_retrait"] == pytest.approx(6_150, abs=1)
-        assert r["capital_net"] == pytest.approx(93_850, abs=1)
+        assert r["impot_retrait"] == pytest.approx(4_431.89, abs=1)  # v2 : BS 100k x fallback marié 0.82
+        assert r["capital_net"] == pytest.approx(95_568.11, abs=1)
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
 
     def test_thomas_lu_single_500k(self):
@@ -375,8 +375,8 @@ class TestRenteVsCapital:
         """
         r = compute_rente_vs_capital(300_000, 200_000, 0.052, 65, "LU", "single")
         assert r["rente_annuelle"] == pytest.approx(30_800, abs=1)
-        assert r["impot_retrait"] == pytest.approx(33_275, abs=1)
-        assert r["capital_net"] == pytest.approx(466_725, abs=1)
+        assert r["impot_retrait"] == pytest.approx(29_756.69, abs=1)  # v2 : LU 500k
+        assert r["capital_net"] == pytest.approx(470_243.31, abs=1)
         assert r["scenarios"]["central"]["break_even_age"] is not None
 
     def test_unsupported_canton_raises(self):
@@ -388,7 +388,7 @@ class TestRenteVsCapital:
         """500k ZH single uses 3 brackets: 100k*1.0 + 100k*1.15 + 300k*1.30."""
         r = compute_rente_vs_capital(250_000, 250_000, 0.05, 65, "ZH", "single")
         # 100k*0.065*1.0 + 100k*0.065*1.15 + 300k*0.065*1.30 = 39325
-        assert r["impot_retrait"] == pytest.approx(39_325, abs=1)
+        assert r["impot_retrait"] == pytest.approx(35_067.69, abs=1)  # == point ESTV ZH 500k (v2 -2i2)
 
     def test_all_26_cantons_produce_results(self):
         """All 26 cantons should compute without error."""

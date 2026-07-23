@@ -102,8 +102,12 @@ def _build_3a_option(
         ))
 
     # Tax at withdrawal
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    withdrawal_tax = calculate_progressive_capital_tax(capital_3a, base_rate)
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    withdrawal_tax = estimate_capital_withdrawal_tax(capital_3a, canton)
     net_capital = capital_3a - withdrawal_tax
     terminal_value = net_capital + cumulative_tax_saving
     total_tax_impact = withdrawal_tax - cumulative_tax_saving  # net tax effect
@@ -171,8 +175,12 @@ def _build_rachat_lpp_option(
 
     # At retirement: capital can be converted to rente or withdrawn
     # For comparison: assume capital withdrawal (like 3a)
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    withdrawal_tax = calculate_progressive_capital_tax(capital_lpp, base_rate)
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    withdrawal_tax = estimate_capital_withdrawal_tax(capital_lpp, canton)
     net_capital = capital_lpp - withdrawal_tax
     terminal_value = net_capital + cumulative_tax_saving
     total_tax_impact = withdrawal_tax - cumulative_tax_saving
@@ -227,8 +235,12 @@ def _build_amortissement_indirect_option(
         ))
 
     # At retirement: 3a used to repay mortgage (capital withdrawal tax applies)
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    withdrawal_tax = calculate_progressive_capital_tax(capital_3a, base_rate)
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    withdrawal_tax = estimate_capital_withdrawal_tax(capital_3a, canton)
     net_capital = capital_3a - withdrawal_tax
     terminal_value = net_capital + cumulative_tax_saving
     total_tax_impact = withdrawal_tax - cumulative_tax_saving

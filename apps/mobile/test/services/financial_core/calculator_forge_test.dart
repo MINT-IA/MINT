@@ -469,14 +469,13 @@ void main() {
       expect(rente, closeTo(2203.6, 2.0));
     });
 
-    test('S10.4 — Lauren capital withdrawal tax VS: 19620 → first bracket only', () {
-      // Capital 19620, VS rate = 6.0%
-      // Tax = 19620 × 0.060 × 1.0 = 1177.20
+    test('S10.4 — Lauren capital withdrawal tax VS: 19620 (modèle v2)', () {
+      // v2 -2i2 : VS 19620 — IFD art. 38 (1/5) + cantonal ESTV interpolé
       final tax = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: 19620,
         canton: 'VS',
       );
-      expect(tax, closeTo(1177.20, 1.0));
+      expect(tax, closeTo(830.8468, 1.0));
     });
 
     test('S10.5 — Lauren 3a = 14000, consistent with OPP3 plafond salarie avec LPP', () {

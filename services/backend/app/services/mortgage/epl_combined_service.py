@@ -153,13 +153,15 @@ class EplCombinedService:
         epargne_cash = max(0.0, epargne_cash)
         prix_cible = max(0.0, prix_cible)
 
-        taux_impot = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton, _DEFAULT_TAUX_RETRAIT)
+        # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+        from app.services.fiscal.cantonal_comparator import (
+            estimate_capital_withdrawal_tax,
+        )
 
         # ---- 3a EPL ----
         # Full withdrawal allowed for primary residence (OPP3 art. 1)
-        # Progressive bracket taxation (matches Flutter + pillar_3a_deep)
         retrait_3a = avoir_3a
-        impot_3a = calculate_progressive_capital_tax(retrait_3a, taux_impot)
+        impot_3a = estimate_capital_withdrawal_tax(retrait_3a, canton)
         net_3a = round(retrait_3a - impot_3a, 2)
 
         # ---- LPP EPL ----

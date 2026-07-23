@@ -28,7 +28,6 @@ from app.constants.social_insurance import (
 from app.services.retirement.lpp_conversion_service import (
     LppConversionService,
     LPP_CONVERSION_RATE,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
 )
 from app.services.retirement.retirement_budget_service import (
     RetirementBudgetService,
@@ -227,10 +226,10 @@ class TestLppConversion:
         assert result.option_rente_nette_mensuelle < result.option_rente_brute_mensuelle
 
     def test_capital_tax_zurich(self, lpp_service):
-        """ZH capital tax should use the correct base rate."""
+        """ZH capital tax should match the v2 model (IFD art. 38 + ESTV)."""
         result = lpp_service.compare(capital_lpp=100_000, canton="ZH")
-        # For 100k: first bracket only (multiplier 1.0)
-        expected_tax = round(100_000 * TAUX_IMPOT_RETRAIT_CAPITAL["ZH"] * 1.0, 2)
+        # v2 -2i2 : ZH 100000
+        expected_tax = 4816.89
         assert result.option_capital_impot == expected_tax
         assert result.option_capital_net == round(100_000 - expected_tax, 2)
 
@@ -251,32 +250,24 @@ class TestLppConversion:
         assert result_vd.option_capital_impot > result_zg.option_capital_impot
 
     def test_progressive_brackets_100k(self, lpp_service):
-        """100k should only use the first bracket (multiplier 1.0)."""
+        """100k is a calibrated ESTV point (no interpolation needed)."""
         result = lpp_service.compare(capital_lpp=100_000, canton="ZH")
-        expected_tax = round(100_000 * TAUX_IMPOT_RETRAIT_CAPITAL["ZH"] * 1.0, 2)
+        # v2 -2i2 : ZH 100000
+        expected_tax = 4816.89
         assert result.option_capital_impot == expected_tax
 
     def test_progressive_brackets_300k(self, lpp_service):
-        """300k should use brackets 1-3 with increasing multipliers."""
+        """300k interpolates between calibrated ESTV points."""
         result = lpp_service.compare(capital_lpp=300_000, canton="ZH")
-        rate = TAUX_IMPOT_RETRAIT_CAPITAL["ZH"]
-        expected = (
-            100_000 * rate * 1.0 +     # 0-100k
-            100_000 * rate * 1.15 +     # 100k-200k
-            100_000 * rate * 1.30       # 200k-300k
-        )
+        # v2 -2i2 : ZH 300000 (taux effectif 6.23% > 4.82% à 100k — progressif)
+        expected = 18694.09
         assert result.option_capital_impot == round(expected, 2)
 
     def test_progressive_brackets_1m(self, lpp_service):
-        """1M should use all brackets including the last multiplier."""
+        """1M hits the last calibrated ESTV point."""
         result = lpp_service.compare(capital_lpp=1_000_000, canton="ZH")
-        rate = TAUX_IMPOT_RETRAIT_CAPITAL["ZH"]
-        expected = (
-            100_000 * rate * 1.0 +      # 0-100k
-            100_000 * rate * 1.15 +      # 100k-200k
-            300_000 * rate * 1.30 +      # 200k-500k
-            500_000 * rate * 1.50        # 500k-1M
-        )
+        # v2 -2i2 : ZH 1000000 (taux effectif 10.95%)
+        expected = 109542.29
         assert result.option_capital_impot == round(expected, 2)
 
     def test_capital_net_positive(self, lpp_service):
@@ -324,24 +315,18 @@ class TestLppConversion:
         assert tax == 0.0
 
     def test_high_capital_2m(self, lpp_service):
-        """2M capital should use the last multiplier bracket for amounts > 1M."""
+        """2M capital extrapolates at the slope of the last ESTV segment."""
         result = lpp_service.compare(capital_lpp=2_000_000, canton="ZH")
-        rate = TAUX_IMPOT_RETRAIT_CAPITAL["ZH"]
-        expected = (
-            100_000 * rate * 1.0 +       # 0-100k
-            100_000 * rate * 1.15 +       # 100k-200k
-            300_000 * rate * 1.30 +       # 200k-500k
-            500_000 * rate * 1.50 +       # 500k-1M
-            1_000_000 * rate * 1.70       # >1M
-        )
+        # v2 -2i2 : ZH 2000000 (extrapolation > 1M, taux effectif 13.4%)
+        expected = 268306.29
         assert result.option_capital_impot == round(expected, 2)
         assert result.option_capital_net > 0
 
     def test_canton_invalid_default(self, lpp_service):
-        """Unknown canton should use the default rate (0.065)."""
+        """Unknown canton should fall back to the cantonal average curve."""
         result = lpp_service.compare(capital_lpp=100_000, canton="XX")
-        # Default rate = 0.065 (same as ZH)
-        expected_tax = round(100_000 * 0.065, 2)
+        # v2 -2i2 : XX 100000 (moyenne des points cantonaux + IFD art. 38)
+        expected_tax = 4548.54
         assert result.option_capital_impot == expected_tax
 
 

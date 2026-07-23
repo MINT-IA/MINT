@@ -28,7 +28,6 @@ from app.services.lpp_deep.libre_passage_service import (
 from app.services.lpp_deep.epl_service import (
     EPLService,
     DISCLAIMER as EPL_DISCLAIMER,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
 )
 
 
@@ -518,9 +517,10 @@ class TestEPL:
             canton="VD",
         )
         assert result.impot_retrait_estime > 0
-        assert result.taux_impot_retrait == TAUX_IMPOT_RETRAIT_CAPITAL["VD"]
-        # 100000 * 0.08 = 8000
-        assert result.impot_retrait_estime == 8000.0
+        # v2 -2i2 : VD 100000 — taux effectif dérivé (impôt / montant)
+        assert result.taux_impot_retrait == 0.0459
+        # v2 -2i2 : VD 100000 (IFD art. 38 + interpolation ESTV)
+        assert result.impot_retrait_estime == 4588.89
 
     def test_impact_prestations_calculated(self, epl_service):
         """Impact on death and disability benefits should be calculated."""

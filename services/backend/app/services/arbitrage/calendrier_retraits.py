@@ -11,7 +11,7 @@ Compares 2 options:
 - Option A: Everything withdrawn the same year (high progressive tax)
 - Option B: Optimally staggered withdrawals (each year taxed separately)
 
-MUST use calculate_progressive_capital_tax() from app.constants.social_insurance.
+Impôt de retrait : modèle v2 estimate_capital_withdrawal_tax (beads -2i2) ; l'override de taux explicite conserve calculate_progressive_capital_tax.
 
 Sources:
     - LIFD art. 38 (imposition separee du capital)
@@ -87,6 +87,27 @@ class RetirementAsset:
 # Internal helpers
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def _capital_tax(
+    amount: float,
+    canton: str,
+    is_married: bool,
+    base_rate_override: float | None,
+) -> float:
+    """Impôt de retrait — v2 par canton, sauf override de taux explicite.
+
+    Beads -2i2 PR B : sans override, le modèle v2 (IFD art. 38 +
+    interpolation 130 points ESTV) remplace « taux de base x
+    multiplicateurs ». L'override (tests/API) conserve l'ancien chemin.
+    """
+    if base_rate_override is not None:
+        return calculate_progressive_capital_tax(amount, base_rate_override)
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    return estimate_capital_withdrawal_tax(amount, canton, is_married=is_married)
+
+
 def _get_base_rate(canton: str, is_married: bool) -> float:
     """Get the capital tax base rate for a canton, with married discount."""
     base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
@@ -109,12 +130,7 @@ def _build_same_year_option(
     Total capital is taxed as a single lump sum (progressive brackets hit hard).
     """
     total_capital = sum(a.amount for a in assets)
-    base_rate = (
-        base_rate_override
-        if base_rate_override is not None
-        else _get_base_rate(canton, is_married)
-    )
-    total_tax = calculate_progressive_capital_tax(total_capital, base_rate)
+    total_tax = _capital_tax(total_capital, canton, is_married, base_rate_override)
     net_after_tax = total_capital - total_tax
 
     # Single-year trajectory
@@ -162,11 +178,6 @@ def _build_staggered_option(
 
     # Assign withdrawal years: spread across available years
     # If multiple assets have the same earliest_withdrawal_age, spread them
-    base_rate = (
-        base_rate_override
-        if base_rate_override is not None
-        else _get_base_rate(canton, is_married)
-    )
     trajectory: List[YearlySnapshot] = []
     cumulative_net = 0.0
     cumulative_tax = 0.0
@@ -204,7 +215,7 @@ def _build_staggered_option(
     # Build trajectory year by year
     for year in sorted(year_groups.keys()):
         amount = year_groups[year]
-        tax = calculate_progressive_capital_tax(amount, base_rate)
+        tax = _capital_tax(amount, canton, is_married, base_rate_override)
         net = amount - tax
         cumulative_net += net
         cumulative_tax += tax
@@ -369,10 +380,12 @@ def compare_calendrier_retraits(
         return compute_terminal_spread([variant_same_year, variant_staggered])
 
     # Keep legacy key expected by tests and reporting.
-    base_rate_vd = TAUX_IMPOT_RETRAIT_CAPITAL.get("VD", 0.08)
-    base_rate_zg = TAUX_IMPOT_RETRAIT_CAPITAL.get("ZG", 0.035)
-    tax_vd = calculate_progressive_capital_tax(total_capital, base_rate_vd)
-    tax_zg = calculate_progressive_capital_tax(total_capital, base_rate_zg)
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax as _v2_tax,
+    )
+
+    tax_vd = _v2_tax(total_capital, "VD")
+    tax_zg = _v2_tax(total_capital, "ZG")
     sensitivity["canton_impact_VD_vs_ZG"] = round(tax_vd - tax_zg, 2)
 
     rate_low = max(0.0, base_rate_current - 0.01)

@@ -72,11 +72,12 @@ def _get_capital_tax(capital: float, canton: str, is_married: bool) -> float:
 
     Uses the centralized calculate_progressive_capital_tax from constants.
     """
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT)
-    if is_married:
-        # Coefficient marié PAR CANTON (beads MINT_nosync-ku6).
-        base_rate *= married_capital_tax_discount_for(canton)
-    return calculate_progressive_capital_tax(capital, base_rate)
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    return estimate_capital_withdrawal_tax(capital, canton, is_married=is_married)
 
 
 def _build_rachat_option(

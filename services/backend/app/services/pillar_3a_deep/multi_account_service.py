@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from app.constants.social_insurance import TAUX_IMPOT_RETRAIT_CAPITAL, RETRAIT_CAPITAL_TRANCHES
+from app.services.fiscal.cantonal_comparator import estimate_capital_withdrawal_tax
 
 
 DISCLAIMER = (
@@ -145,11 +146,8 @@ class MultiAccountService:
         nb_comptes_effectif = min(nb_comptes, annees_disponibles)
         nb_comptes_effectif = max(1, nb_comptes_effectif)
 
-        base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton_upper, _DEFAULT_TAUX_RETRAIT)
-
-        # 1. Calculate bloc tax (all at once)
-        bloc_taux = self._calc_effective_rate(avoir_total, base_rate)
-        bloc_tax = round(avoir_total * bloc_taux, 2)
+        # 1. Calculate bloc tax (all at once) — modèle v2 (beads -2i2)
+        bloc_tax = estimate_capital_withdrawal_tax(avoir_total, canton_upper)
 
         # 2. Calculate staggered tax (split across N years)
         montant_par_compte = round(avoir_total / nb_comptes_effectif, 2)
@@ -165,15 +163,16 @@ class MultiAccountService:
             else:
                 montant = montant_par_compte
 
-            taux = self._calc_effective_rate(montant, base_rate)
-            impot = round(montant * taux, 2)
+            impot = estimate_capital_withdrawal_tax(montant, canton_upper)
             net = round(montant - impot, 2)
+            # v2 : taux effectif dérivé (l'ancien taux par tranches n'existe plus).
+            taux_effectif = impot / montant if montant > 0 else 0.0
 
             yearly_plan.append(YearlyWithdrawalEntry(
                 annee=i + 1,
                 age=age_retrait_debut + i,
                 montant_retrait=montant,
-                taux_imposition=round(taux, 5),
+                taux_imposition=round(taux_effectif, 5),
                 impot=impot,
                 net_recu=net,
             ))
@@ -195,7 +194,7 @@ class MultiAccountService:
 
         # 5. Scénarios par nombre de comptes (sans classement)
         scenarios = self._build_account_scenarios(
-            avoir_total, base_rate, annees_disponibles,
+            avoir_total, canton_upper, annees_disponibles,
             max(0.0, frais_annuels_par_compte),
         )
 
@@ -226,7 +225,9 @@ class MultiAccountService:
 
         return StaggeredWithdrawalResult(
             bloc_tax=bloc_tax,
-            bloc_taux_effectif=round(bloc_taux, 5),
+            bloc_taux_effectif=round(
+                bloc_tax / avoir_total if avoir_total > 0 else 0.0, 5
+            ),
             staggered_tax=total_staggered_tax,
             staggered_taux_effectif=staggered_taux,
             economy=economy,
@@ -242,43 +243,10 @@ class MultiAccountService:
             disclaimer=DISCLAIMER,
         )
 
-    def _calc_effective_rate(self, montant: float, base_rate: float) -> float:
-        """Calculate the effective capital withdrawal tax rate with progressivity.
-
-        In most Swiss cantons, the capital withdrawal tax is levied at a
-        reduced rate compared to income tax, but it is still progressive.
-        Larger amounts are taxed at higher effective rates.
-
-        Args:
-            montant: Amount being withdrawn (CHF).
-            base_rate: Base cantonal rate.
-
-        Returns:
-            Effective tax rate (0-1).
-        """
-        if montant <= 0:
-            return 0.0
-
-        total_tax = 0.0
-        remaining = montant
-
-        for low, high, multiplier in RETRAIT_CAPITAL_TRANCHES:
-            if remaining <= 0:
-                break
-            bracket_amount = min(remaining, high - low)
-            if montant > low:
-                taxable_in_bracket = min(bracket_amount, montant - low)
-                if taxable_in_bracket <= 0:
-                    continue
-                total_tax += taxable_in_bracket * base_rate * multiplier
-
-        effective_rate = total_tax / montant if montant > 0 else 0.0
-        return min(effective_rate, 0.25)  # Cap at 25% for realism
-
     def _build_account_scenarios(
         self,
         avoir_total: float,
-        base_rate: float,
+        canton: str,
         annees_max: int,
         frais_annuels_par_compte: float,
     ) -> List[AccountScenario]:
@@ -295,8 +263,8 @@ class MultiAccountService:
         if avoir_total <= 0:
             return []
 
-        bloc_taux = self._calc_effective_rate(avoir_total, base_rate)
-        bloc_tax = avoir_total * bloc_taux
+        # v2 -2i2 : modèle canonique (IFD art. 38 + interpolation ESTV).
+        bloc_tax = estimate_capital_withdrawal_tax(avoir_total, canton)
 
         scenarios: List[AccountScenario] = []
         # Les marginales sont dérivées des valeurs ARRONDIES affichées, pas
@@ -306,8 +274,7 @@ class MultiAccountService:
         previous_saving_rounded = 0.0
         for n in range(2, min(6, annees_max + 1)):
             part = avoir_total / n
-            part_taux = self._calc_effective_rate(part, base_rate)
-            total_tax = part * part_taux * n
+            total_tax = estimate_capital_withdrawal_tax(part, canton) * n
             saving_rounded = round(bloc_tax - total_tax, 2)
             scenarios.append(AccountScenario(
                 nb_comptes=n,

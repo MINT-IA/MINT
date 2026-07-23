@@ -23,10 +23,6 @@ from app.services.arbitrage.calendrier_retraits import (
     compare_calendrier_retraits,
     RetirementAsset,
 )
-from app.constants.social_insurance import (
-    TAUX_IMPOT_RETRAIT_CAPITAL,
-    calculate_progressive_capital_tax,
-)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -86,11 +82,11 @@ class TestCalendrierRetraitsCore:
         assert savings > 5_000
 
     def test_progressive_brackets_applied_correctly(self):
-        """Same-year tax must match calculate_progressive_capital_tax."""
+        """Same-year tax must match the v2 capital withdrawal model."""
         assets = TYPICAL_ASSETS
         total = sum(a.amount for a in assets)  # 650'000
-        base_rate = TAUX_IMPOT_RETRAIT_CAPITAL["VD"]
-        expected_tax = calculate_progressive_capital_tax(total, base_rate)
+        # v2 -2i2 : VD 650000 (IFD art. 38 + interpolation ESTV)
+        expected_tax = 56764.29
 
         result = compare_calendrier_retraits(assets=assets, canton="VD")
         actual_tax = result.options[0].cumulative_tax_impact
