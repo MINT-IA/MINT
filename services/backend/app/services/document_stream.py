@@ -156,6 +156,48 @@ async def stream_understanding(
         }
         return
 
+    # ── Gate déclaration tiers (beads MINT_nosync-cbk, PRIV-02) ────────
+    # Miroir du chemin unaire (documents.py -> require_declaration_or_block
+    # -> 428) : la réponse SSE est déjà 200, le blocage est donc porté par
+    # un événement dédié AVANT tout field event. Un doc tiers DÉCLARÉ est
+    # persisté ici (le persist interne d'understand_document ne couvre que
+    # les docs non flagués), avec le flag PRIVACY_V2 résolu en async.
+    third_party_gate_payload = None
+    if result.third_party_detected and db is not None and file_sha:
+        from app.services.document_third_party import (
+            ThirdPartyDeclarationRequired,
+            require_declaration_or_block,
+        )
+        try:
+            require_declaration_or_block(
+                db, user_id=user_id, understanding=result, doc_hash=file_sha,
+            )
+            # Déclaration valide -> persistance mémoire + diff.
+            try:
+                from app.services.flags_service import flags as _privacy_flags
+                _use_enc = await _privacy_flags.is_enabled(
+                    "PRIVACY_V2_ENABLED", user_id
+                )
+            except Exception:
+                _use_enc = False
+            from app.services.document_vision_service import (
+                persist_document_memory,
+            )
+            persist_document_memory(
+                db, user_id, result, use_encryption=_use_enc
+            )
+        except ThirdPartyDeclarationRequired as gate:
+            third_party_gate_payload = {
+                "code": "third_party_declaration_required",
+                "subjectNames": gate.subject_names,
+                "docHash": gate.doc_hash,
+                "declarationEndpoint": "/api/v1/consents/grant-nominative",
+            }
+            yield {
+                "event": "third_party_declaration_required",
+                "data": third_party_gate_payload,
+            }
+
     # Classify confirmed — single coalesced event with the human-readable summary.
     yield {
         "event": "stage",
@@ -223,6 +265,7 @@ async def stream_understanding(
             "diff_from_previous": diff_payload,
             "third_party_detected": result.third_party_detected,
             "third_party_name": result.third_party_name,
+            "third_party_declaration_required": third_party_gate_payload,
             "fingerprint": result.fingerprint,
             "questions_for_user": result.questions_for_user,
         },
