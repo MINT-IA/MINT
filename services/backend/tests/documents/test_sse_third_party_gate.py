@@ -95,6 +95,10 @@ async def test_sse_undeclared_third_party_emits_gate_event_and_skips_persist(
     assert "summary" not in done["data"] and "third_party_name" not in done["data"], (
         "le done post-gate doit rester minimal (aucune info du document)"
     )
+    assert "diff_from_previous" not in done["data"], (
+        "le diff mémoire ne doit pas fuiter dans le done gated"
+    )
+    assert "questions_for_user" not in done["data"]
     assert persist_calls == [], (
         "un doc tiers NON déclaré ne doit jamais être persisté (PRIV-02)"
     )
@@ -376,3 +380,27 @@ async def test_sse_flag_resolution_failure_fails_closed_plaintext(monkeypatch):
 
     assert persist_calls == [False]
     assert events[-1]["event"] == "done"
+
+
+@pytest.mark.asyncio
+async def test_resolve_privacy_flag_helper_both_branches(monkeypatch):
+    """Helper partagé : True quand le flag est actif, False fail-closed sur
+    erreur (couvre les deux branches pour tous les sites d'appel)."""
+    from app.services import document_vision_service as dvs
+    from app.services import flags_service
+
+    async def _on(name, user_id=None):
+        return True
+
+    monkeypatch.setattr(
+        flags_service.flags, "is_enabled", _on, raising=False,
+    )
+    assert await dvs.resolve_privacy_encryption_flag("u1") is True
+
+    async def _boom(name, user_id=None):
+        raise RuntimeError("redis down")
+
+    monkeypatch.setattr(
+        flags_service.flags, "is_enabled", _boom, raising=False,
+    )
+    assert await dvs.resolve_privacy_encryption_flag("u1") is False

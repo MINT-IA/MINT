@@ -172,19 +172,15 @@ async def stream_understanding(
             require_declaration_or_block(
                 db, user_id=user_id, understanding=result, doc_hash=file_sha,
             )
-            # Déclaration valide -> persistance mémoire + diff.
-            try:
-                from app.services.flags_service import flags as _privacy_flags
-                _use_enc = await _privacy_flags.is_enabled(
-                    "PRIVACY_V2_ENABLED", user_id
-                )
-            except Exception:
-                _use_enc = False
+            # Déclaration valide -> persistance mémoire + diff (flag
+            # résolu en await via le helper partagé).
             from app.services.document_vision_service import (
                 persist_document_memory,
+                resolve_privacy_encryption_flag,
             )
             persist_document_memory(
-                db, user_id, result, use_encryption=_use_enc
+                db, user_id, result,
+                use_encryption=await resolve_privacy_encryption_flag(user_id),
             )
         except ThirdPartyDeclarationRequired as gate:
             # Review Codex PR #975 : miroir STRICT du 428 unaire — un doc

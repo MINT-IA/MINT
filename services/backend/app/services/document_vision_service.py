@@ -213,6 +213,21 @@ async def _async_vision_call(
 logger = logging.getLogger(__name__)
 
 
+async def resolve_privacy_encryption_flag(user_id: str) -> bool:
+    """Résolution ASYNC du flag PRIVACY_V2 (beads MINT_nosync-cbk).
+
+    À utiliser par TOUT appelant async avant persist_document_memory /
+    upsert_and_diff : le pont sync de document_memory_service timeout vers
+    False (plaintext) depuis une boucle active. Fail-closed False sur
+    erreur = comportement legacy plaintext.
+    """
+    try:
+        from app.services.flags_service import flags as _privacy_flags
+        return await _privacy_flags.is_enabled("PRIVACY_V2_ENABLED", user_id)
+    except Exception:
+        return False
+
+
 def persist_document_memory(
     db, user_id: str, result, use_encryption=None
 ) -> None:
@@ -1332,17 +1347,11 @@ async def understand_document(
         and result.extraction_status == _ES.success
         and not result.third_party_detected
     ):
-        # beads MINT_nosync-cbk : contexte ASYNC — le flag PRIVACY_V2 est
-        # résolu ici (await) et passé en paramètre ; le pont sync de
-        # document_memory_service timeout-erait vers False (plaintext).
-        try:
-            from app.services.flags_service import flags as _privacy_flags
-            _use_enc = await _privacy_flags.is_enabled(
-                "PRIVACY_V2_ENABLED", user_id
-            )
-        except Exception:
-            _use_enc = False  # fail-closed : comportement legacy plaintext
-        persist_document_memory(db, user_id, result, use_encryption=_use_enc)
+        # beads MINT_nosync-cbk : contexte ASYNC — flag résolu en await.
+        persist_document_memory(
+            db, user_id, result,
+            use_encryption=await resolve_privacy_encryption_flag(user_id),
+        )
 
     # 8a. PII pre-scrub (Phase 29-03 pii_scrubber) — strip IBAN/AVS/phone/
     #     employer names from Vision free text BEFORE the judge sees it.
