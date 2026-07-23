@@ -4156,6 +4156,32 @@
   "rachatEchelonneRachat": "Rescate",
   "rachatEchelonneBlockageTitle": "LPP art. 79b al. 3 — Bloqueo EPL",
   "rachatEchelonneBlockageBody": "Después de cada rescate, cualquier retiro EPL queda bloqueado durante 3 años.",
+  "rachatEchelonneFenetre79bBadge": "Ventaja fiscal anulada si capital",
+  "rachatEchelonneSiCapitalLabel": "Impacto fiscal si retiras el capital a los 65: CHF {montant}",
+  "@rachatEchelonneSiCapitalLabel": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneFenetre79bNote": "Tramos aportados menos de 3 años antes de un retiro de capital: la deducción sería anulada y revocada por la autoridad fiscal (art. 79b párr. 3 LPP). Hipótesis: retiro íntegro a los 65 — una jubilación anticipada desplaza la ventana. El bloqueo EPL de 3 años (tarjeta dedicada abajo) es un efecto distinto del mismo artículo. Dos escenarios — la elección entre renta o capital sigue siendo tuya.",
+  "rachatEchelonneHeroSiCapital": "Si retiras el capital a los 65, la diferencia pasa a ser CHF {montant} (ahorros de los tramos recientes revocados por el fisco).",
+  "@rachatEchelonneHeroSiCapital": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneSiCapitalShort": "Si capital: CHF {montant}",
+  "@rachatEchelonneSiCapitalShort": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "rachatEchelonneTauxMarginalTitle": "Tasa impositiva marginal",
   "rachatEchelonneTauxMarginalBody": "La tasa marginal es el porcentaje de impuesto sobre tu último franco ganado. Con una tasa del 32 %, una deducción de CHF 1'000 corresponde a un impacto fiscal indicativo de CHF 320. Cuanto más alto sea tu ingreso, más puede subir esta tasa.",
   "rachatEchelonneTauxMarginalTip": "Por eso escalonar los rescates es inteligente.",

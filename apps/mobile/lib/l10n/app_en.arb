@@ -4156,6 +4156,32 @@
   "rachatEchelonneRachat": "Buyback",
   "rachatEchelonneBlockageTitle": "LPP art. 79b para. 3 — EPL lock",
   "rachatEchelonneBlockageBody": "After each buyback, any EPL withdrawal (home ownership promotion) is locked for 3 years. Plan accordingly if a property purchase is planned.",
+  "rachatEchelonneFenetre79bBadge": "Tax benefit voided if capital",
+  "rachatEchelonneSiCapitalLabel": "Tax impact if capital withdrawal at 65: CHF {montant}",
+  "@rachatEchelonneSiCapitalLabel": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneFenetre79bNote": "Instalments paid less than 3 years before a capital withdrawal: the deduction would be voided and clawed back by the tax authority (LPP art. 79b para. 3). Assumption: full withdrawal at 65 — early retirement shifts the window accordingly. The 3-year EPL freeze (dedicated card below) is a separate effect of the same article. Two scenarios shown — the pension-or-capital choice remains yours.",
+  "rachatEchelonneHeroSiCapital": "If capital is withdrawn at 65, the gap becomes CHF {montant} (savings on recent instalments clawed back by the tax authority).",
+  "@rachatEchelonneHeroSiCapital": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneSiCapitalShort": "If capital: CHF {montant}",
+  "@rachatEchelonneSiCapitalShort": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "rachatEchelonneTauxMarginalTitle": "Marginal tax rate",
   "rachatEchelonneTauxMarginalBody": "The marginal rate is the tax percentage on your last franc earned. At 32%, a CHF 1,000 deduction corresponds to an indicative tax impact of CHF 320. The higher your income, the more this rate can rise.",
   "rachatEchelonneTauxMarginalTip": "That's why staggering buybacks is smart: each instalment stays in a high marginal bracket.",

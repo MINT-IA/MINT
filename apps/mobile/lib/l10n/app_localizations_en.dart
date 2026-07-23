@@ -8975,6 +8975,28 @@ class SEn extends S {
       'After each buyback, any EPL withdrawal (home ownership promotion) is locked for 3 years. Plan accordingly if a property purchase is planned.';
 
   @override
+  String get rachatEchelonneFenetre79bBadge => 'Tax benefit voided if capital';
+
+  @override
+  String rachatEchelonneSiCapitalLabel(String montant) {
+    return 'Tax impact if capital withdrawal at 65: CHF $montant';
+  }
+
+  @override
+  String get rachatEchelonneFenetre79bNote =>
+      'Instalments paid less than 3 years before a capital withdrawal: the deduction would be voided and clawed back by the tax authority (LPP art. 79b para. 3). Assumption: full withdrawal at 65 — early retirement shifts the window accordingly. The 3-year EPL freeze (dedicated card below) is a separate effect of the same article. Two scenarios shown — the pension-or-capital choice remains yours.';
+
+  @override
+  String rachatEchelonneHeroSiCapital(String montant) {
+    return 'If capital is withdrawn at 65, the gap becomes CHF $montant (savings on recent instalments clawed back by the tax authority).';
+  }
+
+  @override
+  String rachatEchelonneSiCapitalShort(String montant) {
+    return 'If capital: CHF $montant';
+  }
+
+  @override
   String get rachatEchelonneTauxMarginalTitle => 'Marginal tax rate';
 
   @override

@@ -4156,6 +4156,32 @@
   "rachatEchelonneRachat": "Resgate",
   "rachatEchelonneBlockageTitle": "LPP art. 79b al. 3 — Bloqueio EPL",
   "rachatEchelonneBlockageBody": "Após cada resgate, qualquer levantamento EPL fica bloqueado durante 3 anos.",
+  "rachatEchelonneFenetre79bBadge": "Vantagem fiscal anulada se capital",
+  "rachatEchelonneSiCapitalLabel": "Impacto fiscal se levantares o capital aos 65: CHF {montant}",
+  "@rachatEchelonneSiCapitalLabel": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneFenetre79bNote": "Parcelas pagas menos de 3 anos antes de um levantamento de capital: a dedução seria anulada e revogada pela autoridade fiscal (art. 79b n.º 3 LPP). Hipótese: levantamento integral aos 65 — uma reforma antecipada desloca a janela. O bloqueio EPL de 3 anos (cartão dedicado abaixo) é um efeito distinto do mesmo artigo. Dois cenários — a escolha entre renda ou capital continua a ser tua.",
+  "rachatEchelonneHeroSiCapital": "Se levantares o capital aos 65, a diferença passa a CHF {montant} (poupanças das parcelas recentes revogadas pelo fisco).",
+  "@rachatEchelonneHeroSiCapital": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneSiCapitalShort": "Se capital: CHF {montant}",
+  "@rachatEchelonneSiCapitalShort": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "rachatEchelonneTauxMarginalTitle": "Taxa marginal de impostos",
   "rachatEchelonneTauxMarginalBody": "A taxa marginal é a percentagem de imposto sobre o teu último franco ganho. Com uma taxa de 32 %, uma dedução de CHF 1'000 corresponde a um impacto fiscal indicativo de CHF 320. Quanto maior o rendimento, mais esta taxa pode subir.",
   "rachatEchelonneTauxMarginalTip": "É por isso que escalonar os resgates é inteligente.",

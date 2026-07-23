@@ -452,6 +452,18 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     final delta = result.delta;
     final showSavings = delta > 0;
 
+    // Panel -a6e : le hero affichait le delta scénario RENTE seul — pour un
+    // utilisateur 63-70 ans dont les tranches (voire le bloc entier) sont en
+    // fenêtre art. 79b al. 3, l'écart réel en scénario capital peut fondre ou
+    // s'inverser. Deux scénarios, même carte.
+    final fenetreActive =
+        result.tranchesEnFenetre > 0 || result.blocEnFenetre;
+    final deltaSiCapital =
+        result.economieEchelonneSiCapital - result.economieBlocSiCapital;
+    final baseNarrative = showSavings
+        ? l.rachatEchelonneNarrativeSavings(_horizon)
+        : l.rachatEchelonneNarrativeNoSavings;
+
     return MintResultHeroCard(
       eyebrow: l.rachatEchelonneEyebrow,
       primaryValue: showSavings
@@ -460,9 +472,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       primaryLabel: showSavings
           ? l.rachatEchelonneSavingsCaption
           : l.rachatEchelonneBlocBetter,
-      narrative: showSavings
-          ? l.rachatEchelonneNarrativeSavings(_horizon)
-          : l.rachatEchelonneNarrativeNoSavings,
+      narrative: fenetreActive
+          ? '$baseNarrative '
+              '${l.rachatEchelonneHeroSiCapital(formatChf(deltaSiCapital))}'
+          : baseNarrative,
       accentColor: showSavings ? MintColors.success : MintColors.textSecondary,
       tone: MintSurfaceTone.porcelaine,
     );
@@ -640,7 +653,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       Semantics(
                         button: true,
                         label: l.rachatEchelonneAuto,
-                        child: TextButton(
+                        child: TextButton( // lint-ignore: prefer_mint_cta
                           onPressed: () { setState(() { _manualTauxOverride = false; }); _onInputChanged(); },
                           style: TextButton.styleFrom(foregroundColor: MintColors.info, textStyle: MintTextStyles.labelSmall(), padding: EdgeInsets.zero, minimumSize: const Size(0, 32)),
                           child: Text(l.rachatEchelonneAuto),
@@ -668,9 +681,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
             color: selected ? MintColors.primary : MintColors.transparent,
-            borderRadius: BorderRadius.circular(7),
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(label, style: MintTextStyles.labelSmall(color: selected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontSize: 12)),
+          child: Text(label, style: MintTextStyles.labelMedium(color: selected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600)),
         ),
       ),
     );
@@ -817,16 +830,19 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             // les deux options (bloc vs échelonné) sont side-by-side sans
             // badge "Plus adapté" qui désigne un vainqueur. L'utilisateur
             // lit les chiffres et décide — pas l'app.
-            Expanded(child: _buildComparisonCard(title: l.rachatEchelonneBlocTitle, subtitle: l.rachatEchelonneBlocSubtitle, amount: result.economieBlocTotal, color: MintColors.warning, savingsLabel: l.rachatEchelonneEconomieFiscale)),
+            // Symétrie -a6e : le scénario capital s'applique aux DEUX cartes
+            // (le bloc versé à 63-64 ans est lui-même repris) — un marquage
+            // asymétrique orienterait de fait (No-Ranking).
+            Expanded(child: _buildComparisonCard(title: l.rachatEchelonneBlocTitle, subtitle: l.rachatEchelonneBlocSubtitle, amount: result.economieBlocTotal, color: MintColors.warning, savingsLabel: l.rachatEchelonneEconomieFiscale, siCapitalAmount: result.blocEnFenetre ? result.economieBlocSiCapital : null, siCapitalLabel: l.rachatEchelonneSiCapitalShort)),
             const SizedBox(width: MintSpacing.sm + 4),
-            Expanded(child: _buildComparisonCard(title: '$_horizon ${l.staggered3aAns}', subtitle: l.rachatEchelonneEchelonneSubtitle, amount: result.economieEchelonneTotal, color: MintColors.success, savingsLabel: l.rachatEchelonneEconomieFiscale)),
+            Expanded(child: _buildComparisonCard(title: '$_horizon ${l.staggered3aAns}', subtitle: l.rachatEchelonneEchelonneSubtitle, amount: result.economieEchelonneTotal, color: MintColors.success, savingsLabel: l.rachatEchelonneEconomieFiscale, siCapitalAmount: result.tranchesEnFenetre > 0 ? result.economieEchelonneSiCapital : null, siCapitalLabel: l.rachatEchelonneSiCapitalShort)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildComparisonCard({required String title, required String subtitle, required double amount, required Color color, required String savingsLabel}) {
+  Widget _buildComparisonCard({required String title, required String subtitle, required double amount, required Color color, required String savingsLabel, double? siCapitalAmount, String Function(String)? siCapitalLabel}) {
     // isWinner + adaptedLabel supprimés 2026-04-18 (No-Ranking doctrine).
     return MintSurface(
       tone: MintSurfaceTone.blanc,
@@ -842,6 +858,15 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           Text('CHF ${formatChf(amount)}', style: MintTextStyles.headlineMedium(color: color)),
           const SizedBox(height: MintSpacing.xs),
           Text(savingsLabel, style: MintTextStyles.labelSmall()),
+          if (siCapitalAmount != null && siCapitalLabel != null) ...[
+            const SizedBox(height: MintSpacing.xs),
+            // Scénario capital symétrique (panel -a6e) — même règle sur les
+            // deux cartes, l'utilisateur compare et décide.
+            Text(
+              siCapitalLabel(formatChf(siCapitalAmount)),
+              style: MintTextStyles.labelSmall(color: MintColors.warningAaa),
+            ),
+          ],
         ],
       ),
     );
@@ -884,7 +909,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3))),
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4))),
         const SizedBox(width: 6),
         Text(label, style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.w500)),
       ],
@@ -916,17 +941,51 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(l.rachatEchelonneTotal, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600)),
-                Column(
+                Flexible(
+                    child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text('${l.rachatEchelonneEconomieFiscale}\u00a0: CHF ${formatChf(result.economieEchelonneTotal)}', style: MintTextStyles.bodySmall(color: MintColors.greenDark).copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
                     Text('CHF ${formatChf(_rachatMax - result.economieEchelonneTotal)}', style: MintTextStyles.labelMedium()),
+                    if (result.tranchesEnFenetre > 0) ...[
+                      const SizedBox(height: 2),
+                      // Scénario conditionnel (art. 79b al. 3) : économie si
+                      // retrait CAPITAL à 65 ans — les tranches en fenêtre ne
+                      // créditent rien. Deux scénarios, pas de recommandation.
+                      Text(
+                        l.rachatEchelonneSiCapitalLabel(
+                            formatChf(result.economieEchelonneSiCapital)),
+                        textAlign: TextAlign.end,
+                        style: MintTextStyles.labelMedium(
+                            color: MintColors.warningAaa),
+                      ),
+                    ],
                   ],
-                ),
+                )),
               ],
             ),
           ),
+          if (result.tranchesEnFenetre > 0) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const ExcludeSemantics(
+                  child: Icon(Icons.info_outline,
+                      size: 16, color: MintColors.textSecondary),
+                ),
+                const SizedBox(width: MintSpacing.xs),
+                Expanded(
+                  child: Text(
+                    l.rachatEchelonneFenetre79bNote,
+                    style: MintTextStyles.labelSmall(
+                        color: MintColors.textSecondary),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -948,7 +1007,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(color: lineColor, shape: BoxShape.circle),
-                  child: Center(child: Text('${year.annee}', style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w800, fontSize: 14))),
+                  child: Center(child: Text('${year.annee}', style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800))),
                 ),
                 if (!isLast)
                   Expanded(child: Container(width: 3, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [lineColor, Color.lerp(MintColors.primary, MintColors.success, (index + 2) / total)!]), borderRadius: BorderRadius.circular(2)))),
@@ -967,30 +1026,52 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('CHF ${formatChf(year.montantRachat)}', style: MintTextStyles.titleMedium()),
-                      Text('-CHF ${formatChf(year.economieFiscale)}', style: MintTextStyles.bodySmall(color: MintColors.greenDark).copyWith(fontWeight: FontWeight.w700)),
+                      // Flexible : deux montants CHF longs débordaient à
+                      // 320pt (révélé par le test 79b — panel -a6e).
+                      Flexible(child: Text('CHF ${formatChf(year.montantRachat)}', style: MintTextStyles.titleMedium())),
+                      Flexible(child: Text('-CHF ${formatChf(year.economieFiscale)}', textAlign: TextAlign.end, style: MintTextStyles.bodySmall(color: MintColors.greenDark).copyWith(fontWeight: FontWeight.w700))),
                     ],
                   ),
                   const SizedBox(height: MintSpacing.xs),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(l.rachatEchelonneRachat, style: MintTextStyles.labelSmall()),
-                      Text(l.rachatEchelonneEconomieFiscale, style: MintTextStyles.labelSmall(color: MintColors.greenPastel)),
+                      Flexible(child: Text(l.rachatEchelonneRachat, style: MintTextStyles.labelSmall())),
+                      Flexible(child: Text(l.rachatEchelonneEconomieFiscale, textAlign: TextAlign.end, style: MintTextStyles.labelSmall(color: MintColors.greenPastel))),
                     ],
                   ),
                   const SizedBox(height: MintSpacing.sm),
                   Row(
                     children: [
-                      Text('CHF ${formatChf(year.coutNet)}', style: MintTextStyles.labelMedium()),
+                      Flexible(child: Text('CHF ${formatChf(year.coutNet)}', style: MintTextStyles.labelMedium())),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(color: lineColor.withAlpha(25), borderRadius: BorderRadius.circular(8)),
-                        child: Text('${lacunePercent.toStringAsFixed(0)}\u00a0%', style: MintTextStyles.micro(color: lineColor).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal, fontSize: 10)),
+                        child: Text('${lacunePercent.toStringAsFixed(0)}\u00a0%', style: MintTextStyles.micro(color: lineColor).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal)),
                       ),
                     ],
                   ),
+                  if (year.fenetre79b) ...[
+                    const SizedBox(height: MintSpacing.xs),
+                    // Tranche dans la fenêtre art. 79b al. 3 : la déduction
+                    // serait reprise en cas de retrait capital (note complète
+                    // sous le total du plan).
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: MintColors.warningBg,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        l.rachatEchelonneFenetre79bBadge,
+                        style: MintTextStyles.labelSmall(
+                                color: MintColors.warningAaa)
+                            .copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -1079,7 +1160,8 @@ class _WaterfallPainter extends CustomPainter {
       canvas.drawLine(Offset(chartLeft, y), Offset(chartRight, y), gridPaint);
       textPainter.text = TextSpan(
         text: '${_brackets[_brackets.length - 1 - i].label}\n${_brackets[_brackets.length - 1 - i].rate}%',
-        style: const TextStyle(fontSize: 10, color: MintColors.textMuted, height: 1.3),
+        style: MintTextStyles.micro(color: MintColors.textMuted)
+            .copyWith(fontStyle: FontStyle.normal, height: 1.3),
       );
       textPainter.layout(maxWidth: 60);
       textPainter.paint(canvas, Offset(4, y + 2));
@@ -1096,22 +1178,22 @@ class _WaterfallPainter extends CustomPainter {
     _drawDeductionBar(canvas: canvas, x: blocX, width: barWidth, deduction: blocDeduction, chartTop: chartTop, chartBottom: chartBottom, color: MintColors.warning);
     _drawDeductionBar(canvas: canvas, x: echelX, width: barWidth, deduction: echelonneDeduction, chartTop: chartTop, chartBottom: chartBottom, color: MintColors.success);
 
-    textPainter.text = const TextSpan(text: 'Bloc', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: MintColors.textSecondary));
+    textPainter.text = TextSpan(text: 'Bloc', style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600));
     textPainter.layout();
     textPainter.paint(canvas, Offset(blocX + barWidth / 2 - textPainter.width / 2, chartBottom + 8));
 
     final echelLabel = 'x$horizon';
-    textPainter.text = TextSpan(text: echelLabel, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: MintColors.textSecondary));
+    textPainter.text = TextSpan(text: echelLabel, style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600));
     textPainter.layout();
     textPainter.paint(canvas, Offset(echelX + barWidth / 2 - textPainter.width / 2, chartBottom + 8));
 
     final blocBarHeight = _getBarHeight(blocDeduction, chartHeight);
-    textPainter.text = TextSpan(text: 'CHF ${_formatShort(blocDeduction)}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.primary));
+    textPainter.text = TextSpan(text: 'CHF ${_formatShort(blocDeduction)}', style: MintTextStyles.micro(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal));
     textPainter.layout();
     textPainter.paint(canvas, Offset(blocX + barWidth / 2 - textPainter.width / 2, (chartBottom - blocBarHeight - 14).clamp(0.0, chartBottom)));
 
     final echelBarHeight = _getBarHeight(echelonneDeduction, chartHeight);
-    textPainter.text = TextSpan(text: 'CHF ${_formatShort(echelonneDeduction)}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: MintColors.primary));
+    textPainter.text = TextSpan(text: 'CHF ${_formatShort(echelonneDeduction)}', style: MintTextStyles.micro(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal));
     textPainter.layout();
     textPainter.paint(canvas, Offset(echelX + barWidth / 2 - textPainter.width / 2, (chartBottom - echelBarHeight - 14).clamp(0.0, chartBottom)));
   }

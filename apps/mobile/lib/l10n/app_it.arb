@@ -4156,6 +4156,32 @@
   "rachatEchelonneRachat": "Riscatto",
   "rachatEchelonneBlockageTitle": "LPP art. 79b cpv. 3 — Blocco EPL",
   "rachatEchelonneBlockageBody": "Dopo ogni riscatto, qualsiasi prelievo EPL è bloccato per 3 anni.",
+  "rachatEchelonneFenetre79bBadge": "Vantaggio fiscale annullato se capitale",
+  "rachatEchelonneSiCapitalLabel": "Impatto fiscale se prelievo di capitale a 65 anni: CHF {montant}",
+  "@rachatEchelonneSiCapitalLabel": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneFenetre79bNote": "Versamenti effettuati meno di 3 anni prima di un prelievo di capitale: la deduzione verrebbe annullata e ripresa dall'autorità fiscale (art. 79b cpv. 3 LPP). Ipotesi: prelievo integrale a 65 anni — un pensionamento anticipato sposta la finestra. Il blocco PPA di 3 anni (scheda dedicata sotto) è un effetto distinto dello stesso articolo. Due scenari — la scelta tra rendita o capitale resta tua.",
+  "rachatEchelonneHeroSiCapital": "Se prelevi il capitale a 65 anni, la differenza diventa CHF {montant} (risparmi delle rate recenti ripresi dal fisco).",
+  "@rachatEchelonneHeroSiCapital": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneSiCapitalShort": "Se capitale: CHF {montant}",
+  "@rachatEchelonneSiCapitalShort": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "rachatEchelonneTauxMarginalTitle": "Aliquota marginale",
   "rachatEchelonneTauxMarginalBody": "L'aliquota marginale è la percentuale d'imposta sull'ultimo franco guadagnato. Con un'aliquota del 32 %, una deduzione di CHF 1'000 corrisponde a un impatto fiscale indicativo di CHF 320. Più alto è il reddito, più questa aliquota può aumentare.",
   "rachatEchelonneTauxMarginalTip": "Ecco perché scaglionare i riscatti è intelligente.",

@@ -81,6 +81,11 @@ ALLOW = {
     "apps/mobile/lib/services/api_service.dart",
     "apps/mobile/test/services/api_service_capital_epuise_test.dart",
     "apps/mobile/test/simulators/rente_vs_capital_test.dart",
+    # -a6e : chaîne morte lpp_buyback_advanced (façade jamais montée ; la
+    # logique 79b -okl vit désormais dans le flux live RachatEchelonne)
+    "apps/mobile/lib/widgets/simulators/lpp_buyback_advanced_widget.dart",
+    "apps/mobile/lib/services/simulators/lpp_buyback_advanced_simulator.dart",
+    "apps/mobile/test/simulators/lpp_buyback_advanced_simulator_test.dart",
     "apps/mobile/test/services/financial_core/arbitrage_engine_mixed_deflation_test.dart",
     "services/backend/app/services/pillar_3a_deep/retroactive_3a_service.py",
     "services/backend/tests/test_pillar_3a_retroactive.py",
@@ -193,6 +198,12 @@ ALLOW = {
     "apps/mobile/test/services/financial_core/rvc_parity_fixture_test.dart",
     "services/backend/tests/test_rvc_parity_fixture.py",
     "tools/fixtures/rvc_parity_v1.json",
+    # PR rachat-79b-window (bead -a6e) : fenêtre art. 79b al. 3 flux live
+    "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
+    "apps/mobile/lib/services/lpp_deep_service.dart",
+    "apps/mobile/test/screens/lpp_deep/rachat_echelonne_screen_test.dart",
+    "apps/mobile/test/services/rachat_echelonne_fenetre_79b_test.dart",
+    "apps/mobile/test/test_gaps.json",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
@@ -423,6 +434,11 @@ DELETION_ALLOW = {
     # boundary conservée contre la réintroduction)
     "apps/mobile/lib/domain/rente_vs_capital_calculator.dart",
     "apps/mobile/test/simulators/rente_vs_capital_test.dart",
+    # -a6e : chaîne morte lpp_buyback_advanced (façade jamais montée ; la
+    # logique 79b -okl vit désormais dans le flux live RachatEchelonne)
+    "apps/mobile/lib/widgets/simulators/lpp_buyback_advanced_widget.dart",
+    "apps/mobile/lib/services/simulators/lpp_buyback_advanced_simulator.dart",
+    "apps/mobile/test/simulators/lpp_buyback_advanced_simulator_test.dart",
     "apps/mobile/test/services/coach/chat_drawer_summon_test.dart",
 }
 IGNORED_GENERATED_PREFIXES = (
