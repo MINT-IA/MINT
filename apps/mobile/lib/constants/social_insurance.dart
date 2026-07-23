@@ -193,51 +193,79 @@ const double avsCotisationMinIndependant = 530.0;
 const double avsSeuilRevenuMinIndependant = 10100.0;
 
 /// Bonus par annee d'ajournement de la rente AVS (LAVS art. 39).
+// Mémento OFAS 3.04 « Flexibilisation de la retraite » (audit -zaw).
 const Map<int, double> avsDeferralBonus = {
   1: 0.052, // +5.2%
-  2: 0.106, // +10.6%
-  3: 0.164, // +16.4%
-  4: 0.227, // +22.7%
+  2: 0.108, // +10.8%
+  3: 0.171, // +17.1%
+  4: 0.240, // +24.0%
   5: 0.315, // +31.5%
 };
 
 /// RAMD minimum pour rente minimale (LAVS art. 34, echelle 44).
-const double avsRAMDMin = 14700.0;
+const double avsRAMDMin = 15120.0;
 
 /// RAMD maximum pour rente maximale (LAVS art. 34, echelle 44).
-const double avsRAMDMax = 88200.0;
+const double avsRAMDMax = 90720.0;
 
-/// Echelle 44 complete (OFAS 2025) — fallback when backend is unreachable.
-/// Format: [[RAMD, rente_mensuelle], ...].
-/// Updated every 2 years by Federal Council (mixed index).
-/// Source: LAVS art. 34, OFAS tables de rentes 2023/2025.
+/// Échelle 44 complète — fallback quand le backend est injoignable.
+/// Format : [[RAMD « jusqu'à », rente mensuelle], ...]. 51 paliers, pas 1'512.
+/// Source : OFAS doc 318.117.011 « Tables des rentes 2025 » p. 20, valable dès
+/// 1.1.2025 et inchangé en 2026 (audit -zaw 2026-07-23 : l'ancienne table
+/// mélangeait des bornes RAMD 2023/24 avec les rentes 2025 — écarts jusqu'à
+/// 102 fr./mois, ex. RAMD 52'920 rendait 1'914 au lieu de 2'016).
 const List<List<double>> avsEchelle44 = [
-  [14700, 1260],
-  [17640, 1299],
-  [20580, 1338],
-  [23520, 1377],
-  [26460, 1416],
-  [29400, 1470],
-  [32340, 1524],
-  [35280, 1578],
-  [38220, 1632],
-  [41160, 1686],
-  [44100, 1743],
-  [47040, 1800],
-  [49980, 1857],
-  [52920, 1914],
-  [55860, 1971],
-  [58800, 2028],
-  [61740, 2085],
-  [64680, 2142],
-  [67620, 2199],
-  [70560, 2256],
-  [73500, 2313],
-  [76440, 2370],
-  [79380, 2427],
-  [82320, 2462],
-  [85260, 2491],
-  [88200, 2520],
+  [15120, 1260],
+  [16632, 1293],
+  [18144, 1326],
+  [19656, 1358],
+  [21168, 1391],
+  [22680, 1424],
+  [24192, 1457],
+  [25704, 1489],
+  [27216, 1522],
+  [28728, 1555],
+  [30240, 1588],
+  [31752, 1620],
+  [33264, 1653],
+  [34776, 1686],
+  [36288, 1719],
+  [37800, 1751],
+  [39312, 1784],
+  [40824, 1817],
+  [42336, 1850],
+  [43848, 1882],
+  [45360, 1915],
+  [46872, 1935],
+  [48384, 1956],
+  [49896, 1976],
+  [51408, 1996],
+  [52920, 2016],
+  [54432, 2036],
+  [55944, 2056],
+  [57456, 2076],
+  [58968, 2097],
+  [60480, 2117],
+  [61992, 2137],
+  [63504, 2157],
+  [65016, 2177],
+  [66528, 2197],
+  [68040, 2218],
+  [69552, 2238],
+  [71064, 2258],
+  [72576, 2278],
+  [74088, 2298],
+  [75600, 2318],
+  [77112, 2339],
+  [78624, 2359],
+  [80136, 2379],
+  [81648, 2399],
+  [83160, 2419],
+  [84672, 2439],
+  [86184, 2460],
+  [87696, 2480],
+  [89208, 2500],
+  [90720, 2520],
 ];
 
 /// Franchise AVS pour retraites actifs, mensuelle.
@@ -267,10 +295,10 @@ const int avsNombreRentesParAn = 13;
 const double avs13emeRenteFactor = 13.0 / 12.0;
 
 /// Cotisation annuelle minimale AVS volontaire (expatries).
-const double avsVolontaireCotisationMin = 514.0;
+const double avsVolontaireCotisationMin = 530.0;
 
 /// Cotisation annuelle maximale AVS volontaire.
-const double avsVolontaireCotisationMax = 25700.0;
+const double avsVolontaireCotisationMax = 26500.0;
 
 // ══════════════════════════════════════════════════════════════════════════════
 // AI — Assurance-invalidite

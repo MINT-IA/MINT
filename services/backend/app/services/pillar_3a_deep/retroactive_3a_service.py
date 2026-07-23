@@ -31,16 +31,20 @@ from app.constants.social_insurance import (
 
 # ── Plafonds « petit » 3a (CHF) par année ───────────────────────────
 # Source: BSV/OFAS, publications annuelles.
+# Audit -zaw 2026-07-23 : années de bascule corrigées sur table croisée
+# (finpension / Canton de Berne / CS) — l'ancienne table décalait les
+# bascules (2023 portait 6'883 au lieu de 7'056, 2021/22 portaient 6'826
+# au lieu de 6'883, 2018 portait 6'826 au lieu de 6'768).
 HISTORICAL_3A_LIMITS: dict[int, float] = {
     2026: 7_258.0,
     2025: 7_258.0,
     2024: 7_056.0,
-    2023: 6_883.0,
-    2022: 6_826.0,
-    2021: 6_826.0,
+    2023: 7_056.0,
+    2022: 6_883.0,
+    2021: 6_883.0,
     2020: 6_826.0,
     2019: 6_826.0,
-    2018: 6_826.0,
+    2018: 6_768.0,
     2017: 6_768.0,
     2016: 6_768.0,
 }

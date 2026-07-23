@@ -109,7 +109,8 @@ void main() {
       final renteNoCache = AvsCalculator.computeMonthlyRente(
         currentAge: 49,
         retirementAge: 65,
-        grossAnnualSalary: 88200,
+        // Borne RAMD max officielle 2025/2026 (OFAS 318.117.011).
+        grossAnnualSalary: 90720,
       );
       // With max salary and full contribution years, should get max rente.
       expect(renteNoCache, closeTo(avsRenteMaxMensuelle, 1.0));
@@ -127,11 +128,11 @@ void main() {
       // Now AvsCalculator should use the cached full_contribution_years (50).
       // currentYears = 49-20 = 29, futureYears = 65-49 = 16, total = 45
       // capped at 50 → gapFactor = 45/50 = 0.9
-      // renteFromRAMD(88200) = 2520, so rente = 2520 × 0.9 = 2268
+      // renteFromRAMD(90720) = 2520, so rente = 2520 × 0.9 = 2268
       final renteWithCache = AvsCalculator.computeMonthlyRente(
         currentAge: 49,
         retirementAge: 65,
-        grossAnnualSalary: 88200,
+        grossAnnualSalary: 90720,
       );
       expect(renteWithCache, closeTo(2268.0, 1.0));
       expect(renteWithCache, isNot(equals(renteNoCache)));

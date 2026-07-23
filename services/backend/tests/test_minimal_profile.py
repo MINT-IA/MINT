@@ -265,16 +265,19 @@ class TestAvsProjection:
     def test_avs_ramd_lauren_67k_full_years(self):
         """Golden couple: Lauren (67k, full 44 years) uses RAMD interpolation.
 
-        RAMD = 67'000: ratio = (67000-14700)/(88200-14700) ≈ 0.7116
-        full_rente = 1260 + 0.7116 * 1260 ≈ 2156.6 CHF/mois (full years).
-        With 40 contribution years: 2156.6 * 40/44 ≈ 1960.5 CHF/mois.
-        This verifies RAMD interpolation works, NOT flat max.
+        Bornes RAMD officielles 2025/2026 (audit -zaw, OFAS doc 318.117.011) :
+        min 15'120, max 90'720. RAMD = 67'000 :
+        ratio = (67000-15120)/(90720-15120) ≈ 0.6862
+        full_rente = 1260 + 0.6862 * 1260 ≈ 2124.7 CHF/mois.
+        NB : l'interpolation LINÉAIRE est un proxy — la table officielle
+        (palier « jusqu'à 68'040 ») donnerait 2'218 ; l'estimation minimale
+        reste volontairement prudente.
         """
         full_rente = _estimate_avs_monthly(67_000.0, 44)
         # RAMD interpolation: must be between min and max
         assert AVS_RENTE_MIN_MENSUELLE < full_rente < AVS_RENTE_MAX_MENSUELLE
-        # Expected: ~2156.6 CHF for full years (linear interpolation)
-        assert abs(full_rente - 2156.6) < 5.0, f"Expected ~2156.6, got {full_rente}"
+        # Expected: ~2124.7 CHF for full years (linear interpolation)
+        assert abs(full_rente - 2124.7) < 5.0, f"Expected ~2124.7, got {full_rente}"
 
         # With 40 contribution years (~expat with partial gap)
         partial_rente = _estimate_avs_monthly(67_000.0, 40)

@@ -112,31 +112,38 @@ CANTON_NAMES = {
 
 # Federal tax simplified progressive brackets (LIFD art. 36)
 # (upper_bound, marginal_rate) — simplified for estimation
+# Barème IFD personnes seules, ANNÉE FISCALE 2026 (LIFD art. 36, seuils
+# compensés de la progression à froid — DFF 2026). Audit -zaw 2026-07-23 :
+# l'ancien barème portait des seuils pré-2024 ET des taux marginaux faux aux
+# positions 6-10 (5.10/6.40/6.80/8.90/11.00 au lieu de
+# 5.94/6.60/8.80/11.00/13.20) -> sous-estimation de l'IFD des revenus
+# moyens-hauts. Sources : ESTV/AFC barèmes IFD ; compensation progression à
+# froid 2026 (DFF). Revue ANNUELLE requise (indexation des seuils).
 FEDERAL_BRACKETS = [
-    (14_500, 0.0000),
-    (31_600, 0.0077),
-    (41_400, 0.0088),
-    (55_200, 0.0260),
-    (72_500, 0.0290),
-    (78_100, 0.0510),
-    (103_600, 0.0640),
-    (134_600, 0.0680),
-    (176_000, 0.0890),
-    (755_200, 0.1100),
-    (float("inf"), 0.1150),
+    (15_200, 0.0000),
+    (33_200, 0.0077),
+    (43_500, 0.0088),
+    (58_000, 0.0264),
+    (76_200, 0.0297),
+    (82_100, 0.0594),
+    (108_900, 0.0660),
+    (141_500, 0.0880),
+    (185_100, 0.1100),
+    (794_000, 0.1320),
+    (float("inf"), 0.1150),  # au-delà : taux moyen max 11.5% (art. 36 al. 1)
 ]
 
 DISCLAIMER = (
-    "Estimations basees sur les baremes simplifies 2024-2026. "
+    "Estimations basées sur le barème IFD 2026 et des taux cantonaux simplifiés. "
     "Les taux effectifs varient selon la commune, la fortune, "
-    "et les deductions individuelles. Consulte ton administration "
-    "fiscale cantonale ou un ou une specialiste fiscal·e. "
+    "et les déductions individuelles. Consulte ton administration "
+    "fiscale cantonale ou un ou une spécialiste fiscal·e. "
     "Ne constitue pas un conseil fiscal (LSFin)."
 )
 
 SOURCES = [
-    "Administration federale des contributions — Charge fiscale en Suisse 2024",
-    "LIFD art. 36 (bareme federal)",
+    "Administration fédérale des contributions — Charge fiscale en Suisse 2024",
+    "LIFD art. 36 (barème fédéral)",
     "LHID art. 1 (harmonisation fiscale)",
 ]
 

@@ -127,10 +127,10 @@ class AvsCalculator {
   /// AVS rente based on RAMD using Echelle 44 (LAVS art. 34).
   ///
   /// Concave lookup + linear interpolation between table points.
-  /// Source: Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025).
+  /// Source : doc OFAS 318.117.011 « Tables des rentes 2025 » p. 20 (audit -zaw).
   /// RAMD <= 0 → 0 (no salary data).
-  /// RAMD <= 14'700 → 1'260/mois (minimum).
-  /// RAMD >= 88'200 → 2'520/mois (maximum).
+  /// RAMD <= 15'120 → 1'260/mois (minimum).
+  /// RAMD >= 90'720 → 2'520/mois (maximum).
   /// Between table points: linear interpolation within the bracket.
   /// gapFactor in computeMonthlyRente already handles contribution years.
   static double renteFromRAMD(double grossAnnualSalary) {

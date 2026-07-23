@@ -57,9 +57,11 @@ class HallucinationDetector {
     // AC / AVS extended
     acPlafondSalaireAssure,
     avsRAMDMin,
-    avsRAMDMax,
+    // avsRAMDMax (90'720) == lppSalaireMax (3× rente AVS max annuelle) —
+    // déjà couvert ci-dessus (le set dédoublonne, le lint râlerait).
     avsFranchiseRetraiteMensuelle,
-    avsVolontaireCotisationMin,
+    // avsVolontaireCotisationMin (530) == avsCotisationMinIndependant —
+    // déjà couvert ci-dessus (le set dédoublonne, le lint râlerait).
     avsVolontaireCotisationMax,
   };
 

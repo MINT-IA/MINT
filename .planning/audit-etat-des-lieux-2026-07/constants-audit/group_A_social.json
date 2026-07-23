@@ -1,0 +1,580 @@
+[
+ {
+  "key": "avs.max_monthly_pension",
+  "value": 2520.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.min_monthly_pension",
+  "value": 1260.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.couple_max_monthly",
+  "value": 3780.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 35",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.echelle44",
+  "value": [
+   [
+    14700,
+    1260
+   ],
+   [
+    17640,
+    1299
+   ],
+   [
+    20580,
+    1338
+   ],
+   [
+    23520,
+    1377
+   ],
+   [
+    26460,
+    1416
+   ],
+   [
+    29400,
+    1470
+   ],
+   [
+    32340,
+    1524
+   ],
+   [
+    35280,
+    1578
+   ],
+   [
+    38220,
+    1632
+   ],
+   [
+    41160,
+    1686
+   ],
+   [
+    44100,
+    1743
+   ],
+   [
+    47040,
+    1800
+   ],
+   [
+    49980,
+    1857
+   ],
+   [
+    52920,
+    1914
+   ],
+   [
+    55860,
+    1971
+   ],
+   [
+    58800,
+    2028
+   ],
+   [
+    61740,
+    2085
+   ],
+   [
+    64680,
+    2142
+   ],
+   [
+    67620,
+    2199
+   ],
+   [
+    70560,
+    2256
+   ],
+   [
+    73500,
+    2313
+   ],
+   [
+    76440,
+    2370
+   ],
+   [
+    79380,
+    2427
+   ],
+   [
+    82320,
+    2462
+   ],
+   [
+    85260,
+    2491
+   ],
+   [
+    88200,
+    2520
+   ]
+  ],
+  "unit": "CHF",
+  "source_title": "Mémento 6.01 — Tables des rentes AVS/AI (OFAS 2025)",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.max_annual_pension",
+  "value": 30240.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.contribution_rate_employee",
+  "value": 0.053,
+  "unit": "ratio",
+  "source_title": "LAVS art. 5",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.contribution_rate_total",
+  "value": 0.106,
+  "unit": "ratio",
+  "source_title": "LAVS art. 5",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.full_contribution_years",
+  "value": 44.0,
+  "unit": "years",
+  "source_title": "LAVS art. 29ter",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.reference_age_men",
+  "value": 65.0,
+  "unit": "years",
+  "source_title": "LAVS art. 21",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.reference_age_women",
+  "value": 64.5,
+  "unit": "years",
+  "source_title": "LAVS art. 21 (réforme AVS 21)",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.anticipation_reduction",
+  "value": 0.068,
+  "unit": "ratio",
+  "source_title": "LAVS art. 40",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.1",
+  "value": 0.052,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.2",
+  "value": 0.106,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.3",
+  "value": 0.164,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.4",
+  "value": 0.227,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.5",
+  "value": 0.315,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.retiree_franchise_monthly",
+  "value": 1400.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 4",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.retiree_franchise_annual",
+  "value": 16800.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 4",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.survivor_factor",
+  "value": 0.8,
+  "unit": "ratio",
+  "source_title": "LAVS art. 23-24",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.ramd_min",
+  "value": 14700.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.ramd_max",
+  "value": 88200.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.13th_pension_active",
+  "value": 1.0,
+  "unit": "boolean",
+  "source_title": "LAVS art. 34 (nouveau), art. constitutionnel 112 al. 4bis",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.13th_pension_start_year",
+  "value": 2026.0,
+  "unit": "years",
+  "source_title": "LAVS art. 34 (nouveau)",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.13th_pension_factor",
+  "value": 1.0833333333333333,
+  "unit": "ratio",
+  "source_title": "LAVS art. 34 (nouveau)",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.voluntary_contribution_min",
+  "value": 514.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 2",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.voluntary_contribution_max",
+  "value": 25700.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 2",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.min_contribution_independent",
+  "value": 530.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 8",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.independent_min_income_threshold",
+  "value": 10100.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 8",
+  "source_url": "https://www.bsv.admin.ch/fr/cotisations-apercu",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ai.contribution_rate_employee",
+  "value": 0.007,
+  "unit": "ratio",
+  "source_title": "LAI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ai.contribution_rate_total",
+  "value": 0.014,
+  "unit": "ratio",
+  "source_title": "LAI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ai.full_pension_monthly",
+  "value": 2520.0,
+  "unit": "CHF",
+  "source_title": "LAI art. 28",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.contribution_rate_employee",
+  "value": 0.0025,
+  "unit": "ratio",
+  "source_title": "LAPG art. 27",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.contribution_rate_total",
+  "value": 0.005,
+  "unit": "ratio",
+  "source_title": "LAPG art. 27",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.maternity_days",
+  "value": 98.0,
+  "unit": "days",
+  "source_title": "LAPG art. 16d",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.maternity_rate",
+  "value": 0.8,
+  "unit": "ratio",
+  "source_title": "LAPG art. 16f",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.paternity_days",
+  "value": 10.0,
+  "unit": "days",
+  "source_title": "LAPG art. 16i",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.max_insured_salary",
+  "value": 148200.0,
+  "unit": "CHF",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.contribution_rate_employee",
+  "value": 0.011,
+  "unit": "ratio",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.contribution_rate_total",
+  "value": 0.022,
+  "unit": "ratio",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.solidarity_rate_employee",
+  "value": 0.005,
+  "unit": "ratio",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.solidarity_rate_total",
+  "value": 0.01,
+  "unit": "ratio",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.benefit_rate_standard",
+  "value": 0.7,
+  "unit": "ratio",
+  "source_title": "LACI art. 22",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.benefit_rate_family",
+  "value": 0.8,
+  "unit": "ratio",
+  "source_title": "LACI art. 22",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ }
+]

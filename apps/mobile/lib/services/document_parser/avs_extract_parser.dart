@@ -248,11 +248,11 @@ class AvsExtractParser {
     // ── Cross-validation: RAMD plausibility ──
     final ramd = _findFieldDoubleValue(fields, "ramd");
     if (ramd != null) {
-      // AVS rente max = 30'240 CHF/an -> RAMD max ~ 88'200 (2x plafond)
+      // RAMD max échelle 44 = 90'720 CHF (OFAS 318.117.011, audit -zaw)
       if (ramd > 100000) {
         warnings.add(
           "Le RAMD (${ramd.toStringAsFixed(0)} CHF) semble élevé. "
-          "Le RAMD est plafonné à environ 88'200 CHF (2x rente max AVS). "
+          "Le RAMD est plafonné à 90'720 CHF pour le calcul de la rente. "
           "Vérifie sur ton extrait de compte.",
         );
       }

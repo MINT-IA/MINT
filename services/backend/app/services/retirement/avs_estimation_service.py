@@ -85,8 +85,8 @@ class AvsEstimationService:
         LAVS art. 34: rente is linearly interpolated between min and max
         based on Revenu Annuel Moyen Déterminant (RAMD).
 
-        - RAMD <= 14'700 CHF → minimum rente (1'260 CHF/month)
-        - RAMD >= 88'200 CHF → maximum rente (2'520 CHF/month)
+        - RAMD <= 15'120 CHF → minimum rente (1'260 CHF/month)
+        - RAMD >= 90'720 CHF → maximum rente (2'520 CHF/month)
         - Between: linear interpolation
 
         Args:

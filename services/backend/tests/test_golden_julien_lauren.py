@@ -97,7 +97,7 @@ class TestGoldenJulienLauren:
     def test_julien_base(self):
         """Julien with only age=49, salary=122k, canton=VS (CLAUDE.md §8).
 
-        At 100k salary (above AVS RAMD max of 88'200), Julien should get
+        At 100k salary (above AVS RAMD max of 90'720), Julien should get
         near-maximum AVS rente. LPP estimated from age 25 should be substantial.
         With only 3 inputs, confidence must be 30% and 7 fields estimated.
         """
