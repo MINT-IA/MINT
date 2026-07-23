@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
-import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// beads MINT_nosync-1px — RvC Option C (mixte) : double-déflation de l'impôt.
 ///
@@ -75,12 +74,13 @@ void main() {
       // Valeur correcte reconstruite depuis le calculateur d'impôt public.
       const y = 20;
       final realRente = renteBase / math.pow(1 + inflation, y);
-      final realTax = RetirementTaxCalculator.estimateMonthlyIncomeTax(
-            revenuAnnuelImposable: realRente,
-            canton: canton,
-            etatCivil: 'celibataire',
-          ) *
-          12;
+      // -axj : l'impôt rente RvC vient du miroir backend canonique, plus
+      // du calculateur fiscal générique (parité rvc_parity_v1.json).
+      final realTax = ArbitrageEngine.estimateIncomeTaxOnRenteRvc(
+        realRente,
+        canton,
+        false,
+      );
       final expected = realRente - realTax; // capitalWithdrawal = 0
 
       expect(

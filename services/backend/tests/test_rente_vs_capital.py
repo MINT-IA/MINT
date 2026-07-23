@@ -94,9 +94,16 @@ class TestBreakevenCalculation:
     """Verify breakeven calculation accuracy."""
 
     def test_breakeven_is_integer_or_negative_one(self, standard_result):
-        """Breakeven must be an integer year or -1."""
+        """Breakeven = années APRÈS la retraite (relatif) ou -1.
+
+        Sémantique unifiée -axj : le widget mobile calcule
+        ``crossoverAge = ageRetraite + breakevenYear`` — un âge absolu ici
+        affichait « 141 ans » à l'écran.
+        """
         assert isinstance(standard_result.breakeven_year, int)
-        assert standard_result.breakeven_year == -1 or standard_result.breakeven_year >= 65
+        assert standard_result.breakeven_year == -1 or (
+            1 <= standard_result.breakeven_year < 50
+        ), "breakeven doit être relatif (années après retraite), pas un âge"
 
     def test_breakeven_with_high_rente(self):
         """High rente relative to capital: rente should lead early, breakeven later."""
