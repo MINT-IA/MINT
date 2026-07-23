@@ -21,17 +21,18 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/debt_prevention/repayment_screen.dart';
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
 
-CoachProfile _heavyDebtProfile() => CoachProfile(
+CoachProfile _heavyDebtProfile({DetteProfile? dettes}) => CoachProfile(
       firstName: 'Sam',
       birthYear: 1990,
       canton: 'GE',
       salaireBrutMensuel: 7000,
-      dettes: const DetteProfile(
-        creditConsommation: 40000,
-        mensualiteCreditConso: 900,
-        leasing: 30000,
-        mensualiteLeasing: 600,
-      ),
+      dettes: dettes ??
+          const DetteProfile(
+            creditConsommation: 40000,
+            mensualiteCreditConso: 900,
+            leasing: 30000,
+            mensualiteLeasing: 600,
+          ),
       goalA: GoalA(
         type: GoalAType.retraite,
         targetDate: DateTime(2045),
@@ -133,10 +134,12 @@ void main() {
             'placeholder ; le déficit réel exige un budget SAISI');
   });
 
-  testWidgets('éditer un TAUX seul ne déclenche pas le déficit du placeholder',
+  testWidgets('éditer le NOM seul (interaction non-budget) -> pas de déficit',
       (tester) async {
-    // Review #992 : _hasUserInteracted global aurait fait basculer la
-    // marge sur 800 − 1500 = −700 alors que le budget reste le défaut.
+    // Review #992 r2 : test discriminant réel. enterText sur le champ nom
+    // pose _hasUserInteracted = true via onChanged ; sous l'implémentation
+    // r1 (marge gated sur _hasUserInteracted), la marge basculait sur
+    // 800 − 1500 = −700. Avec _budgetTouched, elle reste placeholder (>= 0).
     tester.view.physicalSize = const Size(1080, 2800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -148,16 +151,51 @@ void main() {
     await tester.pumpWidget(_wrap(provider));
     await tester.pump(const Duration(milliseconds: 400));
 
-    final state = tester.state(find.byType(RepaymentScreen)) as dynamic;
-    // simule une interaction non-budget (le gate hydratation se ferme,
-    // mais _budgetTouched reste false)
-    state.setState(() {});
+    final nameField = find.byType(TextFormField, skipOffstage: false).first;
+    await tester.enterText(nameField, 'Crédit voiture');
+    await tester.pump(const Duration(milliseconds: 200));
 
     final survival = tester.widget<DebtSurvivalWidget>(
         find.byType(DebtSurvivalWidget, skipOffstage: false));
     expect(survival.monthlyMargin, greaterThanOrEqualTo(0),
         reason: 'le déficit réel exige un BUDGET saisi (_budgetTouched), '
-            'pas n\'importe quelle interaction');
+            'pas une simple édition de nom');
+  });
+
+  testWidgets('notify pendant l\'édition du NOM -> liste gelée (pas orpheline)',
+      (tester) async {
+    // Review #992 r2 finding 1 : le gel doit s'armer au FOCUS du champ nom
+    // (onTap), pas au premier onChanged — sinon un notify entre le tap et
+    // la frappe fait clear+rebuild et orpheline le champ.
+    tester.view.physicalSize = const Size(1080, 2800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    final provider = CoachProfileProvider();
+    provider.updateProfile(_heavyDebtProfile());
+    await tester.pumpWidget(_wrap(provider));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // Tap sur le champ nom = prise de focus, AVANT toute frappe
+    await tester.tap(find.byType(TextFormField, skipOffstage: false).first,
+        warnIfMissed: false);
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Le profil change côté provider pendant l'édition
+    provider.updateProfile(_heavyDebtProfile(
+        dettes: const DetteProfile(
+      creditConsommation: 5000,
+      mensualiteCreditConso: 200,
+    )));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    final survival = tester.widget<DebtSurvivalWidget>(
+        find.byType(DebtSurvivalWidget, skipOffstage: false));
+    expect(survival.totalDebt, 70000,
+        reason: 'hydratation gelée dès le focus : la liste locale ne doit '
+            'pas être reconstruite pendant l\'édition du nom');
   });
 
   testWidgets('dette supprimée + notify -> ne ressuscite pas', (tester) async {

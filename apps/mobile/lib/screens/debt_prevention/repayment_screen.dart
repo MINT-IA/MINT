@@ -411,6 +411,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               Expanded(
                 child: TextFormField(
                   initialValue: dette.nom,
+                  // Review #992 r2 : armer le gel dès la PRISE DE FOCUS —
+                  // un notify pendant la frappe du nom réhydratait la liste
+                  // (clear+rebuild) et orphelinait ce champ.
+                  onTap: () => _hasUserInteracted = true,
                   onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
                       .copyWith(fontWeight: FontWeight.w700),
