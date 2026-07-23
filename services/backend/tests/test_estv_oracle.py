@@ -31,7 +31,7 @@ from pathlib import Path
 import pytest
 
 from app.constants.social_insurance import (
-    MARRIED_CAPITAL_TAX_DISCOUNT,
+    married_capital_tax_discount_for,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
     calculate_progressive_capital_tax,
@@ -59,7 +59,8 @@ def _mint_capital_tax_for(vector: dict) -> float:
 
     Uses the existing canonical helper. Combines:
       base_rate := TAUX_IMPOT_RETRAIT_CAPITAL[canton]   (or DEFAULT fallback)
-      discount  := MARRIED_CAPITAL_TAX_DISCOUNT          (only when married)
+      discount  := married_capital_tax_discount_for(canton)  (only when married,
+                   per-canton table — beads -ku6, ex-0.85 scalar)
       tax       := calculate_progressive_capital_tax(amount, base * discount)
 
     NEVER re-implements brackets here (CLAUDE.md §4 NEVER #3, ADR-20260223).
@@ -77,7 +78,7 @@ def _mint_capital_tax_for(vector: dict) -> float:
     married = vector["marital_status"] == "married"
     amount = float(vector["gross_income_chf"])  # surrogate ; see docstring
     base = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton, TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT)
-    rate = base * (MARRIED_CAPITAL_TAX_DISCOUNT if married else 1.0)
+    rate = base * (married_capital_tax_discount_for(canton) if married else 1.0)
     return calculate_progressive_capital_tax(amount, rate)
 
 

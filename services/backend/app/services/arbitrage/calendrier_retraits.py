@@ -31,7 +31,7 @@ from typing import List, Dict, Optional
 
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    MARRIED_CAPITAL_TAX_DISCOUNT,
+    married_capital_tax_discount_for,
     calculate_progressive_capital_tax,
 )
 
@@ -91,7 +91,8 @@ def _get_base_rate(canton: str, is_married: bool) -> float:
     """Get the capital tax base rate for a canton, with married discount."""
     base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
     if is_married:
-        base_rate *= MARRIED_CAPITAL_TAX_DISCOUNT
+        # Coefficient marié PAR CANTON (beads MINT_nosync-ku6).
+        base_rate *= married_capital_tax_discount_for(canton)
     return base_rate
 
 

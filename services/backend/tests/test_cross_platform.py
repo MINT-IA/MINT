@@ -45,7 +45,7 @@ from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_SANS_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     RETRAIT_CAPITAL_TRANCHES,
-    MARRIED_CAPITAL_TAX_DISCOUNT,
+    married_capital_tax_discount_for,
     get_lpp_bonification_rate,
 )
 
@@ -125,7 +125,15 @@ class TestConstantsAlignment:
         assert PILIER_3A_PLAFOND_SANS_LPP == 36_288.0
 
     def test_married_capital_tax_discount(self):
-        assert MARRIED_CAPITAL_TAX_DISCOUNT == 0.85
+        # Beads -ku6 : le scalaire 0.85 est DÉPRÉCIÉ (aucun consommateur) —
+        # la vérité est la table PAR CANTON, miroir exact du Dart
+        # marriedCapitalTaxDiscountByCanton (audit swiss-brain Q5).
+        assert married_capital_tax_discount_for("ZH") == 0.73
+        assert married_capital_tax_discount_for("ZG") == 0.70
+        assert married_capital_tax_discount_for("GE") == 0.73
+        assert married_capital_tax_discount_for("VD") == 0.78
+        # Canton non tabulé -> fallback empirique.
+        assert married_capital_tax_discount_for("BS") == 0.82
 
     def test_progressive_brackets(self):
         """Progressive withdrawal tax brackets (LIFD art. 38)."""
@@ -238,15 +246,19 @@ class TestProgressiveTax:
         assert abs(result - expected) < 1.0
 
     def test_married_discount(self):
-        """Married couples get 15% discount on capital withdrawal tax."""
+        """Marié·e·s : rabais capital PAR CANTON (ZH splitting intégral 0.73).
+
+        Beads -ku6 : l'ancien test vérifiait le scalaire uniforme 0.85,
+        jugé faux par l'audit swiss-brain Q5.
+        """
         single_rate = TAUX_IMPOT_RETRAIT_CAPITAL["ZH"]
-        married_rate = single_rate * MARRIED_CAPITAL_TAX_DISCOUNT
+        married_rate = single_rate * married_capital_tax_discount_for("ZH")
 
         single_tax = self._progressive_tax(500_000, single_rate / 100)
         married_tax = self._progressive_tax(500_000, married_rate / 100)
 
         assert married_tax < single_tax
-        assert abs(married_tax / single_tax - 0.85) < 0.01
+        assert abs(married_tax / single_tax - 0.73) < 0.01
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

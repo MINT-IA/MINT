@@ -9,7 +9,7 @@ from typing import List, Optional, Tuple
 
 from app.constants.social_insurance import (
     LPP_TAUX_CONVERSION_MIN,
-    MARRIED_CAPITAL_TAX_DISCOUNT,
+    married_capital_tax_discount_for,
     PILIER_3A_PLAFOND_AVEC_LPP,
     PILIER_3A_PLAFOND_SANS_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
@@ -496,7 +496,13 @@ def compute_rente_vs_capital(
     if base_rate is None:
         raise ValueError(f"Canton non supporté: {canton}")
 
-    effective_rate = base_rate * MARRIED_CAPITAL_TAX_DISCOUNT if statut_civil == "married" else base_rate
+    # Coefficient marié PAR CANTON (miroir mobile, audit swiss-brain Q5 —
+    # le scalaire uniforme 0.85 était faux ; beads MINT_nosync-ku6).
+    effective_rate = (
+        base_rate * married_capital_tax_discount_for(canton)
+        if statut_civil == "married"
+        else base_rate
+    )
     impot_retrait = calculate_progressive_capital_tax(capital_total, effective_rate)
     capital_net = capital_total - impot_retrait
 

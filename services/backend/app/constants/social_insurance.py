@@ -358,11 +358,13 @@ RETRAIT_CAPITAL_TRANCHES: List[Tuple[float, float, float]] = _get_capital_tranch
 """Tranches progressives pour l'impot sur retrait de capital (multiplicateur)."""
 
 MARRIED_CAPITAL_TAX_DISCOUNT: float = _get("capital_tax.married_discount")
-"""Scalaire HISTORIQUE uniforme (0.85). Audit swiss-brain 2026-04-18 Q5 :
-faux pour les cantons à splitting intégral (ZH/ZG ~0.70). Préférer
-``married_capital_tax_discount_for(canton)`` ci-dessous. Conservé pour les
-consommateurs legacy (rules_engine, rachat_vs_marche, calendrier_retraits)
-en attente de migration — beads de suivi -axj."""
+"""DÉPRÉCIÉ — scalaire historique uniforme (0.85), faux pour les cantons à
+splitting intégral (audit swiss-brain 2026-04-18 Q5 : ZH/ZG ~0.70).
+Plus AUCUN consommateur actif depuis beads -ku6 (rules_engine,
+rachat_vs_marche, calendrier_retraits et les harnais de test migrés vers
+``married_capital_tax_discount_for(canton)``). Conservé uniquement comme
+valeur registre ``capital_tax.married_discount`` ; toute nouvelle
+consommation doit passer par la fonction par canton."""
 
 # MIRROR apps/mobile/lib/constants/social_insurance.dart
 # (`marriedCapitalTaxDiscountByCanton` + fallback 0.82) — coefficients marié
