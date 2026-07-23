@@ -189,6 +189,10 @@ ALLOW = {
     "services/backend/app/services/retirement/avs_estimation_service.py",
     "services/backend/tests/test_golden_julien_lauren.py",
     "services/backend/tests/test_fiscal.py",
+    # PR rvc-single-truth (bead -axj) : parité croisée RvC
+    "apps/mobile/test/services/financial_core/rvc_parity_fixture_test.dart",
+    "services/backend/tests/test_rvc_parity_fixture.py",
+    "tools/fixtures/rvc_parity_v1.json",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
@@ -415,6 +419,10 @@ ALLOW = {
     "tools/checks/tests/test_workflow_contract_guard.py",
 }
 DELETION_ALLOW = {
+    # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
+    # boundary conservée contre la réintroduction)
+    "apps/mobile/lib/domain/rente_vs_capital_calculator.dart",
+    "apps/mobile/test/simulators/rente_vs_capital_test.dart",
     "apps/mobile/test/services/coach/chat_drawer_summon_test.dart",
 }
 IGNORED_GENERATED_PREFIXES = (

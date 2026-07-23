@@ -26,7 +26,7 @@ def _totals(result):
 
 
 def _delta_in_text(text):
-    m = re.search(r"representer ([\d,]+) CHF", text)
+    m = re.search(r"représenter ([\d,]+) CHF", text)
     assert m, f"pas de delta dans le premier éclairage : {text!r}"
     return float(m.group(1).replace(",", ""))
 
@@ -92,7 +92,7 @@ def test_eclairage_wording_names_total_economic_value():
             canton="VD",
             horizon=25,
         )
-        assert "valeur economique" in result.premier_eclairage, (
+        assert "valeur économique" in result.premier_eclairage, (
             result.premier_eclairage
         )
 

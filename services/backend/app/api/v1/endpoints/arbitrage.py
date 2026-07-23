@@ -151,7 +151,8 @@ def _rvc_calculation_receipt(
         else 0.03
     )
     inflation = resolved["inflation"] if resolved["inflation"] is not None else 0.02
-    horizon = resolved["horizon"] if resolved["horizon"] is not None else 25
+    # Défaut unifié avec le moteur mobile (beads MINT_nosync-axj).
+    horizon = resolved["horizon"] if resolved["horizon"] is not None else 30
     is_married = (
         resolved["is_married"]
         if resolved["is_married"] is not None

@@ -1134,7 +1134,8 @@ class ApiService {
     double tauxRetrait = 0.04,
     double rendementCapital = 0.03,
     double inflation = 0.02,
-    int horizon = 25,
+    // Défaut unifié 30 (beads -axj) — aligné backend + moteur local.
+    int horizon = 30,
     bool isMarried = false,
     int? currentAge,
     String? inputMode,

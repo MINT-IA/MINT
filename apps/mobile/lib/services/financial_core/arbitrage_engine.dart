@@ -76,6 +76,131 @@ class ArbitrageEngine {
   //  1. RENTE VS CAPITAL
   // ════════════════════════════════════════════════════════════
 
+  // ── Impôt revenu sur la rente — MIROIR EXACT du backend canonique ──
+  // MIRROR services/backend/app/services/arbitrage/rente_vs_capital.py
+  // (`_estimate_income_tax_on_rente`) + fiscal/cantonal_comparator.py
+  // (FEDERAL_BRACKETS 2026, EFFECTIVE_RATES_100K_SINGLE).
+  // Beads MINT_nosync-axj : RvC est L2 « comparer » -> backend canonique ;
+  // ce fallback offline doit produire LE MÊME chiffre, pas un chiffre
+  // « plus riche » — l'utilisateur ne doit jamais voir un montant qui
+  // dépend de la surface qui a répondu. Toute recalibration passe par le
+  // backend d'abord, puis ce miroir (goldens croisés rvc_parity_v1.json).
+
+  /// Barème IFD 2026 (LIFD art. 36, célibataire) — (borne sup, taux tranche).
+  static const List<List<double>> _rvcFederalBrackets2026 = [
+    [15200, 0.0000],
+    [33200, 0.0077],
+    [43500, 0.0088],
+    [58000, 0.0264],
+    [76200, 0.0297],
+    [82100, 0.0594],
+    [108900, 0.0660],
+    [141500, 0.0880],
+    [185100, 0.1100],
+    [794000, 0.1320],
+    [double.infinity, 0.1150],
+  ];
+
+  /// Taux effectifs cantonaux+communaux calibrés à 100k (célibataire).
+  static const Map<String, double> _rvcEffectiveRates100kSingle = {
+    'ZG': 0.0823,
+    'NW': 0.0891,
+    'OW': 0.0934,
+    'AI': 0.0956,
+    'AR': 0.1012,
+    'SZ': 0.1034,
+    'UR': 0.1067,
+    'LU': 0.1089,
+    'GL': 0.1102,
+    'TG': 0.1145,
+    'SH': 0.1167,
+    'AG': 0.1189,
+    'GR': 0.1203,
+    'BL': 0.1256,
+    'SG': 0.1278,
+    'ZH': 0.1290,
+    'FR': 0.1312,
+    'SO': 0.1334,
+    'TI': 0.1356,
+    'BE': 0.1389,
+    'NE': 0.1423,
+    'VS': 0.1456,
+    'VD': 0.1489,
+    'JU': 0.1512,
+    'GE': 0.1545,
+    'BS': 0.1578,
+  };
+
+  /// Impôt annuel estimé sur une rente LPP (miroir backend, voir bloc
+  /// MIRROR ci-dessus). Public : les tests de propriété (ex. non-double-
+  /// déflation) reconstruisent l'attendu avec LA formule du moteur.
+  static double estimateIncomeTaxOnRenteRvc(
+    double renteAnnuelle,
+    String canton,
+    bool isMarried,
+  ) {
+    // Revenu imposable ≈ 85% de la rente après déductions forfaitaires
+    // (LIFD art. 33) — même simplification que le backend.
+    final revenuImposable = renteAnnuelle * 0.85;
+
+    double impotFederal = 0.0;
+    double prevBound = 0.0;
+    for (final bracket in _rvcFederalBrackets2026) {
+      final upper = bracket[0];
+      final rate = bracket[1];
+      if (revenuImposable <= prevBound) break;
+      final taxable = math.min(revenuImposable, upper) - prevBound;
+      impotFederal += taxable * rate;
+      prevBound = upper;
+    }
+
+    final cantonalRate =
+        _rvcEffectiveRates100kSingle[canton.toUpperCase()] ?? 0.13;
+    // Facteur d'échelle du taux effectif selon le niveau de revenu
+    // (calibré à 100k) — même clamp que le backend.
+    final incomeFactor = (renteAnnuelle / 100000).clamp(0.6, 1.5);
+    final impotCantonal = revenuImposable * cantonalRate * incomeFactor;
+
+    var total = impotFederal + impotCantonal;
+    if (isMarried) {
+      total *= 0.80; // Splitting benefit
+    }
+    return _roundPyMirror2(total);
+  }
+
+  /// Arrondi à 2 décimales — miroir exact de ``round(x, 2)`` Python
+  /// (review Codex PR #978, rounds 2-3).
+  ///
+  /// Cas général : ``toStringAsFixed(2)`` opère sur la représentation
+  /// décimale du double, comme Python (379.694999… -> 379.69 là où
+  /// ``(x*100).roundToDouble()`` donnait 379.70).
+  ///
+  /// Tie exact : Python arrondit half-even quand la valeur RATIONNELLE du
+  /// double vaut exactement k.5 centimes (0.125 -> 0.12, atteignable via
+  /// rente 1.6460580202530979 VD) alors que ``toStringAsFixed`` fait
+  /// half-away (-> 0.13). Un tel tie ((2k+1)/200 représentable en binaire)
+  /// impose 25 | (2k+1), donc valeur = entier + impair/8 : sa décimale
+  /// exacte est FINIE en x.xx5. ``toStringAsFixed(20)`` (correctly
+  /// rounded) la rend donc comme « …5 » suivi de zéros — signature
+  /// détectable sans arithmétique flottante intermédiaire (le détecteur
+  /// précédent multipliait par 200 et fabriquait de faux ties).
+  static double _roundPyMirror2(double value) {
+    final s = value.toStringAsFixed(20);
+    final dot = s.indexOf('.');
+    final frac = s.substring(dot + 1);
+    final isExactTie = frac.length >= 3 &&
+        frac[2] == '5' &&
+        frac.substring(3).replaceAll('0', '').isEmpty;
+    if (isExactTie) {
+      final whole = int.parse(s.substring(0, dot).replaceAll('-', ''));
+      final cents = whole * 100 + int.parse(frac.substring(0, 2));
+      final even = cents.isEven ? cents : cents + 1;
+      final result = even / 100;
+      return value.isNegative ? -result : result;
+    }
+    return double.parse(value.toStringAsFixed(2));
+  }
+
   /// Compare full rente, full capital, and mixed (obligatoire rente +
   /// surobligatoire capital) strategies over [horizon] years.
   ///
@@ -87,7 +212,7 @@ class ArbitrageEngine {
   /// [tauxRetrait] Safe withdrawal rate (default 4%).
   /// [rendementCapital] Expected return on invested capital (default 3%).
   /// [inflation] Expected inflation rate (default 2%).
-  /// [horizon] Projection horizon in years (default 25).
+  /// [horizon] Projection horizon in years (default 30, unifié backend -axj).
   static ArbitrageResult compareRenteVsCapital({
     required double capitalLppTotal,
     required double capitalObligatoire,
@@ -358,12 +483,8 @@ class ArbitrageEngine {
     // ── Compute hero + educational card data ──
 
     // Rente net mensuelle (year 1, nominal)
-    final renteAnnualTaxY1 = RetirementTaxCalculator.estimateMonthlyIncomeTax(
-          revenuAnnuelImposable: effectiveRente,
-          canton: canton,
-          etatCivil: isMarried ? 'marie' : 'celibataire',
-        ) *
-        12;
+    final renteAnnualTaxY1 =
+        estimateIncomeTaxOnRenteRvc(effectiveRente, canton, isMarried);
     final renteNetAnnuelleY1 = effectiveRente - renteAnnualTaxY1;
     final renteNetMensuelle = renteNetAnnuelleY1 / 12;
 
@@ -1859,12 +1980,8 @@ class ArbitrageEngine {
       }
       // Rente LPP is NOT indexed — real value decreases with inflation
       final realRente = renteAnnuelle / math.pow(1 + inflation, y);
-      final annualTax = RetirementTaxCalculator.estimateMonthlyIncomeTax(
-            revenuAnnuelImposable: realRente,
-            canton: canton,
-            etatCivil: isMarried ? 'marie' : 'celibataire',
-          ) *
-          12;
+      final annualTax =
+          estimateIncomeTaxOnRenteRvc(realRente, canton, isMarried);
       final netAnnual = realRente - annualTax;
       cumulativeCashflow += netAnnual;
       cumulativeTax += annualTax;
@@ -1989,12 +2106,8 @@ class ArbitrageEngine {
       }
       // Rente part: NOT indexed, deflated by inflation
       final realRente = renteObligatoire / math.pow(1 + inflation, y);
-      final renteTax = RetirementTaxCalculator.estimateMonthlyIncomeTax(
-            revenuAnnuelImposable: realRente,
-            canton: canton,
-            etatCivil: isMarried ? 'marie' : 'celibataire',
-          ) *
-          12;
+      final renteTax =
+          estimateIncomeTaxOnRenteRvc(realRente, canton, isMarried);
       // Capital part: nominal growth + Trinity SWR
       capitalNet *= (1 + rendement);
       if (y == 1) {
