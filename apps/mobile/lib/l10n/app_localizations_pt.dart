@@ -9474,13 +9474,13 @@ class SPt extends S {
   String get unemploymentBracket1 => '12–17 meses contrib.';
 
   @override
-  String get unemploymentBracket1Value => '200 subsídios';
+  String get unemploymentBracket1Value => '260 indemnizações';
 
   @override
   String get unemploymentBracket2 => '18–21 meses contrib.';
 
   @override
-  String get unemploymentBracket2Value => '260 subsídios';
+  String get unemploymentBracket2Value => '400 indemnizações';
 
   @override
   String unemploymentBracket3(int age) {

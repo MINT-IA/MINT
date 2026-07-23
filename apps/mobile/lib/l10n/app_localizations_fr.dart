@@ -9478,13 +9478,13 @@ class SFr extends S {
   String get unemploymentBracket1 => '12–17 mois cotis.';
 
   @override
-  String get unemploymentBracket1Value => '200 indemnités';
+  String get unemploymentBracket1Value => '260 indemnités';
 
   @override
   String get unemploymentBracket2 => '18–21 mois cotis.';
 
   @override
-  String get unemploymentBracket2Value => '260 indemnités';
+  String get unemploymentBracket2Value => '400 indemnités';
 
   @override
   String unemploymentBracket3(int age) {

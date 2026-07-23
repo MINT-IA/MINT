@@ -152,7 +152,8 @@ class UnemploymentService {
     final indemniteMensuelle = indemniteJournaliere * _workingDaysPerMonth;
 
     // 5. Duration
-    final nombreIndemnites = _calculateDuration(age, moisCotisation);
+    final nombreIndemnites = _calculateDuration(age, moisCotisation,
+        hasChildren: hasChildren, hasDisability: hasDisability);
     final dureeMois = nombreIndemnites / _workingDaysPerMonth;
 
     // 6. Chiffre choc
@@ -177,34 +178,55 @@ class UnemploymentService {
   }
 
   /// Determine indemnity rate based on salary, children, disability.
+  ///
+  /// Borne INCLUSIVE (review #986) : le SECO donne 80% lorsque le gain
+  /// assuré NE DÉPASSE PAS 3'797 CHF (OACI art. 33) — un gain d'exactement
+  /// 3'797 touche 80%.
   static double _determineRate(double gain, bool children, bool disability) {
-    if (children || disability || gain < _salaryThresholdEnhanced) {
+    if (children || disability || gain <= _salaryThresholdEnhanced) {
       return _rateEnhanced;
     }
     return _rateBase;
   }
 
-  /// Calculate the number of daily indemnities based on age and contributions.
+  /// Nombre d'indemnités journalières — barème OFFICIEL LACI art. 27.
   ///
-  /// SECO rules: 55+ with >= 22 months = senior = 520 days (LACI art. 27 al. 2).
-  /// Uses centralized constants from social_insurance.dart.
-  static int _calculateDuration(int age, int moisCotisation) {
-    if (age >=
-            reg('ac.senior_age_threshold', acAgeSeuillSenior.toDouble())
-                .toInt() &&
-        moisCotisation >= 22) {
-      return reg('ac.senior_days', acJoursSenior.toDouble())
-          .toInt(); // 55+ = 520
+  /// Beads MINT_nosync-4za : l'ancien mapping servait 260 jours pour
+  /// 18 mois (officiel : 400) et 200 pour 12 mois (officiel : 260) —
+  /// sous-estimation systématique du droit de l'utilisateur.
+  /// [hasChildren] proxy de l'obligation d'entretien pour le plafond
+  /// jeunes (< 25 ans sans obligation → 200 jours max). [hasDisability]
+  /// ouvre aussi les 520 jours (let. c : 22 mois ET (55 ans OU invalidité
+  /// >= 40%)) — review #986. Cas non modélisés (dits, pas « inéligibles ») :
+  /// libérés de cotisation (art. 14, 90-180 jours) et 120 jours
+  /// supplémentaires en fin de droit avant la retraite (art. 27 al. 3).
+  static int _calculateDuration(int age, int moisCotisation,
+      {bool hasChildren = false, bool hasDisability = false}) {
+    int base;
+    if (moisCotisation >= 22 &&
+        (hasDisability ||
+            age >=
+                reg('ac.senior_age_threshold', acAgeSeuillSenior.toDouble())
+                    .toInt())) {
+      base = reg('ac.days_22_months_senior', acJours22MoisSenior.toDouble())
+          .toInt(); // 520 (al. 2 let. c)
+    } else if (moisCotisation >= 18) {
+      base = reg('ac.days_18_months', acJours18MoisCotisation.toDouble())
+          .toInt(); // 400 (al. 2 let. b)
+    } else if (moisCotisation >= 12) {
+      base = reg('ac.days_12_months', acJours12MoisCotisation.toDouble())
+          .toInt(); // 260 (al. 2 let. a)
+    } else {
+      // Moins de 12 mois : droit NON MODÉLISÉ ici (les libérés de
+      // cotisation art. 14 LACI ont un droit réel de 90-180 jours).
+      return 0;
     }
-    if (age >= 25 && moisCotisation >= 18) {
-      return reg(
-              'ac.intermediate_days', acJoursIntermediaireCotisation.toDouble())
-          .toInt(); // 260
+    if (age < 25 && !hasChildren) {
+      final cap =
+          reg('ac.days_under25_cap', acJoursPlafondJeunes.toDouble()).toInt();
+      return base > cap ? cap : base;
     }
-    if (moisCotisation >= 12) {
-      return reg('ac.min_days', acJoursMinCotisation.toDouble()).toInt(); // 200
-    }
-    return 0;
+    return base;
   }
 
   /// Build the unemployment action timeline.

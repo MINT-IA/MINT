@@ -353,25 +353,32 @@ const double acIndemniteTaux = 0.70;
 /// Taux d'indemnite chomage avec charges de famille: 80%.
 const double acIndemniteTauxChargeFamille = 0.80;
 
-/// Duree maximale des indemnites de chomage (LACI art. 27 al. 2).
+/// Durée maximale des indemnités de chômage — barème OFFICIEL LACI art. 27.
 ///
-/// La duree depend de la periode de cotisation ET de l'age.
-/// Les valeurs ci-dessous correspondent au cas standard (>= 22 mois de cotisation).
-/// Pour des periodes courtes (12-17 mois → 200j, 18-21 mois → 260j).
+/// Audit -zaw / beads MINT_nosync-4za : l'ancien bloc était sémantiquement
+/// faux de bout en bout (200 attribué à « < 22 mois », 260 à « 18-21 mois »,
+/// 400 à « >= 22 mois ») et avait induit un mapping mois→jours erroné dans
+/// unemployment_service (18 mois servaient 260 jours au lieu de 400).
+/// Barème réel (LACI art. 27, Directive LACI IC SECO) :
+///   12 mois de cotisation  → 260 jours (al. 2 let. a)
+///   18 mois de cotisation  → 400 jours (al. 2 let. b)
+///   22 mois ET (âge >= 55 OU invalidité >= 40 %) → 520 jours (al. 2 let. c)
+///   < 25 ans SANS obligation d'entretien → plafond 200 jours (al. 5bis)
 
-/// < 22 mois de cotisation (typiquement < 25 ans en debut de carriere).
-const int acJoursMinCotisation = 200;
+/// Plafond jeunes : < 25 ans sans obligation d'entretien (LACI art. 27).
+const int acJoursPlafondJeunes = 200;
 
-/// 18-21 mois de cotisation (cas intermediaire).
-const int acJoursIntermediaireCotisation = 260;
+/// 12 mois de cotisation → 260 jours (LACI art. 27 al. 2 let. a).
+const int acJours12MoisCotisation = 260;
 
-/// >= 22 mois de cotisation, age < 55 ans (LACI art. 27 al. 2 lit. c).
-const int acJoursStandard = 400;
+/// 18 mois de cotisation → 400 jours (LACI art. 27 al. 2 let. b).
+const int acJours18MoisCotisation = 400;
 
-/// >= 22 mois de cotisation, age >= 55 ans (LACI art. 27 al. 2 lit. d).
-const int acJoursSenior = 520;
+/// 22 mois de cotisation ET (âge >= 55 OU invalidité >= 40 %) → 520 jours
+/// (LACI art. 27 al. 2 let. c).
+const int acJours22MoisSenior = 520;
 
-/// Age de reference pour le taux senior AC: 55 ans (LACI art. 27 al. 2 lit. d).
+/// Âge charnière pour les 520 jours : 55 ans (LACI art. 27 al. 2 let. c).
 const int acAgeSeuillSenior = 55;
 
 // ══════════════════════════════════════════════════════════════════════════════

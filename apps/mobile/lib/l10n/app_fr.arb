@@ -4828,9 +4828,9 @@
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12'350",
   "unemploymentBracket1": "12–17 mois cotis.",
-  "unemploymentBracket1Value": "200 indemnités",
+  "unemploymentBracket1Value": "260 indemnités",
   "unemploymentBracket2": "18–21 mois cotis.",
-  "unemploymentBracket2Value": "260 indemnités",
+  "unemploymentBracket2Value": "400 indemnités",
   "unemploymentBracket3": ">= 22 mois, < {age} ans",
   "@unemploymentBracket3": {
     "placeholders": {

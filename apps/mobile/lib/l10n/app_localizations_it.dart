@@ -9497,13 +9497,13 @@ class SIt extends S {
   String get unemploymentBracket1 => '12–17 mesi contrib.';
 
   @override
-  String get unemploymentBracket1Value => '200 indennità';
+  String get unemploymentBracket1Value => '260 indennità';
 
   @override
   String get unemploymentBracket2 => '18–21 mesi contrib.';
 
   @override
-  String get unemploymentBracket2Value => '260 indennità';
+  String get unemploymentBracket2Value => '400 indennità';
 
   @override
   String unemploymentBracket3(int age) {

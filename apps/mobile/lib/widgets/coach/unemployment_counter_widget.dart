@@ -21,12 +21,16 @@ class UnemploymentCounterWidget extends StatelessWidget {
   final double monthlyBenefit;
   final int daysConsumed;
 
-  /// Durée max indemnités AC par tranche d'âge — cas standard (≥ 22 mois cotisation).
-  /// Source : LACI art. 27 al. 2 lit. a-d.
+  /// Durée max indemnités AC par tranche d'âge — hypothèse >= 22 mois de
+  /// cotisation, sans obligation d'entretien pour les < 25 ans (barème
+  /// LACI art. 27, corrigé beads -4za : le widget n'a que l'âge, les
+  /// hypothèses sont documentées ici et le service fait le calcul exact).
   static int _maxDays(int age) {
-    if (age < 25) return acJoursMinCotisation;       // 200 j — cotisation typiquement courte
-    if (age < acAgeSeuillSenior) return acJoursStandard;  // 400 j — LACI art. 27 al. 2 lit. c
-    return acJoursSenior;                            // 520 j — LACI art. 27 al. 2 lit. d
+    if (age < 25) return acJoursPlafondJeunes; // 200 j — plafond jeunes
+    if (age < acAgeSeuillSenior) {
+      return acJours18MoisCotisation; // 400 j — al. 2 let. b (18+ mois)
+    }
+    return acJours22MoisSenior; // 520 j — al. 2 let. c (22 mois + 55 ans)
   }
 
   static String _ageLabel(int age) {
@@ -99,12 +103,12 @@ class UnemploymentCounterWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('⏳', style: TextStyle(fontSize: 24)),
+              Text('⏳', style: MintTextStyles.headlineSmall()),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Ton capital temps',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -243,9 +247,9 @@ class UnemploymentCounterWidget extends StatelessWidget {
 
   Widget _buildAgeTable(int currentAge) {
     final rows = [
-      (age: 24, label: '< 25 ans', days: acJoursMinCotisation),
-      (age: 40, label: '25–54 ans', days: acJoursStandard),
-      (age: 57, label: '≥ 55 ans',  days: acJoursSenior),
+      (age: 24, label: '< 25 ans', days: acJoursPlafondJeunes),
+      (age: 40, label: '25–54 ans', days: acJours18MoisCotisation),
+      (age: 57, label: '≥ 55 ans',  days: acJours22MoisSenior),
     ];
 
     return Container(
@@ -314,7 +318,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('⚠️', style: TextStyle(fontSize: 18)),
+          Text('⚠️', style: MintTextStyles.titleLarge()),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
