@@ -133,6 +133,60 @@ FEDERAL_BRACKETS = [
     (float("inf"), 0.1150),  # au-delà : taux moyen max 11.5% (art. 36 al. 1)
 ]
 
+def estimate_income_tax(
+    taxable_income: float,
+    canton: str,
+    is_married: bool = False,
+    income_factor_base: float | None = None,
+) -> float:
+    """Impôt sur le revenu estimé — modèle fiscal backend CANONIQUE.
+
+    IFD 2026 progressif (FEDERAL_BRACKETS) + taux cantonal+communal effectif
+    calibré à 100k (EFFECTIVE_RATES_100K_SINGLE) avec facteur d'échelle
+    clampé 0.6-1.5, marié x0.80. Extrait de rente_vs_capital
+    (beads MINT_nosync-81n) pour que TOUS les moteurs backend qui ont besoin
+    d'un impôt revenu (RvC, rachat échelonné, coach) partagent LE MÊME
+    modèle — le rachat utilisait des paliers de taux marginaux hardcodés qui
+    inversaient la conclusion bloc/étalé vs le moteur mobile.
+
+    Args:
+        taxable_income: revenu imposable (après déductions du domaine).
+        canton: code canton.
+        is_married: splitting (x0.80 sur le total).
+        income_factor_base: base du facteur d'échelle du taux effectif ;
+            None -> taxable_income. rente_vs_capital passe la rente BRUTE
+            (comportement historique verrouillé par rvc_parity_v1.json).
+
+    LIMITE STRUCTURELLE (beads MINT_nosync-97h, review #987) : la composante
+    cantonale vaut ``revenu x taux(100k) x clamp(revenu/100k, 0.6, 1.5)`` —
+    entre les bornes du clamp elle évolue QUASI QUADRATIQUEMENT. Les
+    NIVEAUX d'impôt sont des estimations utilisables ; les DIFFÉRENCES
+    entre deux appels ne sont PAS un taux marginal fiable (ex. ~47.5%
+    implicite à 140k VD). Ne pas brancher un calcul d'économie marginale
+    (rachat, déductions) dessus avant le recalibrage multi-points -97h.
+    """
+    impot_federal = 0.0
+    prev_bound = 0.0
+    for upper, rate in FEDERAL_BRACKETS:
+        if taxable_income <= prev_bound:
+            break
+        taxable = min(taxable_income, upper) - prev_bound
+        impot_federal += taxable * rate
+        prev_bound = upper
+
+    cantonal_rate = EFFECTIVE_RATES_100K_SINGLE.get(canton.upper(), 0.13)
+    factor_base = (
+        income_factor_base if income_factor_base is not None else taxable_income
+    )
+    income_factor = max(0.6, min(1.5, factor_base / 100_000))
+    impot_cantonal = taxable_income * cantonal_rate * income_factor
+
+    total = impot_federal + impot_cantonal
+    if is_married:
+        total *= 0.80
+    return round(total, 2)
+
+
 DISCLAIMER = (
     "Estimations basées sur le barème IFD 2026 et des taux cantonaux simplifiés. "
     "Les taux effectifs varient selon la commune, la fortune, "
