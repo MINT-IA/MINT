@@ -379,10 +379,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 ),
                 Text(
                   _showDetails ? '' : S.of(context)!.debtRatioRefineSuffix,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
+                  style: MintTextStyles.labelSmall(
+                      color: MintColors.textMuted),
                 ),
                 const SizedBox(width: 8),
                 AnimatedRotation(
@@ -506,10 +504,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+                  style: MintTextStyles.labelSmall(
                     color: color,
+                  ).copyWith(
+                    fontWeight: FontWeight.w600,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -607,10 +605,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            style: MintTextStyles.labelSmall(
               color: MintColors.primary,
+            ).copyWith(
+              fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
             ),
           ),
@@ -638,9 +636,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       alignment: Alignment.center,
                       child: Text(
                         options[i],
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.labelMedium(
                           color: isSelected
                               ? MintColors.white
                               : MintColors.textMuted,
@@ -676,10 +672,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            style: MintTextStyles.labelSmall(
               color: MintColors.primary,
+            ).copyWith(
+              fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
             ),
           ),
@@ -704,9 +700,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   alignment: Alignment.center,
                   child: Text(
                     display,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                    style: MintTextStyles.bodySmall(
                       color: isSelected
                           ? MintColors.white
                           : MintColors.textMuted,
@@ -798,10 +792,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               const SizedBox(height: 8),
               Text(
                 S.of(context)!.debtRatioMinMaxDisplay(formatChf(min), formatChf(max)),
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(
+                    color: MintColors.textMuted),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -828,10 +820,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   ),
                   child: Text(
                     S.of(context)!.debtRatioValidate,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.labelLarge(),
                   ),
                 ),
               ),
@@ -888,11 +877,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   Expanded(
                     child: Text(
                       S.of(context)!.debtRatioMinVitalWarning,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: MintColors.redDark,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: MintTextStyles.labelMedium(
+                          color: MintColors.redDark),
                     ),
                   ),
                 ],
@@ -1009,11 +995,11 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     const SizedBox(height: 4),
                     Text(
                       S.of(context)!.debtRatioCtaDescription,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isRouge ? MintColors.redDark : MintColors.deepOrange,
-                        height: 1.3,
-                      ),
+                      style: MintTextStyles.labelMedium(
+                        color: isRouge
+                            ? MintColors.redDark
+                            : MintColors.deepOrange,
+                      ).copyWith(fontWeight: FontWeight.w400, height: 1.3),
                     ),
                   ],
                 ),
