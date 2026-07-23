@@ -11546,5 +11546,17 @@
   "coachConsentDeclined": "Il coach ha bisogno del tuo consenso per trasmettere i tuoi messaggi al servizio di IA (server negli Stati Uniti). Senza, il coach non può rispondere. Rinvia il tuo messaggio quando vuoi: ti verrà richiesto di nuovo il consenso.",
   "@coachConsentDeclined": {
     "description": "Message systeme du chat coach quand l'utilisateur refuse le consentement transfer_us_anthropic (beads MINT_nosync-tcr). Panel: la voie de reprise citee doit etre VRAIE — renvoyer le message re-declenche la sheet ; Profil->Confidentialite n'offre PAS de grant (dead-end interdit)."
+  },
+  "repaymentDebtCreditConso": "Credito al consumo",
+  "@repaymentDebtCreditConso": {
+    "description": "Nom de dette hydratée depuis profile.dettes.creditConsommation (beads MINT_nosync-64r)"
+  },
+  "repaymentDebtLeasing": "Leasing",
+  "@repaymentDebtLeasing": {
+    "description": "Nom de dette hydratée depuis profile.dettes.leasing"
+  },
+  "repaymentDebtAutres": "Altri debiti",
+  "@repaymentDebtAutres": {
+    "description": "Nom de dette hydratée depuis profile.dettes.autresDettes"
   }
 }

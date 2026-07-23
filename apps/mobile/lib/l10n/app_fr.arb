@@ -13062,5 +13062,17 @@
     "x-mint-meta": {
       "level": "N3"
     }
+  },
+  "repaymentDebtCreditConso": "Crédit conso",
+  "@repaymentDebtCreditConso": {
+    "description": "Nom de dette hydratée depuis profile.dettes.creditConsommation (beads MINT_nosync-64r)"
+  },
+  "repaymentDebtLeasing": "Leasing",
+  "@repaymentDebtLeasing": {
+    "description": "Nom de dette hydratée depuis profile.dettes.leasing"
+  },
+  "repaymentDebtAutres": "Autres dettes",
+  "@repaymentDebtAutres": {
+    "description": "Nom de dette hydratée depuis profile.dettes.autresDettes"
   }
 }

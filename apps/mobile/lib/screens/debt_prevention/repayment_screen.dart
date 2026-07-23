@@ -13,6 +13,9 @@ import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -38,6 +41,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
+      _hydrateFromProfile();
     });
   }
 
@@ -83,22 +87,60 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     ScreenCompletionTracker.markCompletedWithReturn('repayment', screenReturn);
   }
 
-  final List<_DebtInput> _dettes = [
-    _DebtInput(
-      nom: 'Credit conso',
-      montant: 15000,
-      tauxAnnuel: 9.9,
-      mensualiteMin: 300,
-    ),
-    _DebtInput(
-      nom: 'Leasing auto',
-      montant: 8000,
-      tauxAnnuel: 4.5,
-      mensualiteMin: 250,
-    ),
-  ];
+  // beads MINT_nosync-64r (ILLOG-01) : plus AUCUNE dette fictive par défaut.
+  // La liste est hydratée depuis profile.dettes ; sans dette connue, l'écran
+  // affiche un état vide explicite — jamais du fictif indiscernable du réel.
+  final List<_DebtInput> _dettes = [];
 
   double _budgetMensuel = 800;
+  double _monthlyIncome = 0;
+
+  void _hydrateFromProfile() {
+    if (!mounted) return;
+    final CoachProfile? profile;
+    try {
+      profile = context.read<CoachProfileProvider>().profile;
+    } catch (_) {
+      // Pas de provider au-dessus (harnais de test isolé, deeplink froid) :
+      // l'écran reste utilisable avec sa liste vide — jamais de fiction.
+      return;
+    }
+    if (profile == null) return;
+    final CoachProfile p = profile;
+    final s = S.of(context)!;
+    final d = p.dettes;
+    setState(() {
+      _monthlyIncome = p.salaireBrutMensuel * p.nombreDeMois / 12;
+      if ((d.creditConsommation ?? 0) > 0) {
+        _dettes.add(_DebtInput(
+          nom: s.repaymentDebtCreditConso,
+          montant: d.creditConsommation!,
+          // Taux inconnu -> hypothèse visible ET éditable dans le champ
+          // (taux conso suisse typique), pas une valeur cachée.
+          tauxAnnuel: d.tauxCreditConso ?? 9.9,
+          mensualiteMin: d.mensualiteCreditConso ??
+              (d.creditConsommation! * 0.02).roundToDouble(),
+        ));
+      }
+      if ((d.leasing ?? 0) > 0) {
+        _dettes.add(_DebtInput(
+          nom: s.repaymentDebtLeasing,
+          montant: d.leasing!,
+          tauxAnnuel: d.tauxLeasing ?? 4.9,
+          mensualiteMin:
+              d.mensualiteLeasing ?? (d.leasing! * 0.03).roundToDouble(),
+        ));
+      }
+      if ((d.autresDettes ?? 0) > 0) {
+        _dettes.add(_DebtInput(
+          nom: s.repaymentDebtAutres,
+          montant: d.autresDettes!,
+          tauxAnnuel: 5.0,
+          mensualiteMin: (d.autresDettes! * 0.02).roundToDouble(),
+        ));
+      }
+    });
+  }
 
   RepaymentComparisonResult? get _result {
     if (_dettes.isEmpty) return null;
@@ -151,14 +193,19 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── P10-F : Mode survie MINT ──────────────────────
-                MintEntrance(child: DebtSurvivalWidget(
-                  totalDebt: _dettes.fold<double>(0, (s, d) => s + d.montant),
-                  monthlyMargin: _budgetMensuel -
-                      _dettes.fold<double>(0, (s, d) => s + d.mensualiteMin),
-                  daysSinceLastLate: 0,
-                  monthlyIncome: 6000,
-                )),
-                const SizedBox(height: MintSpacing.lg),
+                // Rendu UNIQUEMENT sur des dettes réelles (profil ou
+                // saisies) — jamais « libéré/critique » sur du fictif.
+                if (_dettes.isNotEmpty) ...[
+                  MintEntrance(child: DebtSurvivalWidget(
+                    totalDebt:
+                        _dettes.fold<double>(0, (s, d) => s + d.montant),
+                    monthlyMargin: _budgetMensuel -
+                        _dettes.fold<double>(0, (s, d) => s + d.mensualiteMin),
+                    daysSinceLastLate: 0,
+                    monthlyIncome: _monthlyIncome,
+                  )),
+                  const SizedBox(height: MintSpacing.lg),
+                ],
 
                 // Chiffre choc
                 if (result != null) ...[

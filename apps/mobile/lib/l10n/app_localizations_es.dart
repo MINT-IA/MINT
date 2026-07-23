@@ -24246,4 +24246,13 @@ class SEs extends S {
   @override
   String get coachConsentDeclined =>
       'El coach necesita tu consentimiento para enviar tus mensajes al servicio de IA (servidores en Estados Unidos). Sin él, el coach no puede responder. Reenvía tu mensaje cuando quieras: se te pedirá el consentimiento de nuevo.';
+
+  @override
+  String get repaymentDebtCreditConso => 'Crédito de consumo';
+
+  @override
+  String get repaymentDebtLeasing => 'Leasing';
+
+  @override
+  String get repaymentDebtAutres => 'Otras deudas';
 }

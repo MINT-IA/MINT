@@ -7,6 +7,48 @@ import 'package:mint_mobile/screens/debt_prevention/debt_ratio_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+
+/// beads MINT_nosync-64r : l'écran n'embarque PLUS de dettes fictives — les
+/// sections résultat (stratégies, timeline) n'existent qu'avec des dettes
+/// réelles. Harnais avec profil endetté pour les tests de ces sections.
+Widget _appWithDebts() {
+  final provider = CoachProfileProvider();
+  provider.updateProfile(CoachProfile(
+    firstName: 'Sam',
+    birthYear: 1990,
+    canton: 'GE',
+    salaireBrutMensuel: 7000,
+    dettes: const DetteProfile(
+      creditConsommation: 15000,
+      tauxCreditConso: 9.9,
+      mensualiteCreditConso: 300,
+      leasing: 8000,
+      mensualiteLeasing: 250,
+    ),
+    goalA: GoalA(
+      type: GoalAType.retraite,
+      targetDate: DateTime(2045),
+      label: 'Retraite',
+    ),
+  ));
+  return ChangeNotifierProvider<CoachProfileProvider>.value(
+    value: provider,
+    child: const MaterialApp(
+      locale: Locale('fr'),
+      localizationsDelegates: [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      home: RepaymentScreen(),
+    ),
+  );
+}
 
 void main() {
   // ===========================================================================
@@ -101,20 +143,9 @@ void main() {
     });
 
     testWidgets('shows strategy comparison section', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: RepaymentScreen(),
-        ),
-      );
+      await tester.pumpWidget(_appWithDebts());
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -1500));
       await tester.pump();
@@ -124,20 +155,9 @@ void main() {
     });
 
     testWidgets('shows timeline section', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: RepaymentScreen(),
-        ),
-      );
+      await tester.pumpWidget(_appWithDebts());
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
       await tester.pump();
@@ -166,20 +186,9 @@ void main() {
     });
 
     testWidgets('has add debt button', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: RepaymentScreen(),
-        ),
-      );
+      await tester.pumpWidget(_appWithDebts());
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
       await tester.pump();

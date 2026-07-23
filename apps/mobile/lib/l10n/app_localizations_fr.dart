@@ -24242,4 +24242,13 @@ class SFr extends S {
   @override
   String get coachConsentDeclined =>
       'Le coach a besoin de ton accord pour transmettre tes messages au service d\'IA (serveurs aux États-Unis). Sans cet accord, il ne peut pas répondre. Renvoie ton message quand tu veux : la demande d\'accord te sera proposée à nouveau.';
+
+  @override
+  String get repaymentDebtCreditConso => 'Crédit conso';
+
+  @override
+  String get repaymentDebtLeasing => 'Leasing';
+
+  @override
+  String get repaymentDebtAutres => 'Autres dettes';
 }

@@ -24306,4 +24306,13 @@ class SDe extends S {
   @override
   String get coachConsentDeclined =>
       'Der Coach benötigt deine Einwilligung, um deine Nachrichten an den KI-Dienst zu übermitteln (Server in den USA). Ohne sie kann der Coach nicht antworten. Sende deine Nachricht jederzeit erneut: Die Einwilligung wird dir dann wieder angeboten.';
+
+  @override
+  String get repaymentDebtCreditConso => 'Konsumkredit';
+
+  @override
+  String get repaymentDebtLeasing => 'Leasing';
+
+  @override
+  String get repaymentDebtAutres => 'Andere Schulden';
 }
