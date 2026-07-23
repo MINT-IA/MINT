@@ -482,7 +482,7 @@ flowchart LR
 | `/couple/accept` | AcceptInvitationScreen | 🟡 séquence-seulement |
 | `/household` | ? | 🟡 séquence-seulement |
 | `/household/accept` | ? | 🟢 câblée |
-| `/profile` | AdminObservabilityScreen | 🟢 câblée |
+| `/profile` | <redirect → /profile/bilan> | 🟢 câblée |
 | `/profile/admin-analytics` | AdminAnalyticsScreen | 🟡 séquence-seulement |
 | `/profile/admin-observability` | AdminObservabilityScreen | 🟡 séquence-seulement |
 | `/profile/byok` | ByokSettingsScreen | 🟢 câblée |
@@ -498,7 +498,7 @@ flowchart LR
   R_couple_accept["/couple/accept<br/><i>AcceptInvitationScreen</i>"]:::reg
   R_household["/household<br/><i>?</i>"]:::reg
   R_household_accept["/household/accept<br/><i>?</i>"]:::reg
-  R_profile["/profile<br/><i>AdminObservabilityScreen</i>"]:::reg
+  R_profile["/profile<br/><i>redirect → /profile/bilan</i>"]:::reg
   R_profile_admin_analytics["/profile/admin-analytics<br/><i>AdminAnalyticsScreen</i>"]:::reg
   R_profile_admin_observability["/profile/admin-observability<br/><i>AdminObservabilityScreen</i>"]:::reg
   R_profile_byok["/profile/byok<br/><i>ByokSettingsScreen</i>"]:::reg

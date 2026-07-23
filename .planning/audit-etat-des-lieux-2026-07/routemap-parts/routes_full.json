@@ -473,7 +473,7 @@
  },
  {
   "path": "/profile",
-  "screen": "AdminObservabilityScreen"
+  "screen": "<redirect → /profile/bilan>"
  },
  {
   "path": "/profile/admin-analytics",
