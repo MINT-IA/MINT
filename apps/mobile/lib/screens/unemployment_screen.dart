@@ -598,7 +598,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   Widget _buildDurationTable() {
     // Source : LACI art. 27 al. 2 — durées maximales d'indemnités
-    // Miroir de social_insurance.dart (acJoursMinCotisation, acJoursStandard, acJoursSenior)
+    // Miroir de social_insurance.dart (acJoursPlafondJeunes, acJours18MoisCotisation, acJours22MoisSenior)
     final l10n = S.of(context)!;
     final brackets = [
       (l10n.unemploymentBracket1, l10n.unemploymentBracket1Value, _moisCotisation >= 12 && _moisCotisation < 18),

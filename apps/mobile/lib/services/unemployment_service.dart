@@ -152,7 +152,7 @@ class UnemploymentService {
     final indemniteMensuelle = indemniteJournaliere * _workingDaysPerMonth;
 
     // 5. Duration
-    final nombreIndemnites = _calculateDuration(age, moisCotisation);
+    final nombreIndemnites = _calculateDuration(age, moisCotisation, hasChildren: hasChildren);
     final dureeMois = nombreIndemnites / _workingDaysPerMonth;
 
     // 6. Chiffre choc
@@ -184,27 +184,37 @@ class UnemploymentService {
     return _rateBase;
   }
 
-  /// Calculate the number of daily indemnities based on age and contributions.
+  /// Nombre d'indemnités journalières — barème OFFICIEL LACI art. 27.
   ///
-  /// SECO rules: 55+ with >= 22 months = senior = 520 days (LACI art. 27 al. 2).
-  /// Uses centralized constants from social_insurance.dart.
-  static int _calculateDuration(int age, int moisCotisation) {
-    if (age >=
+  /// Beads MINT_nosync-4za : l'ancien mapping servait 260 jours pour
+  /// 18 mois (officiel : 400) et 200 pour 12 mois (officiel : 260) —
+  /// sous-estimation systématique du droit de l'utilisateur.
+  /// [hasChildren] proxy de l'obligation d'entretien pour le plafond
+  /// jeunes (< 25 ans sans obligation → 200 jours max).
+  static int _calculateDuration(int age, int moisCotisation,
+      {bool hasChildren = false}) {
+    int base;
+    if (moisCotisation >= 22 &&
+        age >=
             reg('ac.senior_age_threshold', acAgeSeuillSenior.toDouble())
-                .toInt() &&
-        moisCotisation >= 22) {
-      return reg('ac.senior_days', acJoursSenior.toDouble())
-          .toInt(); // 55+ = 520
+                .toInt()) {
+      base = reg('ac.days_22_months_senior', acJours22MoisSenior.toDouble())
+          .toInt(); // 520 (al. 2 let. c)
+    } else if (moisCotisation >= 18) {
+      base = reg('ac.days_18_months', acJours18MoisCotisation.toDouble())
+          .toInt(); // 400 (al. 2 let. b)
+    } else if (moisCotisation >= 12) {
+      base = reg('ac.days_12_months', acJours12MoisCotisation.toDouble())
+          .toInt(); // 260 (al. 2 let. a)
+    } else {
+      return 0; // moins de 12 mois de cotisation : pas de droit modélisé
     }
-    if (age >= 25 && moisCotisation >= 18) {
-      return reg(
-              'ac.intermediate_days', acJoursIntermediaireCotisation.toDouble())
-          .toInt(); // 260
+    if (age < 25 && !hasChildren) {
+      final cap =
+          reg('ac.days_under25_cap', acJoursPlafondJeunes.toDouble()).toInt();
+      return base > cap ? cap : base;
     }
-    if (moisCotisation >= 12) {
-      return reg('ac.min_days', acJoursMinCotisation.toDouble()).toInt(); // 200
-    }
-    return 0;
+    return base;
   }
 
   /// Build the unemployment action timeline.

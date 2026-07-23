@@ -210,6 +210,11 @@ ALLOW = {
     # PR mortgage-alert-honest (bead -irm) : alerte Tragbarkeit honnête
     "apps/mobile/lib/services/cross_validation_service.dart",
     "apps/mobile/test/services/cross_validation_service_test.dart",
+    # PR ac-bareme-officiel (bead -4za) : barème LACI art. 27 corrigé
+    "apps/mobile/lib/screens/unemployment_screen.dart",
+    "apps/mobile/lib/services/unemployment_service.dart",
+    "apps/mobile/lib/widgets/coach/unemployment_counter_widget.dart",
+    "apps/mobile/test/services/unemployment_service_test.dart",
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",
