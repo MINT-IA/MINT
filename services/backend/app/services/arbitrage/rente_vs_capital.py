@@ -343,16 +343,26 @@ def _calculate_breakeven(option_a: TrajectoireOption, option_b: TrajectoireOptio
 def _build_premier_eclairage(options: List[TrajectoireOption], horizon: int) -> str:
     """Build the most striking delta as premier éclairage.
 
-    Compares terminal values between options A and B.
+    Compares TOTAL economic value of both options (beads MINT_nosync-h5i) :
+    - rente : terminal_value = revenus nets cumulés (rien d'autre à compter) ;
+    - capital : terminal_value = capital RÉSIDUEL seul — les retraits déjà
+      consommés (annual_cashflow) doivent être ré-additionnés, sinon on
+      compare des revenus cumulés à un solde résiduel (pommes/oranges) et le
+      chiffre choc est faux. Miroir du moteur mobile
+      (arbitrage_engine.dart : capitalTotalValue = cumWithdrawals + residual).
     """
     if len(options) < 2:
         return "Simulation incomplete."
 
     rente_terminal = options[0].terminal_value
-    capital_terminal = options[1].terminal_value
-    delta = abs(capital_terminal - rente_terminal)
+    capital_option = options[1]
+    capital_withdrawals = sum(
+        snap.annual_cashflow for snap in capital_option.trajectory
+    )
+    capital_total_value = capital_withdrawals + capital_option.terminal_value
+    delta = abs(capital_total_value - rente_terminal)
 
-    if capital_terminal > rente_terminal:
+    if capital_total_value > rente_terminal:
         return (
             f"Dans ce scenario simule sur {horizon} ans, le retrait en capital "
             f"pourrait representer {delta:,.0f} CHF de plus en patrimoine cumule "
