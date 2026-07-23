@@ -33,6 +33,7 @@ import 'package:mint_mobile/widgets/premium/mint_progress_arc.dart';
 import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/glossary_term.dart';
+import 'package:mint_mobile/widgets/couple/conjoint_missing_hint.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -495,6 +496,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     ),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
+                        // Honnêteté mono-revenu (volet C -mla, review PR
+                        // #976) : la projection couple (AVS computeCouple)
+                        // est mono-revenu si le conjoint n'a pas de revenu.
+                        const ConjointMissingHint(),
                         // ── ABOVE FOLD: Banner + Hero (max 2 sections) ──
 
                         // Position 0: Urgent Banner (conditional)

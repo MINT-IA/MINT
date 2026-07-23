@@ -24321,4 +24321,11 @@ class SDe extends S {
 
   @override
   String get repaymentFieldInstallmentEstimated => 'Rate (geschätzt)';
+
+  @override
+  String get coupleMonoIncomeHint =>
+      'Diese Berechnung stützt sich nur auf dein Einkommen: Das Einkommen deiner Partnerin oder deines Partners fehlt noch.';
+
+  @override
+  String get coupleMonoIncomeCta => 'Einkommen mit dem Coach hinzufügen';
 }

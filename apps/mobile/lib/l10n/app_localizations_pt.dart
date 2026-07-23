@@ -24268,4 +24268,11 @@ class SPt extends S {
 
   @override
   String get repaymentFieldInstallmentEstimated => 'Prestação (estimada)';
+
+  @override
+  String get coupleMonoIncomeHint =>
+      'Este cálculo baseia-se apenas no teu rendimento: o do teu par ainda não foi adicionado.';
+
+  @override
+  String get coupleMonoIncomeCta => 'Adicionar o rendimento com o coach';
 }

@@ -9,6 +9,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/couple/conjoint_missing_hint.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -278,7 +279,15 @@ class _ExpatScreenState extends State<ExpatScreen>
         ? (_topCantonsHasChildren || profile.nombreEnfants > 0 ? 1 : 0)
         : 0;
 
-    return TopCantonWidget(
+    return Column(children: [
+      // Honnêteté mono-revenu (beads MINT_nosync-mla volet C) : marié sans
+      // conjoint financier -> le classement couple est en fait mono-revenu.
+      // Panel : gate sur MARIÉ uniquement — en concubinage l'imposition est
+      // séparée, le calcul solo est correct par conception (pas de fausse
+      // alerte « donnée manquante »).
+      if (isMarried && profile.isMissingConjointIncome)
+        const ConjointMissingHint(forceShow: true),
+      TopCantonWidget(
       currentCanton: anchorCanton,
       rankings: _computeTopCantons(
         anchorCanton: anchorCanton,
@@ -290,7 +299,8 @@ class _ExpatScreenState extends State<ExpatScreen>
       onChildrenChanged: isMarried
           ? (v) => setState(() => _topCantonsHasChildren = v)
           : null,
-    );
+      ),
+    ]);
   }
 
   Widget _buildForfaitInputCard() {

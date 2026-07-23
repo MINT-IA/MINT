@@ -24257,4 +24257,11 @@ class SFr extends S {
 
   @override
   String get repaymentFieldInstallmentEstimated => 'Mensualité (estimée)';
+
+  @override
+  String get coupleMonoIncomeHint =>
+      'Ce calcul repose sur ton seul revenu : celui de ton/ta partenaire n\'est pas encore renseigné.';
+
+  @override
+  String get coupleMonoIncomeCta => 'Ajouter son revenu avec le coach';
 }

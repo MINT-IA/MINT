@@ -13082,5 +13082,13 @@
   "repaymentFieldInstallmentEstimated": "Mensualité (estimée)",
   "@repaymentFieldInstallmentEstimated": {
     "description": "Label du champ mensualité quand la valeur est une hypothèse MINT — provenance visible (review -64r)"
+  },
+  "coupleMonoIncomeHint": "Ce calcul repose sur ton seul revenu : celui de ton/ta partenaire n'est pas encore renseigné.",
+  "@coupleMonoIncomeHint": {
+    "description": "Bandeau honnetete mono-revenu (beads MINT_nosync-mla volet C) : couple declare mais profil financier conjoint absent — le calcul couple est en realite mono-revenu"
+  },
+  "coupleMonoIncomeCta": "Ajouter son revenu avec le coach",
+  "@coupleMonoIncomeCta": {
+    "description": "CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)"
   }
 }

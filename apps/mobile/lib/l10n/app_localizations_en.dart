@@ -24138,4 +24138,11 @@ class SEn extends S {
 
   @override
   String get repaymentFieldInstallmentEstimated => 'Installment (estimated)';
+
+  @override
+  String get coupleMonoIncomeHint =>
+      'This calculation is based on your income only: your partner\'s income has not been added yet.';
+
+  @override
+  String get coupleMonoIncomeCta => 'Add their income with the coach';
 }

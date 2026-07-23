@@ -24323,4 +24323,11 @@ class SIt extends S {
 
   @override
   String get repaymentFieldInstallmentEstimated => 'Rata (stimata)';
+
+  @override
+  String get coupleMonoIncomeHint =>
+      'Questo calcolo si basa solo sul tuo reddito: quello del tuo o della tua partner non è ancora stato inserito.';
+
+  @override
+  String get coupleMonoIncomeCta => 'Aggiungi il suo reddito con il coach';
 }
