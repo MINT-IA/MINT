@@ -79,6 +79,7 @@ def upsert_and_diff(
     user_id: str,
     result: DocumentUnderstandingResult,
     layout_signature: Optional[str] = None,
+    use_encryption: Optional[bool] = None,
 ) -> Optional[Dict[str, FieldDiff]]:
     """Upsert memory row, return diff dict if previous version existed.
 
@@ -98,7 +99,14 @@ def upsert_and_diff(
     # Audit T06-F10 (MINT_nosync-tih) : les montants exacts ne sont plus
     # ecrits en clair — sous PRIVACY_V2 le blob fields est chiffre via le DEK
     # utilisateur (pattern PRIV-04, meme flag que evidence_text).
-    use_enc = _flag_privacy_v2(user_id)
+    # beads MINT_nosync-cbk : les appelants ASYNC doivent résoudre le flag
+    # eux-mêmes (await flags.is_enabled) et le passer ici — le pont sync
+    # _flag_privacy_v2 est INUTILISABLE depuis une boucle déjà active
+    # (run_coroutine_threadsafe sur SA PROPRE loop -> .result() bloque la
+    # loop -> timeout 1 s -> False -> écriture PLAINTEXT silencieuse).
+    use_enc = (
+        use_encryption if use_encryption is not None else _flag_privacy_v2(user_id)
+    )
 
     existing = (
         db.query(DocumentMemory)
@@ -207,8 +215,14 @@ def persist_evidence_text(
     row: DocumentMemory,
     evidence_text: Optional[str],
     vision_raw: Optional[str] = None,
+    use_encryption: Optional[bool] = None,
 ) -> None:
     """Write evidence_text + vision_raw to the memory row.
+
+    NOTE (review PR #975) : aucun appelant de production à ce jour —
+    utilitaire conservé pour les scripts/backfills ; tout appelant ASYNC
+    futur DOIT résoudre le flag et passer use_encryption (pont sync cassé
+    en boucle active).
 
     Flag ON  → writes go into *_enc columns (plaintext columns stay NULL).
     Flag OFF → writes go into plaintext columns (legacy path).
@@ -216,7 +230,10 @@ def persist_evidence_text(
     Does not commit — caller controls transaction boundary.
     Raises DEKRevokedError if flag is ON but the user's DEK was shredded.
     """
-    if _flag_privacy_v2(user_id):
+    resolved_enc = (
+        use_encryption if use_encryption is not None else _flag_privacy_v2(user_id)
+    )
+    if resolved_enc:
         row.evidence_text = None
         row.vision_raw = None
         row.evidence_text_enc = encrypt_text(db, user_id, evidence_text)

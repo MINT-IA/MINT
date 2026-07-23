@@ -1266,7 +1266,17 @@ async def extract_with_claude_vision(
                 from app.services.document_vision_service import (
                     persist_document_memory,
                 )
-                persist_document_memory(db, str(current_user.id), result)
+                # Review Codex PR #975 : endpoint ASYNC — flag résolu en
+                # await via le helper partagé (pont sync inutilisable).
+                from app.services.document_vision_service import (
+                    resolve_privacy_encryption_flag,
+                )
+                persist_document_memory(
+                    db, str(current_user.id), result,
+                    use_encryption=await resolve_privacy_encryption_flag(
+                        str(current_user.id)
+                    ),
+                )
             return result
         except HTTPException:
             raise
