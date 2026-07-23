@@ -217,6 +217,8 @@ ALLOW = {
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
+    ".github/workflows/calc-rigor-failure-comment.md",
+    "services/backend/tests/fixtures/estv_oracle.SCHEMA.md",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
